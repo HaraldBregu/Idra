@@ -1,8 +1,0 @@
-{
-  "name": "ts-sentiment",
-  "description": "Rule-based sentiment analyzer (TypeScript/Node.js)",
-  "skills": ["sentiment"],
-  "command": "node",
-  "args": ["agent.js"],
-  "dir": "agents/ts-sentiment"
-}
