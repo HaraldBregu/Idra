@@ -1,5 +1,5 @@
-import { contextBridge, webUtils } from 'electron';
-import { typedInvoke, typedInvokeUnwrap, typedInvokeRaw, typedSend, typedOn } from './typed-ipc';
+import { contextBridge } from 'electron';
+import { typedInvokeUnwrap, typedInvokeRaw, typedSend, typedOn } from './typed-ipc';
 import {
 	AppChannels,
 	WindowChannels,
@@ -13,10 +13,8 @@ import type {
 	AgentSettings,
 	Channel,
 	ChannelType,
-	ContextMenuDescriptor,
 	CronJobInfo,
 	CronTickEvent,
-	Provider,
 	TelegramChannelProperties,
 	UserProfile,
 	ThemeMode,
@@ -25,11 +23,8 @@ import type {
 	ChannelStatusEvent,
 	WorkspaceInfo,
 	CreateWorkspaceParams,
-	DocumentConfig,
-	EditorMaxWidthType,
-	EditorFontType,
+	ProviderEntry,
 } from '../shared/types';
-import type { ShortcutId } from '../shared/shortcuts';
 
 // ---------------------------------------------------------------------------
 // window.win — Window controls
@@ -62,20 +57,11 @@ const win: WindowApi = {
 // window.app — General application utilities + nested IPC namespaces
 // ---------------------------------------------------------------------------
 const baseApp = {
-	playSound: (): void => {
-		typedSend(AppChannels.playSound);
-	},
 	setTheme: (theme: ThemeMode): void => {
 		typedSend(AppChannels.setTheme, theme);
 	},
 	setLanguage: (language: string): void => {
 		typedSend(AppChannels.setLanguage, language);
-	},
-	showContextMenu: (items: ContextMenuDescriptor[]): Promise<string | null> => {
-		return typedInvoke(AppChannels.showContextMenu, items);
-	},
-	showContextMenuEditable: (): void => {
-		typedSend(AppChannels.contextMenuEditable);
 	},
 	onLanguageChange: (callback: (lng: string) => void): (() => void) => {
 		return typedOn(AppChannels.changeLanguage, callback);
@@ -83,30 +69,19 @@ const baseApp = {
 	onThemeChange: (callback: (theme: ThemeMode) => void): (() => void) => {
 		return typedOn(AppChannels.changeTheme, callback);
 	},
-	onFileOpened: (callback: (filePath: string) => void): (() => void) => {
-		return typedOn(AppChannels.fileOpened, callback);
-	},
 	popupMenu: (): void => {
 		typedSend(WindowChannels.popupMenu);
 	},
-	getPlatform: (): Promise<string> => {
-		return typedInvoke(WindowChannels.getPlatform);
-	},
-	showWriting: (writingId: string, writingTitle: string): Promise<void> => {
-		return typedInvoke(AppChannels.showWritingContextMenu, writingId, writingTitle);
-	},
-	onWritingAction: (
-		callback: (data: { action: string; writingId: string }) => void
-	): (() => void) => {
-		return typedOn(AppChannels.writingContextMenuAction, callback);
+	callAssistantAgent: (message: string, assistantId?: string): Promise<string> => {
+		return typedInvokeUnwrap(AssistantChannels.send, message, assistantId);
 	},
 	// -------------------------------------------------------------------------
 	// Provider management
 	// -------------------------------------------------------------------------
-	getProviders: (): Promise<Provider[]> => {
+	getProviders: (): Promise<ProviderEntry[]> => {
 		return typedInvokeUnwrap(AppChannels.getProviders);
 	},
-	addProvider: (provider: Provider): Promise<Provider> => {
+	addProvider: (provider: ProviderEntry): Promise<ProviderEntry> => {
 		return typedInvokeUnwrap(AppChannels.addProvider, provider);
 	},
 	deleteProvider: (id: string): Promise<void> => {
@@ -127,7 +102,7 @@ const baseApp = {
 	setProfile: (profile: UserProfile) => {
 		return typedInvokeUnwrap(AppChannels.setProfile, profile);
 	},
-	completeFirstRunConfiguration: (profile: UserProfile, providers: Provider[]) => {
+	completeFirstRunConfiguration: (profile: UserProfile, providers: ProviderEntry[]) => {
 		return typedInvokeUnwrap(AppChannels.completeFirstRunConfiguration, profile, providers);
 	},
 	getModels: (providerId: string) => typedInvokeUnwrap(AppChannels.getModels, providerId),
@@ -160,7 +135,6 @@ const baseApp = {
 	getLogs: (limit?: number) => typedInvokeUnwrap(AppChannels.getLogs, limit),
 	openLogsFolder: () => typedInvokeUnwrap(AppChannels.openLogsFolder),
 	openAppDataFolder: () => typedInvokeUnwrap(AppChannels.openAppDataFolder),
-	getAppDataFolder: () => typedInvokeUnwrap(AppChannels.getAppDataFolder),
 	getCustomThemes: () => typedInvokeUnwrap(AppChannels.getCustomThemes),
 	openThemesFolder: () => typedInvokeUnwrap(AppChannels.openThemesFolder),
 	importTheme: () => typedInvokeUnwrap(AppChannels.importTheme),
@@ -178,22 +152,14 @@ const baseApp = {
 	}): Promise<CronJobInfo> => typedInvokeUnwrap(AppChannels.cronSchedule, params),
 	cronUnschedule: (id: string): Promise<void> => typedInvokeUnwrap(AppChannels.cronUnschedule, id),
 	cronListJobs: (): Promise<CronJobInfo[]> => typedInvokeUnwrap(AppChannels.cronListJobs),
-	cronHasJob: (id: string): Promise<boolean> => typedInvokeUnwrap(AppChannels.cronHasJob, id),
 	onCronTick: (callback: (event: CronTickEvent) => void): (() => void) => {
 		return typedOn(AppChannels.cronTick, callback);
-	},
-	getPathForFile: (file: File): string => webUtils.getPathForFile(file),
-	onShortcut: (callback: (id: ShortcutId) => void): (() => void) => {
-		return typedOn(AppChannels.shortcut, callback);
 	},
 	onOpenTasksDialog: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.openTasksDialog, callback);
 	},
 	onOpenLogsDialog: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.openLogsDialog, callback);
-	},
-	onOpenReduxDialog: (callback: () => void): (() => void) => {
-		return typedOn(AppChannels.openReduxDialog, callback);
 	},
 	onOpenCronDialog: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.openCronDialog, callback);
@@ -216,14 +182,6 @@ const workspace: AppApi['workspace'] = {
 	create: (params: CreateWorkspaceParams): Promise<WorkspaceInfo> => {
 		return typedInvokeUnwrap(WorkspaceChannels.create, params);
 	},
-	clear: (): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.clear);
-	},
-	onChange: (
-		callback: (event: { currentPath: string | null; previousPath: string | null }) => void
-	): (() => void) => {
-		return typedOn(WorkspaceChannels.changed, callback);
-	},
 	onDeleted: (
 		callback: (event: {
 			deletedPath: string;
@@ -239,15 +197,6 @@ const workspace: AppApi['workspace'] = {
 	openWorkspaceFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(WorkspaceChannels.openWorkspaceFolder);
 	},
-	openResourcesFolder: (): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.openResourcesFolder);
-	},
-	openDocumentFolder: (documentId: string): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.openDocumentFolder, documentId);
-	},
-	getDocumentPath: (documentId: string): Promise<string> => {
-		return typedInvokeUnwrap(WorkspaceChannels.getDocumentPath, documentId);
-	},
 	// -------------------------------------------------------------------------
 	// Output file management (documents)
 	// -------------------------------------------------------------------------
@@ -258,32 +207,6 @@ const workspace: AppApi['workspace'] = {
 	}): Promise<{ id: string; path: string; savedAt: number }> => {
 		return typedInvokeUnwrap(WorkspaceChannels.outputSave, input);
 	},
-	loadOutputs: () => {
-		return typedInvokeUnwrap(WorkspaceChannels.outputLoadAll);
-	},
-	loadOutputsByType: (type: string) => {
-		return typedInvokeUnwrap(WorkspaceChannels.loadByType, type);
-	},
-	loadOutput: (params: { type: string; id: string }) => {
-		return typedInvokeUnwrap(WorkspaceChannels.outputLoadOne, params);
-	},
-	deleteOutput: (params: { type: string; id: string }): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.outputDelete, params);
-	},
-	trashOutput: (params: { type: string; id: string }): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.outputTrash, params);
-	},
-	onOutputFileChange: (
-		callback: (event: {
-			type: 'added' | 'changed' | 'removed';
-			outputType: string;
-			fileId: string;
-			filePath: string;
-			timestamp: number;
-		}) => void
-	): (() => void) => {
-		return typedOn(WorkspaceChannels.outputFileChanged, callback);
-	},
 	// -------------------------------------------------------------------------
 	// Project workspace (workspace.json `project` block)
 	// -------------------------------------------------------------------------
@@ -291,64 +214,6 @@ const workspace: AppApi['workspace'] = {
 	updateProjectName: (name: string) => typedInvokeUnwrap(WorkspaceChannels.updateProjectName, name),
 	updateProjectDescription: (description: string) =>
 		typedInvokeUnwrap(WorkspaceChannels.updateProjectDescription, description),
-	updateMaxWidthType: (value: EditorMaxWidthType) =>
-		typedInvokeUnwrap(WorkspaceChannels.updateMaxWidthType, value),
-	updateTextSize: (percentage: number) =>
-		typedInvokeUnwrap(WorkspaceChannels.updateTextSize, percentage),
-	updateFontType: (value: EditorFontType) =>
-		typedInvokeUnwrap(WorkspaceChannels.updateFontType, value),
-	// -------------------------------------------------------------------------
-	// Document config
-	// -------------------------------------------------------------------------
-	getDocumentConfig: (documentId: string) =>
-		typedInvokeUnwrap(WorkspaceChannels.getDocumentConfig, documentId),
-	updateDocumentConfig: (documentId: string, config: Partial<DocumentConfig>) =>
-		typedInvokeUnwrap(WorkspaceChannels.updateDocumentConfig, documentId, config),
-	onDocumentConfigChanges: (
-		documentId: string,
-		callback: (config: DocumentConfig) => void
-	): (() => void) => {
-		return typedOn(WorkspaceChannels.documentConfigChanged, (event) => {
-			if (event.documentId === documentId) {
-				callback(event.config);
-			}
-		});
-	},
-	// -------------------------------------------------------------------------
-	// Document content
-	// -------------------------------------------------------------------------
-	getDocumentContent: (documentId: string) =>
-		typedInvokeUnwrap(WorkspaceChannels.getDocumentContent, documentId),
-	updateDocumentContent: (documentId: string, content: string) =>
-		typedInvokeUnwrap(WorkspaceChannels.updateDocumentContent, documentId, content),
-	// -------------------------------------------------------------------------
-	// Resources (workspace/resources/)
-	// -------------------------------------------------------------------------
-	getResources: () => typedInvokeUnwrap(WorkspaceChannels.getResources),
-	insertResources: (extensions?: string[]) =>
-		typedInvokeUnwrap(WorkspaceChannels.insertResources, extensions),
-	deleteResource: (id: string) => typedInvokeUnwrap(WorkspaceChannels.deleteResource, id),
-	onResourcesChanged: (
-		callback: (event: {
-			type: 'added' | 'changed' | 'removed';
-			resourceId: string;
-			resourcePath: string;
-			timestamp: number;
-		}) => void
-	): (() => void) => {
-		return typedOn(WorkspaceChannels.resourcesChanged, callback);
-	},
-	// -------------------------------------------------------------------------
-	// Filesystem
-	// -------------------------------------------------------------------------
-	readFile: (params) => typedInvokeUnwrap(WorkspaceChannels.fsReadFile, params),
-	readFileBinary: (filePath) => typedInvokeUnwrap(WorkspaceChannels.fsReadFileBinary, filePath),
-	writeFile: (params) => typedInvokeUnwrap(WorkspaceChannels.fsWriteFile, params),
-	createFolder: (params) => typedInvokeUnwrap(WorkspaceChannels.fsCreateFolder, params),
-	deleteFolder: (params) => typedInvokeUnwrap(WorkspaceChannels.fsDeleteFolder, params),
-	deleteFile: (params) => typedInvokeUnwrap(WorkspaceChannels.fsDeleteFile, params),
-	rename: (params) => typedInvokeUnwrap(WorkspaceChannels.fsRename, params),
-	listDir: (params) => typedInvokeUnwrap(WorkspaceChannels.fsListDir, params),
 } satisfies AppApi['workspace'];
 
 // ---------------------------------------------------------------------------

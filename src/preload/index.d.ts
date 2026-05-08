@@ -12,42 +12,20 @@
 
 import type {
 	WorkspaceInfo,
-	WorkspaceChangedEvent,
 	WorkspaceDeletedEvent,
 	CreateWorkspaceParams,
-	ResourceInfo,
-	ResourceEntryChangeEvent,
 	TaskAction,
 	TaskActionReturn,
 	TaskInfo,
 	TaskEvent,
-	TaskPriority,
-	OutputFile,
-	OutputFileChangeEvent,
 	SaveOutputInput,
 	SaveOutputResult,
-	WritingContextMenuAction,
-	ContextMenuDescriptor,
-	AgentStreamEvent,
-	AgentDefinitionInfo,
-	FsReadFileParams,
-	FsWriteFileParams,
-	FsCreateFolderParams,
-	FsDeleteFolderParams,
-	FsDeleteFileParams,
-	FsRenameParams,
-	FsRenameResult,
-	FsListDirParams,
-	FsListDirEntry,
 	ProjectWorkspaceInfo,
-	EditorMaxWidthType,
-	EditorFontType,
-	DocumentConfig,
 	AppLogEntry,
 	AppStartupInfo,
 	AgentSettings,
 	IpcResult,
-	Provider,
+	ProviderEntry,
 	ProviderModelInfo,
 	UserProfile,
 	ThemeMode,
@@ -62,7 +40,6 @@ import type {
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 } from '../shared/types';
-import type { ShortcutId } from '../shared/shortcuts';
 import type { AssistantResponseEvent } from '../shared/channels';
 
 // ---------------------------------------------------------------------------
@@ -71,39 +48,17 @@ import type { AssistantResponseEvent } from '../shared/channels';
 // ---------------------------------------------------------------------------
 export type {
 	WorkspaceInfo,
-	WorkspaceChangedEvent,
 	WorkspaceDeletedEvent,
 	CreateWorkspaceParams,
-	ResourceInfo,
-	ResourceEntryChangeEvent,
 	TaskAction,
 	TaskActionReturn,
 	TaskInfo,
 	TaskEvent,
-	TaskPriority,
-	OutputFile,
-	OutputFileChangeEvent,
 	SaveOutputInput,
 	SaveOutputResult,
-	WritingContextMenuAction,
-	ContextMenuDescriptor,
-	AgentStreamEvent,
-	AgentDefinitionInfo,
 	IpcResult,
-	FsReadFileParams,
-	FsWriteFileParams,
-	FsCreateFolderParams,
-	FsDeleteFolderParams,
-	FsDeleteFileParams,
-	FsRenameParams,
-	FsRenameResult,
-	FsListDirParams,
-	FsListDirEntry,
 	ProjectWorkspaceInfo,
-	EditorMaxWidthType,
-	EditorFontType,
-	DocumentConfig,
-	Provider,
+	ProviderEntry,
 	ProviderModelInfo,
 	AppLogEntry,
 	AppStartupInfo,
@@ -118,7 +73,6 @@ export type {
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 };
-export type { ShortcutId } from '../shared/shortcuts';
 
 // ---------------------------------------------------------------------------
 // API namespace interfaces
@@ -144,8 +98,6 @@ export interface AppApi {
 		list: () => Promise<WorkspaceInfo[]>;
 		/** Create a new managed workspace and return its WorkspaceInfo. */
 		create: (params: CreateWorkspaceParams) => Promise<WorkspaceInfo>;
-		clear: () => Promise<void>;
-		onChange: (callback: (event: WorkspaceChangedEvent) => void) => () => void;
 		/** Subscribe to workspace deletion events (folder deleted/moved while app is open) */
 		onDeleted: (callback: (event: WorkspaceDeletedEvent) => void) => () => void;
 		// -------------------------------------------------------------------------
@@ -153,22 +105,10 @@ export interface AppApi {
 		// -------------------------------------------------------------------------
 		/** Open the current workspace root folder in the system file explorer. */
 		openWorkspaceFolder: () => Promise<void>;
-		/** Open the workspace `resources/` folder in the system file explorer. */
-		openResourcesFolder: () => Promise<void>;
-		/** Open the folder for a specific document by its ID in the system file explorer. */
-		openDocumentFolder: (documentId: string) => Promise<void>;
-		/** Get the filesystem path of a document's folder given its ID. */
-		getDocumentPath: (documentId: string) => Promise<string>;
 		// -------------------------------------------------------------------------
 		// Output file management (documents)
 		// -------------------------------------------------------------------------
 		saveOutput: (input: SaveOutputInput) => Promise<SaveOutputResult>;
-		loadOutputs: () => Promise<OutputFile[]>;
-		loadOutputsByType: (type: string) => Promise<OutputFile[]>;
-		loadOutput: (params: { type: string; id: string }) => Promise<OutputFile | null>;
-		deleteOutput: (params: { type: string; id: string }) => Promise<void>;
-		trashOutput: (params: { type: string; id: string }) => Promise<void>;
-		onOutputFileChange: (callback: (event: OutputFileChangeEvent) => void) => () => void;
 		// -------------------------------------------------------------------------
 		// Project workspace (workspace.json `project` block)
 		// -------------------------------------------------------------------------
@@ -178,82 +118,6 @@ export interface AppApi {
 		updateProjectName: (name: string) => Promise<ProjectWorkspaceInfo>;
 		/** Update the project description. */
 		updateProjectDescription: (description: string) => Promise<ProjectWorkspaceInfo>;
-		/** Update the editor max-width preset. */
-		updateMaxWidthType: (value: EditorMaxWidthType) => Promise<ProjectWorkspaceInfo>;
-		/** Update the editor text size as a whole-number percentage (50–300). */
-		updateTextSize: (percentage: number) => Promise<ProjectWorkspaceInfo>;
-		/** Update the editor font preset. */
-		updateFontType: (value: EditorFontType) => Promise<ProjectWorkspaceInfo>;
-		// -------------------------------------------------------------------------
-		// Document config
-		// -------------------------------------------------------------------------
-		/** Get the combined config for a document (metadata + model overrides). */
-		getDocumentConfig: (documentId: string) => Promise<DocumentConfig>;
-		/**
-		 * Merge a partial config into the document's config.json. Broadcasts a
-		 * config-changed event.
-		 */
-		updateDocumentConfig: (
-			documentId: string,
-			config: Partial<DocumentConfig>
-		) => Promise<void>;
-		/** Subscribe to config changes for a specific document. */
-		onDocumentConfigChanges: (
-			documentId: string,
-			callback: (config: DocumentConfig) => void
-		) => () => void;
-		// -------------------------------------------------------------------------
-		// Document content
-		// -------------------------------------------------------------------------
-		getDocumentContent: (documentId: string) => Promise<string>;
-		/** Write a document's content to disk. */
-		updateDocumentContent: (documentId: string, content: string) => Promise<void>;
-		// -------------------------------------------------------------------------
-		// Resources (workspace/resources/)
-		// -------------------------------------------------------------------------
-		/** Load all files from the workspace resources/ directory. */
-		getResources: () => Promise<ResourceInfo[]>;
-		/** Open a file picker, copy selected files into resources/, return the new entries. */
-		insertResources: (extensions?: string[]) => Promise<ResourceInfo[]>;
-		/** Delete a file from resources/ by its ID. */
-		deleteResource: (id: string) => Promise<void>;
-		/** Subscribe to resource change events in resources/. */
-		onResourcesChanged: (callback: (event: ResourceEntryChangeEvent) => void) => () => void;
-		// -------------------------------------------------------------------------
-		// Filesystem
-		// -------------------------------------------------------------------------
-		/**
-		 * Read a text file and return its content as a string.
-		 * Files larger than 64 MB are rejected before any buffer is allocated.
-		 */
-		readFile: (params: FsReadFileParams) => Promise<string>;
-		/** Read a binary file and return its content as a base64-encoded string. */
-		readFileBinary: (filePath: string) => Promise<string>;
-		/**
-		 * Write (or atomically overwrite) a text file.
-		 * By default uses a write-to-temp-then-rename strategy to prevent
-		 * half-written files if the process crashes mid-write.
-		 */
-		writeFile: (params: FsWriteFileParams) => Promise<void>;
-		/**
-		 * Create a directory, optionally with recursive ancestor creation (mkdir -p).
-		 * Idempotent by default; pass `failIfExists: true` for exclusive creation.
-		 */
-		createFolder: (params: FsCreateFolderParams) => Promise<void>;
-		/** Delete a directory within allowed roots. */
-		deleteFolder: (params: FsDeleteFolderParams) => Promise<void>;
-		/** Delete a single file within allowed roots. */
-		deleteFile: (params: FsDeleteFileParams) => Promise<void>;
-		/**
-		 * Rename or move a file or directory within allowed directories.
-		 * Throws by default if the destination already exists.
-		 */
-		rename: (params: FsRenameParams) => Promise<FsRenameResult>;
-		/**
-		 * List the immediate children of a directory.
-		 * Returns an empty array if the directory does not exist.
-		 */
-		listDir: (params: FsListDirParams) => Promise<FsListDirEntry[]>;
 	};
 	task: {
 		submit: (action: TaskAction) => Promise<IpcResult<TaskActionReturn>>;
@@ -269,30 +133,18 @@ export interface AppApi {
 		/** Subscribe to assistant responses (fires every time a reply lands). */
 		onResponse: (callback: (event: AssistantResponseEvent) => void) => () => void;
 	};
-	playSound: () => void;
 	setTheme: (theme: ThemeMode) => void;
 	setLanguage: (language: string) => void;
-	/**
-	 * Show a native context menu built from the supplied descriptors.
-	 * Resolves with the `id` of the clicked item, or `null` if the menu was
-	 * dismissed without a selection. One entry point, any menu shape.
-	 */
-	showContextMenu: (items: ContextMenuDescriptor[]) => Promise<string | null>;
-	showContextMenuEditable: () => void;
 	onLanguageChange: (callback: (lng: string) => void) => () => void;
 	onThemeChange: (callback: (theme: ThemeMode) => void) => () => void;
-	onFileOpened: (callback: (filePath: string) => void) => () => void;
 	popupMenu: () => void;
-	getPlatform: () => Promise<string>;
-	/** Show the writing-item context menu for the given writing. */
-	showWriting: (writingId: string, writingTitle: string) => Promise<void>;
-	/** Subscribe to writing context-menu action events. */
-	onWritingAction: (callback: (data: WritingContextMenuAction) => void) => () => void;
+	/** Send a message to the assistant agent. Defaults to the 'main' assistant. */
+	callAssistantAgent: (message: string, assistantId?: string) => Promise<string>;
 	// ---------------------------------------------------------------------------
 	// Provider management
 	// ---------------------------------------------------------------------------
-	getProviders: () => Promise<Provider[]>;
-	addProvider: (provider: Provider) => Promise<Provider>;
+	getProviders: () => Promise<ProviderEntry[]>;
+	addProvider: (provider: ProviderEntry) => Promise<ProviderEntry>;
 	deleteProvider: (id: string) => Promise<void>;
 	getAgents: () => Promise<AgentSettings[]>;
 	updateAgent: (agent: AgentSettings) => Promise<AgentSettings>;
@@ -301,7 +153,7 @@ export interface AppApi {
 	getProfile: () => Promise<UserProfile | null>;
 	/** Persist the user profile (first/last name). */
 	setProfile: (profile: UserProfile) => Promise<UserProfile>;
-	completeFirstRunConfiguration: (profile: UserProfile, providers: Provider[]) => Promise<AppStartupInfo>;
+	completeFirstRunConfiguration: (profile: UserProfile, providers: ProviderEntry[]) => Promise<AppStartupInfo>;
 	/** Fetch the available models from a provider's `/models` endpoint using the stored API key. */
 	getModels: (providerId: string) => Promise<ProviderModelInfo[]>;
 	/** Get the persisted messaging channel configuration, or null if not set. */
@@ -332,8 +184,6 @@ export interface AppApi {
 	openLogsFolder: () => Promise<void>;
 	/** Open the application user-data folder in the system file explorer. */
 	openAppDataFolder: () => Promise<void>;
-	/** Get the absolute path of the application user-data folder. */
-	getAppDataFolder: () => Promise<string>;
 	/** Get all installed custom themes from the themes folder. */
 	getCustomThemes: () => Promise<CustomThemeInfo[]>;
 	/** Open the themes folder in the system file explorer. */
@@ -363,20 +213,12 @@ export interface AppApi {
 	cronUnschedule: (id: string) => Promise<void>;
 	/** List all currently scheduled cron jobs. */
 	cronListJobs: () => Promise<CronJobInfo[]>;
-	/** Check whether a cron job with the given id is scheduled. */
-	cronHasJob: (id: string) => Promise<boolean>;
 	/** Subscribe to cron tick events. Fires for any scheduled job each time it runs. */
 	onCronTick: (callback: (event: CronTickEvent) => void) => () => void;
-	/** Resolve the absolute filesystem path for a File from a native drag/drop or <input type="file">. */
-	getPathForFile: (file: File) => string;
-	/** Subscribe to app-level keyboard shortcut events emitted from the main process. */
-	onShortcut: (callback: (id: ShortcutId) => void) => () => void;
 	/** Subscribe to open-tasks-dialog events emitted from the Developer menu. */
 	onOpenTasksDialog: (callback: () => void) => () => void;
 	/** Subscribe to open-logs-dialog events emitted from the Developer menu. */
 	onOpenLogsDialog: (callback: () => void) => () => void;
-	/** Subscribe to open-redux-dialog events emitted from the Developer menu. */
-	onOpenReduxDialog: (callback: () => void) => () => void;
 	/** Subscribe to open-cron-dialog events emitted from the Developer menu. */
 	onOpenCronDialog: (callback: () => void) => () => void;
 }
