@@ -8,7 +8,7 @@ import {
 	AssistantChannels,
 } from '../shared/channels';
 import type { AssistantResponseEvent } from '../shared/channels';
-import type { AppApi, WindowApi, WorkspaceApi, TaskApi, AssistantApi } from './index.d';
+import type { AppApi, WindowApi } from './index.d';
 import type {
 	AgentSettings,
 	Channel,
@@ -203,7 +203,7 @@ const baseApp = {
 // ---------------------------------------------------------------------------
 // window.app.workspace — Workspace folder selection, documents, directories, output
 // ---------------------------------------------------------------------------
-const workspace: WorkspaceApi = {
+const workspace: AppApi['workspace'] = {
 	getCurrent: (): Promise<string | null> => {
 		return typedInvokeUnwrap(WorkspaceChannels.getCurrent);
 	},
@@ -349,12 +349,12 @@ const workspace: WorkspaceApi = {
 	deleteFile: (params) => typedInvokeUnwrap(WorkspaceChannels.fsDeleteFile, params),
 	rename: (params) => typedInvokeUnwrap(WorkspaceChannels.fsRename, params),
 	listDir: (params) => typedInvokeUnwrap(WorkspaceChannels.fsListDir, params),
-} satisfies WorkspaceApi;
+} satisfies AppApi['workspace'];
 
 // ---------------------------------------------------------------------------
 // window.app.task — Background task queue
 // ---------------------------------------------------------------------------
-const task: TaskApi = {
+const task: AppApi['task'] = {
 	submit: (action) => {
 		return typedInvokeRaw(TaskChannels.submit, action);
 	},
@@ -367,12 +367,12 @@ const task: TaskApi = {
 	onEvent: (callback) => {
 		return typedOn(TaskChannels.event, callback);
 	},
-} satisfies TaskApi;
+} satisfies AppApi['task'];
 
 // ---------------------------------------------------------------------------
 // window.app.assistant — Conversational AI assistant
 // ---------------------------------------------------------------------------
-const assistant: AssistantApi = {
+const assistant: AppApi['assistant'] = {
 	send: (message: string, assistantId?: string): Promise<string> => {
 		return typedInvokeUnwrap(AssistantChannels.send, message, assistantId);
 	},
@@ -382,7 +382,7 @@ const assistant: AssistantApi = {
 	onResponse: (callback: (event: AssistantResponseEvent) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
 	},
-} satisfies AssistantApi;
+} satisfies AppApi['assistant'];
 
 const app: AppApi = {
 	...baseApp,

@@ -7,7 +7,7 @@
 // and browser APIs, bridging main ↔ renderer via contextBridge.
 //
 // Most preload-relevant types come from:
-//   - src/preload/index.d.ts  — window API surface (AppApi, WindowApi, etc.)
+//   - src/preload/index.d.ts  — window API surface (AppApi, WindowApi)
 //   - src/shared/types/       — shared IPC types imported by preload
 //
 // Add preload-specific helper or internal types here if they grow beyond what
@@ -16,9 +16,4 @@
 
 // Re-export the public window API types so preload internals can import
 // from a single location without reaching into index.d.ts directly.
-export type {
-    WindowApi,
-    AppApi,
-    WorkspaceApi,
-    TaskApi,
-} from './index.d';
+export type { WindowApi, AppApi } from './index.d';
