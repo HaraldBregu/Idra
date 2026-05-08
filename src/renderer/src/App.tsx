@@ -4,7 +4,6 @@ import { AppProvider } from './contexts';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
 import { LayoutLoadingSkeleton } from './components/app/base/LayoutLoadingSkeleton';
 import type { AppStartupInfo } from '../../shared/types';
-import { TooltipProvider } from './components/ui/Tooltip';
 import { router } from './router';
 import './index.css';
 
@@ -80,9 +79,7 @@ const App: React.FC = () => {
 		return (
 			<ErrorBoundary level="root">
 				<AppProvider>
-					<TooltipProvider>
-						<LayoutLoadingSkeleton />
-					</TooltipProvider>
+					<LayoutLoadingSkeleton />
 				</AppProvider>
 			</ErrorBoundary>
 		);
@@ -91,9 +88,7 @@ const App: React.FC = () => {
 	return (
 		<ErrorBoundary level="root">
 			<AppProvider>
-				<TooltipProvider>
-					<RouterProvider router={router} context={{ startupInfo, showSplash, setStartupInfo }} />
-				</TooltipProvider>
+				<RouterProvider router={router} context={{ startupInfo, showSplash, setStartupInfo }} />
 			</AppProvider>
 		</ErrorBoundary>
 	);

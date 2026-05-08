@@ -5,6 +5,8 @@ import type { WindowContextManager } from './core/window-context';
 
 const DEFAULT_WINDOW_WIDTH = 1200;
 const DEFAULT_WINDOW_HEIGHT = 900;
+const STARTUP_WINDOW_WIDTH = 600;
+const STARTUP_WINDOW_HEIGHT = 400;
 const WORKSPACE_WINDOW_SCALE = 0.9;
 
 function getBackgroundColor(): string {
@@ -75,6 +77,16 @@ export class Main {
 		};
 	}
 
+	private createStartupWindowOptions() {
+		return {
+			...this.createWindowOptions(),
+			width: STARTUP_WINDOW_WIDTH,
+			height: STARTUP_WINDOW_HEIGHT,
+			minWidth: STARTUP_WINDOW_WIDTH,
+			minHeight: STARTUP_WINDOW_HEIGHT,
+		};
+	}
+
 	private trackWindowVisibility(win: BrowserWindow): void {
 		win.on('show', () => {
 			this.onWindowVisibilityChange?.();
@@ -99,7 +111,7 @@ export class Main {
 		} = {}
 	): BrowserWindow {
 		const { closeToTray = false, onReadyToShow } = options;
-		const win = this.windowFactory.create(this.createWindowOptions());
+		const win = this.windowFactory.create(this.createStartupWindowOptions());
 
 		// Create window context for isolated services
 		this.windowContextManager.create(win);
