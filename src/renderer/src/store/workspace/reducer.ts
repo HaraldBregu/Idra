@@ -27,7 +27,7 @@ export const workspaceSlice = createSlice({
 	reducers: {
 		/**
 		 * Handle workspace change events from the main process.
-		 * Called when window.workspace.onChange() fires.
+		 * Called when window.app.workspace.onChange() fires.
 		 */
 		handleWorkspaceChanged: (
 			state,

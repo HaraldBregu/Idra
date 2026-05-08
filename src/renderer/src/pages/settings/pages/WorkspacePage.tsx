@@ -33,7 +33,7 @@ const WorkspacePage: React.FC = () => {
 	useEffect(() => {
 		let cancelled = false;
 
-		Promise.all([window.workspace.getCurrent(), window.workspace.getProjectInfo()])
+		Promise.all([window.app.workspace.getCurrent(), window.app.workspace.getProjectInfo()])
 			.then(([workspace, info]) => {
 				if (cancelled) return;
 				setCurrentWorkspace(workspace);
@@ -82,8 +82,8 @@ const WorkspacePage: React.FC = () => {
 
 		const apiCall =
 			editingField === 'name'
-				? window.workspace.updateProjectName(trimmed)
-				: window.workspace.updateProjectDescription(trimmed);
+				? window.app.workspace.updateProjectName(trimmed)
+				: window.app.workspace.updateProjectDescription(trimmed);
 
 		apiCall
 			.then((updated) => {
@@ -162,7 +162,7 @@ const WorkspacePage: React.FC = () => {
 						{!isLoading && currentWorkspace && (
 							<button
 								type="button"
-								onClick={() => window.workspace.openWorkspaceFolder()}
+								onClick={() => window.app.workspace.openWorkspaceFolder()}
 								className="shrink-0 rounded p-1 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
 								aria-label={t('common.openFolder')}
 								title={t('common.openFolder')}

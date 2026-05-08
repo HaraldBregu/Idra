@@ -41,7 +41,7 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 	useEffect(() => {
 		let cancelled = false;
 
-		window.workspace
+		window.app.workspace
 			.list()
 			.then((items) => {
 				if (!cancelled) {
@@ -77,11 +77,11 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 			setSubmitting(true);
 			setSubmitError(null);
 			try {
-				const workspace = await window.workspace.create({
+				const workspace = await window.app.workspace.create({
 					name: trimmedName,
 					description: description.trim(),
 				});
-				await window.workspace.setCurrent(workspace.path);
+				await window.app.workspace.setCurrent(workspace.path);
 				setWorkspaces((current) => [workspace, ...current.filter((item) => item.id !== workspace.id)]);
 				clearDeletion();
 				setCreateOpen(false);
@@ -98,7 +98,7 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 	const handleOpenWorkspace = useCallback(
 		async (path: string) => {
 			try {
-				await window.workspace.setCurrent(path);
+				await window.app.workspace.setCurrent(path);
 				clearDeletion();
 				navigate({ to: '/settings/assistant' });
 			} catch (error) {

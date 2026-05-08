@@ -32,7 +32,7 @@ export function ContentProvider({ children }: ContentProviderProps): ReactElemen
 		if (!mountedRef.current) return;
 		setIsLoading(true);
 		try {
-			const items = await window.workspace.getResources();
+			const items = await window.app.workspace.getResources();
 			if (!mountedRef.current) return;
 			setContents(items.filter((r) => r.name.toLowerCase().endsWith('.md')));
 		} catch (err) {
@@ -51,7 +51,7 @@ export function ContentProvider({ children }: ContentProviderProps): ReactElemen
 	useEffect(() => {
 		mountedRef.current = true;
 		void refresh();
-		const unsubscribeWorkspace = window.workspace.onChange((event) => {
+		const unsubscribeWorkspace = window.app.workspace.onChange((event) => {
 			if (event.currentPath) {
 				void refresh();
 				return;

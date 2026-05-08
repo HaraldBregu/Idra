@@ -23,7 +23,7 @@ import {
  * Called once on app startup to hydrate the Redux store.
  */
 export const loadCurrentWorkspace = createAsyncThunk('workspace/loadCurrent', async () => {
-	const currentPath = await window.workspace.getCurrent();
+	const currentPath = await window.app.workspace.getCurrent();
 	return currentPath;
 });
 
@@ -33,7 +33,7 @@ export const loadCurrentWorkspace = createAsyncThunk('workspace/loadCurrent', as
 export const listWorkspaces = createAsyncThunk<WorkspaceInfo[]>(
 	'workspace/list',
 	async () => {
-		return await window.workspace.list();
+		return await window.app.workspace.list();
 	}
 );
 
@@ -44,7 +44,7 @@ export const listWorkspaces = createAsyncThunk<WorkspaceInfo[]>(
 export const selectWorkspace = createAsyncThunk(
 	'workspace/select',
 	async (workspacePath: string) => {
-		await window.workspace.setCurrent(workspacePath);
+		await window.app.workspace.setCurrent(workspacePath);
 		return workspacePath;
 	}
 );
@@ -56,8 +56,8 @@ export const selectWorkspace = createAsyncThunk(
 export const createWorkspace = createAsyncThunk<WorkspaceInfo, CreateWorkspaceParams>(
 	'workspace/create',
 	async (params) => {
-		const info = await window.workspace.create(params);
-		await window.workspace.setCurrent(info.path);
+		const info = await window.app.workspace.create(params);
+		await window.app.workspace.setCurrent(info.path);
 		return info;
 	}
 );
@@ -66,7 +66,7 @@ export const createWorkspace = createAsyncThunk<WorkspaceInfo, CreateWorkspacePa
  * Clear the current workspace.
  */
 export const clearWorkspace = createAsyncThunk('workspace/clear', async () => {
-	await window.workspace.clear();
+	await window.app.workspace.clear();
 	return null;
 });
 
@@ -81,7 +81,7 @@ export const loadProjectName = createAsyncThunk<{
 	name: string | null;
 	description: string | null;
 }>('workspace/loadProjectName', async () => {
-	const info = await window.workspace.getProjectInfo();
+	const info = await window.app.workspace.getProjectInfo();
 	return {
 		name: info?.name ?? null,
 		description: info?.description ?? null,
@@ -98,7 +98,7 @@ export const loadProjectName = createAsyncThunk<{
 export const loadResources = createAsyncThunk<ResourceInfo[]>(
 	'workspace/loadResources',
 	async () => {
-		return await window.workspace.getResources();
+		return await window.app.workspace.getResources();
 	}
 );
 
@@ -108,8 +108,8 @@ export const loadResources = createAsyncThunk<ResourceInfo[]>(
 export const removeResources = createAsyncThunk<ResourceInfo[], string[]>(
 	'workspace/removeResources',
 	async (ids) => {
-		await Promise.all(ids.map((id) => window.workspace.deleteResource(id)));
-		return await window.workspace.getResources();
+		await Promise.all(ids.map((id) => window.app.workspace.deleteResource(id)));
+		return await window.app.workspace.getResources();
 	}
 );
 
@@ -137,7 +137,7 @@ export const loadDocuments = createAsyncThunk<void, void, { dispatch: AppDispatc
 	async (_, { dispatch }) => {
 		dispatch(documentsLoadingStarted());
 		try {
-			const files = await window.workspace.loadOutputsByType('documents');
+			const files = await window.app.workspace.loadOutputsByType('documents');
 			dispatch(documentsLoaded(files.map(toDocumentItem)));
 		} catch (err) {
 			dispatch(documentsLoadingFailed(err instanceof Error ? err.message : String(err)));
@@ -149,7 +149,7 @@ export const refreshDocument = createAsyncThunk<void, string, { dispatch: AppDis
 	'workspace/refreshDocument',
 	async (id, { dispatch }) => {
 		try {
-			const file = await window.workspace.loadOutput({ type: 'documents', id });
+			const file = await window.app.workspace.loadOutput({ type: 'documents', id });
 			if (file) dispatch(documentUpdated(toDocumentItem(file)));
 		} catch {
 			// silently ignore — stale state is acceptable for a single refresh

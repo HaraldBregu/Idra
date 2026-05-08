@@ -59,9 +59,9 @@ const win: WindowApi = {
 } satisfies WindowApi;
 
 // ---------------------------------------------------------------------------
-// window.app — General application utilities + persisted AI model settings
+// window.app — General application utilities + nested IPC namespaces
 // ---------------------------------------------------------------------------
-const app: AppApi = {
+const baseApp = {
 	playSound: (): void => {
 		typedSend(AppChannels.playSound);
 	},
@@ -198,7 +198,7 @@ const app: AppApi = {
 	onOpenCronDialog: (callback: () => void): (() => void) => {
 		return typedOn(AppChannels.openCronDialog, callback);
 	},
-} satisfies AppApi;
+};
 
 // ---------------------------------------------------------------------------
 // window.workspace — Workspace folder selection, documents, directories, output
@@ -384,16 +384,20 @@ const assistant: AssistantApi = {
 	},
 } satisfies AssistantApi;
 
+const app: AppApi = {
+	...baseApp,
+	workspace,
+	task,
+	assistant,
+};
+
 // ---------------------------------------------------------------------------
-// Registration — expose all namespaces via contextBridge
+// Registration — expose supported namespaces via contextBridge
 // ---------------------------------------------------------------------------
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
-		contextBridge.exposeInMainWorld('workspace', workspace);
-		contextBridge.exposeInMainWorld('task', task);
-		contextBridge.exposeInMainWorld('assistant', assistant);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -402,10 +406,4 @@ if (process.contextIsolated) {
 	globalThis.app = app;
 	// @ts-ignore (define in dts)
 	globalThis.win = win;
-	// @ts-ignore (define in dts)
-	globalThis.workspace = workspace;
-	// @ts-ignore (define in dts)
-	globalThis.task = task;
-	// @ts-ignore (define in dts)
-	globalThis.assistant = assistant;
 }

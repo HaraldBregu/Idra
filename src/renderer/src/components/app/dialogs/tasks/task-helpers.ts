@@ -16,7 +16,7 @@ export function formatEventTime(receivedAt: number): string {
 }
 
 export async function submitDemoTask(variant: DemoVariant): Promise<void> {
-	await window.task.submit({
+	await window.app.task.submit({
 		type: 'demo',
 		input: { variant },
 		metadata: {},

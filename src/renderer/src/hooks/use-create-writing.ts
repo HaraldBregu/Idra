@@ -16,7 +16,7 @@ export interface UseCreateWritingResult {
 
 /**
  * Encapsulates the "New Writing" creation flow:
- *   1. Calls window.workspace.saveOutput to persist the folder on disk.
+ *   1. Calls window.app.workspace.saveOutput to persist the folder on disk.
  *   2. Invokes options.onCreated with the result (if provided) so callers
  *      can optimistically update their UI before the file-watcher fires.
  *   3. Navigates to the assistant settings page on success.
@@ -43,7 +43,7 @@ export function useCreateWriting(options?: UseCreateWritingOptions): UseCreateWr
 		setError(null);
 
 		try {
-			const result = await window.workspace.saveOutput({
+			const result = await window.app.workspace.saveOutput({
 				type: 'documents',
 				content: '',
 				metadata: { title: '' },

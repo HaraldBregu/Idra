@@ -33,7 +33,7 @@ export function useWorkspaceValidation(): void {
 	const hasHandledDeletion = useRef(false);
 
 	useEffect(() => {
-		const unsubscribe = window.workspace.onDeleted((event: WorkspaceDeletedEvent) => {
+		const unsubscribe = window.app.workspace.onDeleted((event: WorkspaceDeletedEvent) => {
 			console.warn(
 				'[useWorkspaceValidation] Workspace deleted:',
 				event.deletedPath,

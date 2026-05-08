@@ -50,7 +50,7 @@ export function ImagesProvider({ children }: ImagesProviderProps): ReactElement 
 		if (!mountedRef.current) return;
 		setIsLoading(true);
 		try {
-			const items = await window.workspace.getResources();
+			const items = await window.app.workspace.getResources();
 			if (!mountedRef.current) return;
 			setImages(items.filter(isImage));
 		} catch (err) {
@@ -69,10 +69,10 @@ export function ImagesProvider({ children }: ImagesProviderProps): ReactElement 
 	useEffect(() => {
 		mountedRef.current = true;
 		void refresh();
-		const unsubscribeResources = window.workspace.onResourcesChanged(() => {
+		const unsubscribeResources = window.app.workspace.onResourcesChanged(() => {
 			void refresh();
 		});
-		const unsubscribeWorkspace = window.workspace.onChange((event) => {
+		const unsubscribeWorkspace = window.app.workspace.onChange((event) => {
 			if (event.currentPath) {
 				void refresh();
 				return;

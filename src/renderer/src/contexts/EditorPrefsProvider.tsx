@@ -60,7 +60,7 @@ export function EditorPrefsProvider({ children }: EditorPrefsProviderProps): Rea
 
 	const refresh = useCallback(async () => {
 		try {
-			const info = await window.workspace.getProjectInfo();
+			const info = await window.app.workspace.getProjectInfo();
 			if (!mountedRef.current) return;
 			const w = info?.maxWidthType;
 			const t = info?.textSize;
@@ -80,7 +80,7 @@ export function EditorPrefsProvider({ children }: EditorPrefsProviderProps): Rea
 		() =>
 			debounce(
 				(value: EditorMaxWidthType) => {
-					void window.workspace.updateMaxWidthType(value).catch(() => {});
+					void window.app.workspace.updateMaxWidthType(value).catch(() => {});
 				},
 				PERSIST_DEBOUNCE_MS,
 				{ leading: false, trailing: true }
@@ -92,7 +92,7 @@ export function EditorPrefsProvider({ children }: EditorPrefsProviderProps): Rea
 		() =>
 			debounce(
 				(value: number) => {
-					void window.workspace.updateTextSize(value).catch(() => {});
+					void window.app.workspace.updateTextSize(value).catch(() => {});
 				},
 				PERSIST_DEBOUNCE_MS,
 				{ leading: false, trailing: true }
@@ -104,7 +104,7 @@ export function EditorPrefsProvider({ children }: EditorPrefsProviderProps): Rea
 		() =>
 			debounce(
 				(value: EditorFontType) => {
-					void window.workspace.updateFontType(value).catch(() => {});
+					void window.app.workspace.updateFontType(value).catch(() => {});
 				},
 				PERSIST_DEBOUNCE_MS,
 				{ leading: false, trailing: true }
@@ -115,7 +115,7 @@ export function EditorPrefsProvider({ children }: EditorPrefsProviderProps): Rea
 	useEffect(() => {
 		mountedRef.current = true;
 		void refresh();
-		const unsubscribeWorkspace = window.workspace.onChange((event) => {
+		const unsubscribeWorkspace = window.app.workspace.onChange((event) => {
 			if (event.currentPath) {
 				void refresh();
 			} else {

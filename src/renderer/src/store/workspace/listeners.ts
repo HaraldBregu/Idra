@@ -29,7 +29,7 @@ startAppListening({
 	effect: async (action, listenerApi) => {
 		const extensions = action.payload;
 		try {
-			const imported = await window.workspace.insertResources(extensions);
+			const imported = await window.app.workspace.insertResources(extensions);
 			if (imported.length > 0) {
 				await listenerApi.dispatch(loadResources());
 			}
@@ -47,7 +47,7 @@ startAppListening({
  *
  * Fires on both paths:
  *   - `handleWorkspaceChanged` — broadcast from the main process via
- *     `window.workspace.onChange` (external switch, e.g. another window).
+ *     `window.app.workspace.onChange` (external switch, e.g. another window).
  *   - `selectWorkspace.fulfilled` — programmatic switch from this renderer
  *     (Layout picker, WelcomePage).
  *

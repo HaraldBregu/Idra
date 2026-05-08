@@ -18,7 +18,7 @@ export function useWorkspaceListener(): void {
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		const unsubscribe = window.workspace.onChange((event: WorkspaceChangedEvent) => {
+		const unsubscribe = window.app.workspace.onChange((event: WorkspaceChangedEvent) => {
 			dispatch(handleWorkspaceChanged(event));
 		});
 

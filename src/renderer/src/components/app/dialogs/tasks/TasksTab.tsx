@@ -177,16 +177,16 @@ export function TasksTab() {
 	const [dataDialogId, setDataDialogId] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (typeof window.task?.list !== 'function') return;
-		window.task.list().then((res) => {
+		if (typeof window.app.task?.list !== 'function') return;
+		window.app.task.list().then((res) => {
 			if (!res.success) return;
 			dispatch({ type: 'hydrate', tasks: res.data });
 		});
 	}, []);
 
 	useEffect(() => {
-		if (typeof window.task?.onEvent !== 'function') return;
-		return window.task.onEvent((event) => {
+		if (typeof window.app.task?.onEvent !== 'function') return;
+		return window.app.task.onEvent((event) => {
 			dispatch({ type: 'event', event });
 		});
 	}, []);
@@ -208,8 +208,8 @@ export function TasksTab() {
 	);
 
 	const handleCancel = useCallback(async (taskId: string) => {
-		if (typeof window.task?.cancel !== 'function') return;
-		await window.task.cancel(taskId);
+		if (typeof window.app.task?.cancel !== 'function') return;
+		await window.app.task.cancel(taskId);
 	}, []);
 
 	return (

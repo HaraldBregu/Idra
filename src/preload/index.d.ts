@@ -135,8 +135,11 @@ export interface WindowApi {
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }
 
-/** General application utilities — also includes all persisted AI model settings (store) methods. */
+/** General application utilities. Additional IPC namespaces are grouped under this object. */
 export interface AppApi {
+	workspace: WorkspaceApi;
+	task: TaskApi;
+	assistant: AssistantApi;
 	playSound: () => void;
 	setTheme: (theme: ThemeMode) => void;
 	setLanguage: (language: string) => void;
@@ -399,8 +402,5 @@ declare global {
 		/** Optional: not present in all window types */
 		win?: WindowApi;
 		app: AppApi;
-		workspace: WorkspaceApi;
-		task: TaskApi;
-		assistant: AssistantApi;
 	}
 }
