@@ -1,9 +1,11 @@
 import { useCallback, useMemo } from 'react';
 import { useTheme } from './use-theme';
 import { useLanguageContext } from './use-language-context';
-import { readPersistedTheme } from '../contexts/ThemeProvider';
-import { readPersistedLanguage } from '../contexts/LanguageProvider';
-import type { AppActionsContextValue } from '../contexts/AppContext';
+import {
+	readPersistedLanguage,
+	readPersistedTheme,
+	type AppActionsContextValue,
+} from '../contexts/AppContext';
 
 export function useAppActions(): AppActionsContextValue {
 	const { setTheme } = useTheme();

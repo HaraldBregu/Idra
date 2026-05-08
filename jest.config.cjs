@@ -1,5 +1,5 @@
 /**
- * Jest configuration for OpenWriter.
+ * Jest configuration for Friday.
  *
  * Uses a multi-project setup:
  *   - "main"     : tests for the Electron main process (Node environment)

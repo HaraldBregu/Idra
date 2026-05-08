@@ -1,17 +1,18 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import {
 	createHashHistory,
-	createRootRoute,
+	createRootRouteWithContext,
 	createRoute,
 	createRouter,
 	Outlet,
 } from '@tanstack/react-router';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
+import type { AppStartupInfo } from '../../shared/types';
 import WelcomePage from './pages/welcome/WelcomePage';
 import ConfigPage from './pages/welcome/ConfigPage';
 import { Layout as SettingsLayout } from './pages/settings';
-import { useStartupRouterContext } from './startup-router-context';
+import { useWorkspaceValidation } from './hooks/use-workspace-validation';
 
 const SplashPage = lazy(() => import('./pages/splash/SplashPage'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
@@ -26,7 +27,13 @@ const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'))
 const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 
-function RouteWrapper({ children }: { children: React.ReactNode }) {
+export interface RouterContext {
+	readonly startupInfo: AppStartupInfo;
+	readonly showSplash: boolean;
+	readonly setStartupInfo: Dispatch<SetStateAction<AppStartupInfo | null>>;
+}
+
+function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
 		<ErrorBoundary level="route">
 			<Suspense fallback={<PageLoadingSkeleton />}>{children}</Suspense>
@@ -34,12 +41,22 @@ function RouteWrapper({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function RootRouteComponent() {
-	return <Outlet />;
+function WorkspaceValidationBridge(): null {
+	useWorkspaceValidation();
+	return null;
 }
 
-function HomeRouteComponent() {
-	const { showSplash, startupInfo, setStartupInfo } = useStartupRouterContext();
+function RootRouteComponent(): React.JSX.Element {
+	return (
+		<>
+			<WorkspaceValidationBridge />
+			<Outlet />
+		</>
+	);
+}
+
+function HomeRouteComponent(): React.JSX.Element {
+	const { showSplash, startupInfo, setStartupInfo } = rootRoute.useRouteContext();
 
 	if (showSplash) {
 		return (
@@ -60,8 +77,8 @@ function HomeRouteComponent() {
 	);
 }
 
-function ConfigRouteComponent() {
-	const { setStartupInfo } = useStartupRouterContext();
+function ConfigRouteComponent(): React.JSX.Element {
+	const { setStartupInfo } = rootRoute.useRouteContext();
 
 	return (
 		<RouteWrapper>
@@ -70,7 +87,7 @@ function ConfigRouteComponent() {
 	);
 }
 
-function SettingsRouteComponent() {
+function SettingsRouteComponent(): React.JSX.Element {
 	return (
 		<RouteWrapper>
 			<SettingsLayout />
@@ -78,7 +95,7 @@ function SettingsRouteComponent() {
 	);
 }
 
-const rootRoute = createRootRoute({
+const rootRoute = createRootRouteWithContext<RouterContext>()({
 	component: RootRouteComponent,
 });
 
@@ -242,6 +259,7 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
 	routeTree,
 	history: createHashHistory(),
+	defaultPendingComponent: PageLoadingSkeleton,
 });
 
 declare module '@tanstack/react-router' {

@@ -28,7 +28,7 @@ export class Tray {
 		);
 
 		this.tray = new ElectronTray(icon.resize({ width: 16, height: 16 }));
-		this.tray.setToolTip('OpenWriter');
+		this.tray.setToolTip('Friday');
 
 		// Double-click to show/hide app
 		this.tray.on('double-click', () => {
@@ -70,7 +70,7 @@ export class Tray {
 
 		const contextMenu = Menu.buildFromTemplate([
 			{
-				label: isVisible ? m.hideOpenWriter || 'Hide OpenWriter' : m.showOpenWriter,
+				label: isVisible ? m.hideFriday || 'Hide Friday' : m.showFriday || 'Show Friday',
 				click: () => {
 					this.callbacks.onToggleApp();
 					// Rebuild menu after toggle to update the label

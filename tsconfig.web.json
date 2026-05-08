@@ -6,29 +6,25 @@
 		"src/preload/*.d.ts",
 		"src/renderer/i18n.ts",
 		"src/env.d.ts",
+		"src/types.d.ts",
 		"src/shared/**/*"
 	],
 	"compilerOptions": {
-		"types": [
-			"./src/types.d.ts",
-			"./src/env.d.ts",
-			"./src/preload/index.d.ts",
-			"electron-vite/node"
-		],
+		"types": ["electron-vite/node"],
 		"plugins": [{ "name": "typescript-plugin-css-modules" }],
 		"composite": true,
 		"moduleResolution": "bundler",
 		"jsx": "react-jsx",
-		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/renderer/src/*"],
-			"@utils/*": ["src/renderer/src/utils/*"],
-			"@pages/*": ["src/renderer/src/pages/*"],
-			"@store/*": ["src/renderer/src/store/*"],
-			"@components/*": ["src/renderer/src/components/*"],
-			"@icons/*": ["src/renderer/src/components/icons/*"],
-			"@resources/*": ["resources/*"],
-			"@shared/*": ["src/shared/*"]
+			"@/*": ["./src/renderer/src/*"],
+			"@utils/*": ["./src/renderer/src/utils/*"],
+			"@pages/*": ["./src/renderer/src/pages/*"],
+			"@store/*": ["./src/renderer/src/store/*"],
+			"@components/*": ["./src/renderer/src/components/*"],
+			"@icons/*": ["./src/renderer/src/components/icons/*"],
+			"@shared": ["./src/shared/index.ts"],
+			"@resources/*": ["./resources/*"],
+			"@shared/*": ["./src/shared/*"]
 		}
 	}
 }

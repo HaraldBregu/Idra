@@ -1,5 +1,5 @@
 {
-	"appTitle": "OpenWriter",
+	"appTitle": "Friday",
 	"welcome": {
 		"tagline": "Un editor di testo intelligente per sviluppatori e scrittori. Crea o apri un workspace per iniziare.",
 		"freePlan": "Piano Gratuito",
@@ -27,7 +27,7 @@
 		"firstTime": {
 			"eyebrow": "Configurazione iniziale",
 			"title": "Collega i provider prima di iniziare a scrivere",
-			"description": "Aggiungi i token API che OpenWriter deve usare su questo dispositivo. Puoi lasciare vuoto qualsiasi provider e configurarlo più tardi nelle Impostazioni.",
+			"description": "Aggiungi i token API che Friday deve usare su questo dispositivo. Puoi lasciare vuoto qualsiasi provider e configurarlo più tardi nelle Impostazioni.",
 			"tokenPlaceholder": "Incolla il token API",
 			"footer": "Puoi aggiornare i token dei provider in qualsiasi momento dalla pagina Provider nelle Impostazioni.",
 			"save": "Salva e continua",

@@ -1,11 +1,11 @@
 import React from 'react';
-import { AppIconOpenWriter } from '@/components/app/icons/AppIconOpenWriter';
+import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
 
 const SplashPage: React.FC = () => {
 	return (
 		<div className="flex items-center justify-center h-screen w-screen bg-gradient-to-br from-background via-background to-background/95">
 			<div className="animate-fade-in animate-bounce-slow">
-				<AppIconOpenWriter className="w-48 h-48" />
+				<AppIconFriday className="w-48 h-48" />
 			</div>
 
 			<style>{`

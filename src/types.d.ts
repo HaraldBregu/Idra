@@ -12,9 +12,9 @@
 //     src/shared/types/aiSettings.ts — AI settings types
 //   - Do NOT import Electron, Node.js, React, or browser APIs here.
 //
-// Referenced by:
-//   - tsconfig.node.json: "types": ["./src/types", ...]
-//   - tsconfig.web.json:  "types": ["./src/types.d.ts", ...]
+// Included by:
+//   - tsconfig.node.json
+//   - tsconfig.web.json
 // ---------------------------------------------------------------------------
 
 // (Add cross-context global augmentations here when needed.)

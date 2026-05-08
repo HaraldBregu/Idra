@@ -5,6 +5,7 @@
 		"src/main/**/*",
 		"src/preload/**/*",
 		"src/shared/**/*",
+		"src/types.d.ts",
 		"package.json",
 		"resources/*.json",
 		"src/env.d.ts",
@@ -14,12 +15,11 @@
 		"composite": true,
 		"outDir": "./dist",
 		"module": "ESNext",
-		"moduleResolution": "Bundler",
+		"moduleResolution": "bundler",
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"removeComments": false,
-		"baseUrl": ".",
-		"types": ["./src/types", "electron-vite/node", "node"]
+		"types": ["electron-vite/node", "node"]
 	},
 	"exclude": ["node_modules"]
 }

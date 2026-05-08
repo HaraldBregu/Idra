@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { FolderOpen, Clock, Plus, X, AlertTriangle } from 'lucide-react';
 import type { WorkspaceInfo } from '../../../../shared/types';
-import { AppIconOpenWriter } from '@/components/app';
+import { AppIconFriday } from '@/components/app';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -124,7 +124,7 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 
 	return (
 		<div className="flex flex-col h-screen bg-background">
-			<TitleBar title="OpenWriter" />
+			<TitleBar title={t('appTitle')} />
 
 			{deletionReason && (
 				<div className="mx-8 mt-4 mb-0 flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
@@ -146,7 +146,7 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 
 			<div className="flex flex-col items-center flex-1 px-8 py-12 overflow-y-auto">
 				<div className="flex flex-col items-center mb-8">
-					<AppIconOpenWriter
+					<AppIconFriday
 						className="mb-3 text-foreground"
 						style={{
 							width: 'clamp(48px, min(8vw, 8vh), 72px)',

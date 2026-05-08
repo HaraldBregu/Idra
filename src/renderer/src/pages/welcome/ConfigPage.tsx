@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@tanstack/react-form';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { AppIconOpenWriter } from '@/components/app';
+import { AppIconFriday } from '@/components/app';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
@@ -84,7 +84,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 
 	return (
 		<PageContainer className="h-screen">
-			<TitleBar title="OpenWriter" />
+			<TitleBar title={t('appTitle')} />
 
 			<PageBody className="p-0">
 				<div className="grid min-h-full lg:grid-cols-2">
@@ -262,7 +262,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 															</>
 														) : (
 															<>
-																{t('startup.firstTime.save', 'Enter OpenWriter')}
+																{t('startup.firstTime.save', 'Enter Friday')}
 																<ArrowRight />
 															</>
 														)}
@@ -283,12 +283,12 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 					</div>
 					<div className="relative hidden bg-sidebar text-sidebar-foreground lg:flex lg:flex-col lg:order-1 p-10 gap-10 border-r border-sidebar-border">
 						<div className="flex items-center gap-3">
-							<AppIconOpenWriter
+							<AppIconFriday
 								className="size-12 text-sidebar-primary"
 								aria-hidden="true"
 							/>
 							<div className="flex flex-col">
-								<H4 className="text-sidebar-foreground leading-tight">OpenWriter</H4>
+								<H4 className="text-sidebar-foreground leading-tight">{t('appTitle')}</H4>
 								<Small className="text-sidebar-foreground/60 font-normal tracking-wide">{t('startup.firstTime.slogan', 'Write freely. Own everything.')}</Small>
 							</div>
 						</div>
@@ -303,7 +303,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 							<Muted className="text-sidebar-foreground/70 leading-relaxed">
 								{t(
 									'startup.firstTime.leftDescription',
-									'OpenWriter is a local-first writing studio. Bring your own keys for OpenAI, Anthropic, Google, and more — drafts and credentials never leave your device.'
+									'Friday is a local-first writing studio. Bring your own keys for OpenAI, Anthropic, Google, and more — drafts and credentials never leave your device.'
 								)}
 							</Muted>
 							<ul className="flex flex-col gap-3 text-sm text-sidebar-foreground/80">

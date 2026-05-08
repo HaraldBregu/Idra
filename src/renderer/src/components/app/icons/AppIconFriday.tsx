@@ -1,12 +1,12 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-interface AppIconOpenWriterProps extends React.SVGProps<SVGSVGElement> {}
+interface AppIconFridayProps extends React.SVGProps<SVGSVGElement> {}
 
-const AppIconOpenWriter = React.memo(function AppIconOpenWriter({
+const AppIconFriday = React.memo(function AppIconFriday({
 	className,
 	...props
-}: AppIconOpenWriterProps) {
+}: AppIconFridayProps) {
 	return (
 		<svg
 			viewBox="0 0 749 796"
@@ -24,4 +24,4 @@ const AppIconOpenWriter = React.memo(function AppIconOpenWriter({
 	);
 });
 
-export { AppIconOpenWriter };
+export { AppIconFriday };

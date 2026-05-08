@@ -8,7 +8,7 @@ import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
 import { WORKSPACE_VALIDATION_INTERVAL_MS } from '../constants';
 
-const APP_FOLDER = 'OpenWriter';
+const APP_FOLDER = 'Friday';
 const WORKSPACES_FOLDER = 'workspaces';
 
 /**
@@ -162,7 +162,7 @@ export class WorkspaceService implements Disposable {
 	}
 
 	/**
-	 * Resolve the managed workspaces root: `{home}/OpenWriter/workspaces/`.
+	 * Resolve the managed workspaces root: `{home}/Friday/workspaces/`.
 	 * Created on first access if missing.
 	 */
 	getWorkspacesRoot(): string {

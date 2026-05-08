@@ -1,12 +1,12 @@
 {
-	"name": "openwriter",
-	"productName": "OpenWriter",
-	"homepage": "https://github.com/HaraldBregu/openwriter",
+	"name": "friday",
+	"productName": "Friday",
+	"homepage": "https://github.com/HaraldBregu/friday",
 	"description": "A desktop app with multi prebuilt features",
 	"author": "Harald Bregu <harald.bregu@gmail.com>",
 	"version": "1.0.0",
 	"private": true,
-	"copyright": "© 2026 OpenWriter Project. All rights reserved.",
+	"copyright": "© 2026 Friday Project. All rights reserved.",
 	"type": "module",
 	"license": "MIT",
 	"main": "./out/main/index.js",
@@ -108,7 +108,7 @@
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
 		"@types/react-syntax-highlighter": "^15.5.13",
-		"@vitejs/plugin-react": "^4.3.4",
+		"@vitejs/plugin-react": "^5.0.2",
 		"cross-env": "^7.0.3",
 		"electron": "^41.3.0",
 		"electron-builder": "^26.8.1",
@@ -128,9 +128,9 @@
 		"shadcn-ui": "^0.9.5",
 		"tailwindcss": "4",
 		"ts-jest": "^29.4.6",
-		"typescript": "^5.8.3",
+		"typescript": "^5.9.2",
 		"typescript-eslint": "^8.18.2",
-		"vite": "6.0.5",
+		"vite": "^7.1.4",
 		"vite-tsconfig-paths": "^5.1.4"
 	}
 }

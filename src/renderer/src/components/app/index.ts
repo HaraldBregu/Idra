@@ -1,4 +1,4 @@
-export { AppIconOpenWriter } from './icons/AppIconOpenWriter';
+export { AppIconFriday } from './icons/AppIconFriday';
 
 export {
 	PageContainer,

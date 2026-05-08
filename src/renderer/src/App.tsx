@@ -6,8 +6,6 @@ import { LayoutLoadingSkeleton } from './components/app/base/LayoutLoadingSkelet
 import type { AppStartupInfo } from '../../shared/types';
 import { TooltipProvider } from './components/ui/Tooltip';
 import { router } from './router';
-import { StartupRouterProvider } from './startup-router-context';
-import { useWorkspaceValidation } from './hooks/use-workspace-validation';
 import './index.css';
 
 const FALLBACK_STARTUP_INFO: AppStartupInfo = {
@@ -15,11 +13,6 @@ const FALLBACK_STARTUP_INFO: AppStartupInfo = {
 	isFirstRun: false,
 	isInitialized: true,
 };
-
-function WorkspaceValidationBridge(): null {
-	useWorkspaceValidation();
-	return null;
-}
 
 const App: React.FC = () => {
 	const [startupInfo, setStartupInfo] = useState<AppStartupInfo | null>(null);
@@ -88,7 +81,6 @@ const App: React.FC = () => {
 			<ErrorBoundary level="root">
 				<AppProvider>
 					<TooltipProvider>
-						<WorkspaceValidationBridge />
 						<LayoutLoadingSkeleton />
 					</TooltipProvider>
 				</AppProvider>
@@ -100,10 +92,7 @@ const App: React.FC = () => {
 		<ErrorBoundary level="root">
 			<AppProvider>
 				<TooltipProvider>
-					<WorkspaceValidationBridge />
-					<StartupRouterProvider value={{ startupInfo, showSplash, setStartupInfo }}>
-						<RouterProvider router={router} />
-					</StartupRouterProvider>
+					<RouterProvider router={router} context={{ startupInfo, showSplash, setStartupInfo }} />
 				</TooltipProvider>
 			</AppProvider>
 		</ErrorBoundary>

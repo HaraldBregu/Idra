@@ -66,7 +66,7 @@ export class Workspace implements Disposable {
 	}
 
 	/**
-	 * List every managed workspace under `{home}/OpenWriter/workspaces/`. Each entry is
+	 * List every managed workspace under `{home}/Friday/workspaces/`. Each entry is
 	 * enriched with project name + description from workspace.json's `project`
 	 * block (null when missing/unreadable). Sorted most-recently-opened first;
 	 * never-opened workspaces fall back to alphabetical order at the end.
@@ -112,7 +112,7 @@ export class Workspace implements Disposable {
 			};
 		} catch (err) {
 			// Roll back the empty folder if metadata write fails so we don't leave
-			// orphan workspaces under {home}/OpenWriter/workspaces/.
+			// orphan workspaces under {home}/Friday/workspaces/.
 			await fsPromises.rm(workspacePath, { recursive: true, force: true }).catch(() => undefined);
 			throw err;
 		}

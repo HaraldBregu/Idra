@@ -1,6 +1,6 @@
 import { useContext } from 'react';
-import { LanguageContext } from '../contexts/LanguageProvider';
-import type { LanguageContextValue } from '../contexts/LanguageProvider';
+import { LanguageContext } from '../contexts/AppContext';
+import type { LanguageContextValue } from '../contexts/AppContext';
 
 export function useLanguageContext(): LanguageContextValue {
 	const ctx = useContext(LanguageContext);
