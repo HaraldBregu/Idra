@@ -39,7 +39,7 @@ function toTaskInfo(t: ActiveTask): TaskInfo {
  *  - task:list    (query)   -- List active tasks. Returns TaskInfo[].
  *
  * Streaming events are pushed from TaskExecutor via EventBus on the
- * `task:event` channel. The renderer subscribes with window.task.onEvent().
+ * `task:event` channel. The renderer subscribes with window.app.task.onEvent().
  *
  * Security notes:
  *  - windowId is always stamped from event.sender.id in task:submit, never trusted from payload.

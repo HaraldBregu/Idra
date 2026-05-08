@@ -130,7 +130,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('agentRegistry', agentRegistry);
 
 	// Assistant registry -- conversational OpenAI assistants. One default
-	// assistant ('main') is registered eagerly so window.assistant.send works
+	// assistant ('main') is registered eagerly so window.app.assistant.send works
 	// without any renderer-side init.
 	const assistantRegistry = new AssistantRegistry();
 	assistantRegistry.create({
