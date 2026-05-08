@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useWorkspaceListener } from '../../../hooks/use-workspace-listener';
 import { useWorkspaceValidation } from '../../../hooks/use-workspace-validation';
@@ -39,7 +39,6 @@ import { AppIconOpenWriter } from '..';
 import {
 	Settings,
 	ChevronRight,
-	Search,
 	Globe,
 	Plus,
 	Sun,
@@ -48,7 +47,6 @@ import {
 	MoreHorizontal,
 	Pencil,
 	Trash2,
-	Folder,
 	Copy,
 	GalleryVerticalEnd,
 	EllipsisVertical,
@@ -91,12 +89,13 @@ const LANGUAGE_OPTIONS: readonly { value: AppLanguage; labelKey: string }[] = [
 function Container({ children }: LayoutProps) {
 	const { t } = useTranslation();
 	const { toggleSidebar, open } = useSidebar();
-	const { activeModal, open: openCommandModal } = useCommandModal();
+	const { activeModal } = useCommandModal();
 	const location = useLocation();
+	const router = useRouter();
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const handleNavigateBack = useCallback(() => navigate(-1), [navigate]);
-	const handleNavigateForward = useCallback(() => navigate(1), [navigate]);
+	const handleNavigateBack = useCallback(() => router.history.back(), [router]);
+	const handleNavigateForward = useCallback(() => router.history.forward(), [router]);
 	const projectName = useAppSelector(selectProjectName);
 	const currentWorkspacePath = useAppSelector(selectCurrentWorkspacePath);
 	const workspaces = useAppSelector(selectWorkspaces);
@@ -109,7 +108,6 @@ function Container({ children }: LayoutProps) {
 			: typeof navigator !== 'undefined' && navigator.userAgent.includes('Win')
 				? 'win'
 				: 'linux';
-	const searchShortcutLabel = getShortcutLabel(ShortcutId.openAppSearch, shortcutPlatform);
 	const newDocumentShortcutLabel = getShortcutLabel(ShortcutId.newDocument, shortcutPlatform);
 
 	// Listen for workspace changes from main process and update Redux
@@ -141,12 +139,8 @@ function Container({ children }: LayoutProps) {
 	);
 
 	const handleAddWorkspace = useCallback(() => {
-		navigate('/');
+		navigate({ to: '/' });
 	}, [navigate]);
-
-	const handleOpenSearch = useCallback(() => {
-		openCommandModal('search');
-	}, [openCommandModal]);
 
 	// -------------------------------------------------------------------------
 	// Documents list — sourced from Redux (loaded/watched at app startup)
@@ -240,24 +234,9 @@ function Container({ children }: LayoutProps) {
 
 	const handleConfirmDelete = useCallback(async () => {
 		if (!pendingDelete) return;
-		const { id } = pendingDelete;
 		setPendingDelete(null);
-		await window.workspace.deleteOutput({ type: 'documents', id });
-		if (location.pathname === `/document/${id}`) {
-			const nextDocument = documents.find((doc) => doc.id !== id);
-			if (nextDocument) {
-				navigate(`/document/${nextDocument.id}`, { replace: true });
-				requestAnimationFrame(() => {
-					const target = document.querySelector<HTMLAnchorElement>(
-						`a[href="/document/${nextDocument.id}"]`
-					);
-					target?.focus();
-				});
-			} else {
-				navigate('/settings/assistant', { replace: true });
-			}
-		}
-	}, [pendingDelete, documents, location.pathname, navigate]);
+		await window.workspace.deleteOutput({ type: 'documents', id: pendingDelete.id });
+	}, [pendingDelete]);
 
 	const handleDeleteDialogOpenChange = useCallback((open: boolean) => {
 		if (!open) setPendingDelete(null);
@@ -316,19 +295,19 @@ function Container({ children }: LayoutProps) {
 		(value: string) => {
 			switch (value) {
 				case 'general':
-					navigate('/settings/general');
+					navigate({ to: '/settings/general' });
 					break;
 				case 'workspace':
-					navigate('/settings/workspace');
+					navigate({ to: '/settings/workspace' });
 					break;
 				case 'editor':
-					navigate('/settings/editor');
+					navigate({ to: '/settings/editor' });
 					break;
 				case 'system':
-					navigate('/settings/system');
+					navigate({ to: '/settings/system' });
 					break;
 				case 'changeWorkspace':
-					navigate('/');
+					navigate({ to: '/' });
 					break;
 				default:
 					break;
@@ -362,7 +341,7 @@ function Container({ children }: LayoutProps) {
 				onToggleSidebar={toggleSidebar}
 				onNavigateBack={isLandingPage ? undefined : handleNavigateBack}
 				onNavigateForward={isLandingPage ? undefined : handleNavigateForward}
-				showSidebarToggles={location.pathname.startsWith('/document/')}
+				showSidebarToggles={false}
 			/>
 
 			<SidebarPageContainer>
@@ -449,21 +428,6 @@ function Container({ children }: LayoutProps) {
 											</span>
 										</SidebarMenuButton>
 									</SidebarMenuItem>
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											className="group/btn h-9 px-3 group-data-[collapsible=icon]:justify-center"
-											isActive={activeModal === 'search'}
-											onClick={handleOpenSearch}
-										>
-											<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-transparent">
-												<Search className="h-3.5 w-3.5" />
-											</span>
-											<span className="flex-1 truncate group-data-[collapsible=icon]:hidden">{t('menu.search', 'Search')}</span>
-											<span className="text-sm text-muted-foreground/60 opacity-0 group-hover/btn:opacity-100 transition-opacity group-data-[collapsible=icon]:hidden">
-												{searchShortcutLabel}
-											</span>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
 								</SidebarMenu>
 							</SidebarGroupContent>
 						</SidebarGroup>
@@ -487,9 +451,9 @@ function Container({ children }: LayoutProps) {
 												{documents.map((w) => (
 													<SidebarMenuItem key={w.id}>
 														<SidebarMenuButton
-															render={<Link to={`/document/${w.id}`} />}
+															render={<Link to="/settings/assistant" />}
 															className="h-9 px-3"
-															isActive={location.pathname === `/document/${w.id}`}
+															isActive={false}
 															onKeyDown={(event) =>
 																handleDocumentKeyDown(event, { id: w.id, title: w.title })
 															}
@@ -548,17 +512,6 @@ function Container({ children }: LayoutProps) {
 
 						<SidebarGroup className="mt-auto">
 							<SidebarMenu className="gap-1">
-								<SidebarMenuItem>
-									<SidebarMenuButton
-										render={<Link to="/resources" />}
-										tooltip={t('appLayout.resources', 'Resources')}
-										className="group/btn h-9 px-3"
-										isActive={location.pathname === '/resources'}
-									>
-										<Folder />
-										<span>{t('appLayout.resources', 'Resources')}</span>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
 								<SidebarMenuItem>
 									<SidebarMenuButton
 										render={<Link to="/settings" />}

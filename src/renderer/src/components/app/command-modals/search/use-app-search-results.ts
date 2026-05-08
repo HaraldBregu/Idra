@@ -25,7 +25,7 @@ export function useAppSearchResults(query: string) {
 			mimeType: resource.mimeType,
 			importedAt: resource.createdAt,
 			lastModified: resource.modifiedAt,
-			href: '/resources',
+			href: '/settings/assistant',
 			categoryLabel: t('appLayout.resources', 'Resources'),
 			icon: LibraryBig,
 		})),

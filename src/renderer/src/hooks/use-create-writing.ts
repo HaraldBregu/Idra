@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import type { SaveOutputResult } from '../../../shared/types';
 
 export interface UseCreateWritingOptions {
@@ -19,7 +19,7 @@ export interface UseCreateWritingResult {
  *   1. Calls window.workspace.saveOutput to persist the folder on disk.
  *   2. Invokes options.onCreated with the result (if provided) so callers
  *      can optimistically update their UI before the file-watcher fires.
- *   3. Navigates to /document/:id on success.
+ *   3. Navigates to the assistant settings page on success.
  *
  * Uses a ref-based in-flight guard so rapid successive clicks are ignored
  * without requiring the caller to track the loading state in their own
@@ -53,7 +53,7 @@ export function useCreateWriting(options?: UseCreateWritingOptions): UseCreateWr
 			// can be updated optimistically without waiting for the file watcher.
 			optionsRef.current?.onCreated?.(result);
 
-			navigate(`/document/${result.id}`);
+			navigate({ to: '/settings/assistant' });
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to create writing.';
 			setError(message);

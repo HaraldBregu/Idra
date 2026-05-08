@@ -1,42 +1,14 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { store } from './store';
+import React, { useEffect, useState } from 'react';
+import { RouterProvider } from '@tanstack/react-router';
 import { AppProvider } from './contexts';
-import { Layout } from './components/app/base/Layout';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
-import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { LayoutLoadingSkeleton } from './components/app/base/LayoutLoadingSkeleton';
 import type { AppStartupInfo } from '../../shared/types';
-import WelcomePage from './pages/welcome/WelcomePage';
-import ConfigPage from './pages/welcome/ConfigPage';
-import { Layout as SettingsLayout } from './pages/settings';
-import {
-	loadDocuments,
-	refreshDocument,
-	documentRemoved,
-	loadResources,
-	resourceRemoved,
-} from './store/workspace';
 import { TooltipProvider } from './components/ui/Tooltip';
+import { router } from './router';
+import { StartupRouterProvider } from './startup-router-context';
+import { useWorkspaceValidation } from './hooks/use-workspace-validation';
 import './index.css';
-
-// Lazy-loaded pages
-const SplashPage = lazy(() => import('./pages/splash/SplashPage'));
-const DocumentPage = lazy(() => import('./pages/document/Page'));
-const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
-const ResourcesPage = lazy(() => import('./pages/resources/Page'));
-const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
-// Lazy-loaded settings pages
-const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
-const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
-const WorkspacePage = lazy(() => import('./pages/settings/pages/WorkspacePage'));
-const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
-const ThemesPage = lazy(() => import('./pages/settings/pages/ThemesPage'));
-const EditorPage = lazy(() => import('./pages/settings/pages/EditorPage'));
-const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'));
-const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
-const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 
 const FALLBACK_STARTUP_INFO: AppStartupInfo = {
 	startupCount: 0,
@@ -44,54 +16,8 @@ const FALLBACK_STARTUP_INFO: AppStartupInfo = {
 	isInitialized: true,
 };
 
-function RouteWrapper({ children }: { children: React.ReactNode }) {
-	return (
-		<ErrorBoundary level="route">
-			<Suspense fallback={<PageLoadingSkeleton />}>{children}</Suspense>
-		</ErrorBoundary>
-	);
-}
-
-function WorkspaceEventBridge(): null {
-	useEffect(() => {
-		if (typeof window.workspace?.onOutputFileChange !== 'function') {
-			return;
-		}
-
-		// Keep subscriptions lifecycle-bound so dev reloads do not accumulate
-		// duplicate IPC listeners and repeated refresh dispatches.
-		store.dispatch(loadDocuments());
-		const unsubscribe = window.workspace.onOutputFileChange((event) => {
-			if (event.outputType !== 'documents') return;
-			if (event.type === 'changed') {
-				store.dispatch(refreshDocument(event.fileId));
-			} else if (event.type === 'removed') {
-				store.dispatch(documentRemoved(event.fileId));
-			} else {
-				store.dispatch(loadDocuments());
-			}
-		});
-
-		return unsubscribe;
-	}, []);
-
-	useEffect(() => {
-		if (typeof window.workspace?.onResourcesChanged !== 'function') {
-			return;
-		}
-
-		store.dispatch(loadResources());
-		const unsubscribe = window.workspace.onResourcesChanged((event) => {
-			if (event.type === 'removed') {
-				store.dispatch(resourceRemoved(event.resourceId));
-			} else {
-				store.dispatch(loadResources());
-			}
-		});
-
-		return unsubscribe;
-	}, []);
-
+function WorkspaceValidationBridge(): null {
+	useWorkspaceValidation();
 	return null;
 }
 
@@ -137,7 +63,7 @@ const App: React.FC = () => {
 		}, 3000);
 
 		const preload = (): void => {
-			void import('./pages/document/Page');
+			void import('./pages/settings/pages/assistant/Page');
 		};
 		const win = window as unknown as {
 			requestIdleCallback?: (cb: () => void) => number;
@@ -160,190 +86,26 @@ const App: React.FC = () => {
 	if (!startupInfo) {
 		return (
 			<ErrorBoundary level="root">
-				<Provider store={store}>
-					<AppProvider>
-						<TooltipProvider>
-							<WorkspaceEventBridge />
-							<LayoutLoadingSkeleton />
-						</TooltipProvider>
-					</AppProvider>
-				</Provider>
+				<AppProvider>
+					<TooltipProvider>
+						<WorkspaceValidationBridge />
+						<LayoutLoadingSkeleton />
+					</TooltipProvider>
+				</AppProvider>
 			</ErrorBoundary>
 		);
 	}
 
 	return (
 		<ErrorBoundary level="root">
-			<Provider store={store}>
-				<AppProvider>
-					<TooltipProvider>
-						<WorkspaceEventBridge />
-						<Router>
-							<Routes>
-								<Route path="/">
-									<Route
-										index
-										element={
-											showSplash ? (
-												<RouteWrapper>
-													<SplashPage />
-												</RouteWrapper>
-											) : startupInfo.isInitialized ? (
-												<WelcomePage />
-											) : (
-												<RouteWrapper>
-													<ConfigPage onConfigured={setStartupInfo} />
-												</RouteWrapper>
-											)
-										}
-									/>
-									<Route
-										path="config"
-										element={
-											<RouteWrapper>
-												<ConfigPage onConfigured={setStartupInfo} />
-											</RouteWrapper>
-										}
-									/>
-								</Route>
-
-								<Route
-									path="*"
-									element={
-										<Layout>
-											<Suspense fallback={<PageLoadingSkeleton />}>
-												<Routes>
-													<Route
-														path="/settings/*"
-														element={
-															<RouteWrapper>
-																<SettingsLayout />
-															</RouteWrapper>
-														}
-													>
-														<Route
-															index
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<GeneralPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="general"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<GeneralPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="account"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<AccountPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="workspace"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<WorkspacePage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="themes"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<ThemesPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="editor"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<EditorPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="system"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<SystemPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="developer"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<DeveloperPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="agents"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<AgentsPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="providers"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<ProvidersPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="channels"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<ChannelsPage />
-																</Suspense>
-															}
-														/>
-														<Route
-															path="assistant"
-															element={
-																<Suspense fallback={<PageLoadingSkeleton />}>
-																	<AssistantPage />
-																</Suspense>
-															}
-														/>
-													</Route>
-													<Route
-														path="/document/:id"
-														element={
-															<RouteWrapper>
-																<DocumentPage />
-															</RouteWrapper>
-														}
-													/>
-													<Route
-														path="/resources"
-														element={
-															<RouteWrapper>
-																<ResourcesPage />
-															</RouteWrapper>
-														}
-													/>
-												</Routes>
-											</Suspense>
-										</Layout>
-									}
-								/>
-							</Routes>
-						</Router>
-					</TooltipProvider>
-				</AppProvider>
-			</Provider>
+			<AppProvider>
+				<TooltipProvider>
+					<WorkspaceValidationBridge />
+					<StartupRouterProvider value={{ startupInfo, showSplash, setStartupInfo }}>
+						<RouterProvider router={router} />
+					</StartupRouterProvider>
+				</TooltipProvider>
+			</AppProvider>
 		</ErrorBoundary>
 	);
 };

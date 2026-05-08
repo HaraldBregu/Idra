@@ -34,14 +34,6 @@ export const APP_SEARCH_ACTIONS: AppSearchActionDefinition[] = [
 		meta: 'Route',
 	},
 	{
-		id: 'resources',
-		title: 'Open Resources',
-		description: 'Browse imported documents and files.',
-		href: '/resources',
-		icon: LibraryBig,
-		meta: 'Route',
-	},
-	{
 		id: 'settings-general',
 		title: 'Open Settings · General',
 		description: 'General app preferences and language.',

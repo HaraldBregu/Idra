@@ -3,12 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { FolderOpen } from 'lucide-react';
 import type { ProjectWorkspaceInfo } from '../../../../../shared/types';
 import { Input } from '@/components/ui/Input';
-import { useAppDispatch } from '@/store';
-import { loadProjectName } from '@/store/workspace/actions';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function formatDate(iso: string): string {
 	return new Date(iso).toLocaleString(undefined, {
@@ -22,13 +16,8 @@ function formatDate(iso: string): string {
 
 type EditingField = 'name' | 'description' | null;
 
-// ---------------------------------------------------------------------------
-// Main page
-// ---------------------------------------------------------------------------
-
 const WorkspacePage: React.FC = () => {
 	const { t } = useTranslation();
-	const reduxDispatch = useAppDispatch();
 
 	const [currentWorkspace, setCurrentWorkspace] = useState<string | null>(null);
 	const [projectInfo, setProjectInfo] = useState<ProjectWorkspaceInfo | null>(null);
@@ -100,7 +89,6 @@ const WorkspacePage: React.FC = () => {
 			.then((updated) => {
 				setProjectInfo(updated);
 				setEditingField(null);
-				reduxDispatch(loadProjectName());
 			})
 			.catch(() => {
 				setSaveError(true);
@@ -108,7 +96,7 @@ const WorkspacePage: React.FC = () => {
 			.finally(() => {
 				setIsSaving(false);
 			});
-	}, [editingField, draft, projectInfo, reduxDispatch]);
+	}, [editingField, draft, projectInfo]);
 
 	const handleEditKeyDown = useCallback(
 		(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -242,14 +230,14 @@ const WorkspacePage: React.FC = () => {
 										onBlur={handleCommit}
 										onKeyDown={handleEditKeyDown}
 										disabled={isSaving}
-										className="h-7 px-2 py-0 text-sm w-56"
+										className="h-7 px-2 py-0 text-sm w-72"
 										aria-label={t('workspacePage.descriptionPlaceholder')}
 									/>
 								) : (
 									<button
 										type="button"
 										onClick={() => handleStartEdit('description')}
-										className="text-sm text-right max-w-[14rem] truncate hover:text-foreground hover:underline underline-offset-2 transition-colors cursor-text"
+										className="text-sm truncate max-w-[18rem] text-right hover:text-foreground hover:underline underline-offset-2 transition-colors cursor-text"
 										title={projectInfo.description || t('workspacePage.descriptionPlaceholder')}
 										aria-label={`${t('common.edit')} ${t('workspacePage.descriptionLabel')}: ${projectInfo.description || t('workspacePage.descriptionPlaceholder')}`}
 									>
@@ -265,90 +253,20 @@ const WorkspacePage: React.FC = () => {
 
 						<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
 							<div className="flex flex-1 flex-col gap-1">
-								<h3 className="text-sm leading-snug font-medium">
-									{t('workspacePage.projectId')}
-								</h3>
-								<p className="text-sm leading-normal text-muted-foreground">
-									{t('workspacePage.projectIdDescription')}
-								</p>
+								<h3 className="text-sm leading-snug font-medium">{t('workspacePage.createdAt')}</h3>
 							</div>
-							<div className="flex items-center gap-2">
-								<span className="font-mono text-xs text-muted-foreground truncate max-w-[14rem] inline-block">
-									{projectInfo.projectId}
-								</span>
+							<span className="text-sm text-muted-foreground">{formatDate(projectInfo.createdAt)}</span>
+						</div>
+
+						<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
+							<div className="flex flex-1 flex-col gap-1">
+								<h3 className="text-sm leading-snug font-medium">{t('workspacePage.updatedAt')}</h3>
 							</div>
+							<span className="text-sm text-muted-foreground">{formatDate(projectInfo.updatedAt)}</span>
 						</div>
 					</>
 				)}
 			</div>
-
-			{!isLoading && currentWorkspace && projectInfo && (
-				<>
-					<div className="pt-6 pb-2 first:pt-0">
-						<h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-							{t('workspacePage.sections.versioning')}
-						</h2>
-					</div>
-
-					<div className="flex flex-col gap-2">
-						<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-							<div className="flex flex-1 flex-col gap-1">
-								<h3 className="text-sm leading-snug font-medium">
-									{t('workspacePage.schemaVersion')}
-								</h3>
-								<p className="text-sm leading-normal text-muted-foreground">
-									{t('workspacePage.schemaVersionDescription')}
-								</p>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="font-mono text-sm">{projectInfo.version}</span>
-							</div>
-						</div>
-
-						<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-							<div className="flex flex-1 flex-col gap-1">
-								<h3 className="text-sm leading-snug font-medium">
-									{t('workspacePage.appVersion')}
-								</h3>
-								<p className="text-sm leading-normal text-muted-foreground">
-									{t('workspacePage.appVersionDescription')}
-								</p>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="font-mono text-sm">{projectInfo.appVersion}</span>
-							</div>
-						</div>
-
-						<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-							<div className="flex flex-1 flex-col gap-1">
-								<h3 className="text-sm leading-snug font-medium">
-									{t('workspacePage.createdAt')}
-								</h3>
-								<p className="text-sm leading-normal text-muted-foreground">
-									{t('workspacePage.createdAtDescription')}
-								</p>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="text-sm">{formatDate(projectInfo.createdAt)}</span>
-							</div>
-						</div>
-
-						<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-							<div className="flex flex-1 flex-col gap-1">
-								<h3 className="text-sm leading-snug font-medium">
-									{t('workspacePage.updatedAt')}
-								</h3>
-								<p className="text-sm leading-normal text-muted-foreground">
-									{t('workspacePage.updatedAtDescription')}
-								</p>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="text-sm">{formatDate(projectInfo.updatedAt)}</span>
-							</div>
-						</div>
-					</div>
-				</>
-			)}
 		</div>
 	);
 };

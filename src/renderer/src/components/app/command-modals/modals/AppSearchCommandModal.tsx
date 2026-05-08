@@ -1,5 +1,5 @@
 import { startTransition, useDeferredValue, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import {
 	CommandEmpty,
@@ -18,6 +18,7 @@ import type { CommandModalProps } from '../registry/command-modal-registry';
 
 export function AppSearchCommandModal({ open, onOpenChange }: CommandModalProps) {
 	const { t } = useTranslation();
+	const router = useRouter();
 	const navigate = useNavigate();
 	const [query, setQuery] = useState('');
 	const deferredQuery = useDeferredValue(query);
@@ -26,8 +27,14 @@ export function AppSearchCommandModal({ open, onOpenChange }: CommandModalProps)
 	function handleSelect(item: AppSearchResultItem): void {
 		onOpenChange(false);
 		setQuery('');
+
+		if (item.kind === 'document') {
+			navigate({ to: '/settings/assistant' });
+			return;
+		}
+
 		if (item.href) {
-			navigate(item.href);
+			router.history.push(item.href);
 		}
 	}
 

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { FileText } from 'lucide-react';
 import {
@@ -20,9 +20,9 @@ export function DocumentCommandModal({ open, onOpenChange }: CommandModalProps) 
 
 	const documents = [...documentsFromStore].sort((a, b) => b.createdAt - a.createdAt);
 
-	function handleSelect(id: string): void {
+	function handleSelect(_id: string): void {
 		onOpenChange(false);
-		navigate(`/document/${id}`);
+		navigate({ to: '/settings/assistant' });
 	}
 
 	return (

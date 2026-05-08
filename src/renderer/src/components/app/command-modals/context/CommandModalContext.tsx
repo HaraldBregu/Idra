@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-export type CommandModalId = 'documents' | 'search';
+export type CommandModalId = 'documents';
 
 export interface CommandModalContextValue {
 	activeModal: CommandModalId | null;

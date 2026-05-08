@@ -1,13 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { TasksDialog } from '@/components/app/dialogs/TasksDialog';
-import { ReduxStateDialog } from '@/components/app/dialogs/ReduxStateDialog';
 import { LogDialog } from '@/components/app/dialogs/LogDialog';
 import { CronDialog } from '@/components/app/dialogs/CronDialog';
 
 interface DebugDialogsContextValue {
 	openTasksDialog: () => void;
-	openReduxDialog: () => void;
 	openLogDialog: () => void;
 	openCronDialog: () => void;
 }
@@ -16,12 +14,10 @@ const DebugDialogsContext = createContext<DebugDialogsContextValue | undefined>(
 
 export function DebugDialogsProvider({ children }: { children: ReactNode }) {
 	const [tasksOpen, setTasksOpen] = useState(false);
-	const [reduxOpen, setReduxOpen] = useState(false);
 	const [logOpen, setLogOpen] = useState(false);
 	const [cronOpen, setCronOpen] = useState(false);
 
 	const openTasksDialog = useCallback(() => setTasksOpen(true), []);
-	const openReduxDialog = useCallback(() => setReduxOpen(true), []);
 	const openLogDialog = useCallback(() => setLogOpen(true), []);
 	const openCronDialog = useCallback(() => setCronOpen(true), []);
 
@@ -34,10 +30,6 @@ export function DebugDialogsProvider({ children }: { children: ReactNode }) {
 			typeof window.app?.onOpenLogsDialog === 'function'
 				? window.app.onOpenLogsDialog(openLogDialog)
 				: undefined;
-		const unsubRedux =
-			typeof window.app?.onOpenReduxDialog === 'function'
-				? window.app.onOpenReduxDialog(openReduxDialog)
-				: undefined;
 		const unsubCron =
 			typeof window.app?.onOpenCronDialog === 'function'
 				? window.app.onOpenCronDialog(openCronDialog)
@@ -45,18 +37,14 @@ export function DebugDialogsProvider({ children }: { children: ReactNode }) {
 		return () => {
 			unsubTasks?.();
 			unsubLogs?.();
-			unsubRedux?.();
 			unsubCron?.();
 		};
-	}, [openTasksDialog, openLogDialog, openReduxDialog, openCronDialog]);
+	}, [openTasksDialog, openLogDialog, openCronDialog]);
 
 	return (
-		<DebugDialogsContext.Provider
-			value={{ openTasksDialog, openReduxDialog, openLogDialog, openCronDialog }}
-		>
+		<DebugDialogsContext.Provider value={{ openTasksDialog, openLogDialog, openCronDialog }}>
 			{children}
 			<TasksDialog open={tasksOpen} onOpenChange={setTasksOpen} />
-			<ReduxStateDialog open={reduxOpen} onOpenChange={setReduxOpen} />
 			<LogDialog open={logOpen} onOpenChange={setLogOpen} />
 			<CronDialog open={cronOpen} onOpenChange={setCronOpen} />
 		</DebugDialogsContext.Provider>

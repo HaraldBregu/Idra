@@ -122,7 +122,7 @@ export function buildAppSearchSections({
 					title: document.title,
 					description: document.path,
 					meta: `Updated ${formatRelativeTime(document.updatedAt)}`,
-					href: `/document/${document.id}`,
+					href: '/settings/assistant',
 					icon: icons.document,
 				},
 			}))

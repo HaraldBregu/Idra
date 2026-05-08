@@ -13,9 +13,24 @@ import { Input } from '../../ui/Input';
 import { Label } from '../../ui/Label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/Select';
 import { ImagePlus, Upload } from 'lucide-react';
-import { fileToDataUri } from '../editor/plugins/image-drop-paste-plugin';
 
 type ImageSource = 'url' | 'upload';
+
+function fileToDataUri(file: File): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onerror = () => reject(new Error('Failed to read file'));
+		reader.onload = () => {
+			const result = reader.result;
+			if (typeof result === 'string') {
+				resolve(result);
+			} else {
+				reject(new Error('Failed to read file'));
+			}
+		};
+		reader.readAsDataURL(file);
+	});
+}
 
 interface InsertImageResult {
 	src: string;

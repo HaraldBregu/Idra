@@ -1,7 +1,8 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { FolderOpen, Clock, Plus, X, AlertTriangle } from 'lucide-react';
+import type { WorkspaceInfo } from '../../../../shared/types';
 import { AppIconOpenWriter } from '@/components/app';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -21,20 +22,16 @@ import {
 	useWorkspaceDeletionReason,
 	useClearDeletionReason,
 } from '@/hooks/use-workspace-validation';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { selectWorkspace, listWorkspaces, createWorkspace } from '@/store/workspace/actions';
-import { selectWorkspaces } from '@/store/workspace/selectors';
 
 interface WelcomePageProps {}
 
 const WelcomePage: React.FC<WelcomePageProps> = () => {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
-	const dispatch = useAppDispatch();
-	const workspaces = useAppSelector(selectWorkspaces);
 	const deletionReason = useWorkspaceDeletionReason();
 	const clearDeletion = useClearDeletionReason();
 
+	const [workspaces, setWorkspaces] = useState<WorkspaceInfo[]>([]);
 	const [createOpen, setCreateOpen] = useState(false);
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
@@ -42,8 +39,25 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	useEffect(() => {
-		void dispatch(listWorkspaces());
-	}, [dispatch]);
+		let cancelled = false;
+
+		window.workspace
+			.list()
+			.then((items) => {
+				if (!cancelled) {
+					setWorkspaces(items);
+				}
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setWorkspaces([]);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	const openCreateDialog = useCallback(() => {
 		setName('');
@@ -63,30 +77,35 @@ const WelcomePage: React.FC<WelcomePageProps> = () => {
 			setSubmitting(true);
 			setSubmitError(null);
 			try {
-				await dispatch(
-					createWorkspace({ name: trimmedName, description: description.trim() })
-				).unwrap();
+				const workspace = await window.workspace.create({
+					name: trimmedName,
+					description: description.trim(),
+				});
+				await window.workspace.setCurrent(workspace.path);
+				setWorkspaces((current) => [workspace, ...current.filter((item) => item.id !== workspace.id)]);
+				clearDeletion();
 				setCreateOpen(false);
-				navigate('/settings/assistant');
+				navigate({ to: '/settings/assistant' });
 			} catch (err) {
 				setSubmitError(err instanceof Error ? err.message : String(err));
 			} finally {
 				setSubmitting(false);
 			}
 		},
-		[dispatch, name, description, navigate, t]
+		[name, description, navigate, t, clearDeletion]
 	);
 
 	const handleOpenWorkspace = useCallback(
 		async (path: string) => {
 			try {
-				await dispatch(selectWorkspace(path)).unwrap();
-				navigate('/settings/assistant');
+				await window.workspace.setCurrent(path);
+				clearDeletion();
+				navigate({ to: '/settings/assistant' });
 			} catch (error) {
 				console.error('Failed to open workspace:', error);
 			}
 		},
-		[dispatch, navigate]
+		[navigate, clearDeletion]
 	);
 
 	const formatRelativeTime = (timestamp: number) => {

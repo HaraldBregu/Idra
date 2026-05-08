@@ -1,7 +1,6 @@
 import type { ComponentType } from 'react';
 import { ShortcutId } from '../../../../../../shared/shortcuts';
 import type { CommandModalId } from '../context/CommandModalContext';
-import { AppSearchCommandModal } from '../modals/AppSearchCommandModal';
 import { DocumentCommandModal } from '../modals/DocumentCommandModal';
 
 export interface CommandModalProps {
@@ -16,11 +15,6 @@ interface CommandModalDefinition {
 }
 
 export const COMMAND_MODAL_DEFINITIONS: CommandModalDefinition[] = [
-	{
-		id: 'search',
-		shortcutId: ShortcutId.openAppSearch,
-		Component: AppSearchCommandModal,
-	},
 	{
 		id: 'documents',
 		shortcutId: ShortcutId.openDocumentList,

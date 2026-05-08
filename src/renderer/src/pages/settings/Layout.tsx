@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import {
 	PageBody,
@@ -12,32 +12,46 @@ import {
 import { useLanguageMode } from '@/hooks/use-language-mode';
 import { Button } from '@/components/ui/Button';
 
+type SettingsPath =
+	| '/settings/general'
+	| '/settings/account'
+	| '/settings/workspace'
+	| '/settings/editor'
+	| '/settings/themes'
+	| '/settings/agents'
+	| '/settings/providers'
+	| '/settings/channels'
+	| '/settings/assistant'
+	| '/settings/system'
+	| '/settings/developer';
+
 interface NavItemProps {
-	readonly to: string;
+	readonly to: SettingsPath;
 	readonly label: string;
 	readonly badge?: React.ReactNode;
 }
 
 function NavItem({ to, label, badge }: NavItemProps): React.JSX.Element {
+	const location = useLocation();
+	const isActive = location.pathname === to;
+
 	return (
-		<NavLink to={to} end className="block outline-none">
-			{({ isActive }) => (
-				<Button
-					nativeButton={false}
-					variant={isActive ? 'secondary' : 'ghost'}
-					size="md"
-					className="w-full justify-start"
-					render={<span />}
-				>
-					<span className="flex-1 text-left">{label}</span>
-					{badge !== undefined && badge !== null && (
-						<span className="ml-auto text-xs text-muted-foreground tabular-nums">
-							{badge}
-						</span>
-					)}
-				</Button>
-			)}
-		</NavLink>
+		<Link to={to} className="block outline-none">
+			<Button
+				nativeButton={false}
+				variant={isActive ? 'secondary' : 'ghost'}
+				size="md"
+				className="w-full justify-start"
+				render={<span />}
+			>
+				<span className="flex-1 text-left">{label}</span>
+				{badge !== undefined && badge !== null && (
+					<span className="ml-auto text-xs text-muted-foreground tabular-nums">
+						{badge}
+					</span>
+				)}
+			</Button>
+		</Link>
 	);
 }
 
