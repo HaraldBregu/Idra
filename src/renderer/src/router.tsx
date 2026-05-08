@@ -33,6 +33,16 @@ export interface RouterContext {
 	readonly setStartupInfo: Dispatch<SetStateAction<AppStartupInfo | null>>;
 }
 
+const DEFAULT_ROUTER_CONTEXT: RouterContext = {
+	startupInfo: {
+		startupCount: 0,
+		isFirstRun: false,
+		isInitialized: true,
+	},
+	showSplash: false,
+	setStartupInfo: () => undefined,
+};
+
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
 		<ErrorBoundary level="route">
@@ -259,6 +269,7 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
 	routeTree,
 	history: createHashHistory(),
+	context: DEFAULT_ROUTER_CONTEXT,
 	defaultPendingComponent: PageLoadingSkeleton,
 });
 
