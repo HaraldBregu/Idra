@@ -3,7 +3,6 @@ import { typedInvokeUnwrap, typedInvokeRaw, typedSend, typedOn } from './typed-i
 import {
 	AppChannels,
 	WindowChannels,
-	WorkspaceChannels,
 	TaskChannels,
 	AssistantChannels,
 } from '../shared/channels';
@@ -21,8 +20,6 @@ import type {
 	WhatsappChannelProperties,
 	DiscordChannelProperties,
 	ChannelStatusEvent,
-	WorkspaceInfo,
-	CreateWorkspaceParams,
 	ProviderEntry,
 } from '../shared/types';
 
@@ -167,56 +164,6 @@ const baseApp = {
 };
 
 // ---------------------------------------------------------------------------
-// window.app.workspace — Workspace folder selection, documents, directories, output
-// ---------------------------------------------------------------------------
-const workspace: AppApi['workspace'] = {
-	getCurrent: (): Promise<string | null> => {
-		return typedInvokeUnwrap(WorkspaceChannels.getCurrent);
-	},
-	setCurrent: (workspacePath: string): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.setCurrent, workspacePath);
-	},
-	list: (): Promise<WorkspaceInfo[]> => {
-		return typedInvokeUnwrap(WorkspaceChannels.list);
-	},
-	create: (params: CreateWorkspaceParams): Promise<WorkspaceInfo> => {
-		return typedInvokeUnwrap(WorkspaceChannels.create, params);
-	},
-	onDeleted: (
-		callback: (event: {
-			deletedPath: string;
-			reason: 'deleted' | 'inaccessible' | 'renamed';
-			timestamp: number;
-		}) => void
-	): (() => void) => {
-		return typedOn(WorkspaceChannels.deleted, callback);
-	},
-	// -------------------------------------------------------------------------
-	// Shell
-	// -------------------------------------------------------------------------
-	openWorkspaceFolder: (): Promise<void> => {
-		return typedInvokeUnwrap(WorkspaceChannels.openWorkspaceFolder);
-	},
-	// -------------------------------------------------------------------------
-	// Output file management (documents)
-	// -------------------------------------------------------------------------
-	saveOutput: (input: {
-		type: string;
-		content: string;
-		metadata?: Record<string, unknown>;
-	}): Promise<{ id: string; path: string; savedAt: number }> => {
-		return typedInvokeUnwrap(WorkspaceChannels.outputSave, input);
-	},
-	// -------------------------------------------------------------------------
-	// Project workspace (workspace.json `project` block)
-	// -------------------------------------------------------------------------
-	getProjectInfo: () => typedInvokeUnwrap(WorkspaceChannels.getProjectInfo),
-	updateProjectName: (name: string) => typedInvokeUnwrap(WorkspaceChannels.updateProjectName, name),
-	updateProjectDescription: (description: string) =>
-		typedInvokeUnwrap(WorkspaceChannels.updateProjectDescription, description),
-} satisfies AppApi['workspace'];
-
-// ---------------------------------------------------------------------------
 // window.app.task — Background task queue
 // ---------------------------------------------------------------------------
 const task: AppApi['task'] = {
@@ -251,7 +198,6 @@ const assistant: AppApi['assistant'] = {
 
 const app: AppApi = {
 	...baseApp,
-	workspace,
 	task,
 	assistant,
 };

@@ -1,7 +1,7 @@
 import { Assistant, type AssistantOptions } from './assistant';
 
 /**
- * Registry of initialized assistants, keyed by id. Mirrors AgentRegistry.
+ * Registry of initialized assistants, keyed by id.
  */
 export class AssistantRegistry {
 	private readonly assistants = new Map<string, Assistant>();

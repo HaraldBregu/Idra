@@ -41,8 +41,7 @@ function parseAccelerator(accelerator: string, isMac: boolean): KeyCombo {
  * window, the matching ShortcutId is forwarded to the renderer on
  * `AppChannels.shortcut`.
  *
- * Works in both launcher and workspace-isolated-process modes without
- * depending on the application menu.
+ * Works across application windows without depending on the application menu.
  */
 export class ShortcutManager {
 	private readonly bindings: ShortcutBinding[];

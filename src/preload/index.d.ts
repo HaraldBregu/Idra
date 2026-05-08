@@ -11,16 +11,10 @@
 // ---------------------------------------------------------------------------
 
 import type {
-	WorkspaceInfo,
-	WorkspaceDeletedEvent,
-	CreateWorkspaceParams,
 	TaskAction,
 	TaskActionReturn,
 	TaskInfo,
 	TaskEvent,
-	SaveOutputInput,
-	SaveOutputResult,
-	ProjectWorkspaceInfo,
 	AppLogEntry,
 	AppStartupInfo,
 	AgentSettings,
@@ -47,17 +41,11 @@ import type { AssistantResponseEvent } from '../shared/channels';
 // declaration rather than reaching into the shared directory directly.
 // ---------------------------------------------------------------------------
 export type {
-	WorkspaceInfo,
-	WorkspaceDeletedEvent,
-	CreateWorkspaceParams,
 	TaskAction,
 	TaskActionReturn,
 	TaskInfo,
 	TaskEvent,
-	SaveOutputInput,
-	SaveOutputResult,
 	IpcResult,
-	ProjectWorkspaceInfo,
 	ProviderEntry,
 	ProviderModelInfo,
 	AppLogEntry,
@@ -91,34 +79,6 @@ export interface WindowApi {
 
 /** General application utilities. Additional IPC namespaces are grouped under this object. */
 export interface AppApi {
-	workspace: {
-		getCurrent: () => Promise<string | null>;
-		setCurrent: (workspacePath: string) => Promise<void>;
-		/** List every managed workspace, sorted most-recently-opened first. */
-		list: () => Promise<WorkspaceInfo[]>;
-		/** Create a new managed workspace and return its WorkspaceInfo. */
-		create: (params: CreateWorkspaceParams) => Promise<WorkspaceInfo>;
-		/** Subscribe to workspace deletion events (folder deleted/moved while app is open) */
-		onDeleted: (callback: (event: WorkspaceDeletedEvent) => void) => () => void;
-		// -------------------------------------------------------------------------
-		// Shell
-		// -------------------------------------------------------------------------
-		/** Open the current workspace root folder in the system file explorer. */
-		openWorkspaceFolder: () => Promise<void>;
-		// -------------------------------------------------------------------------
-		// Output file management (documents)
-		// -------------------------------------------------------------------------
-		saveOutput: (input: SaveOutputInput) => Promise<SaveOutputResult>;
-		// -------------------------------------------------------------------------
-		// Project workspace (workspace.json `project` block)
-		// -------------------------------------------------------------------------
-		/** Get the project workspace info, or null if no workspace is set. */
-		getProjectInfo: () => Promise<ProjectWorkspaceInfo | null>;
-		/** Update the project name. */
-		updateProjectName: (name: string) => Promise<ProjectWorkspaceInfo>;
-		/** Update the project description. */
-		updateProjectDescription: (description: string) => Promise<ProjectWorkspaceInfo>;
-	};
 	task: {
 		submit: (action: TaskAction) => Promise<IpcResult<TaskActionReturn>>;
 		cancel: (taskId: string) => Promise<IpcResult<boolean>>;

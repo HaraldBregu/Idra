@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
 
 const SplashPage: React.FC = () => {
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			void navigate({ to: '/home', replace: true });
+		}, 1800);
+
+		return () => {
+			window.clearTimeout(timer);
+		};
+	}, [navigate]);
+
 	return (
 		<div className="flex items-center justify-center h-screen w-screen bg-gradient-to-br from-background via-background to-background/95">
 			<div className="animate-fade-in animate-bounce-slow">

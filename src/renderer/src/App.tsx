@@ -15,7 +15,6 @@ const FALLBACK_STARTUP_INFO: AppStartupInfo = {
 
 const App: React.FC = () => {
 	const [startupInfo, setStartupInfo] = useState<AppStartupInfo | null>(null);
-	const [showSplash, setShowSplash] = useState(true);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -50,10 +49,6 @@ const App: React.FC = () => {
 	useEffect(() => {
 		if (!startupInfo) return;
 
-		const splashTimer = setTimeout(() => {
-			setShowSplash(false);
-		}, 3000);
-
 		const preload = (): void => {
 			void import('./pages/settings/pages/assistant/Page');
 		};
@@ -66,7 +61,6 @@ const App: React.FC = () => {
 			: window.setTimeout(preload, 1500);
 
 		return () => {
-			clearTimeout(splashTimer);
 			if (win.requestIdleCallback && win.cancelIdleCallback) {
 				win.cancelIdleCallback(preloadHandle);
 			} else {
@@ -88,7 +82,7 @@ const App: React.FC = () => {
 	return (
 		<ErrorBoundary level="root">
 			<AppProvider>
-				<RouterProvider router={router} context={{ startupInfo, showSplash, setStartupInfo }} />
+				<RouterProvider router={router} context={{ startupInfo, setStartupInfo }} />
 			</AppProvider>
 		</ErrorBoundary>
 	);

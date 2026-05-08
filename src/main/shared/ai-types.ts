@@ -1,5 +1,5 @@
 /**
- * Shared AI types used across agents.
+ * Shared AI types used across main-process AI flows.
  */
 
 export interface ChatMessage {

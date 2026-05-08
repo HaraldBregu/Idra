@@ -93,50 +93,36 @@ export interface CronTickEvent {
 	readonly firedAt: string;
 }
 
-export type ProviderId = (typeof PROVIDERS)[number]['id'];
-export type ProviderName = (typeof PROVIDERS)[number]['name'];
+export type ProviderId = 'openai' | 'anthropic';
+export type ProviderName = 'OpenAI' | 'Anthropic';
 
-export type ModelType =
-	| 'text'
-	| 'image'
-	| 'video'
-	| 'multimodal'
-	| 'embedding'
-	| 'audio'
-	| 'code'
-	| 'reasoning';
+export interface ProviderDefinition {
+	id: ProviderId;
+	name: ProviderName;
+}
 
-export interface ModelInfo {
-	readonly providerId: ProviderId;
-	readonly modelId: string;
-	readonly name: string;
-	readonly type: ModelType;
-	readonly contextWindow: number | null;
-	readonly maxOutputTokens: number | null;
-	readonly knowledgeCutoff?: string;
-	readonly inputPricePerMillionTokens?: number;
-	readonly cachedInputPricePerMillionTokens?: number;
-	readonly outputPricePerMillionTokens?: number | Record<string, number>;
-	readonly features?: readonly string[];
-	readonly reasoningLevels?: readonly string[];
-	readonly toolsSupported?: readonly string[];
-	readonly endpoints?: readonly string[];
-	readonly snapshots?: readonly string[];
-	readonly rateLimits?: string;
-	readonly notes?: string;
+export interface ProviderConfig {
+	apikey: string;
+	model: string;
 }
 
 export interface Provider {
-	id: string;
-	name: string;
+	openai: ProviderConfig;
+	anthropic: ProviderConfig;
+}
+
+export interface ProviderEntry {
+	id: ProviderId;
+	name: ProviderName;
 	apiKey: string;
+	model: string;
 }
 
 /** Canonical list of known providers. Source of truth for ProviderId and ProviderName. */
 export const PROVIDERS = [
-	{ id: 'openai', name: 'OpenAI', apiKey: '' },
-	{ id: 'anthropic', name: 'Anthropic', apiKey: '' },
-] as const satisfies readonly Provider[];
+	{ id: 'openai', name: 'OpenAI' },
+	{ id: 'anthropic', name: 'Anthropic' },
+] as const satisfies readonly ProviderDefinition[];
 
 /**
  * Single model entry as returned by a provider's `/models` endpoint.
@@ -192,61 +178,9 @@ export interface AppStartupInfo {
 	isInitialized: boolean;
 }
 
-// ---- Workspace ------------------------------------------------------------
-
-export interface WorkspaceInfo {
-	/** Folder name (UUID) under `{userData}/workspaces/`. Stable identifier. */
-	id: string;
-	/** Absolute path to the workspace folder. */
-	path: string;
-	lastOpened: number;
-	/** Project name read from workspace.json `project` block, or null if unreadable. */
-	name: string | null;
-	/** Project description read from workspace.json `project` block, or null if unreadable. */
-	description: string | null;
-}
-
-/** Input payload when creating a new workspace via IPC. */
-export interface CreateWorkspaceParams {
-	name: string;
-	description?: string;
-}
-
-export interface WorkspaceChangedEvent {
-	currentPath: string | null;
-	previousPath: string | null;
-}
-
-/**
- * Event emitted when the current workspace folder is detected as deleted,
- * renamed, or otherwise inaccessible while the application is running.
- */
-export interface WorkspaceDeletedEvent {
-	/** The path that was previously set as the workspace */
-	deletedPath: string;
-	/** Human-readable reason for the event */
-	reason: 'deleted' | 'inaccessible' | 'renamed';
-	/** Timestamp when the deletion was detected */
-	timestamp: number;
-}
-
 // ---- Task -----------------------------------------------------------------
 
 export type TaskPriority = 'low' | 'normal' | 'high';
-
-export interface TaskSubmitOptions {
-	taskId?: string;
-	priority?: TaskPriority;
-	timeoutMs?: number;
-	windowId?: number;
-}
-
-export interface TaskSubmitPayload<TInput = unknown> {
-	type: string;
-	input: TInput;
-	options?: TaskSubmitOptions;
-	metadata?: Record<string, unknown>;
-}
 
 export type TaskState = 'queued' | 'started' | 'running' | 'finished' | 'cancelled';
 
@@ -315,111 +249,6 @@ export interface TaskAction<TInput = unknown> {
  */
 export type TaskActionReturn = { taskId: string };
 
-// ---- Resources (workspace/resources/) -------------------------------------
-
-/**
- * A single file under the workspace `resources/` folder.
- * All resources share one shape regardless of mime type.
- */
-export interface ResourceInfo {
-	/** Unique identifier — the file's basename within resources/ */
-	id: string;
-	/** Display name (basename) */
-	name: string;
-	/** Absolute path on disk */
-	path: string;
-	/** Path relative to the workspace resources/ folder */
-	relativePath: string;
-	/** Size in bytes */
-	size: number;
-	/** Detected MIME type */
-	mimeType: string;
-	/** Timestamp (ms) when the resource was first imported / detected */
-	createdAt: number;
-	/** Timestamp (ms) of the last modification on disk */
-	modifiedAt: number;
-}
-
-export interface ResourceEntryChangeEvent {
-	type: 'added' | 'changed' | 'removed';
-	resourceId: string;
-	resourcePath: string;
-	timestamp: number;
-}
-
-// ---- Resources UI helpers (renderer-only) ---------------------------------
-
-export type FilesViewMode = 'list' | 'grid';
-export type FileTypeFilter =
-	| 'all'
-	| 'image'
-	| 'video'
-	| 'audio'
-	| 'json'
-	| 'markdown'
-	| 'text'
-	| 'pdf';
-export type FilesSortKey = 'name' | 'createdAt' | 'mimeType' | 'size';
-export type FilesSortDirection = 'none' | 'asc' | 'desc';
-
-export const FILE_TYPE_FILTERS: { value: FileTypeFilter; label: string }[] = [
-	{ value: 'all', label: 'All' },
-	{ value: 'image', label: 'Images' },
-	{ value: 'video', label: 'Video' },
-	{ value: 'audio', label: 'Audio' },
-	{ value: 'json', label: 'JSON' },
-	{ value: 'markdown', label: 'Markdown' },
-	{ value: 'text', label: 'Text' },
-	{ value: 'pdf', label: 'PDF' },
-];
-
-// ---- Output ---------------------------------------------------------------
-
-export type OutputType = 'documents';
-
-export interface OutputFileMetadata {
-	title: string;
-	type: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface OutputFile {
-	id: string;
-	type: OutputType;
-	path: string;
-	metadata: OutputFileMetadata;
-	content: string;
-	savedAt: number;
-}
-
-export interface OutputFileChangeEvent {
-	type: 'added' | 'changed' | 'removed';
-	outputType: string;
-	fileId: string;
-	filePath: string;
-	timestamp: number;
-}
-
-export interface SaveOutputInput {
-	type: string;
-	content: string;
-	metadata?: Record<string, unknown>;
-}
-
-export interface SaveOutputResult {
-	id: string;
-	path: string;
-	savedAt: number;
-}
-
-export interface OutputUpdateParams {
-	type: string;
-	id: string;
-	content: string;
-	metadata: Record<string, unknown>;
-}
-
 // ---- Context Menu ---------------------------------------------------------
 
 export interface WritingContextMenuAction {
@@ -449,219 +278,6 @@ export type ContextMenuDescriptor =
 		destructive?: boolean;
 	};
 
-// ---- Common ---------------------------------------------------------------
-
-export interface WatcherError {
-	error: string;
-	timestamp: number;
-}
-
-// ---- FileSystem -----------------------------------------------------------
-
-/**
- * Payload for fs:read-file. The result is the raw string content of the file.
- */
-export interface FsReadFileParams {
-	/** Absolute path to the file to read. */
-	filePath: string;
-	/** Text encoding (default: 'utf-8'). */
-	encoding?: 'utf-8' | 'utf8' | 'ascii' | 'latin1';
-}
-
-/**
- * Payload for fs:write-file.
- */
-export interface FsWriteFileParams {
-	/** Absolute path of the destination file. */
-	filePath: string;
-	/** String content to write. */
-	content: string;
-	/** Text encoding (default: 'utf-8'). */
-	encoding?: 'utf-8' | 'utf8' | 'ascii' | 'latin1';
-	/**
-	 * When `true` (default), uses an atomic write-then-rename strategy.
-	 * Set to `false` only on filesystems that do not support sibling renames.
-	 */
-	atomic?: boolean;
-	/**
-	 * When `true`, creates missing parent directories before writing.
-	 * Default: `false`.
-	 */
-	createParents?: boolean;
-}
-
-/**
- * Payload for fs:create-file.
- */
-export interface FsCreateFileParams {
-	/** Absolute path of the file to create. */
-	filePath: string;
-	/** Initial text content (default: empty string). */
-	content?: string;
-	/** Text encoding (default: 'utf-8'). */
-	encoding?: 'utf-8' | 'utf8' | 'ascii' | 'latin1';
-	/**
-	 * When `true`, throws if the file already exists.
-	 * Default: `false` (idempotent — silently succeeds if the file exists).
-	 */
-	failIfExists?: boolean;
-	/**
-	 * When `true`, creates missing parent directories before creating the file.
-	 * Default: `false`.
-	 */
-	createParents?: boolean;
-}
-
-/**
- * Payload for fs:create-folder.
- */
-export interface FsCreateFolderParams {
-	/** Absolute path of the directory to create. */
-	folderPath: string;
-	/**
-	 * When `true` (default), creates all intermediate ancestors (mkdir -p).
-	 * When `false`, throws if the parent does not exist.
-	 */
-	recursive?: boolean;
-	/**
-	 * When `true`, throws if the directory already exists.
-	 * Default: `false` (idempotent).
-	 */
-	failIfExists?: boolean;
-}
-
-/**
- * Payload for fs:delete-folder.
- */
-export interface FsDeleteFolderParams {
-	/** Absolute path of the directory to delete. */
-	folderPath: string;
-	/**
-	 * When `true` (default), removes the directory recursively.
-	 * When `false`, deletion fails for non-empty directories.
-	 */
-	recursive?: boolean;
-}
-
-/**
- * Payload for fs:delete-file.
- */
-export interface FsDeleteFileParams {
-	/** Absolute path of the file to delete. */
-	filePath: string;
-}
-
-/**
- * Payload for fs:rename.
- */
-export interface FsRenameParams {
-	/** Current absolute path of the file or directory. */
-	oldPath: string;
-	/** Desired absolute destination path. */
-	newPath: string;
-	/**
-	 * When `true` (default), throws if `newPath` already exists.
-	 * Set to `false` to restore POSIX rename semantics (atomically replaces destination).
-	 */
-	failIfExists?: boolean;
-}
-
-/**
- * Result returned by fs:rename.
- */
-export interface FsRenameResult {
-	/** The resolved absolute path after the rename. */
-	newPath: string;
-}
-
-/**
- * Payload for fs:list-dir.
- */
-export interface FsListDirParams {
-	/** Absolute path of the directory to list. */
-	dirPath: string;
-}
-
-/**
- * A single entry returned by fs:list-dir.
- */
-export interface FsListDirEntry {
-	/** Name of the file or directory (basename only, no path). */
-	name: string;
-	/** Whether the entry is a directory. */
-	isDirectory: boolean;
-}
-
-// ---- Document Config -------------------------------------------------------
-
-/**
- * Per-document configuration combining output file metadata with
- * document-specific model overrides stored in the document's config.json.
- */
-export interface DocumentConfig {
-	title: string;
-	type: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-// ---- Project Workspace ----------------------------------------------------
-
-/**
- * Allowed values for the editor max-width selector. Maps to a static Tailwind
- * class in the renderer (small → max-w-3xl, medium → max-w-5xl,
- * large → max-w-7xl, full → max-w-full).
- */
-export type EditorMaxWidthType = 'small' | 'medium' | 'large' | 'full';
-
-/**
- * Allowed values for the editor font selector. Maps to a static Tailwind
- * font-family class in the renderer (`!font-default`, `!font-sans`,
- * `!font-serif`, `!font-writer`).
- */
-export type EditorFontType = 'default' | 'sans' | 'serif' | 'writer';
-
-/**
- * Project-level metadata stored under the `project` key inside the workspace's
- * workspace.json file. Identifies and describes the workspace.
- */
-export interface ProjectWorkspaceInfo {
-	/** Schema version for forward compatibility. */
-	version: number;
-	/** Unique identifier for this project workspace (UUID v4). */
-	projectId: string;
-	/** Human-readable project name (defaults to the folder name). */
-	name: string;
-	/** Optional project description. */
-	description: string;
-	/** ISO 8601 timestamp when the project was first created. */
-	createdAt: string;
-	/** ISO 8601 timestamp of the last update to this file. */
-	updatedAt: string;
-	/** Application version that created this project file. */
-	appVersion: string;
-	/** Document editor max-width preset. */
-	maxWidthType: EditorMaxWidthType;
-	/** Document editor text size as a whole-number percentage (50–300). */
-	textSize: number;
-	/** Document editor font preset. */
-	fontType: EditorFontType;
-}
-
-// ---- AI Agents ------------------------------------------------------------
-
-export type AgentStreamEvent =
-	| { type: 'token'; token: string; runId: string }
-	| { type: 'thinking'; content: string; runId: string }
-	| { type: 'done'; content: string; tokenCount: number; runId: string }
-	| { type: 'error'; error: string; code: string; runId: string };
-
-export interface AgentDefinitionInfo {
-	id: string;
-	name: string;
-	category: 'writing' | 'editing' | 'analysis' | 'utility';
-}
-
 // ---- Agent Task Streaming -------------------------------------------------
 
 /**
@@ -676,16 +292,6 @@ export interface AssistantTaskMetadata {
 	posTo: number;
 }
 
-/** Renderer-facing payload for the `task:submit` input when `type === 'agent'`. */
-export interface AgentTaskSubmitInput {
-	agentType: 'assistant' | 'text-writer' | 'text-generator-v2';
-	input: {
-		prompt?: string;
-		raw?: string;
-		files: { name: string; mimeType?: string }[];
-	};
-}
-
 /** Display phase surfaced to the status bar. Derived on main from AgentEvent kinds. */
 export type AgentPhase =
 	| 'queued'
@@ -695,18 +301,6 @@ export type AgentPhase =
 	| 'completed'
 	| 'error'
 	| 'cancelled';
-
-/** Payload for AgentEvent.kind === 'phase'. */
-export interface AgentPhasePayload {
-	phase: AgentPhase;
-	label: string;
-}
-
-/** Payload for AgentEvent.kind === 'delta'. `fullContent` is authoritative for recovery. */
-export interface AgentDeltaPayload {
-	token: string;
-	fullContent: string;
-}
 
 /**
  * Return value of AgentTaskHandler.execute. Appears on the wire as
@@ -823,8 +417,6 @@ export interface Channel {
 }
 
 export type ChannelType = keyof Channel;
-
-export type ChannelPropertiesFor<K extends ChannelType> = Channel[K];
 
 export type ChannelConnectionStatus =
 	| 'connecting'

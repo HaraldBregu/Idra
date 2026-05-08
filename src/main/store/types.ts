@@ -1,29 +1,24 @@
-import type { AgentSettings, Channel, Provider, UserProfile } from '../../shared/types';
+import type { Channel, Provider, UserProfile } from '../../shared/types';
 
-export interface WorkspaceInfo {
-	path: string;
-	lastOpened: number;
+export interface AssistantConfiguration {
+	apikey: string;
+	model: string;
 }
 
 export interface StoreSchema {
-	providers: Provider[];
-	agents: AgentSettings[];
+	providers: Provider;
+	assistantConfiguration: AssistantConfiguration;
 	channel: Channel | null;
-	currentWorkspace: string | null;
-	recentWorkspaces: WorkspaceInfo[];
-	startupCount: number;
-	isInitialized: boolean;
 	profile: UserProfile | null;
 }
 
 export const DEFAULTS: StoreSchema = {
-	providers: [],
-	agents: [],
+	providers: {
+		openai: { apikey: '', model: '' },
+		anthropic: { apikey: '', model: '' },
+	},
+	assistantConfiguration: { apikey: '', model: '' },
 	channel: null,
-	currentWorkspace: null,
-	recentWorkspaces: [],
-	startupCount: 0,
-	isInitialized: false,
 	profile: null,
 };
 

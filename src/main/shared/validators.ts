@@ -3,7 +3,7 @@
  * Used by AppIpc (store handlers) to validate user inputs.
  */
 
-import type { AgentSettings, Provider } from '../../shared/types';
+import type { AgentSettings, ProviderEntry } from '../../shared/types';
 import { isKnownProvider } from '../../shared/providers';
 
 export class StoreValidators {
@@ -20,7 +20,7 @@ export class StoreValidators {
 		}
 	}
 
-	static validateProvider(provider: Provider): void {
+	static validateProvider(provider: ProviderEntry): void {
 		if (typeof provider !== 'object' || provider === null) {
 			throw new Error('Provider must be an object');
 		}
@@ -52,7 +52,7 @@ export class StoreValidators {
 		}
 	}
 
-	static validateProviders(providers: Provider[]): void {
+	static validateProviders(providers: ProviderEntry[]): void {
 		if (!Array.isArray(providers)) {
 			throw new Error('Providers must be an array');
 		}

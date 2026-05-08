@@ -23,7 +23,7 @@ import type {
 	ContextMenuDescriptor,
 	CronJobInfo,
 	CronTickEvent,
-	Provider,
+	ProviderEntry,
 	ProviderModelInfo,
 	TelegramChannelProperties,
 	UserProfile,
@@ -122,6 +122,7 @@ export class AppIpc implements IpcModule {
 	private lastTheme: ThemeMode | null = null;
 	private lastLanguage: string | null = null;
 	private trayEnabled = true;
+	private readonly agents = new Map<string, AgentSettings>();
 
 	register(container: ServiceContainer, eventBus: EventBus): void {
 		const store = container.get<StoreService>('store');
@@ -297,7 +298,7 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			AppChannels.addProvider,
-			wrapSimpleHandler((provider: Provider) => {
+			wrapSimpleHandler((provider: ProviderEntry) => {
 				StoreValidators.validateProvider(provider);
 				return store.addProvider(provider);
 			}, AppChannels.addProvider)
@@ -313,14 +314,15 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			AppChannels.getAgents,
-			wrapSimpleHandler(() => store.getAgents(), AppChannels.getAgents)
+			wrapSimpleHandler(() => Array.from(this.agents.values()), AppChannels.getAgents)
 		);
 
 		ipcMain.handle(
 			AppChannels.updateAgent,
 			wrapSimpleHandler((agent: AgentSettings) => {
 				StoreValidators.validateAgentSettings(agent);
-				return store.updateAgent(agent);
+				this.agents.set(agent.id, agent);
+				return agent;
 			}, AppChannels.updateAgent)
 		);
 
@@ -344,7 +346,7 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			AppChannels.completeFirstRunConfiguration,
-			wrapSimpleHandler((profile: UserProfile, providers: Provider[]) => {
+			wrapSimpleHandler((profile: UserProfile, providers: ProviderEntry[]) => {
 				StoreValidators.validateProviders(providers);
 				return store.completeFirstRunConfiguration(profile, providers);
 			}, AppChannels.completeFirstRunConfiguration)

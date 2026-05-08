@@ -9,36 +9,13 @@
 // ---------------------------------------------------------------------------
 
 import type {
-	WorkspaceInfo,
-	WorkspaceChangedEvent,
-	WorkspaceDeletedEvent,
-	CreateWorkspaceParams,
 	TaskAction,
 	TaskInfo,
 	TaskEvent,
 	AgentTaskSnapshot,
 	AgentTaskLookupResult,
-	ResourceInfo,
-	ResourceEntryChangeEvent,
-	OutputFile,
-	OutputFileChangeEvent,
-	SaveOutputInput,
-	SaveOutputResult,
 	WritingContextMenuAction,
 	ContextMenuDescriptor,
-	FsReadFileParams,
-	FsWriteFileParams,
-	FsCreateFolderParams,
-	FsDeleteFolderParams,
-	FsDeleteFileParams,
-	FsRenameParams,
-	FsRenameResult,
-	FsListDirParams,
-	FsListDirEntry,
-	ProjectWorkspaceInfo,
-	EditorMaxWidthType,
-	EditorFontType,
-	DocumentConfig,
 	AppLogEntry,
 	AppStartupInfo,
 	AgentSettings,
@@ -47,7 +24,7 @@ import type {
 	CronJobInfo,
 	CronTickEvent,
 	Theme,
-	Provider,
+	ProviderEntry,
 	ProviderModelInfo,
 	UserProfile,
 	Channel,
@@ -62,57 +39,6 @@ import type { ShortcutId } from './shortcuts';
 // ===========================================================================
 // Channel Name Constants (grouped by domain)
 // ===========================================================================
-
-export const WorkspaceChannels = {
-	// Workspace
-	getCurrent: 'workspace-get-current',
-	setCurrent: 'workspace-set-current',
-	list: 'workspace-list',
-	create: 'workspace-create',
-	clear: 'workspace-clear',
-	changed: 'workspace:changed',
-	deleted: 'workspace:deleted',
-	// Shell
-	openWorkspaceFolder: 'workspace:open-workspace-folder',
-	openResourcesFolder: 'workspace:open-resources-folder',
-	openDocumentFolder: 'workspace:open-document-folder',
-	getDocumentPath: 'workspace:get-document-path',
-	// Output (documents)
-	outputSave: 'output:save',
-	outputLoadAll: 'output:load-all',
-	loadByType: 'output:load-by-type',
-	outputLoadOne: 'output:load-one',
-	outputDelete: 'output:delete',
-	outputTrash: 'output:trash',
-	outputFileChanged: 'output:file-changed',
-	// Filesystem
-	fsReadFile: 'fs:read-file',
-	fsReadFileBinary: 'fs:read-file-binary',
-	fsWriteFile: 'fs:write-file',
-	fsCreateFolder: 'fs:create-folder',
-	fsDeleteFolder: 'fs:delete-folder',
-	fsDeleteFile: 'fs:delete-file',
-	fsRename: 'fs:rename',
-	fsListDir: 'fs:list-dir',
-	// Project workspace
-	getProjectInfo: 'project-workspace:get-info',
-	updateProjectName: 'project-workspace:update-name',
-	updateProjectDescription: 'project-workspace:update-description',
-	updateMaxWidthType: 'project-workspace:update-max-width-type',
-	updateTextSize: 'project-workspace:update-text-size',
-	updateFontType: 'project-workspace:update-font-type',
-	// Document config + content
-	getDocumentConfig: 'workspace:get-document-config',
-	documentConfigChanged: 'workspace:document-config-changed',
-	getDocumentContent: 'workspace:get-document-content',
-	updateDocumentContent: 'workspace:update-document-content',
-	updateDocumentConfig: 'workspace:update-document-config',
-	// Resources (workspace/resources/)
-	getResources: 'resources:get-all',
-	insertResources: 'resources:insert',
-	deleteResource: 'resources:delete',
-	resourcesChanged: 'resources:changed',
-} as const;
 
 export const WindowChannels = {
 	minimize: 'window:minimize',
@@ -225,8 +151,8 @@ export const AppChannels = {
  */
 export interface InvokeChannelMap {
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	[AppChannels.getProviders]: { args: []; result: Provider[] };
-	[AppChannels.addProvider]: { args: [provider: Provider]; result: Provider };
+	[AppChannels.getProviders]: { args: []; result: ProviderEntry[] };
+	[AppChannels.addProvider]: { args: [provider: ProviderEntry]; result: ProviderEntry };
 	[AppChannels.deleteProvider]: { args: [id: string]; result: void };
 	[AppChannels.getAgents]: { args: []; result: AgentSettings[] };
 	[AppChannels.updateAgent]: { args: [agent: AgentSettings]; result: AgentSettings };
@@ -234,7 +160,7 @@ export interface InvokeChannelMap {
 	[AppChannels.getProfile]: { args: []; result: UserProfile | null };
 	[AppChannels.setProfile]: { args: [profile: UserProfile]; result: UserProfile };
 	[AppChannels.completeFirstRunConfiguration]: {
-		args: [profile: UserProfile, providers: Provider[]];
+		args: [profile: UserProfile, providers: ProviderEntry[]];
 		result: AppStartupInfo;
 	};
 	[AppChannels.getModels]: { args: [providerId: string]; result: ProviderModelInfo[] };
@@ -258,13 +184,6 @@ export interface InvokeChannelMap {
 		args: [phoneNumber: string];
 		result: string;
 	};
-	// ---- Workspace (IpcResult-wrapped) ----
-	[WorkspaceChannels.getCurrent]: { args: []; result: string | null };
-	[WorkspaceChannels.setCurrent]: { args: [workspacePath: string]; result: void };
-	[WorkspaceChannels.list]: { args: []; result: WorkspaceInfo[] };
-	[WorkspaceChannels.create]: { args: [params: CreateWorkspaceParams]; result: WorkspaceInfo };
-	[WorkspaceChannels.clear]: { args: []; result: void };
-
 	// ---- Window (IpcResult-wrapped for handle, raw for others) ----
 	[WindowChannels.isMaximized]: { args: []; result: boolean };
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
@@ -280,23 +199,6 @@ export interface InvokeChannelMap {
 		result: AgentTaskLookupResult | null;
 	};
 
-	// ---- Shell (IpcResult-wrapped) ----
-	[WorkspaceChannels.openWorkspaceFolder]: { args: []; result: void };
-	[WorkspaceChannels.openResourcesFolder]: { args: []; result: void };
-	[WorkspaceChannels.openDocumentFolder]: { args: [documentId: string]; result: void };
-	[WorkspaceChannels.getDocumentPath]: { args: [documentId: string]; result: string };
-
-	// ---- Output (IpcResult-wrapped) ----
-	[WorkspaceChannels.outputSave]: { args: [input: SaveOutputInput]; result: SaveOutputResult };
-	[WorkspaceChannels.outputLoadAll]: { args: []; result: OutputFile[] };
-	[WorkspaceChannels.loadByType]: { args: [type: string]; result: OutputFile[] };
-	[WorkspaceChannels.outputLoadOne]: {
-		args: [params: { type: string; id: string }];
-		result: OutputFile | null;
-	};
-	[WorkspaceChannels.outputDelete]: { args: [params: { type: string; id: string }]; result: void };
-	[WorkspaceChannels.outputTrash]: { args: [params: { type: string; id: string }]; result: void };
-
 	// ---- App — writing context menu (raw invoke) ----
 	[AppChannels.showWritingContextMenu]: {
 		args: [writingId: string, writingTitle: string];
@@ -310,16 +212,6 @@ export interface InvokeChannelMap {
 		args: [items: ContextMenuDescriptor[]];
 		result: string | null;
 	};
-
-	// ---- FileSystem (IpcResult-wrapped) ----
-	[WorkspaceChannels.fsReadFile]: { args: [params: FsReadFileParams]; result: string };
-	[WorkspaceChannels.fsReadFileBinary]: { args: [filePath: string]; result: string };
-	[WorkspaceChannels.fsWriteFile]: { args: [params: FsWriteFileParams]; result: void };
-	[WorkspaceChannels.fsCreateFolder]: { args: [params: FsCreateFolderParams]; result: void };
-	[WorkspaceChannels.fsDeleteFolder]: { args: [params: FsDeleteFolderParams]; result: void };
-	[WorkspaceChannels.fsDeleteFile]: { args: [params: FsDeleteFileParams]; result: void };
-	[WorkspaceChannels.fsRename]: { args: [params: FsRenameParams]; result: FsRenameResult };
-	[WorkspaceChannels.fsListDir]: { args: [params: FsListDirParams]; result: FsListDirEntry[] };
 
 	// ---- Logs (IpcResult-wrapped) ----
 	[AppChannels.getLogs]: { args: [limit?: number]; result: AppLogEntry[] };
@@ -353,49 +245,6 @@ export interface InvokeChannelMap {
 	[AppChannels.cronListJobs]: { args: []; result: CronJobInfo[] };
 	[AppChannels.cronHasJob]: { args: [id: string]; result: boolean };
 
-	// ---- Project Workspace (IpcResult-wrapped) ----
-	[WorkspaceChannels.getProjectInfo]: { args: []; result: ProjectWorkspaceInfo | null };
-	[WorkspaceChannels.updateProjectName]: { args: [name: string]; result: ProjectWorkspaceInfo };
-	[WorkspaceChannels.updateProjectDescription]: {
-		args: [description: string];
-		result: ProjectWorkspaceInfo;
-	};
-	[WorkspaceChannels.updateMaxWidthType]: {
-		args: [value: EditorMaxWidthType];
-		result: ProjectWorkspaceInfo;
-	};
-	[WorkspaceChannels.updateTextSize]: {
-		args: [percentage: number];
-		result: ProjectWorkspaceInfo;
-	};
-	[WorkspaceChannels.updateFontType]: {
-		args: [value: EditorFontType];
-		result: ProjectWorkspaceInfo;
-	};
-
-	// ---- Document config + content (IpcResult-wrapped) ----
-	[WorkspaceChannels.getDocumentConfig]: {
-		args: [documentId: string];
-		result: DocumentConfig;
-	};
-	[WorkspaceChannels.getDocumentContent]: {
-		args: [documentId: string];
-		result: string;
-	};
-	[WorkspaceChannels.updateDocumentContent]: {
-		args: [documentId: string, content: string];
-		result: void;
-	};
-	[WorkspaceChannels.updateDocumentConfig]: {
-		args: [documentId: string, config: Partial<DocumentConfig>];
-		result: void;
-	};
-
-	// ---- Resources: workspace/resources/ (IpcResult-wrapped) ----
-	[WorkspaceChannels.getResources]: { args: []; result: ResourceInfo[] };
-	[WorkspaceChannels.insertResources]: { args: [extensions?: string[]]; result: ResourceInfo[] };
-	[WorkspaceChannels.deleteResource]: { args: [id: string]; result: void };
-
 	// ---- Assistant (IpcResult-wrapped) ----
 	[AssistantChannels.send]: { args: [message: string, assistantId?: string]; result: string };
 	[AssistantChannels.reset]: { args: [assistantId?: string]; result: void };
@@ -427,13 +276,7 @@ export interface EventChannelMap {
 	[AppChannels.fileOpened]: { data: string };
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
-	[WorkspaceChannels.changed]: { data: WorkspaceChangedEvent };
-	[WorkspaceChannels.deleted]: { data: WorkspaceDeletedEvent };
 	[TaskChannels.event]: { data: TaskEvent };
-	[WorkspaceChannels.outputFileChanged]: { data: OutputFileChangeEvent };
-	[WorkspaceChannels.documentConfigChanged]: {
-		data: { documentId: string; config: DocumentConfig };
-	};
 	[AppChannels.writingContextMenuAction]: { data: WritingContextMenuAction };
 	[AppChannels.shortcut]: { data: ShortcutId };
 	[AppChannels.cronTick]: { data: CronTickEvent };
@@ -442,7 +285,5 @@ export interface EventChannelMap {
 	[AppChannels.openLogsDialog]: { data: undefined };
 	[AppChannels.openReduxDialog]: { data: undefined };
 	[AppChannels.openCronDialog]: { data: undefined };
-	// ---- Resources watcher events ----
-	[WorkspaceChannels.resourcesChanged]: { data: ResourceEntryChangeEvent };
 	[AssistantChannels.response]: { data: AssistantResponseEvent };
 }

@@ -1,22 +1,14 @@
 /**
  * WindowContext provides per-window isolated services.
  *
- * Problem: Previously, all windows shared the same global service instances,
- * causing workspace data to leak between windows (WorkspaceService.setCurrent()
- * would affect ALL windows).
- *
- * Solution: Each window gets its own ServiceContainer with isolated instances
- * of workspace-related services (WorkspaceService, WorkspaceMetadataService, etc.).
- *
  * Architecture:
  * - Global services (shared across all windows): Logger, MediaPermissions, etc.
- * - Window-scoped services (isolated per window): Workspace, WorkspaceMetadata, FileWatcher, etc.
+ * - Window-scoped services (isolated per window): services registered by WindowScopedServiceFactory.
  */
 
 import { BrowserWindow } from 'electron';
 import { ServiceContainer, type EventBus } from './index';
 import { StoreService } from '../store';
-import { WorkspaceService } from '../workspace/workspace-service';
 import {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceFactory,
@@ -81,16 +73,12 @@ export class WindowContext {
 	): Promise<void> {
 		try {
 			const storeService = globalContainer.get<StoreService>('store');
-			const workspaceService = new WorkspaceService(storeService, this.eventBus);
-			workspaceService.initialize();
-			this.container.register('workspace', workspaceService);
 
 			// Use factory to create and register remaining services
 			await serviceFactory.createAndRegisterAll(this.container, {
 				globalContainer,
 				eventBus: this.eventBus,
 				storeService,
-				workspaceService,
 			});
 
 			this.logger?.info('WindowContext', `Initialized all services for window ${this.windowId}`);

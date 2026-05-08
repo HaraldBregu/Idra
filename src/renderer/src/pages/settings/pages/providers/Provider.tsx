@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer } from 'react';
 import type { ReactElement, ReactNode } from 'react';
-import type { Provider, ProviderId } from '../../../../../../shared/types';
+import type { ProviderEntry, ProviderId } from '../../../../../../shared/types';
 import { PROVIDER_IDS, getProvider } from '../../../../../../shared/providers';
 import { providersReducer } from './context/reducer';
 import {
@@ -11,11 +11,11 @@ import {
 } from './context/state';
 
 export interface ProvidersContextValue {
-	providers: Provider[];
+	providers: ProviderEntry[];
 	drafts: DraftsByProvider;
 	persisted: DraftsByProvider;
 	saving: ReadonlySet<ProviderId>;
-	setProviders: (providers: Provider[]) => void;
+	setProviders: (providers: ProviderEntry[]) => void;
 	setDrafts: (drafts: DraftsByProvider) => void;
 	patchDraft: (providerId: ProviderId, patch: Partial<DraftProperties>) => void;
 	handleSave: (providerId: ProviderId) => Promise<void>;
@@ -42,12 +42,12 @@ export function ProvidersProvider({ children }: ProvidersProviderProps): ReactEl
 		const map = {} as DraftsByProvider;
 		for (const id of PROVIDER_IDS) {
 			const found = state.providers.find((p) => p.id === id);
-			map[id] = found ? { apiKey: found.apiKey } : EMPTY_DRAFT;
+			map[id] = found ? { apiKey: found.apiKey, model: found.model } : EMPTY_DRAFT;
 		}
 		return map;
 	}, [state.providers]);
 
-	const setProviders = useCallback((providers: Provider[]) => {
+	const setProviders = useCallback((providers: ProviderEntry[]) => {
 		dispatch({ type: 'SET_PROVIDERS', payload: providers });
 	}, []);
 
@@ -67,7 +67,8 @@ export function ProvidersProvider({ children }: ProvidersProviderProps): ReactEl
 			const draft = state.drafts[providerId];
 			const persistedForId = persisted[providerId];
 			const apiKey = draft.apiKey.trim();
-			if (apiKey === persistedForId.apiKey) return;
+			const model = draft.model.trim();
+			if (apiKey === persistedForId.apiKey && model === persistedForId.model) return;
 
 			const catalog = getProvider(providerId);
 			if (!catalog) return;
@@ -77,7 +78,7 @@ export function ProvidersProvider({ children }: ProvidersProviderProps): ReactEl
 				if (apiKey.length === 0) {
 					await window.app.deleteProvider(catalog.id);
 				} else {
-					await window.app.addProvider({ id: catalog.id, name: catalog.name, apiKey });
+					await window.app.addProvider({ id: catalog.id, name: catalog.name, apiKey, model });
 				}
 				const reloaded = await window.app.getProviders();
 				dispatch({ type: 'SET_PROVIDERS', payload: reloaded });

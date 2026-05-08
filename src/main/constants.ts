@@ -16,13 +16,3 @@
 
 /** Proprietary project file extension for this application. */
 export const WORKSPACE = '.json';
-
-// ---- Store ---------------------------------------------------------------
-
-/** Maximum number of recent workspace entries to keep. */
-export const MAX_RECENT_WORKSPACES = 20;
-
-// ---- Workspace -----------------------------------------------------------
-
-/** How often (ms) to validate that the current workspace folder still exists. */
-export const WORKSPACE_VALIDATION_INTERVAL_MS = 5_000;

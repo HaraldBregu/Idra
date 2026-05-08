@@ -15,9 +15,8 @@ import {
 } from '@/components/ui/Field';
 import { H1, H3, H4, Muted, Small } from '@/components/ui/Typography';
 import { PageBody, PageContainer } from '@/components/app/base/page';
-import { TitleBar } from '@/components/app/titlebar/TitleBar';
 import { PROVIDER_CATALOGUE, PROVIDER_IDS, getProvider } from '../../../../shared/providers';
-import type { Provider, ProviderId, AppStartupInfo } from '../../../../shared/types';
+import type { ProviderEntry, ProviderId, AppStartupInfo } from '../../../../shared/types';
 
 interface ConfigPageProps {
 	onConfigured: (startupInfo: AppStartupInfo) => void;
@@ -53,7 +52,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 			if (typeof window.app?.completeFirstRunConfiguration !== 'function') return;
 			setErrorMessage(null);
 			try {
-				const providers: Provider[] = PROVIDER_IDS.flatMap((providerId) => {
+				const providers: ProviderEntry[] = PROVIDER_IDS.flatMap((providerId) => {
 					const catalog = getProvider(providerId);
 					if (!catalog) return [];
 					return [
@@ -61,6 +60,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 							id: catalog.id,
 							name: catalog.name,
 							apiKey: value.tokens[providerId].trim(),
+							model: '',
 						},
 					];
 				});
@@ -83,8 +83,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 	});
 
 	return (
-		<PageContainer className="h-screen">
-			<TitleBar title={t('appTitle')} />
+		<PageContainer className="h-full">
 
 			<PageBody className="p-0">
 				<div className="grid min-h-full lg:grid-cols-2">

@@ -22,18 +22,12 @@ import { StoreService } from './store';
 import { LoggerService } from './logger';
 import { ThemeService } from './theme';
 import { CronService } from './cron';
-import { FileManager } from './shared/file_manager';
 import { TaskHandlerRegistry } from './task/task-handler-registry';
 import { TaskExecutor } from './task/task-executor';
 import { TaskReactionRegistry } from './task/task-reaction-registry';
 import { TaskReactionBus } from './task/task-reaction-bus';
 import { ServiceResolver } from './shared/service-resolver';
 import { ModelResolver } from './shared/model-resolver';
-import {
-	AgentRegistry,
-	ContentWriterAgent,
-	ContentReviewerAgent,
-} from './agents';
 import { AssistantRegistry, DEFAULT_ASSISTANT_ID } from './assistant';
 import { ChannelRegistry } from './channels';
 import {
@@ -43,7 +37,7 @@ import {
 
 // IPC modules
 import type { IpcModule } from './ipc';
-import { AppIpc, AssistantIpc, TaskIpc, WindowIpc, WorkspaceIpc } from './ipc';
+import { AppIpc, AssistantIpc, TaskIpc, WindowIpc } from './ipc';
 
 export interface BootstrapResult {
 	container: ServiceContainer;
@@ -71,12 +65,6 @@ export function bootstrapServices(): BootstrapResult {
 	// Register services (order matters for dependencies)
 	const storeService = container.register('store', new StoreService());
 
-	container.register('fileManagement', new FileManager());
-
-	// REMOVED: WorkspaceService, WorkspaceMetadataService, FileWatcherService, DocumentsWatcherService
-	// These services are now window-scoped and created per-window by WindowContextManager
-	// This ensures complete isolation between different workspace windows
-
 	// Initialize logger with event bus for automatic event logging
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
@@ -101,19 +89,15 @@ export function bootstrapServices(): BootstrapResult {
 	const modelResolver = new ModelResolver();
 	container.register('serviceResolver', serviceResolver);
 	container.register('modelResolver', modelResolver);
-	const contentWriterAgent = new ContentWriterAgent();
 	taskHandlerRegistry.register(
 		new ContentWriterTaskHandler({
-			agent: contentWriterAgent,
 			serviceResolver,
 			modelResolver,
 			logger,
 		})
 	);
-	const contentReviewerAgent = new ContentReviewerAgent();
 	taskHandlerRegistry.register(
 		new ContentReviewerTaskHandler({
-			agent: contentReviewerAgent,
 			serviceResolver,
 			modelResolver,
 			logger,
@@ -121,21 +105,16 @@ export function bootstrapServices(): BootstrapResult {
 	);
 	container.register('taskExecutor', new TaskExecutor(taskHandlerRegistry, eventBus, 10, logger));
 
-	// Agent registry -- feature agents.
-	// Each agent is a strategy object registered by type; add new agents by
-	// dropping a folder under src/main/agents and registering it here.
-	const agentRegistry = new AgentRegistry();
-	agentRegistry.register(contentWriterAgent);
-	agentRegistry.register(contentReviewerAgent);
-	container.register('agentRegistry', agentRegistry);
-
 	// Assistant registry -- conversational OpenAI assistants. One default
 	// assistant ('main') is registered eagerly so window.app.assistant.send works
 	// without any renderer-side init.
 	const assistantRegistry = new AssistantRegistry();
 	assistantRegistry.create({
 		id: DEFAULT_ASSISTANT_ID,
-		getApiKey: () => storeService.getProviderById('openai')?.apiKey,
+		getApiKey: () =>
+			storeService.getAssistantApiKey() || storeService.getProviderById('openai')?.apiKey,
+		getModel: () => storeService.getAssistantModel() || storeService.getOpenAIModel(),
+		store: storeService,
 		cron: container.get<CronService>('cronService'),
 	});
 	container.register('assistantRegistry', assistantRegistry);
@@ -173,7 +152,6 @@ export function bootstrapIpcModules(container: ServiceContainer, eventBus: Event
 		new AssistantIpc(),
 		new TaskIpc(),
 		new WindowIpc(),
-		new WorkspaceIpc(),
 	];
 
 	for (const module of ipcModules) {

@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/Button';
 type SettingsPath =
 	| '/settings/general'
 	| '/settings/account'
-	| '/settings/workspace'
 	| '/settings/editor'
 	| '/settings/themes'
 	| '/settings/agents'
@@ -69,7 +68,6 @@ export function Layout(): React.JSX.Element {
 					<div className="flex flex-col gap-0.5">
 						<NavItem to="/settings/general" label={t('settings.tabs.general')} />
 						<NavItem to="/settings/account" label={t('settings.tabs.account')} />
-						<NavItem to="/settings/workspace" label={t('settings.tabs.workspace')} />
 						<NavItem to="/settings/editor" label={t('settings.tabs.editor')} />
 						<NavItem to="/settings/themes" label={t('settings.tabs.themes')} />
 						<NavItem to="/settings/agents" label={t('settings.tabs.agents', 'Agents')} badge={3} />

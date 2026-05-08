@@ -5,9 +5,8 @@ import type { WindowContextManager } from './core/window-context';
 
 const DEFAULT_WINDOW_WIDTH = 1200;
 const DEFAULT_WINDOW_HEIGHT = 900;
-const STARTUP_WINDOW_WIDTH = 600;
-const STARTUP_WINDOW_HEIGHT = 400;
-const WORKSPACE_WINDOW_SCALE = 0.9;
+const STARTUP_WINDOW_WIDTH = 800;
+const STARTUP_WINDOW_HEIGHT = 600;
 
 function getBackgroundColor(): string {
 	return nativeTheme.shouldUseDarkColors ? '#1A1A1A' : '#F7F7F7';
@@ -29,7 +28,6 @@ export class Main {
 
 	/**
 	 * Attach common window event handlers shared by all window types.
-	 * This eliminates duplicate code between create() and createWorkspaceWindow().
 	 *
 	 * Handlers include:
 	 *   - update-target-url: Suppresses native Chromium URL bubble on link hover
@@ -211,47 +209,6 @@ export class Main {
 		});
 
 		return win;
-	}
-
-	createWorkspaceWindow(): BrowserWindow {
-		// Size workspace windows relative to the main window when available.
-		const mainWindow = this.window;
-		let width = Math.floor(DEFAULT_WINDOW_WIDTH * WORKSPACE_WINDOW_SCALE);
-		let height = Math.floor(DEFAULT_WINDOW_HEIGHT * WORKSPACE_WINDOW_SCALE);
-
-		if (mainWindow) {
-			const [mainWidth, mainHeight] = mainWindow.getSize();
-			width = Math.floor(mainWidth * WORKSPACE_WINDOW_SCALE);
-			height = Math.floor(mainHeight * WORKSPACE_WINDOW_SCALE);
-		}
-
-		const isMac = process.platform === 'darwin';
-		const workspaceWindow = this.windowFactory.create({
-			width,
-			height,
-			minWidth: 800,
-			minHeight: 600,
-			frame: false,
-			...(isMac && {
-				titleBarStyle: 'hidden' as const,
-				trafficLightPosition: { x: 16, y: 16 },
-			}),
-			backgroundColor: getBackgroundColor(),
-		});
-
-		// Create window context for isolated services
-		// CRITICAL: This ensures each workspace window has its own WorkspaceService
-		// and WorkspaceMetadataService instances, preventing data leakage
-		this.windowContextManager.create(workspaceWindow);
-
-		// Attach common window handlers (shared with main window)
-		this.attachCommonWindowHandlers(workspaceWindow);
-
-		workspaceWindow.once('ready-to-show', () => {
-			workspaceWindow.show();
-		});
-
-		return workspaceWindow;
 	}
 
 	getWindow(): BrowserWindow | null {

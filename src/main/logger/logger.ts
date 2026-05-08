@@ -346,15 +346,6 @@ export class LoggerService implements Disposable {
 			return;
 		}
 
-		// Listen to workspace changes for logging
-		this.eventBus.on('workspace:changed', (event) => {
-			const payload = event.payload as { currentPath: string | null; previousPath: string | null };
-			this.info(
-				'WorkspaceService',
-				`Workspace changed: ${payload.previousPath} -> ${payload.currentPath}`
-			);
-		});
-
 		// Listen to other important events
 		this.eventBus.on('service:initialized', (event) => {
 			const payload = event.payload as { service: string };

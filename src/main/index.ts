@@ -2,8 +2,6 @@ import {
 	app,
 	BrowserWindow,
 	nativeTheme,
-	dialog,
-	Menu as ElectronMenu,
 	protocol,
 	net,
 	crashReporter,
@@ -14,7 +12,6 @@ import { Main } from './main';
 import { Tray } from './tray';
 import { Menu } from './menu';
 import { ShortcutManager } from './shortcuts';
-import { WorkspaceProcessManager } from './workspace-process';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -30,9 +27,6 @@ protocol.registerSchemesAsPrivileged([
 	},
 ]);
 
-import type { WorkspaceService } from './workspace/workspace-service';
-import type { WorkspaceMetadataService } from './workspace/workspace-metadata';
-import type { ProjectWorkspaceService } from './workspace/project-workspace';
 import type { ThemeMode } from '../shared/types';
 import type { ChannelRegistry } from './channels';
 import {
@@ -46,10 +40,6 @@ import {
 	writeCrashLine,
 } from './bootstrap';
 import { WORKSPACE } from './constants';
-
-// Check if running in workspace mode
-const isWorkspaceMode = WorkspaceProcessManager.isWorkspaceMode();
-const workspacePath = WorkspaceProcessManager.getWorkspacePathFromArgs();
 
 // Install process-level safety net BEFORE anything else so we can see silent exits.
 setupProcessSafetyNet();
@@ -93,10 +83,7 @@ const { container, eventBus, appState, windowFactory, logger, windowContextManag
 setupProcessSafetyNet(logger);
 setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
-logger.info('Main', `Starting in ${isWorkspaceMode ? 'WORKSPACE' : 'LAUNCHER'} mode`);
-if (isWorkspaceMode && workspacePath) {
-	logger.info('Main', `Workspace path: ${workspacePath}`);
-}
+logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
 bootstrapIpcModules(container, eventBus);
 setupAppLifecycle(appState, logger);
@@ -151,32 +138,6 @@ const menuManager = new Menu({
 		logger.info('Menu', 'Creating new launcher window');
 		mainWindow.createAdditionalWindow();
 	},
-	onNewWorkspace: async () => {
-		// Show folder selection dialog
-		const result = await dialog.showOpenDialog({
-			properties: ['openDirectory', 'createDirectory'],
-			title: 'Select Workspace Folder',
-			buttonLabel: 'Select Workspace',
-		});
-
-		// If user selected a folder, spawn a new Electron instance
-		if (!result.canceled && result.filePaths.length > 0) {
-			const workspacePath = result.filePaths[0];
-
-			logger.info('Menu', `Spawning separate process for workspace: ${workspacePath}`);
-
-			// Create WorkspaceProcessManager instance
-			const workspaceProcessManager = new WorkspaceProcessManager(logger);
-
-			// Spawn a new Electron instance for this workspace
-			const pid = workspaceProcessManager.spawnWorkspaceProcess({
-				workspacePath,
-				logger,
-			});
-
-			logger.info('Menu', `Workspace process spawned with PID: ${pid}`);
-		}
-	},
 });
 
 // macOS: handle file open via Finder / double-click (before and after ready)
@@ -213,128 +174,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// WORKSPACE MODE: Open workspace directly without launcher UI
-	if (isWorkspaceMode && workspacePath) {
-		logger.info('App', `Opening workspace in isolated process: ${workspacePath}`);
-
-		// On Windows/Linux, set a minimal application menu then hide the bar.
-		// setApplicationMenu(null) would remove keyboard accelerators (Ctrl+C/V/Z).
-		// Setting a menu and hiding the bar keeps accelerators working without
-		// showing a native menu bar on the frameless window.
-		if (process.platform !== 'darwin') {
-			const minimalMenu = ElectronMenu.buildFromTemplate([
-				{
-					label: 'Edit',
-					submenu: [
-						{ role: 'undo' as const },
-						{ role: 'redo' as const },
-						{ type: 'separator' as const },
-						{ role: 'cut' as const },
-						{ role: 'copy' as const },
-						{ role: 'paste' as const },
-						{ role: 'selectAll' as const },
-					],
-				},
-				{
-					label: 'View',
-					submenu: [
-						{ role: 'reload' as const },
-						{ role: 'forceReload' as const },
-						{ role: 'togglefullscreen' as const },
-						{ role: 'zoomIn' as const },
-						{ role: 'zoomOut' as const },
-						{ role: 'resetZoom' as const },
-					],
-				},
-			]);
-			ElectronMenu.setApplicationMenu(minimalMenu);
-			// Note: frame:false already hides the menu bar, but the accelerators
-			// from the application menu remain active for keyboard shortcuts.
-		}
-
-		// Create workspace window directly - no tray
-		const workspaceWindow = mainWindow.createWorkspaceWindow();
-
-		// Set the workspace path immediately
-		const context = windowContextManager.get(workspaceWindow.id);
-		const workspaceService = context.getService<WorkspaceService>('workspace', container);
-		workspaceService.setCurrent(workspacePath);
-
-		// CRITICAL: Reinitialize WorkspaceMetadataService after workspace path is set
-		// This ensures the service reads from the correct workspace.json file
-		// and doesn't have stale cache from initialization
-		const metadataService = context.getService<WorkspaceMetadataService>(
-			'workspaceMetadata',
-			container
-		);
-
-		// Force cache clear and re-read from file
-		logger.info('App', `Reinitializing WorkspaceMetadataService for workspace: ${workspacePath}`);
-		metadataService.initialize();
-
-		// Auto-create workspace.json project block if it doesn't exist
-		const projectWorkspaceService = context.getService<ProjectWorkspaceService>(
-			'projectWorkspace',
-			container
-		);
-		projectWorkspaceService.getOrCreate().catch((err) => {
-			logger.error(
-				'App',
-				`Failed to initialise workspace.json project block: ${err instanceof Error ? err.message : String(err)}`
-			);
-		});
-
-		logger.info('App', `Workspace process ready with PID: ${process.pid}`);
-
-		// Track whether the workspace window is closing due to user action vs.
-		// renderer crash. NOTE: `close` fires for ALL closes (user X, programmatic
-		// win.close(), app.quit(), Cmd+Q, OS shutdown) — not just user action.
-		// The flag name is historical; the stack trace below is what actually
-		// distinguishes idle/spurious closes from user clicks.
-		let userClose = false;
-		workspaceWindow.on('close', () => {
-			const stack = new Error('workspace window close').stack;
-			writeCrashLine(`[workspace:close] isQuitting=${appState.isQuitting}\n${stack}`);
-			userClose = true;
-		});
-
-		workspaceWindow.webContents.on('render-process-gone', (_event, details) => {
-			logger.error('App', 'Workspace renderer gone; attempting reload instead of quit', {
-				reason: details.reason,
-				exitCode: details.exitCode,
-			});
-			if (!workspaceWindow.isDestroyed()) {
-				try {
-					workspaceWindow.webContents.reload();
-					return;
-				} catch (err) {
-					logger.error(
-						'App',
-						`Reload failed: ${err instanceof Error ? err.message : String(err)}`
-					);
-				}
-			}
-		});
-
-		workspaceWindow.on('closed', () => {
-			writeCrashLine(
-				`[workspace:closed] userClose=${userClose} isQuitting=${appState.isQuitting}`
-			);
-			if (userClose || appState.isQuitting) {
-				logger.info('App', 'Workspace window closed by user, quitting process');
-				app.quit();
-			} else {
-				logger.warn(
-					'App',
-					'Workspace window closed without user action (likely crash); keeping process alive for diagnosis'
-				);
-			}
-		});
-
-		return;
-	}
-
-	// LAUNCHER MODE: Normal startup with menu, tray, and workspace selector
 	menuManager.create();
 	trayManager.create();
 

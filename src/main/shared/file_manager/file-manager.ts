@@ -37,9 +37,7 @@ import { assertPathSafe, assertValidName, assertValidEncoding } from './validato
  *
  * 1. **Static Electron paths** (Documents, Downloads, Desktop, userData)
  *    managed by {@link PathValidator}.
- * 2. **Extra trusted roots** supplied at construction time — typically the
- *    active workspace path, injected by the IPC layer so this class does not
- *    need a direct reference to `WorkspaceService`.
+ * 2. **Extra trusted roots** supplied at construction time.
  *
  * Any path that does not fall inside at least one allowlist entry is rejected
  * with a descriptive `Error` before any filesystem call is made. This prevents
@@ -78,8 +76,7 @@ export class FileManager {
 		private readonly logger?: LoggerService,
 		/**
 		 * Additional absolute root directories to trust beyond the four standard
-		 * Electron paths. Pass the current workspace path here so that workspace
-		 * files can be read and written without disabling `PathValidator`.
+		 * Electron paths.
 		 *
 		 * Paths are resolved and normalised at construction time.
 		 */

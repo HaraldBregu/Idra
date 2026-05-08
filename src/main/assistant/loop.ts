@@ -11,7 +11,7 @@ const DEFAULT_MAX_ITERATIONS = 20;
 
 export interface RunAgentParams {
 	client: OpenAI;
-	model: string;
+	model: string | (() => string);
 	userMessage: string;
 	tools: Tool[];
 	history?: ChatCompletionMessageParam[];
@@ -58,7 +58,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunResult> {
 
 	for (let i = 0; i < maxIterations; i++) {
 		const response = await client.chat.completions.create({
-			model,
+			model: typeof model === 'function' ? model() : model,
 			messages,
 			tools: toolSchemas.length ? toolSchemas : undefined,
 		});

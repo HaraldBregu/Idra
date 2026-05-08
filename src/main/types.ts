@@ -17,10 +17,8 @@ export type { WindowScopedServiceDefinition } from './core/window-scoped-service
 // ---- IPC types -----------------------------------------------------------
 export type { IpcModule } from './ipc/ipc-module';
 
-// ---- Service types -------------------------------------------------------
-export type { WorkspaceState } from './workspace/workspace-service';
 export type { LogLevel, LoggerOptions } from './logger';
-export type { WorkspaceInfo, StoreSchema } from './store';
+export type { StoreSchema } from './store';
 
 // ---- File utility types --------------------------------------------------
 export type { FileTypeValidationResult } from '../shared/file-type-validator';

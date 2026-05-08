@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
-import type { Provider, ProviderId } from '../../../../../../shared/types';
+import type { ProviderDefinition, ProviderId } from '../../../../../../shared/types';
 import { PROVIDER_CATALOGUE } from '../../../../../../shared/providers';
 import { ProvidersProvider, useProvidersContext } from './Provider';
 
@@ -40,7 +40,7 @@ export function Bootstrap(): null {
 }
 
 interface ProviderFormProps {
-	readonly provider: Provider;
+	readonly provider: ProviderDefinition;
 }
 
 export function ProviderForm({ provider }: ProviderFormProps): ReactElement {
@@ -51,8 +51,11 @@ export function ProviderForm({ provider }: ProviderFormProps): ReactElement {
 	const draft = drafts[id];
 	const persistedDraft = persisted[id];
 	const isSaving = saving.has(id);
-	const isDirty = draft.apiKey.trim() !== persistedDraft.apiKey;
+	const isDirty =
+		draft.apiKey.trim() !== persistedDraft.apiKey ||
+		draft.model.trim() !== persistedDraft.model;
 	const inputId = `provider-${id}-key`;
+	const modelInputId = `provider-${id}-model`;
 
 	useEffect(() => {
 		if (!isDirty || isSaving) return;
@@ -60,7 +63,7 @@ export function ProviderForm({ provider }: ProviderFormProps): ReactElement {
 			void handleSave(id);
 		}, AUTOSAVE_DELAY_MS);
 		return () => clearTimeout(timer);
-	}, [draft.apiKey, isDirty, isSaving, handleSave, id]);
+	}, [draft.apiKey, draft.model, isDirty, isSaving, handleSave, id]);
 
 	return (
 		<div className="w-full flex flex-col gap-6">
@@ -88,6 +91,19 @@ export function ProviderForm({ provider }: ProviderFormProps): ReactElement {
 					<FieldDescription>
 						{t('providers.apiKeyDescription', 'Stored encrypted in your OS keychain.')}
 					</FieldDescription>
+				</Field>
+				<Field>
+					<FieldLabel htmlFor={modelInputId}>
+						{t('providers.model', 'Model')}
+					</FieldLabel>
+					<Input
+						id={modelInputId}
+						value={draft.model}
+						onChange={(e) => patchDraft(id, { model: e.target.value })}
+						placeholder={t('providers.modelPlaceholder', 'Default model')}
+						autoComplete="off"
+						spellCheck={false}
+					/>
 				</Field>
 			</FieldGroup>
 		</div>

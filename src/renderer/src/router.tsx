@@ -8,18 +8,18 @@ import {
 } from '@tanstack/react-router';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
+import { TitleBar } from './components/app/titlebar/TitleBar';
 import type { AppStartupInfo } from '../../shared/types';
-import WelcomePage from './pages/welcome/WelcomePage';
 import ConfigPage from './pages/welcome/ConfigPage';
 import { Layout as SettingsLayout } from './pages/settings';
-import { useWorkspaceValidation } from './hooks/use-workspace-validation';
+import { useTranslation } from 'react-i18next';
 
 const SplashPage = lazy(() => import('./pages/splash/SplashPage'));
+const HomePage = lazy(() => import('./pages/home/HomePage'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
-const WorkspacePage = lazy(() => import('./pages/settings/pages/WorkspacePage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const ThemesPage = lazy(() => import('./pages/settings/pages/ThemesPage'));
 const EditorPage = lazy(() => import('./pages/settings/pages/EditorPage'));
@@ -29,7 +29,6 @@ const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page')
 
 export interface RouterContext {
 	readonly startupInfo: AppStartupInfo;
-	readonly showSplash: boolean;
 	readonly setStartupInfo: Dispatch<SetStateAction<AppStartupInfo | null>>;
 }
 
@@ -39,7 +38,6 @@ const DEFAULT_ROUTER_CONTEXT: RouterContext = {
 		isFirstRun: false,
 		isInitialized: true,
 	},
-	showSplash: false,
 	setStartupInfo: () => undefined,
 };
 
@@ -51,38 +49,31 @@ function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX
 	);
 }
 
-function WorkspaceValidationBridge(): null {
-	useWorkspaceValidation();
-	return null;
+function RootRouteComponent(): React.JSX.Element {
+	const { t } = useTranslation();
+
+	return (
+		<div className="flex h-screen flex-col bg-background">
+			<TitleBar title={t('appTitle')} />
+			<div className="min-h-0 flex-1">
+				<Outlet />
+			</div>
+		</div>
+	);
 }
 
-function RootRouteComponent(): React.JSX.Element {
+function SplashRouteComponent(): React.JSX.Element {
 	return (
-		<>
-			<WorkspaceValidationBridge />
-			<Outlet />
-		</>
+		<RouteWrapper>
+			<SplashPage />
+		</RouteWrapper>
 	);
 }
 
 function HomeRouteComponent(): React.JSX.Element {
-	const { showSplash, startupInfo, setStartupInfo } = rootRoute.useRouteContext();
-
-	if (showSplash) {
-		return (
-			<RouteWrapper>
-				<SplashPage />
-			</RouteWrapper>
-		);
-	}
-
-	if (startupInfo.isInitialized) {
-		return <WelcomePage />;
-	}
-
 	return (
 		<RouteWrapper>
-			<ConfigPage onConfigured={setStartupInfo} />
+			<HomePage />
 		</RouteWrapper>
 	);
 }
@@ -112,6 +103,12 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
 const homeRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: '/',
+	component: SplashRouteComponent,
+});
+
+const appHomeRoute = createRoute({
+	getParentRoute: () => rootRoute,
+	path: 'home',
 	component: HomeRouteComponent,
 });
 
@@ -153,16 +150,6 @@ const settingsAccountRoute = createRoute({
 	component: () => (
 		<RouteWrapper>
 			<AccountPage />
-		</RouteWrapper>
-	),
-});
-
-const settingsWorkspaceRoute = createRoute({
-	getParentRoute: () => settingsRoute,
-	path: 'workspace',
-	component: () => (
-		<RouteWrapper>
-			<WorkspacePage />
 		</RouteWrapper>
 	),
 });
@@ -249,12 +236,12 @@ const settingsAssistantRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
 	homeRoute,
+	appHomeRoute,
 	configRoute,
 	settingsRoute.addChildren([
 		settingsIndexRoute,
 		settingsGeneralRoute,
 		settingsAccountRoute,
-		settingsWorkspaceRoute,
 		settingsThemesRoute,
 		settingsEditorRoute,
 		settingsSystemRoute,

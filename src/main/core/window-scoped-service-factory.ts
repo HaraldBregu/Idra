@@ -1,15 +1,6 @@
 import type { ServiceContainer, EventBus } from './index';
 import type { StoreService } from '../store';
-import type { FileManager } from '../shared/file_manager';
 import type { LoggerService } from '../logger';
-import {
-	Workspace,
-	WorkspaceMetadataService,
-	ResourcesService,
-	OutputFilesService,
-	ProjectWorkspaceService,
-} from '../workspace';
-import type { WorkspaceService } from '../workspace';
 
 /**
  * Context available to every window-scoped service factory function.
@@ -18,7 +9,6 @@ export interface WindowScopedFactoryContext {
 	globalContainer: ServiceContainer;
 	eventBus: EventBus;
 	storeService: StoreService;
-	workspaceService: WorkspaceService;
 	windowContainer: ServiceContainer;
 }
 
@@ -34,8 +24,8 @@ export interface WindowScopedServiceDefinition {
 
 	/**
 	 * Factory function to create the service instance
-	 * Has access to global container, event bus, workspace service,
-	 * and the in-progress window container for resolving prior services.
+	 * Has access to global container, event bus, store service, and the
+	 * in-progress window container for resolving prior services.
 	 */
 	factory: (context: WindowScopedFactoryContext) => Promise<unknown> | unknown;
 }
@@ -53,12 +43,12 @@ export interface WindowScopedServiceDefinition {
  * Usage:
  *   // Register services
  *   factory.register({
- *     key: 'workspace',
- *     factory: ({ storeService, eventBus }) => new WorkspaceService(storeService, eventBus)
+ *     key: 'example',
+ *     factory: ({ storeService, eventBus }) => new ExampleService(storeService, eventBus)
  *   })
  *
  *   // Create all services for a window
- *   await factory.createAndRegisterAll(container, { globalContainer, eventBus, storeService, workspaceService })
+ *   await factory.createAndRegisterAll(container, { globalContainer, eventBus, storeService })
  */
 export class WindowScopedServiceFactory {
 	private definitions: Map<string, WindowScopedServiceDefinition> = new Map();
@@ -83,7 +73,6 @@ export class WindowScopedServiceFactory {
 			globalContainer: ServiceContainer;
 			eventBus: EventBus;
 			storeService: StoreService;
-			workspaceService: WorkspaceService;
 		}
 	): Promise<void> {
 		const logger = context.globalContainer.get<LoggerService>('logger');
@@ -139,63 +128,5 @@ export class WindowScopedServiceFactory {
  */
 export function createDefaultWindowScopedServiceFactory(): WindowScopedServiceFactory {
 	const factory = new WindowScopedServiceFactory();
-
-	// Note: 'workspace' is NOT registered here. WindowContext constructs and registers
-	// WorkspaceService directly before calling createAndRegisterAll(), and passes the
-	// instance as context.workspaceService for downstream services to depend on.
-
-	// Register workspace metadata service (depends on workspace)
-	factory.register({
-		key: 'workspaceMetadata',
-		factory: ({ workspaceService, eventBus }) => {
-			const service = new WorkspaceMetadataService(workspaceService, eventBus);
-			service.initialize();
-			return service;
-		},
-	});
-
-	// Register output files service
-	factory.register({
-		key: 'outputFiles',
-		factory: ({ workspaceService, eventBus }) => {
-			const service = new OutputFilesService(workspaceService, eventBus);
-			service.initialize();
-			return service;
-		},
-	});
-
-	// Register project workspace service (manages the `project` block in workspace.json)
-	factory.register({
-		key: 'projectWorkspace',
-		factory: ({ workspaceService, globalContainer, windowContainer }) => {
-			const logger = globalContainer.get<LoggerService>('logger');
-			const metadata = windowContainer.get<WorkspaceMetadataService>('workspaceMetadata');
-			return new ProjectWorkspaceService(workspaceService, metadata, logger);
-		},
-	});
-
-	// Register resources service (workspace/resources/)
-	factory.register({
-		key: 'resourcesService',
-		factory: async ({ workspaceService, eventBus, globalContainer }) => {
-			const fileManagement = globalContainer.get<FileManager>('fileManagement');
-			const logger = globalContainer.get<LoggerService>('logger');
-			const service = new ResourcesService(workspaceService, eventBus, fileManagement, logger);
-			await service.initialize();
-			return service;
-		},
-	});
-
-	// Register workspace manager (Facade over all workspace services)
-	factory.register({
-		key: 'workspaceManager',
-		factory: ({ globalContainer, windowContainer, workspaceService }) => {
-			const logger = globalContainer.get<LoggerService>('logger');
-			const outputFiles = windowContainer.get<OutputFilesService>('outputFiles');
-			const projectWorkspace = windowContainer.get<ProjectWorkspaceService>('projectWorkspace');
-			return new Workspace(workspaceService, outputFiles, projectWorkspace, logger);
-		},
-	});
-
 	return factory;
 }

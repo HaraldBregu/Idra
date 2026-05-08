@@ -8,7 +8,7 @@ import { MAX_NAME_LENGTH, WINDOWS_RESERVED_NAME } from './constants';
  *
  * Checked in order:
  *   1. The four standard Electron paths via {@link PathValidator}.
- *   2. The caller-supplied extra roots (e.g. the current workspace path).
+ *   2. The caller-supplied extra roots.
  *
  * @param inputPath  - The raw path to validate.
  * @param extraRoots - Resolved absolute roots accepted in addition to the PathValidator set.
@@ -26,7 +26,7 @@ export function assertPathSafe(inputPath: string, extraRoots: readonly string[])
 		return resolved;
 	}
 
-	// Use a trailing separator to prevent "/workspace" matching "/workspace2".
+	// Use a trailing separator to prevent one root prefix matching a sibling path.
 	for (const root of extraRoots) {
 		if (resolved === root || resolved.startsWith(root + path.sep)) {
 			return resolved;

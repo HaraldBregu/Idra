@@ -9,11 +9,11 @@
 // ---------------------------------------------------------------------------
 
 export const ShortcutId = {
-	/** Open the command palette that lists workspace documents. */
+	/** Open the command palette. */
 	openDocumentList: 'openDocumentList',
 	/** Open the app-wide search modal. */
 	openAppSearch: 'openAppSearch',
-	/** Create a new document in the current workspace. */
+	/** Create a new document. */
 	newDocument: 'newDocument',
 } as const;
 

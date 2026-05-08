@@ -1,24 +1,42 @@
 import Store from 'electron-store';
-import { MAX_RECENT_WORKSPACES } from '../constants';
 import type {
-	AgentSettings,
 	Channel,
 	ChannelType,
 	DiscordChannelProperties,
 	Provider,
+	ProviderEntry,
 	TelegramChannelProperties,
 	UserProfile,
 	WhatsappChannelProperties,
 } from '../../shared/types';
 import type { AppStartupInfo } from '../../shared/types';
-import { DEFAULTS, type SettingsStore, type StoreSchema, type WorkspaceInfo } from './types';
 import {
-	cloneAgent,
+	DEFAULTS,
+	type AssistantConfiguration,
+	type SettingsStore,
+	type StoreSchema,
+} from './types';
+import {
+	getAnthropicKey,
+	getAnthropicModel,
+	setAnthropicKey,
+	setAnthropicModel,
+	setAnthropicProvider,
+} from './anthropic';
+import {
+	getOpenAIKey,
+	getOpenAIModel,
+	setOpenAIKey,
+	setOpenAIModel,
+	setOpenAIProvider,
+} from './openai';
+import {
 	cloneProvider,
-	normalizeAgentInput,
-	normalizeAgents,
+	cloneProviderEntry,
+	normalizeProvider,
+	normalizeProviderEntries,
 	normalizeProviderInput,
-	normalizeProviders,
+	providerToEntries,
 } from './utils';
 
 export class StoreService {
@@ -30,21 +48,20 @@ export class StoreService {
 			defaults: DEFAULTS,
 			accessPropertiesByDotNotation: false,
 		}) as unknown as SettingsStore;
-
-		this.migrateLegacyProviderSettings();
-		this.normalizeStoredProviders();
-		this.normalizeStoredAgents();
-		this.reconcileStartupState();
-		this.incrementStartupCount();
+		this.migrateProviderKey();
 	}
 
 	// --- Provider methods ---
 
-	getProviders(): Provider[] {
-		return this.store.get('providers').map(cloneProvider);
+	getProvider(): Provider {
+		return cloneProvider(this.store.get('providers'));
 	}
 
-	getProviderById(providerId: string): Provider | undefined {
+	getProviders(): ProviderEntry[] {
+		return providerToEntries(this.store.get('providers')).map(cloneProviderEntry);
+	}
+
+	getProviderById(providerId: string): ProviderEntry | undefined {
 		const normalized = providerId.trim();
 		return this.getProviders().find((p) => p.id === normalized);
 	}
@@ -52,26 +69,93 @@ export class StoreService {
 	/**
 	 * Upsert a provider entry by its `id` (one entry per providerId).
 	 */
-	addProvider(provider: Provider): Provider {
+	addProvider(provider: ProviderEntry): ProviderEntry {
 		const incoming = normalizeProviderInput(provider);
 		if (!incoming) {
 			throw new Error('Invalid provider');
 		}
-		const providers = this.store.get('providers').map(cloneProvider);
-		const index = providers.findIndex((p) => p.id === incoming.id);
-		if (index >= 0) {
-			providers[index] = incoming;
+		if (incoming.id === 'openai') {
+			this.setOpenAIProvider(incoming.apiKey, incoming.model);
 		} else {
-			providers.push(incoming);
+			this.setAnthropicProvider(incoming.apiKey, incoming.model);
 		}
-		this.store.set('providers', providers);
-		return cloneProvider(incoming);
+		return cloneProviderEntry(incoming);
+	}
+
+	setOpenAIProvider(apikey: string, model: string): Provider['openai'] {
+		return setOpenAIProvider(this.store, apikey, model);
+	}
+
+	getOpenAIKey(): string {
+		return getOpenAIKey(this.store);
+	}
+
+	getOpenAIModel(): string {
+		return getOpenAIModel(this.store);
+	}
+
+	setOpenAIKey(apikey: string): Provider['openai'] {
+		return setOpenAIKey(this.store, apikey);
+	}
+
+	setOpenAIModel(model: string): Provider['openai'] {
+		return setOpenAIModel(this.store, model);
+	}
+
+	setAnthropicProvider(apikey: string, model: string): Provider['anthropic'] {
+		return setAnthropicProvider(this.store, apikey, model);
+	}
+
+	getAnthropicKey(): string {
+		return getAnthropicKey(this.store);
+	}
+
+	getAnthropicModel(): string {
+		return getAnthropicModel(this.store);
+	}
+
+	setAnthropicKey(apikey: string): Provider['anthropic'] {
+		return setAnthropicKey(this.store, apikey);
+	}
+
+	setAnthropicModel(model: string): Provider['anthropic'] {
+		return setAnthropicModel(this.store, model);
 	}
 
 	deleteProvider(providerId: string): void {
-		const normalized = providerId.trim();
-		const providers = this.store.get('providers').filter((p) => p.id !== normalized);
-		this.store.set('providers', providers);
+		const normalized = providerId.trim() as ProviderEntry['id'];
+		if (normalized !== 'openai' && normalized !== 'anthropic') return;
+		const current = this.store.get('providers');
+		this.store.set('providers', {
+			...current,
+			[normalized]: { apikey: '', model: '' },
+		});
+	}
+
+	getAssistantConfiguration(): AssistantConfiguration {
+		return { ...this.store.get('assistantConfiguration') };
+	}
+
+	getAssistantApiKey(): string {
+		return this.store.get('assistantConfiguration').apikey;
+	}
+
+	getAssistantModel(): string {
+		return this.store.get('assistantConfiguration').model;
+	}
+
+	setAssistantConfiguration(apikey: string, model: string): AssistantConfiguration {
+		const next: AssistantConfiguration = { apikey, model };
+		this.store.set('assistantConfiguration', next);
+		return next;
+	}
+
+	setAssistantApiKey(apikey: string): AssistantConfiguration {
+		return this.setAssistantConfiguration(apikey, this.getAssistantModel());
+	}
+
+	setAssistantModel(model: string): AssistantConfiguration {
+		return this.setAssistantConfiguration(this.getAssistantApiKey(), model);
 	}
 
 	getProfile(): UserProfile | null {
@@ -90,60 +174,32 @@ export class StoreService {
 	}
 
 	getStartupInfo(): AppStartupInfo {
-		const startupCount = this.store.get('startupCount');
 		return {
-			startupCount,
-			isFirstRun: startupCount === 1,
-			isInitialized: this.store.get('isInitialized'),
+			startupCount: 0,
+			isFirstRun: false,
+			isInitialized: true,
 		};
 	}
 
-	completeFirstRunConfiguration(profile: UserProfile, providers: Provider[]): AppStartupInfo {
-		const incoming = normalizeProviders(providers).filter((p) => p.apiKey.trim().length > 0);
-		const incomingIds = new Set(incoming.map((p) => p.id));
-		const preserved = this.store
-			.get('providers')
-			.filter((p) => !incomingIds.has(p.id))
-			.map(cloneProvider);
-
-		this.store.set('providers', [...preserved, ...incoming]);
+	completeFirstRunConfiguration(
+		profile: UserProfile,
+		providers: ProviderEntry[]
+	): AppStartupInfo {
+		const incoming = normalizeProviderEntries(providers).filter(
+			(p) => p.apiKey.trim().length > 0
+		);
+		const current = this.store.get('providers');
+		const next = cloneProvider(current);
+		for (const entry of incoming) {
+			next[entry.id] = { apikey: entry.apiKey, model: entry.model };
+		}
+		this.store.set('providers', next);
 		this.store.set('profile', {
 			firstName: profile.firstName.trim(),
 			lastName: profile.lastName.trim(),
 		});
-		this.store.set('isInitialized', true);
 
 		return this.getStartupInfo();
-	}
-
-	// --- Agent settings ---
-
-	getAgents(): AgentSettings[] {
-		return this.store.get('agents').map(cloneAgent);
-	}
-
-	getAgentById(agentId: string): AgentSettings | undefined {
-		const normalized = agentId.trim();
-		return this.getAgents().find((agent) => agent.id === normalized);
-	}
-
-	updateAgent(agent: AgentSettings): AgentSettings {
-		const normalized = normalizeAgentInput(agent);
-		if (!normalized) {
-			throw new Error('Invalid agent settings');
-		}
-
-		const agents = this.store.get('agents').map(cloneAgent);
-		const index = agents.findIndex((entry) => entry.id === normalized.id);
-
-		if (index >= 0) {
-			agents[index] = normalized;
-		} else {
-			agents.push(normalized);
-		}
-
-		this.store.set('agents', normalizeAgents(agents));
-		return cloneAgent(normalized);
 	}
 
 	// --- Channel methods ---
@@ -198,106 +254,11 @@ export class StoreService {
 		return next;
 	}
 
-	// --- Workspace settings ---
-
-	getCurrentWorkspace(): string | null {
-		return this.store.get('currentWorkspace');
-	}
-
-	setCurrentWorkspace(workspacePath: string): void {
-		this.store.set('currentWorkspace', workspacePath);
-		this.addRecentWorkspace(workspacePath);
-	}
-
-	getRecentWorkspaces(): WorkspaceInfo[] {
-		return [...this.store.get('recentWorkspaces')];
-	}
-
-	private addRecentWorkspace(workspacePath: string): void {
-		const recent = this.store.get('recentWorkspaces').filter((w) => w.path !== workspacePath);
-
-		recent.unshift({
-			path: workspacePath,
-			lastOpened: Date.now(),
-		});
-
-		this.store.set('recentWorkspaces', recent.slice(0, MAX_RECENT_WORKSPACES));
-	}
-
-	clearCurrentWorkspace(): void {
-		this.store.set('currentWorkspace', null);
-	}
-
-	private get rawStore(): SettingsStore {
-		return this.store;
-	}
-
-	/**
-	 * Migrate legacy keys (`modelSettings`, `models`, `services`) into the
-	 * current `providers` array, flattening `{ provider: {...}, apiKey }`
-	 * entries into the new `{ id, name, apiKey }` shape.
-	 */
-	private migrateLegacyProviderSettings(): void {
-		const legacyKeys = ['modelSettings', 'models', 'services'] as const;
-		for (const key of legacyKeys) {
-			const raw = this.rawStore.get(key);
-			if (raw === undefined) continue;
-			const current = this.rawStore.get('providers');
-			const isEmpty =
-				current === undefined || (Array.isArray(current) && current.length === 0);
-			if (isEmpty) {
-				const migrated = normalizeProviders(raw);
-				if (migrated.length > 0) {
-					this.store.set('providers', migrated);
-				}
-			}
-			this.rawStore.delete(key);
+	private migrateProviderKey(): void {
+		const legacy = this.store.get('provider');
+		if (legacy !== undefined) {
+			this.store.set('providers', normalizeProvider(legacy));
+			this.store.delete('provider');
 		}
-	}
-
-	private normalizeStoredProviders(): void {
-		const normalized = normalizeProviders(this.rawStore.get('providers'));
-		const current = this.store.get('providers');
-		const needsRewrite =
-			current.length !== normalized.length ||
-			current.some((p, i) => JSON.stringify(p) !== JSON.stringify(normalized[i]));
-		if (needsRewrite) {
-			this.store.set('providers', normalized);
-		}
-	}
-
-	private normalizeStoredAgents(): void {
-		const normalized = normalizeAgents(this.rawStore.get('agents'));
-		const current = this.store.get('agents');
-		const needsRewrite =
-			current.length !== normalized.length ||
-			current.some((agent, index) => JSON.stringify(agent) !== JSON.stringify(normalized[index]));
-
-		if (needsRewrite) {
-			this.store.set('agents', normalized);
-		}
-	}
-
-	private reconcileStartupState(): void {
-		if (this.store.get('startupCount') > 0 || this.store.get('isInitialized')) {
-			return;
-		}
-
-		const hasProviders = this.store.get('providers').length > 0;
-		const hasWorkspaceHistory =
-			this.store.get('currentWorkspace') !== null ||
-			this.store.get('recentWorkspaces').length > 0;
-
-		if (!hasProviders && !hasWorkspaceHistory) {
-			return;
-		}
-
-		this.store.set('startupCount', 1);
-		this.store.set('isInitialized', true);
-	}
-
-	private incrementStartupCount(): void {
-		const startupCount = this.store.get('startupCount');
-		this.store.set('startupCount', startupCount + 1);
 	}
 }

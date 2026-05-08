@@ -3,7 +3,7 @@ import type { TaskHandler } from './task-handler';
 /**
  * Registry for task handlers.
  * Manages registration and lookup of task handlers by type.
- * Mirrors AgentRegistry pattern for consistency.
+ * Mirrors the simple type-to-handler registry pattern used elsewhere.
  */
 export class TaskHandlerRegistry {
 	private handlers = new Map<string, TaskHandler>();

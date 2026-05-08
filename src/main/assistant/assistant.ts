@@ -5,6 +5,7 @@ import { SessionManager } from './session';
 import { runAgent } from './loop';
 import { defaultTools, type Tool } from './tools';
 import type { CronService } from '../cron';
+import type { StoreService } from '../store';
 
 const HARDCODED_MODEL = 'gpt-4o-mini';
 
@@ -12,10 +13,13 @@ export interface AssistantOptions {
 	id: string;
 	model?: string;
 	getApiKey: () => string | undefined;
+	getModel?: () => string | undefined;
 	/** Defaults to all built-in tools (read_file, write_file, exec, plus cron_* if `cron` provided). Pass `[]` to disable. */
 	tools?: Tool[];
 	/** When provided, cron_add/cron_list/cron_remove tools are added to defaults. Ignored if `tools` is set. */
 	cron?: CronService;
+	/** When provided, provider settings tools are added to defaults. Ignored if `tools` is set. */
+	store?: StoreService;
 	/** Defaults to `assistant:<id>`. */
 	sessionKey?: string;
 	maxIterations?: number;
@@ -35,6 +39,7 @@ export class Assistant {
 	private readonly tools: Tool[];
 	private readonly maxIterations: number;
 	private readonly getApiKey: () => string | undefined;
+	private readonly getModel?: () => string | undefined;
 	private history: ChatCompletionMessageParam[] = [];
 	private cachedKey: string | null = null;
 	private cachedClient: OpenAI | null = null;
@@ -45,9 +50,10 @@ export class Assistant {
 		this.id = opts.id;
 		this.model = opts.model ?? HARDCODED_MODEL;
 		this.getApiKey = opts.getApiKey;
+		this.getModel = opts.getModel;
 		this.memory = new MemoryManager(opts.id);
 		this.session = new SessionManager(opts.sessionKey ?? `assistant:${opts.id}`);
-		this.tools = opts.tools ?? defaultTools({ cron: opts.cron });
+		this.tools = opts.tools ?? defaultTools({ cron: opts.cron, store: opts.store });
 		this.maxIterations = opts.maxIterations ?? 20;
 	}
 
@@ -75,12 +81,16 @@ export class Assistant {
 		return this.cachedClient!;
 	}
 
+	private currentModel(): string {
+		return this.getModel?.()?.trim() || this.model;
+	}
+
 	async send(userMessage: string): Promise<string> {
 		await this.init();
 		const systemPrompt = await buildSystemPrompt(this.memory);
 		const { text, newMessages } = await runAgent({
 			client: this.client(),
-			model: this.model,
+			model: () => this.currentModel(),
 			userMessage,
 			tools: this.tools,
 			history: this.history,

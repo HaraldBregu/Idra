@@ -1,8 +1,8 @@
-import type { Provider } from '../../shared/types';
+import type { ProviderEntry } from '../../shared/types';
 import type { StoreService } from '../store';
 
 /**
- * ServiceResolver — resolves a configured Provider (with apiKey) from StoreService.
+ * ServiceResolver — resolves a configured provider entry (with apiKey) from StoreService.
  *
  * Resolution order (first match wins):
  *   1. Exact match by providerId
@@ -14,13 +14,13 @@ export class ServiceResolver {
 	constructor(private readonly storeService: StoreService) {}
 
 	/**
-	 * Resolve a Provider from StoreService with fallback chain.
+	 * Resolve a provider entry from StoreService with fallback chain.
 	 *
 	 * @param options - Optional providerId override
-	 * @returns The resolved Provider
+	 * @returns The resolved provider entry
 	 * @throws Error if no providers are configured or no API key is set
 	 */
-	resolve(options?: { providerId?: string }): Provider {
+	resolve(options?: { providerId?: string }): ProviderEntry {
 		const providerId = options?.providerId?.trim();
 
 		const found = providerId
@@ -40,6 +40,6 @@ export class ServiceResolver {
 			);
 		}
 
-		return { id: found.id, name: found.name, apiKey };
+		return { ...found, apiKey };
 	}
 }

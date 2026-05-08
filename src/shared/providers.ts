@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import { PROVIDERS } from './types';
-import type { Provider, ProviderId } from './types';
+import type { ProviderDefinition, ProviderId } from './types';
 
 // ---------------------------------------------------------------------------
 // Provider constants — sourced from PROVIDERS tuple in ./types
@@ -24,7 +24,7 @@ export const ANTHROPIC = findProvider('anthropic');
 // Provider catalogue
 // ---------------------------------------------------------------------------
 
-export const PROVIDER_CATALOGUE: readonly Provider[] = PROVIDERS;
+export const PROVIDER_CATALOGUE: readonly ProviderDefinition[] = PROVIDERS;
 
 export const PROVIDER_IDS: readonly ProviderId[] = PROVIDERS.map((p) => p.id);
 
@@ -32,7 +32,7 @@ export const PROVIDER_IDS: readonly ProviderId[] = PROVIDERS.map((p) => p.id);
 // Derived lookup map (built once at module load)
 // ---------------------------------------------------------------------------
 
-const PROVIDER_MAP: Readonly<Record<string, Provider>> = Object.fromEntries(
+const PROVIDER_MAP: Readonly<Record<string, ProviderDefinition>> = Object.fromEntries(
 	PROVIDER_CATALOGUE.map((p) => [p.id, p])
 );
 
@@ -41,12 +41,12 @@ const PROVIDER_MAP: Readonly<Record<string, Provider>> = Object.fromEntries(
 // ---------------------------------------------------------------------------
 
 /** Look up a provider by ID. */
-export function getProvider(providerId: string): Provider | undefined {
+export function getProvider(providerId: string): ProviderDefinition | undefined {
 	return PROVIDER_MAP[providerId];
 }
 
 /** Get all providers for UI display. */
-export function getProvidersForDisplay(): readonly Provider[] {
+export function getProvidersForDisplay(): readonly ProviderDefinition[] {
 	return PROVIDER_CATALOGUE;
 }
 
