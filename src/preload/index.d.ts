@@ -137,9 +137,138 @@ export interface WindowApi {
 
 /** General application utilities. Additional IPC namespaces are grouped under this object. */
 export interface AppApi {
-	workspace: WorkspaceApi;
-	task: TaskApi;
-	assistant: AssistantApi;
+	workspace: {
+		getCurrent: () => Promise<string | null>;
+		setCurrent: (workspacePath: string) => Promise<void>;
+		/** List every managed workspace, sorted most-recently-opened first. */
+		list: () => Promise<WorkspaceInfo[]>;
+		/** Create a new managed workspace and return its WorkspaceInfo. */
+		create: (params: CreateWorkspaceParams) => Promise<WorkspaceInfo>;
+		clear: () => Promise<void>;
+		onChange: (callback: (event: WorkspaceChangedEvent) => void) => () => void;
+		/** Subscribe to workspace deletion events (folder deleted/moved while app is open) */
+		onDeleted: (callback: (event: WorkspaceDeletedEvent) => void) => () => void;
+		// -------------------------------------------------------------------------
+		// Shell
+		// -------------------------------------------------------------------------
+		/** Open the current workspace root folder in the system file explorer. */
+		openWorkspaceFolder: () => Promise<void>;
+		/** Open the workspace `resources/` folder in the system file explorer. */
+		openResourcesFolder: () => Promise<void>;
+		/** Open the folder for a specific document by its ID in the system file explorer. */
+		openDocumentFolder: (documentId: string) => Promise<void>;
+		/** Get the filesystem path of a document's folder given its ID. */
+		getDocumentPath: (documentId: string) => Promise<string>;
+		// -------------------------------------------------------------------------
+		// Output file management (documents)
+		// -------------------------------------------------------------------------
+		saveOutput: (input: SaveOutputInput) => Promise<SaveOutputResult>;
+		loadOutputs: () => Promise<OutputFile[]>;
+		loadOutputsByType: (type: string) => Promise<OutputFile[]>;
+		loadOutput: (params: { type: string; id: string }) => Promise<OutputFile | null>;
+		deleteOutput: (params: { type: string; id: string }) => Promise<void>;
+		trashOutput: (params: { type: string; id: string }) => Promise<void>;
+		onOutputFileChange: (callback: (event: OutputFileChangeEvent) => void) => () => void;
+		// -------------------------------------------------------------------------
+		// Project workspace (workspace.json `project` block)
+		// -------------------------------------------------------------------------
+		/** Get the project workspace info, or null if no workspace is set. */
+		getProjectInfo: () => Promise<ProjectWorkspaceInfo | null>;
+		/** Update the project name. */
+		updateProjectName: (name: string) => Promise<ProjectWorkspaceInfo>;
+		/** Update the project description. */
+		updateProjectDescription: (description: string) => Promise<ProjectWorkspaceInfo>;
+		/** Update the editor max-width preset. */
+		updateMaxWidthType: (value: EditorMaxWidthType) => Promise<ProjectWorkspaceInfo>;
+		/** Update the editor text size as a whole-number percentage (50–300). */
+		updateTextSize: (percentage: number) => Promise<ProjectWorkspaceInfo>;
+		/** Update the editor font preset. */
+		updateFontType: (value: EditorFontType) => Promise<ProjectWorkspaceInfo>;
+		// -------------------------------------------------------------------------
+		// Document config
+		// -------------------------------------------------------------------------
+		/** Get the combined config for a document (metadata + model overrides). */
+		getDocumentConfig: (documentId: string) => Promise<DocumentConfig>;
+		/**
+		 * Merge a partial config into the document's config.json. Broadcasts a
+		 * config-changed event.
+		 */
+		updateDocumentConfig: (
+			documentId: string,
+			config: Partial<DocumentConfig>
+		) => Promise<void>;
+		/** Subscribe to config changes for a specific document. */
+		onDocumentConfigChanges: (
+			documentId: string,
+			callback: (config: DocumentConfig) => void
+		) => () => void;
+		// -------------------------------------------------------------------------
+		// Document content
+		// -------------------------------------------------------------------------
+		getDocumentContent: (documentId: string) => Promise<string>;
+		/** Write a document's content to disk. */
+		updateDocumentContent: (documentId: string, content: string) => Promise<void>;
+		// -------------------------------------------------------------------------
+		// Resources (workspace/resources/)
+		// -------------------------------------------------------------------------
+		/** Load all files from the workspace resources/ directory. */
+		getResources: () => Promise<ResourceInfo[]>;
+		/** Open a file picker, copy selected files into resources/, return the new entries. */
+		insertResources: (extensions?: string[]) => Promise<ResourceInfo[]>;
+		/** Delete a file from resources/ by its ID. */
+		deleteResource: (id: string) => Promise<void>;
+		/** Subscribe to resource change events in resources/. */
+		onResourcesChanged: (callback: (event: ResourceEntryChangeEvent) => void) => () => void;
+		// -------------------------------------------------------------------------
+		// Filesystem
+		// -------------------------------------------------------------------------
+		/**
+		 * Read a text file and return its content as a string.
+		 * Files larger than 64 MB are rejected before any buffer is allocated.
+		 */
+		readFile: (params: FsReadFileParams) => Promise<string>;
+		/** Read a binary file and return its content as a base64-encoded string. */
+		readFileBinary: (filePath: string) => Promise<string>;
+		/**
+		 * Write (or atomically overwrite) a text file.
+		 * By default uses a write-to-temp-then-rename strategy to prevent
+		 * half-written files if the process crashes mid-write.
+		 */
+		writeFile: (params: FsWriteFileParams) => Promise<void>;
+		/**
+		 * Create a directory, optionally with recursive ancestor creation (mkdir -p).
+		 * Idempotent by default; pass `failIfExists: true` for exclusive creation.
+		 */
+		createFolder: (params: FsCreateFolderParams) => Promise<void>;
+		/** Delete a directory within allowed roots. */
+		deleteFolder: (params: FsDeleteFolderParams) => Promise<void>;
+		/** Delete a single file within allowed roots. */
+		deleteFile: (params: FsDeleteFileParams) => Promise<void>;
+		/**
+		 * Rename or move a file or directory within allowed directories.
+		 * Throws by default if the destination already exists.
+		 */
+		rename: (params: FsRenameParams) => Promise<FsRenameResult>;
+		/**
+		 * List the immediate children of a directory.
+		 * Returns an empty array if the directory does not exist.
+		 */
+		listDir: (params: FsListDirParams) => Promise<FsListDirEntry[]>;
+	};
+	task: {
+		submit: (action: TaskAction) => Promise<IpcResult<TaskActionReturn>>;
+		cancel: (taskId: string) => Promise<IpcResult<boolean>>;
+		list: () => Promise<IpcResult<TaskInfo[]>>;
+		onEvent: (callback: (event: TaskEvent) => void) => () => void;
+	};
+	assistant: {
+		/** Send a message to an assistant. Defaults to the 'main' assistant. */
+		send: (message: string, assistantId?: string) => Promise<string>;
+		/** Reset an assistant's conversation history. */
+		reset: (assistantId?: string) => Promise<void>;
+		/** Subscribe to assistant responses (fires every time a reply lands). */
+		onResponse: (callback: (event: AssistantResponseEvent) => void) => () => void;
+	};
 	playSound: () => void;
 	setTheme: (theme: ThemeMode) => void;
 	setLanguage: (language: string) => void;
@@ -252,143 +381,8 @@ export interface AppApi {
 	onOpenCronDialog: (callback: () => void) => () => void;
 }
 
-/** Managed workspaces under `{userData}/workspaces/`, plus document/output management */
-export interface WorkspaceApi {
-	getCurrent: () => Promise<string | null>;
-	setCurrent: (workspacePath: string) => Promise<void>;
-	/** List every managed workspace, sorted most-recently-opened first. */
-	list: () => Promise<WorkspaceInfo[]>;
-	/** Create a new managed workspace and return its WorkspaceInfo. */
-	create: (params: CreateWorkspaceParams) => Promise<WorkspaceInfo>;
-	clear: () => Promise<void>;
-	onChange: (callback: (event: WorkspaceChangedEvent) => void) => () => void;
-	/** Subscribe to workspace deletion events (folder deleted/moved while app is open) */
-	onDeleted: (callback: (event: WorkspaceDeletedEvent) => void) => () => void;
-	// -------------------------------------------------------------------------
-	// Shell
-	// -------------------------------------------------------------------------
-	/** Open the current workspace root folder in the system file explorer. */
-	openWorkspaceFolder: () => Promise<void>;
-	/** Open the workspace `resources/` folder in the system file explorer. */
-	openResourcesFolder: () => Promise<void>;
-	/** Open the folder for a specific document by its ID in the system file explorer. */
-	openDocumentFolder: (documentId: string) => Promise<void>;
-	/** Get the filesystem path of a document's folder given its ID. */
-	getDocumentPath: (documentId: string) => Promise<string>;
-	// -------------------------------------------------------------------------
-	// Output file management (documents)
-	// -------------------------------------------------------------------------
-	saveOutput: (input: SaveOutputInput) => Promise<SaveOutputResult>;
-	loadOutputs: () => Promise<OutputFile[]>;
-	loadOutputsByType: (type: string) => Promise<OutputFile[]>;
-	loadOutput: (params: { type: string; id: string }) => Promise<OutputFile | null>;
-	deleteOutput: (params: { type: string; id: string }) => Promise<void>;
-	trashOutput: (params: { type: string; id: string }) => Promise<void>;
-	onOutputFileChange: (callback: (event: OutputFileChangeEvent) => void) => () => void;
-	// -------------------------------------------------------------------------
-	// Project workspace (workspace.json `project` block)
-	// -------------------------------------------------------------------------
-	/** Get the project workspace info, or null if no workspace is set. */
-	getProjectInfo: () => Promise<ProjectWorkspaceInfo | null>;
-	/** Update the project name. */
-	updateProjectName: (name: string) => Promise<ProjectWorkspaceInfo>;
-	/** Update the project description. */
-	updateProjectDescription: (description: string) => Promise<ProjectWorkspaceInfo>;
-	/** Update the editor max-width preset. */
-	updateMaxWidthType: (value: EditorMaxWidthType) => Promise<ProjectWorkspaceInfo>;
-	/** Update the editor text size as a whole-number percentage (50–300). */
-	updateTextSize: (percentage: number) => Promise<ProjectWorkspaceInfo>;
-	/** Update the editor font preset. */
-	updateFontType: (value: EditorFontType) => Promise<ProjectWorkspaceInfo>;
-	// -------------------------------------------------------------------------
-	// Document config
-	// -------------------------------------------------------------------------
-	/** Get the combined config for a document (metadata + model overrides). */
-	getDocumentConfig: (documentId: string) => Promise<DocumentConfig>;
-	/**
-	 * Merge a partial config into the document's config.json. Broadcasts a
-	 * config-changed event.
-	 */
-	updateDocumentConfig: (
-		documentId: string,
-		config: Partial<DocumentConfig>
-	) => Promise<void>;
-	/** Subscribe to config changes for a specific document. */
-	onDocumentConfigChanges: (
-		documentId: string,
-		callback: (config: DocumentConfig) => void
-	) => () => void;
-	// -------------------------------------------------------------------------
-	// Document content
-	// -------------------------------------------------------------------------
-	getDocumentContent: (documentId: string) => Promise<string>;
-	/** Write a document's content to disk. */
-	updateDocumentContent: (documentId: string, content: string) => Promise<void>;
-	// -------------------------------------------------------------------------
-	// Resources (workspace/resources/)
-	// -------------------------------------------------------------------------
-	/** Load all files from the workspace resources/ directory. */
-	getResources: () => Promise<ResourceInfo[]>;
-	/** Open a file picker, copy selected files into resources/, return the new entries. */
-	insertResources: (extensions?: string[]) => Promise<ResourceInfo[]>;
-	/** Delete a file from resources/ by its ID. */
-	deleteResource: (id: string) => Promise<void>;
-	/** Subscribe to resource change events in resources/. */
-	onResourcesChanged: (callback: (event: ResourceEntryChangeEvent) => void) => () => void;
-	// -------------------------------------------------------------------------
-	// Filesystem
-	// -------------------------------------------------------------------------
-	/**
-	 * Read a text file and return its content as a string.
-	 * Files larger than 64 MB are rejected before any buffer is allocated.
-	 */
-	readFile: (params: FsReadFileParams) => Promise<string>;
-	/** Read a binary file and return its content as a base64-encoded string. */
-	readFileBinary: (filePath: string) => Promise<string>;
-	/**
-	 * Write (or atomically overwrite) a text file.
-	 * By default uses a write-to-temp-then-rename strategy to prevent
-	 * half-written files if the process crashes mid-write.
-	 */
-	writeFile: (params: FsWriteFileParams) => Promise<void>;
-	/**
-	 * Create a directory, optionally with recursive ancestor creation (mkdir -p).
-	 * Idempotent by default; pass `failIfExists: true` for exclusive creation.
-	 */
-	createFolder: (params: FsCreateFolderParams) => Promise<void>;
-	/** Delete a directory within allowed roots. */
-	deleteFolder: (params: FsDeleteFolderParams) => Promise<void>;
-	/** Delete a single file within allowed roots. */
-	deleteFile: (params: FsDeleteFileParams) => Promise<void>;
-	/**
-	 * Rename or move a file or directory within allowed directories.
-	 * Throws by default if the destination already exists.
-	 */
-	rename: (params: FsRenameParams) => Promise<FsRenameResult>;
-	/**
-	 * List the immediate children of a directory.
-	 * Returns an empty array if the directory does not exist.
-	 */
-	listDir: (params: FsListDirParams) => Promise<FsListDirEntry[]>;
-}
 
-/** Conversational AI assistant */
-export interface AssistantApi {
-	/** Send a message to an assistant. Defaults to the 'main' assistant. */
-	send: (message: string, assistantId?: string) => Promise<string>;
-	/** Reset an assistant's conversation history. */
-	reset: (assistantId?: string) => Promise<void>;
-	/** Subscribe to assistant responses (fires every time a reply lands). */
-	onResponse: (callback: (event: AssistantResponseEvent) => void) => () => void;
-}
 
-/** Background task queue */
-export interface TaskApi {
-	submit: (action: TaskAction) => Promise<IpcResult<TaskActionReturn>>;
-	cancel: (taskId: string) => Promise<IpcResult<boolean>>;
-	list: () => Promise<IpcResult<TaskInfo[]>>;
-	onEvent: (callback: (event: TaskEvent) => void) => () => void;
-}
 
 // ---------------------------------------------------------------------------
 // Global Window augmentation
