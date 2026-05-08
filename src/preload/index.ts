@@ -201,7 +201,7 @@ const baseApp = {
 };
 
 // ---------------------------------------------------------------------------
-// window.workspace — Workspace folder selection, documents, directories, output
+// window.app.workspace — Workspace folder selection, documents, directories, output
 // ---------------------------------------------------------------------------
 const workspace: WorkspaceApi = {
 	getCurrent: (): Promise<string | null> => {
@@ -352,7 +352,7 @@ const workspace: WorkspaceApi = {
 } satisfies WorkspaceApi;
 
 // ---------------------------------------------------------------------------
-// window.task — Background task queue
+// window.app.task — Background task queue
 // ---------------------------------------------------------------------------
 const task: TaskApi = {
 	submit: (action) => {
@@ -370,7 +370,7 @@ const task: TaskApi = {
 } satisfies TaskApi;
 
 // ---------------------------------------------------------------------------
-// window.assistant — Conversational AI assistant
+// window.app.assistant — Conversational AI assistant
 // ---------------------------------------------------------------------------
 const assistant: AssistantApi = {
 	send: (message: string, assistantId?: string): Promise<string> => {
