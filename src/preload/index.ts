@@ -55,3 +55,4 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.win = win;
 }
+import type { AssistantAiSelection } from '../shared/types';
