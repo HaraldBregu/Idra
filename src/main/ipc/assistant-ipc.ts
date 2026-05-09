@@ -4,7 +4,6 @@ import type { IpcModule } from './ipc-module';
 import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import { AssistantChannels, type AssistantResponseEvent } from '../../shared/channels';
 import { DEFAULT_ASSISTANT_ID, type AssistantService } from '../assistant';
 
 /**
@@ -20,18 +19,18 @@ export class AssistantIpc implements IpcModule {
 		const logger = container.get<LoggerService>('logger');
 		const assistant = container.get<AssistantService>('assistant');
 
-		registerCommand(AssistantChannels.send, async (message: string, assistantId?: string) => {
+		registerCommand('assistant:send', async (message: string, assistantId?: string) => {
 			const id = assistantId ?? DEFAULT_ASSISTANT_ID;
 			const response = await assistant.send(message, id);
 
-			const event: AssistantResponseEvent = { assistantId: id, userMessage: message, response };
+			const event = { assistantId: id, userMessage: message, response };
 			for (const win of BrowserWindow.getAllWindows()) {
-				win.webContents.send(AssistantChannels.response, event);
+				win.webContents.send('assistant:response', event);
 			}
 			return response;
 		});
 
-		registerCommand(AssistantChannels.reset, async (assistantId?: string) => {
+		registerCommand('assistant:reset', async (assistantId?: string) => {
 			await assistant.reset(assistantId ?? DEFAULT_ASSISTANT_ID);
 		});
 
