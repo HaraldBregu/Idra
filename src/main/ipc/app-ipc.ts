@@ -221,6 +221,13 @@ export class AppIpc implements IpcModule {
 			}, ProviderChannels.getModels)
 		);
 
+		ipcMain.handle(
+			ProviderChannels.saveAssistantService,
+			wrapSimpleHandler((provider: Provider, model: Model) => {
+				return store.setAssistantService(provider.id, model);
+			}, ProviderChannels.saveAssistantService)
+		);
+
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}
 }

@@ -48,7 +48,7 @@ export const app: AppApi = {
 	getProviders: (): Promise<Provider[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getAll);
 	},
-	getModelsForProvider: (provider: Provider): Promise<Model[]> => {
+	getModels: (provider: Provider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
 };
