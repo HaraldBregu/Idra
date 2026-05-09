@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DEFAULT_PROVIDERS, type Provider } from '../../../../shared/providers';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -30,6 +31,7 @@ const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 );
 
 const StartPage: React.FC = () => {
+	const navigate = useNavigate();
 	const [apiKey, setApiKey] = useState('');
 	const [saving, setSaving] = useState(false);
 	const [selectedProvider, setSelectedProvider] = useState(providerOptions[0]?.value ?? '');
@@ -39,11 +41,12 @@ const StartPage: React.FC = () => {
 		if (!canSave) return;
 
 		setSaving(true);
-		try {
-			await window.app.setProviderApiKey(selectedProvider, apiKey.trim());
-		} finally {
-			setSaving(false);
-		}
+	try {
+		await window.app.setProviderApiKey(selectedProvider, apiKey.trim());
+		navigate('/assistant-config');
+	} finally {
+		setSaving(false);
+	}
 	}
 
 	return (
