@@ -9,14 +9,12 @@ import { useTranslation } from 'react-i18next';
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
-const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const ThemesPage = lazy(() => import('./pages/settings/pages/ThemesPage'));
 const EditorPage = lazy(() => import('./pages/settings/pages/EditorPage'));
 const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'));
-const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
@@ -124,22 +122,6 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<DeveloperPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'agents',
-						element: (
-							<RouteWrapper>
-								<AgentsPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'channels',
-						element: (
-							<RouteWrapper>
-								<ChannelsPage />
 							</RouteWrapper>
 						),
 					},
