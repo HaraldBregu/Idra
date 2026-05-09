@@ -2,6 +2,7 @@ import { SetAnthropicKeyTool } from './anthropic';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 import { ExecTool } from './exec';
 import { SetOpenAIKeyTool } from './openai';
+import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
 import { ReadFileTool } from './read';
 import { WriteFileTool } from './write';
 import type { CronService } from '../../cron';
