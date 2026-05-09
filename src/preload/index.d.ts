@@ -15,14 +15,14 @@ export interface AssistantApi {
 	onResponse: (callback: (event: { response: string }) => void) => () => void;
 }
 
-import type { Provider } from '../shared/providers';
+import type { PublicProvider } from '../shared/providers';
 import type { Model } from '../shared/service';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
-	getProviders: () => Promise<Provider[]>;
-	getModels: (provider: Provider) => Promise<Model[]>;
-	saveAssistantService: (provider: Provider, model: Model) => Promise<boolean>;
+	getProviders: () => Promise<PublicProvider[]>;
+	getModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 };
 
 declare global {
