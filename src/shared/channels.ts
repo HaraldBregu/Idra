@@ -19,6 +19,7 @@ export const AssistantChannels = {
 
 export const ProviderChannels = {
 	setApiKey: 'provider:set-apikey',
+	getAll: 'provider:get-all',
 } as const;
 
 interface AppInvokeChannelMap {
