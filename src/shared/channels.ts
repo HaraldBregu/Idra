@@ -62,7 +62,6 @@ interface AppInvokeChannelMap {
 		args: [phoneNumber: string];
 		result: string;
 	};
-	'app:open-system-screen-recording': { args: []; result: void };
 	'app:set-tray-enabled': { args: [enabled: boolean]; result: void };
 	'app:get-tray-enabled': { args: []; result: boolean };
 	'app:cron-schedule': {
