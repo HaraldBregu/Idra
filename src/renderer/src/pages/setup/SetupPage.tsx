@@ -1,0 +1,198 @@
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import * as PageModule from '../../components/app/base/Page'
+
+type SetupProvider = {
+  id: string
+  label: string
+  models: string[]
+}
+
+type SetupSelection = {
+  provider: string
+  model: string
+  apiKey: string
+}
+
+type PageProps = {
+  className?: string
+  children: React.ReactNode
+}
+
+const Page = (
+  PageModule as {
+    Page?: React.ComponentType<PageProps>
+    default?: React.ComponentType<PageProps>
+  }
+).Page ?? (
+  PageModule as {
+    Page?: React.ComponentType<PageProps>
+    default?: React.ComponentType<PageProps>
+  }
+).default
+
+const SETUP_STORAGE_KEY = 'friday:assistant-setup'
+
+const PROVIDERS: SetupProvider[] = [
+  {
+    id: 'openai',
+    label: 'OpenAI',
+    models: ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o-mini']
+  },
+  {
+    id: 'anthropic',
+    label: 'Anthropic',
+    models: ['claude-3-7-sonnet-latest', 'claude-3-5-haiku-latest']
+  },
+  {
+    id: 'google',
+    label: 'Google Gemini',
+    models: ['gemini-2.0-flash', 'gemini-1.5-pro']
+  }
+]
+
+const getInitialSelection = (): SetupSelection => {
+  const defaultProvider = PROVIDERS[0]
+
+  if (typeof window === 'undefined') {
+    return {
+      provider: defaultProvider.id,
+      model: defaultProvider.models[0],
+      apiKey: ''
+    }
+  }
+
+  const savedSelection = window.localStorage.getItem(SETUP_STORAGE_KEY)
+
+  if (!savedSelection) {
+    return {
+      provider: defaultProvider.id,
+      model: defaultProvider.models[0],
+      apiKey: ''
+    }
+  }
+
+  try {
+    const parsedSelection = JSON.parse(savedSelection) as Partial<SetupSelection>
+    const provider = PROVIDERS.find((item) => item.id === parsedSelection.provider) ?? defaultProvider
+    const model = provider.models.includes(parsedSelection.model ?? '')
+      ? parsedSelection.model ?? provider.models[0]
+      : provider.models[0]
+
+    return {
+      provider: provider.id,
+      model,
+      apiKey: parsedSelection.apiKey ?? ''
+    }
+  } catch {
+    return {
+      provider: defaultProvider.id,
+      model: defaultProvider.models[0],
+      apiKey: ''
+    }
+  }
+}
+
+const SetupPage = () => {
+  const navigate = useNavigate()
+  const [selection, setSelection] = useState<SetupSelection>(getInitialSelection)
+
+  const selectedProvider = useMemo(
+    () => PROVIDERS.find((provider) => provider.id === selection.provider) ?? PROVIDERS[0],
+    [selection.provider]
+  )
+
+  const updateProvider = (providerId: string) => {
+    const nextProvider = PROVIDERS.find((provider) => provider.id === providerId) ?? PROVIDERS[0]
+
+    setSelection((currentSelection) => ({
+      ...currentSelection,
+      provider: nextProvider.id,
+      model: nextProvider.models[0]
+    }))
+  }
+
+  const saveSelection = () => {
+    window.localStorage.setItem(SETUP_STORAGE_KEY, JSON.stringify(selection))
+    navigate('/', { replace: true })
+  }
+
+  return (
+    <Page className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col justify-center px-6 py-12">
+        <div className="mb-8">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">Assistant setup</p>
+          <h1 className="text-3xl font-semibold tracking-normal">Choose your assistant model</h1>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <div className="grid gap-5">
+            <label className="grid gap-2">
+              <span className="text-sm font-medium">Provider</span>
+              <select
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-ring"
+                value={selection.provider}
+                onChange={(event) => updateProvider(event.target.value)}
+              >
+                {PROVIDERS.map((provider) => (
+                  <option key={provider.id} value={provider.id}>
+                    {provider.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium">Model</span>
+              <select
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-ring"
+                value={selection.model}
+                onChange={(event) =>
+                  setSelection((currentSelection) => ({
+                    ...currentSelection,
+                    model: event.target.value
+                  }))
+                }
+              >
+                {selectedProvider.models.map((model) => (
+                  <option key={model} value={model}>
+                    {model}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium">API key</span>
+              <input
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-ring"
+                type="password"
+                value={selection.apiKey}
+                placeholder="Enter provider API key"
+                autoComplete="off"
+                onChange={(event) =>
+                  setSelection((currentSelection) => ({
+                    ...currentSelection,
+                    apiKey: event.target.value
+                  }))
+                }
+              />
+            </label>
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <button
+              className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              type="button"
+              onClick={saveSelection}
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </Page>
+  )
+}
+
+export default SetupPage
