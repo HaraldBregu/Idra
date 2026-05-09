@@ -6,4 +6,9 @@ export { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 export { SetAnthropicKeyTool } from './anthropic';
 export { SetOpenAIKeyTool } from './openai';
 export { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
+export {
+	GetAssistantModelTool,
+	GetAssistantServiceTool,
+	SetAssistantServiceTool,
+} from './services';
 export { defaultTools, expandUser } from './utils';
