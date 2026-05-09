@@ -7,9 +7,7 @@ import { Layout as SettingsLayout } from './pages/settings';
 import { useTranslation } from 'react-i18next';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
-const AssistantConfigPage = lazy(
-	() => import('./pages/assistant-config/AssistantConfigPage')
-);
+const ConfigPage = lazy(() => import('./pages/config/ConfigPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
@@ -56,10 +54,10 @@ const routes: RouteObject[] = [
 				),
 			},
 			{
-				path: 'assistant-config',
+				path: 'config',
 				element: (
 					<RouteWrapper>
-						<AssistantConfigPage />
+						<ConfigPage />
 					</RouteWrapper>
 				),
 			},

@@ -43,7 +43,7 @@ const StartPage: React.FC = () => {
 		setSaving(true);
 	try {
 		await window.app.setProviderApiKey(selectedProvider, apiKey.trim());
-		navigate('/assistant-config');
+		navigate('/config');
 	} finally {
 		setSaving(false);
 	}
