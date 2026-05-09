@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, type ReactNode } from 'react';
-import { Outlet, createHashRouter, type RouteObject } from 'react-router-dom';
+import { Navigate, Outlet, createHashRouter, type RouteObject } from 'react-router-dom';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
@@ -46,11 +46,7 @@ const routes: RouteObject[] = [
 		children: [
 			{
 				index: true,
-				element: (
-					<RouteWrapper>
-						<StartPage />
-					</RouteWrapper>
-				),
+				element: <Navigate to="/start" replace />,
 			},
 			{
 				path: 'start',
