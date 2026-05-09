@@ -1,5 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { DEFAULT_PROVIDERS, type Provider } from '../../../../shared/providers';
+import { Input } from '@/components/ui/Input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/Select';
 
 type ProviderOption = {
 	label: string;
@@ -16,19 +24,13 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	};
 }
 
+const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
+	normalizeProvider(provider, index),
+);
+
 const StartPage: React.FC = () => {
-	const [selectedProvider, setSelectedProvider] = useState('');
-
-	const providerOptions = useMemo(
-		() => DEFAULT_PROVIDERS.map((provider, index) => normalizeProvider(provider, index)),
-		[],
-	);
-
-	useEffect(() => {
-		if (!selectedProvider && providerOptions.length > 0) {
-			setSelectedProvider(providerOptions[0].value);
-		}
-	}, [providerOptions, selectedProvider]);
+	const [apiKey, setApiKey] = useState('');
+	const [selectedProvider, setSelectedProvider] = useState(providerOptions[0]?.value ?? '');
 
 	return (
 		<main className="flex h-full min-h-0 items-center justify-center bg-background px-6">
@@ -36,28 +38,45 @@ const StartPage: React.FC = () => {
 				<p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Friday</p>
 				<h1 className="text-4xl font-semibold tracking-normal text-foreground">Start</h1>
 				<p className="text-base text-muted-foreground">Set up your workspace to begin.</p>
-				<div className="mx-auto w-full max-w-sm space-y-2 text-left">
-					<label className="text-sm font-medium text-foreground" htmlFor="provider-select">
-						Provider
+				<div className="mx-auto w-full max-w-sm space-y-4 text-left">
+					<div className="space-y-2">
+						<label className="text-sm font-medium text-foreground" htmlFor="api-key">
+							API Key
+						</label>
+						<Input
+							autoComplete="off"
+							className="h-10"
+							id="api-key"
+							onChange={(event) => {
+								setApiKey(event.target.value);
+							}}
+							placeholder="Enter API key"
+							spellCheck={false}
+							type="password"
+							value={apiKey}
+						/>
+					</div>
+					<div className="space-y-2">
+						<label className="text-sm font-medium text-foreground" htmlFor="provider-select">
+							Provider
 					</label>
-					<select
-						className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
-						disabled={providerOptions.length === 0}
-						id="provider-select"
-						onChange={(event) => {
-							setSelectedProvider(event.target.value);
-						}}
-						value={selectedProvider}
-					>
-						<option disabled value="">
-							Select a provider
-						</option>
-						{providerOptions.map((provider, index) => (
-							<option key={`${provider.value}-${index}`} value={provider.value}>
-								{provider.label}
-							</option>
-						))}
-					</select>
+						<Select
+							value={selectedProvider}
+							onValueChange={setSelectedProvider}
+							disabled={providerOptions.length === 0}
+						>
+							<SelectTrigger id="provider-select" className="h-10">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{providerOptions.map((provider, index) => (
+									<SelectItem key={`${provider.value}-${index}`} value={provider.value}>
+										{provider.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
 			</section>
 		</main>
