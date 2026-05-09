@@ -2,13 +2,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup';
 import { Label } from '@/components/ui/Label';
-import { useThemeMode } from '@/hooks/use-theme-mode';
-import { useAppActions } from '@/hooks/use-app-actions';
+import { useApp } from '@/contexts';
 import { ThemeMode } from '@shared';
 
 export function ThemeModeSelector(): React.ReactElement {
-	const themeMode = useThemeMode();
-	const { setTheme } = useAppActions();
+	const { theme, setTheme } = useApp();
 	const { t } = useTranslation();
 
 	const themeOptions: ReadonlyArray<{ value: ThemeMode; label: string; description: string }> = [
@@ -31,7 +29,7 @@ export function ThemeModeSelector(): React.ReactElement {
 
 	return (
 		<RadioGroup
-			value={themeMode}
+			value={theme}
 			onValueChange={(value) => setTheme(value as ThemeMode)}
 			className="grid gap-0"
 			aria-label={t('settings.theme.title')}
