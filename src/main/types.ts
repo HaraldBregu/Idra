@@ -19,6 +19,3 @@ export type { IpcModule } from './ipc/ipc-module';
 
 export type { LogLevel, LoggerOptions } from './logger';
 export type { StoreSchema } from './store';
-
-// ---- File utility types --------------------------------------------------
-export type { FileTypeValidationResult } from '../shared/file-type-validator';

@@ -1,8 +1,4 @@
-import { ipcMain, BrowserWindow, Menu, nativeTheme, shell, dialog, app } from 'electron';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import path from 'node:path';
-import { is } from '@electron-toolkit/utils';
+import { ipcMain, BrowserWindow, nativeTheme, shell, dialog, app } from 'electron';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import type { IpcModule } from './ipc-module';
@@ -20,7 +16,6 @@ import { isThemeMode } from '../../shared/theme';
 import type {
 	AgentSettings,
 	ChannelType,
-	ContextMenuDescriptor,
 	CronJobInfo,
 	CronTickEvent,
 	ProviderEntry,
@@ -30,10 +25,7 @@ import type {
 	ThemeMode,
 	WhatsappChannelProperties,
 	DiscordChannelProperties,
-	WritingContextMenuAction,
 } from '../../shared/types';
-
-const execFileAsync = promisify(execFile);
 
 /**
  * Per-provider strategy for the `/models` endpoint. Each entry encapsulates
@@ -158,134 +150,6 @@ export class AppIpc implements IpcModule {
 				}
 			});
 		});
-
-		// Play sound handler
-		ipcMain.on(AppChannels.playSound, async () => {
-			const soundPath = is.dev
-				? path.join(__dirname, '../../resources/sounds/click6.wav')
-				: path.join(process.resourcesPath, 'resources/sounds/click6.wav');
-
-			try {
-				if (process.platform === 'darwin') {
-					await execFileAsync('afplay', [soundPath]);
-				} else if (process.platform === 'win32') {
-					// Escape single quotes in path for PowerShell
-					const escapedPath = soundPath.replace(/'/g, "''");
-					await execFileAsync('powershell', [
-						'-NoProfile',
-						'-Command',
-						`(New-Object Media.SoundPlayer '${escapedPath}').PlaySync()`,
-					]);
-				} else {
-					await execFileAsync('aplay', [soundPath]);
-				}
-			} catch (err) {
-				logger.error('AppIpc', 'Sound playback failed', err);
-			}
-		});
-
-		// Context menu handler (standard)
-		ipcMain.on(AppChannels.contextMenu, (event) => {
-			const win = BrowserWindow.fromWebContents(event.sender);
-			if (!win) return;
-
-			const editMenu = Menu.buildFromTemplate([
-				{ role: 'undo' },
-				{ role: 'redo' },
-				{ type: 'separator' },
-				{ role: 'cut' },
-				{ role: 'copy' },
-				{ role: 'paste' },
-				{ role: 'selectAll' },
-			]);
-			editMenu.popup({ window: win });
-		});
-
-		// Context menu handler (editable)
-		ipcMain.on(AppChannels.contextMenuEditable, (event) => {
-			const win = BrowserWindow.fromWebContents(event.sender);
-			if (!win) return;
-
-			const editMenu = Menu.buildFromTemplate([
-				{ role: 'undo' },
-				{ role: 'redo' },
-				{ type: 'separator' },
-				{ role: 'cut' },
-				{ role: 'copy' },
-				{ role: 'paste' },
-				{ type: 'separator' },
-				{ role: 'selectAll' },
-			]);
-			editMenu.popup({ window: win });
-		});
-
-		// Generic custom context menu — renderer provides descriptors, resolves
-		// with the clicked item id (or null if dismissed). One handler, any menu.
-		ipcMain.handle(
-			AppChannels.showContextMenu,
-			(event, items: ContextMenuDescriptor[]) =>
-				new Promise<string | null>((resolve) => {
-					const win = BrowserWindow.fromWebContents(event.sender);
-					if (!win) {
-						resolve(null);
-						return;
-					}
-
-					let selectedId: string | null = null;
-
-					const template: Electron.MenuItemConstructorOptions[] = items.map((item) => {
-						if (item.type === 'separator') {
-							return { type: 'separator' };
-						}
-						return {
-							label: item.label,
-							accelerator: item.accelerator,
-							enabled: item.enabled ?? true,
-							click: () => {
-								selectedId = item.id;
-							},
-						};
-					});
-
-					const menu = Menu.buildFromTemplate(template);
-					menu.once('menu-will-close', () => {
-						// Defer: click handlers fire after `menu-will-close` on some platforms.
-						setImmediate(() => resolve(selectedId));
-					});
-					menu.popup({ window: win });
-				})
-		);
-
-		// Writing context menu — invoked by the renderer; sends action events back
-		ipcMain.handle(
-			AppChannels.showWritingContextMenu,
-			(event, writingId: string, _writingTitle: string) => {
-				const win = BrowserWindow.fromWebContents(event.sender);
-				if (!win) return;
-
-				const sendAction = (action: WritingContextMenuAction['action']): void => {
-					event.sender.send(AppChannels.writingContextMenuAction, {
-						action,
-						writingId,
-					} satisfies WritingContextMenuAction);
-				};
-
-				const menu = Menu.buildFromTemplate([
-					{ label: 'Open', click: () => sendAction('open') },
-					{ label: 'Duplicate', click: () => sendAction('duplicate') },
-					{ type: 'separator' },
-					{ label: 'Rename', click: () => sendAction('rename') },
-					{ type: 'separator' },
-					{
-						label: 'Move to Trash',
-						accelerator: 'CmdOrCtrl+Backspace',
-						click: () => sendAction('delete'),
-					},
-				]);
-
-				menu.popup({ window: win });
-			}
-		);
 
 		// -----------------------------------------------------------------------
 		// Provider management handlers
@@ -431,12 +295,6 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.openAppDataFolder)
 		);
 
-		// Get the application data folder path
-		ipcMain.handle(
-			AppChannels.getAppDataFolder,
-			wrapSimpleHandler(() => app.getPath('userData'), AppChannels.getAppDataFolder)
-		);
-
 		// -----------------------------------------------------------------------
 		// Theme management handlers
 		// -----------------------------------------------------------------------
@@ -579,11 +437,6 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.cronListJobs,
 			wrapSimpleHandler(() => cronService.listJobs(), AppChannels.cronListJobs)
-		);
-
-		ipcMain.handle(
-			AppChannels.cronHasJob,
-			wrapSimpleHandler((id: string) => cronService.has(id), AppChannels.cronHasJob)
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);

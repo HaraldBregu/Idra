@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, Menu as ElectronMenu, type IpcMainInvokeEvent } from 'electron';
+import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
@@ -18,8 +18,6 @@ import { WindowChannels } from '../../shared/channels';
  * Channels (invoke/handle):
  *  - window:is-maximized  (query) -- Check if window is maximized
  *  - window:is-fullscreen (query) -- Check if window is in fullscreen
- *  - window:get-platform  (query) -- Get platform info
- *
  * Event channels (push):
  *  - window:maximize-change  -- Window maximize state changed
  *  - window:fullscreen-change -- Window fullscreen state changed
@@ -66,7 +64,7 @@ export class WindowIpc implements IpcModule {
 
 		ipcMain.handle(
 			WindowChannels.isMaximized,
-			wrapIpcHandler((event: IpcMainInvokeEvent) => {
+			wrapIpcHandler((event) => {
 				const win = BrowserWindow.fromWebContents(event.sender);
 				return win ? win.isMaximized() : false;
 			}, 'window:is-maximized')
@@ -74,17 +72,10 @@ export class WindowIpc implements IpcModule {
 
 		ipcMain.handle(
 			WindowChannels.isFullScreen,
-			wrapIpcHandler((event: IpcMainInvokeEvent) => {
+			wrapIpcHandler((event) => {
 				const win = BrowserWindow.fromWebContents(event.sender);
 				return win ? win.isFullScreen() : false;
 			}, 'window:is-fullscreen')
-		);
-
-		ipcMain.handle(
-			WindowChannels.getPlatform,
-			wrapIpcHandler(() => {
-				return process.platform;
-			}, 'window:get-platform')
 		);
 
 		logger.info('WindowIpc', `Registered ${this.name} module`);

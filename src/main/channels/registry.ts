@@ -100,7 +100,7 @@ export class ChannelRegistry {
 		const trimmed = phoneNumber.replace(/[^\d]/g, '');
 		if (!trimmed) throw new Error('phoneNumber is required');
 
-		const persisted = this.store.setChannelProperties('whatsapp', {
+		const persisted = this.store.setWhatsappChannel({
 			phoneNumber: trimmed,
 			token: '',
 		});

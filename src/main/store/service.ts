@@ -31,6 +31,24 @@ import {
 	setOpenAIProvider,
 } from './openai';
 import {
+	getDiscordChannel,
+	setDiscordAllowFrom,
+	setDiscordChannel,
+	setDiscordToken,
+} from './discord';
+import {
+	getTelegramChannel,
+	setTelegramAllowFrom,
+	setTelegramChannel,
+	setTelegramToken,
+} from './telegram';
+import {
+	getWhatsappChannel,
+	setWhatsappChannel,
+	setWhatsappPhoneNumber,
+	setWhatsappToken,
+} from './whatsapp';
+import {
 	cloneProvider,
 	cloneProviderEntry,
 	normalizeProvider,
@@ -207,14 +225,77 @@ export class StoreService {
 	getChannel(): Channel | null {
 		const channel = this.store.get('channel');
 		if (!channel) return null;
-		const telegram = channel.telegram ?? { token: '', allowFrom: [] };
-		const whatsapp = channel.whatsapp ?? { phoneNumber: '', token: '' };
-		const discord = channel.discord ?? { token: '', allowFrom: [] };
 		return {
-			telegram: { ...telegram, allowFrom: [...telegram.allowFrom] },
-			whatsapp: { phoneNumber: whatsapp.phoneNumber ?? '', token: whatsapp.token ?? '' },
-			discord: { ...discord, allowFrom: [...discord.allowFrom] },
+			telegram: this.getTelegramChannel(),
+			whatsapp: this.getWhatsappChannel(),
+			discord: this.getDiscordChannel(),
 		};
+	}
+
+	private ensureChannel(): void {
+		if (this.store.get('channel')) return;
+		this.store.set('channel', {
+			telegram: { token: '', allowFrom: [] },
+			whatsapp: { phoneNumber: '', token: '' },
+			discord: { token: '', allowFrom: [] },
+		});
+	}
+
+	getTelegramChannel(): TelegramChannelProperties {
+		return getTelegramChannel(this.store);
+	}
+
+	setTelegramChannel(properties: TelegramChannelProperties): Channel {
+		this.ensureChannel();
+		return setTelegramChannel(this.store, properties);
+	}
+
+	setTelegramToken(token: string): Channel {
+		this.ensureChannel();
+		return setTelegramToken(this.store, token);
+	}
+
+	setTelegramAllowFrom(allowFrom: string[]): Channel {
+		this.ensureChannel();
+		return setTelegramAllowFrom(this.store, allowFrom);
+	}
+
+	getWhatsappChannel(): WhatsappChannelProperties {
+		return getWhatsappChannel(this.store);
+	}
+
+	setWhatsappChannel(properties: WhatsappChannelProperties): Channel {
+		this.ensureChannel();
+		return setWhatsappChannel(this.store, properties);
+	}
+
+	setWhatsappPhoneNumber(phoneNumber: string): Channel {
+		this.ensureChannel();
+		return setWhatsappPhoneNumber(this.store, phoneNumber);
+	}
+
+	setWhatsappToken(token: string): Channel {
+		this.ensureChannel();
+		return setWhatsappToken(this.store, token);
+	}
+
+	getDiscordChannel(): DiscordChannelProperties {
+		return getDiscordChannel(this.store);
+	}
+
+	setDiscordChannel(properties: DiscordChannelProperties): Channel {
+		this.ensureChannel();
+		return setDiscordChannel(this.store, properties);
+	}
+
+	setDiscordToken(token: string): Channel {
+		this.ensureChannel();
+		return setDiscordToken(this.store, token);
+	}
+
+	setDiscordAllowFrom(allowFrom: string[]): Channel {
+		this.ensureChannel();
+		return setDiscordAllowFrom(this.store, allowFrom);
 	}
 
 	setChannelProperties(
@@ -224,34 +305,13 @@ export class StoreService {
 			| WhatsappChannelProperties
 			| DiscordChannelProperties
 	): Channel {
-		const current = this.store.get('channel');
-		const baseTelegram = current?.telegram ?? { token: '', allowFrom: [] };
-		const baseWhatsapp = current?.whatsapp ?? { phoneNumber: '', token: '' };
-		const baseDiscord = current?.discord ?? { token: '', allowFrom: [] };
-		const base: Channel = {
-			telegram: { ...baseTelegram, allowFrom: [...baseTelegram.allowFrom] },
-			whatsapp: {
-				phoneNumber: baseWhatsapp.phoneNumber ?? '',
-				token: baseWhatsapp.token ?? '',
-			},
-			discord: { ...baseDiscord, allowFrom: [...baseDiscord.allowFrom] },
-		};
-		let next: Channel;
 		if (type === 'whatsapp') {
-			const props = properties as WhatsappChannelProperties;
-			next = {
-				...base,
-				whatsapp: { phoneNumber: props.phoneNumber, token: props.token ?? '' },
-			};
-		} else {
-			const props = properties as TelegramChannelProperties | DiscordChannelProperties;
-			next = {
-				...base,
-				[type]: { token: props.token, allowFrom: [...props.allowFrom] },
-			};
+			return this.setWhatsappChannel(properties as WhatsappChannelProperties);
 		}
-		this.store.set('channel', next);
-		return next;
+		if (type === 'telegram') {
+			return this.setTelegramChannel(properties as TelegramChannelProperties);
+		}
+		return this.setDiscordChannel(properties as DiscordChannelProperties);
 	}
 
 	private migrateProviderKey(): void {

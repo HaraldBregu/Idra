@@ -12,10 +12,6 @@ import type {
 	TaskAction,
 	TaskInfo,
 	TaskEvent,
-	AgentTaskSnapshot,
-	AgentTaskLookupResult,
-	WritingContextMenuAction,
-	ContextMenuDescriptor,
 	AppLogEntry,
 	AppStartupInfo,
 	AgentSettings,
@@ -48,7 +44,6 @@ export const WindowChannels = {
 	isFullScreen: 'window:is-fullscreen',
 	maximizeChange: 'window:maximize-change',
 	fullScreenChange: 'window:fullscreen-change',
-	getPlatform: 'window:get-platform',
 	popupMenu: 'window:popup-menu',
 } as const;
 
@@ -57,8 +52,6 @@ export const TaskChannels = {
 	cancel: 'task:cancel',
 	list: 'task:list',
 	event: 'task:event',
-	getSnapshot: 'task:get-snapshot',
-	findForDocument: 'task:find-for-document',
 } as const;
 
 export const AssistantChannels = {
@@ -74,18 +67,11 @@ export interface AssistantResponseEvent {
 }
 
 export const AppChannels = {
-	playSound: 'play-sound',
 	setTheme: 'set-theme',
 	setLanguage: 'set-language',
-	contextMenu: 'context-menu',
-	contextMenuEditable: 'context-menu-editable',
-	showContextMenu: 'context-menu:show',
 	changeLanguage: 'change-language',
 	changeTheme: 'change-theme',
 	fileOpened: 'file-opened',
-	// Writing context menu (formerly ContextMenuChannels)
-	showWritingContextMenu: 'context-menu:writing',
-	writingContextMenuAction: 'context-menu:writing-action',
 	// Store / Provider management
 	getProviders: 'app:get-providers',
 	addProvider: 'app:add-provider',
@@ -109,7 +95,6 @@ export const AppChannels = {
 	openLogsFolder: 'app:open-logs-folder',
 	// App data folder
 	openAppDataFolder: 'app:open-app-data-folder',
-	getAppDataFolder: 'app:get-app-data-folder',
 	// Theme management
 	getCustomThemes: 'app:get-custom-themes',
 	openThemesFolder: 'app:open-themes-folder',
@@ -126,7 +111,6 @@ export const AppChannels = {
 	cronSchedule: 'app:cron-schedule',
 	cronUnschedule: 'app:cron-unschedule',
 	cronListJobs: 'app:cron-list-jobs',
-	cronHasJob: 'app:cron-has-job',
 	cronTick: 'app:cron-tick',
 	// Global keyboard shortcuts (main → renderer)
 	shortcut: 'app:shortcut',
@@ -187,31 +171,11 @@ export interface InvokeChannelMap {
 	// ---- Window (IpcResult-wrapped for handle, raw for others) ----
 	[WindowChannels.isMaximized]: { args: []; result: boolean };
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
-	[WindowChannels.getPlatform]: { args: []; result: string };
 
 	// ---- Task (IpcResult-wrapped via registerQuery/registerCommand) ----
 	[TaskChannels.submit]: { args: [action: TaskAction]; result: { taskId: string } };
 	[TaskChannels.cancel]: { args: [taskId: string]; result: boolean };
 	[TaskChannels.list]: { args: []; result: TaskInfo[] };
-	[TaskChannels.getSnapshot]: { args: [taskId: string]; result: AgentTaskSnapshot | null };
-	[TaskChannels.findForDocument]: {
-		args: [documentId: string];
-		result: AgentTaskLookupResult | null;
-	};
-
-	// ---- App — writing context menu (raw invoke) ----
-	[AppChannels.showWritingContextMenu]: {
-		args: [writingId: string, writingTitle: string];
-		result: void;
-	};
-
-	// ---- App — generic custom context menu (raw invoke) ----
-	// Renderer sends an ordered list of descriptors; main pops a native menu
-	// and resolves with the clicked item's id, or `null` if dismissed.
-	[AppChannels.showContextMenu]: {
-		args: [items: ContextMenuDescriptor[]];
-		result: string | null;
-	};
 
 	// ---- Logs (IpcResult-wrapped) ----
 	[AppChannels.getLogs]: { args: [limit?: number]; result: AppLogEntry[] };
@@ -219,7 +183,6 @@ export interface InvokeChannelMap {
 
 	// ---- App data folder (IpcResult-wrapped) ----
 	[AppChannels.openAppDataFolder]: { args: []; result: void };
-	[AppChannels.getAppDataFolder]: { args: []; result: string };
 
 	// ---- Theme management (IpcResult-wrapped) ----
 	[AppChannels.getCustomThemes]: { args: []; result: CustomThemeInfo[] };
@@ -243,7 +206,6 @@ export interface InvokeChannelMap {
 	};
 	[AppChannels.cronUnschedule]: { args: [id: string]; result: void };
 	[AppChannels.cronListJobs]: { args: []; result: CronJobInfo[] };
-	[AppChannels.cronHasJob]: { args: [id: string]; result: boolean };
 
 	// ---- Assistant (IpcResult-wrapped) ----
 	[AssistantChannels.send]: { args: [message: string, assistantId?: string]; result: string };
@@ -255,11 +217,8 @@ export interface InvokeChannelMap {
  * `args` = tuple of arguments after the channel name.
  */
 export interface SendChannelMap {
-	[AppChannels.playSound]: { args: [] };
 	[AppChannels.setTheme]: { args: [theme: ThemeMode] };
 	[AppChannels.setLanguage]: { args: [language: string] };
-	[AppChannels.contextMenu]: { args: [] };
-	[AppChannels.contextMenuEditable]: { args: [] };
 	[WindowChannels.minimize]: { args: [] };
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
@@ -277,7 +236,6 @@ export interface EventChannelMap {
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
 	[TaskChannels.event]: { data: TaskEvent };
-	[AppChannels.writingContextMenuAction]: { data: WritingContextMenuAction };
 	[AppChannels.shortcut]: { data: ShortcutId };
 	[AppChannels.cronTick]: { data: CronTickEvent };
 	[AppChannels.channelStatusChanged]: { data: ChannelStatusEvent };
