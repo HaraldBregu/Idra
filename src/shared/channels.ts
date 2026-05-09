@@ -1,5 +1,4 @@
 import type {
-	AppLogEntry,
 	AppStartupInfo,
 	AgentSettings,
 	ThemeMode,
