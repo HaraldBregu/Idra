@@ -48,6 +48,35 @@ export class Assistant {
 		return this.cachedClient!;
 	}
 
+	private assistantConfig(): { apiKey: string; model: string } {
+		const settings = this.store.getAssistantAiSettings();
+		const providerId = (settings.selectedProvider ?? '').trim().toLowerCase();
+		const model = (settings.selectedModel ?? '').trim();
+
+		if (!providerId) {
+			throw new Error('Assistant provider not configured. Select a provider in Settings.');
+		}
+
+		const provider = settings.providers.find(
+			(entry) => entry.id.trim().toLowerCase() === providerId
+		);
+		if (!provider) {
+			throw new Error(`Assistant provider "${settings.selectedProvider}" is not configured.`);
+		}
+
+		const apiKey = provider.apiKey.trim();
+		if (!apiKey) {
+			throw new Error(
+				`API key not configured for assistant provider "${provider.id}". Add it in Settings.`
+			);
+		}
+		if (!model) {
+			throw new Error('Assistant model not configured. Select a model in Settings.');
+		}
+
+		return { apiKey, model };
+	}
+
 	async send(userMessage: string): Promise<string> {
 		await this.init();
 		const systemPrompt = await buildSystemPrompt(this.memory);
