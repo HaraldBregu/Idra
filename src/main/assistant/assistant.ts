@@ -31,7 +31,7 @@ export class Assistant {
 	private initialized = false;
 	private initPromise: Promise<void> | null = null;
 
-	constructor(opts: AssistantOptions, store: StoreService, cron?: CronService) {
+	constructor(opts: AssistantOptions, store: StoreService, cron: CronService) {
 		this.id = opts.id;
 		this.store = store;
 		this.memory = new MemoryManager(opts.id);
