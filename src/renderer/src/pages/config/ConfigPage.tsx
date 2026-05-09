@@ -78,6 +78,19 @@ const ConfigPage: React.FC = () => {
 		setSelectedModel('');
 	}
 
+	async function handleSave(): Promise<void> {
+		const provider = providers.find((item) => item.id === selectedProvider);
+		const model = models.find((item) => item.id === selectedModel);
+		if (!provider || !model) return;
+
+		setSaving(true);
+		try {
+			await window.app.saveAssistantService(provider, model);
+		} finally {
+			setSaving(false);
+		}
+	}
+
 	return (
 		<main className="flex h-full min-h-0 items-center justify-center bg-background px-6">
 			<section className="w-full max-w-2xl space-y-4 text-center">
