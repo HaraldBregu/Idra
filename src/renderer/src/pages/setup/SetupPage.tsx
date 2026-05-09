@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as PageModule from '../../components/app/base/Page'
 
@@ -16,18 +16,18 @@ type SetupSelection = {
 
 type PageProps = {
   className?: string
-  children: React.ReactNode
+  children: ReactNode
 }
 
 const Page = (
   PageModule as {
-    Page?: React.ComponentType<PageProps>
-    default?: React.ComponentType<PageProps>
+    Page?: ComponentType<PageProps>
+    default?: ComponentType<PageProps>
   }
 ).Page ?? (
   PageModule as {
-    Page?: React.ComponentType<PageProps>
-    default?: React.ComponentType<PageProps>
+    Page?: ComponentType<PageProps>
+    default?: ComponentType<PageProps>
   }
 ).default
 
