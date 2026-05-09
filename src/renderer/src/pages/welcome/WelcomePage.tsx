@@ -35,7 +35,7 @@ const WelcomePage: React.FC = () => {
 
 				<Button
 					className="w-full justify-center gap-2"
-					onClick={() => navigate({ to: '/settings/assistant' })}
+					onClick={() => navigate('/settings/assistant')}
 				>
 					{t('welcome.continue', 'Continue')}
 					<ArrowRight className="size-4" />
