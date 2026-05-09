@@ -22,10 +22,6 @@ import type {
 } from './types';
 import type { ShortcutId } from './shortcuts';
 
-// ===========================================================================
-// Channel Name Constants (grouped by domain)
-// ===========================================================================
-
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
