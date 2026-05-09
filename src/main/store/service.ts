@@ -1,5 +1,6 @@
 import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
+import type { Assistant } from '../../shared/service';
 import { SettingsStore, StoreSchema } from './types';
 
 export class StoreService {
@@ -13,6 +14,13 @@ export class StoreService {
 	}
 
 	getProviderById(id: string): Provider | undefined {
-		return (this.store.get('providers') ?? []).find((p) => p.id === id);
+		const providerId = id.trim().toLowerCase();
+		return (this.store.get('providers') ?? []).find(
+			(provider) => provider.id.trim().toLowerCase() === providerId
+		);
+	}
+
+	getAssistantService(): Assistant | undefined {
+		return this.store.get('service')?.assistant;
 	}
 }
