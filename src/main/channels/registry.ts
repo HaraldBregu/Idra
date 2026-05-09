@@ -4,7 +4,6 @@ import fs from 'node:fs/promises';
 import { marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../../shared/types';
-import { AppChannels } from '../../shared/channels';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { EventBus } from '../core/event-bus';
@@ -209,7 +208,7 @@ export class ChannelRegistry {
 			timestamp: Date.now(),
 		};
 		this.statusCache.set(type, event);
-		this.eventBus.broadcast(AppChannels.channelStatusChanged, event);
+		this.eventBus.broadcast('app:channel-status-changed', event);
 	}
 
 	private async handleMessage(msg: ChannelInboundMessage): Promise<void> {
