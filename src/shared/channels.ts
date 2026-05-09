@@ -66,7 +66,6 @@ interface AppInvokeChannelMap {
 		args: [params: { id: string; expression: string; timezone?: string; runOnStart?: boolean }];
 		result: CronJobInfo;
 	};
-	'app:cron-unschedule': { args: [id: string]; result: void };
 	'app:cron-list-jobs': { args: []; result: CronJobInfo[] };
 }
 
