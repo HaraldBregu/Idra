@@ -9,7 +9,18 @@ export interface WindowApi {
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }
 
+export interface AssistantResponse {
+	response: string;
+}
+
+export interface AssistantApi {
+	send: (message: string) => Promise<string>;
+	reset: () => Promise<void>;
+	onResponse: (callback: (event: AssistantResponse) => void) => () => void;
+}
+
 export interface AppApi {
+	assistant: AssistantApi;
 };
 
 declare global {
