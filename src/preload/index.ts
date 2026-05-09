@@ -1,7 +1,7 @@
 import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
-import { WindowChannels } from '../shared/channels';
-import type { AppApi, WindowApi } from './index.d';
+import { WindowChannels, AssistantChannels } from '../shared/channels';
+import type { AppApi, AssistantApi, AssistantResponse, WindowApi } from './index.d';
 
 const win: WindowApi = {
 	minimize: (): void => {
