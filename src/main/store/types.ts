@@ -14,6 +14,11 @@ export interface StoreSchema {
 }
 
 export const DEFAULTS: StoreSchema = {
+	assistantAi: {
+		providers: [],
+		selectedProvider: 'openai',
+		selectedModel: 'gpt-4o-mini',
+	},
 	providers: {
 		openai: { apikey: '', model: '' },
 		anthropic: { apikey: '', model: '' },
