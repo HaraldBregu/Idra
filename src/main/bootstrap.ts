@@ -111,9 +111,17 @@ export function bootstrapServices(): BootstrapResult {
 	const assistantRegistry = new AssistantRegistry();
 	assistantRegistry.create({
 		id: DEFAULT_ASSISTANT_ID,
-		getApiKey: () =>
-			storeService.getAssistantApiKey() || storeService.getProviderById('openai')?.apiKey,
-		getModel: () => storeService.getAssistantModel() || storeService.getOpenAIModel(),
+		getApiKey: () => {
+			const ref = storeService.getAssistantService().llm;
+			const resolved = storeService.resolveProviderRef(ref);
+			if (resolved?.provider.apiKey) return resolved.provider.apiKey;
+			return storeService.findProvider('openai')?.apiKey;
+		},
+		getModel: () => {
+			const ref = storeService.getAssistantService().llm;
+			const resolved = storeService.resolveProviderRef(ref);
+			return ref.model || resolved?.model || storeService.findProvider('openai')?.defaultModel || '';
+		},
 		store: storeService,
 		cron: container.get<CronService>('cronService'),
 	});
