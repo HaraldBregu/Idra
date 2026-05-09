@@ -20,8 +20,42 @@ export class StoreService {
 		);
 	}
 
+	getService(): Service | undefined {
+		return this.store.get('service');
+	}
+
 	getAssistantService(): Assistant | undefined {
 		return this.store.get('service')?.assistant;
+	}
+
+	getAssistantModel(): Model | undefined {
+		return this.store.get('service')?.assistant?.model;
+	}
+
+	getAssistantProvider(): Omit<Provider, 'apikey'> | undefined {
+		return this.store.get('service')?.assistant?.provider;
+	}
+
+	setAssistantService(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const current = this.store.get('service');
+		const next: Service = {
+			assistant: {
+				provider: {
+					id: provider.id,
+					name: provider.name,
+					baseURL: provider.baseURL,
+				},
+				model,
+			},
+			rag: current?.rag ?? '',
+			ocr: current?.ocr ?? '',
+		};
+		this.store.set('service', next);
+		return true;
 	}
 
 	setOpenAiApiKey(key: string): void {
