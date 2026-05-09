@@ -49,7 +49,7 @@ async function fetchProviderModels(
 	}
 	const normalized = providerId.trim().toLowerCase();
 
-	const provider = store.getProviderById(normalized);
+	const provider = store.getAssistantAiSettings().providers.find((entry) => entry.id === normalized);
 	if (!provider || !provider.apiKey) {
 		throw new Error(`No API key configured for provider "${providerId}"`);
 	}
