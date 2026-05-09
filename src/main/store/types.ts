@@ -102,7 +102,7 @@ export const DEFAULT_SERVICES: ServicesMap = {
 
 export const DEFAULTS: StoreSchema = {
 	schemaVersion: STORE_SCHEMA_VERSION,
-	providers: {},
+	providers: [],
 	services: DEFAULT_SERVICES,
 	channel: null,
 	profile: null,
