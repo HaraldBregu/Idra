@@ -67,7 +67,7 @@ export class Assistant {
 			throw new Error(`Assistant provider "${assistant?.provider.id}" is not configured.`);
 		}
 
-		const apiKey = provider.apikey.trim();
+		const apiKey = provider.apiKey.trim();
 		if (!apiKey) {
 			throw new Error(
 				`API key not configured for assistant provider "${provider.id}". Add it in Settings.`

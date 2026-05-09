@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Select,
@@ -11,16 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { ButtonGroup } from '@/components/ui/ButtonGroup';
 import { Moon, Monitor, Sun } from 'lucide-react';
 import type { AppLanguage } from '../../../contexts';
-import type { ThemeMode } from '../../../../../shared/types';
-import type { CustomThemeInfo } from '../../../../../shared/types';
-import { useApp } from '@/contexts';
-import {
-	applyThemeTokens,
-	clearThemeTokens,
-	resolveEffectiveVariant,
-	THEME_STYLE_STORAGE_KEY,
-	DEFAULT_THEME_ID,
-} from '../../../lib/theme-tokens';
+import { useApp } from '@/contexts'; 
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -34,51 +25,7 @@ const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { theme, language, setTheme, setLanguage } = useApp();
-
-	const [customThemes, setCustomThemes] = useState<CustomThemeInfo[]>([]);
-	const [activeThemeId, setActiveThemeId] = useState<string>(() => {
-		try {
-			return localStorage.getItem(THEME_STYLE_STORAGE_KEY) ?? DEFAULT_THEME_ID;
-		} catch {
-			return DEFAULT_THEME_ID;
-		}
-	});
-
-	const loadCustomThemes = useCallback(async () => {
-		try {
-			const list = await window.app.getCustomThemes();
-			setCustomThemes(list);
-		} catch {
-			setCustomThemes([]);
-		}
-	}, []);
-
-	useEffect(() => {
-		loadCustomThemes();
-	}, [loadCustomThemes]);
-
-	const handleThemeStyleChange = useCallback(async (next: string | null): Promise<void> => {
-		if (next === null) return;
-		setActiveThemeId(next);
-		try {
-			localStorage.setItem(THEME_STYLE_STORAGE_KEY, next);
-		} catch {
-			/* empty */
-		}
-		if (next === DEFAULT_THEME_ID) {
-			clearThemeTokens();
-			return;
-		}
-		const manifest = await window.app.getCustomThemeTokens(next);
-		if (!manifest) return;
-		const variant = resolveEffectiveVariant();
-		applyThemeTokens(manifest[variant]);
-	}, []);
-
-	const handleThemeChange = (next: ThemeMode): void => {
-		setTheme(next);
-	};
+	const { theme, language, setLanguage } = useApp();
 
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
@@ -109,7 +56,7 @@ const SystemPage: React.FC = () => {
 							<Button
 								variant={theme === 'light' ? 'outline-selected' : 'outline'}
 								size="icon-sm"
-								onClick={() => handleThemeChange('light')}
+								onClick={() => {}}
 								aria-label={t('settings.theme.light')}
 								aria-pressed={theme === 'light'}
 							>
@@ -118,7 +65,7 @@ const SystemPage: React.FC = () => {
 							<Button
 								variant={theme === 'system' ? 'outline-selected' : 'outline'}
 								size="icon-sm"
-								onClick={() => handleThemeChange('system')}
+								onClick={() => {}}
 								aria-label={t('settings.theme.system')}
 								aria-pressed={theme === 'system'}
 							>
@@ -127,7 +74,7 @@ const SystemPage: React.FC = () => {
 							<Button
 								variant={theme === 'dark' ? 'outline-selected' : 'outline'}
 								size="icon-sm"
-								onClick={() => handleThemeChange('dark')}
+								onClick={() => {}}
 								aria-label={t('settings.theme.dark')}
 								aria-pressed={theme === 'dark'}
 							>
@@ -143,26 +90,6 @@ const SystemPage: React.FC = () => {
 						<p className="text-sm leading-normal text-muted-foreground">
 							{t('settings.appTheme.description')}
 						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<Select value={activeThemeId} onValueChange={handleThemeStyleChange}>
-							<SelectTrigger
-								className="w-32 h-8 text-sm"
-								aria-label={t('settings.appTheme.title')}
-							>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value={DEFAULT_THEME_ID}>
-									{t('settings.appTheme.default')}
-								</SelectItem>
-								{customThemes.map((ct) => (
-									<SelectItem key={ct.id} value={ct.id}>
-										{ct.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
 					</div>
 				</div>
 

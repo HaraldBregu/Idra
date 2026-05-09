@@ -12,7 +12,6 @@ const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page')
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
-const ThemesPage = lazy(() => import('./pages/settings/pages/ThemesPage'));
 const EditorPage = lazy(() => import('./pages/settings/pages/EditorPage'));
 const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'));
 
@@ -90,14 +89,6 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<AccountPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'themes',
-						element: (
-							<RouteWrapper>
-								<ThemesPage />
 							</RouteWrapper>
 						),
 					},

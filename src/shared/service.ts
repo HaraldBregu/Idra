@@ -12,6 +12,6 @@ export interface Model {
 }
 
 export interface Assistant {
-	provider: Omit<Provider, "apikey">;
+	provider: Omit<Provider, "apiKey">;
 	model: Model;
 }

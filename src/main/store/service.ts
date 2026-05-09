@@ -32,7 +32,7 @@ export class StoreService {
 		return this.store.get('service')?.assistant?.model;
 	}
 
-	getAssistantProvider(): Omit<Provider, 'apikey'> | undefined {
+	getAssistantProvider(): Omit<Provider, 'apiKey'> | undefined {
 		return this.store.get('service')?.assistant?.provider;
 	}
 
@@ -47,7 +47,7 @@ export class StoreService {
 				provider: {
 					id: provider.id,
 					name: provider.name,
-					baseURL: provider.baseURL,
+					baseUrl: provider.baseUrl,
 				},
 				model,
 			},
@@ -67,8 +67,8 @@ export class StoreService {
 		const newProvider: Provider = {
 			id: 'openai',
 			name: 'OpenAI',
-			apikey: key,
-			baseURL: 'https://api.openai.com/v1',
+			apiKey: key,
+			baseUrl: 'https://api.openai.com/v1',
 		};
 		
 		if (openAiProviderIndex !== -1) {
@@ -88,8 +88,8 @@ export class StoreService {
 		const newProvider: Provider = {
 			id: 'anthropic',
 			name: 'Anthropic',
-			apikey: key,
-			baseURL: 'https://api.anthropic.com/v1',
+			apiKey: key,
+			baseUrl: 'https://api.anthropic.com/v1',
 		};
 		
 		if (anthropicProviderIndex !== -1) {

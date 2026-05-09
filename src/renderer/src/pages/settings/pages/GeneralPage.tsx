@@ -9,24 +9,24 @@ const GeneralPage: React.FC = () => {
 	const [trayEnabled, setTrayEnabled] = useState(true);
 
 	useEffect(() => {
-		window.app.getTrayEnabled().then(setTrayEnabled);
+		// window.app.getTrayEnabled().then(setTrayEnabled);
 	}, []);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
 		setTrayEnabled(checked);
-		window.app.setTrayEnabled(checked);
+		// window.app.setTrayEnabled(checked);
 	}, []);
 
 	const handleOpenAccessibility = useCallback(() => {
-		window.app.openSystemAccessibility();
+		// window.app.openSystemAccessibility();
 	}, []);
 
 	const handleOpenScreenRecording = useCallback(() => {
-		window.app.openSystemScreenRecording();
+		// window.app.openSystemScreenRecording();
 	}, []);
 
 	const handleOpenAppDataFolder = useCallback(() => {
-		window.app.openAppDataFolder();
+		// window.app.openAppDataFolder();
 	}, []);
 
 	const rowClass = 'flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm';
