@@ -62,7 +62,6 @@ interface AppInvokeChannelMap {
 		args: [phoneNumber: string];
 		result: string;
 	};
-	'app:set-tray-enabled': { args: [enabled: boolean]; result: void };
 	'app:get-tray-enabled': { args: []; result: boolean };
 	'app:cron-schedule': {
 		args: [params: { id: string; expression: string; timezone?: string; runOnStart?: boolean }];
