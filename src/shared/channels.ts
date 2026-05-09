@@ -49,25 +49,6 @@ export const WindowChannels = {
 	popupMenu: 'window:popup-menu',
 } as const;
 
-export const TaskChannels = {
-	submit: 'task:submit',
-	cancel: 'task:cancel',
-	list: 'task:list',
-	event: 'task:event',
-} as const;
-
-export const AssistantChannels = {
-	send: 'assistant:send',
-	reset: 'assistant:reset',
-	response: 'assistant:response',
-} as const;
-
-export interface AssistantResponseEvent {
-	assistantId: string;
-	userMessage: string;
-	response: string;
-}
-
 // ===========================================================================
 // Channel-to-Type Maps
 // ===========================================================================
@@ -127,9 +108,9 @@ export interface InvokeChannelMap {
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
 
 	// ---- Task (IpcResult-wrapped via registerQuery/registerCommand) ----
-	[TaskChannels.submit]: { args: [action: TaskAction]; result: { taskId: string } };
-	[TaskChannels.cancel]: { args: [taskId: string]; result: boolean };
-	[TaskChannels.list]: { args: []; result: TaskInfo[] };
+	'task:submit': { args: [action: TaskAction]; result: { taskId: string } };
+	'task:cancel': { args: [taskId: string]; result: boolean };
+	'task:list': { args: []; result: TaskInfo[] };
 
 	// ---- Logs (IpcResult-wrapped) ----
 	'app:get-logs': { args: [limit?: number]; result: AppLogEntry[] };
@@ -162,8 +143,8 @@ export interface InvokeChannelMap {
 	'app:cron-list-jobs': { args: []; result: CronJobInfo[] };
 
 	// ---- Assistant (IpcResult-wrapped) ----
-	[AssistantChannels.send]: { args: [message: string, assistantId?: string]; result: string };
-	[AssistantChannels.reset]: { args: [assistantId?: string]; result: void };
+	'assistant:send': { args: [message: string, assistantId?: string]; result: string };
+	'assistant:reset': { args: [assistantId?: string]; result: void };
 }
 
 /**
@@ -189,7 +170,7 @@ export interface EventChannelMap {
 	'file-opened': { data: string };
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
-	[TaskChannels.event]: { data: TaskEvent };
+	'task:event': { data: TaskEvent };
 	'app:shortcut': { data: ShortcutId };
 	'app:cron-tick': { data: CronTickEvent };
 	'app:channel-status-changed': { data: ChannelStatusEvent };
@@ -197,5 +178,7 @@ export interface EventChannelMap {
 	'app:open-logs-dialog': { data: undefined };
 	'app:open-redux-dialog': { data: undefined };
 	'app:open-cron-dialog': { data: undefined };
-	[AssistantChannels.response]: { data: AssistantResponseEvent };
+	'assistant:response': {
+		data: { assistantId: string; userMessage: string; response: string };
+	};
 }
