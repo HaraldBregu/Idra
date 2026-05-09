@@ -27,7 +27,7 @@ const win: WindowApi = {
 	},
 } satisfies WindowApi;
 
-const assistant: AssistantApi = {
+export const assistant: AssistantApi = {
 	send: (message: string): Promise<string> => {
 		return typedInvokeUnwrap(AssistantChannels.send, message);
 	},
@@ -46,7 +46,6 @@ const assistant: AssistantApi = {
 } satisfies AssistantApi;
 
 export const app: AppApi = {
-	assistant,
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
@@ -56,6 +55,7 @@ if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
+		contextBridge.exposeInMainWorld('assistant', assistant);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -64,4 +64,6 @@ if (process.contextIsolated) {
 	globalThis.app = app;
 	// @ts-ignore (define in dts)
 	globalThis.win = win;
+	// @ts-ignore (define in dts)
+	globalThis.assistant = assistant;
 }
