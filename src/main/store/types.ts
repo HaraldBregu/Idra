@@ -77,7 +77,7 @@ export interface LegacyBlob {
 export const STORE_SCHEMA_VERSION = 1;
 
 export interface StoreSchema {
-	providers: Provider[];
+	providers: SharedProvider[];
 }
 
 export const DEFAULT_ASSISTANT_SERVICE: AssistantService = {
