@@ -197,6 +197,7 @@ export class StoreService {
 	}
 
 	deleteProvider(providerId: string): void {
+		this.setAssistantAiProviderApiKey(providerId, '');
 		const normalized = providerId.trim() as ProviderEntry['id'];
 		if (normalized !== 'openai' && normalized !== 'anthropic') return;
 		const current = this.store.get('providers');
