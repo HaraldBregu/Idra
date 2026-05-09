@@ -51,22 +51,9 @@ interface WindowInvokeChannelMap {
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
 }
 
-interface TaskInvokeChannelMap {
-	'task:submit': { args: [action: TaskAction]; result: { taskId: string } };
-	'task:cancel': { args: [taskId: string]; result: boolean };
-	'task:list': { args: []; result: TaskInfo[] };
-}
-
-interface AssistantInvokeChannelMap {
-	'assistant:send': { args: [message: string, assistantId?: string]; result: string };
-	'assistant:reset': { args: [assistantId?: string]; result: void };
-}
-
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
-		WindowInvokeChannelMap,
-		TaskInvokeChannelMap,
-		AssistantInvokeChannelMap {}
+		WindowInvokeChannelMap {}
 
 export interface SendChannelMap {
 	'set-theme': { args: [theme: ThemeMode] };
