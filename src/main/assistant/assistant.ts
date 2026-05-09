@@ -9,10 +9,6 @@ import type { StoreService } from '../store';
 
 const MAX_ITERATIONS = 20;
 
-export interface AssistantOptions {
-	id: string;
-}
-
 /**
  * Conversational assistant with memory, persistent session history, and tools.
  * Mirrors the Kaioh CLI assistant: MemoryManager + SessionManager + runAgent.
@@ -31,11 +27,11 @@ export class Assistant {
 	private initialized = false;
 	private initPromise: Promise<void> | null = null;
 
-	constructor(opts: AssistantOptions, store: StoreService, cron: CronService) {
-		this.id = opts.id;
+	constructor(assistantId: string, store: StoreService, cron: CronService) {
+		this.id = assistantId;
 		this.store = store;
-		this.memory = new MemoryManager(opts.id);
-		this.session = new SessionManager(`assistant:${opts.id}`);
+		this.memory = new MemoryManager(assistantId);
+		this.session = new SessionManager(`assistant:${assistantId}`);
 		this.tools = defaultTools({ cron, store });
 	}
 

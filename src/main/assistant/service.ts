@@ -42,11 +42,7 @@ export class AssistantService {
 	private ensure(assistantId: string): Assistant {
 		if (!this.registry.has(assistantId)) {
 			this.registry.register(
-				new Assistant(
-					{ id: assistantId },
-					this.dependencies.store,
-					this.dependencies.cron
-				)
+				new Assistant(assistantId, this.dependencies.store, this.dependencies.cron)
 			);
 		}
 		return this.registry.get(assistantId);

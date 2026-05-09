@@ -1,4 +1,4 @@
-export { Assistant, type AssistantOptions } from './assistant';
+export { Assistant } from './assistant';
 export { DEFAULT_ASSISTANT_ID } from './constants';
 export { AssistantRegistry } from './registry';
 export {
