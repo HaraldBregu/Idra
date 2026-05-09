@@ -165,7 +165,7 @@ describe('AssistantService', () => {
 			await service.send('msg', 'brand-new');
 
 			expect(MockAssistant).toHaveBeenCalledTimes(1);
-			expect(MockAssistant).toHaveBeenCalledWith('brand-new', stubStore, stubCron);
+			expect(MockAssistant).toHaveBeenCalledWith('brand-new', stubStore, stubCron, stubLogger);
 		});
 
 		it('reuses the same assistant instance on repeated calls with the same id', async () => {
