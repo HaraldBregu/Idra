@@ -46,11 +46,11 @@ The default assistant is registered during bootstrap in `src/main/bootstrap.ts` 
 ```ts
 const assistantRegistry = new AssistantRegistry();
 assistantRegistry.register(
-	new Assistant(
-		{ id: DEFAULT_ASSISTANT_ID },
-		storeService,
-		container.get<CronService>('cronService')
-	)
+		new Assistant(
+			DEFAULT_ASSISTANT_ID,
+			storeService,
+			container.get<CronService>('cronService')
+		)
 );
 container.register('assistantRegistry', assistantRegistry);
 ```
@@ -117,15 +117,13 @@ Task handlers can resolve `assistantRegistry` from the service container and cal
 For tests or scripts, construct an assistant directly with an assistant id, `StoreService`, and `CronService`:
 
 ```ts
-const assistant = new Assistant({ id: 'scratch' }, storeService, cronService);
+const assistant = new Assistant('scratch', storeService, cronService);
 const reply = await assistant.send('hello');
 ```
 
 ## Configuration
 
-`AssistantOptions` currently supports only:
-
-- `id`: assistant id and memory workspace name.
+The `Assistant` constructor takes the assistant id string as its first argument.
 
 The constructor also requires:
 
