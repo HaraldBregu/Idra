@@ -13,15 +13,29 @@ export const AssistantChannels = {
 	send: 'assistant:send',
 	reset: 'assistant:reset',
 	response: 'assistant:response',
+	setProvider: 'assistant:set-provider',
+	setModel: 'assistant:set-model',
 } as const;
 
-export interface AssistantResponseEvent {
-	response: string;
-}
+export const ProviderChannels = {
+	setApiKey: 'provider:set-apikey',
+} as const;
 
 interface AppInvokeChannelMap {
 	[AssistantChannels.send]: { args: [message: string]; result: string };
 	[AssistantChannels.reset]: { args: []; result: void };
+	[AssistantChannels.setProvider]: {
+		args: [provider: { id: string; name: string; baseURL: string }];
+		result: void;
+	};
+	[AssistantChannels.setModel]: {
+		args: [model: { id: string; name: string }];
+		result: void;
+	};
+	[ProviderChannels.setApiKey]: {
+		args: [providerId: string, apikey: string];
+		result: void;
+	};
 }
 
 interface WindowInvokeChannelMap {
