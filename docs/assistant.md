@@ -6,8 +6,9 @@ Source: `src/main/assistant/`.
 
 ## Main Pieces
 
-- `assistant.ts` owns the public `Assistant` class and resolves API key/model settings from `StoreService`.
-- `registry.ts` stores constructed assistants by id and exposes `register`, `get`, `has`, and `list`.
+- `service.ts` owns the public `AssistantService` facade and exposes `send(message)`.
+- `assistant.ts` is the internal assistant engine and resolves API key/model settings from `StoreService`.
+- `registry.ts` stores constructed assistants by id for internal reuse.
 - `memory.ts` manages per-assistant markdown memory under `userData/assistant/workspaces/<id>/`.
 - `session.ts` persists JSONL chat history and sanitizes invalid tool-call history before reuse.
 - `loop.ts` runs the ReAct-style Chat Completions loop.
@@ -22,10 +23,10 @@ Renderer / channel
 AssistantIpc or ChannelRegistry
        |
        v
-AssistantRegistry.get("main")
+AssistantService.send(message)
        |
        v
-Assistant.send(message)
+Assistant
        |
        +--> MemoryManager -> markdown prompt sections
        +--> SessionManager -> last 50 sanitized messages
@@ -41,21 +42,19 @@ SessionManager.append(newMessages)
 
 ## Lifecycle
 
-The default assistant is registered during bootstrap in `src/main/bootstrap.ts` with id `main`.
+The assistant facade is registered during bootstrap in `src/main/bootstrap.ts`.
 
 ```ts
-const assistantRegistry = new AssistantRegistry();
-assistantRegistry.register(
-		new Assistant(
-			DEFAULT_ASSISTANT_ID,
-			storeService,
-			container.get<CronService>('cronService')
-		)
+const assistant = container.register(
+	'assistant',
+	new AssistantService(
+		{ store: storeService, cron: cronService },
+		{ defaultAssistantId: DEFAULT_ASSISTANT_ID }
+	)
 );
-container.register('assistantRegistry', assistantRegistry);
 ```
 
-`Assistant.send()` initializes lazily on first use:
+`AssistantService.send()` initializes the underlying assistant lazily on first use:
 
 1. Seeds the markdown memory workspace from `src/main/assistant/templates/*.md`.
 2. Loads persisted session messages.
@@ -64,7 +63,7 @@ container.register('assistantRegistry', assistantRegistry);
 5. Runs the model/tool loop with the configured tools.
 6. Appends only the new messages to session history.
 
-`Assistant.reset()` clears the session and memory workspace, then reinitializes the assistant.
+`AssistantService.reset()` clears the session and memory workspace, then reinitializes the assistant.
 
 ## Settings Resolution
 
@@ -82,7 +81,7 @@ Model lookup order:
 2. Resolved model from `store.resolveProviderRef(ref)`
 3. Default model from the OpenAI provider entry
 
-If no API key is available, `Assistant.send()` throws `OpenAI API key not configured. Add an OpenAI provider in Settings.` If no model is available, it throws `Assistant model not configured. Select a model in Settings.`
+If no API key is available, `AssistantService.send()` throws `OpenAI API key not configured. Add an OpenAI provider in Settings.` If no model is available, it throws `Assistant model not configured. Select a model in Settings.`
 
 ## Calling It
 
@@ -94,13 +93,12 @@ AssistantChannels.reset; // "assistant:reset"
 AssistantChannels.response; // "assistant:response"
 ```
 
-`AssistantIpc` resolves the assistant from the registry and broadcasts the response to all windows:
+`AssistantIpc` calls the assistant facade and broadcasts the response to all windows:
 
 ```ts
 registerCommand(AssistantChannels.send, async (message: string, assistantId?: string) => {
 	const id = assistantId ?? DEFAULT_ASSISTANT_ID;
-	const assistant = registry.get(id);
-	const response = await assistant.send(message);
+	const response = await assistant.send(message, id);
 
 	const event: AssistantResponseEvent = { assistantId: id, userMessage: message, response };
 	for (const win of BrowserWindow.getAllWindows()) {
@@ -110,20 +108,20 @@ registerCommand(AssistantChannels.send, async (message: string, assistantId?: st
 });
 ```
 
-Channel adapters use the same registry path. An inbound Telegram, Discord, or WhatsApp message is sent to the default assistant and the reply is sent back through the same channel. Channel replies are also rendered through `marked` for terminal logging.
+Channel adapters use the same facade path. An inbound Telegram, Discord, or WhatsApp message is sent to the default assistant and the reply is sent back through the same channel. Channel replies are also rendered through `marked` for terminal logging.
 
-Task handlers can resolve `assistantRegistry` from the service container and call `registry.get(DEFAULT_ASSISTANT_ID).send(input)`.
+Task handlers can resolve `assistant` from the service container and call `assistant.send(input)`.
 
-For tests or scripts, construct an assistant directly with an assistant id, `StoreService`, and `CronService`:
+For tests or scripts, construct the facade directly with `StoreService` and `CronService`:
 
 ```ts
-const assistant = new Assistant('scratch', storeService, cronService);
+const assistant = new AssistantService({ store: storeService, cron: cronService });
 const reply = await assistant.send('hello');
 ```
 
 ## Configuration
 
-The `Assistant` constructor takes the assistant id string as its first argument.
+The `AssistantService` constructor takes its dependencies as the first argument.
 
 The constructor also requires:
 
@@ -176,7 +174,6 @@ On first init, `SessionManager` creates the file and writes a metadata line with
 
 ## Gotchas
 
-- `AssistantRegistry` no longer has a `create()` helper. Construct `Assistant` yourself, then call `register()`.
-- `AssistantOptions` only contains `id`; model, API key, tools, session key, and max iterations are not configurable through options.
+- `src/main/assistant/index.ts` only exports the public facade and default id. Internal modules should be imported by relative path from inside `src/main/assistant`.
 - The settings page service currently calls `window.app.assistant.*`; the shared IPC channels and main handler exist, but the preload `AppApi` must expose that namespace for the renderer path to work.
 - `exec` defaults to the OS home directory unless constructed with a workspace. The assistant prompt still tells the model to use absolute paths rooted at the markdown memory workspace.
