@@ -6,6 +6,7 @@ import { runAgent } from './loop';
 import { defaultTools, type Tool } from './tools';
 import { MAX_ITERATIONS } from './constants';
 import type { CronService } from '../cron';
+import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 
 export class Assistant {
@@ -14,15 +15,19 @@ export class Assistant {
 	readonly session: SessionManager;
 	private readonly tools: Tool[];
 	private readonly store: StoreService;
+	private readonly logger: LoggerService;
+	private readonly source: string;
 	private history: ChatCompletionMessageParam[] = [];
 	private cachedKey: string | null = null;
 	private cachedClient: OpenAI | null = null;
 	private initialized = false;
 	private initPromise: Promise<void> | null = null;
 
-	constructor(assistantId: string, store: StoreService, cron: CronService) {
+	constructor(assistantId: string, store: StoreService, cron: CronService, logger: LoggerService) {
 		this.id = assistantId;
 		this.store = store;
+		this.logger = logger;
+		this.source = `Assistant:${assistantId}`;
 		this.memory = new MemoryManager(assistantId);
 		this.session = new SessionManager(`assistant:${assistantId}`);
 		this.tools = defaultTools({ cron, store });
