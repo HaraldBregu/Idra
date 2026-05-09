@@ -27,8 +27,6 @@ import type {
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 	DiscordChannelProperties,
-	ProviderEntry,
-	ProviderModelInfo,
 	AssistantAiSelection,
 	AssistantAiSettings,
 } from './types';
@@ -49,19 +47,7 @@ export const WindowChannels = {
 	popupMenu: 'window:popup-menu',
 } as const;
 
-// ===========================================================================
-// Channel-to-Type Maps
-// ===========================================================================
-// These map each channel to its args (tuple) and result type.
-// `result` represents the LOGICAL return type (T, not IpcResult<T>).
-// The IpcResult wrapping is an implementation detail of the transport layer.
-
-/**
- * Channels using ipcRenderer.invoke / ipcMain.handle.
- * `args` = tuple of arguments after the channel name.
- * `result` = the logical return type.
- */
-export interface InvokeChannelMap {
+interface AppInvokeChannelMap {
 	'app:get-assistant-ai-settings': { args: []; result: AssistantAiSettings };
 	'app:set-assistant-ai-provider-api-key': {
 		args: [providerId: string, apiKey: string];
@@ -78,11 +64,6 @@ export interface InvokeChannelMap {
 	'app:get-startup-info': { args: []; result: AppStartupInfo };
 	'app:get-profile': { args: []; result: UserProfile | null };
 	'app:set-profile': { args: [profile: UserProfile]; result: UserProfile };
-	'app:complete-first-run-configuration': {
-		args: [profile: UserProfile, providers: ProviderEntry[]];
-		result: AppStartupInfo;
-	};
-	'app:get-models': { args: [providerId: string]; result: ProviderModelInfo[] };
 	'app:get-channel': { args: []; result: Channel | null };
 	'app:set-channel-properties': {
 		args: [
@@ -103,54 +84,48 @@ export interface InvokeChannelMap {
 		args: [phoneNumber: string];
 		result: string;
 	};
-	// ---- Window (IpcResult-wrapped for handle, raw for others) ----
-	[WindowChannels.isMaximized]: { args: []; result: boolean };
-	[WindowChannels.isFullScreen]: { args: []; result: boolean };
-
-	// ---- Task (IpcResult-wrapped via registerQuery/registerCommand) ----
-	'task:submit': { args: [action: TaskAction]; result: { taskId: string } };
-	'task:cancel': { args: [taskId: string]; result: boolean };
-	'task:list': { args: []; result: TaskInfo[] };
-
-	// ---- Logs (IpcResult-wrapped) ----
 	'app:get-logs': { args: [limit?: number]; result: AppLogEntry[] };
 	'app:open-logs-folder': { args: []; result: void };
-
-	// ---- App data folder (IpcResult-wrapped) ----
 	'app:open-app-data-folder': { args: []; result: void };
-
-	// ---- Theme management (IpcResult-wrapped) ----
 	'app:get-custom-themes': { args: []; result: CustomThemeInfo[] };
 	'app:open-themes-folder': { args: []; result: void };
 	'app:import-theme': { args: []; result: CustomThemeInfo | null };
 	'app:get-custom-theme-tokens': { args: [id: string]; result: Theme | null };
 	'app:delete-theme': { args: [id: string]; result: void };
-
-	// ---- System settings (IpcResult-wrapped) ----
 	'app:open-system-accessibility': { args: []; result: void };
 	'app:open-system-screen-recording': { args: []; result: void };
-
-	// ---- Tray (IpcResult-wrapped) ----
 	'app:set-tray-enabled': { args: [enabled: boolean]; result: void };
 	'app:get-tray-enabled': { args: []; result: boolean };
-
-	// ---- Cron jobs (IpcResult-wrapped) ----
 	'app:cron-schedule': {
 		args: [params: { id: string; expression: string; timezone?: string; runOnStart?: boolean }];
 		result: CronJobInfo;
 	};
 	'app:cron-unschedule': { args: [id: string]; result: void };
 	'app:cron-list-jobs': { args: []; result: CronJobInfo[] };
+}
 
-	// ---- Assistant (IpcResult-wrapped) ----
+interface WindowInvokeChannelMap {
+	[WindowChannels.isMaximized]: { args: []; result: boolean };
+	[WindowChannels.isFullScreen]: { args: []; result: boolean };
+}
+
+interface TaskInvokeChannelMap {
+	'task:submit': { args: [action: TaskAction]; result: { taskId: string } };
+	'task:cancel': { args: [taskId: string]; result: boolean };
+	'task:list': { args: []; result: TaskInfo[] };
+}
+
+interface AssistantInvokeChannelMap {
 	'assistant:send': { args: [message: string, assistantId?: string]; result: string };
 	'assistant:reset': { args: [assistantId?: string]; result: void };
 }
 
-/**
- * Channels using ipcRenderer.send / ipcMain.on (fire-and-forget).
- * `args` = tuple of arguments after the channel name.
- */
+export interface InvokeChannelMap
+	extends AppInvokeChannelMap,
+		WindowInvokeChannelMap,
+		TaskInvokeChannelMap,
+		AssistantInvokeChannelMap {}
+
 export interface SendChannelMap {
 	'set-theme': { args: [theme: ThemeMode] };
 	'set-language': { args: [language: string] };
