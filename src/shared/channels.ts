@@ -44,10 +44,6 @@ interface AppInvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	'app:cron-schedule': {
-		args: [params: { id: string; expression: string; timezone?: string; runOnStart?: boolean }];
-		result: CronJobInfo;
-	};
 }
 
 interface WindowInvokeChannelMap {
