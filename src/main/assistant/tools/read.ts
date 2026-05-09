@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import { Tool } from "./base.js";
-import { expandUser } from "./path-utils.js";
+import { expandUser } from "./utils.js";
 
 export class ReadFileTool extends Tool {
   name = "read_file";
