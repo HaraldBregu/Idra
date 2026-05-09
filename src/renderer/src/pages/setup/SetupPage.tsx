@@ -1,5 +1,5 @@
 import { useMemo, useState, type ComponentType, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import * as PageModule from '../../components/app/base/Page'
 
 type SetupProvider = {
@@ -115,7 +115,7 @@ const SetupPage = () => {
 
   const saveSelection = () => {
     window.localStorage.setItem(SETUP_STORAGE_KEY, JSON.stringify(selection))
-    navigate('/', { replace: true })
+    void navigate({ to: '/home', replace: true })
   }
 
   return (
