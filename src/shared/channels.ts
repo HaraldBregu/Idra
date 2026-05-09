@@ -135,10 +135,6 @@ export interface SendChannelMap {
 	[WindowChannels.popupMenu]: { args: [] };
 }
 
-/**
- * Channels for events pushed from main → renderer via webContents.send.
- * `data` = the payload sent with the event.
- */
 export interface EventChannelMap {
 	'change-language': { data: string };
 	'change-theme': { data: ThemeMode };
