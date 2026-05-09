@@ -18,7 +18,6 @@ export interface AssistantApi {
 }
 
 export interface AppApi {
-	assistant: AssistantApi;
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 };
 
@@ -26,5 +25,6 @@ declare global {
 	interface Window {
 		win?: WindowApi;
 		app: AppApi;
+		assistant: AssistantApi;
 	}
 }
