@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/Button';
 
 const ConfigPage: React.FC = () => {
-	const [providers, setProviders] = useState<Provider[]>([]);
+	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [selectedProvider, setSelectedProvider] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
