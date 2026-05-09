@@ -62,7 +62,9 @@ const StartPage: React.FC = () => {
 						</label>
 						<Select
 							value={selectedProvider}
-							onValueChange={setSelectedProvider}
+							onValueChange={(value) => {
+								setSelectedProvider(value ?? '');
+							}}
 							disabled={providerOptions.length === 0}
 						>
 							<SelectTrigger id="provider-select" className="h-10">
