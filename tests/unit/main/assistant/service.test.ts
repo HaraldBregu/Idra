@@ -105,7 +105,7 @@ describe('AssistantService', () => {
 			new AssistantService(deps, { defaultAssistantId: 'custom' });
 
 			expect(MockAssistant).toHaveBeenCalledTimes(1);
-			expect(MockAssistant).toHaveBeenCalledWith('custom', stubStore, stubCron);
+			expect(MockAssistant).toHaveBeenCalledWith('custom', stubStore, stubCron, stubLogger);
 		});
 
 		it('uses a provided registry instead of creating a new one', () => {
