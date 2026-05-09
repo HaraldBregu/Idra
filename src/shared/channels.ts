@@ -1,5 +1,4 @@
 import type {
-	TaskInfo,
 	TaskEvent,
 	AppLogEntry,
 	AppStartupInfo,
