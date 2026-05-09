@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Provider } from '../../../../shared/providers';
+import type { PublicProvider } from '../../../../shared/providers';
 import type { Model } from '../../../../shared/service';
 import {
 	Select,
