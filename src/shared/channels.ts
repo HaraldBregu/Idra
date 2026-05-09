@@ -1,5 +1,4 @@
 import type {
-	ThemeMode,
 	CustomThemeInfo,
 	CronJobInfo,
 	CronTickEvent,
