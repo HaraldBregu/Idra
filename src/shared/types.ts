@@ -227,10 +227,7 @@ export interface TaskAction<TInput = unknown> {
 
 // ---- IPC Result
 
-/**
- * Standardized IPC error response.
- */
-export interface IpcError {
+interface IpcError {
 	success: false;
 	error: {
 		code: string;
@@ -239,10 +236,7 @@ export interface IpcError {
 	};
 }
 
-/**
- * Standardized IPC success response.
- */
-export interface IpcSuccess<T> {
+interface IpcSuccess<T> {
 	success: true;
 	data: T;
 }
@@ -254,29 +248,13 @@ export type IpcResult<T> = IpcSuccess<T> | IpcError;
 
 // ---- Task Metadata
 
-export const TASK_STATUS_TEXT_KEY = 'statusText';
+const TASK_STATUS_TEXT_KEY = 'statusText';
 
 export function getTaskStatusText(metadata?: Record<string, unknown>): string | undefined {
 	const value = metadata?.[TASK_STATUS_TEXT_KEY];
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();
 	return trimmed.length > 0 ? trimmed : undefined;
-}
-
-export function withTaskStatusText(
-	metadata: Record<string, unknown> | undefined,
-	statusText: string | undefined
-): Record<string, unknown> | undefined {
-	const next = { ...(metadata ?? {}) };
-	const trimmed = statusText?.trim();
-
-	if (trimmed) {
-		next[TASK_STATUS_TEXT_KEY] = trimmed;
-	} else {
-		delete next[TASK_STATUS_TEXT_KEY];
-	}
-
-	return Object.keys(next).length > 0 ? next : undefined;
 }
 
 // ---- Channels (messaging adapters) -----------------------------------------
