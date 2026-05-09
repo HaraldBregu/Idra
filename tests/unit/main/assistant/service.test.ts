@@ -8,48 +8,46 @@
  * error propagation.
  */
 
+// jest.mock is hoisted by Babel/ts-jest before any variable declarations,
+// so the factory must be self-contained (no references to outer `const`s).
+jest.mock('../../../../src/main/assistant/assistant', () => {
+	const mockSend = jest.fn<Promise<string>, [string]>();
+	const mockReset = jest.fn<Promise<void>, []>();
+	const MockAssistant = jest.fn().mockImplementation((id: string) => ({
+		id,
+		send: mockSend,
+		reset: mockReset,
+	}));
+	// Attach the per-instance mocks as static properties so tests can reach
+	// them after importing the mocked module.
+	MockAssistant._mockSend = mockSend;
+	MockAssistant._mockReset = mockReset;
+	return { Assistant: MockAssistant };
+});
+
 import { AssistantService } from '../../../../src/main/assistant/service';
 import { DEFAULT_ASSISTANT_ID } from '../../../../src/main/assistant/constants';
 import { AssistantRegistry } from '../../../../src/main/assistant/registry';
+import { Assistant } from '../../../../src/main/assistant/assistant';
 import type { StoreService } from '../../../../src/main/store';
 import type { CronService } from '../../../../src/main/cron';
 
 // ---------------------------------------------------------------------------
-// Mock the Assistant class so no real I/O / OpenAI calls are made.
+// Typed accessors for the mock internals defined in the factory above.
 // ---------------------------------------------------------------------------
 
-const mockSend = jest.fn<Promise<string>, [string]>();
-const mockReset = jest.fn<Promise<void>, []>();
-
-// We capture constructor calls so we can assert which ids were registered.
-const MockAssistant = jest.fn().mockImplementation((id: string) => ({
-	id,
-	send: mockSend,
-	reset: mockReset,
-}));
-
-jest.mock('../../../../src/main/assistant/assistant', () => ({
-	Assistant: MockAssistant,
-}));
-
-// ---------------------------------------------------------------------------
-// Typed mock helpers
-// ---------------------------------------------------------------------------
-
-type MockAssistantInstance = {
-	id: string;
-	send: jest.MockedFunction<(msg: string) => Promise<string>>;
-	reset: jest.MockedFunction<() => Promise<void>>;
+type MockAssistantCtor = jest.MockedClass<typeof Assistant> & {
+	_mockSend: jest.MockedFunction<(msg: string) => Promise<string>>;
+	_mockReset: jest.MockedFunction<() => Promise<void>>;
 };
 
-function lastInstance(): MockAssistantInstance {
-	const calls = MockAssistant.mock.results;
-	return calls[calls.length - 1].value as MockAssistantInstance;
-}
+const MockAssistant = Assistant as unknown as MockAssistantCtor;
+const mockSend = MockAssistant._mockSend;
+const mockReset = MockAssistant._mockReset;
 
 // ---------------------------------------------------------------------------
-// Shared stubs — the service passes these through to Assistant; because
-// Assistant is fully mocked, the stubs are never actually invoked.
+// Shared stubs — passed through to Assistant's constructor; never invoked
+// because Assistant is fully mocked.
 // ---------------------------------------------------------------------------
 
 const stubStore = {} as unknown as StoreService;
@@ -61,12 +59,12 @@ const deps = { store: stubStore, cron: stubCron };
 // ---------------------------------------------------------------------------
 
 describe('AssistantService', () => {
-	// clearMocks: true in jest.config.cjs resets call counts between tests,
-	// but we also clear explicitly for explicitness.
 	beforeEach(() => {
+		// clearMocks: true in jest.config.cjs resets mocks between tests, but
+		// we also clear the static accessors explicitly for safety.
 		MockAssistant.mockClear();
-		mockSend.mockClear();
-		mockReset.mockClear();
+		mockSend.mockReset();
+		mockReset.mockReset();
 	});
 
 	// -------------------------------------------------------------------------
@@ -88,8 +86,8 @@ describe('AssistantService', () => {
 		it('uses DEFAULT_ASSISTANT_ID when no defaultAssistantId option is provided', () => {
 			const service = new AssistantService(deps);
 
-			// Calling get() with no arg should return the assistant registered
-			// under DEFAULT_ASSISTANT_ID without constructing a second instance.
+			// get() with no arg should return the assistant registered under
+			// DEFAULT_ASSISTANT_ID without constructing a second instance.
 			const assistant = service.get();
 			expect(assistant.id).toBe(DEFAULT_ASSISTANT_ID);
 			expect(MockAssistant).toHaveBeenCalledTimes(1);
@@ -106,11 +104,10 @@ describe('AssistantService', () => {
 			const registry = new AssistantRegistry();
 			const service = new AssistantService(deps, { registry });
 
-			// Sanity: the service's ensure() registered the default id into our
-			// supplied registry, so get() must return the correct assistant.
-			const assistant = service.get();
-			expect(assistant.id).toBe(DEFAULT_ASSISTANT_ID);
+			// The service's ensure() must register the default assistant into our
+			// supplied registry instance.
 			expect(registry.has(DEFAULT_ASSISTANT_ID)).toBe(true);
+			expect(service.get().id).toBe(DEFAULT_ASSISTANT_ID);
 		});
 
 		it('forwards store and cron dependencies to the Assistant constructor', () => {
@@ -138,21 +135,21 @@ describe('AssistantService', () => {
 			expect(result).toBe('hello from main');
 		});
 
-		it('routes to a named assistant when assistantId is provided', async () => {
-			mockSend.mockResolvedValueOnce('hello from other');
+		it('routes to a named assistant and returns its response', async () => {
+			mockSend.mockResolvedValueOnce('ignored') // default assistant pre-created in ctor
+				.mockResolvedValueOnce('hello from other');
 			const service = new AssistantService(deps);
 
 			const result = await service.send('ping', 'other-id');
 
 			expect(result).toBe('hello from other');
-			// The named assistant's send should have received the message.
-			expect(mockSend).toHaveBeenCalledWith('ping');
+			expect(mockSend).toHaveBeenLastCalledWith('ping');
 		});
 
 		it('lazily creates a new assistant for an unknown assistantId', async () => {
 			mockSend.mockResolvedValue('ok');
 			const service = new AssistantService(deps);
-			MockAssistant.mockClear(); // ignore the eager constructor call
+			MockAssistant.mockClear(); // discard the eager ctor call
 
 			await service.send('msg', 'brand-new');
 
@@ -168,7 +165,7 @@ describe('AssistantService', () => {
 			await service.send('first', 'repeat-id');
 			await service.send('second', 'repeat-id');
 
-			// Only one new constructor call despite two send() calls.
+			// Only one construction despite two send() calls.
 			expect(MockAssistant).toHaveBeenCalledTimes(1);
 		});
 
@@ -196,11 +193,11 @@ describe('AssistantService', () => {
 		});
 
 		it('routes to a named assistant when assistantId is provided', async () => {
-			mockReset.mockResolvedValue(undefined);
 			mockSend.mockResolvedValue('ok');
+			mockReset.mockResolvedValue(undefined);
 			const service = new AssistantService(deps);
 
-			// Ensure 'named' exists first via send, then reset it.
+			// Prime 'named' via send so it exists, then reset it.
 			await service.send('prime', 'named');
 			await service.reset('named');
 
@@ -232,18 +229,6 @@ describe('AssistantService', () => {
 			expect(assistant.id).toBe(DEFAULT_ASSISTANT_ID);
 		});
 
-		it('returns an existing assistant by id without constructing a new one', () => {
-			const service = new AssistantService(deps);
-			MockAssistant.mockClear();
-
-			// First get() for 'other' → lazily creates.
-			service.get('other');
-			// Second get() for 'other' → must reuse.
-			service.get('other');
-
-			expect(MockAssistant).toHaveBeenCalledTimes(1);
-		});
-
 		it('lazily creates an assistant for a new id on first get()', () => {
 			const service = new AssistantService(deps);
 			MockAssistant.mockClear();
@@ -254,17 +239,28 @@ describe('AssistantService', () => {
 			expect(assistant.id).toBe('new-id');
 		});
 
-		it('returns the same instance across get() and send() calls for the same id', async () => {
+		it('does not construct a new instance on repeated get() for the same id', () => {
+			const service = new AssistantService(deps);
+			MockAssistant.mockClear();
+
+			service.get('other');
+			service.get('other');
+
+			// Only one construction despite two get() calls.
+			expect(MockAssistant).toHaveBeenCalledTimes(1);
+		});
+
+		it('returns the same instance whether accessed via get() or send()', async () => {
 			mockSend.mockResolvedValue('ok');
 			const service = new AssistantService(deps);
 			MockAssistant.mockClear();
 
-			const via_get = service.get('shared');
+			const viaGet = service.get('shared');
 			await service.send('msg', 'shared');
 
-			// Only one construction — same instance used by both paths.
+			// Only one construction — same instance used by both call paths.
 			expect(MockAssistant).toHaveBeenCalledTimes(1);
-			expect(lastInstance().id).toBe(via_get.id);
+			expect(viaGet.id).toBe('shared');
 		});
 	});
 });
