@@ -191,12 +191,16 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			ProviderChannels.getAll,
-			wrapSimpleHandler(() => store.getProviders(), ProviderChannels.getAll)
+			wrapSimpleHandler(
+				(): PublicProvider[] =>
+					store.getProviders().map(({ apiKey: _apiKey, ...rest }) => rest),
+				ProviderChannels.getAll
+			)
 		);
 
 		ipcMain.handle(
 			ProviderChannels.getModels,
-			wrapSimpleHandler(async (provider: Provider) => {
+			wrapSimpleHandler(async (provider: PublicProvider) => {
 				const storedProvider = store.getProviderById(provider.id);
 				if (!storedProvider) {
 					throw new Error(`Provider not found: ${provider.id}`);
