@@ -31,8 +31,20 @@ const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 
 const StartPage: React.FC = () => {
 	const [apiKey, setApiKey] = useState('');
+	const [saving, setSaving] = useState(false);
 	const [selectedProvider, setSelectedProvider] = useState(providerOptions[0]?.value ?? '');
-	const canSave = selectedProvider.length > 0 && apiKey.trim().length > 0;
+	const canSave = selectedProvider.length > 0 && apiKey.trim().length > 0 && !saving;
+
+	async function handleSave(): Promise<void> {
+		if (!canSave) return;
+
+		setSaving(true);
+		try {
+			await window.app.setProviderApiKey(selectedProvider, apiKey.trim());
+		} finally {
+			setSaving(false);
+		}
+	}
 
 	return (
 		<main className="flex h-full min-h-0 items-center justify-center bg-background px-6">
@@ -81,8 +93,15 @@ const StartPage: React.FC = () => {
 							value={apiKey}
 						/>
 					</div>
-					<Button className="h-10 w-full" disabled={!canSave} type="button">
-						Save
+					<Button
+						className="h-10 w-full"
+						disabled={!canSave}
+						onClick={() => {
+							void handleSave();
+						}}
+						type="button"
+					>
+						{saving ? 'Saving...' : 'Save'}
 					</Button>
 				</div>
 			</section>
