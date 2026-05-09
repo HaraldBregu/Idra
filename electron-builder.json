@@ -7,11 +7,6 @@
 	"extraResources": [
 		"out/preload/preload.mjs",
 		{
-			"from": "./extensions",
-			"to": "extensions",
-			"filter": ["**/*"]
-		},
-		{
 			"from": "./resources",
 			"to": "resources",
 			"filter": ["icons/**"]
@@ -132,7 +127,6 @@
 	"deb": {
 		"packageCategory": "utils",
 		"maintainer": "Friday Project <contact@friday.org>",
-		"afterInstall": "./scripts/postinstall.sh",
 		"depends": [
 			"libgtk-3-0",
 			"libnss3",
