@@ -17,38 +17,6 @@ import {
 	type StoreSchema,
 } from './types';
 import {
-	getAnthropicKey,
-	getAnthropicModel,
-	setAnthropicKey,
-	setAnthropicModel,
-	setAnthropicProvider,
-} from './anthropic';
-import {
-	getOpenAIKey,
-	getOpenAIModel,
-	setOpenAIKey,
-	setOpenAIModel,
-	setOpenAIProvider,
-} from './openai';
-import {
-	getDiscordChannel,
-	setDiscordAllowFrom,
-	setDiscordChannel,
-	setDiscordToken,
-} from './discord';
-import {
-	getTelegramChannel,
-	setTelegramAllowFrom,
-	setTelegramChannel,
-	setTelegramToken,
-} from './telegram';
-import {
-	getWhatsappChannel,
-	setWhatsappChannel,
-	setWhatsappPhoneNumber,
-	setWhatsappToken,
-} from './whatsapp';
-import {
 	cloneProvider,
 	cloneProviderEntry,
 	normalizeProvider,
