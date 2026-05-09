@@ -137,6 +137,15 @@ export const AppChannels = {
  * `result` = the logical return type.
  */
 export interface InvokeChannelMap {
+	[AppChannels.getAssistantAiSettings]: { args: []; result: AssistantAiSettings };
+	[AppChannels.setAssistantAiProviderApiKey]: {
+		args: [providerId: string, apiKey: string];
+		result: AssistantAiSettings;
+	};
+	[AppChannels.setAssistantAiSelection]: {
+		args: [selection: AssistantAiSelection];
+		result: AssistantAiSettings;
+	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
 	[AppChannels.getProviders]: { args: []; result: ProviderEntry[] };
 	[AppChannels.addProvider]: { args: [provider: ProviderEntry]; result: ProviderEntry };
