@@ -50,6 +50,9 @@ export const app: AppApi = {
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
+	getProviders: (): Promise<Provider[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getAll);
+	},
 };
 
 if (process.contextIsolated) {
