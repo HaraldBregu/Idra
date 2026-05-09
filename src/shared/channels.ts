@@ -1,5 +1,4 @@
 import type {
-	TaskAction,
 	TaskInfo,
 	TaskEvent,
 	AppLogEntry,
