@@ -3,24 +3,18 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import { MemoryManager, buildSystemPrompt } from './memory';
 import { SessionManager } from './session';
 import { runAgent } from './loop';
-import { defaultTools, type Tool } from './tools';
-import type { CronService } from '../cron';
-import type { StoreService } from '../store';
+import type { Tool } from './tools';
+
+const MAX_ITERATIONS = 20;
 
 export interface AssistantOptions {
 	id: string;
-	model?: string;
+}
+
+export interface AssistantDependencies {
 	getApiKey: () => string | undefined;
-	getModel?: () => string | undefined;
-	/** Defaults to all built-in tools (read_file, write_file, exec, plus cron_* if `cron` provided). Pass `[]` to disable. */
-	tools?: Tool[];
-	/** When provided, cron_add/cron_list/cron_remove tools are added to defaults. Ignored if `tools` is set. */
-	cron?: CronService;
-	/** When provided, provider and channel settings tools are added to defaults. Ignored if `tools` is set. */
-	store?: StoreService;
-	/** Defaults to `assistant:<id>`. */
-	sessionKey?: string;
-	maxIterations?: number;
+	getModel: () => string | undefined;
+	tools: Tool[];
 }
 
 /**
@@ -31,28 +25,24 @@ export interface AssistantOptions {
  */
 export class Assistant {
 	readonly id: string;
-	readonly model?: string;
 	readonly memory: MemoryManager;
 	readonly session: SessionManager;
 	private readonly tools: Tool[];
-	private readonly maxIterations: number;
 	private readonly getApiKey: () => string | undefined;
-	private readonly getModel?: () => string | undefined;
+	private readonly getModel: () => string | undefined;
 	private history: ChatCompletionMessageParam[] = [];
 	private cachedKey: string | null = null;
 	private cachedClient: OpenAI | null = null;
 	private initialized = false;
 	private initPromise: Promise<void> | null = null;
 
-	constructor(opts: AssistantOptions) {
+	constructor(opts: AssistantOptions, deps: AssistantDependencies) {
 		this.id = opts.id;
-		this.model = opts.model?.trim() || undefined;
-		this.getApiKey = opts.getApiKey;
-		this.getModel = opts.getModel;
+		this.getApiKey = deps.getApiKey;
+		this.getModel = deps.getModel;
 		this.memory = new MemoryManager(opts.id);
-		this.session = new SessionManager(opts.sessionKey ?? `assistant:${opts.id}`);
-		this.tools = opts.tools ?? defaultTools({ cron: opts.cron, store: opts.store });
-		this.maxIterations = opts.maxIterations ?? 20;
+		this.session = new SessionManager(`assistant:${opts.id}`);
+		this.tools = deps.tools;
 	}
 
 	async init(): Promise<void> {
@@ -80,7 +70,7 @@ export class Assistant {
 	}
 
 	private currentModel(): string {
-		const model = this.getModel?.()?.trim() || this.model;
+		const model = this.getModel().trim();
 		if (!model) {
 			throw new Error('Assistant model not configured. Select a model in Settings.');
 		}
@@ -97,7 +87,7 @@ export class Assistant {
 			tools: this.tools,
 			history: this.history,
 			systemPrompt,
-			maxIterations: this.maxIterations,
+			maxIterations: MAX_ITERATIONS,
 		});
 		await this.session.append(newMessages);
 		this.history.push(...newMessages);
