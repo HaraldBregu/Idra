@@ -15,15 +15,6 @@ export const WindowChannels = {
 } as const;
 
 interface AppInvokeChannelMap {
-	'app:get-assistant-ai-settings': { args: []; result: AssistantAiSettings };
-	'app:set-assistant-ai-provider-api-key': {
-		args: [providerId: string, apiKey: string];
-		result: AssistantAiSettings;
-	};
-	'app:set-assistant-ai-selection': {
-		args: [selection: AssistantAiSelection];
-		result: AssistantAiSettings;
-	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
 }
 
