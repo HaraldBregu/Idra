@@ -31,6 +31,7 @@ import { AssistantRegistry } from '../../../../src/main/assistant/registry';
 import { Assistant } from '../../../../src/main/assistant/assistant';
 import type { StoreService } from '../../../../src/main/store';
 import type { CronService } from '../../../../src/main/cron';
+import type { LoggerService } from '../../../../src/main/logger';
 
 // ---------------------------------------------------------------------------
 // Typed accessors for the mock internals defined in the factory above.
