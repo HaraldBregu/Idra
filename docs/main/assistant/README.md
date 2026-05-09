@@ -24,4 +24,6 @@ const a = new Assistant({
 const reply = await a.send('hello');
 ```
 
-That's it for the basics. Deeper docs to be added as needed.
+## More
+
+- [Usage examples](./usage.md) — registry path (IPC, channels, tasks) + direct construction

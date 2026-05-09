@@ -17,7 +17,6 @@ import { PROVIDERS } from '../../shared/types';
 import type { AppStartupInfo } from '../../shared/types';
 import {
 	DEFAULTS,
-	DEFAULT_ASSISTANT_SERVICE,
 	DEFAULT_RAG_SERVICE,
 	DEFAULT_SEARCH_SERVICE,
 	DEFAULT_SERVICES,
