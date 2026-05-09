@@ -1,5 +1,4 @@
 import type {
-	ChannelStatusEvent,
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 	DiscordChannelProperties,
