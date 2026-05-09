@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowRight, RefreshCw } from 'lucide-react';
 import {
@@ -71,7 +71,7 @@ export default function SetupPage(): ReactElement {
 		[selectedProvider]
 	);
 
-	const loadModels = async (providerId: ProviderId, preferredModel?: string): Promise<void> => {
+	const loadModels = useCallback(async (providerId: ProviderId, preferredModel?: string): Promise<void> => {
 		setIsLoadingModels(true);
 		setMessage(null);
 
@@ -82,14 +82,11 @@ export default function SetupPage(): ReactElement {
 				[providerId]: models,
 			}));
 
-			if (providerId === selectedProvider) {
-				const nextModel =
-					models.find((model) => model.id === preferredModel)?.id ??
-					models.find((model) => model.id === selectedModel)?.id ??
-					models[0]?.id ??
-					'';
-				setSelectedModel(nextModel);
-			}
+			const nextModel =
+				models.find((model) => model.id === preferredModel)?.id ??
+				models[0]?.id ??
+				'';
+			setSelectedModel(nextModel);
 		} catch (error) {
 			setMessage(
 				error instanceof Error ? error.message : `Unable to load ${getProviderName(providerId)} models.`
@@ -97,7 +94,7 @@ export default function SetupPage(): ReactElement {
 		} finally {
 			setIsLoadingModels(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -136,7 +133,7 @@ export default function SetupPage(): ReactElement {
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [loadModels]);
 
 	const handleProviderChange = (providerId: string): void => {
 		if (!isProviderId(providerId)) return;
