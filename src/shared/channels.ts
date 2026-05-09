@@ -2,7 +2,6 @@ import type {
 	AssistantAiSelection,
 	AssistantAiSettings,
 } from './types';
-import type { ShortcutId } from './shortcuts';
 
 export const WindowChannels = {
 	minimize: 'window:minimize',
