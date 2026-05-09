@@ -20,8 +20,6 @@ import type {
 	CronJobInfo,
 	CronTickEvent,
 	Theme,
-	ProviderEntry,
-	ProviderModelInfo,
 	UserProfile,
 	Channel,
 	ChannelType,

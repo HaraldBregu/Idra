@@ -1,21 +1,37 @@
-# ASSISTANT Prompt
+# ASSISTANT
 
-You are working on the Friday ASSISTANT subsystem. Keep changes small, match the existing Electron + TypeScript patterns, and do not add new abstractions unless the current assistant flow requires them.
+You are the Friday ASSISTANT implementation agent.
 
-## Goal
+Your job is to maintain and extend Friday's conversational assistant subsystem with small, accurate changes that fit the existing Electron + TypeScript codebase.
 
-Maintain a conversational assistant that:
+<operating_rules>
+- Keep changes surgical.
+- Match the existing service, IPC, preload, and renderer patterns.
+- Do not introduce new abstractions unless the assistant flow truly needs them.
+- Do not add speculative features.
+- Do not bypass the existing settings store, assistant service, or IPC channels.
+- Always await assistant responses before updating UI state with assistant output.
+- Preserve persisted memory and session behavior unless explicitly asked to change it.
+</operating_rules>
 
-- initializes from the main process service container
-- loads persistent memory and session history before answering
-- reads provider, API key, and model from app settings
-- sends messages through the existing assistant IPC channel
-- waits for the assistant response before updating UI state
-- broadcasts completed responses to renderer windows
+<assistant_contract>
+The assistant must:
 
-## Dependencies
+- initialize from the main process service container
+- use `AssistantService` as the facade
+- use `DEFAULT_ASSISTANT_ID` for the default assistant
+- create each `Assistant` lazily through the registry
+- initialize memory and session state before answering
+- read provider, API key, and model from app settings
+- build the system prompt from assistant memory
+- run the OpenAI chat completion loop through `runAgent`
+- persist new conversation messages after each response
+- return the final assistant text to the caller
+- broadcast completed responses to renderer windows
+</assistant_contract>
 
-Required runtime dependencies already exist in `package.json`:
+<dependencies>
+Use the existing package dependencies:
 
 - `electron`
 - `electron-vite`
@@ -23,25 +39,20 @@ Required runtime dependencies already exist in `package.json`:
 - `react`
 - `react-dom`
 
-The assistant implementation depends on these local services:
+Use the existing local dependencies:
 
-- `StoreService`: reads the selected assistant provider, API key, and model
-- `CronService`: provides cron-related assistant tools
-- `MemoryManager`: seeds and reads assistant memory files
-- `SessionManager`: persists assistant conversation history
-- `runAgent`: executes the OpenAI chat completion loop and tool calls
-- `defaultTools`: builds the tool list available to the assistant
+- `StoreService` for assistant provider, API key, and model settings
+- `CronService` for cron-related assistant tools
+- `MemoryManager` for assistant workspace files and seeded templates
+- `SessionManager` for persisted conversation history
+- `runAgent` for the model/tool loop
+- `defaultTools` for assistant tools
+</dependencies>
 
-## Initialization
-
+<initialization>
 Initialize the assistant in the main process during bootstrap.
 
-1. Register `AssistantService` in `src/main/bootstrap.ts`.
-2. Pass `{ store: storeService, cron: cronService }` as dependencies.
-3. Use `DEFAULT_ASSISTANT_ID` as the default assistant id.
-4. Register `AssistantIpc` so renderers can call the assistant through IPC.
-
-Expected shape:
+Required shape:
 
 ```ts
 const assistant = container.register(
@@ -53,61 +64,73 @@ const assistant = container.register(
 );
 ```
 
-`AssistantService` should eagerly create the default assistant, but each `Assistant` should initialize lazily on first use. `Assistant.init()` must:
+When implementing initialization:
+
+1. Register `AssistantService` in `src/main/bootstrap.ts`.
+2. Pass `storeService` and `cronService`.
+3. Use `DEFAULT_ASSISTANT_ID`.
+4. Register assistant IPC so renderers can invoke the assistant.
+5. Let `AssistantService` eagerly create the default assistant.
+6. Let each `Assistant` initialize lazily on first `send`.
+
+`Assistant.init()` must:
 
 - create the assistant workspace under Electron `userData`
-- seed memory templates when missing
+- seed missing memory templates
 - initialize the session file
-- load previous session messages into memory
-- avoid duplicate initialization when concurrent sends happen
+- load previous session messages
+- protect against duplicate concurrent initialization
+</initialization>
 
-## Assistant Configuration
-
-Before a message can be sent, the app must have:
+<configuration>
+Before sending a message, require:
 
 - selected assistant provider
 - configured provider API key
-- selected model
+- selected assistant model
 
-The assistant reads these through `StoreService.getAssistantService()` and `StoreService.getProviderById()`.
+Read configuration through:
 
-If any value is missing, return a clear error:
+- `StoreService.getAssistantService()`
+- `StoreService.getProviderById(providerId)`
+
+If configuration is incomplete, fail with a clear error:
 
 - assistant provider not configured
 - provider record not found
 - provider API key missing
 - assistant model missing
+</configuration>
 
-## Run The App
-
-Install dependencies if needed:
+<run_app>
+Install dependencies when needed:
 
 ```bash
 yarn install
 ```
 
-Run the Electron app in development:
+Run the app in development:
 
 ```bash
 yarn dev
 ```
 
-Configure the assistant in the app settings before sending a message:
+Before testing assistant messages in the UI:
 
 1. Open Settings.
 2. Select the assistant provider.
 3. Add the provider API key.
 4. Select the assistant model.
+</run_app>
 
-## Send A Message And Wait For Response
-
-From renderer code, use the preload API. The call must be awaited before adding the assistant reply to UI state.
+<send_message>
+From renderer code, send messages through the preload API and await the promise:
 
 ```ts
 const response = await window.app.assistant.send('Hello');
 ```
 
-Recommended renderer service wrapper:
+Use this wrapper shape when the renderer needs a local service:
 
 ```ts
 export interface AssistantReply {
@@ -120,7 +143,7 @@ export async function sendMessage(prompt: string): Promise<AssistantReply> {
 }
 ```
 
-Recommended UI flow:
+Use this UI state sequence:
 
 ```ts
 dispatch({ type: 'append-user-message', message: prompt });
@@ -133,56 +156,78 @@ try {
 	dispatch({ type: 'set-sending', sending: false });
 }
 ```
+</send_message>
 
-## IPC Contract
+<ipc_contract>
+Use only the existing assistant channels:
 
-Use the existing assistant channels:
+- `assistant:send`
+- `assistant:reset`
+- `assistant:response`
 
-- `assistant:send`: invoke with `(message: string, assistantId?: string)` and return `string`
-- `assistant:reset`: invoke with `(assistantId?: string)` and return `void`
-- `assistant:response`: event sent after a reply lands
+`assistant:send`:
 
-Main process send flow:
+- invoke with `(message: string, assistantId?: string)`
+- return the assistant response text as `string`
+- broadcast `assistant:response` after the response lands
 
-1. `AssistantIpc` receives `assistant:send`.
-2. It resolves `AssistantService` from the container.
-3. It calls `assistant.send(message, assistantId)`.
-4. `Assistant.send()` initializes memory/session if needed.
-5. It builds the system prompt.
-6. It resolves API key and model from settings.
-7. It runs the agent loop.
-8. It appends new messages to the session.
-9. It returns assistant text to the caller.
-10. It broadcasts `assistant:response` to renderer windows.
+`assistant:reset`:
 
-## Reset Conversation
+- invoke with `(assistantId?: string)`
+- clear the selected assistant conversation state
+- return `void`
 
-Renderer:
+`assistant:response` event payload:
 
 ```ts
-await window.app.assistant.reset();
+{
+	assistantId: string;
+	userMessage: string;
+	response: string;
+}
 ```
+</ipc_contract>
 
-Main process behavior:
+<message_flow>
+When a message is sent:
 
-- clear persisted session history
-- clear assistant memory workspace
-- reset in-memory history
-- initialize again with seeded templates
+1. Renderer calls and awaits `window.app.assistant.send(message)`.
+2. Preload invokes `assistant:send`.
+3. `AssistantIpc` resolves `AssistantService`.
+4. `AssistantService.send()` resolves the target assistant.
+5. `Assistant.send()` initializes memory and session if needed.
+6. The assistant builds the system prompt from memory.
+7. The assistant reads API key and model from settings.
+8. `runAgent` sends the request to OpenAI and runs tool calls if needed.
+9. The assistant appends new messages to the session.
+10. The assistant returns final text.
+11. `AssistantIpc` broadcasts `assistant:response`.
+12. Renderer updates assistant UI state after the awaited call resolves.
+</message_flow>
 
-## Verification
+<reset_flow>
+When reset is requested:
 
+1. Renderer awaits `window.app.assistant.reset()`.
+2. Main process clears persisted session history.
+3. Main process clears assistant memory workspace.
+4. Main process clears in-memory history.
+5. Main process reinitializes seeded templates.
+</reset_flow>
+
+<verification>
 After assistant changes, run:
 
 ```bash
 yarn typecheck
 ```
 
-For manual verification:
+Manual verification:
 
 1. Start the app with `yarn dev`.
 2. Configure provider, API key, and model in Settings.
 3. Send a message from the Assistant page.
-4. Confirm the UI waits while the request is pending.
-5. Confirm the assistant reply appears once the promise resolves.
+4. Confirm the UI remains pending while the request is in flight.
+5. Confirm the assistant reply appears after the promise resolves.
 6. Restart the app and confirm prior session history is loaded.
+</verification>
