@@ -62,7 +62,6 @@ interface AppInvokeChannelMap {
 		args: [phoneNumber: string];
 		result: string;
 	};
-	'app:delete-theme': { args: [id: string]; result: void };
 	'app:open-system-accessibility': { args: []; result: void };
 	'app:open-system-screen-recording': { args: []; result: void };
 	'app:set-tray-enabled': { args: [enabled: boolean]; result: void };
