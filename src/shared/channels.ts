@@ -44,10 +44,6 @@ interface AppInvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	'app:get-channel-status': {
-		args: [];
-		result: Partial<Record<ChannelType, ChannelStatusEvent>>;
-	};
 	'app:request-whatsapp-pairing-code': {
 		args: [phoneNumber: string];
 		result: string;
