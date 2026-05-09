@@ -1,21 +1,17 @@
 # Assistant
 
-Conversational AI assistant in main process. ReAct-style tool loop over OpenAI Chat Completions, with persistent markdown memory and append-only session history.
+The Assistant is Friday's conversational brain. You send it a message, it replies. It remembers things between turns, can run tools (read/write files, run shell, schedule crons, configure providers and channels), and persists its history to disk.
 
 Source: `src/main/assistant/`.
 
-## Pages
+## How it fits
 
-- [Overview](./overview.md) — what it is, runtime layout, data flow
-- [Architecture](./architecture.md) — modules, lifecycle, message flow
-- [Memory](./memory.md) — `MemoryManager`, templates, system prompt
-- [Sessions](./sessions.md) — `SessionManager`, JSONL log, sanitizer
-- [Loop](./loop.md) — `runAgent` ReAct loop
-- [Tools](./tools.md) — built-in tools, adding new ones
-- [Registry](./registry.md) — multi-assistant registry
-- [API](./api.md) — public exports and types
+- Lives in the Electron **main process** (not the renderer).
+- Talks to OpenAI Chat Completions.
+- Each assistant has an **id**, a **markdown workspace** for memory, and a **JSONL log** for session history.
+- Multiple assistants can coexist via a registry.
 
-## TL;DR
+## Quick example
 
 ```ts
 import { Assistant } from '@/main/assistant';
@@ -23,12 +19,9 @@ import { Assistant } from '@/main/assistant';
 const a = new Assistant({
   id: 'main',
   getApiKey: () => store.get('openai.apiKey'),
-  getModel: () => store.get('openai.model'),
-  cron: cronService,   // optional → enables cron_* tools
-  store: storeService, // optional → enables provider/channel tools
 });
 
 const reply = await a.send('hello');
 ```
 
-Lazy-init: memory + session bootstrap on first `send()`. Default model `gpt-4o-mini`. Default `maxIterations` 20.
+That's it for the basics. Deeper docs to be added as needed.
