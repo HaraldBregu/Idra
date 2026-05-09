@@ -322,3 +322,56 @@ export class StoreService {
 		}
 	}
 }
+import { PROVIDERS } from '../../shared/types';
+import type { AssistantAiProvider, AssistantAiSelection, AssistantAiSettings } from '../../shared/types';
+
+const DEFAULT_ASSISTANT_AI_PROVIDER = 'openai';
+const DEFAULT_ASSISTANT_AI_MODEL = 'gpt-4o-mini';
+
+function isAssistantAiRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null;
+}
+
+function normalizeAssistantAiProvider(value: unknown): AssistantAiProvider | null {
+	if (!isAssistantAiRecord(value)) return null;
+	const id = typeof value.id === 'string' ? value.id.trim().toLowerCase() : '';
+	const apiKey = typeof value.apiKey === 'string' ? value.apiKey.trim() : '';
+	if (!id || !apiKey || !PROVIDERS.some((provider) => provider.id === id)) return null;
+	return { id, apiKey };
+}
+
+function normalizeAssistantAiProviders(value: unknown): AssistantAiProvider[] {
+	if (!Array.isArray(value)) return [];
+	const seen = new Set<string>();
+	const providers: AssistantAiProvider[] = [];
+	for (const entry of value) {
+		const provider = normalizeAssistantAiProvider(entry);
+		if (!provider || seen.has(provider.id)) continue;
+		seen.add(provider.id);
+		providers.push(provider);
+	}
+	return providers;
+}
+
+function normalizeAssistantAiSettings(value: unknown): AssistantAiSettings {
+	const raw = isAssistantAiRecord(value) ? value : {};
+	const providers = normalizeAssistantAiProviders(raw.providers);
+	const selectedProvider =
+		typeof raw.selectedProvider === 'string' &&
+		PROVIDERS.some((provider) => provider.id === raw.selectedProvider.trim().toLowerCase())
+			? raw.selectedProvider.trim().toLowerCase()
+			: DEFAULT_ASSISTANT_AI_PROVIDER;
+	const selectedModel =
+		typeof raw.selectedModel === 'string' && raw.selectedModel.trim().length > 0
+			? raw.selectedModel.trim()
+			: DEFAULT_ASSISTANT_AI_MODEL;
+	return { providers, selectedProvider, selectedModel };
+}
+
+function cloneAssistantAiSettings(settings: AssistantAiSettings): AssistantAiSettings {
+	return {
+		providers: settings.providers.map((provider) => ({ ...provider })),
+		selectedProvider: settings.selectedProvider,
+		selectedModel: settings.selectedModel,
+	};
+}
