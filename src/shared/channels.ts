@@ -1,5 +1,4 @@
 import type {
-	UserProfile,
 	Channel,
 	ChannelType,
 	ChannelStatusEvent,
