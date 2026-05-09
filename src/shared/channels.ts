@@ -44,7 +44,6 @@ interface AppInvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	'app:delete-provider': { args: [id: string]; result: void };
 	'app:get-agents': { args: []; result: AgentSettings[] };
 	'app:update-agent': { args: [agent: AgentSettings]; result: AgentSettings };
 	'app:get-startup-info': { args: []; result: AppStartupInfo };
