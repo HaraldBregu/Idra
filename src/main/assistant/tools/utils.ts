@@ -1,7 +1,5 @@
-import { SetAnthropicKeyTool } from './anthropic';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 import { ExecTool } from './exec';
-import { SetOpenAIKeyTool } from './openai';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
 import { ReadFileTool } from './read';
 import {
