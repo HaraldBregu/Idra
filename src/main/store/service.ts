@@ -60,6 +60,14 @@ import {
 export class StoreService {
 	getAssistantAiSettings(): AssistantAiSettings {
 		const settings = normalizeAssistantAiSettings(this.rawStore.get('assistantAi'));
+		if (settings.providers.length === 0) {
+			const providers = normalizeAssistantAiProviders(this.rawStore.get('providers'));
+			if (providers.length > 0) {
+				const migrated = { ...settings, providers };
+				this.rawStore.set('assistantAi', migrated);
+				return cloneAssistantAiSettings(migrated);
+			}
+		}
 		this.rawStore.set('assistantAi', settings);
 		return cloneAssistantAiSettings(settings);
 	}
