@@ -35,6 +35,10 @@ interface AppInvokeChannelMap {
 		args: [provider: import('./providers').Provider];
 		result: import('./service').Model[];
 	};
+	[ProviderChannels.saveAssistantService]: {
+		args: [provider: import('./providers').Provider, model: import('./service').Model];
+		result: boolean;
+	};
 }
 
 interface AssistantInvokeChannelMap {
