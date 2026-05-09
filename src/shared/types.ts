@@ -101,7 +101,6 @@ export type {
 	ProviderId,
 	ProviderModelInfo,
 } from './providers';
-export { PROVIDERS } from './providers';
 
 /**
  * One model assignment inside an agent. The API key is not stored here — look
