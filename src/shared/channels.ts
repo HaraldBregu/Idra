@@ -1,13 +1,3 @@
-// ---------------------------------------------------------------------------
-// Shared IPC Channel Constants & Type Maps
-// ---------------------------------------------------------------------------
-// Single source of truth for all IPC channel names and their type signatures.
-// Used by main, preload, and renderer.
-//
-// DO NOT import Electron, Node.js, React, or any browser APIs here.
-// This file must be valid in all three process contexts.
-// ---------------------------------------------------------------------------
-
 import type {
 	TaskAction,
 	TaskInfo,
