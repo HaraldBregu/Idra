@@ -1,5 +1,5 @@
 import React from 'react';
-import { RouterProvider } from '@tanstack/react-router';
+import { RouterProvider } from 'react-router-dom';
 import { AppProvider } from './contexts';
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
 import { router } from './router';
@@ -9,7 +9,7 @@ const App: React.FC = () => {
 	return (
 		<ErrorBoundary level="root">
 			<AppProvider>
-				<RouterProvider router={router} context={{ }} />
+				<RouterProvider router={router} />
 			</AppProvider>
 		</ErrorBoundary>
 	);
