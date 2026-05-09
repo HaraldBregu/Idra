@@ -22,6 +22,13 @@ export const ProviderChannels = {
 } as const;
 
 interface AppInvokeChannelMap {
+	[ProviderChannels.setApiKey]: {
+		args: [providerId: string, apikey: string];
+		result: void;
+	};
+}
+
+interface AssistantInvokeChannelMap {
 	[AssistantChannels.send]: { args: [message: string]; result: string };
 	[AssistantChannels.reset]: { args: []; result: void };
 	[AssistantChannels.setProvider]: {
@@ -30,10 +37,6 @@ interface AppInvokeChannelMap {
 	};
 	[AssistantChannels.setModel]: {
 		args: [model: { id: string; name: string }];
-		result: void;
-	};
-	[ProviderChannels.setApiKey]: {
-		args: [providerId: string, apikey: string];
 		result: void;
 	};
 }
@@ -45,6 +48,7 @@ interface WindowInvokeChannelMap {
 
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
+		AssistantInvokeChannelMap,
 		WindowInvokeChannelMap {}
 
 export interface SendChannelMap {
@@ -53,9 +57,16 @@ export interface SendChannelMap {
 	[WindowChannels.close]: { args: [] };
 }
 
-export interface EventChannelMap {
-	[WindowChannels.maximizeChange]: { data: boolean };
-	[WindowChannels.fullScreenChange]: { data: boolean };
+interface AssistantEventChannelMap {
 	[AssistantChannels.response]: { data: { response: string } };
 }
+
+interface WindowEventChannelMap {
+	[WindowChannels.maximizeChange]: { data: boolean };
+	[WindowChannels.fullScreenChange]: { data: boolean };
+}
+
+export interface EventChannelMap
+	extends AssistantEventChannelMap,
+		WindowEventChannelMap {}
 

@@ -35,5 +35,11 @@ type: project
 
 **Global Jest config:** `clearMocks`, `resetMocks`, `restoreMocks` all set to `true`. Coverage threshold 50% branches/functions/lines/statements.
 
+**electron-store mocking pattern:** `jest.mock('electron-store', ...)` with an in-memory Map-backed fake. Mock is placed at the top of the test file (before imports). Access the Store constructor as `Store as jest.MockedClass<typeof Store>` after importing to assert ctor call args. Private `store` field on StoreService is accessed via `(service as unknown as { store: ... }).store.set(...)` to pre-seed data without a public setter.
+
+**Test files created:**
+- `tests/unit/main/assistant/service.test.ts` — AssistantService; uses jest.mock + static property trick
+- `tests/unit/main/store/service.test.ts` — StoreService; uses Map-backed electron-store fake
+
 **Why:** The tests/ directory did not exist at all — the entire infrastructure was bootstrapped for the first test suite.
 **How to apply:** When adding new test files, all infrastructure is already in place. Only create test files under `tests/unit/main/` or `tests/unit/renderer/`.
