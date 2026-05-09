@@ -49,16 +49,19 @@ const StartPage: React.FC = () => {
 		let isMounted = true;
 
 		const loadProviders = async (): Promise<void> => {
-			const appapi = (window as Window & { appapi?: AppApi }).appapi;
-			const getProviders = appapi?.getproviders ?? appapi?.getProviders;
-			const nextProviders = getProviders ? await getProviders.call(appapi) : [];
+			try {
+				const appapi = (window as Window & { appapi?: AppApi }).appapi;
+				const getProviders = appapi?.getproviders ?? appapi?.getProviders;
+				const nextProviders = getProviders ? await getProviders.call(appapi) : [];
 
-			if (!isMounted) {
-				return;
+				if (isMounted) {
+					setProviders(Array.isArray(nextProviders) ? nextProviders : []);
+				}
+			} finally {
+				if (isMounted) {
+					setIsLoadingProviders(false);
+				}
 			}
-
-			setProviders(Array.isArray(nextProviders) ? nextProviders : []);
-			setIsLoadingProviders(false);
 		};
 
 		void loadProviders();
