@@ -22,8 +22,10 @@ export interface ProviderConfig {
 }
 
 export interface Provider {
-	openai: ProviderConfig;
-	anthropic: ProviderConfig;
+	id: ProviderId;
+	name: 'OpenAI' | 'Anthropic';
+	apikey: string;
+	url: string;
 }
 
 export interface ProviderEntry {
