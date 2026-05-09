@@ -9,16 +9,6 @@ import React, {
 } from 'react';
 import i18n from '../i18n';
 import { DEFAULT_THEME_MODE, isThemeMode, ThemeMode } from '../../../shared';
-import { TasksDialog } from '@/components/app/dialogs/TasksDialog';
-import { LogDialog } from '@/components/app/dialogs/LogDialog';
-import { CronDialog } from '@/components/app/dialogs/CronDialog';
-import {
-	applyThemeTokens,
-	clearThemeTokens,
-	readPersistedThemeStyle,
-	resolveEffectiveVariant,
-	DEFAULT_THEME_ID,
-} from '../lib/theme-tokens';
 
 const THEME_STORAGE_KEY = 'app-theme-mode';
 const LANGUAGE_STORAGE_KEY = 'app-language';
@@ -40,7 +30,7 @@ interface AppProviderProps {
 	initialState?: { theme?: ThemeMode; language?: AppLanguage };
 }
 
-export function readPersistedTheme(): ThemeMode {
+function readPersistedTheme(): ThemeMode {
 	try {
 		const stored = localStorage.getItem(THEME_STORAGE_KEY);
 		if (stored && isThemeMode(stored)) return stored;
@@ -50,7 +40,7 @@ export function readPersistedTheme(): ThemeMode {
 	return DEFAULT_THEME_MODE;
 }
 
-export function readPersistedLanguage(): AppLanguage {
+function readPersistedLanguage(): AppLanguage {
 	try {
 		const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 		if (stored === 'en' || stored === 'it') return stored;
@@ -73,16 +63,13 @@ function applyThemeClass(theme: ThemeMode): void {
 
 applyThemeClass(readPersistedTheme());
 
-export const AppContext = createContext<AppContextValue | undefined>(undefined);
+const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children, initialState }: AppProviderProps): React.JSX.Element {
 	const [theme, setThemeState] = useState<ThemeMode>(initialState?.theme ?? readPersistedTheme());
 	const [language, setLanguageState] = useState<AppLanguage>(
 		initialState?.language ?? readPersistedLanguage()
 	);
-	const [tasksOpen, setTasksOpen] = useState(false);
-	const [logOpen, setLogOpen] = useState(false);
-	const [cronOpen, setCronOpen] = useState(false);
 
 	const setTheme = useCallback((next: ThemeMode) => setThemeState(next), []);
 	const setLanguage = useCallback((next: AppLanguage) => setLanguageState(next), []);
@@ -90,9 +77,6 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		setThemeState(readPersistedTheme());
 		setLanguageState(readPersistedLanguage());
 	}, []);
-	const openTasksDialog = useCallback(() => setTasksOpen(true), []);
-	const openLogDialog = useCallback(() => setLogOpen(true), []);
-	const openCronDialog = useCallback(() => setCronOpen(true), []);
 
 	useEffect(() => {
 		applyThemeClass(theme);
@@ -101,7 +85,6 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		} catch {
 			/* empty */
 		}
-		window.app?.setTheme(theme);
 	}, [theme]);
 
 	useEffect(() => {
@@ -115,81 +98,20 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 	}, [theme]);
 
 	useEffect(() => {
-		if (!window.app?.onThemeChange) return;
-		return window.app.onThemeChange((incoming) => {
-			setThemeState(incoming);
-		});
-	}, []);
-
-	useEffect(() => {
-		const themeStyleId = readPersistedThemeStyle();
-		if (themeStyleId === DEFAULT_THEME_ID) {
-			clearThemeTokens();
-			return;
-		}
-		let cancelled = false;
-		window.app?.getCustomThemeTokens(themeStyleId).then((manifest) => {
-			if (cancelled || !manifest) return;
-			const variant = resolveEffectiveVariant();
-			applyThemeTokens(manifest[variant]);
-		});
-		return () => {
-			cancelled = true;
-		};
-	}, [theme]);
-
-	useEffect(() => {
 		i18n.changeLanguage(language);
 		try {
 			localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
 		} catch {
 			/* empty */
 		}
-		window.app?.setLanguage(language);
 	}, [language]);
-
-	useEffect(() => {
-		if (!window.app?.onLanguageChange) return;
-		return window.app.onLanguageChange((incoming: string) => {
-			if (incoming === 'en' || incoming === 'it') {
-				setLanguageState(incoming);
-			}
-		});
-	}, []);
-
-	useEffect(() => {
-		const unsubTasks =
-			typeof window.app?.onOpenTasksDialog === 'function'
-				? window.app.onOpenTasksDialog(openTasksDialog)
-				: undefined;
-		const unsubLogs =
-			typeof window.app?.onOpenLogsDialog === 'function'
-				? window.app.onOpenLogsDialog(openLogDialog)
-				: undefined;
-		const unsubCron =
-			typeof window.app?.onOpenCronDialog === 'function'
-				? window.app.onOpenCronDialog(openCronDialog)
-				: undefined;
-		return () => {
-			unsubTasks?.();
-			unsubLogs?.();
-			unsubCron?.();
-		};
-	}, [openTasksDialog, openLogDialog, openCronDialog]);
 
 	const value = useMemo<AppContextValue>(
 		() => ({ theme, language, setTheme, setLanguage, resetState }),
 		[theme, language, setTheme, setLanguage, resetState]
 	);
 
-	return (
-		<AppContext.Provider value={value}>
-			{children}
-			<TasksDialog open={tasksOpen} onOpenChange={setTasksOpen} />
-			<LogDialog open={logOpen} onOpenChange={setLogOpen} />
-			<CronDialog open={cronOpen} onOpenChange={setCronOpen} />
-		</AppContext.Provider>
-	);
+	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useApp(): AppContextValue {
