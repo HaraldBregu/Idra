@@ -9,12 +9,6 @@ import type { StoreService } from '../store';
 
 const MAX_ITERATIONS = 20;
 
-/**
- * Conversational assistant with memory, persistent session history, and tools.
- * Mirrors the Kaioh CLI assistant: MemoryManager + SessionManager + runAgent.
- *
- * Lazy-init: memory/session bootstrap happens on first send().
- */
 export class Assistant {
 	readonly id: string;
 	readonly memory: MemoryManager;
