@@ -59,7 +59,7 @@ const StartPage: React.FC = () => {
 					<div className="space-y-2">
 						<label className="text-sm font-medium text-foreground" htmlFor="provider-select">
 							Provider
-					</label>
+						</label>
 						<Select
 							value={selectedProvider}
 							onValueChange={setSelectedProvider}
