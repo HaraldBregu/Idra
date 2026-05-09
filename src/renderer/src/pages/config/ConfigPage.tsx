@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { DEFAULT_PROVIDERS } from '../../../../shared/providers';
+import React, { useEffect, useState } from 'react';
+import type { Provider } from '../../../../shared/providers';
 import {
 	Select,
 	SelectContent,
@@ -25,9 +25,30 @@ const modelOptionsByProvider: Record<string, readonly ModelOption[]> = {
 };
 
 const ConfigPage: React.FC = () => {
-	const [selectedProvider, setSelectedProvider] = useState(DEFAULT_PROVIDERS[0]?.id ?? '');
+	const [providers, setProviders] = useState<Provider[]>([]);
+	const [selectedProvider, setSelectedProvider] = useState('');
 	const modelOptions = modelOptionsByProvider[selectedProvider] ?? [];
 	const [selectedModel, setSelectedModel] = useState(modelOptions[0]?.value ?? '');
+
+	useEffect(() => {
+		let cancelled = false;
+
+		async function loadProviders(): Promise<void> {
+			const storedProviders = await window.app.getProviders();
+			if (cancelled) return;
+
+			setProviders(storedProviders);
+			const firstProviderId = storedProviders[0]?.id ?? '';
+			setSelectedProvider(firstProviderId);
+			setSelectedModel(modelOptionsByProvider[firstProviderId]?.[0]?.value ?? '');
+		}
+
+		void loadProviders();
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	function handleProviderChange(value: string | null): void {
 		const providerId = value ?? '';
@@ -48,12 +69,16 @@ const ConfigPage: React.FC = () => {
 						<label className="text-sm font-medium text-foreground" htmlFor="config-provider">
 							Provider
 						</label>
-						<Select value={selectedProvider} onValueChange={handleProviderChange}>
+						<Select
+							value={selectedProvider}
+							onValueChange={handleProviderChange}
+							disabled={providers.length === 0}
+						>
 							<SelectTrigger id="config-provider" className="h-10">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								{DEFAULT_PROVIDERS.map((provider) => (
+								{providers.map((provider) => (
 									<SelectItem key={provider.id} value={provider.id}>
 										{provider.name}
 									</SelectItem>

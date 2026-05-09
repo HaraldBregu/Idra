@@ -165,6 +165,11 @@ export class AppIpc implements IpcModule {
 			}, ProviderChannels.setApiKey)
 		);
 
+		ipcMain.handle(
+			ProviderChannels.getAll,
+			wrapSimpleHandler(() => store.getProviders(), ProviderChannels.getAll)
+		);
+
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}
 }

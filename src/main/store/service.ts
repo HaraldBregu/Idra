@@ -20,6 +20,10 @@ export class StoreService {
 		);
 	}
 
+	getProviders(): Provider[] {
+		return this.store.get('providers') ?? [];
+	}
+
 	getService(): Service | undefined {
 		return this.store.get('service');
 	}
