@@ -2,8 +2,8 @@
 
 Documentation for Friday — personal AI assistant desktop app built on Electron.
 
-## Sections
+Docs are kept as Markdown files directly in this directory.
 
-- [main/](./main/README.md) — main process
+## Documents
 
-More sections added as we document them.
+- [Assistant](./assistant.md) — main-process conversational assistant
