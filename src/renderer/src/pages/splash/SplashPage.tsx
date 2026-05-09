@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate } from 'react-router-dom';
 import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
 
 const SplashPage: React.FC = () => {
@@ -7,7 +7,7 @@ const SplashPage: React.FC = () => {
 
 	useEffect(() => {
 		const timer = window.setTimeout(() => {
-			void navigate({ to: '/setup', replace: true });
+			navigate('/setup', { replace: true });
 		}, 1800);
 
 		return () => {
