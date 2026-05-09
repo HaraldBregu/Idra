@@ -18,8 +18,6 @@ export function defaultTools(opts: { cron: CronService; store: StoreService }): 
 		new ReadFileTool(),
 		new WriteFileTool(),
 		new ExecTool(),
-		new SetOpenAIKeyTool(opts.store),
-		new SetAnthropicKeyTool(opts.store),
 		new GetProviderByIdTool(opts.store),
 		new SetProviderApiKeyTool(opts.store),
 		new GetAssistantServiceTool(opts.store),
