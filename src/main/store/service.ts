@@ -1,14 +1,19 @@
 import Store from 'electron-store';
 import type {
+	AssistantAiProvider,
+	AssistantAiSelection,
+	AssistantAiSettings,
 	Channel,
 	ChannelType,
 	DiscordChannelProperties,
 	Provider,
+	ProviderConfig,
 	ProviderEntry,
 	TelegramChannelProperties,
 	UserProfile,
 	WhatsappChannelProperties,
 } from '../../shared/types';
+import { PROVIDERS } from '../../shared/types';
 import type { AppStartupInfo } from '../../shared/types';
 import {
 	DEFAULTS,
@@ -25,18 +30,86 @@ import {
 	providerToEntries,
 } from './utils';
 
+const DEFAULT_ASSISTANT_AI_PROVIDER = 'openai';
+const DEFAULT_ASSISTANT_AI_MODEL = 'gpt-4o-mini';
+
+const DEFAULT_TELEGRAM_CHANNEL: TelegramChannelProperties = { token: '', allowFrom: [] };
+const DEFAULT_WHATSAPP_CHANNEL: WhatsappChannelProperties = { phoneNumber: '', token: '' };
+const DEFAULT_DISCORD_CHANNEL: DiscordChannelProperties = { token: '', allowFrom: [] };
+
+function isAssistantAiRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null;
+}
+
+function normalizeAssistantAiProvider(value: unknown): AssistantAiProvider | null {
+	if (!isAssistantAiRecord(value)) return null;
+	const id = typeof value.id === 'string' ? value.id.trim().toLowerCase() : '';
+	const apiKey = typeof value.apiKey === 'string' ? value.apiKey.trim() : '';
+	if (!id || !apiKey || !PROVIDERS.some((provider) => provider.id === id)) return null;
+	return { id, apiKey };
+}
+
+function normalizeAssistantAiProviders(value: unknown): AssistantAiProvider[] {
+	if (!Array.isArray(value)) return [];
+	const seen = new Set<string>();
+	const providers: AssistantAiProvider[] = [];
+	for (const entry of value) {
+		const provider = normalizeAssistantAiProvider(entry);
+		if (!provider || seen.has(provider.id)) continue;
+		seen.add(provider.id);
+		providers.push(provider);
+	}
+	return providers;
+}
+
+function normalizeAssistantAiSettings(value: unknown): AssistantAiSettings {
+	const raw = isAssistantAiRecord(value) ? value : {};
+	const providers = normalizeAssistantAiProviders(raw.providers);
+	const rawSelectedProvider =
+		typeof raw.selectedProvider === 'string'
+			? raw.selectedProvider.trim().toLowerCase()
+			: '';
+	const selectedProvider = PROVIDERS.some((provider) => provider.id === rawSelectedProvider)
+		? rawSelectedProvider
+		: DEFAULT_ASSISTANT_AI_PROVIDER;
+	const selectedModel =
+		typeof raw.selectedModel === 'string' && raw.selectedModel.trim().length > 0
+			? raw.selectedModel.trim()
+			: DEFAULT_ASSISTANT_AI_MODEL;
+	return { providers, selectedProvider, selectedModel };
+}
+
+function cloneAssistantAiSettings(settings: AssistantAiSettings): AssistantAiSettings {
+	return {
+		providers: settings.providers.map((provider) => ({ ...provider })),
+		selectedProvider: settings.selectedProvider,
+		selectedModel: settings.selectedModel,
+	};
+}
+
 export class StoreService {
+	private store: SettingsStore;
+
+	constructor() {
+		this.store = new Store<StoreSchema>({
+			name: 'settings',
+			defaults: DEFAULTS,
+			accessPropertiesByDotNotation: false,
+		}) as unknown as SettingsStore;
+		this.migrateProviderKey();
+	}
+
 	getAssistantAiSettings(): AssistantAiSettings {
-		const settings = normalizeAssistantAiSettings(this.rawStore.get('assistantAi'));
+		const settings = normalizeAssistantAiSettings(this.store.get('assistantAi'));
 		if (settings.providers.length === 0) {
-			const providers = normalizeAssistantAiProviders(this.rawStore.get('providers'));
+			const providers = normalizeAssistantAiProviders(this.store.get('providers'));
 			if (providers.length > 0) {
 				const migrated = { ...settings, providers };
-				this.rawStore.set('assistantAi', migrated);
+				this.store.set('assistantAi', migrated);
 				return cloneAssistantAiSettings(migrated);
 			}
 		}
-		this.rawStore.set('assistantAi', settings);
+		this.store.set('assistantAi', settings);
 		return cloneAssistantAiSettings(settings);
 	}
 
@@ -54,8 +127,8 @@ export class StoreService {
 		}
 
 		const next = { ...settings, providers };
-		this.rawStore.set('assistantAi', next);
-		this.rawStore.set(
+		this.store.set('assistantAi', next);
+		this.store.set(
 			'providers',
 			providers.map((provider) => ({
 				id: provider.id,
@@ -78,19 +151,8 @@ export class StoreService {
 
 		const settings = this.getAssistantAiSettings();
 		const next = { ...settings, selectedProvider, selectedModel };
-		this.rawStore.set('assistantAi', next);
+		this.store.set('assistantAi', next);
 		return cloneAssistantAiSettings(next);
-	}
-
-	private store: SettingsStore;
-
-	constructor() {
-		this.store = new Store<StoreSchema>({
-			name: 'settings',
-			defaults: DEFAULTS,
-			accessPropertiesByDotNotation: false,
-		}) as unknown as SettingsStore;
-		this.migrateProviderKey();
 	}
 
 	// --- Provider methods ---
@@ -124,44 +186,50 @@ export class StoreService {
 		return cloneProviderEntry(incoming);
 	}
 
-	setOpenAIProvider(apikey: string, model: string): Provider['openai'] {
-		return setOpenAIProvider(this.store, apikey, model);
+	setOpenAIProvider(apikey: string, model: string): ProviderConfig {
+		const next: ProviderConfig = { apikey, model };
+		const providers = this.store.get('providers');
+		this.store.set('providers', { ...providers, openai: next });
+		return next;
 	}
 
 	getOpenAIKey(): string {
-		return getOpenAIKey(this.store);
+		return this.store.get('providers').openai.apikey;
 	}
 
 	getOpenAIModel(): string {
-		return getOpenAIModel(this.store);
+		return this.store.get('providers').openai.model;
 	}
 
-	setOpenAIKey(apikey: string): Provider['openai'] {
-		return setOpenAIKey(this.store, apikey);
+	setOpenAIKey(apikey: string): ProviderConfig {
+		return this.setOpenAIProvider(apikey, this.getOpenAIModel());
 	}
 
-	setOpenAIModel(model: string): Provider['openai'] {
-		return setOpenAIModel(this.store, model);
+	setOpenAIModel(model: string): ProviderConfig {
+		return this.setOpenAIProvider(this.getOpenAIKey(), model);
 	}
 
-	setAnthropicProvider(apikey: string, model: string): Provider['anthropic'] {
-		return setAnthropicProvider(this.store, apikey, model);
+	setAnthropicProvider(apikey: string, model: string): ProviderConfig {
+		const next: ProviderConfig = { apikey, model };
+		const providers = this.store.get('providers');
+		this.store.set('providers', { ...providers, anthropic: next });
+		return next;
 	}
 
 	getAnthropicKey(): string {
-		return getAnthropicKey(this.store);
+		return this.store.get('providers').anthropic.apikey;
 	}
 
 	getAnthropicModel(): string {
-		return getAnthropicModel(this.store);
+		return this.store.get('providers').anthropic.model;
 	}
 
-	setAnthropicKey(apikey: string): Provider['anthropic'] {
-		return setAnthropicKey(this.store, apikey);
+	setAnthropicKey(apikey: string): ProviderConfig {
+		return this.setAnthropicProvider(apikey, this.getAnthropicModel());
 	}
 
-	setAnthropicModel(model: string): Provider['anthropic'] {
-		return setAnthropicModel(this.store, model);
+	setAnthropicModel(model: string): ProviderConfig {
+		return this.setAnthropicProvider(this.getAnthropicKey(), model);
 	}
 
 	deleteProvider(providerId: string): void {
@@ -267,60 +335,99 @@ export class StoreService {
 	}
 
 	getTelegramChannel(): TelegramChannelProperties {
-		return getTelegramChannel(this.store);
+		const telegram = this.store.get('channel')?.telegram;
+		return {
+			token: telegram?.token ?? DEFAULT_TELEGRAM_CHANNEL.token,
+			allowFrom: [...(telegram?.allowFrom ?? DEFAULT_TELEGRAM_CHANNEL.allowFrom)],
+		};
 	}
 
 	setTelegramChannel(properties: TelegramChannelProperties): Channel {
 		this.ensureChannel();
-		return setTelegramChannel(this.store, properties);
+		const current = this.store.get('channel');
+		const next: Channel = {
+			...current,
+			telegram: {
+				token: properties.token,
+				allowFrom: [...properties.allowFrom],
+			},
+		} as Channel;
+		this.store.set('channel', next);
+		return next;
 	}
 
 	setTelegramToken(token: string): Channel {
-		this.ensureChannel();
-		return setTelegramToken(this.store, token);
+		return this.setTelegramChannel({ ...this.getTelegramChannel(), token });
 	}
 
 	setTelegramAllowFrom(allowFrom: string[]): Channel {
-		this.ensureChannel();
-		return setTelegramAllowFrom(this.store, allowFrom);
+		return this.setTelegramChannel({
+			...this.getTelegramChannel(),
+			allowFrom: [...allowFrom],
+		});
 	}
 
 	getWhatsappChannel(): WhatsappChannelProperties {
-		return getWhatsappChannel(this.store);
+		const whatsapp = this.store.get('channel')?.whatsapp;
+		return {
+			phoneNumber: whatsapp?.phoneNumber ?? DEFAULT_WHATSAPP_CHANNEL.phoneNumber,
+			token: whatsapp?.token ?? DEFAULT_WHATSAPP_CHANNEL.token,
+		};
 	}
 
 	setWhatsappChannel(properties: WhatsappChannelProperties): Channel {
 		this.ensureChannel();
-		return setWhatsappChannel(this.store, properties);
+		const current = this.store.get('channel');
+		const next: Channel = {
+			...current,
+			whatsapp: {
+				phoneNumber: properties.phoneNumber,
+				token: properties.token,
+			},
+		} as Channel;
+		this.store.set('channel', next);
+		return next;
 	}
 
 	setWhatsappPhoneNumber(phoneNumber: string): Channel {
-		this.ensureChannel();
-		return setWhatsappPhoneNumber(this.store, phoneNumber);
+		return this.setWhatsappChannel({ ...this.getWhatsappChannel(), phoneNumber });
 	}
 
 	setWhatsappToken(token: string): Channel {
-		this.ensureChannel();
-		return setWhatsappToken(this.store, token);
+		return this.setWhatsappChannel({ ...this.getWhatsappChannel(), token });
 	}
 
 	getDiscordChannel(): DiscordChannelProperties {
-		return getDiscordChannel(this.store);
+		const discord = this.store.get('channel')?.discord;
+		return {
+			token: discord?.token ?? DEFAULT_DISCORD_CHANNEL.token,
+			allowFrom: [...(discord?.allowFrom ?? DEFAULT_DISCORD_CHANNEL.allowFrom)],
+		};
 	}
 
 	setDiscordChannel(properties: DiscordChannelProperties): Channel {
 		this.ensureChannel();
-		return setDiscordChannel(this.store, properties);
+		const current = this.store.get('channel');
+		const next: Channel = {
+			...current,
+			discord: {
+				token: properties.token,
+				allowFrom: [...properties.allowFrom],
+			},
+		} as Channel;
+		this.store.set('channel', next);
+		return next;
 	}
 
 	setDiscordToken(token: string): Channel {
-		this.ensureChannel();
-		return setDiscordToken(this.store, token);
+		return this.setDiscordChannel({ ...this.getDiscordChannel(), token });
 	}
 
 	setDiscordAllowFrom(allowFrom: string[]): Channel {
-		this.ensureChannel();
-		return setDiscordAllowFrom(this.store, allowFrom);
+		return this.setDiscordChannel({
+			...this.getDiscordChannel(),
+			allowFrom: [...allowFrom],
+		});
 	}
 
 	setChannelProperties(
@@ -346,57 +453,4 @@ export class StoreService {
 			this.store.delete('provider');
 		}
 	}
-}
-import { PROVIDERS } from '../../shared/types';
-import type { AssistantAiProvider, AssistantAiSelection, AssistantAiSettings } from '../../shared/types';
-
-const DEFAULT_ASSISTANT_AI_PROVIDER = 'openai';
-const DEFAULT_ASSISTANT_AI_MODEL = 'gpt-4o-mini';
-
-function isAssistantAiRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null;
-}
-
-function normalizeAssistantAiProvider(value: unknown): AssistantAiProvider | null {
-	if (!isAssistantAiRecord(value)) return null;
-	const id = typeof value.id === 'string' ? value.id.trim().toLowerCase() : '';
-	const apiKey = typeof value.apiKey === 'string' ? value.apiKey.trim() : '';
-	if (!id || !apiKey || !PROVIDERS.some((provider) => provider.id === id)) return null;
-	return { id, apiKey };
-}
-
-function normalizeAssistantAiProviders(value: unknown): AssistantAiProvider[] {
-	if (!Array.isArray(value)) return [];
-	const seen = new Set<string>();
-	const providers: AssistantAiProvider[] = [];
-	for (const entry of value) {
-		const provider = normalizeAssistantAiProvider(entry);
-		if (!provider || seen.has(provider.id)) continue;
-		seen.add(provider.id);
-		providers.push(provider);
-	}
-	return providers;
-}
-
-function normalizeAssistantAiSettings(value: unknown): AssistantAiSettings {
-	const raw = isAssistantAiRecord(value) ? value : {};
-	const providers = normalizeAssistantAiProviders(raw.providers);
-	const selectedProvider =
-		typeof raw.selectedProvider === 'string' &&
-		PROVIDERS.some((provider) => provider.id === raw.selectedProvider.trim().toLowerCase())
-			? raw.selectedProvider.trim().toLowerCase()
-			: DEFAULT_ASSISTANT_AI_PROVIDER;
-	const selectedModel =
-		typeof raw.selectedModel === 'string' && raw.selectedModel.trim().length > 0
-			? raw.selectedModel.trim()
-			: DEFAULT_ASSISTANT_AI_MODEL;
-	return { providers, selectedProvider, selectedModel };
-}
-
-function cloneAssistantAiSettings(settings: AssistantAiSettings): AssistantAiSettings {
-	return {
-		providers: settings.providers.map((provider) => ({ ...provider })),
-		selectedProvider: settings.selectedProvider,
-		selectedModel: settings.selectedModel,
-	};
 }
