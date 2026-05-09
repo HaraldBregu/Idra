@@ -1,4 +1,9 @@
-export const DEFAULT_PROVIDERS = [
+export type Provider = {
+	readonly id: string;
+	readonly name: string;
+};
+
+export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	{ id: 'openai', name: 'OpenAI' },
 	{ id: 'anthropic', name: 'Anthropic' },
 	{ id: 'google', name: 'Google' },
