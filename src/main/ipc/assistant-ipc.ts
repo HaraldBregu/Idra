@@ -5,7 +5,7 @@ import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import { AssistantChannels, type AssistantResponseEvent } from '../../shared/channels';
-import { AssistantService, DEFAULT_ASSISTANT_ID } from '../assistant';
+import { DEFAULT_ASSISTANT_ID, type AssistantService } from '../assistant';
 
 /**
  * IPC for the assistant subsystem.
