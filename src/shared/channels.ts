@@ -1,5 +1,4 @@
 import type {
-	CronTickEvent,
 	Theme,
 	UserProfile,
 	Channel,
