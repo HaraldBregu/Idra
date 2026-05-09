@@ -1,9 +1,9 @@
 import { Provider } from "../../shared/providers";
-import type { Assistant } from "../../shared/assistant";
+import { Service } from "../../shared/service";
 
 export interface StoreSchema {
 	providers: Provider[];
-	assistant: Assistant;
+	service: Service;
 }
 
 export type SettingsStore = {

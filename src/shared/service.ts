@@ -1,8 +1,17 @@
+import { Provider } from "./providers";
+
 export interface Service {
-	assistant: string;
+	assistant: Assistant;
 	rag: string;
 	ocr: string;
-	search: string;
-	tts: string;
-	stt: string;
+}
+
+export interface Model {
+	id: string;
+	name: string;
+}
+
+export interface Assistant {
+	provider: Provider;
+	model: Model;
 }
