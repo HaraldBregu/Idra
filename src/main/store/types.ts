@@ -6,6 +6,7 @@ export interface AssistantConfiguration {
 }
 
 export interface StoreSchema {
+	assistantAi: AssistantAiSettings;
 	providers: Provider;
 	assistantConfiguration: AssistantConfiguration;
 	channel: Channel | null;
