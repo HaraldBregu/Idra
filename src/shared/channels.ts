@@ -1,5 +1,4 @@
 import type {
-	Theme,
 	UserProfile,
 	Channel,
 	ChannelType,
