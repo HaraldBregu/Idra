@@ -1,4 +1,5 @@
 import type { CronService } from '../cron';
+import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import { Assistant } from './assistant';
 import { DEFAULT_ASSISTANT_ID } from './constants';
@@ -7,6 +8,7 @@ import { AssistantRegistry } from './registry';
 export interface AssistantServiceDependencies {
 	store: StoreService;
 	cron: CronService;
+	logger: LoggerService;
 }
 
 export interface AssistantServiceOptions {
@@ -41,8 +43,14 @@ export class AssistantService {
 
 	private ensure(assistantId: string): Assistant {
 		if (!this.registry.has(assistantId)) {
+			this.dependencies.logger.info('AssistantService', `Creating assistant "${assistantId}"`);
 			this.registry.register(
-				new Assistant(assistantId, this.dependencies.store, this.dependencies.cron)
+				new Assistant(
+					assistantId,
+					this.dependencies.store,
+					this.dependencies.cron,
+					this.dependencies.logger
+				)
 			);
 		}
 		return this.registry.get(assistantId);
