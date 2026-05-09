@@ -13,9 +13,7 @@ import { Moon, Monitor, Sun } from 'lucide-react';
 import type { AppLanguage } from '../../../contexts';
 import type { ThemeMode } from '../../../../../shared/types';
 import type { CustomThemeInfo } from '../../../../../shared/types';
-import { useAppActions } from '@/hooks/use-app-actions';
-import { useLanguageMode } from '@/hooks/use-language-mode';
-import { useThemeMode } from '@/hooks/use-theme-mode';
+import { useApp } from '@/contexts';
 import {
 	applyThemeTokens,
 	clearThemeTokens,
@@ -36,9 +34,7 @@ const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
-	const themeMode = useThemeMode();
-	const language = useLanguageMode();
-	const { setTheme, setLanguage } = useAppActions();
+	const { theme, language, setTheme, setLanguage } = useApp();
 
 	const [customThemes, setCustomThemes] = useState<CustomThemeInfo[]>([]);
 	const [activeThemeId, setActiveThemeId] = useState<string>(() => {
@@ -111,29 +107,29 @@ const SystemPage: React.FC = () => {
 					<div className="flex items-center gap-2">
 						<ButtonGroup>
 							<Button
-								variant={themeMode === 'light' ? 'outline-selected' : 'outline'}
+								variant={theme === 'light' ? 'outline-selected' : 'outline'}
 								size="icon-sm"
 								onClick={() => handleThemeChange('light')}
 								aria-label={t('settings.theme.light')}
-								aria-pressed={themeMode === 'light'}
+								aria-pressed={theme === 'light'}
 							>
 								<Sun className="size-3.5" />
 							</Button>
 							<Button
-								variant={themeMode === 'system' ? 'outline-selected' : 'outline'}
+								variant={theme === 'system' ? 'outline-selected' : 'outline'}
 								size="icon-sm"
 								onClick={() => handleThemeChange('system')}
 								aria-label={t('settings.theme.system')}
-								aria-pressed={themeMode === 'system'}
+								aria-pressed={theme === 'system'}
 							>
 								<Monitor className="size-3.5" />
 							</Button>
 							<Button
-								variant={themeMode === 'dark' ? 'outline-selected' : 'outline'}
+								variant={theme === 'dark' ? 'outline-selected' : 'outline'}
 								size="icon-sm"
 								onClick={() => handleThemeChange('dark')}
 								aria-label={t('settings.theme.dark')}
-								aria-pressed={themeMode === 'dark'}
+								aria-pressed={theme === 'dark'}
 							>
 								<Moon className="size-3.5" />
 							</Button>
@@ -160,9 +156,9 @@ const SystemPage: React.FC = () => {
 								<SelectItem value={DEFAULT_THEME_ID}>
 									{t('settings.appTheme.default')}
 								</SelectItem>
-								{customThemes.map((theme) => (
-									<SelectItem key={theme.id} value={theme.id}>
-										{theme.name}
+								{customThemes.map((ct) => (
+									<SelectItem key={ct.id} value={ct.id}>
+										{ct.name}
 									</SelectItem>
 								))}
 							</SelectContent>
