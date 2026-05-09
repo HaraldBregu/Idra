@@ -56,12 +56,9 @@ export interface InvokeChannelMap
 		WindowInvokeChannelMap {}
 
 export interface SendChannelMap {
-	'set-theme': { args: [theme: ThemeMode] };
-	'set-language': { args: [language: string] };
 	[WindowChannels.minimize]: { args: [] };
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
-	[WindowChannels.popupMenu]: { args: [] };
 }
 
 export interface EventChannelMap {
