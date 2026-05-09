@@ -223,7 +223,7 @@ describe('AssistantService', () => {
 			await service.reset('fresh-id');
 
 			expect(MockAssistant).toHaveBeenCalledTimes(1);
-			expect(MockAssistant).toHaveBeenCalledWith('fresh-id', stubStore, stubCron);
+			expect(MockAssistant).toHaveBeenCalledWith('fresh-id', stubStore, stubCron, stubLogger);
 		});
 	});
 
