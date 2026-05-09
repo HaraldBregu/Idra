@@ -1,0 +1,2 @@
+- [Friday test infrastructure](project_test_infra.md) — Jest multi-project config, all infrastructure files, run commands, transform setup, and gotchas
+- [Mock patterns for main-process tests](feedback_mock_patterns.md) — jest.mock hoisting, shared mock functions, and static-property trick for accessing factory-local mocks
