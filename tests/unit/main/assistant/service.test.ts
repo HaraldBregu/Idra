@@ -86,7 +86,8 @@ describe('AssistantService', () => {
 			expect(MockAssistant).toHaveBeenCalledWith(
 				DEFAULT_ASSISTANT_ID,
 				stubStore,
-				stubCron
+				stubCron,
+				stubLogger
 			);
 		});
 
