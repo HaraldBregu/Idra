@@ -70,7 +70,7 @@ export class Assistant {
 	}
 
 	private currentModel(): string {
-		const model = this.getModel().trim();
+		const model = (this.getModel() ?? '').trim();
 		if (!model) {
 			throw new Error('Assistant model not configured. Select a model in Settings.');
 		}
