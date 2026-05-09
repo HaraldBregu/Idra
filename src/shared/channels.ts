@@ -74,6 +74,9 @@ export const AppChannels = {
 	fileOpened: 'file-opened',
 	// Store / Provider management
 	getProviders: 'app:get-providers',
+	getAssistantAiSettings: 'app:get-assistant-ai-settings',
+	setAssistantAiProviderApiKey: 'app:set-assistant-ai-provider-api-key',
+	setAssistantAiSelection: 'app:set-assistant-ai-selection',
 	addProvider: 'app:add-provider',
 	deleteProvider: 'app:delete-provider',
 	getAgents: 'app:get-agents',
