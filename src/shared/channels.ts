@@ -62,20 +62,6 @@ export interface SendChannelMap {
 }
 
 export interface EventChannelMap {
-	'change-language': { data: string };
-	'change-theme': { data: ThemeMode };
-	'file-opened': { data: string };
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
-	'task:event': { data: TaskEvent };
-	'app:shortcut': { data: ShortcutId };
-	'app:cron-tick': { data: CronTickEvent };
-	'app:channel-status-changed': { data: ChannelStatusEvent };
-	'app:open-tasks-dialog': { data: undefined };
-	'app:open-logs-dialog': { data: undefined };
-	'app:open-redux-dialog': { data: undefined };
-	'app:open-cron-dialog': { data: undefined };
-	'assistant:response': {
-		data: { assistantId: string; userMessage: string; response: string };
-	};
 }
