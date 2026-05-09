@@ -41,46 +41,50 @@ export class Assistant {
 		return this.initPromise;
 	}
 
-	private client(): OpenAI {
-		const key = this.apiKey();
-		if (!key) {
-			throw new Error('OpenAI API key not configured. Add an OpenAI provider in Settings.');
-		}
-		if (key !== this.cachedKey) {
-			this.cachedKey = key;
-			this.cachedClient = new OpenAI({ apiKey: key });
+	private client(apiKey: string): OpenAI {
+		if (apiKey !== this.cachedKey) {
+			this.cachedKey = apiKey;
+			this.cachedClient = new OpenAI({ apiKey });
 		}
 		return this.cachedClient!;
 	}
 
-	private apiKey(): string | undefined {
-		const ref = this.store.getAssistantService().llm;
-		const resolved = this.store.resolveProviderRef(ref);
-		if (resolved?.provider.apiKey) return resolved.provider.apiKey;
-		return this.store.findProvider('openai')?.apiKey;
-	}
+	private assistantConfig(): { apiKey: string; model: string } {
+		const settings = this.store.getAssistantAiSettings();
+		const providerId = (settings.selectedProvider ?? '').trim().toLowerCase();
+		const model = (settings.selectedModel ?? '').trim();
 
-	private currentModel(): string {
-		const ref = this.store.getAssistantService().llm;
-		const resolved = this.store.resolveProviderRef(ref);
-		const model = (
-			ref.model ||
-			resolved?.model ||
-			this.store.findProvider('openai')?.defaultModel ||
-			''
-		).trim();
+		if (!providerId) {
+			throw new Error('Assistant provider not configured. Select a provider in Settings.');
+		}
+
+		const provider = settings.providers.find(
+			(entry) => entry.id.trim().toLowerCase() === providerId
+		);
+		if (!provider) {
+			throw new Error(`Assistant provider "${settings.selectedProvider}" is not configured.`);
+		}
+
+		const apiKey = provider.apiKey.trim();
+		if (!apiKey) {
+			throw new Error(
+				`API key not configured for assistant provider "${provider.id}". Add it in Settings.`
+			);
+		}
 		if (!model) {
 			throw new Error('Assistant model not configured. Select a model in Settings.');
 		}
-		return model;
+
+		return { apiKey, model };
 	}
 
 	async send(userMessage: string): Promise<string> {
 		await this.init();
 		const systemPrompt = await buildSystemPrompt(this.memory);
+		const { apiKey, model } = this.assistantConfig();
 		const { text, newMessages } = await runAgent({
-			client: this.client(),
-			model: () => this.currentModel(),
+			client: this.client(apiKey),
+			model,
 			userMessage,
 			tools: this.tools,
 			history: this.history,
