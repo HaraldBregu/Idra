@@ -10,6 +10,12 @@ export interface WindowApi {
 }
 
 export interface AppApi {
+	getAssistantAiSettings: () => Promise<AssistantAiSettings>;
+	setAssistantAiProviderApiKey: (
+		providerId: string,
+		apiKey: string
+	) => Promise<AssistantAiSettings>;
+	setAssistantAiSelection: (selection: AssistantAiSelection) => Promise<AssistantAiSettings>;
 
 };
 
