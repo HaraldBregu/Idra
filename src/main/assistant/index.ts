@@ -1,4 +1,5 @@
 export { Assistant, type AssistantOptions } from './assistant';
+export { DEFAULT_ASSISTANT_ID } from './constants';
 export { AssistantRegistry } from './registry';
 export {
 	AssistantService,
@@ -9,5 +10,3 @@ export { MemoryManager, buildSystemPrompt } from './memory';
 export { SessionManager } from './session';
 export { runAgent, type RunAgentParams, type RunResult } from './loop';
 export { Tool, type ToolSchema, defaultTools } from './tools';
-
-export const DEFAULT_ASSISTANT_ID = 'main';

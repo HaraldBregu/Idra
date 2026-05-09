@@ -1,7 +1,7 @@
 import type { CronService } from '../cron';
 import type { StoreService } from '../store';
 import { Assistant } from './assistant';
-import { DEFAULT_ASSISTANT_ID } from './index';
+import { DEFAULT_ASSISTANT_ID } from './constants';
 import { AssistantRegistry } from './registry';
 
 export interface AssistantServiceDependencies {
