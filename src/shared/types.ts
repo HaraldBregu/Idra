@@ -93,15 +93,6 @@ export interface CronTickEvent {
 	readonly firedAt: string;
 }
 
-export type {
-	Provider,
-	ProviderConfig,
-	ProviderDefinition,
-	ProviderEntry,
-	ProviderId,
-	ProviderModelInfo,
-} from './providers';
-
 /**
  * One model assignment inside an agent. The API key is not stored here — look
  * it up via the Service registered for `providerId`.
