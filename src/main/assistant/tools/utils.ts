@@ -4,6 +4,11 @@ import { ExecTool } from './exec';
 import { SetOpenAIKeyTool } from './openai';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
 import { ReadFileTool } from './read';
+import {
+	GetAssistantModelTool,
+	GetAssistantServiceTool,
+	SetAssistantServiceTool,
+} from './services';
 import { WriteFileTool } from './write';
 import type { CronService } from '../../cron';
 import type { StoreService } from '../../store';

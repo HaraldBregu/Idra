@@ -136,14 +136,16 @@ describe('AssistantService', () => {
 		});
 
 		it('routes to a named assistant and returns its response', async () => {
-			mockSend.mockResolvedValueOnce('ignored') // default assistant pre-created in ctor
-				.mockResolvedValueOnce('hello from other');
+			// mockSend is shared across all Assistant instances (mock factory creates
+			// one shared function). A single queued value covers the one send() call
+			// made on 'other-id' — the constructor does NOT call send().
+			mockSend.mockResolvedValueOnce('hello from other');
 			const service = new AssistantService(deps);
 
 			const result = await service.send('ping', 'other-id');
 
 			expect(result).toBe('hello from other');
-			expect(mockSend).toHaveBeenLastCalledWith('ping');
+			expect(mockSend).toHaveBeenCalledWith('ping');
 		});
 
 		it('lazily creates a new assistant for an unknown assistantId', async () => {
