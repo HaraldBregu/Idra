@@ -19,3 +19,4 @@ declare global {
 		app: AppApi;
 	}
 }
+import type { AssistantAiSelection, AssistantAiSettings } from '../shared/types';
