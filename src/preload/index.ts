@@ -51,6 +51,9 @@ export const app: AppApi = {
 	getModels: (provider: Provider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
+	saveAssistantService: (provider: Provider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(ProviderChannels.saveAssistantService, provider, model);
+	},
 };
 
 if (process.contextIsolated) {
