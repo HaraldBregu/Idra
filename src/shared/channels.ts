@@ -1,5 +1,4 @@
 import type {
-	DiscordChannelProperties,
 	AssistantAiSelection,
 	AssistantAiSettings,
 } from './types';
