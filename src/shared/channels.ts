@@ -44,7 +44,6 @@ interface AppInvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	'app:set-profile': { args: [profile: UserProfile]; result: UserProfile };
 	'app:get-channel': { args: []; result: Channel | null };
 	'app:set-channel-properties': {
 		args: [
