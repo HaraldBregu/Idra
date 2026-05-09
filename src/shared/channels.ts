@@ -29,14 +29,14 @@ interface AppInvokeChannelMap {
 	};
 	[ProviderChannels.getAll]: {
 		args: [];
-		result: import('./providers').Provider[];
+		result: import('./providers').PublicProvider[];
 	};
 	[ProviderChannels.getModels]: {
-		args: [provider: import('./providers').Provider];
+		args: [provider: import('./providers').PublicProvider];
 		result: import('./service').Model[];
 	};
 	[ProviderChannels.saveAssistantService]: {
-		args: [provider: import('./providers').Provider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};
 }
