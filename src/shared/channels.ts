@@ -1,5 +1,4 @@
 import type {
-	AppStartupInfo,
 	AgentSettings,
 	ThemeMode,
 	CustomThemeInfo,
