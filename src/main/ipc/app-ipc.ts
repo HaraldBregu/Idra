@@ -4,8 +4,10 @@ import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { ThemeService } from '../theme';
+import type { StoreService } from '../store';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
+import { ProviderChannels } from '../../shared/channels';
 
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
@@ -19,6 +21,7 @@ export class AppIpc implements IpcModule {
 
 	register(container: ServiceContainer, eventBus: EventBus): void {
 		const logger = container.get<LoggerService>('logger');
+		const store = container.get<StoreService>('store');
 
 		// Language handler
 		ipcMain.on('set-language', (event, language: string) => {
@@ -136,6 +139,30 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(() => {
 				return this.trayEnabled;
 			}, 'app:get-tray-enabled')
+		);
+
+		ipcMain.handle(
+			ProviderChannels.setApiKey,
+			wrapSimpleHandler((providerId: string, apiKey: string) => {
+				const normalizedProviderId = providerId.trim().toLowerCase();
+				const trimmedApiKey = apiKey.trim();
+
+				if (!trimmedApiKey) {
+					throw new Error('API key is required.');
+				}
+
+				if (normalizedProviderId === 'openai') {
+					store.setOpenAiApiKey(trimmedApiKey);
+					return;
+				}
+
+				if (normalizedProviderId === 'anthropic') {
+					store.setAnthropicApiKey(trimmedApiKey);
+					return;
+				}
+
+				throw new Error(`Unsupported provider id: ${providerId}`);
+			}, ProviderChannels.setApiKey)
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);
