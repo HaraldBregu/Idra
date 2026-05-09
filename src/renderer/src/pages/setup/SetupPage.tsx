@@ -51,13 +51,14 @@ const PROVIDERS: SetupProvider[] = [
   }
 ]
 
-const getInitialSelection = (): SetupSelection => {
-  const defaultProvider = PROVIDERS[0]
+const DEFAULT_PROVIDER = PROVIDERS[0]!
+const getDefaultModel = (provider: SetupProvider) => provider.models[0] ?? ''
 
+const getInitialSelection = (): SetupSelection => {
   if (typeof window === 'undefined') {
     return {
-      provider: defaultProvider.id,
-      model: defaultProvider.models[0],
+      provider: DEFAULT_PROVIDER.id,
+      model: getDefaultModel(DEFAULT_PROVIDER),
       apiKey: ''
     }
   }
@@ -66,28 +67,28 @@ const getInitialSelection = (): SetupSelection => {
 
   if (!savedSelection) {
     return {
-      provider: defaultProvider.id,
-      model: defaultProvider.models[0],
+      provider: DEFAULT_PROVIDER.id,
+      model: getDefaultModel(DEFAULT_PROVIDER),
       apiKey: ''
     }
   }
 
   try {
     const parsedSelection = JSON.parse(savedSelection) as Partial<SetupSelection>
-    const provider = PROVIDERS.find((item) => item.id === parsedSelection.provider) ?? defaultProvider
+    const provider = PROVIDERS.find((item) => item.id === parsedSelection.provider) ?? DEFAULT_PROVIDER
     const model = provider.models.includes(parsedSelection.model ?? '')
       ? parsedSelection.model ?? provider.models[0]
-      : provider.models[0]
+      : getDefaultModel(provider)
 
     return {
       provider: provider.id,
-      model,
+      model: model ?? getDefaultModel(provider),
       apiKey: parsedSelection.apiKey ?? ''
     }
   } catch {
     return {
-      provider: defaultProvider.id,
-      model: defaultProvider.models[0],
+      provider: DEFAULT_PROVIDER.id,
+      model: getDefaultModel(DEFAULT_PROVIDER),
       apiKey: ''
     }
   }
@@ -98,17 +99,17 @@ const SetupPage = () => {
   const [selection, setSelection] = useState<SetupSelection>(getInitialSelection)
 
   const selectedProvider = useMemo(
-    () => PROVIDERS.find((provider) => provider.id === selection.provider) ?? PROVIDERS[0],
+    () => PROVIDERS.find((provider) => provider.id === selection.provider) ?? DEFAULT_PROVIDER,
     [selection.provider]
   )
 
   const updateProvider = (providerId: string) => {
-    const nextProvider = PROVIDERS.find((provider) => provider.id === providerId) ?? PROVIDERS[0]
+    const nextProvider = PROVIDERS.find((provider) => provider.id === providerId) ?? DEFAULT_PROVIDER
 
     setSelection((currentSelection) => ({
       ...currentSelection,
       provider: nextProvider.id,
-      model: nextProvider.models[0]
+      model: getDefaultModel(nextProvider)
     }))
   }
 
