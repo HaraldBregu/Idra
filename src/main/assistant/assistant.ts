@@ -4,10 +4,9 @@ import { MemoryManager, buildSystemPrompt } from './memory';
 import { SessionManager } from './session';
 import { runAgent } from './loop';
 import { defaultTools, type Tool } from './tools';
+import { MAX_ITERATIONS } from './constants';
 import type { CronService } from '../cron';
 import type { StoreService } from '../store';
-
-const MAX_ITERATIONS = 20;
 
 export class Assistant {
 	readonly id: string;
