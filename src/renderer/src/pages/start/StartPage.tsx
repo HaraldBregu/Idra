@@ -1,33 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-
-type Provider = string | {
-	id?: string;
-	name?: string;
-	label?: string;
-	displayName?: string;
-	provider?: string;
-};
+import { DEFAULT_PROVIDERS, type Provider } from '../../../../shared/providers';
 
 type ProviderOption = {
 	label: string;
 	value: string;
 };
 
-type AppApi = {
-	getproviders?: () => Promise<Provider[]> | Provider[];
-	getProviders?: () => Promise<Provider[]> | Provider[];
-};
-
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
-	if (typeof provider === 'string') {
-		return {
-			label: provider,
-			value: provider,
-		};
-	}
-
-	const value = provider.id ?? provider.provider ?? provider.name ?? provider.label ?? `provider-${index}`;
-	const label = provider.displayName ?? provider.label ?? provider.name ?? provider.provider ?? value;
+	const value = provider.id || `provider-${index}`;
+	const label = provider.name || value;
 
 	return {
 		label,
@@ -36,40 +17,12 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 }
 
 const StartPage: React.FC = () => {
-	const [providers, setProviders] = useState<Provider[]>([]);
 	const [selectedProvider, setSelectedProvider] = useState('');
-	const [isLoadingProviders, setIsLoadingProviders] = useState(true);
 
 	const providerOptions = useMemo(
-		() => providers.map((provider, index) => normalizeProvider(provider, index)),
-		[providers],
+		() => DEFAULT_PROVIDERS.map((provider, index) => normalizeProvider(provider, index)),
+		[],
 	);
-
-	useEffect(() => {
-		let isMounted = true;
-
-		const loadProviders = async (): Promise<void> => {
-			try {
-				const appapi = (window as Window & { appapi?: AppApi }).appapi;
-				const getProviders = appapi?.getproviders ?? appapi?.getProviders;
-				const nextProviders = getProviders ? await getProviders.call(appapi) : [];
-
-				if (isMounted) {
-					setProviders(Array.isArray(nextProviders) ? nextProviders : []);
-				}
-			} finally {
-				if (isMounted) {
-					setIsLoadingProviders(false);
-				}
-			}
-		};
-
-		void loadProviders();
-
-		return () => {
-			isMounted = false;
-		};
-	}, []);
 
 	useEffect(() => {
 		if (!selectedProvider && providerOptions.length > 0) {
@@ -89,7 +42,7 @@ const StartPage: React.FC = () => {
 					</label>
 					<select
 						className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
-						disabled={isLoadingProviders || providerOptions.length === 0}
+						disabled={providerOptions.length === 0}
 						id="provider-select"
 						onChange={(event) => {
 							setSelectedProvider(event.target.value);
@@ -97,7 +50,7 @@ const StartPage: React.FC = () => {
 						value={selectedProvider}
 					>
 						<option disabled value="">
-							{isLoadingProviders ? 'Loading providers...' : 'Select a provider'}
+							Select a provider
 						</option>
 						{providerOptions.map((provider, index) => (
 							<option key={`${provider.value}-${index}`} value={provider.value}>
