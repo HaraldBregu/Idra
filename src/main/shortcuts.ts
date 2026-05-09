@@ -1,6 +1,5 @@
 import type { BrowserWindow } from 'electron';
 import { ShortcutId, SHORTCUT_ACCELERATORS } from '../shared/shortcuts';
-import { AppChannels } from '../shared/channels';
 
 interface KeyCombo {
 	key: string;
@@ -39,7 +38,7 @@ function parseAccelerator(accelerator: string, isMac: boolean): KeyCombo {
  * Registers app-level keyboard shortcuts on each BrowserWindow via
  * `before-input-event`. When a registered combo is pressed inside a focused
  * window, the matching ShortcutId is forwarded to the renderer on
- * `AppChannels.shortcut`.
+ * `app:shortcut`.
  *
  * Works across application windows without depending on the application menu.
  */
@@ -60,7 +59,7 @@ export class ShortcutManager {
 			const match = this.findMatch(input);
 			if (!match) return;
 			event.preventDefault();
-			win.webContents.send(AppChannels.shortcut, match.id);
+			win.webContents.send('app:shortcut', match.id);
 		});
 	}
 
