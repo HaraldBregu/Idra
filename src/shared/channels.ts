@@ -44,10 +44,6 @@ interface AppInvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	'app:request-whatsapp-pairing-code': {
-		args: [phoneNumber: string];
-		result: string;
-	};
 	'app:cron-schedule': {
 		args: [params: { id: string; expression: string; timezone?: string; runOnStart?: boolean }];
 		result: CronJobInfo;
