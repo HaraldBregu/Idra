@@ -58,6 +58,46 @@ import {
 } from './utils';
 
 export class StoreService {
+	getAssistantAiSettings(): AssistantAiSettings {
+		const settings = normalizeAssistantAiSettings(this.rawStore.get('assistantAi'));
+		this.rawStore.set('assistantAi', settings);
+		return cloneAssistantAiSettings(settings);
+	}
+
+	setAssistantAiProviderApiKey(providerId: string, apiKey: string): AssistantAiSettings {
+		const id = providerId.trim().toLowerCase();
+		if (!PROVIDERS.some((provider) => provider.id === id)) {
+			throw new Error('Invalid provider');
+		}
+
+		const settings = this.getAssistantAiSettings();
+		const providers = settings.providers.filter((provider) => provider.id !== id);
+		const trimmedApiKey = apiKey.trim();
+		if (trimmedApiKey) {
+			providers.push({ id, apiKey: trimmedApiKey });
+		}
+
+		const next = { ...settings, providers };
+		this.rawStore.set('assistantAi', next);
+		return cloneAssistantAiSettings(next);
+	}
+
+	setAssistantAiSelection(selection: AssistantAiSelection): AssistantAiSettings {
+		const selectedProvider = selection.selectedProvider.trim().toLowerCase();
+		const selectedModel = selection.selectedModel.trim();
+		if (!PROVIDERS.some((provider) => provider.id === selectedProvider)) {
+			throw new Error('Invalid provider');
+		}
+		if (!selectedModel) {
+			throw new Error('Invalid model');
+		}
+
+		const settings = this.getAssistantAiSettings();
+		const next = { ...settings, selectedProvider, selectedModel };
+		this.rawStore.set('assistantAi', next);
+		return cloneAssistantAiSettings(next);
+	}
+
 	private store: SettingsStore;
 
 	constructor() {
