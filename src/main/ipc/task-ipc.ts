@@ -7,7 +7,6 @@ import type { TaskExecutor } from '../task/task-executor';
 import type { TaskOptions, ActiveTask } from '../task/task-descriptor';
 import type { TaskAction, TaskInfo } from '../../shared/types';
 import { registerQuery, registerCommand, registerCommandWithEvent } from './ipc-gateway';
-import { TaskChannels } from '../../shared/channels';
 
 /** Strip non-serializable fields from ActiveTask for IPC transport. */
 function toTaskInfo(t: ActiveTask): TaskInfo {
@@ -55,7 +54,7 @@ export class TaskIpc implements IpcModule {
 		 * Submit a new task for background execution.
 		 * The windowId is stamped server-side from event.sender.id for security.
 		 */
-		registerCommandWithEvent(TaskChannels.submit, async (event, action: TaskAction) => {
+		registerCommandWithEvent('task:submit', async (event, action: TaskAction) => {
 			// Security: derive BrowserWindow.id from webContents (not event.sender.id,
 			// which is webContents.id — a different integer that EventBus.sendTo cannot resolve).
 			const senderWindow = BrowserWindow.fromWebContents(event.sender);
@@ -71,14 +70,14 @@ export class TaskIpc implements IpcModule {
 		/**
 		 * Cancel a running or queued task.
 		 */
-		registerCommand(TaskChannels.cancel, (taskId: string) => {
+		registerCommand('task:cancel', (taskId: string) => {
 			return executor.cancel(taskId);
 		});
 
 		/**
 		 * List all active tasks (queued + running).
 		 */
-		registerQuery(TaskChannels.list, () => {
+		registerQuery('task:list', () => {
 			return executor.listTasks().map(toTaskInfo);
 		});
 
