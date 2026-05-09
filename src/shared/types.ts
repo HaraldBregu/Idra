@@ -320,3 +320,18 @@ export interface ChannelStatusEvent {
 	error?: string;
 	timestamp: number;
 }
+export interface AssistantAiProvider {
+	id: string;
+	apiKey: string;
+}
+
+export interface AssistantAiSettings {
+	providers: AssistantAiProvider[];
+	selectedProvider: string;
+	selectedModel: string;
+}
+
+export interface AssistantAiSelection {
+	selectedProvider: string;
+	selectedModel: string;
+}
