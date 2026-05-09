@@ -29,7 +29,7 @@ const Page = (
     Page?: ComponentType<PageProps>
     default?: ComponentType<PageProps>
   }
-).default
+).default ?? (({ className, children }: PageProps) => <main className={className}>{children}</main>)
 
 const SETUP_STORAGE_KEY = 'friday:assistant-setup'
 
