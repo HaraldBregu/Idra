@@ -39,7 +39,9 @@ const ConfigPage: React.FC = () => {
 		let cancelled = false;
 
 		async function loadModels(): Promise<void> {
-			if (!selectedProvider) {
+			const provider = providers.find((item) => item.id === selectedProvider);
+
+			if (!provider) {
 				setModels([]);
 				setSelectedModel('');
 				return;
@@ -47,7 +49,7 @@ const ConfigPage: React.FC = () => {
 
 			setLoadingModels(true);
 			try {
-				const providerModels = await window.app.getModelsForProvider(selectedProvider);
+				const providerModels = await window.app.getModelsForProvider(provider);
 				if (cancelled) return;
 
 				setModels(providerModels);
@@ -64,7 +66,7 @@ const ConfigPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [selectedProvider]);
+	}, [providers, selectedProvider]);
 
 	function handleProviderChange(value: string | null): void {
 		const providerId = value ?? '';

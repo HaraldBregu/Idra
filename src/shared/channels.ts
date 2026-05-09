@@ -31,7 +31,7 @@ interface AppInvokeChannelMap {
 		result: import('./providers').Provider[];
 	};
 	[ProviderChannels.getModels]: {
-		args: [providerId: string];
+		args: [provider: import('./providers').Provider];
 		result: import('./service').Model[];
 	};
 }

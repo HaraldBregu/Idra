@@ -21,7 +21,7 @@ import type { Model } from '../shared/service';
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	getProviders: () => Promise<Provider[]>;
-	getModelsForProvider: (providerId: string) => Promise<Model[]>;
+	getModelsForProvider: (provider: Provider) => Promise<Model[]>;
 };
 
 declare global {

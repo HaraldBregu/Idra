@@ -8,6 +8,7 @@ import type { LoggerService } from '../logger';
 import type { ThemeService } from '../theme';
 import type { StoreService } from '../store';
 import type { Model } from '../../shared/service';
+import type { Provider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { ProviderChannels } from '../../shared/channels';
@@ -195,18 +196,18 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			ProviderChannels.getModels,
-			wrapSimpleHandler(async (providerId: string) => {
-				const provider = store.getProviderById(providerId);
-				if (!provider) {
-					throw new Error(`Provider not found: ${providerId}`);
+			wrapSimpleHandler(async (provider: Provider) => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
 				}
 
-				const apiKey = provider.apiKey.trim();
+				const apiKey = storedProvider.apiKey.trim();
 				if (!apiKey) {
-					throw new Error(`API key not configured for provider: ${provider.id}`);
+					throw new Error(`API key not configured for provider: ${storedProvider.id}`);
 				}
 
-				const normalizedProviderId = provider.id.trim().toLowerCase();
+				const normalizedProviderId = storedProvider.id.trim().toLowerCase();
 
 				if (normalizedProviderId === 'openai') {
 					return getOpenAiModels(apiKey);
@@ -216,7 +217,7 @@ export class AppIpc implements IpcModule {
 					return getAnthropicModels(apiKey);
 				}
 
-				throw new Error(`Unsupported provider id: ${provider.id}`);
+				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
 			}, ProviderChannels.getModels)
 		);
 
