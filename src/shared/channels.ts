@@ -1,6 +1,3 @@
-import type {
-} from './types';
-
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
