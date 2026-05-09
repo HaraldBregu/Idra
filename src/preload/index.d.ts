@@ -17,8 +17,11 @@ export interface AssistantApi {
 	setModel: (model: { id: string; name: string }) => Promise<void>;
 }
 
+import type { Provider } from '../shared/providers';
+
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
+	getProviders: () => Promise<Provider[]>;
 };
 
 declare global {
