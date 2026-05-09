@@ -1,5 +1,3 @@
-import os from "node:os";
-import path from "node:path";
 import { SetAnthropicKeyTool, SetAnthropicModelTool } from './anthropic';
 import {
 	GetChannelsTool,
@@ -21,11 +19,7 @@ import { WriteFileTool } from './write';
 import type { CronService } from '../../cron';
 import type { StoreService } from '../../store';
 import type { Tool } from './base';
-
-export function expandUser(p: string): string {
-  if (p.startsWith("~")) return path.join(os.homedir(), p.slice(1));
-  return p;
-}
+export { expandUser } from './path-utils';
 
 export function defaultTools(opts: { cron: CronService; store: StoreService }): Tool[] {
 	return [
