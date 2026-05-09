@@ -1,7 +1,7 @@
 import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import { WindowChannels } from '../shared/channels';
-import type { AssistantAiSelection } from '../shared/types';
+import type { AssistantAiSelection, AssistantAiSettings } from '../shared/types';
 import type { AppApi, WindowApi } from './index.d';
 
 // ---------------------------------------------------------------------------
