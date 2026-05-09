@@ -9,7 +9,19 @@ export const WindowChannels = {
 	popupMenu: 'window:popup-menu',
 } as const;
 
+export const AssistantChannels = {
+	send: 'assistant:send',
+	reset: 'assistant:reset',
+	response: 'assistant:response',
+} as const;
+
+export interface AssistantResponseEvent {
+	response: string;
+}
+
 interface AppInvokeChannelMap {
+	[AssistantChannels.send]: { args: [message: string]; result: string };
+	[AssistantChannels.reset]: { args: []; result: void };
 }
 
 interface WindowInvokeChannelMap {
@@ -30,5 +42,6 @@ export interface SendChannelMap {
 export interface EventChannelMap {
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
+	[AssistantChannels.response]: { data: AssistantResponseEvent };
 }
 
