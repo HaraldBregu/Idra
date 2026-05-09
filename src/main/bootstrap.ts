@@ -28,7 +28,7 @@ import { TaskReactionRegistry } from './task/task-reaction-registry';
 import { TaskReactionBus } from './task/task-reaction-bus';
 import { ServiceResolver } from './shared/service-resolver';
 import { ModelResolver } from './shared/model-resolver';
-import { AssistantRegistry, AssistantService, DEFAULT_ASSISTANT_ID } from './assistant';
+import { AssistantService, DEFAULT_ASSISTANT_ID } from './assistant';
 import { ChannelRegistry } from './channels';
 import {
 	ContentWriterTaskHandler,
@@ -108,13 +108,13 @@ export function bootstrapServices(): BootstrapResult {
 	// Assistant facade -- conversational OpenAI assistants. One default
 	// assistant ('main') is registered eagerly so window.app.assistant.send works
 	// without any renderer-side init.
-	const assistantRegistry = new AssistantRegistry();
-	const assistant = new AssistantService(
-		{ store: storeService, cron: cronService },
-		{ defaultAssistantId: DEFAULT_ASSISTANT_ID, registry: assistantRegistry }
+	const assistant = container.register(
+		'assistant',
+		new AssistantService(
+			{ store: storeService, cron: cronService },
+			{ defaultAssistantId: DEFAULT_ASSISTANT_ID }
+		)
 	);
-	container.register('assistant', assistant);
-	container.register('assistantRegistry', assistantRegistry);
 
 	// Channel registry -- messaging adapters (Telegram, WhatsApp). Adapters are
 	// instantiated lazily from store.channels and started after app is ready.
