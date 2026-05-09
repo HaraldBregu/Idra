@@ -13,8 +13,6 @@ export interface AssistantApi {
 	send: (message: string) => Promise<string>;
 	reset: () => Promise<void>;
 	onResponse: (callback: (event: { response: string }) => void) => () => void;
-	setProvider: (provider: { id: string; name: string; baseURL: string }) => Promise<void>;
-	setModel: (model: { id: string; name: string }) => Promise<void>;
 }
 
 import type { Provider } from '../shared/providers';

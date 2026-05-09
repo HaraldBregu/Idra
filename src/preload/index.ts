@@ -38,12 +38,6 @@ export const assistant: AssistantApi = {
 	onResponse: (callback: (event: { response: string }) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
 	},
-	setProvider: (provider: { id: string; name: string; baseURL: string }): Promise<void> => {
-		return typedInvokeUnwrap(AssistantChannels.setProvider, provider);
-	},
-	setModel: (model: { id: string; name: string }): Promise<void> => {
-		return typedInvokeUnwrap(AssistantChannels.setModel, model);
-	},
 } satisfies AssistantApi;
 
 export const app: AppApi = {
