@@ -40,23 +40,6 @@ const StartPage: React.FC = () => {
 				<p className="text-base text-muted-foreground">Set up your workspace to begin.</p>
 				<div className="mx-auto w-full max-w-sm space-y-4 text-left">
 					<div className="space-y-2">
-						<label className="text-sm font-medium text-foreground" htmlFor="api-key">
-							API Key
-						</label>
-						<Input
-							autoComplete="off"
-							className="h-10"
-							id="api-key"
-							onChange={(event) => {
-								setApiKey(event.target.value);
-							}}
-							placeholder="Enter API key"
-							spellCheck={false}
-							type="password"
-							value={apiKey}
-						/>
-					</div>
-					<div className="space-y-2">
 						<label className="text-sm font-medium text-foreground" htmlFor="provider-select">
 							Provider
 						</label>
@@ -78,6 +61,23 @@ const StartPage: React.FC = () => {
 								))}
 							</SelectContent>
 						</Select>
+					</div>
+					<div className="space-y-2">
+						<label className="text-sm font-medium text-foreground" htmlFor="api-key">
+							API Key
+						</label>
+						<Input
+							autoComplete="off"
+							className="h-10"
+							id="api-key"
+							onChange={(event) => {
+								setApiKey(event.target.value);
+							}}
+							placeholder="Enter API key"
+							spellCheck={false}
+							type="password"
+							value={apiKey}
+						/>
 					</div>
 				</div>
 			</section>
