@@ -118,12 +118,13 @@ describe('AssistantService', () => {
 			expect(service.get().id).toBe(DEFAULT_ASSISTANT_ID);
 		});
 
-		it('forwards store and cron dependencies to the Assistant constructor', () => {
+		it('forwards store, cron and logger dependencies to the Assistant constructor', () => {
 			new AssistantService(deps);
 
-			const [, receivedStore, receivedCron] = MockAssistant.mock.calls[0];
+			const [, receivedStore, receivedCron, receivedLogger] = MockAssistant.mock.calls[0];
 			expect(receivedStore).toBe(stubStore);
 			expect(receivedCron).toBe(stubCron);
+			expect(receivedLogger).toBe(stubLogger);
 		});
 	});
 
