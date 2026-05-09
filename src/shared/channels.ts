@@ -1,5 +1,4 @@
 import type {
-	AgentSettings,
 	ThemeMode,
 	CustomThemeInfo,
 	CronJobInfo,
