@@ -245,3 +245,4 @@ export interface EventChannelMap {
 	[AppChannels.openCronDialog]: { data: undefined };
 	[AssistantChannels.response]: { data: AssistantResponseEvent };
 }
+import type { AssistantAiSelection, AssistantAiSettings } from './types';
