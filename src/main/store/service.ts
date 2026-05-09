@@ -87,6 +87,14 @@ export class StoreService {
 
 		const next = { ...settings, providers };
 		this.rawStore.set('assistantAi', next);
+		this.rawStore.set(
+			'providers',
+			providers.map((provider) => ({
+				id: provider.id,
+				name: PROVIDERS.find((entry) => entry.id === provider.id)?.name ?? provider.id,
+				apiKey: provider.apiKey,
+			}))
+		);
 		return cloneAssistantAiSettings(next);
 	}
 
