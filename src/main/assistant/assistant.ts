@@ -3,18 +3,14 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import { MemoryManager, buildSystemPrompt } from './memory';
 import { SessionManager } from './session';
 import { runAgent } from './loop';
-import type { Tool } from './tools';
+import { defaultTools, type Tool } from './tools';
+import type { CronService } from '../cron';
+import type { StoreService } from '../store';
 
 const MAX_ITERATIONS = 20;
 
 export interface AssistantOptions {
 	id: string;
-}
-
-export interface AssistantDependencies {
-	getApiKey: () => string | undefined;
-	getModel: () => string | undefined;
-	tools: Tool[];
 }
 
 /**
@@ -28,21 +24,19 @@ export class Assistant {
 	readonly memory: MemoryManager;
 	readonly session: SessionManager;
 	private readonly tools: Tool[];
-	private readonly getApiKey: () => string | undefined;
-	private readonly getModel: () => string | undefined;
+	private readonly store: StoreService;
 	private history: ChatCompletionMessageParam[] = [];
 	private cachedKey: string | null = null;
 	private cachedClient: OpenAI | null = null;
 	private initialized = false;
 	private initPromise: Promise<void> | null = null;
 
-	constructor(opts: AssistantOptions, deps: AssistantDependencies) {
+	constructor(opts: AssistantOptions, store: StoreService, cron?: CronService) {
 		this.id = opts.id;
-		this.getApiKey = deps.getApiKey;
-		this.getModel = deps.getModel;
+		this.store = store;
 		this.memory = new MemoryManager(opts.id);
 		this.session = new SessionManager(`assistant:${opts.id}`);
-		this.tools = deps.tools;
+		this.tools = defaultTools({ cron, store });
 	}
 
 	async init(): Promise<void> {
@@ -58,7 +52,7 @@ export class Assistant {
 	}
 
 	private client(): OpenAI {
-		const key = this.getApiKey();
+		const key = this.apiKey();
 		if (!key) {
 			throw new Error('OpenAI API key not configured. Add an OpenAI provider in Settings.');
 		}
@@ -69,8 +63,22 @@ export class Assistant {
 		return this.cachedClient!;
 	}
 
+	private apiKey(): string | undefined {
+		const ref = this.store.getAssistantService().llm;
+		const resolved = this.store.resolveProviderRef(ref);
+		if (resolved?.provider.apiKey) return resolved.provider.apiKey;
+		return this.store.findProvider('openai')?.apiKey;
+	}
+
 	private currentModel(): string {
-		const model = (this.getModel() ?? '').trim();
+		const ref = this.store.getAssistantService().llm;
+		const resolved = this.store.resolveProviderRef(ref);
+		const model = (
+			ref.model ||
+			resolved?.model ||
+			this.store.findProvider('openai')?.defaultModel ||
+			''
+		).trim();
 		if (!model) {
 			throw new Error('Assistant model not configured. Select a model in Settings.');
 		}
