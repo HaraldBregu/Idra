@@ -1,19 +1,14 @@
 import React, {
 	createContext,
-	useCallback,
 	useEffect,
 	useMemo,
-	useState,
 	type ReactNode,
 } from 'react';
-import { DEFAULT_THEME_MODE, isThemeMode, ThemeMode } from '../../../shared';
+import { ThemeMode } from '../../../shared';
 
-const THEME_STORAGE_KEY = 'app-theme-mode';
-const LANGUAGE_STORAGE_KEY = 'app-language';
 const DARK_CLASS = 'dark';
 
 export type AppLanguage = 'en' | 'it';
-export type SidebarState = 'expanded' | 'collapsed';
 
 export interface AppState {
 	theme: ThemeMode;
@@ -44,29 +39,7 @@ interface AppProviderProps {
 
 
 export function AppProvider({ children, initialState }: AppProviderProps): React.JSX.Element {
-	const [theme, setThemeState] = useState<ThemeMode>(initialState?.theme ?? readPersistedTheme());
-	const [language, setLanguageState] = useState<AppLanguage>(
-		initialState?.language ?? readPersistedLanguage()
-	);
-	const [tasksOpen, setTasksOpen] = useState(false);
-	const [logOpen, setLogOpen] = useState(false);
-	const [cronOpen, setCronOpen] = useState(false);
 
-	const setTheme = useCallback((next: ThemeMode) => setThemeState(next), []);
-	const setLanguage = useCallback((next: AppLanguage) => setLanguageState(next), []);
-	const openTasksDialog = useCallback(() => setTasksOpen(true), []);
-	const openLogDialog = useCallback(() => setLogOpen(true), []);
-	const openCronDialog = useCallback(() => setCronOpen(true), []);
-
-	useEffect(() => {
-		applyThemeClass(theme);
-		try {
-			localStorage.setItem(THEME_STORAGE_KEY, theme);
-		} catch {
-			/* empty */
-		}
-		window.app?.setTheme(theme);
-	}, [theme]);
 
 	useEffect(() => {
 		if (theme !== 'system') return;

@@ -9,7 +9,7 @@ import {
 	PageSidebar,
 	PageSidebarInset,
 } from '@/components/app/base/page';
-import { useLanguageMode } from '@/hooks/use-language-mode';
+import { useApp } from '@/contexts';
 import { Button } from '@/components/ui/Button';
 
 type SettingsPath =
@@ -56,7 +56,7 @@ function NavItem({ to, label, badge }: NavItemProps): React.JSX.Element {
 
 export function Layout(): React.JSX.Element {
 	const { t } = useTranslation();
-	useLanguageMode();
+	useApp();
 
 	return (
 		<PageContainer>
