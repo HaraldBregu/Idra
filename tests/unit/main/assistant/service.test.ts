@@ -53,7 +53,13 @@ const mockReset = MockAssistant._mockReset;
 
 const stubStore = {} as unknown as StoreService;
 const stubCron = {} as unknown as CronService;
-const deps = { store: stubStore, cron: stubCron };
+const stubLogger = {
+	debug: jest.fn(),
+	info: jest.fn(),
+	warn: jest.fn(),
+	error: jest.fn(),
+} as unknown as LoggerService;
+const deps = { store: stubStore, cron: stubCron, logger: stubLogger };
 
 // ---------------------------------------------------------------------------
 // Tests
