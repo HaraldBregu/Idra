@@ -6,7 +6,7 @@ import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
 import { useTranslation } from 'react-i18next';
 
-const SplashPage = lazy(() => import('./pages/splash/SplashPage'));
+const SetupPage = lazy(() => import('./pages/setup/SetupPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
@@ -48,7 +48,7 @@ const routes: RouteObject[] = [
 				index: true,
 				element: (
 					<RouteWrapper>
-						<SplashPage />
+						<SetupPage />
 					</RouteWrapper>
 				),
 			},
