@@ -62,7 +62,6 @@ interface AppInvokeChannelMap {
 		args: [phoneNumber: string];
 		result: string;
 	};
-	'app:import-theme': { args: []; result: CustomThemeInfo | null };
 	'app:get-custom-theme-tokens': { args: [id: string]; result: Theme | null };
 	'app:delete-theme': { args: [id: string]; result: void };
 	'app:open-system-accessibility': { args: []; result: void };
