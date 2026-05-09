@@ -156,6 +156,31 @@ export class AppIpc implements IpcModule {
 		// -----------------------------------------------------------------------
 
 		ipcMain.handle(
+			AppChannels.getAssistantAiSettings,
+			wrapSimpleHandler(
+				() => store.getAssistantAiSettings(),
+				AppChannels.getAssistantAiSettings
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.setAssistantAiProviderApiKey,
+			wrapSimpleHandler(
+				(providerId: string, apiKey: string) =>
+					store.setAssistantAiProviderApiKey(providerId, apiKey),
+				AppChannels.setAssistantAiProviderApiKey
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.setAssistantAiSelection,
+			wrapSimpleHandler(
+				(selection: AssistantAiSelection) => store.setAssistantAiSelection(selection),
+				AppChannels.setAssistantAiSelection
+			)
+		);
+
+		ipcMain.handle(
 			AppChannels.getProviders,
 			wrapSimpleHandler(() => store.getProviders(), AppChannels.getProviders)
 		);
