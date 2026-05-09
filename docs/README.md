@@ -1,8 +1,9 @@
 # Friday Docs
 
-Internals docs for Friday Electron app.
+Documentation for Friday — personal AI assistant desktop app built on Electron.
 
-## Layout
+## Sections
 
-- [main/](./main/README.md) — main process modules
-  - [main/assistant/](./main/assistant/README.md) — conversational assistant (memory + sessions + tools)
+- [main/](./main/README.md) — main process
+
+More sections added as we document them.
