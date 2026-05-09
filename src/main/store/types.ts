@@ -80,18 +80,7 @@ export interface LegacyBlob {
 
 export const STORE_SCHEMA_VERSION = 1;
 
-export interface StoreSchema {
-	schemaVersion: number;
-	providers: Record<string, Provider>;
-	services: ServicesMap;
-	channel: Channel | null;
-	profile: UserProfile | null;
-	_legacy?: LegacyBlob;
-	// --- legacy keys retained in type only so untyped reads in the migrator
-	//     stay narrow. Migration deletes them on first run.
-	assistantAi?: AssistantAiSettings;
-	assistantConfiguration?: AssistantConfiguration;
-}
+export interface StoreSchema {}
 
 export const DEFAULT_ASSISTANT_SERVICE: AssistantService = {
 	enabled: false,
