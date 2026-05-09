@@ -145,8 +145,6 @@ export interface InvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	[AppChannels.getProviders]: { args: []; result: ProviderEntry[] };
-	[AppChannels.addProvider]: { args: [provider: ProviderEntry]; result: ProviderEntry };
 	[AppChannels.deleteProvider]: { args: [id: string]; result: void };
 	[AppChannels.getAgents]: { args: []; result: AgentSettings[] };
 	[AppChannels.updateAgent]: { args: [agent: AgentSettings]; result: AgentSettings };
