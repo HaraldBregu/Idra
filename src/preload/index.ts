@@ -45,13 +45,13 @@ export const app: AppApi = {
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
-	getProviders: (): Promise<Provider[]> => {
+	getProviders: (): Promise<PublicProvider[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getAll);
 	},
-	getModels: (provider: Provider): Promise<Model[]> => {
+	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
-	saveAssistantService: (provider: Provider, model: Model): Promise<boolean> => {
+	saveAssistantService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(ProviderChannels.saveAssistantService, provider, model);
 	},
 };
