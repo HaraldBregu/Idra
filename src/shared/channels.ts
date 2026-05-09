@@ -27,6 +27,10 @@ interface AppInvokeChannelMap {
 		args: [providerId: string, apikey: string];
 		result: void;
 	};
+	[ProviderChannels.getAll]: {
+		args: [];
+		result: import('./providers').Provider[];
+	};
 }
 
 interface AssistantInvokeChannelMap {
