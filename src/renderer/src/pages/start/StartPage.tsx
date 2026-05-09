@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DEFAULT_PROVIDERS, type Provider } from '../../../../shared/providers';
+import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
 	Select,
@@ -31,6 +32,7 @@ const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 const StartPage: React.FC = () => {
 	const [apiKey, setApiKey] = useState('');
 	const [selectedProvider, setSelectedProvider] = useState(providerOptions[0]?.value ?? '');
+	const canSave = selectedProvider.length > 0 && apiKey.trim().length > 0;
 
 	return (
 		<main className="flex h-full min-h-0 items-center justify-center bg-background px-6">
@@ -79,6 +81,9 @@ const StartPage: React.FC = () => {
 							value={apiKey}
 						/>
 					</div>
+					<Button className="h-10 w-full" disabled={!canSave} type="button">
+						Save
+					</Button>
 				</div>
 			</section>
 		</main>
