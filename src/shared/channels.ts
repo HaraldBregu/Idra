@@ -56,6 +56,6 @@ export interface SendChannelMap {
 export interface EventChannelMap {
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
-	[AssistantChannels.response]: { data: AssistantResponseEvent };
+	[AssistantChannels.response]: { data: { response: string } };
 }
 
