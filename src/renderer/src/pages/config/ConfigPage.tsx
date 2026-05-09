@@ -142,6 +142,13 @@ const ConfigPage: React.FC = () => {
 							</SelectContent>
 						</Select>
 					</div>
+					<Button
+						className="w-full"
+						onClick={handleSave}
+						disabled={saving || !selectedProvider || !selectedModel}
+					>
+						{saving ? 'Saving…' : 'Save'}
+					</Button>
 				</div>
 			</section>
 		</main>

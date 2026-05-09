@@ -8,7 +8,7 @@ import type { LoggerService } from '../logger';
 import type { ThemeService } from '../theme';
 import type { StoreService } from '../store';
 import type { Model } from '../../shared/service';
-import type { Provider } from '../../shared/providers';
+import type { Provider, PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { ProviderChannels } from '../../shared/channels';
