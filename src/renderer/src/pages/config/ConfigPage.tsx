@@ -49,7 +49,7 @@ const ConfigPage: React.FC = () => {
 
 			setLoadingModels(true);
 			try {
-				const providerModels = await window.app.getModelsForProvider(provider);
+				const providerModels = await window.app.getModels(provider);
 				if (cancelled) return;
 
 				setModels(providerModels);
