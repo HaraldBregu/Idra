@@ -11,7 +11,6 @@ import type { CronService } from '../cron';
 import type { ChannelRegistry } from '../channels';
 import { StoreValidators } from '../shared/validators';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import { AppChannels } from '../../shared/channels';
 import { isThemeMode } from '../../shared/theme';
 import type {
 	AgentSettings,
@@ -121,7 +120,7 @@ export class AppIpc implements IpcModule {
 		const logger = container.get<LoggerService>('logger');
 
 		// Language handler
-		ipcMain.on(AppChannels.setLanguage, (event, language: string) => {
+		ipcMain.on('set-language', (event, language: string) => {
 			if (!VALID_LANGUAGES.includes(language as (typeof VALID_LANGUAGES)[number])) return;
 			if (this.lastLanguage === language) return;
 			this.lastLanguage = language;
@@ -129,13 +128,13 @@ export class AppIpc implements IpcModule {
 			const senderContents = event.sender;
 			BrowserWindow.getAllWindows().forEach((win) => {
 				if (!win.isDestroyed() && win.webContents !== senderContents) {
-					win.webContents.send(AppChannels.changeLanguage, language);
+					win.webContents.send('change-language', language);
 				}
 			});
 		});
 
 		// Theme handler
-		ipcMain.on(AppChannels.setTheme, (event, theme: string) => {
+		ipcMain.on('set-theme', (event, theme: string) => {
 			if (!isThemeMode(theme)) return;
 			if (this.lastTheme === theme) return;
 			this.lastTheme = theme;
@@ -146,7 +145,7 @@ export class AppIpc implements IpcModule {
 			const senderContents = event.sender;
 			BrowserWindow.getAllWindows().forEach((win) => {
 				if (!win.isDestroyed() && win.webContents !== senderContents) {
-					win.webContents.send(AppChannels.changeTheme, theme);
+					win.webContents.send('change-theme', theme);
 				}
 			});
 		});
@@ -156,96 +155,96 @@ export class AppIpc implements IpcModule {
 		// -----------------------------------------------------------------------
 
 		ipcMain.handle(
-			AppChannels.getAssistantAiSettings,
+			'app:get-assistant-ai-settings',
 			wrapSimpleHandler(
 				() => store.getAssistantAiSettings(),
-				AppChannels.getAssistantAiSettings
+				'app:get-assistant-ai-settings'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.setAssistantAiProviderApiKey,
+			'app:set-assistant-ai-provider-api-key',
 			wrapSimpleHandler(
 				(providerId: string, apiKey: string) =>
 					store.setAssistantAiProviderApiKey(providerId, apiKey),
-				AppChannels.setAssistantAiProviderApiKey
+				'app:set-assistant-ai-provider-api-key'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.setAssistantAiSelection,
+			'app:set-assistant-ai-selection',
 			wrapSimpleHandler(
 				(selection: AssistantAiSelection) => store.setAssistantAiSelection(selection),
-				AppChannels.setAssistantAiSelection
+				'app:set-assistant-ai-selection'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.getProviders,
-			wrapSimpleHandler(() => store.getProviders(), AppChannels.getProviders)
+			'app:get-providers',
+			wrapSimpleHandler(() => store.getProviders(), 'app:get-providers')
 		);
 
 		ipcMain.handle(
-			AppChannels.addProvider,
+			'app:add-provider',
 			wrapSimpleHandler((provider: ProviderEntry) => {
 				StoreValidators.validateProvider(provider);
 				return store.addProvider(provider);
-			}, AppChannels.addProvider)
+			}, 'app:add-provider')
 		);
 
 		ipcMain.handle(
-			AppChannels.deleteProvider,
+			'app:delete-provider',
 			wrapSimpleHandler((id: string) => {
 				StoreValidators.validateProviderId(id);
 				return store.deleteProvider(id);
-			}, AppChannels.deleteProvider)
+			}, 'app:delete-provider')
 		);
 
 		ipcMain.handle(
-			AppChannels.getAgents,
-			wrapSimpleHandler(() => Array.from(this.agents.values()), AppChannels.getAgents)
+			'app:get-agents',
+			wrapSimpleHandler(() => Array.from(this.agents.values()), 'app:get-agents')
 		);
 
 		ipcMain.handle(
-			AppChannels.updateAgent,
+			'app:update-agent',
 			wrapSimpleHandler((agent: AgentSettings) => {
 				StoreValidators.validateAgentSettings(agent);
 				this.agents.set(agent.id, agent);
 				return agent;
-			}, AppChannels.updateAgent)
+			}, 'app:update-agent')
 		);
 
 		ipcMain.handle(
-			AppChannels.getStartupInfo,
-			wrapSimpleHandler(() => store.getStartupInfo(), AppChannels.getStartupInfo)
+			'app:get-startup-info',
+			wrapSimpleHandler(() => store.getStartupInfo(), 'app:get-startup-info')
 		);
 
 		ipcMain.handle(
-			AppChannels.getProfile,
-			wrapSimpleHandler(() => store.getProfile(), AppChannels.getProfile)
+			'app:get-profile',
+			wrapSimpleHandler(() => store.getProfile(), 'app:get-profile')
 		);
 
 		ipcMain.handle(
-			AppChannels.setProfile,
+			'app:set-profile',
 			wrapSimpleHandler(
 				(profile: UserProfile) => store.setProfile(profile),
-				AppChannels.setProfile
+				'app:set-profile'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.completeFirstRunConfiguration,
+			'app:complete-first-run-configuration',
 			wrapSimpleHandler((profile: UserProfile, providers: ProviderEntry[]) => {
 				StoreValidators.validateProviders(providers);
 				return store.completeFirstRunConfiguration(profile, providers);
-			}, AppChannels.completeFirstRunConfiguration)
+			}, 'app:complete-first-run-configuration')
 		);
 
 		ipcMain.handle(
-			AppChannels.getModels,
+			'app:get-models',
 			wrapSimpleHandler(
 				(providerId: string) => fetchProviderModels(providerId, store),
-				AppChannels.getModels
+				'app:get-models'
 			)
 		);
 
@@ -254,12 +253,12 @@ export class AppIpc implements IpcModule {
 		// -----------------------------------------------------------------------
 
 		ipcMain.handle(
-			AppChannels.getChannel,
-			wrapSimpleHandler(() => store.getChannel(), AppChannels.getChannel)
+			'app:get-channel',
+			wrapSimpleHandler(() => store.getChannel(), 'app:get-channel')
 		);
 
 		ipcMain.handle(
-			AppChannels.setChannelProperties,
+			'app:set-channel-properties',
 			wrapSimpleHandler(
 				(
 					type: ChannelType,
@@ -268,56 +267,56 @@ export class AppIpc implements IpcModule {
 						| WhatsappChannelProperties
 						| DiscordChannelProperties
 				) => store.setChannelProperties(type, properties),
-				AppChannels.setChannelProperties
+				'app:set-channel-properties'
 			)
 		);
 
 		const channelRegistry = container.get<ChannelRegistry>('channelRegistry');
 
 		ipcMain.handle(
-			AppChannels.getChannelStatus,
-			wrapSimpleHandler(() => channelRegistry.getStatus(), AppChannels.getChannelStatus)
+			'app:get-channel-status',
+			wrapSimpleHandler(() => channelRegistry.getStatus(), 'app:get-channel-status')
 		);
 
 		ipcMain.handle(
-			AppChannels.restartChannel,
+			'app:restart-channel',
 			wrapSimpleHandler(
 				(type: ChannelType) => channelRegistry.restart(type),
-				AppChannels.restartChannel
+				'app:restart-channel'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.requestWhatsappPairingCode,
+			'app:request-whatsapp-pairing-code',
 			wrapSimpleHandler(
 				(phoneNumber: string) => channelRegistry.requestWhatsappPairingCode(phoneNumber),
-				AppChannels.requestWhatsappPairingCode
+				'app:request-whatsapp-pairing-code'
 			)
 		);
 
 		// Recent in-memory logs
 		ipcMain.handle(
-			AppChannels.getLogs,
-			wrapSimpleHandler((limit?: number) => logger.getRecentLogs(limit), AppChannels.getLogs)
+			'app:get-logs',
+			wrapSimpleHandler((limit?: number) => logger.getRecentLogs(limit), 'app:get-logs')
 		);
 
 		// Open logs folder in system file explorer
 		ipcMain.handle(
-			AppChannels.openLogsFolder,
+			'app:open-logs-folder',
 			wrapSimpleHandler(async () => {
 				const logsDir = logger.getLogDirectory();
 				if (logsDir) {
 					await shell.openPath(logsDir);
 				}
-			}, AppChannels.openLogsFolder)
+			}, 'app:open-logs-folder')
 		);
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(
-			AppChannels.openAppDataFolder,
+			'app:open-app-data-folder',
 			wrapSimpleHandler(async () => {
 				await shell.openPath(app.getPath('userData'));
-			}, AppChannels.openAppDataFolder)
+			}, 'app:open-app-data-folder')
 		);
 
 		// -----------------------------------------------------------------------
@@ -327,33 +326,33 @@ export class AppIpc implements IpcModule {
 		const themeService = container.get<ThemeService>('themeService');
 
 		ipcMain.handle(
-			AppChannels.getCustomThemes,
-			wrapSimpleHandler(() => themeService.listThemes(), AppChannels.getCustomThemes)
+			'app:get-custom-themes',
+			wrapSimpleHandler(() => themeService.listThemes(), 'app:get-custom-themes')
 		);
 
 		ipcMain.handle(
-			AppChannels.openThemesFolder,
+			'app:open-themes-folder',
 			wrapSimpleHandler(async () => {
 				const themesDir = themeService.getThemesDirectory();
 				await shell.openPath(themesDir);
-			}, AppChannels.openThemesFolder)
+			}, 'app:open-themes-folder')
 		);
 
 		ipcMain.handle(
-			AppChannels.getCustomThemeTokens,
+			'app:get-custom-theme-tokens',
 			wrapSimpleHandler(
 				(id: string) => themeService.getThemeById(id),
-				AppChannels.getCustomThemeTokens
+				'app:get-custom-theme-tokens'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.deleteTheme,
-			wrapSimpleHandler((id: string) => themeService.deleteTheme(id), AppChannels.deleteTheme)
+			'app:delete-theme',
+			wrapSimpleHandler((id: string) => themeService.deleteTheme(id), 'app:delete-theme')
 		);
 
 		ipcMain.handle(
-			AppChannels.importTheme,
+			'app:import-theme',
 			wrapSimpleHandler(async () => {
 				const result = await dialog.showOpenDialog({
 					properties: ['openDirectory'],
@@ -364,7 +363,7 @@ export class AppIpc implements IpcModule {
 					return null;
 				}
 				return themeService.importThemeFromPath(result.filePaths[0]);
-			}, AppChannels.importTheme)
+			}, 'app:import-theme')
 		);
 
 		// -----------------------------------------------------------------------
@@ -372,25 +371,25 @@ export class AppIpc implements IpcModule {
 		// -----------------------------------------------------------------------
 
 		ipcMain.handle(
-			AppChannels.openSystemAccessibility,
+			'app:open-system-accessibility',
 			wrapSimpleHandler(async () => {
 				if (process.platform === 'darwin') {
 					await shell.openExternal(
 						'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'
 					);
 				}
-			}, AppChannels.openSystemAccessibility)
+			}, 'app:open-system-accessibility')
 		);
 
 		ipcMain.handle(
-			AppChannels.openSystemScreenRecording,
+			'app:open-system-screen-recording',
 			wrapSimpleHandler(async () => {
 				if (process.platform === 'darwin') {
 					await shell.openExternal(
 						'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'
 					);
 				}
-			}, AppChannels.openSystemScreenRecording)
+			}, 'app:open-system-screen-recording')
 		);
 
 		// -----------------------------------------------------------------------
@@ -398,18 +397,18 @@ export class AppIpc implements IpcModule {
 		// -----------------------------------------------------------------------
 
 		ipcMain.handle(
-			AppChannels.setTrayEnabled,
+			'app:set-tray-enabled',
 			wrapSimpleHandler((enabled: boolean) => {
 				this.trayEnabled = enabled;
 				eventBus.emit('tray:set-enabled', { enabled });
-			}, AppChannels.setTrayEnabled)
+			}, 'app:set-tray-enabled')
 		);
 
 		ipcMain.handle(
-			AppChannels.getTrayEnabled,
+			'app:get-tray-enabled',
 			wrapSimpleHandler(() => {
 				return this.trayEnabled;
-			}, AppChannels.getTrayEnabled)
+			}, 'app:get-tray-enabled')
 		);
 
 		// -----------------------------------------------------------------------
@@ -422,13 +421,13 @@ export class AppIpc implements IpcModule {
 			const event: CronTickEvent = { id, firedAt: new Date().toISOString() };
 			BrowserWindow.getAllWindows().forEach((win) => {
 				if (!win.isDestroyed()) {
-					win.webContents.send(AppChannels.cronTick, event);
+					win.webContents.send('app:cron-tick', event);
 				}
 			});
 		};
 
 		ipcMain.handle(
-			AppChannels.cronSchedule,
+			'app:cron-schedule',
 			wrapSimpleHandler(
 				(params: {
 					id: string;
@@ -450,18 +449,18 @@ export class AppIpc implements IpcModule {
 					);
 					return { id: params.id, expression: params.expression };
 				},
-				AppChannels.cronSchedule
+				'app:cron-schedule'
 			)
 		);
 
 		ipcMain.handle(
-			AppChannels.cronUnschedule,
-			wrapSimpleHandler((id: string) => cronService.unschedule(id), AppChannels.cronUnschedule)
+			'app:cron-unschedule',
+			wrapSimpleHandler((id: string) => cronService.unschedule(id), 'app:cron-unschedule')
 		);
 
 		ipcMain.handle(
-			AppChannels.cronListJobs,
-			wrapSimpleHandler(() => cronService.listJobs(), AppChannels.cronListJobs)
+			'app:cron-list-jobs',
+			wrapSimpleHandler(() => cronService.listJobs(), 'app:cron-list-jobs')
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);
