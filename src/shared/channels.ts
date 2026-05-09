@@ -10,7 +10,6 @@ export const WindowChannels = {
 } as const;
 
 interface AppInvokeChannelMap {
-	// ---- App / Provider management (IpcResult-wrapped) ----
 }
 
 interface WindowInvokeChannelMap {

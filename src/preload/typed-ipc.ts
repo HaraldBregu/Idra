@@ -40,13 +40,16 @@ export function typedInvoke<C extends keyof InvokeChannelMap>(
  * Invoke an IPC channel that returns IpcResult<T>.
  * Unwraps to T on success, or throws an Error with the IpcError message.
  */
-export async function typedInvokeUnwrap<C extends keyof InvokeChannelMap>(
+export function typedInvokeUnwrap<C extends keyof InvokeChannelMap>(
 	channel: C,
 	...args: InvokeChannelMap[C]['args']
-): Promise<InvokeChannelMap[C]['result']> {
-	const result = (await ipcRenderer.invoke(channel, ...args)) as IpcResult<
-		InvokeChannelMap[C]['result']
-	>;
+): Promise<InvokeChannelMap[C]['result']>;
+export function typedInvokeUnwrap<TResult = unknown>(
+	channel: string,
+	...args: unknown[]
+): Promise<TResult>;
+export async function typedInvokeUnwrap(channel: string, ...args: unknown[]): Promise<unknown> {
+	const result = (await ipcRenderer.invoke(channel, ...args)) as IpcResult<unknown>;
 	if (!result.success) {
 		throw new Error(result.error.message);
 	}
