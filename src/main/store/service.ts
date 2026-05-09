@@ -12,7 +12,7 @@ export class StoreService {
 		}) as unknown as SettingsStore;
 	}
 
-	getProviderById(id: Provider['id']): Provider | undefined {
+	getProviderById(id: string): Provider | undefined {
 		return (this.store.get('providers') ?? []).find((p) => p.id === id);
 	}
 }
