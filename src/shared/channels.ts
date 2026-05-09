@@ -1,5 +1,4 @@
 import type {
-	TelegramChannelProperties,
 	WhatsappChannelProperties,
 	DiscordChannelProperties,
 	AssistantAiSelection,
