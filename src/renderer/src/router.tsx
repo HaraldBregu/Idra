@@ -17,7 +17,6 @@ const ThemesPage = lazy(() => import('./pages/settings/pages/ThemesPage'));
 const EditorPage = lazy(() => import('./pages/settings/pages/EditorPage'));
 const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'));
 const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
-const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
@@ -133,14 +132,6 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<AgentsPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'providers',
-						element: (
-							<RouteWrapper>
-								<ProvidersPage />
 							</RouteWrapper>
 						),
 					},

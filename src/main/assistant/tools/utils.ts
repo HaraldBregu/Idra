@@ -1,3 +1,5 @@
+import os from 'node:os';
+import path from 'node:path';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 import { ExecTool } from './exec';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
@@ -11,7 +13,11 @@ import { WriteFileTool } from './write';
 import type { CronService } from '../../cron';
 import type { StoreService } from '../../store';
 import type { Tool } from './base';
-export { expandUser } from './path-utils';
+
+export function expandUser(p: string): string {
+	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
+	return p;
+}
 
 export function defaultTools(opts: { cron: CronService; store: StoreService }): Tool[] {
 	return [
