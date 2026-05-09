@@ -178,7 +178,8 @@
       "Bash(dir \"C:\\\\Users\\\\BRGHLD87H\\\\Documents\\\\Friday\\\\src\\\\renderer\\\\src\\\\store\\\\workspace\" /B)",
       "Bash(findstr /N \"updateProjectName updateProjectDescription updateEditor\" \"C:\\\\Users\\\\BRGHLD87H\\\\Documents\\\\Friday\\\\src\\\\main\\\\ipc\\\\workspace-ipc.ts\" \"C:\\\\Users\\\\BRGHLD87H\\\\Documents\\\\Friday\\\\src\\\\preload\\\\index.ts\" \"C:\\\\Users\\\\BRGHLD87H\\\\Documents\\\\Friday\\\\src\\\\shared\\\\channels.ts\")",
       "Bash(findstr /R \"typecheck dev build lint\")",
-      "Bash(findstr /R \"Layout\\\\.tsx error error TS\")"
+      "Bash(findstr /R \"Layout\\\\.tsx error error TS\")",
+      "Bash(node *)"
     ],
     "deny": [
       "Bash(git push --force:*)",

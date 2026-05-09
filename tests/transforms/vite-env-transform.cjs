@@ -8,26 +8,26 @@
  *
  *   import.meta.env.FOO   →  (globalThis.__VITE_ENV__ || {}).FOO
  *   import.meta.env       →  (globalThis.__VITE_ENV__ || {})
- *   import.meta.glob(…)   →  {}   (returns empty record; tests mock the module instead)
+ *   import.meta.glob(…)   →  ({})   (returns empty record; tests mock modules instead)
  */
 'use strict';
 
-const { createTransformer } = require('ts-jest');
+const path = require('path');
+const { TsJestTransformer } = require('ts-jest');
 
-const tsJestTransformer = createTransformer({
-	tsconfig: require('path').resolve(__dirname, '../../tsconfig.node.json'),
+const tsJest = new TsJestTransformer({
+	tsconfig: path.resolve(__dirname, '../../tsconfig.node.json'),
 	useESM: false,
 });
 
 /**
- * Rewrite Vite-specific import.meta.* syntax to expressions that are safe in
- * a plain Node / CommonJS context.
+ * Rewrite Vite-specific import.meta.* syntax to expressions safe in Node/CJS.
  */
 function rewriteViteSyntax(source) {
 	return source
 		// import.meta.glob(...) — replace entire call with an empty object literal.
 		// Must come before the generic import.meta.env rule.
-		.replace(/import\.meta\.glob\s*\([^)]*\)/g, '({})')
+		.replace(/import\.meta\.glob\s*\([^)]*(?:\([^)]*\)[^)]*)*\)/g, '({})')
 		// import.meta.env.PROPERTY → (globalThis.__VITE_ENV__ || {}).PROPERTY
 		.replace(/import\.meta\.env\.(\w+)/g, '(globalThis.__VITE_ENV__ || {}).$1')
 		// import.meta.env (bare) → (globalThis.__VITE_ENV__ || {})
@@ -37,11 +37,10 @@ function rewriteViteSyntax(source) {
 module.exports = {
 	process(sourceText, sourcePath, options) {
 		const rewritten = rewriteViteSyntax(sourceText);
-		return tsJestTransformer.process(rewritten, sourcePath, options);
+		return tsJest.process(rewritten, sourcePath, options);
 	},
-	processAsync: undefined,
 	getCacheKey(sourceText, sourcePath, options) {
 		const rewritten = rewriteViteSyntax(sourceText);
-		return tsJestTransformer.getCacheKey(rewritten, sourcePath, options);
+		return tsJest.getCacheKey(rewritten, sourcePath, options);
 	},
 };
