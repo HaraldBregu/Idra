@@ -759,6 +759,3 @@ export class StoreService {
 		}
 	}
 }
-// Silence unused imports — kept available for re-exports / future facades.
-void normalizeAssistantService;
-void DEFAULT_ASSISTANT_SERVICE;
