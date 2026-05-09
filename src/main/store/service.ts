@@ -16,23 +16,6 @@ import type {
 import { PROVIDERS } from '../../shared/types';
 import type { AppStartupInfo } from '../../shared/types';
 import {
-	DEFAULTS,
-	DEFAULT_RAG_SERVICE,
-	DEFAULT_SEARCH_SERVICE,
-	DEFAULT_SERVICES,
-	STORE_SCHEMA_VERSION,
-	type AssistantConfiguration,
-	type AssistantService,
-	type Provider,
-	type ProviderKind,
-	type ProviderRef,
-	type RagService,
-	type SearchService,
-	type ServicesMap,
-	type SettingsStore,
-	type StoreSchema,
-} from './types';
-import {
 	cloneAssistantService,
 	cloneProvider,
 	cloneProviderMap,
@@ -52,6 +35,7 @@ import {
 	stringOrEmpty,
 	trimmedString,
 } from './utils';
+import { SettingsStore, StoreSchema } from './types';
 
 const DEFAULT_ASSISTANT_AI_PROVIDER = 'openai';
 const DEFAULT_ASSISTANT_AI_MODEL = 'gpt-4o-mini';
@@ -66,7 +50,6 @@ export class StoreService {
 	constructor() {
 		this.store = new Store<StoreSchema>({
 			name: 'settings',
-			defaults: DEFAULTS,
 			accessPropertiesByDotNotation: false,
 		}) as unknown as SettingsStore;
 		this.migrateV1ToV2();
