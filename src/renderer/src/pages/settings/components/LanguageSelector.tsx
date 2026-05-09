@@ -2,13 +2,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup';
 import { Label } from '@/components/ui/Label';
-import { useLanguageMode } from '@/hooks/use-language-mode';
-import { useAppActions } from '@/hooks/use-app-actions';
+import { useApp } from '@/contexts';
 import type { AppLanguage } from '../../../contexts';
 
 export function LanguageSelector(): React.ReactElement {
-	const language = useLanguageMode();
-	const { setLanguage } = useAppActions();
+	const { language, setLanguage } = useApp();
 	const { t } = useTranslation();
 
 	const languageOptions: ReadonlyArray<{ value: AppLanguage; label: string; description: string }> =
