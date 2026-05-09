@@ -227,7 +227,7 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			ProviderChannels.saveAssistantService,
-			wrapSimpleHandler((provider: Provider, model: Model) => {
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
 				return store.setAssistantService(provider.id, model);
 			}, ProviderChannels.saveAssistantService)
 		);
