@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { Tool } from "./base.js";
-import { expandUser } from "./path-utils.js";
+import { expandUser } from "./utils.js";
 
 export class WriteFileTool extends Tool {
   name = "write_file";
