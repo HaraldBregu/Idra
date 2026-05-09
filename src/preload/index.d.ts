@@ -22,6 +22,7 @@ export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	getProviders: () => Promise<Provider[]>;
 	getModelsForProvider: (provider: Provider) => Promise<Model[]>;
+	saveAssistantService: (provider: Provider, model: Model) => Promise<boolean>;
 };
 
 declare global {
