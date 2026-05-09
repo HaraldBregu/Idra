@@ -2,7 +2,7 @@ import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import { WindowChannels, AssistantChannels, ProviderChannels } from '../shared/channels';
 import type { AppApi, AssistantApi, WindowApi } from './index.d';
-import type { Provider } from '../shared/providers';
+import type { PublicProvider } from '../shared/providers';
 import type { Model } from '../shared/service';
 
 const win: WindowApi = {
