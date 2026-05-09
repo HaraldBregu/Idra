@@ -82,23 +82,33 @@ export class Assistant {
 
 	async send(userMessage: string): Promise<string> {
 		await this.init();
-		const systemPrompt = await buildSystemPrompt(this.memory);
-		const { apiKey, model } = this.assistantConfig();
-		const { text, newMessages } = await runAgent({
-			client: this.client(apiKey),
-			model,
-			userMessage,
-			tools: this.tools,
-			history: this.history,
-			systemPrompt,
-			maxIterations: MAX_ITERATIONS,
-		});
-		await this.session.append(newMessages);
-		this.history.push(...newMessages);
-		return text;
+		try {
+			const systemPrompt = await buildSystemPrompt(this.memory);
+			const { apiKey, model } = this.assistantConfig();
+			this.logger.debug(this.source, `send -> model="${model}"`);
+			const { text, newMessages } = await runAgent({
+				client: this.client(apiKey),
+				model,
+				userMessage,
+				tools: this.tools,
+				history: this.history,
+				systemPrompt,
+				maxIterations: MAX_ITERATIONS,
+			});
+			await this.session.append(newMessages);
+			this.history.push(...newMessages);
+			return text;
+		} catch (err) {
+			this.logger.error(this.source, 'send failed', {
+				message: (err as Error).message,
+				stack: (err as Error).stack,
+			});
+			throw err;
+		}
 	}
 
 	async reset(): Promise<void> {
+		this.logger.info(this.source, 'reset');
 		await this.session.clear();
 		await this.memory.clear();
 		this.history = [];
