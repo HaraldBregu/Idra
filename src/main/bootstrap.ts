@@ -28,7 +28,7 @@ import { TaskReactionRegistry } from './task/task-reaction-registry';
 import { TaskReactionBus } from './task/task-reaction-bus';
 import { ServiceResolver } from './shared/service-resolver';
 import { ModelResolver } from './shared/model-resolver';
-import { Assistant, AssistantRegistry, DEFAULT_ASSISTANT_ID } from './assistant';
+import { Assistant, AssistantRegistry, DEFAULT_ASSISTANT_ID, defaultTools } from './assistant';
 import { ChannelRegistry } from './channels';
 import {
 	ContentWriterTaskHandler,
@@ -109,22 +109,28 @@ export function bootstrapServices(): BootstrapResult {
 	// assistant ('main') is registered eagerly so window.app.assistant.send works
 	// without any renderer-side init.
 	const assistantRegistry = new AssistantRegistry();
-	assistantRegistry.register(new Assistant({
-		id: DEFAULT_ASSISTANT_ID,
-		getApiKey: () => {
-			const ref = storeService.getAssistantService().llm;
-			const resolved = storeService.resolveProviderRef(ref);
-			if (resolved?.provider.apiKey) return resolved.provider.apiKey;
-			return storeService.findProvider('openai')?.apiKey;
-		},
-		getModel: () => {
-			const ref = storeService.getAssistantService().llm;
-			const resolved = storeService.resolveProviderRef(ref);
-			return ref.model || resolved?.model || storeService.findProvider('openai')?.defaultModel || '';
-		},
-		store: storeService,
-		cron: container.get<CronService>('cronService'),
-	}));
+	assistantRegistry.register(
+		new Assistant(
+			{ id: DEFAULT_ASSISTANT_ID },
+			{
+				getApiKey: () => {
+					const ref = storeService.getAssistantService().llm;
+					const resolved = storeService.resolveProviderRef(ref);
+					if (resolved?.provider.apiKey) return resolved.provider.apiKey;
+					return storeService.findProvider('openai')?.apiKey;
+				},
+				getModel: () => {
+					const ref = storeService.getAssistantService().llm;
+					const resolved = storeService.resolveProviderRef(ref);
+					return ref.model || resolved?.model || storeService.findProvider('openai')?.defaultModel || '';
+				},
+				tools: defaultTools({
+					store: storeService,
+					cron: container.get<CronService>('cronService'),
+				}),
+			}
+		)
+	);
 	container.register('assistantRegistry', assistantRegistry);
 
 	// Channel registry -- messaging adapters (Telegram, WhatsApp). Adapters are
