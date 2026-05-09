@@ -38,7 +38,11 @@ const win: WindowApi = {
 // window.app — General application utilities + nested IPC namespaces
 // ---------------------------------------------------------------------------
 export const app: AppApi = {
-
+	getAssistantAiSettings: () => typedInvokeUnwrap(AppChannels.getAssistantAiSettings),
+	setAssistantAiProviderApiKey: (providerId: string, apiKey: string) =>
+		typedInvokeUnwrap(AppChannels.setAssistantAiProviderApiKey, providerId, apiKey),
+	setAssistantAiSelection: (selection: AssistantAiSelection) =>
+		typedInvokeUnwrap(AppChannels.setAssistantAiSelection, selection),
 };
 
 // ---------------------------------------------------------------------------
