@@ -18,4 +18,13 @@ export type { WindowScopedServiceDefinition } from './core/window-scoped-service
 export type { IpcModule } from './ipc/ipc-module';
 
 export type { LogLevel, LoggerOptions } from './logger';
-export type { StoreSchema } from './store';
+export type {
+	AssistantService,
+	Provider,
+	ProviderKind,
+	ProviderRef,
+	RagService,
+	SearchService,
+	ServicesMap,
+	StoreSchema,
+} from './store';
