@@ -1,9 +1,3 @@
-import type {
-	AssistantAiSettings,
-	Channel,
-	UserProfile,
-} from '../../shared/types';
-
 // ---------------------------------------------------------------------------
 // Provider registry (v2 schema)
 // ---------------------------------------------------------------------------
