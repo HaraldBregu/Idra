@@ -7,8 +7,6 @@ import { defaultTools, type Tool } from './tools';
 import type { CronService } from '../cron';
 import type { StoreService } from '../store';
 
-const HARDCODED_MODEL = 'gpt-4o-mini';
-
 export interface AssistantOptions {
 	id: string;
 	model?: string;
@@ -33,7 +31,7 @@ export interface AssistantOptions {
  */
 export class Assistant {
 	readonly id: string;
-	readonly model: string;
+	readonly model?: string;
 	readonly memory: MemoryManager;
 	readonly session: SessionManager;
 	private readonly tools: Tool[];
@@ -48,7 +46,7 @@ export class Assistant {
 
 	constructor(opts: AssistantOptions) {
 		this.id = opts.id;
-		this.model = opts.model ?? HARDCODED_MODEL;
+		this.model = opts.model?.trim() || undefined;
 		this.getApiKey = opts.getApiKey;
 		this.getModel = opts.getModel;
 		this.memory = new MemoryManager(opts.id);
@@ -82,7 +80,11 @@ export class Assistant {
 	}
 
 	private currentModel(): string {
-		return this.getModel?.()?.trim() || this.model;
+		const model = this.getModel?.()?.trim() || this.model;
+		if (!model) {
+			throw new Error('Assistant model not configured. Select a model in Settings.');
+		}
+		return model;
 	}
 
 	async send(userMessage: string): Promise<string> {

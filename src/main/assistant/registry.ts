@@ -1,4 +1,4 @@
-import { Assistant, type AssistantOptions } from './assistant';
+import { Assistant } from './assistant';
 
 /**
  * Registry of initialized assistants, keyed by id.
@@ -12,10 +12,6 @@ export class AssistantRegistry {
 		}
 		this.assistants.set(assistant.id, assistant);
 		return assistant;
-	}
-
-	create(opts: AssistantOptions): Assistant {
-		return this.register(new Assistant(opts));
 	}
 
 	get(id: string): Assistant {

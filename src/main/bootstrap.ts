@@ -28,7 +28,7 @@ import { TaskReactionRegistry } from './task/task-reaction-registry';
 import { TaskReactionBus } from './task/task-reaction-bus';
 import { ServiceResolver } from './shared/service-resolver';
 import { ModelResolver } from './shared/model-resolver';
-import { AssistantRegistry, DEFAULT_ASSISTANT_ID } from './assistant';
+import { Assistant, AssistantRegistry, DEFAULT_ASSISTANT_ID } from './assistant';
 import { ChannelRegistry } from './channels';
 import {
 	ContentWriterTaskHandler,
@@ -109,7 +109,7 @@ export function bootstrapServices(): BootstrapResult {
 	// assistant ('main') is registered eagerly so window.app.assistant.send works
 	// without any renderer-side init.
 	const assistantRegistry = new AssistantRegistry();
-	assistantRegistry.create({
+	assistantRegistry.register(new Assistant({
 		id: DEFAULT_ASSISTANT_ID,
 		getApiKey: () => {
 			const ref = storeService.getAssistantService().llm;
@@ -124,7 +124,7 @@ export function bootstrapServices(): BootstrapResult {
 		},
 		store: storeService,
 		cron: container.get<CronService>('cronService'),
-	});
+	}));
 	container.register('assistantRegistry', assistantRegistry);
 
 	// Channel registry -- messaging adapters (Telegram, WhatsApp). Adapters are
