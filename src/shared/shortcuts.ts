@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 // Single source of truth for all app-level keyboard shortcuts.
 // Registered in the Electron main process (menu accelerators) and forwarded
-// to the renderer via AppChannels.shortcut.
+// to the renderer via the app shortcut IPC event.
 //
 // Do NOT import Electron, Node.js, React, or any browser APIs here.
 // ---------------------------------------------------------------------------
