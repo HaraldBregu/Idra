@@ -1,4 +1,4 @@
-export { Assistant, type AssistantOptions } from './assistant';
+export { Assistant, type AssistantOptions, type AssistantDependencies } from './assistant';
 export { AssistantRegistry } from './registry';
 export { MemoryManager, buildSystemPrompt } from './memory';
 export { SessionManager } from './session';
