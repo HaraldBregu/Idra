@@ -1,6 +1,4 @@
 import type {
-	AssistantAiSelection,
-	AssistantAiSettings,
 } from './types';
 
 export const WindowChannels = {
