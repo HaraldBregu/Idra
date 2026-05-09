@@ -1,6 +1,6 @@
 export interface Provider {
-	id: 'openai' | 'anthropic';
-	name: 'OpenAI' | 'Anthropic';
+	id: string;
+	name: string;
 	apikey: string;
 	url: string;
 }
