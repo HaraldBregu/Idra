@@ -27,7 +27,21 @@ const win: WindowApi = {
 	},
 } satisfies WindowApi;
 
-export const app: AppApi = {};
+const assistant: AssistantApi = {
+	send: (message: string): Promise<string> => {
+		return typedInvokeUnwrap(AssistantChannels.send, message);
+	},
+	reset: (): Promise<void> => {
+		return typedInvokeUnwrap(AssistantChannels.reset);
+	},
+	onResponse: (callback: (event: AssistantResponse) => void): (() => void) => {
+		return typedOn(AssistantChannels.response, callback);
+	},
+} satisfies AssistantApi;
+
+export const app: AppApi = {
+	assistant,
+};
 
 if (process.contextIsolated) {
 	try {
