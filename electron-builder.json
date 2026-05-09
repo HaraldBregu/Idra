@@ -1,9 +1,9 @@
 {
-	"productName": "OpenWriter",
-	"appId": "com.openwriter.openwriter",
-	"copyright": "© 2026 OpenWriter Project. All rights reserved.",
+	"productName": "Friday",
+	"appId": "com.friday.friday",
+	"copyright": "© 2026 Friday Project. All rights reserved.",
 	"files": ["out/**", "resources/**"],
-	"icon": "./resources/icons/icon.ico",
+	"icon": "./resources/icons/win/icon.ico",
 	"extraResources": [
 		"out/preload/preload.mjs",
 		{
@@ -20,9 +20,9 @@
 	"fileAssociations": [
 		{
 			"ext": "tsrct",
-			"name": "OpenWriter Document",
-			"description": "OpenWriter Document File",
-			"mimeType": "application/x-openwriter-document",
+			"name": "Friday Document",
+			"description": "Friday Document File",
+			"mimeType": "application/x-friday-document",
 			"role": "Manager",
 			"icon": "./resources/icons/icon.png"
 		}
@@ -46,28 +46,28 @@
 		"icon": "./resources/icons/mac/icon.icns",
 		"extendInfo": {
 			"LSApplicationCategoryType": "public.app-category.utilities",
-			"NSMicrophoneUsageDescription": "OpenWriter needs access to your microphone for audio recording features.",
-			"NSCameraUsageDescription": "OpenWriter needs access to your camera for video recording features.",
-			"NSBluetoothAlwaysUsageDescription": "OpenWriter needs access to Bluetooth to connect and manage Bluetooth devices.",
-			"NSBluetoothPeripheralUsageDescription": "OpenWriter needs access to Bluetooth peripherals for device connectivity.",
+			"NSMicrophoneUsageDescription": "Friday needs access to your microphone for audio recording features.",
+			"NSCameraUsageDescription": "Friday needs access to your camera for video recording features.",
+			"NSBluetoothAlwaysUsageDescription": "Friday needs access to Bluetooth to connect and manage Bluetooth devices.",
+			"NSBluetoothPeripheralUsageDescription": "Friday needs access to Bluetooth peripherals for device connectivity.",
 			"CFBundleDocumentTypes": [
 				{
-					"CFBundleTypeName": "OpenWriter File",
+					"CFBundleTypeName": "Friday File",
 					"CFBundleTypeIconFile": "fileIcon.icns",
 					"CFBundleTypeExtensions": ["tsrct"],
 					"CFBundleTypeRole": "Manager",
 					"LSHandlerRank": "Owner",
-					"LSItemContentTypes": ["com.openwriter.openwriter.document"]
+					"LSItemContentTypes": ["com.friday.friday.document"]
 				}
 			],
 			"UTExportedTypeDeclarations": [
 				{
-					"UTTypeIdentifier": "com.openwriter.openwriter.document",
-					"UTTypeDescription": "OpenWriter File",
+					"UTTypeIdentifier": "com.friday.friday.document",
+					"UTTypeDescription": "Friday File",
 					"UTTypeConformsTo": ["public.data"],
 					"UTTypeTagSpecification": {
 						"public.filename-extension": ["tsrct"],
-						"public.mime-type": ["application/x-openwriter-document"]
+						"public.mime-type": ["application/x-friday-document"]
 					}
 				}
 			]
@@ -102,23 +102,23 @@
 		"target": [{ "target": "deb" }, { "target": "AppImage" }],
 		"category": "Utility",
 		"artifactName": "${productName}-${version}.${ext}",
-		"icon": "./resources/icons/linux",
-		"maintainer": "OpenWriter Project",
-		"synopsis": "OpenWriter",
-		"description": "OpenWriter - Advanced AI manager",
-		"vendor": "OpenWriter Project",
-		"executableName": "openwriter",
+		"icon": "./resources/icons/png",
+		"maintainer": "Friday Project",
+		"synopsis": "Friday",
+		"description": "Friday - Advanced AI manager",
+		"vendor": "Friday Project",
+		"executableName": "friday",
 		"desktop": {
 			"entry": {
 				"Type": "Application",
-				"Name": "OpenWriter",
+				"Name": "Friday",
 				"Comment": "Advanced AI manager",
-				"Icon": "openwriter",
+				"Icon": "friday",
 				"Terminal": false,
 				"Categories": "Office;WordProcessor;AI;",
-				"MimeType": "application/x-openwriter-document;",
+				"MimeType": "application/x-friday-document;",
 				"StartupNotify": true,
-				"StartupWMClass": "OpenWriter"
+				"StartupWMClass": "Friday"
 			}
 		},
 		"extraResources": [
@@ -131,7 +131,7 @@
 	},
 	"deb": {
 		"packageCategory": "utils",
-		"maintainer": "OpenWriter Project <contact@openwriter.org>",
+		"maintainer": "Friday Project <contact@friday.org>",
 		"afterInstall": "./scripts/postinstall.sh",
 		"depends": [
 			"libgtk-3-0",
@@ -162,7 +162,7 @@
 		"artifactName": "${productName}.${ext}",
 		"forceCodeSigning": false,
 		"signtoolOptions": {
-			"publisherName": "OpenWriter Project"
+			"publisherName": "Friday Project"
 		},
 		"requestedExecutionLevel": "asInvoker",
 		"extraResources": [
@@ -177,7 +177,7 @@
 		"oneClick": false,
 		"allowToChangeInstallationDirectory": true,
 		"createDesktopShortcut": true,
-		"shortcutName": "OpenWriter",
+		"shortcutName": "Friday",
 		"multiLanguageInstaller": true,
 		"warningsAsErrors": false,
 		"deleteAppDataOnUninstall": false,
