@@ -8,6 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/Select';
+import { Button } from '@/components/ui/Button';
 
 const ConfigPage: React.FC = () => {
 	const [providers, setProviders] = useState<Provider[]>([]);
