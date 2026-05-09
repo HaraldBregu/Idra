@@ -1,5 +1,4 @@
 import type {
-	Channel,
 	ChannelType,
 	ChannelStatusEvent,
 	TelegramChannelProperties,
