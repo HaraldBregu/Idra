@@ -16,6 +16,7 @@ const ConfigPage: React.FC = () => {
 	const [models, setModels] = useState<Model[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
+	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;

@@ -5,6 +5,8 @@ export interface Provider {
 	readonly apiKey: string;
 }
 
+export type PublicProvider = Omit<Provider, 'apiKey'>;
+
 export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	{
 		id: 'openai',
