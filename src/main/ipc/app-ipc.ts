@@ -442,3 +442,4 @@ export class AppIpc implements IpcModule {
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}
 }
+import type { AssistantAiSelection } from '../../shared/types';
