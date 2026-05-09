@@ -44,16 +44,6 @@ interface AppInvokeChannelMap {
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	'app:set-channel-properties': {
-		args: [
-			type: ChannelType,
-			properties:
-				| TelegramChannelProperties
-				| WhatsappChannelProperties
-				| DiscordChannelProperties,
-		];
-		result: Channel;
-	};
 	'app:get-channel-status': {
 		args: [];
 		result: Partial<Record<ChannelType, ChannelStatusEvent>>;
