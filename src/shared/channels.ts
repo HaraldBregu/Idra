@@ -27,6 +27,10 @@ import type {
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 	DiscordChannelProperties,
+	ProviderEntry,
+	ProviderModelInfo,
+	AssistantAiSelection,
+	AssistantAiSettings,
 } from './types';
 import type { ShortcutId } from './shortcuts';
 
@@ -64,64 +68,6 @@ export interface AssistantResponseEvent {
 	response: string;
 }
 
-export const AppChannels = {
-	setTheme: 'set-theme',
-	setLanguage: 'set-language',
-	changeLanguage: 'change-language',
-	changeTheme: 'change-theme',
-	fileOpened: 'file-opened',
-	// Store / Provider management
-	getProviders: 'app:get-providers',
-	getAssistantAiSettings: 'app:get-assistant-ai-settings',
-	setAssistantAiProviderApiKey: 'app:set-assistant-ai-provider-api-key',
-	setAssistantAiSelection: 'app:set-assistant-ai-selection',
-	addProvider: 'app:add-provider',
-	deleteProvider: 'app:delete-provider',
-	getAgents: 'app:get-agents',
-	updateAgent: 'app:update-agent',
-	getStartupInfo: 'app:get-startup-info',
-	getProfile: 'app:get-profile',
-	setProfile: 'app:set-profile',
-	completeFirstRunConfiguration: 'app:complete-first-run-configuration',
-	getModels: 'app:get-models',
-	// Channels (messaging adapters)
-	getChannel: 'app:get-channel',
-	setChannelProperties: 'app:set-channel-properties',
-	getChannelStatus: 'app:get-channel-status',
-	restartChannel: 'app:restart-channel',
-	requestWhatsappPairingCode: 'app:request-whatsapp-pairing-code',
-	channelStatusChanged: 'app:channel-status-changed',
-	// Logs
-	getLogs: 'app:get-logs',
-	openLogsFolder: 'app:open-logs-folder',
-	// App data folder
-	openAppDataFolder: 'app:open-app-data-folder',
-	// Theme management
-	getCustomThemes: 'app:get-custom-themes',
-	openThemesFolder: 'app:open-themes-folder',
-	importTheme: 'app:import-theme',
-	getCustomThemeTokens: 'app:get-custom-theme-tokens',
-	deleteTheme: 'app:delete-theme',
-	// System settings
-	openSystemAccessibility: 'app:open-system-accessibility',
-	openSystemScreenRecording: 'app:open-system-screen-recording',
-	// Tray
-	setTrayEnabled: 'app:set-tray-enabled',
-	getTrayEnabled: 'app:get-tray-enabled',
-	// Cron jobs
-	cronSchedule: 'app:cron-schedule',
-	cronUnschedule: 'app:cron-unschedule',
-	cronListJobs: 'app:cron-list-jobs',
-	cronTick: 'app:cron-tick',
-	// Global keyboard shortcuts (main → renderer)
-	shortcut: 'app:shortcut',
-	// Developer dialogs (main → renderer)
-	openTasksDialog: 'app:open-tasks-dialog',
-	openLogsDialog: 'app:open-logs-dialog',
-	openReduxDialog: 'app:open-redux-dialog',
-	openCronDialog: 'app:open-cron-dialog',
-} as const;
-
 // ===========================================================================
 // Channel-to-Type Maps
 // ===========================================================================
@@ -135,29 +81,29 @@ export const AppChannels = {
  * `result` = the logical return type.
  */
 export interface InvokeChannelMap {
-	[AppChannels.getAssistantAiSettings]: { args: []; result: AssistantAiSettings };
-	[AppChannels.setAssistantAiProviderApiKey]: {
+	'app:get-assistant-ai-settings': { args: []; result: AssistantAiSettings };
+	'app:set-assistant-ai-provider-api-key': {
 		args: [providerId: string, apiKey: string];
 		result: AssistantAiSettings;
 	};
-	[AppChannels.setAssistantAiSelection]: {
+	'app:set-assistant-ai-selection': {
 		args: [selection: AssistantAiSelection];
 		result: AssistantAiSettings;
 	};
 	// ---- App / Provider management (IpcResult-wrapped) ----
-	[AppChannels.deleteProvider]: { args: [id: string]; result: void };
-	[AppChannels.getAgents]: { args: []; result: AgentSettings[] };
-	[AppChannels.updateAgent]: { args: [agent: AgentSettings]; result: AgentSettings };
-	[AppChannels.getStartupInfo]: { args: []; result: AppStartupInfo };
-	[AppChannels.getProfile]: { args: []; result: UserProfile | null };
-	[AppChannels.setProfile]: { args: [profile: UserProfile]; result: UserProfile };
-	[AppChannels.completeFirstRunConfiguration]: {
+	'app:delete-provider': { args: [id: string]; result: void };
+	'app:get-agents': { args: []; result: AgentSettings[] };
+	'app:update-agent': { args: [agent: AgentSettings]; result: AgentSettings };
+	'app:get-startup-info': { args: []; result: AppStartupInfo };
+	'app:get-profile': { args: []; result: UserProfile | null };
+	'app:set-profile': { args: [profile: UserProfile]; result: UserProfile };
+	'app:complete-first-run-configuration': {
 		args: [profile: UserProfile, providers: ProviderEntry[]];
 		result: AppStartupInfo;
 	};
-	[AppChannels.getModels]: { args: [providerId: string]; result: ProviderModelInfo[] };
-	[AppChannels.getChannel]: { args: []; result: Channel | null };
-	[AppChannels.setChannelProperties]: {
+	'app:get-models': { args: [providerId: string]; result: ProviderModelInfo[] };
+	'app:get-channel': { args: []; result: Channel | null };
+	'app:set-channel-properties': {
 		args: [
 			type: ChannelType,
 			properties:
@@ -167,12 +113,12 @@ export interface InvokeChannelMap {
 		];
 		result: Channel;
 	};
-	[AppChannels.getChannelStatus]: {
+	'app:get-channel-status': {
 		args: [];
 		result: Partial<Record<ChannelType, ChannelStatusEvent>>;
 	};
-	[AppChannels.restartChannel]: { args: [type: ChannelType]; result: void };
-	[AppChannels.requestWhatsappPairingCode]: {
+	'app:restart-channel': { args: [type: ChannelType]; result: void };
+	'app:request-whatsapp-pairing-code': {
 		args: [phoneNumber: string];
 		result: string;
 	};
@@ -186,34 +132,34 @@ export interface InvokeChannelMap {
 	[TaskChannels.list]: { args: []; result: TaskInfo[] };
 
 	// ---- Logs (IpcResult-wrapped) ----
-	[AppChannels.getLogs]: { args: [limit?: number]; result: AppLogEntry[] };
-	[AppChannels.openLogsFolder]: { args: []; result: void };
+	'app:get-logs': { args: [limit?: number]; result: AppLogEntry[] };
+	'app:open-logs-folder': { args: []; result: void };
 
 	// ---- App data folder (IpcResult-wrapped) ----
-	[AppChannels.openAppDataFolder]: { args: []; result: void };
+	'app:open-app-data-folder': { args: []; result: void };
 
 	// ---- Theme management (IpcResult-wrapped) ----
-	[AppChannels.getCustomThemes]: { args: []; result: CustomThemeInfo[] };
-	[AppChannels.openThemesFolder]: { args: []; result: void };
-	[AppChannels.importTheme]: { args: []; result: CustomThemeInfo | null };
-	[AppChannels.getCustomThemeTokens]: { args: [id: string]; result: Theme | null };
-	[AppChannels.deleteTheme]: { args: [id: string]; result: void };
+	'app:get-custom-themes': { args: []; result: CustomThemeInfo[] };
+	'app:open-themes-folder': { args: []; result: void };
+	'app:import-theme': { args: []; result: CustomThemeInfo | null };
+	'app:get-custom-theme-tokens': { args: [id: string]; result: Theme | null };
+	'app:delete-theme': { args: [id: string]; result: void };
 
 	// ---- System settings (IpcResult-wrapped) ----
-	[AppChannels.openSystemAccessibility]: { args: []; result: void };
-	[AppChannels.openSystemScreenRecording]: { args: []; result: void };
+	'app:open-system-accessibility': { args: []; result: void };
+	'app:open-system-screen-recording': { args: []; result: void };
 
 	// ---- Tray (IpcResult-wrapped) ----
-	[AppChannels.setTrayEnabled]: { args: [enabled: boolean]; result: void };
-	[AppChannels.getTrayEnabled]: { args: []; result: boolean };
+	'app:set-tray-enabled': { args: [enabled: boolean]; result: void };
+	'app:get-tray-enabled': { args: []; result: boolean };
 
 	// ---- Cron jobs (IpcResult-wrapped) ----
-	[AppChannels.cronSchedule]: {
+	'app:cron-schedule': {
 		args: [params: { id: string; expression: string; timezone?: string; runOnStart?: boolean }];
 		result: CronJobInfo;
 	};
-	[AppChannels.cronUnschedule]: { args: [id: string]; result: void };
-	[AppChannels.cronListJobs]: { args: []; result: CronJobInfo[] };
+	'app:cron-unschedule': { args: [id: string]; result: void };
+	'app:cron-list-jobs': { args: []; result: CronJobInfo[] };
 
 	// ---- Assistant (IpcResult-wrapped) ----
 	[AssistantChannels.send]: { args: [message: string, assistantId?: string]; result: string };
@@ -225,8 +171,8 @@ export interface InvokeChannelMap {
  * `args` = tuple of arguments after the channel name.
  */
 export interface SendChannelMap {
-	[AppChannels.setTheme]: { args: [theme: ThemeMode] };
-	[AppChannels.setLanguage]: { args: [language: string] };
+	'set-theme': { args: [theme: ThemeMode] };
+	'set-language': { args: [language: string] };
 	[WindowChannels.minimize]: { args: [] };
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
@@ -238,19 +184,18 @@ export interface SendChannelMap {
  * `data` = the payload sent with the event.
  */
 export interface EventChannelMap {
-	[AppChannels.changeLanguage]: { data: string };
-	[AppChannels.changeTheme]: { data: ThemeMode };
-	[AppChannels.fileOpened]: { data: string };
+	'change-language': { data: string };
+	'change-theme': { data: ThemeMode };
+	'file-opened': { data: string };
 	[WindowChannels.maximizeChange]: { data: boolean };
 	[WindowChannels.fullScreenChange]: { data: boolean };
 	[TaskChannels.event]: { data: TaskEvent };
-	[AppChannels.shortcut]: { data: ShortcutId };
-	[AppChannels.cronTick]: { data: CronTickEvent };
-	[AppChannels.channelStatusChanged]: { data: ChannelStatusEvent };
-	[AppChannels.openTasksDialog]: { data: undefined };
-	[AppChannels.openLogsDialog]: { data: undefined };
-	[AppChannels.openReduxDialog]: { data: undefined };
-	[AppChannels.openCronDialog]: { data: undefined };
+	'app:shortcut': { data: ShortcutId };
+	'app:cron-tick': { data: CronTickEvent };
+	'app:channel-status-changed': { data: ChannelStatusEvent };
+	'app:open-tasks-dialog': { data: undefined };
+	'app:open-logs-dialog': { data: undefined };
+	'app:open-redux-dialog': { data: undefined };
+	'app:open-cron-dialog': { data: undefined };
 	[AssistantChannels.response]: { data: AssistantResponseEvent };
 }
-import type { AssistantAiSelection, AssistantAiSettings } from './types';
