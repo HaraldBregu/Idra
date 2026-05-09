@@ -29,3 +29,4 @@ export type SettingsStore = {
 	set(key: string, value: unknown): void;
 	delete: (key: string) => void;
 };
+import type { AssistantAiSettings } from '../../shared/types';
