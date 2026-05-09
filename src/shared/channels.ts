@@ -1,5 +1,4 @@
 import type {
-	WhatsappChannelProperties,
 	DiscordChannelProperties,
 	AssistantAiSelection,
 	AssistantAiSettings,
