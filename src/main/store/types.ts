@@ -78,7 +78,7 @@ export interface LegacyBlob {
 // Top-level store schema (v2)
 // ---------------------------------------------------------------------------
 
-export const STORE_SCHEMA_VERSION = 2;
+export const STORE_SCHEMA_VERSION = 1;
 
 export interface StoreSchema {
 	schemaVersion: number;
