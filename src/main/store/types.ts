@@ -59,56 +59,10 @@ export interface ServicesMap {
 // Legacy (pre-v2) — preserved during migration only
 // ---------------------------------------------------------------------------
 
-export interface AssistantConfiguration {
-	apikey: string;
-	model: string;
-}
-
-export interface LegacyBlob {
-	assistantAi?: unknown;
-	assistantConfiguration?: unknown;
-	providers?: unknown;
-}
-
-// ---------------------------------------------------------------------------
-// Top-level store schema (v2)
-// ---------------------------------------------------------------------------
-
-export const STORE_SCHEMA_VERSION = 1;
 
 export interface StoreSchema {
 	providers: SharedProvider[];
 }
-
-export const DEFAULT_ASSISTANT_SERVICE: AssistantService = {
-	enabled: false,
-	llm: { providerId: '', model: '' },
-};
-
-export const DEFAULT_SEARCH_SERVICE: SearchService = {
-	enabled: false,
-	search: { providerId: '' },
-};
-
-export const DEFAULT_RAG_SERVICE: RagService = {
-	enabled: false,
-	embeddings: { providerId: '', model: '' },
-	llm: { providerId: '', model: '' },
-};
-
-export const DEFAULT_SERVICES: ServicesMap = {
-	assistant: DEFAULT_ASSISTANT_SERVICE,
-	search: DEFAULT_SEARCH_SERVICE,
-	rag: DEFAULT_RAG_SERVICE,
-};
-
-export const DEFAULTS: StoreSchema = {
-	schemaVersion: STORE_SCHEMA_VERSION,
-	providers: [],
-	services: DEFAULT_SERVICES,
-	channel: null,
-	profile: null,
-};
 
 export type SettingsStore = {
 	get<TKey extends keyof StoreSchema>(key: TKey): StoreSchema[TKey];

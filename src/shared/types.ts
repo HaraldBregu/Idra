@@ -93,50 +93,15 @@ export interface CronTickEvent {
 	readonly firedAt: string;
 }
 
-export type ProviderId = 'openai' | 'anthropic';
-
-export interface ProviderDefinition {
-	id: ProviderId;
-	name: 'OpenAI' | 'Anthropic';
-}
-
-export interface ProviderConfig {
-	apikey: string;
-	model: string;
-}
-
-export interface Provider {
-	openai: ProviderConfig;
-	anthropic: ProviderConfig;
-}
-
-export interface ProviderEntry {
-	id: ProviderId;
-	name: 'OpenAI' | 'Anthropic';
-	apiKey: string;
-	model: string;
-}
-
-/** Canonical list of known providers. Source of truth for provider IDs and names. */
-export const PROVIDERS = [
-	{ id: 'openai', name: 'OpenAI' },
-	{ id: 'anthropic', name: 'Anthropic' },
-] as const satisfies readonly ProviderDefinition[];
-
-/**
- * Single model entry as returned by a provider's `/models` endpoint.
- * Shape is normalised across providers.
- */
-export interface ProviderModelInfo {
-	/** Provider's model identifier (e.g. `gpt-4o`, `claude-3-5-sonnet-20240620`). */
-	id: string;
-	/** Human-readable name. Falls back to `id` when the provider has no display name. */
-	name: string;
-	/** ISO 8601 timestamp when the model was published. Empty string when unknown. */
-	createdAt: string;
-	/** Owner / publisher (e.g. `openai`, `anthropic`, organisation slug). */
-	ownedBy: string;
-}
+export type {
+	Provider,
+	ProviderConfig,
+	ProviderDefinition,
+	ProviderEntry,
+	ProviderId,
+	ProviderModelInfo,
+} from './providers';
+export { PROVIDERS } from './providers';
 
 /**
  * One model assignment inside an agent. The API key is not stored here — look
