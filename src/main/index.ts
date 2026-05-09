@@ -27,8 +27,7 @@ protocol.registerSchemesAsPrivileged([
 	},
 ]);
 
-import type { ThemeMode } from '../shared/types';
-import type { ChannelRegistry } from './channels';
+import type { ThemeMode } from '../shared';
 import {
 	bootstrapServices,
 	bootstrapIpcModules,
@@ -191,12 +190,6 @@ app.whenReady().then(async () => {
 		} else if (!enabled && trayManager.isCreated()) {
 			trayManager.destroy();
 		}
-	});
-
-	// Start configured messaging channels (Telegram, WhatsApp, ...)
-	const channelRegistry = container.get<ChannelRegistry>('channelRegistry');
-	channelRegistry.startAll().catch((err) => {
-		logger.error('App', 'Failed to start channels', err);
 	});
 
 	// Create main window

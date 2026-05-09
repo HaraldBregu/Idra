@@ -26,7 +26,7 @@ export class SetOpenAIKeyTool extends Tool {
 		if (!apiKey) {
 			return 'Error: apiKey must be a non-empty string';
 		}
-		this.store.setOpenAIKey(apiKey);
+		this.store.setOpenAiApiKey(apiKey);
 		return 'OpenAI API key saved.';
 	}
 }

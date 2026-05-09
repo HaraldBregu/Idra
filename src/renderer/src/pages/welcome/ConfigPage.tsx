@@ -1,86 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from '@tanstack/react-form';
-import { ArrowRight, Loader2 } from 'lucide-react';
 import { AppIconFriday } from '@/components/app';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import {
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-	FieldSet,
-} from '@/components/ui/Field';
-import { H1, H3, H4, Muted, Small } from '@/components/ui/Typography';
+import { H1, H4, Muted, Small } from '@/components/ui/Typography';
 import { PageBody, PageContainer } from '@/components/app/base/page';
-import { PROVIDER_CATALOGUE, PROVIDER_IDS, getProvider } from '../../../../shared/providers';
-import type { ProviderEntry, ProviderId, AppStartupInfo } from '../../../../shared/types';
 
 interface ConfigPageProps {
-	onConfigured: (startupInfo: AppStartupInfo) => void;
+	onConfigured: () => void;
 }
 
-type FormValues = {
-	firstName: string;
-	lastName: string;
-	tokens: Record<ProviderId, string>;
-};
-
-const EMPTY_TOKENS = Object.fromEntries(
-	PROVIDER_IDS.map((providerId) => [providerId, ''])
-) as Record<ProviderId, string>;
-
-const PROVIDER_LABELS = Object.fromEntries(
-	PROVIDER_CATALOGUE.map((provider) => [provider.id, provider.name])
-) as Record<ProviderId, string>;
-
-const DEFAULT_VALUES: FormValues = {
-	firstName: '',
-	lastName: '',
-	tokens: EMPTY_TOKENS,
-};
-
-const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
+const ConfigPage: React.FC<ConfigPageProps> = () => {
 	const { t } = useTranslation();
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	// const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const form = useForm({
-		defaultValues: DEFAULT_VALUES,
-		onSubmit: async ({ value }) => {
-			if (typeof window.app?.completeFirstRunConfiguration !== 'function') return;
-			setErrorMessage(null);
-			try {
-				const providers: ProviderEntry[] = PROVIDER_IDS.flatMap((providerId) => {
-					const catalog = getProvider(providerId);
-					if (!catalog) return [];
-					return [
-						{
-							id: catalog.id,
-							name: catalog.name,
-							apiKey: value.tokens[providerId].trim(),
-							model: '',
-						},
-					];
-				});
-				const startupInfo = await window.app.completeFirstRunConfiguration(
-					{ firstName: value.firstName, lastName: value.lastName },
-					providers
-				);
-				onConfigured(startupInfo);
-			} catch (error) {
-				setErrorMessage(
-					error instanceof Error
-						? error.message
-						: t(
-								'startup.firstTime.error',
-								'Unable to save your provider tokens right now. Please try again.'
-							)
-				);
-			}
-		},
-	});
+	// const form = useForm({
+	// 	defaultValues: DEFAULT_VALUES,
+	// 	onSubmit: async ({ value }) => {
+	// 		if (typeof window.app?.completeFirstRunConfiguration !== 'function') return;
+	// 		setErrorMessage(null);
+	// 		try {
+	// 			const providers: ProviderEntry[] = PROVIDER_IDS.flatMap((providerId) => {
+	// 				const catalog = getProvider(providerId);
+	// 				if (!catalog) return [];
+	// 				return [
+	// 					{
+	// 						id: catalog.id,
+	// 						name: catalog.name,
+	// 						apiKey: value.tokens[providerId].trim(),
+	// 						model: '',
+	// 					},
+	// 				];
+	// 			});
+	// 			const startupInfo = await window.app.completeFirstRunConfiguration(
+	// 				{ firstName: value.firstName, lastName: value.lastName },
+	// 				providers
+	// 			);
+	// 			onConfigured(startupInfo);
+	// 		} catch (error) {
+	// 			setErrorMessage(
+	// 				error instanceof Error
+	// 					? error.message
+	// 					: t(
+	// 							'startup.firstTime.error',
+	// 							'Unable to save your provider tokens right now. Please try again.'
+	// 						)
+	// 			);
+	// 		}
+	// 	},
+	// });
 
 	return (
 		<PageContainer className="h-full">
@@ -90,7 +56,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 					<div className="flex flex-col gap-4 p-6 md:p-10 overflow-y-auto lg:order-2">
 						<div className="flex flex-1 items-center justify-center">
 							<div className="w-full max-w-sm">
-								<form
+								{/* <form
 									onSubmit={(e) => {
 										e.preventDefault();
 										e.stopPropagation();
@@ -276,7 +242,7 @@ const ConfigPage: React.FC<ConfigPageProps> = ({ onConfigured }) => {
 											</FieldDescription>
 										</Field>
 									</FieldGroup>
-								</form>
+								</form> */}
 							</div>
 						</div>
 					</div>

@@ -1,12 +1,8 @@
 import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import { WindowChannels } from '../shared/channels';
-import type { AssistantAiSelection, AssistantAiSettings } from '../shared/types';
 import type { AppApi, WindowApi } from './index.d';
 
-// ---------------------------------------------------------------------------
-// window.win — Window controls
-// ---------------------------------------------------------------------------
 const win: WindowApi = {
 	minimize: (): void => {
 		typedSend(WindowChannels.minimize);
@@ -31,25 +27,8 @@ const win: WindowApi = {
 	},
 } satisfies WindowApi;
 
-// ---------------------------------------------------------------------------
-// window.app — General application utilities + nested IPC namespaces
-// ---------------------------------------------------------------------------
-export const app: AppApi = {
-	getAssistantAiSettings: () =>
-		typedInvokeUnwrap<AssistantAiSettings>('app:get-assistant-ai-settings'),
-	setAssistantAiProviderApiKey: (providerId: string, apiKey: string) =>
-		typedInvokeUnwrap<AssistantAiSettings>(
-			'app:set-assistant-ai-provider-api-key',
-			providerId,
-			apiKey
-		),
-	setAssistantAiSelection: (selection: AssistantAiSelection) =>
-		typedInvokeUnwrap<AssistantAiSettings>('app:set-assistant-ai-selection', selection),
-};
+export const app: AppApi = {};
 
-// ---------------------------------------------------------------------------
-// Registration — expose supported namespaces via contextBridge
-// ---------------------------------------------------------------------------
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);

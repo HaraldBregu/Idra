@@ -1,10 +1,7 @@
-import { createContext, useContext, type Dispatch, type ReactNode, type SetStateAction } from 'react';
-import type { AppStartupInfo } from '../../shared/types';
+import { createContext, useContext, type ReactNode } from 'react';
 
 interface StartupRouterContextValue {
-	readonly startupInfo: AppStartupInfo;
 	readonly showSplash: boolean;
-	readonly setStartupInfo: Dispatch<SetStateAction<AppStartupInfo | null>>;
 }
 
 const StartupRouterContext = createContext<StartupRouterContextValue | null>(null);

@@ -1,43 +1,14 @@
-/**
- * Bootstrap module demonstrating the new architecture.
- *
- * This file shows how to initialize the core infrastructure and IPC modules.
- * It can be gradually integrated into index.ts to replace the old architecture.
- *
- * Usage (in index.ts):
- *   import { bootstrapServices, bootstrapIpcModules } from './bootstrap'
- *   const { container, eventBus, windowFactory, appState } = await bootstrapServices()
- *   bootstrapIpcModules(container, eventBus)
- */
-
 import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Core infrastructure
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
 
-// Services
-import { StoreService } from './store';
 import { LoggerService } from './logger';
 import { ThemeService } from './theme';
-import { CronService } from './cron';
-import { TaskHandlerRegistry } from './task/task-handler-registry';
-import { TaskExecutor } from './task/task-executor';
-import { TaskReactionRegistry } from './task/task-reaction-registry';
-import { TaskReactionBus } from './task/task-reaction-bus';
-import { ServiceResolver } from './shared/service-resolver';
-import { ModelResolver } from './shared/model-resolver';
-import { AssistantService, DEFAULT_ASSISTANT_ID } from './assistant';
-import { ChannelRegistry } from './channels';
-import {
-	ContentWriterTaskHandler,
-	ContentReviewerTaskHandler,
-} from './task/handlers';
 
-// IPC modules
 import type { IpcModule } from './ipc';
-import { AppIpc, AssistantIpc, TaskIpc, WindowIpc } from './ipc';
+import { AppIpc, WindowIpc } from './ipc';
 
 export interface BootstrapResult {
 	container: ServiceContainer;
@@ -48,106 +19,35 @@ export interface BootstrapResult {
 	windowContextManager: WindowContextManager;
 }
 
-/**
- * Initialize core infrastructure and register all services.
- * Returns the initialized components for use in the main process.
- */
 export function bootstrapServices(): BootstrapResult {
-	// Initialize core infrastructure
 	const appState = new AppState();
 	const container = new ServiceContainer();
 	const eventBus = new EventBus();
 
-	// Register core infrastructure
 	container.register('appState', appState);
 	container.register('eventBus', eventBus);
 
-	// Register services (order matters for dependencies)
-	const storeService = container.register('store', new StoreService());
-
-	// Initialize logger with event bus for automatic event logging
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
 
-	// Theme management service
 	container.register('themeService', new ThemeService(logger));
 
-	// Cron job scheduler
-	const cronService = container.register('cronService', new CronService(logger));
-
-	// Create WindowFactory with logger access
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
 
-	// Create WindowContextManager for managing per-window service instances
 	const windowContextManager = new WindowContextManager(container, eventBus);
 	container.register('windowContextManager', windowContextManager);
-
-	// Task system -- handler registry + executor
-	const taskHandlerRegistry = container.register('taskHandlerRegistry', new TaskHandlerRegistry());
-	const serviceResolver = new ServiceResolver(storeService);
-	const modelResolver = new ModelResolver();
-	container.register('serviceResolver', serviceResolver);
-	container.register('modelResolver', modelResolver);
-	taskHandlerRegistry.register(
-		new ContentWriterTaskHandler({
-			serviceResolver,
-			modelResolver,
-			logger,
-		})
-	);
-	taskHandlerRegistry.register(
-		new ContentReviewerTaskHandler({
-			serviceResolver,
-			modelResolver,
-			logger,
-		})
-	);
-	container.register('taskExecutor', new TaskExecutor(taskHandlerRegistry, eventBus, 10, logger));
-
-	// Assistant facade -- conversational OpenAI assistants. One default
-	// assistant ('main') is registered eagerly so window.app.assistant.send works
-	// without any renderer-side init.
-	const assistant = container.register(
-		'assistant',
-		new AssistantService(
-			{ store: storeService, cron: cronService },
-			{ defaultAssistantId: DEFAULT_ASSISTANT_ID }
-		)
-	);
-
-	// Channel registry -- messaging adapters (Telegram, WhatsApp). Adapters are
-	// instantiated lazily from store.channels and started after app is ready.
-	container.register(
-		'channelRegistry',
-		new ChannelRegistry(storeService, logger, eventBus, assistant)
-	);
-
-	// Task reaction layer -- main-process observer that receives TaskExecutor lifecycle
-	// AppEvents and fan-outs to registered TaskReactionHandlers by task type.
-	const taskReactionRegistry = new TaskReactionRegistry(logger);
-	const taskReactionBus = container.register(
-		'taskReactionBus',
-		new TaskReactionBus(taskReactionRegistry, eventBus, logger)
-	);
-	taskReactionBus.initialize();
 
 	logger.info('Bootstrap', `Registered ${container.has('store') ? 'all' : 'some'} global services`);
 
 	return { container, eventBus, windowFactory, appState, logger, windowContextManager };
 }
 
-/**
- * Register all IPC modules.
- * This should be called after services are registered and before app is ready.
- */
 export function bootstrapIpcModules(container: ServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger') as LoggerService;
 
 	const ipcModules: IpcModule[] = [
 		new AppIpc(),
-		new AssistantIpc(),
-		new TaskIpc(),
 		new WindowIpc(),
 	];
 
@@ -162,18 +62,7 @@ export function bootstrapIpcModules(container: ServiceContainer, eventBus: Event
 	logger.info('Bootstrap', `Registered ${ipcModules.length} IPC modules`);
 }
 
-/**
- * Setup app lifecycle handlers using AppState.
- * Replaces the unsafe (app as { isQuitting?: boolean }).isQuitting pattern.
- */
-/**
- * Install process-level handlers to catch silent exits.
- * Logs uncaught exceptions, unhandled rejections, and exit with a stack trace
- * so we can tell a real crash from an intentional quit.
- *
- * Idempotent: call once early with no logger, call again after logger exists
- * to attach it — handlers are only registered on the first call.
- */
+
 let safetyNetLogger: LoggerService | null = null;
 let safetyNetInstalled = false;
 let safetyNetCrashFile: string | null = null;

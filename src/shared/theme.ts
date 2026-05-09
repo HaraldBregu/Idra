@@ -1,5 +1,3 @@
-import type { ThemeData, ThemeMode, ThemeVariant } from './types';
-
 export const THEME_VARIANTS = ['light', 'dark'] as const satisfies readonly ThemeVariant[];
 export const THEME_MODES = ['light', 'dark', 'system'] as const satisfies readonly ThemeMode[];
 export const DEFAULT_THEME_MODE: ThemeMode = 'system';
@@ -85,4 +83,63 @@ export const THEMES: Record<ThemeVariant, ThemeData> = {
 
 export function isThemeMode(value: string): value is ThemeMode {
 	return (THEME_MODES as readonly string[]).includes(value);
+}
+
+export type ThemeVariant = 'light' | 'dark';
+export type ThemeMode = ThemeVariant | 'system';
+
+export interface ThemeData {
+	readonly background: string;
+	readonly foreground: string;
+	readonly card: string;
+	readonly 'card-foreground': string;
+	readonly popover: string;
+	readonly 'popover-foreground': string;
+	readonly primary: string;
+	readonly 'primary-foreground': string;
+	readonly secondary: string;
+	readonly 'secondary-foreground': string;
+	readonly muted: string;
+	readonly 'muted-foreground': string;
+	readonly accent: string;
+	readonly 'accent-foreground': string;
+	readonly destructive: string;
+	readonly 'destructive-foreground': string;
+	readonly border: string;
+	readonly input: string;
+	readonly ring: string;
+	readonly radius: string;
+	readonly success: string;
+	readonly 'success-foreground': string;
+	readonly warning: string;
+	readonly 'warning-foreground': string;
+	readonly info: string;
+	readonly 'info-foreground': string;
+	readonly 'sidebar-background': string;
+	readonly 'sidebar-foreground': string;
+	readonly 'sidebar-primary': string;
+	readonly 'sidebar-primary-foreground': string;
+	readonly 'sidebar-accent': string;
+	readonly 'sidebar-accent-foreground': string;
+	readonly 'sidebar-border': string;
+	readonly 'sidebar-ring': string;
+}
+
+export interface Theme {
+	readonly name: string;
+	readonly description: string;
+	readonly author: string;
+	readonly version: string;
+	readonly license: string;
+	readonly light: ThemeData;
+	readonly dark: ThemeData;
+}
+
+export interface CustomThemeInfo {
+	readonly id: string;
+	readonly name: string;
+	readonly description: string;
+	readonly author: string;
+	readonly version: string;
+	readonly license: string;
 }

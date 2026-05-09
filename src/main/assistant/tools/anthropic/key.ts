@@ -26,7 +26,7 @@ export class SetAnthropicKeyTool extends Tool {
 		if (!apiKey) {
 			return 'Error: apiKey must be a non-empty string';
 		}
-		this.store.setAnthropicKey(apiKey);
+		this.store.setAnthropicApiKey(apiKey);
 		return 'Anthropic API key saved.';
 	}
 }

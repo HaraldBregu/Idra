@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import type { ThemeMode } from '../../shared/types';
+import type { ThemeMode } from '../../shared';
 
 /**
  * Base event structure for main process events

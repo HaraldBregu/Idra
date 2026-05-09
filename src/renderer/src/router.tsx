@@ -9,13 +9,10 @@ import {
 import { ErrorBoundary } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
-import type { AppStartupInfo } from '../../shared/types';
-import ConfigPage from './pages/welcome/ConfigPage';
 import { Layout as SettingsLayout } from './pages/settings';
 import { useTranslation } from 'react-i18next';
 
 const SplashPage = lazy(() => import('./pages/splash/SplashPage'));
-const SetupPage = lazy(() => import('./pages/setup/SetupPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
@@ -32,15 +29,6 @@ export interface RouterContext {
 	readonly startupInfo: AppStartupInfo;
 	readonly setStartupInfo: Dispatch<SetStateAction<AppStartupInfo | null>>;
 }
-
-const DEFAULT_ROUTER_CONTEXT: RouterContext = {
-	startupInfo: {
-		startupCount: 0,
-		isFirstRun: false,
-		isInitialized: true,
-	},
-	setStartupInfo: () => undefined,
-};
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
@@ -79,24 +67,6 @@ function HomeRouteComponent(): React.JSX.Element {
 	);
 }
 
-function SetupRouteComponent(): React.JSX.Element {
-	return (
-		<RouteWrapper>
-			<SetupPage />
-		</RouteWrapper>
-	);
-}
-
-function ConfigRouteComponent(): React.JSX.Element {
-	const { setStartupInfo } = rootRoute.useRouteContext();
-
-	return (
-		<RouteWrapper>
-			<ConfigPage onConfigured={setStartupInfo} />
-		</RouteWrapper>
-	);
-}
-
 function SettingsRouteComponent(): React.JSX.Element {
 	return (
 		<RouteWrapper>
@@ -119,18 +89,6 @@ const appHomeRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: 'home',
 	component: HomeRouteComponent,
-});
-
-const setupRoute = createRoute({
-	getParentRoute: () => rootRoute,
-	path: 'setup',
-	component: SetupRouteComponent,
-});
-
-const configRoute = createRoute({
-	getParentRoute: () => rootRoute,
-	path: 'config',
-	component: ConfigRouteComponent,
 });
 
 const settingsRoute = createRoute({
@@ -252,8 +210,6 @@ const settingsAssistantRoute = createRoute({
 const routeTree = rootRoute.addChildren([
 	homeRoute,
 	appHomeRoute,
-	setupRoute,
-	configRoute,
 	settingsRoute.addChildren([
 		settingsIndexRoute,
 		settingsGeneralRoute,

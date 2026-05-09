@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
-import type { ThemeMode } from '../shared/types';
+import type { ThemeMode } from '../shared';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
