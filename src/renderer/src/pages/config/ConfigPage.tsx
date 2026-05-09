@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Provider } from '../../../../shared/providers';
+import type { Model } from '../../../../shared/service';
 import {
 	Select,
 	SelectContent,
@@ -8,27 +9,12 @@ import {
 	SelectValue,
 } from '@/components/ui/Select';
 
-type ModelOption = {
-	label: string;
-	value: string;
-};
-
-const modelOptionsByProvider: Record<string, readonly ModelOption[]> = {
-	openai: [
-		{ label: 'GPT-5.2', value: 'gpt-5.2' },
-		{ label: 'GPT-5.1', value: 'gpt-5.1' },
-	],
-	anthropic: [
-		{ label: 'Claude Opus 4.5', value: 'claude-opus-4.5' },
-		{ label: 'Claude Sonnet 4.5', value: 'claude-sonnet-4.5' },
-	],
-};
-
 const ConfigPage: React.FC = () => {
 	const [providers, setProviders] = useState<Provider[]>([]);
 	const [selectedProvider, setSelectedProvider] = useState('');
-	const modelOptions = modelOptionsByProvider[selectedProvider] ?? [];
-	const [selectedModel, setSelectedModel] = useState(modelOptions[0]?.value ?? '');
+	const [models, setModels] = useState<Model[]>([]);
+	const [selectedModel, setSelectedModel] = useState('');
+	const [loadingModels, setLoadingModels] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -40,7 +26,6 @@ const ConfigPage: React.FC = () => {
 			setProviders(storedProviders);
 			const firstProviderId = storedProviders[0]?.id ?? '';
 			setSelectedProvider(firstProviderId);
-			setSelectedModel(modelOptionsByProvider[firstProviderId]?.[0]?.value ?? '');
 		}
 
 		void loadProviders();
@@ -50,12 +35,43 @@ const ConfigPage: React.FC = () => {
 		};
 	}, []);
 
+	useEffect(() => {
+		let cancelled = false;
+
+		async function loadModels(): Promise<void> {
+			if (!selectedProvider) {
+				setModels([]);
+				setSelectedModel('');
+				return;
+			}
+
+			setLoadingModels(true);
+			try {
+				const providerModels = await window.app.getModelsForProvider(selectedProvider);
+				if (cancelled) return;
+
+				setModels(providerModels);
+				setSelectedModel(providerModels[0]?.id ?? '');
+			} finally {
+				if (!cancelled) {
+					setLoadingModels(false);
+				}
+			}
+		}
+
+		void loadModels();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedProvider]);
+
 	function handleProviderChange(value: string | null): void {
 		const providerId = value ?? '';
-		const nextModelOptions = modelOptionsByProvider[providerId] ?? [];
 
 		setSelectedProvider(providerId);
-		setSelectedModel(nextModelOptions[0]?.value ?? '');
+		setModels([]);
+		setSelectedModel('');
 	}
 
 	return (
@@ -95,15 +111,15 @@ const ConfigPage: React.FC = () => {
 							onValueChange={(value) => {
 								setSelectedModel(value ?? '');
 							}}
-							disabled={modelOptions.length === 0}
+							disabled={loadingModels || models.length === 0}
 						>
 							<SelectTrigger id="config-model" className="h-10">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								{modelOptions.map((model) => (
-									<SelectItem key={model.value} value={model.value}>
-										{model.label}
+								{models.map((model) => (
+									<SelectItem key={model.id} value={model.id}>
+										{model.name}
 									</SelectItem>
 								))}
 							</SelectContent>

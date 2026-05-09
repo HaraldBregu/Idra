@@ -16,10 +16,12 @@ export interface AssistantApi {
 }
 
 import type { Provider } from '../shared/providers';
+import type { Model } from '../shared/service';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	getProviders: () => Promise<Provider[]>;
+	getModelsForProvider: (providerId: string) => Promise<Model[]>;
 };
 
 declare global {

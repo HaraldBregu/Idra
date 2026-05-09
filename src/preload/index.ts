@@ -3,6 +3,7 @@ import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import { WindowChannels, AssistantChannels, ProviderChannels } from '../shared/channels';
 import type { AppApi, AssistantApi, WindowApi } from './index.d';
 import type { Provider } from '../shared/providers';
+import type { Model } from '../shared/service';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -46,6 +47,9 @@ export const app: AppApi = {
 	},
 	getProviders: (): Promise<Provider[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getAll);
+	},
+	getModelsForProvider: (providerId: string): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getModels, providerId);
 	},
 };
 

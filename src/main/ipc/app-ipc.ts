@@ -1,16 +1,39 @@
 import { ipcMain, BrowserWindow, nativeTheme, shell, dialog, app } from 'electron';
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
 import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { ThemeService } from '../theme';
 import type { StoreService } from '../store';
+import type { Model } from '../../shared/service';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { ProviderChannels } from '../../shared/channels';
 
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
+
+async function getOpenAiModels(apiKey: string): Promise<Model[]> {
+	const client = new OpenAI({ apiKey });
+	const models = await client.models.list();
+
+	return models.data.map((model) => ({
+		id: model.id,
+		name: model.id,
+	}));
+}
+
+async function getAnthropicModels(apiKey: string): Promise<Model[]> {
+	const client = new Anthropic({ apiKey });
+	const models = await client.models.list();
+
+	return models.data.map((model) => ({
+		id: model.id,
+		name: model.display_name,
+	}));
+}
 
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
@@ -168,6 +191,33 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			ProviderChannels.getAll,
 			wrapSimpleHandler(() => store.getProviders(), ProviderChannels.getAll)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.getModels,
+			wrapSimpleHandler(async (providerId: string) => {
+				const provider = store.getProviderById(providerId);
+				if (!provider) {
+					throw new Error(`Provider not found: ${providerId}`);
+				}
+
+				const apiKey = provider.apiKey.trim();
+				if (!apiKey) {
+					throw new Error(`API key not configured for provider: ${provider.id}`);
+				}
+
+				const normalizedProviderId = provider.id.trim().toLowerCase();
+
+				if (normalizedProviderId === 'openai') {
+					return getOpenAiModels(apiKey);
+				}
+
+				if (normalizedProviderId === 'anthropic') {
+					return getAnthropicModels(apiKey);
+				}
+
+				throw new Error(`Unsupported provider id: ${provider.id}`);
+			}, ProviderChannels.getModels)
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);

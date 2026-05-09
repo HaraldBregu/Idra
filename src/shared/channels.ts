@@ -18,6 +18,7 @@ export const AssistantChannels = {
 export const ProviderChannels = {
 	setApiKey: 'provider:set-apikey',
 	getAll: 'provider:get-all',
+	getModels: 'provider:get-models',
 } as const;
 
 interface AppInvokeChannelMap {
@@ -28,6 +29,10 @@ interface AppInvokeChannelMap {
 	[ProviderChannels.getAll]: {
 		args: [];
 		result: import('./providers').Provider[];
+	};
+	[ProviderChannels.getModels]: {
+		args: [providerId: string];
+		result: import('./service').Model[];
 	};
 }
 
@@ -64,4 +69,3 @@ interface WindowEventChannelMap {
 export interface EventChannelMap
 	extends AssistantEventChannelMap,
 		WindowEventChannelMap {}
-
