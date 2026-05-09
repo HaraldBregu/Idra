@@ -18,7 +18,7 @@ export interface AssistantOptions {
 	tools?: Tool[];
 	/** When provided, cron_add/cron_list/cron_remove tools are added to defaults. Ignored if `tools` is set. */
 	cron?: CronService;
-	/** When provided, provider settings tools are added to defaults. Ignored if `tools` is set. */
+	/** When provided, provider and channel settings tools are added to defaults. Ignored if `tools` is set. */
 	store?: StoreService;
 	/** Defaults to `assistant:<id>`. */
 	sessionKey?: string;

@@ -54,9 +54,7 @@ export const SHORTCUT_ACCELERATORS: Record<ShortcutId, string> = {
 	[ShortcutId.newDocument]: 'Ctrl+Alt+N',
 };
 
-export type Platform = 'mac' | 'win' | 'linux';
-
-export function getShortcutLabel(id: ShortcutId, platform: Platform): string {
+export function getShortcutLabel(id: ShortcutId, platform: 'mac' | 'win' | 'linux'): string {
 	const binding = SHORTCUT_BINDINGS[id];
 	return binding[platform];
 }

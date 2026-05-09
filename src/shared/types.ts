@@ -94,11 +94,10 @@ export interface CronTickEvent {
 }
 
 export type ProviderId = 'openai' | 'anthropic';
-export type ProviderName = 'OpenAI' | 'Anthropic';
 
 export interface ProviderDefinition {
 	id: ProviderId;
-	name: ProviderName;
+	name: 'OpenAI' | 'Anthropic';
 }
 
 export interface ProviderConfig {
@@ -113,12 +112,12 @@ export interface Provider {
 
 export interface ProviderEntry {
 	id: ProviderId;
-	name: ProviderName;
+	name: 'OpenAI' | 'Anthropic';
 	apiKey: string;
 	model: string;
 }
 
-/** Canonical list of known providers. Source of truth for ProviderId and ProviderName. */
+/** Canonical list of known providers. Source of truth for provider IDs and names. */
 export const PROVIDERS = [
 	{ id: 'openai', name: 'OpenAI' },
 	{ id: 'anthropic', name: 'Anthropic' },
@@ -143,26 +142,22 @@ export interface ProviderModelInfo {
  * One model assignment inside an agent. The API key is not stored here — look
  * it up via the Service registered for `providerId`.
  */
-export interface AgentModel {
-	id: string;
-	providerId: string;
-	modelId: string;
-}
-
 export interface AgentSettings {
 	id: string;
 	name: string;
-	models: AgentModel[];
+	models: {
+		id: string;
+		providerId: string;
+		modelId: string;
+	}[];
 }
 
 // ---- Logs -----------------------------------------------------------------
 
-export type AppLogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
-
 /** Serializable log entry passed over IPC to the renderer. */
 export interface AppLogEntry {
 	timestamp: string;
-	level: AppLogLevel;
+	level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 	source: string;
 	message: string;
 }
@@ -206,31 +201,17 @@ export interface TaskQueueStatus {
 }
 
 /**
- * Discriminated payload carried by `TaskEvent.data`.
- *
- * - `success: true`  → the task is producing valid output (queued message,
- *   stream token, final content). `data` is the stringified payload.
- * - `success: false` → the task failed. `error` is the failure message.
- *   Empty string means "normal user cancellation, no error".
- *
- * Discriminator-only access to a string keeps the IPC payload simple.
- */
-export type TaskEventResult =
-	| { success: true; data: string }
-	| { success: false; error: string };
-
-/**
  * Flat task event shape.
  *
  * - `state`    — lifecycle stage.
  * - `taskId`   — unique identifier of the task.
- * - `data`     — typed result envelope for this state. See `TaskEventResult`.
+ * - `data`     — typed result envelope for this state.
  * - `metadata` — caller-supplied metadata captured at submission time.
  */
 export interface TaskEvent {
 	state: TaskState;
 	taskId: string;
-	data: TaskEventResult;
+	data: { success: true; data: string } | { success: false; error: string };
 	metadata: Record<string, unknown>;
 }
 
@@ -242,99 +223,6 @@ export interface TaskAction<TInput = unknown> {
 	type: string;
 	input: TInput;
 	metadata: Record<string, unknown>;
-}
-
-/**
- * Return type of the task:submit renderer API.
- */
-export type TaskActionReturn = { taskId: string };
-
-// ---- Context Menu ---------------------------------------------------------
-
-export interface WritingContextMenuAction {
-	action: string;
-	writingId: string;
-}
-
-/**
- * Descriptor for a single entry in a native context menu shown from the renderer.
- * The main process builds an Electron `Menu` from an ordered array of these and
- * resolves the invocation with the `id` of the clicked item (or `null` if the
- * menu was dismissed without a selection).
- */
-export type ContextMenuDescriptor =
-	| { type: 'separator' }
-	| {
-		type?: 'item';
-		/** Stable id returned to the renderer when this item is clicked. */
-		id: string;
-		/** Visible label. */
-		label: string;
-		/** Optional accelerator, e.g. 'CmdOrCtrl+Backspace'. */
-		accelerator?: string;
-		/** Defaults to true. */
-		enabled?: boolean;
-		/** Renders the item in a destructive style where the platform supports it. */
-		destructive?: boolean;
-	};
-
-// ---- Agent Task Streaming -------------------------------------------------
-
-/**
- * Metadata attached to `type: 'agent'` tasks submitted from the document page.
- * Carries the editor insertion range so main can reflect it back to the
- * renderer on mount-time recovery.
- */
-export interface AssistantTaskMetadata {
-	sessionId: string;
-	documentId: string;
-	posFrom: number;
-	posTo: number;
-}
-
-/** Display phase surfaced to the status bar. Derived on main from AgentEvent kinds. */
-export type AgentPhase =
-	| 'queued'
-	| 'thinking'
-	| 'writing'
-	| 'generating-image'
-	| 'completed'
-	| 'error'
-	| 'cancelled';
-
-/**
- * Return value of AgentTaskHandler.execute. Appears on the wire as
- * `TaskEvent.data.result` when `state === 'completed'`.
- */
-export interface AgentCompletedOutput {
-	content: string;
-	stoppedReason: 'done' | 'max-steps' | 'stagnation';
-}
-
-/**
- * Projection-rebuilt snapshot used for page-refresh recovery. Returned by
- * the `task:get-snapshot` IPC channel.
- */
-export interface AgentTaskSnapshot {
-	taskId: string;
-	state: TaskState;
-	phase: AgentPhase;
-	fullContent: string;
-	metadata: AssistantTaskMetadata;
-	startedAt?: number;
-}
-
-/**
- * Return value of the `task:find-for-document` IPC channel. Scans both active
- * and recently-completed tasks (within `COMPLETED_TASK_TTL_MS`) to support
- * the unmount-during-completion edge case.
- */
-export interface AgentTaskLookupResult {
-	taskId: string;
-	state: TaskState;
-	metadata: AssistantTaskMetadata;
-	result?: AgentCompletedOutput;
-	completedAt?: number;
 }
 
 // ---- IPC Result
