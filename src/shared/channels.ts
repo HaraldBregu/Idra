@@ -58,7 +58,6 @@ interface AppInvokeChannelMap {
 		args: [];
 		result: Partial<Record<ChannelType, ChannelStatusEvent>>;
 	};
-	'app:restart-channel': { args: [type: ChannelType]; result: void };
 	'app:request-whatsapp-pairing-code': {
 		args: [phoneNumber: string];
 		result: string;
