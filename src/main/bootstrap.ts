@@ -28,7 +28,7 @@ import { TaskReactionRegistry } from './task/task-reaction-registry';
 import { TaskReactionBus } from './task/task-reaction-bus';
 import { ServiceResolver } from './shared/service-resolver';
 import { ModelResolver } from './shared/model-resolver';
-import { Assistant, AssistantRegistry, DEFAULT_ASSISTANT_ID } from './assistant';
+import { AssistantRegistry, AssistantService, DEFAULT_ASSISTANT_ID } from './assistant';
 import { ChannelRegistry } from './channels';
 import {
 	ContentWriterTaskHandler,
@@ -73,7 +73,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('themeService', new ThemeService(logger));
 
 	// Cron job scheduler
-	container.register('cronService', new CronService(logger));
+	const cronService = container.register('cronService', new CronService(logger));
 
 	// Create WindowFactory with logger access
 	const windowFactory = new WindowFactory(logger);
@@ -105,24 +105,22 @@ export function bootstrapServices(): BootstrapResult {
 	);
 	container.register('taskExecutor', new TaskExecutor(taskHandlerRegistry, eventBus, 10, logger));
 
-	// Assistant registry -- conversational OpenAI assistants. One default
+	// Assistant facade -- conversational OpenAI assistants. One default
 	// assistant ('main') is registered eagerly so window.app.assistant.send works
 	// without any renderer-side init.
 	const assistantRegistry = new AssistantRegistry();
-	assistantRegistry.register(
-		new Assistant(
-			{ id: DEFAULT_ASSISTANT_ID },
-			storeService,
-			container.get<CronService>('cronService')
-		)
+	const assistant = new AssistantService(
+		{ store: storeService, cron: cronService },
+		{ defaultAssistantId: DEFAULT_ASSISTANT_ID, registry: assistantRegistry }
 	);
+	container.register('assistant', assistant);
 	container.register('assistantRegistry', assistantRegistry);
 
 	// Channel registry -- messaging adapters (Telegram, WhatsApp). Adapters are
 	// instantiated lazily from store.channels and started after app is ready.
 	container.register(
 		'channelRegistry',
-		new ChannelRegistry(storeService, logger, eventBus, assistantRegistry)
+		new ChannelRegistry(storeService, logger, eventBus, assistant)
 	);
 
 	// Task reaction layer -- main-process observer that receives TaskExecutor lifecycle

@@ -8,7 +8,7 @@ import { AppChannels } from '../../shared/channels';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { EventBus } from '../core/event-bus';
-import { AssistantRegistry, DEFAULT_ASSISTANT_ID } from '../assistant';
+import type { AssistantService } from '../assistant';
 import { TelegramAdapter } from './telegram';
 import { WhatsAppAdapter } from './whatsapp';
 import { DiscordAdapter } from './discord';
@@ -32,7 +32,7 @@ export class ChannelRegistry {
 		private store: StoreService,
 		private logger: LoggerService,
 		private eventBus: EventBus,
-		private assistantRegistry: AssistantRegistry
+		private assistant: AssistantService
 	) {
 		this.factories = {
 			telegram: (ch) =>
@@ -215,8 +215,7 @@ export class ChannelRegistry {
 	private async handleMessage(msg: ChannelInboundMessage): Promise<void> {
 		console.log('[ChannelRegistry] message received', msg);
 		try {
-			const assistant = this.assistantRegistry.get(DEFAULT_ASSISTANT_ID);
-			const reply = await assistant.send(msg.text);
+			const reply = await this.assistant.send(msg.text);
 			const rendered = (await marked.parse(reply)).toString().trimEnd();
 			console.log(panel('assistant', rendered, 'green'));
 			await this.send({ type: msg.type, to: msg.chatId, text: reply });

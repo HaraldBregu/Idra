@@ -1,5 +1,10 @@
 export { Assistant, type AssistantOptions } from './assistant';
 export { AssistantRegistry } from './registry';
+export {
+	AssistantService,
+	type AssistantServiceDependencies,
+	type AssistantServiceOptions,
+} from './service';
 export { MemoryManager, buildSystemPrompt } from './memory';
 export { SessionManager } from './session';
 export { runAgent, type RunAgentParams, type RunResult } from './loop';

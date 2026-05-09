@@ -5,7 +5,7 @@ import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import { AssistantChannels, type AssistantResponseEvent } from '../../shared/channels';
-import { AssistantRegistry, DEFAULT_ASSISTANT_ID } from '../assistant';
+import { AssistantService, DEFAULT_ASSISTANT_ID } from '../assistant';
 
 /**
  * IPC for the assistant subsystem.
@@ -18,12 +18,11 @@ export class AssistantIpc implements IpcModule {
 
 	register(container: ServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get<LoggerService>('logger');
-		const registry = container.get<AssistantRegistry>('assistantRegistry');
+		const assistant = container.get<AssistantService>('assistant');
 
 		registerCommand(AssistantChannels.send, async (message: string, assistantId?: string) => {
 			const id = assistantId ?? DEFAULT_ASSISTANT_ID;
-			const assistant = registry.get(id);
-			const response = await assistant.send(message);
+			const response = await assistant.send(message, id);
 
 			const event: AssistantResponseEvent = { assistantId: id, userMessage: message, response };
 			for (const win of BrowserWindow.getAllWindows()) {
@@ -33,7 +32,7 @@ export class AssistantIpc implements IpcModule {
 		});
 
 		registerCommand(AssistantChannels.reset, async (assistantId?: string) => {
-			registry.get(assistantId ?? DEFAULT_ASSISTANT_ID).reset();
+			await assistant.reset(assistantId ?? DEFAULT_ASSISTANT_ID);
 		});
 
 		logger.info('AssistantIpc', `Registered ${this.name} module`);
