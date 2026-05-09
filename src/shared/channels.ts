@@ -1,5 +1,4 @@
 import type {
-	CronJobInfo,
 	CronTickEvent,
 	Theme,
 	UserProfile,
