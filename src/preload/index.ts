@@ -1,9 +1,6 @@
 import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
-import {
-	AppChannels,
-	WindowChannels,
-} from '../shared/channels';
+import { WindowChannels } from '../shared/channels';
 import type { AssistantAiSelection } from '../shared/types';
 import type { AppApi, WindowApi } from './index.d';
 
@@ -38,11 +35,11 @@ const win: WindowApi = {
 // window.app — General application utilities + nested IPC namespaces
 // ---------------------------------------------------------------------------
 export const app: AppApi = {
-	getAssistantAiSettings: () => typedInvokeUnwrap(AppChannels.getAssistantAiSettings),
+	getAssistantAiSettings: () => typedInvokeUnwrap('app:get-assistant-ai-settings'),
 	setAssistantAiProviderApiKey: (providerId: string, apiKey: string) =>
-		typedInvokeUnwrap(AppChannels.setAssistantAiProviderApiKey, providerId, apiKey),
+		typedInvokeUnwrap('app:set-assistant-ai-provider-api-key', providerId, apiKey),
 	setAssistantAiSelection: (selection: AssistantAiSelection) =>
-		typedInvokeUnwrap(AppChannels.setAssistantAiSelection, selection),
+		typedInvokeUnwrap('app:set-assistant-ai-selection', selection),
 };
 
 // ---------------------------------------------------------------------------
