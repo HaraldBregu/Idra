@@ -11,7 +11,7 @@ import { CronService } from './cron';
 import { AssistantService } from './assistant';
 
 import type { IpcModule } from './ipc';
-import { AppIpc, AssistantIpc, WindowIpc } from './ipc';
+import { AppIpc, AssistantIpc, CronIpc, WindowIpc } from './ipc';
 
 export interface BootstrapResult {
 	container: ServiceContainer;
@@ -59,7 +59,7 @@ export function bootstrapServices(): BootstrapResult {
 export function bootstrapIpcModules(container: ServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger') as LoggerService;
 
-	const ipcModules: IpcModule[] = [new AppIpc(), new AssistantIpc(), new WindowIpc()];
+	const ipcModules: IpcModule[] = [new AppIpc(), new AssistantIpc(), new CronIpc(), new WindowIpc()];
 
 	for (const module of ipcModules) {
 		try {

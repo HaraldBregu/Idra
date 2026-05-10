@@ -15,7 +15,14 @@ export interface AssistantApi {
 	onResponse: (callback: (event: { response: string }) => void) => () => void;
 }
 
+export interface CronApi {
+	list: () => Promise<CronTask[]>;
+	add: (expression: string, options?: { id?: string; timezone?: string }) => Promise<CronTask>;
+	remove: (id: string) => Promise<void>;
+}
+
 import type { PublicProvider } from '../shared/providers';
+import type { CronTask } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 
 export interface AppApi {
@@ -32,5 +39,6 @@ declare global {
 		win?: WindowApi;
 		app: AppApi;
 		assistant: AssistantApi;
+		cron: CronApi;
 	}
 }

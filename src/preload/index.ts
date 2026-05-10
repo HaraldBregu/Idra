@@ -1,8 +1,9 @@
 import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
-import { WindowChannels, AssistantChannels, ProviderChannels } from '../shared/channels';
-import type { AppApi, AssistantApi, WindowApi } from './index.d';
+import { WindowChannels, AssistantChannels, ProviderChannels, CronChannels } from '../shared/channels';
+import type { AppApi, AssistantApi, CronApi, WindowApi } from './index.d';
 import type { PublicProvider } from '../shared/providers';
+import type { CronTask } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 
 const win: WindowApi = {
@@ -65,11 +66,24 @@ export const app: AppApi = {
 	},
 };
 
+export const cron: CronApi = {
+	list: (): Promise<CronTask[]> => {
+		return typedInvokeUnwrap(CronChannels.list);
+	},
+	add: (expression: string, options?: { id?: string; timezone?: string }): Promise<CronTask> => {
+		return typedInvokeUnwrap(CronChannels.add, expression, options);
+	},
+	remove: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(CronChannels.remove, id);
+	},
+};
+
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('assistant', assistant);
+		contextBridge.exposeInMainWorld('cron', cron);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -80,4 +94,6 @@ if (process.contextIsolated) {
 	globalThis.win = win;
 	// @ts-ignore (define in dts)
 	globalThis.assistant = assistant;
+	// @ts-ignore (define in dts)
+	globalThis.cron = cron;
 }

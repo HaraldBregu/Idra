@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock3 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -17,20 +17,28 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-
-interface CronTask {
-	readonly id: string;
-	readonly name: string;
-	readonly schedule: string;
-	readonly status: 'active' | 'paused';
-	readonly lastRun: string;
-	readonly nextRun: string;
-}
-
-const cronTasks: readonly CronTask[] = [];
+import type { CronTask } from '../../../../shared/cron';
 
 const CronPage: React.FC = () => {
 	const { t } = useTranslation();
+	const [cronTasks, setCronTasks] = useState<readonly CronTask[]>([]);
+
+	useEffect(() => {
+		let mounted = true;
+
+		window.cron
+			.list()
+			.then((tasks) => {
+				if (mounted) setCronTasks(tasks);
+			})
+			.catch((error) => {
+				console.error('[CronPage] Failed to load cron tasks:', error);
+			});
+
+		return () => {
+			mounted = false;
+		};
+	}, []);
 
 	return (
 		<div className="w-full">
@@ -57,15 +65,13 @@ const CronPage: React.FC = () => {
 					<TableBody>
 						{cronTasks.map((task) => (
 							<TableRow key={task.id}>
-								<TableCell className="font-medium">{task.name}</TableCell>
-								<TableCell className="font-mono text-xs">{task.schedule}</TableCell>
+								<TableCell className="font-medium">{task.id}</TableCell>
+								<TableCell className="font-mono text-xs">{task.expression}</TableCell>
 								<TableCell>
-									<Badge variant={task.status === 'active' ? 'secondary' : 'outline'}>
-										{t(`settings.cron.status.${task.status}`)}
-									</Badge>
+									<Badge variant="secondary">{t('settings.cron.status.active')}</Badge>
 								</TableCell>
-								<TableCell>{task.lastRun}</TableCell>
-								<TableCell>{task.nextRun}</TableCell>
+								<TableCell className="text-muted-foreground">—</TableCell>
+								<TableCell className="text-muted-foreground">—</TableCell>
 								<TableCell className="text-right text-muted-foreground">
 									{t('settings.cron.actions.placeholder')}
 								</TableCell>
