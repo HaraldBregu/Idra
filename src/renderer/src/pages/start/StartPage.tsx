@@ -185,7 +185,11 @@ const StartPage: React.FC = () => {
 			<section className="w-full max-w-2xl space-y-4 text-center">
 				<p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Friday</p>
 				<h1 className="text-4xl font-semibold tracking-normal text-foreground">Start</h1>
-				<p className="text-base text-muted-foreground">Set up your workspace to begin.</p>
+				<p className="text-base text-muted-foreground">
+					{step === 'model'
+						? 'Configure the assistant service with a provider and model.'
+						: 'Set up your workspace to begin.'}
+				</p>
 				<div className="mx-auto flex w-full max-w-sm items-center gap-2 text-left">
 					<div className="h-1 flex-1 rounded-full bg-primary" />
 					<div
