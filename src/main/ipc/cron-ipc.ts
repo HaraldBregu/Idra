@@ -39,9 +39,14 @@ export class CronIpc implements IpcModule {
 						id,
 						expression,
 						message,
-						() => {
-							logger.info('CronService', `Tick: ${id} '${expression}' — ${message}`);
-						},
+						() =>
+							dispatcher({
+								id,
+								expression,
+								message,
+								timezone: options?.timezone,
+								createdAt: new Date().toISOString(),
+							}),
 						{ timezone: options?.timezone }
 					);
 				},
