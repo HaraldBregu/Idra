@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DEFAULT_PROVIDERS, type Provider } from '../../../../shared/providers';
+import { DEFAULT_PROVIDERS, type Provider, type PublicProvider } from '../../../../shared/providers';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
@@ -30,23 +30,58 @@ const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 	normalizeProvider(provider, index),
 );
 
+const MASKED_API_KEY = '********' as const;
+
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [apiKey, setApiKey] = useState('');
+	const [apiKeySaved, setApiKeySaved] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [selectedProvider, setSelectedProvider] = useState(providerOptions[0]?.value ?? '');
-	const canSave = selectedProvider.length > 0 && apiKey.trim().length > 0 && !saving;
+	const canSave =
+		selectedProvider.length > 0 && (apiKeySaved || apiKey.trim().length > 0) && !saving;
+
+	useEffect(() => {
+		let cancelled = false;
+
+		async function loadApiKeyStatus(): Promise<void> {
+			const providers = await window.app.getProviders();
+			if (cancelled) return;
+
+			const providerImplemented = providers.some((provider: PublicProvider) => {
+				return provider.id.trim().toLowerCase() === selectedProvider.trim().toLowerCase();
+			});
+			const saved = providerImplemented
+				? await window.app.isProviderApiKeySaved(selectedProvider)
+				: false;
+			if (cancelled) return;
+
+			setApiKeySaved(saved);
+			setApiKey(saved ? MASKED_API_KEY : '');
+		}
+
+		void loadApiKeyStatus();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedProvider]);
 
 	async function handleSave(): Promise<void> {
 		if (!canSave) return;
 
 		setSaving(true);
-	try {
-		await window.app.setProviderApiKey(selectedProvider, apiKey.trim());
-		navigate('/config');
-	} finally {
-		setSaving(false);
-	}
+		try {
+			if (apiKeySaved && apiKey === MASKED_API_KEY) {
+				navigate('/config');
+				return;
+			}
+
+			await window.app.setProviderApiKey(selectedProvider, apiKey.trim());
+			navigate('/config');
+		} finally {
+			setSaving(false);
+		}
 	}
 
 	return (
@@ -88,7 +123,13 @@ const StartPage: React.FC = () => {
 							className="h-10"
 							id="api-key"
 							onChange={(event) => {
+								setApiKeySaved(false);
 								setApiKey(event.target.value);
+							}}
+							onFocus={(event) => {
+								if (apiKeySaved) {
+									event.currentTarget.select();
+								}
 							}}
 							placeholder="Enter API key"
 							spellCheck={false}
