@@ -17,7 +17,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import type { CronTask } from '../../../../shared/cron';
+import type { CronTask } from '../../../../../shared/cron';
 
 const CronPage: React.FC = () => {
 	const { t } = useTranslation();
