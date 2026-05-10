@@ -12,7 +12,6 @@ const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page')
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
-const EditorPage = lazy(() => import('./pages/settings/pages/EditorPage'));
 const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
