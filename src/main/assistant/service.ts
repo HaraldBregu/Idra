@@ -56,7 +56,8 @@ export class AssistantService {
 					assistantId,
 					this.dependencies.store,
 					this.dependencies.cron,
-					this.dependencies.logger
+					this.dependencies.logger,
+					this.dependencies.eventBus
 				)
 			);
 		}
