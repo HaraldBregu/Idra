@@ -88,7 +88,7 @@ export const TitleBar = React.memo(function TitleBar({
   `;
 
 	return (
-		<TitleBarContainer className="border-none">
+		<TitleBarContainer className="border-none bg-transparent">
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
 			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
 				{!isMac && (
