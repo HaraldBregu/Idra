@@ -2,8 +2,12 @@ import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
-import type { CronTask } from '../../shared/cron';
+import type { CronTask, CronTaskView } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
+
+interface NextRunCapable {
+	getNextRun?: () => Date | null;
+}
 
 /**
  * Schedules and manages recurring jobs via node-cron. Tasks are persisted
