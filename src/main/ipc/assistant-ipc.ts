@@ -29,6 +29,14 @@ export class AssistantIpc implements IpcModule {
 			}, AssistantChannels.reset)
 		);
 
+		ipcMain.handle(
+			AssistantChannels.getHistory,
+			wrapSimpleHandler(async (): Promise<AssistantHistoryMessage[]> => {
+				const history = await assistant.getHistory();
+				return history as unknown as AssistantHistoryMessage[];
+			}, AssistantChannels.getHistory)
+		);
+
 		logger.info('AssistantIpc', `Registered ${this.name} module`);
 	}
 }
