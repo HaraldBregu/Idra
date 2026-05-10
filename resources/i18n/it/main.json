@@ -226,6 +226,7 @@
 		"cron": {
 			"columns": {
 				"id": "Id",
+				"message": "Messaggio",
 				"schedule": "Pianificazione",
 				"lastRun": "Ultima Esecuzione",
 				"nextRun": "Prossima Esecuzione",
