@@ -22,6 +22,7 @@ export class CronService implements Disposable {
 	schedule(
 		id: string,
 		expression: string,
+		message: string,
 		handler: () => void | Promise<void>,
 		options: CronJobOptions = {}
 	): CronTask {
@@ -49,6 +50,7 @@ export class CronService implements Disposable {
 		const record: CronTask = {
 			id,
 			expression,
+			message,
 			timezone: options.timezone,
 			createdAt: new Date().toISOString(),
 		};
