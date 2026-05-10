@@ -6,6 +6,7 @@ import type { AssistantService } from '../assistant';
 import type { LoggerService } from '../logger';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AssistantChannels } from '../../shared/channels';
+import type { AssistantHistoryMessage } from '../../shared/service';
 
 export class AssistantIpc implements IpcModule {
 	readonly name = 'assistant';
