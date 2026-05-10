@@ -1,6 +1,7 @@
 import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
 import type { Assistant, Model, Service } from '../../shared/service';
+import type { CronTask } from '../../shared/cron';
 import { SettingsStore, StoreSchema } from './types';
 
 export class StoreService {
