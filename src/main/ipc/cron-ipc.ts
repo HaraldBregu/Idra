@@ -7,7 +7,7 @@ import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/channels';
-import type { CronTask } from '../../shared/cron';
+import type { CronTask, CronTaskView } from '../../shared/cron';
 
 export class CronIpc implements IpcModule {
 	readonly name = 'cron';
