@@ -11,11 +11,12 @@ export interface WindowApi {
 export interface AssistantApi {
 	send: (message: string) => Promise<string>;
 	reset: () => Promise<void>;
+	getHistory: () => Promise<AssistantHistoryMessage[]>;
 	onResponse: (callback: (event: { response: string }) => void) => () => void;
 }
 
 import type { PublicProvider } from '../shared/providers';
-import type { Assistant, Model } from '../shared/service';
+import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
