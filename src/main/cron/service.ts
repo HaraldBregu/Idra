@@ -37,6 +37,8 @@ export class CronService implements Disposable {
 		const task = cron.schedule(
 			expression,
 			async () => {
+				// eslint-disable-next-line no-console
+				console.log(`[cron] tick ${id} '${expression}' — ${message}`);
 				try {
 					await handler();
 				} catch (err) {

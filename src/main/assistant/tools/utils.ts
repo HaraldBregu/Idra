@@ -8,7 +8,6 @@ import {
 	SetThemeModeTool,
 } from './app';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
-import type { AgentSender } from '../../cron';
 import { ExecTool } from './exec';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
 import { ReadFileTool } from './read';
@@ -34,7 +33,6 @@ export function defaultTools(opts: {
 	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
-	agent: AgentSender;
 }): Tool[] {
 	return [
 		new ReadFileTool(),
@@ -45,7 +43,7 @@ export function defaultTools(opts: {
 		new GetAssistantServiceTool(opts.store),
 		new GetAssistantModelTool(opts.store),
 		new SetAssistantServiceTool(opts.store),
-		new CronAddTool(opts.cron, opts.agent, opts.logger),
+		new CronAddTool(opts.cron),
 		new CronListTool(opts.cron),
 		new CronRemoveTool(opts.cron),
 		new SetThemeModeTool(opts.eventBus),

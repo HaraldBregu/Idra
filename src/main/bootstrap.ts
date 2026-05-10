@@ -7,7 +7,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { LoggerService } from './logger';
 import { ThemeService } from './theme';
 import { StoreService } from './store';
-import { CronService, createCronTickDispatcher } from './cron';
+import { CronService } from './cron';
 import { AssistantService } from './assistant';
 
 import type { IpcModule } from './ipc';
@@ -35,13 +35,12 @@ export function bootstrapServices(): BootstrapResult {
 
 	const store = container.register('store', new StoreService());
 	const cron = container.register('cron', new CronService(store, logger));
+	cron.restore((task) => {
+		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
+	});
 
 	container.register('themeService', new ThemeService(logger));
-	const assistantService = container.register(
-		'assistantService',
-		new AssistantService({ store, cron, logger, eventBus })
-	);
-	cron.restore(createCronTickDispatcher(assistantService, logger));
+	container.register('assistantService', new AssistantService({ store, cron, logger, eventBus }));
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);

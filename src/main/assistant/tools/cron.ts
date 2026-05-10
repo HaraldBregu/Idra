@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { Tool } from "./base";
-import { CronService, createCronTickDispatcher, type AgentSender } from "../../cron/index";
-import type { LoggerService } from "../../logger";
+import { CronService } from "../../cron/index";
 
 export class CronAddTool extends Tool {
   name = "cron_add";

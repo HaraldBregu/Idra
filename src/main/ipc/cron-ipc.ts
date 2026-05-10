@@ -3,9 +3,8 @@ import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import { createCronTickDispatcher, type CronService } from '../cron';
+import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
-import type { AssistantService } from '../assistant';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/channels';
 import type { CronTask } from '../../shared/cron';
@@ -16,8 +15,6 @@ export class CronIpc implements IpcModule {
 	register(container: ServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get<LoggerService>('logger');
 		const cron = container.get<CronService>('cron');
-		const assistantService = container.get<AssistantService>('assistantService');
-		const dispatcher = createCronTickDispatcher(assistantService, logger);
 
 		ipcMain.handle(
 			CronChannels.list,
@@ -39,14 +36,9 @@ export class CronIpc implements IpcModule {
 						id,
 						expression,
 						message,
-						() =>
-							dispatcher({
-								id,
-								expression,
-								message,
-								timezone: options?.timezone,
-								createdAt: new Date().toISOString(),
-							}),
+						() => {
+							logger.info('CronService', `Tick: ${id} '${expression}' — ${message}`);
+						},
 						{ timezone: options?.timezone }
 					);
 				},
