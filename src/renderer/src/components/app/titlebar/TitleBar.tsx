@@ -154,17 +154,10 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={() => navigate('/home')}
-						className={
-							isMac
-								? 'flex items-center justify-center h-full px-3 text-muted-foreground transition-colors hover:text-foreground'
-								: btnNoHover
-						}
+						className="flex items-center justify-center h-full px-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
 						title={t('titleBar.home', 'Home')}
 					>
-						<Home
-							className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
-							strokeWidth={1.5}
-						/>
+						{t('titleBar.home', 'Home')}
 					</button>
 				)}
 
