@@ -42,6 +42,7 @@ export class CronService implements Disposable {
 			expression,
 			async () => {
 				console.log(`[cron] tick ${id} '${expression}' — ${message}`);
+				this.recordRun(id);
 				try {
 					await handler();
 				} catch (err) {
