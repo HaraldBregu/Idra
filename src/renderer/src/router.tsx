@@ -117,13 +117,17 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: '*',
-						element: <RouteErrorElement />,
+						loader: () => {
+							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
+						},
 					},
 				],
 			},
 			{
 				path: '*',
-				element: <RouteErrorElement />,
+				loader: () => {
+					throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
+				},
 			},
 		],
 	},
