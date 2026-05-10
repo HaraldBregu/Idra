@@ -8,7 +8,7 @@ import {
 } from '../shared/channels';
 import type { AppApi, AssistantApi, CronApi, WindowApi } from './index.d';
 import type { PublicProvider } from '../shared/providers';
-import type { CronTask } from '../shared/cron';
+import type { CronTask, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 
 const win: WindowApi = {
