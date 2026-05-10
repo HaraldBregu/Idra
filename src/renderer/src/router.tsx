@@ -28,7 +28,7 @@ function RootRouteComponent(): React.JSX.Element {
 
 	return (
 		<div className="flex h-screen flex-col bg-background">
-			<TitleBar title={t('appTitle')} />
+			{/* <TitleBar title={t('appTitle')} /> */}
 			<div className="min-h-0 flex-1">
 				<Outlet />
 			</div>
