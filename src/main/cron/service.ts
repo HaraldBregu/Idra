@@ -117,6 +117,10 @@ export class CronService implements Disposable {
 		return Array.from(this.jobs.values()).map(({ id, expression }) => ({ id, expression }));
 	}
 
+	getTasks(): CronTask[] {
+		return this.store.getCronTasks();
+	}
+
 	has(id: string): boolean {
 		return this.jobs.has(id);
 	}
