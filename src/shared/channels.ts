@@ -29,7 +29,6 @@ export const CronChannels = {
 	list: 'cron:list',
 	add: 'cron:add',
 	remove: 'cron:remove',
-	tick: 'cron:tick',
 } as const;
 
 interface AppInvokeChannelMap {
