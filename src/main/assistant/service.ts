@@ -1,4 +1,5 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
@@ -10,6 +11,7 @@ export interface AssistantServiceDependencies {
 	store: StoreService;
 	cron: CronService;
 	logger: LoggerService;
+	eventBus: EventBus;
 }
 
 export interface AssistantServiceOptions {
