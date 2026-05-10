@@ -4,6 +4,11 @@ export interface CronTask {
 	readonly message: string;
 	readonly timezone?: string;
 	readonly createdAt: string;
+	readonly lastRun?: string;
+}
+
+export interface CronTaskView extends CronTask {
+	readonly nextRun?: string;
 }
 
 export interface CronJobInfo {
