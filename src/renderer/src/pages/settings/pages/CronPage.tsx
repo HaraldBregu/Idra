@@ -17,11 +17,18 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import type { CronTask } from '../../../../../shared/cron';
+import type { CronTaskView } from '../../../../../shared/cron';
+
+function formatTimestamp(value: string | undefined): string {
+	if (!value) return '—';
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return '—';
+	return date.toLocaleString();
+}
 
 const CronPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [cronTasks, setCronTasks] = useState<readonly CronTask[]>([]);
+	const [cronTasks, setCronTasks] = useState<readonly CronTaskView[]>([]);
 
 	useEffect(() => {
 		let mounted = true;
