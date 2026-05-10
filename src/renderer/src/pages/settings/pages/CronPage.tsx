@@ -70,7 +70,7 @@ const CronPage: React.FC = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>{t('settings.cron.columns.id')}</TableHead>
+							<TableHead className="w-24 max-w-24">{t('settings.cron.columns.id')}</TableHead>
 							<TableHead>{t('settings.cron.columns.message')}</TableHead>
 							<TableHead>{t('settings.cron.columns.schedule')}</TableHead>
 							<TableHead>{t('settings.cron.columns.lastRun')}</TableHead>
@@ -81,7 +81,9 @@ const CronPage: React.FC = () => {
 					<TableBody>
 						{cronTasks.map((task) => (
 							<TableRow key={task.id}>
-								<TableCell className="font-medium">{task.id}</TableCell>
+								<TableCell className="w-24 max-w-24 truncate font-medium" title={task.id}>
+									{task.id}
+								</TableCell>
 								<TableCell>{task.message}</TableCell>
 								<TableCell className="font-mono text-xs">{task.expression}</TableCell>
 								<TableCell className="text-muted-foreground">
