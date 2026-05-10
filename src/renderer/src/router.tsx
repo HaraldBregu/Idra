@@ -115,7 +115,15 @@ const routes: RouteObject[] = [
 							</RouteWrapper>
 						),
 					},
+					{
+						path: '*',
+						element: <RouteErrorElement />,
+					},
 				],
+			},
+			{
+				path: '*',
+				element: <RouteErrorElement />,
 			},
 		],
 	},
