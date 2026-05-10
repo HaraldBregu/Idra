@@ -150,6 +150,7 @@
 			"system": "System",
 			"themes": "Themes",
 			"editor": "Editor",
+			"cron": "Cron",
 			"developer": "Developer"
 		},
 		"sections": {
@@ -171,6 +172,7 @@
 			"application": "Application",
 			"profile": "Profile",
 			"editor": "Editor",
+			"cron": "Cron Tasks",
 			"developer": "Developer"
 		},
 		"account": {
@@ -220,6 +222,21 @@
 		"developer": {
 			"mode": "Developer Mode",
 			"modeDescription": "Enable advanced developer tools and options"
+		},
+		"cron": {
+			"columns": {
+				"name": "Name",
+				"schedule": "Schedule",
+				"status": "Status",
+				"lastRun": "Last Run",
+				"nextRun": "Next Run"
+			},
+			"status": {
+				"active": "Active",
+				"paused": "Paused"
+			},
+			"emptyTitle": "No cron tasks",
+			"emptyDescription": "Cron tasks will appear here once they are configured."
 		},
 		"permissions": {
 			"microphone": "Microphone",

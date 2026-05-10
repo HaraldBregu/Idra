@@ -150,6 +150,7 @@
 			"system": "Sistema",
 			"themes": "Temi",
 			"editor": "Editor",
+			"cron": "Cron",
 			"developer": "Sviluppatore"
 		},
 		"sections": {
@@ -171,6 +172,7 @@
 			"application": "Applicazione",
 			"profile": "Profilo",
 			"editor": "Editor",
+			"cron": "Attivita Cron",
 			"developer": "Sviluppatore"
 		},
 		"account": {
@@ -220,6 +222,21 @@
 		"developer": {
 			"mode": "Modalità Sviluppatore",
 			"modeDescription": "Abilita strumenti e opzioni avanzate per sviluppatori"
+		},
+		"cron": {
+			"columns": {
+				"name": "Nome",
+				"schedule": "Pianificazione",
+				"status": "Stato",
+				"lastRun": "Ultima Esecuzione",
+				"nextRun": "Prossima Esecuzione"
+			},
+			"status": {
+				"active": "Attiva",
+				"paused": "In Pausa"
+			},
+			"emptyTitle": "Nessuna attivita cron",
+			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."
 		},
 		"permissions": {
 			"microphone": "Microfono",

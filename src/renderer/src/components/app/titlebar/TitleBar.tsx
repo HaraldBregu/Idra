@@ -131,6 +131,9 @@ export const TitleBar = React.memo(function TitleBar({
 						<DropdownMenuItem onClick={() => navigateToSettings('/settings/system')}>
 							{t('settings.tabs.system')}
 						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/cron')}>
+							{t('settings.tabs.cron')}
+						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => navigateToSettings('/settings/developer')}>
 							{t('settings.tabs.developer')}
 						</DropdownMenuItem>

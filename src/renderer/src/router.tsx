@@ -12,6 +12,7 @@ const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const DeveloperPage = lazy(() => import('./pages/settings/pages/DeveloperPage'));
+const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
@@ -104,6 +105,14 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<SystemPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'cron',
+						element: (
+							<RouteWrapper>
+								<CronPage />
 							</RouteWrapper>
 						),
 					},
