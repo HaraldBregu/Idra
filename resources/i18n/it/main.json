@@ -233,7 +233,9 @@
 				"actions": "Azioni"
 			},
 			"actions": {
-				"placeholder": "Nessuna azione"
+				"placeholder": "Nessuna azione",
+				"remove": "Rimuovi",
+				"removeLabel": "Rimuovi attivita cron {{id}}"
 			},
 			"status": {
 				"active": "Attiva",

@@ -233,7 +233,9 @@
 				"actions": "Actions"
 			},
 			"actions": {
-				"placeholder": "No actions"
+				"placeholder": "No actions",
+				"remove": "Remove",
+				"removeLabel": "Remove cron task {{id}}"
 			},
 			"status": {
 				"active": "Active",

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock3 } from 'lucide-react';
+import { Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import {
 	Empty,
 	EmptyDescription,
@@ -40,6 +41,15 @@ const CronPage: React.FC = () => {
 		};
 	}, []);
 
+	const handleRemoveTask = async (taskId: string): Promise<void> => {
+		try {
+			await window.cron.remove(taskId);
+			setCronTasks((tasks) => tasks.filter((task) => task.id !== taskId));
+		} catch (error) {
+			console.error('[CronPage] Failed to remove cron task:', error);
+		}
+	};
+
 	return (
 		<div className="w-full">
 			<h1 className="text-lg font-normal mb-4">{t('settings.tabs.cron')}</h1>
@@ -72,8 +82,17 @@ const CronPage: React.FC = () => {
 								</TableCell>
 								<TableCell className="text-muted-foreground">—</TableCell>
 								<TableCell className="text-muted-foreground">—</TableCell>
-								<TableCell className="text-right text-muted-foreground">
-									{t('settings.cron.actions.placeholder')}
+								<TableCell className="text-right">
+									<Button
+										type="button"
+										variant="destructive"
+										size="sm"
+										onClick={() => void handleRemoveTask(task.id)}
+										aria-label={t('settings.cron.actions.removeLabel', { id: task.id })}
+									>
+										<Trash2 className="size-3.5" />
+										{t('settings.cron.actions.remove')}
+									</Button>
 								</TableCell>
 							</TableRow>
 						))}
