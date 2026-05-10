@@ -37,6 +37,11 @@ function RootRouteComponent(): React.JSX.Element {
 const routes: RouteObject[] = [
 	{
 		element: <RootRouteComponent />,
+		errorElement: (
+			<div className="flex h-screen flex-col bg-background">
+				<RouteErrorElement />
+			</div>
+		),
 		children: [
 			{
 				index: true,
