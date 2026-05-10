@@ -36,7 +36,7 @@ const GeneralPage: React.FC = () => {
 	const actionsClass = 'flex items-center gap-2';
 
 	return (
-		<div className="w-full max-w-2xl">
+		<div className="w-full">
 			<h1 className="text-lg font-normal mb-6">{t('settings.title')}</h1>
 
 			<div className="pt-6 pb-2 first:pt-0">
