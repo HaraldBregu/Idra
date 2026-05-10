@@ -6,7 +6,6 @@ import {
 	net,
 	crashReporter,
 } from 'electron';
-import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Main } from './main';
 import { Tray } from './tray';
@@ -38,7 +37,6 @@ import {
 	cleanup,
 	writeCrashLine,
 } from './bootstrap';
-import { WORKSPACE } from './constants';
 
 // Install process-level safety net BEFORE anything else so we can see silent exits.
 setupProcessSafetyNet();
