@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { ButtonGroup } from '@/components/ui/ButtonGroup';
 import { Moon, Monitor, Sun } from 'lucide-react';
 import type { AppLanguage } from '../../../contexts';
-import { useApp } from '@/contexts'; 
+import { useApp } from '@/contexts';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -102,10 +102,7 @@ const SystemPage: React.FC = () => {
 					</div>
 					<div className="flex items-center gap-2">
 						<Select value={language} onValueChange={handleLanguageChange}>
-							<SelectTrigger
-								className="w-32 h-8 text-sm"
-								aria-label={t('settings.language.title')}
-							>
+							<SelectTrigger className="w-32 h-8 text-sm" aria-label={t('settings.language.title')}>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>

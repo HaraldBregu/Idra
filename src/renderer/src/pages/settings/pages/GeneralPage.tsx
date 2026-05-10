@@ -94,9 +94,7 @@ const GeneralPage: React.FC = () => {
 				<div className={rowClass}>
 					<div className={contentClass}>
 						<h3 className={titleClass}>{t('settings.application.accessibility')}</h3>
-						<p className={descriptionClass}>
-							{t('settings.application.accessibilityDescription')}
-						</p>
+						<p className={descriptionClass}>{t('settings.application.accessibilityDescription')}</p>
 					</div>
 					<div className={actionsClass}>
 						<Button variant="outline" size="sm" onClick={handleOpenAccessibility}>
@@ -122,9 +120,7 @@ const GeneralPage: React.FC = () => {
 				<div className={rowClass}>
 					<div className={contentClass}>
 						<h3 className={titleClass}>{t('settings.application.menuBar')}</h3>
-						<p className={descriptionClass}>
-							{t('settings.application.menuBarDescription')}
-						</p>
+						<p className={descriptionClass}>{t('settings.application.menuBarDescription')}</p>
 					</div>
 					<div className={actionsClass}>
 						<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} />
@@ -134,9 +130,7 @@ const GeneralPage: React.FC = () => {
 				<div className={rowClass}>
 					<div className={contentClass}>
 						<h3 className={titleClass}>{t('settings.application.appData')}</h3>
-						<p className={descriptionClass}>
-							{t('settings.application.appDataDescription')}
-						</p>
+						<p className={descriptionClass}>{t('settings.application.appDataDescription')}</p>
 					</div>
 					<div className={actionsClass}>
 						<Button variant="outline" size="sm" onClick={handleOpenAppDataFolder}>

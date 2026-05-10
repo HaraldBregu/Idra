@@ -23,9 +23,7 @@ const DeveloperPage: React.FC = () => {
 			<div className="flex flex-col gap-2">
 				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
 					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">
-							{t('settings.developer.mode')}
-						</h3>
+						<h3 className="text-sm leading-snug font-medium">{t('settings.developer.mode')}</h3>
 						<p className="text-sm leading-normal text-muted-foreground">
 							{t('settings.developer.modeDescription')}
 						</p>

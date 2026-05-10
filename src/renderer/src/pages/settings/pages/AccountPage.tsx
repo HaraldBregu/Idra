@@ -113,9 +113,7 @@ const AccountPage: React.FC = () => {
 
 				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
 					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">
-							{t('settings.account.firstName')}
-						</h3>
+						<h3 className="text-sm leading-snug font-medium">{t('settings.account.firstName')}</h3>
 						<p className="text-sm leading-normal text-muted-foreground">
 							{t('settings.account.editHint')}
 						</p>
@@ -133,9 +131,7 @@ const AccountPage: React.FC = () => {
 
 				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
 					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">
-							{t('settings.account.lastName')}
-						</h3>
+						<h3 className="text-sm leading-snug font-medium">{t('settings.account.lastName')}</h3>
 						<p className="text-sm leading-normal text-muted-foreground">
 							{t('settings.account.editHint')}
 						</p>
@@ -153,9 +149,7 @@ const AccountPage: React.FC = () => {
 
 				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
 					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">
-							{t('settings.account.signIn')}
-						</h3>
+						<h3 className="text-sm leading-snug font-medium">{t('settings.account.signIn')}</h3>
 						<p className="text-sm leading-normal text-muted-foreground">
 							{t('settings.account.signInDescription')}
 						</p>
