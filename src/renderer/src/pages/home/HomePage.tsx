@@ -55,6 +55,25 @@ function HomePage(): ReactElement {
 		messagesEndRef.current?.scrollIntoView({ block: 'end' });
 	}, [messages.length, isLoading]);
 
+	useEffect(() => {
+		let cancelled = false;
+		void (async () => {
+			try {
+				const history = await window.assistant.getHistory();
+				if (cancelled) return;
+				const restored = historyToChatMessages(history);
+				if (restored.length > 0) {
+					setMessages([welcomeMessage, ...restored]);
+				}
+			} catch {
+				// keep welcome only
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
 	const stopResponse = (): void => {
 		requestIdRef.current += 1;
 		setIsLoading(false);
