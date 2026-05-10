@@ -12,6 +12,7 @@ export const WindowChannels = {
 export const AssistantChannels = {
 	send: 'assistant:send',
 	reset: 'assistant:reset',
+	getHistory: 'assistant:get-history',
 	response: 'assistant:response',
 } as const;
 
