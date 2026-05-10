@@ -152,14 +152,15 @@ export const TitleBar = React.memo(function TitleBar({
 				)}
 
 				{!isHome && (
-					<button
+					<Button
 						type="button"
+						variant="ghost"
+						size="sm"
 						onClick={() => navigate('/home')}
-						className="flex items-center justify-center h-full px-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
 						title={t('titleBar.home', 'Home')}
 					>
 						{t('titleBar.home', 'Home')}
-					</button>
+					</Button>
 				)}
 
 				{onToggleSidebar && (
