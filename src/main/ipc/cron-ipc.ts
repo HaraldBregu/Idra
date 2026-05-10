@@ -18,7 +18,7 @@ export class CronIpc implements IpcModule {
 
 		ipcMain.handle(
 			CronChannels.list,
-			wrapSimpleHandler((): CronTask[] => {
+			wrapSimpleHandler((): CronTaskView[] => {
 				return cron.getTasks();
 			}, CronChannels.list)
 		);
