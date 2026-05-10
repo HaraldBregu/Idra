@@ -25,6 +25,13 @@ export const ProviderChannels = {
 	saveAssistantService: 'provider:save-assistant-service',
 } as const;
 
+export const CronChannels = {
+	list: 'cron:list',
+	add: 'cron:add',
+	remove: 'cron:remove',
+	tick: 'cron:tick',
+} as const;
+
 interface AppInvokeChannelMap {
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
