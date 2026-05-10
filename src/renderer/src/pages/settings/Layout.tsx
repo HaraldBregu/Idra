@@ -15,7 +15,7 @@ export function Layout(): React.JSX.Element {
 
 	return (
 		<PageContainer>
-			<PageHeader>
+			<PageHeader >
 				<PageHeaderTitle>{t('settings.title')}</PageHeaderTitle>
 			</PageHeader>
 			<PageBody className="overflow-auto">

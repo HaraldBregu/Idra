@@ -44,13 +44,11 @@ export const PageHeader = memo(function PageHeader({
 	if (!state.isHeaderVisible) return null;
 	return (
 		<div
-			className={cn(
-				'flex shrink-0 flex-col border-b px-6 py-2 gap-1',
-				className
-			)}
+			className={cn('flex shrink-0 flex-col border-b px-6 py-2 gap-1', className)}
 			style={
 				{
 					backgroundColor: 'var(--page-header-background)',
+					WebkitAppRegion: 'drag',
 				} as React.CSSProperties
 			}
 		>
@@ -85,7 +83,14 @@ export const PageHeaderDescription = memo(function PageHeaderDescription({
 	className,
 }: PageHeaderDescriptionProps): React.ReactElement {
 	return (
-		<p className={cn('text-sm text-muted-foreground flex items-center gap-3 flex-1 min-w-0', className)}>{children}</p>
+		<p
+			className={cn(
+				'text-sm text-muted-foreground flex items-center gap-3 flex-1 min-w-0',
+				className
+			)}
+		>
+			{children}
+		</p>
 	);
 });
 
@@ -99,7 +104,9 @@ export const PageBody = memo(function PageBody({
 	className,
 }: PageBodyProps): React.ReactElement {
 	return (
-		<div className={cn('flex min-h-0 flex-1 flex-col px-6 py-4 overflow-y-auto', className)}>{children}</div>
+		<div className={cn('flex min-h-0 flex-1 flex-col px-6 py-4 overflow-y-auto', className)}>
+			{children}
+		</div>
 	);
 });
 
@@ -137,6 +144,8 @@ export const PageSidebarInset = memo(function PageSidebarInset({
 	className,
 }: PageSidebarInsetProps): React.ReactElement {
 	return (
-		<div className={cn('flex min-w-0 flex-1 flex-col overflow-y-auto p-4', className)}>{children}</div>
+		<div className={cn('flex min-w-0 flex-1 flex-col overflow-y-auto p-4', className)}>
+			{children}
+		</div>
 	);
 });
