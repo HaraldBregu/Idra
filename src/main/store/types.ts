@@ -1,9 +1,11 @@
 import { Provider } from "../../shared/providers";
 import { Service } from "../../shared/service";
+import { CronTask } from "../../shared/cron";
 
 export interface StoreSchema {
 	providers: Provider[];
 	service: Service;
+	cronTasks: CronTask[];
 }
 
 export type SettingsStore = {
