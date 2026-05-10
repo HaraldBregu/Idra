@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
-const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
@@ -108,14 +107,6 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<DeveloperPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'assistant',
-						element: (
-							<RouteWrapper>
-								<AssistantPage />
 							</RouteWrapper>
 						),
 					},
