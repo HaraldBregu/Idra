@@ -1,5 +1,12 @@
 import os from 'node:os';
 import path from 'node:path';
+import {
+	OpenAccessibilityTool,
+	OpenAppDataFolderTool,
+	OpenScreenRecordingTool,
+	SetMenuBarTool,
+	SetThemeModeTool,
+} from './app';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 import { ExecTool } from './exec';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
@@ -10,7 +17,9 @@ import {
 	SetAssistantServiceTool,
 } from './services';
 import { WriteFileTool } from './write';
+import type { EventBus } from '../../core/event-bus';
 import type { CronService } from '../../cron';
+import type { LoggerService } from '../../logger';
 import type { StoreService } from '../../store';
 import type { Tool } from './base';
 
@@ -19,7 +28,12 @@ export function expandUser(p: string): string {
 	return p;
 }
 
-export function defaultTools(opts: { cron: CronService; store: StoreService }): Tool[] {
+export function defaultTools(opts: {
+	cron: CronService;
+	store: StoreService;
+	eventBus: EventBus;
+	logger: LoggerService;
+}): Tool[] {
 	return [
 		new ReadFileTool(),
 		new WriteFileTool(),
@@ -32,5 +46,10 @@ export function defaultTools(opts: { cron: CronService; store: StoreService }): 
 		new CronAddTool(opts.cron),
 		new CronListTool(opts.cron),
 		new CronRemoveTool(opts.cron),
+		new SetThemeModeTool(opts.eventBus),
+		new OpenAppDataFolderTool(opts.logger),
+		new OpenAccessibilityTool(),
+		new OpenScreenRecordingTool(),
+		new SetMenuBarTool(opts.eventBus),
 	];
 }
