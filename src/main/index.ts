@@ -124,21 +124,6 @@ const menuManager = new Menu({
 	},
 });
 
-// macOS: handle file open via Finder / double-click (before and after ready)
-let pendingFilePath: string | null = null;
-
-app.on('open-file', (event, filePath) => {
-	event.preventDefault();
-	logger.debug('App', `File open request: ${filePath}`);
-	if (!isTsrctFile(filePath)) return;
-
-	if (app.isReady()) {
-		mainWindow.createWindowForFile(filePath);
-	} else {
-		pendingFilePath = filePath;
-	}
-});
-
 app.whenReady().then(async () => {
 	// Serve local files via the local-resource:// protocol so the renderer
 	// can display images stored in document folders regardless of its origin.
