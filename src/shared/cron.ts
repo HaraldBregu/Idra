@@ -1,6 +1,7 @@
 export interface CronTask {
 	readonly id: string;
 	readonly expression: string;
+	readonly message: string;
 	readonly timezone?: string;
 	readonly createdAt: string;
 }
