@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import i18next from 'i18next';
+import { isRouteErrorResponse, useRouteError } from 'react-router-dom';
 import {
 	Empty,
 	EmptyHeader,
