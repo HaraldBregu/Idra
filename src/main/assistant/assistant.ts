@@ -107,6 +107,11 @@ export class Assistant {
 		}
 	}
 
+	async getHistory(): Promise<ChatCompletionMessageParam[]> {
+		await this.init();
+		return [...this.history];
+	}
+
 	async reset(): Promise<void> {
 		this.logger.info(this.source, 'reset');
 		await this.session.clear();
