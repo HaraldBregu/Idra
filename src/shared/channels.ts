@@ -102,11 +102,4 @@ interface WindowEventChannelMap {
 	[WindowChannels.fullScreenChange]: { data: boolean };
 }
 
-interface CronEventChannelMap {
-	[CronChannels.tick]: { data: import('./cron').CronTickEvent };
-}
-
-export interface EventChannelMap
-	extends AssistantEventChannelMap,
-		WindowEventChannelMap,
-		CronEventChannelMap {}
+export interface EventChannelMap extends AssistantEventChannelMap, WindowEventChannelMap {}
