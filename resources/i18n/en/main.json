@@ -225,9 +225,8 @@
 		},
 		"cron": {
 			"columns": {
-				"name": "Name",
+				"id": "Id",
 				"schedule": "Schedule",
-				"status": "Status",
 				"lastRun": "Last Run",
 				"nextRun": "Next Run",
 				"actions": "Actions"
@@ -236,10 +235,6 @@
 				"placeholder": "No actions",
 				"remove": "Remove",
 				"removeLabel": "Remove cron task {{id}}"
-			},
-			"status": {
-				"active": "Active",
-				"paused": "Paused"
 			},
 			"emptyTitle": "No cron tasks",
 			"emptyDescription": "Cron tasks will appear here once they are configured."

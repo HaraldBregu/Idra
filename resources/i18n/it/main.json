@@ -225,9 +225,8 @@
 		},
 		"cron": {
 			"columns": {
-				"name": "Nome",
+				"id": "Id",
 				"schedule": "Pianificazione",
-				"status": "Stato",
 				"lastRun": "Ultima Esecuzione",
 				"nextRun": "Prossima Esecuzione",
 				"actions": "Azioni"
@@ -236,10 +235,6 @@
 				"placeholder": "Nessuna azione",
 				"remove": "Rimuovi",
 				"removeLabel": "Rimuovi attivita cron {{id}}"
-			},
-			"status": {
-				"active": "Attiva",
-				"paused": "In Pausa"
 			},
 			"emptyTitle": "Nessuna attivita cron",
 			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."

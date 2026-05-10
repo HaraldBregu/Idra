@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock3, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
 	Empty,
@@ -64,9 +63,8 @@ const CronPage: React.FC = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>{t('settings.cron.columns.name')}</TableHead>
+							<TableHead>{t('settings.cron.columns.id')}</TableHead>
 							<TableHead>{t('settings.cron.columns.schedule')}</TableHead>
-							<TableHead>{t('settings.cron.columns.status')}</TableHead>
 							<TableHead>{t('settings.cron.columns.lastRun')}</TableHead>
 							<TableHead>{t('settings.cron.columns.nextRun')}</TableHead>
 							<TableHead className="text-right">{t('settings.cron.columns.actions')}</TableHead>
@@ -77,28 +75,25 @@ const CronPage: React.FC = () => {
 							<TableRow key={task.id}>
 								<TableCell className="font-medium">{task.id}</TableCell>
 								<TableCell className="font-mono text-xs">{task.expression}</TableCell>
-								<TableCell>
-									<Badge variant="secondary">{t('settings.cron.status.active')}</Badge>
-								</TableCell>
 								<TableCell className="text-muted-foreground">—</TableCell>
 								<TableCell className="text-muted-foreground">—</TableCell>
 								<TableCell className="text-right">
 									<Button
 										type="button"
 										variant="destructive"
-										size="sm"
+										size="icon-sm"
 										onClick={() => void handleRemoveTask(task.id)}
 										aria-label={t('settings.cron.actions.removeLabel', { id: task.id })}
+										title={t('settings.cron.actions.remove')}
 									>
 										<Trash2 className="size-3.5" />
-										{t('settings.cron.actions.remove')}
 									</Button>
 								</TableCell>
 							</TableRow>
 						))}
 						{cronTasks.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={6} className="py-8">
+								<TableCell colSpan={5} className="py-8">
 									<Empty className="border-0 p-0">
 										<EmptyHeader>
 											<EmptyMedia variant="icon">
