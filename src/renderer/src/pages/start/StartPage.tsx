@@ -187,8 +187,8 @@ const StartPage: React.FC = () => {
 				<h1 className="text-4xl font-semibold tracking-normal text-foreground">Start</h1>
 				<p className="text-base text-muted-foreground">
 					{step === 'model'
-						? 'Configure the assistant service with a provider and model.'
-						: 'Set up your workspace to begin.'}
+						? 'Choose the provider and model your assistant will use.'
+						: 'Add your provider API key to connect Friday to your AI service.'}
 				</p>
 				<div className="mx-auto flex w-full max-w-sm items-center gap-2 text-left">
 					<div className="h-1 flex-1 rounded-full bg-primary" />
