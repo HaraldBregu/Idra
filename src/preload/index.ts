@@ -1,6 +1,11 @@
 import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
-import { WindowChannels, AssistantChannels, ProviderChannels, CronChannels } from '../shared/channels';
+import {
+	WindowChannels,
+	AssistantChannels,
+	ProviderChannels,
+	CronChannels,
+} from '../shared/channels';
 import type { AppApi, AssistantApi, CronApi, WindowApi } from './index.d';
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask } from '../shared/cron';

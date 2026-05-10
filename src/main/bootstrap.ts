@@ -40,10 +40,7 @@ export function bootstrapServices(): BootstrapResult {
 	});
 
 	container.register('themeService', new ThemeService(logger));
-	container.register(
-		'assistantService',
-		new AssistantService({ store, cron, logger, eventBus })
-	);
+	container.register('assistantService', new AssistantService({ store, cron, logger, eventBus }));
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
@@ -59,7 +56,12 @@ export function bootstrapServices(): BootstrapResult {
 export function bootstrapIpcModules(container: ServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger') as LoggerService;
 
-	const ipcModules: IpcModule[] = [new AppIpc(), new AssistantIpc(), new CronIpc(), new WindowIpc()];
+	const ipcModules: IpcModule[] = [
+		new AppIpc(),
+		new AssistantIpc(),
+		new CronIpc(),
+		new WindowIpc(),
+	];
 
 	for (const module of ipcModules) {
 		try {
