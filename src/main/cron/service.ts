@@ -24,7 +24,7 @@ export class CronService implements Disposable {
 		expression: string,
 		handler: () => void | Promise<void>,
 		options: CronJobOptions = {}
-	): void {
+	): CronTask {
 		if (this.jobs.has(id)) {
 			throw new Error(`Cron job "${id}" is already registered`);
 		}
@@ -46,12 +46,13 @@ export class CronService implements Disposable {
 		);
 
 		this.jobs.set(id, { id, expression, timezone: options.timezone, task });
-		this.persistTask({
+		const record: CronTask = {
 			id,
 			expression,
 			timezone: options.timezone,
 			createdAt: new Date().toISOString(),
-		});
+		};
+		this.persistTask(record);
 		this.logger.info('CronService', `Scheduled job "${id}" with "${expression}"`);
 
 		if (options.runOnStart) {
@@ -59,6 +60,8 @@ export class CronService implements Disposable {
 				this.logger.error('CronService', `Initial run of "${id}" failed`, err);
 			});
 		}
+
+		return record;
 	}
 
 	unschedule(id: string): void {
