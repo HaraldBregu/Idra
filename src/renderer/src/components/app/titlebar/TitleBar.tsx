@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, PanelLeft, Minus, X, ArrowLeft, ArrowRight, Settings, Home } from 'lucide-react';
+import { Menu, PanelLeft, Minus, X, ArrowLeft, ArrowRight, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
