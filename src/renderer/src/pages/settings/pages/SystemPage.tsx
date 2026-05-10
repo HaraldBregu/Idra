@@ -35,9 +35,9 @@ const SystemPage: React.FC = () => {
 
 	return (
 		<div className="w-full">
-			<h1 className="text-lg font-normal mb-6">{t('settings.tabs.system')}</h1>
+			<h1 className="text-lg font-normal mb-2">{t('settings.tabs.system')}</h1>
 
-			<div className="pt-6 pb-2 first:pt-0">
+			<div className="pt-0 pb-2">
 				<h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
 					{t('settings.sections.layout')}
 				</h2>
