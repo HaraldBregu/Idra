@@ -73,8 +73,20 @@ interface WindowInvokeChannelMap {
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
 }
 
+interface CronInvokeChannelMap {
+	[CronChannels.list]: { args: []; result: import('./cron').CronTask[] };
+	[CronChannels.add]: {
+		args: [expression: string, options?: { id?: string; timezone?: string }];
+		result: import('./cron').CronTask;
+	};
+	[CronChannels.remove]: { args: [id: string]; result: void };
+}
+
 export interface InvokeChannelMap
-	extends AppInvokeChannelMap, AssistantInvokeChannelMap, WindowInvokeChannelMap {}
+	extends AppInvokeChannelMap,
+		AssistantInvokeChannelMap,
+		WindowInvokeChannelMap,
+		CronInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
