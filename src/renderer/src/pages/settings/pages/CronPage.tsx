@@ -71,6 +71,7 @@ const CronPage: React.FC = () => {
 					<TableHeader>
 						<TableRow>
 							<TableHead>{t('settings.cron.columns.id')}</TableHead>
+							<TableHead>{t('settings.cron.columns.message')}</TableHead>
 							<TableHead>{t('settings.cron.columns.schedule')}</TableHead>
 							<TableHead>{t('settings.cron.columns.lastRun')}</TableHead>
 							<TableHead>{t('settings.cron.columns.nextRun')}</TableHead>
@@ -81,9 +82,14 @@ const CronPage: React.FC = () => {
 						{cronTasks.map((task) => (
 							<TableRow key={task.id}>
 								<TableCell className="font-medium">{task.id}</TableCell>
+								<TableCell>{task.message}</TableCell>
 								<TableCell className="font-mono text-xs">{task.expression}</TableCell>
-								<TableCell className="text-muted-foreground">—</TableCell>
-								<TableCell className="text-muted-foreground">—</TableCell>
+								<TableCell className="text-muted-foreground">
+									{formatTimestamp(task.lastRun)}
+								</TableCell>
+								<TableCell className="text-muted-foreground">
+									{formatTimestamp(task.nextRun)}
+								</TableCell>
 								<TableCell className="text-right">
 									<Button
 										type="button"
@@ -100,7 +106,7 @@ const CronPage: React.FC = () => {
 						))}
 						{cronTasks.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={5} className="py-8">
+								<TableCell colSpan={6} className="py-8">
 									<Empty className="border-0 p-0">
 										<EmptyHeader>
 											<EmptyMedia variant="icon">
