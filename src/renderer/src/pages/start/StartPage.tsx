@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DEFAULT_PROVIDERS, type Provider, type PublicProvider } from '../../../../shared/providers';
+import {
+	DEFAULT_PROVIDERS,
+	type Provider,
+	type PublicProvider,
+} from '../../../../shared/providers';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
@@ -27,7 +31,7 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 }
 
 const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
-	normalizeProvider(provider, index),
+	normalizeProvider(provider, index)
 );
 
 const MASKED_API_KEY = '********' as const;

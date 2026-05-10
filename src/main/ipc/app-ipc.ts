@@ -13,7 +13,6 @@ import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { ProviderChannels } from '../../shared/channels';
 
-
 const VALID_LANGUAGES = ['en', 'it'] as const;
 
 async function getOpenAiModels(apiKey: string): Promise<Model[]> {
@@ -204,8 +203,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			ProviderChannels.getAll,
 			wrapSimpleHandler(
-				(): PublicProvider[] =>
-					store.getProviders().map(({ apiKey: _apiKey, ...rest }) => rest),
+				(): PublicProvider[] => store.getProviders().map(({ apiKey: _apiKey, ...rest }) => rest),
 				ProviderChannels.getAll
 			)
 		);

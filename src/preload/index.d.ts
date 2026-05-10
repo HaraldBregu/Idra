@@ -1,4 +1,3 @@
-
 export interface WindowApi {
 	minimize: () => void;
 	maximize: () => void;
@@ -24,7 +23,7 @@ export interface AppApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-};
+}
 
 declare global {
 	interface Window {

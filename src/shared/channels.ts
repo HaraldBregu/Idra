@@ -57,9 +57,7 @@ interface WindowInvokeChannelMap {
 }
 
 export interface InvokeChannelMap
-	extends AppInvokeChannelMap,
-		AssistantInvokeChannelMap,
-		WindowInvokeChannelMap {}
+	extends AppInvokeChannelMap, AssistantInvokeChannelMap, WindowInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
@@ -76,6 +74,4 @@ interface WindowEventChannelMap {
 	[WindowChannels.fullScreenChange]: { data: boolean };
 }
 
-export interface EventChannelMap
-	extends AssistantEventChannelMap,
-		WindowEventChannelMap {}
+export interface EventChannelMap extends AssistantEventChannelMap, WindowEventChannelMap {}
