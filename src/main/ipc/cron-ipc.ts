@@ -16,6 +16,8 @@ export class CronIpc implements IpcModule {
 	register(container: ServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get<LoggerService>('logger');
 		const cron = container.get<CronService>('cron');
+		const assistantService = container.get<AssistantService>('assistantService');
+		const dispatcher = createCronTickDispatcher(assistantService, logger);
 
 		ipcMain.handle(
 			CronChannels.list,
