@@ -170,20 +170,6 @@ app.whenReady().then(async () => {
 		trayManager.updateContextMenu();
 	});
 
-	// Handle file from macOS open-file event that arrived before ready
-	if (pendingFilePath) {
-		logger.info('App', `Opening pending file from macOS: ${pendingFilePath}`);
-		mainWindow.createWindowForFile(pendingFilePath);
-		pendingFilePath = null;
-	}
-
-	// Windows/Linux: handle file passed as command-line argument on first launch
-	const fileFromArgs = extractFilePathFromArgs(process.argv.slice(1));
-	if (fileFromArgs) {
-		logger.info('App', `Opening file from command line: ${fileFromArgs}`);
-		mainWindow.createWindowForFile(fileFromArgs);
-	}
-
 	app.on('activate', () => {
 		if (BrowserWindow.getAllWindows().length === 0) {
 			mainWindow.create();
