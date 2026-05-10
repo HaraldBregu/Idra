@@ -3,7 +3,7 @@ import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import { WindowChannels, AssistantChannels, ProviderChannels } from '../shared/channels';
 import type { AppApi, AssistantApi, WindowApi } from './index.d';
 import type { PublicProvider } from '../shared/providers';
-import type { Assistant, Model } from '../shared/service';
+import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 
 const win: WindowApi = {
 	minimize: (): void => {
