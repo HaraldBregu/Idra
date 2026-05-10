@@ -24,14 +24,20 @@ export class Assistant {
 	private initialized = false;
 	private initPromise: Promise<void> | null = null;
 
-	constructor(assistantId: string, store: StoreService, cron: CronService, logger: LoggerService) {
+	constructor(
+		assistantId: string,
+		store: StoreService,
+		cron: CronService,
+		logger: LoggerService,
+		eventBus: EventBus
+	) {
 		this.id = assistantId;
 		this.store = store;
 		this.logger = logger;
 		this.source = `Assistant:${assistantId}`;
 		this.memory = new MemoryManager(assistantId);
 		this.session = new SessionManager(`assistant:${assistantId}`);
-		this.tools = defaultTools({ cron, store });
+		this.tools = defaultTools({ cron, store, eventBus, logger });
 	}
 
 	async init(): Promise<void> {
