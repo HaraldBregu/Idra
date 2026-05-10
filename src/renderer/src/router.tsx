@@ -96,14 +96,6 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'editor',
-						element: (
-							<RouteWrapper>
-								<EditorPage />
-							</RouteWrapper>
-						),
-					},
-					{
 						path: 'system',
 						element: (
 							<RouteWrapper>
