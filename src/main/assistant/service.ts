@@ -1,3 +1,4 @@
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
