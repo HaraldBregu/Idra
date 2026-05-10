@@ -97,6 +97,7 @@ export class CronService implements Disposable {
 			const scheduled = cron.schedule(
 				task.expression,
 				async () => {
+					console.log(`[cron] tick ${task.id} '${task.expression}' — ${task.message}`);
 					try {
 						await dispatcher(task);
 					} catch (err) {
