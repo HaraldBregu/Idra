@@ -8,7 +8,8 @@
 
 jest.mock('node-cron', () => {
 	const stop = jest.fn();
-	const schedule = jest.fn(() => ({ stop }));
+	const getNextRun = jest.fn(() => null as Date | null);
+	const schedule = jest.fn(() => ({ stop, getNextRun }));
 	const validate = jest.fn((expr: string) => expr !== 'invalid');
 	return {
 		__esModule: true,
@@ -16,6 +17,7 @@ jest.mock('node-cron', () => {
 		_stop: stop,
 		_schedule: schedule,
 		_validate: validate,
+		_getNextRun: getNextRun,
 	};
 });
 
