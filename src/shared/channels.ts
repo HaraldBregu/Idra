@@ -55,6 +55,10 @@ interface AppInvokeChannelMap {
 interface AssistantInvokeChannelMap {
 	[AssistantChannels.send]: { args: [message: string]; result: string };
 	[AssistantChannels.reset]: { args: []; result: void };
+	[AssistantChannels.getHistory]: {
+		args: [];
+		result: import('./service').AssistantHistoryMessage[];
+	};
 }
 
 interface WindowInvokeChannelMap {
