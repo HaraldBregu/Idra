@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, PanelLeft, Minus, X, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Menu, PanelLeft, Minus, X, ArrowLeft, ArrowRight, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
 import { TitleBarCenterContainer } from './TitleBarCenterContainer';
 import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -52,6 +59,7 @@ export const TitleBar = React.memo(function TitleBar({
 	showSidebarToggles: _showSidebarToggles = false,
 }: TitleBarProps) {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -87,10 +95,50 @@ export const TitleBar = React.memo(function TitleBar({
     text-muted-foreground
   `;
 
+	const navigateToSettings = (path: string): void => {
+		navigate(path);
+	};
+
 	return (
 		<TitleBarContainer className="border-none bg-transparent">
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
 			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
+				<DropdownMenu>
+					<DropdownMenuTrigger
+						className={
+							isMac
+								? 'flex items-center justify-center h-full px-3 text-muted-foreground transition-colors hover:text-foreground'
+								: btnNoHover
+						}
+						title={t('settings.title', 'Settings')}
+					>
+						<Settings
+							className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+							strokeWidth={1.5}
+						/>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="start" className="w-44">
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/general')}>
+							{t('settings.tabs.general')}
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/account')}>
+							{t('settings.tabs.account')}
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/editor')}>
+							{t('settings.tabs.editor')}
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/assistant')}>
+							{t('settings.tabs.assistant', 'Assistant')}
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/system')}>
+							{t('settings.tabs.system')}
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigateToSettings('/settings/developer')}>
+							{t('settings.tabs.developer')}
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
 				{!isMac && (
 					<button
 						type="button"
