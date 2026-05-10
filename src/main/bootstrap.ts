@@ -53,11 +53,7 @@ export function bootstrapServices(): BootstrapResult {
 export function bootstrapIpcModules(container: ServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger') as LoggerService;
 
-	const ipcModules: IpcModule[] = [
-		new AppIpc(),
-		new AssistantIpc(),
-		new WindowIpc(),
-	];
+	const ipcModules: IpcModule[] = [new AppIpc(), new AssistantIpc(), new WindowIpc()];
 
 	for (const module of ipcModules) {
 		try {
@@ -69,7 +65,6 @@ export function bootstrapIpcModules(container: ServiceContainer, eventBus: Event
 
 	logger.info('Bootstrap', `Registered ${ipcModules.length} IPC modules`);
 }
-
 
 let safetyNetLogger: LoggerService | null = null;
 let safetyNetInstalled = false;
@@ -175,9 +170,7 @@ export function setupProcessSafetyNet(logger?: LoggerService): void {
 	app.on('will-quit', () => writeCrashLine('[app:will-quit]'));
 	app.on('quit', (_e, code) => writeCrashLine(`[app:quit] code=${code}`));
 	app.on('render-process-gone', (_e, _wc, details) => {
-		writeCrashLine(
-			`[render-process-gone] reason=${details.reason} exitCode=${details.exitCode}`
-		);
+		writeCrashLine(`[render-process-gone] reason=${details.reason} exitCode=${details.exitCode}`);
 	});
 	app.on('child-process-gone', (_e, details) => {
 		writeCrashLine(
