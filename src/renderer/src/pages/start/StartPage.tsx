@@ -248,6 +248,17 @@ const StartPage: React.FC = () => {
 					</div>
 				) : (
 					<div className="mx-auto w-full max-w-sm space-y-4 text-left">
+						<Button
+							className="h-auto px-0 text-sm"
+							onClick={() => {
+								setStep('api-key');
+							}}
+							type="button"
+							variant="link"
+							disabled={savingConfig}
+						>
+							Back
+						</Button>
 						<div className="space-y-2">
 							<label className="text-sm font-medium text-foreground" htmlFor="config-provider">
 								Provider
@@ -292,20 +303,9 @@ const StartPage: React.FC = () => {
 								</SelectContent>
 							</Select>
 						</div>
-						<div className="grid grid-cols-2 gap-2">
+						<div>
 							<Button
-								className="h-10"
-								onClick={() => {
-									setStep('api-key');
-								}}
-								type="button"
-								variant="outline"
-								disabled={savingConfig}
-							>
-								Back
-							</Button>
-							<Button
-								className="h-10"
+								className="h-10 w-full"
 								onClick={() => {
 									void handleFinish();
 								}}
