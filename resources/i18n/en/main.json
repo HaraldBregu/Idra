@@ -229,7 +229,11 @@
 				"schedule": "Schedule",
 				"status": "Status",
 				"lastRun": "Last Run",
-				"nextRun": "Next Run"
+				"nextRun": "Next Run",
+				"actions": "Actions"
+			},
+			"actions": {
+				"placeholder": "No actions"
 			},
 			"status": {
 				"active": "Active",

@@ -229,7 +229,11 @@
 				"schedule": "Pianificazione",
 				"status": "Stato",
 				"lastRun": "Ultima Esecuzione",
-				"nextRun": "Prossima Esecuzione"
+				"nextRun": "Prossima Esecuzione",
+				"actions": "Azioni"
+			},
+			"actions": {
+				"placeholder": "Nessuna azione"
 			},
 			"status": {
 				"active": "Attiva",

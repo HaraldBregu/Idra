@@ -50,6 +50,7 @@ const CronPage: React.FC = () => {
 						<TableHead>{t('settings.cron.columns.status')}</TableHead>
 						<TableHead>{t('settings.cron.columns.lastRun')}</TableHead>
 						<TableHead>{t('settings.cron.columns.nextRun')}</TableHead>
+						<TableHead className="text-right">{t('settings.cron.columns.actions')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -64,11 +65,14 @@ const CronPage: React.FC = () => {
 							</TableCell>
 							<TableCell>{task.lastRun}</TableCell>
 							<TableCell>{task.nextRun}</TableCell>
+							<TableCell className="text-right text-muted-foreground">
+								{t('settings.cron.actions.placeholder')}
+							</TableCell>
 						</TableRow>
 					))}
 					{cronTasks.length === 0 && (
 						<TableRow>
-							<TableCell colSpan={5} className="py-8">
+							<TableCell colSpan={6} className="py-8">
 								<Empty className="border-0 p-0">
 									<EmptyHeader>
 										<EmptyMedia variant="icon">
