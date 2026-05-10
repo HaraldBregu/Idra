@@ -9,4 +9,11 @@ export {
 	GetAssistantServiceTool,
 	SetAssistantServiceTool,
 } from './services';
+export {
+	OpenAccessibilityTool,
+	OpenAppDataFolderTool,
+	OpenScreenRecordingTool,
+	SetMenuBarTool,
+	SetThemeModeTool,
+} from './app';
 export { defaultTools, expandUser } from './utils';
