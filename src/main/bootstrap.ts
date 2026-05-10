@@ -35,12 +35,13 @@ export function bootstrapServices(): BootstrapResult {
 
 	const store = container.register('store', new StoreService());
 	const cron = container.register('cron', new CronService(store, logger));
-	cron.restore((task) => {
-		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
-	});
 
 	container.register('themeService', new ThemeService(logger));
-	container.register('assistantService', new AssistantService({ store, cron, logger, eventBus }));
+	const assistantService = container.register(
+		'assistantService',
+		new AssistantService({ store, cron, logger, eventBus })
+	);
+	cron.restore(createCronTickDispatcher(assistantService, logger));
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
