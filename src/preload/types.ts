@@ -1,1 +1,1 @@
-export type { WindowApi, AppApi } from './index.d';
+export type { WindowApi, AppApi, AssistantApi, CronApi } from './index.d';
