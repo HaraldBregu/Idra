@@ -34,6 +34,7 @@ export function defaultTools(opts: {
 	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
+	agent: AgentSender;
 }): Tool[] {
 	return [
 		new ReadFileTool(),
@@ -44,7 +45,7 @@ export function defaultTools(opts: {
 		new GetAssistantServiceTool(opts.store),
 		new GetAssistantModelTool(opts.store),
 		new SetAssistantServiceTool(opts.store),
-		new CronAddTool(opts.cron),
+		new CronAddTool(opts.cron, opts.agent, opts.logger),
 		new CronListTool(opts.cron),
 		new CronRemoveTool(opts.cron),
 		new SetThemeModeTool(opts.eventBus),
