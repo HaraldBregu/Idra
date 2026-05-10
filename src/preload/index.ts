@@ -72,7 +72,7 @@ export const app: AppApi = {
 };
 
 export const cron: CronApi = {
-	list: (): Promise<CronTask[]> => {
+	list: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
 	},
 	add: (
