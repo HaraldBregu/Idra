@@ -56,6 +56,11 @@ const StartPage: React.FC = () => {
 	const canContinue =
 		selectedProvider.length > 0 && (apiKeySaved || apiKey.trim().length > 0) && !savingApiKey;
 	const canFinish = configProvider.length > 0 && selectedModel.length > 0 && !savingConfig;
+	const selectedProviderName =
+		providerOptions.find((provider) => provider.value === selectedProvider)?.label ??
+		selectedProvider;
+	const configProviderName =
+		providers.find((provider) => provider.id === configProvider)?.name ?? configProvider;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -201,7 +206,7 @@ const StartPage: React.FC = () => {
 								disabled={providerOptions.length === 0}
 							>
 								<SelectTrigger id="provider-select" className="h-10">
-									<SelectValue />
+									<SelectValue>{selectedProviderName}</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									{providerOptions.map((provider, index) => (
@@ -269,7 +274,7 @@ const StartPage: React.FC = () => {
 								disabled={providers.length === 0}
 							>
 								<SelectTrigger id="config-provider" className="h-10">
-									<SelectValue />
+									<SelectValue>{configProviderName}</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									{providers.map((provider) => (
