@@ -16,10 +16,6 @@ type SettingsPath =
 	| '/settings/general'
 	| '/settings/account'
 	| '/settings/editor'
-	| '/settings/themes'
-	| '/settings/agents'
-	| '/settings/providers'
-	| '/settings/channels'
 	| '/settings/assistant'
 	| '/settings/system'
 	| '/settings/developer';
