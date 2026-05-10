@@ -88,9 +88,7 @@ const AccountPage: React.FC = () => {
 
 	const fullName = `${profile.firstName} ${profile.lastName}`.trim();
 	const displayName = fullName || t('settings.account.guest');
-	const subtitle = hasProfile
-		? t('settings.account.signedIn')
-		: t('settings.account.notSignedIn');
+	const subtitle = t('settings.account.notSignedIn');
 
 	return (
 		<div className="w-full max-w-2xl">
