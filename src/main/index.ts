@@ -86,19 +86,6 @@ bootstrapIpcModules(container, eventBus);
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
-function isTsrctFile(filePath: string): boolean {
-	return path.extname(filePath).toLowerCase() === WORKSPACE;
-}
-
-function extractFilePathFromArgs(args: string[]): string | null {
-	for (const arg of args) {
-		if (isTsrctFile(arg)) {
-			return arg;
-		}
-	}
-	return null;
-}
-
 const shortcutManager = new ShortcutManager();
 
 app.on('browser-window-created', (_event, win) => {
