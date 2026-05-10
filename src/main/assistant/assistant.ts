@@ -6,6 +6,7 @@ import { runAgent } from './loop';
 import { defaultTools, type Tool } from './tools';
 import { MAX_ITERATIONS } from './constants';
 import type { CronService } from '../cron';
+import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 
