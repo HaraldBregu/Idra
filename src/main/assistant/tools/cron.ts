@@ -9,10 +9,11 @@ export class CronAddTool extends Tool {
     type: "object",
     properties: {
       expression: { type: "string", description: "Cron expression, e.g. '0 9 * * *'." },
+      message: { type: "string", description: "Human-readable message describing the job." },
       id: { type: "string", description: "Optional job id. Auto-generated if omitted." },
       timezone: { type: "string", description: "Optional IANA timezone." },
     },
-    required: ["expression"],
+    required: ["expression", "message"],
   };
 
   constructor(private cron: CronService) {
@@ -21,10 +22,11 @@ export class CronAddTool extends Tool {
 
   async execute(args: Record<string, unknown>): Promise<string> {
     const expression = String(args.expression);
+    const message = String(args.message);
     const id = args.id ? String(args.id) : randomUUID();
     const timezone = args.timezone ? String(args.timezone) : undefined;
-    this.cron.schedule(id, expression, () => {}, { timezone });
-    return `Scheduled job ${id}: '${expression}'`;
+    this.cron.schedule(id, expression, message, () => {}, { timezone });
+    return `Scheduled job ${id}: '${expression}' — ${message}`;
   }
 }
 
