@@ -54,9 +54,7 @@ const StartPage: React.FC = () => {
 	const [savingConfig, setSavingConfig] = useState(false);
 
 	const canContinue =
-		selectedProvider.length > 0 &&
-		(apiKeySaved || apiKey.trim().length > 0) &&
-		!savingApiKey;
+		selectedProvider.length > 0 && (apiKeySaved || apiKey.trim().length > 0) && !savingApiKey;
 	const canFinish = configProvider.length > 0 && selectedModel.length > 0 && !savingConfig;
 
 	useEffect(() => {
