@@ -36,6 +36,9 @@ export const assistant: AssistantApi = {
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AssistantChannels.reset);
 	},
+	getHistory: (): Promise<AssistantHistoryMessage[]> => {
+		return typedInvokeUnwrap(AssistantChannels.getHistory);
+	},
 	onResponse: (callback: (event: { response: string }) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
 	},
