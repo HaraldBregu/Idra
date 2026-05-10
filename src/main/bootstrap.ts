@@ -7,7 +7,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { LoggerService } from './logger';
 import { ThemeService } from './theme';
 import { StoreService } from './store';
-import { CronService } from './cron';
+import { CronService, createCronTickDispatcher } from './cron';
 import { AssistantService } from './assistant';
 
 import type { IpcModule } from './ipc';
