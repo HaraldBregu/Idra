@@ -7,7 +7,7 @@ import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { ThemeService } from '../theme';
 import type { StoreService } from '../store';
-import type { Model } from '../../shared/service';
+import type { Assistant, Model } from '../../shared/service';
 import type { PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
@@ -233,6 +233,13 @@ export class AppIpc implements IpcModule {
 
 				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
 			}, ProviderChannels.getModels)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.getAssistantService,
+			wrapSimpleHandler((): Assistant | undefined => {
+				return store.getAssistantService();
+			}, ProviderChannels.getAssistantService)
 		);
 
 		ipcMain.handle(

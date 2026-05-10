@@ -20,6 +20,7 @@ export const ProviderChannels = {
 	isApiKeySaved: 'provider:is-api-key-saved',
 	getAll: 'provider:get-all',
 	getModels: 'provider:get-models',
+	getAssistantService: 'provider:get-assistant-service',
 	saveAssistantService: 'provider:save-assistant-service',
 } as const;
 
@@ -39,6 +40,10 @@ interface AppInvokeChannelMap {
 	[ProviderChannels.getModels]: {
 		args: [provider: import('./providers').PublicProvider];
 		result: import('./service').Model[];
+	};
+	[ProviderChannels.getAssistantService]: {
+		args: [];
+		result: import('./service').Assistant | undefined;
 	};
 	[ProviderChannels.saveAssistantService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];

@@ -15,13 +15,14 @@ export interface AssistantApi {
 }
 
 import type { PublicProvider } from '../shared/providers';
-import type { Model } from '../shared/service';
+import type { Assistant, Model } from '../shared/service';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
+	getAssistantService: () => Promise<Assistant | undefined>;
 	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 }
 

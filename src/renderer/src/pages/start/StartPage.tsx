@@ -47,6 +47,7 @@ const StartPage: React.FC = () => {
 	const [selectedProvider, setSelectedProvider] = useState(providerOptions[0]?.value ?? '');
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [configProvider, setConfigProvider] = useState('');
+	const [savedModelId, setSavedModelId] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
@@ -94,13 +95,19 @@ const StartPage: React.FC = () => {
 		let cancelled = false;
 
 		async function loadProviders(): Promise<void> {
-			const storedProviders = await window.app.getProviders();
+			const [storedProviders, assistantService] = await Promise.all([
+				window.app.getProviders(),
+				window.app.getAssistantService(),
+			]);
 			if (cancelled) return;
 
 			setProviders(storedProviders);
 			const preferredProvider =
-				storedProviders.find((provider) => provider.id === selectedProvider) ?? storedProviders[0];
+				storedProviders.find((provider) => provider.id === assistantService?.provider.id) ??
+				storedProviders.find((provider) => provider.id === selectedProvider) ??
+				storedProviders[0];
 			setConfigProvider(preferredProvider?.id ?? '');
+			setSavedModelId(assistantService?.model.id ?? '');
 		}
 
 		void loadProviders();
@@ -130,7 +137,8 @@ const StartPage: React.FC = () => {
 				if (cancelled) return;
 
 				setModels(providerModels);
-				setSelectedModel(providerModels[0]?.id ?? '');
+				const savedModel = providerModels.find((model) => model.id === savedModelId);
+				setSelectedModel(savedModel?.id ?? providerModels[0]?.id ?? '');
 			} finally {
 				if (!cancelled) {
 					setLoadingModels(false);
@@ -143,7 +151,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [configProvider, providers, step]);
+	}, [configProvider, providers, savedModelId, step]);
 
 	async function handleContinue(): Promise<void> {
 		if (!canContinue) return;
@@ -162,6 +170,7 @@ const StartPage: React.FC = () => {
 
 	function handleConfigProviderChange(value: string | null): void {
 		setConfigProvider(value ?? '');
+		setSavedModelId('');
 		setModels([]);
 		setSelectedModel('');
 	}
