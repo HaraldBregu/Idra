@@ -161,4 +161,12 @@ export class CronService implements Disposable {
 		const tasks = this.store.getCronTasks().filter((t) => t.id !== id);
 		this.store.setCronTasks(tasks);
 	}
+
+	private recordRun(id: string): void {
+		const tasks = this.store.getCronTasks();
+		const idx = tasks.findIndex((t) => t.id === id);
+		if (idx === -1) return;
+		tasks[idx] = { ...tasks[idx], lastRun: new Date().toISOString() };
+		this.store.setCronTasks(tasks);
+	}
 }
