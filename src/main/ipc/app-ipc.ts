@@ -190,6 +190,18 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			ProviderChannels.isApiKeySaved,
+			wrapSimpleHandler((providerId: string): boolean => {
+				const normalizedProviderId = providerId.trim().toLowerCase();
+				const provider = store
+					.getProviders()
+					.find((item) => item.id.trim().toLowerCase() === normalizedProviderId);
+
+				return (provider?.apiKey.trim().length ?? 0) > 0;
+			}, ProviderChannels.isApiKeySaved)
+		);
+
+		ipcMain.handle(
 			ProviderChannels.getAll,
 			wrapSimpleHandler(
 				(): PublicProvider[] =>

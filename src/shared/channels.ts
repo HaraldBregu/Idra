@@ -17,6 +17,7 @@ export const AssistantChannels = {
 
 export const ProviderChannels = {
 	setApiKey: 'provider:set-apikey',
+	isApiKeySaved: 'provider:is-api-key-saved',
 	getAll: 'provider:get-all',
 	getModels: 'provider:get-models',
 	saveAssistantService: 'provider:save-assistant-service',
@@ -26,6 +27,10 @@ interface AppInvokeChannelMap {
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
 		result: void;
+	};
+	[ProviderChannels.isApiKeySaved]: {
+		args: [providerId: string];
+		result: boolean;
 	};
 	[ProviderChannels.getAll]: {
 		args: [];

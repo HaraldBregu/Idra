@@ -45,6 +45,9 @@ export const app: AppApi = {
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
+	isProviderApiKeySaved: (providerId: string): Promise<boolean> => {
+		return typedInvokeUnwrap(ProviderChannels.isApiKeySaved, providerId);
+	},
 	getProviders: (): Promise<PublicProvider[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getAll);
 	},
