@@ -84,6 +84,14 @@ export class StoreService {
 		this.store.set('providers', providers);
 	}
 
+	getCronTasks(): CronTask[] {
+		return this.store.get('cronTasks') ?? [];
+	}
+
+	setCronTasks(tasks: CronTask[]): void {
+		this.store.set('cronTasks', tasks);
+	}
+
 	setAnthropicApiKey(key: string): void {
 		const providers = this.store.get('providers') ?? [];
 		const anthropicProviderIndex = providers.findIndex(
