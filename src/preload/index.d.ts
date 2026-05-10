@@ -17,7 +17,11 @@ export interface AssistantApi {
 
 export interface CronApi {
 	list: () => Promise<CronTask[]>;
-	add: (expression: string, options?: { id?: string; timezone?: string }) => Promise<CronTask>;
+	add: (
+		expression: string,
+		message: string,
+		options?: { id?: string; timezone?: string }
+	) => Promise<CronTask>;
 	remove: (id: string) => Promise<void>;
 }
 
