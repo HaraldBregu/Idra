@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserCircle } from 'lucide-react';
-import type { UserProfile } from '../../../../../shared/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 type EditingField = 'firstName' | 'lastName' | null;
+
+interface UserProfile {
+	firstName: string;
+	lastName: string;
+}
 
 const EMPTY_PROFILE: UserProfile = { firstName: '', lastName: '' };
 
@@ -96,13 +100,6 @@ const AccountPage: React.FC = () => {
 			const next: UserProfile = { ...profile, [field]: trimmed };
 			setProfile(next);
 			setEditing(null);
-			window.app
-				.setProfile(next)
-				.then((saved) => {
-					setProfile(saved);
-					setHasProfile(true);
-				})
-				.catch(() => {});
 		},
 		[profile]
 	);
