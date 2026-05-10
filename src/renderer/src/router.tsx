@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, type ReactNode } from 'react';
 import { Navigate, Outlet, createHashRouter, type RouteObject } from 'react-router-dom';
-import { ErrorBoundary } from './components/app/base/ErrorBoundary';
+import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
