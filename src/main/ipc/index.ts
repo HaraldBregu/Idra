@@ -4,5 +4,6 @@
  */
 
 export type { IpcModule } from './ipc-module';
+export { AssistantIpc } from './assistant-ipc';
 export { AppIpc } from './app-ipc';
 export { WindowIpc } from './window-ipc';

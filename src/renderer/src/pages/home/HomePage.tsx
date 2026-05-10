@@ -63,6 +63,22 @@ function HomePage(): ReactElement {
 		setInput('');
 		setIsLoading(true);
 		setMessages((current) => [...current, createMessage('user', prompt)]);
+
+		try {
+			const response = await window.assistant.send(prompt);
+			if (requestIdRef.current !== requestId) return;
+
+			setMessages((current) => [...current, createMessage('assistant', response)]);
+		} catch (error) {
+			if (requestIdRef.current !== requestId) return;
+
+			const message = error instanceof Error ? error.message : 'Assistant request failed.';
+			setMessages((current) => [...current, createMessage('assistant', message)]);
+		} finally {
+			if (requestIdRef.current === requestId) {
+				setIsLoading(false);
+			}
+		}
 	};
 
 	const handleSubmitClick = (): void => {
