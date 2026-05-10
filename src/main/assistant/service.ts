@@ -38,6 +38,10 @@ export class AssistantService {
 		return this.ensure(assistantId).reset();
 	}
 
+	getHistory(assistantId = this.defaultAssistantId): Promise<ChatCompletionMessageParam[]> {
+		return this.ensure(assistantId).getHistory();
+	}
+
 	get(assistantId = this.defaultAssistantId): Assistant {
 		return this.ensure(assistantId);
 	}
