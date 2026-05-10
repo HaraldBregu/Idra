@@ -60,8 +60,11 @@ export const TitleBar = React.memo(function TitleBar({
 }: TitleBarProps) {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [isFullScreen, setIsFullScreen] = useState(false);
+
+	const isHome = location.pathname === '/home';
 
 	useEffect(() => {
 		if (!window.win) return;
