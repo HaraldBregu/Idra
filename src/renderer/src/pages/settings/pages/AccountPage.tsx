@@ -70,25 +70,7 @@ const EditableName: React.FC<EditableNameProps> = ({
 const AccountPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [profile, setProfile] = useState<UserProfile>(EMPTY_PROFILE);
-	const [hasProfile, setHasProfile] = useState(false);
 	const [editing, setEditing] = useState<EditingField>(null);
-
-	useEffect(() => {
-		let cancelled = false;
-		window.app
-			.getProfile()
-			.then((p) => {
-				if (cancelled) return;
-				if (p) {
-					setProfile(p);
-					setHasProfile(true);
-				}
-			})
-			.catch(() => {});
-		return () => {
-			cancelled = true;
-		};
-	}, []);
 
 	const persist = useCallback(
 		(field: 'firstName' | 'lastName', raw: string) => {
