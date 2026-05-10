@@ -8,6 +8,7 @@ import {
 	SetThemeModeTool,
 } from './app';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
+import type { AgentSender } from '../../cron';
 import { ExecTool } from './exec';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
 import { ReadFileTool } from './read';
