@@ -9,6 +9,7 @@ import {
 	PromptInputTextarea,
 } from '@/components/prompt-kit/prompt-input';
 import { Button } from '@/components/ui/Button';
+import type { AssistantHistoryMessage } from '../../../../shared/service';
 
 interface ChatMessage {
 	readonly id: string;
@@ -24,14 +25,24 @@ function createMessage(role: ChatMessage['role'], content: string): ChatMessage 
 	};
 }
 
-const initialMessages: readonly ChatMessage[] = [
-	{
-		id: 'assistant-welcome',
-		role: 'assistant',
-		content:
-			'I can help with a variety of tasks: answering questions, providing information, assisting with coding, and generating creative content. What would you like help with today?',
-	},
-];
+const welcomeMessage: ChatMessage = {
+	id: 'assistant-welcome',
+	role: 'assistant',
+	content:
+		'I can help with a variety of tasks: answering questions, providing information, assisting with coding, and generating creative content. What would you like help with today?',
+};
+
+const initialMessages: readonly ChatMessage[] = [welcomeMessage];
+
+function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[] {
+	const out: ChatMessage[] = [];
+	history.forEach((m, idx) => {
+		if (m.role !== 'user' && m.role !== 'assistant') return;
+		if (typeof m.content !== 'string' || m.content.length === 0) return;
+		out.push({ id: `${m.role}-history-${idx}`, role: m.role, content: m.content });
+	});
+	return out;
+}
 
 function HomePage(): ReactElement {
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
