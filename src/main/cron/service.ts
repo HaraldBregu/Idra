@@ -1,17 +1,21 @@
 import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
-import type { CronJobOptions, RegisteredJob } from './types';
+import type { StoreService } from '../store';
+import type { CronTask } from '../../shared/cron';
+import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 
 /**
- * Service responsible for scheduling and managing recurring jobs
- * via node-cron. Jobs are keyed by id and stopped on shutdown.
+ * Schedules and manages recurring jobs via node-cron. Tasks are persisted
+ * to StoreService so they survive app restart, and reloaded via restore().
  */
 export class CronService implements Disposable {
+	private readonly store: StoreService;
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
 
-	constructor(logger: LoggerService) {
+	constructor(store: StoreService, logger: LoggerService) {
+		this.store = store;
 		this.logger = logger;
 	}
 
@@ -41,7 +45,13 @@ export class CronService implements Disposable {
 			{ timezone: options.timezone }
 		);
 
-		this.jobs.set(id, { id, expression, task });
+		this.jobs.set(id, { id, expression, timezone: options.timezone, task });
+		this.persistTask({
+			id,
+			expression,
+			timezone: options.timezone,
+			createdAt: new Date().toISOString(),
+		});
 		this.logger.info('CronService', `Scheduled job "${id}" with "${expression}"`);
 
 		if (options.runOnStart) {
@@ -56,7 +66,48 @@ export class CronService implements Disposable {
 		if (!job) return;
 		job.task.stop();
 		this.jobs.delete(id);
+		this.removePersistedTask(id);
 		this.logger.info('CronService', `Unscheduled job "${id}"`);
+	}
+
+	/**
+	 * Reload tasks persisted in the store and re-schedule them using the
+	 * supplied dispatcher. Should be called once on startup.
+	 */
+	restore(dispatcher: CronTaskHandler): void {
+		const tasks = this.store.getCronTasks();
+		if (tasks.length === 0) {
+			this.logger.info('CronService', 'No persisted cron tasks to restore');
+			return;
+		}
+
+		let restored = 0;
+		for (const task of tasks) {
+			if (this.jobs.has(task.id)) continue;
+			if (!cron.validate(task.expression)) {
+				this.logger.warn('CronService', `Skipping invalid persisted task "${task.id}": ${task.expression}`);
+				continue;
+			}
+			const scheduled = cron.schedule(
+				task.expression,
+				async () => {
+					try {
+						await dispatcher(task);
+					} catch (err) {
+						this.logger.error('CronService', `Restored job "${task.id}" failed`, err);
+					}
+				},
+				{ timezone: task.timezone }
+			);
+			this.jobs.set(task.id, {
+				id: task.id,
+				expression: task.expression,
+				timezone: task.timezone,
+				task: scheduled,
+			});
+			restored++;
+		}
+		this.logger.info('CronService', `Restored ${restored} cron task(s) from store`);
 	}
 
 	listJobs(): { id: string; expression: string }[] {
@@ -77,5 +128,16 @@ export class CronService implements Disposable {
 		}
 		this.jobs.clear();
 		this.logger.info('CronService', 'Disposed');
+	}
+
+	private persistTask(task: CronTask): void {
+		const tasks = this.store.getCronTasks().filter((t) => t.id !== task.id);
+		tasks.push(task);
+		this.store.setCronTasks(tasks);
+	}
+
+	private removePersistedTask(id: string): void {
+		const tasks = this.store.getCronTasks().filter((t) => t.id !== id);
+		this.store.setCronTasks(tasks);
 	}
 }
