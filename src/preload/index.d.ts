@@ -20,7 +20,6 @@ import type { Model } from '../shared/service';
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
-	isProviderApiKeyValid: (providerId: string, apiKey: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;

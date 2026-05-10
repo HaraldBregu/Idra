@@ -25,17 +25,6 @@ async function getOpenAiModels(apiKey: string): Promise<Model[]> {
 	}));
 }
 
-async function isOpenAiApiKeyValid(apiKey: string): Promise<boolean> {
-	const client = new OpenAI({ apiKey });
-
-	try {
-		await client.models.list();
-		return true;
-	} catch {
-		return false;
-	}
-}
-
 async function getAnthropicModels(apiKey: string): Promise<Model[]> {
 	const client = new Anthropic({ apiKey });
 	const models = await client.models.list();
@@ -209,24 +198,6 @@ export class AppIpc implements IpcModule {
 
 				return (provider?.apiKey.trim().length ?? 0) > 0;
 			}, ProviderChannels.isApiKeySaved)
-		);
-
-		ipcMain.handle(
-			ProviderChannels.isApiKeyValid,
-			wrapSimpleHandler(async (providerId: string, apiKey: string): Promise<boolean> => {
-				const normalizedProviderId = providerId.trim().toLowerCase();
-				const trimmedApiKey = apiKey.trim();
-
-				if (!trimmedApiKey) {
-					return false;
-				}
-
-				if (normalizedProviderId === 'openai') {
-					return isOpenAiApiKeyValid(trimmedApiKey);
-				}
-
-				return false;
-			}, ProviderChannels.isApiKeyValid)
 		);
 
 		ipcMain.handle(
