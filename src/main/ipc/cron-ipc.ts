@@ -26,13 +26,18 @@ export class CronIpc implements IpcModule {
 		ipcMain.handle(
 			CronChannels.add,
 			wrapSimpleHandler(
-				(expression: string, options?: { id?: string; timezone?: string }): CronTask => {
+				(
+					expression: string,
+					message: string,
+					options?: { id?: string; timezone?: string }
+				): CronTask => {
 					const id = options?.id ?? randomUUID();
 					return cron.schedule(
 						id,
 						expression,
+						message,
 						() => {
-							logger.info('CronService', `Tick: ${id} '${expression}'`);
+							logger.info('CronService', `Tick: ${id} '${expression}' — ${message}`);
 						},
 						{ timezone: options?.timezone }
 					);
