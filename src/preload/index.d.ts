@@ -16,7 +16,7 @@ export interface AssistantApi {
 }
 
 export interface CronApi {
-	list: () => Promise<CronTask[]>;
+	list: () => Promise<CronTaskView[]>;
 	add: (
 		expression: string,
 		message: string,
