@@ -147,3 +147,60 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 		);
 	}
 }
+
+export function RouteErrorElement(): React.JSX.Element {
+	const error = useRouteError();
+	const t = (key: string): string => i18next.t(key);
+
+	let title: string;
+	let message: string;
+	let detail: string;
+
+	if (isRouteErrorResponse(error)) {
+		title =
+			error.status === 404
+				? t('errorBoundary.notFoundTitle')
+				: t('errorBoundary.routeTitle');
+		message =
+			error.status === 404
+				? t('errorBoundary.notFoundMessage')
+				: t('errorBoundary.routeMessage');
+		detail = `${error.status} ${error.statusText}${
+			typeof error.data === 'string' ? ` — ${error.data}` : ''
+		}`;
+	} else if (error instanceof Error) {
+		title = t('errorBoundary.routeTitle');
+		message = t('errorBoundary.routeMessage');
+		detail = error.message;
+	} else {
+		title = t('errorBoundary.routeTitle');
+		message = t('errorBoundary.routeMessage');
+		detail = String(error);
+	}
+
+	return (
+		<div className="flex h-full w-full flex-1 items-center justify-center">
+			<Empty>
+				<EmptyHeader>
+					<EmptyMedia>
+						<AlertCircle className="h-10 w-10 text-destructive" />
+					</EmptyMedia>
+					<EmptyTitle>{title}</EmptyTitle>
+					<EmptyDescription>{message}</EmptyDescription>
+				</EmptyHeader>
+				<EmptyContent>
+					<p className="text-xs text-muted-foreground/60 font-mono break-all">{detail}</p>
+					<button
+						type="button"
+						onClick={() => {
+							window.location.hash = '#/home';
+						}}
+						className="px-4 py-2 rounded-lg border border-border text-sm text-foreground hover:bg-muted transition-colors"
+					>
+						{t('errorBoundary.goHome')}
+					</button>
+				</EmptyContent>
+			</Empty>
+		</div>
+	);
+}
