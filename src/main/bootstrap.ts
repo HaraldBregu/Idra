@@ -37,7 +37,10 @@ export function bootstrapServices(): BootstrapResult {
 	const cron = container.register('cron', new CronService(logger));
 
 	container.register('themeService', new ThemeService(logger));
-	container.register('assistantService', new AssistantService({ store, cron, logger }));
+	container.register(
+		'assistantService',
+		new AssistantService({ store, cron, logger, eventBus })
+	);
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
