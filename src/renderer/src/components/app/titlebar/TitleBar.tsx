@@ -111,6 +111,17 @@ export const TitleBar = React.memo(function TitleBar({
 		<TitleBarContainer className="border-none bg-transparent">
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
 			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
+				{!isMac && (
+					<button
+						type="button"
+						onClick={() => {}}
+						className={btnNoHover}
+						title={t('titleBar.applicationMenu')}
+					>
+						<Menu className="h-[18px] w-[18px]" strokeWidth={1.5} />
+					</button>
+				)}
+
 				{!isStart && (
 					<DropdownMenu>
 						<DropdownMenuTrigger
@@ -141,17 +152,6 @@ export const TitleBar = React.memo(function TitleBar({
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
-				)}
-
-				{!isMac && (
-					<button
-						type="button"
-						onClick={() => {}}
-						className={btnNoHover}
-						title={t('titleBar.applicationMenu')}
-					>
-						<Menu className="h-[18px] w-[18px]" strokeWidth={1.5} />
-					</button>
 				)}
 
 				{!isHome && !isStart && (
