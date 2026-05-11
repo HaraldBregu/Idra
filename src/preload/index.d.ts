@@ -17,11 +17,11 @@ export interface AssistantApi {
 
 export interface CronApi {
 	list: () => Promise<CronTaskView[]>;
-	add: (
+	add: <TData extends CronTaskData>(
 		expression: string,
-		message: string,
+		data: TData,
 		options?: { id?: string; timezone?: string }
-	) => Promise<CronTask>;
+	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
 }
 
