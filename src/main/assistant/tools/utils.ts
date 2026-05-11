@@ -38,6 +38,7 @@ export function defaultTools(opts: {
 	return [
 		new ReadFileTool(),
 		new WriteFileTool(),
+		new FindTool(),
 		new ExecTool(),
 		new GetProviderByIdTool(opts.store),
 		new SetProviderApiKeyTool(opts.store),
