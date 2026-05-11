@@ -8,8 +8,9 @@
 //   - Only place types here that are truly needed in 2+ process contexts
 //     AND that make sense as global ambient declarations (no import needed).
 //   - For shared types that can be imported as modules, prefer:
-//     src/shared/types/ipc/types.ts  — IPC data shapes
-//     src/shared/types/aiSettings.ts — AI settings types
+//     src/shared/ipc.ts          — IPC result envelopes
+//     src/shared/ipc-channels.ts — IPC channel names and contracts
+//     src/shared/channels.ts     — messaging channel domain types
 //   - Do NOT import Electron, Node.js, React, or browser APIs here.
 //
 // Included by:
