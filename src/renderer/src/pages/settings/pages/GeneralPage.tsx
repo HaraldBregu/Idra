@@ -31,7 +31,7 @@ const GeneralPage: React.FC = () => {
 	}, []);
 
 	const rowClass =
-		'flex min-h-[64px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-3 text-sm last:border-b-0';
+		'flex min-h-[56px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-2 text-sm last:border-b-0';
 	const contentClass = 'flex min-w-0 flex-1 flex-col gap-1';
 	const titleClass = 'text-base leading-snug font-semibold';
 	const descriptionClass = 'text-sm leading-normal text-muted-foreground';
