@@ -2,7 +2,13 @@ import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
-import type { CronTask, CronTaskView } from '../../shared/cron';
+import {
+	describeCronTaskData,
+	isCronTaskData,
+	type CronTask,
+	type CronTaskData,
+	type CronTaskView,
+} from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 
 interface NextRunCapable {
@@ -26,7 +32,7 @@ export class CronService implements Disposable {
 	schedule(
 		id: string,
 		expression: string,
-		message: string,
+		data: CronTaskData,
 		handler: () => void | Promise<void>,
 		options: CronJobOptions = {}
 	): CronTask {
@@ -41,7 +47,9 @@ export class CronService implements Disposable {
 		const task = cron.schedule(
 			expression,
 			async () => {
-				console.log(`[cron] tick ${id} '${expression}' — ${message}`);
+				console.log(
+					`[cron] tick ${id} '${expression}' — [${data.type}] ${describeCronTaskData(data)}`
+				);
 				this.recordRun(id);
 				try {
 					await handler();
@@ -56,7 +64,7 @@ export class CronService implements Disposable {
 		const record: CronTask = {
 			id,
 			expression,
-			message,
+			data,
 			timezone: options.timezone,
 			createdAt: new Date().toISOString(),
 		};
@@ -86,23 +94,30 @@ export class CronService implements Disposable {
 	 * supplied dispatcher. Should be called once on startup.
 	 */
 	restore(dispatcher: CronTaskHandler): void {
-		const tasks = this.store.getCronTasks();
-		if (tasks.length === 0) {
+		const raw = this.store.getCronTasks();
+		if (raw.length === 0) {
 			this.logger.info('CronService', 'No persisted cron tasks to restore');
 			return;
 		}
+
+		const tasks = this.migrateTasks(raw);
 
 		let restored = 0;
 		for (const task of tasks) {
 			if (this.jobs.has(task.id)) continue;
 			if (!cron.validate(task.expression)) {
-				this.logger.warn('CronService', `Skipping invalid persisted task "${task.id}": ${task.expression}`);
+				this.logger.warn(
+					'CronService',
+					`Skipping invalid persisted task "${task.id}": ${task.expression}`
+				);
 				continue;
 			}
 			const scheduled = cron.schedule(
 				task.expression,
 				async () => {
-					console.log(`[cron] tick ${task.id} '${task.expression}' — ${task.message}`);
+					console.log(
+						`[cron] tick ${task.id} '${task.expression}' — [${task.data.type}] ${describeCronTaskData(task.data)}`
+					);
 					this.recordRun(task.id);
 					try {
 						await dispatcher(task);
@@ -128,7 +143,8 @@ export class CronService implements Disposable {
 	}
 
 	getTasks(): CronTaskView[] {
-		return this.store.getCronTasks().map((t) => {
+		const tasks = this.migrateTasks(this.store.getCronTasks());
+		return tasks.map((t) => {
 			const job = this.jobs.get(t.id);
 			const next = (job?.task as NextRunCapable | undefined)?.getNextRun?.() ?? null;
 			return next ? { ...t, nextRun: next.toISOString() } : { ...t };
@@ -152,21 +168,49 @@ export class CronService implements Disposable {
 	}
 
 	private persistTask(task: CronTask): void {
-		const tasks = this.store.getCronTasks().filter((t) => t.id !== task.id);
+		const tasks = this.migrateTasks(this.store.getCronTasks()).filter((t) => t.id !== task.id);
 		tasks.push(task);
 		this.store.setCronTasks(tasks);
 	}
 
 	private removePersistedTask(id: string): void {
-		const tasks = this.store.getCronTasks().filter((t) => t.id !== id);
+		const tasks = this.migrateTasks(this.store.getCronTasks()).filter((t) => t.id !== id);
 		this.store.setCronTasks(tasks);
 	}
 
 	private recordRun(id: string): void {
-		const tasks = this.store.getCronTasks();
+		const tasks = this.migrateTasks(this.store.getCronTasks());
 		const idx = tasks.findIndex((t) => t.id === id);
 		if (idx === -1) return;
 		tasks[idx] = { ...tasks[idx], lastRun: new Date().toISOString() };
 		this.store.setCronTasks(tasks);
+	}
+
+	/**
+	 * Migrates legacy persisted tasks ({ message: string }) into the discriminated
+	 * data shape. Idempotent: tasks already carrying valid `data` pass through.
+	 */
+	private migrateTasks(raw: readonly unknown[]): CronTask[] {
+		const out: CronTask[] = [];
+		for (const entry of raw) {
+			if (!entry || typeof entry !== 'object') continue;
+			const r = entry as Record<string, unknown>;
+			if (typeof r.id !== 'string' || typeof r.expression !== 'string') continue;
+			const data = isCronTaskData(r.data)
+				? r.data
+				: typeof r.message === 'string'
+					? { type: 'message' as const, message: r.message }
+					: null;
+			if (!data) continue;
+			out.push({
+				id: r.id,
+				expression: r.expression,
+				data,
+				timezone: typeof r.timezone === 'string' ? r.timezone : undefined,
+				createdAt: typeof r.createdAt === 'string' ? r.createdAt : new Date().toISOString(),
+				lastRun: typeof r.lastRun === 'string' ? r.lastRun : undefined,
+			});
+		}
+		return out;
 	}
 }
