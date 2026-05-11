@@ -1,7 +1,7 @@
 import { Provider } from "../../shared/providers";
 import { Service } from "../../shared/service";
 import { CronTask } from "../../shared/cron";
-import { Channel } from "../../shared/types";
+import { Channel } from "../../shared/channels";
 
 export interface StoreSchema {
 	providers: Provider[];
