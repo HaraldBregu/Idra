@@ -84,7 +84,7 @@ const CronPage: React.FC = () => {
 								<TableCell className="w-24 max-w-24 truncate font-medium" title={task.id}>
 									{task.id}
 								</TableCell>
-								<TableCell>{task.message}</TableCell>
+								<TableCell className="font-mono text-xs">{task.data.type}</TableCell>
 								<TableCell className="font-mono text-xs">{task.expression}</TableCell>
 								<TableCell className="text-muted-foreground">
 									{formatTimestamp(task.lastRun)}
