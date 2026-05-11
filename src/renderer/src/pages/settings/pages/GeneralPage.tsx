@@ -103,56 +103,56 @@ const GeneralPage: React.FC = () => {
 
 				<Card className="gap-0 py-0">
 					<CardContent className="flex flex-col p-0">
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.accessibility')}</h3>
-							<p className={descriptionClass}>
-								{t('settings.application.accessibilityDescription')}
-							</p>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.accessibility')}</h3>
+								<p className={descriptionClass}>
+									{t('settings.application.accessibilityDescription')}
+								</p>
+							</div>
+							<div className={actionsClass}>
+								<Button variant="outline" size="sm" onClick={handleOpenAccessibility}>
+									{t('settings.application.openAccessibility')}
+								</Button>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<Button variant="outline" size="sm" onClick={handleOpenAccessibility}>
-								{t('settings.application.openAccessibility')}
-							</Button>
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.screenRecording')}</h3>
-							<p className={descriptionClass}>
-								{t('settings.application.screenRecordingDescription')}
-							</p>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.screenRecording')}</h3>
+								<p className={descriptionClass}>
+									{t('settings.application.screenRecordingDescription')}
+								</p>
+							</div>
+							<div className={actionsClass}>
+								<Button variant="outline" size="sm" onClick={handleOpenScreenRecording}>
+									{t('settings.application.openScreenRecording')}
+								</Button>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<Button variant="outline" size="sm" onClick={handleOpenScreenRecording}>
-								{t('settings.application.openScreenRecording')}
-							</Button>
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.menuBar')}</h3>
-							<p className={descriptionClass}>{t('settings.application.menuBarDescription')}</p>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.menuBar')}</h3>
+								<p className={descriptionClass}>{t('settings.application.menuBarDescription')}</p>
+							</div>
+							<div className={actionsClass}>
+								<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} />
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} />
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.appData')}</h3>
-							<p className={descriptionClass}>{t('settings.application.appDataDescription')}</p>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.appData')}</h3>
+								<p className={descriptionClass}>{t('settings.application.appDataDescription')}</p>
+							</div>
+							<div className={actionsClass}>
+								<Button variant="outline" size="sm" onClick={handleOpenAppDataFolder}>
+									{t('settings.application.openAppData')}
+								</Button>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<Button variant="outline" size="sm" onClick={handleOpenAppDataFolder}>
-								{t('settings.application.openAppData')}
-							</Button>
-						</div>
-					</div>
-				</CardContent>
+					</CardContent>
 				</Card>
 			</section>
 		</div>
