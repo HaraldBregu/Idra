@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import path from 'node:path';
 
 import type { WorkspaceService } from '../../workspace';
@@ -20,7 +21,7 @@ function numberArg(value: unknown, fallback: number): number {
 	return Math.floor(value);
 }
 
-function entryType(entry: fs.Dirent): WorkspaceEntry['type'] {
+function entryType(entry: Dirent): WorkspaceEntry['type'] {
 	if (entry.isDirectory()) return 'directory';
 	if (entry.isFile()) return 'file';
 	return 'other';
