@@ -141,6 +141,7 @@
 		"tabs": {
 			"general": "Generale",
 			"account": "Account",
+			"channels": "Canali",
 			"workspace": "Area di Lavoro",
 			"providers": "Provider",
 			"agents": "Agenti",
@@ -157,6 +158,7 @@
 			"permissions": "Autorizzazioni",
 			"workspace": "Area di Lavoro",
 			"system": "Sistema",
+			"channels": "Canali",
 			"layout": "Layout",
 			"notifications": "Notifiche",
 			"microphone": "Microfono",
@@ -331,6 +333,13 @@
 			"saveError": "Impossibile salvare le impostazioni degli agenti."
 		},
 		"channels": {
+			"description": "Scegli quali canali di messaggistica Friday puo collegare.",
+			"available": "Disponibile ora",
+			"next": "Prossimo",
+			"order": "Ordine",
+			"integration": "Integrazione",
+			"bot": "Token bot",
+			"moreSoon": "Qui si potranno aggiungere altre card dei canali man mano che ogni integrazione verra implementata.",
 			"token": "Token",
 			"tokenDescription": "Archiviato cifrato nel portachiavi del sistema operativo.",
 			"allowFrom": "Mittenti consentiti",

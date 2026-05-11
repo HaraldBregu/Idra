@@ -141,6 +141,7 @@
 		"tabs": {
 			"general": "General",
 			"account": "Account",
+			"channels": "Channels",
 			"workspace": "Workspace",
 			"providers": "Providers",
 			"agents": "Agents",
@@ -157,6 +158,7 @@
 			"permissions": "Permissions",
 			"workspace": "Workspace",
 			"system": "System",
+			"channels": "Channels",
 			"layout": "Layout",
 			"notifications": "Notifications",
 			"microphone": "Microphone",
@@ -331,6 +333,13 @@
 			"saveError": "Unable to save agent settings."
 		},
 		"channels": {
+			"description": "Choose which messaging channels Friday can connect to.",
+			"available": "Available now",
+			"next": "Next up",
+			"order": "Order",
+			"integration": "Integration",
+			"bot": "Bot token",
+			"moreSoon": "More channel cards can be added here as each integration is implemented.",
 			"token": "Token",
 			"tokenDescription": "Stored encrypted in your OS keychain.",
 			"allowFrom": "Allowed senders",

@@ -10,6 +10,7 @@ const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
+const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
 
@@ -96,6 +97,14 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<AccountPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'channels',
+						element: (
+							<RouteWrapper>
+								<ChannelsPage />
 							</RouteWrapper>
 						),
 					},

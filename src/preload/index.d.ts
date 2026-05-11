@@ -2,6 +2,7 @@ export interface WindowApi {
 	minimize: () => void;
 	maximize: () => void;
 	close: () => void;
+	popupMenu: () => void;
 	isMaximized: () => Promise<boolean>;
 	isFullScreen: () => Promise<boolean>;
 	onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void;
