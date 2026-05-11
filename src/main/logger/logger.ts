@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { Disposable } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { AppLogEntry } from '../../shared/app-log';
+import { getDefaultDataDirectory } from '../utils';
 
 /**
  * Log levels in order of severity
@@ -128,7 +129,7 @@ export class LoggerService implements Disposable {
 	 * Set the log directory to the application data folder.
 	 */
 	private updateLogDirectory(): void {
-		this.logDirectory = path.join(app.getPath('userData'), 'logs');
+		this.logDirectory = path.join(getDefaultDataDirectory(), 'logs');
 	}
 
 	/**

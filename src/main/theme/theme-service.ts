@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { LoggerService } from '../logger';
 import { CustomThemeInfo, Theme, ThemeData } from '../../shared';
+import { getDefaultDataDirectory } from '../utils';
 
 const THEME_FILE_NAME = 'theme.json';
 
@@ -57,7 +58,7 @@ export class ThemeService {
 	}
 
 	getThemesDirectory(): string {
-		const themesDir = path.join(app.getPath('userData'), 'themes');
+		const themesDir = path.join(getDefaultDataDirectory(), 'themes');
 		fs.mkdirSync(themesDir, { recursive: true });
 		return themesDir;
 	}
