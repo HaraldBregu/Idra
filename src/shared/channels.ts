@@ -95,6 +95,7 @@ export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
+	[WindowChannels.popupMenu]: { args: [] };
 }
 
 interface AssistantEventChannelMap {
