@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Tool } from "./base";
 import { CronService } from "../../cron/index";
+import { isCronTaskData, type CronTaskData } from "../../../shared/cron";
 
 export class CronAddTool extends Tool {
   name = "cron_add";
@@ -9,11 +10,20 @@ export class CronAddTool extends Tool {
     type: "object",
     properties: {
       expression: { type: "string", description: "Cron expression, e.g. '0 9 * * *'." },
-      message: { type: "string", description: "Human-readable message describing the job." },
+      data: {
+        type: "object",
+        description:
+          "Task payload. Must include a string 'type' discriminator chosen by the caller (e.g. 'agent', 'app', 'message'). Extra fields depend on the type.",
+        properties: {
+          type: { type: "string", description: "Discriminator chosen by the caller." },
+        },
+        required: ["type"],
+        additionalProperties: true,
+      },
       id: { type: "string", description: "Optional job id. Auto-generated if omitted." },
       timezone: { type: "string", description: "Optional IANA timezone." },
     },
-    required: ["expression", "message"],
+    required: ["expression", "data"],
   };
 
   constructor(private cron: CronService) {
@@ -22,11 +32,15 @@ export class CronAddTool extends Tool {
 
   async execute(args: Record<string, unknown>): Promise<string> {
     const expression = String(args.expression);
-    const message = String(args.message);
+    const data = args.data;
+    if (!isCronTaskData(data)) {
+      return "Error: 'data' must be an object with a string 'type' field";
+    }
+    const typed = data as CronTaskData;
     const id = args.id ? String(args.id) : randomUUID();
     const timezone = args.timezone ? String(args.timezone) : undefined;
-    this.cron.schedule(id, expression, message, () => {}, { timezone });
-    return `Scheduled job ${id}: '${expression}' — ${message}`;
+    this.cron.schedule(id, expression, typed, () => {}, { timezone });
+    return `Scheduled job ${id}: '${expression}' — [${typed.type}]`;
   }
 }
 
