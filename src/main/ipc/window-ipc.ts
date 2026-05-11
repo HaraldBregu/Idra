@@ -4,7 +4,7 @@ import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import { wrapIpcHandler } from './ipc-error-handler';
-import { WindowChannels } from '../../shared/channels';
+import { WindowChannels } from '../../shared/ipc-channels';
 
 /**
  * IPC handlers for window management operations.

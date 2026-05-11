@@ -5,7 +5,7 @@ import type { EventBus } from '../core/event-bus';
 import type { AssistantService } from '../assistant';
 import type { LoggerService } from '../logger';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import { AssistantChannels } from '../../shared/channels';
+import { AssistantChannels } from '../../shared/ipc-channels';
 import type { AssistantHistoryMessage } from '../../shared/service';
 
 export class AssistantIpc implements IpcModule {

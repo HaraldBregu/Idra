@@ -6,7 +6,7 @@ import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import { CronChannels } from '../../shared/channels';
+import { CronChannels } from '../../shared/ipc-channels';
 import { isCronTaskData, type CronTask, type CronTaskData, type CronTaskView } from '../../shared/cron';
 
 export class CronIpc implements IpcModule {

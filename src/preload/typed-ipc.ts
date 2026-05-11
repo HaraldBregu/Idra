@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import type { IpcResult } from '../shared/types';
-import type { InvokeChannelMap, SendChannelMap, EventChannelMap } from '../shared/channels';
+import type { InvokeChannelMap, SendChannelMap, EventChannelMap } from '../shared/ipc-channels';
 
 export function typedInvoke<C extends keyof InvokeChannelMap>(
 	channel: C,

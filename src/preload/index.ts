@@ -6,7 +6,7 @@ import {
 	ChannelsChannels,
 	ProviderChannels,
 	CronChannels,
-} from '../shared/channels';
+} from '../shared/ipc-channels';
 import type { AppApi, AssistantApi, ChannelsApi, CronApi, WindowApi } from './index.d';
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';

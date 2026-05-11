@@ -11,7 +11,7 @@ import type { Assistant, Model } from '../../shared/service';
 import type { PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
-import { ProviderChannels } from '../../shared/channels';
+import { ProviderChannels } from '../../shared/ipc-channels';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
 
