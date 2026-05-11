@@ -9,6 +9,7 @@ import {
 } from './app';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 import { ExecTool } from './exec';
+import { FindTool } from './find';
 import { GetProviderByIdTool, SetProviderApiKeyTool } from './providers';
 import { ReadFileTool } from './read';
 import {
