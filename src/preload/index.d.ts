@@ -26,9 +26,22 @@ export interface CronApi {
 	remove: (id: string) => Promise<void>;
 }
 
+export interface ChannelsApi {
+	getTelegramConfig: () => Promise<TelegramChannelProperties>;
+	saveTelegramConfig: (
+		config: TelegramChannelProperties
+	) => Promise<TelegramChannelProperties>;
+	getTelegramStatus: () => Promise<ChannelStatusEvent | undefined>;
+	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
+	stopTelegram: () => Promise<void>;
+	restartTelegram: () => Promise<ChannelStatusEvent | undefined>;
+	onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
+}
+
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
+import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/types';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
@@ -45,5 +58,6 @@ declare global {
 		app: AppApi;
 		assistant: AssistantApi;
 		cron: CronApi;
+		channels: ChannelsApi;
 	}
 }

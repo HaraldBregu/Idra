@@ -6,5 +6,6 @@
 export type { IpcModule } from './ipc-module';
 export { AssistantIpc } from './assistant-ipc';
 export { AppIpc } from './app-ipc';
+export { ChannelsIpc } from './channels-ipc';
 export { CronIpc } from './cron-ipc';
 export { WindowIpc } from './window-ipc';

@@ -2,7 +2,23 @@ import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
 import type { Assistant, Model, Service } from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
+import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/types';
 import { SettingsStore, StoreSchema } from './types';
+
+const DEFAULT_CHANNEL: Channel = {
+	telegram: {
+		token: '',
+		allowFrom: [],
+	},
+	whatsapp: {
+		phoneNumber: '',
+		token: '',
+	},
+	discord: {
+		token: '',
+		allowFrom: [],
+	},
+};
 
 export class StoreService {
 	private store: SettingsStore;
@@ -90,6 +106,51 @@ export class StoreService {
 
 	setCronTasks(tasks: CronTask[]): void {
 		this.store.set('cronTasks', tasks);
+	}
+
+	getChannel(): Channel {
+		const channel = this.store.get('channel');
+		return {
+			telegram: {
+				...DEFAULT_CHANNEL.telegram,
+				...(channel?.telegram ?? {}),
+			},
+			whatsapp: {
+				...DEFAULT_CHANNEL.whatsapp,
+				...(channel?.whatsapp ?? {}),
+			},
+			discord: {
+				...DEFAULT_CHANNEL.discord,
+				...(channel?.discord ?? {}),
+			},
+		};
+	}
+
+	getTelegramChannel(): TelegramChannelProperties {
+		return this.getChannel().telegram;
+	}
+
+	setChannelProperties<TKey extends ChannelType>(
+		type: TKey,
+		properties: Partial<Channel[TKey]>
+	): Channel {
+		const current = this.getChannel();
+		const next: Channel = {
+			...current,
+			[type]: {
+				...current[type],
+				...properties,
+			},
+		};
+		this.store.set('channel', next);
+		return next;
+	}
+
+	setTelegramChannel(config: TelegramChannelProperties): TelegramChannelProperties {
+		return this.setChannelProperties('telegram', {
+			token: config.token,
+			allowFrom: config.allowFrom,
+		}).telegram;
 	}
 
 	setAnthropicApiKey(key: string): void {

@@ -12,7 +12,7 @@ import { AssistantService } from './assistant';
 import { ChannelRegistry } from './channels';
 
 import type { IpcModule } from './ipc';
-import { AppIpc, AssistantIpc, CronIpc, WindowIpc } from './ipc';
+import { AppIpc, AssistantIpc, ChannelsIpc, CronIpc, WindowIpc } from './ipc';
 
 export interface BootstrapResult {
 	container: ServiceContainer;
@@ -67,6 +67,7 @@ export function bootstrapIpcModules(container: ServiceContainer, eventBus: Event
 	const ipcModules: IpcModule[] = [
 		new AppIpc(),
 		new AssistantIpc(),
+		new ChannelsIpc(),
 		new CronIpc(),
 		new WindowIpc(),
 	];

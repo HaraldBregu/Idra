@@ -1,4 +1,5 @@
 import type { ChannelStatusEvent } from '../../shared/types';
+import { ChannelsChannels } from '../../shared/channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { AssistantService } from '../assistant';
@@ -99,6 +100,7 @@ export class ChannelRegistry {
 		};
 		this.statusCache.set('telegram', event);
 		this.dependencies.eventBus.emit('channel:status', event);
+		this.dependencies.eventBus.broadcast(ChannelsChannels.statusChanged, event);
 	}
 
 	private async handleMessage(message: ChannelInboundMessage): Promise<void> {

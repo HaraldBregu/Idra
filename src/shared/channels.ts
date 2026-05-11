@@ -31,6 +31,16 @@ export const CronChannels = {
 	remove: 'cron:remove',
 } as const;
 
+export const ChannelsChannels = {
+	getTelegramConfig: 'channels:telegram:get-config',
+	saveTelegramConfig: 'channels:telegram:save-config',
+	getTelegramStatus: 'channels:telegram:get-status',
+	startTelegram: 'channels:telegram:start',
+	stopTelegram: 'channels:telegram:stop',
+	restartTelegram: 'channels:telegram:restart',
+	statusChanged: 'channels:status-changed',
+} as const;
+
 interface AppInvokeChannelMap {
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
@@ -85,11 +95,39 @@ interface CronInvokeChannelMap {
 	[CronChannels.remove]: { args: [id: string]; result: void };
 }
 
+interface ChannelsInvokeChannelMap {
+	[ChannelsChannels.getTelegramConfig]: {
+		args: [];
+		result: import('./types').TelegramChannelProperties;
+	};
+	[ChannelsChannels.saveTelegramConfig]: {
+		args: [config: import('./types').TelegramChannelProperties];
+		result: import('./types').TelegramChannelProperties;
+	};
+	[ChannelsChannels.getTelegramStatus]: {
+		args: [];
+		result: import('./types').ChannelStatusEvent | undefined;
+	};
+	[ChannelsChannels.startTelegram]: {
+		args: [];
+		result: import('./types').ChannelStatusEvent | undefined;
+	};
+	[ChannelsChannels.stopTelegram]: {
+		args: [];
+		result: void;
+	};
+	[ChannelsChannels.restartTelegram]: {
+		args: [];
+		result: import('./types').ChannelStatusEvent | undefined;
+	};
+}
+
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
 		AssistantInvokeChannelMap,
 		WindowInvokeChannelMap,
-		CronInvokeChannelMap {}
+		CronInvokeChannelMap,
+		ChannelsInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
@@ -107,4 +145,11 @@ interface WindowEventChannelMap {
 	[WindowChannels.fullScreenChange]: { data: boolean };
 }
 
-export interface EventChannelMap extends AssistantEventChannelMap, WindowEventChannelMap {}
+interface ChannelsEventChannelMap {
+	[ChannelsChannels.statusChanged]: { data: import('./types').ChannelStatusEvent };
+}
+
+export interface EventChannelMap
+	extends AssistantEventChannelMap,
+		WindowEventChannelMap,
+		ChannelsEventChannelMap {}

@@ -3,13 +3,15 @@ import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import {
 	WindowChannels,
 	AssistantChannels,
+	ChannelsChannels,
 	ProviderChannels,
 	CronChannels,
 } from '../shared/channels';
-import type { AppApi, AssistantApi, CronApi, WindowApi } from './index.d';
+import type { AppApi, AssistantApi, ChannelsApi, CronApi, WindowApi } from './index.d';
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
+import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/types';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -92,12 +94,39 @@ export const cron: CronApi = {
 	},
 };
 
+export const channels: ChannelsApi = {
+	getTelegramConfig: (): Promise<TelegramChannelProperties> => {
+		return typedInvokeUnwrap(ChannelsChannels.getTelegramConfig);
+	},
+	saveTelegramConfig: (
+		config: TelegramChannelProperties
+	): Promise<TelegramChannelProperties> => {
+		return typedInvokeUnwrap(ChannelsChannels.saveTelegramConfig, config);
+	},
+	getTelegramStatus: (): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(ChannelsChannels.getTelegramStatus);
+	},
+	startTelegram: (): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(ChannelsChannels.startTelegram);
+	},
+	stopTelegram: (): Promise<void> => {
+		return typedInvokeUnwrap(ChannelsChannels.stopTelegram);
+	},
+	restartTelegram: (): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(ChannelsChannels.restartTelegram);
+	},
+	onStatusChanged: (callback: (event: ChannelStatusEvent) => void): (() => void) => {
+		return typedOn(ChannelsChannels.statusChanged, callback);
+	},
+};
+
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('assistant', assistant);
 		contextBridge.exposeInMainWorld('cron', cron);
+		contextBridge.exposeInMainWorld('channels', channels);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -110,4 +139,6 @@ if (process.contextIsolated) {
 	globalThis.assistant = assistant;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
+	// @ts-ignore (define in dts)
+	globalThis.channels = channels;
 }
