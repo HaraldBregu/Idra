@@ -24,6 +24,8 @@ const ChannelsPage: React.FC = () => {
 	const [phoneNumberDraft, setPhoneNumberDraft] = useState('');
 	const [allowedPhoneNumbers, setAllowedPhoneNumbers] = useState<readonly string[]>([]);
 	const [telegramStatus, setTelegramStatus] = useState<ChannelConnectionStatus>('disconnected');
+	const [telegramBusy, setTelegramBusy] = useState(false);
+	const [telegramError, setTelegramError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
@@ -37,19 +39,25 @@ const ChannelsPage: React.FC = () => {
 			})
 			.catch((error) => {
 				console.error('[ChannelsPage] Failed to load telegram config:', error);
+				if (mounted) setTelegramError(error instanceof Error ? error.message : String(error));
 			});
 
 		window.channels
 			.getTelegramStatus()
 			.then((status) => {
-				if (mounted && status) setTelegramStatus(status.status);
+				if (!mounted || !status) return;
+				setTelegramStatus(status.status);
+				setTelegramError(status.error ?? null);
 			})
 			.catch((error) => {
 				console.error('[ChannelsPage] Failed to load telegram status:', error);
+				if (mounted) setTelegramError(error instanceof Error ? error.message : String(error));
 			});
 
 		const unsubscribe = window.channels.onStatusChanged((event) => {
-			if (event.type === 'telegram') setTelegramStatus(event.status);
+			if (event.type !== 'telegram') return;
+			setTelegramStatus(event.status);
+			setTelegramError(event.error ?? null);
 		});
 
 		return () => {
@@ -62,12 +70,22 @@ const ChannelsPage: React.FC = () => {
 		token = telegramToken,
 		allowFrom = allowedPhoneNumbers
 	): Promise<void> => {
-		const config = await window.channels.saveTelegramConfig({
-			token,
-			allowFrom: [...allowFrom],
-		});
-		setTelegramToken(config.token);
-		setAllowedPhoneNumbers(config.allowFrom);
+		setTelegramBusy(true);
+		setTelegramError(null);
+		try {
+			const config = await window.channels.saveTelegramConfig({
+				token,
+				allowFrom: [...allowFrom],
+			});
+			setTelegramToken(config.token);
+			setAllowedPhoneNumbers(config.allowFrom);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			setTelegramError(message);
+			throw error;
+		} finally {
+			setTelegramBusy(false);
+		}
 	};
 
 	const addAllowedPhoneNumber = (): void => {
@@ -89,15 +107,51 @@ const ChannelsPage: React.FC = () => {
 		void saveTelegramConfig();
 	};
 
+	const handleStartTelegram = async (): Promise<void> => {
+		setTelegramBusy(true);
+		setTelegramError(null);
+		try {
+			await saveTelegramConfig();
+			const status = await window.channels.startTelegram();
+			if (status) {
+				setTelegramStatus(status.status);
+				setTelegramError(status.error ?? null);
+			}
+		} catch (error) {
+			setTelegramError(error instanceof Error ? error.message : String(error));
+		} finally {
+			setTelegramBusy(false);
+		}
+	};
+
 	const handleRestartTelegram = async (): Promise<void> => {
-		await saveTelegramConfig();
-		const status = await window.channels.restartTelegram();
-		if (status) setTelegramStatus(status.status);
+		setTelegramBusy(true);
+		setTelegramError(null);
+		try {
+			await saveTelegramConfig();
+			const status = await window.channels.restartTelegram();
+			if (status) {
+				setTelegramStatus(status.status);
+				setTelegramError(status.error ?? null);
+			}
+		} catch (error) {
+			setTelegramError(error instanceof Error ? error.message : String(error));
+		} finally {
+			setTelegramBusy(false);
+		}
 	};
 
 	const handleStopTelegram = async (): Promise<void> => {
-		await window.channels.stopTelegram();
-		setTelegramStatus('disconnected');
+		setTelegramBusy(true);
+		setTelegramError(null);
+		try {
+			await window.channels.stopTelegram();
+			setTelegramStatus('disconnected');
+		} catch (error) {
+			setTelegramError(error instanceof Error ? error.message : String(error));
+		} finally {
+			setTelegramBusy(false);
+		}
 	};
 
 	return (
@@ -129,7 +183,7 @@ const ChannelsPage: React.FC = () => {
 												</CardDescription>
 											</div>
 										</div>
-												<Badge variant="outline">
+										<Badge variant="outline">
 											{t(`settings.channels.${channel.availabilityKey}`)}
 										</Badge>
 									</div>
@@ -164,6 +218,15 @@ const ChannelsPage: React.FC = () => {
 													className="max-w-sm text-sm"
 													aria-label={t('settings.channels.token')}
 												/>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													disabled={telegramBusy}
+													onClick={() => void saveTelegramConfig()}
+												>
+													{t('common.save')}
+												</Button>
 											</div>
 
 											<div className="flex flex-col gap-3 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
@@ -241,12 +304,27 @@ const ChannelsPage: React.FC = () => {
 													<p className="text-xs text-muted-foreground">
 														{t(`channels.status.${telegramStatus}`)}
 													</p>
+													{telegramError && (
+														<p className="mt-1 max-w-xl text-xs text-destructive">
+															{telegramError}
+														</p>
+													)}
 												</div>
 												<div className="flex items-center gap-2">
 													<Button
 														type="button"
 														variant="outline"
 														size="sm"
+														disabled={telegramBusy || !telegramToken.trim()}
+														onClick={() => void handleStartTelegram()}
+													>
+														{t('settings.channels.pair')}
+													</Button>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														disabled={telegramBusy || !telegramToken.trim()}
 														onClick={() => void handleRestartTelegram()}
 													>
 														{t('settings.channels.reconnect')}
@@ -255,6 +333,7 @@ const ChannelsPage: React.FC = () => {
 														type="button"
 														variant="outline"
 														size="sm"
+														disabled={telegramBusy}
 														onClick={() => void handleStopTelegram()}
 													>
 														{t('common.close')}
