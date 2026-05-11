@@ -45,7 +45,7 @@ const GeneralPage: React.FC = () => {
 				{t('settings.sections.application')}
 			</h2>
 
-			<Card className="gap-0 rounded-2xl bg-card/70 py-0">
+			<Card className="gap-0 py-0">
 				<CardContent className="flex flex-col p-0">
 					<div className={rowClass}>
 						<div className={contentClass}>
