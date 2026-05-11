@@ -29,7 +29,7 @@ const ChannelsPage: React.FC = () => {
 					{t('settings.channels.description')}
 				</p>
 
-				<div className="grid gap-4 md:grid-cols-2">
+				<div className="grid gap-4">
 					{CHANNEL_CARDS.map((channel) => {
 						const Icon = channel.icon;
 
