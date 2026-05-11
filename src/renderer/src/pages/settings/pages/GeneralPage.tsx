@@ -39,8 +39,6 @@ const GeneralPage: React.FC = () => {
 
 	return (
 		<div className="w-full">
-			<h1 className="text-lg font-normal mb-2">{t('settings.title')}</h1>
-
 			<Card>
 				<CardHeader>
 					<h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
