@@ -75,12 +75,14 @@ export const cron: CronApi = {
 	list: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
 	},
-	add: (
+	add: <TData extends CronTaskData>(
 		expression: string,
-		message: string,
+		data: TData,
 		options?: { id?: string; timezone?: string }
-	): Promise<CronTask> => {
-		return typedInvokeUnwrap(CronChannels.add, expression, message, options);
+	): Promise<CronTask<TData>> => {
+		return typedInvokeUnwrap(CronChannels.add, expression, data, options) as Promise<
+			CronTask<TData>
+		>;
 	},
 	remove: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
