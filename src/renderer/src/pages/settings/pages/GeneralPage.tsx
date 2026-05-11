@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
 
 const GeneralPage: React.FC = () => {
@@ -31,28 +31,28 @@ const GeneralPage: React.FC = () => {
 	}, []);
 
 	const rowClass =
-		'flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm last:border-b-0';
-	const contentClass = 'flex flex-1 flex-col gap-1';
-	const titleClass = 'text-sm leading-snug font-medium';
+		'flex min-h-[72px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-4 text-sm last:border-b-0';
+	const contentClass = 'flex min-w-0 flex-1 flex-col gap-1';
+	const titleClass = 'text-base leading-snug font-semibold';
 	const descriptionClass = 'text-sm leading-normal text-muted-foreground';
-	const actionsClass = 'flex items-center gap-2';
+	const actionsClass = 'ml-auto flex min-w-[180px] items-center justify-end gap-2 text-right';
+	const valueClass =
+		'max-w-[320px] truncate rounded-lg bg-muted/70 px-3 py-2 text-sm text-muted-foreground';
 
 	return (
 		<div className="w-full">
-			<Card>
-				<CardHeader>
-					<h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-						{t('settings.sections.application')}
-					</h2>
-				</CardHeader>
+			<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
+				{t('settings.sections.application')}
+			</h2>
 
-				<CardContent className="flex flex-col gap-2">
+			<Card className="gap-0 rounded-2xl bg-card/70 py-0">
+				<CardContent className="flex flex-col p-0">
 					<div className={rowClass}>
 						<div className={contentClass}>
 							<h3 className={titleClass}>{t('settings.application.name')}</h3>
 						</div>
 						<div className={actionsClass}>
-							<span className="text-sm">{__APP_NAME__}</span>
+							<span className={valueClass}>{__APP_NAME__}</span>
 						</div>
 					</div>
 
@@ -61,7 +61,7 @@ const GeneralPage: React.FC = () => {
 							<h3 className={titleClass}>{t('settings.application.description')}</h3>
 						</div>
 						<div className={actionsClass}>
-							<span className="text-sm text-muted-foreground">{__APP_DESCRIPTION__}</span>
+							<span className={valueClass}>{__APP_DESCRIPTION__}</span>
 						</div>
 					</div>
 
@@ -70,7 +70,7 @@ const GeneralPage: React.FC = () => {
 							<h3 className={titleClass}>{t('settings.application.version')}</h3>
 						</div>
 						<div className={actionsClass}>
-							<span className="font-mono text-sm">{__APP_VERSION__}</span>
+							<span className={`${valueClass} font-mono`}>{__APP_VERSION__}</span>
 						</div>
 					</div>
 
@@ -79,7 +79,7 @@ const GeneralPage: React.FC = () => {
 							<h3 className={titleClass}>{t('settings.application.author')}</h3>
 						</div>
 						<div className={actionsClass}>
-							<span className="text-sm">{__APP_AUTHOR__}</span>
+							<span className={valueClass}>{__APP_AUTHOR__}</span>
 						</div>
 					</div>
 
@@ -88,7 +88,7 @@ const GeneralPage: React.FC = () => {
 							<h3 className={titleClass}>{t('settings.application.license')}</h3>
 						</div>
 						<div className={actionsClass}>
-							<span className="text-sm">{__APP_LICENSE__}</span>
+							<span className={valueClass}>{__APP_LICENSE__}</span>
 						</div>
 					</div>
 
