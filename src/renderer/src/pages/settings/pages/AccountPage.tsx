@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 
 type EditingField = 'firstName' | 'lastName' | null;
@@ -71,6 +72,12 @@ const AccountPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [profile, setProfile] = useState<UserProfile>(EMPTY_PROFILE);
 	const [editing, setEditing] = useState<EditingField>(null);
+	const rowClass =
+		'flex min-h-[48px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-1.5 text-sm last:border-b-0';
+	const contentClass = 'flex min-w-0 flex-1 flex-col gap-1';
+	const titleClass = 'text-sm leading-snug font-semibold';
+	const descriptionClass = 'text-xs leading-normal text-muted-foreground';
+	const actionsClass = 'ml-auto flex min-w-[180px] items-center justify-end gap-2 text-right';
 
 	const persist = useCallback(
 		(field: 'firstName' | 'lastName', raw: string) => {
@@ -91,76 +98,70 @@ const AccountPage: React.FC = () => {
 	const subtitle = t('settings.account.notSignedIn');
 
 	return (
-		<div className="w-full">
-			<h1 className="text-lg font-normal mb-2">{t('settings.tabs.account')}</h1>
-
-			<div className="pt-0 pb-2">
-				<h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+		<div className="w-full p-6">
+			<section>
+				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
 					{t('settings.account.section')}
 				</h2>
-			</div>
 
-			<div className="flex flex-col gap-2">
-				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-input bg-background">
-						<UserCircle className="h-5 w-5 text-muted-foreground" />
-					</div>
-					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">{displayName}</h3>
-						<p className="text-xs leading-normal text-muted-foreground">{subtitle}</p>
-					</div>
-				</div>
+				<Card className="gap-0 py-0">
+					<CardContent className="flex flex-col p-0">
+						<div className={rowClass}>
+							<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-input bg-background">
+								<UserCircle className="h-4 w-4 text-muted-foreground" />
+							</div>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{displayName}</h3>
+								<p className={descriptionClass}>{subtitle}</p>
+							</div>
+						</div>
 
-				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">{t('settings.account.firstName')}</h3>
-						<p className="text-sm leading-normal text-muted-foreground">
-							{t('settings.account.editHint')}
-						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<EditableName
-							value={profile.firstName}
-							editing={editing === 'firstName'}
-							onStartEdit={() => setEditing('firstName')}
-							onCommit={(v) => persist('firstName', v)}
-							onCancel={() => setEditing(null)}
-						/>
-					</div>
-				</div>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.account.firstName')}</h3>
+								<p className={descriptionClass}>{t('settings.account.editHint')}</p>
+							</div>
+							<div className={actionsClass}>
+								<EditableName
+									value={profile.firstName}
+									editing={editing === 'firstName'}
+									onStartEdit={() => setEditing('firstName')}
+									onCommit={(v) => persist('firstName', v)}
+									onCancel={() => setEditing(null)}
+								/>
+							</div>
+						</div>
 
-				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">{t('settings.account.lastName')}</h3>
-						<p className="text-sm leading-normal text-muted-foreground">
-							{t('settings.account.editHint')}
-						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<EditableName
-							value={profile.lastName}
-							editing={editing === 'lastName'}
-							onStartEdit={() => setEditing('lastName')}
-							onCommit={(v) => persist('lastName', v)}
-							onCancel={() => setEditing(null)}
-						/>
-					</div>
-				</div>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.account.lastName')}</h3>
+								<p className={descriptionClass}>{t('settings.account.editHint')}</p>
+							</div>
+							<div className={actionsClass}>
+								<EditableName
+									value={profile.lastName}
+									editing={editing === 'lastName'}
+									onStartEdit={() => setEditing('lastName')}
+									onCommit={(v) => persist('lastName', v)}
+									onCancel={() => setEditing(null)}
+								/>
+							</div>
+						</div>
 
-				<div className="flex w-full flex-wrap items-center gap-2.5 border-b border-border py-2 text-sm">
-					<div className="flex flex-1 flex-col gap-1">
-						<h3 className="text-sm leading-snug font-medium">{t('settings.account.signIn')}</h3>
-						<p className="text-sm leading-normal text-muted-foreground">
-							{t('settings.account.signInDescription')}
-						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button variant="outline" size="sm" disabled>
-							{t('settings.account.signIn')}
-						</Button>
-					</div>
-				</div>
-			</div>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.account.signIn')}</h3>
+								<p className={descriptionClass}>{t('settings.account.signInDescription')}</p>
+							</div>
+							<div className={actionsClass}>
+								<Button variant="outline" size="sm" disabled>
+									{t('settings.account.signIn')}
+								</Button>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			</section>
 		</div>
 	);
 };

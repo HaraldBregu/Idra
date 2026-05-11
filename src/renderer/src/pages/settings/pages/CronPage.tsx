@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock3, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 import {
 	Empty,
 	EmptyDescription,
@@ -57,73 +58,73 @@ const CronPage: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full">
-			<h1 className="text-lg font-normal mb-4">{t('settings.tabs.cron')}</h1>
-
-			<div className="pt-0 pb-2">
-				<h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+		<div className="w-full p-6">
+			<section>
+				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
 					{t('settings.sections.cron')}
 				</h2>
-			</div>
 
-			<div className="overflow-hidden rounded-md border border-border">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-24 max-w-24">{t('settings.cron.columns.id')}</TableHead>
-							<TableHead>{t('settings.cron.columns.message')}</TableHead>
-							<TableHead>{t('settings.cron.columns.schedule')}</TableHead>
-							<TableHead>{t('settings.cron.columns.lastRun')}</TableHead>
-							<TableHead>{t('settings.cron.columns.nextRun')}</TableHead>
-							<TableHead className="text-right">{t('settings.cron.columns.actions')}</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{cronTasks.map((task) => (
-							<TableRow key={task.id}>
-								<TableCell className="w-24 max-w-24 truncate font-medium" title={task.id}>
-									{task.id}
-								</TableCell>
-								<TableCell className="font-mono text-xs">{task.data.type}</TableCell>
-								<TableCell className="font-mono text-xs">{task.expression}</TableCell>
-								<TableCell className="text-muted-foreground">
-									{formatTimestamp(task.lastRun)}
-								</TableCell>
-								<TableCell className="text-muted-foreground">
-									{formatTimestamp(task.nextRun)}
-								</TableCell>
-								<TableCell className="text-right">
-									<Button
-										type="button"
-										variant="destructive"
-										size="icon-sm"
-										onClick={() => void handleRemoveTask(task.id)}
-										aria-label={t('settings.cron.actions.removeLabel', { id: task.id })}
-										title={t('settings.cron.actions.remove')}
-									>
-										<Trash2 className="size-3.5" />
-									</Button>
-								</TableCell>
-							</TableRow>
-						))}
-						{cronTasks.length === 0 && (
-							<TableRow>
-								<TableCell colSpan={6} className="py-8">
-									<Empty className="border-0 p-0">
-										<EmptyHeader>
-											<EmptyMedia variant="icon">
-												<Clock3 className="size-4" />
-											</EmptyMedia>
-											<EmptyTitle>{t('settings.cron.emptyTitle')}</EmptyTitle>
-											<EmptyDescription>{t('settings.cron.emptyDescription')}</EmptyDescription>
-										</EmptyHeader>
-									</Empty>
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+				<Card className="gap-0 py-0">
+					<CardContent className="overflow-hidden p-0">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead className="w-24 max-w-24">{t('settings.cron.columns.id')}</TableHead>
+									<TableHead>{t('settings.cron.columns.message')}</TableHead>
+									<TableHead>{t('settings.cron.columns.schedule')}</TableHead>
+									<TableHead>{t('settings.cron.columns.lastRun')}</TableHead>
+									<TableHead>{t('settings.cron.columns.nextRun')}</TableHead>
+									<TableHead className="text-right">{t('settings.cron.columns.actions')}</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{cronTasks.map((task) => (
+									<TableRow key={task.id}>
+										<TableCell className="w-24 max-w-24 truncate font-medium" title={task.id}>
+											{task.id}
+										</TableCell>
+										<TableCell className="font-mono text-xs">{task.data.type}</TableCell>
+										<TableCell className="font-mono text-xs">{task.expression}</TableCell>
+										<TableCell className="text-muted-foreground">
+											{formatTimestamp(task.lastRun)}
+										</TableCell>
+										<TableCell className="text-muted-foreground">
+											{formatTimestamp(task.nextRun)}
+										</TableCell>
+										<TableCell className="text-right">
+											<Button
+												type="button"
+												variant="destructive"
+												size="icon-sm"
+												onClick={() => void handleRemoveTask(task.id)}
+												aria-label={t('settings.cron.actions.removeLabel', { id: task.id })}
+												title={t('settings.cron.actions.remove')}
+											>
+												<Trash2 className="size-3.5" />
+											</Button>
+										</TableCell>
+									</TableRow>
+								))}
+								{cronTasks.length === 0 && (
+									<TableRow>
+										<TableCell colSpan={6} className="py-8">
+											<Empty className="border-0 p-0">
+												<EmptyHeader>
+													<EmptyMedia variant="icon">
+														<Clock3 className="size-4" />
+													</EmptyMedia>
+													<EmptyTitle>{t('settings.cron.emptyTitle')}</EmptyTitle>
+													<EmptyDescription>{t('settings.cron.emptyDescription')}</EmptyDescription>
+												</EmptyHeader>
+											</Empty>
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</CardContent>
+				</Card>
+			</section>
 		</div>
 	);
 };
