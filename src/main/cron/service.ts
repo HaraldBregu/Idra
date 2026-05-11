@@ -3,7 +3,6 @@ import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import {
-	describeCronTaskData,
 	isCronTaskData,
 	type CronTask,
 	type CronTaskData,
@@ -18,6 +17,9 @@ interface NextRunCapable {
 /**
  * Schedules and manages recurring jobs via node-cron. Tasks are persisted
  * to StoreService so they survive app restart, and reloaded via restore().
+ *
+ * Generic over the data payload: callers parameterize schedule<TData>() with
+ * whatever shape they want as long as it has a string `type` discriminator.
  */
 export class CronService implements Disposable {
 	private readonly store: StoreService;
@@ -29,13 +31,13 @@ export class CronService implements Disposable {
 		this.logger = logger;
 	}
 
-	schedule(
+	schedule<TData extends CronTaskData>(
 		id: string,
 		expression: string,
-		data: CronTaskData,
+		data: TData,
 		handler: () => void | Promise<void>,
 		options: CronJobOptions = {}
-	): CronTask {
+	): CronTask<TData> {
 		if (this.jobs.has(id)) {
 			throw new Error(`Cron job "${id}" is already registered`);
 		}
@@ -47,9 +49,7 @@ export class CronService implements Disposable {
 		const task = cron.schedule(
 			expression,
 			async () => {
-				console.log(
-					`[cron] tick ${id} '${expression}' — [${data.type}] ${describeCronTaskData(data)}`
-				);
+				console.log(`[cron] tick ${id} '${expression}' — [${data.type}]`);
 				this.recordRun(id);
 				try {
 					await handler();
@@ -61,7 +61,7 @@ export class CronService implements Disposable {
 		);
 
 		this.jobs.set(id, { id, expression, timezone: options.timezone, task });
-		const record: CronTask = {
+		const record: CronTask<TData> = {
 			id,
 			expression,
 			data,
@@ -115,9 +115,7 @@ export class CronService implements Disposable {
 			const scheduled = cron.schedule(
 				task.expression,
 				async () => {
-					console.log(
-						`[cron] tick ${task.id} '${task.expression}' — [${task.data.type}] ${describeCronTaskData(task.data)}`
-					);
+					console.log(`[cron] tick ${task.id} '${task.expression}' — [${task.data.type}]`);
 					this.recordRun(task.id);
 					try {
 						await dispatcher(task);
@@ -187,8 +185,9 @@ export class CronService implements Disposable {
 	}
 
 	/**
-	 * Migrates legacy persisted tasks ({ message: string }) into the discriminated
-	 * data shape. Idempotent: tasks already carrying valid `data` pass through.
+	 * Coerce persisted entries into CronTask shape. Accepts existing valid
+	 * records as-is, migrates legacy `{ message }` rows into
+	 * `{ data: { type: 'message', message } }`, and drops anything else.
 	 */
 	private migrateTasks(raw: readonly unknown[]): CronTask[] {
 		const out: CronTask[] = [];
