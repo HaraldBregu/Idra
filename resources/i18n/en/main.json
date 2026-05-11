@@ -284,18 +284,6 @@
 			"system": "System",
 			"systemDescription": "Follow the operating system preference"
 		},
-		"appTheme": {
-			"title": "Theme",
-			"description": "Select a color theme for the application.",
-			"default": "Default",
-			"aurora": "Aurora",
-			"ember": "Ember",
-			"ocean": "Ocean",
-			"forest": "Forest",
-			"lavender": "Lavender",
-			"midnight": "Midnight",
-			"sandstone": "Sandstone"
-		},
 		"language": {
 			"title": "Language",
 			"description": "Choose the display language for the application.",

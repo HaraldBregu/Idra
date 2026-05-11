@@ -5,7 +5,6 @@ import type { IpcModule } from './ipc-module';
 import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { ThemeService } from '../theme';
 import type { StoreService } from '../store';
 import type { Assistant, Model } from '../../shared/service';
 import type { PublicProvider } from '../../shared/providers';
@@ -101,53 +100,6 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(async () => {
 				await shell.openPath(getDefaultDataDirectory());
 			}, 'app:open-app-data-folder')
-		);
-
-		// -----------------------------------------------------------------------
-		// Theme management handlers
-		// -----------------------------------------------------------------------
-
-		const themeService = container.get<ThemeService>('themeService');
-
-		ipcMain.handle(
-			'app:get-custom-themes',
-			wrapSimpleHandler(() => themeService.listThemes(), 'app:get-custom-themes')
-		);
-
-		ipcMain.handle(
-			'app:open-themes-folder',
-			wrapSimpleHandler(async () => {
-				const themesDir = themeService.getThemesDirectory();
-				await shell.openPath(themesDir);
-			}, 'app:open-themes-folder')
-		);
-
-		ipcMain.handle(
-			'app:get-custom-theme-tokens',
-			wrapSimpleHandler(
-				(id: string) => themeService.getThemeById(id),
-				'app:get-custom-theme-tokens'
-			)
-		);
-
-		ipcMain.handle(
-			'app:delete-theme',
-			wrapSimpleHandler((id: string) => themeService.deleteTheme(id), 'app:delete-theme')
-		);
-
-		ipcMain.handle(
-			'app:import-theme',
-			wrapSimpleHandler(async () => {
-				const result = await dialog.showOpenDialog({
-					properties: ['openDirectory'],
-					title: 'Select Theme Folder',
-					buttonLabel: 'Import Theme',
-				});
-				if (result.canceled || result.filePaths.length === 0) {
-					return null;
-				}
-				return themeService.importThemeFromPath(result.filePaths[0]);
-			}, 'app:import-theme')
 		);
 
 		ipcMain.handle(

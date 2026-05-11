@@ -6,7 +6,6 @@ import { getDefaultDataDirectory } from './utils';
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
 
 import { LoggerService } from './logger';
-import { ThemeService } from './theme';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { AssistantService } from './assistant';
@@ -41,7 +40,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
-	container.register('themeService', new ThemeService(logger));
 	const assistantService = container.register(
 		'assistantService',
 		new AssistantService({ store, cron, logger, eventBus })

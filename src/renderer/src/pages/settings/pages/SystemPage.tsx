@@ -89,13 +89,6 @@ const SystemPage: React.FC = () => {
 
 						<div className={rowClass}>
 							<div className={contentClass}>
-								<h3 className={titleClass}>{t('settings.appTheme.title')}</h3>
-								<p className={descriptionClass}>{t('settings.appTheme.description')}</p>
-							</div>
-						</div>
-
-						<div className={rowClass}>
-							<div className={contentClass}>
 								<h3 className={titleClass}>{t('settings.language.title')}</h3>
 								<p className={descriptionClass}>{t('settings.language.description')}</p>
 							</div>
