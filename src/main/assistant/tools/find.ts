@@ -54,11 +54,17 @@ export class FindTool extends Tool {
       const iter = fs.glob(pattern, {
         cwd: searchDir,
         exclude: DEFAULT_EXCLUDES,
+        withFileTypes: true,
       });
 
       let limitReached = false;
-      for await (const entry of iter) {
-        results.push(toPosixPath(entry));
+      for await (const dirent of iter) {
+        const full = path.join(dirent.parentPath, dirent.name);
+        let rel = path.relative(searchDir, full);
+        if (!rel) rel = dirent.name;
+        let posix = toPosixPath(rel);
+        if (dirent.isDirectory() && !posix.endsWith("/")) posix += "/";
+        results.push(posix);
         if (results.length >= limit) {
           limitReached = true;
           break;
