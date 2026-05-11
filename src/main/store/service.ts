@@ -4,7 +4,6 @@ import type { Assistant, Model, Service } from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
 import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
 import { SettingsStore, StoreSchema } from './types';
-import { getDefaultDataDirectory } from '../utils';
 
 const DEFAULT_CHANNEL: Channel = {
 	telegram: {
@@ -28,7 +27,6 @@ export class StoreService {
 		this.store = new Store<StoreSchema>({
 			name: 'settings',
 			accessPropertiesByDotNotation: false,
-			cwd: getDefaultDataDirectory(),
 		}) as unknown as SettingsStore;
 	}
 

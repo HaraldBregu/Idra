@@ -1,7 +1,6 @@
 import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
-import { getDefaultDataDirectory } from './utils';
 
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
 
@@ -118,7 +117,7 @@ export function writeCrashLine(line: string): void {
 	// when the process is torn down before the buffered LoggerService flushes.
 	try {
 		if (!safetyNetCrashFile) {
-			const dir = path.join(getDefaultDataDirectory(), 'logs');
+			const dir = path.join(app.getPath('userData'), 'logs');
 			fs.mkdirSync(dir, { recursive: true });
 			safetyNetCrashFile = path.join(dir, 'crash.log');
 		}

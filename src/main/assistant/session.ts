@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { getDefaultDataDirectory } from '../utils';
+import { app } from 'electron';
 import type {
 	ChatCompletionMessageParam,
 	ChatCompletionMessageToolCall,
@@ -58,7 +58,7 @@ export class SessionManager {
 
 	constructor(sessionKey: string) {
 		this.sessionKey = sessionKey;
-		const dir = path.join(getDefaultDataDirectory(), 'assistant', 'sessions');
+		const dir = path.join(app.getPath('userData'), 'assistant', 'sessions');
 		this.filePath = path.join(dir, `${sessionKey}.jsonl`);
 	}
 

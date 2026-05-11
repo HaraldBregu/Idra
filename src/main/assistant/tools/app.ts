@@ -1,8 +1,7 @@
-import { nativeTheme, shell } from 'electron';
+import { app, nativeTheme, shell } from 'electron';
 import { Tool } from './base';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
-import { getDefaultDataDirectory } from '../../utils';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -73,7 +72,7 @@ export class OpenAppDataFolderTool extends Tool {
 	}
 
 	async execute(): Promise<string> {
-		const target = getDefaultDataDirectory();
+		const target = app.getPath('userData');
 		const err = await shell.openPath(target);
 		if (err) {
 			this.logger.warn('OpenAppDataFolderTool', `openPath failed: ${err}`);

@@ -60,14 +60,13 @@ describe('StoreService', () => {
 	// -------------------------------------------------------------------------
 
 	describe('constructor', () => {
-		it('constructs the underlying store with the default data directory root', () => {
+		it('constructs the underlying store with name "settings" and dot-notation disabled', () => {
 			new StoreService();
 
 			expect(MockStore).toHaveBeenCalledTimes(1);
 			expect(MockStore).toHaveBeenCalledWith({
 				name: 'settings',
 				accessPropertiesByDotNotation: false,
-				cwd: '/tmp/friday-test/home/FridayData',
 			});
 		});
 	});

@@ -11,7 +11,6 @@ import type { PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { ProviderChannels } from '../../shared/ipc-channels';
-import { getDefaultDataDirectory } from '../utils';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
 
@@ -98,7 +97,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			'app:open-app-data-folder',
 			wrapSimpleHandler(async () => {
-				await shell.openPath(getDefaultDataDirectory());
+				await shell.openPath(app.getPath('userData'));
 			}, 'app:open-app-data-folder')
 		);
 

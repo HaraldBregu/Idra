@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { getDefaultDataDirectory } from '../utils';
+import { app } from 'electron';
 
 const TEMPLATE_FILES = ['AGENTS.md', 'BOOTSTRAP.md', 'HEARTBEAT.md', 'MEMORY.md', 'SOUL.md', 'USER.md'];
 
@@ -24,7 +24,7 @@ export class MemoryManager {
 	readonly workspace: string;
 
 	constructor(assistantId: string) {
-		this.workspace = path.join(getDefaultDataDirectory(), 'assistant', 'workspaces', assistantId);
+		this.workspace = path.join(app.getPath('userData'), 'assistant', 'workspaces', assistantId);
 		console.log(`MemoryManager initialized with workspace: ${this.workspace}`);
 	}
 
