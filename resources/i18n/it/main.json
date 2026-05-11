@@ -339,6 +339,7 @@
 			"order": "Ordine",
 			"integration": "Integrazione",
 			"bot": "Token bot",
+			"status": "Stato",
 			"moreSoon": "Qui si potranno aggiungere altre card dei canali man mano che ogni integrazione verra implementata.",
 			"token": "Token",
 			"tokenDescription": "Archiviato cifrato nel portachiavi del sistema operativo.",

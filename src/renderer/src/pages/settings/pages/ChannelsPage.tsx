@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bot, MessageCircleMore, Plus, Send, X, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import type { ChannelConnectionStatus } from '../../../../../shared/types';
 
 interface ChannelCardDefinition {
 	readonly key: 'telegram' | 'discord';
@@ -22,16 +23,81 @@ const ChannelsPage: React.FC = () => {
 	const [telegramToken, setTelegramToken] = useState('');
 	const [phoneNumberDraft, setPhoneNumberDraft] = useState('');
 	const [allowedPhoneNumbers, setAllowedPhoneNumbers] = useState<readonly string[]>([]);
+	const [telegramStatus, setTelegramStatus] = useState<ChannelConnectionStatus>('disconnected');
+
+	useEffect(() => {
+		let mounted = true;
+
+		window.channels
+			.getTelegramConfig()
+			.then((config) => {
+				if (!mounted) return;
+				setTelegramToken(config.token);
+				setAllowedPhoneNumbers(config.allowFrom);
+			})
+			.catch((error) => {
+				console.error('[ChannelsPage] Failed to load telegram config:', error);
+			});
+
+		window.channels
+			.getTelegramStatus()
+			.then((status) => {
+				if (mounted && status) setTelegramStatus(status.status);
+			})
+			.catch((error) => {
+				console.error('[ChannelsPage] Failed to load telegram status:', error);
+			});
+
+		const unsubscribe = window.channels.onStatusChanged((event) => {
+			if (event.type === 'telegram') setTelegramStatus(event.status);
+		});
+
+		return () => {
+			mounted = false;
+			unsubscribe();
+		};
+	}, []);
+
+	const saveTelegramConfig = async (
+		token = telegramToken,
+		allowFrom = allowedPhoneNumbers
+	): Promise<void> => {
+		const config = await window.channels.saveTelegramConfig({
+			token,
+			allowFrom: [...allowFrom],
+		});
+		setTelegramToken(config.token);
+		setAllowedPhoneNumbers(config.allowFrom);
+	};
 
 	const addAllowedPhoneNumber = (): void => {
 		const next = phoneNumberDraft.trim();
 		if (!next || allowedPhoneNumbers.includes(next)) return;
-		setAllowedPhoneNumbers((current) => [...current, next]);
+		const updated = [...allowedPhoneNumbers, next];
+		setAllowedPhoneNumbers(updated);
 		setPhoneNumberDraft('');
+		void saveTelegramConfig(telegramToken, updated);
 	};
 
 	const removeAllowedPhoneNumber = (phoneNumber: string): void => {
-		setAllowedPhoneNumbers((current) => current.filter((item) => item !== phoneNumber));
+		const updated = allowedPhoneNumbers.filter((item) => item !== phoneNumber);
+		setAllowedPhoneNumbers(updated);
+		void saveTelegramConfig(telegramToken, updated);
+	};
+
+	const handleTelegramTokenBlur = (): void => {
+		void saveTelegramConfig();
+	};
+
+	const handleRestartTelegram = async (): Promise<void> => {
+		await saveTelegramConfig();
+		const status = await window.channels.restartTelegram();
+		if (status) setTelegramStatus(status.status);
+	};
+
+	const handleStopTelegram = async (): Promise<void> => {
+		await window.channels.stopTelegram();
+		setTelegramStatus('disconnected');
 	};
 
 	return (
@@ -63,7 +129,7 @@ const ChannelsPage: React.FC = () => {
 												</CardDescription>
 											</div>
 										</div>
-										<Badge variant="outline">
+												<Badge variant="outline">
 											{t(`settings.channels.${channel.availabilityKey}`)}
 										</Badge>
 									</div>
@@ -93,6 +159,7 @@ const ChannelsPage: React.FC = () => {
 													type="password"
 													value={telegramToken}
 													onChange={(event) => setTelegramToken(event.target.value)}
+													onBlur={handleTelegramTokenBlur}
 													placeholder={t('settings.channels.telegramTokenPlaceholder')}
 													className="max-w-sm text-sm"
 													aria-label={t('settings.channels.token')}
@@ -163,6 +230,35 @@ const ChannelsPage: React.FC = () => {
 															{t('settings.channels.noAllowedPhoneNumbers')}
 														</span>
 													)}
+												</div>
+											</div>
+
+											<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
+												<div className="min-w-0">
+													<p className="text-xs font-medium text-foreground">
+														{t('settings.channels.status')}
+													</p>
+													<p className="text-xs text-muted-foreground">
+														{t(`channels.status.${telegramStatus}`)}
+													</p>
+												</div>
+												<div className="flex items-center gap-2">
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => void handleRestartTelegram()}
+													>
+														{t('settings.channels.reconnect')}
+													</Button>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => void handleStopTelegram()}
+													>
+														{t('common.close')}
+													</Button>
 												</div>
 											</div>
 										</>

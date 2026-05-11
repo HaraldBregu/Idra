@@ -339,6 +339,7 @@
 			"order": "Order",
 			"integration": "Integration",
 			"bot": "Bot token",
+			"status": "Status",
 			"moreSoon": "More channel cards can be added here as each integration is implemented.",
 			"token": "Token",
 			"tokenDescription": "Stored encrypted in your OS keychain.",
