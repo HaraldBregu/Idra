@@ -13,7 +13,7 @@ export const TitleBarCenterContainer = memo(function AppTitleBarCenterContainer(
 	return (
 		<div
 			className={cn(
-				'absolute inset-0 flex items-center justify-center pointer-events-none bg-background',
+				'absolute inset-0 flex items-center justify-center pointer-events-none bg-transparent',
 				className
 			)}
 		>
