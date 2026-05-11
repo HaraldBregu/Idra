@@ -1,4 +1,4 @@
-import { app, nativeTheme, shell } from 'electron';
+import { nativeTheme, shell } from 'electron';
 import { Tool } from './base';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';

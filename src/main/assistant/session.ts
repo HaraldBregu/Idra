@@ -1,6 +1,5 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
 import { getDefaultDataDirectory } from '../utils';
 import type {
 	ChatCompletionMessageParam,

@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, nativeTheme, shell, dialog, app } from 'electron';
+import { ipcMain, BrowserWindow, nativeTheme, shell, dialog } from 'electron';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
