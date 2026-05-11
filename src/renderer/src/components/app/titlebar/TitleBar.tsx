@@ -69,7 +69,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const isStart = location.pathname === '/start';
 	const isSettings = location.pathname.startsWith('/settings');
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
-	const homeButtonLabel = isSettings ? 'friday' : t('titleBar.home', 'Home');
+	const homeButtonLabel = isSettings ? 'Friday' : t('titleBar.home', 'Home');
 
 	useEffect(() => {
 		if (!window.win) return;
