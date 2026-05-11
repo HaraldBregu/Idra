@@ -7,7 +7,7 @@ import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { ChannelsChannels } from '../../shared/ipc-channels';
-import type { ChannelStatusEvent, TelegramChannelProperties } from '../../shared/types';
+import type { ChannelStatusEvent, TelegramChannelProperties } from '../../shared/channels';
 
 function normalizeTelegramConfig(config: TelegramChannelProperties): TelegramChannelProperties {
 	return {

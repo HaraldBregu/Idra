@@ -11,7 +11,7 @@ import type { AppApi, AssistantApi, ChannelsApi, CronApi, WindowApi } from './in
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
-import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/types';
+import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 
 const win: WindowApi = {
 	minimize: (): void => {

@@ -1,4 +1,4 @@
-import type { ChannelStatusEvent } from '../../shared/types';
+import type { ChannelStatusEvent } from '../../shared/channels';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';

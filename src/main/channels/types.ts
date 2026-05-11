@@ -1,4 +1,4 @@
-import type { ChannelConnectionStatus, ChannelType } from '../../shared/types';
+import type { ChannelConnectionStatus, ChannelType } from '../../shared/channels';
 
 export interface ChannelInboundMessage {
 	type: ChannelType;

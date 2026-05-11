@@ -41,7 +41,7 @@ export interface ChannelsApi {
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
-import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/types';
+import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;

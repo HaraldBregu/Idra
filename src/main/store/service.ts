@@ -2,7 +2,7 @@ import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
 import type { Assistant, Model, Service } from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
-import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/types';
+import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
 import { SettingsStore, StoreSchema } from './types';
 
 const DEFAULT_CHANNEL: Channel = {

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import type { ChannelConnectionStatus } from '../../../../../shared/types';
+import type { ChannelConnectionStatus } from '../../../../../shared/channels';
 
 interface ChannelCardDefinition {
 	readonly key: 'telegram' | 'discord';
