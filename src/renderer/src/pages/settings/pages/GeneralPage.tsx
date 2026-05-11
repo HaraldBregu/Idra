@@ -31,16 +31,16 @@ const GeneralPage: React.FC = () => {
 	}, []);
 
 	const rowClass =
-		'flex min-h-[56px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-2 text-sm last:border-b-0';
+		'flex min-h-[48px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-1.5 text-sm last:border-b-0';
 	const contentClass = 'flex min-w-0 flex-1 flex-col gap-1';
-	const titleClass = 'text-base leading-snug font-semibold';
-	const descriptionClass = 'text-sm leading-normal text-muted-foreground';
+	const titleClass = 'text-sm leading-snug font-semibold';
+	const descriptionClass = 'text-xs leading-normal text-muted-foreground';
 	const actionsClass = 'ml-auto flex min-w-[180px] items-center justify-end gap-2 text-right';
 	const valueClass =
-		'max-w-[320px] truncate rounded-lg bg-muted/70 px-3 py-2 text-sm text-muted-foreground';
+		'max-w-[320px] truncate rounded-lg bg-muted/70 px-3 py-1.5 text-xs text-muted-foreground';
 
 	return (
-		<div className="w-full">
+		<div className="w-full p-6">
 			<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
 				{t('settings.sections.application')}
 			</h2>
