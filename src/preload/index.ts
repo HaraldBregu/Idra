@@ -21,6 +21,9 @@ const win: WindowApi = {
 	close: (): void => {
 		typedSend(WindowChannels.close);
 	},
+	popupMenu: (): void => {
+		typedSend(WindowChannels.popupMenu);
+	},
 	isMaximized: (): Promise<boolean> => {
 		return typedInvokeUnwrap(WindowChannels.isMaximized);
 	},
