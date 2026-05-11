@@ -37,19 +37,18 @@ export class WorkspaceService {
 		this.logger.debug('WorkspaceService', 'Workspace ready', { rootPath: this.rootPath });
 	}
 
-	async logContents(): Promise<void> {
+	async writeDummyData(): Promise<void> {
 		try {
-			await this.ensureReady();
-			const entries = await fs.readdir(this.rootPath, { withFileTypes: true });
-			this.logger.info('WorkspaceService', 'Workspace contents', {
+			await this.writeJson('dummy-data.json', {
+				message: 'Workspace test data',
 				rootPath: this.rootPath,
-				entries: entries.map((entry) => ({
-					name: entry.name,
-					type: entry.isDirectory() ? 'directory' : 'file',
-				})),
+				createdAt: new Date().toISOString(),
+			});
+			this.logger.info('WorkspaceService', 'Dummy workspace data written', {
+				path: this.resolvePath('dummy-data.json'),
 			});
 		} catch (error) {
-			this.logger.error('WorkspaceService', 'Failed to log workspace contents', error);
+			this.logger.error('WorkspaceService', 'Failed to write dummy workspace data', error);
 		}
 	}
 

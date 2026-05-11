@@ -36,7 +36,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('logger', logger);
 
 	const workspace = container.register('workspace', new WorkspaceService(logger));
-	void workspace.logContents();
+	void workspace.writeDummyData();
 
 	const store = container.register('store', new StoreService());
 	const cron = container.register('cron', new CronService(store, logger));
