@@ -114,7 +114,7 @@ export const TitleBar = React.memo(function TitleBar({
 				{!isMac && (
 					<button
 						type="button"
-						onClick={() => {}}
+						onClick={() => window.win?.popupMenu()}
 						className={btnNoHover}
 						title={t('titleBar.applicationMenu')}
 					>
