@@ -108,38 +108,40 @@ export const TitleBar = React.memo(function TitleBar({
 		<TitleBarContainer className="border-none bg-transparent">
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
 			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
-				<DropdownMenu>
-					<DropdownMenuTrigger
-						className={
-							isMac
-								? 'flex items-center justify-center h-full px-3 text-muted-foreground transition-colors hover:text-foreground'
-								: btnNoHover
-						}
-						title={t('settings.title', 'Settings')}
-					>
-						<Settings
-							className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
-							strokeWidth={1.5}
-						/>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="start" className="w-44">
-						<DropdownMenuItem onClick={() => navigateToSettings('/settings/general')}>
-							{t('settings.tabs.general')}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => navigateToSettings('/settings/account')}>
-							{t('settings.tabs.account')}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => navigateToSettings('/settings/system')}>
-							{t('settings.tabs.system')}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => navigateToSettings('/settings/cron')}>
-							{t('settings.tabs.cron')}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => navigateToSettings('/settings/developer')}>
-							{t('settings.tabs.developer')}
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				{!isStart && (
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							className={
+								isMac
+									? 'flex items-center justify-center h-full px-3 text-muted-foreground transition-colors hover:text-foreground'
+									: btnNoHover
+							}
+							title={t('settings.title', 'Settings')}
+						>
+							<Settings
+								className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+								strokeWidth={1.5}
+							/>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start" className="w-44">
+							<DropdownMenuItem onClick={() => navigateToSettings('/settings/general')}>
+								{t('settings.tabs.general')}
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => navigateToSettings('/settings/account')}>
+								{t('settings.tabs.account')}
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => navigateToSettings('/settings/system')}>
+								{t('settings.tabs.system')}
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => navigateToSettings('/settings/cron')}>
+								{t('settings.tabs.cron')}
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => navigateToSettings('/settings/developer')}>
+								{t('settings.tabs.developer')}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				)}
 
 				{!isMac && (
 					<button
@@ -152,7 +154,7 @@ export const TitleBar = React.memo(function TitleBar({
 					</button>
 				)}
 
-				{!isHome && (
+				{!isHome && !isStart && (
 					<Button
 						type="button"
 						variant="outline"
