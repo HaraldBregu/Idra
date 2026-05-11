@@ -66,6 +66,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const [isFullScreen, setIsFullScreen] = useState(false);
 
 	const isHome = location.pathname === '/home';
+	const isStart = location.pathname === '/start';
 
 	useEffect(() => {
 		if (!window.win) return;
