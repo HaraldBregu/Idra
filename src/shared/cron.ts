@@ -1,48 +1,38 @@
 /**
- * Discriminated union for cron task payloads. Each variant carries the
- * data it needs to run when the cron fires. Add a new variant by adding
- * an interface here and extending the CronTaskData union below — the
- * exhaustiveness check in describeCronTaskData will flag missing cases.
+ * Base shape every cron task payload must satisfy: a string `type`
+ * discriminator chosen by the caller at task creation. Concrete data shapes
+ * extend this with whatever extra fields they need. New variants are added
+ * by declaring them at the call site — no central registry to update.
  */
-export interface CronTaskAgentData {
-	readonly type: 'agent';
+export interface CronTaskData<TType extends string = string> {
+	readonly type: TType;
+}
+
+export interface CronTaskAgentData extends CronTaskData<'agent'> {
 	readonly prompt: string;
 	readonly model?: string;
 }
 
-export interface CronTaskAppData {
-	readonly type: 'app';
+export interface CronTaskAppData extends CronTaskData<'app'> {
 	readonly action: string;
 	readonly payload?: Record<string, unknown>;
 }
 
-export interface CronTaskMessageData {
-	readonly type: 'message';
+export interface CronTaskMessageData extends CronTaskData<'message'> {
 	readonly message: string;
 }
 
-export type CronTaskData =
-	| CronTaskAgentData
-	| CronTaskAppData
-	| CronTaskMessageData;
-
-export type CronTaskDataType = CronTaskData['type'];
-
-export type CronTaskDataOf<T extends CronTaskDataType> = Extract<
-	CronTaskData,
-	{ type: T }
->;
-
-export interface CronTask {
+export interface CronTask<TData extends CronTaskData = CronTaskData> {
 	readonly id: string;
 	readonly expression: string;
-	readonly data: CronTaskData;
+	readonly data: TData;
 	readonly timezone?: string;
 	readonly createdAt: string;
 	readonly lastRun?: string;
 }
 
-export interface CronTaskView extends CronTask {
+export interface CronTaskView<TData extends CronTaskData = CronTaskData>
+	extends CronTask<TData> {
 	readonly nextRun?: string;
 }
 
@@ -56,36 +46,10 @@ export interface CronTickEvent {
 	readonly firedAt: string;
 }
 
-/**
- * Returns a human-readable string for a CronTaskData. Used by UI rows and logs.
- * Exhaustive switch — adding a new variant without a case here is a type error.
- */
-export function describeCronTaskData(data: CronTaskData): string {
-	switch (data.type) {
-		case 'agent':
-			return data.prompt;
-		case 'app':
-			return data.action;
-		case 'message':
-			return data.message;
-		default: {
-			const _exhaustive: never = data;
-			return String(_exhaustive);
-		}
-	}
-}
-
 export function isCronTaskData(value: unknown): value is CronTaskData {
-	if (typeof value !== 'object' || value === null) return false;
-	const candidate = value as { type?: unknown };
-	if (candidate.type === 'agent') {
-		return typeof (value as CronTaskAgentData).prompt === 'string';
-	}
-	if (candidate.type === 'app') {
-		return typeof (value as CronTaskAppData).action === 'string';
-	}
-	if (candidate.type === 'message') {
-		return typeof (value as CronTaskMessageData).message === 'string';
-	}
-	return false;
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		typeof (value as { type?: unknown }).type === 'string'
+	);
 }
