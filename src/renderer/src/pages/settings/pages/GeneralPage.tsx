@@ -40,58 +40,69 @@ const GeneralPage: React.FC = () => {
 		'max-w-[320px] truncate rounded-lg bg-muted/70 px-3 py-1.5 text-xs text-muted-foreground';
 
 	return (
-		<div className="w-full p-6">
-			<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
-				{t('settings.sections.application')}
-			</h2>
+		<div className="flex w-full flex-col gap-5 p-6">
+			<section>
+				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
+					{t('settings.application.information')}
+				</h2>
 
-			<Card className="gap-0 py-0">
-				<CardContent className="flex flex-col p-0">
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.name')}</h3>
+				<Card className="gap-0 py-0">
+					<CardContent className="flex flex-col p-0">
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.name')}</h3>
+							</div>
+							<div className={actionsClass}>
+								<span className={valueClass}>{__APP_NAME__}</span>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<span className={valueClass}>{__APP_NAME__}</span>
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.description')}</h3>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.description')}</h3>
+							</div>
+							<div className={actionsClass}>
+								<span className={valueClass}>{__APP_DESCRIPTION__}</span>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<span className={valueClass}>{__APP_DESCRIPTION__}</span>
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.version')}</h3>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.version')}</h3>
+							</div>
+							<div className={actionsClass}>
+								<span className={`${valueClass} font-mono`}>{__APP_VERSION__}</span>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<span className={`${valueClass} font-mono`}>{__APP_VERSION__}</span>
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.author')}</h3>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.author')}</h3>
+							</div>
+							<div className={actionsClass}>
+								<span className={valueClass}>{__APP_AUTHOR__}</span>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<span className={valueClass}>{__APP_AUTHOR__}</span>
-						</div>
-					</div>
 
-					<div className={rowClass}>
-						<div className={contentClass}>
-							<h3 className={titleClass}>{t('settings.application.license')}</h3>
+						<div className={rowClass}>
+							<div className={contentClass}>
+								<h3 className={titleClass}>{t('settings.application.license')}</h3>
+							</div>
+							<div className={actionsClass}>
+								<span className={valueClass}>{__APP_LICENSE__}</span>
+							</div>
 						</div>
-						<div className={actionsClass}>
-							<span className={valueClass}>{__APP_LICENSE__}</span>
-						</div>
-					</div>
+					</CardContent>
+				</Card>
+			</section>
 
+			<section>
+				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
+					{t('settings.application.actions')}
+				</h2>
+
+				<Card className="gap-0 py-0">
+					<CardContent className="flex flex-col p-0">
 					<div className={rowClass}>
 						<div className={contentClass}>
 							<h3 className={titleClass}>{t('settings.application.accessibility')}</h3>
@@ -142,7 +153,8 @@ const GeneralPage: React.FC = () => {
 						</div>
 					</div>
 				</CardContent>
-			</Card>
+				</Card>
+			</section>
 		</div>
 	);
 };

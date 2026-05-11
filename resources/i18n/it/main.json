@@ -195,6 +195,8 @@
 			"saveChanges": "Salva Modifiche"
 		},
 		"application": {
+			"information": "Informazioni",
+			"actions": "Azioni",
 			"name": "Nome",
 			"description": "Descrizione",
 			"version": "Versione",
