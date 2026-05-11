@@ -9,6 +9,7 @@ import type { CronService } from '../cron';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
+import type { WorkspaceService } from '../workspace';
 
 export class Assistant {
 	readonly id: string;
@@ -29,7 +30,8 @@ export class Assistant {
 		store: StoreService,
 		cron: CronService,
 		logger: LoggerService,
-		eventBus: EventBus
+		eventBus: EventBus,
+		workspace: WorkspaceService
 	) {
 		this.id = assistantId;
 		this.store = store;
@@ -37,7 +39,7 @@ export class Assistant {
 		this.source = `Assistant:${assistantId}`;
 		this.memory = new MemoryManager(assistantId);
 		this.session = new SessionManager(`assistant:${assistantId}`);
-		this.tools = defaultTools({ cron, store, eventBus, logger });
+		this.tools = defaultTools({ cron, store, eventBus, logger, workspace });
 	}
 
 	async init(): Promise<void> {

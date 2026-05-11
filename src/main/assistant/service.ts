@@ -3,6 +3,7 @@ import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
+import type { WorkspaceService } from '../workspace';
 import { Assistant } from './assistant';
 import { DEFAULT_ASSISTANT_ID } from './constants';
 import { AssistantRegistry } from './registry';
@@ -12,6 +13,7 @@ export interface AssistantServiceDependencies {
 	cron: CronService;
 	logger: LoggerService;
 	eventBus: EventBus;
+	workspace: WorkspaceService;
 }
 
 export interface AssistantServiceOptions {
@@ -57,7 +59,8 @@ export class AssistantService {
 					this.dependencies.store,
 					this.dependencies.cron,
 					this.dependencies.logger,
-					this.dependencies.eventBus
+					this.dependencies.eventBus,
+					this.dependencies.workspace
 				)
 			);
 		}

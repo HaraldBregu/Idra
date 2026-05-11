@@ -10,6 +10,7 @@ export {
 	GetAssistantServiceTool,
 	SetAssistantServiceTool,
 } from './services';
+export { GetWorkspaceContentTool, GetWorkspacePathTool } from './workspace';
 export {
 	OpenAccessibilityTool,
 	OpenAppDataFolderTool,

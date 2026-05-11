@@ -45,7 +45,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const assistantService = container.register(
 		'assistantService',
-		new AssistantService({ store, cron, logger, eventBus })
+		new AssistantService({ store, cron, logger, eventBus, workspace })
 	);
 	container.register(
 		'channelRegistry',

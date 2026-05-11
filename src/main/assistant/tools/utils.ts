@@ -17,11 +17,13 @@ import {
 	GetAssistantServiceTool,
 	SetAssistantServiceTool,
 } from './services';
+import { GetWorkspaceContentTool, GetWorkspacePathTool } from './workspace';
 import { WriteFileTool } from './write';
 import type { EventBus } from '../../core/event-bus';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../logger';
 import type { StoreService } from '../../store';
+import type { WorkspaceService } from '../../workspace';
 import type { Tool } from './base';
 
 export function expandUser(p: string): string {
@@ -34,12 +36,15 @@ export function defaultTools(opts: {
 	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
+	workspace: WorkspaceService;
 }): Tool[] {
 	return [
 		new ReadFileTool(),
 		new WriteFileTool(),
 		new FindTool(),
 		new ExecTool(),
+		new GetWorkspaceContentTool(opts.workspace),
+		new GetWorkspacePathTool(opts.workspace),
 		new GetProviderByIdTool(opts.store),
 		new SetProviderApiKeyTool(opts.store),
 		new GetAssistantServiceTool(opts.store),
