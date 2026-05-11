@@ -37,6 +37,22 @@ export class WorkspaceService {
 		this.logger.debug('WorkspaceService', 'Workspace ready', { rootPath: this.rootPath });
 	}
 
+	async logContents(): Promise<void> {
+		try {
+			await this.ensureReady();
+			const entries = await fs.readdir(this.rootPath, { withFileTypes: true });
+			this.logger.info('WorkspaceService', 'Workspace contents', {
+				rootPath: this.rootPath,
+				entries: entries.map((entry) => ({
+					name: entry.name,
+					type: entry.isDirectory() ? 'directory' : 'file',
+				})),
+			});
+		} catch (error) {
+			this.logger.error('WorkspaceService', 'Failed to log workspace contents', error);
+		}
+	}
+
 	async ensureDirectory(...segments: string[]): Promise<string> {
 		const directoryPath = this.resolvePath(...segments);
 		await fs.mkdir(directoryPath, { recursive: true });

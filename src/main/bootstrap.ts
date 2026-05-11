@@ -9,6 +9,7 @@ import { StoreService } from './store';
 import { CronService } from './cron';
 import { AssistantService } from './assistant';
 import { ChannelRegistry } from './channels';
+import { WorkspaceService } from './workspace';
 
 import type { IpcModule } from './ipc';
 import { AppIpc, AssistantIpc, ChannelsIpc, CronIpc, WindowIpc } from './ipc';
@@ -19,6 +20,7 @@ export interface BootstrapResult {
 	windowFactory: WindowFactory;
 	appState: AppState;
 	logger: LoggerService;
+	workspace: WorkspaceService;
 	windowContextManager: WindowContextManager;
 }
 
@@ -32,6 +34,9 @@ export function bootstrapServices(): BootstrapResult {
 
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
+
+	const workspace = container.register('workspace', new WorkspaceService(logger));
+	void workspace.logContents();
 
 	const store = container.register('store', new StoreService());
 	const cron = container.register('cron', new CronService(store, logger));
@@ -56,7 +61,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	logger.info('Bootstrap', `Registered ${container.has('store') ? 'all' : 'some'} global services`);
 
-	return { container, eventBus, windowFactory, appState, logger, windowContextManager };
+	return { container, eventBus, windowFactory, appState, logger, workspace, windowContextManager };
 }
 
 export function bootstrapIpcModules(container: ServiceContainer, eventBus: EventBus): void {
