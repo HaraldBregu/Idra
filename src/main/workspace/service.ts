@@ -37,21 +37,6 @@ export class WorkspaceService {
 		this.logger.debug('WorkspaceService', 'Workspace ready', { rootPath: this.rootPath });
 	}
 
-	async writeDummyData(): Promise<void> {
-		try {
-			await this.writeJson('dummy-data.json', {
-				message: 'Workspace test data',
-				rootPath: this.rootPath,
-				createdAt: new Date().toISOString(),
-			});
-			this.logger.info('WorkspaceService', 'Dummy workspace data written', {
-				path: this.resolvePath('dummy-data.json'),
-			});
-		} catch (error) {
-			this.logger.error('WorkspaceService', 'Failed to write dummy workspace data', error);
-		}
-	}
-
 	async ensureDirectory(...segments: string[]): Promise<string> {
 		const directoryPath = this.resolvePath(...segments);
 		await fs.mkdir(directoryPath, { recursive: true });
