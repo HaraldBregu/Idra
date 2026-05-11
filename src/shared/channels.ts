@@ -75,7 +75,11 @@ interface WindowInvokeChannelMap {
 interface CronInvokeChannelMap {
 	[CronChannels.list]: { args: []; result: import('./cron').CronTaskView[] };
 	[CronChannels.add]: {
-		args: [expression: string, message: string, options?: { id?: string; timezone?: string }];
+		args: [
+			expression: string,
+			data: import('./cron').CronTaskData,
+			options?: { id?: string; timezone?: string },
+		];
 		result: import('./cron').CronTask;
 	};
 	[CronChannels.remove]: { args: [id: string]; result: void };
