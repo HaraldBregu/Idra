@@ -9,13 +9,12 @@ import { Input } from '@/components/ui/Input';
 interface ChannelCardDefinition {
 	readonly key: 'telegram' | 'discord';
 	readonly icon: LucideIcon;
-	readonly order: number;
 	readonly availabilityKey: 'available' | 'next';
 }
 
 const CHANNEL_CARDS: readonly ChannelCardDefinition[] = [
-	{ key: 'telegram', icon: Send, order: 1, availabilityKey: 'available' },
-	{ key: 'discord', icon: MessageCircleMore, order: 2, availabilityKey: 'next' },
+	{ key: 'telegram', icon: Send, availabilityKey: 'available' },
+	{ key: 'discord', icon: MessageCircleMore, availabilityKey: 'next' },
 ];
 
 const ChannelsPage: React.FC = () => {
