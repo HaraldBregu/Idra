@@ -67,6 +67,9 @@ export const TitleBar = React.memo(function TitleBar({
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
+	const isSettings = location.pathname.startsWith('/settings');
+	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
+	const homeButtonLabel = isSettings ? 'friday' : t('titleBar.home', 'Home');
 
 	useEffect(() => {
 		if (!window.win) return;
@@ -160,9 +163,9 @@ export const TitleBar = React.memo(function TitleBar({
 						variant="outline"
 						size="sm"
 						onClick={() => navigate('/home')}
-						title={t('titleBar.home', 'Home')}
+						title={homeButtonLabel}
 					>
-						{t('titleBar.home', 'Home')}
+						{homeButtonLabel}
 					</Button>
 				)}
 
@@ -223,7 +226,7 @@ export const TitleBar = React.memo(function TitleBar({
 
 			{/* ── Center: app title (absolutely placed so it's always truly centered) ── */}
 			<TitleBarCenterContainer>
-				<TitleBarCenterContainerTitle>{title}</TitleBarCenterContainerTitle>
+				<TitleBarCenterContainerTitle>{titleBarTitle}</TitleBarCenterContainerTitle>
 			</TitleBarCenterContainer>
 
 			{/* ── Spacer (pushes right buttons to the right) ── */}
