@@ -7,12 +7,7 @@ import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/channels';
-import {
-	describeCronTaskData,
-	type CronTask,
-	type CronTaskData,
-	type CronTaskView,
-} from '../../shared/cron';
+import { isCronTaskData, type CronTask, type CronTaskData, type CronTaskView } from '../../shared/cron';
 
 export class CronIpc implements IpcModule {
 	readonly name = 'cron';
@@ -33,16 +28,19 @@ export class CronIpc implements IpcModule {
 			wrapSimpleHandler(
 				(
 					expression: string,
-					message: string,
+					data: CronTaskData,
 					options?: { id?: string; timezone?: string }
 				): CronTask => {
+					if (!isCronTaskData(data)) {
+						throw new Error('Invalid cron task data: missing string "type" discriminator');
+					}
 					const id = options?.id ?? randomUUID();
 					return cron.schedule(
 						id,
 						expression,
-						message,
+						data,
 						() => {
-							logger.info('CronService', `Tick: ${id} '${expression}' — ${message}`);
+							logger.info('CronService', `Tick: ${id} '${expression}' — [${data.type}]`);
 						},
 						{ timezone: options?.timezone }
 					);
