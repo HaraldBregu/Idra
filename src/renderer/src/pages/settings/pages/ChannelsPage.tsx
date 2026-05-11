@@ -72,12 +72,6 @@ const ChannelsPage: React.FC = () => {
 								<CardContent className="flex flex-col gap-3 py-4">
 									<div className="flex items-center justify-between rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
 										<span className="text-xs text-muted-foreground">
-											{t('settings.channels.order')}
-										</span>
-										<span className="text-sm font-medium">{channel.order}</span>
-									</div>
-									<div className="flex items-center justify-between rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-										<span className="text-xs text-muted-foreground">
 											{t('settings.channels.integration')}
 										</span>
 										<span className="inline-flex items-center gap-2 text-sm font-medium">
