@@ -26,7 +26,7 @@ export interface CronApi {
 }
 
 import type { PublicProvider } from '../shared/providers';
-import type { CronTask, CronTaskView } from '../shared/cron';
+import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 
 export interface AppApi {
