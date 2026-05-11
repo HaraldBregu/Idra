@@ -1,0 +1,80 @@
+import type { Bot } from 'grammy';
+import { registerTextHandler } from '../../../../../src/main/channels/telegram/receive';
+
+type TextHandler = (ctx: {
+	message: { text: string };
+	from?: { id: number | string };
+	chat: { id: number | string };
+}) => Promise<void>;
+
+function createBotStub(): { bot: Bot; getHandler: () => TextHandler } {
+	let handler: TextHandler | null = null;
+	const bot = {
+		on: jest.fn((_event: string, next: TextHandler) => {
+			handler = next;
+		}),
+	} as unknown as Bot;
+
+	return {
+		bot,
+		getHandler: () => {
+			if (!handler) throw new Error('handler not registered');
+			return handler;
+		},
+	};
+}
+
+describe('telegram registerTextHandler', () => {
+	it('emits plain text messages with sender and chat identifiers', async () => {
+		const { bot, getHandler } = createBotStub();
+		const emit = jest.fn();
+
+		registerTextHandler(bot, new Set(), emit);
+
+		await getHandler()({
+			message: { text: 'hello' },
+			from: { id: 123 },
+			chat: { id: 456 },
+		});
+
+		expect(emit).toHaveBeenCalledWith({
+			from: '123',
+			chatId: '456',
+			text: 'hello',
+		});
+	});
+
+	it('ignores slash commands', async () => {
+		const { bot, getHandler } = createBotStub();
+		const emit = jest.fn();
+
+		registerTextHandler(bot, new Set(), emit);
+
+		await getHandler()({
+			message: { text: '/start' },
+			from: { id: 123 },
+			chat: { id: 456 },
+		});
+
+		expect(emit).not.toHaveBeenCalled();
+	});
+
+	it('filters out senders not present in allowFrom', async () => {
+		const { bot, getHandler } = createBotStub();
+		const emit = jest.fn();
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+		registerTextHandler(bot, new Set(['allowed-user']), emit);
+
+		await getHandler()({
+			message: { text: 'hello' },
+			from: { id: 'blocked-user' },
+			chat: { id: 456 },
+		});
+
+		expect(emit).not.toHaveBeenCalled();
+		expect(warn).toHaveBeenCalledWith(
+			'[telegram] Ignored message from unauthorized user blocked-user'
+		);
+	});
+});
