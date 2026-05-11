@@ -9,6 +9,7 @@ import { ThemeService } from './theme';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { AssistantService } from './assistant';
+import { ChannelRegistry } from './channels';
 
 import type { IpcModule } from './ipc';
 import { AppIpc, AssistantIpc, CronIpc, WindowIpc } from './ipc';
@@ -40,7 +41,14 @@ export function bootstrapServices(): BootstrapResult {
 	});
 
 	container.register('themeService', new ThemeService(logger));
-	container.register('assistantService', new AssistantService({ store, cron, logger, eventBus }));
+	const assistantService = container.register(
+		'assistantService',
+		new AssistantService({ store, cron, logger, eventBus })
+	);
+	container.register(
+		'channelRegistry',
+		new ChannelRegistry({ logger, eventBus, assistantService })
+	);
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
