@@ -98,19 +98,19 @@ interface CronInvokeChannelMap {
 interface ChannelsInvokeChannelMap {
 	[ChannelsChannels.getTelegramConfig]: {
 		args: [];
-		result: import('./types').TelegramChannelProperties;
+		result: import('./channels').TelegramChannelProperties;
 	};
 	[ChannelsChannels.saveTelegramConfig]: {
-		args: [config: import('./types').TelegramChannelProperties];
-		result: import('./types').TelegramChannelProperties;
+		args: [config: import('./channels').TelegramChannelProperties];
+		result: import('./channels').TelegramChannelProperties;
 	};
 	[ChannelsChannels.getTelegramStatus]: {
 		args: [];
-		result: import('./types').ChannelStatusEvent | undefined;
+		result: import('./channels').ChannelStatusEvent | undefined;
 	};
 	[ChannelsChannels.startTelegram]: {
 		args: [];
-		result: import('./types').ChannelStatusEvent | undefined;
+		result: import('./channels').ChannelStatusEvent | undefined;
 	};
 	[ChannelsChannels.stopTelegram]: {
 		args: [];
@@ -118,7 +118,7 @@ interface ChannelsInvokeChannelMap {
 	};
 	[ChannelsChannels.restartTelegram]: {
 		args: [];
-		result: import('./types').ChannelStatusEvent | undefined;
+		result: import('./channels').ChannelStatusEvent | undefined;
 	};
 }
 
@@ -146,7 +146,7 @@ interface WindowEventChannelMap {
 }
 
 interface ChannelsEventChannelMap {
-	[ChannelsChannels.statusChanged]: { data: import('./types').ChannelStatusEvent };
+	[ChannelsChannels.statusChanged]: { data: import('./channels').ChannelStatusEvent };
 }
 
 export interface EventChannelMap
