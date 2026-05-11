@@ -160,7 +160,7 @@ export const TitleBar = React.memo(function TitleBar({
 				{!isHome && !isStart && (
 					<Button
 						type="button"
-						variant="outline"
+						variant="secondary"
 						size="sm"
 						onClick={() => navigate('/home')}
 						title={homeButtonLabel}
