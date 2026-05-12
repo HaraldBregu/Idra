@@ -42,6 +42,26 @@ export class StoreService {
 		return this.store.get('providers') ?? [];
 	}
 
+	addProvider(input: Provider): Provider {
+		const id = input.id.trim().toLowerCase();
+		const providers = this.store.get('providers') ?? [];
+		const exists = providers.some((provider) => provider.id.trim().toLowerCase() === id);
+
+		if (exists) {
+			throw new Error(`Provider already exists: ${input.id}`);
+		}
+
+		const provider: Provider = {
+			id,
+			name: input.name.trim(),
+			baseUrl: input.baseUrl.trim(),
+			apiKey: input.apiKey.trim(),
+		};
+
+		this.store.set('providers', [...providers, provider]);
+		return provider;
+	}
+
 	getService(): Service | undefined {
 		return this.store.get('service');
 	}

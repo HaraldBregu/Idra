@@ -17,7 +17,7 @@ import type {
 	CronApi,
 	WindowApi,
 } from './index.d';
-import type { PublicProvider } from '../shared/providers';
+import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
@@ -83,6 +83,9 @@ export const app: AppApi = {
 	},
 	getProviders: (): Promise<PublicProvider[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getAll);
+	},
+	addProvider: (input: ProviderInput): Promise<PublicProvider> => {
+		return typedInvokeUnwrap(ProviderChannels.add, input);
 	},
 	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);

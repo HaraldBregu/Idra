@@ -8,7 +8,7 @@ import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { AppsService } from '../apps';
 import type { Assistant, Model } from '../../shared/service';
-import type { PublicProvider } from '../../shared/providers';
+import type { ProviderInput, PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
@@ -160,6 +160,53 @@ export class AppIpc implements IpcModule {
 				(): PublicProvider[] => store.getProviders().map(({ apiKey: _apiKey, ...rest }) => rest),
 				ProviderChannels.getAll
 			)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.add,
+			wrapSimpleHandler((input: ProviderInput): PublicProvider => {
+				const id = input.id.trim().toLowerCase();
+				const name = input.name.trim();
+				const baseUrl = input.baseUrl.trim();
+				const apiKey = input.apiKey.trim();
+
+				if (!id) {
+					throw new Error('Provider id is required.');
+				}
+
+				if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) {
+					throw new Error('Provider id can contain only lowercase letters, numbers, and hyphens.');
+				}
+
+				if (!name) {
+					throw new Error('Provider name is required.');
+				}
+
+				if (!baseUrl) {
+					throw new Error('Base URL is required.');
+				}
+
+				try {
+					const url = new URL(baseUrl);
+					if (url.protocol !== 'https:') {
+						throw new Error('Base URL must use HTTPS.');
+					}
+				} catch {
+					throw new Error('Base URL must be a valid HTTPS URL.');
+				}
+
+				if (!apiKey) {
+					throw new Error('API key is required.');
+				}
+
+				const { apiKey: _apiKey, ...provider } = store.addProvider({
+					id,
+					name,
+					baseUrl,
+					apiKey,
+				});
+				return provider;
+			}, ProviderChannels.add)
 		);
 
 		ipcMain.handle(

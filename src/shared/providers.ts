@@ -6,6 +6,7 @@ export interface Provider {
 }
 
 export type PublicProvider = Omit<Provider, 'apiKey'>;
+export type ProviderInput = Provider;
 
 export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	{

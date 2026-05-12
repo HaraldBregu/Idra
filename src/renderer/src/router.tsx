@@ -12,6 +12,7 @@ const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/ConnectorsPage'));
+const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
 const AppsPage = lazy(() => import('./pages/settings/pages/AppsPage'));
@@ -115,6 +116,14 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<ConnectorsPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'providers',
+						element: (
+							<RouteWrapper>
+								<ProvidersPage />
 							</RouteWrapper>
 						),
 					},

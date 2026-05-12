@@ -58,7 +58,7 @@ export interface ConnectorsApi {
 	) => Promise<unknown>;
 }
 
-import type { PublicProvider } from '../shared/providers';
+import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
@@ -77,6 +77,7 @@ export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;
+	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	getAssistantService: () => Promise<Assistant | undefined>;
 	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
