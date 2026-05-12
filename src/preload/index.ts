@@ -4,16 +4,32 @@ import {
 	WindowChannels,
 	AssistantChannels,
 	ChannelsChannels,
+	ConnectorsChannels,
 	ProviderChannels,
 	CronChannels,
 	AppsChannels,
 } from '../shared/ipc-channels';
-import type { AppApi, AssistantApi, ChannelsApi, CronApi, WindowApi } from './index.d';
+import type {
+	AppApi,
+	AssistantApi,
+	ChannelsApi,
+	ConnectorsApi,
+	CronApi,
+	WindowApi,
+} from './index.d';
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
+import type {
+	ConnectorConfig,
+	ConnectorInput,
+	ConnectorTestResult,
+	ConnectorTool,
+	ConnectorUpdateInput,
+	ConnectorView,
+} from '../shared/connectors';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -134,6 +150,39 @@ export const channels: ChannelsApi = {
 	},
 };
 
+export const connectors: ConnectorsApi = {
+	list: (): Promise<ConnectorView[]> => {
+		return typedInvokeUnwrap(ConnectorsChannels.list);
+	},
+	get: (id: string): Promise<ConnectorConfig> => {
+		return typedInvokeUnwrap(ConnectorsChannels.get, id);
+	},
+	add: (input: ConnectorInput): Promise<ConnectorConfig> => {
+		return typedInvokeUnwrap(ConnectorsChannels.add, input);
+	},
+	update: (id: string, input: ConnectorUpdateInput): Promise<ConnectorConfig> => {
+		return typedInvokeUnwrap(ConnectorsChannels.update, id, input);
+	},
+	remove: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(ConnectorsChannels.remove, id);
+	},
+	enable: (id: string): Promise<ConnectorConfig> => {
+		return typedInvokeUnwrap(ConnectorsChannels.enable, id);
+	},
+	disable: (id: string): Promise<ConnectorConfig> => {
+		return typedInvokeUnwrap(ConnectorsChannels.disable, id);
+	},
+	test: (id: string): Promise<ConnectorTestResult> => {
+		return typedInvokeUnwrap(ConnectorsChannels.test, id);
+	},
+	refreshTools: (id: string): Promise<ConnectorTool[]> => {
+		return typedInvokeUnwrap(ConnectorsChannels.refreshTools, id);
+	},
+	listTools: (id: string): Promise<ConnectorTool[]> => {
+		return typedInvokeUnwrap(ConnectorsChannels.listTools, id);
+	},
+};
+
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
@@ -141,6 +190,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('assistant', assistant);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('channels', channels);
+		contextBridge.exposeInMainWorld('connectors', connectors);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -155,4 +205,6 @@ if (process.contextIsolated) {
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
+	// @ts-ignore (define in dts)
+	globalThis.connectors = connectors;
 }

@@ -38,11 +38,32 @@ export interface ChannelsApi {
 	onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
 }
 
+export interface ConnectorsApi {
+	list: () => Promise<ConnectorView[]>;
+	get: (id: string) => Promise<ConnectorConfig>;
+	add: (input: ConnectorInput) => Promise<ConnectorConfig>;
+	update: (id: string, input: ConnectorUpdateInput) => Promise<ConnectorConfig>;
+	remove: (id: string) => Promise<void>;
+	enable: (id: string) => Promise<ConnectorConfig>;
+	disable: (id: string) => Promise<ConnectorConfig>;
+	test: (id: string) => Promise<ConnectorTestResult>;
+	refreshTools: (id: string) => Promise<ConnectorTool[]>;
+	listTools: (id: string) => Promise<ConnectorTool[]>;
+}
+
 import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
+import type {
+	ConnectorConfig,
+	ConnectorInput,
+	ConnectorTestResult,
+	ConnectorTool,
+	ConnectorUpdateInput,
+	ConnectorView,
+} from '../shared/connectors';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
@@ -64,5 +85,6 @@ declare global {
 		assistant: AssistantApi;
 		cron: CronApi;
 		channels: ChannelsApi;
+		connectors: ConnectorsApi;
 	}
 }
