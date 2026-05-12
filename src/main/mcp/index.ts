@@ -1,6 +1,4 @@
-export { McpClientFactory } from './McpClientFactory';
 export { McpRegistry } from './McpRegistry';
-export { McpToolAdapter } from './McpToolAdapter';
 export { createSafeMcpEnv } from './env';
 export {
 	McpConnectionError,
@@ -9,4 +7,3 @@ export {
 	McpToolExecutionError,
 	normalizeMcpError,
 } from './errors';
-export type { IMcpTransportAdapter } from './types';
