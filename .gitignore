@@ -1,5 +1,6 @@
 node_modules
 .cache
+.yarn/install-state.gz
 out
 dist
 .env
