@@ -31,6 +31,13 @@ export const CronChannels = {
 	remove: 'cron:remove',
 } as const;
 
+export const AppsChannels = {
+	list: 'apps:list',
+	openFolder: 'apps:open-folder',
+	delete: 'apps:delete',
+	getRoot: 'apps:get-root',
+} as const;
+
 export const ChannelsChannels = {
 	getTelegramConfig: 'channels:telegram:get-config',
 	saveTelegramConfig: 'channels:telegram:save-config',
