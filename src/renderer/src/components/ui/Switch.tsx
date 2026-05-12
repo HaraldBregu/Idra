@@ -1,32 +1,27 @@
-'use client';
+import * as React from "react"
+import * as SwitchPrimitives from "@radix-ui/react-switch"
 
-import { Switch as SwitchPrimitive } from '@base-ui/react/switch';
+import { cn } from "src/renderer/src/lib/utils"
 
-import { cn } from '@/lib/utils';
+const Switch = React.forwardRef<
+  React.ElementRef<typeof SwitchPrimitives.Root>,
+  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
+>(({ className, ...props }, ref) => (
+  <SwitchPrimitives.Root
+    className={cn(
+      "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+      className
+    )}
+    {...props}
+    ref={ref}
+  >
+    <SwitchPrimitives.Thumb
+      className={cn(
+        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+      )}
+    />
+  </SwitchPrimitives.Root>
+))
+Switch.displayName = SwitchPrimitives.Root.displayName
 
-function Switch({
-	className,
-	size = 'default',
-	...props
-}: SwitchPrimitive.Root.Props & {
-	size?: 'sm' | 'default';
-}) {
-	return (
-		<SwitchPrimitive.Root
-			data-slot="switch"
-			data-size={size}
-			className={cn(
-				'cn-switch peer group/switch relative inline-flex items-center transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50',
-				className
-			)}
-			{...props}
-		>
-			<SwitchPrimitive.Thumb
-				data-slot="switch-thumb"
-				className="cn-switch-thumb pointer-events-none block ring-0 transition-transform"
-			/>
-		</SwitchPrimitive.Root>
-	);
-}
-
-export { Switch };
+export { Switch }

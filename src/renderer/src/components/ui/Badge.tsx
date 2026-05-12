@@ -1,48 +1,36 @@
-import { mergeProps } from '@base-ui/react/merge-props';
-import { useRender } from '@base-ui/react/use-render';
-import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from '@/lib/utils';
+import { cn } from "src/renderer/src/lib/utils"
 
 const badgeVariants = cva(
-	'cn-badge group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none',
-	{
-		variants: {
-			variant: {
-				default: 'cn-badge-variant-default',
-				secondary: 'cn-badge-variant-secondary',
-				destructive: 'cn-badge-variant-destructive',
-				outline: 'cn-badge-variant-outline',
-				ghost: 'cn-badge-variant-ghost',
-				link: 'cn-badge-variant-link',
-			},
-		},
-		defaultVariants: {
-			variant: 'default',
-		},
-	}
-);
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
-function Badge({
-	className,
-	variant = 'default',
-	render,
-	...props
-}: useRender.ComponentProps<'span'> & VariantProps<typeof badgeVariants>) {
-	return useRender({
-		defaultTagName: 'span',
-		props: mergeProps<'span'>(
-			{
-				className: cn(badgeVariants({ variant }), className),
-			},
-			props
-		),
-		render,
-		state: {
-			slot: 'badge',
-			variant,
-		},
-	});
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
+
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return (
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+  )
 }
 
-export { Badge, badgeVariants };
+export { Badge, badgeVariants }
