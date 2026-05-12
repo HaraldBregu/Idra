@@ -126,6 +126,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'apps',
+						element: (
+							<RouteWrapper>
+								<AppsPage />
+							</RouteWrapper>
+						),
+					},
+					{
 						path: '*',
 						loader: () => {
 							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
