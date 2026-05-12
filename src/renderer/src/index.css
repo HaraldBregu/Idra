@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* @import './styles/shadcn-vega.css' layer(base); */
-
 @custom-variant dark (&:is(.dark *));
 
 @utility no-scrollbar {
