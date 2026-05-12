@@ -5,6 +5,7 @@ export type ConnectorRisk = 'low' | 'high';
 export interface ConnectorTool {
 	name: string;
 	description?: string;
+	inputSchema?: Record<string, unknown>;
 	risk: ConnectorRisk;
 }
 
@@ -18,6 +19,7 @@ export interface ConnectorConfig {
 	args: string[];
 	env: Record<string, string>;
 	cwd?: string;
+	url?: string;
 	tools: ConnectorTool[];
 	lastRefreshedAt?: string;
 	createdAt: string;
@@ -43,6 +45,7 @@ export interface ConnectorInput {
 	args: string[];
 	env: Record<string, string>;
 	cwd?: string;
+	url?: string;
 	enabled?: boolean;
 }
 
@@ -53,4 +56,9 @@ export type ConnectorUpdateInput = Partial<Omit<ConnectorInput, 'transport'>> & 
 export interface ConnectorTestResult {
 	status: ConnectorStatus;
 	message?: string;
+}
+
+export interface ConnectorCallToolOptions {
+	timeoutMs?: number;
+	retries?: number;
 }

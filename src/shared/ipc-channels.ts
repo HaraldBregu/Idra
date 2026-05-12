@@ -46,8 +46,10 @@ export const ConnectorsChannels = {
 	enable: 'connectors:enable',
 	disable: 'connectors:disable',
 	test: 'connectors:test',
+	reconnect: 'connectors:reconnect',
 	refreshTools: 'connectors:refreshTools',
 	listTools: 'connectors:listTools',
+	callTool: 'connectors:callTool',
 	get: 'connectors:get',
 } as const;
 
@@ -149,6 +151,10 @@ interface ConnectorsInvokeChannelMap {
 		args: [id: string];
 		result: import('./connectors').ConnectorTestResult;
 	};
+	[ConnectorsChannels.reconnect]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorTestResult;
+	};
 	[ConnectorsChannels.refreshTools]: {
 		args: [id: string];
 		result: import('./connectors').ConnectorTool[];
@@ -156,6 +162,15 @@ interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.listTools]: {
 		args: [id: string];
 		result: import('./connectors').ConnectorTool[];
+	};
+	[ConnectorsChannels.callTool]: {
+		args: [
+			id: string,
+			name: string,
+			args: unknown,
+			options?: import('./connectors').ConnectorCallToolOptions,
+		];
+		result: unknown;
 	};
 }
 
