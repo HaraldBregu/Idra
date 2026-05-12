@@ -53,6 +53,8 @@ export function bootstrapServices(): BootstrapResult {
 		new ChannelRegistry({ logger, eventBus, assistantService })
 	);
 
+	container.register('apps', new AppsService(logger));
+
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
 
