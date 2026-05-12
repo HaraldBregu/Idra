@@ -109,13 +109,14 @@ export class Assistant {
 				eventBus: this.eventBus,
 				logger: this.logger,
 				workspace: this.workspace,
-				mcpRegistry: this.mcpRegistry,
 			});
+			const mcpTools = this.mcpRegistry?.buildTools(this.store.getConnectors()) ?? [];
 			const { text, newMessages } = await runAgent({
 				client: this.client(apiKey),
 				model,
 				userMessage,
 				tools,
+				mcpTools,
 				history: this.history,
 				systemPrompt,
 				maxIterations: MAX_ITERATIONS,
