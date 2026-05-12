@@ -1,6 +1,10 @@
+import path from 'node:path';
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
 import type { ThemeMode } from '../shared';
+import type { AppInfo } from '../shared/apps';
+import type { AppsService } from './apps';
+import type { LoggerService } from './logger';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
@@ -12,9 +16,42 @@ export class Menu {
 	private currentLanguage = 'en';
 	private currentTheme: ThemeMode = 'system';
 	private callbacks: MenuManagerCallbacks;
+	private apps: AppInfo[] = [];
 
-	constructor(callbacks: MenuManagerCallbacks) {
+	constructor(
+		callbacks: MenuManagerCallbacks,
+		private readonly appsService?: AppsService,
+		private readonly logger?: LoggerService
+	) {
 		this.callbacks = callbacks;
+	}
+
+	async refreshApps(): Promise<void> {
+		if (!this.appsService) return;
+		try {
+			this.apps = await this.appsService.list();
+		} catch (err) {
+			this.logger?.error('Menu', 'Failed to list apps', err);
+			this.apps = [];
+		}
+		this.buildMenu();
+	}
+
+	private openApp(appInfo: AppInfo): void {
+		const htmlPath = path.join(appInfo.folderPath, 'index.html');
+		const win = new BrowserWindow({
+			width: 900,
+			height: 700,
+			title: appInfo.manifest.name,
+			webPreferences: {
+				sandbox: true,
+				nodeIntegration: false,
+				contextIsolation: true,
+			},
+		});
+		win.loadFile(htmlPath).catch((err) => {
+			this.logger?.error('Menu', `Failed to load app ${appInfo.id}`, err);
+		});
 	}
 
 	create(): void {
