@@ -13,6 +13,7 @@ const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
+const AppsPage = lazy(() => import('./pages/settings/pages/AppsPage'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
