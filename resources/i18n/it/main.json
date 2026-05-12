@@ -152,7 +152,8 @@
 			"themes": "Temi",
 			"editor": "Editor",
 			"cron": "Cron",
-			"developer": "Sviluppatore"
+			"developer": "Sviluppatore",
+			"apps": "App"
 		},
 		"sections": {
 			"permissions": "Autorizzazioni",
