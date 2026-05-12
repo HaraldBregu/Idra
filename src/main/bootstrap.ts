@@ -12,7 +12,7 @@ import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
 import { AppsService } from './apps';
 import { ConnectorsService } from './connectors';
-import { McpClientFactory, McpRegistry } from './mcp';
+import { McpRegistry } from './mcp';
 
 import type { IpcModule } from './ipc';
 import { AppIpc, AssistantIpc, ChannelsIpc, ConnectorsIpc, CronIpc, WindowIpc } from './ipc';
@@ -46,7 +46,7 @@ export function bootstrapServices(): BootstrapResult {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
-	const mcpRegistry = container.register('mcpRegistry', new McpRegistry(new McpClientFactory()));
+	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
 	const assistantService = container.register(
 		'assistantService',
@@ -58,8 +58,8 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	container.register('apps', new AppsService(logger));
-	const connectors = container.register('connectors', new ConnectorsService(store, logger, mcpRegistry));
-	void connectors.restoreEnabledConnectors();
+	const connectors = container.register('connectors', new ConnectorsService(store, logger));
+	connectors.restoreEnabledConnectors();
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
