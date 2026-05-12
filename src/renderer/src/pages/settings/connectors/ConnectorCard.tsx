@@ -19,6 +19,7 @@ export function ConnectorCard({
 	busy,
 	onToggle,
 	onTest,
+	onReconnect,
 	onRefreshTools,
 	onEdit,
 	onRemove,
@@ -28,6 +29,7 @@ export function ConnectorCard({
 	readonly busy: boolean;
 	readonly onToggle: () => void;
 	readonly onTest: () => void;
+	readonly onReconnect: () => void;
 	readonly onRefreshTools: () => void;
 	readonly onEdit: () => void;
 	readonly onRemove: () => void;
@@ -83,6 +85,10 @@ export function ConnectorCard({
 					<Button variant="outline" size="sm" onClick={onTest} disabled={busy}>
 						<TestTube2 className="size-3.5" />
 						Test connection
+					</Button>
+					<Button variant="outline" size="sm" onClick={onReconnect} disabled={busy}>
+						<RefreshCw className="size-3.5" />
+						Reconnect
 					</Button>
 					<Button variant="outline" size="sm" onClick={onRefreshTools} disabled={busy}>
 						<RefreshCw className="size-3.5" />

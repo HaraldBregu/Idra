@@ -125,6 +125,13 @@ const ConnectorsPage: React.FC = () => {
 										await window.connectors.test(connector.id);
 									})
 								}
+								onReconnect={() =>
+									void run(connector.id, async () => {
+										await window.connectors.reconnect(connector.id);
+										setSelectedTools(await window.connectors.listTools(connector.id));
+										setSelectedId(connector.id);
+									})
+								}
 								onRefreshTools={() =>
 									void run(connector.id, async () => {
 										setSelectedTools(await window.connectors.refreshTools(connector.id));
