@@ -76,6 +76,18 @@ export const app: AppApi = {
 	saveAssistantService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(ProviderChannels.saveAssistantService, provider, model);
 	},
+	listApps: (): Promise<AppInfo[]> => {
+		return typedInvokeUnwrap(AppsChannels.list);
+	},
+	openAppFolder: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(AppsChannels.openFolder, id);
+	},
+	deleteApp: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(AppsChannels.delete, id);
+	},
+	getAppsRoot: (): Promise<string> => {
+		return typedInvokeUnwrap(AppsChannels.getRoot);
+	},
 };
 
 export const cron: CronApi = {
