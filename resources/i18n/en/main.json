@@ -152,7 +152,8 @@
 			"themes": "Themes",
 			"editor": "Editor",
 			"cron": "Cron",
-			"developer": "Developer"
+			"developer": "Developer",
+			"apps": "Apps"
 		},
 		"sections": {
 			"permissions": "Permissions",
