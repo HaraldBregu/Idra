@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2, KeyRound, Plus, Server } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import type { ProviderInput, PublicProvider } from '../../../../../shared/providers';
 
 interface ProviderFormState {

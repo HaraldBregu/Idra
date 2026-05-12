@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Switch } from '@/components/ui/Switch';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();

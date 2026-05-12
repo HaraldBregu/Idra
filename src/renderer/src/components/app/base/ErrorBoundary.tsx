@@ -9,7 +9,7 @@ import {
 	EmptyTitle,
 	EmptyDescription,
 	EmptyContent,
-} from '@/components/ui/Empty';
+} from '@/components/ui/empty';
 
 interface ErrorBoundaryProps {
 	children: React.ReactNode;

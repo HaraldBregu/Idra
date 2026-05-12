@@ -47,7 +47,7 @@ import {
 	ReasoningTrigger,
 } from '@/components/prompt-kit/reasoning';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import type { AssistantHistoryMessage } from '../../../../shared/service';
 
 interface ChatMessage {

@@ -7,7 +7,7 @@ import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
-} from '@/components/ui/Collapsible';
+} from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
 export type ChainOfThoughtProps = {

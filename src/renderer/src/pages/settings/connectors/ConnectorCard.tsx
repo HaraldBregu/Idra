@@ -1,8 +1,8 @@
 import React from 'react';
 import { Edit3, Plug, RefreshCw, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import type { ConnectorView } from '../../../../../shared/connectors';
 import { ConnectorStatusBadge } from './ConnectorStatusBadge';
 

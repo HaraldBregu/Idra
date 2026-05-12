@@ -1,6 +1,6 @@
 "use client"
 
-import { Textarea } from "@/components/ui/Textarea"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Tooltip,
   TooltipContent,

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ThumbsDown, ThumbsUp, X } from 'lucide-react';
 
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export type FeedbackBarProps = {

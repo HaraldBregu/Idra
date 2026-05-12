@@ -202,7 +202,8 @@
       "Bash(curl -sL \"https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/styles/style-vega.css\" -o /tmp/shadcn-base/style-vega.css)",
       "Bash(curl -s \"https://api.github.com/repos/shadcn-ui/ui/contents/apps/v4/styles/base-vega\")",
       "Bash(curl -s \"https://api.github.com/repos/shadcn-ui/ui/contents/apps/v4/registry/bases/base/lib\")",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(xargs -I{} basename {})"
     ],
     "deny": [
       "Bash(git push --force:*)",

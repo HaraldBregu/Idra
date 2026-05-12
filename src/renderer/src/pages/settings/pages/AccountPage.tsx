@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserCircle } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 type EditingField = 'firstName' | 'lastName' | null;
 

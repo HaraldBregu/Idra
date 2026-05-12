@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Package, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import type { AppInfo } from '../../../../../shared/apps';
 
 const AppsPage: React.FC = () => {

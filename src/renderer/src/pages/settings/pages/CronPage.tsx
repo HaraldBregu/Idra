@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock3, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
 	Empty,
 	EmptyDescription,
 	EmptyHeader,
 	EmptyMedia,
 	EmptyTitle,
-} from '@/components/ui/Empty';
+} from '@/components/ui/empty';
 import {
 	Table,
 	TableBody,
@@ -17,7 +17,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/Table';
+} from '@/components/ui/table';
 import type { CronTaskView } from '../../../../../shared/cron';
 
 function formatTimestamp(value: string | undefined): string {

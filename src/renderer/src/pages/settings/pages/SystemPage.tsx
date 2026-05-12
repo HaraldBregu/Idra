@@ -6,10 +6,10 @@ import {
 	SelectValue,
 	SelectContent,
 	SelectItem,
-} from '@/components/ui/Select';
-import { Button } from '@/components/ui/Button';
-import { ButtonGroup } from '@/components/ui/ButtonGroup';
-import { Card, CardContent } from '@/components/ui/Card';
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
+import { Card, CardContent } from '@/components/ui/card';
 import { Moon, Monitor, Sun } from 'lucide-react';
 import type { AppLanguage } from '../../../contexts';
 import { useApp } from '@/contexts';

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Plus } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import type {
 	ConnectorApprovalMode,
 	ConnectorConfig,

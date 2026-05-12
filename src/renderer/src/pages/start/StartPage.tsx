@@ -6,15 +6,15 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import type { Model } from '../../../../shared/service';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/Select';
+} from '@/components/ui/select';
 
 type ProviderOption = {
 	label: string;
