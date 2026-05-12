@@ -57,7 +57,7 @@ const SystemPage: React.FC = () => {
 							<div className={actionsClass}>
 								<ButtonGroup>
 									<Button
-										variant={theme === 'light' ? 'outline-selected' : 'outline'}
+										variant={theme === 'light' ? 'secondary' : 'outline'}
 										size="icon-sm"
 										onClick={() => {}}
 										aria-label={t('settings.theme.light')}
@@ -66,7 +66,7 @@ const SystemPage: React.FC = () => {
 										<Sun className="size-3.5" />
 									</Button>
 									<Button
-										variant={theme === 'system' ? 'outline-selected' : 'outline'}
+										variant={theme === 'system' ? 'secondary' : 'outline'}
 										size="icon-sm"
 										onClick={() => {}}
 										aria-label={t('settings.theme.system')}
@@ -75,7 +75,7 @@ const SystemPage: React.FC = () => {
 										<Monitor className="size-3.5" />
 									</Button>
 									<Button
-										variant={theme === 'dark' ? 'outline-selected' : 'outline'}
+										variant={theme === 'dark' ? 'secondary' : 'outline'}
 										size="icon-sm"
 										onClick={() => {}}
 										aria-label={t('settings.theme.dark')}
