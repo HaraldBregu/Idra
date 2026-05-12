@@ -45,6 +45,7 @@ export class AppIpc implements IpcModule {
 	register(container: ServiceContainer, eventBus: EventBus): void {
 		const logger = container.get<LoggerService>('logger');
 		const store = container.get<StoreService>('store');
+		const apps = container.get<AppsService>('apps');
 
 		// Language handler
 		ipcMain.on('set-language', (event, language: string) => {
