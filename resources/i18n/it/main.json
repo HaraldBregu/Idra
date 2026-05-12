@@ -345,6 +345,14 @@
 			"pair": "Abbina / Connetti",
 			"enterPairingCode": "Apri WhatsApp → Dispositivi collegati → Collega con numero di telefono, poi inserisci:"
 		},
+		"apps": {
+			"title": "App installate",
+			"empty": "Nessuna app installata. Inserisci una cartella con un manifest.json nella directory delle app.",
+			"refresh": "Aggiorna",
+			"openFolder": "Apri cartella",
+			"delete": "Elimina",
+			"confirmDelete": "Eliminare {{name}}? La cartella verrà rimossa in modo permanente."
+		},
 		"themes": {
 			"title": "Temi",
 			"description": "Installa e gestisci temi di colore personalizzati per l'applicazione.",
