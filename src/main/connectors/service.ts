@@ -38,7 +38,7 @@ function knownTools(connector: ConnectorConfig): ConnectorTool[] {
 function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
-	if (!connector.authorization.trim()) return 'missing_auth';
+	if (!connector.authorization?.trim()) return 'missing_auth';
 	return 'configured';
 }
 
@@ -107,17 +107,22 @@ export class ConnectorsService {
 	}
 
 	list(): ConnectorView[] {
-		return this.store.getConnectors().map(toView);
+		return this.validConnectors().map(toView);
 	}
 
 	get(id: string): ConnectorConfig {
-		const connector = this.store.getConnectorById(id);
+		const connector = this.validConnectors().find((item) => item.id === id);
 		if (!connector) throw new Error(`Connector not found: ${id}`);
 		return connector;
 	}
 
 	restoreEnabledConnectors(): void {
-		for (const connector of this.store.getConnectors()) {
+		const validConnectors = this.validConnectors();
+		if (validConnectors.length !== this.store.getConnectors().length) {
+			this.store.setConnectors(validConnectors);
+		}
+
+		for (const connector of validConnectors) {
 			if (connector.enabled && connector.tools.length === 0) {
 				this.replace({
 					...connector,
@@ -234,6 +239,17 @@ export class ConnectorsService {
 			tools: knownTools(connector),
 			lastRefreshedAt: new Date().toISOString(),
 		};
+	}
+
+	private validConnectors(): ConnectorConfig[] {
+		return this.store.getConnectors().filter((connector) => {
+			return (
+				typeof connector.id === 'string' &&
+				typeof connector.name === 'string' &&
+				typeof connector.connectorId === 'string' &&
+				isOpenAiConnectorId(connector.connectorId)
+			);
+		});
 	}
 
 	private replace(connector: ConnectorConfig): void {
