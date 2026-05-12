@@ -19,7 +19,8 @@ export class HttpMcpTransport implements IMcpTransportAdapter {
 	constructor(private readonly config: ConnectorConfig) {}
 
 	async connect(options: McpCallOptions = {}): Promise<void> {
-		if (!this.config.url) {
+		const url = this.config.url;
+		if (!url) {
 			throw new McpConnectionError('HTTP connectors require a URL.');
 		}
 
@@ -28,7 +29,7 @@ export class HttpMcpTransport implements IMcpTransportAdapter {
 			options.timeoutMs ?? DEFAULT_MCP_CONNECT_TIMEOUT_MS,
 			async (signal) => {
 				const client = new Client({ name: 'electron-ai-assistant', version: '1.0.0' });
-				const transport = new StreamableHTTPClientTransport(new URL(this.config.url));
+				const transport = new StreamableHTTPClientTransport(new URL(url));
 				await client.connect(transport, { signal, timeout: options.timeoutMs });
 				this.client = client;
 				this.transport = transport;
