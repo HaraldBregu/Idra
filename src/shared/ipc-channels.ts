@@ -143,12 +143,43 @@ interface ChannelsInvokeChannelMap {
 	};
 }
 
+interface PluginInvokeChannelMap {
+	[PluginChannels.list]: { args: []; result: import('./plugins').PluginInfo[] };
+	[PluginChannels.open]: { args: [pluginId: string]; result: void };
+	[PluginChannels.reload]: { args: []; result: import('./plugins').PluginInfo[] };
+}
+
+interface FridayInvokeChannelMap {
+	[FridayChannels.providersList]: { args: []; result: import('./providers').PublicProvider[] };
+	[FridayChannels.providersGetModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
+	};
+	[FridayChannels.workspaceGetScratchPath]: { args: []; result: string };
+	[FridayChannels.workspaceReadJson]: { args: [relPath: string]; result: unknown };
+	[FridayChannels.workspaceWriteJson]: { args: [relPath: string, value: unknown]; result: void };
+	[FridayChannels.assistantSend]: { args: [message: string]; result: string };
+	[FridayChannels.cronList]: { args: []; result: import('./cron').CronTaskView[] };
+	[FridayChannels.cronAdd]: {
+		args: [
+			expression: string,
+			data: import('./cron').CronTaskData,
+			options?: { id?: string; timezone?: string },
+		];
+		result: import('./cron').CronTask;
+	};
+	[FridayChannels.cronRemove]: { args: [id: string]; result: void };
+	[FridayChannels.themeGet]: { args: []; result: 'light' | 'dark' | 'system' };
+}
+
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
 		AssistantInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
-		ChannelsInvokeChannelMap {}
+		ChannelsInvokeChannelMap,
+		PluginInvokeChannelMap,
+		FridayInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
