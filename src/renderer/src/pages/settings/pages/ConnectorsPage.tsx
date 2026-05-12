@@ -18,7 +18,7 @@ import type {
 import { ConnectorCard } from '../connectors/ConnectorCard';
 import { ConnectorToolsList } from '../connectors/ConnectorToolsList';
 
-type ConnectorCatalog = typeof OPENAI_CONNECTOR_CATALOG;
+type ConnectorCatalog = Array<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
 interface ConnectorFormState {
 	readonly id: string | null;
