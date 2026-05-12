@@ -133,7 +133,14 @@ export class ConnectorsService {
 		const now = new Date().toISOString();
 		const connector: ConnectorConfig = {
 			id: randomUUID(),
-			...sanitized,
+			name: sanitized.name,
+			connectorId: sanitized.connectorId,
+			serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
+			serverDescription: sanitized.serverDescription,
+			authorization: sanitized.authorization,
+			requireApproval: sanitized.requireApproval ?? 'always',
+			allowedTools: sanitized.allowedTools ?? [],
+			deferLoading: sanitized.deferLoading ?? false,
 			tools: [],
 			createdAt: now,
 			updatedAt: now,
@@ -212,7 +219,12 @@ export class ConnectorsService {
 		return this.get(id).tools;
 	}
 
-	async callTool(): Promise<unknown> {
+	async callTool(
+		_id?: string,
+		_name?: string,
+		_args?: unknown,
+		_options?: unknown
+	): Promise<unknown> {
 		throw new Error('OpenAI connectors are executed by the Responses API, not local IPC.');
 	}
 

@@ -134,7 +134,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunResult> {
 
 		input = [
 			...input,
-			...response.output,
+			...(response.output as unknown as ResponseInputItem[]),
 			...(
 				await Promise.all(
 					functionCalls.map(async (call) => {
