@@ -203,6 +203,26 @@ export class AppIpc implements IpcModule {
 			}, ProviderChannels.saveAssistantService)
 		);
 
+		ipcMain.handle(
+			AppsChannels.list,
+			wrapSimpleHandler(() => apps.list(), AppsChannels.list)
+		);
+
+		ipcMain.handle(
+			AppsChannels.openFolder,
+			wrapSimpleHandler((id: string) => apps.openFolder(id), AppsChannels.openFolder)
+		);
+
+		ipcMain.handle(
+			AppsChannels.delete,
+			wrapSimpleHandler((id: string) => apps.delete(id), AppsChannels.delete)
+		);
+
+		ipcMain.handle(
+			AppsChannels.getRoot,
+			wrapSimpleHandler(() => apps.getAppsRoot(), AppsChannels.getRoot)
+		);
+
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}
 }
