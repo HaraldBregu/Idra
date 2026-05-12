@@ -1,0 +1,13 @@
+export interface AppManifest {
+	name: string;
+	version: string;
+	description?: string;
+	icon?: string;
+}
+
+export interface AppInfo {
+	id: string;
+	folderPath: string;
+	manifest: AppManifest;
+	iconDataUrl?: string;
+}
