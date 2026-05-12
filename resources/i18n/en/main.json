@@ -345,6 +345,14 @@
 			"pair": "Pair / Connect",
 			"enterPairingCode": "Open WhatsApp → Linked devices → Link with phone number, then enter:"
 		},
+		"apps": {
+			"title": "Installed apps",
+			"empty": "No apps installed yet. Drop a folder with a manifest.json into the apps directory.",
+			"refresh": "Refresh",
+			"openFolder": "Open folder",
+			"delete": "Delete",
+			"confirmDelete": "Delete {{name}}? This removes the folder permanently."
+		},
 		"themes": {
 			"title": "Themes",
 			"description": "Install and manage custom color themes for the application.",
