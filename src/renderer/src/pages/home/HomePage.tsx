@@ -1,13 +1,52 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, Square } from 'lucide-react';
-import { Message, MessageAvatar, MessageContent } from '@/components/prompt-kit/message';
+import {
+	ArrowUp,
+	Brain,
+	Copy,
+	Info,
+	Paperclip,
+	RotateCcw,
+	Search,
+	Sparkles,
+	Square,
+	ThumbsDown,
+	ThumbsUp,
+} from 'lucide-react';
+import {
+	ChatContainerContent,
+	ChatContainerRoot,
+	ChatContainerScrollAnchor,
+} from '@/components/prompt-kit/chat-container';
+import {
+	ChainOfThought,
+	ChainOfThoughtContent,
+	ChainOfThoughtItem,
+	ChainOfThoughtStep,
+	ChainOfThoughtTrigger,
+} from '@/components/prompt-kit/chain-of-thought';
+import { FeedbackBar } from '@/components/prompt-kit/feedback-bar';
+import { Loader } from '@/components/prompt-kit/loader';
+import {
+	Message,
+	MessageAction,
+	MessageActions,
+	MessageAvatar,
+	MessageContent,
+} from '@/components/prompt-kit/message';
 import {
 	PromptInput,
 	PromptInputAction,
 	PromptInputActions,
 	PromptInputTextarea,
 } from '@/components/prompt-kit/prompt-input';
+import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
+import {
+	Reasoning,
+	ReasoningContent,
+	ReasoningTrigger,
+} from '@/components/prompt-kit/reasoning';
+import { ScrollButton } from '@/components/prompt-kit/scroll-button';
 import { Button } from '@/components/ui/Button';
 import type { AssistantHistoryMessage } from '../../../../shared/service';
 
@@ -34,6 +73,13 @@ const welcomeMessage: ChatMessage = {
 
 const initialMessages: readonly ChatMessage[] = [welcomeMessage];
 
+const suggestions: readonly string[] = [
+	'Explain quantum entanglement in simple terms',
+	'Write a TypeScript debounce function',
+	'Draft a polite follow-up email',
+	'Summarize the latest research on LLMs',
+];
+
 function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[] {
 	const out: ChatMessage[] = [];
 	history.forEach((m, idx) => {
@@ -48,12 +94,8 @@ function HomePage(): ReactElement {
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const messagesEndRef = useRef<HTMLDivElement | null>(null);
+	const [feedbackDismissed, setFeedbackDismissed] = useState<Record<string, boolean>>({});
 	const requestIdRef = useRef(0);
-
-	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ block: 'end' });
-	}, [messages.length, isLoading]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -79,29 +121,22 @@ function HomePage(): ReactElement {
 		setIsLoading(false);
 	};
 
-	const handleSubmit = async (): Promise<void> => {
-		if (isLoading) {
-			stopResponse();
-			return;
-		}
-
-		const prompt = input.trim();
-		if (!prompt) return;
+	const sendPrompt = async (prompt: string): Promise<void> => {
+		const trimmed = prompt.trim();
+		if (!trimmed) return;
 
 		const requestId = requestIdRef.current + 1;
 		requestIdRef.current = requestId;
 		setInput('');
 		setIsLoading(true);
-		setMessages((current) => [...current, createMessage('user', prompt)]);
+		setMessages((current) => [...current, createMessage('user', trimmed)]);
 
 		try {
-			const response = await window.assistant.send(prompt);
+			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
-
 			setMessages((current) => [...current, createMessage('assistant', response)]);
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
-
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
 			setMessages((current) => [...current, createMessage('assistant', message)]);
 		} finally {
@@ -111,8 +146,20 @@ function HomePage(): ReactElement {
 		}
 	};
 
-	const handleSubmitClick = (): void => {
-		void handleSubmit();
+	const handleSubmit = (): void => {
+		if (isLoading) {
+			stopResponse();
+			return;
+		}
+		void sendPrompt(input);
+	};
+
+	const copyMessage = (content: string): void => {
+		void navigator.clipboard?.writeText(content);
+	};
+
+	const dismissFeedback = (id: string): void => {
+		setFeedbackDismissed((prev) => ({ ...prev, [id]: true }));
 	};
 
 	useEffect(() => {
@@ -121,12 +168,13 @@ function HomePage(): ReactElement {
 		};
 	}, []);
 
+	const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
+	const showSuggestions = messages.length <= 1 && !isLoading;
+
 	return (
-		<div
-			className="flex h-full flex-col text-foreground"
-		>
-			<div className="min-h-0 flex-1 overflow-y-auto px-4 py-6">
-				<div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+		<div className="flex h-full flex-col text-foreground">
+			<ChatContainerRoot className="min-h-0 flex-1 px-4 py-6">
+				<ChatContainerContent className="mx-auto w-full max-w-3xl gap-5">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
@@ -137,44 +185,148 @@ function HomePage(): ReactElement {
 						) : (
 							<Message key={message.id} className="justify-start">
 								<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-								<MessageContent markdown className="max-w-[80%] bg-transparent p-0">
-									{message.content}
-								</MessageContent>
+								<div className="flex w-full max-w-[80%] flex-col gap-2">
+									{message.id !== 'assistant-welcome' && (
+										<Reasoning>
+											<ReasoningTrigger>Show reasoning</ReasoningTrigger>
+											<ReasoningContent
+												markdown
+												className="border-l-2 border-border pl-3"
+											>
+												{`Considered intent, retrieved relevant context, drafted a structured answer, then refined for clarity.`}
+											</ReasoningContent>
+										</Reasoning>
+									)}
+									{message.id !== 'assistant-welcome' && (
+										<ChainOfThought>
+											<ChainOfThoughtStep defaultOpen>
+												<ChainOfThoughtTrigger
+													leftIcon={<Search className="size-3" />}
+												>
+													Analyzing the request
+												</ChainOfThoughtTrigger>
+												<ChainOfThoughtContent>
+													<ChainOfThoughtItem>
+														Parsed user intent from prompt.
+													</ChainOfThoughtItem>
+													<ChainOfThoughtItem>
+														Selected relevant capabilities.
+													</ChainOfThoughtItem>
+												</ChainOfThoughtContent>
+											</ChainOfThoughtStep>
+											<ChainOfThoughtStep>
+												<ChainOfThoughtTrigger
+													leftIcon={<Brain className="size-3" />}
+												>
+													Composing response
+												</ChainOfThoughtTrigger>
+												<ChainOfThoughtContent>
+													<ChainOfThoughtItem>
+														Drafted answer using available context.
+													</ChainOfThoughtItem>
+												</ChainOfThoughtContent>
+											</ChainOfThoughtStep>
+										</ChainOfThought>
+									)}
+									<MessageContent
+										markdown
+										className="bg-transparent p-0"
+									>
+										{message.content}
+									</MessageContent>
+									<MessageActions className="self-start">
+										<MessageAction tooltip="Copy">
+											<Button
+												variant="ghost"
+												size="icon-sm"
+												onClick={() => copyMessage(message.content)}
+											>
+												<Copy className="size-3.5" />
+											</Button>
+										</MessageAction>
+										<MessageAction tooltip="Helpful">
+											<Button variant="ghost" size="icon-sm">
+												<ThumbsUp className="size-3.5" />
+											</Button>
+										</MessageAction>
+										<MessageAction tooltip="Not helpful">
+											<Button variant="ghost" size="icon-sm">
+												<ThumbsDown className="size-3.5" />
+											</Button>
+										</MessageAction>
+										<MessageAction tooltip="Regenerate">
+											<Button variant="ghost" size="icon-sm">
+												<RotateCcw className="size-3.5" />
+											</Button>
+										</MessageAction>
+									</MessageActions>
+									{message.id === lastAssistantId &&
+										message.id !== 'assistant-welcome' &&
+										!feedbackDismissed[message.id] && (
+											<FeedbackBar
+												title="Was this response helpful?"
+												icon={
+													<Info className="size-4 text-primary" />
+												}
+												onHelpful={() => dismissFeedback(message.id)}
+												onNotHelpful={() => dismissFeedback(message.id)}
+												onClose={() => dismissFeedback(message.id)}
+											/>
+										)}
+								</div>
 							</Message>
 						)
 					)}
 					{isLoading && (
 						<Message className="justify-start">
 							<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-							<MessageContent className="bg-transparent p-0 text-muted-foreground">
-								Thinking...
+							<MessageContent className="flex items-center gap-2 bg-transparent p-0 text-muted-foreground">
+								<Loader variant="typing" size="md" />
+								<Loader variant="text-shimmer" text="Thinking" size="sm" />
 							</MessageContent>
 						</Message>
 					)}
-					<div ref={messagesEndRef} />
+					<ChatContainerScrollAnchor />
+				</ChatContainerContent>
+				<ScrollButton className="absolute bottom-4 right-4 shadow-sm" />
+			</ChatContainerRoot>
+
+			{showSuggestions && (
+				<div className="mx-auto mb-3 flex w-full max-w-3xl flex-wrap gap-2 px-4">
+					{suggestions.map((s) => (
+						<PromptSuggestion key={s} onClick={() => void sendPrompt(s)}>
+							<Sparkles className="size-3" />
+							{s}
+						</PromptSuggestion>
+					))}
 				</div>
-			</div>
+			)}
 
 			<PromptInput
 				value={input}
 				onValueChange={setInput}
 				isLoading={isLoading}
-				onSubmit={handleSubmitClick}
+				onSubmit={handleSubmit}
 				className="mx-auto mb-4 w-[calc(100%-2rem)] max-w-3xl"
 			>
 				<PromptInputTextarea placeholder="Ask me anything..." />
-				<PromptInputActions className="justify-end pt-2">
+				<PromptInputActions className="justify-between pt-2">
+					<PromptInputAction tooltip="Attach file">
+						<Button variant="ghost" size="icon-sm" className="rounded-full">
+							<Paperclip className="size-4" />
+						</Button>
+					</PromptInputAction>
 					<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
 						<Button
 							variant="default"
 							size="icon"
 							className="h-8 w-8 rounded-full"
-							onClick={handleSubmitClick}
+							onClick={handleSubmit}
 						>
 							{isLoading ? (
-								<Square className="size-5 fill-current" />
+								<Square className="size-4 fill-current" />
 							) : (
-								<ArrowUp className="size-5" />
+								<ArrowUp className="size-4" />
 							)}
 						</Button>
 					</PromptInputAction>
