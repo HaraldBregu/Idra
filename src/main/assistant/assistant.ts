@@ -3,7 +3,7 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import { MemoryManager, buildSystemPrompt } from './memory';
 import { SessionManager } from './session';
 import { runAgent } from './loop';
-import { defaultTools, type Tool } from './tools';
+import { defaultTools } from './tools';
 import { MAX_ITERATIONS } from './constants';
 import type { CronService } from '../cron';
 import type { EventBus } from '../core/event-bus';
