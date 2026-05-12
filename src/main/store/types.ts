@@ -2,12 +2,14 @@ import { Provider } from "../../shared/providers";
 import { Service } from "../../shared/service";
 import { CronTask } from "../../shared/cron";
 import { Channel } from "../../shared/channels";
+import { ConnectorConfig } from "../../shared/connectors";
 
 export interface StoreSchema {
 	providers: Provider[];
 	service: Service;
 	cronTasks: CronTask[];
 	channel: Channel;
+	connectors: ConnectorConfig[];
 }
 
 export type SettingsStore = {

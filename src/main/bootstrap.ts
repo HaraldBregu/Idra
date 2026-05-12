@@ -11,9 +11,10 @@ import { AssistantService } from './assistant';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
 import { AppsService } from './apps';
+import { ConnectorsService } from './connectors';
 
 import type { IpcModule } from './ipc';
-import { AppIpc, AssistantIpc, ChannelsIpc, CronIpc, WindowIpc } from './ipc';
+import { AppIpc, AssistantIpc, ChannelsIpc, ConnectorsIpc, CronIpc, WindowIpc } from './ipc';
 
 export interface BootstrapResult {
 	container: ServiceContainer;
@@ -54,6 +55,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	container.register('apps', new AppsService(logger));
+	container.register('connectors', new ConnectorsService(store, logger));
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
@@ -73,6 +75,7 @@ export function bootstrapIpcModules(container: ServiceContainer, eventBus: Event
 		new AppIpc(),
 		new AssistantIpc(),
 		new ChannelsIpc(),
+		new ConnectorsIpc(),
 		new CronIpc(),
 		new WindowIpc(),
 	];

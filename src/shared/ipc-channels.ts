@@ -38,6 +38,19 @@ export const AppsChannels = {
 	getRoot: 'apps:get-root',
 } as const;
 
+export const ConnectorsChannels = {
+	list: 'connectors:list',
+	add: 'connectors:add',
+	update: 'connectors:update',
+	remove: 'connectors:remove',
+	enable: 'connectors:enable',
+	disable: 'connectors:disable',
+	test: 'connectors:test',
+	refreshTools: 'connectors:refreshTools',
+	listTools: 'connectors:listTools',
+	get: 'connectors:get',
+} as const;
+
 export const ChannelsChannels = {
 	getTelegramConfig: 'channels:telegram:get-config',
 	saveTelegramConfig: 'channels:telegram:save-config',
@@ -109,6 +122,43 @@ interface AppsInvokeChannelMap {
 	[AppsChannels.getRoot]: { args: []; result: string };
 }
 
+interface ConnectorsInvokeChannelMap {
+	[ConnectorsChannels.list]: { args: []; result: import('./connectors').ConnectorView[] };
+	[ConnectorsChannels.get]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorConfig;
+	};
+	[ConnectorsChannels.add]: {
+		args: [input: import('./connectors').ConnectorInput];
+		result: import('./connectors').ConnectorConfig;
+	};
+	[ConnectorsChannels.update]: {
+		args: [id: string, input: import('./connectors').ConnectorUpdateInput];
+		result: import('./connectors').ConnectorConfig;
+	};
+	[ConnectorsChannels.remove]: { args: [id: string]; result: void };
+	[ConnectorsChannels.enable]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorConfig;
+	};
+	[ConnectorsChannels.disable]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorConfig;
+	};
+	[ConnectorsChannels.test]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorTestResult;
+	};
+	[ConnectorsChannels.refreshTools]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorTool[];
+	};
+	[ConnectorsChannels.listTools]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorTool[];
+	};
+}
+
 interface ChannelsInvokeChannelMap {
 	[ChannelsChannels.getTelegramConfig]: {
 		args: [];
@@ -142,6 +192,7 @@ export interface InvokeChannelMap
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		AppsInvokeChannelMap,
+		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
 export interface SendChannelMap {

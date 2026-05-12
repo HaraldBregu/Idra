@@ -3,6 +3,7 @@ import type { Provider } from '../../shared/providers';
 import type { Assistant, Model, Service } from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
 import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
+import type { ConnectorConfig } from '../../shared/connectors';
 import { SettingsStore, StoreSchema } from './types';
 
 const DEFAULT_CHANNEL: Channel = {
@@ -106,6 +107,18 @@ export class StoreService {
 
 	setCronTasks(tasks: CronTask[]): void {
 		this.store.set('cronTasks', tasks);
+	}
+
+	getConnectors(): ConnectorConfig[] {
+		return this.store.get('connectors') ?? [];
+	}
+
+	getConnectorById(id: string): ConnectorConfig | undefined {
+		return this.getConnectors().find((connector) => connector.id === id);
+	}
+
+	setConnectors(connectors: ConnectorConfig[]): void {
+		this.store.set('connectors', connectors);
 	}
 
 	getChannel(): Channel {
