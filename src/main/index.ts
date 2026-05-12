@@ -105,24 +105,30 @@ const trayManager = new Tray({
 	isAppVisible: () => mainWindow.isVisible(),
 });
 
-const menuManager = new Menu({
-	onLanguageChange: (lng) => {
-		trayManager.updateLanguage(lng);
-		BrowserWindow.getAllWindows().forEach((win) => {
-			win.webContents.send('change-language', lng);
-		});
+const appsService = container.get<import('./apps').AppsService>('apps');
+
+const menuManager = new Menu(
+	{
+		onLanguageChange: (lng) => {
+			trayManager.updateLanguage(lng);
+			BrowserWindow.getAllWindows().forEach((win) => {
+				win.webContents.send('change-language', lng);
+			});
+		},
+		onThemeChange: (theme) => {
+			nativeTheme.themeSource = theme;
+			BrowserWindow.getAllWindows().forEach((win) => {
+				win.webContents.send('change-theme', theme);
+			});
+		},
+		onNewWindow: () => {
+			logger.info('Menu', 'Creating new launcher window');
+			mainWindow.createAdditionalWindow();
+		},
 	},
-	onThemeChange: (theme) => {
-		nativeTheme.themeSource = theme;
-		BrowserWindow.getAllWindows().forEach((win) => {
-			win.webContents.send('change-theme', theme);
-		});
-	},
-	onNewWindow: () => {
-		logger.info('Menu', 'Creating new launcher window');
-		mainWindow.createAdditionalWindow();
-	},
-});
+	appsService,
+	logger
+);
 
 app.whenReady().then(async () => {
 	// Serve local files via the local-resource:// protocol so the renderer
