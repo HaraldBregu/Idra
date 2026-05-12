@@ -39,6 +39,7 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
+	catalog: () => Promise<typeof OPENAI_CONNECTOR_CATALOG>;
 	list: () => Promise<ConnectorView[]>;
 	get: (id: string) => Promise<ConnectorConfig>;
 	add: (input: ConnectorInput) => Promise<ConnectorConfig>;
@@ -64,6 +65,7 @@ import type { Assistant, AssistantHistoryMessage, Model } from '../shared/servic
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
 import type {
+	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,

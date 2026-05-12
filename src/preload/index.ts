@@ -23,6 +23,7 @@ import type { Assistant, AssistantHistoryMessage, Model } from '../shared/servic
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
 import type {
+	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
@@ -155,6 +156,9 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
+	catalog: (): Promise<typeof OPENAI_CONNECTOR_CATALOG> => {
+		return typedInvokeUnwrap(ConnectorsChannels.catalog);
+	},
 	list: (): Promise<ConnectorView[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.list);
 	},

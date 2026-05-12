@@ -15,6 +15,10 @@ export class ConnectorsIpc implements IpcModule {
 		const connectors = container.get<ConnectorsService>('connectors');
 
 		ipcMain.handle(
+			ConnectorsChannels.catalog,
+			wrapSimpleHandler(() => connectors.catalog(), ConnectorsChannels.catalog)
+		);
+		ipcMain.handle(
 			ConnectorsChannels.list,
 			wrapSimpleHandler(() => connectors.list(), ConnectorsChannels.list)
 		);

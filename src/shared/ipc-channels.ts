@@ -40,6 +40,7 @@ export const AppsChannels = {
 } as const;
 
 export const ConnectorsChannels = {
+	catalog: 'connectors:catalog',
 	list: 'connectors:list',
 	add: 'connectors:add',
 	update: 'connectors:update',
@@ -130,6 +131,10 @@ interface AppsInvokeChannelMap {
 }
 
 interface ConnectorsInvokeChannelMap {
+	[ConnectorsChannels.catalog]: {
+		args: [];
+		result: typeof import('./connectors').OPENAI_CONNECTOR_CATALOG;
+	};
 	[ConnectorsChannels.list]: { args: []; result: import('./connectors').ConnectorView[] };
 	[ConnectorsChannels.get]: {
 		args: [id: string];
