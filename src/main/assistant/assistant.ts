@@ -16,7 +16,6 @@ export class Assistant {
 	readonly id: string;
 	readonly memory: MemoryManager;
 	readonly session: SessionManager;
-	private readonly tools: Tool[];
 	private readonly store: StoreService;
 	private readonly logger: LoggerService;
 	private readonly cron: CronService;
@@ -49,7 +48,6 @@ export class Assistant {
 		this.source = `Assistant:${assistantId}`;
 		this.memory = new MemoryManager(assistantId);
 		this.session = new SessionManager(`assistant:${assistantId}`);
-		this.tools = defaultTools({ cron, store, eventBus, logger, workspace, mcpRegistry });
 	}
 
 	async init(): Promise<void> {
