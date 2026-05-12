@@ -10,6 +10,7 @@ import { CronService } from './cron';
 import { AssistantService } from './assistant';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
+import { AppsService } from './apps';
 
 import type { IpcModule } from './ipc';
 import { AppIpc, AssistantIpc, ChannelsIpc, CronIpc, WindowIpc } from './ipc';
