@@ -3,6 +3,7 @@ import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import pkg from './package.json';
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
 	main: {
@@ -53,6 +54,10 @@ export default defineConfig({
 			__APP_HOMEPAGE__: JSON.stringify(pkg.homepage),
 			__APP_LICENSE__: JSON.stringify(pkg.license),
 		},
-		plugins: [react(), tsconfigPaths({ ignoreConfigErrors: true })],
+		plugins: [
+			tailwindcss(),
+			react(),
+			tsconfigPaths({ ignoreConfigErrors: true }),
+		],
 	},
 });
