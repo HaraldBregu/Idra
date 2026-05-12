@@ -296,10 +296,25 @@
 		},
 		"providers": {
 			"title": "Provider",
+			"description": "Gestisci i provider di servizi AI disponibili per Friday.",
 			"registeredProviders": "Provider Registrati",
 			"manageNote": "Gestisci le chiavi API dei provider dalla pagina Modelli nella navigazione principale.",
 			"noProviders": "Nessun provider configurato.",
-			"modelsCount": "{{count}} modelli"
+			"modelsCount": "{{count}} modelli",
+			"loading": "Caricamento provider...",
+			"addTitle": "Aggiungi provider",
+			"addDescription": "Aggiungi endpoint e chiave API del provider senza lasciare questa pagina.",
+			"id": "ID Provider",
+			"idPlaceholder": "openai-compatible",
+			"name": "Nome",
+			"namePlaceholder": "Compatibile OpenAI",
+			"baseUrl": "URL Base",
+			"baseUrlPlaceholder": "https://api.example.com/v1",
+			"apiKeyPlaceholder": "Incolla chiave API",
+			"addProvider": "Aggiungi Provider",
+			"saving": "Salvataggio...",
+			"keySaved": "Chiave API salvata",
+			"keyMissing": "Chiave API mancante"
 		},
 		"agents": {
 			"title": "Agenti",

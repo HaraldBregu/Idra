@@ -296,10 +296,25 @@
 		},
 		"providers": {
 			"title": "Providers",
+			"description": "Manage AI service providers available to Friday.",
 			"registeredProviders": "Registered Providers",
 			"manageNote": "Manage provider API keys from the Models page in the main navigation.",
 			"noProviders": "No providers configured yet.",
-			"modelsCount": "{{count}} models"
+			"modelsCount": "{{count}} models",
+			"loading": "Loading providers...",
+			"addTitle": "Add provider",
+			"addDescription": "Add a provider endpoint and API key without leaving this page.",
+			"id": "Provider ID",
+			"idPlaceholder": "openai-compatible",
+			"name": "Name",
+			"namePlaceholder": "OpenAI Compatible",
+			"baseUrl": "Base URL",
+			"baseUrlPlaceholder": "https://api.example.com/v1",
+			"apiKeyPlaceholder": "Paste API key",
+			"addProvider": "Add Provider",
+			"saving": "Saving...",
+			"keySaved": "API key saved",
+			"keyMissing": "API key missing"
 		},
 		"agents": {
 			"title": "Agents",
