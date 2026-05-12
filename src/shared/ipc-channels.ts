@@ -141,6 +141,7 @@ export interface InvokeChannelMap
 		AssistantInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
+		AppsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
 export interface SendChannelMap {
