@@ -6,11 +6,12 @@ import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
+import type { AppsService } from '../apps';
 import type { Assistant, Model } from '../../shared/service';
 import type { PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
-import { ProviderChannels } from '../../shared/ipc-channels';
+import { AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
 
