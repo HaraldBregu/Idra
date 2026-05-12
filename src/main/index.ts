@@ -150,6 +150,7 @@ app.whenReady().then(async () => {
 	});
 
 	menuManager.create();
+	void menuManager.refreshApps();
 	trayManager.create();
 
 	// Sync menu radio buttons when theme changes from renderer
