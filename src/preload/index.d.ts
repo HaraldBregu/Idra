@@ -42,6 +42,7 @@ import type { PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
+import type { AppInfo } from '../shared/apps';
 
 export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
@@ -50,6 +51,10 @@ export interface AppApi {
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	getAssistantService: () => Promise<Assistant | undefined>;
 	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	listApps: () => Promise<AppInfo[]>;
+	openAppFolder: (id: string) => Promise<void>;
+	deleteApp: (id: string) => Promise<void>;
+	getAppsRoot: () => Promise<string>;
 }
 
 declare global {
