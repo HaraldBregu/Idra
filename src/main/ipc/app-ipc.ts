@@ -186,13 +186,15 @@ export class AppIpc implements IpcModule {
 					throw new Error('Base URL is required.');
 				}
 
+				let url: URL;
 				try {
-					const url = new URL(baseUrl);
-					if (url.protocol !== 'https:') {
-						throw new Error('Base URL must use HTTPS.');
-					}
+					url = new URL(baseUrl);
 				} catch {
 					throw new Error('Base URL must be a valid HTTPS URL.');
+				}
+
+				if (url.protocol !== 'https:') {
+					throw new Error('Base URL must use HTTPS.');
 				}
 
 				if (!apiKey) {
