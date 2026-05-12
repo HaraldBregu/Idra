@@ -41,27 +41,6 @@ export const ChannelsChannels = {
 	statusChanged: 'channels:status-changed',
 } as const;
 
-export const PluginChannels = {
-	list: 'plugin:list',
-	open: 'plugin:open',
-	reload: 'plugin:reload',
-} as const;
-
-export const FridayChannels = {
-	providersList: 'friday:providers:list',
-	providersGetModels: 'friday:providers:get-models',
-	workspaceGetScratchPath: 'friday:workspace:get-scratch-path',
-	workspaceReadJson: 'friday:workspace:read-json',
-	workspaceWriteJson: 'friday:workspace:write-json',
-	assistantSend: 'friday:assistant:send',
-	cronList: 'friday:cron:list',
-	cronAdd: 'friday:cron:add',
-	cronRemove: 'friday:cron:remove',
-	themeGet: 'friday:theme:get',
-	themeChanged: 'friday:theme:changed',
-	channelsStatus: 'friday:channels:status',
-} as const;
-
 interface AppInvokeChannelMap {
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
@@ -143,43 +122,12 @@ interface ChannelsInvokeChannelMap {
 	};
 }
 
-interface PluginInvokeChannelMap {
-	[PluginChannels.list]: { args: []; result: import('./plugins').PluginInfo[] };
-	[PluginChannels.open]: { args: [pluginId: string]; result: void };
-	[PluginChannels.reload]: { args: []; result: import('./plugins').PluginInfo[] };
-}
-
-interface FridayInvokeChannelMap {
-	[FridayChannels.providersList]: { args: []; result: import('./providers').PublicProvider[] };
-	[FridayChannels.providersGetModels]: {
-		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
-	};
-	[FridayChannels.workspaceGetScratchPath]: { args: []; result: string };
-	[FridayChannels.workspaceReadJson]: { args: [relPath: string]; result: unknown };
-	[FridayChannels.workspaceWriteJson]: { args: [relPath: string, value: unknown]; result: void };
-	[FridayChannels.assistantSend]: { args: [message: string]; result: string };
-	[FridayChannels.cronList]: { args: []; result: import('./cron').CronTaskView[] };
-	[FridayChannels.cronAdd]: {
-		args: [
-			expression: string,
-			data: import('./cron').CronTaskData,
-			options?: { id?: string; timezone?: string },
-		];
-		result: import('./cron').CronTask;
-	};
-	[FridayChannels.cronRemove]: { args: [id: string]; result: void };
-	[FridayChannels.themeGet]: { args: []; result: 'light' | 'dark' | 'system' };
-}
-
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
 		AssistantInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
-		ChannelsInvokeChannelMap,
-		PluginInvokeChannelMap,
-		FridayInvokeChannelMap {}
+		ChannelsInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
