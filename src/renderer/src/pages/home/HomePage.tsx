@@ -280,10 +280,10 @@ function HomePage(): ReactElement {
 					{isLoading && (
 						<Message className="justify-start">
 							<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-							<MessageContent className="flex items-center gap-2 bg-transparent p-0 text-muted-foreground">
+							<div className="flex items-center gap-2 text-muted-foreground">
 								<Loader variant="typing" size="md" />
 								<Loader variant="text-shimmer" text="Thinking" size="sm" />
-							</MessageContent>
+							</div>
 						</Message>
 					)}
 					<ChatContainerScrollAnchor />
