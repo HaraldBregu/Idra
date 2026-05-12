@@ -47,12 +47,23 @@ export class ConnectorsIpc implements IpcModule {
 			wrapSimpleHandler((id: string) => connectors.test(id), ConnectorsChannels.test)
 		);
 		ipcMain.handle(
+			ConnectorsChannels.reconnect,
+			wrapSimpleHandler((id: string) => connectors.reconnect(id), ConnectorsChannels.reconnect)
+		);
+		ipcMain.handle(
 			ConnectorsChannels.refreshTools,
 			wrapSimpleHandler((id: string) => connectors.refreshTools(id), ConnectorsChannels.refreshTools)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.listTools,
 			wrapSimpleHandler((id: string) => connectors.listTools(id), ConnectorsChannels.listTools)
+		);
+		ipcMain.handle(
+			ConnectorsChannels.callTool,
+			wrapSimpleHandler(
+				(id, name, args, options) => connectors.callTool(id, name, args, options),
+				ConnectorsChannels.callTool
+			)
 		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);

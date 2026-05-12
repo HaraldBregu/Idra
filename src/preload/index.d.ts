@@ -47,8 +47,15 @@ export interface ConnectorsApi {
 	enable: (id: string) => Promise<ConnectorConfig>;
 	disable: (id: string) => Promise<ConnectorConfig>;
 	test: (id: string) => Promise<ConnectorTestResult>;
+	reconnect: (id: string) => Promise<ConnectorTestResult>;
 	refreshTools: (id: string) => Promise<ConnectorTool[]>;
 	listTools: (id: string) => Promise<ConnectorTool[]>;
+	callTool: (
+		id: string,
+		name: string,
+		args: unknown,
+		options?: ConnectorCallToolOptions
+	) => Promise<unknown>;
 }
 
 import type { PublicProvider } from '../shared/providers';
@@ -58,6 +65,7 @@ import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/ch
 import type { AppInfo } from '../shared/apps';
 import type {
 	ConnectorConfig,
+	ConnectorCallToolOptions,
 	ConnectorInput,
 	ConnectorTestResult,
 	ConnectorTool,

@@ -24,6 +24,7 @@ import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/ch
 import type { AppInfo } from '../shared/apps';
 import type {
 	ConnectorConfig,
+	ConnectorCallToolOptions,
 	ConnectorInput,
 	ConnectorTestResult,
 	ConnectorTool,
@@ -175,11 +176,22 @@ export const connectors: ConnectorsApi = {
 	test: (id: string): Promise<ConnectorTestResult> => {
 		return typedInvokeUnwrap(ConnectorsChannels.test, id);
 	},
+	reconnect: (id: string): Promise<ConnectorTestResult> => {
+		return typedInvokeUnwrap(ConnectorsChannels.reconnect, id);
+	},
 	refreshTools: (id: string): Promise<ConnectorTool[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.refreshTools, id);
 	},
 	listTools: (id: string): Promise<ConnectorTool[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.listTools, id);
+	},
+	callTool: (
+		id: string,
+		name: string,
+		args: unknown,
+		options?: ConnectorCallToolOptions
+	): Promise<unknown> => {
+		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
 	},
 };
 
