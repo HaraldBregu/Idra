@@ -8,6 +8,7 @@ import { MAX_ITERATIONS } from './constants';
 import type { CronService } from '../cron';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
+import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { WorkspaceService } from '../workspace';
 
@@ -18,6 +19,10 @@ export class Assistant {
 	private readonly tools: Tool[];
 	private readonly store: StoreService;
 	private readonly logger: LoggerService;
+	private readonly cron: CronService;
+	private readonly eventBus: EventBus;
+	private readonly workspace: WorkspaceService;
+	private readonly mcpRegistry?: McpRegistry;
 	private readonly source: string;
 	private history: ChatCompletionMessageParam[] = [];
 	private cachedKey: string | null = null;
@@ -31,15 +36,20 @@ export class Assistant {
 		cron: CronService,
 		logger: LoggerService,
 		eventBus: EventBus,
-		workspace: WorkspaceService
+		workspace: WorkspaceService,
+		mcpRegistry?: McpRegistry
 	) {
 		this.id = assistantId;
 		this.store = store;
 		this.logger = logger;
+		this.cron = cron;
+		this.eventBus = eventBus;
+		this.workspace = workspace;
+		this.mcpRegistry = mcpRegistry;
 		this.source = `Assistant:${assistantId}`;
 		this.memory = new MemoryManager(assistantId);
 		this.session = new SessionManager(`assistant:${assistantId}`);
-		this.tools = defaultTools({ cron, store, eventBus, logger, workspace });
+		this.tools = defaultTools({ cron, store, eventBus, logger, workspace, mcpRegistry });
 	}
 
 	async init(): Promise<void> {
@@ -95,11 +105,19 @@ export class Assistant {
 			const systemPrompt = await buildSystemPrompt(this.memory);
 			const { apiKey, model } = this.assistantConfig();
 			this.logger.debug(this.source, `send -> model="${model}"`);
+			const tools = defaultTools({
+				cron: this.cron,
+				store: this.store,
+				eventBus: this.eventBus,
+				logger: this.logger,
+				workspace: this.workspace,
+				mcpRegistry: this.mcpRegistry,
+			});
 			const { text, newMessages } = await runAgent({
 				client: this.client(apiKey),
 				model,
 				userMessage,
-				tools: this.tools,
+				tools,
 				history: this.history,
 				systemPrompt,
 				maxIterations: MAX_ITERATIONS,

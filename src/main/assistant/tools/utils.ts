@@ -22,6 +22,7 @@ import { WriteFileTool } from './write';
 import type { EventBus } from '../../core/event-bus';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../logger';
+import { McpToolAdapter, type McpRegistry } from '../../mcp';
 import type { StoreService } from '../../store';
 import type { WorkspaceService } from '../../workspace';
 import type { Tool } from './base';
@@ -37,8 +38,9 @@ export function defaultTools(opts: {
 	eventBus: EventBus;
 	logger: LoggerService;
 	workspace: WorkspaceService;
+	mcpRegistry?: McpRegistry;
 }): Tool[] {
-	return [
+	const tools: Tool[] = [
 		new ReadFileTool(),
 		new WriteFileTool(),
 		new FindTool(),
@@ -59,4 +61,15 @@ export function defaultTools(opts: {
 		new OpenScreenRecordingTool(),
 		new SetMenuBarTool(opts.eventBus),
 	];
+
+	if (!opts.mcpRegistry) return tools;
+
+	for (const connector of opts.store.getConnectors()) {
+		if (!connector.enabled || connector.connectionStatus !== 'connected') continue;
+		for (const tool of connector.tools) {
+			tools.push(new McpToolAdapter(connector, tool, opts.mcpRegistry));
+		}
+	}
+
+	return tools;
 }

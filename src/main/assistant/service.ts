@@ -2,6 +2,7 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
+import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { WorkspaceService } from '../workspace';
 import { Assistant } from './assistant';
@@ -14,6 +15,7 @@ export interface AssistantServiceDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	workspace: WorkspaceService;
+	mcpRegistry?: McpRegistry;
 }
 
 export interface AssistantServiceOptions {
@@ -60,7 +62,8 @@ export class AssistantService {
 					this.dependencies.cron,
 					this.dependencies.logger,
 					this.dependencies.eventBus,
-					this.dependencies.workspace
+					this.dependencies.workspace,
+					this.dependencies.mcpRegistry
 				)
 			);
 		}

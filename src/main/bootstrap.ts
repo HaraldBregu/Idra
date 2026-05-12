@@ -46,9 +46,11 @@ export function bootstrapServices(): BootstrapResult {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
+	const mcpRegistry = container.register('mcpRegistry', new McpRegistry(new McpClientFactory()));
+
 	const assistantService = container.register(
 		'assistantService',
-		new AssistantService({ store, cron, logger, eventBus, workspace })
+		new AssistantService({ store, cron, logger, eventBus, workspace, mcpRegistry })
 	);
 	container.register(
 		'channelRegistry',
@@ -56,7 +58,6 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	container.register('apps', new AppsService(logger));
-	const mcpRegistry = container.register('mcpRegistry', new McpRegistry(new McpClientFactory()));
 	const connectors = container.register('connectors', new ConnectorsService(store, logger, mcpRegistry));
 	void connectors.restoreEnabledConnectors();
 
