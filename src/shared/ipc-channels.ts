@@ -41,6 +41,27 @@ export const ChannelsChannels = {
 	statusChanged: 'channels:status-changed',
 } as const;
 
+export const PluginChannels = {
+	list: 'plugin:list',
+	open: 'plugin:open',
+	reload: 'plugin:reload',
+} as const;
+
+export const FridayChannels = {
+	providersList: 'friday:providers:list',
+	providersGetModels: 'friday:providers:get-models',
+	workspaceGetScratchPath: 'friday:workspace:get-scratch-path',
+	workspaceReadJson: 'friday:workspace:read-json',
+	workspaceWriteJson: 'friday:workspace:write-json',
+	assistantSend: 'friday:assistant:send',
+	cronList: 'friday:cron:list',
+	cronAdd: 'friday:cron:add',
+	cronRemove: 'friday:cron:remove',
+	themeGet: 'friday:theme:get',
+	themeChanged: 'friday:theme:changed',
+	channelsStatus: 'friday:channels:status',
+} as const;
+
 interface AppInvokeChannelMap {
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
