@@ -227,6 +227,17 @@ export class Menu {
 					},
 					{ type: 'separator' as const },
 					{
+						label: m.apps,
+						submenu:
+							this.apps.length > 0
+								? this.apps.map((appInfo) => ({
+										label: appInfo.manifest.name,
+										click: (): void => this.openApp(appInfo),
+									}))
+								: [{ label: m.appsEmpty, enabled: false }],
+					},
+					{ type: 'separator' as const },
+					{
 						label: m.showConsole,
 						accelerator: 'CmdOrCtrl+Shift+I',
 						click: (): void => {
