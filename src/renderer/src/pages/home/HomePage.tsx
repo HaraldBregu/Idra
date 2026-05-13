@@ -41,13 +41,10 @@ import {
 	PromptInputTextarea,
 } from '@/components/prompt-kit/prompt-input';
 import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
-import {
-	Reasoning,
-	ReasoningContent,
-	ReasoningTrigger,
-} from '@/components/prompt-kit/reasoning';
+import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/prompt-kit/reasoning';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
 import { Button } from '@/components/ui/button';
+import { PageContainer } from '@/components/app/base/page';
 import type { AssistantHistoryMessage } from '../../../../shared/service';
 
 interface ChatMessage {
@@ -172,9 +169,9 @@ function HomePage(): ReactElement {
 	const showSuggestions = messages.length <= 1 && !isLoading;
 
 	return (
-		<div className="flex h-full w-full flex-col text-foreground">
+		<PageContainer className="text-foreground">
 			<ChatContainerRoot className="min-h-0 flex-1">
-				<ChatContainerContent className="w-full gap-5">
+				<ChatContainerContent className="w-full gap-5 px-6">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
@@ -189,10 +186,7 @@ function HomePage(): ReactElement {
 									{message.id !== 'assistant-welcome' && (
 										<Reasoning>
 											<ReasoningTrigger>Show reasoning</ReasoningTrigger>
-											<ReasoningContent
-												markdown
-												className="border-l-2 border-border pl-3"
-											>
+											<ReasoningContent markdown className="border-l-2 border-border pl-3">
 												{`Considered intent, retrieved relevant context, drafted a structured answer, then refined for clarity.`}
 											</ReasoningContent>
 										</Reasoning>
@@ -200,24 +194,16 @@ function HomePage(): ReactElement {
 									{message.id !== 'assistant-welcome' && (
 										<ChainOfThought>
 											<ChainOfThoughtStep defaultOpen>
-												<ChainOfThoughtTrigger
-													leftIcon={<Search className="size-3" />}
-												>
+												<ChainOfThoughtTrigger leftIcon={<Search className="size-3" />}>
 													Analyzing the request
 												</ChainOfThoughtTrigger>
 												<ChainOfThoughtContent>
-													<ChainOfThoughtItem>
-														Parsed user intent from prompt.
-													</ChainOfThoughtItem>
-													<ChainOfThoughtItem>
-														Selected relevant capabilities.
-													</ChainOfThoughtItem>
+													<ChainOfThoughtItem>Parsed user intent from prompt.</ChainOfThoughtItem>
+													<ChainOfThoughtItem>Selected relevant capabilities.</ChainOfThoughtItem>
 												</ChainOfThoughtContent>
 											</ChainOfThoughtStep>
 											<ChainOfThoughtStep>
-												<ChainOfThoughtTrigger
-													leftIcon={<Brain className="size-3" />}
-												>
+												<ChainOfThoughtTrigger leftIcon={<Brain className="size-3" />}>
 													Composing response
 												</ChainOfThoughtTrigger>
 												<ChainOfThoughtContent>
@@ -228,10 +214,7 @@ function HomePage(): ReactElement {
 											</ChainOfThoughtStep>
 										</ChainOfThought>
 									)}
-									<MessageContent
-										markdown
-										className="bg-transparent p-0"
-									>
+									<MessageContent markdown className="bg-transparent p-0">
 										{message.content}
 									</MessageContent>
 									<MessageActions className="self-start">
@@ -265,9 +248,7 @@ function HomePage(): ReactElement {
 										!feedbackDismissed[message.id] && (
 											<FeedbackBar
 												title="Was this response helpful?"
-												icon={
-													<Info className="size-4 text-primary" />
-												}
+												icon={<Info className="size-4 text-primary" />}
 												onHelpful={() => dismissFeedback(message.id)}
 												onNotHelpful={() => dismissFeedback(message.id)}
 												onClose={() => dismissFeedback(message.id)}
@@ -288,51 +269,52 @@ function HomePage(): ReactElement {
 					)}
 					<ChatContainerScrollAnchor />
 				</ChatContainerContent>
-				<ScrollButton className="absolute bottom-4 right-4 shadow-sm" />
+				<ScrollButton className="absolute bottom-4 right-6 shadow-sm" variant="secondary" />
 			</ChatContainerRoot>
 
-			{showSuggestions && (
-				<div className="mb-3 flex w-full flex-wrap gap-2">
-					{suggestions.map((s) => (
-						<PromptSuggestion key={s} onClick={() => void sendPrompt(s)}>
-							<Sparkles className="size-3" />
-							{s}
-						</PromptSuggestion>
-					))}
-				</div>
-			)}
-
-			<PromptInput
-				value={input}
-				onValueChange={setInput}
-				isLoading={isLoading}
-				onSubmit={handleSubmit}
-				className="mb-4 w-full"
-			>
-				<PromptInputTextarea placeholder="Ask me anything..." />
-				<PromptInputActions className="justify-between pt-2">
-					<PromptInputAction tooltip="Attach file">
-						<Button variant="ghost" size="icon-sm" className="rounded-full">
-							<Paperclip className="size-4" />
-						</Button>
-					</PromptInputAction>
-					<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
-						<Button
-							variant="default"
-							size="icon"
-							className="h-8 w-8 rounded-full"
-							onClick={handleSubmit}
-						>
-							{isLoading ? (
-								<Square className="size-4 fill-current" />
-							) : (
-								<ArrowUp className="size-4" />
-							)}
-						</Button>
-					</PromptInputAction>
-				</PromptInputActions>
-			</PromptInput>
-		</div>
+			<div className="px-6">
+				{showSuggestions && (
+					<div className="mb-3 flex w-full flex-wrap gap-2">
+						{suggestions.map((s) => (
+							<PromptSuggestion key={s} onClick={() => void sendPrompt(s)}>
+								<Sparkles className="size-3" />
+								{s}
+							</PromptSuggestion>
+						))}
+					</div>
+				)}
+				<PromptInput
+					value={input}
+					onValueChange={setInput}
+					isLoading={isLoading}
+					onSubmit={handleSubmit}
+					className="mb-4 w-full"
+				>
+					<PromptInputTextarea placeholder="Ask me anything..." />
+					<PromptInputActions className="justify-between pt-2">
+						<PromptInputAction tooltip="Attach file">
+							<Button variant="ghost" size="icon-sm" className="rounded-full">
+								<Paperclip className="size-4" />
+							</Button>
+						</PromptInputAction>
+						<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
+							<Button
+								variant="default"
+								size="icon"
+								className="h-8 w-8 rounded-full"
+								onClick={handleSubmit}
+							>
+								{isLoading ? (
+									<Square className="size-4 fill-current" />
+								) : (
+									<ArrowUp className="size-4" />
+								)}
+							</Button>
+						</PromptInputAction>
+					</PromptInputActions>
+				</PromptInput>
+			</div>
+		</PageContainer>
 	);
 }
 

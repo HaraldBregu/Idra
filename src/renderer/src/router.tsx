@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
-const AccountPage = lazy(() => import('./pages/settings/pages/AccountPage'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/ConnectorsPage'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
@@ -92,14 +91,6 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<GeneralPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'account',
-						element: (
-							<RouteWrapper>
-								<AccountPage />
 							</RouteWrapper>
 						),
 					},

@@ -18,7 +18,7 @@ export const PageContainer = memo(function PageContainer({
 	return (
 		<Provider initialState={initialState}>
 			<div
-				className={cn('flex h-full flex-col px-2', className)}
+				className={cn('flex h-full flex-col', className)}
 				style={
 					{
 						backgroundColor: 'var(--page-background, hsl(var(--background)))',

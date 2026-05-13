@@ -11,7 +11,6 @@ import { useApp } from '@/contexts';
 
 const SETTINGS_ITEMS = [
 	{ path: '/settings/general', labelKey: 'settings.tabs.general' },
-	{ path: '/settings/account', labelKey: 'settings.tabs.account' },
 	{ path: '/settings/channels', labelKey: 'settings.tabs.channels' },
 	{ path: '/settings/connectors', labelKey: 'settings.tabs.connectors' },
 	{ path: '/settings/providers', labelKey: 'settings.tabs.providers' },
@@ -29,8 +28,8 @@ export function Layout(): React.JSX.Element {
 
 	return (
 		<PageContainer>
-			<div className="flex min-h-0 gap-4 flex-1 overflow-hidden">
-				<PageSidebar className="w-36 border-none">
+			<div className="flex min-h-0 gap-2 flex-1 overflow-hidden">
+				<PageSidebar className="w-36 border-none px-2">
 					<div className="flex flex-col gap-1">
 						{SETTINGS_ITEMS.map((item) => {
 							const isActive =
@@ -52,7 +51,7 @@ export function Layout(): React.JSX.Element {
 						})}
 					</div>
 				</PageSidebar>
-				<PageSidebarInset className="p-6">
+				<PageSidebarInset className="px-4">
 					<Outlet />
 				</PageSidebarInset>
 			</div>

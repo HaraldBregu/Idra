@@ -140,7 +140,6 @@
 		"description": "Configure your application preferences",
 		"tabs": {
 			"general": "General",
-			"account": "Account",
 			"channels": "Channels",
 			"connectors": "Connectors",
 			"workspace": "Workspace",
@@ -178,17 +177,6 @@
 			"editor": "Editor",
 			"cron": "Cron Tasks",
 			"developer": "Developer"
-		},
-		"account": {
-			"section": "Account",
-			"guest": "Guest",
-			"notSignedIn": "Not signed in",
-			"signedIn": "Signed in",
-			"firstName": "First Name",
-			"lastName": "Last Name",
-			"editHint": "Double-click to edit",
-			"signIn": "Sign In",
-			"signInDescription": "Sign in to sync your settings across devices"
 		},
 		"profile": {
 			"firstName": "First Name",

@@ -140,7 +140,6 @@
 		"description": "Configura le preferenze dell'applicazione",
 		"tabs": {
 			"general": "Generale",
-			"account": "Account",
 			"channels": "Canali",
 			"connectors": "Connettori",
 			"workspace": "Area di Lavoro",
@@ -178,17 +177,6 @@
 			"editor": "Editor",
 			"cron": "Attivita Cron",
 			"developer": "Sviluppatore"
-		},
-		"account": {
-			"section": "Account",
-			"guest": "Ospite",
-			"notSignedIn": "Non hai effettuato l'accesso",
-			"signedIn": "Accesso effettuato",
-			"firstName": "Nome",
-			"lastName": "Cognome",
-			"editHint": "Doppio click per modificare",
-			"signIn": "Accedi",
-			"signInDescription": "Accedi per sincronizzare le impostazioni tra dispositivi"
 		},
 		"profile": {
 			"firstName": "Nome",
