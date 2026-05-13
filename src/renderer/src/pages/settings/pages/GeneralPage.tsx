@@ -40,7 +40,7 @@ const GeneralPage: React.FC = () => {
 		'max-w-[320px] truncate rounded-lg bg-muted/70 px-3 py-1.5 text-xs text-muted-foreground';
 
 	return (
-		<div className="flex w-full flex-col gap-5 p-6">
+		<div className="flex w-full flex-col gap-5">
 			<section>
 				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
 					{t('settings.application.information')}

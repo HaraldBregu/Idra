@@ -7,12 +7,6 @@ import { TitleBarCenterContainer } from './TitleBarCenterContainer';
 import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 
 // Synchronous platform check — no hooks, no async, no state.
@@ -80,10 +74,6 @@ export const TitleBar = React.memo(function TitleBar({
 	const leftNavButtonClass =
 		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100 hover:bg-accent/80 hover:text-foreground';
 
-	const navigateToSettings = (path: string): void => {
-		navigate(path);
-	};
-
 	return (
 		<TitleBarContainer className="border-none bg-transparent">
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
@@ -100,47 +90,14 @@ export const TitleBar = React.memo(function TitleBar({
 				)}
 
 				{!isStart && (
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							className={
-								isMac
-									? leftButtonClass
-									: leftButtonNoHoverClass
-							}
-							title={t('settings.title', 'Settings')}
-						>
-							<Settings
-								className="h-3.75 w-3.75"
-								strokeWidth={1.5}
-							/>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="w-44">
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/general')}>
-								{t('settings.tabs.general')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/account')}>
-								{t('settings.tabs.account')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/channels')}>
-								{t('settings.tabs.channels')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/connectors')}>
-								{t('settings.tabs.connectors')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/providers')}>
-								{t('settings.tabs.providers')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/system')}>
-								{t('settings.tabs.system')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/cron')}>
-								{t('settings.tabs.cron')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => navigateToSettings('/settings/apps')}>
-								{t('settings.tabs.apps')}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					<button
+						type="button"
+						onClick={() => navigate('/settings')}
+						className={isMac ? leftButtonClass : leftButtonNoHoverClass}
+						title={t('settings.title', 'Settings')}
+					>
+						<Settings className="h-[15px] w-[15px]" strokeWidth={1.5} />
+					</button>
 				)}
 
 				{!isHome && !isStart && (

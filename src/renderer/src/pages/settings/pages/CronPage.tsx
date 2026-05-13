@@ -58,7 +58,7 @@ const CronPage: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full p-6">
+		<div className="w-full">
 			<section>
 				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
 					{t('settings.sections.cron')}

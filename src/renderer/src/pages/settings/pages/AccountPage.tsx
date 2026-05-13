@@ -98,7 +98,7 @@ const AccountPage: React.FC = () => {
 	const subtitle = t('settings.account.notSignedIn');
 
 	return (
-		<div className="w-full p-6">
+		<div className="w-full">
 			<section>
 				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
 					{t('settings.account.section')}

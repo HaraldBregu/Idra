@@ -155,7 +155,7 @@ const ChannelsPage: React.FC = () => {
 	};
 
 	return (
-		<div className="flex w-full flex-col gap-5 p-6">
+		<div className="flex w-full flex-col gap-5">
 			<section>
 				<h2 className="mb-2 px-2 text-sm font-semibold text-muted-foreground">
 					{t('settings.sections.channels')}

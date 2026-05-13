@@ -207,7 +207,7 @@ const ConnectorsPage: React.FC = () => {
 	};
 
 	return (
-		<div className="flex w-full flex-col gap-5 p-6">
+		<div className="flex w-full flex-col gap-5">
 			<section>
 				<div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-2">
 					<div>

@@ -52,7 +52,7 @@ const AppsPage: React.FC = () => {
 		'rounded-md bg-muted/70 px-2 py-0.5 font-mono text-[10px] text-muted-foreground';
 
 	return (
-		<div className="flex w-full flex-col gap-5 p-6">
+		<div className="flex w-full flex-col gap-5">
 			<section>
 				<div className="mb-3 flex items-center justify-between px-2">
 					<h2 className="text-sm font-semibold text-muted-foreground">
