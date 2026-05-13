@@ -172,9 +172,9 @@ function HomePage(): ReactElement {
 	const showSuggestions = messages.length <= 1 && !isLoading;
 
 	return (
-		<div className="flex h-full flex-col text-foreground">
-			<ChatContainerRoot className="min-h-0 flex-1 px-4 py-6">
-				<ChatContainerContent className="mx-auto w-full max-w-3xl gap-5">
+		<div className="flex h-full w-full flex-col text-foreground">
+			<ChatContainerRoot className="min-h-0 flex-1">
+				<ChatContainerContent className="w-full gap-5">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
@@ -292,7 +292,7 @@ function HomePage(): ReactElement {
 			</ChatContainerRoot>
 
 			{showSuggestions && (
-				<div className="mx-auto mb-3 flex w-full max-w-3xl flex-wrap gap-2 px-4">
+				<div className="mb-3 flex w-full flex-wrap gap-2">
 					{suggestions.map((s) => (
 						<PromptSuggestion key={s} onClick={() => void sendPrompt(s)}>
 							<Sparkles className="size-3" />
@@ -307,7 +307,7 @@ function HomePage(): ReactElement {
 				onValueChange={setInput}
 				isLoading={isLoading}
 				onSubmit={handleSubmit}
-				className="mx-auto mb-4 w-[calc(100%-2rem)] max-w-3xl"
+				className="mb-4 w-full"
 			>
 				<PromptInputTextarea placeholder="Ask me anything..." />
 				<PromptInputActions className="justify-between pt-2">

@@ -62,8 +62,13 @@ export class Main {
 		return {
 			width: DEFAULT_WINDOW_WIDTH,
 			height: DEFAULT_WINDOW_HEIGHT,
-			minWidth: 800,
-			minHeight: 600,
+			minWidth: DEFAULT_WINDOW_WIDTH,
+			minHeight: DEFAULT_WINDOW_HEIGHT,
+			maxWidth: DEFAULT_WINDOW_WIDTH,
+			maxHeight: DEFAULT_WINDOW_HEIGHT,
+			resizable: false,
+			maximizable: false,
+			fullscreenable: false,
 			frame: false,
 			// titleBarStyle:'hidden' on Windows retains native min/max/close buttons.
 			// Only use it on macOS where it hides the title bar while keeping traffic lights.
@@ -82,6 +87,8 @@ export class Main {
 			height: STARTUP_WINDOW_HEIGHT,
 			minWidth: STARTUP_WINDOW_WIDTH,
 			minHeight: STARTUP_WINDOW_HEIGHT,
+			maxWidth: STARTUP_WINDOW_WIDTH,
+			maxHeight: STARTUP_WINDOW_HEIGHT,
 		};
 	}
 

@@ -139,15 +139,12 @@ export class Menu {
 					{ label: m.resetZoom, role: 'resetZoom' as const },
 					{ label: m.zoomIn, role: 'zoomIn' as const },
 					{ label: m.zoomOut, role: 'zoomOut' as const },
-					{ type: 'separator' as const },
-					{ label: m.toggleFullscreen, role: 'togglefullscreen' as const },
 				],
 			},
 			{
 				label: m.window,
 				submenu: [
 					{ label: m.minimize, role: 'minimize' as const },
-					{ label: m.zoom, role: 'zoom' as const },
 					...(isMac
 						? [{ type: 'separator' as const }, { label: m.front, role: 'front' as const }]
 						: [{ label: m.close, role: 'close' as const }]),

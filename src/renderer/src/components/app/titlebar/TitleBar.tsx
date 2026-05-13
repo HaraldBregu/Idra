@@ -21,24 +21,6 @@ const isMac =
 	typeof navigator !== 'undefined' &&
 	(navigator.platform === 'MacIntel' || navigator.platform.startsWith('Mac'));
 
-// Windows-style maximize icon
-function MaximizeIcon() {
-	return (
-		<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 10 10" fill="none">
-			<rect x="0.5" y="0.5" width="9" height="9" stroke="currentColor" strokeWidth="1" />
-		</svg>
-	);
-}
-
-// Windows-style restore icon (two overlapping squares)
-function RestoreIcon() {
-	return (
-		<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 10 10" fill="none">
-			<path stroke="currentColor" strokeWidth="1" d="M3 2.5h4.5V7M0.5 0.5h6v6h-6z" />
-		</svg>
-	);
-}
-
 export interface TitleBarProps {
 	/** Text displayed centered in the title bar */
 	title?: string;
@@ -62,7 +44,6 @@ export const TitleBar = React.memo(function TitleBar({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
-	const [isMaximized, setIsMaximized] = useState(false);
 	const [isFullScreen, setIsFullScreen] = useState(false);
 
 	const isHome = location.pathname === '/home';
@@ -74,13 +55,10 @@ export const TitleBar = React.memo(function TitleBar({
 	useEffect(() => {
 		if (!window.win) return;
 
-		window.win.isMaximized().then(setIsMaximized);
 		window.win.isFullScreen().then(setIsFullScreen);
 
-		const unsubMax = window.win.onMaximizeChange(setIsMaximized);
 		const unsubFs = window.win.onFullScreenChange(setIsFullScreen);
 		return () => {
-			unsubMax();
 			unsubFs();
 		};
 	}, []);
@@ -93,15 +71,14 @@ export const TitleBar = React.memo(function TitleBar({
     transition-colors duration-100
   `;
 
-	const btnNoHover = `
-    flex items-center justify-center h-full w-[46px]
-    text-muted-foreground
-  `;
+	const leftButtonClass =
+		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100';
 
-	const btnNavNoHover = `
-    flex items-center justify-center h-full w-[28px]
-    text-muted-foreground
-  `;
+	const leftButtonNoHoverClass =
+		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground';
+
+	const leftNavButtonClass =
+		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100 hover:bg-accent/80 hover:text-foreground';
 
 	const navigateToSettings = (path: string): void => {
 		navigate(path);
@@ -115,10 +92,10 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={() => window.win?.popupMenu()}
-						className={btnNoHover}
+						className={leftButtonNoHoverClass}
 						title={t('titleBar.applicationMenu')}
 					>
-						<Menu className="h-[18px] w-[18px]" strokeWidth={1.5} />
+						<Menu className="h-[15px] w-[15px]" strokeWidth={1.5} />
 					</button>
 				)}
 
@@ -127,13 +104,13 @@ export const TitleBar = React.memo(function TitleBar({
 						<DropdownMenuTrigger
 							className={
 								isMac
-									? 'flex items-center justify-center h-full px-3 text-muted-foreground transition-colors hover:text-foreground'
-									: btnNoHover
+									? leftButtonClass
+									: leftButtonNoHoverClass
 							}
 							title={t('settings.title', 'Settings')}
 						>
 							<Settings
-								className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+								className="h-3.75 w-3.75"
 								strokeWidth={1.5}
 							/>
 						</DropdownMenuTrigger>
@@ -170,7 +147,7 @@ export const TitleBar = React.memo(function TitleBar({
 					<Button
 						type="button"
 						variant="default"
-						size="sm"
+						size="xs"
 						onClick={() => navigate('/home')}
 						title={homeButtonLabel}
 					>
@@ -184,13 +161,13 @@ export const TitleBar = React.memo(function TitleBar({
 						onClick={onToggleSidebar}
 						className={
 							isMac
-								? 'flex items-center justify-center h-full px-3 text-muted-foreground transition-colors hover:text-foreground'
-								: btnNoHover
+								? leftButtonClass
+								: leftButtonNoHoverClass
 						}
 						title={t('titleBar.toggleSidebar')}
 					>
 						<PanelLeft
-							className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+							className="h-[15px] w-[15px]"
 							strokeWidth={1.5}
 						/>
 					</button>
@@ -200,15 +177,11 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={onNavigateBack}
-						className={
-							isMac
-								? 'flex items-center justify-center h-full px-1 text-muted-foreground transition-colors hover:text-foreground'
-								: btnNavNoHover
-						}
+						className={leftNavButtonClass}
 						title={t('titleBar.navigateBack')}
 					>
 						<ArrowLeft
-							className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+							className="h-[15px] w-[15px]"
 							strokeWidth={1.5}
 						/>
 					</button>
@@ -218,15 +191,11 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={onNavigateForward}
-						className={
-							isMac
-								? 'flex items-center justify-center h-full px-1 text-muted-foreground transition-colors hover:text-foreground'
-								: btnNavNoHover
-						}
+						className={leftNavButtonClass}
 						title={t('titleBar.navigateForward')}
 					>
 						<ArrowRight
-							className={isMac ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+							className="h-[15px] w-[15px]"
 							strokeWidth={1.5}
 						/>
 					</button>
@@ -251,15 +220,6 @@ export const TitleBar = React.memo(function TitleBar({
 						title={t('titleBar.minimize')}
 					>
 						<Minus className="h-[17px] w-[17px]" strokeWidth={1.5} />
-					</button>
-
-					<button
-						type="button"
-						onClick={() => window.win?.maximize()}
-						className={btnBase}
-						title={isMaximized ? t('titleBar.restore') : t('titleBar.maximize')}
-					>
-						{isMaximized ? <RestoreIcon /> : <MaximizeIcon />}
 					</button>
 
 					<button

@@ -37,6 +37,7 @@ export class WindowIpc implements IpcModule {
 		ipcMain.on(WindowChannels.maximize, (event) => {
 			const win = BrowserWindow.fromWebContents(event.sender);
 			if (win) {
+				if (!win.isMaximizable()) return;
 				if (win.isMaximized()) {
 					win.unmaximize();
 				} else {

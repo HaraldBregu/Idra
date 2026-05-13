@@ -17,8 +17,8 @@ export const TitleBarLeftContainer = memo(function AppTitleBarLeftContainer({
 	return (
 		<div
 			className={cn(
-				'flex items-center h-full z-10',
-				isMac && (isFullScreen ? 'ml-2' : 'ml-20 mt-1'),
+				'flex items-center h-full z-10 gap-1',
+				isMac && (isFullScreen ? 'ml-2' : 'ml-20'),
 				className
 			)}
 			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}

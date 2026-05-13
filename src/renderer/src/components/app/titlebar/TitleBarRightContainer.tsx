@@ -12,7 +12,7 @@ export const TitleBarRightContainer = memo(function AppTitleBarRightContainer({
 }: TitleBarRightContainerProps): ReactElement {
 	return (
 		<div
-			className={cn('flex items-center h-full z-10', className)}
+			className={cn('flex items-center h-full z-10 gap-1', className)}
 			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 		>
 			{children}
