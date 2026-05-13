@@ -171,7 +171,7 @@ function HomePage(): ReactElement {
 	return (
 		<PageContainer className="text-foreground">
 			<ChatContainerRoot className="min-h-0 flex-1">
-				<ChatContainerContent className="w-full gap-5 px-6">
+				<ChatContainerContent className="w-full gap-5 px-0">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
@@ -272,7 +272,7 @@ function HomePage(): ReactElement {
 				<ScrollButton className="absolute bottom-4 right-6 shadow-sm" variant="secondary" />
 			</ChatContainerRoot>
 
-			<div className="px-6">
+			<div className="px-4">
 				{showSuggestions && (
 					<div className="mb-3 flex w-full flex-wrap gap-2">
 						{suggestions.map((s) => (
