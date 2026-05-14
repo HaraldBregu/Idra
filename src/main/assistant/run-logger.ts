@@ -96,6 +96,8 @@ export type RunLogRecord =
 	| ({ event: 'tool_call'; ts: string } & RunLogToolCall)
 	| ({ event: 'approval_request'; ts: string } & RunLogApprovalRequest)
 	| ({ event: 'approval_resolution'; ts: string } & RunLogApprovalResolution)
+	| ({ event: 'input_request'; ts: string } & RunLogInputRequest)
+	| ({ event: 'input_resolution'; ts: string } & RunLogInputResolution)
 	| ({ event: 'finish'; ts: string } & RunLogFinish);
 
 export interface RunLoggerOptions {
