@@ -8,7 +8,12 @@ import React, {
 	type ReactNode,
 } from 'react';
 import i18n from '../i18n';
-import { DEFAULT_THEME_MODE, isThemeMode, type ThemeMode, type ThemeVariant } from '../../../shared';
+import {
+	DEFAULT_THEME_MODE,
+	isThemeMode,
+	type ThemeMode,
+	type ThemeVariant,
+} from '../../../shared';
 
 const THEME_STORAGE_KEY = 'app-theme-mode';
 const TRANSLUCENCY_STORAGE_KEY = 'app-theme-translucency';
@@ -43,7 +48,11 @@ export interface AppContextValue {
 
 interface AppProviderProps {
 	children: ReactNode;
-	initialState?: { theme?: ThemeMode; translucency?: Partial<AppTranslucency>; language?: AppLanguage };
+	initialState?: {
+		theme?: ThemeMode;
+		translucency?: Partial<AppTranslucency>;
+		language?: AppLanguage;
+	};
 }
 
 function readPersistedTheme(): ThemeMode {

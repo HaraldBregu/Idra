@@ -101,10 +101,26 @@
 	--app-surface-background-base: oklch(1 0 0);
 	--app-popover-background-base: oklch(1 0 0);
 	--app-sidebar-background-base: oklch(0.985 0 0);
-	--app-window-background: color-mix(in oklch, var(--app-window-background-base) calc(var(--app-bg-opacity) * 100%), transparent);
-	--app-surface-background: color-mix(in oklch, var(--app-surface-background-base) calc(var(--app-surface-opacity) * 100%), transparent);
-	--app-popover-background: color-mix(in oklch, var(--app-popover-background-base) calc(var(--app-popover-opacity) * 100%), transparent);
-	--app-sidebar-background: color-mix(in oklch, var(--app-sidebar-background-base) calc(var(--app-sidebar-opacity) * 100%), transparent);
+	--app-window-background: color-mix(
+		in oklch,
+		var(--app-window-background-base) calc(var(--app-bg-opacity) * 100%),
+		transparent
+	);
+	--app-surface-background: color-mix(
+		in oklch,
+		var(--app-surface-background-base) calc(var(--app-surface-opacity) * 100%),
+		transparent
+	);
+	--app-popover-background: color-mix(
+		in oklch,
+		var(--app-popover-background-base) calc(var(--app-popover-opacity) * 100%),
+		transparent
+	);
+	--app-sidebar-background: color-mix(
+		in oklch,
+		var(--app-sidebar-background-base) calc(var(--app-sidebar-opacity) * 100%),
+		transparent
+	);
 	--app-scrollbar-track: transparent;
 	--app-scrollbar-thumb: color-mix(in oklch, var(--muted-foreground) 34%, transparent);
 	--app-scrollbar-thumb-hover: color-mix(in oklch, var(--muted-foreground) 52%, transparent);

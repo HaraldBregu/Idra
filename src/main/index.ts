@@ -1,11 +1,4 @@
-import {
-	app,
-	BrowserWindow,
-	nativeTheme,
-	protocol,
-	net,
-	crashReporter,
-} from 'electron';
+import { app, BrowserWindow, nativeTheme, protocol, net, crashReporter } from 'electron';
 import { pathToFileURL } from 'node:url';
 import { Main } from './main';
 import { Tray } from './tray';
