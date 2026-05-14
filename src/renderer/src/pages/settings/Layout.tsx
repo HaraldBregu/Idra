@@ -41,7 +41,7 @@ export function Layout(): React.JSX.Element {
 	return (
 		<PageContainer>
 			<div className="flex min-h-0 flex-1 gap-2 overflow-hidden">
-				<PageSidebar className="w-14 border-none px-2 pt-14 sm:w-44 sm:pt-16">
+				<PageSidebar className="w-14 border-none px-2 sm:w-44">
 					<nav className="flex flex-col gap-1">
 						{SETTINGS_ITEMS.map((item) => {
 							const isActive =
@@ -66,7 +66,7 @@ export function Layout(): React.JSX.Element {
 						})}
 					</nav>
 				</PageSidebar>
-				<PageSidebarInset className="px-3 pb-3 pt-14 sm:px-4 sm:pb-4 sm:pt-16 lg:px-5">
+				<PageSidebarInset className="px-3 pb-3 sm:px-4 sm:pb-4 lg:px-5">
 					<Outlet />
 				</PageSidebarInset>
 			</div>
