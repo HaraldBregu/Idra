@@ -8,7 +8,7 @@ import type {
 	Tool as ResponseTool,
 } from 'openai/resources/responses/responses';
 import type { Tool } from './tools/base';
-import { RunState, type PendingApproval } from './run-state';
+import { RunState, type PendingApproval, type PendingToolCall } from './run-state';
 import type { TokenUsage } from './run-logger';
 
 const DEFAULT_MAX_ITERATIONS = 20;
@@ -121,15 +121,103 @@ function addUsage(acc: TokenUsage, u?: { input_tokens?: number; output_tokens?: 
 	acc.totalTokens += u.total_tokens ?? (u.input_tokens ?? 0) + (u.output_tokens ?? 0);
 }
 
+interface ToolExecContext {
+	runId: string;
+	iteration: number;
+	state: RunState;
+	toolMap: Map<string, Tool>;
+	hooks?: RunHooks;
+}
+
+async function executePendingToolCalls(
+	calls: PendingToolCall[],
+	ctx: ToolExecContext
+): Promise<ResponseInputItem[]> {
+	return Promise.all(
+		calls.map(async (call) => {
+			const start = Date.now();
+			const tool = ctx.toolMap.get(call.name);
+			const decision = ctx.state.decisionFor(call.callId, call.name);
+
+			if (!tool) {
+				const output = `Error: unknown tool '${call.name}'`;
+				await ctx.hooks?.onToolCall?.({
+					runId: ctx.runId,
+					iteration: ctx.iteration,
+					callId: call.callId,
+					tool: call.name,
+					arguments: call.arguments,
+					durationMs: Date.now() - start,
+					status: 'error',
+					outputChars: output.length,
+				});
+				return { type: 'function_call_output' as const, call_id: call.callId, output };
+			}
+
+			if (decision?.decision === 'reject') {
+				const output =
+					decision.message ?? `Tool call '${call.name}' rejected by human reviewer.`;
+				await ctx.hooks?.onToolCall?.({
+					runId: ctx.runId,
+					iteration: ctx.iteration,
+					callId: call.callId,
+					tool: call.name,
+					arguments: call.arguments,
+					durationMs: Date.now() - start,
+					status: 'rejected',
+					outputChars: output.length,
+				});
+				return { type: 'function_call_output' as const, call_id: call.callId, output };
+			}
+
+			let args: Record<string, unknown> = {};
+			try {
+				args = JSON.parse(call.arguments);
+			} catch {
+				args = {};
+			}
+
+			try {
+				const output = await tool.execute(args);
+				await ctx.hooks?.onToolCall?.({
+					runId: ctx.runId,
+					iteration: ctx.iteration,
+					callId: call.callId,
+					tool: call.name,
+					arguments: call.arguments,
+					durationMs: Date.now() - start,
+					status: 'ok',
+					outputChars: output.length,
+				});
+				return { type: 'function_call_output' as const, call_id: call.callId, output };
+			} catch (err) {
+				const output = `Error executing ${call.name}: ${(err as Error).message}`;
+				await ctx.hooks?.onToolCall?.({
+					runId: ctx.runId,
+					iteration: ctx.iteration,
+					callId: call.callId,
+					tool: call.name,
+					arguments: call.arguments,
+					durationMs: Date.now() - start,
+					status: 'error',
+					outputChars: output.length,
+				});
+				return { type: 'function_call_output' as const, call_id: call.callId, output };
+			}
+		})
+	);
+}
+
 /**
  * Responses API loop with human-in-the-loop approval and lifecycle hooks.
  *
  * State is threaded via {@link RunState}. When a tool exposes
  * {@link Tool.needsApproval} and no decision is recorded yet the loop pauses,
- * stores the pending approvals on the state, and returns
- * `status: 'awaiting_approval'`. The host resolves each one with
- * `state.approve` / `state.reject` and calls {@link runAgent} again with the
- * same state to resume.
+ * stores both the pending approvals and the matching function calls on the
+ * state, and returns `status: 'awaiting_approval'`. The host resolves each
+ * one with `state.approve` / `state.reject` and calls {@link runAgent} again
+ * with the same state to resume — at which point the loop executes the
+ * deferred tool calls and feeds the outputs back to the model.
  */
 export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 	const {
@@ -153,6 +241,19 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 	await hooks?.onStart?.({ runId, iteration: state.data.iteration });
 
 	try {
+		// Resume path: execute deferred tool calls before talking to the model.
+		if (state.data.pendingToolCalls.length > 0) {
+			const outputs = await executePendingToolCalls(state.data.pendingToolCalls, {
+				runId,
+				iteration: state.data.iteration,
+				state,
+				toolMap,
+				hooks,
+			});
+			state.data.input = [...state.data.input, ...outputs];
+			state.data.pendingToolCalls = [];
+		}
+
 		for (; state.data.iteration < maxIterations; state.data.iteration++) {
 			const iter = state.data.iteration;
 			const iterStart = Date.now();
@@ -217,7 +318,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 				};
 			}
 
-			const pendingThisTurn: PendingApproval[] = [];
+			const pendingApprovals: PendingApproval[] = [];
 			for (const call of functionCalls) {
 				const tool = toolMap.get(call.name);
 				if (!tool) continue;
@@ -230,7 +331,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 				}
 				const requires = await tool.needsApproval(args);
 				if (requires) {
-					pendingThisTurn.push({
+					pendingApprovals.push({
 						callId: call.call_id,
 						toolName: call.name,
 						arguments: call.arguments,
@@ -238,14 +339,19 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 				}
 			}
 
-			if (pendingThisTurn.length > 0) {
-				state.setPending(pendingThisTurn);
+			if (pendingApprovals.length > 0) {
+				state.setPending(pendingApprovals);
+				state.data.pendingToolCalls = functionCalls.map((call) => ({
+					callId: call.call_id,
+					name: call.name,
+					arguments: call.arguments,
+				}));
 				state.data.input = [
 					...state.data.input,
 					...(response.output as unknown as ResponseInputItem[]),
 				];
-				await hooks?.onApprovalRequest?.({ runId, iteration: iter, pending: pendingThisTurn });
-				const summary = `Awaiting human approval for ${pendingThisTurn.length} tool call(s): ${pendingThisTurn
+				await hooks?.onApprovalRequest?.({ runId, iteration: iter, pending: pendingApprovals });
+				const summary = `Awaiting human approval for ${pendingApprovals.length} tool call(s): ${pendingApprovals
 					.map((p) => p.toolName)
 					.join(', ')}`;
 				await hooks?.onFinish?.({
@@ -259,7 +365,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 				return {
 					status: 'awaiting_approval',
 					text: summary,
-					pending: pendingThisTurn,
+					pending: pendingApprovals,
 					newMessages: state.data.newMessages,
 					state,
 					usage,
@@ -267,77 +373,13 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 				};
 			}
 
-			const toolOutputs: ResponseInputItem[] = await Promise.all(
-				functionCalls.map(async (call) => {
-					let args: Record<string, unknown> = {};
-					try {
-						args = JSON.parse(call.arguments);
-					} catch {
-						args = {};
-					}
-					const tool = toolMap.get(call.name);
-					const decision = state.decisionFor(call.call_id, call.name);
-					const start = Date.now();
-
-					if (!tool) {
-						const output = `Error: unknown tool '${call.name}'`;
-						await hooks?.onToolCall?.({
-							runId,
-							iteration: iter,
-							callId: call.call_id,
-							tool: call.name,
-							arguments: call.arguments,
-							durationMs: Date.now() - start,
-							status: 'error',
-							outputChars: output.length,
-						});
-						return { type: 'function_call_output' as const, call_id: call.call_id, output };
-					}
-
-					if (decision?.decision === 'reject') {
-						const output =
-							decision.message ?? `Tool call '${call.name}' rejected by human reviewer.`;
-						await hooks?.onToolCall?.({
-							runId,
-							iteration: iter,
-							callId: call.call_id,
-							tool: call.name,
-							arguments: call.arguments,
-							durationMs: Date.now() - start,
-							status: 'rejected',
-							outputChars: output.length,
-						});
-						return { type: 'function_call_output' as const, call_id: call.call_id, output };
-					}
-
-					try {
-						const output = await tool.execute(args);
-						await hooks?.onToolCall?.({
-							runId,
-							iteration: iter,
-							callId: call.call_id,
-							tool: call.name,
-							arguments: call.arguments,
-							durationMs: Date.now() - start,
-							status: 'ok',
-							outputChars: output.length,
-						});
-						return { type: 'function_call_output' as const, call_id: call.call_id, output };
-					} catch (err) {
-						const output = `Error executing ${call.name}: ${(err as Error).message}`;
-						await hooks?.onToolCall?.({
-							runId,
-							iteration: iter,
-							callId: call.call_id,
-							tool: call.name,
-							arguments: call.arguments,
-							durationMs: Date.now() - start,
-							status: 'error',
-							outputChars: output.length,
-						});
-						return { type: 'function_call_output' as const, call_id: call.call_id, output };
-					}
-				})
+			const toolOutputs = await executePendingToolCalls(
+				functionCalls.map((call) => ({
+					callId: call.call_id,
+					name: call.name,
+					arguments: call.arguments,
+				})),
+				{ runId, iteration: iter, state, toolMap, hooks }
 			);
 
 			state.data.input = [
