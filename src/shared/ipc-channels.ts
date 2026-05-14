@@ -16,7 +16,10 @@ export const AssistantChannels = {
 	response: 'assistant:response',
 	approve: 'assistant:approve',
 	reject: 'assistant:reject',
+	respond: 'assistant:respond',
+	cancelPending: 'assistant:cancel-pending',
 	getPending: 'assistant:get-pending',
+	getPendingInputs: 'assistant:get-pending-inputs',
 	pending: 'assistant:pending',
 } as const;
 
