@@ -29,8 +29,8 @@ const TRANSLUCENCY_ALPHA_REDUCTION = {
 export type AppTranslucency = Record<ThemeVariant, number>;
 
 const DEFAULT_TRANSLUCENCY: AppTranslucency = {
-	light: 57,
-	dark: 65,
+	light: 0,
+	dark: 0,
 };
 
 export type AppLanguage = 'en' | 'it';
