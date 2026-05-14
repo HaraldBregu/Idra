@@ -94,7 +94,7 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={() => navigate('/settings')}
-						className={isMac ? leftButtonClass : leftButtonNoHoverClass}
+						className={cn('ml-2', isMac ? leftButtonClass : leftButtonNoHoverClass)}
 						title={t('settings.title', 'Settings')}
 					>
 						<Settings className="h-[15px] w-[15px]" strokeWidth={1.5} />
