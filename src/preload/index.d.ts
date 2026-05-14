@@ -13,12 +13,18 @@ export interface AssistantApi {
 	send: (message: string) => Promise<AssistantSendResult>;
 	reset: () => Promise<void>;
 	getHistory: () => Promise<AssistantHistoryMessage[]>;
-	approve: (callId: string, opts?: { alwaysApprove?: boolean }) => Promise<AssistantSendResult>;
+	approve: (
+		callId: string,
+		opts?: { alwaysApprove?: boolean; editedArguments?: string }
+	) => Promise<AssistantSendResult>;
 	reject: (
 		callId: string,
 		opts?: { alwaysReject?: boolean; message?: string }
 	) => Promise<AssistantSendResult>;
+	respond: (callId: string, answer: string) => Promise<AssistantSendResult>;
+	cancelPending: () => Promise<void>;
 	getPending: () => Promise<AssistantPendingApproval[]>;
+	getPendingInputs: () => Promise<AssistantPendingInput[]>;
 	onResponse: (callback: (event: { response: string }) => void) => () => void;
 	onPending: (callback: (event: AssistantPendingEventPayload) => void) => () => void;
 }
