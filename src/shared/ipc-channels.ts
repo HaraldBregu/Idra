@@ -101,11 +101,23 @@ interface AppInvokeChannelMap {
 }
 
 interface AssistantInvokeChannelMap {
-	[AssistantChannels.send]: { args: [message: string]; result: string };
+	[AssistantChannels.send]: { args: [message: string]; result: import('./service').AssistantSendResult };
 	[AssistantChannels.reset]: { args: []; result: void };
 	[AssistantChannels.getHistory]: {
 		args: [];
 		result: import('./service').AssistantHistoryMessage[];
+	};
+	[AssistantChannels.approve]: {
+		args: [callId: string, opts?: { alwaysApprove?: boolean }];
+		result: import('./service').AssistantSendResult;
+	};
+	[AssistantChannels.reject]: {
+		args: [callId: string, opts?: { alwaysReject?: boolean; message?: string }];
+		result: import('./service').AssistantSendResult;
+	};
+	[AssistantChannels.getPending]: {
+		args: [];
+		result: import('./service').AssistantPendingApproval[];
 	};
 }
 
