@@ -52,6 +52,7 @@ export class RunState {
 			newMessages: params.newMessages,
 			iteration: 0,
 			pendingApprovals: [],
+			pendingToolCalls: [],
 			decisionsByCallId: {},
 			alwaysApproveTools: [],
 			alwaysRejectTools: [],
