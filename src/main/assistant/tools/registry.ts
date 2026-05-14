@@ -35,5 +35,5 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 ];
 
 export function createTools(cfg: PolicyConfig): AgentTool[] {
-	return filterTools(ALL_TOOLS, cfg);
+	return filterTools(ALL_TOOLS as unknown as AgentTool[], cfg);
 }
