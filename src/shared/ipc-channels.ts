@@ -111,16 +111,25 @@ interface AssistantInvokeChannelMap {
 		result: import('./service').AssistantHistoryMessage[];
 	};
 	[AssistantChannels.approve]: {
-		args: [callId: string, opts?: { alwaysApprove?: boolean }];
+		args: [callId: string, opts?: { alwaysApprove?: boolean; editedArguments?: string }];
 		result: import('./service').AssistantSendResult;
 	};
 	[AssistantChannels.reject]: {
 		args: [callId: string, opts?: { alwaysReject?: boolean; message?: string }];
 		result: import('./service').AssistantSendResult;
 	};
+	[AssistantChannels.respond]: {
+		args: [callId: string, answer: string];
+		result: import('./service').AssistantSendResult;
+	};
+	[AssistantChannels.cancelPending]: { args: []; result: void };
 	[AssistantChannels.getPending]: {
 		args: [];
 		result: import('./service').AssistantPendingApproval[];
+	};
+	[AssistantChannels.getPendingInputs]: {
+		args: [];
+		result: import('./service').AssistantPendingInput[];
 	};
 }
 
