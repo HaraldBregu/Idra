@@ -1,83 +1,154 @@
-import { spawn } from "node:child_process";
-import { promises as fs } from "node:fs";
-import os from "node:os";
-import { Tool } from "./base.js";
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import type { AgentTool } from './types';
+import { textResult } from './types';
 
-const DANGEROUS_PATTERNS: RegExp[] = [
-  /rm\s+-rf\s+\//,
-  /mkfs/,
-  /dd\s+if=/,
-  /:\(\)\s*\{.*\}/, // fork bomb
-  />\s*\/dev\/sd/,
+const DENY_PATTERNS: RegExp[] = [
+	/\brm\s+-rf\s+\/(?:\s|$)/,
+	/\brm\s+-rf\s+\/\*/,
+	/\bgit\s+push\s+.*--force.*\b(main|master)\b/,
+	/\b:(){:|:&};:/,
+	/\bmkfs\b/,
+	/\bdd\s+if=.*of=\/dev\//,
+	/\bshutdown\b/,
+	/\breboot\b/,
 ];
 
-export class ExecTool extends Tool {
-  name = "exec";
-  description =
-    "Run a shell command and return the output. Use for listing files, checking system state, running scripts, etc.";
-  parameters = {
-    type: "object",
-    properties: {
-      command: {
-        type: "string",
-        description: "The shell command to execute.",
-      },
-    },
-    required: ["command"],
-  };
+const MAX_OUTPUT_BYTES = 16 * 1024;
+const MAX_OUTPUT_LINES = 200;
+const DEFAULT_TIMEOUT_MS = 120_000;
 
-  private timeoutMs: number;
-  private cwd: string;
-  private requireApproval: boolean;
+interface ExecArgs {
+	command: string;
+	workdir?: string;
+	timeoutMs?: number;
+	env?: Record<string, string>;
+}
 
-  constructor(opts: { workspace?: string; timeoutSeconds?: number; requireApproval?: boolean } = {}) {
-    super();
-    this.timeoutMs = (opts.timeoutSeconds ?? 60) * 1000;
-    this.cwd = opts.workspace ?? os.homedir();
-    this.requireApproval = opts.requireApproval ?? true;
-  }
+interface ExecDetails {
+	exitCode: number | null;
+	durationMs: number;
+	truncated: boolean;
+}
 
-  needsApproval(): boolean {
-    return this.requireApproval;
-  }
+function isDenied(command: string): string | null {
+	for (const pat of DENY_PATTERNS) if (pat.test(command)) return pat.source;
+	return null;
+}
 
-  async execute(args: Record<string, unknown>): Promise<string> {
-    const command = String(args.command);
+function truncate(buf: string): { text: string; truncated: boolean } {
+	let out = buf;
+	let truncated = false;
+	if (out.length > MAX_OUTPUT_BYTES) {
+		out = out.slice(0, MAX_OUTPUT_BYTES);
+		truncated = true;
+	}
+	const lines = out.split('\n');
+	if (lines.length > MAX_OUTPUT_LINES) {
+		out = lines.slice(0, MAX_OUTPUT_LINES).join('\n');
+		truncated = true;
+	}
+	return { text: out, truncated };
+}
 
-    for (const pattern of DANGEROUS_PATTERNS) {
-      if (pattern.test(command)) {
-        return `Blocked: command matches dangerous pattern '${pattern}'`;
-      }
-    }
+export const execTool: AgentTool<ExecArgs, ExecDetails> = {
+	name: 'exec',
+	description:
+		'Run a shell command in the workspace. Output is capped at 200 lines / 16KB. Use for ls, git, build, tests.',
+	schema: {
+		type: 'object',
+		properties: {
+			command: { type: 'string', description: 'Shell command to execute.' },
+			workdir: { type: 'string', description: 'Working directory (relative or absolute).' },
+			timeoutMs: { type: 'number', description: 'Timeout in milliseconds (default 120000).' },
+			env: { type: 'object', description: 'Extra environment variables.' },
+		},
+		required: ['command'],
+		additionalProperties: false,
+	},
+	needsApproval: true,
+	async execute(args, ctx) {
+		const command = String(args.command ?? '').trim();
+		if (!command) return textResult('exec: empty command', true);
+		const denied = isDenied(command);
+		if (denied) return textResult(`exec: denied by safety policy (pattern: ${denied})`, true);
+		const cwd = args.workdir
+			? path.isAbsolute(args.workdir)
+				? args.workdir
+				: path.resolve(ctx.workspace, args.workdir)
+			: ctx.workspace;
+		return runForeground(command, cwd, args.env, args.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+	},
+};
 
-    await fs.mkdir(this.cwd, { recursive: true });
+function runForeground(
+	command: string,
+	cwd: string,
+	envExtra: Record<string, string> | undefined,
+	timeoutMs: number
+): Promise<ReturnType<typeof formatResult>> {
+	return new Promise((resolve) => {
+		const start = Date.now();
+		const isWin = process.platform === 'win32';
+		const shell = isWin ? 'cmd.exe' : '/bin/bash';
+		const shellArgs = isWin ? ['/c', command] : ['-lc', command];
+		const child = spawn(shell, shellArgs, {
+			cwd,
+			env: { ...process.env, ...(envExtra ?? {}) },
+			stdio: ['ignore', 'pipe', 'pipe'],
+		});
 
-    return new Promise((resolve) => {
-      const proc = spawn(command, {
-        shell: true,
-        cwd: this.cwd,
-        stdio: ["ignore", "pipe", "pipe"],
-      });
+		let stdout = '';
+		let stderr = '';
+		let killed = false;
 
-      const chunks: Buffer[] = [];
-      proc.stdout.on("data", (d: Buffer) => chunks.push(d));
-      proc.stderr.on("data", (d: Buffer) => chunks.push(d));
+		const timer = setTimeout(() => {
+			killed = true;
+			child.kill('SIGKILL');
+		}, timeoutMs);
 
-      const timer = setTimeout(() => {
-        proc.kill("SIGKILL");
-        resolve(`Error: command timed out after ${this.timeoutMs / 1000}s`);
-      }, this.timeoutMs);
+		child.stdout.on('data', (d: Buffer) => {
+			stdout += d.toString('utf8');
+			if (stdout.length > MAX_OUTPUT_BYTES * 2) stdout = stdout.slice(-MAX_OUTPUT_BYTES * 2);
+		});
+		child.stderr.on('data', (d: Buffer) => {
+			stderr += d.toString('utf8');
+			if (stderr.length > MAX_OUTPUT_BYTES * 2) stderr = stderr.slice(-MAX_OUTPUT_BYTES * 2);
+		});
 
-      proc.on("error", (e) => {
-        clearTimeout(timer);
-        resolve(`Error executing command: ${e.message}`);
-      });
+		child.on('close', (code) => {
+			clearTimeout(timer);
+			const exitCode = killed ? -1 : code;
+			resolve(formatResult(command, exitCode, killed, stdout, stderr, Date.now() - start));
+		});
 
-      proc.on("close", () => {
-        clearTimeout(timer);
-        const out = Buffer.concat(chunks).toString("utf8").trim();
-        resolve(out || "(no output)");
-      });
-    });
-  }
+		child.on('error', (err) => {
+			clearTimeout(timer);
+			resolve(formatResult(command, -1, false, '', err.message, Date.now() - start));
+		});
+	});
+}
+
+function formatResult(
+	command: string,
+	exitCode: number | null,
+	killed: boolean,
+	stdout: string,
+	stderr: string,
+	durationMs: number
+): { status: 'ok' | 'error'; content: { type: 'text'; text: string }[]; details: ExecDetails } {
+	const out = truncate(stdout);
+	const err = truncate(stderr);
+	const parts = [
+		`$ ${command}`,
+		`exit=${exitCode} duration=${durationMs}ms${killed ? ' (killed by timeout)' : ''}`,
+	];
+	if (out.text) parts.push(`--- stdout ---\n${out.text}`);
+	if (err.text) parts.push(`--- stderr ---\n${err.text}`);
+	if (out.truncated || err.truncated) parts.push('(output truncated)');
+	return {
+		status: exitCode === 0 ? 'ok' : 'error',
+		content: [{ type: 'text', text: parts.join('\n') }],
+		details: { exitCode, durationMs, truncated: out.truncated || err.truncated },
+	};
 }
