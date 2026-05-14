@@ -274,6 +274,15 @@
 			"system": "System",
 			"systemDescription": "Follow the operating system preference"
 		},
+		"translucency": {
+			"title": "Translucency",
+			"description": "Adjust how much of the native desktop backdrop shows through the app.",
+			"light": "Light",
+			"lightDescription": "Backdrop strength used by the light theme.",
+			"dark": "Dark",
+			"darkDescription": "Backdrop strength used by the dark theme.",
+			"value": "{{value}}%"
+		},
 		"language": {
 			"title": "Language",
 			"description": "Choose the display language for the application.",

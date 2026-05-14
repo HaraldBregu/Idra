@@ -274,6 +274,15 @@
 			"system": "Sistema",
 			"systemDescription": "Segui la preferenza del sistema operativo"
 		},
+		"translucency": {
+			"title": "Traslucenza",
+			"description": "Regola quanto dello sfondo nativo del desktop appare attraverso l'app.",
+			"light": "Chiaro",
+			"lightDescription": "Intensità dello sfondo usata dal tema chiaro.",
+			"dark": "Scuro",
+			"darkDescription": "Intensità dello sfondo usata dal tema scuro.",
+			"value": "{{value}}%"
+		},
 		"language": {
 			"title": "Lingua",
 			"description": "Scegli la lingua di visualizzazione dell'applicazione.",

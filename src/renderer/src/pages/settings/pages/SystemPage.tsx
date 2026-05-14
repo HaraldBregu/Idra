@@ -19,7 +19,7 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from '../components';
-import type { ThemeMode } from '../../../../../shared';
+import type { ThemeMode, ThemeVariant } from '../../../../../shared';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -31,15 +31,41 @@ const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 	{ value: 'it', labelKey: 'settings.language.it' },
 ] as const;
 
+const TRANSLUCENCY_OPTIONS = [
+	{
+		value: 'light',
+		labelKey: 'settings.translucency.light',
+		descriptionKey: 'settings.translucency.lightDescription',
+		icon: Sun,
+	},
+	{
+		value: 'dark',
+		labelKey: 'settings.translucency.dark',
+		descriptionKey: 'settings.translucency.darkDescription',
+		icon: Moon,
+	},
+] satisfies readonly {
+	readonly value: ThemeVariant;
+	readonly labelKey: string;
+	readonly descriptionKey: string;
+	readonly icon: typeof Sun;
+}[];
+
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { theme, language, setTheme, setLanguage } = useApp();
+	const { theme, translucency, language, setTheme, setTranslucency, setLanguage } = useApp();
 
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
 		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);
 		if (option) setLanguage(option.value);
 	};
+
+	const handleTranslucencyChange =
+		(mode: ThemeVariant) =>
+		(event: React.ChangeEvent<HTMLInputElement>): void => {
+			setTranslucency(mode, Number(event.currentTarget.value));
+		};
 
 	return (
 		<SettingsPageShell>
@@ -98,6 +124,43 @@ const SystemPage: React.FC = () => {
 							</SelectContent>
 						</Select>
 					</SettingsRow>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
+				title={t('settings.translucency.title')}
+				description={t('settings.translucency.description')}
+			>
+				<SettingsPanel>
+					{TRANSLUCENCY_OPTIONS.map((option) => {
+						const Icon = option.icon;
+						const value = translucency[option.value];
+
+						return (
+							<SettingsRow
+								key={option.value}
+								icon={Icon}
+								title={t(option.labelKey)}
+								description={t(option.descriptionKey)}
+							>
+								<div className="flex w-full min-w-0 items-center gap-3 sm:w-64">
+									<input
+										type="range"
+										min={0}
+										max={100}
+										step={1}
+										value={value}
+										onChange={handleTranslucencyChange(option.value)}
+										aria-label={t(option.labelKey)}
+										className="h-2 min-w-0 flex-1 cursor-pointer accent-primary"
+									/>
+									<span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+										{t('settings.translucency.value', { value })}
+									</span>
+								</div>
+							</SettingsRow>
+						);
+					})}
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>

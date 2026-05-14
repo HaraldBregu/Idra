@@ -5,7 +5,7 @@ import eslintPluginReactRefresh from 'eslint-plugin-react-refresh';
 
 export default tseslint.config(
 	{
-		ignores: ['**/node_modules', '**/dist', '**/out', '**/scripts/*.cjs', '**/*.cjs'],
+		ignores: ['**/node_modules', '**/dist', '**/out', '**/scripts/*.cjs', '**/*.cjs', 'project/**'],
 	},
 	tseslint.configs.recommended,
 	eslintPluginReact.configs.flat.recommended,

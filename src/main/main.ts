@@ -16,7 +16,7 @@ function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptio
 	if (process.platform === 'darwin') {
 		return {
 			vibrancy: 'under-window',
-			visualEffectState: 'active',
+			visualEffectState: 'followWindow',
 		};
 	}
 
@@ -136,6 +136,7 @@ export class Main {
 	): BrowserWindow {
 		const { closeToTray = false, onReadyToShow } = options;
 		const win = this.windowFactory.create(this.createStartupWindowOptions());
+		win.setBackgroundColor(TRANSPARENT_WINDOW_BACKGROUND);
 
 		// Create window context for isolated services
 		this.windowContextManager.create(win);
@@ -144,6 +145,7 @@ export class Main {
 		this.trackWindowVisibility(win);
 
 		win.once('ready-to-show', () => {
+			win.setBackgroundColor(TRANSPARENT_WINDOW_BACKGROUND);
 			win.show();
 			onReadyToShow?.(win);
 		});
@@ -224,12 +226,14 @@ export class Main {
 
 	createWindowForFile(filePath: string): BrowserWindow {
 		const win = this.windowFactory.create(this.createWindowOptions({ x: 9, y: 9 }));
+		win.setBackgroundColor(TRANSPARENT_WINDOW_BACKGROUND);
 
 		this.windowContextManager.create(win);
 		this.attachCommonWindowHandlers(win);
 		this.trackWindowVisibility(win);
 
 		win.once('ready-to-show', () => {
+			win.setBackgroundColor(TRANSPARENT_WINDOW_BACKGROUND);
 			win.show();
 			win.webContents.send('file-opened', filePath);
 		});

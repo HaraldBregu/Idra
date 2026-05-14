@@ -51,6 +51,14 @@ opacityControl?.addEventListener('input', () => {
   if (opacityValue) opacityValue.textContent = `${percent}%`;
 });
 
+if (opacityControl) {
+  const initialOpacity = Number.parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--glass-opacity')
+  );
+  opacityControl.value = String(Math.round(initialOpacity * 100));
+  if (opacityValue) opacityValue.textContent = `${opacityControl.value}%`;
+}
+
 window.glassWindow.onMaximizedChange(setMaximizedState);
 
 window.glassWindow.isMaximized().then(setMaximizedState);
