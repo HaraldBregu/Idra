@@ -68,40 +68,28 @@ const win: WindowApi = {
 } satisfies WindowApi;
 
 export const assistant: AssistantApi = {
-	send: (message: string): Promise<AssistantSendResult> => {
+	send: (message: string): Promise<string> => {
 		return typedInvokeUnwrap(AssistantChannels.send, message);
 	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AssistantChannels.reset);
 	},
+	cancel: (): Promise<void> => {
+		return typedInvokeUnwrap(AssistantChannels.cancel);
+	},
 	getHistory: (): Promise<AssistantHistoryMessage[]> => {
 		return typedInvokeUnwrap(AssistantChannels.getHistory);
 	},
-	approve: (
-		callId: string,
-		opts?: { alwaysApprove?: boolean; editedArguments?: string }
-	): Promise<AssistantSendResult> => {
-		return typedInvokeUnwrap(AssistantChannels.approve, callId, opts);
+	resolveApproval: (id: string, approved: boolean): Promise<boolean> => {
+		return typedInvokeUnwrap(AssistantChannels.resolveApproval, id, approved);
 	},
-	reject: (
-		callId: string,
-		opts?: { alwaysReject?: boolean; message?: string }
-	): Promise<AssistantSendResult> => {
-		return typedInvokeUnwrap(AssistantChannels.reject, callId, opts);
+	resolveInput: (id: string, answer: string): Promise<boolean> => {
+		return typedInvokeUnwrap(AssistantChannels.resolveInput, id, answer);
 	},
-	respond: (callId: string, answer: string): Promise<AssistantSendResult> => {
-		return typedInvokeUnwrap(AssistantChannels.respond, callId, answer);
-	},
-	cancelPending: (): Promise<void> => {
-		return typedInvokeUnwrap(AssistantChannels.cancelPending);
-	},
-	getPending: () => {
+	getPending: (): Promise<AssistantPendingState> => {
 		return typedInvokeUnwrap(AssistantChannels.getPending);
 	},
-	getPendingInputs: () => {
-		return typedInvokeUnwrap(AssistantChannels.getPendingInputs);
-	},
-	onResponse: (callback: (event: { response: string }) => void): (() => void) => {
+	onResponse: (callback: (event: AssistantResponseDelta) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
 	},
 	onPending: (callback: (event: AssistantPendingEventPayload) => void): (() => void) => {
