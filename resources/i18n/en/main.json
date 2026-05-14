@@ -232,6 +232,15 @@
 				"remove": "Remove",
 				"removeLabel": "Remove cron task {{id}}"
 			},
+			"details": {
+				"id": "Id",
+				"schedule": "Schedule",
+				"timezone": "Timezone",
+				"createdAt": "Created",
+				"lastRun": "Last Run",
+				"nextRun": "Next Run",
+				"payload": "Payload"
+			},
 			"emptyTitle": "No cron tasks",
 			"emptyDescription": "Cron tasks will appear here once they are configured."
 		},

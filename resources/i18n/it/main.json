@@ -232,6 +232,15 @@
 				"remove": "Rimuovi",
 				"removeLabel": "Rimuovi attivita cron {{id}}"
 			},
+			"details": {
+				"id": "Id",
+				"schedule": "Pianificazione",
+				"timezone": "Fuso Orario",
+				"createdAt": "Creata",
+				"lastRun": "Ultima Esecuzione",
+				"nextRun": "Prossima Esecuzione",
+				"payload": "Payload"
+			},
 			"emptyTitle": "Nessuna attivita cron",
 			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."
 		},
