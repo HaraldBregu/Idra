@@ -126,7 +126,7 @@ const ProvidersPage: React.FC = () => {
 					description={t('settings.providers.addDescription')}
 				>
 					<SettingsPanel>
-						<form className="grid gap-4 p-4 md:grid-cols-2" onSubmit={handleSubmit}>
+						<form className="grid gap-3 p-3 md:grid-cols-2" onSubmit={handleSubmit}>
 							<label className="flex flex-col gap-1.5 text-sm font-medium">
 								{t('settings.providers.id')}
 								<Input
@@ -193,9 +193,9 @@ const ProvidersPage: React.FC = () => {
 			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				{loading ? (
 					<SettingsPanel>
-						<div className="grid gap-3 p-4">
-							<Skeleton className="h-10 w-full" />
-							<Skeleton className="h-10 w-5/6" />
+						<div className="grid gap-2.5 p-3">
+							<Skeleton className="h-9 w-full" />
+							<Skeleton className="h-9 w-5/6" />
 						</div>
 					</SettingsPanel>
 				) : providers.length === 0 ? (

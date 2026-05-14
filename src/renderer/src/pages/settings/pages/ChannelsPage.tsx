@@ -181,13 +181,13 @@ const ChannelsPage: React.FC = () => {
 			/>
 
 			<SettingsSection title={t('settings.sections.channels')}>
-				<div className="grid gap-4">
+				<div className="grid gap-3">
 					{CHANNEL_CARDS.map((channel) => {
 						const Icon = channel.icon;
 
 						return (
 							<SettingsPanel key={channel.key}>
-								<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-4 py-3">
+								<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-4 py-2.5">
 									<div className="flex min-w-0 items-center gap-3">
 										<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
 											<Icon className="size-4 text-foreground" />
@@ -339,7 +339,7 @@ const ChannelsPage: React.FC = () => {
 										</SettingsRow>
 
 										{telegramError && (
-											<div className="border-t border-border/70 px-4 py-3">
+											<div className="border-t border-border/70 px-4 py-2.5">
 												<SettingsNotice variant="destructive">{telegramError}</SettingsNotice>
 											</div>
 										)}

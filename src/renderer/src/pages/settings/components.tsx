@@ -20,7 +20,7 @@ export function SettingsPageShell({
 	className,
 }: SettingsPageShellProps): React.JSX.Element {
 	return (
-		<div className={cn('mx-auto flex w-full max-w-6xl flex-col gap-5 pb-5', className)}>
+		<div className={cn('mx-auto flex w-full max-w-6xl flex-col gap-4 pb-4', className)}>
 			{children}
 		</div>
 	);
@@ -40,7 +40,7 @@ export function SettingsPageHeader({
 	action,
 }: SettingsPageHeaderProps): React.JSX.Element {
 	return (
-		<header className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 pb-4">
+		<header className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 pb-3">
 			<div className="flex min-w-0 items-start gap-3">
 				{Icon && (
 					<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
@@ -77,8 +77,8 @@ export function SettingsSection({
 	className,
 }: SettingsSectionProps): React.JSX.Element {
 	return (
-		<section className={cn('flex flex-col gap-3', className)}>
-			<div className="flex flex-wrap items-start justify-between gap-3 px-1">
+		<section className={cn('flex flex-col gap-2.5', className)}>
+			<div className="flex flex-wrap items-start justify-between gap-2.5 px-1">
 				<div className="min-w-0">
 					<h2 className="text-sm font-semibold text-foreground">{title}</h2>
 					{description && (
@@ -131,7 +131,7 @@ export function SettingsRow({
 	return (
 		<div
 			className={cn(
-				'grid min-h-[56px] gap-3 border-b border-border/70 px-4 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center',
+				'grid min-h-[52px] gap-2.5 border-b border-border/70 px-4 py-2.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center',
 				className
 			)}
 		>
@@ -145,7 +145,7 @@ export function SettingsRow({
 				<div className="min-w-0 flex-1">
 					<div className="text-sm font-medium leading-snug text-foreground">{title}</div>
 					{description && (
-						<p className="mt-1 text-xs leading-normal text-muted-foreground">{description}</p>
+						<p className="mt-0.5 text-xs leading-normal text-muted-foreground">{description}</p>
 					)}
 				</div>
 			</div>
@@ -232,7 +232,7 @@ export function SettingsEmptyState({
 	className,
 }: SettingsEmptyStateProps): React.JSX.Element {
 	return (
-		<Empty className={cn('min-h-40 border-0 p-6', className)}>
+		<Empty className={cn('min-h-36 border-0 p-5', className)}>
 			<EmptyHeader>
 				{Icon && (
 					<EmptyMedia variant="icon">

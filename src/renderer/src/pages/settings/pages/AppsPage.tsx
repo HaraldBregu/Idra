@@ -65,9 +65,9 @@ const AppsPage: React.FC = () => {
 			<SettingsSection title={t('settings.apps.title')}>
 				<SettingsPanel>
 					{loading ? (
-						<div className="grid gap-3 p-4">
-							<Skeleton className="h-10 w-full" />
-							<Skeleton className="h-10 w-4/5" />
+						<div className="grid gap-2.5 p-3">
+							<Skeleton className="h-9 w-full" />
+							<Skeleton className="h-9 w-4/5" />
 						</div>
 					) : apps.length === 0 ? (
 						<SettingsEmptyState

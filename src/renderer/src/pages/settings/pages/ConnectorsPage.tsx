@@ -255,8 +255,8 @@ const ConnectorsPage: React.FC = () => {
 					description="Add an OAuth access token from your app authorization flow. Tokens are sent on each Responses API request and are not stored by OpenAI."
 				>
 					<SettingsPanel>
-						<form className="grid gap-4 p-4" onSubmit={submit}>
-							<div className="grid gap-4 md:grid-cols-2">
+						<form className="grid gap-3 p-3" onSubmit={submit}>
+							<div className="grid gap-3 md:grid-cols-2">
 								<label className="grid gap-1.5 text-sm font-medium">
 									Connector
 									<Select
@@ -344,7 +344,7 @@ const ConnectorsPage: React.FC = () => {
 										Leave all unselected to allow every available tool.
 									</span>
 								</div>
-								<div className="flex min-h-14 flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
+								<div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
 									{selectedCatalog ? (
 										selectedCatalog.tools.map((tool) => {
 											const selected = form.allowedTools.includes(tool);
@@ -368,7 +368,7 @@ const ConnectorsPage: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="grid gap-3 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
+							<div className="grid gap-2.5 rounded-lg border border-border/70 bg-muted/20 p-2.5 sm:grid-cols-2">
 								<label className="flex items-center justify-between gap-3 text-sm">
 									<span className="min-w-0">
 										<span className="block font-medium">Defer tool loading</span>
@@ -396,7 +396,7 @@ const ConnectorsPage: React.FC = () => {
 							</div>
 
 							{selectedCatalog && (
-								<div className="flex flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
+								<div className="flex flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
 									{selectedCatalog.scopes.map((scope) => (
 										<Badge key={scope} variant="outline">
 											{scope}
@@ -428,7 +428,7 @@ const ConnectorsPage: React.FC = () => {
 						/>
 					</SettingsPanel>
 				) : (
-					<div className="grid gap-4">
+					<div className="grid gap-3">
 						{connectors.map((connector) => (
 							<ConnectorCard
 								key={connector.id}

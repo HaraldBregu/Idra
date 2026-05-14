@@ -35,7 +35,7 @@ export function ConnectorCard({
 	return (
 		<Card size="sm" className="gap-0 py-0">
 			<CardContent className="flex flex-col p-0">
-				<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-4 py-3">
+				<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-4 py-2.5">
 					<div className="flex min-w-0 items-center gap-3">
 						<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
 							<Plug className="size-4 text-foreground" />
@@ -55,7 +55,7 @@ export function ConnectorCard({
 					</Button>
 				</div>
 
-				<div className="grid gap-3 border-b border-border/70 bg-muted/20 px-4 py-3 text-xs text-muted-foreground sm:grid-cols-3">
+				<div className="grid gap-2.5 border-b border-border/70 bg-muted/20 px-4 py-2.5 text-xs text-muted-foreground sm:grid-cols-3">
 					<div>
 						<span className="block font-medium text-foreground">{connector.toolsCount}</span>
 						<span>Catalog tools</span>
@@ -75,12 +75,12 @@ export function ConnectorCard({
 				</div>
 
 				{connector.lastError && (
-					<p className="border-b border-border/70 bg-destructive/10 px-4 py-3 text-xs text-destructive">
+					<p className="border-b border-border/70 bg-destructive/10 px-4 py-2.5 text-xs text-destructive">
 						{connector.lastError}
 					</p>
 				)}
 
-				<div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+				<div className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-2.5">
 					<div className="flex flex-wrap items-center gap-2">
 						<Badge variant={connector.requireApproval === 'never' ? 'secondary' : 'outline'}>
 							Approval: {connector.requireApproval.replaceAll('_', ' ')}

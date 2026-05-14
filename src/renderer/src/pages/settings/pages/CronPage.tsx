@@ -108,12 +108,12 @@ const CronPage: React.FC = () => {
 								))}
 								{cronTasks.length === 0 && (
 									<TableRow>
-										<TableCell colSpan={6} className="py-8">
+										<TableCell colSpan={6} className="py-6">
 											<SettingsEmptyState
 												icon={Clock3}
 												title={t('settings.cron.emptyTitle')}
 												description={t('settings.cron.emptyDescription')}
-												className="min-h-32"
+												className="min-h-28"
 											/>
 										</TableCell>
 									</TableRow>
