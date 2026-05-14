@@ -66,7 +66,7 @@ export function Layout(): React.JSX.Element {
 						})}
 					</nav>
 				</PageSidebar>
-				<PageSidebarInset className="px-3 pb-4 pt-1 sm:px-4 lg:px-5 lg:py-3">
+				<PageSidebarInset className="px-3 py-3 sm:px-4 sm:py-4 lg:px-5">
 					<Outlet />
 				</PageSidebarInset>
 			</div>
