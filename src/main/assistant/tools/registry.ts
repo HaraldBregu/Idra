@@ -9,7 +9,8 @@ import { getAssistantModelTool, getAssistantServiceTool, setAssistantServiceTool
 import { getWorkspaceContentTool, getWorkspacePathTool } from './workspace';
 import type { AgentTool } from './types';
 
-export const ALL_TOOLS: AgentTool[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const ALL_TOOLS: AgentTool<any, any>[] = [
 	askHumanTool,
 	readTool,
 	writeTool,
