@@ -234,6 +234,108 @@ describe('runAgent', () => {
 		expect(events).toEqual(['start', 'iteration', 'tool_call', 'iteration', 'finish']);
 	});
 
+	it('pauses with awaiting_input when the model calls an input-kind tool', async () => {
+		const ask = new InputTool();
+		const client = makeClient([
+			{
+				output: [
+					{
+						type: 'function_call',
+						name: 'ask_human',
+						arguments: '{"question":"Where should I put it?","suggestions":["~/Docs","~/Desktop"]}',
+						call_id: 'c1',
+					},
+				],
+				output_text: '',
+				usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+			},
+		]);
+		const onInput = jest.fn();
+		const outcome = await runAgent({
+			client,
+			model: 'gpt-x',
+			tools: [ask],
+			state: initialState(),
+			hooks: { onInputRequest: onInput },
+		});
+		expect(outcome.status).toBe('awaiting_input');
+		if (outcome.status === 'awaiting_input') {
+			expect(outcome.pendingInputs).toEqual([
+				{
+					callId: 'c1',
+					toolName: 'ask_human',
+					question: 'Where should I put it?',
+					suggestions: ['~/Docs', '~/Desktop'],
+				},
+			]);
+		}
+		expect(onInput).toHaveBeenCalledTimes(1);
+	});
+
+	it('resumes with the human answer as the input tool output', async () => {
+		const ask = new InputTool();
+		const state = initialState();
+		const client = makeClient([
+			{
+				output: [
+					{
+						type: 'function_call',
+						name: 'ask_human',
+						arguments: '{"question":"path?"}',
+						call_id: 'c1',
+					},
+				],
+				output_text: '',
+				usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+			},
+			{
+				output: [],
+				output_text: 'noted',
+				usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+			},
+		]);
+		await runAgent({ client, model: 'gpt-x', tools: [ask], state });
+		state.recordInputResponse('c1', '~/Documents/notes.md');
+		const resume = await runAgent({ client, model: 'gpt-x', tools: [ask], state });
+		expect(resume.status).toBe('done');
+		if (resume.status === 'done') expect(resume.text).toBe('noted');
+		const sentInput = (client.responses.create as jest.Mock).mock.calls[1][0].input;
+		const lastOutput = sentInput[sentInput.length - 1];
+		expect(lastOutput).toMatchObject({
+			type: 'function_call_output',
+			call_id: 'c1',
+			output: '~/Documents/notes.md',
+		});
+	});
+
+	it('honors editedArguments on approval', async () => {
+		const tool = new StubTool('write_file', { needsApproval: true });
+		const state = initialState();
+		const client = makeClient([
+			{
+				output: [
+					{
+						type: 'function_call',
+						name: 'write_file',
+						arguments: '{"path":"/wrong"}',
+						call_id: 'c1',
+					},
+				],
+				output_text: '',
+				usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+			},
+			{
+				output: [],
+				output_text: 'wrote it',
+				usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+			},
+		]);
+		await runAgent({ client, model: 'gpt-x', tools: [tool], state });
+		state.approve('c1', { editedArguments: '{"path":"/right"}' });
+		await runAgent({ client, model: 'gpt-x', tools: [tool], state });
+		expect(tool.executed).toEqual([{ path: '/right' }]);
+	});
+
 	it('returns max_iterations when the loop never resolves', async () => {
 		const tool = new StubTool('echo');
 		const client = {
