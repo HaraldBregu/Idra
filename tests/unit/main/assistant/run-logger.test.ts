@@ -130,4 +130,38 @@ describe('AssistantRunLogger', () => {
 		const logger = new AssistantRunLogger('never-used', { baseDir: tmpDir });
 		await expect(logger.readAll()).resolves.toEqual([]);
 	});
+
+	it('captures input_request, input_resolution, and cancelled finish', async () => {
+		const logger = new AssistantRunLogger('a4', { baseDir: tmpDir });
+		await logger.logInputRequest({
+			runId: 'r1',
+			assistantId: 'a4',
+			iteration: 0,
+			pending: [{ callId: 'c1', tool: 'ask_human', question: 'where?' }],
+		});
+		await logger.logInputResolution({
+			runId: 'r1',
+			assistantId: 'a4',
+			callId: 'c1',
+			tool: 'ask_human',
+			answerChars: 8,
+		});
+		await logger.logFinish({
+			runId: 'r1',
+			assistantId: 'a4',
+			provider: 'openai',
+			model: 'm',
+			status: 'cancelled',
+			iterations: 0,
+			durationMs: 0,
+			usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+			outputChars: 0,
+		});
+		const records = await logger.readAll();
+		expect(records.map((r) => r.event)).toEqual([
+			'input_request',
+			'input_resolution',
+			'finish',
+		]);
+	});
 });
