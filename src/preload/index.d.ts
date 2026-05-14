@@ -104,6 +104,9 @@ export interface AppApi {
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	getAssistantService: () => Promise<Assistant | undefined>;
 	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getImageGenerationModels: (provider: PublicProvider) => Promise<Model[]>;
+	getImageGenerationService: () => Promise<Assistant | undefined>;
+	saveImageGenerationService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	listApps: () => Promise<AppInfo[]>;
 	openAppFolder: (id: string) => Promise<void>;
 	deleteApp: (id: string) => Promise<void>;

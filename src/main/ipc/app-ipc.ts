@@ -10,7 +10,9 @@ import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 import {
+	filterSelectableImageGenerationModels,
 	filterSelectableAssistantModels,
+	isAllowedImageGenerationModel,
 	isAllowedAssistantModel,
 } from '../provider/model-policy';
 
@@ -254,6 +256,53 @@ export class AppIpc implements IpcModule {
 				}
 				return store.setAssistantService(provider.id, model);
 			}, ProviderChannels.saveAssistantService)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.getImageGenerationModels,
+			wrapSimpleHandler(async (provider: PublicProvider) => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+
+				const apiKey = storedProvider.apiKey.trim();
+				if (!apiKey) {
+					throw new Error(`API key not configured for provider: ${storedProvider.id}`);
+				}
+
+				const normalizedProviderId = storedProvider.id.trim().toLowerCase();
+
+				if (normalizedProviderId === 'openai') {
+					return filterSelectableImageGenerationModels(
+						storedProvider.id,
+						await getOpenAiModels(apiKey)
+					);
+				}
+
+				if (normalizedProviderId === 'anthropic') {
+					return [];
+				}
+
+				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
+			}, ProviderChannels.getImageGenerationModels)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.getImageGenerationService,
+			wrapSimpleHandler((): Assistant | undefined => {
+				return store.getImageGenerationService();
+			}, ProviderChannels.getImageGenerationService)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.saveImageGenerationService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				if (!isAllowedImageGenerationModel(provider.id, model.id)) {
+					throw new Error(`Model is not supported for image generation: ${model.id}`);
+				}
+				return store.setImageGenerationService(provider.id, model);
+			}, ProviderChannels.saveImageGenerationService)
 		);
 
 		ipcMain.handle(

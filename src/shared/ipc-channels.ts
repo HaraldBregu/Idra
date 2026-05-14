@@ -29,6 +29,9 @@ export const ProviderChannels = {
 	getModels: 'provider:get-models',
 	getAssistantService: 'provider:get-assistant-service',
 	saveAssistantService: 'provider:save-assistant-service',
+	getImageGenerationModels: 'provider:get-image-generation-models',
+	getImageGenerationService: 'provider:get-image-generation-service',
+	saveImageGenerationService: 'provider:save-image-generation-service',
 } as const;
 
 export const CronChannels = {
@@ -103,6 +106,18 @@ interface AppInvokeChannelMap {
 		result: import('./service').Assistant | undefined;
 	};
 	[ProviderChannels.saveAssistantService]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[ProviderChannels.getImageGenerationModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
+	};
+	[ProviderChannels.getImageGenerationService]: {
+		args: [];
+		result: import('./service').Assistant | undefined;
+	};
+	[ProviderChannels.saveImageGenerationService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};

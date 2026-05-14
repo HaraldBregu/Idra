@@ -1,5 +1,7 @@
 import {
+	filterSelectableImageGenerationModels,
 	filterSelectableAssistantModels,
+	isAllowedImageGenerationModel,
 	isAllowedAssistantModel,
 } from '../../../../src/main/provider/model-policy';
 import type { Model } from '../../../../src/shared/service';
@@ -51,5 +53,33 @@ describe('provider model policy', () => {
 	it('leaves other providers unrestricted', () => {
 		expect(filterSelectableAssistantModels('custom', models)).toBe(models);
 		expect(isAllowedAssistantModel('custom', 'local-model')).toBe(true);
+	});
+
+	it('limits OpenAI selectable image generation models to image-capable model ids', () => {
+		expect(
+			filterSelectableImageGenerationModels('openai', [
+				{ id: 'gpt-5.5', name: 'GPT-5.5' },
+				{ id: 'gpt-image-1', name: 'GPT Image 1' },
+				{ id: 'dall-e-3', name: 'DALL-E 3' },
+			])
+		).toEqual([
+			{ id: 'gpt-image-1', name: 'GPT Image 1' },
+			{ id: 'dall-e-3', name: 'DALL-E 3' },
+		]);
+	});
+
+	it('allows only OpenAI image generation model ids to be saved for images', () => {
+		expect(isAllowedImageGenerationModel('openai', 'gpt-image-1')).toBe(true);
+		expect(isAllowedImageGenerationModel('openai', 'dall-e-3')).toBe(true);
+		expect(isAllowedImageGenerationModel('openai', 'gpt-5.5')).toBe(false);
+	});
+
+	it('does not offer Anthropic models for image generation', () => {
+		expect(
+			filterSelectableImageGenerationModels('anthropic', [
+				{ id: 'claude-opus-4-7', name: 'Claude Opus 4.7' },
+			])
+		).toEqual([]);
+		expect(isAllowedImageGenerationModel('anthropic', 'claude-opus-4-7')).toBe(false);
 	});
 });

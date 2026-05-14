@@ -1,7 +1,8 @@
 import { Provider } from "./providers";
 
 export interface Service {
-	assistant: Assistant;
+	assistant?: Assistant;
+	imageGeneration?: Assistant;
 	rag: string;
 	ocr: string;
 }

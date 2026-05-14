@@ -122,6 +122,15 @@ export const app: AppApi = {
 	saveAssistantService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(ProviderChannels.saveAssistantService, provider, model);
 	},
+	getImageGenerationModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getImageGenerationModels, provider);
+	},
+	getImageGenerationService: (): Promise<Assistant | undefined> => {
+		return typedInvokeUnwrap(ProviderChannels.getImageGenerationService);
+	},
+	saveImageGenerationService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(ProviderChannels.saveImageGenerationService, provider, model);
+	},
 	listApps: (): Promise<AppInfo[]> => {
 		return typedInvokeUnwrap(AppsChannels.list);
 	},
