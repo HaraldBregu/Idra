@@ -27,3 +27,21 @@ export interface AssistantHistoryMessage {
 		function: { name: string; arguments: string };
 	}>;
 }
+
+export interface AssistantPendingApproval {
+	callId: string;
+	toolName: string;
+	arguments: string;
+}
+
+export interface AssistantSendResult {
+	status: 'completed' | 'awaiting_approval' | 'max_iterations';
+	text: string;
+	pending: AssistantPendingApproval[];
+}
+
+export interface AssistantPendingEventPayload {
+	assistantId: string;
+	runId: string;
+	pending: AssistantPendingApproval[];
+}
