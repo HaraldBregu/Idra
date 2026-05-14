@@ -10,7 +10,7 @@ export interface WindowApi {
 }
 
 export interface AssistantApi {
-	send: (message: string) => Promise<AssistantSendResult>;
+	send: (message: string) => Promise<string>;
 	reset: () => Promise<void>;
 	getHistory: () => Promise<AssistantHistoryMessage[]>;
 	approve: (callId: string, opts?: { alwaysApprove?: boolean }) => Promise<AssistantSendResult>;
@@ -20,6 +20,7 @@ export interface AssistantApi {
 	) => Promise<AssistantSendResult>;
 	getPending: () => Promise<AssistantPendingApproval[]>;
 	onResponse: (callback: (event: { response: string }) => void) => () => void;
+	onPending: (callback: (event: AssistantPendingEventPayload) => void) => () => void;
 }
 
 export interface CronApi {
