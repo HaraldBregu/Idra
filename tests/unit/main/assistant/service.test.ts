@@ -13,7 +13,10 @@ jest.mock('../../../../src/main/assistant/assistant', () => {
 	const mockReset = jest.fn<Promise<void>, []>();
 	const mockApprove = jest.fn();
 	const mockReject = jest.fn();
+	const mockRespond = jest.fn();
+	const mockCancel = jest.fn(() => Promise.resolve());
 	const mockGetPending = jest.fn(() => []);
+	const mockGetPendingInputs = jest.fn(() => []);
 	const mockHasPending = jest.fn(() => false);
 	const MockAssistant = jest.fn().mockImplementation((id: string) => ({
 		id,
@@ -21,14 +24,20 @@ jest.mock('../../../../src/main/assistant/assistant', () => {
 		reset: mockReset,
 		approve: mockApprove,
 		reject: mockReject,
+		respond: mockRespond,
+		cancelPending: mockCancel,
 		getPendingApprovals: mockGetPending,
+		getPendingInputs: mockGetPendingInputs,
 		hasPending: mockHasPending,
 	}));
 	MockAssistant._mockSend = mockSend;
 	MockAssistant._mockReset = mockReset;
 	MockAssistant._mockApprove = mockApprove;
 	MockAssistant._mockReject = mockReject;
+	MockAssistant._mockRespond = mockRespond;
+	MockAssistant._mockCancel = mockCancel;
 	MockAssistant._mockGetPending = mockGetPending;
+	MockAssistant._mockGetPendingInputs = mockGetPendingInputs;
 	MockAssistant._mockHasPending = mockHasPending;
 	return { Assistant: MockAssistant };
 });
