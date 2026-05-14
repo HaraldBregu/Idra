@@ -7,6 +7,7 @@ import {
 	SetMenuBarTool,
 	SetThemeModeTool,
 } from './app';
+import { AskHumanTool } from './ask-human';
 import { CronAddTool, CronListTool, CronRemoveTool } from './cron';
 import { ExecTool } from './exec';
 import { FindTool } from './find';
