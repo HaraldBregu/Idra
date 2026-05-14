@@ -1,14 +1,13 @@
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { WorkspaceService } from '../workspace';
-import { Assistant, type SendResult } from './assistant';
-import type { PendingApproval, PendingInputRequest } from './run-state';
+import { Assistant } from './assistant';
 import { DEFAULT_ASSISTANT_ID } from './constants';
 import { AssistantRegistry } from './registry';
+import type { TranscriptEntry } from './provider/types';
 
 export interface AssistantServiceDependencies {
 	store: StoreService;
@@ -45,48 +44,28 @@ export class AssistantService {
 		return this.ensure(assistantId).reset();
 	}
 
-	getHistory(assistantId = this.defaultAssistantId): Promise<ChatCompletionMessageParam[]> {
+	getHistory(assistantId = this.defaultAssistantId): Promise<TranscriptEntry[]> {
 		return this.ensure(assistantId).getHistory();
 	}
 
-	approve(
-		callId: string,
-		opts: { alwaysApprove?: boolean; editedArguments?: string } = {},
+	resolveApproval(
+		id: string,
+		approved: boolean,
 		assistantId = this.defaultAssistantId
-	): Promise<SendResult> {
-		return this.ensure(assistantId).approve(callId, opts);
+	): boolean {
+		return this.ensure(assistantId).resolveApproval(id, approved);
 	}
 
-	reject(
-		callId: string,
-		opts: { alwaysReject?: boolean; message?: string } = {},
-		assistantId = this.defaultAssistantId
-	): Promise<SendResult> {
-		return this.ensure(assistantId).reject(callId, opts);
+	resolveInput(id: string, answer: string, assistantId = this.defaultAssistantId): boolean {
+		return this.ensure(assistantId).resolveInput(id, answer);
 	}
 
-	respond(
-		callId: string,
-		answer: string,
-		assistantId = this.defaultAssistantId
-	): Promise<SendResult> {
-		return this.ensure(assistantId).respond(callId, answer);
+	cancel(assistantId = this.defaultAssistantId): void {
+		this.ensure(assistantId).cancel();
 	}
 
-	cancelPending(assistantId = this.defaultAssistantId): Promise<void> {
-		return this.ensure(assistantId).cancelPending('explicit');
-	}
-
-	getPendingApprovals(assistantId = this.defaultAssistantId): PendingApproval[] {
-		return this.ensure(assistantId).getPendingApprovals();
-	}
-
-	getPendingInputs(assistantId = this.defaultAssistantId): PendingInputRequest[] {
-		return this.ensure(assistantId).getPendingInputs();
-	}
-
-	hasPending(assistantId = this.defaultAssistantId): boolean {
-		return this.ensure(assistantId).hasPending();
+	getPending(assistantId = this.defaultAssistantId): ReturnType<Assistant['getPending']> {
+		return this.ensure(assistantId).getPending();
 	}
 
 	get(assistantId = this.defaultAssistantId): Assistant {
