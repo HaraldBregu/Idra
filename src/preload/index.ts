@@ -78,7 +78,7 @@ export const assistant: AssistantApi = {
 	},
 	approve: (
 		callId: string,
-		opts?: { alwaysApprove?: boolean }
+		opts?: { alwaysApprove?: boolean; editedArguments?: string }
 	): Promise<AssistantSendResult> => {
 		return typedInvokeUnwrap(AssistantChannels.approve, callId, opts);
 	},
@@ -88,8 +88,17 @@ export const assistant: AssistantApi = {
 	): Promise<AssistantSendResult> => {
 		return typedInvokeUnwrap(AssistantChannels.reject, callId, opts);
 	},
+	respond: (callId: string, answer: string): Promise<AssistantSendResult> => {
+		return typedInvokeUnwrap(AssistantChannels.respond, callId, answer);
+	},
+	cancelPending: (): Promise<void> => {
+		return typedInvokeUnwrap(AssistantChannels.cancelPending);
+	},
 	getPending: () => {
 		return typedInvokeUnwrap(AssistantChannels.getPending);
+	},
+	getPendingInputs: () => {
+		return typedInvokeUnwrap(AssistantChannels.getPendingInputs);
 	},
 	onResponse: (callback: (event: { response: string }) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
