@@ -158,6 +158,14 @@ export class AssistantRunLogger {
 		return this.append({ event: 'approval_resolution', ts: this.now(), ...data });
 	}
 
+	logInputRequest(data: RunLogInputRequest): Promise<void> {
+		return this.append({ event: 'input_request', ts: this.now(), ...data });
+	}
+
+	logInputResolution(data: RunLogInputResolution): Promise<void> {
+		return this.append({ event: 'input_resolution', ts: this.now(), ...data });
+	}
+
 	logFinish(data: RunLogFinish): Promise<void> {
 		return this.append({ event: 'finish', ts: this.now(), ...data });
 	}
