@@ -1,4 +1,5 @@
-export { Tool, type ToolSchema } from './base';
+export { Tool, type ToolSchema, type ToolKind } from './base';
+export { AskHumanTool } from './ask-human';
 export { ExecTool } from './exec';
 export { ReadFileTool } from './read';
 export { WriteFileTool } from './write';
