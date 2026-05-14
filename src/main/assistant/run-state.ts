@@ -9,6 +9,12 @@ export interface PendingApproval {
 	arguments: string;
 }
 
+export interface PendingToolCall {
+	callId: string;
+	name: string;
+	arguments: string;
+}
+
 export interface ResolvedApproval {
 	decision: ApprovalDecision;
 	message?: string;
