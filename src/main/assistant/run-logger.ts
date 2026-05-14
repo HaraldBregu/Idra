@@ -76,7 +76,13 @@ export interface RunLogFinish {
 	assistantId: string;
 	provider: string;
 	model: string;
-	status: 'completed' | 'awaiting_approval' | 'error' | 'max_iterations';
+	status:
+		| 'completed'
+		| 'awaiting_approval'
+		| 'awaiting_input'
+		| 'cancelled'
+		| 'error'
+		| 'max_iterations';
 	iterations: number;
 	durationMs: number;
 	usage: TokenUsage;
