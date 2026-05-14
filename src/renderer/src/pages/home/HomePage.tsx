@@ -171,7 +171,7 @@ function HomePage(): ReactElement {
 	return (
 		<PageContainer className="text-foreground">
 			<ChatContainerRoot className="min-h-0 flex-1">
-				<ChatContainerContent className="w-full gap-5 px-0">
+				<ChatContainerContent className="w-full gap-5">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
@@ -288,7 +288,7 @@ function HomePage(): ReactElement {
 					onValueChange={setInput}
 					isLoading={isLoading}
 					onSubmit={handleSubmit}
-					className="mb-4 w-full"
+					className="mb-4 w-full bg-transparent"
 				>
 					<PromptInputTextarea placeholder="Ask me anything..." />
 					<PromptInputActions className="justify-between pt-2">
