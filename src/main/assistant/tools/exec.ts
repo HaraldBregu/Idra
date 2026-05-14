@@ -28,11 +28,17 @@ export class ExecTool extends Tool {
 
   private timeoutMs: number;
   private cwd: string;
+  private requireApproval: boolean;
 
-  constructor(opts: { workspace?: string; timeoutSeconds?: number } = {}) {
+  constructor(opts: { workspace?: string; timeoutSeconds?: number; requireApproval?: boolean } = {}) {
     super();
     this.timeoutMs = (opts.timeoutSeconds ?? 60) * 1000;
     this.cwd = opts.workspace ?? os.homedir();
+    this.requireApproval = opts.requireApproval ?? true;
+  }
+
+  needsApproval(): boolean {
+    return this.requireApproval;
   }
 
   async execute(args: Record<string, unknown>): Promise<string> {
