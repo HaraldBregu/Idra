@@ -72,3 +72,4 @@ This repo manages Codex auto-commit from `.codex` only. The hook entry is config
 - It runs `git add -A`, skips commits when there are no changes, and unstages common secret patterns (`*.env`, `*.pem`, `*.key`, `credentials.json`).
 - It uses `git rev-parse --show-toplevel` to locate the repo root.
 - It uses `CODEX_TOOL_NAME` (if set) to tag the commit subject.
+- After each tool use that changes the worktree, add, commit, and push the resulting changes.
