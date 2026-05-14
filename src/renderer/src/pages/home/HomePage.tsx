@@ -167,7 +167,9 @@ function HomePage(): ReactElement {
 		try {
 			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
-			setMessages((current) => [...current, ...resultToAssistantMessages(response)]);
+			if (response.trim().length > 0) {
+				setMessages((current) => [...current, createTextMessage('assistant', response)]);
+			}
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
@@ -178,6 +180,24 @@ function HomePage(): ReactElement {
 			}
 		}
 	};
+
+	useEffect(() => {
+		const offPending = window.assistant.onPending((event: AssistantPendingEventPayload) => {
+			setMessages((current) => {
+				const cleaned = removeMultiSelectMessages(current);
+				if (event.approvals.length === 0 && event.inputs.length === 0) return cleaned;
+				return [...cleaned, pendingToMultiSelectMessage(event.approvals, event.inputs)];
+			});
+		});
+		const offResponse = window.assistant.onResponse((_event: AssistantResponseDelta) => {
+			// Streaming text deltas — currently surfaced only as the final
+			// response from send(). Hook here to render live tokens.
+		});
+		return () => {
+			offPending();
+			offResponse();
+		};
+	}, []);
 
 	const handleSubmit = (): void => {
 		if (isLoading) {
