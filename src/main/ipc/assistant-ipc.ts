@@ -9,8 +9,37 @@ import { AssistantChannels } from '../../shared/ipc-channels';
 import type {
 	AssistantHistoryMessage,
 	AssistantPendingApproval,
+	AssistantPendingInput,
 	AssistantSendResult,
 } from '../../shared/service';
+
+function toSendResult(result: {
+	status: AssistantSendResult['status'];
+	text: string;
+	pending: { callId: string; toolName: string; arguments: string }[];
+	pendingInputs: {
+		callId: string;
+		toolName: string;
+		question: string;
+		suggestions?: string[];
+	}[];
+}): AssistantSendResult {
+	return {
+		status: result.status,
+		text: result.text,
+		pending: result.pending.map((p) => ({
+			callId: p.callId,
+			toolName: p.toolName,
+			arguments: p.arguments,
+		})),
+		pendingInputs: result.pendingInputs.map((p) => ({
+			callId: p.callId,
+			toolName: p.toolName,
+			question: p.question,
+			suggestions: p.suggestions,
+		})),
+	};
+}
 
 export class AssistantIpc implements IpcModule {
 	readonly name = 'assistant';
@@ -23,13 +52,26 @@ export class AssistantIpc implements IpcModule {
 			AssistantChannels.send,
 			wrapSimpleHandler(async (message: string): Promise<AssistantSendResult> => {
 				const text = await assistant.send(message);
+				const pendingApprovals = assistant.getPendingApprovals();
+				const pendingInputs = assistant.getPendingInputs();
+				const status: AssistantSendResult['status'] = pendingApprovals.length
+					? 'awaiting_approval'
+					: pendingInputs.length
+						? 'awaiting_input'
+						: 'completed';
 				return {
-					status: assistant.hasPending() ? 'awaiting_approval' : 'completed',
+					status,
 					text,
-					pending: assistant.getPendingApprovals().map((p) => ({
+					pending: pendingApprovals.map((p) => ({
 						callId: p.callId,
 						toolName: p.toolName,
 						arguments: p.arguments,
+					})),
+					pendingInputs: pendingInputs.map((p) => ({
+						callId: p.callId,
+						toolName: p.toolName,
+						question: p.question,
+						suggestions: p.suggestions,
 					})),
 				};
 			}, AssistantChannels.send)
@@ -37,9 +79,7 @@ export class AssistantIpc implements IpcModule {
 
 		ipcMain.handle(
 			AssistantChannels.reset,
-			wrapSimpleHandler(() => {
-				return assistant.reset();
-			}, AssistantChannels.reset)
+			wrapSimpleHandler(() => assistant.reset(), AssistantChannels.reset)
 		);
 
 		ipcMain.handle(
@@ -55,18 +95,9 @@ export class AssistantIpc implements IpcModule {
 			wrapSimpleHandler(
 				async (
 					callId: string,
-					opts?: { alwaysApprove?: boolean }
+					opts?: { alwaysApprove?: boolean; editedArguments?: string }
 				): Promise<AssistantSendResult> => {
-					const result = await assistant.approve(callId, opts ?? {});
-					return {
-						status: result.status,
-						text: result.text,
-						pending: result.pending.map((p) => ({
-							callId: p.callId,
-							toolName: p.toolName,
-							arguments: p.arguments,
-						})),
-					};
+					return toSendResult(await assistant.approve(callId, opts ?? {}));
 				},
 				AssistantChannels.approve
 			)
@@ -79,19 +110,25 @@ export class AssistantIpc implements IpcModule {
 					callId: string,
 					opts?: { alwaysReject?: boolean; message?: string }
 				): Promise<AssistantSendResult> => {
-					const result = await assistant.reject(callId, opts ?? {});
-					return {
-						status: result.status,
-						text: result.text,
-						pending: result.pending.map((p) => ({
-							callId: p.callId,
-							toolName: p.toolName,
-							arguments: p.arguments,
-						})),
-					};
+					return toSendResult(await assistant.reject(callId, opts ?? {}));
 				},
 				AssistantChannels.reject
 			)
+		);
+
+		ipcMain.handle(
+			AssistantChannels.respond,
+			wrapSimpleHandler(
+				async (callId: string, answer: string): Promise<AssistantSendResult> => {
+					return toSendResult(await assistant.respond(callId, answer));
+				},
+				AssistantChannels.respond
+			)
+		);
+
+		ipcMain.handle(
+			AssistantChannels.cancelPending,
+			wrapSimpleHandler(() => assistant.cancelPending(), AssistantChannels.cancelPending)
 		);
 
 		ipcMain.handle(
@@ -103,6 +140,18 @@ export class AssistantIpc implements IpcModule {
 					arguments: p.arguments,
 				}));
 			}, AssistantChannels.getPending)
+		);
+
+		ipcMain.handle(
+			AssistantChannels.getPendingInputs,
+			wrapSimpleHandler((): AssistantPendingInput[] => {
+				return assistant.getPendingInputs().map((p) => ({
+					callId: p.callId,
+					toolName: p.toolName,
+					question: p.question,
+					suggestions: p.suggestions,
+				}));
+			}, AssistantChannels.getPendingInputs)
 		);
 
 		logger.info('AssistantIpc', `Registered ${this.name} module`);
