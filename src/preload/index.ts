@@ -19,7 +19,13 @@ import type {
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
-import type { Assistant, AssistantHistoryMessage, AssistantSendResult, Model } from '../shared/service';
+import type {
+	Assistant,
+	AssistantHistoryMessage,
+	AssistantPendingEventPayload,
+	AssistantSendResult,
+	Model,
+} from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
 import type {
