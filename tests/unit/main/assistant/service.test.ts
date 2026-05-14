@@ -111,8 +111,13 @@ describe('AssistantService', () => {
 		mockReset.mockReset();
 		mockApprove.mockReset();
 		mockReject.mockReset();
+		mockRespond.mockReset();
+		mockCancel.mockReset();
+		mockCancel.mockResolvedValue(undefined);
 		mockGetPending.mockReset();
 		mockGetPending.mockReturnValue([]);
+		mockGetPendingInputs.mockReset();
+		mockGetPendingInputs.mockReturnValue([]);
 		mockHasPending.mockReset();
 		mockHasPending.mockReturnValue(false);
 	});
