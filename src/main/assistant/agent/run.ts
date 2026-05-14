@@ -101,7 +101,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			const blocks: AssistantContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsStr: string }>();
 			let turnStop = 'end_turn';
-			const iterStart = Date.now();
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 
 			try {
