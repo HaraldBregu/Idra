@@ -6,7 +6,11 @@ import type { AssistantService } from '../assistant';
 import type { LoggerService } from '../logger';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AssistantChannels } from '../../shared/ipc-channels';
-import type { AssistantHistoryMessage } from '../../shared/service';
+import type {
+	AssistantHistoryMessage,
+	AssistantPendingApproval,
+	AssistantSendResult,
+} from '../../shared/service';
 
 export class AssistantIpc implements IpcModule {
 	readonly name = 'assistant';
@@ -17,8 +21,17 @@ export class AssistantIpc implements IpcModule {
 
 		ipcMain.handle(
 			AssistantChannels.send,
-			wrapSimpleHandler((message: string) => {
-				return assistant.send(message);
+			wrapSimpleHandler(async (message: string): Promise<AssistantSendResult> => {
+				const text = await assistant.send(message);
+				return {
+					status: assistant.hasPending() ? 'awaiting_approval' : 'completed',
+					text,
+					pending: assistant.getPendingApprovals().map((p) => ({
+						callId: p.callId,
+						toolName: p.toolName,
+						arguments: p.arguments,
+					})),
+				};
 			}, AssistantChannels.send)
 		);
 
@@ -35,6 +48,61 @@ export class AssistantIpc implements IpcModule {
 				const history = await assistant.getHistory();
 				return history as unknown as AssistantHistoryMessage[];
 			}, AssistantChannels.getHistory)
+		);
+
+		ipcMain.handle(
+			AssistantChannels.approve,
+			wrapSimpleHandler(
+				async (
+					callId: string,
+					opts?: { alwaysApprove?: boolean }
+				): Promise<AssistantSendResult> => {
+					const result = await assistant.approve(callId, opts ?? {});
+					return {
+						status: result.status,
+						text: result.text,
+						pending: result.pending.map((p) => ({
+							callId: p.callId,
+							toolName: p.toolName,
+							arguments: p.arguments,
+						})),
+					};
+				},
+				AssistantChannels.approve
+			)
+		);
+
+		ipcMain.handle(
+			AssistantChannels.reject,
+			wrapSimpleHandler(
+				async (
+					callId: string,
+					opts?: { alwaysReject?: boolean; message?: string }
+				): Promise<AssistantSendResult> => {
+					const result = await assistant.reject(callId, opts ?? {});
+					return {
+						status: result.status,
+						text: result.text,
+						pending: result.pending.map((p) => ({
+							callId: p.callId,
+							toolName: p.toolName,
+							arguments: p.arguments,
+						})),
+					};
+				},
+				AssistantChannels.reject
+			)
+		);
+
+		ipcMain.handle(
+			AssistantChannels.getPending,
+			wrapSimpleHandler((): AssistantPendingApproval[] => {
+				return assistant.getPendingApprovals().map((p) => ({
+					callId: p.callId,
+					toolName: p.toolName,
+					arguments: p.arguments,
+				}));
+			}, AssistantChannels.getPending)
 		);
 
 		logger.info('AssistantIpc', `Registered ${this.name} module`);
