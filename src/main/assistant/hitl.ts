@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { EventBus } from '../core/event-bus';
-import type { ApprovalStreamLike, ElicitationStreamLike } from './tools/types';
+import type { ApprovalStreamLike } from './tools/types';
 
 export interface PendingApprovalView {
 	id: string;
