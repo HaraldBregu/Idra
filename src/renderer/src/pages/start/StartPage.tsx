@@ -280,37 +280,22 @@ const StartPage: React.FC = () => {
 						</p>
 					</div>
 
-					<ol
-						className="grid max-w-md gap-2 text-sm sm:grid-cols-2"
-						aria-label={`Setup progress: step ${stepNumber} of 2`}
-					>
-						<li
-							className={`rounded-lg border p-3 ${
-								step === 'api-key'
-									? 'border-foreground/20 bg-background/90'
-									: 'border-border bg-background/60'
-							}`}
-							aria-current={step === 'api-key' ? 'step' : undefined}
-						>
-							<p className="font-medium">Provider</p>
-							<p className="mt-1 truncate text-muted-foreground">
-								{apiKeySaved ? 'Access saved' : selectedProviderName}
-							</p>
-						</li>
-						<li
-							className={`rounded-lg border p-3 ${
-								step === 'model'
-									? 'border-foreground/20 bg-background/90'
-									: 'border-border bg-background/60'
-							}`}
-							aria-current={step === 'model' ? 'step' : undefined}
-						>
-							<p className="font-medium">Model</p>
-							<p className="mt-1 truncate text-muted-foreground">
-								{step === 'model' ? selectedModelName || modelCountLabel : 'Next'}
-							</p>
-						</li>
-					</ol>
+					<div className="max-w-md space-y-3" aria-label={`Setup progress: step ${stepNumber} of 2`}>
+						<div className="h-1.5 overflow-hidden rounded-full bg-muted">
+							<div
+								className={`h-full rounded-full bg-primary transition-all ${
+									step === 'model' ? 'w-full' : 'w-1/2'
+								}`}
+							/>
+						</div>
+						<p className="text-sm text-muted-foreground">
+							{step === 'model'
+								? `Provider connected. ${selectedModelName || modelCountLabel}.`
+								: apiKeySaved
+									? `${selectedProviderName} is connected.`
+									: `Connect ${selectedProviderName} to continue.`}
+						</p>
+					</div>
 				</div>
 
 				<div className="rounded-xl border border-border bg-background/90 p-5 shadow-xl shadow-foreground/5 backdrop-blur sm:p-6">
