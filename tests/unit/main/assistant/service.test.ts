@@ -56,7 +56,7 @@ type MockAssistantCtor = jest.MockedClass<typeof Assistant> & {
 	_mockSend: jest.MockedFunction<(msg: string) => Promise<string>>;
 	_mockReset: jest.MockedFunction<() => Promise<void>>;
 	_mockApprove: jest.MockedFunction<
-		(callId: string, opts?: { alwaysApprove?: boolean }) => Promise<unknown>
+		(callId: string, opts?: { alwaysApprove?: boolean; editedArguments?: string }) => Promise<unknown>
 	>;
 	_mockReject: jest.MockedFunction<
 		(
@@ -64,7 +64,10 @@ type MockAssistantCtor = jest.MockedClass<typeof Assistant> & {
 			opts?: { alwaysReject?: boolean; message?: string }
 		) => Promise<unknown>
 	>;
+	_mockRespond: jest.MockedFunction<(callId: string, answer: string) => Promise<unknown>>;
+	_mockCancel: jest.MockedFunction<(reason?: string) => Promise<void>>;
 	_mockGetPending: jest.MockedFunction<() => unknown[]>;
+	_mockGetPendingInputs: jest.MockedFunction<() => unknown[]>;
 	_mockHasPending: jest.MockedFunction<() => boolean>;
 };
 
@@ -73,7 +76,10 @@ const mockSend = MockAssistant._mockSend;
 const mockReset = MockAssistant._mockReset;
 const mockApprove = MockAssistant._mockApprove;
 const mockReject = MockAssistant._mockReject;
+const mockRespond = MockAssistant._mockRespond;
+const mockCancel = MockAssistant._mockCancel;
 const mockGetPending = MockAssistant._mockGetPending;
+const mockGetPendingInputs = MockAssistant._mockGetPendingInputs;
 const mockHasPending = MockAssistant._mockHasPending;
 
 const stubStore = {} as unknown as StoreService;
