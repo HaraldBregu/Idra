@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { AssistantRunLogger } from '../../../../src/main/assistant/run-logger';
+import { AssistantRunLogger } from '../../../../src/main/run-logger';
 
 describe('AssistantRunLogger', () => {
 	let tmpDir: string;

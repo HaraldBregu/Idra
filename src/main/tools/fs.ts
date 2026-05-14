@@ -183,6 +183,122 @@ export const editTool: AgentTool<EditArgs> = {
 	},
 };
 
+interface ApplyPatchArgs {
+	diff: string;
+}
+
+interface PatchFile {
+	path: string;
+	hunks: Array<{ oldStart: number; lines: string[] }>;
+}
+
+export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
+	name: 'apply_patch',
+	description:
+		'Apply a unified diff to workspace files. Use after reading affected files. Fails on context conflicts.',
+	schema: {
+		type: 'object',
+		properties: {
+			diff: { type: 'string', description: 'Unified diff text.' },
+		},
+		required: ['diff'],
+		additionalProperties: false,
+	},
+	needsApproval: true,
+	async execute(args, ctx) {
+		try {
+			const patches = parseUnifiedDiff(String(args.diff ?? ''));
+			if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
+			const changed: string[] = [];
+			for (const patch of patches) {
+				const abs = resolveAbs(ctx.workspace, patch.path);
+				const stat = await fs.stat(abs);
+				const last = ctx.readState.get(abs);
+				if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
+				if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
+					return textResult(`apply_patch: ${patch.path} changed on disk since last read.`, true);
+				}
+				const original = await fs.readFile(abs, 'utf8');
+				const next = applyFilePatch(original, patch);
+				await fs.writeFile(abs, next, 'utf8');
+				const after = await fs.stat(abs);
+				ctx.readState.set(abs, { mtimeMs: after.mtimeMs, size: after.size });
+				changed.push(patch.path);
+			}
+			return textResult(`patched ${changed.join(', ')}`);
+		} catch (err) {
+			return textResult(`apply_patch: ${(err as Error).message}`, true);
+		}
+	},
+};
+
+function parseUnifiedDiff(diff: string): PatchFile[] {
+	const lines = diff.split(/\r?\n/);
+	const files: PatchFile[] = [];
+	let current: PatchFile | null = null;
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i] ?? '';
+		if (line.startsWith('+++ ')) {
+			const raw = line.slice(4).trim().split(/\s+/)[0] ?? '';
+			const normalized = raw.replace(/^b\//, '');
+			if (normalized === '/dev/null') throw new Error('creating files via apply_patch is not supported');
+			current = { path: normalized, hunks: [] };
+			files.push(current);
+			continue;
+		}
+		if (!current || !line.startsWith('@@ ')) continue;
+		const match = /^@@ -(\d+)(?:,\d+)? \+\d+(?:,\d+)? @@/.exec(line);
+		if (!match) throw new Error(`invalid hunk header: ${line}`);
+		const hunkLines: string[] = [];
+		for (i++; i < lines.length; i++) {
+			const hunkLine = lines[i] ?? '';
+			if (hunkLine.startsWith('@@ ') || hunkLine.startsWith('--- ') || hunkLine.startsWith('+++ ')) {
+				i--;
+				break;
+			}
+			if (hunkLine === '\\ No newline at end of file') continue;
+			if (![' ', '+', '-'].includes(hunkLine[0] ?? '')) throw new Error(`invalid patch line: ${hunkLine}`);
+			hunkLines.push(hunkLine);
+		}
+		current.hunks.push({ oldStart: Number(match[1]), lines: hunkLines });
+	}
+	return files;
+}
+
+function applyFilePatch(original: string, patch: PatchFile): string {
+	const hasTrailingNewline = original.endsWith('\n');
+	const originalLines = original.split('\n');
+	if (hasTrailingNewline) originalLines.pop();
+	const out: string[] = [];
+	let cursor = 0;
+	for (const hunk of patch.hunks) {
+		const target = hunk.oldStart - 1;
+		if (target < cursor) throw new Error(`overlapping hunk in ${patch.path}`);
+		out.push(...originalLines.slice(cursor, target));
+		cursor = target;
+		for (const line of hunk.lines) {
+			const marker = line[0];
+			const text = line.slice(1);
+			if (marker === ' ') {
+				if (originalLines[cursor] !== text) {
+					throw new Error(`context mismatch in ${patch.path} near line ${cursor + 1}`);
+				}
+				out.push(text);
+				cursor++;
+			} else if (marker === '-') {
+				if (originalLines[cursor] !== text) {
+					throw new Error(`removal mismatch in ${patch.path} near line ${cursor + 1}`);
+				}
+				cursor++;
+			} else if (marker === '+') {
+				out.push(text);
+			}
+		}
+	}
+	out.push(...originalLines.slice(cursor));
+	return out.join('\n') + (hasTrailingNewline ? '\n' : '');
+}
+
 interface FindArgs {
 	pattern: string;
 	path?: string;

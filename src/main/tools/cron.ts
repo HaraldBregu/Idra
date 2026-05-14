@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { isCronTaskData, type CronTaskData } from '../../../shared/cron';
+import { isCronTaskData, type CronTaskData } from '../../shared/cron';
 import type { AgentTool } from './types';
 import { textResult } from './types';
 

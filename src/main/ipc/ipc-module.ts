@@ -1,5 +1,5 @@
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
+import type { MainServiceContainer } from '../service-registry';
 
 /**
  * Interface for self-contained IPC handler modules.
@@ -16,5 +16,5 @@ export interface IpcModule {
 	 * Register all IPC handlers for this domain.
 	 * Called once during app initialization.
 	 */
-	register(container: ServiceContainer, eventBus: EventBus): void;
+	register(container: MainServiceContainer, eventBus: EventBus): void;
 }

@@ -6,7 +6,7 @@
           {
             "type": "command",
             "command": "/bin/bash \"$(git rev-parse --show-toplevel)/.codex/hooks/auto-add-commit-push.sh\"",
-            "statusMessage": "Auto committing and pushing changes"
+            "statusMessage": "Auto committing changes"
           }
         ]
       }

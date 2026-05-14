@@ -67,10 +67,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Codex Auto-Commit Hook
 
-This repo includes a Codex-friendly auto-commit hook script at `scripts/codex/auto-commit.sh`. It is designed to be run by your Codex “after tool use” hook (or any equivalent post-tool callback).
+This repo manages Codex auto-commit from `.codex` only. The hook entry is configured in `.codex/hooks.json` and runs `.codex/hooks/auto-add-commit-push.sh`.
 
 - It runs `git add -A`, skips commits when there are no changes, and unstages common secret patterns (`*.env`, `*.pem`, `*.key`, `credentials.json`).
 - It uses `git rev-parse --show-toplevel` to locate the repo root.
 - It uses `CODEX_TOOL_NAME` (if set) to tag the commit subject.
-
-Repo-local entrypoint: `./scripts/codex/auto-commit.sh`

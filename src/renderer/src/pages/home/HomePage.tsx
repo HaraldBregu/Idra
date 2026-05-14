@@ -1,6 +1,15 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, Copy, Paperclip, Sparkles, Square } from 'lucide-react';
+import {
+	ArrowUp,
+	Bot,
+	CheckCircle2,
+	Copy,
+	Paperclip,
+	ShieldCheck,
+	Sparkles,
+	Square,
+} from 'lucide-react';
 import {
 	ChatContainerContent,
 	ChatContainerRoot,
@@ -22,9 +31,11 @@ import {
 } from '@/components/prompt-kit/prompt-input';
 import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageContainer } from '@/components/app/base/page';
 import type {
+	ApprovalDecision,
 	AssistantHistoryMessage,
 	AssistantPendingApproval,
 	AssistantPendingEventPayload,
@@ -41,8 +52,12 @@ interface TextChatMessage {
 
 interface MultiSelectOption {
 	readonly id: string;
+	readonly kind: 'approval' | 'input';
 	readonly label: string;
 	readonly description: string;
+	readonly approvalId?: string;
+	readonly decision?: ApprovalDecision;
+	readonly inputId?: string;
 }
 
 interface MultiSelectChatMessage {
@@ -69,16 +84,16 @@ const welcomeMessage: ChatMessage = {
 	role: 'assistant',
 	type: 'text',
 	content:
-		'I can help with a variety of tasks: answering questions, providing information, assisting with coding, and generating creative content. What would you like help with today?',
+		'Ready when you are. Ask Friday to inspect code, make a change, explain a file, or help plan the next step.',
 };
 
 const initialMessages: readonly ChatMessage[] = [welcomeMessage];
 
 const suggestions: readonly string[] = [
-	'Explain quantum entanglement in simple terms',
-	'Write a TypeScript debounce function',
-	'Draft a polite follow-up email',
-	'Summarize the latest research on LLMs',
+	'Review the current changes',
+	'Explain this project structure',
+	'Find the next failing test',
+	'Draft a focused implementation plan',
 ];
 
 function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[] {
@@ -97,14 +112,38 @@ function pendingToMultiSelectMessage(
 ): MultiSelectChatMessage {
 	const options: MultiSelectOption[] = [
 		...approvals.map((a) => ({
-			id: `approve:${a.id}`,
-			label: a.toolName,
-			description: typeof a.args === 'string' ? a.args : JSON.stringify(a.args ?? {}),
+			id: `approval:${a.id}:allow-once`,
+			kind: 'approval' as const,
+			label: `${a.toolName}: Allow once`,
+			description: a.command ?? JSON.stringify(a.argsPreview ?? {}),
+			approvalId: a.id,
+			decision: 'allow-once' as const,
+		})),
+		...approvals
+			.filter((a) => a.allowedDecisions.includes('allow-always'))
+			.map((a) => ({
+				id: `approval:${a.id}:allow-always`,
+				kind: 'approval' as const,
+				label: `${a.toolName}: Allow always`,
+				description: a.command ?? JSON.stringify(a.argsPreview ?? {}),
+				approvalId: a.id,
+				decision: 'allow-always' as const,
+			})),
+		...approvals.map((a) => ({
+			id: `approval:${a.id}:deny`,
+			kind: 'approval' as const,
+			label: `${a.toolName}: Deny`,
+			description: a.command ?? JSON.stringify(a.argsPreview ?? {}),
+			approvalId: a.id,
+			decision: 'deny' as const,
 		})),
 		...inputs.map((i) => ({
 			id: `input:${i.id}`,
+			kind: 'input' as const,
 			label: 'ask_human',
-			description: i.question + (i.suggestions ? `\nSuggestions: ${i.suggestions.join(' | ')}` : ''),
+			description:
+				i.question + (i.suggestions ? `\nSuggestions: ${i.suggestions.join(' | ')}` : ''),
+			inputId: i.id,
 		})),
 	];
 	return {
@@ -118,6 +157,23 @@ function pendingToMultiSelectMessage(
 
 function removeMultiSelectMessages(messages: readonly ChatMessage[]): ChatMessage[] {
 	return messages.filter((message) => message.type !== 'multi-select');
+}
+
+function defaultPendingSelections(message: MultiSelectChatMessage): string[] {
+	const selections: string[] = [];
+	const seenApprovals = new Set<string>();
+	for (const option of message.options) {
+		if (
+			option.kind === 'approval' &&
+			option.approvalId &&
+			option.decision === 'deny' &&
+			!seenApprovals.has(option.approvalId)
+		) {
+			selections.push(option.id);
+			seenApprovals.add(option.approvalId);
+		}
+	}
+	return selections;
 }
 
 function HomePage(): ReactElement {
@@ -183,10 +239,20 @@ function HomePage(): ReactElement {
 
 	useEffect(() => {
 		const offPending = window.assistant.onPending((event: AssistantPendingEventPayload) => {
+			const pendingMessage =
+				event.approvals.length === 0 && event.inputs.length === 0
+					? null
+					: pendingToMultiSelectMessage(event.approvals, event.inputs);
+			if (pendingMessage) {
+				setSelectedOptions((current) => ({
+					...current,
+					[pendingMessage.id]: defaultPendingSelections(pendingMessage),
+				}));
+			}
 			setMessages((current) => {
 				const cleaned = removeMultiSelectMessages(current);
-				if (event.approvals.length === 0 && event.inputs.length === 0) return cleaned;
-				return [...cleaned, pendingToMultiSelectMessage(event.approvals, event.inputs)];
+				if (!pendingMessage) return cleaned;
+				return [...cleaned, pendingMessage];
 			});
 		});
 		const offResponse = window.assistant.onResponse((_event: AssistantResponseDelta) => {
@@ -221,18 +287,35 @@ function HomePage(): ReactElement {
 		});
 	};
 
+	const selectApprovalOption = (messageId: string, approvalId: string, optionId: string): void => {
+		setSelectedOptions((current) => {
+			const selected = current[messageId] ?? [];
+			const next = [
+				...selected.filter((id) => !id.startsWith(`approval:${approvalId}:`)),
+				optionId,
+			];
+			return { ...current, [messageId]: next };
+		});
+	};
+
 	const submitMultiSelect = async (message: MultiSelectChatMessage): Promise<void> => {
 		const selected = new Set(selectedOptions[message.id] ?? []);
 		try {
+			const approvals = new Map<string, ApprovalDecision>();
 			for (const option of message.options) {
-				const [kind, id] = option.id.split(':');
-				if (kind === 'approve') {
-					await window.assistant.resolveApproval(id, selected.has(option.id));
-				} else if (kind === 'input') {
+				if (option.kind === 'approval' && option.approvalId) {
+					if (!approvals.has(option.approvalId)) approvals.set(option.approvalId, 'deny');
+					if (selected.has(option.id)) {
+						approvals.set(option.approvalId, option.decision ?? 'deny');
+					}
+				} else if (option.kind === 'input' && option.inputId) {
 					// For now: send a fixed placeholder so the run can resume. A
 					// richer UI will collect free-text or pick a suggestion.
-					await window.assistant.resolveInput(id, '');
+					await window.assistant.resolveInput(option.inputId, '');
 				}
+			}
+			for (const [id, decision] of approvals) {
+				await window.assistant.resolveApproval(id, decision);
 			}
 			const selectedLabels = message.options
 				.filter((option) => selected.has(option.id))
@@ -241,9 +324,16 @@ function HomePage(): ReactElement {
 				...removeMultiSelectMessages(current),
 				createTextMessage(
 					'user',
-					selectedLabels.length > 0 ? `Selected: ${selectedLabels.join(', ')}` : 'No actions selected.'
+					selectedLabels.length > 0
+						? `Selected: ${selectedLabels.join(', ')}`
+						: 'No actions selected.'
 				),
 			]);
+			setSelectedOptions((current) => {
+				const next = { ...current };
+				delete next[message.id];
+				return next;
+			});
 		} catch (error) {
 			const messageText = error instanceof Error ? error.message : 'Selection failed.';
 			setMessages((current) => [
@@ -263,22 +353,48 @@ function HomePage(): ReactElement {
 
 	return (
 		<PageContainer className="text-foreground">
+			<header className="flex shrink-0 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 py-3">
+				<div className="flex min-w-0 items-center gap-3">
+					<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
+						<Bot className="size-5" />
+					</div>
+					<div className="min-w-0">
+						<h1 className="truncate text-sm font-semibold">Friday Assistant</h1>
+						<p className="truncate text-xs text-muted-foreground">
+							Workspace-aware help for coding, research, and decisions
+						</p>
+					</div>
+				</div>
+				<div className="hidden shrink-0 items-center gap-2 sm:flex">
+					<Badge variant="outline" className="gap-1">
+						<CheckCircle2 className="size-3" />
+						Ready
+					</Badge>
+					<Badge variant="secondary" className="gap-1">
+						<ShieldCheck className="size-3" />
+						Approvals guarded
+					</Badge>
+				</div>
+			</header>
 			<ChatContainerRoot className="min-h-0 flex-1">
 				<ChatContainerContent className="w-full gap-5">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
-								<MessageContent className="max-w-[80%] bg-primary text-primary-foreground">
+								<MessageContent className="max-w-[min(78%,48rem)] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground shadow-sm">
 									{message.content}
 								</MessageContent>
 							</Message>
 						) : (
 							<Message key={message.id} className="justify-start">
 								<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-								<div className="flex w-full max-w-[80%] flex-col gap-2">
+								<div className="flex w-full max-w-[min(82%,52rem)] flex-col gap-2">
 									{message.type === 'text' ? (
 										<>
-											<MessageContent markdown className="bg-transparent p-0">
+											<MessageContent
+												markdown
+												className="rounded-2xl rounded-tl-md border border-border bg-card px-4 py-3 shadow-xs"
+											>
 												{message.content}
 											</MessageContent>
 											<MessageActions className="self-start">
@@ -294,19 +410,31 @@ function HomePage(): ReactElement {
 											</MessageActions>
 										</>
 									) : (
-										<div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-3">
-											<p className="text-sm font-medium">{message.prompt}</p>
+										<div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-xs">
+											<div className="space-y-1">
+												<Badge variant="outline">Action required</Badge>
+												<p className="text-sm font-medium">{message.prompt}</p>
+											</div>
 											<div className="flex flex-col gap-2">
 												{message.options.map((option) => (
 													<label
 														key={option.id}
-														className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-background p-3 text-sm"
+														className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-background p-3 text-sm transition-colors hover:bg-muted/50"
 													>
 														<input
-															type="checkbox"
+															type={option.kind === 'approval' ? 'radio' : 'checkbox'}
+															name={
+																option.kind === 'approval'
+																	? `${message.id}:${option.approvalId}`
+																	: option.id
+															}
 															className="mt-1 size-4 accent-primary"
 															checked={(selectedOptions[message.id] ?? []).includes(option.id)}
-															onChange={() => toggleOption(message.id, option.id)}
+															onChange={() =>
+																option.kind === 'approval' && option.approvalId
+																	? selectApprovalOption(message.id, option.approvalId, option.id)
+																	: toggleOption(message.id, option.id)
+															}
 														/>
 														<span className="min-w-0">
 															<span className="block font-medium">{option.label}</span>
@@ -321,7 +449,6 @@ function HomePage(): ReactElement {
 												className="self-start"
 												size="sm"
 												onClick={() => void submitMultiSelect(message)}
-												disabled={isLoading}
 											>
 												Submit selection
 											</Button>
@@ -334,7 +461,7 @@ function HomePage(): ReactElement {
 					{isLoading && (
 						<Message className="justify-start">
 							<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-							<div className="flex items-center gap-2 text-muted-foreground">
+							<div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border bg-card px-4 py-3 text-muted-foreground shadow-xs">
 								<Loader variant="typing" size="md" />
 								<Loader variant="text-shimmer" text="Thinking" size="sm" />
 							</div>
@@ -345,9 +472,9 @@ function HomePage(): ReactElement {
 				<ScrollButton className="absolute bottom-4 right-6 shadow-sm" variant="secondary" />
 			</ChatContainerRoot>
 
-			<div className="px-4">
+			<div className="border-t border-border bg-background/95 px-4 pt-3">
 				{showSuggestions && (
-					<div className="mb-3 flex w-full flex-wrap gap-2">
+					<div className="mx-auto mb-3 flex w-full max-w-3xl flex-wrap gap-2">
 						{suggestions.map((s) => (
 							<PromptSuggestion key={s} onClick={() => void sendPrompt(s)}>
 								<Sparkles className="size-3" />
@@ -361,9 +488,9 @@ function HomePage(): ReactElement {
 					onValueChange={setInput}
 					isLoading={isLoading}
 					onSubmit={handleSubmit}
-					className="mb-4 w-full bg-transparent"
+					className="mx-auto mb-4 w-full max-w-3xl bg-card shadow-sm"
 				>
-					<PromptInputTextarea placeholder="Ask me anything..." />
+					<PromptInputTextarea placeholder="Ask Friday anything..." />
 					<PromptInputActions className="justify-between pt-2">
 						<PromptInputAction tooltip="Attach file">
 							<Button variant="ghost" size="icon-sm" className="rounded-full">

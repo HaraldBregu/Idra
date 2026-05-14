@@ -10,7 +10,9 @@ export interface Disposable {
 	destroy(): void;
 }
 
-export class ServiceContainer {
+export type ServiceKey<TServices extends object> = Extract<keyof TServices, string>;
+
+export class ServiceContainer<TServices extends object = Record<string, unknown>> {
 	private services = new Map<string, unknown>();
 	private disposables: Disposable[] = [];
 
@@ -18,7 +20,10 @@ export class ServiceContainer {
 	 * Register a service instance. If it has a destroy() method,
 	 * it will be called during shutdown.
 	 */
-	register<T>(key: string, instance: T): T {
+	register<TKey extends ServiceKey<TServices>>(
+		key: TKey,
+		instance: TServices[TKey]
+	): TServices[TKey] {
 		if (this.services.has(key)) {
 			throw new Error(`Service "${key}" is already registered`);
 		}
@@ -34,19 +39,30 @@ export class ServiceContainer {
 	/**
 	 * Retrieve a service by key. Throws if not found.
 	 */
-	get<T>(key: string): T {
-		const service = this.services.get(key);
-		if (!service) {
+	get<TKey extends ServiceKey<TServices>>(key: TKey): TServices[TKey] {
+		if (!this.services.has(key)) {
 			throw new Error(`Service "${key}" not found. Was it registered?`);
 		}
-		return service as T;
+		const service = this.services.get(key);
+		return service as TServices[TKey];
 	}
 
 	/**
 	 * Check if a service is registered.
 	 */
-	has(key: string): boolean {
+	has<TKey extends ServiceKey<TServices>>(key: TKey): boolean {
 		return this.services.has(key);
+	}
+
+	hasUnknown(key: string): boolean {
+		return this.services.has(key);
+	}
+
+	getUnknown(key: string): unknown {
+		if (!this.services.has(key)) {
+			throw new Error(`Service "${key}" not found. Was it registered?`);
+		}
+		return this.services.get(key);
 	}
 
 	/**

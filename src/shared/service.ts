@@ -16,6 +16,8 @@ export interface Assistant {
 	model: Model;
 }
 
+export type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
+
 /**
  * Assistant transcript entry (provider-neutral). One per turn.
  */
@@ -35,9 +37,18 @@ export interface AssistantHistoryMessage {
 
 export interface AssistantPendingApproval {
 	id: string;
+	kind: 'exec' | 'plugin' | 'api' | 'tool';
 	toolName: string;
 	question: string;
-	args: unknown;
+	title: string;
+	description?: string;
+	argsPreview?: unknown;
+	command?: string;
+	cwd?: string;
+	envKeys?: string[];
+	createdAtMs: number;
+	expiresAtMs: number;
+	allowedDecisions: ApprovalDecision[];
 }
 
 export interface AssistantPendingInput {

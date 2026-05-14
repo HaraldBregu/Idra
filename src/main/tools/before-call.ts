@@ -69,15 +69,19 @@ export async function beforeToolCall(
 	if (requires || ctx.approvalRequired.has(tool.name)) {
 		if (!ctx.approvalCache.has(key)) {
 			const question = renderApprovalQuestion(tool.name, args);
-			const approved = ctx.approveStream
+			const decision = ctx.approveStream
 				? await ctx.approveStream.ask(question, args, tool.name)
-				: false;
-			if (!approved) {
+				: null;
+			if (decision !== 'allow-once' && decision !== 'allow-always') {
+				const reason =
+					decision === 'deny'
+						? `User denied approval for ${tool.name}.`
+						: `Approval timed out or is unavailable for ${tool.name}.`;
 				return {
 					proceed: false,
 					vetoResult: {
 						status: 'error',
-						content: [{ type: 'text', text: `User denied approval for ${tool.name}.` }],
+						content: [{ type: 'text', text: reason }],
 					},
 				};
 			}

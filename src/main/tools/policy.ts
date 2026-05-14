@@ -1,6 +1,6 @@
 import type { AgentTool } from './types';
 
-export type ToolProfile = 'minimal' | 'standard' | 'full';
+export type ToolProfile = 'minimal' | 'coding' | 'standard' | 'full';
 
 export interface PolicyConfig {
 	profile: ToolProfile;
@@ -9,13 +9,34 @@ export interface PolicyConfig {
 }
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
-	minimal: ['read', 'find', 'ask_human', 'get_workspace_content', 'get_workspace_path'],
+	minimal: ['read', 'update_plan', 'find', 'ask_human', 'get_workspace_content', 'get_workspace_path'],
+	coding: [
+		'read',
+		'write',
+		'edit',
+		'apply_patch',
+		'find',
+		'exec',
+		'process',
+		'web_fetch',
+		'update_plan',
+		'ask_human',
+		'get_workspace_content',
+		'get_workspace_path',
+		'get_assistant_service',
+		'get_assistant_model',
+		'cron_list',
+	],
 	standard: [
 		'read',
 		'write',
 		'edit',
+		'apply_patch',
 		'find',
 		'exec',
+		'process',
+		'web_fetch',
+		'update_plan',
 		'ask_human',
 		'get_workspace_content',
 		'get_workspace_path',
@@ -38,6 +59,10 @@ function globMatch(pattern: string, name: string): boolean {
 export function filterTools(all: AgentTool[], cfg: PolicyConfig): AgentTool[] {
 	const profileAllow = PROFILE_ALLOW[cfg.profile];
 	const pass = (t: AgentTool): boolean => {
+		if (t.name === 'apply_patch') {
+			const writeCandidate = { ...t, name: 'write' };
+			return pass(writeCandidate);
+		}
 		if (profileAllow !== 'all' && !profileAllow.includes(t.name)) return false;
 		if (cfg.deny.some((p) => globMatch(p, t.name))) return false;
 		if (cfg.allow.length > 0 && !cfg.allow.some((p) => globMatch(p, t.name))) return false;

@@ -14,7 +14,7 @@ export interface AssistantApi {
 	reset: () => Promise<void>;
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AssistantHistoryMessage[]>;
-	resolveApproval: (id: string, approved: boolean) => Promise<boolean>;
+	resolveApproval: (id: string, decision: ApprovalDecision | boolean) => Promise<boolean>;
 	resolveInput: (id: string, answer: string) => Promise<boolean>;
 	getPending: () => Promise<AssistantPendingState>;
 	onResponse: (callback: (event: AssistantResponseDelta) => void) => () => void;
@@ -69,6 +69,7 @@ import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type {
 	Assistant,
 	AssistantHistoryMessage,
+	ApprovalDecision,
 	AssistantPendingEventPayload,
 	AssistantPendingState,
 	AssistantResponseDelta,

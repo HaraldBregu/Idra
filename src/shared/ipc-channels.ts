@@ -109,7 +109,7 @@ interface AssistantInvokeChannelMap {
 		result: import('./service').AssistantHistoryMessage[];
 	};
 	[AssistantChannels.resolveApproval]: {
-		args: [id: string, approved: boolean];
+		args: [id: string, decision: import('./service').ApprovalDecision | boolean];
 		result: boolean;
 	};
 	[AssistantChannels.resolveInput]: {

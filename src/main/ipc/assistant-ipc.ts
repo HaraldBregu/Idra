@@ -1,16 +1,15 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import type { AssistantService } from '../assistant';
-import type { LoggerService } from '../logger';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AssistantChannels } from '../../shared/ipc-channels';
 import type {
+	ApprovalDecision,
 	AssistantHistoryMessage,
 	AssistantPendingState,
 } from '../../shared/service';
-import type { TranscriptEntry } from '../assistant/provider/types';
+import type { TranscriptEntry } from '../provider/types';
 
 function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
 	return t.map((entry) => {
@@ -38,9 +37,9 @@ function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
 export class AssistantIpc implements IpcModule {
 	readonly name = 'assistant';
 
-	register(container: ServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get<LoggerService>('logger');
-		const assistant = container.get<AssistantService>('assistantService');
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
+		const logger = container.get('logger');
+		const assistant = container.get('assistantService');
 
 		ipcMain.handle(
 			AssistantChannels.send,
@@ -64,8 +63,8 @@ export class AssistantIpc implements IpcModule {
 
 		ipcMain.handle(
 			AssistantChannels.resolveApproval,
-			wrapSimpleHandler((id: string, approved: boolean): boolean => {
-				return assistant.resolveApproval(id, approved);
+			wrapSimpleHandler((id: string, decision: ApprovalDecision | boolean): boolean => {
+				return assistant.resolveApproval(id, decision);
 			}, AssistantChannels.resolveApproval)
 		);
 

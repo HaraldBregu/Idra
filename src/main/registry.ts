@@ -1,12 +1,10 @@
-import { Assistant } from './assistant';
-
 /**
- * Registry of initialized assistants, keyed by id.
+ * Generic registry keyed by assistant/runtime id.
  */
-export class AssistantRegistry {
-	private readonly assistants = new Map<string, Assistant>();
+export class AssistantRegistry<T extends { id: string }> {
+	private readonly assistants = new Map<string, T>();
 
-	register(assistant: Assistant): Assistant {
+	register(assistant: T): T {
 		if (this.assistants.has(assistant.id)) {
 			throw new Error(`Assistant already registered: ${assistant.id}`);
 		}
@@ -14,7 +12,7 @@ export class AssistantRegistry {
 		return assistant;
 	}
 
-	get(id: string): Assistant {
+	get(id: string): T {
 		const a = this.assistants.get(id);
 		if (!a) throw new Error(`Unknown assistant: ${id}`);
 		return a;

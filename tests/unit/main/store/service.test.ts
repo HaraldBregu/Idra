@@ -37,15 +37,15 @@ const MockStore = Store as jest.MockedClass<typeof Store>;
 const openaiProvider: Provider = {
 	id: 'openai',
 	name: 'OpenAI',
-	apikey: 'sk-old',
-	baseURL: 'https://api.openai.com/v1',
+	apiKey: 'sk-old',
+	baseUrl: 'https://api.openai.com/v1',
 };
 
 const anthropicProvider: Provider = {
 	id: 'anthropic',
 	name: 'Anthropic',
-	apikey: 'ant-old',
-	baseURL: 'https://api.anthropic.com/v1',
+	apiKey: 'ant-old',
+	baseUrl: 'https://api.anthropic.com/v1',
 };
 
 const model: Model = { id: 'gpt-4o', name: 'GPT-4o' };
@@ -135,7 +135,7 @@ describe('StoreService', () => {
 	describe('getService()', () => {
 		it('returns the stored service when present', () => {
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1' }, model },
+				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'rag-url',
 				ocr: 'ocr-url',
 			};
@@ -160,7 +160,7 @@ describe('StoreService', () => {
 	describe('getAssistantService()', () => {
 		it('returns the assistant block when service is set', () => {
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1' }, model },
+				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: '',
 				ocr: '',
 			};
@@ -194,7 +194,7 @@ describe('StoreService', () => {
 	describe('getAssistantModel()', () => {
 		it('returns the model when service and assistant are set', () => {
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1' }, model },
+				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: '',
 				ocr: '',
 			};
@@ -226,7 +226,7 @@ describe('StoreService', () => {
 
 	describe('getAssistantProvider()', () => {
 		it('returns the provider block when service and assistant are set', () => {
-			const providerRef = { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1' };
+			const providerRef = { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
 			const svc: Service = {
 				assistant: { provider: providerRef, model },
 				rag: '',
@@ -281,7 +281,7 @@ describe('StoreService', () => {
 
 		it('preserves existing rag and ocr values from the current service', () => {
 			const existing: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1' }, model },
+				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'existing-rag',
 				ocr: 'existing-ocr',
 			};
@@ -310,7 +310,7 @@ describe('StoreService', () => {
 			expect(written?.ocr).toBe('');
 		});
 
-		it('writes the provider without the apikey field', () => {
+		it('writes the provider without the apiKey field', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
@@ -318,11 +318,11 @@ describe('StoreService', () => {
 			service.setAssistantService('openai', model);
 
 			const written = service.getService();
-			expect(written?.assistant?.provider).not.toHaveProperty('apikey');
+			expect(written?.assistant?.provider).not.toHaveProperty('apiKey');
 			expect(written?.assistant?.provider).toEqual({
 				id: 'openai',
 				name: 'OpenAI',
-				baseURL: 'https://api.openai.com/v1',
+				baseUrl: 'https://api.openai.com/v1',
 			});
 		});
 
@@ -351,8 +351,8 @@ describe('StoreService', () => {
 			expect(provider).toEqual({
 				id: 'openai',
 				name: 'OpenAI',
-				apikey: 'sk-new',
-				baseURL: 'https://api.openai.com/v1',
+				apiKey: 'sk-new',
+				baseUrl: 'https://api.openai.com/v1',
 			});
 		});
 
@@ -364,7 +364,7 @@ describe('StoreService', () => {
 			service.setOpenAiApiKey('sk-updated');
 
 			const providers = service.getProviderById('openai');
-			expect(providers?.apikey).toBe('sk-updated');
+			expect(providers?.apiKey).toBe('sk-updated');
 			// anthropic must still be present
 			expect(service.getProviderById('anthropic')).toEqual(anthropicProvider);
 		});
@@ -379,7 +379,7 @@ describe('StoreService', () => {
 
 			// After replacement the canonical id written by setOpenAiApiKey is 'openai'
 			const provider = service.getProviderById('openai');
-			expect(provider?.apikey).toBe('sk-case');
+			expect(provider?.apiKey).toBe('sk-case');
 			expect(provider?.id).toBe('openai');
 		});
 
@@ -391,8 +391,8 @@ describe('StoreService', () => {
 			expect(service.getProviderById('openai')).toEqual({
 				id: 'openai',
 				name: 'OpenAI',
-				apikey: 'sk-canonical',
-				baseURL: 'https://api.openai.com/v1',
+				apiKey: 'sk-canonical',
+				baseUrl: 'https://api.openai.com/v1',
 			});
 		});
 	});
@@ -411,8 +411,8 @@ describe('StoreService', () => {
 			expect(provider).toEqual({
 				id: 'anthropic',
 				name: 'Anthropic',
-				apikey: 'ant-new',
-				baseURL: 'https://api.anthropic.com/v1',
+				apiKey: 'ant-new',
+				baseUrl: 'https://api.anthropic.com/v1',
 			});
 		});
 
@@ -423,7 +423,7 @@ describe('StoreService', () => {
 
 			service.setAnthropicApiKey('ant-updated');
 
-			expect(service.getProviderById('anthropic')?.apikey).toBe('ant-updated');
+			expect(service.getProviderById('anthropic')?.apiKey).toBe('ant-updated');
 			// openai must still be present
 			expect(service.getProviderById('openai')).toEqual(openaiProvider);
 		});
@@ -438,7 +438,7 @@ describe('StoreService', () => {
 
 			// After replacement the canonical id written by setAnthropicApiKey is 'anthropic'
 			const provider = service.getProviderById('anthropic');
-			expect(provider?.apikey).toBe('ant-case');
+			expect(provider?.apiKey).toBe('ant-case');
 			expect(provider?.id).toBe('anthropic');
 		});
 
@@ -450,8 +450,8 @@ describe('StoreService', () => {
 			expect(service.getProviderById('anthropic')).toEqual({
 				id: 'anthropic',
 				name: 'Anthropic',
-				apikey: 'ant-canonical',
-				baseURL: 'https://api.anthropic.com/v1',
+				apiKey: 'ant-canonical',
+				baseUrl: 'https://api.anthropic.com/v1',
 			});
 		});
 	});

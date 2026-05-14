@@ -7,3 +7,4 @@ export type { WindowScopedServiceDefinition } from './core/window-scoped-service
 export type { IpcModule } from './ipc/ipc-module';
 
 export type { LogLevel, LoggerOptions } from './logger';
+export type { MainServiceContainer, MainServices } from './service-registry';

@@ -105,7 +105,7 @@ const trayManager = new Tray({
 	isAppVisible: () => mainWindow.isVisible(),
 });
 
-const appsService = container.get<import('./apps').AppsService>('apps');
+const appsService = container.get('apps');
 
 const menuManager = new Menu(
 	{

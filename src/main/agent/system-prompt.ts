@@ -13,8 +13,12 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	read: 'Read a file before editing or overwriting it.',
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
+	apply_patch: 'Apply a unified diff to files that have already been read.',
 	find: 'Glob-search the workspace for files.',
 	exec: 'Run a shell command. Output capped at 200 lines / 16KB.',
+	process: 'Inspect or stop long-running background commands started by exec.',
+	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
+	update_plan: 'Maintain a concise task plan for multi-step work.',
 	ask_human:
 		'Call this when a required value is ambiguous or unspecified (file path, destination, name). Pass `suggestions` when you have candidates.',
 };

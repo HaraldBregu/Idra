@@ -1,10 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import type { CronService } from '../cron';
-import type { LoggerService } from '../logger';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/ipc-channels';
 import { isCronTaskData, type CronTask, type CronTaskData, type CronTaskView } from '../../shared/cron';
@@ -12,9 +10,9 @@ import { isCronTaskData, type CronTask, type CronTaskData, type CronTaskView } f
 export class CronIpc implements IpcModule {
 	readonly name = 'cron';
 
-	register(container: ServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get<LoggerService>('logger');
-		const cron = container.get<CronService>('cron');
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
+		const logger = container.get('logger');
+		const cron = container.get('cron');
 
 		ipcMain.handle(
 			CronChannels.list,

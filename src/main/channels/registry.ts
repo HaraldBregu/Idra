@@ -2,7 +2,7 @@ import type { ChannelStatusEvent } from '../../shared/channels';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { AssistantService } from '../assistant';
+import type { AssistantService } from '../service';
 import { TelegramAdapter, type TelegramAdapterOptions } from './telegram';
 import type {
 	ChannelAdapter,

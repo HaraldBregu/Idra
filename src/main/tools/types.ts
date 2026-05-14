@@ -1,9 +1,10 @@
-import type { CronService } from '../../cron';
-import type { EventBus } from '../../core/event-bus';
-import type { LoggerService } from '../../logger';
-import type { StoreService } from '../../store';
-import type { WorkspaceService } from '../../workspace';
+import type { CronService } from '../cron';
+import type { EventBus } from '../core/event-bus';
+import type { LoggerService } from '../logger';
+import type { StoreService } from '../store';
+import type { WorkspaceService } from '../workspace';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
+import type { ApprovalDecision } from '../../shared/service';
 
 export interface PlanEntry {
 	task: string;
@@ -19,7 +20,7 @@ export interface FridayServices {
 }
 
 export interface ApprovalStreamLike {
-	ask(question: string, args?: unknown, toolName?: string): Promise<boolean>;
+	ask(question: string, args?: unknown, toolName?: string): Promise<ApprovalDecision | null>;
 }
 
 export interface ElicitationStreamLike {

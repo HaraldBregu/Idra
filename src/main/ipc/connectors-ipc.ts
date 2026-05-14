@@ -1,18 +1,16 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import type { LoggerService } from '../logger';
-import type { ConnectorsService } from '../connectors';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { ConnectorsChannels } from '../../shared/ipc-channels';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
 
-	register(container: ServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get<LoggerService>('logger');
-		const connectors = container.get<ConnectorsService>('connectors');
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
+		const logger = container.get('logger');
+		const connectors = container.get('connectors');
 
 		ipcMain.handle(
 			ConnectorsChannels.catalog,

@@ -1,10 +1,7 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import type { ChannelRegistry } from '../channels';
-import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../../shared/channels';
@@ -19,10 +16,10 @@ function normalizeTelegramConfig(config: TelegramChannelProperties): TelegramCha
 export class ChannelsIpc implements IpcModule {
 	readonly name = 'channels';
 
-	register(container: ServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get<LoggerService>('logger');
-		const store = container.get<StoreService>('store');
-		const channelRegistry = container.get<ChannelRegistry>('channelRegistry');
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
+		const logger = container.get('logger');
+		const store = container.get('store');
+		const channelRegistry = container.get('channelRegistry');
 
 		ipcMain.handle(
 			ChannelsChannels.getTelegramConfig,

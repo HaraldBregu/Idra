@@ -14,37 +14,38 @@ import {
 	type WindowScopedServiceFactory,
 } from './window-scoped-service-factory';
 
-export interface WindowContextConfig {
+export interface WindowContextConfig<TGlobalServices extends object = Record<string, unknown>> {
 	window: BrowserWindow;
-	globalContainer: ServiceContainer;
+	globalContainer: ServiceContainer<TGlobalServices>;
 	eventBus: EventBus;
-	serviceFactory?: WindowScopedServiceFactory;
+	serviceFactory?: WindowScopedServiceFactory<TGlobalServices>;
 }
 
 /**
  * WindowContext encapsulates all per-window state and services.
  * Each BrowserWindow gets its own WindowContext instance.
  */
-export class WindowContext {
+export class WindowContext<TGlobalServices extends object = Record<string, unknown>> {
 	public readonly windowId: number;
 	public readonly window: BrowserWindow;
 	public readonly container: ServiceContainer;
 	public readonly eventBus: EventBus;
 	private readonly logger: any;
 
-	constructor(config: WindowContextConfig) {
+	constructor(config: WindowContextConfig<TGlobalServices>) {
 		this.window = config.window;
 		this.windowId = config.window.id;
 		this.container = new ServiceContainer();
 		this.eventBus = config.eventBus;
 
-		this.logger = config.globalContainer.has('logger')
-			? config.globalContainer.get<any>('logger')
+		this.logger = config.globalContainer.hasUnknown('logger')
+			? config.globalContainer.getUnknown('logger')
 			: undefined;
 		this.logger?.info('WindowContext', `Creating context for window ${this.windowId}`);
 
 		// Initialize window-scoped services using the factory
-		const factory = config.serviceFactory || createDefaultWindowScopedServiceFactory();
+		const factory =
+			config.serviceFactory || createDefaultWindowScopedServiceFactory<TGlobalServices>();
 		this.initializeServices(config.globalContainer, factory);
 
 		this.eventBus.emit('window:created', {
@@ -68,11 +69,11 @@ export class WindowContext {
 	 * The factory pattern allows new services to be added without modifying this method.
 	 */
 	private async initializeServices(
-		globalContainer: ServiceContainer,
-		serviceFactory: WindowScopedServiceFactory
+		globalContainer: ServiceContainer<TGlobalServices>,
+		serviceFactory: WindowScopedServiceFactory<TGlobalServices>
 	): Promise<void> {
 		try {
-			const storeService = globalContainer.get<StoreService>('store');
+			const storeService = globalContainer.getUnknown('store') as StoreService;
 
 			// Use factory to create and register remaining services
 			await serviceFactory.createAndRegisterAll(this.container, {
@@ -98,9 +99,9 @@ export class WindowContext {
 	 */
 	getService<T>(key: string, globalContainer: ServiceContainer): T {
 		if (this.container.has(key)) {
-			return this.container.get<T>(key);
+			return this.container.get(key) as T;
 		}
-		return globalContainer.get<T>(key);
+		return globalContainer.get(key) as T;
 	}
 
 	/**
@@ -116,18 +117,18 @@ export class WindowContext {
  * WindowContextManager manages all window contexts.
  * Provides a centralized registry to look up contexts by window ID.
  */
-export class WindowContextManager {
-	private contexts = new Map<number, WindowContext>();
+export class WindowContextManager<TGlobalServices extends object = Record<string, unknown>> {
+	private contexts = new Map<number, WindowContext<TGlobalServices>>();
 
 	constructor(
-		private readonly globalContainer: ServiceContainer,
+		private readonly globalContainer: ServiceContainer<TGlobalServices>,
 		private readonly eventBus: EventBus
 	) {}
 
 	/**
 	 * Create a new window context for a BrowserWindow.
 	 */
-	create(window: BrowserWindow): WindowContext {
+	create(window: BrowserWindow): WindowContext<TGlobalServices> {
 		const context = new WindowContext({
 			window,
 			globalContainer: this.globalContainer,
@@ -148,7 +149,7 @@ export class WindowContextManager {
 	 * Get the context for a specific window ID.
 	 * Throws if the context doesn't exist.
 	 */
-	get(windowId: number): WindowContext {
+	get(windowId: number): WindowContext<TGlobalServices> {
 		const context = this.contexts.get(windowId);
 		if (!context) {
 			throw new Error(`No window context found for window ID ${windowId}`);
@@ -159,7 +160,7 @@ export class WindowContextManager {
 	/**
 	 * Get the context for a specific window ID, or undefined if not found.
 	 */
-	tryGet(windowId: number): WindowContext | undefined {
+	tryGet(windowId: number): WindowContext<TGlobalServices> | undefined {
 		return this.contexts.get(windowId);
 	}
 
@@ -174,7 +175,7 @@ export class WindowContextManager {
 	 * Destroy all window contexts.
 	 */
 	async destroyAll(): Promise<void> {
-		const logger = this.globalContainer.get<any>('logger');
+		const logger = this.globalContainer.getUnknown('logger') as { info(s: string, m: string): void };
 		logger?.info('WindowContextManager', `Destroying ${this.contexts.size} window contexts`);
 		for (const context of this.contexts.values()) {
 			await context.destroy();

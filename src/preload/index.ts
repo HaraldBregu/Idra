@@ -22,6 +22,7 @@ import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type {
 	Assistant,
 	AssistantHistoryMessage,
+	ApprovalDecision,
 	AssistantPendingEventPayload,
 	AssistantPendingState,
 	AssistantResponseDelta,
@@ -80,8 +81,8 @@ export const assistant: AssistantApi = {
 	getHistory: (): Promise<AssistantHistoryMessage[]> => {
 		return typedInvokeUnwrap(AssistantChannels.getHistory);
 	},
-	resolveApproval: (id: string, approved: boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(AssistantChannels.resolveApproval, id, approved);
+	resolveApproval: (id: string, decision: ApprovalDecision | boolean): Promise<boolean> => {
+		return typedInvokeUnwrap(AssistantChannels.resolveApproval, id, decision);
 	},
 	resolveInput: (id: string, answer: string): Promise<boolean> => {
 		return typedInvokeUnwrap(AssistantChannels.resolveInput, id, answer);

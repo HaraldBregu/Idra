@@ -7,7 +7,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
-import { AssistantService } from './assistant';
+import { AssistantService } from './service';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
 import { AppsService } from './apps';
@@ -16,20 +16,21 @@ import { McpRegistry } from './mcp';
 
 import type { IpcModule } from './ipc';
 import { AppIpc, AssistantIpc, ChannelsIpc, ConnectorsIpc, CronIpc, WindowIpc } from './ipc';
+import type { MainServiceContainer, MainServices } from './service-registry';
 
 export interface BootstrapResult {
-	container: ServiceContainer;
+	container: MainServiceContainer;
 	eventBus: EventBus;
 	windowFactory: WindowFactory;
 	appState: AppState;
 	logger: LoggerService;
 	workspace: WorkspaceService;
-	windowContextManager: WindowContextManager;
+	windowContextManager: WindowContextManager<MainServices>;
 }
 
 export function bootstrapServices(): BootstrapResult {
 	const appState = new AppState();
-	const container = new ServiceContainer();
+	const container = new ServiceContainer<MainServices>();
 	const eventBus = new EventBus();
 
 	container.register('appState', appState);
@@ -72,8 +73,8 @@ export function bootstrapServices(): BootstrapResult {
 	return { container, eventBus, windowFactory, appState, logger, workspace, windowContextManager };
 }
 
-export function bootstrapIpcModules(container: ServiceContainer, eventBus: EventBus): void {
-	const logger = container.get('logger') as LoggerService;
+export function bootstrapIpcModules(container: MainServiceContainer, eventBus: EventBus): void {
+	const logger = container.get('logger');
 
 	const ipcModules: IpcModule[] = [
 		new AppIpc(),
@@ -373,8 +374,8 @@ export function setupEventLogging(logger: LoggerService): void {
  * Cleanup handler to be called on app quit.
  * Ensures all services are properly disposed.
  */
-export async function cleanup(container: ServiceContainer): Promise<void> {
-	const logger = container.get('logger') as LoggerService;
+export async function cleanup(container: MainServiceContainer): Promise<void> {
+	const logger = container.get('logger');
 	logger.info('Bootstrap', 'Starting cleanup');
 	await container.shutdown();
 	logger.info('Bootstrap', 'Cleanup complete');

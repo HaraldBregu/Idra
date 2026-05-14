@@ -1,0 +1,27 @@
+import { buildSystemPrompt } from '../../../../src/main/agent/system-prompt';
+import type { AgentTool } from '../../../../src/main/tools/types';
+
+describe('agent/system-prompt', () => {
+	it('builds deterministic prompts with sorted tool guidance and memory blocks', async () => {
+		const tools: AgentTool[] = [
+			{ name: 'write', description: 'Write files', schema: {}, execute: jest.fn() },
+			{ name: 'read', description: 'Read files', schema: {}, execute: jest.fn() },
+		];
+		const memory = {
+			readAll: jest.fn(async () => ({ MEMORY: 'remember this' })),
+		};
+
+		const prompt = await buildSystemPrompt({
+			workspace: '/repo',
+			date: '2026-05-14',
+			model: 'gpt-test',
+			tools,
+			memory: memory as never,
+		});
+
+		expect(prompt).toContain('Today is 2026-05-14');
+		expect(prompt.indexOf('**read**')).toBeLessThan(prompt.indexOf('**write**'));
+		expect(prompt).toContain('<MEMORY>\nremember this\n</MEMORY>');
+		expect(prompt).toBe(await buildSystemPrompt({ workspace: '/repo', date: '2026-05-14', model: 'gpt-test', tools, memory: memory as never }));
+	});
+});

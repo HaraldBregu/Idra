@@ -1,8 +1,7 @@
 import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import type { IpcModule } from './ipc-module';
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import type { LoggerService } from '../logger';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapIpcHandler } from './ipc-error-handler';
 import { WindowChannels } from '../../shared/ipc-channels';
 
@@ -25,8 +24,8 @@ import { WindowChannels } from '../../shared/ipc-channels';
 export class WindowIpc implements IpcModule {
 	readonly name = 'window';
 
-	register(container: ServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get<LoggerService>('logger');
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
+		const logger = container.get('logger');
 		// --- Send handlers (fire-and-forget) ---
 
 		ipcMain.on(WindowChannels.minimize, (event) => {

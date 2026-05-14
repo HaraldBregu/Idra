@@ -2,11 +2,8 @@ import { app, ipcMain, BrowserWindow, nativeTheme, shell } from 'electron';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
-import type { ServiceContainer } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
-import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
-import type { AppsService } from '../apps';
+import type { MainServiceContainer } from '../service-registry';
 import type { Assistant, Model } from '../../shared/service';
 import type { ProviderInput, PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
@@ -42,10 +39,10 @@ export class AppIpc implements IpcModule {
 	private lastLanguage: string | null = null;
 	private trayEnabled = true;
 
-	register(container: ServiceContainer, eventBus: EventBus): void {
-		const logger = container.get<LoggerService>('logger');
-		const store = container.get<StoreService>('store');
-		const apps = container.get<AppsService>('apps');
+	register(container: MainServiceContainer, eventBus: EventBus): void {
+		const logger = container.get('logger');
+		const store = container.get('store');
+		const apps = container.get('apps');
 
 		// Language handler
 		ipcMain.on('set-language', (event, language: string) => {

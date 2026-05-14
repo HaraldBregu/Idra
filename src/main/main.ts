@@ -2,6 +2,7 @@ import { BrowserWindow, nativeTheme } from 'electron';
 import type { AppState } from './core/app-state';
 import type { WindowFactory } from './core/window-factory';
 import type { WindowContextManager } from './core/window-context';
+import type { MainServices } from './service-registry';
 
 const DEFAULT_WINDOW_WIDTH = 1200;
 const DEFAULT_WINDOW_HEIGHT = 900;
@@ -19,7 +20,7 @@ export class Main {
 	constructor(
 		private appState: AppState,
 		private windowFactory: WindowFactory,
-		private windowContextManager: WindowContextManager
+		private windowContextManager: WindowContextManager<MainServices>
 	) {
 		// Constructor is now minimal
 		// All services are managed by ServiceContainer in bootstrap
