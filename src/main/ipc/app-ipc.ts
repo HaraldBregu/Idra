@@ -9,6 +9,10 @@ import type { ProviderInput, PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
+import {
+	filterSelectableAssistantModels,
+	isAllowedAssistantModel,
+} from '../provider/model-policy';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
 
@@ -224,7 +228,7 @@ export class AppIpc implements IpcModule {
 				const normalizedProviderId = storedProvider.id.trim().toLowerCase();
 
 				if (normalizedProviderId === 'openai') {
-					return getOpenAiModels(apiKey);
+					return filterSelectableAssistantModels(storedProvider.id, await getOpenAiModels(apiKey));
 				}
 
 				if (normalizedProviderId === 'anthropic') {
@@ -245,6 +249,9 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			ProviderChannels.saveAssistantService,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				if (!isAllowedAssistantModel(provider.id, model.id)) {
+					throw new Error(`Model is not supported for assistant tool use: ${model.id}`);
+				}
 				return store.setAssistantService(provider.id, model);
 			}, ProviderChannels.saveAssistantService)
 		);
