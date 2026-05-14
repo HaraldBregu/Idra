@@ -14,6 +14,10 @@ export const AssistantChannels = {
 	reset: 'assistant:reset',
 	getHistory: 'assistant:get-history',
 	response: 'assistant:response',
+	approve: 'assistant:approve',
+	reject: 'assistant:reject',
+	getPending: 'assistant:get-pending',
+	pending: 'assistant:pending',
 } as const;
 
 export const ProviderChannels = {
