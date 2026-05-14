@@ -64,6 +64,13 @@ export interface ConnectorsApi {
 	) => Promise<unknown>;
 }
 
+export interface SkillsApi {
+	list: () => Promise<SkillInfo[]>;
+	importSkill: () => Promise<SkillInfo | undefined>;
+	delete: (id: string) => Promise<void>;
+	getRoot: () => Promise<string>;
+}
+
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type {
@@ -77,6 +84,7 @@ import type {
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
+import type { SkillInfo } from '../shared/skills';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -110,5 +118,6 @@ declare global {
 		cron: CronApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
+		skills: SkillsApi;
 	}
 }

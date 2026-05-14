@@ -13,9 +13,18 @@ import { WorkspaceService } from './workspace';
 import { AppsService } from './apps';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
+import { SkillsService } from './skills';
 
 import type { IpcModule } from './ipc';
-import { AppIpc, AssistantIpc, ChannelsIpc, ConnectorsIpc, CronIpc, WindowIpc } from './ipc';
+import {
+	AppIpc,
+	AssistantIpc,
+	ChannelsIpc,
+	ConnectorsIpc,
+	CronIpc,
+	SkillsIpc,
+	WindowIpc,
+} from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
 
 export interface BootstrapResult {
@@ -59,6 +68,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	container.register('apps', new AppsService(logger));
+	container.register('skills', new SkillsService(logger));
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
@@ -82,6 +92,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new ChannelsIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),
+		new SkillsIpc(),
 		new WindowIpc(),
 	];
 

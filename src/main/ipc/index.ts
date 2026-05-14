@@ -9,4 +9,5 @@ export { AppIpc } from './app-ipc';
 export { ChannelsIpc } from './channels-ipc';
 export { ConnectorsIpc } from './connectors-ipc';
 export { CronIpc } from './cron-ipc';
+export { SkillsIpc } from './skills-ipc';
 export { WindowIpc } from './window-ipc';

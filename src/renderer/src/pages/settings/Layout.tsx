@@ -9,6 +9,7 @@ import {
 	Plug,
 	Server,
 	SlidersHorizontal,
+	Sparkles,
 	type LucideIcon,
 } from 'lucide-react';
 import { PageContainer, PageSidebar, PageSidebarInset } from '@/components/app/base/page';
@@ -19,6 +20,7 @@ const SETTINGS_ITEMS = [
 	{ path: '/settings/general', labelKey: 'settings.tabs.general', icon: Info },
 	{ path: '/settings/channels', labelKey: 'settings.tabs.channels', icon: BotMessageSquare },
 	{ path: '/settings/connectors', labelKey: 'settings.tabs.connectors', icon: Plug },
+	{ path: '/settings/skills', labelKey: 'settings.tabs.skills', icon: Sparkles },
 	{ path: '/settings/providers', labelKey: 'settings.tabs.providers', icon: Server },
 	{ path: '/settings/system', labelKey: 'settings.tabs.system', icon: SlidersHorizontal },
 	{ path: '/settings/cron', labelKey: 'settings.tabs.cron', icon: CalendarClock },

@@ -153,7 +153,8 @@
 			"editor": "Editor",
 			"cron": "Cron",
 			"developer": "Developer",
-			"apps": "Apps"
+			"apps": "Apps",
+			"skills": "Skills"
 		},
 		"sections": {
 			"permissions": "Permissions",
@@ -333,6 +334,20 @@
 			"saved": "Saved",
 			"loadError": "Unable to load agent settings.",
 			"saveError": "Unable to save agent settings."
+		},
+		"skills": {
+			"title": "Installed skills",
+			"description": "Import or remove local skills available to Friday.",
+			"refresh": "Refresh",
+			"import": "Import Skill",
+			"importing": "Importing...",
+			"delete": "Delete",
+			"empty": "No skills installed",
+			"emptyDescription": "Import a folder that contains SKILL.md.",
+			"confirmDelete": "Delete {{name}}? This removes the skill folder from Friday.",
+			"loadError": "Unable to load skills.",
+			"importError": "Unable to import skill.",
+			"deleteError": "Unable to delete skill."
 		},
 		"channels": {
 			"description": "Choose which messaging channels Friday can connect to.",

@@ -44,6 +44,13 @@ export const AppsChannels = {
 	getRoot: 'apps:get-root',
 } as const;
 
+export const SkillsChannels = {
+	list: 'skills:list',
+	import: 'skills:import',
+	delete: 'skills:delete',
+	getRoot: 'skills:get-root',
+} as const;
+
 export const ConnectorsChannels = {
 	catalog: 'connectors:catalog',
 	list: 'connectors:list',
@@ -148,6 +155,13 @@ interface AppsInvokeChannelMap {
 	[AppsChannels.getRoot]: { args: []; result: string };
 }
 
+interface SkillsInvokeChannelMap {
+	[SkillsChannels.list]: { args: []; result: import('./skills').SkillInfo[] };
+	[SkillsChannels.import]: { args: []; result: import('./skills').SkillInfo | undefined };
+	[SkillsChannels.delete]: { args: [id: string]; result: void };
+	[SkillsChannels.getRoot]: { args: []; result: string };
+}
+
 interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.catalog]: {
 		args: [];
@@ -235,6 +249,7 @@ export interface InvokeChannelMap
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		AppsInvokeChannelMap,
+		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 

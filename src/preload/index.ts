@@ -8,6 +8,7 @@ import {
 	ProviderChannels,
 	CronChannels,
 	AppsChannels,
+	SkillsChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
@@ -15,6 +16,7 @@ import type {
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
+	SkillsApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -152,6 +154,21 @@ export const cron: CronApi = {
 	},
 };
 
+export const skills: SkillsApi = {
+	list: () => {
+		return typedInvokeUnwrap(SkillsChannels.list);
+	},
+	importSkill: () => {
+		return typedInvokeUnwrap(SkillsChannels.import);
+	},
+	delete: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(SkillsChannels.delete, id);
+	},
+	getRoot: (): Promise<string> => {
+		return typedInvokeUnwrap(SkillsChannels.getRoot);
+	},
+};
+
 export const channels: ChannelsApi = {
 	getTelegramConfig: (): Promise<TelegramChannelProperties> => {
 		return typedInvokeUnwrap(ChannelsChannels.getTelegramConfig);
@@ -233,6 +250,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
+		contextBridge.exposeInMainWorld('skills', skills);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -249,4 +267,6 @@ if (process.contextIsolated) {
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.connectors = connectors;
+	// @ts-ignore (define in dts)
+	globalThis.skills = skills;
 }
