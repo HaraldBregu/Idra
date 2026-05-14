@@ -69,9 +69,19 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 	needsApproval: true,
 	async execute(args, ctx) {
 		const command = String(args.command ?? '').trim();
-		if (!command) return textResult('exec: empty command', true);
+		if (!command) {
+			return {
+				...textResult('exec: empty command', true),
+				details: { exitCode: -1, durationMs: 0, truncated: false },
+			};
+		}
 		const denied = isDenied(command);
-		if (denied) return textResult(`exec: denied by safety policy (pattern: ${denied})`, true);
+		if (denied) {
+			return {
+				...textResult(`exec: denied by safety policy (pattern: ${denied})`, true),
+				details: { exitCode: -1, durationMs: 0, truncated: false },
+			};
+		}
 		const cwd = args.workdir
 			? path.isAbsolute(args.workdir)
 				? args.workdir
