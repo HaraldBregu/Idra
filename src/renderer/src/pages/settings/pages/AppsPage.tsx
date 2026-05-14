@@ -1,9 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package, RefreshCw } from 'lucide-react';
+import { AppWindow, FolderOpen, Package, RefreshCw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { AppInfo } from '../../../../../shared/apps';
+import {
+	SettingsEmptyState,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+	SettingsValue,
+} from '../components';
 
 const AppsPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -14,10 +23,7 @@ const AppsPage: React.FC = () => {
 	const loadApps = useCallback(async (): Promise<void> => {
 		setLoading(true);
 		try {
-			const [list, root] = await Promise.all([
-				window.app.listApps(),
-				window.app.getAppsRoot(),
-			]);
+			const [list, root] = await Promise.all([window.app.listApps(), window.app.getAppsRoot()]);
 			setApps(list);
 			setAppsRoot(root);
 		} finally {
@@ -42,41 +48,48 @@ const AppsPage: React.FC = () => {
 		[loadApps, t]
 	);
 
-	const rowClass =
-		'flex min-h-[64px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-2 text-sm last:border-b-0';
-	const contentClass = 'flex min-w-0 flex-1 flex-col gap-1';
-	const titleClass = 'flex items-center gap-2 text-sm leading-snug font-semibold';
-	const descriptionClass = 'text-xs leading-normal text-muted-foreground';
-	const actionsClass = 'ml-auto flex items-center justify-end gap-2';
-	const versionBadgeClass =
-		'rounded-md bg-muted/70 px-2 py-0.5 font-mono text-[10px] text-muted-foreground';
-
 	return (
-		<div className="flex w-full flex-col gap-5">
-			<section>
-				<div className="mb-3 flex items-center justify-between px-2">
-					<h2 className="text-sm font-semibold text-muted-foreground">
-						{t('settings.apps.title')}
-					</h2>
+		<SettingsPageShell>
+			<SettingsPageHeader
+				icon={AppWindow}
+				title={t('settings.tabs.apps')}
+				description={appsRoot}
+				action={
 					<Button variant="outline" size="sm" onClick={loadApps} disabled={loading}>
 						<RefreshCw className="h-3.5 w-3.5" />
 						{t('settings.apps.refresh')}
 					</Button>
-				</div>
+				}
+			/>
 
-				<Card className="gap-0 py-0">
-					<CardContent className="flex flex-col p-0">
-						{apps.length === 0 ? (
-							<div className={rowClass}>
-								<div className={contentClass}>
-									<h3 className={titleClass}>{t('settings.apps.empty')}</h3>
-									<p className={descriptionClass}>{appsRoot}</p>
-								</div>
-							</div>
-						) : (
-							apps.map((appInfo) => (
-								<div key={appInfo.id} className={rowClass}>
-									<div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted/60">
+			<SettingsSection title={t('settings.apps.title')}>
+				<SettingsPanel>
+					{loading ? (
+						<div className="grid gap-3 p-4">
+							<Skeleton className="h-10 w-full" />
+							<Skeleton className="h-10 w-4/5" />
+						</div>
+					) : apps.length === 0 ? (
+						<SettingsEmptyState
+							icon={Package}
+							title={t('settings.apps.empty')}
+							description={appsRoot}
+						/>
+					) : (
+						apps.map((appInfo) => (
+							<SettingsRow
+								key={appInfo.id}
+								title={
+									<span className="flex min-w-0 flex-wrap items-center gap-2">
+										<span className="truncate">{appInfo.manifest.name}</span>
+										<SettingsValue mono className="h-5 py-0 text-[10px]">
+											v{appInfo.manifest.version}
+										</SettingsValue>
+									</span>
+								}
+								description={appInfo.manifest.description}
+								media={
+									<div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-muted/60">
 										{appInfo.iconDataUrl ? (
 											<img
 												src={appInfo.iconDataUrl}
@@ -84,44 +97,29 @@ const AppsPage: React.FC = () => {
 												className="h-full w-full object-cover"
 											/>
 										) : (
-											<Package
-												className="h-4 w-4 text-muted-foreground"
-												strokeWidth={1.5}
-											/>
+											<Package className="size-4 text-muted-foreground" strokeWidth={1.5} />
 										)}
 									</div>
-									<div className={contentClass}>
-										<h3 className={titleClass}>
-											{appInfo.manifest.name}
-											<span className={versionBadgeClass}>v{appInfo.manifest.version}</span>
-										</h3>
-										{appInfo.manifest.description && (
-											<p className={descriptionClass}>{appInfo.manifest.description}</p>
-										)}
-									</div>
-									<div className={actionsClass}>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => handleOpenFolder(appInfo.id)}
-										>
-											{t('settings.apps.openFolder')}
-										</Button>
-										<Button
-											variant="destructive"
-											size="sm"
-											onClick={() => handleDelete(appInfo)}
-										>
-											{t('settings.apps.delete')}
-										</Button>
-									</div>
+								}
+								contentClassName="items-center"
+								actionClassName="sm:flex-nowrap"
+							>
+								<div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+									<Button variant="outline" size="sm" onClick={() => handleOpenFolder(appInfo.id)}>
+										<FolderOpen className="size-3.5" />
+										{t('settings.apps.openFolder')}
+									</Button>
+									<Button variant="destructive" size="sm" onClick={() => handleDelete(appInfo)}>
+										<Trash2 className="size-3.5" />
+										{t('settings.apps.delete')}
+									</Button>
 								</div>
-							))
-						)}
-					</CardContent>
-				</Card>
-			</section>
-		</div>
+							</SettingsRow>
+						))
+					)}
+				</SettingsPanel>
+			</SettingsSection>
+		</SettingsPageShell>
 	);
 };
 

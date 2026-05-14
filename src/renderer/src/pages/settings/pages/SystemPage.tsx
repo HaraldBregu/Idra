@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Languages, Moon, Monitor, SlidersHorizontal, Sun } from 'lucide-react';
 import {
 	Select,
 	SelectTrigger,
@@ -9,10 +10,16 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import { Card, CardContent } from '@/components/ui/card';
-import { Moon, Monitor, Sun } from 'lucide-react';
 import type { AppLanguage } from '../../../contexts';
 import { useApp } from '@/contexts';
+import {
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+} from '../components';
+import type { ThemeMode } from '../../../../../shared';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -26,13 +33,7 @@ const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { theme, language, setLanguage } = useApp();
-	const rowClass =
-		'flex min-h-[48px] w-full flex-wrap items-center gap-3 border-b border-border/70 px-6 py-1.5 text-sm last:border-b-0';
-	const contentClass = 'flex min-w-0 flex-1 flex-col gap-1';
-	const titleClass = 'text-sm leading-snug font-semibold';
-	const descriptionClass = 'text-xs leading-normal text-muted-foreground';
-	const actionsClass = 'ml-auto flex min-w-[180px] items-center justify-end gap-2 text-right';
+	const { theme, language, setTheme, setLanguage } = useApp();
 
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
@@ -41,79 +42,65 @@ const SystemPage: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full">
-			<section>
-				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
-					{t('settings.sections.layout')}
-				</h2>
+		<SettingsPageShell>
+			<SettingsPageHeader
+				icon={SlidersHorizontal}
+				title={t('settings.tabs.system')}
+				description={t('settings.sections.layout')}
+			/>
 
-				<Card className="gap-0 py-0">
-					<CardContent className="flex flex-col p-0">
-						<div className={rowClass}>
-							<div className={contentClass}>
-								<h3 className={titleClass}>{t('settings.theme.title')}</h3>
-								<p className={descriptionClass}>{t('settings.theme.description')}</p>
-							</div>
-							<div className={actionsClass}>
-								<ButtonGroup>
-									<Button
-										variant={theme === 'light' ? 'secondary' : 'outline'}
-										size="icon-sm"
-										onClick={() => {}}
-										aria-label={t('settings.theme.light')}
-										aria-pressed={theme === 'light'}
-									>
-										<Sun className="size-3.5" />
-									</Button>
-									<Button
-										variant={theme === 'system' ? 'secondary' : 'outline'}
-										size="icon-sm"
-										onClick={() => {}}
-										aria-label={t('settings.theme.system')}
-										aria-pressed={theme === 'system'}
-									>
-										<Monitor className="size-3.5" />
-									</Button>
-									<Button
-										variant={theme === 'dark' ? 'secondary' : 'outline'}
-										size="icon-sm"
-										onClick={() => {}}
-										aria-label={t('settings.theme.dark')}
-										aria-pressed={theme === 'dark'}
-									>
-										<Moon className="size-3.5" />
-									</Button>
-								</ButtonGroup>
-							</div>
-						</div>
+			<SettingsSection title={t('settings.sections.layout')}>
+				<SettingsPanel>
+					<SettingsRow
+						icon={Monitor}
+						title={t('settings.theme.title')}
+						description={t('settings.theme.description')}
+					>
+						<ButtonGroup>
+							{[
+								{ value: 'light', label: t('settings.theme.light'), icon: Sun },
+								{ value: 'system', label: t('settings.theme.system'), icon: Monitor },
+								{ value: 'dark', label: t('settings.theme.dark'), icon: Moon },
+							].map((option) => {
+								const Icon = option.icon;
+								const value = option.value as ThemeMode;
 
-						<div className={rowClass}>
-							<div className={contentClass}>
-								<h3 className={titleClass}>{t('settings.language.title')}</h3>
-								<p className={descriptionClass}>{t('settings.language.description')}</p>
-							</div>
-							<div className={actionsClass}>
-								<Select value={language} onValueChange={handleLanguageChange}>
-									<SelectTrigger
-										className="h-8 w-32 text-sm"
-										aria-label={t('settings.language.title')}
+								return (
+									<Button
+										key={option.value}
+										variant={theme === value ? 'secondary' : 'outline'}
+										size="icon-sm"
+										onClick={() => setTheme(value)}
+										aria-label={option.label}
+										aria-pressed={theme === value}
 									>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{LANGUAGE_OPTIONS.map((option) => (
-											<SelectItem key={option.value} value={option.value}>
-												{t(option.labelKey)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-			</section>
-		</div>
+										<Icon className="size-3.5" />
+									</Button>
+								);
+							})}
+						</ButtonGroup>
+					</SettingsRow>
+					<SettingsRow
+						icon={Languages}
+						title={t('settings.language.title')}
+						description={t('settings.language.description')}
+					>
+						<Select value={language} onValueChange={handleLanguageChange}>
+							<SelectTrigger className="w-36" size="sm" aria-label={t('settings.language.title')}>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{LANGUAGE_OPTIONS.map((option) => (
+									<SelectItem key={option.value} value={option.value}>
+										{t(option.labelKey)}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</SettingsRow>
+				</SettingsPanel>
+			</SettingsSection>
+		</SettingsPageShell>
 	);
 };
 

@@ -2,22 +2,32 @@ import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-	PageContainer,
-	PageSidebar,
-	PageSidebarInset,
-} from '@/components/app/base/page';
+	AppWindow,
+	BotMessageSquare,
+	CalendarClock,
+	Info,
+	Plug,
+	Server,
+	SlidersHorizontal,
+	type LucideIcon,
+} from 'lucide-react';
+import { PageContainer, PageSidebar, PageSidebarInset } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts';
 
 const SETTINGS_ITEMS = [
-	{ path: '/settings/general', labelKey: 'settings.tabs.general' },
-	{ path: '/settings/channels', labelKey: 'settings.tabs.channels' },
-	{ path: '/settings/connectors', labelKey: 'settings.tabs.connectors' },
-	{ path: '/settings/providers', labelKey: 'settings.tabs.providers' },
-	{ path: '/settings/system', labelKey: 'settings.tabs.system' },
-	{ path: '/settings/cron', labelKey: 'settings.tabs.cron' },
-	{ path: '/settings/apps', labelKey: 'settings.tabs.apps' },
-] as const;
+	{ path: '/settings/general', labelKey: 'settings.tabs.general', icon: Info },
+	{ path: '/settings/channels', labelKey: 'settings.tabs.channels', icon: BotMessageSquare },
+	{ path: '/settings/connectors', labelKey: 'settings.tabs.connectors', icon: Plug },
+	{ path: '/settings/providers', labelKey: 'settings.tabs.providers', icon: Server },
+	{ path: '/settings/system', labelKey: 'settings.tabs.system', icon: SlidersHorizontal },
+	{ path: '/settings/cron', labelKey: 'settings.tabs.cron', icon: CalendarClock },
+	{ path: '/settings/apps', labelKey: 'settings.tabs.apps', icon: AppWindow },
+] satisfies readonly {
+	readonly path: string;
+	readonly labelKey: string;
+	readonly icon: LucideIcon;
+}[];
 
 export function Layout(): React.JSX.Element {
 	const { t } = useTranslation();
@@ -28,13 +38,14 @@ export function Layout(): React.JSX.Element {
 
 	return (
 		<PageContainer>
-			<div className="flex min-h-0 gap-2 flex-1 overflow-hidden">
-				<PageSidebar className="w-36 border-none px-2">
-					<div className="flex flex-col gap-1">
+			<div className="flex min-h-0 flex-1 gap-2 overflow-hidden">
+				<PageSidebar className="w-14 border-none px-2 sm:w-44">
+					<nav className="flex flex-col gap-1">
 						{SETTINGS_ITEMS.map((item) => {
 							const isActive =
 								pathname === item.path ||
 								(pathname === '/settings' && item.path === '/settings/general');
+							const Icon = item.icon;
 
 							return (
 								<Button
@@ -42,16 +53,18 @@ export function Layout(): React.JSX.Element {
 									type="button"
 									variant={isActive ? 'secondary' : 'ghost'}
 									size="sm"
-									className="w-full justify-start px-3"
+									className="w-full justify-center px-0 sm:justify-start sm:px-2.5"
 									onClick={() => navigate(item.path)}
+									title={t(item.labelKey)}
 								>
-									{t(item.labelKey)}
+									<Icon className="size-3.5" />
+									<span className="hidden min-w-0 truncate sm:inline">{t(item.labelKey)}</span>
 								</Button>
 							);
 						})}
-					</div>
+					</nav>
 				</PageSidebar>
-				<PageSidebarInset className="px-4">
+				<PageSidebarInset className="px-3 pb-4 pt-1 sm:px-4 lg:px-5 lg:py-3">
 					<Outlet />
 				</PageSidebarInset>
 			</div>

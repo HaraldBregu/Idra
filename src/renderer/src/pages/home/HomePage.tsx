@@ -436,7 +436,7 @@ function HomePage(): ReactElement {
 				<ScrollButton className="absolute bottom-4 right-6 shadow-sm" variant="secondary" />
 			</ChatContainerRoot>
 
-			<div className="border-t border-border bg-background px-4 pt-3">
+			<div className="app-translucent-surface border-t border-border/70 px-4 pt-3">
 				{showSuggestions && (
 					<div className="mx-auto mb-3 flex w-full max-w-3xl flex-wrap gap-2">
 						{suggestions.map((s) => (
@@ -452,7 +452,7 @@ function HomePage(): ReactElement {
 					onValueChange={setInput}
 					isLoading={isLoading}
 					onSubmit={handleSubmit}
-					className="mx-auto mb-4 w-full max-w-3xl bg-card"
+					className="app-translucent-surface mx-auto mb-4 w-full max-w-3xl"
 				>
 					<PromptInputTextarea placeholder="Ask Friday anything..." />
 					<PromptInputActions className="justify-between pt-2">

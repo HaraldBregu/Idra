@@ -57,7 +57,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
 		if (level === 'root') {
 			return (
-				<div className="flex h-screen w-full items-center justify-center bg-background">
+				<div className="app-translucent-window flex h-screen w-full items-center justify-center">
 					<Empty>
 						<EmptyHeader>
 							<EmptyMedia>

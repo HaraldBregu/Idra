@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle, Plug, Plus, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type {
 	ConnectorApprovalMode,
@@ -17,6 +24,15 @@ import type {
 } from '../../../../../shared/connectors';
 import { ConnectorCard } from '../connectors/ConnectorCard';
 import { ConnectorToolsList } from '../connectors/ConnectorToolsList';
+import {
+	SettingsEmptyState,
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsSection,
+	SettingsValue,
+} from '../components';
 
 type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
@@ -207,17 +223,15 @@ const ConnectorsPage: React.FC = () => {
 	};
 
 	return (
-		<div className="flex w-full flex-col gap-5">
-			<section>
-				<div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-2">
-					<div>
-						<h2 className="text-sm font-semibold text-muted-foreground">Connectors</h2>
-						<p className="mt-1 text-sm text-muted-foreground">
-							Configure OpenAI-maintained connectors for Responses API tool use.
-						</p>
-					</div>
+		<SettingsPageShell>
+			<SettingsPageHeader
+				icon={Plug}
+				title="Connectors"
+				description="Configure OpenAI-maintained connectors for Responses API tool use."
+				action={
 					<Button
 						type="button"
+						size="sm"
 						onClick={() => {
 							setForm(emptyForm);
 							setShowForm(true);
@@ -226,171 +240,193 @@ const ConnectorsPage: React.FC = () => {
 						<Plus className="size-4" />
 						Add Connector
 					</Button>
-				</div>
+				}
+			/>
 
-				{error && (
-					<div className="mb-4 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-						<AlertTriangle className="mt-0.5 size-4 shrink-0" />
-						<span>{error}</span>
-					</div>
-				)}
+			{error && (
+				<SettingsNotice icon={AlertTriangle} variant="destructive">
+					{error}
+				</SettingsNotice>
+			)}
 
-				{showForm && (
-					<Card className="mb-4 gap-0 py-0">
-						<CardHeader className="border-b border-border/70 py-4">
-							<CardTitle>{form.id ? 'Edit connector' : 'Add connector'}</CardTitle>
-							<CardDescription>
-								Add an OAuth access token from your app authorization flow. Tokens are sent on
-								each Responses API request and are not stored by OpenAI.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="p-4">
-							<form className="grid gap-4" onSubmit={submit}>
-								<div className="grid gap-4 md:grid-cols-2">
-									<label className="grid gap-1.5 text-sm font-medium">
-										Connector
-										<select
-											value={form.connectorId}
-											onChange={(event) => selectConnector(event.target.value as OpenAiConnectorId)}
-											className="cn-input h-10 rounded-md border border-input bg-background px-3 text-sm"
-										>
-											<option value="">Select connector</option>
+			{showForm && (
+				<SettingsSection
+					title={form.id ? 'Edit connector' : 'Add connector'}
+					description="Add an OAuth access token from your app authorization flow. Tokens are sent on each Responses API request and are not stored by OpenAI."
+				>
+					<SettingsPanel>
+						<form className="grid gap-4 p-4" onSubmit={submit}>
+							<div className="grid gap-4 md:grid-cols-2">
+								<label className="grid gap-1.5 text-sm font-medium">
+									Connector
+									<Select
+										value={form.connectorId || null}
+										onValueChange={(value) => {
+											if (value) selectConnector(value as OpenAiConnectorId);
+										}}
+									>
+										<SelectTrigger className="w-full" aria-label="Connector">
+											<SelectValue placeholder="Select connector" />
+										</SelectTrigger>
+										<SelectContent>
 											{catalog.map((connector) => (
-												<option key={connector.id} value={connector.id}>
+												<SelectItem key={connector.id} value={connector.id}>
 													{connector.name}
-												</option>
+												</SelectItem>
 											))}
-										</select>
-									</label>
-
-									<label className="grid gap-1.5 text-sm font-medium">
-										Name
-										<Input
-											value={form.name}
-											onChange={(event) => update('name', event.target.value)}
-											placeholder="Google Calendar"
-										/>
-									</label>
-
-									<label className="grid gap-1.5 text-sm font-medium">
-										Server label
-										<Input
-											value={form.serverLabel}
-											onChange={(event) => update('serverLabel', event.target.value)}
-											placeholder="google_calendar"
-										/>
-									</label>
-
-									<label className="grid gap-1.5 text-sm font-medium">
-										Approval policy
-										<select
-											value={form.requireApproval}
-											onChange={(event) =>
-												update('requireApproval', event.target.value as ConnectorApprovalMode)
-											}
-											className="cn-input h-10 rounded-md border border-input bg-background px-3 text-sm"
-										>
-											<option value="always">Always require approval</option>
-											<option value="never_for_allowed_tools">
-												Skip approval for allowed tools
-											</option>
-											<option value="never">Never require approval</option>
-										</select>
-									</label>
-								</div>
-
-								<label className="grid gap-1.5 text-sm font-medium">
-									Description
-									<Textarea
-										value={form.serverDescription}
-										onChange={(event) => update('serverDescription', event.target.value)}
-										placeholder={selectedCatalog?.description}
-									/>
+										</SelectContent>
+									</Select>
 								</label>
 
 								<label className="grid gap-1.5 text-sm font-medium">
-									OAuth access token
+									Name
 									<Input
-										type="password"
-										value={form.authorization}
-										onChange={(event) => update('authorization', event.target.value)}
-										placeholder="Paste OAuth access token"
+										value={form.name}
+										onChange={(event) => update('name', event.target.value)}
+										placeholder="Google Calendar"
 									/>
 								</label>
 
-								<div className="grid gap-2">
-									<div className="flex flex-wrap items-center justify-between gap-2">
-										<label className="text-sm font-medium">Allowed tools</label>
-										<span className="text-xs text-muted-foreground">
-											Leave all unchecked to allow every available tool.
+								<label className="grid gap-1.5 text-sm font-medium">
+									Server label
+									<Input
+										value={form.serverLabel}
+										onChange={(event) => update('serverLabel', event.target.value)}
+										placeholder="google_calendar"
+									/>
+								</label>
+
+								<label className="grid gap-1.5 text-sm font-medium">
+									Approval policy
+									<Select
+										value={form.requireApproval}
+										onValueChange={(value) => {
+											if (value) update('requireApproval', value as ConnectorApprovalMode);
+										}}
+									>
+										<SelectTrigger className="w-full" aria-label="Approval policy">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="always">Always require approval</SelectItem>
+											<SelectItem value="never_for_allowed_tools">
+												Skip approval for allowed tools
+											</SelectItem>
+											<SelectItem value="never">Never require approval</SelectItem>
+										</SelectContent>
+									</Select>
+								</label>
+							</div>
+
+							<label className="grid gap-1.5 text-sm font-medium">
+								Description
+								<Textarea
+									value={form.serverDescription}
+									onChange={(event) => update('serverDescription', event.target.value)}
+									placeholder={selectedCatalog?.description}
+								/>
+							</label>
+
+							<label className="grid gap-1.5 text-sm font-medium">
+								OAuth access token
+								<Input
+									type="password"
+									value={form.authorization}
+									onChange={(event) => update('authorization', event.target.value)}
+									placeholder="Paste OAuth access token"
+								/>
+							</label>
+
+							<div className="grid gap-2">
+								<div className="flex flex-wrap items-center justify-between gap-2">
+									<label className="text-sm font-medium">Allowed tools</label>
+									<span className="text-xs text-muted-foreground">
+										Leave all unselected to allow every available tool.
+									</span>
+								</div>
+								<div className="flex min-h-14 flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
+									{selectedCatalog ? (
+										selectedCatalog.tools.map((tool) => {
+											const selected = form.allowedTools.includes(tool);
+
+											return (
+												<Button
+													key={tool}
+													type="button"
+													variant={selected ? 'secondary' : 'outline'}
+													size="xs"
+													aria-pressed={selected}
+													onClick={() => toggleAllowedTool(tool)}
+												>
+													{tool}
+												</Button>
+											);
+										})
+									) : (
+										<p className="text-sm text-muted-foreground">Select a connector first.</p>
+									)}
+								</div>
+							</div>
+
+							<div className="grid gap-3 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
+								<label className="flex items-center justify-between gap-3 text-sm">
+									<span className="min-w-0">
+										<span className="block font-medium">Defer tool loading</span>
+										<span className="block text-xs text-muted-foreground">
+											Load tools only when the connector is used.
 										</span>
-									</div>
-									<div className="grid gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
-										{selectedCatalog ? (
-											selectedCatalog.tools.map((tool) => (
-												<label key={tool} className="flex items-center gap-2 text-sm">
-													<input
-														type="checkbox"
-														checked={form.allowedTools.includes(tool)}
-														onChange={() => toggleAllowedTool(tool)}
-													/>
-													<span className="font-mono text-xs">{tool}</span>
-												</label>
-											))
-										) : (
-											<p className="text-sm text-muted-foreground">Select a connector first.</p>
-										)}
-									</div>
+									</span>
+									<Switch
+										checked={form.deferLoading}
+										onCheckedChange={(checked) => update('deferLoading', checked)}
+									/>
+								</label>
+								<label className="flex items-center justify-between gap-3 text-sm">
+									<span className="min-w-0">
+										<span className="block font-medium">Enabled</span>
+										<span className="block text-xs text-muted-foreground">
+											Make this connector available to assistant runs.
+										</span>
+									</span>
+									<Switch
+										checked={form.enabled}
+										onCheckedChange={(checked) => update('enabled', checked)}
+									/>
+								</label>
+							</div>
+
+							{selectedCatalog && (
+								<div className="flex flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
+									{selectedCatalog.scopes.map((scope) => (
+										<Badge key={scope} variant="outline">
+											{scope}
+										</Badge>
+									))}
 								</div>
+							)}
 
-								<div className="flex flex-wrap items-center gap-4">
-									<label className="flex items-center gap-2 text-sm">
-										<input
-											type="checkbox"
-											checked={form.deferLoading}
-											onChange={(event) => update('deferLoading', event.target.checked)}
-										/>
-										Defer tool loading
-									</label>
-									<label className="flex items-center gap-2 text-sm">
-										<input
-											type="checkbox"
-											checked={form.enabled}
-											onChange={(event) => update('enabled', event.target.checked)}
-										/>
-										Enabled
-									</label>
-								</div>
+							<div className="flex flex-wrap justify-end gap-2">
+								<Button type="button" variant="outline" onClick={resetForm} disabled={saving}>
+									Cancel
+								</Button>
+								<Button type="submit" disabled={!canSubmit}>
+									{saving ? 'Saving...' : form.id ? 'Save Connector' : 'Add Connector'}
+								</Button>
+							</div>
+						</form>
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 
-								{selectedCatalog && (
-									<div className="flex flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
-										{selectedCatalog.scopes.map((scope) => (
-											<Badge key={scope} variant="outline">
-												{scope}
-											</Badge>
-										))}
-									</div>
-								)}
-
-								<div className="flex justify-end gap-2">
-									<Button type="button" variant="outline" onClick={resetForm} disabled={saving}>
-										Cancel
-									</Button>
-									<Button type="submit" disabled={!canSubmit}>
-										{saving ? 'Saving...' : form.id ? 'Save Connector' : 'Add Connector'}
-									</Button>
-								</div>
-							</form>
-						</CardContent>
-					</Card>
-				)}
-
+			<SettingsSection title="Configured connectors">
 				{connectors.length === 0 ? (
-					<Card className="gap-0 py-0">
-						<CardContent className="p-6 text-sm text-muted-foreground">
-							No connectors configured yet.
-						</CardContent>
-					</Card>
+					<SettingsPanel>
+						<SettingsEmptyState
+							icon={Plug}
+							title="No connectors configured yet."
+							description="Add a connector to make external tools available to assistant runs."
+						/>
+					</SettingsPanel>
 				) : (
 					<div className="grid gap-4">
 						{connectors.map((connector) => (
@@ -429,20 +465,27 @@ const ConnectorsPage: React.FC = () => {
 						))}
 					</div>
 				)}
-			</section>
+			</SettingsSection>
 
 			{selectedId && (
-				<section className="flex flex-col gap-3">
-					<div className="flex flex-wrap items-center justify-between gap-2 px-2">
-						<h3 className="text-sm font-semibold text-muted-foreground">Tools</h3>
+				<SettingsSection
+					title="Tools"
+					action={
 						<Button variant="outline" size="sm" onClick={() => setSelectedId(null)}>
 							Close
 						</Button>
+					}
+				>
+					<div className="flex flex-wrap gap-2 px-1">
+						<SettingsValue>
+							<Wrench className="mr-1.5 size-3.5" />
+							{selectedTools.length} tools
+						</SettingsValue>
 					</div>
 					<ConnectorToolsList tools={selectedTools} />
-				</section>
+				</SettingsSection>
 			)}
-		</div>
+		</SettingsPageShell>
 	);
 };
 

@@ -15,7 +15,7 @@
 @utility chat-scrollbar {
 	scrollbar-gutter: stable;
 	scrollbar-width: thin;
-	scrollbar-color: color-mix(in oklch, var(--muted-foreground) 36%, transparent) transparent;
+	scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
 
 	&::-webkit-scrollbar {
 		width: 10px;
@@ -27,14 +27,14 @@
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: color-mix(in oklch, var(--muted-foreground) 36%, transparent);
+		background-color: var(--app-scrollbar-thumb);
 		background-clip: content-box;
 		border: 3px solid transparent;
 		border-radius: 999px;
 	}
 
 	&::-webkit-scrollbar-thumb:hover {
-		background-color: color-mix(in oklch, var(--muted-foreground) 54%, transparent);
+		background-color: var(--app-scrollbar-thumb-hover);
 	}
 }
 
@@ -93,6 +93,13 @@
 
 :root {
 	--radius: 0.625rem;
+	--app-window-background: oklch(1 0 0 / 72%);
+	--app-surface-background: oklch(1 0 0 / 68%);
+	--app-popover-background: oklch(1 0 0 / 84%);
+	--app-sidebar-background: oklch(0.985 0 0 / 66%);
+	--app-scrollbar-track: transparent;
+	--app-scrollbar-thumb: color-mix(in oklch, var(--muted-foreground) 34%, transparent);
+	--app-scrollbar-thumb-hover: color-mix(in oklch, var(--muted-foreground) 52%, transparent);
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.145 0 0);
 	--card: oklch(1 0 0);
@@ -136,6 +143,12 @@
 }
 
 .dark {
+	--app-window-background: oklch(0.145 0 0 / 72%);
+	--app-surface-background: oklch(0.205 0 0 / 68%);
+	--app-popover-background: oklch(0.205 0 0 / 86%);
+	--app-sidebar-background: oklch(0.205 0 0 / 66%);
+	--app-scrollbar-thumb: color-mix(in oklch, var(--foreground) 24%, transparent);
+	--app-scrollbar-thumb-hover: color-mix(in oklch, var(--foreground) 38%, transparent);
 	--background: oklch(0.145 0 0);
 	--foreground: oklch(0.985 0 0);
 	--card: oklch(0.205 0 0);
@@ -181,16 +194,79 @@
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
+		scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
+		scrollbar-width: thin;
+	}
+	*::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	*::-webkit-scrollbar-track {
+		background: var(--app-scrollbar-track);
+	}
+	*::-webkit-scrollbar-thumb {
+		background-color: var(--app-scrollbar-thumb);
+		background-clip: content-box;
+		border: 3px solid transparent;
+		border-radius: 999px;
+	}
+	*::-webkit-scrollbar-thumb:hover {
+		background-color: var(--app-scrollbar-thumb-hover);
 	}
 	::selection {
 		@apply bg-selection text-selection-foreground;
 	}
+	html,
+	body,
+	#root {
+		min-height: 100%;
+		background: transparent;
+	}
 	body {
-		@apply bg-background text-foreground;
+		@apply text-foreground;
 		font-synthesis-weight: none;
 		text-rendering: optimizeLegibility;
 	}
 	.cn-font-heading {
 		@apply font-heading;
 	}
+}
+
+.app-translucent-window {
+	background-color: var(--app-window-background);
+	-webkit-backdrop-filter: blur(28px) saturate(140%);
+	backdrop-filter: blur(28px) saturate(140%);
+}
+
+.app-translucent-surface {
+	background-color: var(--app-surface-background);
+	-webkit-backdrop-filter: blur(20px) saturate(135%);
+	backdrop-filter: blur(20px) saturate(135%);
+}
+
+[data-slot='card'],
+[data-slot='dialog-content'],
+[data-slot='sheet-content'],
+[data-slot='dropdown-menu-content'],
+[data-slot='dropdown-menu-sub-content'],
+[data-slot='select-content'],
+[data-sidebar='sidebar'] {
+	-webkit-backdrop-filter: blur(18px) saturate(130%);
+	backdrop-filter: blur(18px) saturate(130%);
+}
+
+[data-slot='card'] {
+	background-color: var(--app-surface-background);
+}
+
+[data-slot='dialog-content'],
+[data-slot='sheet-content'],
+[data-slot='dropdown-menu-content'],
+[data-slot='dropdown-menu-sub-content'],
+[data-slot='select-content'] {
+	background-color: var(--app-popover-background);
+}
+
+[data-sidebar='sidebar'] {
+	background-color: var(--app-sidebar-background);
 }

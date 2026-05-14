@@ -12,6 +12,7 @@ if (isLinux) {
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
 
 function getPlatformWindowOptions() {
   if (isMac) {
@@ -39,12 +40,14 @@ function createWindow() {
     minWidth: 760,
     minHeight: 540,
     show: false,
+    useContentSize: true,
     frame: false,
     transparent: true,
     resizable: true,
     maximizable: true,
     fullscreenable: true,
     hasShadow: true,
+    autoHideMenuBar: true,
     backgroundColor: '#00000000',
     title: 'Glass Desktop',
     trafficLightPosition: { x: 18, y: 18 },
@@ -58,9 +61,11 @@ function createWindow() {
     ...getPlatformWindowOptions()
   });
 
+  win.setBackgroundColor('#00000000');
   win.loadFile(path.join(__dirname, 'index.html'));
 
   win.once('ready-to-show', () => {
+    win.setBackgroundColor('#00000000');
     win.show();
   });
 

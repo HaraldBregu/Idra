@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock3, Trash2 } from 'lucide-react';
+import { CalendarClock, Clock3, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from '@/components/ui/empty';
 import {
 	Table,
 	TableBody,
@@ -19,6 +11,13 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import type { CronTaskView } from '../../../../../shared/cron';
+import {
+	SettingsEmptyState,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsSection,
+} from '../components';
 
 function formatTimestamp(value: string | undefined): string {
 	if (!value) return '—';
@@ -58,15 +57,17 @@ const CronPage: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full">
-			<section>
-				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
-					{t('settings.sections.cron')}
-				</h2>
+		<SettingsPageShell>
+			<SettingsPageHeader
+				icon={CalendarClock}
+				title={t('settings.tabs.cron')}
+				description={t('settings.sections.cron')}
+			/>
 
-				<Card className="gap-0 py-0">
-					<CardContent className="overflow-hidden p-0">
-						<Table>
+			<SettingsSection title={t('settings.sections.cron')}>
+				<SettingsPanel>
+					<div className="overflow-x-auto">
+						<Table className="min-w-[780px]">
 							<TableHeader>
 								<TableRow>
 									<TableHead className="w-24 max-w-24">{t('settings.cron.columns.id')}</TableHead>
@@ -108,24 +109,21 @@ const CronPage: React.FC = () => {
 								{cronTasks.length === 0 && (
 									<TableRow>
 										<TableCell colSpan={6} className="py-8">
-											<Empty className="border-0 p-0">
-												<EmptyHeader>
-													<EmptyMedia variant="icon">
-														<Clock3 className="size-4" />
-													</EmptyMedia>
-													<EmptyTitle>{t('settings.cron.emptyTitle')}</EmptyTitle>
-													<EmptyDescription>{t('settings.cron.emptyDescription')}</EmptyDescription>
-												</EmptyHeader>
-											</Empty>
+											<SettingsEmptyState
+												icon={Clock3}
+												title={t('settings.cron.emptyTitle')}
+												description={t('settings.cron.emptyDescription')}
+												className="min-h-32"
+											/>
 										</TableCell>
 									</TableRow>
 								)}
 							</TableBody>
 						</Table>
-					</CardContent>
-				</Card>
-			</section>
-		</div>
+					</div>
+				</SettingsPanel>
+			</SettingsSection>
+		</SettingsPageShell>
 	);
 };
 

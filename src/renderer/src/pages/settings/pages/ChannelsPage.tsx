@@ -1,11 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bot, MessageCircleMore, Plus, Send, X, type LucideIcon } from 'lucide-react';
+import {
+	Bot,
+	MessageCircleMore,
+	Phone,
+	Plus,
+	RadioTower,
+	Send,
+	ShieldCheck,
+	X,
+	type LucideIcon,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { ChannelConnectionStatus } from '../../../../../shared/channels';
+import {
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+	SettingsValue,
+} from '../components';
 
 interface ChannelCardDefinition {
 	readonly key: 'telegram' | 'discord';
@@ -155,67 +173,62 @@ const ChannelsPage: React.FC = () => {
 	};
 
 	return (
-		<div className="flex w-full flex-col gap-5">
-			<section>
-				<h2 className="mb-2 px-2 text-sm font-semibold text-muted-foreground">
-					{t('settings.sections.channels')}
-				</h2>
-				<p className="mb-4 px-2 text-sm text-muted-foreground">
-					{t('settings.channels.description')}
-				</p>
+		<SettingsPageShell>
+			<SettingsPageHeader
+				icon={RadioTower}
+				title={t('settings.tabs.channels')}
+				description={t('settings.channels.description')}
+			/>
 
+			<SettingsSection title={t('settings.sections.channels')}>
 				<div className="grid gap-4">
 					{CHANNEL_CARDS.map((channel) => {
 						const Icon = channel.icon;
 
 						return (
-							<Card key={channel.key} className="gap-0 py-0">
-								<CardHeader className="gap-3 border-b border-border/70 py-4">
-									<div className="flex items-start justify-between gap-3">
-										<div className="flex min-w-0 items-center gap-3">
-											<div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-muted/40">
-												<Icon className="size-4 text-foreground" />
-											</div>
-											<div className="min-w-0">
-												<CardTitle>{t(`channels.${channel.key}`)}</CardTitle>
-												<CardDescription className="mt-1">
-													{t(`channels.${channel.key}Description`)}
-												</CardDescription>
-											</div>
+							<SettingsPanel key={channel.key}>
+								<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-4 py-3">
+									<div className="flex min-w-0 items-center gap-3">
+										<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
+											<Icon className="size-4 text-foreground" />
 										</div>
-										<Badge variant="outline">
-											{t(`settings.channels.${channel.availabilityKey}`)}
-										</Badge>
+										<div className="min-w-0">
+											<h3 className="text-sm font-semibold">{t(`channels.${channel.key}`)}</h3>
+											<p className="mt-1 text-xs leading-normal text-muted-foreground">
+												{t(`channels.${channel.key}Description`)}
+											</p>
+										</div>
 									</div>
-								</CardHeader>
-								<CardContent className="flex flex-col gap-3 py-4">
-									<div className="flex items-center justify-between rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-										<span className="text-xs text-muted-foreground">
-											{t('settings.channels.integration')}
-										</span>
-										<span className="inline-flex items-center gap-2 text-sm font-medium">
-											<Bot className="size-4 text-muted-foreground" />
-											{t('settings.channels.bot')}
-										</span>
-									</div>
-									{channel.key === 'telegram' && (
-										<>
-											<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-												<div className="min-w-0">
-													<p className="text-xs font-medium text-foreground">
-														{t('settings.channels.token')}
-													</p>
-													<p className="text-xs text-muted-foreground">
-														{t('settings.channels.tokenDescription')}
-													</p>
-												</div>
+									<Badge
+										variant={channel.availabilityKey === 'available' ? 'secondary' : 'outline'}
+									>
+										{t(`settings.channels.${channel.availabilityKey}`)}
+									</Badge>
+								</div>
+
+								<SettingsRow icon={Bot} title={t('settings.channels.integration')}>
+									<SettingsValue>
+										<Bot className="mr-1.5 size-3.5" />
+										{t('settings.channels.bot')}
+									</SettingsValue>
+								</SettingsRow>
+
+								{channel.key === 'telegram' && (
+									<>
+										<SettingsRow
+											icon={ShieldCheck}
+											title={t('settings.channels.token')}
+											description={t('settings.channels.tokenDescription')}
+											actionClassName="w-full sm:w-auto sm:flex-nowrap"
+										>
+											<div className="flex w-full min-w-0 flex-col gap-2 sm:w-[420px] sm:flex-row">
 												<Input
 													type="password"
 													value={telegramToken}
 													onChange={(event) => setTelegramToken(event.target.value)}
 													onBlur={handleTelegramTokenBlur}
 													placeholder={t('settings.channels.telegramTokenPlaceholder')}
-													className="max-w-sm text-sm"
+													className="min-w-0 text-sm"
 													aria-label={t('settings.channels.token')}
 												/>
 												<Button
@@ -228,58 +241,50 @@ const ChannelsPage: React.FC = () => {
 													{t('common.save')}
 												</Button>
 											</div>
+										</SettingsRow>
 
-											<div className="flex flex-col gap-3 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-												<div className="flex flex-wrap items-start justify-between gap-3">
-													<div className="min-w-0">
-														<p className="text-xs font-medium text-foreground">
-															{t('settings.channels.allowFrom')}
-														</p>
-														<p className="text-xs text-muted-foreground">
-															{t('settings.channels.phoneNumberDescription')}
-														</p>
-													</div>
-													<div className="flex min-w-[260px] max-w-sm flex-1 items-center gap-2">
-														<Input
-															type="tel"
-															value={phoneNumberDraft}
-															onChange={(event) => setPhoneNumberDraft(event.target.value)}
-															onKeyDown={(event) => {
-																if (event.key === 'Enter') {
-																	event.preventDefault();
-																	addAllowedPhoneNumber();
-																}
-															}}
-															placeholder={t('settings.channels.phoneNumberPlaceholder')}
-															className="text-sm"
-															aria-label={t('settings.channels.phoneNumber')}
-														/>
-														<Button
-															type="button"
-															variant="outline"
-															size="icon-sm"
-															onClick={addAllowedPhoneNumber}
-															aria-label={t('settings.channels.addPhoneNumber')}
-															title={t('settings.channels.addPhoneNumber')}
-														>
-															<Plus className="size-3.5" />
-														</Button>
-													</div>
+										<SettingsRow
+											icon={Phone}
+											title={t('settings.channels.allowFrom')}
+											description={t('settings.channels.phoneNumberDescription')}
+											actionClassName="w-full sm:w-auto"
+										>
+											<div className="flex w-full min-w-0 flex-col gap-2 sm:w-[420px]">
+												<div className="flex min-w-0 items-center gap-2">
+													<Input
+														type="tel"
+														value={phoneNumberDraft}
+														onChange={(event) => setPhoneNumberDraft(event.target.value)}
+														onKeyDown={(event) => {
+															if (event.key === 'Enter') {
+																event.preventDefault();
+																addAllowedPhoneNumber();
+															}
+														}}
+														placeholder={t('settings.channels.phoneNumberPlaceholder')}
+														className="min-w-0 text-sm"
+														aria-label={t('settings.channels.phoneNumber')}
+													/>
+													<Button
+														type="button"
+														variant="outline"
+														size="icon-sm"
+														onClick={addAllowedPhoneNumber}
+														aria-label={t('settings.channels.addPhoneNumber')}
+														title={t('settings.channels.addPhoneNumber')}
+													>
+														<Plus className="size-3.5" />
+													</Button>
 												</div>
-
 												<div className="flex flex-wrap gap-2">
 													{allowedPhoneNumbers.length > 0 ? (
 														allowedPhoneNumbers.map((phoneNumber) => (
-															<Badge
-																key={phoneNumber}
-																variant="outline"
-																className="gap-1.5 pr-1"
-															>
+															<Badge key={phoneNumber} variant="outline" className="gap-1.5 pr-1">
 																{phoneNumber}
 																<button
 																	type="button"
 																	onClick={() => removeAllowedPhoneNumber(phoneNumber)}
-																	className="rounded-sm text-muted-foreground hover:text-foreground"
+																	className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 																	aria-label={t('settings.channels.removePhoneNumber', {
 																		phoneNumber,
 																	})}
@@ -295,62 +300,59 @@ const ChannelsPage: React.FC = () => {
 													)}
 												</div>
 											</div>
+										</SettingsRow>
 
-											<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-												<div className="min-w-0">
-													<p className="text-xs font-medium text-foreground">
-														{t('settings.channels.status')}
-													</p>
-													<p className="text-xs text-muted-foreground">
-														{t(`channels.status.${telegramStatus}`)}
-													</p>
-													{telegramError && (
-														<p className="mt-1 max-w-xl text-xs text-destructive">
-															{telegramError}
-														</p>
-													)}
-												</div>
-												<div className="flex items-center gap-2">
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy || !telegramToken.trim()}
-														onClick={() => void handleStartTelegram()}
-													>
-														{t('settings.channels.pair')}
-													</Button>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy || !telegramToken.trim()}
-														onClick={() => void handleRestartTelegram()}
-													>
-														{t('settings.channels.reconnect')}
-													</Button>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy}
-														onClick={() => void handleStopTelegram()}
-													>
-														{t('common.close')}
-													</Button>
-												</div>
+										<SettingsRow
+											icon={RadioTower}
+											title={t('settings.channels.status')}
+											description={t(`channels.status.${telegramStatus}`)}
+										>
+											<div className="flex flex-wrap items-center gap-2">
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													disabled={telegramBusy || !telegramToken.trim()}
+													onClick={() => void handleStartTelegram()}
+												>
+													{t('settings.channels.pair')}
+												</Button>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													disabled={telegramBusy || !telegramToken.trim()}
+													onClick={() => void handleRestartTelegram()}
+												>
+													{t('settings.channels.reconnect')}
+												</Button>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													disabled={telegramBusy}
+													onClick={() => void handleStopTelegram()}
+												>
+													{t('common.close')}
+												</Button>
 											</div>
-										</>
-									)}
-								</CardContent>
-							</Card>
+										</SettingsRow>
+
+										{telegramError && (
+											<div className="border-t border-border/70 px-4 py-3">
+												<SettingsNotice variant="destructive">{telegramError}</SettingsNotice>
+											</div>
+										)}
+									</>
+								)}
+							</SettingsPanel>
 						);
 					})}
 				</div>
-			</section>
+			</SettingsSection>
 
-			<p className="px-2 text-xs text-muted-foreground">{t('settings.channels.moreSoon')}</p>
-		</div>
+			<SettingsNotice>{t('settings.channels.moreSoon')}</SettingsNotice>
+		</SettingsPageShell>
 	);
 };
 

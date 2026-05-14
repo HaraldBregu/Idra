@@ -18,10 +18,10 @@ export const PageContainer = memo(function PageContainer({
 	return (
 		<Provider initialState={initialState}>
 			<div
-				className={cn('flex h-full flex-col', className)}
+				className={cn('flex h-full flex-col bg-transparent', className)}
 				style={
 					{
-						backgroundColor: 'var(--page-background, hsl(var(--background)))',
+						backgroundColor: 'var(--page-background)',
 					} as React.CSSProperties
 				}
 			>
@@ -45,12 +45,12 @@ export const PageHeader = memo(function PageHeader({
 	return (
 		<div
 			className={cn(
-				'flex shrink-0 flex-col border-b px-6 py-2 gap-1',
+				'app-translucent-surface flex shrink-0 flex-col border-b px-6 py-2 gap-1',
 				className
 			)}
 			style={
 				{
-					backgroundColor: 'var(--page-header-background)',
+					backgroundColor: 'var(--page-header-background, var(--app-surface-background))',
 				} as React.CSSProperties
 			}
 		>

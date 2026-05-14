@@ -213,7 +213,7 @@ function PageSidebarLayoutInset({ className, ...props }: React.ComponentProps<'m
 		<main
 			data-slot="sidebar-inset"
 			className={cn(
-				'relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2',
+				'relative flex w-full flex-1 flex-col bg-transparent md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2',
 				className
 			)}
 			{...props}
@@ -226,7 +226,7 @@ function PageSidebarLayoutInput({ className, ...props }: React.ComponentProps<ty
 		<Input
 			data-slot="sidebar-input"
 			data-sidebar="input"
-			className={cn('h-8 w-full bg-background shadow-none', className)}
+			className={cn('h-8 w-full bg-background/70 shadow-none supports-backdrop-filter:backdrop-blur-xl', className)}
 			{...props}
 		/>
 	);

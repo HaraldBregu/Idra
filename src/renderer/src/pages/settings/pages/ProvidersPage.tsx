@@ -3,9 +3,18 @@ import { AlertTriangle, CheckCircle2, KeyRound, Plus, Server } from 'lucide-reac
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { ProviderInput, PublicProvider } from '../../../../../shared/providers';
+import {
+	SettingsEmptyState,
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+} from '../components';
 
 interface ProviderFormState {
 	readonly id: string;
@@ -46,10 +55,10 @@ const ProvidersPage: React.FC = () => {
 		try {
 			const nextProviders = await window.app.getProviders();
 			const statusEntries = await Promise.all(
-				nextProviders.map(async (provider) => [
-					provider.id,
-					await window.app.isProviderApiKeySaved(provider.id),
-				] as const)
+				nextProviders.map(
+					async (provider) =>
+						[provider.id, await window.app.isProviderApiKeySaved(provider.id)] as const
+				)
 			);
 			setProviders(nextProviders);
 			setApiKeyStatus(Object.fromEntries(statusEntries));
@@ -92,164 +101,145 @@ const ProvidersPage: React.FC = () => {
 		!saving;
 
 	return (
-		<div className="flex w-full flex-col gap-5">
-			<section>
-				<div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-2">
-					<div>
-						<h2 className="text-sm font-semibold text-muted-foreground">
-							{t('settings.providers.title')}
-						</h2>
-						<p className="mt-1 text-sm text-muted-foreground">
-							{t('settings.providers.description')}
-						</p>
-					</div>
+		<SettingsPageShell>
+			<SettingsPageHeader
+				icon={Server}
+				title={t('settings.tabs.providers')}
+				description={t('settings.providers.description')}
+				action={
 					<Button type="button" size="sm" onClick={() => setShowForm(true)}>
 						<Plus className="size-4" />
 						{t('settings.providers.addProvider')}
 					</Button>
-				</div>
+				}
+			/>
 
-				{error && (
-					<div className="mb-4 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-						<AlertTriangle className="mt-0.5 size-4 shrink-0" />
-						<span>{error}</span>
-					</div>
-				)}
+			{error && (
+				<SettingsNotice icon={AlertTriangle} variant="destructive">
+					{error}
+				</SettingsNotice>
+			)}
 
-				{showForm && (
-					<Card className="gap-0 py-0">
-						<CardHeader className="border-b border-border/70 py-4">
-							<div className="flex min-w-0 items-center gap-3">
-								<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
-									<Plus className="size-4 text-foreground" />
-								</div>
-								<div className="min-w-0">
-									<CardTitle>{t('settings.providers.addTitle')}</CardTitle>
-									<CardDescription className="mt-1">
-										{t('settings.providers.addDescription')}
-									</CardDescription>
-								</div>
+			{showForm && (
+				<SettingsSection
+					title={t('settings.providers.addTitle')}
+					description={t('settings.providers.addDescription')}
+				>
+					<SettingsPanel>
+						<form className="grid gap-4 p-4 md:grid-cols-2" onSubmit={handleSubmit}>
+							<label className="flex flex-col gap-1.5 text-sm font-medium">
+								{t('settings.providers.id')}
+								<Input
+									value={form.id}
+									onChange={(event) => updateForm('id', event.target.value)}
+									placeholder={t('settings.providers.idPlaceholder')}
+									autoComplete="off"
+								/>
+							</label>
+
+							<label className="flex flex-col gap-1.5 text-sm font-medium">
+								{t('settings.providers.name')}
+								<Input
+									value={form.name}
+									onChange={(event) => updateForm('name', event.target.value)}
+									placeholder={t('settings.providers.namePlaceholder')}
+									autoComplete="off"
+								/>
+							</label>
+
+							<label className="flex flex-col gap-1.5 text-sm font-medium md:col-span-2">
+								{t('settings.providers.baseUrl')}
+								<Input
+									value={form.baseUrl}
+									onChange={(event) => updateForm('baseUrl', event.target.value)}
+									placeholder={t('settings.providers.baseUrlPlaceholder')}
+									type="url"
+									autoComplete="off"
+								/>
+							</label>
+
+							<label className="flex flex-col gap-1.5 text-sm font-medium md:col-span-2">
+								{t('providers.apiKey')}
+								<Input
+									value={form.apiKey}
+									onChange={(event) => updateForm('apiKey', event.target.value)}
+									placeholder={t('settings.providers.apiKeyPlaceholder')}
+									type="password"
+									autoComplete="off"
+								/>
+							</label>
+
+							<div className="flex flex-wrap justify-end gap-2 md:col-span-2">
+								<Button
+									type="button"
+									variant="outline"
+									disabled={saving}
+									onClick={() => {
+										setForm(emptyForm);
+										setShowForm(false);
+									}}
+								>
+									{t('common.cancel')}
+								</Button>
+								<Button type="submit" disabled={!canSubmit}>
+									{saving ? t('settings.providers.saving') : t('settings.providers.addProvider')}
+								</Button>
 							</div>
-						</CardHeader>
-						<CardContent className="p-4">
-							<form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
-								<label className="flex flex-col gap-1.5 text-sm font-medium">
-									{t('settings.providers.id')}
-									<Input
-										value={form.id}
-										onChange={(event) => updateForm('id', event.target.value)}
-										placeholder={t('settings.providers.idPlaceholder')}
-										autoComplete="off"
-									/>
-								</label>
+						</form>
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 
-								<label className="flex flex-col gap-1.5 text-sm font-medium">
-									{t('settings.providers.name')}
-									<Input
-										value={form.name}
-										onChange={(event) => updateForm('name', event.target.value)}
-										placeholder={t('settings.providers.namePlaceholder')}
-										autoComplete="off"
-									/>
-								</label>
-
-								<label className="flex flex-col gap-1.5 text-sm font-medium md:col-span-2">
-									{t('settings.providers.baseUrl')}
-									<Input
-										value={form.baseUrl}
-										onChange={(event) => updateForm('baseUrl', event.target.value)}
-										placeholder={t('settings.providers.baseUrlPlaceholder')}
-										type="url"
-										autoComplete="off"
-									/>
-								</label>
-
-								<label className="flex flex-col gap-1.5 text-sm font-medium md:col-span-2">
-									{t('providers.apiKey')}
-									<Input
-										value={form.apiKey}
-										onChange={(event) => updateForm('apiKey', event.target.value)}
-										placeholder={t('settings.providers.apiKeyPlaceholder')}
-										type="password"
-										autoComplete="off"
-									/>
-								</label>
-
-								<div className="flex justify-end gap-2 md:col-span-2">
-									<Button
-										type="button"
-										variant="outline"
-										disabled={saving}
-										onClick={() => {
-											setForm(emptyForm);
-											setShowForm(false);
-										}}
-									>
-										{t('common.cancel')}
-									</Button>
-									<Button type="submit" disabled={!canSubmit}>
-										{saving ? t('settings.providers.saving') : t('settings.providers.addProvider')}
-									</Button>
-								</div>
-							</form>
-						</CardContent>
-					</Card>
-				)}
-			</section>
-
-			<section>
-				<h2 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
-					{t('settings.providers.registeredProviders')}
-				</h2>
-
+			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				{loading ? (
-					<Card className="gap-0 py-0">
-						<CardContent className="p-6 text-sm text-muted-foreground">
-							{t('settings.providers.loading')}
-						</CardContent>
-					</Card>
+					<SettingsPanel>
+						<div className="grid gap-3 p-4">
+							<Skeleton className="h-10 w-full" />
+							<Skeleton className="h-10 w-5/6" />
+						</div>
+					</SettingsPanel>
 				) : providers.length === 0 ? (
-					<Card className="gap-0 py-0">
-						<CardContent className="p-6 text-sm text-muted-foreground">
-							{t('settings.providers.noProviders')}
-						</CardContent>
-					</Card>
+					<SettingsPanel>
+						<SettingsEmptyState
+							icon={Server}
+							title={t('settings.providers.noProviders')}
+							description={t('settings.providers.description')}
+						/>
+					</SettingsPanel>
 				) : (
-					<div className="grid gap-3">
+					<SettingsPanel>
 						{providers.map((provider) => (
-							<Card key={provider.id} className="gap-0 py-0">
-								<CardContent className="flex flex-wrap items-center gap-3 p-4">
-									<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
-										<Server className="size-4 text-foreground" />
-									</div>
-									<div className="min-w-0 flex-1">
-										<div className="flex flex-wrap items-center gap-2">
-											<h3 className="text-sm font-semibold">{provider.name}</h3>
-											<Badge variant="outline" className="font-mono text-[11px]">
-												{provider.id}
-											</Badge>
-										</div>
-										<p className="mt-1 truncate font-mono text-xs text-muted-foreground">
-											{provider.baseUrl}
-										</p>
-									</div>
-									<Badge variant={apiKeyStatus[provider.id] ? 'secondary' : 'outline'}>
-										{apiKeyStatus[provider.id] ? (
-											<CheckCircle2 className="mr-1 size-3" />
-										) : (
-											<KeyRound className="mr-1 size-3" />
-										)}
-										{apiKeyStatus[provider.id]
-											? t('settings.providers.keySaved')
-											: t('settings.providers.keyMissing')}
-									</Badge>
-								</CardContent>
-							</Card>
+							<SettingsRow
+								key={provider.id}
+								icon={Server}
+								title={
+									<span className="flex min-w-0 flex-wrap items-center gap-2">
+										<span className="truncate">{provider.name}</span>
+										<Badge variant="outline" className="font-mono text-[11px]">
+											{provider.id}
+										</Badge>
+									</span>
+								}
+								description={
+									<span className="block truncate font-mono text-xs">{provider.baseUrl}</span>
+								}
+							>
+								<Badge variant={apiKeyStatus[provider.id] ? 'secondary' : 'outline'}>
+									{apiKeyStatus[provider.id] ? (
+										<CheckCircle2 className="mr-1 size-3" />
+									) : (
+										<KeyRound className="mr-1 size-3" />
+									)}
+									{apiKeyStatus[provider.id]
+										? t('settings.providers.keySaved')
+										: t('settings.providers.keyMissing')}
+								</Badge>
+							</SettingsRow>
 						))}
-					</div>
+					</SettingsPanel>
 				)}
-			</section>
-		</div>
+			</SettingsSection>
+		</SettingsPageShell>
 	);
 };
 

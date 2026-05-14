@@ -28,7 +28,7 @@ function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex h-screen flex-col overflow-hidden bg-background">
+		<div className="app-translucent-window flex h-screen flex-col overflow-hidden text-foreground">
 			<TitleBar title={t('appTitle')} />
 			<div className="min-h-0 flex-1 overflow-hidden">
 				<Outlet />
@@ -41,7 +41,7 @@ const routes: RouteObject[] = [
 	{
 		element: <RootRouteComponent />,
 		errorElement: (
-			<div className="flex h-screen flex-col bg-background">
+			<div className="app-translucent-window flex h-screen flex-col text-foreground">
 				<RouteErrorElement />
 			</div>
 		),

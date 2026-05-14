@@ -1,4 +1,5 @@
-import { BrowserWindow, nativeTheme } from 'electron';
+import { BrowserWindow } from 'electron';
+import type { BrowserWindowConstructorOptions } from 'electron';
 import type { AppState } from './core/app-state';
 import type { WindowFactory } from './core/window-factory';
 import type { WindowContextManager } from './core/window-context';
@@ -9,8 +10,23 @@ const DEFAULT_WINDOW_HEIGHT = 900;
 const STARTUP_WINDOW_WIDTH = 800;
 const STARTUP_WINDOW_HEIGHT = 600;
 
-function getBackgroundColor(): string {
-	return nativeTheme.shouldUseDarkColors ? '#1A1A1A' : '#F7F7F7';
+const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
+
+function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
+	if (process.platform === 'darwin') {
+		return {
+			vibrancy: 'under-window',
+			visualEffectState: 'active',
+		};
+	}
+
+	if (process.platform === 'win32') {
+		return {
+			backgroundMaterial: 'acrylic',
+		};
+	}
+
+	return {};
 }
 
 export class Main {
@@ -77,7 +93,9 @@ export class Main {
 				titleBarStyle: 'hidden' as const,
 				trafficLightPosition,
 			}),
-			backgroundColor: getBackgroundColor(),
+			transparent: true,
+			backgroundColor: TRANSPARENT_WINDOW_BACKGROUND,
+			...getPlatformTranslucencyOptions(),
 		};
 	}
 

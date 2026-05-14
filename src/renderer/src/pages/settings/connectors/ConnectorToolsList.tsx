@@ -3,6 +3,7 @@ import { ShieldCheck, ShieldAlert, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ConnectorTool } from '../../../../../shared/connectors';
+import { SettingsEmptyState } from '../components';
 
 export function ConnectorToolsList({
 	tools,
@@ -11,16 +12,21 @@ export function ConnectorToolsList({
 }): React.JSX.Element {
 	if (tools.length === 0) {
 		return (
-			<Card className="gap-0 py-0">
-				<CardContent className="p-4 text-sm text-muted-foreground">
-					No tools selected for this connector.
+			<Card size="sm" className="gap-0 py-0">
+				<CardContent className="p-0">
+					<SettingsEmptyState
+						icon={Wrench}
+						title="No tools selected for this connector."
+						description="Refresh tools or change the connector allowlist."
+						className="min-h-32"
+					/>
 				</CardContent>
 			</Card>
 		);
 	}
 
 	return (
-		<Card className="gap-0 py-0">
+		<Card size="sm" className="gap-0 py-0">
 			<CardContent className="flex flex-col p-0">
 				{tools.map((tool) => (
 					<div

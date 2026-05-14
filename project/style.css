@@ -60,9 +60,12 @@ button {
     linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 32%),
     rgba(9, 12, 19, 0.42);
   box-shadow: var(--shadow-deep);
+  isolation: isolate;
   transform: translateZ(0);
   will-change: transform, backdrop-filter;
   contain: layout paint style;
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.35)) saturate(135%);
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.35)) saturate(135%);
 }
 
 .window-shell.is-maximized {
