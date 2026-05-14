@@ -67,7 +67,7 @@ const win: WindowApi = {
 } satisfies WindowApi;
 
 export const assistant: AssistantApi = {
-	send: (message: string): Promise<AssistantSendResult> => {
+	send: (message: string): Promise<string> => {
 		return typedInvokeUnwrap(AssistantChannels.send, message);
 	},
 	reset: (): Promise<void> => {
@@ -93,6 +93,9 @@ export const assistant: AssistantApi = {
 	},
 	onResponse: (callback: (event: { response: string }) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
+	},
+	onPending: (callback: (event: AssistantPendingEventPayload) => void): (() => void) => {
+		return typedOn(AssistantChannels.pending, callback);
 	},
 } satisfies AssistantApi;
 
