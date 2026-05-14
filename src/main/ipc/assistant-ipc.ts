@@ -21,17 +21,8 @@ export class AssistantIpc implements IpcModule {
 
 		ipcMain.handle(
 			AssistantChannels.send,
-			wrapSimpleHandler(async (message: string): Promise<AssistantSendResult> => {
-				const text = await assistant.send(message);
-				return {
-					status: assistant.hasPending() ? 'awaiting_approval' : 'completed',
-					text,
-					pending: assistant.getPendingApprovals().map((p) => ({
-						callId: p.callId,
-						toolName: p.toolName,
-						arguments: p.arguments,
-					})),
-				};
+			wrapSimpleHandler((message: string): Promise<string> => {
+				return assistant.send(message);
 			}, AssistantChannels.send)
 		);
 
