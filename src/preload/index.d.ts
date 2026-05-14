@@ -69,10 +69,9 @@ import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
 import type {
 	Assistant,
 	AssistantHistoryMessage,
-	AssistantPendingApproval,
 	AssistantPendingEventPayload,
-	AssistantPendingInput,
-	AssistantSendResult,
+	AssistantPendingState,
+	AssistantResponseDelta,
 	Model,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
