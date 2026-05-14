@@ -5,7 +5,8 @@ import type { LoggerService } from '../logger';
 import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { WorkspaceService } from '../workspace';
-import { Assistant } from './assistant';
+import { Assistant, type SendResult } from './assistant';
+import type { PendingApproval } from './run-state';
 import { DEFAULT_ASSISTANT_ID } from './constants';
 import { AssistantRegistry } from './registry';
 
@@ -46,6 +47,30 @@ export class AssistantService {
 
 	getHistory(assistantId = this.defaultAssistantId): Promise<ChatCompletionMessageParam[]> {
 		return this.ensure(assistantId).getHistory();
+	}
+
+	approve(
+		callId: string,
+		opts: { alwaysApprove?: boolean } = {},
+		assistantId = this.defaultAssistantId
+	): Promise<SendResult> {
+		return this.ensure(assistantId).approve(callId, opts);
+	}
+
+	reject(
+		callId: string,
+		opts: { alwaysReject?: boolean; message?: string } = {},
+		assistantId = this.defaultAssistantId
+	): Promise<SendResult> {
+		return this.ensure(assistantId).reject(callId, opts);
+	}
+
+	getPendingApprovals(assistantId = this.defaultAssistantId): PendingApproval[] {
+		return this.ensure(assistantId).getPendingApprovals();
+	}
+
+	hasPending(assistantId = this.defaultAssistantId): boolean {
+		return this.ensure(assistantId).hasPending();
 	}
 
 	get(assistantId = this.defaultAssistantId): Assistant {
