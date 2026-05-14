@@ -8,7 +8,12 @@ import type {
 	Tool as ResponseTool,
 } from 'openai/resources/responses/responses';
 import type { Tool } from './tools/base';
-import { RunState, type PendingApproval, type PendingToolCall } from './run-state';
+import {
+	RunState,
+	type PendingApproval,
+	type PendingInputRequest,
+	type PendingToolCall,
+} from './run-state';
 import type { TokenUsage } from './run-logger';
 
 const DEFAULT_MAX_ITERATIONS = 20;
@@ -28,7 +33,7 @@ export interface RunHooks {
 		tool: string;
 		arguments: string;
 		durationMs: number;
-		status: 'ok' | 'error' | 'rejected';
+		status: 'ok' | 'error' | 'rejected' | 'input_resolved';
 		outputChars: number;
 	}) => void | Promise<void>;
 	onApprovalRequest?: (info: {
@@ -36,10 +41,20 @@ export interface RunHooks {
 		iteration: number;
 		pending: PendingApproval[];
 	}) => void | Promise<void>;
+	onInputRequest?: (info: {
+		runId: string;
+		iteration: number;
+		pending: PendingInputRequest[];
+	}) => void | Promise<void>;
 	onFinish?: (info: {
 		runId: string;
 		iterations: number;
-		status: 'completed' | 'awaiting_approval' | 'max_iterations' | 'error';
+		status:
+			| 'completed'
+			| 'awaiting_approval'
+			| 'awaiting_input'
+			| 'max_iterations'
+			| 'error';
 		usage: TokenUsage;
 		outputChars: number;
 		durationMs: number;
@@ -70,6 +85,17 @@ export type RunOutcome =
 			status: 'awaiting_approval';
 			text: string;
 			pending: PendingApproval[];
+			pendingInputs: PendingInputRequest[];
+			newMessages: ChatCompletionMessageParam[];
+			state: RunState;
+			usage: TokenUsage;
+			iterations: number;
+	  }
+	| {
+			status: 'awaiting_input';
+			text: string;
+			pending: PendingApproval[];
+			pendingInputs: PendingInputRequest[];
 			newMessages: ChatCompletionMessageParam[];
 			state: RunState;
 			usage: TokenUsage;
@@ -121,6 +147,14 @@ function addUsage(acc: TokenUsage, u?: { input_tokens?: number; output_tokens?: 
 	acc.totalTokens += u.total_tokens ?? (u.input_tokens ?? 0) + (u.output_tokens ?? 0);
 }
 
+function safeParse(json: string): Record<string, unknown> {
+	try {
+		return JSON.parse(json) as Record<string, unknown>;
+	} catch {
+		return {};
+	}
+}
+
 interface ToolExecContext {
 	runId: string;
 	iteration: number;
@@ -129,95 +163,183 @@ interface ToolExecContext {
 	hooks?: RunHooks;
 }
 
-async function executePendingToolCalls(
-	calls: PendingToolCall[],
-	ctx: ToolExecContext
-): Promise<ResponseInputItem[]> {
-	return Promise.all(
-		calls.map(async (call) => {
-			const start = Date.now();
-			const tool = ctx.toolMap.get(call.name);
-			const decision = ctx.state.decisionFor(call.callId, call.name);
+type ToolPlan =
+	| { action: 'execute'; call: PendingToolCall; tool: Tool; effectiveArguments: string }
+	| { action: 'rejected'; call: PendingToolCall; message: string }
+	| { action: 'input_resolved'; call: PendingToolCall; output: string }
+	| { action: 'pending_approval'; call: PendingToolCall; tool: Tool; request: PendingApproval }
+	| { action: 'pending_input'; call: PendingToolCall; tool: Tool; request: PendingInputRequest }
+	| { action: 'unknown_tool'; call: PendingToolCall };
 
-			if (!tool) {
-				const output = `Error: unknown tool '${call.name}'`;
+async function classify(call: PendingToolCall, ctx: ToolExecContext): Promise<ToolPlan> {
+	const tool = ctx.toolMap.get(call.name);
+	if (!tool) return { action: 'unknown_tool', call };
+
+	if (tool.kind === 'input') {
+		const stored = ctx.state.inputResponseFor(call.callId);
+		if (stored !== undefined) {
+			return { action: 'input_resolved', call, output: stored };
+		}
+		const parsed = safeParse(call.arguments);
+		const suggestions = Array.isArray(parsed.suggestions)
+			? (parsed.suggestions.filter((v): v is string => typeof v === 'string') as string[])
+			: undefined;
+		return {
+			action: 'pending_input',
+			call,
+			tool,
+			request: {
+				callId: call.callId,
+				toolName: call.name,
+				question: typeof parsed.question === 'string' ? parsed.question : '',
+				suggestions,
+			},
+		};
+	}
+
+	const decision = ctx.state.decisionFor(call.callId, call.name);
+	if (decision?.decision === 'reject') {
+		return {
+			action: 'rejected',
+			call,
+			message: decision.message ?? `Tool call '${call.name}' rejected by human reviewer.`,
+		};
+	}
+	if (decision?.decision === 'approve') {
+		return {
+			action: 'execute',
+			call,
+			tool,
+			effectiveArguments: decision.editedArguments ?? call.arguments,
+		};
+	}
+
+	const requires = await tool.needsApproval(safeParse(call.arguments));
+	if (requires) {
+		return {
+			action: 'pending_approval',
+			call,
+			tool,
+			request: {
+				callId: call.callId,
+				toolName: call.name,
+				arguments: call.arguments,
+			},
+		};
+	}
+	return { action: 'execute', call, tool, effectiveArguments: call.arguments };
+}
+
+async function executePlans(plans: ToolPlan[], ctx: ToolExecContext): Promise<ResponseInputItem[]> {
+	return Promise.all(
+		plans.map(async (plan) => {
+			const start = Date.now();
+			if (plan.action === 'unknown_tool') {
+				const output = `Error: unknown tool '${plan.call.name}'`;
 				await ctx.hooks?.onToolCall?.({
 					runId: ctx.runId,
 					iteration: ctx.iteration,
-					callId: call.callId,
-					tool: call.name,
-					arguments: call.arguments,
+					callId: plan.call.callId,
+					tool: plan.call.name,
+					arguments: plan.call.arguments,
 					durationMs: Date.now() - start,
 					status: 'error',
 					outputChars: output.length,
 				});
-				return { type: 'function_call_output' as const, call_id: call.callId, output };
+				return { type: 'function_call_output' as const, call_id: plan.call.callId, output };
 			}
-
-			if (decision?.decision === 'reject') {
-				const output =
-					decision.message ?? `Tool call '${call.name}' rejected by human reviewer.`;
+			if (plan.action === 'rejected') {
 				await ctx.hooks?.onToolCall?.({
 					runId: ctx.runId,
 					iteration: ctx.iteration,
-					callId: call.callId,
-					tool: call.name,
-					arguments: call.arguments,
+					callId: plan.call.callId,
+					tool: plan.call.name,
+					arguments: plan.call.arguments,
 					durationMs: Date.now() - start,
 					status: 'rejected',
-					outputChars: output.length,
+					outputChars: plan.message.length,
 				});
-				return { type: 'function_call_output' as const, call_id: call.callId, output };
+				return {
+					type: 'function_call_output' as const,
+					call_id: plan.call.callId,
+					output: plan.message,
+				};
 			}
-
-			let args: Record<string, unknown> = {};
-			try {
-				args = JSON.parse(call.arguments);
-			} catch {
-				args = {};
-			}
-
-			try {
-				const output = await tool.execute(args);
+			if (plan.action === 'input_resolved') {
 				await ctx.hooks?.onToolCall?.({
 					runId: ctx.runId,
 					iteration: ctx.iteration,
-					callId: call.callId,
-					tool: call.name,
-					arguments: call.arguments,
+					callId: plan.call.callId,
+					tool: plan.call.name,
+					arguments: plan.call.arguments,
 					durationMs: Date.now() - start,
-					status: 'ok',
-					outputChars: output.length,
+					status: 'input_resolved',
+					outputChars: plan.output.length,
 				});
-				return { type: 'function_call_output' as const, call_id: call.callId, output };
-			} catch (err) {
-				const output = `Error executing ${call.name}: ${(err as Error).message}`;
-				await ctx.hooks?.onToolCall?.({
-					runId: ctx.runId,
-					iteration: ctx.iteration,
-					callId: call.callId,
-					tool: call.name,
-					arguments: call.arguments,
-					durationMs: Date.now() - start,
-					status: 'error',
-					outputChars: output.length,
-				});
-				return { type: 'function_call_output' as const, call_id: call.callId, output };
+				return {
+					type: 'function_call_output' as const,
+					call_id: plan.call.callId,
+					output: plan.output,
+				};
 			}
+			if (plan.action === 'execute') {
+				const args = safeParse(plan.effectiveArguments);
+				try {
+					const output = await plan.tool.execute(args);
+					await ctx.hooks?.onToolCall?.({
+						runId: ctx.runId,
+						iteration: ctx.iteration,
+						callId: plan.call.callId,
+						tool: plan.call.name,
+						arguments: plan.effectiveArguments,
+						durationMs: Date.now() - start,
+						status: 'ok',
+						outputChars: output.length,
+					});
+					return {
+						type: 'function_call_output' as const,
+						call_id: plan.call.callId,
+						output,
+					};
+				} catch (err) {
+					const output = `Error executing ${plan.call.name}: ${(err as Error).message}`;
+					await ctx.hooks?.onToolCall?.({
+						runId: ctx.runId,
+						iteration: ctx.iteration,
+						callId: plan.call.callId,
+						tool: plan.call.name,
+						arguments: plan.effectiveArguments,
+						durationMs: Date.now() - start,
+						status: 'error',
+						outputChars: output.length,
+					});
+					return {
+						type: 'function_call_output' as const,
+						call_id: plan.call.callId,
+						output,
+					};
+				}
+			}
+			// pending_* plans never reach executePlans — caller filters
+			throw new Error(`executePlans received pending plan for ${plan.call.name}`);
 		})
 	);
 }
 
 /**
- * Responses API loop with human-in-the-loop approval and lifecycle hooks.
+ * Responses API loop with human-in-the-loop and lifecycle hooks.
  *
- * State is threaded via {@link RunState}. When a tool exposes
- * {@link Tool.needsApproval} and no decision is recorded yet the loop pauses,
- * stores both the pending approvals and the matching function calls on the
- * state, and returns `status: 'awaiting_approval'`. The host resolves each
- * one with `state.approve` / `state.reject` and calls {@link runAgent} again
- * with the same state to resume — at which point the loop executes the
- * deferred tool calls and feeds the outputs back to the model.
+ * Two interruption modes share the same pause/resume infrastructure:
+ *   - **Approval**: a normal tool exposes {@link Tool.needsApproval} as truthy
+ *     and no decision is recorded yet. Resolve via `state.approve` /
+ *     `state.reject` (optionally with edited args or rejection message).
+ *   - **Input**: a tool with `kind === 'input'` (e.g. `ask_human`) is called
+ *     by the model. Resolve via `state.recordInputResponse(callId, answer)`.
+ *
+ * When any classifications come back pending, the loop persists the deferred
+ * function calls onto the state and returns. Call {@link runAgent} again with
+ * the same state to resume — deferred calls run in order using the recorded
+ * decisions / answers, and the conversation continues.
  */
 export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 	const {
@@ -240,22 +362,86 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 
 	await hooks?.onStart?.({ runId, iteration: state.data.iteration });
 
+	const pauseFor = async (
+		approvals: PendingApproval[],
+		inputs: PendingInputRequest[],
+		deferred: PendingToolCall[],
+		iter: number
+	): Promise<RunOutcome> => {
+		state.setPending(approvals);
+		state.setPendingInputs(inputs);
+		state.data.pendingToolCalls = deferred;
+		if (approvals.length > 0) {
+			await hooks?.onApprovalRequest?.({ runId, iteration: iter, pending: approvals });
+		}
+		if (inputs.length > 0) {
+			await hooks?.onInputRequest?.({ runId, iteration: iter, pending: inputs });
+		}
+		const status: 'awaiting_approval' | 'awaiting_input' =
+			approvals.length > 0 ? 'awaiting_approval' : 'awaiting_input';
+		const summary =
+			approvals.length > 0
+				? `Awaiting human approval for ${approvals.length} tool call(s): ${approvals
+						.map((p) => p.toolName)
+						.join(', ')}`
+				: `Awaiting human input: ${inputs.map((p) => p.question).join(' / ')}`;
+		await hooks?.onFinish?.({
+			runId,
+			iterations: iter + 1,
+			status,
+			usage,
+			outputChars: 0,
+			durationMs: Date.now() - runStart,
+		});
+		return {
+			status,
+			text: summary,
+			pending: approvals,
+			pendingInputs: inputs,
+			newMessages: state.data.newMessages,
+			state,
+			usage,
+			iterations: iter + 1,
+		};
+	};
+
+	const ctx: ToolExecContext = {
+		runId,
+		iteration: state.data.iteration,
+		state,
+		toolMap,
+		hooks,
+	};
+
 	try {
-		// Resume path: execute deferred tool calls before talking to the model.
+		// Resume path: drain deferred tool calls before talking to the model.
 		if (state.data.pendingToolCalls.length > 0) {
-			const outputs = await executePendingToolCalls(state.data.pendingToolCalls, {
-				runId,
-				iteration: state.data.iteration,
-				state,
-				toolMap,
-				hooks,
-			});
+			const plans = await Promise.all(
+				state.data.pendingToolCalls.map((c) => classify(c, ctx))
+			);
+			const stillApproval = plans
+				.filter((p): p is Extract<ToolPlan, { action: 'pending_approval' }> => p.action === 'pending_approval')
+				.map((p) => p.request);
+			const stillInput = plans
+				.filter((p): p is Extract<ToolPlan, { action: 'pending_input' }> => p.action === 'pending_input')
+				.map((p) => p.request);
+			if (stillApproval.length > 0 || stillInput.length > 0) {
+				return pauseFor(stillApproval, stillInput, state.data.pendingToolCalls, state.data.iteration);
+			}
+			const executable = plans.filter(
+				(p): p is Exclude<ToolPlan, { action: 'pending_approval' | 'pending_input' }> =>
+					p.action !== 'pending_approval' && p.action !== 'pending_input'
+			);
+			const outputs = await executePlans(executable, ctx);
 			state.data.input = [...state.data.input, ...outputs];
 			state.data.pendingToolCalls = [];
+			state.setPending([]);
+			state.setPendingInputs([]);
 		}
 
 		for (; state.data.iteration < maxIterations; state.data.iteration++) {
 			const iter = state.data.iteration;
+			ctx.iteration = iter;
 			const iterStart = Date.now();
 			const response = await client.responses.create({
 				model: typeof model === 'function' ? model() : model,
@@ -318,76 +504,39 @@ export async function runAgent(params: RunAgentParams): Promise<RunOutcome> {
 				};
 			}
 
-			const pendingApprovals: PendingApproval[] = [];
-			for (const call of functionCalls) {
-				const tool = toolMap.get(call.name);
-				if (!tool) continue;
-				if (state.decisionFor(call.call_id, call.name)) continue;
-				let args: Record<string, unknown> = {};
-				try {
-					args = JSON.parse(call.arguments);
-				} catch {
-					args = {};
-				}
-				const requires = await tool.needsApproval(args);
-				if (requires) {
-					pendingApprovals.push({
-						callId: call.call_id,
-						toolName: call.name,
-						arguments: call.arguments,
-					});
-				}
-			}
+			const deferred: PendingToolCall[] = functionCalls.map((c) => ({
+				callId: c.call_id,
+				name: c.name,
+				arguments: c.arguments,
+			}));
+			const plans = await Promise.all(deferred.map((c) => classify(c, ctx)));
+			const approvals = plans
+				.filter((p): p is Extract<ToolPlan, { action: 'pending_approval' }> => p.action === 'pending_approval')
+				.map((p) => p.request);
+			const inputs = plans
+				.filter((p): p is Extract<ToolPlan, { action: 'pending_input' }> => p.action === 'pending_input')
+				.map((p) => p.request);
 
-			if (pendingApprovals.length > 0) {
-				state.setPending(pendingApprovals);
-				state.data.pendingToolCalls = functionCalls.map((call) => ({
-					callId: call.call_id,
-					name: call.name,
-					arguments: call.arguments,
-				}));
+			if (approvals.length > 0 || inputs.length > 0) {
 				state.data.input = [
 					...state.data.input,
 					...(response.output as unknown as ResponseInputItem[]),
 				];
-				await hooks?.onApprovalRequest?.({ runId, iteration: iter, pending: pendingApprovals });
-				const summary = `Awaiting human approval for ${pendingApprovals.length} tool call(s): ${pendingApprovals
-					.map((p) => p.toolName)
-					.join(', ')}`;
-				await hooks?.onFinish?.({
-					runId,
-					iterations: iter + 1,
-					status: 'awaiting_approval',
-					usage,
-					outputChars: 0,
-					durationMs: Date.now() - runStart,
-				});
-				return {
-					status: 'awaiting_approval',
-					text: summary,
-					pending: pendingApprovals,
-					newMessages: state.data.newMessages,
-					state,
-					usage,
-					iterations: iter + 1,
-				};
+				return pauseFor(approvals, inputs, deferred, iter);
 			}
 
-			const toolOutputs = await executePendingToolCalls(
-				functionCalls.map((call) => ({
-					callId: call.call_id,
-					name: call.name,
-					arguments: call.arguments,
-				})),
-				{ runId, iteration: iter, state, toolMap, hooks }
+			const executable = plans.filter(
+				(p): p is Exclude<ToolPlan, { action: 'pending_approval' | 'pending_input' }> =>
+					p.action !== 'pending_approval' && p.action !== 'pending_input'
 			);
-
+			const toolOutputs = await executePlans(executable, ctx);
 			state.data.input = [
 				...state.data.input,
 				...(response.output as unknown as ResponseInputItem[]),
 				...toolOutputs,
 			];
 			state.setPending([]);
+			state.setPendingInputs([]);
 		}
 
 		const text = 'Error: max iterations reached';
