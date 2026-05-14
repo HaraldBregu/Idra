@@ -14,7 +14,6 @@ import {
 } from '../../../../shared/providers';
 import type { Model } from '../../../../shared/service';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -93,6 +92,14 @@ const StartPage: React.FC = () => {
 		step === 'model'
 			? 'Pick the model Friday uses when a new assistant run starts.'
 			: 'Save access for the provider Friday should use.';
+	const setupStatus =
+		step === 'model'
+			? selectedModelName
+				? `${configProviderName} - ${selectedModelName}`
+				: modelCountLabel
+			: apiKeySaved
+				? `${selectedProviderName} access saved`
+				: `${selectedProviderName} selected`;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -252,208 +259,248 @@ const StartPage: React.FC = () => {
 	}
 
 	return (
-		<main className="h-full min-h-0 overflow-y-auto bg-background text-foreground">
-			<section className="mx-auto flex min-h-full w-full max-w-2xl items-center px-4 py-6 sm:px-6">
-				<Card className="w-full">
-					<CardContent className="space-y-6 p-5 sm:p-6">
-						<div className="space-y-2">
-							<p className="text-sm font-medium text-muted-foreground">Step {stepNumber} of 2</p>
-							<h1 className="text-2xl font-semibold tracking-tight">Friday assistant</h1>
+		<main className="relative h-full min-h-0 overflow-y-auto bg-background text-foreground">
+			<div className="pointer-events-none absolute inset-0 overflow-hidden">
+				<div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+				<div className="absolute -bottom-40 -right-32 h-80 w-80 rounded-full bg-muted blur-3xl" />
+			</div>
+
+			<section className="relative mx-auto grid min-h-full w-full max-w-5xl items-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
+				<div className="space-y-6">
+					<div className="inline-flex h-8 items-center rounded-full border border-border bg-background/80 px-3 text-xs font-medium text-muted-foreground shadow-sm">
+						Step {stepNumber} / 2
+					</div>
+
+					<div className="space-y-3">
+						<h1 className="max-w-sm text-4xl font-semibold tracking-tight sm:text-5xl">
+							Set up Friday.
+						</h1>
+						<p className="max-w-md text-base leading-7 text-muted-foreground">
+							Connect one provider, choose one model, and go straight to the assistant.
+						</p>
+					</div>
+
+					<ol
+						className="grid max-w-md gap-2 text-sm sm:grid-cols-2"
+						aria-label={`Setup progress: step ${stepNumber} of 2`}
+					>
+						<li
+							className={`rounded-lg border p-3 ${
+								step === 'api-key'
+									? 'border-foreground/20 bg-background/90'
+									: 'border-border bg-background/60'
+							}`}
+							aria-current={step === 'api-key' ? 'step' : undefined}
+						>
+							<p className="font-medium">Provider</p>
+							<p className="mt-1 truncate text-muted-foreground">
+								{apiKeySaved ? 'Access saved' : selectedProviderName}
+							</p>
+						</li>
+						<li
+							className={`rounded-lg border p-3 ${
+								step === 'model'
+									? 'border-foreground/20 bg-background/90'
+									: 'border-border bg-background/60'
+							}`}
+							aria-current={step === 'model' ? 'step' : undefined}
+						>
+							<p className="font-medium">Model</p>
+							<p className="mt-1 truncate text-muted-foreground">
+								{step === 'model' ? selectedModelName || modelCountLabel : 'Next'}
+							</p>
+						</li>
+					</ol>
+				</div>
+
+				<div className="rounded-xl border border-border bg-background/90 p-5 shadow-xl shadow-foreground/5 backdrop-blur sm:p-6">
+					<div className="mb-6 space-y-2">
+						<p className="text-sm font-medium text-muted-foreground">{setupStatus}</p>
+						<h2 className="text-xl font-semibold tracking-tight">{formTitle}</h2>
+						<p className="text-sm leading-6 text-muted-foreground">{formDescription}</p>
+					</div>
+
+					{step === 'api-key' ? (
+						<div className="space-y-4">
+							<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
+								<div className="space-y-2">
+									<Label htmlFor="provider-select">Provider</Label>
+									<Select
+										value={selectedProvider}
+										onValueChange={(value) => {
+											setErrorMessage('');
+											setSelectedProvider(value ?? '');
+										}}
+										disabled={providerOptions.length === 0 || savingApiKey}
+									>
+										<SelectTrigger id="provider-select" className="h-10 w-full">
+											<SelectValue>{selectedProviderName}</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											{providerOptions.map((provider, index) => (
+												<SelectItem key={`${provider.value}-${index}`} value={provider.value}>
+													{provider.label}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
+
+								<div className="space-y-2">
+									<Label htmlFor="api-key">API key</Label>
+									<Input
+										autoComplete="off"
+										className="h-10"
+										disabled={savingApiKey}
+										id="api-key"
+										onChange={(event) => {
+											setErrorMessage('');
+											setApiKeySaved(false);
+											setApiKey(event.target.value);
+										}}
+										onFocus={(event) => {
+											if (apiKeySaved) {
+												event.currentTarget.select();
+											}
+										}}
+										placeholder="Enter API key"
+										spellCheck={false}
+										type="password"
+										value={apiKey}
+									/>
+								</div>
+							</div>
+
 							<p className="text-sm leading-6 text-muted-foreground">
-								{formDescription}
+								{apiKeySaved
+									? `${selectedProviderName} access is already saved.`
+									: `${selectedProviderName} access is required before model selection.`}
 							</p>
 						</div>
+					) : (
+						<div className="space-y-4">
+							<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
+								<div className="space-y-2">
+									<Label htmlFor="config-provider">Provider</Label>
+									<Select
+										value={configProvider}
+										onValueChange={handleConfigProviderChange}
+										disabled={providers.length === 0 || savingConfig}
+									>
+										<SelectTrigger id="config-provider" className="h-10 w-full">
+											<SelectValue>{configProviderName}</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											{providers.map((provider) => (
+												<SelectItem key={provider.id} value={provider.id}>
+													{provider.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
 
-						<div className="space-y-2" aria-label={`Setup progress: step ${stepNumber} of 2`}>
-							<div className="grid grid-cols-2 gap-2">
-								<div className="h-1.5 rounded-full bg-primary" />
-								<div className={`h-1.5 rounded-full ${step === 'model' ? 'bg-primary' : 'bg-muted'}`} />
+								<div className="space-y-2">
+									<Label htmlFor="config-model">Model</Label>
+									<Select
+										value={selectedModel}
+										onValueChange={(value) => {
+											setErrorMessage('');
+											setSelectedModel(value ?? '');
+										}}
+										disabled={loadingModels || models.length === 0 || savingConfig}
+									>
+										<SelectTrigger id="config-model" className="h-10 w-full">
+											<SelectValue>
+												{selectedModelName ||
+													(loadingModels ? 'Loading models...' : 'Select a model')}
+											</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											{models.map((model) => (
+												<SelectItem key={model.id} value={model.id}>
+													{model.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
 							</div>
-							<p className="text-sm font-medium">{formTitle}</p>
+
+							<p className="text-sm leading-6 text-muted-foreground">
+								{loadingModels
+									? 'Loading models...'
+									: models.length === 0
+										? 'No models are available for this provider yet.'
+										: `${modelCountLabel} for ${configProviderName}.`}
+							</p>
 						</div>
+					)}
+
+					{errorMessage && (
+						<div
+							className="mt-5 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
+							role="alert"
+						>
+							<AlertCircle className="mt-0.5 size-4 shrink-0" />
+							<p className="min-w-0 break-words text-sm leading-6">{errorMessage}</p>
+						</div>
+					)}
+
+					<div className="mt-6 flex flex-col-reverse justify-between gap-2 sm:flex-row">
+						{step === 'model' ? (
+							<Button
+								className="w-full sm:w-auto"
+								onClick={() => {
+									setErrorMessage('');
+									setStep('api-key');
+								}}
+								type="button"
+								variant="outline"
+								disabled={savingConfig}
+							>
+								<ChevronLeft className="size-4" />
+								Back
+							</Button>
+						) : (
+							<div className="hidden sm:block" />
+						)}
 
 						{step === 'api-key' ? (
-							<div className="space-y-4">
-								<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
-									<div className="space-y-2">
-										<Label htmlFor="provider-select">Provider</Label>
-										<Select
-											value={selectedProvider}
-											onValueChange={(value) => {
-												setErrorMessage('');
-												setSelectedProvider(value ?? '');
-											}}
-											disabled={providerOptions.length === 0 || savingApiKey}
-										>
-											<SelectTrigger id="provider-select" className="h-10 w-full">
-												<SelectValue>{selectedProviderName}</SelectValue>
-											</SelectTrigger>
-											<SelectContent>
-												{providerOptions.map((provider, index) => (
-													<SelectItem key={`${provider.value}-${index}`} value={provider.value}>
-														{provider.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</div>
-
-									<div className="space-y-2">
-										<Label htmlFor="api-key">API key</Label>
-										<Input
-											autoComplete="off"
-											className="h-10"
-											disabled={savingApiKey}
-											id="api-key"
-											onChange={(event) => {
-												setErrorMessage('');
-												setApiKeySaved(false);
-												setApiKey(event.target.value);
-											}}
-											onFocus={(event) => {
-												if (apiKeySaved) {
-													event.currentTarget.select();
-												}
-											}}
-											placeholder="Enter API key"
-											spellCheck={false}
-											type="password"
-											value={apiKey}
-										/>
-									</div>
-								</div>
-
-								<p className="text-sm leading-6 text-muted-foreground">
-									{apiKeySaved
-										? `${selectedProviderName} access is already saved.`
-										: `${selectedProviderName} access is required before model selection.`}
-								</p>
-							</div>
-						) : (
-							<div className="space-y-4">
-								<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
-									<div className="space-y-2">
-										<Label htmlFor="config-provider">Provider</Label>
-										<Select
-											value={configProvider}
-											onValueChange={handleConfigProviderChange}
-											disabled={providers.length === 0 || savingConfig}
-										>
-											<SelectTrigger id="config-provider" className="h-10 w-full">
-												<SelectValue>{configProviderName}</SelectValue>
-											</SelectTrigger>
-											<SelectContent>
-												{providers.map((provider) => (
-													<SelectItem key={provider.id} value={provider.id}>
-														{provider.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</div>
-
-									<div className="space-y-2">
-										<Label htmlFor="config-model">Model</Label>
-										<Select
-											value={selectedModel}
-											onValueChange={(value) => {
-												setErrorMessage('');
-												setSelectedModel(value ?? '');
-											}}
-											disabled={loadingModels || models.length === 0 || savingConfig}
-										>
-											<SelectTrigger id="config-model" className="h-10 w-full">
-												<SelectValue>
-													{selectedModelName ||
-														(loadingModels ? 'Loading models...' : 'Select a model')}
-												</SelectValue>
-											</SelectTrigger>
-											<SelectContent>
-												{models.map((model) => (
-													<SelectItem key={model.id} value={model.id}>
-														{model.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</div>
-								</div>
-
-								<p className="text-sm leading-6 text-muted-foreground">
-									{loadingModels
-										? 'Loading models...'
-										: models.length === 0
-											? 'No models are available for this provider yet.'
-											: `${modelCountLabel} for ${configProviderName}.`}
-								</p>
-							</div>
-						)}
-
-						{errorMessage && (
-							<div
-								className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
-								role="alert"
+							<Button
+								className="w-full sm:w-auto"
+								disabled={!canContinue}
+								onClick={() => {
+									void handleContinue();
+								}}
+								type="button"
 							>
-								<AlertCircle className="mt-0.5 size-4 shrink-0" />
-								<p className="min-w-0 break-words text-sm leading-6">{errorMessage}</p>
-							</div>
+								{savingApiKey ? (
+									<LoaderCircle className="size-4 animate-spin" />
+								) : (
+									<ArrowRight className="size-4" />
+								)}
+								{savingApiKey ? 'Saving...' : 'Continue'}
+							</Button>
+						) : (
+							<Button
+								className="w-full sm:w-auto"
+								onClick={() => {
+									void handleFinish();
+								}}
+								disabled={!canFinish}
+								type="button"
+							>
+								{savingConfig ? (
+									<LoaderCircle className="size-4 animate-spin" />
+								) : (
+									<Bot className="size-4" />
+								)}
+								{savingConfig ? 'Saving...' : 'Finish setup'}
+							</Button>
 						)}
-
-						<div className="flex flex-col-reverse justify-between gap-2 sm:flex-row">
-							{step === 'model' ? (
-								<Button
-									className="w-full sm:w-auto"
-									onClick={() => {
-										setErrorMessage('');
-										setStep('api-key');
-									}}
-									type="button"
-									variant="outline"
-									disabled={savingConfig}
-								>
-									<ChevronLeft className="size-4" />
-									Back
-								</Button>
-							) : (
-								<div className="hidden sm:block" />
-							)}
-
-							{step === 'api-key' ? (
-								<Button
-									className="w-full sm:w-auto"
-									disabled={!canContinue}
-									onClick={() => {
-										void handleContinue();
-									}}
-									type="button"
-								>
-									{savingApiKey ? (
-										<LoaderCircle className="size-4 animate-spin" />
-									) : (
-										<ArrowRight className="size-4" />
-									)}
-									{savingApiKey ? 'Saving...' : 'Continue'}
-								</Button>
-							) : (
-								<Button
-									className="w-full sm:w-auto"
-									onClick={() => {
-										void handleFinish();
-									}}
-									disabled={!canFinish}
-									type="button"
-								>
-									{savingConfig ? (
-										<LoaderCircle className="size-4 animate-spin" />
-									) : (
-										<Bot className="size-4" />
-									)}
-									{savingConfig ? 'Saving...' : 'Finish setup'}
-								</Button>
-							)}
-						</div>
-					</CardContent>
-				</Card>
+					</div>
+				</div>
 			</section>
 		</main>
 	);
