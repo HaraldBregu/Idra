@@ -298,16 +298,16 @@ const StartPage: React.FC = () => {
 					</div>
 				</div>
 
-				<div className="rounded-xl border border-border bg-background/90 p-5 shadow-xl shadow-foreground/5 backdrop-blur sm:p-6">
-					<div className="mb-6 space-y-2">
+				<div className="rounded-xl border border-border bg-background/90 p-4 shadow-xl shadow-foreground/5 backdrop-blur sm:p-5">
+					<div className="mb-4 space-y-1.5">
 						<p className="text-sm font-medium text-muted-foreground">{setupStatus}</p>
 						<h2 className="text-xl font-semibold tracking-tight">{formTitle}</h2>
 						<p className="text-sm leading-6 text-muted-foreground">{formDescription}</p>
 					</div>
 
 					{step === 'api-key' ? (
-						<div className="space-y-4">
-							<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
+						<div className="space-y-3">
+							<div className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr]">
 								<div className="space-y-2">
 									<Label htmlFor="provider-select">Provider</Label>
 									<Select
@@ -318,7 +318,7 @@ const StartPage: React.FC = () => {
 										}}
 										disabled={providerOptions.length === 0 || savingApiKey}
 									>
-										<SelectTrigger id="provider-select" className="h-10 w-full">
+										<SelectTrigger id="provider-select" className="h-9 w-full">
 											<SelectValue>{selectedProviderName}</SelectValue>
 										</SelectTrigger>
 										<SelectContent>
@@ -335,7 +335,7 @@ const StartPage: React.FC = () => {
 									<Label htmlFor="api-key">API key</Label>
 									<Input
 										autoComplete="off"
-										className="h-10"
+										className="h-9"
 										disabled={savingApiKey}
 										id="api-key"
 										onChange={(event) => {
@@ -363,8 +363,8 @@ const StartPage: React.FC = () => {
 							</p>
 						</div>
 					) : (
-						<div className="space-y-4">
-							<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
+						<div className="space-y-3">
+							<div className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr]">
 								<div className="space-y-2">
 									<Label htmlFor="config-provider">Provider</Label>
 									<Select
@@ -372,7 +372,7 @@ const StartPage: React.FC = () => {
 										onValueChange={handleConfigProviderChange}
 										disabled={providers.length === 0 || savingConfig}
 									>
-										<SelectTrigger id="config-provider" className="h-10 w-full">
+										<SelectTrigger id="config-provider" className="h-9 w-full">
 											<SelectValue>{configProviderName}</SelectValue>
 										</SelectTrigger>
 										<SelectContent>
@@ -395,7 +395,7 @@ const StartPage: React.FC = () => {
 										}}
 										disabled={loadingModels || models.length === 0 || savingConfig}
 									>
-										<SelectTrigger id="config-model" className="h-10 w-full">
+										<SelectTrigger id="config-model" className="h-9 w-full">
 											<SelectValue>
 												{selectedModelName ||
 													(loadingModels ? 'Loading models...' : 'Select a model')}
@@ -424,7 +424,7 @@ const StartPage: React.FC = () => {
 
 					{errorMessage && (
 						<div
-							className="mt-5 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
+							className="mt-4 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
 							role="alert"
 						>
 							<AlertCircle className="mt-0.5 size-4 shrink-0" />
@@ -432,7 +432,7 @@ const StartPage: React.FC = () => {
 						</div>
 					)}
 
-					<div className="mt-6 flex flex-col-reverse justify-between gap-2 sm:flex-row">
+					<div className="mt-4 flex flex-col-reverse justify-between gap-2 sm:flex-row">
 						{step === 'model' ? (
 							<Button
 								className="w-full sm:w-auto"
