@@ -333,6 +333,128 @@ describe('Assistant', () => {
 		});
 	});
 
+	describe('respond() (ask_human flow)', () => {
+		it('surfaces ask_human as a pending input and resumes with the answer as tool output', async () => {
+			const ask = new AskHumanStub();
+			const openai = makeOpenAI([
+				{
+					output: [
+						{
+							type: 'function_call',
+							name: 'ask_human',
+							arguments: '{"question":"Where?","suggestions":["a","b"]}',
+							call_id: 'c1',
+						},
+					],
+					output_text: '',
+					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+				},
+				{
+					output: [],
+					output_text: 'ok placed it',
+					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+				},
+			]);
+			const { assistant, eventBus } = makeAssistant({
+				tools: [ask],
+				openai,
+				runLogger: tmpRunLogger,
+			});
+
+			await assistant.send('save my notes');
+			expect(assistant.hasPending()).toBe(true);
+			expect(assistant.getPendingInputs()).toEqual([
+				{
+					callId: 'c1',
+					toolName: 'ask_human',
+					question: 'Where?',
+					suggestions: ['a', 'b'],
+				},
+			]);
+			expect(eventBus.broadcast).toHaveBeenCalledWith(
+				'assistant:pending',
+				expect.objectContaining({
+					pendingInputs: expect.arrayContaining([
+						expect.objectContaining({ question: 'Where?' }),
+					]),
+				})
+			);
+
+			const result = await assistant.respond('c1', '~/Documents/notes.md');
+			expect(result.status).toBe('completed');
+			expect(result.text).toBe('ok placed it');
+			expect(assistant.hasPending()).toBe(false);
+
+			const records = await tmpRunLogger.readAll();
+			expect(records.some((r) => r.event === 'input_request')).toBe(true);
+			expect(records.some((r) => r.event === 'input_resolution')).toBe(true);
+		});
+	});
+
+	describe('cancelPending()', () => {
+		it('drops the paused run and logs a cancelled finish', async () => {
+			const tool = new StubTool('write_file', { needsApproval: true });
+			const openai = makeOpenAI([
+				{
+					output: [
+						{
+							type: 'function_call',
+							name: 'write_file',
+							arguments: '{}',
+							call_id: 'c1',
+						},
+					],
+					output_text: '',
+					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+				},
+			]);
+			const { assistant } = makeAssistant({ tools: [tool], openai, runLogger: tmpRunLogger });
+			await assistant.send('do it');
+			await assistant.cancelPending('explicit');
+			expect(assistant.hasPending()).toBe(false);
+			const records = await tmpRunLogger.readAll();
+			const cancelled = records.find(
+				(r) => r.event === 'finish' && 'status' in r && r.status === 'cancelled'
+			);
+			expect(cancelled).toBeDefined();
+		});
+
+		it('is a no-op when nothing is pending', async () => {
+			const openai = makeOpenAI([]);
+			const { assistant } = makeAssistant({ tools: [], openai, runLogger: tmpRunLogger });
+			await expect(assistant.cancelPending('explicit')).resolves.toBeUndefined();
+		});
+	});
+
+	describe('approve() with editedArguments', () => {
+		it('executes the tool with the edited arguments instead of the original', async () => {
+			const tool = new StubTool('write_file', { needsApproval: true });
+			const openai = makeOpenAI([
+				{
+					output: [
+						{
+							type: 'function_call',
+							name: 'write_file',
+							arguments: '{"path":"/wrong"}',
+							call_id: 'c1',
+						},
+					],
+					output_text: '',
+					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+				},
+				{
+					output: [],
+					output_text: 'ok',
+					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+				},
+			]);
+			const { assistant } = makeAssistant({ tools: [tool], openai, runLogger: tmpRunLogger });
+			await assistant.send('go');
+			await assistant.approve('c1', { editedArguments: '{"path":"/right"}' });
+			expect(tool.executed).toEqual([{ path: '/right' }]);
+		});
+	});
+
 	describe('config validation', () => {
 		it('fails fast when no provider is configured', async () => {
 			const deps = makeDeps();
