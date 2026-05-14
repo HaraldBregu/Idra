@@ -223,18 +223,17 @@ function HomePage(): ReactElement {
 
 	const submitMultiSelect = async (message: MultiSelectChatMessage): Promise<void> => {
 		const selected = new Set(selectedOptions[message.id] ?? []);
-		const requestId = requestIdRef.current + 1;
-		requestIdRef.current = requestId;
-		setIsLoading(true);
-
 		try {
-			let result: AssistantSendResult | undefined;
 			for (const option of message.options) {
-				result = selected.has(option.id)
-					? await window.assistant.approve(option.id)
-					: await window.assistant.reject(option.id);
+				const [kind, id] = option.id.split(':');
+				if (kind === 'approve') {
+					await window.assistant.resolveApproval(id, selected.has(option.id));
+				} else if (kind === 'input') {
+					// For now: send a fixed placeholder so the run can resume. A
+					// richer UI will collect free-text or pick a suggestion.
+					await window.assistant.resolveInput(id, '');
+				}
 			}
-			if (requestIdRef.current !== requestId) return;
 			const selectedLabels = message.options
 				.filter((option) => selected.has(option.id))
 				.map((option) => option.label);
@@ -244,19 +243,13 @@ function HomePage(): ReactElement {
 					'user',
 					selectedLabels.length > 0 ? `Selected: ${selectedLabels.join(', ')}` : 'No actions selected.'
 				),
-				...(result ? resultToAssistantMessages(result) : []),
 			]);
 		} catch (error) {
-			if (requestIdRef.current !== requestId) return;
 			const messageText = error instanceof Error ? error.message : 'Selection failed.';
 			setMessages((current) => [
 				...removeMultiSelectMessages(current),
 				createTextMessage('assistant', messageText),
 			]);
-		} finally {
-			if (requestIdRef.current === requestId) {
-				setIsLoading(false);
-			}
 		}
 	};
 
