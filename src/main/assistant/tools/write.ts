@@ -21,6 +21,17 @@ export class WriteFileTool extends Tool {
     required: ["path", "content"],
   };
 
+  private readonly requireApproval: boolean;
+
+  constructor(opts: { requireApproval?: boolean } = {}) {
+    super();
+    this.requireApproval = opts.requireApproval ?? true;
+  }
+
+  needsApproval(): boolean {
+    return this.requireApproval;
+  }
+
   async execute(args: Record<string, unknown>): Promise<string> {
     const p = expandUser(String(args.path));
     const content = String(args.content);
