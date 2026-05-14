@@ -3,13 +3,8 @@ import {
 	AlertCircle,
 	ArrowRight,
 	Bot,
-	CheckCircle2,
 	ChevronLeft,
-	KeyRound,
 	LoaderCircle,
-	Settings2,
-	ShieldCheck,
-	Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -18,17 +13,8 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import type { Model } from '../../../../shared/service';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardAction,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -38,8 +24,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
 
 type ProviderOption = {
 	label: string;
@@ -100,7 +84,7 @@ const StartPage: React.FC = () => {
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
 		: models.length === 0
-			? 'No models available yet'
+			? 'No models available'
 			: `${models.length} models available`;
 	const selectedModelName =
 		models.find((model) => model.id === selectedModel)?.name ?? selectedModel;
@@ -109,8 +93,6 @@ const StartPage: React.FC = () => {
 		step === 'model'
 			? 'Pick the model Friday uses when a new assistant run starts.'
 			: 'Save access for the provider Friday should use.';
-	const providerStepState = step === 'model' ? 'complete' : 'current';
-	const modelStepState = step === 'model' ? 'current' : 'pending';
 
 	useEffect(() => {
 		let cancelled = false;
@@ -270,269 +252,154 @@ const StartPage: React.FC = () => {
 	}
 
 	return (
-		<main className="h-full min-h-0 overflow-y-auto bg-transparent text-foreground">
-			<section className="mx-auto flex min-h-full w-full max-w-6xl flex-col justify-center px-4 py-5 sm:px-6 lg:px-8">
-				<div className="grid w-full gap-4 lg:grid-cols-[minmax(280px,0.9fr)_minmax(420px,1.1fr)] lg:items-start">
-					<div className="flex min-w-0 flex-col gap-4">
-						<div className="flex min-w-0 items-start gap-3">
-							<div className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs">
-								<Sparkles className="size-5" />
-							</div>
-							<div className="min-w-0 space-y-2">
-								<Badge variant="secondary">Setup</Badge>
-								<div className="space-y-1">
-									<h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">
-										Friday assistant
-									</h1>
-									<p className="max-w-md text-sm leading-6 text-muted-foreground">
-										Connect a provider and choose the default model for new assistant runs.
-									</p>
-								</div>
-							</div>
+		<main className="h-full min-h-0 overflow-y-auto bg-background text-foreground">
+			<section className="mx-auto flex min-h-full w-full max-w-2xl items-center px-4 py-6 sm:px-6">
+				<Card className="w-full">
+					<CardContent className="space-y-6 p-5 sm:p-6">
+						<div className="space-y-2">
+							<p className="text-sm font-medium text-muted-foreground">Step {stepNumber} of 2</p>
+							<h1 className="text-2xl font-semibold tracking-tight">Friday assistant</h1>
+							<p className="text-sm leading-6 text-muted-foreground">
+								{formDescription}
+							</p>
 						</div>
 
-						<Card size="sm" className="min-w-0">
-							<CardHeader>
-								<CardTitle>Setup progress</CardTitle>
-								<CardDescription>Step {stepNumber} of 2</CardDescription>
-							</CardHeader>
-							<CardContent className="space-y-2">
-								<div
-									className={cn(
-										'flex min-w-0 items-start gap-3 rounded-lg border p-3 transition-colors',
-										providerStepState === 'complete'
-											? 'border-primary/20 bg-primary/5'
-											: 'border-border bg-background'
-									)}
-									aria-current={providerStepState === 'current' ? 'step' : undefined}
-								>
-									<div
-										className={cn(
-											'flex size-8 shrink-0 items-center justify-center rounded-md',
-											providerStepState === 'complete'
-												? 'bg-primary text-primary-foreground'
-												: 'bg-muted text-muted-foreground'
-										)}
-									>
-										{providerStepState === 'complete' ? (
-											<CheckCircle2 className="size-4" />
-										) : (
-											<KeyRound className="size-4" />
-										)}
-									</div>
-									<div className="min-w-0">
-										<p className="truncate text-sm font-medium">Provider access</p>
-										<p className="truncate text-xs text-muted-foreground">
-											{apiKeySaved ? 'API key saved' : selectedProviderName}
-										</p>
-									</div>
-								</div>
-
-								<div
-									className={cn(
-										'flex min-w-0 items-start gap-3 rounded-lg border p-3 transition-colors',
-										modelStepState === 'current'
-											? 'border-primary/20 bg-primary/5'
-											: 'border-border bg-background'
-									)}
-									aria-current={modelStepState === 'current' ? 'step' : undefined}
-								>
-									<div
-										className={cn(
-											'flex size-8 shrink-0 items-center justify-center rounded-md',
-											modelStepState === 'current'
-												? 'bg-primary text-primary-foreground'
-												: 'bg-muted text-muted-foreground'
-										)}
-									>
-										<Settings2 className="size-4" />
-									</div>
-									<div className="min-w-0">
-										<p className="truncate text-sm font-medium">Assistant model</p>
-										<p className="truncate text-xs text-muted-foreground">
-											{step === 'model' ? modelCountLabel : 'Waiting for provider'}
-										</p>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-
-						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-							<div className="min-w-0 rounded-lg border border-border bg-card p-3">
-								<div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-									<ShieldCheck className="size-3.5" />
-									Provider
-								</div>
-								<p className="truncate text-sm font-medium">{selectedProviderName}</p>
-							</div>
-							<div className="min-w-0 rounded-lg border border-border bg-card p-3">
-								<div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-									<Bot className="size-3.5" />
-									Model
-								</div>
-								<p className="truncate text-sm font-medium">
-									{selectedModelName || modelCountLabel}
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<Card className="min-w-0">
-						<CardHeader className="border-b">
-							<CardTitle>{formTitle}</CardTitle>
-							<CardDescription>{formDescription}</CardDescription>
-							<CardAction>
-								<Badge variant="outline" className="shrink-0">
-									Step {stepNumber}/2
-								</Badge>
-							</CardAction>
-						</CardHeader>
-
-						<CardContent className="space-y-4">
+						<div className="space-y-2" aria-label={`Setup progress: step ${stepNumber} of 2`}>
 							<div className="grid grid-cols-2 gap-2">
 								<div className="h-1.5 rounded-full bg-primary" />
-								<div
-									className={cn('h-1.5 rounded-full', step === 'model' ? 'bg-primary' : 'bg-muted')}
-								/>
+								<div className={`h-1.5 rounded-full ${step === 'model' ? 'bg-primary' : 'bg-muted'}`} />
 							</div>
+							<p className="text-sm font-medium">{formTitle}</p>
+						</div>
 
-							{step === 'api-key' ? (
-								<div className="space-y-4">
-									<div className="grid gap-4 sm:grid-cols-[minmax(0,190px)_minmax(0,1fr)]">
-										<div className="space-y-2">
-											<Label htmlFor="provider-select">Provider</Label>
-											<Select
-												value={selectedProvider}
-												onValueChange={(value) => {
-													setErrorMessage('');
-													setSelectedProvider(value ?? '');
-												}}
-												disabled={providerOptions.length === 0 || savingApiKey}
-											>
-												<SelectTrigger id="provider-select" className="h-10 w-full">
-													<SelectValue>{selectedProviderName}</SelectValue>
-												</SelectTrigger>
-												<SelectContent>
-													{providerOptions.map((provider, index) => (
-														<SelectItem key={`${provider.value}-${index}`} value={provider.value}>
-															{provider.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
-										<div className="space-y-2">
-											<Label htmlFor="api-key">API key</Label>
-											<Input
-												autoComplete="off"
-												className="h-10"
-												disabled={savingApiKey}
-												id="api-key"
-												onChange={(event) => {
-													setErrorMessage('');
-													setApiKeySaved(false);
-													setApiKey(event.target.value);
-												}}
-												onFocus={(event) => {
-													if (apiKeySaved) {
-														event.currentTarget.select();
-													}
-												}}
-												placeholder="Enter API key"
-												spellCheck={false}
-												type="password"
-												value={apiKey}
-											/>
-										</div>
+						{step === 'api-key' ? (
+							<div className="space-y-4">
+								<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
+									<div className="space-y-2">
+										<Label htmlFor="provider-select">Provider</Label>
+										<Select
+											value={selectedProvider}
+											onValueChange={(value) => {
+												setErrorMessage('');
+												setSelectedProvider(value ?? '');
+											}}
+											disabled={providerOptions.length === 0 || savingApiKey}
+										>
+											<SelectTrigger id="provider-select" className="h-10 w-full">
+												<SelectValue>{selectedProviderName}</SelectValue>
+											</SelectTrigger>
+											<SelectContent>
+												{providerOptions.map((provider, index) => (
+													<SelectItem key={`${provider.value}-${index}`} value={provider.value}>
+														{provider.label}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 									</div>
 
-									<div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-3">
-										<ShieldCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-										<p className="min-w-0 text-sm leading-6 text-muted-foreground">
-											{apiKeySaved
-												? `${selectedProviderName} access is already saved.`
-												: `${selectedProviderName} access is required before model selection.`}
-										</p>
+									<div className="space-y-2">
+										<Label htmlFor="api-key">API key</Label>
+										<Input
+											autoComplete="off"
+											className="h-10"
+											disabled={savingApiKey}
+											id="api-key"
+											onChange={(event) => {
+												setErrorMessage('');
+												setApiKeySaved(false);
+												setApiKey(event.target.value);
+											}}
+											onFocus={(event) => {
+												if (apiKeySaved) {
+													event.currentTarget.select();
+												}
+											}}
+											placeholder="Enter API key"
+											spellCheck={false}
+											type="password"
+											value={apiKey}
+										/>
 									</div>
 								</div>
-							) : (
-								<div className="space-y-4">
-									<div className="grid gap-4 sm:grid-cols-[minmax(0,190px)_minmax(0,1fr)]">
-										<div className="space-y-2">
-											<Label htmlFor="config-provider">Provider</Label>
-											<Select
-												value={configProvider}
-												onValueChange={handleConfigProviderChange}
-												disabled={providers.length === 0 || savingConfig}
-											>
-												<SelectTrigger id="config-provider" className="h-10 w-full">
-													<SelectValue>{configProviderName}</SelectValue>
-												</SelectTrigger>
-												<SelectContent>
-													{providers.map((provider) => (
-														<SelectItem key={provider.id} value={provider.id}>
-															{provider.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
-										<div className="space-y-2">
-											<Label htmlFor="config-model">Model</Label>
-											<Select
-												value={selectedModel}
-												onValueChange={(value) => {
-													setErrorMessage('');
-													setSelectedModel(value ?? '');
-												}}
-												disabled={loadingModels || models.length === 0 || savingConfig}
-											>
-												<SelectTrigger id="config-model" className="h-10 w-full">
-													<SelectValue>
-														{selectedModelName ||
-															(loadingModels ? 'Loading models...' : 'Select a model')}
-													</SelectValue>
-												</SelectTrigger>
-												<SelectContent>
-													{models.map((model) => (
-														<SelectItem key={model.id} value={model.id}>
-															{model.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
+
+								<p className="text-sm leading-6 text-muted-foreground">
+									{apiKeySaved
+										? `${selectedProviderName} access is already saved.`
+										: `${selectedProviderName} access is required before model selection.`}
+								</p>
+							</div>
+						) : (
+							<div className="space-y-4">
+								<div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_1fr]">
+									<div className="space-y-2">
+										<Label htmlFor="config-provider">Provider</Label>
+										<Select
+											value={configProvider}
+											onValueChange={handleConfigProviderChange}
+											disabled={providers.length === 0 || savingConfig}
+										>
+											<SelectTrigger id="config-provider" className="h-10 w-full">
+												<SelectValue>{configProviderName}</SelectValue>
+											</SelectTrigger>
+											<SelectContent>
+												{providers.map((provider) => (
+													<SelectItem key={provider.id} value={provider.id}>
+														{provider.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 									</div>
 
-									<div className="rounded-lg border border-border bg-muted/40 p-3">
-										{loadingModels ? (
-											<div className="space-y-2">
-												<Skeleton className="h-3 w-28" />
-												<Skeleton className="h-3 w-full" />
-											</div>
-										) : (
-											<p className="text-sm leading-6 text-muted-foreground">
-												{models.length === 0
-													? 'No models are available for this provider yet.'
-													: `${models.length} models available for ${configProviderName}.`}
-											</p>
-										)}
+									<div className="space-y-2">
+										<Label htmlFor="config-model">Model</Label>
+										<Select
+											value={selectedModel}
+											onValueChange={(value) => {
+												setErrorMessage('');
+												setSelectedModel(value ?? '');
+											}}
+											disabled={loadingModels || models.length === 0 || savingConfig}
+										>
+											<SelectTrigger id="config-model" className="h-10 w-full">
+												<SelectValue>
+													{selectedModelName ||
+														(loadingModels ? 'Loading models...' : 'Select a model')}
+												</SelectValue>
+											</SelectTrigger>
+											<SelectContent>
+												{models.map((model) => (
+													<SelectItem key={model.id} value={model.id}>
+														{model.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 									</div>
 								</div>
-							)}
 
-							{errorMessage && (
-								<div
-									className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
-									role="alert"
-								>
-									<AlertCircle className="mt-0.5 size-4 shrink-0" />
-									<p className="min-w-0 break-words text-sm leading-6">{errorMessage}</p>
-								</div>
-							)}
-						</CardContent>
+								<p className="text-sm leading-6 text-muted-foreground">
+									{loadingModels
+										? 'Loading models...'
+										: models.length === 0
+											? 'No models are available for this provider yet.'
+											: `${modelCountLabel} for ${configProviderName}.`}
+								</p>
+							</div>
+						)}
 
-						<CardFooter className="flex-col-reverse justify-between gap-2 sm:flex-row">
+						{errorMessage && (
+							<div
+								className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
+								role="alert"
+							>
+								<AlertCircle className="mt-0.5 size-4 shrink-0" />
+								<p className="min-w-0 break-words text-sm leading-6">{errorMessage}</p>
+							</div>
+						)}
+
+						<div className="flex flex-col-reverse justify-between gap-2 sm:flex-row">
 							{step === 'model' ? (
 								<Button
 									className="w-full sm:w-auto"
@@ -584,9 +451,9 @@ const StartPage: React.FC = () => {
 									{savingConfig ? 'Saving...' : 'Finish setup'}
 								</Button>
 							)}
-						</CardFooter>
-					</Card>
-				</div>
+						</div>
+					</CardContent>
+				</Card>
 			</section>
 		</main>
 	);
