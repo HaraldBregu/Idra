@@ -33,7 +33,7 @@ interface PendingInput {
  * pending event; when the renderer responds (or the run is cancelled),
  * resolve/reject the pending Promise.
  */
-export class HitlBridge implements ApprovalStreamLike, ElicitationStreamLike {
+export class HitlBridge implements ApprovalStreamLike {
 	private readonly approvals = new Map<string, PendingApproval>();
 	private readonly inputs = new Map<string, PendingInput>();
 
