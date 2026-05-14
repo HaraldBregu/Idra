@@ -68,6 +68,7 @@ export class RunState {
 			newMessages: raw.newMessages ?? [],
 			iteration: raw.iteration ?? 0,
 			pendingApprovals: raw.pendingApprovals ?? [],
+			pendingToolCalls: raw.pendingToolCalls ?? [],
 			decisionsByCallId: raw.decisionsByCallId ?? {},
 			alwaysApproveTools: raw.alwaysApproveTools ?? [],
 			alwaysRejectTools: raw.alwaysRejectTools ?? [],
