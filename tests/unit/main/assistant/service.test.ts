@@ -235,6 +235,30 @@ describe('AssistantService', () => {
 				{ callId: 'c1', toolName: 'exec', arguments: '{}' },
 			]);
 		});
+
+		it('forwards respond() and cancelPending() to the underlying assistant', async () => {
+			mockRespond.mockResolvedValueOnce({
+				status: 'completed',
+				text: 'ok',
+				pending: [],
+				pendingInputs: [],
+			});
+			const service = new AssistantService(deps);
+			await service.respond('c1', 'my answer');
+			expect(mockRespond).toHaveBeenCalledWith('c1', 'my answer');
+			await service.cancelPending();
+			expect(mockCancel).toHaveBeenCalled();
+		});
+
+		it('exposes pending input requests', () => {
+			mockGetPendingInputs.mockReturnValue([
+				{ callId: 'i1', toolName: 'ask_human', question: 'where?' },
+			]);
+			const service = new AssistantService(deps);
+			expect(service.getPendingInputs()).toEqual([
+				{ callId: 'i1', toolName: 'ask_human', question: 'where?' },
+			]);
+		});
 	});
 
 	describe('get()', () => {
