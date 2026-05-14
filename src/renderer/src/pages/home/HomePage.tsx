@@ -91,29 +91,29 @@ function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[
 	return out;
 }
 
-function pendingToMultiSelectMessage(pending: AssistantPendingApproval[]): MultiSelectChatMessage {
+function pendingToMultiSelectMessage(
+	approvals: AssistantPendingApproval[],
+	inputs: AssistantPendingInput[]
+): MultiSelectChatMessage {
+	const options: MultiSelectOption[] = [
+		...approvals.map((a) => ({
+			id: `approve:${a.id}`,
+			label: a.toolName,
+			description: typeof a.args === 'string' ? a.args : JSON.stringify(a.args ?? {}),
+		})),
+		...inputs.map((i) => ({
+			id: `input:${i.id}`,
+			label: 'ask_human',
+			description: i.question + (i.suggestions ? `\nSuggestions: ${i.suggestions.join(' | ')}` : ''),
+		})),
+	];
 	return {
-		id: `assistant-approval-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+		id: `assistant-pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		role: 'assistant',
 		type: 'multi-select',
-		prompt: 'Select the actions you want the assistant to run.',
-		options: pending.map((item) => ({
-			id: item.callId,
-			label: item.toolName,
-			description: item.arguments,
-		})),
+		prompt: 'The assistant needs you to confirm or answer the following:',
+		options,
 	};
-}
-
-function resultToAssistantMessages(result: AssistantSendResult): ChatMessage[] {
-	const messages: ChatMessage[] = [];
-	if (result.text.trim().length > 0) {
-		messages.push(createTextMessage('assistant', result.text));
-	}
-	if (result.pending.length > 0) {
-		messages.push(pendingToMultiSelectMessage(result.pending));
-	}
-	return messages;
 }
 
 function removeMultiSelectMessages(messages: readonly ChatMessage[]): ChatMessage[] {
