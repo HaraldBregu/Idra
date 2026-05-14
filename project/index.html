@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>Glass Desktop</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main id="app" class="window-shell">
+      <header class="titlebar" data-drag-region>
+        <div class="titlebar__brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Glass Desktop</span>
+        </div>
+        <div class="titlebar__grab-zone" data-drag-region></div>
+        <div class="window-controls" aria-label="Window controls">
+          <button class="window-control" type="button" data-window-action="minimize" aria-label="Minimize">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 8h10" />
+            </svg>
+          </button>
+          <button class="window-control" type="button" data-window-action="maximize" aria-label="Maximize">
+            <svg class="icon-maximize" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M4.5 4.5h7v7h-7z" />
+            </svg>
+            <svg class="icon-restore" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M5 6.5h5.5V12H5z" />
+              <path d="M7 4h5v5" />
+            </svg>
+          </button>
+          <button class="window-control window-control--close" type="button" data-window-action="close" aria-label="Close">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="m4.5 4.5 7 7m0-7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="app-layout">
+        <aside class="sidebar glass-panel">
+          <div class="profile">
+            <div class="profile__avatar">G</div>
+            <div>
+              <p class="eyebrow">Workspace</p>
+              <h1>Frosted Control</h1>
+            </div>
+          </div>
+          <nav class="nav-list" aria-label="Primary">
+            <button class="nav-item nav-item--active" type="button">
+              <span class="nav-icon" aria-hidden="true"></span>
+              Overview
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon nav-icon--blue" aria-hidden="true"></span>
+              Channels
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon nav-icon--green" aria-hidden="true"></span>
+              Automations
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon nav-icon--amber" aria-hidden="true"></span>
+              Settings
+            </button>
+          </nav>
+        </aside>
+
+        <section class="content">
+          <section class="hero glass-panel">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h2>Command center</h2>
+              <p class="hero-copy">Monitor channels, automation runs, and workspace signals from one quiet desktop surface.</p>
+            </div>
+            <div class="status-pill" data-platform>Detecting platform</div>
+          </section>
+
+          <section class="dashboard-grid">
+            <article class="metric glass-panel">
+              <span class="metric__label">Signal depth</span>
+              <strong data-blur-value>28px</strong>
+              <input type="range" min="12" max="42" value="28" data-control="blur" aria-label="Blur strength">
+            </article>
+            <article class="metric glass-panel">
+              <span class="metric__label">Ambient level</span>
+              <strong data-opacity-value>56%</strong>
+              <input type="range" min="36" max="82" value="56" data-control="opacity" aria-label="Panel opacity">
+            </article>
+            <article class="activity glass-panel">
+              <div class="section-heading">
+                <h3>Activity</h3>
+                <span>Live</span>
+              </div>
+              <ul class="activity-list">
+                <li><span></span>Design sync finished</li>
+                <li><span></span>Inbox triage queued</li>
+                <li><span></span>Release checklist updated</li>
+              </ul>
+            </article>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
