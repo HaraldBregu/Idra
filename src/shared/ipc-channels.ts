@@ -14,12 +14,10 @@ export const AssistantChannels = {
 	reset: 'assistant:reset',
 	getHistory: 'assistant:get-history',
 	response: 'assistant:response',
-	approve: 'assistant:approve',
-	reject: 'assistant:reject',
-	respond: 'assistant:respond',
-	cancelPending: 'assistant:cancel-pending',
+	resolveApproval: 'assistant:resolve-approval',
+	resolveInput: 'assistant:resolve-input',
+	cancel: 'assistant:cancel',
 	getPending: 'assistant:get-pending',
-	getPendingInputs: 'assistant:get-pending-inputs',
 	pending: 'assistant:pending',
 } as const;
 
