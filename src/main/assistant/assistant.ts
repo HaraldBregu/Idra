@@ -276,7 +276,9 @@ export class Assistant {
 		this.pendingRun = null;
 		await this.session.append(outcome.newMessages);
 		this.history.push(...outcome.newMessages);
-		return { status: outcome.status, text: outcome.text, pending: [] };
+		const status: SendResult['status'] =
+			outcome.status === 'done' ? 'completed' : outcome.status;
+		return { status, text: outcome.text, pending: [] };
 	}
 
 	async send(userMessage: string): Promise<string> {
