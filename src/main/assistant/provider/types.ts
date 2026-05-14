@@ -1,0 +1,84 @@
+/**
+ * Provider-neutral abstraction over chat-style LLM APIs.
+ *
+ * Adapters translate the unified {@link TranscriptEntry} model and tool specs
+ * into each vendor's native shape, and emit unified {@link ProviderEvent}s
+ * over an async iterable.
+ */
+
+export interface Usage {
+	inputTokens: number;
+	outputTokens: number;
+}
+
+export type ProviderEvent =
+	| { type: 'message_start' }
+	| { type: 'text_delta'; text: string }
+	| { type: 'tool_call_start'; id: string; name: string }
+	| { type: 'tool_call_args_delta'; id: string; jsonDelta: string }
+	| { type: 'tool_call_end'; id: string }
+	| { type: 'message_end'; stopReason: string; usage: Usage };
+
+export interface AssistantContentBlock {
+	type: 'text' | 'tool_use';
+	text?: string;
+	toolUseId?: string;
+	toolName?: string;
+	toolArgs?: unknown;
+}
+
+export interface ToolResultBlock {
+	type: 'text' | 'image';
+	text?: string;
+	mimeType?: string;
+	base64?: string;
+}
+
+export type TranscriptEntry =
+	| { role: 'user'; content: string }
+	| { role: 'assistant'; content: AssistantContentBlock[] }
+	| { role: 'tool'; toolUseId: string; content: ToolResultBlock[]; isError?: boolean };
+
+export interface JSONSchema {
+	type?: string;
+	properties?: Record<string, unknown>;
+	required?: string[];
+	items?: unknown;
+	description?: string;
+	enum?: unknown[];
+	additionalProperties?: boolean | unknown;
+	[k: string]: unknown;
+}
+
+export interface ProviderToolSpec {
+	name: string;
+	description: string;
+	schema: JSONSchema;
+}
+
+export interface ProviderStreamRequest {
+	model: string;
+	system: string;
+	messages: TranscriptEntry[];
+	tools: ProviderToolSpec[];
+	maxTokens: number;
+	signal?: AbortSignal;
+}
+
+export interface ProviderAdapter {
+	stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent>;
+}
+
+export class ContextOverflowError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'ContextOverflowError';
+	}
+}
+
+export class ProviderAuthError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'ProviderAuthError';
+	}
+}

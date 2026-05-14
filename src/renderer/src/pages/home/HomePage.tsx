@@ -1,31 +1,11 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import {
-	ArrowUp,
-	Brain,
-	Copy,
-	Info,
-	Paperclip,
-	RotateCcw,
-	Search,
-	Sparkles,
-	Square,
-	ThumbsDown,
-	ThumbsUp,
-} from 'lucide-react';
+import { ArrowUp, Copy, Paperclip, Sparkles, Square } from 'lucide-react';
 import {
 	ChatContainerContent,
 	ChatContainerRoot,
 	ChatContainerScrollAnchor,
 } from '@/components/prompt-kit/chat-container';
-import {
-	ChainOfThought,
-	ChainOfThoughtContent,
-	ChainOfThoughtItem,
-	ChainOfThoughtStep,
-	ChainOfThoughtTrigger,
-} from '@/components/prompt-kit/chain-of-thought';
-import { FeedbackBar } from '@/components/prompt-kit/feedback-bar';
 import { Loader } from '@/components/prompt-kit/loader';
 import {
 	Message,
@@ -41,22 +21,45 @@ import {
 	PromptInputTextarea,
 } from '@/components/prompt-kit/prompt-input';
 import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
-import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/prompt-kit/reasoning';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
 import { Button } from '@/components/ui/button';
 import { PageContainer } from '@/components/app/base/page';
-import type { AssistantHistoryMessage } from '../../../../shared/service';
+import type {
+	AssistantHistoryMessage,
+	AssistantPendingApproval,
+	AssistantPendingEventPayload,
+	AssistantPendingInput,
+	AssistantResponseDelta,
+} from '../../../../shared/service';
 
-interface ChatMessage {
+interface TextChatMessage {
 	readonly id: string;
 	readonly role: 'user' | 'assistant';
+	readonly type: 'text';
 	readonly content: string;
 }
 
-function createMessage(role: ChatMessage['role'], content: string): ChatMessage {
+interface MultiSelectOption {
+	readonly id: string;
+	readonly label: string;
+	readonly description: string;
+}
+
+interface MultiSelectChatMessage {
+	readonly id: string;
+	readonly role: 'assistant';
+	readonly type: 'multi-select';
+	readonly prompt: string;
+	readonly options: readonly MultiSelectOption[];
+}
+
+type ChatMessage = TextChatMessage | MultiSelectChatMessage;
+
+function createTextMessage(role: TextChatMessage['role'], content: string): TextChatMessage {
 	return {
 		id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		role,
+		type: 'text',
 		content,
 	};
 }
@@ -64,6 +67,7 @@ function createMessage(role: ChatMessage['role'], content: string): ChatMessage 
 const welcomeMessage: ChatMessage = {
 	id: 'assistant-welcome',
 	role: 'assistant',
+	type: 'text',
 	content:
 		'I can help with a variety of tasks: answering questions, providing information, assisting with coding, and generating creative content. What would you like help with today?',
 };
@@ -82,16 +86,45 @@ function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[
 	history.forEach((m, idx) => {
 		if (m.role !== 'user' && m.role !== 'assistant') return;
 		if (typeof m.content !== 'string' || m.content.length === 0) return;
-		out.push({ id: `${m.role}-history-${idx}`, role: m.role, content: m.content });
+		out.push({ id: `${m.role}-history-${idx}`, role: m.role, type: 'text', content: m.content });
 	});
 	return out;
+}
+
+function pendingToMultiSelectMessage(
+	approvals: AssistantPendingApproval[],
+	inputs: AssistantPendingInput[]
+): MultiSelectChatMessage {
+	const options: MultiSelectOption[] = [
+		...approvals.map((a) => ({
+			id: `approve:${a.id}`,
+			label: a.toolName,
+			description: typeof a.args === 'string' ? a.args : JSON.stringify(a.args ?? {}),
+		})),
+		...inputs.map((i) => ({
+			id: `input:${i.id}`,
+			label: 'ask_human',
+			description: i.question + (i.suggestions ? `\nSuggestions: ${i.suggestions.join(' | ')}` : ''),
+		})),
+	];
+	return {
+		id: `assistant-pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+		role: 'assistant',
+		type: 'multi-select',
+		prompt: 'The assistant needs you to confirm or answer the following:',
+		options,
+	};
+}
+
+function removeMultiSelectMessages(messages: readonly ChatMessage[]): ChatMessage[] {
+	return messages.filter((message) => message.type !== 'multi-select');
 }
 
 function HomePage(): ReactElement {
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [feedbackDismissed, setFeedbackDismissed] = useState<Record<string, boolean>>({});
+	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
 
 	useEffect(() => {
@@ -126,22 +159,45 @@ function HomePage(): ReactElement {
 		requestIdRef.current = requestId;
 		setInput('');
 		setIsLoading(true);
-		setMessages((current) => [...current, createMessage('user', trimmed)]);
+		setMessages((current) => [
+			...removeMultiSelectMessages(current),
+			createTextMessage('user', trimmed),
+		]);
 
 		try {
 			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
-			setMessages((current) => [...current, createMessage('assistant', response)]);
+			if (response.trim().length > 0) {
+				setMessages((current) => [...current, createTextMessage('assistant', response)]);
+			}
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
-			setMessages((current) => [...current, createMessage('assistant', message)]);
+			setMessages((current) => [...current, createTextMessage('assistant', message)]);
 		} finally {
 			if (requestIdRef.current === requestId) {
 				setIsLoading(false);
 			}
 		}
 	};
+
+	useEffect(() => {
+		const offPending = window.assistant.onPending((event: AssistantPendingEventPayload) => {
+			setMessages((current) => {
+				const cleaned = removeMultiSelectMessages(current);
+				if (event.approvals.length === 0 && event.inputs.length === 0) return cleaned;
+				return [...cleaned, pendingToMultiSelectMessage(event.approvals, event.inputs)];
+			});
+		});
+		const offResponse = window.assistant.onResponse((_event: AssistantResponseDelta) => {
+			// Streaming text deltas — currently surfaced only as the final
+			// response from send(). Hook here to render live tokens.
+		});
+		return () => {
+			offPending();
+			offResponse();
+		};
+	}, []);
 
 	const handleSubmit = (): void => {
 		if (isLoading) {
@@ -155,8 +211,46 @@ function HomePage(): ReactElement {
 		void navigator.clipboard?.writeText(content);
 	};
 
-	const dismissFeedback = (id: string): void => {
-		setFeedbackDismissed((prev) => ({ ...prev, [id]: true }));
+	const toggleOption = (messageId: string, optionId: string): void => {
+		setSelectedOptions((current) => {
+			const selected = current[messageId] ?? [];
+			const next = selected.includes(optionId)
+				? selected.filter((id) => id !== optionId)
+				: [...selected, optionId];
+			return { ...current, [messageId]: next };
+		});
+	};
+
+	const submitMultiSelect = async (message: MultiSelectChatMessage): Promise<void> => {
+		const selected = new Set(selectedOptions[message.id] ?? []);
+		try {
+			for (const option of message.options) {
+				const [kind, id] = option.id.split(':');
+				if (kind === 'approve') {
+					await window.assistant.resolveApproval(id, selected.has(option.id));
+				} else if (kind === 'input') {
+					// For now: send a fixed placeholder so the run can resume. A
+					// richer UI will collect free-text or pick a suggestion.
+					await window.assistant.resolveInput(id, '');
+				}
+			}
+			const selectedLabels = message.options
+				.filter((option) => selected.has(option.id))
+				.map((option) => option.label);
+			setMessages((current) => [
+				...removeMultiSelectMessages(current),
+				createTextMessage(
+					'user',
+					selectedLabels.length > 0 ? `Selected: ${selectedLabels.join(', ')}` : 'No actions selected.'
+				),
+			]);
+		} catch (error) {
+			const messageText = error instanceof Error ? error.message : 'Selection failed.';
+			setMessages((current) => [
+				...removeMultiSelectMessages(current),
+				createTextMessage('assistant', messageText),
+			]);
+		}
 	};
 
 	useEffect(() => {
@@ -165,7 +259,6 @@ function HomePage(): ReactElement {
 		};
 	}, []);
 
-	const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
 	const showSuggestions = messages.length <= 1 && !isLoading;
 
 	return (
@@ -183,77 +276,57 @@ function HomePage(): ReactElement {
 							<Message key={message.id} className="justify-start">
 								<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
 								<div className="flex w-full max-w-[80%] flex-col gap-2">
-									{message.id !== 'assistant-welcome' && (
-										<Reasoning>
-											<ReasoningTrigger>Show reasoning</ReasoningTrigger>
-											<ReasoningContent markdown className="border-l-2 border-border pl-3">
-												{`Considered intent, retrieved relevant context, drafted a structured answer, then refined for clarity.`}
-											</ReasoningContent>
-										</Reasoning>
-									)}
-									{message.id !== 'assistant-welcome' && (
-										<ChainOfThought>
-											<ChainOfThoughtStep defaultOpen>
-												<ChainOfThoughtTrigger leftIcon={<Search className="size-3" />}>
-													Analyzing the request
-												</ChainOfThoughtTrigger>
-												<ChainOfThoughtContent>
-													<ChainOfThoughtItem>Parsed user intent from prompt.</ChainOfThoughtItem>
-													<ChainOfThoughtItem>Selected relevant capabilities.</ChainOfThoughtItem>
-												</ChainOfThoughtContent>
-											</ChainOfThoughtStep>
-											<ChainOfThoughtStep>
-												<ChainOfThoughtTrigger leftIcon={<Brain className="size-3" />}>
-													Composing response
-												</ChainOfThoughtTrigger>
-												<ChainOfThoughtContent>
-													<ChainOfThoughtItem>
-														Drafted answer using available context.
-													</ChainOfThoughtItem>
-												</ChainOfThoughtContent>
-											</ChainOfThoughtStep>
-										</ChainOfThought>
-									)}
-									<MessageContent markdown className="bg-transparent p-0">
-										{message.content}
-									</MessageContent>
-									<MessageActions className="self-start">
-										<MessageAction tooltip="Copy">
+									{message.type === 'text' ? (
+										<>
+											<MessageContent markdown className="bg-transparent p-0">
+												{message.content}
+											</MessageContent>
+											<MessageActions className="self-start">
+												<MessageAction tooltip="Copy">
+													<Button
+														variant="ghost"
+														size="icon-sm"
+														onClick={() => copyMessage(message.content)}
+													>
+														<Copy className="size-3.5" />
+													</Button>
+												</MessageAction>
+											</MessageActions>
+										</>
+									) : (
+										<div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-3">
+											<p className="text-sm font-medium">{message.prompt}</p>
+											<div className="flex flex-col gap-2">
+												{message.options.map((option) => (
+													<label
+														key={option.id}
+														className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-background p-3 text-sm"
+													>
+														<input
+															type="checkbox"
+															className="mt-1 size-4 accent-primary"
+															checked={(selectedOptions[message.id] ?? []).includes(option.id)}
+															onChange={() => toggleOption(message.id, option.id)}
+														/>
+														<span className="min-w-0">
+															<span className="block font-medium">{option.label}</span>
+															<span className="block break-words text-xs text-muted-foreground">
+																{option.description}
+															</span>
+														</span>
+													</label>
+												))}
+											</div>
 											<Button
-												variant="ghost"
-												size="icon-sm"
-												onClick={() => copyMessage(message.content)}
+												className="self-start"
+												size="sm"
+												onClick={() => void submitMultiSelect(message)}
+												disabled={isLoading}
 											>
-												<Copy className="size-3.5" />
+												Submit selection
 											</Button>
-										</MessageAction>
-										<MessageAction tooltip="Helpful">
-											<Button variant="ghost" size="icon-sm">
-												<ThumbsUp className="size-3.5" />
-											</Button>
-										</MessageAction>
-										<MessageAction tooltip="Not helpful">
-											<Button variant="ghost" size="icon-sm">
-												<ThumbsDown className="size-3.5" />
-											</Button>
-										</MessageAction>
-										<MessageAction tooltip="Regenerate">
-											<Button variant="ghost" size="icon-sm">
-												<RotateCcw className="size-3.5" />
-											</Button>
-										</MessageAction>
-									</MessageActions>
-									{message.id === lastAssistantId &&
-										message.id !== 'assistant-welcome' &&
-										!feedbackDismissed[message.id] && (
-											<FeedbackBar
-												title="Was this response helpful?"
-												icon={<Info className="size-4 text-primary" />}
-												onHelpful={() => dismissFeedback(message.id)}
-												onNotHelpful={() => dismissFeedback(message.id)}
-												onClose={() => dismissFeedback(message.id)}
-											/>
-										)}
+										</div>
+									)}
 								</div>
 							</Message>
 						)

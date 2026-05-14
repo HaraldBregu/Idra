@@ -14,7 +14,7 @@ export class WorkspaceService {
 	) {
 		this.rootPath =
 			options.rootPath ??
-			path.join(app.getPath('home'), options.workspaceName ?? `${app.getName()}Data`);
+			path.join(app.getPath('home'), options.workspaceName ?? `${app.getName()}`);
 	}
 
 	getRootPath(): string {

@@ -1,84 +1,78 @@
-import { randomUUID } from "node:crypto";
-import { Tool } from "./base";
-import { CronService } from "../../cron/index";
-import { isCronTaskData, type CronTaskData } from "../../../shared/cron";
+import { randomUUID } from 'node:crypto';
+import { isCronTaskData, type CronTaskData } from '../../../shared/cron';
+import type { AgentTool } from './types';
+import { textResult } from './types';
 
-export class CronAddTool extends Tool {
-  name = "cron_add";
-  description = "Schedule a recurring job using a cron expression (e.g. '0 9 * * *').";
-  parameters = {
-    type: "object",
-    properties: {
-      expression: { type: "string", description: "Cron expression, e.g. '0 9 * * *'." },
-      data: {
-        type: "object",
-        description:
-          "Task payload. Must include a string 'type' discriminator chosen by the caller (e.g. 'agent', 'app', 'message'). Extra fields depend on the type.",
-        properties: {
-          type: { type: "string", description: "Discriminator chosen by the caller." },
-        },
-        required: ["type"],
-        additionalProperties: true,
-      },
-      id: { type: "string", description: "Optional job id. Auto-generated if omitted." },
-      timezone: { type: "string", description: "Optional IANA timezone." },
-    },
-    required: ["expression", "data"],
-  };
-
-  constructor(private cron: CronService) {
-    super();
-  }
-
-  async execute(args: Record<string, unknown>): Promise<string> {
-    const expression = String(args.expression);
-    const data = args.data;
-    if (!isCronTaskData(data)) {
-      return "Error: 'data' must be an object with a string 'type' field";
-    }
-    const typed = data as CronTaskData;
-    const id = args.id ? String(args.id) : randomUUID();
-    const timezone = args.timezone ? String(args.timezone) : undefined;
-    this.cron.schedule(id, expression, typed, () => {}, { timezone });
-    return `Scheduled job ${id}: '${expression}' — [${typed.type}]`;
-  }
+interface CronAddArgs {
+	expression: string;
+	data: unknown;
+	id?: string;
+	timezone?: string;
 }
 
-export class CronListTool extends Tool {
-  name = "cron_list";
-  description = "List all scheduled cron jobs.";
-  parameters = { type: "object", properties: {}, required: [] };
+export const cronAddTool: AgentTool<CronAddArgs> = {
+	name: 'cron_add',
+	description: "Schedule a recurring job using a cron expression (e.g. '0 9 * * *').",
+	schema: {
+		type: 'object',
+		properties: {
+			expression: { type: 'string', description: "Cron expression, e.g. '0 9 * * *'." },
+			data: {
+				type: 'object',
+				description: "Task payload. Must include a string 'type' discriminator.",
+				properties: { type: { type: 'string' } },
+				required: ['type'],
+				additionalProperties: true,
+			},
+			id: { type: 'string' },
+			timezone: { type: 'string' },
+		},
+		required: ['expression', 'data'],
+		additionalProperties: false,
+	},
+	needsApproval: true,
+	async execute(args, ctx) {
+		if (!isCronTaskData(args.data)) {
+			return textResult("cron_add: 'data' must be an object with a string 'type' field", true);
+		}
+		const typed = args.data as CronTaskData;
+		const id = args.id ? String(args.id) : randomUUID();
+		ctx.services.cron.schedule(id, args.expression, typed, () => {}, {
+			timezone: args.timezone,
+		});
+		return textResult(`Scheduled job ${id}: '${args.expression}' — [${typed.type}]`);
+	},
+};
 
-  constructor(private cron: CronService) {
-    super();
-  }
+export const cronListTool: AgentTool = {
+	name: 'cron_list',
+	description: 'List all scheduled cron jobs.',
+	schema: { type: 'object', properties: {}, required: [], additionalProperties: false },
+	async execute(_args, ctx) {
+		const jobs = ctx.services.cron.listJobs();
+		if (jobs.length === 0) return textResult('No jobs scheduled.');
+		return textResult(jobs.map((j) => `[${j.id}] '${j.expression}'`).join('\n'));
+	},
+};
 
-  async execute(_args: Record<string, unknown>): Promise<string> {
-    const jobs = this.cron.listJobs();
-    if (jobs.length === 0) return "No jobs scheduled.";
-    return jobs.map((j) => `[${j.id}] '${j.expression}'`).join("\n");
-  }
+interface CronRemoveArgs {
+	job_id: string;
 }
 
-export class CronRemoveTool extends Tool {
-  name = "cron_remove";
-  description = "Remove a scheduled cron job by ID.";
-  parameters = {
-    type: "object",
-    properties: {
-      job_id: { type: "string", description: "The job ID to remove." },
-    },
-    required: ["job_id"],
-  };
-
-  constructor(private cron: CronService) {
-    super();
-  }
-
-  async execute(args: Record<string, unknown>): Promise<string> {
-    const jobId = String(args.job_id);
-    if (!this.cron.has(jobId)) return `No job found with ID ${jobId}.`;
-    this.cron.unschedule(jobId);
-    return `Removed job ${jobId}.`;
-  }
-}
+export const cronRemoveTool: AgentTool<CronRemoveArgs> = {
+	name: 'cron_remove',
+	description: 'Remove a scheduled cron job by ID.',
+	schema: {
+		type: 'object',
+		properties: { job_id: { type: 'string' } },
+		required: ['job_id'],
+		additionalProperties: false,
+	},
+	needsApproval: true,
+	async execute(args, ctx) {
+		const id = String(args.job_id ?? '');
+		if (!ctx.services.cron.has(id)) return textResult(`No job found with ID ${id}.`, true);
+		ctx.services.cron.unschedule(id);
+		return textResult(`Removed job ${id}.`);
+	},
+};

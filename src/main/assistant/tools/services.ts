@@ -1,104 +1,58 @@
-import { Tool } from './base.js';
-import type { StoreService } from '../../store';
+import type { AgentTool } from './types';
+import { textResult } from './types';
 
-function stringArg(args: Record<string, unknown>, names: string[]): string {
-	for (const name of names) {
-		const value = args[name];
-		if (typeof value === 'string') {
-			return value.trim();
-		}
-	}
-	return '';
+export const getAssistantServiceTool: AgentTool = {
+	name: 'get_assistant_service',
+	description: 'Get the currently configured assistant service (provider + model).',
+	schema: { type: 'object', properties: {}, additionalProperties: false },
+	async execute(_args, ctx) {
+		const assistant = ctx.services.store.getAssistantService();
+		if (!assistant) return textResult('assistant service not configured', true);
+		return textResult(JSON.stringify(assistant));
+	},
+};
+
+export const getAssistantModelTool: AgentTool = {
+	name: 'get_assistant_model',
+	description: 'Get the model used by the assistant service.',
+	schema: { type: 'object', properties: {}, additionalProperties: false },
+	async execute(_args, ctx) {
+		const model = ctx.services.store.getAssistantModel();
+		if (!model) return textResult('assistant model not configured', true);
+		return textResult(JSON.stringify(model));
+	},
+};
+
+interface SetAssistantServiceArgs {
+	providerId: string;
+	modelId: string;
+	modelName: string;
 }
 
-export class GetAssistantServiceTool extends Tool {
-	name = 'get_assistant_service';
-	description = 'Get the currently configured assistant service (provider + model).';
-	parameters = {
-		type: 'object',
-		properties: {},
-		additionalProperties: false,
-	};
-
-	constructor(private readonly store: StoreService) {
-		super();
-	}
-
-	async execute(): Promise<string> {
-		const assistant = this.store.getAssistantService();
-		if (!assistant) {
-			return 'Error: assistant service not configured';
-		}
-		return JSON.stringify(assistant);
-	}
-}
-
-export class GetAssistantModelTool extends Tool {
-	name = 'get_assistant_model';
-	description = 'Get the model used by the assistant service.';
-	parameters = {
-		type: 'object',
-		properties: {},
-		additionalProperties: false,
-	};
-
-	constructor(private readonly store: StoreService) {
-		super();
-	}
-
-	async execute(): Promise<string> {
-		const model = this.store.getAssistantModel();
-		if (!model) {
-			return 'Error: assistant model not configured';
-		}
-		return JSON.stringify(model);
-	}
-}
-
-export class SetAssistantServiceTool extends Tool {
-	name = 'set_assistant_service';
-	description = 'Set the assistant service by selecting a stored provider id and a model.';
-	parameters = {
+export const setAssistantServiceTool: AgentTool<SetAssistantServiceArgs> = {
+	name: 'set_assistant_service',
+	description: 'Set the assistant service by selecting a stored provider id and a model.',
+	schema: {
 		type: 'object',
 		properties: {
-			providerId: {
-				type: 'string',
-				description: 'The stored provider id (e.g. "openai", "anthropic").',
-			},
-			modelId: {
-				type: 'string',
-				description: 'The model identifier.',
-			},
-			modelName: {
-				type: 'string',
-				description: 'The model display name.',
-			},
+			providerId: { type: 'string' },
+			modelId: { type: 'string' },
+			modelName: { type: 'string' },
 		},
 		required: ['providerId', 'modelId', 'modelName'],
 		additionalProperties: false,
-	};
-
-	constructor(private readonly store: StoreService) {
-		super();
-	}
-
-	async execute(args: Record<string, unknown>): Promise<string> {
-		const providerId = stringArg(args, ['providerId', 'id']);
-		const modelId = stringArg(args, ['modelId']);
-		const modelName = stringArg(args, ['modelName']);
-		if (!providerId) {
-			return 'Error: providerId must be a non-empty string';
-		}
-		if (!modelId) {
-			return 'Error: modelId must be a non-empty string';
-		}
-		if (!modelName) {
-			return 'Error: modelName must be a non-empty string';
-		}
-		const ok = this.store.setAssistantService(providerId, { id: modelId, name: modelName });
-		if (!ok) {
-			return `Error: provider not found: ${providerId}`;
-		}
-		return 'Assistant service saved.';
-	}
-}
+	},
+	needsApproval: true,
+	async execute(args, ctx) {
+		const providerId = String(args.providerId ?? '').trim();
+		const modelId = String(args.modelId ?? '').trim();
+		const modelName = String(args.modelName ?? '').trim();
+		if (!providerId || !modelId || !modelName) return textResult('all fields required', true);
+		const ok = ctx.services.store.setAssistantService(providerId, {
+			id: modelId,
+			name: modelName,
+		});
+		if (!ok) return textResult(`provider not found: ${providerId}`, true);
+		return textResult('Assistant service saved.');
+	},
+};

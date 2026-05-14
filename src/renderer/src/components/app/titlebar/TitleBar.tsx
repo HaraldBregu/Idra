@@ -8,6 +8,7 @@ import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -82,7 +83,7 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={() => window.win?.popupMenu()}
-						className={leftButtonNoHoverClass}
+						className={cn('ml-2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground')}
 						title={t('titleBar.applicationMenu')}
 					>
 						<Menu className="h-[15px] w-[15px]" strokeWidth={1.5} />

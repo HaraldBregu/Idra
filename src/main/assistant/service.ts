@@ -1,4 +1,3 @@
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
@@ -8,6 +7,7 @@ import type { WorkspaceService } from '../workspace';
 import { Assistant } from './assistant';
 import { DEFAULT_ASSISTANT_ID } from './constants';
 import { AssistantRegistry } from './registry';
+import type { TranscriptEntry } from './provider/types';
 
 export interface AssistantServiceDependencies {
 	store: StoreService;
@@ -44,8 +44,28 @@ export class AssistantService {
 		return this.ensure(assistantId).reset();
 	}
 
-	getHistory(assistantId = this.defaultAssistantId): Promise<ChatCompletionMessageParam[]> {
+	getHistory(assistantId = this.defaultAssistantId): Promise<TranscriptEntry[]> {
 		return this.ensure(assistantId).getHistory();
+	}
+
+	resolveApproval(
+		id: string,
+		approved: boolean,
+		assistantId = this.defaultAssistantId
+	): boolean {
+		return this.ensure(assistantId).resolveApproval(id, approved);
+	}
+
+	resolveInput(id: string, answer: string, assistantId = this.defaultAssistantId): boolean {
+		return this.ensure(assistantId).resolveInput(id, answer);
+	}
+
+	cancel(assistantId = this.defaultAssistantId): void {
+		this.ensure(assistantId).cancel();
+	}
+
+	getPending(assistantId = this.defaultAssistantId): ReturnType<Assistant['getPending']> {
+		return this.ensure(assistantId).getPending();
 	}
 
 	get(assistantId = this.defaultAssistantId): Assistant {

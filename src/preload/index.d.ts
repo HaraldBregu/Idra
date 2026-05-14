@@ -12,8 +12,13 @@ export interface WindowApi {
 export interface AssistantApi {
 	send: (message: string) => Promise<string>;
 	reset: () => Promise<void>;
+	cancel: () => Promise<void>;
 	getHistory: () => Promise<AssistantHistoryMessage[]>;
-	onResponse: (callback: (event: { response: string }) => void) => () => void;
+	resolveApproval: (id: string, approved: boolean) => Promise<boolean>;
+	resolveInput: (id: string, answer: string) => Promise<boolean>;
+	getPending: () => Promise<AssistantPendingState>;
+	onResponse: (callback: (event: AssistantResponseDelta) => void) => () => void;
+	onPending: (callback: (event: AssistantPendingEventPayload) => void) => () => void;
 }
 
 export interface CronApi {
@@ -61,7 +66,14 @@ export interface ConnectorsApi {
 
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
-import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
+import type {
+	Assistant,
+	AssistantHistoryMessage,
+	AssistantPendingEventPayload,
+	AssistantPendingState,
+	AssistantResponseDelta,
+	Model,
+} from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
 import type {

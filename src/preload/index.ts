@@ -19,7 +19,14 @@ import type {
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
-import type { Assistant, AssistantHistoryMessage, Model } from '../shared/service';
+import type {
+	Assistant,
+	AssistantHistoryMessage,
+	AssistantPendingEventPayload,
+	AssistantPendingState,
+	AssistantResponseDelta,
+	Model,
+} from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
 import type {
@@ -67,11 +74,26 @@ export const assistant: AssistantApi = {
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AssistantChannels.reset);
 	},
+	cancel: (): Promise<void> => {
+		return typedInvokeUnwrap(AssistantChannels.cancel);
+	},
 	getHistory: (): Promise<AssistantHistoryMessage[]> => {
 		return typedInvokeUnwrap(AssistantChannels.getHistory);
 	},
-	onResponse: (callback: (event: { response: string }) => void): (() => void) => {
+	resolveApproval: (id: string, approved: boolean): Promise<boolean> => {
+		return typedInvokeUnwrap(AssistantChannels.resolveApproval, id, approved);
+	},
+	resolveInput: (id: string, answer: string): Promise<boolean> => {
+		return typedInvokeUnwrap(AssistantChannels.resolveInput, id, answer);
+	},
+	getPending: (): Promise<AssistantPendingState> => {
+		return typedInvokeUnwrap(AssistantChannels.getPending);
+	},
+	onResponse: (callback: (event: AssistantResponseDelta) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
+	},
+	onPending: (callback: (event: AssistantPendingEventPayload) => void): (() => void) => {
+		return typedOn(AssistantChannels.pending, callback);
 	},
 } satisfies AssistantApi;
 

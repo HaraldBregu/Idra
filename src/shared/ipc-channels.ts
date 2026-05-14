@@ -14,6 +14,11 @@ export const AssistantChannels = {
 	reset: 'assistant:reset',
 	getHistory: 'assistant:get-history',
 	response: 'assistant:response',
+	resolveApproval: 'assistant:resolve-approval',
+	resolveInput: 'assistant:resolve-input',
+	cancel: 'assistant:cancel',
+	getPending: 'assistant:get-pending',
+	pending: 'assistant:pending',
 } as const;
 
 export const ProviderChannels = {
@@ -102,6 +107,19 @@ interface AssistantInvokeChannelMap {
 	[AssistantChannels.getHistory]: {
 		args: [];
 		result: import('./service').AssistantHistoryMessage[];
+	};
+	[AssistantChannels.resolveApproval]: {
+		args: [id: string, approved: boolean];
+		result: boolean;
+	};
+	[AssistantChannels.resolveInput]: {
+		args: [id: string, answer: string];
+		result: boolean;
+	};
+	[AssistantChannels.cancel]: { args: []; result: void };
+	[AssistantChannels.getPending]: {
+		args: [];
+		result: import('./service').AssistantPendingState;
 	};
 }
 
@@ -228,7 +246,8 @@ export interface SendChannelMap {
 }
 
 interface AssistantEventChannelMap {
-	[AssistantChannels.response]: { data: { response: string } };
+	[AssistantChannels.response]: { data: import('./service').AssistantResponseDelta };
+	[AssistantChannels.pending]: { data: import('./service').AssistantPendingEventPayload };
 }
 
 interface WindowEventChannelMap {
