@@ -57,6 +57,18 @@ class StubTool extends Tool {
 	}
 }
 
+class AskHumanStub extends Tool {
+	name = 'ask_human';
+	description = 'Ask human';
+	parameters = {};
+	get kind(): 'input' {
+		return 'input';
+	}
+	async execute(): Promise<string> {
+		return '';
+	}
+}
+
 function makeOpenAI(scripted: Array<unknown>): OpenAI {
 	const create = jest.fn();
 	for (const value of scripted) {
