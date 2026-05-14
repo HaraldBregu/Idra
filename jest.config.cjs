@@ -41,6 +41,10 @@ module.exports = {
 				// hitting "Cannot use import statement outside a module".
 				'^chokidar$': '<rootDir>/tests/mocks/chokidar.ts',
 				'\\.md\\?raw$': '<rootDir>/tests/mocks/raw-md.ts',
+				// Source files use ESM-style relative `.js` imports (required by Vite at
+				// runtime). ts-jest in CJS mode can't resolve the .js suffix to the .ts
+				// source, so strip it here.
+				'^(\\.{1,2}/.*)\\.js$': '$1',
 			},
 			// Seed globalThis.__VITE_ENV__ before modules are loaded so that the
 			// rewritten import.meta.env accesses resolve to defined (not undefined) objects.
