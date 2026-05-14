@@ -169,7 +169,7 @@ describe('Assistant', () => {
 			expect(assistant.hasPending()).toBe(false);
 		});
 
-		it('throws when called while approvals are pending', async () => {
+		it('cancels the pending run and starts fresh when send() is called again', async () => {
 			const tool = new StubTool('write_file', { needsApproval: true });
 			const openai = makeOpenAI([
 				{
@@ -184,11 +184,25 @@ describe('Assistant', () => {
 					output_text: '',
 					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
 				},
+				{
+					output: [],
+					output_text: 'second response',
+					usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+				},
 			]);
 			const { assistant } = makeAssistant({ tools: [tool], openai, runLogger: tmpRunLogger });
 			await assistant.send('do it');
 			expect(assistant.hasPending()).toBe(true);
-			await expect(assistant.send('again')).rejects.toThrow(/pending approvals/);
+
+			const second = await assistant.send('never mind, do something else');
+			expect(second).toBe('second response');
+			expect(assistant.hasPending()).toBe(false);
+
+			const records = await tmpRunLogger.readAll();
+			const cancelled = records.find(
+				(r) => r.event === 'finish' && 'status' in r && r.status === 'cancelled'
+			);
+			expect(cancelled).toBeDefined();
 		});
 
 		it('writes start and finish records to the run logger', async () => {
