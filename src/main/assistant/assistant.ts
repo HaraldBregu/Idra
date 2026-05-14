@@ -36,7 +36,6 @@ export class Assistant {
 	readonly hitl: HitlBridge;
 	readonly runLogger: AssistantRunLogger;
 	private readonly services: FridayServices;
-	private readonly mcpRegistry?: McpRegistry;
 	private readonly source: string;
 	private readonly providerFactory: typeof makeProvider;
 	private readonly sessionBaseDir?: string;
