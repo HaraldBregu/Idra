@@ -40,6 +40,7 @@ export function defaultTools(opts: {
 	workspace: WorkspaceService;
 }): Tool[] {
 	return [
+		new AskHumanTool(),
 		new ReadFileTool(),
 		new WriteFileTool(),
 		new FindTool(),
