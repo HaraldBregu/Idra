@@ -34,14 +34,28 @@ export interface AssistantPendingApproval {
 	arguments: string;
 }
 
+export interface AssistantPendingInput {
+	callId: string;
+	toolName: string;
+	question: string;
+	suggestions?: string[];
+}
+
 export interface AssistantSendResult {
-	status: 'completed' | 'awaiting_approval' | 'max_iterations';
+	status:
+		| 'completed'
+		| 'awaiting_approval'
+		| 'awaiting_input'
+		| 'max_iterations'
+		| 'cancelled';
 	text: string;
 	pending: AssistantPendingApproval[];
+	pendingInputs: AssistantPendingInput[];
 }
 
 export interface AssistantPendingEventPayload {
 	assistantId: string;
 	runId: string;
 	pending: AssistantPendingApproval[];
+	pendingInputs: AssistantPendingInput[];
 }
