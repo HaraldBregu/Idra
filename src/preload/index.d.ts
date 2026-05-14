@@ -10,7 +10,7 @@ export interface WindowApi {
 }
 
 export interface AssistantApi {
-	send: (message: string) => Promise<string>;
+	send: (message: string) => Promise<AssistantSendResult>;
 	reset: () => Promise<void>;
 	getHistory: () => Promise<AssistantHistoryMessage[]>;
 	approve: (callId: string, opts?: { alwaysApprove?: boolean }) => Promise<AssistantSendResult>;

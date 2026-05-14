@@ -67,7 +67,7 @@ const win: WindowApi = {
 } satisfies WindowApi;
 
 export const assistant: AssistantApi = {
-	send: (message: string): Promise<string> => {
+	send: (message: string): Promise<AssistantSendResult> => {
 		return typedInvokeUnwrap(AssistantChannels.send, message);
 	},
 	reset: (): Promise<void> => {

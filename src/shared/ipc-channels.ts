@@ -101,7 +101,7 @@ interface AppInvokeChannelMap {
 }
 
 interface AssistantInvokeChannelMap {
-	[AssistantChannels.send]: { args: [message: string]; result: string };
+	[AssistantChannels.send]: { args: [message: string]; result: import('./service').AssistantSendResult };
 	[AssistantChannels.reset]: { args: []; result: void };
 	[AssistantChannels.getHistory]: {
 		args: [];
