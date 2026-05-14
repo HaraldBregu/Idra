@@ -114,5 +114,49 @@ describe('RunState', () => {
 				{ callId: 'c2', toolName: 'write_file', arguments: '{}' },
 			]);
 		});
+
+		it('drops pending inputs that already have an answer', () => {
+			const state = baseInit();
+			state.setPendingInputs([
+				{ callId: 'i1', toolName: 'ask_human', question: 'a?' },
+				{ callId: 'i2', toolName: 'ask_human', question: 'b?' },
+			]);
+			state.recordInputResponse('i1', 'answer a');
+			state.clearResolved();
+			expect(state.pendingInputs()).toEqual([
+				{ callId: 'i2', toolName: 'ask_human', question: 'b?' },
+			]);
+		});
+	});
+
+	describe('input responses', () => {
+		it('records and retrieves an input response', () => {
+			const state = baseInit();
+			state.recordInputResponse('i1', 'hello');
+			expect(state.inputResponseFor('i1')).toBe('hello');
+		});
+
+		it('survives serialization', () => {
+			const state = baseInit();
+			state.recordInputResponse('i1', 'hello');
+			state.setPendingInputs([{ callId: 'i1', toolName: 'ask_human', question: 'q?' }]);
+			const restored = RunState.fromString(state.toString());
+			expect(restored.inputResponseFor('i1')).toBe('hello');
+			expect(restored.pendingInputs()).toEqual([
+				{ callId: 'i1', toolName: 'ask_human', question: 'q?' },
+			]);
+		});
+	});
+
+	describe('editedArguments on approval', () => {
+		it('stores editedArguments alongside the approve decision', () => {
+			const state = baseInit();
+			state.setPending([{ callId: 'c1', toolName: 'write_file', arguments: '{"path":"/x"}' }]);
+			state.approve('c1', { editedArguments: '{"path":"/y"}' });
+			expect(state.decisionFor('c1', 'write_file')).toEqual({
+				decision: 'approve',
+				editedArguments: '{"path":"/y"}',
+			});
+		});
 	});
 });
