@@ -16,46 +16,47 @@ export interface Assistant {
 	model: Model;
 }
 
+/**
+ * Assistant transcript entry (provider-neutral). One per turn.
+ */
 export interface AssistantHistoryMessage {
-	role: 'system' | 'user' | 'assistant' | 'tool';
+	role: 'user' | 'assistant' | 'tool';
 	content?: string | null;
-	name?: string;
-	tool_call_id?: string;
-	tool_calls?: Array<{
-		id: string;
-		type: 'function';
-		function: { name: string; arguments: string };
+	toolUseId?: string;
+	isError?: boolean;
+	contentBlocks?: Array<{
+		type: 'text' | 'tool_use';
+		text?: string;
+		toolUseId?: string;
+		toolName?: string;
+		toolArgs?: unknown;
 	}>;
 }
 
 export interface AssistantPendingApproval {
-	callId: string;
+	id: string;
 	toolName: string;
-	arguments: string;
+	question: string;
+	args: unknown;
 }
 
 export interface AssistantPendingInput {
-	callId: string;
-	toolName: string;
+	id: string;
 	question: string;
 	suggestions?: string[];
 }
 
-export interface AssistantSendResult {
-	status:
-		| 'completed'
-		| 'awaiting_approval'
-		| 'awaiting_input'
-		| 'max_iterations'
-		| 'cancelled';
-	text: string;
-	pending: AssistantPendingApproval[];
-	pendingInputs: AssistantPendingInput[];
+export interface AssistantPendingState {
+	approvals: AssistantPendingApproval[];
+	inputs: AssistantPendingInput[];
 }
 
-export interface AssistantPendingEventPayload {
+export interface AssistantPendingEventPayload extends AssistantPendingState {
+	assistantId: string;
+}
+
+export interface AssistantResponseDelta {
 	assistantId: string;
 	runId: string;
-	pending: AssistantPendingApproval[];
-	pendingInputs: AssistantPendingInput[];
+	delta: string;
 }
