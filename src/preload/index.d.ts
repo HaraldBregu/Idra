@@ -72,6 +72,7 @@ import type {
 	Assistant,
 	AssistantHistoryMessage,
 	AssistantPendingApproval,
+	AssistantPendingEventPayload,
 	AssistantSendResult,
 	Model,
 } from '../shared/service';
