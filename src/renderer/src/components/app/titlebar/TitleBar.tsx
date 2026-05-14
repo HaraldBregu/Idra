@@ -76,7 +76,7 @@ export const TitleBar = React.memo(function TitleBar({
 		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100 hover:bg-accent/80 hover:text-foreground';
 
 	return (
-		<TitleBarContainer className="border-none bg-transparent">
+		<TitleBarContainer>
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
 			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
 				{!isMac && (
