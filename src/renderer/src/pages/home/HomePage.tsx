@@ -27,7 +27,9 @@ import { PageContainer } from '@/components/app/base/page';
 import type {
 	AssistantHistoryMessage,
 	AssistantPendingApproval,
-	AssistantSendResult,
+	AssistantPendingEventPayload,
+	AssistantPendingInput,
+	AssistantResponseDelta,
 } from '../../../../shared/service';
 
 interface TextChatMessage {
