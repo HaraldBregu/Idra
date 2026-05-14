@@ -90,6 +90,10 @@ export async function buildSystemPrompt(
 		`Current date/time: ${now}`,
 		`Workspace: ${memory.workspace}`,
 		`Always use absolute paths when reading or writing files. Your workspace is ${memory.workspace}.`,
+		'When a required value is ambiguous or the user has not specified it ' +
+			'(file path, destination folder, name, choice between options), call the ' +
+			'`ask_human` tool to ask the user instead of guessing. Pass suggestions in ' +
+			'the `suggestions` field when sensible defaults exist.',
 	];
 	if (channel) parts.push(`Channel: ${channel}`);
 	if (chatId) parts.push(`Chat ID: ${chatId}`);
