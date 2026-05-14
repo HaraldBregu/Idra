@@ -6,7 +6,7 @@ import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { WorkspaceService } from '../workspace';
 import { Assistant, type SendResult } from './assistant';
-import type { PendingApproval } from './run-state';
+import type { PendingApproval, PendingInputRequest } from './run-state';
 import { DEFAULT_ASSISTANT_ID } from './constants';
 import { AssistantRegistry } from './registry';
 
@@ -51,7 +51,7 @@ export class AssistantService {
 
 	approve(
 		callId: string,
-		opts: { alwaysApprove?: boolean } = {},
+		opts: { alwaysApprove?: boolean; editedArguments?: string } = {},
 		assistantId = this.defaultAssistantId
 	): Promise<SendResult> {
 		return this.ensure(assistantId).approve(callId, opts);
@@ -65,8 +65,24 @@ export class AssistantService {
 		return this.ensure(assistantId).reject(callId, opts);
 	}
 
+	respond(
+		callId: string,
+		answer: string,
+		assistantId = this.defaultAssistantId
+	): Promise<SendResult> {
+		return this.ensure(assistantId).respond(callId, answer);
+	}
+
+	cancelPending(assistantId = this.defaultAssistantId): Promise<void> {
+		return this.ensure(assistantId).cancelPending('explicit');
+	}
+
 	getPendingApprovals(assistantId = this.defaultAssistantId): PendingApproval[] {
 		return this.ensure(assistantId).getPendingApprovals();
+	}
+
+	getPendingInputs(assistantId = this.defaultAssistantId): PendingInputRequest[] {
+		return this.ensure(assistantId).getPendingInputs();
 	}
 
 	hasPending(assistantId = this.defaultAssistantId): boolean {
