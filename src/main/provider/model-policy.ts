@@ -11,25 +11,47 @@ const OPENAI_ASSISTANT_MODEL_ORDER = [
 
 const OPENAI_ASSISTANT_MODEL_IDS = new Set<string>(OPENAI_ASSISTANT_MODEL_ORDER);
 
+const ANTHROPIC_ASSISTANT_MODEL_ORDER = ['claude-opus-4-7', 'claude-sonnet-4-6'] as const;
+
+const ANTHROPIC_ASSISTANT_MODEL_IDS = new Set<string>(ANTHROPIC_ASSISTANT_MODEL_ORDER);
+
 function normalizeProviderId(providerId: string): string {
 	return providerId.trim().toLowerCase();
 }
 
 export function isAllowedAssistantModel(providerId: string, modelId: string): boolean {
-	if (normalizeProviderId(providerId) !== 'openai') {
-		return true;
+	const normalizedProviderId = normalizeProviderId(providerId);
+	const normalizedModelId = modelId.trim();
+
+	if (normalizedProviderId === 'openai') {
+		return OPENAI_ASSISTANT_MODEL_IDS.has(normalizedModelId);
 	}
-	return OPENAI_ASSISTANT_MODEL_IDS.has(modelId.trim());
+
+	if (normalizedProviderId === 'anthropic') {
+		return ANTHROPIC_ASSISTANT_MODEL_IDS.has(normalizedModelId);
+	}
+
+	return true;
 }
 
 export function filterSelectableAssistantModels(providerId: string, models: Model[]): Model[] {
-	if (normalizeProviderId(providerId) !== 'openai') {
-		return models;
+	const normalizedProviderId = normalizeProviderId(providerId);
+
+	if (normalizedProviderId === 'openai') {
+		const byId = new Map(models.map((model) => [model.id.trim(), model]));
+		return OPENAI_ASSISTANT_MODEL_ORDER.flatMap((id) => {
+			const model = byId.get(id);
+			return model ? [model] : [];
+		});
 	}
 
-	const byId = new Map(models.map((model) => [model.id.trim(), model]));
-	return OPENAI_ASSISTANT_MODEL_ORDER.flatMap((id) => {
-		const model = byId.get(id);
-		return model ? [model] : [];
-	});
+	if (normalizedProviderId === 'anthropic') {
+		const byId = new Map(models.map((model) => [model.id.trim(), model]));
+		return ANTHROPIC_ASSISTANT_MODEL_ORDER.flatMap((id) => {
+			const model = byId.get(id);
+			return model ? [model] : [];
+		});
+	}
+
+	return models;
 }

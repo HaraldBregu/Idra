@@ -232,7 +232,7 @@ export class AppIpc implements IpcModule {
 				}
 
 				if (normalizedProviderId === 'anthropic') {
-					return getAnthropicModels(apiKey);
+					return filterSelectableAssistantModels(storedProvider.id, await getAnthropicModels(apiKey));
 				}
 
 				throw new Error(`Unsupported provider id: ${storedProvider.id}`);

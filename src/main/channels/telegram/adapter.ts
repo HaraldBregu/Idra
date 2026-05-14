@@ -1,6 +1,6 @@
 import { Bot, GrammyError, HttpError } from 'grammy';
-import { registerTextHandler } from './receive';
-import { sendChunked } from './send';
+import { normalizeTelegramTextMessage, registerTextHandler } from './receive';
+import { sendTelegramDurable } from './send';
 import {
 	TELEGRAM_HEALTH_CHECK_INTERVAL_MS,
 	TELEGRAM_RECONNECT_INITIAL_DELAY_MS,
@@ -11,6 +11,7 @@ import type {
 	ChannelAdapter,
 	ChannelInboundHandler,
 	ChannelInboundMessage,
+	ChannelMessageReceipt,
 	ChannelOutboundMessage,
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
@@ -19,7 +20,9 @@ import type {
 export class TelegramAdapter implements ChannelAdapter {
 	private bot: Bot;
 	private readonly token: string;
+	private readonly accountId: string;
 	private readonly allowFrom: Set<string>;
+	private readonly seenMessages = new Set<string>();
 	private readonly messageHandlers = new Set<ChannelInboundHandler>();
 	private readonly statusHandlers = new Set<ChannelStatusHandler>();
 	private healthTimer: NodeJS.Timeout | null = null;
@@ -29,7 +32,10 @@ export class TelegramAdapter implements ChannelAdapter {
 
 	constructor(options: TelegramAdapterOptions) {
 		this.token = options.token.trim();
-		this.allowFrom = new Set(options.allowFrom.map((value) => String(value).trim()).filter(Boolean));
+		this.accountId = options.accountId?.trim() || 'default';
+		this.allowFrom = new Set(
+			options.allowFrom.map((value) => String(value).trim()).filter(Boolean)
+		);
 		if (!this.token) {
 			throw new Error('Telegram bot token is required');
 		}
@@ -51,7 +57,14 @@ export class TelegramAdapter implements ChannelAdapter {
 	}
 
 	async send(message: ChannelOutboundMessage): Promise<void> {
-		await sendChunked(this.bot, message.to, message.text);
+		await this.deliver(message);
+	}
+
+	async deliver(message: ChannelOutboundMessage): Promise<ChannelMessageReceipt> {
+		return sendTelegramDurable(this.bot, {
+			...message,
+			accountId: message.accountId ?? this.accountId,
+		});
 	}
 
 	async start(): Promise<void> {
@@ -84,13 +97,27 @@ export class TelegramAdapter implements ChannelAdapter {
 
 	private createBot(): Bot {
 		const bot = new Bot(this.token);
-		registerTextHandler(bot, this.allowFrom, ({ from, chatId, text }) => {
-			const message: ChannelInboundMessage = { type: 'telegram', from, chatId, text };
+		registerTextHandler(bot, this.allowFrom, (payload) => {
+			const normalized = normalizeTelegramTextMessage({
+				accountId: this.accountId,
+				...payload,
+			});
+			if (this.seenMessages.has(normalized.idempotencyKey)) return;
+			this.seenMessages.add(normalized.idempotencyKey);
+			const message: ChannelInboundMessage = {
+				type: 'telegram',
+				from: normalized.senderId,
+				chatId: normalized.targetId,
+				text: normalized.text,
+				messageId: normalized.messageId,
+				threadId: normalized.threadId,
+				chatType: normalized.chatType,
+				provenance: normalized.provenance,
+			};
 			for (const handler of this.messageHandlers) handler(message);
 		});
 		bot.catch((error) => {
-			const reason =
-				error.error instanceof Error ? error.error.message : String(error.error);
+			const reason = error.error instanceof Error ? error.error.message : String(error.error);
 			console.error('[telegram] handler error:', reason);
 			this.emitStatus({ status: 'error', error: reason });
 		});
@@ -141,10 +168,7 @@ export class TelegramAdapter implements ChannelAdapter {
 	private scheduleReconnect(): void {
 		if (this.stopping || this.reconnectTimer) return;
 		const delay = this.reconnectDelayMs;
-		this.reconnectDelayMs = Math.min(
-			this.reconnectDelayMs * 2,
-			TELEGRAM_RECONNECT_MAX_DELAY_MS
-		);
+		this.reconnectDelayMs = Math.min(this.reconnectDelayMs * 2, TELEGRAM_RECONNECT_MAX_DELAY_MS);
 		this.emitStatus({ status: 'connecting' });
 		this.reconnectTimer = setTimeout(() => {
 			this.reconnectTimer = null;

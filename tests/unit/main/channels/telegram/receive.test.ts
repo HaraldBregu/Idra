@@ -37,11 +37,14 @@ describe('telegram registerTextHandler', () => {
 			chat: { id: 456 },
 		});
 
-		expect(emit).toHaveBeenCalledWith({
-			from: '123',
-			chatId: '456',
-			text: 'hello',
-		});
+		expect(emit).toHaveBeenCalledWith(
+			expect.objectContaining({
+				from: '123',
+				chatId: '456',
+				text: 'hello',
+				chatType: 'dm',
+			})
+		);
 	});
 
 	it('ignores slash commands', async () => {

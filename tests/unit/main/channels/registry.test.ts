@@ -139,11 +139,14 @@ describe('ChannelRegistry', () => {
 		await Promise.resolve();
 
 		expect(dependencies.assistantService.send).toHaveBeenCalledWith('hello');
-		expect(adapter.send).toHaveBeenCalledWith({
-			type: 'telegram',
-			to: 'chat-1',
-			text: 'assistant reply',
-		});
+		expect(adapter.send).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: 'telegram',
+				to: 'chat-1',
+				text: 'assistant reply',
+				accountId: 'default',
+			})
+		);
 	});
 
 	it('stops and replaces telegram on restart', async () => {

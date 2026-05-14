@@ -28,9 +28,9 @@ function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex h-screen flex-col bg-background">
+		<div className="flex h-screen flex-col overflow-hidden bg-background">
 			<TitleBar title={t('appTitle')} />
-			<div className="min-h-0 flex-1">
+			<div className="min-h-0 flex-1 overflow-hidden">
 				<Outlet />
 			</div>
 		</div>

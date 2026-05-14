@@ -48,6 +48,28 @@ function buildChatMessages(
 	return msgs;
 }
 
+function usesMaxCompletionTokens(model: string): boolean {
+	const normalized = model.trim().toLowerCase();
+	return normalized.startsWith('gpt-5') || /^o\d/.test(normalized);
+}
+
+function applyMaxTokens(
+	params: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
+	model: string,
+	maxTokens: number
+): void {
+	if (usesMaxCompletionTokens(model)) {
+		(
+			params as OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming & {
+				max_completion_tokens: number;
+			}
+		).max_completion_tokens = maxTokens;
+		return;
+	}
+
+	params.max_tokens = maxTokens;
+}
+
 export interface OpenAIAdapterOptions {
 	apiKey: string;
 	baseURL?: string;
@@ -79,8 +101,8 @@ export class OpenAIAdapter implements ProviderAdapter {
 			messages: buildChatMessages(req.system, req.messages),
 			tools: tools.length > 0 ? tools : undefined,
 			stream: true,
-			max_tokens: req.maxTokens,
 		};
+		applyMaxTokens(params, req.model, req.maxTokens);
 
 		yield { type: 'message_start' };
 
@@ -142,7 +164,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 			const status = (err as { status?: number }).status ?? 0;
 			const msg = (err as Error).message ?? String(err);
 			if (status === 401 || status === 403) throw new ProviderAuthError(msg);
-			if (/context|too long|max.*tokens|exceed/i.test(msg)) throw new ContextOverflowError(msg);
+			if (/context|too long|exceed/i.test(msg)) throw new ContextOverflowError(msg);
 			throw err;
 		}
 

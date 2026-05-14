@@ -15,6 +15,7 @@ describe('provider/factory', () => {
 
 describe('provider/openai', () => {
 	it('normalizes chat completion stream events', async () => {
+		const create = jest.fn(async () => chunks());
 		async function* chunks() {
 			yield { choices: [{ delta: { content: 'hi ' } }] };
 			yield { choices: [{ delta: { tool_calls: [{ index: 0, id: 'call1', function: { name: 'read', arguments: '{"path"' } }] } }] };
@@ -24,7 +25,7 @@ describe('provider/openai', () => {
 		const adapter = new OpenAIAdapter({
 			apiKey: 'sk-test',
 			clientFactory: () => ({
-				chat: { completions: { create: jest.fn(async () => chunks()) } },
+				chat: { completions: { create } },
 			}) as never,
 		});
 
@@ -45,6 +46,37 @@ describe('provider/openai', () => {
 			{ type: 'tool_call_end', id: 'call1' },
 			{ type: 'message_end', stopReason: 'tool_calls', usage: { inputTokens: 2, outputTokens: 3 } },
 		]);
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({ max_tokens: 100 }),
+			expect.any(Object)
+		);
+	});
+
+	it('uses max_completion_tokens for GPT-5 chat completion requests', async () => {
+		async function* chunks() {
+			yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+		}
+		const create = jest.fn(async () => chunks());
+		const adapter = new OpenAIAdapter({
+			apiKey: 'sk-test',
+			clientFactory: () => ({
+				chat: { completions: { create } },
+			}) as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'gpt-5.5',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hello' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({ max_completion_tokens: 100 }),
+			expect.any(Object)
+		);
+		expect(create.mock.calls[0][0]).not.toHaveProperty('max_tokens');
 	});
 });
 

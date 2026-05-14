@@ -1,15 +1,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import {
-	ArrowUp,
-	Bot,
-	CheckCircle2,
-	Copy,
-	Paperclip,
-	ShieldCheck,
-	Sparkles,
-	Square,
-} from 'lucide-react';
+import { ArrowUp, Copy, Paperclip, Sparkles, Square } from 'lucide-react';
 import {
 	ChatContainerContent,
 	ChatContainerRoot,
@@ -31,7 +22,6 @@ import {
 } from '@/components/prompt-kit/prompt-input';
 import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageContainer } from '@/components/app/base/page';
 import type {
@@ -353,35 +343,12 @@ function HomePage(): ReactElement {
 
 	return (
 		<PageContainer className="text-foreground">
-			<header className="flex shrink-0 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 py-3">
-				<div className="flex min-w-0 items-center gap-3">
-					<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
-						<Bot className="size-5" />
-					</div>
-					<div className="min-w-0">
-						<h1 className="truncate text-sm font-semibold">Friday Assistant</h1>
-						<p className="truncate text-xs text-muted-foreground">
-							Workspace-aware help for coding, research, and decisions
-						</p>
-					</div>
-				</div>
-				<div className="hidden shrink-0 items-center gap-2 sm:flex">
-					<Badge variant="outline" className="gap-1">
-						<CheckCircle2 className="size-3" />
-						Ready
-					</Badge>
-					<Badge variant="secondary" className="gap-1">
-						<ShieldCheck className="size-3" />
-						Approvals guarded
-					</Badge>
-				</div>
-			</header>
 			<ChatContainerRoot className="min-h-0 flex-1">
-				<ChatContainerContent className="w-full gap-5">
+				<ChatContainerContent className="w-full gap-4 pt-4">
 					{messages.map((message) =>
 						message.role === 'user' ? (
 							<Message key={message.id} className="justify-end">
-								<MessageContent className="max-w-[min(78%,48rem)] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground shadow-sm">
+								<MessageContent className="max-w-[min(78%,48rem)] rounded-xl bg-primary px-3 py-2 text-primary-foreground">
 									{message.content}
 								</MessageContent>
 							</Message>
@@ -393,7 +360,7 @@ function HomePage(): ReactElement {
 										<>
 											<MessageContent
 												markdown
-												className="rounded-2xl rounded-tl-md border border-border bg-card px-4 py-3 shadow-xs"
+												className="rounded-xl border border-border bg-card px-3 py-2"
 											>
 												{message.content}
 											</MessageContent>
@@ -410,16 +377,13 @@ function HomePage(): ReactElement {
 											</MessageActions>
 										</>
 									) : (
-										<div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-xs">
-											<div className="space-y-1">
-												<Badge variant="outline">Action required</Badge>
-												<p className="text-sm font-medium">{message.prompt}</p>
-											</div>
+										<div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3">
+											<p className="text-sm font-medium">{message.prompt}</p>
 											<div className="flex flex-col gap-2">
 												{message.options.map((option) => (
 													<label
 														key={option.id}
-														className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-background p-3 text-sm transition-colors hover:bg-muted/50"
+														className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-background p-2.5 text-sm transition-colors hover:bg-muted/50"
 													>
 														<input
 															type={option.kind === 'approval' ? 'radio' : 'checkbox'}
@@ -461,7 +425,7 @@ function HomePage(): ReactElement {
 					{isLoading && (
 						<Message className="justify-start">
 							<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-							<div className="flex items-center gap-2 rounded-2xl rounded-tl-md border border-border bg-card px-4 py-3 text-muted-foreground shadow-xs">
+							<div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-muted-foreground">
 								<Loader variant="typing" size="md" />
 								<Loader variant="text-shimmer" text="Thinking" size="sm" />
 							</div>
@@ -472,7 +436,7 @@ function HomePage(): ReactElement {
 				<ScrollButton className="absolute bottom-4 right-6 shadow-sm" variant="secondary" />
 			</ChatContainerRoot>
 
-			<div className="border-t border-border bg-background/95 px-4 pt-3">
+			<div className="border-t border-border bg-background px-4 pt-3">
 				{showSuggestions && (
 					<div className="mx-auto mb-3 flex w-full max-w-3xl flex-wrap gap-2">
 						{suggestions.map((s) => (
@@ -488,7 +452,7 @@ function HomePage(): ReactElement {
 					onValueChange={setInput}
 					isLoading={isLoading}
 					onSubmit={handleSubmit}
-					className="mx-auto mb-4 w-full max-w-3xl bg-card shadow-sm"
+					className="mx-auto mb-4 w-full max-w-3xl bg-card"
 				>
 					<PromptInputTextarea placeholder="Ask Friday anything..." />
 					<PromptInputActions className="justify-between pt-2">
