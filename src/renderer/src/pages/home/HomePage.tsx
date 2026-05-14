@@ -1,6 +1,17 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUp, Copy, Paperclip, Sparkles, Square } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+	ArrowUp,
+	Code2,
+	Copy,
+	GitPullRequest,
+	ListChecks,
+	Paperclip,
+	Search,
+	Sparkles,
+	Square,
+} from 'lucide-react';
 import {
 	ChatContainerContent,
 	ChatContainerRoot,
@@ -24,6 +35,7 @@ import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
 import { Button } from '@/components/ui/button';
 import { PageContainer } from '@/components/app/base/page';
+import { cn } from '@/lib/utils';
 import type {
 	ApprovalDecision,
 	AssistantHistoryMessage,
@@ -60,6 +72,12 @@ interface MultiSelectChatMessage {
 
 type ChatMessage = TextChatMessage | MultiSelectChatMessage;
 
+interface SuggestionItem {
+	readonly label: string;
+	readonly prompt: string;
+	readonly icon: LucideIcon;
+}
+
 function createTextMessage(role: TextChatMessage['role'], content: string): TextChatMessage {
 	return {
 		id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -79,11 +97,27 @@ const welcomeMessage: ChatMessage = {
 
 const initialMessages: readonly ChatMessage[] = [welcomeMessage];
 
-const suggestions: readonly string[] = [
-	'Review the current changes',
-	'Explain this project structure',
-	'Find the next failing test',
-	'Draft a focused implementation plan',
+const suggestions: readonly SuggestionItem[] = [
+	{
+		label: 'Review changes',
+		prompt: 'Review the current changes',
+		icon: GitPullRequest,
+	},
+	{
+		label: 'Explain structure',
+		prompt: 'Explain this project structure',
+		icon: Code2,
+	},
+	{
+		label: 'Find failing test',
+		prompt: 'Find the next failing test',
+		icon: Search,
+	},
+	{
+		label: 'Plan implementation',
+		prompt: 'Draft a focused implementation plan',
+		icon: ListChecks,
+	},
 ];
 
 function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[] {
@@ -342,141 +376,201 @@ function HomePage(): ReactElement {
 	const showSuggestions = messages.length <= 1 && !isLoading;
 
 	return (
-		<PageContainer className="text-foreground">
-			<ChatContainerRoot className="min-h-0 flex-1">
-				<ChatContainerContent className="w-full gap-4 pt-4">
-					{messages.map((message) =>
-						message.role === 'user' ? (
-							<Message key={message.id} className="justify-end">
-								<MessageContent className="max-w-[min(78%,48rem)] rounded-xl bg-primary px-3 py-2 text-primary-foreground">
-									{message.content}
-								</MessageContent>
-							</Message>
+		<PageContainer className="overflow-hidden text-foreground">
+			<div className="relative flex min-h-0 flex-1 flex-col">
+				<ChatContainerRoot className="min-h-0 flex-1">
+					<ChatContainerContent
+						className={cn(
+							'mx-auto min-h-full w-full max-w-4xl px-4',
+							showSuggestions ? 'justify-center py-8' : 'gap-4 pb-6 pt-5'
+						)}
+					>
+						{showSuggestions ? (
+							<div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+								<div className="flex flex-col items-center gap-3 text-center">
+									<div className="flex size-10 items-center justify-center rounded-xl border border-border/80 bg-card/80 text-muted-foreground shadow-sm">
+										<Sparkles className="size-5" />
+									</div>
+									<div className="space-y-1">
+										<h1 className="text-xl font-semibold">What should Friday do next?</h1>
+										<p className="mx-auto max-w-xl text-sm text-muted-foreground">
+											Start with a focused request for code review, project context, tests, or
+											implementation planning.
+										</p>
+									</div>
+								</div>
+								<div className="grid gap-2 sm:grid-cols-2">
+									{suggestions.map(({ label, prompt, icon: Icon }) => (
+										<PromptSuggestion
+											key={label}
+											onClick={() => void sendPrompt(prompt)}
+											className="h-auto items-start justify-start gap-3 whitespace-normal rounded-xl border-border/80 bg-card/70 px-3 py-3 text-left shadow-sm hover:bg-accent"
+										>
+											<span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+												<Icon className="size-4" />
+											</span>
+											<span className="min-w-0 leading-tight">
+												<span className="block text-sm font-medium text-foreground">{label}</span>
+												<span className="block truncate text-xs text-muted-foreground">
+													{prompt}
+												</span>
+											</span>
+										</PromptSuggestion>
+									))}
+								</div>
+							</div>
 						) : (
-							<Message key={message.id} className="justify-start">
-								<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-								<div className="flex w-full max-w-[min(82%,52rem)] flex-col gap-2">
-									{message.type === 'text' ? (
-										<>
-											<MessageContent
-												markdown
-												className="rounded-xl border border-border bg-card px-3 py-2"
-											>
+							<>
+								{messages.map((message) =>
+									message.role === 'user' ? (
+										<Message key={message.id} className="justify-end">
+											<MessageContent className="max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-primary-foreground shadow-sm sm:max-w-[72%]">
 												{message.content}
 											</MessageContent>
-											<MessageActions className="self-start">
-												<MessageAction tooltip="Copy">
-													<Button
-														variant="ghost"
-														size="icon-sm"
-														onClick={() => copyMessage(message.content)}
-													>
-														<Copy className="size-3.5" />
-													</Button>
-												</MessageAction>
-											</MessageActions>
-										</>
+										</Message>
 									) : (
-										<div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3">
-											<p className="text-sm font-medium">{message.prompt}</p>
-											<div className="flex flex-col gap-2">
-												{message.options.map((option) => (
-													<label
-														key={option.id}
-														className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-background p-2.5 text-sm transition-colors hover:bg-muted/50"
-													>
-														<input
-															type={option.kind === 'approval' ? 'radio' : 'checkbox'}
-															name={
-																option.kind === 'approval'
-																	? `${message.id}:${option.approvalId}`
-																	: option.id
-															}
-															className="mt-1 size-4 accent-primary"
-															checked={(selectedOptions[message.id] ?? []).includes(option.id)}
-															onChange={() =>
-																option.kind === 'approval' && option.approvalId
-																	? selectApprovalOption(message.id, option.approvalId, option.id)
-																	: toggleOption(message.id, option.id)
-															}
-														/>
-														<span className="min-w-0">
-															<span className="block font-medium">{option.label}</span>
-															<span className="block break-words text-xs text-muted-foreground">
-																{option.description}
-															</span>
-														</span>
-													</label>
-												))}
+										<Message key={message.id} className="items-start justify-start">
+											<MessageAvatar
+												src="/avatars/ai.png"
+												alt="AI"
+												fallback="AI"
+												className="mt-0.5 size-7 border border-border bg-card"
+											/>
+											<div className="flex min-w-0 max-w-[calc(100%-2.5rem)] flex-col gap-2 sm:max-w-[44rem]">
+												{message.type === 'text' ? (
+													<>
+														<MessageContent
+															markdown
+															className="rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 shadow-sm backdrop-blur"
+														>
+															{message.content}
+														</MessageContent>
+														<MessageActions className="self-start">
+															<MessageAction tooltip="Copy">
+																<Button
+																	variant="ghost"
+																	size="icon-sm"
+																	onClick={() => copyMessage(message.content)}
+																>
+																	<Copy className="size-3.5" />
+																</Button>
+															</MessageAction>
+														</MessageActions>
+													</>
+												) : (
+													<div className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-sm backdrop-blur">
+														<p className="text-sm font-medium">{message.prompt}</p>
+														<div className="flex flex-col gap-2">
+															{message.options.map((option) => (
+																<label
+																	key={option.id}
+																	className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/80 bg-background/80 p-2.5 text-sm transition-colors hover:bg-muted/60"
+																>
+																	<input
+																		type={option.kind === 'approval' ? 'radio' : 'checkbox'}
+																		name={
+																			option.kind === 'approval'
+																				? `${message.id}:${option.approvalId}`
+																				: option.id
+																		}
+																		className="mt-1 size-4 accent-primary"
+																		checked={(selectedOptions[message.id] ?? []).includes(
+																			option.id
+																		)}
+																		onChange={() =>
+																			option.kind === 'approval' && option.approvalId
+																				? selectApprovalOption(
+																						message.id,
+																						option.approvalId,
+																						option.id
+																					)
+																				: toggleOption(message.id, option.id)
+																		}
+																	/>
+																	<span className="min-w-0">
+																		<span className="block font-medium">{option.label}</span>
+																		<span className="block break-words text-xs text-muted-foreground">
+																			{option.description}
+																		</span>
+																	</span>
+																</label>
+															))}
+														</div>
+														<Button
+															className="self-start"
+															size="sm"
+															onClick={() => void submitMultiSelect(message)}
+														>
+															Submit selection
+														</Button>
+													</div>
+												)}
 											</div>
-											<Button
-												className="self-start"
-												size="sm"
-												onClick={() => void submitMultiSelect(message)}
-											>
-												Submit selection
-											</Button>
-										</div>
-									)}
-								</div>
-							</Message>
-						)
-					)}
-					{isLoading && (
-						<Message className="justify-start">
-							<MessageAvatar src="/avatars/ai.png" alt="AI" fallback="AI" />
-							<div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-muted-foreground">
-								<Loader variant="typing" size="md" />
-								<Loader variant="text-shimmer" text="Thinking" size="sm" />
-							</div>
-						</Message>
-					)}
-					<ChatContainerScrollAnchor />
-				</ChatContainerContent>
-				<ScrollButton className="absolute bottom-4 right-6 shadow-sm" variant="secondary" />
-			</ChatContainerRoot>
-
-			<div className="app-translucent-surface border-t border-border/70 px-4 pt-3">
-				{showSuggestions && (
-					<div className="mx-auto mb-3 flex w-full max-w-3xl flex-wrap gap-2">
-						{suggestions.map((s) => (
-							<PromptSuggestion key={s} onClick={() => void sendPrompt(s)}>
-								<Sparkles className="size-3" />
-								{s}
-							</PromptSuggestion>
-						))}
-					</div>
-				)}
-				<PromptInput
-					value={input}
-					onValueChange={setInput}
-					isLoading={isLoading}
-					onSubmit={handleSubmit}
-					className="app-translucent-surface mx-auto mb-4 w-full max-w-3xl"
-				>
-					<PromptInputTextarea placeholder="Ask Friday anything..." />
-					<PromptInputActions className="justify-between pt-2">
-						<PromptInputAction tooltip="Attach file">
-							<Button variant="ghost" size="icon-sm" className="rounded-full">
-								<Paperclip className="size-4" />
-							</Button>
-						</PromptInputAction>
-						<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
-							<Button
-								variant="default"
-								size="icon"
-								className="h-8 w-8 rounded-full"
-								onClick={handleSubmit}
-							>
-								{isLoading ? (
-									<Square className="size-4 fill-current" />
-								) : (
-									<ArrowUp className="size-4" />
+										</Message>
+									)
 								)}
-							</Button>
-						</PromptInputAction>
-					</PromptInputActions>
-				</PromptInput>
+								{isLoading && (
+									<Message className="items-start justify-start">
+										<MessageAvatar
+											src="/avatars/ai.png"
+											alt="AI"
+											fallback="AI"
+											className="mt-0.5 size-7 border border-border bg-card"
+										/>
+										<div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 text-muted-foreground shadow-sm backdrop-blur">
+											<Loader variant="typing" size="md" />
+											<Loader variant="text-shimmer" text="Thinking" size="sm" />
+										</div>
+									</Message>
+								)}
+							</>
+						)}
+						<ChatContainerScrollAnchor className={showSuggestions ? 'hidden' : undefined} />
+					</ChatContainerContent>
+					{!showSuggestions && (
+						<div className="pointer-events-none absolute inset-x-0 bottom-4 px-4">
+							<div className="mx-auto flex w-full max-w-4xl justify-end">
+								<ScrollButton className="pointer-events-auto shadow-sm" variant="secondary" />
+							</div>
+						</div>
+					)}
+				</ChatContainerRoot>
+
+				<div className="shrink-0 bg-gradient-to-t from-background via-background/95 to-transparent px-4 pb-4 pt-6">
+					<PromptInput
+						value={input}
+						onValueChange={setInput}
+						isLoading={isLoading}
+						onSubmit={handleSubmit}
+						className="mx-auto w-full max-w-3xl rounded-2xl border-border/80 bg-card/80 shadow-lg shadow-black/5 backdrop-blur-xl"
+					>
+						<PromptInputTextarea
+							className="min-h-[52px] px-2 pt-2 text-sm"
+							placeholder="Ask Friday anything..."
+						/>
+						<PromptInputActions className="justify-between px-1 pt-2">
+							<PromptInputAction tooltip="Attach file">
+								<Button variant="ghost" size="icon-sm" className="rounded-full">
+									<Paperclip className="size-4" />
+								</Button>
+							</PromptInputAction>
+							<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
+								<Button
+									variant="default"
+									size="icon"
+									className="size-8 rounded-full"
+									onClick={handleSubmit}
+								>
+									{isLoading ? (
+										<Square className="size-4 fill-current" />
+									) : (
+										<ArrowUp className="size-4" />
+									)}
+								</Button>
+							</PromptInputAction>
+						</PromptInputActions>
+					</PromptInput>
+				</div>
 			</div>
 		</PageContainer>
 	);
