@@ -378,10 +378,10 @@ function HomePage(): ReactElement {
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			<div className="relative flex min-h-0 flex-1 flex-col">
-				<ChatContainerRoot className="min-h-0 flex-1">
+				<ChatContainerRoot className="mx-auto min-h-0 w-full max-w-4xl flex-1">
 					<ChatContainerContent
 						className={cn(
-							'mx-auto min-h-full w-full max-w-4xl px-4',
+							'min-h-full w-full px-4',
 							showSuggestions ? 'justify-center py-8' : 'gap-4 pb-6 pt-5'
 						)}
 					>
