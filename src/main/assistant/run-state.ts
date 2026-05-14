@@ -28,6 +28,7 @@ export interface RunStateData {
 	newMessages: ChatCompletionMessageParam[];
 	iteration: number;
 	pendingApprovals: PendingApproval[];
+	pendingToolCalls: PendingToolCall[];
 	decisionsByCallId: Record<string, ResolvedApproval>;
 	alwaysApproveTools: string[];
 	alwaysRejectTools: string[];
