@@ -245,6 +245,7 @@ export interface SendChannelMap {
 
 interface AssistantEventChannelMap {
 	[AssistantChannels.response]: { data: { response: string } };
+	[AssistantChannels.pending]: { data: import('./service').AssistantPendingEventPayload };
 }
 
 interface WindowEventChannelMap {
