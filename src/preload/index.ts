@@ -23,7 +23,8 @@ import type {
 	Assistant,
 	AssistantHistoryMessage,
 	AssistantPendingEventPayload,
-	AssistantSendResult,
+	AssistantPendingState,
+	AssistantResponseDelta,
 	Model,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
