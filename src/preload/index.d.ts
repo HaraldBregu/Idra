@@ -10,22 +10,14 @@ export interface WindowApi {
 }
 
 export interface AssistantApi {
-	send: (message: string) => Promise<AssistantSendResult>;
+	send: (message: string) => Promise<string>;
 	reset: () => Promise<void>;
+	cancel: () => Promise<void>;
 	getHistory: () => Promise<AssistantHistoryMessage[]>;
-	approve: (
-		callId: string,
-		opts?: { alwaysApprove?: boolean; editedArguments?: string }
-	) => Promise<AssistantSendResult>;
-	reject: (
-		callId: string,
-		opts?: { alwaysReject?: boolean; message?: string }
-	) => Promise<AssistantSendResult>;
-	respond: (callId: string, answer: string) => Promise<AssistantSendResult>;
-	cancelPending: () => Promise<void>;
-	getPending: () => Promise<AssistantPendingApproval[]>;
-	getPendingInputs: () => Promise<AssistantPendingInput[]>;
-	onResponse: (callback: (event: { response: string }) => void) => () => void;
+	resolveApproval: (id: string, approved: boolean) => Promise<boolean>;
+	resolveInput: (id: string, answer: string) => Promise<boolean>;
+	getPending: () => Promise<AssistantPendingState>;
+	onResponse: (callback: (event: AssistantResponseDelta) => void) => () => void;
 	onPending: (callback: (event: AssistantPendingEventPayload) => void) => () => void;
 }
 
