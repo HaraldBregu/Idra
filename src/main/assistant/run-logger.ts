@@ -47,6 +47,22 @@ export interface RunLogApprovalResolution {
 	tool: string;
 	decision: 'approve' | 'reject';
 	alwaysApply: boolean;
+	editedArguments?: string;
+}
+
+export interface RunLogInputRequest {
+	runId: string;
+	assistantId: string;
+	iteration: number;
+	pending: Array<{ callId: string; tool: string; question: string }>;
+}
+
+export interface RunLogInputResolution {
+	runId: string;
+	assistantId: string;
+	callId: string;
+	tool: string;
+	answerChars: number;
 }
 
 export interface TokenUsage {
