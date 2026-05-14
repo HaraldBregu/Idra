@@ -51,12 +51,11 @@ export class Assistant {
 		logger: LoggerService,
 		eventBus: EventBus,
 		workspace: WorkspaceService,
-		mcpRegistry?: McpRegistry,
+		_mcpRegistry?: McpRegistry,
 		overrides: AssistantOverrides = {}
 	) {
 		this.id = assistantId;
 		this.services = { store, cron, eventBus, logger, workspace };
-		this.mcpRegistry = mcpRegistry;
 		this.source = `Assistant:${assistantId}`;
 		this.memory = new MemoryManager(assistantId);
 		this.hitl = new HitlBridge(eventBus, assistantId);
