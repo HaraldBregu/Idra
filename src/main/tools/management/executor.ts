@@ -1,6 +1,6 @@
 import { InMemoryToolAuditLog, redactSensitive, summarizeOutput, type ToolAuditLog } from './audit-log';
 import { validateJsonSchema } from './schema';
-import { TOOL_SAFETY_ORDER, createToolResult, type Tool, type ToolError, type ToolExecutionContext, type ToolResult } from './types';
+import { TOOL_SAFETY_ORDER, createToolResult, type Tool, type ToolExecutionContext, type ToolResult } from './types';
 import { ToolOutputValidator } from './output-validator';
 
 export interface ToolExecutorOptions {
@@ -128,9 +128,9 @@ export class ToolExecutor {
 				finishedAt: new Date(),
 			});
 		}
-		const rateLimited = this.checkRateLimit(tool, context, startedAt);
+		const rateLimited = this.checkRateLimit<TOutput>(tool, context, startedAt);
 		if (rateLimited) return rateLimited;
-		const overLimit = this.checkTurnLimit(tool.id, context, startedAt);
+		const overLimit = this.checkTurnLimit<TOutput>(tool.id, context, startedAt);
 		if (overLimit) return overLimit;
 		const needsConfirmation = tool.metadata.requiresConfirmation === true || (!tool.metadata.readOnly && TOOL_SAFETY_ORDER[tool.safetyLevel] >= TOOL_SAFETY_ORDER.high);
 		if (needsConfirmation) {

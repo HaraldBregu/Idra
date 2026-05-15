@@ -1,4 +1,4 @@
-import { createToolResult, type Tool, type ToolExecutionContext } from './types';
+import { createToolResult, type Tool, type ToolExample } from './types';
 
 interface CalculationInput {
 	operation: 'add' | 'subtract' | 'multiply' | 'divide' | 'percent';
@@ -52,7 +52,13 @@ export const CalculatorTool: Tool<CalculationInput, CalculationOutput> = {
 };
 
 export const WeatherTool: Tool<{ location: string; date?: string }, { location: string; forecast: string; asOf: string }> = {
-	...baseTool('weather', 'Weather', 'Mock weather lookup for forecast-style requests.', 'web', ['weather', 'forecast']),
+	...baseTool<{ location: string; date?: string }, { location: string; forecast: string; asOf: string }>(
+		'weather',
+		'Weather',
+		'Mock weather lookup for forecast-style requests.',
+		'web',
+		['weather', 'forecast']
+	),
 	permissionsRequired: ['web:read'],
 	inputSchema: {
 		type: 'object',
@@ -80,7 +86,13 @@ export const WeatherTool: Tool<{ location: string; date?: string }, { location: 
 };
 
 export const WebSearchTool: Tool<{ query: string }, { results: Array<{ title: string; url: string; snippet: string }> }> = {
-	...baseTool('web-search', 'Web Search', 'Mock web search for current public information.', 'search', ['search', 'web', 'current']),
+	...baseTool<{ query: string }, { results: Array<{ title: string; url: string; snippet: string }> }>(
+		'web-search',
+		'Web Search',
+		'Mock web search for current public information.',
+		'search',
+		['search', 'web', 'current']
+	),
 	permissionsRequired: ['web:read'],
 	inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false },
 	outputSchema: { type: 'object', properties: { results: { type: 'array' } }, required: ['results'], additionalProperties: false },
@@ -98,7 +110,13 @@ export const WebSearchTool: Tool<{ query: string }, { results: Array<{ title: st
 };
 
 export const EmailDraftTool: Tool<{ to: string; subject: string; body: string }, { draftId: string; to: string; subject: string }> = {
-	...baseTool('email-draft', 'Email Draft', 'Create an email draft without sending it.', 'email', ['email', 'draft']),
+	...baseTool<{ to: string; subject: string; body: string }, { draftId: string; to: string; subject: string }>(
+		'email-draft',
+		'Email Draft',
+		'Create an email draft without sending it.',
+		'email',
+		['email', 'draft']
+	),
 	permissionsRequired: ['email:draft'],
 	safetyLevel: 'medium',
 	metadata: { ...baseTool('email-draft', 'Email Draft', '', 'email').metadata, privacyLevel: 'private', readOnly: false },
@@ -130,7 +148,14 @@ export const CalendarCreateEventTool: Tool<
 	{ title: string; startsAt: string; endsAt: string; attendees?: string[] },
 	{ eventId: string; title: string; startsAt: string; endsAt: string }
 > = {
-	...baseTool('calendar-create-event', 'Calendar Create Event', 'Create a calendar event after confirmation.', 'calendar', ['calendar', 'event', 'schedule']),
+	...baseTool<
+		{ title: string; startsAt: string; endsAt: string; attendees?: string[] },
+		{ eventId: string; title: string; startsAt: string; endsAt: string }
+	>('calendar-create-event', 'Calendar Create Event', 'Create a calendar event after confirmation.', 'calendar', [
+		'calendar',
+		'event',
+		'schedule',
+	]),
 	permissionsRequired: ['calendar:write'],
 	safetyLevel: 'high',
 	metadata: {
@@ -169,7 +194,11 @@ export const CalendarCreateEventTool: Tool<
 };
 
 export const FileSearchTool: Tool<{ query: string }, { matches: string[] }> = {
-	...baseTool('file-search', 'File Search', 'Search indexed workspace file names.', 'files', ['files', 'workspace', 'search']),
+	...baseTool<{ query: string }, { matches: string[] }>('file-search', 'File Search', 'Search indexed workspace file names.', 'files', [
+		'files',
+		'workspace',
+		'search',
+	]),
 	permissionsRequired: ['workspace:read'],
 	metadata: { ...baseTool('file-search', 'File Search', '', 'files').metadata, privacyLevel: 'private', readOnly: true },
 	inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false },
@@ -188,7 +217,13 @@ export const FileSearchTool: Tool<{ query: string }, { matches: string[] }> = {
 };
 
 export const MemorySearchTool: Tool<{ query: string }, { memories: string[] }> = {
-	...baseTool('memory-search', 'Memory Search', 'Search approved non-sensitive user memory.', 'memory', ['memory', 'preferences']),
+	...baseTool<{ query: string }, { memories: string[] }>(
+		'memory-search',
+		'Memory Search',
+		'Search approved non-sensitive user memory.',
+		'memory',
+		['memory', 'preferences']
+	),
 	permissionsRequired: ['memory:read'],
 	inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false },
 	outputSchema: { type: 'object', properties: { memories: { type: 'array' } }, required: ['memories'], additionalProperties: false },
@@ -209,7 +244,13 @@ export function createExampleTools(): Tool[] {
 	return [CalculatorTool, WeatherTool, WebSearchTool, EmailDraftTool, CalendarCreateEventTool, FileSearchTool, MemorySearchTool];
 }
 
-function baseTool(id: string, name: string, description: string, category: Tool['category'], tags: string[] = []): Omit<Tool, 'inputSchema' | 'outputSchema' | 'execute'> {
+function baseTool<TInput, TOutput>(
+	id: string,
+	name: string,
+	description: string,
+	category: Tool['category'],
+	tags: string[] = []
+): Omit<Tool<TInput, TOutput>, 'inputSchema' | 'outputSchema' | 'execute'> {
 	return {
 		id,
 		name,
@@ -221,7 +262,7 @@ function baseTool(id: string, name: string, description: string, category: Tool[
 		latencyEstimate: { p50Ms: 20, p95Ms: 100 },
 		reliabilityScore: 0.9,
 		rateLimit: { maxCalls: 60, windowMs: 60_000, scope: 'session' },
-		examples: [],
+		examples: [] as Array<ToolExample<TInput, TOutput>>,
 		tags,
 		enabled: true,
 		version: '1.0.0',
@@ -235,4 +276,3 @@ function baseTool(id: string, name: string, description: string, category: Tool[
 		},
 	};
 }
-

@@ -14,6 +14,9 @@ export class ToolUsePolicy {
 		if (input.userExplicitlyDisabledTools || /\b(no tools|without tools|do not use tools|don't use tools)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'user explicitly disabled tool use' };
 		}
+		if (/\b(write|draft|compose)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
+			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
+		}
 		if (/\b(write|rewrite|translate|summarize|brainstorm|poem|story|creative)\b/.test(request) && !needsExternalAccess(request)) {
 			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
 		}
@@ -35,4 +38,3 @@ function needsExternalAccess(request: string): boolean {
 		request
 	);
 }
-
