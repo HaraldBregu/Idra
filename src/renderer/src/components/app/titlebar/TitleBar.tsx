@@ -16,6 +16,14 @@ import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 // Synchronous platform check — no hooks, no async, no state.
