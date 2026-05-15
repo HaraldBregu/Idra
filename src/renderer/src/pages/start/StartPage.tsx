@@ -123,7 +123,6 @@ const STEP_TITLES: Record<SetupStep, string> = {
 	providers: 'Providers',
 	models: 'Models',
 	connectors: 'Connectors',
-	finish: 'Finish',
 };
 
 const PERMISSION_ITEMS: readonly {
