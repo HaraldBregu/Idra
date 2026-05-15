@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Languages, Moon, Monitor, SlidersHorizontal, Sun, type LucideIcon } from 'lucide-react';
+import { Languages, Moon, Monitor, Sun, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Card, CardContent } from '@/components/ui/card';

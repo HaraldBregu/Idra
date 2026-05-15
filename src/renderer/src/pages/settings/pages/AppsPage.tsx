@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppWindow, FolderOpen, Package, RefreshCw, Trash2, type LucideIcon } from 'lucide-react';
+import { FolderOpen, Package, RefreshCw, Trash2, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
