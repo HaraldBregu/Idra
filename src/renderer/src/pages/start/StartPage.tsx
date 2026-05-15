@@ -55,13 +55,7 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep =
-	| 'welcome'
-	| 'permissions'
-	| 'providers'
-	| 'models'
-	| 'connectors'
-	| 'finish';
+type SetupStep = 'welcome' | 'permissions' | 'providers' | 'models' | 'connectors';
 
 type PermissionId = 'microphone' | 'screen' | 'accessibility';
 type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
