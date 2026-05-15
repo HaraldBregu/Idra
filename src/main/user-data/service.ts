@@ -1,4 +1,5 @@
 import { app } from 'electron';
+import { existsSync } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
@@ -74,7 +75,16 @@ export function resolveDefaultUserDataPath(...segments: string[]): string {
 }
 
 function resolveDefaultApplicationPath(): string {
-	const candidates = [safeGetAppPath(), process.cwd()].filter((value): value is string => Boolean(value));
+	const candidates = [
+		safeGetAppPath(),
+		process.env.FRIDAY_APP_ROOT,
+		process.env.FRIDAY_PROJECT_ROOT,
+		safeDesktopProjectPath(),
+		process.env.INIT_CWD,
+		process.env.PWD,
+		process.cwd(),
+		...process.argv,
+	].filter((value): value is string => Boolean(value));
 
 	for (const candidate of candidates) {
 		const fridayRoot = findAncestorNamed(path.resolve(candidate), 'friday');
@@ -87,6 +97,15 @@ function resolveDefaultApplicationPath(): string {
 function safeGetAppPath(): string | undefined {
 	try {
 		return app.getAppPath();
+	} catch {
+		return undefined;
+	}
+}
+
+function safeDesktopProjectPath(): string | undefined {
+	try {
+		const candidate = path.join(app.getPath('home'), 'Desktop', 'friday');
+		return existsSync(candidate) ? candidate : undefined;
 	} catch {
 		return undefined;
 	}

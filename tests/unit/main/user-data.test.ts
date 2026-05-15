@@ -18,6 +18,21 @@ describe('UserDataDirectoryService', () => {
 		);
 	});
 
+	it('uses ~/Desktop/friday when Electron resolves the app path to home', async () => {
+		const home = await makeTempDir();
+		await fs.mkdir(path.join(home, 'Desktop', 'friday'), { recursive: true });
+		(app.getAppPath as jest.Mock).mockReturnValue(home);
+		(app.getPath as jest.Mock).mockImplementation((name: string) => {
+			if (name === 'home') return home;
+			return path.join(home, name);
+		});
+
+		const service = new UserDataDirectoryService();
+
+		expect(service.getRootPath()).toBe(path.join(home, 'Desktop', USER_DATA_DIRECTORY_NAME));
+		await fs.rm(home, { recursive: true, force: true });
+	});
+
 	it('creates the root idempotently and rejects traversal', async () => {
 		const parent = await makeTempDir();
 		const service = new UserDataDirectoryService({ appPath: path.join(parent, 'friday') });
