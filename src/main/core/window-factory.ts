@@ -2,6 +2,7 @@ import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
+import { lockWindowZoom } from '../window-zoom';
 
 export interface WindowPreset {
 	name: string;
@@ -47,21 +48,6 @@ export class WindowFactory {
 		};
 	}
 
-	private pinDefaultZoom(win: BrowserWindow): void {
-		const resetZoom = (): void => {
-			if (win.isDestroyed()) return;
-			win.webContents.setZoomLevel(0);
-			win.webContents.setZoomFactor(1);
-		};
-
-		resetZoom();
-		win.webContents.once('did-finish-load', resetZoom);
-		win.webContents.on('zoom-changed', (event) => {
-			event.preventDefault();
-			resetZoom();
-		});
-	}
-
 	/**
 	 * Create a BrowserWindow with base security defaults merged with overrides.
 	 */
@@ -82,7 +68,7 @@ export class WindowFactory {
 		};
 
 		const win = new BrowserWindow(options);
-		this.pinDefaultZoom(win);
+		lockWindowZoom(win);
 
 		// Prevent arbitrary window.open() calls from creating unrestricted windows
 		win.webContents.setWindowOpenHandler(() => {

@@ -106,6 +106,7 @@ describe('core modules', () => {
 		}));
 		expect(created.webContents.setZoomLevel).toHaveBeenCalledWith(0);
 		expect(created.webContents.setZoomFactor).toHaveBeenCalledWith(1);
+		expect(created.webContents.setVisualZoomLevelLimits).toHaveBeenCalledWith(1, 1);
 		expect(created.webContents.on).toHaveBeenCalledWith('zoom-changed', expect.any(Function));
 		expect(created.webContents.setWindowOpenHandler).toHaveBeenCalled();
 	});
