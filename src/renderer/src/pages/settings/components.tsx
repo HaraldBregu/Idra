@@ -20,7 +20,7 @@ export function SettingsPageShell({
 	className,
 }: SettingsPageShellProps): React.JSX.Element {
 	return (
-		<div className={cn('mx-auto flex w-full max-w-6xl flex-col gap-4 pb-4', className)}>
+		<div className={cn('mx-auto flex w-full max-w-6xl flex-col gap-3 pb-3', className)}>
 			{children}
 		</div>
 	);
@@ -39,12 +39,12 @@ export function SettingsPageHeader({
 	action,
 }: SettingsPageHeaderProps): React.JSX.Element {
 	return (
-		<header className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 pb-3">
-			<div className="flex min-w-0 items-start gap-3">
+		<header className="flex flex-wrap items-start justify-between gap-2.5 border-b border-border/70 pb-2.5">
+			<div className="flex min-w-0 items-start gap-2">
 				<div className="min-w-0">
-					<h1 className="text-base font-semibold leading-none">{title}</h1>
+					<h1 className="text-sm font-semibold leading-tight">{title}</h1>
 					{description && (
-						<p className="mt-2 max-w-2xl text-sm leading-normal text-muted-foreground">
+						<p className="mt-1 max-w-2xl text-xs leading-snug text-muted-foreground">
 							{description}
 						</p>
 					)}
@@ -71,12 +71,12 @@ export function SettingsSection({
 	className,
 }: SettingsSectionProps): React.JSX.Element {
 	return (
-		<section className={cn('flex flex-col gap-2.5', className)}>
-			<div className="flex flex-wrap items-start justify-between gap-2.5 px-1">
+		<section className={cn('flex flex-col gap-2', className)}>
+			<div className="flex flex-wrap items-start justify-between gap-2 px-0.5">
 				<div className="min-w-0">
-					<h2 className="text-sm font-semibold text-foreground">{title}</h2>
+					<h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
 					{description && (
-						<p className="mt-1 max-w-2xl text-sm leading-normal text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-xs leading-snug text-muted-foreground">
 							{description}
 						</p>
 					)}
@@ -125,28 +125,28 @@ export function SettingsRow({
 	return (
 		<div
 			className={cn(
-				'grid min-h-[52px] gap-2.5 border-b border-border/70 px-4 py-2.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center',
+				'grid min-h-[44px] gap-2 border-b border-border/70 px-3 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center',
 				className
 			)}
 		>
-			<div className={cn('flex min-w-0 items-start gap-3', contentClassName)}>
+			<div className={cn('flex min-w-0 items-start gap-2', contentClassName)}>
 				{media ??
 					(Icon && (
-						<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-							<Icon className="size-4" />
+						<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+							<Icon className="size-3.5" />
 						</div>
 					))}
 				<div className="min-w-0 flex-1">
-					<div className="text-sm font-medium leading-snug text-foreground">{title}</div>
+					<div className="text-[13px] font-medium leading-tight text-foreground">{title}</div>
 					{description && (
-						<p className="mt-0.5 text-xs leading-normal text-muted-foreground">{description}</p>
+						<p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{description}</p>
 					)}
 				</div>
 			</div>
 			{children && (
 				<div
 					className={cn(
-						'flex min-w-0 flex-wrap items-center gap-2 sm:justify-end',
+						'flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end',
 						actionClassName
 					)}
 				>
@@ -171,7 +171,7 @@ export function SettingsValue({
 	return (
 		<span
 			className={cn(
-				'inline-flex max-w-full items-center rounded-md border border-border/70 bg-muted/40 px-2.5 py-1 text-xs text-muted-foreground',
+				'inline-flex max-w-full items-center rounded-md border border-border/70 bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground',
 				mono && 'font-mono',
 				className
 			)}
@@ -197,14 +197,14 @@ export function SettingsNotice({
 	return (
 		<div
 			className={cn(
-				'flex items-start gap-2 rounded-lg border px-3 py-2 text-sm',
+				'flex items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs',
 				variant === 'destructive'
 					? 'border-destructive/30 bg-destructive/10 text-destructive'
 					: 'border-border/70 bg-muted/30 text-muted-foreground',
 				className
 			)}
 		>
-			{Icon && <Icon className="mt-0.5 size-4 shrink-0" />}
+			{Icon && <Icon className="mt-0.5 size-3.5 shrink-0" />}
 			<span className="min-w-0">{children}</span>
 		</div>
 	);
@@ -226,15 +226,17 @@ export function SettingsEmptyState({
 	className,
 }: SettingsEmptyStateProps): React.JSX.Element {
 	return (
-		<Empty className={cn('min-h-36 border-0 p-5', className)}>
-			<EmptyHeader>
+		<Empty className={cn('min-h-28 gap-3 border-0 p-4', className)}>
+			<EmptyHeader className="gap-1.5">
 				{Icon && (
-					<EmptyMedia variant="icon">
-						<Icon className="size-4" />
+					<EmptyMedia variant="icon" className="mb-1 size-7">
+						<Icon className="size-3.5" />
 					</EmptyMedia>
 				)}
-				<EmptyTitle>{title}</EmptyTitle>
-				{description && <EmptyDescription>{description}</EmptyDescription>}
+				<EmptyTitle className="text-[13px]">{title}</EmptyTitle>
+				{description && (
+					<EmptyDescription className="text-xs leading-snug">{description}</EmptyDescription>
+				)}
 			</EmptyHeader>
 			{children}
 		</Empty>
