@@ -33,33 +33,33 @@ export function ConnectorCard({
 	readonly onViewDetails: () => void;
 }): React.JSX.Element {
 	return (
-		<Card size="sm" className="gap-0 py-0">
+		<Card size="sm" className="gap-0 rounded-xl py-0 shadow-none">
 			<CardContent className="flex flex-col p-0">
-				<div className="flex flex-wrap items-start justify-between gap-2 border-b border-border/70 px-3 py-2">
-					<div className="flex min-w-0 items-center gap-2">
-						<div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted/40">
-							<Plug className="size-3.5 text-foreground" />
+				<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-5 py-4">
+					<div className="flex min-w-0 items-center gap-3">
+						<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/50">
+							<Plug className="size-5 text-muted-foreground" strokeWidth={1.8} />
 						</div>
 						<div className="min-w-0">
-							<h3 className="truncate text-[13px] font-semibold">{connector.name}</h3>
-							<div className="mt-1 flex flex-wrap items-center gap-1.5">
-								<Badge variant="outline" className="text-[10px]">
+							<h3 className="truncate text-sm font-semibold leading-5">{connector.name}</h3>
+							<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+								<Badge variant="outline" className="h-5 text-xs">
 									{connector.connectorId}
 								</Badge>
-								<Badge variant="outline" className="text-[10px]">
+								<Badge variant="outline" className="h-5 text-xs">
 									{connector.serverLabel}
 								</Badge>
 								<ConnectorStatusBadge status={connector.status} />
 							</div>
 						</div>
 					</div>
-					<Button variant="outline" size="xs" onClick={onViewDetails}>
+					<Button variant="outline" size="sm" onClick={onViewDetails}>
 						<Wrench className="size-3" />
 						Tools
 					</Button>
 				</div>
 
-				<div className="grid gap-2 border-b border-border/70 bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground sm:grid-cols-3">
+				<div className="grid gap-3 border-b border-border/70 bg-muted/20 px-5 py-3 text-xs text-muted-foreground sm:grid-cols-3">
 					<div>
 						<span className="block font-medium text-foreground">{connector.toolsCount}</span>
 						<span>Catalog tools</span>
@@ -79,27 +79,27 @@ export function ConnectorCard({
 				</div>
 
 				{connector.lastError && (
-					<p className="border-b border-border/70 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
+					<p className="border-b border-border/70 bg-destructive/10 px-5 py-3 text-xs text-destructive">
 						{connector.lastError}
 					</p>
 				)}
 
-				<div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+				<div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
 					<div className="flex flex-wrap items-center gap-1.5">
 						<Badge
 							variant={connector.requireApproval === 'never' ? 'secondary' : 'outline'}
-							className="text-[10px]"
+							className="h-6 text-xs"
 						>
 							Approval: {connector.requireApproval.replaceAll('_', ' ')}
 						</Badge>
 						{connector.deferLoading && (
-							<Badge variant="outline" className="text-[10px]">
+							<Badge variant="outline" className="h-6 text-xs">
 								Deferred loading
 							</Badge>
 						)}
 					</div>
-					<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
-						<label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+					<div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+						<label className="flex items-center gap-2 text-xs text-muted-foreground">
 							Enabled
 							<Switch
 								size="sm"
@@ -111,8 +111,8 @@ export function ConnectorCard({
 						</label>
 						<Button
 							variant="outline"
-							size="xs"
-							className="w-7 px-0 sm:w-auto sm:px-2.5"
+							size="sm"
+							className="w-8 px-0 sm:w-auto sm:px-2.5"
 							onClick={onRefreshTools}
 							disabled={busy}
 							title="Refresh tools"
@@ -123,7 +123,7 @@ export function ConnectorCard({
 						</Button>
 						<Button
 							variant="ghost"
-							size="icon-xs"
+							size="icon-sm"
 							onClick={onEdit}
 							disabled={busy}
 							title="Edit"
@@ -133,7 +133,7 @@ export function ConnectorCard({
 						</Button>
 						<Button
 							variant="ghost"
-							size="icon-xs"
+							size="icon-sm"
 							onClick={onRemove}
 							disabled={busy}
 							title="Remove"

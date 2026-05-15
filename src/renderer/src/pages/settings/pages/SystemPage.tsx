@@ -1,9 +1,8 @@
-import React, { type ReactNode } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Languages, Moon, Monitor, Sun, type LucideIcon } from 'lucide-react';
+import { Languages, Moon, Monitor, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import { Card, CardContent } from '@/components/ui/card';
 import {
 	Select,
 	SelectContent,
@@ -15,39 +14,7 @@ import { cn } from '@/lib/utils';
 import type { AppLanguage } from '../../../contexts';
 import { useApp } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../shared';
-
-function Row({
-	icon: Icon,
-	title,
-	description,
-	children,
-}: {
-	readonly icon?: LucideIcon;
-	readonly title: ReactNode;
-	readonly description?: ReactNode;
-	readonly children?: ReactNode;
-}): React.JSX.Element {
-	return (
-		<div className="grid min-h-[44px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-border/70 px-3 py-2 last:border-b-0">
-			<div className="flex min-w-0 items-start gap-2">
-				{Icon && (
-					<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-						<Icon className="size-3.5" />
-					</div>
-				)}
-				<div className="min-w-0 flex-1">
-					<div className="text-[13px] font-medium leading-tight text-foreground">{title}</div>
-					{description && (
-						<p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{description}</p>
-					)}
-				</div>
-			</div>
-			{children && (
-				<div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">{children}</div>
-			)}
-		</div>
-	);
-}
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection } from '../components';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -96,29 +63,16 @@ const SystemPage: React.FC = () => {
 		};
 
 	return (
-		<div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-3">
-			<header className="flex flex-wrap items-start justify-between gap-3 pb-1">
-				<div className="min-w-0">
-					<h1 className="text-2xl font-semibold leading-tight tracking-normal">
-						{t('settings.tabs.system')}
-					</h1>
-					<p className="mt-1 max-w-2xl text-sm leading-snug text-muted-foreground">
-						{t('settings.sections.layout')}
-					</p>
-				</div>
-			</header>
+		<SettingsPageShell>
+			<SettingsPageHeader title={t('settings.tabs.system')} description={t('settings.sections.layout')} />
 
-			<section className="flex flex-col gap-2">
-				<h2 className="px-0.5 text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">
-					{t('settings.sections.layout')}
-				</h2>
-				<Card size="sm" className="gap-0 py-0">
-					<CardContent className="p-0">
-						<Row
-							icon={Monitor}
-							title={t('settings.theme.title')}
-							description={t('settings.theme.description')}
-						>
+			<SettingsSection title={t('settings.sections.layout')}>
+				<SettingsPanel>
+					<SettingsRow
+						icon={Monitor}
+						title={t('settings.theme.title')}
+						description={t('settings.theme.description')}
+						actions={
 							<ButtonGroup>
 								{[
 									{ value: 'light', label: t('settings.theme.light'), icon: Sun },
@@ -131,7 +85,7 @@ const SystemPage: React.FC = () => {
 										<Button
 											key={option.value}
 											variant={theme === value ? 'secondary' : 'outline'}
-											size="icon-xs"
+											size="icon-sm"
 											onClick={() => setTheme(value)}
 											aria-label={option.label}
 											aria-pressed={theme === value}
@@ -141,16 +95,16 @@ const SystemPage: React.FC = () => {
 									);
 								})}
 							</ButtonGroup>
-						</Row>
-						<Row
-							icon={Languages}
-							title={t('settings.language.title')}
-							description={t('settings.language.description')}
-						>
+						}
+					/>
+					<SettingsRow
+						icon={Languages}
+						title={t('settings.language.title')}
+						description={t('settings.language.description')}
+						actions={
 							<Select value={language} onValueChange={handleLanguageChange}>
 								<SelectTrigger
-									className="w-32 text-xs"
-									size="sm"
+									className="w-44 text-sm"
 									aria-label={t('settings.language.title')}
 								>
 									<SelectValue />
@@ -163,33 +117,27 @@ const SystemPage: React.FC = () => {
 									))}
 								</SelectContent>
 							</Select>
-						</Row>
-					</CardContent>
-				</Card>
-			</section>
+						}
+					/>
+				</SettingsPanel>
+			</SettingsSection>
 
-			<section className="flex flex-col gap-2">
-				<div className="px-0.5">
-					<h2 className="text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">
-						{t('settings.translucency.title')}
-					</h2>
-					<p className="mt-0.5 max-w-2xl text-xs leading-snug text-muted-foreground">
-						{t('settings.translucency.description')}
-					</p>
-				</div>
-				<Card size="sm" className="gap-0 py-0">
-					<CardContent className="p-0">
-						{TRANSLUCENCY_OPTIONS.map((option) => {
-							const Icon = option.icon;
-							const value = translucency[option.value];
-							return (
-								<Row
-									key={option.value}
-									icon={Icon}
-									title={t(option.labelKey)}
-									description={t(option.descriptionKey)}
-								>
-									<div className={cn('flex w-56 min-w-0 items-center gap-2')}>
+			<SettingsSection
+				title={t('settings.translucency.title')}
+				description={t('settings.translucency.description')}
+			>
+				<SettingsPanel>
+					{TRANSLUCENCY_OPTIONS.map((option) => {
+						const Icon = option.icon;
+						const value = translucency[option.value];
+						return (
+							<SettingsRow
+								key={option.value}
+								icon={Icon}
+								title={t(option.labelKey)}
+								description={t(option.descriptionKey)}
+								actions={
+									<div className={cn('flex w-full min-w-0 items-center gap-3 sm:w-72')}>
 										<input
 											type="range"
 											min={0}
@@ -198,19 +146,19 @@ const SystemPage: React.FC = () => {
 											value={value}
 											onChange={handleTranslucencyChange(option.value)}
 											aria-label={t(option.labelKey)}
-											className="h-1.5 min-w-0 flex-1 cursor-pointer accent-primary"
+											className="h-2 min-w-0 flex-1 cursor-pointer accent-primary"
 										/>
-										<span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-muted-foreground">
+										<span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
 											{t('settings.translucency.value', { value })}
 										</span>
 									</div>
-								</Row>
-							);
-						})}
-					</CardContent>
-				</Card>
-			</section>
-		</div>
+								}
+							/>
+						);
+					})}
+				</SettingsPanel>
+			</SettingsSection>
+		</SettingsPageShell>
 	);
 };
 

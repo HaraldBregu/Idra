@@ -18,7 +18,7 @@ export function ConnectorStatusBadge({
 					: 'Error';
 
 	return (
-		<Badge variant={variant} className="text-[10px]">
+		<Badge variant={variant} className="h-5 text-xs">
 			{label}
 		</Badge>
 	);
