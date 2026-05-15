@@ -205,11 +205,21 @@ function HomePage(): ReactElement {
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+	const [historyLoading, setHistoryLoading] = useState(true);
+	// null = not streaming; non-null string = streaming in progress (may be empty before first delta)
+	const [streamingContent, setStreamingContent] = useState<string | null>(null);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
-	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	// Ref so the onResponse listener can check without stale closure issues
+	const isStreamingRef = useRef(false);
+	const promptContainerRef = useRef<HTMLDivElement>(null);
 	const prefersReducedMotion = useReducedMotion();
 
+	const focusInput = useCallback((): void => {
+		promptContainerRef.current?.querySelector('textarea')?.focus();
+	}, []);
+
+	// Restore history on mount
 	useEffect(() => {
 		let cancelled = false;
 		void (async () => {
@@ -222,6 +232,8 @@ function HomePage(): ReactElement {
 				}
 			} catch {
 				// keep welcome only
+			} finally {
+				if (!cancelled) setHistoryLoading(false);
 			}
 		})();
 		return () => {
@@ -231,7 +243,11 @@ function HomePage(): ReactElement {
 
 	const stopResponse = (): void => {
 		requestIdRef.current += 1;
+		isStreamingRef.current = false;
 		setIsLoading(false);
+		setStreamingContent(null);
+		// Best-effort server-side cancellation
+		void window.assistant.cancel?.();
 	};
 
 	const sendPrompt = async (prompt: string): Promise<void> => {
