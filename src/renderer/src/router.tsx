@@ -5,7 +5,7 @@ import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
 import { useTranslation } from 'react-i18next';
-import { PageTransition } from './experience';
+import { CommandMenu, PageTransition } from './experience';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
