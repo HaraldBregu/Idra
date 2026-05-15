@@ -8,7 +8,7 @@ import {
 	Copy,
 	GitPullRequest,
 	ListChecks,
-	Paperclip,
+	Mic,
 	Search,
 	Sparkles,
 	Square,
@@ -23,9 +23,9 @@ import {
 	Message,
 	MessageAction,
 	MessageActions,
-	MessageAvatar,
 	MessageContent,
 } from '@/components/prompt-kit/message';
+import { useChatMode } from '@/contexts/chat-mode';
 import {
 	PromptInput,
 	PromptInputAction,
