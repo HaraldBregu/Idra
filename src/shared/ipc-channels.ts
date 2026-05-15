@@ -34,6 +34,15 @@ export const ProviderChannels = {
 	saveImageGenerationService: 'provider:save-image-generation-service',
 } as const;
 
+export const AppChannels = {
+	getLogs: 'app:get-logs',
+	openLogsFolder: 'app:open-logs-folder',
+	openAppDataFolder: 'app:open-app-data-folder',
+	openUserDataFolder: 'app:open-user-data-folder',
+	setTrayEnabled: 'app:set-tray-enabled',
+	getTrayEnabled: 'app:get-tray-enabled',
+} as const;
+
 export const CronChannels = {
 	list: 'cron:list',
 	add: 'cron:add',
@@ -104,6 +113,30 @@ export const ChannelsChannels = {
 } as const;
 
 interface AppInvokeChannelMap {
+	[AppChannels.getLogs]: {
+		args: [limit?: number];
+		result: import('./app-log').AppLogEntry[];
+	};
+	[AppChannels.openLogsFolder]: {
+		args: [];
+		result: void;
+	};
+	[AppChannels.openAppDataFolder]: {
+		args: [];
+		result: void;
+	};
+	[AppChannels.openUserDataFolder]: {
+		args: [];
+		result: void;
+	};
+	[AppChannels.setTrayEnabled]: {
+		args: [enabled: boolean];
+		result: void;
+	};
+	[AppChannels.getTrayEnabled]: {
+		args: [];
+		result: boolean;
+	};
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
 		result: void;

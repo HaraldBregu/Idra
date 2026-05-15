@@ -8,7 +8,7 @@ import type { Assistant, Model } from '../../shared/service';
 import type { ProviderInput, PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
-import { AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
+import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 import {
 	filterSelectableImageGenerationModels,
 	filterSelectableAssistantModels,
@@ -17,6 +17,13 @@ import {
 } from '../provider/model-policy';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
+
+async function openPathOrThrow(target: string): Promise<void> {
+	const error = await shell.openPath(target);
+	if (error) {
+		throw new Error(error);
+	}
+}
 
 async function getOpenAiModels(apiKey: string): Promise<Model[]> {
 	const client = new OpenAI({ apiKey });
@@ -49,6 +56,7 @@ export class AppIpc implements IpcModule {
 		const logger = container.get('logger');
 		const store = container.get('store');
 		const apps = container.get('apps');
+		const userDataDirectory = container.get('userDataDirectory');
 
 		// Language handler
 		ipcMain.on('set-language', (event, language: string) => {
@@ -83,42 +91,50 @@ export class AppIpc implements IpcModule {
 
 		// Recent in-memory logs
 		ipcMain.handle(
-			'app:get-logs',
-			wrapSimpleHandler((limit?: number) => logger.getRecentLogs(limit), 'app:get-logs')
+			AppChannels.getLogs,
+			wrapSimpleHandler((limit?: number) => logger.getRecentLogs(limit), AppChannels.getLogs)
 		);
 
 		// Open logs folder in system file explorer
 		ipcMain.handle(
-			'app:open-logs-folder',
+			AppChannels.openLogsFolder,
 			wrapSimpleHandler(async () => {
 				const logsDir = logger.getLogDirectory();
 				if (logsDir) {
-					await shell.openPath(logsDir);
+					await openPathOrThrow(logsDir);
 				}
-			}, 'app:open-logs-folder')
+			}, AppChannels.openLogsFolder)
 		);
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(
-			'app:open-app-data-folder',
+			AppChannels.openAppDataFolder,
 			wrapSimpleHandler(async () => {
-				await shell.openPath(app.getPath('userData'));
-			}, 'app:open-app-data-folder')
+				await openPathOrThrow(app.getPath('userData'));
+			}, AppChannels.openAppDataFolder)
 		);
 
 		ipcMain.handle(
-			'app:set-tray-enabled',
+			AppChannels.openUserDataFolder,
+			wrapSimpleHandler(async () => {
+				const target = await userDataDirectory.ensureRoot();
+				await openPathOrThrow(target);
+			}, AppChannels.openUserDataFolder)
+		);
+
+		ipcMain.handle(
+			AppChannels.setTrayEnabled,
 			wrapSimpleHandler((enabled: boolean) => {
 				this.trayEnabled = enabled;
 				eventBus.emit('tray:set-enabled', { enabled });
-			}, 'app:set-tray-enabled')
+			}, AppChannels.setTrayEnabled)
 		);
 
 		ipcMain.handle(
-			'app:get-tray-enabled',
+			AppChannels.getTrayEnabled,
 			wrapSimpleHandler(() => {
 				return this.trayEnabled;
-			}, 'app:get-tray-enabled')
+			}, AppChannels.getTrayEnabled)
 		);
 
 		ipcMain.handle(

@@ -1,6 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import path from 'node:path';
-import { app } from 'electron';
 import type { EventBus } from './core/event-bus';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
@@ -19,6 +17,7 @@ import { loadSession, saveSession, clearSession, type SessionFile } from './sess
 import { createTools } from './tools/registry';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AssistantRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
+import { resolveDefaultUserDataPath } from './user-data';
 import type { ApprovalDecision, AssistantResponseEvent } from '../shared/service';
 
 const DEFAULT_MAX_TOKENS = 4096;
@@ -277,7 +276,7 @@ export class AssistantService {
 		try {
 			return this.dependencies.workspace.getRootPath();
 		} catch {
-			return path.join(app.getPath('userData'), 'workspace');
+			return resolveDefaultUserDataPath('workspace');
 		}
 	}
 

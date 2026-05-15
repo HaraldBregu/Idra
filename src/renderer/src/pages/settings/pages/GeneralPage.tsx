@@ -71,12 +71,12 @@ const GeneralPage: React.FC = () => {
 	const [trayEnabled, setTrayEnabled] = useState(true);
 
 	useEffect(() => {
-		// window.app.getTrayEnabled().then(setTrayEnabled);
+		void window.app.getTrayEnabled().then(setTrayEnabled);
 	}, []);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
 		setTrayEnabled(checked);
-		// window.app.setTrayEnabled(checked);
+		void window.app.setTrayEnabled(checked);
 	}, []);
 
 	const handleOpenAccessibility = useCallback(() => {
@@ -88,7 +88,11 @@ const GeneralPage: React.FC = () => {
 	}, []);
 
 	const handleOpenAppDataFolder = useCallback(() => {
-		// window.app.openAppDataFolder();
+		void window.app.openAppDataFolder();
+	}, []);
+
+	const handleOpenUserDataFolder = useCallback(() => {
+		void window.app.openUserDataFolder();
 	}, []);
 
 	return (
@@ -174,6 +178,16 @@ const GeneralPage: React.FC = () => {
 							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
 								<FolderOpen className="size-3" />
 								{t('settings.application.openAppData')}
+							</Button>
+						</Row>
+						<Row
+							icon={FolderOpen}
+							title={t('settings.application.userData')}
+							description={t('settings.application.userDataDescription')}
+						>
+							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder}>
+								<FolderOpen className="size-3" />
+								{t('settings.application.openUserData')}
 							</Button>
 						</Row>
 					</CardContent>

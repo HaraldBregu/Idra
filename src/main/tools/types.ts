@@ -2,6 +2,7 @@ import type { CronService } from '../cron';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
+import type { UserDataDirectoryServicePort } from '../user-data';
 import type { WorkspaceService } from '../workspace';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import type { ApprovalDecision } from '../../shared/service';
@@ -16,6 +17,7 @@ export interface FridayServices {
 	cron: CronService;
 	eventBus: EventBus;
 	logger: LoggerService;
+	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
 }
 
@@ -44,7 +46,7 @@ export interface ToolContext {
 	approveStream?: ApprovalStreamLike;
 	/** Elicitation stream — used by `ask_human` to collect input. */
 	elicit?: ElicitationStreamLike;
-	/** Friday-side services (store, cron, event-bus, logger, workspace). */
+	/** Friday-side services (store, cron, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }
 

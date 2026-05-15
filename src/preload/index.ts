@@ -3,6 +3,7 @@ import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import {
 	WindowChannels,
 	AssistantChannels,
+	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
 	ProviderChannels,
@@ -115,6 +116,18 @@ export const assistant: AssistantApi = {
 } satisfies AssistantApi;
 
 export const app: AppApi = {
+	openAppDataFolder: (): Promise<void> => {
+		return typedInvokeUnwrap(AppChannels.openAppDataFolder);
+	},
+	openUserDataFolder: (): Promise<void> => {
+		return typedInvokeUnwrap(AppChannels.openUserDataFolder);
+	},
+	setTrayEnabled: (enabled: boolean): Promise<void> => {
+		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
+	},
+	getTrayEnabled: (): Promise<boolean> => {
+		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
+	},
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},

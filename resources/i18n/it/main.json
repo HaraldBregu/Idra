@@ -205,9 +205,12 @@
 			"openScreenRecording": "Apri Registrazione Schermo",
 			"menuBar": "Barra dei Menu",
 			"menuBarDescription": "Mostra o nascondi l'icona dell'app nella barra dei menu",
-			"appData": "AppData",
-			"appDataDescription": "Cartella in cui l'applicazione salva i suoi dati",
-			"openAppData": "Apri Cartella"
+			"appData": "Dati Applicazione",
+			"appDataDescription": "Cartella in cui Friday salva impostazioni e log dell'applicazione",
+			"openAppData": "Apri Cartella",
+			"userData": "Dati Utente",
+			"userDataDescription": "Cartella in cui Friday salva file, workspace, app, abilita e dati assistente dell'utente",
+			"openUserData": "Apri Cartella"
 		},
 		"editor": {
 			"font": "Carattere",

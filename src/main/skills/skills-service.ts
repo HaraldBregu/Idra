@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
 import type { LoggerService } from '../logger';
+import type { UserDataDirectoryServicePort } from '../user-data';
+import { resolveDefaultUserDataPath } from '../user-data';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
 import type { SkillInfo, SkillManifest } from '../../shared/skills';
@@ -93,6 +94,7 @@ export interface SkillsServiceOptions {
 	preferences?: SkillPreferenceStore;
 	loader?: SkillLoader;
 	safetyPolicy?: SkillSafetyPolicy;
+	userDataDirectory?: UserDataDirectoryServicePort;
 }
 
 export class SkillsService {
@@ -107,6 +109,7 @@ export class SkillsService {
 	private readonly planner: SkillPlanner;
 	private readonly engine: SkillExecutionEngine;
 	private readonly dependencyResolver: SkillDependencyResolver;
+	private readonly userDataDirectory?: UserDataDirectoryServicePort;
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -123,6 +126,7 @@ export class SkillsService {
 		this.planner = new SkillPlanner();
 		this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
 		this.dependencyResolver = new SkillDependencyResolver(this.registry);
+		this.userDataDirectory = options.userDataDirectory;
 
 		for (const skill of createExampleSkills()) {
 			this.registerSkill(skill);
@@ -148,7 +152,7 @@ export class SkillsService {
 	}
 
 	getSkillsRoot(): string {
-		const root = path.join(app.getPath('userData'), 'skills');
+		const root = this.userDataDirectory?.resolve('skills') ?? resolveDefaultUserDataPath('skills');
 		fs.mkdirSync(root, { recursive: true });
 		return root;
 	}

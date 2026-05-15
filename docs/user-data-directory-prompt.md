@@ -24,7 +24,7 @@ Friday currently stores application-owned information in Electron's app data loc
 3. Application-owned settings and logs continue to use Electron `userData`.
 4. The app creates `.friday` when needed with safe permissions.
 5. Existing path traversal protections still apply to workspace/file operations.
-6. Tests cover path resolution, directory creation, and at least one migrated user-owned store.
+6. Tests cover path resolution, directory creation, and at least one user-owned store using the new root.
 7. The UI can expose both locations clearly if it currently exposes app data:
    - Application Data: Electron `userData`
    - User Data: sibling `.friday`
@@ -91,7 +91,7 @@ Use it anywhere user-owned data paths are created. Candidate areas to review:
 - `src/main/task-manager/store/sqlite-task-store.ts`
 - any future file, document, generated artifact, or local database store
 
-Only migrate paths that are clearly user-owned. Leave app configuration in `StoreService`/`electron-store` unless product says otherwise.
+Only move new write/read defaults that are clearly user-owned. Leave app configuration in `StoreService`/`electron-store` unless product says otherwise.
 
 ### 4. Preserve App Data Separation
 
@@ -118,22 +118,16 @@ Renderer:
 - show "User Data" for `.friday`
 - do not expose raw filesystem operations directly to the renderer
 
-### 6. Migration Guidance
+### 6. Existing Data Handling
 
-If an existing user-owned location already has data under Electron `userData`, implement a conservative migration:
+Treat `.friday` as a clean new user data root. Do not migrate, copy, move, or delete existing data from Electron `userData` or older workspace paths during this feature.
 
-1. Detect the old path and new path.
-2. If the old path exists and the new path does not, copy or move the data once.
-3. Prefer copy-then-verify-then-remove only if removal is required.
-4. Do not overwrite existing `.friday` data.
-5. Log a redacted migration summary.
-6. Add tests for:
-   - no old data
-   - old data copied/moved into an empty new root
-   - existing new data is not overwritten
-   - migration failure returns a safe error
+Required behavior:
 
-If migration is not implemented in the first pass, document the reason and make the app use `.friday` for new data only.
+1. New user-owned reads and writes use `.friday`.
+2. Old data is not read as a fallback.
+3. Old data is not destroyed automatically on startup.
+4. If old data needs cleanup, make it a separate explicit user action with confirmation.
 
 ### 7. Security and Privacy Requirements
 
@@ -153,7 +147,7 @@ Minimum coverage:
 - root creation is idempotent
 - child path resolution stays inside root
 - traversal attempts are rejected
-- at least one migrated user-owned module uses the new service
+- at least one user-owned module uses the new service
 
 Run the relevant checks:
 
@@ -182,4 +176,4 @@ yarn quality:check
 
 ## Notes for the Implementer
 
-Keep the first implementation surgical. Do not redesign all storage. Start by adding the path boundary, migrate the clearest user-owned store, and document any ambiguous stores that need a product decision.
+Keep the first implementation surgical. Do not redesign all storage. Start by adding the path boundary, move the clearest user-owned defaults, and document any ambiguous stores that need a product decision.

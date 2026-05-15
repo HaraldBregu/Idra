@@ -139,6 +139,10 @@ import type {
 } from '../shared/connectors';
 
 export interface AppApi {
+	openAppDataFolder: () => Promise<void>;
+	openUserDataFolder: () => Promise<void>;
+	setTrayEnabled: (enabled: boolean) => Promise<void>;
+	getTrayEnabled: () => Promise<boolean>;
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;

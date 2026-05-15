@@ -15,6 +15,7 @@ import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
 import { createDefaultTaskManager } from './task-manager/factory';
+import { UserDataDirectoryService } from './user-data';
 
 import type { IpcModule } from './ipc';
 import {
@@ -35,6 +36,7 @@ export interface BootstrapResult {
 	windowFactory: WindowFactory;
 	appState: AppState;
 	logger: LoggerService;
+	userDataDirectory: UserDataDirectoryService;
 	workspace: WorkspaceService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
@@ -50,7 +52,15 @@ export function bootstrapServices(): BootstrapResult {
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
 
-	const workspace = container.register('workspace', new WorkspaceService(logger));
+	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
+	void userDataDirectory.ensureRoot().catch((error) => {
+		logger.error('UserDataDirectoryService', 'Failed to create user data directory', error);
+	});
+
+	const workspace = container.register(
+		'workspace',
+		new WorkspaceService(logger, { userDataDirectory })
+	);
 
 	const store = container.register('store', new StoreService());
 	const tasks = container.register('tasks', createDefaultTaskManager({ scopedServices: container }));
@@ -64,7 +74,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
-	const skills = container.register('skills', new SkillsService(logger));
+	const skills = container.register('skills', new SkillsService(logger, { userDataDirectory }));
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
@@ -77,7 +87,7 @@ export function bootstrapServices(): BootstrapResult {
 		new ChannelRegistry({ logger, eventBus, assistantService })
 	);
 
-	container.register('apps', new AppsService(logger));
+	container.register('apps', new AppsService(logger, userDataDirectory));
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
@@ -87,7 +97,16 @@ export function bootstrapServices(): BootstrapResult {
 
 	logger.info('Bootstrap', `Registered ${container.has('store') ? 'all' : 'some'} global services`);
 
-	return { container, eventBus, windowFactory, appState, logger, workspace, windowContextManager };
+	return {
+		container,
+		eventBus,
+		windowFactory,
+		appState,
+		logger,
+		userDataDirectory,
+		workspace,
+		windowContextManager,
+	};
 }
 
 export function bootstrapIpcModules(container: MainServiceContainer, eventBus: EventBus): void {

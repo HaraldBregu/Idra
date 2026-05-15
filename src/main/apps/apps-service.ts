@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { app, shell } from 'electron';
+import { shell } from 'electron';
 import type { LoggerService } from '../logger';
+import type { UserDataDirectoryServicePort } from '../user-data';
+import { resolveDefaultUserDataPath } from '../user-data';
 import type { AppInfo, AppManifest } from '../../shared/apps';
 
 const ICON_MIME: Record<string, string> = {
@@ -14,10 +16,13 @@ const ICON_MIME: Record<string, string> = {
 };
 
 export class AppsService {
-	constructor(private readonly logger: LoggerService) {}
+	constructor(
+		private readonly logger: LoggerService,
+		private readonly userDataDirectory?: UserDataDirectoryServicePort
+	) {}
 
 	getAppsRoot(): string {
-		const root = path.join(app.getPath('userData'), 'apps');
+		const root = this.userDataDirectory?.resolve('apps') ?? resolveDefaultUserDataPath('apps');
 		fs.mkdirSync(root, { recursive: true });
 		return root;
 	}
