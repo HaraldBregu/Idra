@@ -107,8 +107,8 @@ const ProvidersPage: React.FC = () => {
 				title={t('settings.tabs.providers')}
 				description={t('settings.providers.description')}
 				action={
-					<Button type="button" size="sm" onClick={() => setShowForm(true)}>
-						<Plus className="size-4" />
+					<Button type="button" size="xs" onClick={() => setShowForm(true)}>
+						<Plus className="size-3" />
 						{t('settings.providers.addProvider')}
 					</Button>
 				}
@@ -126,28 +126,30 @@ const ProvidersPage: React.FC = () => {
 					description={t('settings.providers.addDescription')}
 				>
 					<SettingsPanel>
-						<form className="grid gap-3 p-3 md:grid-cols-2" onSubmit={handleSubmit}>
-							<label className="flex flex-col gap-1.5 text-sm font-medium">
+						<form className="grid gap-2.5 p-2.5 md:grid-cols-2" onSubmit={handleSubmit}>
+							<label className="flex flex-col gap-1 text-xs font-medium">
 								{t('settings.providers.id')}
 								<Input
 									value={form.id}
 									onChange={(event) => updateForm('id', event.target.value)}
 									placeholder={t('settings.providers.idPlaceholder')}
 									autoComplete="off"
+									className="h-8 px-2.5 text-xs md:text-xs"
 								/>
 							</label>
 
-							<label className="flex flex-col gap-1.5 text-sm font-medium">
+							<label className="flex flex-col gap-1 text-xs font-medium">
 								{t('settings.providers.name')}
 								<Input
 									value={form.name}
 									onChange={(event) => updateForm('name', event.target.value)}
 									placeholder={t('settings.providers.namePlaceholder')}
 									autoComplete="off"
+									className="h-8 px-2.5 text-xs md:text-xs"
 								/>
 							</label>
 
-							<label className="flex flex-col gap-1.5 text-sm font-medium md:col-span-2">
+							<label className="flex flex-col gap-1 text-xs font-medium md:col-span-2">
 								{t('settings.providers.baseUrl')}
 								<Input
 									value={form.baseUrl}
@@ -155,10 +157,11 @@ const ProvidersPage: React.FC = () => {
 									placeholder={t('settings.providers.baseUrlPlaceholder')}
 									type="url"
 									autoComplete="off"
+									className="h-8 px-2.5 text-xs md:text-xs"
 								/>
 							</label>
 
-							<label className="flex flex-col gap-1.5 text-sm font-medium md:col-span-2">
+							<label className="flex flex-col gap-1 text-xs font-medium md:col-span-2">
 								{t('providers.apiKey')}
 								<Input
 									value={form.apiKey}
@@ -166,13 +169,15 @@ const ProvidersPage: React.FC = () => {
 									placeholder={t('settings.providers.apiKeyPlaceholder')}
 									type="password"
 									autoComplete="off"
+									className="h-8 px-2.5 text-xs md:text-xs"
 								/>
 							</label>
 
-							<div className="flex flex-wrap justify-end gap-2 md:col-span-2">
+							<div className="flex flex-wrap justify-end gap-1.5 md:col-span-2">
 								<Button
 									type="button"
 									variant="outline"
+									size="sm"
 									disabled={saving}
 									onClick={() => {
 										setForm(emptyForm);
@@ -181,7 +186,7 @@ const ProvidersPage: React.FC = () => {
 								>
 									{t('common.cancel')}
 								</Button>
-								<Button type="submit" disabled={!canSubmit}>
+								<Button type="submit" size="sm" disabled={!canSubmit}>
 									{saving ? t('settings.providers.saving') : t('settings.providers.addProvider')}
 								</Button>
 							</div>
@@ -193,9 +198,9 @@ const ProvidersPage: React.FC = () => {
 			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				{loading ? (
 					<SettingsPanel>
-						<div className="grid gap-2.5 p-3">
-							<Skeleton className="h-9 w-full" />
-							<Skeleton className="h-9 w-5/6" />
+						<div className="grid gap-2 p-2.5">
+							<Skeleton className="h-8 w-full" />
+							<Skeleton className="h-8 w-5/6" />
 						</div>
 					</SettingsPanel>
 				) : providers.length === 0 ? (
@@ -213,18 +218,23 @@ const ProvidersPage: React.FC = () => {
 								key={provider.id}
 								icon={Server}
 								title={
-									<span className="flex min-w-0 flex-wrap items-center gap-2">
+									<span className="flex min-w-0 flex-wrap items-center gap-1.5">
 										<span className="truncate">{provider.name}</span>
-										<Badge variant="outline" className="font-mono text-[11px]">
+										<Badge variant="outline" className="font-mono text-[10px]">
 											{provider.id}
 										</Badge>
 									</span>
 								}
 								description={
-									<span className="block truncate font-mono text-xs">{provider.baseUrl}</span>
+									<span className="block truncate font-mono text-[11px]">
+										{provider.baseUrl}
+									</span>
 								}
 							>
-								<Badge variant={apiKeyStatus[provider.id] ? 'secondary' : 'outline'}>
+								<Badge
+									variant={apiKeyStatus[provider.id] ? 'secondary' : 'outline'}
+									className="text-[10px]"
+								>
 									{apiKeyStatus[provider.id] ? (
 										<CheckCircle2 className="mr-1 size-3" />
 									) : (

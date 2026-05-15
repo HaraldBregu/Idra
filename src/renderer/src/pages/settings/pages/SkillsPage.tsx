@@ -89,12 +89,12 @@ const SkillsPage: React.FC = () => {
 				description={t('settings.skills.description')}
 				action={
 					<div className="flex flex-wrap items-center gap-2">
-						<Button variant="outline" size="sm" onClick={loadSkills} disabled={loading || importing}>
-							<RefreshCw className="size-3.5" />
+						<Button variant="outline" size="xs" onClick={loadSkills} disabled={loading || importing}>
+							<RefreshCw className="size-3" />
 							{t('settings.skills.refresh')}
 						</Button>
-						<Button size="sm" onClick={() => void handleImport()} disabled={loading || importing}>
-							<FolderInput className="size-3.5" />
+						<Button size="xs" onClick={() => void handleImport()} disabled={loading || importing}>
+							<FolderInput className="size-3" />
 							{importing ? t('settings.skills.importing') : t('settings.skills.import')}
 						</Button>
 					</div>
@@ -110,9 +110,9 @@ const SkillsPage: React.FC = () => {
 			<SettingsSection title={t('settings.skills.title')} description={skillsRoot}>
 				<SettingsPanel>
 					{loading ? (
-						<div className="grid gap-2.5 p-3">
-							<Skeleton className="h-10 w-full" />
-							<Skeleton className="h-10 w-5/6" />
+						<div className="grid gap-2 p-2.5">
+							<Skeleton className="h-8 w-full" />
+							<Skeleton className="h-8 w-5/6" />
 						</div>
 					) : skills.length === 0 ? (
 						<SettingsEmptyState
@@ -125,24 +125,24 @@ const SkillsPage: React.FC = () => {
 							<SettingsRow
 								key={skill.id}
 								title={
-									<span className="flex min-w-0 flex-wrap items-center gap-2">
+									<span className="flex min-w-0 flex-wrap items-center gap-1.5">
 										<span className="truncate">{skill.manifest.name}</span>
-										<SettingsValue mono className="h-5 py-0 text-[10px]">
+										<SettingsValue mono className="h-4 py-0 text-[10px]">
 											{skill.id}
 										</SettingsValue>
 									</span>
 								}
 								description={skill.manifest.description ?? skill.folderPath}
 								media={
-									<div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted/60">
-										<Sparkles className="size-4 text-muted-foreground" strokeWidth={1.5} />
+									<div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted/60">
+										<Sparkles className="size-3.5 text-muted-foreground" strokeWidth={1.5} />
 									</div>
 								}
 								contentClassName="items-center"
 								actionClassName="sm:flex-nowrap"
 							>
-								<Button variant="destructive" size="sm" onClick={() => handleDelete(skill)}>
-									<Trash2 className="size-3.5" />
+								<Button variant="destructive" size="xs" onClick={() => handleDelete(skill)}>
+									<Trash2 className="size-3" />
 									{t('settings.skills.delete')}
 								</Button>
 							</SettingsRow>

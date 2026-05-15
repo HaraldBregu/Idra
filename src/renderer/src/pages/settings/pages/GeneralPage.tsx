@@ -81,8 +81,8 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.accessibility')}
 						description={t('settings.application.accessibilityDescription')}
 					>
-						<Button variant="outline" size="sm" onClick={handleOpenAccessibility}>
-							<Accessibility className="size-3.5" />
+						<Button variant="outline" size="xs" onClick={handleOpenAccessibility}>
+							<Accessibility className="size-3" />
 							{t('settings.application.openAccessibility')}
 						</Button>
 					</SettingsRow>
@@ -91,8 +91,8 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.screenRecording')}
 						description={t('settings.application.screenRecordingDescription')}
 					>
-						<Button variant="outline" size="sm" onClick={handleOpenScreenRecording}>
-							<MonitorUp className="size-3.5" />
+						<Button variant="outline" size="xs" onClick={handleOpenScreenRecording}>
+							<MonitorUp className="size-3" />
 							{t('settings.application.openScreenRecording')}
 						</Button>
 					</SettingsRow>
@@ -112,8 +112,8 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.appData')}
 						description={t('settings.application.appDataDescription')}
 					>
-						<Button variant="outline" size="sm" onClick={handleOpenAppDataFolder}>
-							<FolderOpen className="size-3.5" />
+						<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
+							<FolderOpen className="size-3" />
 							{t('settings.application.openAppData')}
 						</Button>
 					</SettingsRow>

@@ -56,13 +56,13 @@ function CronDetail({
 	readonly mono?: boolean;
 }): React.JSX.Element {
 	return (
-		<div className="min-w-0 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-			<dt className="text-[11px] font-medium uppercase text-muted-foreground">{label}</dt>
+		<div className="min-w-0 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+			<dt className="text-[10px] font-medium uppercase text-muted-foreground">{label}</dt>
 			<dd
 				className={
 					mono
-						? 'mt-1 min-w-0 break-words font-mono text-xs text-foreground'
-						: 'mt-1 min-w-0 break-words text-sm text-foreground'
+						? 'mt-0.5 min-w-0 break-words font-mono text-[11px] text-foreground'
+						: 'mt-0.5 min-w-0 break-words text-xs text-foreground'
 				}
 			>
 				{value}
@@ -116,11 +116,11 @@ const CronPage: React.FC = () => {
 							icon={Clock3}
 							title={t('settings.cron.emptyTitle')}
 							description={t('settings.cron.emptyDescription')}
-							className="min-h-28"
+							className="min-h-24"
 						/>
 					</SettingsPanel>
 				) : (
-					<div className="grid gap-3">
+					<div className="grid gap-2">
 						{cronTasks.map((task) => {
 							const payloadEntries = getPayloadEntries(task);
 							const summary = getTaskSummary(task);
@@ -128,18 +128,20 @@ const CronPage: React.FC = () => {
 							return (
 								<Card key={task.id} size="sm" className="gap-0 py-0">
 									<CardContent className="flex flex-col p-0">
-										<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-4 py-2.5">
-											<div className="flex min-w-0 items-start gap-3">
-												<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
-													<Clock3 className="size-4 text-foreground" />
+										<div className="flex flex-wrap items-start justify-between gap-2 border-b border-border/70 px-3 py-2">
+											<div className="flex min-w-0 items-start gap-2">
+												<div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted/40">
+													<Clock3 className="size-3.5 text-foreground" />
 												</div>
 												<div className="min-w-0">
-													<h3 className="truncate text-sm font-semibold" title={summary}>
+													<h3 className="truncate text-[13px] font-semibold" title={summary}>
 														{summary}
 													</h3>
-													<div className="mt-1.5 flex flex-wrap items-center gap-2">
-														<Badge variant="outline">{task.data.type}</Badge>
-														<Badge variant="outline" className="font-mono text-[11px]">
+													<div className="mt-1 flex flex-wrap items-center gap-1.5">
+														<Badge variant="outline" className="text-[10px]">
+															{task.data.type}
+														</Badge>
+														<Badge variant="outline" className="font-mono text-[10px]">
 															{task.expression}
 														</Badge>
 													</div>
@@ -148,16 +150,16 @@ const CronPage: React.FC = () => {
 											<Button
 												type="button"
 												variant="destructive"
-												size="icon-sm"
+												size="icon-xs"
 												onClick={() => void handleRemoveTask(task.id)}
 												aria-label={t('settings.cron.actions.removeLabel', { id: task.id })}
 												title={t('settings.cron.actions.remove')}
 											>
-												<Trash2 className="size-3.5" />
+												<Trash2 className="size-3" />
 											</Button>
 										</div>
 
-										<dl className="grid gap-2.5 border-b border-border/70 bg-muted/10 px-4 py-2.5 sm:grid-cols-2 lg:grid-cols-4">
+										<dl className="grid gap-2 border-b border-border/70 bg-muted/10 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
 											<CronDetail label={t('settings.cron.details.id')} value={task.id} mono />
 											<CronDetail
 												label={t('settings.cron.details.schedule')}
@@ -183,11 +185,11 @@ const CronPage: React.FC = () => {
 										</dl>
 
 										{payloadEntries.length > 0 && (
-											<div className="px-4 py-2.5">
-												<div className="text-xs font-medium text-muted-foreground">
+											<div className="px-3 py-2">
+												<div className="text-[11px] font-medium text-muted-foreground">
 													{t('settings.cron.details.payload')}
 												</div>
-												<dl className="mt-2 grid gap-2 sm:grid-cols-2">
+												<dl className="mt-1.5 grid gap-2 sm:grid-cols-2">
 													{payloadEntries.map(([key, value]) => (
 														<CronDetail key={key} label={key} value={value} mono />
 													))}

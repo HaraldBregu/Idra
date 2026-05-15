@@ -1,23 +1,34 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageContainer, PageSidebar, PageSidebarInset } from '@/components/app/base/page';
+import {
+	AppWindow,
+	CalendarClock,
+	Info,
+	Plug,
+	RadioTower,
+	Server,
+	SlidersHorizontal,
+	Sparkles,
+	type LucideIcon,
+} from 'lucide-react';
+import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 const SETTINGS_ITEMS = [
-	{ path: '/settings/general', labelKey: 'settings.tabs.general' },
-	{ path: '/settings/channels', labelKey: 'settings.tabs.channels' },
-	{ path: '/settings/connectors', labelKey: 'settings.tabs.connectors' },
-	{ path: '/settings/skills', labelKey: 'settings.tabs.skills' },
-	{ path: '/settings/providers', labelKey: 'settings.tabs.providers' },
-	{ path: '/settings/system', labelKey: 'settings.tabs.system' },
-	{ path: '/settings/cron', labelKey: 'settings.tabs.cron' },
-	{ path: '/settings/apps', labelKey: 'settings.tabs.apps' },
+	{ path: '/settings/general', labelKey: 'settings.tabs.general', icon: Info },
+	{ path: '/settings/system', labelKey: 'settings.tabs.system', icon: SlidersHorizontal },
+	{ path: '/settings/channels', labelKey: 'settings.tabs.channels', icon: RadioTower },
+	{ path: '/settings/skills', labelKey: 'settings.tabs.skills', icon: Sparkles },
+	{ path: '/settings/connectors', labelKey: 'settings.tabs.connectors', icon: Plug },
+	{ path: '/settings/providers', labelKey: 'settings.tabs.providers', icon: Server },
+	{ path: '/settings/cron', labelKey: 'settings.tabs.cron', icon: CalendarClock },
+	{ path: '/settings/apps', labelKey: 'settings.tabs.apps', icon: AppWindow },
 ] satisfies readonly {
 	readonly path: string;
 	readonly labelKey: string;
+	readonly icon: LucideIcon;
 }[];
 
 export function Layout(): React.JSX.Element {
@@ -25,35 +36,25 @@ export function Layout(): React.JSX.Element {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const pathname = location.pathname;
-	const [query, setQuery] = useState('');
-	const normalizedQuery = query.trim().toLowerCase();
-	const items = useMemo(
-		() =>
-			SETTINGS_ITEMS.map((item) => ({ ...item, label: t(item.labelKey) })).filter((item) =>
-				normalizedQuery ? item.label.toLowerCase().includes(normalizedQuery) : true
-			),
-		[normalizedQuery, t]
-	);
+	const activeItemRef = useRef<HTMLButtonElement | null>(null);
+
+	useEffect(() => {
+		activeItemRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+	}, [pathname]);
 
 	return (
 		<PageContainer>
-			<div className="flex min-h-0 flex-1 overflow-hidden">
-				<PageSidebar className="w-40 border-r border-border/70 px-2.5 py-3 sm:w-48 lg:w-56">
-					<div className="mb-3">
-						<Input
-							type="search"
-							value={query}
-							onChange={(event) => setQuery(event.target.value)}
-							placeholder={t('settings.search')}
-							aria-label={t('settings.searchLabel')}
-							className="h-8 rounded-lg bg-background/80 px-2.5 text-sm"
-						/>
-					</div>
-					<nav className="flex flex-col gap-1" aria-label={t('settings.title')}>
-						{items.map((item) => {
+			<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+				<div className="app-translucent-surface shrink-0 border-b border-border/60 bg-background/70 px-4 py-2 backdrop-blur-xl sm:px-6 lg:px-8">
+					<nav
+						className="flex min-w-0 gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+						aria-label={t('settings.title')}
+					>
+						{SETTINGS_ITEMS.map((item) => {
 							const isActive =
 								pathname === item.path ||
 								(pathname === '/settings' && item.path === '/settings/general');
+							const Icon = item.icon;
 
 							return (
 								<Button
@@ -62,22 +63,31 @@ export function Layout(): React.JSX.Element {
 									variant="ghost"
 									size="sm"
 									className={cn(
-										'h-9 w-full justify-start rounded-lg px-3 text-left text-sm',
+										'h-8 shrink-0 rounded-lg border border-transparent px-2 text-xs font-semibold text-muted-foreground hover:bg-muted/70 hover:text-foreground',
 										isActive &&
-											'bg-secondary text-secondary-foreground shadow-none hover:bg-secondary'
+											'border-border/70 bg-background text-foreground shadow-sm hover:bg-background'
 									)}
 									onClick={() => navigate(item.path)}
 									aria-current={isActive ? 'page' : undefined}
+									ref={isActive ? activeItemRef : undefined}
 								>
-									<span className="min-w-0 truncate">{item.label}</span>
+									<span
+										className={cn(
+											'flex size-[18px] shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
+											isActive && 'bg-emerald-600 text-white'
+										)}
+									>
+										<Icon className="size-3" strokeWidth={2.2} />
+									</span>
+									<span className="min-w-0 truncate">{t(item.labelKey)}</span>
 								</Button>
 							);
 						})}
 					</nav>
-				</PageSidebar>
-				<PageSidebarInset className="px-4 pb-4 pt-4 sm:px-6 lg:px-8">
+				</div>
+				<main className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-5 sm:px-6 lg:px-8">
 					<Outlet />
-				</PageSidebarInset>
+				</main>
 			</div>
 		</PageContainer>
 	);

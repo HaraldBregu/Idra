@@ -39,12 +39,12 @@ export function SettingsPageHeader({
 	action,
 }: SettingsPageHeaderProps): React.JSX.Element {
 	return (
-		<header className="flex flex-wrap items-start justify-between gap-2.5 border-b border-border/70 pb-2.5">
+		<header className="flex flex-wrap items-start justify-between gap-3 pb-1">
 			<div className="flex min-w-0 items-start gap-2">
 				<div className="min-w-0">
-					<h1 className="text-sm font-semibold leading-tight">{title}</h1>
+					<h1 className="text-2xl font-semibold leading-tight tracking-normal">{title}</h1>
 					{description && (
-						<p className="mt-1 max-w-2xl text-xs leading-snug text-muted-foreground">
+						<p className="mt-1 max-w-2xl text-sm leading-snug text-muted-foreground">
 							{description}
 						</p>
 					)}
@@ -74,7 +74,9 @@ export function SettingsSection({
 		<section className={cn('flex flex-col gap-2', className)}>
 			<div className="flex flex-wrap items-start justify-between gap-2 px-0.5">
 				<div className="min-w-0">
-					<h2 className="text-[13px] font-semibold text-foreground">{title}</h2>
+					<h2 className="text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">
+						{title}
+					</h2>
 					{description && (
 						<p className="mt-0.5 max-w-2xl text-xs leading-snug text-muted-foreground">
 							{description}

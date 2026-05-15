@@ -179,33 +179,33 @@ const ChannelsPage: React.FC = () => {
 			/>
 
 			<SettingsSection title={t('settings.sections.channels')}>
-				<div className="grid gap-2.5">
+				<div className="grid gap-2">
 					{CHANNEL_CARDS.map((channel) => {
 						const Icon = channel.icon;
 
 						return (
 							<SettingsPanel key={channel.key} className="overflow-hidden">
 								<div
-									className={`flex items-start justify-between gap-3 px-3.5 py-3 ${
+									className={`flex items-start justify-between gap-2 px-3 py-2 ${
 										channel.key === 'telegram' ? 'border-b border-border/70' : ''
 									}`}
 								>
-									<div className="flex min-w-0 flex-1 items-start gap-3">
-										<div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted/40">
-											<Icon className="size-4 text-foreground" />
+									<div className="flex min-w-0 flex-1 items-start gap-2">
+										<div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted/40">
+											<Icon className="size-3.5 text-foreground" />
 										</div>
 										<div className="min-w-0">
-											<h3 className="truncate text-sm font-semibold leading-5">
+											<h3 className="truncate text-[13px] font-semibold leading-4">
 												{t(`channels.${channel.key}`)}
 											</h3>
-											<p className="mt-0.5 max-w-2xl text-xs leading-5 text-muted-foreground">
+											<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
 												{t(`channels.${channel.key}Description`)}
 											</p>
 										</div>
 									</div>
 									<Badge
 										variant={channel.availabilityKey === 'available' ? 'secondary' : 'outline'}
-										className="shrink-0"
+										className="h-4 shrink-0 px-1.5 text-[10px]"
 									>
 										{t(`settings.channels.${channel.availabilityKey}`)}
 									</Badge>
@@ -219,20 +219,20 @@ const ChannelsPage: React.FC = () => {
 											description={t('settings.channels.tokenDescription')}
 											actionClassName="w-full sm:w-[420px] sm:flex-nowrap"
 										>
-											<div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row">
+											<div className="flex w-full min-w-0 flex-col gap-1.5 sm:flex-row">
 												<Input
 													type="password"
 													value={telegramToken}
 													onChange={(event) => setTelegramToken(event.target.value)}
 													onBlur={handleTelegramTokenBlur}
 													placeholder={t('settings.channels.telegramTokenPlaceholder')}
-													className="h-9 min-w-0 text-sm"
+													className="h-8 min-w-0 px-2.5 text-xs md:text-xs"
 													aria-label={t('settings.channels.token')}
 												/>
 												<Button
 													type="button"
 													variant="outline"
-													size="sm"
+													size="xs"
 													disabled={telegramBusy}
 													onClick={() => void saveTelegramConfig()}
 												>
@@ -247,8 +247,8 @@ const ChannelsPage: React.FC = () => {
 											description={t('settings.channels.phoneNumberDescription')}
 											actionClassName="w-full sm:w-[420px]"
 										>
-											<div className="flex w-full min-w-0 flex-col gap-2">
-												<div className="flex min-w-0 items-center gap-2">
+											<div className="flex w-full min-w-0 flex-col gap-1.5">
+												<div className="flex min-w-0 items-center gap-1.5">
 													<Input
 														type="tel"
 														value={phoneNumberDraft}
@@ -260,27 +260,27 @@ const ChannelsPage: React.FC = () => {
 															}
 														}}
 														placeholder={t('settings.channels.phoneNumberPlaceholder')}
-														className="h-9 min-w-0 text-sm"
+														className="h-8 min-w-0 px-2.5 text-xs md:text-xs"
 														aria-label={t('settings.channels.phoneNumber')}
 													/>
 													<Button
 														type="button"
 														variant="outline"
-														size="icon-sm"
+														size="icon-xs"
 														onClick={addAllowedPhoneNumber}
 														aria-label={t('settings.channels.addPhoneNumber')}
 														title={t('settings.channels.addPhoneNumber')}
 													>
-														<Plus className="size-3.5" />
+														<Plus className="size-3" />
 													</Button>
 												</div>
-												<div className="flex min-h-6 flex-wrap items-center gap-2">
+												<div className="flex min-h-5 flex-wrap items-center gap-1.5">
 													{allowedPhoneNumbers.length > 0 ? (
 														allowedPhoneNumbers.map((phoneNumber) => (
 															<Badge
 																key={phoneNumber}
 																variant="outline"
-																className="max-w-full gap-1.5 pr-1"
+																className="h-4 max-w-full gap-1 pr-1 text-[10px]"
 															>
 																{phoneNumber}
 																<button
@@ -291,12 +291,12 @@ const ChannelsPage: React.FC = () => {
 																		phoneNumber,
 																	})}
 																>
-																	<X className="size-3" />
+																	<X className="size-2.5" />
 																</button>
 															</Badge>
 														))
 													) : (
-														<span className="text-xs text-muted-foreground">
+														<span className="text-[11px] text-muted-foreground">
 															{t('settings.channels.noAllowedPhoneNumbers')}
 														</span>
 													)}
@@ -310,11 +310,11 @@ const ChannelsPage: React.FC = () => {
 											description={t(`channels.status.${telegramStatus}`)}
 											actionClassName="w-full sm:w-[420px]"
 										>
-											<div className="flex w-full flex-wrap items-center gap-2 sm:justify-end">
+											<div className="flex w-full flex-wrap items-center gap-1.5 sm:justify-end">
 												<Button
 													type="button"
 													variant="outline"
-													size="sm"
+													size="xs"
 													disabled={telegramBusy || !telegramToken.trim()}
 													onClick={() => void handleStartTelegram()}
 												>
@@ -323,7 +323,7 @@ const ChannelsPage: React.FC = () => {
 												<Button
 													type="button"
 													variant="outline"
-													size="sm"
+													size="xs"
 													disabled={telegramBusy || !telegramToken.trim()}
 													onClick={() => void handleRestartTelegram()}
 												>
@@ -332,7 +332,7 @@ const ChannelsPage: React.FC = () => {
 												<Button
 													type="button"
 													variant="outline"
-													size="sm"
+													size="xs"
 													disabled={telegramBusy}
 													onClick={() => void handleStopTelegram()}
 												>
@@ -342,7 +342,7 @@ const ChannelsPage: React.FC = () => {
 										</SettingsRow>
 
 										{telegramError && (
-											<div className="px-3.5 py-2.5">
+											<div className="px-3 py-2">
 												<SettingsNotice variant="destructive">{telegramError}</SettingsNotice>
 											</div>
 										)}

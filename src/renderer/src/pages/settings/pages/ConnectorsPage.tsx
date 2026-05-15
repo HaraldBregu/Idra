@@ -231,13 +231,13 @@ const ConnectorsPage: React.FC = () => {
 				action={
 					<Button
 						type="button"
-						size="sm"
+						size="xs"
 						onClick={() => {
 							setForm(emptyForm);
 							setShowForm(true);
 						}}
 					>
-						<Plus className="size-4" />
+						<Plus className="size-3" />
 						Add Connector
 					</Button>
 				}
@@ -255,9 +255,9 @@ const ConnectorsPage: React.FC = () => {
 					description="Add an OAuth access token from your app authorization flow. Tokens are sent on each Responses API request and are not stored by OpenAI."
 				>
 					<SettingsPanel>
-						<form className="grid gap-3 p-3" onSubmit={submit}>
-							<div className="grid gap-3 md:grid-cols-2">
-								<label className="grid gap-1.5 text-sm font-medium">
+						<form className="grid gap-2.5 p-2.5" onSubmit={submit}>
+							<div className="grid gap-2.5 md:grid-cols-2">
+								<label className="grid gap-1 text-xs font-medium">
 									Connector
 									<Select
 										value={form.connectorId || null}
@@ -265,7 +265,7 @@ const ConnectorsPage: React.FC = () => {
 											if (value) selectConnector(value as OpenAiConnectorId);
 										}}
 									>
-										<SelectTrigger className="w-full" aria-label="Connector">
+										<SelectTrigger className="w-full text-xs" size="sm" aria-label="Connector">
 											<SelectValue placeholder="Select connector" />
 										</SelectTrigger>
 										<SelectContent>
@@ -278,25 +278,27 @@ const ConnectorsPage: React.FC = () => {
 									</Select>
 								</label>
 
-								<label className="grid gap-1.5 text-sm font-medium">
+								<label className="grid gap-1 text-xs font-medium">
 									Name
 									<Input
 										value={form.name}
 										onChange={(event) => update('name', event.target.value)}
 										placeholder="Google Calendar"
+										className="h-8 px-2.5 text-xs md:text-xs"
 									/>
 								</label>
 
-								<label className="grid gap-1.5 text-sm font-medium">
+								<label className="grid gap-1 text-xs font-medium">
 									Server label
 									<Input
 										value={form.serverLabel}
 										onChange={(event) => update('serverLabel', event.target.value)}
 										placeholder="google_calendar"
+										className="h-8 px-2.5 text-xs md:text-xs"
 									/>
 								</label>
 
-								<label className="grid gap-1.5 text-sm font-medium">
+								<label className="grid gap-1 text-xs font-medium">
 									Approval policy
 									<Select
 										value={form.requireApproval}
@@ -304,7 +306,7 @@ const ConnectorsPage: React.FC = () => {
 											if (value) update('requireApproval', value as ConnectorApprovalMode);
 										}}
 									>
-										<SelectTrigger className="w-full" aria-label="Approval policy">
+										<SelectTrigger className="w-full text-xs" size="sm" aria-label="Approval policy">
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
@@ -318,33 +320,35 @@ const ConnectorsPage: React.FC = () => {
 								</label>
 							</div>
 
-							<label className="grid gap-1.5 text-sm font-medium">
+							<label className="grid gap-1 text-xs font-medium">
 								Description
 								<Textarea
 									value={form.serverDescription}
 									onChange={(event) => update('serverDescription', event.target.value)}
 									placeholder={selectedCatalog?.description}
+									className="min-h-14 py-1.5 text-xs md:text-xs"
 								/>
 							</label>
 
-							<label className="grid gap-1.5 text-sm font-medium">
+							<label className="grid gap-1 text-xs font-medium">
 								OAuth access token
 								<Input
 									type="password"
 									value={form.authorization}
 									onChange={(event) => update('authorization', event.target.value)}
 									placeholder="Paste OAuth access token"
+									className="h-8 px-2.5 text-xs md:text-xs"
 								/>
 							</label>
 
 							<div className="grid gap-2">
-								<div className="flex flex-wrap items-center justify-between gap-2">
-									<label className="text-sm font-medium">Allowed tools</label>
-									<span className="text-xs text-muted-foreground">
+								<div className="flex flex-wrap items-center justify-between gap-1.5">
+									<label className="text-xs font-medium">Allowed tools</label>
+									<span className="text-[11px] text-muted-foreground">
 										Leave all unselected to allow every available tool.
 									</span>
 								</div>
-								<div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
+								<div className="flex min-h-10 flex-wrap gap-1.5 rounded-md border border-border/70 bg-muted/20 p-2">
 									{selectedCatalog ? (
 										selectedCatalog.tools.map((tool) => {
 											const selected = form.allowedTools.includes(tool);
@@ -363,16 +367,16 @@ const ConnectorsPage: React.FC = () => {
 											);
 										})
 									) : (
-										<p className="text-sm text-muted-foreground">Select a connector first.</p>
+										<p className="text-xs text-muted-foreground">Select a connector first.</p>
 									)}
 								</div>
 							</div>
 
-							<div className="grid gap-2.5 rounded-lg border border-border/70 bg-muted/20 p-2.5 sm:grid-cols-2">
-								<label className="flex items-center justify-between gap-3 text-sm">
+							<div className="grid gap-2 rounded-md border border-border/70 bg-muted/20 p-2 sm:grid-cols-2">
+								<label className="flex items-center justify-between gap-2 text-xs">
 									<span className="min-w-0">
 										<span className="block font-medium">Defer tool loading</span>
-										<span className="block text-xs text-muted-foreground">
+										<span className="block text-[11px] text-muted-foreground">
 											Load tools only when the connector is used.
 										</span>
 									</span>
@@ -381,10 +385,10 @@ const ConnectorsPage: React.FC = () => {
 										onCheckedChange={(checked) => update('deferLoading', checked)}
 									/>
 								</label>
-								<label className="flex items-center justify-between gap-3 text-sm">
+								<label className="flex items-center justify-between gap-2 text-xs">
 									<span className="min-w-0">
 										<span className="block font-medium">Enabled</span>
-										<span className="block text-xs text-muted-foreground">
+										<span className="block text-[11px] text-muted-foreground">
 											Make this connector available to assistant runs.
 										</span>
 									</span>
@@ -396,20 +400,26 @@ const ConnectorsPage: React.FC = () => {
 							</div>
 
 							{selectedCatalog && (
-								<div className="flex flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-2.5">
+								<div className="flex flex-wrap gap-1.5 rounded-md border border-border/70 bg-muted/20 p-2">
 									{selectedCatalog.scopes.map((scope) => (
-										<Badge key={scope} variant="outline">
+										<Badge key={scope} variant="outline" className="text-[10px]">
 											{scope}
 										</Badge>
 									))}
 								</div>
 							)}
 
-							<div className="flex flex-wrap justify-end gap-2">
-								<Button type="button" variant="outline" onClick={resetForm} disabled={saving}>
+							<div className="flex flex-wrap justify-end gap-1.5">
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={resetForm}
+									disabled={saving}
+								>
 									Cancel
 								</Button>
-								<Button type="submit" disabled={!canSubmit}>
+								<Button type="submit" size="sm" disabled={!canSubmit}>
 									{saving ? 'Saving...' : form.id ? 'Save Connector' : 'Add Connector'}
 								</Button>
 							</div>
@@ -428,7 +438,7 @@ const ConnectorsPage: React.FC = () => {
 						/>
 					</SettingsPanel>
 				) : (
-					<div className="grid gap-3">
+					<div className="grid gap-2">
 						{connectors.map((connector) => (
 							<ConnectorCard
 								key={connector.id}
@@ -471,14 +481,14 @@ const ConnectorsPage: React.FC = () => {
 				<SettingsSection
 					title="Tools"
 					action={
-						<Button variant="outline" size="sm" onClick={() => setSelectedId(null)}>
+						<Button variant="outline" size="xs" onClick={() => setSelectedId(null)}>
 							Close
 						</Button>
 					}
 				>
-					<div className="flex flex-wrap gap-2 px-1">
+					<div className="flex flex-wrap gap-1.5 px-0.5">
 						<SettingsValue>
-							<Wrench className="mr-1.5 size-3.5" />
+							<Wrench className="mr-1 size-3" />
 							{selectedTools.length} tools
 						</SettingsValue>
 					</div>

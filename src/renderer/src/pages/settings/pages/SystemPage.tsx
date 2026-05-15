@@ -95,12 +95,12 @@ const SystemPage: React.FC = () => {
 									<Button
 										key={option.value}
 										variant={theme === value ? 'secondary' : 'outline'}
-										size="icon-sm"
+										size="icon-xs"
 										onClick={() => setTheme(value)}
 										aria-label={option.label}
 										aria-pressed={theme === value}
 									>
-										<Icon className="size-3.5" />
+										<Icon className="size-3" />
 									</Button>
 								);
 							})}
@@ -112,7 +112,11 @@ const SystemPage: React.FC = () => {
 						description={t('settings.language.description')}
 					>
 						<Select value={language} onValueChange={handleLanguageChange}>
-							<SelectTrigger className="w-36" size="sm" aria-label={t('settings.language.title')}>
+							<SelectTrigger
+								className="w-32 text-xs"
+								size="sm"
+								aria-label={t('settings.language.title')}
+							>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -143,7 +147,7 @@ const SystemPage: React.FC = () => {
 								title={t(option.labelKey)}
 								description={t(option.descriptionKey)}
 							>
-								<div className="flex w-full min-w-0 items-center gap-3 sm:w-64">
+								<div className="flex w-full min-w-0 items-center gap-2 sm:w-56">
 									<input
 										type="range"
 										min={0}
@@ -152,9 +156,9 @@ const SystemPage: React.FC = () => {
 										value={value}
 										onChange={handleTranslucencyChange(option.value)}
 										aria-label={t(option.labelKey)}
-										className="h-2 min-w-0 flex-1 cursor-pointer accent-primary"
+										className="h-1.5 min-w-0 flex-1 cursor-pointer accent-primary"
 									/>
-									<span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+									<span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-muted-foreground">
 										{t('settings.translucency.value', { value })}
 									</span>
 								</div>
