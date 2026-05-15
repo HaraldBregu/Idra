@@ -426,7 +426,8 @@ function HomePage(): ReactElement {
 		[prefersReducedMotion]
 	);
 
-	const showSuggestions = messages.length <= 1 && !isLoading;
+	// Don't show suggestions while history is loading or chat is active
+	const showSuggestions = messages.length <= 1 && !isLoading && !historyLoading;
 
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
