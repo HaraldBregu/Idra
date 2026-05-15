@@ -607,7 +607,7 @@ function HomeVoiceSurface({ onSwitchToTyping }: { readonly onSwitchToTyping: () 
 				<p className="mb-10 text-xs font-bold uppercase tracking-wider text-muted-foreground">
 					Voice Chat
 				</p>
-				<VoiceOrb />
+				<VoiceOrbThree />
 			</div>
 			<div className="border-t border-border px-6 py-4">
 				<MessageContent className="flex min-h-10 items-center justify-between gap-4 rounded-full px-5 py-0 text-xs font-semibold text-muted-foreground">
