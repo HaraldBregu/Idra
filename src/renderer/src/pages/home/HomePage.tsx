@@ -405,17 +405,17 @@ function HomePage(): ReactElement {
 		const handler = (event: KeyboardEvent): void => {
 			if ((event.metaKey || event.ctrlKey) && event.key === '/') {
 				event.preventDefault();
-				textareaRef.current?.focus();
+				focusInput();
 			}
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
-	}, []);
+	}, [focusInput]);
 
 	// Auto-focus input on mount so users can type immediately
 	useEffect(() => {
-		textareaRef.current?.focus();
-	}, []);
+		focusInput();
+	}, [focusInput]);
 
 	const msgTransition = useCallback(
 		(index: number) => ({
