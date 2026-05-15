@@ -298,10 +298,11 @@ function HomePage(): ReactElement {
 
 	const stopResponse = (): void => {
 		requestIdRef.current += 1;
-		isStreamingRef.current = false;
+		streamControlRef.current?.complete();
+		streamControlRef.current = null;
+		setStreamIterable(null);
+		setStreamStarted(false);
 		setIsLoading(false);
-		setStreamingContent(null);
-		// Best-effort server-side cancellation
 		void window.assistant.cancel();
 	};
 
