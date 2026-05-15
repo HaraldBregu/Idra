@@ -135,7 +135,7 @@ export class ToolExecutor {
 		const needsConfirmation = tool.metadata.requiresConfirmation === true || (!tool.metadata.readOnly && TOOL_SAFETY_ORDER[tool.safetyLevel] >= TOOL_SAFETY_ORDER.high);
 		if (needsConfirmation) {
 			const actionId = `${tool.id}:${JSON.stringify(redactSensitive(input))}`;
-			if (!context.confirmedActionIds.has(actionId)) {
+			if (!context.confirmedActionIds.has(actionId) && !context.confirmedActionIds.has('*')) {
 				const confirmed = context.requestConfirmation
 					? await context.requestConfirmation({
 							toolId: tool.id,
@@ -316,4 +316,3 @@ function shouldRetry(result: ToolResult): boolean {
 	if (result.success) return false;
 	return result.error?.retryable === true;
 }
-

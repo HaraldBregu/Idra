@@ -450,107 +450,146 @@ function HomePage(): ReactElement {
 							</div>
 						) : (
 							<>
-								{messages.map((message) =>
+								{messages.map((message, index) =>
 									message.role === 'user' ? (
-										<Message key={message.id} className="justify-end">
-											<MessageContent className="max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-primary-foreground shadow-sm sm:max-w-[72%]">
-												{message.content}
-											</MessageContent>
-										</Message>
+										<motion.div
+											key={message.id}
+											initial={{ opacity: 0, y: 8 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={msgTransition(index)}
+										>
+											<Message className="justify-end">
+												<MessageContent className="max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-primary-foreground shadow-sm sm:max-w-[72%]">
+													{message.content}
+												</MessageContent>
+											</Message>
+										</motion.div>
 									) : (
-										<Message key={message.id} className="items-start justify-start">
+										<motion.div
+											key={message.id}
+											initial={{ opacity: 0, y: 8 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={msgTransition(index)}
+										>
+											<Message className="items-start justify-start">
+												<MessageAvatar
+													src="/avatars/ai.png"
+													alt="AI"
+													fallback="AI"
+													className="mt-0.5 size-7 border border-border bg-card"
+												/>
+												<div className="flex min-w-0 max-w-[calc(100%-2.5rem)] flex-col gap-2 sm:max-w-[44rem]">
+													{message.type === 'text' ? (
+														<>
+															<MessageContent
+																markdown
+																className="rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 shadow-sm backdrop-blur"
+															>
+																{message.content}
+															</MessageContent>
+															<MessageActions className="self-start">
+																<MessageAction tooltip="Copy">
+																	<Button
+																		variant="ghost"
+																		size="icon-sm"
+																		onClick={() => copyMessage(message.content)}
+																	>
+																		<Copy className="size-3.5" />
+																	</Button>
+																</MessageAction>
+															</MessageActions>
+														</>
+													) : (
+														<div
+															className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-sm backdrop-blur"
+															role="group"
+															aria-label={message.prompt}
+														>
+															<p className="text-sm font-medium">{message.prompt}</p>
+															<div className="flex flex-col gap-2" role={message.options.some((o) => o.kind === 'approval') ? 'radiogroup' : 'group'}>
+																{message.options.map((option) => {
+																	const isSelected = (selectedOptions[message.id] ?? []).includes(option.id);
+																	const handleChange = (): void => {
+																		if (option.kind === 'approval' && option.approvalId) {
+																			selectApprovalOption(message.id, option.approvalId, option.id);
+																		} else {
+																			toggleOption(message.id, option.id);
+																		}
+																	};
+
+																	return (
+																		<button
+																			key={option.id}
+																			type="button"
+																			role={option.kind === 'approval' ? 'radio' : 'checkbox'}
+																			aria-checked={isSelected}
+																			onClick={handleChange}
+																			className={cn(
+																				'flex w-full cursor-pointer items-start gap-3 rounded-xl border p-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+																				isSelected
+																					? 'border-primary/40 bg-primary/8 text-foreground'
+																					: 'border-border/80 bg-background/80 hover:bg-muted/60'
+																			)}
+																		>
+																			<span
+																				className={cn(
+																					'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+																					option.kind === 'approval' ? 'rounded-full' : 'rounded-sm',
+																					isSelected
+																						? 'border-primary bg-primary text-primary-foreground'
+																						: 'border-border bg-transparent'
+																				)}
+																				aria-hidden
+																			>
+																				{isSelected && (
+																					<span className={cn('block bg-current', option.kind === 'approval' ? 'size-1.5 rounded-full' : 'size-2 rounded-sm')} />
+																				)}
+																			</span>
+																			<span className="min-w-0 flex-1">
+																				<span className="block font-medium leading-snug">{option.label}</span>
+																				<span className="mt-0.5 block break-words text-xs leading-normal text-muted-foreground">
+																					{option.description}
+																				</span>
+																			</span>
+																		</button>
+																	);
+																})}
+															</div>
+															<Button
+																className="self-start"
+																size="sm"
+																onClick={() => void submitMultiSelect(message)}
+															>
+																Confirm
+															</Button>
+														</div>
+													)}
+												</div>
+											</Message>
+										</motion.div>
+									)
+								)}
+								{isLoading && (
+									<motion.div
+										key="loading"
+										initial={{ opacity: 0, y: 8 }}
+										animate={{ opacity: 1, y: 0 }}
+										exit={{ opacity: 0 }}
+										transition={{ duration: 0.15 }}
+									>
+										<Message className="items-start justify-start">
 											<MessageAvatar
 												src="/avatars/ai.png"
 												alt="AI"
 												fallback="AI"
 												className="mt-0.5 size-7 border border-border bg-card"
 											/>
-											<div className="flex min-w-0 max-w-[calc(100%-2.5rem)] flex-col gap-2 sm:max-w-[44rem]">
-												{message.type === 'text' ? (
-													<>
-														<MessageContent
-															markdown
-															className="rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 shadow-sm backdrop-blur"
-														>
-															{message.content}
-														</MessageContent>
-														<MessageActions className="self-start">
-															<MessageAction tooltip="Copy">
-																<Button
-																	variant="ghost"
-																	size="icon-sm"
-																	onClick={() => copyMessage(message.content)}
-																>
-																	<Copy className="size-3.5" />
-																</Button>
-															</MessageAction>
-														</MessageActions>
-													</>
-												) : (
-													<div className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-sm backdrop-blur">
-														<p className="text-sm font-medium">{message.prompt}</p>
-														<div className="flex flex-col gap-2">
-															{message.options.map((option) => (
-																<label
-																	key={option.id}
-																	className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/80 bg-background/80 p-2.5 text-sm transition-colors hover:bg-muted/60"
-																>
-																	<input
-																		type={option.kind === 'approval' ? 'radio' : 'checkbox'}
-																		name={
-																			option.kind === 'approval'
-																				? `${message.id}:${option.approvalId}`
-																				: option.id
-																		}
-																		className="mt-1 size-4 accent-primary"
-																		checked={(selectedOptions[message.id] ?? []).includes(
-																			option.id
-																		)}
-																		onChange={() =>
-																			option.kind === 'approval' && option.approvalId
-																				? selectApprovalOption(
-																						message.id,
-																						option.approvalId,
-																						option.id
-																					)
-																				: toggleOption(message.id, option.id)
-																		}
-																	/>
-																	<span className="min-w-0">
-																		<span className="block font-medium">{option.label}</span>
-																		<span className="block break-words text-xs text-muted-foreground">
-																			{option.description}
-																		</span>
-																	</span>
-																</label>
-															))}
-														</div>
-														<Button
-															className="self-start"
-															size="sm"
-															onClick={() => void submitMultiSelect(message)}
-														>
-															Submit selection
-														</Button>
-													</div>
-												)}
+											<div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 text-muted-foreground shadow-sm backdrop-blur">
+												<Loader variant="typing" size="md" />
+												<Loader variant="text-shimmer" text="Thinking" size="sm" />
 											</div>
 										</Message>
-									)
-								)}
-								{isLoading && (
-									<Message className="items-start justify-start">
-										<MessageAvatar
-											src="/avatars/ai.png"
-											alt="AI"
-											fallback="AI"
-											className="mt-0.5 size-7 border border-border bg-card"
-										/>
-										<div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 text-muted-foreground shadow-sm backdrop-blur">
-											<Loader variant="typing" size="md" />
-											<Loader variant="text-shimmer" text="Thinking" size="sm" />
-										</div>
-									</Message>
+									</motion.div>
 								)}
 							</>
 						)}
