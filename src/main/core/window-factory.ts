@@ -53,7 +53,7 @@ export class WindowFactory {
 		const options: BrowserWindowConstructorOptions = {
 			width: 1600,
 			height: 1000,
-			minWidth: 800,
+			minWidth: 500,
 			minHeight: 600,
 			show: false,
 			icon: this.iconPath,
