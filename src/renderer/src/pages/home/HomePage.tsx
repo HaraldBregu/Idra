@@ -632,26 +632,70 @@ function VoiceKbd({ children }: { readonly children: string }): ReactElement {
 	);
 }
 
+function VoiceOrbButton(): ReactElement {
+	return (
+		<Button
+			type="button"
+			variant="ghost"
+			size="icon-lg"
+			className="group relative size-72 overflow-hidden rounded-full border-0 bg-transparent p-0 shadow-[0_42px_120px_-34px_rgba(8,19,18,0.68)] transition-transform hover:bg-transparent focus-visible:ring-4 focus-visible:ring-cyan-300/35 active:scale-[0.985] motion-safe:animate-[pulse_5s_ease-in-out_infinite] sm:size-80 lg:size-96"
+			aria-label="Hold to speak"
+		>
+			<span
+				className="absolute -inset-12 rounded-full opacity-95 blur-[1px] motion-safe:animate-[spin_18s_linear_infinite]"
+				style={{
+					background:
+						'conic-gradient(from 190deg at 48% 50%, #112617, #255f43, #83b86c, #b8eadf, #5fb8d2, #006aa2, #123e30, #112617)',
+				}}
+				aria-hidden
+			/>
+			<span
+				className="absolute -inset-10 rounded-full opacity-70 mix-blend-screen motion-safe:animate-[spin_26s_linear_infinite_reverse]"
+				style={{
+					background:
+						'radial-gradient(circle at 18% 42%, rgba(221, 250, 255, 0.95) 0 8%, rgba(123, 221, 235, 0.48) 16%, transparent 38%), radial-gradient(circle at 42% 72%, rgba(172, 219, 110, 0.86) 0 13%, transparent 34%), radial-gradient(circle at 58% 10%, rgba(29, 143, 193, 0.72) 0 20%, transparent 48%)',
+				}}
+				aria-hidden
+			/>
+			<span
+				className="absolute inset-0 rounded-full"
+				style={{
+					background:
+						'radial-gradient(circle at 20% 43%, rgba(246, 255, 255, 0.78) 0 10%, rgba(168, 233, 239, 0.42) 18%, transparent 36%), radial-gradient(circle at 56% 78%, rgba(140, 205, 112, 0.76) 0 18%, transparent 44%), radial-gradient(circle at 78% 50%, rgba(6, 25, 15, 0.82) 0 34%, transparent 65%), radial-gradient(circle at 48% 4%, rgba(47, 166, 209, 0.82) 0 24%, transparent 52%)',
+				}}
+				aria-hidden
+			/>
+			<span
+				className="absolute inset-0 rounded-full opacity-25 mix-blend-overlay"
+				style={{
+					backgroundImage:
+						'radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 0.7px, transparent 0.8px), radial-gradient(circle, rgba(0, 0, 0, 0.55) 0 0.8px, transparent 0.9px)',
+					backgroundPosition: '0 0, 1.5px 2px',
+					backgroundSize: '3px 3px, 4px 4px',
+				}}
+				aria-hidden
+			/>
+			<span
+				className="absolute inset-0 rounded-full ring-1 ring-inset ring-white/30"
+				style={{
+					boxShadow:
+						'inset 18px 18px 34px rgba(255,255,255,0.18), inset -22px -18px 38px rgba(0,0,0,0.28)',
+				}}
+				aria-hidden
+			/>
+		</Button>
+	);
+}
+
 function HomeVoiceSurface({ onSwitchToTyping }: { readonly onSwitchToTyping: () => void }): ReactElement {
 	return (
 		<div className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
 			<div className="flex flex-1 flex-col items-center px-8 pt-8 text-center">
 				<div className="space-y-4">
 					<p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ready</p>
-					<h1 className="text-base font-semibold tracking-tight text-muted-foreground">
-						Hold the mic, or press and hold ⌘ space
-					</h1>
 				</div>
-				<div className="flex flex-1 items-center">
-					<Button
-						type="button"
-						variant="outline"
-						size="icon-lg"
-						className="size-14 rounded-full shadow-lg shadow-foreground/5 active:scale-[0.98]"
-						aria-label="Hold to speak"
-					>
-						<Mic className="size-5" strokeWidth={1.8} />
-					</Button>
+				<div className="flex flex-1 items-center justify-center py-8">
+					<VoiceOrbButton />
 				</div>
 				<div className="mb-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs font-semibold text-muted-foreground">
 					<span className="flex items-center gap-3">
