@@ -44,12 +44,13 @@ export class CronService implements Disposable {
 	private readonly store: StoreService;
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
+	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
 
 	constructor(store: StoreService, logger: LoggerService) {
 		this.store = store;
 		this.logger = logger;
-		const scheduleStore = new ElectronStoreCronScheduleStore(store);
+		this.scheduleStore = new ElectronStoreCronScheduleStore(store);
 		const taskManager = new StoreBackedCronTaskManager();
 		const runner = new TaskManagerCronScheduleRunner(taskManager);
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
@@ -58,7 +59,7 @@ export class CronService implements Disposable {
 			maxActiveSchedulesPerUser: 250,
 		});
 		this.scheduler = new CronSchedulerService(
-			scheduleStore,
+			this.scheduleStore,
 			runner,
 			accessPolicy,
 			{},
@@ -139,11 +140,11 @@ export class CronService implements Disposable {
 	}
 
 	async getScheduleEvents(scheduleId: string): Promise<CronScheduleEvent[]> {
-		return scheduleId ? this.scheduler['store'].getScheduleEvents(scheduleId) : [];
+		return scheduleId ? this.scheduleStore.getScheduleEvents(scheduleId) : [];
 	}
 
 	async getScheduleExecutions(scheduleId: string): Promise<CronExecutionRecord[]> {
-		return scheduleId ? this.scheduler['store'].listExecutions(scheduleId) : [];
+		return scheduleId ? this.scheduleStore.listExecutions(scheduleId) : [];
 	}
 
 	schedule<TData extends CronTaskData>(

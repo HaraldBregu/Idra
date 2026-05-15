@@ -42,6 +42,7 @@ export interface TitleBarProps {
 
 export const TitleBar = React.memo(function TitleBar({
 	title = 'Application Name',
+	centerContent,
 	onToggleSidebar,
 	onNavigateBack,
 	onNavigateForward,
