@@ -1,7 +1,7 @@
 import type { ReactElement, RefObject } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Components } from 'react-markdown';
-import { ArrowUp, Calendar, Copy, Mic, Play, Sparkles, Square } from 'lucide-react';
+import { ArrowUp, Calendar, Copy, Play, Sparkles, Square } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import {
 	ChatContainerContent,
@@ -81,7 +81,6 @@ interface HomeChatSurfaceProps {
 		optionId: string
 	) => void;
 	readonly onSubmitPending: (message: HomeMultiSelectMessage) => void;
-	readonly onVoiceModeRequest: () => void;
 	readonly onUseSuggestion: (prompt: string) => void;
 }
 
@@ -470,61 +469,38 @@ function Composer({
 	inputRef,
 	onValueChange,
 	onSubmit,
-	onVoiceModeRequest,
 }: {
 	readonly value: string;
 	readonly isLoading: boolean;
 	readonly inputRef: RefObject<HTMLTextAreaElement | null>;
 	readonly onValueChange: (value: string) => void;
 	readonly onSubmit: () => void;
-	readonly onVoiceModeRequest: () => void;
 }): ReactElement {
 	return (
-		<div className="shrink-0 bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-8">
+		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-8">
 			<PromptInput
 				value={value}
 				onValueChange={onValueChange}
-				onSubmit={onSubmit}
 				isLoading={isLoading}
-				maxHeight={160}
+				onSubmit={onSubmit}
 				textareaRef={inputRef}
-				className="mx-auto flex min-h-14 w-full max-w-3xl items-center gap-3 rounded-2xl px-4 py-3 shadow-lg shadow-foreground/5 focus-within:ring-2 focus-within:ring-ring/20"
+				className="w-full max-w-(--breakpoint-md)"
 			>
-				<span className="shrink-0 text-xl leading-none text-muted-foreground" aria-hidden>
-					*
-				</span>
-				<PromptInputTextarea
-					placeholder="ask Friday to inspect, change, or explain something"
-					rows={1}
-					className="max-h-32 min-h-7 flex-1 resize-none border-0 px-0 py-1 text-sm leading-snug shadow-none outline-none focus-visible:border-transparent focus-visible:!outline-none focus-visible:ring-0 md:text-sm"
-					aria-label="Message Friday"
-				/>
-				<PromptInputActions className="shrink-0 gap-2">
-					<PromptInputAction tooltip="Switch to voice">
+				<PromptInputTextarea placeholder="Ask me anything..." aria-label="Message Friday" />
+				<PromptInputActions className="justify-end pt-2">
+					<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
 						<Button
 							type="button"
-							variant="ghost"
-							size="icon-sm"
-							className="size-9 rounded-full"
-							aria-label="Switch to voice"
-							onClick={onVoiceModeRequest}
-						>
-							<Mic className="size-4" />
-						</Button>
-					</PromptInputAction>
-					<PromptInputAction tooltip={isLoading ? 'Stop response' : 'Send message'}>
-						<Button
-							type="button"
-							variant={isLoading ? 'outline' : 'default'}
-							size="icon-sm"
-							className="size-9 rounded-full"
-							aria-label={isLoading ? 'Stop response' : 'Send message'}
+							variant="default"
+							size="icon"
+							className="h-8 w-8 rounded-full"
+							aria-label={isLoading ? 'Stop generation' : 'Send message'}
 							onClick={onSubmit}
 						>
 							{isLoading ? (
-								<Square className="size-4 fill-current" />
+								<Square className="size-5 fill-current" />
 							) : (
-								<ArrowUp className="size-4" />
+								<ArrowUp className="size-5" />
 							)}
 						</Button>
 					</PromptInputAction>
@@ -549,7 +525,6 @@ function HomeChatSurface({
 	onToggleOption,
 	onSelectApprovalOption,
 	onSubmitPending,
-	onVoiceModeRequest,
 	onUseSuggestion,
 }: HomeChatSurfaceProps): ReactElement {
 	const showReferenceConversation = messages.length <= 1 && !isLoading && !historyLoading;
@@ -618,7 +593,6 @@ function HomeChatSurface({
 				inputRef={inputRef}
 				onValueChange={onInputChange}
 				onSubmit={onSubmit}
-				onVoiceModeRequest={onVoiceModeRequest}
 			/>
 		</div>
 	);
@@ -990,7 +964,6 @@ function HomePage(): ReactElement {
 					onToggleOption={toggleOption}
 					onSelectApprovalOption={selectApprovalOption}
 					onSubmitPending={(message) => void submitMultiSelect(message)}
-					onVoiceModeRequest={() => setMode('voice')}
 					onUseSuggestion={useSuggestion}
 				/>
 			)}
