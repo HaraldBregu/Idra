@@ -78,12 +78,6 @@ type StaticModelOption = {
 	swatchClassName: string;
 };
 
-type VoiceOption = {
-	id: string;
-	name: string;
-	description: string;
-};
-
 type ProviderModelGroup = {
 	provider: PublicProvider;
 	models: Model[];
