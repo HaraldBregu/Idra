@@ -613,8 +613,9 @@ function HomePage(): ReactElement {
 						className="mx-auto w-full max-w-3xl rounded-2xl border-border/80 bg-card/80 shadow-lg shadow-black/5 backdrop-blur-xl"
 					>
 						<PromptInputTextarea
+							ref={textareaRef}
 							className="min-h-[52px] px-2 pt-2 text-sm"
-							placeholder="Ask Friday anything..."
+							placeholder="Ask Friday anything…"
 						/>
 						<PromptInputActions className="justify-between px-1 pt-2">
 							<PromptInputAction tooltip="Attach file">
