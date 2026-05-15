@@ -274,13 +274,6 @@ const CONNECTOR_SETUP_GROUPS: readonly ConnectorSetupGroup[] = [
 	},
 ];
 
-const HOTKEY_OPTIONS = ['Cmd Shift Space', 'Cmd /', 'Opt Space', 'Fn'] as const;
-const TONE_OPTIONS = ['Low-key', 'Direct', 'Warm', 'Witty'] as const;
-const VOICE_OPTIONS: readonly VoiceOption[] = [
-	{ id: 'wren', name: 'Wren', description: 'warm, low' },
-	{ id: 'iris', name: 'Iris', description: 'crisp, neutral' },
-	{ id: 'juno', name: 'Juno', description: 'bright, brisk' },
-];
 
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
