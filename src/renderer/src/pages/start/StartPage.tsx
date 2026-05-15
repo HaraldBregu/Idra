@@ -254,11 +254,11 @@ function ProviderMark({
 		return (
 			<div
 				className={cn(
-					'flex size-9 shrink-0 items-center justify-center rounded-lg',
+					'flex size-8 shrink-0 items-center justify-center rounded-md',
 					className
 				)}
 			>
-				<div className="size-5 rounded-full border-2 border-current/80" />
+				<div className="size-4 rounded-full border-2 border-current/80" />
 			</div>
 		);
 	}
@@ -266,7 +266,7 @@ function ProviderMark({
 	return (
 		<div
 			className={cn(
-				'flex size-9 shrink-0 items-center justify-center rounded-lg text-base font-semibold',
+				'flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-semibold',
 				className
 			)}
 		>
@@ -277,9 +277,9 @@ function ProviderMark({
 
 function AssistantOrb(): React.JSX.Element {
 	return (
-		<div className="relative flex size-14 items-center justify-center rounded-full bg-violet-600 shadow-xl sm:size-16">
-			<div className="absolute size-8 rounded-full bg-white/20 sm:size-10" />
-			<Sparkles className="relative size-5 text-white sm:size-6" strokeWidth={2.7} />
+		<div className="relative flex size-10 items-center justify-center rounded-full bg-violet-600 shadow-lg sm:size-12">
+			<div className="absolute size-6 rounded-full bg-white/20 sm:size-7" />
+			<Sparkles className="relative size-4 text-white" strokeWidth={2.7} />
 		</div>
 	);
 }
@@ -314,10 +314,10 @@ function FeaturePill({
 }): React.JSX.Element {
 	return (
 		<div className="flex min-w-0 flex-col items-center gap-1.5 text-center">
-			<div className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground sm:size-10">
-				<Icon className="size-4 sm:size-5" strokeWidth={1.9} />
+			<div className="flex size-7 items-center justify-center rounded-md bg-muted text-muted-foreground sm:size-8">
+				<Icon className="size-3.5 sm:size-4" strokeWidth={1.9} />
 			</div>
-			<p className="text-xs font-medium leading-tight text-muted-foreground sm:text-sm">
+			<p className="text-xs font-medium leading-tight text-muted-foreground">
 				{label}
 			</p>
 		</div>
@@ -347,19 +347,19 @@ function StaticModelSelect({
 			<Select value={value} onValueChange={(nextValue) => onValueChange(nextValue ?? '')}>
 				<SelectTrigger
 					id={id}
-					className="!h-16 w-full rounded-xl border-border bg-card px-4 text-left shadow-none"
+					className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
 				>
 					<SelectValue className="sr-only" />
-					<div className="flex min-w-0 items-center gap-3">
+					<div className="flex min-w-0 items-center gap-2.5">
 						<ProviderMark
 							initial={selected.initial}
 							className={selected.swatchClassName}
 						/>
 						<div className="min-w-0">
-							<p className="truncate text-base font-semibold leading-tight text-foreground">
+							<p className="truncate text-sm font-semibold leading-tight text-foreground">
 								{selected.name}
 							</p>
-							<p className="truncate text-sm font-medium text-muted-foreground">
+							<p className="truncate text-xs font-medium text-muted-foreground">
 								{selected.provider} - {selected.description}
 							</p>
 						</div>
@@ -738,16 +738,16 @@ const StartPage: React.FC = () => {
 
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
-			<div className="flex min-h-full flex-col items-center justify-center py-6 text-center sm:py-0">
+			<div className="flex min-h-full flex-col items-center justify-center py-4 text-center sm:py-0">
 				<AssistantOrb />
-				<h1 className="mt-4 text-xl font-bold leading-none tracking-normal text-foreground">
+				<h1 className="mt-3 text-base font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
-				<p className="mt-3 max-w-2xl text-sm font-medium leading-relaxed text-muted-foreground sm:text-base">
+				<p className="mt-2 max-w-lg text-xs font-medium leading-relaxed text-muted-foreground">
 					{PRODUCT_NAME} is a small assistant that lives in your menu bar. Ask her
 					things by typing or just by talking.
 				</p>
-				<div className="mt-6 grid w-full max-w-lg grid-cols-3 gap-3 sm:mt-8">
+				<div className="mt-4 grid w-full max-w-md grid-cols-3 gap-3 sm:mt-5">
 					<FeaturePill icon={MessageSquare} label="Type to ask" />
 					<FeaturePill icon={Mic} label="Hold to speak" />
 					<FeaturePill icon={Lock} label="Stays on your Mac" />
@@ -758,18 +758,18 @@ const StartPage: React.FC = () => {
 
 	function renderPermissionsStep(): React.JSX.Element {
 		return (
-			<div className="mx-auto flex min-h-full w-full max-w-3xl flex-col py-8">
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col py-5">
 				<div>
-					<h1 className="text-xl font-bold tracking-normal text-foreground">
+					<h1 className="text-base font-bold tracking-normal text-foreground">
 						A couple of permissions
 					</h1>
-					<p className="mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
+					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
 						{PRODUCT_NAME} only listens while you are holding the mic. Nothing leaves
 						your Mac without you asking.
 					</p>
 				</div>
 
-				<div className="mt-6 space-y-3">
+				<div className="mt-4 space-y-2">
 					{PERMISSION_ITEMS.map((permission) => {
 						const Icon = permission.icon;
 						const allowed = permissions[permission.id];
@@ -777,32 +777,32 @@ const StartPage: React.FC = () => {
 						return (
 							<Card
 								key={permission.id}
-								className="rounded-xl border-border bg-card py-0 shadow-none"
+								className="rounded-lg border-border bg-card py-0 shadow-none"
 							>
-								<CardContent className="flex min-h-16 flex-col gap-4 p-4 sm:flex-row sm:items-center">
-									<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-										<Icon className="size-5" strokeWidth={2.1} />
+								<CardContent className="flex min-h-12 flex-col gap-3 p-3 sm:flex-row sm:items-center">
+									<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-600">
+										<Icon className="size-4" strokeWidth={2.1} />
 									</div>
 									<div className="min-w-0 flex-1">
-										<h2 className="text-lg font-semibold leading-tight text-foreground">
+										<h2 className="text-sm font-semibold leading-tight text-foreground">
 											{permission.title}
 										</h2>
-										<p className="mt-1 text-sm font-medium leading-tight text-muted-foreground">
+										<p className="mt-0.5 text-xs font-medium leading-tight text-muted-foreground">
 											{permission.description}
 										</p>
 									</div>
 									<div className="flex justify-end">
 										{allowed ? (
-											<Badge className="h-8 rounded-lg bg-violet-50 px-3 text-sm font-semibold text-violet-600 hover:bg-violet-50">
-												<Check className="size-4" />
+											<Badge className="h-6 rounded-md bg-violet-50 px-2 text-xs font-semibold text-violet-600 hover:bg-violet-50">
+												<Check className="size-3" />
 												Allowed
 											</Badge>
 										) : (
 											<Button
 												type="button"
 												variant="outline"
-												size="lg"
-												className="h-9 rounded-lg border-input bg-card px-4 text-sm font-semibold text-foreground"
+												size="xs"
+												className="border-input bg-card text-foreground"
 												onClick={() => {
 													setPermissions((current) => ({
 														...current,
@@ -820,10 +820,10 @@ const StartPage: React.FC = () => {
 					})}
 				</div>
 
-				<div className="mt-auto pt-6">
-					<div className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3 text-muted-foreground">
-						<Lock className="size-5 shrink-0 text-violet-600" />
-						<p className="text-sm font-medium leading-snug">
+				<div className="mt-auto pt-4">
+					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
+						<Lock className="size-4 shrink-0 text-violet-600" />
+						<p className="text-xs font-medium leading-snug">
 							Audio is transcribed on-device. You can change all of this later in
 							Settings.
 						</p>
@@ -835,18 +835,18 @@ const StartPage: React.FC = () => {
 
 	function renderProviderStep(): React.JSX.Element {
 		return (
-			<div className="mx-auto flex min-h-full w-full max-w-3xl flex-col py-8">
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col py-5">
 				<div>
-					<h1 className="text-xl font-bold tracking-normal text-foreground">
+					<h1 className="text-base font-bold tracking-normal text-foreground">
 						Connect a provider
 					</h1>
-					<p className="mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
+					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
 						{PRODUCT_NAME} uses your own API keys. Connect at least one - keys are
 						kept in your macOS Keychain.
 					</p>
 				</div>
 
-				<div className="mt-6 space-y-3">
+				<div className="mt-4 space-y-2">
 					{PROVIDER_CATALOG.map((provider) => {
 						const entry = providerEntries.find((item) => item.providerId === provider.id);
 						const connected = entry?.apiKeySaved ?? false;
@@ -863,7 +863,7 @@ const StartPage: React.FC = () => {
 							<Card
 								key={provider.id}
 								className={cn(
-									'rounded-xl border-border bg-card py-0 shadow-none',
+									'rounded-lg border-border bg-card py-0 shadow-none',
 									editing && 'border-violet-500 ring-2 ring-violet-200',
 									!provider.supported && 'opacity-70'
 								)}
@@ -871,7 +871,7 @@ const StartPage: React.FC = () => {
 								<CardContent className="p-0">
 									<div
 										className={cn(
-											'flex min-h-16 flex-col gap-4 px-4 py-3 sm:flex-row sm:items-center',
+											'flex min-h-12 flex-col gap-3 px-3 py-2.5 sm:flex-row sm:items-center',
 											editing && 'pb-2'
 										)}
 									>
@@ -880,10 +880,10 @@ const StartPage: React.FC = () => {
 											className={provider.swatchClassName}
 										/>
 										<div className="min-w-0 flex-1">
-											<h2 className="truncate text-lg font-semibold leading-tight text-foreground">
+											<h2 className="truncate text-sm font-semibold leading-tight text-foreground">
 												{provider.name}
 											</h2>
-											<p className="truncate text-sm font-medium leading-tight text-muted-foreground">
+											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
 												{connected && entry?.apiKey === MASKED_API_KEY
 													? 'sk-************'
 													: provider.capabilities}
@@ -893,14 +893,14 @@ const StartPage: React.FC = () => {
 											{provider.supported ? (
 												connected && !editing ? (
 													<div className="flex items-center gap-2">
-														<Badge className="h-8 rounded-lg bg-violet-50 px-3 text-sm font-semibold text-violet-600 hover:bg-violet-50">
-															<Check className="size-4" />
+														<Badge className="h-6 rounded-md bg-violet-50 px-2 text-xs font-semibold text-violet-600 hover:bg-violet-50">
+															<Check className="size-3" />
 															Connected
 														</Badge>
 														<Button
 															type="button"
 															variant="ghost"
-															size="icon-sm"
+															size="icon-xs"
 															className="text-muted-foreground"
 															aria-label={`Edit ${provider.name} API key`}
 															onClick={() => {
@@ -910,15 +910,15 @@ const StartPage: React.FC = () => {
 																});
 															}}
 														>
-															<Pencil className="size-4" />
+															<Pencil className="size-3.5" />
 														</Button>
 													</div>
 												) : editing ? null : (
 													<Button
 														type="button"
 														variant="outline"
-														size="lg"
-														className="h-9 rounded-lg border-input bg-card px-4 text-sm font-semibold text-foreground"
+														size="xs"
+														className="border-input bg-card text-foreground"
 														onClick={() => {
 															updateProviderEntry(provider.id, { editing: true });
 														}}
@@ -930,8 +930,8 @@ const StartPage: React.FC = () => {
 												<Button
 													type="button"
 													variant="outline"
-													size="lg"
-													className="h-9 rounded-lg border-input bg-card px-4 text-sm font-semibold text-muted-foreground"
+													size="xs"
+													className="border-input bg-card text-muted-foreground"
 													disabled
 												>
 													Soon
@@ -941,10 +941,10 @@ const StartPage: React.FC = () => {
 									</div>
 
 									{provider.supported && editing && entry ? (
-										<div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row">
+										<div className="flex flex-col gap-2 px-3 pb-3 sm:flex-row">
 											<Input
 												autoComplete="off"
-												className="h-10 flex-1 rounded-lg border-input bg-card px-3 text-sm font-semibold placeholder:text-muted-foreground"
+												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
 												disabled={savingThisProvider}
 												onChange={(event) => {
 													handleProviderApiKeyChange(provider.id, event.target.value);
@@ -957,8 +957,8 @@ const StartPage: React.FC = () => {
 											<Button
 												type="button"
 												variant="outline"
-												size="lg"
-												className="h-10 rounded-lg border-input bg-card px-4 text-sm font-semibold text-foreground"
+												size="sm"
+												className="border-input bg-card text-foreground"
 												disabled={savingThisProvider}
 												onClick={() => {
 													updateProviderEntry(provider.id, {
@@ -971,15 +971,15 @@ const StartPage: React.FC = () => {
 											</Button>
 											<Button
 												type="button"
-												size="lg"
-												className="h-10 rounded-lg bg-violet-600 px-4 text-sm font-semibold text-white hover:bg-violet-700"
+												size="sm"
+												className="bg-violet-600 text-white hover:bg-violet-700"
 												disabled={!canSaveProvider}
 												onClick={() => {
 													void saveProviderEntry(provider.id);
 												}}
 											>
 												{savingThisProvider ? (
-													<LoaderCircle className="size-4 animate-spin" />
+													<LoaderCircle className="size-3.5 animate-spin" />
 												) : null}
 												Save
 											</Button>
@@ -991,10 +991,10 @@ const StartPage: React.FC = () => {
 					})}
 				</div>
 
-				<div className="mt-auto pt-6">
-					<div className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3 text-muted-foreground">
-						<KeyRound className="size-5 shrink-0 text-violet-600" />
-						<p className="text-sm font-medium leading-snug">
+				<div className="mt-auto pt-4">
+					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
+						<KeyRound className="size-4 shrink-0 text-violet-600" />
+						<p className="text-xs font-medium leading-snug">
 							Keys are encrypted in Keychain and never sent to us. You can revoke any
 							provider anytime.
 						</p>
@@ -1009,18 +1009,18 @@ const StartPage: React.FC = () => {
 		const openAiConnected = connectedProviderIds.has('openai');
 
 		return (
-			<div className="mx-auto w-full max-w-3xl py-8">
+			<div className="mx-auto w-full max-w-2xl py-5">
 				<div>
-					<h1 className="text-xl font-bold tracking-normal text-foreground">
+					<h1 className="text-base font-bold tracking-normal text-foreground">
 						Choose your models
 					</h1>
-					<p className="mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
+					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
 						Pick a model for each role. Only models from providers you connected
 						appear.
 					</p>
 				</div>
 
-				<div className="mt-6 space-y-5">
+				<div className="mt-4 space-y-4">
 					<div className="space-y-2">
 						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 							Assistant
@@ -1032,19 +1032,19 @@ const StartPage: React.FC = () => {
 						>
 							<SelectTrigger
 								id="assistant-provider"
-								className="!h-16 w-full rounded-xl border-border bg-card px-4 text-left shadow-none"
+								className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
 							>
 								<SelectValue className="sr-only" />
-								<div className="flex min-w-0 items-center gap-3">
+								<div className="flex min-w-0 items-center gap-2.5">
 									<ProviderMark
 										initial={selectedCatalog.initial}
 										className={selectedCatalog.swatchClassName}
 									/>
 									<div className="min-w-0">
-										<p className="truncate text-base font-semibold leading-tight text-foreground">
+										<p className="truncate text-sm font-semibold leading-tight text-foreground">
 											{selectedModelName || modelCountLabel}
 										</p>
-										<p className="truncate text-sm font-medium text-muted-foreground">
+										<p className="truncate text-xs font-medium text-muted-foreground">
 											{configProviderName || 'No provider'} - The brain that answers your
 											questions
 										</p>
@@ -1070,7 +1070,7 @@ const StartPage: React.FC = () => {
 						>
 							<SelectTrigger
 								id="assistant-model"
-								className="!h-10 w-full rounded-xl border-border bg-card px-4 text-sm font-semibold text-foreground"
+								className="!h-8 w-full rounded-lg border-border bg-card px-3 text-xs font-semibold text-foreground"
 							>
 								<SelectValue>
 									{selectedModelName ||
@@ -1096,10 +1096,10 @@ const StartPage: React.FC = () => {
 							onValueChange={setSelectedSpeechModel}
 						/>
 					) : (
-						<Card className="rounded-2xl border-dashed border-border bg-card/70 py-0 shadow-none">
-							<CardContent className="flex min-h-16 items-center gap-3 p-4 text-muted-foreground">
-								<Mic className="size-5 shrink-0" />
-								<p className="text-sm font-medium">
+						<Card className="rounded-lg border-dashed border-border bg-card/70 py-0 shadow-none">
+							<CardContent className="flex min-h-12 items-center gap-2 p-3 text-muted-foreground">
+								<Mic className="size-4 shrink-0" />
+								<p className="text-xs font-medium">
 									Connect OpenAI to choose a speech-to-text model.
 								</p>
 							</CardContent>
@@ -1120,17 +1120,17 @@ const StartPage: React.FC = () => {
 
 	function renderFinishStep(): React.JSX.Element {
 		return (
-			<div className="mx-auto w-full max-w-3xl py-8">
+			<div className="mx-auto w-full max-w-2xl py-5">
 				<div>
-					<h1 className="text-xl font-bold tracking-normal text-foreground">
+					<h1 className="text-base font-bold tracking-normal text-foreground">
 						Almost done
 					</h1>
-					<p className="mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
+					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
 						A hotkey and a personality. You can change all of this later.
 					</p>
 				</div>
 
-				<div className="mt-6 space-y-6">
+				<div className="mt-4 space-y-4">
 					<div className="space-y-2">
 						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 							Hotkey
@@ -1141,9 +1141,8 @@ const StartPage: React.FC = () => {
 									key={hotkey}
 									type="button"
 									variant={selectedHotkey === hotkey ? 'default' : 'outline'}
-									size="lg"
+									size="xs"
 									className={cn(
-										'h-10 rounded-xl px-4 text-sm font-semibold',
 										selectedHotkey === hotkey
 											? 'border-blue-600 bg-violet-50 text-foreground ring-2 ring-blue-200 hover:bg-violet-50'
 											: 'border-input bg-card text-foreground hover:bg-card'
@@ -1160,7 +1159,7 @@ const StartPage: React.FC = () => {
 						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 							Voice
 						</Label>
-						<div className="grid gap-3 md:grid-cols-3">
+						<div className="grid gap-2 md:grid-cols-3">
 							{VOICE_OPTIONS.map((voice) => {
 								const selected = selectedVoice === voice.id;
 
@@ -1170,7 +1169,7 @@ const StartPage: React.FC = () => {
 										type="button"
 										variant="outline"
 										className={cn(
-											'h-32 flex-col rounded-xl border-border bg-card p-4 text-center hover:bg-card',
+											'h-24 flex-col rounded-lg border-border bg-card p-3 text-center hover:bg-card',
 											selected &&
 												'border-violet-500 bg-violet-50 text-foreground hover:bg-violet-50'
 										)}
@@ -1178,16 +1177,16 @@ const StartPage: React.FC = () => {
 									>
 										<div
 											className={cn(
-												'flex size-12 items-center justify-center rounded-full bg-muted text-violet-600',
+												'flex size-8 items-center justify-center rounded-full bg-muted text-violet-600',
 												selected && 'bg-violet-600 text-white'
 											)}
 										>
-											<AudioWaveform className="size-5" />
+											<AudioWaveform className="size-4" />
 										</div>
-										<span className="mt-3 text-lg font-bold leading-tight">
+										<span className="mt-2 text-sm font-bold leading-tight">
 											{voice.name}
 										</span>
-										<span className="mt-1 text-sm font-medium leading-tight text-muted-foreground">
+										<span className="mt-1 text-xs font-medium leading-tight text-muted-foreground">
 											{voice.description}
 										</span>
 									</Button>
@@ -1206,12 +1205,11 @@ const StartPage: React.FC = () => {
 									key={tone}
 									type="button"
 									variant={selectedTone === tone ? 'default' : 'outline'}
-									size="lg"
+									size="xs"
 									className={cn(
-										'h-10 rounded-full px-4 text-sm font-semibold',
 										selectedTone === tone
-											? 'bg-violet-600 text-white hover:bg-violet-700'
-											: 'border-input bg-card text-foreground hover:bg-card'
+											? 'rounded-full bg-violet-600 text-white hover:bg-violet-700'
+											: 'rounded-full border-input bg-card text-foreground hover:bg-card'
 									)}
 									onClick={() => setSelectedTone(tone)}
 								>
@@ -1221,13 +1219,13 @@ const StartPage: React.FC = () => {
 						</div>
 					</div>
 
-					<Card className="rounded-xl border-border bg-card py-0 shadow-none">
-						<CardContent className="flex min-h-16 items-center gap-4 p-4">
+					<Card className="rounded-lg border-border bg-card py-0 shadow-none">
+						<CardContent className="flex min-h-12 items-center gap-3 p-3">
 							<div className="min-w-0 flex-1">
-								<h2 className="text-lg font-semibold leading-tight text-foreground">
+								<h2 className="text-sm font-semibold leading-tight text-foreground">
 									Open {PRODUCT_NAME} when I log in
 								</h2>
-								<p className="mt-1 truncate text-sm font-medium leading-tight text-muted-foreground">
+								<p className="mt-0.5 truncate text-xs font-medium leading-tight text-muted-foreground">
 									Lives in the menu bar; invisible until you summon her
 								</p>
 							</div>
@@ -1254,45 +1252,45 @@ const StartPage: React.FC = () => {
 
 	return (
 		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			<header className="relative flex h-12 shrink-0 items-center justify-center border-b border-border bg-card/50 px-4 sm:h-14 sm:px-6">
-				<h1 className="text-sm font-semibold text-muted-foreground sm:text-base">
+			<header className="relative flex h-10 shrink-0 items-center justify-center border-b border-border bg-card/50 px-3 sm:h-11 sm:px-5">
+				<h1 className="text-xs font-semibold text-muted-foreground">
 					Set up {PRODUCT_NAME}
 				</h1>
 				<Button
 					type="button"
 					variant="ghost"
-					size="lg"
-					className="absolute right-4 h-8 rounded-lg px-3 text-sm font-semibold text-muted-foreground hover:bg-muted sm:right-6"
+					size="xs"
+					className="absolute right-3 text-muted-foreground hover:bg-muted sm:right-5"
 					onClick={handleSkip}
 				>
 					Skip
 				</Button>
 			</header>
 
-			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-4 sm:px-6">
+			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-3 sm:px-5">
 				{renderStepContent()}
 				{errorMessage ? (
-					<div className="mx-auto mb-6 flex max-w-3xl items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-destructive">
-						<AlertCircle className="mt-0.5 size-4 shrink-0" />
-						<p className="min-w-0 break-words text-sm font-medium leading-5">{errorMessage}</p>
+					<div className="mx-auto mb-4 flex max-w-2xl items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-destructive">
+						<AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+						<p className="min-w-0 break-words text-xs font-medium leading-4">{errorMessage}</p>
 					</div>
 				) : null}
 			</section>
 
-			<footer className="flex min-h-20 shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border bg-card/60 px-4 py-2 sm:px-6">
-				<div className="flex min-w-0 flex-wrap items-center gap-3 sm:gap-5">
+			<footer className="flex min-h-14 shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border bg-card/60 px-3 py-2 sm:px-5">
+				<div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
 					<StepProgress currentIndex={stepIndex} />
-					<p className="truncate text-sm font-semibold text-muted-foreground sm:text-base">
+					<p className="truncate text-xs font-semibold text-muted-foreground">
 						Step {stepNumber} of {SETUP_STEPS.length} - {STEP_TITLES[step]}
 					</p>
 				</div>
-				<div className="flex items-center gap-2 sm:gap-3">
+				<div className="flex items-center gap-2">
 					{step !== 'welcome' ? (
 						<Button
 							type="button"
 							variant="outline"
-							size="lg"
-							className="h-9 rounded-lg border-input bg-card px-4 text-sm font-semibold text-foreground"
+							size="xs"
+							className="border-input bg-card text-foreground"
 							disabled={isBusy}
 							onClick={handleBack}
 						>
@@ -1301,17 +1299,17 @@ const StartPage: React.FC = () => {
 					) : null}
 					<Button
 						type="button"
-						size="lg"
-						className="h-9 rounded-lg bg-violet-600 px-5 text-sm font-semibold text-white hover:bg-violet-700"
+						size="sm"
+						className="bg-violet-600 text-white hover:bg-violet-700"
 						disabled={isPrimaryDisabled()}
 						onClick={handlePrimaryAction}
 					>
 						{savingProviderId !== null || savingConfig ? (
-							<LoaderCircle className="size-4 animate-spin" />
+							<LoaderCircle className="size-3.5 animate-spin" />
 						) : step === 'finish' ? (
-							<Bot className="size-4" />
+							<Bot className="size-3.5" />
 						) : (
-							<ArrowRight className="size-4" />
+							<ArrowRight className="size-3.5" />
 						)}
 						{getPrimaryLabel()}
 					</Button>
