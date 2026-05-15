@@ -7,7 +7,6 @@ import {
 	X,
 	ArrowLeft,
 	ArrowRight,
-	Settings,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -114,17 +113,6 @@ export const TitleBar = React.memo(function TitleBar({
 					</button>
 				)}
 
-				{!isStart && !isHome && (
-					<button
-						type="button"
-						onClick={() => navigate('/settings')}
-						className={cn('ml-2', isMac ? leftButtonClass : leftButtonNoHoverClass)}
-						title={t('settings.title', 'Settings')}
-					>
-						<Settings className="h-[15px] w-[15px]" strokeWidth={1.5} />
-					</button>
-				)}
-
 				{!isHome && !isStart && (
 					<Button
 						type="button"
@@ -181,15 +169,17 @@ export const TitleBar = React.memo(function TitleBar({
 			{/* ── Spacer (pushes right buttons to the right) ── */}
 			<div className="flex-1" />
 
-			{isHome && (
+			{!isStart && (
 				<div
 					className="z-10 mr-5 flex h-full items-center"
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
 					<button
 						type="button"
+						onClick={() => navigate('/settings')}
 						className="flex size-8 items-center justify-center rounded-full bg-[#8377df] text-xs font-bold text-white shadow-[0_6px_20px_rgba(73,61,161,0.28)] transition hover:bg-[#7569d3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8377df] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-						aria-label="Account menu"
+						aria-label={t('settings.title', 'Settings')}
+						title={t('settings.title', 'Settings')}
 					>
 						AR
 					</button>
