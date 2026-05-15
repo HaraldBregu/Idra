@@ -7,7 +7,6 @@ import {
 	useNavigate,
 	type RouteObject,
 } from 'react-router-dom';
-import { MessageSquare, Mic } from 'lucide-react';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
@@ -17,7 +16,6 @@ import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
 import { Button } from './components/ui/button';
-import { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
