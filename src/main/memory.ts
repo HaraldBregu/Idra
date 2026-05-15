@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
+import { resolveDefaultUserDataPath } from './user-data';
 
 const TEMPLATE_FILES = ['AGENTS.md', 'BOOTSTRAP.md', 'HEARTBEAT.md', 'MEMORY.md', 'SOUL.md', 'USER.md'];
 
@@ -15,16 +15,21 @@ const TEMPLATES: Record<string, string> = Object.fromEntries(
 	).map(([p, content]) => [path.basename(p), content])
 );
 
+export interface MemoryManagerOptions {
+	baseDir?: string;
+}
+
 /**
- * Per-assistant markdown memory. Lives in userData/assistant/workspaces/<id>/.
+ * Per-assistant markdown memory. Lives in .friday/assistant/workspaces/<id>/.
  * Templates are bundled into the main process build and seeded on first init;
  * BOOTSTRAP.md is re-seeded only when the workspace is fresh (no SOUL.md yet).
  */
 export class MemoryManager {
 	readonly workspace: string;
 
-	constructor(assistantId: string) {
-		this.workspace = path.join(app.getPath('userData'), 'assistant', 'workspaces', assistantId);
+	constructor(assistantId: string, options: MemoryManagerOptions = {}) {
+		const baseDir = options.baseDir ?? resolveDefaultUserDataPath('assistant', 'workspaces');
+		this.workspace = path.join(baseDir, assistantId);
 		console.log(`MemoryManager initialized with workspace: ${this.workspace}`);
 	}
 

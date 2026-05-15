@@ -4,6 +4,7 @@
  */
 const app = {
 	getPath: jest.fn((name: string) => `/tmp/friday-test/${name}`),
+	getAppPath: jest.fn(() => '/tmp/friday-test/friday'),
 	getVersion: jest.fn(() => '1.0.0'),
 	getName: jest.fn(() => 'Friday'),
 };

@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
 import type { TranscriptEntry } from '../provider/types';
 import type { PlanEntry } from '../tools/types';
+import { resolveDefaultUserDataPath } from '../user-data';
 import { acquireWriteLock } from './lock';
 import { sanitizeToolUseResultPairing } from './repair';
 
@@ -28,7 +28,7 @@ export interface SessionStoreOptions {
 }
 
 function defaultBaseDir(): string {
-	return path.join(app.getPath('userData'), 'assistant', 'sessions');
+	return resolveDefaultUserDataPath('assistant', 'sessions');
 }
 
 function sessionPath(baseDir: string, id: string): string {

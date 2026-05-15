@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
+import { resolveDefaultUserDataPath } from './user-data';
 
 export interface RunLogStart {
 	runId: string;
@@ -106,7 +106,7 @@ export interface RunLoggerOptions {
 
 /**
  * Append-only JSONL audit trail of every assistant run.
- * One file per assistant id under `<userData>/assistant/runs/<id>.jsonl`.
+ * One file per assistant id under `.friday/assistant/runs/<id>.jsonl`.
  * Each line is a typed RunLogRecord — start, iteration, tool_call,
  * approval_request, approval_resolution, finish.
  */
@@ -115,8 +115,8 @@ export class AssistantRunLogger {
 	private writeQueue: Promise<void> = Promise.resolve();
 
 	constructor(assistantId: string, opts: RunLoggerOptions = {}) {
-		const base = opts.baseDir ?? path.join(app.getPath('userData'), 'assistant', 'runs');
-		this.filePath = path.join(base, `${assistantId}.jsonl`);
+		const baseDir = opts.baseDir ?? resolveDefaultUserDataPath('assistant', 'runs');
+		this.filePath = path.join(baseDir, `${assistantId}.jsonl`);
 	}
 
 	private async ensureDir(): Promise<void> {

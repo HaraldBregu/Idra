@@ -1,8 +1,8 @@
-import { app } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import type { LoggerService } from '../logger';
+import { resolveDefaultUserDataPath } from '../user-data';
 import type { ReadFileOptions, WorkspaceServiceOptions, WriteFileOptions } from './types';
 
 export class WorkspaceService {
@@ -14,7 +14,8 @@ export class WorkspaceService {
 	) {
 		this.rootPath =
 			options.rootPath ??
-			path.join(app.getPath('home'), options.workspaceName ?? `${app.getName()}`);
+			options.userDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
+			resolveDefaultUserDataPath(options.workspaceName ?? 'workspace');
 	}
 
 	getRootPath(): string {
