@@ -33,15 +33,6 @@ function webFetchTool(): AgentTool {
 	};
 }
 
-function findTool(): AgentTool {
-	return {
-		name: 'find',
-		description: 'Find',
-		schema: { type: 'object' },
-		execute: jest.fn(async () => textResult('src/main/service.ts\nsrc/main/skills/index.ts')),
-	};
-}
-
 function basicSkill(
 	id: string,
 	execute: (input: Record<string, unknown>, context: SkillExecutionContext) => Promise<ReturnType<SkillExecutionContext['complete']>>,

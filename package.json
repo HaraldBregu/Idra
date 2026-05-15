@@ -24,6 +24,7 @@
 		"build:dev": "cross-env NODE_ENV=development yarn typecheck && electron-vite build --mode development",
 		"build:staging": "cross-env NODE_ENV=staging yarn typecheck && electron-vite build --mode staging",
 		"lint": "eslint .",
+		"quality:check": "yarn typecheck && yarn lint && yarn test:main && yarn test:renderer",
 		"dist:win": "cross-env NODE_ENV=production yarn build && electron-builder --win --x64",
 		"dist:win:dev": "cross-env NODE_ENV=development yarn build:dev && electron-builder --win --x64 && node scripts/package-build.cjs windows dev",
 		"dist:win:staging": "cross-env NODE_ENV=staging yarn build:staging && electron-builder --win --x64 && node scripts/package-build.cjs windows stg",
