@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
 	AlertCircle,
 	ArrowRight,
-	ChevronLeft,
-	Image as ImageIcon,
-	Plus,
+	AudioWaveform,
+	Bot,
+	Check,
+	Eye,
+	Hand,
+	KeyRound,
 	LoaderCircle,
-	Trash2,
+	Lock,
+	MessageSquare,
+	Mic,
+	Pencil,
+	Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,10 +22,11 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import type { Model } from '../../../../shared/service';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import {
 	Select,
 	SelectContent,
@@ -26,6 +34,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
 type ProviderOption = {
 	label: string;
@@ -33,15 +43,166 @@ type ProviderOption = {
 };
 
 type ProviderSetupEntry = {
-	id: number;
 	providerId: string;
 	apiKey: string;
 	apiKeySaved: boolean;
+	editing: boolean;
 };
 
-type SetupStep = 'api-key' | 'model' | 'image-model';
+type SetupStep = 'welcome' | 'permissions' | 'providers' | 'models' | 'finish';
 
-const SETUP_STEPS: readonly SetupStep[] = ['api-key', 'model', 'image-model'];
+type PermissionId = 'microphone' | 'screen' | 'accessibility';
+
+type ProviderCatalogItem = {
+	id: string;
+	name: string;
+	capabilities: string;
+	initial: string;
+	swatchClassName: string;
+	supported: boolean;
+};
+
+type StaticModelOption = {
+	id: string;
+	name: string;
+	provider: string;
+	description: string;
+	initial: string;
+	swatchClassName: string;
+};
+
+type VoiceOption = {
+	id: string;
+	name: string;
+	description: string;
+};
+
+const PRODUCT_NAME = 'Mira';
+const MASKED_API_KEY = '********' as const;
+const SETUP_STEPS: readonly SetupStep[] = [
+	'welcome',
+	'permissions',
+	'providers',
+	'models',
+	'finish',
+];
+
+const STEP_TITLES: Record<SetupStep, string> = {
+	welcome: 'Welcome',
+	permissions: 'Permissions',
+	providers: 'Providers',
+	models: 'Models',
+	finish: 'Finish',
+};
+
+const PERMISSION_ITEMS: readonly {
+	id: PermissionId;
+	title: string;
+	description: string;
+	icon: typeof Mic;
+	required?: boolean;
+}[] = [
+	{
+		id: 'microphone',
+		title: 'Microphone',
+		description: `So you can talk to ${PRODUCT_NAME}`,
+		icon: Mic,
+		required: true,
+	},
+	{
+		id: 'screen',
+		title: 'Screen reading',
+		description: "To answer about what's on screen (optional)",
+		icon: Eye,
+	},
+	{
+		id: 'accessibility',
+		title: 'Accessibility',
+		description: 'To act on apps when you ask (optional)',
+		icon: Hand,
+	},
+];
+
+const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
+	{
+		id: 'anthropic',
+		name: 'Anthropic',
+		capabilities: 'Chat',
+		initial: 'A',
+		swatchClassName: 'bg-[#cc5c50] text-white',
+		supported: true,
+	},
+	{
+		id: 'openai',
+		name: 'OpenAI',
+		capabilities: 'Chat - Speech-to-text - Text-to-speech',
+		initial: 'O',
+		swatchClassName: 'bg-[#009d73] text-white',
+		supported: true,
+	},
+	{
+		id: 'google',
+		name: 'Google',
+		capabilities: 'Chat - Speech-to-text',
+		initial: 'G',
+		swatchClassName: 'bg-[#3c96e8] text-white',
+		supported: false,
+	},
+	{
+		id: 'elevenlabs',
+		name: 'ElevenLabs',
+		capabilities: 'Text-to-speech - Speech-to-text',
+		initial: 'E',
+		swatchClassName: 'bg-[#c747ad] text-white',
+		supported: false,
+	},
+	{
+		id: 'groq',
+		name: 'Groq',
+		capabilities: 'Chat - Speech-to-text',
+		initial: 'Q',
+		swatchClassName: 'bg-[#f04d2e] text-white',
+		supported: false,
+	},
+	{
+		id: 'ollama',
+		name: 'Local - Ollama',
+		capabilities: 'auto',
+		initial: '',
+		swatchClassName: 'bg-[#657e97] text-white',
+		supported: false,
+	},
+];
+
+const SPEECH_MODELS: readonly StaticModelOption[] = [
+	{
+		id: 'whisper-large-v3',
+		name: 'Whisper Large v3',
+		provider: 'OpenAI',
+		description: 'Transcribes you when you talk',
+		initial: 'O',
+		swatchClassName: 'bg-[#009d73] text-white',
+	},
+];
+
+const TTS_MODELS: readonly StaticModelOption[] = [
+	{
+		id: 'rachel-multilingual',
+		name: 'Rachel - multilingual',
+		provider: 'ElevenLabs',
+		description: `${PRODUCT_NAME} speaks with this voice`,
+		initial: 'E',
+		swatchClassName: 'bg-[#c747ad] text-white',
+	},
+];
+
+const HOTKEY_OPTIONS = ['Cmd Shift Space', 'Cmd /', 'Opt Space', 'Fn'] as const;
+const TONE_OPTIONS = ['Low-key', 'Direct', 'Warm', 'Witty'] as const;
+const VOICE_OPTIONS: readonly VoiceOption[] = [
+	{ id: 'wren', name: 'Wren', description: 'warm, low' },
+	{ id: 'iris', name: 'Iris', description: 'crisp, neutral' },
+	{ id: 'juno', name: 'Juno', description: 'bright, brisk' },
+];
 
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
@@ -56,8 +217,10 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 	normalizeProvider(provider, index)
 );
-
-const MASKED_API_KEY = '********' as const;
+const supportedProviderIds = new Set(providerOptions.map((provider) => provider.value));
+const actionableProviderCatalog = PROVIDER_CATALOG.filter((provider) =>
+	supportedProviderIds.has(provider.id)
+);
 
 function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
@@ -67,149 +230,248 @@ function getErrorMessage(error: unknown, fallback: string): string {
 	return fallback;
 }
 
+function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
+	return (
+		PROVIDER_CATALOG.find((provider) => provider.id === providerId) ?? {
+			id: providerId,
+			name: providerOptions.find((provider) => provider.value === providerId)?.label ?? providerId,
+			capabilities: 'Chat',
+			initial: providerId.slice(0, 1).toUpperCase(),
+			swatchClassName: 'bg-muted text-muted-foreground',
+			supported: supportedProviderIds.has(providerId),
+		}
+	);
+}
+
+function ProviderMark({
+	initial,
+	className,
+}: {
+	readonly initial: string;
+	readonly className: string;
+}): React.JSX.Element {
+	if (!initial) {
+		return (
+			<div
+				className={cn(
+					'flex size-12 shrink-0 items-center justify-center rounded-xl',
+					className
+				)}
+			>
+				<div className="size-7 rounded-full border-2 border-current/80" />
+			</div>
+		);
+	}
+
+	return (
+		<div
+			className={cn(
+				'flex size-12 shrink-0 items-center justify-center rounded-xl text-xl font-semibold',
+				className
+			)}
+		>
+			{initial}
+		</div>
+	);
+}
+
+function AssistantOrb(): React.JSX.Element {
+	return (
+		<div className="relative flex size-24 items-center justify-center rounded-full bg-[#8076dc] shadow-[0_24px_60px_rgba(99,87,203,0.26)] sm:size-36">
+			<div className="absolute size-16 rounded-full bg-white/16 sm:size-24" />
+			<Sparkles className="relative size-8 text-white sm:size-12" strokeWidth={2.7} />
+		</div>
+	);
+}
+
+function StepProgress({ currentIndex }: { readonly currentIndex: number }): React.JSX.Element {
+	return (
+		<div
+			className="flex items-center gap-2"
+			aria-label={`Step ${currentIndex + 1} of ${SETUP_STEPS.length}`}
+		>
+			{SETUP_STEPS.map((setupStep, index) => (
+				<span
+					key={setupStep}
+					className={cn(
+						'h-2.5 rounded-full transition-all',
+						index === currentIndex ? 'w-9 bg-[#8278df]' : 'w-2.5',
+						index < currentIndex ? 'bg-[#8278df]' : 'bg-[#d6d7dc]',
+						index > currentIndex ? 'bg-[#d6d7dc]' : undefined
+					)}
+				/>
+			))}
+		</div>
+	);
+}
+
+function FeaturePill({
+	icon: Icon,
+	label,
+}: {
+	readonly icon: typeof MessageSquare;
+	readonly label: string;
+}): React.JSX.Element {
+	return (
+		<div className="flex min-w-0 flex-col items-center gap-2 text-center sm:gap-3">
+			<div className="flex size-12 items-center justify-center rounded-xl bg-[#edecf0] text-[#74747d] sm:size-[68px] sm:rounded-2xl">
+				<Icon className="size-6 sm:size-8" strokeWidth={1.9} />
+			</div>
+			<p className="text-sm font-medium leading-tight text-[#73737c] sm:text-xl">{label}</p>
+		</div>
+	);
+}
+
+function StaticModelSelect({
+	id,
+	label,
+	value,
+	options,
+	onValueChange,
+}: {
+	readonly id: string;
+	readonly label: string;
+	readonly value: string;
+	readonly options: readonly StaticModelOption[];
+	readonly onValueChange: (value: string) => void;
+}): React.JSX.Element {
+	const selected = options.find((option) => option.id === value) ?? options[0];
+
+	return (
+		<div className="space-y-3">
+			<Label className="text-base font-bold uppercase tracking-[0.08em] text-[#85858e]">
+				{label}
+			</Label>
+			<Select value={value} onValueChange={(nextValue) => onValueChange(nextValue ?? '')}>
+				<SelectTrigger
+					id={id}
+					className="!h-[86px] w-full rounded-2xl border-[#e5e3e8] bg-white px-7 text-left shadow-none"
+				>
+					<SelectValue className="sr-only" />
+					<div className="flex min-w-0 items-center gap-5">
+						<ProviderMark
+							initial={selected.initial}
+							className={selected.swatchClassName}
+						/>
+						<div className="min-w-0">
+							<p className="truncate text-2xl font-semibold leading-tight text-[#202129]">
+								{selected.name}
+							</p>
+							<p className="truncate text-lg font-medium text-[#85858e]">
+								{selected.provider} - {selected.description}
+							</p>
+						</div>
+					</div>
+				</SelectTrigger>
+				<SelectContent>
+					{options.map((option) => (
+						<SelectItem key={option.id} value={option.id}>
+							{option.name}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
+	);
+}
+
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
-	const [step, setStep] = useState<SetupStep>('api-key');
-	const [nextProviderEntryId, setNextProviderEntryId] = useState(2);
-	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() => [
-		{
-			id: 1,
-			providerId: providerOptions[0]?.value ?? '',
+	const [step, setStep] = useState<SetupStep>('welcome');
+	const [permissions, setPermissions] = useState<Record<PermissionId, boolean>>({
+		microphone: true,
+		screen: false,
+		accessibility: false,
+	});
+	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
+		actionableProviderCatalog.map((provider, index) => ({
+			providerId: provider.id,
 			apiKey: '',
 			apiKeySaved: false,
-		},
-	]);
+			editing: index === 0,
+		}))
+	);
+	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [configProvider, setConfigProvider] = useState('');
 	const [savedModelId, setSavedModelId] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
-	const [imageProvider, setImageProvider] = useState('');
-	const [savedImageModelId, setSavedImageModelId] = useState('');
-	const [imageModels, setImageModels] = useState<Model[]>([]);
-	const [selectedImageModel, setSelectedImageModel] = useState('');
-	const [loadingImageModels, setLoadingImageModels] = useState(false);
-	const [savingApiKey, setSavingApiKey] = useState(false);
+	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
+	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
+	const [selectedHotkey, setSelectedHotkey] = useState<(typeof HOTKEY_OPTIONS)[number]>(
+		HOTKEY_OPTIONS[0]
+	);
+	const [selectedVoice, setSelectedVoice] = useState('juno');
+	const [selectedTone, setSelectedTone] = useState<(typeof TONE_OPTIONS)[number]>('Witty');
+	const [openAtLogin, setOpenAtLogin] = useState(true);
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
-	const controlHeightClass = 'h-8';
+
 	const stepIndex = SETUP_STEPS.indexOf(step);
 	const stepNumber = stepIndex + 1;
-	const isModelStep = step === 'model';
-	const isImageModelStep = step === 'image-model';
-
-	const canContinue =
-		providerEntries.length > 0 &&
-		providerEntries.every(
-			(entry) => entry.providerId.length > 0 && (entry.apiKeySaved || entry.apiKey.trim().length > 0)
-		) &&
-		!savingApiKey;
-	const canSaveAssistantModel =
-		configProvider.length > 0 && selectedModel.length > 0 && !savingConfig;
-	const canSaveImageModel =
-		imageProvider.length > 0 && selectedImageModel.length > 0 && !savingConfig;
-	const getProviderLabel = (providerId: string): string => {
-		return providerOptions.find((provider) => provider.value === providerId)?.label ?? providerId;
-	};
-	const canAddProvider = providerEntries.length < providerOptions.length;
-	const configProviderName =
-		providers.find((provider) => provider.id === configProvider)?.name ?? configProvider;
+	const hasProviderDraft = providerEntries.some(
+		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
+	);
+	const canContinueProviders = hasProviderDraft && !savingProviderId;
+	const selectedProvider = providers.find((provider) => provider.id === configProvider);
+	const configProviderName = selectedProvider?.name ?? configProvider;
+	const selectedModelName = models.find((model) => model.id === selectedModel)?.name ?? selectedModel;
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
 		: models.length === 0
 			? 'No models available'
 			: `${models.length} models available`;
-	const selectedModelName =
-		models.find((model) => model.id === selectedModel)?.name ?? selectedModel;
-	const imageProviderName =
-		providers.find((provider) => provider.id === imageProvider)?.name ?? imageProvider;
-	const imageModelCountLabel = loadingImageModels
-		? 'Loading image models...'
-		: imageModels.length === 0
-			? 'No image models available'
-			: `${imageModels.length} image models available`;
-	const selectedImageModelName =
-		imageModels.find((model) => model.id === selectedImageModel)?.name ?? selectedImageModel;
-	const connectedProviderCount = providerEntries.filter((entry) => entry.apiKeySaved).length;
-	const formTitle = isModelStep
-		? 'Choose the default model'
-		: isImageModelStep
-			? 'Choose the image model'
-			: 'Connect your providers';
-	const formDescription =
-		isModelStep
-			? 'Pick the model Friday uses when a new assistant run starts, or skip this step.'
-			: isImageModelStep
-				? 'Pick the model Friday uses for image generation, or skip this step.'
-				: 'Save access for the providers Friday should use.';
-	const providerSummary = providerEntries.map((entry) => getProviderLabel(entry.providerId)).join(', ');
-	const providerSelectionKey = providerEntries.map((entry) => entry.providerId).join(',');
-	const setupStatus =
-		isModelStep
-			? selectedModelName
-				? `${configProviderName} - ${selectedModelName}`
-				: modelCountLabel
-			: isImageModelStep
-				? selectedImageModelName
-					? `${imageProviderName} - ${selectedImageModelName}`
-					: imageModelCountLabel
-				: `${providerSummary || 'No providers'} (${connectedProviderCount}/${providerEntries.length} configured)`;
-
-	const getAvailableProviderOptions = (entryId: number): ProviderOption[] => {
-		return providerOptions.filter((providerOption) => {
-			const isUsedByOther = providerEntries.some(
-				(entry) => entry.id !== entryId && entry.providerId === providerOption.value
-			);
-
-			return !isUsedByOther;
-		});
-	};
+	const canSaveAssistantModel =
+		configProvider.length > 0 &&
+		selectedModel.length > 0 &&
+		!loadingModels &&
+		!savingConfig;
+	const isBusy = savingProviderId !== null || savingConfig;
+	const connectedProviderIds = useMemo(
+		() =>
+			new Set(
+				providerEntries
+					.filter((entry) => entry.apiKeySaved)
+					.map((entry) => entry.providerId)
+			),
+		[providerEntries]
+	);
 
 	useEffect(() => {
-		if (step !== 'api-key') return;
+		if (step !== 'providers') return;
 		let cancelled = false;
 
 		async function loadApiKeyStatus(): Promise<void> {
 			try {
-				const storedProviders = await window.app.getProviders();
-				if (cancelled) return;
-
-				const selectedProviderIds = providerSelectionKey.split(',').filter(Boolean);
 				const savedEntries = await Promise.all(
-					selectedProviderIds.map(async (providerId) => {
-						const providerImplemented = storedProviders.some((provider) => {
-							return (
-								provider.id.trim().toLowerCase() === providerId.trim().toLowerCase()
-							);
-						});
-						const saved = providerImplemented
-							? await window.app.isProviderApiKeySaved(providerId)
-							: false;
+					actionableProviderCatalog.map(async (provider) => {
+						const saved = await window.app.isProviderApiKeySaved(provider.id);
 
-						return [providerId, saved] as const;
+						return [provider.id, saved] as const;
 					})
 				);
 				if (cancelled) return;
 
 				const savedByProviderId = new Map(savedEntries);
+				const hasSavedProvider = savedEntries.some(([, saved]) => saved);
 				setProviderEntries((entries) =>
-					entries.map((entry) => {
-						const saved = savedByProviderId.get(entry.providerId) ?? false;
+					actionableProviderCatalog.map((provider, index) => {
+						const current = entries.find((entry) => entry.providerId === provider.id);
+						const saved = savedByProviderId.get(provider.id) ?? false;
 
 						return {
-							...entry,
+							providerId: provider.id,
+							apiKey: saved ? MASKED_API_KEY : current?.apiKey ?? '',
 							apiKeySaved: saved,
-							apiKey: saved ? MASKED_API_KEY : entry.apiKey,
+							editing: saved ? false : current?.editing ?? (!hasSavedProvider && index === 0),
 						};
 					})
 				);
 			} catch (error) {
 				if (cancelled) return;
 
-				setProviderEntries((entries) =>
-					entries.map((entry) => ({ ...entry, apiKeySaved: false, apiKey: '' }))
-				);
 				setErrorMessage(getErrorMessage(error, 'Could not check saved provider access.'));
 			}
 		}
@@ -219,46 +481,40 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [providerSelectionKey, step]);
+	}, [step]);
 
 	useEffect(() => {
-		if (!isModelStep && !isImageModelStep) return;
+		if (step !== 'models') return;
 
 		let cancelled = false;
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, assistantService, imageGenerationService] = await Promise.all([
+				const [storedProviders, assistantService] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAssistantService(),
-					window.app.getImageGenerationService(),
 				]);
 				if (cancelled) return;
 
-				setProviders(storedProviders);
+				const selectableProviders = storedProviders.filter((provider) =>
+					supportedProviderIds.has(provider.id)
+				);
 				const preferredProvider =
-					storedProviders.find((provider) => provider.id === assistantService?.provider.id) ??
-					storedProviders.find((provider) => provider.id === providerEntries[0]?.providerId) ??
-					storedProviders[0];
+					selectableProviders.find(
+						(provider) => provider.id === assistantService?.provider.id
+					) ??
+					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
+					selectableProviders[0];
+
+				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
 				setSavedModelId(assistantService?.model.id ?? '');
-				const preferredImageProvider =
-					storedProviders.find(
-						(provider) => provider.id === imageGenerationService?.provider.id
-					) ??
-					storedProviders.find((provider) => provider.id.trim().toLowerCase() === 'openai') ??
-					preferredProvider ??
-					storedProviders[0];
-				setImageProvider(preferredImageProvider?.id ?? '');
-				setSavedImageModelId(imageGenerationService?.model.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 
 				setProviders([]);
 				setConfigProvider('');
 				setSavedModelId('');
-				setImageProvider('');
-				setSavedImageModelId('');
 				setErrorMessage(getErrorMessage(error, 'Could not load assistant providers.'));
 			}
 		}
@@ -268,10 +524,10 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [isImageModelStep, isModelStep, providerEntries]);
+	}, [connectedProviderIds, step]);
 
 	useEffect(() => {
-		if (step !== 'model') return;
+		if (step !== 'models') return;
 
 		let cancelled = false;
 
@@ -313,127 +569,104 @@ const StartPage: React.FC = () => {
 		};
 	}, [configProvider, providers, savedModelId, step]);
 
-	useEffect(() => {
-		if (!isImageModelStep) return;
+	function goToStep(nextStep: SetupStep): void {
+		setErrorMessage('');
+		setStep(nextStep);
+	}
 
-		let cancelled = false;
+	function handleBack(): void {
+		const previousStep = SETUP_STEPS[Math.max(0, stepIndex - 1)];
+		goToStep(previousStep);
+	}
 
-		async function loadImageModels(): Promise<void> {
-			const provider = providers.find((item) => item.id === imageProvider);
+	function handleSkip(): void {
+		navigate('/home');
+	}
 
-			if (!provider) {
-				setImageModels([]);
-				setSelectedImageModel('');
-				return;
-			}
+	function updateProviderEntry(providerId: string, patch: Partial<ProviderSetupEntry>): void {
+		setProviderEntries((entries) =>
+			entries.map((entry) => (entry.providerId === providerId ? { ...entry, ...patch } : entry))
+		);
+	}
 
-			setLoadingImageModels(true);
-			setErrorMessage('');
-			try {
-				const providerModels = await window.app.getImageGenerationModels(provider);
-				if (cancelled) return;
+	function handleProviderApiKeyChange(providerId: string, apiKey: string): void {
+		setErrorMessage('');
+		updateProviderEntry(providerId, {
+			apiKey,
+		});
+	}
 
-				setImageModels(providerModels);
-				const savedModel = providerModels.find((model) => model.id === savedImageModelId);
-				setSelectedImageModel(savedModel?.id ?? providerModels[0]?.id ?? '');
-			} catch (error) {
-				if (cancelled) return;
+	async function saveProviderEntry(providerId: string): Promise<boolean> {
+		const entry = providerEntries.find((item) => item.providerId === providerId);
+		if (!entry) return false;
 
-				setImageModels([]);
-				setSelectedImageModel('');
-				setErrorMessage(getErrorMessage(error, 'Could not load image models for this provider.'));
-			} finally {
-				if (!cancelled) {
-					setLoadingImageModels(false);
-				}
-			}
+		if (entry.apiKeySaved && entry.apiKey === MASKED_API_KEY) {
+			updateProviderEntry(providerId, { editing: false });
+			return true;
 		}
 
-		void loadImageModels();
+		const apiKey = entry.apiKey.trim();
+		if (!apiKey) {
+			setErrorMessage('Enter an API key before saving this provider.');
+			return false;
+		}
 
-		return () => {
-			cancelled = true;
-		};
-	}, [imageProvider, isImageModelStep, providers, savedImageModelId]);
-
-	async function handleContinue(): Promise<void> {
-		if (!canContinue) return;
-
-		setSavingApiKey(true);
+		setSavingProviderId(providerId);
 		setErrorMessage('');
 		try {
-			for (const entry of providerEntries) {
-				if (!entry.apiKeySaved || entry.apiKey !== MASKED_API_KEY) {
-					await window.app.setProviderApiKey(entry.providerId, entry.apiKey.trim());
-				}
+			await window.app.setProviderApiKey(providerId, apiKey);
+			updateProviderEntry(providerId, {
+				apiKey: MASKED_API_KEY,
+				apiKeySaved: true,
+				editing: false,
+			});
+			return true;
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, 'Could not save provider API key.'));
+			return false;
+		} finally {
+			setSavingProviderId(null);
+		}
+	}
+
+	async function handleContinueProviders(): Promise<void> {
+		if (!canContinueProviders) return;
+
+		setSavingProviderId('all');
+		setErrorMessage('');
+		try {
+			const entriesToSave = providerEntries.filter((entry) => {
+				return (
+					entry.apiKey.trim().length > 0 &&
+					(!entry.apiKeySaved || entry.apiKey !== MASKED_API_KEY)
+				);
+			});
+
+			for (const entry of entriesToSave) {
+				await window.app.setProviderApiKey(entry.providerId, entry.apiKey.trim());
 			}
 
-			setStep('model');
+			if (entriesToSave.length > 0) {
+				const savedProviderIds = new Set(entriesToSave.map((entry) => entry.providerId));
+				setProviderEntries((entries) =>
+					entries.map((entry) =>
+						savedProviderIds.has(entry.providerId)
+							? {
+									...entry,
+									apiKey: MASKED_API_KEY,
+									apiKeySaved: true,
+									editing: false,
+								}
+							: entry
+					)
+				);
+			}
+
+			goToStep('models');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save provider API keys.'));
 		} finally {
-			setSavingApiKey(false);
-		}
-	}
-
-	function addProviderEntry(): void {
-		const nextProvider = providerOptions.find((provider) => {
-			return !providerEntries.some((entry) => entry.providerId === provider.value);
-		});
-
-		if (!nextProvider || !canAddProvider) return;
-
-		setProviderEntries((current) => [
-			...current,
-			{
-				id: nextProviderEntryId,
-				providerId: nextProvider.value,
-				apiKey: '',
-				apiKeySaved: false,
-			},
-		]);
-		setNextProviderEntryId((current) => current + 1);
-	}
-
-	function removeProviderEntry(entryId: number): void {
-		setErrorMessage('');
-		setProviderEntries((current) => current.filter((entry) => entry.id !== entryId));
-	}
-
-	function handleProviderChange(entryId: number, providerId: string): void {
-		setErrorMessage('');
-		setProviderEntries((current) =>
-			current.map((entry) => {
-				if (entry.id !== entryId) return entry;
-
-				return {
-					...entry,
-					providerId,
-					apiKey: '',
-					apiKeySaved: false,
-				};
-			})
-		);
-	}
-
-	function handleApiKeyChange(entryId: number, apiKey: string): void {
-		setErrorMessage('');
-		setProviderEntries((current) =>
-			current.map((entry) => {
-				if (entry.id !== entryId) return entry;
-
-				return {
-					...entry,
-					apiKey,
-					apiKeySaved: false,
-				};
-			})
-		);
-	}
-
-	function handleApiKeyFocus(entry: ProviderSetupEntry, event: React.FocusEvent<HTMLInputElement>): void {
-		if (entry.apiKeySaved) {
-			event.currentTarget.select();
+			setSavingProviderId(null);
 		}
 	}
 
@@ -445,14 +678,6 @@ const StartPage: React.FC = () => {
 		setSelectedModel('');
 	}
 
-	function handleImageProviderChange(value: string | null): void {
-		setErrorMessage('');
-		setImageProvider(value ?? '');
-		setSavedImageModelId('');
-		setImageModels([]);
-		setSelectedImageModel('');
-	}
-
 	async function handleSaveAssistantModel(): Promise<void> {
 		const provider = providers.find((item) => item.id === configProvider);
 		const model = models.find((item) => item.id === selectedModel);
@@ -462,7 +687,7 @@ const StartPage: React.FC = () => {
 		setErrorMessage('');
 		try {
 			await window.app.saveAssistantService(provider, model);
-			setStep('image-model');
+			goToStep('finish');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the assistant model.'));
 		} finally {
@@ -470,396 +695,627 @@ const StartPage: React.FC = () => {
 		}
 	}
 
-	function handleSkipAssistantModel(): void {
-		setErrorMessage('');
-		setStep('image-model');
-	}
-
-	async function handleFinishImageModel(): Promise<void> {
-		const provider = providers.find((item) => item.id === imageProvider);
-		const model = imageModels.find((item) => item.id === selectedImageModel);
-		if (!provider || !model || !canSaveImageModel) return;
-
-		setSavingConfig(true);
-		setErrorMessage('');
-		try {
-			await window.app.saveImageGenerationService(provider, model);
-			navigate('/home');
-		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save the image generation model.'));
-		} finally {
-			setSavingConfig(false);
+	function handlePrimaryAction(): void {
+		if (step === 'welcome') {
+			goToStep('permissions');
+			return;
 		}
-	}
 
-	function handleSkipImageModel(): void {
-		setErrorMessage('');
+		if (step === 'permissions') {
+			goToStep('providers');
+			return;
+		}
+
+		if (step === 'providers') {
+			void handleContinueProviders();
+			return;
+		}
+
+		if (step === 'models') {
+			void handleSaveAssistantModel();
+			return;
+		}
+
 		navigate('/home');
 	}
 
-	function handleBack(): void {
-		setErrorMessage('');
-		setStep(isImageModelStep ? 'model' : 'api-key');
+	function getPrimaryLabel(): string {
+		if (step === 'welcome') return 'Get started';
+		if (step === 'finish') return `Open ${PRODUCT_NAME}`;
+		if (savingProviderId !== null || savingConfig) return 'Saving...';
+
+		return 'Continue';
 	}
 
-	return (
-		<main className="relative h-full min-h-0 overflow-y-auto bg-background text-foreground">
-			<section className="relative mx-auto grid min-h-full w-full max-w-5xl items-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
-				<div className="space-y-6">
-					<div className="inline-flex h-8 items-center rounded-full border border-border bg-background/80 px-3 text-xs font-medium text-muted-foreground shadow-sm">
-						Step {stepNumber} / {SETUP_STEPS.length}
-					</div>
+	function isPrimaryDisabled(): boolean {
+		if (step === 'providers') return !canContinueProviders;
+		if (step === 'models') return !canSaveAssistantModel;
 
-					<div className="space-y-3">
-						<h1 className="max-w-sm text-4xl font-semibold tracking-tight sm:text-5xl">
-							Set up Friday.
-						</h1>
-						<p className="max-w-md text-base leading-7 text-muted-foreground">
-							Connect one or more providers, choose optional text and image models, and go
-							straight to the assistant.
-						</p>
-					</div>
+		return isBusy;
+	}
 
-					<div
-						className="max-w-md space-y-3"
-						aria-label={`Setup progress: step ${stepNumber} of ${SETUP_STEPS.length}`}
-					>
-						<div className="h-1.5 overflow-hidden rounded-full bg-muted">
-							<div
-								className="h-full rounded-full bg-primary transition-all"
-								style={{ width: `${(stepNumber / SETUP_STEPS.length) * 100}%` }}
-							/>
-						</div>
-						<p className="text-sm text-muted-foreground">
-							{isModelStep
-								? `Provider connected. ${selectedModelName || modelCountLabel}.`
-								: isImageModelStep
-									? `Assistant model step complete. ${selectedImageModelName || imageModelCountLabel}.`
-									: connectedProviderCount === providerEntries.length
-										? `${providerSummary} access is ready.`
-										: `${connectedProviderCount}/${providerEntries.length} providers configured. Continue to finish setup.`}
+	function renderWelcomeStep(): React.JSX.Element {
+		return (
+			<div className="flex min-h-full flex-col items-center justify-center py-8 text-center sm:min-h-[560px] sm:py-0">
+				<AssistantOrb />
+				<h1 className="mt-6 text-4xl font-bold leading-none tracking-normal text-[#1f2028] sm:mt-10 sm:text-5xl">
+					Hello, Anna
+				</h1>
+				<p className="mt-5 max-w-[720px] text-xl font-medium leading-[1.35] text-[#73737c] sm:mt-7 sm:text-[28px] sm:leading-[1.45]">
+					{PRODUCT_NAME} is a small assistant that lives in your menu bar. Ask her
+					things by typing or just by talking.
+				</p>
+				<div className="mt-8 grid w-full max-w-[620px] grid-cols-3 gap-3 sm:mt-16 sm:gap-8">
+					<FeaturePill icon={MessageSquare} label="Type to ask" />
+					<FeaturePill icon={Mic} label="Hold to speak" />
+					<FeaturePill icon={Lock} label="Stays on your Mac" />
+				</div>
+			</div>
+		);
+	}
+
+	function renderPermissionsStep(): React.JSX.Element {
+		return (
+			<div className="mx-auto flex min-h-[620px] w-full max-w-[900px] flex-col py-14">
+				<div>
+					<h1 className="text-5xl font-bold tracking-normal text-[#1f2028]">
+						A couple of permissions
+					</h1>
+					<p className="mt-5 max-w-[850px] text-[28px] font-medium leading-[1.45] text-[#73737c]">
+						{PRODUCT_NAME} only listens while you are holding the mic. Nothing leaves
+						your Mac without you asking.
+					</p>
+				</div>
+
+				<div className="mt-12 space-y-5">
+					{PERMISSION_ITEMS.map((permission) => {
+						const Icon = permission.icon;
+						const allowed = permissions[permission.id];
+
+						return (
+							<Card
+								key={permission.id}
+								className="rounded-3xl border-[#e8e6eb] bg-white py-0 shadow-none"
+							>
+								<CardContent className="grid min-h-[112px] grid-cols-[auto_minmax(0,1fr)] items-center gap-6 p-6 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+									<div className="flex size-[72px] items-center justify-center rounded-2xl bg-[#f0eefb] text-[#8178df]">
+										<Icon className="size-8" strokeWidth={2.1} />
+									</div>
+									<div className="min-w-0">
+										<h2 className="text-[28px] font-semibold leading-tight text-[#1f2028]">
+											{permission.title}
+										</h2>
+										<p className="mt-1 text-[22px] font-medium leading-tight text-[#85858e]">
+											{permission.description}
+										</p>
+									</div>
+									<div className="col-span-2 flex justify-end sm:col-span-1">
+										{allowed ? (
+											<Badge className="h-11 rounded-2xl bg-[#f0eefb] px-5 text-xl font-semibold text-[#8178df] hover:bg-[#f0eefb]">
+												<Check className="size-5" />
+												Allowed
+											</Badge>
+										) : (
+											<Button
+												type="button"
+												variant="outline"
+												size="lg"
+												className="h-12 rounded-2xl border-[#dedde2] bg-white px-7 text-xl font-semibold text-[#383943]"
+												onClick={() => {
+													setPermissions((current) => ({
+														...current,
+														[permission.id]: true,
+													}));
+												}}
+											>
+												Allow
+											</Button>
+										)}
+									</div>
+								</CardContent>
+							</Card>
+						);
+					})}
+				</div>
+
+				<div className="mt-auto pt-12">
+					<div className="flex items-center gap-5 rounded-2xl bg-[#f0f0f3] px-6 py-5 text-[#73737c]">
+						<Lock className="size-7 shrink-0 text-[#8178df]" />
+						<p className="text-[22px] font-medium leading-snug">
+							Audio is transcribed on-device. You can change all of this later in
+							Settings.
 						</p>
 					</div>
 				</div>
+			</div>
+		);
+	}
 
-				<div className="rounded-xl border border-border bg-background/90 p-4 shadow-xl shadow-foreground/5 backdrop-blur sm:p-5">
-					<div className="mb-4 space-y-1.5">
-						<p className="text-sm font-medium text-muted-foreground">{setupStatus}</p>
-						<h2 className="text-xl font-semibold tracking-tight">{formTitle}</h2>
-						<p className="text-sm leading-6 text-muted-foreground">{formDescription}</p>
-					</div>
+	function renderProviderStep(): React.JSX.Element {
+		return (
+			<div className="mx-auto flex min-h-[680px] w-full max-w-[900px] flex-col py-10">
+				<div>
+					<h1 className="text-5xl font-bold tracking-normal text-[#1f2028]">
+						Connect a provider
+					</h1>
+					<p className="mt-5 max-w-[850px] text-[28px] font-medium leading-[1.42] text-[#73737c]">
+						{PRODUCT_NAME} uses your own API keys. Connect at least one - keys are
+						kept in your macOS Keychain.
+					</p>
+				</div>
 
-					{step === 'api-key' ? (
-						<div className="space-y-3">
-							{providerEntries.map((entry, index) => {
-								const providerName = getProviderLabel(entry.providerId);
-								const entryOptions = getAvailableProviderOptions(entry.id);
+				<div className="mt-9 space-y-4">
+					{PROVIDER_CATALOG.map((provider) => {
+						const entry = providerEntries.find((item) => item.providerId === provider.id);
+						const connected = entry?.apiKeySaved ?? false;
+						const editing = entry?.editing ?? false;
+						const savingThisProvider =
+							savingProviderId === provider.id || savingProviderId === 'all';
+						const canSaveProvider =
+							!!entry &&
+							!savingThisProvider &&
+							((entry.apiKeySaved && entry.apiKey === MASKED_API_KEY) ||
+								entry.apiKey.trim().length > 0);
 
-								return (
-									<div key={entry.id} className="space-y-2">
-										<div className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr_auto]">
-											<div className="space-y-2">
-												<Label htmlFor={`provider-${entry.id}`}>Provider</Label>
-												<Select
-													value={entry.providerId}
-													onValueChange={(value) => {
-														handleProviderChange(entry.id, value ?? '');
-													}}
-													disabled={providerOptions.length === 0 || savingApiKey}
-												>
-													<SelectTrigger id={`provider-${entry.id}`} className={`${controlHeightClass} w-full`}>
-														<SelectValue>{providerName}</SelectValue>
-													</SelectTrigger>
-													<SelectContent>
-														{entryOptions.map((providerOption) => (
-															<SelectItem key={providerOption.value} value={providerOption.value}>
-																{providerOption.label}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											</div>
-
-											<div className="space-y-2">
-												<Label htmlFor={`api-key-${entry.id}`}>API key</Label>
-												<Input
-													autoComplete="off"
-													className={controlHeightClass}
-													disabled={savingApiKey}
-													id={`api-key-${entry.id}`}
-													onChange={(event) => {
-														handleApiKeyChange(entry.id, event.target.value);
-													}}
-													onFocus={(event) => {
-														handleApiKeyFocus(entry, event);
-													}}
-													placeholder="Enter API key"
-													spellCheck={false}
-													type="password"
-													value={entry.apiKey}
-												/>
-											</div>
-
-											<div className="flex items-end">
-												{providerEntries.length > 1 ? (
+						return (
+							<Card
+								key={provider.id}
+								className={cn(
+									'rounded-3xl border-[#e8e6eb] bg-white py-0 shadow-none',
+									editing && 'border-[#8b80ec] ring-2 ring-[#8b80ec]/20',
+									!provider.supported && 'opacity-70'
+								)}
+							>
+								<CardContent className="p-0">
+									<div
+										className={cn(
+											'grid min-h-[108px] grid-cols-[auto_minmax(0,1fr)] items-center gap-6 px-6 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto]',
+											editing && 'pb-3'
+										)}
+									>
+										<ProviderMark
+											initial={provider.initial}
+											className={provider.swatchClassName}
+										/>
+										<div className="min-w-0">
+											<h2 className="truncate text-[28px] font-semibold leading-tight text-[#1f2028]">
+												{provider.name}
+											</h2>
+											<p className="truncate text-[22px] font-medium leading-tight text-[#85858e]">
+												{connected && entry?.apiKey === MASKED_API_KEY
+													? 'sk-************'
+													: provider.capabilities}
+											</p>
+										</div>
+										<div className="col-span-2 flex justify-end gap-2 sm:col-span-1">
+											{provider.supported ? (
+												connected && !editing ? (
+													<div className="flex items-center gap-2">
+														<Badge className="h-11 rounded-2xl bg-[#f0eefb] px-5 text-xl font-semibold text-[#8178df] hover:bg-[#f0eefb]">
+															<Check className="size-5" />
+															Connected
+														</Badge>
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon-lg"
+															className="text-[#85858e]"
+															aria-label={`Edit ${provider.name} API key`}
+															onClick={() => {
+																updateProviderEntry(provider.id, {
+																	editing: true,
+																	apiKey: MASKED_API_KEY,
+																});
+															}}
+														>
+															<Pencil className="size-5" />
+														</Button>
+													</div>
+												) : editing ? null : (
 													<Button
 														type="button"
 														variant="outline"
-														size="icon-lg"
-														className="shrink-0"
+														size="lg"
+														className="h-12 rounded-2xl border-[#dedde2] bg-white px-7 text-xl font-semibold text-[#383943]"
 														onClick={() => {
-															removeProviderEntry(entry.id);
+															updateProviderEntry(provider.id, { editing: true });
 														}}
-														disabled={savingApiKey}
-														aria-label="Remove provider"
 													>
-														<Trash2 className="size-4" />
+														Connect
 													</Button>
-												) : null}
-											</div>
+												)
+											) : (
+												<Button
+													type="button"
+													variant="outline"
+													size="lg"
+													className="h-12 rounded-2xl border-[#dedde2] bg-white px-7 text-xl font-semibold text-[#85858e]"
+													disabled
+												>
+													Soon
+												</Button>
+											)}
 										</div>
-
-										<p className="text-sm leading-6 text-muted-foreground">
-											{entry.apiKeySaved
-												? `${providerName} access is already saved.`
-												: `${providerName} access is required before model selection.`}
-										</p>
-										{index !== providerEntries.length - 1 && <Separator />}
 									</div>
-								);
-							})}
 
-							<Button
-								type="button"
-								variant="outline"
-								disabled={!canAddProvider || savingApiKey}
-								onClick={() => {
-									addProviderEntry();
-								}}
-								className="w-full sm:w-auto"
-							>
-								<Plus className="size-4" />
-								Add provider
-							</Button>
-						</div>
-					) : isModelStep ? (
-						<div className="space-y-3">
-							<div className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr]">
-								<div className="space-y-2">
-									<Label htmlFor="config-provider">Provider</Label>
-									<Select
-										value={configProvider}
-										onValueChange={handleConfigProviderChange}
-										disabled={providers.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="config-provider" className={`${controlHeightClass} w-full`}>
-											<SelectValue>{configProviderName}</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{providers.map((provider) => (
-												<SelectItem key={provider.id} value={provider.id}>
-													{provider.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
+									{provider.supported && editing && entry ? (
+										<div className="grid gap-3 px-6 pb-5 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+											<Input
+												autoComplete="off"
+												className="h-14 rounded-2xl border-[#dedde2] bg-white px-5 text-xl font-semibold placeholder:text-[#85858e]"
+												disabled={savingThisProvider}
+												onChange={(event) => {
+													handleProviderApiKeyChange(provider.id, event.target.value);
+												}}
+												placeholder="sk-..."
+												spellCheck={false}
+												type="password"
+												value={entry.apiKey}
+											/>
+											<Button
+												type="button"
+												variant="outline"
+												size="lg"
+												className="h-14 rounded-2xl border-[#dedde2] bg-white px-7 text-xl font-semibold text-[#383943]"
+												disabled={savingThisProvider}
+												onClick={() => {
+													updateProviderEntry(provider.id, {
+														apiKey: entry.apiKeySaved ? MASKED_API_KEY : '',
+														editing: false,
+													});
+												}}
+											>
+												Cancel
+											</Button>
+											<Button
+												type="button"
+												size="lg"
+												className="h-14 rounded-2xl bg-[#8178df] px-7 text-xl font-semibold text-white hover:bg-[#746bd2]"
+												disabled={!canSaveProvider}
+												onClick={() => {
+													void saveProviderEntry(provider.id);
+												}}
+											>
+												{savingThisProvider ? (
+													<LoaderCircle className="size-5 animate-spin" />
+												) : null}
+												Save
+											</Button>
+										</div>
+									) : null}
+								</CardContent>
+							</Card>
+						);
+					})}
+				</div>
 
-								<div className="space-y-2">
-									<Label htmlFor="config-model">Model</Label>
-									<Select
-										value={selectedModel}
-										onValueChange={(value) => {
-											setErrorMessage('');
-											setSelectedModel(value ?? '');
-										}}
-										disabled={loadingModels || models.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="config-model" className={`${controlHeightClass} w-full`}>
-											<SelectValue>
-												{selectedModelName ||
-													(loadingModels ? 'Loading models...' : 'Select a model')}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{models.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-
-							<p className="text-sm leading-6 text-muted-foreground">
-								{loadingModels
-									? 'Loading models...'
-									: models.length === 0
-										? 'No models are available for this provider yet.'
-										: `${modelCountLabel} for ${configProviderName}.`}
-							</p>
-						</div>
-					) : (
-						<div className="space-y-3">
-							<div className="grid gap-3 sm:grid-cols-[minmax(0,180px)_1fr]">
-								<div className="space-y-2">
-									<Label htmlFor="image-provider">Provider</Label>
-									<Select
-										value={imageProvider}
-										onValueChange={handleImageProviderChange}
-										disabled={providers.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="image-provider" className={`${controlHeightClass} w-full`}>
-											<SelectValue>{imageProviderName}</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{providers.map((provider) => (
-												<SelectItem key={provider.id} value={provider.id}>
-													{provider.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-
-								<div className="space-y-2">
-									<Label htmlFor="image-model">Image model</Label>
-									<Select
-										value={selectedImageModel}
-										onValueChange={(value) => {
-											setErrorMessage('');
-											setSelectedImageModel(value ?? '');
-										}}
-										disabled={loadingImageModels || imageModels.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="image-model" className={`${controlHeightClass} w-full`}>
-											<SelectValue>
-												{selectedImageModelName ||
-													(loadingImageModels ? 'Loading image models...' : 'Select a model')}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{imageModels.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-
-							<p className="text-sm leading-6 text-muted-foreground">
-								{loadingImageModels
-									? 'Loading image models...'
-									: imageModels.length === 0
-										? 'No image generation models are available for this provider yet.'
-										: `${imageModelCountLabel} for ${imageProviderName}.`}
-							</p>
-						</div>
-					)}
-
-					{errorMessage && (
-						<div
-							className="mt-4 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive"
-							role="alert"
-						>
-							<AlertCircle className="mt-0.5 size-4 shrink-0" />
-							<p className="min-w-0 break-words text-sm leading-6">{errorMessage}</p>
-						</div>
-					)}
-
-					<div className="mt-4 flex flex-col-reverse justify-between gap-2 sm:flex-row">
-						{step !== 'api-key' ? (
-							<Button
-								className="w-full sm:w-auto"
-								onClick={handleBack}
-								type="button"
-								variant="outline"
-								disabled={savingConfig}
-							>
-								<ChevronLeft className="size-4" />
-								Back
-							</Button>
-						) : (
-							<div className="hidden sm:block" />
-						)}
-
-						{step === 'api-key' ? (
-							<Button
-								className="w-full sm:w-auto"
-								disabled={!canContinue}
-								onClick={() => {
-									void handleContinue();
-								}}
-								type="button"
-							>
-								{savingApiKey ? (
-									<LoaderCircle className="size-4 animate-spin" />
-								) : (
-									<ArrowRight className="size-4" />
-								)}
-								{savingApiKey ? 'Saving...' : 'Continue'}
-							</Button>
-						) : isModelStep ? (
-							<div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-								<Button
-									className="w-full sm:w-auto"
-									onClick={handleSkipAssistantModel}
-									disabled={savingConfig}
-									type="button"
-									variant="outline"
-								>
-									Skip
-								</Button>
-								<Button
-									className="w-full sm:w-auto"
-									onClick={() => {
-										void handleSaveAssistantModel();
-									}}
-									disabled={!canSaveAssistantModel}
-									type="button"
-								>
-									{savingConfig ? (
-										<LoaderCircle className="size-4 animate-spin" />
-									) : (
-										<ArrowRight className="size-4" />
-									)}
-									{savingConfig ? 'Saving...' : 'Continue'}
-								</Button>
-							</div>
-						) : (
-							<div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-								<Button
-									className="w-full sm:w-auto"
-									onClick={handleSkipImageModel}
-									disabled={savingConfig}
-									type="button"
-									variant="outline"
-								>
-									Skip
-								</Button>
-								<Button
-									className="w-full sm:w-auto"
-									onClick={() => {
-										void handleFinishImageModel();
-									}}
-									disabled={!canSaveImageModel}
-									type="button"
-								>
-									{savingConfig ? (
-										<LoaderCircle className="size-4 animate-spin" />
-									) : (
-										<ImageIcon className="size-4" />
-									)}
-									{savingConfig ? 'Saving...' : 'Finish setup'}
-								</Button>
-							</div>
-						)}
+				<div className="mt-auto pt-10">
+					<div className="flex items-center gap-5 rounded-2xl bg-[#f0f0f3] px-6 py-5 text-[#73737c]">
+						<KeyRound className="size-7 shrink-0 text-[#8178df]" />
+						<p className="text-[22px] font-medium leading-snug">
+							Keys are encrypted in Keychain and never sent to us. You can revoke any
+							provider anytime.
+						</p>
 					</div>
 				</div>
+			</div>
+		);
+	}
+
+	function renderModelsStep(): React.JSX.Element {
+		const selectedCatalog = getProviderCatalogItem(configProvider);
+		const openAiConnected = connectedProviderIds.has('openai');
+
+		return (
+			<div className="mx-auto w-full max-w-[900px] py-14">
+				<div>
+					<h1 className="text-5xl font-bold tracking-normal text-[#1f2028]">
+						Choose your models
+					</h1>
+					<p className="mt-5 max-w-[850px] text-[28px] font-medium leading-[1.42] text-[#73737c]">
+						Pick a model for each role. Only models from providers you connected
+						appear.
+					</p>
+				</div>
+
+				<div className="mt-11 space-y-8">
+					<div className="space-y-3">
+						<Label className="text-base font-bold uppercase tracking-[0.08em] text-[#85858e]">
+							Assistant
+						</Label>
+						<Select
+							value={configProvider}
+							onValueChange={handleConfigProviderChange}
+							disabled={providers.length === 0 || savingConfig}
+						>
+							<SelectTrigger
+								id="assistant-provider"
+								className="!h-[86px] w-full rounded-2xl border-[#e5e3e8] bg-white px-7 text-left shadow-none"
+							>
+								<SelectValue className="sr-only" />
+								<div className="flex min-w-0 items-center gap-5">
+									<ProviderMark
+										initial={selectedCatalog.initial}
+										className={selectedCatalog.swatchClassName}
+									/>
+									<div className="min-w-0">
+										<p className="truncate text-2xl font-semibold leading-tight text-[#202129]">
+											{selectedModelName || modelCountLabel}
+										</p>
+										<p className="truncate text-lg font-medium text-[#85858e]">
+											{configProviderName || 'No provider'} - The brain that answers your
+											questions
+										</p>
+									</div>
+								</div>
+							</SelectTrigger>
+							<SelectContent>
+								{providers.map((provider) => (
+									<SelectItem key={provider.id} value={provider.id}>
+										{provider.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						<Select
+							value={selectedModel}
+							onValueChange={(value) => {
+								setErrorMessage('');
+								setSelectedModel(value ?? '');
+							}}
+							disabled={loadingModels || models.length === 0 || savingConfig}
+						>
+							<SelectTrigger
+								id="assistant-model"
+								className="!h-12 w-full rounded-2xl border-[#e5e3e8] bg-white px-5 text-base font-semibold text-[#383943]"
+							>
+								<SelectValue>
+									{selectedModelName ||
+										(loadingModels ? 'Loading models...' : 'Select an assistant model')}
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								{models.map((model) => (
+									<SelectItem key={model.id} value={model.id}>
+										{model.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+
+					{openAiConnected ? (
+						<StaticModelSelect
+							id="speech-model"
+							label="Speech-to-text"
+							value={selectedSpeechModel}
+							options={SPEECH_MODELS}
+							onValueChange={setSelectedSpeechModel}
+						/>
+					) : (
+						<Card className="rounded-2xl border-dashed border-[#d7d4dc] bg-white/70 py-0 shadow-none">
+							<CardContent className="flex min-h-[86px] items-center gap-5 p-6 text-[#85858e]">
+								<Mic className="size-7 shrink-0" />
+								<p className="text-xl font-medium">
+									Connect OpenAI to choose a speech-to-text model.
+								</p>
+							</CardContent>
+						</Card>
+					)}
+
+					<StaticModelSelect
+						id="tts-model"
+						label="Text-to-speech"
+						value={selectedTtsModel}
+						options={TTS_MODELS}
+						onValueChange={setSelectedTtsModel}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	function renderFinishStep(): React.JSX.Element {
+		return (
+			<div className="mx-auto w-full max-w-[930px] py-14">
+				<div>
+					<h1 className="text-5xl font-bold tracking-normal text-[#1f2028]">
+						Almost done
+					</h1>
+					<p className="mt-5 max-w-[850px] text-[28px] font-medium leading-[1.42] text-[#73737c]">
+						A hotkey and a personality. You can change all of this later.
+					</p>
+				</div>
+
+				<div className="mt-11 space-y-9">
+					<div className="space-y-4">
+						<Label className="text-base font-bold uppercase tracking-[0.08em] text-[#85858e]">
+							Hotkey
+						</Label>
+						<div className="flex flex-wrap gap-3">
+							{HOTKEY_OPTIONS.map((hotkey) => (
+								<Button
+									key={hotkey}
+									type="button"
+									variant={selectedHotkey === hotkey ? 'default' : 'outline'}
+									size="lg"
+									className={cn(
+										'h-14 rounded-2xl px-6 text-xl font-semibold',
+										selectedHotkey === hotkey
+											? 'border-[#0b70d7] bg-[#efedf7] text-[#202129] ring-4 ring-[#0b70d7]/20 hover:bg-[#efedf7]'
+											: 'border-[#dedde2] bg-white text-[#202129] hover:bg-white'
+									)}
+									onClick={() => setSelectedHotkey(hotkey)}
+								>
+									{hotkey}
+								</Button>
+							))}
+						</div>
+					</div>
+
+					<div className="space-y-4">
+						<Label className="text-base font-bold uppercase tracking-[0.08em] text-[#85858e]">
+							Voice
+						</Label>
+						<div className="grid gap-5 md:grid-cols-3">
+							{VOICE_OPTIONS.map((voice) => {
+								const selected = selectedVoice === voice.id;
+
+								return (
+									<Button
+										key={voice.id}
+										type="button"
+										variant="outline"
+										className={cn(
+											'h-[210px] flex-col rounded-3xl border-[#e5e3e8] bg-white p-6 text-center hover:bg-white',
+											selected &&
+												'border-[#8178df] bg-[#efedf7] text-[#202129] hover:bg-[#efedf7]'
+										)}
+										onClick={() => setSelectedVoice(voice.id)}
+									>
+										<div
+											className={cn(
+												'flex size-[72px] items-center justify-center rounded-full bg-[#f1f1f2] text-[#8178df]',
+												selected && 'bg-[#8178df] text-white'
+											)}
+										>
+											<AudioWaveform className="size-9" />
+										</div>
+										<span className="mt-5 text-[28px] font-bold leading-tight">
+											{voice.name}
+										</span>
+										<span className="mt-3 text-[22px] font-medium leading-tight text-[#85858e]">
+											{voice.description}
+										</span>
+									</Button>
+								);
+							})}
+						</div>
+					</div>
+
+					<div className="space-y-4">
+						<Label className="text-base font-bold uppercase tracking-[0.08em] text-[#85858e]">
+							Tone
+						</Label>
+						<div className="flex flex-wrap gap-3">
+							{TONE_OPTIONS.map((tone) => (
+								<Button
+									key={tone}
+									type="button"
+									variant={selectedTone === tone ? 'default' : 'outline'}
+									size="lg"
+									className={cn(
+										'h-14 rounded-full px-7 text-xl font-semibold',
+										selectedTone === tone
+											? 'bg-[#8178df] text-white hover:bg-[#746bd2]'
+											: 'border-[#dedde2] bg-white text-[#383943] hover:bg-white'
+									)}
+									onClick={() => setSelectedTone(tone)}
+								>
+									{tone}
+								</Button>
+							))}
+						</div>
+					</div>
+
+					<Card className="rounded-3xl border-[#e8e6eb] bg-white py-0 shadow-none">
+						<CardContent className="grid min-h-[112px] grid-cols-[minmax(0,1fr)_auto] items-center gap-5 p-7">
+							<div className="min-w-0">
+								<h2 className="text-[28px] font-semibold leading-tight text-[#1f2028]">
+									Open {PRODUCT_NAME} when I log in
+								</h2>
+								<p className="mt-1 truncate text-[22px] font-medium leading-tight text-[#85858e]">
+									Lives in the menu bar; invisible until you summon her
+								</p>
+							</div>
+							<Switch
+								checked={openAtLogin}
+								onCheckedChange={setOpenAtLogin}
+								className="scale-[1.55]"
+								aria-label={`Open ${PRODUCT_NAME} when I log in`}
+							/>
+						</CardContent>
+					</Card>
+				</div>
+			</div>
+		);
+	}
+
+	function renderStepContent(): React.JSX.Element {
+		if (step === 'welcome') return renderWelcomeStep();
+		if (step === 'permissions') return renderPermissionsStep();
+		if (step === 'providers') return renderProviderStep();
+		if (step === 'models') return renderModelsStep();
+
+		return renderFinishStep();
+	}
+
+	return (
+		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-[#f7f5f8] text-[#1f2028]">
+			<header className="relative flex h-14 shrink-0 items-center justify-center border-b border-[#e7e4ea] bg-white/45 px-4 sm:h-[72px] sm:px-7">
+				<h1 className="text-xl font-semibold text-[#85858e] sm:text-2xl">
+					Set up {PRODUCT_NAME}
+				</h1>
+				<Button
+					type="button"
+					variant="ghost"
+					size="lg"
+					className="absolute right-4 h-9 rounded-2xl px-3 text-xl font-semibold text-[#85858e] hover:bg-[#eceaf0] sm:right-7 sm:h-11 sm:px-4 sm:text-2xl"
+					onClick={handleSkip}
+				>
+					Skip
+				</Button>
+			</header>
+
+			<section className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(135deg,#fbf7fb_0%,#f5f4f7_58%,#edf1f7_100%)] px-4 sm:px-7">
+				{renderStepContent()}
+				{errorMessage ? (
+					<div className="mx-auto mb-8 flex max-w-[900px] items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+						<AlertCircle className="mt-0.5 size-5 shrink-0" />
+						<p className="min-w-0 break-words text-base font-medium leading-6">{errorMessage}</p>
+					</div>
+				) : null}
 			</section>
+
+			<footer className="flex min-h-[112px] shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#e0e1e6] bg-white/60 px-4 py-3 sm:min-h-[94px] sm:gap-4 sm:px-7 sm:py-4">
+				<div className="flex min-w-0 flex-wrap items-center gap-3 sm:gap-8">
+					<StepProgress currentIndex={stepIndex} />
+					<p className="truncate text-xl font-semibold text-[#a1a1aa] sm:text-2xl">
+						Step {stepNumber} of {SETUP_STEPS.length} - {STEP_TITLES[step]}
+					</p>
+				</div>
+				<div className="flex items-center gap-3 sm:gap-4">
+					{step !== 'welcome' ? (
+						<Button
+							type="button"
+							variant="outline"
+							size="lg"
+							className="h-12 rounded-2xl border-[#dedde2] bg-white px-6 text-xl font-semibold text-[#383943] sm:h-14 sm:px-8 sm:text-2xl"
+							disabled={isBusy}
+							onClick={handleBack}
+						>
+							Back
+						</Button>
+					) : null}
+					<Button
+						type="button"
+						size="lg"
+						className="h-12 rounded-2xl bg-[#8178df] px-6 text-xl font-semibold text-white hover:bg-[#746bd2] sm:h-14 sm:px-9 sm:text-2xl"
+						disabled={isPrimaryDisabled()}
+						onClick={handlePrimaryAction}
+					>
+						{savingProviderId !== null || savingConfig ? (
+							<LoaderCircle className="size-6 animate-spin" />
+						) : step === 'finish' ? (
+							<Bot className="size-6" />
+						) : (
+							<ArrowRight className="size-6" />
+						)}
+						{getPrimaryLabel()}
+					</Button>
+				</div>
+			</footer>
 		</main>
 	);
 };
