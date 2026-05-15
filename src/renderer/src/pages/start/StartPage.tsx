@@ -277,9 +277,9 @@ function ProviderMark({
 
 function AssistantOrb(): React.JSX.Element {
 	return (
-		<div className="relative flex size-28 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg motion-safe:animate-[pulse_3s_ease-in-out_infinite]">
-			<div className="absolute size-20 rounded-full bg-primary-foreground/20 motion-safe:animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
-			<Sparkles className="relative size-10 motion-safe:animate-[spin_12s_linear_infinite]" strokeWidth={2.7} />
+		<div className="relative flex size-24 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg motion-safe:animate-[pulse_3s_ease-in-out_infinite]">
+			<div className="absolute size-16 rounded-full bg-primary-foreground/20 motion-safe:animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
+			<Sparkles className="relative size-8 motion-safe:animate-[spin_12s_linear_infinite]" strokeWidth={2.7} />
 		</div>
 	);
 }
@@ -314,10 +314,10 @@ function FeaturePill({
 }): React.JSX.Element {
 	return (
 		<div className="flex min-w-0 flex-col items-center gap-2 text-center">
-			<div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm">
-				<Icon className="size-5" strokeWidth={1.9} />
+			<div className="flex size-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm">
+				<Icon className="size-4" strokeWidth={1.9} />
 			</div>
-			<p className="whitespace-nowrap text-sm font-semibold leading-tight text-muted-foreground">
+			<p className="whitespace-nowrap text-sm font-medium leading-tight text-muted-foreground">
 				{label}
 			</p>
 		</div>
@@ -739,11 +739,11 @@ const StartPage: React.FC = () => {
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
-				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
+				<p className="mt-4 max-w-sm text-base font-medium leading-relaxed text-muted-foreground">
 					{PRODUCT_NAME} is a small assistant that lives in your menu bar. Ask her
 					things by typing or just by talking.
 				</p>
-				<div className="mt-8 grid w-full max-w-md grid-cols-3 gap-4">
+				<div className="mt-8 grid w-full max-w-xs grid-cols-3 gap-3">
 					<FeaturePill icon={MessageSquare} label="Type to ask" />
 					<FeaturePill icon={Mic} label="Hold to speak" />
 					<FeaturePill icon={Lock} label="Stays on your Mac" />
