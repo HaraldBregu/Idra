@@ -1098,11 +1098,6 @@ function HomePage(): ReactElement {
 		return () => window.removeEventListener('keydown', handler);
 	}, [switchToTyping]);
 
-	useEffect(() => {
-		if (mode === 'chat') {
-			focusInput();
-		}
-	}, [focusInput, mode]);
 
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
