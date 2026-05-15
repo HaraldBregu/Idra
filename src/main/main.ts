@@ -79,12 +79,8 @@ export class Main {
 		return {
 			width: DEFAULT_WINDOW_WIDTH,
 			height: DEFAULT_WINDOW_HEIGHT,
-			minWidth: DEFAULT_WINDOW_WIDTH,
-			minHeight: DEFAULT_WINDOW_HEIGHT,
-			maxWidth: DEFAULT_WINDOW_WIDTH,
-			maxHeight: DEFAULT_WINDOW_HEIGHT,
 			resizable: false,
-			maximizable: false,
+			maximizable: true,
 			fullscreenable: false,
 			frame: false,
 			// titleBarStyle:'hidden' on Windows retains native min/max/close buttons.
@@ -104,10 +100,6 @@ export class Main {
 			...this.createWindowOptions(),
 			width: STARTUP_WINDOW_WIDTH,
 			height: STARTUP_WINDOW_HEIGHT,
-			minWidth: STARTUP_WINDOW_WIDTH,
-			minHeight: STARTUP_WINDOW_HEIGHT,
-			maxWidth: STARTUP_WINDOW_WIDTH,
-			maxHeight: STARTUP_WINDOW_HEIGHT,
 		};
 	}
 

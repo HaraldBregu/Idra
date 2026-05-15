@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, PanelLeft, Minus, X, ArrowLeft, ArrowRight, Settings } from 'lucide-react';
+import {
+	Menu,
+	Maximize2,
+	PanelLeft,
+	Minus,
+	X,
+	ArrowLeft,
+	ArrowRight,
+	Settings,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
@@ -40,6 +49,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [isFullScreen, setIsFullScreen] = useState(false);
+	const [isMaximized, setIsMaximized] = useState(false);
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
@@ -51,10 +61,13 @@ export const TitleBar = React.memo(function TitleBar({
 		if (!window.win) return;
 
 		window.win.isFullScreen().then(setIsFullScreen);
+		window.win.isMaximized().then(setIsMaximized);
 
 		const unsubFs = window.win.onFullScreenChange(setIsFullScreen);
+		const unsubMax = window.win.onMaximizeChange(setIsMaximized);
 		return () => {
 			unsubFs();
+			unsubMax();
 		};
 	}, []);
 
@@ -178,6 +191,19 @@ export const TitleBar = React.memo(function TitleBar({
 						title={t('titleBar.minimize')}
 					>
 						<Minus className="h-[17px] w-[17px]" strokeWidth={1.5} />
+					</button>
+
+					<button
+						type="button"
+						onClick={() => window.win?.maximize()}
+						className={btnBase}
+						title={
+							isMaximized
+								? t('titleBar.restore', 'Restore')
+								: t('titleBar.maximize', 'Maximize')
+						}
+					>
+						<Maximize2 className="h-[15px] w-[15px]" strokeWidth={1.5} />
 					</button>
 
 					<button
