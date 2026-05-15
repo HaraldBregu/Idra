@@ -1715,120 +1715,13 @@ const StartPage: React.FC = () => {
 		);
 	}
 
-	function renderFinishStep(): React.JSX.Element {
-		return (
-			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
-				<div>
-					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Almost done
-					</h1>
-					<p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-muted-foreground">
-						A hotkey and a personality. You can change all of this later.
-					</p>
-				</div>
-
-				<div className="mt-6 space-y-5">
-					<div className="space-y-2.5">
-						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-							Hotkey
-						</Label>
-						<div className="flex flex-wrap gap-2">
-							{HOTKEY_OPTIONS.map((hotkey) => (
-								<Button
-									key={hotkey}
-									type="button"
-									variant={selectedHotkey === hotkey ? 'secondary' : 'outline'}
-									size="sm"
-									className="px-3 text-sm font-semibold"
-									onClick={() => setSelectedHotkey(hotkey)}
-								>
-									{hotkey}
-								</Button>
-							))}
-						</div>
-					</div>
-
-					<div className="space-y-2.5">
-						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-							Voice
-						</Label>
-						<div className="grid grid-cols-3 gap-3">
-							{VOICE_OPTIONS.map((voice) => {
-								const selected = selectedVoice === voice.id;
-
-								return (
-									<Button
-										key={voice.id}
-										type="button"
-										variant={selected ? 'secondary' : 'outline'}
-										className="h-24 min-w-0 flex-col gap-0 p-3 text-center"
-										onClick={() => setSelectedVoice(voice.id)}
-									>
-										<div className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-											<AudioWaveform className="size-5" />
-										</div>
-										<span className="mt-2.5 truncate text-sm font-bold leading-tight">
-											{voice.name}
-										</span>
-										<span className="mt-1.5 truncate text-xs font-medium leading-tight text-muted-foreground">
-											{voice.description}
-										</span>
-									</Button>
-								);
-							})}
-						</div>
-					</div>
-
-					<div className="space-y-2.5">
-						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-							Tone
-						</Label>
-						<div className="flex flex-wrap gap-2">
-							{TONE_OPTIONS.map((tone) => (
-								<Button
-									key={tone}
-									type="button"
-									variant={selectedTone === tone ? 'default' : 'outline'}
-									size="sm"
-									className="rounded-full px-3 text-sm font-semibold"
-									onClick={() => setSelectedTone(tone)}
-								>
-									{tone}
-								</Button>
-							))}
-						</div>
-					</div>
-
-					<Card className="rounded-lg border-border bg-card py-0 shadow-none">
-						<CardContent className="flex min-h-16 items-center gap-4 p-4">
-							<div className="min-w-0 flex-1">
-								<h2 className="text-sm font-bold leading-tight text-foreground">
-									Open {PRODUCT_NAME} when I log in
-								</h2>
-								<p className="mt-1 truncate text-xs font-medium leading-tight text-muted-foreground">
-									Lives in the menu bar; invisible until you summon her
-								</p>
-							</div>
-							<Switch
-								checked={openAtLogin}
-								onCheckedChange={setOpenAtLogin}
-								aria-label={`Open ${PRODUCT_NAME} when I log in`}
-							/>
-						</CardContent>
-					</Card>
-				</div>
-			</div>
-		);
-	}
-
 	function renderStepContent(): React.JSX.Element {
 		if (step === 'welcome') return renderWelcomeStep();
 		if (step === 'permissions') return renderPermissionsStep();
 		if (step === 'providers') return renderProviderStep();
 		if (step === 'models') return renderModelsStep();
-		if (step === 'connectors') return renderConnectorsStep();
 
-		return renderFinishStep();
+		return renderConnectorsStep();
 	}
 
 	return (
