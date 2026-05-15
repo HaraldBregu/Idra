@@ -33,6 +33,7 @@ import {
 	PromptInputTextarea,
 } from '@/components/prompt-kit/prompt-input';
 import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
+import { ResponseStream } from '@/components/prompt-kit/response-stream';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
 import { Button } from '@/components/ui/button';
 import { PageContainer } from '@/components/app/base/page';
