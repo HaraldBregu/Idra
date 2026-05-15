@@ -2,6 +2,7 @@ import { askHumanTool } from './ask-human';
 import {
 	setThemeModeTool,
 	openAppDataFolderTool,
+	openUserDataFolderTool,
 	openFolderTool,
 	openAccessibilityTool,
 	openScreenRecordingTool,
@@ -43,6 +44,7 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	setThemeModeTool,
 	openFolderTool,
 	openAppDataFolderTool,
+	openUserDataFolderTool,
 	openAccessibilityTool,
 	openScreenRecordingTool,
 	setMenuBarTool,

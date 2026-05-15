@@ -58,6 +58,16 @@ export const openAppDataFolderTool: AgentTool = {
 	},
 };
 
+export const openUserDataFolderTool: AgentTool = {
+	name: 'open_user_data_folder',
+	description: "Open Friday's user-owned .friday folder in the OS file manager.",
+	schema: { type: 'object', properties: {}, additionalProperties: false },
+	async execute(_args, ctx) {
+		const target = await ctx.services.userDataDirectory.ensureRoot();
+		return openPath(target, 'open_user_data_folder', ctx);
+	},
+};
+
 export const openFolderTool: AgentTool<OpenFolderArgs> = {
 	name: 'open_folder',
 	description: 'Open a workspace folder in the OS file manager. Defaults to the workspace root.',
