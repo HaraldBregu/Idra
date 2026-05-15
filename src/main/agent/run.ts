@@ -3,6 +3,12 @@ import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { beforeToolCall, newCallTracker } from '../tools/before-call';
+import {
+	executeAgentToolWithManagement,
+	selectAgentToolsForTurn,
+	ToolExecutor,
+	type AgentToolManagementOptions,
+} from '../tools/management';
 import { compact } from './compaction';
 import type { SessionFile } from '../session/store';
 
@@ -43,6 +49,7 @@ export interface AgentRunInput {
 	streamOutput?: (chunk: string) => void;
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
+	toolManagement?: AgentToolManagementOptions;
 }
 
 export interface AgentRunResult {
@@ -81,6 +88,16 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	session.transcript.push({ role: 'user', content: userMessage });
 
 	const tracker = newCallTracker();
+	const managedExecutor = input.toolManagement?.executor ?? new ToolExecutor({ maxToolCallsPerTurn: input.toolManagement?.maxToolCallsPerTurn });
+	const toolManagement: AgentToolManagementOptions = {
+		...input.toolManagement,
+		executor: managedExecutor,
+	};
+	const toolSelection = selectAgentToolsForTurn(tools, userMessage, ctx, toolManagement);
+	const toolsForPrompt = toolSelection.toolsForPrompt;
+	const systemPromptForTurn = toolSelection.systemPromptSuffix
+		? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
+		: systemPrompt;
 	const totalUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 	let finalText = '';
 	let toolCalls = 0;
@@ -106,9 +123,9 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			try {
 				for await (const event of provider.stream({
 					model,
-					system: systemPrompt,
+					system: systemPromptForTurn,
 					messages: session.transcript,
-					tools: tools.map((t) => ({
+					tools: toolsForPrompt.map((t) => ({
 						name: t.name,
 						description: t.description,
 						schema: t.schema,
@@ -197,7 +214,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					break;
 				}
 				toolCalls++;
-				const tool = tools.find((x) => x.name === t.name);
+				const tool = toolsForPrompt.find((x) => x.name === t.name);
 				let args: unknown = {};
 				try {
 					args = t.argsStr.trim() ? JSON.parse(t.argsStr) : {};
@@ -250,7 +267,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				let res;
 				try {
-					res = await tool.execute(args as Record<string, unknown>, ctx);
+					res = await executeAgentToolWithManagement(tool, args as Record<string, unknown>, ctx, toolManagement);
 				} catch (err) {
 					res = {
 						status: 'error' as const,

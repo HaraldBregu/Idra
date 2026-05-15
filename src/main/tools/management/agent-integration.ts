@@ -5,6 +5,7 @@ import { agentToolToManagedTool, createAgentToolRegistry } from './adapter';
 import { ToolDiscovery } from './discovery';
 import { ToolExecutor } from './executor';
 import { ToolPromptBuilder } from './prompting';
+import { ToolUsePolicy } from './use-policy';
 import type { RankedTool, RelevantMemory, SessionContext, ToolExecutionContext } from './types';
 
 export interface AgentToolManagementOptions {
@@ -12,6 +13,7 @@ export interface AgentToolManagementOptions {
 	forceSelection?: boolean;
 	useWhenToolCountExceeds?: number;
 	maxPromptTools?: number;
+	maxToolCallsPerTurn?: number;
 	availablePermissions?: string[];
 	userTimezone?: string;
 	memory?: RelevantMemory;
@@ -37,6 +39,8 @@ export function selectAgentToolsForTurn(
 	if (!options.forceSelection && tools.length <= threshold) {
 		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
 	}
+	const policy = new ToolUsePolicy().evaluate({ userRequest: userMessage });
+	if (!policy.shouldUseTools) return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
 	const registry = createAgentToolRegistry(tools);
 	const sessionContext = createSessionContext(ctx, options);
 	const rankedTools = new ToolDiscovery(registry).discover({
@@ -62,7 +66,7 @@ export async function executeAgentToolWithManagement(
 	const builder = options.argumentBuilder ?? new ToolArgumentBuilder();
 	const built = builder.build(managed, { intendedCall: args, sessionContext, memory: options.memory });
 	if (built.type === 'clarificationRequired') return textResult(built.question, true);
-	const executor = options.executor ?? new ToolExecutor();
+	const executor = options.executor ?? new ToolExecutor({ maxToolCallsPerTurn: options.maxToolCallsPerTurn });
 	const result = await executor.execute(managed, built.input, createExecutionContext(ctx, sessionContext, options));
 	if (result.success && result.data) {
 		if (result.warnings.length === 0) return result.data;
@@ -114,4 +118,3 @@ function createExecutionContext(
 		},
 	};
 }
-

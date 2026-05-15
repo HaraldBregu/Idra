@@ -255,8 +255,8 @@ export class ToolExecutor {
 		}
 	}
 
-	private finalizeResult<TOutput>(
-		tool: Tool<unknown, TOutput>,
+	private finalizeResult<TInput, TOutput>(
+		tool: Tool<TInput, TOutput>,
 		result: ToolResult<TOutput>,
 		startedAt: Date,
 		retryCount: number
