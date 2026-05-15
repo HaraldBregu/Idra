@@ -17,7 +17,7 @@ import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
 import { Button } from './components/ui/button';
-import { ButtonGroup } from './components/ui/button-group';
+import { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
@@ -48,40 +48,26 @@ function RootRouteComponent(): React.JSX.Element {
 	const isHome = location.pathname === '/home';
 
 	const chatModeToggle = isHome ? (
-		<ButtonGroup
-			aria-label="Chat mode"
-			className="pointer-events-auto rounded-full border border-border bg-muted p-0.5 shadow-sm"
+		<ToggleGroup
+			type="single"
+			value={chatMode}
+			onValueChange={(value) => {
+				if (value === 'chat' || value === 'voice') {
+					setChatMode(value);
+				}
+			}}
+			className="pointer-events-auto rounded-full bg-muted p-1"
 			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 		>
-			<Button
-				type="button"
-				variant={chatMode === 'chat' ? 'secondary' : 'ghost'}
-				size="sm"
-				onClick={() => setChatMode('chat')}
-				aria-pressed={chatMode === 'chat'}
-				className={cn(
-					'!h-7 !rounded-full border-0 px-3 text-xs font-semibold',
-					chatMode === 'chat' ? 'bg-background shadow-sm' : 'text-muted-foreground'
-				)}
-			>
+			<ToggleGroupItem value="chat" className="h-7 rounded-full px-3 text-xs font-semibold">
 				<MessageSquare className="size-4" strokeWidth={2.2} />
 				Chat
-			</Button>
-			<Button
-				type="button"
-				variant={chatMode === 'voice' ? 'secondary' : 'ghost'}
-				size="sm"
-				onClick={() => setChatMode('voice')}
-				aria-pressed={chatMode === 'voice'}
-				className={cn(
-					'!h-7 !rounded-full border-0 px-3 text-xs font-semibold',
-					chatMode === 'voice' ? 'bg-background shadow-sm' : 'text-muted-foreground'
-				)}
-			>
+			</ToggleGroupItem>
+			<ToggleGroupItem value="voice" className="h-7 rounded-full px-3 text-xs font-semibold">
 				<Mic className="size-4" strokeWidth={2.2} />
 				Voice
-			</Button>
-		</ButtonGroup>
+			</ToggleGroupItem>
+		</ToggleGroup>
 	) : undefined;
 	const startTitleBarAction = isStart ? (
 		<Button
