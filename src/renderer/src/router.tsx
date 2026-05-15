@@ -33,7 +33,9 @@ function RootRouteComponent(): React.JSX.Element {
 		<div className="app-translucent-window flex h-screen flex-col overflow-hidden text-foreground">
 			<TitleBar title={t('appTitle')} />
 			<div className="min-h-0 flex-1 overflow-hidden pt-12">
-				<Outlet />
+				<PageTransition>
+					<Outlet />
+				</PageTransition>
 			</div>
 		</div>
 	);
