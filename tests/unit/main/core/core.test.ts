@@ -102,8 +102,11 @@ describe('core modules', () => {
 		const created = factory.create({ width: 900, webPreferences: { devTools: false } });
 		expect(BrowserWindow).toHaveBeenCalledWith(expect.objectContaining({
 			width: 900,
-			webPreferences: expect.objectContaining({ contextIsolation: true, nodeIntegration: false }),
+			webPreferences: expect.objectContaining({ contextIsolation: true, nodeIntegration: false, zoomFactor: 1 }),
 		}));
+		expect(created.webContents.setZoomLevel).toHaveBeenCalledWith(0);
+		expect(created.webContents.setZoomFactor).toHaveBeenCalledWith(1);
+		expect(created.webContents.on).toHaveBeenCalledWith('zoom-changed', expect.any(Function));
 		expect(created.webContents.setWindowOpenHandler).toHaveBeenCalled();
 	});
 });

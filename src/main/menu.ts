@@ -135,10 +135,6 @@ export class Menu {
 				submenu: [
 					{ label: m.reload, role: 'reload' as const },
 					{ label: m.forceReload, role: 'forceReload' as const },
-					{ type: 'separator' as const },
-					{ label: m.resetZoom, role: 'resetZoom' as const },
-					{ label: m.zoomIn, role: 'zoomIn' as const },
-					{ label: m.zoomOut, role: 'zoomOut' as const },
 				],
 			},
 			{

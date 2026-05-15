@@ -36,6 +36,7 @@ export class WindowFactory {
 	private getBaseWebPreferences(): Electron.WebPreferences {
 		return {
 			preload: this.preloadPath,
+			zoomFactor: 1,
 			sandbox: true,
 			nodeIntegration: false,
 			contextIsolation: true,
@@ -44,6 +45,21 @@ export class WindowFactory {
 			allowRunningInsecureContent: false,
 			spellcheck: false,
 		};
+	}
+
+	private pinDefaultZoom(win: BrowserWindow): void {
+		const resetZoom = (): void => {
+			if (win.isDestroyed()) return;
+			win.webContents.setZoomLevel(0);
+			win.webContents.setZoomFactor(1);
+		};
+
+		resetZoom();
+		win.webContents.once('did-finish-load', resetZoom);
+		win.webContents.on('zoom-changed', (event) => {
+			event.preventDefault();
+			resetZoom();
+		});
 	}
 
 	/**
@@ -66,6 +82,7 @@ export class WindowFactory {
 		};
 
 		const win = new BrowserWindow(options);
+		this.pinDefaultZoom(win);
 
 		// Prevent arbitrary window.open() calls from creating unrestricted windows
 		win.webContents.setWindowOpenHandler(() => {
