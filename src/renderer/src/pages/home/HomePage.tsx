@@ -202,17 +202,61 @@ function defaultPendingSelections(message: MultiSelectChatMessage): string[] {
 	return selections;
 }
 
+interface StreamControl {
+	readonly push: (chunk: string) => void;
+	readonly complete: () => void;
+	readonly iterable: AsyncIterable<string>;
+}
+
+function createStreamIterable(): StreamControl {
+	const queue: string[] = [];
+	let resolve: (() => void) | null = null;
+	let done = false;
+
+	const iterable: AsyncIterable<string> = {
+		[Symbol.asyncIterator]() {
+			return {
+				async next() {
+					while (queue.length === 0 && !done) {
+						await new Promise<void>((res) => {
+							resolve = res;
+						});
+					}
+					if (queue.length > 0) {
+						return { value: queue.shift()!, done: false as const };
+					}
+					return { value: undefined as unknown as string, done: true as const };
+				},
+			};
+		},
+	};
+
+	return {
+		push(chunk: string) {
+			queue.push(chunk);
+			resolve?.();
+			resolve = null;
+		},
+		complete() {
+			done = true;
+			resolve?.();
+			resolve = null;
+		},
+		iterable,
+	};
+}
+
 function HomePage(): ReactElement {
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
-	// null = not streaming; non-null string = streaming in progress (may be empty before first delta)
-	const [streamingContent, setStreamingContent] = useState<string | null>(null);
+	const [streamIterable, setStreamIterable] = useState<AsyncIterable<string> | null>(null);
+	const [streamStarted, setStreamStarted] = useState(false);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
-	// Ref so the onResponse listener can check without stale closure issues
-	const isStreamingRef = useRef(false);
+	const streamControlRef = useRef<StreamControl | null>(null);
+	const finalResponseRef = useRef('');
 	const promptContainerRef = useRef<HTMLDivElement>(null);
 	const prefersReducedMotion = useReducedMotion();
 
