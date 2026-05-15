@@ -734,7 +734,7 @@ const StartPage: React.FC = () => {
 
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
-			<div className="flex min-h-full flex-col items-center justify-center py-4 text-center sm:py-0">
+			<div className="flex min-h-full flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-6">
 				<AssistantOrb />
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
@@ -754,9 +754,9 @@ const StartPage: React.FC = () => {
 
 	function renderPermissionsStep(): React.JSX.Element {
 		return (
-			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col py-5">
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
 				<div>
-					<h1 className="text-base font-bold tracking-normal text-foreground">
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
 						A couple of permissions
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
@@ -830,9 +830,9 @@ const StartPage: React.FC = () => {
 
 	function renderProviderStep(): React.JSX.Element {
 		return (
-			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col py-5">
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
 				<div>
-					<h1 className="text-base font-bold tracking-normal text-foreground">
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
 						Connect a provider
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
@@ -1002,9 +1002,9 @@ const StartPage: React.FC = () => {
 		const openAiConnected = connectedProviderIds.has('openai');
 
 		return (
-			<div className="mx-auto w-full max-w-2xl py-5">
+			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
 				<div>
-					<h1 className="text-base font-bold tracking-normal text-foreground">
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
 						Choose your models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
@@ -1113,9 +1113,9 @@ const StartPage: React.FC = () => {
 
 	function renderFinishStep(): React.JSX.Element {
 		return (
-			<div className="mx-auto w-full max-w-2xl py-5">
+			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
 				<div>
-					<h1 className="text-base font-bold tracking-normal text-foreground">
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
 						Almost done
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
@@ -1227,7 +1227,7 @@ const StartPage: React.FC = () => {
 
 	return (
 		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-3 sm:px-5">
+			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-4 sm:px-6">
 				{renderStepContent()}
 				{errorMessage ? (
 					<div className="mx-auto mb-4 flex max-w-2xl items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-destructive">
