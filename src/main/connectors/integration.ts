@@ -587,7 +587,7 @@ export class ConnectorToolAdapter {
 		tool: NormalizedConnectorTool,
 		gateway: ConnectorExecutionGateway,
 		options: { userId?: string; maxTextChars?: number } = {}
-	): AgentTool<Record<string, unknown>, ConnectorExecutionResult> {
+	): AgentTool<Record<string, unknown>, ConnectorExecutionResult | ConnectorExecutionResponse> {
 		return {
 			name: this.agentToolName(tool),
 			description: [
@@ -630,15 +630,22 @@ export class ConnectorToolAdapter {
 					});
 				}
 
-				if (response.status === 'error') {
-					return {
-						status: 'error',
-						content: [{ type: 'text', text: `${response.error.code}: ${response.error.message}` }],
-						details: response,
-					};
-				}
+					if (response.status === 'error') {
+						return {
+							status: 'error',
+							content: [{ type: 'text', text: `${response.error.code}: ${response.error.message}` }],
+							details: response,
+						};
+					}
+					if (response.status === 'pending_confirmation') {
+						return {
+							status: 'error',
+							content: [{ type: 'text', text: `Confirmation remained pending for ${tool.name}.` }],
+							details: response,
+						};
+					}
 
-				const serialized = JSON.stringify(response.result.data, null, 2);
+					const serialized = JSON.stringify(response.result.data, null, 2);
 				const text =
 					serialized.length > (options.maxTextChars ?? 8_000)
 						? `${serialized.slice(0, options.maxTextChars ?? 8_000)}\n[truncated sanitized connector result]`
@@ -1459,7 +1466,7 @@ export class ConnectorExecutionGateway {
 			if (!tool) throw new ConnectorError('TOOL_NOT_FOUND', `Tool not found: ${request.toolId}`);
 			if (!tool.enabled) throw new ConnectorError('TOOL_DISABLED', `Tool is disabled until reviewed: ${tool.name}`);
 
-			if (request.sourceConnectorIds?.some((id) => id !== connector.id) && SENSITIVITY_RANK[tool.dataSensitivity] >= SENSITIVITY_RANK.private) {
+			if (request.sourceConnectorIds?.some((id) => id !== request.connectorId) && SENSITIVITY_RANK[tool.dataSensitivity] >= SENSITIVITY_RANK.private) {
 				throw new ConnectorError('TRUST_BLOCKED', 'Private cross-connector data transfer requires explicit user approval.');
 			}
 
@@ -1476,9 +1483,15 @@ export class ConnectorExecutionGateway {
 				}
 			}
 
-			const explicitConsent =
-				Boolean(confirmationId) &&
-				this.dependencies.confirmationManager.consume(confirmationId, request.userId, connector.id, tool.id);
+			let explicitConsent = false;
+			if (confirmationId) {
+				explicitConsent = this.dependencies.confirmationManager.consume(
+					confirmationId,
+					request.userId,
+					connector.id,
+					tool.id
+				);
+			}
 			if (confirmationId && !explicitConsent) {
 				throw new ConnectorError('CONFIRMATION_INVALID', 'Confirmation is invalid or expired.');
 			}
