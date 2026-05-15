@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import { PageContainer, PageSidebar, PageSidebarInset } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
-import { useApp } from '@/contexts';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SETTINGS_ITEMS = [
 	{ path: '/settings/general', labelKey: 'settings.tabs.general', icon: Info },
