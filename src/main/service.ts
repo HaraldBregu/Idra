@@ -7,6 +7,8 @@ import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { WorkspaceService } from './workspace';
+import type { ConnectorsService } from './connectors';
+import type { SkillsService } from './skills';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { runAgent, type AgentRunHooks } from './agent/run';
 import { DEFAULT_ASSISTANT_ID } from './constants';
@@ -29,6 +31,8 @@ export interface AssistantServiceDependencies {
 	eventBus: EventBus;
 	workspace: WorkspaceService;
 	mcpRegistry?: McpRegistry;
+	connectors?: ConnectorsService;
+	skills?: SkillsService;
 }
 
 export interface AssistantServiceOptions {
@@ -88,16 +92,9 @@ export class AssistantService {
 			runtime.session = await loadSession(assistantId, model, providerId, {
 				baseDir: this.sessionBaseDir,
 			});
-			const tools = this.toolsFactory();
+			const baseTools = this.toolsFactory();
 			const provider = this.providerFactory({ id: providerId, apiKey, baseURL }, model);
 			const workspaceRoot = this.workspaceRoot();
-			const systemPrompt = await buildSystemPrompt({
-				workspace: workspaceRoot,
-				date: new Date().toISOString().slice(0, 10),
-				model,
-				tools,
-			});
-
 			const ctx: ToolContext = {
 				workspace: workspaceRoot,
 				sessionId: runtime.session.id,
@@ -109,6 +106,34 @@ export class AssistantService {
 				elicit: { ask: (question, suggestions) => runtime.hitl.askInput(question, suggestions) },
 				services: this.dependencies,
 			};
+			const skillRuntime = this.dependencies.skills
+				? {
+						userId: assistantId,
+						sessionId: runtime.session.id,
+						tools: baseTools,
+						toolContext: ctx,
+						signal: abort.signal,
+					}
+				: undefined;
+			const skillChoices = skillRuntime
+				? await this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
+				: [];
+			const skillTool = skillRuntime
+				? this.dependencies.skills!.createExecutionTool({
+						userId: skillRuntime.userId,
+						sessionId: skillRuntime.sessionId,
+						tools: skillRuntime.tools,
+						signal: skillRuntime.signal,
+					})
+				: undefined;
+			const tools = skillTool ? [...baseTools, skillTool] : baseTools;
+			const systemPrompt = await buildSystemPrompt({
+				workspace: workspaceRoot,
+				date: new Date().toISOString().slice(0, 10),
+				model,
+				tools,
+				skills: skillChoices,
+			});
 
 			const hooks = this.buildHooks(assistantId, {
 				runId,

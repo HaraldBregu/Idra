@@ -1,7 +1,8 @@
 import { promises as fs } from 'node:fs';
-import type { ProviderAdapter, ProviderEvent } from '../../../../src/main/provider/types';
+import type { ProviderAdapter, ProviderEvent, ProviderStreamRequest } from '../../../../src/main/provider/types';
 import { AssistantService } from '../../../../src/main/service';
 import { AssistantRunLogger } from '../../../../src/main/run-logger';
+import { SkillsService } from '../../../../src/main/skills';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
@@ -123,6 +124,38 @@ describe('AssistantService', () => {
 		expect(service.resolveApproval(pending.approvals[0]!.id, true)).toBe(true);
 		await expect(send).resolves.toBe('finished');
 		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('adds compact skill guidance and execute_skill tool when skills are available', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const skills = new SkillsService(deps.logger as never);
+		const service = new AssistantService(
+			{ ...deps, skills },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'done' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [],
+			}
+		);
+
+		await expect(service.send('summarize this document')).resolves.toBe('done');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
+		expect(requests[0]!.system).toContain('## Skill guidance');
+		expect(requests[0]!.system).toContain('summarize-document@1.0.0');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 

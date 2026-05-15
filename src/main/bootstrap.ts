@@ -58,9 +58,13 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
+	const skills = container.register('skills', new SkillsService(logger));
+	const connectors = container.register('connectors', new ConnectorsService(store, logger));
+	connectors.restoreEnabledConnectors();
+
 	const assistantService = container.register(
 		'assistantService',
-		new AssistantService({ store, cron, logger, eventBus, workspace, mcpRegistry })
+		new AssistantService({ store, cron, logger, eventBus, workspace, mcpRegistry, skills, connectors })
 	);
 	container.register(
 		'channelRegistry',
@@ -68,9 +72,6 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	container.register('apps', new AppsService(logger));
-	container.register('skills', new SkillsService(logger));
-	const connectors = container.register('connectors', new ConnectorsService(store, logger));
-	connectors.restoreEnabledConnectors();
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);

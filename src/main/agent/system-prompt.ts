@@ -1,5 +1,6 @@
 import type { AgentTool } from '../tools/types';
 import type { MemoryManager } from '../memory';
+import type { SkillPromptChoice } from '../skills/types';
 
 export interface SystemPromptCtx {
 	workspace: string;
@@ -7,6 +8,7 @@ export interface SystemPromptCtx {
 	model: string;
 	tools: AgentTool[];
 	memory?: MemoryManager;
+	skills?: SkillPromptChoice[];
 }
 
 const TOOL_GUIDANCE: Record<string, string> = {
@@ -41,6 +43,21 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 		guidance.push(`- **${tool.name}** — ${line}`);
 	}
 	parts.push(guidance.join('\n'));
+
+	if (ctx.skills?.length) {
+		const skills = [
+			'## Skill guidance',
+			'Use `execute_skill` for reusable high-level workflows. Only these compact, pre-ranked candidates are relevant for this request:',
+			...ctx.skills.map((skill) => {
+				const toolText = skill.requiredTools.length ? ` tools=${skill.requiredTools.join(',')}` : '';
+				const connectorText = skill.requiredConnectors.length
+					? ` connectors=${skill.requiredConnectors.join(',')}`
+					: '';
+				return `- ${skill.id}@${skill.version} (${skill.category}, score=${skill.score.toFixed(2)}, safety=${skill.safetyLevel}) — ${skill.description}${toolText}${connectorText}`;
+			}),
+		];
+		parts.push(skills.join('\n'));
+	}
 
 	if (ctx.memory) {
 		const all = await ctx.memory.readAll();

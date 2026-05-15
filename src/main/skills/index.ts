@@ -1,1 +1,15 @@
 export { SkillsService } from './skills-service';
+export { SkillRegistry } from './registry';
+export { SkillDiscovery } from './discovery';
+export { SkillSelector } from './selector';
+export { SkillComposer } from './composer';
+export { SkillPlanner } from './planner';
+export { SkillExecutionEngine } from './execution-engine';
+export { SkillSafetyPolicy } from './safety-policy';
+export { SkillRanker } from './ranker';
+export { SkillLoader } from './loader';
+export { SkillDependencyResolver } from './dependency-resolver';
+export { SkillAuditLog } from './audit-log';
+export { SkillVersionManager } from './version-manager';
+export { createExampleSkills } from './example-skills';
+export * from './types';
