@@ -186,15 +186,17 @@ export const TitleBar = React.memo(function TitleBar({
 					className="z-10 mr-5 flex h-full items-center"
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
-					<button
+					<Button
 						type="button"
 						onClick={() => navigate('/settings')}
-						className="flex size-8 items-center justify-center rounded-full bg-[#8377df] text-xs font-bold text-white shadow-[0_6px_20px_rgba(73,61,161,0.28)] transition hover:bg-[#7569d3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8377df] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+						variant="secondary"
+						size="icon"
+						className="size-8 rounded-full text-xs font-bold"
 						aria-label={t('settings.title', 'Settings')}
 						title={t('settings.title', 'Settings')}
 					>
 						AR
-					</button>
+					</Button>
 				</div>
 			)}
 

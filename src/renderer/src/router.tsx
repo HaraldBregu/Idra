@@ -17,6 +17,7 @@ import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
 import { Button } from './components/ui/button';
+import { ButtonGroup } from './components/ui/button-group';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
@@ -45,62 +46,42 @@ function RootRouteComponent(): React.JSX.Element {
 
 	const isStart = location.pathname === '/start';
 	const isHome = location.pathname === '/home';
-	const isHomeVoice = isHome && chatMode === 'voice';
-	const homeTitleBarStyle: React.CSSProperties | undefined = isHomeVoice
-		? {
-				backgroundColor: 'rgba(33, 30, 38, 0.95)',
-				borderColor: 'rgba(255, 255, 255, 0.1)',
-				boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-			}
-		: isHome
-			? {
-					backgroundColor: 'rgba(251, 248, 246, 0.9)',
-					borderColor: '#e6e0e4',
-					boxShadow: '0 1px 2px rgba(67, 59, 80, 0.05)',
-				}
-			: undefined;
 
 	const chatModeToggle = isHome ? (
-		<div
-			className={cn(
-				'pointer-events-auto flex items-center gap-0.5 rounded-full border p-1 shadow-sm',
-				isHomeVoice ? 'border-white/10 bg-white/10' : 'border-[#e4dfe4] bg-[#ece9eb]'
-			)}
+		<ButtonGroup
+			aria-label="Chat mode"
+			className="pointer-events-auto rounded-full border border-border bg-muted p-0.5 shadow-sm"
 			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 		>
-			<button
+			<Button
 				type="button"
+				variant={chatMode === 'chat' ? 'secondary' : 'ghost'}
+				size="sm"
 				onClick={() => setChatMode('chat')}
 				aria-pressed={chatMode === 'chat'}
 				className={cn(
-					'flex h-7 items-center gap-1.5 rounded-full px-3 text-[13px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a7aff]',
-					chatMode === 'chat'
-						? 'border-2 border-[#0a7aff] bg-white text-[#24212a] shadow-[0_0_0_2px_rgba(10,122,255,0.16)]'
-						: isHomeVoice
-							? 'text-[#746f7e] hover:text-[#efeaf4]'
-							: 'text-[#77737e] hover:text-[#24212a]'
+					'!h-7 !rounded-full border-0 px-3 text-xs font-semibold',
+					chatMode === 'chat' ? 'bg-background shadow-sm' : 'text-muted-foreground'
 				)}
 			>
 				<MessageSquare className="size-4" strokeWidth={2.2} />
 				Chat
-			</button>
-			<button
+			</Button>
+			<Button
 				type="button"
+				variant={chatMode === 'voice' ? 'secondary' : 'ghost'}
+				size="sm"
 				onClick={() => setChatMode('voice')}
 				aria-pressed={chatMode === 'voice'}
 				className={cn(
-					'flex h-7 items-center gap-1.5 rounded-full px-3 text-[13px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a7aff]',
-					chatMode === 'voice'
-						? 'border-2 border-[#0a7aff] bg-white text-[#24212a] shadow-[0_0_0_2px_rgba(10,122,255,0.16)]'
-						: isHomeVoice
-							? 'text-[#746f7e] hover:text-[#efeaf4]'
-							: 'text-[#77737e] hover:text-[#24212a]'
+					'!h-7 !rounded-full border-0 px-3 text-xs font-semibold',
+					chatMode === 'voice' ? 'bg-background shadow-sm' : 'text-muted-foreground'
 				)}
 			>
 				<Mic className="size-4" strokeWidth={2.2} />
 				Voice
-			</button>
-		</div>
+			</Button>
+		</ButtonGroup>
 	) : undefined;
 	const startTitleBarAction = isStart ? (
 		<Button
@@ -117,15 +98,13 @@ function RootRouteComponent(): React.JSX.Element {
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
 			<div
 				className={cn(
-					'app-translucent-window flex h-screen flex-col overflow-hidden text-foreground',
-					isHomeVoice ? 'bg-[#1f1c24]' : isHome ? 'bg-[#fbf8f6]' : undefined
+					'app-translucent-window flex h-screen flex-col overflow-hidden bg-background text-foreground'
 				)}
 			>
 				<TitleBar
 					title={isStart ? 'Set up Friday' : t('appTitle')}
 					centerContent={chatModeToggle}
 					rightContent={startTitleBarAction}
-					style={homeTitleBarStyle}
 				/>
 				<div className="min-h-0 flex-1 overflow-hidden pt-12">
 					<PageTransition>
