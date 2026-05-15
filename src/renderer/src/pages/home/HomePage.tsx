@@ -779,6 +779,7 @@ function HomeChatSurface({
 				inputRef={inputRef}
 				onValueChange={onInputChange}
 				onSubmit={onSubmit}
+				onVoiceModeRequest={onVoiceModeRequest}
 			/>
 		</div>
 	);
