@@ -30,7 +30,9 @@ import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
@@ -77,8 +79,21 @@ type VoiceOption = {
 	description: string;
 };
 
+type ProviderModelGroup = {
+	provider: PublicProvider;
+	models: Model[];
+};
+
+type AssistantModelOption = {
+	value: string;
+	provider: PublicProvider;
+	catalog: ProviderCatalogItem;
+	model: Model;
+};
+
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
+const ASSISTANT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
 	'permissions',
@@ -243,6 +258,10 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	);
 }
 
+function getAssistantModelValue(providerId: string, modelId: string): string {
+	return `${providerId}${ASSISTANT_MODEL_VALUE_SEPARATOR}${modelId}`;
+}
+
 function ProviderMark({
 	initial,
 	className,
@@ -397,8 +416,14 @@ const StartPage: React.FC = () => {
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [configProvider, setConfigProvider] = useState('');
 	const [savedModelId, setSavedModelId] = useState('');
-	const [models, setModels] = useState<Model[]>([]);
+	const [assistantModelGroups, setAssistantModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
+	const [imageGenerationProvider, setImageGenerationProvider] = useState('');
+	const [savedImageGenerationModelId, setSavedImageGenerationModelId] = useState('');
+	const [imageGenerationModelGroups, setImageGenerationModelGroups] = useState<
+		ProviderModelGroup[]
+	>([]);
+	const [selectedImageGenerationModel, setSelectedImageGenerationModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
 	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
@@ -417,17 +442,58 @@ const StartPage: React.FC = () => {
 		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
 	);
 	const canContinueProviders = hasProviderDraft && !savingProviderId;
-	const selectedProvider = providers.find((provider) => provider.id === configProvider);
+	const assistantModelOptions = useMemo<AssistantModelOption[]>(
+		() =>
+			assistantModelGroups.flatMap((group) => {
+				const catalog = getProviderCatalogItem(group.provider.id);
+
+				return group.models.map((model) => ({
+					value: getAssistantModelValue(group.provider.id, model.id),
+					provider: group.provider,
+					catalog,
+					model,
+				}));
+			}),
+		[assistantModelGroups]
+	);
+	const imageGenerationModelOptions = useMemo<AssistantModelOption[]>(
+		() =>
+			imageGenerationModelGroups.flatMap((group) => {
+				const catalog = getProviderCatalogItem(group.provider.id);
+
+				return group.models.map((model) => ({
+					value: getAssistantModelValue(group.provider.id, model.id),
+					provider: group.provider,
+					catalog,
+					model,
+				}));
+			}),
+		[imageGenerationModelGroups]
+	);
+	const selectedAssistantModelValue =
+		configProvider && selectedModel ? getAssistantModelValue(configProvider, selectedModel) : '';
+	const selectedAssistantModelOption = assistantModelOptions.find(
+		(option) => option.value === selectedAssistantModelValue
+	);
+	const selectedImageGenerationModelValue =
+		imageGenerationProvider && selectedImageGenerationModel
+			? getAssistantModelValue(imageGenerationProvider, selectedImageGenerationModel)
+			: '';
+	const selectedImageGenerationModelOption = imageGenerationModelOptions.find(
+		(option) => option.value === selectedImageGenerationModelValue
+	);
+	const selectedProvider =
+		selectedAssistantModelOption?.provider ??
+		providers.find((provider) => provider.id === configProvider);
 	const configProviderName = selectedProvider?.name ?? configProvider;
-	const selectedModelName = models.find((model) => model.id === selectedModel)?.name ?? selectedModel;
+	const selectedModelName = selectedAssistantModelOption?.model.name ?? selectedModel;
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
-		: models.length === 0
+		: assistantModelOptions.length === 0
 			? 'No models available'
-			: `${models.length} models available`;
+			: `${assistantModelOptions.length} models available`;
 	const canSaveAssistantModel =
-		configProvider.length > 0 &&
-		selectedModel.length > 0 &&
+		selectedAssistantModelOption !== undefined &&
 		!loadingModels &&
 		!savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
@@ -492,9 +558,10 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, assistantService] = await Promise.all([
+				const [storedProviders, assistantService, imageGenerationService] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAssistantService(),
+					window.app.getImageGenerationService(),
 				]);
 				if (cancelled) return;
 
@@ -507,16 +574,26 @@ const StartPage: React.FC = () => {
 					) ??
 					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 					selectableProviders[0];
+				const preferredImageGenerationProvider =
+					selectableProviders.find(
+						(provider) => provider.id === imageGenerationService?.provider.id
+					) ??
+					selectableProviders.find((provider) => provider.id === 'openai') ??
+					selectableProviders[0];
 
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
 				setSavedModelId(assistantService?.model.id ?? '');
+				setImageGenerationProvider(preferredImageGenerationProvider?.id ?? '');
+				setSavedImageGenerationModelId(imageGenerationService?.model.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 
 				setProviders([]);
 				setConfigProvider('');
 				setSavedModelId('');
+				setImageGenerationProvider('');
+				setSavedImageGenerationModelId('');
 				setErrorMessage(getErrorMessage(error, 'Could not load assistant providers.'));
 			}
 		}
@@ -534,28 +611,84 @@ const StartPage: React.FC = () => {
 		let cancelled = false;
 
 		async function loadModels(): Promise<void> {
-			const provider = providers.find((item) => item.id === configProvider);
-
-			if (!provider) {
-				setModels([]);
+			if (providers.length === 0) {
+				setAssistantModelGroups([]);
+				setImageGenerationModelGroups([]);
 				setSelectedModel('');
+				setSelectedImageGenerationModel('');
 				return;
 			}
 
 			setLoadingModels(true);
 			setErrorMessage('');
 			try {
-				const providerModels = await window.app.getModels(provider);
+				const nextAssistantGroups: ProviderModelGroup[] = [];
+				const nextImageGenerationGroups: ProviderModelGroup[] = [];
+				let firstError: unknown;
+
+				for (const provider of providers) {
+					try {
+						const [assistantModels, imageGenerationModels] = await Promise.all([
+							window.app.getModels(provider),
+							window.app.getImageGenerationModels(provider),
+						]);
+
+						if (assistantModels.length > 0) {
+							nextAssistantGroups.push({ provider, models: assistantModels });
+						}
+
+						if (imageGenerationModels.length > 0) {
+							nextImageGenerationGroups.push({ provider, models: imageGenerationModels });
+						}
+					} catch (error) {
+						firstError ??= error;
+					}
+				}
+
 				if (cancelled) return;
 
-				setModels(providerModels);
-				const savedModel = providerModels.find((model) => model.id === savedModelId);
-				setSelectedModel(savedModel?.id ?? providerModels[0]?.id ?? '');
+				setAssistantModelGroups(nextAssistantGroups);
+				setImageGenerationModelGroups(nextImageGenerationGroups);
+
+				const assistantOptions = nextAssistantGroups.flatMap((group) =>
+					group.models.map((model) => ({ provider: group.provider, model }))
+				);
+				const imageGenerationOptions = nextImageGenerationGroups.flatMap((group) =>
+					group.models.map((model) => ({ provider: group.provider, model }))
+				);
+				const preferredAssistantOption =
+					assistantOptions.find(
+						(option) =>
+							option.provider.id === configProvider && option.model.id === savedModelId
+					) ??
+					assistantOptions.find((option) => option.provider.id === configProvider) ??
+					assistantOptions[0];
+				const preferredImageGenerationOption =
+					imageGenerationOptions.find(
+						(option) =>
+							option.provider.id === imageGenerationProvider &&
+							option.model.id === savedImageGenerationModelId
+					) ??
+					imageGenerationOptions.find(
+						(option) => option.provider.id === imageGenerationProvider
+					) ??
+					imageGenerationOptions[0];
+
+				setConfigProvider(preferredAssistantOption?.provider.id ?? '');
+				setSelectedModel(preferredAssistantOption?.model.id ?? '');
+				setImageGenerationProvider(preferredImageGenerationOption?.provider.id ?? '');
+				setSelectedImageGenerationModel(preferredImageGenerationOption?.model.id ?? '');
+
+				if (!preferredAssistantOption && firstError) {
+					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
+				}
 			} catch (error) {
 				if (cancelled) return;
 
-				setModels([]);
+				setAssistantModelGroups([]);
+				setImageGenerationModelGroups([]);
 				setSelectedModel('');
+				setSelectedImageGenerationModel('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
 				if (!cancelled) {
@@ -569,7 +702,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [configProvider, providers, savedModelId, step]);
+	}, [providers, savedImageGenerationModelId, savedModelId, step]);
 
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
@@ -668,26 +801,43 @@ const StartPage: React.FC = () => {
 		}
 	}
 
-	function handleConfigProviderChange(value: string | null): void {
+	function handleAssistantModelChange(value: string | null): void {
+		const option = assistantModelOptions.find((item) => item.value === value);
+		if (!option) return;
+
 		setErrorMessage('');
-		setConfigProvider(value ?? '');
-		setSavedModelId('');
-		setModels([]);
-		setSelectedModel('');
+		setConfigProvider(option.provider.id);
+		setSelectedModel(option.model.id);
+	}
+
+	function handleImageGenerationModelChange(value: string | null): void {
+		const option = imageGenerationModelOptions.find((item) => item.value === value);
+		if (!option) return;
+
+		setErrorMessage('');
+		setImageGenerationProvider(option.provider.id);
+		setSelectedImageGenerationModel(option.model.id);
 	}
 
 	async function handleSaveAssistantModel(): Promise<void> {
-		const provider = providers.find((item) => item.id === configProvider);
-		const model = models.find((item) => item.id === selectedModel);
-		if (!provider || !model || !canSaveAssistantModel) return;
+		if (!selectedAssistantModelOption || !canSaveAssistantModel) return;
 
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAssistantService(provider, model);
+			await window.app.saveAssistantService(
+				selectedAssistantModelOption.provider,
+				selectedAssistantModelOption.model
+			);
+			if (selectedImageGenerationModelOption) {
+				await window.app.saveImageGenerationService(
+					selectedImageGenerationModelOption.provider,
+					selectedImageGenerationModelOption.model
+				);
+			}
 			goToStep('finish');
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save the assistant model.'));
+			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
 		} finally {
 			setSavingConfig(false);
 		}
@@ -998,7 +1148,11 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderModelsStep(): React.JSX.Element {
-		const selectedCatalog = getProviderCatalogItem(configProvider);
+		const selectedCatalog =
+			selectedAssistantModelOption?.catalog ?? getProviderCatalogItem(configProvider);
+		const selectedImageGenerationCatalog =
+			selectedImageGenerationModelOption?.catalog ??
+			getProviderCatalogItem(imageGenerationProvider);
 		const openAiConnected = connectedProviderIds.has('openai');
 
 		return (
@@ -1019,13 +1173,13 @@ const StartPage: React.FC = () => {
 							Assistant
 						</Label>
 						<Select
-							value={configProvider}
-							onValueChange={handleConfigProviderChange}
-							disabled={providers.length === 0 || savingConfig}
+							value={selectedAssistantModelValue}
+							onValueChange={handleAssistantModelChange}
+							disabled={loadingModels || assistantModelOptions.length === 0 || savingConfig}
 						>
 							<SelectTrigger
-								id="assistant-provider"
-								className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+								id="assistant-model"
+								className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
 							>
 								<SelectValue className="sr-only" />
 								<div className="flex min-w-0 items-center gap-2.5">
@@ -1044,38 +1198,141 @@ const StartPage: React.FC = () => {
 									</div>
 								</div>
 							</SelectTrigger>
-							<SelectContent>
-								{providers.map((provider) => (
-									<SelectItem key={provider.id} value={provider.id}>
-										{provider.name}
-									</SelectItem>
-								))}
+							<SelectContent align="start" className="rounded-lg p-1">
+								{assistantModelGroups.map((group) => {
+									const catalog = getProviderCatalogItem(group.provider.id);
+
+									return (
+										<SelectGroup key={group.provider.id}>
+											<SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+												<ProviderMark
+													initial={catalog.initial}
+													className={cn(
+														catalog.swatchClassName,
+														'size-4 rounded-full text-[0.625rem]'
+													)}
+												/>
+												{catalog.name}
+											</SelectLabel>
+											{group.models.map((model) => {
+												const value = getAssistantModelValue(group.provider.id, model.id);
+												const selected = value === selectedAssistantModelValue;
+
+												return (
+													<SelectItem
+														key={value}
+														value={value}
+														className={cn(
+															'h-10 px-2 py-0 pr-8 text-sm font-semibold',
+															selected && 'bg-accent text-accent-foreground'
+														)}
+													>
+														<span className="flex min-w-0 items-center gap-2">
+															<span
+																className={cn(
+																	'flex size-4 shrink-0 items-center justify-center rounded-full border border-border',
+																	selected &&
+																		'rounded-md border-primary bg-primary text-primary-foreground'
+																)}
+															>
+																{selected ? <Check className="size-3" /> : null}
+															</span>
+															<span className="truncate">{model.name}</span>
+														</span>
+													</SelectItem>
+												);
+											})}
+										</SelectGroup>
+									);
+								})}
 							</SelectContent>
 						</Select>
+					</div>
 
+					<div className="space-y-2">
+						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+							Image generation
+						</Label>
 						<Select
-							value={selectedModel}
-							onValueChange={(value) => {
-								setErrorMessage('');
-								setSelectedModel(value ?? '');
-							}}
-							disabled={loadingModels || models.length === 0 || savingConfig}
+							value={selectedImageGenerationModelValue}
+							onValueChange={handleImageGenerationModelChange}
+							disabled={
+								loadingModels || imageGenerationModelOptions.length === 0 || savingConfig
+							}
 						>
 							<SelectTrigger
-								id="assistant-model"
-								className="!h-8 w-full rounded-lg border-border bg-card px-3 text-xs font-semibold text-foreground"
+								id="image-generation-model"
+								className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
 							>
-								<SelectValue>
-									{selectedModelName ||
-										(loadingModels ? 'Loading models...' : 'Select an assistant model')}
-								</SelectValue>
+								<SelectValue className="sr-only" />
+								<div className="flex min-w-0 items-center gap-2.5">
+									<ProviderMark
+										initial={selectedImageGenerationCatalog.initial}
+										className={selectedImageGenerationCatalog.swatchClassName}
+									/>
+									<div className="min-w-0">
+										<p className="truncate text-sm font-semibold leading-tight text-foreground">
+											{selectedImageGenerationModelOption?.model.name ||
+												(loadingModels
+													? 'Loading models...'
+													: 'No image model available')}
+										</p>
+										<p className="truncate text-xs font-medium text-muted-foreground">
+											{selectedImageGenerationModelOption?.provider.name ||
+												imageGenerationProvider ||
+												'No provider'}{' '}
+											- Creates images when you ask
+										</p>
+									</div>
+								</div>
 							</SelectTrigger>
-							<SelectContent>
-								{models.map((model) => (
-									<SelectItem key={model.id} value={model.id}>
-										{model.name}
-									</SelectItem>
-								))}
+							<SelectContent align="start" className="rounded-lg p-1">
+								{imageGenerationModelGroups.map((group) => {
+									const catalog = getProviderCatalogItem(group.provider.id);
+
+									return (
+										<SelectGroup key={group.provider.id}>
+											<SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+												<ProviderMark
+													initial={catalog.initial}
+													className={cn(
+														catalog.swatchClassName,
+														'size-4 rounded-full text-[0.625rem]'
+													)}
+												/>
+												{catalog.name}
+											</SelectLabel>
+											{group.models.map((model) => {
+												const value = getAssistantModelValue(group.provider.id, model.id);
+												const selected = value === selectedImageGenerationModelValue;
+
+												return (
+													<SelectItem
+														key={value}
+														value={value}
+														className={cn(
+															'h-10 px-2 py-0 pr-8 text-sm font-semibold',
+															selected && 'bg-accent text-accent-foreground'
+														)}
+													>
+														<span className="flex min-w-0 items-center gap-2">
+															<span
+																className={cn(
+																	'flex size-4 shrink-0 items-center justify-center rounded-full border border-border',
+																	selected &&
+																		'rounded-md border-primary bg-primary text-primary-foreground'
+																)}
+															>
+																{selected ? <Check className="size-3" /> : null}
+															</span>
+															<span className="truncate">{model.name}</span>
+														</span>
+													</SelectItem>
+												);
+											})}
+										</SelectGroup>
+									);
+								})}
 							</SelectContent>
 						</Select>
 					</div>
