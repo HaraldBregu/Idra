@@ -982,7 +982,7 @@ const StartPage: React.FC = () => {
 					selectedImageGenerationModelOption.model
 				);
 			}
-			goToStep('finish');
+			goToStep('connectors');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
 		} finally {
