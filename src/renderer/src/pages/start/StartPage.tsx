@@ -2,8 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
 	AlertCircle,
 	ArrowRight,
-	AudioWaveform,
-	Bot,
 	Check,
 	Eye,
 	Hand,
