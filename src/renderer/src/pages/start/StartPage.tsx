@@ -1870,8 +1870,6 @@ const StartPage: React.FC = () => {
 					>
 						{savingProviderId !== null || savingConfig ? (
 							<LoaderCircle className="size-3.5 animate-spin" />
-						) : step === 'finish' ? (
-							<Bot className="size-3.5" />
 						) : (
 							<ArrowRight className="size-3.5" />
 						)}
