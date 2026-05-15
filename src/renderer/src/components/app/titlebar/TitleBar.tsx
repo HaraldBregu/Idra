@@ -196,7 +196,7 @@ export const TitleBar = React.memo(function TitleBar({
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
+						<DropdownMenuTrigger>
 							<Button
 								type="button"
 								variant="secondary"

@@ -27,7 +27,7 @@ function Row({
 	readonly children?: ReactNode;
 }): React.JSX.Element {
 	return (
-		<div className="grid min-h-[44px] gap-2 border-b border-border/70 px-3 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+		<div className="grid min-h-[44px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-border/70 px-3 py-2 last:border-b-0">
 			<div className="flex min-w-0 items-start gap-2">
 				{Icon && (
 					<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
