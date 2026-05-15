@@ -30,7 +30,7 @@ import {
 	StepsItem,
 	StepsTrigger,
 } from '@/components/prompt-kit/steps';
-import { Tool, type ToolPart } from '@/components/prompt-kit/tool';
+import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
@@ -42,26 +42,19 @@ import type {
 	AssistantPendingInput,
 	AssistantResponseEvent,
 } from '../../../../shared/service';
-
-type HomeToolCallState = ToolPart['state'];
-
-interface HomeToolCall {
-	readonly toolCallId: string;
-	readonly toolName: string;
-	readonly state: HomeToolCallState;
-	readonly input?: unknown;
-	readonly inputText?: string;
-	readonly output?: unknown;
-	readonly outputText?: string;
-	readonly errorText?: string;
-}
+import {
+	applyAssistantResponseEventToTools,
+	type AssistantToolPart,
+	assistantToolPartFromHistoryBlock,
+	updateAssistantToolPart,
+} from './assistant-tool-parts';
 
 interface HomeTextMessage {
 	readonly id: string;
 	readonly role: 'user' | 'assistant';
 	readonly type: 'text';
 	readonly content: string;
-	readonly tools?: readonly HomeToolCall[];
+	readonly tools?: readonly AssistantToolPart[];
 }
 
 interface HomeMultiSelectOption {
@@ -91,7 +84,7 @@ interface HomeChatSurfaceProps {
 	readonly isLoading: boolean;
 	readonly historyLoading: boolean;
 	readonly streamText: string;
-	readonly streamTools: readonly HomeToolCall[];
+	readonly streamTools: readonly AssistantToolPart[];
 	readonly streamStarted: boolean;
 	readonly inputRef: RefObject<HTMLTextAreaElement | null>;
 	readonly onInputChange: (value: string) => void;
@@ -111,7 +104,7 @@ interface HomeChatSurfaceProps {
 function createTextMessage(
 	role: HomeTextMessage['role'],
 	content: string,
-	tools: readonly HomeToolCall[] = []
+	tools: readonly AssistantToolPart[] = []
 ): HomeTextMessage {
 	return {
 		id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -158,33 +151,6 @@ const markdownComponents: Partial<Components> = {
 	ol: ({ children }) => <ol className="mb-2 list-decimal pl-5 last:mb-0">{children}</ol>,
 };
 
-function updateToolCall(
-	tools: readonly HomeToolCall[],
-	toolCallId: string,
-	patch: Omit<Partial<HomeToolCall>, 'toolCallId'>
-): HomeToolCall[] {
-	const index = tools.findIndex((tool) => tool.toolCallId === toolCallId);
-	if (index === -1) {
-		return [
-			...tools,
-			{
-				toolCallId,
-				toolName: patch.toolName ?? 'tool',
-				state: patch.state ?? 'input-streaming',
-				input: patch.input,
-				inputText: patch.inputText,
-				output: patch.output,
-				outputText: patch.outputText,
-				errorText: patch.errorText,
-			},
-		];
-	}
-
-	return tools.map((tool, currentIndex) =>
-		currentIndex === index ? { ...tool, ...patch, toolCallId } : tool
-	);
-}
-
 function addToolResultToMessages(
 	messages: readonly HomeChatMessage[],
 	toolUseId: string | undefined,
@@ -200,7 +166,7 @@ function addToolResultToMessages(
 
 		const nextMessage: HomeTextMessage = {
 			...message,
-			tools: updateToolCall(message.tools ?? [], toolUseId, {
+			tools: updateAssistantToolPart(message.tools ?? [], toolUseId, {
 				state: isError ? 'output-error' : 'output-available',
 				output: content ?? '',
 				outputText: content ?? '',
@@ -230,13 +196,8 @@ function historyToChatMessages(history: AssistantHistoryMessage[]): HomeChatMess
 		const tools =
 			message.role === 'assistant'
 				? (message.contentBlocks ?? [])
-						.filter((block) => block.type === 'tool_use' && block.toolUseId && block.toolName)
-						.map((block) => ({
-							toolCallId: block.toolUseId!,
-							toolName: block.toolName!,
-							state: 'input-available' as const,
-							input: block.toolArgs ?? {},
-						}))
+						.map(assistantToolPartFromHistoryBlock)
+						.filter((tool): tool is AssistantToolPart => Boolean(tool))
 				: [];
 
 		if (content.length === 0 && tools.length === 0) return;
@@ -446,7 +407,7 @@ function AssistantTextMessage({
 	onCopy,
 }: {
 	readonly content: string;
-	readonly tools?: readonly HomeToolCall[];
+	readonly tools?: readonly AssistantToolPart[];
 	readonly isStreaming?: boolean;
 	readonly onCopy: () => void;
 }): ReactElement {
@@ -491,7 +452,7 @@ function AssistantToolActivity({
 	tools,
 	isStreaming,
 }: {
-	readonly tools: readonly HomeToolCall[];
+	readonly tools: readonly AssistantToolPart[];
 	readonly isStreaming: boolean;
 }): ReactElement {
 	const running = tools.some(
@@ -515,16 +476,7 @@ function AssistantToolActivity({
 								aria-hidden
 							/>
 							<Tool
-								toolPart={{
-									type: tool.toolName,
-									state: tool.state,
-									input: tool.input,
-									inputText: tool.inputText,
-									output: tool.output,
-									outputText: tool.outputText,
-									toolCallId: tool.toolCallId,
-									errorText: tool.errorText,
-								}}
+								toolPart={tool}
 								defaultOpen={isStreaming && tool.state !== 'output-available'}
 								className="min-w-0 flex-1"
 							/>
@@ -826,12 +778,13 @@ function HomePage(): ReactElement {
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
 	const [streamText, setStreamText] = useState('');
-	const [streamTools, setStreamTools] = useState<readonly HomeToolCall[]>([]);
+	const [streamTools, setStreamTools] = useState<readonly AssistantToolPart[]>([]);
 	const [streamStarted, setStreamStarted] = useState(false);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
-	const streamToolsRef = useRef<readonly HomeToolCall[]>([]);
+	const activeRunIdRef = useRef<string | null>(null);
+	const streamToolsRef = useRef<readonly AssistantToolPart[]>([]);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
 	const focusInput = useCallback((): void => {
@@ -876,6 +829,7 @@ function HomePage(): ReactElement {
 	const stopResponse = (): void => {
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
+		activeRunIdRef.current = null;
 		setStreamText('');
 		streamToolsRef.current = [];
 		setStreamTools([]);
@@ -891,6 +845,7 @@ function HomePage(): ReactElement {
 		const requestId = requestIdRef.current + 1;
 		requestIdRef.current = requestId;
 		requestActiveRef.current = true;
+		activeRunIdRef.current = null;
 
 		setInput('');
 		setStreamText('');
@@ -907,6 +862,7 @@ function HomePage(): ReactElement {
 			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
 			requestActiveRef.current = false;
+			activeRunIdRef.current = null;
 			setStreamText('');
 			const tools = streamToolsRef.current;
 			streamToolsRef.current = [];
@@ -919,6 +875,7 @@ function HomePage(): ReactElement {
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
 			requestActiveRef.current = false;
+			activeRunIdRef.current = null;
 			setStreamText('');
 			streamToolsRef.current = [];
 			setStreamTools([]);
@@ -952,6 +909,9 @@ function HomePage(): ReactElement {
 
 		const offResponse = window.assistant.onResponse((event: AssistantResponseEvent) => {
 			if (!requestActiveRef.current) return;
+			if (activeRunIdRef.current && activeRunIdRef.current !== event.runId) return;
+			activeRunIdRef.current = event.runId;
+
 			if (event.type === 'text_delta') {
 				if (!event.delta) return;
 				setStreamText((current) => current + event.delta);
@@ -959,36 +919,10 @@ function HomePage(): ReactElement {
 				return;
 			}
 
-			if (event.type === 'tool_call_start') {
-				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
-					toolName: event.toolName,
-					state: 'input-streaming',
-					inputText: '',
-				});
-			} else if (event.type === 'tool_call_args_delta') {
-				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
-					toolName: event.toolName,
-					state: 'input-streaming',
-					inputText: event.argsText,
-				});
-			} else if (event.type === 'tool_call_input') {
-				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
-					toolName: event.toolName,
-					state: 'input-available',
-					input: event.input,
-					inputText: event.argsText,
-				});
-			} else if (event.type === 'tool_call_result') {
-				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
-					toolName: event.toolName,
-					state: event.status === 'ok' ? 'output-available' : 'output-error',
-					input: event.input,
-					output: event.output,
-					outputText: event.outputText,
-					errorText: event.errorText,
-				});
-			}
+			const nextTools = applyAssistantResponseEventToTools(streamToolsRef.current, event);
+			if (!nextTools) return;
 
+			streamToolsRef.current = nextTools;
 			setStreamTools(streamToolsRef.current);
 			setStreamStarted(true);
 		});
@@ -1084,6 +1018,7 @@ function HomePage(): ReactElement {
 		return () => {
 			requestIdRef.current += 1;
 			requestActiveRef.current = false;
+			activeRunIdRef.current = null;
 		};
 	}, []);
 
