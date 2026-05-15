@@ -1047,7 +1047,7 @@ const StartPage: React.FC = () => {
 
 	function getPrimaryLabel(): string {
 		if (step === 'welcome') return 'Get started';
-		if (step === 'finish') return `Open ${PRODUCT_NAME}`;
+		if (step === 'connectors') return `Open ${PRODUCT_NAME}`;
 		if (savingProviderId !== null || savingConfig) return 'Saving...';
 
 		return 'Continue';
