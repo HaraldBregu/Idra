@@ -4,11 +4,30 @@ import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import {
 	isCronTaskData,
+	type CronExecutionRecord,
+	type CronNextRunPreview,
+	type CronSchedule,
+	type CronScheduleCreateRequest,
+	type CronScheduleEvent,
+	type CronScheduleFilter,
+	type CronScheduleUpdateRequest,
 	type CronTask,
 	type CronTaskData,
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
+import type { CronActorContext } from './core/cron.types';
+import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
+import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
+import { CronConfirmationManager } from './security/cron-confirmation-manager';
+import {
+	CronSchedulerService,
+	DEFAULT_CRON_RUN_POLICY,
+} from './scheduler/cron-scheduler';
+import {
+	StoreBackedCronTaskManager,
+	TaskManagerCronScheduleRunner,
+} from './scheduler/cron-runner';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
@@ -25,10 +44,106 @@ export class CronService implements Disposable {
 	private readonly store: StoreService;
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
+	private readonly scheduler: CronSchedulerService;
 
 	constructor(store: StoreService, logger: LoggerService) {
 		this.store = store;
 		this.logger = logger;
+		const scheduleStore = new ElectronStoreCronScheduleStore(store);
+		const taskManager = new StoreBackedCronTaskManager();
+		const runner = new TaskManagerCronScheduleRunner(taskManager);
+		const accessPolicy = new DefaultCronScheduleAccessPolicy({
+			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
+			highFrequencyThresholdMs: DEFAULT_CRON_RUN_POLICY.highFrequencyThresholdMs,
+			maxActiveSchedulesPerUser: 250,
+		});
+		this.scheduler = new CronSchedulerService(
+			scheduleStore,
+			runner,
+			accessPolicy,
+			{},
+			logger,
+			new CronConfirmationManager()
+		);
+	}
+
+	get events(): CronSchedulerService['events'] {
+		return this.scheduler.events;
+	}
+
+	start(): Promise<void> {
+		return this.scheduler.start();
+	}
+
+	stop(): Promise<void> {
+		return this.scheduler.stop();
+	}
+
+	reload(): Promise<void> {
+		return this.scheduler.reload();
+	}
+
+	createSchedule(
+		request: CronScheduleCreateRequest,
+		actor?: CronActorContext
+	): Promise<CronSchedule> {
+		return this.scheduler.createSchedule(request, actor);
+	}
+
+	updateSchedule(
+		scheduleId: string,
+		patch: CronScheduleUpdateRequest,
+		actor?: CronActorContext
+	): Promise<CronSchedule> {
+		return this.scheduler.updateSchedule(scheduleId, patch, actor);
+	}
+
+	pauseSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
+		return this.scheduler.pauseSchedule(scheduleId, actor);
+	}
+
+	resumeSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
+		return this.scheduler.resumeSchedule(scheduleId, actor);
+	}
+
+	deleteSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
+		return this.scheduler.deleteSchedule(scheduleId, actor);
+	}
+
+	getSchedule(scheduleId: string, actor?: CronActorContext): Promise<CronSchedule> {
+		return this.scheduler.getSchedule(scheduleId, actor);
+	}
+
+	listSchedules(filter?: CronScheduleFilter, actor?: CronActorContext): Promise<CronSchedule[]> {
+		return this.scheduler.listSchedules(filter, actor);
+	}
+
+	runScheduleNow(scheduleId: string, actor?: CronActorContext): ReturnType<CronSchedulerService['runScheduleNow']> {
+		return this.scheduler.runScheduleNow(scheduleId, actor);
+	}
+
+	computeNextRun(schedule: CronSchedule, from?: Date): Promise<Date | null> {
+		return this.scheduler.computeNextRun(schedule, from);
+	}
+
+	processDueSchedules(now: Date): Promise<void> {
+		return this.scheduler.processDueSchedules(now);
+	}
+
+	recoverSchedulesOnStartup(): Promise<void> {
+		return this.scheduler.recoverSchedulesOnStartup();
+	}
+
+	getNextRuns(scheduleId: string, count: number, actor?: CronActorContext): Promise<CronNextRunPreview> {
+		return this.scheduler.getNextRuns(scheduleId, count, actor);
+	}
+
+	async getScheduleEvents(scheduleId: string): Promise<CronScheduleEvent[]> {
+		return scheduleId ? this.scheduler['store'].getScheduleEvents(scheduleId) : [];
+	}
+
+	async getScheduleExecutions(scheduleId: string): Promise<CronExecutionRecord[]> {
+		return scheduleId ? this.scheduler['store'].listExecutions(scheduleId) : [];
 	}
 
 	schedule<TData extends CronTaskData>(
@@ -154,6 +269,7 @@ export class CronService implements Disposable {
 	}
 
 	destroy(): void {
+		void this.scheduler.stop();
 		for (const job of this.jobs.values()) {
 			try {
 				job.task.stop();
