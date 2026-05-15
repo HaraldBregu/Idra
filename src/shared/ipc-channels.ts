@@ -355,7 +355,7 @@ export interface SendChannelMap {
 }
 
 interface AssistantEventChannelMap {
-	[AssistantChannels.response]: { data: import('./service').AssistantResponseDelta };
+	[AssistantChannels.response]: { data: import('./service').AssistantResponseEvent };
 	[AssistantChannels.pending]: { data: import('./service').AssistantPendingEventPayload };
 }
 

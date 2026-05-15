@@ -36,6 +36,60 @@ export interface AssistantHistoryMessage {
 	}>;
 }
 
+export type AssistantToolCallStatus = 'ok' | 'error' | 'rejected';
+
+export type AssistantResponseEvent =
+	| {
+			type: 'text_delta';
+			assistantId: string;
+			runId: string;
+			delta: string;
+	  }
+	| {
+			type: 'tool_call_start';
+			assistantId: string;
+			runId: string;
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+	  }
+	| {
+			type: 'tool_call_args_delta';
+			assistantId: string;
+			runId: string;
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+			jsonDelta: string;
+			argsText: string;
+	  }
+	| {
+			type: 'tool_call_input';
+			assistantId: string;
+			runId: string;
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+			input: unknown;
+			argsText: string;
+	  }
+	| {
+			type: 'tool_call_result';
+			assistantId: string;
+			runId: string;
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+			input: unknown;
+			output: unknown;
+			outputText: string;
+			status: AssistantToolCallStatus;
+			durationMs: number;
+			errorText?: string;
+	  };
+
+export type AssistantResponseDelta = Extract<AssistantResponseEvent, { type: 'text_delta' }>;
+
 export interface AssistantPendingApproval {
 	id: string;
 	kind: 'exec' | 'plugin' | 'api' | 'tool';
@@ -65,10 +119,4 @@ export interface AssistantPendingState {
 
 export interface AssistantPendingEventPayload extends AssistantPendingState {
 	assistantId: string;
-}
-
-export interface AssistantResponseDelta {
-	assistantId: string;
-	runId: string;
-	delta: string;
 }

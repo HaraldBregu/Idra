@@ -19,7 +19,7 @@ import { loadSession, saveSession, clearSession, type SessionFile } from './sess
 import { createTools } from './tools/registry';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AssistantRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
-import type { ApprovalDecision } from '../shared/service';
+import type { ApprovalDecision, AssistantResponseEvent } from '../shared/service';
 
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
@@ -143,11 +143,11 @@ export class AssistantService {
 				runLogger: runtime.runLogger,
 			});
 
-			const streamOutput = (chunk: string): void => {
+			const streamEvent = (event: Omit<AssistantResponseEvent, 'assistantId' | 'runId'>): void => {
 				this.dependencies.eventBus.broadcast('assistant:response', {
 					assistantId,
 					runId,
-					delta: chunk,
+					...event,
 				});
 			};
 
@@ -162,7 +162,7 @@ export class AssistantService {
 				ctx,
 				maxTokens: DEFAULT_MAX_TOKENS,
 				maxIterations: DEFAULT_MAX_ITERATIONS,
-				streamOutput,
+				streamEvent,
 				hooks,
 				signal: abort.signal,
 			});

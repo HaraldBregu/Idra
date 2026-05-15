@@ -40,7 +40,7 @@ import type {
 	ApprovalDecision,
 	AssistantPendingEventPayload,
 	AssistantPendingState,
-	AssistantResponseDelta,
+	AssistantResponseEvent,
 	Model,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
@@ -106,7 +106,7 @@ export const assistant: AssistantApi = {
 	getPending: (): Promise<AssistantPendingState> => {
 		return typedInvokeUnwrap(AssistantChannels.getPending);
 	},
-	onResponse: (callback: (event: AssistantResponseDelta) => void): (() => void) => {
+	onResponse: (callback: (event: AssistantResponseEvent) => void): (() => void) => {
 		return typedOn(AssistantChannels.response, callback);
 	},
 	onPending: (callback: (event: AssistantPendingEventPayload) => void): (() => void) => {

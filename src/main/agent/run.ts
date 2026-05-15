@@ -1,4 +1,4 @@
-import type { AssistantContentBlock, Usage } from '../provider/types';
+import type { AssistantContentBlock, ToolResultBlock, Usage } from '../provider/types';
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
@@ -35,6 +35,43 @@ export interface AgentRunHooks {
 	}) => void | Promise<void>;
 }
 
+export type AgentRunStreamEvent =
+	| { type: 'text_delta'; delta: string }
+	| {
+			type: 'tool_call_start';
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+	  }
+	| {
+			type: 'tool_call_args_delta';
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+			jsonDelta: string;
+			argsText: string;
+	  }
+	| {
+			type: 'tool_call_input';
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+			input: unknown;
+			argsText: string;
+	  }
+	| {
+			type: 'tool_call_result';
+			iteration: number;
+			toolCallId: string;
+			toolName: string;
+			input: unknown;
+			output: unknown;
+			outputText: string;
+			status: 'ok' | 'error' | 'rejected';
+			durationMs: number;
+			errorText?: string;
+	  };
+
 export interface AgentRunInput {
 	runId: string;
 	userMessage: string;
@@ -47,6 +84,7 @@ export interface AgentRunInput {
 	maxTokens?: number;
 	maxIterations?: number;
 	streamOutput?: (chunk: string) => void;
+	streamEvent?: (event: AgentRunStreamEvent) => void;
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
@@ -58,6 +96,40 @@ export interface AgentRunResult {
 	usage: Usage;
 	stopReason: 'end_turn' | 'max_tokens' | 'max_iterations' | 'error' | 'cancelled';
 	session: SessionFile;
+}
+
+function parseToolArgs(argsStr: string, fallback: unknown): unknown {
+	if (!argsStr.trim()) return {};
+	try {
+		return JSON.parse(argsStr);
+	} catch {
+		return fallback;
+	}
+}
+
+function resultBlocksToText(content: ToolResultBlock[]): string {
+	return content
+		.map((c) => (c.type === 'text' ? (c.text ?? '') : '[binary content]'))
+		.join('\n');
+}
+
+function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
+	if (content.length === 1) {
+		const block = content[0];
+		if (block?.type === 'text') return block.text ?? '';
+	}
+
+	return content.map((block) => {
+		if (block.type === 'text') {
+			return { type: 'text', text: block.text ?? '' };
+		}
+
+		return {
+			type: 'image',
+			mimeType: block.mimeType ?? 'image/png',
+			base64: block.base64 ? '[base64 image]' : undefined,
+		};
+	});
 }
 
 /**
@@ -81,6 +153,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		maxTokens = 4096,
 		maxIterations = 25,
 		streamOutput,
+		streamEvent,
 		hooks,
 		signal,
 	} = input;
@@ -137,13 +210,44 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						case 'text_delta':
 							text += event.text;
 							streamOutput?.(event.text);
+							streamEvent?.({ type: 'text_delta', delta: event.text });
 							break;
 						case 'tool_call_start':
 							pending.set(event.id, { name: event.name, argsStr: '' });
+							streamEvent?.({
+								type: 'tool_call_start',
+								iteration: iter,
+								toolCallId: event.id,
+								toolName: event.name,
+							});
 							break;
 						case 'tool_call_args_delta': {
 							const t = pending.get(event.id);
-							if (t) t.argsStr += event.jsonDelta;
+							if (t) {
+								t.argsStr += event.jsonDelta;
+								streamEvent?.({
+									type: 'tool_call_args_delta',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: t.name,
+									jsonDelta: event.jsonDelta,
+									argsText: t.argsStr,
+								});
+							}
+							break;
+						}
+						case 'tool_call_end': {
+							const t = pending.get(event.id);
+							if (t) {
+								streamEvent?.({
+									type: 'tool_call_input',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: t.name,
+									input: parseToolArgs(t.argsStr, { __unparsed: t.argsStr }),
+									argsText: t.argsStr,
+								});
+							}
 							break;
 						}
 						case 'message_end':
@@ -189,14 +293,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 
 			if (text) blocks.push({ type: 'text', text });
 			for (const [id, t] of pending) {
-				let parsed: unknown = {};
-				if (t.argsStr.trim()) {
-					try {
-						parsed = JSON.parse(t.argsStr);
-					} catch {
-						parsed = { __unparsed: t.argsStr };
-					}
-				}
+				const parsed = parseToolArgs(t.argsStr, { __unparsed: t.argsStr });
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
 			if (blocks.length === 0) blocks.push({ type: 'text', text: '' });
@@ -215,15 +312,19 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				toolCalls++;
 				const tool = toolsForPrompt.find((x) => x.name === t.name);
-				let args: unknown = {};
-				try {
-					args = t.argsStr.trim() ? JSON.parse(t.argsStr) : {};
-				} catch {
-					args = {};
-				}
+				const args = parseToolArgs(t.argsStr, {});
+				streamEvent?.({
+					type: 'tool_call_input',
+					iteration: iter,
+					toolCallId: id,
+					toolName: t.name,
+					input: args,
+					argsText: t.argsStr,
+				});
 				const toolStart = Date.now();
 				if (!tool) {
 					const out = `tool '${t.name}' is not available in this run.`;
+					const durationMs = Date.now() - toolStart;
 					await hooks?.onToolCall?.({
 						runId,
 						iteration: iter,
@@ -231,8 +332,20 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						tool: t.name,
 						args,
 						status: 'error',
-						durationMs: Date.now() - toolStart,
+						durationMs,
 						outputChars: out.length,
+					});
+					streamEvent?.({
+						type: 'tool_call_result',
+						iteration: iter,
+						toolCallId: id,
+						toolName: t.name,
+						input: args,
+						output: out,
+						outputText: out,
+						status: 'error',
+						durationMs,
+						errorText: out,
 					});
 					session.transcript.push({
 						role: 'tool',
@@ -247,6 +360,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					const outText = before.vetoResult.content
 						.map((c) => (c.type === 'text' ? (c.text ?? '') : ''))
 						.join(' ');
+					const durationMs = Date.now() - toolStart;
 					await hooks?.onToolCall?.({
 						runId,
 						iteration: iter,
@@ -254,8 +368,20 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						tool: t.name,
 						args,
 						status: 'rejected',
-						durationMs: Date.now() - toolStart,
+						durationMs,
 						outputChars: outText.length,
+					});
+					streamEvent?.({
+						type: 'tool_call_result',
+						iteration: iter,
+						toolCallId: id,
+						toolName: t.name,
+						input: args,
+						output: resultBlocksToOutput(before.vetoResult.content),
+						outputText: outText,
+						status: 'rejected',
+						durationMs,
+						errorText: outText,
 					});
 					session.transcript.push({
 						role: 'tool',
@@ -277,7 +403,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				const content = before.warning
 					? [...res.content, { type: 'text' as const, text: before.warning }]
 					: res.content;
-				const outText = content.map((c) => (c.type === 'text' ? (c.text ?? '') : '')).join(' ');
+				const outText = resultBlocksToText(content);
+				const durationMs = Date.now() - toolStart;
 				await hooks?.onToolCall?.({
 					runId,
 					iteration: iter,
@@ -285,8 +412,20 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					tool: t.name,
 					args,
 					status: res.status === 'ok' ? 'ok' : 'error',
-					durationMs: Date.now() - toolStart,
+					durationMs,
 					outputChars: outText.length,
+				});
+				streamEvent?.({
+					type: 'tool_call_result',
+					iteration: iter,
+					toolCallId: id,
+					toolName: t.name,
+					input: args,
+					output: resultBlocksToOutput(content),
+					outputText: outText,
+					status: res.status === 'ok' ? 'ok' : 'error',
+					durationMs,
+					errorText: res.status === 'error' ? outText : undefined,
 				});
 				session.transcript.push({
 					role: 'tool',

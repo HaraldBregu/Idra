@@ -17,7 +17,7 @@ export interface AssistantApi {
 	resolveApproval: (id: string, decision: ApprovalDecision | boolean) => Promise<boolean>;
 	resolveInput: (id: string, answer: string) => Promise<boolean>;
 	getPending: () => Promise<AssistantPendingState>;
-	onResponse: (callback: (event: AssistantResponseDelta) => void) => () => void;
+	onResponse: (callback: (event: AssistantResponseEvent) => void) => () => void;
 	onPending: (callback: (event: AssistantPendingEventPayload) => void) => () => void;
 }
 
@@ -120,7 +120,7 @@ import type {
 	ApprovalDecision,
 	AssistantPendingEventPayload,
 	AssistantPendingState,
-	AssistantResponseDelta,
+	AssistantResponseEvent,
 	Model,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';

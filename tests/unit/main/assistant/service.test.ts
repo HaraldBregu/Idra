@@ -127,6 +127,63 @@ describe('AssistantService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('broadcasts tool call lifecycle events to the renderer stream', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'pong' }],
+		}));
+		const tool: AgentTool = {
+			name: 'ping',
+			description: 'Ping',
+			schema: { type: 'object' },
+			execute,
+		};
+		const service = new AssistantService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => providerTurns([
+				[
+					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
+					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"value":1}' },
+					{ type: 'tool_call_end', id: 'tc1' },
+					{ type: 'message_end', stopReason: 'tool_use', usage: { inputTokens: 1, outputTokens: 1 } },
+				],
+				[
+					{ type: 'text_delta', text: 'finished' },
+					{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } },
+				],
+			]),
+			toolsFactory: () => [tool],
+		});
+
+		await expect(service.send('do it')).resolves.toBe('finished');
+
+		const responseEvents = (deps.eventBus.broadcast as jest.Mock).mock.calls
+			.filter(([channel]) => channel === 'assistant:response')
+			.map(([, payload]) => payload);
+		expect(responseEvents.map((event) => event.type)).toEqual(
+			expect.arrayContaining([
+				'tool_call_start',
+				'tool_call_args_delta',
+				'tool_call_input',
+				'tool_call_result',
+				'text_delta',
+			])
+		);
+		expect(responseEvents).toContainEqual(
+			expect.objectContaining({
+				type: 'tool_call_result',
+				toolCallId: 'tc1',
+				toolName: 'ping',
+				outputText: 'pong',
+				status: 'ok',
+			})
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('adds compact skill guidance and execute_skill tool when skills are available', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();

@@ -1,7 +1,7 @@
 import type { ReactElement, RefObject } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Components } from 'react-markdown';
-import { ArrowUp, Calendar, Copy, Play, Sparkles, Square } from 'lucide-react';
+import { ArrowUp, Calendar, Copy, ListChecks, Play, Sparkles, Square } from 'lucide-react';
 import { VoiceOrbThree } from '@/components/ui/voice-orb-three';
 import { PageContainer } from '@/components/app/base/page';
 import {
@@ -24,6 +24,13 @@ import {
 } from '@/components/prompt-kit/prompt-input';
 import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
 import { ScrollButton } from '@/components/prompt-kit/scroll-button';
+import {
+	Steps,
+	StepsContent,
+	StepsItem,
+	StepsTrigger,
+} from '@/components/prompt-kit/steps';
+import { Tool, type ToolPart } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
@@ -33,14 +40,28 @@ import type {
 	AssistantPendingApproval,
 	AssistantPendingEventPayload,
 	AssistantPendingInput,
-	AssistantResponseDelta,
+	AssistantResponseEvent,
 } from '../../../../shared/service';
+
+type HomeToolCallState = ToolPart['state'];
+
+interface HomeToolCall {
+	readonly toolCallId: string;
+	readonly toolName: string;
+	readonly state: HomeToolCallState;
+	readonly input?: unknown;
+	readonly inputText?: string;
+	readonly output?: unknown;
+	readonly outputText?: string;
+	readonly errorText?: string;
+}
 
 interface HomeTextMessage {
 	readonly id: string;
 	readonly role: 'user' | 'assistant';
 	readonly type: 'text';
 	readonly content: string;
+	readonly tools?: readonly HomeToolCall[];
 }
 
 interface HomeMultiSelectOption {
@@ -70,6 +91,7 @@ interface HomeChatSurfaceProps {
 	readonly isLoading: boolean;
 	readonly historyLoading: boolean;
 	readonly streamText: string;
+	readonly streamTools: readonly HomeToolCall[];
 	readonly streamStarted: boolean;
 	readonly inputRef: RefObject<HTMLTextAreaElement | null>;
 	readonly onInputChange: (value: string) => void;
@@ -85,12 +107,17 @@ interface HomeChatSurfaceProps {
 	readonly onUseSuggestion: (prompt: string) => void;
 }
 
-function createTextMessage(role: HomeTextMessage['role'], content: string): HomeTextMessage {
+function createTextMessage(
+	role: HomeTextMessage['role'],
+	content: string,
+	tools: readonly HomeToolCall[] = []
+): HomeTextMessage {
 	return {
 		id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		role,
 		type: 'text',
 		content,
+		...(role === 'assistant' && tools.length > 0 ? { tools } : {}),
 	};
 }
 
@@ -130,16 +157,94 @@ const markdownComponents: Partial<Components> = {
 	ol: ({ children }) => <ol className="mb-2 list-decimal pl-5 last:mb-0">{children}</ol>,
 };
 
+function updateToolCall(
+	tools: readonly HomeToolCall[],
+	toolCallId: string,
+	patch: Omit<Partial<HomeToolCall>, 'toolCallId'>
+): HomeToolCall[] {
+	const index = tools.findIndex((tool) => tool.toolCallId === toolCallId);
+	if (index === -1) {
+		return [
+			...tools,
+			{
+				toolCallId,
+				toolName: patch.toolName ?? 'tool',
+				state: patch.state ?? 'input-streaming',
+				input: patch.input,
+				inputText: patch.inputText,
+				output: patch.output,
+				outputText: patch.outputText,
+				errorText: patch.errorText,
+			},
+		];
+	}
+
+	return tools.map((tool, currentIndex) =>
+		currentIndex === index ? { ...tool, ...patch, toolCallId } : tool
+	);
+}
+
+function addToolResultToMessages(
+	messages: readonly HomeChatMessage[],
+	toolUseId: string | undefined,
+	content: string | null | undefined,
+	isError: boolean | undefined
+): HomeChatMessage[] {
+	if (!toolUseId) return [...messages];
+
+	for (let index = messages.length - 1; index >= 0; index--) {
+		const message = messages[index];
+		if (message?.role !== 'assistant' || message.type !== 'text') continue;
+		if (!message.tools?.some((tool) => tool.toolCallId === toolUseId)) continue;
+
+		const nextMessage: HomeTextMessage = {
+			...message,
+			tools: updateToolCall(message.tools ?? [], toolUseId, {
+				state: isError ? 'output-error' : 'output-available',
+				output: content ?? '',
+				outputText: content ?? '',
+				errorText: isError ? (content ?? 'Tool call failed.') : undefined,
+			}),
+		};
+
+		return messages.map((current, currentIndex) =>
+			currentIndex === index ? nextMessage : current
+		);
+	}
+
+	return [...messages];
+}
+
 function historyToChatMessages(history: AssistantHistoryMessage[]): HomeChatMessage[] {
 	const out: HomeChatMessage[] = [];
 	history.forEach((message, index) => {
+		if (message.role === 'tool') {
+			const next = addToolResultToMessages(out, message.toolUseId, message.content, message.isError);
+			out.splice(0, out.length, ...next);
+			return;
+		}
+
 		if (message.role !== 'user' && message.role !== 'assistant') return;
-		if (typeof message.content !== 'string' || message.content.length === 0) return;
+		const content = typeof message.content === 'string' ? message.content : '';
+		const tools =
+			message.role === 'assistant'
+				? (message.contentBlocks ?? [])
+						.filter((block) => block.type === 'tool_use' && block.toolUseId && block.toolName)
+						.map((block) => ({
+							toolCallId: block.toolUseId!,
+							toolName: block.toolName!,
+							state: 'input-available' as const,
+							input: block.toolArgs ?? {},
+						}))
+				: [];
+
+		if (content.length === 0 && tools.length === 0) return;
 		out.push({
 			id: `${message.role}-history-${index}`,
 			role: message.role,
 			type: 'text',
-			content: message.content,
+			content,
+			...(message.role === 'assistant' && tools.length > 0 ? { tools } : {}),
 		});
 	});
 	return out;
@@ -335,38 +440,98 @@ function UserMessage({ content }: { readonly content: string }): ReactElement {
 
 function AssistantTextMessage({
 	content,
+	tools = [],
+	isStreaming = false,
 	onCopy,
 }: {
 	readonly content: string;
+	readonly tools?: readonly HomeToolCall[];
+	readonly isStreaming?: boolean;
 	readonly onCopy: () => void;
 }): ReactElement {
 	return (
 		<Message className="max-w-2xl flex-col gap-2">
 			<AssistantLabel />
-			<div className="group/message flex items-start gap-2">
-				<MessageContent
-					markdown
-					components={markdownComponents}
-					className="rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm"
-				>
-					{content}
-				</MessageContent>
-				<MessageActions className="pt-1">
-					<MessageAction tooltip="Copy message">
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							className="size-8 rounded-full opacity-0 transition-opacity group-hover/message:opacity-100 focus-visible:opacity-100"
-							aria-label="Copy message"
-							onClick={onCopy}
+			<div className="group/message flex max-w-full items-start gap-2">
+				<div className="flex min-w-0 flex-1 flex-col gap-2">
+					{tools.length > 0 && <AssistantToolActivity tools={tools} isStreaming={isStreaming} />}
+					{content.length > 0 && (
+						<MessageContent
+							markdown
+							components={markdownComponents}
+							className="rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm"
 						>
-							<Copy className="size-4" />
-						</Button>
-					</MessageAction>
-				</MessageActions>
+							{content}
+						</MessageContent>
+					)}
+				</div>
+				{content.length > 0 && (
+					<MessageActions className="pt-1">
+						<MessageAction tooltip="Copy message">
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-sm"
+								className="size-8 rounded-full opacity-0 transition-opacity group-hover/message:opacity-100 focus-visible:opacity-100"
+								aria-label="Copy message"
+								onClick={onCopy}
+							>
+								<Copy className="size-4" />
+							</Button>
+						</MessageAction>
+					</MessageActions>
+				)}
 			</div>
 		</Message>
+	);
+}
+
+function AssistantToolActivity({
+	tools,
+	isStreaming,
+}: {
+	readonly tools: readonly HomeToolCall[];
+	readonly isStreaming: boolean;
+}): ReactElement {
+	const running = tools.some(
+		(tool) => tool.state === 'input-streaming' || tool.state === 'input-available'
+	);
+
+	return (
+		<MessageContent className="w-full rounded-2xl px-4 py-3 shadow-sm">
+			<Steps defaultOpen>
+				<StepsTrigger leftIcon={<ListChecks className="size-3.5" />}>
+					{running ? 'Assistant activity' : `${tools.length} tool call${tools.length === 1 ? '' : 's'}`}
+				</StepsTrigger>
+				<StepsContent>
+					{tools.map((tool) => (
+						<StepsItem key={tool.toolCallId}>
+							<span
+								className={cn(
+									'mt-3 size-2 shrink-0 rounded-full',
+									tool.state === 'output-error' ? 'bg-destructive' : 'bg-muted-foreground/50'
+								)}
+								aria-hidden
+							/>
+							<Tool
+								toolPart={{
+									type: tool.toolName,
+									state: tool.state,
+									input: tool.input,
+									inputText: tool.inputText,
+									output: tool.output,
+									outputText: tool.outputText,
+									toolCallId: tool.toolCallId,
+									errorText: tool.errorText,
+								}}
+								defaultOpen={isStreaming && tool.state !== 'output-available'}
+								className="min-w-0 flex-1"
+							/>
+						</StepsItem>
+					))}
+				</StepsContent>
+			</Steps>
+		</MessageContent>
 	);
 }
 
@@ -518,6 +683,7 @@ function HomeChatSurface({
 	isLoading,
 	historyLoading,
 	streamText,
+	streamTools,
 	streamStarted,
 	inputRef,
 	onInputChange,
@@ -565,13 +731,16 @@ function HomeChatSurface({
 									<AssistantTextMessage
 										key={message.id}
 										content={message.content}
+										tools={message.tools}
 										onCopy={() => onCopyMessage(message.content)}
 									/>
 								);
 							})}
-							{isLoading && streamStarted && streamText.length > 0 && (
+							{isLoading && streamStarted && (streamText.length > 0 || streamTools.length > 0) && (
 								<AssistantTextMessage
 									content={streamText}
+									tools={streamTools}
+									isStreaming
 									onCopy={() => onCopyMessage(streamText)}
 								/>
 							)}
@@ -640,10 +809,12 @@ function HomePage(): ReactElement {
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
 	const [streamText, setStreamText] = useState('');
+	const [streamTools, setStreamTools] = useState<readonly HomeToolCall[]>([]);
 	const [streamStarted, setStreamStarted] = useState(false);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
+	const streamToolsRef = useRef<readonly HomeToolCall[]>([]);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
 	const focusInput = useCallback((): void => {
@@ -689,6 +860,8 @@ function HomePage(): ReactElement {
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setStreamText('');
+		streamToolsRef.current = [];
+		setStreamTools([]);
 		setStreamStarted(false);
 		setIsLoading(false);
 		void window.assistant.cancel();
@@ -704,6 +877,8 @@ function HomePage(): ReactElement {
 
 		setInput('');
 		setStreamText('');
+		streamToolsRef.current = [];
+		setStreamTools([]);
 		setIsLoading(true);
 		setStreamStarted(false);
 		setMessages((current) => [
@@ -716,15 +891,20 @@ function HomePage(): ReactElement {
 			if (requestIdRef.current !== requestId) return;
 			requestActiveRef.current = false;
 			setStreamText('');
+			const tools = streamToolsRef.current;
+			streamToolsRef.current = [];
+			setStreamTools([]);
 			setStreamStarted(false);
 			setIsLoading(false);
-			if (response.trim().length > 0) {
-				setMessages((current) => [...current, createTextMessage('assistant', response)]);
+			if (response.trim().length > 0 || tools.length > 0) {
+				setMessages((current) => [...current, createTextMessage('assistant', response, tools)]);
 			}
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
 			requestActiveRef.current = false;
 			setStreamText('');
+			streamToolsRef.current = [];
+			setStreamTools([]);
 			setStreamStarted(false);
 			setIsLoading(false);
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
@@ -753,9 +933,46 @@ function HomePage(): ReactElement {
 			});
 		});
 
-		const offResponse = window.assistant.onResponse((event: AssistantResponseDelta) => {
-			if (!requestActiveRef.current || !event.delta) return;
-			setStreamText((current) => current + event.delta);
+		const offResponse = window.assistant.onResponse((event: AssistantResponseEvent) => {
+			if (!requestActiveRef.current) return;
+			if (event.type === 'text_delta') {
+				if (!event.delta) return;
+				setStreamText((current) => current + event.delta);
+				setStreamStarted(true);
+				return;
+			}
+
+			if (event.type === 'tool_call_start') {
+				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
+					toolName: event.toolName,
+					state: 'input-streaming',
+					inputText: '',
+				});
+			} else if (event.type === 'tool_call_args_delta') {
+				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
+					toolName: event.toolName,
+					state: 'input-streaming',
+					inputText: event.argsText,
+				});
+			} else if (event.type === 'tool_call_input') {
+				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
+					toolName: event.toolName,
+					state: 'input-available',
+					input: event.input,
+					inputText: event.argsText,
+				});
+			} else if (event.type === 'tool_call_result') {
+				streamToolsRef.current = updateToolCall(streamToolsRef.current, event.toolCallId, {
+					toolName: event.toolName,
+					state: event.status === 'ok' ? 'output-available' : 'output-error',
+					input: event.input,
+					output: event.output,
+					outputText: event.outputText,
+					errorText: event.errorText,
+				});
+			}
+
+			setStreamTools(streamToolsRef.current);
 			setStreamStarted(true);
 		});
 
@@ -882,6 +1099,7 @@ function HomePage(): ReactElement {
 					isLoading={isLoading}
 					historyLoading={historyLoading}
 					streamText={streamText}
+					streamTools={streamTools}
 					streamStarted={streamStarted}
 					inputRef={inputRef}
 					onInputChange={setInput}
