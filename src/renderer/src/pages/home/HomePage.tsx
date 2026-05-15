@@ -247,7 +247,7 @@ function HomePage(): ReactElement {
 		setIsLoading(false);
 		setStreamingContent(null);
 		// Best-effort server-side cancellation
-		void window.assistant.cancel?.();
+		void window.assistant.cancel();
 	};
 
 	const sendPrompt = async (prompt: string): Promise<void> => {
