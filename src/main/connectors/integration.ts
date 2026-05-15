@@ -482,6 +482,7 @@ export class ConnectorRegistry {
 export class MockMCPClient implements MCPClient {
 	private connected = false;
 	private readonly transientFailures = new Map<string, number>();
+	private tools: McpToolDescriptor[];
 
 	constructor(
 		private readonly options: {
@@ -494,9 +495,14 @@ export class MockMCPClient implements MCPClient {
 			failToolAttempts?: Record<string, number>;
 		} = {}
 	) {
+		this.tools = [...(options.tools ?? [])];
 		for (const [tool, failures] of Object.entries(options.failToolAttempts ?? {})) {
 			this.transientFailures.set(tool, failures);
 		}
+	}
+
+	setTools(tools: McpToolDescriptor[]): void {
+		this.tools = [...tools];
 	}
 
 	async connect(_config: McpServerConfig): Promise<void> {
@@ -509,7 +515,7 @@ export class MockMCPClient implements MCPClient {
 
 	async listTools(): Promise<McpToolDescriptor[]> {
 		this.assertConnected();
-		return [...(this.options.tools ?? [])];
+		return [...this.tools];
 	}
 
 	async listResources(): Promise<McpResourceDescriptor[]> {
@@ -1616,7 +1622,9 @@ export class ConnectorExecutionGateway {
 				return await this.dependencies.executor.execute(connector, tool, args, controller.signal);
 			} catch (error) {
 				lastError = error;
-				const retryable = error instanceof ConnectorError && error.retryable;
+				const retryable =
+					(error instanceof ConnectorError && error.retryable) ||
+					Boolean((error as { retryable?: boolean } | undefined)?.retryable);
 				if (!retryable || attempt === retryPolicy.retries) break;
 				if (retryPolicy.backoffMs > 0) await new Promise((resolve) => setTimeout(resolve, retryPolicy.backoffMs));
 			} finally {

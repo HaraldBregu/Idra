@@ -21,6 +21,7 @@ import {
 	MockConnectorRuntime,
 	MockMCPClient,
 	RuntimeConnectorExecutor,
+	SlackConnector,
 	createMockConnectorRuntimeMap,
 	type ConnectorDefinition,
 	type ConnectorToolProvider,
@@ -253,11 +254,12 @@ describe('connector integration layer', () => {
 		let tools = [
 			{ name: 'search', inputSchema: { type: 'object', properties: { query: { type: 'string' } }, additionalProperties: false }, annotations: { reviewed: true } },
 		];
+		const client = new MockMCPClient({ tools });
 		const discovery = new ConnectorToolDiscovery(
 			registry,
 			adapter,
 			new Map(),
-			() => new MockMCPClient({ tools })
+			() => client
 		);
 
 		await discovery.refreshConnectorTools('local_files_mcp');
@@ -265,6 +267,7 @@ describe('connector integration layer', () => {
 			{ name: 'read', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, additionalProperties: false }, annotations: { reviewed: true } },
 			{ name: 'search', inputSchema: { type: 'object', properties: { query: { type: 'string' }, limit: { type: 'integer' } }, additionalProperties: false }, annotations: { reviewed: true } },
 		];
+		client.setTools(tools);
 		await discovery.refreshConnectorTools('local_files_mcp');
 
 		expect(discovery.detectAddedTools('local_files_mcp').map((tool) => tool.name)).toContain('read');
@@ -304,7 +307,8 @@ describe('connector integration layer', () => {
 			args: { query: 'x' },
 		});
 
-		expect(response.status).toBe('error');
+		expect(response.status).toBe('ok');
+		expect(attempts).toBe(2);
 	});
 
 	it('blocks unknown connectors from receiving sensitive data', async () => {
