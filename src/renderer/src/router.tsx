@@ -56,15 +56,15 @@ function RootRouteComponent(): React.JSX.Element {
 					setChatMode(value);
 				}
 			}}
-			className="pointer-events-auto rounded-full bg-muted p-1"
+			className="pointer-events-auto rounded-full bg-muted p-0.5"
 			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 		>
-			<ToggleGroupItem value="chat" className="h-7 rounded-full px-3 text-xs font-semibold">
-				<MessageSquare className="size-4" strokeWidth={2.2} />
+			<ToggleGroupItem value="chat" className="h-6 rounded-full px-2.5 text-xs font-semibold">
+				<MessageSquare className="size-3.5" strokeWidth={2.2} />
 				Chat
 			</ToggleGroupItem>
-			<ToggleGroupItem value="voice" className="h-7 rounded-full px-3 text-xs font-semibold">
-				<Mic className="size-4" strokeWidth={2.2} />
+			<ToggleGroupItem value="voice" className="h-6 rounded-full px-2.5 text-xs font-semibold">
+				<Mic className="size-3.5" strokeWidth={2.2} />
 				Voice
 			</ToggleGroupItem>
 		</ToggleGroup>
