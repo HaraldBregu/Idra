@@ -246,6 +246,38 @@ function createStreamIterable(): StreamControl {
 	};
 }
 
+function VoiceView(): ReactElement {
+	return (
+		<div className="flex h-full flex-col items-center justify-between px-6 py-10">
+			<div className="flex flex-col items-center gap-2 pt-10 text-center">
+				<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+					Ready
+				</span>
+				<p className="text-base text-muted-foreground">
+					Hold the mic, or press and hold ⌘ space
+				</p>
+			</div>
+			<button
+				type="button"
+				className="flex size-16 items-center justify-center rounded-full border border-border/60 bg-muted/30 text-muted-foreground transition-colors hover:bg-muted/60 active:scale-95"
+			>
+				<Mic className="size-6" strokeWidth={1.5} />
+			</button>
+			<div className="flex items-center gap-5 pb-2 text-xs text-muted-foreground">
+				<span>
+					<kbd className="font-mono font-semibold">hold ⌘</kbd> keep speaking
+				</span>
+				<span>
+					<kbd className="font-mono font-semibold">release</kbd> send
+				</span>
+				<span>
+					<kbd className="font-mono font-semibold">esc</kbd> cancel
+				</span>
+			</div>
+		</div>
+	);
+}
+
 function HomePage(): ReactElement {
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
