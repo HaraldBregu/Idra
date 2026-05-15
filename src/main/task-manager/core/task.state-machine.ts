@@ -6,8 +6,8 @@ const TERMINAL_STATUSES = new Set<TaskStatus>(['completed', 'failed', 'cancelled
 const VALID_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
 	pending: ['queued', 'scheduled', 'waitingForDependency', 'waitingForConfirmation', 'cancelled', 'skipped'],
 	queued: ['running', 'paused', 'scheduled', 'waitingForDependency', 'waitingForConfirmation', 'cancelled', 'skipped'],
-	scheduled: ['queued', 'cancelled', 'skipped'],
-	running: ['completed', 'failed', 'cancelled', 'timedOut', 'paused', 'waitingForConfirmation'],
+	scheduled: ['queued', 'waitingForConfirmation', 'cancelled', 'skipped'],
+	running: ['completed', 'failed', 'cancelled', 'timedOut', 'paused', 'waitingForConfirmation', 'retrying'],
 	waitingForDependency: ['queued', 'failed', 'skipped', 'cancelled'],
 	waitingForConfirmation: ['queued', 'cancelled', 'failed'],
 	paused: ['queued', 'cancelled'],

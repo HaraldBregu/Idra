@@ -1,6 +1,7 @@
 import { Provider } from "../../shared/providers";
 import { Service } from "../../shared/service";
 import { CronTask } from "../../shared/cron";
+import type { CronStoreState } from "../cron/core/cron.types";
 import { Channel } from "../../shared/channels";
 import { ConnectorConfig } from "../../shared/connectors";
 
@@ -8,6 +9,7 @@ export interface StoreSchema {
 	providers: Provider[];
 	service: Service;
 	cronTasks: CronTask[];
+	cronScheduler: CronStoreState;
 	channel: Channel;
 	connectors: ConnectorConfig[];
 }

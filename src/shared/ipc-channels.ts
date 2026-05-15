@@ -38,6 +38,20 @@ export const CronChannels = {
 	list: 'cron:list',
 	add: 'cron:add',
 	remove: 'cron:remove',
+	createSchedule: 'cron:createSchedule',
+	updateSchedule: 'cron:updateSchedule',
+	pauseSchedule: 'cron:pauseSchedule',
+	resumeSchedule: 'cron:resumeSchedule',
+	deleteSchedule: 'cron:deleteSchedule',
+	listSchedules: 'cron:listSchedules',
+	getSchedule: 'cron:getSchedule',
+	getScheduleEvents: 'cron:getScheduleEvents',
+	getScheduleExecutions: 'cron:getScheduleExecutions',
+	getNextRuns: 'cron:getNextRuns',
+	runNow: 'cron:runNow',
+	subscribe: 'cron:subscribe',
+	unsubscribe: 'cron:unsubscribe',
+	event: 'cron:event',
 } as const;
 
 export const AppsChannels = {
@@ -52,6 +66,15 @@ export const SkillsChannels = {
 	import: 'skills:import',
 	delete: 'skills:delete',
 	getRoot: 'skills:get-root',
+} as const;
+
+export const TaskChannels = {
+	create: 'tasks:create',
+	get: 'tasks:get',
+	list: 'tasks:list',
+	cancel: 'tasks:cancel',
+	retry: 'tasks:retry',
+	event: 'tasks:event',
 } as const;
 
 export const ConnectorsChannels = {
@@ -161,6 +184,38 @@ interface CronInvokeChannelMap {
 		result: import('./cron').CronTask;
 	};
 	[CronChannels.remove]: { args: [id: string]; result: void };
+	[CronChannels.createSchedule]: {
+		args: [request: import('./cron').CronScheduleCreateRequest];
+		result: import('./cron').CronSchedule;
+	};
+	[CronChannels.updateSchedule]: {
+		args: [scheduleId: string, patch: import('./cron').CronScheduleUpdateRequest];
+		result: import('./cron').CronSchedule;
+	};
+	[CronChannels.pauseSchedule]: { args: [scheduleId: string]; result: void };
+	[CronChannels.resumeSchedule]: { args: [scheduleId: string]; result: void };
+	[CronChannels.deleteSchedule]: { args: [scheduleId: string]; result: void };
+	[CronChannels.listSchedules]: {
+		args: [filter?: import('./cron').CronScheduleFilter];
+		result: import('./cron').CronSchedule[];
+	};
+	[CronChannels.getSchedule]: { args: [scheduleId: string]; result: import('./cron').CronSchedule };
+	[CronChannels.getScheduleEvents]: {
+		args: [scheduleId: string];
+		result: import('./cron').CronScheduleEvent[];
+	};
+	[CronChannels.getScheduleExecutions]: {
+		args: [scheduleId: string];
+		result: import('./cron').CronExecutionRecord[];
+	};
+	[CronChannels.getNextRuns]: {
+		args: [scheduleId: string, count: number];
+		result: import('./cron').CronNextRunPreview;
+	};
+	[CronChannels.runNow]: {
+		args: [scheduleId: string];
+		result: import('./task').Task;
+	};
 }
 
 interface AppsInvokeChannelMap {
@@ -175,6 +230,29 @@ interface SkillsInvokeChannelMap {
 	[SkillsChannels.import]: { args: []; result: import('./skills').SkillInfo | undefined };
 	[SkillsChannels.delete]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
+}
+
+interface TaskInvokeChannelMap {
+	[TaskChannels.create]: {
+		args: [request: import('./task').TaskCreateRequest];
+		result: import('./task').Task;
+	};
+	[TaskChannels.get]: {
+		args: [taskId: import('./task').TaskId];
+		result: import('./task').Task;
+	};
+	[TaskChannels.list]: {
+		args: [filter?: import('./task').TaskListFilter];
+		result: import('./task').Task[];
+	};
+	[TaskChannels.cancel]: {
+		args: [taskId: import('./task').TaskId, reason?: string];
+		result: void;
+	};
+	[TaskChannels.retry]: {
+		args: [taskId: import('./task').TaskId];
+		result: void;
+	};
 }
 
 interface ConnectorsInvokeChannelMap {
@@ -265,6 +343,7 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		AppsInvokeChannelMap,
 		SkillsInvokeChannelMap,
+		TaskInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
@@ -289,7 +368,17 @@ interface ChannelsEventChannelMap {
 	[ChannelsChannels.statusChanged]: { data: import('./channels').ChannelStatusEvent };
 }
 
+interface TaskEventChannelMap {
+	[TaskChannels.event]: { data: import('./task').TaskEvent };
+}
+
+interface CronEventChannelMap {
+	[CronChannels.event]: { data: import('./cron').CronScheduleEvent };
+}
+
 export interface EventChannelMap
 	extends AssistantEventChannelMap,
 		WindowEventChannelMap,
-		ChannelsEventChannelMap {}
+		ChannelsEventChannelMap,
+		TaskEventChannelMap,
+		CronEventChannelMap {}

@@ -10,4 +10,5 @@ export { ChannelsIpc } from './channels-ipc';
 export { ConnectorsIpc } from './connectors-ipc';
 export { CronIpc } from './cron-ipc';
 export { SkillsIpc } from './skills-ipc';
+export { TaskIpc } from '../task-manager/electron/task-ipc-main';
 export { WindowIpc } from './window-ipc';

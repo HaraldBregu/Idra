@@ -29,6 +29,25 @@ export interface CronApi {
 		options?: { id?: string; timezone?: string }
 	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
+	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
+	updateSchedule: (
+		scheduleId: string,
+		patch: CronScheduleUpdateRequest
+	) => Promise<CronSchedule>;
+	pauseSchedule: (scheduleId: string) => Promise<void>;
+	resumeSchedule: (scheduleId: string) => Promise<void>;
+	deleteSchedule: (scheduleId: string) => Promise<void>;
+	listSchedules: (filter?: CronScheduleFilter) => Promise<CronSchedule[]>;
+	getSchedule: (scheduleId: string) => Promise<CronSchedule>;
+	getScheduleEvents: (scheduleId: string) => Promise<CronScheduleEvent[]>;
+	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
+	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
+	runNow: (scheduleId: string) => Promise<Task>;
+	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
+	subscribeToSchedule: (
+		scheduleId: string,
+		listener: (event: CronScheduleEvent) => void
+	) => () => void;
 }
 
 export interface ChannelsApi {
@@ -71,8 +90,30 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
+export interface TasksApi {
+	createTask: (request: TaskCreateRequest) => Promise<Task>;
+	getTask: (taskId: TaskId) => Promise<Task>;
+	listTasks: (filter?: TaskListFilter) => Promise<Task[]>;
+	cancelTask: (taskId: TaskId, reason?: string) => Promise<void>;
+	retryTask: (taskId: TaskId) => Promise<void>;
+	subscribeToTask: (taskId: TaskId, callback: (event: TaskEvent) => void) => () => void;
+	subscribeToTaskList: (filter: TaskListFilter | undefined, callback: (event: TaskEvent) => void) => () => void;
+}
+
 import type { ProviderInput, PublicProvider } from '../shared/providers';
-import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
+import type {
+	CronExecutionRecord,
+	CronNextRunPreview,
+	CronSchedule,
+	CronScheduleCreateRequest,
+	CronScheduleEvent,
+	CronScheduleFilter,
+	CronScheduleUpdateRequest,
+	CronTask,
+	CronTaskData,
+	CronTaskView,
+} from '../shared/cron';
+import type { Task } from '../shared/task';
 import type {
 	Assistant,
 	AssistantHistoryMessage,
@@ -85,6 +126,7 @@ import type {
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
 import type { SkillInfo } from '../shared/skills';
+import type { Task, TaskCreateRequest, TaskEvent, TaskId, TaskListFilter } from '../shared/task';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -122,5 +164,6 @@ declare global {
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
+		tasks: TasksApi;
 	}
 }

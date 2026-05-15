@@ -105,13 +105,22 @@ export class TaskConfirmationRequiredError extends TaskManagerError {
 			code: 'CONFIRMATION_REQUIRED',
 			message: `Task requires confirmation: ${taskId}`,
 			safeUserMessage: 'Confirmation is required before this task can run.',
-			metadata: { taskId, confirmationId },
+			metadata: confirmationId ? { taskId, confirmationId } : { taskId },
 		});
 	}
 }
 
 export function toTaskError(error: unknown): TaskError {
 	if (error instanceof TaskManagerError) return error.toTaskError();
+	if (isTaskErrorLike(error)) {
+		return {
+			code: error.code,
+			message: error.message,
+			retryable: error.retryable,
+			safeUserMessage: error.safeUserMessage,
+			metadata: error.metadata,
+		};
+	}
 	if (error instanceof Error) {
 		return {
 			code: 'EXECUTION_FAILED',
@@ -126,4 +135,15 @@ export function toTaskError(error: unknown): TaskError {
 		retryable: false,
 		safeUserMessage: 'The task failed.',
 	};
+}
+
+function isTaskErrorLike(error: unknown): error is TaskError {
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		typeof (error as TaskError).code === 'string' &&
+		typeof (error as TaskError).message === 'string' &&
+		typeof (error as TaskError).retryable === 'boolean' &&
+		typeof (error as TaskError).safeUserMessage === 'string'
+	);
 }

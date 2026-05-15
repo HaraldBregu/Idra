@@ -9,6 +9,7 @@ import {
 	CronChannels,
 	AppsChannels,
 	SkillsChannels,
+	TaskChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
@@ -17,10 +18,23 @@ import type {
 	ConnectorsApi,
 	CronApi,
 	SkillsApi,
+	TasksApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
-import type { CronTask, CronTaskData, CronTaskView } from '../shared/cron';
+import type {
+	CronExecutionRecord,
+	CronNextRunPreview,
+	CronSchedule,
+	CronScheduleCreateRequest,
+	CronScheduleEvent,
+	CronScheduleFilter,
+	CronScheduleUpdateRequest,
+	CronTask,
+	CronTaskData,
+	CronTaskView,
+} from '../shared/cron';
+import type { Task } from '../shared/task';
 import type {
 	Assistant,
 	AssistantHistoryMessage,
@@ -42,6 +56,7 @@ import type {
 	ConnectorUpdateInput,
 	ConnectorView,
 } from '../shared/connectors';
+import type { Task, TaskCreateRequest, TaskEvent, TaskId, TaskListFilter } from '../shared/task';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -161,6 +176,53 @@ export const cron: CronApi = {
 	remove: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
 	},
+	createSchedule: (request: CronScheduleCreateRequest): Promise<CronSchedule> => {
+		return typedInvokeUnwrap(CronChannels.createSchedule, request);
+	},
+	updateSchedule: (
+		scheduleId: string,
+		patch: CronScheduleUpdateRequest
+	): Promise<CronSchedule> => {
+		return typedInvokeUnwrap(CronChannels.updateSchedule, scheduleId, patch);
+	},
+	pauseSchedule: (scheduleId: string): Promise<void> => {
+		return typedInvokeUnwrap(CronChannels.pauseSchedule, scheduleId);
+	},
+	resumeSchedule: (scheduleId: string): Promise<void> => {
+		return typedInvokeUnwrap(CronChannels.resumeSchedule, scheduleId);
+	},
+	deleteSchedule: (scheduleId: string): Promise<void> => {
+		return typedInvokeUnwrap(CronChannels.deleteSchedule, scheduleId);
+	},
+	listSchedules: (filter?: CronScheduleFilter): Promise<CronSchedule[]> => {
+		return typedInvokeUnwrap(CronChannels.listSchedules, filter);
+	},
+	getSchedule: (scheduleId: string): Promise<CronSchedule> => {
+		return typedInvokeUnwrap(CronChannels.getSchedule, scheduleId);
+	},
+	getScheduleEvents: (scheduleId: string): Promise<CronScheduleEvent[]> => {
+		return typedInvokeUnwrap(CronChannels.getScheduleEvents, scheduleId);
+	},
+	getScheduleExecutions: (scheduleId: string): Promise<CronExecutionRecord[]> => {
+		return typedInvokeUnwrap(CronChannels.getScheduleExecutions, scheduleId);
+	},
+	getNextRuns: (scheduleId: string, count: number): Promise<CronNextRunPreview> => {
+		return typedInvokeUnwrap(CronChannels.getNextRuns, scheduleId, count);
+	},
+	runNow: (scheduleId: string): Promise<Task> => {
+		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
+	},
+	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void): (() => void) => {
+		return typedOn(CronChannels.event, listener);
+	},
+	subscribeToSchedule: (
+		scheduleId: string,
+		listener: (event: CronScheduleEvent) => void
+	): (() => void) => {
+		return typedOn(CronChannels.event, (event) => {
+			if (event.scheduleId === scheduleId) listener(event);
+		});
+	},
 };
 
 export const skills: SkillsApi = {
@@ -175,6 +237,32 @@ export const skills: SkillsApi = {
 	},
 	getRoot: (): Promise<string> => {
 		return typedInvokeUnwrap(SkillsChannels.getRoot);
+	},
+};
+
+export const tasks: TasksApi = {
+	createTask: (request: TaskCreateRequest): Promise<Task> => {
+		return typedInvokeUnwrap(TaskChannels.create, request);
+	},
+	getTask: (taskId: TaskId): Promise<Task> => {
+		return typedInvokeUnwrap(TaskChannels.get, taskId);
+	},
+	listTasks: (filter?: TaskListFilter): Promise<Task[]> => {
+		return typedInvokeUnwrap(TaskChannels.list, filter);
+	},
+	cancelTask: (taskId: TaskId, reason?: string): Promise<void> => {
+		return typedInvokeUnwrap(TaskChannels.cancel, taskId, reason);
+	},
+	retryTask: (taskId: TaskId): Promise<void> => {
+		return typedInvokeUnwrap(TaskChannels.retry, taskId);
+	},
+	subscribeToTask: (taskId: TaskId, callback: (event: TaskEvent) => void): (() => void) => {
+		return typedOn(TaskChannels.event, (event) => {
+			if (event.taskId === taskId) callback(event);
+		});
+	},
+	subscribeToTaskList: (_filter: TaskListFilter | undefined, callback: (event: TaskEvent) => void): (() => void) => {
+		return typedOn(TaskChannels.event, callback);
 	},
 };
 
@@ -260,6 +348,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
+		contextBridge.exposeInMainWorld('tasks', tasks);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -278,4 +367,6 @@ if (process.contextIsolated) {
 	globalThis.connectors = connectors;
 	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
+	// @ts-ignore (define in dts)
+	globalThis.tasks = tasks;
 }

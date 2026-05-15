@@ -5,7 +5,49 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/ipc-channels';
-import { isCronTaskData, type CronTask, type CronTaskData, type CronTaskView } from '../../shared/cron';
+import {
+	isCronTaskData,
+	type CronScheduleCreateRequest,
+	type CronScheduleFilter,
+	type CronScheduleUpdateRequest,
+	type CronTask,
+	type CronTaskData,
+	type CronTaskView,
+} from '../../shared/cron';
+
+function isObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function assertCreateRequest(value: unknown): asserts value is CronScheduleCreateRequest {
+	if (!isObject(value)) throw new Error('Invalid cron schedule request.');
+	if (typeof value.name !== 'string') throw new Error('Cron schedule name is required.');
+	if (typeof value.type !== 'string') throw new Error('Cron schedule type is required.');
+	if (typeof value.taskType !== 'string') throw new Error('Cron schedule taskType is required.');
+	if (typeof value.timezone !== 'string') throw new Error('Cron schedule timezone is required.');
+}
+
+function assertPatch(value: unknown): asserts value is CronScheduleUpdateRequest {
+	if (!isObject(value)) throw new Error('Invalid cron schedule update.');
+}
+
+function uiActor(userId?: string) {
+	return {
+		source: 'ui' as const,
+		userId,
+		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+		permissions: [
+			'createSchedule',
+			'updateSchedule',
+			'deleteSchedule',
+			'pauseSchedule',
+			'resumeSchedule',
+			'listSchedules',
+			'runScheduleNow',
+			'scheduleReadPrivateData',
+		] as const,
+	};
+}
 
 export class CronIpc implements IpcModule {
 	readonly name = 'cron';
@@ -53,6 +95,72 @@ export class CronIpc implements IpcModule {
 				cron.unschedule(id);
 			}, CronChannels.remove)
 		);
+
+		ipcMain.handle(
+			CronChannels.createSchedule,
+			wrapSimpleHandler((request: CronScheduleCreateRequest) => {
+				assertCreateRequest(request);
+				return cron.createSchedule({ ...request, source: request.source ?? 'ui' }, uiActor(request.ownerUserId));
+			}, CronChannels.createSchedule)
+		);
+
+		ipcMain.handle(
+			CronChannels.updateSchedule,
+			wrapSimpleHandler((scheduleId: string, patch: CronScheduleUpdateRequest) => {
+				if (typeof scheduleId !== 'string' || !scheduleId.trim()) throw new Error('scheduleId is required.');
+				assertPatch(patch);
+				return cron.updateSchedule(scheduleId, patch, uiActor());
+			}, CronChannels.updateSchedule)
+		);
+
+		ipcMain.handle(
+			CronChannels.pauseSchedule,
+			wrapSimpleHandler((scheduleId: string) => cron.pauseSchedule(scheduleId, uiActor()), CronChannels.pauseSchedule)
+		);
+
+		ipcMain.handle(
+			CronChannels.resumeSchedule,
+			wrapSimpleHandler((scheduleId: string) => cron.resumeSchedule(scheduleId, uiActor()), CronChannels.resumeSchedule)
+		);
+
+		ipcMain.handle(
+			CronChannels.deleteSchedule,
+			wrapSimpleHandler((scheduleId: string) => cron.deleteSchedule(scheduleId, uiActor()), CronChannels.deleteSchedule)
+		);
+
+		ipcMain.handle(
+			CronChannels.listSchedules,
+			wrapSimpleHandler((filter?: CronScheduleFilter) => cron.listSchedules(filter ?? {}, uiActor()), CronChannels.listSchedules)
+		);
+
+		ipcMain.handle(
+			CronChannels.getSchedule,
+			wrapSimpleHandler((scheduleId: string) => cron.getSchedule(scheduleId, uiActor()), CronChannels.getSchedule)
+		);
+
+		ipcMain.handle(
+			CronChannels.getScheduleEvents,
+			wrapSimpleHandler((scheduleId: string) => cron.getScheduleEvents(scheduleId), CronChannels.getScheduleEvents)
+		);
+
+		ipcMain.handle(
+			CronChannels.getScheduleExecutions,
+			wrapSimpleHandler((scheduleId: string) => cron.getScheduleExecutions(scheduleId), CronChannels.getScheduleExecutions)
+		);
+
+		ipcMain.handle(
+			CronChannels.getNextRuns,
+			wrapSimpleHandler((scheduleId: string, count: number) => cron.getNextRuns(scheduleId, count, uiActor()), CronChannels.getNextRuns)
+		);
+
+		ipcMain.handle(
+			CronChannels.runNow,
+			wrapSimpleHandler((scheduleId: string) => cron.runScheduleNow(scheduleId, uiActor()), CronChannels.runNow)
+		);
+
+		cron.events.subscribe((event) => {
+			_eventBus.broadcast(CronChannels.event, event);
+		});
 
 		logger.info('CronIpc', `Registered ${this.name} module`);
 	}

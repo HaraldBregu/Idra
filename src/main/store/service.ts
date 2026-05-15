@@ -5,6 +5,8 @@ import type { CronTask } from '../../shared/cron';
 import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';
 import { SettingsStore, StoreSchema } from './types';
+import type { CronStoreState } from '../cron/core/cron.types';
+import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 
 const DEFAULT_CHANNEL: Channel = {
 	telegram: {
@@ -154,6 +156,14 @@ export class StoreService {
 
 	setCronTasks(tasks: CronTask[]): void {
 		this.store.set('cronTasks', tasks);
+	}
+
+	getCronSchedulerState(): CronStoreState {
+		return migrateCronStoreState(this.store.get('cronScheduler') ?? emptyCronStoreState());
+	}
+
+	setCronSchedulerState(state: CronStoreState): void {
+		this.store.set('cronScheduler', migrateCronStoreState(state));
 	}
 
 	getConnectors(): ConnectorConfig[] {

@@ -38,7 +38,7 @@ export class WorkflowManager {
 	}
 
 	async refreshWorkflowProgress(workflowId: WorkflowId): Promise<Workflow> {
-		const workflow = await this.store.getWorkflow(workflowId);
+		await this.store.getWorkflow(workflowId);
 		const tasks = await this.store.listTasks({ workflowId, includeTerminal: true });
 		const progress = this.aggregateProgress(tasks);
 		const status = this.aggregateStatus(tasks);

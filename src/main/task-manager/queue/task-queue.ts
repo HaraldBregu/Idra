@@ -92,10 +92,10 @@ export class DefaultTaskQueue implements TaskQueue {
 	private schedulePump(): void {
 		if (this.pumpScheduled) return;
 		this.pumpScheduled = true;
-		queueMicrotask(() => {
+		setTimeout(() => {
 			this.pumpScheduled = false;
 			void this.pump();
-		});
+		}, 0).unref?.();
 	}
 
 	private async pump(): Promise<void> {
