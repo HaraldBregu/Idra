@@ -1038,7 +1038,7 @@ const StartPage: React.FC = () => {
 		}
 
 		if (step === 'connectors') {
-			goToStep('finish');
+			navigate('/home');
 			return;
 		}
 
