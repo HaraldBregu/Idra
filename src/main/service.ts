@@ -5,6 +5,7 @@ import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { WorkspaceService } from './workspace';
+import type { UserDataDirectoryServicePort } from './user-data';
 import type { ConnectorsService } from './connectors';
 import type { SkillsService } from './skills';
 import { buildSystemPrompt } from './agent/system-prompt';
@@ -29,6 +30,7 @@ export interface AssistantServiceDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	workspace: WorkspaceService;
+	userDataDirectory: UserDataDirectoryServicePort;
 	mcpRegistry?: McpRegistry;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;

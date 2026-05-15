@@ -80,7 +80,17 @@ export function bootstrapServices(): BootstrapResult {
 
 	const assistantService = container.register(
 		'assistantService',
-		new AssistantService({ store, cron, logger, eventBus, workspace, mcpRegistry, skills, connectors })
+		new AssistantService({
+			store,
+			cron,
+			logger,
+			eventBus,
+			workspace,
+			userDataDirectory,
+			mcpRegistry,
+			skills,
+			connectors,
+		})
 	);
 	container.register(
 		'channelRegistry',

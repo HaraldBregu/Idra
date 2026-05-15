@@ -2,7 +2,7 @@ import type { ReactElement, RefObject } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Components } from 'react-markdown';
 import { ArrowUp, Calendar, Copy, ListChecks, Play, Sparkles, Square } from 'lucide-react';
-import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
+import { VoiceOrbNeptune } from '@/components/app/base/voice-orb-neptune';
 import { PageContainer } from '@/components/app/base/page';
 import {
 	ChatContainerContent,
