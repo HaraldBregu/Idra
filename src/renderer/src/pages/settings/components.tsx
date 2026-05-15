@@ -36,17 +36,11 @@ interface SettingsPageHeaderProps {
 export function SettingsPageHeader({
 	title,
 	description,
-	icon: Icon,
 	action,
 }: SettingsPageHeaderProps): React.JSX.Element {
 	return (
 		<header className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 pb-3">
 			<div className="flex min-w-0 items-start gap-3">
-				{Icon && (
-					<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/40">
-						<Icon className="size-4 text-foreground" />
-					</div>
-				)}
 				<div className="min-w-0">
 					<h1 className="text-base font-semibold leading-none">{title}</h1>
 					{description && (

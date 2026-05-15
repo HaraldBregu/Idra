@@ -310,37 +310,6 @@ input[type='range']:hover::-moz-range-thumb {
 	transform: scale(1.15);
 }
 
-/* Settings nav item: show label tooltip in icon-only mode (below sm breakpoint) */
-@media (max-width: 639px) {
-	.settings-nav-item {
-		position: relative;
-	}
-
-	.settings-nav-item::after {
-		content: attr(data-label);
-		position: absolute;
-		left: calc(100% + 6px);
-		top: 50%;
-		transform: translateY(-50%);
-		background-color: var(--foreground);
-		color: var(--background);
-		padding: 4px 10px;
-		border-radius: 6px;
-		font-size: 12px;
-		font-weight: 500;
-		white-space: nowrap;
-		pointer-events: none;
-		opacity: 0;
-		z-index: 50;
-		transition: opacity 0.1s ease;
-	}
-
-	.settings-nav-item:hover::after,
-	.settings-nav-item:focus-within::after {
-		opacity: 1;
-	}
-}
-
 /* Respect OS-level reduced-motion preference for CSS animations */
 @media (prefers-reduced-motion: reduce) {
 	*,

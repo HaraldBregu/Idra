@@ -138,6 +138,8 @@
 	"settings": {
 		"title": "Settings",
 		"description": "Configure your application preferences",
+		"search": "Search",
+		"searchLabel": "Search settings",
 		"tabs": {
 			"general": "General",
 			"channels": "Channels",
