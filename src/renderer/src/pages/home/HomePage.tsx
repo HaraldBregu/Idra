@@ -305,9 +305,10 @@ function HomePage(): ReactElement {
 				return [...cleaned, pendingMessage];
 			});
 		});
-		const offResponse = window.assistant.onResponse((_event: AssistantResponseDelta) => {
-			// Streaming text deltas — currently surfaced only as the final
-			// response from send(). Hook here to render live tokens.
+		const offResponse = window.assistant.onResponse((event: AssistantResponseDelta) => {
+			if (isStreamingRef.current && event.delta) {
+				setStreamingContent((prev) => (prev === null ? event.delta : prev + event.delta));
+			}
 		});
 		return () => {
 			offPending();
