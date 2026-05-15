@@ -1,6 +1,7 @@
 import type { AgentTool, AgentToolResult, ToolContext } from '../types';
 import { textResult } from '../types';
 import { ToolArgumentBuilder } from './argument-builder';
+import { redactSensitive } from './audit-log';
 import { agentToolToManagedTool, createAgentToolRegistry } from './adapter';
 import { ToolDiscovery } from './discovery';
 import { ToolExecutor } from './executor';
@@ -35,11 +36,14 @@ export function selectAgentToolsForTurn(
 	options: AgentToolManagementOptions = {}
 ): AgentToolSelectionForTurn {
 	if (options.enabled === false) return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
+	const policy = new ToolUsePolicy().evaluate({ userRequest: userMessage });
+	if (!policy.shouldUseTools && policy.reason === 'user explicitly disabled tool use') {
+		return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
+	}
 	const threshold = options.useWhenToolCountExceeds ?? 12;
 	if (!options.forceSelection && tools.length <= threshold) {
 		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
 	}
-	const policy = new ToolUsePolicy().evaluate({ userRequest: userMessage });
 	if (!policy.shouldUseTools) return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
 	const registry = createAgentToolRegistry(tools);
 	const sessionContext = createSessionContext(ctx, options);
@@ -67,7 +71,11 @@ export async function executeAgentToolWithManagement(
 	const built = builder.build(managed, { intendedCall: args, sessionContext, memory: options.memory });
 	if (built.type === 'clarificationRequired') return textResult(built.question, true);
 	const executor = options.executor ?? new ToolExecutor({ maxToolCallsPerTurn: options.maxToolCallsPerTurn });
-	const result = await executor.execute(managed, built.input, createExecutionContext(ctx, sessionContext, options));
+	const result = await executor.execute(
+		managed,
+		built.input,
+		createExecutionContext(ctx, sessionContext, options, tool.name, managed.id, built.input)
+	);
 	if (result.success && result.data) {
 		if (result.warnings.length === 0) return result.data;
 		return {
@@ -94,15 +102,23 @@ function createSessionContext(ctx: ToolContext, options: AgentToolManagementOpti
 function createExecutionContext(
 	ctx: ToolContext,
 	sessionContext: SessionContext,
-	options: AgentToolManagementOptions
+	options: AgentToolManagementOptions,
+	toolName: string,
+	managedToolId: string,
+	input: unknown
 ): ToolExecutionContext {
+	const confirmedActionIds = new Set(options.sessionContext?.confirmedActionIds ?? []);
+	const legacyApprovalKey = `${toolName}::${JSON.stringify(input ?? {})}`;
+	if (ctx.approvalCache.has(legacyApprovalKey)) {
+		confirmedActionIds.add(`${managedToolId}:${JSON.stringify(redactSensitive(input))}`);
+	}
 	return {
 		userId: sessionContext.userId,
 		sessionId: ctx.sessionId,
 		userTimezone: sessionContext.userTimezone,
 		now: new Date(),
 		availablePermissions: sessionContext.availablePermissions,
-		confirmedActionIds: new Set(options.sessionContext?.confirmedActionIds ?? ['*']),
+		confirmedActionIds,
 		reasonForUse: 'model selected tool',
 		turnId: ctx.sessionId,
 		metadata: { legacyToolContext: ctx, ...sessionContext.metadata },

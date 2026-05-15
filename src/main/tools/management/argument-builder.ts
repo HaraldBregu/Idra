@@ -84,6 +84,7 @@ function normalizeValue(field: string, value: unknown, schema: unknown, sessionC
 	const trimmed = value.trim();
 	if (/email/i.test(field)) return trimmed.toLowerCase();
 	if (/currency/i.test(field)) return trimmed.toUpperCase();
+	if (/(unit|units)$/i.test(field)) return trimmed.toLowerCase();
 	if (/(^id$|id$|Id$)/.test(field)) return trimmed;
 	if (/(date|time|startsAt|endsAt|from|to|at)$/i.test(field) || schemaRecord.format === 'date-time') {
 		if (/^today$/i.test(trimmed)) return dateOnly(sessionContext);
@@ -95,14 +96,41 @@ function normalizeValue(field: string, value: unknown, schema: unknown, sessionC
 }
 
 function dateOnly(sessionContext: SessionContext, offsetDays = 0): string {
-	const now =
-		sessionContext.metadata?.now instanceof Date
-			? sessionContext.metadata.now
-			: typeof sessionContext.metadata?.now === 'string'
-				? new Date(sessionContext.metadata.now)
-				: new Date();
-	const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + offsetDays));
+	const parts = datePartsInTimezone(resolveNow(sessionContext), sessionContext.userTimezone);
+	const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offsetDays));
 	return date.toISOString().slice(0, 10);
+}
+
+function resolveNow(sessionContext: SessionContext): Date {
+	if (sessionContext.metadata?.now instanceof Date) return sessionContext.metadata.now;
+	if (typeof sessionContext.metadata?.now === 'string') {
+		const parsed = new Date(sessionContext.metadata.now);
+		if (Number.isFinite(parsed.getTime())) return parsed;
+	}
+	return new Date();
+}
+
+function datePartsInTimezone(now: Date, timeZone: string): { year: number; month: number; day: number } {
+	try {
+		const parts = new Intl.DateTimeFormat('en-US', {
+			timeZone,
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+		}).formatToParts(now);
+		const lookup = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+		return {
+			year: Number(lookup.year),
+			month: Number(lookup.month),
+			day: Number(lookup.day),
+		};
+	} catch {
+		return {
+			year: now.getUTCFullYear(),
+			month: now.getUTCMonth() + 1,
+			day: now.getUTCDate(),
+		};
+	}
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

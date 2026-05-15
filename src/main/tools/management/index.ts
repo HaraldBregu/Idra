@@ -3,6 +3,7 @@ export * from './agent-integration';
 export * from './argument-builder';
 export * from './audit-log';
 export * from './cache';
+export * from './conflict-resolver';
 export * from './discovery';
 export * from './examples';
 export * from './executor';

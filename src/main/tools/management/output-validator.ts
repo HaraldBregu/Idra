@@ -10,7 +10,7 @@ export interface ToolOutputProvenance {
 }
 
 export interface ValidatedToolOutput<TOutput = unknown> {
-	status: 'valid' | 'invalid' | 'partial' | 'suspicious' | 'stale';
+	status: 'valid' | 'invalid' | 'partial' | 'suspicious' | 'contradictory' | 'stale';
 	data?: TOutput;
 	normalizedData?: unknown;
 	warnings: string[];
@@ -39,12 +39,14 @@ export class ToolOutputValidator {
 		}
 		const empty = isEmptyResult(result.data);
 		const suspicious = containsPromptInjection(result.data);
+		const contradictory = containsContradiction(result.data, result.metadata);
 		const stale = isStale(provenance.fetchedAt, maxAgeMs);
 		const normalizedData = suspicious ? removePromptInjectionInstructions(result.data) : result.data;
 		if (empty) warnings.push('tool returned empty or partial data');
 		if (suspicious) warnings.push('tool output contained prompt-injection-like text and was treated as untrusted data');
+		if (contradictory) warnings.push('tool output contains contradictory or conflicting data');
 		if (stale) warnings.push('tool output may be stale');
-		const status = suspicious ? 'suspicious' : stale ? 'stale' : empty ? 'partial' : 'valid';
+		const status = suspicious ? 'suspicious' : contradictory ? 'contradictory' : stale ? 'stale' : empty ? 'partial' : 'valid';
 		return { status, data: result.data, normalizedData, warnings, provenance };
 	}
 }
@@ -62,6 +64,37 @@ function containsPromptInjection(value: unknown): boolean {
 	if (Array.isArray(value)) return value.some(containsPromptInjection);
 	if (typeof value === 'object' && value !== null) return Object.values(value as Record<string, unknown>).some(containsPromptInjection);
 	return false;
+}
+
+function containsContradiction(value: unknown, metadata: Record<string, unknown>): boolean {
+	if (hasNonEmptyArray(metadata.contradictions) || hasNonEmptyArray(metadata.conflicts)) return true;
+	if (typeof value !== 'object' || value === null) return false;
+	if (hasNonEmptyArray((value as Record<string, unknown>).contradictions)) return true;
+	if (hasNonEmptyArray((value as Record<string, unknown>).conflicts)) return true;
+	if (!Array.isArray(value)) return Object.values(value as Record<string, unknown>).some((item) => containsContradiction(item, {}));
+	const seen = new Map<string, string>();
+	for (const item of value) {
+		if (typeof item !== 'object' || item === null) continue;
+		const record = item as Record<string, unknown>;
+		const key = firstString(record, ['id', 'key', 'name', 'source']);
+		if (!key || !Object.prototype.hasOwnProperty.call(record, 'value')) continue;
+		const serialized = JSON.stringify(record.value);
+		const previous = seen.get(key);
+		if (previous !== undefined && previous !== serialized) return true;
+		seen.set(key, serialized);
+	}
+	return false;
+}
+
+function hasNonEmptyArray(value: unknown): boolean {
+	return Array.isArray(value) && value.length > 0;
+}
+
+function firstString(record: Record<string, unknown>, fields: string[]): string | undefined {
+	for (const field of fields) {
+		if (typeof record[field] === 'string' && record[field].trim()) return record[field];
+	}
+	return undefined;
 }
 
 function removePromptInjectionInstructions(value: unknown): unknown {
@@ -95,4 +128,3 @@ function extractProvenance<TOutput>(result: ToolResult<TOutput>): ToolOutputProv
 		citations,
 	};
 }
-

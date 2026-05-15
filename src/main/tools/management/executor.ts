@@ -91,6 +91,9 @@ export class ToolExecutor {
 				return invalid;
 			}
 			finished.warnings.push(...output.warnings.filter((warning) => !finished.warnings.includes(warning)));
+			if (output.normalizedData !== undefined) {
+				finished.data = output.normalizedData as TOutput;
+			}
 			finished.metadata = { ...finished.metadata, provenance: output.provenance, outputStatus: output.status };
 		}
 		await this.audit(tool, input, context, finished);
