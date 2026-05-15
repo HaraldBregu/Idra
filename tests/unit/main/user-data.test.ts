@@ -9,19 +9,17 @@ import { loadSession, saveSession } from '../../../src/main/session/store';
 import { makeTempDir } from './test-helpers';
 
 describe('UserDataDirectoryService', () => {
-	it('resolves .friday as a sibling of the injected friday app folder', () => {
-		const service = new UserDataDirectoryService({ appPath: '/tmp/projects/friday' });
+	it('resolves .friday under the injected home folder', () => {
+		const service = new UserDataDirectoryService({ homePath: '/tmp/home' });
 
-		expect(service.getRootPath()).toBe(path.join('/tmp/projects', USER_DATA_DIRECTORY_NAME));
+		expect(service.getRootPath()).toBe(path.join('/tmp/home', USER_DATA_DIRECTORY_NAME));
 		expect(service.resolve('assistant', 'sessions')).toBe(
-			path.join('/tmp/projects', USER_DATA_DIRECTORY_NAME, 'assistant', 'sessions')
+			path.join('/tmp/home', USER_DATA_DIRECTORY_NAME, 'assistant', 'sessions')
 		);
 	});
 
-	it('uses ~/Desktop/friday when Electron resolves the app path to home', async () => {
+	it('uses Electron home for the default root path', async () => {
 		const home = await makeTempDir();
-		await fs.mkdir(path.join(home, 'Desktop', 'friday'), { recursive: true });
-		(app.getAppPath as jest.Mock).mockReturnValue(home);
 		(app.getPath as jest.Mock).mockImplementation((name: string) => {
 			if (name === 'home') return home;
 			return path.join(home, name);
@@ -29,13 +27,13 @@ describe('UserDataDirectoryService', () => {
 
 		const service = new UserDataDirectoryService();
 
-		expect(service.getRootPath()).toBe(path.join(home, 'Desktop', USER_DATA_DIRECTORY_NAME));
+		expect(service.getRootPath()).toBe(path.join(home, USER_DATA_DIRECTORY_NAME));
 		await fs.rm(home, { recursive: true, force: true });
 	});
 
 	it('creates the root idempotently and rejects traversal', async () => {
 		const parent = await makeTempDir();
-		const service = new UserDataDirectoryService({ appPath: path.join(parent, 'friday') });
+		const service = new UserDataDirectoryService({ homePath: parent });
 
 		await expect(service.ensureRoot()).resolves.toBe(path.join(parent, USER_DATA_DIRECTORY_NAME));
 		await expect(service.ensureRoot()).resolves.toBe(path.join(parent, USER_DATA_DIRECTORY_NAME));
@@ -49,7 +47,7 @@ describe('UserDataDirectoryService', () => {
 
 	it('rejects existing symlink escapes', async () => {
 		const parent = await makeTempDir();
-		const service = new UserDataDirectoryService({ appPath: path.join(parent, 'friday') });
+		const service = new UserDataDirectoryService({ homePath: parent });
 		const outside = path.join(parent, 'outside');
 		await service.ensureRoot();
 		await fs.mkdir(outside, { recursive: true });
@@ -63,12 +61,11 @@ describe('UserDataDirectoryService', () => {
 describe('session store user data path', () => {
 	it('uses .friday for default assistant sessions without reading legacy app data', async () => {
 		const parent = await makeTempDir();
-		const appRoot = path.join(parent, 'friday');
 		const appData = path.join(parent, 'appData');
 		const legacySessions = path.join(appData, 'assistant', 'sessions');
 		const nextSessions = path.join(parent, USER_DATA_DIRECTORY_NAME, 'assistant', 'sessions');
-		(app.getAppPath as jest.Mock).mockReturnValue(appRoot);
 		(app.getPath as jest.Mock).mockImplementation((name: string) => {
+			if (name === 'home') return parent;
 			if (name === 'userData') return appData;
 			return path.join(parent, name);
 		});

@@ -4,15 +4,15 @@ Use this prompt to implement a new user-owned data directory for Friday.
 
 ## Goal
 
-Friday currently stores application-owned information in Electron's app data location through `app.getPath('userData')`. Add a separate sibling folder named `.friday` next to the `friday` project/application folder. This new folder is for user-owned data, files, databases, assistant workspaces, generated artifacts, and other content that belongs to the user rather than to the application runtime.
+Friday currently stores application-owned information in Electron's app data location through `app.getPath('userData')`. Add a separate folder named `.friday` under the user's home directory. This new folder is for user-owned data, files, databases, assistant workspaces, generated artifacts, and other content that belongs to the user rather than to the application runtime.
 
 ## Current Assumptions
 
 - The repository/application folder is named `friday`.
-- The new folder should live at the same parent path as `friday`.
+- The new folder should live under the user's home path.
 - In this checkout, that means:
-  - app/project folder: `/Users/haraldbregu/Desktop/friday`
-  - user data folder: `/Users/haraldbregu/Desktop/.friday`
+  - home folder: `/Users/haraldbregu`
+  - user data folder: `/Users/haraldbregu/.friday`
 - Electron `userData` remains the application data folder and should still hold app settings, provider configuration, logs, caches, and other app runtime state unless a specific store is reclassified as user-owned.
 - The `.friday` directory must be created by the main process, not by the renderer.
 - Renderer access must go through existing typed IPC/preload patterns.
@@ -27,7 +27,7 @@ Friday currently stores application-owned information in Electron's app data loc
 6. Tests cover path resolution, directory creation, and at least one user-owned store using the new root.
 7. The UI can expose both locations clearly if it currently exposes app data:
    - Application Data: Electron `userData`
-   - User Data: sibling `.friday`
+   - User Data: home `.friday`
 
 ## Implementation Plan
 
@@ -56,9 +56,8 @@ Add a small main-process path helper or service. Prefer extending an existing bo
 
 Required behavior:
 
-- Resolve the app/project folder.
-- Resolve its parent folder.
-- Resolve the user data root as `path.join(parent, '.friday')`.
+- Resolve the user's home folder.
+- Resolve the user data root as `path.join(app.getPath('home'), '.friday')`.
 - Create the directory recursively before first use.
 - Keep the folder name in a single exported constant.
 - Return absolute normalized paths only.
@@ -98,7 +97,7 @@ Only move new write/read defaults that are clearly user-owned. Leave app configu
 Keep these concepts distinct in names and UI copy:
 
 - `appData`: Electron `app.getPath('userData')`, owned by the application.
-- `userDataRoot`: sibling `.friday`, owned by the user.
+- `userDataRoot`: home `.friday`, owned by the user.
 
 Avoid naming the new service `AppDataService`; that will blur the boundary.
 
@@ -143,7 +142,7 @@ Add focused tests before or with the implementation.
 
 Minimum coverage:
 
-- path service resolves `.friday` as a sibling of the injected `friday` app folder
+- path service resolves `.friday` under the injected home folder
 - root creation is idempotent
 - child path resolution stays inside root
 - traversal attempts are rejected
@@ -165,7 +164,7 @@ yarn quality:check
 
 ## Acceptance Checklist
 
-- [ ] `.friday` is created next to `friday`.
+- [ ] `.friday` is created under the user's home folder.
 - [ ] The folder name is centralized as a constant.
 - [ ] App settings still use Electron `userData`.
 - [ ] User-owned files/databases no longer default to Electron `userData`.

@@ -11,7 +11,7 @@ import { makeLogger, makeTempDir } from '../test-helpers';
 describe('apps service', () => {
 	it('lists valid app manifests with embedded icons and validates ids for destructive operations', async () => {
 		const tempRoot = await makeTempDir();
-		const userDataDirectory = new UserDataDirectoryService({ appPath: path.join(tempRoot, 'friday') });
+		const userDataDirectory = new UserDataDirectoryService({ homePath: tempRoot });
 		const service = new AppsService(makeLogger() as never, userDataDirectory);
 		const root = service.getAppsRoot();
 		await fs.mkdir(path.join(root, 'alpha'), { recursive: true });

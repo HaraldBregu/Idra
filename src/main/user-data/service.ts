@@ -1,12 +1,11 @@
 import { app } from 'electron';
-import { existsSync } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 export const USER_DATA_DIRECTORY_NAME = '.friday';
 
 export interface UserDataDirectoryServiceOptions {
-	appPath?: string;
+	homePath?: string;
 	directoryName?: string;
 }
 
@@ -21,8 +20,8 @@ export class UserDataDirectoryService implements UserDataDirectoryServicePort {
 	private readonly rootPath: string;
 
 	constructor(options: UserDataDirectoryServiceOptions = {}) {
-		const appPath = path.resolve(options.appPath ?? resolveDefaultApplicationPath());
-		this.rootPath = path.join(path.dirname(appPath), options.directoryName ?? USER_DATA_DIRECTORY_NAME);
+		const homePath = path.resolve(options.homePath ?? resolveHomePath());
+		this.rootPath = path.join(homePath, options.directoryName ?? USER_DATA_DIRECTORY_NAME);
 	}
 
 	getRootPath(): string {
@@ -74,55 +73,11 @@ export function resolveDefaultUserDataPath(...segments: string[]): string {
 	return new UserDataDirectoryService().resolve(...segments);
 }
 
-function resolveDefaultApplicationPath(): string {
-	const candidates = [
-		safeGetAppPath(),
-		process.env.FRIDAY_APP_ROOT,
-		process.env.FRIDAY_PROJECT_ROOT,
-		safeDesktopProjectPath(),
-		process.env.INIT_CWD,
-		process.env.PWD,
-		process.cwd(),
-		...process.argv,
-	].filter((value): value is string => Boolean(value));
-
-	for (const candidate of candidates) {
-		const fridayRoot = findAncestorNamed(path.resolve(candidate), 'friday');
-		if (fridayRoot) return fridayRoot;
-	}
-
-	return path.resolve(candidates[0] ?? process.cwd());
-}
-
-function safeGetAppPath(): string | undefined {
+function resolveHomePath(): string {
 	try {
-		return app.getAppPath();
+		return app.getPath('home');
 	} catch {
-		return undefined;
-	}
-}
-
-function safeDesktopProjectPath(): string | undefined {
-	try {
-		const candidate = path.join(app.getPath('home'), 'Desktop', 'friday');
-		return existsSync(candidate) ? candidate : undefined;
-	} catch {
-		return undefined;
-	}
-}
-
-function findAncestorNamed(startPath: string, name: string): string | undefined {
-	let current = startPath;
-	while (true) {
-		if (path.basename(current).toLowerCase() === name) {
-			return current;
-		}
-
-		const parent = path.dirname(current);
-		if (parent === current) {
-			return undefined;
-		}
-		current = parent;
+		return process.env.HOME ?? process.cwd();
 	}
 }
 
