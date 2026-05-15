@@ -33,6 +33,8 @@ export interface TitleBarProps {
 	title?: string;
 	/** Custom content rendered in the center, replaces the title */
 	centerContent?: ReactNode;
+	/** Custom content rendered on the right before window controls */
+	rightContent?: ReactNode;
 	/** Called when the sidebar toggle button is clicked */
 	onToggleSidebar?: () => void;
 	/** Called when the back navigation button is clicked */
@@ -48,6 +50,7 @@ export const TitleBar = React.memo(function TitleBar({
 	style,
 	title = 'Application Name',
 	centerContent,
+	rightContent,
 	onToggleSidebar,
 	onNavigateBack,
 	onNavigateForward,
@@ -168,6 +171,15 @@ export const TitleBar = React.memo(function TitleBar({
 
 			{/* ── Spacer (pushes right buttons to the right) ── */}
 			<div className="flex-1" />
+
+			{rightContent ? (
+				<div
+					className="z-10 mr-3 flex h-full items-center"
+					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+				>
+					{rightContent}
+				</div>
+			) : null}
 
 			{!isStart && (
 				<div

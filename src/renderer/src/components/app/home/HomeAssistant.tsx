@@ -99,7 +99,7 @@ function AssistantLabel(): ReactElement {
 			<span className="text-2xl leading-none text-[#8377df]" aria-hidden>
 				*
 			</span>
-			<span>MIRA</span>
+			<span>Friday</span>
 		</div>
 	);
 }
@@ -429,7 +429,7 @@ function Composer({
 					rows={1}
 					wrap="off"
 					className="max-h-32 min-h-7 flex-1 resize-none overflow-x-auto whitespace-nowrap border-0 bg-transparent px-0 py-1 text-[15px] leading-snug text-[#25242b] shadow-none outline-none placeholder:text-[#25242b] focus-visible:!outline-none focus-visible:border-transparent focus-visible:ring-0 md:text-[15px]"
-					aria-label="Message MIRA"
+					aria-label="Message Friday"
 				/>
 				<div className="flex shrink-0 items-center gap-3">
 					<TooltipIconButton

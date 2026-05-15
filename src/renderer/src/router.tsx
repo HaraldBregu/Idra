@@ -4,6 +4,7 @@ import {
 	Outlet,
 	createHashRouter,
 	useLocation,
+	useNavigate,
 	type RouteObject,
 } from 'react-router-dom';
 import { MessageSquare, Mic } from 'lucide-react';
@@ -15,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
+import { Button } from './components/ui/button';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
@@ -38,8 +40,10 @@ function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX
 function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 	const location = useLocation();
+	const navigate = useNavigate();
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 
+	const isStart = location.pathname === '/start';
 	const isHome = location.pathname === '/home';
 	const isHomeVoice = isHome && chatMode === 'voice';
 	const homeTitleBarStyle: React.CSSProperties | undefined = isHomeVoice
@@ -98,6 +102,16 @@ function RootRouteComponent(): React.JSX.Element {
 			</button>
 		</div>
 	) : undefined;
+	const startTitleBarAction = isStart ? (
+		<Button
+			type="button"
+			variant="ghost"
+			size="xs"
+			onClick={() => navigate('/home')}
+		>
+			Skip
+		</Button>
+	) : undefined;
 
 	return (
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
@@ -107,7 +121,12 @@ function RootRouteComponent(): React.JSX.Element {
 					isHomeVoice ? 'bg-[#1f1c24]' : isHome ? 'bg-[#fbf8f6]' : undefined
 				)}
 			>
-				<TitleBar title={t('appTitle')} centerContent={chatModeToggle} style={homeTitleBarStyle} />
+				<TitleBar
+					title={isStart ? 'Set up Friday' : t('appTitle')}
+					centerContent={chatModeToggle}
+					rightContent={startTitleBarAction}
+					style={homeTitleBarStyle}
+				/>
 				<div className="min-h-0 flex-1 overflow-hidden pt-12">
 					<PageTransition>
 						<Outlet />

@@ -32,7 +32,7 @@ const welcomeMessage: HomeChatMessage = {
 	role: 'assistant',
 	type: 'text',
 	content:
-		'Ready when you are. Ask MIRA to inspect code, make a change, explain a file, or help plan the next step.',
+		'Ready when you are. Ask Friday to inspect code, make a change, explain a file, or help plan the next step.',
 };
 
 const initialMessages: readonly HomeChatMessage[] = [welcomeMessage];

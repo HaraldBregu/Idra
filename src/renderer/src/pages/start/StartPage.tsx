@@ -77,7 +77,7 @@ type VoiceOption = {
 	description: string;
 };
 
-const PRODUCT_NAME = 'Mira';
+const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
@@ -581,10 +581,6 @@ const StartPage: React.FC = () => {
 		goToStep(previousStep);
 	}
 
-	function handleSkip(): void {
-		navigate('/home');
-	}
-
 	function updateProviderEntry(providerId: string, patch: Partial<ProviderSetupEntry>): void {
 		setProviderEntries((entries) =>
 			entries.map((entry) => (entry.providerId === providerId ? { ...entry, ...patch } : entry))
@@ -802,7 +798,6 @@ const StartPage: React.FC = () => {
 												type="button"
 												variant="outline"
 												size="xs"
-												className="border-input bg-card text-foreground"
 												onClick={() => {
 													setPermissions((current) => ({
 														...current,
@@ -901,7 +896,6 @@ const StartPage: React.FC = () => {
 															type="button"
 															variant="ghost"
 															size="icon-xs"
-															className="text-muted-foreground"
 															aria-label={`Edit ${provider.name} API key`}
 															onClick={() => {
 																updateProviderEntry(provider.id, {
@@ -918,7 +912,6 @@ const StartPage: React.FC = () => {
 														type="button"
 														variant="outline"
 														size="xs"
-														className="border-input bg-card text-foreground"
 														onClick={() => {
 															updateProviderEntry(provider.id, { editing: true });
 														}}
@@ -931,7 +924,6 @@ const StartPage: React.FC = () => {
 													type="button"
 													variant="outline"
 													size="xs"
-													className="border-input bg-card text-muted-foreground"
 													disabled
 												>
 													Soon
@@ -958,7 +950,6 @@ const StartPage: React.FC = () => {
 												type="button"
 												variant="outline"
 												size="sm"
-												className="border-input bg-card text-foreground"
 												disabled={savingThisProvider}
 												onClick={() => {
 													updateProviderEntry(provider.id, {
@@ -972,7 +963,6 @@ const StartPage: React.FC = () => {
 											<Button
 												type="button"
 												size="sm"
-												className="bg-violet-600 text-white hover:bg-violet-700"
 												disabled={!canSaveProvider}
 												onClick={() => {
 													void saveProviderEntry(provider.id);
@@ -1142,11 +1132,6 @@ const StartPage: React.FC = () => {
 									type="button"
 									variant={selectedHotkey === hotkey ? 'default' : 'outline'}
 									size="xs"
-									className={cn(
-										selectedHotkey === hotkey
-											? 'border-blue-600 bg-violet-50 text-foreground ring-2 ring-blue-200 hover:bg-violet-50'
-											: 'border-input bg-card text-foreground hover:bg-card'
-									)}
 									onClick={() => setSelectedHotkey(hotkey)}
 								>
 									{hotkey}
@@ -1167,20 +1152,11 @@ const StartPage: React.FC = () => {
 									<Button
 										key={voice.id}
 										type="button"
-										variant="outline"
-										className={cn(
-											'h-24 flex-col rounded-lg border-border bg-card p-3 text-center hover:bg-card',
-											selected &&
-												'border-violet-500 bg-violet-50 text-foreground hover:bg-violet-50'
-										)}
+										variant={selected ? 'default' : 'outline'}
+										className="h-24 flex-col p-3 text-center"
 										onClick={() => setSelectedVoice(voice.id)}
 									>
-										<div
-											className={cn(
-												'flex size-8 items-center justify-center rounded-full bg-muted text-violet-600',
-												selected && 'bg-violet-600 text-white'
-											)}
-										>
+										<div className="flex size-8 items-center justify-center rounded-full">
 											<AudioWaveform className="size-4" />
 										</div>
 										<span className="mt-2 text-sm font-bold leading-tight">
@@ -1206,11 +1182,7 @@ const StartPage: React.FC = () => {
 									type="button"
 									variant={selectedTone === tone ? 'default' : 'outline'}
 									size="xs"
-									className={cn(
-										selectedTone === tone
-											? 'rounded-full bg-violet-600 text-white hover:bg-violet-700'
-											: 'rounded-full border-input bg-card text-foreground hover:bg-card'
-									)}
+									className="rounded-full"
 									onClick={() => setSelectedTone(tone)}
 								>
 									{tone}
@@ -1252,21 +1224,6 @@ const StartPage: React.FC = () => {
 
 	return (
 		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			<header className="relative flex h-10 shrink-0 items-center justify-center border-b border-border bg-card/50 px-3 sm:h-11 sm:px-5">
-				<h1 className="text-xs font-semibold text-muted-foreground">
-					Set up {PRODUCT_NAME}
-				</h1>
-				<Button
-					type="button"
-					variant="ghost"
-					size="xs"
-					className="absolute right-3 text-muted-foreground hover:bg-muted sm:right-5"
-					onClick={handleSkip}
-				>
-					Skip
-				</Button>
-			</header>
-
 			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-3 sm:px-5">
 				{renderStepContent()}
 				{errorMessage ? (
@@ -1290,7 +1247,6 @@ const StartPage: React.FC = () => {
 							type="button"
 							variant="outline"
 							size="xs"
-							className="border-input bg-card text-foreground"
 							disabled={isBusy}
 							onClick={handleBack}
 						>
@@ -1300,7 +1256,6 @@ const StartPage: React.FC = () => {
 					<Button
 						type="button"
 						size="sm"
-						className="bg-violet-600 text-white hover:bg-violet-700"
 						disabled={isPrimaryDisabled()}
 						onClick={handlePrimaryAction}
 					>
