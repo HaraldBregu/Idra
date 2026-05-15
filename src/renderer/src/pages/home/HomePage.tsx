@@ -376,6 +376,32 @@ function HomePage(): ReactElement {
 		};
 	}, []);
 
+	// ⌘/ (or Ctrl+/) focuses the chat input from anywhere in the page
+	useEffect(() => {
+		const handler = (event: KeyboardEvent): void => {
+			if ((event.metaKey || event.ctrlKey) && event.key === '/') {
+				event.preventDefault();
+				textareaRef.current?.focus();
+			}
+		};
+		window.addEventListener('keydown', handler);
+		return () => window.removeEventListener('keydown', handler);
+	}, []);
+
+	// Auto-focus input on mount so users can type immediately
+	useEffect(() => {
+		textareaRef.current?.focus();
+	}, []);
+
+	const msgTransition = useCallback(
+		(index: number) => ({
+			duration: prefersReducedMotion ? 0 : 0.18,
+			ease: [0, 0, 0.2, 1] as [number, number, number, number],
+			delay: prefersReducedMotion ? 0 : Math.min(index * 0.04, 0.2),
+		}),
+		[prefersReducedMotion]
+	);
+
 	const showSuggestions = messages.length <= 1 && !isLoading;
 
 	return (
