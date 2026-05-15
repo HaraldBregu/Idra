@@ -264,6 +264,16 @@ function HomePage(): ReactElement {
 		promptContainerRef.current?.querySelector('textarea')?.focus();
 	}, []);
 
+	const handleStreamComplete = useCallback((): void => {
+		const response = finalResponseRef.current;
+		setStreamIterable(null);
+		setStreamStarted(false);
+		setIsLoading(false);
+		if (response.trim().length > 0) {
+			setMessages((current) => [...current, createTextMessage('assistant', response)]);
+		}
+	}, []);
+
 	// Restore history on mount
 	useEffect(() => {
 		let cancelled = false;
