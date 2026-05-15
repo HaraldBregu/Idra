@@ -105,6 +105,7 @@ interface HomeChatSurfaceProps {
 	) => void;
 	readonly onSubmitPending: (message: HomeMultiSelectMessage) => void;
 	readonly onUseSuggestion: (prompt: string) => void;
+	readonly onVoiceModeRequest: () => void;
 }
 
 function createTextMessage(
