@@ -18,6 +18,7 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	apply_patch: 'Apply a unified diff to files that have already been read.',
 	find: 'Glob-search the workspace for files.',
 	exec: 'Run a shell command. Output capped at 200 lines / 16KB.',
+	open_folder: 'Open a workspace folder in the OS file manager. Prefer this over `exec` for opening folders.',
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
 	update_plan: 'Maintain a concise task plan for multi-step work.',

@@ -43,7 +43,11 @@ export class AppsService {
 
 	async openFolder(id: string): Promise<void> {
 		const folderPath = this.resolveAppDir(id);
-		await shell.openPath(folderPath);
+		const err = await shell.openPath(folderPath);
+		if (err) {
+			this.logger.warn('AppsService', `Failed to open app folder: ${id}`, { error: err });
+			throw new Error(`Could not open app folder: ${err}`);
+		}
 	}
 
 	async delete(id: string): Promise<void> {

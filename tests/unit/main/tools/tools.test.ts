@@ -8,7 +8,7 @@ import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
 import { askHumanTool } from '../../../../src/main/tools/ask-human';
-import { setThemeModeTool, openAppDataFolderTool, setMenuBarTool } from '../../../../src/main/tools/app';
+import { setThemeModeTool, openAppDataFolderTool, openFolderTool, setMenuBarTool } from '../../../../src/main/tools/app';
 import { cronAddTool, cronListTool, cronRemoveTool } from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
 import { getAssistantModelTool, getAssistantServiceTool, setAssistantServiceTool } from '../../../../src/main/tools/services';
@@ -170,8 +170,34 @@ describe('tools/app, ask-human, cron, providers, services, workspace', () => {
 		await openAppDataFolderTool.execute({}, ctx);
 		expect(shell.openPath).toHaveBeenCalledWith('/tmp/userData');
 
+		const workspace = await makeTempDir();
+		const folderCtx = makeToolContext({ workspace });
+		await fs.mkdir(path.join(workspace, 'nested'));
+		const opened = await openFolderTool.execute({ path: 'nested' }, folderCtx);
+		expect(opened.status).toBe('ok');
+		await expect(fs.realpath(path.join(workspace, 'nested'))).resolves.toBe(
+			(shell.openPath as jest.Mock).mock.calls.at(-1)?.[0]
+		);
+		await expect(fs.rm(workspace, { recursive: true, force: true })).resolves.toBeUndefined();
+
 		await setMenuBarTool.execute({ enabled: true }, ctx);
 		expect(ctx.services.eventBus.emit).toHaveBeenCalledWith('tray:set-enabled', { enabled: true });
+	});
+
+	it('confines open_folder to existing workspace folders and surfaces open errors', async () => {
+		const workspace = await makeTempDir();
+		const ctx = makeToolContext({ workspace });
+		await fs.writeFile(path.join(workspace, 'file.txt'), 'x');
+
+		await expect(openFolderTool.execute({ path: 'missing' }, ctx)).resolves.toMatchObject({ status: 'error' });
+		await expect(openFolderTool.execute({ path: 'file.txt' }, ctx)).resolves.toMatchObject({ status: 'error' });
+		await expect(openFolderTool.execute({ path: '..' }, ctx)).resolves.toMatchObject({ status: 'error' });
+
+		(shell.openPath as jest.Mock).mockResolvedValueOnce('permission denied');
+		const blocked = await openFolderTool.execute({}, ctx);
+		expect(blocked).toMatchObject({ status: 'error' });
+		expect(blocked.content[0]?.text).toBe('permission denied');
+		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
 	it('asks humans through elicitation stream', async () => {

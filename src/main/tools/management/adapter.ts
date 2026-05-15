@@ -114,7 +114,7 @@ export function createAgentToolRegistry(agentTools: AgentTool[]): ToolRegistry {
 }
 
 function inferCategory(name: string): ToolCategory {
-	if (['read', 'write', 'edit', 'apply_patch', 'find', 'get_workspace_content', 'get_workspace_path'].includes(name)) return 'files';
+	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web')) return 'web';
 	if (name.includes('cron')) return 'calendar';
@@ -124,7 +124,7 @@ function inferCategory(name: string): ToolCategory {
 }
 
 function inferPermissions(name: string): string[] {
-	if (['read', 'find', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
+	if (['read', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
 	if (['write', 'edit', 'apply_patch'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
@@ -136,7 +136,7 @@ function inferPermissions(name: string): string[] {
 
 function inferSafety(name: string): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
 	if (['write', 'edit', 'apply_patch', 'exec', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_assistant_service'].includes(name)) return 'high';
-	if (['web_fetch', 'open_app_data_folder', 'open_accessibility', 'open_screen_recording'].includes(name)) return 'medium';
+	if (['web_fetch', 'open_folder', 'open_app_data_folder', 'open_accessibility', 'open_screen_recording'].includes(name)) return 'medium';
 	return 'low';
 }
 
@@ -163,7 +163,7 @@ function inferTags(name: string, category: ToolCategory): string[] {
 }
 
 function inferPrivacy(name: string): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
-	if (['read', 'write', 'edit', 'apply_patch', 'find', 'exec', 'process'].includes(name)) return 'private';
+	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'exec', 'process'].includes(name)) return 'private';
 	if (name.includes('provider') || name.includes('assistant')) return 'sensitive';
 	return 'internal';
 }
@@ -175,4 +175,3 @@ function isReadOnly(name: string): boolean {
 function isToolContext(value: unknown): value is ToolContext {
 	return typeof value === 'object' && value !== null && 'workspace' in value && 'sessionId' in value && 'services' in value;
 }
-

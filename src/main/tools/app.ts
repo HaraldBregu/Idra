@@ -1,11 +1,31 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { app, nativeTheme, shell } from 'electron';
-import type { AgentTool } from './types';
+import type { AgentTool, ToolContext } from './types';
 import { textResult } from './types';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
 interface SetThemeArgs {
 	mode: ThemeMode;
+}
+
+interface OpenFolderArgs {
+	path?: string;
+}
+
+function isInside(parent: string, child: string): boolean {
+	const relative = path.relative(parent, child);
+	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+async function openPath(target: string, toolName: string, ctx: ToolContext) {
+	const err = await shell.openPath(target);
+	if (err) {
+		ctx.services.logger.warn(toolName, `openPath failed: ${err}`);
+		return textResult(err, true);
+	}
+	return textResult(`Opened ${target}`);
 }
 
 export const setThemeModeTool: AgentTool<SetThemeArgs> = {
@@ -34,12 +54,47 @@ export const openAppDataFolderTool: AgentTool = {
 	schema: { type: 'object', properties: {}, additionalProperties: false },
 	async execute(_args, ctx) {
 		const target = app.getPath('userData');
-		const err = await shell.openPath(target);
-		if (err) {
-			ctx.services.logger.warn('open_app_data_folder', `openPath failed: ${err}`);
-			return textResult(err, true);
+		return openPath(target, 'open_app_data_folder', ctx);
+	},
+};
+
+export const openFolderTool: AgentTool<OpenFolderArgs> = {
+	name: 'open_folder',
+	description: 'Open a workspace folder in the OS file manager. Defaults to the workspace root.',
+	schema: {
+		type: 'object',
+		properties: {
+			path: {
+				type: 'string',
+				description: 'Folder path to open, relative to the workspace. Defaults to ".".',
+			},
+		},
+		additionalProperties: false,
+	},
+	async execute(args, ctx) {
+		const requested = String(args.path ?? '.').trim() || '.';
+		const workspace = await fs.realpath(ctx.workspace);
+		const target = path.isAbsolute(requested)
+			? path.resolve(requested)
+			: path.resolve(workspace, requested);
+		let resolvedTarget: string;
+		let stat;
+
+		try {
+			resolvedTarget = await fs.realpath(target);
+			stat = await fs.stat(resolvedTarget);
+		} catch {
+			return textResult(`open_folder: folder does not exist: ${requested}`, true);
 		}
-		return textResult(`Opened ${target}`);
+
+		if (!isInside(workspace, resolvedTarget)) {
+			return textResult(`open_folder: path is outside the workspace: ${requested}`, true);
+		}
+		if (!stat.isDirectory()) {
+			return textResult(`open_folder: path is not a folder: ${requested}`, true);
+		}
+
+		return openPath(resolvedTarget, 'open_folder', ctx);
 	},
 };
 

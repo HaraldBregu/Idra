@@ -23,6 +23,8 @@ describe('apps service', () => {
 
 		await service.openFolder('alpha');
 		expect(shell.openPath).toHaveBeenCalledWith(path.join(root, 'alpha'));
+		(shell.openPath as jest.Mock).mockResolvedValueOnce('permission denied');
+		await expect(service.openFolder('alpha')).rejects.toThrow(/Could not open app folder/);
 		await expect(service.delete('../bad')).rejects.toThrow(/Invalid app id/);
 		await fs.rm(userData, { recursive: true, force: true });
 	});

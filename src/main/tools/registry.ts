@@ -1,5 +1,12 @@
 import { askHumanTool } from './ask-human';
-import { setThemeModeTool, openAppDataFolderTool, openAccessibilityTool, openScreenRecordingTool, setMenuBarTool } from './app';
+import {
+	setThemeModeTool,
+	openAppDataFolderTool,
+	openFolderTool,
+	openAccessibilityTool,
+	openScreenRecordingTool,
+	setMenuBarTool,
+} from './app';
 import { cronAddTool, cronListTool, cronRemoveTool } from './cron';
 import { execTool, processTool } from './exec';
 import { applyPatchTool, editTool, findTool, readTool, writeTool } from './fs';
@@ -34,6 +41,7 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	cronListTool,
 	cronRemoveTool,
 	setThemeModeTool,
+	openFolderTool,
 	openAppDataFolderTool,
 	openAccessibilityTool,
 	openScreenRecordingTool,
