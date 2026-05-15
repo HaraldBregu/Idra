@@ -207,6 +207,8 @@ function HomePage(): ReactElement {
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const prefersReducedMotion = useReducedMotion();
 
 	useEffect(() => {
 		let cancelled = false;
