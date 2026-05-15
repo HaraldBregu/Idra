@@ -277,9 +277,9 @@ function ProviderMark({
 
 function AssistantOrb(): React.JSX.Element {
 	return (
-		<div className="relative flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg sm:size-12">
-			<div className="absolute size-6 rounded-full bg-primary-foreground/20 sm:size-7" />
-			<Sparkles className="relative size-4" strokeWidth={2.7} />
+		<div className="relative flex size-20 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+			<div className="absolute size-12 rounded-full bg-primary-foreground/20" />
+			<Sparkles className="relative size-8" strokeWidth={2.7} />
 		</div>
 	);
 }
@@ -736,7 +736,7 @@ const StartPage: React.FC = () => {
 		return (
 			<div className="flex min-h-full flex-col items-center justify-center py-4 text-center sm:py-0">
 				<AssistantOrb />
-				<h1 className="mt-3 text-base font-bold leading-none tracking-normal text-foreground">
+				<h1 className="mt-4 text-base font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
 				<p className="mt-2 max-w-lg text-xs font-medium leading-relaxed text-muted-foreground">
