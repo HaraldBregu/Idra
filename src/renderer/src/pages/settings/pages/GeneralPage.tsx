@@ -42,7 +42,7 @@ function Row({
 				</div>
 			</div>
 			{children && (
-				<div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:justify-end">{children}</div>
+				<div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">{children}</div>
 			)}
 		</div>
 	);
