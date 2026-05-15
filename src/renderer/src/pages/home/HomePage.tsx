@@ -657,7 +657,11 @@ function HomePage(): ReactElement {
 					)}
 				</ChatContainerRoot>
 
-				<div className="shrink-0 bg-gradient-to-t from-background via-background/95 to-transparent px-4 pb-4 pt-6">
+				{/* Container ref is used to query the textarea for programmatic focus */}
+				<div
+					ref={promptContainerRef}
+					className="shrink-0 bg-gradient-to-t from-background via-background/95 to-transparent px-4 pb-4 pt-6"
+				>
 					<PromptInput
 						value={input}
 						onValueChange={setInput}
@@ -666,7 +670,6 @@ function HomePage(): ReactElement {
 						className="mx-auto w-full max-w-3xl rounded-2xl border-border/80 bg-card/80 shadow-lg shadow-black/5 backdrop-blur-xl"
 					>
 						<PromptInputTextarea
-							ref={textareaRef}
 							className="min-h-[52px] px-2 pt-2 text-sm"
 							placeholder="Ask Friday anything…"
 						/>
