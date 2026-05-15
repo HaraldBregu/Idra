@@ -2,7 +2,6 @@ import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
-import { lockWindowZoom } from '../window-zoom';
 
 export interface WindowPreset {
 	name: string;
@@ -37,7 +36,6 @@ export class WindowFactory {
 	private getBaseWebPreferences(): Electron.WebPreferences {
 		return {
 			preload: this.preloadPath,
-			zoomFactor: 1,
 			sandbox: true,
 			nodeIntegration: false,
 			contextIsolation: true,
@@ -67,7 +65,6 @@ export class WindowFactory {
 		};
 
 		const win = new BrowserWindow(options);
-		lockWindowZoom(win);
 
 		// Prevent arbitrary window.open() calls from creating unrestricted windows
 		win.webContents.setWindowOpenHandler(() => {

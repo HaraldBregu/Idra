@@ -34,15 +34,6 @@ function parseAccelerator(accelerator: string, isMac: boolean): KeyCombo {
 	};
 }
 
-function isZoomShortcut(input: Electron.Input): boolean {
-	const key = input.key.toLowerCase();
-	return (
-		(input.meta || input.control) &&
-		!input.alt &&
-		(key === '+' || key === '=' || key === '-' || key === '_' || key === '0')
-	);
-}
-
 /**
  * Registers app-level keyboard shortcuts on each BrowserWindow via
  * `before-input-event`. When a registered combo is pressed inside a focused
@@ -65,12 +56,6 @@ export class ShortcutManager {
 	attach(win: BrowserWindow): void {
 		win.webContents.on('before-input-event', (event, input) => {
 			if (input.type !== 'keyDown' || input.isAutoRepeat) return;
-			if (isZoomShortcut(input)) {
-				event.preventDefault();
-				win.webContents.setZoomLevel(0);
-				win.webContents.setZoomFactor(1);
-				return;
-			}
 			const match = this.findMatch(input);
 			if (!match) return;
 			event.preventDefault();

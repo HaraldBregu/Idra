@@ -44,7 +44,6 @@ export class Menu {
 			height: 700,
 			title: appInfo.manifest.name,
 			webPreferences: {
-				zoomFactor: 1,
 				sandbox: true,
 				nodeIntegration: false,
 				contextIsolation: true,
