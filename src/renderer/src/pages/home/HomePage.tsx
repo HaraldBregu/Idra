@@ -598,66 +598,280 @@ function HomeChatSurface({
 	);
 }
 
-function VoiceKbd({ children }: { readonly children: string }): ReactElement {
+type VoiceOrbMode = 'idle' | 'listening' | 'speaking';
+
+const VOICE_BLOBS = [
+	{ fx: 0.85, fy: 0.72, r: 115, c: [196, 174, 255] },
+	{ fx: 1.15, fy: 1.05, r: 95, c: [110, 72, 205] },
+	{ fx: 0.68, fy: 1.35, r: 105, c: [228, 218, 255] },
+	{ fx: 1.45, fy: 0.82, r: 90, c: [142, 108, 235] },
+	{ fx: 1.05, fy: 1.58, r: 100, c: [72, 44, 158] },
+	{ fx: 0.55, fy: 0.55, r: 108, c: [210, 192, 255] },
+];
+
+const VOICE_MODE_CONFIG: Record<
+	VoiceOrbMode,
+	{
+		label: string;
+		message: string;
+		dotColor: string;
+		speed: number;
+		blobCount: number;
+		blink: boolean;
+		ringPulse: boolean;
+		pulseFreq: number;
+		waveform: boolean;
+		glowAlpha: number;
+	}
+> = {
+	idle: {
+		label: 'Tap to activate',
+		message: 'How can I help you today?',
+		dotColor: 'rgba(148,114,243,0.65)',
+		speed: 0.007,
+		blobCount: 3,
+		blink: false,
+		ringPulse: false,
+		pulseFreq: 0,
+		waveform: false,
+		glowAlpha: 0.18,
+	},
+	listening: {
+		label: 'Listening...',
+		message: "I'm listening, go ahead.",
+		dotColor: '#5dd87e',
+		speed: 0.018,
+		blobCount: 5,
+		blink: true,
+		ringPulse: true,
+		pulseFreq: 4.5,
+		waveform: false,
+		glowAlpha: 0.28,
+	},
+	speaking: {
+		label: 'Speaking...',
+		message: 'Ask me anything!',
+		dotColor: '#9472f3',
+		speed: 0.033,
+		blobCount: 6,
+		blink: false,
+		ringPulse: true,
+		pulseFreq: 7.5,
+		waveform: true,
+		glowAlpha: 0.4,
+	},
+};
+
+const VOICE_BAR_COUNT = 20;
+
+function voiceSn(x: number, y: number, z: number): number {
 	return (
-		<kbd className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-bold text-muted-foreground shadow-sm">
-			{children}
-		</kbd>
+		Math.sin(x * 2.1 + z) * Math.cos(y * 1.7 + z * 0.9) * 0.5 +
+		Math.sin(x * 3.7 + y * 2.3 + z * 1.3) * 0.3 +
+		Math.cos(x * 1.2 + y * 4.1 + z * 0.7) * 0.2
 	);
 }
 
-function VoiceOrbButton(): ReactElement {
+function voiceRgba(c: number[], a: number): string {
+	return `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+}
+
+function VoiceOrb(): ReactElement {
+	const [mode, setMode] = useState<VoiceOrbMode>('idle');
+	const orbRef = useRef<HTMLCanvasElement>(null);
+	const waveRef = useRef<HTMLCanvasElement>(null);
+	const ring1Ref = useRef<HTMLDivElement>(null);
+	const ring2Ref = useRef<HTMLDivElement>(null);
+	const afRef = useRef(0);
+	const tRef = useRef(0);
+	const barHRef = useRef<number[]>(new Array(VOICE_BAR_COUNT).fill(0));
+	const modeRef = useRef<VoiceOrbMode>(mode);
+
+	useEffect(() => {
+		modeRef.current = mode;
+	}, [mode]);
+
+	const cycleMode = useCallback((): void => {
+		setMode((prev) => {
+			const keys = Object.keys(VOICE_MODE_CONFIG) as VoiceOrbMode[];
+			return keys[(keys.indexOf(prev) + 1) % keys.length];
+		});
+	}, []);
+
+	useEffect(() => {
+		const orb = orbRef.current;
+		if (!orb) return;
+		const ctx = orb.getContext('2d')!;
+		const wctx = waveRef.current?.getContext('2d') ?? null;
+		const W = 400, H = 400, CX = 200, CY = 200, R = 186;
+
+		function drawOrb(): void {
+			const cfg = VOICE_MODE_CONFIG[modeRef.current];
+			tRef.current += cfg.speed;
+			const t = tRef.current;
+
+			ctx.clearRect(0, 0, W, H);
+
+			for (let i = 6; i > 0; i--) {
+				ctx.beginPath();
+				ctx.arc(CX, CY, R + i * 9, 0, Math.PI * 2);
+				ctx.fillStyle = `rgba(120,80,200,${cfg.glowAlpha * 0.055 * (7 - i)})`;
+				ctx.fill();
+			}
+
+			ctx.save();
+			ctx.beginPath();
+			ctx.arc(CX, CY, R, 0, Math.PI * 2);
+			ctx.clip();
+
+			const bg = ctx.createRadialGradient(CX, CY - 25, 8, CX, CY, R);
+			bg.addColorStop(0, '#cbbcfa');
+			bg.addColorStop(0.42, '#9272de');
+			bg.addColorStop(1, '#432a8c');
+			ctx.fillStyle = bg;
+			ctx.fillRect(0, 0, W, H);
+
+			for (let i = 0; i < cfg.blobCount; i++) {
+				const b = VOICE_BLOBS[i]!;
+				const phase = (i / cfg.blobCount) * Math.PI * 2;
+				const nx = CX + Math.sin(t * b.fx + phase) * 68;
+				const ny = CY + Math.cos(t * b.fy + phase * 1.2) * 56;
+				const nr = b.r + voiceSn(i * 0.7, t * 0.4, i) * 32;
+				const alpha = 0.24 + voiceSn(i, t * 0.5, i + 1) * 0.1;
+				const g = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+				g.addColorStop(0, voiceRgba(b.c, alpha + 0.18));
+				g.addColorStop(0.55, voiceRgba(b.c, alpha));
+				g.addColorStop(1, voiceRgba(b.c, 0));
+				ctx.fillStyle = g;
+				ctx.fillRect(0, 0, W, H);
+			}
+
+			const hl = ctx.createRadialGradient(CX - 58, CY - 58, 0, CX, CY, R);
+			hl.addColorStop(0, 'rgba(255,255,255,0.4)');
+			hl.addColorStop(0.38, 'rgba(255,255,255,0.07)');
+			hl.addColorStop(1, 'rgba(0,0,0,0.22)');
+			ctx.fillStyle = hl;
+			ctx.fillRect(0, 0, W, H);
+			ctx.restore();
+
+			if (ring1Ref.current && ring2Ref.current) {
+				if (cfg.ringPulse) {
+					const p = (Math.sin(t * cfg.pulseFreq) + 1) / 2;
+					ring1Ref.current.style.opacity = String(p * 0.85);
+					ring2Ref.current.style.opacity = String(p * 0.5);
+				} else {
+					ring1Ref.current.style.opacity = '0';
+					ring2Ref.current.style.opacity = '0';
+				}
+			}
+		}
+
+		function drawWave(): void {
+			if (!wctx) return;
+			const WW = 300, WH = 44;
+			const cfg = VOICE_MODE_CONFIG[modeRef.current];
+			const t = tRef.current;
+			wctx.clearRect(0, 0, WW, WH);
+			const barW = 9, gap = 6;
+			const totalW = VOICE_BAR_COUNT * (barW + gap) - gap;
+			const startX = (WW - totalW) / 2;
+
+			for (let i = 0; i < VOICE_BAR_COUNT; i++) {
+				const target = cfg.waveform
+					? 6 + Math.abs(Math.sin(t * 5 + i * 0.6) * 14 + voiceSn(i * 0.3, t * 2, i) * 6)
+					: 3;
+				barHRef.current[i] += (target - barHRef.current[i]) * 0.18;
+				const bh = Math.max(3, barHRef.current[i]);
+				const x = startX + i * (barW + gap);
+				const y = (WH - bh) / 2;
+				const a = cfg.waveform ? 0.4 + (barHRef.current[i] / 30) * 0.55 : 0.25;
+				wctx.fillStyle = `rgba(148,114,243,${a})`;
+				wctx.beginPath();
+				wctx.roundRect(x, y, barW, bh, 3);
+				wctx.fill();
+			}
+		}
+
+		function loop(): void {
+			drawOrb();
+			drawWave();
+			afRef.current = requestAnimationFrame(loop);
+		}
+
+		afRef.current = requestAnimationFrame(loop);
+		return () => cancelAnimationFrame(afRef.current);
+	}, []);
+
+	const cfg = VOICE_MODE_CONFIG[mode];
+
 	return (
-		<Button
-			type="button"
-			variant="ghost"
-			size="icon-lg"
-			className="group relative size-72 overflow-hidden rounded-full border-0 bg-transparent p-0 shadow-[0_42px_120px_-34px_rgba(8,19,18,0.68)] transition-transform hover:bg-transparent focus-visible:ring-4 focus-visible:ring-cyan-300/35 active:scale-[0.985] motion-safe:animate-[pulse_5s_ease-in-out_infinite] sm:size-80 lg:size-96"
-			aria-label="Hold to speak"
-		>
-			<span
-				className="absolute -inset-12 rounded-full opacity-95 blur-[1px] motion-safe:animate-[spin_18s_linear_infinite]"
-				style={{
-					background:
-						'conic-gradient(from 190deg at 48% 50%, #112617, #255f43, #83b86c, #b8eadf, #5fb8d2, #006aa2, #123e30, #112617)',
+		<div className="flex flex-col items-center gap-4">
+			<div
+				role="button"
+				tabIndex={0}
+				aria-label={`Voice assistant, mode: ${mode}. Click to change.`}
+				className="relative cursor-pointer"
+				style={{ width: 220, height: 220 }}
+				onClick={cycleMode}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') cycleMode();
 				}}
-				aria-hidden
+			>
+				<canvas
+					ref={orbRef}
+					width={400}
+					height={400}
+					style={{ width: 220, height: 220, borderRadius: '50%', display: 'block' }}
+				/>
+				<div
+					ref={ring1Ref}
+					className="pointer-events-none absolute rounded-full"
+					style={{ inset: -16, border: '1.5px solid rgba(148,114,243,0.5)', opacity: 0, transition: 'opacity 0.08s' }}
+				/>
+				<div
+					ref={ring2Ref}
+					className="pointer-events-none absolute rounded-full"
+					style={{ inset: -34, border: '1px solid rgba(148,114,243,0.28)', opacity: 0, transition: 'opacity 0.08s' }}
+				/>
+			</div>
+			<div className="flex items-center gap-2" style={{ height: 22 }}>
+				<div
+					className="size-2 rounded-full"
+					style={{
+						background: cfg.dotColor,
+						transition: 'background 0.4s',
+						animation: cfg.blink ? 'voiceOrbBlink 1.3s ease-in-out infinite' : 'none',
+					}}
+				/>
+				<span
+					className="text-sm italic"
+					style={{
+						color: 'rgba(120,88,220,0.88)',
+						animation: cfg.blink ? 'voiceOrbBlink 1.3s ease-in-out infinite' : 'none',
+					}}
+				>
+					{cfg.label}
+				</span>
+			</div>
+			<p
+				className="text-center text-sm"
+				style={{ color: 'rgba(80,55,130,0.72)', maxWidth: 280, lineHeight: 1.65, minHeight: 72 }}
+			>
+				{cfg.message}
+			</p>
+			<canvas
+				ref={waveRef}
+				width={300}
+				height={44}
+				style={{ width: 150, height: 22, opacity: cfg.waveform ? 1 : 0, transition: 'opacity 0.4s' }}
 			/>
-			<span
-				className="absolute -inset-10 rounded-full opacity-70 mix-blend-screen motion-safe:animate-[spin_26s_linear_infinite_reverse]"
-				style={{
-					background:
-						'radial-gradient(circle at 18% 42%, rgba(221, 250, 255, 0.95) 0 8%, rgba(123, 221, 235, 0.48) 16%, transparent 38%), radial-gradient(circle at 42% 72%, rgba(172, 219, 110, 0.86) 0 13%, transparent 34%), radial-gradient(circle at 58% 10%, rgba(29, 143, 193, 0.72) 0 20%, transparent 48%)',
-				}}
-				aria-hidden
-			/>
-			<span
-				className="absolute inset-0 rounded-full"
-				style={{
-					background:
-						'radial-gradient(circle at 20% 43%, rgba(246, 255, 255, 0.78) 0 10%, rgba(168, 233, 239, 0.42) 18%, transparent 36%), radial-gradient(circle at 56% 78%, rgba(140, 205, 112, 0.76) 0 18%, transparent 44%), radial-gradient(circle at 78% 50%, rgba(6, 25, 15, 0.82) 0 34%, transparent 65%), radial-gradient(circle at 48% 4%, rgba(47, 166, 209, 0.82) 0 24%, transparent 52%)',
-				}}
-				aria-hidden
-			/>
-			<span
-				className="absolute inset-0 rounded-full opacity-25 mix-blend-overlay"
-				style={{
-					backgroundImage:
-						'radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 0.7px, transparent 0.8px), radial-gradient(circle, rgba(0, 0, 0, 0.55) 0 0.8px, transparent 0.9px)',
-					backgroundPosition: '0 0, 1.5px 2px',
-					backgroundSize: '3px 3px, 4px 4px',
-				}}
-				aria-hidden
-			/>
-			<span
-				className="absolute inset-0 rounded-full ring-1 ring-inset ring-white/30"
-				style={{
-					boxShadow:
-						'inset 18px 18px 34px rgba(255,255,255,0.18), inset -22px -18px 38px rgba(0,0,0,0.28)',
-				}}
-				aria-hidden
-			/>
-		</Button>
+			<style>{`
+				@keyframes voiceOrbBlink {
+					0%, 100% { opacity: 1; }
+					50% { opacity: 0.2; }
+				}
+			`}</style>
+		</div>
 	);
 }
 
