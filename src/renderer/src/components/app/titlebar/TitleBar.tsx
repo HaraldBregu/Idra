@@ -194,17 +194,26 @@ export const TitleBar = React.memo(function TitleBar({
 					className="z-10 mr-5 flex h-full items-center"
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
-					<Button
-						type="button"
-						onClick={() => navigate('/settings')}
-						variant="secondary"
-						size="icon"
-						className="size-8 rounded-full text-xs font-bold"
-						aria-label={t('settings.title', 'Settings')}
-						title={t('settings.title', 'Settings')}
-					>
-						AR
-					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								type="button"
+								variant="secondary"
+								size="icon"
+								className="size-8 rounded-full text-xs font-bold"
+								aria-label="Account menu"
+							>
+								AR
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" side="bottom" sideOffset={8}>
+							<DropdownMenuLabel>Harald Bregu</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem onClick={() => navigate('/settings')}>
+								{t('settings.title', 'Settings')}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			)}
 
