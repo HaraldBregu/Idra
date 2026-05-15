@@ -37,6 +37,7 @@ function RootRouteComponent(): React.JSX.Element {
 					<Outlet />
 				</PageTransition>
 			</div>
+			<CommandMenu />
 		</div>
 	);
 }
