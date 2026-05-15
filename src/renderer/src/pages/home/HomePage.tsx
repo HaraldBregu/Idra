@@ -636,12 +636,14 @@ function Composer({
 	inputRef,
 	onValueChange,
 	onSubmit,
+	onVoiceModeRequest,
 }: {
 	readonly value: string;
 	readonly isLoading: boolean;
 	readonly inputRef: RefObject<HTMLTextAreaElement | null>;
 	readonly onValueChange: (value: string) => void;
 	readonly onSubmit: () => void;
+	readonly onVoiceModeRequest: () => void;
 }): ReactElement {
 	return (
 		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-8">
@@ -654,7 +656,19 @@ function Composer({
 				className="w-full max-w-(--breakpoint-md)"
 			>
 				<PromptInputTextarea placeholder="Ask me anything..." aria-label="Message Friday" />
-				<PromptInputActions className="justify-end pt-2">
+				<PromptInputActions className="justify-end gap-2 pt-2">
+					<PromptInputAction tooltip="Voice assistant">
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+							aria-label="Switch to voice"
+							onClick={onVoiceModeRequest}
+						>
+							<Mic className="size-4" />
+						</Button>
+					</PromptInputAction>
 					<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
 						<Button
 							type="button"
