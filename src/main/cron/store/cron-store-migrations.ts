@@ -23,12 +23,12 @@ export function migrateCronStoreState(raw: unknown): CronStoreState {
 	const base = emptyCronStoreState();
 	return {
 		schemaVersion: CRON_STORE_SCHEMA_VERSION,
-		schedules: Array.isArray(raw.schedules) ? raw.schedules.filter(isRecord) as CronStoreState['schedules'] : base.schedules,
-		events: Array.isArray(raw.events) ? raw.events.filter(isRecord) as CronStoreState['events'] : base.events,
-		executions: Array.isArray(raw.executions) ? raw.executions.filter(isRecord) as CronStoreState['executions'] : base.executions,
+		schedules: Array.isArray(raw.schedules) ? raw.schedules.filter(isRecord) as unknown as CronStoreState['schedules'] : base.schedules,
+		events: Array.isArray(raw.events) ? raw.events.filter(isRecord) as unknown as CronStoreState['events'] : base.events,
+		executions: Array.isArray(raw.executions) ? raw.executions.filter(isRecord) as unknown as CronStoreState['executions'] : base.executions,
 		locks: isRecord(raw.locks) ? raw.locks as CronStoreState['locks'] : base.locks,
 		confirmations: Array.isArray(raw.confirmations)
-			? raw.confirmations.filter(isRecord) as CronStoreState['confirmations']
+			? raw.confirmations.filter(isRecord) as unknown as CronStoreState['confirmations']
 			: base.confirmations,
 		quarantined: Array.isArray(raw.quarantined) ? raw.quarantined.filter(isRecord) as CronStoreState['quarantined'] : base.quarantined,
 	};

@@ -166,7 +166,7 @@ export function validateScheduleShape(
 	assertInList(nextType, SCHEDULE_TYPES, 'type');
 
 	if ('source' in request && request.source) assertInList(request.source, SOURCES, 'source');
-	if (request.status) assertInList(request.status, STATUSES, 'status');
+	if ('status' in request && request.status) assertInList(request.status, STATUSES, 'status');
 	if (request.visibility) assertInList(request.visibility, VISIBILITIES, 'visibility');
 	if (request.missedRunPolicy) assertInList(request.missedRunPolicy, MISSED_POLICIES, 'missedRunPolicy');
 	if (request.concurrencyPolicy) assertInList(request.concurrencyPolicy, CONCURRENCY_POLICIES, 'concurrencyPolicy');

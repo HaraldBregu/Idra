@@ -521,6 +521,14 @@ function HomePage(): ReactElement {
 	// Don't show suggestions while history is loading or chat is active
 	const showSuggestions = messages.length <= 1 && !isLoading && !historyLoading;
 
+	if (mode === 'voice') {
+		return (
+			<PageContainer className="overflow-hidden text-foreground">
+				<VoiceView />
+			</PageContainer>
+		);
+	}
+
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			<div className="relative flex min-h-0 flex-1 flex-col">
@@ -528,7 +536,7 @@ function HomePage(): ReactElement {
 					<ChatContainerContent
 						className={cn(
 							'min-h-full w-full px-4',
-							showSuggestions ? 'justify-center py-8' : 'gap-4 pb-6 pt-5'
+							showSuggestions ? 'justify-center py-8' : 'gap-5 pb-6 pt-5'
 						)}
 					>
 						{showSuggestions ? (
@@ -576,7 +584,7 @@ function HomePage(): ReactElement {
 											transition={msgTransition(index)}
 										>
 											<Message className="justify-end">
-												<MessageContent className="max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-primary-foreground shadow-sm sm:max-w-[72%]">
+												<MessageContent className="max-w-[85%] rounded-xl bg-muted/60 px-3 py-2 text-foreground sm:max-w-[72%]">
 													{message.content}
 												</MessageContent>
 											</Message>
@@ -589,19 +597,13 @@ function HomePage(): ReactElement {
 											transition={msgTransition(index)}
 										>
 											<Message className="items-start justify-start">
-												<MessageAvatar
-													src="/avatars/ai.png"
-													alt="AI"
-													fallback="AI"
-													className="mt-0.5 size-7 border border-border bg-card"
-												/>
-												<div className="flex min-w-0 max-w-[calc(100%-2.5rem)] flex-col gap-2 sm:max-w-[44rem]">
+												<div className="flex min-w-0 max-w-full flex-col gap-1.5">
+													<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+														Friday
+													</span>
 													{message.type === 'text' ? (
 														<>
-															<MessageContent
-																markdown
-																className="rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 shadow-sm backdrop-blur"
-															>
+															<MessageContent markdown className="text-sm leading-relaxed">
 																{message.content}
 															</MessageContent>
 															<MessageActions className="self-start">
@@ -618,7 +620,7 @@ function HomePage(): ReactElement {
 														</>
 													) : (
 														<div
-															className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-sm backdrop-blur"
+															className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-3"
 															role="group"
 															aria-label={message.prompt}
 														>
@@ -697,14 +699,11 @@ function HomePage(): ReactElement {
 										transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
 									>
 										<Message className="items-start justify-start">
-											<MessageAvatar
-												src="/avatars/ai.png"
-												alt="AI"
-												fallback="AI"
-												className="mt-0.5 size-7 border border-border bg-card"
-											/>
-											<div className="flex min-w-0 max-w-[calc(100%-2.5rem)] flex-col gap-2 sm:max-w-[44rem]">
-												<MessageContent className="rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 shadow-sm backdrop-blur">
+											<div className="flex min-w-0 max-w-full flex-col gap-1.5">
+												<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+													Friday
+												</span>
+												<MessageContent className="text-sm leading-relaxed">
 													<ResponseStream
 														textStream={streamIterable}
 														mode="typewriter"
@@ -727,15 +726,14 @@ function HomePage(): ReactElement {
 										transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
 									>
 										<Message className="items-start justify-start">
-											<MessageAvatar
-												src="/avatars/ai.png"
-												alt="AI"
-												fallback="AI"
-												className="mt-0.5 size-7 border border-border bg-card"
-											/>
-											<div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 text-muted-foreground shadow-sm backdrop-blur">
-												<Loader variant="typing" size="md" />
-												<Loader variant="text-shimmer" text="Thinking" size="sm" />
+											<div className="flex min-w-0 max-w-full flex-col gap-1.5">
+												<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+													Friday
+												</span>
+												<div className="flex items-center gap-2 text-muted-foreground">
+													<Loader variant="typing" size="md" />
+													<Loader variant="text-shimmer" text="Thinking" size="sm" />
+												</div>
 											</div>
 										</Message>
 									</motion.div>
@@ -769,10 +767,10 @@ function HomePage(): ReactElement {
 							className="min-h-[52px] px-2 pt-2 text-sm"
 							placeholder="Ask Friday anything…"
 						/>
-						<PromptInputActions className="justify-between px-1 pt-2">
-							<PromptInputAction tooltip="Attach file">
-								<Button variant="ghost" size="icon-sm" className="rounded-full">
-									<Paperclip className="size-4" />
+						<PromptInputActions className="justify-end px-1 pt-2">
+							<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
+								<Button variant="ghost" size="icon-sm" className="rounded-full text-muted-foreground">
+									<Mic className="size-4" />
 								</Button>
 							</PromptInputAction>
 							<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>

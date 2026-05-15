@@ -1,8 +1,6 @@
 import type {
-	CronConcurrencyPolicy,
 	CronExecutionRecord,
 	CronJsonObject,
-	CronMissedRunPolicy,
 	CronNextRunPreview,
 	CronRetryPolicy,
 	CronRunPolicy,
@@ -15,10 +13,7 @@ import type {
 	CronScheduleId,
 	CronSchedulePermissionLevel,
 	CronScheduleSource,
-	CronScheduleStatus,
 	CronScheduleUpdateRequest,
-	CronTaskPriority,
-	CronValidationResult,
 } from '../../../shared/cron';
 import type { Task, TaskCreateRequest, TaskListFilter } from '../../task-manager/core/task.types';
 

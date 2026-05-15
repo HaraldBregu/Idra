@@ -7,6 +7,7 @@ import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/ipc-channels';
 import {
 	isCronTaskData,
+	type CronSchedulePermissionLevel,
 	type CronScheduleCreateRequest,
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
@@ -45,7 +46,7 @@ function uiActor(userId?: string) {
 			'listSchedules',
 			'runScheduleNow',
 			'scheduleReadPrivateData',
-		] as const,
+		] satisfies CronSchedulePermissionLevel[],
 	};
 }
 

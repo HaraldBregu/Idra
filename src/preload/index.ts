@@ -34,7 +34,6 @@ import type {
 	CronTaskData,
 	CronTaskView,
 } from '../shared/cron';
-import type { Task } from '../shared/task';
 import type {
 	Assistant,
 	AssistantHistoryMessage,

@@ -10,6 +10,8 @@ export * from './store/cron-store-migrations';
 export * from './scheduler/cron-next-run-calculator';
 export * from './scheduler/cron-runner';
 export * from './scheduler/cron-scheduler';
+export * from './scheduler/missed-run-handler';
+export * from './scheduler/schedule-lock-manager';
 export * from './events/cron-event-bus';
 export * from './events/cron-audit-log';
 export * from './security/cron-access-policy';

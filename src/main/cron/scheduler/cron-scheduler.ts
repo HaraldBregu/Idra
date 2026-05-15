@@ -13,7 +13,6 @@ import type {
 	CronScheduleAuditEntry,
 	CronScheduleCreateRequest,
 	CronScheduleEvent,
-	CronScheduleEventType,
 	CronScheduleFilter,
 	CronScheduleId,
 	CronScheduler,
@@ -21,12 +20,10 @@ import type {
 	CronScheduleRunner,
 	CronScheduleSource,
 	CronScheduleUpdateRequest,
-	CronSchedulePermissionLevel,
 	CronScheduleStore,
 } from '../core/cron.types';
 import { ScheduleDescriber } from '../core/cron.describer';
 import {
-	CronPermissionError,
 	CronScheduleConfirmationRequiredError,
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
@@ -188,7 +185,7 @@ export class CronSchedulerService implements CronScheduler {
 				metadata: { confirmationId: confirmation?.confirmationId ?? null },
 			});
 			throw new CronScheduleConfirmationRequiredError('Schedule requires user confirmation.', {
-				confirmationId: confirmation?.confirmationId,
+				confirmationId: confirmation?.confirmationId ?? null,
 			});
 		}
 
