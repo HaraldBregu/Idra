@@ -115,7 +115,6 @@ const SETUP_STEPS: readonly SetupStep[] = [
 	'providers',
 	'models',
 	'connectors',
-	'finish',
 ];
 
 const STEP_TITLES: Record<SetupStep, string> = {
