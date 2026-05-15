@@ -16,7 +16,7 @@ import {
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext } from './core/cron.types';
+import type { CronActorContext, CronTaskManagerPort } from './core/cron.types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
 import { CronConfirmationManager } from './security/cron-confirmation-manager';
@@ -47,12 +47,11 @@ export class CronService implements Disposable {
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
 
-	constructor(store: StoreService, logger: LoggerService) {
+	constructor(store: StoreService, logger: LoggerService, taskManager?: CronTaskManagerPort) {
 		this.store = store;
 		this.logger = logger;
 		this.scheduleStore = new ElectronStoreCronScheduleStore(store);
-		const taskManager = new StoreBackedCronTaskManager();
-		const runner = new TaskManagerCronScheduleRunner(taskManager);
+		const runner = new TaskManagerCronScheduleRunner(taskManager ?? new StoreBackedCronTaskManager());
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
 			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
 			highFrequencyThresholdMs: DEFAULT_CRON_RUN_POLICY.highFrequencyThresholdMs,

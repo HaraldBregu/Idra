@@ -53,8 +53,8 @@ export function bootstrapServices(): BootstrapResult {
 	const workspace = container.register('workspace', new WorkspaceService(logger));
 
 	const store = container.register('store', new StoreService());
-	container.register('tasks', createDefaultTaskManager({ scopedServices: container }));
-	const cron = container.register('cron', new CronService(store, logger));
+	const tasks = container.register('tasks', createDefaultTaskManager({ scopedServices: container }));
+	const cron = container.register('cron', new CronService(store, logger, tasks));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});

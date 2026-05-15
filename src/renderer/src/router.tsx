@@ -31,17 +31,57 @@ function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX
 
 function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
+	const location = useLocation();
+	const [chatMode, setChatMode] = useState<ChatMode>('chat');
+
+	const isHome = location.pathname === '/home';
+
+	const chatModeToggle = isHome ? (
+		<div
+			className="pointer-events-auto flex items-center gap-0.5 rounded-full border border-border bg-muted/40 px-1 py-1"
+			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+		>
+			<button
+				type="button"
+				onClick={() => setChatMode('chat')}
+				className={cn(
+					'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+					chatMode === 'chat'
+						? 'border border-border/60 bg-background text-foreground shadow-sm'
+						: 'text-muted-foreground hover:text-foreground'
+				)}
+			>
+				<MessageSquare className="size-3" strokeWidth={1.5} />
+				Chat
+			</button>
+			<button
+				type="button"
+				onClick={() => setChatMode('voice')}
+				className={cn(
+					'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+					chatMode === 'voice'
+						? 'border border-border/60 bg-background text-foreground shadow-sm'
+						: 'text-muted-foreground hover:text-foreground'
+				)}
+			>
+				<Mic className="size-3" strokeWidth={1.5} />
+				Voice
+			</button>
+		</div>
+	) : undefined;
 
 	return (
-		<div className="app-translucent-window flex h-screen flex-col overflow-hidden text-foreground">
-			<TitleBar title={t('appTitle')} />
-			<div className="min-h-0 flex-1 overflow-hidden pt-12">
-				<PageTransition>
-					<Outlet />
-				</PageTransition>
+		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
+			<div className="app-translucent-window flex h-screen flex-col overflow-hidden text-foreground">
+				<TitleBar title={t('appTitle')} centerContent={chatModeToggle} />
+				<div className="min-h-0 flex-1 overflow-hidden pt-12">
+					<PageTransition>
+						<Outlet />
+					</PageTransition>
+				</div>
+				<CommandMenu />
 			</div>
-			<CommandMenu />
-		</div>
+		</ChatModeContext.Provider>
 	);
 }
 
