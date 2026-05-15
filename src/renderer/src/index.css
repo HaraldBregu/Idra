@@ -260,6 +260,56 @@
 	}
 }
 
+/* Style native range inputs to match the design system */
+input[type='range'] {
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+	cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+	background-color: var(--muted);
+	border-radius: 999px;
+	height: 4px;
+}
+
+input[type='range']::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background-color: var(--foreground);
+	margin-top: -5px;
+	transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+input[type='range']:hover::-webkit-slider-thumb,
+input[type='range']:focus-visible::-webkit-slider-thumb {
+	transform: scale(1.15);
+	box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 30%, transparent);
+}
+
+input[type='range']::-moz-range-track {
+	background-color: var(--muted);
+	border-radius: 999px;
+	height: 4px;
+}
+
+input[type='range']::-moz-range-thumb {
+	border: none;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background-color: var(--foreground);
+	transition: transform 0.1s ease;
+}
+
+input[type='range']:hover::-moz-range-thumb {
+	transform: scale(1.15);
+}
+
 /* Settings nav item: show label tooltip in icon-only mode (below sm breakpoint) */
 @media (max-width: 639px) {
 	.settings-nav-item {
