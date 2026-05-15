@@ -1,8 +1,6 @@
 import {
 	useEffect,
 	useRef,
-	type ChangeEvent,
-	type KeyboardEvent,
 	type ReactElement,
 	type RefObject,
 } from 'react';
@@ -10,8 +8,13 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import { ArrowUp, Calendar, Copy, Mic, Play, Square } from 'lucide-react';
+import {
+	PromptInput,
+	PromptInputAction,
+	PromptInputActions,
+	PromptInputTextarea,
+} from '@/components/app/base/prompt-kit/prompt-input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { ApprovalDecision } from '@shared/service';
@@ -400,58 +403,58 @@ function Composer({
 	readonly onSubmit: () => void;
 	readonly onVoiceModeRequest: () => void;
 }): ReactElement {
-	const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-		if (event.key === 'Enter' && !event.shiftKey) {
-			event.preventDefault();
-			onSubmit();
-		}
-	};
-
-	const handleInput = (event: ChangeEvent<HTMLTextAreaElement>): void => {
-		const target = event.currentTarget;
-		target.style.height = 'auto';
-		target.style.height = `${Math.min(target.scrollHeight, 160)}px`;
-		onValueChange(target.value);
-	};
-
 	return (
 		<div className="shrink-0 bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-8">
-			<div className="mx-auto flex min-h-14 w-full max-w-3xl items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-lg shadow-foreground/5 focus-within:ring-2 focus-within:ring-ring/20">
+			<PromptInput
+				value={value}
+				onValueChange={onValueChange}
+				onSubmit={onSubmit}
+				isLoading={isLoading}
+				maxHeight={160}
+				textareaRef={inputRef}
+				className="mx-auto flex min-h-14 w-full max-w-3xl items-center gap-3 rounded-2xl border-border bg-card px-4 py-3 shadow-lg shadow-foreground/5 focus-within:ring-2 focus-within:ring-ring/20"
+			>
 				<span className="shrink-0 text-xl leading-none text-muted-foreground" aria-hidden>
 					*
 				</span>
-				<Textarea
-					ref={inputRef}
-					value={value}
-					onChange={handleInput}
-					onKeyDown={handleKeyDown}
+				<PromptInputTextarea
 					placeholder="ask Friday to inspect, change, or explain something"
 					rows={1}
 					wrap="off"
 					className="max-h-32 min-h-7 flex-1 resize-none overflow-x-auto whitespace-nowrap border-0 bg-transparent px-0 py-1 text-sm leading-snug text-foreground shadow-none outline-none placeholder:text-muted-foreground focus-visible:!outline-none focus-visible:border-transparent focus-visible:ring-0 md:text-sm"
 					aria-label="Message Friday"
 				/>
-				<div className="flex shrink-0 items-center gap-3">
-					<TooltipIconButton
-						label="Switch to voice"
-						className="size-9 rounded-full bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-						onClick={onVoiceModeRequest}
-					>
-						<Mic className="size-4" />
-					</TooltipIconButton>
-					<TooltipIconButton
-						label={isLoading ? 'Stop response' : 'Send message'}
-						className="size-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-						onClick={onSubmit}
-					>
-						{isLoading ? (
-							<Square className="size-4 fill-current" />
-						) : (
-							<ArrowUp className="size-4" />
-						)}
-					</TooltipIconButton>
-				</div>
-			</div>
+				<PromptInputActions className="shrink-0 gap-3">
+					<PromptInputAction tooltip="Switch to voice">
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-sm"
+							className="size-9 rounded-full bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							aria-label="Switch to voice"
+							onClick={onVoiceModeRequest}
+						>
+							<Mic className="size-4" />
+						</Button>
+					</PromptInputAction>
+					<PromptInputAction tooltip={isLoading ? 'Stop response' : 'Send message'}>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-sm"
+							className="size-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+							aria-label={isLoading ? 'Stop response' : 'Send message'}
+							onClick={onSubmit}
+						>
+							{isLoading ? (
+								<Square className="size-4 fill-current" />
+							) : (
+								<ArrowUp className="size-4" />
+							)}
+						</Button>
+					</PromptInputAction>
+				</PromptInputActions>
+			</PromptInput>
 		</div>
 	);
 }
