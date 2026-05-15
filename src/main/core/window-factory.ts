@@ -56,7 +56,6 @@ export class WindowFactory {
 			width: 500,
 			height: 1000,
 			minWidth: 500,
-			maxWidth: 500,
 			minHeight: 600,
 			show: false,
 			icon: this.iconPath,
