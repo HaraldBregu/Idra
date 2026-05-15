@@ -4,7 +4,6 @@ import {
 	TaskDefinitionRegistry,
 	TaskManagerService,
 	TaskPermissionError,
-	TaskTimeoutError,
 	WorkerTaskRunner,
 	type TaskDefinition,
 	type TaskExecutionContext,
