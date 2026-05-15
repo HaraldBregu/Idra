@@ -312,10 +312,15 @@ function HomePage(): ReactElement {
 
 		const requestId = requestIdRef.current + 1;
 		requestIdRef.current = requestId;
-		isStreamingRef.current = true;
+
+		const ctrl = createStreamIterable();
+		streamControlRef.current = ctrl;
+		finalResponseRef.current = '';
+
 		setInput('');
 		setIsLoading(true);
-		setStreamingContent(null);
+		setStreamStarted(false);
+		setStreamIterable(ctrl.iterable);
 		setMessages((current) => [
 			...removeMultiSelectMessages(current),
 			createTextMessage('user', trimmed),
@@ -324,22 +329,19 @@ function HomePage(): ReactElement {
 		try {
 			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
-			isStreamingRef.current = false;
-			setStreamingContent(null);
-			if (response.trim().length > 0) {
-				setMessages((current) => [...current, createTextMessage('assistant', response)]);
-			}
+			finalResponseRef.current = response;
+			streamControlRef.current?.complete();
+			streamControlRef.current = null;
+			// ResponseStream's onComplete → handleStreamComplete handles cleanup + adding message
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
-			isStreamingRef.current = false;
-			setStreamingContent(null);
+			streamControlRef.current?.complete();
+			streamControlRef.current = null;
+			setStreamIterable(null);
+			setStreamStarted(false);
+			setIsLoading(false);
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
 			setMessages((current) => [...current, createTextMessage('assistant', message)]);
-		} finally {
-			if (requestIdRef.current === requestId) {
-				isStreamingRef.current = false;
-				setIsLoading(false);
-			}
 		}
 	};
 
