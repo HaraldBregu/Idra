@@ -94,7 +94,7 @@ const MessageActions = ({
 export type MessageActionProps = {
   className?: string
   tooltip: React.ReactNode
-  children: React.ReactNode
+  children: React.ReactElement
   side?: "top" | "bottom" | "left" | "right"
 } & React.ComponentProps<typeof Tooltip>
 
@@ -108,7 +108,7 @@ const MessageAction = ({
   return (
     <TooltipProvider>
       <Tooltip {...props}>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipTrigger render={children} />
         <TooltipContent side={side} className={className}>
           {tooltip}
         </TooltipContent>

@@ -8,29 +8,29 @@ import {
 	ChatContainerContent,
 	ChatContainerRoot,
 	ChatContainerScrollAnchor,
-} from '@/components/prompt-kit/chat-container';
-import { Loader } from '@/components/prompt-kit/loader';
+} from '@/components/ui/chat-container';
+import { Loader } from '@/components/ui/loader';
 import {
 	Message,
 	MessageAction,
 	MessageActions,
 	MessageContent,
-} from '@/components/prompt-kit/message';
+} from '@/components/ui/message';
 import {
 	PromptInput,
 	PromptInputAction,
 	PromptInputActions,
 	PromptInputTextarea,
-} from '@/components/prompt-kit/prompt-input';
-import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
-import { ScrollButton } from '@/components/prompt-kit/scroll-button';
+} from '@/components/ui/prompt-input';
+import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
+import { ScrollButton } from '@/components/ui/scroll-button';
 import {
 	Steps,
 	StepsContent,
 	StepsItem,
 	StepsTrigger,
-} from '@/components/prompt-kit/steps';
-import { Tool } from '@/components/prompt-kit/tool';
+} from '@/components/ui/steps';
+import { Tool } from '@/components/ui/tool';
 import { Button } from '@/components/ui/button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
