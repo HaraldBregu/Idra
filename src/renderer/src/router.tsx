@@ -43,30 +43,7 @@ function RootRouteComponent(): React.JSX.Element {
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 
 	const isStart = location.pathname === '/start';
-	const isHome = location.pathname === '/home';
 
-	const chatModeToggle = isHome ? (
-		<ToggleGroup
-			type="single"
-			value={chatMode}
-			onValueChange={(value) => {
-				if (value === 'chat' || value === 'voice') {
-					setChatMode(value);
-				}
-			}}
-			className="pointer-events-auto rounded-full bg-muted p-0.5"
-			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-		>
-			<ToggleGroupItem value="chat" className="h-6 rounded-full px-2.5 text-xs font-semibold">
-				<MessageSquare className="size-3.5" strokeWidth={2.2} />
-				Chat
-			</ToggleGroupItem>
-			<ToggleGroupItem value="voice" className="h-6 rounded-full px-2.5 text-xs font-semibold">
-				<Mic className="size-3.5" strokeWidth={2.2} />
-				Voice
-			</ToggleGroupItem>
-		</ToggleGroup>
-	) : undefined;
 	const startTitleBarAction = isStart ? (
 		<Button
 			type="button"
