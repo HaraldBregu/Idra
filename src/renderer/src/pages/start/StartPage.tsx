@@ -13,9 +13,16 @@ import {
 	MessageSquare,
 	Mic,
 	Pencil,
+	Plug,
 	Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import type {
+	ConnectorInput,
+	ConnectorView,
+	OPENAI_CONNECTOR_CATALOG,
+	OpenAiConnectorId,
+} from '../../../../shared/connectors';
 import {
 	DEFAULT_PROVIDERS,
 	type Provider,
@@ -51,9 +58,16 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep = 'welcome' | 'permissions' | 'providers' | 'models' | 'finish';
+type SetupStep =
+	| 'welcome'
+	| 'permissions'
+	| 'providers'
+	| 'models'
+	| 'connectors'
+	| 'finish';
 
 type PermissionId = 'microphone' | 'screen' | 'accessibility';
+type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
 type ProviderCatalogItem = {
 	id: string;
@@ -91,6 +105,16 @@ type AssistantModelOption = {
 	model: Model;
 };
 
+type ConnectorSetupGroup = {
+	id: string;
+	name: string;
+	description: string;
+	initial: string;
+	swatchClassName: string;
+	connectorIds: readonly OpenAiConnectorId[];
+	supported: boolean;
+};
+
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const ASSISTANT_MODEL_VALUE_SEPARATOR = '::';
@@ -99,6 +123,7 @@ const SETUP_STEPS: readonly SetupStep[] = [
 	'permissions',
 	'providers',
 	'models',
+	'connectors',
 	'finish',
 ];
 
@@ -107,6 +132,7 @@ const STEP_TITLES: Record<SetupStep, string> = {
 	permissions: 'Permissions',
 	providers: 'Providers',
 	models: 'Models',
+	connectors: 'Connectors',
 	finish: 'Finish',
 };
 
@@ -211,6 +237,54 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 	},
 ];
 
+const CONNECTOR_SETUP_GROUPS: readonly ConnectorSetupGroup[] = [
+	{
+		id: 'google',
+		name: 'Google Workspace',
+		description: 'Gmail, Calendar, and Drive',
+		initial: 'G',
+		swatchClassName: 'bg-muted text-muted-foreground',
+		connectorIds: [
+			'connector_gmail',
+			'connector_googlecalendar',
+			'connector_googledrive',
+		],
+		supported: true,
+	},
+	{
+		id: 'microsoft',
+		name: 'Microsoft 365',
+		description: 'Outlook, Calendar, Teams, and SharePoint',
+		initial: 'M',
+		swatchClassName: 'bg-muted text-muted-foreground',
+		connectorIds: [
+			'connector_outlookemail',
+			'connector_outlookcalendar',
+			'connector_microsoftteams',
+			'connector_sharepoint',
+		],
+		supported: true,
+	},
+	{
+		id: 'github',
+		name: 'GitHub',
+		description: 'Issues, pull requests, and repositories',
+		initial: 'GH',
+		swatchClassName: 'bg-muted text-muted-foreground',
+		connectorIds: [],
+		supported: false,
+	},
+	{
+		id: 'dropbox',
+		name: 'Dropbox',
+		description: 'Files and recent documents',
+		initial: 'D',
+		swatchClassName: 'bg-muted text-muted-foreground',
+		connectorIds: ['connector_dropbox'],
+		supported: true,
+	},
+];
+
 const HOTKEY_OPTIONS = ['Cmd Shift Space', 'Cmd /', 'Opt Space', 'Fn'] as const;
 const TONE_OPTIONS = ['Low-key', 'Direct', 'Warm', 'Witty'] as const;
 const VOICE_OPTIONS: readonly VoiceOption[] = [
@@ -260,6 +334,14 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 
 function getAssistantModelValue(providerId: string, modelId: string): string {
 	return `${providerId}${ASSISTANT_MODEL_VALUE_SEPARATOR}${modelId}`;
+}
+
+function serverLabelFromName(name: string): string {
+	return name
+		.trim()
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]+/g, '_')
+		.replace(/^_+|_+$/g, '');
 }
 
 function ProviderMark({
@@ -423,6 +505,16 @@ const StartPage: React.FC = () => {
 	const [imageGenerationModelGroups, setImageGenerationModelGroups] = useState<
 		ProviderModelGroup[]
 	>([]);
+	const [connectorCatalog, setConnectorCatalog] = useState<ConnectorCatalog>([]);
+	const [configuredConnectors, setConfiguredConnectors] = useState<ConnectorView[]>([]);
+	const [connectorDrafts, setConnectorDrafts] = useState<Record<string, string>>({});
+	const [editingConnectorGroupId, setEditingConnectorGroupId] = useState<string | null>(
+		null
+	);
+	const [loadingConnectors, setLoadingConnectors] = useState(false);
+	const [savingConnectorGroupId, setSavingConnectorGroupId] = useState<string | null>(
+		null
+	);
 	const [selectedImageGenerationModel, setSelectedImageGenerationModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
@@ -505,6 +597,26 @@ const StartPage: React.FC = () => {
 					.map((entry) => entry.providerId)
 			),
 		[providerEntries]
+	);
+	const connectorCatalogById = useMemo(
+		() => new Map(connectorCatalog.map((connector) => [connector.id, connector])),
+		[connectorCatalog]
+	);
+	const configuredConnectorByCatalogId = useMemo(
+		() =>
+			new Map(
+				configuredConnectors.map((connector) => [connector.connectorId, connector])
+			),
+		[configuredConnectors]
+	);
+	const connectedConnectorIds = useMemo(
+		() =>
+			new Set(
+				configuredConnectors
+					.filter((connector) => connector.status === 'configured')
+					.map((connector) => connector.connectorId)
+			),
+		[configuredConnectors]
 	);
 
 	useEffect(() => {
@@ -704,6 +816,41 @@ const StartPage: React.FC = () => {
 		};
 	}, [providers, savedImageGenerationModelId, savedModelId, step]);
 
+	useEffect(() => {
+		if (step !== 'connectors') return;
+
+		let cancelled = false;
+
+		async function loadConnectors(): Promise<void> {
+			setLoadingConnectors(true);
+			setErrorMessage('');
+			try {
+				const [catalog, connectors] = await Promise.all([
+					window.connectors.catalog(),
+					window.connectors.list(),
+				]);
+				if (cancelled) return;
+
+				setConnectorCatalog(catalog);
+				setConfiguredConnectors(connectors);
+			} catch (error) {
+				if (cancelled) return;
+
+				setErrorMessage(getErrorMessage(error, 'Could not load connectors.'));
+			} finally {
+				if (!cancelled) {
+					setLoadingConnectors(false);
+				}
+			}
+		}
+
+		void loadConnectors();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [step]);
+
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
 		setStep(nextStep);
@@ -843,6 +990,62 @@ const StartPage: React.FC = () => {
 		}
 	}
 
+	async function saveConnectorGroup(group: ConnectorSetupGroup): Promise<boolean> {
+		if (!group.supported || group.connectorIds.length === 0) return false;
+
+		const authorization = (connectorDrafts[group.id] ?? '').trim();
+		if (!authorization) {
+			setErrorMessage(`Paste an OAuth access token for ${group.name}.`);
+			return false;
+		}
+
+		setSavingConnectorGroupId(group.id);
+		setErrorMessage('');
+		try {
+			for (const connectorId of group.connectorIds) {
+				const catalogItem = connectorCatalogById.get(connectorId);
+				if (!catalogItem) {
+					throw new Error(`${group.name} is not available in the connector catalog.`);
+				}
+
+				const existingConnector = configuredConnectorByCatalogId.get(connectorId);
+				if (existingConnector) {
+					await window.connectors.update(existingConnector.id, {
+						authorization,
+						enabled: true,
+					});
+				} else {
+					const input: ConnectorInput = {
+						name: catalogItem.name,
+						connectorId,
+						serverLabel: serverLabelFromName(catalogItem.name),
+						serverDescription: catalogItem.description,
+						authorization,
+						requireApproval: 'always',
+						allowedTools: [],
+						deferLoading: false,
+						enabled: true,
+					};
+					await window.connectors.add(input);
+				}
+			}
+
+			const [, connectors] = await Promise.all([
+				window.connectors.catalog(),
+				window.connectors.list(),
+			]);
+			setConfiguredConnectors(connectors);
+			setConnectorDrafts((drafts) => ({ ...drafts, [group.id]: '' }));
+			setEditingConnectorGroupId(null);
+			return true;
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, 'Could not save connectors.'));
+			return false;
+		} finally {
+			setSavingConnectorGroupId(null);
+		}
+	}
+
 	function handlePrimaryAction(): void {
 		if (step === 'welcome') {
 			goToStep('permissions');
@@ -861,6 +1064,11 @@ const StartPage: React.FC = () => {
 
 		if (step === 'models') {
 			void handleSaveAssistantModel();
+			return;
+		}
+
+		if (step === 'connectors') {
+			goToStep('finish');
 			return;
 		}
 
@@ -1368,6 +1576,175 @@ const StartPage: React.FC = () => {
 		);
 	}
 
+	function renderConnectorsStep(): React.JSX.Element {
+		return (
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
+				<div>
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
+						Connect your tools
+					</h1>
+					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
+						Optional connectors let {PRODUCT_NAME} search mail, calendars, files, and
+						workspaces when you ask.
+					</p>
+				</div>
+
+				<div className="mt-4 space-y-2">
+					{CONNECTOR_SETUP_GROUPS.map((group) => {
+						const availableConnectorIds = group.connectorIds.filter((connectorId) =>
+							connectorCatalogById.has(connectorId)
+						);
+						const connectedCount = availableConnectorIds.filter((connectorId) =>
+							connectedConnectorIds.has(connectorId)
+						).length;
+						const totalCount = availableConnectorIds.length;
+						const connected = totalCount > 0 && connectedCount === totalCount;
+						const partiallyConnected = connectedCount > 0 && connectedCount < totalCount;
+						const editing = editingConnectorGroupId === group.id;
+						const savingThisGroup = savingConnectorGroupId === group.id;
+						const unavailable =
+							!group.supported ||
+							(group.connectorIds.length > 0 && availableConnectorIds.length === 0);
+
+						return (
+							<Card
+								key={group.id}
+								className={cn(
+									'rounded-lg border-border bg-card py-0 shadow-none',
+									editing && 'border-ring ring-2 ring-ring/20',
+									unavailable && 'opacity-70'
+								)}
+							>
+								<CardContent className="p-0">
+									<div
+										className={cn(
+											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
+											editing && 'pb-2'
+										)}
+									>
+										<ProviderMark
+											initial={group.initial}
+											className={group.swatchClassName}
+										/>
+										<div className="min-w-0 flex-1">
+											<h2 className="truncate text-sm font-semibold leading-tight text-foreground">
+												{group.name}
+											</h2>
+											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
+												{connected
+													? `${totalCount} connectors ready`
+													: partiallyConnected
+														? `${connectedCount} of ${totalCount} connectors ready`
+														: group.description}
+											</p>
+										</div>
+										<div className="flex shrink-0 justify-end gap-2">
+											{connected && !editing ? (
+												<div className="flex items-center gap-2">
+													<Badge
+														variant="secondary"
+														className="h-6 rounded-md px-2 text-xs font-semibold"
+													>
+														<Check className="size-3" />
+														Connected
+													</Badge>
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-xs"
+														aria-label={`Update ${group.name} token`}
+														disabled={loadingConnectors || savingConnectorGroupId !== null}
+														onClick={() => setEditingConnectorGroupId(group.id)}
+													>
+														<Pencil className="size-3.5" />
+													</Button>
+												</div>
+											) : unavailable ? (
+												<Button type="button" variant="outline" size="xs" disabled>
+													Soon
+												</Button>
+											) : editing ? null : (
+												<Button
+													type="button"
+													variant="outline"
+													size="xs"
+													disabled={loadingConnectors || savingConnectorGroupId !== null}
+													onClick={() => setEditingConnectorGroupId(group.id)}
+												>
+													{partiallyConnected ? 'Complete' : 'Connect'}
+												</Button>
+											)}
+										</div>
+									</div>
+
+									{editing && !unavailable ? (
+										<div className="flex items-center gap-2 px-3 pb-3">
+											<Input
+												autoComplete="off"
+												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
+												disabled={savingThisGroup}
+												onChange={(event) => {
+													setConnectorDrafts((drafts) => ({
+														...drafts,
+														[group.id]: event.target.value,
+													}));
+												}}
+												placeholder="OAuth access token"
+												spellCheck={false}
+												type="password"
+												value={connectorDrafts[group.id] ?? ''}
+											/>
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												disabled={savingThisGroup}
+												onClick={() => {
+													setConnectorDrafts((drafts) => ({
+														...drafts,
+														[group.id]: '',
+													}));
+													setEditingConnectorGroupId(null);
+												}}
+											>
+												Cancel
+											</Button>
+											<Button
+												type="button"
+												size="sm"
+												disabled={
+													savingThisGroup ||
+													(connectorDrafts[group.id] ?? '').trim().length === 0
+												}
+												onClick={() => {
+													void saveConnectorGroup(group);
+												}}
+											>
+												{savingThisGroup ? (
+													<LoaderCircle className="size-3.5 animate-spin" />
+												) : null}
+												Save
+											</Button>
+										</div>
+									) : null}
+								</CardContent>
+							</Card>
+						);
+					})}
+				</div>
+
+				<div className="mt-auto pt-4">
+					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
+						<Plug className="size-4 shrink-0" />
+						<p className="text-xs font-medium leading-snug">
+							You can skip this now and manage connectors later in Settings.
+						</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	function renderFinishStep(): React.JSX.Element {
 		return (
 			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
@@ -1479,6 +1856,7 @@ const StartPage: React.FC = () => {
 		if (step === 'permissions') return renderPermissionsStep();
 		if (step === 'providers') return renderProviderStep();
 		if (step === 'models') return renderModelsStep();
+		if (step === 'connectors') return renderConnectorsStep();
 
 		return renderFinishStep();
 	}
