@@ -599,7 +599,10 @@ export class ConnectorToolAdapter {
 			].join(' '),
 			schema: tool.inputSchema,
 			needsApproval: () => false,
-			execute: async (args: Record<string, unknown>, ctx: ToolContext): Promise<AgentToolResult<ConnectorExecutionResult>> => {
+			execute: async (
+				args: Record<string, unknown>,
+				ctx: ToolContext
+			): Promise<AgentToolResult<ConnectorExecutionResult | ConnectorExecutionResponse>> => {
 				const userId = options.userId ?? 'local-user';
 				let response = await gateway.execute({
 					userId,
@@ -630,22 +633,22 @@ export class ConnectorToolAdapter {
 					});
 				}
 
-					if (response.status === 'error') {
-						return {
-							status: 'error',
-							content: [{ type: 'text', text: `${response.error.code}: ${response.error.message}` }],
-							details: response,
-						};
-					}
-					if (response.status === 'pending_confirmation') {
-						return {
-							status: 'error',
-							content: [{ type: 'text', text: `Confirmation remained pending for ${tool.name}.` }],
-							details: response,
-						};
-					}
+				if (response.status === 'error') {
+					return {
+						status: 'error',
+						content: [{ type: 'text', text: `${response.error.code}: ${response.error.message}` }],
+						details: response,
+					};
+				}
+				if (response.status === 'pending_confirmation') {
+					return {
+						status: 'error',
+						content: [{ type: 'text', text: `Confirmation remained pending for ${tool.name}.` }],
+						details: response,
+					};
+				}
 
-					const serialized = JSON.stringify(response.result.data, null, 2);
+				const serialized = JSON.stringify(response.result.data, null, 2);
 				const text =
 					serialized.length > (options.maxTextChars ?? 8_000)
 						? `${serialized.slice(0, options.maxTextChars ?? 8_000)}\n[truncated sanitized connector result]`
