@@ -34,51 +34,41 @@ export function Layout(): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
-	const isMobile = useIsMobile();
 	const pathname = location.pathname;
 
 	return (
 		<PageContainer>
 			<div className="flex min-h-0 flex-1 gap-2 overflow-hidden">
 				<PageSidebar className="w-14 border-none px-2 sm:w-44">
-					<TooltipProvider delayDuration={300}>
-						<nav className="flex flex-col gap-1">
-							{SETTINGS_ITEMS.map((item) => {
-								const isActive =
-									pathname === item.path ||
-									(pathname === '/settings' && item.path === '/settings/general');
-								const Icon = item.icon;
-								const label = t(item.labelKey);
+					<nav className="flex flex-col gap-1">
+						{SETTINGS_ITEMS.map((item) => {
+							const isActive =
+								pathname === item.path ||
+								(pathname === '/settings' && item.path === '/settings/general');
+							const Icon = item.icon;
+							const label = t(item.labelKey);
 
-								const btn = (
+							return (
+								// CSS tooltip via data attribute — visible only on mobile (icon-only mode, <sm)
+								<div key={item.path} className="settings-nav-item sm:contents" data-label={label}>
 									<Button
-										key={item.path}
 										type="button"
 										variant={isActive ? 'secondary' : 'ghost'}
 										size="sm"
 										className="w-full justify-center px-0 sm:justify-start sm:px-2.5"
 										onClick={() => navigate(item.path)}
 										aria-current={isActive ? 'page' : undefined}
+										aria-label={label}
 									>
 										<Icon className="size-3.5" aria-hidden />
-										<span className="hidden min-w-0 truncate sm:inline">{label}</span>
+										<span className="hidden min-w-0 truncate sm:inline" aria-hidden>
+											{label}
+										</span>
 									</Button>
-								);
-
-								// Only show tooltip when label text is hidden (mobile icon-only mode)
-								if (isMobile) {
-									return (
-										<Tooltip key={item.path}>
-											<TooltipTrigger asChild>{btn}</TooltipTrigger>
-											<TooltipContent side="right">{label}</TooltipContent>
-										</Tooltip>
-									);
-								}
-
-								return btn;
-							})}
-						</nav>
-					</TooltipProvider>
+								</div>
+							);
+						})}
+					</nav>
 				</PageSidebar>
 				<PageSidebarInset className="px-3 pb-3 sm:px-4 sm:pb-4 lg:px-5">
 					<Outlet />
