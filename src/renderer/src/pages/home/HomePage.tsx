@@ -364,8 +364,9 @@ function HomePage(): ReactElement {
 			});
 		});
 		const offResponse = window.assistant.onResponse((event: AssistantResponseDelta) => {
-			if (isStreamingRef.current && event.delta) {
-				setStreamingContent((prev) => (prev === null ? event.delta : prev + event.delta));
+			if (streamControlRef.current && event.delta) {
+				streamControlRef.current.push(event.delta);
+				setStreamStarted(true);
 			}
 		});
 		return () => {
