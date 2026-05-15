@@ -594,13 +594,41 @@ function HomePage(): ReactElement {
 										</motion.div>
 									)
 								)}
-								{isLoading && (
+								{/* Live streaming message — visible once first token arrives */}
+								{isLoading && streamingContent !== null && streamingContent.length > 0 && (
+									<motion.div
+										key="streaming"
+										initial={{ opacity: 0, y: 8 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
+									>
+										<Message className="items-start justify-start">
+											<MessageAvatar
+												src="/avatars/ai.png"
+												alt="AI"
+												fallback="AI"
+												className="mt-0.5 size-7 border border-border bg-card"
+											/>
+											<div className="flex min-w-0 max-w-[calc(100%-2.5rem)] flex-col gap-2 sm:max-w-[44rem]">
+												<MessageContent
+													markdown
+													className="rounded-2xl border border-border/80 bg-card/80 px-3.5 py-2.5 shadow-sm backdrop-blur"
+												>
+													{streamingContent}
+												</MessageContent>
+											</div>
+										</Message>
+									</motion.div>
+								)}
+
+								{/* Typing indicator — shown while waiting for first streaming token */}
+								{isLoading && (streamingContent === null || streamingContent.length === 0) && (
 									<motion.div
 										key="loading"
 										initial={{ opacity: 0, y: 8 }}
 										animate={{ opacity: 1, y: 0 }}
 										exit={{ opacity: 0 }}
-										transition={{ duration: 0.15 }}
+										transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
 									>
 										<Message className="items-start justify-start">
 											<MessageAvatar
