@@ -708,6 +708,7 @@ function HomeChatSurface({
 	onSelectApprovalOption,
 	onSubmitPending,
 	onUseSuggestion,
+	onVoiceModeRequest,
 }: HomeChatSurfaceProps): ReactElement {
 	const showReferenceConversation = messages.length <= 1 && !isLoading && !historyLoading;
 
