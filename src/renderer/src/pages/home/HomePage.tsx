@@ -878,24 +878,11 @@ function VoiceOrb(): ReactElement {
 function HomeVoiceSurface({ onSwitchToTyping }: { readonly onSwitchToTyping: () => void }): ReactElement {
 	return (
 		<div className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
-			<div className="flex flex-1 flex-col items-center px-8 pt-8 text-center">
-				<div className="space-y-4">
-					<p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ready</p>
-				</div>
-				<div className="flex flex-1 items-center justify-center py-8">
-					<VoiceOrbButton />
-				</div>
-				<div className="mb-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs font-semibold text-muted-foreground">
-					<span className="flex items-center gap-3">
-						<VoiceKbd>hold ⌘</VoiceKbd> keep speaking
-					</span>
-					<span className="flex items-center gap-3">
-						<VoiceKbd>release</VoiceKbd> send
-					</span>
-					<span className="flex items-center gap-3">
-						<VoiceKbd>esc</VoiceKbd> cancel
-					</span>
-				</div>
+			<div className="flex flex-1 flex-col items-center justify-center px-8 py-8">
+				<p className="mb-10 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+					Voice Chat
+				</p>
+				<VoiceOrb />
 			</div>
 			<div className="border-t border-border px-6 py-4">
 				<MessageContent className="flex min-h-10 items-center justify-between gap-4 rounded-full px-5 py-0 text-xs font-semibold text-muted-foreground">
