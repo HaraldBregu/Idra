@@ -1,11 +1,14 @@
-import React, { Suspense, lazy, type ReactNode } from 'react';
-import { Navigate, Outlet, createHashRouter, type RouteObject } from 'react-router-dom';
+import React, { Suspense, lazy, useState, type ReactNode } from 'react';
+import { Navigate, Outlet, createHashRouter, useLocation, type RouteObject } from 'react-router-dom';
+import { MessageSquare, Mic } from 'lucide-react';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
 import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
+import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
+import { cn } from './lib/utils';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
