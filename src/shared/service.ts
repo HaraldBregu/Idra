@@ -19,6 +19,19 @@ export interface Assistant {
 
 export type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
 
+export type AssistantRunState =
+	| 'idle'
+	| 'thinking'
+	| 'reasoning'
+	| 'using_tools'
+	| 'waiting_for_approval'
+	| 'answering'
+	| 'completed'
+	| 'cancelled'
+	| 'error';
+
+export type ReasoningSummaryState = 'pending' | 'running' | 'completed' | 'error';
+
 /**
  * Assistant transcript entry (provider-neutral). One per turn.
  */
@@ -39,6 +52,22 @@ export interface AssistantHistoryMessage {
 export type AssistantToolCallStatus = 'ok' | 'error' | 'rejected';
 
 export type AssistantResponseEvent =
+	| {
+			type: 'run_state';
+			assistantId: string;
+			runId: string;
+			state: AssistantRunState;
+			label?: string;
+	  }
+	| {
+			type: 'reasoning_summary';
+			assistantId: string;
+			runId: string;
+			id: string;
+			title: string;
+			summary: string;
+			state: ReasoningSummaryState;
+	  }
 	| {
 			type: 'text_delta';
 			assistantId: string;

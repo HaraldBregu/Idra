@@ -15,10 +15,12 @@ function createAssistantToolPart(
 		toolCallId,
 		type: patch.type ?? 'tool',
 		state: patch.state ?? 'input-streaming',
+		iteration: patch.iteration,
 		input: patch.input,
 		inputText: patch.inputText,
 		output: patch.output,
 		outputText: patch.outputText,
+		durationMs: patch.durationMs,
 		errorText: patch.errorText,
 	};
 }
@@ -43,24 +45,29 @@ export function applyAssistantResponseEventToTools(
 	event: AssistantResponseEvent
 ): AssistantToolPart[] | undefined {
 	switch (event.type) {
+		case 'run_state':
+		case 'reasoning_summary':
 		case 'text_delta':
 			return undefined;
 		case 'tool_call_start':
 			return updateAssistantToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: 'input-streaming',
+				iteration: event.iteration,
 				inputText: '',
 			});
 		case 'tool_call_args_delta':
 			return updateAssistantToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: 'input-streaming',
+				iteration: event.iteration,
 				inputText: event.argsText,
 			});
 		case 'tool_call_input':
 			return updateAssistantToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: 'input-available',
+				iteration: event.iteration,
 				input: event.input,
 				inputText: event.argsText,
 			});
@@ -72,9 +79,11 @@ export function applyAssistantResponseEventToTools(
 			return updateAssistantToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: isError ? 'output-error' : 'output-available',
+				iteration: event.iteration,
 				input: event.input,
 				output: event.output,
 				outputText: event.outputText,
+				durationMs: event.durationMs,
 				errorText,
 			});
 		}

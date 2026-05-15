@@ -130,6 +130,10 @@ describe('AssistantService', () => {
 		expect(service.resolveApproval(pending.approvals[0]!.id, true)).toBe(true);
 		await expect(send).resolves.toBe('finished');
 		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
+			'assistant:response',
+			expect.objectContaining({ type: 'run_state', state: 'waiting_for_approval' })
+		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 

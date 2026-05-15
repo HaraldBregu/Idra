@@ -9,7 +9,7 @@ import type { UserDataDirectoryServicePort } from './user-data';
 import type { ConnectorsService } from './connectors';
 import type { SkillsService } from './skills';
 import { buildSystemPrompt } from './agent/system-prompt';
-import { runAgent, type AgentRunHooks } from './agent/run';
+import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
 import { DEFAULT_ASSISTANT_ID } from './constants';
 import { HitlBridge } from './hitl';
 import { makeProvider, type ProviderSpec } from './provider/factory';
@@ -19,7 +19,7 @@ import { createTools } from './tools/registry';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AssistantRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
-import type { ApprovalDecision, AssistantResponseEvent } from '../shared/service';
+import type { ApprovalDecision } from '../shared/service';
 
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
@@ -87,6 +87,13 @@ export class AssistantService {
 		const abort = new AbortController();
 		runtime.currentAbort = abort;
 		const runId = randomUUID();
+		const streamEvent = (event: AgentRunStreamEvent): void => {
+			this.dependencies.eventBus.broadcast('assistant:response', {
+				assistantId,
+				runId,
+				...event,
+			});
+		};
 
 		try {
 			const { providerId, apiKey, model, baseURL } = this.resolveProviderAndModel();
@@ -96,6 +103,13 @@ export class AssistantService {
 			const baseTools = this.toolsFactory();
 			const provider = this.providerFactory({ id: providerId, apiKey, baseURL }, model);
 			const workspaceRoot = this.workspaceRoot();
+			const emitWaitingForApproval = (): void => {
+				streamEvent({
+					type: 'run_state',
+					state: 'waiting_for_approval',
+					label: 'Needs approval',
+				});
+			};
 			const ctx: ToolContext = {
 				workspace: workspaceRoot,
 				sessionId: runtime.session.id,
@@ -103,8 +117,18 @@ export class AssistantService {
 				plan: { entries: runtime.session.plan },
 				approvalCache: new Set(),
 				approvalRequired: new Set(),
-				approveStream: runtime.hitl,
-				elicit: { ask: (question, suggestions) => runtime.hitl.askInput(question, suggestions) },
+				approveStream: {
+					ask: (question, args, toolName) => {
+						emitWaitingForApproval();
+						return runtime.hitl.ask(question, args, toolName);
+					},
+				},
+				elicit: {
+					ask: (question, suggestions) => {
+						emitWaitingForApproval();
+						return runtime.hitl.askInput(question, suggestions);
+					},
+				},
 				services: this.dependencies,
 			};
 			const skillRuntime = this.dependencies.skills
@@ -144,14 +168,6 @@ export class AssistantService {
 				runLogger: runtime.runLogger,
 			});
 
-			const streamEvent = (event: Omit<AssistantResponseEvent, 'assistantId' | 'runId'>): void => {
-				this.dependencies.eventBus.broadcast('assistant:response', {
-					assistantId,
-					runId,
-					...event,
-				});
-			};
-
 			const result = await runAgent({
 				runId,
 				userMessage: message,
@@ -171,9 +187,19 @@ export class AssistantService {
 			runtime.session = result.session;
 			await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
 			runtime.currentAbort = null;
+			streamEvent({
+				type: 'run_state',
+				state: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
+				label: result.stopReason === 'cancelled' ? 'Cancelled' : 'Completed',
+			});
 			return result.finalText;
 		} catch (err) {
 			runtime.currentAbort = null;
+			streamEvent({
+				type: 'run_state',
+				state: abort.signal.aborted ? 'cancelled' : 'error',
+				label: abort.signal.aborted ? 'Cancelled' : (err as Error).message,
+			});
 			this.dependencies.logger.error('AssistantService', 'send failed', {
 				message: (err as Error).message,
 				stack: (err as Error).stack,

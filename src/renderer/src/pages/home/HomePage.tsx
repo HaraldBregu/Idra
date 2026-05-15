@@ -1,7 +1,21 @@
 import type { ReactElement, RefObject } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import type { Components } from 'react-markdown';
-import { ArrowUp, Calendar, Copy, ListChecks, Mic, Play, Sparkles, Square } from 'lucide-react';
+import {
+	ArrowUp,
+	AudioLines,
+	Calendar,
+	ChevronDown,
+	Copy,
+	ListChecks,
+	Mic,
+	Play,
+	Plus,
+	RotateCcw,
+	Sparkles,
+	Square,
+} from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
 import { PageContainer } from '@/components/app/base/page';
 import {
@@ -23,6 +37,11 @@ import {
 	PromptInputTextarea,
 } from '@/components/ui/prompt-input';
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
+import {
+	Reasoning,
+	ReasoningContent,
+	ReasoningTrigger,
+} from '@/components/ui/reasoning';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import {
 	Steps,
@@ -30,100 +49,60 @@ import {
 	StepsItem,
 	StepsTrigger,
 } from '@/components/ui/steps';
+import { Textarea } from '@/components/ui/textarea';
 import { Tool } from '@/components/ui/tool';
 import { Button } from '@/components/ui/button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
 import type {
 	ApprovalDecision,
-	AssistantHistoryMessage,
-	AssistantPendingApproval,
 	AssistantPendingEventPayload,
-	AssistantPendingInput,
 	AssistantResponseEvent,
 } from '../../../../shared/service';
 import {
-	applyAssistantResponseEventToTools,
+	assistantChatReducer,
+	defaultPendingSelections,
+	initialAssistantChatState,
+	pendingToMultiSelectMessage,
+	type AssistantMessage,
+	type AssistantRunState,
 	type AssistantToolPart,
-	assistantToolPartFromHistoryBlock,
-	updateAssistantToolPart,
-} from './assistant-tool-parts';
-
-interface HomeTextMessage {
-	readonly id: string;
-	readonly role: 'user' | 'assistant';
-	readonly type: 'text';
-	readonly content: string;
-	readonly tools?: readonly AssistantToolPart[];
-}
-
-interface HomeMultiSelectOption {
-	readonly id: string;
-	readonly kind: 'approval' | 'input';
-	readonly label: string;
-	readonly description: string;
-	readonly approvalId?: string;
-	readonly decision?: ApprovalDecision;
-	readonly inputId?: string;
-}
-
-interface HomeMultiSelectMessage {
-	readonly id: string;
-	readonly role: 'assistant';
-	readonly type: 'multi-select';
-	readonly prompt: string;
-	readonly options: readonly HomeMultiSelectOption[];
-}
-
-type HomeChatMessage = HomeTextMessage | HomeMultiSelectMessage;
+	type HomeChatMessage,
+	type HomeMultiSelectMessage,
+	type ReasoningPart,
+} from './assistant-chat-state';
 
 interface HomeChatSurfaceProps {
 	readonly messages: readonly HomeChatMessage[];
+	readonly activeAssistantId?: string;
 	readonly selectedOptions: Record<string, readonly string[]>;
+	readonly pendingInputAnswers: Record<string, string>;
 	readonly input: string;
 	readonly isLoading: boolean;
 	readonly historyLoading: boolean;
-	readonly streamText: string;
-	readonly streamTools: readonly AssistantToolPart[];
-	readonly streamStarted: boolean;
 	readonly inputRef: RefObject<HTMLTextAreaElement | null>;
 	readonly onInputChange: (value: string) => void;
 	readonly onSubmit: () => void;
+	readonly onReset: () => void;
 	readonly onCopyMessage: (content: string) => void;
-	readonly onToggleOption: (messageId: string, optionId: string) => void;
 	readonly onSelectApprovalOption: (
 		messageId: string,
 		approvalId: string,
 		optionId: string
+	) => void;
+	readonly onPendingInputChange: (
+		messageId: string,
+		inputId: string,
+		value: string
 	) => void;
 	readonly onSubmitPending: (message: HomeMultiSelectMessage) => void;
 	readonly onUseSuggestion: (prompt: string) => void;
 	readonly onVoiceModeRequest: () => void;
 }
 
-function createTextMessage(
-	role: HomeTextMessage['role'],
-	content: string,
-	tools: readonly AssistantToolPart[] = []
-): HomeTextMessage {
-	return {
-		id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-		role,
-		type: 'text',
-		content,
-		...(role === 'assistant' && tools.length > 0 ? { tools } : {}),
-	};
-}
-
-const welcomeMessage: HomeChatMessage = {
-	id: 'assistant-welcome',
-	role: 'assistant',
-	type: 'text',
-	content:
-		'Ready when you are. Ask Friday to inspect code, make a change, explain a file, or help plan the next step.',
+type WindowWithOptionalAssistant = Window & {
+	assistant?: Window['assistant'];
 };
-
-const initialMessages: readonly HomeChatMessage[] = [welcomeMessage];
 
 const exampleActions = [
 	{
@@ -151,139 +130,53 @@ const markdownComponents: Partial<Components> = {
 	ol: ({ children }) => <ol className="mb-2 list-decimal pl-5 last:mb-0">{children}</ol>,
 };
 
-function addToolResultToMessages(
-	messages: readonly HomeChatMessage[],
-	toolUseId: string | undefined,
-	content: string | null | undefined,
-	isError: boolean | undefined
-): HomeChatMessage[] {
-	if (!toolUseId) return [...messages];
+const runStateLabels: Record<AssistantRunState, string> = {
+	idle: 'Ready',
+	thinking: 'Thinking',
+	reasoning: 'Reasoning',
+	using_tools: 'Using tools',
+	waiting_for_approval: 'Needs approval',
+	answering: 'Answering',
+	completed: 'Completed',
+	cancelled: 'Cancelled',
+	error: 'Error',
+};
 
-	for (let index = messages.length - 1; index >= 0; index--) {
-		const message = messages[index];
-		if (message?.role !== 'assistant' || message.type !== 'text') continue;
-		if (!message.tools?.some((tool) => tool.toolCallId === toolUseId)) continue;
-
-		const nextMessage: HomeTextMessage = {
-			...message,
-			tools: updateAssistantToolPart(message.tools ?? [], toolUseId, {
-				state: isError ? 'output-error' : 'output-available',
-				output: content ?? '',
-				outputText: content ?? '',
-				errorText: isError ? (content ?? 'Tool call failed.') : undefined,
-			}),
-		};
-
-		return messages.map((current, currentIndex) =>
-			currentIndex === index ? nextMessage : current
-		);
-	}
-
-	return [...messages];
+function messageId(prefix: string): string {
+	return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function historyToChatMessages(history: AssistantHistoryMessage[]): HomeChatMessage[] {
-	const out: HomeChatMessage[] = [];
-	history.forEach((message, index) => {
-		if (message.role === 'tool') {
-			const next = addToolResultToMessages(out, message.toolUseId, message.content, message.isError);
-			out.splice(0, out.length, ...next);
-			return;
-		}
-
-		if (message.role !== 'user' && message.role !== 'assistant') return;
-		const content = typeof message.content === 'string' ? message.content : '';
-		const tools =
-			message.role === 'assistant'
-				? (message.contentBlocks ?? [])
-						.map(assistantToolPartFromHistoryBlock)
-						.filter((tool): tool is AssistantToolPart => Boolean(tool))
-				: [];
-
-		if (content.length === 0 && tools.length === 0) return;
-		out.push({
-			id: `${message.role}-history-${index}`,
-			role: message.role,
-			type: 'text',
-			content,
-			...(message.role === 'assistant' && tools.length > 0 ? { tools } : {}),
-		});
-	});
-	return out;
+function getAssistantApi(): Window['assistant'] | undefined {
+	return (window as WindowWithOptionalAssistant).assistant;
 }
 
-function pendingToMultiSelectMessage(
-	approvals: AssistantPendingApproval[],
-	inputs: AssistantPendingInput[]
-): HomeMultiSelectMessage {
-	const options: HomeMultiSelectOption[] = [
-		...approvals.map((approval) => ({
-			id: `approval:${approval.id}:allow-once`,
-			kind: 'approval' as const,
-			label: `${approval.toolName}: Allow once`,
-			description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
-			approvalId: approval.id,
-			decision: 'allow-once' as const,
-		})),
-		...approvals
-			.filter((approval) => approval.allowedDecisions.includes('allow-always'))
-			.map((approval) => ({
-				id: `approval:${approval.id}:allow-always`,
-				kind: 'approval' as const,
-				label: `${approval.toolName}: Allow always`,
-				description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
-				approvalId: approval.id,
-				decision: 'allow-always' as const,
-			})),
-		...approvals.map((approval) => ({
-			id: `approval:${approval.id}:deny`,
-			kind: 'approval' as const,
-			label: `${approval.toolName}: Deny`,
-			description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
-			approvalId: approval.id,
-			decision: 'deny' as const,
-		})),
-		...inputs.map((input) => ({
-			id: `input:${input.id}`,
-			kind: 'input' as const,
-			label: 'ask_human',
-			description:
-				input.question +
-				(input.suggestions ? `\nSuggestions: ${input.suggestions.join(' | ')}` : ''),
-			inputId: input.id,
-		})),
-	];
-
-	return {
-		id: `assistant-pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-		role: 'assistant',
-		type: 'multi-select',
-		prompt: 'The assistant needs you to confirm or answer the following:',
-		options,
-	};
+function inputAnswerKey(messageId: string, inputId: string): string {
+	return `${messageId}:${inputId}`;
 }
 
-function removeMultiSelectMessages(messages: readonly HomeChatMessage[]): HomeChatMessage[] {
-	return messages.filter((message) => message.type !== 'multi-select');
+function isRunningState(state: AssistantRunState): boolean {
+	return (
+		state === 'thinking' ||
+		state === 'reasoning' ||
+		state === 'using_tools' ||
+		state === 'waiting_for_approval' ||
+		state === 'answering'
+	);
 }
 
-function defaultPendingSelections(message: HomeMultiSelectMessage): string[] {
-	const selections: string[] = [];
-	const seenApprovals = new Set<string>();
+function stateTone(state: AssistantRunState): string {
+	if (state === 'error') return 'bg-destructive/10 text-destructive';
+	if (state === 'cancelled') return 'bg-muted text-muted-foreground';
+	if (state === 'completed') return 'bg-success/10 text-success';
+	if (state === 'waiting_for_approval') return 'bg-warning/10 text-warning';
+	return 'bg-info/10 text-info';
+}
 
-	for (const option of message.options) {
-		if (
-			option.kind === 'approval' &&
-			option.approvalId &&
-			option.decision === 'deny' &&
-			!seenApprovals.has(option.approvalId)
-		) {
-			selections.push(option.id);
-			seenApprovals.add(option.approvalId);
-		}
-	}
-
-	return selections;
+function reasoningTone(state: ReasoningPart['state']): string {
+	if (state === 'error') return 'bg-destructive';
+	if (state === 'completed') return 'bg-success';
+	if (state === 'running') return 'bg-info';
+	return 'bg-muted-foreground/50';
 }
 
 function AssistantLabel(): ReactElement {
@@ -400,14 +293,135 @@ function UserMessage({ content }: { readonly content: string }): ReactElement {
 	);
 }
 
+function ReasoningList({
+	reasoning,
+	isStreaming,
+}: {
+	readonly reasoning: readonly ReasoningPart[];
+	readonly isStreaming: boolean;
+}): ReactElement | null {
+	if (reasoning.length === 0) return null;
+
+	return (
+		<Reasoning isStreaming={isStreaming} className="gap-2">
+			<ReasoningTrigger className="font-semibold">Reasoning</ReasoningTrigger>
+			<ReasoningContent>
+				<div className="flex flex-col gap-2 pt-1">
+					{reasoning.map((part) => (
+						<div key={part.id} className="flex gap-2">
+							<span
+								className={cn('mt-1.5 size-1.5 shrink-0 rounded-full', reasoningTone(part.state))}
+								aria-hidden
+							/>
+							<div className="min-w-0 flex-1">
+								<p className="truncate text-xs font-semibold text-foreground">{part.title}</p>
+								<p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+									{part.summary}
+								</p>
+							</div>
+						</div>
+					))}
+				</div>
+			</ReasoningContent>
+		</Reasoning>
+	);
+}
+
+function AssistantToolActivity({
+	tools,
+}: {
+	readonly tools: readonly AssistantToolPart[];
+}): ReactElement | null {
+	if (tools.length === 0) return null;
+	const hasRunning = tools.some(
+		(tool) => tool.state === 'input-streaming' || tool.state === 'input-available'
+	);
+	const hasError = tools.some((tool) => tool.state === 'output-error');
+
+	return (
+		<Steps defaultOpen={hasRunning || hasError}>
+			<StepsTrigger leftIcon={<ListChecks className="size-3.5" />}>
+				{hasRunning ? 'Tool activity' : `${tools.length} tool call${tools.length === 1 ? '' : 's'}`}
+			</StepsTrigger>
+			<StepsContent>
+				{tools.map((tool) => (
+					<StepsItem key={tool.toolCallId}>
+						<span
+							className={cn(
+								'mt-3 size-2 shrink-0 rounded-full',
+								tool.state === 'output-error'
+									? 'bg-destructive'
+									: tool.state === 'output-available'
+										? 'bg-success'
+										: 'bg-info'
+							)}
+							aria-hidden
+						/>
+						<Tool
+							toolPart={tool}
+							defaultOpen={tool.state !== 'output-available'}
+							className="min-w-0 flex-1"
+						/>
+					</StepsItem>
+				))}
+			</StepsContent>
+		</Steps>
+	);
+}
+
+function AssistantActivityPanel({
+	message,
+	isStreaming,
+}: {
+	readonly message: AssistantMessage;
+	readonly isStreaming: boolean;
+}): ReactElement | null {
+	const showActivity =
+		message.state !== 'idle' ||
+		message.reasoning.length > 0 ||
+		message.tools.length > 0 ||
+		Boolean(message.errorText);
+	if (!showActivity) return null;
+
+	return (
+		<MessageContent className="flex w-full flex-col gap-3 rounded-2xl px-4 py-3 shadow-sm">
+			<div className="flex items-center gap-2">
+				<span
+					className={cn(
+						'inline-flex min-h-6 items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold',
+						stateTone(message.state)
+					)}
+				>
+					{isStreaming && isRunningState(message.state) ? (
+						<Loader variant="typing" size="sm" />
+					) : (
+						<span className="size-1.5 rounded-full bg-current" aria-hidden />
+					)}
+					{runStateLabels[message.state]}
+				</span>
+				{message.runId && (
+					<span className="truncate font-mono text-[11px] text-muted-foreground">
+						{message.runId}
+					</span>
+				)}
+			</div>
+			<ReasoningList reasoning={message.reasoning} isStreaming={isStreaming} />
+			<AssistantToolActivity tools={message.tools} />
+			{message.errorText && (
+				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
+					{message.errorText}
+				</p>
+			)}
+		</MessageContent>
+	);
+}
+
 function AssistantTextMessage({
-	content,
-	tools = [],
+	message,
 	isStreaming = false,
 	onCopy,
 }: {
-	readonly content: string;
-	readonly tools?: readonly AssistantToolPart[];
+	readonly message: AssistantMessage;
 	readonly isStreaming?: boolean;
 	readonly onCopy: () => void;
 }): ReactElement {
@@ -416,18 +430,18 @@ function AssistantTextMessage({
 			<AssistantLabel />
 			<div className="group/message flex max-w-full items-start gap-2">
 				<div className="flex min-w-0 flex-1 flex-col gap-2">
-					{tools.length > 0 && <AssistantToolActivity tools={tools} isStreaming={isStreaming} />}
-					{content.length > 0 && (
+					<AssistantActivityPanel message={message} isStreaming={isStreaming} />
+					{message.content.length > 0 && (
 						<MessageContent
 							markdown
 							components={markdownComponents}
 							className="rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm"
 						>
-							{content}
+							{message.content}
 						</MessageContent>
 					)}
 				</div>
-				{content.length > 0 && (
+				{message.content.length > 0 && (
 					<MessageActions className="pt-1">
 						<MessageAction tooltip="Copy message">
 							<Button
@@ -448,56 +462,18 @@ function AssistantTextMessage({
 	);
 }
 
-function AssistantToolActivity({
-	tools,
-	isStreaming,
-}: {
-	readonly tools: readonly AssistantToolPart[];
-	readonly isStreaming: boolean;
-}): ReactElement {
-	const running = tools.some(
-		(tool) => tool.state === 'input-streaming' || tool.state === 'input-available'
-	);
-
-	return (
-		<MessageContent className="w-full rounded-2xl px-4 py-3 shadow-sm">
-			<Steps defaultOpen>
-				<StepsTrigger leftIcon={<ListChecks className="size-3.5" />}>
-					{running ? 'Assistant activity' : `${tools.length} tool call${tools.length === 1 ? '' : 's'}`}
-				</StepsTrigger>
-				<StepsContent>
-					{tools.map((tool) => (
-						<StepsItem key={tool.toolCallId}>
-							<span
-								className={cn(
-									'mt-3 size-2 shrink-0 rounded-full',
-									tool.state === 'output-error' ? 'bg-destructive' : 'bg-muted-foreground/50'
-								)}
-								aria-hidden
-							/>
-							<Tool
-								toolPart={tool}
-								defaultOpen={isStreaming && tool.state !== 'output-available'}
-								className="min-w-0 flex-1"
-							/>
-						</StepsItem>
-					))}
-				</StepsContent>
-			</Steps>
-		</MessageContent>
-	);
-}
-
 function PendingMessage({
 	message,
 	selectedOptions,
-	onToggleOption,
+	inputAnswers,
+	onInputAnswerChange,
 	onSelectApprovalOption,
 	onSubmit,
 }: {
 	readonly message: HomeMultiSelectMessage;
 	readonly selectedOptions: readonly string[];
-	readonly onToggleOption: (messageId: string, optionId: string) => void;
+	readonly inputAnswers: Record<string, string>;
+	readonly onInputAnswerChange: (messageId: string, inputId: string, value: string) => void;
 	readonly onSelectApprovalOption: (
 		messageId: string,
 		approvalId: string,
@@ -505,6 +481,14 @@ function PendingMessage({
 	) => void;
 	readonly onSubmit: (message: HomeMultiSelectMessage) => void;
 }): ReactElement {
+	const approvalOptions = message.options.filter((option) => option.kind === 'approval');
+	const inputOptions = message.options.filter((option) => option.kind === 'input');
+	const hasMissingInput = inputOptions.some(
+		(option) =>
+			option.inputId &&
+			(inputAnswers[inputAnswerKey(message.id, option.inputId)] ?? '').trim().length === 0
+	);
+
 	return (
 		<Message className="max-w-2xl flex-col gap-3">
 			<AssistantLabel />
@@ -514,53 +498,70 @@ function PendingMessage({
 				aria-label={message.prompt}
 			>
 				<p className="text-sm font-semibold text-foreground">{message.prompt}</p>
-				<div
-					className="flex flex-col gap-2"
-					role={
-						message.options.some((option) => option.kind === 'approval') ? 'radiogroup' : 'group'
-					}
-				>
-					{message.options.map((option) => {
-						const isSelected = selectedOptions.includes(option.id);
-						const handleChange = (): void => {
-							if (option.kind === 'approval' && option.approvalId) {
-								onSelectApprovalOption(message.id, option.approvalId, option.id);
-								return;
-							}
-							onToggleOption(message.id, option.id);
-						};
+				{approvalOptions.length > 0 && (
+					<div className="flex flex-col gap-2" role="radiogroup">
+						{approvalOptions.map((option) => {
+							const isSelected = selectedOptions.includes(option.id);
+							const handleChange = (): void => {
+								if (option.approvalId) {
+									onSelectApprovalOption(message.id, option.approvalId, option.id);
+								}
+							};
 
-						return (
-							<Button
-								key={option.id}
-								type="button"
-								variant={isSelected ? 'secondary' : 'outline'}
-								size="lg"
-								role={option.kind === 'approval' ? 'radio' : 'checkbox'}
-								aria-checked={isSelected}
-								onClick={handleChange}
-								className="h-auto w-full justify-start gap-3 whitespace-normal rounded-xl px-3 py-3 text-left"
-							>
-								<span
-									className={cn(
-										'mt-0.5 flex size-4 shrink-0 items-center justify-center border border-current',
-										option.kind === 'approval' ? 'rounded-full' : 'rounded-sm'
-									)}
-									aria-hidden
+							return (
+								<Button
+									key={option.id}
+									type="button"
+									variant={isSelected ? 'secondary' : 'outline'}
+									size="lg"
+									role="radio"
+									aria-checked={isSelected}
+									onClick={handleChange}
+									className="h-auto w-full justify-start gap-3 whitespace-normal rounded-xl px-3 py-3 text-left"
 								>
-									{isSelected && <span className="size-1.5 rounded-full bg-current" />}
-								</span>
-								<span className="min-w-0 flex-1">
-									<span className="block text-sm font-semibold leading-snug">{option.label}</span>
-									<span className="mt-1 block break-words text-xs leading-normal text-muted-foreground">
-										{option.description}
+									<span
+										className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-current"
+										aria-hidden
+									>
+										{isSelected && <span className="size-1.5 rounded-full bg-current" />}
 									</span>
-								</span>
-							</Button>
-						);
-					})}
-				</div>
-				<Button type="button" size="sm" className="self-start rounded-xl" onClick={() => onSubmit(message)}>
+									<span className="min-w-0 flex-1">
+										<span className="block text-sm font-semibold leading-snug">{option.label}</span>
+										<span className="mt-1 block break-words text-xs leading-normal text-muted-foreground">
+											{option.description}
+										</span>
+									</span>
+								</Button>
+							);
+						})}
+					</div>
+				)}
+				{inputOptions.map((option) => {
+					if (!option.inputId) return null;
+					const key = inputAnswerKey(message.id, option.inputId);
+					return (
+						<label key={option.id} className="flex flex-col gap-2">
+							<span className="text-sm font-semibold leading-snug">{option.label}</span>
+							<span className="whitespace-pre-wrap text-xs leading-normal text-muted-foreground">
+								{option.description}
+							</span>
+							<Textarea
+								value={inputAnswers[key] ?? ''}
+								onChange={(event) =>
+									onInputAnswerChange(message.id, option.inputId!, event.currentTarget.value)
+								}
+								className="min-h-20 resize-none rounded-xl"
+							/>
+						</label>
+					);
+				})}
+				<Button
+					type="button"
+					size="sm"
+					className="self-start rounded-xl"
+					disabled={hasMissingInput}
+					onClick={() => onSubmit(message)}
+				>
 					Confirm
 				</Button>
 			</MessageContent>
@@ -568,101 +569,236 @@ function PendingMessage({
 	);
 }
 
-function TypingIndicator(): ReactElement {
-	return (
-		<Message className="max-w-2xl flex-col gap-2">
-			<AssistantLabel />
-			<div className="flex items-center gap-3 text-muted-foreground">
-				<MessageContent className="rounded-full px-4 py-3">
-					<Loader variant="typing" size="sm" />
-				</MessageContent>
-				<span className="text-sm font-medium">Thinking</span>
-			</div>
-		</Message>
-	);
-}
-
 function Composer({
 	value,
 	isLoading,
+	canReset,
 	inputRef,
 	onValueChange,
 	onSubmit,
+	onReset,
 	onVoiceModeRequest,
 }: {
 	readonly value: string;
 	readonly isLoading: boolean;
+	readonly canReset: boolean;
 	readonly inputRef: RefObject<HTMLTextAreaElement | null>;
 	readonly onValueChange: (value: string) => void;
 	readonly onSubmit: () => void;
+	readonly onReset: () => void;
 	readonly onVoiceModeRequest: () => void;
 }): ReactElement {
+	const [isExpanded, setIsExpanded] = useState(false);
+	const prefersReducedMotion = useReducedMotion();
+	const canSubmit = value.trim().length > 0;
+	const canSend = isLoading || canSubmit;
+	const composerTransition = prefersReducedMotion
+		? { duration: 0 }
+		: { type: 'spring' as const, stiffness: 420, damping: 36, mass: 0.75 };
+
+	useLayoutEffect(() => {
+		const textarea = inputRef.current;
+		if (!textarea || value.length === 0) {
+			setIsExpanded(false);
+			return;
+		}
+
+		setIsExpanded(value.includes('\n') || textarea.scrollHeight > 52);
+	}, [inputRef, value]);
+
+	const submitActionLabel = isLoading
+		? 'Stop generation'
+		: canSubmit
+			? 'Send message'
+			: 'Start voice conversation';
+	const submitActionIcon = isLoading ? (
+		<Square className="size-5 fill-current" />
+	) : canSubmit ? (
+		<ArrowUp className="size-5" />
+	) : (
+		<AudioLines className="size-5" />
+	);
+	const handlePrimaryAction = (): void => {
+		if (isLoading || canSubmit) {
+			onSubmit();
+			return;
+		}
+
+		onVoiceModeRequest();
+	};
+	const attachmentButton = (
+		<PromptInputAction tooltip="Add attachment">
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon"
+				className="size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+				aria-label="Add attachment"
+			>
+				<Plus className="size-6" />
+			</Button>
+		</PromptInputAction>
+	);
+
 	return (
 		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-8">
-			<PromptInput
-				value={value}
-				onValueChange={onValueChange}
-				isLoading={isLoading}
-				onSubmit={onSubmit}
-				textareaRef={inputRef}
-				className="w-full max-w-(--breakpoint-md)"
+			<motion.div
+				layout
+				transition={composerTransition}
+				className="mx-auto w-full max-w-[96rem]"
 			>
-				<PromptInputTextarea placeholder="Ask me anything..." aria-label="Message Friday" />
-				<PromptInputActions className="justify-end gap-2 pt-2">
-					<PromptInputAction tooltip="Voice assistant">
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-							aria-label="Switch to voice"
-							onClick={onVoiceModeRequest}
-						>
-							<Mic className="size-4" />
-						</Button>
-					</PromptInputAction>
-					<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
-						<Button
-							type="button"
-							variant="default"
-							size="icon"
-							className="h-8 w-8 rounded-full"
-							aria-label={isLoading ? 'Stop generation' : 'Send message'}
-							onClick={onSubmit}
-						>
-							{isLoading ? (
-								<Square className="size-5 fill-current" />
-							) : (
-								<ArrowUp className="size-5" />
+				<PromptInput
+					value={value}
+					onValueChange={onValueChange}
+					isLoading={isLoading}
+					maxHeight={360}
+					onSubmit={onSubmit}
+					textareaRef={inputRef}
+					className={cn(
+						'w-full border-border/70 bg-card/95 text-foreground shadow-xl shadow-foreground/5 transition-[border-radius,min-height,padding] duration-150 focus-within:ring-2 focus-within:ring-ring/25',
+						isExpanded
+							? 'flex max-h-[min(52vh,34rem)] min-h-44 flex-col rounded-[2rem] px-6 py-5'
+							: 'flex min-h-16 items-center gap-3 rounded-full px-4 py-2'
+					)}
+				>
+					<AnimatePresence initial={false}>
+						{!isExpanded && (
+							<motion.div
+								key="compact-attachment"
+								layout
+								initial={{ opacity: 0, scale: 0.92 }}
+								animate={{ opacity: 1, scale: 1 }}
+								exit={{ opacity: 0, scale: 0.92 }}
+								transition={composerTransition}
+								className="shrink-0"
+							>
+								{attachmentButton}
+							</motion.div>
+						)}
+					</AnimatePresence>
+					<motion.div
+						layout
+						transition={composerTransition}
+						className={cn(isExpanded ? 'min-h-0 flex-1' : 'min-w-0 flex-1')}
+					>
+						<PromptInputTextarea
+							placeholder="Ask anything"
+							aria-label="Message Friday"
+							className={cn(
+								'appearance-none !border-0 bg-transparent px-0 text-base leading-7 text-foreground !shadow-none !outline-none placeholder:text-muted-foreground focus:!border-transparent focus:!outline-none focus:!ring-0 focus-visible:!border-transparent focus-visible:!outline-none focus-visible:!ring-0 md:text-base',
+								isExpanded
+									? 'max-h-[38vh] min-h-28 overflow-y-auto py-0'
+									: 'h-9 min-h-9 overflow-hidden py-1'
 							)}
-						</Button>
-					</PromptInputAction>
-				</PromptInputActions>
-			</PromptInput>
+						/>
+					</motion.div>
+					<motion.div
+						layout
+						transition={composerTransition}
+						className={cn(
+							isExpanded
+								? 'mt-4 flex items-center justify-between gap-3'
+								: 'flex shrink-0 items-center gap-2'
+						)}
+					>
+						<AnimatePresence initial={false}>
+							{isExpanded && (
+								<motion.div
+									key="expanded-attachment"
+									layout
+									initial={{ opacity: 0, scale: 0.92 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.92 }}
+									transition={composerTransition}
+									className="shrink-0"
+								>
+									{attachmentButton}
+								</motion.div>
+							)}
+						</AnimatePresence>
+						<PromptInputActions className="justify-end gap-2">
+							<PromptInputAction tooltip="Reset conversation">
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className={cn(
+										'size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground',
+										!canReset && 'hidden'
+									)}
+									aria-label="Reset conversation"
+									disabled={!canReset}
+									onClick={onReset}
+								>
+									<RotateCcw className="size-4" />
+								</Button>
+							</PromptInputAction>
+							<PromptInputAction tooltip="Reasoning mode">
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									className="hidden h-10 rounded-full px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex"
+									aria-label="Reasoning mode: Thinking"
+								>
+									<span>Thinking</span>
+									<ChevronDown className="size-4" />
+								</Button>
+							</PromptInputAction>
+							<PromptInputAction tooltip="Voice assistant">
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="size-10 rounded-full text-foreground hover:bg-muted"
+									aria-label="Switch to voice"
+									onClick={onVoiceModeRequest}
+								>
+									<Mic className="size-5" />
+								</Button>
+							</PromptInputAction>
+							<PromptInputAction tooltip={submitActionLabel}>
+								<Button
+									type="button"
+									variant="default"
+									size="icon"
+									className="size-11 rounded-full bg-foreground text-background hover:bg-foreground/90"
+									aria-label={submitActionLabel}
+									disabled={!canSend}
+									onClick={handlePrimaryAction}
+								>
+									{submitActionIcon}
+								</Button>
+							</PromptInputAction>
+						</PromptInputActions>
+					</motion.div>
+				</PromptInput>
+			</motion.div>
 		</div>
 	);
 }
 
 function HomeChatSurface({
 	messages,
+	activeAssistantId,
 	selectedOptions,
+	pendingInputAnswers,
 	input,
 	isLoading,
 	historyLoading,
-	streamText,
-	streamTools,
-	streamStarted,
 	inputRef,
 	onInputChange,
 	onSubmit,
+	onReset,
 	onCopyMessage,
-	onToggleOption,
 	onSelectApprovalOption,
+	onPendingInputChange,
 	onSubmitPending,
 	onUseSuggestion,
 	onVoiceModeRequest,
 }: HomeChatSurfaceProps): ReactElement {
 	const showReferenceConversation = messages.length <= 1 && !isLoading && !historyLoading;
+	const canReset = messages.length > 1 || isLoading;
 
 	return (
 		<div className="relative flex min-h-0 flex-1 flex-col bg-background text-foreground">
@@ -688,7 +824,8 @@ function HomeChatSurface({
 											key={message.id}
 											message={message}
 											selectedOptions={selectedOptions[message.id] ?? []}
-											onToggleOption={onToggleOption}
+											inputAnswers={pendingInputAnswers}
+											onInputAnswerChange={onPendingInputChange}
 											onSelectApprovalOption={onSelectApprovalOption}
 											onSubmit={onSubmitPending}
 										/>
@@ -698,21 +835,12 @@ function HomeChatSurface({
 								return (
 									<AssistantTextMessage
 										key={message.id}
-										content={message.content}
-										tools={message.tools}
+										message={message}
+										isStreaming={isLoading && message.id === activeAssistantId}
 										onCopy={() => onCopyMessage(message.content)}
 									/>
 								);
 							})}
-							{isLoading && streamStarted && (streamText.length > 0 || streamTools.length > 0) && (
-								<AssistantTextMessage
-									content={streamText}
-									tools={streamTools}
-									isStreaming
-									onCopy={() => onCopyMessage(streamText)}
-								/>
-							)}
-							{isLoading && !streamStarted && <TypingIndicator />}
 						</>
 					)}
 					<ChatContainerScrollAnchor />
@@ -728,15 +856,16 @@ function HomeChatSurface({
 			<Composer
 				value={input}
 				isLoading={isLoading}
+				canReset={canReset}
 				inputRef={inputRef}
 				onValueChange={onInputChange}
 				onSubmit={onSubmit}
+				onReset={onReset}
 				onVoiceModeRequest={onVoiceModeRequest}
 			/>
 		</div>
 	);
 }
-
 
 function HomeVoiceSurface({ onSwitchToTyping }: { readonly onSwitchToTyping: () => void }): ReactElement {
 	return (
@@ -773,18 +902,17 @@ function HomeVoiceSurface({ onSwitchToTyping }: { readonly onSwitchToTyping: () 
 
 function HomePage(): ReactElement {
 	const { mode, setMode } = useChatMode();
-	const [messages, setMessages] = useState<readonly HomeChatMessage[]>(initialMessages);
+	const [chatState, dispatchChat] = useReducer(
+		assistantChatReducer,
+		initialAssistantChatState
+	);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
-	const [streamText, setStreamText] = useState('');
-	const [streamTools, setStreamTools] = useState<readonly AssistantToolPart[]>([]);
-	const [streamStarted, setStreamStarted] = useState(false);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
+	const [pendingInputAnswers, setPendingInputAnswers] = useState<Record<string, string>>({});
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
-	const activeRunIdRef = useRef<string | null>(null);
-	const streamToolsRef = useRef<readonly AssistantToolPart[]>([]);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
 	const focusInput = useCallback((): void => {
@@ -808,15 +936,16 @@ function HomePage(): ReactElement {
 	useEffect(() => {
 		let cancelled = false;
 		void (async () => {
+			const assistant = getAssistantApi();
+			if (!assistant) {
+				setHistoryLoading(false);
+				return;
+			}
 			try {
-				const history = await window.assistant.getHistory();
-				if (cancelled) return;
-				const restored = historyToChatMessages(history);
-				if (restored.length > 0) {
-					setMessages([welcomeMessage, ...restored]);
-				}
+				const history = await assistant.getHistory();
+				if (!cancelled) dispatchChat({ type: 'restore_history', history });
 			} catch {
-				// Keep the reference-ready empty chat state.
+				if (!cancelled) dispatchChat({ type: 'restore_history', history: [] });
 			} finally {
 				if (!cancelled) setHistoryLoading(false);
 			}
@@ -829,13 +958,9 @@ function HomePage(): ReactElement {
 	const stopResponse = (): void => {
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
-		activeRunIdRef.current = null;
-		setStreamText('');
-		streamToolsRef.current = [];
-		setStreamTools([]);
-		setStreamStarted(false);
 		setIsLoading(false);
-		void window.assistant.cancel();
+		dispatchChat({ type: 'cancel_active' });
+		void getAssistantApi()?.cancel();
 	};
 
 	const sendPrompt = async (prompt: string): Promise<void> => {
@@ -845,53 +970,45 @@ function HomePage(): ReactElement {
 		const requestId = requestIdRef.current + 1;
 		requestIdRef.current = requestId;
 		requestActiveRef.current = true;
-		activeRunIdRef.current = null;
 
 		setInput('');
-		setStreamText('');
-		streamToolsRef.current = [];
-		setStreamTools([]);
 		setIsLoading(true);
-		setStreamStarted(false);
-		setMessages((current) => [
-			...removeMultiSelectMessages(current),
-			createTextMessage('user', trimmed),
-		]);
+		dispatchChat({
+			type: 'submit_user_message',
+			userMessageId: messageId('user'),
+			assistantMessageId: messageId('assistant'),
+			content: trimmed,
+		});
+
+		const assistant = getAssistantApi();
+		if (!assistant) {
+			requestActiveRef.current = false;
+			setIsLoading(false);
+			dispatchChat({ type: 'error_active', errorText: 'Assistant API is unavailable.' });
+			return;
+		}
 
 		try {
-			const response = await window.assistant.send(trimmed);
+			const response = await assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
 			requestActiveRef.current = false;
-			activeRunIdRef.current = null;
-			setStreamText('');
-			const tools = streamToolsRef.current;
-			streamToolsRef.current = [];
-			setStreamTools([]);
-			setStreamStarted(false);
 			setIsLoading(false);
-			if (response.trim().length > 0 || tools.length > 0) {
-				setMessages((current) => [...current, createTextMessage('assistant', response, tools)]);
-			}
+			dispatchChat({ type: 'complete_active', response });
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
 			requestActiveRef.current = false;
-			activeRunIdRef.current = null;
-			setStreamText('');
-			streamToolsRef.current = [];
-			setStreamTools([]);
-			setStreamStarted(false);
 			setIsLoading(false);
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
-			setMessages((current) => [...current, createTextMessage('assistant', message)]);
+			dispatchChat({ type: 'error_active', errorText: message });
 		}
 	};
 
 	useEffect(() => {
-		const offPending = window.assistant.onPending((event: AssistantPendingEventPayload) => {
-			const pendingMessage =
-				event.approvals.length === 0 && event.inputs.length === 0
-					? null
-					: pendingToMultiSelectMessage(event.approvals, event.inputs);
+		const assistant = getAssistantApi();
+		if (!assistant) return;
+
+		const offPending = assistant.onPending((event: AssistantPendingEventPayload) => {
+			const pendingMessage = pendingToMultiSelectMessage(event, Date.now());
 
 			if (pendingMessage) {
 				setSelectedOptions((current) => ({
@@ -900,31 +1017,12 @@ function HomePage(): ReactElement {
 				}));
 			}
 
-			setMessages((current) => {
-				const cleaned = removeMultiSelectMessages(current);
-				if (!pendingMessage) return cleaned;
-				return [...cleaned, pendingMessage];
-			});
+			dispatchChat({ type: 'set_pending_message', message: pendingMessage });
 		});
 
-		const offResponse = window.assistant.onResponse((event: AssistantResponseEvent) => {
+		const offResponse = assistant.onResponse((event: AssistantResponseEvent) => {
 			if (!requestActiveRef.current) return;
-			if (activeRunIdRef.current && activeRunIdRef.current !== event.runId) return;
-			activeRunIdRef.current = event.runId;
-
-			if (event.type === 'text_delta') {
-				if (!event.delta) return;
-				setStreamText((current) => current + event.delta);
-				setStreamStarted(true);
-				return;
-			}
-
-			const nextTools = applyAssistantResponseEventToTools(streamToolsRef.current, event);
-			if (!nextTools) return;
-
-			streamToolsRef.current = nextTools;
-			setStreamTools(streamToolsRef.current);
-			setStreamStarted(true);
+			dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 		});
 
 		return () => {
@@ -941,18 +1039,22 @@ function HomePage(): ReactElement {
 		void sendPrompt(input);
 	};
 
-	const copyMessage = (content: string): void => {
-		void navigator.clipboard?.writeText(content);
+	const resetChat = (): void => {
+		requestIdRef.current += 1;
+		requestActiveRef.current = false;
+		setInput('');
+		setIsLoading(false);
+		setSelectedOptions({});
+		setPendingInputAnswers({});
+		dispatchChat({ type: 'reset' });
+		void getAssistantApi()?.reset().catch((error: unknown) => {
+			const message = error instanceof Error ? error.message : 'Reset failed.';
+			dispatchChat({ type: 'error_active', errorText: message });
+		});
 	};
 
-	const toggleOption = (messageId: string, optionId: string): void => {
-		setSelectedOptions((current) => {
-			const selected = current[messageId] ?? [];
-			const next = selected.includes(optionId)
-				? selected.filter((id) => id !== optionId)
-				: [...selected, optionId];
-			return { ...current, [messageId]: next };
-		});
+	const copyMessage = (content: string): void => {
+		void navigator.clipboard?.writeText(content);
 	};
 
 	const selectApprovalOption = (messageId: string, approvalId: string, optionId: string): void => {
@@ -966,51 +1068,64 @@ function HomePage(): ReactElement {
 		});
 	};
 
+	const updatePendingInputAnswer = (messageId: string, inputId: string, value: string): void => {
+		setPendingInputAnswers((current) => ({
+			...current,
+			[inputAnswerKey(messageId, inputId)]: value,
+		}));
+	};
+
 	const submitMultiSelect = async (message: HomeMultiSelectMessage): Promise<void> => {
 		const selected = new Set(selectedOptions[message.id] ?? []);
 
 		try {
+			const assistant = getAssistantApi();
+			if (!assistant) throw new Error('Assistant API is unavailable.');
 			const approvals = new Map<string, ApprovalDecision>();
+			const inputLabels: string[] = [];
 
 			for (const option of message.options) {
 				if (option.kind === 'approval' && option.approvalId) {
 					if (!approvals.has(option.approvalId)) approvals.set(option.approvalId, 'deny');
-					if (selected.has(option.id)) {
-						approvals.set(option.approvalId, option.decision ?? 'deny');
-					}
+					if (selected.has(option.id)) approvals.set(option.approvalId, option.decision ?? 'deny');
 				} else if (option.kind === 'input' && option.inputId) {
-					await window.assistant.resolveInput(option.inputId, '');
+					const answer = pendingInputAnswers[inputAnswerKey(message.id, option.inputId)] ?? '';
+					await assistant.resolveInput(option.inputId, answer);
+					inputLabels.push(option.label);
 				}
 			}
 
 			for (const [id, decision] of approvals) {
-				await window.assistant.resolveApproval(id, decision);
+				await assistant.resolveApproval(id, decision);
 			}
 
 			const selectedLabels = message.options
 				.filter((option) => selected.has(option.id))
 				.map((option) => option.label);
+			const labels = [...selectedLabels, ...inputLabels];
 
-			setMessages((current) => [
-				...removeMultiSelectMessages(current),
-				createTextMessage(
-					'user',
-					selectedLabels.length > 0
-						? `Selected: ${selectedLabels.join(', ')}`
-						: 'No actions selected.'
-				),
-			]);
+			dispatchChat({
+				type: 'append_user_message',
+				messageId: messageId('user'),
+				content: labels.length > 0 ? `Selected: ${labels.join(', ')}` : 'No actions selected.',
+			});
 			setSelectedOptions((current) => {
 				const next = { ...current };
 				delete next[message.id];
 				return next;
 			});
+			setPendingInputAnswers((current) => {
+				const next = { ...current };
+				for (const option of message.options) {
+					if (option.kind === 'input' && option.inputId) {
+						delete next[inputAnswerKey(message.id, option.inputId)];
+					}
+				}
+				return next;
+			});
 		} catch (error) {
 			const messageText = error instanceof Error ? error.message : 'Selection failed.';
-			setMessages((current) => [
-				...removeMultiSelectMessages(current),
-				createTextMessage('assistant', messageText),
-			]);
+			dispatchChat({ type: 'error_active', errorText: messageText });
 		}
 	};
 
@@ -1018,7 +1133,6 @@ function HomePage(): ReactElement {
 		return () => {
 			requestIdRef.current += 1;
 			requestActiveRef.current = false;
-			activeRunIdRef.current = null;
 		};
 	}, []);
 
@@ -1033,27 +1147,26 @@ function HomePage(): ReactElement {
 		return () => window.removeEventListener('keydown', handler);
 	}, [switchToTyping]);
 
-
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			{mode === 'voice' ? (
 				<HomeVoiceSurface onSwitchToTyping={switchToTyping} />
 			) : (
 				<HomeChatSurface
-					messages={messages}
+					messages={chatState.messages}
+					activeAssistantId={chatState.activeAssistantId}
 					selectedOptions={selectedOptions}
+					pendingInputAnswers={pendingInputAnswers}
 					input={input}
 					isLoading={isLoading}
 					historyLoading={historyLoading}
-					streamText={streamText}
-					streamTools={streamTools}
-					streamStarted={streamStarted}
 					inputRef={inputRef}
 					onInputChange={setInput}
 					onSubmit={handleSubmit}
+					onReset={resetChat}
 					onCopyMessage={copyMessage}
-					onToggleOption={toggleOption}
 					onSelectApprovalOption={selectApprovalOption}
+					onPendingInputChange={updatePendingInputAnswer}
 					onSubmitPending={(message) => void submitMultiSelect(message)}
 					onUseSuggestion={useSuggestion}
 					onVoiceModeRequest={() => setMode('voice')}

@@ -24,10 +24,12 @@ describe('assistant tool parts', () => {
 				toolCallId: 'tool-call-1',
 				type: 'search_web',
 				state: 'input-streaming',
+				iteration: 0,
 				input: undefined,
 				inputText: '',
 				output: undefined,
 				outputText: undefined,
+				durationMs: undefined,
 				errorText: undefined,
 			},
 		]);
@@ -69,8 +71,10 @@ describe('assistant tool parts', () => {
 		expect(completed?.[0]).toMatchObject({
 			type: 'search_web',
 			state: 'output-available',
+			iteration: 0,
 			output: { count: 2 },
 			outputText: '{"count":2}',
+			durationMs: 25,
 			errorText: undefined,
 		});
 	});

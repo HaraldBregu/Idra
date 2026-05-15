@@ -13,10 +13,12 @@ import { cn } from '@/lib/utils';
 export type ToolPart = {
 	type: string;
 	state: 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
+	iteration?: number;
 	input?: unknown;
 	inputText?: string;
 	output?: unknown;
 	outputText?: string;
+	durationMs?: number;
 	toolCallId?: string;
 	errorText?: string;
 };
@@ -33,6 +35,11 @@ function formatValue(value: unknown): string {
 	if (typeof value === 'string') return value;
 	if (typeof value === 'object') return JSON.stringify(value, null, 2);
 	return String(value);
+}
+
+function formatDuration(durationMs: number): string {
+	if (durationMs < 1000) return `${Math.max(0, Math.round(durationMs))}ms`;
+	return `${(durationMs / 1000).toFixed(1)}s`;
 }
 
 function stateMeta(state: ToolPart['state']): {
@@ -73,6 +80,10 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 	const meta = stateMeta(toolPart.state);
 	const input = toolPart.input ?? toolPart.inputText;
 	const output = toolPart.output ?? toolPart.outputText;
+	const details = [
+		toolPart.iteration !== undefined ? `Iteration ${toolPart.iteration + 1}` : undefined,
+		toolPart.durationMs !== undefined ? formatDuration(toolPart.durationMs) : undefined,
+	].filter(Boolean);
 
 	return (
 		<Collapsible
@@ -84,7 +95,14 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 				<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
 					{meta.icon}
 				</span>
-				<span className="min-w-0 flex-1 truncate text-sm font-semibold">{toolPart.type}</span>
+				<span className="min-w-0 flex-1">
+					<span className="block truncate text-sm font-semibold">{toolPart.type}</span>
+					{details.length > 0 && (
+						<span className="block truncate text-[11px] font-medium text-muted-foreground">
+							{details.join(' · ')}
+						</span>
+					)}
+				</span>
 				<span
 					className={cn(
 						'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-semibold',
