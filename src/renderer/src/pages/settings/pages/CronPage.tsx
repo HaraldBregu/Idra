@@ -4,14 +4,8 @@ import { CalendarClock, Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import type { CronTaskView } from '../../../../../shared/cron';
-import {
-	SettingsEmptyState,
-	SettingsPageHeader,
-	SettingsPageShell,
-	SettingsPanel,
-	SettingsSection,
-} from '../components';
 
 function formatTimestamp(value: string | undefined): string {
 	if (!value) return '—';
@@ -102,23 +96,39 @@ const CronPage: React.FC = () => {
 	};
 
 	return (
-		<SettingsPageShell>
-			<SettingsPageHeader
-				icon={CalendarClock}
-				title={t('settings.tabs.cron')}
-				description={t('settings.sections.cron')}
-			/>
+		<div className="mx-auto flex w-full max-w-6xl flex-col gap-3 pb-3">
+			<header className="flex flex-wrap items-start justify-between gap-3 pb-1">
+				<div className="min-w-0">
+					<h1 className="text-2xl font-semibold leading-tight tracking-normal">
+						{t('settings.tabs.cron')}
+					</h1>
+					<p className="mt-1 max-w-2xl text-sm leading-snug text-muted-foreground">
+						{t('settings.sections.cron')}
+					</p>
+				</div>
+			</header>
 
-			<SettingsSection title={t('settings.sections.cron')}>
+			<section className="flex flex-col gap-2">
+				<h2 className="px-0.5 text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">
+					{t('settings.sections.cron')}
+				</h2>
+
 				{cronTasks.length === 0 ? (
-					<SettingsPanel>
-						<SettingsEmptyState
-							icon={Clock3}
-							title={t('settings.cron.emptyTitle')}
-							description={t('settings.cron.emptyDescription')}
-							className="min-h-24"
-						/>
-					</SettingsPanel>
+					<Card size="sm" className="gap-0 py-0">
+						<CardContent className="p-0">
+							<Empty className="min-h-24 gap-3 border-0 p-4">
+								<EmptyHeader className="gap-1.5">
+									<EmptyMedia variant="icon" className="mb-1 size-7">
+										<Clock3 className="size-3.5" />
+									</EmptyMedia>
+									<EmptyTitle className="text-[13px]">{t('settings.cron.emptyTitle')}</EmptyTitle>
+									<EmptyDescription className="text-xs leading-snug">
+										{t('settings.cron.emptyDescription')}
+									</EmptyDescription>
+								</EmptyHeader>
+							</Empty>
+						</CardContent>
+					</Card>
 				) : (
 					<div className="grid gap-2">
 						{cronTasks.map((task) => {
@@ -202,8 +212,8 @@ const CronPage: React.FC = () => {
 						})}
 					</div>
 				)}
-			</SettingsSection>
-		</SettingsPageShell>
+			</section>
+		</div>
 	);
 };
 
