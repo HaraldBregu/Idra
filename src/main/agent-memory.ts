@@ -133,6 +133,10 @@ export interface SessionManager {
 	closeSession(sessionId: string): Promise<AgentSession>;
 }
 
+export interface WorkingMemorySessionManager extends SessionManager {
+	setWorkingMemory(sessionId: string, workingMemory: WorkingMemory): Promise<AgentSession>;
+}
+
 export interface LlmPromptMessage {
 	role: 'user' | 'assistant';
 	content: string;
@@ -256,11 +260,15 @@ const STOP_WORDS = new Set([
 	'in',
 	'is',
 	'it',
+	'like',
+	'me',
 	'my',
 	'of',
 	'on',
 	'or',
 	'please',
+	'prefer',
+	'preference',
 	'that',
 	'the',
 	'this',
@@ -298,6 +306,7 @@ function tokenize(value: string): string[] {
 		.replace(/[^a-z0-9]+/g, ' ')
 		.split(' ')
 		.map((token) => token.trim())
+		.map((token) => (token.length > 3 && token.endsWith('s') && !token.endsWith('ss') ? token.slice(0, -1) : token))
 		.filter((token) => token.length > 1 && !STOP_WORDS.has(token));
 }
 
@@ -808,7 +817,7 @@ export class MemoryExtractor {
 	): MemoryItem {
 		const now = nowIso(this.clock);
 		const kind = this.inferKind(content);
-		const tags = unique([kind, ...tokenize(content).slice(0, 8)]);
+		const tags = unique([kind, ...this.inferDomainTags(content), ...tokenize(content).slice(0, 8)]);
 		return {
 			id: this.idGenerator.createId('mem'),
 			userId,
@@ -842,6 +851,21 @@ export class MemoryExtractor {
 		if (/\b(project|repo|codebase|stack|architecture|client)\b/.test(lower)) return 'project_context';
 		if (/\b(last time|yesterday|meeting|call|interaction|session)\b/.test(lower)) return 'episodic';
 		return 'semantic';
+	}
+
+	private inferDomainTags(content: string): string[] {
+		const lower = content.toLowerCase();
+		const tags: string[] = [];
+		if (/\b(typescript|javascript|python|code|function|strict typing|examples?)\b/.test(lower)) {
+			tags.push('code', 'programming');
+		}
+		if (/\b(concise|brief|detailed|step[- ]by[- ]step|answers?|explanations?)\b/.test(lower)) {
+			tags.push('response_style');
+		}
+		if (/\b(test|tests|testing|jest|vitest|unit test)\b/.test(lower)) {
+			tags.push('testing', 'code');
+		}
+		return tags;
 	}
 
 	private looksDurable(content: string): boolean {
@@ -929,8 +953,9 @@ export class MemoryRetriever {
 		const candidates = this.uniqueById([...matches, ...durablePreferences])
 			.filter((item) => !isArchived(item) && !isExpired(item, this.clock))
 			.filter((item) => PRIVACY_RANK[item.privacyLevel] <= PRIVACY_RANK[maxPrivacyLevel])
-			.map((item) => ({ item, score: this.rankMemory(item, input.query) }))
-			.filter(({ score }) => score > 0.2)
+			.map((item) => ({ item, relevance: keywordScore(input.query, memorySearchText(item)) }))
+			.filter(({ item, relevance }) => this.isUsefulForQuery(item, relevance))
+			.map(({ item, relevance }) => ({ item, score: this.rankMemory(item, input.query, relevance) }))
 			.sort((a, b) => b.score - a.score);
 
 		const selected: MemoryItem[] = [];
@@ -945,11 +970,20 @@ export class MemoryRetriever {
 		return selected;
 	}
 
-	private rankMemory(item: MemoryItem, query: string): number {
-		const relevance = keywordScore(query, memorySearchText(item));
+	private rankMemory(item: MemoryItem, query: string, relevance = keywordScore(query, memorySearchText(item))): number {
 		const recency = this.recencyScore(item);
-		const stablePreferenceBonus = ['preference', 'workflow_instruction'].includes(item.kind) ? 0.35 : 0;
-		return relevance * 2.5 + IMPORTANCE_RANK[item.importance] + item.confidence + recency + stablePreferenceBonus;
+		const stablePreferenceBonus = relevance > 0 && ['preference', 'workflow_instruction'].includes(item.kind) ? 0.35 : 0;
+		const globalWorkflowBonus = relevance === 0 && this.isGlobalWorkflowMemory(item) ? 0.5 : 0;
+		return relevance * 2.5 + IMPORTANCE_RANK[item.importance] + item.confidence + recency + stablePreferenceBonus + globalWorkflowBonus;
+	}
+
+	private isUsefulForQuery(item: MemoryItem, relevance: number): boolean {
+		if (relevance > 0) return true;
+		return this.isGlobalWorkflowMemory(item);
+	}
+
+	private isGlobalWorkflowMemory(item: MemoryItem): boolean {
+		return item.kind === 'workflow_instruction' || item.tags.includes('response_style');
 	}
 
 	private recencyScore(item: MemoryItem): number {
@@ -1167,7 +1201,7 @@ export interface MemoryManagedAgentOptions {
 	systemInstructions: string;
 	llmProvider: LlmProvider;
 	memoryStore: MemoryStore;
-	sessionManager: InMemorySessionManager;
+	sessionManager: WorkingMemorySessionManager;
 	memoryRetriever: MemoryRetriever;
 	memoryExtractor: MemoryExtractor;
 	promptBuilder: PromptBuilder;

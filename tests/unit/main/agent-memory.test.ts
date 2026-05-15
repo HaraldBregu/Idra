@@ -91,6 +91,25 @@ describe('agent-memory', () => {
 		expect(memory.longTerm.items[0]?.metadata.previousContent).toBe('I prefer TypeScript examples');
 	});
 
+	it('does not merge unrelated preferences that only share generic wording', async () => {
+		const { agent, memoryStore } = createAgent();
+
+		await agent.respond({
+			userId: 'u1',
+			input: 'Remember that I prefer TypeScript examples.',
+		});
+		await agent.respond({
+			userId: 'u1',
+			input: 'Remember that I prefer coffee in the morning.',
+		});
+
+		const memory = await memoryStore.getMemory('u1');
+		expect(memory.longTerm.items.map((item) => item.content).sort()).toEqual([
+			'I prefer TypeScript examples',
+			'I prefer coffee in the morning',
+		]);
+	});
+
 	it('forgets matching memory on explicit request', async () => {
 		const { agent, memoryStore } = createAgent();
 
@@ -167,6 +186,25 @@ describe('agent-memory', () => {
 		expect(result.map((item) => item.id)).toEqual(['mem_1']);
 	});
 
+	it('does not inject irrelevant durable preferences into unrelated prompts', async () => {
+		const { agent } = createAgent();
+
+		await agent.respond({
+			userId: 'u1',
+			input: 'Remember that I prefer TypeScript examples.',
+		});
+		await agent.respond({
+			userId: 'u1',
+			input: 'Remember that I prefer soup for lunch.',
+		});
+		const result = await agent.respond({
+			userId: 'u1',
+			input: 'Show me a small code example.',
+		});
+
+		expect(result.relevantMemory.map((item) => item.content)).toEqual(['I prefer TypeScript examples']);
+	});
+
 	it('builds prompts with separated system, memory, history, and current input sections', async () => {
 		const sessionManager = new InMemorySessionManager({ clock: fixedClock, maxMessages: 4 });
 		const session = await sessionManager.createSession('u1');
@@ -219,6 +257,26 @@ describe('agent-memory', () => {
 		expect(decisions[0]).toMatchObject({
 			action: 'ignore',
 			redactedContent: 'my API key: [REDACTED_SECRET]',
+		});
+	});
+
+	it('requires permission before storing implicit sensitive preferences', async () => {
+		const policy = new MemoryPolicy({ clock: fixedClock });
+		const extractor = new MemoryExtractor(policy, undefined, fixedClock);
+		const store = new InMemoryMemoryStore(fixedClock);
+		const memory = await store.getMemory('u1');
+
+		const decisions = extractor.extract({
+			userId: 'u1',
+			userMessage: 'I prefer political news summaries in the morning.',
+			assistantReply: 'ok',
+			sessionId: 's1',
+			existingMemory: memory,
+		});
+
+		expect(decisions[0]).toMatchObject({
+			action: 'permission_required',
+			requiresPermission: true,
 		});
 	});
 });
