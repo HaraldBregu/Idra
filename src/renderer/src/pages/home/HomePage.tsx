@@ -279,6 +279,7 @@ function VoiceView(): ReactElement {
 }
 
 function HomePage(): ReactElement {
+	const { mode } = useChatMode();
 	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
