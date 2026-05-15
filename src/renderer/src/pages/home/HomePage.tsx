@@ -256,8 +256,10 @@ function HomePage(): ReactElement {
 
 		const requestId = requestIdRef.current + 1;
 		requestIdRef.current = requestId;
+		isStreamingRef.current = true;
 		setInput('');
 		setIsLoading(true);
+		setStreamingContent(null);
 		setMessages((current) => [
 			...removeMultiSelectMessages(current),
 			createTextMessage('user', trimmed),
@@ -266,15 +268,20 @@ function HomePage(): ReactElement {
 		try {
 			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
+			isStreamingRef.current = false;
+			setStreamingContent(null);
 			if (response.trim().length > 0) {
 				setMessages((current) => [...current, createTextMessage('assistant', response)]);
 			}
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
+			isStreamingRef.current = false;
+			setStreamingContent(null);
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
 			setMessages((current) => [...current, createTextMessage('assistant', message)]);
 		} finally {
 			if (requestIdRef.current === requestId) {
+				isStreamingRef.current = false;
 				setIsLoading(false);
 			}
 		}
