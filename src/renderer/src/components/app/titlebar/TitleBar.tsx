@@ -17,15 +17,6 @@ import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 // Synchronous platform check — no hooks, no async, no state.
@@ -76,7 +67,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const isStart = location.pathname === '/start';
 	const isSettings = location.pathname.startsWith('/settings');
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
-	const homeButtonLabel = isSettings ? 'Friday' : t('titleBar.home', 'Home');
+	const homeButtonLabel = t('titleBar.home', 'Home');
 	const chatButtonLabel = t('titleBar.openChat', 'Open chat');
 
 	useEffect(() => {
@@ -127,30 +118,16 @@ export const TitleBar = React.memo(function TitleBar({
 					</button>
 				)}
 
-				{!isHome && !isStart && (
-					isSettings ? (
-						<button
-							type="button"
-							onClick={() => navigate('/home')}
-							className="relative ml-1 flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-sky-500 shadow-[0_0_22px_rgba(56,189,248,0.45)] transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-95"
-							title={chatButtonLabel}
-							aria-label={chatButtonLabel}
-						>
-							<span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(255,255,255,0.95),rgba(255,255,255,0.12)_26%,transparent_38%),radial-gradient(circle_at_70%_75%,rgba(34,197,94,0.75),transparent_42%),linear-gradient(135deg,#0ea5e9,#6366f1_54%,#ec4899)]" />
-							<span className="absolute inset-[3px] rounded-full border border-white/30 bg-white/10 shadow-inner" />
-							<span className="relative size-2 rounded-full bg-white/85 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-						</button>
-					) : (
-						<Button
-							type="button"
-							variant="default"
-							size="xs"
-							onClick={() => navigate('/home')}
-							title={homeButtonLabel}
-						>
-							{homeButtonLabel}
-						</Button>
-					)
+				{!isHome && !isStart && !isSettings && (
+					<Button
+						type="button"
+						variant="default"
+						size="xs"
+						onClick={() => navigate('/home')}
+						title={homeButtonLabel}
+					>
+						{homeButtonLabel}
+					</Button>
 				)}
 
 				{onToggleSidebar && (
@@ -211,28 +188,31 @@ export const TitleBar = React.memo(function TitleBar({
 					className="z-10 mr-5 flex h-full items-center"
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
-					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<Button
-								type="button"
-								variant="secondary"
-								size="icon"
-								className="size-8 rounded-full text-xs font-bold"
-								aria-label="Account menu"
-							>
-								{isHome ? <User className="size-4" strokeWidth={1.8} /> : 'AR'}
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" side="bottom" sideOffset={8}>
-							<DropdownMenuGroup>
-								<DropdownMenuLabel>Harald Bregu</DropdownMenuLabel>
-							</DropdownMenuGroup>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem onClick={() => navigate('/settings')}>
-								{t('settings.title', 'Settings')}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					{isSettings ? (
+						<button
+							type="button"
+							onClick={() => navigate('/home')}
+							className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-sky-500 shadow-[0_0_22px_rgba(56,189,248,0.45)] transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-95"
+							title={chatButtonLabel}
+							aria-label={chatButtonLabel}
+						>
+							<span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(255,255,255,0.95),rgba(255,255,255,0.12)_26%,transparent_38%),radial-gradient(circle_at_70%_75%,rgba(34,197,94,0.75),transparent_42%),linear-gradient(135deg,#0ea5e9,#6366f1_54%,#ec4899)]" />
+							<span className="absolute inset-[3px] rounded-full border border-white/30 bg-white/10 shadow-inner" />
+							<span className="relative size-2 rounded-full bg-white/85 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+						</button>
+					) : (
+						<Button
+							type="button"
+							variant="secondary"
+							size="icon"
+							className="size-8 rounded-full"
+							onClick={() => navigate('/settings')}
+							title={t('settings.title', 'Settings')}
+							aria-label={t('settings.title', 'Settings')}
+						>
+							<User className="size-4" strokeWidth={1.8} />
+						</Button>
+					)}
 				</div>
 			)}
 
