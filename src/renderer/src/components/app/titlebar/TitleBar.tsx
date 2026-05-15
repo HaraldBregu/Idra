@@ -207,7 +207,9 @@ export const TitleBar = React.memo(function TitleBar({
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" side="bottom" sideOffset={8}>
-							<DropdownMenuLabel>Harald Bregu</DropdownMenuLabel>
+							<DropdownMenuGroup>
+								<DropdownMenuLabel>Harald Bregu</DropdownMenuLabel>
+							</DropdownMenuGroup>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem onClick={() => navigate('/settings')}>
 								{t('settings.title', 'Settings')}
