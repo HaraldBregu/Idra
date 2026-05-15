@@ -1126,6 +1126,7 @@ function HomePage(): ReactElement {
 					onSelectApprovalOption={selectApprovalOption}
 					onSubmitPending={(message) => void submitMultiSelect(message)}
 					onUseSuggestion={useSuggestion}
+					onVoiceModeRequest={() => setMode('voice')}
 				/>
 			)}
 		</PageContainer>
