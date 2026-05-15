@@ -178,7 +178,9 @@ export const TitleBar = React.memo(function TitleBar({
 
 			{/* ── Center: app title (absolutely placed so it's always truly centered) ── */}
 			<TitleBarCenterContainer>
-				<TitleBarCenterContainerTitle>{titleBarTitle}</TitleBarCenterContainerTitle>
+				{centerContent ?? (
+					<TitleBarCenterContainerTitle>{titleBarTitle}</TitleBarCenterContainerTitle>
+				)}
 			</TitleBarCenterContainer>
 
 			{/* ── Spacer (pushes right buttons to the right) ── */}
