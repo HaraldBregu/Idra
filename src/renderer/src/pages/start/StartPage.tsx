@@ -129,7 +129,7 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 		name: 'Anthropic',
 		capabilities: 'Chat',
 		initial: 'A',
-		swatchClassName: 'bg-red-500 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: true,
 	},
 	{
@@ -137,7 +137,7 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 		name: 'OpenAI',
 		capabilities: 'Chat - Speech-to-text - Text-to-speech',
 		initial: 'O',
-		swatchClassName: 'bg-emerald-600 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: true,
 	},
 	{
@@ -145,7 +145,7 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 		name: 'Google',
 		capabilities: 'Chat - Speech-to-text',
 		initial: 'G',
-		swatchClassName: 'bg-blue-500 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: false,
 	},
 	{
@@ -153,7 +153,7 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 		name: 'ElevenLabs',
 		capabilities: 'Text-to-speech - Speech-to-text',
 		initial: 'E',
-		swatchClassName: 'bg-fuchsia-500 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: false,
 	},
 	{
@@ -161,7 +161,7 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 		name: 'Groq',
 		capabilities: 'Chat - Speech-to-text',
 		initial: 'Q',
-		swatchClassName: 'bg-orange-500 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: false,
 	},
 	{
@@ -169,7 +169,7 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 		name: 'Local - Ollama',
 		capabilities: 'auto',
 		initial: '',
-		swatchClassName: 'bg-slate-500 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: false,
 	},
 ];
@@ -181,7 +181,7 @@ const SPEECH_MODELS: readonly StaticModelOption[] = [
 		provider: 'OpenAI',
 		description: 'Transcribes you when you talk',
 		initial: 'O',
-		swatchClassName: 'bg-emerald-600 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 	},
 ];
 
@@ -192,7 +192,7 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 		provider: 'ElevenLabs',
 		description: `${PRODUCT_NAME} speaks with this voice`,
 		initial: 'E',
-		swatchClassName: 'bg-fuchsia-500 text-white',
+		swatchClassName: 'bg-muted text-muted-foreground',
 	},
 ];
 
@@ -277,9 +277,9 @@ function ProviderMark({
 
 function AssistantOrb(): React.JSX.Element {
 	return (
-		<div className="relative flex size-10 items-center justify-center rounded-full bg-violet-600 shadow-lg sm:size-12">
-			<div className="absolute size-6 rounded-full bg-white/20 sm:size-7" />
-			<Sparkles className="relative size-4 text-white" strokeWidth={2.7} />
+		<div className="relative flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg sm:size-12">
+			<div className="absolute size-6 rounded-full bg-primary-foreground/20 sm:size-7" />
+			<Sparkles className="relative size-4" strokeWidth={2.7} />
 		</div>
 	);
 }
@@ -295,8 +295,8 @@ function StepProgress({ currentIndex }: { readonly currentIndex: number }): Reac
 					key={setupStep}
 					className={cn(
 						'h-1.5 rounded-full transition-all',
-						index === currentIndex ? 'w-6 bg-violet-600' : 'w-1.5',
-						index < currentIndex ? 'bg-violet-600' : 'bg-muted',
+						index === currentIndex ? 'w-6 bg-primary' : 'w-1.5',
+						index < currentIndex ? 'bg-primary' : 'bg-muted',
 						index > currentIndex ? 'bg-muted' : undefined
 					)}
 				/>
@@ -775,8 +775,8 @@ const StartPage: React.FC = () => {
 								key={permission.id}
 								className="rounded-lg border-border bg-card py-0 shadow-none"
 							>
-								<CardContent className="flex min-h-12 flex-col gap-3 p-3 sm:flex-row sm:items-center">
-									<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-600">
+								<CardContent className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 p-2.5">
+									<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
 										<Icon className="size-4" strokeWidth={2.1} />
 									</div>
 									<div className="min-w-0 flex-1">
@@ -787,9 +787,9 @@ const StartPage: React.FC = () => {
 											{permission.description}
 										</p>
 									</div>
-									<div className="flex justify-end">
+									<div className="flex shrink-0 justify-end">
 										{allowed ? (
-											<Badge className="h-6 rounded-md bg-violet-50 px-2 text-xs font-semibold text-violet-600 hover:bg-violet-50">
+											<Badge variant="secondary" className="h-6 rounded-md px-2 text-xs font-semibold">
 												<Check className="size-3" />
 												Allowed
 											</Badge>
@@ -817,7 +817,7 @@ const StartPage: React.FC = () => {
 
 				<div className="mt-auto pt-4">
 					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
-						<Lock className="size-4 shrink-0 text-violet-600" />
+						<Lock className="size-4 shrink-0" />
 						<p className="text-xs font-medium leading-snug">
 							Audio is transcribed on-device. You can change all of this later in
 							Settings.
@@ -859,14 +859,14 @@ const StartPage: React.FC = () => {
 								key={provider.id}
 								className={cn(
 									'rounded-lg border-border bg-card py-0 shadow-none',
-									editing && 'border-violet-500 ring-2 ring-violet-200',
+									editing && 'border-ring ring-2 ring-ring/20',
 									!provider.supported && 'opacity-70'
 								)}
 							>
 								<CardContent className="p-0">
 									<div
 										className={cn(
-											'flex min-h-12 flex-col gap-3 px-3 py-2.5 sm:flex-row sm:items-center',
+											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
 											editing && 'pb-2'
 										)}
 									>
@@ -884,11 +884,14 @@ const StartPage: React.FC = () => {
 													: provider.capabilities}
 											</p>
 										</div>
-										<div className="flex justify-end gap-2">
+										<div className="flex shrink-0 justify-end gap-2">
 											{provider.supported ? (
 												connected && !editing ? (
 													<div className="flex items-center gap-2">
-														<Badge className="h-6 rounded-md bg-violet-50 px-2 text-xs font-semibold text-violet-600 hover:bg-violet-50">
+														<Badge
+															variant="secondary"
+															className="h-6 rounded-md px-2 text-xs font-semibold"
+														>
 															<Check className="size-3" />
 															Connected
 														</Badge>
@@ -933,7 +936,7 @@ const StartPage: React.FC = () => {
 									</div>
 
 									{provider.supported && editing && entry ? (
-										<div className="flex flex-col gap-2 px-3 pb-3 sm:flex-row">
+										<div className="flex items-center gap-2 px-3 pb-3">
 											<Input
 												autoComplete="off"
 												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
@@ -983,7 +986,7 @@ const StartPage: React.FC = () => {
 
 				<div className="mt-auto pt-4">
 					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
-						<KeyRound className="size-4 shrink-0 text-violet-600" />
+						<KeyRound className="size-4 shrink-0" />
 						<p className="text-xs font-medium leading-snug">
 							Keys are encrypted in Keychain and never sent to us. You can revoke any
 							provider anytime.
