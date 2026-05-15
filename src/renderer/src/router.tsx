@@ -64,7 +64,6 @@ function RootRouteComponent(): React.JSX.Element {
 			>
 				<TitleBar
 					title={isStart ? 'Set up Friday' : t('appTitle')}
-					centerContent={chatModeToggle}
 					rightContent={startTitleBarAction}
 				/>
 				<div className="min-h-0 flex-1 overflow-hidden pt-12">
