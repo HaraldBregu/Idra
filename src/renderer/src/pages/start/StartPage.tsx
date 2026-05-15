@@ -212,12 +212,6 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 ];
 
 const HOTKEY_OPTIONS = ['Cmd Shift Space', 'Cmd /', 'Opt Space', 'Fn'] as const;
-const HOTKEY_LABELS: Record<(typeof HOTKEY_OPTIONS)[number], readonly string[]> = {
-	'Cmd Shift Space': ['⌘', '⇧', 'Space'],
-	'Cmd /': ['⌘', '/'],
-	'Opt Space': ['⌥', 'Space'],
-	Fn: ['Fn'],
-};
 const TONE_OPTIONS = ['Low-key', 'Direct', 'Warm', 'Witty'] as const;
 const VOICE_OPTIONS: readonly VoiceOption[] = [
 	{ id: 'wren', name: 'Wren', description: 'warm, low' },
@@ -346,22 +340,6 @@ function FeaturePill({
 				{label}
 			</p>
 		</div>
-	);
-}
-
-function HotkeyButtonLabel({
-	hotkey,
-}: {
-	readonly hotkey: (typeof HOTKEY_OPTIONS)[number];
-}): React.JSX.Element {
-	return (
-		<span className="flex items-center gap-1.5">
-			{HOTKEY_LABELS[hotkey].map((part) => (
-				<span key={part} className="leading-none">
-					{part}
-				</span>
-			))}
-		</span>
 	);
 }
 
@@ -1394,17 +1372,17 @@ const StartPage: React.FC = () => {
 		return (
 			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
 				<div>
-					<h1 className="text-3xl font-bold leading-tight tracking-normal text-foreground">
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
 						Almost done
 					</h1>
-					<p className="mt-3 max-w-xl text-base font-medium leading-relaxed text-muted-foreground">
+					<p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-muted-foreground">
 						A hotkey and a personality. You can change all of this later.
 					</p>
 				</div>
 
-				<div className="mt-8 space-y-7">
-					<div className="space-y-3">
-						<Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+				<div className="mt-6 space-y-5">
+					<div className="space-y-2.5">
+						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 							Hotkey
 						</Label>
 						<div className="flex flex-wrap gap-2">
@@ -1413,18 +1391,18 @@ const StartPage: React.FC = () => {
 									key={hotkey}
 									type="button"
 									variant={selectedHotkey === hotkey ? 'secondary' : 'outline'}
-									size="lg"
-									className="px-4 text-base font-semibold"
+									size="sm"
+									className="px-3 text-sm font-semibold"
 									onClick={() => setSelectedHotkey(hotkey)}
 								>
-									<HotkeyButtonLabel hotkey={hotkey} />
+									{hotkey}
 								</Button>
 							))}
 						</div>
 					</div>
 
-					<div className="space-y-3">
-						<Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+					<div className="space-y-2.5">
+						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 							Voice
 						</Label>
 						<div className="grid grid-cols-3 gap-3">
@@ -1436,16 +1414,16 @@ const StartPage: React.FC = () => {
 										key={voice.id}
 										type="button"
 										variant={selected ? 'secondary' : 'outline'}
-										className="h-28 min-w-0 flex-col gap-0 p-3 text-center"
+										className="h-24 min-w-0 flex-col gap-0 p-3 text-center"
 										onClick={() => setSelectedVoice(voice.id)}
 									>
-										<div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-											<AudioWaveform className="size-6" />
+										<div className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+											<AudioWaveform className="size-5" />
 										</div>
-										<span className="mt-3 truncate text-base font-bold leading-tight">
+										<span className="mt-2.5 truncate text-sm font-bold leading-tight">
 											{voice.name}
 										</span>
-										<span className="mt-2 truncate text-sm font-medium leading-tight text-muted-foreground">
+										<span className="mt-1.5 truncate text-xs font-medium leading-tight text-muted-foreground">
 											{voice.description}
 										</span>
 									</Button>
@@ -1454,8 +1432,8 @@ const StartPage: React.FC = () => {
 						</div>
 					</div>
 
-					<div className="space-y-3">
-						<Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+					<div className="space-y-2.5">
+						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 							Tone
 						</Label>
 						<div className="flex flex-wrap gap-2">
@@ -1464,8 +1442,8 @@ const StartPage: React.FC = () => {
 									key={tone}
 									type="button"
 									variant={selectedTone === tone ? 'default' : 'outline'}
-									size="lg"
-									className="rounded-full px-4 text-base font-semibold"
+									size="sm"
+									className="rounded-full px-3 text-sm font-semibold"
 									onClick={() => setSelectedTone(tone)}
 								>
 									{tone}
@@ -1475,12 +1453,12 @@ const StartPage: React.FC = () => {
 					</div>
 
 					<Card className="rounded-lg border-border bg-card py-0 shadow-none">
-						<CardContent className="flex min-h-20 items-center gap-4 p-4">
+						<CardContent className="flex min-h-16 items-center gap-4 p-4">
 							<div className="min-w-0 flex-1">
-								<h2 className="text-base font-bold leading-tight text-foreground">
+								<h2 className="text-sm font-bold leading-tight text-foreground">
 									Open {PRODUCT_NAME} when I log in
 								</h2>
-								<p className="mt-1 truncate text-sm font-medium leading-tight text-muted-foreground">
+								<p className="mt-1 truncate text-xs font-medium leading-tight text-muted-foreground">
 									Lives in the menu bar; invisible until you summon her
 								</p>
 							</div>
