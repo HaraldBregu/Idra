@@ -1,43 +1,14 @@
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
-import type { LucideIcon } from 'lucide-react';
-import {
-	ArrowUp,
-	Code2,
-	Copy,
-	GitPullRequest,
-	ListChecks,
-	Mic,
-	Search,
-	Sparkles,
-	Square,
-} from 'lucide-react';
-import {
-	ChatContainerContent,
-	ChatContainerRoot,
-	ChatContainerScrollAnchor,
-} from '@/components/prompt-kit/chat-container';
-import { Loader } from '@/components/prompt-kit/loader';
-import {
-	Message,
-	MessageAction,
-	MessageActions,
-	MessageContent,
-} from '@/components/prompt-kit/message';
-import { useChatMode } from '@/contexts/chat-mode';
-import {
-	PromptInput,
-	PromptInputAction,
-	PromptInputActions,
-	PromptInputTextarea,
-} from '@/components/prompt-kit/prompt-input';
-import { PromptSuggestion } from '@/components/prompt-kit/prompt-suggestion';
-import { ResponseStream } from '@/components/prompt-kit/response-stream';
-import { ScrollButton } from '@/components/prompt-kit/scroll-button';
-import { Button } from '@/components/ui/button';
+import { HomeChatView, HomeVoiceView } from '@/components/app/home';
+import type {
+	HomeChatMessage,
+	HomeMultiSelectMessage,
+	HomeMultiSelectOption,
+	HomeTextMessage,
+} from '@/components/app/home';
 import { PageContainer } from '@/components/app/base/page';
-import { cn } from '@/lib/utils';
+import { useChatMode } from '@/contexts/chat-mode';
 import type {
 	ApprovalDecision,
 	AssistantHistoryMessage,
@@ -47,40 +18,7 @@ import type {
 	AssistantResponseDelta,
 } from '../../../../shared/service';
 
-interface TextChatMessage {
-	readonly id: string;
-	readonly role: 'user' | 'assistant';
-	readonly type: 'text';
-	readonly content: string;
-}
-
-interface MultiSelectOption {
-	readonly id: string;
-	readonly kind: 'approval' | 'input';
-	readonly label: string;
-	readonly description: string;
-	readonly approvalId?: string;
-	readonly decision?: ApprovalDecision;
-	readonly inputId?: string;
-}
-
-interface MultiSelectChatMessage {
-	readonly id: string;
-	readonly role: 'assistant';
-	readonly type: 'multi-select';
-	readonly prompt: string;
-	readonly options: readonly MultiSelectOption[];
-}
-
-type ChatMessage = TextChatMessage | MultiSelectChatMessage;
-
-interface SuggestionItem {
-	readonly label: string;
-	readonly prompt: string;
-	readonly icon: LucideIcon;
-}
-
-function createTextMessage(role: TextChatMessage['role'], content: string): TextChatMessage {
+function createTextMessage(role: HomeTextMessage['role'], content: string): HomeTextMessage {
 	return {
 		id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		role,
@@ -89,45 +27,27 @@ function createTextMessage(role: TextChatMessage['role'], content: string): Text
 	};
 }
 
-const welcomeMessage: ChatMessage = {
+const welcomeMessage: HomeChatMessage = {
 	id: 'assistant-welcome',
 	role: 'assistant',
 	type: 'text',
 	content:
-		'Ready when you are. Ask Friday to inspect code, make a change, explain a file, or help plan the next step.',
+		'Ready when you are. Ask MIRA to inspect code, make a change, explain a file, or help plan the next step.',
 };
 
-const initialMessages: readonly ChatMessage[] = [welcomeMessage];
+const initialMessages: readonly HomeChatMessage[] = [welcomeMessage];
 
-const suggestions: readonly SuggestionItem[] = [
-	{
-		label: 'Review changes',
-		prompt: 'Review the current changes',
-		icon: GitPullRequest,
-	},
-	{
-		label: 'Explain structure',
-		prompt: 'Explain this project structure',
-		icon: Code2,
-	},
-	{
-		label: 'Find failing test',
-		prompt: 'Find the next failing test',
-		icon: Search,
-	},
-	{
-		label: 'Plan implementation',
-		prompt: 'Draft a focused implementation plan',
-		icon: ListChecks,
-	},
-];
-
-function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[] {
-	const out: ChatMessage[] = [];
-	history.forEach((m, idx) => {
-		if (m.role !== 'user' && m.role !== 'assistant') return;
-		if (typeof m.content !== 'string' || m.content.length === 0) return;
-		out.push({ id: `${m.role}-history-${idx}`, role: m.role, type: 'text', content: m.content });
+function historyToChatMessages(history: AssistantHistoryMessage[]): HomeChatMessage[] {
+	const out: HomeChatMessage[] = [];
+	history.forEach((message, index) => {
+		if (message.role !== 'user' && message.role !== 'assistant') return;
+		if (typeof message.content !== 'string' || message.content.length === 0) return;
+		out.push({
+			id: `${message.role}-history-${index}`,
+			role: message.role,
+			type: 'text',
+			content: message.content,
+		});
 	});
 	return out;
 }
@@ -135,43 +55,45 @@ function historyToChatMessages(history: AssistantHistoryMessage[]): ChatMessage[
 function pendingToMultiSelectMessage(
 	approvals: AssistantPendingApproval[],
 	inputs: AssistantPendingInput[]
-): MultiSelectChatMessage {
-	const options: MultiSelectOption[] = [
-		...approvals.map((a) => ({
-			id: `approval:${a.id}:allow-once`,
+): HomeMultiSelectMessage {
+	const options: HomeMultiSelectOption[] = [
+		...approvals.map((approval) => ({
+			id: `approval:${approval.id}:allow-once`,
 			kind: 'approval' as const,
-			label: `${a.toolName}: Allow once`,
-			description: a.command ?? JSON.stringify(a.argsPreview ?? {}),
-			approvalId: a.id,
+			label: `${approval.toolName}: Allow once`,
+			description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
+			approvalId: approval.id,
 			decision: 'allow-once' as const,
 		})),
 		...approvals
-			.filter((a) => a.allowedDecisions.includes('allow-always'))
-			.map((a) => ({
-				id: `approval:${a.id}:allow-always`,
+			.filter((approval) => approval.allowedDecisions.includes('allow-always'))
+			.map((approval) => ({
+				id: `approval:${approval.id}:allow-always`,
 				kind: 'approval' as const,
-				label: `${a.toolName}: Allow always`,
-				description: a.command ?? JSON.stringify(a.argsPreview ?? {}),
-				approvalId: a.id,
+				label: `${approval.toolName}: Allow always`,
+				description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
+				approvalId: approval.id,
 				decision: 'allow-always' as const,
 			})),
-		...approvals.map((a) => ({
-			id: `approval:${a.id}:deny`,
+		...approvals.map((approval) => ({
+			id: `approval:${approval.id}:deny`,
 			kind: 'approval' as const,
-			label: `${a.toolName}: Deny`,
-			description: a.command ?? JSON.stringify(a.argsPreview ?? {}),
-			approvalId: a.id,
+			label: `${approval.toolName}: Deny`,
+			description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
+			approvalId: approval.id,
 			decision: 'deny' as const,
 		})),
-		...inputs.map((i) => ({
-			id: `input:${i.id}`,
+		...inputs.map((input) => ({
+			id: `input:${input.id}`,
 			kind: 'input' as const,
 			label: 'ask_human',
 			description:
-				i.question + (i.suggestions ? `\nSuggestions: ${i.suggestions.join(' | ')}` : ''),
-			inputId: i.id,
+				input.question +
+				(input.suggestions ? `\nSuggestions: ${input.suggestions.join(' | ')}` : ''),
+			inputId: input.id,
 		})),
 	];
+
 	return {
 		id: `assistant-pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
 		role: 'assistant',
@@ -181,13 +103,14 @@ function pendingToMultiSelectMessage(
 	};
 }
 
-function removeMultiSelectMessages(messages: readonly ChatMessage[]): ChatMessage[] {
+function removeMultiSelectMessages(messages: readonly HomeChatMessage[]): HomeChatMessage[] {
 	return messages.filter((message) => message.type !== 'multi-select');
 }
 
-function defaultPendingSelections(message: MultiSelectChatMessage): string[] {
+function defaultPendingSelections(message: HomeMultiSelectMessage): string[] {
 	const selections: string[] = [];
 	const seenApprovals = new Set<string>();
+
 	for (const option of message.options) {
 		if (
 			option.kind === 'approval' &&
@@ -199,115 +122,32 @@ function defaultPendingSelections(message: MultiSelectChatMessage): string[] {
 			seenApprovals.add(option.approvalId);
 		}
 	}
+
 	return selections;
 }
 
-interface StreamControl {
-	readonly push: (chunk: string) => void;
-	readonly complete: () => void;
-	readonly iterable: AsyncIterable<string>;
-}
-
-function createStreamIterable(): StreamControl {
-	const queue: string[] = [];
-	let resolve: (() => void) | null = null;
-	let done = false;
-
-	const iterable: AsyncIterable<string> = {
-		[Symbol.asyncIterator]() {
-			return {
-				async next() {
-					while (queue.length === 0 && !done) {
-						await new Promise<void>((res) => {
-							resolve = res;
-						});
-					}
-					if (queue.length > 0) {
-						return { value: queue.shift()!, done: false as const };
-					}
-					return { value: undefined as unknown as string, done: true as const };
-				},
-			};
-		},
-	};
-
-	return {
-		push(chunk: string) {
-			queue.push(chunk);
-			resolve?.();
-			resolve = null;
-		},
-		complete() {
-			done = true;
-			resolve?.();
-			resolve = null;
-		},
-		iterable,
-	};
-}
-
-function VoiceView(): ReactElement {
-	return (
-		<div className="flex h-full flex-col items-center justify-between px-6 py-10">
-			<div className="flex flex-col items-center gap-2 pt-10 text-center">
-				<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-					Ready
-				</span>
-				<p className="text-base text-muted-foreground">
-					Hold the mic, or press and hold ⌘ space
-				</p>
-			</div>
-			<button
-				type="button"
-				className="flex size-16 items-center justify-center rounded-full border border-border/60 bg-muted/30 text-muted-foreground transition-colors hover:bg-muted/60 active:scale-95"
-			>
-				<Mic className="size-6" strokeWidth={1.5} />
-			</button>
-			<div className="flex items-center gap-5 pb-2 text-xs text-muted-foreground">
-				<span>
-					<kbd className="font-mono font-semibold">hold ⌘</kbd> keep speaking
-				</span>
-				<span>
-					<kbd className="font-mono font-semibold">release</kbd> send
-				</span>
-				<span>
-					<kbd className="font-mono font-semibold">esc</kbd> cancel
-				</span>
-			</div>
-		</div>
-	);
-}
-
 function HomePage(): ReactElement {
-	const { mode } = useChatMode();
-	const [messages, setMessages] = useState<readonly ChatMessage[]>(initialMessages);
+	const { mode, setMode } = useChatMode();
+	const [messages, setMessages] = useState<readonly HomeChatMessage[]>(initialMessages);
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
-	const [streamIterable, setStreamIterable] = useState<AsyncIterable<string> | null>(null);
+	const [streamText, setStreamText] = useState('');
 	const [streamStarted, setStreamStarted] = useState(false);
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
 	const requestIdRef = useRef(0);
-	const streamControlRef = useRef<StreamControl | null>(null);
-	const finalResponseRef = useRef('');
-	const promptContainerRef = useRef<HTMLDivElement>(null);
-	const prefersReducedMotion = useReducedMotion();
+	const requestActiveRef = useRef(false);
+	const inputRef = useRef<HTMLTextAreaElement>(null);
 
 	const focusInput = useCallback((): void => {
-		promptContainerRef.current?.querySelector('textarea')?.focus();
+		inputRef.current?.focus();
 	}, []);
 
-	const handleStreamComplete = useCallback((): void => {
-		const response = finalResponseRef.current;
-		setStreamIterable(null);
-		setStreamStarted(false);
-		setIsLoading(false);
-		if (response.trim().length > 0) {
-			setMessages((current) => [...current, createTextMessage('assistant', response)]);
-		}
-	}, []);
+	const switchToTyping = useCallback((): void => {
+		setMode('chat');
+		window.requestAnimationFrame(focusInput);
+	}, [focusInput, setMode]);
 
-	// Restore history on mount
 	useEffect(() => {
 		let cancelled = false;
 		void (async () => {
@@ -319,7 +159,7 @@ function HomePage(): ReactElement {
 					setMessages([welcomeMessage, ...restored]);
 				}
 			} catch {
-				// keep welcome only
+				// Keep the reference-ready empty chat state.
 			} finally {
 				if (!cancelled) setHistoryLoading(false);
 			}
@@ -331,9 +171,8 @@ function HomePage(): ReactElement {
 
 	const stopResponse = (): void => {
 		requestIdRef.current += 1;
-		streamControlRef.current?.complete();
-		streamControlRef.current = null;
-		setStreamIterable(null);
+		requestActiveRef.current = false;
+		setStreamText('');
 		setStreamStarted(false);
 		setIsLoading(false);
 		void window.assistant.cancel();
@@ -345,15 +184,12 @@ function HomePage(): ReactElement {
 
 		const requestId = requestIdRef.current + 1;
 		requestIdRef.current = requestId;
-
-		const ctrl = createStreamIterable();
-		streamControlRef.current = ctrl;
-		finalResponseRef.current = '';
+		requestActiveRef.current = true;
 
 		setInput('');
+		setStreamText('');
 		setIsLoading(true);
 		setStreamStarted(false);
-		setStreamIterable(ctrl.iterable);
 		setMessages((current) => [
 			...removeMultiSelectMessages(current),
 			createTextMessage('user', trimmed),
@@ -362,15 +198,17 @@ function HomePage(): ReactElement {
 		try {
 			const response = await window.assistant.send(trimmed);
 			if (requestIdRef.current !== requestId) return;
-			finalResponseRef.current = response;
-			streamControlRef.current?.complete();
-			streamControlRef.current = null;
-			// ResponseStream's onComplete → handleStreamComplete handles cleanup + adding message
+			requestActiveRef.current = false;
+			setStreamText('');
+			setStreamStarted(false);
+			setIsLoading(false);
+			if (response.trim().length > 0) {
+				setMessages((current) => [...current, createTextMessage('assistant', response)]);
+			}
 		} catch (error) {
 			if (requestIdRef.current !== requestId) return;
-			streamControlRef.current?.complete();
-			streamControlRef.current = null;
-			setStreamIterable(null);
+			requestActiveRef.current = false;
+			setStreamText('');
 			setStreamStarted(false);
 			setIsLoading(false);
 			const message = error instanceof Error ? error.message : 'Assistant request failed.';
@@ -384,24 +222,27 @@ function HomePage(): ReactElement {
 				event.approvals.length === 0 && event.inputs.length === 0
 					? null
 					: pendingToMultiSelectMessage(event.approvals, event.inputs);
+
 			if (pendingMessage) {
 				setSelectedOptions((current) => ({
 					...current,
 					[pendingMessage.id]: defaultPendingSelections(pendingMessage),
 				}));
 			}
+
 			setMessages((current) => {
 				const cleaned = removeMultiSelectMessages(current);
 				if (!pendingMessage) return cleaned;
 				return [...cleaned, pendingMessage];
 			});
 		});
+
 		const offResponse = window.assistant.onResponse((event: AssistantResponseDelta) => {
-			if (streamControlRef.current && event.delta) {
-				streamControlRef.current.push(event.delta);
-				setStreamStarted(true);
-			}
+			if (!requestActiveRef.current || !event.delta) return;
+			setStreamText((current) => current + event.delta);
+			setStreamStarted(true);
 		});
+
 		return () => {
 			offPending();
 			offResponse();
@@ -441,10 +282,12 @@ function HomePage(): ReactElement {
 		});
 	};
 
-	const submitMultiSelect = async (message: MultiSelectChatMessage): Promise<void> => {
+	const submitMultiSelect = async (message: HomeMultiSelectMessage): Promise<void> => {
 		const selected = new Set(selectedOptions[message.id] ?? []);
+
 		try {
 			const approvals = new Map<string, ApprovalDecision>();
+
 			for (const option of message.options) {
 				if (option.kind === 'approval' && option.approvalId) {
 					if (!approvals.has(option.approvalId)) approvals.set(option.approvalId, 'deny');
@@ -452,17 +295,18 @@ function HomePage(): ReactElement {
 						approvals.set(option.approvalId, option.decision ?? 'deny');
 					}
 				} else if (option.kind === 'input' && option.inputId) {
-					// For now: send a fixed placeholder so the run can resume. A
-					// richer UI will collect free-text or pick a suggestion.
 					await window.assistant.resolveInput(option.inputId, '');
 				}
 			}
+
 			for (const [id, decision] of approvals) {
 				await window.assistant.resolveApproval(id, decision);
 			}
+
 			const selectedLabels = message.options
 				.filter((option) => selected.has(option.id))
 				.map((option) => option.label);
+
 			setMessages((current) => [
 				...removeMultiSelectMessages(current),
 				createTextMessage(
@@ -489,308 +333,50 @@ function HomePage(): ReactElement {
 	useEffect(() => {
 		return () => {
 			requestIdRef.current += 1;
+			requestActiveRef.current = false;
 		};
 	}, []);
 
-	// ⌘/ (or Ctrl+/) focuses the chat input from anywhere in the page
 	useEffect(() => {
 		const handler = (event: KeyboardEvent): void => {
 			if ((event.metaKey || event.ctrlKey) && event.key === '/') {
 				event.preventDefault();
-				focusInput();
+				switchToTyping();
 			}
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
-	}, [focusInput]);
+	}, [switchToTyping]);
 
-	// Auto-focus input on mount so users can type immediately
 	useEffect(() => {
-		focusInput();
-	}, [focusInput]);
-
-	const msgTransition = useCallback(
-		(index: number) => ({
-			duration: prefersReducedMotion ? 0 : 0.18,
-			ease: [0, 0, 0.2, 1] as [number, number, number, number],
-			delay: prefersReducedMotion ? 0 : Math.min(index * 0.04, 0.2),
-		}),
-		[prefersReducedMotion]
-	);
-
-	// Don't show suggestions while history is loading or chat is active
-	const showSuggestions = messages.length <= 1 && !isLoading && !historyLoading;
-
-	if (mode === 'voice') {
-		return (
-			<PageContainer className="overflow-hidden text-foreground">
-				<VoiceView />
-			</PageContainer>
-		);
-	}
+		if (mode === 'chat') {
+			focusInput();
+		}
+	}, [focusInput, mode]);
 
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
-			<div className="relative flex min-h-0 flex-1 flex-col">
-				<ChatContainerRoot className="mx-auto min-h-0 w-full max-w-4xl flex-1">
-					<ChatContainerContent
-						className={cn(
-							'min-h-full w-full px-4',
-							showSuggestions ? 'justify-center py-8' : 'gap-5 pb-6 pt-5'
-						)}
-					>
-						{showSuggestions ? (
-							<div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-								<div className="flex flex-col items-center gap-3 text-center">
-									<div className="flex size-10 items-center justify-center rounded-xl border border-border/80 bg-card/80 text-muted-foreground shadow-sm">
-										<Sparkles className="size-5" />
-									</div>
-									<div className="space-y-1">
-										<h1 className="text-xl font-semibold">What should Friday do next?</h1>
-										<p className="mx-auto max-w-xl text-sm text-muted-foreground">
-											Start with a focused request for code review, project context, tests, or
-											implementation planning.
-										</p>
-									</div>
-								</div>
-								<div className="grid gap-2 sm:grid-cols-2">
-									{suggestions.map(({ label, prompt, icon: Icon }) => (
-										<PromptSuggestion
-											key={label}
-											onClick={() => void sendPrompt(prompt)}
-											className="h-auto items-start justify-start gap-3 whitespace-normal rounded-xl border-border/80 bg-card/70 px-3 py-3 text-left shadow-sm hover:bg-accent"
-										>
-											<span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-												<Icon className="size-4" />
-											</span>
-											<span className="min-w-0 leading-tight">
-												<span className="block text-sm font-medium text-foreground">{label}</span>
-												<span className="block truncate text-xs text-muted-foreground">
-													{prompt}
-												</span>
-											</span>
-										</PromptSuggestion>
-									))}
-								</div>
-							</div>
-						) : (
-							<>
-								{messages.map((message, index) =>
-									message.role === 'user' ? (
-										<motion.div
-											key={message.id}
-											initial={{ opacity: 0, y: 8 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={msgTransition(index)}
-										>
-											<Message className="justify-end">
-												<MessageContent className="max-w-[85%] rounded-xl bg-muted/60 px-3 py-2 text-foreground sm:max-w-[72%]">
-													{message.content}
-												</MessageContent>
-											</Message>
-										</motion.div>
-									) : (
-										<motion.div
-											key={message.id}
-											initial={{ opacity: 0, y: 8 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={msgTransition(index)}
-										>
-											<Message className="items-start justify-start">
-												<div className="flex min-w-0 max-w-full flex-col gap-1.5">
-													<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-														Friday
-													</span>
-													{message.type === 'text' ? (
-														<>
-															<MessageContent markdown className="text-sm leading-relaxed">
-																{message.content}
-															</MessageContent>
-															<MessageActions className="self-start">
-																<MessageAction tooltip="Copy">
-																	<Button
-																		variant="ghost"
-																		size="icon-sm"
-																		onClick={() => copyMessage(message.content)}
-																	>
-																		<Copy className="size-3.5" />
-																	</Button>
-																</MessageAction>
-															</MessageActions>
-														</>
-													) : (
-														<div
-															className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-3"
-															role="group"
-															aria-label={message.prompt}
-														>
-															<p className="text-sm font-medium">{message.prompt}</p>
-															<div className="flex flex-col gap-2" role={message.options.some((o) => o.kind === 'approval') ? 'radiogroup' : 'group'}>
-																{message.options.map((option) => {
-																	const isSelected = (selectedOptions[message.id] ?? []).includes(option.id);
-																	const handleChange = (): void => {
-																		if (option.kind === 'approval' && option.approvalId) {
-																			selectApprovalOption(message.id, option.approvalId, option.id);
-																		} else {
-																			toggleOption(message.id, option.id);
-																		}
-																	};
-
-																	return (
-																		<button
-																			key={option.id}
-																			type="button"
-																			role={option.kind === 'approval' ? 'radio' : 'checkbox'}
-																			aria-checked={isSelected}
-																			onClick={handleChange}
-																			className={cn(
-																				'flex w-full cursor-pointer items-start gap-3 rounded-xl border p-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-																				isSelected
-																					? 'border-primary/40 bg-primary/8 text-foreground'
-																					: 'border-border/80 bg-background/80 hover:bg-muted/60'
-																			)}
-																		>
-																			<span
-																				className={cn(
-																					'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors',
-																					option.kind === 'approval' ? 'rounded-full' : 'rounded-sm',
-																					isSelected
-																						? 'border-primary bg-primary text-primary-foreground'
-																						: 'border-border bg-transparent'
-																				)}
-																				aria-hidden
-																			>
-																				{isSelected && (
-																					<span className={cn('block bg-current', option.kind === 'approval' ? 'size-1.5 rounded-full' : 'size-2 rounded-sm')} />
-																				)}
-																			</span>
-																			<span className="min-w-0 flex-1">
-																				<span className="block font-medium leading-snug">{option.label}</span>
-																				<span className="mt-0.5 block break-words text-xs leading-normal text-muted-foreground">
-																					{option.description}
-																				</span>
-																			</span>
-																		</button>
-																	);
-																})}
-															</div>
-															<Button
-																className="self-start"
-																size="sm"
-																onClick={() => void submitMultiSelect(message)}
-															>
-																Confirm
-															</Button>
-														</div>
-													)}
-												</div>
-											</Message>
-										</motion.div>
-									)
-								)}
-								{/* ResponseStream: mounted as soon as streaming starts; hidden via sr-only until first token
-								    so onComplete fires even if no tokens are received (zero-token edge case) */}
-								{streamIterable !== null && (
-									<motion.div
-										key="streaming"
-										className={streamStarted ? undefined : 'sr-only'}
-										initial={{ opacity: 0, y: 8 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
-									>
-										<Message className="items-start justify-start">
-											<div className="flex min-w-0 max-w-full flex-col gap-1.5">
-												<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-													Friday
-												</span>
-												<MessageContent className="text-sm leading-relaxed">
-													<ResponseStream
-														textStream={streamIterable}
-														mode="typewriter"
-														speed={40}
-														onComplete={handleStreamComplete}
-													/>
-												</MessageContent>
-											</div>
-										</Message>
-									</motion.div>
-								)}
-
-								{/* Typing indicator — shown while waiting for first streaming token */}
-								{isLoading && !streamStarted && (
-									<motion.div
-										key="loading"
-										initial={{ opacity: 0, y: 8 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0 }}
-										transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
-									>
-										<Message className="items-start justify-start">
-											<div className="flex min-w-0 max-w-full flex-col gap-1.5">
-												<span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-													Friday
-												</span>
-												<div className="flex items-center gap-2 text-muted-foreground">
-													<Loader variant="typing" size="md" />
-													<Loader variant="text-shimmer" text="Thinking" size="sm" />
-												</div>
-											</div>
-										</Message>
-									</motion.div>
-								)}
-							</>
-						)}
-						<ChatContainerScrollAnchor className={showSuggestions ? 'hidden' : undefined} />
-					</ChatContainerContent>
-					{!showSuggestions && (
-						<div className="pointer-events-none absolute inset-x-0 bottom-4 px-4">
-							<div className="mx-auto flex w-full max-w-4xl justify-end">
-								<ScrollButton className="pointer-events-auto shadow-sm" variant="secondary" />
-							</div>
-						</div>
-					)}
-				</ChatContainerRoot>
-
-				{/* Container ref is used to query the textarea for programmatic focus */}
-				<div
-					ref={promptContainerRef}
-					className="shrink-0 bg-gradient-to-t from-background via-background/95 to-transparent px-4 pb-4 pt-6"
-				>
-					<PromptInput
-						value={input}
-						onValueChange={setInput}
-						isLoading={isLoading}
-						onSubmit={handleSubmit}
-						className="mx-auto w-full max-w-3xl rounded-2xl border-border/80 bg-card/80 shadow-lg shadow-black/5 backdrop-blur-xl"
-					>
-						<PromptInputTextarea
-							className="min-h-[52px] px-2 pt-2 text-sm"
-							placeholder="Ask Friday anything…"
-						/>
-						<PromptInputActions className="justify-end px-1 pt-2">
-							<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
-								<Button variant="ghost" size="icon-sm" className="rounded-full text-muted-foreground">
-									<Mic className="size-4" />
-								</Button>
-							</PromptInputAction>
-							<PromptInputAction tooltip={isLoading ? 'Stop generation' : 'Send message'}>
-								<Button
-									variant="default"
-									size="icon"
-									className="size-8 rounded-full"
-									onClick={handleSubmit}
-								>
-									{isLoading ? (
-										<Square className="size-4 fill-current" />
-									) : (
-										<ArrowUp className="size-4" />
-									)}
-								</Button>
-							</PromptInputAction>
-						</PromptInputActions>
-					</PromptInput>
-				</div>
-			</div>
+			{mode === 'voice' ? (
+				<HomeVoiceView onSwitchToTyping={switchToTyping} />
+			) : (
+				<HomeChatView
+					messages={messages}
+					selectedOptions={selectedOptions}
+					input={input}
+					isLoading={isLoading}
+					historyLoading={historyLoading}
+					streamText={streamText}
+					streamStarted={streamStarted}
+					inputRef={inputRef}
+					onInputChange={setInput}
+					onSubmit={handleSubmit}
+					onCopyMessage={copyMessage}
+					onToggleOption={toggleOption}
+					onSelectApprovalOption={selectApprovalOption}
+					onSubmitPending={(message) => void submitMultiSelect(message)}
+					onVoiceModeRequest={() => setMode('voice')}
+				/>
+			)}
 		</PageContainer>
 	);
 }

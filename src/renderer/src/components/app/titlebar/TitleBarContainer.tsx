@@ -3,11 +3,13 @@ import { cn } from '@/lib/utils';
 
 interface TitleBarContainerProps {
 	readonly className?: string;
+	readonly style?: React.CSSProperties;
 	readonly children: ReactNode;
 }
 
 export const TitleBarContainer = memo(function AppTitleBarContainer({
 	className,
+	style,
 	children,
 }: TitleBarContainerProps): ReactElement {
 	return (
@@ -19,6 +21,7 @@ export const TitleBarContainer = memo(function AppTitleBarContainer({
 			style={
 				{
 					WebkitAppRegion: 'drag',
+					...style,
 				} as React.CSSProperties
 			}
 		>

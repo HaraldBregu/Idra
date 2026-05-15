@@ -1,5 +1,11 @@
 import React, { Suspense, lazy, useState, type ReactNode } from 'react';
-import { Navigate, Outlet, createHashRouter, useLocation, type RouteObject } from 'react-router-dom';
+import {
+	Navigate,
+	Outlet,
+	createHashRouter,
+	useLocation,
+	type RouteObject,
+} from 'react-router-dom';
 import { MessageSquare, Mic } from 'lucide-react';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
@@ -35,36 +41,59 @@ function RootRouteComponent(): React.JSX.Element {
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 
 	const isHome = location.pathname === '/home';
+	const isHomeVoice = isHome && chatMode === 'voice';
+	const homeTitleBarStyle: React.CSSProperties | undefined = isHomeVoice
+		? {
+				backgroundColor: 'rgba(33, 30, 38, 0.95)',
+				borderColor: 'rgba(255, 255, 255, 0.1)',
+				boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+			}
+		: isHome
+			? {
+					backgroundColor: 'rgba(251, 248, 246, 0.9)',
+					borderColor: '#e6e0e4',
+					boxShadow: '0 1px 2px rgba(67, 59, 80, 0.05)',
+				}
+			: undefined;
 
 	const chatModeToggle = isHome ? (
 		<div
-			className="pointer-events-auto flex items-center gap-0.5 rounded-full border border-border bg-muted/40 px-1 py-1"
+			className={cn(
+				'pointer-events-auto flex items-center gap-0.5 rounded-full border p-1 shadow-sm',
+				isHomeVoice ? 'border-white/10 bg-white/10' : 'border-[#e4dfe4] bg-[#ece9eb]'
+			)}
 			style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 		>
 			<button
 				type="button"
 				onClick={() => setChatMode('chat')}
+				aria-pressed={chatMode === 'chat'}
 				className={cn(
-					'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+					'flex h-7 items-center gap-1.5 rounded-full px-3 text-[13px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a7aff]',
 					chatMode === 'chat'
-						? 'border border-border/60 bg-background text-foreground shadow-sm'
-						: 'text-muted-foreground hover:text-foreground'
+						? 'border-2 border-[#0a7aff] bg-white text-[#24212a] shadow-[0_0_0_2px_rgba(10,122,255,0.16)]'
+						: isHomeVoice
+							? 'text-[#746f7e] hover:text-[#efeaf4]'
+							: 'text-[#77737e] hover:text-[#24212a]'
 				)}
 			>
-				<MessageSquare className="size-3" strokeWidth={1.5} />
+				<MessageSquare className="size-4" strokeWidth={2.2} />
 				Chat
 			</button>
 			<button
 				type="button"
 				onClick={() => setChatMode('voice')}
+				aria-pressed={chatMode === 'voice'}
 				className={cn(
-					'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+					'flex h-7 items-center gap-1.5 rounded-full px-3 text-[13px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a7aff]',
 					chatMode === 'voice'
-						? 'border border-border/60 bg-background text-foreground shadow-sm'
-						: 'text-muted-foreground hover:text-foreground'
+						? 'border-2 border-[#0a7aff] bg-white text-[#24212a] shadow-[0_0_0_2px_rgba(10,122,255,0.16)]'
+						: isHomeVoice
+							? 'text-[#746f7e] hover:text-[#efeaf4]'
+							: 'text-[#77737e] hover:text-[#24212a]'
 				)}
 			>
-				<Mic className="size-3" strokeWidth={1.5} />
+				<Mic className="size-4" strokeWidth={2.2} />
 				Voice
 			</button>
 		</div>
@@ -72,8 +101,13 @@ function RootRouteComponent(): React.JSX.Element {
 
 	return (
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
-			<div className="app-translucent-window flex h-screen flex-col overflow-hidden text-foreground">
-				<TitleBar title={t('appTitle')} centerContent={chatModeToggle} />
+			<div
+				className={cn(
+					'app-translucent-window flex h-screen flex-col overflow-hidden text-foreground',
+					isHomeVoice ? 'bg-[#1f1c24]' : isHome ? 'bg-[#fbf8f6]' : undefined
+				)}
+			>
+				<TitleBar title={t('appTitle')} centerContent={chatModeToggle} style={homeTitleBarStyle} />
 				<div className="min-h-0 flex-1 overflow-hidden pt-12">
 					<PageTransition>
 						<Outlet />

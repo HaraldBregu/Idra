@@ -26,6 +26,10 @@ const isMac =
 	(navigator.platform === 'MacIntel' || navigator.platform.startsWith('Mac'));
 
 export interface TitleBarProps {
+	/** Optional class applied to the title bar container */
+	className?: string;
+	/** Optional inline style applied to the title bar container */
+	style?: React.CSSProperties;
 	/** Text displayed centered in the title bar */
 	title?: string;
 	/** Custom content rendered in the center, replaces the title */
@@ -41,6 +45,8 @@ export interface TitleBarProps {
 }
 
 export const TitleBar = React.memo(function TitleBar({
+	className,
+	style,
 	title = 'Application Name',
 	centerContent,
 	onToggleSidebar,
@@ -92,21 +98,23 @@ export const TitleBar = React.memo(function TitleBar({
 		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100 hover:bg-accent/80 hover:text-foreground';
 
 	return (
-		<TitleBarContainer>
+		<TitleBarContainer className={className} style={style}>
 			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
 			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
 				{!isMac && (
 					<button
 						type="button"
 						onClick={() => window.win?.popupMenu()}
-						className={cn('ml-2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground')}
+						className={cn(
+							'ml-2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground'
+						)}
 						title={t('titleBar.applicationMenu')}
 					>
 						<Menu className="h-[15px] w-[15px]" strokeWidth={1.5} />
 					</button>
 				)}
 
-				{!isStart && (
+				{!isStart && !isHome && (
 					<button
 						type="button"
 						onClick={() => navigate('/settings')}
@@ -133,17 +141,10 @@ export const TitleBar = React.memo(function TitleBar({
 					<button
 						type="button"
 						onClick={onToggleSidebar}
-						className={
-							isMac
-								? leftButtonClass
-								: leftButtonNoHoverClass
-						}
+						className={isMac ? leftButtonClass : leftButtonNoHoverClass}
 						title={t('titleBar.toggleSidebar')}
 					>
-						<PanelLeft
-							className="h-[15px] w-[15px]"
-							strokeWidth={1.5}
-						/>
+						<PanelLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
 					</button>
 				)}
 
@@ -154,10 +155,7 @@ export const TitleBar = React.memo(function TitleBar({
 						className={leftNavButtonClass}
 						title={t('titleBar.navigateBack')}
 					>
-						<ArrowLeft
-							className="h-[15px] w-[15px]"
-							strokeWidth={1.5}
-						/>
+						<ArrowLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
 					</button>
 				)}
 
@@ -168,10 +166,7 @@ export const TitleBar = React.memo(function TitleBar({
 						className={leftNavButtonClass}
 						title={t('titleBar.navigateForward')}
 					>
-						<ArrowRight
-							className="h-[15px] w-[15px]"
-							strokeWidth={1.5}
-						/>
+						<ArrowRight className="h-[15px] w-[15px]" strokeWidth={1.5} />
 					</button>
 				)}
 			</TitleBarLeftContainer>
@@ -185,6 +180,21 @@ export const TitleBar = React.memo(function TitleBar({
 
 			{/* ── Spacer (pushes right buttons to the right) ── */}
 			<div className="flex-1" />
+
+			{isHome && (
+				<div
+					className="z-10 mr-5 flex h-full items-center"
+					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+				>
+					<button
+						type="button"
+						className="flex size-8 items-center justify-center rounded-full bg-[#8377df] text-xs font-bold text-white shadow-[0_6px_20px_rgba(73,61,161,0.28)] transition hover:bg-[#7569d3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8377df] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+						aria-label="Account menu"
+					>
+						AR
+					</button>
+				</div>
+			)}
 
 			{/* ── Right: minimize / maximize / close (Windows only) ── */}
 			{!isMac && (
@@ -203,9 +213,7 @@ export const TitleBar = React.memo(function TitleBar({
 						onClick={() => window.win?.maximize()}
 						className={btnBase}
 						title={
-							isMaximized
-								? t('titleBar.restore', 'Restore')
-								: t('titleBar.maximize', 'Maximize')
+							isMaximized ? t('titleBar.restore', 'Restore') : t('titleBar.maximize', 'Maximize')
 						}
 					>
 						<Maximize2 className="h-[15px] w-[15px]" strokeWidth={1.5} />
