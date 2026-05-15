@@ -495,12 +495,6 @@ const StartPage: React.FC = () => {
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
 	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
-	const [selectedHotkey, setSelectedHotkey] = useState<(typeof HOTKEY_OPTIONS)[number]>(
-		HOTKEY_OPTIONS[0]
-	);
-	const [selectedVoice, setSelectedVoice] = useState('juno');
-	const [selectedTone, setSelectedTone] = useState<(typeof TONE_OPTIONS)[number]>('Witty');
-	const [openAtLogin, setOpenAtLogin] = useState(true);
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
