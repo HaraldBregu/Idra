@@ -38,8 +38,11 @@ export class UserDataDirectoryService implements UserDataDirectoryServicePort {
 
 	resolve(...segments: string[]): string {
 		for (const segment of segments) {
-			if (path.isAbsolute(segment)) {
+			if (path.isAbsolute(segment) || path.win32.isAbsolute(segment)) {
 				throw new Error(`User data path segment must be relative: ${segment}`);
+			}
+			if (segment.split(/[\\/]+/).includes('..')) {
+				throw new Error(`User data path segment cannot traverse directories: ${segment}`);
 			}
 		}
 

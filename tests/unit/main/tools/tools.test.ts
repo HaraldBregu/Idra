@@ -8,7 +8,13 @@ import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
 import { askHumanTool } from '../../../../src/main/tools/ask-human';
-import { setThemeModeTool, openAppDataFolderTool, openFolderTool, setMenuBarTool } from '../../../../src/main/tools/app';
+import {
+	setThemeModeTool,
+	openAppDataFolderTool,
+	openUserDataFolderTool,
+	openFolderTool,
+	setMenuBarTool,
+} from '../../../../src/main/tools/app';
 import { cronAddTool, cronListTool, cronRemoveTool } from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
 import { getAssistantModelTool, getAssistantServiceTool, setAssistantServiceTool } from '../../../../src/main/tools/services';
@@ -169,6 +175,10 @@ describe('tools/app, ask-human, cron, providers, services, workspace', () => {
 		(app.getPath as jest.Mock).mockReturnValueOnce('/tmp/userData');
 		await openAppDataFolderTool.execute({}, ctx);
 		expect(shell.openPath).toHaveBeenCalledWith('/tmp/userData');
+
+		await openUserDataFolderTool.execute({}, ctx);
+		expect(ctx.services.userDataDirectory.ensureRoot).toHaveBeenCalled();
+		expect(shell.openPath).toHaveBeenCalledWith(ctx.workspace);
 
 		const workspace = await makeTempDir();
 		const folderCtx = makeToolContext({ workspace });

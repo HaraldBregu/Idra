@@ -136,7 +136,17 @@ function inferPermissions(name: string): string[] {
 
 function inferSafety(name: string): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
 	if (['write', 'edit', 'apply_patch', 'exec', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_assistant_service'].includes(name)) return 'high';
-	if (['web_fetch', 'open_folder', 'open_app_data_folder', 'open_accessibility', 'open_screen_recording'].includes(name)) return 'medium';
+	if (
+		[
+			'web_fetch',
+			'open_folder',
+			'open_app_data_folder',
+			'open_user_data_folder',
+			'open_accessibility',
+			'open_screen_recording',
+		].includes(name)
+	)
+		return 'medium';
 	return 'low';
 }
 

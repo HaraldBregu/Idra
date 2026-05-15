@@ -25,7 +25,8 @@ describe('UserDataDirectoryService', () => {
 		await expect(service.ensureRoot()).resolves.toBe(path.join(parent, USER_DATA_DIRECTORY_NAME));
 		await expect(service.ensureRoot()).resolves.toBe(path.join(parent, USER_DATA_DIRECTORY_NAME));
 		await expect(fs.access(service.getRootPath())).resolves.toBeUndefined();
-		expect(() => service.resolve('..', 'outside')).toThrow(/outside root/);
+		expect(() => service.resolve('..', 'outside')).toThrow(/cannot traverse/);
+		expect(() => service.resolve('folder/../outside')).toThrow(/cannot traverse/);
 		expect(() => service.resolve(path.join(parent, 'outside'))).toThrow(/must be relative/);
 
 		await fs.rm(parent, { recursive: true, force: true });

@@ -4,14 +4,15 @@ import { app, shell } from 'electron';
 import { AppsService } from '../../../../src/main/apps';
 import { ConnectorsService } from '../../../../src/main/connectors';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
+import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('apps service', () => {
 	it('lists valid app manifests with embedded icons and validates ids for destructive operations', async () => {
-		const userData = await makeTempDir();
-		(app.getPath as jest.Mock).mockImplementation((name: string) => path.join(userData, name));
-		const service = new AppsService(makeLogger() as never);
+		const tempRoot = await makeTempDir();
+		const userDataDirectory = new UserDataDirectoryService({ appPath: path.join(tempRoot, 'friday') });
+		const service = new AppsService(makeLogger() as never, userDataDirectory);
 		const root = service.getAppsRoot();
 		await fs.mkdir(path.join(root, 'alpha'), { recursive: true });
 		await fs.writeFile(path.join(root, 'alpha', 'icon.png'), Buffer.from('icon'));
@@ -26,7 +27,7 @@ describe('apps service', () => {
 		(shell.openPath as jest.Mock).mockResolvedValueOnce('permission denied');
 		await expect(service.openFolder('alpha')).rejects.toThrow(/Could not open app folder/);
 		await expect(service.delete('../bad')).rejects.toThrow(/Invalid app id/);
-		await fs.rm(userData, { recursive: true, force: true });
+		await fs.rm(tempRoot, { recursive: true, force: true });
 	});
 });
 
