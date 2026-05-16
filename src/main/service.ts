@@ -4,7 +4,13 @@ import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
-import type { WorkspaceService } from './workspace';
+import {
+	DEFAULT_BOOTSTRAP_FILENAME,
+	resolveBootstrapMode,
+	type BootstrapMode,
+	type WorkspaceContextFile,
+	type WorkspaceService,
+} from './workspace';
 import type { UserDataDirectoryServicePort } from './user-data';
 import type { ConnectorsService } from './connectors';
 import type { SkillsService } from './skills';
@@ -25,6 +31,14 @@ import type { ApprovalDecision } from '../shared/service';
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
 const DEFAULT_MAX_PROMPT_TOOLS = 6;
+const BOOTSTRAP_TOOL_NAMES = new Set([
+	'read',
+	'write',
+	'edit',
+	'exec',
+	'get_workspace_path',
+	'ask_human',
+]);
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -118,6 +132,10 @@ export class AgentService {
 				baseDir: this.sessionBaseDir,
 			});
 			const workspaceRoot = this.workspaceRoot();
+			const workspaceFiles = await this.loadWorkspaceFiles();
+			const bootstrapPending = workspaceFiles.some(
+				(file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing
+			);
 			const baseTools = await this.toolsFactory({
 				agentId,
 				runId,
@@ -158,7 +176,7 @@ export class AgentService {
 				services: this.dependencies,
 			};
 			const toolPolicy = new ToolUsePolicy().evaluate({ userRequest: message });
-			const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools
+			const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools && !bootstrapPending
 				? {
 						userId: agentId,
 						sessionId: runtime.session.id,
@@ -179,12 +197,15 @@ export class AgentService {
 					})
 				: undefined;
 			const tools = skillTool ? [...baseTools, skillTool] : baseTools;
-			const toolSelection = selectAgentToolsForTurn(tools, message, ctx, {
-				forceSelection: true,
-				maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
-			});
-			const selectedTools =
-				skillTool && skillChoices.length > 0
+			const toolSelection = bootstrapPending
+				? { toolsForPrompt: tools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)), systemPromptSuffix: '' }
+				: selectAgentToolsForTurn(tools, message, ctx, {
+						forceSelection: true,
+						maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
+					});
+			const selectedTools = bootstrapPending
+				? toolSelection.toolsForPrompt
+				: skillTool && skillChoices.length > 0
 					? [
 							skillTool,
 							...toolSelection.toolsForPrompt
@@ -193,12 +214,24 @@ export class AgentService {
 						]
 					: toolSelection.toolsForPrompt;
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
+			const bootstrapMode = resolveBootstrapMode({
+				bootstrapPending,
+				isInteractiveUserFacing: true,
+				isPrimaryRun: agentId === this.defaultAgentId,
+				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
+				hasBootstrapFileAccess:
+					selectedToolNames.has('read') &&
+					(selectedToolNames.has('write') || selectedToolNames.has('edit')) &&
+					selectedToolNames.has('exec'),
+			});
 			const systemPrompt = await buildSystemPrompt({
 				workspace: workspaceRoot,
 				date: new Date().toISOString().slice(0, 10),
 				model,
 				tools: selectedTools,
 				skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
+				workspaceFiles,
+				bootstrapMode,
 			});
 			const systemPromptForTurn = toolSelection.systemPromptSuffix
 				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
@@ -351,6 +384,23 @@ export class AgentService {
 		} catch {
 			return resolveDefaultUserDataPath('workspace');
 		}
+	}
+
+	private async loadWorkspaceFiles(): Promise<WorkspaceContextFile[]> {
+		const workspace = this.dependencies.workspace as Partial<WorkspaceService>;
+		try {
+			if (typeof workspace.ensureReady === 'function') {
+				await workspace.ensureReady();
+			}
+			if (typeof workspace.loadContextFiles === 'function') {
+				return await workspace.loadContextFiles();
+			}
+		} catch (error) {
+			this.dependencies.logger.warn('AgentService', 'Workspace context unavailable', {
+				error: (error as Error).message,
+			});
+		}
+		return [];
 	}
 
 	private buildHooks(
