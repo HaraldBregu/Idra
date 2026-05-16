@@ -128,6 +128,7 @@ function PromptInput({
   footerClassName,
   isLoading = false,
   maxHeight = 240,
+  maxLength,
   expandedThreshold = 52,
   value,
   onValueChange,
