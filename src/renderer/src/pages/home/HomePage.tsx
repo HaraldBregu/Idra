@@ -36,10 +36,12 @@ import {
 } from '@/components/ui/prompt-input';
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import {
-	Reasoning,
-	ReasoningContent,
-	ReasoningTrigger,
-} from '@/components/ui/reasoning';
+	ChainOfThought,
+	ChainOfThoughtContent,
+	ChainOfThoughtItem,
+	ChainOfThoughtStep,
+	ChainOfThoughtTrigger,
+} from '@/components/ui/chain-of-thought';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import {
 	Steps,
