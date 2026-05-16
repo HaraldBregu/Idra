@@ -131,21 +131,19 @@ export function SettingsRow({
 	return (
 		<div
 			className={cn(
-				'grid min-h-[72px] gap-3 border-b border-border/70 px-5 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start',
+				'grid min-h-[44px] items-center gap-3 border-b border-border/60 px-4 py-2.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]',
 				className
 			)}
 		>
-			<div className={cn('flex min-w-0 items-start gap-3', contentClassName)}>
+			<div className={cn('flex min-w-0 items-center gap-2.5', contentClassName)}>
 				{media ??
 					(Icon && (
-						<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/50 text-muted-foreground">
-							<Icon className="size-5" strokeWidth={1.8} />
-						</div>
+						<Icon className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 					))}
 				<div className="min-w-0 flex-1">
-					<div className="text-sm font-semibold leading-5 text-foreground">{title}</div>
+					<div className="text-[13px] font-medium leading-5 text-foreground">{title}</div>
 					{description && (
-						<p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
+						<p className="text-xs leading-4 text-muted-foreground">{description}</p>
 					)}
 				</div>
 			</div>
