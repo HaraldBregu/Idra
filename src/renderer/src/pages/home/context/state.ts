@@ -28,6 +28,8 @@ export interface HomeMultiSelectOption {
 	readonly kind: 'approval' | 'input';
 	readonly label: string;
 	readonly description: string;
+	readonly subject?: string;
+	readonly meta?: string;
 	readonly approvalId?: string;
 	readonly decision?: ApprovalDecision;
 	readonly inputId?: string;
