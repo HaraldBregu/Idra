@@ -41,6 +41,12 @@ export interface HomeMultiSelectMessage {
 	readonly options: readonly HomeMultiSelectOption[];
 }
 
+export interface ImmediateApprovalSelection {
+	readonly approvalId: string;
+	readonly decision: ApprovalDecision;
+	readonly optionId: string;
+}
+
 export type HomeChatMessage = UserMessage | AgentMessage | HomeMultiSelectMessage;
 
 export interface AgentChatState {
