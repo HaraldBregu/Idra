@@ -130,10 +130,10 @@ const CronPage: React.FC = () => {
 													{summary}
 												</div>
 												<div className="mt-1 flex flex-wrap items-center gap-1.5">
-													<Badge variant="outline" className="h-5 text-xs">
+													<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
 														{task.data.type}
 													</Badge>
-													<Badge variant="outline" className="h-5 font-mono text-xs">
+													<Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px]">
 														{task.expression}
 													</Badge>
 												</div>
@@ -143,7 +143,7 @@ const CronPage: React.FC = () => {
 											<Button
 												type="button"
 												variant="destructive"
-												size="icon-sm"
+												size="icon-xs"
 												onClick={() => void handleRemoveTask(task.id)}
 												aria-label={t('settings.cron.actions.removeLabel', { id: task.id })}
 												title={t('settings.cron.actions.remove')}

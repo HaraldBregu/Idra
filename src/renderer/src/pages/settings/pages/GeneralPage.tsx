@@ -82,7 +82,7 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.accessibility')}
 						description={t('settings.application.accessibilityDescription')}
 						actions={
-							<Button variant="outline" size="sm" onClick={handleOpenAccessibility}>
+							<Button variant="outline" size="xs" onClick={handleOpenAccessibility}>
 								<Accessibility className="size-3" />
 								{t('settings.application.openAccessibility')}
 							</Button>
@@ -93,7 +93,7 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.screenRecording')}
 						description={t('settings.application.screenRecordingDescription')}
 						actions={
-							<Button variant="outline" size="sm" onClick={handleOpenScreenRecording}>
+							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording}>
 								<MonitorUp className="size-3" />
 								{t('settings.application.openScreenRecording')}
 							</Button>
@@ -112,7 +112,7 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.appData')}
 						description={t('settings.application.appDataDescription')}
 						actions={
-							<Button variant="outline" size="sm" onClick={handleOpenAppDataFolder}>
+							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
 								<FolderOpen className="size-3" />
 								{t('settings.application.openAppData')}
 							</Button>
@@ -123,7 +123,7 @@ const GeneralPage: React.FC = () => {
 						title={t('settings.application.userData')}
 						description={t('settings.application.userDataDescription')}
 						actions={
-							<Button variant="outline" size="sm" onClick={handleOpenUserDataFolder}>
+							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder}>
 								<FolderOpen className="size-3" />
 								{t('settings.application.openUserData')}
 							</Button>

@@ -54,7 +54,7 @@ const AppsPage: React.FC = () => {
 				title={t('settings.tabs.apps')}
 				description={appsRoot || t('settings.apps.description')}
 				action={
-					<Button variant="outline" size="sm" onClick={loadApps} disabled={loading}>
+					<Button variant="outline" size="xs" onClick={loadApps} disabled={loading}>
 						<RefreshCw className="size-3" />
 						{t('settings.apps.refresh')}
 					</Button>
@@ -84,7 +84,7 @@ const AppsPage: React.FC = () => {
 										<span className="truncate">{appInfo.manifest.name}</span>
 										<Badge
 											variant="outline"
-											className="h-5 rounded-lg bg-muted/40 py-0 font-mono text-xs text-muted-foreground"
+											className="h-4 rounded-md bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-muted-foreground"
 										>
 											v{appInfo.manifest.version}
 										</Badge>
@@ -93,7 +93,7 @@ const AppsPage: React.FC = () => {
 								description={appInfo.manifest.description}
 								contentClassName="items-center"
 								media={
-									<div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/70 bg-muted/60">
+									<div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-muted/60">
 										{appInfo.iconDataUrl ? (
 											<img
 												src={appInfo.iconDataUrl}
@@ -101,17 +101,17 @@ const AppsPage: React.FC = () => {
 												className="h-full w-full object-cover"
 											/>
 										) : (
-											<Package className="size-4 text-muted-foreground" strokeWidth={1.8} />
+											<Package className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
 										)}
 									</div>
 								}
 								actions={
 									<div className="flex flex-wrap items-center gap-1.5 sm:flex-nowrap">
-										<Button variant="outline" size="sm" onClick={() => handleOpenFolder(appInfo.id)}>
+										<Button variant="outline" size="xs" onClick={() => handleOpenFolder(appInfo.id)}>
 											<FolderOpen className="size-3" />
 											{t('settings.apps.openFolder')}
 										</Button>
-										<Button variant="destructive" size="sm" onClick={() => handleDelete(appInfo)}>
+										<Button variant="destructive" size="xs" onClick={() => handleDelete(appInfo)}>
 											<Trash2 className="size-3" />
 											{t('settings.apps.delete')}
 										</Button>

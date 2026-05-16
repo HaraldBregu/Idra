@@ -85,7 +85,7 @@ const SystemPage: React.FC = () => {
 										<Button
 											key={option.value}
 											variant={theme === value ? 'secondary' : 'outline'}
-											size="icon-sm"
+											size="icon-xs"
 											onClick={() => setTheme(value)}
 											aria-label={option.label}
 											aria-pressed={theme === value}
@@ -105,7 +105,8 @@ const SystemPage: React.FC = () => {
 						actions={
 							<Select value={language} onValueChange={handleLanguageChange}>
 								<SelectTrigger
-									className="w-44 text-sm"
+									size="sm"
+									className="w-36 text-xs [&_svg]:size-3"
 									aria-label={t('settings.language.title')}
 								>
 									<SelectValue />

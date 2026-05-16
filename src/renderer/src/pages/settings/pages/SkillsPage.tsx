@@ -85,11 +85,11 @@ const SkillsPage: React.FC = () => {
 				description={t('settings.skills.description')}
 				action={
 					<div className="flex flex-wrap items-center gap-2">
-						<Button variant="outline" size="sm" onClick={loadSkills} disabled={loading || importing}>
+						<Button variant="outline" size="xs" onClick={loadSkills} disabled={loading || importing}>
 							<RefreshCw className="size-3" />
 							{t('settings.skills.refresh')}
 						</Button>
-						<Button size="sm" onClick={() => void handleImport()} disabled={loading || importing}>
+						<Button size="xs" onClick={() => void handleImport()} disabled={loading || importing}>
 							<FolderInput className="size-3" />
 							{importing ? t('settings.skills.importing') : t('settings.skills.import')}
 						</Button>
@@ -126,7 +126,7 @@ const SkillsPage: React.FC = () => {
 										<span className="truncate">{skill.manifest.name}</span>
 										<Badge
 											variant="outline"
-											className="h-5 rounded-lg bg-muted/40 py-0 font-mono text-xs text-muted-foreground"
+											className="h-4 rounded-md bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-muted-foreground"
 										>
 											{skill.id}
 										</Badge>
@@ -135,7 +135,7 @@ const SkillsPage: React.FC = () => {
 								description={skill.manifest.description ?? skill.folderPath}
 								contentClassName="items-center"
 								actions={
-									<Button variant="destructive" size="sm" onClick={() => handleDelete(skill)}>
+									<Button variant="destructive" size="xs" onClick={() => handleDelete(skill)}>
 										<Trash2 className="size-3" />
 										{t('settings.skills.delete')}
 									</Button>
