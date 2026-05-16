@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import { Markdown } from '@/components/prompt-kit/markdown';
-import { FeedbackBar } from '@/components/ui/feedback-bar';
 import { Message } from '@/components/ui/message';
 import type { AssistantMessage } from '../context';
 import { AssistantActivityPanel } from './AssistantActivityPanel';
@@ -25,9 +24,6 @@ export function AssistantTextMessage({
 						>
 							{message.content}
 						</Markdown>
-					)}
-					{message.content.length > 0 && (
-						<FeedbackBar className="max-w-xl bg-background/80 px-0 text-xs shadow-sm" />
 					)}
 				</div>
 			</div>
