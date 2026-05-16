@@ -19,6 +19,15 @@ import { Button } from './components/ui/button';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/Page'));
+const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/OverviewPage'));
+const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
+const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
+const ConnectorsPage = lazy(() => import('./pages/settings/pages/ConnectorsPage'));
+const SkillsPage = lazy(() => import('./pages/settings/pages/SkillsPage'));
+const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
+const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
+const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
+const AppsPage = lazy(() => import('./pages/settings/pages/AppsPage'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
@@ -106,12 +115,92 @@ const routes: RouteObject[] = [
 				),
 			},
 			{
-				path: 'settings/*',
+				path: 'settings',
 				element: (
 					<RouteWrapper>
 						<SettingsLayout />
 					</RouteWrapper>
 				),
+				children: [
+					{
+						index: true,
+						element: (
+							<RouteWrapper>
+								<SettingsOverviewPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'general',
+						element: (
+							<RouteWrapper>
+								<GeneralPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'channels',
+						element: (
+							<RouteWrapper>
+								<ChannelsPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'connectors',
+						element: (
+							<RouteWrapper>
+								<ConnectorsPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'skills',
+						element: (
+							<RouteWrapper>
+								<SkillsPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'providers',
+						element: (
+							<RouteWrapper>
+								<ProvidersPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'system',
+						element: (
+							<RouteWrapper>
+								<SystemPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'cron',
+						element: (
+							<RouteWrapper>
+								<CronPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'apps',
+						element: (
+							<RouteWrapper>
+								<AppsPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: '*',
+						loader: () => {
+							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
+						},
+					},
+				],
 			},
 			{
 				path: '*',
