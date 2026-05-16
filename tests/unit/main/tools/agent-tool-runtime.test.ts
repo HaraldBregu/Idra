@@ -139,6 +139,54 @@ describe('canonical agent tool runtime', () => {
 		expect(vetoed.content[0]?.text).toContain('blocked by test');
 	});
 
+	it('lets tool hooks require plugin approvals before execution', async () => {
+		const execute = jest.fn(async (_id, params) => textResult('done', params));
+		const onResolution = jest.fn();
+		const approval = jest.fn(async () => 'allow-once' as const);
+		const wrapped = wrapToolWithBeforeToolCall(tool('plugin_action', { execute }), {
+			approval,
+			beforeToolCallHooks: [
+				() => ({
+					requireApproval: {
+						title: 'Approve plugin action',
+						description: 'Plugin wants to write data.',
+						pluginId: 'demo',
+						allowedDecisions: ['allow-once', 'deny'],
+						onResolution,
+					},
+				}),
+			],
+		});
+
+		const allowed = await wrapped.execute('tc-plugin', { value: 1 });
+
+		expect(allowed.details).toEqual({ value: 1 });
+		expect(approval).toHaveBeenCalledWith(expect.objectContaining({
+			toolName: 'plugin_action',
+			approval: expect.objectContaining({
+				pluginId: 'demo',
+				title: 'Approve plugin action',
+			}),
+		}));
+		expect(onResolution).toHaveBeenCalledWith('allow-once');
+
+		const deniedResolution = jest.fn();
+		const denied = await wrapToolWithBeforeToolCall(tool('plugin_denied', { execute }), {
+			approval: jest.fn(async () => 'deny' as const),
+			beforeToolCallHooks: [
+				() => ({
+					requireApproval: {
+						title: 'Approve plugin action',
+						description: 'Plugin wants to write data.',
+						onResolution: deniedResolution,
+					},
+				}),
+			],
+		}).execute('tc-denied', {});
+		expect(denied.details).toMatchObject({ status: 'blocked', deniedReason: 'denied' });
+		expect(deniedResolution).toHaveBeenCalledWith('deny');
+	});
+
 	it('adapts tools to model definitions and returns structured errors and client pending results', async () => {
 		const badParams = toToolDefinitions([tool('needs_object')])[0]!;
 		const invalid = await badParams.execute('tc1', '{bad json');
