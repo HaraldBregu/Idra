@@ -15,7 +15,7 @@ export const TitleBarContainer = memo(function AppTitleBarContainer({
 	return (
 		<div
 			className={cn(
-				'app-translucent-surface fixed inset-x-0 top-0 z-50 flex h-12 shrink-0 items-center select-none border-b border-border/50 bg-background/70 shadow-sm shadow-foreground/5 backdrop-blur-xl',
+				'app-translucent-surface fixed inset-x-0 top-0 z-50 flex h-12 shrink-0 items-center select-none border-b border-border/50 bg-background/70 backdrop-blur-xl',
 				className
 			)}
 			style={
