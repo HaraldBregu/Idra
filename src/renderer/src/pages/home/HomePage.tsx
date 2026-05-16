@@ -10,7 +10,6 @@ import {
 	Mic,
 	Plus,
 	RotateCcw,
-	Sparkles,
 	Square,
 } from 'lucide-react';
 import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
@@ -186,12 +185,12 @@ function assistantStatusLabel(message: AssistantMessage): string {
 	return runStateLabels[message.state];
 }
 
-function AssistantLabel(): ReactElement {
+function AssistantDot({ className }: { readonly className?: string }): ReactElement {
 	return (
-		<Message className="items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-			<Sparkles className="size-4 text-primary" aria-hidden />
-			<span>Friday</span>
-		</Message>
+		<span
+			className={cn('size-2.5 shrink-0 rounded-full bg-blue-500 shadow-sm shadow-blue-500/30', className)}
+			aria-hidden
+		/>
 	);
 }
 
@@ -202,25 +201,27 @@ function ReferenceConversation({
 }): ReactElement {
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-2 pb-4 pt-5">
-			<section className="flex max-w-xl flex-col gap-3" aria-label="Assistant suggestions">
-				<AssistantLabel />
-				<MessageContent className="w-fit rounded-2xl px-4 py-3 text-sm font-medium leading-snug">
-					A few useful starting points:
-				</MessageContent>
-				<div className="flex flex-col gap-2">
-					{exampleActions.map((action) => (
-						<PromptSuggestion
-							key={action.name}
-							type="button"
-							variant="outline"
-							size="lg"
-							className="grid h-auto min-h-10 w-full grid-cols-[1fr_auto] rounded-xl px-4 py-2.5 text-left"
-							onClick={() => onUseSuggestion(action.prompt)}
-						>
-							<span className="min-w-0 truncate text-sm font-semibold">{action.name}</span>
-							<span className="text-xs font-medium text-muted-foreground">{action.detail}</span>
-						</PromptSuggestion>
-					))}
+			<section className="flex max-w-xl items-start gap-2" aria-label="Assistant suggestions">
+				<AssistantDot className="mt-4" />
+				<div className="flex min-w-0 flex-1 flex-col gap-3">
+					<MessageContent className="w-fit rounded-2xl px-4 py-3 text-sm font-medium leading-snug">
+						A few useful starting points:
+					</MessageContent>
+					<div className="flex flex-col gap-2">
+						{exampleActions.map((action) => (
+							<PromptSuggestion
+								key={action.name}
+								type="button"
+								variant="outline"
+								size="lg"
+								className="grid h-auto min-h-10 w-full grid-cols-[1fr_auto] rounded-xl px-4 py-2.5 text-left"
+								onClick={() => onUseSuggestion(action.prompt)}
+							>
+								<span className="min-w-0 truncate text-sm font-semibold">{action.name}</span>
+								<span className="text-xs font-medium text-muted-foreground">{action.detail}</span>
+							</PromptSuggestion>
+						))}
+					</div>
 				</div>
 			</section>
 		</div>
@@ -337,9 +338,9 @@ function AssistantTextMessage({
 	readonly onCopy: () => void;
 }): ReactElement {
 	return (
-		<Message className="max-w-2xl flex-col gap-2">
-			<AssistantLabel />
-			<div className="group/message flex max-w-full items-start gap-2">
+		<Message className="max-w-2xl items-start gap-2">
+			<AssistantDot className="mt-3" />
+			<div className="group/message flex min-w-0 flex-1 items-start gap-2">
 				<div className="flex min-w-0 flex-1 flex-col gap-2">
 					<AssistantActivityPanel message={message} isStreaming={isStreaming} />
 					{message.content.length > 0 && (
@@ -400,10 +401,10 @@ function PendingMessage({
 	);
 
 	return (
-		<Message className="max-w-2xl flex-col gap-3">
-			<AssistantLabel />
+		<Message className="max-w-2xl items-start gap-2">
+			<AssistantDot className="mt-4" />
 			<MessageContent
-				className="flex flex-col gap-3 rounded-2xl p-4 shadow-sm"
+				className="min-w-0 flex-1 flex-col gap-3 rounded-2xl p-4 shadow-sm"
 				role="group"
 				aria-label={message.prompt}
 			>
