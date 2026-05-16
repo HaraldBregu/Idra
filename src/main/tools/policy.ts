@@ -25,6 +25,7 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'get_workspace_path',
 		'get_agent_service',
 		'get_agent_model',
+		'cron',
 		'cron_list',
 	],
 	standard: [
@@ -42,6 +43,7 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'get_workspace_path',
 		'get_agent_service',
 		'get_agent_model',
+		'cron',
 		'cron_list',
 	],
 	full: 'all',
