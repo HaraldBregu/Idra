@@ -30,20 +30,27 @@ export function stateTone(state: AssistantRunState): string {
 	return 'bg-info/10 text-info';
 }
 
-export function assistantStatusLabel(message: AssistantMessage): string {
-	if (message.state === 'answering' && message.tools.length === 0) {
-		return 'Responding directly';
+function formatElapsedSeconds(message: AssistantMessage): string | undefined {
+	if (message.startedAtMs === undefined || message.completedAtMs === undefined) {
+		return undefined;
 	}
+
+	const seconds = Math.max(1, Math.ceil((message.completedAtMs - message.startedAtMs) / 1000));
+	return `${seconds} second${seconds === 1 ? '' : 's'}`;
+}
+
+export function assistantStatusLabel(message: AssistantMessage): string {
 	if (message.state === 'answering' && message.tools.length > 0) {
 		return 'Answering with tool results';
 	}
-	if (message.state === 'completed' && message.tools.length === 0) {
-		return 'Responded directly';
+
+	if (message.state === 'completed') {
+		const elapsed = formatElapsedSeconds(message);
+		if (message.tools.length > 0) {
+			return elapsed ? `Finished in ${elapsed}` : 'Finished';
+		}
+		return elapsed ? `Thought for ${elapsed}` : 'Thought for a moment';
 	}
-	if (message.state === 'completed' && message.tools.length > 0) {
-		return `Completed with ${message.tools.length} tool call${
-			message.tools.length === 1 ? '' : 's'
-		}`;
-	}
+
 	return runStateLabels[message.state];
 }
