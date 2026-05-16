@@ -194,13 +194,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 
 	await hooks?.onStart?.({ runId });
 	streamEvent?.({ type: 'run_state', state: 'thinking', label: 'Thinking' });
-	streamEvent?.({
-		type: 'reasoning_summary',
-		id: 'understanding-request',
-		title: 'Understanding the request',
-		summary: 'Reviewing the latest user message and available context.',
-		state: 'running',
-	});
 
 	try {
 		for (let iter = 0; iter < maxIterations; iter++) {
@@ -216,23 +209,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 
 			try {
-				if (iter === 0) {
-					streamEvent?.({ type: 'run_state', state: 'reasoning', label: 'Checking context' });
-					streamEvent?.({
-						type: 'reasoning_summary',
-						id: 'checking-context',
-						title: 'Checking available context',
-						summary: 'Selecting the relevant context and tools for this turn.',
-						state: 'completed',
-					});
-					streamEvent?.({
-						type: 'reasoning_summary',
-						id: 'understanding-request',
-						title: 'Understanding the request',
-						summary: 'The request has been interpreted for this turn.',
-						state: 'completed',
-					});
-				}
 				for await (const event of provider.stream({
 					model,
 					system: systemPromptForTurn,
@@ -250,13 +226,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 							if (!didStartAnswering) {
 								didStartAnswering = true;
 								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
-								streamEvent?.({
-									type: 'reasoning_summary',
-									id: 'preparing-answer',
-									title: 'Preparing the answer',
-									summary: 'Composing a response from the available context.',
-									state: 'running',
-								});
 							}
 							text += event.text;
 							streamOutput?.(event.text);
@@ -265,13 +234,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						case 'tool_call_start':
 							pending.set(event.id, { name: event.name, argsStr: '' });
 							streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
-							streamEvent?.({
-								type: 'reasoning_summary',
-								id: `tool-${event.id}`,
-								title: `Using ${event.name}`,
-								summary: `Running ${event.name} to gather the needed result.`,
-								state: 'running',
-							});
 							streamEvent?.({
 								type: 'tool_call_start',
 								iteration: iter,
@@ -405,13 +367,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						durationMs,
 						errorText: out,
 					});
-					streamEvent?.({
-						type: 'reasoning_summary',
-						id: `tool-${id}`,
-						title: `Using ${t.name}`,
-						summary: out,
-						state: 'error',
-					});
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
@@ -449,13 +404,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						status,
 						durationMs,
 						errorText: outText,
-					});
-					streamEvent?.({
-						type: 'reasoning_summary',
-						id: `tool-${id}`,
-						title: `Using ${t.name}`,
-						summary: outText,
-						state: 'error',
 					});
 					session.transcript.push({
 						role: 'tool',
@@ -503,16 +451,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					durationMs,
 					errorText: status === 'error' ? outText : undefined,
 				});
-				streamEvent?.({
-					type: 'reasoning_summary',
-					id: `tool-${id}`,
-					title: `Using ${t.name}`,
-					summary:
-						res.status === 'ok'
-							? `${t.name} finished successfully.`
-							: outText || `${t.name} failed.`,
-					state: res.status === 'ok' ? 'completed' : 'error',
-				});
 				session.transcript.push({
 					role: 'tool',
 					toolUseId: id,
@@ -533,15 +471,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	}
 
 	session.plan = ctx.plan.entries;
-	if (didStartAnswering) {
-		streamEvent?.({
-			type: 'reasoning_summary',
-			id: 'preparing-answer',
-			title: 'Preparing the answer',
-			summary: 'The response has been prepared for display.',
-			state: stopReason === 'cancelled' ? 'error' : 'completed',
-		});
-	}
 
 	await hooks?.onFinish?.({
 		runId,
