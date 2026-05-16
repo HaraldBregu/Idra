@@ -31,6 +31,16 @@ export type ChannelDmPolicy = 'allowlist' | 'pairing' | 'open' | 'deny';
 export interface ChannelAccountProperties {
 	label?: string;
 	enabled?: boolean;
+	token?: string;
+	secret?: string;
+	serverUrl?: string;
+	webhookUrl?: string;
+	appId?: string;
+	clientId?: string;
+	clientSecret?: string;
+	username?: string;
+	phoneNumber?: string;
+	botUserId?: string;
 	allowFrom?: string[];
 	groupAllowFrom?: string[];
 	defaultTarget?: string;
@@ -55,11 +65,24 @@ export interface TelegramChannelAccountProperties extends ChannelAccountProperti
 export interface WhatsappChannelProperties {
 	phoneNumber: string;
 	token: string;
+	enabled?: boolean;
+	defaultAccountId?: string;
+	defaultTarget?: string;
+	dmPolicy?: ChannelDmPolicy;
+	allowFrom?: string[];
+	groupAllowFrom?: string[];
+	accounts?: Record<string, ChannelAccountProperties>;
 }
 
 export interface DiscordChannelProperties {
 	token: string;
 	allowFrom: string[];
+	enabled?: boolean;
+	defaultAccountId?: string;
+	defaultTarget?: string;
+	dmPolicy?: ChannelDmPolicy;
+	groupAllowFrom?: string[];
+	accounts?: Record<string, ChannelAccountProperties>;
 }
 
 export interface GenericChannelProperties {
@@ -68,7 +91,11 @@ export interface GenericChannelProperties {
 	accounts?: Record<string, ChannelAccountProperties>;
 }
 
-export interface Channel extends Partial<Record<ChannelType, unknown>> {
+type ChannelConfigById = {
+	[id in ChannelType]: GenericChannelProperties;
+};
+
+export interface Channel extends ChannelConfigById {
 	telegram: TelegramChannelProperties;
 	whatsapp: WhatsappChannelProperties;
 	discord: DiscordChannelProperties;
