@@ -22,6 +22,7 @@ import type { ToolPolicy } from './tool-policy';
 export type SandboxContext = {
 	sandboxed?: boolean;
 	allowShell?: boolean;
+	readOnly?: boolean;
 	policy?: ToolPolicy;
 };
 
@@ -29,6 +30,10 @@ export type CreateAgentToolsOptions = {
 	config?: AppConfig & {
 		toolPolicies?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
 		toolSearch?: ToolSearchCompactionOptions;
+		tools?: {
+			fs?: { workspaceOnly?: boolean; readOnly?: boolean };
+			exec?: Record<string, unknown>;
+		};
 	};
 	agentId?: string;
 	sessionId?: string;
@@ -144,7 +149,13 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 	const plan = planToolConstruction(options.toolsAllow);
 	const candidates: AgentTool[] = [];
 
-	if (plan.includeFileTools) candidates.push(createReadTool({ workspaceDir: options.workspaceDir }));
+	const fsPolicy = options.config?.tools?.fs;
+	if (plan.includeFileTools) {
+		candidates.push(createReadTool({
+			workspaceDir: options.workspaceDir,
+			allowAbsolutePaths: fsPolicy?.workspaceOnly === false,
+		}));
+	}
 	if (plan.includeShellTools && options.sandbox?.allowShell !== false) {
 		candidates.push(createExecTool({ workspaceDir: options.workspaceDir }));
 	}
@@ -198,7 +209,11 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 
 	const stages: Partial<Record<PolicyStageName, ToolPolicy | undefined>> = {
 		...(options.config?.toolPolicies ?? {}),
-		sandbox: options.sandbox?.policy ?? options.config?.toolPolicies?.sandbox,
+		sandbox: mergeToolPolicy(
+			options.config?.toolPolicies?.sandbox,
+			readOnlyPolicy(options.sandbox?.readOnly || fsPolicy?.readOnly),
+			options.sandbox?.policy
+		),
 		runtime: { allow: options.toolsAllow, deny: options.toolsDeny },
 	};
 	const policy = applyToolPolicyPipeline(candidates, {
@@ -239,6 +254,23 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 	};
 }
 
+function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
+	return readOnly ? { deny: ['write', 'edit', 'apply_patch'] } : undefined;
+}
+
+function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy | undefined {
+	const present = policies.filter((policy): policy is ToolPolicy => policy !== undefined);
+	if (present.length === 0) return undefined;
+	return {
+		profile: present[present.length - 1]?.profile,
+		allow: present.flatMap((policy) => policy.allow ?? []),
+		alsoAllow: present.flatMap((policy) => policy.alsoAllow ?? []),
+		deny: present.flatMap((policy) => policy.deny ?? []),
+		fs: Object.assign({}, ...present.map((policy) => policy.fs ?? {})),
+		exec: Object.assign({}, ...present.map((policy) => policy.exec ?? {})),
+	};
+}
+
 function pluginContext(options: CreateAgentToolsOptions): PluginToolContext {
 	return {
 		config: options.config,
@@ -262,4 +294,3 @@ export function clientToolNames(tools: AgentTool[]): string[] {
 		.filter((tool) => getToolMetadata(tool)?.clientHosted)
 		.map((tool) => tool.name);
 }
-

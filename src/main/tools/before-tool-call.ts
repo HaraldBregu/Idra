@@ -49,7 +49,9 @@ export type BeforeToolCallContext = {
 	approval?: (request: {
 		toolName: string;
 		toolCallId: string;
+		runId?: string;
 		paramsPreview: unknown;
+		derivedPaths?: string[];
 		approval?: Omit<RequiredToolApproval, 'onResolution'>;
 	}) => Promise<ToolApprovalDecision>;
 	beforeToolCallHooks?: BeforeToolCallHook[];
@@ -112,7 +114,9 @@ export function wrapToolWithBeforeToolCall(
 					? await context.approval({
 							toolName: tool.name,
 							toolCallId,
+							runId: context.runId,
 							paramsPreview: sanitizeParamPreview(params),
+							derivedPaths: derivedPaths(params),
 						})
 					: null;
 				if (!approved(decision)) {
@@ -140,7 +144,9 @@ export function wrapToolWithBeforeToolCall(
 						? await context.approval({
 								toolName: tool.name,
 								toolCallId,
+								runId: context.runId,
 								paramsPreview: sanitizeParamPreview(params),
+								derivedPaths: derivedPaths(params),
 								approval: {
 									title: request.title,
 									description: request.description,
@@ -213,6 +219,27 @@ export function wrapToolWithBeforeToolCall(
 	const metadata = getToolMetadata(wrapped);
 	if (metadata) setToolMetadata(wrapped, { ...metadata, wrapped: true });
 	return wrapped;
+}
+
+function derivedPaths(params: unknown): string[] | undefined {
+	const paths = new Set<string>();
+	collectPathValues(params, paths);
+	return paths.size > 0 ? [...paths] : undefined;
+}
+
+function collectPathValues(value: unknown, paths: Set<string>): void {
+	if (Array.isArray(value)) {
+		for (const entry of value) collectPathValues(entry, paths);
+		return;
+	}
+	if (!value || typeof value !== 'object') return;
+	for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+		if ((key === 'path' || key === 'file' || key.endsWith('Path')) && typeof entry === 'string') {
+			paths.add(entry);
+		} else {
+			collectPathValues(entry, paths);
+		}
+	}
 }
 
 function approvalResolution(

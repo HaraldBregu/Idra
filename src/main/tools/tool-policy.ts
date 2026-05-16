@@ -1,9 +1,15 @@
 import type { AgentTool, ToolDiagnostics } from './common';
 import { getToolMetadata, normalizeToolName } from './common';
 
+export type ToolProfile = 'minimal' | 'coding' | 'messaging' | 'full';
+
 export type ToolPolicy = {
+	profile?: ToolProfile;
 	allow?: string[];
+	alsoAllow?: string[];
 	deny?: string[];
+	fs?: { workspaceOnly?: boolean; readOnly?: boolean };
+	exec?: Record<string, unknown>;
 };
 
 export const CORE_TOOL_GROUPS: Record<string, string[]> = {
@@ -17,6 +23,13 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 	'group:mcp': [],
 	'group:lsp': [],
 	'group:client': [],
+};
+
+const PROFILE_ALLOW: Record<ToolProfile, string[] | '*'> = {
+	minimal: ['session_status', 'get_workspace_path', 'update_plan'],
+	coding: ['read', 'write', 'edit', 'apply_patch', 'find', 'exec', 'process', 'update_plan'],
+	messaging: ['message', 'ask_human', 'session_create', 'session_resume', 'session_close'],
+	full: '*',
 };
 
 export type ToolCatalogIndex = {
@@ -94,3 +107,15 @@ export function expandPolicyEntries(
 	return expanded;
 }
 
+export function expandProfile(
+	profile: ToolProfile | undefined,
+	tools: readonly AgentTool[],
+	diagnostics?: Pick<ToolDiagnostics, 'warnings'>,
+	stage = 'profile'
+): Set<string> | undefined {
+	if (!profile) return undefined;
+	const entries = PROFILE_ALLOW[profile];
+	return entries === '*'
+		? expandPolicyEntries(['*'], tools, diagnostics, stage)
+		: expandPolicyEntries(entries, tools, diagnostics, stage);
+}

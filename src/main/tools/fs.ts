@@ -9,9 +9,18 @@ function expandUser(p: string): string {
 	return p;
 }
 
-function resolveAbs(workspace: string, target: string): string {
+function isInsidePath(root: string, target: string): boolean {
+	const relative = path.relative(path.resolve(root), path.resolve(target));
+	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function resolveAbs(workspace: string, target: string, workspaceOnly = false): string {
 	const expanded = expandUser(target);
-	return path.isAbsolute(expanded) ? path.resolve(expanded) : path.resolve(workspace, expanded);
+	const resolved = path.isAbsolute(expanded) ? path.resolve(expanded) : path.resolve(workspace, expanded);
+	if (workspaceOnly && !isInsidePath(workspace, resolved)) {
+		throw new Error('Path is outside the workspace.');
+	}
+	return resolved;
 }
 
 interface ReadArgs {
@@ -37,7 +46,7 @@ export const readTool: AgentTool<ReadArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		const abs = resolveAbs(ctx.workspace, args.path);
+		const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
@@ -79,7 +88,8 @@ export const writeTool: AgentTool<WriteArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		const abs = resolveAbs(ctx.workspace, args.path);
+		if (ctx.fsPolicy?.readOnly) return textResult('write: disabled by read-only filesystem policy.', true);
+		const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
 		let exists = false;
 		let stat: { mtimeMs: number; size: number } | null = null;
 		try {
@@ -140,7 +150,8 @@ export const editTool: AgentTool<EditArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		const abs = resolveAbs(ctx.workspace, args.path);
+		if (ctx.fsPolicy?.readOnly) return textResult('edit: disabled by read-only filesystem policy.', true);
+		const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
 		if (args.old === args.new) return textResult('edit: old and new are identical', true);
 		let stat;
 		try {
@@ -206,12 +217,15 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
+		if (ctx.fsPolicy?.readOnly) {
+			return textResult('apply_patch: disabled by read-only filesystem policy.', true);
+		}
 		try {
 			const patches = parseUnifiedDiff(String(args.diff ?? ''));
 			if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
 			const changed: string[] = [];
 			for (const patch of patches) {
-				const abs = resolveAbs(ctx.workspace, patch.path);
+				const abs = resolveAbs(ctx.workspace, patch.path, ctx.fsPolicy?.workspaceOnly !== false);
 				const stat = await fs.stat(abs);
 				const last = ctx.readState.get(abs);
 				if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
@@ -325,7 +339,7 @@ export const findTool: AgentTool<FindArgs> = {
 	async execute(args, ctx) {
 		const pattern = String(args.pattern ?? '').trim();
 		if (!pattern) return textResult('find: pattern required', true);
-		const dir = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
+		const dir = args.path ? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true) : ctx.workspace;
 		const limit = typeof args.limit === 'number' && args.limit > 0 ? args.limit : DEFAULT_FIND_LIMIT;
 		try {
 			const stat = await fs.stat(dir).catch(() => null);

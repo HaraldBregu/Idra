@@ -48,6 +48,8 @@ export interface ToolContext {
 	plan: { entries: PlanEntry[] };
 	/** Tool names that require human approval before each invocation. */
 	approvalRequired: Set<string>;
+	/** Filesystem exposure policy for model-visible host tools. */
+	fsPolicy?: { workspaceOnly?: boolean; readOnly?: boolean };
 	/** Approvals already granted this run (keyed by tool+args). */
 	approvalCache: Set<string>;
 	/** Approval stream — pluggable channel to the host. */

@@ -1,6 +1,6 @@
 import type { AgentTool, FilteredToolDiagnostic, ToolDiagnostics } from './common';
 import { getToolMetadata, normalizeToolName } from './common';
-import { expandPolicyEntries, type ToolPolicy } from './tool-policy';
+import { expandPolicyEntries, expandProfile, type ToolPolicy } from './tool-policy';
 
 export type PolicyStageName =
 	| 'profile'
@@ -68,10 +68,13 @@ export function applyToolPolicyPipeline(
 		const policy = context.stages?.[stage];
 		if (!policy) continue;
 		const before = new Set(current.map((tool) => normalizeToolName(tool.name)));
+		const profileAllow = expandProfile(policy.profile, tools, diagnostics, stage);
 		const allow = expandPolicyEntries(policy.allow, tools, diagnostics, stage);
+		const alsoAllow = expandPolicyEntries(policy.alsoAllow, tools, diagnostics, stage);
 		const deny = expandPolicyEntries(policy.deny, tools, diagnostics, stage);
-		if (allow !== undefined) {
-			current = current.filter((tool) => allow.has(normalizeToolName(tool.name)));
+		const grant = unionSets(profileAllow, allow, alsoAllow);
+		if (grant !== undefined) {
+			current = current.filter((tool) => grant.has(normalizeToolName(tool.name)));
 		}
 		if (deny && deny.size > 0) {
 			current = current.filter((tool) => !deny.has(normalizeToolName(tool.name)));
@@ -106,3 +109,12 @@ export function applyToolPolicyPipeline(
 	return { tools: current, filtered, warnings };
 }
 
+function unionSets(...sets: Array<Set<string> | undefined>): Set<string> | undefined {
+	const present = sets.filter((set): set is Set<string> => set !== undefined);
+	if (present.length === 0) return undefined;
+	const out = new Set<string>();
+	for (const set of present) {
+		for (const value of set) out.add(value);
+	}
+	return out;
+}

@@ -38,7 +38,8 @@ describe('tools/policy and registry', () => {
 	}));
 
 	it('filters by profile, allow globs, and deny globs', () => {
-		expect(filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)).toEqual(['read']);
+		expect(filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)).toEqual([]);
+		expect(filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read'], deny: [] }).map((t) => t.name)).toEqual(['read']);
 		expect(filterTools(all, { profile: 'full', allow: ['w*'], deny: ['web_*'] }).map((t) => t.name)).toEqual(['write']);
 		expect(createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')).toBe(false);
 	});
@@ -114,6 +115,24 @@ describe('tools/fs', () => {
 		const found = await findTool.execute({ pattern: '**/*.txt' }, ctx);
 		expect(found.content[0]?.text).toContain('nested/b.txt');
 		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('enforces workspace-only and read-only filesystem policy', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
+		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
+		const ctx = makeToolContext({ workspace, fsPolicy: { workspaceOnly: true } });
+
+		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
+		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe('error');
+		expect((await writeTool.execute({ path: 'new.txt', content: 'x' }, makeToolContext({
+			workspace,
+			fsPolicy: { readOnly: true },
+		}))).toMatchObject({ status: 'error' });
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
 	});
 
 	it('applies unified diffs only after reading the target file', async () => {

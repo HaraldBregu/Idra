@@ -81,7 +81,7 @@ describe('canonical agent tool runtime', () => {
 		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(true);
 	});
 
-	it('applies layered policy, groups, plugin id expansion, owner-only, sandbox, and runtime deny', () => {
+	it('applies layered profile policy, groups, plugin id expansion, owner-only, sandbox, and runtime deny', () => {
 		const pluginTool = tool('plugin_lookup');
 		setToolMetadata(pluginTool, { ownerKind: 'plugin', pluginId: 'calendar' });
 		const ownerOnly = tool('owner_secret', { ownerOnly: true });
@@ -98,6 +98,25 @@ describe('canonical agent tool runtime', () => {
 		});
 		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
 		expect(diagnostics.filteredTools.map((entry) => entry.stage)).toEqual(expect.arrayContaining(['ownerOnly', 'runtime']));
+	});
+
+	it('does not let fs config grant tools and applies deny after profile grants', () => {
+		const tools = [tool('read'), tool('write'), tool('edit'), tool('apply_patch'), tool('exec')];
+		expect(applyToolPolicyPipeline(tools, {
+			stages: {
+				global: { fs: { workspaceOnly: false } },
+			},
+		}).tools.map((entry) => entry.name)).toEqual(tools.map((entry) => entry.name));
+		expect(applyToolPolicyPipeline(tools, {
+			stages: {
+				global: { profile: 'coding', deny: ['write', 'edit', 'apply_patch'] },
+			},
+		}).tools.map((entry) => entry.name)).toEqual(['read', 'exec']);
+		expect(applyToolPolicyPipeline(tools, {
+			stages: {
+				global: { profile: 'minimal', alsoAllow: ['read'], deny: ['read'] },
+			},
+		}).tools.map((entry) => entry.name)).toEqual([]);
 	});
 
 	it('normalizes provider schemas while preserving metadata', () => {
@@ -144,6 +163,7 @@ describe('canonical agent tool runtime', () => {
 		const onResolution = jest.fn();
 		const approval = jest.fn(async () => 'allow-once' as const);
 		const wrapped = wrapToolWithBeforeToolCall(tool('plugin_action', { execute }), {
+			runId: 'run-1',
 			approval,
 			beforeToolCallHooks: [
 				() => ({
@@ -163,6 +183,8 @@ describe('canonical agent tool runtime', () => {
 		expect(allowed.details).toEqual({ value: 1 });
 		expect(approval).toHaveBeenCalledWith(expect.objectContaining({
 			toolName: 'plugin_action',
+			runId: 'run-1',
+			derivedPaths: undefined,
 			approval: expect.objectContaining({
 				pluginId: 'demo',
 				title: 'Approve plugin action',
@@ -285,6 +307,31 @@ describe('canonical agent tool runtime', () => {
 		expect(pluginFactory).not.toHaveBeenCalled();
 		expect(result.diagnostics.builtTools).toContain('read');
 		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('passes fs workspace policy to built-in tools and removes write-capable tools in read-only sandboxes', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
+		const wide = await createAgentTools({
+			workspaceDir: workspace,
+			toolsAllow: ['read'],
+			config: { tools: { fs: { workspaceOnly: false } } },
+		});
+		const read = wide.tools.find((entry) => entry.name === 'read')!;
+		await expect(read.execute('tc-outside', { path: path.join(outside, 'outside.txt') })).resolves.toMatchObject({
+			details: expect.objectContaining({ size: 7 }),
+		});
+
+		const sandboxed = await createAgentTools({
+			workspaceDir: workspace,
+			toolsAllow: ['read', 'write', 'edit', 'apply_patch'],
+			clientTools: [tool('write'), tool('edit'), tool('apply_patch')],
+			sandbox: { readOnly: true },
+		});
+		expect(sandboxed.tools.map((entry) => entry.name)).toEqual(['read']);
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
 	});
 
 	it('fails closed when a client-hosted tool conflicts with a core tool name', async () => {
