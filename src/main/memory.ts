@@ -2,7 +2,16 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { resolveDefaultUserDataPath } from './user-data';
 
-const TEMPLATE_FILES = ['AGENTS.md', 'BOOTSTRAP.md', 'HEARTBEAT.md', 'MEMORY.md', 'SOUL.md', 'USER.md'];
+const TEMPLATE_FILES = [
+	'AGENTS.md',
+	'SOUL.md',
+	'TOOLS.md',
+	'IDENTITY.md',
+	'USER.md',
+	'HEARTBEAT.md',
+	'BOOTSTRAP.md',
+	'MEMORY.md',
+];
 
 // Bundled at build time by Vite — keys are template filenames, values are file contents.
 const TEMPLATES: Record<string, string> = Object.fromEntries(
