@@ -146,6 +146,60 @@ describe('agent/run', () => {
 		]);
 	});
 
+	it('rejects malformed tool arguments without executing the tool', async () => {
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'should not run' }],
+		}));
+		const tool: AgentTool = {
+			name: 'ping',
+			description: 'Ping',
+			schema: { type: 'object' },
+			execute,
+		};
+
+		const result = await runAgent({
+			runId: 'r1',
+			userMessage: 'do it',
+			systemPrompt: 'sys',
+			session: session(),
+			provider: provider([
+				[
+					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
+					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"value":' },
+					{ type: 'tool_call_end', id: 'tc1' },
+					end(),
+				],
+				[{ type: 'text_delta', text: 'recovered' }, end()],
+			]),
+			model: 'gpt-test',
+			tools: [tool],
+			ctx: makeToolContext(),
+		});
+
+		expect(execute).not.toHaveBeenCalled();
+		expect(result.toolCalls).toBe(1);
+		expect(result.finalText).toBe('recovered');
+		expect(result.session.transcript[1]).toEqual({
+			role: 'assistant',
+			content: [
+				{
+					type: 'tool_use',
+					toolUseId: 'tc1',
+					toolName: 'ping',
+					toolArgs: { __unparsed: '{"value":' },
+				},
+			],
+		});
+		expect(result.session.transcript[2]).toEqual({
+			role: 'tool',
+			toolUseId: 'tc1',
+			isError: true,
+			status: 'error',
+			content: [expect.objectContaining({ type: 'text', text: expect.stringContaining('Invalid JSON arguments') })],
+		});
+	});
+
 	it('stores multiple tool calls and rejected results with stable call ids', async () => {
 		const events: ProviderEvent[] = [];
 		const safeTool: AgentTool = {
