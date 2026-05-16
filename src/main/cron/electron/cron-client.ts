@@ -6,6 +6,8 @@ import type {
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduleUpdateRequest,
+	OpenClawCronToolRequest,
+	OpenClawCronToolResponse,
 } from '../../../shared/cron';
 import type { Task } from '../../../shared/task';
 
@@ -21,6 +23,7 @@ export interface CronClient {
 	getScheduleExecutions(scheduleId: string): Promise<CronExecutionRecord[]>;
 	runScheduleNow(scheduleId: string): Promise<Task>;
 	getNextRuns(scheduleId: string, count: number): Promise<CronNextRunPreview>;
+	action(request: OpenClawCronToolRequest): Promise<OpenClawCronToolResponse>;
 	subscribeToSchedules(listener: (event: CronScheduleEvent) => void): () => void;
 	subscribeToSchedule(scheduleId: string, listener: (event: CronScheduleEvent) => void): () => void;
 }
