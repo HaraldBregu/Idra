@@ -174,6 +174,7 @@ function PromptInput({
           value: currentValue,
           setValue: onValueChange ?? handleChange,
           maxHeight,
+          maxLength,
           onSubmit,
           disabled,
           textareaRef,
