@@ -6,6 +6,7 @@
 	"author": "Harald Bregu <harald.bregu@gmail.com>",
 	"version": "1.0.0",
 	"private": true,
+	"packageManager": "yarn@4.14.1",
 	"copyright": "© 2026 Friday Project. All rights reserved.",
 	"type": "module",
 	"license": "MIT",
