@@ -68,7 +68,7 @@ describe('hitl bridge and agent registry', () => {
 		const hitl = new HitlBridge({ broadcast: jest.fn() } as never, 'main');
 		const approval = hitl.requestApproval({ toolName: 'exec', question: 'Run?', args: {} });
 		hitl.cancelAll('stop');
-		await expect(approval).rejects.toThrow('stop');
+		await expect(approval).resolves.toBeNull();
 	});
 
 	it('registers agents by id and rejects duplicate ids', () => {
