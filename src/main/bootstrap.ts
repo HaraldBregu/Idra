@@ -68,9 +68,6 @@ export function bootstrapServices(): BootstrapResult {
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
-	void cron.start().catch((error) => {
-		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
-	});
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
@@ -97,6 +94,9 @@ export function bootstrapServices(): BootstrapResult {
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
 	cron.configureOpenClawRuntime({ agentService, eventBus, channelRegistry });
+	void cron.start().catch((error) => {
+		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
+	});
 
 	container.register('apps', new AppsService(logger, userDataDirectory));
 
