@@ -1,5 +1,8 @@
-Check the following and report anything worth the user's attention.
-If nothing is noteworthy, respond with exactly: HEARTBEAT_OK
+# HEARTBEAT.md - Periodic Guidance
 
-- If it's morning (before 10am local time), send a brief good morning — include weather if you can get it
-- Otherwise, stay quiet unless something genuinely needs attention
+Keep this file empty or comment-only to skip proactive work.
+
+Add short checklist items here when Friday should periodically check something.
+If nothing is noteworthy during a heartbeat run, respond exactly:
+
+HEARTBEAT_OK
