@@ -88,7 +88,7 @@ export async function beforeToolCall(
 					},
 				};
 			}
-			ctx.approvalCache.add(key);
+			if (decision === 'allow-always') ctx.approvalCache.add(key);
 		}
 	}
 
