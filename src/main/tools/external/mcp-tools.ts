@@ -1,12 +1,13 @@
 import type { AgentTool, ToolDiagnostics } from '../common';
 import { markMcpTool, toProviderSafeName, ToolAuthorizationError } from '../common';
 import { jsonResult, payloadTextResult } from '../results';
+import type { JSONSchema } from '../../provider/types';
 
 export type McpToolDescriptor = {
 	serverId: string;
 	name: string;
 	description: string;
-	parameters: unknown;
+	parameters: JSONSchema;
 };
 
 export type McpRuntime = {
@@ -91,4 +92,3 @@ export function normalizeMcpResult(result: unknown) {
 	}
 	return jsonResult(result);
 }
-
