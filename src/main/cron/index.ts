@@ -1,4 +1,5 @@
 export { CronService } from './service';
+export type { CronServiceOptions } from './service';
 export type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 export type * from './core/cron.types';
 export * from './core/cron.errors';
