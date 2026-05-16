@@ -1,10 +1,16 @@
 import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
+import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
+import type { ChannelRegistry } from '../channels';
+import type { AgentService } from '../service';
+import { resolveDefaultUserDataPath, type UserDataDirectoryServicePort } from '../user-data';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
+	type OpenClawCronToolRequest,
+	type OpenClawCronToolResponse,
 	type CronNextRunPreview,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
@@ -28,9 +34,27 @@ import {
 	StoreBackedCronTaskManager,
 	TaskManagerCronScheduleRunner,
 } from './scheduler/cron-runner';
+import { FileOpenClawCronStore } from './openclaw/file-store';
+import {
+	GatewayOpenClawCronDelivery,
+	AgentServiceOpenClawCronExecutor,
+} from './openclaw/runtime-adapters';
+import {
+	NoopOpenClawCronDelivery,
+	NoopOpenClawCronExecutor,
+	OpenClawCronScheduler,
+	type OpenClawCronActor,
+	type OpenClawCronSchedulerOptions,
+} from './openclaw/scheduler';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
+}
+
+export interface CronServiceOptions {
+	enabled?: boolean;
+	userDataDirectory?: UserDataDirectoryServicePort;
+	openClaw?: OpenClawCronSchedulerOptions;
 }
 
 /**
@@ -46,10 +70,19 @@ export class CronService implements Disposable {
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
+	private readonly openClaw: OpenClawCronScheduler;
+	private readonly automaticEnabled: boolean;
 
-	constructor(store: StoreService, logger: LoggerService, taskManager?: CronTaskManagerPort) {
+	constructor(
+		store: StoreService,
+		logger: LoggerService,
+		taskManager?: CronTaskManagerPort,
+		options: CronServiceOptions = {}
+	) {
 		this.store = store;
 		this.logger = logger;
+		this.automaticEnabled =
+			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(store);
 		const runner = new TaskManagerCronScheduleRunner(taskManager ?? new StoreBackedCronTaskManager());
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
@@ -65,22 +98,65 @@ export class CronService implements Disposable {
 			logger,
 			new CronConfirmationManager()
 		);
+		const openClawRoot = options.userDataDirectory?.resolve('cron') ?? resolveDefaultUserDataPath('cron');
+		this.openClaw = new OpenClawCronScheduler(
+			new FileOpenClawCronStore(openClawRoot),
+			new NoopOpenClawCronExecutor(),
+			new NoopOpenClawCronDelivery(),
+			{
+				...options.openClaw,
+				enabled: this.automaticEnabled,
+			},
+			logger
+		);
 	}
 
 	get events(): CronSchedulerService['events'] {
 		return this.scheduler.events;
 	}
 
-	start(): Promise<void> {
-		return this.scheduler.start();
+	async start(): Promise<void> {
+		if (!this.automaticEnabled) {
+			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
+			await this.openClaw.start();
+			return;
+		}
+		await this.scheduler.start();
+		await this.openClaw.start();
 	}
 
-	stop(): Promise<void> {
-		return this.scheduler.stop();
+	async stop(): Promise<void> {
+		await this.scheduler.stop();
+		await this.openClaw.stop();
 	}
 
-	reload(): Promise<void> {
-		return this.scheduler.reload();
+	async reload(): Promise<void> {
+		await this.scheduler.reload();
+		if (this.automaticEnabled) await this.openClaw.recoverStartup();
+	}
+
+	configureOpenClawRuntime(dependencies: {
+		agentService?: AgentService;
+		eventBus?: EventBus;
+		channelRegistry?: ChannelRegistry;
+	}): void {
+		if (dependencies.agentService) {
+			this.openClaw.setExecutor(new AgentServiceOpenClawCronExecutor(dependencies.agentService));
+		}
+		this.openClaw.setDelivery(
+			new GatewayOpenClawCronDelivery({
+				eventBus: dependencies.eventBus,
+				channelRegistry: dependencies.channelRegistry,
+				logger: this.logger,
+			})
+		);
+	}
+
+	openClawAction(
+		request: OpenClawCronToolRequest,
+		actor?: OpenClawCronActor
+	): Promise<OpenClawCronToolResponse> {
+		return this.openClaw.handleToolAction(request, actor);
 	}
 
 	createSchedule(
@@ -161,6 +237,20 @@ export class CronService implements Disposable {
 			throw new Error(`Invalid cron expression for "${id}": ${expression}`);
 		}
 
+		const record: CronTask<TData> = {
+			id,
+			expression,
+			data,
+			timezone: options.timezone,
+			createdAt: new Date().toISOString(),
+		};
+
+		if (!this.automaticEnabled) {
+			this.persistTask(record);
+			this.logger.warn('CronService', `Saved job "${id}" while cron automatic execution is disabled`);
+			return record;
+		}
+
 		const task = cron.schedule(
 			expression,
 			async () => {
@@ -176,13 +266,6 @@ export class CronService implements Disposable {
 		);
 
 		this.jobs.set(id, { id, expression, timezone: options.timezone, task });
-		const record: CronTask<TData> = {
-			id,
-			expression,
-			data,
-			timezone: options.timezone,
-			createdAt: new Date().toISOString(),
-		};
 		this.persistTask(record);
 		this.logger.info('CronService', `Scheduled job "${id}" with "${expression}"`);
 
@@ -209,6 +292,10 @@ export class CronService implements Disposable {
 	 * supplied dispatcher. Should be called once on startup.
 	 */
 	restore(dispatcher: CronTaskHandler): void {
+		if (!this.automaticEnabled) {
+			this.logger.warn('CronService', 'Cron restore skipped because automatic execution is disabled');
+			return;
+		}
 		const raw = this.store.getCronTasks();
 		if (raw.length === 0) {
 			this.logger.info('CronService', 'No persisted cron tasks to restore');
@@ -270,6 +357,7 @@ export class CronService implements Disposable {
 
 	destroy(): void {
 		void this.scheduler.stop();
+		void this.openClaw.stop();
 		for (const job of this.jobs.values()) {
 			try {
 				job.task.stop();
