@@ -1,21 +1,18 @@
 import type { ReactElement, RefObject } from 'react';
-import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { Components } from 'react-markdown';
 import {
 	ArrowUp,
 	AudioLines,
-	Calendar,
 	ChevronDown,
 	Copy,
 	ListChecks,
 	Mic,
-	Play,
 	Plus,
 	RotateCcw,
 	Sparkles,
 	Square,
 } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
 import { PageContainer } from '@/components/app/base/page';
 import {
@@ -588,35 +585,18 @@ function Composer({
 	readonly onReset: () => void;
 	readonly onVoiceModeRequest: () => void;
 }): ReactElement {
-	const [isExpanded, setIsExpanded] = useState(false);
-	const prefersReducedMotion = useReducedMotion();
 	const canSubmit = value.trim().length > 0;
-	const canSend = isLoading || canSubmit;
-	const composerTransition = prefersReducedMotion
-		? { duration: 0 }
-		: { type: 'spring' as const, stiffness: 420, damping: 36, mass: 0.75 };
-
-	useLayoutEffect(() => {
-		const textarea = inputRef.current;
-		if (!textarea || value.length === 0) {
-			setIsExpanded(false);
-			return;
-		}
-
-		setIsExpanded(value.includes('\n') || textarea.scrollHeight > 52);
-	}, [inputRef, value]);
-
 	const submitActionLabel = isLoading
 		? 'Stop generation'
 		: canSubmit
 			? 'Send message'
 			: 'Start voice conversation';
 	const submitActionIcon = isLoading ? (
-		<Square className="size-5 fill-current" />
+		<Square className="size-4 fill-current" />
 	) : canSubmit ? (
-		<ArrowUp className="size-5" />
+		<ArrowUp className="size-4" />
 	) : (
-		<AudioLines className="size-5" />
+		<AudioLines className="size-4" />
 	);
 	const handlePrimaryAction = (): void => {
 		if (isLoading || canSubmit) {
@@ -632,148 +612,84 @@ function Composer({
 				type="button"
 				variant="ghost"
 				size="icon"
-				className="size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+				className="size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
 				aria-label="Add attachment"
 			>
-				<Plus className="size-6" />
+				<Plus className="size-4" />
 			</Button>
 		</PromptInputAction>
 	);
 
 	return (
-		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-8">
-			<motion.div
-				layout
-				transition={composerTransition}
-				className="mx-auto w-full max-w-[96rem]"
-			>
-				<PromptInput
-					value={value}
-					onValueChange={onValueChange}
-					isLoading={isLoading}
-					maxHeight={360}
-					onSubmit={onSubmit}
-					textareaRef={inputRef}
-					className={cn(
-						'w-full border-border/70 bg-card/95 text-foreground shadow-xl shadow-foreground/5 transition-[border-radius,min-height,padding] duration-150 focus-within:ring-2 focus-within:ring-ring/25',
-						isExpanded
-							? 'flex max-h-[min(52vh,34rem)] min-h-44 flex-col rounded-[2rem] px-6 py-5'
-							: 'flex min-h-16 items-center gap-3 rounded-full px-4 py-2'
-					)}
-				>
-					<AnimatePresence initial={false}>
-						{!isExpanded && (
-							<motion.div
-								key="compact-attachment"
-								layout
-								initial={{ opacity: 0, scale: 0.92 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.92 }}
-								transition={composerTransition}
-								className="shrink-0"
+		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-6">
+			<PromptInput
+				value={value}
+				onValueChange={onValueChange}
+				isLoading={isLoading}
+				maxHeight={360}
+				onSubmit={onSubmit}
+				textareaRef={inputRef}
+				leadingAction={attachmentButton}
+				className="w-full"
+				actions={
+					<PromptInputActions className="justify-end gap-1.5">
+						<PromptInputAction tooltip="Reset conversation">
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								className={cn(
+									'size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground',
+									!canReset && 'hidden'
+								)}
+								aria-label="Reset conversation"
+								disabled={!canReset}
+								onClick={onReset}
 							>
-								{attachmentButton}
-							</motion.div>
-						)}
-					</AnimatePresence>
-					<motion.div
-						layout
-						transition={composerTransition}
-						className={cn(isExpanded ? 'min-h-0 flex-1' : 'min-w-0 flex-1')}
-					>
-						<PromptInputTextarea
-							placeholder="Ask anything"
-							aria-label="Message Friday"
-							className={cn(
-								'appearance-none !border-0 bg-transparent px-0 text-base leading-7 text-foreground !shadow-none !outline-none placeholder:text-muted-foreground focus:!border-transparent focus:!outline-none focus:!ring-0 focus-visible:!border-transparent focus-visible:!outline-none focus-visible:!ring-0 md:text-base',
-								isExpanded
-									? 'max-h-[38vh] min-h-28 overflow-y-auto py-0'
-									: 'h-9 min-h-9 overflow-hidden py-1'
-							)}
-						/>
-					</motion.div>
-					<motion.div
-						layout
-						transition={composerTransition}
-						className={cn(
-							isExpanded
-								? 'mt-4 flex items-center justify-between gap-3'
-								: 'flex shrink-0 items-center gap-2'
-						)}
-					>
-						<AnimatePresence initial={false}>
-							{isExpanded && (
-								<motion.div
-									key="expanded-attachment"
-									layout
-									initial={{ opacity: 0, scale: 0.92 }}
-									animate={{ opacity: 1, scale: 1 }}
-									exit={{ opacity: 0, scale: 0.92 }}
-									transition={composerTransition}
-									className="shrink-0"
-								>
-									{attachmentButton}
-								</motion.div>
-							)}
-						</AnimatePresence>
-						<PromptInputActions className="justify-end gap-2">
-							<PromptInputAction tooltip="Reset conversation">
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className={cn(
-										'size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground',
-										!canReset && 'hidden'
-									)}
-									aria-label="Reset conversation"
-									disabled={!canReset}
-									onClick={onReset}
-								>
-									<RotateCcw className="size-4" />
-								</Button>
-							</PromptInputAction>
-							<PromptInputAction tooltip="Reasoning mode">
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									className="hidden h-10 rounded-full px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex"
-									aria-label="Reasoning mode: Thinking"
-								>
-									<span>Thinking</span>
-									<ChevronDown className="size-4" />
-								</Button>
-							</PromptInputAction>
-							<PromptInputAction tooltip="Voice assistant">
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className="size-10 rounded-full text-foreground hover:bg-muted"
-									aria-label="Switch to voice"
-									onClick={onVoiceModeRequest}
-								>
-									<Mic className="size-5" />
-								</Button>
-							</PromptInputAction>
-							<PromptInputAction tooltip={submitActionLabel}>
-								<Button
-									type="button"
-									variant="default"
-									size="icon"
-									className="size-11 rounded-full bg-foreground text-background hover:bg-foreground/90"
-									aria-label={submitActionLabel}
-									disabled={!canSend}
-									onClick={handlePrimaryAction}
-								>
-									{submitActionIcon}
-								</Button>
-							</PromptInputAction>
-						</PromptInputActions>
-					</motion.div>
-				</PromptInput>
-			</motion.div>
+								<RotateCcw className="size-4" />
+							</Button>
+						</PromptInputAction>
+						<PromptInputAction tooltip="Reasoning mode">
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								className="hidden h-8 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex"
+								aria-label="Reasoning mode: Thinking"
+							>
+								<span>Thinking</span>
+								<ChevronDown className="size-3.5" />
+							</Button>
+						</PromptInputAction>
+						<PromptInputAction tooltip="Voice assistant">
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								className="size-8 rounded-lg text-foreground hover:bg-muted"
+								aria-label="Switch to voice"
+								onClick={onVoiceModeRequest}
+							>
+								<Mic className="size-4" />
+							</Button>
+						</PromptInputAction>
+						<PromptInputAction tooltip={submitActionLabel}>
+							<Button
+								type="button"
+								variant="default"
+								size="icon"
+								className="size-9 rounded-lg bg-foreground text-background hover:bg-foreground/90"
+								aria-label={submitActionLabel}
+								onClick={handlePrimaryAction}
+							>
+								{submitActionIcon}
+							</Button>
+						</PromptInputAction>
+					</PromptInputActions>
+				}
+			>
+				<PromptInputTextarea placeholder="Ask anything" aria-label="Message Friday" />
+			</PromptInput>
 		</div>
 	);
 }
