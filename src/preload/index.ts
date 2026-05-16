@@ -43,6 +43,8 @@ import type {
 	AgentPendingState,
 	AgentResponseEvent,
 	Model,
+	WorkspaceFileContent,
+	WorkspaceFileSummary,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
@@ -106,6 +108,15 @@ export const agent: AgentApi = {
 	},
 	getPending: (): Promise<AgentPendingState> => {
 		return typedInvokeUnwrap(AgentChannels.getPending);
+	},
+	listWorkspaceFiles: (): Promise<WorkspaceFileSummary[]> => {
+		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
+	},
+	readWorkspaceFile: (name: string): Promise<WorkspaceFileContent> => {
+		return typedInvokeUnwrap(AgentChannels.readWorkspaceFile, name);
+	},
+	writeWorkspaceFile: (name: string, content: string): Promise<WorkspaceFileContent> => {
+		return typedInvokeUnwrap(AgentChannels.writeWorkspaceFile, name, content);
 	},
 	onResponse: (callback: (event: AgentResponseEvent) => void): (() => void) => {
 		return typedOn(AgentChannels.response, callback);
