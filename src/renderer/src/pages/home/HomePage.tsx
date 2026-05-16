@@ -302,7 +302,7 @@ function AssistantActivityPanel({
 	if (!showActivity) return null;
 
 	return (
-		<MessageContent className="flex w-full flex-col gap-3 rounded-2xl px-4 py-3 shadow-sm">
+		<div className="flex w-full flex-col gap-3">
 			<div className="flex items-center gap-2">
 				<span
 					className={cn(
@@ -330,7 +330,7 @@ function AssistantActivityPanel({
 					{message.errorText}
 				</p>
 			)}
-		</MessageContent>
+		</div>
 	);
 }
 
