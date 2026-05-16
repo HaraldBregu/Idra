@@ -6,7 +6,7 @@ import { agentToolToManagedTool, createAgentToolRegistry } from './adapter';
 import { ToolDiscovery } from './discovery';
 import { ToolExecutor } from './executor';
 import { ToolPromptBuilder } from './prompting';
-import { ToolUsePolicy } from './use-policy';
+import { isToolIntrospectionRequest, ToolUsePolicy } from './use-policy';
 import type { RankedTool, RelevantMemory, SessionContext, ToolExecutionContext } from './types';
 
 export interface AgentToolManagementOptions {
@@ -39,6 +39,9 @@ export function selectAgentToolsForTurn(
 	const policy = new ToolUsePolicy().evaluate({ userRequest: userMessage });
 	if (!policy.shouldUseTools && policy.reason === 'user explicitly disabled tool use') {
 		return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
+	}
+	if (isToolIntrospectionRequest(userMessage.toLowerCase())) {
+		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
 	}
 	const threshold = options.useWhenToolCountExceeds ?? 12;
 	if (!options.forceSelection && tools.length <= threshold) {
