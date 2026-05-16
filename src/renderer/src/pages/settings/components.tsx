@@ -22,7 +22,7 @@ export function SettingsPageShell({
 	className,
 }: SettingsPageShellProps): React.JSX.Element {
 	return (
-		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-6 pb-8', className)}>
+		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-4 pb-5', className)}>
 			{children}
 		</div>
 	);
@@ -42,26 +42,26 @@ export function SettingsPageHeader({
 	action,
 }: SettingsPageHeaderProps): React.JSX.Element {
 	return (
-		<header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-			<div className="flex min-w-0 items-start gap-3">
+		<header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+			<div className="flex min-w-0 items-start gap-2">
 				{Icon && (
-					<div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-muted/70 text-muted-foreground">
-						<Icon className="size-5" strokeWidth={1.8} />
+					<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
+						<Icon className="size-3.5" strokeWidth={1.8} />
 					</div>
 				)}
 				<div className="min-w-0">
-					<h1 className="text-2xl font-semibold leading-tight tracking-normal text-foreground">
+					<h1 className="text-lg font-semibold leading-6 tracking-normal text-foreground">
 						{title}
 					</h1>
 					{description && (
-						<p className="mt-1 max-w-2xl text-sm leading-5 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
 							{description}
 						</p>
 					)}
 				</div>
 			</div>
 			{action && (
-				<div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+				<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
 					{action}
 				</div>
 			)}
@@ -85,20 +85,20 @@ export function SettingsSection({
 	className,
 }: SettingsSectionProps): React.JSX.Element {
 	return (
-		<section className={cn('flex flex-col gap-3', className)}>
-			<div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-end sm:justify-between">
+		<section className={cn('flex flex-col gap-2', className)}>
+			<div className="flex flex-col gap-1 px-0.5 sm:flex-row sm:items-end sm:justify-between">
 				<div className="min-w-0">
-					<h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+					<h2 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
 						{title}
 					</h2>
 					{description && (
-						<p className="mt-0.5 max-w-2xl text-xs leading-4 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
 							{description}
 						</p>
 					)}
 				</div>
 				{action && (
-					<div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+					<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
 						{action}
 					</div>
 				)}
@@ -118,7 +118,7 @@ export function SettingsPanel({ children, className }: SettingsPanelProps): Reac
 		<Card
 			size="sm"
 			className={cn(
-				'gap-0 rounded-[26px] border border-border/80 bg-card/95 py-0 shadow-[0_12px_30px_rgba(15,23,42,0.08)]',
+				'gap-0 rounded-lg border border-border/70 bg-card py-0 shadow-none',
 				className
 			)}
 		>
@@ -155,30 +155,30 @@ export function SettingsRow({
 	return (
 		<div
 			className={cn(
-				'grid min-h-16 items-center gap-3 border-b border-border/60 px-4 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:px-5',
+				'grid min-h-11 items-center gap-2 border-b border-border/60 px-3 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:px-3',
 				className
 			)}
 		>
-			<div className={cn('flex min-w-0 items-center gap-3', contentClassName)}>
+			<div className={cn('flex min-w-0 items-center gap-2', contentClassName)}>
 				{media ??
 					(Icon && (
-						<span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted/60 text-muted-foreground">
-							<Icon className="size-4" strokeWidth={1.8} />
+						<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+							<Icon className="size-3.5" strokeWidth={1.8} />
 						</span>
 					))}
 				<div className="min-w-0 flex-1">
-					<div className="text-sm font-semibold leading-5 tracking-normal text-foreground">
+					<div className="text-[13px] font-medium leading-4 tracking-normal text-foreground">
 						{title}
 					</div>
 					{description && (
-						<p className="mt-0.5 text-xs leading-4 text-muted-foreground">{description}</p>
+						<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">{description}</p>
 					)}
 				</div>
 			</div>
 			{rowActions && (
 				<div
 					className={cn(
-						'flex w-full min-w-0 flex-wrap items-center justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end',
+						'flex w-full min-w-0 flex-wrap items-center justify-start gap-1.5 sm:ml-auto sm:w-auto sm:justify-end',
 						actionClassName
 					)}
 				>
@@ -203,7 +203,7 @@ export function SettingsValue({
 	return (
 		<span
 			className={cn(
-				'inline-flex h-7 max-w-full items-center rounded-lg border border-border/70 bg-muted/40 px-2.5 text-xs text-foreground',
+				'inline-flex h-6 max-w-full items-center rounded-md border border-border/70 bg-muted/40 px-2 text-[11px] text-foreground',
 				mono && 'font-mono',
 				className
 			)}
@@ -229,14 +229,14 @@ export function SettingsNotice({
 	return (
 		<div
 			className={cn(
-				'flex items-start gap-3 rounded-[22px] border px-5 py-4 text-sm shadow-[0_8px_24px_rgba(15,23,42,0.06)]',
+				'flex items-start gap-2 rounded-lg border px-3 py-2 text-xs shadow-none',
 				variant === 'destructive'
 					? 'border-destructive/30 bg-destructive/10 text-destructive'
 					: 'border-border/70 bg-muted/30 text-muted-foreground',
 				className
 			)}
 		>
-			{Icon && <Icon className="mt-0.5 size-3.5 shrink-0" />}
+			{Icon && <Icon className="mt-0.5 size-3 shrink-0" />}
 			<span className="min-w-0">{children}</span>
 		</div>
 	);
@@ -258,16 +258,16 @@ export function SettingsEmptyState({
 	className,
 }: SettingsEmptyStateProps): React.JSX.Element {
 	return (
-		<Empty className={cn('min-h-36 gap-3 border-0 p-6', className)}>
-			<EmptyHeader className="gap-1.5">
+		<Empty className={cn('min-h-24 gap-2 border-0 p-4', className)}>
+			<EmptyHeader className="gap-1">
 				{Icon && (
-					<EmptyMedia variant="icon" className="mb-1 size-10 rounded-2xl">
-						<Icon className="size-5" />
+					<EmptyMedia variant="icon" className="mb-1 size-8 rounded-lg">
+						<Icon className="size-4" />
 					</EmptyMedia>
 				)}
-				<EmptyTitle className="text-sm">{title}</EmptyTitle>
+				<EmptyTitle className="text-xs">{title}</EmptyTitle>
 				{description && (
-					<EmptyDescription className="text-xs leading-4">{description}</EmptyDescription>
+					<EmptyDescription className="text-[11px] leading-4">{description}</EmptyDescription>
 				)}
 			</EmptyHeader>
 			{children}
@@ -285,13 +285,13 @@ export function SettingsLoadingRows({
 	className,
 }: SettingsLoadingRowsProps): React.JSX.Element {
 	return (
-		<div className={cn('grid gap-3 p-5', className)}>
+		<div className={cn('grid gap-2 p-3', className)}>
 			{Array.from({ length: rows }).map((_, index) => (
-				<div key={index} className="flex min-h-12 items-center gap-3">
-					<Skeleton className="size-9 rounded-xl" />
-					<div className="grid min-w-0 flex-1 gap-1.5">
-						<Skeleton className="h-4 w-1/3" />
-						<Skeleton className="h-3.5 w-2/3" />
+				<div key={index} className="flex min-h-9 items-center gap-2">
+					<Skeleton className="size-7 rounded-md" />
+					<div className="grid min-w-0 flex-1 gap-1">
+						<Skeleton className="h-3 w-1/3" />
+						<Skeleton className="h-2.5 w-2/3" />
 					</div>
 				</div>
 			))}
@@ -315,13 +315,13 @@ export function SettingsField({
 	className,
 }: SettingsFieldProps): React.JSX.Element {
 	return (
-		<div className={cn('grid gap-2', className)}>
+		<div className={cn('grid gap-1.5', className)}>
 			<div className="grid gap-1">
-				<Label htmlFor={id} className="text-xs leading-4">
+				<Label htmlFor={id} className="text-[11px] leading-4">
 					{label}
 				</Label>
 				{description && (
-					<p id={`${id}-description`} className="text-xs leading-4 text-muted-foreground">
+					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground">
 						{description}
 					</p>
 				)}
