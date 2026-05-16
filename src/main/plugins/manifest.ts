@@ -456,9 +456,9 @@ function normalizeConfigContracts(value: unknown): ConnectorManifestConfigContra
 	});
 }
 
-function compactRecord<T extends Record<string, unknown>>(value: T): T {
+function compactRecord<T extends object>(value: T): T {
 	const output: Record<string, unknown> = {};
-	for (const [key, entry] of Object.entries(value)) {
+	for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
 		if (entry === undefined) continue;
 		if (Array.isArray(entry) && entry.length === 0) continue;
 		output[key] = entry;
