@@ -12,7 +12,6 @@ import {
 	Mic,
 	Pencil,
 	Plug,
-	Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type {
@@ -30,6 +29,7 @@ import type { Model } from '../../../../shared/service';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -348,15 +348,6 @@ function ProviderMark({
 			)}
 		>
 			{initial}
-		</div>
-	);
-}
-
-function AgentOrb(): React.JSX.Element {
-	return (
-		<div className="relative flex size-24 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg motion-safe:animate-[pulse_3s_ease-in-out_infinite]">
-			<div className="absolute size-16 rounded-full bg-primary-foreground/20 motion-safe:animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
-			<Sparkles className="relative size-8 motion-safe:animate-[spin_12s_linear_infinite]" strokeWidth={2.7} />
 		</div>
 	);
 }
@@ -1063,7 +1054,7 @@ const StartPage: React.FC = () => {
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
 			<div className="flex min-h-full flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-6">
-				<AgentOrb />
+				<VoiceOrbThree />
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
