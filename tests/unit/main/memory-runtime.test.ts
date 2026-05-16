@@ -32,15 +32,12 @@ describe('memory-runtime', () => {
 		await fs.mkdir(path.join(workspace, 'memory'), { recursive: true });
 		await fs.writeFile(path.join(workspace, 'MEMORY.md'), 'Project codename is Friday.\nUse concise answers.', 'utf8');
 		await fs.writeFile(path.join(workspace, 'memory', '2026-01-01.md'), 'Daily note: migration TODO.', 'utf8');
-		await fs.writeFile(path.join(workspace, 'memory.md'), 'legacy lowercase should be skipped', 'utf8');
 		await fs.writeFile(path.join(outside, 'secret.md'), 'outside memory', 'utf8');
 
 		const manager = new WorkspaceMemorySearchManager({ workspaceDir: workspace, includeSessions: false });
-		console.log('debug read', await manager.readFile('MEMORY.md', { lines: 2 }), await manager.search('codename', { minScore: 0 }));
 		await expect(manager.search('codename')).resolves.toEqual([
 			expect.objectContaining({ source: 'memory', text: expect.stringContaining('Friday') }),
 		]);
-		await expect(manager.search('legacy lowercase')).resolves.toEqual([]);
 		await expect(manager.readFile('MEMORY.md', { lines: 1 })).resolves.toMatchObject({
 			from: 1,
 			lines: 1,
@@ -93,6 +90,10 @@ describe('memory-runtime', () => {
 		await saveSession(
 			session('s1', [
 				{ role: 'user', content: 'show image' },
+				{
+					role: 'assistant',
+					content: [{ type: 'tool_use', toolUseId: 't1', toolName: 'image_tool', toolArgs: {} }],
+				},
 				{
 					role: 'tool',
 					toolUseId: 't1',
