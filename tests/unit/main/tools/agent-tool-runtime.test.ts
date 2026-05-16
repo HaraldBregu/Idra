@@ -150,6 +150,17 @@ describe('canonical agent tool runtime', () => {
 		expect(pending.terminate).toBe(true);
 	});
 
+	it('propagates abort signals and converts execution throws into tool results', async () => {
+		const controller = new AbortController();
+		const execute = jest.fn(async (_id, _params, signal) => {
+			expect(signal).toBe(controller.signal);
+			throw new Error('boom');
+		});
+		const definition = toToolDefinitions([tool('throws', { execute })], { signal: controller.signal })[0]!;
+		const result = await definition.execute('tc1', {});
+		expect(result.details).toMatchObject({ status: 'error', toolName: 'throws', message: 'boom' });
+	});
+
 	it('resolves plugin tools with optional filtering, conflict detection, and undeclared rejection', async () => {
 		const registry = new PluginToolRegistry();
 		registry.register({
@@ -227,5 +238,16 @@ describe('canonical agent tool runtime', () => {
 		expect(result.diagnostics.builtTools).toContain('read');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
-});
 
+	it('fails closed when a client-hosted tool conflicts with a core tool name', async () => {
+		const workspace = await makeTempDir();
+		await expect(
+			createAgentTools({
+				workspaceDir: workspace,
+				toolsAllow: ['*'],
+				clientTools: [markClientTool(tool('read'), 'ui')],
+			})
+		).rejects.toThrow('tool name collision');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+});
