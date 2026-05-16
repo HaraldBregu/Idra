@@ -15,7 +15,7 @@ Required credential:
 Saved Telegram config:
 
 - `token`: Telegram bot token.
-- `allowFrom`: optional list of Telegram sender IDs. When empty, any sender accepted by the bot transport can message the agent.
+- `allowFrom`: optional list of Telegram sender IDs. With the default `allowlist` DM policy, an empty list denies direct messages.
 - `accounts`: optional named Telegram account configs. Legacy single-account config is treated as the `default` account.
 - `dmPolicy`: `allowlist`, `pairing`, `open`, or `deny`. The default is `allowlist`; public DM access requires explicitly setting `open`.
 
