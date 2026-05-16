@@ -91,7 +91,10 @@ describe('AgentService', () => {
 	it('blocks before model inference without persisting the raw prompt', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
-		const providerFactory = jest.fn(() => provider([]));
+		const stream = jest.fn(async function* () {
+			yield { type: 'text_delta' as const, text: 'should not run' };
+		});
+		const providerFactory = jest.fn(() => ({ stream }));
 		const service = new AgentService(deps, {
 			sessionBaseDir,
 			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
@@ -110,7 +113,8 @@ describe('AgentService', () => {
 		await expect(service.send('my password is swordfish')).resolves.toBe(
 			'Please remove sensitive input and try again.'
 		);
-		expect(providerFactory).not.toHaveBeenCalled();
+		expect(providerFactory).toHaveBeenCalled();
+		expect(stream).not.toHaveBeenCalled();
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain('Please remove sensitive input and try again.');
 		expect(JSON.stringify(history)).not.toContain('swordfish');
