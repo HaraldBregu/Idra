@@ -84,7 +84,7 @@ export function useHomeAssistant({
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
-		dispatchChat({ type: 'cancel_active' });
+		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
 		void getAssistantApi()?.cancel();
 	}, [dispatchChat]);
 
@@ -96,6 +96,7 @@ export function useHomeAssistant({
 			const requestId = requestIdRef.current + 1;
 			requestIdRef.current = requestId;
 			requestActiveRef.current = true;
+			const submittedAtMs = Date.now();
 
 			setInput('');
 			setIsLoading(true);
@@ -104,13 +105,18 @@ export function useHomeAssistant({
 				userMessageId: messageId('user'),
 				assistantMessageId: messageId('assistant'),
 				content: trimmed,
+				submittedAtMs,
 			});
 
 			const assistant = getAssistantApi();
 			if (!assistant) {
 				requestActiveRef.current = false;
 				setIsLoading(false);
-				dispatchChat({ type: 'error_active', errorText: 'Assistant API is unavailable.' });
+				dispatchChat({
+					type: 'error_active',
+					errorText: 'Assistant API is unavailable.',
+					completedAtMs: Date.now(),
+				});
 				return;
 			}
 
@@ -119,13 +125,13 @@ export function useHomeAssistant({
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
-				dispatchChat({ type: 'complete_active', response });
+				dispatchChat({ type: 'complete_active', response, completedAtMs: Date.now() });
 			} catch (error) {
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				const message = error instanceof Error ? error.message : 'Assistant request failed.';
-				dispatchChat({ type: 'error_active', errorText: message });
+				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 			}
 		},
 		[dispatchChat]
@@ -177,7 +183,7 @@ export function useHomeAssistant({
 		dispatchChat({ type: 'reset' });
 		void getAssistantApi()?.reset().catch((error: unknown) => {
 			const message = error instanceof Error ? error.message : 'Reset failed.';
-			dispatchChat({ type: 'error_active', errorText: message });
+			dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 		});
 	}, [dispatchChat]);
 
@@ -256,7 +262,11 @@ export function useHomeAssistant({
 				});
 			} catch (error) {
 				const messageText = error instanceof Error ? error.message : 'Selection failed.';
-				dispatchChat({ type: 'error_active', errorText: messageText });
+				dispatchChat({
+					type: 'error_active',
+					errorText: messageText,
+					completedAtMs: Date.now(),
+				});
 			}
 		},
 		[dispatchChat, pendingInputAnswers, selectedOptions]
