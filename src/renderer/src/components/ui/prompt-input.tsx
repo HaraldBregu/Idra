@@ -395,9 +395,38 @@ function PromptInputAction({
   )
 }
 
+export type PromptInputCharCountProps = {
+  className?: string
+}
+
+function PromptInputCharCount({ className }: PromptInputCharCountProps) {
+  const { value, maxLength } = usePromptInput()
+  if (maxLength === undefined) return null
+  const remaining = maxLength - value.length
+  const isWarning = remaining >= 0 && remaining <= Math.ceil(maxLength * 0.15)
+  return (
+    <span
+      role="status"
+      aria-label={`${remaining} characters remaining`}
+      className={cn(
+        "shrink-0 font-mono text-xs tabular-nums transition-colors duration-200",
+        remaining < 0
+          ? "text-destructive"
+          : isWarning
+          ? "text-warning"
+          : "text-muted-foreground/50",
+        className
+      )}
+    >
+      {remaining}
+    </span>
+  )
+}
+
 export {
   PromptInput,
   PromptInputTextarea,
   PromptInputActions,
   PromptInputAction,
+  PromptInputCharCount,
 }
