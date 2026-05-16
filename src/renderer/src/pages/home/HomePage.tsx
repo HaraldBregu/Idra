@@ -658,7 +658,20 @@ function Composer({
 				className="w-full"
 				actions={
 					<PromptInputActions className="justify-end gap-1.5">
-						{canReset && <ResetButton onReset={onReset} />}
+						<AnimatePresence initial={false}>
+							{canReset && (
+								<motion.div
+									key="reset"
+									initial={{ opacity: 0, scale: 0.7, x: -6 }}
+									animate={{ opacity: 1, scale: 1, x: 0 }}
+									exit={{ opacity: 0, scale: 0.7, x: -6 }}
+									transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.4 }}
+									className="shrink-0"
+								>
+									<ResetButton onReset={onReset} />
+								</motion.div>
+							)}
+						</AnimatePresence>
 						<ReasoningButton />
 						<VoiceButton onVoiceModeRequest={onVoiceModeRequest} />
 						<SubmitButton isLoading={isLoading} canSubmit={canSubmit} onAction={handlePrimaryAction} />
