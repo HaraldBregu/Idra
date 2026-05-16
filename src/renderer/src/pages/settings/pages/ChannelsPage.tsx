@@ -832,7 +832,7 @@ function updateChannelEnabled(
 	return updateDefaultAccountConfig(channelId, nextConfig, { enabled });
 }
 
-function isChannelEnabled(channelId: ChannelType, config: EditableChannelConfig | null): boolean {
+function isChannelEnabled(channelId: ChannelType, config: EditableChannelConfig | null | undefined): boolean {
 	if (!config) return false;
 	return Boolean((config as GenericChannelProperties).enabled ?? getDefaultAccountConfig(channelId, config).enabled);
 }
