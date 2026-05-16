@@ -16,6 +16,7 @@ import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
+import { selectAgentToolsForTurn, ToolUsePolicy } from './tools/management';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AssistantRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
@@ -23,6 +24,7 @@ import type { ApprovalDecision } from '../shared/service';
 
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
+const DEFAULT_MAX_PROMPT_TOOLS = 6;
 
 export interface AssistantServiceDependencies {
 	store: StoreService;
@@ -131,7 +133,8 @@ export class AssistantService {
 				},
 				services: this.dependencies,
 			};
-			const skillRuntime = this.dependencies.skills
+			const toolPolicy = new ToolUsePolicy().evaluate({ userRequest: message });
+			const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools
 				? {
 						userId: assistantId,
 						sessionId: runtime.session.id,
@@ -143,7 +146,7 @@ export class AssistantService {
 			const skillChoices = skillRuntime
 				? await this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
 				: [];
-			const skillTool = skillRuntime
+			const skillTool = skillRuntime && skillChoices.length > 0
 				? this.dependencies.skills!.createExecutionTool({
 						userId: skillRuntime.userId,
 						sessionId: skillRuntime.sessionId,
@@ -152,36 +155,46 @@ export class AssistantService {
 					})
 				: undefined;
 			const tools = skillTool ? [...baseTools, skillTool] : baseTools;
+			const toolSelection = selectAgentToolsForTurn(tools, message, ctx, {
+				forceSelection: true,
+				maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
+			});
+			const selectedTools = toolSelection.toolsForPrompt;
+			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
 			const systemPrompt = await buildSystemPrompt({
 				workspace: workspaceRoot,
 				date: new Date().toISOString().slice(0, 10),
 				model,
-				tools,
-				skills: skillChoices,
+				tools: selectedTools,
+				skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
 			});
+			const systemPromptForTurn = toolSelection.systemPromptSuffix
+				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
+				: systemPrompt;
 
 			const hooks = this.buildHooks(assistantId, {
 				runId,
 				providerId,
 				model,
-				tools: tools.map((tool) => tool.name),
+				tools: selectedTools.map((tool) => tool.name),
 				runLogger: runtime.runLogger,
 			});
 
 			const result = await runAgent({
 				runId,
 				userMessage: message,
-				systemPrompt,
+				systemPrompt: systemPromptForTurn,
 				session: runtime.session,
 				provider,
 				model,
-				tools,
+				tools: selectedTools,
 				ctx,
 				maxTokens: DEFAULT_MAX_TOKENS,
 				maxIterations: DEFAULT_MAX_ITERATIONS,
 				streamEvent,
 				hooks,
 				signal: abort.signal,
+				toolManagement: { enabled: false },
 			});
 
 			runtime.session = result.session;
