@@ -9,6 +9,20 @@ import {
 import { blockedToolResult, errorToolResult } from './results';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
+export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';
+
+export type RequiredToolApproval = {
+	title: string;
+	description: string;
+	severity?: 'info' | 'warning' | 'critical';
+	timeoutMs?: number;
+	timeoutBehavior?: 'allow' | 'deny';
+	pluginId?: string;
+	allowedDecisions?: ApprovalDecisionTuple;
+	onResolution?: (resolution: ToolApprovalResolution) => void | Promise<void>;
+};
+
+type ApprovalDecisionTuple = ['allow-once', 'allow-always', 'deny'] | ['allow-once', 'deny'] | ['deny'];
 
 export type BeforeToolCallHookResult =
 	| void
@@ -17,6 +31,9 @@ export type BeforeToolCallHookResult =
 			reason?: string;
 			deniedReason?: string;
 			params?: unknown;
+			block?: boolean;
+			blockReason?: string;
+			requireApproval?: RequiredToolApproval;
 	  };
 
 export type BeforeToolCallHook = (input: {
@@ -33,6 +50,7 @@ export type BeforeToolCallContext = {
 		toolName: string;
 		toolCallId: string;
 		paramsPreview: unknown;
+		approval?: Omit<RequiredToolApproval, 'onResolution'>;
 	}) => Promise<ToolApprovalDecision>;
 	beforeToolCallHooks?: BeforeToolCallHook[];
 	loopDetector?: CallTracker;
@@ -109,11 +127,40 @@ export function wrapToolWithBeforeToolCall(
 				const decision = await hook({ tool, toolCallId, params });
 				if (!decision) continue;
 				if (decision.params !== undefined) params = decision.params;
-				if (decision.allow === false) {
+				if (decision.block === true || decision.allow === false) {
 					return blockedToolResult({
-						reason: decision.reason ?? `Tool ${tool.name} was blocked by policy.`,
+						reason: decision.blockReason ?? decision.reason ?? `Tool ${tool.name} was blocked by policy.`,
 						deniedReason: decision.deniedReason ?? 'hook_veto',
 					});
+				}
+				if (decision.requireApproval) {
+					const request = decision.requireApproval;
+					const allowedDecisions = request.allowedDecisions ?? ['allow-once', 'allow-always', 'deny'];
+					const approvalDecision = context.approval
+						? await context.approval({
+								toolName: tool.name,
+								toolCallId,
+								paramsPreview: sanitizeParamPreview(params),
+								approval: {
+									title: request.title,
+									description: request.description,
+									severity: request.severity,
+									timeoutMs: request.timeoutMs,
+									timeoutBehavior: request.timeoutBehavior,
+									pluginId: request.pluginId,
+									allowedDecisions,
+								},
+							})
+						: null;
+					const resolution = approvalResolution(approvalDecision, allowedDecisions);
+					await request.onResolution?.(resolution);
+					if (resolution === 'timeout' && request.timeoutBehavior === 'allow') continue;
+					if (resolution !== 'allow-once' && resolution !== 'allow-always') {
+						return blockedToolResult({
+							reason: `Approval denied or unavailable for ${tool.name}.`,
+							deniedReason: resolution === 'deny' ? 'denied' : 'approval_unavailable',
+						});
+					}
 				}
 			}
 
@@ -168,3 +215,13 @@ export function wrapToolWithBeforeToolCall(
 	return wrapped;
 }
 
+function approvalResolution(
+	decision: ToolApprovalDecision,
+	allowedDecisions: readonly string[]
+): ToolApprovalResolution {
+	if (decision === true) return allowedDecisions.includes('allow-once') ? 'allow-once' : 'deny';
+	if (decision === 'allow-once' || decision === 'allow-always' || decision === 'deny') {
+		return allowedDecisions.includes(decision) ? decision : 'deny';
+	}
+	return 'timeout';
+}
