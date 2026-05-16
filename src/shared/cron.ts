@@ -387,3 +387,198 @@ export interface CronNextRunPreview {
 	runs: string[];
 	description: string;
 }
+
+export type OpenClawCronSchedule =
+	| { kind: 'at'; at: string }
+	| { kind: 'every'; intervalMs: number }
+	| {
+			kind: 'cron';
+			expression: string;
+			timezone?: string;
+			staggerMs?: number;
+			jitterMs?: number;
+	  };
+
+export type OpenClawCronSessionTarget =
+	| 'main'
+	| 'isolated'
+	| 'current'
+	| `session:${string}`;
+
+export type OpenClawCronWakeMode = 'now' | 'defer';
+
+export type OpenClawCronPayload =
+	| { kind: 'systemEvent'; text: string }
+	| {
+			kind: 'agentTurn';
+			prompt: string;
+			model?: string;
+			fallbacks?: string[];
+			thinking?: 'low' | 'medium' | 'high';
+			timeoutSeconds?: number;
+			lightContext?: boolean;
+			toolsAllow?: string[];
+			allowUnsafeExternalContent?: boolean;
+	  };
+
+export interface OpenClawCronDeliveryTarget {
+	channel?: 'last' | string;
+	to?: string;
+	threadId?: string;
+	accountId?: string;
+}
+
+export interface OpenClawCronDelivery extends OpenClawCronDeliveryTarget {
+	mode: 'announce' | 'webhook' | 'none';
+	url?: string;
+	bestEffort?: boolean;
+	failureDestination?: OpenClawCronDeliveryTarget & {
+		mode?: 'announce' | 'webhook' | 'none';
+		url?: string;
+	};
+}
+
+export interface OpenClawCronFailureAlert {
+	threshold?: number;
+	cooldownMs?: number;
+	mode?: 'announce' | 'webhook' | 'none';
+	target?: OpenClawCronDeliveryTarget & { url?: string };
+	includeSkipped?: boolean;
+}
+
+export interface OpenClawCronDeliveryState {
+	mode: OpenClawCronDelivery['mode'];
+	status: 'sent' | 'skipped' | 'failed';
+	attemptedAtMs: number;
+	target?: OpenClawCronDeliveryTarget;
+	error?: string;
+	duplicateSuppressed?: boolean;
+}
+
+export interface OpenClawCronRunError {
+	code: string;
+	message: string;
+	permanent?: boolean;
+}
+
+export type OpenClawCronRunStatus = 'ok' | 'error' | 'skipped';
+
+export interface OpenClawCronJobState {
+	nextRunAtMs?: number;
+	runningAtMs?: number;
+	lastRunAtMs?: number;
+	lastRunStatus?: OpenClawCronRunStatus;
+	lastError?: OpenClawCronRunError;
+	diagnostics?: CronJsonObject;
+	delivery?: OpenClawCronDeliveryState;
+	consecutiveErrors: number;
+	consecutiveSkipped: number;
+	consecutiveScheduleErrors: number;
+	attempts: number;
+	scheduleIdentity?: string;
+	lastFailureAlertAtMs?: number;
+}
+
+export interface OpenClawCronJobDefinition {
+	id: string;
+	name: string;
+	description: string;
+	enabled: boolean;
+	createdAtMs: number;
+	updatedAtMs: number;
+	schedule: OpenClawCronSchedule;
+	sessionTarget: OpenClawCronSessionTarget;
+	wakeMode: OpenClawCronWakeMode;
+	payload: OpenClawCronPayload;
+	delivery: OpenClawCronDelivery;
+	failureAlert?: OpenClawCronFailureAlert;
+	agentId?: string;
+	sessionKey?: string;
+	deleteAfterRun?: boolean;
+	maxAttempts?: number;
+	backoffMs?: number;
+	maxBackoffMs?: number;
+}
+
+export interface OpenClawCronJob extends OpenClawCronJobDefinition {
+	state: OpenClawCronJobState;
+}
+
+export interface OpenClawCronRunRecord {
+	runId: string;
+	jobId: string;
+	status: OpenClawCronRunStatus;
+	mode: 'automatic' | 'manual-force' | 'manual-due' | 'startup-recovery';
+	scheduledForMs: number;
+	startedAtMs: number;
+	finishedAtMs: number;
+	attempt: number;
+	output?: string;
+	skippedReason?: string;
+	error?: OpenClawCronRunError;
+	delivery?: OpenClawCronDeliveryState;
+	alreadyDelivered?: boolean;
+}
+
+export interface OpenClawCronAddRequest {
+	id?: string;
+	name: string;
+	description?: string;
+	enabled?: boolean;
+	schedule: OpenClawCronSchedule;
+	sessionTarget?: OpenClawCronSessionTarget;
+	wakeMode?: OpenClawCronWakeMode;
+	payload: OpenClawCronPayload;
+	delivery?: Partial<OpenClawCronDelivery>;
+	failureAlert?: OpenClawCronFailureAlert;
+	agentId?: string;
+	sessionKey?: string;
+	deleteAfterRun?: boolean;
+	maxAttempts?: number;
+	backoffMs?: number;
+	maxBackoffMs?: number;
+}
+
+export type OpenClawCronUpdateRequest = Partial<
+	Omit<OpenClawCronAddRequest, 'id' | 'name' | 'payload' | 'schedule' | 'delivery'>
+> & {
+	name?: string;
+	payload?: OpenClawCronPayload;
+	schedule?: OpenClawCronSchedule;
+	delivery?: Partial<OpenClawCronDelivery>;
+};
+
+export type OpenClawCronToolRequest =
+	| { action: 'status' }
+	| { action: 'list'; include?: 'enabled' | 'disabled' | 'all' }
+	| { action: 'get'; jobId: string }
+	| { action: 'add'; job: OpenClawCronAddRequest }
+	| { action: 'update'; jobId: string; patch: OpenClawCronUpdateRequest }
+	| { action: 'remove'; jobId: string }
+	| { action: 'run'; jobId: string; mode?: 'force' | 'due'; force?: boolean }
+	| { action: 'runs'; jobId: string; limit?: number }
+	| { action: 'wake' };
+
+export interface OpenClawCronStatus {
+	enabled: boolean;
+	timerArmed: boolean;
+	jobCount: number;
+	runningCount: number;
+	nextRunAtMs?: number;
+	warning?: string;
+}
+
+export interface OpenClawCronToolResponse {
+	status: 'ok' | 'error';
+	enabled?: boolean;
+	warning?: string;
+	result?:
+		| OpenClawCronStatus
+		| OpenClawCronJob
+		| OpenClawCronJob[]
+		| OpenClawCronRunRecord
+		| OpenClawCronRunRecord[]
+		| { removed: true; jobId: string }
+		| { woken: true; status: OpenClawCronStatus };
+	error?: string;
+}
