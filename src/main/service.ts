@@ -7,7 +7,6 @@ import type { StoreService } from './store';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	resolveBootstrapMode,
-	type BootstrapMode,
 	type WorkspaceContextFile,
 	type WorkspaceService,
 } from './workspace';
