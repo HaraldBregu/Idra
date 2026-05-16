@@ -53,4 +53,29 @@ describe('agent/system-prompt', () => {
 		expect(prompt).toContain('<workspace_file name="SOUL.md" path="/repo/SOUL.md">');
 		expect(prompt).toContain('persona/tone guidance only');
 	});
+
+	it('injects memory recall guidance only when memory tools are available', async () => {
+		const tools: AgentTool[] = [
+			{ name: 'memory_search', description: 'Search memory', schema: {}, execute: jest.fn() },
+			{ name: 'memory_get', description: 'Read memory', schema: {}, execute: jest.fn() },
+		];
+
+		const prompt = await buildSystemPrompt({
+			workspace: '/repo',
+			date: '2026-05-14',
+			model: 'gpt-test',
+			tools,
+		});
+
+		expect(prompt).toContain('## Memory Recall');
+		expect(prompt).toContain('Use `memory_search` before answering questions about prior work');
+
+		const withoutGet = await buildSystemPrompt({
+			workspace: '/repo',
+			date: '2026-05-14',
+			model: 'gpt-test',
+			tools: [tools[0]!],
+		});
+		expect(withoutGet).not.toContain('## Memory Recall');
+	});
 });
