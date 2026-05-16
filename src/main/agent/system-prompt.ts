@@ -38,12 +38,24 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 		].join('\n'),
 	];
 
-	const guidance = ['## Tool guidance'];
-	for (const tool of [...ctx.tools].sort((a, b) => a.name.localeCompare(b.name))) {
-		const line = TOOL_GUIDANCE[tool.name] ?? tool.description;
-		guidance.push(`- **${tool.name}** — ${line}`);
+	if (ctx.tools.length > 0) {
+		const guidance = [
+			'## Tool guidance',
+			'Only these tools are available for this turn. Use a tool only when it is necessary for the request.',
+		];
+		for (const tool of [...ctx.tools].sort((a, b) => a.name.localeCompare(b.name))) {
+			const line = TOOL_GUIDANCE[tool.name] ?? tool.description;
+			guidance.push(`- **${tool.name}** — ${line}`);
+		}
+		parts.push(guidance.join('\n'));
+	} else {
+		parts.push(
+			[
+				'## Tool guidance',
+				'No tools are available for this turn. Answer directly from the conversation and general reasoning.',
+			].join('\n')
+		);
 	}
-	parts.push(guidance.join('\n'));
 
 	if (ctx.skills?.length) {
 		const skills = [
