@@ -77,7 +77,7 @@ export function ConnectorCard({
 				</div>
 
 				{connector.lastError && (
-					<p className="border-b border-border/70 bg-destructive/10 px-5 py-3 text-xs text-destructive">
+					<p className="border-b border-border/60 bg-destructive/10 px-4 py-2.5 text-xs text-destructive">
 						{connector.lastError}
 					</p>
 				)}
