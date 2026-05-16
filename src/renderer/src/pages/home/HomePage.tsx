@@ -404,7 +404,7 @@ function PendingMessage({
 		<Message className="max-w-2xl items-start gap-2">
 			<AssistantDot className="mt-4" />
 			<MessageContent
-				className="min-w-0 flex-1 flex-col gap-3 rounded-2xl p-4 shadow-sm"
+				className="flex min-w-0 flex-1 flex-col gap-3 rounded-2xl p-4 shadow-sm"
 				role="group"
 				aria-label={message.prompt}
 			>
