@@ -1,4 +1,4 @@
-import type { AssistantContentBlock, ToolResultBlock, Usage } from '../provider/types';
+import type { AssistantContentBlock, ToolResultBlock, ToolResultStatus, Usage } from '../provider/types';
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
@@ -139,6 +139,10 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 			base64: block.base64 ? '[base64 image]' : undefined,
 		};
 	});
+}
+
+function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknown {
+	return details === undefined ? resultBlocksToOutput(content) : details;
 }
 
 /**
@@ -412,12 +416,14 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						role: 'tool',
 						toolUseId: id,
 						isError: true,
+						status: 'error',
 						content: [{ type: 'text', text: out }],
 					});
 					continue;
 				}
 				const before = await beforeToolCall(tool, args, ctx, tracker);
 				if (!before.proceed && before.vetoResult) {
+					const status: ToolResultStatus = before.vetoStatus ?? 'error';
 					const outText = before.vetoResult.content
 						.map((c) => (c.type === 'text' ? (c.text ?? '') : ''))
 						.join(' ');
@@ -428,7 +434,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						callId: id,
 						tool: t.name,
 						args,
-						status: 'rejected',
+						status,
 						durationMs,
 						outputChars: outText.length,
 					});
@@ -438,9 +444,9 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolCallId: id,
 						toolName: t.name,
 						input: args,
-						output: resultBlocksToOutput(before.vetoResult.content),
+						output: toolResultOutput(before.vetoResult.content, before.vetoResult.details),
 						outputText: outText,
-						status: 'rejected',
+						status,
 						durationMs,
 						errorText: outText,
 					});
@@ -454,7 +460,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
-						isError: before.vetoResult.status === 'error',
+						isError: status !== 'ok',
+						status,
 						content: before.vetoResult.content,
 					});
 					continue;
@@ -473,13 +480,14 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					: res.content;
 				const outText = resultBlocksToText(content);
 				const durationMs = Date.now() - toolStart;
+				const status: ToolResultStatus = res.status === 'ok' ? 'ok' : 'error';
 				await hooks?.onToolCall?.({
 					runId,
 					iteration: iter,
 					callId: id,
 					tool: t.name,
 					args,
-					status: res.status === 'ok' ? 'ok' : 'error',
+					status,
 					durationMs,
 					outputChars: outText.length,
 				});
@@ -489,11 +497,11 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					toolCallId: id,
 					toolName: t.name,
 					input: args,
-					output: resultBlocksToOutput(content),
+					output: toolResultOutput(content, res.details),
 					outputText: outText,
-					status: res.status === 'ok' ? 'ok' : 'error',
+					status,
 					durationMs,
-					errorText: res.status === 'error' ? outText : undefined,
+					errorText: status === 'error' ? outText : undefined,
 				});
 				streamEvent?.({
 					type: 'reasoning_summary',
@@ -508,7 +516,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				session.transcript.push({
 					role: 'tool',
 					toolUseId: id,
-					isError: res.status === 'error',
+					isError: status === 'error',
+					status,
 					content,
 				});
 			}

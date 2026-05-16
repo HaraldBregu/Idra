@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 export type ToolPart = {
 	type: string;
 	state: 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
+	status?: 'ok' | 'error' | 'rejected';
 	iteration?: number;
 	input?: unknown;
 	inputText?: string;
@@ -42,7 +43,7 @@ function formatDuration(durationMs: number): string {
 	return `${(durationMs / 1000).toFixed(1)}s`;
 }
 
-function stateMeta(state: ToolPart['state']): {
+function stateMeta(state: ToolPart['state'], status?: ToolPart['status']): {
 	label: string;
 	icon: React.ReactNode;
 	className: string;
@@ -68,7 +69,7 @@ function stateMeta(state: ToolPart['state']): {
 			};
 		case 'output-error':
 			return {
-				label: 'Error',
+				label: status === 'rejected' ? 'Denied' : 'Error',
 				icon: <XCircle className="size-3.5" />,
 				className: 'text-destructive',
 			};
@@ -77,10 +78,11 @@ function stateMeta(state: ToolPart['state']): {
 
 function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 	const [isOpen, setIsOpen] = React.useState(defaultOpen);
-	const meta = stateMeta(toolPart.state);
+	const meta = stateMeta(toolPart.state, toolPart.status);
 	const input = toolPart.input ?? toolPart.inputText;
 	const output = toolPart.output ?? toolPart.outputText;
 	const details = [
+		meta.label,
 		toolPart.iteration !== undefined ? `Iteration ${toolPart.iteration + 1}` : undefined,
 		toolPart.durationMs !== undefined ? formatDuration(toolPart.durationMs) : undefined,
 	].filter(Boolean);

@@ -1,4 +1,19 @@
-import type { TranscriptEntry } from '../provider/types';
+import type { ToolResultStatus, TranscriptEntry } from '../provider/types';
+
+type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
+
+function toolResultStatus(entry: ToolTranscriptEntry): ToolResultStatus {
+	return entry.status ?? (entry.isError ? 'error' : 'ok');
+}
+
+function normalizeToolResult(entry: ToolTranscriptEntry): ToolTranscriptEntry {
+	const status = toolResultStatus(entry);
+	return {
+		...entry,
+		isError: status !== 'ok' ? true : entry.isError,
+		status,
+	};
+}
 
 /**
  * Strip orphan tool results and pair every assistant `tool_use` with a
@@ -37,7 +52,7 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 			for (const id of toolUseIds) {
 				const found = valid.find((r) => r.role === 'tool' && r.toolUseId === id);
 				if (found) {
-					out.push(found);
+					out.push(normalizeToolResult(found));
 				} else {
 					out.push({
 						role: 'tool',
@@ -46,6 +61,7 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 							{ type: 'text', text: '(missing result — synthesized stub during transcript repair)' },
 						],
 						isError: true,
+						status: 'error',
 					});
 				}
 			}

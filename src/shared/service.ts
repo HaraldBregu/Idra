@@ -53,11 +53,13 @@ export type AssistantHistoryMessage =
 			content: string | null;
 			contentBlocks: AssistantHistoryContentBlock[];
 	  }
-	| {
+		| {
 			role: 'tool';
 			toolUseId: string;
 			content: string;
 			isError?: boolean;
+			status?: AssistantToolCallStatus;
+			output?: unknown;
 	  };
 
 export type AssistantToolCallStatus = 'ok' | 'error' | 'rejected';

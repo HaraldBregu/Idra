@@ -18,6 +18,7 @@ function callKey(name: string, args: unknown): string {
 export interface BeforeCallOutcome {
 	proceed: boolean;
 	vetoResult?: AgentToolResult;
+	vetoStatus?: 'error' | 'rejected';
 	warning?: string;
 }
 
@@ -49,6 +50,7 @@ export async function beforeToolCall(
 	if (count > LOOP_STOP_AT) {
 		return {
 			proceed: false,
+			vetoStatus: 'error',
 			vetoResult: {
 				status: 'error',
 				content: [
@@ -79,6 +81,7 @@ export async function beforeToolCall(
 						: `Approval timed out or is unavailable for ${tool.name}.`;
 				return {
 					proceed: false,
+					vetoStatus: 'rejected',
 					vetoResult: {
 						status: 'error',
 						content: [{ type: 'text', text: reason }],

@@ -2,10 +2,12 @@ import type { ToolPart } from '@/components/ui/tool';
 import type {
 	AssistantHistoryContentBlock,
 	AssistantResponseEvent,
+	AssistantToolCallStatus,
 } from '../../../../shared/service';
 
 export type AssistantToolPart = ToolPart & {
 	toolCallId: string;
+	status?: AssistantToolCallStatus;
 };
 
 type AssistantToolPartPatch = Omit<Partial<AssistantToolPart>, 'toolCallId'>;
@@ -25,6 +27,7 @@ function createAssistantToolPart(
 		outputText: patch.outputText,
 		durationMs: patch.durationMs,
 		errorText: patch.errorText,
+		status: patch.status,
 	};
 }
 
@@ -88,6 +91,7 @@ export function applyAssistantResponseEventToTools(
 				outputText: event.outputText,
 				durationMs: event.durationMs,
 				errorText,
+				status: event.status,
 			});
 		}
 	}

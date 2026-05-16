@@ -6,6 +6,7 @@ import type {
 	AssistantPendingInput,
 	AssistantResponseEvent,
 	AssistantRunState,
+	AssistantToolCallStatus,
 	ReasoningSummaryState,
 } from '../../../../shared/service';
 import {
@@ -272,9 +273,21 @@ function addToolResultToMessages(
 	messages: readonly HomeChatMessage[],
 	toolUseId: string | undefined,
 	content: string | null | undefined,
-	isError: boolean | undefined
+	isError: boolean | undefined,
+	status: AssistantToolCallStatus | undefined,
+	output: unknown
 ): HomeChatMessage[] {
 	if (!toolUseId) return [...messages];
+	const resolvedStatus: AssistantToolCallStatus = status ?? (isError ? 'error' : 'ok');
+	const hasError = resolvedStatus !== 'ok';
+	const errorText =
+		hasError && content
+			? content
+			: hasError
+				? resolvedStatus === 'rejected'
+					? 'Tool call was rejected.'
+					: 'Tool call failed.'
+				: undefined;
 
 	for (let index = messages.length - 1; index >= 0; index--) {
 		const message = messages[index];
@@ -284,10 +297,11 @@ function addToolResultToMessages(
 		const nextMessage: AssistantMessage = {
 			...message,
 			tools: updateAssistantToolPart(message.tools, toolUseId, {
-				state: isError ? 'output-error' : 'output-available',
-				output: content ?? '',
+				state: hasError ? 'output-error' : 'output-available',
+				output: output ?? content ?? '',
 				outputText: content ?? '',
-				errorText: isError ? (content ?? 'Tool call failed.') : undefined,
+				errorText,
+				status: resolvedStatus,
 			}),
 		};
 
@@ -303,7 +317,14 @@ export function historyToChatMessages(history: AssistantHistoryMessage[]): HomeC
 	const out: HomeChatMessage[] = [];
 	history.forEach((message, index) => {
 		if (message.role === 'tool') {
-			const next = addToolResultToMessages(out, message.toolUseId, message.content, message.isError);
+			const next = addToolResultToMessages(
+				out,
+				message.toolUseId,
+				message.content,
+				message.isError,
+				message.status,
+				message.output
+			);
 			out.splice(0, out.length, ...next);
 			return;
 		}

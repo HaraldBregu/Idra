@@ -35,6 +35,7 @@ function buildAnthropicMessages(transcript: TranscriptEntry[]): Anthropic.Messag
 			continue;
 		}
 		if (entry.role === 'tool') {
+			const isError = entry.status ? entry.status !== 'ok' : entry.isError === true;
 			const blocks: Anthropic.Messages.ToolResultBlockParam[] = [
 				{
 					type: 'tool_result',
@@ -55,7 +56,7 @@ function buildAnthropicMessages(transcript: TranscriptEntry[]): Anthropic.Messag
 									},
 								}
 					),
-					is_error: entry.isError === true ? true : undefined,
+					is_error: isError ? true : undefined,
 				},
 			];
 			msgs.push({ role: 'user', content: blocks });

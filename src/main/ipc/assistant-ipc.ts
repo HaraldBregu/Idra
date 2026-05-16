@@ -9,7 +9,32 @@ import type {
 	AssistantHistoryMessage,
 	AssistantPendingState,
 } from '../../shared/service';
-import type { TranscriptEntry } from '../provider/types';
+import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
+
+type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
+
+function toolResultStatus(entry: ToolTranscriptEntry): ToolResultStatus {
+	return entry.status ?? (entry.isError ? 'error' : 'ok');
+}
+
+function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
+	if (content.length === 1) {
+		const block = content[0];
+		if (block?.type === 'text') return block.text ?? '';
+	}
+
+	return content.map((block) => {
+		if (block.type === 'text') {
+			return { type: 'text', text: block.text };
+		}
+
+		return {
+			type: 'image',
+			mimeType: block.mimeType ?? 'image/png',
+			base64: block.base64 ? '[base64 image]' : undefined,
+		};
+	});
+}
 
 export function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
 	return t.map((entry) => {
@@ -23,10 +48,13 @@ export function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessa
 				.join('');
 			return { role: 'assistant', content: text || null, contentBlocks: entry.content };
 		}
+		const status = toolResultStatus(entry);
 		return {
 			role: 'tool',
 			toolUseId: entry.toolUseId,
-			isError: entry.isError,
+			isError: status !== 'ok' || entry.isError === true,
+			status,
+			output: resultBlocksToOutput(entry.content),
 			content: entry.content
 				.map((c) => (c.type === 'text' ? c.text : '[binary]'))
 				.join('\n'),
