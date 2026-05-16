@@ -1054,7 +1054,7 @@ const StartPage: React.FC = () => {
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
 			<div className="flex min-h-full flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-6">
-				<VoiceOrbThree />
+				<VoiceOrbThree size={180} />
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
