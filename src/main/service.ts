@@ -159,7 +159,15 @@ export class AssistantService {
 				forceSelection: true,
 				maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
 			});
-			const selectedTools = toolSelection.toolsForPrompt;
+			const selectedTools =
+				skillTool && skillChoices.length > 0
+					? [
+							skillTool,
+							...toolSelection.toolsForPrompt
+								.filter((tool) => tool.name !== skillTool.name)
+								.slice(0, DEFAULT_MAX_PROMPT_TOOLS - 1),
+						]
+					: toolSelection.toolsForPrompt;
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
 			const systemPrompt = await buildSystemPrompt({
 				workspace: workspaceRoot,
