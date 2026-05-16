@@ -35,14 +35,12 @@ export function ConnectorCard({
 	return (
 		<Card size="sm" className="gap-0 rounded-xl py-0 shadow-none">
 			<CardContent className="flex flex-col p-0">
-				<div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/70 px-5 py-4">
-					<div className="flex min-w-0 items-center gap-3">
-						<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/50">
-							<Plug className="size-5 text-muted-foreground" strokeWidth={1.8} />
-						</div>
+				<div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-2.5">
+					<div className="flex min-w-0 items-center gap-2.5">
+						<Plug className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 						<div className="min-w-0">
-							<h3 className="truncate text-sm font-semibold leading-5">{connector.name}</h3>
-							<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+							<h3 className="truncate text-[13px] font-medium leading-5">{connector.name}</h3>
+							<div className="flex flex-wrap items-center gap-1.5">
 								<Badge variant="outline" className="h-5 text-xs">
 									{connector.connectorId}
 								</Badge>
