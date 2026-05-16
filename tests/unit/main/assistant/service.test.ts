@@ -88,6 +88,45 @@ describe('AssistantService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('does not expose tools or skill guidance when a request can be answered directly', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const skills = new SkillsService(deps.logger as never);
+		const service = new AssistantService(
+			{ ...deps, skills },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'roses are red' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [
+					{
+						name: 'read',
+						description: 'Read files',
+						schema: { type: 'object', properties: {}, additionalProperties: false },
+						execute: jest.fn(),
+					},
+				],
+			}
+		);
+
+		await expect(service.send('write a short poem about spring')).resolves.toBe('roses are red');
+		expect(requests[0]!.tools).toEqual([]);
+		expect(requests[0]!.system).toContain('No tools are available for this turn');
+		expect(requests[0]!.system).not.toContain('## Skill guidance');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('uses HITL approval over IPC pending state before executing tools', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
@@ -120,7 +159,7 @@ describe('AssistantService', () => {
 			toolsFactory: () => [tool],
 		});
 
-		const send = service.send('do it');
+		const send = service.send('execute the needs_approval tool');
 		let pending = service.getPending();
 		for (let i = 0; i < 10 && pending.approvals.length === 0; i++) {
 			await new Promise((resolve) => setTimeout(resolve, 0));
@@ -168,7 +207,7 @@ describe('AssistantService', () => {
 			toolsFactory: () => [tool],
 		});
 
-		await expect(service.send('do it')).resolves.toBe('finished');
+		await expect(service.send('execute the ping tool')).resolves.toBe('finished');
 
 		const responseEvents = (deps.eventBus.broadcast as jest.Mock).mock.calls
 			.filter(([channel]) => channel === 'assistant:response')
