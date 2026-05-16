@@ -25,6 +25,7 @@ export interface AgentRunHooks {
 		status: 'ok' | 'error' | 'rejected';
 		durationMs: number;
 		outputChars: number;
+		outputText?: string;
 	}) => void | Promise<void>;
 	onFinish?: (info: {
 		runId: string;
@@ -354,6 +355,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						status: 'error',
 						durationMs,
 						outputChars: out.length,
+						outputText: out,
 					});
 					streamEvent?.({
 						type: 'tool_call_result',
@@ -392,6 +394,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						status,
 						durationMs,
 						outputChars: outText.length,
+						outputText: outText,
 					});
 					streamEvent?.({
 						type: 'tool_call_result',
@@ -438,6 +441,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					status,
 					durationMs,
 					outputChars: outText.length,
+					outputText: outText,
 				});
 				streamEvent?.({
 					type: 'tool_call_result',
