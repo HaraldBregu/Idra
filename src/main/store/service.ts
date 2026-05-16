@@ -205,10 +205,14 @@ export class StoreService {
 		properties: Partial<Channel[TKey]>
 	): Channel {
 		const current = this.getChannel();
+		const currentProperties =
+			current[type] && typeof current[type] === 'object'
+				? (current[type] as Record<string, unknown>)
+				: {};
 		const next: Channel = {
 			...current,
 			[type]: {
-				...current[type],
+				...currentProperties,
 				...properties,
 			},
 		};

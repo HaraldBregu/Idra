@@ -9,56 +9,55 @@ import type { GenericChannelProperties } from '../../shared/channels';
 
 const emptyConfig: ChannelConfigAdapter<GenericChannelProperties> = {
 	listAccounts(config) {
-		const ids = this.listAccountIds(config);
+		const ids = listGenericAccountIds(config);
 		return ids.map((id) => toAccount(id, config));
 	},
 	listAccountIds(config) {
-		const accountIds = Object.keys(config.accounts ?? {});
-		return accountIds.length > 0 ? accountIds : ['default'];
+		return listGenericAccountIds(config);
 	},
-	resolveAccount(config, accountId = this.defaultAccountId(config) ?? 'default') {
-		if (!this.listAccountIds(config).includes(accountId)) return null;
+	resolveAccount(config, accountId = defaultGenericAccountId(config) ?? 'default') {
+		if (!listGenericAccountIds(config).includes(accountId)) return null;
 		return toAccount(accountId, config);
 	},
 	inspectAccount(config, accountId) {
-		return this.resolveAccount(config, accountId);
+		return emptyConfig.resolveAccount(config, accountId);
 	},
 	describeAccount(config, accountId) {
-		return this.resolveAccount(config, accountId);
+		return emptyConfig.resolveAccount(config, accountId);
 	},
 	getDefaultAccount(config) {
-		return this.resolveAccount(config, this.defaultAccountId(config) ?? 'default');
+		return emptyConfig.resolveAccount(config, defaultGenericAccountId(config) ?? 'default');
 	},
 	defaultAccountId(config) {
-		return config.defaultAccountId?.trim() || 'default';
+		return defaultGenericAccountId(config);
 	},
 	isEnabled(config, accountId) {
-		return this.resolveAccount(config, accountId)?.enabled ?? false;
+		return emptyConfig.resolveAccount(config, accountId)?.enabled ?? false;
 	},
 	isConfigured(config, accountId) {
-		return this.resolveAccount(config, accountId)?.configured ?? false;
+		return emptyConfig.resolveAccount(config, accountId)?.configured ?? false;
 	},
 	disabledReason(config, accountId) {
-		return this.resolveAccount(config, accountId)?.disabledReason ?? null;
+		return emptyConfig.resolveAccount(config, accountId)?.disabledReason ?? null;
 	},
 	unconfiguredReason(config, accountId) {
-		return this.resolveAccount(config, accountId)?.unconfiguredReason ?? null;
+		return emptyConfig.resolveAccount(config, accountId)?.unconfiguredReason ?? null;
 	},
 	getAllowlist(config, accountId) {
-		return this.resolveAllowFrom(config, accountId);
+		return emptyConfig.resolveAllowFrom(config, accountId);
 	},
 	resolveAllowFrom(config, accountId) {
-		return this.resolveAccount(config, accountId)?.allowFrom ?? [];
+		return emptyConfig.resolveAccount(config, accountId)?.allowFrom ?? [];
 	},
 	formatAllowFrom(config, accountId) {
-		const allowFrom = this.resolveAllowFrom(config, accountId);
+		const allowFrom = emptyConfig.resolveAllowFrom(config, accountId);
 		return allowFrom.length > 0 ? allowFrom.join(', ') : 'none';
 	},
 	getDefaultTarget(config, accountId) {
-		return this.resolveDefaultTo(config, accountId);
+		return emptyConfig.resolveDefaultTo(config, accountId);
 	},
 	resolveDefaultTo(config, accountId) {
-		return this.resolveAccount(config, accountId)?.defaultTargetId ?? null;
+		return emptyConfig.resolveAccount(config, accountId)?.defaultTargetId ?? null;
 	},
 };
 
@@ -127,6 +126,15 @@ function toAccount(id: string, config: GenericChannelProperties): ChannelAccount
 		disabledReason: enabled ? undefined : 'Account disabled.',
 		unconfiguredReason: 'Channel runtime is not configured.',
 	};
+}
+
+function listGenericAccountIds(config: GenericChannelProperties): string[] {
+	const accountIds = Object.keys(config.accounts ?? {});
+	return accountIds.length > 0 ? accountIds : ['default'];
+}
+
+function defaultGenericAccountId(config: GenericChannelProperties): string {
+	return config.defaultAccountId?.trim() || 'default';
 }
 
 function normalizeList(values: readonly string[]): string[] {

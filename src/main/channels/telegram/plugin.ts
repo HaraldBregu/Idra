@@ -4,6 +4,7 @@ import type {
 	TelegramChannelProperties,
 } from '../../../shared/channels';
 import { createChatChannelPlugin, createScopedDmSecurityAdapter, defineChannelPluginEntry } from '../plugin';
+import { normalizeTelegramTextMessage } from './receive';
 import type {
 	ChannelAccountSnapshot,
 	ChannelActionsAdapter,
@@ -21,62 +22,55 @@ export type TelegramSetupInput = TelegramChannelProperties;
 
 const config: ChannelConfigAdapter<TelegramChannelProperties> = {
 	listAccounts(channelConfig) {
-		return this.listAccountIds(channelConfig).map((accountId) => toAccount(channelConfig, accountId));
+		return listTelegramAccountIds(channelConfig).map((accountId) => toAccount(channelConfig, accountId));
 	},
 	listAccountIds(channelConfig) {
-		const accountIds = Object.keys(channelConfig.accounts ?? {})
-			.map((accountId) => accountId.trim())
-			.filter(Boolean);
-		return accountIds.length > 0 ? normalizeAllowFrom(accountIds) : ['default'];
+		return listTelegramAccountIds(channelConfig);
 	},
-	resolveAccount(channelConfig, accountId = this.defaultAccountId(channelConfig) ?? 'default') {
-		const normalizedAccountId = accountId.trim() || this.defaultAccountId(channelConfig) || 'default';
-		if (!this.listAccountIds(channelConfig).includes(normalizedAccountId)) return null;
+	resolveAccount(channelConfig, accountId = defaultTelegramAccountId(channelConfig)) {
+		const normalizedAccountId = accountId.trim() || defaultTelegramAccountId(channelConfig);
+		if (!listTelegramAccountIds(channelConfig).includes(normalizedAccountId)) return null;
 		return toAccount(channelConfig, normalizedAccountId);
 	},
 	inspectAccount(channelConfig, accountId) {
-		return this.resolveAccount(channelConfig, accountId);
+		return config.resolveAccount(channelConfig, accountId);
 	},
 	describeAccount(channelConfig, accountId) {
-		return this.resolveAccount(channelConfig, accountId);
+		return config.resolveAccount(channelConfig, accountId);
 	},
 	getDefaultAccount(channelConfig) {
-		return this.resolveAccount(channelConfig, this.defaultAccountId(channelConfig) ?? 'default');
+		return config.resolveAccount(channelConfig, defaultTelegramAccountId(channelConfig));
 	},
 	defaultAccountId(channelConfig) {
-		const configuredDefault = channelConfig.defaultAccountId?.trim();
-		if (configuredDefault && this.listAccountIds(channelConfig).includes(configuredDefault)) {
-			return configuredDefault;
-		}
-		return 'default';
+		return defaultTelegramAccountId(channelConfig);
 	},
 	isEnabled(channelConfig, accountId = 'default') {
-		return Boolean(this.resolveAccount(channelConfig, accountId)?.enabled);
+		return Boolean(config.resolveAccount(channelConfig, accountId)?.enabled);
 	},
 	isConfigured(channelConfig, accountId = 'default') {
-		return Boolean(this.resolveAccount(channelConfig, accountId)?.configured);
+		return Boolean(config.resolveAccount(channelConfig, accountId)?.configured);
 	},
 	disabledReason(channelConfig, accountId = 'default') {
-		return this.resolveAccount(channelConfig, accountId)?.disabledReason ?? null;
+		return config.resolveAccount(channelConfig, accountId)?.disabledReason ?? null;
 	},
 	unconfiguredReason(channelConfig, accountId = 'default') {
-		return this.resolveAccount(channelConfig, accountId)?.unconfiguredReason ?? null;
+		return config.resolveAccount(channelConfig, accountId)?.unconfiguredReason ?? null;
 	},
 	getAllowlist(channelConfig, accountId = 'default') {
-		return this.resolveAllowFrom(channelConfig, accountId);
+		return config.resolveAllowFrom(channelConfig, accountId);
 	},
 	resolveAllowFrom(channelConfig, accountId = 'default') {
-		return this.resolveAccount(channelConfig, accountId)?.allowFrom ?? [];
+		return config.resolveAccount(channelConfig, accountId)?.allowFrom ?? [];
 	},
 	formatAllowFrom(channelConfig, accountId = 'default') {
-		const allowFrom = this.resolveAllowFrom(channelConfig, accountId);
+		const allowFrom = config.resolveAllowFrom(channelConfig, accountId);
 		return allowFrom.length > 0 ? allowFrom.join(', ') : 'none';
 	},
 	getDefaultTarget(channelConfig, accountId = 'default') {
-		return this.resolveDefaultTo(channelConfig, accountId);
+		return config.resolveDefaultTo(channelConfig, accountId);
 	},
 	resolveDefaultTo(channelConfig, accountId = 'default') {
-		return this.resolveAccount(channelConfig, accountId)?.defaultTargetId ?? null;
+		return config.resolveAccount(channelConfig, accountId)?.defaultTargetId ?? null;
 	},
 };
 
@@ -316,6 +310,21 @@ function toAccount(channelConfig: TelegramChannelProperties, accountId: string):
 
 function normalizeAllowFrom(values: readonly string[]): string[] {
 	return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+function listTelegramAccountIds(channelConfig: TelegramChannelProperties): string[] {
+	const accountIds = Object.keys(channelConfig.accounts ?? {})
+		.map((accountId) => accountId.trim())
+		.filter(Boolean);
+	return accountIds.length > 0 ? normalizeAllowFrom(accountIds) : ['default'];
+}
+
+function defaultTelegramAccountId(channelConfig: TelegramChannelProperties): string {
+	const configuredDefault = channelConfig.defaultAccountId?.trim();
+	if (configuredDefault && listTelegramAccountIds(channelConfig).includes(configuredDefault)) {
+		return configuredDefault;
+	}
+	return 'default';
 }
 
 function normalizeAccounts(

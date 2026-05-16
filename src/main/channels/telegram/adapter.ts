@@ -21,7 +21,6 @@ export class TelegramAdapter implements ChannelAdapter {
 	private bot: Bot;
 	private readonly token: string;
 	private readonly accountId: string;
-	private readonly allowFrom: Set<string>;
 	private readonly seenMessages = new Set<string>();
 	private readonly messageHandlers = new Set<ChannelInboundHandler>();
 	private readonly statusHandlers = new Set<ChannelStatusHandler>();
@@ -33,9 +32,6 @@ export class TelegramAdapter implements ChannelAdapter {
 	constructor(options: TelegramAdapterOptions) {
 		this.token = options.token.trim();
 		this.accountId = options.accountId?.trim() || 'default';
-		this.allowFrom = new Set(
-			options.allowFrom.map((value) => String(value).trim()).filter(Boolean)
-		);
 		if (!this.token) {
 			throw new Error('Telegram bot token is required');
 		}
