@@ -46,6 +46,7 @@ export interface CronApi {
 	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
 	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
 	runNow: (scheduleId: string) => Promise<Task>;
+	action: (request: OpenClawCronToolRequest) => Promise<OpenClawCronToolResponse>;
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
 	subscribeToSchedule: (
 		scheduleId: string,
@@ -115,6 +116,8 @@ import type {
 	CronTask,
 	CronTaskData,
 	CronTaskView,
+	OpenClawCronToolRequest,
+	OpenClawCronToolResponse,
 } from '../shared/cron';
 import type { Task } from '../shared/task';
 import type {
