@@ -8,7 +8,7 @@ import {
 	openScreenRecordingTool,
 	setMenuBarTool,
 } from './app';
-import { cronAddTool, cronListTool, cronRemoveTool } from './cron';
+import { cronAddTool, cronListTool, cronRemoveTool, cronTool } from './cron';
 import { execTool, processTool } from './exec';
 import { applyPatchTool, editTool, findTool, readTool, writeTool } from './fs';
 import { memoryGetTool, memorySearchTool } from './memory';
@@ -57,6 +57,7 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	getAgentServiceTool,
 	getAgentModelTool,
 	setAgentServiceTool,
+	cronTool,
 	cronAddTool,
 	cronListTool,
 	cronRemoveTool,
