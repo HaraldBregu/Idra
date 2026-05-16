@@ -11,9 +11,19 @@ import {
 import { cronAddTool, cronListTool, cronRemoveTool } from './cron';
 import { execTool, processTool } from './exec';
 import { applyPatchTool, editTool, findTool, readTool, writeTool } from './fs';
+import { memoryGetTool, memorySearchTool } from './memory';
 import { updatePlanTool } from './plan';
 import { filterTools, type PolicyConfig } from './policy';
 import { getProviderByIdTool, setProviderApiKeyTool } from './providers';
+import {
+	sessionStatusTool,
+	sessionsHistoryTool,
+	sessionsListTool,
+	sessionsSendTool,
+	sessionsSpawnTool,
+	sessionsYieldTool,
+	subagentsTool,
+} from './sessions';
 import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from './services';
 import { getWorkspaceContentTool, getWorkspacePathTool } from './workspace';
 import { webFetchTool } from './web';
@@ -31,6 +41,15 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	processTool,
 	webFetchTool,
 	updatePlanTool,
+	memorySearchTool,
+	memoryGetTool,
+	sessionsListTool,
+	sessionsHistoryTool,
+	sessionsSendTool,
+	sessionsSpawnTool,
+	sessionsYieldTool,
+	subagentsTool,
+	sessionStatusTool,
 	getWorkspaceContentTool,
 	getWorkspacePathTool,
 	getProviderByIdTool,
