@@ -54,7 +54,7 @@ export function AssistantActivityPanel({
 					<span className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
 						{message.runId}
 					</span>
-					)}
+				)}
 			</div>
 			{message.errorText && (
 				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
