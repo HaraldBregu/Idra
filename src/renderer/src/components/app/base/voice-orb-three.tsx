@@ -142,7 +142,11 @@ const MODES: Record<VoiceOrbMode, ModeConfig> = {
 const BAR_COUNT = 22;
 const MODE_KEYS = Object.keys(MODES) as VoiceOrbMode[];
 
-export function VoiceOrbThree(): ReactElement {
+type VoiceOrbThreeProps = {
+	readonly size?: number;
+};
+
+export function VoiceOrbThree({ size = 260 }: VoiceOrbThreeProps): ReactElement {
 	const [mode, setMode] = useState<VoiceOrbMode>('idle');
 	const mountRef = useRef<HTMLDivElement>(null);
 	const ring1Ref = useRef<HTMLDivElement>(null);
@@ -161,14 +165,13 @@ export function VoiceOrbThree(): ReactElement {
 		const container = mountRef.current;
 		if (!container) return;
 
-		const SIZE = 260;
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
 		camera.position.z = 2.85;
 
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-		renderer.setSize(SIZE, SIZE);
+		renderer.setSize(size, size);
 		renderer.setClearColor(0x000000, 0);
 		container.appendChild(renderer.domElement);
 
@@ -259,13 +262,15 @@ export function VoiceOrbThree(): ReactElement {
 			glowGeom.dispose();
 			glowMat.dispose();
 		};
-	}, []);
+	}, [size]);
 
 	const cycleMode = useCallback((): void => {
 		setMode((prev) => MODE_KEYS[(MODE_KEYS.indexOf(prev) + 1) % MODE_KEYS.length]);
 	}, []);
 
 	const cfg = MODES[mode];
+	const ring1Inset = -Math.round(size * (18 / 260));
+	const ring2Inset = -Math.round(size * (38 / 260));
 
 	return (
 		<div className="flex flex-col items-center gap-4">
@@ -274,7 +279,7 @@ export function VoiceOrbThree(): ReactElement {
 				tabIndex={0}
 				aria-label={`Voice agent, mode: ${mode}. Click to change.`}
 				className="relative cursor-pointer"
-				style={{ width: 260, height: 260 }}
+				style={{ width: size, height: size }}
 				onClick={cycleMode}
 				onKeyDown={(e) => {
 					if (e.key === 'Enter' || e.key === ' ') cycleMode();
@@ -282,13 +287,13 @@ export function VoiceOrbThree(): ReactElement {
 			>
 				<div
 					ref={mountRef}
-					style={{ width: 260, height: 260, borderRadius: '50%', overflow: 'hidden' }}
+					style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden' }}
 				/>
 				<div
 					ref={ring1Ref}
 					className="pointer-events-none absolute rounded-full"
 					style={{
-						inset: -18,
+						inset: ring1Inset,
 						border: '1.5px solid rgba(148,114,243,0.55)',
 						opacity: 0,
 						transition: 'opacity 0.06s',
@@ -298,7 +303,7 @@ export function VoiceOrbThree(): ReactElement {
 					ref={ring2Ref}
 					className="pointer-events-none absolute rounded-full"
 					style={{
-						inset: -38,
+						inset: ring2Inset,
 						border: '1px solid rgba(148,114,243,0.28)',
 						opacity: 0,
 						transition: 'opacity 0.06s',
