@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ApprovalGateway, type ApprovalKind, type ApprovalRecord } from './approval/gateway';
 import type { EventBus } from './core/event-bus';
 import type { ApprovalStreamLike } from './tools/types';
 import type { ApprovalDecision } from '../shared/service';
@@ -51,8 +52,10 @@ interface PendingInput {
  * resolve/reject the pending Promise.
  */
 export class HitlBridge implements ApprovalStreamLike {
-	private readonly approvals = new Map<string, PendingApproval>();
-	private readonly resolvedApprovals = new Map<string, PendingApproval>();
+	private readonly gateway = new ApprovalGateway((event) => {
+		this.eventBus.broadcast(event.type, event);
+		this.broadcast();
+	});
 	private readonly inputs = new Map<string, PendingInput>();
 
 	constructor(
@@ -80,53 +83,49 @@ export class HitlBridge implements ApprovalStreamLike {
 		timeoutMs?: number;
 		allowedDecisions?: ApprovalDecision[];
 	}): Promise<ApprovalDecision | null> {
-		return new Promise<ApprovalDecision | null>((resolve, reject) => {
-			const id = randomUUID();
-			const createdAtMs = Date.now();
-			const timeoutMs = Math.max(1, opts.timeoutMs ?? DEFAULT_APPROVAL_TIMEOUT_MS);
-			const expiresAtMs = createdAtMs + timeoutMs;
-			const argsPreview = sanitizePreview(opts.args);
-			const argRecord =
-				opts.args && typeof opts.args === 'object' ? (opts.args as Record<string, unknown>) : {};
-			const view: PendingApprovalView = {
-				id,
-				kind: opts.kind ?? inferApprovalKind(opts.toolName),
+		const argsPreview = sanitizePreview(opts.args);
+		const argRecord =
+			opts.args && typeof opts.args === 'object' ? (opts.args as Record<string, unknown>) : {};
+		const kind = opts.kind ?? inferApprovalKind(opts.toolName);
+		const record = this.gateway.request({
+			kind: toGatewayKind(kind),
+			title: opts.title ?? opts.question,
+			description: opts.description,
+			requestPayload: {
 				toolName: opts.toolName,
 				question: opts.question,
-				title: opts.title ?? opts.question,
-				description: opts.description,
 				argsPreview,
-				command: typeof argRecord.command === 'string' ? argRecord.command : undefined,
-				cwd: typeof argRecord.workdir === 'string' ? argRecord.workdir : undefined,
-				envKeys: envKeys(argRecord.env),
-				createdAtMs,
-				expiresAtMs,
-				allowedDecisions: opts.allowedDecisions ?? ['allow-once', 'allow-always', 'deny'],
-			};
-			const timer = setTimeout(() => {
-				this.expireApproval(id);
-			}, timeoutMs);
-			timer.unref?.();
-			this.approvals.set(id, { resolve, reject, view, timer });
-			this.broadcast();
+			},
+			agentId: this.agentId,
+			sessionId: this.agentId,
+			timeoutMs: opts.timeoutMs ?? DEFAULT_APPROVAL_TIMEOUT_MS,
+			allowedDecisions: opts.allowedDecisions,
+			execBinding:
+				kind === 'exec' && typeof argRecord.command === 'string'
+					? {
+							command: argRecord.command,
+							rawCommand: argRecord.command,
+							cwd: typeof argRecord.workdir === 'string' ? argRecord.workdir : undefined,
+							agentId: this.agentId,
+							sessionKey: this.agentId,
+							envKeys: envKeys(argRecord.env),
+						}
+					: undefined,
+		});
+		return this.gateway.waitDecision(record.kind, record.id).then((decision) => {
+			return decision === 'allow-once' || decision === 'allow-always' || decision === 'deny'
+				? decision
+				: null;
 		});
 	}
 
 	waitApprovalDecision(id: string): Promise<ApprovalDecision | null> | null {
-		const entry = this.approvals.get(id) ?? this.resolvedApprovals.get(id);
-		if (!entry) return null;
-		if (entry.resolvedAtMs !== undefined) return Promise.resolve(entry.decision ?? null);
-		return new Promise((resolve, reject) => {
-			const originalResolve = entry.resolve;
-			const originalReject = entry.reject;
-			entry.resolve = (decision) => {
-				originalResolve(decision);
-				resolve(decision);
-			};
-			entry.reject = (err) => {
-				originalReject(err);
-				reject(err);
-			};
+		const record = this.gateway.get('exec', id) ?? this.gateway.get('tool', id) ?? this.gateway.get('api', id) ?? this.gateway.get('plugin', id);
+		if (!record) return null;
+		return this.gateway.waitDecision(record.kind, id).then((decision) => {
+			return decision === 'allow-once' || decision === 'allow-always' || decision === 'deny'
+				? decision
+				: null;
 		});
 	}
 
@@ -140,30 +139,16 @@ export class HitlBridge implements ApprovalStreamLike {
 	}
 
 	resolveApproval(id: string, decision: ApprovalDecision | boolean): boolean {
-		const entry = this.approvals.get(id);
-		if (!entry) return false;
 		const normalized = normalizeDecision(decision);
-		if (!entry.view.allowedDecisions.includes(normalized)) return false;
-		this.approvals.delete(id);
-		clearTimeout(entry.timer);
-		entry.decision = normalized;
-		entry.resolvedAtMs = Date.now();
-		entry.resolve(normalized);
-		this.retainResolved(id, entry);
-		this.broadcast();
-		return true;
+		const result = this.gateway.resolveAny(id, normalized, this.agentId);
+		return result.ok;
 	}
 
 	expireApproval(id: string): boolean {
-		const entry = this.approvals.get(id);
-		if (!entry) return false;
-		this.approvals.delete(id);
-		entry.decision = null;
-		entry.resolvedAtMs = Date.now();
-		entry.resolve(null);
-		this.retainResolved(id, entry);
-		this.broadcast();
-		return true;
+		const record = this.gateway.get('exec', id) ?? this.gateway.get('tool', id) ?? this.gateway.get('api', id) ?? this.gateway.get('plugin', id);
+		if (!record) return false;
+		const result = this.gateway.resolve(record.kind, record.id, 'deny', this.agentId);
+		return result.ok;
 	}
 
 	resolveInput(id: string, answer: string): boolean {
@@ -177,11 +162,7 @@ export class HitlBridge implements ApprovalStreamLike {
 
 	/** Reject every outstanding ask — used when the user cancels the run. */
 	cancelAll(reason = 'cancelled'): void {
-		for (const entry of this.approvals.values()) {
-			clearTimeout(entry.timer);
-			entry.reject(new Error(reason));
-		}
-		this.approvals.clear();
+		this.gateway.cancelAll(reason === 'cancelled' ? 'cancelled' : 'unavailable');
 		for (const entry of this.inputs.values()) entry.reject(new Error(reason));
 		this.inputs.clear();
 		this.broadcast();
@@ -189,21 +170,13 @@ export class HitlBridge implements ApprovalStreamLike {
 
 	getPending(): { approvals: PendingApprovalView[]; inputs: PendingInputView[] } {
 		return {
-			approvals: [...this.approvals.values()].map((p) => p.view),
+			approvals: this.gateway.list().map(recordToPendingApproval),
 			inputs: [...this.inputs.values()].map((p) => p.view),
 		};
 	}
 
 	hasPending(): boolean {
-		return this.approvals.size > 0 || this.inputs.size > 0;
-	}
-
-	private retainResolved(id: string, entry: PendingApproval): void {
-		this.resolvedApprovals.set(id, entry);
-		const timer = setTimeout(() => {
-			this.resolvedApprovals.delete(id);
-		}, RESOLVED_RETENTION_MS);
-		timer.unref?.();
+		return this.gateway.list().length > 0 || this.inputs.size > 0;
 	}
 
 	private broadcast(): void {
@@ -216,8 +189,38 @@ export class HitlBridge implements ApprovalStreamLike {
 
 function inferApprovalKind(toolName: string): PendingApprovalView['kind'] {
 	if (toolName === 'exec' || toolName === 'process') return 'exec';
+	if (toolName.startsWith('plugin:')) return 'plugin';
 	if (toolName.startsWith('connector:')) return 'api';
 	return 'tool';
+}
+
+function toGatewayKind(kind: PendingApprovalView['kind']): ApprovalKind {
+	return kind;
+}
+
+function recordToPendingApproval(record: ApprovalRecord): PendingApprovalView {
+	const payload =
+		record.requestPayload && typeof record.requestPayload === 'object'
+			? (record.requestPayload as Record<string, unknown>)
+			: {};
+	const argsPreview = payload.argsPreview;
+	const argRecord =
+		argsPreview && typeof argsPreview === 'object' ? (argsPreview as Record<string, unknown>) : {};
+	return {
+		id: record.id,
+		kind: record.kind,
+		toolName: typeof payload.toolName === 'string' ? payload.toolName : record.kind,
+		question: typeof payload.question === 'string' ? payload.question : record.title,
+		title: record.title,
+		description: record.description,
+		argsPreview,
+		command: typeof argRecord.command === 'string' ? argRecord.command : undefined,
+		cwd: typeof argRecord.workdir === 'string' ? argRecord.workdir : undefined,
+		envKeys: envKeys(argRecord.env),
+		createdAtMs: record.createdAtMs,
+		expiresAtMs: record.expiresAtMs,
+		allowedDecisions: record.allowedDecisions,
+	};
 }
 
 function normalizeDecision(decision: ApprovalDecision | boolean): ApprovalDecision {
