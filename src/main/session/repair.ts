@@ -12,8 +12,8 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 		const entry = transcript[i]!;
 		if (entry.role === 'assistant') {
 			const toolUseIds = entry.content
-				.filter((b) => b.type === 'tool_use' && b.toolUseId)
-				.map((b) => b.toolUseId as string);
+				.filter((b) => b.type === 'tool_use')
+				.map((b) => b.toolUseId);
 			if (toolUseIds.length === 0) {
 				out.push(entry);
 				continue;

@@ -258,7 +258,11 @@ export class SkillExecutionEngine {
 				if (!safety.allowed) throw new Error(safety.reasons.join('; '));
 				const before = await beforeToolCall(tool, args, base.toolContext, tracker);
 				if (!before.proceed && before.vetoResult) {
-					state.warnings.push(before.vetoResult.content.map((item) => item.text ?? '').join(' '));
+					state.warnings.push(
+						before.vetoResult.content
+							.map((item) => (item.type === 'text' ? item.text : ''))
+							.join(' ')
+					);
 					return before.vetoResult as AgentToolResult<TDetails>;
 				}
 				if (before.warning) state.warnings.push(before.warning);

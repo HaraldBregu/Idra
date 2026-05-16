@@ -184,7 +184,10 @@ const ResearchTopicSkill = baseSkill<ResearchTopicInput, ResearchTopicOutput>({
 		const fetched: string[] = [];
 		for (const source of provided.filter((item) => item.url).slice(0, maxSources)) {
 			const result = await context.callTool('web_fetch', { url: source.url as string });
-			const text = result.content.map((block) => block.text ?? '').join(' ').slice(0, 600);
+			const text = result.content
+				.map((block) => (block.type === 'text' ? block.text : ''))
+				.join(' ')
+				.slice(0, 600);
 			if (text) fetched.push(text);
 		}
 		const sourceText = [...provided.map((source) => source.text), ...fetched].join(' ');
@@ -306,7 +309,7 @@ const AnalyzeRepositorySkill = baseSkill<{ focus?: string }, { summary: string; 
 	async execute(input, context) {
 		const result = await context.callTool('find', { pattern: '**/*.{ts,tsx,js,jsx}', limit: 50 });
 		const files = result.content
-			.map((block) => block.text ?? '')
+			.map((block) => (block.type === 'text' ? block.text : ''))
 			.join('\n')
 			.split(/\r?\n/)
 			.filter((line) => line && line !== 'No matches.');
