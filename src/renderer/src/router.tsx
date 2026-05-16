@@ -44,7 +44,6 @@ function RootRouteComponent(): React.JSX.Element {
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 
 	const isStart = location.pathname === '/start';
-	const isSettings = location.pathname.startsWith('/settings');
 
 	const startTitleBarAction = isStart ? (
 		<Button
@@ -64,13 +63,11 @@ function RootRouteComponent(): React.JSX.Element {
 					'app-translucent-window flex h-screen flex-col overflow-hidden bg-background text-foreground'
 				)}
 			>
-				{!isSettings && (
-					<TitleBar
-						title={isStart ? 'Set up Friday' : t('appTitle')}
-						rightContent={startTitleBarAction}
-					/>
-				)}
-				<div className={cn('min-h-0 flex-1 overflow-hidden', !isSettings && 'pt-12')}>
+				<TitleBar
+					title={isStart ? 'Set up Friday' : t('appTitle')}
+					rightContent={startTitleBarAction}
+				/>
+				<div className="min-h-0 flex-1 overflow-hidden pt-12">
 					<PageTransition>
 						<Outlet />
 					</PageTransition>
