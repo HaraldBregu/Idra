@@ -41,6 +41,7 @@ import {
 	StepsTrigger,
 } from '@/components/ui/steps';
 import { Textarea } from '@/components/ui/textarea';
+import { FeedbackBar } from '@/components/ui/feedback-bar';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
@@ -337,6 +338,9 @@ function AssistantTextMessage({
 						>
 							{message.content}
 						</Markdown>
+					)}
+					{message.content.length > 0 && (
+						<FeedbackBar className="max-w-xl bg-background/80 text-xs shadow-sm" />
 					)}
 				</div>
 				{message.content.length > 0 && (
