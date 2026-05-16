@@ -372,8 +372,12 @@ function normalizeProviderAuthChoices(value: unknown): ConnectorProviderAuthChoi
 		const method = normalizeString(entry.method);
 		const choiceId = normalizeString(entry.choiceId);
 		if (!provider || !method || !choiceId) return [];
+		const assistantVisibility =
+			entry.assistantVisibility === 'manual-only' || entry.assistantVisibility === 'visible'
+				? entry.assistantVisibility
+				: undefined;
 		return [
-			compactRecord({
+			compactRecord<ConnectorProviderAuthChoice>({
 				provider,
 				method,
 				choiceId,
@@ -381,10 +385,7 @@ function normalizeProviderAuthChoices(value: unknown): ConnectorProviderAuthChoi
 				choiceHint: normalizeString(entry.choiceHint),
 				assistantPriority:
 					typeof entry.assistantPriority === 'number' ? entry.assistantPriority : undefined,
-				assistantVisibility:
-					entry.assistantVisibility === 'manual-only' || entry.assistantVisibility === 'visible'
-						? entry.assistantVisibility
-						: undefined,
+				assistantVisibility,
 				deprecatedChoiceIds: normalizeStringList(entry.deprecatedChoiceIds),
 				groupId: normalizeString(entry.groupId),
 				groupLabel: normalizeString(entry.groupLabel),
@@ -406,10 +407,10 @@ function normalizeCommandAliases(value: unknown): ConnectorCommandAlias[] {
 	return value.flatMap((entry) => {
 		if (typeof entry === 'string') {
 			const name = normalizeString(entry);
-			return name ? [{ name }] : [];
+			return name ? ([{ name }] satisfies ConnectorCommandAlias[]) : [];
 		}
 		if (!isRecord(entry)) return [];
-		const alias = compactRecord({
+		const alias = compactRecord<ConnectorCommandAlias>({
 			name: normalizeString(entry.name),
 			id: normalizeString(entry.id),
 			command: normalizeString(entry.command),
