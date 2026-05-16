@@ -4,7 +4,7 @@
  */
 
 export type { IpcModule } from './ipc-module';
-export { AssistantIpc } from './assistant-ipc';
+export { AgentIpc } from './agent-ipc';
 export { AppIpc } from './app-ipc';
 export { ChannelsIpc } from './channels-ipc';
 export { ConnectorsIpc } from './connectors-ipc';

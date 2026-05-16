@@ -396,7 +396,7 @@ const ConnectorsPage: React.FC = () => {
 											Enabled
 										</Label>
 										<span className="mt-1 block text-sm leading-5 text-muted-foreground">
-											Make this connector available to assistant runs.
+											Make this connector available to agent runs.
 										</span>
 									</span>
 									<Switch
@@ -442,7 +442,7 @@ const ConnectorsPage: React.FC = () => {
 						<SettingsEmptyState
 							icon={Plug}
 							title="No connectors configured yet."
-							description="Add a connector to make external tools available to assistant runs."
+							description="Add a connector to make external tools available to agent runs."
 						/>
 					</SettingsPanel>
 				) : (

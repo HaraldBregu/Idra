@@ -12,7 +12,7 @@ export async function createMondayInvoiceReminder(agentCron: AgentCronService): 
 			concurrencyPolicy: 'skipIfRunning',
 		},
 		{
-			agentId: 'assistant',
+			agentId: 'agent',
 			userId: 'current-user',
 			timezone: 'Europe/Rome',
 			permissions: ['createSchedule', 'listSchedules', 'pauseSchedule', 'resumeSchedule', 'deleteSchedule'],

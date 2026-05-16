@@ -8,7 +8,7 @@ Friday is a local-first desktop app, but it can connect to external AI providers
 | --- | --- | --- |
 | Public | app version, UI labels, public docs | May be logged if useful |
 | Personal | user preferences, app settings, non-sensitive workflow choices | Store only when useful; allow export/delete where practical |
-| Private | assistant history, workspace paths, channel IDs, connector metadata | Minimize logs; avoid unnecessary prompt injection |
+| Private | agent history, workspace paths, channel IDs, connector metadata | Minimize logs; avoid unnecessary prompt injection |
 | Sensitive | medical, political, religious, sexual, biometric, legal, financial, or precise identity data | Do not store by default; require explicit user intent |
 | Secret | API keys, tokens, passwords, private keys, credentials | Never store in memory; redact from logs and prompts |
 

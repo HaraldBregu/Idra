@@ -557,7 +557,7 @@
 		"contentReviewer": "Revisore Contenuti",
 		"contentWriter": "Scrittore Contenuti",
 		"imageCreator": "Creatore Immagini",
-		"assistant": "Assistente"
+		"agent": "Agente"
 	},
 	"channels": {
 		"title": "Canali",
@@ -1029,7 +1029,7 @@
 		"search": "Cerca",
 		"rag": "RAG"
 	},
-	"assistantNode": {
+	"agentNode": {
 		"referenceImages": "Immagini di riferimento",
 		"imageCount": "{{count}} pronte",
 		"referenceImagesHelp": "Aggiungi altri riferimenti se servono.",

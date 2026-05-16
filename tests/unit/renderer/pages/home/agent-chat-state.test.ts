@@ -1,52 +1,52 @@
 import type {
-	AssistantHistoryMessage,
-	AssistantPendingEventPayload,
-	AssistantResponseEvent,
+	AgentHistoryMessage,
+	AgentPendingEventPayload,
+	AgentResponseEvent,
 } from '../../../../../src/shared/service';
 import {
-	assistantChatReducer,
+	agentChatReducer,
 	defaultPendingSelections,
 	historyToChatMessages,
-	initialAssistantChatState,
+	initialAgentChatState,
 	pendingToMultiSelectMessage,
-	type AssistantMessage,
+	type AgentMessage,
 } from '../../../../../src/renderer/src/pages/home/context';
 
-function assistantMessage(state = initialAssistantChatState): AssistantMessage {
-	const message = state.messages.find((item) => item.type === 'assistant' && item.id !== 'assistant-welcome');
-	if (!message || message.type !== 'assistant') throw new Error('Assistant message missing');
+function agentMessage(state = initialAgentChatState): AgentMessage {
+	const message = state.messages.find((item) => item.type === 'agent' && item.id !== 'agent-welcome');
+	if (!message || message.type !== 'agent') throw new Error('Agent message missing');
 	return message;
 }
 
 function startRun() {
-	return assistantChatReducer(initialAssistantChatState, {
+	return agentChatReducer(initialAgentChatState, {
 		type: 'submit_user_message',
 		userMessageId: 'user-1',
-		assistantMessageId: 'assistant-1',
+		agentMessageId: 'agent-1',
 		content: 'hello',
 		submittedAtMs: 1_000,
 	});
 }
 
 const baseEvent = {
-	assistantId: 'assistant',
+	agentId: 'agent',
 	runId: 'run-1',
 } as const;
 
-describe('assistant chat state', () => {
-	it('appends text deltas to the active assistant message', () => {
+describe('agent chat state', () => {
+	it('appends text deltas to the active agent message', () => {
 		const started = startRun();
-		const next = assistantChatReducer(started, {
+		const next = agentChatReducer(started, {
 			type: 'apply_response_event',
 			receivedAtMs: 10,
 			event: {
 				...baseEvent,
 				type: 'text_delta',
 				delta: 'Hello',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
 
-		expect(assistantMessage(next)).toMatchObject({
+		expect(agentMessage(next)).toMatchObject({
 			runId: 'run-1',
 			state: 'answering',
 			content: 'Hello',
@@ -54,29 +54,29 @@ describe('assistant chat state', () => {
 	});
 
 	it('applies run state transitions to the matching run only', () => {
-		const withRun = assistantChatReducer(startRun(), {
+		const withRun = agentChatReducer(startRun(), {
 			type: 'apply_response_event',
 			receivedAtMs: 10,
 			event: {
 				...baseEvent,
 				type: 'run_state',
 				state: 'thinking',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
 
-		const ignored = assistantChatReducer(withRun, {
+		const ignored = agentChatReducer(withRun, {
 			type: 'apply_response_event',
 			receivedAtMs: 11,
 			event: {
-				assistantId: 'assistant',
+				agentId: 'agent',
 				runId: 'run-2',
 				type: 'run_state',
 				state: 'error',
 				label: 'wrong run',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
 
-		expect(assistantMessage(ignored)).toMatchObject({
+		expect(agentMessage(ignored)).toMatchObject({
 			runId: 'run-1',
 			state: 'thinking',
 			errorText: undefined,
@@ -84,7 +84,7 @@ describe('assistant chat state', () => {
 	});
 
 	it('ignores reasoning summaries because the homepage only shows run state and tool traces', () => {
-		const next = assistantChatReducer(startRun(), {
+		const next = agentChatReducer(startRun(), {
 			type: 'apply_response_event',
 			receivedAtMs: 42,
 			event: {
@@ -94,19 +94,19 @@ describe('assistant chat state', () => {
 				title: 'Checking context',
 				summary: 'Selecting relevant project context.',
 				state: 'completed',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
 
-		expect(assistantMessage(next)).toMatchObject({
+		expect(agentMessage(next)).toMatchObject({
 			runId: 'run-1',
 			state: 'thinking',
 			tools: [],
 		});
 	});
 
-	it('updates tool start, input, result, and error events on the active assistant turn', () => {
+	it('updates tool start, input, result, and error events on the active agent turn', () => {
 		const started = startRun();
-		const withTool = assistantChatReducer(started, {
+		const withTool = agentChatReducer(started, {
 			type: 'apply_response_event',
 			receivedAtMs: 10,
 			event: {
@@ -115,9 +115,9 @@ describe('assistant chat state', () => {
 				iteration: 0,
 				toolCallId: 'tool-1',
 				toolName: 'read_file',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
-		const withInput = assistantChatReducer(withTool, {
+		const withInput = agentChatReducer(withTool, {
 			type: 'apply_response_event',
 			receivedAtMs: 11,
 			event: {
@@ -128,9 +128,9 @@ describe('assistant chat state', () => {
 				toolName: 'read_file',
 				input: { path: 'README.md' },
 				argsText: '{"path":"README.md"}',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
-		const withResult = assistantChatReducer(withInput, {
+		const withResult = agentChatReducer(withInput, {
 			type: 'apply_response_event',
 			receivedAtMs: 12,
 			event: {
@@ -144,9 +144,9 @@ describe('assistant chat state', () => {
 				outputText: 'contents',
 				status: 'ok',
 				durationMs: 15,
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
-		const withError = assistantChatReducer(withResult, {
+		const withError = agentChatReducer(withResult, {
 			type: 'apply_response_event',
 			receivedAtMs: 13,
 			event: {
@@ -161,10 +161,10 @@ describe('assistant chat state', () => {
 				status: 'error',
 				durationMs: 9,
 				errorText: 'failed',
-			} satisfies AssistantResponseEvent,
+			} satisfies AgentResponseEvent,
 		});
 
-		expect(assistantMessage(withError).tools).toEqual([
+		expect(agentMessage(withError).tools).toEqual([
 			expect.objectContaining({
 				toolCallId: 'tool-1',
 				type: 'read_file',
@@ -183,7 +183,7 @@ describe('assistant chat state', () => {
 	it('inserts pending approval and input messages with default deny selection', () => {
 		const pending = pendingToMultiSelectMessage(
 			{
-				assistantId: 'assistant',
+				agentId: 'agent',
 				approvals: [
 					{
 						id: 'approval-1',
@@ -198,7 +198,7 @@ describe('assistant chat state', () => {
 					},
 				],
 				inputs: [{ id: 'input-1', question: 'What path?' }],
-			} satisfies AssistantPendingEventPayload,
+			} satisfies AgentPendingEventPayload,
 			100
 		);
 
@@ -211,23 +211,23 @@ describe('assistant chat state', () => {
 		expect(defaultPendingSelections(pending!)).toEqual(['approval:approval-1:deny']);
 	});
 
-	it('marks cancellation on the active assistant message', () => {
-		const cancelled = assistantChatReducer(startRun(), { type: 'cancel_active' });
+	it('marks cancellation on the active agent message', () => {
+		const cancelled = agentChatReducer(startRun(), { type: 'cancel_active' });
 
-		expect(assistantMessage(cancelled)).toMatchObject({
+		expect(agentMessage(cancelled)).toMatchObject({
 			state: 'cancelled',
 			errorText: 'Cancelled.',
 		});
 	});
 
-	it('tracks assistant elapsed time across submit and completion', () => {
-		const completed = assistantChatReducer(startRun(), {
+	it('tracks agent elapsed time across submit and completion', () => {
+		const completed = agentChatReducer(startRun(), {
 			type: 'complete_active',
 			response: 'done',
 			completedAtMs: 3_750,
 		});
 
-		expect(assistantMessage(completed)).toMatchObject({
+		expect(agentMessage(completed)).toMatchObject({
 			startedAtMs: 1_000,
 			completedAtMs: 3_750,
 			state: 'completed',
@@ -238,7 +238,7 @@ describe('assistant chat state', () => {
 		const messages = historyToChatMessages([
 			{ role: 'user', content: 'read it' },
 			{
-				role: 'assistant',
+				role: 'agent',
 				content: null,
 				contentBlocks: [
 					{
@@ -255,13 +255,13 @@ describe('assistant chat state', () => {
 				content: 'contents',
 				isError: false,
 			},
-		] satisfies AssistantHistoryMessage[]);
+		] satisfies AgentHistoryMessage[]);
 
-		const restoredAssistant = messages.find(
-			(message) => message.type === 'assistant'
-		) as AssistantMessage | undefined;
+		const restoredAgent = messages.find(
+			(message) => message.type === 'agent'
+		) as AgentMessage | undefined;
 
-		expect(restoredAssistant?.tools).toEqual([
+		expect(restoredAgent?.tools).toEqual([
 			expect.objectContaining({
 				toolCallId: 'tool-1',
 				type: 'read_file',
@@ -275,7 +275,7 @@ describe('assistant chat state', () => {
 		const messages = historyToChatMessages([
 			{ role: 'user', content: 'check files' },
 			{
-				role: 'assistant',
+				role: 'agent',
 				content: 'I will check.',
 				contentBlocks: [
 					{ type: 'text', text: 'I will check.' },
@@ -307,13 +307,13 @@ describe('assistant chat state', () => {
 				isError: false,
 				status: 'ok',
 			},
-		] satisfies AssistantHistoryMessage[]);
+		] satisfies AgentHistoryMessage[]);
 
-		const restoredAssistant = messages.find(
-			(message) => message.type === 'assistant'
-		) as AssistantMessage | undefined;
+		const restoredAgent = messages.find(
+			(message) => message.type === 'agent'
+		) as AgentMessage | undefined;
 
-		expect(restoredAssistant?.tools).toEqual([
+		expect(restoredAgent?.tools).toEqual([
 			expect.objectContaining({
 				toolCallId: 'tool-a',
 				type: 'read_file',
@@ -334,7 +334,7 @@ describe('assistant chat state', () => {
 	it('restores rejected tool results as denied rather than generic errors', () => {
 		const messages = historyToChatMessages([
 			{
-				role: 'assistant',
+				role: 'agent',
 				content: null,
 				contentBlocks: [
 					{
@@ -352,13 +352,13 @@ describe('assistant chat state', () => {
 				isError: true,
 				status: 'rejected',
 			},
-		] satisfies AssistantHistoryMessage[]);
+		] satisfies AgentHistoryMessage[]);
 
-		const restoredAssistant = messages.find(
-			(message) => message.type === 'assistant'
-		) as AssistantMessage | undefined;
+		const restoredAgent = messages.find(
+			(message) => message.type === 'agent'
+		) as AgentMessage | undefined;
 
-		expect(restoredAssistant?.tools).toEqual([
+		expect(restoredAgent?.tools).toEqual([
 			expect.objectContaining({
 				toolCallId: 'tool-denied',
 				type: 'exec',

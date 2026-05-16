@@ -1,4 +1,4 @@
-import type { AssistantContentBlock, ToolResultBlock, ToolResultStatus, Usage } from '../provider/types';
+import type { AgentContentBlock, ToolResultBlock, ToolResultStatus, Usage } from '../provider/types';
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
@@ -11,7 +11,7 @@ import {
 } from '../tools/management';
 import { compact } from './compaction';
 import type { SessionFile } from '../session/store';
-import type { AssistantRunState, ReasoningSummaryState } from '../../shared/service';
+import type { AgentRunState, ReasoningSummaryState } from '../../shared/service';
 
 export interface AgentRunHooks {
 	onStart?: (info: { runId: string }) => void | Promise<void>;
@@ -38,7 +38,7 @@ export interface AgentRunHooks {
 }
 
 export type AgentRunStreamEvent =
-	| { type: 'run_state'; state: AssistantRunState; label?: string }
+	| { type: 'run_state'; state: AgentRunState; label?: string }
 	| {
 			type: 'reasoning_summary';
 			id: string;
@@ -221,7 +221,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			}
 
 			let text = '';
-			const blocks: AssistantContentBlock[] = [];
+			const blocks: AgentContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsStr: string }>();
 			let turnStop = 'end_turn';
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };

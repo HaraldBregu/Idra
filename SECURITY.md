@@ -19,7 +19,7 @@ Do not open public issues for exploitable vulnerabilities or leaked secrets. Rep
 - Expose only narrow preload APIs through `contextBridge`; never expose raw Electron, filesystem, shell, or process objects to the renderer.
 - Validate and authorize IPC inputs in the main process. Renderer validation is UX only.
 - Treat provider API keys, connector credentials, tokens, chat history, workspace paths, and channel configuration as sensitive.
-- Never log secrets. Redact credentials before logging errors, telemetry, audit entries, or assistant output.
+- Never log secrets. Redact credentials before logging errors, telemetry, audit entries, or agent output.
 - Dangerous actions must require explicit user intent: file deletion, external publishing, connector writes, credential changes, shell execution, and app-folder operations.
 - New dependencies must be justified, maintained, and covered by Dependabot or equivalent review.
 

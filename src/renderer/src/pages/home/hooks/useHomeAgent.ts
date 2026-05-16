@@ -2,35 +2,35 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
 import type {
 	ApprovalDecision,
-	AssistantPendingEventPayload,
-	AssistantResponseEvent,
+	AgentPendingEventPayload,
+	AgentResponseEvent,
 } from '../../../../../shared/service';
 import {
 	defaultPendingSelections,
 	inputAnswerKey,
 	pendingToMultiSelectMessage,
 	type HomeMultiSelectMessage,
-	useHomeAssistantContext,
+	useHomeAgentContext,
 } from '../context';
 
-type WindowWithOptionalAssistant = Window & {
-	assistant?: Window['assistant'];
+type WindowWithOptionalAgent = Window & {
+	agent?: Window['agent'];
 };
 
-function getAssistantApi(): Window['assistant'] | undefined {
-	return (window as WindowWithOptionalAssistant).assistant;
+function getAgentApi(): Window['agent'] | undefined {
+	return (window as WindowWithOptionalAgent).agent;
 }
 
 function messageId(prefix: string): string {
 	return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function useHomeAssistant({
+export function useHomeAgent({
 	setMode,
 }: {
 	readonly setMode: (mode: ChatMode) => void;
 }) {
-	const { chatState, dispatchChat } = useHomeAssistantContext();
+	const { chatState, dispatchChat } = useHomeAgentContext();
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
@@ -61,13 +61,13 @@ export function useHomeAssistant({
 	useEffect(() => {
 		let cancelled = false;
 		void (async () => {
-			const assistant = getAssistantApi();
-			if (!assistant) {
+			const agent = getAgentApi();
+			if (!agent) {
 				setHistoryLoading(false);
 				return;
 			}
 			try {
-				const history = await assistant.getHistory();
+				const history = await agent.getHistory();
 				if (!cancelled) dispatchChat({ type: 'restore_history', history });
 			} catch {
 				if (!cancelled) dispatchChat({ type: 'restore_history', history: [] });
@@ -85,7 +85,7 @@ export function useHomeAssistant({
 		requestActiveRef.current = false;
 		setIsLoading(false);
 		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
-		void getAssistantApi()?.cancel();
+		void getAgentApi()?.cancel();
 	}, [dispatchChat]);
 
 	const sendPrompt = useCallback(
@@ -103,25 +103,25 @@ export function useHomeAssistant({
 			dispatchChat({
 				type: 'submit_user_message',
 				userMessageId: messageId('user'),
-				assistantMessageId: messageId('assistant'),
+				agentMessageId: messageId('agent'),
 				content: trimmed,
 				submittedAtMs,
 			});
 
-			const assistant = getAssistantApi();
-			if (!assistant) {
+			const agent = getAgentApi();
+			if (!agent) {
 				requestActiveRef.current = false;
 				setIsLoading(false);
 				dispatchChat({
 					type: 'error_active',
-					errorText: 'Assistant API is unavailable.',
+					errorText: 'Agent API is unavailable.',
 					completedAtMs: Date.now(),
 				});
 				return;
 			}
 
 			try {
-				const response = await assistant.send(trimmed);
+				const response = await agent.send(trimmed);
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
@@ -130,7 +130,7 @@ export function useHomeAssistant({
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
-				const message = error instanceof Error ? error.message : 'Assistant request failed.';
+				const message = error instanceof Error ? error.message : 'Agent request failed.';
 				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 			}
 		},
@@ -138,10 +138,10 @@ export function useHomeAssistant({
 	);
 
 	useEffect(() => {
-		const assistant = getAssistantApi();
-		if (!assistant) return;
+		const agent = getAgentApi();
+		if (!agent) return;
 
-		const offPending = assistant.onPending((event: AssistantPendingEventPayload) => {
+		const offPending = agent.onPending((event: AgentPendingEventPayload) => {
 			const pendingMessage = pendingToMultiSelectMessage(event, Date.now());
 
 			if (pendingMessage) {
@@ -154,7 +154,7 @@ export function useHomeAssistant({
 			dispatchChat({ type: 'set_pending_message', message: pendingMessage });
 		});
 
-		const offResponse = assistant.onResponse((event: AssistantResponseEvent) => {
+		const offResponse = agent.onResponse((event: AgentResponseEvent) => {
 			if (!requestActiveRef.current) return;
 			dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 		});
@@ -181,7 +181,7 @@ export function useHomeAssistant({
 		setSelectedOptions({});
 		setPendingInputAnswers({});
 		dispatchChat({ type: 'reset' });
-		void getAssistantApi()?.reset().catch((error: unknown) => {
+		void getAgentApi()?.reset().catch((error: unknown) => {
 			const message = error instanceof Error ? error.message : 'Reset failed.';
 			dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 		});
@@ -216,8 +216,8 @@ export function useHomeAssistant({
 			const selected = new Set(selectedOptions[message.id] ?? []);
 
 			try {
-				const assistant = getAssistantApi();
-				if (!assistant) throw new Error('Assistant API is unavailable.');
+				const agent = getAgentApi();
+				if (!agent) throw new Error('Agent API is unavailable.');
 				const approvals = new Map<string, ApprovalDecision>();
 				const inputLabels: string[] = [];
 
@@ -227,13 +227,13 @@ export function useHomeAssistant({
 						if (selected.has(option.id)) approvals.set(option.approvalId, option.decision ?? 'deny');
 					} else if (option.kind === 'input' && option.inputId) {
 						const answer = pendingInputAnswers[inputAnswerKey(message.id, option.inputId)] ?? '';
-						await assistant.resolveInput(option.inputId, answer);
+						await agent.resolveInput(option.inputId, answer);
 						inputLabels.push(option.label);
 					}
 				}
 
 				for (const [id, decision] of approvals) {
-					await assistant.resolveApproval(id, decision);
+					await agent.resolveApproval(id, decision);
 				}
 
 				const selectedLabels = message.options

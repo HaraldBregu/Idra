@@ -9,16 +9,16 @@ export const WindowChannels = {
 	popupMenu: 'window:popup-menu',
 } as const;
 
-export const AssistantChannels = {
-	send: 'assistant:send',
-	reset: 'assistant:reset',
-	getHistory: 'assistant:get-history',
-	response: 'assistant:response',
-	resolveApproval: 'assistant:resolve-approval',
-	resolveInput: 'assistant:resolve-input',
-	cancel: 'assistant:cancel',
-	getPending: 'assistant:get-pending',
-	pending: 'assistant:pending',
+export const AgentChannels = {
+	send: 'agent:send',
+	reset: 'agent:reset',
+	getHistory: 'agent:get-history',
+	response: 'agent:response',
+	resolveApproval: 'agent:resolve-approval',
+	resolveInput: 'agent:resolve-input',
+	cancel: 'agent:cancel',
+	getPending: 'agent:get-pending',
+	pending: 'agent:pending',
 } as const;
 
 export const ProviderChannels = {
@@ -27,8 +27,8 @@ export const ProviderChannels = {
 	getAll: 'provider:get-all',
 	add: 'provider:add',
 	getModels: 'provider:get-models',
-	getAssistantService: 'provider:get-assistant-service',
-	saveAssistantService: 'provider:save-assistant-service',
+	getAgentService: 'provider:get-agent-service',
+	saveAgentService: 'provider:save-agent-service',
 	getImageGenerationModels: 'provider:get-image-generation-models',
 	getImageGenerationService: 'provider:get-image-generation-service',
 	saveImageGenerationService: 'provider:save-image-generation-service',
@@ -157,11 +157,11 @@ interface AppInvokeChannelMap {
 		args: [provider: import('./providers').PublicProvider];
 		result: import('./service').Model[];
 	};
-	[ProviderChannels.getAssistantService]: {
+	[ProviderChannels.getAgentService]: {
 		args: [];
-		result: import('./service').Assistant | undefined;
+		result: import('./service').Agent | undefined;
 	};
-	[ProviderChannels.saveAssistantService]: {
+	[ProviderChannels.saveAgentService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};
@@ -171,7 +171,7 @@ interface AppInvokeChannelMap {
 	};
 	[ProviderChannels.getImageGenerationService]: {
 		args: [];
-		result: import('./service').Assistant | undefined;
+		result: import('./service').Agent | undefined;
 	};
 	[ProviderChannels.saveImageGenerationService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
@@ -179,25 +179,25 @@ interface AppInvokeChannelMap {
 	};
 }
 
-interface AssistantInvokeChannelMap {
-	[AssistantChannels.send]: { args: [message: string]; result: string };
-	[AssistantChannels.reset]: { args: []; result: void };
-	[AssistantChannels.getHistory]: {
+interface AgentInvokeChannelMap {
+	[AgentChannels.send]: { args: [message: string]; result: string };
+	[AgentChannels.reset]: { args: []; result: void };
+	[AgentChannels.getHistory]: {
 		args: [];
-		result: import('./service').AssistantHistoryMessage[];
+		result: import('./service').AgentHistoryMessage[];
 	};
-	[AssistantChannels.resolveApproval]: {
+	[AgentChannels.resolveApproval]: {
 		args: [id: string, decision: import('./service').ApprovalDecision | boolean];
 		result: boolean;
 	};
-	[AssistantChannels.resolveInput]: {
+	[AgentChannels.resolveInput]: {
 		args: [id: string, answer: string];
 		result: boolean;
 	};
-	[AssistantChannels.cancel]: { args: []; result: void };
-	[AssistantChannels.getPending]: {
+	[AgentChannels.cancel]: { args: []; result: void };
+	[AgentChannels.getPending]: {
 		args: [];
-		result: import('./service').AssistantPendingState;
+		result: import('./service').AgentPendingState;
 	};
 }
 
@@ -371,7 +371,7 @@ interface ChannelsInvokeChannelMap {
 
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
-		AssistantInvokeChannelMap,
+		AgentInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		AppsInvokeChannelMap,
@@ -387,9 +387,9 @@ export interface SendChannelMap {
 	[WindowChannels.popupMenu]: { args: [] };
 }
 
-interface AssistantEventChannelMap {
-	[AssistantChannels.response]: { data: import('./service').AssistantResponseEvent };
-	[AssistantChannels.pending]: { data: import('./service').AssistantPendingEventPayload };
+interface AgentEventChannelMap {
+	[AgentChannels.response]: { data: import('./service').AgentResponseEvent };
+	[AgentChannels.pending]: { data: import('./service').AgentPendingEventPayload };
 }
 
 interface WindowEventChannelMap {
@@ -410,7 +410,7 @@ interface CronEventChannelMap {
 }
 
 export interface EventChannelMap
-	extends AssistantEventChannelMap,
+	extends AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		TaskEventChannelMap,

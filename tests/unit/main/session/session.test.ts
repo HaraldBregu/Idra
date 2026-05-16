@@ -85,7 +85,7 @@ describe('session/store', () => {
 		await fs.rm(baseDir, { recursive: true, force: true });
 	});
 
-	it('saves and loads structured assistant tool calls with matching results', async () => {
+	it('saves and loads structured agent tool calls with matching results', async () => {
 		const baseDir = await makeTempDir();
 		const created = await loadSession('tools', 'gpt-test', 'openai', { baseDir });
 		const file: SessionFile = {

@@ -10,7 +10,7 @@ Friday is an Electron desktop app for AI-assisted workflows. It uses a TypeScrip
 - Main language: TypeScript
 - Testing: Jest, Testing Library, Playwright
 - Packaging: electron-vite, electron-builder
-- Sensitive data: AI provider API keys, connector credentials, assistant history, local workspace data, channel configuration
+- Sensitive data: AI provider API keys, connector credentials, agent history, local workspace data, channel configuration
 - Current compliance target: no formal regulated-data certification claimed
 
 ## Development

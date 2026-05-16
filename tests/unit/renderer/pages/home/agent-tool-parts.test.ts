@@ -1,23 +1,23 @@
-import type { AssistantResponseEvent } from '../../../../../src/shared/service';
+import type { AgentResponseEvent } from '../../../../../src/shared/service';
 import {
-	applyAssistantResponseEventToTools,
-	assistantToolPartFromHistoryBlock,
+	applyAgentResponseEventToTools,
+	agentToolPartFromHistoryBlock,
 } from '../../../../../src/renderer/src/pages/home/context';
 
 const baseToolEvent = {
-	assistantId: 'assistant-1',
+	agentId: 'agent-1',
 	runId: 'run-1',
 	iteration: 0,
 	toolCallId: 'tool-call-1',
 	toolName: 'search_web',
 } as const;
 
-describe('assistant tool parts', () => {
-	it('maps AssistantResponseEvent tool lifecycle events to prompt-kit ToolPart state', () => {
-		const started = applyAssistantResponseEventToTools([], {
+describe('agent tool parts', () => {
+	it('maps AgentResponseEvent tool lifecycle events to prompt-kit ToolPart state', () => {
+		const started = applyAgentResponseEventToTools([], {
 			...baseToolEvent,
 			type: 'tool_call_start',
-		} satisfies AssistantResponseEvent);
+		} satisfies AgentResponseEvent);
 
 		expect(started).toEqual([
 			{
@@ -35,31 +35,31 @@ describe('assistant tool parts', () => {
 			},
 		]);
 
-		const withArgs = applyAssistantResponseEventToTools(started ?? [], {
+		const withArgs = applyAgentResponseEventToTools(started ?? [], {
 			...baseToolEvent,
 			type: 'tool_call_args_delta',
 			jsonDelta: '{"query":"prompt-kit"}',
 			argsText: '{"query":"prompt-kit"}',
-		} satisfies AssistantResponseEvent);
+		} satisfies AgentResponseEvent);
 
 		expect(withArgs?.[0]).toMatchObject({
 			state: 'input-streaming',
 			inputText: '{"query":"prompt-kit"}',
 		});
 
-		const withInput = applyAssistantResponseEventToTools(withArgs ?? [], {
+		const withInput = applyAgentResponseEventToTools(withArgs ?? [], {
 			...baseToolEvent,
 			type: 'tool_call_input',
 			input: { query: 'prompt-kit' },
 			argsText: '{"query":"prompt-kit"}',
-		} satisfies AssistantResponseEvent);
+		} satisfies AgentResponseEvent);
 
 		expect(withInput?.[0]).toMatchObject({
 			state: 'input-available',
 			input: { query: 'prompt-kit' },
 		});
 
-		const completed = applyAssistantResponseEventToTools(withInput ?? [], {
+		const completed = applyAgentResponseEventToTools(withInput ?? [], {
 			...baseToolEvent,
 			type: 'tool_call_result',
 			input: { query: 'prompt-kit' },
@@ -67,7 +67,7 @@ describe('assistant tool parts', () => {
 			outputText: '{"count":2}',
 			status: 'ok',
 			durationMs: 25,
-		} satisfies AssistantResponseEvent);
+		} satisfies AgentResponseEvent);
 
 		expect(completed?.[0]).toMatchObject({
 			type: 'search_web',
@@ -82,7 +82,7 @@ describe('assistant tool parts', () => {
 	});
 
 	it('maps rejected tool calls to prompt-kit error state with an error message', () => {
-		const rejected = applyAssistantResponseEventToTools([], {
+		const rejected = applyAgentResponseEventToTools([], {
 			...baseToolEvent,
 			type: 'tool_call_result',
 			input: { command: 'rm -rf /tmp/example' },
@@ -90,7 +90,7 @@ describe('assistant tool parts', () => {
 			outputText: 'Denied by policy',
 			status: 'rejected',
 			durationMs: 5,
-		} satisfies AssistantResponseEvent);
+		} satisfies AgentResponseEvent);
 
 		expect(rejected).toEqual([
 			expect.objectContaining({
@@ -103,20 +103,20 @@ describe('assistant tool parts', () => {
 		]);
 	});
 
-	it('ignores text deltas because they are rendered as assistant message text', () => {
-		const result = applyAssistantResponseEventToTools([], {
-			assistantId: 'assistant-1',
+	it('ignores text deltas because they are rendered as agent message text', () => {
+		const result = applyAgentResponseEventToTools([], {
+			agentId: 'agent-1',
 			runId: 'run-1',
 			type: 'text_delta',
 			delta: 'hello',
-		} satisfies AssistantResponseEvent);
+		} satisfies AgentResponseEvent);
 
 		expect(result).toBeUndefined();
 	});
 
-	it('restores tool parts from assistant history blocks', () => {
+	it('restores tool parts from agent history blocks', () => {
 		expect(
-			assistantToolPartFromHistoryBlock({
+			agentToolPartFromHistoryBlock({
 				type: 'tool_use',
 				toolUseId: 'history-tool-1',
 				toolName: 'read_file',

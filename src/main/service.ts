@@ -10,7 +10,7 @@ import type { ConnectorsService } from './connectors';
 import type { SkillsService } from './skills';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
-import { DEFAULT_ASSISTANT_ID } from './constants';
+import { DEFAULT_AGENT_ID } from './constants';
 import { HitlBridge } from './hitl';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
@@ -18,7 +18,7 @@ import { loadSession, saveSession, clearSession, type SessionFile } from './sess
 import { createTools } from './tools/registry';
 import { selectAgentToolsForTurn, ToolUsePolicy } from './tools/management';
 import type { AgentTool, ToolContext } from './tools/types';
-import { AssistantRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
+import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
 import type { ApprovalDecision } from '../shared/service';
 
@@ -26,7 +26,7 @@ const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
 const DEFAULT_MAX_PROMPT_TOOLS = 6;
 
-export interface AssistantServiceDependencies {
+export interface AgentServiceDependencies {
 	store: StoreService;
 	cron: CronService;
 	logger: LoggerService;
@@ -38,32 +38,32 @@ export interface AssistantServiceDependencies {
 	skills?: SkillsService;
 }
 
-export interface AssistantToolsFactoryContext {
-	assistantId: string;
+export interface AgentToolsFactoryContext {
+	agentId: string;
 	runId: string;
 	providerId: string;
 	model: string;
 	workspace: string;
 	session: SessionFile;
 	signal: AbortSignal;
-	services: AssistantServiceDependencies;
+	services: AgentServiceDependencies;
 }
 
-export type AssistantToolsFactory = (
-	context: AssistantToolsFactoryContext
+export type AgentToolsFactory = (
+	context: AgentToolsFactoryContext
 ) => AgentTool[] | Promise<AgentTool[]>;
 
-export interface AssistantServiceOptions {
-	defaultAssistantId?: string;
+export interface AgentServiceOptions {
+	defaultAgentId?: string;
 	providerFactory?: (provider: ProviderSpec, model: string) => ProviderAdapter;
-	toolsFactory?: AssistantToolsFactory;
-	runLoggerFactory?: (assistantId: string) => AssistantRunLogger;
+	toolsFactory?: AgentToolsFactory;
+	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
 }
 
 interface Runtime {
 	hitl: HitlBridge;
-	runLogger: AssistantRunLogger;
+	runLogger: AgentRunLogger;
 	session: SessionFile | null;
 	currentAbort: AbortController | null;
 }
@@ -72,30 +72,30 @@ function emptyUsage(): TokenUsage {
 	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
 
-export class AssistantService {
-	private readonly defaultAssistantId: string;
+export class AgentService {
+	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec, model: string) => ProviderAdapter;
-	private readonly toolsFactory: AssistantToolsFactory;
-	private readonly runLoggerFactory: (assistantId: string) => AssistantRunLogger;
+	private readonly toolsFactory: AgentToolsFactory;
+	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly runtimes = new Map<string, Runtime>();
 
 	constructor(
-		private readonly dependencies: AssistantServiceDependencies,
-		options: AssistantServiceOptions = {}
+		private readonly dependencies: AgentServiceDependencies,
+		options: AgentServiceOptions = {}
 	) {
-		this.defaultAssistantId = options.defaultAssistantId ?? DEFAULT_ASSISTANT_ID;
+		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolsFactory =
 			options.toolsFactory ??
 			(() => createTools({ profile: 'full', allow: [], deny: [] }));
-		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AssistantRunLogger(id));
+		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
-		this.ensureRuntime(this.defaultAssistantId);
+		this.ensureRuntime(this.defaultAgentId);
 	}
 
-	async send(message: string, assistantId = this.defaultAssistantId): Promise<string> {
-		const runtime = this.ensureRuntime(assistantId);
+	async send(message: string, agentId = this.defaultAgentId): Promise<string> {
+		const runtime = this.ensureRuntime(agentId);
 		if (runtime.currentAbort) {
 			runtime.currentAbort.abort();
 			runtime.hitl.cancelAll('user_continued');
@@ -105,8 +105,8 @@ export class AssistantService {
 		runtime.currentAbort = abort;
 		const runId = randomUUID();
 		const streamEvent = (event: AgentRunStreamEvent): void => {
-			this.dependencies.eventBus.broadcast('assistant:response', {
-				assistantId,
+			this.dependencies.eventBus.broadcast('agent:response', {
+				agentId,
 				runId,
 				...event,
 			});
@@ -114,12 +114,12 @@ export class AssistantService {
 
 		try {
 			const { providerId, apiKey, model, baseURL } = this.resolveProviderAndModel();
-			runtime.session = await loadSession(assistantId, model, providerId, {
+			runtime.session = await loadSession(agentId, model, providerId, {
 				baseDir: this.sessionBaseDir,
 			});
 			const workspaceRoot = this.workspaceRoot();
 			const baseTools = await this.toolsFactory({
-				assistantId,
+				agentId,
 				runId,
 				providerId,
 				model,
@@ -160,7 +160,7 @@ export class AssistantService {
 			const toolPolicy = new ToolUsePolicy().evaluate({ userRequest: message });
 			const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools
 				? {
-						userId: assistantId,
+						userId: agentId,
 						sessionId: runtime.session.id,
 						tools: baseTools,
 						toolContext: ctx,
@@ -204,7 +204,7 @@ export class AssistantService {
 				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
 				: systemPrompt;
 
-			const hooks = this.buildHooks(assistantId, {
+			const hooks = this.buildHooks(agentId, {
 				runId,
 				providerId,
 				model,
@@ -245,13 +245,13 @@ export class AssistantService {
 				state: abort.signal.aborted ? 'cancelled' : 'error',
 				label: abort.signal.aborted ? 'Cancelled' : (err as Error).message,
 			});
-			this.dependencies.logger.error('AssistantService', 'send failed', {
+			this.dependencies.logger.error('AgentService', 'send failed', {
 				message: (err as Error).message,
 				stack: (err as Error).stack,
 			});
 			await runtime.runLogger.logFinish({
 				runId,
-				assistantId,
+				agentId,
 				provider: 'unknown',
 				model: 'unknown',
 				status: 'error',
@@ -265,19 +265,19 @@ export class AssistantService {
 		}
 	}
 
-	async reset(assistantId = this.defaultAssistantId): Promise<void> {
-		const runtime = this.ensureRuntime(assistantId);
-		this.cancel(assistantId);
-		this.dependencies.logger.info('AssistantService', `reset "${assistantId}"`);
-		await clearSession(assistantId, { baseDir: this.sessionBaseDir });
+	async reset(agentId = this.defaultAgentId): Promise<void> {
+		const runtime = this.ensureRuntime(agentId);
+		this.cancel(agentId);
+		this.dependencies.logger.info('AgentService', `reset "${agentId}"`);
+		await clearSession(agentId, { baseDir: this.sessionBaseDir });
 		runtime.session = null;
 	}
 
-	async getHistory(assistantId = this.defaultAssistantId): Promise<TranscriptEntry[]> {
-		const runtime = this.ensureRuntime(assistantId);
+	async getHistory(agentId = this.defaultAgentId): Promise<TranscriptEntry[]> {
+		const runtime = this.ensureRuntime(agentId);
 		if (!runtime.session) {
 			const { providerId, model } = this.tryResolveProviderAndModel();
-			runtime.session = await loadSession(assistantId, model, providerId, {
+			runtime.session = await loadSession(agentId, model, providerId, {
 				baseDir: this.sessionBaseDir,
 			});
 		}
@@ -287,17 +287,17 @@ export class AssistantService {
 	resolveApproval(
 		id: string,
 		decision: ApprovalDecision | boolean,
-		assistantId = this.defaultAssistantId
+		agentId = this.defaultAgentId
 	): boolean {
-		return this.ensureRuntime(assistantId).hitl.resolveApproval(id, decision);
+		return this.ensureRuntime(agentId).hitl.resolveApproval(id, decision);
 	}
 
-	resolveInput(id: string, answer: string, assistantId = this.defaultAssistantId): boolean {
-		return this.ensureRuntime(assistantId).hitl.resolveInput(id, answer);
+	resolveInput(id: string, answer: string, agentId = this.defaultAgentId): boolean {
+		return this.ensureRuntime(agentId).hitl.resolveInput(id, answer);
 	}
 
-	cancel(assistantId = this.defaultAssistantId): void {
-		const runtime = this.ensureRuntime(assistantId);
+	cancel(agentId = this.defaultAgentId): void {
+		const runtime = this.ensureRuntime(agentId);
 		if (runtime.currentAbort) {
 			runtime.currentAbort.abort();
 			runtime.currentAbort = null;
@@ -305,30 +305,30 @@ export class AssistantService {
 		runtime.hitl.cancelAll('cancelled');
 	}
 
-	getPending(assistantId = this.defaultAssistantId): ReturnType<HitlBridge['getPending']> {
-		return this.ensureRuntime(assistantId).hitl.getPending();
+	getPending(agentId = this.defaultAgentId): ReturnType<HitlBridge['getPending']> {
+		return this.ensureRuntime(agentId).hitl.getPending();
 	}
 
-	private ensureRuntime(assistantId: string): Runtime {
-		const existing = this.runtimes.get(assistantId);
+	private ensureRuntime(agentId: string): Runtime {
+		const existing = this.runtimes.get(agentId);
 		if (existing) return existing;
-		this.dependencies.logger.info('AssistantService', `Creating assistant runtime "${assistantId}"`);
+		this.dependencies.logger.info('AgentService', `Creating agent runtime "${agentId}"`);
 		const runtime: Runtime = {
-			hitl: new HitlBridge(this.dependencies.eventBus, assistantId),
-			runLogger: this.runLoggerFactory(assistantId),
+			hitl: new HitlBridge(this.dependencies.eventBus, agentId),
+			runLogger: this.runLoggerFactory(agentId),
 			session: null,
 			currentAbort: null,
 		};
-		this.runtimes.set(assistantId, runtime);
+		this.runtimes.set(agentId, runtime);
 		return runtime;
 	}
 
 	private resolveProviderAndModel(): { providerId: string; apiKey: string; model: string; baseURL?: string } {
-		const assistant = this.dependencies.store.getAssistantService();
-		const providerId = assistant?.provider.id.trim().toLowerCase() ?? '';
-		const model = assistant?.model.id.trim() || assistant?.model.name.trim() || '';
-		if (!providerId) throw new Error('Assistant provider not configured.');
-		if (!model) throw new Error('Assistant model not configured.');
+		const agent = this.dependencies.store.getAgentService();
+		const providerId = agent?.provider.id.trim().toLowerCase() ?? '';
+		const model = agent?.model.id.trim() || agent?.model.name.trim() || '';
+		if (!providerId) throw new Error('Agent provider not configured.');
+		if (!model) throw new Error('Agent model not configured.');
 		const provider = this.dependencies.store.getProviderById(providerId);
 		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
 		const apiKey = provider.apiKey.trim();
@@ -354,20 +354,20 @@ export class AssistantService {
 	}
 
 	private buildHooks(
-		assistantId: string,
+		agentId: string,
 		meta: {
 			runId: string;
 			providerId: string;
 			model: string;
 			tools: string[];
-			runLogger: AssistantRunLogger;
+			runLogger: AgentRunLogger;
 		}
 	): AgentRunHooks {
 		return {
 			onStart: async () => {
 				await meta.runLogger.logStart({
 					runId: meta.runId,
-					assistantId,
+					agentId,
 					provider: meta.providerId,
 					model: meta.model,
 					systemPromptChars: 0,
@@ -379,7 +379,7 @@ export class AssistantService {
 			onIteration: async (info) => {
 				await meta.runLogger.logIteration({
 					runId: meta.runId,
-					assistantId,
+					agentId,
 					iteration: info.iteration,
 					usage: {
 						inputTokens: info.usage.inputTokens,
@@ -392,7 +392,7 @@ export class AssistantService {
 			onToolCall: async (info) => {
 				await meta.runLogger.logToolCall({
 					runId: meta.runId,
-					assistantId,
+					agentId,
 					iteration: info.iteration,
 					callId: info.callId,
 					tool: info.tool,
@@ -421,7 +421,7 @@ export class AssistantService {
 				};
 				await meta.runLogger.logFinish({
 					runId: meta.runId,
-					assistantId,
+					agentId,
 					provider: meta.providerId,
 					model: meta.model,
 					status,

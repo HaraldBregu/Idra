@@ -9,16 +9,16 @@ export interface WindowApi {
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }
 
-export interface AssistantApi {
+export interface AgentApi {
 	send: (message: string) => Promise<string>;
 	reset: () => Promise<void>;
 	cancel: () => Promise<void>;
-	getHistory: () => Promise<AssistantHistoryMessage[]>;
+	getHistory: () => Promise<AgentHistoryMessage[]>;
 	resolveApproval: (id: string, decision: ApprovalDecision | boolean) => Promise<boolean>;
 	resolveInput: (id: string, answer: string) => Promise<boolean>;
-	getPending: () => Promise<AssistantPendingState>;
-	onResponse: (callback: (event: AssistantResponseEvent) => void) => () => void;
-	onPending: (callback: (event: AssistantPendingEventPayload) => void) => () => void;
+	getPending: () => Promise<AgentPendingState>;
+	onResponse: (callback: (event: AgentResponseEvent) => void) => () => void;
+	onPending: (callback: (event: AgentPendingEventPayload) => void) => () => void;
 }
 
 export interface CronApi {
@@ -115,12 +115,12 @@ import type {
 } from '../shared/cron';
 import type { Task } from '../shared/task';
 import type {
-	Assistant,
-	AssistantHistoryMessage,
+	Agent,
+	AgentHistoryMessage,
 	ApprovalDecision,
-	AssistantPendingEventPayload,
-	AssistantPendingState,
-	AssistantResponseEvent,
+	AgentPendingEventPayload,
+	AgentPendingState,
+	AgentResponseEvent,
 	Model,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
@@ -148,10 +148,10 @@ export interface AppApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
-	getAssistantService: () => Promise<Assistant | undefined>;
-	saveAssistantService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getAgentService: () => Promise<Agent | undefined>;
+	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getImageGenerationModels: (provider: PublicProvider) => Promise<Model[]>;
-	getImageGenerationService: () => Promise<Assistant | undefined>;
+	getImageGenerationService: () => Promise<Agent | undefined>;
 	saveImageGenerationService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	listApps: () => Promise<AppInfo[]>;
 	openAppFolder: (id: string) => Promise<void>;
@@ -163,7 +163,7 @@ declare global {
 	interface Window {
 		win?: WindowApi;
 		app: AppApi;
-		assistant: AssistantApi;
+		agent: AgentApi;
 		cron: CronApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;

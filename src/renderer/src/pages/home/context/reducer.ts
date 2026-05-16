@@ -1,23 +1,23 @@
 import type {
-	AssistantHistoryMessage,
-	AssistantPendingApproval,
-	AssistantPendingEventPayload,
-	AssistantPendingInput,
-	AssistantResponseEvent,
-	AssistantToolCallStatus,
+	AgentHistoryMessage,
+	AgentPendingApproval,
+	AgentPendingEventPayload,
+	AgentPendingInput,
+	AgentResponseEvent,
+	AgentToolCallStatus,
 } from '../../../../../shared/service';
-import type { AssistantChatAction } from './actions';
+import type { AgentChatAction } from './actions';
 import {
-	applyAssistantResponseEventToTools,
-	type AssistantToolPart,
-	assistantToolPartFromHistoryBlock,
-	updateAssistantToolPart,
+	applyAgentResponseEventToTools,
+	type AgentToolPart,
+	agentToolPartFromHistoryBlock,
+	updateAgentToolPart,
 } from './tool-parts';
 import {
-	initialAssistantChatState,
+	initialAgentChatState,
 	welcomeMessage,
-	type AssistantChatState,
-	type AssistantMessage,
+	type AgentChatState,
+	type AgentMessage,
 	type HomeChatMessage,
 	type HomeMultiSelectMessage,
 	type HomeMultiSelectOption,
@@ -28,8 +28,8 @@ function removePendingMessages(messages: readonly HomeChatMessage[]): HomeChatMe
 	return messages.filter((message) => message.type !== 'multi-select');
 }
 
-function isAssistantMessage(message: HomeChatMessage): message is AssistantMessage {
-	return message.role === 'assistant' && message.type === 'assistant';
+function isAgentMessage(message: HomeChatMessage): message is AgentMessage {
+	return message.role === 'agent' && message.type === 'agent';
 }
 
 function createUserMessage(id: string, content: string): UserMessage {
@@ -41,15 +41,15 @@ function createUserMessage(id: string, content: string): UserMessage {
 	};
 }
 
-function createAssistantMessage(
+function createAgentMessage(
 	id: string,
 	runId?: string,
 	startedAtMs?: number
-): AssistantMessage {
+): AgentMessage {
 	return {
 		id,
-		role: 'assistant',
-		type: 'assistant',
+		role: 'agent',
+		type: 'agent',
 		content: '',
 		runId,
 		state: 'thinking',
@@ -58,75 +58,75 @@ function createAssistantMessage(
 	};
 }
 
-function updateAssistantMessage(
-	state: AssistantChatState,
+function updateAgentMessage(
+	state: AgentChatState,
 	messageId: string,
-	update: (message: AssistantMessage) => AssistantMessage
-): AssistantChatState {
+	update: (message: AgentMessage) => AgentMessage
+): AgentChatState {
 	return {
 		...state,
 		messages: state.messages.map((message) =>
-			message.id === messageId && isAssistantMessage(message) ? update(message) : message
+			message.id === messageId && isAgentMessage(message) ? update(message) : message
 		),
 	};
 }
 
-function activeAssistant(state: AssistantChatState): AssistantMessage | undefined {
+function activeAgent(state: AgentChatState): AgentMessage | undefined {
 	return state.messages.find(
-		(message) => message.id === state.activeAssistantId && isAssistantMessage(message)
-	) as AssistantMessage | undefined;
+		(message) => message.id === state.activeAgentId && isAgentMessage(message)
+	) as AgentMessage | undefined;
 }
 
-function ensureAssistantForRun(
-	state: AssistantChatState,
+function ensureAgentForRun(
+	state: AgentChatState,
 	runId: string
-): { state: AssistantChatState; message: AssistantMessage } {
-	const current = activeAssistant(state);
+): { state: AgentChatState; message: AgentMessage } {
+	const current = activeAgent(state);
 	if (current) {
 		if (current.runId && current.runId !== runId) return { state, message: current };
 		const nextMessage = current.runId ? current : { ...current, runId };
 		if (nextMessage === current) return { state, message: current };
-		const nextState = updateAssistantMessage(state, current.id, () => nextMessage);
+		const nextState = updateAgentMessage(state, current.id, () => nextMessage);
 		return { state: { ...nextState, activeRunId: runId }, message: nextMessage };
 	}
 
 	const existing = state.messages.find(
-		(message) => isAssistantMessage(message) && message.runId === runId
-	) as AssistantMessage | undefined;
+		(message) => isAgentMessage(message) && message.runId === runId
+	) as AgentMessage | undefined;
 	if (existing) {
 		return {
-			state: { ...state, activeAssistantId: existing.id, activeRunId: runId },
+			state: { ...state, activeAgentId: existing.id, activeRunId: runId },
 			message: existing,
 		};
 	}
 
-	const message = createAssistantMessage(`assistant-${runId}`, runId);
+	const message = createAgentMessage(`agent-${runId}`, runId);
 	return {
 		state: {
 			...state,
 			messages: [...removePendingMessages(state.messages), message],
-			activeAssistantId: message.id,
+			activeAgentId: message.id,
 			activeRunId: runId,
 		},
 		message,
 	};
 }
 
-function isTerminalRunState(state: AssistantMessage['state']): boolean {
+function isTerminalRunState(state: AgentMessage['state']): boolean {
 	return state === 'completed' || state === 'cancelled' || state === 'error';
 }
 
 function applyResponseEvent(
-	state: AssistantChatState,
-	event: AssistantResponseEvent,
+	state: AgentChatState,
+	event: AgentResponseEvent,
 	receivedAtMs: number
-): AssistantChatState {
+): AgentChatState {
 	if (state.activeRunId && state.activeRunId !== event.runId) return state;
-	const ensured = ensureAssistantForRun(state, event.runId);
+	const ensured = ensureAgentForRun(state, event.runId);
 	if (ensured.message.runId && ensured.message.runId !== event.runId) return state;
 
 	if (event.type === 'run_state') {
-		return updateAssistantMessage(ensured.state, ensured.message.id, (message) => ({
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
 			...message,
 			runId: event.runId,
 			state: event.state,
@@ -142,8 +142,8 @@ function applyResponseEvent(
 
 	if (event.type === 'text_delta') {
 		if (!event.delta) return ensured.state;
-		return updateAssistantMessage(
-			{ ...ensured.state, activeAssistantId: ensured.message.id, activeRunId: event.runId },
+		return updateAgentMessage(
+			{ ...ensured.state, activeAgentId: ensured.message.id, activeRunId: event.runId },
 			ensured.message.id,
 			(message) => ({
 				...message,
@@ -155,11 +155,11 @@ function applyResponseEvent(
 		);
 	}
 
-	const tools = applyAssistantResponseEventToTools(ensured.message.tools, event);
+	const tools = applyAgentResponseEventToTools(ensured.message.tools, event);
 	if (!tools) return ensured.state;
 
-	return updateAssistantMessage(
-		{ ...ensured.state, activeAssistantId: ensured.message.id, activeRunId: event.runId },
+	return updateAgentMessage(
+		{ ...ensured.state, activeAgentId: ensured.message.id, activeRunId: event.runId },
 		ensured.message.id,
 		(message) => ({
 			...message,
@@ -176,11 +176,11 @@ function addToolResultToMessages(
 	toolUseId: string | undefined,
 	content: string | null | undefined,
 	isError: boolean | undefined,
-	status: AssistantToolCallStatus | undefined,
+	status: AgentToolCallStatus | undefined,
 	output: unknown
 ): HomeChatMessage[] {
 	if (!toolUseId) return [...messages];
-	const resolvedStatus: AssistantToolCallStatus = status ?? (isError ? 'error' : 'ok');
+	const resolvedStatus: AgentToolCallStatus = status ?? (isError ? 'error' : 'ok');
 	const hasError = resolvedStatus !== 'ok';
 	const errorText =
 		hasError && content
@@ -193,12 +193,12 @@ function addToolResultToMessages(
 
 	for (let index = messages.length - 1; index >= 0; index--) {
 		const message = messages[index];
-		if (!isAssistantMessage(message)) continue;
+		if (!isAgentMessage(message)) continue;
 		if (!message.tools.some((tool) => tool.toolCallId === toolUseId)) continue;
 
-		const nextMessage: AssistantMessage = {
+		const nextMessage: AgentMessage = {
 			...message,
-			tools: updateAssistantToolPart(message.tools, toolUseId, {
+			tools: updateAgentToolPart(message.tools, toolUseId, {
 				state: hasError ? 'output-error' : 'output-available',
 				output: output ?? content ?? '',
 				outputText: content ?? '',
@@ -215,7 +215,7 @@ function addToolResultToMessages(
 	return [...messages];
 }
 
-export function historyToChatMessages(history: AssistantHistoryMessage[]): HomeChatMessage[] {
+export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatMessage[] {
 	const out: HomeChatMessage[] = [];
 	history.forEach((message, index) => {
 		if (message.role === 'tool') {
@@ -240,14 +240,14 @@ export function historyToChatMessages(history: AssistantHistoryMessage[]): HomeC
 		if (message.role !== 'assistant') return;
 		const content = typeof message.content === 'string' ? message.content : '';
 		const tools = (message.contentBlocks ?? [])
-			.map(assistantToolPartFromHistoryBlock)
-			.filter((tool): tool is AssistantToolPart => Boolean(tool));
+			.map(agentToolPartFromHistoryBlock)
+			.filter((tool): tool is AgentToolPart => Boolean(tool));
 
 		if (content.length === 0 && tools.length === 0) return;
 		out.push({
-			id: `assistant-history-${index}`,
-			role: 'assistant',
-			type: 'assistant',
+			id: `agent-history-${index}`,
+			role: 'agent',
+			type: 'agent',
 			content,
 			state: 'completed',
 			tools,
@@ -257,14 +257,14 @@ export function historyToChatMessages(history: AssistantHistoryMessage[]): HomeC
 }
 
 export function pendingToMultiSelectMessage(
-	event: AssistantPendingEventPayload,
+	event: AgentPendingEventPayload,
 	createdAtMs: number
 ): HomeMultiSelectMessage | null {
 	const { approvals, inputs } = event;
 	if (approvals.length === 0 && inputs.length === 0) return null;
 
 	const options: HomeMultiSelectOption[] = [
-		...approvals.map((approval: AssistantPendingApproval) => ({
+		...approvals.map((approval: AgentPendingApproval) => ({
 			id: `approval:${approval.id}:allow-once`,
 			kind: 'approval' as const,
 			label: `${approval.toolName}: Allow once`,
@@ -290,7 +290,7 @@ export function pendingToMultiSelectMessage(
 			approvalId: approval.id,
 			decision: 'deny' as const,
 		})),
-		...inputs.map((input: AssistantPendingInput) => ({
+		...inputs.map((input: AgentPendingInput) => ({
 			id: `input:${input.id}`,
 			kind: 'input' as const,
 			label: 'Required input',
@@ -302,10 +302,10 @@ export function pendingToMultiSelectMessage(
 	];
 
 	return {
-		id: `assistant-pending-${createdAtMs}`,
-		role: 'assistant',
+		id: `agent-pending-${createdAtMs}`,
+		role: 'agent',
 		type: 'multi-select',
-		prompt: 'The assistant needs you to confirm or answer the following:',
+		prompt: 'The agent needs you to confirm or answer the following:',
 		options,
 	};
 }
@@ -329,21 +329,21 @@ export function defaultPendingSelections(message: HomeMultiSelectMessage): strin
 	return selections;
 }
 
-export function assistantChatReducer(
-	state: AssistantChatState,
-	action: AssistantChatAction
-): AssistantChatState {
+export function agentChatReducer(
+	state: AgentChatState,
+	action: AgentChatAction
+): AgentChatState {
 	switch (action.type) {
 		case 'submit_user_message': {
 			const userMessage = createUserMessage(action.userMessageId, action.content);
-			const assistantMessage = createAssistantMessage(
-				action.assistantMessageId,
+			const agentMessage = createAgentMessage(
+				action.agentMessageId,
 				undefined,
 				action.submittedAtMs
 			);
 			return {
-				messages: [...removePendingMessages(state.messages), userMessage, assistantMessage],
-				activeAssistantId: assistantMessage.id,
+				messages: [...removePendingMessages(state.messages), userMessage, agentMessage],
+				activeAgentId: agentMessage.id,
 			};
 		}
 		case 'append_user_message':
@@ -360,21 +360,21 @@ export function assistantChatReducer(
 			const messages = removePendingMessages(state.messages);
 			const withPending = action.message ? [...messages, action.message] : messages;
 			if (!action.message) return { ...state, messages: withPending };
-			const current = activeAssistant(state);
+			const current = activeAgent(state);
 			if (!current) return { ...state, messages: withPending };
-			return updateAssistantMessage(
+			return updateAgentMessage(
 				{ ...state, messages: withPending },
 				current.id,
 				(message) => ({ ...message, state: 'waiting_for_approval' })
 			);
 		}
 		case 'complete_active': {
-			const current = activeAssistant(state);
+			const current = activeAgent(state);
 			if (!current) {
 				if (action.response.trim().length === 0) return state;
-				const message: AssistantMessage = {
-					...createAssistantMessage(
-						`assistant-completed-${Date.now()}`,
+				const message: AgentMessage = {
+					...createAgentMessage(
+						`agent-completed-${Date.now()}`,
 						undefined,
 						action.completedAtMs
 					),
@@ -385,7 +385,7 @@ export function assistantChatReducer(
 				return { ...state, messages: [...removePendingMessages(state.messages), message] };
 			}
 
-			const nextState = updateAssistantMessage(state, current.id, (message) => ({
+			const nextState = updateAgentMessage(state, current.id, (message) => ({
 				...message,
 				content: action.response.trim().length > 0 ? action.response : message.content,
 				state:
@@ -395,26 +395,26 @@ export function assistantChatReducer(
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
-			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
+			return { ...nextState, activeAgentId: undefined, activeRunId: undefined };
 		}
 		case 'cancel_active': {
-			const current = activeAssistant(state);
+			const current = activeAgent(state);
 			if (!current) return state;
-			const nextState = updateAssistantMessage(state, current.id, (message) => ({
+			const nextState = updateAgentMessage(state, current.id, (message) => ({
 				...message,
 				state: 'cancelled',
 				errorText: 'Cancelled.',
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
-			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
+			return { ...nextState, activeAgentId: undefined, activeRunId: undefined };
 		}
 		case 'error_active': {
-			const current = activeAssistant(state);
+			const current = activeAgent(state);
 			if (!current) {
-				const message: AssistantMessage = {
-					...createAssistantMessage(
-						`assistant-error-${Date.now()}`,
+				const message: AgentMessage = {
+					...createAgentMessage(
+						`agent-error-${Date.now()}`,
 						undefined,
 						action.completedAtMs
 					),
@@ -426,7 +426,7 @@ export function assistantChatReducer(
 				return { ...state, messages: [...removePendingMessages(state.messages), message] };
 			}
 
-			const nextState = updateAssistantMessage(state, current.id, (message) => ({
+			const nextState = updateAgentMessage(state, current.id, (message) => ({
 				...message,
 				content: message.content || action.errorText,
 				state: 'error',
@@ -434,17 +434,17 @@ export function assistantChatReducer(
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
-			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
+			return { ...nextState, activeAgentId: undefined, activeRunId: undefined };
 		}
 		case 'restore_history': {
 			const restored = historyToChatMessages(action.history);
 			return {
 				messages: restored.length > 0 ? [welcomeMessage, ...restored] : [welcomeMessage],
-				activeAssistantId: undefined,
+				activeAgentId: undefined,
 				activeRunId: undefined,
 			};
 		}
 		case 'reset':
-			return initialAssistantChatState;
+			return initialAgentChatState;
 	}
 }

@@ -249,7 +249,7 @@ describe('agent-memory', () => {
 		const decisions = extractor.extract({
 			userId: 'u1',
 			userMessage: 'Remember that my API key is sk-1234567890abcdef.',
-			assistantReply: 'ok',
+			agentReply: 'ok',
 			sessionId: 's1',
 			existingMemory: memory,
 		});
@@ -269,7 +269,7 @@ describe('agent-memory', () => {
 		const decisions = extractor.extract({
 			userId: 'u1',
 			userMessage: 'I prefer political news summaries in the morning.',
-			assistantReply: 'ok',
+			agentReply: 'ok',
 			sessionId: 's1',
 			existingMemory: memory,
 		});

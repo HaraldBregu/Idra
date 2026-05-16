@@ -101,9 +101,9 @@ describe('agent/run', () => {
 		expect(result.finalText).toBe('done');
 		expect(result.session.transcript.map((entry) => entry.role)).toEqual([
 			'user',
-			'assistant',
+			'agent',
 			'tool',
-			'assistant',
+			'agent',
 		]);
 		expect(result.session.transcript[1]).toEqual({
 			role: 'assistant',

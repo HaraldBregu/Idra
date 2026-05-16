@@ -20,7 +20,7 @@ function normalizeToolResult(entry: ToolTranscriptEntry): ToolTranscriptEntry {
 }
 
 /**
- * Strip orphan tool results and pair every assistant `tool_use` with a
+ * Strip orphan tool results and pair every agent `tool_use` with a
  * matching `tool` result entry; synthesize a stub when missing. The
  * underlying provider APIs (OpenAI / Anthropic) reject conversations
  * where the tool_use / tool_result pairing is broken.

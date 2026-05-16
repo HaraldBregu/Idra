@@ -6,7 +6,7 @@ export type MemoryKind = 'semantic' | 'episodic' | 'preference' | 'workflow_inst
 
 export type MemoryImportance = 'low' | 'medium' | 'high' | 'critical';
 
-export type MemorySourceType = 'user_explicit' | 'user_implicit' | 'assistant_inferred' | 'system' | 'imported';
+export type MemorySourceType = 'user_explicit' | 'user_implicit' | 'agent_inferred' | 'system' | 'imported';
 
 export interface MemorySource {
 	type: MemorySourceType;
@@ -711,7 +711,7 @@ export class MemoryPolicy {
 export interface MemoryExtractionInput {
 	userId: string;
 	userMessage: string;
-	assistantReply: string;
+	agentReply: string;
 	sessionId: string;
 	existingMemory: UserMemory;
 }
@@ -1258,7 +1258,7 @@ export class MemoryManagedAgent {
 		const extractor = new MemoryExtractor(policy, idGenerator, clock);
 		const agent = new MemoryManagedAgent({
 			model: input.model,
-			systemInstructions: input.systemInstructions ?? 'You are a helpful, privacy-preserving AI assistant.',
+			systemInstructions: input.systemInstructions ?? 'You are a helpful, privacy-preserving AI agent.',
 			llmProvider: input.llmProvider,
 			memoryStore,
 			sessionManager,
@@ -1320,7 +1320,7 @@ export class MemoryManagedAgent {
 			const memoryDecisions = this.options.memoryExtractor.extract({
 				userId: input.userId,
 				userMessage: input.input,
-				assistantReply: llmResponse.content,
+				agentReply: llmResponse.content,
 				sessionId: session.id,
 				existingMemory,
 			});

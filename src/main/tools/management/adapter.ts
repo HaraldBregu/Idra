@@ -118,7 +118,7 @@ function inferCategory(name: string): ToolCategory {
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web')) return 'web';
 	if (name.includes('cron')) return 'calendar';
-	if (name.includes('provider') || name.includes('assistant') || name.includes('app') || name.includes('theme') || name.includes('menu')) return 'internalApi';
+	if (name.includes('provider') || name.includes('agent') || name.includes('app') || name.includes('theme') || name.includes('menu')) return 'internalApi';
 	if (name.includes('ask_human')) return 'utility';
 	return 'utility';
 }
@@ -135,7 +135,7 @@ function inferPermissions(name: string): string[] {
 }
 
 function inferSafety(name: string): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
-	if (['write', 'edit', 'apply_patch', 'exec', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_assistant_service'].includes(name)) return 'high';
+	if (['write', 'edit', 'apply_patch', 'exec', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service'].includes(name)) return 'high';
 	if (
 		[
 			'web_fetch',
@@ -174,12 +174,12 @@ function inferTags(name: string, category: ToolCategory): string[] {
 
 function inferPrivacy(name: string): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
 	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'exec', 'process'].includes(name)) return 'private';
-	if (name.includes('provider') || name.includes('assistant')) return 'sensitive';
+	if (name.includes('provider') || name.includes('agent')) return 'sensitive';
 	return 'internal';
 }
 
 function isReadOnly(name: string): boolean {
-	return ['read', 'find', 'web_fetch', 'get_workspace_content', 'get_workspace_path', 'get_provider_by_id', 'get_assistant_service', 'get_assistant_model', 'cron_list', 'process'].includes(name);
+	return ['read', 'find', 'web_fetch', 'get_workspace_content', 'get_workspace_path', 'get_provider_by_id', 'get_agent_service', 'get_agent_model', 'cron_list', 'process'].includes(name);
 }
 
 function isToolContext(value: unknown): value is ToolContext {

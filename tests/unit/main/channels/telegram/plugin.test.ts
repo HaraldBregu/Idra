@@ -30,7 +30,7 @@ describe('telegramChannelPlugin', () => {
 		).toEqual({ token: 'token', allowFrom: ['1'] });
 	});
 
-	it('applies allowlist security before assistant dispatch', () => {
+	it('applies allowlist security before agent dispatch', () => {
 		const account = telegramChannelPlugin.config.getDefaultAccount({
 			token: 'token',
 			allowFrom: ['allowed'],

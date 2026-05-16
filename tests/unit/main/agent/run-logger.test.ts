@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { AssistantRunLogger } from '../../../../src/main/run-logger';
+import { AgentRunLogger } from '../../../../src/main/run-logger';
 
-describe('AssistantRunLogger', () => {
+describe('AgentRunLogger', () => {
 	let tmpDir: string;
 
 	beforeEach(async () => {
@@ -15,10 +15,10 @@ describe('AssistantRunLogger', () => {
 	});
 
 	it('appends a start record as a JSONL line', async () => {
-		const logger = new AssistantRunLogger('a1', { baseDir: tmpDir });
+		const logger = new AgentRunLogger('a1', { baseDir: tmpDir });
 		await logger.logStart({
 			runId: 'r1',
-			assistantId: 'a1',
+			agentId: 'a1',
 			provider: 'openai',
 			model: 'gpt-x',
 			systemPromptChars: 100,
@@ -42,10 +42,10 @@ describe('AssistantRunLogger', () => {
 	});
 
 	it('captures every lifecycle event in order via readAll()', async () => {
-		const logger = new AssistantRunLogger('a2', { baseDir: tmpDir });
+		const logger = new AgentRunLogger('a2', { baseDir: tmpDir });
 		await logger.logStart({
 			runId: 'r1',
-			assistantId: 'a2',
+			agentId: 'a2',
 			provider: 'openai',
 			model: 'm',
 			systemPromptChars: 0,
@@ -55,14 +55,14 @@ describe('AssistantRunLogger', () => {
 		});
 		await logger.logIteration({
 			runId: 'r1',
-			assistantId: 'a2',
+			agentId: 'a2',
 			iteration: 0,
 			usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
 			durationMs: 25,
 		});
 		await logger.logToolCall({
 			runId: 'r1',
-			assistantId: 'a2',
+			agentId: 'a2',
 			iteration: 0,
 			callId: 'c1',
 			tool: 'exec',
@@ -74,13 +74,13 @@ describe('AssistantRunLogger', () => {
 		});
 		await logger.logApprovalRequest({
 			runId: 'r1',
-			assistantId: 'a2',
+			agentId: 'a2',
 			iteration: 0,
 			pending: [{ callId: 'c2', tool: 'write_file', arguments: '{}' }],
 		});
 		await logger.logApprovalResolution({
 			runId: 'r1',
-			assistantId: 'a2',
+			agentId: 'a2',
 			callId: 'c2',
 			tool: 'write_file',
 			decision: 'approve',
@@ -88,7 +88,7 @@ describe('AssistantRunLogger', () => {
 		});
 		await logger.logFinish({
 			runId: 'r1',
-			assistantId: 'a2',
+			agentId: 'a2',
 			provider: 'openai',
 			model: 'm',
 			status: 'completed',
@@ -114,12 +114,12 @@ describe('AssistantRunLogger', () => {
 	});
 
 	it('serializes concurrent writes to avoid interleaving', async () => {
-		const logger = new AssistantRunLogger('a3', { baseDir: tmpDir });
+		const logger = new AgentRunLogger('a3', { baseDir: tmpDir });
 		await Promise.all(
 			Array.from({ length: 10 }, (_, i) =>
 				logger.logIteration({
 					runId: 'r1',
-					assistantId: 'a3',
+					agentId: 'a3',
 					iteration: i,
 					durationMs: i,
 				})
@@ -132,28 +132,28 @@ describe('AssistantRunLogger', () => {
 	});
 
 	it('returns [] from readAll() before any record is written', async () => {
-		const logger = new AssistantRunLogger('never-used', { baseDir: tmpDir });
+		const logger = new AgentRunLogger('never-used', { baseDir: tmpDir });
 		await expect(logger.readAll()).resolves.toEqual([]);
 	});
 
 	it('captures input_request, input_resolution, and cancelled finish', async () => {
-		const logger = new AssistantRunLogger('a4', { baseDir: tmpDir });
+		const logger = new AgentRunLogger('a4', { baseDir: tmpDir });
 		await logger.logInputRequest({
 			runId: 'r1',
-			assistantId: 'a4',
+			agentId: 'a4',
 			iteration: 0,
 			pending: [{ callId: 'c1', tool: 'ask_human', question: 'where?' }],
 		});
 		await logger.logInputResolution({
 			runId: 'r1',
-			assistantId: 'a4',
+			agentId: 'a4',
 			callId: 'c1',
 			tool: 'ask_human',
 			answerChars: 8,
 		});
 		await logger.logFinish({
 			runId: 'r1',
-			assistantId: 'a4',
+			agentId: 'a4',
 			provider: 'openai',
 			model: 'm',
 			status: 'cancelled',

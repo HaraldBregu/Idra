@@ -1,1 +1,1 @@
-export { useHomeAssistant } from './useHomeAssistant';
+export { useHomeAgent } from './useHomeAgent';

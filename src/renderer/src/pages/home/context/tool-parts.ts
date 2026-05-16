@@ -1,21 +1,21 @@
 import type { ToolPart } from '@/components/prompt-kit/tool';
 import type {
-	AssistantHistoryContentBlock,
-	AssistantResponseEvent,
-	AssistantToolCallStatus,
+	AgentHistoryContentBlock,
+	AgentResponseEvent,
+	AgentToolCallStatus,
 } from '../../../../../shared/service';
 
-export type AssistantToolPart = ToolPart & {
+export type AgentToolPart = ToolPart & {
 	toolCallId: string;
-	status?: AssistantToolCallStatus;
+	status?: AgentToolCallStatus;
 };
 
-type AssistantToolPartPatch = Omit<Partial<AssistantToolPart>, 'toolCallId'>;
+type AgentToolPartPatch = Omit<Partial<AgentToolPart>, 'toolCallId'>;
 
-function createAssistantToolPart(
+function createAgentToolPart(
 	toolCallId: string,
-	patch: AssistantToolPartPatch
-): AssistantToolPart {
+	patch: AgentToolPartPatch
+): AgentToolPart {
 	return {
 		toolCallId,
 		type: patch.type ?? 'tool',
@@ -31,14 +31,14 @@ function createAssistantToolPart(
 	};
 }
 
-export function updateAssistantToolPart(
-	tools: readonly AssistantToolPart[],
+export function updateAgentToolPart(
+	tools: readonly AgentToolPart[],
 	toolCallId: string,
-	patch: AssistantToolPartPatch
-): AssistantToolPart[] {
+	patch: AgentToolPartPatch
+): AgentToolPart[] {
 	const index = tools.findIndex((tool) => tool.toolCallId === toolCallId);
 	if (index === -1) {
-		return [...tools, createAssistantToolPart(toolCallId, patch)];
+		return [...tools, createAgentToolPart(toolCallId, patch)];
 	}
 
 	return tools.map((tool, currentIndex) =>
@@ -46,31 +46,31 @@ export function updateAssistantToolPart(
 	);
 }
 
-export function applyAssistantResponseEventToTools(
-	tools: readonly AssistantToolPart[],
-	event: AssistantResponseEvent
-): AssistantToolPart[] | undefined {
+export function applyAgentResponseEventToTools(
+	tools: readonly AgentToolPart[],
+	event: AgentResponseEvent
+): AgentToolPart[] | undefined {
 	switch (event.type) {
 		case 'run_state':
 		case 'reasoning_summary':
 		case 'text_delta':
 			return undefined;
 		case 'tool_call_start':
-			return updateAssistantToolPart(tools, event.toolCallId, {
+			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: 'input-streaming',
 				iteration: event.iteration,
 				inputText: '',
 			});
 		case 'tool_call_args_delta':
-			return updateAssistantToolPart(tools, event.toolCallId, {
+			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: 'input-streaming',
 				iteration: event.iteration,
 				inputText: event.argsText,
 			});
 		case 'tool_call_input':
-			return updateAssistantToolPart(tools, event.toolCallId, {
+			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: 'input-available',
 				iteration: event.iteration,
@@ -82,7 +82,7 @@ export function applyAssistantResponseEventToTools(
 			const errorText =
 				event.errorText ?? (isError ? event.outputText || 'Tool call failed.' : undefined);
 
-			return updateAssistantToolPart(tools, event.toolCallId, {
+			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
 				state: isError ? 'output-error' : 'output-available',
 				iteration: event.iteration,
@@ -97,9 +97,9 @@ export function applyAssistantResponseEventToTools(
 	}
 }
 
-export function assistantToolPartFromHistoryBlock(
-	block: AssistantHistoryContentBlock
-): AssistantToolPart | undefined {
+export function agentToolPartFromHistoryBlock(
+	block: AgentHistoryContentBlock
+): AgentToolPart | undefined {
 	if (block.type !== 'tool_use') return undefined;
 
 	return {

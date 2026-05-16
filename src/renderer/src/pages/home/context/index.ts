@@ -1,27 +1,27 @@
 export { Provider } from './Provider';
-export { useHomeAssistantContext } from './useHomeAssistantContext';
-export type { AssistantChatAction } from './actions';
+export { useHomeAgentContext } from './useHomeAgentContext';
+export type { AgentChatAction } from './actions';
 export {
-	assistantChatReducer,
+	agentChatReducer,
 	defaultPendingSelections,
 	historyToChatMessages,
 	pendingToMultiSelectMessage,
 } from './reducer';
 export {
-	initialAssistantChatState,
+	initialAgentChatState,
 	inputAnswerKey,
 	welcomeMessage,
-	type AssistantChatState,
-	type AssistantMessage,
-	type AssistantRunState,
-	type AssistantToolPart,
+	type AgentChatState,
+	type AgentMessage,
+	type AgentRunState,
+	type AgentToolPart,
 	type HomeChatMessage,
 	type HomeMultiSelectMessage,
 	type HomeMultiSelectOption,
 	type UserMessage,
 } from './state';
 export {
-	applyAssistantResponseEventToTools,
-	assistantToolPartFromHistoryBlock,
-	updateAssistantToolPart,
+	applyAgentResponseEventToTools,
+	agentToolPartFromHistoryBlock,
+	updateAgentToolPart,
 } from './tool-parts';

@@ -313,7 +313,7 @@ export function VoiceOrbJupiter(): ReactElement {
 			<div
 				role="button"
 				tabIndex={0}
-				aria-label={`Voice assistant (Jupiter), mode: ${mode}. Click to change.`}
+				aria-label={`Voice agent (Jupiter), mode: ${mode}. Click to change.`}
 				className="relative cursor-pointer"
 				style={{ width: 260, height: 260 }}
 				onClick={cycleMode}

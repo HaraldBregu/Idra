@@ -1,7 +1,7 @@
 import { useReducer, type ReactElement, type ReactNode } from 'react';
-import { assistantChatReducer } from './reducer';
-import { initialAssistantChatState } from './state';
-import { HomeAssistantContext } from './context';
+import { agentChatReducer } from './reducer';
+import { initialAgentChatState } from './state';
+import { HomeAgentContext } from './context';
 
 export function Provider({
 	children,
@@ -9,13 +9,13 @@ export function Provider({
 	readonly children: ReactNode;
 }): ReactElement {
 	const [chatState, dispatchChat] = useReducer(
-		assistantChatReducer,
-		initialAssistantChatState
+		agentChatReducer,
+		initialAgentChatState
 	);
 
 	return (
-		<HomeAssistantContext.Provider value={{ chatState, dispatchChat }}>
+		<HomeAgentContext.Provider value={{ chatState, dispatchChat }}>
 			{children}
-		</HomeAssistantContext.Provider>
+		</HomeAgentContext.Provider>
 	);
 }

@@ -2,7 +2,7 @@ import type { ChannelStatusEvent } from '../../shared/channels';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { AssistantService } from '../service';
+import type { AgentService } from '../service';
 import { TelegramAdapter, type TelegramAdapterOptions } from './telegram';
 import { telegramChannelPlugin } from './telegram/plugin';
 import type {
@@ -22,7 +22,7 @@ export interface ChannelRegistryOptions {
 export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
-	assistantService?: AssistantService;
+	agentService?: AgentService;
 }
 
 export class ChannelRegistry {
@@ -183,10 +183,10 @@ export class ChannelRegistry {
 			sessionKey,
 		});
 
-		if (!this.dependencies.assistantService) return;
+		if (!this.dependencies.agentService) return;
 
 		try {
-			const reply = await this.dependencies.assistantService.send(message.text);
+			const reply = await this.dependencies.agentService.send(message.text);
 			const target = plugin.threading?.resolveReplyTarget(message) ?? { to: message.chatId };
 			await this.send({
 				type: message.type,
@@ -198,7 +198,7 @@ export class ChannelRegistry {
 				idempotencyKey: `${normalized.idempotencyKey}:reply`,
 			});
 		} catch (error) {
-			this.dependencies.logger.error('ChannelRegistry', 'Telegram assistant reply failed', error);
+			this.dependencies.logger.error('ChannelRegistry', 'Telegram agent reply failed', error);
 		}
 	}
 

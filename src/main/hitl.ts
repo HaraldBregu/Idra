@@ -57,7 +57,7 @@ export class HitlBridge implements ApprovalStreamLike {
 
 	constructor(
 		private readonly eventBus: EventBus,
-		private readonly assistantId: string
+		private readonly agentId: string
 	) {}
 
 	/** Implements ApprovalStreamLike — used by tools/before-call. */
@@ -207,8 +207,8 @@ export class HitlBridge implements ApprovalStreamLike {
 	}
 
 	private broadcast(): void {
-		this.eventBus.broadcast('assistant:pending', {
-			assistantId: this.assistantId,
+		this.eventBus.broadcast('agent:pending', {
+			agentId: this.agentId,
 			...this.getPending(),
 		});
 	}

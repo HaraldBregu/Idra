@@ -314,7 +314,7 @@ export function VoiceOrbNeptune(): ReactElement {
 			<div
 				role="button"
 				tabIndex={0}
-				aria-label={`Voice assistant (Neptune), mode: ${mode}. Click to change.`}
+				aria-label={`Voice agent (Neptune), mode: ${mode}. Click to change.`}
 				className="relative cursor-pointer"
 				style={{ width: 260, height: 260 }}
 				onClick={cycleMode}

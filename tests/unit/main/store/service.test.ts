@@ -135,7 +135,7 @@ describe('StoreService', () => {
 	describe('getService()', () => {
 		it('returns the stored service when present', () => {
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'rag-url',
 				ocr: 'ocr-url',
 			};
@@ -154,13 +154,13 @@ describe('StoreService', () => {
 	});
 
 	// -------------------------------------------------------------------------
-	// getAssistantService
+	// getAgentService
 	// -------------------------------------------------------------------------
 
-	describe('getAssistantService()', () => {
-		it('returns the assistant block when service is set', () => {
+	describe('getAgentService()', () => {
+		it('returns the agent block when service is set', () => {
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: '',
 				ocr: '',
 			};
@@ -168,33 +168,33 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', svc);
 
-			expect(service.getAssistantService()).toEqual(svc.assistant);
+			expect(service.getAgentService()).toEqual(svc.agent);
 		});
 
 		it('returns undefined when service is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAssistantService()).toBeUndefined();
+			expect(service.getAgentService()).toBeUndefined();
 		});
 
-		it('returns undefined when service has no assistant field', () => {
+		it('returns undefined when service has no agent field', () => {
 			// Store a partial service (as unknown cast so TS does not complain).
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
 
-			expect(service.getAssistantService()).toBeUndefined();
+			expect(service.getAgentService()).toBeUndefined();
 		});
 	});
 
 	// -------------------------------------------------------------------------
-	// getAssistantModel
+	// getAgentModel
 	// -------------------------------------------------------------------------
 
-	describe('getAssistantModel()', () => {
-		it('returns the model when service and assistant are set', () => {
+	describe('getAgentModel()', () => {
+		it('returns the model when service and agent are set', () => {
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: '',
 				ocr: '',
 			};
@@ -202,21 +202,21 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', svc);
 
-			expect(service.getAssistantModel()).toEqual(model);
+			expect(service.getAgentModel()).toEqual(model);
 		});
 
 		it('returns undefined when service is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAssistantModel()).toBeUndefined();
+			expect(service.getAgentModel()).toBeUndefined();
 		});
 
-		it('returns undefined when assistant is absent from the service', () => {
+		it('returns undefined when agent is absent from the service', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
 
-			expect(service.getAssistantModel()).toBeUndefined();
+			expect(service.getAgentModel()).toBeUndefined();
 		});
 	});
 
@@ -231,7 +231,7 @@ describe('StoreService', () => {
 				model: { id: 'gpt-image-1', name: 'GPT Image 1' },
 			};
 			const svc: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				imageGeneration,
 				rag: '',
 				ocr: '',
@@ -253,14 +253,14 @@ describe('StoreService', () => {
 	});
 
 	// -------------------------------------------------------------------------
-	// getAssistantProvider
+	// getAgentProvider
 	// -------------------------------------------------------------------------
 
-	describe('getAssistantProvider()', () => {
-		it('returns the provider block when service and assistant are set', () => {
+	describe('getAgentProvider()', () => {
+		it('returns the provider block when service and agent are set', () => {
 			const providerRef = { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
 			const svc: Service = {
-				assistant: { provider: providerRef, model },
+				agent: { provider: providerRef, model },
 				rag: '',
 				ocr: '',
 			};
@@ -268,33 +268,33 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', svc);
 
-			expect(service.getAssistantProvider()).toEqual(providerRef);
+			expect(service.getAgentProvider()).toEqual(providerRef);
 		});
 
 		it('returns undefined when service is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAssistantProvider()).toBeUndefined();
+			expect(service.getAgentProvider()).toBeUndefined();
 		});
 
-		it('returns undefined when assistant is absent from the service', () => {
+		it('returns undefined when agent is absent from the service', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
 
-			expect(service.getAssistantProvider()).toBeUndefined();
+			expect(service.getAgentProvider()).toBeUndefined();
 		});
 	});
 
 	// -------------------------------------------------------------------------
-	// setAssistantService
+	// setAgentService
 	// -------------------------------------------------------------------------
 
-	describe('setAssistantService()', () => {
+	describe('setAgentService()', () => {
 		it('returns false and does not write when the provider id is not found', () => {
 			const service = new StoreService();
 
-			const result = service.setAssistantService('unknown', model);
+			const result = service.setAgentService('unknown', model);
 
 			expect(result).toBe(false);
 			expect(service.getService()).toBeUndefined();
@@ -305,7 +305,7 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			const result = service.setAssistantService('openai', model);
+			const result = service.setAgentService('openai', model);
 
 			expect(result).toBe(true);
 			expect(service.getService()).toBeDefined();
@@ -313,7 +313,7 @@ describe('StoreService', () => {
 
 		it('preserves existing rag and ocr values from the current service', () => {
 			const existing: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'existing-rag',
 				ocr: 'existing-ocr',
 			};
@@ -323,7 +323,7 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', existing);
 
-			service.setAssistantService('openai', model);
+			service.setAgentService('openai', model);
 
 			const written = service.getService();
 			expect(written?.rag).toBe('existing-rag');
@@ -335,7 +335,7 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			service.setAssistantService('openai', model);
+			service.setAgentService('openai', model);
 
 			const written = service.getService();
 			expect(written?.rag).toBe('');
@@ -347,11 +347,11 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			service.setAssistantService('openai', model);
+			service.setAgentService('openai', model);
 
 			const written = service.getService();
-			expect(written?.assistant?.provider).not.toHaveProperty('apiKey');
-			expect(written?.assistant?.provider).toEqual({
+			expect(written?.agent?.provider).not.toHaveProperty('apiKey');
+			expect(written?.agent?.provider).toEqual({
 				id: 'openai',
 				name: 'OpenAI',
 				baseUrl: 'https://api.openai.com/v1',
@@ -363,9 +363,9 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			service.setAssistantService('openai', model);
+			service.setAgentService('openai', model);
 
-			expect(service.getService()?.assistant?.model).toEqual(model);
+			expect(service.getService()?.agent?.model).toEqual(model);
 		});
 	});
 
@@ -396,9 +396,9 @@ describe('StoreService', () => {
 			expect(service.getImageGenerationService()?.model).toEqual(imageModel);
 		});
 
-		it('preserves existing assistant, rag, and ocr values from the current service', () => {
+		it('preserves existing agent, rag, and ocr values from the current service', () => {
 			const existing: Service = {
-				assistant: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'existing-rag',
 				ocr: 'existing-ocr',
 			};
@@ -411,12 +411,12 @@ describe('StoreService', () => {
 			service.setImageGenerationService('openai', imageModel);
 
 			const written = service.getService();
-			expect(written?.assistant).toEqual(existing.assistant);
+			expect(written?.agent).toEqual(existing.agent);
 			expect(written?.rag).toBe('existing-rag');
 			expect(written?.ocr).toBe('existing-ocr');
 		});
 
-		it('can write image generation settings before assistant settings exist', () => {
+		it('can write image generation settings before agent settings exist', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
@@ -424,7 +424,7 @@ describe('StoreService', () => {
 			service.setImageGenerationService('openai', imageModel);
 
 			const written = service.getService();
-			expect(written?.assistant).toBeUndefined();
+			expect(written?.agent).toBeUndefined();
 			expect(written?.imageGeneration?.model).toEqual(imageModel);
 			expect(written?.rag).toBe('');
 			expect(written?.ocr).toBe('');

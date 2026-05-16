@@ -28,7 +28,7 @@ export interface SessionStoreOptions {
 }
 
 function defaultBaseDir(): string {
-	return resolveDefaultUserDataPath('assistant', 'sessions');
+	return resolveDefaultUserDataPath('agent', 'sessions');
 }
 
 function sessionPath(baseDir: string, id: string): string {

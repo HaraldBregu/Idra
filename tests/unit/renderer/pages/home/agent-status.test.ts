@@ -1,11 +1,11 @@
-import type { AssistantMessage } from '../../../../../src/renderer/src/pages/home/context';
-import { assistantStatusLabel } from '../../../../../src/renderer/src/pages/home/components/assistant-status';
+import type { AgentMessage } from '../../../../../src/renderer/src/pages/home/context';
+import { agentStatusLabel } from '../../../../../src/renderer/src/pages/home/components/agent-status';
 
-function assistantMessage(overrides: Partial<AssistantMessage> = {}): AssistantMessage {
+function agentMessage(overrides: Partial<AgentMessage> = {}): AgentMessage {
 	return {
-		id: 'assistant-1',
-		role: 'assistant',
-		type: 'assistant',
+		id: 'agent-1',
+		role: 'agent',
+		type: 'agent',
 		content: 'Done',
 		state: 'completed',
 		tools: [],
@@ -13,11 +13,11 @@ function assistantMessage(overrides: Partial<AssistantMessage> = {}): AssistantM
 	};
 }
 
-describe('assistant status labels', () => {
+describe('agent status labels', () => {
 	it('uses elapsed thinking time for completed direct responses', () => {
 		expect(
-			assistantStatusLabel(
-				assistantMessage({
+			agentStatusLabel(
+				agentMessage({
 					startedAtMs: 1_000,
 					completedAtMs: 4_000,
 				})
@@ -27,8 +27,8 @@ describe('assistant status labels', () => {
 
 	it('uses elapsed finish time for completed tool responses', () => {
 		expect(
-			assistantStatusLabel(
-				assistantMessage({
+			agentStatusLabel(
+				agentMessage({
 					tools: [
 						{
 							toolCallId: 'tool-1',
@@ -44,6 +44,6 @@ describe('assistant status labels', () => {
 	});
 
 	it('does not expose direct-response wording while answering', () => {
-		expect(assistantStatusLabel(assistantMessage({ state: 'answering' }))).toBe('Answering');
+		expect(agentStatusLabel(agentMessage({ state: 'answering' }))).toBe('Answering');
 	});
 });

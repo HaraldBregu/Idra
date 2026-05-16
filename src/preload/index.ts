@@ -2,7 +2,7 @@ import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import {
 	WindowChannels,
-	AssistantChannels,
+	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
@@ -14,7 +14,7 @@ import {
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
-	AssistantApi,
+	AgentApi,
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
@@ -36,12 +36,12 @@ import type {
 	CronTaskView,
 } from '../shared/cron';
 import type {
-	Assistant,
-	AssistantHistoryMessage,
+	Agent,
+	AgentHistoryMessage,
 	ApprovalDecision,
-	AssistantPendingEventPayload,
-	AssistantPendingState,
-	AssistantResponseEvent,
+	AgentPendingEventPayload,
+	AgentPendingState,
+	AgentResponseEvent,
 	Model,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
@@ -85,35 +85,35 @@ const win: WindowApi = {
 	},
 } satisfies WindowApi;
 
-export const assistant: AssistantApi = {
+export const agent: AgentApi = {
 	send: (message: string): Promise<string> => {
-		return typedInvokeUnwrap(AssistantChannels.send, message);
+		return typedInvokeUnwrap(AgentChannels.send, message);
 	},
 	reset: (): Promise<void> => {
-		return typedInvokeUnwrap(AssistantChannels.reset);
+		return typedInvokeUnwrap(AgentChannels.reset);
 	},
 	cancel: (): Promise<void> => {
-		return typedInvokeUnwrap(AssistantChannels.cancel);
+		return typedInvokeUnwrap(AgentChannels.cancel);
 	},
-	getHistory: (): Promise<AssistantHistoryMessage[]> => {
-		return typedInvokeUnwrap(AssistantChannels.getHistory);
+	getHistory: (): Promise<AgentHistoryMessage[]> => {
+		return typedInvokeUnwrap(AgentChannels.getHistory);
 	},
 	resolveApproval: (id: string, decision: ApprovalDecision | boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(AssistantChannels.resolveApproval, id, decision);
+		return typedInvokeUnwrap(AgentChannels.resolveApproval, id, decision);
 	},
 	resolveInput: (id: string, answer: string): Promise<boolean> => {
-		return typedInvokeUnwrap(AssistantChannels.resolveInput, id, answer);
+		return typedInvokeUnwrap(AgentChannels.resolveInput, id, answer);
 	},
-	getPending: (): Promise<AssistantPendingState> => {
-		return typedInvokeUnwrap(AssistantChannels.getPending);
+	getPending: (): Promise<AgentPendingState> => {
+		return typedInvokeUnwrap(AgentChannels.getPending);
 	},
-	onResponse: (callback: (event: AssistantResponseEvent) => void): (() => void) => {
-		return typedOn(AssistantChannels.response, callback);
+	onResponse: (callback: (event: AgentResponseEvent) => void): (() => void) => {
+		return typedOn(AgentChannels.response, callback);
 	},
-	onPending: (callback: (event: AssistantPendingEventPayload) => void): (() => void) => {
-		return typedOn(AssistantChannels.pending, callback);
+	onPending: (callback: (event: AgentPendingEventPayload) => void): (() => void) => {
+		return typedOn(AgentChannels.pending, callback);
 	},
-} satisfies AssistantApi;
+} satisfies AgentApi;
 
 export const app: AppApi = {
 	openAppDataFolder: (): Promise<void> => {
@@ -143,16 +143,16 @@ export const app: AppApi = {
 	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
-	getAssistantService: (): Promise<Assistant | undefined> => {
-		return typedInvokeUnwrap(ProviderChannels.getAssistantService);
+	getAgentService: (): Promise<Agent | undefined> => {
+		return typedInvokeUnwrap(ProviderChannels.getAgentService);
 	},
-	saveAssistantService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(ProviderChannels.saveAssistantService, provider, model);
+	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(ProviderChannels.saveAgentService, provider, model);
 	},
 	getImageGenerationModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getImageGenerationModels, provider);
 	},
-	getImageGenerationService: (): Promise<Assistant | undefined> => {
+	getImageGenerationService: (): Promise<Agent | undefined> => {
 		return typedInvokeUnwrap(ProviderChannels.getImageGenerationService);
 	},
 	saveImageGenerationService: (provider: PublicProvider, model: Model): Promise<boolean> => {
@@ -355,7 +355,7 @@ if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
-		contextBridge.exposeInMainWorld('assistant', assistant);
+		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
@@ -370,7 +370,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.win = win;
 	// @ts-ignore (define in dts)
-	globalThis.assistant = assistant;
+	globalThis.agent = agent;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)

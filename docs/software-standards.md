@@ -46,7 +46,7 @@ For high-impact UI changes, add Testing Library assertions for roles, names, and
 
 - Keep renderer state local unless shared state is required.
 - Avoid expensive work during render; memoize only when measurement or repeated work justifies it.
-- Bound histories, logs, tool outputs, and assistant transcripts before sending to the model or renderer.
+- Bound histories, logs, tool outputs, and agent transcripts before sending to the model or renderer.
 - Keep Electron startup work lazy where possible.
 
 Verification: profile before optimizing, and add regression tests for bounded lists or cached work.
@@ -85,7 +85,7 @@ Breaking API changes require test updates and documentation in the pull request.
 ## 9. Data Privacy
 
 - Classify data before storing it: public, personal, private, sensitive, or secret.
-- Do not persist secrets in assistant memory or logs.
+- Do not persist secrets in agent memory or logs.
 - Provide export and deletion paths for user memory and local state where practical.
 - Store only data required for the feature and document retention expectations.
 

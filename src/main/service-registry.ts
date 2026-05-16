@@ -11,7 +11,7 @@ import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
-import type { AssistantService } from './service';
+import type { AgentService } from './service';
 import type { SkillsService } from './skills';
 import type { StoreService } from './store';
 import type { TaskManagerService } from './task-manager';
@@ -21,7 +21,7 @@ import type { WorkspaceService } from './workspace';
 export interface MainServices {
 	appState: AppState;
 	apps: AppsService;
-	assistantService: AssistantService;
+	agentService: AgentService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
 	cron: CronService;

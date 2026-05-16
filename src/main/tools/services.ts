@@ -1,37 +1,37 @@
 import type { AgentTool } from './types';
 import { textResult } from './types';
 
-export const getAssistantServiceTool: AgentTool = {
-	name: 'get_assistant_service',
-	description: 'Get the currently configured assistant service (provider + model).',
+export const getAgentServiceTool: AgentTool = {
+	name: 'get_agent_service',
+	description: 'Get the currently configured agent service (provider + model).',
 	schema: { type: 'object', properties: {}, additionalProperties: false },
 	async execute(_args, ctx) {
-		const assistant = ctx.services.store.getAssistantService();
-		if (!assistant) return textResult('assistant service not configured', true);
-		return textResult(JSON.stringify(assistant));
+		const agent = ctx.services.store.getAgentService();
+		if (!agent) return textResult('agent service not configured', true);
+		return textResult(JSON.stringify(agent));
 	},
 };
 
-export const getAssistantModelTool: AgentTool = {
-	name: 'get_assistant_model',
-	description: 'Get the model used by the assistant service.',
+export const getAgentModelTool: AgentTool = {
+	name: 'get_agent_model',
+	description: 'Get the model used by the agent service.',
 	schema: { type: 'object', properties: {}, additionalProperties: false },
 	async execute(_args, ctx) {
-		const model = ctx.services.store.getAssistantModel();
-		if (!model) return textResult('assistant model not configured', true);
+		const model = ctx.services.store.getAgentModel();
+		if (!model) return textResult('agent model not configured', true);
 		return textResult(JSON.stringify(model));
 	},
 };
 
-interface SetAssistantServiceArgs {
+interface SetAgentServiceArgs {
 	providerId: string;
 	modelId: string;
 	modelName: string;
 }
 
-export const setAssistantServiceTool: AgentTool<SetAssistantServiceArgs> = {
-	name: 'set_assistant_service',
-	description: 'Set the assistant service by selecting a stored provider id and a model.',
+export const setAgentServiceTool: AgentTool<SetAgentServiceArgs> = {
+	name: 'set_agent_service',
+	description: 'Set the agent service by selecting a stored provider id and a model.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -48,11 +48,11 @@ export const setAssistantServiceTool: AgentTool<SetAssistantServiceArgs> = {
 		const modelId = String(args.modelId ?? '').trim();
 		const modelName = String(args.modelName ?? '').trim();
 		if (!providerId || !modelId || !modelName) return textResult('all fields required', true);
-		const ok = ctx.services.store.setAssistantService(providerId, {
+		const ok = ctx.services.store.setAgentService(providerId, {
 			id: modelId,
 			name: modelName,
 		});
 		if (!ok) return textResult(`provider not found: ${providerId}`, true);
-		return textResult('Assistant service saved.');
+		return textResult('Agent service saved.');
 	},
 };

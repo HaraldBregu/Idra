@@ -17,12 +17,12 @@ import {
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
-import { AssistantTextMessage } from './components/AssistantTextMessage';
+import { AgentTextMessage } from './components/AgentTextMessage';
 import { PendingMessage } from './components/PendingMessage';
 import { ReferenceConversation } from './components/ReferenceConversation';
 import { UserMessage } from './components/UserMessage';
 import { Provider } from './context';
-import { useHomeAssistant } from './hooks';
+import { useHomeAgent } from './hooks';
 
 function AttachmentButton(): ReactElement {
 	return (
@@ -63,7 +63,7 @@ function VoiceButton({
 	readonly onVoiceModeRequest: () => void;
 }): ReactElement {
 	return (
-		<PromptInputAction tooltip="Voice assistant">
+		<PromptInputAction tooltip="Voice agent">
 			<Button
 				type="button"
 				variant="ghost"
@@ -126,16 +126,16 @@ function SubmitButton({
 
 function PageContent(): ReactElement {
 	const { setMode } = useChatMode();
-	const assistant = useHomeAssistant({ setMode });
+	const agent = useHomeAgent({ setMode });
 	const showReferenceConversation =
-		assistant.chatState.messages.length <= 1 &&
-		!assistant.isLoading &&
-		!assistant.historyLoading;
-	const canReset = assistant.chatState.messages.length > 1 || assistant.isLoading;
-	const canSubmit = assistant.input.trim().length > 0;
+		agent.chatState.messages.length <= 1 &&
+		!agent.isLoading &&
+		!agent.historyLoading;
+	const canReset = agent.chatState.messages.length > 1 || agent.isLoading;
+	const canSubmit = agent.input.trim().length > 0;
 	const handlePrimaryAction = (): void => {
-		if (assistant.isLoading || canSubmit) {
-			assistant.handleSubmit();
+		if (agent.isLoading || canSubmit) {
+			agent.handleSubmit();
 			return;
 		}
 		setMode('voice');
@@ -152,10 +152,10 @@ function PageContent(): ReactElement {
 						)}
 					>
 						{showReferenceConversation ? (
-							<ReferenceConversation onUseSuggestion={assistant.useSuggestion} />
+							<ReferenceConversation onUseSuggestion={agent.useSuggestion} />
 						) : (
 							<>
-								{assistant.chatState.messages.map((message) => {
+								{agent.chatState.messages.map((message) => {
 									if (message.role === 'user') {
 										return <UserMessage key={message.id} content={message.content} />;
 									}
@@ -165,24 +165,24 @@ function PageContent(): ReactElement {
 											<PendingMessage
 												key={message.id}
 												message={message}
-												selectedOptions={assistant.selectedOptions[message.id] ?? []}
-												inputAnswers={assistant.pendingInputAnswers}
-												onInputAnswerChange={assistant.updatePendingInputAnswer}
-												onSelectApprovalOption={assistant.selectApprovalOption}
+												selectedOptions={agent.selectedOptions[message.id] ?? []}
+												inputAnswers={agent.pendingInputAnswers}
+												onInputAnswerChange={agent.updatePendingInputAnswer}
+												onSelectApprovalOption={agent.selectApprovalOption}
 												onSubmit={(pendingMessage) =>
-													void assistant.submitMultiSelect(pendingMessage)
+													void agent.submitMultiSelect(pendingMessage)
 												}
 											/>
 										);
 									}
 
 									return (
-										<AssistantTextMessage
+										<AgentTextMessage
 											key={message.id}
 											message={message}
 											isStreaming={
-												assistant.isLoading &&
-												message.id === assistant.chatState.activeAssistantId
+												agent.isLoading &&
+												message.id === agent.chatState.activeAgentId
 											}
 										/>
 									);
@@ -201,12 +201,12 @@ function PageContent(): ReactElement {
 				</ChatContainerRoot>
 				<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-4 pt-4">
 					<PromptInput
-						value={assistant.input}
-						onValueChange={assistant.setInput}
-						isLoading={assistant.isLoading}
+						value={agent.input}
+						onValueChange={agent.setInput}
+						isLoading={agent.isLoading}
 						maxHeight={360}
-						onSubmit={assistant.handleSubmit}
-						textareaRef={assistant.inputRef}
+						onSubmit={agent.handleSubmit}
+						textareaRef={agent.inputRef}
 						leadingAction={<AttachmentButton />}
 						className="w-full"
 						actions={
@@ -221,13 +221,13 @@ function PageContent(): ReactElement {
 											transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.4 }}
 											className="shrink-0"
 										>
-											<ResetButton onReset={assistant.resetChat} />
+											<ResetButton onReset={agent.resetChat} />
 										</motion.div>
 									)}
 								</AnimatePresence>
 								<VoiceButton onVoiceModeRequest={() => setMode('voice')} />
 								<SubmitButton
-									isLoading={assistant.isLoading}
+									isLoading={agent.isLoading}
 									canSubmit={canSubmit}
 									onAction={handlePrimaryAction}
 								/>

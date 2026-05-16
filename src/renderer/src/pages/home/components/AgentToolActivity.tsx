@@ -3,9 +3,9 @@ import { ListChecks } from 'lucide-react';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Steps, StepsContent, StepsItem, StepsTrigger } from '@/components/ui/steps';
 import { cn } from '@/lib/utils';
-import type { AssistantToolPart } from '../context';
+import type { AgentToolPart } from '../context';
 
-export function AssistantToolActivity({
+export function AgentToolActivity({
 	tools,
 	label,
 	indicator,
@@ -13,7 +13,7 @@ export function AssistantToolActivity({
 	triggerClassName,
 	defaultOpen = false,
 }: {
-	readonly tools: readonly AssistantToolPart[];
+	readonly tools: readonly AgentToolPart[];
 	readonly label?: ReactNode;
 	readonly indicator?: ReactNode;
 	readonly className?: string;

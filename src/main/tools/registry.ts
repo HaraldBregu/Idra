@@ -14,7 +14,7 @@ import { applyPatchTool, editTool, findTool, readTool, writeTool } from './fs';
 import { updatePlanTool } from './plan';
 import { filterTools, type PolicyConfig } from './policy';
 import { getProviderByIdTool, setProviderApiKeyTool } from './providers';
-import { getAssistantModelTool, getAssistantServiceTool, setAssistantServiceTool } from './services';
+import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from './services';
 import { getWorkspaceContentTool, getWorkspacePathTool } from './workspace';
 import { webFetchTool } from './web';
 import type { AgentTool } from './types';
@@ -35,9 +35,9 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	getWorkspacePathTool,
 	getProviderByIdTool,
 	setProviderApiKeyTool,
-	getAssistantServiceTool,
-	getAssistantModelTool,
-	setAssistantServiceTool,
+	getAgentServiceTool,
+	getAgentModelTool,
+	setAgentServiceTool,
 	cronAddTool,
 	cronListTool,
 	cronRemoveTool,

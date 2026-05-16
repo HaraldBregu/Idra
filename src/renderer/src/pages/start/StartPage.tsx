@@ -83,7 +83,7 @@ type ProviderModelGroup = {
 	models: Model[];
 };
 
-type AssistantModelOption = {
+type AgentModelOption = {
 	value: string;
 	provider: PublicProvider;
 	catalog: ProviderCatalogItem;
@@ -102,7 +102,7 @@ type ConnectorSetupGroup = {
 
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
-const ASSISTANT_MODEL_VALUE_SEPARATOR = '::';
+const AGENT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
 	'permissions',
@@ -308,8 +308,8 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	);
 }
 
-function getAssistantModelValue(providerId: string, modelId: string): string {
-	return `${providerId}${ASSISTANT_MODEL_VALUE_SEPARATOR}${modelId}`;
+function getAgentModelValue(providerId: string, modelId: string): string {
+	return `${providerId}${AGENT_MODEL_VALUE_SEPARATOR}${modelId}`;
 }
 
 function serverLabelFromName(name: string): string {
@@ -352,7 +352,7 @@ function ProviderMark({
 	);
 }
 
-function AssistantOrb(): React.JSX.Element {
+function AgentOrb(): React.JSX.Element {
 	return (
 		<div className="relative flex size-24 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg motion-safe:animate-[pulse_3s_ease-in-out_infinite]">
 			<div className="absolute size-16 rounded-full bg-primary-foreground/20 motion-safe:animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
@@ -474,7 +474,7 @@ const StartPage: React.FC = () => {
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [configProvider, setConfigProvider] = useState('');
 	const [savedModelId, setSavedModelId] = useState('');
-	const [assistantModelGroups, setAssistantModelGroups] = useState<ProviderModelGroup[]>([]);
+	const [agentModelGroups, setAgentModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
 	const [imageGenerationProvider, setImageGenerationProvider] = useState('');
 	const [savedImageGenerationModelId, setSavedImageGenerationModelId] = useState('');
@@ -504,27 +504,27 @@ const StartPage: React.FC = () => {
 		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
 	);
 	const canContinueProviders = hasProviderDraft && !savingProviderId;
-	const assistantModelOptions = useMemo<AssistantModelOption[]>(
+	const agentModelOptions = useMemo<AgentModelOption[]>(
 		() =>
-			assistantModelGroups.flatMap((group) => {
+			agentModelGroups.flatMap((group) => {
 				const catalog = getProviderCatalogItem(group.provider.id);
 
 				return group.models.map((model) => ({
-					value: getAssistantModelValue(group.provider.id, model.id),
+					value: getAgentModelValue(group.provider.id, model.id),
 					provider: group.provider,
 					catalog,
 					model,
 				}));
 			}),
-		[assistantModelGroups]
+		[agentModelGroups]
 	);
-	const imageGenerationModelOptions = useMemo<AssistantModelOption[]>(
+	const imageGenerationModelOptions = useMemo<AgentModelOption[]>(
 		() =>
 			imageGenerationModelGroups.flatMap((group) => {
 				const catalog = getProviderCatalogItem(group.provider.id);
 
 				return group.models.map((model) => ({
-					value: getAssistantModelValue(group.provider.id, model.id),
+					value: getAgentModelValue(group.provider.id, model.id),
 					provider: group.provider,
 					catalog,
 					model,
@@ -532,30 +532,30 @@ const StartPage: React.FC = () => {
 			}),
 		[imageGenerationModelGroups]
 	);
-	const selectedAssistantModelValue =
-		configProvider && selectedModel ? getAssistantModelValue(configProvider, selectedModel) : '';
-	const selectedAssistantModelOption = assistantModelOptions.find(
-		(option) => option.value === selectedAssistantModelValue
+	const selectedAgentModelValue =
+		configProvider && selectedModel ? getAgentModelValue(configProvider, selectedModel) : '';
+	const selectedAgentModelOption = agentModelOptions.find(
+		(option) => option.value === selectedAgentModelValue
 	);
 	const selectedImageGenerationModelValue =
 		imageGenerationProvider && selectedImageGenerationModel
-			? getAssistantModelValue(imageGenerationProvider, selectedImageGenerationModel)
+			? getAgentModelValue(imageGenerationProvider, selectedImageGenerationModel)
 			: '';
 	const selectedImageGenerationModelOption = imageGenerationModelOptions.find(
 		(option) => option.value === selectedImageGenerationModelValue
 	);
 	const selectedProvider =
-		selectedAssistantModelOption?.provider ??
+		selectedAgentModelOption?.provider ??
 		providers.find((provider) => provider.id === configProvider);
 	const configProviderName = selectedProvider?.name ?? configProvider;
-	const selectedModelName = selectedAssistantModelOption?.model.name ?? selectedModel;
+	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
-		: assistantModelOptions.length === 0
+		: agentModelOptions.length === 0
 			? 'No models available'
-			: `${assistantModelOptions.length} models available`;
-	const canSaveAssistantModel =
-		selectedAssistantModelOption !== undefined &&
+			: `${agentModelOptions.length} models available`;
+	const canSaveAgentModel =
+		selectedAgentModelOption !== undefined &&
 		!loadingModels &&
 		!savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
@@ -640,9 +640,9 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, assistantService, imageGenerationService] = await Promise.all([
+				const [storedProviders, agentService, imageGenerationService] = await Promise.all([
 					window.app.getProviders(),
-					window.app.getAssistantService(),
+					window.app.getAgentService(),
 					window.app.getImageGenerationService(),
 				]);
 				if (cancelled) return;
@@ -652,7 +652,7 @@ const StartPage: React.FC = () => {
 				);
 				const preferredProvider =
 					selectableProviders.find(
-						(provider) => provider.id === assistantService?.provider.id
+						(provider) => provider.id === agentService?.provider.id
 					) ??
 					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 					selectableProviders[0];
@@ -665,7 +665,7 @@ const StartPage: React.FC = () => {
 
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId(assistantService?.model.id ?? '');
+				setSavedModelId(agentService?.model.id ?? '');
 				setImageGenerationProvider(preferredImageGenerationProvider?.id ?? '');
 				setSavedImageGenerationModelId(imageGenerationService?.model.id ?? '');
 			} catch (error) {
@@ -676,7 +676,7 @@ const StartPage: React.FC = () => {
 				setSavedModelId('');
 				setImageGenerationProvider('');
 				setSavedImageGenerationModelId('');
-				setErrorMessage(getErrorMessage(error, 'Could not load assistant providers.'));
+				setErrorMessage(getErrorMessage(error, 'Could not load agent providers.'));
 			}
 		}
 
@@ -694,7 +694,7 @@ const StartPage: React.FC = () => {
 
 		async function loadModels(): Promise<void> {
 			if (providers.length === 0) {
-				setAssistantModelGroups([]);
+				setAgentModelGroups([]);
 				setImageGenerationModelGroups([]);
 				setSelectedModel('');
 				setSelectedImageGenerationModel('');
@@ -704,19 +704,19 @@ const StartPage: React.FC = () => {
 			setLoadingModels(true);
 			setErrorMessage('');
 			try {
-				const nextAssistantGroups: ProviderModelGroup[] = [];
+				const nextAgentGroups: ProviderModelGroup[] = [];
 				const nextImageGenerationGroups: ProviderModelGroup[] = [];
 				let firstError: unknown;
 
 				for (const provider of providers) {
 					try {
-						const [assistantModels, imageGenerationModels] = await Promise.all([
+						const [agentModels, imageGenerationModels] = await Promise.all([
 							window.app.getModels(provider),
 							window.app.getImageGenerationModels(provider),
 						]);
 
-						if (assistantModels.length > 0) {
-							nextAssistantGroups.push({ provider, models: assistantModels });
+						if (agentModels.length > 0) {
+							nextAgentGroups.push({ provider, models: agentModels });
 						}
 
 						if (imageGenerationModels.length > 0) {
@@ -729,22 +729,22 @@ const StartPage: React.FC = () => {
 
 				if (cancelled) return;
 
-				setAssistantModelGroups(nextAssistantGroups);
+				setAgentModelGroups(nextAgentGroups);
 				setImageGenerationModelGroups(nextImageGenerationGroups);
 
-				const assistantOptions = nextAssistantGroups.flatMap((group) =>
+				const agentOptions = nextAgentGroups.flatMap((group) =>
 					group.models.map((model) => ({ provider: group.provider, model }))
 				);
 				const imageGenerationOptions = nextImageGenerationGroups.flatMap((group) =>
 					group.models.map((model) => ({ provider: group.provider, model }))
 				);
-				const preferredAssistantOption =
-					assistantOptions.find(
+				const preferredAgentOption =
+					agentOptions.find(
 						(option) =>
 							option.provider.id === configProvider && option.model.id === savedModelId
 					) ??
-					assistantOptions.find((option) => option.provider.id === configProvider) ??
-					assistantOptions[0];
+					agentOptions.find((option) => option.provider.id === configProvider) ??
+					agentOptions[0];
 				const preferredImageGenerationOption =
 					imageGenerationOptions.find(
 						(option) =>
@@ -756,18 +756,18 @@ const StartPage: React.FC = () => {
 					) ??
 					imageGenerationOptions[0];
 
-				setConfigProvider(preferredAssistantOption?.provider.id ?? '');
-				setSelectedModel(preferredAssistantOption?.model.id ?? '');
+				setConfigProvider(preferredAgentOption?.provider.id ?? '');
+				setSelectedModel(preferredAgentOption?.model.id ?? '');
 				setImageGenerationProvider(preferredImageGenerationOption?.provider.id ?? '');
 				setSelectedImageGenerationModel(preferredImageGenerationOption?.model.id ?? '');
 
-				if (!preferredAssistantOption && firstError) {
+				if (!preferredAgentOption && firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
 				}
 			} catch (error) {
 				if (cancelled) return;
 
-				setAssistantModelGroups([]);
+				setAgentModelGroups([]);
 				setImageGenerationModelGroups([]);
 				setSelectedModel('');
 				setSelectedImageGenerationModel('');
@@ -918,8 +918,8 @@ const StartPage: React.FC = () => {
 		}
 	}
 
-	function handleAssistantModelChange(value: string | null): void {
-		const option = assistantModelOptions.find((item) => item.value === value);
+	function handleAgentModelChange(value: string | null): void {
+		const option = agentModelOptions.find((item) => item.value === value);
 		if (!option) return;
 
 		setErrorMessage('');
@@ -936,15 +936,15 @@ const StartPage: React.FC = () => {
 		setSelectedImageGenerationModel(option.model.id);
 	}
 
-	async function handleSaveAssistantModel(): Promise<void> {
-		if (!selectedAssistantModelOption || !canSaveAssistantModel) return;
+	async function handleSaveAgentModel(): Promise<void> {
+		if (!selectedAgentModelOption || !canSaveAgentModel) return;
 
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAssistantService(
-				selectedAssistantModelOption.provider,
-				selectedAssistantModelOption.model
+			await window.app.saveAgentService(
+				selectedAgentModelOption.provider,
+				selectedAgentModelOption.model
 			);
 			if (selectedImageGenerationModelOption) {
 				await window.app.saveImageGenerationService(
@@ -1033,7 +1033,7 @@ const StartPage: React.FC = () => {
 		}
 
 		if (step === 'models') {
-			void handleSaveAssistantModel();
+			void handleSaveAgentModel();
 			return;
 		}
 
@@ -1055,7 +1055,7 @@ const StartPage: React.FC = () => {
 
 	function isPrimaryDisabled(): boolean {
 		if (step === 'providers') return !canContinueProviders;
-		if (step === 'models') return !canSaveAssistantModel;
+		if (step === 'models') return !canSaveAgentModel;
 
 		return isBusy;
 	}
@@ -1063,12 +1063,12 @@ const StartPage: React.FC = () => {
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
 			<div className="flex min-h-full flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-6">
-				<AssistantOrb />
+				<AgentOrb />
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
 				<p className="mt-4 max-w-sm text-base font-medium leading-relaxed text-muted-foreground">
-					{PRODUCT_NAME} is a small assistant that lives in your menu bar. Ask her
+					{PRODUCT_NAME} is a small agent that lives in your menu bar. Ask her
 					things by typing or just by talking.
 				</p>
 				<div className="mt-8 grid w-full max-w-xs grid-cols-3 gap-3">
@@ -1327,7 +1327,7 @@ const StartPage: React.FC = () => {
 
 	function renderModelsStep(): React.JSX.Element {
 		const selectedCatalog =
-			selectedAssistantModelOption?.catalog ?? getProviderCatalogItem(configProvider);
+			selectedAgentModelOption?.catalog ?? getProviderCatalogItem(configProvider);
 		const selectedImageGenerationCatalog =
 			selectedImageGenerationModelOption?.catalog ??
 			getProviderCatalogItem(imageGenerationProvider);
@@ -1348,15 +1348,15 @@ const StartPage: React.FC = () => {
 				<div className="mt-4 space-y-4">
 					<div className="space-y-2">
 						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-							Assistant
+							Agent
 						</Label>
 						<Select
-							value={selectedAssistantModelValue}
-							onValueChange={handleAssistantModelChange}
-							disabled={loadingModels || assistantModelOptions.length === 0 || savingConfig}
+							value={selectedAgentModelValue}
+							onValueChange={handleAgentModelChange}
+							disabled={loadingModels || agentModelOptions.length === 0 || savingConfig}
 						>
 							<SelectTrigger
-								id="assistant-model"
+								id="agent-model"
 								className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
 							>
 								<SelectValue className="sr-only" />
@@ -1377,7 +1377,7 @@ const StartPage: React.FC = () => {
 								</div>
 							</SelectTrigger>
 							<SelectContent align="start" className="rounded-lg p-1">
-								{assistantModelGroups.map((group) => {
+								{agentModelGroups.map((group) => {
 									const catalog = getProviderCatalogItem(group.provider.id);
 
 									return (
@@ -1393,8 +1393,8 @@ const StartPage: React.FC = () => {
 												{catalog.name}
 											</SelectLabel>
 											{group.models.map((model) => {
-												const value = getAssistantModelValue(group.provider.id, model.id);
-												const selected = value === selectedAssistantModelValue;
+												const value = getAgentModelValue(group.provider.id, model.id);
+												const selected = value === selectedAgentModelValue;
 
 												return (
 													<SelectItem
@@ -1481,7 +1481,7 @@ const StartPage: React.FC = () => {
 												{catalog.name}
 											</SelectLabel>
 											{group.models.map((model) => {
-												const value = getAssistantModelValue(group.provider.id, model.id);
+												const value = getAgentModelValue(group.provider.id, model.id);
 												const selected = value === selectedImageGenerationModelValue;
 
 												return (

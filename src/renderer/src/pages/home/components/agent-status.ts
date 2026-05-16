@@ -1,6 +1,6 @@
-import type { AssistantMessage, AssistantRunState } from '../context';
+import type { AgentMessage, AgentRunState } from '../context';
 
-const runStateLabels: Record<AssistantRunState, string> = {
+const runStateLabels: Record<AgentRunState, string> = {
 	idle: 'Ready',
 	thinking: 'Thinking',
 	reasoning: 'Thinking',
@@ -12,7 +12,7 @@ const runStateLabels: Record<AssistantRunState, string> = {
 	error: 'Error',
 };
 
-export function isRunningState(state: AssistantRunState): boolean {
+export function isRunningState(state: AgentRunState): boolean {
 	return (
 		state === 'thinking' ||
 		state === 'reasoning' ||
@@ -22,7 +22,7 @@ export function isRunningState(state: AssistantRunState): boolean {
 	);
 }
 
-export function stateTone(state: AssistantRunState): string {
+export function stateTone(state: AgentRunState): string {
 	if (state === 'error') return 'bg-destructive/10 text-destructive';
 	if (state === 'cancelled') return 'bg-muted text-muted-foreground';
 	if (state === 'completed') return 'bg-success/10 text-success';
@@ -30,7 +30,7 @@ export function stateTone(state: AssistantRunState): string {
 	return 'bg-info/10 text-info';
 }
 
-function formatElapsedSeconds(message: AssistantMessage): string | undefined {
+function formatElapsedSeconds(message: AgentMessage): string | undefined {
 	if (message.startedAtMs === undefined || message.completedAtMs === undefined) {
 		return undefined;
 	}
@@ -39,7 +39,7 @@ function formatElapsedSeconds(message: AssistantMessage): string | undefined {
 	return `${seconds} second${seconds === 1 ? '' : 's'}`;
 }
 
-export function assistantStatusLabel(message: AssistantMessage): string {
+export function agentStatusLabel(message: AgentMessage): string {
 	if (message.state === 'answering' && message.tools.length > 0) {
 		return 'Answering with tool results';
 	}

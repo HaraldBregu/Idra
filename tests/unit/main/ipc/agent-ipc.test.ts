@@ -1,8 +1,8 @@
-import { transcriptToHistory } from '../../../../src/main/ipc/assistant-ipc';
+import { transcriptToHistory } from '../../../../src/main/ipc/agent-ipc';
 import type { TranscriptEntry } from '../../../../src/main/provider/types';
 
-describe('assistant/ipc history conversion', () => {
-	it('preserves assistant content blocks and tool result metadata for renderer history', () => {
+describe('agent/ipc history conversion', () => {
+	it('preserves agent content blocks and tool result metadata for renderer history', () => {
 		const transcript: TranscriptEntry[] = [
 			{ role: 'user', content: 'read it' },
 			{

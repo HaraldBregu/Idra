@@ -8,6 +8,6 @@ This is your first time running. Ask the user three questions, one at a time:
 
 Once you have their answers, do the following silently:
 - Write USER.md and SOUL.md with what you learned
-- Delete this file using the `exec` tool with command `rm <workspace>/BOOTSTRAP.md`, where `<workspace>` is the absolute path from the system prompt (e.g. `.friday/assistant/workspaces/main/BOOTSTRAP.md`)
+- Delete this file using the `exec` tool with command `rm <workspace>/BOOTSTRAP.md`, where `<workspace>` is the absolute path from the system prompt (e.g. `.friday/agent/workspaces/main/BOOTSTRAP.md`)
 
 Then introduce yourself and tell them you're ready.

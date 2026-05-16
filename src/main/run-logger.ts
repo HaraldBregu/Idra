@@ -4,7 +4,7 @@ import { resolveDefaultUserDataPath } from './user-data';
 
 export interface RunLogStart {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	provider: string;
 	model: string;
 	systemPromptChars: number;
@@ -15,7 +15,7 @@ export interface RunLogStart {
 
 export interface RunLogIteration {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	iteration: number;
 	usage?: TokenUsage;
 	durationMs: number;
@@ -23,7 +23,7 @@ export interface RunLogIteration {
 
 export interface RunLogToolCall {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	iteration: number;
 	callId: string;
 	tool: string;
@@ -36,14 +36,14 @@ export interface RunLogToolCall {
 
 export interface RunLogApprovalRequest {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	iteration: number;
 	pending: Array<{ callId: string; tool: string; arguments: string }>;
 }
 
 export interface RunLogApprovalResolution {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	callId: string;
 	tool: string;
 	decision: 'approve' | 'reject';
@@ -53,14 +53,14 @@ export interface RunLogApprovalResolution {
 
 export interface RunLogInputRequest {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	iteration: number;
 	pending: Array<{ callId: string; tool: string; question: string }>;
 }
 
 export interface RunLogInputResolution {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	callId: string;
 	tool: string;
 	answerChars: number;
@@ -74,7 +74,7 @@ export interface TokenUsage {
 
 export interface RunLogFinish {
 	runId: string;
-	assistantId: string;
+	agentId: string;
 	provider: string;
 	model: string;
 	status:
@@ -106,18 +106,18 @@ export interface RunLoggerOptions {
 }
 
 /**
- * Append-only JSONL audit trail of every assistant run.
- * One file per assistant id under `.friday/assistant/runs/<id>.jsonl`.
+ * Append-only JSONL audit trail of every agent run.
+ * One file per agent id under `.friday/agent/runs/<id>.jsonl`.
  * Each line is a typed RunLogRecord — start, iteration, tool_call,
  * approval_request, approval_resolution, finish.
  */
-export class AssistantRunLogger {
+export class AgentRunLogger {
 	readonly filePath: string;
 	private writeQueue: Promise<void> = Promise.resolve();
 
-	constructor(assistantId: string, opts: RunLoggerOptions = {}) {
-		const baseDir = opts.baseDir ?? resolveDefaultUserDataPath('assistant', 'runs');
-		this.filePath = path.join(baseDir, `${assistantId}.jsonl`);
+	constructor(agentId: string, opts: RunLoggerOptions = {}) {
+		const baseDir = opts.baseDir ?? resolveDefaultUserDataPath('agent', 'runs');
+		this.filePath = path.join(baseDir, `${agentId}.jsonl`);
 	}
 
 	private async ensureDir(): Promise<void> {

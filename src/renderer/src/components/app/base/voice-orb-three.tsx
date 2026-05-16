@@ -272,7 +272,7 @@ export function VoiceOrbThree(): ReactElement {
 			<div
 				role="button"
 				tabIndex={0}
-				aria-label={`Voice assistant, mode: ${mode}. Click to change.`}
+				aria-label={`Voice agent, mode: ${mode}. Click to change.`}
 				className="relative cursor-pointer"
 				style={{ width: 260, height: 260 }}
 				onClick={cycleMode}

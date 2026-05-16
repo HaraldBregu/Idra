@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import type { ProviderAdapter, ProviderEvent, ProviderStreamRequest } from '../../../../src/main/provider/types';
-import { AssistantService } from '../../../../src/main/service';
-import { AssistantRunLogger } from '../../../../src/main/run-logger';
+import { AgentService } from '../../../../src/main/service';
+import { AgentRunLogger } from '../../../../src/main/run-logger';
 import { SkillsService } from '../../../../src/main/skills';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeLogger, makeTempDir } from '../test-helpers';
@@ -32,7 +32,7 @@ function makeDeps() {
 		baseUrl: 'https://api.openai.com/v1',
 	};
 	const store = {
-		getAssistantService: jest.fn(() => ({
+		getAgentService: jest.fn(() => ({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: providerRecord.baseUrl },
 			model: { id: 'gpt-test', name: 'GPT Test' },
 		})),
@@ -59,14 +59,14 @@ function makeDeps() {
 	};
 }
 
-describe('AssistantService', () => {
+describe('AgentService', () => {
 	it('drives the new agent loop directly from the IPC-facing service', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
-		const service = new AssistantService(deps, {
+		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: runLogDir }),
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory: jest.fn(() => provider([
 				{ type: 'message_start' },
 				{ type: 'text_delta', text: 'hello' },
@@ -76,25 +76,25 @@ describe('AssistantService', () => {
 		});
 
 		await expect(service.send('hi')).resolves.toBe('hello');
-		expect(deps.eventBus.broadcast).toHaveBeenCalledWith('assistant:response', expect.objectContaining({ delta: 'hello' }));
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith('agent:response', expect.objectContaining({ delta: 'hello' }));
 		await expect(service.getHistory()).resolves.toEqual(expect.arrayContaining([
 			expect.objectContaining({ role: 'user', content: 'hi' }),
 			expect.objectContaining({ role: 'assistant' }),
 		]));
 
-		const records = await new AssistantRunLogger('main', { baseDir: runLogDir }).readAll();
+		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
 		expect(records.map((record) => record.event)).toEqual(expect.arrayContaining(['start', 'finish']));
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
-	it('builds tools with run-scoped assistant context', async () => {
+	it('builds tools with run-scoped agent context', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const contexts: unknown[] = [];
-		const service = new AssistantService(deps, {
+		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => provider([
 				{ type: 'message_start' },
 				{ type: 'text_delta', text: 'ok' },
@@ -109,7 +109,7 @@ describe('AssistantService', () => {
 		await expect(service.send('hi')).resolves.toBe('ok');
 		expect(contexts).toHaveLength(1);
 		expect(contexts[0]).toMatchObject({
-			assistantId: 'main',
+			agentId: 'main',
 			providerId: 'openai',
 			model: 'gpt-test',
 			workspace: '/workspace',
@@ -126,11 +126,11 @@ describe('AssistantService', () => {
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const skills = new SkillsService(deps.logger as never);
-		const service = new AssistantService(
+		const service = new AgentService(
 			{ ...deps, skills },
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -164,9 +164,9 @@ describe('AssistantService', () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
-		const service = new AssistantService(deps, {
+		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -209,9 +209,9 @@ describe('AssistantService', () => {
 			needsApproval: true,
 			execute,
 		};
-		const service = new AssistantService(deps, {
+		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => providerTurns([
 				[
 					{ type: 'tool_call_start', id: 'tc1', name: 'needs_approval' },
@@ -238,7 +238,7 @@ describe('AssistantService', () => {
 		await expect(send).resolves.toBe('finished');
 		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
 		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
-			'assistant:response',
+			'agent:response',
 			expect.objectContaining({ type: 'run_state', state: 'waiting_for_approval' })
 		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
@@ -257,9 +257,9 @@ describe('AssistantService', () => {
 			schema: { type: 'object' },
 			execute,
 		};
-		const service = new AssistantService(deps, {
+		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => providerTurns([
 				[
 					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
@@ -278,7 +278,7 @@ describe('AssistantService', () => {
 		await expect(service.send('execute the ping tool')).resolves.toBe('finished');
 
 		const responseEvents = (deps.eventBus.broadcast as jest.Mock).mock.calls
-			.filter(([channel]) => channel === 'assistant:response')
+			.filter(([channel]) => channel === 'agent:response')
 			.map(([, payload]) => payload);
 		expect(responseEvents.map((event) => event.type)).toEqual(
 			expect.arrayContaining([
@@ -306,11 +306,11 @@ describe('AssistantService', () => {
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const skills = new SkillsService(deps.logger as never);
-		const service = new AssistantService(
+		const service = new AgentService(
 			{ ...deps, skills },
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -336,9 +336,9 @@ describe('AssistantService', () => {
 	it('resets persisted session and cancels pending requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
-		const service = new AssistantService(deps, {
+		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => provider([
 				{ type: 'message_start' },
 				{ type: 'text_delta', text: 'ok' },

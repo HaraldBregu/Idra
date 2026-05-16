@@ -1,12 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { cn } from '@/lib/utils';
-import type { AssistantMessage } from '../context';
-import { AssistantToolActivity } from './AssistantToolActivity';
-import { assistantStatusLabel, isRunningState, stateTone } from './assistant-status';
+import type { AgentMessage } from '../context';
+import { AgentToolActivity } from './AgentToolActivity';
+import { agentStatusLabel, isRunningState, stateTone } from './agent-status';
 
 function statusLabelContent(
-	message: AssistantMessage,
+	message: AgentMessage,
 	isStreaming: boolean,
 	statusLabel: string
 ): ReactNode {
@@ -17,11 +17,11 @@ function statusLabelContent(
 	return statusLabel;
 }
 
-export function AssistantActivityPanel({
+export function AgentActivityPanel({
 	message,
 	isStreaming,
 }: {
-	readonly message: AssistantMessage;
+	readonly message: AgentMessage;
 	readonly isStreaming: boolean;
 }): ReactElement | null {
 	const showActivity =
@@ -30,7 +30,7 @@ export function AssistantActivityPanel({
 		Boolean(message.errorText);
 
 	if (!showActivity) return null;
-	const statusLabel = assistantStatusLabel(message);
+	const statusLabel = agentStatusLabel(message);
 	const labelContent = statusLabelContent(message, isStreaming, statusLabel);
 	const statusClassName = cn(
 		'inline-flex min-h-6 max-w-full items-center rounded-full px-2 py-0.5 text-xs font-semibold',
@@ -41,7 +41,7 @@ export function AssistantActivityPanel({
 		<div className="flex w-full flex-col gap-3">
 			<div className="flex items-start gap-2">
 				{message.tools.length > 0 ? (
-					<AssistantToolActivity
+					<AgentToolActivity
 						tools={message.tools}
 						label={labelContent}
 						indicator={null}

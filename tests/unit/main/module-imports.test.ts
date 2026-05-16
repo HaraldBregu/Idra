@@ -1,5 +1,5 @@
 describe('main module imports', () => {
-	it('keeps barrel and low-side-effect modules importable after moving assistant up one level', async () => {
+	it('keeps barrel and low-side-effect modules importable after moving agent up one level', async () => {
 		await expect(import('../../../src/main/agent/run')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/system-prompt')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/compaction')).resolves.toBeTruthy();

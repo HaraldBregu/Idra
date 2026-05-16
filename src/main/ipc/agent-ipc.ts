@@ -3,11 +3,11 @@ import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import { AssistantChannels } from '../../shared/ipc-channels';
+import { AgentChannels } from '../../shared/ipc-channels';
 import type {
 	ApprovalDecision,
-	AssistantHistoryMessage,
-	AssistantPendingState,
+	AgentHistoryMessage,
+	AgentPendingState,
 } from '../../shared/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
 
@@ -36,7 +36,7 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 	});
 }
 
-export function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
+export function transcriptToHistory(t: TranscriptEntry[]): AgentHistoryMessage[] {
 	return t.map((entry) => {
 		if (entry.role === 'user') {
 			return { role: 'user', content: entry.content };
@@ -62,61 +62,61 @@ export function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessa
 	});
 }
 
-export class AssistantIpc implements IpcModule {
-	readonly name = 'assistant';
+export class AgentIpc implements IpcModule {
+	readonly name = 'agent';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
-		const assistant = container.get('assistantService');
+		const agent = container.get('agentService');
 
 		ipcMain.handle(
-			AssistantChannels.send,
+			AgentChannels.send,
 			wrapSimpleHandler((message: string): Promise<string> => {
-				return assistant.send(message);
-			}, AssistantChannels.send)
+				return agent.send(message);
+			}, AgentChannels.send)
 		);
 
 		ipcMain.handle(
-			AssistantChannels.reset,
-			wrapSimpleHandler(() => assistant.reset(), AssistantChannels.reset)
+			AgentChannels.reset,
+			wrapSimpleHandler(() => agent.reset(), AgentChannels.reset)
 		);
 
 		ipcMain.handle(
-			AssistantChannels.getHistory,
-			wrapSimpleHandler(async (): Promise<AssistantHistoryMessage[]> => {
-				const transcript = await assistant.getHistory();
+			AgentChannels.getHistory,
+			wrapSimpleHandler(async (): Promise<AgentHistoryMessage[]> => {
+				const transcript = await agent.getHistory();
 				return transcriptToHistory(transcript);
-			}, AssistantChannels.getHistory)
+			}, AgentChannels.getHistory)
 		);
 
 		ipcMain.handle(
-			AssistantChannels.resolveApproval,
+			AgentChannels.resolveApproval,
 			wrapSimpleHandler((id: string, decision: ApprovalDecision | boolean): boolean => {
-				return assistant.resolveApproval(id, decision);
-			}, AssistantChannels.resolveApproval)
+				return agent.resolveApproval(id, decision);
+			}, AgentChannels.resolveApproval)
 		);
 
 		ipcMain.handle(
-			AssistantChannels.resolveInput,
+			AgentChannels.resolveInput,
 			wrapSimpleHandler((id: string, answer: string): boolean => {
-				return assistant.resolveInput(id, answer);
-			}, AssistantChannels.resolveInput)
+				return agent.resolveInput(id, answer);
+			}, AgentChannels.resolveInput)
 		);
 
 		ipcMain.handle(
-			AssistantChannels.cancel,
+			AgentChannels.cancel,
 			wrapSimpleHandler((): void => {
-				assistant.cancel();
-			}, AssistantChannels.cancel)
+				agent.cancel();
+			}, AgentChannels.cancel)
 		);
 
 		ipcMain.handle(
-			AssistantChannels.getPending,
-			wrapSimpleHandler((): AssistantPendingState => {
-				return assistant.getPending();
-			}, AssistantChannels.getPending)
+			AgentChannels.getPending,
+			wrapSimpleHandler((): AgentPendingState => {
+				return agent.getPending();
+			}, AgentChannels.getPending)
 		);
 
-		logger.info('AssistantIpc', `Registered ${this.name} module`);
+		logger.info('AgentIpc', `Registered ${this.name} module`);
 	}
 }

@@ -1,8 +1,8 @@
 import { Provider } from "./providers";
 
 export interface Service {
-	assistant?: Assistant;
-	imageGeneration?: Assistant;
+	agent?: Agent;
+	imageGeneration?: Agent;
 	rag: string;
 	ocr: string;
 }
@@ -12,14 +12,14 @@ export interface Model {
 	name: string;
 }
 
-export interface Assistant {
+export interface Agent {
 	provider: Omit<Provider, "apiKey">;
 	model: Model;
 }
 
 export type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
 
-export type AssistantRunState =
+export type AgentRunState =
 	| 'idle'
 	| 'thinking'
 	| 'reasoning'
@@ -32,7 +32,7 @@ export type AssistantRunState =
 
 export type ReasoningSummaryState = 'pending' | 'running' | 'completed' | 'error';
 
-export type AssistantHistoryContentBlock =
+export type AgentHistoryContentBlock =
 	| { type: 'text'; text: string }
 	| {
 			type: 'tool_use';
@@ -42,39 +42,39 @@ export type AssistantHistoryContentBlock =
 	  };
 
 /**
- * Renderer-facing assistant history converted from the provider-neutral
- * transcript. Assistant entries carry text plus original blocks so restored
+ * Renderer-facing agent history converted from the provider-neutral
+ * transcript. Agent entries carry text plus original blocks so restored
  * UI state and future provider turns do not depend on flattened display text.
  */
-export type AssistantHistoryMessage =
+export type AgentHistoryMessage =
 	| { role: 'user'; content: string }
 	| {
 			role: 'assistant';
 			content: string | null;
-			contentBlocks: AssistantHistoryContentBlock[];
+			contentBlocks: AgentHistoryContentBlock[];
 	  }
 		| {
 			role: 'tool';
 			toolUseId: string;
 			content: string;
 			isError?: boolean;
-			status?: AssistantToolCallStatus;
+			status?: AgentToolCallStatus;
 			output?: unknown;
 	  };
 
-export type AssistantToolCallStatus = 'ok' | 'error' | 'rejected';
+export type AgentToolCallStatus = 'ok' | 'error' | 'rejected';
 
-export type AssistantResponseEvent =
+export type AgentResponseEvent =
 	| {
 			type: 'run_state';
-			assistantId: string;
+			agentId: string;
 			runId: string;
-			state: AssistantRunState;
+			state: AgentRunState;
 			label?: string;
 	  }
 	| {
 			type: 'reasoning_summary';
-			assistantId: string;
+			agentId: string;
 			runId: string;
 			id: string;
 			title: string;
@@ -83,13 +83,13 @@ export type AssistantResponseEvent =
 	  }
 	| {
 			type: 'text_delta';
-			assistantId: string;
+			agentId: string;
 			runId: string;
 			delta: string;
 	  }
 	| {
 			type: 'tool_call_start';
-			assistantId: string;
+			agentId: string;
 			runId: string;
 			iteration: number;
 			toolCallId: string;
@@ -97,7 +97,7 @@ export type AssistantResponseEvent =
 	  }
 	| {
 			type: 'tool_call_args_delta';
-			assistantId: string;
+			agentId: string;
 			runId: string;
 			iteration: number;
 			toolCallId: string;
@@ -107,7 +107,7 @@ export type AssistantResponseEvent =
 	  }
 	| {
 			type: 'tool_call_input';
-			assistantId: string;
+			agentId: string;
 			runId: string;
 			iteration: number;
 			toolCallId: string;
@@ -117,7 +117,7 @@ export type AssistantResponseEvent =
 	  }
 	| {
 			type: 'tool_call_result';
-			assistantId: string;
+			agentId: string;
 			runId: string;
 			iteration: number;
 			toolCallId: string;
@@ -125,14 +125,14 @@ export type AssistantResponseEvent =
 			input: unknown;
 			output: unknown;
 			outputText: string;
-			status: AssistantToolCallStatus;
+			status: AgentToolCallStatus;
 			durationMs: number;
 			errorText?: string;
 	  };
 
-export type AssistantResponseDelta = Extract<AssistantResponseEvent, { type: 'text_delta' }>;
+export type AgentResponseDelta = Extract<AgentResponseEvent, { type: 'text_delta' }>;
 
-export interface AssistantPendingApproval {
+export interface AgentPendingApproval {
 	id: string;
 	kind: 'exec' | 'plugin' | 'api' | 'tool';
 	toolName: string;
@@ -148,17 +148,17 @@ export interface AssistantPendingApproval {
 	allowedDecisions: ApprovalDecision[];
 }
 
-export interface AssistantPendingInput {
+export interface AgentPendingInput {
 	id: string;
 	question: string;
 	suggestions?: string[];
 }
 
-export interface AssistantPendingState {
-	approvals: AssistantPendingApproval[];
-	inputs: AssistantPendingInput[];
+export interface AgentPendingState {
+	approvals: AgentPendingApproval[];
+	inputs: AgentPendingInput[];
 }
 
-export interface AssistantPendingEventPayload extends AssistantPendingState {
-	assistantId: string;
+export interface AgentPendingEventPayload extends AgentPendingState {
+	agentId: string;
 }

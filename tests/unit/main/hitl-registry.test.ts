@@ -1,7 +1,7 @@
 import { HitlBridge } from '../../../src/main/hitl';
-import { AssistantRegistry } from '../../../src/main/registry';
+import { AgentRegistry } from '../../../src/main/registry';
 
-describe('hitl bridge and assistant registry', () => {
+describe('hitl bridge and agent registry', () => {
 	it('tracks approvals and inputs until they are resolved or cancelled', async () => {
 		const eventBus = { broadcast: jest.fn() };
 		const hitl = new HitlBridge(eventBus as never, 'main');
@@ -71,13 +71,13 @@ describe('hitl bridge and assistant registry', () => {
 		await expect(approval).rejects.toThrow('stop');
 	});
 
-	it('registers assistants by id and rejects duplicate ids', () => {
-		const registry = new AssistantRegistry();
-		const assistant = { id: 'main' };
-		registry.register(assistant as never);
-		expect(registry.get('main')).toBe(assistant);
+	it('registers agents by id and rejects duplicate ids', () => {
+		const registry = new AgentRegistry();
+		const agent = { id: 'main' };
+		registry.register(agent as never);
+		expect(registry.get('main')).toBe(agent);
 		expect(registry.list()).toEqual(['main']);
-		expect(() => registry.register(assistant as never)).toThrow(/already registered/);
-		expect(() => registry.get('missing')).toThrow(/Unknown assistant/);
+		expect(() => registry.register(agent as never)).toThrow(/already registered/);
+		expect(() => registry.get('missing')).toThrow(/Unknown agent/);
 	});
 });

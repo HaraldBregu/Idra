@@ -209,7 +209,7 @@
 			"appDataDescription": "Folder where Friday stores application settings and logs",
 			"openAppData": "Open Folder",
 			"userData": "User Data",
-			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, apps, skills, and assistant data",
+			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, apps, skills, and agent data",
 			"openUserData": "Open Folder"
 		},
 		"editor": {
@@ -338,9 +338,9 @@
 			"modelPlaceholder": "Select model",
 			"modelsLoading": "Loading…",
 			"textModel": "Text generation",
-			"textModelDescription": "Used by the assistant for writing, chat, reasoning, and document edits.",
+			"textModelDescription": "Used by the agent for writing, chat, reasoning, and document edits.",
 			"imageModel": "Image generation",
-			"imageModelDescription": "Used by the assistant when image generation tools are available.",
+			"imageModelDescription": "Used by the agent when image generation tools are available.",
 			"temperature": "Temperature",
 			"thinkingMode": "Thinking Mode",
 			"thinkingModeDescription": "Enable extended reasoning for complex tasks",
@@ -557,7 +557,7 @@
 		"contentReviewer": "Content Reviewer",
 		"contentWriter": "Content Writer",
 		"imageCreator": "Image Creator",
-		"assistant": "Assistant"
+		"agent": "Agent"
 	},
 	"channels": {
 		"title": "Channels",
@@ -704,7 +704,7 @@
 	"titleBar": {
 		"applicationMenu": "Application menu",
 		"toggleSidebar": "Toggle sidebar",
-		"toggleAgenticSidebar": "Toggle AI assistant",
+		"toggleAgenticSidebar": "Toggle AI agent",
 		"toggleEditorSidebar": "Toggle formatting toolbar",
 		"minimize": "Minimize",
 		"maximize": "Maximize",
@@ -927,7 +927,7 @@
 		"duplicate": "Duplicate"
 	},
 	"agenticSidebar": {
-		"placeholder": "AI assistant coming soon"
+		"placeholder": "AI agent coming soon"
 	},
 	"editorSidebar": {
 		"ariaLabel": "Formatting toolbar",
@@ -1029,7 +1029,7 @@
 		"search": "Search",
 		"rag": "RAG"
 	},
-	"assistantNode": {
+	"agentNode": {
 		"referenceImages": "Reference images",
 		"imageCount": "{{count}} ready",
 		"referenceImagesHelp": "Add more references if needed.",

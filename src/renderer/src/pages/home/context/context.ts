@@ -1,10 +1,10 @@
 import { createContext, type Dispatch } from 'react';
-import type { AssistantChatAction } from './actions';
-import type { AssistantChatState } from './state';
+import type { AgentChatAction } from './actions';
+import type { AgentChatState } from './state';
 
-export interface HomeAssistantContextValue {
-	readonly chatState: AssistantChatState;
-	readonly dispatchChat: Dispatch<AssistantChatAction>;
+export interface HomeAgentContextValue {
+	readonly chatState: AgentChatState;
+	readonly dispatchChat: Dispatch<AgentChatAction>;
 }
 
-export const HomeAssistantContext = createContext<HomeAssistantContextValue | null>(null);
+export const HomeAgentContext = createContext<HomeAgentContextValue | null>(null);

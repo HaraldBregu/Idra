@@ -96,7 +96,7 @@ export const telegramChannelPlugin: ChannelPlugin<TelegramChannelProperties, Tel
 			id: 'telegram',
 			meta: {
 				name: 'Telegram',
-				description: 'Receive Telegram bot messages and send assistant replies.',
+				description: 'Receive Telegram bot messages and send agent replies.',
 				version: '1.0.0',
 			},
 			capabilities: {

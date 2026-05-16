@@ -13,7 +13,7 @@ Required credential:
 Saved Telegram config:
 
 - `token`: Telegram bot token.
-- `allowFrom`: optional list of Telegram sender IDs. When empty, any sender accepted by the bot transport can message the assistant.
+- `allowFrom`: optional list of Telegram sender IDs. When empty, any sender accepted by the bot transport can message the agent.
 
 ## Inbound Behavior
 
@@ -22,9 +22,9 @@ Telegram polling receives text events in `telegram/adapter.ts`, normalizes them 
 `ChannelRegistry` then:
 
 - Resolves the plugin account from channel config.
-- Applies the plugin security adapter before assistant dispatch.
+- Applies the plugin security adapter before agent dispatch.
 - Builds a stable session key from channel/account/chat/thread identifiers.
-- Sends the assistant reply back to the resolved Telegram chat/thread target.
+- Sends the agent reply back to the resolved Telegram chat/thread target.
 
 Slash commands are ignored by the Telegram receive handler before dispatch.
 

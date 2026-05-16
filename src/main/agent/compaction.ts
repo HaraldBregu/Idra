@@ -64,7 +64,7 @@ function renderForSummary(entries: TranscriptEntry[]): string {
 					return '';
 				})
 				.join('');
-			out.push(`ASSISTANT: ${text}`);
+			out.push(`AGENT: ${text}`);
 		} else if (e.role === 'tool') {
 			const t = e.content
 				.map((c) => (c.type === 'text' ? c.text : '[binary]'))

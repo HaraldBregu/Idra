@@ -19,7 +19,7 @@ export type ProviderEvent =
 	| { type: 'tool_call_end'; id: string }
 	| { type: 'message_end'; stopReason: string; usage: Usage };
 
-export type AssistantContentBlock =
+export type AgentContentBlock =
 	| { type: 'text'; text: string }
 	| {
 			type: 'tool_use';
@@ -36,7 +36,7 @@ export type ToolResultStatus = 'ok' | 'error' | 'rejected';
 
 export type TranscriptEntry =
 	| { role: 'user'; content: string }
-	| { role: 'assistant'; content: AssistantContentBlock[] }
+	| { role: 'assistant'; content: AgentContentBlock[] }
 	| {
 			role: 'tool';
 			toolUseId: string;

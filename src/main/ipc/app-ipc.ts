@@ -4,16 +4,16 @@ import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
-import type { Assistant, Model } from '../../shared/service';
+import type { Agent, Model } from '../../shared/service';
 import type { ProviderInput, PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 import {
 	filterSelectableImageGenerationModels,
-	filterSelectableAssistantModels,
+	filterSelectableAgentModels,
 	isAllowedImageGenerationModel,
-	isAllowedAssistantModel,
+	isAllowedAgentModel,
 } from '../provider/model-policy';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
@@ -246,11 +246,11 @@ export class AppIpc implements IpcModule {
 				const normalizedProviderId = storedProvider.id.trim().toLowerCase();
 
 				if (normalizedProviderId === 'openai') {
-					return filterSelectableAssistantModels(storedProvider.id, await getOpenAiModels(apiKey));
+					return filterSelectableAgentModels(storedProvider.id, await getOpenAiModels(apiKey));
 				}
 
 				if (normalizedProviderId === 'anthropic') {
-					return filterSelectableAssistantModels(storedProvider.id, await getAnthropicModels(apiKey));
+					return filterSelectableAgentModels(storedProvider.id, await getAnthropicModels(apiKey));
 				}
 
 				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
@@ -258,20 +258,20 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			ProviderChannels.getAssistantService,
-			wrapSimpleHandler((): Assistant | undefined => {
-				return store.getAssistantService();
-			}, ProviderChannels.getAssistantService)
+			ProviderChannels.getAgentService,
+			wrapSimpleHandler((): Agent | undefined => {
+				return store.getAgentService();
+			}, ProviderChannels.getAgentService)
 		);
 
 		ipcMain.handle(
-			ProviderChannels.saveAssistantService,
+			ProviderChannels.saveAgentService,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				if (!isAllowedAssistantModel(provider.id, model.id)) {
-					throw new Error(`Model is not supported for assistant tool use: ${model.id}`);
+				if (!isAllowedAgentModel(provider.id, model.id)) {
+					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
-				return store.setAssistantService(provider.id, model);
-			}, ProviderChannels.saveAssistantService)
+				return store.setAgentService(provider.id, model);
+			}, ProviderChannels.saveAgentService)
 		);
 
 		ipcMain.handle(
@@ -306,7 +306,7 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			ProviderChannels.getImageGenerationService,
-			wrapSimpleHandler((): Assistant | undefined => {
+			wrapSimpleHandler((): Agent | undefined => {
 				return store.getImageGenerationService();
 			}, ProviderChannels.getImageGenerationService)
 		);

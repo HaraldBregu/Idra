@@ -13,8 +13,8 @@ describe('UserDataDirectoryService', () => {
 		const service = new UserDataDirectoryService({ homePath: '/tmp/home' });
 
 		expect(service.getRootPath()).toBe(path.join('/tmp/home', USER_DATA_DIRECTORY_NAME));
-		expect(service.resolve('assistant', 'sessions')).toBe(
-			path.join('/tmp/home', USER_DATA_DIRECTORY_NAME, 'assistant', 'sessions')
+		expect(service.resolve('agent', 'sessions')).toBe(
+			path.join('/tmp/home', USER_DATA_DIRECTORY_NAME, 'agent', 'sessions')
 		);
 	});
 
@@ -59,11 +59,11 @@ describe('UserDataDirectoryService', () => {
 });
 
 describe('session store user data path', () => {
-	it('uses .friday for default assistant sessions without reading legacy app data', async () => {
+	it('uses .friday for default agent sessions without reading legacy app data', async () => {
 		const parent = await makeTempDir();
 		const appData = path.join(parent, 'appData');
-		const legacySessions = path.join(appData, 'assistant', 'sessions');
-		const nextSessions = path.join(parent, USER_DATA_DIRECTORY_NAME, 'assistant', 'sessions');
+		const legacySessions = path.join(appData, 'agent', 'sessions');
+		const nextSessions = path.join(parent, USER_DATA_DIRECTORY_NAME, 'agent', 'sessions');
 		(app.getPath as jest.Mock).mockImplementation((name: string) => {
 			if (name === 'home') return parent;
 			if (name === 'userData') return appData;

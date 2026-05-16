@@ -17,7 +17,7 @@ import {
 } from '../../../../src/main/tools/app';
 import { cronAddTool, cronListTool, cronRemoveTool } from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
-import { getAssistantModelTool, getAssistantServiceTool, setAssistantServiceTool } from '../../../../src/main/tools/services';
+import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from '../../../../src/main/tools/services';
 import { getWorkspaceContentTool, getWorkspacePathTool } from '../../../../src/main/tools/workspace';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
@@ -225,28 +225,28 @@ describe('tools/app, ask-human, cron, providers, services, workspace', () => {
 			unschedule: jest.fn((id: string) => jobs.delete(id)),
 		};
 		const ctx = makeToolContext({ services: { ...makeToolContext().services, cron: cron as never } });
-		expect((await cronAddTool.execute({ id: 'job1', expression: '* * * * *', data: { type: 'assistant' } }, ctx)).status).toBe('ok');
+		expect((await cronAddTool.execute({ id: 'job1', expression: '* * * * *', data: { type: 'agent' } }, ctx)).status).toBe('ok');
 		expect((await cronListTool.execute({}, ctx)).content[0]?.text).toContain('job1');
 		expect((await cronRemoveTool.execute({ job_id: 'job1' }, ctx)).status).toBe('ok');
 	});
 
-	it('reads and updates provider and assistant settings through StoreService', async () => {
+	it('reads and updates provider and agent settings through StoreService', async () => {
 		const provider = { id: 'openai', name: 'OpenAI', apiKey: 'sk', baseUrl: 'https://api.openai.com/v1' };
 		const store = {
 			getProviderById: jest.fn(() => provider),
 			setOpenAiApiKey: jest.fn(),
 			setAnthropicApiKey: jest.fn(),
-			getAssistantService: jest.fn(() => ({ provider, model: { id: 'gpt', name: 'GPT' } })),
-			getAssistantModel: jest.fn(() => ({ id: 'gpt', name: 'GPT' })),
-			setAssistantService: jest.fn(() => true),
+			getAgentService: jest.fn(() => ({ provider, model: { id: 'gpt', name: 'GPT' } })),
+			getAgentModel: jest.fn(() => ({ id: 'gpt', name: 'GPT' })),
+			setAgentService: jest.fn(() => true),
 		};
 		const ctx = makeToolContext({ services: { ...makeToolContext().services, store: store as never } });
 		expect((await getProviderByIdTool.execute({ id: 'openai' }, ctx)).content[0]?.text).toContain('OpenAI');
 		expect((await setProviderApiKeyTool.execute({ id: 'openai', apiKey: 'new' }, ctx)).status).toBe('ok');
 		expect(store.setOpenAiApiKey).toHaveBeenCalledWith('new');
-		expect((await getAssistantServiceTool.execute({}, ctx)).content[0]?.text).toContain('GPT');
-		expect((await getAssistantModelTool.execute({}, ctx)).content[0]?.text).toContain('gpt');
-		expect((await setAssistantServiceTool.execute({ providerId: 'openai', modelId: 'gpt', modelName: 'GPT' }, ctx)).status).toBe('ok');
+		expect((await getAgentServiceTool.execute({}, ctx)).content[0]?.text).toContain('GPT');
+		expect((await getAgentModelTool.execute({}, ctx)).content[0]?.text).toContain('gpt');
+		expect((await setAgentServiceTool.execute({ providerId: 'openai', modelId: 'gpt', modelName: 'GPT' }, ctx)).status).toBe('ok');
 	});
 
 	it('lists workspace content and returns workspace path', async () => {

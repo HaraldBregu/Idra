@@ -1,6 +1,6 @@
 import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
-import type { Assistant, Model, Service } from '../../shared/service';
+import type { Agent, Model, Service } from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
 import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';
@@ -68,30 +68,30 @@ export class StoreService {
 		return this.store.get('service');
 	}
 
-	getAssistantService(): Assistant | undefined {
-		return this.store.get('service')?.assistant;
+	getAgentService(): Agent | undefined {
+		return this.store.get('service')?.agent;
 	}
 
-	getAssistantModel(): Model | undefined {
-		return this.store.get('service')?.assistant?.model;
+	getAgentModel(): Model | undefined {
+		return this.store.get('service')?.agent?.model;
 	}
 
-	getImageGenerationService(): Assistant | undefined {
+	getImageGenerationService(): Agent | undefined {
 		return this.store.get('service')?.imageGeneration;
 	}
 
-	getAssistantProvider(): Omit<Provider, 'apiKey'> | undefined {
-		return this.store.get('service')?.assistant?.provider;
+	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
+		return this.store.get('service')?.agent?.provider;
 	}
 
-	setAssistantService(providerId: string, model: Model): boolean {
+	setAgentService(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
 			return false;
 		}
 		const current = this.store.get('service');
 		const next: Service = {
-			assistant: {
+			agent: {
 				provider: {
 					id: provider.id,
 					name: provider.name,
@@ -113,7 +113,7 @@ export class StoreService {
 		}
 		const current = this.store.get('service');
 		const next: Service = {
-			assistant: current?.assistant,
+			agent: current?.agent,
 			imageGeneration: {
 				provider: {
 					id: provider.id,

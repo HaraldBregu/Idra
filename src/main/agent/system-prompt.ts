@@ -28,7 +28,7 @@ const TOOL_GUIDANCE: Record<string, string> = {
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 	const parts: string[] = [
-		`You are Friday, a personal AI assistant. Today is ${ctx.date}. Your workspace is \`${ctx.workspace}\`.`,
+		`You are Friday, a personal AI agent. Today is ${ctx.date}. Your workspace is \`${ctx.workspace}\`.`,
 		[
 			'## Workspace contract',
 			'- Read a file before editing or overwriting it.',

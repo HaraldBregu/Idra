@@ -20,16 +20,16 @@ export interface MemoryManagerOptions {
 }
 
 /**
- * Per-assistant markdown memory. Lives in .friday/assistant/workspaces/<id>/.
+ * Per-agent markdown memory. Lives in .friday/agent/workspaces/<id>/.
  * Templates are bundled into the main process build and seeded on first init;
  * BOOTSTRAP.md is re-seeded only when the workspace is fresh (no SOUL.md yet).
  */
 export class MemoryManager {
 	readonly workspace: string;
 
-	constructor(assistantId: string, options: MemoryManagerOptions = {}) {
-		const baseDir = options.baseDir ?? resolveDefaultUserDataPath('assistant', 'workspaces');
-		this.workspace = path.join(baseDir, assistantId);
+	constructor(agentId: string, options: MemoryManagerOptions = {}) {
+		const baseDir = options.baseDir ?? resolveDefaultUserDataPath('agent', 'workspaces');
+		this.workspace = path.join(baseDir, agentId);
 		console.log(`MemoryManager initialized with workspace: ${this.workspace}`);
 	}
 
@@ -80,7 +80,7 @@ export class MemoryManager {
 }
 
 /**
- * Renders the assistant's memory state as a system prompt: ambient context
+ * Renders the agent's memory state as a system prompt: ambient context
  * (date, workspace) followed by tag-wrapped sections for each populated
  * memory file.
  */
@@ -91,7 +91,7 @@ export async function buildSystemPrompt(
 ): Promise<string> {
 	const now = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 	const parts = [
-		'You are a personal AI assistant.',
+		'You are a personal AI agent.',
 		`Current date/time: ${now}`,
 		`Workspace: ${memory.workspace}`,
 		`Always use absolute paths when reading or writing files. Your workspace is ${memory.workspace}.`,

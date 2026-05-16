@@ -1,7 +1,7 @@
-import type { ApprovalDecision, AssistantRunState } from '../../../../../shared/service';
-import type { AssistantToolPart } from './tool-parts';
+import type { ApprovalDecision, AgentRunState } from '../../../../../shared/service';
+import type { AgentToolPart } from './tool-parts';
 
-export type { AssistantRunState, AssistantToolPart };
+export type { AgentRunState, AgentToolPart };
 
 export interface UserMessage {
 	readonly id: string;
@@ -10,14 +10,14 @@ export interface UserMessage {
 	readonly content: string;
 }
 
-export interface AssistantMessage {
+export interface AgentMessage {
 	readonly id: string;
-	readonly role: 'assistant';
-	readonly type: 'assistant';
+	readonly role: 'agent';
+	readonly type: 'agent';
 	readonly content: string;
 	readonly runId?: string;
-	readonly state: AssistantRunState;
-	readonly tools: readonly AssistantToolPart[];
+	readonly state: AgentRunState;
+	readonly tools: readonly AgentToolPart[];
 	readonly errorText?: string;
 	readonly startedAtMs?: number;
 	readonly completedAtMs?: number;
@@ -35,31 +35,31 @@ export interface HomeMultiSelectOption {
 
 export interface HomeMultiSelectMessage {
 	readonly id: string;
-	readonly role: 'assistant';
+	readonly role: 'agent';
 	readonly type: 'multi-select';
 	readonly prompt: string;
 	readonly options: readonly HomeMultiSelectOption[];
 }
 
-export type HomeChatMessage = UserMessage | AssistantMessage | HomeMultiSelectMessage;
+export type HomeChatMessage = UserMessage | AgentMessage | HomeMultiSelectMessage;
 
-export interface AssistantChatState {
+export interface AgentChatState {
 	readonly messages: readonly HomeChatMessage[];
-	readonly activeAssistantId?: string;
+	readonly activeAgentId?: string;
 	readonly activeRunId?: string;
 }
 
-export const welcomeMessage: AssistantMessage = {
-	id: 'assistant-welcome',
-	role: 'assistant',
-	type: 'assistant',
+export const welcomeMessage: AgentMessage = {
+	id: 'agent-welcome',
+	role: 'agent',
+	type: 'agent',
 	content:
 		'Ready when you are. Ask Friday to inspect code, make a change, explain a file, or help plan the next step.',
 	state: 'idle',
 	tools: [],
 };
 
-export const initialAssistantChatState: AssistantChatState = {
+export const initialAgentChatState: AgentChatState = {
 	messages: [welcomeMessage],
 };
 

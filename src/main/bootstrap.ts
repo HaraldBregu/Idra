@@ -7,7 +7,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
-import { AssistantService } from './service';
+import { AgentService } from './service';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
 import { AppsService } from './apps';
@@ -20,7 +20,7 @@ import { UserDataDirectoryService } from './user-data';
 import type { IpcModule } from './ipc';
 import {
 	AppIpc,
-	AssistantIpc,
+	AgentIpc,
 	ChannelsIpc,
 	ConnectorsIpc,
 	CronIpc,
@@ -78,9 +78,9 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
-	const assistantService = container.register(
-		'assistantService',
-		new AssistantService({
+	const agentService = container.register(
+		'agentService',
+		new AgentService({
 			store,
 			cron,
 			logger,
@@ -94,7 +94,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 	container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, assistantService })
+		new ChannelRegistry({ logger, eventBus, agentService })
 	);
 
 	container.register('apps', new AppsService(logger, userDataDirectory));
@@ -124,7 +124,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 
 	const ipcModules: IpcModule[] = [
 		new AppIpc(),
-		new AssistantIpc(),
+		new AgentIpc(),
 		new ChannelsIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),

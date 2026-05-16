@@ -65,7 +65,7 @@ function createDependencies() {
 			emit: jest.fn(),
 			broadcast: jest.fn(),
 		},
-		assistantService: {
+		agentService: {
 			send: jest.fn<Promise<string>, [string]>(),
 		},
 	};
@@ -122,9 +122,9 @@ describe('ChannelRegistry', () => {
 		expect(getMockTelegramInstances()).toHaveLength(1);
 	});
 
-	it('routes inbound telegram messages through the assistant and sends the reply', async () => {
+	it('routes inbound telegram messages through the agent and sends the reply', async () => {
 		const dependencies = createDependencies();
-		dependencies.assistantService.send.mockResolvedValue('assistant reply');
+		dependencies.agentService.send.mockResolvedValue('agent reply');
 		const registry = new ChannelRegistry(dependencies);
 
 		await registry.startTelegram({ token: 'token', allowFrom: [] });
@@ -138,12 +138,12 @@ describe('ChannelRegistry', () => {
 		});
 		await Promise.resolve();
 
-		expect(dependencies.assistantService.send).toHaveBeenCalledWith('hello');
+		expect(dependencies.agentService.send).toHaveBeenCalledWith('hello');
 		expect(adapter.send).toHaveBeenCalledWith(
 			expect.objectContaining({
 				type: 'telegram',
 				to: 'chat-1',
-				text: 'assistant reply',
+				text: 'agent reply',
 				accountId: 'default',
 			})
 		);
