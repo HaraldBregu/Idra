@@ -188,7 +188,7 @@ function assistantStatusLabel(message: AssistantMessage): string {
 function AssistantDot({ className }: { readonly className?: string }): ReactElement {
 	return (
 		<span
-			className={cn('size-2.5 shrink-0 rounded-full bg-blue-500 shadow-sm shadow-blue-500/30', className)}
+			className={cn('size-4 shrink-0 rounded-full bg-blue-500 shadow-sm shadow-blue-500/30', className)}
 			aria-hidden
 		/>
 	);
