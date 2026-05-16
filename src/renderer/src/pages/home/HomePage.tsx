@@ -125,7 +125,7 @@ const runStateLabels: Record<AssistantRunState, string> = {
 	reasoning: 'Thinking',
 	using_tools: 'Using tools',
 	waiting_for_approval: 'Needs approval',
-	answering: 'Responding directly',
+	answering: 'Answering',
 	completed: 'Completed',
 	cancelled: 'Cancelled',
 	error: 'Error',
@@ -164,6 +164,9 @@ function stateTone(state: AssistantRunState): string {
 function assistantStatusLabel(message: AssistantMessage): string {
 	if (message.state === 'answering' && message.tools.length === 0) {
 		return 'Responding directly';
+	}
+	if (message.state === 'answering' && message.tools.length > 0) {
+		return 'Answering with tool results';
 	}
 	if (message.state === 'completed' && message.tools.length === 0) {
 		return 'Responded directly';
