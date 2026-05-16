@@ -117,11 +117,11 @@ export async function safeReadWorkspaceFile(
 	const filePath = path.join(workspaceRoot, name);
 	try {
 		const stat = await fs.lstat(filePath);
-		if (!stat.isFile()) {
-			return unsafeFile(name, filePath, 'not a regular file');
-		}
 		if (stat.isSymbolicLink()) {
 			return unsafeFile(name, filePath, 'symbolic links are not allowed');
+		}
+		if (!stat.isFile()) {
+			return unsafeFile(name, filePath, 'not a regular file');
 		}
 		if (stat.nlink > 1) {
 			return unsafeFile(name, filePath, 'hard-linked files are not allowed');
