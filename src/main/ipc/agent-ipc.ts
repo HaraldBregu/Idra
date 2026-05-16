@@ -68,6 +68,7 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
+		const workspace = container.get('workspace');
 
 		ipcMain.handle(
 			AgentChannels.send,
@@ -115,6 +116,27 @@ export class AgentIpc implements IpcModule {
 			wrapSimpleHandler((): AgentPendingState => {
 				return agent.getPending();
 			}, AgentChannels.getPending)
+		);
+
+		ipcMain.handle(
+			AgentChannels.listWorkspaceFiles,
+			wrapSimpleHandler(() => {
+				return workspace.listWorkspaceFiles();
+			}, AgentChannels.listWorkspaceFiles)
+		);
+
+		ipcMain.handle(
+			AgentChannels.readWorkspaceFile,
+			wrapSimpleHandler((name: string) => {
+				return workspace.readWorkspaceFile(name);
+			}, AgentChannels.readWorkspaceFile)
+		);
+
+		ipcMain.handle(
+			AgentChannels.writeWorkspaceFile,
+			wrapSimpleHandler((name: string, content: string) => {
+				return workspace.writeWorkspaceFile(name, content);
+			}, AgentChannels.writeWorkspaceFile)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);
