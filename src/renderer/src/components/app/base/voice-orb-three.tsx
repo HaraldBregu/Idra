@@ -143,11 +143,16 @@ const BAR_COUNT = 22;
 const MODE_KEYS = Object.keys(MODES) as VoiceOrbMode[];
 
 type VoiceOrbThreeProps = {
+	readonly showInitialOrbits?: boolean;
 	readonly showStatus?: boolean;
 	readonly size?: number;
 };
 
-export function VoiceOrbThree({ showStatus = true, size = 260 }: VoiceOrbThreeProps): ReactElement {
+export function VoiceOrbThree({
+	showInitialOrbits = false,
+	showStatus = true,
+	size = 260,
+}: VoiceOrbThreeProps): ReactElement {
 	const [mode, setMode] = useState<VoiceOrbMode>('idle');
 	const mountRef = useRef<HTMLDivElement>(null);
 	const ring1Ref = useRef<HTMLDivElement>(null);
@@ -272,6 +277,10 @@ export function VoiceOrbThree({ showStatus = true, size = 260 }: VoiceOrbThreePr
 	const cfg = MODES[mode];
 	const ring1Inset = -Math.round(size * (18 / 260));
 	const ring2Inset = -Math.round(size * (38 / 260));
+	const showIdleOrbits = showInitialOrbits && mode === 'idle';
+	const orbitInset1 = -Math.round(size * 0.16);
+	const orbitInset2 = -Math.round(size * 0.24);
+	const orbitInset3 = -Math.round(size * 0.3);
 
 	return (
 		<div className="flex flex-col items-center gap-4">
@@ -286,8 +295,46 @@ export function VoiceOrbThree({ showStatus = true, size = 260 }: VoiceOrbThreePr
 					if (e.key === 'Enter' || e.key === ' ') cycleMode();
 				}}
 			>
+				{showIdleOrbits && (
+					<>
+						<span
+							className="pointer-events-none absolute rounded-full"
+							style={{
+								inset: orbitInset1,
+								border: '1px solid rgba(148,114,243,0.28)',
+								borderTopColor: 'rgba(235,229,255,0.72)',
+								borderLeftColor: 'rgba(148,114,243,0.08)',
+								transform: 'rotateX(68deg) rotateZ(-18deg)',
+								animation: 'voiceOrbThreeOrbitA 14s linear infinite',
+							}}
+						/>
+						<span
+							className="pointer-events-none absolute rounded-full"
+							style={{
+								inset: orbitInset2,
+								border: '1px solid rgba(148,114,243,0.2)',
+								borderRightColor: 'rgba(235,229,255,0.6)',
+								borderBottomColor: 'rgba(148,114,243,0.06)',
+								transform: 'rotateX(64deg) rotateZ(54deg)',
+								animation: 'voiceOrbThreeOrbitB 18s linear infinite',
+							}}
+						/>
+						<span
+							className="pointer-events-none absolute rounded-full"
+							style={{
+								inset: orbitInset3,
+								border: '1px solid rgba(148,114,243,0.14)',
+								borderTopColor: 'rgba(235,229,255,0.46)',
+								borderLeftColor: 'rgba(148,114,243,0.04)',
+								transform: 'rotateX(72deg) rotateZ(112deg)',
+								animation: 'voiceOrbThreeOrbitC 22s linear infinite',
+							}}
+						/>
+					</>
+				)}
 				<div
 					ref={mountRef}
+					className="relative z-10"
 					style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden' }}
 				/>
 				<div
@@ -350,6 +397,18 @@ export function VoiceOrbThree({ showStatus = true, size = 260 }: VoiceOrbThreePr
 				@keyframes voiceOrbThreeBlink {
 					0%, 100% { opacity: 1; }
 					50% { opacity: 0.18; }
+				}
+				@keyframes voiceOrbThreeOrbitA {
+					from { transform: rotateX(68deg) rotateZ(-18deg) rotateZ(0deg); }
+					to { transform: rotateX(68deg) rotateZ(-18deg) rotateZ(360deg); }
+				}
+				@keyframes voiceOrbThreeOrbitB {
+					from { transform: rotateX(64deg) rotateZ(54deg) rotateZ(0deg); }
+					to { transform: rotateX(64deg) rotateZ(54deg) rotateZ(-360deg); }
+				}
+				@keyframes voiceOrbThreeOrbitC {
+					from { transform: rotateX(72deg) rotateZ(112deg) rotateZ(0deg); }
+					to { transform: rotateX(72deg) rotateZ(112deg) rotateZ(360deg); }
 				}
 			`}</style>
 		</div>
