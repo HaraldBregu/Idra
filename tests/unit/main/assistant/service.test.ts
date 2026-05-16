@@ -160,6 +160,41 @@ describe('AssistantService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('exposes available tools when the user asks about tool capabilities', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AssistantService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'I have tools.' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+			toolsFactory: () => [
+				{
+					name: 'read',
+					description: 'Read files',
+					schema: { type: 'object', properties: {}, additionalProperties: false },
+					execute: jest.fn(),
+				},
+			],
+		});
+
+		await expect(service.send('Do you have any internal tools?')).resolves.toBe('I have tools.');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
+		expect(requests[0]!.system).toContain('**read**');
+		expect(requests[0]!.system).not.toContain('No tools are available for this turn');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('uses HITL approval over IPC pending state before executing tools', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
