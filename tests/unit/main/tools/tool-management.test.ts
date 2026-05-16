@@ -215,6 +215,13 @@ describe('tool management layer', () => {
 		});
 	});
 
+	it('treats tool inventory questions as tool-surface introspection', () => {
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Do you have any internal tools?' })).toEqual({
+			shouldUseTools: true,
+			reason: 'user is asking about available tools',
+		});
+	});
+
 	it('prevents sensitive actions without explicit confirmation', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
@@ -377,6 +384,21 @@ describe('tool management layer', () => {
 		expect(selection.toolsForPrompt.length).toBeLessThanOrEqual(6);
 		expect(selection.toolsForPrompt.some((tool) => tool.name === 'web_fetch')).toBe(true);
 		expect(selection.systemPromptSuffix).toContain('Available tools for this turn only');
+	});
+
+	it('exposes the full current tool surface for tool inventory questions', () => {
+		const tools: AgentTool[] = Array.from({ length: 16 }, (_, index) => ({
+			name: index === 0 ? 'read' : `tool_${index}`,
+			description: index === 0 ? 'Read files.' : 'Generic utility.',
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		}));
+		const selection = selectAgentToolsForTurn(tools, 'What tools do you have?', makeToolContext(), {
+			forceSelection: true,
+			maxPromptTools: 6,
+		});
+		expect(selection.toolsForPrompt).toEqual(tools);
+		expect(selection.systemPromptSuffix).toBe('');
 	});
 
 	it('honors explicit no-tool requests even with a small tool set', () => {
