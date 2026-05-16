@@ -15,8 +15,6 @@ import { SettingsStore, StoreSchema } from './types';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 
-const DEFAULT_CHANNEL = Object.freeze(createDefaultChannelState());
-
 export class StoreService {
 	private store: SettingsStore;
 
@@ -174,10 +172,15 @@ export class StoreService {
 
 	getChannel(): Channel {
 		const channel = this.store.get('channel');
-		return CHANNEL_PROVIDER_IDS.reduce((next, channelId) => {
-			next[channelId] = mergeChannelConfig(channelId, getStoredChannelConfig(channel, channelId));
-			return next;
-		}, {} as Channel);
+		const next = createDefaultChannelState();
+		for (const channelId of CHANNEL_PROVIDER_IDS) {
+			setChannelConfigValue(
+				next,
+				channelId,
+				mergeChannelConfig(channelId, getStoredChannelConfig(channel, channelId))
+			);
+		}
+		return next;
 	}
 
 	getTelegramChannel(): TelegramChannelProperties {
@@ -255,13 +258,22 @@ export class StoreService {
 }
 
 function createDefaultChannelState(): Channel {
-	return CHANNEL_PROVIDER_IDS.reduce((state, channelId) => {
-		state[channelId] = createDefaultChannelConfig(channelId);
-		return state;
-	}, {} as Channel);
+	const state = {} as Channel;
+	for (const channelId of CHANNEL_PROVIDER_IDS) {
+		setChannelConfigValue(state, channelId, createDefaultChannelConfig(channelId));
+	}
+	return state;
 }
 
-function createDefaultChannelConfig(channelId: ChannelType): Channel[ChannelType] {
+function setChannelConfigValue<TKey extends ChannelType>(
+	state: Channel,
+	channelId: TKey,
+	config: Channel[TKey]
+): void {
+	state[channelId] = config;
+}
+
+function createDefaultChannelConfig<TKey extends ChannelType>(channelId: TKey): Channel[TKey] {
 	if (channelId === 'telegram') {
 		return {
 			token: '',
@@ -270,7 +282,7 @@ function createDefaultChannelConfig(channelId: ChannelType): Channel[ChannelType
 			defaultAccountId: 'default',
 			dmPolicy: 'allowlist',
 			groupAllowFrom: [],
-		};
+		} as Channel[TKey];
 	}
 	if (channelId === 'whatsapp') {
 		return {
@@ -281,7 +293,7 @@ function createDefaultChannelConfig(channelId: ChannelType): Channel[ChannelType
 			dmPolicy: 'allowlist',
 			allowFrom: [],
 			groupAllowFrom: [],
-		};
+		} as Channel[TKey];
 	}
 	if (channelId === 'discord') {
 		return {
@@ -291,7 +303,7 @@ function createDefaultChannelConfig(channelId: ChannelType): Channel[ChannelType
 			defaultAccountId: 'default',
 			dmPolicy: 'allowlist',
 			groupAllowFrom: [],
-		};
+		} as Channel[TKey];
 	}
 
 	const generic: GenericChannelProperties = {
@@ -301,7 +313,7 @@ function createDefaultChannelConfig(channelId: ChannelType): Channel[ChannelType
 			default: createDefaultAccountConfig(channelId),
 		},
 	};
-	return generic;
+	return generic as Channel[TKey];
 }
 
 function createDefaultAccountConfig(channelId: ChannelType): ChannelAccountProperties {
@@ -323,7 +335,7 @@ function getStoredChannelConfig(channel: Channel | undefined, channelId: Channel
 	return channel[channelId];
 }
 
-function mergeChannelConfig(channelId: ChannelType, stored: unknown): Channel[ChannelType] {
+function mergeChannelConfig<TKey extends ChannelType>(channelId: TKey, stored: unknown): Channel[TKey] {
 	const defaults = createDefaultChannelConfig(channelId);
 	if (!stored || typeof stored !== 'object') return defaults;
 	const storedObject = stored as Record<string, unknown>;
@@ -336,7 +348,7 @@ function mergeChannelConfig(channelId: ChannelType, stored: unknown): Channel[Ch
 			allowFrom: normalizeStringList(storedObject.allowFrom),
 			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
 			accounts: normalizeAccounts(storedObject.accounts),
-		};
+		} as Channel[TKey];
 	}
 	if (channelId === 'whatsapp') {
 		return {
@@ -347,7 +359,7 @@ function mergeChannelConfig(channelId: ChannelType, stored: unknown): Channel[Ch
 			allowFrom: normalizeStringList(storedObject.allowFrom),
 			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
 			accounts: normalizeAccounts(storedObject.accounts),
-		};
+		} as Channel[TKey];
 	}
 	if (channelId === 'discord') {
 		return {
@@ -357,14 +369,14 @@ function mergeChannelConfig(channelId: ChannelType, stored: unknown): Channel[Ch
 			allowFrom: normalizeStringList(storedObject.allowFrom),
 			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
 			accounts: normalizeAccounts(storedObject.accounts),
-		};
+		} as Channel[TKey];
 	}
 
 	return {
 		...defaults,
 		...storedObject,
 		accounts: normalizeAccounts(storedObject.accounts) ?? (defaults as GenericChannelProperties).accounts,
-	};
+	} as Channel[TKey];
 }
 
 function normalizeAccounts(input: unknown): Record<string, ChannelAccountProperties> | undefined {
