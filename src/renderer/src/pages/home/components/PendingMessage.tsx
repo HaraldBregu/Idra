@@ -2,10 +2,12 @@ import type { ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
 import { Message, MessageContent } from '@/components/ui/message';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import {
 	inputAnswerKey,
 	type HomeMultiSelectMessage,
 	type ImmediateApprovalSelection,
+	type HomeMultiSelectOption,
 } from '../context';
 
 export function PendingMessage({
@@ -32,10 +34,15 @@ export function PendingMessage({
 }): ReactElement {
 	const approvalOptions = message.options.filter((option) => option.kind === 'approval');
 	const inputOptions = message.options.filter((option) => option.kind === 'input');
+	const approvalGroups = groupApprovalOptions(approvalOptions);
 	const approvalIds = new Set(
 		approvalOptions.map((option) => option.approvalId).filter(Boolean)
 	);
 	const canSubmitApprovalImmediately = inputOptions.length === 0 && approvalIds.size === 1;
+	const hasMissingApproval = [...approvalIds].some(
+		(approvalId) =>
+			!selectedOptions.some((optionId) => optionId.startsWith(`approval:${approvalId}:`))
+	);
 	const hasMissingInput = inputOptions.some(
 		(option) =>
 			option.inputId &&
@@ -43,54 +50,83 @@ export function PendingMessage({
 	);
 
 	return (
-		<Message className="max-w-2xl">
+		<Message className="w-full max-w-2xl">
 			<MessageContent
-				className="flex min-w-0 flex-1 flex-col gap-3 rounded-2xl p-4 shadow-sm"
+				className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
 				role="group"
 				aria-label={message.prompt}
 			>
 				<p className="text-sm font-semibold text-foreground">{message.prompt}</p>
-				{approvalOptions.length > 0 && (
-					<div className="flex flex-col gap-2" role="radiogroup">
-						{approvalOptions.map((option) => {
-							const isSelected = selectedOptions.includes(option.id);
-							const handleChange = (): void => {
-								if (option.approvalId) {
-									onSelectApprovalOption(message.id, option.approvalId, option.id);
-									if (canSubmitApprovalImmediately && option.decision) {
-										onSubmit(message, {
-											approvalId: option.approvalId,
-											decision: option.decision,
-											optionId: option.id,
-										});
-									}
-								}
-							};
-
+				{approvalGroups.length > 0 && (
+					<div className="flex flex-col gap-3">
+						{approvalGroups.map(([approvalId, options]) => {
+							const first = options[0]!;
 							return (
-								<Button
-									key={option.id}
-									type="button"
-									variant={isSelected ? 'secondary' : 'outline'}
-									size="lg"
-									role="radio"
-									aria-checked={isSelected}
-									onClick={handleChange}
-									className="h-auto w-full justify-start gap-3 whitespace-normal rounded-xl px-3 py-3 text-left"
+								<div
+									key={approvalId}
+									className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-background p-3"
 								>
-									<span
-										className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-current"
-										aria-hidden
+									<div className="flex min-w-0 flex-wrap items-center gap-2">
+										<p className="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-foreground">
+											{first.subject ?? 'Approval required'}
+										</p>
+										{first.meta && (
+											<span className="max-w-full truncate rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] leading-4 text-muted-foreground">
+												{first.meta}
+											</span>
+										)}
+									</div>
+									<p className="max-h-28 overflow-auto whitespace-pre-wrap break-words text-xs leading-normal text-muted-foreground [overflow-wrap:anywhere]">
+										{first.description}
+									</p>
+									<div
+										className="grid grid-cols-1 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]"
+										role="radiogroup"
+										aria-label={first.subject ?? 'Approval decision'}
 									>
-										{isSelected && <span className="size-1.5 rounded-full bg-current" />}
-									</span>
-									<span className="min-w-0 flex-1">
-										<span className="block text-sm font-semibold leading-snug">{option.label}</span>
-										<span className="mt-1 block break-words text-xs leading-normal text-muted-foreground">
-											{option.description}
-										</span>
-									</span>
-								</Button>
+										{options.map((option) => {
+											const isSelected = selectedOptions.includes(option.id);
+											const handleChange = (): void => {
+												if (option.approvalId) {
+													onSelectApprovalOption(message.id, option.approvalId, option.id);
+													if (canSubmitApprovalImmediately && option.decision) {
+														onSubmit(message, {
+															approvalId: option.approvalId,
+															decision: option.decision,
+															optionId: option.id,
+														});
+													}
+												}
+											};
+
+											return (
+												<Button
+													key={option.id}
+													type="button"
+													variant={buttonVariant(option, isSelected)}
+													size="lg"
+													role="radio"
+													aria-checked={isSelected}
+													onClick={handleChange}
+													className={cn(
+														'h-auto min-h-10 w-full justify-start gap-2 whitespace-normal px-3 py-2 text-left',
+														isSelected && 'ring-1 ring-ring/40'
+													)}
+												>
+													<span
+														className="flex size-4 shrink-0 items-center justify-center rounded-full border border-current"
+														aria-hidden
+													>
+														{isSelected && <span className="size-1.5 rounded-full bg-current" />}
+													</span>
+													<span className="min-w-0 break-words text-sm font-semibold leading-snug">
+														{option.label}
+													</span>
+												</Button>
+											);
+										})}
+									</div>
+								</div>
 							);
 						})}
 					</div>
@@ -99,9 +135,14 @@ export function PendingMessage({
 					if (!option.inputId) return null;
 					const key = inputAnswerKey(message.id, option.inputId);
 					return (
-						<label key={option.id} className="flex flex-col gap-2">
-							<span className="text-sm font-semibold leading-snug">{option.label}</span>
-							<span className="whitespace-pre-wrap text-xs leading-normal text-muted-foreground">
+						<label
+							key={option.id}
+							className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-background p-3"
+						>
+							<span className="break-words text-sm font-semibold leading-snug">
+								{option.subject ?? option.label}
+							</span>
+							<span className="whitespace-pre-wrap break-words text-xs leading-normal text-muted-foreground [overflow-wrap:anywhere]">
 								{option.description}
 							</span>
 							<Textarea
@@ -109,7 +150,7 @@ export function PendingMessage({
 								onChange={(event) =>
 									onInputAnswerChange(message.id, option.inputId!, event.currentTarget.value)
 								}
-								className="min-h-20 resize-none rounded-xl"
+								className="min-h-20 resize-none rounded-lg"
 							/>
 						</label>
 					);
@@ -117,8 +158,8 @@ export function PendingMessage({
 				<Button
 					type="button"
 					size="sm"
-					className="self-start rounded-xl"
-					disabled={hasMissingInput}
+					className="self-start"
+					disabled={hasMissingApproval || hasMissingInput}
 					onClick={() => onSubmit(message)}
 				>
 					Confirm
@@ -126,4 +167,24 @@ export function PendingMessage({
 			</MessageContent>
 		</Message>
 	);
+}
+
+function groupApprovalOptions(
+	options: readonly HomeMultiSelectOption[]
+): Array<[string, HomeMultiSelectOption[]]> {
+	const groups = new Map<string, HomeMultiSelectOption[]>();
+	for (const option of options) {
+		const key = option.approvalId ?? option.id;
+		groups.set(key, [...(groups.get(key) ?? []), option]);
+	}
+	return [...groups.entries()];
+}
+
+function buttonVariant(
+	option: HomeMultiSelectOption,
+	isSelected: boolean
+): 'outline' | 'secondary' | 'destructive' {
+	if (!isSelected) return 'outline';
+	if (option.decision === 'deny') return 'destructive';
+	return 'secondary';
 }
