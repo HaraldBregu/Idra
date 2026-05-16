@@ -170,12 +170,6 @@ function stateTone(state: AssistantRunState): string {
 	return 'bg-info/10 text-info';
 }
 
-function reasoningTone(state: ReasoningPart['state']): string {
-	if (state === 'error') return 'bg-destructive';
-	if (state === 'completed') return 'bg-success';
-	if (state === 'running') return 'bg-info';
-	return 'bg-muted-foreground/50';
-}
 
 function AssistantLabel(): ReactElement {
 	return (
