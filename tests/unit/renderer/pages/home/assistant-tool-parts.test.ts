@@ -24,6 +24,7 @@ describe('assistant tool parts', () => {
 				toolCallId: 'tool-call-1',
 				type: 'search_web',
 				state: 'input-streaming',
+				status: undefined,
 				iteration: 0,
 				input: undefined,
 				inputText: '',
@@ -76,6 +77,7 @@ describe('assistant tool parts', () => {
 			outputText: '{"count":2}',
 			durationMs: 25,
 			errorText: undefined,
+			status: 'ok',
 		});
 	});
 
@@ -96,6 +98,7 @@ describe('assistant tool parts', () => {
 				type: 'search_web',
 				state: 'output-error',
 				errorText: 'Denied by policy',
+				status: 'rejected',
 			}),
 		]);
 	});

@@ -287,12 +287,14 @@ describe('assistant chat state', () => {
 				toolUseId: 'tool-b',
 				content: 'missing b.txt',
 				isError: true,
+				status: 'error',
 			},
 			{
 				role: 'tool',
 				toolUseId: 'tool-a',
 				content: 'a contents',
 				isError: false,
+				status: 'ok',
 			},
 		] satisfies AssistantHistoryMessage[]);
 
@@ -313,6 +315,45 @@ describe('assistant chat state', () => {
 				state: 'output-error',
 				outputText: 'missing b.txt',
 				errorText: 'missing b.txt',
+				status: 'error',
+			}),
+		]);
+	});
+
+	it('restores rejected tool results as denied rather than generic errors', () => {
+		const messages = historyToChatMessages([
+			{
+				role: 'assistant',
+				content: null,
+				contentBlocks: [
+					{
+						type: 'tool_use',
+						toolUseId: 'tool-denied',
+						toolName: 'exec',
+						toolArgs: { command: 'rm -rf /tmp/example' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tool-denied',
+				content: 'User denied approval for exec.',
+				isError: true,
+				status: 'rejected',
+			},
+		] satisfies AssistantHistoryMessage[]);
+
+		const restoredAssistant = messages.find(
+			(message) => message.type === 'assistant'
+		) as AssistantMessage | undefined;
+
+		expect(restoredAssistant?.tools).toEqual([
+			expect.objectContaining({
+				toolCallId: 'tool-denied',
+				type: 'exec',
+				state: 'output-error',
+				status: 'rejected',
+				errorText: 'User denied approval for exec.',
 			}),
 		]);
 	});

@@ -47,8 +47,45 @@ describe('assistant/ipc history conversion', () => {
 				role: 'tool',
 				toolUseId: 'tool-1',
 				isError: true,
+				status: 'error',
+				output: [
+					{ type: 'text', text: 'failed' },
+					{ type: 'image', mimeType: 'image/png', base64: '[base64 image]' },
+				],
 				content: 'failed\n[binary]',
 			},
 		]);
+	});
+
+	it('preserves rejected tool result status for restored renderer state', () => {
+		const transcript: TranscriptEntry[] = [
+			{
+				role: 'assistant',
+				content: [
+					{
+						type: 'tool_use',
+						toolUseId: 'tool-denied',
+						toolName: 'exec',
+						toolArgs: { command: 'rm -rf /tmp/example' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tool-denied',
+				isError: true,
+				status: 'rejected',
+				content: [{ type: 'text', text: 'User denied approval for exec.' }],
+			},
+		];
+
+		expect(transcriptToHistory(transcript)[1]).toEqual({
+			role: 'tool',
+			toolUseId: 'tool-denied',
+			isError: true,
+			status: 'rejected',
+			output: 'User denied approval for exec.',
+			content: 'User denied approval for exec.',
+		});
 	});
 });

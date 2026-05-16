@@ -120,6 +120,7 @@ describe('agent/run', () => {
 			role: 'tool',
 			toolUseId: 'tc1',
 			isError: false,
+			status: 'ok',
 			content: [{ type: 'text', text: 'pong' }],
 		});
 		expect(requests[1]).toEqual([
@@ -139,6 +140,7 @@ describe('agent/run', () => {
 				role: 'tool',
 				toolUseId: 'tc1',
 				isError: false,
+				status: 'ok',
 				content: [{ type: 'text', text: 'pong' }],
 			},
 		]);
@@ -212,12 +214,14 @@ describe('agent/run', () => {
 				role: 'tool',
 				toolUseId: 'tc-ok',
 				isError: false,
+				status: 'ok',
 				content: [{ type: 'text', text: 'safe ok' }],
 			},
 			{
 				role: 'tool',
 				toolUseId: 'tc-denied',
 				isError: true,
+				status: 'rejected',
 				content: [{ type: 'text', text: 'Approval timed out or is unavailable for approval_tool.' }],
 			},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },

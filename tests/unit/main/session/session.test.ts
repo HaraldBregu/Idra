@@ -43,8 +43,8 @@ describe('session/repair', () => {
 					{ type: 'tool_use', toolUseId: 'call2', toolName: 'write', toolArgs: { path: 'a' } },
 				],
 			},
-			{ role: 'tool', toolUseId: 'call1', content: [{ type: 'text', text: 'read' }] },
-			{ role: 'tool', toolUseId: 'call2', content: [{ type: 'text', text: 'wrote' }] },
+			{ role: 'tool', toolUseId: 'call1', content: [{ type: 'text', text: 'read' }], status: 'ok' },
+			{ role: 'tool', toolUseId: 'call2', content: [{ type: 'text', text: 'wrote' }], status: 'ok' },
 		]);
 	});
 });

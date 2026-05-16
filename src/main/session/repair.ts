@@ -8,11 +8,15 @@ function toolResultStatus(entry: ToolTranscriptEntry): ToolResultStatus {
 
 function normalizeToolResult(entry: ToolTranscriptEntry): ToolTranscriptEntry {
 	const status = toolResultStatus(entry);
-	return {
-		...entry,
-		isError: status !== 'ok' ? true : entry.isError,
-		status,
-	};
+	const next: ToolTranscriptEntry = { ...entry, status };
+	if (status !== 'ok') {
+		next.isError = true;
+	} else if (entry.isError !== undefined) {
+		next.isError = entry.isError;
+	} else {
+		delete next.isError;
+	}
+	return next;
 }
 
 /**
