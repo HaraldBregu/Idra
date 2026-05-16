@@ -51,9 +51,11 @@ export function SettingsPageHeader({
 				)}
 				<div className="min-w-0">
 					<h1 className="text-xl font-semibold leading-tight tracking-tight">{title}</h1>
-				{description && (
-					<p className="mt-1 max-w-2xl text-sm leading-5 text-muted-foreground">{description}</p>
-				)}
+					{description && (
+						<p className="mt-1 max-w-2xl text-sm leading-5 text-muted-foreground">
+							{description}
+						</p>
+					)}
 				</div>
 			</div>
 			{action && (

@@ -375,30 +375,36 @@ const ConnectorsPage: React.FC = () => {
 							</div>
 
 							<div className="grid gap-3 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
-								<Label className="flex items-start justify-between gap-3 text-sm">
+								<div className="flex items-start justify-between gap-3 text-sm">
 									<span className="min-w-0">
-										<span className="block font-medium">Defer tool loading</span>
+										<Label htmlFor="connector-defer-loading" className="block leading-5">
+											Defer tool loading
+										</Label>
 										<span className="mt-1 block text-sm leading-5 text-muted-foreground">
 											Load tools only when the connector is used.
 										</span>
 									</span>
 									<Switch
+										id="connector-defer-loading"
 										checked={form.deferLoading}
 										onCheckedChange={(checked) => update('deferLoading', checked)}
 									/>
-								</label>
-								<label className="flex items-start justify-between gap-3 text-sm">
+								</div>
+								<div className="flex items-start justify-between gap-3 text-sm">
 									<span className="min-w-0">
-										<span className="block font-medium">Enabled</span>
+										<Label htmlFor="connector-enabled" className="block leading-5">
+											Enabled
+										</Label>
 										<span className="mt-1 block text-sm leading-5 text-muted-foreground">
 											Make this connector available to assistant runs.
 										</span>
 									</span>
 									<Switch
+										id="connector-enabled"
 										checked={form.enabled}
 										onCheckedChange={(checked) => update('enabled', checked)}
 									/>
-								</Label>
+								</div>
 							</div>
 
 							{selectedCatalog && (

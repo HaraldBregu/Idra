@@ -263,13 +263,13 @@ const ChannelsPage: React.FC = () => {
 														/>
 														<InputGroupAddon align="inline-end" className="py-0 pr-1">
 															<InputGroupButton
-															type="button"
-															size="icon-xs"
-															onClick={addAllowedPhoneNumber}
-															aria-label={t('settings.channels.addPhoneNumber')}
-															title={t('settings.channels.addPhoneNumber')}
-														>
-															<Plus className="size-3" />
+																type="button"
+																size="icon-xs"
+																onClick={addAllowedPhoneNumber}
+																aria-label={t('settings.channels.addPhoneNumber')}
+																title={t('settings.channels.addPhoneNumber')}
+															>
+																<Plus className="size-3" />
 															</InputGroupButton>
 														</InputGroupAddon>
 													</InputGroup>
@@ -317,33 +317,33 @@ const ChannelsPage: React.FC = () => {
 														{telegramStatus.replaceAll('_', ' ')}
 													</Badge>
 													<ButtonGroup>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy || !telegramToken.trim()}
-														onClick={() => void handleStartTelegram()}
-													>
-														{t('settings.channels.pair')}
-													</Button>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy || !telegramToken.trim()}
-														onClick={() => void handleRestartTelegram()}
-													>
-														{t('settings.channels.reconnect')}
-													</Button>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy}
-														onClick={() => void handleStopTelegram()}
-													>
-														{t('common.close')}
-													</Button>
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															disabled={telegramBusy || !telegramToken.trim()}
+															onClick={() => void handleStartTelegram()}
+														>
+															{t('settings.channels.pair')}
+														</Button>
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															disabled={telegramBusy || !telegramToken.trim()}
+															onClick={() => void handleRestartTelegram()}
+														>
+															{t('settings.channels.reconnect')}
+														</Button>
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															disabled={telegramBusy}
+															onClick={() => void handleStopTelegram()}
+														>
+															{t('common.close')}
+														</Button>
 													</ButtonGroup>
 												</div>
 											}

@@ -97,10 +97,9 @@ const SystemPage: React.FC = () => {
 											<TooltipTrigger
 												render={
 													<ToggleGroupItem
-											key={option.value}
 														value={value}
 														className="size-7 p-0"
-											aria-label={option.label}
+														aria-label={option.label}
 													>
 														<Icon className="size-3.5" />
 													</ToggleGroupItem>
