@@ -5,7 +5,7 @@ import type {
 	AgentPendingInput,
 	AgentResponseEvent,
 	AgentToolCallStatus,
-	type ApprovalDecision,
+	ApprovalDecision,
 } from '../../../../../shared/service';
 import type { AgentChatAction } from './actions';
 import {
