@@ -282,7 +282,7 @@ function createDefaultChannelConfig<TKey extends ChannelType>(channelId: TKey): 
 			defaultAccountId: 'default',
 			dmPolicy: 'allowlist',
 			groupAllowFrom: [],
-		} as Channel[TKey];
+		} as unknown as Channel[TKey];
 	}
 	if (channelId === 'whatsapp') {
 		return {
@@ -293,7 +293,7 @@ function createDefaultChannelConfig<TKey extends ChannelType>(channelId: TKey): 
 			dmPolicy: 'allowlist',
 			allowFrom: [],
 			groupAllowFrom: [],
-		} as Channel[TKey];
+		} as unknown as Channel[TKey];
 	}
 	if (channelId === 'discord') {
 		return {
