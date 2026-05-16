@@ -24,6 +24,7 @@ function startRun() {
 		userMessageId: 'user-1',
 		assistantMessageId: 'assistant-1',
 		content: 'hello',
+		submittedAtMs: 1_000,
 	});
 }
 
@@ -216,6 +217,20 @@ describe('assistant chat state', () => {
 		expect(assistantMessage(cancelled)).toMatchObject({
 			state: 'cancelled',
 			errorText: 'Cancelled.',
+		});
+	});
+
+	it('tracks assistant elapsed time across submit and completion', () => {
+		const completed = assistantChatReducer(startRun(), {
+			type: 'complete_active',
+			response: 'done',
+			completedAtMs: 3_750,
+		});
+
+		expect(assistantMessage(completed)).toMatchObject({
+			startedAtMs: 1_000,
+			completedAtMs: 3_750,
+			state: 'completed',
 		});
 	});
 
