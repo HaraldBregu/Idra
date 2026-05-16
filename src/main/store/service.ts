@@ -2,26 +2,20 @@ import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
 import type { Agent, Model, Service } from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
-import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
+import {
+	CHANNEL_PROVIDER_IDS,
+	type Channel,
+	type ChannelAccountProperties,
+	type ChannelType,
+	type GenericChannelProperties,
+	type TelegramChannelProperties,
+} from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';
 import { SettingsStore, StoreSchema } from './types';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 
-const DEFAULT_CHANNEL: Channel = {
-	telegram: {
-		token: '',
-		allowFrom: [],
-	},
-	whatsapp: {
-		phoneNumber: '',
-		token: '',
-	},
-	discord: {
-		token: '',
-		allowFrom: [],
-	},
-};
+const DEFAULT_CHANNEL = Object.freeze(createDefaultChannelState());
 
 export class StoreService {
 	private store: SettingsStore;
@@ -180,24 +174,18 @@ export class StoreService {
 
 	getChannel(): Channel {
 		const channel = this.store.get('channel');
-		return {
-			telegram: {
-				...DEFAULT_CHANNEL.telegram,
-				...(channel?.telegram ?? {}),
-			},
-			whatsapp: {
-				...DEFAULT_CHANNEL.whatsapp,
-				...(channel?.whatsapp ?? {}),
-			},
-			discord: {
-				...DEFAULT_CHANNEL.discord,
-				...(channel?.discord ?? {}),
-			},
-		};
+		return CHANNEL_PROVIDER_IDS.reduce((next, channelId) => {
+			next[channelId] = mergeChannelConfig(channelId, getStoredChannelConfig(channel, channelId));
+			return next;
+		}, {} as Channel);
 	}
 
 	getTelegramChannel(): TelegramChannelProperties {
 		return this.getChannel().telegram;
+	}
+
+	getChannelConfig<TKey extends ChannelType>(type: TKey): Channel[TKey] {
+		return this.getChannel()[type];
 	}
 
 	setChannelProperties<TKey extends ChannelType>(
@@ -218,6 +206,16 @@ export class StoreService {
 		};
 		this.store.set('channel', next);
 		return next;
+	}
+
+	setChannelConfig<TKey extends ChannelType>(type: TKey, config: Channel[TKey]): Channel[TKey] {
+		const current = this.getChannel();
+		const next: Channel = {
+			...current,
+			[type]: mergeChannelConfig(type, config) as Channel[TKey],
+		};
+		this.store.set('channel', next);
+		return next[type];
 	}
 
 	setTelegramChannel(config: TelegramChannelProperties): TelegramChannelProperties {
@@ -254,4 +252,161 @@ export class StoreService {
 		this.store.set('providers', providers);
 	}
 		 
+}
+
+function createDefaultChannelState(): Channel {
+	return CHANNEL_PROVIDER_IDS.reduce((state, channelId) => {
+		state[channelId] = createDefaultChannelConfig(channelId);
+		return state;
+	}, {} as Channel);
+}
+
+function createDefaultChannelConfig(channelId: ChannelType): Channel[ChannelType] {
+	if (channelId === 'telegram') {
+		return {
+			token: '',
+			allowFrom: [],
+			enabled: false,
+			defaultAccountId: 'default',
+			dmPolicy: 'allowlist',
+			groupAllowFrom: [],
+		};
+	}
+	if (channelId === 'whatsapp') {
+		return {
+			phoneNumber: '',
+			token: '',
+			enabled: false,
+			defaultAccountId: 'default',
+			dmPolicy: 'allowlist',
+			allowFrom: [],
+			groupAllowFrom: [],
+		};
+	}
+	if (channelId === 'discord') {
+		return {
+			token: '',
+			allowFrom: [],
+			enabled: false,
+			defaultAccountId: 'default',
+			dmPolicy: 'allowlist',
+			groupAllowFrom: [],
+		};
+	}
+
+	const generic: GenericChannelProperties = {
+		enabled: false,
+		defaultAccountId: 'default',
+		accounts: {
+			default: createDefaultAccountConfig(channelId),
+		},
+	};
+	return generic;
+}
+
+function createDefaultAccountConfig(channelId: ChannelType): ChannelAccountProperties {
+	return {
+		label: `${channelId} default`,
+		enabled: false,
+		token: '',
+		serverUrl: '',
+		webhookUrl: '',
+		defaultTarget: '',
+		allowFrom: [],
+		groupAllowFrom: [],
+		dmPolicy: 'allowlist',
+	};
+}
+
+function getStoredChannelConfig(channel: Channel | undefined, channelId: ChannelType): unknown {
+	if (!channel || typeof channel !== 'object') return undefined;
+	return channel[channelId];
+}
+
+function mergeChannelConfig(channelId: ChannelType, stored: unknown): Channel[ChannelType] {
+	const defaults = createDefaultChannelConfig(channelId);
+	if (!stored || typeof stored !== 'object') return defaults;
+	const storedObject = stored as Record<string, unknown>;
+
+	if (channelId === 'telegram') {
+		return {
+			...defaults,
+			...storedObject,
+			token: typeof storedObject.token === 'string' ? storedObject.token : '',
+			allowFrom: normalizeStringList(storedObject.allowFrom),
+			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
+			accounts: normalizeAccounts(storedObject.accounts),
+		};
+	}
+	if (channelId === 'whatsapp') {
+		return {
+			...defaults,
+			...storedObject,
+			phoneNumber: typeof storedObject.phoneNumber === 'string' ? storedObject.phoneNumber : '',
+			token: typeof storedObject.token === 'string' ? storedObject.token : '',
+			allowFrom: normalizeStringList(storedObject.allowFrom),
+			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
+			accounts: normalizeAccounts(storedObject.accounts),
+		};
+	}
+	if (channelId === 'discord') {
+		return {
+			...defaults,
+			...storedObject,
+			token: typeof storedObject.token === 'string' ? storedObject.token : '',
+			allowFrom: normalizeStringList(storedObject.allowFrom),
+			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
+			accounts: normalizeAccounts(storedObject.accounts),
+		};
+	}
+
+	return {
+		...defaults,
+		...storedObject,
+		accounts: normalizeAccounts(storedObject.accounts) ?? (defaults as GenericChannelProperties).accounts,
+	};
+}
+
+function normalizeAccounts(input: unknown): Record<string, ChannelAccountProperties> | undefined {
+	if (!input || typeof input !== 'object') return undefined;
+	const accounts: Record<string, ChannelAccountProperties> = {};
+	for (const [accountId, account] of Object.entries(input as Record<string, unknown>)) {
+		if (!account || typeof account !== 'object') continue;
+		const normalizedId = accountId.trim();
+		if (!normalizedId) continue;
+		const accountObject = account as Record<string, unknown>;
+		accounts[normalizedId] = {
+			label: readOptionalString(accountObject.label),
+			enabled: typeof accountObject.enabled === 'boolean' ? accountObject.enabled : undefined,
+			token: readOptionalString(accountObject.token),
+			secret: readOptionalString(accountObject.secret),
+			serverUrl: readOptionalString(accountObject.serverUrl),
+			webhookUrl: readOptionalString(accountObject.webhookUrl),
+			appId: readOptionalString(accountObject.appId),
+			clientId: readOptionalString(accountObject.clientId),
+			clientSecret: readOptionalString(accountObject.clientSecret),
+			username: readOptionalString(accountObject.username),
+			phoneNumber: readOptionalString(accountObject.phoneNumber),
+			botUserId: readOptionalString(accountObject.botUserId),
+			defaultTarget: readOptionalString(accountObject.defaultTarget),
+			allowFrom: normalizeStringList(accountObject.allowFrom),
+			groupAllowFrom: normalizeStringList(accountObject.groupAllowFrom),
+			dmPolicy:
+				accountObject.dmPolicy === 'pairing' ||
+				accountObject.dmPolicy === 'open' ||
+				accountObject.dmPolicy === 'deny'
+					? accountObject.dmPolicy
+					: 'allowlist',
+		};
+	}
+	return Object.keys(accounts).length > 0 ? accounts : undefined;
+}
+
+function normalizeStringList(input: unknown): string[] {
+	if (!Array.isArray(input)) return [];
+	return [...new Set(input.map((value) => String(value).trim()).filter(Boolean))];
+}
+
+function readOptionalString(input: unknown): string | undefined {
+	return typeof input === 'string' ? input : undefined;
 }
