@@ -239,7 +239,7 @@ function PromptInput({
                 </AnimatePresence>
                 {actions}
               </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
         ) : (
           <div
