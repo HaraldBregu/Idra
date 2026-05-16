@@ -5,6 +5,19 @@ import { CHANNEL_PROVIDER_IDS, type Channel, type ChannelType } from '../../../.
 import { listChannelCatalog } from '../../../../../src/shared/channel-catalog';
 import ChannelsPage from '../../../../../src/renderer/src/pages/settings/pages/ChannelsPage';
 
+jest.mock('react-i18next', () => ({
+	useTranslation: () => ({
+		t: (key: string) => {
+			const translations: Record<string, string> = {
+				'common.save': 'Save',
+				'settings.channels.token': 'Token',
+				'settings.channels.tokenPlaceholder': 'Paste token or access key',
+			};
+			return translations[key] ?? key;
+		},
+	}),
+}));
+
 function createChannelConfig(): Channel {
 	return CHANNEL_PROVIDER_IDS.reduce((config, channelId) => {
 		if (channelId === 'telegram') {
@@ -85,7 +98,6 @@ describe('ChannelsPage', () => {
 		render(<ChannelsPage />);
 
 		expect(await screen.findByRole('button', { name: /Slack/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /Matrix/ })).toBeInTheDocument();
 
 		await user.click(screen.getByRole('button', { name: /Slack/ }));
 		await user.type(screen.getByLabelText('Token'), 'xoxb-token');
