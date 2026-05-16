@@ -72,7 +72,7 @@ const MemoizedMarkdownBlock = memo(
 		);
 	},
 	function propsAreEqual(prevProps, nextProps) {
-		return prevProps.content === nextProps.content;
+		return prevProps.content === nextProps.content && prevProps.components === nextProps.components;
 	}
 );
 
@@ -87,6 +87,13 @@ function MarkdownComponent({
 	const generatedId = useId();
 	const blockId = id ?? generatedId;
 	const blocks = useMemo(() => parseMarkdownIntoBlocks(children), [children]);
+	const mergedComponents = useMemo(
+		() =>
+			components === initialComponents
+				? initialComponents
+				: { ...initialComponents, ...components },
+		[components]
+	);
 
 	return (
 		<div className={className}>
@@ -94,7 +101,7 @@ function MarkdownComponent({
 				<MemoizedMarkdownBlock
 					key={`${blockId}-block-${index}`}
 					content={block}
-					components={components}
+					components={mergedComponents}
 				/>
 			))}
 		</div>
