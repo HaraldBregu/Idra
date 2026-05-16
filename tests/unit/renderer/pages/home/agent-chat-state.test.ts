@@ -203,11 +203,48 @@ describe('agent chat state', () => {
 		);
 
 		expect(pending).not.toBeNull();
+		expect(pending?.id).toBe('agent-pending-a:approval-1-i:input-1');
 		expect(pending?.options.map((option) => option.kind)).toEqual([
 			'approval',
 			'approval',
 			'input',
 		]);
+		expect(pending?.options.map((option) => option.label)).toEqual([
+			'Allow once',
+			'Deny',
+			'Answer',
+		]);
+		expect(defaultPendingSelections(pending!)).toEqual(['approval:approval-1:deny']);
+	});
+
+	it('renders only allowed approval decisions', () => {
+		const pending = pendingToMultiSelectMessage(
+			{
+				agentId: 'agent',
+				approvals: [
+					{
+						id: 'approval-1',
+						kind: 'plugin',
+						toolName: 'plugin:demo',
+						question: 'Approve plugin?',
+						title: 'Plugin approval',
+						argsPreview: { action: 'write' },
+						createdAtMs: 1,
+						expiresAtMs: Date.now() + 60_000,
+						allowedDecisions: ['deny'],
+					},
+				],
+				inputs: [],
+			} satisfies AgentPendingEventPayload,
+			100
+		);
+
+		expect(pending?.options).toHaveLength(1);
+		expect(pending?.options[0]).toMatchObject({
+			id: 'approval:approval-1:deny',
+			label: 'Deny',
+			subject: 'Plugin approval',
+		});
 		expect(defaultPendingSelections(pending!)).toEqual(['approval:approval-1:deny']);
 	});
 
