@@ -143,10 +143,11 @@ const BAR_COUNT = 22;
 const MODE_KEYS = Object.keys(MODES) as VoiceOrbMode[];
 
 type VoiceOrbThreeProps = {
+	readonly showStatus?: boolean;
 	readonly size?: number;
 };
 
-export function VoiceOrbThree({ size = 260 }: VoiceOrbThreeProps): ReactElement {
+export function VoiceOrbThree({ showStatus = true, size = 260 }: VoiceOrbThreeProps): ReactElement {
 	const [mode, setMode] = useState<VoiceOrbMode>('idle');
 	const mountRef = useRef<HTMLDivElement>(null);
 	const ring1Ref = useRef<HTMLDivElement>(null);
@@ -310,37 +311,41 @@ export function VoiceOrbThree({ size = 260 }: VoiceOrbThreeProps): ReactElement 
 					}}
 				/>
 			</div>
-			<div className="flex items-center gap-2" style={{ height: 22 }}>
-				<div
-					className="size-2 rounded-full"
-					style={{
-						background: cfg.dotColor,
-						transition: 'background 0.4s',
-						animation: cfg.blink ? 'voiceOrbThreeBlink 1.3s ease-in-out infinite' : 'none',
-					}}
-				/>
-				<span
-					className="text-sm italic"
-					style={{
-						color: 'rgba(115,82,218,0.88)',
-						animation: cfg.blink ? 'voiceOrbThreeBlink 1.3s ease-in-out infinite' : 'none',
-					}}
-				>
-					{cfg.label}
-				</span>
-			</div>
-			<p
-				className="text-center text-sm"
-				style={{ color: 'rgba(72,48,120,0.68)', maxWidth: 288, lineHeight: 1.68, minHeight: 72 }}
-			>
-				{cfg.message}
-			</p>
-			<canvas
-				ref={waveRef}
-				width={300}
-				height={44}
-				style={{ width: 150, height: 22, opacity: cfg.waveform ? 1 : 0, transition: 'opacity 0.4s' }}
-			/>
+			{showStatus && (
+				<>
+					<div className="flex items-center gap-2" style={{ height: 22 }}>
+						<div
+							className="size-2 rounded-full"
+							style={{
+								background: cfg.dotColor,
+								transition: 'background 0.4s',
+								animation: cfg.blink ? 'voiceOrbThreeBlink 1.3s ease-in-out infinite' : 'none',
+							}}
+						/>
+						<span
+							className="text-sm italic"
+							style={{
+								color: 'rgba(115,82,218,0.88)',
+								animation: cfg.blink ? 'voiceOrbThreeBlink 1.3s ease-in-out infinite' : 'none',
+							}}
+						>
+							{cfg.label}
+						</span>
+					</div>
+					<p
+						className="text-center text-sm"
+						style={{ color: 'rgba(72,48,120,0.68)', maxWidth: 288, lineHeight: 1.68, minHeight: 72 }}
+					>
+						{cfg.message}
+					</p>
+					<canvas
+						ref={waveRef}
+						width={300}
+						height={44}
+						style={{ width: 150, height: 22, opacity: cfg.waveform ? 1 : 0, transition: 'opacity 0.4s' }}
+					/>
+				</>
+			)}
 			<style>{`
 				@keyframes voiceOrbThreeBlink {
 					0%, 100% { opacity: 1; }
