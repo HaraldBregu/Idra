@@ -11,10 +11,10 @@ export function ConnectorToolsList({
 	readonly tools: readonly ConnectorTool[];
 }): React.JSX.Element {
 	if (tools.length === 0) {
-	return (
-		<Card size="sm" className="gap-0 rounded-xl py-0 shadow-none">
-			<CardContent className="p-0">
-				<SettingsEmptyState
+		return (
+			<Card size="sm" className="gap-0 rounded-xl py-0 shadow-none">
+				<CardContent className="p-0">
+					<SettingsEmptyState
 						icon={Wrench}
 						title="No tools selected for this connector."
 						description="Refresh tools or change the connector allowlist."
