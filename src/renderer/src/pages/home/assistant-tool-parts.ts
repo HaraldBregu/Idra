@@ -1,5 +1,8 @@
 import type { ToolPart } from '@/components/ui/tool';
-import type { AssistantHistoryMessage, AssistantResponseEvent } from '../../../../shared/service';
+import type {
+	AssistantHistoryContentBlock,
+	AssistantResponseEvent,
+} from '../../../../shared/service';
 
 export type AssistantToolPart = ToolPart & {
 	toolCallId: string;
@@ -90,10 +93,8 @@ export function applyAssistantResponseEventToTools(
 	}
 }
 
-type AssistantContentBlock = NonNullable<AssistantHistoryMessage['contentBlocks']>[number];
-
 export function assistantToolPartFromHistoryBlock(
-	block: AssistantContentBlock
+	block: AssistantHistoryContentBlock
 ): AssistantToolPart | undefined {
 	if (block.type !== 'tool_use') return undefined;
 
