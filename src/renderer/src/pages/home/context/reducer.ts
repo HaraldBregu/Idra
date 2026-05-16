@@ -264,50 +264,88 @@ export function pendingToMultiSelectMessage(
 	if (approvals.length === 0 && inputs.length === 0) return null;
 
 	const options: HomeMultiSelectOption[] = [
-		...approvals.map((approval: AgentPendingApproval) => ({
-			id: `approval:${approval.id}:allow-once`,
-			kind: 'approval' as const,
-			label: `${approval.toolName}: Allow once`,
-			description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
-			approvalId: approval.id,
-			decision: 'allow-once' as const,
-		})),
-		...approvals
-			.filter((approval) => approval.allowedDecisions.includes('allow-always'))
-			.map((approval) => ({
-				id: `approval:${approval.id}:allow-always`,
-				kind: 'approval' as const,
-				label: `${approval.toolName}: Allow always`,
-				description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
-				approvalId: approval.id,
-				decision: 'allow-always' as const,
-			})),
-		...approvals.map((approval) => ({
-			id: `approval:${approval.id}:deny`,
-			kind: 'approval' as const,
-			label: `${approval.toolName}: Deny`,
-			description: approval.command ?? JSON.stringify(approval.argsPreview ?? {}),
-			approvalId: approval.id,
-			decision: 'deny' as const,
-		})),
+		...approvals.flatMap(approvalToOptions),
 		...inputs.map((input: AgentPendingInput) => ({
 			id: `input:${input.id}`,
 			kind: 'input' as const,
-			label: 'Required input',
+			label: 'Answer',
 			description:
 				input.question +
 				(input.suggestions ? `\nSuggestions: ${input.suggestions.join(' | ')}` : ''),
+			subject: input.question,
+			meta: 'Input requested',
 			inputId: input.id,
 		})),
 	];
 
 	return {
-		id: `agent-pending-${createdAtMs}`,
+		id: pendingMessageId(event, createdAtMs),
 		role: 'agent',
 		type: 'multi-select',
 		prompt: 'The agent needs you to confirm or answer the following:',
 		options,
 	};
+}
+
+function approvalToOptions(approval: AgentPendingApproval): HomeMultiSelectOption[] {
+	const decisions: ApprovalDecision[] = ['allow-once', 'allow-always', 'deny'];
+	return decisions
+		.filter((decision) => approval.allowedDecisions.includes(decision))
+		.map((decision) => ({
+			id: `approval:${approval.id}:${decision}`,
+			kind: 'approval' as const,
+			label: approvalDecisionLabel(decision),
+			description: approvalDescription(approval),
+			subject: approval.title || approval.question || approval.toolName,
+			meta: approvalMeta(approval),
+			approvalId: approval.id,
+			decision,
+		}));
+}
+
+function approvalDecisionLabel(decision: ApprovalDecision): string {
+	if (decision === 'allow-once') return 'Allow once';
+	if (decision === 'allow-always') return 'Allow always';
+	return 'Deny';
+}
+
+function approvalDescription(approval: AgentPendingApproval): string {
+	return truncateDisplayText(
+		approval.command ??
+			approval.description ??
+			approval.question ??
+			safeStringify(approval.argsPreview ?? {})
+	);
+}
+
+function approvalMeta(approval: AgentPendingApproval): string {
+	const id = approval.id.startsWith('plugin:') ? approval.id.slice('plugin:'.length) : approval.id;
+	const shortId = id.slice(0, 8);
+	const expiresInMs = approval.expiresAtMs - Date.now();
+	const expiresLabel = expiresInMs > 0 ? `expires in ${Math.ceil(expiresInMs / 1000)}s` : 'expired';
+	return `${approval.kind} · ${approval.toolName} · ${shortId} · ${expiresLabel}`;
+}
+
+function pendingMessageId(event: AgentPendingEventPayload, fallbackMs: number): string {
+	const ids = [
+		...event.approvals.map((approval) => `a:${approval.id}`),
+		...event.inputs.map((input) => `i:${input.id}`),
+	].sort();
+	return ids.length > 0 ? `agent-pending-${ids.join('-')}` : `agent-pending-${fallbackMs}`;
+}
+
+function safeStringify(value: unknown): string {
+	try {
+		return JSON.stringify(value);
+	} catch {
+		return String(value);
+	}
+}
+
+function truncateDisplayText(value: string): string {
+	const normalized = value.replace(/\s+/g, ' ').trim();
+	if (normalized.length <= 500) return normalized;
+	return `${normalized.slice(0, 500)}...`;
 }
 
 export function defaultPendingSelections(message: HomeMultiSelectMessage): string[] {
