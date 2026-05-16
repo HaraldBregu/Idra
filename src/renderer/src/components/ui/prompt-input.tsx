@@ -35,6 +35,7 @@ const PromptInputContext = createContext<PromptInputContextType>({
   value: "",
   setValue: () => {},
   maxHeight: 240,
+  maxLength: undefined,
   onSubmit: undefined,
   disabled: false,
   textareaRef: React.createRef<HTMLTextAreaElement>(),
