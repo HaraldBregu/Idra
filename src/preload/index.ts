@@ -34,6 +34,8 @@ import type {
 	CronTask,
 	CronTaskData,
 	CronTaskView,
+	OpenClawCronToolRequest,
+	OpenClawCronToolResponse,
 } from '../shared/cron';
 import type {
 	Agent,
@@ -234,6 +236,9 @@ export const cron: CronApi = {
 	},
 	runNow: (scheduleId: string): Promise<Task> => {
 		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
+	},
+	action: (request: OpenClawCronToolRequest): Promise<OpenClawCronToolResponse> => {
+		return typedInvokeUnwrap(CronChannels.action, request);
 	},
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void): (() => void) => {
 		return typedOn(CronChannels.event, listener);
