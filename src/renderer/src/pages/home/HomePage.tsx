@@ -501,16 +501,7 @@ function PendingMessage({
 	);
 }
 
-function Composer({
-	value,
-	isLoading,
-	canReset,
-	inputRef,
-	onValueChange,
-	onSubmit,
-	onReset,
-	onVoiceModeRequest,
-}: {
+type ComposerProps = {
 	readonly value: string;
 	readonly isLoading: boolean;
 	readonly canReset: boolean;
@@ -519,29 +510,10 @@ function Composer({
 	readonly onSubmit: () => void;
 	readonly onReset: () => void;
 	readonly onVoiceModeRequest: () => void;
-}): ReactElement {
-	const canSubmit = value.trim().length > 0;
-	const submitActionLabel = isLoading
-		? 'Stop generation'
-		: canSubmit
-			? 'Send message'
-			: 'Start voice conversation';
-	const submitActionIcon = isLoading ? (
-		<Square className="size-4 fill-current" />
-	) : canSubmit ? (
-		<ArrowUp className="size-4" />
-	) : (
-		<AudioLines className="size-4" />
-	);
-	const handlePrimaryAction = (): void => {
-		if (isLoading || canSubmit) {
-			onSubmit();
-			return;
-		}
+};
 
-		onVoiceModeRequest();
-	};
-	const attachmentButton = (
+function AttachmentButton(): ReactElement {
+	return (
 		<PromptInputAction tooltip="Add attachment">
 			<Button
 				type="button"
@@ -554,6 +526,111 @@ function Composer({
 			</Button>
 		</PromptInputAction>
 	);
+}
+
+function ResetButton({ onReset }: { readonly onReset: () => void }): ReactElement {
+	return (
+		<PromptInputAction tooltip="Reset conversation">
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon"
+				className="size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+				aria-label="Reset conversation"
+				onClick={onReset}
+			>
+				<RotateCcw className="size-4" />
+			</Button>
+		</PromptInputAction>
+	);
+}
+
+function ReasoningButton(): ReactElement {
+	return (
+		<PromptInputAction tooltip="Reasoning mode">
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="hidden h-8 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex"
+				aria-label="Reasoning mode: Thinking"
+			>
+				<span>Thinking</span>
+				<ChevronDown className="size-3.5" />
+			</Button>
+		</PromptInputAction>
+	);
+}
+
+function VoiceButton({ onVoiceModeRequest }: { readonly onVoiceModeRequest: () => void }): ReactElement {
+	return (
+		<PromptInputAction tooltip="Voice assistant">
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon"
+				className="size-8 rounded-lg text-foreground hover:bg-muted"
+				aria-label="Switch to voice"
+				onClick={onVoiceModeRequest}
+			>
+				<Mic className="size-4" />
+			</Button>
+		</PromptInputAction>
+	);
+}
+
+function SubmitButton({
+	isLoading,
+	canSubmit,
+	onAction,
+}: {
+	readonly isLoading: boolean;
+	readonly canSubmit: boolean;
+	readonly onAction: () => void;
+}): ReactElement {
+	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const icon = isLoading ? (
+		<Square className="size-4 fill-current" />
+	) : canSubmit ? (
+		<ArrowUp className="size-4" />
+	) : (
+		<AudioLines className="size-4" />
+	);
+
+	return (
+		<PromptInputAction tooltip={label}>
+			<Button
+				type="button"
+				variant="default"
+				size="icon"
+				className="size-9 rounded-lg bg-foreground text-background hover:bg-foreground/90"
+				aria-label={label}
+				onClick={onAction}
+			>
+				{icon}
+			</Button>
+		</PromptInputAction>
+	);
+}
+
+function Composer({
+	value,
+	isLoading,
+	canReset,
+	inputRef,
+	onValueChange,
+	onSubmit,
+	onReset,
+	onVoiceModeRequest,
+}: ComposerProps): ReactElement {
+	const canSubmit = value.trim().length > 0;
+	const handlePrimaryAction = (): void => {
+		if (isLoading || canSubmit) {
+			onSubmit();
+			return;
+		}
+		onVoiceModeRequest();
+	};
 
 	return (
 		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-6">
@@ -564,62 +641,14 @@ function Composer({
 				maxHeight={360}
 				onSubmit={onSubmit}
 				textareaRef={inputRef}
-				leadingAction={attachmentButton}
+				leadingAction={<AttachmentButton />}
 				className="w-full"
 				actions={
 					<PromptInputActions className="justify-end gap-1.5">
-						<PromptInputAction tooltip="Reset conversation">
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								className={cn(
-									'size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground',
-									!canReset && 'hidden'
-								)}
-								aria-label="Reset conversation"
-								disabled={!canReset}
-								onClick={onReset}
-							>
-								<RotateCcw className="size-4" />
-							</Button>
-						</PromptInputAction>
-						<PromptInputAction tooltip="Reasoning mode">
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								className="hidden h-8 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex"
-								aria-label="Reasoning mode: Thinking"
-							>
-								<span>Thinking</span>
-								<ChevronDown className="size-3.5" />
-							</Button>
-						</PromptInputAction>
-						<PromptInputAction tooltip="Voice assistant">
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								className="size-8 rounded-lg text-foreground hover:bg-muted"
-								aria-label="Switch to voice"
-								onClick={onVoiceModeRequest}
-							>
-								<Mic className="size-4" />
-							</Button>
-						</PromptInputAction>
-						<PromptInputAction tooltip={submitActionLabel}>
-							<Button
-								type="button"
-								variant="default"
-								size="icon"
-								className="size-9 rounded-lg bg-foreground text-background hover:bg-foreground/90"
-								aria-label={submitActionLabel}
-								onClick={handlePrimaryAction}
-							>
-								{submitActionIcon}
-							</Button>
-						</PromptInputAction>
+						{canReset && <ResetButton onReset={onReset} />}
+						<ReasoningButton />
+						<VoiceButton onVoiceModeRequest={onVoiceModeRequest} />
+						<SubmitButton isLoading={isLoading} canSubmit={canSubmit} onAction={handlePrimaryAction} />
 					</PromptInputActions>
 				}
 			>
