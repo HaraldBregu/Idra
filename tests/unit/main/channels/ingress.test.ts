@@ -14,13 +14,13 @@ const message: ChannelNormalizedInboundMessage = {
 	channelId: 'telegram',
 	accountId: 'default',
 	senderId: 'blocked',
-	targetId: 'chat',
+	targetId: 'secret-route',
 	chatType: 'dm',
 	messageId: 'm1',
 	text: 'hello',
 	media: [],
 	provenance: {},
-	idempotencyKey: 'telegram:default:chat:m1',
+	idempotencyKey: 'telegram:default:secret-route:m1',
 	receivedAt: 1,
 };
 
@@ -52,7 +52,7 @@ describe('resolveIngressAdmission', () => {
 			},
 		});
 		expect(JSON.stringify(decision.diagnostics)).not.toContain('blocked');
-		expect(JSON.stringify(decision.diagnostics)).not.toContain('chat');
+		expect(JSON.stringify(decision.diagnostics)).not.toContain('secret-route');
 	});
 
 	it('treats pairing and mention gates as non-error admission outcomes', () => {

@@ -43,7 +43,7 @@ export class ChannelRegistry {
 		}
 		this.registerPlugin(telegramChannelPlugin);
 		this.registerRuntimeFactory('telegram', async (config) => {
-			const { TelegramAdapter } = await import('./telegram/adapter');
+			const { TelegramAdapter } = await import('./telegram');
 			return new TelegramAdapter(config as TelegramAdapterOptions);
 		});
 		for (const [channelId, factory] of Object.entries(dependencies.runtimeFactories ?? {})) {
