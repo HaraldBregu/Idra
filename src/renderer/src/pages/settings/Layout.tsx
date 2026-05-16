@@ -24,10 +24,10 @@ export function Layout(): React.JSX.Element {
 							className="h-auto min-w-0 justify-start gap-2 rounded-md px-1.5 py-1 text-left whitespace-normal"
 							aria-label={t('settings.overview.backToSettings')}
 						>
-							<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/70 text-foreground">
-								<Settings className="size-3.5" strokeWidth={1.9} />
+							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/70 text-foreground">
+								<Settings className="size-3" strokeWidth={1.9} />
 							</span>
-							<span className="truncate text-lg font-semibold leading-6 tracking-normal text-foreground">
+							<span className="truncate text-base font-semibold leading-5 tracking-normal text-foreground">
 								{t('settings.title')}
 							</span>
 						</Button>

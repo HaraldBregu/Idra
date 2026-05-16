@@ -45,12 +45,12 @@ export function SettingsPageHeader({
 		<header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 			<div className="flex min-w-0 items-start gap-2">
 				{Icon && (
-					<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
-						<Icon className="size-3.5" strokeWidth={1.8} />
+					<div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
+						<Icon className="size-3" strokeWidth={1.8} />
 					</div>
 				)}
 				<div className="min-w-0">
-					<h1 className="text-lg font-semibold leading-6 tracking-normal text-foreground">
+					<h1 className="text-base font-semibold leading-5 tracking-normal text-foreground">
 						{title}
 					</h1>
 					{description && (
@@ -162,8 +162,8 @@ export function SettingsRow({
 			<div className={cn('flex min-w-0 items-center gap-2', contentClassName)}>
 				{media ??
 					(Icon && (
-						<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-							<Icon className="size-3.5" strokeWidth={1.8} />
+						<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+							<Icon className="size-3" strokeWidth={1.8} />
 						</span>
 					))}
 				<div className="min-w-0 flex-1">
@@ -258,11 +258,11 @@ export function SettingsEmptyState({
 	className,
 }: SettingsEmptyStateProps): React.JSX.Element {
 	return (
-		<Empty className={cn('min-h-24 gap-2 border-0 p-4', className)}>
+		<Empty className={cn('min-h-20 gap-2 border-0 p-3', className)}>
 			<EmptyHeader className="gap-1">
 				{Icon && (
-					<EmptyMedia variant="icon" className="mb-1 size-8 rounded-lg">
-						<Icon className="size-4" />
+					<EmptyMedia variant="icon" className="mb-1 size-7 rounded-md">
+						<Icon className="size-3.5" />
 					</EmptyMedia>
 				)}
 				<EmptyTitle className="text-xs">{title}</EmptyTitle>
@@ -288,7 +288,7 @@ export function SettingsLoadingRows({
 		<div className={cn('grid gap-2 p-3', className)}>
 			{Array.from({ length: rows }).map((_, index) => (
 				<div key={index} className="flex min-h-9 items-center gap-2">
-					<Skeleton className="size-7 rounded-md" />
+					<Skeleton className="size-6 rounded-md" />
 					<div className="grid min-w-0 flex-1 gap-1">
 						<Skeleton className="h-3 w-1/3" />
 						<Skeleton className="h-2.5 w-2/3" />

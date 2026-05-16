@@ -28,8 +28,8 @@ function SettingsOverviewCard({
 			onClick={() => navigate(item.path)}
 			className="group grid h-auto min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border-border/70 bg-card px-3 py-2 text-left text-card-foreground whitespace-normal shadow-none hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55 active:translate-y-0"
 		>
-			<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground transition group-hover:bg-foreground group-hover:text-background">
-				<Icon className="size-3.5" strokeWidth={1.8} />
+			<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground transition group-hover:bg-foreground group-hover:text-background">
+				<Icon className="size-3" strokeWidth={1.8} />
 			</span>
 			<span className="min-w-0">
 				<span className="block truncate text-[13px] font-medium leading-4 tracking-normal text-foreground">
@@ -61,8 +61,8 @@ const OverviewPage: React.FC = () => {
 				className="group grid h-auto min-h-14 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border-border/70 bg-card px-3 py-2 text-left text-card-foreground whitespace-normal shadow-none hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55 active:translate-y-0"
 				aria-label={t('settings.overview.searchCardLabel', { shortcut })}
 			>
-				<span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-foreground text-background">
-					<Sparkles className="size-4" strokeWidth={1.8} />
+				<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-foreground text-background">
+					<Sparkles className="size-3.5" strokeWidth={1.8} />
 				</span>
 				<span className="min-w-0">
 					<span className="block text-sm font-medium leading-5 tracking-normal text-foreground">
