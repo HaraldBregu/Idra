@@ -82,7 +82,7 @@ describe('assistant chat state', () => {
 		});
 	});
 
-	it('stores safe reasoning summaries without requiring raw reasoning text', () => {
+	it('ignores reasoning summaries because the homepage only shows run state and tool traces', () => {
 		const next = assistantChatReducer(startRun(), {
 			type: 'apply_response_event',
 			receivedAtMs: 42,
@@ -96,15 +96,11 @@ describe('assistant chat state', () => {
 			} satisfies AssistantResponseEvent,
 		});
 
-		expect(assistantMessage(next).reasoning).toEqual([
-			{
-				id: 'summary-1',
-				title: 'Checking context',
-				summary: 'Selecting relevant project context.',
-				state: 'completed',
-				createdAtMs: 42,
-			},
-		]);
+		expect(assistantMessage(next)).toMatchObject({
+			runId: 'run-1',
+			state: 'thinking',
+			tools: [],
+		});
 	});
 
 	it('updates tool start, input, result, and error events on the active assistant turn', () => {
