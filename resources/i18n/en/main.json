@@ -140,6 +140,24 @@
 		"description": "Configure your application preferences",
 		"search": "Search",
 		"searchLabel": "Search settings",
+		"overview": {
+			"backToSettings": "All settings",
+			"browseNormally": "Browse normally",
+			"searchWithShortcut": "Search with {{shortcut}}",
+			"searchCardLabel": "Open command menu with {{shortcut}}",
+			"searchTitle": "Use search as a power layer",
+			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
+			"descriptions": {
+				"general": "Application info, permissions, folders, menu bar",
+				"system": "Theme, language, translucency, window chrome",
+				"channels": "Telegram, messaging routes, sender controls",
+				"skills": "Local capabilities, imports, installed skill folders",
+				"connectors": "Connected apps, MCP tools, OAuth tokens",
+				"providers": "AI endpoints, API keys, model providers",
+				"cron": "Scheduled tasks, recurrences, run details",
+				"apps": "Installed packages, app folders, local manifests"
+			}
+		},
 		"tabs": {
 			"general": "General",
 			"channels": "Channels",
@@ -150,7 +168,7 @@
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
-			"system": "System",
+			"system": "Appearance",
 			"themes": "Themes",
 			"editor": "Editor",
 			"cron": "Cron",
