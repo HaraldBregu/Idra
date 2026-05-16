@@ -21,6 +21,7 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
+import { CHANNEL_PROVIDER_IDS, type Channel } from '../../../../src/shared/channels';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model, Service } from '../../../../src/shared/service';
 
@@ -488,6 +489,68 @@ describe('StoreService', () => {
 				apiKey: 'sk-canonical',
 				baseUrl: 'https://api.openai.com/v1',
 			});
+		});
+	});
+
+	// -------------------------------------------------------------------------
+	// channel
+	// -------------------------------------------------------------------------
+
+	describe('channel settings', () => {
+		it('hydrates every supported channel provider with defaults', () => {
+			const service = new StoreService();
+
+			const channel = service.getChannel();
+
+			expect(Object.keys(channel).sort()).toEqual([...CHANNEL_PROVIDER_IDS].sort());
+			expect(channel.telegram).toMatchObject({
+				token: '',
+				allowFrom: [],
+				enabled: false,
+				defaultAccountId: 'default',
+			});
+			expect(channel.slack).toMatchObject({
+				enabled: false,
+				defaultAccountId: 'default',
+			});
+			expect(channel.slack.accounts?.default).toMatchObject({
+				label: 'slack default',
+				enabled: false,
+				dmPolicy: 'allowlist',
+			});
+		});
+
+		it('merges legacy partial channel config with provider defaults', () => {
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
+				.store.set('channel', {
+					telegram: {
+						token: 'telegram-token',
+						allowFrom: [' user-1 ', 'user-1', 'user-2'],
+					},
+					slack: {
+						enabled: true,
+					},
+				} as Partial<Channel>);
+
+			const channel = service.getChannel();
+
+			expect(channel.telegram).toMatchObject({
+				token: 'telegram-token',
+				allowFrom: ['user-1', 'user-2'],
+				enabled: false,
+				defaultAccountId: 'default',
+			});
+			expect(channel.discord).toMatchObject({
+				token: '',
+				allowFrom: [],
+				enabled: false,
+			});
+			expect(channel.slack).toMatchObject({
+				enabled: true,
+				defaultAccountId: 'default',
+			});
+			expect(channel.slack.accounts?.default?.dmPolicy).toBe('allowlist');
 		});
 	});
 
