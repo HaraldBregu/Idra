@@ -155,7 +155,10 @@ export class AgentService {
 			};
 			const ctx: ToolContext = {
 				workspace: workspaceRoot,
+				agentId,
 				sessionId: runtime.session.id,
+				sessionBaseDir: this.sessionBaseDir,
+				sessionVisibility: 'agent',
 				readState: new Map(),
 				plan: { entries: runtime.session.plan },
 				approvalCache: new Set(),
