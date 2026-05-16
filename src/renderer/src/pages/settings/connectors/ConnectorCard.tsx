@@ -57,7 +57,7 @@ export function ConnectorCard({
 					</Button>
 				</div>
 
-				<div className="grid gap-3 border-b border-border/70 bg-muted/20 px-5 py-3 text-xs text-muted-foreground sm:grid-cols-3">
+				<div className="grid gap-3 border-b border-border/60 bg-muted/20 px-4 py-2.5 text-xs text-muted-foreground sm:grid-cols-3">
 					<div>
 						<span className="block font-medium text-foreground">{connector.toolsCount}</span>
 						<span>Catalog tools</span>
