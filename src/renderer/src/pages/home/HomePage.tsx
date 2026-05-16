@@ -328,7 +328,7 @@ function AssistantTextMessage({
 					{message.content.length > 0 && (
 						<Markdown
 							components={markdownComponents}
-							className="prose min-w-0 max-w-full break-words rounded-2xl bg-secondary px-4 py-3 text-sm leading-relaxed text-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs prose-a:break-words prose-code:break-words dark:prose-invert [&_*]:max-w-full"
+							className="prose min-w-0 max-w-full break-words rounded-2xl bg-secondary px-4 py-3 text-sm leading-relaxed text-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert [&_*]:max-w-full [&_a]:break-words [&_a]:[overflow-wrap:anywhere] [&_code]:break-words"
 						>
 							{message.content}
 						</Markdown>
