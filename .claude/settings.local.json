@@ -203,7 +203,9 @@
       "Bash(curl -s \"https://api.github.com/repos/shadcn-ui/ui/contents/apps/v4/styles/base-vega\")",
       "Bash(curl -s \"https://api.github.com/repos/shadcn-ui/ui/contents/apps/v4/registry/bases/base/lib\")",
       "Bash(curl *)",
-      "Bash(xargs -I{} basename {})"
+      "Bash(xargs -I{} basename {})",
+      "Bash(echo \"Exit: $?\")",
+      "WebFetch(domain:prompt-kit.com)"
     ],
     "deny": [
       "Bash(git push --force:*)",
