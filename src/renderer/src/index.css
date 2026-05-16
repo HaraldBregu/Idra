@@ -260,6 +260,15 @@
 	}
 }
 
+@keyframes text-shimmer {
+	from {
+		background-position: 100% 0;
+	}
+	to {
+		background-position: -100% 0;
+	}
+}
+
 /* Style native range inputs to match the design system */
 input[type='range'] {
 	-webkit-appearance: none;

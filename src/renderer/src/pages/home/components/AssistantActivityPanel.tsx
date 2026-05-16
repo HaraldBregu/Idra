@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Loader } from '@/components/ui/loader';
+import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { cn } from '@/lib/utils';
 import type { AssistantMessage } from '../context';
 import { AssistantToolActivity } from './AssistantToolActivity';
@@ -11,6 +12,10 @@ function statusIndicator(message: AssistantMessage, isStreaming: boolean): React
 	}
 
 	return <span className="size-1.5 shrink-0 rounded-full bg-current" aria-hidden />;
+}
+
+function shouldShimmerStatusLabel(message: AssistantMessage): boolean {
+	return message.state === 'completed' && message.tools.length === 0;
 }
 
 export function AssistantActivityPanel({
@@ -47,7 +52,11 @@ export function AssistantActivityPanel({
 				) : (
 					<span className={statusClassName}>
 						{indicator}
-						{statusLabel}
+						{shouldShimmerStatusLabel(message) ? (
+							<TextShimmer className="text-sm">{statusLabel}</TextShimmer>
+						) : (
+							statusLabel
+						)}
 					</span>
 				)}
 				{message.runId && (
