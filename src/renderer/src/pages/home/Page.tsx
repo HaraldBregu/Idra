@@ -169,8 +169,8 @@ function PageContent(): ReactElement {
 												inputAnswers={agent.pendingInputAnswers}
 												onInputAnswerChange={agent.updatePendingInputAnswer}
 												onSelectApprovalOption={agent.selectApprovalOption}
-												onSubmit={(pendingMessage) =>
-													void agent.submitMultiSelect(pendingMessage)
+												onSubmit={(pendingMessage, immediateApproval) =>
+													void agent.submitMultiSelect(pendingMessage, immediateApproval)
 												}
 											/>
 										);
