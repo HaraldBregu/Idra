@@ -67,25 +67,3 @@ export const SETTINGS_NAVIGATION = [
 		icon: AppWindow,
 	},
 ] satisfies readonly SettingsNavigationItem[];
-
-export function getCommandShortcutLabel(): string {
-	const isMac =
-		typeof navigator !== 'undefined' &&
-		(navigator.platform === 'MacIntel' || navigator.platform.startsWith('Mac'));
-
-	return isMac ? '⌘K' : 'Ctrl K';
-}
-
-export function openCommandMenu(): void {
-	const isMac = getCommandShortcutLabel() === '⌘K';
-
-	window.dispatchEvent(
-		new KeyboardEvent('keydown', {
-			key: 'k',
-			metaKey: isMac,
-			ctrlKey: !isMac,
-			bubbles: true,
-			cancelable: true,
-		})
-	);
-}
