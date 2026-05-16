@@ -21,7 +21,7 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
-import { CHANNEL_PROVIDER_IDS, type Channel } from '../../../../src/shared/channels';
+import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model, Service } from '../../../../src/shared/service';
 
