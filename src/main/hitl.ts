@@ -11,10 +11,13 @@ export interface PendingApprovalView {
 	id: string;
 	kind: 'exec' | 'plugin' | 'api' | 'tool';
 	toolName: string;
+	runId?: string;
+	toolCallId?: string;
 	question: string;
 	title: string;
 	description?: string;
 	argsPreview?: unknown;
+	derivedPaths?: string[];
 	command?: string;
 	cwd?: string;
 	envKeys?: string[];
@@ -70,6 +73,9 @@ export class HitlBridge implements ApprovalStreamLike {
 		kind?: PendingApprovalView['kind'];
 		title?: string;
 		description?: string;
+		runId?: string;
+		toolCallId?: string;
+		derivedPaths?: string[];
 		timeoutMs?: number;
 		allowedDecisions?: ApprovalDecision[];
 	}): Promise<ApprovalDecision | null> {
@@ -83,8 +89,11 @@ export class HitlBridge implements ApprovalStreamLike {
 			description: opts.description,
 			requestPayload: {
 				toolName: opts.toolName,
+				runId: opts.runId,
+				toolCallId: opts.toolCallId,
 				question: opts.question,
 				argsPreview,
+				derivedPaths: normalizePaths(opts.derivedPaths),
 			},
 			agentId: this.agentId,
 			sessionId: this.agentId,
@@ -208,10 +217,13 @@ function recordToPendingApproval(record: ApprovalRecord): PendingApprovalView {
 		id: record.id,
 		kind: record.kind,
 		toolName: typeof payload.toolName === 'string' ? payload.toolName : record.kind,
+		runId: typeof payload.runId === 'string' ? payload.runId : record.sessionId,
+		toolCallId: typeof payload.toolCallId === 'string' ? payload.toolCallId : undefined,
 		question: typeof payload.question === 'string' ? payload.question : record.title,
 		title: record.title,
 		description: record.description,
 		argsPreview,
+		derivedPaths: normalizePaths(payload.derivedPaths),
 		command: typeof argRecord.command === 'string' ? argRecord.command : undefined,
 		cwd: typeof argRecord.workdir === 'string' ? argRecord.workdir : undefined,
 		envKeys: envKeys(argRecord.env),
@@ -230,6 +242,12 @@ function normalizeDecision(decision: ApprovalDecision | boolean): ApprovalDecisi
 function envKeys(value: unknown): string[] | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	return Object.keys(value as Record<string, unknown>).sort();
+}
+
+function normalizePaths(value: unknown): string[] | undefined {
+	if (!Array.isArray(value)) return undefined;
+	const paths = value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+	return paths.length > 0 ? [...new Set(paths)] : undefined;
 }
 
 function sanitizePreview(value: unknown): unknown {

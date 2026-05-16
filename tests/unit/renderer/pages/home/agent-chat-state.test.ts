@@ -192,6 +192,9 @@ describe('agent chat state', () => {
 						question: 'Approve?',
 						title: 'Approve?',
 						command: 'ls',
+						runId: 'run-1',
+						toolCallId: 'tool-1',
+						derivedPaths: ['/workspace/README.md'],
 						createdAtMs: 1,
 						expiresAtMs: 2,
 						allowedDecisions: ['allow-once', 'deny'],
@@ -214,6 +217,10 @@ describe('agent chat state', () => {
 			'Deny',
 			'Answer',
 		]);
+		expect(pending?.options[0]).toMatchObject({
+			paths: ['/workspace/README.md'],
+			meta: expect.stringContaining('run run-1'),
+		});
 		expect(defaultPendingSelections(pending!)).toEqual(['approval:approval-1:deny']);
 	});
 

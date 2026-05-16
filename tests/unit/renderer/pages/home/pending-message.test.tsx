@@ -35,6 +35,7 @@ function approvalMessage(options?: Partial<HomeMultiSelectMessage>): HomeMultiSe
 				kind: 'approval',
 				label: 'exec: Allow once',
 				description: 'printf ok',
+				paths: ['/workspace/README.md'],
 				approvalId: 'a1',
 				decision: 'allow-once',
 			},
@@ -69,6 +70,8 @@ describe('PendingMessage', () => {
 
 		await userEvent.click(screen.getByRole('radio', { name: /allow once/i }));
 
+		expect(screen.getByText('Affected paths')).toBeInTheDocument();
+		expect(screen.getByText('/workspace/README.md')).toBeInTheDocument();
 		expect(onSelectApprovalOption).toHaveBeenCalledWith(
 			'pending-1',
 			'a1',

@@ -136,10 +136,13 @@ export interface AgentPendingApproval {
 	id: string;
 	kind: 'exec' | 'plugin' | 'api' | 'tool';
 	toolName: string;
+	runId?: string;
+	toolCallId?: string;
 	question: string;
 	title: string;
 	description?: string;
 	argsPreview?: unknown;
+	derivedPaths?: string[];
 	command?: string;
 	cwd?: string;
 	envKeys?: string[];

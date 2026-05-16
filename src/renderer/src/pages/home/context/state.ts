@@ -30,6 +30,7 @@ export interface HomeMultiSelectOption {
 	readonly description: string;
 	readonly subject?: string;
 	readonly meta?: string;
+	readonly paths?: readonly string[];
 	readonly approvalId?: string;
 	readonly decision?: ApprovalDecision;
 	readonly inputId?: string;

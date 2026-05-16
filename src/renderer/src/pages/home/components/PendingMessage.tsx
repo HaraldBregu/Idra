@@ -79,6 +79,24 @@ export function PendingMessage({
 									<p className="max-h-28 overflow-auto whitespace-pre-wrap break-words text-xs leading-normal text-muted-foreground [overflow-wrap:anywhere]">
 										{first.description}
 									</p>
+									{first.paths && first.paths.length > 0 && (
+										<div className="flex min-w-0 flex-col gap-1 rounded-md border border-border bg-muted/40 px-2.5 py-2">
+											<span className="text-[11px] font-semibold uppercase leading-none text-muted-foreground">
+												Affected paths
+											</span>
+											<div className="flex min-w-0 flex-col gap-1">
+												{first.paths.map((path) => (
+													<code
+														key={path}
+														className="min-w-0 truncate rounded bg-background px-1.5 py-0.5 text-xs text-foreground"
+														title={path}
+													>
+														{path}
+													</code>
+												))}
+											</div>
+										</div>
+									)}
 									<div
 										className="grid grid-cols-1 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]"
 										role="radiogroup"

@@ -10,6 +10,9 @@ describe('hitl bridge and agent registry', () => {
 			toolName: 'exec',
 			question: 'Run?',
 			args: { command: 'pwd', env: { API_KEY: 'secret', SAFE: 'value' } },
+			runId: 'run-1',
+			toolCallId: 'tool-1',
+			derivedPaths: ['/workspace/README.md', '/workspace/README.md'],
 		});
 		const input = hitl.requestInput('Where?', ['a']);
 		const pending = hitl.getPending();
@@ -21,6 +24,9 @@ describe('hitl bridge and agent registry', () => {
 				toolName: 'exec',
 				command: 'pwd',
 				envKeys: ['API_KEY', 'SAFE'],
+				runId: 'run-1',
+				toolCallId: 'tool-1',
+				derivedPaths: ['/workspace/README.md'],
 				allowedDecisions: ['allow-once', 'allow-always', 'deny'],
 			})
 		);

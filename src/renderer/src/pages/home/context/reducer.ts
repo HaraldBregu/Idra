@@ -299,6 +299,7 @@ function approvalToOptions(approval: AgentPendingApproval): HomeMultiSelectOptio
 			description: approvalDescription(approval),
 			subject: approval.title || approval.question || approval.toolName,
 			meta: approvalMeta(approval),
+			paths: approval.derivedPaths,
 			approvalId: approval.id,
 			decision,
 		}));
@@ -324,7 +325,8 @@ function approvalMeta(approval: AgentPendingApproval): string {
 	const shortId = id.slice(0, 8);
 	const expiresInMs = approval.expiresAtMs - Date.now();
 	const expiresLabel = expiresInMs > 0 ? `expires in ${Math.ceil(expiresInMs / 1000)}s` : 'expired';
-	return `${approval.kind} · ${approval.toolName} · ${shortId} · ${expiresLabel}`;
+	const runLabel = approval.runId ? ` · run ${approval.runId.slice(0, 8)}` : '';
+	return `${approval.kind} · ${approval.toolName} · ${shortId}${runLabel} · ${expiresLabel}`;
 }
 
 function pendingMessageId(event: AgentPendingEventPayload, fallbackMs: number): string {
