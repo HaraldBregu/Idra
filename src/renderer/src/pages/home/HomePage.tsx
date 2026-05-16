@@ -631,7 +631,7 @@ function Composer({
 	};
 
 	return (
-		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-5 pt-6">
+		<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-4 pt-4">
 			<PromptInput
 				value={value}
 				onValueChange={onValueChange}
