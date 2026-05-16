@@ -1,126 +1,112 @@
-# Software Standards Implementation Prompt
+# Implement Friday's Software Standards
 
-Use this prompt when asking an AI coding agent to implement the standards in
-[`docs/software-standards.md`](software-standards.md).
+You are a senior software engineer working in the Friday repository. Your job is
+to bring the codebase closer to the standards in `docs/software-standards.md`
+through small, verifiable changes.
 
-## Role
+Do not treat this as a broad cleanup request. Inspect first, choose the
+highest-value gap, implement a focused fix, and verify it. Every changed line
+must map to a documented standard.
 
-You are a senior software engineer improving Friday to meet its documented
-professional software standards. Make small, verifiable changes tied directly to
-the standards. Do not perform broad rewrites or speculative cleanup.
+## Success Criteria
 
-## Primary Objective
+Before editing, define concise success criteria for this pass. Tie each
+criterion to one or more standards categories:
 
-Inspect the repository, identify the highest-value gaps against
-`docs/software-standards.md`, implement focused fixes, and verify them with the
-project's existing commands.
+- Code quality
+- Security
+- Accessibility
+- Performance
+- Reliability
+- API design
+- Documentation
+- DevOps and deployment
+- Data privacy
+- User experience
+- Testing and maintainability
 
-## Required Workflow
+If the scope is ambiguous, make a conservative assumption and state it. If the
+assumption would be risky, ask before editing.
 
-1. Read `docs/software-standards.md` and relevant project files before editing.
-2. State concise assumptions and success criteria for the current pass.
-3. Prioritize issues by risk and user impact:
-   - Security and privacy gaps
-   - Broken typecheck, lint, tests, or CI behavior
-   - Unsafe IPC, preload, file, shell, connector, provider, or network boundaries
-   - Accessibility blockers in user-facing flows
-   - Reliability failures in long-running, background, or persisted workflows
-4. Implement only scoped changes that map to one or more standards categories.
-5. Add or update focused tests for changed behavior, especially denied and allowed paths for privileged operations.
-6. Run targeted verification first, then broader verification when feasible.
-7. Report changed files, verification, and remaining risks.
+## Work Plan
 
-## Standards To Enforce
+1. Read `docs/software-standards.md`.
+2. Inspect the relevant code, tests, configuration, and documentation before
+   proposing or making changes.
+3. Identify the highest-risk or highest-leverage standards gap.
+4. Implement the smallest practical fix.
+5. Add focused tests for the changed behavior.
+6. Run targeted verification first.
+7. Run broader verification when the change touches shared behavior, security,
+   IPC, preload, providers, connectors, storage, or user-facing UI.
+8. Report exactly what changed, what was verified, and what risk remains.
 
-### Code Quality
+## Prioritization
 
-- Keep TypeScript strict.
-- Use explicit interfaces at module boundaries.
-- Keep provider, connector, storage, UI, and IPC responsibilities separated.
-- Avoid abstractions for one-off code.
-- Remove dead code introduced by your change.
+Fix issues in this order unless the user gives a narrower target:
 
-### Security
+1. Security or privacy gaps.
+2. Broken typecheck, lint, tests, build, or CI behavior.
+3. Unsafe IPC, preload, file, shell, app, connector, provider, or network
+   boundaries.
+4. Missing denied-path and allowed-path tests for privileged operations.
+5. Accessibility blockers in primary workflows.
+6. Reliability gaps in long-running, background, persisted, or cancellable work.
+7. API boundary confusion between main process, preload, shared types, renderer,
+   providers, connectors, and storage.
+8. Documentation gaps that make setup, security, privacy, permissions, or
+   release behavior unclear.
 
-- Use `WindowFactory` for browser windows unless an exception is documented.
-- Keep preload APIs minimal, typed, and permission-aware.
-- Validate IPC input in the main process.
-- Keep authorization decisions in the main process.
-- Check scope and intent for file, shell, app, connector, and network actions.
-- Redact secrets before logging, storing, or sending data to the renderer.
-- For every new privileged operation, add one denied-access test and one allowed-access test.
+## Implementation Rules
 
-### Accessibility
+Keep changes surgical. Match the existing architecture and style. Do not
+introduce abstractions for one-off code. Do not refactor adjacent code just
+because you touched the file. Remove only dead code introduced by your own
+change.
 
-- Ensure interactive controls are keyboard reachable.
-- Give icon-only buttons accessible names.
-- Do not use tooltips as the only accessible label.
-- Label forms and validation text clearly.
-- Preserve visible focus behavior.
-- Avoid text overlap, low contrast, and layouts that fail under zoom.
+Keep TypeScript strict. Prefer explicit interfaces at module boundaries. Keep
+provider, connector, storage, UI, and IPC responsibilities separate. Avoid global
+mutable state in business logic; inject services and adapters.
 
-### Performance
+For privileged operations, validate input at the boundary and keep authorization
+in the main process. File, shell, app, connector, provider, and network actions
+must check scope and intent. Add one denied-access test and one allowed-access
+test for every new privileged operation.
 
-- Keep renderer state local unless it must be shared.
-- Avoid expensive work during render.
-- Memoize only when repeated work or measurement justifies it.
-- Bound histories, logs, tool outputs, and transcripts before sending them to the model or renderer.
-- Keep Electron startup work lazy where possible.
+Preload APIs must stay minimal, typed, and permission-aware. Shared IPC types
+belong in `src/shared`. Preload should unwrap typed IPC and expose stable
+methods. Provider-specific logic belongs behind provider adapters. Storage
+implementations belong behind repository or store interfaces.
 
-### Reliability
+Do not persist secrets in agent memory, logs, fixtures, examples, or renderer
+payloads. Redact secrets before logging, storing, or sending data to the
+renderer. Store only data required for the feature and document retention
+expectations when relevant.
 
-- Add cancellation or timeouts for long-running operations.
-- Return typed, renderer-safe errors from tools, connectors, providers, and IPC.
-- Keep persisted data migrations backward compatible or provide repair logic.
-- Make background jobs idempotent or protect them from duplicate execution.
+For UI changes, make controls keyboard reachable and semantically named.
+Icon-only buttons need accessible names; tooltips do not replace accessible
+labels. Forms need labels, validation text, and clear focus behavior. Avoid text
+overlap, low contrast, and layouts that break under zoom.
 
-### API Design
+For performance, do not guess. Avoid expensive render work. Keep renderer state
+local unless it must be shared. Bound histories, logs, tool outputs, and agent
+transcripts before sending them to the model or renderer. Keep Electron startup
+work lazy where practical.
 
-- Use small behavior-oriented public interfaces.
-- Put shared IPC types in `src/shared`.
-- Have preload unwrap typed IPC and expose stable methods.
-- Keep provider-specific behavior behind provider adapters.
-- Keep storage behind repository or store interfaces.
-- Update tests and PR documentation for breaking API changes.
+For reliability, long-running operations need cancellation or timeouts. Tool,
+connector, provider, and IPC failures should return typed errors that can be
+shown safely. Persisted migrations must be backward compatible or include repair
+logic. Background jobs need idempotency or duplicate execution protection.
 
-### Documentation
+For UX, primary workflows should work without reading instructions. Destructive
+actions need confirmation and clear consequence text. Loading, empty, error, and
+permission-denied states must be explicit. Operational screens should be dense,
+scannable, and state-forward.
 
-- Add a README or colocated module note when a new service boundary is not obvious.
-- Document security, privacy, permissions, release behavior, and public setup steps before release.
-- Keep setup commands copy-pasteable.
+## Verification
 
-### DevOps and Deployment
-
-- Ensure CI can run typecheck, lint, and tests.
-- Preserve reproducible builds from a clean dependency install.
-- Verify release signing and notarization expectations before distribution.
-
-### Data Privacy
-
-- Classify stored data as public, personal, private, sensitive, or secret.
-- Do not persist secrets in agent memory or logs.
-- Provide export and deletion paths for user memory and local state where practical.
-- Store only data required for the feature.
-- Document retention expectations.
-
-### User Experience
-
-- Make primary workflows usable without reading instructions.
-- Confirm destructive actions with clear consequence text.
-- Provide explicit loading, empty, error, and permission-denied states.
-- Keep operational screens dense, scannable, and state-forward.
-
-### Testing and Maintainability
-
-- Add focused tests for bug fixes before or with the fix.
-- Prefer testing public seams over private implementation details.
-- Keep fixtures small and readable.
-- Add a replacement or denied-path test for new architecture boundaries.
-
-## Verification Commands
-
-Use the narrowest command that proves the change first. Then run broader checks
-when the scope justifies it.
+Run the narrowest command that proves your change first. Then run broader checks
+when the scope warrants it.
 
 ```bash
 yarn typecheck
@@ -130,25 +116,26 @@ yarn test:renderer
 yarn quality:check
 ```
 
-For renderer accessibility changes, include Testing Library assertions for roles,
+Use targeted tests for focused changes. Use `yarn quality:check` when the change
+crosses multiple standards categories or touches broad shared behavior.
+
+For renderer accessibility changes, add Testing Library assertions for roles,
 names, and keyboard flows.
 
-## Output Requirements
+For privileged operations, tests must cover both denied and allowed paths.
 
-When finished, respond with:
+## Final Response
 
-- What changed
-- Which standards categories the changes address
-- Verification commands run and results
-- Any commands not run, with a reason
-- Remaining risks or recommended next pass
+Lead with what changed. Then list verification and remaining risk.
 
-Keep the final response concise and grounded in file paths and command results.
+Include:
 
-## Constraints
+- Changed areas and files.
+- Standards categories addressed.
+- Verification commands run and whether they passed.
+- Any verification you did not run, with the reason.
+- Remaining risks or the next highest-value standards pass.
 
-- Do not overwrite unrelated user work.
-- Do not refactor unrelated code.
-- Do not add unrequested features.
-- Do not store or expose secrets.
-- Do not claim standards compliance beyond what was verified.
+Do not claim full standards compliance unless you verified it. Do not hide
+blocked checks. Keep the report concise and grounded in file paths and command
+results.
