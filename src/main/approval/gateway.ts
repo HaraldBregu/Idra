@@ -134,6 +134,8 @@ export class ApprovalGateway {
 		if (!resolved.ok) return Promise.resolve(null);
 		const record = resolved.record;
 		if (record.status !== 'pending') return Promise.resolve(record.decision ?? null);
+		const pending = this.pending.get(record.id);
+		if (!pending) return Promise.resolve(record.decision ?? null);
 		if (signal?.aborted) return Promise.resolve('cancelled');
 		return new Promise((resolve) => {
 			const abort = (): void => {
@@ -141,7 +143,7 @@ export class ApprovalGateway {
 				resolve('cancelled');
 			};
 			signal?.addEventListener('abort', abort, { once: true });
-			record.waiters.push((next) => {
+			pending.waiters.push((next) => {
 				signal?.removeEventListener('abort', abort);
 				resolve(next.decision ?? null);
 			});
