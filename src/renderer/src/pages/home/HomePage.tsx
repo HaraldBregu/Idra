@@ -183,34 +183,6 @@ function AssistantLabel(): ReactElement {
 	);
 }
 
-function AudioPreview(): ReactElement {
-	return (
-		<Message className="ml-auto w-full max-w-lg flex-col items-start gap-2">
-			<MessageContent className="flex h-10 w-full items-center gap-3 rounded-full px-3 py-0 shadow-sm">
-				<span
-					className="flex size-7 shrink-0 items-center justify-center rounded-full bg-background"
-					aria-hidden
-				>
-					<Play className="ml-0.5 size-3 fill-current" />
-				</span>
-				<span className="flex flex-1 items-center gap-1" aria-hidden>
-					{waveformBars.map((height, index) => (
-						<span
-							key={`${height}-${index}`}
-							className="w-1 rounded-full bg-current text-muted-foreground"
-							style={{ height }}
-						/>
-					))}
-				</span>
-				<span className="font-mono text-xs font-semibold text-muted-foreground">0:06</span>
-			</MessageContent>
-			<p className="px-1 text-sm font-medium italic leading-snug text-muted-foreground">
-				&quot;check the project and tell me what to fix first&quot;
-			</p>
-		</Message>
-	);
-}
-
 function ReferenceConversation({
 	onUseSuggestion,
 }: {
@@ -218,7 +190,6 @@ function ReferenceConversation({
 }): ReactElement {
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-2 pb-4 pt-5">
-			<AudioPreview />
 			<section className="flex max-w-xl flex-col gap-3" aria-label="Assistant suggestions">
 				<AssistantLabel />
 				<MessageContent className="w-fit rounded-2xl px-4 py-3 text-sm font-medium leading-snug">
@@ -239,40 +210,6 @@ function ReferenceConversation({
 						</PromptSuggestion>
 					))}
 				</div>
-			</section>
-			<Message className="ml-auto w-full max-w-md flex-col gap-2" aria-label="User selection">
-				<MessageContent className="rounded-none border-l-4 border-primary px-4 py-2 text-sm font-medium text-muted-foreground">
-					Make an edit · small patch
-				</MessageContent>
-				<MessageContent className="rounded-3xl px-5 py-3 text-sm font-medium leading-tight">
-					clean up the home layout
-				</MessageContent>
-			</Message>
-			<section className="flex max-w-lg flex-col gap-3" aria-label="Assistant confirmation">
-				<AssistantLabel />
-				<MessageContent className="rounded-2xl p-5 shadow-sm">
-					<div className="flex gap-4">
-						<div className="flex size-10 items-center justify-center rounded-xl bg-background text-muted-foreground">
-							<Calendar className="size-5" />
-						</div>
-						<div className="min-w-0 flex-1">
-							<h2 className="truncate text-sm font-bold leading-tight text-foreground">
-								Ready to update the homepage
-							</h2>
-							<p className="mt-1 text-xs font-medium text-muted-foreground">
-								Small UI pass · theme colors · focused diff
-							</p>
-						</div>
-					</div>
-					<div className="mt-4 flex flex-wrap gap-2">
-						<Button type="button" size="sm" className="rounded-xl">
-							Apply change
-						</Button>
-						<Button type="button" variant="outline" size="sm" className="rounded-xl">
-							Adjust scope
-						</Button>
-					</div>
-				</MessageContent>
 			</section>
 		</div>
 	);
