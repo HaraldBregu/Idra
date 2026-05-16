@@ -128,6 +128,7 @@ function inferPermissions(name: string): string[] {
 	if (['write', 'edit', 'apply_patch'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
+	if (name === 'cron') return ['calendar:read', 'calendar:write'];
 	if (name.includes('cron_add') || name.includes('cron_remove')) return ['calendar:write'];
 	if (name.includes('cron_list')) return ['calendar:read'];
 	if (name.startsWith('set_') || name.startsWith('open_')) return ['app:write'];
@@ -135,7 +136,7 @@ function inferPermissions(name: string): string[] {
 }
 
 function inferSafety(name: string): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
-	if (['write', 'edit', 'apply_patch', 'exec', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service'].includes(name)) return 'high';
+	if (['write', 'edit', 'apply_patch', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service'].includes(name)) return 'high';
 	if (
 		[
 			'web_fetch',
