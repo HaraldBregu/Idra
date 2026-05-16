@@ -32,8 +32,14 @@ export interface ElicitationStreamLike {
 export interface ToolContext {
 	/** Workspace root (absolute path). */
 	workspace: string;
+	/** Agent id that owns this run, when available. */
+	agentId?: string;
 	/** Run-scoped id used by the run logger / session. */
 	sessionId: string;
+	/** Optional override for persisted session files. */
+	sessionBaseDir?: string;
+	/** Visibility policy for session coordination and session-derived memory. */
+	sessionVisibility?: 'self' | 'tree' | 'agent' | 'all';
 	/** Per-file read tracker for the read-before-write rule. */
 	readState: Map<string, { mtimeMs: number; size: number }>;
 	/** Current plan; tools may read or replace. */
