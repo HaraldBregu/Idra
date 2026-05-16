@@ -41,6 +41,13 @@ export interface ChannelPluginEntry<TConfig = unknown, TSetupInput = unknown> {
 	plugin: ChannelPlugin<TConfig, TSetupInput>;
 }
 
+export interface ChannelPluginEntryOptions<TConfig = unknown, TSetupInput = unknown> {
+	plugin: ChannelPlugin<TConfig, TSetupInput>;
+	id?: ChannelType;
+	name?: string;
+	description?: string;
+}
+
 export interface BundledChannelEntry {
 	id: ChannelType;
 	name: string;
@@ -99,22 +106,30 @@ export function createChatChannelPlugin<TConfig, TSetupInput>(
 
 export function defineChannelPluginEntry<TConfig, TSetupInput>(
 	plugin: ChannelPlugin<TConfig, TSetupInput>
-): ChannelPlugin<TConfig, TSetupInput> {
-	return plugin;
-}
-
-export function defineChannelRuntimePluginEntry<TConfig, TSetupInput>(
-	plugin: ChannelPlugin<TConfig, TSetupInput>
-): ChannelPluginEntry<TConfig, TSetupInput> {
+): ChannelPlugin<TConfig, TSetupInput>;
+export function defineChannelPluginEntry<TConfig, TSetupInput>(
+	options: ChannelPluginEntryOptions<TConfig, TSetupInput>
+): ChannelPluginEntry<TConfig, TSetupInput>;
+export function defineChannelPluginEntry<TConfig, TSetupInput>(
+	input: ChannelPlugin<TConfig, TSetupInput> | ChannelPluginEntryOptions<TConfig, TSetupInput>
+): ChannelPlugin<TConfig, TSetupInput> | ChannelPluginEntry<TConfig, TSetupInput> {
+	if (isChannelPlugin(input)) return input;
+	const plugin = input.plugin;
 	return {
-		id: plugin.id,
-		name: plugin.meta.name,
-		description: plugin.meta.description,
+		id: input.id ?? plugin.id,
+		name: input.name ?? plugin.meta.name,
+		description: input.description ?? plugin.meta.description,
 		plugin,
 		register(api) {
 			api.registerChannel({ plugin });
 		},
 	};
+}
+
+export function defineChannelRuntimePluginEntry<TConfig, TSetupInput>(
+	plugin: ChannelPlugin<TConfig, TSetupInput>
+): ChannelPluginEntry<TConfig, TSetupInput> {
+	return defineChannelPluginEntry({ plugin });
 }
 
 export function defineBundledChannelEntry(entry: BundledChannelEntry): BundledChannelEntry {
@@ -181,4 +196,10 @@ function createDefaultConversationBindingsAdapter(): ChannelConversationBindings
 		supportsCurrentConversationBinding: true,
 		defaultTopLevelPlacement: 'thread',
 	};
+}
+
+function isChannelPlugin<TConfig, TSetupInput>(
+	value: ChannelPlugin<TConfig, TSetupInput> | ChannelPluginEntryOptions<TConfig, TSetupInput>
+): value is ChannelPlugin<TConfig, TSetupInput> {
+	return 'config' in value && 'capabilities' in value && 'meta' in value;
 }

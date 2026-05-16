@@ -68,6 +68,7 @@ export type {
 	BundledChannelEntry,
 	ChannelPluginApi,
 	ChannelPluginEntry,
+	ChannelPluginEntryOptions,
 	ChannelPluginRegistration,
 } from './plugin';
 export type { ChannelCatalogEntry } from './catalog';
