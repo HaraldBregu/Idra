@@ -12,7 +12,7 @@ export function ConnectorToolsList({
 }): React.JSX.Element {
 	if (tools.length === 0) {
 		return (
-			<Card size="sm" className="gap-0 rounded-xl py-0 shadow-none">
+			<Card size="sm" className="gap-0 rounded-lg py-0 shadow-none">
 				<CardContent className="p-0">
 					<SettingsEmptyState
 						icon={Wrench}
@@ -26,20 +26,20 @@ export function ConnectorToolsList({
 	}
 
 	return (
-		<Card size="sm" className="gap-0 rounded-xl py-0 shadow-none">
+		<Card size="sm" className="gap-0 rounded-lg py-0 shadow-none">
 			<CardContent className="flex flex-col p-0">
 				{tools.map((tool) => (
 					<div
 						key={tool.name}
-						className="flex min-h-[44px] items-center gap-2.5 border-b border-border/60 px-4 py-2.5 last:border-b-0"
+						className="flex min-h-9 items-center gap-2 border-b border-border/60 px-3 py-2 last:border-b-0"
 					>
-						<Wrench className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.8} />
+						<Wrench className="size-3 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 						<div className="min-w-0 flex-1">
-							<div className="flex flex-wrap items-center gap-2">
-								<h4 className="text-[13px] font-medium leading-5">{tool.name}</h4>
+							<div className="flex flex-wrap items-center gap-1.5">
+								<h4 className="text-xs font-medium leading-4">{tool.name}</h4>
 								<Badge
 									variant={tool.requiresApproval ? 'outline' : 'secondary'}
-									className="h-5 gap-1 text-xs"
+									className="h-4 gap-1 px-1.5 text-[10px]"
 								>
 									{tool.requiresApproval ? (
 										<ShieldAlert className="size-2.5" />
@@ -50,7 +50,7 @@ export function ConnectorToolsList({
 								</Badge>
 							</div>
 							{tool.description && (
-								<p className="text-xs leading-4 text-muted-foreground">
+								<p className="text-[11px] leading-4 text-muted-foreground">
 									{tool.description}
 								</p>
 							)}
