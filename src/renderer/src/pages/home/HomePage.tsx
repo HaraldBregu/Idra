@@ -119,8 +119,6 @@ const exampleActions = [
 	},
 ] as const;
 
-const waveformBars = [14, 22, 17, 24, 16, 28, 20, 12, 26, 18, 23, 15, 25, 13] as const;
-
 const markdownComponents: Partial<Components> = {
 	p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
 	ul: ({ children }) => <ul className="mb-2 list-disc pl-5 last:mb-0">{children}</ul>,
