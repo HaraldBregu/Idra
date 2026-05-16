@@ -216,7 +216,7 @@ function ReferenceConversation({
 function UserMessage({ content }: { readonly content: string }): ReactElement {
 	return (
 		<Message className="justify-end">
-			<MessageContent className="max-w-xl rounded-3xl px-5 py-3 text-sm font-medium leading-relaxed">
+			<MessageContent className="min-w-0 max-w-xl break-words rounded-3xl px-5 py-3 text-sm font-medium leading-relaxed [overflow-wrap:anywhere]">
 				{content}
 			</MessageContent>
 		</Message>
@@ -321,14 +321,14 @@ function AssistantTextMessage({
 	readonly isStreaming?: boolean;
 }): ReactElement {
 	return (
-		<Message className="max-w-2xl">
+		<Message className="min-w-0 max-w-2xl">
 			<div className="flex min-w-0 flex-1 items-start gap-2">
 				<div className="flex min-w-0 flex-1 flex-col gap-2">
 					<AssistantActivityPanel message={message} isStreaming={isStreaming} />
 					{message.content.length > 0 && (
 						<Markdown
 							components={markdownComponents}
-							className="prose rounded-2xl bg-secondary px-4 py-3 text-sm leading-relaxed text-foreground shadow-sm prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert"
+							className="prose min-w-0 max-w-full break-words rounded-2xl bg-secondary px-4 py-3 text-sm leading-relaxed text-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs prose-a:break-words prose-code:break-words dark:prose-invert [&_*]:max-w-full"
 						>
 							{message.content}
 						</Markdown>
