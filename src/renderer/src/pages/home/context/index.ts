@@ -16,6 +16,7 @@ export {
 	type AgentRunState,
 	type AgentToolPart,
 	type HomeChatMessage,
+	type ImmediateApprovalSelection,
 	type HomeMultiSelectMessage,
 	type HomeMultiSelectOption,
 	type UserMessage,
