@@ -140,6 +140,24 @@
 		"description": "Configura le preferenze dell'applicazione",
 		"search": "Cerca",
 		"searchLabel": "Cerca nelle impostazioni",
+		"overview": {
+			"backToSettings": "Tutte le impostazioni",
+			"browseNormally": "Sfoglia normalmente",
+			"searchWithShortcut": "Cerca con {{shortcut}}",
+			"searchCardLabel": "Apri il menu comandi con {{shortcut}}",
+			"searchTitle": "Usa la ricerca come livello rapido",
+			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
+			"descriptions": {
+				"general": "Informazioni app, permessi, cartelle, barra menu",
+				"system": "Tema, lingua, traslucenza, finestra",
+				"channels": "Telegram, canali messaggi, mittenti consentiti",
+				"skills": "Capacita locali, importazioni, cartelle installate",
+				"connectors": "App collegate, strumenti MCP, token OAuth",
+				"providers": "Endpoint AI, chiavi API, provider modelli",
+				"cron": "Attivita programmate, ricorrenze, dettagli esecuzione",
+				"apps": "Pacchetti installati, cartelle app, manifest locali"
+			}
+		},
 		"tabs": {
 			"general": "Generale",
 			"channels": "Canali",
@@ -150,7 +168,7 @@
 			"media": "Media",
 			"devices": "Dispositivi",
 			"tools": "Strumenti",
-			"system": "Sistema",
+			"system": "Aspetto",
 			"themes": "Temi",
 			"editor": "Editor",
 			"cron": "Cron",

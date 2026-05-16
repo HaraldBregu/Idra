@@ -7,7 +7,7 @@ import {
 	X,
 	ArrowLeft,
 	ArrowRight,
-	User,
+	Settings,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -68,7 +68,6 @@ export const TitleBar = React.memo(function TitleBar({
 	const isSettings = location.pathname.startsWith('/settings');
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
-	const chatButtonLabel = t('titleBar.openChat', 'Open chat');
 
 	useEffect(() => {
 		if (!window.win) return;
@@ -189,17 +188,17 @@ export const TitleBar = React.memo(function TitleBar({
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
 					{isSettings ? (
-						<button
+						<Button
 							type="button"
-							onClick={() => navigate('/home')}
-							className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-sky-500 transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-95"
-							title={chatButtonLabel}
-							aria-label={chatButtonLabel}
+							variant="ghost"
+							size="icon"
+							className="size-8 rounded-full text-muted-foreground"
+							onClick={() => navigate('/settings')}
+							title={t('settings.title', 'Settings')}
+							aria-label={t('settings.title', 'Settings')}
 						>
-							<span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(255,255,255,0.95),rgba(255,255,255,0.12)_26%,transparent_38%),radial-gradient(circle_at_70%_75%,rgba(34,197,94,0.75),transparent_42%),linear-gradient(135deg,#0ea5e9,#6366f1_54%,#ec4899)]" />
-							<span className="absolute inset-[3px] rounded-full border border-white/30 bg-white/10" />
-							<span className="relative size-2 rounded-full bg-white/85" />
-						</button>
+							<Settings className="size-4" strokeWidth={1.8} />
+						</Button>
 					) : (
 						<Button
 							type="button"
@@ -210,7 +209,7 @@ export const TitleBar = React.memo(function TitleBar({
 							title={t('settings.title', 'Settings')}
 							aria-label={t('settings.title', 'Settings')}
 						>
-							<User className="size-4" strokeWidth={1.8} />
+							<Settings className="size-4" strokeWidth={1.8} />
 						</Button>
 					)}
 				</div>
