@@ -75,7 +75,7 @@ describe('agent/run', () => {
 			session: session(),
 			provider: {
 				async *stream(req) {
-					requests.push(req.messages);
+					requests.push([...req.messages]);
 					if (requests.length === 1) {
 						yield { type: 'tool_call_start' as const, id: 'tc1', name: 'ping' };
 						yield {
