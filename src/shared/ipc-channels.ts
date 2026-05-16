@@ -61,6 +61,7 @@ export const CronChannels = {
 	getScheduleExecutions: 'cron:getScheduleExecutions',
 	getNextRuns: 'cron:getNextRuns',
 	runNow: 'cron:runNow',
+	action: 'cron:action',
 	subscribe: 'cron:subscribe',
 	unsubscribe: 'cron:unsubscribe',
 	event: 'cron:event',
@@ -263,6 +264,10 @@ interface CronInvokeChannelMap {
 	[CronChannels.runNow]: {
 		args: [scheduleId: string];
 		result: import('./task').Task;
+	};
+	[CronChannels.action]: {
+		args: [request: import('./cron').OpenClawCronToolRequest];
+		result: import('./cron').OpenClawCronToolResponse;
 	};
 }
 
