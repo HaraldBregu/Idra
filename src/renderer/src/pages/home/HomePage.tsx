@@ -50,7 +50,7 @@ import {
 	StepsTrigger,
 } from '@/components/ui/steps';
 import { Textarea } from '@/components/ui/textarea';
-import { Tool } from '@/components/ui/tool';
+import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
