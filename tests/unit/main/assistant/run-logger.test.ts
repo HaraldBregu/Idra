@@ -70,6 +70,7 @@ describe('AssistantRunLogger', () => {
 			durationMs: 5,
 			status: 'ok',
 			outputChars: 12,
+			outputText: 'file-a\nfile-b',
 		});
 		await logger.logApprovalRequest({
 			runId: 'r1',
@@ -106,6 +107,10 @@ describe('AssistantRunLogger', () => {
 			'approval_resolution',
 			'finish',
 		]);
+		expect(records[2]).toMatchObject({
+			event: 'tool_call',
+			outputText: 'file-a\nfile-b',
+		});
 	});
 
 	it('serializes concurrent writes to avoid interleaving', async () => {
