@@ -231,7 +231,7 @@ const ConnectorsPage: React.FC = () => {
 				action={
 					<Button
 						type="button"
-						size="sm"
+						size="xs"
 						onClick={() => {
 							setForm(emptyForm);
 							setShowForm(true);
@@ -252,8 +252,8 @@ const ConnectorsPage: React.FC = () => {
 			{showForm && (
 				<SettingsSection title={form.id ? 'Edit connector' : 'Add connector'}>
 					<SettingsPanel>
-						<form className="grid gap-4 p-4" onSubmit={submit}>
-							<div className="grid gap-4 md:grid-cols-2">
+						<form className="grid gap-3 p-3" onSubmit={submit}>
+							<div className="grid gap-3 md:grid-cols-2">
 								<SettingsField id="connector-kind" label="Connector">
 									<Select
 										value={form.connectorId || null}
@@ -263,7 +263,8 @@ const ConnectorsPage: React.FC = () => {
 									>
 										<SelectTrigger
 											id="connector-kind"
-											className="w-full text-sm"
+											size="sm"
+											className="w-full text-xs [&_svg]:size-3"
 											aria-label="Connector"
 										>
 											<SelectValue placeholder="Select connector" />
@@ -284,7 +285,7 @@ const ConnectorsPage: React.FC = () => {
 										value={form.name}
 										onChange={(event) => update('name', event.target.value)}
 										placeholder="Google Calendar"
-										className="h-9 px-3 text-sm md:text-sm"
+										className="h-7 px-2 text-xs md:text-xs"
 									/>
 								</SettingsField>
 
@@ -294,7 +295,7 @@ const ConnectorsPage: React.FC = () => {
 										value={form.serverLabel}
 										onChange={(event) => update('serverLabel', event.target.value)}
 										placeholder="google_calendar"
-										className="h-9 px-3 text-sm md:text-sm"
+										className="h-7 px-2 text-xs md:text-xs"
 									/>
 								</SettingsField>
 
@@ -307,7 +308,8 @@ const ConnectorsPage: React.FC = () => {
 									>
 										<SelectTrigger
 											id="connector-approval-policy"
-											className="w-full text-sm"
+											size="sm"
+											className="w-full text-xs [&_svg]:size-3"
 											aria-label="Approval policy"
 										>
 											<SelectValue />
@@ -329,7 +331,7 @@ const ConnectorsPage: React.FC = () => {
 									value={form.serverDescription}
 									onChange={(event) => update('serverDescription', event.target.value)}
 									placeholder={selectedCatalog?.description}
-									className="min-h-20 py-2 text-sm md:text-sm"
+									className="min-h-14 py-1.5 text-xs md:text-xs"
 								/>
 							</SettingsField>
 
@@ -340,18 +342,18 @@ const ConnectorsPage: React.FC = () => {
 									value={form.authorization}
 									onChange={(event) => update('authorization', event.target.value)}
 									placeholder="Paste OAuth access token"
-									className="h-9 px-3 text-sm md:text-sm"
+									className="h-7 px-2 text-xs md:text-xs"
 								/>
 							</SettingsField>
 
 							<div className="grid gap-2">
 								<div className="flex flex-wrap items-center justify-between gap-2">
-									<Label className="text-sm leading-5">Allowed tools</Label>
+									<Label className="text-[11px] leading-4">Allowed tools</Label>
 									<span className="text-xs text-muted-foreground">
 										Leave all unselected to allow every available tool.
 									</span>
 								</div>
-								<div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
+								<div className="flex min-h-10 flex-wrap gap-1.5 rounded-md border border-border/70 bg-muted/20 p-2">
 									{selectedCatalog ? (
 										selectedCatalog.tools.map((tool) => {
 											const selected = form.allowedTools.includes(tool);
@@ -360,7 +362,7 @@ const ConnectorsPage: React.FC = () => {
 													key={tool}
 													type="button"
 													variant={selected ? 'secondary' : 'outline'}
-													size="sm"
+													size="xs"
 													aria-pressed={selected}
 													onClick={() => toggleAllowedTool(tool)}
 												>
@@ -369,37 +371,39 @@ const ConnectorsPage: React.FC = () => {
 											);
 										})
 									) : (
-										<p className="text-sm text-muted-foreground">Select a connector first.</p>
+										<p className="text-xs text-muted-foreground">Select a connector first.</p>
 									)}
 								</div>
 							</div>
 
-							<div className="grid gap-3 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
-								<div className="flex items-start justify-between gap-3 text-sm">
+							<div className="grid gap-2 rounded-md border border-border/70 bg-muted/20 p-2 sm:grid-cols-2">
+								<div className="flex items-start justify-between gap-2 text-xs">
 									<span className="min-w-0">
-										<Label htmlFor="connector-defer-loading" className="block leading-5">
+										<Label htmlFor="connector-defer-loading" className="block text-[11px] leading-4">
 											Defer tool loading
 										</Label>
-										<span className="mt-1 block text-sm leading-5 text-muted-foreground">
+										<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
 											Load tools only when the connector is used.
 										</span>
 									</span>
 									<Switch
+										size="sm"
 										id="connector-defer-loading"
 										checked={form.deferLoading}
 										onCheckedChange={(checked) => update('deferLoading', checked)}
 									/>
 								</div>
-								<div className="flex items-start justify-between gap-3 text-sm">
+								<div className="flex items-start justify-between gap-2 text-xs">
 									<span className="min-w-0">
-										<Label htmlFor="connector-enabled" className="block leading-5">
+										<Label htmlFor="connector-enabled" className="block text-[11px] leading-4">
 											Enabled
 										</Label>
-										<span className="mt-1 block text-sm leading-5 text-muted-foreground">
+										<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
 											Make this connector available to agent runs.
 										</span>
 									</span>
 									<Switch
+										size="sm"
 										id="connector-enabled"
 										checked={form.enabled}
 										onCheckedChange={(checked) => update('enabled', checked)}
@@ -408,9 +412,9 @@ const ConnectorsPage: React.FC = () => {
 							</div>
 
 							{selectedCatalog && (
-								<div className="flex flex-wrap gap-2 rounded-lg border border-border/70 bg-muted/20 p-3">
+								<div className="flex flex-wrap gap-1.5 rounded-md border border-border/70 bg-muted/20 p-2">
 									{selectedCatalog.scopes.map((scope) => (
-										<Badge key={scope} variant="outline" className="h-5 text-xs">
+										<Badge key={scope} variant="outline" className="h-4 px-1.5 text-[10px]">
 											{scope}
 										</Badge>
 									))}
@@ -421,13 +425,13 @@ const ConnectorsPage: React.FC = () => {
 								<Button
 									type="button"
 									variant="outline"
-									size="sm"
+									size="xs"
 									onClick={resetForm}
 									disabled={saving}
 								>
 									Cancel
 								</Button>
-								<Button type="submit" size="sm" disabled={!canSubmit}>
+								<Button type="submit" size="xs" disabled={!canSubmit}>
 									{saving ? 'Saving...' : form.id ? 'Save Connector' : 'Add Connector'}
 								</Button>
 							</div>
@@ -489,16 +493,16 @@ const ConnectorsPage: React.FC = () => {
 				<SettingsSection
 					title="Tools"
 					action={
-						<Button variant="outline" size="sm" onClick={() => setSelectedId(null)}>
+						<Button variant="outline" size="xs" onClick={() => setSelectedId(null)}>
 							Close
 						</Button>
 					}
 				>
 					<SettingsPanel>
-						<div className="p-5">
+						<div className="p-3">
 							<Badge
 								variant="outline"
-								className="h-6 rounded-lg bg-muted/40 text-xs text-muted-foreground"
+								className="h-5 rounded-md bg-muted/40 px-1.5 text-[10px] text-muted-foreground"
 							>
 								<Wrench className="mr-1 size-3" />
 								{selectedTools.length} tools

@@ -107,7 +107,7 @@ const ProvidersPage: React.FC = () => {
 				title={t('settings.tabs.providers')}
 				description={t('settings.providers.description')}
 				action={
-					<Button type="button" size="sm" onClick={() => setShowForm(true)}>
+					<Button type="button" size="xs" onClick={() => setShowForm(true)}>
 						<Plus className="size-3" />
 						{t('settings.providers.addProvider')}
 					</Button>
@@ -123,7 +123,7 @@ const ProvidersPage: React.FC = () => {
 			{showForm && (
 				<SettingsSection title={t('settings.providers.addTitle')}>
 					<SettingsPanel>
-						<form className="grid gap-4 p-4 md:grid-cols-2" onSubmit={handleSubmit}>
+						<form className="grid gap-3 p-3 md:grid-cols-2" onSubmit={handleSubmit}>
 							<SettingsField id="provider-id" label={t('settings.providers.id')}>
 								<Input
 									id="provider-id"
@@ -131,7 +131,7 @@ const ProvidersPage: React.FC = () => {
 									onChange={(event) => updateForm('id', event.target.value)}
 									placeholder={t('settings.providers.idPlaceholder')}
 									autoComplete="off"
-									className="h-9 px-3 text-sm md:text-sm"
+									className="h-7 px-2 text-xs md:text-xs"
 								/>
 							</SettingsField>
 
@@ -142,7 +142,7 @@ const ProvidersPage: React.FC = () => {
 									onChange={(event) => updateForm('name', event.target.value)}
 									placeholder={t('settings.providers.namePlaceholder')}
 									autoComplete="off"
-									className="h-9 px-3 text-sm md:text-sm"
+									className="h-7 px-2 text-xs md:text-xs"
 								/>
 							</SettingsField>
 
@@ -158,7 +158,7 @@ const ProvidersPage: React.FC = () => {
 									placeholder={t('settings.providers.baseUrlPlaceholder')}
 									type="url"
 									autoComplete="off"
-									className="h-9 px-3 text-sm md:text-sm"
+									className="h-7 px-2 text-xs md:text-xs"
 								/>
 							</SettingsField>
 
@@ -174,7 +174,7 @@ const ProvidersPage: React.FC = () => {
 									placeholder={t('settings.providers.apiKeyPlaceholder')}
 									type="password"
 									autoComplete="off"
-									className="h-9 px-3 text-sm md:text-sm"
+									className="h-7 px-2 text-xs md:text-xs"
 								/>
 							</SettingsField>
 
@@ -182,7 +182,7 @@ const ProvidersPage: React.FC = () => {
 								<Button
 									type="button"
 									variant="outline"
-									size="sm"
+									size="xs"
 									disabled={saving}
 									onClick={() => {
 										setForm(emptyForm);
@@ -191,7 +191,7 @@ const ProvidersPage: React.FC = () => {
 								>
 									{t('common.cancel')}
 								</Button>
-								<Button type="submit" size="sm" disabled={!canSubmit}>
+								<Button type="submit" size="xs" disabled={!canSubmit}>
 									{saving ? t('settings.providers.saving') : t('settings.providers.addProvider')}
 								</Button>
 							</div>
@@ -218,7 +218,7 @@ const ProvidersPage: React.FC = () => {
 								title={
 									<span className="flex min-w-0 flex-wrap items-center gap-1.5">
 										<span className="truncate">{provider.name}</span>
-										<Badge variant="outline" className="h-5 font-mono text-xs">
+										<Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px]">
 											{provider.id}
 										</Badge>
 									</span>
@@ -229,12 +229,12 @@ const ProvidersPage: React.FC = () => {
 								actions={
 									<Badge
 										variant={apiKeyStatus[provider.id] ? 'secondary' : 'outline'}
-										className="h-6 text-xs"
+										className="h-5 px-1.5 text-[10px]"
 									>
 										{apiKeyStatus[provider.id] ? (
-											<CheckCircle2 className="mr-1 size-3" />
+											<CheckCircle2 className="mr-0.5 size-2.5" />
 										) : (
-											<KeyRound className="mr-1 size-3" />
+											<KeyRound className="mr-0.5 size-2.5" />
 										)}
 										{apiKeyStatus[provider.id]
 											? t('settings.providers.keySaved')
