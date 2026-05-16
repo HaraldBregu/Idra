@@ -31,14 +31,12 @@ export function ConnectorToolsList({
 				{tools.map((tool) => (
 					<div
 						key={tool.name}
-						className="flex min-h-[72px] items-start gap-3 border-b border-border/70 px-5 py-4 last:border-b-0"
+						className="flex min-h-[44px] items-center gap-2.5 border-b border-border/60 px-4 py-2.5 last:border-b-0"
 					>
-						<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted/50">
-							<Wrench className="size-5 text-muted-foreground" strokeWidth={1.8} />
-						</div>
+						<Wrench className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 						<div className="min-w-0 flex-1">
 							<div className="flex flex-wrap items-center gap-2">
-								<h4 className="text-sm font-semibold leading-5">{tool.name}</h4>
+								<h4 className="text-[13px] font-medium leading-5">{tool.name}</h4>
 								<Badge
 									variant={tool.requiresApproval ? 'outline' : 'secondary'}
 									className="h-5 gap-1 text-xs"
@@ -52,7 +50,7 @@ export function ConnectorToolsList({
 								</Badge>
 							</div>
 							{tool.description && (
-								<p className="mt-1 text-sm leading-5 text-muted-foreground">
+								<p className="text-xs leading-4 text-muted-foreground">
 									{tool.description}
 								</p>
 							)}
