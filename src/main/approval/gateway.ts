@@ -78,11 +78,15 @@ export class ApprovalGateway {
 	private readonly resolved = new Map<string, ApprovalRecord>();
 	private readonly retainTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-	constructor(private readonly emit?: (event: ApprovalEvent) => void) {}
+	constructor(
+		private readonly emit?: (event: ApprovalEvent) => void,
+		private readonly idFactory: () => string = randomUUID
+	) {}
 
 	request(input: ApprovalRequestInput): ApprovalRecord {
 		const allowedDecisions = normalizeAllowedDecisions(input.allowedDecisions);
-		const id = input.kind === 'plugin' ? `plugin:${randomUUID()}` : randomUUID();
+		const generatedId = this.idFactory();
+		const id = input.kind === 'plugin' ? `plugin:${generatedId}` : generatedId;
 		const now = Date.now();
 		const timeoutMs = Math.max(1, input.timeoutMs ?? DEFAULT_APPROVAL_TIMEOUT_MS);
 		const record: PendingApproval = {
