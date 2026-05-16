@@ -2,14 +2,11 @@ import type { ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
 import { Message, MessageContent } from '@/components/ui/message';
 import { Textarea } from '@/components/ui/textarea';
-import type { ApprovalDecision } from '../../../../../shared/service';
-import { inputAnswerKey, type HomeMultiSelectMessage } from '../context';
-
-export interface ImmediateApprovalSelection {
-	approvalId: string;
-	decision: ApprovalDecision;
-	optionId: string;
-}
+import {
+	inputAnswerKey,
+	type HomeMultiSelectMessage,
+	type ImmediateApprovalSelection,
+} from '../context';
 
 export function PendingMessage({
 	message,
