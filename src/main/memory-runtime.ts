@@ -298,18 +298,23 @@ export function resolveMemoryFlushPlan(workspaceDir: string, clock: () => Date =
 }
 
 export async function appendOnlyMemoryFlush(plan: MemoryFlushPlan, content: string): Promise<void> {
-	const root = path.resolve(path.dirname(path.dirname(plan.targetPath)));
-	const expected = resolveMemoryFlushPlan(root, () => new Date(`${path.basename(plan.targetPath, '.md')}T00:00:00`)).targetPath;
-	if (path.resolve(plan.targetPath) !== expected) {
+	const target = path.resolve(plan.targetPath);
+	const fileName = path.basename(target);
+	const workspace = path.dirname(path.dirname(target));
+	const expectedRelativePath = path.join(MEMORY_DIRNAME, fileName);
+	if (!/^\d{4}-\d{2}-\d{2}\.md$/.test(fileName) || plan.relativePath !== expectedRelativePath) {
 		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md inside the workspace.');
 	}
-	const memoryDir = path.dirname(plan.targetPath);
+	if (path.resolve(workspace, plan.relativePath) !== target) {
+		throw new Error('Memory flush target must match the planned daily memory file.');
+	}
+	const memoryDir = path.dirname(target);
 	await fs.mkdir(memoryDir, { recursive: true, mode: 0o700 });
-	const lock = await acquireWriteLock(plan.targetPath);
+	const lock = await acquireWriteLock(target);
 	try {
 		const body = content.endsWith('\n') ? content : `${content}\n`;
-		await fs.appendFile(plan.targetPath, body, { encoding: 'utf8', mode: 0o600 });
-		if (process.platform !== 'win32') await fs.chmod(plan.targetPath, 0o600).catch(() => undefined);
+		await fs.appendFile(target, body, { encoding: 'utf8', mode: 0o600 });
+		if (process.platform !== 'win32') await fs.chmod(target, 0o600).catch(() => undefined);
 	} finally {
 		await lock.release();
 	}
