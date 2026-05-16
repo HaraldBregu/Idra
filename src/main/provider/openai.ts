@@ -30,7 +30,7 @@ function buildChatMessages(
 					type: 'function' as const,
 					function: { name: b.toolName, arguments: JSON.stringify(b.toolArgs ?? {}) },
 				}));
-			const msg: OpenAI.Chat.Completions.ChatCompletionAgentMessageParam = {
+			const msg: OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam = {
 				role: 'assistant',
 				content: text || null,
 			};
