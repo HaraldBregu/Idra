@@ -323,7 +323,7 @@ function AssistantActivityPanel({
 					</span>
 				)}
 			</div>
-			<ReasoningList reasoning={message.reasoning} isStreaming={isStreaming} />
+			<ReasoningList reasoning={message.reasoning} />
 			<AssistantToolActivity tools={message.tools} />
 			{message.errorText && (
 				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
