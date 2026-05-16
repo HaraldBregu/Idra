@@ -63,7 +63,12 @@ export class ChannelsIpc implements IpcModule {
 			ChannelsChannels.saveChannelConfig,
 			wrapSimpleHandler(
 				(type: ChannelType, config: Channel[ChannelType]): Channel[ChannelType] => {
-					return store.setChannelConfig(resolveChannelType(type), config);
+					const channelType = resolveChannelType(type);
+					const next = store.setChannelConfig(channelType, config);
+					if (channelType === 'telegram') {
+						channelRegistry.configure({ telegram: next as TelegramChannelProperties });
+					}
+					return next;
 				},
 				ChannelsChannels.saveChannelConfig
 			)
