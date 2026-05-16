@@ -263,12 +263,17 @@ function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy
 	if (present.length === 0) return undefined;
 	return {
 		profile: present[present.length - 1]?.profile,
-		allow: present.flatMap((policy) => policy.allow ?? []),
-		alsoAllow: present.flatMap((policy) => policy.alsoAllow ?? []),
-		deny: present.flatMap((policy) => policy.deny ?? []),
+		allow: mergeList(present.map((policy) => policy.allow)),
+		alsoAllow: mergeList(present.map((policy) => policy.alsoAllow)),
+		deny: mergeList(present.map((policy) => policy.deny)),
 		fs: Object.assign({}, ...present.map((policy) => policy.fs ?? {})),
 		exec: Object.assign({}, ...present.map((policy) => policy.exec ?? {})),
 	};
+}
+
+function mergeList(values: Array<string[] | undefined>): string[] | undefined {
+	const present = values.filter((value): value is string[] => value !== undefined);
+	return present.length > 0 ? present.flat() : undefined;
 }
 
 function pluginContext(options: CreateAgentToolsOptions): PluginToolContext {

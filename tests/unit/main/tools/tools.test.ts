@@ -126,10 +126,10 @@ describe('tools/fs', () => {
 
 		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
 		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe('error');
-		expect((await writeTool.execute({ path: 'new.txt', content: 'x' }, makeToolContext({
-			workspace,
-			fsPolicy: { readOnly: true },
-		}))).toMatchObject({ status: 'error' });
+		await expect(writeTool.execute(
+			{ path: 'new.txt', content: 'x' },
+			makeToolContext({ workspace, fsPolicy: { readOnly: true } })
+		)).resolves.toMatchObject({ status: 'error' });
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
