@@ -36,6 +36,7 @@ describe('memory-runtime', () => {
 		await fs.writeFile(path.join(outside, 'secret.md'), 'outside memory', 'utf8');
 
 		const manager = new WorkspaceMemorySearchManager({ workspaceDir: workspace, includeSessions: false });
+		// console.log('debug read', await manager.readFile('MEMORY.md', { lines: 2 }), await manager.search('codename', { minScore: 0 }));
 		await expect(manager.search('codename')).resolves.toEqual([
 			expect.objectContaining({ source: 'memory', text: expect.stringContaining('Friday') }),
 		]);
