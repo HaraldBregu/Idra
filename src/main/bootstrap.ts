@@ -64,7 +64,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const store = container.register('store', new StoreService());
 	const tasks = container.register('tasks', createDefaultTaskManager({ scopedServices: container }));
-	const cron = container.register('cron', new CronService(store, logger, tasks));
+	const cron = container.register('cron', new CronService(store, logger, tasks, { userDataDirectory }));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
@@ -92,10 +92,11 @@ export function bootstrapServices(): BootstrapResult {
 			connectors,
 		})
 	);
-	container.register(
+	const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
+	cron.configureOpenClawRuntime({ agentService, eventBus, channelRegistry });
 
 	container.register('apps', new AppsService(logger, userDataDirectory));
 
