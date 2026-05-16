@@ -355,6 +355,7 @@ export class AssistantService {
 					durationMs: info.durationMs,
 					status: info.status,
 					outputChars: info.outputChars,
+					outputText: info.outputText,
 				});
 			},
 			onFinish: async (info) => {
