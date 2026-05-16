@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
 	ArrowUp,
 	AudioLines,
-	ChevronDown,
 	Copy,
 	ListChecks,
 	Mic,
@@ -35,13 +34,6 @@ import {
 	PromptInputTextarea,
 } from '@/components/ui/prompt-input';
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
-import {
-	ChainOfThought,
-	ChainOfThoughtContent,
-	ChainOfThoughtItem,
-	ChainOfThoughtStep,
-	ChainOfThoughtTrigger,
-} from '@/components/ui/chain-of-thought';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import {
 	Steps,
@@ -69,7 +61,6 @@ import {
 	type AssistantToolPart,
 	type HomeChatMessage,
 	type HomeMultiSelectMessage,
-	type ReasoningPart,
 } from './assistant-chat-state';
 
 interface HomeChatSurfaceProps {
@@ -131,10 +122,10 @@ const markdownComponents: Partial<Components> = {
 const runStateLabels: Record<AssistantRunState, string> = {
 	idle: 'Ready',
 	thinking: 'Thinking',
-	reasoning: 'Reasoning',
+	reasoning: 'Thinking',
 	using_tools: 'Using tools',
 	waiting_for_approval: 'Needs approval',
-	answering: 'Answering',
+	answering: 'Responding directly',
 	completed: 'Completed',
 	cancelled: 'Cancelled',
 	error: 'Error',
@@ -170,6 +161,20 @@ function stateTone(state: AssistantRunState): string {
 	return 'bg-info/10 text-info';
 }
 
+function assistantStatusLabel(message: AssistantMessage): string {
+	if (message.state === 'answering' && message.tools.length === 0) {
+		return 'Responding directly';
+	}
+	if (message.state === 'completed' && message.tools.length === 0) {
+		return 'Responded directly';
+	}
+	if (message.state === 'completed' && message.tools.length > 0) {
+		return `Completed with ${message.tools.length} tool call${
+			message.tools.length === 1 ? '' : 's'
+		}`;
+	}
+	return runStateLabels[message.state];
+}
 
 function AssistantLabel(): ReactElement {
 	return (
@@ -222,29 +227,6 @@ function UserMessage({ content }: { readonly content: string }): ReactElement {
 	);
 }
 
-function ReasoningList({
-	reasoning,
-}: {
-	readonly reasoning: readonly ReasoningPart[];
-}): ReactElement | null {
-	if (reasoning.length === 0) return null;
-
-	return (
-		<ChainOfThought>
-			{reasoning.map((part) => (
-				<ChainOfThoughtStep key={part.id}>
-					<ChainOfThoughtTrigger>{part.title}</ChainOfThoughtTrigger>
-					{part.summary && (
-						<ChainOfThoughtContent>
-							<ChainOfThoughtItem>{part.summary}</ChainOfThoughtItem>
-						</ChainOfThoughtContent>
-					)}
-				</ChainOfThoughtStep>
-			))}
-		</ChainOfThought>
-	);
-}
-
 function AssistantToolActivity({
 	tools,
 }: {
@@ -257,9 +239,11 @@ function AssistantToolActivity({
 	const hasError = tools.some((tool) => tool.state === 'output-error');
 
 	return (
-		<Steps defaultOpen={hasRunning || hasError}>
+		<Steps defaultOpen>
 			<StepsTrigger leftIcon={<ListChecks className="size-3.5" />}>
-				{hasRunning ? 'Tool activity' : `${tools.length} tool call${tools.length === 1 ? '' : 's'}`}
+				{hasRunning || hasError
+					? 'Tool calls and responses'
+					: `${tools.length} tool response${tools.length === 1 ? '' : 's'}`}
 			</StepsTrigger>
 			<StepsContent>
 				{tools.map((tool) => (
@@ -277,7 +261,7 @@ function AssistantToolActivity({
 						/>
 						<Tool
 							toolPart={tool}
-							defaultOpen={tool.state !== 'output-available'}
+							defaultOpen
 							className="min-w-0 flex-1"
 						/>
 					</StepsItem>
@@ -296,10 +280,10 @@ function AssistantActivityPanel({
 }): ReactElement | null {
 	const showActivity =
 		message.state !== 'idle' ||
-		message.reasoning.length > 0 ||
 		message.tools.length > 0 ||
 		Boolean(message.errorText);
 	if (!showActivity) return null;
+	const statusLabel = assistantStatusLabel(message);
 
 	return (
 		<div className="flex w-full flex-col gap-3">
@@ -315,7 +299,7 @@ function AssistantActivityPanel({
 					) : (
 						<span className="size-1.5 rounded-full bg-current" aria-hidden />
 					)}
-					{runStateLabels[message.state]}
+					{statusLabel}
 				</span>
 				{message.runId && (
 					<span className="truncate font-mono text-[11px] text-muted-foreground">
@@ -323,7 +307,6 @@ function AssistantActivityPanel({
 					</span>
 				)}
 			</div>
-			<ReasoningList reasoning={message.reasoning} />
 			<AssistantToolActivity tools={message.tools} />
 			{message.errorText && (
 				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
@@ -531,23 +514,6 @@ function ResetButton({ onReset }: { readonly onReset: () => void }): ReactElemen
 	);
 }
 
-function ReasoningButton(): ReactElement {
-	return (
-		<PromptInputAction tooltip="Reasoning mode">
-			<Button
-				type="button"
-				variant="ghost"
-				size="sm"
-				className="hidden h-8 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex"
-				aria-label="Reasoning mode: Thinking"
-			>
-				<span>Thinking</span>
-				<ChevronDown className="size-3.5" />
-			</Button>
-		</PromptInputAction>
-	);
-}
-
 function VoiceButton({ onVoiceModeRequest }: { readonly onVoiceModeRequest: () => void }): ReactElement {
 	return (
 		<PromptInputAction tooltip="Voice assistant">
@@ -657,7 +623,6 @@ function Composer({
 								</motion.div>
 							)}
 						</AnimatePresence>
-						<ReasoningButton />
 						<VoiceButton onVoiceModeRequest={onVoiceModeRequest} />
 						<SubmitButton isLoading={isLoading} canSubmit={canSubmit} onAction={handlePrimaryAction} />
 					</PromptInputActions>
