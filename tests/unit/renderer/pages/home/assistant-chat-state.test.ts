@@ -10,7 +10,7 @@ import {
 	initialAssistantChatState,
 	pendingToMultiSelectMessage,
 	type AssistantMessage,
-} from '../../../../../src/renderer/src/pages/home/assistant-chat-state';
+} from '../../../../../src/renderer/src/pages/home/context';
 
 function assistantMessage(state = initialAssistantChatState): AssistantMessage {
 	const message = state.messages.find((item) => item.type === 'assistant' && item.id !== 'assistant-welcome');

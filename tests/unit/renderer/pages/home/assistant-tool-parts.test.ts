@@ -2,7 +2,7 @@ import type { AssistantResponseEvent } from '../../../../../src/shared/service';
 import {
 	applyAssistantResponseEventToTools,
 	assistantToolPartFromHistoryBlock,
-} from '../../../../../src/renderer/src/pages/home/assistant-tool-parts';
+} from '../../../../../src/renderer/src/pages/home/context';
 
 const baseToolEvent = {
 	assistantId: 'assistant-1',
