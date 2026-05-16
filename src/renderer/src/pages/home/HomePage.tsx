@@ -590,6 +590,7 @@ function SubmitButton({
 	readonly onAction: () => void;
 }): ReactElement {
 	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
 	) : canSubmit ? (
@@ -604,11 +605,22 @@ function SubmitButton({
 				type="button"
 				variant="default"
 				size="icon"
-				className="size-9 rounded-lg bg-foreground text-background hover:bg-foreground/90"
+				className="size-9 overflow-hidden rounded-lg bg-foreground text-background hover:bg-foreground/90"
 				aria-label={label}
 				onClick={onAction}
 			>
-				{icon}
+				<AnimatePresence mode="wait" initial={false}>
+					<motion.span
+						key={iconKey}
+						initial={{ opacity: 0, y: 8 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -8 }}
+						transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
+						className="flex items-center justify-center"
+					>
+						{icon}
+					</motion.span>
+				</AnimatePresence>
 			</Button>
 		</PromptInputAction>
 	);
