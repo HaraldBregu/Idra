@@ -188,18 +188,20 @@ function PromptInput({
             transition={transition}
             className={cn("mx-auto w-full max-w-[96rem]", wrapperClassName)}
           >
-            <div
+            <motion.div
+              layout
+              transition={transition}
               onClick={handleClick}
               data-expanded={isExpanded}
               className={cn(
-                "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 transition-[border-radius,min-height,padding,gap] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-within:ring-1 focus-within:ring-ring/25",
+                "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
                 isExpanded
-                  ? "flex max-h-[min(48vh,30rem)] min-h-36 flex-col rounded-lg px-4 py-3"
-                  : "flex min-h-12 items-center gap-2 rounded-lg px-3 py-1.5",
+                  ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
+                  : "flex min-h-10 items-center gap-2 rounded-xl px-3 py-1",
                 disabled && "cursor-not-allowed opacity-60",
                 className
               )}
-              {...props}
+              {...(props as React.ComponentProps<typeof motion.div>)}
             >
               <AnimatePresence initial={false}>
                 {!isExpanded && leadingAction && (
