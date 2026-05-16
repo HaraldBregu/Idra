@@ -336,8 +336,8 @@ function PromptInputTextarea({
           "appearance-none !border-0 bg-transparent px-0 text-sm leading-6 text-foreground !shadow-none !outline-none placeholder:text-muted-foreground focus:!border-transparent focus:!outline-none focus:!ring-0 focus-visible:!border-transparent focus-visible:!outline-none focus-visible:!ring-0 md:text-sm",
         adaptiveLayout &&
           (isExpanded
-            ? "max-h-[34vh] min-h-24 overflow-y-auto py-0"
-            : "h-8 min-h-8 overflow-hidden py-1"),
+            ? "max-h-[34vh] min-h-14 overflow-y-auto py-0"
+            : "h-7 min-h-7 overflow-hidden py-0"),
         className
       )}
       rows={1}
