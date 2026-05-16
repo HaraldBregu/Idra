@@ -33,7 +33,7 @@ export function ConnectorToolsList({
 						key={tool.name}
 						className="flex min-h-[44px] items-center gap-2.5 border-b border-border/60 px-4 py-2.5 last:border-b-0"
 					>
-						<Wrench className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.8} />
+						<Wrench className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 						<div className="min-w-0 flex-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<h4 className="text-[13px] font-medium leading-5">{tool.name}</h4>
