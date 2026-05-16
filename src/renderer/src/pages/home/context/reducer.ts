@@ -41,7 +41,11 @@ function createUserMessage(id: string, content: string): UserMessage {
 	};
 }
 
-function createAssistantMessage(id: string, runId?: string): AssistantMessage {
+function createAssistantMessage(
+	id: string,
+	runId?: string,
+	startedAtMs?: number
+): AssistantMessage {
 	return {
 		id,
 		role: 'assistant',
@@ -50,6 +54,7 @@ function createAssistantMessage(id: string, runId?: string): AssistantMessage {
 		runId,
 		state: 'thinking',
 		tools: [],
+		startedAtMs,
 	};
 }
 
@@ -107,10 +112,14 @@ function ensureAssistantForRun(
 	};
 }
 
+function isTerminalRunState(state: AssistantMessage['state']): boolean {
+	return state === 'completed' || state === 'cancelled' || state === 'error';
+}
+
 function applyResponseEvent(
 	state: AssistantChatState,
 	event: AssistantResponseEvent,
-	_receivedAtMs: number
+	receivedAtMs: number
 ): AssistantChatState {
 	if (state.activeRunId && state.activeRunId !== event.runId) return state;
 	const ensured = ensureAssistantForRun(state, event.runId);
@@ -122,6 +131,8 @@ function applyResponseEvent(
 			runId: event.runId,
 			state: event.state,
 			errorText: event.state === 'error' ? (event.label ?? message.errorText) : message.errorText,
+			startedAtMs: message.startedAtMs ?? receivedAtMs,
+			completedAtMs: isTerminalRunState(event.state) ? receivedAtMs : message.completedAtMs,
 		}));
 	}
 
@@ -139,6 +150,7 @@ function applyResponseEvent(
 				runId: event.runId,
 				state: 'answering',
 				content: message.content + event.delta,
+				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})
 		);
 	}
@@ -154,6 +166,7 @@ function applyResponseEvent(
 			runId: event.runId,
 			state: 'using_tools',
 			tools,
+			startedAtMs: message.startedAtMs ?? receivedAtMs,
 		})
 	);
 }
@@ -323,7 +336,11 @@ export function assistantChatReducer(
 	switch (action.type) {
 		case 'submit_user_message': {
 			const userMessage = createUserMessage(action.userMessageId, action.content);
-			const assistantMessage = createAssistantMessage(action.assistantMessageId);
+			const assistantMessage = createAssistantMessage(
+				action.assistantMessageId,
+				undefined,
+				action.submittedAtMs
+			);
 			return {
 				messages: [...removePendingMessages(state.messages), userMessage, assistantMessage],
 				activeAssistantId: assistantMessage.id,
@@ -356,9 +373,14 @@ export function assistantChatReducer(
 			if (!current) {
 				if (action.response.trim().length === 0) return state;
 				const message: AssistantMessage = {
-					...createAssistantMessage(`assistant-completed-${Date.now()}`),
+					...createAssistantMessage(
+						`assistant-completed-${Date.now()}`,
+						undefined,
+						action.completedAtMs
+					),
 					content: action.response,
 					state: 'completed',
+					completedAtMs: action.completedAtMs,
 				};
 				return { ...state, messages: [...removePendingMessages(state.messages), message] };
 			}
@@ -370,6 +392,8 @@ export function assistantChatReducer(
 					message.state === 'error' || message.state === 'cancelled'
 						? message.state
 						: 'completed',
+				startedAtMs: message.startedAtMs ?? action.completedAtMs,
+				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
 			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
 		}
@@ -380,6 +404,8 @@ export function assistantChatReducer(
 				...message,
 				state: 'cancelled',
 				errorText: 'Cancelled.',
+				startedAtMs: message.startedAtMs ?? action.completedAtMs,
+				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
 			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
 		}
@@ -387,10 +413,15 @@ export function assistantChatReducer(
 			const current = activeAssistant(state);
 			if (!current) {
 				const message: AssistantMessage = {
-					...createAssistantMessage(`assistant-error-${Date.now()}`),
+					...createAssistantMessage(
+						`assistant-error-${Date.now()}`,
+						undefined,
+						action.completedAtMs
+					),
 					content: action.errorText,
 					state: 'error',
 					errorText: action.errorText,
+					completedAtMs: action.completedAtMs,
 				};
 				return { ...state, messages: [...removePendingMessages(state.messages), message] };
 			}
@@ -400,6 +431,8 @@ export function assistantChatReducer(
 				content: message.content || action.errorText,
 				state: 'error',
 				errorText: action.errorText,
+				startedAtMs: message.startedAtMs ?? action.completedAtMs,
+				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
 			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
 		}
