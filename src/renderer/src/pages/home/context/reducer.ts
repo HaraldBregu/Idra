@@ -351,3 +351,67 @@ export function assistantChatReducer(
 				(message) => ({ ...message, state: 'waiting_for_approval' })
 			);
 		}
+		case 'complete_active': {
+			const current = activeAssistant(state);
+			if (!current) {
+				if (action.response.trim().length === 0) return state;
+				const message: AssistantMessage = {
+					...createAssistantMessage(`assistant-completed-${Date.now()}`),
+					content: action.response,
+					state: 'completed',
+				};
+				return { ...state, messages: [...removePendingMessages(state.messages), message] };
+			}
+
+			const nextState = updateAssistantMessage(state, current.id, (message) => ({
+				...message,
+				content: action.response.trim().length > 0 ? action.response : message.content,
+				state:
+					message.state === 'error' || message.state === 'cancelled'
+						? message.state
+						: 'completed',
+			}));
+			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
+		}
+		case 'cancel_active': {
+			const current = activeAssistant(state);
+			if (!current) return state;
+			const nextState = updateAssistantMessage(state, current.id, (message) => ({
+				...message,
+				state: 'cancelled',
+				errorText: 'Cancelled.',
+			}));
+			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
+		}
+		case 'error_active': {
+			const current = activeAssistant(state);
+			if (!current) {
+				const message: AssistantMessage = {
+					...createAssistantMessage(`assistant-error-${Date.now()}`),
+					content: action.errorText,
+					state: 'error',
+					errorText: action.errorText,
+				};
+				return { ...state, messages: [...removePendingMessages(state.messages), message] };
+			}
+
+			const nextState = updateAssistantMessage(state, current.id, (message) => ({
+				...message,
+				content: message.content || action.errorText,
+				state: 'error',
+				errorText: action.errorText,
+			}));
+			return { ...nextState, activeAssistantId: undefined, activeRunId: undefined };
+		}
+		case 'restore_history': {
+			const restored = historyToChatMessages(action.history);
+			return {
+				messages: restored.length > 0 ? [welcomeMessage, ...restored] : [welcomeMessage],
+				activeAssistantId: undefined,
+				activeRunId: undefined,
+			};
+		}
+		case 'reset':
+			return initialAssistantChatState;
+	}
+}
