@@ -457,7 +457,7 @@ export class OpenClawCronScheduler {
 		scheduledForMs: number,
 		mode: OpenClawCronRunRecord['mode']
 	): Promise<OpenClawCronRunRecord> {
-		let snapshot = await this.store.load();
+		const snapshot = await this.store.load();
 		const job = this.requireJob(snapshot, jobId);
 		const state = snapshot.states[job.id] ?? defaultOpenClawCronJobState(job);
 		const now = Date.now();
