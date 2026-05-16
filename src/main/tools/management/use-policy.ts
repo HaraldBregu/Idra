@@ -14,7 +14,7 @@ export class ToolUsePolicy {
 		if (input.userExplicitlyDisabledTools || /\b(no tools|without tools|do not use tools|don't use tools)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'user explicitly disabled tool use' };
 		}
-		if (/\b(write|draft|compose)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
+		if (/\b(write|draft|compose|create)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
 		}
 		if (/\b(write|rewrite|translate|summarize|brainstorm|poem|story|creative)\b/.test(request) && !needsExternalAccess(request)) {
@@ -34,7 +34,7 @@ export class ToolUsePolicy {
 }
 
 function needsExternalAccess(request: string): boolean {
-	return /\b(current|latest|today|now|weather|news|look up|search|file|folder|email|calendar|database|api|send|delete|purchase|post|schedule|create|edit|write|read|private|repo)\b/.test(
+	return /\b(current|latest|today|now|weather|news|look up|search|file|folder|directory|workspace|document|codebase|email|calendar|database|api|send|delete|purchase|post|schedule|create|edit|write|read|modify|change|fix|debug|test|build|implement|refactor|private|repo)\b/.test(
 		request
 	);
 }
