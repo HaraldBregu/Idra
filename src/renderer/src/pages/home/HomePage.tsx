@@ -638,8 +638,8 @@ function HomeChatSurface({
 			<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 				<ChatContainerContent
 					className={cn(
-						'mx-auto min-h-full w-full max-w-4xl gap-5 px-6',
-						showReferenceConversation ? 'justify-start pb-6 pt-7' : 'pb-8 pt-6'
+						'mx-auto min-h-full w-full max-w-4xl gap-5',
+						showReferenceConversation ? 'justify-start' : ''
 					)}
 				>
 					{showReferenceConversation ? (
