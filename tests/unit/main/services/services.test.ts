@@ -70,6 +70,43 @@ describe('workspace service', () => {
 		expect(() => service.resolvePath('..', 'outside')).toThrow(/outside root/);
 		await fs.rm(root, { recursive: true, force: true });
 	});
+
+	it('seeds canonical workspace files without overwriting user edits', async () => {
+		const root = await makeTempDir();
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+
+		await service.ensureReady({ initializeGit: false });
+		await expect(fs.readFile(path.join(root, 'AGENTS.md'), 'utf8')).resolves.toContain(
+			'Workspace Rules'
+		);
+		await expect(fs.readFile(path.join(root, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
+			'First Run'
+		);
+
+		await fs.writeFile(path.join(root, 'SOUL.md'), 'custom soul', 'utf8');
+		await service.ensureReady({ initializeGit: false });
+		await expect(fs.readFile(path.join(root, 'SOUL.md'), 'utf8')).resolves.toBe('custom soul');
+
+		await fs.rm(path.join(root, 'BOOTSTRAP.md'));
+		await service.ensureReady({ initializeGit: false });
+		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
+		await expect(service.isBootstrapPending()).resolves.toBe(false);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('loads only safe canonical workspace files', async () => {
+		const root = await makeTempDir();
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+		await service.ensureReady({ initializeGit: false });
+
+		await fs.rm(path.join(root, 'USER.md'));
+		await fs.symlink(path.join(root, 'AGENTS.md'), path.join(root, 'USER.md'));
+		const loaded = await service.readWorkspaceFile('USER.md');
+
+		expect(loaded).toMatchObject({ name: 'USER.md', missing: true, error: 'unsafe' });
+		await expect(service.readWorkspaceFile('../outside')).rejects.toThrow(/Unsupported/);
+		await fs.rm(root, { recursive: true, force: true });
+	});
 });
 
 describe('logger service', () => {
