@@ -6,7 +6,7 @@ const exampleActions = [
 	{
 		name: 'Inspect a file',
 		detail: 'explain changes',
-		prompt: 'inspect src/renderer/src/pages/home/page.tsx and explain what to improve',
+		prompt: 'inspect src/renderer/src/pages/home/Page.tsx and explain what to improve',
 	},
 	{
 		name: 'Make an edit',
