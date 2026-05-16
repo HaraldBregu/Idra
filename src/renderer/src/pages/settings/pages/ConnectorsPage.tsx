@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Plug, Plus, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -26,6 +26,8 @@ import type {
 import { ConnectorCard } from '../connectors/ConnectorCard';
 import { ConnectorToolsList } from '../connectors/ConnectorToolsList';
 import {
+	SettingsEmptyState,
+	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -250,17 +252,20 @@ const ConnectorsPage: React.FC = () => {
 			{showForm && (
 				<SettingsSection title={form.id ? 'Edit connector' : 'Add connector'}>
 					<SettingsPanel>
-						<form className="grid gap-4 p-5" onSubmit={submit}>
+						<form className="grid gap-4 p-4" onSubmit={submit}>
 							<div className="grid gap-4 md:grid-cols-2">
-								<label className="grid gap-2 text-sm font-medium">
-									Connector
+								<SettingsField id="connector-kind" label="Connector">
 									<Select
 										value={form.connectorId || null}
 										onValueChange={(value) => {
 											if (value) selectConnector(value as OpenAiConnectorId);
 										}}
 									>
-										<SelectTrigger className="w-full text-sm" aria-label="Connector">
+										<SelectTrigger
+											id="connector-kind"
+											className="w-full text-sm"
+											aria-label="Connector"
+										>
 											<SelectValue placeholder="Select connector" />
 										</SelectTrigger>
 										<SelectContent>
@@ -271,30 +276,29 @@ const ConnectorsPage: React.FC = () => {
 											))}
 										</SelectContent>
 									</Select>
-								</label>
+								</SettingsField>
 
-								<label className="grid gap-2 text-sm font-medium">
-									Name
+								<SettingsField id="connector-name" label="Name">
 									<Input
+										id="connector-name"
 										value={form.name}
 										onChange={(event) => update('name', event.target.value)}
 										placeholder="Google Calendar"
 										className="h-9 px-3 text-sm md:text-sm"
 									/>
-								</label>
+								</SettingsField>
 
-								<label className="grid gap-2 text-sm font-medium">
-									Server label
+								<SettingsField id="connector-server-label" label="Server label">
 									<Input
+										id="connector-server-label"
 										value={form.serverLabel}
 										onChange={(event) => update('serverLabel', event.target.value)}
 										placeholder="google_calendar"
 										className="h-9 px-3 text-sm md:text-sm"
 									/>
-								</label>
+								</SettingsField>
 
-								<label className="grid gap-2 text-sm font-medium">
-									Approval policy
+								<SettingsField id="connector-approval-policy" label="Approval policy">
 									<Select
 										value={form.requireApproval}
 										onValueChange={(value) => {
@@ -302,6 +306,7 @@ const ConnectorsPage: React.FC = () => {
 										}}
 									>
 										<SelectTrigger
+											id="connector-approval-policy"
 											className="w-full text-sm"
 											aria-label="Approval policy"
 										>
@@ -315,33 +320,33 @@ const ConnectorsPage: React.FC = () => {
 											<SelectItem value="never">Never require approval</SelectItem>
 										</SelectContent>
 									</Select>
-								</label>
+								</SettingsField>
 							</div>
 
-							<label className="grid gap-2 text-sm font-medium">
-								Description
+							<SettingsField id="connector-description" label="Description">
 								<Textarea
+									id="connector-description"
 									value={form.serverDescription}
 									onChange={(event) => update('serverDescription', event.target.value)}
 									placeholder={selectedCatalog?.description}
 									className="min-h-20 py-2 text-sm md:text-sm"
 								/>
-							</label>
+							</SettingsField>
 
-							<label className="grid gap-2 text-sm font-medium">
-								OAuth access token
+							<SettingsField id="connector-authorization" label="OAuth access token">
 								<Input
+									id="connector-authorization"
 									type="password"
 									value={form.authorization}
 									onChange={(event) => update('authorization', event.target.value)}
 									placeholder="Paste OAuth access token"
 									className="h-9 px-3 text-sm md:text-sm"
 								/>
-							</label>
+							</SettingsField>
 
 							<div className="grid gap-2">
 								<div className="flex flex-wrap items-center justify-between gap-2">
-									<label className="text-sm font-medium">Allowed tools</label>
+									<Label className="text-sm leading-5">Allowed tools</Label>
 									<span className="text-xs text-muted-foreground">
 										Leave all unselected to allow every available tool.
 									</span>
@@ -370,7 +375,7 @@ const ConnectorsPage: React.FC = () => {
 							</div>
 
 							<div className="grid gap-3 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
-								<label className="flex items-start justify-between gap-3 text-sm">
+								<Label className="flex items-start justify-between gap-3 text-sm">
 									<span className="min-w-0">
 										<span className="block font-medium">Defer tool loading</span>
 										<span className="mt-1 block text-sm leading-5 text-muted-foreground">
@@ -393,7 +398,7 @@ const ConnectorsPage: React.FC = () => {
 										checked={form.enabled}
 										onCheckedChange={(checked) => update('enabled', checked)}
 									/>
-								</label>
+								</Label>
 							</div>
 
 							{selectedCatalog && (
@@ -428,17 +433,11 @@ const ConnectorsPage: React.FC = () => {
 			<SettingsSection title="Configured connectors">
 				{connectors.length === 0 ? (
 					<SettingsPanel>
-						<Empty className="min-h-28 gap-3 border-0 p-4">
-							<EmptyHeader className="gap-1.5">
-								<EmptyMedia variant="icon" className="mb-1 size-10">
-									<Plug className="size-5" />
-								</EmptyMedia>
-								<EmptyTitle className="text-sm">No connectors configured yet.</EmptyTitle>
-								<EmptyDescription className="text-sm leading-5">
-									Add a connector to make external tools available to assistant runs.
-								</EmptyDescription>
-							</EmptyHeader>
-						</Empty>
+						<SettingsEmptyState
+							icon={Plug}
+							title="No connectors configured yet."
+							description="Add a connector to make external tools available to assistant runs."
+						/>
 					</SettingsPanel>
 				) : (
 					<div className="grid gap-2">

@@ -1,8 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Languages, Moon, Monitor, Sun } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
 import {
 	Select,
 	SelectContent,
@@ -10,6 +8,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { AppLanguage } from '../../../contexts';
 import { useApp } from '@/contexts';
@@ -56,6 +56,11 @@ const SystemPage: React.FC = () => {
 		if (option) setLanguage(option.value);
 	};
 
+	const handleThemeChange = (next: string): void => {
+		if (!next) return;
+		setTheme(next as ThemeMode);
+	};
+
 	const handleTranslucencyChange =
 		(mode: ThemeVariant) =>
 		(event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -73,7 +78,13 @@ const SystemPage: React.FC = () => {
 						title={t('settings.theme.title')}
 						description={t('settings.theme.description')}
 						actions={
-							<ButtonGroup>
+							<ToggleGroup
+								type="single"
+								value={theme}
+								onValueChange={handleThemeChange}
+								aria-label={t('settings.theme.title')}
+								className="rounded-lg border border-border/70 bg-muted/30 p-0.5"
+							>
 								{[
 									{ value: 'light', label: t('settings.theme.light'), icon: Sun },
 									{ value: 'system', label: t('settings.theme.system'), icon: Monitor },
@@ -82,19 +93,24 @@ const SystemPage: React.FC = () => {
 									const Icon = option.icon;
 									const value = option.value as ThemeMode;
 									return (
-										<Button
+										<Tooltip key={option.value}>
+											<TooltipTrigger
+												render={
+													<ToggleGroupItem
 											key={option.value}
-											variant={theme === value ? 'secondary' : 'outline'}
-											size="icon-sm"
-											onClick={() => setTheme(value)}
+														value={value}
+														className="size-7 p-0"
 											aria-label={option.label}
-											aria-pressed={theme === value}
-										>
-											<Icon className="size-3" />
-										</Button>
+													>
+														<Icon className="size-3.5" />
+													</ToggleGroupItem>
+												}
+											/>
+											<TooltipContent>{option.label}</TooltipContent>
+										</Tooltip>
 									);
 								})}
-							</ButtonGroup>
+							</ToggleGroup>
 						}
 					/>
 					<SettingsRow

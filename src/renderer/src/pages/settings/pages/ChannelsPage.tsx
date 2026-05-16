@@ -10,8 +10,14 @@ import {
 	X,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+	InputGroupInput,
+} from '@/components/ui/input-group';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
@@ -32,6 +38,14 @@ const CHANNEL_CARDS: readonly ChannelCardDefinition[] = [
 	{ key: 'telegram', icon: Send, availabilityKey: 'available' },
 	{ key: 'discord', icon: MessageCircleMore, availabilityKey: 'next' },
 ];
+
+function getConnectionBadgeVariant(
+	status: ChannelConnectionStatus
+): 'secondary' | 'destructive' | 'outline' {
+	if (status === 'connected') return 'secondary';
+	if (status === 'error') return 'destructive';
+	return 'outline';
+}
 
 const ChannelsPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -201,8 +215,9 @@ const ChannelsPage: React.FC = () => {
 											title={t('settings.channels.token')}
 											description={t('settings.channels.tokenDescription')}
 											actions={
-												<div className="flex w-full min-w-0 flex-row gap-2 sm:w-96">
-													<Input
+												<InputGroup className="h-9 w-full sm:w-96">
+													<InputGroupInput
+														id="telegram-token"
 														type="password"
 														value={telegramToken}
 														onChange={(event) => setTelegramToken(event.target.value)}
@@ -211,16 +226,16 @@ const ChannelsPage: React.FC = () => {
 														className="h-9 min-w-0 px-3 text-sm md:text-sm"
 														aria-label={t('settings.channels.token')}
 													/>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														disabled={telegramBusy}
-														onClick={() => void saveTelegramConfig()}
-													>
-														{t('common.save')}
-													</Button>
-												</div>
+													<InputGroupAddon align="inline-end" className="py-0 pr-1">
+														<InputGroupButton
+															type="button"
+															disabled={telegramBusy}
+															onClick={() => void saveTelegramConfig()}
+														>
+															{t('common.save')}
+														</InputGroupButton>
+													</InputGroupAddon>
+												</InputGroup>
 											}
 										/>
 
@@ -230,8 +245,9 @@ const ChannelsPage: React.FC = () => {
 											description={t('settings.channels.phoneNumberDescription')}
 											actions={
 												<div className="flex w-full min-w-0 flex-col gap-2 sm:w-96">
-													<div className="flex min-w-0 items-center gap-2">
-														<Input
+													<InputGroup className="h-9">
+														<InputGroupInput
+															id="telegram-phone-number"
 															type="tel"
 															value={phoneNumberDraft}
 															onChange={(event) => setPhoneNumberDraft(event.target.value)}
@@ -245,17 +261,18 @@ const ChannelsPage: React.FC = () => {
 															className="h-9 min-w-0 px-3 text-sm md:text-sm"
 															aria-label={t('settings.channels.phoneNumber')}
 														/>
-														<Button
+														<InputGroupAddon align="inline-end" className="py-0 pr-1">
+															<InputGroupButton
 															type="button"
-															variant="outline"
-															size="icon-sm"
+															size="icon-xs"
 															onClick={addAllowedPhoneNumber}
 															aria-label={t('settings.channels.addPhoneNumber')}
 															title={t('settings.channels.addPhoneNumber')}
 														>
 															<Plus className="size-3" />
-														</Button>
-													</div>
+															</InputGroupButton>
+														</InputGroupAddon>
+													</InputGroup>
 													<div className="flex min-h-6 flex-wrap items-center gap-1.5">
 														{allowedPhoneNumbers.length > 0 ? (
 															allowedPhoneNumbers.map((phoneNumber) => (
@@ -264,7 +281,7 @@ const ChannelsPage: React.FC = () => {
 																	variant="outline"
 																	className="h-5 max-w-full gap-1 pr-1 text-xs"
 																>
-																	{phoneNumber}
+																	<span className="max-w-48 truncate">{phoneNumber}</span>
 																	<button
 																		type="button"
 																		onClick={() => removeAllowedPhoneNumber(phoneNumber)}
@@ -292,7 +309,14 @@ const ChannelsPage: React.FC = () => {
 											title={t('settings.channels.status')}
 											description={t(`channels.status.${telegramStatus}`)}
 											actions={
-												<div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+												<div className="flex min-w-0 flex-wrap items-center justify-start gap-2 sm:justify-end">
+													<Badge
+														variant={getConnectionBadgeVariant(telegramStatus)}
+														className="h-6 text-xs capitalize"
+													>
+														{telegramStatus.replaceAll('_', ' ')}
+													</Badge>
+													<ButtonGroup>
 													<Button
 														type="button"
 														variant="outline"
@@ -320,6 +344,7 @@ const ChannelsPage: React.FC = () => {
 													>
 														{t('common.close')}
 													</Button>
+													</ButtonGroup>
 												</div>
 											}
 										/>

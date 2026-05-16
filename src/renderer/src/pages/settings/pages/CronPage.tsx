@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import type { CronTaskView } from '../../../../../shared/cron';
 import {
+	SettingsEmptyState,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
@@ -107,17 +107,12 @@ const CronPage: React.FC = () => {
 			<SettingsSection title={t('settings.sections.cron')}>
 				{cronTasks.length === 0 ? (
 					<SettingsPanel>
-						<Empty className="min-h-24 gap-3 border-0 p-4">
-							<EmptyHeader className="gap-1.5">
-								<EmptyMedia variant="icon" className="mb-1 size-10">
-									<Clock3 className="size-5" />
-								</EmptyMedia>
-								<EmptyTitle className="text-sm">{t('settings.cron.emptyTitle')}</EmptyTitle>
-								<EmptyDescription className="text-sm leading-5">
-									{t('settings.cron.emptyDescription')}
-								</EmptyDescription>
-							</EmptyHeader>
-						</Empty>
+						<SettingsEmptyState
+							icon={Clock3}
+							title={t('settings.cron.emptyTitle')}
+							description={t('settings.cron.emptyDescription')}
+							className="min-h-28"
+						/>
 					</SettingsPanel>
 				) : (
 					<div className="grid gap-2">

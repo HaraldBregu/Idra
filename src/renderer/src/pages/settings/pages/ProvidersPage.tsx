@@ -3,11 +3,12 @@ import { AlertTriangle, CheckCircle2, KeyRound, Plus, Server } from 'lucide-reac
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import type { ProviderInput, PublicProvider } from '../../../../../shared/providers';
 import {
+	SettingsEmptyState,
+	SettingsField,
+	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -122,32 +123,36 @@ const ProvidersPage: React.FC = () => {
 			{showForm && (
 				<SettingsSection title={t('settings.providers.addTitle')}>
 					<SettingsPanel>
-						<form className="grid gap-4 p-5 md:grid-cols-2" onSubmit={handleSubmit}>
-							<label className="flex flex-col gap-2 text-sm font-medium">
-								{t('settings.providers.id')}
+						<form className="grid gap-4 p-4 md:grid-cols-2" onSubmit={handleSubmit}>
+							<SettingsField id="provider-id" label={t('settings.providers.id')}>
 								<Input
+									id="provider-id"
 									value={form.id}
 									onChange={(event) => updateForm('id', event.target.value)}
 									placeholder={t('settings.providers.idPlaceholder')}
 									autoComplete="off"
 									className="h-9 px-3 text-sm md:text-sm"
 								/>
-							</label>
+							</SettingsField>
 
-							<label className="flex flex-col gap-2 text-sm font-medium">
-								{t('settings.providers.name')}
+							<SettingsField id="provider-name" label={t('settings.providers.name')}>
 								<Input
+									id="provider-name"
 									value={form.name}
 									onChange={(event) => updateForm('name', event.target.value)}
 									placeholder={t('settings.providers.namePlaceholder')}
 									autoComplete="off"
 									className="h-9 px-3 text-sm md:text-sm"
 								/>
-							</label>
+							</SettingsField>
 
-							<label className="flex flex-col gap-2 text-sm font-medium md:col-span-2">
-								{t('settings.providers.baseUrl')}
+							<SettingsField
+								id="provider-base-url"
+								label={t('settings.providers.baseUrl')}
+								className="md:col-span-2"
+							>
 								<Input
+									id="provider-base-url"
 									value={form.baseUrl}
 									onChange={(event) => updateForm('baseUrl', event.target.value)}
 									placeholder={t('settings.providers.baseUrlPlaceholder')}
@@ -155,11 +160,15 @@ const ProvidersPage: React.FC = () => {
 									autoComplete="off"
 									className="h-9 px-3 text-sm md:text-sm"
 								/>
-							</label>
+							</SettingsField>
 
-							<label className="flex flex-col gap-2 text-sm font-medium md:col-span-2">
-								{t('providers.apiKey')}
+							<SettingsField
+								id="provider-api-key"
+								label={t('providers.apiKey')}
+								className="md:col-span-2"
+							>
 								<Input
+									id="provider-api-key"
 									value={form.apiKey}
 									onChange={(event) => updateForm('apiKey', event.target.value)}
 									placeholder={t('settings.providers.apiKeyPlaceholder')}
@@ -167,9 +176,9 @@ const ProvidersPage: React.FC = () => {
 									autoComplete="off"
 									className="h-9 px-3 text-sm md:text-sm"
 								/>
-							</label>
+							</SettingsField>
 
-							<div className="flex flex-wrap justify-end gap-2 md:col-span-2">
+							<div className="flex flex-wrap justify-end gap-2 border-t border-border/60 pt-3 md:col-span-2">
 								<Button
 									type="button"
 									variant="outline"
@@ -194,22 +203,13 @@ const ProvidersPage: React.FC = () => {
 			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				<SettingsPanel>
 					{loading ? (
-						<div className="grid gap-2 p-2.5">
-							<Skeleton className="h-8 w-full" />
-							<Skeleton className="h-8 w-5/6" />
-						</div>
+						<SettingsLoadingRows rows={2} />
 					) : providers.length === 0 ? (
-						<Empty className="min-h-28 gap-3 border-0 p-4">
-							<EmptyHeader className="gap-1.5">
-								<EmptyMedia variant="icon" className="mb-1 size-10">
-									<Server className="size-5" />
-								</EmptyMedia>
-								<EmptyTitle className="text-sm">{t('settings.providers.noProviders')}</EmptyTitle>
-								<EmptyDescription className="text-sm leading-5">
-									{t('settings.providers.description')}
-								</EmptyDescription>
-							</EmptyHeader>
-						</Empty>
+						<SettingsEmptyState
+							icon={Server}
+							title={t('settings.providers.noProviders')}
+							description={t('settings.providers.description')}
+						/>
 					) : (
 						providers.map((provider) => (
 							<SettingsRow

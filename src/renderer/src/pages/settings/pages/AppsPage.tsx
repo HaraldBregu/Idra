@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { FolderOpen, Package, RefreshCw, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Skeleton } from '@/components/ui/skeleton';
 import type { AppInfo } from '../../../../../shared/apps';
 import {
+	SettingsEmptyState,
+	SettingsLoadingRows,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
@@ -48,7 +48,7 @@ const AppsPage: React.FC = () => {
 		[loadApps, t]
 	);
 
-		return (
+	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title={t('settings.tabs.apps')}
@@ -63,26 +63,17 @@ const AppsPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.apps.title')}
-				description={appsRoot}
+				description={appsRoot || undefined}
 			>
 				<SettingsPanel>
 					{loading ? (
-						<div className="grid gap-2 p-2.5">
-							<Skeleton className="h-8 w-full" />
-							<Skeleton className="h-8 w-4/5" />
-						</div>
+						<SettingsLoadingRows rows={2} />
 					) : apps.length === 0 ? (
-						<Empty className="min-h-28 gap-3 border-0 p-4">
-							<EmptyHeader className="gap-1.5">
-								<EmptyMedia variant="icon" className="mb-1 size-10">
-									<Package className="size-5" />
-								</EmptyMedia>
-								<EmptyTitle className="text-sm">{t('settings.apps.empty')}</EmptyTitle>
-								{appsRoot && (
-									<EmptyDescription className="text-sm leading-5">{appsRoot}</EmptyDescription>
-								)}
-							</EmptyHeader>
-						</Empty>
+						<SettingsEmptyState
+							icon={Package}
+							title={t('settings.apps.empty')}
+							description={appsRoot || t('settings.apps.description')}
+						/>
 					) : (
 						apps.map((appInfo) => (
 							<SettingsRow
