@@ -460,7 +460,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
-						isError: status !== 'ok',
+						isError: true,
 						status,
 						content: before.vetoResult.content,
 					});

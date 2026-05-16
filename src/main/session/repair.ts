@@ -38,15 +38,14 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 				continue;
 			}
 			const expected = new Set(toolUseIds);
-			const followingResults: TranscriptEntry[] = [];
+			const followingResults: ToolTranscriptEntry[] = [];
 			let j = i + 1;
 			while (j < transcript.length && transcript[j]!.role === 'tool') {
-				followingResults.push(transcript[j]!);
+				followingResults.push(transcript[j]! as ToolTranscriptEntry);
 				j++;
 			}
 			const seen = new Set<string>();
 			const valid = followingResults.filter((r) => {
-				if (r.role !== 'tool') return false;
 				if (!expected.has(r.toolUseId)) return false;
 				if (seen.has(r.toolUseId)) return false;
 				seen.add(r.toolUseId);
@@ -54,7 +53,7 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 			});
 			out.push(entry);
 			for (const id of toolUseIds) {
-				const found = valid.find((r) => r.role === 'tool' && r.toolUseId === id);
+				const found = valid.find((r) => r.toolUseId === id);
 				if (found) {
 					out.push(normalizeToolResult(found));
 				} else {
