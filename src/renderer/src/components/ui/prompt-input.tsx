@@ -192,7 +192,7 @@ function PromptInput({
               onClick={handleClick}
               data-expanded={isExpanded}
               className={cn(
-                "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 transition-[border-radius,min-height,padding] duration-150 focus-within:ring-1 focus-within:ring-ring/25",
+                "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 transition-[border-radius,min-height,padding,gap] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-within:ring-1 focus-within:ring-ring/25",
                 isExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-36 flex-col rounded-lg px-4 py-3"
                   : "flex min-h-12 items-center gap-2 rounded-lg px-3 py-1.5",
