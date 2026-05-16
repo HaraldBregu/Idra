@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
 	ArrowUp,
 	AudioLines,
-	Copy,
 	ListChecks,
 	Mic,
 	Plus,
@@ -22,8 +21,6 @@ import {
 import { Loader } from '@/components/ui/loader';
 import {
 	Message,
-	MessageAction,
-	MessageActions,
 	MessageContent,
 } from '@/components/ui/message';
 import {
@@ -76,7 +73,6 @@ interface HomeChatSurfaceProps {
 	readonly onInputChange: (value: string) => void;
 	readonly onSubmit: () => void;
 	readonly onReset: () => void;
-	readonly onCopyMessage: (content: string) => void;
 	readonly onSelectApprovalOption: (
 		messageId: string,
 		approvalId: string,
@@ -320,15 +316,13 @@ function AssistantActivityPanel({
 function AssistantTextMessage({
 	message,
 	isStreaming = false,
-	onCopy,
 }: {
 	readonly message: AssistantMessage;
 	readonly isStreaming?: boolean;
-	readonly onCopy: () => void;
 }): ReactElement {
 	return (
 		<Message className="max-w-2xl">
-			<div className="group/message flex min-w-0 flex-1 items-start gap-2">
+			<div className="flex min-w-0 flex-1 items-start gap-2">
 				<div className="flex min-w-0 flex-1 flex-col gap-2">
 					<AssistantActivityPanel message={message} isStreaming={isStreaming} />
 					{message.content.length > 0 && (
@@ -343,22 +337,6 @@ function AssistantTextMessage({
 						<FeedbackBar className="max-w-xl bg-background/80 text-xs shadow-sm" />
 					)}
 				</div>
-				{message.content.length > 0 && (
-					<MessageActions className="pt-1">
-						<MessageAction tooltip="Copy message">
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								className="size-8 rounded-full opacity-0 transition-opacity group-hover/message:opacity-100 focus-visible:opacity-100"
-								aria-label="Copy message"
-								onClick={onCopy}
-							>
-								<Copy className="size-4" />
-							</Button>
-						</MessageAction>
-					</MessageActions>
-				)}
 			</div>
 		</Message>
 	);
@@ -646,7 +624,6 @@ function HomeChatSurface({
 	onInputChange,
 	onSubmit,
 	onReset,
-	onCopyMessage,
 	onSelectApprovalOption,
 	onPendingInputChange,
 	onSubmitPending,
@@ -693,7 +670,6 @@ function HomeChatSurface({
 										key={message.id}
 										message={message}
 										isStreaming={isLoading && message.id === activeAssistantId}
-										onCopy={() => onCopyMessage(message.content)}
 									/>
 								);
 							})}
@@ -909,10 +885,6 @@ function HomePage(): ReactElement {
 		});
 	};
 
-	const copyMessage = (content: string): void => {
-		void navigator.clipboard?.writeText(content);
-	};
-
 	const selectApprovalOption = (messageId: string, approvalId: string, optionId: string): void => {
 		setSelectedOptions((current) => {
 			const selected = current[messageId] ?? [];
@@ -1020,7 +992,6 @@ function HomePage(): ReactElement {
 					onInputChange={setInput}
 					onSubmit={handleSubmit}
 					onReset={resetChat}
-					onCopyMessage={copyMessage}
 					onSelectApprovalOption={selectApprovalOption}
 					onPendingInputChange={updatePendingInputAnswer}
 					onSubmitPending={(message) => void submitMultiSelect(message)}
