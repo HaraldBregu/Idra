@@ -7,7 +7,6 @@ import type {
 	AssistantResponseEvent,
 	AssistantRunState,
 	AssistantToolCallStatus,
-	ReasoningSummaryState,
 } from '../../../../shared/service';
 import {
 	applyAssistantResponseEventToTools,
@@ -17,14 +16,6 @@ import {
 } from './assistant-tool-parts';
 
 export type { AssistantRunState, AssistantToolPart };
-
-export interface ReasoningPart {
-	readonly id: string;
-	readonly title: string;
-	readonly summary: string;
-	readonly state: ReasoningSummaryState;
-	readonly createdAtMs: number;
-}
 
 export interface UserMessage {
 	readonly id: string;
@@ -40,7 +31,6 @@ export interface AssistantMessage {
 	readonly content: string;
 	readonly runId?: string;
 	readonly state: AssistantRunState;
-	readonly reasoning: readonly ReasoningPart[];
 	readonly tools: readonly AssistantToolPart[];
 	readonly errorText?: string;
 }
@@ -78,7 +68,6 @@ export const welcomeMessage: AssistantMessage = {
 	content:
 		'Ready when you are. Ask Friday to inspect code, make a change, explain a file, or help plan the next step.',
 	state: 'idle',
-	reasoning: [],
 	tools: [],
 };
 
@@ -127,7 +116,6 @@ function createAssistantMessage(id: string, runId?: string): AssistantMessage {
 		content: '',
 		runId,
 		state: 'thinking',
-		reasoning: [],
 		tools: [],
 	};
 }
@@ -186,21 +174,6 @@ function ensureAssistantForRun(
 	};
 }
 
-function upsertReasoningPart(
-	reasoning: readonly ReasoningPart[],
-	part: Omit<ReasoningPart, 'createdAtMs'>,
-	createdAtMs: number
-): ReasoningPart[] {
-	const existing = reasoning.find((item) => item.id === part.id);
-	const nextPart: ReasoningPart = {
-		...part,
-		createdAtMs: existing?.createdAtMs ?? createdAtMs,
-	};
-
-	if (!existing) return [...reasoning, nextPart];
-	return reasoning.map((item) => (item.id === part.id ? nextPart : item));
-}
-
 function applyResponseEvent(
 	state: AssistantChatState,
 	event: AssistantResponseEvent,
@@ -220,24 +193,7 @@ function applyResponseEvent(
 	}
 
 	if (event.type === 'reasoning_summary') {
-		return updateAssistantMessage(
-			{ ...ensured.state, activeAssistantId: ensured.message.id, activeRunId: event.runId },
-			ensured.message.id,
-			(message) => ({
-				...message,
-				runId: event.runId,
-				reasoning: upsertReasoningPart(
-					message.reasoning,
-					{
-						id: event.id,
-						title: event.title,
-						summary: event.summary,
-						state: event.state,
-					},
-					receivedAtMs
-				),
-			})
-		);
+		return ensured.state;
 	}
 
 	if (event.type === 'text_delta') {
@@ -348,7 +304,6 @@ export function historyToChatMessages(history: AssistantHistoryMessage[]): HomeC
 			type: 'assistant',
 			content,
 			state: 'completed',
-			reasoning: [],
 			tools,
 		});
 	});
