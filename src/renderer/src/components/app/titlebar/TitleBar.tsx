@@ -192,7 +192,7 @@ export const TitleBar = React.memo(function TitleBar({
 						<button
 							type="button"
 							onClick={() => navigate('/home')}
-							className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-sky-500 shadow-[0_0_22px_rgba(56,189,248,0.45)] transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-95"
+							className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/30 bg-sky-500 transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-95"
 							title={chatButtonLabel}
 							aria-label={chatButtonLabel}
 						>
