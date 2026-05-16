@@ -197,7 +197,7 @@ export const TitleBar = React.memo(function TitleBar({
 							aria-label={chatButtonLabel}
 						>
 							<span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(255,255,255,0.95),rgba(255,255,255,0.12)_26%,transparent_38%),radial-gradient(circle_at_70%_75%,rgba(34,197,94,0.75),transparent_42%),linear-gradient(135deg,#0ea5e9,#6366f1_54%,#ec4899)]" />
-							<span className="absolute inset-[3px] rounded-full border border-white/30 bg-white/10 shadow-inner" />
+							<span className="absolute inset-[3px] rounded-full border border-white/30 bg-white/10" />
 							<span className="relative size-2 rounded-full bg-white/85 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
 						</button>
 					) : (
