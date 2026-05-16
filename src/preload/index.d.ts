@@ -17,6 +17,9 @@ export interface AgentApi {
 	resolveApproval: (id: string, decision: ApprovalDecision | boolean) => Promise<boolean>;
 	resolveInput: (id: string, answer: string) => Promise<boolean>;
 	getPending: () => Promise<AgentPendingState>;
+	listWorkspaceFiles: () => Promise<WorkspaceFileSummary[]>;
+	readWorkspaceFile: (name: string) => Promise<WorkspaceFileContent>;
+	writeWorkspaceFile: (name: string, content: string) => Promise<WorkspaceFileContent>;
 	onResponse: (callback: (event: AgentResponseEvent) => void) => () => void;
 	onPending: (callback: (event: AgentPendingEventPayload) => void) => () => void;
 }
@@ -122,6 +125,8 @@ import type {
 	AgentPendingState,
 	AgentResponseEvent,
 	Model,
+	WorkspaceFileContent,
+	WorkspaceFileSummary,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { AppInfo } from '../shared/apps';
