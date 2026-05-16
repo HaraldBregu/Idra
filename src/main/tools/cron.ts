@@ -1,7 +1,66 @@
 import { randomUUID } from 'node:crypto';
-import { isCronTaskData, type CronTaskData } from '../../shared/cron';
-import type { AgentTool } from './types';
+import {
+	isCronTaskData,
+	type CronTaskData,
+	type OpenClawCronToolRequest,
+	type OpenClawCronToolResponse,
+} from '../../shared/cron';
+import type { AgentTool, ToolContext } from './types';
 import { textResult } from './types';
+
+function jsonResult(payload: OpenClawCronToolResponse): ReturnType<typeof textResult> & {
+	details: OpenClawCronToolResponse;
+} {
+	return {
+		status: payload.status,
+		content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }],
+		details: payload,
+	};
+}
+
+function cronActor(ctx: ToolContext) {
+	return ctx.cronContext ?? {
+		role: 'owner' as const,
+		sessionId: ctx.sessionId,
+	};
+}
+
+export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolResponse> = {
+	name: 'cron',
+	description:
+		'Manage Gateway-owned scheduled automation. Use for reminders, delayed follow-ups, recurring reports, and background chores. Do not emulate scheduling with sleep loops, shell loops, or process polling. Prefer isolated agentTurn jobs unless the user asked for main-session event injection or current-session binding.',
+	schema: {
+		type: 'object',
+		properties: {
+			action: {
+				type: 'string',
+				enum: ['status', 'list', 'get', 'add', 'update', 'remove', 'run', 'runs', 'wake'],
+			},
+			jobId: { type: 'string', description: 'Canonical cron job id.' },
+			include: { type: 'string', enum: ['enabled', 'disabled', 'all'] },
+			job: {
+				type: 'object',
+				additionalProperties: true,
+				description: 'Job payload for action=add.',
+			},
+			patch: {
+				type: 'object',
+				additionalProperties: true,
+				description: 'Patch payload for action=update.',
+			},
+			mode: { type: 'string', enum: ['force', 'due'] },
+			force: { type: 'boolean' },
+			limit: { type: 'number' },
+		},
+		required: ['action'],
+		additionalProperties: false,
+	},
+	needsApproval: (args) => ['add', 'update', 'remove', 'run', 'wake'].includes(args.action),
+	async execute(args, ctx) {
+		const response = await ctx.services.cron.openClawAction(args, cronActor(ctx));
+		return jsonResult(response);
+	},
+};
 
 interface CronAddArgs {
 	expression: string;
