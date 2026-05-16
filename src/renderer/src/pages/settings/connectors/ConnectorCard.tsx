@@ -82,7 +82,7 @@ export function ConnectorCard({
 					</p>
 				)}
 
-				<div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+				<div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5">
 					<div className="flex flex-wrap items-center gap-1.5">
 						<Badge
 							variant={connector.requireApproval === 'never' ? 'secondary' : 'outline'}
