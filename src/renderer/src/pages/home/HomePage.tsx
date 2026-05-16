@@ -42,6 +42,7 @@ import {
 	StepsTrigger,
 } from '@/components/ui/steps';
 import { Textarea } from '@/components/ui/textarea';
+import { Markdown } from '@/components/prompt-kit/markdown';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { useChatMode } from '@/contexts/chat-mode';
@@ -117,6 +118,12 @@ const markdownComponents: Partial<Components> = {
 	p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
 	ul: ({ children }) => <ul className="mb-2 list-disc pl-5 last:mb-0">{children}</ul>,
 	ol: ({ children }) => <ol className="mb-2 list-decimal pl-5 last:mb-0">{children}</ol>,
+	h1: ({ children }) => <h1 className="mb-2 text-2xl font-semibold">{children}</h1>,
+	h2: ({ children }) => <h2 className="mb-2 text-xl font-semibold">{children}</h2>,
+	h3: ({ children }) => <h3 className="mb-2 text-lg font-semibold">{children}</h3>,
+	h4: ({ children }) => <h4 className="mb-2 text-base font-semibold">{children}</h4>,
+	h5: ({ children }) => <h5 className="mb-2 text-sm font-semibold">{children}</h5>,
+	h6: ({ children }) => <h6 className="mb-2 text-xs font-semibold">{children}</h6>,
 };
 
 const runStateLabels: Record<AssistantRunState, string> = {
@@ -336,13 +343,12 @@ function AssistantTextMessage({
 				<div className="flex min-w-0 flex-1 flex-col gap-2">
 					<AssistantActivityPanel message={message} isStreaming={isStreaming} />
 					{message.content.length > 0 && (
-						<MessageContent
-							markdown
+						<Markdown
 							components={markdownComponents}
-							className="rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm"
+							className="prose rounded-2xl bg-secondary px-4 py-3 text-sm leading-relaxed text-foreground shadow-sm prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert"
 						>
 							{message.content}
-						</MessageContent>
+						</Markdown>
 					)}
 				</div>
 				{message.content.length > 0 && (
