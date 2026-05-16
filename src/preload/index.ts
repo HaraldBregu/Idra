@@ -48,7 +48,8 @@ import type {
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 } from '../shared/service';
-import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
+import type { Channel, ChannelStatusEvent, ChannelType, TelegramChannelProperties } from '../shared/channels';
+import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
@@ -295,6 +296,26 @@ export const tasks: TasksApi = {
 };
 
 export const channels: ChannelsApi = {
+	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
+		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
+	},
+	getConfig: (): Promise<Channel> => {
+		return typedInvokeUnwrap(ChannelsChannels.getConfig);
+	},
+	getChannelConfig: <TKey extends ChannelType>(type: TKey): Promise<Channel[TKey]> => {
+		return typedInvokeUnwrap(ChannelsChannels.getChannelConfig, type) as Promise<Channel[TKey]>;
+	},
+	saveChannelConfig: <TKey extends ChannelType>(
+		type: TKey,
+		config: Channel[TKey]
+	): Promise<Channel[TKey]> => {
+		return typedInvokeUnwrap(ChannelsChannels.saveChannelConfig, type, config) as Promise<
+			Channel[TKey]
+		>;
+	},
+	getStatus: (type?: ChannelType): Promise<ChannelStatusEvent | undefined> => {
+		return typedInvokeUnwrap(ChannelsChannels.getStatus, type);
+	},
 	getTelegramConfig: (): Promise<TelegramChannelProperties> => {
 		return typedInvokeUnwrap(ChannelsChannels.getTelegramConfig);
 	},

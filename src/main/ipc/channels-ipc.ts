@@ -4,7 +4,13 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { ChannelsChannels } from '../../shared/ipc-channels';
-import type { ChannelStatusEvent, TelegramChannelProperties } from '../../shared/channels';
+import {
+	type Channel,
+	type ChannelStatusEvent,
+	type ChannelType,
+	type TelegramChannelProperties,
+} from '../../shared/channels';
+import { listChannelCatalog, normalizeChannelId } from '../../shared/channel-catalog';
 
 function normalizeTelegramConfig(config: TelegramChannelProperties): TelegramChannelProperties {
 	const normalized: TelegramChannelProperties = {
@@ -31,6 +37,44 @@ export class ChannelsIpc implements IpcModule {
 		const logger = container.get('logger');
 		const store = container.get('store');
 		const channelRegistry = container.get('channelRegistry');
+
+		ipcMain.handle(
+			ChannelsChannels.listCatalog,
+			wrapSimpleHandler(() => {
+				return listChannelCatalog();
+			}, ChannelsChannels.listCatalog)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.getConfig,
+			wrapSimpleHandler((): Channel => {
+				return store.getChannel();
+			}, ChannelsChannels.getConfig)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.getChannelConfig,
+			wrapSimpleHandler((type: ChannelType): Channel[ChannelType] => {
+				return store.getChannelConfig(resolveChannelType(type));
+			}, ChannelsChannels.getChannelConfig)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.saveChannelConfig,
+			wrapSimpleHandler(
+				(type: ChannelType, config: Channel[ChannelType]): Channel[ChannelType] => {
+					return store.setChannelConfig(resolveChannelType(type), config);
+				},
+				ChannelsChannels.saveChannelConfig
+			)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.getStatus,
+			wrapSimpleHandler((type?: ChannelType): ChannelStatusEvent | undefined => {
+				return channelRegistry.getStatus(type);
+			}, ChannelsChannels.getStatus)
+		);
 
 		ipcMain.handle(
 			ChannelsChannels.getTelegramConfig,
@@ -80,4 +124,10 @@ export class ChannelsIpc implements IpcModule {
 
 		logger.info('ChannelsIpc', `Registered ${this.name} module`);
 	}
+}
+
+function resolveChannelType(type: ChannelType): ChannelType {
+	const channelType = normalizeChannelId(type);
+	if (!channelType) throw new Error(`Unsupported channel type: ${type}`);
+	return channelType;
 }

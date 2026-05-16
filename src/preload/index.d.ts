@@ -55,6 +55,14 @@ export interface CronApi {
 }
 
 export interface ChannelsApi {
+	listCatalog: () => Promise<ChannelCatalogEntry[]>;
+	getConfig: () => Promise<Channel>;
+	getChannelConfig: <TKey extends ChannelType>(type: TKey) => Promise<Channel[TKey]>;
+	saveChannelConfig: <TKey extends ChannelType>(
+		type: TKey,
+		config: Channel[TKey]
+	) => Promise<Channel[TKey]>;
+	getStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
 	getTelegramConfig: () => Promise<TelegramChannelProperties>;
 	saveTelegramConfig: (
 		config: TelegramChannelProperties
@@ -132,6 +140,8 @@ import type {
 	WorkspaceFileSummary,
 } from '../shared/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
+import type { Channel, ChannelType } from '../shared/channels';
+import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type { SkillInfo } from '../shared/skills';
 import type { Task, TaskCreateRequest, TaskEvent, TaskId, TaskListFilter } from '../shared/task';

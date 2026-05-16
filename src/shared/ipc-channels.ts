@@ -107,6 +107,11 @@ export const ConnectorsChannels = {
 } as const;
 
 export const ChannelsChannels = {
+	listCatalog: 'channels:catalog',
+	getConfig: 'channels:get-config',
+	getChannelConfig: 'channels:get-channel-config',
+	saveChannelConfig: 'channels:save-channel-config',
+	getStatus: 'channels:get-status',
 	getTelegramConfig: 'channels:telegram:get-config',
 	saveTelegramConfig: 'channels:telegram:save-config',
 	getTelegramStatus: 'channels:telegram:get-status',
@@ -363,6 +368,29 @@ interface ConnectorsInvokeChannelMap {
 }
 
 interface ChannelsInvokeChannelMap {
+	[ChannelsChannels.listCatalog]: {
+		args: [];
+		result: import('./channel-catalog').ChannelCatalogEntry[];
+	};
+	[ChannelsChannels.getConfig]: {
+		args: [];
+		result: import('./channels').Channel;
+	};
+	[ChannelsChannels.getChannelConfig]: {
+		args: [type: import('./channels').ChannelType];
+		result: import('./channels').Channel[import('./channels').ChannelType];
+	};
+	[ChannelsChannels.saveChannelConfig]: {
+		args: [
+			type: import('./channels').ChannelType,
+			config: import('./channels').Channel[import('./channels').ChannelType],
+		];
+		result: import('./channels').Channel[import('./channels').ChannelType];
+	};
+	[ChannelsChannels.getStatus]: {
+		args: [type?: import('./channels').ChannelType];
+		result: import('./channels').ChannelStatusEvent | undefined;
+	};
 	[ChannelsChannels.getTelegramConfig]: {
 		args: [];
 		result: import('./channels').TelegramChannelProperties;
