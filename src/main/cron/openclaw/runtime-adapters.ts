@@ -125,7 +125,7 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 			threadId: input.delivery.threadId,
 			accountId: input.delivery.accountId,
 		};
-		if (input.delivery.channel && input.delivery.channel !== 'last' && input.delivery.to) {
+		if (input.delivery.channel === 'telegram' && input.delivery.to) {
 			try {
 				await this.dependencies.channelRegistry?.send({
 					type: input.delivery.channel,
