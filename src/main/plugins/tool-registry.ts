@@ -80,6 +80,14 @@ export class PluginToolRegistry {
 					});
 					continue;
 				}
+				if (allow && !pluginAllowedAllTools(pluginId, allow) && !allow.includes(normalized)) {
+					options.diagnostics?.filteredTools.push({
+						toolName: tool.name,
+						stage: 'plugin',
+						reason: 'not included by plugin tool allowlist',
+					});
+					continue;
+				}
 				if (descriptor.optional && !isExplicitlyAllowed(normalized, pluginId, allow)) {
 					options.diagnostics?.filteredTools.push({
 						toolName: tool.name,
@@ -109,3 +117,11 @@ function isExplicitlyAllowed(toolName: string, pluginId: string, allow: string[]
 	return allow.includes('*') || allow.includes(toolName) || allow.includes(pluginId) || allow.includes(`plugin:${pluginId}`);
 }
 
+function pluginAllowedAllTools(pluginId: string, allow: string[]): boolean {
+	return (
+		allow.includes('*') ||
+		allow.includes(pluginId) ||
+		allow.includes(`plugin:${pluginId}`) ||
+		allow.includes('group:plugins')
+	);
+}
