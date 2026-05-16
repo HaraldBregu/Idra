@@ -3,7 +3,7 @@ import type {
 	AssistantHistoryContentBlock,
 	AssistantResponseEvent,
 	AssistantToolCallStatus,
-} from '../../../../shared/service';
+} from '../../../../../shared/service';
 
 export type AssistantToolPart = ToolPart & {
 	toolCallId: string;
