@@ -4,7 +4,6 @@ import type { ChannelChatType, ChannelNormalizedInboundMessage } from '../types'
 
 export function registerTextHandler(
 	bot: Bot,
-	allowFrom: ReadonlySet<string>,
 	emit: TelegramMessageEmit
 ): void {
 	bot.on('message:text', async (ctx) => {
@@ -12,11 +11,6 @@ export function registerTextHandler(
 		if (!text || text.startsWith('/')) return;
 
 		const senderId = String(ctx.from?.id ?? '');
-		if (allowFrom.size > 0 && !allowFrom.has(senderId)) {
-			console.warn(`[telegram] Ignored message from unauthorized user ${senderId}`);
-			return;
-		}
-
 		emit({
 			from: senderId,
 			fromName:

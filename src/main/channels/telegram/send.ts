@@ -42,6 +42,7 @@ export async function sendTelegramDurable(
 				kind: 'text',
 				platformMessageId: getMessageId(sent),
 				threadId: message.threadId,
+				replyToId: message.replyToMessageId,
 				replyToMessageId: message.replyToMessageId,
 				timestamp: Date.now(),
 				raw: sent,

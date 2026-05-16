@@ -97,7 +97,7 @@ export class TelegramAdapter implements ChannelAdapter {
 
 	private createBot(): Bot {
 		const bot = new Bot(this.token);
-		registerTextHandler(bot, this.allowFrom, (payload) => {
+		registerTextHandler(bot, (payload) => {
 			const normalized = normalizeTelegramTextMessage({
 				accountId: this.accountId,
 				...payload,
