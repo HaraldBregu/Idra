@@ -3,6 +3,7 @@ import type { ChatMode } from '@/contexts/chat-mode';
 import type {
 	ApprovalDecision,
 	AgentPendingEventPayload,
+	AgentPendingState,
 	AgentResponseEvent,
 } from '../../../../../shared/service';
 import {
@@ -17,6 +18,8 @@ import {
 type WindowWithOptionalAgent = Window & {
 	agent?: Window['agent'];
 };
+
+const HOME_AGENT_ID = 'main';
 
 function getAgentApi(): Window['agent'] | undefined {
 	return (window as WindowWithOptionalAgent).agent;
@@ -138,33 +141,52 @@ export function useHomeAgent({
 		[dispatchChat]
 	);
 
+	const applyPendingEvent = useCallback(
+		(event: AgentPendingEventPayload): void => {
+			if (event.agentId !== HOME_AGENT_ID) return;
+			const pendingMessage = pendingToMultiSelectMessage(event, Date.now());
+
+			if (pendingMessage) {
+				setSelectedOptions((current) =>
+					current[pendingMessage.id]
+						? current
+						: {
+								...current,
+								[pendingMessage.id]: defaultPendingSelections(pendingMessage),
+							}
+				);
+			} else {
+				setSelectedOptions({});
+				setPendingInputAnswers({});
+			}
+
+			dispatchChat({ type: 'set_pending_message', message: pendingMessage });
+		},
+		[dispatchChat]
+	);
+
 	useEffect(() => {
 		const agent = getAgentApi();
 		if (!agent) return;
 
-		const offPending = agent.onPending((event: AgentPendingEventPayload) => {
-			const pendingMessage = pendingToMultiSelectMessage(event, Date.now());
-
-			if (pendingMessage) {
-				setSelectedOptions((current) => ({
-					...current,
-					[pendingMessage.id]: defaultPendingSelections(pendingMessage),
-				}));
-			}
-
-			dispatchChat({ type: 'set_pending_message', message: pendingMessage });
-		});
+		const offPending = agent.onPending(applyPendingEvent);
 
 		const offResponse = agent.onResponse((event: AgentResponseEvent) => {
 			if (!requestActiveRef.current) return;
 			dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 		});
 
+		let cancelled = false;
+		void agent.getPending().then((pending: AgentPendingState) => {
+			if (!cancelled) applyPendingEvent({ agentId: HOME_AGENT_ID, ...pending });
+		}).catch(() => undefined);
+
 		return () => {
+			cancelled = true;
 			offPending();
 			offResponse();
 		};
-	}, [dispatchChat]);
+	}, [applyPendingEvent, dispatchChat]);
 
 	const handleSubmit = useCallback((): void => {
 		if (isLoading) {
