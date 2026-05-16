@@ -184,7 +184,10 @@ export const TitleBar = React.memo(function TitleBar({
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
 						<div className="relative w-[min(360px,42vw)] min-w-56">
-							<InputGroup className="h-7 rounded-md border-border/70 bg-background/80 shadow-none">
+							<InputGroup
+								className="h-7 rounded-md border-border/70 bg-background/80 shadow-none focus-within:border-ring/70 focus-within:ring-1 focus-within:ring-ring/35 has-[[data-slot=input-group-control]:focus-visible]:ring-1"
+								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+							>
 								<InputGroupAddon align="inline-start" className="h-full py-0 pl-2 pr-1">
 									<Search className="size-3" strokeWidth={1.8} />
 								</InputGroupAddon>
@@ -201,7 +204,7 @@ export const TitleBar = React.memo(function TitleBar({
 									}}
 									placeholder={settingsSearchPlaceholder}
 									aria-label={settingsSearchPlaceholder}
-									className="h-7 py-0 pl-0 pr-2 text-xs leading-none md:text-xs"
+									className="h-7 py-0 pl-0 pr-2 text-xs leading-none outline-none md:text-xs"
 								/>
 							</InputGroup>
 						</div>
