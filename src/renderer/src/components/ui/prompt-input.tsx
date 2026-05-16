@@ -52,6 +52,7 @@ export type PromptInputProps = {
   value?: string
   onValueChange?: (value: string) => void
   maxHeight?: number | string
+  maxLength?: number
   expandedThreshold?: number
   onSubmit?: () => void
   children: React.ReactNode
