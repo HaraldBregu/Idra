@@ -110,9 +110,9 @@ function PromptInputMotionSlot({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.92 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.92 }}
+      initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -4, filter: "blur(4px)" }}
       transition={transition}
       className="shrink-0"
     >
