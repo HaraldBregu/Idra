@@ -1,4 +1,4 @@
-import type { ToolPart } from '@/components/ui/tool';
+import type { ToolPart } from '@/components/prompt-kit/tool';
 import type {
 	AssistantHistoryContentBlock,
 	AssistantResponseEvent,
