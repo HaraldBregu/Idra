@@ -3,6 +3,25 @@ import userEvent from '@testing-library/user-event';
 import { PendingMessage } from '../../../../../src/renderer/src/pages/home/components/PendingMessage';
 import type { HomeMultiSelectMessage } from '../../../../../src/renderer/src/pages/home/context';
 
+jest.mock('@/components/ui/button', () => ({
+	Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+		<button {...props}>{children}</button>
+	),
+}));
+
+jest.mock('@/components/ui/message', () => ({
+	Message: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+		<div {...props}>{children}</div>
+	),
+	MessageContent: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+		<div {...props}>{children}</div>
+	),
+}));
+
+jest.mock('@/components/ui/textarea', () => ({
+	Textarea: (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => <textarea {...props} />,
+}));
+
 function approvalMessage(options?: Partial<HomeMultiSelectMessage>): HomeMultiSelectMessage {
 	return {
 		id: 'pending-1',
