@@ -224,35 +224,24 @@ function UserMessage({ content }: { readonly content: string }): ReactElement {
 
 function ReasoningList({
 	reasoning,
-	isStreaming,
 }: {
 	readonly reasoning: readonly ReasoningPart[];
-	readonly isStreaming: boolean;
 }): ReactElement | null {
 	if (reasoning.length === 0) return null;
 
 	return (
-		<Reasoning isStreaming={isStreaming} className="gap-2">
-			<ReasoningTrigger className="font-semibold">Reasoning</ReasoningTrigger>
-			<ReasoningContent>
-				<div className="flex flex-col gap-2 pt-1">
-					{reasoning.map((part) => (
-						<div key={part.id} className="flex gap-2">
-							<span
-								className={cn('mt-1.5 size-1.5 shrink-0 rounded-full', reasoningTone(part.state))}
-								aria-hidden
-							/>
-							<div className="min-w-0 flex-1">
-								<p className="truncate text-xs font-semibold text-foreground">{part.title}</p>
-								<p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-									{part.summary}
-								</p>
-							</div>
-						</div>
-					))}
-				</div>
-			</ReasoningContent>
-		</Reasoning>
+		<ChainOfThought>
+			{reasoning.map((part) => (
+				<ChainOfThoughtStep key={part.id}>
+					<ChainOfThoughtTrigger>{part.title}</ChainOfThoughtTrigger>
+					{part.summary && (
+						<ChainOfThoughtContent>
+							<ChainOfThoughtItem>{part.summary}</ChainOfThoughtItem>
+						</ChainOfThoughtContent>
+					)}
+				</ChainOfThoughtStep>
+			))}
+		</ChainOfThought>
 	);
 }
 
