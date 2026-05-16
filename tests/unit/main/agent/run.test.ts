@@ -56,6 +56,7 @@ describe('agent/run', () => {
 	});
 
 	it('executes tool calls and feeds tool results into the next model turn', async () => {
+		const requests: Array<unknown> = [];
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
 			content: [{ type: 'text' as const, text: 'pong' }],
@@ -72,15 +73,24 @@ describe('agent/run', () => {
 			userMessage: 'do it',
 			systemPrompt: 'sys',
 			session: session(),
-			provider: provider([
-				[
-					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
-					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"value":1}' },
-					{ type: 'tool_call_end', id: 'tc1' },
-					end(),
-				],
-				[{ type: 'text_delta', text: 'done' }, end()],
-			]),
+			provider: {
+				async *stream(req) {
+					requests.push(req.messages);
+					if (requests.length === 1) {
+						yield { type: 'tool_call_start' as const, id: 'tc1', name: 'ping' };
+						yield {
+							type: 'tool_call_args_delta' as const,
+							id: 'tc1',
+							jsonDelta: '{"value":1}',
+						};
+						yield { type: 'tool_call_end' as const, id: 'tc1' };
+						yield end();
+						return;
+					}
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield end();
+				},
+			},
 			model: 'gpt-test',
 			tools: [tool],
 			ctx: makeToolContext(),
@@ -95,6 +105,131 @@ describe('agent/run', () => {
 			'tool',
 			'assistant',
 		]);
+		expect(result.session.transcript[1]).toEqual({
+			role: 'assistant',
+			content: [
+				{
+					type: 'tool_use',
+					toolUseId: 'tc1',
+					toolName: 'ping',
+					toolArgs: { value: 1 },
+				},
+			],
+		});
+		expect(result.session.transcript[2]).toEqual({
+			role: 'tool',
+			toolUseId: 'tc1',
+			isError: false,
+			content: [{ type: 'text', text: 'pong' }],
+		});
+		expect(requests[1]).toEqual([
+			{ role: 'user', content: 'do it' },
+			{
+				role: 'assistant',
+				content: [
+					{
+						type: 'tool_use',
+						toolUseId: 'tc1',
+						toolName: 'ping',
+						toolArgs: { value: 1 },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tc1',
+				isError: false,
+				content: [{ type: 'text', text: 'pong' }],
+			},
+		]);
+	});
+
+	it('stores multiple tool calls and rejected results with stable call ids', async () => {
+		const events: ProviderEvent[] = [];
+		const safeTool: AgentTool = {
+			name: 'safe_tool',
+			description: 'Safe',
+			schema: { type: 'object' },
+			execute: jest.fn(async () => ({
+				status: 'ok' as const,
+				content: [{ type: 'text' as const, text: 'safe ok' }],
+			})),
+		};
+		const approvalTool: AgentTool = {
+			name: 'approval_tool',
+			description: 'Approval',
+			schema: { type: 'object' },
+			needsApproval: true,
+			execute: jest.fn(async () => ({
+				status: 'ok' as const,
+				content: [{ type: 'text' as const, text: 'should not run' }],
+			})),
+		};
+
+		const result = await runAgent({
+			runId: 'r1',
+			userMessage: 'use tools',
+			systemPrompt: 'sys',
+			session: session(),
+			provider: provider([
+				[
+					{ type: 'tool_call_start', id: 'tc-ok', name: 'safe_tool' },
+					{ type: 'tool_call_args_delta', id: 'tc-ok', jsonDelta: '{"a":1}' },
+					{ type: 'tool_call_end', id: 'tc-ok' },
+					{ type: 'tool_call_start', id: 'tc-denied', name: 'approval_tool' },
+					{ type: 'tool_call_args_delta', id: 'tc-denied', jsonDelta: '{"b":2}' },
+					{ type: 'tool_call_end', id: 'tc-denied' },
+					end(),
+				],
+				[{ type: 'text_delta', text: 'done' }, end()],
+			]),
+			model: 'gpt-test',
+			tools: [safeTool, approvalTool],
+			ctx: makeToolContext(),
+			streamEvent: (event) => events.push(event as ProviderEvent),
+		});
+
+		expect(result.session.transcript).toEqual([
+			{ role: 'user', content: 'use tools' },
+			{
+				role: 'assistant',
+				content: [
+					{
+						type: 'tool_use',
+						toolUseId: 'tc-ok',
+						toolName: 'safe_tool',
+						toolArgs: { a: 1 },
+					},
+					{
+						type: 'tool_use',
+						toolUseId: 'tc-denied',
+						toolName: 'approval_tool',
+						toolArgs: { b: 2 },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tc-ok',
+				isError: false,
+				content: [{ type: 'text', text: 'safe ok' }],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tc-denied',
+				isError: true,
+				content: [{ type: 'text', text: 'Approval timed out or is unavailable for approval_tool.' }],
+			},
+			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
+		]);
+		expect(events).toContainEqual(
+			expect.objectContaining({
+				type: 'tool_call_result',
+				toolCallId: 'tc-denied',
+				status: 'rejected',
+				errorText: 'Approval timed out or is unavailable for approval_tool.',
+			})
+		);
 	});
 
 	it('compacts once on context overflow and retries', async () => {

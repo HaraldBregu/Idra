@@ -95,7 +95,7 @@ type AssistantContentBlock = NonNullable<AssistantHistoryMessage['contentBlocks'
 export function assistantToolPartFromHistoryBlock(
 	block: AssistantContentBlock
 ): AssistantToolPart | undefined {
-	if (block.type !== 'tool_use' || !block.toolUseId || !block.toolName) return undefined;
+	if (block.type !== 'tool_use') return undefined;
 
 	return {
 		toolCallId: block.toolUseId,

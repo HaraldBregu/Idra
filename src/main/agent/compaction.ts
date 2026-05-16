@@ -57,7 +57,7 @@ function renderForSummary(entries: TranscriptEntry[]): string {
 		else if (e.role === 'assistant') {
 			const text = e.content
 				.map((b) => {
-					if (b.type === 'text') return b.text ?? '';
+					if (b.type === 'text') return b.text;
 					if (b.type === 'tool_use') {
 						return `[tool ${b.toolName} ${JSON.stringify(b.toolArgs ?? {}).slice(0, 200)}]`;
 					}
@@ -67,7 +67,7 @@ function renderForSummary(entries: TranscriptEntry[]): string {
 			out.push(`ASSISTANT: ${text}`);
 		} else if (e.role === 'tool') {
 			const t = e.content
-				.map((c) => (c.type === 'text' ? (c.text ?? '') : '[binary]'))
+				.map((c) => (c.type === 'text' ? c.text : '[binary]'))
 				.join('')
 				.slice(0, 800);
 			out.push(`TOOL_RESULT(${e.toolUseId}): ${t}`);

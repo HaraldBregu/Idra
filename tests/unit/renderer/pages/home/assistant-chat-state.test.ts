@@ -259,4 +259,61 @@ describe('assistant chat state', () => {
 			}),
 		]);
 	});
+
+	it('restores multi-tool history and attaches failed results by stable call id', () => {
+		const messages = historyToChatMessages([
+			{ role: 'user', content: 'check files' },
+			{
+				role: 'assistant',
+				content: 'I will check.',
+				contentBlocks: [
+					{ type: 'text', text: 'I will check.' },
+					{
+						type: 'tool_use',
+						toolUseId: 'tool-a',
+						toolName: 'read_file',
+						toolArgs: { path: 'a.txt' },
+					},
+					{
+						type: 'tool_use',
+						toolUseId: 'tool-b',
+						toolName: 'read_file',
+						toolArgs: { path: 'b.txt' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tool-b',
+				content: 'missing b.txt',
+				isError: true,
+			},
+			{
+				role: 'tool',
+				toolUseId: 'tool-a',
+				content: 'a contents',
+				isError: false,
+			},
+		] satisfies AssistantHistoryMessage[]);
+
+		const restoredAssistant = messages.find(
+			(message) => message.type === 'assistant'
+		) as AssistantMessage | undefined;
+
+		expect(restoredAssistant?.tools).toEqual([
+			expect.objectContaining({
+				toolCallId: 'tool-a',
+				type: 'read_file',
+				state: 'output-available',
+				outputText: 'a contents',
+			}),
+			expect.objectContaining({
+				toolCallId: 'tool-b',
+				type: 'read_file',
+				state: 'output-error',
+				outputText: 'missing b.txt',
+				errorText: 'missing b.txt',
+			}),
+		]);
+	});
 });

@@ -21,7 +21,7 @@ function buildAnthropicMessages(transcript: TranscriptEntry[]): Anthropic.Messag
 			for (const b of entry.content) {
 				if (b.type === 'text' && b.text) {
 					blocks.push({ type: 'text', text: b.text });
-				} else if (b.type === 'tool_use' && b.toolUseId && b.toolName) {
+				} else if (b.type === 'tool_use') {
 					blocks.push({
 						type: 'tool_use',
 						id: b.toolUseId,
@@ -41,7 +41,7 @@ function buildAnthropicMessages(transcript: TranscriptEntry[]): Anthropic.Messag
 					tool_use_id: entry.toolUseId,
 					content: entry.content.map((c) =>
 						c.type === 'text'
-							? { type: 'text' as const, text: c.text ?? '' }
+							? { type: 'text' as const, text: c.text }
 							: {
 									type: 'image' as const,
 									source: {

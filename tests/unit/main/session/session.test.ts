@@ -18,6 +18,35 @@ describe('session/repair', () => {
 		expect(repaired).toHaveLength(2);
 		expect(repaired[1]).toMatchObject({ role: 'tool', toolUseId: 'call1', isError: true });
 	});
+
+	it('keeps valid tool call/result pairs and drops invalid extra results', () => {
+		const repaired = sanitizeToolUseResultPairing([
+			{
+				role: 'assistant',
+				content: [
+					{ type: 'text', text: 'checking' },
+					{ type: 'tool_use', toolUseId: 'call1', toolName: 'read', toolArgs: {} },
+					{ type: 'tool_use', toolUseId: 'call2', toolName: 'write', toolArgs: { path: 'a' } },
+				],
+			},
+			{ role: 'tool', toolUseId: 'call2', content: [{ type: 'text', text: 'wrote' }] },
+			{ role: 'tool', toolUseId: 'orphan', content: [{ type: 'text', text: 'x' }] },
+			{ role: 'tool', toolUseId: 'call1', content: [{ type: 'text', text: 'read' }] },
+		]);
+
+		expect(repaired).toEqual([
+			{
+				role: 'assistant',
+				content: [
+					{ type: 'text', text: 'checking' },
+					{ type: 'tool_use', toolUseId: 'call1', toolName: 'read', toolArgs: {} },
+					{ type: 'tool_use', toolUseId: 'call2', toolName: 'write', toolArgs: { path: 'a' } },
+				],
+			},
+			{ role: 'tool', toolUseId: 'call1', content: [{ type: 'text', text: 'read' }] },
+			{ role: 'tool', toolUseId: 'call2', content: [{ type: 'text', text: 'wrote' }] },
+		]);
+	});
 });
 
 describe('session/lock', () => {
@@ -53,6 +82,44 @@ describe('session/store', () => {
 
 		await clearSession('abc', { baseDir });
 		await expect(fs.access(path.join(baseDir, 'abc.json'))).rejects.toThrow();
+		await fs.rm(baseDir, { recursive: true, force: true });
+	});
+
+	it('saves and loads structured assistant tool calls with matching results', async () => {
+		const baseDir = await makeTempDir();
+		const created = await loadSession('tools', 'gpt-test', 'openai', { baseDir });
+		const file: SessionFile = {
+			...created,
+			transcript: [
+				{ role: 'user', content: 'read it' },
+				{
+					role: 'assistant',
+					content: [
+						{ type: 'text', text: 'I will read that.' },
+						{
+							type: 'tool_use',
+							toolUseId: 'tool-1',
+							toolName: 'read_file',
+							toolArgs: { path: 'README.md' },
+						},
+					],
+				},
+				{
+					role: 'tool',
+					toolUseId: 'tool-1',
+					isError: false,
+					content: [{ type: 'text', text: 'contents' }],
+				},
+			],
+		};
+
+		await saveSession(file, { baseDir });
+		const raw = JSON.parse(await fs.readFile(path.join(baseDir, 'tools.json'), 'utf8')) as SessionFile;
+		const reloaded = await loadSession('tools', 'ignored', 'ignored', { baseDir });
+
+		expect(raw.transcript[1]).toEqual(file.transcript[1]);
+		expect(raw.transcript[2]).toEqual(file.transcript[2]);
+		expect(reloaded.transcript).toEqual(file.transcript);
 		await fs.rm(baseDir, { recursive: true, force: true });
 	});
 });

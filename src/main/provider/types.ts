@@ -19,20 +19,18 @@ export type ProviderEvent =
 	| { type: 'tool_call_end'; id: string }
 	| { type: 'message_end'; stopReason: string; usage: Usage };
 
-export interface AssistantContentBlock {
-	type: 'text' | 'tool_use';
-	text?: string;
-	toolUseId?: string;
-	toolName?: string;
-	toolArgs?: unknown;
-}
+export type AssistantContentBlock =
+	| { type: 'text'; text: string }
+	| {
+			type: 'tool_use';
+			toolUseId: string;
+			toolName: string;
+			toolArgs: unknown;
+	  };
 
-export interface ToolResultBlock {
-	type: 'text' | 'image';
-	text?: string;
-	mimeType?: string;
-	base64?: string;
-}
+export type ToolResultBlock =
+	| { type: 'text'; text: string }
+	| { type: 'image'; mimeType?: string; base64?: string };
 
 export type TranscriptEntry =
 	| { role: 'user'; content: string }

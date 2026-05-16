@@ -78,6 +78,67 @@ describe('provider/openai', () => {
 		);
 		expect(create.mock.calls[0][0]).not.toHaveProperty('max_tokens');
 	});
+
+	it('converts prior tool calls and results into OpenAI chat messages', async () => {
+		async function* chunks() {
+			yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+		}
+		const create = jest.fn(async () => chunks());
+		const adapter = new OpenAIAdapter({
+			apiKey: 'sk-test',
+			clientFactory: () => ({
+				chat: { completions: { create } },
+			}) as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'gpt-test',
+			system: 'sys',
+			messages: [
+				{ role: 'user', content: 'read it' },
+				{
+					role: 'assistant',
+					content: [
+						{ type: 'text', text: 'Reading.' },
+						{
+							type: 'tool_use',
+							toolUseId: 'call-1',
+							toolName: 'read_file',
+							toolArgs: { path: 'README.md' },
+						},
+					],
+				},
+				{
+					role: 'tool',
+					toolUseId: 'call-1',
+					isError: true,
+					content: [
+						{ type: 'text', text: 'failed' },
+						{ type: 'image', mimeType: 'image/png', base64: 'abc' },
+					],
+				},
+			],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0].messages).toEqual([
+			{ role: 'system', content: 'sys' },
+			{ role: 'user', content: 'read it' },
+			{
+				role: 'assistant',
+				content: 'Reading.',
+				tool_calls: [
+					{
+						id: 'call-1',
+						type: 'function',
+						function: { name: 'read_file', arguments: '{"path":"README.md"}' },
+					},
+				],
+			},
+			{ role: 'tool', tool_call_id: 'call-1', content: 'failed\n[binary content]' },
+		]);
+	});
 });
 
 describe('provider/anthropic', () => {
@@ -110,6 +171,88 @@ describe('provider/anthropic', () => {
 			{ type: 'tool_call_args_delta', id: 't1', jsonDelta: '{"command":"pwd"}' },
 			{ type: 'tool_call_end', id: 't1' },
 			{ type: 'message_end', stopReason: 'tool_use', usage: { inputTokens: 4, outputTokens: 5 } },
+		]);
+	});
+
+	it('converts prior tool calls and results into Anthropic messages', async () => {
+		async function* chunks() {
+			yield { type: 'message_start', message: { usage: { input_tokens: 1, output_tokens: 0 } } };
+			yield { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 1 } };
+		}
+		const stream = jest.fn(() => chunks());
+		const adapter = new AnthropicAdapter({
+			apiKey: 'ant-test',
+			clientFactory: () => ({
+				messages: { stream },
+			}) as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'claude-test',
+			system: 'sys',
+			messages: [
+				{ role: 'user', content: 'read it' },
+				{
+					role: 'assistant',
+					content: [
+						{ type: 'text', text: 'Reading.' },
+						{
+							type: 'tool_use',
+							toolUseId: 'call-1',
+							toolName: 'read_file',
+							toolArgs: { path: 'README.md' },
+						},
+					],
+				},
+				{
+					role: 'tool',
+					toolUseId: 'call-1',
+					isError: true,
+					content: [
+						{ type: 'text', text: 'failed' },
+						{ type: 'image', mimeType: 'image/png', base64: 'abc' },
+					],
+				},
+			],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(stream.mock.calls[0][0].messages).toEqual([
+			{ role: 'user', content: 'read it' },
+			{
+				role: 'assistant',
+				content: [
+					{ type: 'text', text: 'Reading.' },
+					{
+						type: 'tool_use',
+						id: 'call-1',
+						name: 'read_file',
+						input: { path: 'README.md' },
+					},
+				],
+			},
+			{
+				role: 'user',
+				content: [
+					{
+						type: 'tool_result',
+						tool_use_id: 'call-1',
+						content: [
+							{ type: 'text', text: 'failed' },
+							{
+								type: 'image',
+								source: {
+									type: 'base64',
+									media_type: 'image/png',
+									data: 'abc',
+								},
+							},
+						],
+						is_error: true,
+					},
+				],
+			},
 		]);
 	});
 });

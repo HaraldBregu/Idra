@@ -11,7 +11,7 @@ import type {
 } from '../../shared/service';
 import type { TranscriptEntry } from '../provider/types';
 
-function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
+export function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
 	return t.map((entry) => {
 		if (entry.role === 'user') {
 			return { role: 'user', content: entry.content };
@@ -19,7 +19,7 @@ function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
 		if (entry.role === 'assistant') {
 			const text = entry.content
 				.filter((b) => b.type === 'text')
-				.map((b) => b.text ?? '')
+				.map((b) => b.text)
 				.join('');
 			return { role: 'assistant', content: text || null, contentBlocks: entry.content };
 		}
@@ -28,7 +28,7 @@ function transcriptToHistory(t: TranscriptEntry[]): AssistantHistoryMessage[] {
 			toolUseId: entry.toolUseId,
 			isError: entry.isError,
 			content: entry.content
-				.map((c) => (c.type === 'text' ? (c.text ?? '') : '[binary]'))
+				.map((c) => (c.type === 'text' ? c.text : '[binary]'))
 				.join('\n'),
 		};
 	});

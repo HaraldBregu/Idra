@@ -118,7 +118,7 @@ function parseToolArgs(argsStr: string, fallback: unknown): unknown {
 
 function resultBlocksToText(content: ToolResultBlock[]): string {
 	return content
-		.map((c) => (c.type === 'text' ? (c.text ?? '') : '[binary content]'))
+		.map((c) => (c.type === 'text' ? c.text : '[binary content]'))
 		.join('\n');
 }
 
@@ -130,7 +130,7 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 
 	return content.map((block) => {
 		if (block.type === 'text') {
-			return { type: 'text', text: block.text ?? '' };
+			return { type: 'text', text: block.text };
 		}
 
 		return {

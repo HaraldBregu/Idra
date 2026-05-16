@@ -32,22 +32,33 @@ export type AssistantRunState =
 
 export type ReasoningSummaryState = 'pending' | 'running' | 'completed' | 'error';
 
+export type AssistantHistoryContentBlock =
+	| { type: 'text'; text: string }
+	| {
+			type: 'tool_use';
+			toolUseId: string;
+			toolName: string;
+			toolArgs: unknown;
+	  };
+
 /**
- * Assistant transcript entry (provider-neutral). One per turn.
+ * Renderer-facing assistant history converted from the provider-neutral
+ * transcript. Assistant entries carry text plus original blocks so restored
+ * UI state and future provider turns do not depend on flattened display text.
  */
-export interface AssistantHistoryMessage {
-	role: 'user' | 'assistant' | 'tool';
-	content?: string | null;
-	toolUseId?: string;
-	isError?: boolean;
-	contentBlocks?: Array<{
-		type: 'text' | 'tool_use';
-		text?: string;
-		toolUseId?: string;
-		toolName?: string;
-		toolArgs?: unknown;
-	}>;
-}
+export type AssistantHistoryMessage =
+	| { role: 'user'; content: string }
+	| {
+			role: 'assistant';
+			content: string | null;
+			contentBlocks: AssistantHistoryContentBlock[];
+	  }
+	| {
+			role: 'tool';
+			toolUseId: string;
+			content: string;
+			isError?: boolean;
+	  };
 
 export type AssistantToolCallStatus = 'ok' | 'error' | 'rejected';
 

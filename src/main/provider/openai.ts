@@ -21,14 +21,14 @@ function buildChatMessages(
 		if (entry.role === 'assistant') {
 			const text = entry.content
 				.filter((b) => b.type === 'text')
-				.map((b) => b.text ?? '')
+				.map((b) => b.text)
 				.join('');
 			const tools = entry.content
 				.filter((b) => b.type === 'tool_use')
 				.map((b) => ({
-					id: b.toolUseId!,
+					id: b.toolUseId,
 					type: 'function' as const,
-					function: { name: b.toolName!, arguments: JSON.stringify(b.toolArgs ?? {}) },
+					function: { name: b.toolName, arguments: JSON.stringify(b.toolArgs ?? {}) },
 				}));
 			const msg: OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam = {
 				role: 'assistant',
@@ -40,7 +40,7 @@ function buildChatMessages(
 		}
 		if (entry.role === 'tool') {
 			const text = entry.content
-				.map((c) => (c.type === 'text' ? (c.text ?? '') : '[binary content]'))
+				.map((c) => (c.type === 'text' ? c.text : '[binary content]'))
 				.join('\n');
 			msgs.push({ role: 'tool', tool_call_id: entry.toolUseId, content: text });
 		}
