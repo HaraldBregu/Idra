@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { ChevronDown } from 'lucide-react';
-import { useStickToBottomContext } from 'use-stick-to-bottom';
 
 import { Button } from '@/components/ui/button';
+import { useStickToBottomContext } from '@/hooks/use-stick-to-bottom';
 import { cn } from '@/lib/utils';
 
 export type ScrollButtonProps = {
