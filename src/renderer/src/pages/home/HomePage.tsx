@@ -1,6 +1,7 @@
 import type { ReactElement, RefObject } from 'react';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { Components } from 'react-markdown';
+import { AnimatePresence, motion } from 'motion/react';
 import {
 	ArrowUp,
 	AudioLines,
