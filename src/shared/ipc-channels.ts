@@ -18,6 +18,9 @@ export const AgentChannels = {
 	resolveInput: 'agent:resolve-input',
 	cancel: 'agent:cancel',
 	getPending: 'agent:get-pending',
+	listWorkspaceFiles: 'agent:list-workspace-files',
+	readWorkspaceFile: 'agent:read-workspace-file',
+	writeWorkspaceFile: 'agent:write-workspace-file',
 	pending: 'agent:pending',
 } as const;
 
@@ -198,6 +201,18 @@ interface AgentInvokeChannelMap {
 	[AgentChannels.getPending]: {
 		args: [];
 		result: import('./service').AgentPendingState;
+	};
+	[AgentChannels.listWorkspaceFiles]: {
+		args: [];
+		result: import('./service').WorkspaceFileSummary[];
+	};
+	[AgentChannels.readWorkspaceFile]: {
+		args: [name: string];
+		result: import('./service').WorkspaceFileContent;
+	};
+	[AgentChannels.writeWorkspaceFile]: {
+		args: [name: string, content: string];
+		result: import('./service').WorkspaceFileContent;
 	};
 }
 
