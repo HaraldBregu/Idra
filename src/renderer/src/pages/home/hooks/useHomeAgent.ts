@@ -9,6 +9,7 @@ import {
 	defaultPendingSelections,
 	inputAnswerKey,
 	pendingToMultiSelectMessage,
+	type ImmediateApprovalSelection,
 	type HomeMultiSelectMessage,
 	useHomeAgentContext,
 } from '../context';
@@ -212,8 +213,12 @@ export function useHomeAgent({
 	);
 
 	const submitMultiSelect = useCallback(
-		async (message: HomeMultiSelectMessage): Promise<void> => {
+		async (
+			message: HomeMultiSelectMessage,
+			immediateApproval?: ImmediateApprovalSelection
+		): Promise<void> => {
 			const selected = new Set(selectedOptions[message.id] ?? []);
+			if (immediateApproval) selected.add(immediateApproval.optionId);
 
 			try {
 				const agent = getAgentApi();
