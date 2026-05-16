@@ -5,7 +5,6 @@ import type { ApprovalStreamLike } from './tools/types';
 import type { ApprovalDecision } from '../shared/service';
 
 const DEFAULT_APPROVAL_TIMEOUT_MS = 5 * 60_000;
-const RESOLVED_RETENTION_MS = 30_000;
 const SECRET_KEY_PATTERN = /(token|secret|password|passwd|api[_-]?key|credential|private[_-]?key)/i;
 
 export interface PendingApprovalView {
@@ -28,15 +27,6 @@ export interface PendingInputView {
 	id: string;
 	question: string;
 	suggestions?: string[];
-}
-
-interface PendingApproval {
-	resolve: (decision: ApprovalDecision | null) => void;
-	reject: (err: Error) => void;
-	view: PendingApprovalView;
-	timer: ReturnType<typeof setTimeout>;
-	resolvedAtMs?: number;
-	decision?: ApprovalDecision | null;
 }
 
 interface PendingInput {
@@ -120,7 +110,11 @@ export class HitlBridge implements ApprovalStreamLike {
 	}
 
 	waitApprovalDecision(id: string): Promise<ApprovalDecision | null> | null {
-		const record = this.gateway.get('exec', id) ?? this.gateway.get('tool', id) ?? this.gateway.get('api', id) ?? this.gateway.get('plugin', id);
+		const record =
+			this.gateway.get('exec', id) ??
+			this.gateway.get('tool', id) ??
+			this.gateway.get('api', id) ??
+			this.gateway.get('plugin', id);
 		if (!record) return null;
 		return this.gateway.waitDecision(record.kind, id).then((decision) => {
 			return decision === 'allow-once' || decision === 'allow-always' || decision === 'deny'
@@ -145,7 +139,11 @@ export class HitlBridge implements ApprovalStreamLike {
 	}
 
 	expireApproval(id: string): boolean {
-		const record = this.gateway.get('exec', id) ?? this.gateway.get('tool', id) ?? this.gateway.get('api', id) ?? this.gateway.get('plugin', id);
+		const record =
+			this.gateway.get('exec', id) ??
+			this.gateway.get('tool', id) ??
+			this.gateway.get('api', id) ??
+			this.gateway.get('plugin', id);
 		if (!record) return false;
 		const result = this.gateway.resolve(record.kind, record.id, 'deny', this.agentId);
 		return result.ok;
