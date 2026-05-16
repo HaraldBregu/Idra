@@ -38,10 +38,25 @@ export interface AssistantServiceDependencies {
 	skills?: SkillsService;
 }
 
+export interface AssistantToolsFactoryContext {
+	assistantId: string;
+	runId: string;
+	providerId: string;
+	model: string;
+	workspace: string;
+	session: SessionFile;
+	signal: AbortSignal;
+	services: AssistantServiceDependencies;
+}
+
+export type AssistantToolsFactory = (
+	context: AssistantToolsFactoryContext
+) => AgentTool[] | Promise<AgentTool[]>;
+
 export interface AssistantServiceOptions {
 	defaultAssistantId?: string;
 	providerFactory?: (provider: ProviderSpec, model: string) => ProviderAdapter;
-	toolsFactory?: () => AgentTool[];
+	toolsFactory?: AssistantToolsFactory;
 	runLoggerFactory?: (assistantId: string) => AssistantRunLogger;
 	sessionBaseDir?: string;
 }
@@ -60,7 +75,7 @@ function emptyUsage(): TokenUsage {
 export class AssistantService {
 	private readonly defaultAssistantId: string;
 	private readonly providerFactory: (provider: ProviderSpec, model: string) => ProviderAdapter;
-	private readonly toolsFactory: () => AgentTool[];
+	private readonly toolsFactory: AssistantToolsFactory;
 	private readonly runLoggerFactory: (assistantId: string) => AssistantRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly runtimes = new Map<string, Runtime>();
@@ -102,9 +117,18 @@ export class AssistantService {
 			runtime.session = await loadSession(assistantId, model, providerId, {
 				baseDir: this.sessionBaseDir,
 			});
-			const baseTools = this.toolsFactory();
-			const provider = this.providerFactory({ id: providerId, apiKey, baseURL }, model);
 			const workspaceRoot = this.workspaceRoot();
+			const baseTools = await this.toolsFactory({
+				assistantId,
+				runId,
+				providerId,
+				model,
+				workspace: workspaceRoot,
+				session: runtime.session,
+				signal: abort.signal,
+				services: this.dependencies,
+			});
+			const provider = this.providerFactory({ id: providerId, apiKey, baseURL }, model);
 			const emitWaitingForApproval = (): void => {
 				streamEvent({
 					type: 'run_state',
