@@ -31,6 +31,7 @@ export interface RunLogToolCall {
 	durationMs: number;
 	status: 'ok' | 'error' | 'rejected';
 	outputChars: number;
+	outputText?: string;
 }
 
 export interface RunLogApprovalRequest {
