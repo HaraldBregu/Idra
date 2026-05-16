@@ -13,6 +13,10 @@ import {
 import type { UserDataDirectoryServicePort } from './user-data';
 import type { ConnectorsService } from './connectors';
 import type { SkillsService } from './skills';
+import {
+	evaluateBeforeAgentRunHooks,
+	type BeforeAgentRunHook,
+} from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
 import { DEFAULT_AGENT_ID } from './constants';
@@ -72,6 +76,7 @@ export interface AgentServiceOptions {
 	toolsFactory?: AgentToolsFactory;
 	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
+	beforeAgentRunHooks?: BeforeAgentRunHook[];
 }
 
 interface Runtime {
@@ -91,6 +96,7 @@ export class AgentService {
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
+	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private readonly runtimes = new Map<string, Runtime>();
 
 	constructor(
@@ -104,6 +110,7 @@ export class AgentService {
 			(() => createTools({ profile: 'full', allow: [], deny: [] }));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
+		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
 	}
 
@@ -246,6 +253,40 @@ export class AgentService {
 				tools: selectedTools.map((tool) => tool.name),
 				runLogger: runtime.runLogger,
 			});
+			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
+				prompt: message,
+				messages: [...runtime.session.transcript, { role: 'user', content: message }],
+				systemPrompt: systemPromptForTurn,
+				senderId: agentId,
+				senderIsOwner: agentId === this.defaultAgentId,
+			});
+			if (beforeRun.outcome === 'block') {
+				await hooks.onStart?.({ runId });
+				runtime.session.transcript.push({
+					role: 'assistant',
+					content: [{ type: 'text', text: beforeRun.message }],
+				});
+				runtime.session = {
+					...runtime.session,
+					status: 'completed',
+				};
+				await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
+				runtime.currentAbort = null;
+				streamEvent({ type: 'text_delta', delta: beforeRun.message });
+				streamEvent({
+					type: 'run_state',
+					state: 'completed',
+					label: 'beforeAgentRunBlocked',
+				});
+				await hooks.onFinish?.({
+					runId,
+					stopReason: 'end_turn',
+					usage: emptyUsage(),
+					iterations: 0,
+					durationMs: 0,
+				});
+				return beforeRun.message;
+			}
 
 			const result = await runAgent({
 				runId,
