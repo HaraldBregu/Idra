@@ -1,4 +1,4 @@
-import type { CronService } from '../cron';
+import type { CronService, OpenClawCronActor } from '../cron';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
@@ -34,6 +34,8 @@ export interface ToolContext {
 	workspace: string;
 	/** Agent id that owns this run, when available. */
 	agentId?: string;
+	/** Cron authorization context supplied by the Gateway for owner or cron-self calls. */
+	cronContext?: OpenClawCronActor;
 	/** Run-scoped id used by the run logger / session. */
 	sessionId: string;
 	/** Optional override for persisted session files. */
