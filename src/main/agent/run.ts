@@ -10,6 +10,7 @@ import {
 	type AgentToolManagementOptions,
 } from '../tools/management';
 import { compact } from './compaction';
+import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
 import type { SessionFile } from '../session/store';
 import type { AgentRunState, ReasoningSummaryState } from '../../shared/service';
 
@@ -299,6 +300,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			} catch (err) {
 				if (err instanceof ContextOverflowError && !didCompact) {
 					didCompact = true;
+					await flushSessionMemoryBeforeCompaction(session, ctx.workspace).catch(() => undefined);
 					const { transcript: next, marker } = await compact(
 						session.id,
 						session.transcript,
