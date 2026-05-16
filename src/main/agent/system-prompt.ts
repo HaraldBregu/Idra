@@ -1,4 +1,5 @@
 import type { AgentTool } from '../tools/types';
+import { createMemoryPromptSection } from '../memory-runtime';
 import type { MemoryManager } from '../memory';
 import type { SkillPromptChoice } from '../skills/types';
 import {
@@ -30,6 +31,15 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
 	update_plan: 'Maintain a concise task plan for multi-step work.',
+	memory_search: 'Search durable workspace memory and visible session history before relying on prior context.',
+	memory_get: 'Read a bounded source range from an allowed Markdown memory file after a useful memory hit.',
+	sessions_list: 'List visible sessions with optional filters.',
+	sessions_history: 'Read bounded sanitized history for a visible session.',
+	sessions_send: 'Append a message to another visible session.',
+	sessions_spawn: 'Create a controlled child session with inherited constraints.',
+	sessions_yield: 'Yield while waiting for a controlled child session when the host supports it.',
+	subagents: 'List, cancel, or steer controlled child sessions.',
+	session_status: 'Read or update status, task, or model override for visible sessions.',
 	ask_human:
 		'Call this when a required value is ambiguous or unspecified (file path, destination, name). Pass `suggestions` when you have candidates.',
 };
@@ -56,6 +66,8 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			guidance.push(`- **${tool.name}** — ${line}`);
 		}
 		parts.push(guidance.join('\n'));
+		const memoryPromptSection = createMemoryPromptSection(ctx.tools);
+		if (memoryPromptSection) parts.push(memoryPromptSection);
 	} else {
 		parts.push(
 			[
