@@ -2,6 +2,8 @@
 
 Channels are plugin-owned messaging adapters. Core code registers a `ChannelPlugin`, applies its generic config/security/threading adapters, and delegates platform transport to the channel runtime.
 
+The channel catalog in `catalog.ts` lists the OpenClaw-style provider inventory and aliases without importing provider runtimes. Catalog-only plugins are registered for providers that do not yet have bundled transports, so setup and discovery surfaces can reason about stable ids before a runtime exists.
+
 ## Current Plugin
 
 Telegram is declared by `telegram/openclaw.plugin.json` and implemented by `telegram/plugin.ts`.
@@ -14,15 +16,18 @@ Saved Telegram config:
 
 - `token`: Telegram bot token.
 - `allowFrom`: optional list of Telegram sender IDs. When empty, any sender accepted by the bot transport can message the agent.
+- `accounts`: optional named Telegram account configs. Legacy single-account config is treated as the `default` account.
+- `dmPolicy`: `allowlist`, `pairing`, `open`, or `deny`. The default is `allowlist`; public DM access requires explicitly setting `open`.
 
 ## Inbound Behavior
 
-Telegram polling receives text events in `telegram/adapter.ts`, normalizes them in `telegram/receive.ts`, drops duplicate platform message IDs with an idempotency key, and emits a generic `ChannelInboundMessage`.
+Telegram polling receives text events in `telegram/adapter.ts`, drops duplicate platform message IDs with an idempotency key, and emits a generic `ChannelInboundMessage`.
 
 `ChannelRegistry` then:
 
 - Resolves the plugin account from channel config.
-- Applies the plugin security adapter before agent dispatch.
+- Lets the plugin normalize inbound platform facts.
+- Resolves structured ingress admission before agent dispatch.
 - Builds a stable session key from channel/account/chat/thread identifiers.
 - Sends the agent reply back to the resolved Telegram chat/thread target.
 

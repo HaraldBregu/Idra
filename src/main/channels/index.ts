@@ -1,28 +1,79 @@
 export { ChannelRegistry } from './registry';
-export { TelegramAdapter } from './telegram';
-export { createChannelPluginBase, defineChannelPluginEntry } from './plugin';
-export { sendDurableMessageBatch } from './message';
+export {
+	createChannelPluginBase,
+	createChatChannelPlugin,
+	createReplyThreadingAdapter,
+	createScopedDmSecurityAdapter,
+	defineBundledChannelEntry,
+	defineChannelPluginEntry,
+	defineChannelRuntimePluginEntry,
+} from './plugin';
+export {
+	extractChannelCatalogFromPackageMetadata,
+	getChannelCatalogEntry,
+	isChannelId,
+	listChannelCatalog,
+	normalizeChannelId,
+} from './catalog';
+export { resolveIngressAdmission } from './ingress';
+export { runChannelTurn } from './turn';
+export {
+	createChannelMessageAdapterFromOutbound,
+	defineChannelMessageAdapter,
+	sendDurableMessageBatch,
+} from './message';
 export type {
 	ChannelAdapter,
 	ChannelAccountSnapshot,
+	ChannelActionsAdapter,
+	ChannelAdmissionOutcome,
+	ChannelAckPolicy,
+	ChannelApprovalCapability,
+	ChannelBindingsAdapter,
 	ChannelCapabilities,
+	ChannelConversationBindingsAdapter,
+	ChannelConversationResolution,
 	ChannelConfigAdapter,
 	ChannelDeliveryPart,
+	ChannelDirectoryAdapter,
 	ChannelDoctorAdapter,
+	ChannelEventAuthMode,
 	ChannelGatewayAdapter,
+	ChannelGatewayAccountContext,
+	ChannelGatewayTask,
+	ChannelHeartbeatAdapter,
 	ChannelInboundHandler,
 	ChannelInboundMedia,
 	ChannelInboundMessage,
+	ChannelLiveCapability,
+	ChannelMessageAdapter,
 	ChannelMessageReceipt,
 	ChannelMetadata,
+	ChannelMessagingAdapter,
 	ChannelNormalizedInboundMessage,
 	ChannelOutboundAdapter,
 	ChannelOutboundMessage,
+	ChannelParsedTarget,
+	ChannelPreparedSendPayload,
+	ChannelPreviewFinalizerCapability,
 	ChannelPlugin,
+	ChannelResolverAdapter,
 	ChannelSecurityAdapter,
 	ChannelSetupAdapter,
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
 	ChannelThreadingAdapter,
 } from './types';
-export type { ChannelRegistryDependencies, ChannelRegistryOptions } from './registry';
+export type {
+	BundledChannelEntry,
+	ChannelPluginApi,
+	ChannelPluginEntry,
+	ChannelPluginRegistration,
+} from './plugin';
+export type { ChannelCatalogEntry } from './catalog';
+export type {
+	ChannelRegistryDependencies,
+	ChannelRegistryOptions,
+	ChannelRuntimeFactory,
+} from './registry';
+export type { TelegramAdapterOptions } from './telegram/types';

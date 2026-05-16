@@ -1,8 +1,32 @@
 {
 	"id": "telegram",
+	"kind": "channel",
 	"activation": { "onStartup": false },
 	"channels": ["telegram"],
+	"channelConfigs": {
+		"telegram": {
+			"schema": {
+				"type": "object",
+				"required": ["token", "allowFrom"],
+				"properties": {
+					"token": { "type": "string", "secret": true },
+					"allowFrom": { "type": "array", "items": { "type": "string" } },
+					"dmPolicy": { "enum": ["allowlist", "pairing", "open", "deny"] },
+					"accounts": { "type": "object" }
+				}
+			},
+			"uiHints": {
+				"setupVisible": true,
+				"docsPath": "docs/channels/telegram.md",
+				"docsLabel": "Telegram setup"
+			}
+		}
+	},
 	"channelEnvVars": {
 		"telegram": ["TELEGRAM_BOT_TOKEN"]
+	},
+	"contracts": {
+		"message": ["text", "replyTo", "thread", "batch"],
+		"receiveAckPolicy": "manual"
 	}
 }

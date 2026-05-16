@@ -7,10 +7,21 @@ import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../../shared/channels';
 
 function normalizeTelegramConfig(config: TelegramChannelProperties): TelegramChannelProperties {
-	return {
+	const normalized: TelegramChannelProperties = {
 		token: config.token.trim(),
 		allowFrom: config.allowFrom.map((value) => String(value).trim()).filter(Boolean),
 	};
+	if (config.enabled !== undefined) normalized.enabled = config.enabled;
+	if (config.defaultAccountId?.trim()) normalized.defaultAccountId = config.defaultAccountId.trim();
+	if (config.defaultTarget?.trim()) normalized.defaultTarget = config.defaultTarget.trim();
+	if (config.dmPolicy) normalized.dmPolicy = config.dmPolicy;
+	if (config.groupAllowFrom) {
+		normalized.groupAllowFrom = config.groupAllowFrom
+			.map((value) => String(value).trim())
+			.filter(Boolean);
+	}
+	if (config.accounts) normalized.accounts = config.accounts;
+	return normalized;
 }
 
 export class ChannelsIpc implements IpcModule {

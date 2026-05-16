@@ -220,6 +220,12 @@ export class StoreService {
 		return this.setChannelProperties('telegram', {
 			token: config.token,
 			allowFrom: config.allowFrom,
+			enabled: config.enabled,
+			defaultAccountId: config.defaultAccountId,
+			defaultTarget: config.defaultTarget,
+			dmPolicy: config.dmPolicy,
+			groupAllowFrom: config.groupAllowFrom,
+			accounts: config.accounts,
 		}).telegram;
 	}
 

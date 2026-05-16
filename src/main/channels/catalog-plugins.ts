@@ -5,7 +5,7 @@ import type {
 	ChannelConfigAdapter,
 	ChannelPlugin,
 } from './types';
-import type { ChannelType, GenericChannelProperties } from '../../shared/channels';
+import type { GenericChannelProperties } from '../../shared/channels';
 
 const emptyConfig: ChannelConfigAdapter<GenericChannelProperties> = {
 	listAccounts(config) {
