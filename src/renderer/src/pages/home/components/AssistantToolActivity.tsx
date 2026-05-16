@@ -14,7 +14,7 @@ export function AssistantToolActivity({
 	defaultOpen = false,
 }: {
 	readonly tools: readonly AssistantToolPart[];
-	readonly label?: string;
+	readonly label?: ReactNode;
 	readonly indicator?: ReactNode;
 	readonly className?: string;
 	readonly triggerClassName?: string;
@@ -34,7 +34,11 @@ export function AssistantToolActivity({
 		<Steps defaultOpen={defaultOpen} className={className}>
 			<StepsTrigger className={triggerClassName}>
 				<span className="inline-flex min-w-0 items-center gap-1.5">
-					{indicator ?? <ListChecks className="size-3.5 shrink-0" />}
+					{indicator === undefined ? (
+						<ListChecks className="size-3.5 shrink-0" />
+					) : (
+						indicator
+					)}
 					<span className="truncate">{label ?? fallbackLabel}</span>
 				</span>
 			</StepsTrigger>

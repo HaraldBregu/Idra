@@ -1,21 +1,20 @@
-import type { ReactElement } from 'react';
-import { Loader } from '@/components/ui/loader';
+import type { ReactElement, ReactNode } from 'react';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { cn } from '@/lib/utils';
 import type { AssistantMessage } from '../context';
 import { AssistantToolActivity } from './AssistantToolActivity';
 import { assistantStatusLabel, isRunningState, stateTone } from './assistant-status';
 
-function statusIndicator(message: AssistantMessage, isStreaming: boolean): ReactElement {
+function statusLabelContent(
+	message: AssistantMessage,
+	isStreaming: boolean,
+	statusLabel: string
+): ReactNode {
 	if (isStreaming && isRunningState(message.state)) {
-		return <Loader variant="typing" size="sm" />;
+		return <TextShimmer className="text-sm">{statusLabel}</TextShimmer>;
 	}
 
-	return <span className="size-1.5 shrink-0 rounded-full bg-current" aria-hidden />;
-}
-
-function shouldShimmerStatusLabel(message: AssistantMessage): boolean {
-	return message.state === 'completed' && message.tools.length === 0;
+	return statusLabel;
 }
 
 export function AssistantActivityPanel({
@@ -32,9 +31,9 @@ export function AssistantActivityPanel({
 
 	if (!showActivity) return null;
 	const statusLabel = assistantStatusLabel(message);
-	const indicator = statusIndicator(message, isStreaming);
+	const labelContent = statusLabelContent(message, isStreaming, statusLabel);
 	const statusClassName = cn(
-		'inline-flex min-h-6 max-w-full items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold',
+		'inline-flex min-h-6 max-w-full items-center rounded-full px-2 py-0.5 text-xs font-semibold',
 		stateTone(message.state)
 	);
 
@@ -44,19 +43,14 @@ export function AssistantActivityPanel({
 				{message.tools.length > 0 ? (
 					<AssistantToolActivity
 						tools={message.tools}
-						label={statusLabel}
-						indicator={indicator}
+						label={labelContent}
+						indicator={null}
 						className="min-w-0 flex-1"
 						triggerClassName={statusClassName}
 					/>
 				) : (
 					<span className={statusClassName}>
-						{indicator}
-						{shouldShimmerStatusLabel(message) ? (
-							<TextShimmer className="text-sm">{statusLabel}</TextShimmer>
-						) : (
-							statusLabel
-						)}
+						{labelContent}
 					</span>
 				)}
 				{message.runId && (
