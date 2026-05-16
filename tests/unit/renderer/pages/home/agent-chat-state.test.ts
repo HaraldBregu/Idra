@@ -238,7 +238,7 @@ describe('agent chat state', () => {
 		const messages = historyToChatMessages([
 			{ role: 'user', content: 'read it' },
 			{
-				role: 'agent',
+				role: 'assistant',
 				content: null,
 				contentBlocks: [
 					{
@@ -275,7 +275,7 @@ describe('agent chat state', () => {
 		const messages = historyToChatMessages([
 			{ role: 'user', content: 'check files' },
 			{
-				role: 'agent',
+				role: 'assistant',
 				content: 'I will check.',
 				contentBlocks: [
 					{ type: 'text', text: 'I will check.' },
@@ -334,7 +334,7 @@ describe('agent chat state', () => {
 	it('restores rejected tool results as denied rather than generic errors', () => {
 		const messages = historyToChatMessages([
 			{
-				role: 'agent',
+				role: 'assistant',
 				content: null,
 				contentBlocks: [
 					{
