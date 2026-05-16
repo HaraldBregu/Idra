@@ -162,3 +162,26 @@ export interface AgentPendingState {
 export interface AgentPendingEventPayload extends AgentPendingState {
 	agentId: string;
 }
+
+export type WorkspaceFileName =
+	| 'AGENTS.md'
+	| 'SOUL.md'
+	| 'TOOLS.md'
+	| 'IDENTITY.md'
+	| 'USER.md'
+	| 'HEARTBEAT.md'
+	| 'BOOTSTRAP.md'
+	| 'MEMORY.md';
+
+export interface WorkspaceFileSummary {
+	name: WorkspaceFileName;
+	path: string;
+	missing: boolean;
+	size?: number;
+}
+
+export interface WorkspaceFileContent extends WorkspaceFileSummary {
+	content?: string;
+	error?: 'missing' | 'unsafe' | 'io';
+	detail?: string;
+}
