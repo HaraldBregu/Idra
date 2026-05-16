@@ -116,7 +116,7 @@ describe('ChannelRegistry', () => {
 		const dependencies = createDependencies();
 		const registry = new ChannelRegistry(dependencies);
 
-		await registry.startTelegram({ token: 'token', allowFrom: [] });
+		await registry.startTelegram({ token: 'token', allowFrom: ['123'] });
 		await registry.startTelegram({ token: 'other', allowFrom: [] });
 
 		expect(getMockTelegramInstances()).toHaveLength(1);
@@ -127,7 +127,7 @@ describe('ChannelRegistry', () => {
 		dependencies.agentService.send.mockResolvedValue('agent reply');
 		const registry = new ChannelRegistry(dependencies);
 
-		await registry.startTelegram({ token: 'token', allowFrom: [] });
+		await registry.startTelegram({ token: 'token', allowFrom: ['123'] });
 		const [adapter] = getMockTelegramInstances();
 
 		adapter.emitMessage({
@@ -171,5 +171,15 @@ describe('ChannelRegistry', () => {
 		await expect(registry.send({ type: 'telegram', to: 'chat-1', text: 'hello' })).rejects.toThrow(
 			'Telegram channel is not running'
 		);
+	});
+
+	it('normalizes aliases for registered-channel lookup', () => {
+		const dependencies = createDependencies();
+		const registry = new ChannelRegistry(dependencies);
+
+		expect(registry.getPlugin('telegram')?.id).toBe('telegram');
+		expect(registry.getPlugin('lark')?.id).toBe('feishu');
+		expect(registry.getPlugin('google-chat')?.id).toBe('googlechat');
+		expect(registry.listPlugins().map((plugin) => plugin.id)).toContain('qa-channel');
 	});
 });

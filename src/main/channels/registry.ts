@@ -259,12 +259,13 @@ export class ChannelRegistry {
 	}
 
 	private getTelegramConfig(options: TelegramAdapterOptions): TelegramChannelProperties {
-		return {
+		const config: TelegramChannelProperties = {
 			token: options.token,
 			allowFrom: [...options.allowFrom],
-			defaultAccountId: options.accountId,
-			defaultTarget: options.defaultTarget,
 		};
+		if (options.accountId) config.defaultAccountId = options.accountId;
+		if (options.defaultTarget) config.defaultTarget = options.defaultTarget;
+		return config;
 	}
 
 	private getChannelConfig(type: ChannelType): unknown {

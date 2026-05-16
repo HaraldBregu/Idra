@@ -29,7 +29,7 @@ describe('telegram registerTextHandler', () => {
 		const { bot, getHandler } = createBotStub();
 		const emit = jest.fn();
 
-		registerTextHandler(bot, new Set(), emit);
+		registerTextHandler(bot, emit);
 
 		await getHandler()({
 			message: { text: 'hello' },
@@ -51,7 +51,7 @@ describe('telegram registerTextHandler', () => {
 		const { bot, getHandler } = createBotStub();
 		const emit = jest.fn();
 
-		registerTextHandler(bot, new Set(), emit);
+		registerTextHandler(bot, emit);
 
 		await getHandler()({
 			message: { text: '/start' },
@@ -62,12 +62,12 @@ describe('telegram registerTextHandler', () => {
 		expect(emit).not.toHaveBeenCalled();
 	});
 
-	it('filters out senders not present in allowFrom', async () => {
+	it('emits senders for core policy resolution without logging raw ids', async () => {
 		const { bot, getHandler } = createBotStub();
 		const emit = jest.fn();
 		const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-		registerTextHandler(bot, new Set(['allowed-user']), emit);
+		registerTextHandler(bot, emit);
 
 		await getHandler()({
 			message: { text: 'hello' },
@@ -75,9 +75,7 @@ describe('telegram registerTextHandler', () => {
 			chat: { id: 456 },
 		});
 
-		expect(emit).not.toHaveBeenCalled();
-		expect(warn).toHaveBeenCalledWith(
-			'[telegram] Ignored message from unauthorized user blocked-user'
-		);
+		expect(emit).toHaveBeenCalledWith(expect.objectContaining({ from: 'blocked-user' }));
+		expect(warn).not.toHaveBeenCalled();
 	});
 });
