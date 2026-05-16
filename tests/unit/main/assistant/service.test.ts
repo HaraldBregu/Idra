@@ -88,6 +88,39 @@ describe('AssistantService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('builds tools with run-scoped assistant context', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const contexts: unknown[] = [];
+		const service = new AssistantService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AssistantRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => provider([
+				{ type: 'message_start' },
+				{ type: 'text_delta', text: 'ok' },
+				{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } },
+			]),
+			toolsFactory: async (context) => {
+				contexts.push(context);
+				return [];
+			},
+		});
+
+		await expect(service.send('hi')).resolves.toBe('ok');
+		expect(contexts).toHaveLength(1);
+		expect(contexts[0]).toMatchObject({
+			assistantId: 'main',
+			providerId: 'openai',
+			model: 'gpt-test',
+			workspace: '/workspace',
+			session: expect.objectContaining({ id: 'main' }),
+			runId: expect.any(String),
+			signal: expect.any(AbortSignal),
+		});
+		expect((contexts[0] as { services?: unknown }).services).toBe(deps);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('does not expose tools or skill guidance when a request can be answered directly', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
