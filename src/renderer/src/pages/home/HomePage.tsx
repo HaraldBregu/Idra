@@ -334,7 +334,7 @@ function AssistantTextMessage({
 						</Markdown>
 					)}
 					{message.content.length > 0 && (
-						<FeedbackBar className="max-w-xl bg-background/80 text-xs shadow-sm" />
+						<FeedbackBar className="max-w-xl bg-background/80 px-0 text-xs shadow-sm" />
 					)}
 				</div>
 			</div>
