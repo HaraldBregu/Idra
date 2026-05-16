@@ -207,6 +207,7 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 	assertUniqueToolNames(candidates);
 	diagnostics.builtTools.push(...candidates.map((tool) => tool.name));
 
+	const runtimeAllow = options.toolsAllow ?? (hasToolControlsWithoutGrants(options.config) ? [] : undefined);
 	const stages: Partial<Record<PolicyStageName, ToolPolicy | undefined>> = {
 		...(options.config?.toolPolicies ?? {}),
 		sandbox: mergeToolPolicy(
@@ -214,7 +215,7 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 			readOnlyPolicy(options.sandbox?.readOnly || fsPolicy?.readOnly),
 			options.sandbox?.policy
 		),
-		runtime: { allow: options.toolsAllow, deny: options.toolsDeny },
+		runtime: { allow: runtimeAllow, deny: options.toolsDeny },
 	};
 	const policy = applyToolPolicyPipeline(candidates, {
 		sender: options.sender,
@@ -274,6 +275,17 @@ function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy
 function mergeList(values: Array<string[] | undefined>): string[] | undefined {
 	const present = values.filter((value): value is string[] => value !== undefined);
 	return present.length > 0 ? present.flat() : undefined;
+}
+
+function hasToolControlsWithoutGrants(
+	config: CreateAgentToolsOptions['config'] | undefined
+): boolean {
+	if (!config?.tools) return false;
+	const policies = Object.values(config.toolPolicies ?? {});
+	return !policies.some((policy) => {
+		if (!policy) return false;
+		return Boolean(policy.profile || policy.allow !== undefined || policy.alsoAllow !== undefined);
+	});
 }
 
 function pluginContext(options: CreateAgentToolsOptions): PluginToolContext {

@@ -313,6 +313,12 @@ describe('canonical agent tool runtime', () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
+		const fsOnly = await createAgentTools({
+			workspaceDir: workspace,
+			config: { tools: { fs: { workspaceOnly: false } } },
+		});
+		expect(fsOnly.tools).toEqual([]);
+
 		const wide = await createAgentTools({
 			workspaceDir: workspace,
 			toolsAllow: ['read'],
