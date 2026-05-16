@@ -46,8 +46,8 @@ export const readTool: AgentTool<ReadArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
 		try {
+			const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
 			const raw = await fs.readFile(abs, 'utf8');
@@ -89,7 +89,12 @@ export const writeTool: AgentTool<WriteArgs> = {
 	needsApproval: true,
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) return textResult('write: disabled by read-only filesystem policy.', true);
-		const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+		let abs: string;
+		try {
+			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+		} catch (err) {
+			return textResult(`write: ${(err as Error).message}`, true);
+		}
 		let exists = false;
 		let stat: { mtimeMs: number; size: number } | null = null;
 		try {
@@ -151,7 +156,12 @@ export const editTool: AgentTool<EditArgs> = {
 	needsApproval: true,
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) return textResult('edit: disabled by read-only filesystem policy.', true);
-		const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+		let abs: string;
+		try {
+			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+		} catch (err) {
+			return textResult(`edit: ${(err as Error).message}`, true);
+		}
 		if (args.old === args.new) return textResult('edit: old and new are identical', true);
 		let stat;
 		try {
@@ -339,9 +349,9 @@ export const findTool: AgentTool<FindArgs> = {
 	async execute(args, ctx) {
 		const pattern = String(args.pattern ?? '').trim();
 		if (!pattern) return textResult('find: pattern required', true);
-		const dir = args.path ? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true) : ctx.workspace;
 		const limit = typeof args.limit === 'number' && args.limit > 0 ? args.limit : DEFAULT_FIND_LIMIT;
 		try {
+			const dir = args.path ? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true) : ctx.workspace;
 			const stat = await fs.stat(dir).catch(() => null);
 			if (!stat || !stat.isDirectory()) return textResult(`find: not a directory: ${dir}`, true);
 			const results: string[] = [];
