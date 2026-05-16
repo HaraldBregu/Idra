@@ -45,9 +45,9 @@ describe('tools/policy and registry', () => {
 });
 
 describe('tools/before-call', () => {
-	it('gates approval once and warns on repeated identical calls', async () => {
+	it('reuses allow-always approvals and warns on repeated identical calls', async () => {
 		const tool: AgentTool = { name: 'write', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
-		const ask = jest.fn(async () => 'allow-once' as const);
+		const ask = jest.fn(async () => 'allow-always' as const);
 		const ctx = makeToolContext({ approveStream: { ask } });
 		const tracker = newCallTracker();
 
@@ -56,6 +56,17 @@ describe('tools/before-call', () => {
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
 		expect(ask).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not reuse allow-once approvals', async () => {
+		const tool: AgentTool = { name: 'write', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
+		const ask = jest.fn(async () => 'allow-once' as const);
+		const ctx = makeToolContext({ approveStream: { ask } });
+		const tracker = newCallTracker();
+
+		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
+		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
+		expect(ask).toHaveBeenCalledTimes(2);
 	});
 
 	it('blocks denied and unavailable approvals before execution', async () => {
