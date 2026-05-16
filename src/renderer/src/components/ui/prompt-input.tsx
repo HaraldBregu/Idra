@@ -22,6 +22,7 @@ type PromptInputContextType = {
   value: string
   setValue: (value: string) => void
   maxHeight: number | string
+  maxLength?: number
   onSubmit?: () => void
   disabled?: boolean
   textareaRef: React.RefObject<HTMLTextAreaElement | null>
