@@ -102,7 +102,7 @@ const AppsPage: React.FC = () => {
 								description={appInfo.manifest.description}
 								contentClassName="items-center"
 								media={
-									<div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/70 bg-muted/60">
+									<div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/70 bg-muted/60">
 										{appInfo.iconDataUrl ? (
 											<img
 												src={appInfo.iconDataUrl}
@@ -110,7 +110,7 @@ const AppsPage: React.FC = () => {
 												className="h-full w-full object-cover"
 											/>
 										) : (
-											<Package className="size-5 text-muted-foreground" strokeWidth={1.8} />
+											<Package className="size-4 text-muted-foreground" strokeWidth={1.8} />
 										)}
 									</div>
 								}
