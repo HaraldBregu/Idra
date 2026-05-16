@@ -7,6 +7,7 @@ import {
 	X,
 	ArrowLeft,
 	ArrowRight,
+	Home,
 	Settings,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -190,14 +191,14 @@ export const TitleBar = React.memo(function TitleBar({
 					{isSettings ? (
 						<Button
 							type="button"
-							variant="ghost"
+							variant="secondary"
 							size="icon"
-							className="size-8 rounded-full text-muted-foreground"
-							onClick={() => navigate('/settings')}
-							title={t('settings.title', 'Settings')}
-							aria-label={t('settings.title', 'Settings')}
+							className="size-8 rounded-full"
+							onClick={() => navigate('/home')}
+							title={homeButtonLabel}
+							aria-label={homeButtonLabel}
 						>
-							<Settings className="size-4" strokeWidth={1.8} />
+							<Home className="size-4" strokeWidth={1.8} />
 						</Button>
 					) : (
 						<Button
