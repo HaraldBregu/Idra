@@ -117,6 +117,23 @@ function parseToolArgs(argsStr: string, fallback: unknown): unknown {
 	}
 }
 
+function parseToolArgsForExecution(
+	toolName: string,
+	argsStr: string
+): { ok: true; args: unknown } | { ok: false; args: unknown; message: string } {
+	if (!argsStr.trim()) return { ok: true, args: {} };
+	try {
+		return { ok: true, args: JSON.parse(argsStr) };
+	} catch (error) {
+		const detail = error instanceof Error ? error.message : 'invalid JSON';
+		return {
+			ok: false,
+			args: { __unparsed: argsStr },
+			message: `Invalid JSON arguments for ${toolName}: ${detail}. The tool was not executed.`,
+		};
+	}
+}
+
 function resultBlocksToText(content: ToolResultBlock[]): string {
 	return content
 		.map((c) => (c.type === 'text' ? c.text : '[binary content]'))
@@ -333,7 +350,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				toolCalls++;
 				const tool = toolsForPrompt.find((x) => x.name === t.name);
-				const args = parseToolArgs(t.argsStr, {});
+				const parsedArgs = parseToolArgsForExecution(t.name, t.argsStr);
+				const args = parsedArgs.args;
 				streamEvent?.({
 					type: 'tool_call_input',
 					iteration: iter,
@@ -343,6 +361,41 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					argsText: t.argsStr,
 				});
 				const toolStart = Date.now();
+				if (!parsedArgs.ok) {
+					const out = parsedArgs.message;
+					const durationMs = Date.now() - toolStart;
+					await hooks?.onToolCall?.({
+						runId,
+						iteration: iter,
+						callId: id,
+						tool: t.name,
+						args,
+						status: 'error',
+						durationMs,
+						outputChars: out.length,
+						outputText: out,
+					});
+					streamEvent?.({
+						type: 'tool_call_result',
+						iteration: iter,
+						toolCallId: id,
+						toolName: t.name,
+						input: args,
+						output: out,
+						outputText: out,
+						status: 'error',
+						durationMs,
+						errorText: out,
+					});
+					session.transcript.push({
+						role: 'tool',
+						toolUseId: id,
+						isError: true,
+						status: 'error',
+						content: [{ type: 'text', text: out }],
+					});
+					continue;
+				}
 				if (!tool) {
 					const out = `tool '${t.name}' is not available in this run.`;
 					const durationMs = Date.now() - toolStart;
