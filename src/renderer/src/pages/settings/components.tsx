@@ -71,14 +71,14 @@ export function SettingsSection({
 	className,
 }: SettingsSectionProps): React.JSX.Element {
 	return (
-		<section className={cn('flex flex-col gap-3', className)}>
-			<div className="flex flex-wrap items-start justify-between gap-3 px-0.5">
+		<section className={cn('flex flex-col gap-1.5', className)}>
+			<div className="flex flex-wrap items-center justify-between gap-2 px-1">
 				<div className="min-w-0">
-					<h2 className="text-base font-semibold leading-tight tracking-normal text-foreground">
+					<h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						{title}
 					</h2>
 					{description && (
-						<p className="mt-1 max-w-2xl text-sm leading-5 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-xs leading-4 text-muted-foreground">
 							{description}
 						</p>
 					)}
