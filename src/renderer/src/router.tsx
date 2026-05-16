@@ -18,7 +18,7 @@ import { cn } from './lib/utils';
 import { Button } from './components/ui/button';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
-const HomePage = lazy(() => import('./pages/home/HomePage'));
+const HomePage = lazy(() => import('./pages/home/page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/ConnectorsPage'));

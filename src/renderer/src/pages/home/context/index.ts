@@ -1,4 +1,4 @@
-export { HomeAssistantProvider } from './HomeAssistantProvider';
+export { Provider } from './Provider';
 export { useHomeAssistantContext } from './useHomeAssistantContext';
 export type { AssistantChatAction } from './actions';
 export {

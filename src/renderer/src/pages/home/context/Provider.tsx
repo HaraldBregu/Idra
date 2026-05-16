@@ -3,7 +3,7 @@ import { assistantChatReducer } from './reducer';
 import { initialAssistantChatState } from './state';
 import { HomeAssistantContext } from './context';
 
-export function HomeAssistantProvider({
+export function Provider({
 	children,
 }: {
 	readonly children: ReactNode;

@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import { PageContainer } from '@/components/app/base/page';
 import { useChatMode } from '@/contexts/chat-mode';
-import { HomeAssistantProvider } from './context';
+import { Provider } from './context';
 import { HomeChatSurface } from './components';
 import { useHomeAssistant } from './hooks';
 
-function HomePageContent(): ReactElement {
+function PageContent(): ReactElement {
 	const { setMode } = useChatMode();
 	const assistant = useHomeAssistant({ setMode });
 
@@ -33,12 +33,12 @@ function HomePageContent(): ReactElement {
 	);
 }
 
-function HomePage(): ReactElement {
+function Page(): ReactElement {
 	return (
-		<HomeAssistantProvider>
-			<HomePageContent />
-		</HomeAssistantProvider>
+		<Provider>
+			<PageContent />
+		</Provider>
 	);
 }
 
-export default HomePage;
+export default Page;
