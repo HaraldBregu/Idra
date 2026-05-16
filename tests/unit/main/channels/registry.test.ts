@@ -71,6 +71,10 @@ function createDependencies() {
 	};
 }
 
+function flushAsyncHandlers(): Promise<void> {
+	return new Promise((resolve) => setImmediate(resolve));
+}
+
 describe('ChannelRegistry', () => {
 	beforeEach(() => {
 		getMockTelegramInstances().length = 0;
@@ -136,7 +140,7 @@ describe('ChannelRegistry', () => {
 			chatId: 'chat-1',
 			text: 'hello',
 		});
-		await Promise.resolve();
+		await flushAsyncHandlers();
 
 		expect(dependencies.agentService.send).toHaveBeenCalledWith('hello');
 		expect(adapter.send).toHaveBeenCalledWith(
