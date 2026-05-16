@@ -2,7 +2,14 @@ import type { ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
 import { Message, MessageContent } from '@/components/ui/message';
 import { Textarea } from '@/components/ui/textarea';
+import type { ApprovalDecision } from '../../../../../shared/service';
 import { inputAnswerKey, type HomeMultiSelectMessage } from '../context';
+
+export interface ImmediateApprovalSelection {
+	approvalId: string;
+	decision: ApprovalDecision;
+	optionId: string;
+}
 
 export function PendingMessage({
 	message,
@@ -21,10 +28,17 @@ export function PendingMessage({
 		approvalId: string,
 		optionId: string
 	) => void;
-	readonly onSubmit: (message: HomeMultiSelectMessage) => void;
+	readonly onSubmit: (
+		message: HomeMultiSelectMessage,
+		immediateApproval?: ImmediateApprovalSelection
+	) => void;
 }): ReactElement {
 	const approvalOptions = message.options.filter((option) => option.kind === 'approval');
 	const inputOptions = message.options.filter((option) => option.kind === 'input');
+	const approvalIds = new Set(
+		approvalOptions.map((option) => option.approvalId).filter(Boolean)
+	);
+	const canSubmitApprovalImmediately = inputOptions.length === 0 && approvalIds.size === 1;
 	const hasMissingInput = inputOptions.some(
 		(option) =>
 			option.inputId &&
@@ -46,6 +60,13 @@ export function PendingMessage({
 							const handleChange = (): void => {
 								if (option.approvalId) {
 									onSelectApprovalOption(message.id, option.approvalId, option.id);
+									if (canSubmitApprovalImmediately && option.decision) {
+										onSubmit(message, {
+											approvalId: option.approvalId,
+											decision: option.decision,
+											optionId: option.id,
+										});
+									}
 								}
 							};
 
