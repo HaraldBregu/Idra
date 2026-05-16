@@ -14,6 +14,9 @@ export class ToolUsePolicy {
 		if (input.userExplicitlyDisabledTools || /\b(no tools|without tools|do not use tools|don't use tools)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'user explicitly disabled tool use' };
 		}
+		if (isToolIntrospectionRequest(request)) {
+			return { shouldUseTools: true, reason: 'user is asking about available tools' };
+		}
 		if (/\b(write|draft|compose|create)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
 		}
@@ -31,6 +34,10 @@ export class ToolUsePolicy {
 		}
 		return { shouldUseTools: false, reason: 'no tool is required to answer safely' };
 	}
+}
+
+export function isToolIntrospectionRequest(request: string): boolean {
+	return /\b(what|which|list|show|tell me|do you|can you)\b.*\b(tools?|capabilities|functions?|actions?)\b/.test(request);
 }
 
 function needsExternalAccess(request: string): boolean {
