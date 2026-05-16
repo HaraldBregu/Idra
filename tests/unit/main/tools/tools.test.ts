@@ -15,7 +15,7 @@ import {
 	openFolderTool,
 	setMenuBarTool,
 } from '../../../../src/main/tools/app';
-import { cronAddTool, cronListTool, cronRemoveTool } from '../../../../src/main/tools/cron';
+import { cronAddTool, cronListTool, cronRemoveTool, cronTool } from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
 import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from '../../../../src/main/tools/services';
 import { getWorkspaceContentTool, getWorkspacePathTool } from '../../../../src/main/tools/workspace';
@@ -228,6 +228,26 @@ describe('tools/app, ask-human, cron, providers, services, workspace', () => {
 		expect((await cronAddTool.execute({ id: 'job1', expression: '* * * * *', data: { type: 'agent' } }, ctx)).status).toBe('ok');
 		expect((await cronListTool.execute({}, ctx)).content[0]?.text).toContain('job1');
 		expect((await cronRemoveTool.execute({ job_id: 'job1' }, ctx)).status).toBe('ok');
+	});
+
+	it('routes structured cron tool actions through CronService', async () => {
+		const cron = {
+			openClawAction: jest.fn(async () => ({
+				status: 'ok',
+				enabled: true,
+				result: { enabled: true, timerArmed: false, jobCount: 0, runningCount: 0 },
+			})),
+		};
+		const ctx = makeToolContext({ services: { ...makeToolContext().services, cron: cron as never } });
+
+		const result = await cronTool.execute({ action: 'status' }, ctx);
+
+		expect(result.status).toBe('ok');
+		expect(cron.openClawAction).toHaveBeenCalledWith({ action: 'status' }, {
+			role: 'owner',
+			sessionId: 'test-session',
+		});
+		expect(result.content[0]?.text).toContain('"timerArmed": false');
 	});
 
 	it('reads and updates provider and agent settings through StoreService', async () => {
