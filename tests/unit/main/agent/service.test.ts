@@ -88,6 +88,40 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('blocks before model inference without persisting the raw prompt', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const providerFactory = jest.fn(() => provider([]));
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory,
+			toolsFactory: () => [],
+			beforeAgentRunHooks: [
+				() => ({
+					outcome: 'block',
+					reason: 'internal secret policy',
+					message: 'Please remove sensitive input and try again.',
+					category: 'privacy',
+				}),
+			],
+		});
+
+		await expect(service.send('my password is swordfish')).resolves.toBe(
+			'Please remove sensitive input and try again.'
+		);
+		expect(providerFactory).not.toHaveBeenCalled();
+		const history = await service.getHistory();
+		expect(JSON.stringify(history)).toContain('Please remove sensitive input and try again.');
+		expect(JSON.stringify(history)).not.toContain('swordfish');
+		expect(JSON.stringify(history)).not.toContain('internal secret policy');
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
+			'agent:response',
+			expect.objectContaining({ type: 'run_state', label: 'beforeAgentRunBlocked' })
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('builds tools with run-scoped agent context', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
