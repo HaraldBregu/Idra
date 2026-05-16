@@ -177,7 +177,7 @@ function ensureAssistantForRun(
 function applyResponseEvent(
 	state: AssistantChatState,
 	event: AssistantResponseEvent,
-	receivedAtMs: number
+	_receivedAtMs: number
 ): AssistantChatState {
 	if (state.activeRunId && state.activeRunId !== event.runId) return state;
 	const ensured = ensureAssistantForRun(state, event.runId);
