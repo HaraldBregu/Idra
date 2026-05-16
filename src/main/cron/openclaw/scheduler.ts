@@ -714,8 +714,8 @@ export class OpenClawCronScheduler {
 		scheduledForMs: number,
 		mode: OpenClawCronRunRecord['mode'],
 		reason: string,
-		runId = randomUUID(),
-		finishedAtMs = Date.now()
+		runId: string = randomUUID(),
+		finishedAtMs: number = Date.now()
 	): OpenClawCronRunRecord {
 		return {
 			runId,
