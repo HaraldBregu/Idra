@@ -19,6 +19,8 @@ export interface AssistantMessage {
 	readonly state: AssistantRunState;
 	readonly tools: readonly AssistantToolPart[];
 	readonly errorText?: string;
+	readonly startedAtMs?: number;
+	readonly completedAtMs?: number;
 }
 
 export interface HomeMultiSelectOption {
