@@ -171,7 +171,7 @@ const ProvidersPage: React.FC = () => {
 												disabled={isBusy}
 												onClick={() => cancelEditing(provider.id)}
 											>
-												{t('common.cancel') ?? 'Cancel'}
+												{t('common.cancel')}
 											</Button>
 											<Button
 												type="button"
