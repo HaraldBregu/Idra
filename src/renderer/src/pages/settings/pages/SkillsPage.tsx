@@ -4,6 +4,7 @@ import { AlertTriangle, FolderInput, RefreshCw, Sparkles, Trash2 } from 'lucide-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { SkillInfo } from '../../../../../shared/skills';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -12,7 +13,6 @@ import {
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
-	SettingsRow,
 } from '../components';
 
 function getErrorMessage(error: unknown, fallback: string): string {
