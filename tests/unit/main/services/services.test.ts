@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { app, shell } from 'electron';
 import { AppsService } from '../../../../src/main/apps';
 import { ConnectorsService } from '../../../../src/main/connectors';
+import { buildGoogleAuthorizationUrl, scopesForGmailTools } from '../../../../src/main/connectors/google';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
@@ -57,7 +58,92 @@ describe('connectors service', () => {
 		expect(service.list()).toEqual([]);
 		await expect(service.add({ name: 'Bad', connectorId: 'connector_gmail', authorization: 'x', allowedTools: ['missing'] })).rejects.toThrow(/not available/);
 	});
+
+	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
+		const url = new URL(buildGoogleAuthorizationUrl({
+			clientId: 'client-id',
+			redirectUri: 'http://127.0.0.1:42818/oauth/google/callback',
+			state: 'state',
+			scopes: scopesForGmailTools(['search_emails', 'send_email']),
+		}));
+
+		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
+		expect(url.searchParams.get('access_type')).toBe('offline');
+		expect(url.searchParams.get('include_granted_scopes')).toBe('true');
+		expect(url.searchParams.get('prompt')).toBe('consent');
+		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
+		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.send');
+	});
+
+	it('connects Gmail tools to Google OAuth tokens and exposes them to the agent', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				expect(String(init?.body)).toContain('grant_type=refresh_token');
+				return jsonResponse({ access_token: 'fresh-token', expires_in: 3600, token_type: 'Bearer' });
+			}
+			if (url.startsWith('https://gmail.googleapis.com/gmail/v1/users/me/messages?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({ messages: [{ id: 'msg-1', threadId: 'thread-1' }] });
+			}
+			if (url.includes('/messages/msg-1')) {
+				return jsonResponse({
+					id: 'msg-1',
+					threadId: 'thread-1',
+					snippet: 'Hello from Gmail',
+					payload: {
+						headers: [
+							{ name: 'From', value: 'sender@example.com' },
+							{ name: 'Subject', value: 'Hello' },
+							{ name: 'Date', value: 'Today' },
+						],
+					},
+				});
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			oauthClientId: 'client-id',
+			oauthClientSecret: 'client-secret',
+			allowedTools: ['search_emails'],
+			requireApproval: 'never_for_allowed_tools',
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...((connectors[0] as { oauth: Record<string, unknown> }).oauth),
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		const tools = service.createAgentTools();
+
+		expect(tools.map((tool) => tool.name)).toEqual(['my_gmail_search_emails']);
+		await expect(tools[0]!.execute({ query: 'from:sender@example.com' }, {} as never)).resolves.toMatchObject({
+			status: 'ok',
+			content: [expect.objectContaining({ text: expect.stringContaining('msg-1') })],
+		});
+	});
 });
+
+function jsonResponse(payload: unknown, status = 200): Response {
+	return {
+		ok: status >= 200 && status < 300,
+		status,
+		json: async () => payload,
+		text: async () => JSON.stringify(payload),
+	} as Response;
+}
 
 describe('workspace service', () => {
 	it('confines reads and writes to the configured root', async () => {
