@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Accessibility, FolderOpen, MonitorUp, PanelTop } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection } from '../components';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../components';
 import { Switch } from '@/components/ui/switch';
 
 const GeneralPage: React.FC = () => {
