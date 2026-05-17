@@ -38,6 +38,8 @@ export interface SkillManifest {
 	id?: string;
 	name: string;
 	description?: string;
+	license?: string;
+	compatibility?: string;
 	category?: SkillCategory;
 	tags?: string[];
 	version?: string;
@@ -47,6 +49,7 @@ export interface SkillManifest {
 	safetyLevel?: SkillSafetyLevel;
 	permissionsRequired?: string[];
 	requiredTools?: string[];
+	allowedTools?: string[];
 	requiredConnectors?: string[];
 	requiredMemoryKinds?: string[];
 	inputSchema?: Record<string, unknown>;
@@ -63,5 +66,6 @@ export interface SkillManifest {
 export interface SkillInfo {
 	id: string;
 	folderPath: string;
+	skillPath?: string;
 	manifest: SkillManifest;
 }
