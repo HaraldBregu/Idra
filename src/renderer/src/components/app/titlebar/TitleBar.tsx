@@ -274,7 +274,7 @@ export const TitleBar = React.memo(function TitleBar({
 
 			{!isStart && (
 				<div
-					className="z-10 mr-5 flex h-full items-center"
+					className="z-10 mr-3 flex h-full items-center"
 					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 				>
 					{isSettings ? (

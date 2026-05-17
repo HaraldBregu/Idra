@@ -13,7 +13,7 @@ export type ChatContainerRootProps = {
 function ChatContainerRoot({ children, className, ...props }: ChatContainerRootProps) {
 	return (
 		<StickToBottom
-			className={cn('chat-scrollbar relative flex-1 overflow-y-auto', className)}
+			className={cn('relative flex-1 overflow-y-auto', className)}
 			resize="smooth"
 			initial="instant"
 			role="log"
