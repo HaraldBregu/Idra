@@ -588,7 +588,7 @@ export class ConnectorToolAdapter {
 				ctx: ToolContext
 			): Promise<AgentToolResult<ConnectorExecutionResult | ConnectorExecutionResponse>> => {
 				const userId = options.userId ?? 'local-user';
-				let response = await gateway.execute({
+				const response = await gateway.execute({
 					userId,
 					sessionId: ctx.sessionId,
 					connectorId: tool.connectorId,
@@ -596,29 +596,10 @@ export class ConnectorToolAdapter {
 					args,
 				});
 
-				if (response.status === 'pending_confirmation') {
-					gateway.confirm(response.confirmation.confirmationId, userId);
-					response = await gateway.execute({
-						userId,
-						sessionId: ctx.sessionId,
-						connectorId: tool.connectorId,
-						toolId: tool.id,
-						args,
-						confirmationId: response.confirmation.confirmationId,
-					});
-				}
-
 				if (response.status === 'error') {
 					return {
 						status: 'error',
 						content: [{ type: 'text', text: `${response.error.code}: ${response.error.message}` }],
-						details: response,
-					};
-				}
-				if (response.status === 'pending_confirmation') {
-					return {
-						status: 'error',
-						content: [{ type: 'text', text: `Confirmation remained pending for ${tool.name}.` }],
 						details: response,
 					};
 				}
@@ -1391,7 +1372,6 @@ export interface ConnectorExecutionResult {
 
 export type ConnectorExecutionResponse =
 	| { status: 'ok'; result: ConnectorExecutionResult }
-	| { status: 'pending_confirmation'; confirmation: PendingConfirmation }
 	| { status: 'error'; error: ConnectorError };
 
 export interface ConnectorExecutor {
