@@ -93,6 +93,7 @@ export interface ConnectorsApi {
 		args: unknown,
 		options?: ConnectorCallToolOptions
 	) => Promise<unknown>;
+	connectOAuth: (id: string) => Promise<ConnectorOAuthConnectResult>;
 }
 
 export interface SkillsApi {
@@ -150,6 +151,7 @@ import type {
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
+	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
