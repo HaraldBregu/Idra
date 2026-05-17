@@ -5,7 +5,7 @@ import type { UserDataDirectoryServicePort } from '../user-data';
 import { resolveDefaultUserDataPath } from '../user-data';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
-import type { SkillInfo, SkillManifest } from '../../shared/skills';
+import type { SkillInfo } from '../../shared/skills';
 import { SkillAuditLog } from './audit-log';
 import { SkillDependencyResolver } from './dependency-resolver';
 import { SkillDiscovery, makeDiscoveryContext } from './discovery';
@@ -28,40 +28,6 @@ import type {
 	SkillPromptChoice,
 	SkillUserPreferences,
 } from './types';
-
-function stripYamlString(value: string): string {
-	const trimmed = value.trim();
-	const quote = trimmed[0];
-	if ((quote === '"' || quote === "'") && trimmed.endsWith(quote)) {
-		return trimmed.slice(1, -1).trim();
-	}
-	return trimmed;
-}
-
-function parseSkillManifest(raw: string, fallbackName: string): SkillManifest {
-	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-	const manifest: Partial<SkillManifest> = {};
-
-	if (match) {
-		for (const line of match[1].split(/\r?\n/)) {
-			const separator = line.indexOf(':');
-			if (separator <= 0) continue;
-			const key = line.slice(0, separator).trim();
-			const value = stripYamlString(line.slice(separator + 1));
-			if (key === 'name' && value) {
-				manifest.name = value;
-			}
-			if (key === 'description' && value) {
-				manifest.description = value;
-			}
-		}
-	}
-
-	return {
-		name: manifest.name ?? fallbackName,
-		description: manifest.description,
-	};
-}
 
 function toSkillId(value: string): string {
 	const id = value
@@ -158,6 +124,7 @@ export class SkillsService {
 	}
 
 	async list(): Promise<SkillInfo[]> {
+		await this.registerManagedDynamicSkills();
 		const root = this.getSkillsRoot();
 		const entries = await fs.promises.readdir(root, { withFileTypes: true });
 		const skills: SkillInfo[] = [];
@@ -178,6 +145,7 @@ export class SkillsService {
 	}
 
 	async discoverForPrompt(query: string, input: AgentSkillRuntimeInput): Promise<SkillPromptChoice[]> {
+		await this.registerManagedDynamicSkills();
 		const userPreferences = await this.preferences.getPreferences(input.userId);
 		const priorSuccess = new Map<string, number>();
 		for (const skill of this.registry.listSkills()) {
@@ -214,6 +182,7 @@ export class SkillsService {
 			requiredConnectors: skill.requiredConnectors,
 			permissionsRequired: skill.permissionsRequired,
 			safetyLevel: skill.safetyLevel,
+			path: typeof skill.metadata.skillPath === 'string' ? skill.metadata.skillPath : undefined,
 			score: ranking.score,
 		}));
 	}
@@ -274,12 +243,7 @@ export class SkillsService {
 			throw new Error('Select a skill folder.');
 		}
 
-		const hasSkillMd = await this.exists(path.join(source, 'SKILL.md'));
-		const hasSkillJson = await this.exists(path.join(source, 'skill.json'));
-		if (!hasSkillMd && !hasSkillJson) {
-			throw new Error('Skill package must include SKILL.md or skill.json.');
-		}
-		await this.loader.loadPackage(source);
+		await this.loader.loadPackage(source, { trusted: true });
 
 		const id = toSkillId(path.basename(source));
 		const target = this.resolveSkillDir(id);
@@ -315,6 +279,7 @@ export class SkillsService {
 	async delete(id: string): Promise<void> {
 		const folderPath = this.resolveSkillDir(id);
 		await fs.promises.rm(folderPath, { recursive: true, force: true });
+		this.registry.unregisterSkill(id);
 		this.logger.info('SkillsService', `Deleted skill folder: ${id}`);
 	}
 
@@ -333,23 +298,13 @@ export class SkillsService {
 	}
 
 	private async readSkillInfo(folderPath: string, id: string): Promise<SkillInfo | null> {
-		const skillPath = path.join(folderPath, 'SKILL.md');
 		try {
-			const hasSkillMd = await this.exists(skillPath);
-			const hasSkillJson = await this.exists(path.join(folderPath, 'skill.json'));
-			if (hasSkillJson) {
-				const loaded = await this.loader.loadPackage(folderPath);
-				return {
-					id,
-					folderPath,
-					manifest: loaded.manifest,
-				};
-			}
-			const raw = hasSkillMd ? await fs.promises.readFile(skillPath, 'utf8') : '';
+			const loaded = await this.loader.loadPackage(folderPath, { trusted: true });
 			return {
 				id,
 				folderPath,
-				manifest: parseSkillManifest(raw, id),
+				skillPath: loaded.skillPath,
+				manifest: loaded.manifest,
 			};
 		} catch (error) {
 			const code = (error as NodeJS.ErrnoException).code;
@@ -363,9 +318,31 @@ export class SkillsService {
 	}
 
 	private async registerDynamicSkill(folderPath: string): Promise<void> {
-		const loaded = await this.loader.loadPackage(folderPath);
+		const loaded = await this.loader.loadPackage(folderPath, { trusted: true });
+		const existingVersions = this.registry.getSkillVersions(loaded.skill.id);
+		const conflictsWithBuiltIn = existingVersions.some((skill) => skill.metadata.dynamic !== true);
+		if (conflictsWithBuiltIn) {
+			this.logger.warn('SkillsService', `Skipping ${loaded.skill.id}: conflicts with a built-in skill`);
+			return;
+		}
 		const existing = this.registry.getSkill(loaded.skill.id, loaded.skill.version);
 		if (!existing) this.registerSkill(loaded.skill);
+	}
+
+	private async registerManagedDynamicSkills(): Promise<void> {
+		const root = this.getSkillsRoot();
+		const entries = await fs.promises.readdir(root, { withFileTypes: true });
+		for (const entry of entries) {
+			if (!entry.isDirectory()) continue;
+			const folderPath = path.join(root, entry.name);
+			try {
+				await this.registerDynamicSkill(folderPath);
+			} catch (error) {
+				this.logger.warn('SkillsService', `Skipping ${entry.name}: cannot register skill`, {
+					error: (error as Error).message,
+				});
+			}
+		}
 	}
 
 	private async createExecutionContext(
