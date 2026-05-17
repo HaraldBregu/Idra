@@ -34,6 +34,8 @@ export interface AgentRunHooks {
 		usage: Usage;
 		iterations: number;
 		durationMs: number;
+		outputChars: number;
+		firstTokenLatencyMs?: number;
 		error?: Error;
 	}) => void | Promise<void>;
 }
@@ -209,6 +211,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	let stopReason: AgentRunResult['stopReason'] = 'end_turn';
 	let didCompact = false;
 	let didStartAnswering = false;
+	let completedIterations = 0;
+	let firstTokenLatencyMs: number | undefined;
 	const runStart = Date.now();
 
 	await hooks?.onStart?.({ runId });
@@ -221,6 +225,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				break;
 			}
 
+			const iterStart = Date.now();
 			let text = '';
 			const blocks: AgentContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsStr: string }>();
@@ -240,11 +245,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					maxTokens,
 					signal,
 				})) {
-					switch (event.type) {
-						case 'text_delta':
-							if (!didStartAnswering) {
-								didStartAnswering = true;
-								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+						switch (event.type) {
+							case 'text_delta':
+								firstTokenLatencyMs ??= Date.now() - runStart;
+								if (!didStartAnswering) {
+									didStartAnswering = true;
+									streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
 							}
 							text += event.text;
 							streamOutput?.(event.text);
@@ -318,18 +324,26 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				stopReason = 'error';
 				finalText += `\n[error: ${(err as Error).message}]`;
-				await hooks?.onFinish?.({
-					runId,
-					stopReason,
-					usage: totalUsage,
-					iterations: iter,
-					durationMs: Date.now() - runStart,
-					error: err as Error,
-				});
-				throw err;
-			}
+					await hooks?.onFinish?.({
+						runId,
+						stopReason,
+						usage: totalUsage,
+						iterations: Math.max(completedIterations, iter + 1),
+						durationMs: Date.now() - runStart,
+						outputChars: finalText.length,
+						firstTokenLatencyMs,
+						error: err as Error,
+					});
+					throw err;
+				}
 
-			await hooks?.onIteration?.({ runId, iteration: iter, usage: iterUsage });
+				completedIterations = iter + 1;
+				await hooks?.onIteration?.({
+					runId,
+					iteration: iter,
+					usage: iterUsage,
+					durationMs: Date.now() - iterStart,
+				});
 
 			if (text) blocks.push({ type: 'text', text });
 			for (const [id, t] of pending) {
@@ -535,8 +549,10 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		runId,
 		stopReason,
 		usage: totalUsage,
-		iterations: 0,
+		iterations: completedIterations,
 		durationMs: Date.now() - runStart,
+		outputChars: finalText.length,
+		firstTokenLatencyMs,
 	});
 
 	return {
