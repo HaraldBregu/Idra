@@ -103,7 +103,7 @@ const CronPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.cron')} description={t('settings.sections.cron')} />
+			<SettingsPageHeader title={t('settings.tabs.cron')} />
 			<SettingsSection title={t('settings.sections.cron')}>
 				{cronTasks.length === 0 ? (
 					<SettingsPanel>
