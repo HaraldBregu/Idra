@@ -257,7 +257,7 @@ const DraftProfessionalEmailSkill = baseSkill<DraftProfessionalEmailInput, Draft
 		additionalProperties: false,
 	},
 	async canHandle(context) {
-		return keywords(context, ['email', 'draft', 'message', 'write', 'send']);
+		return keywords(context, ['email', 'draft', 'message', 'send']);
 	},
 	async execute(input, context) {
 		const greeting = input.recipient ? `Hi ${input.recipient},` : 'Hi,';
