@@ -24,22 +24,11 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	read: 'Read a file before editing or overwriting it.',
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
-	apply_patch: 'Apply a unified diff to files that have already been read.',
 	find: 'Glob-search the workspace for files.',
 	exec: 'Run a shell command. Output capped at 200 lines / 16KB.',
-	open_folder: 'Open a workspace folder in the OS file manager. Prefer this over `exec` for opening folders.',
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
-	update_plan: 'Maintain a concise task plan for multi-step work.',
-	memory_search: 'Search durable workspace memory and visible session history before relying on prior context.',
-	memory_get: 'Read a bounded source range from an allowed Markdown memory file after a useful memory hit.',
-	sessions_list: 'List visible sessions with optional filters.',
-	sessions_history: 'Read bounded sanitized history for a visible session.',
-	sessions_send: 'Append a message to another visible session.',
-	sessions_spawn: 'Create a controlled child session with inherited constraints.',
-	sessions_yield: 'Yield while waiting for a controlled child session when the host supports it.',
-	subagents: 'List, cancel, or steer controlled child sessions.',
-	session_status: 'Read or update status, task, or model override for visible sessions.',
+	cron: 'Create, update, list, run, or delete scheduled cron tasks.',
 };
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
