@@ -40,9 +40,9 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		setupUrl: 'https://console.cloud.google.com/apis/credentials',
 		setupInstructions: [
 			'Go to Google Cloud Console, enable the Gmail API, and configure the OAuth consent screen.',
-			'Create an OAuth Web application client in APIs & Services > Credentials.',
+			'Configure the app with GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET, or enter them once as an optional override.',
 			'Add http://127.0.0.1:42818/oauth/google/callback as an authorized redirect URI.',
-			'Paste the client ID and secret here, save, then use Connect to finish Google consent.',
+			'Save the connector, then use Connect to finish Google consent.',
 		],
 	},
 	{
@@ -72,9 +72,9 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		setupUrl: 'https://console.cloud.google.com/apis/credentials',
 		setupInstructions: [
 			'Go to Google Cloud Console, enable the Google Calendar API, and configure the OAuth consent screen.',
-			'Create an OAuth Web application client in APIs & Services > Credentials.',
+			'Configure the app with GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET, or enter them once as an optional override.',
 			'Add http://127.0.0.1:42818/oauth/google/callback as an authorized redirect URI.',
-			'Paste the client ID and secret here, save, then use Connect to finish Google consent.',
+			'Save the connector, then use Connect to finish Google consent.',
 		],
 	},
 	{

@@ -207,27 +207,27 @@ export const TitleBar = React.memo(function TitleBar({
 								strokeWidth={1.8}
 							/>
 							<Input
-								type="search"
-								value={settingsSearch}
-								onChange={(event) => {
-									setSettingsSearch(event.target.value);
-									setIsSettingsSearchOpen(true);
-								}}
-								onFocus={() => setIsSettingsSearchOpen(true)}
-								onBlur={() => {
-									window.setTimeout(() => setIsSettingsSearchOpen(false), 120);
-								}}
-								onKeyDown={(event) => {
-									if (event.key !== 'Enter') return;
+								// type="search"
+								// value={settingsSearch}
+								// onChange={(event) => {
+								// 	setSettingsSearch(event.target.value);
+								// 	setIsSettingsSearchOpen(true);
+								// }}
+								// onFocus={() => setIsSettingsSearchOpen(true)}
+								// onBlur={() => {
+								// 	window.setTimeout(() => setIsSettingsSearchOpen(false), 120);
+								// }}
+								// onKeyDown={(event) => {
+								// 	if (event.key !== 'Enter') return;
 
-									event.preventDefault();
-									navigate(settingsSearchTarget ?? '/settings');
-									setSettingsSearch('');
-								}}
-								placeholder={settingsSearchPlaceholder}
-								aria-label={settingsSearchPlaceholder}
-								className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
-								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+								// 	event.preventDefault();
+								// 	navigate(settingsSearchTarget ?? '/settings');
+								// 	setSettingsSearch('');
+								// }}
+								// placeholder={settingsSearchPlaceholder}
+								// aria-label={settingsSearchPlaceholder}
+								// className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
+								// style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 							/>
 							{showSettingsSearchDropdown ? (
 								<div
