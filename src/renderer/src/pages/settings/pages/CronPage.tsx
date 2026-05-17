@@ -4,12 +4,12 @@ import { Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { CronTaskView } from '../../../../../shared/cron';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 } from '../components';
 
