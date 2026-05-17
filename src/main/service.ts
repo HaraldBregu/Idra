@@ -65,7 +65,7 @@ export type AgentToolsFactory = (
 
 export interface AgentServiceOptions {
 	defaultAgentId?: string;
-	providerFactory?: (provider: ProviderSpec, model: string) => ProviderAdapter;
+	providerFactory?: (provider: ProviderSpec) => ProviderAdapter;
 	toolsFactory?: AgentToolsFactory;
 	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
