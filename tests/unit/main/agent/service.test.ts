@@ -168,7 +168,7 @@ describe('AgentService', () => {
 			},
 		});
 
-		await expect(service.send('hi')).resolves.toBe('ok');
+		await expect(service.send('read a file')).resolves.toBe('ok');
 		expect(contexts).toHaveLength(1);
 		expect(contexts[0]).toMatchObject({
 			agentId: 'main',
