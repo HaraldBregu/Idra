@@ -66,7 +66,9 @@ function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
 	if (isGoogleConnector(connector.connectorId)) {
-		return connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'configured' : 'missing_auth';
+		return connector.oauth?.refreshToken || connector.oauth?.accessToken || connector.authorization?.trim()
+			? 'configured'
+			: 'missing_auth';
 	}
 	if (!connector.authorization?.trim()) return 'missing_auth';
 	return 'configured';
