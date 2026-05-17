@@ -123,15 +123,19 @@ describe('connectors service', () => {
 		}) as unknown as typeof fetch;
 		const service = new ConnectorsService(store as never, makeLogger() as never, {
 			fetchImpl,
+			createOAuthLoopbackServer: async () => ({
+				redirectUri: 'http://127.0.0.1:49152',
+				callback: Promise.resolve({ code: 'code-1' }),
+				close: jest.fn(),
+			}),
 			openExternal: async (url: string) => {
 				openedUrls.push(url);
 				const authUrl = new URL(url);
 				const redirectUri = authUrl.searchParams.get('redirect_uri');
-				const state = authUrl.searchParams.get('state');
 				expect(redirectUri).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+				expect(authUrl.searchParams.get('state')).toBeTruthy();
 				expect(authUrl.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]+$/);
 				expect(authUrl.searchParams.get('code_challenge_method')).toBe('S256');
-				await fetch(`${redirectUri}?state=${state}&code=code-1`);
 			},
 		});
 		const added = await service.add({

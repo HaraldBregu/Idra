@@ -52,6 +52,7 @@ interface OAuthLoopbackServer {
 interface ConnectorsServiceOptions {
 	fetchImpl?: FetchLike;
 	openExternal?: (url: string) => Promise<void>;
+	createOAuthLoopbackServer?: (expectedState: string) => Promise<OAuthLoopbackServer>;
 	oauthRedirectUri?: string;
 	oauthTimeoutMs?: number;
 	googleOAuthClientId?: string;
@@ -297,7 +298,7 @@ export class ConnectorsService {
 			knownTools(connector).map((tool) => tool.name)
 		);
 		const pkce = createGooglePkcePair();
-		const loopback = await this.createOAuthLoopbackServer(state);
+		const loopback = await this.openOAuthLoopbackServer(state);
 		const authorizationUrl = buildGoogleAuthorizationUrl({
 			clientId: oauth.clientId,
 			redirectUri: loopback.redirectUri,
@@ -628,7 +629,10 @@ export class ConnectorsService {
 			.find((oauth): oauth is GoogleOAuthCredential => Boolean(oauth?.clientId));
 	}
 
-	private createOAuthLoopbackServer(expectedState: string): Promise<OAuthLoopbackServer> {
+	private openOAuthLoopbackServer(expectedState: string): Promise<OAuthLoopbackServer> {
+		if (this.options.createOAuthLoopbackServer) {
+			return this.options.createOAuthLoopbackServer(expectedState);
+		}
 		const configuredRedirectUri = this.options.oauthRedirectUri
 			? new URL(this.options.oauthRedirectUri)
 			: undefined;
@@ -638,6 +642,7 @@ export class ConnectorsService {
 		let server: Server | null = null;
 		let timeout: NodeJS.Timeout | null = null;
 		let callbackSettled = false;
+		let rejectCallback: (error: Error) => void = () => {};
 		const close = (): void => {
 			if (timeout) clearTimeout(timeout);
 			server?.close();
@@ -648,6 +653,7 @@ export class ConnectorsService {
 				close();
 				reject(new Error('Google OAuth timed out before authorization completed.'));
 			}, this.options.oauthTimeoutMs ?? GOOGLE_OAUTH_TIMEOUT_MS);
+			rejectCallback = reject;
 			server = createServer((request, response) => {
 				try {
 					const requestUrl = new URL(request.url ?? '/', `http://${hostname}`);
@@ -679,13 +685,9 @@ export class ConnectorsService {
 					reject(error);
 				}
 			});
-			server.once('error', (error) => {
-				close();
-				if (!callbackSettled) reject(error);
-			});
 		});
 		return new Promise((resolve, reject) => {
-			server?.once('error', (error) => {
+			const rejectStartup = (error: Error): void => {
 				close();
 				reject(
 					new Error(
@@ -694,8 +696,14 @@ export class ConnectorsService {
 						}`
 					)
 				);
-			});
+			};
+			server?.once('error', rejectStartup);
 			server?.listen(port, hostname, () => {
+				server?.off('error', rejectStartup);
+				server?.on('error', (error) => {
+					close();
+					if (!callbackSettled) rejectCallback(error);
+				});
 				const address = server?.address();
 				const actualPort = typeof address === 'object' && address ? address.port : port;
 				const redirectUri = configuredRedirectUri
