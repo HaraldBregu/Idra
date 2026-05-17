@@ -50,53 +50,26 @@ const GeneralPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.general')} description={__APP_DESCRIPTION__} />
+			<SettingsPageHeader title={t('settings.tabs.general')} />
 
 			<SettingsSection title={t('settings.application.information')}>
 				<SettingsPanel>
-					<SettingsRow
-						icon={AppWindow}
-						title={t('settings.application.name')}
-						description={t('settings.application.nameDescription')}
-						className={generalRowClassName}
-						contentClassName={generalContentClassName}
-						actionClassName={valueActionClassName}
-						actions={<SettingsValue>{__APP_NAME__}</SettingsValue>}
-					/>
-					<SettingsRow
-						icon={Info}
-						title={t('settings.application.description')}
-						description={t('settings.application.descriptionDescription')}
-						className={generalRowClassName}
-						contentClassName={generalContentClassName}
-						actionClassName={valueActionClassName}
-						actions={<SettingsValue>{__APP_DESCRIPTION__}</SettingsValue>}
-					/>
-					<SettingsRow
-						icon={ShieldCheck}
-						title={t('settings.application.version')}
-						description={t('settings.application.versionDescription')}
-						className={generalRowClassName}
-						contentClassName={generalContentClassName}
-						actionClassName={valueActionClassName}
-						actions={<SettingsValue mono>{__APP_VERSION__}</SettingsValue>}
-					/>
-					<SettingsRow
-						title={t('settings.application.author')}
-						description={t('settings.application.authorDescription')}
-						className={generalRowClassName}
-						contentClassName={generalContentClassName}
-						actionClassName={valueActionClassName}
-						actions={<SettingsValue>{__APP_AUTHOR__}</SettingsValue>}
-					/>
-					<SettingsRow
-						title={t('settings.application.license')}
-						description={t('settings.application.licenseDescription')}
-						className={generalRowClassName}
-						contentClassName={generalContentClassName}
-						actionClassName={valueActionClassName}
-						actions={<SettingsValue>{__APP_LICENSE__}</SettingsValue>}
-					/>
+					<Table>
+						<TableBody>
+							<TableRow>
+								<TableCell className="w-28 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">{t('settings.application.name')}</TableCell>
+								<TableCell className="px-3 py-1.5 text-[11px] text-foreground">{__APP_NAME__}</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className="w-28 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">{t('settings.application.description')}</TableCell>
+								<TableCell className="px-3 py-1.5 text-[11px] text-foreground">{__APP_DESCRIPTION__}</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className="w-28 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">{t('settings.application.version')}</TableCell>
+								<TableCell className="px-3 py-1.5 font-mono text-[11px] text-foreground">{__APP_VERSION__}</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
 				</SettingsPanel>
 			</SettingsSection>
 
