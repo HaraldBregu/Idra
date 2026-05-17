@@ -76,19 +76,26 @@ export const TitleBar = React.memo(function TitleBar({
 	const homeButtonLabel = t('titleBar.home', 'Home');
 	const settingsSearchPlaceholder = t('settings.searchPlaceholder', 'Search settings');
 	const settingsSearchQuery = settingsSearch.trim().toLowerCase();
-	const settingsSearchItems = SETTINGS_NAVIGATION.map((item) => {
-		const label = t(item.labelKey);
-		const description = t(item.descriptionKey);
-
-		return {
+	const settingsSearchItems = [
+		...SETTINGS_NAVIGATION.map((item) => ({
 			path: item.path,
-			label,
-			description,
-			searchText: `${label} ${description}`.toLowerCase(),
-		};
-	})
-		.filter((item) => !settingsSearchQuery || item.searchText.includes(settingsSearchQuery))
-		.slice(0, 6);
+			label: t(item.labelKey),
+			description: t(item.descriptionKey),
+			keywords: '',
+		})),
+		...SETTINGS_DETAIL_ITEMS.map((item) => ({
+			path: item.path,
+			label: t(item.labelKey),
+			description: item.descriptionKey ? t(item.descriptionKey) : '',
+			keywords: item.keywords ?? '',
+		})),
+	]
+		.filter((item) => {
+			if (!settingsSearchQuery) return true;
+			const searchText = `${item.label} ${item.description} ${item.keywords}`.toLowerCase();
+			return searchText.includes(settingsSearchQuery);
+		})
+		.slice(0, 8);
 	const settingsSearchTarget =
 		settingsSearchQuery && settingsSearchItems.length > 0 ? settingsSearchItems[0]?.path : undefined;
 	const showSettingsSearchDropdown = isSettingsSearchOpen && settingsSearchItems.length > 0;
