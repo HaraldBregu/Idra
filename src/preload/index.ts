@@ -56,6 +56,7 @@ import type {
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
+	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
@@ -385,6 +386,9 @@ export const connectors: ConnectorsApi = {
 		options?: ConnectorCallToolOptions
 	): Promise<unknown> => {
 		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
+	},
+	connectOAuth: (id: string): Promise<ConnectorOAuthConnectResult> => {
+		return typedInvokeUnwrap(ConnectorsChannels.connectOAuth, id);
 	},
 };
 
