@@ -1,30 +1,7 @@
-import {
-	setThemeModeTool,
-	openAppDataFolderTool,
-	openUserDataFolderTool,
-	openFolderTool,
-	openAccessibilityTool,
-	openScreenRecordingTool,
-	setMenuBarTool,
-} from './app';
-import { cronAddTool, cronListTool, cronRemoveTool, cronTool } from './cron';
+import { cronTool } from './cron';
 import { execTool, processTool } from './exec';
-import { applyPatchTool, editTool, findTool, readTool, writeTool } from './fs';
-import { memoryGetTool, memorySearchTool } from './memory';
-import { updatePlanTool } from './plan';
+import { editTool, findTool, readTool, writeTool } from './fs';
 import { filterTools, type PolicyConfig } from './policy';
-import { getProviderByIdTool, setProviderApiKeyTool } from './providers';
-import {
-	sessionStatusTool,
-	sessionsHistoryTool,
-	sessionsListTool,
-	sessionsSendTool,
-	sessionsSpawnTool,
-	sessionsYieldTool,
-	subagentsTool,
-} from './sessions';
-import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from './services';
-import { getWorkspaceContentTool, getWorkspacePathTool } from './workspace';
 import { webFetchTool } from './web';
 import type { AgentTool } from './types';
 
@@ -33,39 +10,11 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	readTool,
 	writeTool,
 	editTool,
-	applyPatchTool,
 	findTool,
 	execTool,
 	processTool,
 	webFetchTool,
-	updatePlanTool,
-	memorySearchTool,
-	memoryGetTool,
-	sessionsListTool,
-	sessionsHistoryTool,
-	sessionsSendTool,
-	sessionsSpawnTool,
-	sessionsYieldTool,
-	subagentsTool,
-	sessionStatusTool,
-	getWorkspaceContentTool,
-	getWorkspacePathTool,
-	getProviderByIdTool,
-	setProviderApiKeyTool,
-	getAgentServiceTool,
-	getAgentModelTool,
-	setAgentServiceTool,
 	cronTool,
-	cronAddTool,
-	cronListTool,
-	cronRemoveTool,
-	setThemeModeTool,
-	openFolderTool,
-	openAppDataFolderTool,
-	openUserDataFolderTool,
-	openAccessibilityTool,
-	openScreenRecordingTool,
-	setMenuBarTool,
 ];
 
 export function createTools(cfg: PolicyConfig): AgentTool[] {
