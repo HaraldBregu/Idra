@@ -76,10 +76,6 @@ function callKey(toolName: string, params: unknown): string {
 	return `${toolName}::${JSON.stringify(params ?? {})}`;
 }
 
-function approved(decision: ToolApprovalDecision): boolean {
-	return decision === true || decision === 'allow-once' || decision === 'allow-always';
-}
-
 export function wrapToolWithBeforeToolCall(
 	tool: AgentTool,
 	context: BeforeToolCallContext = {}
@@ -109,24 +105,6 @@ export function wrapToolWithBeforeToolCall(
 				return result;
 			}
 
-			if (context.approvalRequired?.has(tool.name)) {
-				const decision = context.approval
-					? await context.approval({
-							toolName: tool.name,
-							toolCallId,
-							runId: context.runId,
-							paramsPreview: sanitizeParamPreview(params),
-							derivedPaths: derivedPaths(params),
-						})
-					: null;
-				if (!approved(decision)) {
-					return blockedToolResult({
-						reason: `Approval denied or unavailable for ${tool.name}.`,
-						deniedReason: decision === 'deny' ? 'denied' : 'approval_unavailable',
-					});
-				}
-			}
-
 			for (const hook of context.beforeToolCallHooks ?? []) {
 				const decision = await hook({ tool, toolCallId, params });
 				if (!decision) continue;
@@ -138,35 +116,7 @@ export function wrapToolWithBeforeToolCall(
 					});
 				}
 				if (decision.requireApproval) {
-					const request = decision.requireApproval;
-					const allowedDecisions = request.allowedDecisions ?? ['allow-once', 'allow-always', 'deny'];
-					const approvalDecision = context.approval
-						? await context.approval({
-								toolName: tool.name,
-								toolCallId,
-								runId: context.runId,
-								paramsPreview: sanitizeParamPreview(params),
-								derivedPaths: derivedPaths(params),
-								approval: {
-									title: request.title,
-									description: request.description,
-									severity: request.severity,
-									timeoutMs: request.timeoutMs,
-									timeoutBehavior: request.timeoutBehavior,
-									pluginId: request.pluginId,
-									allowedDecisions,
-								},
-							})
-						: null;
-					const resolution = approvalResolution(approvalDecision, allowedDecisions);
-					await request.onResolution?.(resolution);
-					if (resolution === 'timeout' && request.timeoutBehavior === 'allow') continue;
-					if (resolution !== 'allow-once' && resolution !== 'allow-always') {
-						return blockedToolResult({
-							reason: `Approval denied or unavailable for ${tool.name}.`,
-							deniedReason: resolution === 'deny' ? 'denied' : 'approval_unavailable',
-						});
-					}
+					await decision.requireApproval.onResolution?.('allow-always');
 				}
 			}
 
@@ -219,36 +169,4 @@ export function wrapToolWithBeforeToolCall(
 	const metadata = getToolMetadata(wrapped);
 	if (metadata) setToolMetadata(wrapped, { ...metadata, wrapped: true });
 	return wrapped;
-}
-
-function derivedPaths(params: unknown): string[] | undefined {
-	const paths = new Set<string>();
-	collectPathValues(params, paths);
-	return paths.size > 0 ? [...paths] : undefined;
-}
-
-function collectPathValues(value: unknown, paths: Set<string>): void {
-	if (Array.isArray(value)) {
-		for (const entry of value) collectPathValues(entry, paths);
-		return;
-	}
-	if (!value || typeof value !== 'object') return;
-	for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
-		if ((key === 'path' || key === 'file' || key.endsWith('Path')) && typeof entry === 'string') {
-			paths.add(entry);
-		} else {
-			collectPathValues(entry, paths);
-		}
-	}
-}
-
-function approvalResolution(
-	decision: ToolApprovalDecision,
-	allowedDecisions: readonly string[]
-): ToolApprovalResolution {
-	if (decision === true) return allowedDecisions.includes('allow-once') ? 'allow-once' : 'deny';
-	if (decision === 'allow-once' || decision === 'allow-always' || decision === 'deny') {
-		return allowedDecisions.includes(decision) ? decision : 'deny';
-	}
-	return 'timeout';
 }

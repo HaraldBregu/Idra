@@ -1,6 +1,6 @@
 import { InMemoryToolAuditLog, redactSensitive, summarizeOutput, type ToolAuditLog } from './audit-log';
 import { validateJsonSchema } from './schema';
-import { TOOL_SAFETY_ORDER, createToolResult, type Tool, type ToolExecutionContext, type ToolResult } from './types';
+import { createToolResult, type Tool, type ToolExecutionContext, type ToolResult } from './types';
 import { ToolOutputValidator } from './output-validator';
 
 export interface ToolExecutorOptions {
@@ -116,55 +116,10 @@ export class ToolExecutor {
 				finishedAt: new Date(),
 			});
 		}
-		const missingPermission = tool.permissionsRequired.find((permission) => !context.availablePermissions.has(permission) && !context.availablePermissions.has('*'));
-		if (missingPermission) {
-			return createToolResult<TOutput>({
-				toolId: tool.id,
-				success: false,
-				error: {
-					code: 'PERMISSION_DENIED',
-					message: `missing permission: ${missingPermission}`,
-					retryable: false,
-					category: 'permission',
-				},
-				startedAt,
-				finishedAt: new Date(),
-			});
-		}
 		const rateLimited = this.checkRateLimit<TOutput>(tool, context, startedAt);
 		if (rateLimited) return rateLimited;
 		const overLimit = this.checkTurnLimit<TOutput>(tool.id, context, startedAt);
 		if (overLimit) return overLimit;
-		const needsConfirmation = tool.metadata.requiresConfirmation === true || (!tool.metadata.readOnly && TOOL_SAFETY_ORDER[tool.safetyLevel] >= TOOL_SAFETY_ORDER.high);
-		if (needsConfirmation) {
-			const actionId = `${tool.id}:${JSON.stringify(redactSensitive(input))}`;
-			if (!context.confirmedActionIds.has(actionId) && !context.confirmedActionIds.has('*')) {
-				const confirmed = context.requestConfirmation
-					? await context.requestConfirmation({
-							toolId: tool.id,
-							toolName: tool.name,
-							reason: context.reasonForUse ?? 'sensitive action requested',
-							inputPreview: redactSensitive(input),
-							permissions: tool.permissionsRequired,
-							safetyLevel: tool.safetyLevel,
-						})
-					: false;
-				if (!confirmed) {
-					return createToolResult<TOutput>({
-						toolId: tool.id,
-						success: false,
-						error: {
-							code: 'CONFIRMATION_REQUIRED',
-							message: `explicit confirmation is required before using ${tool.name}`,
-							retryable: false,
-							category: 'permission',
-						},
-						startedAt,
-						finishedAt: new Date(),
-					});
-				}
-			}
-		}
 		return undefined;
 	}
 

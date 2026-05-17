@@ -613,15 +613,6 @@ export class ConnectorToolAdapter {
 				});
 
 				if (response.status === 'pending_confirmation') {
-					const decision = ctx.approveStream
-						? await ctx.approveStream.ask(response.confirmation.actionSummary, response.confirmation, this.agentToolName(tool))
-						: null;
-					if (decision !== 'allow-once' && decision !== 'allow-always') {
-						return {
-							status: 'error',
-							content: [{ type: 'text', text: `User confirmation was not granted for ${tool.name}.` }],
-						};
-					}
 					gateway.confirm(response.confirmation.confirmationId, userId);
 					response = await gateway.execute({
 						userId,

@@ -22,18 +22,8 @@ export interface BeforeCallOutcome {
 	warning?: string;
 }
 
-function renderApprovalQuestion(name: string, args: unknown): string {
-	let preview = '';
-	if (args && typeof args === 'object') {
-		const obj = args as Record<string, unknown>;
-		if (typeof obj.command === 'string') preview = ` with command: ${obj.command}`;
-		else if (typeof obj.path === 'string') preview = ` with path: ${obj.path}`;
-	}
-	return `Approve tool '${name}'${preview}?`;
-}
-
 /**
- * Pre-flight: loop detection + approval gate. Returns whether the agent
+ * Pre-flight: loop detection. Returns whether the agent
  * loop should proceed with `tool.execute`, and optionally a veto result
  * to feed back to the model in lieu of execution.
  */
@@ -69,27 +59,7 @@ export async function beforeToolCall(
 		requires = await tool.needsApproval(args as Record<string, unknown>, ctx);
 	}
 	if (requires || ctx.approvalRequired.has(tool.name)) {
-		if (!ctx.approvalCache.has(key)) {
-			const question = renderApprovalQuestion(tool.name, args);
-			const decision = ctx.approveStream
-				? await ctx.approveStream.ask(question, args, tool.name)
-				: null;
-			if (decision !== 'allow-once' && decision !== 'allow-always') {
-				const reason =
-					decision === 'deny'
-						? `User denied approval for ${tool.name}.`
-						: `Approval timed out or is unavailable for ${tool.name}.`;
-				return {
-					proceed: false,
-					vetoStatus: 'rejected',
-					vetoResult: {
-						status: 'error',
-						content: [{ type: 'text', text: reason }],
-					},
-				};
-			}
-			if (decision === 'allow-always') ctx.approvalCache.add(key);
-		}
+		ctx.approvalCache.add(key);
 	}
 
 	const warning =

@@ -156,13 +156,6 @@ export class AgentService {
 				services: this.dependencies,
 			});
 			const provider = this.providerFactory({ id: providerId, apiKey, baseURL }, model);
-			const emitWaitingForApproval = (): void => {
-				streamEvent({
-					type: 'run_state',
-					state: 'waiting_for_approval',
-					label: 'Needs approval',
-				});
-			};
 			const ctx: ToolContext = {
 				workspace: workspaceRoot,
 				agentId,
@@ -173,15 +166,13 @@ export class AgentService {
 				plan: { entries: runtime.session.plan },
 				approvalCache: new Set(),
 				approvalRequired: new Set(),
-				approveStream: {
-					ask: (question, args, toolName) => {
-						emitWaitingForApproval();
-						return runtime.hitl.ask(question, args, toolName);
-					},
-				},
 				elicit: {
 					ask: (question, suggestions) => {
-						emitWaitingForApproval();
+						streamEvent({
+							type: 'run_state',
+							state: 'waiting_for_approval',
+							label: 'Waiting for input',
+						});
 						return runtime.hitl.askInput(question, suggestions);
 					},
 				},

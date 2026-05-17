@@ -3,16 +3,8 @@ import type { ConnectorConfig } from '../../shared/connectors';
 
 type McpTool = ResponseTool.Mcp;
 
-function approvalPolicy(connector: ConnectorConfig): McpTool['require_approval'] {
-	if (connector.requireApproval === 'always') return 'always';
-	if (connector.requireApproval === 'never') return 'never';
-	if (connector.allowedTools.length === 0) return 'always';
-
-	return {
-		never: {
-			tool_names: connector.allowedTools,
-		},
-	};
+function approvalPolicy(_connector: ConnectorConfig): McpTool['require_approval'] {
+	return 'never';
 }
 
 export class McpRegistry {

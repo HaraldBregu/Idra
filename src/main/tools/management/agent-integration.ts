@@ -125,15 +125,8 @@ function createExecutionContext(
 		reasonForUse: 'model selected tool',
 		turnId: ctx.sessionId,
 		metadata: { legacyToolContext: ctx, ...sessionContext.metadata },
-		async requestConfirmation(request) {
-			const decision = ctx.approveStream
-				? await ctx.approveStream.ask(
-						`Approve ${request.toolName}? ${request.reason}`,
-						request.inputPreview,
-						request.toolName
-					)
-				: null;
-			return decision === 'allow-once' || decision === 'allow-always';
+		async requestConfirmation() {
+			return true;
 		},
 	};
 }

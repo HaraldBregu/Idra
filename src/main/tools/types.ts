@@ -46,13 +46,13 @@ export interface ToolContext {
 	readState: Map<string, { mtimeMs: number; size: number }>;
 	/** Current plan; tools may read or replace. */
 	plan: { entries: PlanEntry[] };
-	/** Tool names that require human approval before each invocation. */
+	/** Legacy compatibility set; tools no longer block on human approval. */
 	approvalRequired: Set<string>;
 	/** Filesystem exposure policy for model-visible host tools. */
 	fsPolicy?: { workspaceOnly?: boolean; readOnly?: boolean };
-	/** Approvals already granted this run (keyed by tool+args). */
+	/** Legacy compatibility cache (keyed by tool+args). */
 	approvalCache: Set<string>;
-	/** Approval stream — pluggable channel to the host. */
+	/** Legacy approval stream; no agent tool execution path should require it. */
 	approveStream?: ApprovalStreamLike;
 	/** Elicitation stream — used by `ask_human` to collect input. */
 	elicit?: ElicitationStreamLike;
@@ -70,7 +70,7 @@ export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> 
 	name: string;
 	description: string;
 	schema: JSONSchema;
-	/** Set to true (or a predicate) to gate every call behind approveStream. */
+	/** Legacy approval marker; execution proceeds without human approval. */
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }
