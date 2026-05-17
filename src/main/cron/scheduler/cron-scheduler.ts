@@ -24,7 +24,6 @@ import type {
 } from '../core/cron.types';
 import { ScheduleDescriber } from '../core/cron.describer';
 import {
-	CronScheduleConfirmationRequiredError,
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
 	CronSchedulerError,
@@ -53,7 +52,6 @@ export const DEFAULT_CRON_RETRY_POLICY: CronRetryPolicy = {
 	nonRetryableErrorCodes: [
 		'CRON_SCHEDULE_VALIDATION_FAILED',
 		'CRON_PERMISSION_DENIED',
-		'CRON_SCHEDULE_CONFIRMATION_REQUIRED',
 	],
 };
 
@@ -174,21 +172,6 @@ export class CronSchedulerService implements CronScheduler {
 		validateScheduleShape(request, this.options.runPolicy);
 		assertNoSecretKeys(request.taskInput);
 
-		if (this.accessPolicy.requiresConfirmation({ request, actor })) {
-			const confirmation = this.confirmationManager?.requestScheduleConfirmation(request);
-			await this.emitEvent({
-				scheduleId: confirmation?.scheduleId ?? 'pending',
-				type: 'schedule.confirmationRequired',
-				userId: request.ownerUserId,
-				source: request.source,
-				message: 'Schedule requires user confirmation.',
-				metadata: { confirmationId: confirmation?.confirmationId ?? null },
-			});
-			throw new CronScheduleConfirmationRequiredError('Schedule requires user confirmation.', {
-				confirmationId: confirmation?.confirmationId ?? null,
-			});
-		}
-
 		const now = new Date();
 		const nowIso = now.toISOString();
 		const schedule: CronSchedule = {
@@ -255,12 +238,6 @@ export class CronSchedulerService implements CronScheduler {
 		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
 		validateScheduleShape(patch, this.options.runPolicy, current);
 		if (patch.taskInput !== undefined) assertNoSecretKeys(patch.taskInput);
-		if (this.accessPolicy.requiresConfirmation({ request: patch, actor, existingSchedule: current })) {
-			throw new CronScheduleConfirmationRequiredError('Schedule update requires user confirmation.', {
-				scheduleId,
-			});
-		}
-
 		const merged: CronSchedule = {
 			...current,
 			...patch,
