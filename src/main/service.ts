@@ -107,7 +107,10 @@ export class AgentService {
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolsFactory =
 			options.toolsFactory ??
-			(() => createTools({ profile: 'full', allow: [], deny: [] }));
+			((context) => [
+				...createTools({ profile: 'full', allow: [], deny: [] }),
+				...(context.services.connectors?.createAgentTools() ?? []),
+			]);
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
