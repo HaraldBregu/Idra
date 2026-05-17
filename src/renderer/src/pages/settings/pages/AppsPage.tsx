@@ -4,6 +4,7 @@ import { FolderOpen, Package, RefreshCw, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { AppInfo } from '../../../../../shared/apps';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -11,7 +12,6 @@ import {
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
-	SettingsRow,
 } from '../components';
 
 const AppsPage: React.FC = () => {
