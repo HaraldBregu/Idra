@@ -67,6 +67,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const [isFullScreen, setIsFullScreen] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [settingsSearch, setSettingsSearch] = useState('');
+	const [isSettingsSearchOpen, setIsSettingsSearchOpen] = useState(false);
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
@@ -75,12 +76,22 @@ export const TitleBar = React.memo(function TitleBar({
 	const homeButtonLabel = t('titleBar.home', 'Home');
 	const settingsSearchPlaceholder = t('settings.searchPlaceholder', 'Search settings');
 	const settingsSearchQuery = settingsSearch.trim().toLowerCase();
-	const settingsSearchTarget = settingsSearchQuery
-		? SETTINGS_NAVIGATION.map((item) => ({
-				path: item.path,
-				searchText: `${t(item.labelKey)} ${t(item.descriptionKey)}`.toLowerCase(),
-			})).find((item) => item.searchText.includes(settingsSearchQuery))?.path
-		: undefined;
+	const settingsSearchItems = SETTINGS_NAVIGATION.map((item) => {
+		const label = t(item.labelKey);
+		const description = t(item.descriptionKey);
+
+		return {
+			path: item.path,
+			label,
+			description,
+			searchText: `${label} ${description}`.toLowerCase(),
+		};
+	})
+		.filter((item) => !settingsSearchQuery || item.searchText.includes(settingsSearchQuery))
+		.slice(0, 6);
+	const settingsSearchTarget =
+		settingsSearchQuery && settingsSearchItems.length > 0 ? settingsSearchItems[0]?.path : undefined;
+	const showSettingsSearchDropdown = isSettingsSearchOpen && settingsSearchItems.length > 0;
 
 	useEffect(() => {
 		if (!window.win) return;
@@ -191,7 +202,14 @@ export const TitleBar = React.memo(function TitleBar({
 							<Input
 								type="search"
 								value={settingsSearch}
-								onChange={(event) => setSettingsSearch(event.target.value)}
+								onChange={(event) => {
+									setSettingsSearch(event.target.value);
+									setIsSettingsSearchOpen(true);
+								}}
+								onFocus={() => setIsSettingsSearchOpen(true)}
+								onBlur={() => {
+									window.setTimeout(() => setIsSettingsSearchOpen(false), 120);
+								}}
 								onKeyDown={(event) => {
 									if (event.key !== 'Enter') return;
 
@@ -204,6 +222,35 @@ export const TitleBar = React.memo(function TitleBar({
 								className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
 								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 							/>
+							{showSettingsSearchDropdown ? (
+								<div
+									className="absolute left-0 right-0 top-8 z-[60] overflow-hidden rounded-lg border border-border/80 bg-popover p-1 text-popover-foreground shadow-lg"
+									style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+								>
+									{settingsSearchItems.map((item) => (
+										<Button
+											key={item.path}
+											type="button"
+											variant="ghost"
+											size="sm"
+											onMouseDown={(event) => event.preventDefault()}
+											onClick={() => {
+												navigate(item.path);
+												setSettingsSearch('');
+												setIsSettingsSearchOpen(false);
+											}}
+											className="h-auto w-full justify-start rounded-md px-2 py-1.5 text-left"
+										>
+											<span className="min-w-0">
+												<span className="block truncate text-xs font-medium">{item.label}</span>
+												<span className="block truncate text-[11px] text-muted-foreground">
+													{item.description}
+												</span>
+											</span>
+										</Button>
+									))}
+								</div>
+							) : null}
 						</div>
 					</div>
 				) : centerContent ? (
