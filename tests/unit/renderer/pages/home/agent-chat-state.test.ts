@@ -180,7 +180,7 @@ describe('agent chat state', () => {
 		]);
 	});
 
-	it('inserts pending approval and input messages with default deny selection', () => {
+	it('inserts pending input messages and ignores approval prompts', () => {
 		const pending = pendingToMultiSelectMessage(
 			{
 				agentId: 'agent',
@@ -206,25 +206,13 @@ describe('agent chat state', () => {
 		);
 
 		expect(pending).not.toBeNull();
-		expect(pending?.id).toBe('agent-pending-a:approval-1-i:input-1');
-		expect(pending?.options.map((option) => option.kind)).toEqual([
-			'approval',
-			'approval',
-			'input',
-		]);
-		expect(pending?.options.map((option) => option.label)).toEqual([
-			'Allow once',
-			'Deny',
-			'Answer',
-		]);
-		expect(pending?.options[0]).toMatchObject({
-			paths: ['/workspace/README.md'],
-			meta: expect.stringContaining('run run-1'),
-		});
-		expect(defaultPendingSelections(pending!)).toEqual(['approval:approval-1:deny']);
+		expect(pending?.id).toBe('agent-pending-i:input-1');
+		expect(pending?.options.map((option) => option.kind)).toEqual(['input']);
+		expect(pending?.options.map((option) => option.label)).toEqual(['Answer']);
+		expect(defaultPendingSelections(pending!)).toEqual([]);
 	});
 
-	it('renders only allowed approval decisions', () => {
+	it('returns no pending message for approval-only events', () => {
 		const pending = pendingToMultiSelectMessage(
 			{
 				agentId: 'agent',
@@ -246,13 +234,7 @@ describe('agent chat state', () => {
 			100
 		);
 
-		expect(pending?.options).toHaveLength(1);
-		expect(pending?.options[0]).toMatchObject({
-			id: 'approval:approval-1:deny',
-			label: 'Deny',
-			subject: 'Plugin approval',
-		});
-		expect(defaultPendingSelections(pending!)).toEqual(['approval:approval-1:deny']);
+		expect(pending).toBeNull();
 	});
 
 	it('marks cancellation on the active agent message', () => {

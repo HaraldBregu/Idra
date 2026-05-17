@@ -13,24 +13,12 @@ function wrapper({ children }: React.PropsWithChildren): React.ReactElement {
 function pendingEvent(agentId = 'main'): AgentPendingEventPayload {
 	return {
 		agentId,
-		approvals: [
-			{
-				id: 'approval-1',
-				kind: 'exec',
-				toolName: 'exec',
-				question: 'Approve?',
-				title: 'Run command',
-				command: 'printf ok',
-				createdAtMs: Date.now(),
-				expiresAtMs: Date.now() + 60_000,
-				allowedDecisions: ['allow-once', 'deny'],
-			},
-		],
-		inputs: [],
+		approvals: [],
+		inputs: [{ id: 'input-1', question: 'What path?' }],
 	};
 }
 
-describe('useHomeAgent HITL pending state', () => {
+describe('useHomeAgent pending input state', () => {
 	let pendingListener: ((event: AgentPendingEventPayload) => void) | undefined;
 
 	beforeEach(() => {
@@ -38,8 +26,8 @@ describe('useHomeAgent HITL pending state', () => {
 		const agent: Partial<AgentApi> = {
 			getHistory: jest.fn(async () => []),
 			getPending: jest.fn(async () => ({
-				approvals: pendingEvent().approvals,
-				inputs: [],
+				approvals: [],
+				inputs: pendingEvent().inputs,
 			})),
 			onPending: jest.fn((listener) => {
 				pendingListener = listener;
@@ -62,22 +50,20 @@ describe('useHomeAgent HITL pending state', () => {
 		delete (window as Partial<Window>).agent;
 	});
 
-	it('loads pending approvals that existed before the page subscribed', async () => {
+	it('loads pending inputs that existed before the page subscribed', async () => {
 		const { result } = renderHook(() => useHomeAgent({ setMode: jest.fn() }), { wrapper });
 
 		await waitFor(() => {
 			expect(result.current.chatState.messages.some((message) => message.type === 'multi-select')).toBe(true);
 		});
-		expect(result.current.selectedOptions).toEqual({
-			'agent-pending-a:approval-1': ['approval:approval-1:deny'],
-		});
+		expect(result.current.selectedOptions).toEqual({});
 	});
 
 	it('ignores pending broadcasts for non-home agents', async () => {
 		const { result } = renderHook(() => useHomeAgent({ setMode: jest.fn() }), { wrapper });
 
 		await waitFor(() => expect(pendingListener).toBeDefined());
-		pendingListener?.({ ...pendingEvent('worker-1'), approvals: [{ ...pendingEvent('worker-1').approvals[0]!, id: 'worker-approval' }] });
+		pendingListener?.({ ...pendingEvent('worker-1'), inputs: [{ id: 'worker-input', question: 'Ignore?' }] });
 
 		await waitFor(() => {
 			expect(

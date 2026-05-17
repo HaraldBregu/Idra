@@ -1,11 +1,9 @@
 import type {
 	AgentHistoryMessage,
-	AgentPendingApproval,
 	AgentPendingEventPayload,
 	AgentPendingInput,
 	AgentResponseEvent,
 	AgentToolCallStatus,
-	ApprovalDecision,
 } from '../../../../../shared/service';
 import type { AgentChatAction } from './actions';
 import {
@@ -261,11 +259,10 @@ export function pendingToMultiSelectMessage(
 	event: AgentPendingEventPayload,
 	createdAtMs: number
 ): HomeMultiSelectMessage | null {
-	const { approvals, inputs } = event;
-	if (approvals.length === 0 && inputs.length === 0) return null;
+	const { inputs } = event;
+	if (inputs.length === 0) return null;
 
 	const options: HomeMultiSelectOption[] = [
-		...approvals.flatMap(approvalToOptions),
 		...inputs.map((input: AgentPendingInput) => ({
 			id: `input:${input.id}`,
 			kind: 'input' as const,
@@ -283,72 +280,16 @@ export function pendingToMultiSelectMessage(
 		id: pendingMessageId(event, createdAtMs),
 		role: 'agent',
 		type: 'multi-select',
-		prompt: 'The agent needs you to confirm or answer the following:',
+		prompt: 'The agent needs your input:',
 		options,
 	};
 }
 
-function approvalToOptions(approval: AgentPendingApproval): HomeMultiSelectOption[] {
-	const decisions: ApprovalDecision[] = ['allow-once', 'allow-always', 'deny'];
-	return decisions
-		.filter((decision) => approval.allowedDecisions.includes(decision))
-		.map((decision) => ({
-			id: `approval:${approval.id}:${decision}`,
-			kind: 'approval' as const,
-			label: approvalDecisionLabel(decision),
-			description: approvalDescription(approval),
-			subject: approval.title || approval.question || approval.toolName,
-			meta: approvalMeta(approval),
-			paths: approval.derivedPaths,
-			approvalId: approval.id,
-			decision,
-		}));
-}
-
-function approvalDecisionLabel(decision: ApprovalDecision): string {
-	if (decision === 'allow-once') return 'Allow once';
-	if (decision === 'allow-always') return 'Allow always';
-	return 'Deny';
-}
-
-function approvalDescription(approval: AgentPendingApproval): string {
-	return truncateDisplayText(
-		approval.command ??
-			approval.description ??
-			approval.question ??
-			safeStringify(approval.argsPreview ?? {})
-	);
-}
-
-function approvalMeta(approval: AgentPendingApproval): string {
-	const id = approval.id.startsWith('plugin:') ? approval.id.slice('plugin:'.length) : approval.id;
-	const shortId = id.slice(0, 8);
-	const expiresInMs = approval.expiresAtMs - Date.now();
-	const expiresLabel = expiresInMs > 0 ? `expires in ${Math.ceil(expiresInMs / 1000)}s` : 'expired';
-	const runLabel = approval.runId ? ` · run ${approval.runId.slice(0, 8)}` : '';
-	return `${approval.kind} · ${approval.toolName} · ${shortId}${runLabel} · ${expiresLabel}`;
-}
-
 function pendingMessageId(event: AgentPendingEventPayload, fallbackMs: number): string {
 	const ids = [
-		...event.approvals.map((approval) => `a:${approval.id}`),
 		...event.inputs.map((input) => `i:${input.id}`),
 	].sort();
 	return ids.length > 0 ? `agent-pending-${ids.join('-')}` : `agent-pending-${fallbackMs}`;
-}
-
-function safeStringify(value: unknown): string {
-	try {
-		return JSON.stringify(value);
-	} catch {
-		return String(value);
-	}
-}
-
-function truncateDisplayText(value: string): string {
-	const normalized = value.replace(/\s+/g, ' ').trim();
-	if (normalized.length <= 500) return normalized;
-	return `${normalized.slice(0, 500)}...`;
 }
 
 export function defaultPendingSelections(message: HomeMultiSelectMessage): string[] {
