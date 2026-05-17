@@ -19,6 +19,7 @@ function formatLastRefreshed(value?: string): string {
 export function ConnectorCard({
 	connector,
 	busy,
+	connecting,
 	onToggle,
 	onRefreshTools,
 	onConnect,
@@ -30,6 +31,7 @@ export function ConnectorCard({
 }: {
 	readonly connector: ConnectorView;
 	readonly busy: boolean;
+	readonly connecting?: boolean;
 	readonly onToggle: () => void;
 	readonly onRefreshTools: () => void;
 	readonly onConnect: () => void;
@@ -150,7 +152,7 @@ export function ConnectorCard({
 						>
 							<LogIn className="size-3" />
 							<span className="hidden sm:inline">
-								{connector.status === 'configured' ? 'Reconnect' : 'Connect'}
+								{connecting ? 'Connecting...' : connector.status === 'configured' ? 'Reconnect' : 'Connect'}
 							</span>
 						</Button>
 						<Button

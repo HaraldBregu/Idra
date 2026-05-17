@@ -133,7 +133,9 @@ const ConnectorsPage: React.FC = () => {
 	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
 	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
 	const [busyId, setBusyId] = useState<string | null>(null);
+	const [connectingId, setConnectingId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [selectedTools, setSelectedTools] = useState<ConnectorTool[]>([]);
 	const [showForm, setShowForm] = useState(false);
@@ -221,6 +223,7 @@ const ConnectorsPage: React.FC = () => {
 	const run = async (id: string, action: () => Promise<void>): Promise<void> => {
 		setBusyId(id);
 		setError(null);
+		setStatusMessage(null);
 		try {
 			await action();
 			await loadConnectors();
@@ -231,6 +234,24 @@ const ConnectorsPage: React.FC = () => {
 			setError(actionError instanceof Error ? actionError.message : String(actionError));
 		} finally {
 			setBusyId(null);
+		}
+	};
+
+	const connectConnector = async (connector: ConnectorView): Promise<void> => {
+		setBusyId(connector.id);
+		setConnectingId(connector.id);
+		setError(null);
+		setStatusMessage(`Opening browser for ${connector.name}...`);
+		try {
+			const result = await window.connectors.connectOAuth(connector.id);
+			setStatusMessage(result.message ?? `${connector.name} connected.`);
+			await loadConnectors();
+		} catch (connectError) {
+			setError(connectError instanceof Error ? connectError.message : String(connectError));
+			setStatusMessage(null);
+		} finally {
+			setBusyId(null);
+			setConnectingId(null);
 		}
 	};
 
@@ -274,6 +295,7 @@ const ConnectorsPage: React.FC = () => {
 					{error}
 				</SettingsNotice>
 			)}
+			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
 			{showForm && (
 				<SettingsSection title={form.id ? 'Edit connector' : 'Add connector'}>
@@ -539,6 +561,7 @@ const ConnectorsPage: React.FC = () => {
 								key={connector.id}
 								connector={connector}
 								busy={busyId === connector.id}
+								connecting={connectingId === connector.id}
 								setupInstructions={catalogSetupInstructions(
 									catalog.find((item) => item.id === connector.connectorId)
 								)}
@@ -559,9 +582,7 @@ const ConnectorsPage: React.FC = () => {
 									})
 								}
 								onConnect={() =>
-									void run(connector.id, async () => {
-										await window.connectors.connectOAuth(connector.id);
-									})
+									void connectConnector(connector)
 								}
 								onEdit={() => void editConnector(connector.id)}
 								onRemove={() =>

@@ -295,7 +295,12 @@ export class ConnectorsService {
 			scopes,
 		});
 		const callback = await this.waitForOAuthCallback(state);
-		await (this.options.openExternal ?? shell.openExternal)(authorizationUrl);
+		this.logger.info('ConnectorsService', `Opening Google OAuth consent for ${connector.name}`);
+		if (this.options.openExternal) {
+			await this.options.openExternal(authorizationUrl);
+		} else {
+			await shell.openExternal(authorizationUrl, { activate: true });
+		}
 		const { code } = await callback;
 		const token = await exchangeGoogleAuthorizationCode({
 			code,
