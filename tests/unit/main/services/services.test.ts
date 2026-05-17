@@ -66,15 +66,20 @@ describe('connectors service', () => {
 	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
 		const url = new URL(buildGoogleAuthorizationUrl({
 			clientId: 'client-id',
-			redirectUri: 'http://127.0.0.1:42818/oauth/google/callback',
+			redirectUri: 'http://127.0.0.1:49152',
 			state: 'state',
 			scopes: scopesForGmailTools(['search_emails', 'send_email']),
+			codeChallenge: 'challenge',
+			codeChallengeMethod: 'S256',
 		}));
 
 		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
+		expect(url.searchParams.get('redirect_uri')).toBe('http://127.0.0.1:49152');
 		expect(url.searchParams.get('access_type')).toBe('offline');
 		expect(url.searchParams.get('include_granted_scopes')).toBe('true');
 		expect(url.searchParams.get('prompt')).toBe('consent');
+		expect(url.searchParams.get('code_challenge')).toBe('challenge');
+		expect(url.searchParams.get('code_challenge_method')).toBe('S256');
 		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
 		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.send');
 	});
@@ -85,6 +90,67 @@ describe('connectors service', () => {
 		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events.readonly');
 		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events');
 		expect(scopes).toContain('https://www.googleapis.com/auth/userinfo.email');
+	});
+
+	it('opens Google OAuth with a runtime loopback redirect and exchanges the code with PKCE', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const openedUrls: string[] = [];
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = new URLSearchParams(String(init?.body));
+				expect(body.get('code')).toBe('code-1');
+				expect(body.get('client_id')).toBe('client-id');
+				expect(body.get('client_secret')).toBe('client-secret');
+				expect(body.get('grant_type')).toBe('authorization_code');
+				expect(body.get('redirect_uri')).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+				expect(body.get('code_verifier')).toMatch(/^[A-Za-z0-9._~-]{43,128}$/);
+				return jsonResponse({
+					access_token: 'access-token',
+					refresh_token: 'refresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url === 'https://www.googleapis.com/oauth2/v3/userinfo') {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer access-token' });
+				return jsonResponse({ email: 'user@example.com' });
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			openExternal: async (url: string) => {
+				openedUrls.push(url);
+				const authUrl = new URL(url);
+				const redirectUri = authUrl.searchParams.get('redirect_uri');
+				const state = authUrl.searchParams.get('state');
+				expect(redirectUri).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+				expect(authUrl.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]+$/);
+				expect(authUrl.searchParams.get('code_challenge_method')).toBe('S256');
+				await fetch(`${redirectUri}?state=${state}&code=code-1`);
+			},
+		});
+		const added = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			oauthClientId: 'client-id',
+			oauthClientSecret: 'client-secret',
+			allowedTools: ['get_profile'],
+		});
+
+		await expect(service.connectOAuth(added.id)).resolves.toMatchObject({
+			status: 'configured',
+			connectedAccount: 'user@example.com',
+		});
+		expect(openedUrls).toHaveLength(1);
+		expect(service.list()[0]).toMatchObject({
+			status: 'configured',
+			connectedAccount: 'user@example.com',
+		});
 	});
 
 	it('connects Gmail tools to Google OAuth tokens and exposes them to the agent', async () => {
@@ -178,7 +244,7 @@ describe('connectors service', () => {
 		connectors = [
 			{
 				...(connectors[0] as Record<string, unknown>),
-				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:42818/oauth/google/callback', refreshToken: 'refresh-token' },
+				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:49152', refreshToken: 'refresh-token' },
 			},
 		];
 
@@ -223,7 +289,7 @@ describe('connectors service', () => {
 			connectors[0],
 			{
 				...(connectors[1] as Record<string, unknown>),
-				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:42818/oauth/google/callback', refreshToken: 'refresh-token' },
+				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:49152', refreshToken: 'refresh-token' },
 			},
 		];
 
