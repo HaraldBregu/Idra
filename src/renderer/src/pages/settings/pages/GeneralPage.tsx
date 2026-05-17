@@ -2,15 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Accessibility,
-	AppWindow,
 	FolderOpen,
-	Info,
 	MonitorUp,
 	PanelTop,
-	ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection, SettingsValue } from '../components';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection } from '../components';
 import { Switch } from '@/components/ui/switch';
 
 const generalRowClassName =
