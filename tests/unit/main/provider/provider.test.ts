@@ -1,15 +1,18 @@
 import { AnthropicAdapter } from '../../../../src/main/provider/anthropic';
 import { OpenAIAdapter } from '../../../../src/main/provider/openai';
-import { pickProviderForModel, makeProvider } from '../../../../src/main/provider/factory';
+import { makeProvider } from '../../../../src/main/provider/factory';
 import { ProviderAuthError } from '../../../../src/main/provider/types';
 import { collectAsync } from '../test-helpers';
 
 describe('provider/factory', () => {
-	it('picks provider kind from model name and rejects missing auth', () => {
-		expect(pickProviderForModel('claude-sonnet-4-5')).toBe('anthropic');
-		expect(pickProviderForModel('gpt-5')).toBe('openai');
-		expect(pickProviderForModel('o4-mini')).toBe('openai');
-		expect(() => makeProvider({ id: 'openai', apiKey: '' }, 'gpt-5')).toThrow(ProviderAuthError);
+	it('returns AnthropicAdapter for anthropic and OpenAIAdapter for everything else', () => {
+		expect(makeProvider({ id: 'anthropic', apiKey: 'key' })).toBeInstanceOf(AnthropicAdapter);
+		expect(makeProvider({ id: 'openai', apiKey: 'key' })).toBeInstanceOf(OpenAIAdapter);
+		expect(makeProvider({ id: 'groq', apiKey: 'key' })).toBeInstanceOf(OpenAIAdapter);
+	});
+
+	it('throws ProviderAuthError when the API key is empty', () => {
+		expect(() => makeProvider({ id: 'openai', apiKey: '' })).toThrow(ProviderAuthError);
 	});
 });
 
