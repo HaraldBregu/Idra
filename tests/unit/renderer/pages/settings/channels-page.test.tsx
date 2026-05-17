@@ -11,6 +11,8 @@ jest.mock('react-i18next', () => ({
 				'common.save': 'Save',
 				'settings.channels.token': 'Token',
 				'settings.channels.tokenPlaceholder': 'Paste token or access key',
+				'settings.channels.enabled': 'Enabled',
+				'settings.channels.addAllowFrom': 'Add',
 			};
 			return translations[key] ?? key;
 		},
