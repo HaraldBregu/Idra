@@ -204,7 +204,6 @@ export const TitleBar = React.memo(function TitleBar({
 					>
 						<div className="relative w-[min(360px,42vw)] min-w-56">
 							<Field orientation="horizontal">
-								<Search className="shrink-0 size-3 text-muted-foreground" strokeWidth={1.8} />
 								<Input
 									type="search"
 									value={settingsSearch}
