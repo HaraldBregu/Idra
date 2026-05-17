@@ -229,9 +229,6 @@ export const TitleBar = React.memo(function TitleBar({
 								className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
 								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 							/>
-							   <Field orientation="horizontal">
-      <Input type="search" placeholder="Search..." />
-    </Field>
 							{showSettingsSearchDropdown ? (
 								<div
 									className="absolute left-0 right-0 top-8 z-[60] overflow-hidden rounded-lg border border-border/80 bg-popover p-1 text-popover-foreground shadow-lg"
