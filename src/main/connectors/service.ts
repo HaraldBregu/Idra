@@ -194,7 +194,7 @@ export class ConnectorsService {
 		};
 		const next = this.withKnownTools(connector);
 		this.store.setConnectors([...this.store.getConnectors(), next]);
-		return next;
+		return redactConnectorSecrets(next);
 	}
 
 	async update(id: string, input: ConnectorUpdateInput): Promise<ConnectorConfig> {
@@ -220,7 +220,7 @@ export class ConnectorsService {
 			updatedAt: new Date().toISOString(),
 		});
 		this.replace(next);
-		return next;
+		return redactConnectorSecrets(next);
 	}
 
 	async remove(id: string): Promise<void> {
