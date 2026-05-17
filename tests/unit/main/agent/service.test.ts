@@ -198,6 +198,63 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('skips tool and workspace context loading for direct-answer prompts', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const workspace = {
+			getRootPath: jest.fn(() => '/workspace'),
+			isBootstrapPending: jest.fn(async () => false),
+			loadContextFiles: jest.fn(async () => []),
+		};
+		const toolsFactory = jest.fn(() => [
+			{
+				name: 'read',
+				description: 'Read files',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			},
+		]);
+		const service = new AgentService(
+			{ ...deps, workspace: workspace as never },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'hello' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory,
+			}
+		);
+
+		await expect(service.send('hello there')).resolves.toBe('hello');
+		expect(toolsFactory).not.toHaveBeenCalled();
+		expect(workspace.loadContextFiles).not.toHaveBeenCalled();
+		expect(requests[0]!.tools).toEqual([]);
+		expect(requests[0]!.system).toContain('No tools are available for this turn');
+
+		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
+		expect(records).toContainEqual(
+			expect.objectContaining({
+				event: 'start',
+				directAnswer: true,
+				toolPolicyReason: 'no tool is required to answer safely',
+				tools: [],
+			})
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
 	it('exposes available tools when the user asks about tool capabilities', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
