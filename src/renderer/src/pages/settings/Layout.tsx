@@ -13,12 +13,12 @@ export function Layout(): React.JSX.Element {
 					<div className="flex items-center gap-4">
 						<span className="text-[10px] text-muted-foreground">{__APP_NAME__} {__APP_VERSION__}</span>
 						<span className="text-[10px] text-muted-foreground/50">·</span>
-						<span className="text-[10px] text-muted-foreground">Build {__APP_BUILD__ ?? 'dev'}</span>
+						<span className="text-[10px] text-muted-foreground">{__APP_LICENSE__} license</span>
 					</div>
 					<div className="flex items-center gap-4">
-						<span className="text-[10px] text-muted-foreground">Platform: macOS</span>
+						<span className="text-[10px] text-muted-foreground">{__APP_AUTHOR__}</span>
 						<span className="text-[10px] text-muted-foreground/50">·</span>
-						<span className="text-[10px] text-muted-foreground">© 2025 Friday</span>
+						<span className="text-[10px] text-muted-foreground">{__APP_HOMEPAGE__}</span>
 					</div>
 				</div>
 			</footer>
