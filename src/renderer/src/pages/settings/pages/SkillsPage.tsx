@@ -118,29 +118,30 @@ const SkillsPage: React.FC = () => {
 						/>
 					) : (
 						skills.map((skill) => (
-							<SettingsRow
-								key={skill.id}
-								icon={Sparkles}
-								title={
-									<span className="flex min-w-0 flex-wrap items-center gap-1.5">
-										<span className="truncate">{skill.manifest.name}</span>
-										<Badge
-											variant="outline"
-											className="h-4 rounded-md bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-muted-foreground"
-										>
-											{skill.id}
-										</Badge>
-									</span>
-								}
-								description={skill.manifest.description ?? skill.folderPath}
-								contentClassName="items-center"
-								actions={
+							<Item key={skill.id} variant="outline" size="sm" className="border-b border-border/60 last:border-b-0">
+								<ItemMedia variant="icon">
+									<Sparkles className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>
+										<span className="flex min-w-0 flex-wrap items-center gap-1.5">
+											<span className="truncate">{skill.manifest.name}</span>
+											<Badge
+												variant="outline"
+												className="h-4 rounded-md bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-muted-foreground"
+											>
+												{skill.id}
+											</Badge>
+										</span>
+									</ItemTitle>
+								</ItemContent>
+								<ItemActions>
 									<Button variant="destructive" size="xs" onClick={() => handleDelete(skill)}>
 										<Trash2 className="size-3" />
 										{t('settings.skills.delete')}
 									</Button>
-								}
-							/>
+								</ItemActions>
+							</Item>
 						))
 					)}
 				</SettingsPanel>
