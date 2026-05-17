@@ -67,7 +67,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 	if (ctx.skills?.length) {
 		const skills = [
 			'## Skill guidance',
-			'Use `execute_skill` for reusable high-level workflows. Only these compact, pre-ranked candidates are relevant for this request:',
+			'Use `execute_skill` for reusable high-level workflows and local Agent Skill instructions. Only these compact, pre-ranked candidates are relevant for this request:',
 			...ctx.skills.map((skill) => {
 				const toolText = skill.requiredTools.length
 					? ` tools=${skill.requiredTools.join(',')}`
@@ -75,7 +75,8 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 				const connectorText = skill.requiredConnectors.length
 					? ` connectors=${skill.requiredConnectors.join(',')}`
 					: '';
-				return `- ${skill.id}@${skill.version} (${skill.category}, score=${skill.score.toFixed(2)}, safety=${skill.safetyLevel}) — ${skill.description}${toolText}${connectorText}`;
+				const pathText = skill.path ? ` path=${skill.path}` : '';
+				return `- ${skill.id}@${skill.version} (${skill.category}, score=${skill.score.toFixed(2)}, safety=${skill.safetyLevel}) — ${skill.description}${toolText}${connectorText}${pathText}`;
 			}),
 		];
 		parts.push(skills.join('\n'));
