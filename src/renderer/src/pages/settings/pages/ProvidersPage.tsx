@@ -141,7 +141,7 @@ const ProvidersPage: React.FC = () => {
 													size="xs"
 													onClick={() => startEditing(provider.id)}
 												>
-													{t('settings.providers.keyMissing')}
+													Add key
 												</Button>
 											) : null}
 										</div>
