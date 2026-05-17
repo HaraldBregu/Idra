@@ -145,17 +145,14 @@ export class AppIpc implements IpcModule {
 					throw new Error('API key is required.');
 				}
 
-				if (normalizedProviderId === 'openai') {
-					store.setOpenAiApiKey(trimmedApiKey);
-					return;
+				const defaultProvider = DEFAULT_PROVIDERS.find(
+					(p) => p.id.trim().toLowerCase() === normalizedProviderId
+				);
+				if (!defaultProvider) {
+					throw new Error(`Unknown provider: ${providerId}`);
 				}
 
-				if (normalizedProviderId === 'anthropic') {
-					store.setAnthropicApiKey(trimmedApiKey);
-					return;
-				}
-
-				throw new Error(`Unsupported provider id: ${providerId}`);
+				store.upsertProvider({ ...defaultProvider, apiKey: trimmedApiKey });
 			}, ProviderChannels.setApiKey)
 		);
 
