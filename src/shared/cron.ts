@@ -139,7 +139,6 @@ export type CronScheduleEventType =
 	| 'schedule.missed'
 	| 'schedule.failed'
 	| 'schedule.completed'
-	| 'schedule.confirmationRequired'
 	| 'schedule.permissionDenied'
 	| 'schedule.nextRunUpdated';
 

@@ -4,12 +4,11 @@ import { TaskValidationError } from './task.errors';
 const TERMINAL_STATUSES = new Set<TaskStatus>(['completed', 'failed', 'cancelled', 'timedOut', 'skipped']);
 
 const VALID_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
-	pending: ['queued', 'scheduled', 'waitingForDependency', 'waitingForConfirmation', 'cancelled', 'skipped'],
-	queued: ['running', 'paused', 'scheduled', 'waitingForDependency', 'waitingForConfirmation', 'cancelled', 'skipped'],
-	scheduled: ['queued', 'waitingForConfirmation', 'cancelled', 'skipped'],
-	running: ['completed', 'failed', 'cancelled', 'timedOut', 'paused', 'waitingForConfirmation', 'retrying'],
+	pending: ['queued', 'scheduled', 'waitingForDependency', 'cancelled', 'skipped'],
+	queued: ['running', 'paused', 'scheduled', 'waitingForDependency', 'cancelled', 'skipped'],
+	scheduled: ['queued', 'cancelled', 'skipped'],
+	running: ['completed', 'failed', 'cancelled', 'timedOut', 'paused', 'retrying'],
 	waitingForDependency: ['queued', 'failed', 'skipped', 'cancelled'],
-	waitingForConfirmation: ['queued', 'cancelled', 'failed'],
 	paused: ['queued', 'cancelled'],
 	retrying: ['queued', 'failed', 'cancelled'],
 	completed: [],
