@@ -134,29 +134,28 @@ const SystemPage: React.FC = () => {
 						const Icon = option.icon;
 						const value = translucency[option.value];
 						return (
-							<SettingsRow
-								key={option.value}
-								icon={Icon}
-								title={t(option.labelKey)}
-								description={t(option.descriptionKey)}
-								actions={
-									<div className={cn('flex w-full min-w-0 items-center gap-3 sm:w-72')}>
-										<input
-											type="range"
-											min={0}
-											max={100}
-											step={1}
-											value={value}
-											onChange={handleTranslucencyChange(option.value)}
-											aria-label={t(option.labelKey)}
-											className="h-2 min-w-0 flex-1 cursor-pointer accent-primary"
-										/>
-										<span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-											{t('settings.translucency.value', { value })}
-										</span>
-									</div>
-								}
-							/>
+							<Item key={option.value} variant="outline" size="sm" className="border-b border-border/60 last:border-b-0">
+								<ItemMedia variant="icon">
+									<Icon className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t(option.labelKey)}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="gap-3">
+									<Slider
+										min={0}
+										max={100}
+										step={1}
+										value={[value]}
+										onValueChange={handleTranslucencyChange(option.value)}
+										aria-label={t(option.labelKey)}
+										className="w-40 sm:w-56"
+									/>
+									<span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-muted-foreground">
+										{t('settings.translucency.value', { value })}
+									</span>
+								</ItemActions>
+							</Item>
 						);
 					})}
 				</SettingsPanel>
