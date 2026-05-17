@@ -91,6 +91,7 @@ export function bootstrapServices(): BootstrapResult {
 			workspace,
 			userDataDirectory,
 			mcpRegistry,
+			skills,
 		})
 	);
 	const channelRegistry = container.register(
