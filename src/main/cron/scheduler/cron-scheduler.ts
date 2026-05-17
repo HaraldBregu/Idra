@@ -470,19 +470,7 @@ export class CronSchedulerService implements CronScheduler {
 				});
 				return;
 			case 'askUser':
-				await this.emitEvent({
-					scheduleId: schedule.id,
-					type: 'schedule.confirmationRequired',
-					userId: schedule.ownerUserId,
-					source: schedule.source,
-					message: 'User decision is required for a missed run.',
-					metadata: { missedRunAt: schedule.nextRunAt ?? null },
-				});
-				await this.store.updateSchedule(schedule.id, {
-					status: 'paused',
-					pausedAt: now.toISOString(),
-					updatedAt: now.toISOString(),
-				});
+				await this.triggerSchedule(schedule, schedule.nextRunAt ?? now.toISOString(), true, false);
 				return;
 		}
 	}
