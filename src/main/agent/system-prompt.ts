@@ -69,7 +69,9 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			'## Skill guidance',
 			'Use `execute_skill` for reusable high-level workflows. Only these compact, pre-ranked candidates are relevant for this request:',
 			...ctx.skills.map((skill) => {
-				const toolText = skill.requiredTools.length ? ` tools=${skill.requiredTools.join(',')}` : '';
+				const toolText = skill.requiredTools.length
+					? ` tools=${skill.requiredTools.join(',')}`
+					: '';
 				const connectorText = skill.requiredConnectors.length
 					? ` connectors=${skill.requiredConnectors.join(',')}`
 					: '';

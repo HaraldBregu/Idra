@@ -222,22 +222,22 @@ export class AgentService {
 							signal: abort.signal,
 							services: this.dependencies,
 						})
-						)
-					);
-					toolSelection = bootstrapPending
-						? {
-								toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
-								systemPromptSuffix: '',
-								rankedTools: [],
-							}
-						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								selectAgentToolsForTurn(baseTools, message, ctx, {
-									forceSelection: true,
-									maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
-								})
-							);
-					selectedTools = toolSelection.toolsForPrompt;
-				}
+					)
+				);
+				toolSelection = bootstrapPending
+					? {
+							toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
+							systemPromptSuffix: '',
+							rankedTools: [],
+						}
+					: recordPhase(phaseDurationsMs, 'select_tools', () =>
+							selectAgentToolsForTurn(baseTools, message, ctx, {
+								forceSelection: true,
+								maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
+							})
+						);
+				selectedTools = toolSelection.toolsForPrompt;
+			}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
