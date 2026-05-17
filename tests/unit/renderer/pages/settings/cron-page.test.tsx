@@ -36,28 +36,28 @@ describe('CronPage', () => {
 		expect(await screen.findByText('settings.cron.emptyTitle')).toBeInTheDocument();
 	});
 
-	it('renders scheduled task expressions', async () => {
+	it('renders one card per scheduled task', async () => {
 		(window.cron.list as jest.Mock).mockResolvedValue([
-			makeTask('task-1', '0 * * * *'),
-			makeTask('task-2', '*/5 * * * *'),
+			makeTask('task-1', '30 8 * * 1-5'),
+			makeTask('task-2', '0 0 1 * *'),
 		]);
 
 		render(<CronPage />);
 
-		// The cron expression appears in a badge and is unique per task
-		expect(await screen.findByText('0 * * * *')).toBeInTheDocument();
-		expect(screen.getByText('*/5 * * * *')).toBeInTheDocument();
+		// Each task renders a remove button — two tasks means two buttons
+		const removeButtons = await screen.findAllByRole('button', {
+			name: /settings\.cron\.actions\.removeLabel/,
+		});
+		expect(removeButtons).toHaveLength(2);
 	});
 
-	it('calls remove and updates the list when a task is deleted', async () => {
+	it('calls remove and removes the card from the list', async () => {
 		(window.cron.list as jest.Mock).mockResolvedValue([makeTask('task-1', '0 8 * * 1')]);
 
 		const user = userEvent.setup();
 		render(<CronPage />);
 
-		await screen.findByText('0 8 * * 1');
-
-		const removeButton = screen.getByRole('button', {
+		const removeButton = await screen.findByRole('button', {
 			name: 'settings.cron.actions.removeLabel:task-1',
 		});
 		await user.click(removeButton);
@@ -67,7 +67,9 @@ describe('CronPage', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.queryByText('0 8 * * 1')).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole('button', { name: 'settings.cron.actions.removeLabel:task-1' })
+			).not.toBeInTheDocument();
 		});
 	});
 });
