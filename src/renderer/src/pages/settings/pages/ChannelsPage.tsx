@@ -377,11 +377,14 @@ const ChannelsPage: React.FC = () => {
 					}
 				>
 					<SettingsPanel>
-						<SettingsRow
-							icon={ShieldCheck}
-							title={t('settings.channels.enabled')}
-							description={t('settings.channels.enabledDescription')}
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<ShieldCheck className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.enabled')}</ItemTitle>
+							</ItemContent>
+							<ItemActions>
 								<Switch
 									size="sm"
 									checked={isChannelEnabled(selectedId, selectedConfig)}
@@ -392,14 +395,17 @@ const ChannelsPage: React.FC = () => {
 									}
 									aria-label={t('settings.channels.enabled')}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={UserRound}
-							title={t('settings.channels.accountLabel')}
-							description={t('settings.channels.accountLabelDescription')}
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<UserRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.accountLabel')}</ItemTitle>
+							</ItemContent>
+							<ItemActions>
 								<Input
 									value={selectedAccount.label ?? ''}
 									onChange={(event) => updateAccountField('label', event.target.value)}
@@ -408,14 +414,17 @@ const ChannelsPage: React.FC = () => {
 									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 									aria-label={t('settings.channels.accountLabel')}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={KeyRound}
-							title={t('settings.channels.token')}
-							description={t('settings.channels.tokenDescription')}
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<KeyRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.token')}</ItemTitle>
+							</ItemContent>
+							<ItemActions>
 								<Input
 									type="password"
 									value={selectedAccount.token ?? ''}
@@ -425,15 +434,18 @@ const ChannelsPage: React.FC = () => {
 									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 									aria-label={t('settings.channels.token')}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
 						{PHONE_CHANNELS.has(selectedId) && (
-							<SettingsRow
-								icon={Phone}
-								title={t('settings.channels.phoneNumber')}
-								description={t('settings.channels.phoneNumberDescription')}
-								actions={
+							<Item variant="outline" size="sm" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Phone className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.phoneNumber')}</ItemTitle>
+								</ItemContent>
+								<ItemActions>
 									<Input
 										type="tel"
 										value={selectedAccount.phoneNumber ?? ''}
@@ -443,16 +455,19 @@ const ChannelsPage: React.FC = () => {
 										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 										aria-label={t('settings.channels.phoneNumber')}
 									/>
-								}
-							/>
+								</ItemActions>
+							</Item>
 						)}
 
 						{SERVER_CHANNELS.has(selectedId) && (
-							<SettingsRow
-								icon={Server}
-								title={t('settings.channels.serverUrl')}
-								description={t('settings.channels.serverUrlDescription')}
-								actions={
+							<Item variant="outline" size="sm" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Server className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.serverUrl')}</ItemTitle>
+								</ItemContent>
+								<ItemActions>
 									<Input
 										value={selectedAccount.serverUrl ?? ''}
 										onChange={(event) => updateAccountField('serverUrl', event.target.value)}
@@ -461,15 +476,18 @@ const ChannelsPage: React.FC = () => {
 										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 										aria-label={t('settings.channels.serverUrl')}
 									/>
-								}
-							/>
+								</ItemActions>
+							</Item>
 						)}
 
-						<SettingsRow
-							icon={Link2}
-							title={t('settings.channels.webhookUrl')}
-							description={t('settings.channels.webhookUrlDescription')}
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<Link2 className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.webhookUrl')}</ItemTitle>
+							</ItemContent>
+							<ItemActions>
 								<Input
 									value={selectedAccount.webhookUrl ?? ''}
 									onChange={(event) => updateAccountField('webhookUrl', event.target.value)}
@@ -478,14 +496,17 @@ const ChannelsPage: React.FC = () => {
 									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 									aria-label={t('settings.channels.webhookUrl')}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={Hash}
-							title={t('settings.channels.defaultTarget')}
-							description={t('settings.channels.defaultTargetDescription')}
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.defaultTarget')}</ItemTitle>
+							</ItemContent>
+							<ItemActions>
 								<Input
 									value={selectedAccount.defaultTarget ?? ''}
 									onChange={(event) => updateAccountField('defaultTarget', event.target.value)}
@@ -494,14 +515,17 @@ const ChannelsPage: React.FC = () => {
 									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 									aria-label={t('settings.channels.defaultTarget')}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={ShieldCheck}
-							title={t('settings.channels.dmPolicy')}
-							description={t('settings.channels.dmPolicyDescription')}
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<ShieldCheck className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
+							</ItemContent>
+							<ItemActions>
 								<Select
 									value={selectedAccount.dmPolicy ?? 'allowlist'}
 									onValueChange={(value) =>
@@ -519,15 +543,17 @@ const ChannelsPage: React.FC = () => {
 										))}
 									</SelectContent>
 								</Select>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={UserRound}
-							title={t('settings.channels.allowFrom')}
-							description={t('settings.channels.allowFromDescription')}
-							actionClassName="sm:w-[26rem]"
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60 flex-wrap">
+							<ItemMedia variant="icon">
+								<UserRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="w-full sm:w-[26rem] sm:flex-none">
 								<ListEditor
 									value={listDrafts.allowFrom}
 									items={selectedAccount.allowFrom ?? []}
@@ -541,15 +567,17 @@ const ChannelsPage: React.FC = () => {
 									onAdd={() => addListValue('allowFrom')}
 									onRemove={(value) => removeListValue('allowFrom', value)}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={Hash}
-							title={t('settings.channels.groupAllowFrom')}
-							description={t('settings.channels.groupAllowFromDescription')}
-							actionClassName="sm:w-[26rem]"
-							actions={
+						<Item variant="outline" size="sm" className="border-b border-border/60 flex-wrap">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="w-full sm:w-[26rem] sm:flex-none">
 								<ListEditor
 									value={listDrafts.groupAllowFrom}
 									items={selectedAccount.groupAllowFrom ?? []}
@@ -563,61 +591,58 @@ const ChannelsPage: React.FC = () => {
 									onAdd={() => addListValue('groupAllowFrom')}
 									onRemove={(value) => removeListValue('groupAllowFrom', value)}
 								/>
-							}
-						/>
+							</ItemActions>
+						</Item>
 
-						<SettingsRow
-							icon={RadioTower}
-							title={t('settings.channels.status')}
-							description={
-								RUNTIME_CHANNELS.has(selectedId)
-									? t(`channels.status.${selectedStatus}`)
-									: t('settings.channels.runtimeUnavailable')
-							}
-							actions={
-								<div className="flex min-w-0 flex-wrap items-center justify-start gap-2 sm:justify-end">
-									<Badge
-										variant={getConnectionBadgeVariant(selectedStatus)}
-										className="h-4 px-1.5 text-[10px] capitalize"
-									>
-										{selectedStatus.replaceAll('_', ' ')}
-									</Badge>
-									{selectedId === 'telegram' ? (
-										<ButtonGroup>
-											<Button
-												type="button"
-												variant="outline"
-												size="xs"
-												disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
-												onClick={() => void handleRuntimeAction('start')}
-											>
-												{t('settings.channels.pair')}
-											</Button>
-											<Button
-												type="button"
-												variant="outline"
-												size="xs"
-												disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
-												onClick={() => void handleRuntimeAction('restart')}
-											>
-												{t('settings.channels.reconnect')}
-											</Button>
-											<Button
-												type="button"
-												variant="outline"
-												size="xs"
-												disabled={busyChannel === 'telegram'}
-												onClick={() => void handleRuntimeAction('stop')}
-											>
-												{t('common.close')}
-											</Button>
-										</ButtonGroup>
-									) : (
-										<CircleOff className="size-3.5 text-muted-foreground" />
-									)}
-								</div>
-							}
-						/>
+						<Item variant="outline" size="sm">
+							<ItemMedia variant="icon">
+								<RadioTower className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.status')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="flex-wrap gap-2">
+								<Badge
+									variant={getConnectionBadgeVariant(selectedStatus)}
+									className="h-4 px-1.5 text-[10px] capitalize"
+								>
+									{selectedStatus.replaceAll('_', ' ')}
+								</Badge>
+								{selectedId === 'telegram' ? (
+									<ButtonGroup>
+										<Button
+											type="button"
+											variant="outline"
+											size="xs"
+											disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
+											onClick={() => void handleRuntimeAction('start')}
+										>
+											{t('settings.channels.pair')}
+										</Button>
+										<Button
+											type="button"
+											variant="outline"
+											size="xs"
+											disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
+											onClick={() => void handleRuntimeAction('restart')}
+										>
+											{t('settings.channels.reconnect')}
+										</Button>
+										<Button
+											type="button"
+											variant="outline"
+											size="xs"
+											disabled={busyChannel === 'telegram'}
+											onClick={() => void handleRuntimeAction('stop')}
+										>
+											{t('common.close')}
+										</Button>
+									</ButtonGroup>
+								) : (
+									<CircleOff className="size-3.5 text-muted-foreground" />
+								)}
+							</ItemActions>
+						</Item>
 					</SettingsPanel>
 				</SettingsSection>
 			</div>
