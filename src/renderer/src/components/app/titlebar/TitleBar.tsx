@@ -203,33 +203,32 @@ export const TitleBar = React.memo(function TitleBar({
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
 						<div className="relative w-[min(360px,42vw)] min-w-56">
-							<Search
-								className="pointer-events-none absolute left-2 top-1/2 z-10 size-3 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.8}
-							/>
-							<Input
-								type="search"
-								value={settingsSearch}
-								onChange={(event) => {
-									setSettingsSearch(event.target.value);
-									setIsSettingsSearchOpen(true);
-								}}
-								onFocus={() => setIsSettingsSearchOpen(true)}
-								onBlur={() => {
-									window.setTimeout(() => setIsSettingsSearchOpen(false), 120);
-								}}
-								onKeyDown={(event) => {
-									if (event.key !== 'Enter') return;
+							<Field orientation="horizontal">
+								<Search className="shrink-0 size-3 text-muted-foreground" strokeWidth={1.8} />
+								<Input
+									type="search"
+									value={settingsSearch}
+									onChange={(event) => {
+										setSettingsSearch(event.target.value);
+										setIsSettingsSearchOpen(true);
+									}}
+									onFocus={() => setIsSettingsSearchOpen(true)}
+									onBlur={() => {
+										window.setTimeout(() => setIsSettingsSearchOpen(false), 120);
+									}}
+									onKeyDown={(event) => {
+										if (event.key !== 'Enter') return;
 
-									event.preventDefault();
-									navigate(settingsSearchTarget ?? '/settings');
-									setSettingsSearch('');
-								}}
-								placeholder={settingsSearchPlaceholder}
-								aria-label={settingsSearchPlaceholder}
-								className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
-								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-							/>
+										event.preventDefault();
+										navigate(settingsSearchTarget ?? '/settings');
+										setSettingsSearch('');
+									}}
+									placeholder={settingsSearchPlaceholder}
+									aria-label={settingsSearchPlaceholder}
+									className="h-7 rounded-md border-border/70 bg-background/80 py-0 px-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
+									style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+								/>
+							</Field>
 							{showSettingsSearchDropdown ? (
 								<div
 									className="absolute left-0 right-0 top-8 z-[60] overflow-hidden rounded-lg border border-border/80 bg-popover p-1 text-popover-foreground shadow-lg"
