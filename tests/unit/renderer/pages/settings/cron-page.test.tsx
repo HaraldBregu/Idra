@@ -16,7 +16,7 @@ function makeTask(id: string, expression = '0 * * * *'): CronTaskView {
 	return {
 		id,
 		expression,
-		data: { type: 'message', message: `Run ${id}` },
+		data: { type: 'agent', message: `Run ${id}` },
 		createdAt: '2026-01-01T00:00:00.000Z',
 	};
 }
@@ -36,25 +36,26 @@ describe('CronPage', () => {
 		expect(await screen.findByText('settings.cron.emptyTitle')).toBeInTheDocument();
 	});
 
-	it('renders scheduled task summaries', async () => {
+	it('renders scheduled task expressions', async () => {
 		(window.cron.list as jest.Mock).mockResolvedValue([
-			makeTask('task-1'),
+			makeTask('task-1', '0 * * * *'),
 			makeTask('task-2', '*/5 * * * *'),
 		]);
 
 		render(<CronPage />);
 
-		expect(await screen.findByText('Run task-1')).toBeInTheDocument();
-		expect(screen.getByText('Run task-2')).toBeInTheDocument();
+		// The cron expression appears in a badge and is unique per task
+		expect(await screen.findByText('0 * * * *')).toBeInTheDocument();
+		expect(screen.getByText('*/5 * * * *')).toBeInTheDocument();
 	});
 
 	it('calls remove and updates the list when a task is deleted', async () => {
-		(window.cron.list as jest.Mock).mockResolvedValue([makeTask('task-1')]);
+		(window.cron.list as jest.Mock).mockResolvedValue([makeTask('task-1', '0 8 * * 1')]);
 
 		const user = userEvent.setup();
 		render(<CronPage />);
 
-		await screen.findByText('Run task-1');
+		await screen.findByText('0 8 * * 1');
 
 		const removeButton = screen.getByRole('button', {
 			name: 'settings.cron.actions.removeLabel:task-1',
@@ -66,7 +67,7 @@ describe('CronPage', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.queryByText('Run task-1')).not.toBeInTheDocument();
+			expect(screen.queryByText('0 8 * * 1')).not.toBeInTheDocument();
 		});
 	});
 });
