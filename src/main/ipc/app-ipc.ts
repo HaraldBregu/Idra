@@ -5,7 +5,7 @@ import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import type { Agent, Model } from '../../shared/service';
-import type { ProviderInput, PublicProvider } from '../../shared/providers';
+import { DEFAULT_PROVIDERS, type ProviderInput, type PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
