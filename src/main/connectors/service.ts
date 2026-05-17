@@ -46,6 +46,8 @@ interface ConnectorsServiceOptions {
 	openExternal?: (url: string) => Promise<void>;
 	oauthRedirectUri?: string;
 	oauthTimeoutMs?: number;
+	googleOAuthClientId?: string;
+	googleOAuthClientSecret?: string;
 }
 
 function serverLabelFromName(name: string): string {
@@ -573,16 +575,36 @@ export class ConnectorsService {
 
 	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthCredential {
 		const oauth = connector.oauth;
-		const clientId = oauth?.clientId || process.env.GOOGLE_OAUTH_CLIENT_ID;
-		const clientSecret = oauth?.clientSecret || process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-		if (!clientId) throw new Error('Google OAuth client ID is required.');
+		const shared = this.googleOAuthClientDefaults(connector.id);
+		const clientId =
+			oauth?.clientId ||
+			this.options.googleOAuthClientId ||
+			process.env.GOOGLE_OAUTH_CLIENT_ID ||
+			shared?.clientId;
+		const clientSecret =
+			oauth?.clientSecret ||
+			this.options.googleOAuthClientSecret ||
+			process.env.GOOGLE_OAUTH_CLIENT_SECRET ||
+			shared?.clientSecret;
+		if (!clientId) {
+			throw new Error(
+				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID or add it once on any Google connector.'
+			);
+		}
 		return {
 			provider: 'google',
-			redirectUri: oauth?.redirectUri || this.oauthRedirectUri(),
+			redirectUri: oauth?.redirectUri || shared?.redirectUri || this.oauthRedirectUri(),
 			...oauth,
 			clientId,
 			clientSecret,
 		};
+	}
+
+	private googleOAuthClientDefaults(excludeConnectorId?: string): GoogleOAuthCredential | undefined {
+		return this.validConnectors()
+			.filter((connector) => connector.id !== excludeConnectorId && isGoogleConnector(connector.connectorId))
+			.map((connector) => connector.oauth)
+			.find((oauth): oauth is GoogleOAuthCredential => Boolean(oauth?.clientId));
 	}
 
 	private waitForOAuthCallback(expectedState: string): Promise<Promise<{ code: string }>> {
