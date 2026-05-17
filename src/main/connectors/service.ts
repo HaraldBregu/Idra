@@ -473,6 +473,9 @@ export class ConnectorsService {
 	}
 
 	private async getGoogleAccessToken(connector: ConnectorConfig): Promise<string> {
+		if (connector.authorization?.trim() && !connector.oauth?.refreshToken) {
+			return connector.authorization.trim();
+		}
 		const oauth = this.requireGoogleOAuthConfig(connector);
 		if (oauth.accessToken && (oauth.expiresAt ?? 0) > Date.now() + 60_000) {
 			return oauth.accessToken;
