@@ -110,17 +110,6 @@ export class CronScheduleExecutionError extends CronSchedulerError {
 	}
 }
 
-export class CronScheduleConfirmationRequiredError extends CronSchedulerError {
-	constructor(message: string, metadata?: CronJsonObject) {
-		super({
-			code: 'CRON_SCHEDULE_CONFIRMATION_REQUIRED',
-			message,
-			safeUserMessage: 'User confirmation is required before this schedule can be created.',
-			metadata,
-		});
-	}
-}
-
 export class CronScheduleFrequencyLimitError extends CronScheduleValidationError {
 	constructor(message: string, metadata?: CronJsonObject) {
 		super(message, metadata);
