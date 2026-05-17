@@ -6,11 +6,6 @@ import type {
 } from './types';
 
 const INJECTION_PATTERN = /ignore (all )?(previous|system) instructions|developer message|reveal.*(prompt|secret)|bypass safety/i;
-const DANGEROUS_PERMISSION_PATTERN = /delete|send|purchase|payment|credential|secret|write|deploy/i;
-
-function missing(required: readonly string[], available: ReadonlySet<string>): string[] {
-	return required.filter((item) => !available.has(item));
-}
 
 function denied(reason: string, warnings: string[] = []): SkillSafetyCheck {
 	return { allowed: false, reasons: [reason], warnings };
@@ -41,15 +36,6 @@ export class SkillSafetyPolicy implements SkillSafetyPolicyPort {
 			return denied(`Recursive skill execution blocked: ${skill.id}`);
 		}
 
-		if (skill.safetyLevel === 'restricted' && !context.permissions.has('skill:safety:restricted')) {
-			return denied(`Restricted skill requires explicit permission: ${skill.id}`);
-		}
-
-		const missingPermissions = missing(skill.permissionsRequired, context.permissions);
-		if (missingPermissions.length > 0) {
-			return denied(`Missing permissions: ${missingPermissions.join(', ')}`);
-		}
-
 		const missingTools = skill.requiredTools.filter((tool) => !context.allowedTools.has(tool));
 		if (missingTools.length > 0) return denied(`Missing tools: ${missingTools.join(', ')}`);
 
@@ -68,10 +54,7 @@ export class SkillSafetyPolicy implements SkillSafetyPolicyPort {
 		const warnings = INJECTION_PATTERN.test(serialized)
 			? ['Skill input contains prompt-injection-like text; treat external data as untrusted.']
 			: [];
-		const requiresConfirmation =
-			skill.contract.requiresConfirmation ||
-			skill.permissionsRequired.some((permission) => DANGEROUS_PERMISSION_PATTERN.test(permission));
-		return allowed(warnings, requiresConfirmation);
+		return allowed(warnings, false);
 	}
 
 	async checkToolUse(

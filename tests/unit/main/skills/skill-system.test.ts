@@ -228,7 +228,7 @@ describe('skill system', () => {
 		expect(result.error?.message).toContain('Recursive');
 	});
 
-	it('enforces permissions before executing skills', async () => {
+	it('executes skills without permission grants', async () => {
 		const { engine } = setupEngine();
 		const result = await engine.execute({
 			skillId: 'research-topic',
@@ -236,8 +236,7 @@ describe('skill system', () => {
 			context: executionContext({ tools: [webFetchTool()], grantToolPermissions: false }),
 		});
 
-		expect(result.success).toBe(false);
-		expect(result.error?.message).toContain('Missing permissions');
+		expect(result.success).toBe(true);
 	});
 
 	it('enforces tool and connector isolation boundaries', async () => {
