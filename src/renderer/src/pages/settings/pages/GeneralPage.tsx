@@ -12,9 +12,8 @@ import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, Sett
 import { Switch } from '@/components/ui/switch';
 
 const generalRowClassName =
-	'grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-3.5 py-2.5 sm:px-4 sm:py-2.5';
+	'grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-3.5 py-2 sm:px-4 sm:py-2';
 const generalContentClassName = 'items-start gap-2.5';
-const valueActionClassName = 'ml-auto w-auto max-w-[44%] justify-end text-right';
 const controlActionClassName = 'ml-auto w-auto shrink-0 justify-end';
 const actionButtonClassName = 'h-6 gap-1.5 px-2 text-[11px]';
 
