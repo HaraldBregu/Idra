@@ -9,7 +9,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	{
 		id: 'connector_gmail',
 		name: 'Gmail',
-		description: 'Search and read Gmail messages.',
+		description: 'Search, read, draft, send, and manage Gmail messages.',
 		tools: [
 			'get_profile',
 			'search_emails',
@@ -17,8 +17,20 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'get_recent_emails',
 			'read_email',
 			'batch_read_email',
+			'create_draft',
+			'send_email',
+			'trash_email',
 		],
-		scopes: ['userinfo.email', 'userinfo.profile', 'gmail.modify'],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/gmail.readonly',
+			'https://www.googleapis.com/auth/gmail.compose',
+			'https://www.googleapis.com/auth/gmail.send',
+			'https://www.googleapis.com/auth/gmail.modify',
+		],
+		authKind: 'google_oauth',
+		redirectUri: 'http://127.0.0.1:42818/oauth/google/callback',
 	},
 	{
 		id: 'connector_googlecalendar',
@@ -74,6 +86,21 @@ export const OPENAI_CONNECTOR_CATALOG = [
 export type OpenAiConnectorId = (typeof OPENAI_CONNECTOR_CATALOG)[number]['id'];
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
+export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth';
+
+export interface GoogleOAuthCredential {
+	provider: 'google';
+	clientId: string;
+	clientSecret?: string;
+	redirectUri: string;
+	accessToken?: string;
+	refreshToken?: string;
+	expiresAt?: number;
+	tokenType?: string;
+	scope?: string;
+	email?: string;
+	connectedAt?: string;
+}
 
 export interface ConnectorTool {
 	name: string;
@@ -90,6 +117,7 @@ export interface ConnectorConfig {
 	serverDescription?: string;
 	enabled: boolean;
 	authorization: string;
+	oauth?: GoogleOAuthCredential;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
 	deferLoading: boolean;
@@ -104,6 +132,7 @@ export interface ConnectorView {
 	id: string;
 	name: string;
 	connectorId: OpenAiConnectorId;
+	authKind: ConnectorAuthKind;
 	serverLabel: string;
 	enabled: boolean;
 	status: ConnectorStatus;
@@ -113,6 +142,7 @@ export interface ConnectorView {
 	deferLoading: boolean;
 	lastRefreshedAt?: string;
 	lastError?: string;
+	connectedAccount?: string;
 }
 
 export interface ConnectorInput {
@@ -120,7 +150,9 @@ export interface ConnectorInput {
 	connectorId: OpenAiConnectorId;
 	serverLabel?: string;
 	serverDescription?: string;
-	authorization: string;
+	authorization?: string;
+	oauthClientId?: string;
+	oauthClientSecret?: string;
 	requireApproval?: ConnectorApprovalMode;
 	allowedTools?: string[];
 	deferLoading?: boolean;
@@ -132,6 +164,12 @@ export type ConnectorUpdateInput = Partial<ConnectorInput>;
 export interface ConnectorTestResult {
 	status: ConnectorStatus;
 	message?: string;
+}
+
+export interface ConnectorOAuthConnectResult {
+	status: ConnectorStatus;
+	message?: string;
+	connectedAccount?: string;
 }
 
 export interface ConnectorCallToolOptions {
