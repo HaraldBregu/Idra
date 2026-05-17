@@ -61,10 +61,7 @@ const AppsPage: React.FC = () => {
 				}
 			/>
 
-			<SettingsSection
-				title={t('settings.apps.title')}
-				description={appsRoot || undefined}
-			>
+			<SettingsSection title={t('settings.apps.title')}>
 				<SettingsPanel>
 					{loading ? (
 						<SettingsLoadingRows rows={2} />
