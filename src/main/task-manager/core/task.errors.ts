@@ -99,17 +99,6 @@ export class TaskDefinitionNotFoundError extends TaskManagerError {
 	}
 }
 
-export class TaskConfirmationRequiredError extends TaskManagerError {
-	constructor(taskId: string, confirmationId?: string) {
-		super({
-			code: 'CONFIRMATION_REQUIRED',
-			message: `Task requires confirmation: ${taskId}`,
-			safeUserMessage: 'Confirmation is required before this task can run.',
-			metadata: confirmationId ? { taskId, confirmationId } : { taskId },
-		});
-	}
-}
-
 export function toTaskError(error: unknown): TaskError {
 	if (error instanceof TaskManagerError) return error.toTaskError();
 	if (isTaskErrorLike(error)) {
