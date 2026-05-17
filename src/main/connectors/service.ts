@@ -818,7 +818,6 @@ function readEmailDraftParams(params: Record<string, unknown>): {
 	};
 }
 
-function descriptionForTool(toolName: string): string {
 function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
 	const calendarDescriptions: Record<string, string> = {
 		get_profile: 'Get the connected Google account profile.',
