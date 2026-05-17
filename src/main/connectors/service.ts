@@ -20,20 +20,25 @@ import {
 	type GoogleOAuthCredential,
 } from '../../shared/connectors';
 import {
+	GoogleCalendarApiClient,
+	GoogleProfileClient,
 	GmailApiClient,
 	GOOGLE_OAUTH_REDIRECT_URI,
 	buildGoogleAuthorizationUrl,
 	buildRawEmail,
 	exchangeGoogleAuthorizationCode,
 	mergeGoogleOAuthCredential,
+	projectGoogleCalendarEvent,
+	projectGoogleCalendarListEntry,
 	projectGmailMessage,
 	projectGmailMessageWithBody,
 	refreshGoogleAccessToken,
-	scopesForGmailTools,
+	scopesForGoogleConnectorTools,
 	type FetchLike,
+	type GoogleCalendarEvent,
 } from './google';
 
-const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail']);
+const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar']);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 
 interface ConnectorsServiceOptions {
@@ -277,7 +282,10 @@ export class ConnectorsService {
 		}
 		const oauth = this.requireGoogleOAuthConfig(connector);
 		const state = randomUUID();
-		const scopes = scopesForGmailTools(knownTools(connector).map((tool) => tool.name));
+		const scopes = scopesForGoogleConnectorTools(
+			connector.connectorId,
+			knownTools(connector).map((tool) => tool.name)
+		);
 		const authorizationUrl = buildGoogleAuthorizationUrl({
 			clientId: oauth.clientId,
 			redirectUri: oauth.redirectUri,
@@ -295,12 +303,12 @@ export class ConnectorsService {
 			fetchImpl: this.fetchImpl(),
 		});
 		const connected = mergeGoogleOAuthCredential(oauth, token);
-		const profile = await new GmailApiClient(connected.accessToken!, this.fetchImpl()).getProfile();
+		const profile = await new GoogleProfileClient(connected.accessToken!, this.fetchImpl()).getUserInfo();
 		const next = this.withKnownTools({
 			...connector,
 			oauth: {
 				...connected,
-				email: profile.emailAddress,
+				email: profile.email,
 				connectedAt: new Date().toISOString(),
 			},
 			lastError: undefined,
@@ -309,8 +317,8 @@ export class ConnectorsService {
 		this.replace(next);
 		return {
 			status: 'configured',
-			message: `Connected Google account${profile.emailAddress ? ` ${profile.emailAddress}` : ''}.`,
-			connectedAccount: profile.emailAddress,
+			message: `Connected Google account${profile.email ? ` ${profile.email}` : ''}.`,
+			connectedAccount: profile.email,
 		};
 	}
 
@@ -342,6 +350,9 @@ export class ConnectorsService {
 		if (connector.connectorId === 'connector_gmail') {
 			return this.callGmailTool(connector, name, args);
 		}
+		if (connector.connectorId === 'connector_googlecalendar') {
+			return this.callGoogleCalendarTool(connector, name, args);
+		}
 		throw new Error(`Local execution is not implemented for ${connector.connectorId}.`);
 	}
 
@@ -354,8 +365,8 @@ export class ConnectorsService {
 					const agentToolName = agentToolNameFor(connector, rawToolName);
 					return {
 						name: agentToolName,
-						description: `${connector.name}: ${descriptionForTool(rawToolName)}`,
-						schema: schemaForTool(rawToolName),
+						description: `${connector.name}: ${descriptionForTool(connector, rawToolName)}`,
+						schema: schemaForTool(connector, rawToolName),
 						needsApproval: (_args: unknown, _ctx: ToolContext) =>
 							requiresApprovalForTool(connector, rawToolName),
 						execute: async (args: unknown) => {
@@ -469,6 +480,66 @@ export class ConnectorsService {
 				return gmail.trashMessage(readRequiredMessageId(params));
 			default:
 				throw new Error(`Unsupported Gmail tool: ${name}`);
+		}
+	}
+
+	private async callGoogleCalendarTool(
+		connector: ConnectorConfig,
+		name: string,
+		args: unknown
+	): Promise<unknown> {
+		const calendar = new GoogleCalendarApiClient(await this.getGoogleAccessToken(connector), this.fetchImpl());
+		const params = paramsRecord(args);
+		switch (name) {
+			case 'get_profile':
+				return new GoogleProfileClient(await this.getGoogleAccessToken(connector), this.fetchImpl()).getUserInfo();
+			case 'list_calendars': {
+				const listed = await calendar.listCalendars({
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+				});
+				return {
+					...listed,
+					items: (listed.items ?? []).map(projectGoogleCalendarListEntry),
+				};
+			}
+			case 'search':
+			case 'search_events': {
+				const listed = await calendar.listEvents({
+					calendarId: readCalendarId(params),
+					query: readString(params, 'query'),
+					timeMin: readString(params, 'timeMin'),
+					timeMax: readString(params, 'timeMax'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					showDeleted: readBoolean(params, 'showDeleted'),
+					singleEvents: readBoolean(params, 'singleEvents'),
+					orderBy: readString(params, 'orderBy'),
+				});
+				return {
+					...listed,
+					items: (listed.items ?? []).map(projectGoogleCalendarEvent),
+				};
+			}
+			case 'fetch':
+			case 'read_event': {
+				const { calendarId, eventId } = readEventLookupParams(params);
+				return projectGoogleCalendarEvent(await calendar.getEvent(calendarId, eventId));
+			}
+			case 'create_event': {
+				const calendarId = readCalendarId(params);
+				return projectGoogleCalendarEvent(await calendar.createEvent(calendarId, readCalendarEventPayload(params, true)));
+			}
+			case 'update_event': {
+				const { calendarId, eventId } = readEventLookupParams(params);
+				return projectGoogleCalendarEvent(await calendar.updateEvent(calendarId, eventId, readCalendarEventPayload(params, false)));
+			}
+			case 'delete_event': {
+				const { calendarId, eventId } = readEventLookupParams(params);
+				return calendar.deleteEvent(calendarId, eventId);
+			}
+			default:
+				throw new Error(`Unsupported Google Calendar tool: ${name}`);
 		}
 	}
 
@@ -672,6 +743,57 @@ function readRequiredMessageId(params: Record<string, unknown>): string {
 	return id;
 }
 
+function readCalendarId(params: Record<string, unknown>): string {
+	return readString(params, 'calendarId') ?? 'primary';
+}
+
+function readEventLookupParams(params: Record<string, unknown>): { calendarId: string; eventId: string } {
+	const eventId = readString(params, 'eventId') ?? readString(params, 'id');
+	if (!eventId) throw new Error('An event id is required.');
+	return { calendarId: readCalendarId(params), eventId };
+}
+
+function readCalendarDateTime(
+	params: Record<string, unknown>,
+	key: string,
+	timeZone?: string
+): GoogleCalendarEvent['start'] | undefined {
+	const value = readString(params, key);
+	if (!value) return undefined;
+	const dateTime: GoogleCalendarEvent['start'] = /^\d{4}-\d{2}-\d{2}$/.test(value)
+		? { date: value }
+		: { dateTime: value };
+	if (dateTime.dateTime && timeZone) dateTime.timeZone = timeZone;
+	return dateTime;
+}
+
+function readCalendarEventPayload(
+	params: Record<string, unknown>,
+	requireCoreFields: boolean
+): GoogleCalendarEvent {
+	const timeZone = readString(params, 'timeZone');
+	const summary = readString(params, 'summary') ?? readString(params, 'title');
+	const start = readCalendarDateTime(params, 'start', timeZone);
+	const end = readCalendarDateTime(params, 'end', timeZone);
+	if (requireCoreFields && !summary) throw new Error('summary is required.');
+	if (requireCoreFields && !start) throw new Error('start is required.');
+	if (requireCoreFields && !end) throw new Error('end is required.');
+	const payload: GoogleCalendarEvent = {};
+	if (summary) payload.summary = summary;
+	const description = readString(params, 'description');
+	if (description) payload.description = description;
+	const location = readString(params, 'location');
+	if (location) payload.location = location;
+	if (start) payload.start = start;
+	if (end) payload.end = end;
+	const attendees = readStringList(params, 'attendees');
+	if (attendees) payload.attendees = attendees.map((email) => ({ email }));
+	const recurrence = readStringList(params, 'recurrence');
+	if (recurrence) payload.recurrence = recurrence;
+	if (Object.keys(payload).length === 0) throw new Error('At least one event field is required.');
+	return payload;
+}
+
 function readEmailDraftParams(params: Record<string, unknown>): {
 	to: string[];
 	subject: string;
@@ -697,7 +819,19 @@ function readEmailDraftParams(params: Record<string, unknown>): {
 }
 
 function descriptionForTool(toolName: string): string {
-	const descriptions: Record<string, string> = {
+function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
+	const calendarDescriptions: Record<string, string> = {
+		get_profile: 'Get the connected Google account profile.',
+		list_calendars: 'List Google calendars available to the connected account.',
+		search: 'Search Google Calendar events.',
+		fetch: 'Read a Google Calendar event by id.',
+		search_events: 'Search Google Calendar events by text and time range.',
+		read_event: 'Read a Google Calendar event by id.',
+		create_event: 'Create a Google Calendar event.',
+		update_event: 'Update a Google Calendar event.',
+		delete_event: 'Delete a Google Calendar event.',
+	};
+	const gmailDescriptions: Record<string, string> = {
 		get_profile: 'Get the connected Gmail profile.',
 		search_emails: 'Search Gmail messages using Gmail search syntax.',
 		search_email_ids: 'Search Gmail and return matching message ids.',
@@ -708,12 +842,16 @@ function descriptionForTool(toolName: string): string {
 		send_email: 'Send a Gmail email.',
 		trash_email: 'Move a Gmail message to trash.',
 	};
+	const descriptions = connector.connectorId === 'connector_googlecalendar' ? calendarDescriptions : gmailDescriptions;
 	return descriptions[toolName] ?? `Run ${toolName}.`;
 }
 
-function schemaForTool(toolName: string): AgentTool['schema'] {
+function schemaForTool(connector: ConnectorConfig, toolName: string): AgentTool['schema'] {
 	if (toolName === 'get_profile') {
 		return { type: 'object', properties: {}, additionalProperties: false };
+	}
+	if (connector.connectorId === 'connector_googlecalendar') {
+		return schemaForGoogleCalendarTool(toolName);
 	}
 	if (['search_emails', 'search_email_ids'].includes(toolName)) {
 		return {
@@ -768,6 +906,66 @@ function schemaForTool(toolName: string): AgentTool['schema'] {
 			id: { type: 'string', description: 'Gmail message id.' },
 			messageId: { type: 'string', description: 'Gmail message id.' },
 		},
+		additionalProperties: false,
+	};
+}
+
+function schemaForGoogleCalendarTool(toolName: string): AgentTool['schema'] {
+	if (toolName === 'list_calendars') {
+		return {
+			type: 'object',
+			properties: {
+				maxResults: { type: 'integer', description: 'Maximum calendars to return, capped at 50.' },
+				pageToken: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (['search', 'search_events'].includes(toolName)) {
+		return {
+			type: 'object',
+			properties: {
+				calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
+				query: { type: 'string', description: 'Free-text event search query.' },
+				timeMin: { type: 'string', description: 'Lower event start bound as an RFC3339 timestamp.' },
+				timeMax: { type: 'string', description: 'Upper event start bound as an RFC3339 timestamp.' },
+				maxResults: { type: 'integer', description: 'Maximum events to return, capped at 20.' },
+				pageToken: { type: 'string' },
+				showDeleted: { type: 'boolean' },
+				singleEvents: { type: 'boolean' },
+				orderBy: { type: 'string', enum: ['startTime', 'updated'] },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (['fetch', 'read_event', 'delete_event'].includes(toolName)) {
+		return {
+			type: 'object',
+			properties: {
+				calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
+				eventId: { type: 'string', description: 'Google Calendar event id.' },
+				id: { type: 'string', description: 'Google Calendar event id.' },
+			},
+			additionalProperties: false,
+		};
+	}
+	return {
+		type: 'object',
+		properties: {
+			calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
+			eventId: { type: 'string', description: 'Google Calendar event id, required for updates.' },
+			id: { type: 'string', description: 'Google Calendar event id, accepted for updates.' },
+			summary: { type: 'string' },
+			title: { type: 'string', description: 'Alias for summary.' },
+			description: { type: 'string' },
+			location: { type: 'string' },
+			start: { type: 'string', description: 'RFC3339 date-time or YYYY-MM-DD all-day date.' },
+			end: { type: 'string', description: 'RFC3339 date-time or YYYY-MM-DD all-day date.' },
+			timeZone: { type: 'string' },
+			attendees: { type: 'array', items: { type: 'string' } },
+			recurrence: { type: 'array', items: { type: 'string' } },
+		},
+		required: toolName === 'create_event' ? ['summary', 'start', 'end'] : ['eventId'],
 		additionalProperties: false,
 	};
 }
