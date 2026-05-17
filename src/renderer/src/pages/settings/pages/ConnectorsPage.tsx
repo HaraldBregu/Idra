@@ -144,9 +144,7 @@ const ConnectorsPage: React.FC = () => {
 	const canSubmit =
 		form.name.trim().length > 0 &&
 		form.connectorId.length > 0 &&
-		(isGoogleOAuth
-			? form.oauthClientId.trim().length > 0 && (Boolean(form.id) || form.oauthClientSecret.trim().length > 0)
-			: form.authorization.trim().length > 0) &&
+		(isGoogleOAuth || form.authorization.trim().length > 0) &&
 		!saving;
 
 	const loadConnectors = async (): Promise<void> => {
@@ -393,7 +391,7 @@ const ConnectorsPage: React.FC = () => {
 											id="connector-oauth-client-id"
 											value={form.oauthClientId}
 											onChange={(event) => update('oauthClientId', event.target.value)}
-											placeholder="Google OAuth client ID"
+											placeholder="Optional Google OAuth client ID"
 											className="h-7 px-2 text-xs md:text-xs"
 										/>
 									</SettingsField>
@@ -403,13 +401,13 @@ const ConnectorsPage: React.FC = () => {
 											type="password"
 											value={form.oauthClientSecret}
 											onChange={(event) => update('oauthClientSecret', event.target.value)}
-											placeholder={form.id ? 'Leave blank to keep saved secret' : 'Google OAuth client secret'}
+											placeholder={form.id ? 'Leave blank to keep saved secret' : 'Optional Google OAuth client secret'}
 											className="h-7 px-2 text-xs md:text-xs"
 										/>
 									</SettingsField>
 									<div className="md:col-span-2">
 										<SettingsNotice variant="default">
-											Add this redirect URI to your Google OAuth web app:{' '}
+											Save, then connect with Google OAuth. Redirect URI:{' '}
 											<span className="font-mono">{catalogRedirectUri(selectedCatalog)}</span>
 										</SettingsNotice>
 									</div>

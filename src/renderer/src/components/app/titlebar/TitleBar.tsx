@@ -226,6 +226,7 @@ export const TitleBar = React.memo(function TitleBar({
 								}}
 								placeholder={settingsSearchPlaceholder}
 								aria-label={settingsSearchPlaceholder}
+								className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
 								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 							/>
 							{showSettingsSearchDropdown ? (
