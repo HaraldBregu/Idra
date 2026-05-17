@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import type { AppLanguage } from '../../../contexts';
 import { useApp } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../shared';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection } from '../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../components';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
