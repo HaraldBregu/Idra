@@ -147,6 +147,91 @@ describe('connectors service', () => {
 		});
 	});
 
+	it('uses app-level Google OAuth credentials instead of per-connector client fields', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = String(init?.body);
+				expect(body).toContain('client_id=app-client-id');
+				expect(body).toContain('grant_type=refresh_token');
+				return jsonResponse({ access_token: 'fresh-token', expires_in: 3600, token_type: 'Bearer' });
+			}
+			if (url.endsWith('/profile')) {
+				return jsonResponse({ emailAddress: 'user@example.com' });
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'app-client-id',
+			googleOAuthClientSecret: 'app-client-secret',
+		});
+		const added = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			allowedTools: ['get_profile'],
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:42818/oauth/google/callback', refreshToken: 'refresh-token' },
+			},
+		];
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		await expect(service.callTool(added.id, 'get_profile', {})).resolves.toMatchObject({
+			emailAddress: 'user@example.com',
+		});
+	});
+
+	it('reuses saved Google OAuth client settings across Google connectors', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = String(init?.body);
+				expect(body).toContain('client_id=shared-client-id');
+				expect(body).toContain('client_secret=shared-client-secret');
+				return jsonResponse({ access_token: 'fresh-token', expires_in: 3600, token_type: 'Bearer' });
+			}
+			if (url.startsWith('https://www.googleapis.com/calendar/v3/calendars/primary/events?')) {
+				return jsonResponse({ items: [{ id: 'event-1', summary: 'Shared auth' }] });
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			oauthClientId: 'shared-client-id',
+			oauthClientSecret: 'shared-client-secret',
+			allowedTools: ['get_profile'],
+		});
+		const calendar = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			allowedTools: ['search_events'],
+		});
+		connectors = [
+			connectors[0],
+			{
+				...(connectors[1] as Record<string, unknown>),
+				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:42818/oauth/google/callback', refreshToken: 'refresh-token' },
+			},
+		];
+
+		await expect(service.callTool(calendar.id, 'search_events', {})).resolves.toMatchObject({
+			items: [expect.objectContaining({ id: 'event-1' })],
+		});
+	});
+
 	it('executes Google Calendar read and write tools with Google OAuth tokens', async () => {
 		let connectors: unknown[] = [];
 		const store = {
