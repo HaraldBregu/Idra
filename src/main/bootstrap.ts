@@ -77,7 +77,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
-	const skills = container.register('skills', new SkillsService(logger, { userDataDirectory }));
+	container.register('skills', new SkillsService(logger, { userDataDirectory }));
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
