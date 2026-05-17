@@ -96,13 +96,13 @@ export class OpenAIAdapter implements ProviderAdapter {
 			},
 		}));
 
-			const params: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
-				model: req.model,
-				messages: buildChatMessages(req.system, req.messages),
-				tools: tools.length > 0 ? tools : undefined,
-				stream: true,
-				stream_options: { include_usage: true },
-			};
+		const params: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
+			model: req.model,
+			messages: buildChatMessages(req.system, req.messages),
+			tools: tools.length > 0 ? tools : undefined,
+			stream: true,
+			stream_options: { include_usage: true },
+		};
 		applyMaxTokens(params, req.model, req.maxTokens);
 
 		yield { type: 'message_start' };

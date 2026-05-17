@@ -13,10 +13,7 @@ import {
 import type { UserDataDirectoryServicePort } from './user-data';
 import type { ConnectorsService } from './connectors';
 import type { SkillPromptChoice, SkillsService } from './skills';
-import {
-	evaluateBeforeAgentRunHooks,
-	type BeforeAgentRunHook,
-} from './agent/before-agent-run';
+import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
 import { DEFAULT_AGENT_ID } from './constants';
@@ -38,13 +35,7 @@ import type { ApprovalDecision } from '../shared/service';
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
 const DEFAULT_MAX_PROMPT_TOOLS = 6;
-const BOOTSTRAP_TOOL_NAMES = new Set([
-	'read',
-	'write',
-	'edit',
-	'exec',
-	'get_workspace_path',
-]);
+const BOOTSTRAP_TOOL_NAMES = new Set(['read', 'write', 'edit', 'exec', 'get_workspace_path']);
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -156,37 +147,37 @@ export class AgentService {
 		const abort = new AbortController();
 		runtime.currentAbort = abort;
 		const runId = randomUUID();
-			const streamEvent = (event: AgentRunStreamEvent): void => {
-				this.dependencies.eventBus.broadcast('agent:response', {
-					agentId,
-					runId,
-					...event,
-				});
-			};
-			const runStartedAt = Date.now();
-			const phaseDurationsMs: Record<string, number> = {};
+		const streamEvent = (event: AgentRunStreamEvent): void => {
+			this.dependencies.eventBus.broadcast('agent:response', {
+				agentId,
+				runId,
+				...event,
+			});
+		};
+		const runStartedAt = Date.now();
+		const phaseDurationsMs: Record<string, number> = {};
 
-			try {
-				const { providerId, apiKey, model, baseURL } = recordPhase(
-					phaseDurationsMs,
-					'resolve_provider_model',
-					() => this.resolveProviderAndModel()
-				);
-				runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
-					loadSession(agentId, model, providerId, {
-						baseDir: this.sessionBaseDir,
-					})
-				);
-				const workspaceRoot = recordPhase(phaseDurationsMs, 'resolve_workspace', () =>
-					this.workspaceRoot()
-				);
-				const provider = recordPhase(phaseDurationsMs, 'create_provider', () =>
-					this.providerFactory({ id: providerId, apiKey, baseURL }, model)
-				);
-				const ctx: ToolContext = {
-					workspace: workspaceRoot,
-					agentId,
-					sessionId: runtime.session.id,
+		try {
+			const { providerId, apiKey, model, baseURL } = recordPhase(
+				phaseDurationsMs,
+				'resolve_provider_model',
+				() => this.resolveProviderAndModel()
+			);
+			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
+				loadSession(agentId, model, providerId, {
+					baseDir: this.sessionBaseDir,
+				})
+			);
+			const workspaceRoot = recordPhase(phaseDurationsMs, 'resolve_workspace', () =>
+				this.workspaceRoot()
+			);
+			const provider = recordPhase(phaseDurationsMs, 'create_provider', () =>
+				this.providerFactory({ id: providerId, apiKey, baseURL }, model)
+			);
+			const ctx: ToolContext = {
+				workspace: workspaceRoot,
+				agentId,
+				sessionId: runtime.session.id,
 				sessionBaseDir: this.sessionBaseDir,
 				sessionVisibility: 'agent',
 				readState: new Map(),
@@ -202,38 +193,35 @@ export class AgentService {
 						});
 						return runtime.hitl.askInput(question, suggestions);
 					},
-					},
-					services: this.dependencies,
-				};
-				const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-					new ToolUsePolicy().evaluate({ userRequest: message })
-				);
-				let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
-					this.isBootstrapPending()
-				);
-				let workspaceFiles: WorkspaceContextFile[] = [];
-				let skillChoices: SkillPromptChoice[] = [];
-				let toolSelection: AgentToolSelectionForTurn = {
-					toolsForPrompt: [],
-					systemPromptSuffix: '',
-					rankedTools: [],
-				};
-				let selectedTools: AgentTool[] = [];
-				const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools;
+				},
+				services: this.dependencies,
+			};
+			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
+				new ToolUsePolicy().evaluate({ userRequest: message })
+			);
+			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
+				this.isBootstrapPending()
+			);
+			let workspaceFiles: WorkspaceContextFile[] = [];
+			let skillChoices: SkillPromptChoice[] = [];
+			let toolSelection: AgentToolSelectionForTurn = {
+				toolsForPrompt: [],
+				systemPromptSuffix: '',
+				rankedTools: [],
+			};
+			let selectedTools: AgentTool[] = [];
+			const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools;
 
-				if (!directAnswer) {
-					workspaceFiles = await recordAsyncPhase(
-						phaseDurationsMs,
-						'load_workspace_context',
-						() => this.loadWorkspaceFiles()
-					);
-					bootstrapPending =
-						bootstrapPending ||
-						workspaceFiles.some(
-							(file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing
-						);
-					const baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
-						Promise.resolve(this.toolsFactory({
+			if (!directAnswer) {
+				workspaceFiles = await recordAsyncPhase(phaseDurationsMs, 'load_workspace_context', () =>
+					this.loadWorkspaceFiles()
+				);
+				bootstrapPending =
+					bootstrapPending ||
+					workspaceFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
+				const baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
+					Promise.resolve(
+						this.toolsFactory({
 							agentId,
 							runId,
 							providerId,
@@ -242,9 +230,11 @@ export class AgentService {
 							session: runtime.session!,
 							signal: abort.signal,
 							services: this.dependencies,
-						}))
-					);
-					const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools && !bootstrapPending
+						})
+					)
+				);
+				const skillRuntime =
+					this.dependencies.skills && toolPolicy.shouldUseTools && !bootstrapPending
 						? {
 								userId: agentId,
 								sessionId: runtime.session.id,
@@ -253,12 +243,13 @@ export class AgentService {
 								signal: abort.signal,
 							}
 						: undefined;
-					skillChoices = skillRuntime
-						? await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
-								this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
-							)
-						: [];
-					const skillTool = skillRuntime && skillChoices.length > 0
+				skillChoices = skillRuntime
+					? await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
+							this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
+						)
+					: [];
+				const skillTool =
+					skillRuntime && skillChoices.length > 0
 						? this.dependencies.skills!.createExecutionTool({
 								userId: skillRuntime.userId,
 								sessionId: skillRuntime.sessionId,
@@ -266,67 +257,71 @@ export class AgentService {
 								signal: skillRuntime.signal,
 							})
 						: undefined;
-					const tools = skillTool ? [...baseTools, skillTool] : baseTools;
-					toolSelection = bootstrapPending
-						? { toolsForPrompt: tools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)), systemPromptSuffix: '', rankedTools: [] }
-						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								selectAgentToolsForTurn(tools, message, ctx, {
-									forceSelection: true,
-									maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
-								})
-							);
-					selectedTools = bootstrapPending
-						? toolSelection.toolsForPrompt
-						: skillTool && skillChoices.length > 0
-							? [
-									skillTool,
-									...toolSelection.toolsForPrompt
-										.filter((tool) => tool.name !== skillTool.name)
-										.slice(0, DEFAULT_MAX_PROMPT_TOOLS - 1),
-								]
-							: toolSelection.toolsForPrompt;
-				}
-				const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
-				const bootstrapMode = resolveBootstrapMode({
-					bootstrapPending,
+				const tools = skillTool ? [...baseTools, skillTool] : baseTools;
+				toolSelection = bootstrapPending
+					? {
+							toolsForPrompt: tools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
+							systemPromptSuffix: '',
+							rankedTools: [],
+						}
+					: recordPhase(phaseDurationsMs, 'select_tools', () =>
+							selectAgentToolsForTurn(tools, message, ctx, {
+								forceSelection: true,
+								maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
+							})
+						);
+				selectedTools = bootstrapPending
+					? toolSelection.toolsForPrompt
+					: skillTool && skillChoices.length > 0
+						? [
+								skillTool,
+								...toolSelection.toolsForPrompt
+									.filter((tool) => tool.name !== skillTool.name)
+									.slice(0, DEFAULT_MAX_PROMPT_TOOLS - 1),
+							]
+						: toolSelection.toolsForPrompt;
+			}
+			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
+			const bootstrapMode = resolveBootstrapMode({
+				bootstrapPending,
 				isInteractiveUserFacing: true,
 				isPrimaryRun: agentId === this.defaultAgentId,
 				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 				hasBootstrapFileAccess:
-						selectedToolNames.has('read') &&
-						(selectedToolNames.has('write') || selectedToolNames.has('edit')) &&
-						selectedToolNames.has('exec'),
-				});
-				const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
-					buildSystemPrompt({
-						workspace: workspaceRoot,
-						date: new Date().toISOString().slice(0, 10),
-						model,
-						tools: selectedTools,
-						skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
-						workspaceFiles,
-						bootstrapMode,
-					})
-				);
-				const systemPromptForTurn = toolSelection.systemPromptSuffix
-					? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
-					: systemPrompt;
+					selectedToolNames.has('read') &&
+					(selectedToolNames.has('write') || selectedToolNames.has('edit')) &&
+					selectedToolNames.has('exec'),
+			});
+			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
+				buildSystemPrompt({
+					workspace: workspaceRoot,
+					date: new Date().toISOString().slice(0, 10),
+					model,
+					tools: selectedTools,
+					skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
+					workspaceFiles,
+					bootstrapMode,
+				})
+			);
+			const systemPromptForTurn = toolSelection.systemPromptSuffix
+				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
+				: systemPrompt;
 
 			const hooks = this.buildHooks(agentId, {
 				runId,
-					providerId,
-					model,
-					tools: selectedTools.map((tool) => tool.name),
-					runLogger: runtime.runLogger,
-					systemPromptChars: systemPromptForTurn.length,
-					userMessageChars: message.length,
-					directAnswer,
-					bootstrapPending,
-					toolPolicyReason: toolPolicy.reason,
-					workspaceContextChars: workspaceContextChars(workspaceFiles),
-					prepStartedAt: runStartedAt,
-					phaseDurationsMs,
-				});
+				providerId,
+				model,
+				tools: selectedTools.map((tool) => tool.name),
+				runLogger: runtime.runLogger,
+				systemPromptChars: systemPromptForTurn.length,
+				userMessageChars: message.length,
+				directAnswer,
+				bootstrapPending,
+				toolPolicyReason: toolPolicy.reason,
+				workspaceContextChars: workspaceContextChars(workspaceFiles),
+				prepStartedAt: runStartedAt,
+				phaseDurationsMs,
+			});
 			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
 				prompt: message,
 				messages: [...runtime.session.transcript, { role: 'user', content: message }],
@@ -352,16 +347,16 @@ export class AgentService {
 					state: 'completed',
 					label: 'beforeAgentRunBlocked',
 				});
-					await hooks.onFinish?.({
-						runId,
-						stopReason: 'end_turn',
-						usage: emptyUsage(),
-						iterations: 0,
-						durationMs: Date.now() - runStartedAt,
-						outputChars: beforeRun.message.length,
-					});
-					return beforeRun.message;
-				}
+				await hooks.onFinish?.({
+					runId,
+					stopReason: 'end_turn',
+					usage: emptyUsage(),
+					iterations: 0,
+					durationMs: Date.now() - runStartedAt,
+					outputChars: beforeRun.message.length,
+				});
+				return beforeRun.message;
+			}
 
 			const result = await runAgent({
 				runId,
@@ -404,14 +399,14 @@ export class AgentService {
 				runId,
 				agentId,
 				provider: 'unknown',
-					model: 'unknown',
-					status: 'error',
-					iterations: 0,
-					durationMs: Date.now() - runStartedAt,
-					usage: emptyUsage(),
-					outputChars: 0,
-					error: { message: (err as Error).message, stack: (err as Error).stack },
-				});
+				model: 'unknown',
+				status: 'error',
+				iterations: 0,
+				durationMs: Date.now() - runStartedAt,
+				usage: emptyUsage(),
+				outputChars: 0,
+				error: { message: (err as Error).message, stack: (err as Error).stack },
+			});
 			throw err;
 		}
 	}
@@ -474,7 +469,12 @@ export class AgentService {
 		return runtime;
 	}
 
-	private resolveProviderAndModel(): { providerId: string; apiKey: string; model: string; baseURL?: string } {
+	private resolveProviderAndModel(): {
+		providerId: string;
+		apiKey: string;
+		model: string;
+		baseURL?: string;
+	} {
 		const agent = this.dependencies.store.getAgentService();
 		const providerId = agent?.provider.id.trim().toLowerCase() ?? '';
 		const model = agent?.model.id.trim() || agent?.model.name.trim() || '';
@@ -579,12 +579,12 @@ export class AgentService {
 					iteration: info.iteration,
 					usage: {
 						inputTokens: info.usage.inputTokens,
-							outputTokens: info.usage.outputTokens,
-							totalTokens: info.usage.inputTokens + info.usage.outputTokens,
-						},
-						durationMs: info.durationMs,
-					});
-				},
+						outputTokens: info.usage.outputTokens,
+						totalTokens: info.usage.inputTokens + info.usage.outputTokens,
+					},
+					durationMs: info.durationMs,
+				});
+			},
 			onToolCall: async (info) => {
 				await meta.runLogger.logToolCall({
 					runId: meta.runId,
@@ -621,14 +621,14 @@ export class AgentService {
 					provider: meta.providerId,
 					model: meta.model,
 					status,
-						iterations: info.iterations,
-						durationMs: info.durationMs,
-						usage,
-						outputChars: info.outputChars,
-						firstTokenLatencyMs: info.firstTokenLatencyMs,
-						error: info.error ? { message: info.error.message, stack: info.error.stack } : undefined,
-					});
-				},
+					iterations: info.iterations,
+					durationMs: info.durationMs,
+					usage,
+					outputChars: info.outputChars,
+					firstTokenLatencyMs: info.firstTokenLatencyMs,
+					error: info.error ? { message: info.error.message, stack: info.error.stack } : undefined,
+				});
+			},
 		};
 	}
 }

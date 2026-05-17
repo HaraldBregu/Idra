@@ -1,5 +1,9 @@
 import { promises as fs } from 'node:fs';
-import type { ProviderAdapter, ProviderEvent, ProviderStreamRequest } from '../../../../src/main/provider/types';
+import type {
+	ProviderAdapter,
+	ProviderEvent,
+	ProviderStreamRequest,
+} from '../../../../src/main/provider/types';
 import { AgentService } from '../../../../src/main/service';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import { SkillsService } from '../../../../src/main/skills';
@@ -53,7 +57,9 @@ function makeDeps() {
 			getRootPath: jest.fn(() => '/workspace'),
 			ensureRoot: jest.fn(async () => '/workspace'),
 			resolve: jest.fn((...segments: string[]) => ['/workspace', ...segments].join('/')),
-			resolveExisting: jest.fn(async (...segments: string[]) => ['/workspace', ...segments].join('/')),
+			resolveExisting: jest.fn(async (...segments: string[]) =>
+				['/workspace', ...segments].join('/')
+			),
 		} as never,
 		workspace: { getRootPath: jest.fn(() => '/workspace') } as never,
 	};
@@ -67,23 +73,36 @@ describe('AgentService', () => {
 		const service = new AgentService(deps, {
 			sessionBaseDir,
 			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
-			providerFactory: jest.fn(() => provider([
-				{ type: 'message_start' },
-				{ type: 'text_delta', text: 'hello' },
-				{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 2 } },
-			])),
+			providerFactory: jest.fn(() =>
+				provider([
+					{ type: 'message_start' },
+					{ type: 'text_delta', text: 'hello' },
+					{
+						type: 'message_end',
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 2 },
+					},
+				])
+			),
 			toolsFactory: () => [],
 		});
 
 		await expect(service.send('hi')).resolves.toBe('hello');
-		expect(deps.eventBus.broadcast).toHaveBeenCalledWith('agent:response', expect.objectContaining({ delta: 'hello' }));
-		await expect(service.getHistory()).resolves.toEqual(expect.arrayContaining([
-			expect.objectContaining({ role: 'user', content: 'hi' }),
-			expect.objectContaining({ role: 'assistant' }),
-		]));
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
+			'agent:response',
+			expect.objectContaining({ delta: 'hello' })
+		);
+		await expect(service.getHistory()).resolves.toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ role: 'user', content: 'hi' }),
+				expect.objectContaining({ role: 'assistant' }),
+			])
+		);
 
 		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
-		expect(records.map((record) => record.event)).toEqual(expect.arrayContaining(['start', 'finish']));
+		expect(records.map((record) => record.event)).toEqual(
+			expect.arrayContaining(['start', 'finish'])
+		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
@@ -133,11 +152,16 @@ describe('AgentService', () => {
 		const service = new AgentService(deps, {
 			sessionBaseDir,
 			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-			providerFactory: () => provider([
-				{ type: 'message_start' },
-				{ type: 'text_delta', text: 'ok' },
-				{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } },
-			]),
+			providerFactory: () =>
+				provider([
+					{ type: 'message_start' },
+					{ type: 'text_delta', text: 'ok' },
+					{
+						type: 'message_end',
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					},
+				]),
 			toolsFactory: async (context) => {
 				contexts.push(context);
 				return [];
@@ -307,31 +331,40 @@ describe('AgentService', () => {
 		const service = new AgentService(deps, {
 			sessionBaseDir,
 			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-			providerFactory: () => providerTurns([
-				[
-					{ type: 'tool_call_start', id: 'tc1', name: 'needs_approval' },
-					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"ok":true}' },
-					{ type: 'tool_call_end', id: 'tc1' },
-					{ type: 'message_end', stopReason: 'tool_use', usage: { inputTokens: 1, outputTokens: 1 } },
-				],
-				[
-					{ type: 'text_delta', text: 'finished' },
-					{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } },
-				],
-			]),
+			providerFactory: () =>
+				providerTurns([
+					[
+						{ type: 'tool_call_start', id: 'tc1', name: 'needs_approval' },
+						{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"ok":true}' },
+						{ type: 'tool_call_end', id: 'tc1' },
+						{
+							type: 'message_end',
+							stopReason: 'tool_use',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					],
+					[
+						{ type: 'text_delta', text: 'finished' },
+						{
+							type: 'message_end',
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					],
+				]),
 			toolsFactory: () => [tool],
 		});
 
-			const send = service.send('execute the needs_approval tool');
-			await expect(send).resolves.toBe('finished');
-			expect(service.getPending().approvals).toEqual([]);
-			expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
-			expect(deps.eventBus.broadcast).not.toHaveBeenCalledWith(
-				'agent:response',
-				expect.objectContaining({ type: 'run_state', state: 'waiting_for_approval' })
-			);
-			await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		});
+		const send = service.send('execute the needs_approval tool');
+		await expect(send).resolves.toBe('finished');
+		expect(service.getPending().approvals).toEqual([]);
+		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
+		expect(deps.eventBus.broadcast).not.toHaveBeenCalledWith(
+			'agent:response',
+			expect.objectContaining({ type: 'run_state', state: 'waiting_for_approval' })
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
 
 	it('broadcasts tool call lifecycle events to the renderer stream', async () => {
 		const sessionBaseDir = await makeTempDir();
@@ -349,18 +382,27 @@ describe('AgentService', () => {
 		const service = new AgentService(deps, {
 			sessionBaseDir,
 			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-			providerFactory: () => providerTurns([
-				[
-					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
-					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"value":1}' },
-					{ type: 'tool_call_end', id: 'tc1' },
-					{ type: 'message_end', stopReason: 'tool_use', usage: { inputTokens: 1, outputTokens: 1 } },
-				],
-				[
-					{ type: 'text_delta', text: 'finished' },
-					{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } },
-				],
-			]),
+			providerFactory: () =>
+				providerTurns([
+					[
+						{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
+						{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"value":1}' },
+						{ type: 'tool_call_end', id: 'tc1' },
+						{
+							type: 'message_end',
+							stopReason: 'tool_use',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					],
+					[
+						{ type: 'text_delta', text: 'finished' },
+						{
+							type: 'message_end',
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					],
+				]),
 			toolsFactory: () => [tool],
 		});
 
@@ -428,11 +470,16 @@ describe('AgentService', () => {
 		const service = new AgentService(deps, {
 			sessionBaseDir,
 			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-			providerFactory: () => provider([
-				{ type: 'message_start' },
-				{ type: 'text_delta', text: 'ok' },
-				{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } },
-			]),
+			providerFactory: () =>
+				provider([
+					{ type: 'message_start' },
+					{ type: 'text_delta', text: 'ok' },
+					{
+						type: 'message_end',
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					},
+				]),
 			toolsFactory: () => [],
 		});
 		await service.send('hi');

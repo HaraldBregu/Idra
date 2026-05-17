@@ -1,4 +1,9 @@
-import type { AgentContentBlock, ToolResultBlock, ToolResultStatus, Usage } from '../provider/types';
+import type {
+	AgentContentBlock,
+	ToolResultBlock,
+	ToolResultStatus,
+	Usage,
+} from '../provider/types';
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
@@ -138,9 +143,7 @@ function parseToolArgsForExecution(
 }
 
 function resultBlocksToText(content: ToolResultBlock[]): string {
-	return content
-		.map((c) => (c.type === 'text' ? c.text : '[binary content]'))
-		.join('\n');
+	return content.map((c) => (c.type === 'text' ? c.text : '[binary content]')).join('\n');
 }
 
 function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
@@ -195,7 +198,9 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	session.transcript.push({ role: 'user', content: userMessage });
 
 	const tracker = newCallTracker();
-	const managedExecutor = input.toolManagement?.executor ?? new ToolExecutor({ maxToolCallsPerTurn: input.toolManagement?.maxToolCallsPerTurn });
+	const managedExecutor =
+		input.toolManagement?.executor ??
+		new ToolExecutor({ maxToolCallsPerTurn: input.toolManagement?.maxToolCallsPerTurn });
 	const toolManagement: AgentToolManagementOptions = {
 		...input.toolManagement,
 		executor: managedExecutor,
@@ -245,12 +250,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					maxTokens,
 					signal,
 				})) {
-						switch (event.type) {
-							case 'text_delta':
-								firstTokenLatencyMs ??= Date.now() - runStart;
-								if (!didStartAnswering) {
-									didStartAnswering = true;
-									streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+					switch (event.type) {
+						case 'text_delta':
+							firstTokenLatencyMs ??= Date.now() - runStart;
+							if (!didStartAnswering) {
+								didStartAnswering = true;
+								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
 							}
 							text += event.text;
 							streamOutput?.(event.text);
@@ -324,26 +329,26 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				stopReason = 'error';
 				finalText += `\n[error: ${(err as Error).message}]`;
-					await hooks?.onFinish?.({
-						runId,
-						stopReason,
-						usage: totalUsage,
-						iterations: Math.max(completedIterations, iter + 1),
-						durationMs: Date.now() - runStart,
-						outputChars: finalText.length,
-						firstTokenLatencyMs,
-						error: err as Error,
-					});
-					throw err;
-				}
-
-				completedIterations = iter + 1;
-				await hooks?.onIteration?.({
+				await hooks?.onFinish?.({
 					runId,
-					iteration: iter,
-					usage: iterUsage,
-					durationMs: Date.now() - iterStart,
+					stopReason,
+					usage: totalUsage,
+					iterations: Math.max(completedIterations, iter + 1),
+					durationMs: Date.now() - runStart,
+					outputChars: finalText.length,
+					firstTokenLatencyMs,
+					error: err as Error,
 				});
+				throw err;
+			}
+
+			completedIterations = iter + 1;
+			await hooks?.onIteration?.({
+				runId,
+				iteration: iter,
+				usage: iterUsage,
+				durationMs: Date.now() - iterStart,
+			});
 
 			if (text) blocks.push({ type: 'text', text });
 			for (const [id, t] of pending) {
@@ -488,11 +493,18 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				let res;
 				try {
-					res = await executeAgentToolWithManagement(tool, args as Record<string, unknown>, ctx, toolManagement);
+					res = await executeAgentToolWithManagement(
+						tool,
+						args as Record<string, unknown>,
+						ctx,
+						toolManagement
+					);
 				} catch (err) {
 					res = {
 						status: 'error' as const,
-						content: [{ type: 'text' as const, text: `tool ${t.name} threw: ${(err as Error).message}` }],
+						content: [
+							{ type: 'text' as const, text: `tool ${t.name} threw: ${(err as Error).message}` },
+						],
 					};
 				}
 				const content = before.warning
