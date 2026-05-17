@@ -59,49 +59,69 @@ const GeneralPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.application.actions')}>
 				<SettingsPanel>
-					<SettingsRow
-						title={t('settings.application.accessibility')}
-						description={t('settings.application.accessibilityDescription')}
-						actions={
+					<Item variant="outline" size="sm" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<Accessibility className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.accessibility')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<Button variant="outline" size="xs" onClick={handleOpenAccessibility} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openAccessibility')}
 							</Button>
-						}
-					/>
-					<SettingsRow
-						title={t('settings.application.screenRecording')}
-						description={t('settings.application.screenRecordingDescription')}
-						actions={
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="sm" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<MonitorUp className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.screenRecording')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openScreenRecording')}
 							</Button>
-						}
-					/>
-					<SettingsRow
-						title={t('settings.application.menuBar')}
-						description={t('settings.application.menuBarDescription')}
-						actions={
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="sm" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<PanelTop className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<Switch size="sm" checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
-						}
-					/>
-					<SettingsRow
-						title={t('settings.application.appData')}
-						description={t('settings.application.appDataDescription')}
-						actions={
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="sm" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<FolderOpen className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.appData')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openAppData')}
 							</Button>
-						}
-					/>
-					<SettingsRow
-						title={t('settings.application.userData')}
-						description={t('settings.application.userDataDescription')}
-						actions={
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="sm">
+						<ItemMedia variant="icon">
+							<FolderOpen className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.userData')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openUserData')}
 							</Button>
-						}
-					/>
+						</ItemActions>
+					</Item>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
