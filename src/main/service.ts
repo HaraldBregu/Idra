@@ -156,39 +156,37 @@ export class AgentService {
 		const abort = new AbortController();
 		runtime.currentAbort = abort;
 		const runId = randomUUID();
-		const streamEvent = (event: AgentRunStreamEvent): void => {
-			this.dependencies.eventBus.broadcast('agent:response', {
-				agentId,
-				runId,
-				...event,
-			});
-		};
+			const streamEvent = (event: AgentRunStreamEvent): void => {
+				this.dependencies.eventBus.broadcast('agent:response', {
+					agentId,
+					runId,
+					...event,
+				});
+			};
+			const runStartedAt = Date.now();
+			const phaseDurationsMs: Record<string, number> = {};
 
-		try {
-			const { providerId, apiKey, model, baseURL } = this.resolveProviderAndModel();
-			runtime.session = await loadSession(agentId, model, providerId, {
-				baseDir: this.sessionBaseDir,
-			});
-			const workspaceRoot = this.workspaceRoot();
-			const workspaceFiles = await this.loadWorkspaceFiles();
-			const bootstrapPending = workspaceFiles.some(
-				(file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing
-			);
-			const baseTools = await this.toolsFactory({
-				agentId,
-				runId,
-				providerId,
-				model,
-				workspace: workspaceRoot,
-				session: runtime.session,
-				signal: abort.signal,
-				services: this.dependencies,
-			});
-			const provider = this.providerFactory({ id: providerId, apiKey, baseURL }, model);
-			const ctx: ToolContext = {
-				workspace: workspaceRoot,
-				agentId,
-				sessionId: runtime.session.id,
+			try {
+				const { providerId, apiKey, model, baseURL } = recordPhase(
+					phaseDurationsMs,
+					'resolve_provider_model',
+					() => this.resolveProviderAndModel()
+				);
+				runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
+					loadSession(agentId, model, providerId, {
+						baseDir: this.sessionBaseDir,
+					})
+				);
+				const workspaceRoot = recordPhase(phaseDurationsMs, 'resolve_workspace', () =>
+					this.workspaceRoot()
+				);
+				const provider = recordPhase(phaseDurationsMs, 'create_provider', () =>
+					this.providerFactory({ id: providerId, apiKey, baseURL }, model)
+				);
+				const ctx: ToolContext = {
+					workspace: workspaceRoot,
+					agentId,
+					sessionId: runtime.session.id,
 				sessionBaseDir: this.sessionBaseDir,
 				sessionVisibility: 'agent',
 				readState: new Map(),
@@ -204,78 +202,131 @@ export class AgentService {
 						});
 						return runtime.hitl.askInput(question, suggestions);
 					},
-				},
-				services: this.dependencies,
-			};
-			const toolPolicy = new ToolUsePolicy().evaluate({ userRequest: message });
-			const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools && !bootstrapPending
-				? {
-						userId: agentId,
-						sessionId: runtime.session.id,
-						tools: baseTools,
-						toolContext: ctx,
-						signal: abort.signal,
-					}
-				: undefined;
-			const skillChoices = skillRuntime
-				? await this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
-				: [];
-			const skillTool = skillRuntime && skillChoices.length > 0
-				? this.dependencies.skills!.createExecutionTool({
-						userId: skillRuntime.userId,
-						sessionId: skillRuntime.sessionId,
-						tools: skillRuntime.tools,
-						signal: skillRuntime.signal,
-					})
-				: undefined;
-			const tools = skillTool ? [...baseTools, skillTool] : baseTools;
-			const toolSelection = bootstrapPending
-				? { toolsForPrompt: tools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)), systemPromptSuffix: '' }
-				: selectAgentToolsForTurn(tools, message, ctx, {
-						forceSelection: true,
-						maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
-					});
-			const selectedTools = bootstrapPending
-				? toolSelection.toolsForPrompt
-				: skillTool && skillChoices.length > 0
-					? [
-							skillTool,
-							...toolSelection.toolsForPrompt
-								.filter((tool) => tool.name !== skillTool.name)
-								.slice(0, DEFAULT_MAX_PROMPT_TOOLS - 1),
-						]
-					: toolSelection.toolsForPrompt;
-			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
-			const bootstrapMode = resolveBootstrapMode({
-				bootstrapPending,
+					},
+					services: this.dependencies,
+				};
+				const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
+					new ToolUsePolicy().evaluate({ userRequest: message })
+				);
+				let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
+					this.isBootstrapPending()
+				);
+				let workspaceFiles: WorkspaceContextFile[] = [];
+				let skillChoices: SkillPromptChoice[] = [];
+				let toolSelection: AgentToolSelectionForTurn = {
+					toolsForPrompt: [],
+					systemPromptSuffix: '',
+					rankedTools: [],
+				};
+				let selectedTools: AgentTool[] = [];
+				const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools;
+
+				if (!directAnswer) {
+					workspaceFiles = await recordAsyncPhase(
+						phaseDurationsMs,
+						'load_workspace_context',
+						() => this.loadWorkspaceFiles()
+					);
+					bootstrapPending =
+						bootstrapPending ||
+						workspaceFiles.some(
+							(file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing
+						);
+					const baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
+						Promise.resolve(this.toolsFactory({
+							agentId,
+							runId,
+							providerId,
+							model,
+							workspace: workspaceRoot,
+							session: runtime.session!,
+							signal: abort.signal,
+							services: this.dependencies,
+						}))
+					);
+					const skillRuntime = this.dependencies.skills && toolPolicy.shouldUseTools && !bootstrapPending
+						? {
+								userId: agentId,
+								sessionId: runtime.session.id,
+								tools: baseTools,
+								toolContext: ctx,
+								signal: abort.signal,
+							}
+						: undefined;
+					skillChoices = skillRuntime
+						? await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
+								this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
+							)
+						: [];
+					const skillTool = skillRuntime && skillChoices.length > 0
+						? this.dependencies.skills!.createExecutionTool({
+								userId: skillRuntime.userId,
+								sessionId: skillRuntime.sessionId,
+								tools: skillRuntime.tools,
+								signal: skillRuntime.signal,
+							})
+						: undefined;
+					const tools = skillTool ? [...baseTools, skillTool] : baseTools;
+					toolSelection = bootstrapPending
+						? { toolsForPrompt: tools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)), systemPromptSuffix: '', rankedTools: [] }
+						: recordPhase(phaseDurationsMs, 'select_tools', () =>
+								selectAgentToolsForTurn(tools, message, ctx, {
+									forceSelection: true,
+									maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
+								})
+							);
+					selectedTools = bootstrapPending
+						? toolSelection.toolsForPrompt
+						: skillTool && skillChoices.length > 0
+							? [
+									skillTool,
+									...toolSelection.toolsForPrompt
+										.filter((tool) => tool.name !== skillTool.name)
+										.slice(0, DEFAULT_MAX_PROMPT_TOOLS - 1),
+								]
+							: toolSelection.toolsForPrompt;
+				}
+				const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
+				const bootstrapMode = resolveBootstrapMode({
+					bootstrapPending,
 				isInteractiveUserFacing: true,
 				isPrimaryRun: agentId === this.defaultAgentId,
 				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 				hasBootstrapFileAccess:
-					selectedToolNames.has('read') &&
-					(selectedToolNames.has('write') || selectedToolNames.has('edit')) &&
-					selectedToolNames.has('exec'),
-			});
-			const systemPrompt = await buildSystemPrompt({
-				workspace: workspaceRoot,
-				date: new Date().toISOString().slice(0, 10),
-				model,
-				tools: selectedTools,
-				skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
-				workspaceFiles,
-				bootstrapMode,
-			});
-			const systemPromptForTurn = toolSelection.systemPromptSuffix
-				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
-				: systemPrompt;
+						selectedToolNames.has('read') &&
+						(selectedToolNames.has('write') || selectedToolNames.has('edit')) &&
+						selectedToolNames.has('exec'),
+				});
+				const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
+					buildSystemPrompt({
+						workspace: workspaceRoot,
+						date: new Date().toISOString().slice(0, 10),
+						model,
+						tools: selectedTools,
+						skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
+						workspaceFiles,
+						bootstrapMode,
+					})
+				);
+				const systemPromptForTurn = toolSelection.systemPromptSuffix
+					? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
+					: systemPrompt;
 
 			const hooks = this.buildHooks(agentId, {
 				runId,
-				providerId,
-				model,
-				tools: selectedTools.map((tool) => tool.name),
-				runLogger: runtime.runLogger,
-			});
+					providerId,
+					model,
+					tools: selectedTools.map((tool) => tool.name),
+					runLogger: runtime.runLogger,
+					systemPromptChars: systemPromptForTurn.length,
+					userMessageChars: message.length,
+					directAnswer,
+					bootstrapPending,
+					toolPolicyReason: toolPolicy.reason,
+					workspaceContextChars: workspaceContextChars(workspaceFiles),
+					prepStartedAt: runStartedAt,
+					phaseDurationsMs,
+				});
 			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
 				prompt: message,
 				messages: [...runtime.session.transcript, { role: 'user', content: message }],
