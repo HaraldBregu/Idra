@@ -282,7 +282,7 @@ export class ConnectorsService {
 			state,
 			scopes,
 		});
-		const callback = this.waitForOAuthCallback(state);
+		const callback = await this.waitForOAuthCallback(state);
 		await (this.options.openExternal ?? shell.openExternal)(authorizationUrl);
 		const { code } = await callback;
 		const token = await exchangeGoogleAuthorizationCode({
@@ -509,11 +509,11 @@ export class ConnectorsService {
 		};
 	}
 
-	private waitForOAuthCallback(expectedState: string): Promise<{ code: string }> {
+	private waitForOAuthCallback(expectedState: string): Promise<Promise<{ code: string }>> {
 		const redirectUri = new URL(this.oauthRedirectUri());
 		const port = Number(redirectUri.port);
 		let server: Server | null = null;
-		return new Promise((resolve, reject) => {
+		const callback = new Promise<{ code: string }>((resolve, reject) => {
 			const timeout = setTimeout(() => {
 				server?.close();
 				reject(new Error('Google OAuth timed out before authorization completed.'));
@@ -553,7 +553,10 @@ export class ConnectorsService {
 				clearTimeout(timeout);
 				reject(error);
 			});
-			server.listen(port, redirectUri.hostname);
+		});
+		return new Promise((resolve, reject) => {
+			server?.once('error', reject);
+			server?.listen(port, redirectUri.hostname, () => resolve(callback));
 		});
 	}
 
