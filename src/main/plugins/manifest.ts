@@ -72,7 +72,6 @@ export interface ConnectorManifestContracts {
 	realtimeVoiceProviders?: string[];
 	memoryEmbeddingProviders?: string[];
 	mediaUnderstandingProviders?: string[];
-	imageGenerationProviders?: string[];
 	videoGenerationProviders?: string[];
 	musicGenerationProviders?: string[];
 	migrationProviders?: string[];
@@ -337,7 +336,6 @@ function normalizeContracts(value: unknown): ConnectorManifestContracts {
 		realtimeVoiceProviders: normalizeStringList(value.realtimeVoiceProviders),
 		memoryEmbeddingProviders: normalizeStringList(value.memoryEmbeddingProviders),
 		mediaUnderstandingProviders: normalizeStringList(value.mediaUnderstandingProviders),
-		imageGenerationProviders: normalizeStringList(value.imageGenerationProviders),
 		videoGenerationProviders: normalizeStringList(value.videoGenerationProviders),
 		musicGenerationProviders: normalizeStringList(value.musicGenerationProviders),
 		migrationProviders: normalizeStringList(value.migrationProviders),

@@ -54,7 +54,6 @@ export interface OpenClawConnectorApi {
 	registerRealtimeTranscriptionProvider(registration: unknown): void;
 	registerRealtimeVoiceProvider(registration: unknown): void;
 	registerMediaUnderstandingProvider(registration: unknown): void;
-	registerImageGenerationProvider(registration: unknown): void;
 	registerVideoGenerationProvider(registration: unknown): void;
 	registerMusicGenerationProvider(registration: unknown): void;
 	registerMemoryEmbeddingProvider(registration: unknown): void;
@@ -162,9 +161,6 @@ export function buildOpenClawConnectorApi(
 			: noop,
 		registerMediaUnderstandingProvider: allowed('provider')
 			? (registration) => registerValue('mediaUnderstandingProviders', registration)
-			: noop,
-		registerImageGenerationProvider: allowed('provider')
-			? (registration) => registerValue('imageGenerationProviders', registration)
 			: noop,
 		registerVideoGenerationProvider: allowed('provider')
 			? (registration) => registerValue('videoGenerationProviders', registration)

@@ -914,7 +914,7 @@
 		"feature1": "Copy and paste plain text, HTML, and images",
 		"feature2": "Real-time preview of clipboard content",
 		"feature3": "Supports multiple clipboard formats simultaneously",
-		"feature4": "Canvas-based image generation example included"
+		"feature4": "Canvas-based clipboard example included"
 	},
 	"notifications": {
 		"title": "System Notifications",

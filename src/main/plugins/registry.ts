@@ -88,7 +88,6 @@ export type ConnectorRegistrySurface =
 	| 'realtimeTranscriptionProviders'
 	| 'realtimeVoiceProviders'
 	| 'mediaUnderstandingProviders'
-	| 'imageGenerationProviders'
 	| 'videoGenerationProviders'
 	| 'musicGenerationProviders'
 	| 'memoryEmbeddingProviders'
