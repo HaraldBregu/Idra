@@ -64,7 +64,7 @@ const SystemPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.system')} description={t('settings.sections.layout')} />
+			<SettingsPageHeader title={t('settings.tabs.system')} />
 
 			<SettingsSection title={t('settings.sections.layout')}>
 				<SettingsPanel>
