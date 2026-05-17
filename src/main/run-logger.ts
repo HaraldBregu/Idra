@@ -11,6 +11,12 @@ export interface RunLogStart {
 	userMessageChars: number;
 	tools: string[];
 	mcpToolCount: number;
+	directAnswer?: boolean;
+	bootstrapPending?: boolean;
+	toolPolicyReason?: string;
+	workspaceContextChars?: number;
+	prepDurationMs?: number;
+	phaseDurationsMs?: Record<string, number>;
 }
 
 export interface RunLogIteration {
@@ -88,6 +94,7 @@ export interface RunLogFinish {
 	durationMs: number;
 	usage: TokenUsage;
 	outputChars: number;
+	firstTokenLatencyMs?: number;
 	error?: { message: string; stack?: string };
 }
 
