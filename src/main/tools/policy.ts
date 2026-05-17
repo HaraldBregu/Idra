@@ -12,49 +12,27 @@ export interface PolicyConfig {
 }
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
-	minimal: ['get_workspace_path', 'get_workspace_content', 'session_status'],
+	minimal: ['read', 'find'],
 	coding: [
 		'read',
 		'write',
 		'edit',
-		'apply_patch',
 		'find',
 		'exec',
 		'process',
 		'web_fetch',
-		'update_plan',
-		'get_workspace_content',
-		'get_workspace_path',
-		'get_agent_service',
-		'get_agent_model',
 		'cron',
-		'cron_list',
 	],
-	messaging: [
-		'sessions_list',
-		'sessions_history',
-		'sessions_send',
-		'sessions_spawn',
-		'sessions_yield',
-		'subagents',
-		'session_status',
-	],
+	messaging: [],
 	standard: [
 		'read',
 		'write',
 		'edit',
-		'apply_patch',
 		'find',
 		'exec',
 		'process',
 		'web_fetch',
-		'update_plan',
-		'get_workspace_content',
-		'get_workspace_path',
-		'get_agent_service',
-		'get_agent_model',
 		'cron',
-		'cron_list',
 	],
 	full: 'all',
 };
@@ -72,10 +50,6 @@ export function filterTools(all: AgentTool[], cfg: PolicyConfig): AgentTool[] {
 	const profileAllow = PROFILE_ALLOW[cfg.profile];
 	const alsoAllow = cfg.alsoAllow ?? [];
 	const pass = (t: AgentTool): boolean => {
-		if (t.name === 'apply_patch') {
-			const writeCandidate = { ...t, name: 'write' };
-			return pass(writeCandidate);
-		}
 		if (
 			profileAllow !== 'all' &&
 			!profileAllow.includes(t.name) &&
