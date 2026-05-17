@@ -2,7 +2,9 @@ import type { GoogleOAuthCredential } from '../../shared/connectors';
 
 export const GOOGLE_OAUTH_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
+export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
 export const GOOGLE_GMAIL_API_BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
+export const GOOGLE_CALENDAR_API_BASE = 'https://www.googleapis.com/calendar/v3';
 export const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1:42818/oauth/google/callback';
 
 export const GOOGLE_GMAIL_SCOPES = {
@@ -14,6 +16,15 @@ export const GOOGLE_GMAIL_SCOPES = {
 	compose: ['https://www.googleapis.com/auth/gmail.compose'],
 	send: ['https://www.googleapis.com/auth/gmail.send'],
 	modify: ['https://www.googleapis.com/auth/gmail.modify'],
+} as const;
+
+export const GOOGLE_CALENDAR_SCOPES = {
+	profile: GOOGLE_GMAIL_SCOPES.profile,
+	read: [
+		'https://www.googleapis.com/auth/calendar.readonly',
+		'https://www.googleapis.com/auth/calendar.events.readonly',
+	],
+	write: ['https://www.googleapis.com/auth/calendar.events'],
 } as const;
 
 export type FetchLike = typeof fetch;
@@ -72,6 +83,71 @@ export interface GmailDraftResponse {
 	message?: GmailMessage;
 }
 
+export interface GoogleUserInfo {
+	email?: string;
+	name?: string;
+	picture?: string;
+	sub?: string;
+}
+
+export interface GoogleCalendarListEntry {
+	id?: string;
+	summary?: string;
+	description?: string;
+	timeZone?: string;
+	primary?: boolean;
+	accessRole?: string;
+	backgroundColor?: string;
+	foregroundColor?: string;
+	selected?: boolean;
+}
+
+export interface GoogleCalendarListResponse {
+	items?: GoogleCalendarListEntry[];
+	nextPageToken?: string;
+	nextSyncToken?: string;
+}
+
+export interface GoogleCalendarEventDateTime {
+	date?: string;
+	dateTime?: string;
+	timeZone?: string;
+}
+
+export interface GoogleCalendarEventAttendee {
+	email?: string;
+	displayName?: string;
+	optional?: boolean;
+	responseStatus?: string;
+}
+
+export interface GoogleCalendarEvent {
+	id?: string;
+	status?: string;
+	htmlLink?: string;
+	created?: string;
+	updated?: string;
+	summary?: string;
+	description?: string;
+	location?: string;
+	start?: GoogleCalendarEventDateTime;
+	end?: GoogleCalendarEventDateTime;
+	creator?: { email?: string; displayName?: string; self?: boolean };
+	organizer?: { email?: string; displayName?: string; self?: boolean };
+	attendees?: GoogleCalendarEventAttendee[];
+	recurrence?: string[];
+	recurringEventId?: string;
+}
+
+export interface GoogleCalendarEventsResponse {
+	items?: GoogleCalendarEvent[];
+	nextPageToken?: string;
+	nextSyncToken?: string;
+	summary?: string;
+	timeZone?: string;
+	updated?: string;
+}
+
 export function buildGoogleAuthorizationUrl(input: {
 	clientId: string;
 	redirectUri?: string;
@@ -101,6 +177,27 @@ export function scopesForGmailTools(toolNames: readonly string[]): string[] {
 		if (tool === 'trash_email') GOOGLE_GMAIL_SCOPES.modify.forEach((scope) => scopes.add(scope));
 	}
 	return [...scopes];
+}
+
+export function scopesForGoogleCalendarTools(toolNames: readonly string[]): string[] {
+	const scopes = new Set<string>([
+		...GOOGLE_CALENDAR_SCOPES.profile,
+		...GOOGLE_CALENDAR_SCOPES.read,
+	]);
+	for (const tool of toolNames) {
+		if (['create_event', 'update_event', 'delete_event'].includes(tool)) {
+			GOOGLE_CALENDAR_SCOPES.write.forEach((scope) => scopes.add(scope));
+		}
+	}
+	return [...scopes];
+}
+
+export function scopesForGoogleConnectorTools(
+	connectorId: string,
+	toolNames: readonly string[]
+): string[] {
+	if (connectorId === 'connector_googlecalendar') return scopesForGoogleCalendarTools(toolNames);
+	return scopesForGmailTools(toolNames);
 }
 
 export async function exchangeGoogleAuthorizationCode(input: {
@@ -133,6 +230,21 @@ export async function refreshGoogleAccessToken(input: {
 	});
 	if (input.clientSecret) body.set('client_secret', input.clientSecret);
 	return requestGoogleToken(body, input.fetchImpl);
+}
+
+export class GoogleProfileClient {
+	constructor(
+		private readonly accessToken: string,
+		private readonly fetchImpl: FetchLike = fetch
+	) {}
+
+	async getUserInfo(): Promise<GoogleUserInfo> {
+		const response = await this.fetchImpl(GOOGLE_USERINFO_URL, {
+			headers: { authorization: `Bearer ${this.accessToken}` },
+		});
+		if (!response.ok) throw await googleHttpError(response, 'Google user info request failed');
+		return (await response.json()) as GoogleUserInfo;
+	}
 }
 
 export class GmailApiClient {
@@ -208,6 +320,104 @@ export class GmailApiClient {
 	}
 }
 
+export class GoogleCalendarApiClient {
+	constructor(
+		private readonly accessToken: string,
+		private readonly fetchImpl: FetchLike = fetch
+	) {}
+
+	async listCalendars(input: {
+		maxResults?: number;
+		pageToken?: string;
+	} = {}): Promise<GoogleCalendarListResponse> {
+		const url = new URL(`${GOOGLE_CALENDAR_API_BASE}/users/me/calendarList`);
+		url.searchParams.set('maxResults', String(clampMaxResults(input.maxResults, 50)));
+		if (input.pageToken) url.searchParams.set('pageToken', input.pageToken);
+		return this.fetchJson<GoogleCalendarListResponse>(url.toString());
+	}
+
+	async listEvents(input: {
+		calendarId?: string;
+		query?: string;
+		timeMin?: string;
+		timeMax?: string;
+		maxResults?: number;
+		pageToken?: string;
+		showDeleted?: boolean;
+		singleEvents?: boolean;
+		orderBy?: string;
+	}): Promise<GoogleCalendarEventsResponse> {
+		const calendarId = encodeURIComponent(input.calendarId || 'primary');
+		const url = new URL(`${GOOGLE_CALENDAR_API_BASE}/calendars/${calendarId}/events`);
+		url.searchParams.set('maxResults', String(clampMaxResults(input.maxResults, 20)));
+		url.searchParams.set('singleEvents', String(input.singleEvents ?? true));
+		url.searchParams.set('orderBy', input.orderBy || 'startTime');
+		if (input.query) url.searchParams.set('q', input.query);
+		if (input.timeMin) url.searchParams.set('timeMin', input.timeMin);
+		if (input.timeMax) url.searchParams.set('timeMax', input.timeMax);
+		if (input.pageToken) url.searchParams.set('pageToken', input.pageToken);
+		if (input.showDeleted) url.searchParams.set('showDeleted', 'true');
+		return this.fetchJson<GoogleCalendarEventsResponse>(url.toString());
+	}
+
+	async getEvent(calendarId: string, eventId: string): Promise<GoogleCalendarEvent> {
+		return this.fetchJson<GoogleCalendarEvent>(
+			`${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId || 'primary')}/events/${encodeURIComponent(eventId)}`
+		);
+	}
+
+	async createEvent(
+		calendarId: string,
+		event: GoogleCalendarEvent
+	): Promise<GoogleCalendarEvent> {
+		return this.fetchJson<GoogleCalendarEvent>(
+			`${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId || 'primary')}/events`,
+			{
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(event),
+			}
+		);
+	}
+
+	async updateEvent(
+		calendarId: string,
+		eventId: string,
+		event: GoogleCalendarEvent
+	): Promise<GoogleCalendarEvent> {
+		return this.fetchJson<GoogleCalendarEvent>(
+			`${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId || 'primary')}/events/${encodeURIComponent(eventId)}`,
+			{
+				method: 'PATCH',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(event),
+			}
+		);
+	}
+
+	async deleteEvent(calendarId: string, eventId: string): Promise<{ deleted: true; calendarId: string; eventId: string }> {
+		await this.fetchJson<Record<string, never>>(
+			`${GOOGLE_CALENDAR_API_BASE}/calendars/${encodeURIComponent(calendarId || 'primary')}/events/${encodeURIComponent(eventId)}`,
+			{ method: 'DELETE' }
+		);
+		return { deleted: true, calendarId: calendarId || 'primary', eventId };
+	}
+
+	private async fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
+		const response = await this.fetchImpl(url, {
+			...init,
+			headers: {
+				authorization: `Bearer ${this.accessToken}`,
+				...(init.headers ?? {}),
+			},
+		});
+		if (!response.ok) throw await googleHttpError(response, 'Google Calendar API request failed');
+		if (response.status === 204) return {} as T;
+		const text = await response.text();
+		return (text ? JSON.parse(text) : {}) as T;
+	}
+}
+
 export function projectGmailMessage(message: GmailMessage): Record<string, unknown> {
 	const headers = headersToObject(message.payload?.headers ?? []);
 	return {
@@ -227,6 +437,42 @@ export function projectGmailMessageWithBody(message: GmailMessage): Record<strin
 	return {
 		...projectGmailMessage(message),
 		body: extractTextBody(message.payload).slice(0, 64 * 1024),
+	};
+}
+
+export function projectGoogleCalendarListEntry(calendar: GoogleCalendarListEntry): Record<string, unknown> {
+	return {
+		id: calendar.id,
+		summary: calendar.summary,
+		description: calendar.description,
+		timeZone: calendar.timeZone,
+		primary: calendar.primary,
+		accessRole: calendar.accessRole,
+		selected: calendar.selected,
+	};
+}
+
+export function projectGoogleCalendarEvent(event: GoogleCalendarEvent): Record<string, unknown> {
+	return {
+		id: event.id,
+		status: event.status,
+		htmlLink: event.htmlLink,
+		summary: event.summary,
+		description: event.description,
+		location: event.location,
+		start: event.start,
+		end: event.end,
+		creator: event.creator,
+		organizer: event.organizer,
+		attendees: event.attendees?.map((attendee) => ({
+			email: attendee.email,
+			displayName: attendee.displayName,
+			optional: attendee.optional,
+			responseStatus: attendee.responseStatus,
+		})),
+		recurrence: event.recurrence,
+		recurringEventId: event.recurringEventId,
+		updated: event.updated,
 	};
 }
 
@@ -332,7 +578,7 @@ function headerValue(value: string): string {
 	return value.trim();
 }
 
-function clampMaxResults(value: number | undefined): number {
-	if (!value || !Number.isFinite(value)) return 10;
-	return Math.max(1, Math.min(20, Math.floor(value)));
+function clampMaxResults(value: number | undefined, max = 20): number {
+	if (!value || !Number.isFinite(value)) return Math.min(10, max);
+	return Math.max(1, Math.min(max, Math.floor(value)));
 }
