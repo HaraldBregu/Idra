@@ -83,12 +83,11 @@ export function bootstrapServices(): BootstrapResult {
 			logger,
 			eventBus,
 			workspace,
-			userDataDirectory,
-			mcpRegistry,
-			skills,
-			connectors,
-		})
-	);
+				userDataDirectory,
+				mcpRegistry,
+				skills,
+			})
+		);
 	const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
