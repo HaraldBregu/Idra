@@ -118,11 +118,11 @@ export function SettingsPanel({ children, className }: SettingsPanelProps): Reac
 		<Card
 			size="sm"
 			className={cn(
-				'gap-0 rounded-lg border border-border/70 bg-card py-0 shadow-none',
+				'p-0!',
 				className
 			)}
 		>
-			<CardContent className="p-0">{children}</CardContent>
+			<CardContent className="p-0!">{children}</CardContent>
 		</Card>
 	);
 }
