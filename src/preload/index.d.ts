@@ -161,6 +161,7 @@ import type {
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
 	openUserDataFolder: () => Promise<void>;
+	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;

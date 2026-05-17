@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { handleExternalLinkClick } from '@/lib/external-links';
 import type {
 	ConnectorApprovalMode,
 	ConnectorConfig,
@@ -369,6 +370,9 @@ const ConnectorsPage: React.FC = () => {
 												href={catalogSetupUrl(selectedCatalog)}
 												target="_blank"
 												rel="noreferrer"
+												onClick={(event) =>
+													handleExternalLinkClick(event, catalogSetupUrl(selectedCatalog))
+												}
 												className="inline-flex items-center gap-1 text-[11px] text-foreground underline-offset-2 hover:underline"
 											>
 												Open setup

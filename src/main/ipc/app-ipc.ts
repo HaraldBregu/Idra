@@ -9,6 +9,7 @@ import { DEFAULT_PROVIDERS, type ProviderInput, type PublicProvider } from '../.
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
+import { normalizeExternalUrl } from '../../shared/external-links';
 import {
 	filterSelectableAgentModels,
 	isAllowedAgentModel,
@@ -118,6 +119,17 @@ export class AppIpc implements IpcModule {
 				const target = await userDataDirectory.ensureRoot();
 				await openPathOrThrow(target);
 			}, AppChannels.openUserDataFolder)
+		);
+
+		ipcMain.handle(
+			AppChannels.openExternalUrl,
+			wrapSimpleHandler(async (url: string) => {
+				const externalUrl = normalizeExternalUrl(url);
+				if (!externalUrl) {
+					throw new Error('External URL must use HTTP or HTTPS.');
+				}
+				await shell.openExternal(externalUrl);
+			}, AppChannels.openExternalUrl)
 		);
 
 		ipcMain.handle(

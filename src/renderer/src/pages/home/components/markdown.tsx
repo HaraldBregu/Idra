@@ -1,4 +1,5 @@
 import type { Components } from 'react-markdown';
+import { handleExternalLinkClick, isExternalHref } from '@/lib/external-links';
 
 export const markdownComponents: Partial<Components> = {
 	p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
@@ -10,8 +11,9 @@ export const markdownComponents: Partial<Components> = {
 	a: ({ children, href }) => (
 		<a
 			href={href}
-			target={href?.startsWith('#') ? undefined : '_blank'}
-			rel={href?.startsWith('#') ? undefined : 'noreferrer'}
+			target={isExternalHref(href) ? '_blank' : undefined}
+			rel={isExternalHref(href) ? 'noreferrer' : undefined}
+			onClick={(event) => handleExternalLinkClick(event, href)}
 			className="font-medium text-primary underline decoration-border underline-offset-4 hover:text-foreground"
 		>
 			{children}

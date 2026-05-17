@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { handleExternalLinkClick } from '@/lib/external-links';
 import type { ConnectorView } from '../../../../../shared/connectors';
 import { ConnectorStatusBadge } from './ConnectorStatusBadge';
 
@@ -97,6 +98,7 @@ export function ConnectorCard({
 									href={setupUrl}
 									target="_blank"
 									rel="noreferrer"
+									onClick={(event) => handleExternalLinkClick(event, setupUrl)}
 									className="inline-flex items-center gap-1 text-[11px] text-foreground underline-offset-2 hover:underline"
 								>
 									Open setup

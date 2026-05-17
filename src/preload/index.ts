@@ -137,6 +137,9 @@ export const app: AppApi = {
 	openUserDataFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openUserDataFolder);
 	},
+	openExternalUrl: (url: string): Promise<void> => {
+		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
+	},
 	setTrayEnabled: (enabled: boolean): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
 	},

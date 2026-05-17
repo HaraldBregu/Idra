@@ -1,7 +1,8 @@
-import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
+import { BrowserWindow, BrowserWindowConstructorOptions, shell } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
+import { normalizeExternalUrl } from '../../shared/external-links';
 
 export interface WindowPreset {
 	name: string;
@@ -67,7 +68,16 @@ export class WindowFactory {
 		const win = new BrowserWindow(options);
 
 		// Prevent arbitrary window.open() calls from creating unrestricted windows
-		win.webContents.setWindowOpenHandler(() => {
+		win.webContents.setWindowOpenHandler(({ url }) => {
+			const externalUrl = normalizeExternalUrl(url);
+			if (externalUrl) {
+				void shell.openExternal(externalUrl).catch((error) => {
+					this.logger?.warn('WindowFactory', 'Failed to open external URL', {
+						url: externalUrl,
+						error,
+					});
+				});
+			}
 			return { action: 'deny' };
 		});
 

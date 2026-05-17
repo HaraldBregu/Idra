@@ -39,6 +39,7 @@ export const AppChannels = {
 	openLogsFolder: 'app:open-logs-folder',
 	openAppDataFolder: 'app:open-app-data-folder',
 	openUserDataFolder: 'app:open-user-data-folder',
+	openExternalUrl: 'app:open-external-url',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
 } as const;
@@ -134,6 +135,10 @@ interface AppInvokeChannelMap {
 	};
 	[AppChannels.openUserDataFolder]: {
 		args: [];
+		result: void;
+	};
+	[AppChannels.openExternalUrl]: {
+		args: [url: string];
 		result: void;
 	};
 	[AppChannels.setTrayEnabled]: {
