@@ -59,8 +59,8 @@ const SystemPage: React.FC = () => {
 
 	const handleTranslucencyChange =
 		(mode: ThemeVariant) =>
-		(event: React.ChangeEvent<HTMLInputElement>): void => {
-			setTranslucency(mode, Number(event.currentTarget.value));
+		(values: number[]): void => {
+			setTranslucency(mode, values[0] ?? 0);
 		};
 
 	return (
