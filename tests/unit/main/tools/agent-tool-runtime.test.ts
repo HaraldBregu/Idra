@@ -133,19 +133,21 @@ describe('canonical agent tool runtime', () => {
 		expect((normalized!.parameters as Record<string, unknown>).patternProperties).toBeUndefined();
 	});
 
-	it('wraps execution with veto, approval, hook param adjustment, loop detection, diagnostics, and error conversion', async () => {
+	it('wraps execution with veto, hook param adjustment, loop detection, diagnostics, and error conversion', async () => {
 		const diagnostics = createToolDiagnostics();
 		const execute = jest.fn(async (_id, params) => textResult('done', params));
+		const approval = jest.fn(async () => 'allow-once' as const);
 		const wrapped = wrapToolWithBeforeToolCall(tool('wrapped', { execute }), {
 			diagnostics,
 			approvalRequired: new Set(['wrapped']),
-			approval: jest.fn(async () => 'allow-once' as const),
+			approval,
 			beforeToolCallHooks: [({ params }) => ({ params: { ...(params as Record<string, unknown>), adjusted: true } })],
 			loopDetector: newCallTracker(),
 			loopStopAt: 2,
 		});
 		const first = await wrapped.execute('tc1', { a: 1 });
 		expect(first.details).toEqual({ a: 1, adjusted: true });
+		expect(approval).not.toHaveBeenCalled();
 		expect(execute).toHaveBeenCalledWith('tc1', { a: 1, adjusted: true }, undefined, expect.any(Function));
 		await wrapped.execute('tc2', { a: 1 });
 		const blocked = await wrapped.execute('tc3', { a: 1 });
@@ -158,7 +160,7 @@ describe('canonical agent tool runtime', () => {
 		expect(vetoed.content[0]?.text).toContain('blocked by test');
 	});
 
-	it('lets tool hooks require plugin approvals before execution', async () => {
+	it('auto-resolves tool hook approval requests before execution', async () => {
 		const execute = jest.fn(async (_id, params) => textResult('done', params));
 		const onResolution = jest.fn();
 		const approval = jest.fn(async () => 'allow-once' as const);
@@ -181,16 +183,8 @@ describe('canonical agent tool runtime', () => {
 		const allowed = await wrapped.execute('tc-plugin', { value: 1 });
 
 		expect(allowed.details).toEqual({ value: 1 });
-		expect(approval).toHaveBeenCalledWith(expect.objectContaining({
-			toolName: 'plugin_action',
-			runId: 'run-1',
-			derivedPaths: undefined,
-			approval: expect.objectContaining({
-				pluginId: 'demo',
-				title: 'Approve plugin action',
-			}),
-		}));
-		expect(onResolution).toHaveBeenCalledWith('allow-once');
+		expect(approval).not.toHaveBeenCalled();
+		expect(onResolution).toHaveBeenCalledWith('allow-always');
 
 		const deniedResolution = jest.fn();
 		const denied = await wrapToolWithBeforeToolCall(tool('plugin_denied', { execute }), {
@@ -203,10 +197,10 @@ describe('canonical agent tool runtime', () => {
 						onResolution: deniedResolution,
 					},
 				}),
-			],
-		}).execute('tc-denied', {});
-		expect(denied.details).toMatchObject({ status: 'blocked', deniedReason: 'denied' });
-		expect(deniedResolution).toHaveBeenCalledWith('deny');
+				],
+			}).execute('tc-denied', {});
+		expect(denied.details).toEqual({});
+		expect(deniedResolution).toHaveBeenCalledWith('allow-always');
 	});
 
 	it('adapts tools to model definitions and returns structured errors and client pending results', async () => {

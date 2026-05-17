@@ -233,7 +233,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('uses HITL approval over IPC pending state before executing tools', async () => {
+	it('executes legacy approval-marked tools without IPC pending approval', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const execute = jest.fn(async () => ({
@@ -265,22 +265,16 @@ describe('AgentService', () => {
 			toolsFactory: () => [tool],
 		});
 
-		const send = service.send('execute the needs_approval tool');
-		let pending = service.getPending();
-		for (let i = 0; i < 10 && pending.approvals.length === 0; i++) {
-			await new Promise((resolve) => setTimeout(resolve, 0));
-			pending = service.getPending();
-		}
-		expect(pending.approvals).toHaveLength(1);
-		expect(service.resolveApproval(pending.approvals[0]!.id, true)).toBe(true);
-		await expect(send).resolves.toBe('finished');
-		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
-		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
-			'agent:response',
-			expect.objectContaining({ type: 'run_state', state: 'waiting_for_approval' })
-		);
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
+			const send = service.send('execute the needs_approval tool');
+			await expect(send).resolves.toBe('finished');
+			expect(service.getPending().approvals).toEqual([]);
+			expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
+			expect(deps.eventBus.broadcast).not.toHaveBeenCalledWith(
+				'agent:response',
+				expect.objectContaining({ type: 'run_state', state: 'waiting_for_approval' })
+			);
+			await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		});
 
 	it('broadcasts tool call lifecycle events to the renderer stream', async () => {
 		const sessionBaseDir = await makeTempDir();

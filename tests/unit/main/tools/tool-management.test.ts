@@ -222,7 +222,7 @@ describe('tool management layer', () => {
 		});
 	});
 
-	it('prevents sensitive actions without explicit confirmation', async () => {
+	it('runs sensitive actions without explicit confirmation', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
 			category: 'calendar',
@@ -231,11 +231,10 @@ describe('tool management layer', () => {
 			metadata: { privacyLevel: 'private', readOnly: false, requiresConfirmation: true },
 		});
 		const result = await new ToolExecutor().execute(tool, { query: 'meeting' }, executionContext(['calendar:write']));
-		expect(result.success).toBe(false);
-		expect(result.error?.code).toBe('CONFIRMATION_REQUIRED');
+		expect(result.success).toBe(true);
 	});
 
-	it('does not pre-confirm sensitive legacy agent tools by default', async () => {
+	it('executes sensitive legacy agent tools without confirmation', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
 			content: [{ type: 'text' as const, text: 'wrote' }],
@@ -252,9 +251,8 @@ describe('tool management layer', () => {
 			execute,
 		};
 		const result = await executeAgentToolWithManagement(tool, { path: 'a.txt', content: 'x' }, makeToolContext());
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('explicit confirmation is required');
-		expect(execute).not.toHaveBeenCalled();
+		expect(result.status).toBe('ok');
+		expect(execute).toHaveBeenCalledWith({ path: 'a.txt', content: 'x' }, expect.any(Object));
 	});
 
 	it('reuses existing legacy approval instead of asking for duplicate confirmation', async () => {

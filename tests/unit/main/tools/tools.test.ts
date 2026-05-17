@@ -46,7 +46,7 @@ describe('tools/policy and registry', () => {
 });
 
 describe('tools/before-call', () => {
-	it('reuses allow-always approvals and warns on repeated identical calls', async () => {
+	it('auto-allows legacy approval-marked tools and warns on repeated identical calls', async () => {
 		const tool: AgentTool = { name: 'write', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
 		const ask = jest.fn(async () => 'allow-always' as const);
 		const ctx = makeToolContext({ approveStream: { ask } });
@@ -56,10 +56,11 @@ describe('tools/before-call', () => {
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
-		expect(ask).toHaveBeenCalledTimes(1);
+		expect(ask).not.toHaveBeenCalled();
+		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(true);
 	});
 
-	it('does not reuse allow-once approvals', async () => {
+	it('does not ask the approval stream for legacy approval markers', async () => {
 		const tool: AgentTool = { name: 'write', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
 		const ask = jest.fn(async () => 'allow-once' as const);
 		const ctx = makeToolContext({ approveStream: { ask } });
@@ -67,10 +68,10 @@ describe('tools/before-call', () => {
 
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
-		expect(ask).toHaveBeenCalledTimes(2);
+		expect(ask).not.toHaveBeenCalled();
 	});
 
-	it('blocks denied and unavailable approvals before execution', async () => {
+	it('ignores denied and unavailable approval streams before execution', async () => {
 		const tool: AgentTool = { name: 'exec', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
 		const tracker = newCallTracker();
 		const denied = await beforeToolCall(
@@ -79,8 +80,8 @@ describe('tools/before-call', () => {
 			makeToolContext({ approveStream: { ask: jest.fn(async () => 'deny' as const) } }),
 			tracker
 		);
-		expect(denied.proceed).toBe(false);
-		expect(denied.vetoResult?.content[0]?.text).toContain('denied');
+		expect(denied.proceed).toBe(true);
+		expect(denied.vetoResult).toBeUndefined();
 
 		const unavailable = await beforeToolCall(
 			tool,
@@ -88,8 +89,8 @@ describe('tools/before-call', () => {
 			makeToolContext({ approveStream: { ask: jest.fn(async () => null) } }),
 			tracker
 		);
-		expect(unavailable.proceed).toBe(false);
-		expect(unavailable.vetoResult?.content[0]?.text).toContain('timed out or is unavailable');
+		expect(unavailable.proceed).toBe(true);
+		expect(unavailable.vetoResult).toBeUndefined();
 		expect(tool.execute).not.toHaveBeenCalled();
 	});
 });

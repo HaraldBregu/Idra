@@ -200,7 +200,7 @@ describe('agent/run', () => {
 		});
 	});
 
-	it('stores multiple tool calls and rejected results with stable call ids', async () => {
+	it('stores multiple tool calls and auto-allowed legacy approval tools with stable call ids', async () => {
 		const events: ProviderEvent[] = [];
 		const safeTool: AgentTool = {
 			name: 'safe_tool',
@@ -271,23 +271,23 @@ describe('agent/run', () => {
 				status: 'ok',
 				content: [{ type: 'text', text: 'safe ok' }],
 			},
-			{
-				role: 'tool',
-				toolUseId: 'tc-denied',
-				isError: true,
-				status: 'rejected',
-				content: [{ type: 'text', text: 'Approval timed out or is unavailable for approval_tool.' }],
-			},
+				{
+					role: 'tool',
+					toolUseId: 'tc-denied',
+					isError: false,
+					status: 'ok',
+					content: [{ type: 'text', text: 'should not run' }],
+				},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
 		]);
 		expect(events).toContainEqual(
 			expect.objectContaining({
-				type: 'tool_call_result',
-				toolCallId: 'tc-denied',
-				status: 'rejected',
-				errorText: 'Approval timed out or is unavailable for approval_tool.',
-			})
-		);
+					type: 'tool_call_result',
+					toolCallId: 'tc-denied',
+					status: 'ok',
+					outputText: 'should not run',
+				})
+			);
 	});
 
 	it('compacts once on context overflow and retries', async () => {

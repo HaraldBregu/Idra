@@ -36,12 +36,12 @@ describe('mcp modules', () => {
 				server_label: 'gmail',
 				connector_id: 'connector_gmail',
 				authorization: 'token',
-				server_description: 'Gmail',
-				allowed_tools: ['get_profile'],
-				defer_loading: true,
-				require_approval: { never: { tool_names: ['get_profile'] } },
-			}),
-		]);
+					server_description: 'Gmail',
+					allowed_tools: ['get_profile'],
+					defer_loading: true,
+					require_approval: 'never',
+				}),
+			]);
 	});
 
 	it('creates safe environment maps and normalizes errors', () => {
