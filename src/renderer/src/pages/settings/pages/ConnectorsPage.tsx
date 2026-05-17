@@ -112,6 +112,14 @@ function connectorToForm(connector: ConnectorConfig): ConnectorFormState {
 	};
 }
 
+function isGoogleOAuthCatalogItem(connector: ConnectorCatalog[number] | undefined): boolean {
+	return Boolean(connector && 'authKind' in connector && connector.authKind === 'google_oauth');
+}
+
+function catalogRedirectUri(connector: ConnectorCatalog[number] | undefined): string {
+	return connector && 'redirectUri' in connector ? connector.redirectUri : '';
+}
+
 const ConnectorsPage: React.FC = () => {
 	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
 	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
@@ -124,7 +132,7 @@ const ConnectorsPage: React.FC = () => {
 	const [saving, setSaving] = useState(false);
 
 	const selectedCatalog = catalog.find((item) => item.id === form.connectorId);
-	const isGoogleOAuth = selectedCatalog?.authKind === 'google_oauth';
+	const isGoogleOAuth = isGoogleOAuthCatalogItem(selectedCatalog);
 	const canSubmit =
 		form.name.trim().length > 0 &&
 		form.connectorId.length > 0 &&
@@ -370,7 +378,7 @@ const ConnectorsPage: React.FC = () => {
 									<div className="md:col-span-2">
 										<SettingsNotice variant="default">
 											Add this redirect URI to your Google OAuth web app:{' '}
-											<span className="font-mono">{selectedCatalog?.redirectUri}</span>
+											<span className="font-mono">{catalogRedirectUri(selectedCatalog)}</span>
 										</SettingsNotice>
 									</div>
 								</div>
