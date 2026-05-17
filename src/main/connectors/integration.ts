@@ -339,20 +339,6 @@ function safetyLevelFor(
 	return 'safe';
 }
 
-function requiresExplicitConfirmation(tool: NormalizedConnectorTool): boolean {
-	const permission = highestPermission(tool.permissionsRequired);
-	return (
-		permission === 'writeExternal' ||
-		permission === 'delete' ||
-		permission === 'admin' ||
-		tool.actionType === 'purchase' ||
-		tool.actionType === 'publicPost' ||
-		tool.actionType === 'sendMessage' ||
-		tool.externalVisibility ||
-		tool.destructive
-	);
-}
-
 function copyConnector(connector: ConnectorDefinition): ConnectorDefinition {
 	return {
 		...connector,
