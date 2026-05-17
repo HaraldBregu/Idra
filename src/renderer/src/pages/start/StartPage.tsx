@@ -467,11 +467,6 @@ const StartPage: React.FC = () => {
 	const [savedModelId, setSavedModelId] = useState('');
 	const [agentModelGroups, setAgentModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
-	const [imageGenerationProvider, setImageGenerationProvider] = useState('');
-	const [savedImageGenerationModelId, setSavedImageGenerationModelId] = useState('');
-	const [imageGenerationModelGroups, setImageGenerationModelGroups] = useState<
-		ProviderModelGroup[]
-	>([]);
 	const [connectorCatalog, setConnectorCatalog] = useState<ConnectorCatalog>([]);
 	const [configuredConnectors, setConfiguredConnectors] = useState<ConnectorView[]>([]);
 	const [connectorDrafts, setConnectorDrafts] = useState<Record<string, string>>({});
@@ -482,7 +477,6 @@ const StartPage: React.FC = () => {
 	const [savingConnectorGroupId, setSavingConnectorGroupId] = useState<string | null>(
 		null
 	);
-	const [selectedImageGenerationModel, setSelectedImageGenerationModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
 	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
@@ -509,31 +503,10 @@ const StartPage: React.FC = () => {
 			}),
 		[agentModelGroups]
 	);
-	const imageGenerationModelOptions = useMemo<AgentModelOption[]>(
-		() =>
-			imageGenerationModelGroups.flatMap((group) => {
-				const catalog = getProviderCatalogItem(group.provider.id);
-
-				return group.models.map((model) => ({
-					value: getAgentModelValue(group.provider.id, model.id),
-					provider: group.provider,
-					catalog,
-					model,
-				}));
-			}),
-		[imageGenerationModelGroups]
-	);
 	const selectedAgentModelValue =
 		configProvider && selectedModel ? getAgentModelValue(configProvider, selectedModel) : '';
 	const selectedAgentModelOption = agentModelOptions.find(
 		(option) => option.value === selectedAgentModelValue
-	);
-	const selectedImageGenerationModelValue =
-		imageGenerationProvider && selectedImageGenerationModel
-			? getAgentModelValue(imageGenerationProvider, selectedImageGenerationModel)
-			: '';
-	const selectedImageGenerationModelOption = imageGenerationModelOptions.find(
-		(option) => option.value === selectedImageGenerationModelValue
 	);
 	const selectedProvider =
 		selectedAgentModelOption?.provider ??
@@ -631,10 +604,9 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, agentService, imageGenerationService] = await Promise.all([
+				const [storedProviders, agentService] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAgentService(),
-					window.app.getImageGenerationService(),
 				]);
 				if (cancelled) return;
 
@@ -647,26 +619,16 @@ const StartPage: React.FC = () => {
 					) ??
 					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 					selectableProviders[0];
-				const preferredImageGenerationProvider =
-					selectableProviders.find(
-						(provider) => provider.id === imageGenerationService?.provider.id
-					) ??
-					selectableProviders.find((provider) => provider.id === 'openai') ??
-					selectableProviders[0];
 
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
 				setSavedModelId(agentService?.model.id ?? '');
-				setImageGenerationProvider(preferredImageGenerationProvider?.id ?? '');
-				setSavedImageGenerationModelId(imageGenerationService?.model.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 
 				setProviders([]);
 				setConfigProvider('');
 				setSavedModelId('');
-				setImageGenerationProvider('');
-				setSavedImageGenerationModelId('');
 				setErrorMessage(getErrorMessage(error, 'Could not load agent providers.'));
 			}
 		}
@@ -686,9 +648,7 @@ const StartPage: React.FC = () => {
 		async function loadModels(): Promise<void> {
 			if (providers.length === 0) {
 				setAgentModelGroups([]);
-				setImageGenerationModelGroups([]);
 				setSelectedModel('');
-				setSelectedImageGenerationModel('');
 				return;
 			}
 
@@ -696,22 +656,14 @@ const StartPage: React.FC = () => {
 			setErrorMessage('');
 			try {
 				const nextAgentGroups: ProviderModelGroup[] = [];
-				const nextImageGenerationGroups: ProviderModelGroup[] = [];
 				let firstError: unknown;
 
 				for (const provider of providers) {
 					try {
-						const [agentModels, imageGenerationModels] = await Promise.all([
-							window.app.getModels(provider),
-							window.app.getImageGenerationModels(provider),
-						]);
+						const agentModels = await window.app.getModels(provider);
 
 						if (agentModels.length > 0) {
 							nextAgentGroups.push({ provider, models: agentModels });
-						}
-
-						if (imageGenerationModels.length > 0) {
-							nextImageGenerationGroups.push({ provider, models: imageGenerationModels });
 						}
 					} catch (error) {
 						firstError ??= error;
@@ -721,12 +673,8 @@ const StartPage: React.FC = () => {
 				if (cancelled) return;
 
 				setAgentModelGroups(nextAgentGroups);
-				setImageGenerationModelGroups(nextImageGenerationGroups);
 
 				const agentOptions = nextAgentGroups.flatMap((group) =>
-					group.models.map((model) => ({ provider: group.provider, model }))
-				);
-				const imageGenerationOptions = nextImageGenerationGroups.flatMap((group) =>
 					group.models.map((model) => ({ provider: group.provider, model }))
 				);
 				const preferredAgentOption =
@@ -736,21 +684,9 @@ const StartPage: React.FC = () => {
 					) ??
 					agentOptions.find((option) => option.provider.id === configProvider) ??
 					agentOptions[0];
-				const preferredImageGenerationOption =
-					imageGenerationOptions.find(
-						(option) =>
-							option.provider.id === imageGenerationProvider &&
-							option.model.id === savedImageGenerationModelId
-					) ??
-					imageGenerationOptions.find(
-						(option) => option.provider.id === imageGenerationProvider
-					) ??
-					imageGenerationOptions[0];
 
 				setConfigProvider(preferredAgentOption?.provider.id ?? '');
 				setSelectedModel(preferredAgentOption?.model.id ?? '');
-				setImageGenerationProvider(preferredImageGenerationOption?.provider.id ?? '');
-				setSelectedImageGenerationModel(preferredImageGenerationOption?.model.id ?? '');
 
 				if (!preferredAgentOption && firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
@@ -759,9 +695,7 @@ const StartPage: React.FC = () => {
 				if (cancelled) return;
 
 				setAgentModelGroups([]);
-				setImageGenerationModelGroups([]);
 				setSelectedModel('');
-				setSelectedImageGenerationModel('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
 				if (!cancelled) {
@@ -775,7 +709,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [providers, savedImageGenerationModelId, savedModelId, step]);
+	}, [providers, savedModelId, step]);
 
 	useEffect(() => {
 		if (step !== 'connectors') return;
@@ -918,15 +852,6 @@ const StartPage: React.FC = () => {
 		setSelectedModel(option.model.id);
 	}
 
-	function handleImageGenerationModelChange(value: string | null): void {
-		const option = imageGenerationModelOptions.find((item) => item.value === value);
-		if (!option) return;
-
-		setErrorMessage('');
-		setImageGenerationProvider(option.provider.id);
-		setSelectedImageGenerationModel(option.model.id);
-	}
-
 	async function handleSaveAgentModel(): Promise<void> {
 		if (!selectedAgentModelOption || !canSaveAgentModel) return;
 
@@ -937,12 +862,6 @@ const StartPage: React.FC = () => {
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
-			if (selectedImageGenerationModelOption) {
-				await window.app.saveImageGenerationService(
-					selectedImageGenerationModelOption.provider,
-					selectedImageGenerationModelOption.model
-				);
-			}
 			goToStep('connectors');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
@@ -1319,9 +1238,6 @@ const StartPage: React.FC = () => {
 	function renderModelsStep(): React.JSX.Element {
 		const selectedCatalog =
 			selectedAgentModelOption?.catalog ?? getProviderCatalogItem(configProvider);
-		const selectedImageGenerationCatalog =
-			selectedImageGenerationModelOption?.catalog ??
-			getProviderCatalogItem(imageGenerationProvider);
 		const openAiConnected = connectedProviderIds.has('openai');
 
 		return (
@@ -1331,8 +1247,8 @@ const StartPage: React.FC = () => {
 						Choose your models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Pick a model for each role. Only models from providers you connected
-						appear.
+						Pick the model Friday uses for text responses. Only models from
+						providers you connected appear.
 					</p>
 				</div>
 
@@ -1386,94 +1302,6 @@ const StartPage: React.FC = () => {
 											{group.models.map((model) => {
 												const value = getAgentModelValue(group.provider.id, model.id);
 												const selected = value === selectedAgentModelValue;
-
-												return (
-													<SelectItem
-														key={value}
-														value={value}
-														className={cn(
-															'h-10 px-2 py-0 pr-8 text-sm font-semibold',
-															selected && 'bg-accent text-accent-foreground'
-														)}
-													>
-														<span className="flex min-w-0 items-center gap-2">
-															<span
-																className={cn(
-																	'flex size-4 shrink-0 items-center justify-center rounded-full border border-border',
-																	selected &&
-																		'rounded-md border-primary bg-primary text-primary-foreground'
-																)}
-															>
-																{selected ? <Check className="size-3" /> : null}
-															</span>
-															<span className="truncate">{model.name}</span>
-														</span>
-													</SelectItem>
-												);
-											})}
-										</SelectGroup>
-									);
-								})}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div className="space-y-2">
-						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-							Image generation
-						</Label>
-						<Select
-							value={selectedImageGenerationModelValue}
-							onValueChange={handleImageGenerationModelChange}
-							disabled={
-								loadingModels || imageGenerationModelOptions.length === 0 || savingConfig
-							}
-						>
-							<SelectTrigger
-								id="image-generation-model"
-								className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
-							>
-								<SelectValue className="sr-only" />
-								<div className="flex min-w-0 items-center gap-2.5">
-									<ProviderMark
-										initial={selectedImageGenerationCatalog.initial}
-										className={selectedImageGenerationCatalog.swatchClassName}
-									/>
-									<div className="min-w-0">
-										<p className="truncate text-sm font-semibold leading-tight text-foreground">
-											{selectedImageGenerationModelOption?.model.name ||
-												(loadingModels
-													? 'Loading models...'
-													: 'No image model available')}
-										</p>
-										<p className="truncate text-xs font-medium text-muted-foreground">
-											{selectedImageGenerationModelOption?.provider.name ||
-												imageGenerationProvider ||
-												'No provider'}{' '}
-											- Creates images when you ask
-										</p>
-									</div>
-								</div>
-							</SelectTrigger>
-							<SelectContent align="start" className="rounded-lg p-1">
-								{imageGenerationModelGroups.map((group) => {
-									const catalog = getProviderCatalogItem(group.provider.id);
-
-									return (
-										<SelectGroup key={group.provider.id}>
-											<SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-												<ProviderMark
-													initial={catalog.initial}
-													className={cn(
-														catalog.swatchClassName,
-														'size-4 rounded-full text-[0.625rem]'
-													)}
-												/>
-												{catalog.name}
-											</SelectLabel>
-											{group.models.map((model) => {
-												const value = getAgentModelValue(group.provider.id, model.id);
-												const selected = value === selectedImageGenerationModelValue;
 
 												return (
 													<SelectItem
