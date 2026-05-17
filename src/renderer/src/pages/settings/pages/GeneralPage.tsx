@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection } from '../components';
 import { Switch } from '@/components/ui/switch';
 
 const GeneralPage: React.FC = () => {
