@@ -607,7 +607,9 @@ function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): 
 	if (connector.requireApproval === 'always') return true;
 	if (connector.requireApproval === 'never') return false;
 	const allowed = new Set(connector.allowedTools);
-	if (connector.requireApproval === 'never_for_allowed_tools' && !allowed.has(toolName)) return true;
+	if (connector.requireApproval === 'never_for_allowed_tools' && allowed.size > 0 && !allowed.has(toolName)) {
+		return true;
+	}
 	return ['create_draft', 'send_email', 'trash_email'].includes(toolName);
 }
 
