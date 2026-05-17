@@ -167,7 +167,7 @@ export class AgentService {
 				this.workspaceRoot()
 			);
 			const provider = recordPhase(phaseDurationsMs, 'create_provider', () =>
-				this.providerFactory({ id: providerId, apiKey, baseURL }, model)
+				this.providerFactory({ id: providerId, apiKey, baseURL })
 			);
 			const ctx: ToolContext = {
 				workspace: workspaceRoot,
