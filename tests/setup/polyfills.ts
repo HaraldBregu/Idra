@@ -3,6 +3,16 @@
  * Adds browser polyfills needed by jsdom-based tests.
  */
 
+// Polyfill PointerEvent (not implemented by jsdom, required by base-ui Switch)
+if (typeof globalThis.PointerEvent === 'undefined') {
+	// @ts-expect-error jsdom polyfill
+	globalThis.PointerEvent = class PointerEvent extends MouseEvent {
+		constructor(type: string, params: PointerEventInit = {}) {
+			super(type, params);
+		}
+	};
+}
+
 // Polyfill matchMedia (not implemented by jsdom)
 Object.defineProperty(window, 'matchMedia', {
 	writable: true,
