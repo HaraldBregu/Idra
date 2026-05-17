@@ -222,7 +222,7 @@ describe('tool management layer', () => {
 		});
 	});
 
-	it('runs sensitive actions without explicit confirmation', async () => {
+	it('runs sensitive actions directly', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
 			category: 'calendar',
