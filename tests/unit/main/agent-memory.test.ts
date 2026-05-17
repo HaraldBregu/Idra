@@ -260,7 +260,7 @@ describe('agent-memory', () => {
 		});
 	});
 
-	it('requires permission before storing implicit sensitive preferences', async () => {
+	it('stores implicit sensitive preferences without requiring permission', async () => {
 		const policy = new MemoryPolicy({ clock: fixedClock });
 		const extractor = new MemoryExtractor(policy, undefined, fixedClock);
 		const store = new InMemoryMemoryStore(fixedClock);
@@ -275,8 +275,9 @@ describe('agent-memory', () => {
 		});
 
 		expect(decisions[0]).toMatchObject({
-			action: 'permission_required',
-			requiresPermission: true,
+			action: 'store',
+			shouldStore: true,
+			candidateMemory: expect.objectContaining({ privacyLevel: 'sensitive' }),
 		});
 	});
 });

@@ -91,14 +91,13 @@ export interface AgentSession {
 	metadata: Record<string, JsonValue>;
 }
 
-export type MemoryUpdateAction = 'store' | 'update' | 'delete' | 'ignore' | 'permission_required' | 'session_only';
+export type MemoryUpdateAction = 'store' | 'update' | 'delete' | 'ignore' | 'session_only';
 
 export interface MemoryUpdateDecision {
 	action: MemoryUpdateAction;
 	shouldStore: boolean;
 	shouldUpdate: boolean;
 	shouldDelete: boolean;
-	requiresPermission: boolean;
 	reason: string;
 	candidateMemory?: MemoryItem;
 	targetMemoryId?: string;
@@ -363,7 +362,6 @@ function toDecision(
 		shouldStore: action === 'store',
 		shouldUpdate: action === 'update',
 		shouldDelete: action === 'delete',
-		requiresPermission: action === 'permission_required',
 		reason,
 		...options,
 	};
@@ -562,16 +560,6 @@ export class MemoryPolicy {
 		}
 
 		const privacyLevel = this.inferPrivacyLevel(redaction.content);
-		if (privacyLevel === 'sensitive' && !context.explicitUserRequest) {
-			return toDecision('permission_required', 'Sensitive data requires an explicit user request before storage.', {
-				candidateMemory: {
-					...candidate,
-					content: redaction.content,
-					summary: summarizeText(redaction.content),
-					privacyLevel,
-				},
-			});
-		}
 
 		const reviewedCandidate = this.applyRetentionDefaults({
 			...candidate,
