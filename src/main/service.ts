@@ -4,6 +4,7 @@ import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
+import type { ConnectorsService } from './connectors';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	resolveBootstrapMode,
@@ -44,6 +45,7 @@ export interface AgentServiceDependencies {
 	eventBus: EventBus;
 	workspace: WorkspaceService;
 	userDataDirectory: UserDataDirectoryServicePort;
+	connectors?: ConnectorsService;
 	mcpRegistry?: McpRegistry;
 	skills?: SkillsService;
 }
@@ -125,7 +127,11 @@ export class AgentService {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolsFactory =
-			options.toolsFactory ?? (() => createTools({ profile: 'full', allow: [], deny: [] }));
+			options.toolsFactory ??
+			(() => [
+				...createTools({ profile: 'full', allow: [], deny: [] }),
+				...(this.dependencies.connectors?.createAgentTools() ?? []),
+			]);
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
