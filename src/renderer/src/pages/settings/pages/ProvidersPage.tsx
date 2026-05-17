@@ -67,62 +67,62 @@ const ProvidersPage: React.FC = () => {
 						const isBusy = saving === provider.id;
 
 						return (
-							<SettingsRow
-								key={provider.id}
-								icon={Server}
-								title={
-									<span className="flex min-w-0 flex-wrap items-center gap-1.5">
-										<span className="truncate">{provider.name}</span>
-										<Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px]">
-											{provider.id}
-										</Badge>
-									</span>
-								}
-								description={
-									<span className="block truncate font-mono text-[11px]">{provider.baseUrl}</span>
-								}
-								actionClassName="sm:w-auto"
-								actions={
-									<div className="flex w-full flex-wrap items-center gap-1.5 sm:flex-nowrap">
-										<Badge
-											variant={isSaved ? 'secondary' : 'outline'}
-											className="h-5 shrink-0 px-1.5 text-[10px]"
-										>
-											{isSaved ? (
-												<CheckCircle2 className="mr-0.5 size-2.5" />
-											) : (
-												<KeyRound className="mr-0.5 size-2.5" />
-											)}
-											{isSaved
-												? t('settings.providers.keySaved')
-												: t('settings.providers.keyMissing')}
-										</Badge>
-										<Input
-											type="password"
-											value={draft}
-											onChange={(e) =>
-												setDrafts((current) => ({ ...current, [provider.id]: e.target.value }))
-											}
-											onKeyDown={(e) => {
-												if (e.key === 'Enter' && draft.trim()) void saveApiKey(provider.id);
-											}}
-											placeholder={t('settings.providers.apiKeyPlaceholder')}
-											className="h-7 min-w-0 px-2 text-xs sm:w-56 md:text-xs"
-											aria-label={`${provider.name} ${t('providers.apiKey')}`}
-										/>
-										<Button
-											type="button"
-											size="xs"
-											variant="outline"
-											onClick={() => void saveApiKey(provider.id)}
-											disabled={!draft.trim() || isBusy}
-										>
-											<Save className="size-3" />
-											{t('common.save')}
-										</Button>
+							<Item key={provider.id} variant="outline" size="sm" className="border-b border-border/60 last:border-b-0">
+								<ItemMedia variant="icon">
+									<Server className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<div>
+										<ItemTitle>
+											<span className="flex min-w-0 flex-wrap items-center gap-1.5">
+												<span className="truncate">{provider.name}</span>
+												<Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px]">
+													{provider.id}
+												</Badge>
+											</span>
+										</ItemTitle>
+										<p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{provider.baseUrl}</p>
 									</div>
-								}
-							/>
+								</ItemContent>
+								<ItemActions className="flex-wrap gap-1.5 sm:flex-nowrap">
+									<Badge
+										variant={isSaved ? 'secondary' : 'outline'}
+										className="h-5 shrink-0 px-1.5 text-[10px]"
+									>
+										{isSaved ? (
+											<CheckCircle2 className="mr-0.5 size-2.5" />
+										) : (
+											<KeyRound className="mr-0.5 size-2.5" />
+										)}
+										{isSaved
+											? t('settings.providers.keySaved')
+											: t('settings.providers.keyMissing')}
+									</Badge>
+									<Input
+										type="password"
+										value={draft}
+										onChange={(e) =>
+											setDrafts((current) => ({ ...current, [provider.id]: e.target.value }))
+										}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && draft.trim()) void saveApiKey(provider.id);
+										}}
+										placeholder={t('settings.providers.apiKeyPlaceholder')}
+										className="h-7 min-w-0 px-2 text-xs sm:w-56 md:text-xs"
+										aria-label={`${provider.name} ${t('providers.apiKey')}`}
+									/>
+									<Button
+										type="button"
+										size="xs"
+										variant="outline"
+										onClick={() => void saveApiKey(provider.id)}
+										disabled={!draft.trim() || isBusy}
+									>
+										<Save className="size-3" />
+										{t('common.save')}
+									</Button>
+								</ItemActions>
+							</Item>
 						);
 					})}
 				</SettingsPanel>
