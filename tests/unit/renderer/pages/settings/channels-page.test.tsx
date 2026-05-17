@@ -94,6 +94,23 @@ describe('ChannelsPage', () => {
 		};
 	});
 
+	it('saves config when the enabled switch is toggled', async () => {
+		const user = userEvent.setup();
+		render(<ChannelsPage />);
+
+		await screen.findByRole('button', { name: /Slack/ });
+
+		const enabledSwitch = screen.getByRole('switch', { name: 'Enabled' });
+		await user.click(enabledSwitch);
+
+		await waitFor(() => {
+			expect(saveChannelConfig).toHaveBeenCalledWith(
+				'telegram',
+				expect.objectContaining({ enabled: true })
+			);
+		});
+	});
+
 	it('loads all channel cards and saves a generic provider configuration', async () => {
 		const user = userEvent.setup();
 		render(<ChannelsPage />);
