@@ -13,9 +13,12 @@ import { Button } from '@/components/ui/button';
 import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsRow, SettingsSection, SettingsValue } from '../components';
 import { Switch } from '@/components/ui/switch';
 
-const splitRowClassName = 'grid-cols-[minmax(0,1fr)_auto]';
-const valueActionClassName = 'ml-auto w-auto max-w-[46%] justify-end';
-const controlActionClassName = 'ml-auto w-auto justify-end';
+const generalRowClassName =
+	'grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-3.5 py-2.5 sm:px-4 sm:py-2.5';
+const generalContentClassName = 'items-start gap-2.5';
+const valueActionClassName = 'ml-auto w-auto max-w-[44%] justify-end text-right';
+const controlActionClassName = 'ml-auto w-auto shrink-0 justify-end';
+const actionButtonClassName = 'h-6 gap-1.5 px-2 text-[11px]';
 
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -57,7 +60,8 @@ const GeneralPage: React.FC = () => {
 						icon={AppWindow}
 						title={t('settings.application.name')}
 						description={t('settings.application.nameDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={valueActionClassName}
 						actions={<SettingsValue>{__APP_NAME__}</SettingsValue>}
 					/>
@@ -65,7 +69,8 @@ const GeneralPage: React.FC = () => {
 						icon={Info}
 						title={t('settings.application.description')}
 						description={t('settings.application.descriptionDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={valueActionClassName}
 						actions={<SettingsValue>{__APP_DESCRIPTION__}</SettingsValue>}
 					/>
@@ -73,21 +78,24 @@ const GeneralPage: React.FC = () => {
 						icon={ShieldCheck}
 						title={t('settings.application.version')}
 						description={t('settings.application.versionDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={valueActionClassName}
 						actions={<SettingsValue mono>{__APP_VERSION__}</SettingsValue>}
 					/>
 					<SettingsRow
 						title={t('settings.application.author')}
 						description={t('settings.application.authorDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={valueActionClassName}
 						actions={<SettingsValue>{__APP_AUTHOR__}</SettingsValue>}
 					/>
 					<SettingsRow
 						title={t('settings.application.license')}
 						description={t('settings.application.licenseDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={valueActionClassName}
 						actions={<SettingsValue>{__APP_LICENSE__}</SettingsValue>}
 					/>
@@ -100,10 +108,16 @@ const GeneralPage: React.FC = () => {
 						icon={Accessibility}
 						title={t('settings.application.accessibility')}
 						description={t('settings.application.accessibilityDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={controlActionClassName}
 						actions={
-							<Button variant="outline" size="xs" onClick={handleOpenAccessibility}>
+							<Button
+								variant="outline"
+								size="xs"
+								onClick={handleOpenAccessibility}
+								className={actionButtonClassName}
+							>
 								<Accessibility className="size-3" />
 								{t('settings.application.openAccessibility')}
 							</Button>
@@ -113,10 +127,16 @@ const GeneralPage: React.FC = () => {
 						icon={MonitorUp}
 						title={t('settings.application.screenRecording')}
 						description={t('settings.application.screenRecordingDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={controlActionClassName}
 						actions={
-							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording}>
+							<Button
+								variant="outline"
+								size="xs"
+								onClick={handleOpenScreenRecording}
+								className={actionButtonClassName}
+							>
 								<MonitorUp className="size-3" />
 								{t('settings.application.openScreenRecording')}
 							</Button>
@@ -126,20 +146,27 @@ const GeneralPage: React.FC = () => {
 						icon={PanelTop}
 						title={t('settings.application.menuBar')}
 						description={t('settings.application.menuBarDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={controlActionClassName}
 						actions={
-							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+							<Switch size="sm" checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
 						}
 					/>
 					<SettingsRow
 						icon={FolderOpen}
 						title={t('settings.application.appData')}
 						description={t('settings.application.appDataDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={controlActionClassName}
 						actions={
-							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
+							<Button
+								variant="outline"
+								size="xs"
+								onClick={handleOpenAppDataFolder}
+								className={actionButtonClassName}
+							>
 								<FolderOpen className="size-3" />
 								{t('settings.application.openAppData')}
 							</Button>
@@ -149,10 +176,16 @@ const GeneralPage: React.FC = () => {
 						icon={FolderOpen}
 						title={t('settings.application.userData')}
 						description={t('settings.application.userDataDescription')}
-						className={splitRowClassName}
+						className={generalRowClassName}
+						contentClassName={generalContentClassName}
 						actionClassName={controlActionClassName}
 						actions={
-							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder}>
+							<Button
+								variant="outline"
+								size="xs"
+								onClick={handleOpenUserDataFolder}
+								className={actionButtonClassName}
+							>
 								<FolderOpen className="size-3" />
 								{t('settings.application.openUserData')}
 							</Button>
