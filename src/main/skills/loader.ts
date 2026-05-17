@@ -332,7 +332,10 @@ function manifestOnlySkill(
 				reasons: confidence > 0 ? ['Matched Agent Skill metadata.'] : [],
 			};
 		},
-		async execute(_input: unknown, context: SkillExecutionContext): Promise<SkillResult> {
+		async execute(
+			_input: unknown,
+			context: SkillExecutionContext
+		): Promise<SkillResult<AgentSkillActivationOutput>> {
 			const resources = await listSkillResources(sourcePath);
 			return context.complete({
 				name: manifest.name,
