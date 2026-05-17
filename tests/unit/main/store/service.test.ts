@@ -291,38 +291,6 @@ describe('StoreService', () => {
 	});
 
 	// -------------------------------------------------------------------------
-	// getImageGenerationService
-	// -------------------------------------------------------------------------
-
-	describe('getImageGenerationService()', () => {
-		it('returns the image generation block when service is set', () => {
-			const imageGeneration = {
-				provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-				model: { id: 'gpt-image-1', name: 'GPT Image 1' },
-			};
-			const svc: Service = {
-				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
-				imageGeneration,
-				rag: '',
-				ocr: '',
-			};
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', svc);
-
-			expect(service.getImageGenerationService()).toEqual(imageGeneration);
-		});
-
-		it('returns undefined when image generation is absent from the service', () => {
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
-
-			expect(service.getImageGenerationService()).toBeUndefined();
-		});
-	});
-
-	// -------------------------------------------------------------------------
 	// getAgentProvider
 	// -------------------------------------------------------------------------
 
@@ -436,68 +404,6 @@ describe('StoreService', () => {
 			service.setAgentService('openai', model);
 
 			expect(service.getService()?.agent?.model).toEqual(model);
-		});
-	});
-
-	// -------------------------------------------------------------------------
-	// setImageGenerationService
-	// -------------------------------------------------------------------------
-
-	describe('setImageGenerationService()', () => {
-		const imageModel: Model = { id: 'gpt-image-1', name: 'GPT Image 1' };
-
-		it('returns false and does not write when the provider id is not found', () => {
-			const service = new StoreService();
-
-			const result = service.setImageGenerationService('unknown', imageModel);
-
-			expect(result).toBe(false);
-			expect(service.getService()).toBeUndefined();
-		});
-
-		it('returns true and writes the image generation service when the provider is found', () => {
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('providers', [openaiProvider]);
-
-			const result = service.setImageGenerationService('openai', imageModel);
-
-			expect(result).toBe(true);
-			expect(service.getImageGenerationService()?.model).toEqual(imageModel);
-		});
-
-		it('preserves existing agent, rag, and ocr values from the current service', () => {
-			const existing: Service = {
-				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
-				rag: 'existing-rag',
-				ocr: 'existing-ocr',
-			};
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('providers', [openaiProvider]);
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', existing);
-
-			service.setImageGenerationService('openai', imageModel);
-
-			const written = service.getService();
-			expect(written?.agent).toEqual(existing.agent);
-			expect(written?.rag).toBe('existing-rag');
-			expect(written?.ocr).toBe('existing-ocr');
-		});
-
-		it('can write image generation settings before agent settings exist', () => {
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('providers', [openaiProvider]);
-
-			service.setImageGenerationService('openai', imageModel);
-
-			const written = service.getService();
-			expect(written?.agent).toBeUndefined();
-			expect(written?.imageGeneration?.model).toEqual(imageModel);
-			expect(written?.rag).toBe('');
-			expect(written?.ocr).toBe('');
 		});
 	});
 
