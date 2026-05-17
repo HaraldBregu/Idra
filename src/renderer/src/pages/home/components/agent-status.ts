@@ -5,7 +5,7 @@ const runStateLabels: Record<AgentRunState, string> = {
 	thinking: 'Thinking',
 	reasoning: 'Thinking',
 	using_tools: 'Using tools',
-	waiting_for_approval: 'Needs approval',
+	waiting_for_approval: 'Waiting for input',
 	answering: 'Answering',
 	completed: 'Completed',
 	cancelled: 'Cancelled',

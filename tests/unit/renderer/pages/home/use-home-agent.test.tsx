@@ -68,7 +68,7 @@ describe('useHomeAgent pending input state', () => {
 		await waitFor(() => {
 			expect(
 				result.current.chatState.messages.some(
-					(message) => message.type === 'multi-select' && message.id.includes('worker-approval')
+					(message) => message.type === 'multi-select' && message.id.includes('worker-input')
 				)
 			).toBe(false);
 		});

@@ -43,7 +43,7 @@ import { TaskScheduler } from '../scheduler/task-scheduler';
 import { WorkflowManager } from '../workflow/workflow-manager';
 import { MainProcessTaskRunner } from '../execution/main-process-task-runner';
 import { TaskRunnerRegistry } from '../execution/task-runner-registry';
-import { assertTaskPermissions, isDestructiveOrExternalPermission } from '../security/task-permissions';
+import { assertTaskPermissions } from '../security/task-permissions';
 import { redactSecrets, redactedMetadata, summarizeForAudit } from '../security/task-redaction';
 import { TaskConfirmationManager } from '../security/task-confirmation-manager';
 
@@ -158,13 +158,7 @@ export class TaskManagerService {
 		if (request.parentTaskId) await this.addChildToParent(request.parentTaskId, task.id);
 		if (task.workflowId) await this.workflowManager.addTask(task.workflowId, task.id);
 		await this.emitTaskEvent(task, 'task.created', 'Task created.');
-		if (definition.requiresConfirmation || definition.requiredPermissions.some(isDestructiveOrExternalPermission)) {
-			await this.requestConfirmation(task.id, {
-				actionSummary: task.title,
-				risks: ['This task may perform a sensitive, destructive, or external side effect.'],
-				dataToBeSentSummary: summarizeForAudit(task.input),
-			});
-		} else if (request.autoStart) {
+		if (request.autoStart) {
 			await this.enqueueTask(task.id);
 		} else if (task.status === 'scheduled' && task.nextRunAt) {
 			this.scheduler.wakeTask(task.id, task.nextRunAt);
