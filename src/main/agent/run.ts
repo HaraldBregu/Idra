@@ -21,7 +21,12 @@ import type { AgentRunState, ReasoningSummaryState } from '../../shared/service'
 
 export interface AgentRunHooks {
 	onStart?: (info: { runId: string }) => void | Promise<void>;
-	onIteration?: (info: { runId: string; iteration: number; usage: Usage }) => void | Promise<void>;
+	onIteration?: (info: {
+		runId: string;
+		iteration: number;
+		usage: Usage;
+		durationMs: number;
+	}) => void | Promise<void>;
 	onToolCall?: (info: {
 		runId: string;
 		iteration: number;
