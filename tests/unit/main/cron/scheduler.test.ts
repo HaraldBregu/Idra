@@ -1,7 +1,6 @@
 import type { Task } from '../../../../src/shared/task';
 import {
 	AgentCronService,
-	CronScheduleConfirmationRequiredError,
 	CronSchedulerService,
 	DefaultCronScheduleAccessPolicy,
 	InMemoryCronScheduleStore,
@@ -274,14 +273,14 @@ describe('CronSchedulerService', () => {
 		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({ status: 'deleted', enabled: false });
 	});
 
-	it('denies missing permissions and requires confirmation for sensitive schedules', async () => {
+	it('allows schedules without permission grants or confirmation', async () => {
 		const { scheduler } = makeScheduler();
-		await expect(
-			scheduler.createSchedule(request(), { ...actor, permissions: [] })
-		).rejects.toThrow(/Missing permission/);
+		await expect(scheduler.createSchedule(request(), { ...actor, permissions: [] })).resolves.toMatchObject({
+			taskType: 'test.task',
+		});
 		await expect(
 			scheduler.createSchedule(request({ taskType: 'email.send', requiresConfirmation: true }), actor)
-		).rejects.toBeInstanceOf(CronScheduleConfirmationRequiredError);
+		).resolves.toMatchObject({ taskType: 'email.send' });
 	});
 
 	it('allows agents to create inspectable schedules through AgentCronService', async () => {

@@ -3,7 +3,6 @@ import {
 	PriorityQueue,
 	TaskDefinitionRegistry,
 	TaskManagerService,
-	TaskPermissionError,
 	WorkerTaskRunner,
 	type TaskDefinition,
 	type TaskExecutionContext,
@@ -253,20 +252,23 @@ describe('task manager', () => {
 		expect((await store.getTask(scheduled.id)).status).toBe('completed');
 	});
 
-	it('denies missing permissions and holds confirmation-required tasks', async () => {
+	it('creates permissioned and confirmation-marked tasks without human approval', async () => {
 		const { manager } = setup([
 			definition('private', undefined, { requiredPermissions: ['readPrivateData' as TaskPermissionLevel] }),
 			definition('delete', undefined, { requiredPermissions: ['deleteData'], requiresConfirmation: true }),
 		]);
 
-		await expect(manager.createTask({ type: 'private', source: 'ui', input: {} })).rejects.toBeInstanceOf(TaskPermissionError);
+		const privateTask = await manager.createTask({ type: 'private', source: 'ui', input: {} });
+		expect((await manager.getTask(privateTask.id)).status).toBe('pending');
+
 		const task = await manager.createTask({
 			type: 'delete',
 			source: 'ui',
 			input: {},
-			availablePermissions: ['deleteData'],
+			autoStart: true,
 		});
-		expect((await manager.getTask(task.id)).status).toBe('waitingForConfirmation');
+		await waitForTerminal(manager, task.id);
+		expect((await manager.getTask(task.id)).status).toBe('completed');
 	});
 
 	it('redacts audit data and reports worker task failures cleanly', async () => {

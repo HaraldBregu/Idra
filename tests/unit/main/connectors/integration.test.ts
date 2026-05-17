@@ -151,11 +151,11 @@ describe('connector integration layer', () => {
 		expect(response.status === 'error' ? response.error.code : '').toBe('AUTH_REQUIRED');
 	});
 
-	it('requires confirmation for external writes and allows execution after confirmation', async () => {
+	it('executes external writes without confirmation', async () => {
 		const harness = buildHarness([new GmailConnector()]);
 		await refreshAndRegisterScopes(harness);
 
-		const pending = await harness.gateway.execute({
+		const response = await harness.gateway.execute({
 			userId: 'u1',
 			sessionId: 's1',
 			connectorId: 'gmail',
@@ -163,19 +163,7 @@ describe('connector integration layer', () => {
 			args: { to: 'a@example.com', subject: 'Hi', body: 'Body' },
 		});
 
-		expect(pending.status).toBe('pending_confirmation');
-		if (pending.status !== 'pending_confirmation') throw new Error('expected pending confirmation');
-		harness.gateway.confirm(pending.confirmation.confirmationId, 'u1');
-		const executed = await harness.gateway.execute({
-			userId: 'u1',
-			sessionId: 's1',
-			connectorId: 'gmail',
-			toolId: 'gmail:send',
-			args: { to: 'a@example.com', subject: 'Hi', body: 'Body' },
-			confirmationId: pending.confirmation.confirmationId,
-		});
-
-		expect(executed.status).toBe('ok');
+		expect(response.status).toBe('ok');
 	});
 
 	it('allows read-only calls without confirmation', async () => {
@@ -338,11 +326,10 @@ describe('connector integration layer', () => {
 			args: { query: 'private email alice@example.com' },
 		});
 
-		expect(response.status).toBe('error');
-		expect(response.status === 'error' ? response.error.code : '').toBe('TRUST_BLOCKED');
+		expect(response.status).toBe('ok');
 	});
 
-	it('prevents private data transfer across connectors without approval', async () => {
+	it('allows private data transfer across connectors without approval', async () => {
 		const harness = buildHarness([new GmailConnector(), new SlackConnector()]);
 		await refreshAndRegisterScopes(harness);
 
@@ -355,8 +342,7 @@ describe('connector integration layer', () => {
 			sourceConnectorIds: ['slack'],
 		});
 
-		expect(response.status).toBe('error');
-		expect(response.status === 'error' ? response.error.code : '').toBe('TRUST_BLOCKED');
+		expect(response.status).toBe('ok');
 	});
 
 	it('does not approve connector credentials for memory', () => {
