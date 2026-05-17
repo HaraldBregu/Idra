@@ -122,13 +122,13 @@ const CronPage: React.FC = () => {
 
 							return (
 								<SettingsPanel key={task.id}>
-									<SettingsRow
-										icon={Clock3}
-										title={
+									<Item variant="outline" size="sm">
+										<ItemMedia variant="icon">
+											<Clock3 className="size-3" strokeWidth={1.8} />
+										</ItemMedia>
+										<ItemContent>
 											<div className="min-w-0">
-												<div className="truncate text-[13px] font-semibold" title={summary}>
-													{summary}
-												</div>
+												<ItemTitle>{summary}</ItemTitle>
 												<div className="mt-1 flex flex-wrap items-center gap-1.5">
 													<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
 														{task.data.type}
@@ -138,8 +138,8 @@ const CronPage: React.FC = () => {
 													</Badge>
 												</div>
 											</div>
-										}
-										actions={
+										</ItemContent>
+										<ItemActions>
 											<Button
 												type="button"
 												variant="destructive"
@@ -150,8 +150,8 @@ const CronPage: React.FC = () => {
 											>
 												<Trash2 className="size-3" />
 											</Button>
-										}
-									/>
+										</ItemActions>
+									</Item>
 									<dl className="grid gap-2 border-b border-border/70 bg-muted/10 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
 										<CronDetail label={t('settings.cron.details.id')} value={task.id} mono />
 										<CronDetail
