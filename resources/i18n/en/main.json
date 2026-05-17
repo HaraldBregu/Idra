@@ -362,8 +362,6 @@
 			"modelsLoading": "Loading…",
 			"textModel": "Text generation",
 			"textModelDescription": "Used by the agent for writing, chat, reasoning, and document edits.",
-			"imageModel": "Image generation",
-			"imageModelDescription": "Used by the agent when image generation tools are available.",
 			"temperature": "Temperature",
 			"thinkingMode": "Thinking Mode",
 			"thinkingModeDescription": "Enable extended reasoning for complex tasks",

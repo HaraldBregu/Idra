@@ -362,8 +362,6 @@
 			"modelsLoading": "Caricamento…",
 			"textModel": "Generazione testo",
 			"textModelDescription": "Usato dall'assistente per scrittura, chat, ragionamento e modifiche ai documenti.",
-			"imageModel": "Generazione immagini",
-			"imageModelDescription": "Usato dall'assistente quando gli strumenti di generazione immagini sono disponibili.",
 			"temperature": "Temperatura",
 			"thinkingMode": "Modalità Ragionamento",
 			"thinkingModeDescription": "Abilita il ragionamento esteso per attività complesse",
