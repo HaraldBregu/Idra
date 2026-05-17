@@ -56,6 +56,24 @@ export class StoreService {
 		return provider;
 	}
 
+	upsertProvider(input: Provider): void {
+		const id = input.id.trim().toLowerCase();
+		const providers = this.store.get('providers') ?? [];
+		const index = providers.findIndex((p) => p.id.trim().toLowerCase() === id);
+		const record: Provider = {
+			id,
+			name: input.name.trim(),
+			baseUrl: input.baseUrl.trim(),
+			apiKey: input.apiKey.trim(),
+		};
+		if (index !== -1) {
+			providers[index] = record;
+		} else {
+			providers.push(record);
+		}
+		this.store.set('providers', providers);
+	}
+
 	getService(): Service | undefined {
 		return this.store.get('service');
 	}
