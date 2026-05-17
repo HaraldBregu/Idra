@@ -164,15 +164,6 @@ export const app: AppApi = {
 	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(ProviderChannels.saveAgentService, provider, model);
 	},
-	getImageGenerationModels: (provider: PublicProvider): Promise<Model[]> => {
-		return typedInvokeUnwrap(ProviderChannels.getImageGenerationModels, provider);
-	},
-	getImageGenerationService: (): Promise<Agent | undefined> => {
-		return typedInvokeUnwrap(ProviderChannels.getImageGenerationService);
-	},
-	saveImageGenerationService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(ProviderChannels.saveImageGenerationService, provider, model);
-	},
 	listApps: (): Promise<AppInfo[]> => {
 		return typedInvokeUnwrap(AppsChannels.list);
 	},

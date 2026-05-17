@@ -55,36 +55,3 @@ export function filterSelectableAgentModels(providerId: string, models: Model[])
 
 	return models;
 }
-
-function isOpenAiImageGenerationModelId(modelId: string): boolean {
-	const normalizedModelId = modelId.trim().toLowerCase();
-	return normalizedModelId.includes('image') || normalizedModelId.startsWith('dall-e');
-}
-
-export function isAllowedImageGenerationModel(providerId: string, modelId: string): boolean {
-	const normalizedProviderId = normalizeProviderId(providerId);
-
-	if (normalizedProviderId === 'openai') {
-		return isOpenAiImageGenerationModelId(modelId);
-	}
-
-	if (normalizedProviderId === 'anthropic') {
-		return false;
-	}
-
-	return true;
-}
-
-export function filterSelectableImageGenerationModels(providerId: string, models: Model[]): Model[] {
-	const normalizedProviderId = normalizeProviderId(providerId);
-
-	if (normalizedProviderId === 'openai') {
-		return models.filter((model) => isOpenAiImageGenerationModelId(model.id));
-	}
-
-	if (normalizedProviderId === 'anthropic') {
-		return [];
-	}
-
-	return models;
-}

@@ -2,7 +2,6 @@ import { Provider } from "./providers";
 
 export interface Service {
 	agent?: Agent;
-	imageGeneration?: Agent;
 	rag: string;
 	ocr: string;
 }

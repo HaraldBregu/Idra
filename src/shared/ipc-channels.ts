@@ -32,9 +32,6 @@ export const ProviderChannels = {
 	getModels: 'provider:get-models',
 	getAgentService: 'provider:get-agent-service',
 	saveAgentService: 'provider:save-agent-service',
-	getImageGenerationModels: 'provider:get-image-generation-models',
-	getImageGenerationService: 'provider:get-image-generation-service',
-	saveImageGenerationService: 'provider:save-image-generation-service',
 } as const;
 
 export const AppChannels = {
@@ -172,18 +169,6 @@ interface AppInvokeChannelMap {
 		result: import('./service').Agent | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
-		result: boolean;
-	};
-	[ProviderChannels.getImageGenerationModels]: {
-		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
-	};
-	[ProviderChannels.getImageGenerationService]: {
-		args: [];
-		result: import('./service').Agent | undefined;
-	};
-	[ProviderChannels.saveImageGenerationService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};

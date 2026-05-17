@@ -68,10 +68,6 @@ export class StoreService {
 		return this.store.get('service')?.agent?.model;
 	}
 
-	getImageGenerationService(): Agent | undefined {
-		return this.store.get('service')?.imageGeneration;
-	}
-
 	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
 		return this.store.get('service')?.agent?.provider;
 	}
@@ -84,29 +80,6 @@ export class StoreService {
 		const current = this.store.get('service');
 		const next: Service = {
 			agent: {
-				provider: {
-					id: provider.id,
-					name: provider.name,
-					baseUrl: provider.baseUrl,
-				},
-				model,
-			},
-			rag: current?.rag ?? '',
-			ocr: current?.ocr ?? '',
-		};
-		this.store.set('service', next);
-		return true;
-	}
-
-	setImageGenerationService(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		const current = this.store.get('service');
-		const next: Service = {
-			agent: current?.agent,
-			imageGeneration: {
 				provider: {
 					id: provider.id,
 					name: provider.name,

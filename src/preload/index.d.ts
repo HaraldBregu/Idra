@@ -170,9 +170,6 @@ export interface AppApi {
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	getAgentService: () => Promise<Agent | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getImageGenerationModels: (provider: PublicProvider) => Promise<Model[]>;
-	getImageGenerationService: () => Promise<Agent | undefined>;
-	saveImageGenerationService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	listApps: () => Promise<AppInfo[]>;
 	openAppFolder: (id: string) => Promise<void>;
 	deleteApp: (id: string) => Promise<void>;
