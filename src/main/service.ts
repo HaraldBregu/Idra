@@ -40,7 +40,6 @@ const BOOTSTRAP_TOOL_NAMES = new Set([
 	'edit',
 	'exec',
 	'get_workspace_path',
-	'ask_human',
 ]);
 
 export interface AgentServiceDependencies {

@@ -54,7 +54,7 @@ export interface ToolContext {
 	approvalCache: Set<string>;
 	/** Legacy approval stream; no agent tool execution path should require it. */
 	approveStream?: ApprovalStreamLike;
-	/** Elicitation stream — used by `ask_human` to collect input. */
+	/** Elicitation stream for explicit host-provided input collection. */
 	elicit?: ElicitationStreamLike;
 	/** Friday-side services (store, cron, event-bus, logger, user data, workspace). */
 	services: FridayServices;

@@ -7,7 +7,6 @@ import { readTool, writeTool, editTool, findTool, applyPatchTool } from '../../.
 import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
-import { askHumanTool } from '../../../../src/main/tools/ask-human';
 import {
 	setThemeModeTool,
 	openAppDataFolderTool,
@@ -196,7 +195,7 @@ describe('tools/plan', () => {
 	});
 });
 
-describe('tools/app, ask-human, cron, providers, services, workspace', () => {
+describe('tools/app, cron, providers, services, workspace', () => {
 	it('runs app tools through Electron and EventBus seams', async () => {
 		const ctx = makeToolContext();
 		expect((await setThemeModeTool.execute({ mode: 'dark' }, ctx)).status).toBe('ok');
@@ -239,12 +238,6 @@ describe('tools/app, ask-human, cron, providers, services, workspace', () => {
 		expect(blocked).toMatchObject({ status: 'error' });
 		expect(blocked.content[0]?.text).toBe('permission denied');
 		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('asks humans through elicitation stream', async () => {
-		const ctx = makeToolContext({ elicit: { ask: jest.fn(async () => 'answer') } });
-		const result = await askHumanTool.execute({ question: 'Where?', suggestions: ['a'] }, ctx);
-		expect(result.content[0]?.text).toBe('answer');
 	});
 
 	it('manages cron tools through CronService', async () => {

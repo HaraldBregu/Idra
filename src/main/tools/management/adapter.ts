@@ -119,7 +119,6 @@ function inferCategory(name: string): ToolCategory {
 	if (name.includes('web')) return 'web';
 	if (name.includes('cron')) return 'calendar';
 	if (name.includes('provider') || name.includes('agent') || name.includes('app') || name.includes('theme') || name.includes('menu')) return 'internalApi';
-	if (name.includes('ask_human')) return 'utility';
 	return 'utility';
 }
 

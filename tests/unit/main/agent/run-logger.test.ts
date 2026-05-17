@@ -142,13 +142,13 @@ describe('AgentRunLogger', () => {
 			runId: 'r1',
 			agentId: 'a4',
 			iteration: 0,
-			pending: [{ callId: 'c1', tool: 'ask_human', question: 'where?' }],
+			pending: [{ callId: 'c1', tool: 'input_request', question: 'where?' }],
 		});
 		await logger.logInputResolution({
 			runId: 'r1',
 			agentId: 'a4',
 			callId: 'c1',
-			tool: 'ask_human',
+			tool: 'input_request',
 			answerChars: 8,
 		});
 		await logger.logFinish({
