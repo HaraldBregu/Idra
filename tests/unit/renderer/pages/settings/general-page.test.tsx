@@ -32,7 +32,9 @@ describe('GeneralPage', () => {
 		render(<GeneralPage />);
 
 		const toggle = await screen.findByRole('switch', { name: 'settings.application.menuBar' });
-		expect(toggle).toHaveAttribute('aria-checked', 'false');
+		await waitFor(() => {
+			expect(toggle).toHaveAttribute('aria-checked', 'false');
+		});
 	});
 
 	it('calls setTrayEnabled when the menu bar switch is toggled', async () => {
