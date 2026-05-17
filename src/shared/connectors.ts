@@ -5,6 +5,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		description: 'Search and fetch files from Dropbox.',
 		tools: ['search', 'fetch', 'search_files', 'fetch_file', 'list_recent_files', 'get_profile'],
 		scopes: ['files.metadata.read', 'files.content.read', 'account_info.read'],
+		setupUrl: 'https://www.dropbox.com/developers/apps',
+		setupInstructions: [
+			'Go to the Dropbox App Console and create or open an app.',
+			'Enable the listed file and account scopes for the app.',
+			'Complete OAuth for your account and paste the resulting access token here.',
+		],
 	},
 	{
 		id: 'connector_gmail',
@@ -31,6 +37,13 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		],
 		authKind: 'google_oauth',
 		redirectUri: 'http://127.0.0.1:42818/oauth/google/callback',
+		setupUrl: 'https://console.cloud.google.com/apis/credentials',
+		setupInstructions: [
+			'Go to Google Cloud Console, enable the Gmail API, and configure the OAuth consent screen.',
+			'Create an OAuth Web application client in APIs & Services > Credentials.',
+			'Add http://127.0.0.1:42818/oauth/google/callback as an authorized redirect URI.',
+			'Paste the client ID and secret here, save, then use Connect to finish Google consent.',
+		],
 	},
 	{
 		id: 'connector_googlecalendar',
@@ -38,6 +51,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		description: 'Search and read Google Calendar events.',
 		tools: ['get_profile', 'search', 'fetch', 'search_events', 'read_event'],
 		scopes: ['userinfo.email', 'userinfo.profile', 'calendar.events'],
+		setupUrl: 'https://console.cloud.google.com/apis/credentials',
+		setupInstructions: [
+			'Go to Google Cloud Console and enable the Google Calendar API.',
+			'Create or reuse an OAuth client with the listed Calendar scopes.',
+			'Complete OAuth for your Google account and paste the resulting access token here.',
+		],
 	},
 	{
 		id: 'connector_googledrive',
@@ -45,6 +64,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		description: 'Search, list, and fetch Google Drive files.',
 		tools: ['get_profile', 'list_drives', 'search', 'recent_documents', 'fetch'],
 		scopes: ['userinfo.email', 'userinfo.profile', 'drive.readonly'],
+		setupUrl: 'https://console.cloud.google.com/apis/credentials',
+		setupInstructions: [
+			'Go to Google Cloud Console and enable the Google Drive API.',
+			'Create or reuse an OAuth client with the listed Drive read scopes.',
+			'Complete OAuth for your Google account and paste the resulting access token here.',
+		],
 	},
 	{
 		id: 'connector_microsoftteams',
@@ -52,6 +77,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		description: 'Search Teams chats and channel messages.',
 		tools: ['search', 'fetch', 'get_chat_members', 'get_profile'],
 		scopes: ['Chat.Read', 'ChannelMessage.Read.All', 'User.Read'],
+		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
+		setupInstructions: [
+			'Go to Microsoft Entra admin center > App registrations.',
+			'Create or open an app registration and grant the listed Microsoft Graph permissions.',
+			'Complete OAuth for the tenant/user and paste the resulting access token here.',
+		],
 	},
 	{
 		id: 'connector_outlookcalendar',
@@ -59,6 +90,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		description: 'Search and read Outlook Calendar events.',
 		tools: ['search_events', 'fetch_event', 'fetch_events_batch', 'list_events', 'get_profile'],
 		scopes: ['Calendars.Read', 'User.Read'],
+		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
+		setupInstructions: [
+			'Go to Microsoft Entra admin center > App registrations.',
+			'Create or open an app registration and grant the listed Microsoft Graph calendar scopes.',
+			'Complete OAuth for the account and paste the resulting access token here.',
+		],
 	},
 	{
 		id: 'connector_outlookemail',
@@ -73,6 +110,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'fetch_messages_batch',
 		],
 		scopes: ['User.Read', 'Mail.Read'],
+		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
+		setupInstructions: [
+			'Go to Microsoft Entra admin center > App registrations.',
+			'Create or open an app registration and grant the listed Microsoft Graph mail scopes.',
+			'Complete OAuth for the mailbox account and paste the resulting access token here.',
+		],
 	},
 	{
 		id: 'connector_sharepoint',
@@ -80,6 +123,12 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		description: 'Search and fetch SharePoint and OneDrive documents.',
 		tools: ['get_site', 'search', 'list_recent_documents', 'fetch', 'get_profile'],
 		scopes: ['Sites.Read.All', 'Files.Read.All', 'User.Read'],
+		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
+		setupInstructions: [
+			'Go to Microsoft Entra admin center > App registrations.',
+			'Create or open an app registration and grant the listed Microsoft Graph files and sites scopes.',
+			'Complete OAuth for the account and paste the resulting access token here.',
+		],
 	},
 ] as const;
 
