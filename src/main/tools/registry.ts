@@ -1,4 +1,3 @@
-import { askHumanTool } from './ask-human';
 import {
 	setThemeModeTool,
 	openAppDataFolderTool,
@@ -31,7 +30,6 @@ import type { AgentTool } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ALL_TOOLS: AgentTool<any, any>[] = [
-	askHumanTool,
 	readTool,
 	writeTool,
 	editTool,

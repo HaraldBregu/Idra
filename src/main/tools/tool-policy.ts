@@ -16,7 +16,7 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 	'group:file': ['read', 'write', 'edit', 'apply_patch', 'find'],
 	'group:shell': ['exec', 'process', 'safe_exec'],
 	'group:web': ['web_search', 'web_fetch'],
-	'group:messaging': ['message', 'ask_human'],
+	'group:messaging': ['message'],
 	'group:planning': ['update_plan'],
 	'group:session': ['session_create', 'session_resume', 'session_close'],
 	'group:plugins': [],
@@ -28,7 +28,7 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 const PROFILE_ALLOW: Record<ToolProfile, string[] | '*'> = {
 	minimal: ['session_status', 'get_workspace_path', 'update_plan'],
 	coding: ['read', 'write', 'edit', 'apply_patch', 'find', 'exec', 'process', 'update_plan'],
-	messaging: ['message', 'ask_human', 'session_create', 'session_resume', 'session_close'],
+	messaging: ['message', 'session_create', 'session_resume', 'session_close'],
 	full: '*',
 };
 

@@ -93,7 +93,6 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
 	web_fetch: 'includeWebTools',
 	web_search: 'includeWebTools',
 	message: 'includeMessagingTools',
-	ask_human: 'includeMessagingTools',
 	update_plan: 'includeSessionTools',
 };
 

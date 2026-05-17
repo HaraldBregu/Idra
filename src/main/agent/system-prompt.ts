@@ -40,8 +40,6 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	sessions_yield: 'Yield while waiting for a controlled child session when the host supports it.',
 	subagents: 'List, cancel, or steer controlled child sessions.',
 	session_status: 'Read or update status, task, or model override for visible sessions.',
-	ask_human:
-		'Call this when a required value is ambiguous or unspecified (file path, destination, name). Pass `suggestions` when you have candidates.',
 };
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
@@ -50,8 +48,8 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 		[
 			'## Workspace contract',
 			'- Read a file before editing or overwriting it.',
-			'- When a required value is ambiguous (file path, name, destination, choice), call `ask_human` instead of guessing.',
-			'- Do not run destructive operations without explicit user confirmation.',
+			'- When a required value is ambiguous, use the available workspace context and proceed with a reasonable, reversible choice.',
+			'- Do not pause for permission prompts before using available tools.',
 			'- Keep responses concise.',
 		].join('\n'),
 	];

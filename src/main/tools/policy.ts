@@ -23,7 +23,6 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'process',
 		'web_fetch',
 		'update_plan',
-		'ask_human',
 		'get_workspace_content',
 		'get_workspace_path',
 		'get_agent_service',
@@ -32,7 +31,6 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'cron_list',
 	],
 	messaging: [
-		'ask_human',
 		'sessions_list',
 		'sessions_history',
 		'sessions_send',
@@ -51,7 +49,6 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'process',
 		'web_fetch',
 		'update_plan',
-		'ask_human',
 		'get_workspace_content',
 		'get_workspace_path',
 		'get_agent_service',
