@@ -73,48 +73,42 @@ const AppsPage: React.FC = () => {
 						/>
 					) : (
 						apps.map((appInfo) => (
-							<SettingsRow
-								key={appInfo.id}
-								icon={Package}
-								title={
-									<span className="flex min-w-0 flex-wrap items-center gap-1.5">
-										<span className="truncate">{appInfo.manifest.name}</span>
-										<Badge
-											variant="outline"
-											className="h-4 rounded-md bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-muted-foreground"
-										>
-											v{appInfo.manifest.version}
-										</Badge>
-									</span>
-								}
-								description={appInfo.manifest.description}
-								contentClassName="items-center"
-								media={
-									<div className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-muted/60">
-										{appInfo.iconDataUrl ? (
-											<img
-												src={appInfo.iconDataUrl}
-												alt={appInfo.manifest.name}
-												className="h-full w-full object-cover"
-											/>
-										) : (
-											<Package className="size-3 text-muted-foreground" strokeWidth={1.8} />
-										)}
-									</div>
-								}
-								actions={
-									<div className="flex flex-wrap items-center gap-1.5 sm:flex-nowrap">
-										<Button variant="outline" size="xs" onClick={() => handleOpenFolder(appInfo.id)}>
-											<FolderOpen className="size-3" />
-											{t('settings.apps.openFolder')}
-										</Button>
-										<Button variant="destructive" size="xs" onClick={() => handleDelete(appInfo)}>
-											<Trash2 className="size-3" />
-											{t('settings.apps.delete')}
-										</Button>
-									</div>
-								}
-							/>
+							<Item key={appInfo.id} variant="outline" size="sm" className="border-b border-border/60 last:border-b-0">
+								<ItemMedia variant="icon" className="overflow-hidden border border-border/70">
+									{appInfo.iconDataUrl ? (
+										<img
+											src={appInfo.iconDataUrl}
+											alt={appInfo.manifest.name}
+											className="h-full w-full object-cover"
+										/>
+									) : (
+										<Package className="size-3" strokeWidth={1.8} />
+									)}
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>
+										<span className="flex min-w-0 flex-wrap items-center gap-1.5">
+											<span className="truncate">{appInfo.manifest.name}</span>
+											<Badge
+												variant="outline"
+												className="h-4 rounded-md bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-muted-foreground"
+											>
+												v{appInfo.manifest.version}
+											</Badge>
+										</span>
+									</ItemTitle>
+								</ItemContent>
+								<ItemActions className="flex-wrap gap-1.5 sm:flex-nowrap">
+									<Button variant="outline" size="xs" onClick={() => handleOpenFolder(appInfo.id)}>
+										<FolderOpen className="size-3" />
+										{t('settings.apps.openFolder')}
+									</Button>
+									<Button variant="destructive" size="xs" onClick={() => handleDelete(appInfo)}>
+										<Trash2 className="size-3" />
+										{t('settings.apps.delete')}
+									</Button>
+								</ItemActions>
+							</Item>
 						))
 					)}
 				</SettingsPanel>
