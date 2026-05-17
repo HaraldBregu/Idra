@@ -276,7 +276,7 @@ describe('CronSchedulerService', () => {
 	it('allows schedules without permission grants or confirmation', async () => {
 		const { scheduler } = makeScheduler();
 		await expect(scheduler.createSchedule(request(), { ...actor, permissions: [] })).resolves.toMatchObject({
-			taskType: 'test.task',
+			taskType: 'reminder.show',
 		});
 		await expect(
 			scheduler.createSchedule(request({ taskType: 'email.send', requiresConfirmation: true }), actor)
