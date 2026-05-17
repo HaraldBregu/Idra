@@ -12,7 +12,7 @@ import {
 } from './workspace';
 import type { UserDataDirectoryServicePort } from './user-data';
 import type { ConnectorsService } from './connectors';
-import type { SkillsService } from './skills';
+import type { SkillPromptChoice, SkillsService } from './skills';
 import {
 	evaluateBeforeAgentRunHooks,
 	type BeforeAgentRunHook,
@@ -25,7 +25,11 @@ import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
-import { selectAgentToolsForTurn, ToolUsePolicy } from './tools/management';
+import {
+	selectAgentToolsForTurn,
+	ToolUsePolicy,
+	type AgentToolSelectionForTurn,
+} from './tools/management';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
@@ -87,6 +91,32 @@ interface Runtime {
 
 function emptyUsage(): TokenUsage {
 	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+}
+
+function workspaceContextChars(files: WorkspaceContextFile[]): number {
+	return files.reduce((total, file) => total + (file.content?.length ?? 0), 0);
+}
+
+function recordPhase<T>(durations: Record<string, number>, name: string, work: () => T): T {
+	const start = Date.now();
+	try {
+		return work();
+	} finally {
+		durations[name] = Date.now() - start;
+	}
+}
+
+async function recordAsyncPhase<T>(
+	durations: Record<string, number>,
+	name: string,
+	work: () => Promise<T>
+): Promise<T> {
+	const start = Date.now();
+	try {
+		return await work();
+	} finally {
+		durations[name] = Date.now() - start;
+	}
 }
 
 export class AgentService {
