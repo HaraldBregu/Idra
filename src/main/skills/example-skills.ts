@@ -273,53 +273,6 @@ const DraftProfessionalEmailSkill = baseSkill<DraftProfessionalEmailInput, Draft
 	},
 });
 
-const AnalyzeRepositorySkill = baseSkill<{ focus?: string }, { summary: string; files: string[] }>({
-	id: 'analyze-repository',
-	name: 'AnalyzeRepositorySkill',
-	description: 'Inspect a repository structure and summarize likely implementation areas.',
-	category: 'coding',
-	tags: ['repository', 'code', 'analysis'],
-	version: '1.0.0',
-	author: 'Friday',
-	enabled: true,
-	visibility: 'public',
-	safetyLevel: 'medium',
-	permissionsRequired: ['tool:find'],
-	requiredTools: ['find'],
-	requiredConnectors: [],
-	requiredMemoryKinds: [],
-	dependencies: [],
-	inputSchema: {
-		type: 'object',
-		properties: { focus: { type: 'string' } },
-		additionalProperties: false,
-	},
-	outputSchema: {
-		type: 'object',
-		properties: {
-			summary: { type: 'string' },
-			files: { type: 'array', items: { type: 'string' } },
-		},
-		required: ['summary', 'files'],
-		additionalProperties: false,
-	},
-	async canHandle(context) {
-		return keywords(context, ['repository', 'repo', 'codebase', 'analyze', 'inspect']);
-	},
-	async execute(input, context) {
-		const result = await context.callTool('find', { pattern: '**/*.{ts,tsx,js,jsx}', limit: 50 });
-		const files = result.content
-			.map((block) => (block.type === 'text' ? block.text : ''))
-			.join('\n')
-			.split(/\r?\n/)
-			.filter((line) => line && line !== 'No matches.');
-		return context.complete({
-			summary: `Repository analysis${input.focus ? ` for ${input.focus}` : ''}: found ${files.length} source files.`,
-			files,
-		});
-	},
-});
-
 const CreateMeetingAgendaSkill = baseSkill<
 	{ topic: string; attendees?: string[]; durationMinutes?: number },
 	{ agenda: string[]; title: string }
@@ -425,58 +378,6 @@ const PlanTripSkill = baseSkill<
 	},
 });
 
-const RefactorCodeSkill = baseSkill<
-	{ goal: string; files?: string[] },
-	{ plan: string[]; requiresReview: boolean }
->({
-	id: 'refactor-code',
-	name: 'RefactorCodeSkill',
-	description: 'Plan a bounded code refactor with validation steps.',
-	category: 'developerTools',
-	tags: ['refactor', 'code', 'typescript'],
-	version: '1.0.0',
-	author: 'Friday',
-	enabled: true,
-	visibility: 'public',
-	safetyLevel: 'high',
-	permissionsRequired: ['tool:read', 'tool:apply_patch', 'tool:exec'],
-	requiredTools: ['read', 'apply_patch', 'exec'],
-	requiredConnectors: [],
-	requiredMemoryKinds: [],
-	dependencies: [],
-	inputSchema: {
-		type: 'object',
-		properties: {
-			goal: { type: 'string' },
-			files: { type: 'array', items: { type: 'string' } },
-		},
-		required: ['goal'],
-		additionalProperties: false,
-	},
-	outputSchema: {
-		type: 'object',
-		properties: {
-			plan: { type: 'array', items: { type: 'string' } },
-			requiresReview: { type: 'boolean' },
-		},
-		required: ['plan', 'requiresReview'],
-		additionalProperties: false,
-	},
-	async canHandle(context) {
-		return keywords(context, ['refactor', 'code', 'typescript', 'bug', 'tests']);
-	},
-	async execute(input, context) {
-		return context.complete({
-			plan: [
-				`Read affected files${input.files?.length ? `: ${input.files.join(', ')}` : ''}`,
-				`Apply the smallest change for: ${input.goal}`,
-				'Run focused tests or typecheck',
-			],
-			requiresReview: true,
-		});
-	},
-});
-
 const MultiStepResearchAndEmailSkill = baseSkill<
 	{ topic: string; recipient?: string; maxSources?: number },
 	{ research: ResearchTopicOutput; summary: SummarizeDocumentOutput; email: DraftProfessionalEmailOutput }
@@ -563,10 +464,8 @@ export function createExampleSkills(): SkillDefinition[] {
 		SummarizeDocumentSkill,
 		ResearchTopicSkill,
 		DraftProfessionalEmailSkill,
-		AnalyzeRepositorySkill,
 		CreateMeetingAgendaSkill,
 		PlanTripSkill,
-		RefactorCodeSkill,
 		MultiStepResearchAndEmailSkill,
 	];
 }
