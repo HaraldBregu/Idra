@@ -377,6 +377,7 @@ export interface SkillPromptChoice {
 	version: string;
 	name: string;
 	description: string;
+	path?: string;
 	category: SkillCategory;
 	tags: string[];
 	requiredTools: string[];
