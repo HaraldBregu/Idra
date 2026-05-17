@@ -382,12 +382,4 @@ export class SkillsService {
 		};
 	}
 
-	private async exists(p: string): Promise<boolean> {
-		try {
-			await fs.promises.access(p, fs.constants.R_OK);
-			return true;
-		} catch {
-			return false;
-		}
-	}
 }
