@@ -82,10 +82,9 @@ export function bootstrapServices(): BootstrapResult {
 			cron,
 			logger,
 			eventBus,
-			workspace,
+				workspace,
 				userDataDirectory,
 				mcpRegistry,
-				skills,
 			})
 		);
 	const channelRegistry = container.register(
