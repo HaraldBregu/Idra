@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit3, Plug, RefreshCw, Trash2, Wrench } from 'lucide-react';
+import { Edit3, LogIn, Plug, RefreshCw, Trash2, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +20,7 @@ export function ConnectorCard({
 	busy,
 	onToggle,
 	onRefreshTools,
+	onConnect,
 	onEdit,
 	onRemove,
 	onViewDetails,
@@ -28,6 +29,7 @@ export function ConnectorCard({
 	readonly busy: boolean;
 	readonly onToggle: () => void;
 	readonly onRefreshTools: () => void;
+	readonly onConnect: () => void;
 	readonly onEdit: () => void;
 	readonly onRemove: () => void;
 	readonly onViewDetails: () => void;
@@ -107,6 +109,20 @@ export function ConnectorCard({
 								aria-label={connector.enabled ? 'Disable connector' : 'Enable connector'}
 							/>
 						</label>
+						<Button
+							variant="outline"
+							size="xs"
+							className="w-6 px-0 sm:w-auto sm:px-2"
+							onClick={onConnect}
+							disabled={busy || connector.authKind !== 'google_oauth'}
+							title="Connect OAuth"
+							aria-label="Connect OAuth"
+						>
+							<LogIn className="size-3" />
+							<span className="hidden sm:inline">
+								{connector.status === 'configured' ? 'Reconnect' : 'Connect'}
+							</span>
+						</Button>
 						<Button
 							variant="outline"
 							size="xs"
