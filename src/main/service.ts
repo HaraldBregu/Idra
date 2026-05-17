@@ -11,8 +11,6 @@ import {
 	type WorkspaceService,
 } from './workspace';
 import type { UserDataDirectoryServicePort } from './user-data';
-import type { ConnectorsService } from './connectors';
-import type { SkillPromptChoice, SkillsService } from './skills';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
@@ -45,8 +43,6 @@ export interface AgentServiceDependencies {
 	workspace: WorkspaceService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	mcpRegistry?: McpRegistry;
-	connectors?: ConnectorsService;
-	skills?: SkillsService;
 }
 
 export interface AgentToolsFactoryContext {
@@ -126,11 +122,7 @@ export class AgentService {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolsFactory =
-			options.toolsFactory ??
-			((context) => [
-				...createTools({ profile: 'full', allow: [], deny: [] }),
-				...(context.services.connectors?.createAgentTools() ?? []),
-			]);
+			options.toolsFactory ?? (() => createTools({ profile: 'full', allow: [], deny: [] }));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
@@ -203,7 +195,6 @@ export class AgentService {
 				this.isBootstrapPending()
 			);
 			let workspaceFiles: WorkspaceContextFile[] = [];
-			let skillChoices: SkillPromptChoice[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
 				systemPromptSuffix: '',
@@ -231,56 +222,22 @@ export class AgentService {
 							signal: abort.signal,
 							services: this.dependencies,
 						})
-					)
-				);
-				const skillRuntime =
-					this.dependencies.skills && toolPolicy.shouldUseTools && !bootstrapPending
-						? {
-								userId: agentId,
-								sessionId: runtime.session.id,
-								tools: baseTools,
-								toolContext: ctx,
-								signal: abort.signal,
-							}
-						: undefined;
-				skillChoices = skillRuntime
-					? await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
-							this.dependencies.skills!.discoverForPrompt(message, skillRuntime)
 						)
-					: [];
-				const skillTool =
-					skillRuntime && skillChoices.length > 0
-						? this.dependencies.skills!.createExecutionTool({
-								userId: skillRuntime.userId,
-								sessionId: skillRuntime.sessionId,
-								tools: skillRuntime.tools,
-								signal: skillRuntime.signal,
-							})
-						: undefined;
-				const tools = skillTool ? [...baseTools, skillTool] : baseTools;
-				toolSelection = bootstrapPending
-					? {
-							toolsForPrompt: tools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
-							systemPromptSuffix: '',
-							rankedTools: [],
-						}
-					: recordPhase(phaseDurationsMs, 'select_tools', () =>
-							selectAgentToolsForTurn(tools, message, ctx, {
-								forceSelection: true,
-								maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
-							})
-						);
-				selectedTools = bootstrapPending
-					? toolSelection.toolsForPrompt
-					: skillTool && skillChoices.length > 0
-						? [
-								skillTool,
-								...toolSelection.toolsForPrompt
-									.filter((tool) => tool.name !== skillTool.name)
-									.slice(0, DEFAULT_MAX_PROMPT_TOOLS - 1),
-							]
-						: toolSelection.toolsForPrompt;
-			}
+					);
+					toolSelection = bootstrapPending
+						? {
+								toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
+								systemPromptSuffix: '',
+								rankedTools: [],
+							}
+						: recordPhase(phaseDurationsMs, 'select_tools', () =>
+								selectAgentToolsForTurn(baseTools, message, ctx, {
+									forceSelection: true,
+									maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
+								})
+							);
+					selectedTools = toolSelection.toolsForPrompt;
+				}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
@@ -298,7 +255,6 @@ export class AgentService {
 					date: new Date().toISOString().slice(0, 10),
 					model,
 					tools: selectedTools,
-					skills: selectedToolNames.has('execute_skill') ? skillChoices : [],
 					workspaceFiles,
 					bootstrapMode,
 				})
