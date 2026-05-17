@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit3, LogIn, Plug, RefreshCw, Trash2, Wrench } from 'lucide-react';
+import { Edit3, ExternalLink, LogIn, Plug, RefreshCw, Trash2, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,6 +24,8 @@ export function ConnectorCard({
 	onEdit,
 	onRemove,
 	onViewDetails,
+	setupInstructions = [],
+	setupUrl,
 }: {
 	readonly connector: ConnectorView;
 	readonly busy: boolean;
@@ -33,6 +35,8 @@ export function ConnectorCard({
 	readonly onEdit: () => void;
 	readonly onRemove: () => void;
 	readonly onViewDetails: () => void;
+	readonly setupInstructions?: readonly string[];
+	readonly setupUrl?: string;
 }): React.JSX.Element {
 	return (
 		<Card size="sm" className="gap-0 rounded-lg py-0 shadow-none">
@@ -82,6 +86,30 @@ export function ConnectorCard({
 					<p className="border-b border-border/60 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
 						{connector.lastError}
 					</p>
+				)}
+
+				{setupInstructions.length > 0 && (
+					<div className="grid gap-1.5 border-b border-border/60 px-3 py-2 text-[11px] text-muted-foreground">
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<span className="font-medium text-foreground">Setup</span>
+							{setupUrl && (
+								<a
+									href={setupUrl}
+									target="_blank"
+									rel="noreferrer"
+									className="inline-flex items-center gap-1 text-[11px] text-foreground underline-offset-2 hover:underline"
+								>
+									Open setup
+									<ExternalLink className="size-3" />
+								</a>
+							)}
+						</div>
+						<ol className="grid list-decimal gap-1 pl-4">
+							{setupInstructions.map((instruction) => (
+								<li key={instruction}>{instruction}</li>
+							))}
+						</ol>
+					</div>
 				)}
 
 				<div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
