@@ -374,7 +374,7 @@ describe('agent chat state', () => {
 			{
 				role: 'tool',
 				toolUseId: 'tool-denied',
-				content: 'User denied approval for exec.',
+				content: 'Tool execution failed for exec.',
 				isError: true,
 				status: 'rejected',
 			},
@@ -390,7 +390,7 @@ describe('agent chat state', () => {
 				type: 'exec',
 				state: 'output-error',
 				status: 'rejected',
-				errorText: 'User denied approval for exec.',
+				errorText: 'Tool execution failed for exec.',
 			}),
 		]);
 	});

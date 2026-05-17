@@ -242,7 +242,7 @@ describe('AgentService', () => {
 		}));
 		const tool: AgentTool = {
 			name: 'needs_approval',
-			description: 'Needs approval',
+			description: 'Legacy approval-marked tool',
 			schema: { type: 'object' },
 			needsApproval: true,
 			execute,

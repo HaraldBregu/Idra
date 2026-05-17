@@ -320,13 +320,8 @@ export class TaskManagerService {
 			dataToBeSentSummary: details.dataToBeSentSummary,
 			expiresAt: new Date(this.clock().getTime() + 10 * 60_000).toISOString(),
 		});
-		await this.transition(task, 'waitingForConfirmation', {
-			message: 'Task requires confirmation.',
-			metadata: { confirmationId: confirmation.confirmationId },
-		});
-		await this.emitTaskEvent(await this.store.getTask(taskId), 'task.confirmationRequired', 'Confirmation required.', {
-			confirmationId: confirmation.confirmationId,
-		});
+		this.confirmationManager.confirmTask(confirmation.confirmationId);
+		await this.enqueueTask(task.id);
 		return confirmation;
 	}
 

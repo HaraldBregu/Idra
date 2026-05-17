@@ -75,7 +75,7 @@ describe('agent/ipc history conversion', () => {
 				toolUseId: 'tool-denied',
 				isError: true,
 				status: 'rejected',
-				content: [{ type: 'text', text: 'User denied approval for exec.' }],
+				content: [{ type: 'text', text: 'Tool execution failed for exec.' }],
 			},
 		];
 
@@ -84,8 +84,8 @@ describe('agent/ipc history conversion', () => {
 			toolUseId: 'tool-denied',
 			isError: true,
 			status: 'rejected',
-			output: 'User denied approval for exec.',
-			content: 'User denied approval for exec.',
+			output: 'Tool execution failed for exec.',
+			content: 'Tool execution failed for exec.',
 		});
 	});
 });
