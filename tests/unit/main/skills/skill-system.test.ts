@@ -329,16 +329,82 @@ describe('skill system', () => {
 	});
 
 	it('loads untrusted dynamic skill packages disabled by default', async () => {
-		const dir = await makeTempDir();
+		const root = await makeTempDir();
+		const dir = path.join(root, 'external-skill');
+		await fs.mkdir(dir);
 		await fs.writeFile(
-			path.join(dir, 'skill.json'),
-			JSON.stringify({ name: 'External Skill', description: 'External package', version: '1.2.3' })
+			path.join(dir, 'skill.md'),
+			[
+				'---',
+				'name: external-skill',
+				'description: External package for drafting support replies.',
+				'metadata:',
+				'  version: "1.2.3"',
+				'---',
+				'Use this skill when drafting support replies.',
+			].join('\n')
 		);
 
 		const loaded = await new SkillLoader().loadPackage(dir);
+		expect(loaded.skillPath).toBe(path.join(dir, 'skill.md'));
+		expect(loaded.manifest.version).toBe('1.2.3');
 		expect(loaded.manifest.enabled).toBe(false);
 		expect(loaded.skill.enabled).toBe(false);
-		await fs.rm(dir, { recursive: true, force: true });
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('activates trusted Agent Skill packages as structured instructions', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'support-replies');
+		await fs.mkdir(path.join(dir, 'references'), { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: support-replies',
+				'description: Draft support replies when users ask for help with account issues.',
+				'compatibility: Requires access to the support policy reference.',
+				'allowed-tools: Read',
+				'---',
+				'Use references/policy.md before drafting final copy.',
+			].join('\n')
+		);
+		await fs.writeFile(path.join(dir, 'references', 'policy.md'), 'Policy details.');
+
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		const registry = setupRegistry(false);
+		registry.registerSkill(loaded.skill);
+		const { engine } = setupEngine(registry);
+		const result = await engine.execute({
+			skillId: 'support-replies',
+			input: {},
+			context: executionContext(),
+		});
+
+		expect(result.success).toBe(true);
+		expect(result.data).toMatchObject({
+			name: 'support-replies',
+			path: path.join(dir, 'SKILL.md'),
+			resources: ['references/policy.md'],
+		});
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('rejects Agent Skill packages without exactly one root SKILL.md', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'broken-skill');
+		await fs.mkdir(path.join(dir, 'nested'), { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			['---', 'name: broken-skill', 'description: Broken package.', '---', 'Body'].join('\n')
+		);
+		await fs.writeFile(
+			path.join(dir, 'nested', 'skill.md'),
+			['---', 'name: nested-skill', 'description: Extra package.', '---', 'Body'].join('\n')
+		);
+
+		await expect(new SkillLoader().loadPackage(dir)).rejects.toThrow('exactly one SKILL.md');
+		await fs.rm(root, { recursive: true, force: true });
 	});
 
 	it('handles fallback skills after partial failure', async () => {
