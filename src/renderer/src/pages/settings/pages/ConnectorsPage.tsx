@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Plug, Plus, Wrench } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Plug, Plus, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -118,6 +118,14 @@ function isGoogleOAuthCatalogItem(connector: ConnectorCatalog[number] | undefine
 
 function catalogRedirectUri(connector: ConnectorCatalog[number] | undefined): string {
 	return connector && 'redirectUri' in connector ? connector.redirectUri : '';
+}
+
+function catalogSetupUrl(connector: ConnectorCatalog[number] | undefined): string | undefined {
+	return connector && 'setupUrl' in connector ? connector.setupUrl : undefined;
+}
+
+function catalogSetupInstructions(connector: ConnectorCatalog[number] | undefined): readonly string[] {
+	return connector && 'setupInstructions' in connector ? connector.setupInstructions : [];
 }
 
 const ConnectorsPage: React.FC = () => {
@@ -246,7 +254,7 @@ const ConnectorsPage: React.FC = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="Connectors"
-			description="Configure OpenAI-maintained connectors for Responses API tool use."
+				description="Configure OpenAI-maintained connectors for Responses API tool use."
 				action={
 					<Button
 						type="button"
@@ -353,6 +361,30 @@ const ConnectorsPage: React.FC = () => {
 									className="min-h-14 py-1.5 text-xs md:text-xs"
 								/>
 							</SettingsField>
+
+							{selectedCatalog && catalogSetupInstructions(selectedCatalog).length > 0 && (
+								<div className="grid gap-2 rounded-md border border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
+									<div className="flex flex-wrap items-center justify-between gap-2">
+										<Label className="text-[11px] leading-4">Setup instructions</Label>
+										{catalogSetupUrl(selectedCatalog) && (
+											<a
+												href={catalogSetupUrl(selectedCatalog)}
+												target="_blank"
+												rel="noreferrer"
+												className="inline-flex items-center gap-1 text-[11px] text-foreground underline-offset-2 hover:underline"
+											>
+												Open setup
+												<ExternalLink className="size-3" />
+											</a>
+										)}
+									</div>
+									<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4">
+										{catalogSetupInstructions(selectedCatalog).map((instruction) => (
+											<li key={instruction}>{instruction}</li>
+										))}
+									</ol>
+								</div>
+							)}
 
 							{isGoogleOAuth ? (
 								<div className="grid gap-3 md:grid-cols-2">
@@ -505,6 +537,10 @@ const ConnectorsPage: React.FC = () => {
 								key={connector.id}
 								connector={connector}
 								busy={busyId === connector.id}
+								setupInstructions={catalogSetupInstructions(
+									catalog.find((item) => item.id === connector.connectorId)
+								)}
+								setupUrl={catalogSetupUrl(catalog.find((item) => item.id === connector.connectorId))}
 								onToggle={() =>
 									void run(connector.id, async () => {
 										if (connector.enabled) {
