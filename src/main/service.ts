@@ -28,6 +28,8 @@ import {
 import type { AgentTool, ToolContext } from './tools/types';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
+import type { SkillsService } from './skills';
+import type { SkillPromptChoice } from './skills/types';
 import type { ApprovalDecision } from '../shared/service';
 
 const DEFAULT_MAX_TOKENS = 4096;
@@ -43,6 +45,7 @@ export interface AgentServiceDependencies {
 	workspace: WorkspaceService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	mcpRegistry?: McpRegistry;
+	skills?: SkillsService;
 }
 
 export interface AgentToolsFactoryContext {
@@ -201,16 +204,11 @@ export class AgentService {
 				rankedTools: [],
 			};
 			let selectedTools: AgentTool[] = [];
-			const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools;
+			let baseTools: AgentTool[] = [];
+			let skillChoices: SkillPromptChoice[] = [];
 
-			if (!directAnswer) {
-				workspaceFiles = await recordAsyncPhase(phaseDurationsMs, 'load_workspace_context', () =>
-					this.loadWorkspaceFiles()
-				);
-				bootstrapPending =
-					bootstrapPending ||
-					workspaceFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
-				const baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
+			if (bootstrapPending || toolPolicy.shouldUseTools || this.dependencies.skills) {
+				baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
 					Promise.resolve(
 						this.toolsFactory({
 							agentId,
@@ -224,6 +222,29 @@ export class AgentService {
 						})
 					)
 				);
+
+				if (!bootstrapPending && this.dependencies.skills) {
+					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
+						this.dependencies.skills!.discoverForPrompt(message, {
+							userId: agentId,
+							sessionId: runtime.session!.id,
+							tools: baseTools,
+							toolContext: ctx,
+							signal: abort.signal,
+						})
+					);
+				}
+			}
+
+			const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools && skillChoices.length === 0;
+
+			if (!directAnswer) {
+				workspaceFiles = await recordAsyncPhase(phaseDurationsMs, 'load_workspace_context', () =>
+					this.loadWorkspaceFiles()
+				);
+				bootstrapPending =
+					bootstrapPending ||
+					workspaceFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
 				toolSelection = bootstrapPending
 					? {
 							toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
@@ -237,6 +258,29 @@ export class AgentService {
 							})
 						);
 				selectedTools = toolSelection.toolsForPrompt;
+
+				if (skillChoices.length > 0 && this.dependencies.skills) {
+					const selectedNames = new Set(selectedTools.map((tool) => tool.name));
+					const requiredSkillToolNames = new Set(
+						skillChoices.flatMap((skill) => skill.requiredTools)
+					);
+					for (const tool of baseTools) {
+						if (requiredSkillToolNames.has(tool.name) && !selectedNames.has(tool.name)) {
+							selectedTools.push(tool);
+							selectedNames.add(tool.name);
+						}
+					}
+					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
+					selectedTools.push(
+						this.dependencies.skills.createExecutionTool({
+							userId: agentId,
+							sessionId: runtime.session.id,
+							tools: selectedTools,
+							connectors: [],
+							signal: abort.signal,
+						})
+					);
+				}
 			}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
 			const bootstrapMode = resolveBootstrapMode({
@@ -255,6 +299,7 @@ export class AgentService {
 					date: new Date().toISOString().slice(0, 10),
 					model,
 					tools: selectedTools,
+					skills: skillChoices,
 					workspaceFiles,
 					bootstrapMode,
 				})
