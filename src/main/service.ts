@@ -352,15 +352,16 @@ export class AgentService {
 					state: 'completed',
 					label: 'beforeAgentRunBlocked',
 				});
-				await hooks.onFinish?.({
-					runId,
-					stopReason: 'end_turn',
-					usage: emptyUsage(),
-					iterations: 0,
-					durationMs: 0,
-				});
-				return beforeRun.message;
-			}
+					await hooks.onFinish?.({
+						runId,
+						stopReason: 'end_turn',
+						usage: emptyUsage(),
+						iterations: 0,
+						durationMs: Date.now() - runStartedAt,
+						outputChars: beforeRun.message.length,
+					});
+					return beforeRun.message;
+				}
 
 			const result = await runAgent({
 				runId,
@@ -403,14 +404,14 @@ export class AgentService {
 				runId,
 				agentId,
 				provider: 'unknown',
-				model: 'unknown',
-				status: 'error',
-				iterations: 0,
-				durationMs: 0,
-				usage: emptyUsage(),
-				outputChars: 0,
-				error: { message: (err as Error).message, stack: (err as Error).stack },
-			});
+					model: 'unknown',
+					status: 'error',
+					iterations: 0,
+					durationMs: Date.now() - runStartedAt,
+					usage: emptyUsage(),
+					outputChars: 0,
+					error: { message: (err as Error).message, stack: (err as Error).stack },
+				});
 			throw err;
 		}
 	}
@@ -503,6 +504,20 @@ export class AgentService {
 		}
 	}
 
+	private async isBootstrapPending(): Promise<boolean> {
+		const workspace = this.dependencies.workspace as Partial<WorkspaceService>;
+		try {
+			if (typeof workspace.isBootstrapPending === 'function') {
+				return await workspace.isBootstrapPending();
+			}
+		} catch (error) {
+			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
+				error: (error as Error).message,
+			});
+		}
+		return false;
+	}
+
 	private async loadWorkspaceFiles(): Promise<WorkspaceContextFile[]> {
 		const workspace = this.dependencies.workspace as Partial<WorkspaceService>;
 		try {
@@ -528,6 +543,14 @@ export class AgentService {
 			model: string;
 			tools: string[];
 			runLogger: AgentRunLogger;
+			systemPromptChars: number;
+			userMessageChars: number;
+			directAnswer: boolean;
+			bootstrapPending: boolean;
+			toolPolicyReason: string;
+			workspaceContextChars: number;
+			prepStartedAt: number;
+			phaseDurationsMs: Record<string, number>;
 		}
 	): AgentRunHooks {
 		return {
@@ -537,10 +560,16 @@ export class AgentService {
 					agentId,
 					provider: meta.providerId,
 					model: meta.model,
-					systemPromptChars: 0,
-					userMessageChars: 0,
+					systemPromptChars: meta.systemPromptChars,
+					userMessageChars: meta.userMessageChars,
 					tools: meta.tools,
 					mcpToolCount: 0,
+					directAnswer: meta.directAnswer,
+					bootstrapPending: meta.bootstrapPending,
+					toolPolicyReason: meta.toolPolicyReason,
+					workspaceContextChars: meta.workspaceContextChars,
+					prepDurationMs: Date.now() - meta.prepStartedAt,
+					phaseDurationsMs: { ...meta.phaseDurationsMs },
 				});
 			},
 			onIteration: async (info) => {
@@ -550,12 +579,12 @@ export class AgentService {
 					iteration: info.iteration,
 					usage: {
 						inputTokens: info.usage.inputTokens,
-						outputTokens: info.usage.outputTokens,
-						totalTokens: info.usage.inputTokens + info.usage.outputTokens,
-					},
-					durationMs: 0,
-				});
-			},
+							outputTokens: info.usage.outputTokens,
+							totalTokens: info.usage.inputTokens + info.usage.outputTokens,
+						},
+						durationMs: info.durationMs,
+					});
+				},
 			onToolCall: async (info) => {
 				await meta.runLogger.logToolCall({
 					runId: meta.runId,
@@ -592,13 +621,14 @@ export class AgentService {
 					provider: meta.providerId,
 					model: meta.model,
 					status,
-					iterations: info.iterations,
-					durationMs: info.durationMs,
-					usage,
-					outputChars: 0,
-					error: info.error ? { message: info.error.message, stack: info.error.stack } : undefined,
-				});
-			},
+						iterations: info.iterations,
+						durationMs: info.durationMs,
+						usage,
+						outputChars: info.outputChars,
+						firstTokenLatencyMs: info.firstTokenLatencyMs,
+						error: info.error ? { message: info.error.message, stack: info.error.stack } : undefined,
+					});
+				},
 		};
 	}
 }
