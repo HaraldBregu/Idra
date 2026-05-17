@@ -69,11 +69,14 @@ const SystemPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.sections.layout')}>
 				<SettingsPanel>
-					<SettingsRow
-						icon={Monitor}
-						title={t('settings.theme.title')}
-						description={t('settings.theme.description')}
-						actions={
+					<Item variant="outline" size="sm" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<Monitor className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.theme.title')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<ButtonGroup>
 								{[
 									{ value: 'light', label: t('settings.theme.light'), icon: Sun },
@@ -97,13 +100,16 @@ const SystemPage: React.FC = () => {
 									);
 								})}
 							</ButtonGroup>
-						}
-					/>
-					<SettingsRow
-						icon={Languages}
-						title={t('settings.language.title')}
-						description={t('settings.language.description')}
-						actions={
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="sm">
+						<ItemMedia variant="icon">
+							<Languages className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.language.title')}</ItemTitle>
+						</ItemContent>
+						<ItemActions>
 							<Select value={language} onValueChange={handleLanguageChange}>
 								<SelectTrigger
 									size="sm"
@@ -120,8 +126,8 @@ const SystemPage: React.FC = () => {
 									))}
 								</SelectContent>
 							</Select>
-						}
-					/>
+						</ItemActions>
+					</Item>
 				</SettingsPanel>
 			</SettingsSection>
 
