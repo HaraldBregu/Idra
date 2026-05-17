@@ -19,7 +19,7 @@ import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
 
@@ -184,29 +184,26 @@ export const TitleBar = React.memo(function TitleBar({
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
 						<div className="relative w-[min(360px,42vw)] min-w-56">
-							<InputGroup
-								className="h-7 rounded-md border-border/70 bg-background/80 shadow-none focus-within:border-ring/70 focus-within:ring-1 focus-within:ring-ring/35 has-[[data-slot=input-group-control]:focus-visible]:ring-1"
-								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-							>
-								<InputGroupAddon align="inline-start" className="h-full py-0 pl-2 pr-1">
-									<Search className="size-3" strokeWidth={1.8} />
-								</InputGroupAddon>
-								<InputGroupInput
-									type="search"
-									value={settingsSearch}
-									onChange={(event) => setSettingsSearch(event.target.value)}
-									onKeyDown={(event) => {
-										if (event.key !== 'Enter') return;
+							<Search
+								className="pointer-events-none absolute left-2 top-1/2 z-10 size-3 -translate-y-1/2 text-muted-foreground"
+								strokeWidth={1.8}
+							/>
+							<Input
+								type="search"
+								value={settingsSearch}
+								onChange={(event) => setSettingsSearch(event.target.value)}
+								onKeyDown={(event) => {
+									if (event.key !== 'Enter') return;
 
-										event.preventDefault();
-										navigate(settingsSearchTarget ?? '/settings');
-										setSettingsSearch('');
-									}}
-									placeholder={settingsSearchPlaceholder}
-									aria-label={settingsSearchPlaceholder}
-									className="h-7 py-0 pl-0 pr-2 text-xs leading-none outline-none md:text-xs"
-								/>
-							</InputGroup>
+									event.preventDefault();
+									navigate(settingsSearchTarget ?? '/settings');
+									setSettingsSearch('');
+								}}
+								placeholder={settingsSearchPlaceholder}
+								aria-label={settingsSearchPlaceholder}
+								className="h-7 rounded-md border-border/70 bg-background/80 py-0 pl-7 pr-2 text-xs leading-none shadow-none ring-offset-0 focus-visible:ring-1 focus-visible:ring-ring/35 focus-visible:ring-offset-0 md:text-xs"
+								style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+							/>
 						</div>
 					</div>
 				) : centerContent ? (
