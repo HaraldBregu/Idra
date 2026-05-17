@@ -8,7 +8,6 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	Home,
-	Search,
 	Settings,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
