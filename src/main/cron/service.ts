@@ -25,7 +25,6 @@ import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext, CronTaskManagerPort } from './core/cron.types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
-import { CronConfirmationManager } from './security/cron-confirmation-manager';
 import {
 	CronSchedulerService,
 	DEFAULT_CRON_RUN_POLICY,
@@ -95,8 +94,7 @@ export class CronService implements Disposable {
 			runner,
 			accessPolicy,
 			{},
-			logger,
-			new CronConfirmationManager()
+			logger
 		);
 		const openClawRoot = options.userDataDirectory?.resolve('cron') ?? resolveDefaultUserDataPath('cron');
 		this.openClaw = new OpenClawCronScheduler(

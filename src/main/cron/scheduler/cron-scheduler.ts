@@ -32,7 +32,6 @@ import {
 import { assertScheduleCanRun, validateScheduleShape } from '../core/cron.validation';
 import { CronNextRunCalculator } from './cron-next-run-calculator';
 import { CronScheduleEventBus } from '../events/cron-event-bus';
-import { CronConfirmationManager } from '../security/cron-confirmation-manager';
 import { redactCronValue, summarizeCronValue } from '../security/cron-redaction';
 
 interface CronLogger {
@@ -120,8 +119,7 @@ export class CronSchedulerService implements CronScheduler {
 		private readonly runner: CronScheduleRunner,
 		private readonly accessPolicy: CronScheduleAccessPolicy,
 		options: Partial<CronSchedulerOptions> = {},
-		private readonly logger?: CronLogger,
-		private readonly confirmationManager?: CronConfirmationManager
+		private readonly logger?: CronLogger
 	) {
 		this.options = {
 			...DEFAULT_CRON_SCHEDULER_OPTIONS,
