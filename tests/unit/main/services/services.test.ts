@@ -3,7 +3,11 @@ import { promises as fs } from 'node:fs';
 import { app, shell } from 'electron';
 import { AppsService } from '../../../../src/main/apps';
 import { ConnectorsService } from '../../../../src/main/connectors';
-import { buildGoogleAuthorizationUrl, scopesForGmailTools } from '../../../../src/main/connectors/google';
+import {
+	buildGoogleAuthorizationUrl,
+	scopesForGmailTools,
+	scopesForGoogleCalendarTools,
+} from '../../../../src/main/connectors/google';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
@@ -75,6 +79,14 @@ describe('connectors service', () => {
 		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.send');
 	});
 
+	it('builds least required Google Calendar OAuth scopes for writable event tools', () => {
+		const scopes = scopesForGoogleCalendarTools(['search_events', 'create_event']);
+
+		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events.readonly');
+		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events');
+		expect(scopes).toContain('https://www.googleapis.com/auth/userinfo.email');
+	});
+
 	it('connects Gmail tools to Google OAuth tokens and exposes them to the agent', async () => {
 		let connectors: unknown[] = [];
 		const store = {
@@ -133,6 +145,71 @@ describe('connectors service', () => {
 			status: 'ok',
 			content: [expect.objectContaining({ text: expect.stringContaining('msg-1') })],
 		});
+	});
+
+	it('executes Google Calendar read and write tools with Google OAuth tokens', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				expect(String(init?.body)).toContain('grant_type=refresh_token');
+				return jsonResponse({ access_token: 'fresh-token', expires_in: 3600, token_type: 'Bearer' });
+			}
+			if (url.startsWith('https://www.googleapis.com/calendar/v3/calendars/primary/events?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					items: [
+						{
+							id: 'event-1',
+							summary: 'Planning',
+							start: { dateTime: '2026-05-17T10:00:00Z' },
+							end: { dateTime: '2026-05-17T11:00:00Z' },
+						},
+					],
+				});
+			}
+			if (url === 'https://www.googleapis.com/calendar/v3/calendars/primary/events') {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				expect(JSON.parse(String(init?.body))).toMatchObject({ summary: 'Demo' });
+				return jsonResponse({
+					id: 'event-2',
+					summary: 'Demo',
+					start: { dateTime: '2026-05-18T10:00:00Z' },
+					end: { dateTime: '2026-05-18T11:00:00Z' },
+				});
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const added = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			oauthClientId: 'client-id',
+			oauthClientSecret: 'client-secret',
+			allowedTools: ['search_events', 'create_event'],
+			requireApproval: 'never_for_allowed_tools',
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...((connectors[0] as { oauth: Record<string, unknown> }).oauth),
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		await expect(service.callTool(added.id, 'search_events', { query: 'planning' })).resolves.toMatchObject({
+			items: [expect.objectContaining({ id: 'event-1', summary: 'Planning' })],
+		});
+		await expect(service.callTool(added.id, 'create_event', {
+			summary: 'Demo',
+			start: '2026-05-18T10:00:00Z',
+			end: '2026-05-18T11:00:00Z',
+		})).resolves.toMatchObject({ id: 'event-2', summary: 'Demo' });
 	});
 });
 
