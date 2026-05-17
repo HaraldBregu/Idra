@@ -56,7 +56,7 @@ describe('useHomeAgent pending input state', () => {
 		await waitFor(() => {
 			expect(result.current.chatState.messages.some((message) => message.type === 'multi-select')).toBe(true);
 		});
-		expect(result.current.selectedOptions).toEqual({});
+		expect(result.current.selectedOptions).toEqual({ 'agent-pending-i:input-1': [] });
 	});
 
 	it('ignores pending broadcasts for non-home agents', async () => {
