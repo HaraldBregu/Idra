@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from 'node:crypto';
 import type { GoogleOAuthCredential } from '../../shared/connectors';
 
 export const GOOGLE_OAUTH_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -5,7 +6,7 @@ export const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
 export const GOOGLE_GMAIL_API_BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 export const GOOGLE_CALENDAR_API_BASE = 'https://www.googleapis.com/calendar/v3';
-export const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1:42818/oauth/google/callback';
+export const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1';
 
 export const GOOGLE_GMAIL_SCOPES = {
 	profile: [
@@ -35,6 +36,12 @@ export interface GoogleTokenResponse {
 	refresh_token?: string;
 	scope?: string;
 	token_type?: string;
+}
+
+export interface GooglePkcePair {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: 'S256';
 }
 
 export interface GmailProfile {
@@ -153,6 +160,8 @@ export function buildGoogleAuthorizationUrl(input: {
 	redirectUri?: string;
 	state: string;
 	scopes: readonly string[];
+	codeChallenge?: string;
+	codeChallengeMethod?: 'S256' | 'plain';
 }): string {
 	const url = new URL(GOOGLE_OAUTH_AUTHORIZE_URL);
 	url.searchParams.set('client_id', input.clientId);
@@ -163,7 +172,17 @@ export function buildGoogleAuthorizationUrl(input: {
 	url.searchParams.set('access_type', 'offline');
 	url.searchParams.set('include_granted_scopes', 'true');
 	url.searchParams.set('prompt', 'consent');
+	if (input.codeChallenge) {
+		url.searchParams.set('code_challenge', input.codeChallenge);
+		url.searchParams.set('code_challenge_method', input.codeChallengeMethod ?? 'S256');
+	}
 	return url.toString();
+}
+
+export function createGooglePkcePair(): GooglePkcePair {
+	const codeVerifier = base64Url(randomBytes(64));
+	const codeChallenge = base64Url(createHash('sha256').update(codeVerifier).digest());
+	return { codeVerifier, codeChallenge, codeChallengeMethod: 'S256' };
 }
 
 export function scopesForGmailTools(toolNames: readonly string[]): string[] {
@@ -205,6 +224,7 @@ export async function exchangeGoogleAuthorizationCode(input: {
 	clientId: string;
 	clientSecret?: string;
 	redirectUri?: string;
+	codeVerifier?: string;
 	fetchImpl?: FetchLike;
 }): Promise<GoogleTokenResponse> {
 	const body = new URLSearchParams({
@@ -214,7 +234,16 @@ export async function exchangeGoogleAuthorizationCode(input: {
 		grant_type: 'authorization_code',
 	});
 	if (input.clientSecret) body.set('client_secret', input.clientSecret);
+	if (input.codeVerifier) body.set('code_verifier', input.codeVerifier);
 	return requestGoogleToken(body, input.fetchImpl);
+}
+
+function base64Url(value: Buffer): string {
+	return value
+		.toString('base64')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=+$/g, '');
 }
 
 export async function refreshGoogleAccessToken(input: {

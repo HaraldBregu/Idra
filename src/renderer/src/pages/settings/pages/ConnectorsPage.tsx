@@ -433,7 +433,8 @@ const ConnectorsPage: React.FC = () => {
 									</SettingsField>
 									<div className="md:col-span-2">
 										<SettingsNotice variant="default">
-											Save, then connect with Google OAuth. Redirect URI:{' '}
+											Save, then connect with Google OAuth. Friday opens your browser and
+											listens on a temporary loopback redirect:{' '}
 											<span className="font-mono">{catalogRedirectUri(selectedCatalog)}</span>
 										</SettingsNotice>
 									</div>

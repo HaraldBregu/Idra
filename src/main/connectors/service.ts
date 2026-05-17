@@ -26,6 +26,7 @@ import {
 	GOOGLE_OAUTH_REDIRECT_URI,
 	buildGoogleAuthorizationUrl,
 	buildRawEmail,
+	createGooglePkcePair,
 	exchangeGoogleAuthorizationCode,
 	mergeGoogleOAuthCredential,
 	projectGoogleCalendarEvent,
@@ -40,6 +41,13 @@ import {
 
 const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar']);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
+const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
+
+interface OAuthLoopbackServer {
+	redirectUri: string;
+	callback: Promise<{ code: string }>;
+	close: () => void;
+}
 
 interface ConnectorsServiceOptions {
 	fetchImpl?: FetchLike;
@@ -288,45 +296,53 @@ export class ConnectorsService {
 			connector.connectorId,
 			knownTools(connector).map((tool) => tool.name)
 		);
+		const pkce = createGooglePkcePair();
+		const loopback = await this.createOAuthLoopbackServer(state);
 		const authorizationUrl = buildGoogleAuthorizationUrl({
 			clientId: oauth.clientId,
-			redirectUri: oauth.redirectUri,
+			redirectUri: loopback.redirectUri,
 			state,
 			scopes,
+			codeChallenge: pkce.codeChallenge,
+			codeChallengeMethod: pkce.codeChallengeMethod,
 		});
-		const callback = await this.waitForOAuthCallback(state);
-		this.logger.info('ConnectorsService', `Opening Google OAuth consent for ${connector.name}`);
-		if (this.options.openExternal) {
-			await this.options.openExternal(authorizationUrl);
-		} else {
-			await shell.openExternal(authorizationUrl, { activate: true });
+		try {
+			this.logger.info('ConnectorsService', `Opening Google OAuth consent for ${connector.name}`);
+			if (this.options.openExternal) {
+				await this.options.openExternal(authorizationUrl);
+			} else {
+				await shell.openExternal(authorizationUrl, { activate: true });
+			}
+			const { code } = await loopback.callback;
+			const token = await exchangeGoogleAuthorizationCode({
+				code,
+				clientId: oauth.clientId,
+				clientSecret: oauth.clientSecret,
+				redirectUri: loopback.redirectUri,
+				codeVerifier: pkce.codeVerifier,
+				fetchImpl: this.fetchImpl(),
+			});
+			const connected = mergeGoogleOAuthCredential({ ...oauth, redirectUri: loopback.redirectUri }, token);
+			const profile = await new GoogleProfileClient(connected.accessToken!, this.fetchImpl()).getUserInfo();
+			const next = this.withKnownTools({
+				...connector,
+				oauth: {
+					...connected,
+					email: profile.email,
+					connectedAt: new Date().toISOString(),
+				},
+				lastError: undefined,
+				updatedAt: new Date().toISOString(),
+			});
+			this.replace(next);
+			return {
+				status: 'configured',
+				message: `Connected Google account${profile.email ? ` ${profile.email}` : ''}.`,
+				connectedAccount: profile.email,
+			};
+		} finally {
+			loopback.close();
 		}
-		const { code } = await callback;
-		const token = await exchangeGoogleAuthorizationCode({
-			code,
-			clientId: oauth.clientId,
-			clientSecret: oauth.clientSecret,
-			redirectUri: oauth.redirectUri,
-			fetchImpl: this.fetchImpl(),
-		});
-		const connected = mergeGoogleOAuthCredential(oauth, token);
-		const profile = await new GoogleProfileClient(connected.accessToken!, this.fetchImpl()).getUserInfo();
-		const next = this.withKnownTools({
-			...connector,
-			oauth: {
-				...connected,
-				email: profile.email,
-				connectedAt: new Date().toISOString(),
-			},
-			lastError: undefined,
-			updatedAt: new Date().toISOString(),
-		});
-		this.replace(next);
-		return {
-			status: 'configured',
-			message: `Connected Google account${profile.email ? ` ${profile.email}` : ''}.`,
-			connectedAccount: profile.email,
-		};
 	}
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
@@ -612,19 +628,30 @@ export class ConnectorsService {
 			.find((oauth): oauth is GoogleOAuthCredential => Boolean(oauth?.clientId));
 	}
 
-	private waitForOAuthCallback(expectedState: string): Promise<Promise<{ code: string }>> {
-		const redirectUri = new URL(this.oauthRedirectUri());
-		const port = Number(redirectUri.port);
+	private createOAuthLoopbackServer(expectedState: string): Promise<OAuthLoopbackServer> {
+		const configuredRedirectUri = this.options.oauthRedirectUri
+			? new URL(this.options.oauthRedirectUri)
+			: undefined;
+		const hostname = configuredRedirectUri?.hostname || GOOGLE_OAUTH_LOOPBACK_HOST;
+		const port = configuredRedirectUri?.port ? Number(configuredRedirectUri.port) : 0;
+		const pathname = configuredRedirectUri?.pathname || '/';
 		let server: Server | null = null;
+		let timeout: NodeJS.Timeout | null = null;
+		let callbackSettled = false;
+		const close = (): void => {
+			if (timeout) clearTimeout(timeout);
+			server?.close();
+			server = null;
+		};
 		const callback = new Promise<{ code: string }>((resolve, reject) => {
-			const timeout = setTimeout(() => {
-				server?.close();
+			timeout = setTimeout(() => {
+				close();
 				reject(new Error('Google OAuth timed out before authorization completed.'));
 			}, this.options.oauthTimeoutMs ?? GOOGLE_OAUTH_TIMEOUT_MS);
 			server = createServer((request, response) => {
 				try {
-					const requestUrl = new URL(request.url ?? '/', this.oauthRedirectUri());
-					if (requestUrl.pathname !== redirectUri.pathname) {
+					const requestUrl = new URL(request.url ?? '/', `http://${hostname}`);
+					if (requestUrl.pathname !== pathname) {
 						response.writeHead(404);
 						response.end('Not found');
 						return;
@@ -641,25 +668,41 @@ export class ConnectorsService {
 					if (!code) throw new Error('Google OAuth did not return an authorization code.');
 					response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
 					response.end('<p>Google connector connected. You can close this tab.</p>');
-					clearTimeout(timeout);
-					server?.close();
+					callbackSettled = true;
+					close();
 					resolve({ code });
 				} catch (error) {
-					clearTimeout(timeout);
-					server?.close();
+					callbackSettled = true;
+					close();
 					response.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
 					response.end(error instanceof Error ? error.message : String(error));
 					reject(error);
 				}
 			});
 			server.once('error', (error) => {
-				clearTimeout(timeout);
-				reject(error);
+				close();
+				if (!callbackSettled) reject(error);
 			});
 		});
 		return new Promise((resolve, reject) => {
-			server?.once('error', reject);
-			server?.listen(port, redirectUri.hostname, () => resolve(callback));
+			server?.once('error', (error) => {
+				close();
+				reject(
+					new Error(
+						`Could not start the local Google OAuth callback server: ${
+							error instanceof Error ? error.message : String(error)
+						}`
+					)
+				);
+			});
+			server?.listen(port, hostname, () => {
+				const address = server?.address();
+				const actualPort = typeof address === 'object' && address ? address.port : port;
+				const redirectUri = configuredRedirectUri
+					? `${configuredRedirectUri.protocol}//${hostname}:${actualPort}${pathname === '/' ? '' : pathname}`
+					: `http://${hostname}:${actualPort}`;
+				resolve({ redirectUri, callback, close });
+			});
 		});
 	}
 
