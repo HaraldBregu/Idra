@@ -135,34 +135,34 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 
 	return {
 		manifest: {
-		id: name,
-		name,
-		description,
-		license: asString(data.license),
-		compatibility: asString(data.compatibility),
-		category: (asString(data.category) as SkillManifest['category']) ?? 'workflow',
-		tags: asStringArray(data.tags) ?? [],
-		version,
-		author,
-		enabled: trusted ? (asBoolean(data.enabled) ?? true) : false,
-		visibility: (asString(data.visibility) as SkillManifest['visibility']) ?? 'private',
-		safetyLevel: (asString(data.safetyLevel) as SkillManifest['safetyLevel']) ?? 'medium',
-		permissionsRequired: asStringArray(data.permissionsRequired) ?? [],
-		requiredTools,
-		allowedTools,
-		requiredConnectors,
-		requiredMemoryKinds,
-		inputSchema,
-		outputSchema,
-		estimatedCost: asNumber(data.estimatedCost) ?? 1,
-		estimatedLatency: asNumber(data.estimatedLatency) ?? 1000,
-		reliabilityScore: asNumber(data.reliabilityScore) ?? 0.5,
-		examples: Array.isArray(data.examples) ? (data.examples as SkillManifest['examples']) : [],
-		dependencies: Array.isArray(data.dependencies)
-			? (data.dependencies as SkillManifest['dependencies'])
-			: [],
-		deprecated: asBoolean(data.deprecated) ?? false,
-		metadata: { ...metadata, dynamic: true, source: 'agent-skill' },
+			id: name,
+			name,
+			description,
+			license: asString(data.license),
+			compatibility: asString(data.compatibility),
+			category: (asString(data.category) as SkillManifest['category']) ?? 'workflow',
+			tags: asStringArray(data.tags) ?? [],
+			version,
+			author,
+			enabled: trusted ? (asBoolean(data.enabled) ?? true) : false,
+			visibility: (asString(data.visibility) as SkillManifest['visibility']) ?? 'private',
+			safetyLevel: (asString(data.safetyLevel) as SkillManifest['safetyLevel']) ?? 'medium',
+			permissionsRequired: asStringArray(data.permissionsRequired) ?? [],
+			requiredTools,
+			allowedTools,
+			requiredConnectors,
+			requiredMemoryKinds,
+			inputSchema,
+			outputSchema,
+			estimatedCost: asNumber(data.estimatedCost) ?? 1,
+			estimatedLatency: asNumber(data.estimatedLatency) ?? 1000,
+			reliabilityScore: asNumber(data.reliabilityScore) ?? 0.5,
+			examples: Array.isArray(data.examples) ? (data.examples as SkillManifest['examples']) : [],
+			dependencies: Array.isArray(data.dependencies)
+				? (data.dependencies as SkillManifest['dependencies'])
+				: [],
+			deprecated: asBoolean(data.deprecated) ?? false,
+			metadata: { ...metadata, dynamic: true, source: 'agent-skill' },
 		},
 		instructions: parsed.content.trim(),
 	};
@@ -190,7 +190,9 @@ async function validateSkillBundle(sourcePath: string): Promise<string> {
 				throw new Error(`Skill bundle exceeds ${MAX_SKILL_FILES} files.`);
 			}
 			if (stat.size > MAX_SKILL_FILE_BYTES) {
-				throw new Error(`Skill file exceeds ${MAX_SKILL_FILE_BYTES} bytes: ${path.relative(sourcePath, fullPath)}`);
+				throw new Error(
+					`Skill file exceeds ${MAX_SKILL_FILE_BYTES} bytes: ${path.relative(sourcePath, fullPath)}`
+				);
 			}
 			if (entry.name.toLowerCase() === 'skill.md') {
 				skillPaths.push(fullPath);
@@ -232,7 +234,7 @@ async function listSkillResources(sourcePath: string): Promise<string[]> {
 	return resources;
 }
 
-function tokenOverlapScore(query: string, skill: SkillManifest): SkillResult extends never ? never : number {
+function tokenOverlapScore(query: string, skill: SkillManifest): number {
 	const queryTokens = new Set(query.toLowerCase().split(/[^a-z0-9]+/).filter((item) => item.length > 2));
 	const skillText = [skill.name, skill.description, ...(skill.tags ?? [])].join(' ').toLowerCase();
 	if (queryTokens.size === 0) return 0;
