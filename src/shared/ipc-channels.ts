@@ -103,6 +103,7 @@ export const ConnectorsChannels = {
 	refreshTools: 'connectors:refreshTools',
 	listTools: 'connectors:listTools',
 	callTool: 'connectors:callTool',
+	connectOAuth: 'connectors:connectOAuth',
 	get: 'connectors:get',
 } as const;
 
@@ -364,6 +365,10 @@ interface ConnectorsInvokeChannelMap {
 			options?: import('./connectors').ConnectorCallToolOptions,
 		];
 		result: unknown;
+	};
+	[ConnectorsChannels.connectOAuth]: {
+		args: [id: string];
+		result: import('./connectors').ConnectorOAuthConnectResult;
 	};
 }
 
