@@ -90,6 +90,7 @@ export function bootstrapServices(): BootstrapResult {
 			eventBus,
 			workspace,
 			userDataDirectory,
+			connectors,
 			mcpRegistry,
 			skills,
 		})
