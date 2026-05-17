@@ -44,6 +44,8 @@ interface ConnectorFormState {
 	readonly serverLabel: string;
 	readonly serverDescription: string;
 	readonly authorization: string;
+	readonly oauthClientId: string;
+	readonly oauthClientSecret: string;
 	readonly requireApproval: ConnectorApprovalMode;
 	readonly allowedTools: string[];
 	readonly deferLoading: boolean;
@@ -57,6 +59,8 @@ const emptyForm: ConnectorFormState = {
 	serverLabel: '',
 	serverDescription: '',
 	authorization: '',
+	oauthClientId: '',
+	oauthClientSecret: '',
 	requireApproval: 'always',
 	allowedTools: [],
 	deferLoading: false,
@@ -82,6 +86,8 @@ function formToInput(form: ConnectorFormState): ConnectorInput {
 		serverLabel: form.serverLabel || serverLabelFromName(form.name),
 		serverDescription: form.serverDescription || undefined,
 		authorization: form.authorization,
+		oauthClientId: form.oauthClientId || undefined,
+		oauthClientSecret: form.oauthClientSecret || undefined,
 		requireApproval: form.requireApproval,
 		allowedTools: form.allowedTools,
 		deferLoading: form.deferLoading,
@@ -97,6 +103,8 @@ function connectorToForm(connector: ConnectorConfig): ConnectorFormState {
 		serverLabel: connector.serverLabel,
 		serverDescription: connector.serverDescription ?? '',
 		authorization: connector.authorization,
+		oauthClientId: connector.oauth?.clientId ?? '',
+		oauthClientSecret: '',
 		requireApproval: connector.requireApproval,
 		allowedTools: connector.allowedTools,
 		deferLoading: connector.deferLoading,
@@ -116,10 +124,13 @@ const ConnectorsPage: React.FC = () => {
 	const [saving, setSaving] = useState(false);
 
 	const selectedCatalog = catalog.find((item) => item.id === form.connectorId);
+	const isGoogleOAuth = selectedCatalog?.authKind === 'google_oauth';
 	const canSubmit =
 		form.name.trim().length > 0 &&
 		form.connectorId.length > 0 &&
-		form.authorization.trim().length > 0 &&
+		(isGoogleOAuth
+			? form.oauthClientId.trim().length > 0 && (Boolean(form.id) || form.oauthClientSecret.trim().length > 0)
+			: form.authorization.trim().length > 0) &&
 		!saving;
 
 	const loadConnectors = async (): Promise<void> => {
@@ -227,7 +238,7 @@ const ConnectorsPage: React.FC = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="Connectors"
-				description="Configure OpenAI-maintained connectors for Responses API tool use."
+			description="Configure OpenAI-maintained connectors for Responses API tool use."
 				action={
 					<Button
 						type="button"
@@ -335,16 +346,46 @@ const ConnectorsPage: React.FC = () => {
 								/>
 							</SettingsField>
 
-							<SettingsField id="connector-authorization" label="OAuth access token">
-								<Input
-									id="connector-authorization"
-									type="password"
-									value={form.authorization}
-									onChange={(event) => update('authorization', event.target.value)}
-									placeholder="Paste OAuth access token"
-									className="h-7 px-2 text-xs md:text-xs"
-								/>
-							</SettingsField>
+							{isGoogleOAuth ? (
+								<div className="grid gap-3 md:grid-cols-2">
+									<SettingsField id="connector-oauth-client-id" label="Google OAuth client ID">
+										<Input
+											id="connector-oauth-client-id"
+											value={form.oauthClientId}
+											onChange={(event) => update('oauthClientId', event.target.value)}
+											placeholder="Google OAuth client ID"
+											className="h-7 px-2 text-xs md:text-xs"
+										/>
+									</SettingsField>
+									<SettingsField id="connector-oauth-client-secret" label="Google OAuth client secret">
+										<Input
+											id="connector-oauth-client-secret"
+											type="password"
+											value={form.oauthClientSecret}
+											onChange={(event) => update('oauthClientSecret', event.target.value)}
+											placeholder={form.id ? 'Leave blank to keep saved secret' : 'Google OAuth client secret'}
+											className="h-7 px-2 text-xs md:text-xs"
+										/>
+									</SettingsField>
+									<div className="md:col-span-2">
+										<SettingsNotice variant="default">
+											Add this redirect URI to your Google OAuth web app:{' '}
+											<span className="font-mono">{selectedCatalog?.redirectUri}</span>
+										</SettingsNotice>
+									</div>
+								</div>
+							) : (
+								<SettingsField id="connector-authorization" label="OAuth access token">
+									<Input
+										id="connector-authorization"
+										type="password"
+										value={form.authorization}
+										onChange={(event) => update('authorization', event.target.value)}
+										placeholder="Paste OAuth access token"
+										className="h-7 px-2 text-xs md:text-xs"
+									/>
+								</SettingsField>
+							)}
 
 							<div className="grid gap-2">
 								<div className="flex flex-wrap items-center justify-between gap-2">
@@ -469,6 +510,11 @@ const ConnectorsPage: React.FC = () => {
 									void run(connector.id, async () => {
 										setSelectedTools(await window.connectors.refreshTools(connector.id));
 										setSelectedId(connector.id);
+									})
+								}
+								onConnect={() =>
+									void run(connector.id, async () => {
+										await window.connectors.connectOAuth(connector.id);
 									})
 								}
 								onEdit={() => void editConnector(connector.id)}
