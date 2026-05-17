@@ -182,7 +182,7 @@ export class ConnectorsService {
 			connectorId: sanitized.connectorId,
 			serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
 			serverDescription: sanitized.serverDescription,
-			authorization: sanitized.authorization,
+			authorization: sanitized.authorization ?? '',
 			oauth: buildOAuthConfig(sanitized, undefined, this.oauthRedirectUri()),
 			requireApproval: sanitized.requireApproval ?? 'always',
 			allowedTools: sanitized.allowedTools ?? [],

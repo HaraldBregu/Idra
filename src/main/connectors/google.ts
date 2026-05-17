@@ -307,7 +307,7 @@ function extractTextBody(part: GmailMessagePart | undefined): string {
 	if (!part) return '';
 	if (part.body?.data && isTextMimeType(part.mimeType)) return decodeBase64Url(part.body.data);
 	const childText = (part.parts ?? []).map(extractTextBody).filter(Boolean);
-	const plain = childText.find((text, index) => part.parts?.[index]?.mimeType === 'text/plain');
+	const plain = childText.find((_text, index) => part.parts?.[index]?.mimeType === 'text/plain');
 	return plain ?? childText.join('\n\n');
 }
 
