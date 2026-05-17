@@ -111,7 +111,7 @@ async function recordAsyncPhase<T>(
 
 export class AgentService {
 	private readonly defaultAgentId: string;
-	private readonly providerFactory: (provider: ProviderSpec, model: string) => ProviderAdapter;
+	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
