@@ -26,7 +26,7 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 };
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | '*'> = {
-	minimal: ['session_status', 'get_workspace_path', 'update_plan'],
+	minimal: ['get_workspace_path', 'update_plan'],
 	coding: ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process', 'update_plan'],
 	messaging: ['message', 'session_create', 'session_resume', 'session_close'],
 	full: '*',
