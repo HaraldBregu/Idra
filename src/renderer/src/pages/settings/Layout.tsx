@@ -7,7 +7,9 @@ import { SETTINGS_NAVIGATION } from './navigation';
 
 function useSettingsCurrentPage(): { labelKey: string; path: string } | null {
 	const location = useLocation();
-	const current = SETTINGS_NAVIGATION.find((item) => location.pathname === item.path);
+	const current = SETTINGS_NAVIGATION.find((item) => (
+		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
+	));
 	if (current) return { labelKey: current.labelKey, path: current.path };
 	if (location.pathname === '/settings') {
 		return { labelKey: 'settings.breadcrumb.overview', path: '/settings' };
