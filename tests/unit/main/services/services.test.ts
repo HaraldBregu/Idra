@@ -429,7 +429,7 @@ describe('workspace service', () => {
 		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
 		await service.ensureReady({ initializeGit: false });
 
-		await fs.rm(path.join(root, 'USER.md'));
+		await fs.rm(path.join(root, 'USER.md'), { force: true });
 		await fs.symlink(path.join(root, 'AGENTS.md'), path.join(root, 'USER.md'));
 		const loaded = await service.readWorkspaceFile('USER.md');
 
