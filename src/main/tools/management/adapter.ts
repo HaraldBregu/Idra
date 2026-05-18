@@ -138,7 +138,7 @@ function inferPermissions(name: string, description = ''): string[] {
 			: ['calendar:read'];
 	}
 	if (['read', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
-	if (name === 'startup_files') return ['agent:startups'];
+	if (name === 'startup_files') return ['agent:startup'];
 	if (['write', 'edit', 'apply_patch'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
