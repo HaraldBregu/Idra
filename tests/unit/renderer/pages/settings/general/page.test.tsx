@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import GeneralPage from '../../../../../../src/renderer/src/pages/settings/pages/general/Page';
 
 jest.mock('react-i18next', () => ({
@@ -7,6 +8,20 @@ jest.mock('react-i18next', () => ({
 		t: (key: string) => key,
 	}),
 }));
+
+function LocationProbe(): React.JSX.Element {
+	const location = useLocation();
+	return <div data-testid="location">{location.pathname}</div>;
+}
+
+function renderGeneralPage(): void {
+	render(
+		<MemoryRouter initialEntries={['/settings/general']}>
+			<GeneralPage />
+			<LocationProbe />
+		</MemoryRouter>
+	);
+}
 
 describe('GeneralPage', () => {
 	beforeEach(() => {
@@ -20,7 +35,7 @@ describe('GeneralPage', () => {
 	});
 
 	it('renders application information from build-time constants', async () => {
-		render(<GeneralPage />);
+		renderGeneralPage();
 
 		expect(await screen.findByText('Friday')).toBeInTheDocument();
 		expect(screen.getByText('0.0.0-test')).toBeInTheDocument();
@@ -29,7 +44,7 @@ describe('GeneralPage', () => {
 
 	it('loads and reflects the initial tray state', async () => {
 		(window.app.getTrayEnabled as jest.Mock).mockResolvedValue(false);
-		render(<GeneralPage />);
+		renderGeneralPage();
 
 		const toggle = await screen.findByRole('switch', { name: 'settings.application.menuBar' });
 		await waitFor(() => {
@@ -39,7 +54,7 @@ describe('GeneralPage', () => {
 
 	it('calls setTrayEnabled when the menu bar switch is toggled', async () => {
 		const user = userEvent.setup();
-		render(<GeneralPage />);
+		renderGeneralPage();
 
 		const toggle = await screen.findByRole('switch', { name: 'settings.application.menuBar' });
 		await user.click(toggle);
@@ -51,7 +66,7 @@ describe('GeneralPage', () => {
 
 	it('calls openAppDataFolder when the app data button is clicked', async () => {
 		const user = userEvent.setup();
-		render(<GeneralPage />);
+		renderGeneralPage();
 
 		await screen.findByText('Friday');
 
@@ -61,5 +76,14 @@ describe('GeneralPage', () => {
 		await waitFor(() => {
 			expect(window.app.openAppDataFolder).toHaveBeenCalled();
 		});
+	});
+
+	it('navigates to the Friday agent details when the agent row is clicked', async () => {
+		const user = userEvent.setup();
+		renderGeneralPage();
+
+		await user.click(await screen.findByRole('button', { name: /settings\.agents\.fridayName/ }));
+
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/general/agentdetails/main');
 	});
 });
