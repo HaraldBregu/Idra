@@ -263,12 +263,17 @@
 			"details": {
 				"id": "Id",
 				"schedule": "Schedule",
+				"target": "Target",
+				"delivery": "Delivery",
 				"timezone": "Timezone",
 				"createdAt": "Created",
+				"updatedAt": "Updated",
 				"lastRun": "Last Run",
 				"nextRun": "Next Run",
 				"payload": "Payload"
 			},
+			"enabled": "Enabled",
+			"disabled": "Disabled",
 			"emptyTitle": "No cron tasks",
 			"emptyDescription": "Cron tasks will appear here once they are configured."
 		},
