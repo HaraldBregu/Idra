@@ -9,8 +9,9 @@ import {
 } from "./tooltip"
 import { BarWaveAnimation } from "./bar-wave-animation"
 import { WaveAnimation } from "./wave-animation"
+import { TypingLoader } from "./loader"
 import { cn } from "@/lib/utils"
-import { Check, Mic, MicOff, MoreHorizontal, X } from "lucide-react"
+import { Check, Mic, MicOff, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React, {
   createContext,
