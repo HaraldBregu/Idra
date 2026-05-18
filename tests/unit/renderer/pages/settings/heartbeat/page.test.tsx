@@ -93,6 +93,7 @@ describe('HeartbeatPage', () => {
 		const user = userEvent.setup();
 		render(<HeartbeatPage />);
 
+		await screen.findByText('settings.heartbeat.values.enabled');
 		await user.type(
 			await screen.findByPlaceholderText('settings.heartbeat.controls.systemEventPlaceholder'),
 			'Check notifications'
