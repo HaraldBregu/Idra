@@ -128,40 +128,41 @@ const CronPage: React.FC = () => {
 								>
 									<SettingsPanel>
 										<Item variant="outline" size="md" className="items-start">
-												<ItemMedia variant="icon">
-													<Clock3 className="size-3" strokeWidth={1.8} />
-												</ItemMedia>
-												<ItemContent className="min-w-0 flex-1 items-start">
-													<div className="min-w-0 flex-1">
-														<ItemTitle className="w-full max-w-full truncate">{job.name}</ItemTitle>
-														<p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-															{summary}
-														</p>
-														<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-															<Badge
-																variant={job.enabled ? 'outline' : 'destructive'}
-																className="h-4 px-1.5 text-[10px]"
-															>
-																{job.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
-															</Badge>
-															<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-																{job.payload.kind}
-															</Badge>
-															<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-																{job.schedule.kind}
-															</Badge>
-															<Badge variant="outline" className="h-4 max-w-full px-1.5 font-mono text-[10px]">
-																<span className="truncate">{schedule}</span>
-															</Badge>
-														</div>
+											<ItemMedia variant="icon">
+												<Clock3 className="size-3" strokeWidth={1.8} />
+											</ItemMedia>
+											<ItemContent className="min-w-0 flex-1 items-start">
+												<div className="min-w-0 flex-1">
+													<ItemTitle className="w-full max-w-full truncate">{job.name}</ItemTitle>
+													<p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+														{summary}
+													</p>
+													<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+														<Badge
+															variant={job.enabled ? 'outline' : 'destructive'}
+															className="h-4 px-1.5 text-[10px]"
+														>
+															{job.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
+														</Badge>
+														<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+															{job.payload.kind}
+														</Badge>
+														<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+															{job.schedule.kind}
+														</Badge>
+														<Badge variant="outline" className="h-4 max-w-full px-1.5 font-mono text-[10px]">
+															<span className="truncate">{schedule}</span>
+														</Badge>
 													</div>
-												</ItemContent>
-												<ItemActions className="flex-none justify-end gap-1">
+												</div>
+											</ItemContent>
+											<ItemActions className="flex-none justify-end gap-1">
 												<Button
 													type="button"
 													variant="destructive"
 													size="icon-xs"
 													disabled={removingId === job.id}
+													onKeyDown={(event) => event.stopPropagation()}
 													onClick={(event) => {
 														event.stopPropagation();
 														void handleRemoveJob(job.id);
@@ -171,7 +172,7 @@ const CronPage: React.FC = () => {
 												>
 													<Trash2 className="size-3" />
 												</Button>
-												</ItemActions>
+											</ItemActions>
 										</Item>
 									</SettingsPanel>
 								</div>
