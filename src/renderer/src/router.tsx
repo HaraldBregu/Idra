@@ -19,18 +19,18 @@ import { Button } from './components/ui/button';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/Page'));
-const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/OverviewPage'));
-const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
-const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
-const ChannelDetailPage = lazy(() => import('./pages/settings/pages/ChannelDetailPage'));
+const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
+const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
+const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
+const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
-const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/ConnectorDetailsPage'));
-const SkillsPage = lazy(() => import('./pages/settings/pages/SkillsPage'));
-const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
-const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
-const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
-const CronDetailsPage = lazy(() => import('./pages/settings/pages/CronDetailsPage'));
-const AppsPage = lazy(() => import('./pages/settings/pages/AppsPage'));
+const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
+const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
+const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
+const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
+const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
+const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
+const AppsPage = lazy(() => import('./pages/settings/pages/apps/Page'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
 	return (
