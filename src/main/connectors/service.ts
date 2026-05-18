@@ -1141,7 +1141,7 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 			additionalProperties: false,
 		};
 	}
-	if (toolName === 'fetch') {
+	if (['fetch', 'read_file_content', 'download_file_content'].includes(toolName)) {
 		return {
 			type: 'object',
 			properties: {
@@ -1153,12 +1153,55 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 			additionalProperties: false,
 		};
 	}
+	if (toolName === 'get_file_metadata') {
+		return {
+			type: 'object',
+			properties: {
+				id: { type: 'string', description: 'Google Drive file id.' },
+				fileId: { type: 'string', description: 'Google Drive file id.' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (toolName === 'get_file_permissions') {
+		return {
+			type: 'object',
+			properties: {
+				id: { type: 'string', description: 'Google Drive file or shared drive id.' },
+				fileId: { type: 'string', description: 'Google Drive file or shared drive id.' },
+				maxResults: { type: 'integer', description: 'Maximum permissions to return, capped at 100.' },
+				pageToken: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (toolName === 'create_file') {
+		return {
+			type: 'object',
+			properties: {
+				name: { type: 'string', description: 'New file name.' },
+				fileName: { type: 'string', description: 'Alias for name.' },
+				mimeType: { type: 'string', description: 'Drive file MIME type. Defaults to text/plain.' },
+				content: { type: 'string', description: 'Optional file content.' },
+				text: { type: 'string', description: 'Alias for content.' },
+				contentMimeType: { type: 'string', description: 'MIME type for uploaded content.' },
+				parents: { type: 'array', items: { type: 'string' }, description: 'Parent folder ids.' },
+				parentId: { type: 'string', description: 'Single parent folder id.' },
+				description: { type: 'string' },
+			},
+			required: ['name'],
+			additionalProperties: false,
+		};
+	}
 	return {
 		type: 'object',
 		properties: {
 			query: { type: 'string', description: 'Search text matched against Drive file names and content.' },
+			q: { type: 'string', description: 'Alias for query.' },
 			driveQuery: { type: 'string', description: 'Raw Google Drive q expression for advanced searches.' },
 			mimeType: { type: 'string', description: 'Restrict results to one MIME type.' },
+			driveId: { type: 'string', description: 'Shared drive id to search.' },
+			corpora: { type: 'string', description: 'Drive corpora value such as user, drive, domain, or allDrives.' },
 			maxResults: { type: 'integer', description: 'Maximum files to return, capped at 20.' },
 			pageToken: { type: 'string' },
 			orderBy: { type: 'string', description: 'Google Drive orderBy expression.' },
