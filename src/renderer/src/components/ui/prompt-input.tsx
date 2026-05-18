@@ -448,6 +448,17 @@ function PromptInput({
             {children}
           </div>
         )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            const files = Array.from(e.target.files ?? [])
+            if (files.length > 0) onFilesChange?.(files)
+            e.target.value = ""
+          }}
+        />
       </PromptInputContext.Provider>
     </TooltipProvider>
   )
