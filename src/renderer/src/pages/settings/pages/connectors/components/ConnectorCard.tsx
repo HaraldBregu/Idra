@@ -1,11 +1,35 @@
 import React from 'react';
-import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
+import {
+	ArrowRight,
+	Box,
+	Calendar,
+	CalendarDays,
+	FolderOpen,
+	HardDrive,
+	Inbox,
+	Mail,
+	MessagesSquare,
+	Plug,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import type { ConnectorView } from '../../../../../../../shared/connectors';
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a,input,textarea,select,label,[role="switch"]'));
 }
+
+const CONNECTOR_ICONS = {
+	connector_dropbox: Box,
+	connector_gmail: Mail,
+	connector_googlecalendar: CalendarDays,
+	connector_googledrive: HardDrive,
+	connector_microsoftteams: MessagesSquare,
+	connector_outlookcalendar: Calendar,
+	connector_outlookemail: Inbox,
+	connector_sharepoint: FolderOpen,
+} satisfies Partial<Record<ConnectorView['connectorId'], typeof Plug>>;
 
 export function ConnectorCard({
 	connector,
@@ -18,28 +42,25 @@ export function ConnectorCard({
 	readonly onToggle: () => void;
 	readonly onViewDetails: () => void;
 }): React.JSX.Element {
+	const ConnectorIcon = CONNECTOR_ICONS[connector.connectorId] ?? Plug;
+
 	return (
 		<Item
 			variant="outline"
 			size="md"
-			role="button"
-			tabIndex={0}
 			onClick={(event) => {
 				if (isInteractiveTarget(event.target)) return;
 				onViewDetails();
 			}}
-			onKeyDown={(event) => {
-				if (isInteractiveTarget(event.target)) return;
-				if (event.key !== 'Enter' && event.key !== ' ') return;
-				event.preventDefault();
-				onViewDetails();
-			}}
 			className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
 		>
+			<ItemMedia variant="icon">
+				<ConnectorIcon className="size-3" strokeWidth={1.8} />
+			</ItemMedia>
 			<ItemContent className="min-w-0">
 				<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
 			</ItemContent>
-			<ItemActions className="ml-auto flex-none justify-end">
+			<ItemActions className="ml-auto flex-none justify-end gap-1">
 				<Switch
 					size="sm"
 					checked={connector.enabled}
@@ -47,6 +68,14 @@ export function ConnectorCard({
 					onCheckedChange={onToggle}
 					aria-label={connector.enabled ? 'Disable connector' : 'Enable connector'}
 				/>
+				<Button
+					variant="ghost"
+					size="icon-xs"
+					onClick={onViewDetails}
+					aria-label={`View ${connector.name} details`}
+				>
+					<ArrowRight className="size-3" />
+				</Button>
 			</ItemActions>
 		</Item>
 	);
