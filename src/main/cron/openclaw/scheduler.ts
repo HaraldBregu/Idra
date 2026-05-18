@@ -4,6 +4,7 @@ import type {
 	OpenClawCronAddRequest,
 	OpenClawCronDelivery,
 	OpenClawCronDeliveryState,
+	OpenClawCronCanonicalToolRequest,
 	OpenClawCronJob,
 	OpenClawCronJobDefinition,
 	OpenClawCronJobState,
@@ -11,7 +12,6 @@ import type {
 	OpenClawCronRunRecord,
 	OpenClawCronSessionTarget,
 	OpenClawCronStatus,
-	OpenClawCronToolRequest,
 	OpenClawCronToolResponse,
 	OpenClawCronUpdateRequest,
 } from '../../../shared/cron';
@@ -38,6 +38,8 @@ export interface OpenClawCronActor {
 	role: 'owner' | 'subagent' | 'http' | 'cron-self';
 	jobId?: string;
 	sessionId?: string;
+	sessionKey?: string | null;
+	agentId?: string | null;
 }
 
 export interface OpenClawCronExecutionOutcome {
@@ -188,14 +190,20 @@ export class OpenClawCronScheduler {
 		};
 	}
 
-	async list(include: 'enabled' | 'disabled' | 'all' = 'enabled', actor: OpenClawCronActor = { role: 'owner' }): Promise<OpenClawCronJob[]> {
+	async list(
+		include: 'enabled' | 'disabled' | 'all' = 'enabled',
+		actor: OpenClawCronActor = { role: 'owner' },
+		agentId?: string | null
+	): Promise<OpenClawCronJob[]> {
 		this.authorize(actor, 'list');
 		const snapshot = await this.store.load();
+		const effectiveAgentId = agentId === undefined ? actor.agentId : agentId;
 		return this.visibleJobs(snapshot, actor)
 			.filter((job) => {
 				if (include === 'all') return true;
 				return include === 'enabled' ? job.enabled : !job.enabled;
 			})
+			.filter((job) => effectiveAgentId == null || job.agentId === effectiveAgentId)
 			.map((job) => this.join(job, snapshot.states[job.id]));
 	}
 
@@ -229,8 +237,10 @@ export class OpenClawCronScheduler {
 			payload: request.payload,
 			delivery: normalizeDelivery(request.payload, sessionTarget, request.delivery),
 			failureAlert: request.failureAlert,
-			agentId: request.agentId,
-			sessionKey: request.sessionKey,
+			agentId: request.agentId === undefined ? actor.agentId : request.agentId,
+			sessionKey: request.sessionKey === undefined
+				? actor.sessionKey ?? actor.sessionId
+				: request.sessionKey,
 			deleteAfterRun: request.deleteAfterRun ?? (request.schedule.kind === 'at' ? true : undefined),
 			maxAttempts: request.maxAttempts,
 			backoffMs: request.backoffMs,
@@ -338,7 +348,7 @@ export class OpenClawCronScheduler {
 	}
 
 	async handleToolAction(
-		request: OpenClawCronToolRequest,
+		request: OpenClawCronCanonicalToolRequest,
 		actor: OpenClawCronActor = { role: 'owner' }
 	): Promise<OpenClawCronToolResponse> {
 		try {
@@ -424,14 +434,16 @@ export class OpenClawCronScheduler {
 	}
 
 	private async handleToolActionOrThrow(
-		request: OpenClawCronToolRequest,
+		request: OpenClawCronCanonicalToolRequest,
 		actor: OpenClawCronActor
 	): Promise<OpenClawCronToolResponse['result']> {
 		switch (request.action) {
-			case 'status':
-				return this.status(actor);
+			case 'status': {
+				const status = await this.status(actor);
+				return actor.role === 'cron-self' ? { enabled: status.enabled } : status;
+			}
 			case 'list':
-				return this.list(request.include ?? 'enabled', actor);
+				return this.list(request.include ?? 'enabled', actor, request.agentId);
 			case 'get':
 				return this.get(request.jobId, actor);
 			case 'add':
@@ -442,11 +454,11 @@ export class OpenClawCronScheduler {
 				await this.remove(request.jobId, actor);
 				return { removed: true, jobId: request.jobId };
 			case 'run':
-				return this.run(request.jobId, request.force ? 'force' : request.mode ?? 'force', actor);
+				return this.run(request.jobId, request.runMode ?? 'force', actor);
 			case 'runs':
 				return this.runs(request.jobId, request.limit, actor);
 			case 'wake': {
-				const status = await this.wake(actor);
+				const status = await this.wake(actor, request.mode);
 				return { woken: true, status };
 			}
 		}
@@ -777,13 +789,13 @@ export class OpenClawCronScheduler {
 			return allowPastAt ? at : at > fromMs ? at : undefined;
 		}
 		if (job.schedule.kind === 'every') {
-			const interval = Math.max(job.schedule.intervalMs, this.options.minRefireGapMs);
-			const anchor = state.lastRunAtMs ?? job.createdAtMs;
+			const interval = Math.max(job.schedule.everyMs, this.options.minRefireGapMs);
+			const anchor = job.schedule.anchorMs ?? job.createdAtMs;
 			if (anchor > fromMs) return anchor;
 			const periods = Math.floor((fromMs - anchor) / interval) + 1;
 			return anchor + periods * interval;
 		}
-		const timezone = job.schedule.timezone ?? this.options.defaultTimezone;
+		const timezone = job.schedule.tz ?? this.options.defaultTimezone;
 		const next = this.calculator.getNextRun(
 			{
 				id: job.id,
@@ -794,7 +806,7 @@ export class OpenClawCronScheduler {
 				createdBy: 'cron',
 				visibility: 'private',
 				timezone,
-				cronExpression: job.schedule.expression,
+				cronExpression: job.schedule.expr,
 				runCount: 0,
 				missedRunPolicy: 'skip',
 				concurrencyPolicy: 'skipIfRunning',
@@ -823,7 +835,7 @@ export class OpenClawCronScheduler {
 			new Date(fromMs)
 		);
 		if (!next) return undefined;
-		return next.getTime() + (job.schedule.staggerMs ?? 0) + this.stableJitter(job.id, job.schedule.jitterMs ?? 0);
+		return next.getTime() + (job.schedule.staggerMs ?? 0);
 	}
 
 	private sweepStaleRunning(snapshot: OpenClawCronSnapshot, now: number): boolean {
@@ -884,11 +896,16 @@ export class OpenClawCronScheduler {
 		return { ...job, state: state ?? defaultOpenClawCronJobState(job) };
 	}
 
-	private authorize(actor: OpenClawCronActor, action: OpenClawCronToolRequest['action'], jobId?: string): void {
+	private authorize(actor: OpenClawCronActor, action: OpenClawCronCanonicalToolRequest['action'], jobId?: string): void {
 		if (actor.role === 'owner') return;
 		if (actor.role === 'cron-self') {
 			if (action === 'status' || action === 'list') return;
 			if (jobId && actor.jobId === jobId && ['get', 'runs', 'remove'].includes(action)) return;
+			throw new CronPermissionError('Cron tool is restricted to the current cron job.', {
+				action,
+				jobId: jobId ?? null,
+				role: actor.role,
+			} as CronJsonObject);
 		}
 		throw new CronPermissionError('Cron is owner-only for this caller.', {
 			action,
@@ -914,13 +931,6 @@ export class OpenClawCronScheduler {
 
 	private maxAttempts(job: OpenClawCronJobDefinition): number {
 		return job.maxAttempts ?? this.options.defaultOneShotMaxAttempts;
-	}
-
-	private stableJitter(id: string, max: number): number {
-		if (max <= 0) return 0;
-		let hash = 0;
-		for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-		return hash % (Math.floor(max) + 1);
 	}
 
 	private toRunError(error: unknown, fallbackCode = 'CRON_RUN_ERROR'): OpenClawCronRunError {
