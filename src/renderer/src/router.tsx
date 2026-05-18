@@ -27,6 +27,7 @@ const SkillsPage = lazy(() => import('./pages/settings/pages/SkillsPage'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
 const CronPage = lazy(() => import('./pages/settings/pages/CronPage'));
+const CronDetailsPage = lazy(() => import('./pages/settings/pages/CronDetailsPage'));
 const AppsPage = lazy(() => import('./pages/settings/pages/AppsPage'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
@@ -180,6 +181,14 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<CronPage />
+							</RouteWrapper>
+						),
+					},
+					{
+						path: 'cron/crondetails/:jobId',
+						element: (
+							<RouteWrapper>
+								<CronDetailsPage />
 							</RouteWrapper>
 						),
 					},
