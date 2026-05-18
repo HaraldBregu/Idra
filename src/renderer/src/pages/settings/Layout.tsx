@@ -23,7 +23,7 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	if (isOverview) return null;
 
 	return (
-		<header className="mx-auto mb-3 flex w-full max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+		<header className="mx-auto mb-5 flex w-full max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 			<nav
 				aria-label={t('settings.breadcrumb.label')}
 				className="flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground"
