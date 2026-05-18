@@ -30,6 +30,11 @@ function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 		items.push({ label: channelLabel });
 	}
 
+	if (location.pathname.startsWith('/settings/connectors/connectordetails/')) {
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: t('settings.connectors.detailsTitle') });
+	}
+
 	if (location.pathname.startsWith('/settings/cron/crondetails/')) {
 		items[0] = { ...items[0], path: current.path };
 		items.push({ label: t('settings.cron.detailsTitle') });
