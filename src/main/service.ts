@@ -47,6 +47,7 @@ const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
 const DEFAULT_MAX_PROMPT_TOOLS = 6;
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
+const DEFAULT_LOCAL_TOOL_DENY = ['write', 'edit', 'startup_files', 'exec', 'process'];
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -155,7 +156,7 @@ export class AgentService {
 		this.toolsFactory =
 			options.toolsFactory ??
 			(() => [
-				...createTools({ profile: 'full', allow: [], deny: [] }),
+				...createTools({ profile: 'full', allow: [], deny: DEFAULT_LOCAL_TOOL_DENY }),
 				...(this.dependencies.connectors?.createAgentTools() ?? []),
 			]);
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
@@ -238,6 +239,7 @@ export class AgentService {
 				plan: { entries: runtime.session.plan },
 				approvalCache: new Set(),
 				approvalRequired: new Set(),
+				fsPolicy: { workspaceOnly: false, readOnly: true },
 				elicit: {
 					ask: (question, suggestions) => {
 						streamEvent({
