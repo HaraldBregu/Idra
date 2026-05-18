@@ -12,6 +12,7 @@ import type {
 	OpenClawCronRunRecord,
 	OpenClawCronSessionTarget,
 	OpenClawCronStatus,
+	OpenClawCronToolRequest,
 	OpenClawCronToolResponse,
 	OpenClawCronUpdateRequest,
 } from '../../../shared/cron';
@@ -27,6 +28,7 @@ import {
 	normalizeDelivery,
 	openClawScheduleIdentity,
 } from './validation';
+import { normalizeOpenClawCronToolRequest } from './normalize';
 
 export interface OpenClawCronLogger {
 	info(scope: string, message: string, metadata?: unknown): void;
@@ -351,11 +353,12 @@ export class OpenClawCronScheduler {
 	}
 
 	async handleToolAction(
-		request: OpenClawCronCanonicalToolRequest,
+		request: OpenClawCronToolRequest | OpenClawCronCanonicalToolRequest | unknown,
 		actor: OpenClawCronActor = { role: 'owner' }
 	): Promise<OpenClawCronToolResponse> {
 		try {
-			const result = await this.handleToolActionOrThrow(request, actor);
+			const normalized = normalizeOpenClawCronToolRequest(request, { actor });
+			const result = await this.handleToolActionOrThrow(normalized, actor);
 			return {
 				status: 'ok',
 				enabled: this.options.enabled,
