@@ -176,6 +176,11 @@
 			"apps": "App",
 			"skills": "Abilità"
 		},
+		"breadcrumb": {
+			"label": "Navigazione impostazioni",
+			"overview": "Panoramica",
+			"general": "Generale"
+		},
 		"sections": {
 			"permissions": "Autorizzazioni",
 			"workspace": "Area di Lavoro",
