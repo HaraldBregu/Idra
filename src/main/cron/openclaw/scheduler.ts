@@ -703,7 +703,7 @@ export class OpenClawCronScheduler {
 	}
 
 	private failureDelivery(job: OpenClawCronJobDefinition): OpenClawCronDelivery | undefined {
-		if (job.failureAlert && job.failureAlert !== false && job.failureAlert.to) {
+		if (job.failureAlert && job.failureAlert.to) {
 			return {
 				mode: job.failureAlert.mode ?? 'announce',
 				channel: job.failureAlert.channel,
