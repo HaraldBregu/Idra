@@ -138,7 +138,6 @@ function formatVoiceDuration(seconds: number) {
 
 function PromptInputVoiceWaveform({
   muted,
-  mode,
 }: {
   muted: boolean
   mode: PromptInputVoiceMode
@@ -146,53 +145,13 @@ function PromptInputVoiceWaveform({
   return (
     <div
       className={cn(
-        "relative h-7 min-w-0 overflow-hidden rounded-full bg-muted/70 shadow-inner",
+        "relative min-w-0 overflow-hidden rounded-full bg-muted/70 shadow-inner",
         muted && "bg-muted/50"
       )}
+      style={{ height: 28 }}
       aria-hidden="true"
     >
-      {!muted && (
-        <svg
-          className="absolute inset-0 h-full w-full"
-          viewBox="0 0 640 80"
-          preserveAspectRatio="none"
-          focusable="false"
-        >
-          <motion.path
-            d="M28 43 C86 8 124 69 188 48 C252 26 303 64 360 36 C421 6 474 70 534 47 C578 32 603 34 624 43"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="5"
-            strokeLinecap="round"
-            className={mode === "dictation" ? "text-primary/70" : "text-primary/75"}
-            initial={{ pathLength: 0.72, opacity: 0.52 }}
-            animate={{ pathLength: [0.72, 1, 0.8], opacity: [0.45, 0.9, 0.55] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.path
-            d="M30 35 C88 62 116 22 173 38 C225 53 274 48 323 22 C377 -6 419 55 474 46 C533 36 555 12 604 40"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeLinecap="round"
-            className="text-foreground/45"
-            initial={{ pathLength: 0.82, opacity: 0.36 }}
-            animate={{ pathLength: [0.82, 0.62, 1], opacity: [0.34, 0.72, 0.4] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.path
-            d="M28 54 C84 20 125 66 190 53 C245 42 296 55 352 45 C414 32 456 10 510 37 C556 61 590 58 622 45"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeLinecap="round"
-            className="text-muted-foreground/50"
-            initial={{ pathLength: 0.68, opacity: 0.24 }}
-            animate={{ pathLength: [0.68, 0.92, 0.74], opacity: [0.22, 0.52, 0.28] }}
-            transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </svg>
-      )}
+      <WaveAnimation active={!muted} height={28} className="absolute inset-0" />
     </div>
   )
 }
