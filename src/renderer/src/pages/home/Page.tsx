@@ -226,6 +226,7 @@ function PageContent(): ReactElement {
 						onVoiceEnd={returnToChat}
 						onVoiceCancel={returnToChat}
 						onVoiceConfirm={confirmDictation}
+						onFilesChange={(files) => setAttachedFiles((prev) => [...prev, ...files])}
 						className="w-full"
 						actions={
 							<PromptInputActions className="justify-end gap-1.5">

@@ -29,8 +29,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
-import { AuroraWaveAnimation } from '@/components/ui/aurora-wave-animation';
-import { EmberWaveAnimation } from '@/components/ui/ember-wave-animation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
