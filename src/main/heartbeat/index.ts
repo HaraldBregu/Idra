@@ -5,6 +5,7 @@ export * from './duration';
 export * from './prompt';
 export * from './response';
 export * from './schedule';
+export * from './service';
 export * from './store';
 export * from './visibility';
 export * from './wake';
