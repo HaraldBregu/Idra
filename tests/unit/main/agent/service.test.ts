@@ -417,7 +417,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('defaults to outside-readable but read-only local tools with no shell access', async () => {
+	it('defaults to outside-readable local tools for file-backed requests', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
@@ -461,12 +461,52 @@ describe('AgentService', () => {
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
 		expect(toolNames).toContain('read');
 		expect(toolNames).toContain('find');
-		expect(toolNames).not.toEqual(expect.arrayContaining(['write', 'edit', 'startup_files', 'exec', 'process']));
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
 		expect(JSON.stringify(history)).toContain('outside readable');
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('exposes local file mutation, inspection, patch, and shell tools by default', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'tool inventory ready' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send('Do you have any internal tools?')).resolves.toBe('tool inventory ready');
+		const toolNames = requests[0]!.tools.map((tool) => tool.name);
+		expect(toolNames).toEqual(
+			expect.arrayContaining([
+				'read',
+				'write',
+				'edit',
+				'apply_patch',
+				'delete',
+				'copy',
+				'move',
+				'inspect_file',
+				'find',
+				'exec',
+				'process',
+			])
+		);
+		expect(toolNames).not.toContain('startup_files');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
