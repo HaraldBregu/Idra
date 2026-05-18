@@ -17,7 +17,7 @@ export function agentToolToManagedTool(
 	options: AgentToolAdapterOptions = {}
 ): Tool<Record<string, unknown>, AgentToolResult> {
 	const id = `${options.idPrefix ?? ''}${agentTool.name}`;
-	const category = options.category ?? inferCategory(agentTool.name);
+	const category = options.category ?? inferCategory(agentTool.name, agentTool.description);
 	return {
 		id,
 		name: agentTool.name,
@@ -34,8 +34,8 @@ export function agentToolToManagedTool(
 			required: ['status', 'content'],
 			additionalProperties: true,
 		},
-		permissionsRequired: options.permissionsRequired ?? inferPermissions(agentTool.name),
-		safetyLevel: inferSafety(agentTool.name),
+		permissionsRequired: options.permissionsRequired ?? inferPermissions(agentTool.name, agentTool.description),
+		safetyLevel: inferSafety(agentTool.name, agentTool.description),
 		costEstimate: { amount: 0, currency: 'none', unit: 'call', tier: 'free' },
 		latencyEstimate: inferLatency(agentTool.name),
 		reliabilityScore: inferReliability(agentTool.name),
@@ -48,7 +48,7 @@ export function agentToolToManagedTool(
 		metadata: {
 			whenToUse: agentTool.description,
 			whenNotToUse: 'Do not use if the user request can be answered directly without this capability.',
-			privacyLevel: inferPrivacy(agentTool.name),
+			privacyLevel: inferPrivacy(agentTool.name, agentTool.description),
 			readOnly: isReadOnly(agentTool.name),
 			requiresConfirmation: false,
 			cacheable: isReadOnly(agentTool.name),
@@ -113,7 +113,10 @@ export function createAgentToolRegistry(agentTools: AgentTool[]): ToolRegistry {
 	return createToolRegistry(agentTools.map((tool) => agentToolToManagedTool(tool)));
 }
 
-function inferCategory(name: string): ToolCategory {
+function inferCategory(name: string, description = ''): ToolCategory {
+	const text = `${name} ${description}`.toLowerCase();
+	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
+	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
 	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web')) return 'web';
@@ -122,7 +125,18 @@ function inferCategory(name: string): ToolCategory {
 	return 'utility';
 }
 
-function inferPermissions(name: string): string[] {
+function inferPermissions(name: string, description = ''): string[] {
+	const text = `${name} ${description}`.toLowerCase();
+	if (/\b(gmail|email|mail|inbox)\b/.test(text)) {
+		return /\b(send|draft|create|trash|delete|modify)\b/.test(text)
+			? ['email:write']
+			: ['email:read'];
+	}
+	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) {
+		return /\b(create|update|delete|write)\b/.test(text)
+			? ['calendar:write']
+			: ['calendar:read'];
+	}
 	if (['read', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
 	if (['write', 'edit', 'apply_patch'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
@@ -134,7 +148,9 @@ function inferPermissions(name: string): string[] {
 	return [];
 }
 
-function inferSafety(name: string): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
+function inferSafety(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
+	const text = `${name} ${description}`.toLowerCase();
+	if (/\b(send|trash|delete|create|update|modify)\b/.test(text) && /\b(gmail|email|mail|calendar|event)\b/.test(text)) return 'high';
 	if (['write', 'edit', 'apply_patch', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service'].includes(name)) return 'high';
 	if (
 		[
@@ -172,7 +188,9 @@ function inferTags(name: string, category: ToolCategory): string[] {
 	return [category, ...name.split('_')].filter(Boolean);
 }
 
-function inferPrivacy(name: string): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
+function inferPrivacy(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
+	const text = `${name} ${description}`.toLowerCase();
+	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'private';
 	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'exec', 'process'].includes(name)) return 'private';
 	if (name.includes('provider') || name.includes('agent')) return 'sensitive';
 	return 'internal';
