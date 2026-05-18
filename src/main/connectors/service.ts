@@ -1189,7 +1189,6 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 				parentId: { type: 'string', description: 'Single parent folder id.' },
 				description: { type: 'string' },
 			},
-			required: ['name'],
 			additionalProperties: false,
 		};
 	}
