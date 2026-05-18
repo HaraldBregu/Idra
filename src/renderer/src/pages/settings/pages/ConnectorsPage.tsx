@@ -483,39 +483,43 @@ const ConnectorsPage: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="grid gap-2 rounded-md border border-border/70 bg-muted/20 p-2 sm:grid-cols-2">
-								<div className="flex items-start justify-between gap-2 text-xs">
-									<span className="min-w-0">
-										<Label htmlFor="connector-defer-loading" className="block text-[11px] leading-4">
+							<div className="grid overflow-hidden rounded-md border border-border/60 divide-y divide-border/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+								<Item size="sm" variant="ghost">
+									<ItemContent className="flex-col items-start gap-0.5">
+										<label htmlFor="connector-defer-loading" className="cursor-pointer text-[13px] font-medium text-foreground">
 											Defer tool loading
-										</Label>
-										<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+										</label>
+										<span className="text-[11px] leading-4 text-muted-foreground">
 											Load tools only when the connector is used.
 										</span>
-									</span>
-									<Switch
-										size="sm"
-										id="connector-defer-loading"
-										checked={form.deferLoading}
-										onCheckedChange={(checked) => update('deferLoading', checked)}
-									/>
-								</div>
-								<div className="flex items-start justify-between gap-2 text-xs">
-									<span className="min-w-0">
-										<Label htmlFor="connector-enabled" className="block text-[11px] leading-4">
+									</ItemContent>
+									<ItemActions className="flex-none">
+										<Switch
+											size="sm"
+											id="connector-defer-loading"
+											checked={form.deferLoading}
+											onCheckedChange={(checked) => update('deferLoading', checked)}
+										/>
+									</ItemActions>
+								</Item>
+								<Item size="sm" variant="ghost">
+									<ItemContent className="flex-col items-start gap-0.5">
+										<label htmlFor="connector-enabled" className="cursor-pointer text-[13px] font-medium text-foreground">
 											Enabled
-										</Label>
-										<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+										</label>
+										<span className="text-[11px] leading-4 text-muted-foreground">
 											Make this connector available to agent runs.
 										</span>
-									</span>
-									<Switch
-										size="sm"
-										id="connector-enabled"
-										checked={form.enabled}
-										onCheckedChange={(checked) => update('enabled', checked)}
-									/>
-								</div>
+									</ItemContent>
+									<ItemActions className="flex-none">
+										<Switch
+											size="sm"
+											id="connector-enabled"
+											checked={form.enabled}
+											onCheckedChange={(checked) => update('enabled', checked)}
+										/>
+									</ItemActions>
+								</Item>
 							</div>
 
 							{selectedCatalog && (
