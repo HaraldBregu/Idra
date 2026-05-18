@@ -154,7 +154,7 @@ function PageContent(): ReactElement {
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			<div className="relative flex min-h-0 flex-1 flex-col bg-background text-foreground">
-				<ChatContainerRoot className="min-h-0 p-0 px-4 [scrollbar-gutter:auto]" aria-live="polite">
+				<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 					<ChatContainerContent
 						className={cn(
 							'mx-auto min-h-full w-full max-w-4xl gap-5 pb-28',
