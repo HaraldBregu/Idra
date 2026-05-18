@@ -357,6 +357,7 @@ function PromptInput({
           textareaRef,
           isExpanded,
           adaptiveLayout: hasAdaptiveLayout,
+          triggerFileUpload,
         }}
       >
         {hasAdaptiveLayout ? (
