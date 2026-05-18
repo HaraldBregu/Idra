@@ -11,7 +11,6 @@ import {
 	Plug,
 	Search,
 	Server,
-	SlidersHorizontal,
 	Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,12 +26,11 @@ interface CommandItem {
 
 const COMMAND_ITEMS: readonly CommandItem[] = [
 	{ id: 'home', label: 'Home', group: 'Navigation', icon: Home, path: '/home', keywords: 'chat agent ai' },
-	{ id: 'settings-general', label: 'General', group: 'Settings', icon: Info, path: '/settings/general', keywords: 'info app version' },
+	{ id: 'settings-general', label: 'General', group: 'Settings', icon: Info, path: '/settings/general', keywords: 'info app version theme language translucency appearance' },
 	{ id: 'settings-channels', label: 'Channels', group: 'Settings', icon: BotMessageSquare, path: '/settings/channels', keywords: 'telegram discord slack whatsapp teams matrix signal bot' },
 	{ id: 'settings-connectors', label: 'Connectors', group: 'Settings', icon: Plug, path: '/settings/connectors', keywords: 'mcp tools integration' },
 	{ id: 'settings-skills', label: 'Skills', group: 'Settings', icon: Sparkles, path: '/settings/skills', keywords: 'plugins capabilities' },
 	{ id: 'settings-providers', label: 'Providers', group: 'Settings', icon: Server, path: '/settings/providers', keywords: 'api key openai anthropic model' },
-	{ id: 'settings-system', label: 'System', group: 'Settings', icon: SlidersHorizontal, path: '/settings/system', keywords: 'theme language translucency dark light' },
 	{ id: 'settings-cron', label: 'Cron', group: 'Settings', icon: CalendarClock, path: '/settings/cron', keywords: 'schedule jobs tasks recurring' },
 	{ id: 'settings-apps', label: 'Apps', group: 'Settings', icon: AppWindow, path: '/settings/apps', keywords: 'installed packages' },
 ] as const;

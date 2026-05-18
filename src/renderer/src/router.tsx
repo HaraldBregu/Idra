@@ -27,7 +27,6 @@ const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page
 const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
-const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
 const AppsPage = lazy(() => import('./pages/settings/pages/apps/Page'));
@@ -193,14 +192,6 @@ const routes: RouteObject[] = [
 						element: (
 							<RouteWrapper>
 								<ProvidersPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'system',
-						element: (
-							<RouteWrapper>
-								<SystemPage />
 							</RouteWrapper>
 						),
 					},

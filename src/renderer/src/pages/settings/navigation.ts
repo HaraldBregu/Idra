@@ -5,7 +5,6 @@ import {
 	Plug,
 	RadioTower,
 	Server,
-	SlidersHorizontal,
 	Sparkles,
 	type LucideIcon,
 } from 'lucide-react';
@@ -31,10 +30,10 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/general', labelKey: 'settings.application.menuBar', descriptionKey: 'settings.application.menuBarDescription', keywords: 'tray dock icon toggle' },
 	{ path: '/settings/general', labelKey: 'settings.application.appData', descriptionKey: 'settings.application.appDataDescription', keywords: 'folder files storage' },
 	{ path: '/settings/general', labelKey: 'settings.application.userData', descriptionKey: 'settings.application.userDataDescription', keywords: 'folder files storage' },
-	// System — appearance
-	{ path: '/settings/system', labelKey: 'settings.theme.title', descriptionKey: 'settings.theme.description', keywords: 'dark light color appearance mode' },
-	{ path: '/settings/system', labelKey: 'settings.language.title', descriptionKey: 'settings.language.description', keywords: 'locale english italian i18n' },
-	{ path: '/settings/system', labelKey: 'settings.translucency.title', descriptionKey: 'settings.translucency.description', keywords: 'blur opacity window backdrop vibrancy' },
+	// General — appearance
+	{ path: '/settings/general', labelKey: 'settings.theme.title', descriptionKey: 'settings.theme.description', keywords: 'dark light color appearance mode' },
+	{ path: '/settings/general', labelKey: 'settings.language.title', descriptionKey: 'settings.language.description', keywords: 'locale english italian i18n' },
+	{ path: '/settings/general', labelKey: 'settings.translucency.title', descriptionKey: 'settings.translucency.description', keywords: 'blur opacity window backdrop vibrancy' },
 	// Providers — API keys
 	{ path: '/settings/providers', labelKey: 'settings.providers.keySaved', keywords: 'api key anthropic openai google' },
 	{ path: '/settings/providers', labelKey: 'settings.providers.apiKeyPlaceholder', keywords: 'api key secret token' },
@@ -58,12 +57,6 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.general',
 		descriptionKey: 'settings.overview.descriptions.general',
 		icon: Info,
-	},
-	{
-		path: '/settings/system',
-		labelKey: 'settings.tabs.system',
-		descriptionKey: 'settings.overview.descriptions.system',
-		icon: SlidersHorizontal,
 	},
 	{
 		path: '/settings/channels',
