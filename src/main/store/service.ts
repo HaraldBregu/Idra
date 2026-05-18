@@ -16,7 +16,7 @@ import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
-import type { HeartbeatStoreState } from '../heartbeat/store';
+import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
 
 export class StoreService {
