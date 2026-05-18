@@ -579,14 +579,18 @@ export class ConnectorsService {
 			refreshToken: oauth.refreshToken,
 			fetchImpl: this.fetchImpl(),
 		});
+		const nextOAuth = stripGoogleOAuthClientCredentials(mergeGoogleOAuthCredential(oauth, token));
+		if (!nextOAuth?.accessToken) {
+			throw new Error(`Google connector ${connector.name} did not return an access token.`);
+		}
 		const next = {
 			...connector,
-			oauth: stripGoogleOAuthClientCredentials(mergeGoogleOAuthCredential(oauth, token)),
+			oauth: nextOAuth,
 			updatedAt: new Date().toISOString(),
 			lastError: undefined,
 		};
 		this.replace(next);
-		return next.oauth.accessToken!;
+		return nextOAuth.accessToken;
 	}
 
 	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthRuntimeCredential {
