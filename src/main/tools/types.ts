@@ -1,6 +1,7 @@
 import type { CronService, OpenClawCronActor } from '../cron';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
+import type { AgentStartupFilesServicePort } from '../agent/startup-files';
 import type { StoreService } from '../store';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import type { WorkspaceService } from '../workspace';
@@ -19,6 +20,7 @@ export interface FridayServices {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
+	startupFiles: AgentStartupFilesServicePort;
 }
 
 export interface ApprovalStreamLike {
