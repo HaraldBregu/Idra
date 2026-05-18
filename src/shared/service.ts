@@ -165,7 +165,7 @@ export interface AgentPendingEventPayload extends AgentPendingState {
 	agentId: string;
 }
 
-export type WorkspaceFileName =
+export type AgentStartupFileName =
 	| 'AGENTS.md'
 	| 'SOUL.md'
 	| 'TOOLS.md'
@@ -175,15 +175,19 @@ export type WorkspaceFileName =
 	| 'BOOTSTRAP.md'
 	| 'MEMORY.md';
 
-export interface WorkspaceFileSummary {
-	name: WorkspaceFileName;
+export interface AgentStartupFileSummary {
+	name: AgentStartupFileName;
 	path: string;
 	missing: boolean;
 	size?: number;
 }
 
-export interface WorkspaceFileContent extends WorkspaceFileSummary {
+export interface AgentStartupFileContent extends AgentStartupFileSummary {
 	content?: string;
 	error?: 'missing' | 'unsafe' | 'io';
 	detail?: string;
 }
+
+export type WorkspaceFileName = AgentStartupFileName;
+export type WorkspaceFileSummary = AgentStartupFileSummary;
+export type WorkspaceFileContent = AgentStartupFileContent;
