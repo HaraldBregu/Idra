@@ -3,7 +3,17 @@ import { promises as fs } from 'node:fs';
 import { nativeTheme, shell, app } from 'electron';
 import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/before-call';
 import { execTool, processTool } from '../../../../src/main/tools/exec';
-import { readTool, writeTool, editTool, findTool, applyPatchTool } from '../../../../src/main/tools/fs';
+import {
+	applyPatchTool,
+	copyTool,
+	deleteTool,
+	editTool,
+	findTool,
+	inspectFileTool,
+	moveTool,
+	readTool,
+	writeTool,
+} from '../../../../src/main/tools/fs';
 import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
@@ -160,6 +170,41 @@ describe('tools/fs', () => {
 		await expect(fs.readFile(file, 'utf8')).resolves.toBe('one\nTWO\nthree\n');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
+
+	it('deletes, copies, moves files, and inspects image bytes directly', async () => {
+		const workspace = await makeTempDir();
+		const ctx = makeToolContext({ workspace });
+		await fs.writeFile(path.join(workspace, 'source.txt'), 'alpha', 'utf8');
+		await fs.writeFile(path.join(workspace, 'delete-me.txt'), 'remove', 'utf8');
+		const png = Buffer.from(
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+			'base64'
+		);
+		await fs.writeFile(path.join(workspace, 'pixel.png'), png);
+
+		expect((await copyTool.execute({ source: 'source.txt', destination: 'copy.txt' }, ctx)).status).toBe('ok');
+		await expect(fs.readFile(path.join(workspace, 'copy.txt'), 'utf8')).resolves.toBe('alpha');
+
+		await readTool.execute({ path: 'copy.txt' }, ctx);
+		expect((await moveTool.execute({ source: 'copy.txt', destination: 'moved.txt' }, ctx)).status).toBe('ok');
+		await expect(fs.readFile(path.join(workspace, 'moved.txt'), 'utf8')).resolves.toBe('alpha');
+		await expect(fs.stat(path.join(workspace, 'copy.txt'))).rejects.toThrow();
+
+		expect((await deleteTool.execute({ path: 'delete-me.txt' }, makeToolContext({ workspace }))).status).toBe('error');
+		await readTool.execute({ path: 'delete-me.txt' }, ctx);
+		expect((await deleteTool.execute({ path: 'delete-me.txt' }, ctx)).status).toBe('ok');
+		await expect(fs.stat(path.join(workspace, 'delete-me.txt'))).rejects.toThrow();
+
+		const inspected = await inspectFileTool.execute({ path: 'pixel.png' }, ctx);
+		expect(inspected.status).toBe('ok');
+		expect(inspected.content).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ type: 'image', mimeType: 'image/png', base64: expect.any(String) }),
+			])
+		);
+		expect(inspected.content[0]?.text).toContain('dimensions: 1x1');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
 });
 
 describe('tools/exec', () => {
@@ -172,6 +217,18 @@ describe('tools/exec', () => {
 		const denied = await execTool.execute({ command: 'rm -rf /' }, makeToolContext({ workspace }));
 		expect(denied.status).toBe('error');
 		expect(denied.content[0]?.text).toContain('denied');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('runs Python scripts through shell execution', async () => {
+		const workspace = await makeTempDir();
+		const result = await execTool.execute(
+			{ command: 'python3 -c "print(6 * 7)"' },
+			makeToolContext({ workspace })
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.content[0]?.text).toContain('42');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
