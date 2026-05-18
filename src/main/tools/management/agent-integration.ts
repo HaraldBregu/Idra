@@ -57,9 +57,54 @@ export function selectAgentToolsForTurn(
 		topN: options.maxPromptTools ?? 6,
 	});
 	const selectedNames = new Set(rankedTools.map((entry) => entry.tool.name));
+	const addedPrerequisites = addPrerequisiteToolNames(selectedNames, tools);
 	const toolsForPrompt = tools.filter((tool) => selectedNames.has(tool.name));
-	const systemPromptSuffix = rankedTools.length > 0 ? new ToolPromptBuilder().buildCompactPrompt(rankedTools) : '';
-	return { toolsForPrompt, systemPromptSuffix, rankedTools };
+	const rankedToolsForPrompt = appendPrerequisiteRankedTools(rankedTools, registry, addedPrerequisites);
+	const systemPromptSuffix = rankedToolsForPrompt.length > 0 ? new ToolPromptBuilder().buildCompactPrompt(rankedToolsForPrompt) : '';
+	return { toolsForPrompt, systemPromptSuffix, rankedTools: rankedToolsForPrompt };
+}
+
+const TOOL_PREREQUISITES: Record<string, string[]> = {
+	write: ['read'],
+	edit: ['read'],
+	apply_patch: ['read'],
+	delete: ['read'],
+	copy: ['read'],
+	move: ['read'],
+};
+
+function addPrerequisiteToolNames(selectedNames: Set<string>, tools: AgentTool[]): Set<string> {
+	const availableNames = new Set(tools.map((tool) => tool.name));
+	const added = new Set<string>();
+	for (const name of [...selectedNames]) {
+		for (const prerequisite of TOOL_PREREQUISITES[name] ?? []) {
+			if (!availableNames.has(prerequisite) || selectedNames.has(prerequisite)) continue;
+			selectedNames.add(prerequisite);
+			added.add(prerequisite);
+		}
+	}
+	return added;
+}
+
+function appendPrerequisiteRankedTools(
+	rankedTools: RankedTool[],
+	registry: ReturnType<typeof createAgentToolRegistry>,
+	addedPrerequisites: Set<string>
+): RankedTool[] {
+	if (addedPrerequisites.size === 0) return rankedTools;
+	const existing = new Set(rankedTools.map((entry) => entry.tool.name));
+	const out = [...rankedTools];
+	for (const name of addedPrerequisites) {
+		if (existing.has(name)) continue;
+		const tool = registry.listTools().find((candidate) => candidate.name === name);
+		if (!tool) continue;
+		out.push({
+			tool,
+			score: 0,
+			explanations: ['required prerequisite for selected file tool'],
+		});
+	}
+	return out;
 }
 
 export async function executeAgentToolWithManagement(
