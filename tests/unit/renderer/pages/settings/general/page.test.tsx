@@ -10,6 +10,17 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
+jest.mock('@/contexts', () => ({
+	useApp: () => ({
+		theme: 'system',
+		translucency: { light: 80, dark: 60 },
+		language: 'en',
+		setTheme: jest.fn(),
+		setTranslucency: jest.fn(),
+		setLanguage: jest.fn(),
+	}),
+}));
+
 function LocationProbe(): React.JSX.Element {
 	const location = useLocation();
 	return <div data-testid="location">{location.pathname}</div>;
