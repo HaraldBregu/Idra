@@ -932,6 +932,27 @@ function readDriveFileId(params: Record<string, unknown>): string {
 	return id;
 }
 
+function readDriveCreateFileParams(params: Record<string, unknown>): {
+	name: string;
+	mimeType?: string;
+	content?: string;
+	contentMimeType?: string;
+	parents?: string[];
+	description?: string;
+} {
+	const name = readString(params, 'name') ?? readString(params, 'fileName');
+	if (!name) throw new Error('name is required.');
+	const parentId = readString(params, 'parentId');
+	return {
+		name,
+		mimeType: readString(params, 'mimeType'),
+		content: readString(params, 'content') ?? readString(params, 'text'),
+		contentMimeType: readString(params, 'contentMimeType'),
+		parents: readStringList(params, 'parents') ?? (parentId ? [parentId] : undefined),
+		description: readString(params, 'description'),
+	};
+}
+
 function readCalendarDateTime(
 	params: Record<string, unknown>,
 	key: string,
