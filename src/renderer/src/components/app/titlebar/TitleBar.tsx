@@ -50,8 +50,6 @@ export const TitleBar = React.memo(function TitleBar({
 	centerContent,
 	rightContent,
 	onToggleSidebar,
-	onNavigateBack,
-	onNavigateForward,
 	showSidebarToggles: _showSidebarToggles = false,
 }: TitleBarProps) {
 	const { t } = useTranslation();
@@ -59,6 +57,12 @@ export const TitleBar = React.memo(function TitleBar({
 	const location = useLocation();
 	const [isFullScreen, setIsFullScreen] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
+
+	const [navState, setNavState] = useState<{ stack: string[]; index: number }>(() => ({
+		stack: [location.pathname],
+		index: 0,
+	}));
+	const isProgNav = useRef(false);
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
