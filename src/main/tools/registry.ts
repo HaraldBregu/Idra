@@ -2,6 +2,7 @@ import { cronTool } from './cron';
 import { execTool, processTool } from './exec';
 import { editTool, findTool, readTool, writeTool } from './fs';
 import { filterTools, type PolicyConfig } from './policy';
+import { startupFilesTool } from './startup';
 import { webFetchTool } from './web';
 import type { AgentTool } from './types';
 
@@ -13,6 +14,7 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	findTool,
 	execTool,
 	processTool,
+	startupFilesTool,
 	webFetchTool,
 	cronTool,
 ];
