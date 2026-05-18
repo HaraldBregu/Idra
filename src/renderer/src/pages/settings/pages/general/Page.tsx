@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Accessibility, FolderOpen, Languages, Monitor, MonitorUp, Moon, PanelTop, Sun } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Accessibility, Bot, ChevronRight, FolderOpen, Languages, Monitor, MonitorUp, Moon, PanelTop, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Card } from '@/components/ui/card';
@@ -48,8 +49,11 @@ const TRANSLUCENCY_OPTIONS = [
 	readonly icon: typeof Sun;
 }[];
 
+const FRIDAY_AGENT_ID = 'main';
+
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { theme, translucency, language, setTheme, setTranslucency, setLanguage } = useApp();
 
 	const [trayEnabled, setTrayEnabled] = useState(true);
@@ -78,6 +82,19 @@ const GeneralPage: React.FC = () => {
 	const handleOpenUserDataFolder = useCallback(() => {
 		void window.app.openUserDataFolder();
 	}, []);
+
+	const openFridayAgent = useCallback(() => {
+		navigate(`/settings/general/agentdetails/${FRIDAY_AGENT_ID}`);
+	}, [navigate]);
+
+	const handleFridayAgentKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (event.key !== 'Enter' && event.key !== ' ') return;
+			event.preventDefault();
+			openFridayAgent();
+		},
+		[openFridayAgent]
+	);
 
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
@@ -119,6 +136,35 @@ const GeneralPage: React.FC = () => {
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
 							<span className="font-mono text-[13px] text-foreground">{__APP_VERSION__}</span>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.agents.title')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item
+						role="button"
+						tabIndex={0}
+						variant="outline"
+						size="md"
+						className="cursor-pointer border-b border-border/60 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring/55"
+						onClick={openFridayAgent}
+						onKeyDown={handleFridayAgentKeyDown}
+					>
+						<ItemMedia variant="icon">
+							<Bot className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+								{t('settings.agents.fridayName')}
+							</ItemTitle>
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+								{t('settings.agents.fridayDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
 						</ItemActions>
 					</Item>
 				</Card>
