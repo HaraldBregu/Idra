@@ -42,7 +42,7 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
-} from '../components';
+} from '../../../components';
 import type {
 	Channel,
 	ChannelAccountProperties,
@@ -53,8 +53,8 @@ import type {
 	GenericChannelProperties,
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
-} from '../../../../../shared/channels';
-import { isChannelId, type ChannelCatalogEntry } from '../../../../../shared/channel-catalog';
+} from '../../../../../../../shared/channels';
+import { isChannelId, type ChannelCatalogEntry } from '../../../../../../../shared/channel-catalog';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';

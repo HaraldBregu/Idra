@@ -6,15 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorConfig, ConnectorTool } from '../../../../../../shared/connectors';
+import type { ConnectorConfig, ConnectorTool } from '../../../../../../../shared/connectors';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
-} from '../../components';
-import { ConnectorToolsList } from './components/ConnectorToolsList';
+} from '../../../components';
+import { ConnectorToolsList } from '../components/ConnectorToolsList';
 
 function formatTimestamp(value?: string): string {
 	if (!value) return 'Never';

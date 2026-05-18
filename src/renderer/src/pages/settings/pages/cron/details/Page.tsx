@@ -5,13 +5,13 @@ import { AlertCircle, Clock3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { OpenClawCronJob } from '../../../../../shared/cron';
+import type { OpenClawCronJob } from '../../../../../../../shared/cron';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
-} from '../components';
+} from '../../../components';
 import {
 	deliverySummary,
 	formatSchedule,
@@ -19,7 +19,7 @@ import {
 	isOpenClawCronJob,
 	payloadEntries,
 	payloadSummary,
-} from './cron-utils';
+} from '../utils';
 
 function CronDetail({
 	label,
