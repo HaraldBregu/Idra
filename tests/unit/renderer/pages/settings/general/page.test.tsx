@@ -21,6 +21,27 @@ jest.mock('@/contexts', () => ({
 	}),
 }));
 
+jest.mock('@/components/ui/select', () => {
+	const React = jest.requireActual<typeof import('react')>('react');
+	const Passthrough = ({ children }: { readonly children?: React.ReactNode }) => (
+		<div>{children}</div>
+	);
+
+	return {
+		Select: Passthrough,
+		SelectContent: Passthrough,
+		SelectItem: Passthrough,
+		SelectTrigger: Passthrough,
+		SelectValue: () => <span />,
+	};
+});
+
+jest.mock('@/components/ui/slider', () => ({
+	Slider: ({ 'aria-label': ariaLabel }: { readonly 'aria-label'?: string }) => (
+		<input aria-label={ariaLabel} readOnly type="range" />
+	),
+}));
+
 function LocationProbe(): React.JSX.Element {
 	const location = useLocation();
 	return <div data-testid="location">{location.pathname}</div>;
