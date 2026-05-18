@@ -18,7 +18,7 @@ export function WindowControls() {
 				className={btnBase}
 				title={t('titleBar.minimize')}
 			>
-				<Minus className="h-[17px] w-[17px]" strokeWidth={1.5} />
+				<Minus className="h-[13px] w-[13px]" strokeWidth={1.5} />
 			</button>
 
 			<button
@@ -27,7 +27,7 @@ export function WindowControls() {
 				className={btnBase}
 				title={isMaximized ? t('titleBar.restore', 'Restore') : t('titleBar.maximize', 'Maximize')}
 			>
-				<Maximize2 className="h-[15px] w-[15px]" strokeWidth={1.5} />
+				<Maximize2 className="h-[12px] w-[12px]" strokeWidth={1.5} />
 			</button>
 
 			<button
@@ -36,7 +36,7 @@ export function WindowControls() {
 				className="flex items-center justify-center h-full w-[46px] text-muted-foreground hover:bg-[#e81123] hover:text-white active:bg-[#c42b1c] active:text-white transition-colors duration-100"
 				title={t('titleBar.close')}
 			>
-				<X className="h-[17px] w-[17px]" strokeWidth={1.5} />
+				<X className="h-[13px] w-[13px]" strokeWidth={1.5} />
 			</button>
 		</TitleBarRightContainer>
 	);
