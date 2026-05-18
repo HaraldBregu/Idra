@@ -633,6 +633,47 @@ describe('tool management layer', () => {
 		expect(selectedToolNames).toContain('google_calendar_search_events');
 	});
 
+	it('keeps Google Drive connector tools available for Drive file intents', () => {
+		const tools: AgentTool[] = [
+			...Array.from({ length: 20 }, (_, index) => ({
+				name: index === 0 ? 'web_fetch' : `tool_${index}`,
+				description: index === 0 ? 'Fetch current data from the web.' : 'Generic utility.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			})),
+			{
+				name: 'google_drive_search_files',
+				description: 'Google Drive: Search Google Drive files by name or content.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			},
+			{
+				name: 'google_drive_read_file_content',
+				description: 'Google Drive: Read text content from a Google Drive file.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			},
+			{
+				name: 'google_drive_get_file_metadata',
+				description: 'Google Drive: Get Google Drive file metadata by id.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			},
+		];
+		const selection = selectAgentToolsForTurn(
+			tools,
+			'Summarize the Roadmap file from Google Drive',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 3 }
+		);
+		const selectedToolNames = selection.toolsForPrompt.map((tool) => tool.name);
+
+		expect(selectedToolNames).toContain('google_drive_search_files');
+		expect(selectedToolNames).toContain('google_drive_read_file_content');
+		expect(selectedToolNames).toContain('google_drive_get_file_metadata');
+		expect(selection.systemPromptSuffix).toContain('google_drive_read_file_content');
+	});
+
 	it('honors explicit no-tool requests even with a small tool set', () => {
 		const tools: AgentTool[] = [
 			{
