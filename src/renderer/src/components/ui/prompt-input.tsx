@@ -369,6 +369,10 @@ function PromptInput({
   actions,
   disabled = false,
   textareaRef: externalTextareaRef,
+  voiceMode,
+  onVoiceEnd,
+  onVoiceCancel,
+  onVoiceConfirm,
   onClick,
   ...props
 }: PromptInputProps) {
@@ -422,11 +426,14 @@ function PromptInput({
             <motion.div
               layout
               transition={transition}
-              onClick={handleClick}
+              onClick={voiceMode ? onClick : handleClick}
               data-expanded={isExpanded}
+              data-voice-mode={voiceMode ?? undefined}
               className={cn(
                 "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
-                isExpanded
+                voiceMode
+                  ? "cursor-default rounded-[2rem] border-transparent bg-transparent p-0 shadow-none focus-within:ring-0"
+                  : isExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
                   : "flex min-h-10 items-center gap-2 rounded-full p-1.5",
                 disabled && "cursor-not-allowed opacity-60",
@@ -434,42 +441,55 @@ function PromptInput({
               )}
               {...(props as React.ComponentProps<typeof motion.div>)}
             >
-              <AnimatePresence initial={false}>
-                {!isExpanded && leadingAction && (
-                  <PromptInputMotionSlot transition={transition}>
-                    {leadingAction}
-                  </PromptInputMotionSlot>
-                )}
-              </AnimatePresence>
-              <motion.div
-                layout
-                transition={transition}
-                className={cn(
-                  isExpanded ? "min-h-0 flex-1" : "min-w-0 flex-1",
-                  contentClassName
-                )}
-              >
-                {children}
-              </motion.div>
-              <motion.div
-                layout
-                transition={transition}
-                className={cn(
-                  isExpanded
-                    ? "mt-3 flex items-center justify-between gap-2"
-                    : "flex shrink-0 items-center gap-1.5",
-                  footerClassName
-                )}
-              >
-                <AnimatePresence initial={false}>
-                  {isExpanded && leadingAction && (
-                    <PromptInputMotionSlot transition={transition}>
-                      {leadingAction}
-                    </PromptInputMotionSlot>
-                  )}
-                </AnimatePresence>
-                {actions}
-              </motion.div>
+              {voiceMode ? (
+                <PromptInputVoicePanel
+                  mode={voiceMode}
+                  value={currentValue}
+                  disabled={disabled}
+                  onEnd={onVoiceEnd}
+                  onCancel={onVoiceCancel}
+                  onConfirm={onVoiceConfirm ?? onSubmit}
+                />
+              ) : (
+                <>
+                  <AnimatePresence initial={false}>
+                    {!isExpanded && leadingAction && (
+                      <PromptInputMotionSlot transition={transition}>
+                        {leadingAction}
+                      </PromptInputMotionSlot>
+                    )}
+                  </AnimatePresence>
+                  <motion.div
+                    layout
+                    transition={transition}
+                    className={cn(
+                      isExpanded ? "min-h-0 flex-1" : "min-w-0 flex-1",
+                      contentClassName
+                    )}
+                  >
+                    {children}
+                  </motion.div>
+                  <motion.div
+                    layout
+                    transition={transition}
+                    className={cn(
+                      isExpanded
+                        ? "mt-3 flex items-center justify-between gap-2"
+                        : "flex shrink-0 items-center gap-1.5",
+                      footerClassName
+                    )}
+                  >
+                    <AnimatePresence initial={false}>
+                      {isExpanded && leadingAction && (
+                        <PromptInputMotionSlot transition={transition}>
+                          {leadingAction}
+                        </PromptInputMotionSlot>
+                      )}
+                    </AnimatePresence>
+                    {actions}
+                  </motion.div>
+                </>
+              )}
             </motion.div>
           </motion.div>
         ) : (
