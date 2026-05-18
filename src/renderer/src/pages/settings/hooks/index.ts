@@ -1,0 +1,1 @@
+export { useSettingsBreadcrumbItems } from './useSettingsBreadcrumbItems';
