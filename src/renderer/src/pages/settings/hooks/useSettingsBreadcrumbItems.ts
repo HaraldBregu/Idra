@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
@@ -11,6 +12,33 @@ interface SettingsBreadcrumbItem {
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
+	const connectorDetailId = location.pathname.startsWith('/settings/connectors/connectordetails/')
+		? decodeURIComponent(location.pathname.split('/').at(-1) ?? '')
+		: null;
+	const [connectorDetailName, setConnectorDetailName] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!connectorDetailId) {
+			setConnectorDetailName(null);
+			return;
+		}
+
+		let mounted = true;
+		setConnectorDetailName(null);
+		void window.connectors.get(connectorDetailId).then(
+			(connector) => {
+				if (mounted) setConnectorDetailName(connector.name);
+			},
+			() => {
+				if (mounted) setConnectorDetailName(null);
+			}
+		);
+
+		return () => {
+			mounted = false;
+		};
+	}, [connectorDetailId]);
+
 	if (location.pathname === '/settings') return [];
 
 	const current = SETTINGS_NAVIGATION.find((item) => (
@@ -29,7 +57,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname.startsWith('/settings/connectors/connectordetails/')) {
 		items[0] = { ...items[0], path: current.path };
-		items.push({ label: t('settings.connectors.detailsTitle') });
+		items.push({ label: connectorDetailName ?? t('settings.connectors.detailsTitle') });
 	}
 
 	if (location.pathname.startsWith('/settings/cron/crondetails/')) {

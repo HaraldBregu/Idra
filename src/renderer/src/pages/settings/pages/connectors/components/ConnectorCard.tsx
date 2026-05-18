@@ -62,7 +62,6 @@ export function ConnectorCard({
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end gap-1">
 				<Switch
-					size="sm"
 					checked={connector.enabled}
 					disabled={busy}
 					onCheckedChange={onToggle}
