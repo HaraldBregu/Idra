@@ -115,6 +115,7 @@ function PageContent(): ReactElement {
 	const { mode, setMode } = useChatMode();
 	const agent = useHomeAgent({ setMode });
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
+	const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 	const showReferenceConversation =
 		agent.chatState.messages.length <= 1 &&
 		!agent.isLoading &&
