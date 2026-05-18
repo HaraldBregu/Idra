@@ -14,6 +14,7 @@ export * from './scheduler/cron-scheduler';
 export * from './scheduler/missed-run-handler';
 export * from './scheduler/schedule-lock-manager';
 export * from './openclaw/file-store';
+export * from './openclaw/normalize';
 export * from './openclaw/runtime-adapters';
 export * from './openclaw/scheduler';
 export * from './openclaw/validation';
