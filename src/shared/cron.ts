@@ -389,13 +389,12 @@ export interface CronNextRunPreview {
 
 export type OpenClawCronSchedule =
 	| { kind: 'at'; at: string }
-	| { kind: 'every'; intervalMs: number }
+	| { kind: 'every'; everyMs: number; anchorMs?: number }
 	| {
 			kind: 'cron';
-			expression: string;
-			timezone?: string;
+			expr: string;
+			tz?: string;
 			staggerMs?: number;
-			jitterMs?: number;
 	  };
 
 export type OpenClawCronSessionTarget =
@@ -404,13 +403,13 @@ export type OpenClawCronSessionTarget =
 	| 'current'
 	| `session:${string}`;
 
-export type OpenClawCronWakeMode = 'now' | 'defer';
+export type OpenClawCronWakeMode = 'now' | 'next-heartbeat';
 
 export type OpenClawCronPayload =
 	| { kind: 'systemEvent'; text: string }
 	| {
 			kind: 'agentTurn';
-			prompt: string;
+			message: string;
 			model?: string;
 			fallbacks?: string[];
 			thinking?: 'low' | 'medium' | 'high';
@@ -429,19 +428,20 @@ export interface OpenClawCronDeliveryTarget {
 
 export interface OpenClawCronDelivery extends OpenClawCronDeliveryTarget {
 	mode: 'announce' | 'webhook' | 'none';
-	url?: string;
 	bestEffort?: boolean;
 	failureDestination?: OpenClawCronDeliveryTarget & {
 		mode?: 'announce' | 'webhook' | 'none';
-		url?: string;
 	};
 }
 
 export interface OpenClawCronFailureAlert {
-	threshold?: number;
+	after?: number;
 	cooldownMs?: number;
 	mode?: 'announce' | 'webhook' | 'none';
-	target?: OpenClawCronDeliveryTarget & { url?: string };
+	channel?: string;
+	to?: string;
+	threadId?: string;
+	accountId?: string;
 	includeSkipped?: boolean;
 }
 
@@ -490,9 +490,9 @@ export interface OpenClawCronJobDefinition {
 	wakeMode: OpenClawCronWakeMode;
 	payload: OpenClawCronPayload;
 	delivery: OpenClawCronDelivery;
-	failureAlert?: OpenClawCronFailureAlert;
-	agentId?: string;
-	sessionKey?: string;
+	failureAlert?: OpenClawCronFailureAlert | false;
+	agentId?: string | null;
+	sessionKey?: string | null;
 	deleteAfterRun?: boolean;
 	maxAttempts?: number;
 	backoffMs?: number;
@@ -529,9 +529,9 @@ export interface OpenClawCronAddRequest {
 	wakeMode?: OpenClawCronWakeMode;
 	payload: OpenClawCronPayload;
 	delivery?: Partial<OpenClawCronDelivery>;
-	failureAlert?: OpenClawCronFailureAlert;
-	agentId?: string;
-	sessionKey?: string;
+	failureAlert?: OpenClawCronFailureAlert | false;
+	agentId?: string | null;
+	sessionKey?: string | null;
 	deleteAfterRun?: boolean;
 	maxAttempts?: number;
 	backoffMs?: number;
@@ -547,16 +547,46 @@ export type OpenClawCronUpdateRequest = Partial<
 	delivery?: Partial<OpenClawCronDelivery>;
 };
 
-export type OpenClawCronToolRequest =
+export type OpenClawCronToolAction =
+	| 'status'
+	| 'list'
+	| 'get'
+	| 'add'
+	| 'update'
+	| 'remove'
+	| 'run'
+	| 'runs'
+	| 'wake';
+
+export interface OpenClawCronToolRequest {
+	action: OpenClawCronToolAction;
+	jobId?: string;
+	id?: string;
+	job?: OpenClawCronAddRequest | Record<string, unknown>;
+	patch?: OpenClawCronUpdateRequest | Record<string, unknown>;
+	include?: 'enabled' | 'disabled' | 'all';
+	includeDisabled?: boolean;
+	agentId?: string | null;
+	contextMessages?: number;
+	timeoutMs?: number;
+	runMode?: 'force' | 'due';
+	mode?: 'force' | 'due' | 'now' | 'next-heartbeat';
+	force?: boolean;
+	limit?: number;
+	text?: string;
+	[key: string]: unknown;
+}
+
+export type OpenClawCronCanonicalToolRequest =
 	| { action: 'status' }
-	| { action: 'list'; include?: 'enabled' | 'disabled' | 'all' }
+	| { action: 'list'; include?: 'enabled' | 'disabled' | 'all'; agentId?: string | null }
 	| { action: 'get'; jobId: string }
 	| { action: 'add'; job: OpenClawCronAddRequest }
 	| { action: 'update'; jobId: string; patch: OpenClawCronUpdateRequest }
 	| { action: 'remove'; jobId: string }
-	| { action: 'run'; jobId: string; mode?: 'force' | 'due'; force?: boolean }
+	| { action: 'run'; jobId: string; runMode?: 'force' | 'due' }
 	| { action: 'runs'; jobId: string; limit?: number }
-	| { action: 'wake' };
+	| { action: 'wake'; text: string; mode: 'now' | 'next-heartbeat' };
 
 export interface OpenClawCronStatus {
 	enabled: boolean;
@@ -577,6 +607,7 @@ export interface OpenClawCronToolResponse {
 		| OpenClawCronJob[]
 		| OpenClawCronRunRecord
 		| OpenClawCronRunRecord[]
+		| { enabled: boolean }
 		| { removed: true; jobId: string }
 		| { woken: true; status: OpenClawCronStatus };
 	error?: string;
