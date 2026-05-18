@@ -67,6 +67,7 @@
 
 :root {
 	--radius: 0.625rem;
+	--app-window-radius: 16px;
 	--app-bg-opacity: 1;
 	--app-surface-opacity: 1;
 	--app-popover-opacity: 1;
@@ -313,8 +314,18 @@ input[type='range']:hover::-moz-range-thumb {
 
 .app-translucent-window {
 	background-color: var(--app-window-background);
+	border-radius: var(--app-window-radius);
+	box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--border) 70%, transparent);
+	isolation: isolate;
+	overflow: hidden;
 	-webkit-backdrop-filter: blur(28px) saturate(140%);
 	backdrop-filter: blur(28px) saturate(140%);
+}
+
+.app-translucent-window > .app-translucent-surface:first-child {
+	border-top-left-radius: var(--app-window-radius);
+	border-top-right-radius: var(--app-window-radius);
+	overflow: hidden;
 }
 
 .app-translucent-surface {
