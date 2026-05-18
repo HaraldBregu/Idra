@@ -251,6 +251,11 @@
 			"mode": "Developer Mode",
 			"modeDescription": "Enable advanced developer tools and options"
 		},
+		"connectors": {
+			"detailsTitle": "Connector Details",
+			"notFoundTitle": "Connector not found",
+			"notFoundDescription": "The connector may have been removed."
+		},
 		"cron": {
 			"columns": {
 				"id": "Id",
