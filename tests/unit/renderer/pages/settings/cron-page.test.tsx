@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CronTaskView } from '../../../../../src/shared/cron';
+import type { OpenClawCronJob } from '../../../../../src/shared/cron';
 import CronPage from '../../../../../src/renderer/src/pages/settings/pages/CronPage';
 
 jest.mock('react-i18next', () => ({
@@ -12,12 +12,25 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
-function makeTask(id: string, expression = '0 * * * *'): CronTaskView {
+function makeJob(id: string, expr = '0 * * * *'): OpenClawCronJob {
 	return {
 		id,
-		expression,
-		data: { type: 'agent', message: `Run ${id}` },
-		createdAt: '2026-01-01T00:00:00.000Z',
+		name: `Job ${id}`,
+		description: '',
+		enabled: true,
+		createdAtMs: Date.parse('2026-01-01T00:00:00.000Z'),
+		updatedAtMs: Date.parse('2026-01-01T00:00:00.000Z'),
+		schedule: { kind: 'cron', expr, tz: 'UTC' },
+		sessionTarget: 'isolated',
+		wakeMode: 'now',
+		payload: { kind: 'agentTurn', message: `Run ${id}` },
+		delivery: { mode: 'announce' },
+		state: {
+			consecutiveErrors: 0,
+			consecutiveSkipped: 0,
+			consecutiveScheduleErrors: 0,
+			attempts: 0,
+		},
 	};
 }
 
@@ -25,8 +38,8 @@ describe('CronPage', () => {
 	beforeEach(() => {
 		window.cron = {
 			...window.cron,
-			list: jest.fn(async () => []),
-			remove: jest.fn(async () => undefined),
+			listJobs: jest.fn(async () => []),
+			removeJob: jest.fn(async () => undefined),
 		};
 	});
 
@@ -37,9 +50,9 @@ describe('CronPage', () => {
 	});
 
 	it('renders one card per scheduled task', async () => {
-		(window.cron.list as jest.Mock).mockResolvedValue([
-			makeTask('task-1', '30 8 * * 1-5'),
-			makeTask('task-2', '0 0 1 * *'),
+		(window.cron.listJobs as jest.Mock).mockResolvedValue([
+			makeJob('task-1', '30 8 * * 1-5'),
+			makeJob('task-2', '0 0 1 * *'),
 		]);
 
 		render(<CronPage />);
@@ -52,7 +65,7 @@ describe('CronPage', () => {
 	});
 
 	it('calls remove and removes the card from the list', async () => {
-		(window.cron.list as jest.Mock).mockResolvedValue([makeTask('task-1', '0 8 * * 1')]);
+		(window.cron.listJobs as jest.Mock).mockResolvedValue([makeJob('task-1', '0 8 * * 1')]);
 
 		const user = userEvent.setup();
 		render(<CronPage />);
@@ -63,7 +76,7 @@ describe('CronPage', () => {
 		await user.click(removeButton);
 
 		await waitFor(() => {
-			expect(window.cron.remove).toHaveBeenCalledWith('task-1');
+			expect(window.cron.removeJob).toHaveBeenCalledWith('task-1');
 		});
 
 		await waitFor(() => {
