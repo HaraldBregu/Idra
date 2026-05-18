@@ -213,6 +213,7 @@ function PromptInputVoicePanel({
   onCancel?: () => void
   onConfirm?: () => void
 }) {
+  const promptInputContext = usePromptInput()
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [muted, setMuted] = useState(false)
   const isDictation = mode === "dictation"
@@ -252,9 +253,11 @@ function PromptInputVoicePanel({
       className="flex min-w-0 flex-1 cursor-default items-center gap-2 text-foreground"
     >
       {leadingAction ? (
-        <div className="pointer-events-none shrink-0 opacity-50" aria-disabled="true">
-          {leadingAction}
-        </div>
+        <PromptInputContext.Provider value={{ ...promptInputContext, disabled: true }}>
+          <div className="shrink-0 opacity-50" aria-disabled="true">
+            {leadingAction}
+          </div>
+        </PromptInputContext.Provider>
       ) : null}
       <div
         className={cn(
