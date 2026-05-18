@@ -41,8 +41,8 @@ export function assertValidPayload(payload: OpenClawCronPayload): void {
 	}
 
 	if (payload.kind === 'agentTurn') {
-		if (!payload.prompt.trim()) {
-			throw new CronScheduleValidationError('agentTurn payload prompt is required.');
+		if (!payload.message.trim()) {
+			throw new CronScheduleValidationError('agentTurn payload message is required.');
 		}
 		if (payload.timeoutSeconds !== undefined && (!Number.isFinite(payload.timeoutSeconds) || payload.timeoutSeconds <= 0)) {
 			throw new CronScheduleValidationError('timeoutSeconds must be a positive number.');
@@ -76,23 +76,28 @@ export function assertValidSchedule(schedule: OpenClawCronSchedule): void {
 			return;
 		}
 		case 'every':
-			if (!Number.isFinite(schedule.intervalMs) || schedule.intervalMs <= 0) {
-				throw new CronScheduleValidationError('every schedule requires a positive intervalMs.', {
-					intervalMs: schedule.intervalMs,
+			if (!Number.isFinite(schedule.everyMs) || schedule.everyMs <= 0) {
+				throw new CronScheduleValidationError('every schedule requires a positive everyMs.', {
+					everyMs: schedule.everyMs,
+				});
+			}
+			if (schedule.anchorMs !== undefined && !Number.isFinite(schedule.anchorMs)) {
+				throw new CronScheduleValidationError('anchorMs must be a finite number.', {
+					anchorMs: schedule.anchorMs,
 				});
 			}
 			return;
 		case 'cron': {
-			const validation = validateCronExpression(schedule.expression);
+			const validation = validateCronExpression(schedule.expr);
 			if (!validation.valid) {
 				throw new CronExpressionError(validation.message ?? 'Invalid cron expression.');
 			}
-			if (schedule.timezone && !isValidTimezone(schedule.timezone)) {
-				throw new CronScheduleValidationError(`Invalid timezone: ${schedule.timezone}`, {
-					timezone: schedule.timezone,
+			if (schedule.tz && !isValidTimezone(schedule.tz)) {
+				throw new CronScheduleValidationError(`Invalid timezone: ${schedule.tz}`, {
+					timezone: schedule.tz,
 				});
 			}
-			for (const field of ['staggerMs', 'jitterMs'] as const) {
+			for (const field of ['staggerMs'] as const) {
 				const value = schedule[field];
 				if (value !== undefined && (!Number.isFinite(value) || value < 0)) {
 					throw new CronScheduleValidationError(`${field} must be a non-negative number.`, {
@@ -110,13 +115,22 @@ export function normalizeDelivery(
 	target: OpenClawCronSessionTarget,
 	delivery?: Partial<OpenClawCronDelivery>
 ): OpenClawCronDelivery {
-	const defaultMode = payload.kind === 'agentTurn' && target === 'isolated' ? 'announce' : 'none';
+	const defaultMode = payload.kind === 'agentTurn' && target !== 'main' ? 'announce' : 'none';
 	const mode = delivery?.mode ?? defaultMode;
 	if (!['announce', 'webhook', 'none'].includes(mode)) {
 		throw new CronScheduleValidationError('delivery.mode is not supported.');
 	}
-	if (mode === 'webhook' && !delivery?.url) {
-		throw new CronScheduleValidationError('delivery.url is required for webhook delivery.');
+	if (mode === 'webhook') {
+		const url = delivery?.to;
+		if (!url) throw new CronScheduleValidationError('delivery.to is required for webhook delivery.');
+		try {
+			const parsed = new URL(url);
+			if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+				throw new Error('unsupported protocol');
+			}
+		} catch {
+			throw new CronScheduleValidationError('delivery.to must be an HTTP(S) URL for webhook delivery.');
+		}
 	}
 	return {
 		mode,
@@ -124,7 +138,6 @@ export function normalizeDelivery(
 		to: delivery?.to,
 		threadId: delivery?.threadId,
 		accountId: delivery?.accountId,
-		url: delivery?.url,
 		bestEffort: delivery?.bestEffort ?? true,
 		failureDestination: delivery?.failureDestination,
 	};
