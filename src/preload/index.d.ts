@@ -26,12 +26,14 @@ export interface AgentApi {
 
 export interface CronApi {
 	list: () => Promise<CronTaskView[]>;
+	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<OpenClawCronJob[]>;
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
 		options?: { id?: string; timezone?: string }
 	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
+	removeJob: (id: string) => Promise<void>;
 	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
 	updateSchedule: (
 		scheduleId: string,
@@ -125,6 +127,7 @@ import type {
 	CronTask,
 	CronTaskData,
 	CronTaskView,
+	OpenClawCronJob,
 	OpenClawCronToolRequest,
 	OpenClawCronToolResponse,
 } from '../shared/cron';
