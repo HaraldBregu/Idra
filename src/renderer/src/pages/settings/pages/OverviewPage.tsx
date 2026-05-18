@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { SettingsPageHeader, SettingsPageShell } from '../components';
 import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../navigation';
 
@@ -13,7 +14,6 @@ function SettingsOverviewCard({
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const Icon = item.icon;
 
 	return (
 		<Button
@@ -21,23 +21,25 @@ function SettingsOverviewCard({
 			variant="outline"
 			size="sm"
 			onClick={() => navigate(item.path)}
-			className="group grid h-auto min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border-border/70 bg-card px-3 py-2 text-left text-card-foreground whitespace-normal shadow-none hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55 active:translate-y-0"
+			className="group h-auto min-h-12 w-full rounded-lg border-border/70 bg-card p-0 text-left text-card-foreground whitespace-normal shadow-none hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55 active:translate-y-0"
 		>
-			<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground transition group-hover:bg-foreground group-hover:text-background">
-				<Icon className="size-3" strokeWidth={1.8} />
-			</span>
-			<span className="min-w-0">
-				<span className="block truncate text-[13px] font-medium leading-4 tracking-normal text-foreground">
+			<Item variant="outline" size="sm" className="min-h-12 flex-nowrap gap-3">
+				<ItemIcon icon={item.icon} className="transition group-hover:bg-foreground group-hover:text-background" />
+				<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+					<ItemTitle className="max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
-				</span>
-				<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+					</ItemTitle>
+					<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
 					{t(item.descriptionKey)}
-				</span>
-			</span>
-			<ChevronRight
-				className="size-3 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
-				strokeWidth={1.8}
-			/>
+					</p>
+				</ItemContent>
+				<ItemActions className="ml-auto flex-none justify-end">
+					<ChevronRight
+						className="size-3 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
+						strokeWidth={1.8}
+					/>
+				</ItemActions>
+			</Item>
 		</Button>
 	);
 }
