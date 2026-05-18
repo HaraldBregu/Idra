@@ -308,7 +308,8 @@ function isReadOnly(name: string): boolean {
 		/(^|_)read_file_content$/.test(name) ||
 		/(^|_)get_file_metadata$/.test(name) ||
 		/(^|_)get_file_permissions$/.test(name) ||
-		/(^|_)download_file_content$/.test(name)
+		/(^|_)download_file_content$/.test(name) ||
+		/(^|_)list_drives$/.test(name)
 	) {
 		return true;
 	}
