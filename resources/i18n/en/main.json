@@ -176,6 +176,11 @@
 			"apps": "Apps",
 			"skills": "Skills"
 		},
+		"breadcrumb": {
+			"label": "Settings navigation",
+			"overview": "Overview",
+			"general": "General"
+		},
 		"sections": {
 			"permissions": "Permissions",
 			"workspace": "Workspace",
