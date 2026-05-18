@@ -126,7 +126,7 @@ export const TitleBar = React.memo(function TitleBar({
 						{isSettings ? (
 							<Button
 								type="button"
-								variant="secondary"
+								variant="ghost"
 								size="icon"
 								className="size-8 rounded-full"
 								onClick={() => navigate('/home')}
@@ -138,7 +138,7 @@ export const TitleBar = React.memo(function TitleBar({
 						) : (
 							<Button
 								type="button"
-								variant="secondary"
+								variant="ghost"
 								size="icon"
 								className="size-8 rounded-full"
 								onClick={() => navigate('/settings')}
