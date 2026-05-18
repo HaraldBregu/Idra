@@ -117,7 +117,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
-	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return 'files';
+	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web')) return 'web';
 	if (name.includes('cron')) return 'calendar';
@@ -138,6 +138,7 @@ function inferPermissions(name: string, description = ''): string[] {
 			: ['calendar:read'];
 	}
 	if (['read', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
+	if (name === 'startup_files') return ['agent:startups'];
 	if (['write', 'edit', 'apply_patch'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
@@ -151,7 +152,7 @@ function inferPermissions(name: string, description = ''): string[] {
 function inferSafety(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(send|trash|delete|create|update|modify)\b/.test(text) && /\b(gmail|email|mail|calendar|event)\b/.test(text)) return 'high';
-	if (['write', 'edit', 'apply_patch', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service'].includes(name)) return 'high';
+	if (['write', 'edit', 'apply_patch', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service', 'startup_files'].includes(name)) return 'high';
 	if (
 		[
 			'web_fetch',
