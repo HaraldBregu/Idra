@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Accessibility, FolderOpen, MonitorUp, PanelTop } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../components';
 import { Switch } from '@/components/ui/switch';
 
 const GeneralPage: React.FC = () => {
@@ -41,7 +42,7 @@ const GeneralPage: React.FC = () => {
 			<SettingsPageHeader title={t('settings.tabs.general')} />
 
 			<SettingsSection title={t('settings.application.information')}>
-				<SettingsPanel>
+				<Card size="sm" className="gap-0 p-0!">
 					<div className="flex items-center border-b border-border/60 px-3 py-1.5">
 						<span className="w-32 shrink-0 text-[11px] text-muted-foreground">{t('settings.application.name')}</span>
 						<span className="text-[11px] text-foreground">{__APP_NAME__}</span>
@@ -54,11 +55,11 @@ const GeneralPage: React.FC = () => {
 						<span className="w-32 shrink-0 text-[11px] text-muted-foreground">{t('settings.application.version')}</span>
 						<span className="font-mono text-[11px] text-foreground">{__APP_VERSION__}</span>
 					</div>
-				</SettingsPanel>
+				</Card>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.application.actions')}>
-				<SettingsPanel>
+				<Card size="sm" className="gap-0 p-0!">
 					<Item variant="outline" size="sm" className="border-b border-border/60">
 						<ItemMedia variant="icon">
 							<Accessibility className="size-3" strokeWidth={1.8} />
@@ -93,7 +94,7 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch size="sm" checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
 						</ItemActions>
 					</Item>
 					<Item variant="outline" size="sm" className="border-b border-border/60">
@@ -122,7 +123,7 @@ const GeneralPage: React.FC = () => {
 							</Button>
 						</ItemActions>
 					</Item>
-				</SettingsPanel>
+				</Card>
 			</SettingsSection>
 		</SettingsPageShell>
 	);
