@@ -23,6 +23,7 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 import type { ThemeMode } from '../shared';
+import { AppChannels } from '../shared/ipc-channels';
 import {
 	bootstrapServices,
 	bootstrapIpcModules,
@@ -114,7 +115,7 @@ const menuManager = new Menu(
 		onThemeChange: (theme) => {
 			nativeTheme.themeSource = theme;
 			BrowserWindow.getAllWindows().forEach((win) => {
-				win.webContents.send('change-theme', theme);
+				win.webContents.send(AppChannels.themeChanged, theme);
 			});
 		},
 		onNewWindow: () => {

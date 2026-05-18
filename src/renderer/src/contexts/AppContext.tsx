@@ -179,6 +179,16 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 	}, [theme, translucency]);
 
 	useEffect(() => {
+		window.app?.setTheme(theme);
+	}, [theme]);
+
+	useEffect(() => {
+		return window.app?.onThemeChange((nextTheme) => {
+			setThemeState(nextTheme);
+		});
+	}, []);
+
+	useEffect(() => {
 		try {
 			localStorage.setItem(TRANSLUCENCY_STORAGE_KEY, JSON.stringify(translucency));
 		} catch {

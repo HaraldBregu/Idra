@@ -72,7 +72,7 @@ export class AppIpc implements IpcModule {
 		});
 
 		// Theme handler
-		ipcMain.on('set-theme', (event, theme: string) => {
+		ipcMain.on(AppChannels.setTheme, (event, theme: string) => {
 			if (!isThemeMode(theme)) return;
 			if (this.lastTheme === theme) return;
 			this.lastTheme = theme;
@@ -83,7 +83,7 @@ export class AppIpc implements IpcModule {
 			const senderContents = event.sender;
 			BrowserWindow.getAllWindows().forEach((win) => {
 				if (!win.isDestroyed() && win.webContents !== senderContents) {
-					win.webContents.send('change-theme', theme);
+					win.webContents.send(AppChannels.themeChanged, theme);
 				}
 			});
 		});

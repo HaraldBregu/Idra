@@ -160,6 +160,7 @@ import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type { SkillInfo } from '../shared/skills';
+import type { ThemeMode } from '../shared/theme';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -173,6 +174,8 @@ import type {
 } from '../shared/connectors';
 
 export interface AppApi {
+	setTheme: (theme: ThemeMode) => void;
+	onThemeChange: (callback: (theme: ThemeMode) => void) => () => void;
 	openAppDataFolder: () => Promise<void>;
 	openUserDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;

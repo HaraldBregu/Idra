@@ -35,6 +35,8 @@ export const ProviderChannels = {
 } as const;
 
 export const AppChannels = {
+	setTheme: 'set-theme',
+	themeChanged: 'change-theme',
 	getLogs: 'app:get-logs',
 	openLogsFolder: 'app:open-logs-folder',
 	openAppDataFolder: 'app:open-app-data-folder',
@@ -438,6 +440,11 @@ export interface SendChannelMap {
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
 	[WindowChannels.popupMenu]: { args: [] };
+	[AppChannels.setTheme]: { args: [theme: import('./theme').ThemeMode] };
+}
+
+interface AppEventChannelMap {
+	[AppChannels.themeChanged]: { data: import('./theme').ThemeMode };
 }
 
 interface AgentEventChannelMap {
@@ -463,7 +470,8 @@ interface HeartbeatEventChannelMap {
 }
 
 export interface EventChannelMap
-	extends AgentEventChannelMap,
+	extends AppEventChannelMap,
+		AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
