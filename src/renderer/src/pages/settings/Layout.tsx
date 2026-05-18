@@ -20,7 +20,7 @@ function SettingsBreadcrumbHeader(): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const current = useSettingsCurrentPage();
-	const isGeneral = current?.path === '/settings/general';
+	const isOverview = current?.path === '/settings';
 
 	return (
 		<header className="mx-auto mb-3 flex w-full max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -30,12 +30,12 @@ function SettingsBreadcrumbHeader(): React.JSX.Element {
 			>
 				<Settings className="size-3 shrink-0" strokeWidth={1.8} />
 				<Link
-					to="/settings/general"
+					to="/settings"
 					className="min-w-0 rounded-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
 				>
-					{t('settings.tabs.general')}
+					{t('settings.title')}
 				</Link>
-				{current && !isGeneral && (
+				{current && (
 					<>
 						<ChevronRight className="size-3 shrink-0 text-muted-foreground/60" strokeWidth={1.8} />
 						<span className="min-w-0 truncate font-medium text-foreground">
@@ -44,14 +44,14 @@ function SettingsBreadcrumbHeader(): React.JSX.Element {
 					</>
 				)}
 			</nav>
-			{!isGeneral && (
+			{!isOverview && (
 				<Button
 					type="button"
 					variant="outline"
 					size="xs"
-					onClick={() => navigate('/settings/general')}
+					onClick={() => navigate('/settings')}
 				>
-					{t('settings.breadcrumb.general')}
+					{t('settings.overview.backToSettings')}
 				</Button>
 			)}
 		</header>
