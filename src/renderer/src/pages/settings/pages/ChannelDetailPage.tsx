@@ -561,11 +561,13 @@ const ChannelDetailPage: React.FC = () => {
 								)}
 							</ItemActions>
 						</Item>
-					</SettingsPanel>
+					</Card>
 				</SettingsSection>
-			</div>
-
-			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
+			) : (
+				<SettingsNotice variant="destructive">
+					{t('settings.channels.notConfigured')}
+				</SettingsNotice>
+			)}
 		</SettingsPageShell>
 	);
 };
