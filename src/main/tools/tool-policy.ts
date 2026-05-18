@@ -13,7 +13,7 @@ export type ToolPolicy = {
 };
 
 export const CORE_TOOL_GROUPS: Record<string, string[]> = {
-	'group:file': ['read', 'write', 'edit', 'apply_patch', 'find'],
+	'group:file': ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find'],
 	'group:shell': ['exec', 'process', 'safe_exec'],
 	'group:web': ['web_search', 'web_fetch'],
 	'group:messaging': ['message'],
@@ -27,7 +27,7 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | '*'> = {
 	minimal: ['session_status', 'get_workspace_path', 'update_plan'],
-	coding: ['read', 'write', 'edit', 'apply_patch', 'find', 'exec', 'process', 'update_plan'],
+	coding: ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process', 'update_plan'],
 	messaging: ['message', 'session_create', 'session_resume', 'session_close'],
 	full: '*',
 };
