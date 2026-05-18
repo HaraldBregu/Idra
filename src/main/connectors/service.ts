@@ -853,8 +853,11 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 }
 
 function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): boolean {
-	void connector;
-	void toolName;
+	if (connector.connectorId !== 'connector_googledrive' || toolName !== 'create_file') return false;
+	if (connector.requireApproval === 'never') return false;
+	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) {
+		return false;
+	}
 	return false;
 }
 
