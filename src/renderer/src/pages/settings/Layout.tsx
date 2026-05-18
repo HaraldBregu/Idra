@@ -1,47 +1,9 @@
 import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { ChevronRight, Settings } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { useTranslation } from 'react-i18next';
-import { SETTINGS_NAVIGATION } from './navigation';
-import { getChannelCatalogEntry } from '../../../../shared/channel-catalog';
-
-interface SettingsBreadcrumbItem {
-	readonly label: string;
-	readonly path?: string;
-}
-
-function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
-	const { t } = useTranslation();
-	const location = useLocation();
-	if (location.pathname === '/settings') return [];
-
-	const current = SETTINGS_NAVIGATION.find((item) => (
-		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
-	));
-	if (!current) return [];
-
-	const items: SettingsBreadcrumbItem[] = [{ label: t(current.labelKey) }];
-
-	if (location.pathname.startsWith('/settings/channels/channelDetail/')) {
-		const channelId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
-		const channelLabel = getChannelCatalogEntry(channelId)?.label ?? channelId;
-		items[0] = { ...items[0], path: current.path };
-		items.push({ label: channelLabel });
-	}
-
-	if (location.pathname.startsWith('/settings/connectors/connectordetails/')) {
-		items[0] = { ...items[0], path: current.path };
-		items.push({ label: t('settings.connectors.detailsTitle') });
-	}
-
-	if (location.pathname.startsWith('/settings/cron/crondetails/')) {
-		items[0] = { ...items[0], path: current.path };
-		items.push({ label: t('settings.cron.detailsTitle') });
-	}
-
-	return items;
-}
+import { useSettingsBreadcrumbItems } from './hooks';
 
 function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	const { t } = useTranslation();
