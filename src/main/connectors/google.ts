@@ -622,7 +622,7 @@ export class GoogleDriveApiClient {
 			`--${boundary}`,
 			`Content-Type: ${input.contentMimeType || input.mimeType || 'text/plain'}`,
 			'',
-			input.content,
+			input.content ?? '',
 			`--${boundary}--`,
 			'',
 		].join('\r\n');
