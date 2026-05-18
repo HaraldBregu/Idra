@@ -128,6 +128,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
+	if (/\b(google drive|drive file|drive files|drive document|drive documents)\b/.test(text)) return 'files';
 	if (
 		[
 			'read',
@@ -169,6 +170,9 @@ function inferPermissions(name: string, description = ''): string[] {
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) {
 		return /\b(create|update|delete|write)\b/.test(text) ? ['calendar:write'] : ['calendar:read'];
 	}
+	if (/\b(google drive|drive file|drive files|drive document|drive documents)\b/.test(text)) {
+		return /\b(create|upload|write)\b/.test(text) ? ['drive:write'] : ['drive:read'];
+	}
 	if (
 		['read', 'find', 'inspect_file', 'get_workspace_content', 'get_workspace_path'].includes(name)
 	)
@@ -192,7 +196,7 @@ function inferSafety(
 	const text = `${name} ${description}`.toLowerCase();
 	if (
 		/\b(send|trash|delete|create|update|modify)\b/.test(text) &&
-		/\b(gmail|email|mail|calendar|event)\b/.test(text)
+		/\b(gmail|email|mail|calendar|event|google drive|drive file|drive document)\b/.test(text)
 	)
 		return 'high';
 	if (
@@ -275,7 +279,7 @@ function inferPrivacy(
 	description = ''
 ): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
-	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment)\b/.test(text))
+	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment|google drive|drive file|drive document)\b/.test(text))
 		return 'private';
 	if (
 		[
@@ -298,6 +302,16 @@ function inferPrivacy(
 }
 
 function isReadOnly(name: string): boolean {
+	if (
+		/(^|_)search_files$/.test(name) ||
+		/(^|_)list_recent_files$/.test(name) ||
+		/(^|_)read_file_content$/.test(name) ||
+		/(^|_)get_file_metadata$/.test(name) ||
+		/(^|_)get_file_permissions$/.test(name) ||
+		/(^|_)download_file_content$/.test(name)
+	) {
+		return true;
+	}
 	return [
 		'read',
 		'find',
