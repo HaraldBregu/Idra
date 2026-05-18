@@ -79,15 +79,6 @@ export const SkillsChannels = {
 	getRoot: 'skills:get-root',
 } as const;
 
-export const TaskChannels = {
-	create: 'tasks:create',
-	get: 'tasks:get',
-	list: 'tasks:list',
-	cancel: 'tasks:cancel',
-	retry: 'tasks:retry',
-	event: 'tasks:event',
-} as const;
-
 export const ConnectorsChannels = {
 	catalog: 'connectors:catalog',
 	list: 'connectors:list',
