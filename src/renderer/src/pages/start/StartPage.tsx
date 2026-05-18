@@ -3,11 +3,8 @@ import {
 	AlertCircle,
 	ArrowRight,
 	Check,
-	Eye,
-	Hand,
 	KeyRound,
 	LoaderCircle,
-	Lock,
 	Mic,
 	Pencil,
 	Plug,
@@ -54,9 +51,7 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep = 'welcome' | 'permissions' | 'providers' | 'models' | 'connectors';
-
-type PermissionId = 'microphone' | 'screen' | 'accessibility';
+type SetupStep = 'welcome' | 'providers' | 'models' | 'connectors';
 type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
 type ProviderCatalogItem = {
@@ -104,7 +99,6 @@ const MASKED_API_KEY = '********' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
-	'permissions',
 	'providers',
 	'models',
 	'connectors',
@@ -112,39 +106,10 @@ const SETUP_STEPS: readonly SetupStep[] = [
 
 const STEP_TITLES: Record<SetupStep, string> = {
 	welcome: 'Welcome',
-	permissions: 'Permissions',
 	providers: 'Providers',
 	models: 'Models',
 	connectors: 'Connectors',
 };
-
-const PERMISSION_ITEMS: readonly {
-	id: PermissionId;
-	title: string;
-	description: string;
-	icon: typeof Mic;
-	required?: boolean;
-}[] = [
-	{
-		id: 'microphone',
-		title: 'Microphone',
-		description: `So you can talk to ${PRODUCT_NAME}`,
-		icon: Mic,
-		required: true,
-	},
-	{
-		id: 'screen',
-		title: 'Screen reading',
-		description: "To answer about what's on screen (optional)",
-		icon: Eye,
-	},
-	{
-		id: 'accessibility',
-		title: 'Accessibility',
-		description: 'To act on apps when you ask (optional)',
-		icon: Hand,
-	},
-];
 
 const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 	{
@@ -428,11 +393,6 @@ function StaticModelSelect({
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState<SetupStep>('welcome');
-	const [permissions, setPermissions] = useState<Record<PermissionId, boolean>>({
-		microphone: true,
-		screen: false,
-		accessibility: false,
-	});
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
@@ -908,11 +868,6 @@ const StartPage: React.FC = () => {
 
 	function handlePrimaryAction(): void {
 		if (step === 'welcome') {
-			goToStep('permissions');
-			return;
-		}
-
-		if (step === 'permissions') {
 			goToStep('providers');
 			return;
 		}
@@ -961,82 +916,6 @@ const StartPage: React.FC = () => {
 					Ask anything — set a reminder, draft a message, look something up, or
 					just think out loud. Type or talk, {PRODUCT_NAME} is here to help.
 				</p>
-			</div>
-		);
-	}
-
-	function renderPermissionsStep(): React.JSX.Element {
-		return (
-			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
-				<div>
-					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						A couple of permissions
-					</h1>
-					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						{PRODUCT_NAME} only listens while you are holding the mic. Nothing leaves
-						your Mac without you asking.
-					</p>
-				</div>
-
-				<div className="mt-4 space-y-2">
-					{PERMISSION_ITEMS.map((permission) => {
-						const Icon = permission.icon;
-						const allowed = permissions[permission.id];
-
-						return (
-							<Card
-								key={permission.id}
-								className="rounded-lg border-border bg-card py-0 shadow-none"
-							>
-								<CardContent className="grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 p-2.5">
-									<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-										<Icon className="size-4" strokeWidth={2.1} />
-									</div>
-									<div className="min-w-0 flex-1">
-										<h2 className="text-sm font-semibold leading-tight text-foreground">
-											{permission.title}
-										</h2>
-										<p className="mt-0.5 text-xs font-medium leading-tight text-muted-foreground">
-											{permission.description}
-										</p>
-									</div>
-									<div className="flex shrink-0 justify-end">
-										{allowed ? (
-											<Badge variant="secondary" className="h-6 rounded-md px-2 text-xs font-semibold">
-												<Check className="size-3" />
-												Allowed
-											</Badge>
-										) : (
-											<Button
-												type="button"
-												variant="outline"
-												size="xs"
-												onClick={() => {
-													setPermissions((current) => ({
-														...current,
-														[permission.id]: true,
-													}));
-												}}
-											>
-												Allow
-											</Button>
-										)}
-									</div>
-								</CardContent>
-							</Card>
-						);
-					})}
-				</div>
-
-				<div className="mt-auto pt-4">
-					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
-						<Lock className="size-4 shrink-0" />
-						<p className="text-xs font-medium leading-snug">
-							Audio is transcribed on-device. You can change all of this later in
-							Settings.
-						</p>
-					</div>
-				</div>
 			</div>
 		);
 	}
@@ -1511,7 +1390,6 @@ const StartPage: React.FC = () => {
 
 	function renderStepContent(): React.JSX.Element {
 		if (step === 'welcome') return renderWelcomeStep();
-		if (step === 'permissions') return renderPermissionsStep();
 		if (step === 'providers') return renderProviderStep();
 		if (step === 'models') return renderModelsStep();
 
