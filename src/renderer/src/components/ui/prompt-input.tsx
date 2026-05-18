@@ -32,6 +32,7 @@ type PromptInputContextType = {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>
   isExpanded: boolean
   adaptiveLayout: boolean
+  triggerFileUpload: () => void
 }
 
 const PromptInputContext = createContext<PromptInputContextType>({
@@ -45,6 +46,7 @@ const PromptInputContext = createContext<PromptInputContextType>({
   textareaRef: React.createRef<HTMLTextAreaElement>(),
   isExpanded: false,
   adaptiveLayout: false,
+  triggerFileUpload: () => {},
 })
 
 function usePromptInput() {
