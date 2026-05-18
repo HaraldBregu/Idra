@@ -145,10 +145,6 @@ function PageContent(): ReactElement {
 	};
 
 	const handlePrimaryAction = (): void => {
-		if (voiceMode === 'conversation') {
-			returnToChat();
-			return;
-		}
 		if (agent.isLoading || canSubmit) {
 			agent.handleSubmit();
 			return;
