@@ -74,7 +74,7 @@ export class Main {
 		});
 	}
 
-	private createWindowOptions(trafficLightPosition = { x: 16, y: 16 }) {
+	private createWindowOptions(trafficLightPosition = { x: 16, y: 17 }) {
 		const isMac = process.platform === 'darwin';
 		return {
 			width: DEFAULT_WINDOW_WIDTH,
