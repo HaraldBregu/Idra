@@ -7,5 +7,4 @@ export * from './ipc-channels';
 export * from './providers';
 export * from './shortcuts';
 export * from './skills';
-export * from './task';
 export * from './cron';
