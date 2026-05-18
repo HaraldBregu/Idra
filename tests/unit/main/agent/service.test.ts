@@ -60,10 +60,20 @@ function makeDeps() {
 			resolveExisting: jest.fn(async (...segments: string[]) =>
 				['/workspace', ...segments].join('/')
 			),
-		} as never,
-		workspace: { getRootPath: jest.fn(() => '/workspace') } as never,
-	};
-}
+			} as never,
+			workspace: { getRootPath: jest.fn(() => '/workspace') } as never,
+			startupFiles: {
+				getRootPath: jest.fn(() => '/workspace/agent/workspaces/main'),
+				ensureReady: jest.fn(async () => undefined),
+				isBootstrapPending: jest.fn(async () => false),
+				loadContextFiles: jest.fn(async () => []),
+				listFiles: jest.fn(async () => []),
+				readFile: jest.fn(),
+				writeFile: jest.fn(),
+				completeBootstrap: jest.fn(),
+			} as never,
+		};
+	}
 
 describe('AgentService', () => {
 	it('drives the new agent loop directly from the IPC-facing service', async () => {
@@ -222,15 +232,19 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('skips tool and workspace context loading for direct-answer prompts', async () => {
+	it('skips tool and startup context loading for direct-answer prompts', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
-		const workspace = {
+		const startupFiles = {
 			getRootPath: jest.fn(() => '/workspace'),
 			isBootstrapPending: jest.fn(async () => false),
 			loadContextFiles: jest.fn(async () => []),
+			listFiles: jest.fn(async () => []),
+			readFile: jest.fn(),
+			writeFile: jest.fn(),
+			completeBootstrap: jest.fn(),
 		};
 		const toolsFactory = jest.fn(() => [
 			{
@@ -262,7 +276,7 @@ describe('AgentService', () => {
 
 		await expect(service.send('hello there')).resolves.toBe('hello');
 		expect(toolsFactory).not.toHaveBeenCalled();
-		expect(workspace.loadContextFiles).not.toHaveBeenCalled();
+		expect(startupFiles.loadContextFiles).not.toHaveBeenCalled();
 		expect(requests[0]!.tools).toEqual([]);
 		expect(requests[0]!.system).toContain('No tools are available for this turn');
 
