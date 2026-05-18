@@ -1,17 +1,23 @@
-import React, { type ReactNode } from 'react';
+import React, { type HTMLAttributes, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ItemProps {
+interface ItemProps extends HTMLAttributes<HTMLDivElement> {
 	readonly children: ReactNode;
 	readonly variant?: 'outline' | 'ghost';
 	readonly size?: 'sm' | 'md';
-	readonly className?: string;
 }
 
-function Item({ children, variant = 'outline', size = 'sm', className }: ItemProps): React.JSX.Element {
+function Item({
+	children,
+	variant = 'outline',
+	size = 'sm',
+	className,
+	...props
+}: ItemProps): React.JSX.Element {
 	return (
 		<div
+			{...props}
 			data-slot="item"
 			data-variant={variant}
 			data-size={size}

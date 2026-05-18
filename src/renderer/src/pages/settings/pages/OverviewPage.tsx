@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { SettingsPageHeader, SettingsPageShell } from '../components';
 import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../navigation';
@@ -14,33 +13,42 @@ function SettingsOverviewCard({
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const handleActivate = (): void => {
+		navigate(item.path);
+	};
+
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		handleActivate();
+	};
 
 	return (
-		<Button
-			type="button"
+		<Item
+			role="button"
+			tabIndex={0}
+			onClick={handleActivate}
+			onKeyDown={handleKeyDown}
 			variant="outline"
 			size="sm"
-			onClick={() => navigate(item.path)}
-			className="group h-auto min-h-12 w-full rounded-lg border-border/70 bg-card p-0 text-left text-card-foreground whitespace-normal shadow-none hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55 active:translate-y-0"
+			className="group min-h-12 flex-nowrap gap-3 rounded-lg border border-border/70 bg-card text-left text-card-foreground whitespace-normal hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55"
 		>
-			<Item variant="outline" size="sm" className="min-h-12 flex-nowrap gap-3">
-				<ItemIcon icon={item.icon} className="transition group-hover:bg-foreground group-hover:text-background" />
-				<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-					<ItemTitle className="max-w-full truncate leading-4 tracking-normal">
+			<ItemIcon icon={item.icon} className="transition group-hover:bg-foreground group-hover:text-background" />
+			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
-					</ItemTitle>
-					<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+				</ItemTitle>
+				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
 					{t(item.descriptionKey)}
-					</p>
-				</ItemContent>
-				<ItemActions className="ml-auto flex-none justify-end">
-					<ChevronRight
-						className="size-3 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
-						strokeWidth={1.8}
-					/>
-				</ItemActions>
-			</Item>
-		</Button>
+				</p>
+			</ItemContent>
+			<ItemActions className="ml-auto flex-none justify-end">
+				<ChevronRight
+					className="size-3 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
+					strokeWidth={1.8}
+				/>
+			</ItemActions>
+		</Item>
 	);
 }
 
