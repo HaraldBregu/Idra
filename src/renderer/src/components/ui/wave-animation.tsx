@@ -69,7 +69,8 @@ export function WaveAnimation({ active = true, height = 64, className }: WaveAni
     renderer.setClearColor(0, 0)
 
     const scene = new THREE.Scene()
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
+    // Fixed Y frustum ±0.15 so wave amplitudes (max ~0.095) never clip regardless of container width
+    const camera = new THREE.OrthographicCamera(-1, 1, 0.15, -0.15, 0.1, 10)
     camera.position.z = 5
 
     const GY = 0.0095
@@ -94,11 +95,9 @@ export function WaveAnimation({ active = true, height = 64, className }: WaveAni
     })
 
     function resize(w: number) {
-      // setSize(w, h, false) — false keeps CSS untouched so Tailwind controls layout
+      // false keeps CSS untouched so Tailwind controls layout
       renderer.setSize(w * dpr, height * dpr, false)
-      camera.top    =  height / w
-      camera.bottom = -(height / w)
-      camera.updateProjectionMatrix()
+      // camera frustum is fixed, no need to update projection on resize
     }
 
     const ro = new ResizeObserver((entries) => {
