@@ -964,6 +964,26 @@ const StartPage: React.FC = () => {
 					{PRODUCT_NAME} is a small agent that lives in your menu bar. Ask her
 					things by typing or just by talking.
 				</p>
+				<div className="mt-8 grid w-full max-w-sm grid-cols-3 gap-2">
+					<div className="overflow-hidden rounded-xl border border-border bg-card/60 px-2 pb-1.5 pt-2">
+						<DomeWaveAnimation height={52} />
+						<p className="mt-1 text-center text-[10px] font-semibold tracking-wide text-muted-foreground">
+							Listening
+						</p>
+					</div>
+					<div className="overflow-hidden rounded-xl border border-border bg-card/60 px-2 pb-1.5 pt-2">
+						<AuroraWaveAnimation height={52} />
+						<p className="mt-1 text-center text-[10px] font-semibold tracking-wide text-muted-foreground">
+							Thinking
+						</p>
+					</div>
+					<div className="overflow-hidden rounded-xl border border-border bg-card/60 px-2 pb-1.5 pt-2">
+						<EmberWaveAnimation height={52} />
+						<p className="mt-1 text-center text-[10px] font-semibold tracking-wide text-muted-foreground">
+							Speaking
+						</p>
+					</div>
+				</div>
 			</div>
 		);
 	}
