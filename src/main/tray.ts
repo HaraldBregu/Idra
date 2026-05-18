@@ -13,6 +13,7 @@ interface TrayManagerCallbacks {
 
 export class Tray {
 	private tray: ElectronTray | null = null;
+	private contextMenu: Menu | null = null;
 	private currentLanguage = 'en';
 	private callbacks: TrayManagerCallbacks;
 
@@ -30,11 +31,16 @@ export class Tray {
 		this.tray = new ElectronTray(icon.resize({ width: 16, height: 16 }));
 		this.tray.setToolTip('Friday');
 
-		// Double-click to show/hide app
-		this.tray.on('double-click', () => {
-			this.callbacks.onToggleApp();
-			// Rebuild menu to update show/hide label
+		this.tray.on('click', () => {
+			this.callbacks.onShowApp();
 			this.buildContextMenu();
+		});
+
+		this.tray.on('right-click', () => {
+			this.buildContextMenu();
+			if (this.contextMenu) {
+				this.tray?.popUpContextMenu(this.contextMenu);
+			}
 		});
 
 		this.buildContextMenu();
@@ -44,6 +50,7 @@ export class Tray {
 		if (this.tray) {
 			this.tray.destroy();
 			this.tray = null;
+			this.contextMenu = null;
 		}
 	}
 
@@ -64,11 +71,14 @@ export class Tray {
 	}
 
 	private buildContextMenu(): void {
-		if (!this.tray) return;
+		if (!this.tray) {
+			this.contextMenu = null;
+			return;
+		}
 		const m = loadTranslations(this.currentLanguage, 'tray');
 		const isVisible = this.callbacks.isAppVisible();
 
-		const contextMenu = Menu.buildFromTemplate([
+		this.contextMenu = Menu.buildFromTemplate([
 			{
 				label: isVisible ? m.hideFriday || 'Hide Friday' : m.showFriday || 'Show Friday',
 				click: () => {
@@ -83,7 +93,5 @@ export class Tray {
 				click: () => this.callbacks.onQuit(),
 			},
 		]);
-
-		this.tray.setContextMenu(contextMenu);
 	}
 }
