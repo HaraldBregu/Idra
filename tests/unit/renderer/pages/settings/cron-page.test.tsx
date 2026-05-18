@@ -64,6 +64,30 @@ describe('CronPage', () => {
 		expect(removeButtons).toHaveLength(2);
 	});
 
+	it('lets more than one scheduled task stay expanded', async () => {
+		(window.cron.listJobs as jest.Mock).mockResolvedValue([
+			makeJob('task-1', '30 8 * * 1-5'),
+			makeJob('task-2', '0 0 1 * *'),
+		]);
+
+		const user = userEvent.setup();
+		render(<CronPage />);
+
+		await user.click(await screen.findByRole('button', {
+			name: 'settings.cron.actions.expandLabel:task-1',
+		}));
+		await user.click(await screen.findByRole('button', {
+			name: 'settings.cron.actions.expandLabel:task-2',
+		}));
+
+		expect(screen.getByRole('button', {
+			name: 'settings.cron.actions.collapseLabel:task-1',
+		})).toBeInTheDocument();
+		expect(screen.getByRole('button', {
+			name: 'settings.cron.actions.collapseLabel:task-2',
+		})).toBeInTheDocument();
+	});
+
 	it('calls remove and removes the card from the list', async () => {
 		(window.cron.listJobs as jest.Mock).mockResolvedValue([makeJob('task-1', '0 8 * * 1')]);
 
