@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowUp, Mic, Plus, Square } from 'lucide-react';
+import { ArrowUp, AudioLines, Mic, Plus, Square } from 'lucide-react';
 import { TypingLoader } from '@/components/ui/loader';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
