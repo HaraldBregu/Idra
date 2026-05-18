@@ -542,6 +542,8 @@ export class GoogleDriveApiClient {
 		query?: string;
 		driveQuery?: string;
 		mimeType?: string;
+		driveId?: string;
+		corpora?: string;
 		maxResults?: number;
 		pageToken?: string;
 		orderBy?: string;
@@ -551,6 +553,12 @@ export class GoogleDriveApiClient {
 		url.searchParams.set('fields', `nextPageToken,files(${GOOGLE_DRIVE_FILE_FIELDS})`);
 		url.searchParams.set('supportsAllDrives', 'true');
 		url.searchParams.set('includeItemsFromAllDrives', 'true');
+		if (input.driveId) {
+			url.searchParams.set('driveId', input.driveId);
+			url.searchParams.set('corpora', 'drive');
+		} else if (input.corpora) {
+			url.searchParams.set('corpora', input.corpora);
+		}
 		url.searchParams.set('orderBy', input.orderBy || 'modifiedTime desc');
 		url.searchParams.set('q', input.driveQuery || buildDriveSearchQuery(input.query, input.mimeType));
 		if (input.pageToken) url.searchParams.set('pageToken', input.pageToken);
@@ -562,6 +570,66 @@ export class GoogleDriveApiClient {
 		url.searchParams.set('fields', GOOGLE_DRIVE_FILE_FIELDS);
 		url.searchParams.set('supportsAllDrives', 'true');
 		return this.fetchJson<GoogleDriveFile>(url.toString());
+	}
+
+	async listPermissions(input: {
+		fileId: string;
+		maxResults?: number;
+		pageToken?: string;
+	}): Promise<GoogleDrivePermissionListResponse> {
+		const url = new URL(`${GOOGLE_DRIVE_API_BASE}/files/${encodeURIComponent(input.fileId)}/permissions`);
+		url.searchParams.set('supportsAllDrives', 'true');
+		url.searchParams.set('fields', `nextPageToken,kind,permissions(${GOOGLE_DRIVE_PERMISSION_FIELDS})`);
+		if (input.maxResults) url.searchParams.set('pageSize', String(clampMaxResults(input.maxResults, 100)));
+		if (input.pageToken) url.searchParams.set('pageToken', input.pageToken);
+		return this.fetchJson<GoogleDrivePermissionListResponse>(url.toString());
+	}
+
+	async createFile(input: {
+		name: string;
+		mimeType?: string;
+		content?: string;
+		contentMimeType?: string;
+		parents?: string[];
+		description?: string;
+	}): Promise<GoogleDriveFile> {
+		const metadata: Record<string, unknown> = {
+			name: input.name,
+			mimeType: input.mimeType || input.contentMimeType || 'text/plain',
+		};
+		if (input.parents?.length) metadata.parents = input.parents;
+		if (input.description) metadata.description = input.description;
+		const url = input.content
+			? new URL('https://www.googleapis.com/upload/drive/v3/files')
+			: new URL(`${GOOGLE_DRIVE_API_BASE}/files`);
+		url.searchParams.set('supportsAllDrives', 'true');
+		url.searchParams.set('fields', GOOGLE_DRIVE_FILE_FIELDS);
+		if (!input.content) {
+			return this.fetchJson<GoogleDriveFile>(url.toString(), {
+				method: 'POST',
+				headers: { 'content-type': 'application/json; charset=UTF-8' },
+				body: JSON.stringify(metadata),
+			});
+		}
+		url.searchParams.set('uploadType', 'multipart');
+		const boundary = `friday_drive_${base64Url(randomBytes(18))}`;
+		const body = [
+			`--${boundary}`,
+			'Content-Type: application/json; charset=UTF-8',
+			'',
+			JSON.stringify(metadata),
+			`--${boundary}`,
+			`Content-Type: ${input.contentMimeType || input.mimeType || 'text/plain'}`,
+			'',
+			input.content,
+			`--${boundary}--`,
+			'',
+		].join('\r\n');
+		return this.fetchJson<GoogleDriveFile>(url.toString(), {
+			method: 'POST',
+			headers: { 'content-type': `multipart/related; boundary=${boundary}` },
+			body,
+		});
 	}
 
 	async getFileContent(file: GoogleDriveFile, exportMimeType?: string): Promise<string> {
