@@ -4,21 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import {
 	Bot,
 	ChevronRight,
-	CircleOff,
 	Hash,
 	MessageCircleMore,
 	Phone,
 	Send,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
-import type { ChannelConnectionStatus, ChannelType } from '../../../../../../shared/channels';
+import type { ChannelType } from '../../../../../../shared/channels';
 import type { ChannelCatalogEntry } from '../../../../../../shared/channel-catalog';
-
-const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
 
 const CHANNEL_ICONS: Partial<Record<ChannelType, typeof Send>> = {
 	discord: MessageCircleMore,
@@ -27,47 +23,28 @@ const CHANNEL_ICONS: Partial<Record<ChannelType, typeof Send>> = {
 	whatsapp: Phone,
 };
 
-function getConnectionBadgeVariant(
-	status: ChannelConnectionStatus
-): 'secondary' | 'destructive' | 'outline' {
-	if (status === 'connected') return 'secondary';
-	if (status === 'error') return 'destructive';
-	return 'outline';
-}
-
 const ChannelsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [catalog, setCatalog] = useState<readonly ChannelCatalogEntry[]>([]);
-	const [statusByChannel, setStatusByChannel] = useState<
-		Partial<Record<ChannelType, ChannelConnectionStatus>>
-	>({});
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
 
-		Promise.all([window.channels.listCatalog(), window.channels.getStatus()])
-			.then(([nextCatalog, telegramStatus]) => {
+		window.channels
+			.listCatalog()
+			.then((nextCatalog) => {
 				if (!mounted) return;
 				setCatalog(nextCatalog);
-				if (telegramStatus) {
-					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
-				}
 			})
 			.catch((error) => {
 				console.error('[ChannelsPage] Failed to load channel catalog:', error);
 				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
 			});
 
-		const unsubscribe = window.channels.onStatusChanged((event) => {
-			setStatusByChannel((current) => ({ ...current, [event.type]: event.status }));
-			if (event.error) setLoadError(event.error);
-		});
-
 		return () => {
 			mounted = false;
-			unsubscribe();
 		};
 	}, []);
 
@@ -82,8 +59,6 @@ const ChannelsPage: React.FC = () => {
 				<Card size="sm" className="gap-0! p-0!">
 					{catalog.map((entry, index) => {
 						const Icon = CHANNEL_ICONS[entry.id] ?? Bot;
-						const isRuntimeChannel = RUNTIME_CHANNELS.has(entry.id);
-						const status = statusByChannel[entry.id] ?? 'disconnected';
 
 						return (
 							<button
@@ -102,33 +77,15 @@ const ChannelsPage: React.FC = () => {
 										index === catalog.length - 1 && 'border-b-0'
 									)}
 								>
-									<ItemMedia variant="icon">
-										<Icon className="size-3" strokeWidth={1.8} />
+									<ItemMedia variant="icon" className="size-7">
+										<Icon className="size-3.5" strokeWidth={1.8} />
 									</ItemMedia>
-									<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+									<ItemContent className="min-w-0">
 										<ItemTitle className="w-full max-w-full truncate">{entry.label}</ItemTitle>
-										<p className="line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-											{entry.blurb}
-										</p>
 									</ItemContent>
-									<ItemActions className="ml-auto flex-none justify-end gap-1.5">
-										{isRuntimeChannel ? (
-											<Badge
-												variant={getConnectionBadgeVariant(status)}
-												className="h-5 px-2 text-[10px]"
-											>
-												{t(`channels.status.${status}`)}
-											</Badge>
-										) : (
-											<Badge variant="outline" className="h-5 px-2 text-[10px]">
-												{t('settings.channels.configOnly')}
-											</Badge>
-										)}
-										{!isRuntimeChannel && (
-											<CircleOff className="size-3.5 text-muted-foreground" />
-										)}
+									<ItemActions className="ml-auto flex-none justify-end">
 										<ChevronRight
-											className="size-3 text-muted-foreground"
+											className="size-3.5 text-muted-foreground"
 											strokeWidth={1.8}
 										/>
 									</ItemActions>
