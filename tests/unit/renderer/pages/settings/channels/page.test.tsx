@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CHANNEL_PROVIDER_IDS, type Channel, type ChannelType } from '../../../../../../src/shared/channels';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { listChannelCatalog } from '../../../../../../src/shared/channel-catalog';
 import ChannelsPage from '../../../../../../src/renderer/src/pages/settings/pages/channels/Page';
 
@@ -8,82 +8,36 @@ jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
 			const translations: Record<string, string> = {
-				'common.save': 'Save',
-				'settings.channels.token': 'Token',
-				'settings.channels.tokenPlaceholder': 'Paste token or access key',
-				'settings.channels.enabled': 'Enabled',
-				'settings.channels.addAllowFrom': 'Add',
+				'channels.status.connected': 'Connected',
+				'settings.channels.configOnly': 'Configuration only',
 			};
 			return translations[key] ?? key;
 		},
 	}),
 }));
 
-function createChannelConfig(): Channel {
-	return CHANNEL_PROVIDER_IDS.reduce((config, channelId) => {
-		if (channelId === 'telegram') {
-			config.telegram = {
-				token: '',
-				allowFrom: [],
-				enabled: false,
-				defaultAccountId: 'default',
-				dmPolicy: 'allowlist',
-			};
-			return config;
-		}
-		if (channelId === 'discord') {
-			config.discord = {
-				token: '',
-				allowFrom: [],
-				enabled: false,
-				defaultAccountId: 'default',
-				dmPolicy: 'allowlist',
-			};
-			return config;
-		}
-		if (channelId === 'whatsapp') {
-			config.whatsapp = {
-				phoneNumber: '',
-				token: '',
-				enabled: false,
-				defaultAccountId: 'default',
-				dmPolicy: 'allowlist',
-			};
-			return config;
-		}
-		config[channelId] = {
-			enabled: false,
-			defaultAccountId: 'default',
-			accounts: {
-				default: {
-					label: `${channelId} default`,
-					enabled: false,
-					token: '',
-					allowFrom: [],
-					groupAllowFrom: [],
-					dmPolicy: 'allowlist',
-				},
-			},
-		};
-		return config;
-	}, {} as Channel);
+function LocationProbe(): React.JSX.Element {
+	const location = useLocation();
+	return <div data-testid="location">{location.pathname}</div>;
+}
+
+function renderChannelsPage(): void {
+	render(
+		<MemoryRouter initialEntries={['/settings/channels']}>
+			<ChannelsPage />
+			<LocationProbe />
+		</MemoryRouter>
+	);
 }
 
 describe('ChannelsPage', () => {
-	const saveChannelConfig = jest.fn();
-
 	beforeEach(() => {
-		saveChannelConfig.mockReset();
-		saveChannelConfig.mockImplementation(
-			async (_type: ChannelType, config: Channel[ChannelType]) => config
-		);
-
 		window.channels = {
 			listCatalog: jest.fn(async () => [...listChannelCatalog()]),
-			getConfig: jest.fn(async () => createChannelConfig()),
+			getConfig: jest.fn(),
 			getChannelConfig: jest.fn(),
-			saveChannelConfig,
-			getStatus: jest.fn(async () => undefined),
+			saveChannelConfig: jest.fn(),
+			getStatus: jest.fn(async () => ({ type: 'telegram', status: 'connected' })),
 			getTelegramConfig: jest.fn(),
 			saveTelegramConfig: jest.fn(),
 			getTelegramStatus: jest.fn(),
@@ -94,42 +48,20 @@ describe('ChannelsPage', () => {
 		};
 	});
 
-	it('saves config when the enabled switch is toggled', async () => {
-		const user = userEvent.setup();
-		render(<ChannelsPage />);
-
-		await screen.findByRole('button', { name: /Slack/ });
-
-		const enabledSwitch = screen.getByRole('switch', { name: 'Enabled' });
-		await user.click(enabledSwitch);
-
-		await waitFor(() => {
-			expect(saveChannelConfig).toHaveBeenCalledWith(
-				'telegram',
-				expect.objectContaining({ enabled: true })
-			);
-		});
-	});
-
-	it('loads all channel cards and saves a generic provider configuration', async () => {
-		const user = userEvent.setup();
-		render(<ChannelsPage />);
+	it('loads channel cards with runtime and configuration-only statuses', async () => {
+		renderChannelsPage();
 
 		expect(await screen.findByRole('button', { name: /Slack/ })).toBeInTheDocument();
+		expect(screen.getByText('Connected')).toBeInTheDocument();
+		expect(screen.getAllByText('Configuration only').length).toBeGreaterThan(0);
+	});
 
-		await user.click(screen.getByRole('button', { name: /Slack/ }));
-		await user.type(screen.getByLabelText('Token'), 'xoxb-token');
-		await user.click(screen.getByRole('button', { name: 'Save' }));
+	it('navigates to channel details when a channel is selected', async () => {
+		const user = userEvent.setup();
+		renderChannelsPage();
 
-		await waitFor(() => {
-			expect(saveChannelConfig).toHaveBeenCalledWith(
-				'slack',
-				expect.objectContaining({
-					accounts: expect.objectContaining({
-						default: expect.objectContaining({ token: 'xoxb-token' }),
-					}),
-				})
-			);
-		});
+		await user.click(await screen.findByRole('button', { name: /Slack/ }));
+
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/channels/channelDetail/slack');
 	});
 });
