@@ -285,7 +285,6 @@
 			"enabled": "Enabled",
 			"disabled": "Disabled",
 			"detailsTitle": "Cron Details",
-			"backToCron": "Cron tasks",
 			"notFoundTitle": "Cron task not found",
 			"notFoundDescription": "The cron task may have been removed.",
 			"emptyTitle": "No cron tasks",
