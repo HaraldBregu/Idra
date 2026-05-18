@@ -22,6 +22,8 @@ function SettingsBreadcrumbHeader(): React.JSX.Element {
 	const current = useSettingsCurrentPage();
 	const isOverview = current?.path === '/settings';
 
+	if (isOverview) return null;
+
 	return (
 		<header className="mx-auto mb-3 flex w-full max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 			<nav
