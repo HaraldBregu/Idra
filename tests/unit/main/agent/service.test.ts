@@ -239,6 +239,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const startupFiles = {
 			getRootPath: jest.fn(() => '/workspace'),
+			ensureReady: jest.fn(async () => undefined),
 			isBootstrapPending: jest.fn(async () => false),
 			loadContextFiles: jest.fn(async () => []),
 			listFiles: jest.fn(async () => []),
@@ -255,7 +256,7 @@ describe('AgentService', () => {
 			},
 		]);
 		const service = new AgentService(
-			{ ...deps, workspace: workspace as never },
+			{ ...deps, startupFiles: startupFiles as never },
 			{
 				sessionBaseDir,
 				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
