@@ -3,7 +3,7 @@ import { constants as fsConstants, promises as fs } from 'node:fs';
 import type { Stats } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { AgentTool } from './types';
+import type { AgentTool, AgentToolResult } from './types';
 import { textResult } from './types';
 
 function expandUser(p: string): string {
@@ -555,7 +555,7 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`inspect_file: ${args.path} is not a file`, true);
-			const maxBytes = Math.max(1, Math.min(args.maxBytes ?? DEFAULT_INSPECT_BYTES, MAX_INSPECT_BYTES));
+			const maxBytes = Math.floor(Math.max(1, Math.min(args.maxBytes ?? DEFAULT_INSPECT_BYTES, MAX_INSPECT_BYTES)));
 			const { buffer, truncated } = await readFileSample(abs, stat.size, maxBytes);
 			const detected = detectFileType(buffer, abs);
 			const hash = truncated ? undefined : createHash('sha256').update(buffer).digest('hex');
@@ -578,7 +578,7 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 			if (DIRECT_IMAGE_MIME_TYPES.has(detected.mimeType) && !includeImage && truncated) {
 				lines.push(`imageContent: omitted because file exceeds maxBytes (${maxBytes})`);
 			}
-			const content = [{ type: 'text' as const, text: lines.join('\n') }];
+			const content: AgentToolResult['content'] = [{ type: 'text', text: lines.join('\n') }];
 			if (includeImage) {
 				content.push({
 					type: 'image' as const,
