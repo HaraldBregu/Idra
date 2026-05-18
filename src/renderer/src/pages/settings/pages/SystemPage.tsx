@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Languages, Moon, Monitor, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { Card } from '@/components/ui/card';
 import {
 	Select,
 	SelectContent,
@@ -15,7 +16,7 @@ import { Slider } from '@/components/ui/slider';
 import type { AppLanguage } from '../../../contexts';
 import { useApp } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../shared';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../components';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -68,15 +69,15 @@ const SystemPage: React.FC = () => {
 			<SettingsPageHeader title={t('settings.tabs.system')} />
 
 			<SettingsSection title={t('settings.sections.layout')}>
-				<SettingsPanel>
-					<Item variant="outline" size="sm" className="border-b border-border/60">
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
 							<Monitor className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent>
 							<ItemTitle>{t('settings.theme.title')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<ButtonGroup>
 								{[
 									{ value: 'light', label: t('settings.theme.light'), icon: Sun },
@@ -102,14 +103,14 @@ const SystemPage: React.FC = () => {
 							</ButtonGroup>
 						</ItemActions>
 					</Item>
-					<Item variant="outline" size="sm">
+					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
 							<Languages className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent>
 							<ItemTitle>{t('settings.language.title')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Select value={language} onValueChange={handleLanguageChange}>
 								<SelectTrigger
 									size="sm"
@@ -128,26 +129,26 @@ const SystemPage: React.FC = () => {
 							</Select>
 						</ItemActions>
 					</Item>
-				</SettingsPanel>
+				</Card>
 			</SettingsSection>
 
 			<SettingsSection
 				title={t('settings.translucency.title')}
 				description={t('settings.translucency.description')}
 			>
-				<SettingsPanel>
+				<Card size="sm" className="gap-0! p-0!">
 					{TRANSLUCENCY_OPTIONS.map((option) => {
 						const Icon = option.icon;
 						const value = translucency[option.value];
 						return (
-							<Item key={option.value} variant="outline" size="sm" className="border-b border-border/60 last:border-b-0">
+							<Item key={option.value} variant="outline" size="md" className="border-b border-border/60">
 								<ItemMedia variant="icon">
 									<Icon className="size-3" strokeWidth={1.8} />
 								</ItemMedia>
 								<ItemContent>
 									<ItemTitle>{t(option.labelKey)}</ItemTitle>
 								</ItemContent>
-								<ItemActions className="gap-3">
+								<ItemActions className="ml-auto flex-none justify-end gap-3">
 									<Slider
 										min={0}
 										max={100}
@@ -164,7 +165,7 @@ const SystemPage: React.FC = () => {
 							</Item>
 						);
 					})}
-				</SettingsPanel>
+				</Card>
 			</SettingsSection>
 		</SettingsPageShell>
 	);
