@@ -338,9 +338,12 @@ export class OpenClawCronScheduler {
 		return this.store.listRuns(jobId, limit);
 	}
 
-	async wake(actor: OpenClawCronActor = { role: 'owner' }): Promise<OpenClawCronStatus> {
+	async wake(
+		actor: OpenClawCronActor = { role: 'owner' },
+		mode: 'now' | 'next-heartbeat' = 'next-heartbeat'
+	): Promise<OpenClawCronStatus> {
 		this.authorize(actor, 'wake');
-		if (this.options.enabled) {
+		if (this.options.enabled && mode === 'now') {
 			await this.processDue(Date.now());
 			await this.armTimer();
 		}
@@ -666,8 +669,9 @@ export class OpenClawCronScheduler {
 		state: OpenClawCronJobState,
 		run: OpenClawCronRunRecord
 	): Promise<void> {
+		if (job.failureAlert === false) return;
 		if (run.status === 'skipped' && !job.failureAlert?.includeSkipped) return;
-		const threshold = job.failureAlert?.threshold ?? 1;
+		const threshold = job.failureAlert?.after ?? 1;
 		const count = run.status === 'skipped' ? state.consecutiveSkipped : state.consecutiveErrors;
 		if (count < threshold) return;
 		const cooldownMs = job.failureAlert?.cooldownMs ?? 15 * 60_000;
@@ -692,15 +696,13 @@ export class OpenClawCronScheduler {
 	}
 
 	private failureDelivery(job: OpenClawCronJobDefinition): OpenClawCronDelivery | undefined {
-		const explicit = job.failureAlert?.target;
-		if (explicit) {
+		if (job.failureAlert && job.failureAlert !== false && job.failureAlert.to) {
 			return {
-				mode: job.failureAlert?.mode ?? 'announce',
-				url: explicit.url,
-				channel: explicit.channel,
-				to: explicit.to,
-				threadId: explicit.threadId,
-				accountId: explicit.accountId,
+				mode: job.failureAlert.mode ?? 'announce',
+				channel: job.failureAlert.channel,
+				to: job.failureAlert.to,
+				threadId: job.failureAlert.threadId,
+				accountId: job.failureAlert.accountId,
 				bestEffort: true,
 			};
 		}
@@ -708,7 +710,6 @@ export class OpenClawCronScheduler {
 		if (jobDestination) {
 			return {
 				mode: jobDestination.mode ?? 'announce',
-				url: jobDestination.url,
 				channel: jobDestination.channel,
 				to: jobDestination.to,
 				threadId: jobDestination.threadId,
