@@ -158,7 +158,7 @@ function PageContent(): ReactElement {
 					<ChatContainerContent
 						className={cn(
 							'mx-auto min-h-full w-full max-w-4xl gap-5',
-							showReferenceConversation ? 'justify-start pb-6 pt-7' : 'pt-6'
+							showReferenceConversation ? 'justify-start pt-7' : 'pt-6'
 						)}
 					>
 						{showReferenceConversation ? (
