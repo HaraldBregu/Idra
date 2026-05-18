@@ -599,12 +599,13 @@ export class GoogleDriveApiClient {
 		};
 		if (input.parents?.length) metadata.parents = input.parents;
 		if (input.description) metadata.description = input.description;
-		const url = input.content
+		const hasContent = input.content !== undefined;
+		const url = hasContent
 			? new URL('https://www.googleapis.com/upload/drive/v3/files')
 			: new URL(`${GOOGLE_DRIVE_API_BASE}/files`);
 		url.searchParams.set('supportsAllDrives', 'true');
 		url.searchParams.set('fields', GOOGLE_DRIVE_FILE_FIELDS);
-		if (!input.content) {
+		if (!hasContent) {
 			return this.fetchJson<GoogleDriveFile>(url.toString(), {
 				method: 'POST',
 				headers: { 'content-type': 'application/json; charset=UTF-8' },
