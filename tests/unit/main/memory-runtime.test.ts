@@ -5,11 +5,10 @@ import {
 	appendOnlyMemoryFlush,
 	flushSessionMemoryBeforeCompaction,
 	resolveMemoryFlushPlan,
+	sanitizeTranscriptForMemory,
 } from '../../../src/main/memory-runtime';
 import { saveSession, type SessionFile } from '../../../src/main/session/store';
-import { createMemorySearchTool } from '../../../src/main/tools/memory';
-import { sessionsHistoryTool } from '../../../src/main/tools/sessions';
-import { makeTempDir, makeToolContext } from './test-helpers';
+import { makeTempDir } from './test-helpers';
 
 function session(id: string, transcript: SessionFile['transcript']): SessionFile {
 	return {
@@ -84,40 +83,25 @@ describe('memory-runtime', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('returns bounded sanitized session history through the session tool', async () => {
-		const workspace = await makeTempDir();
-		const sessionBaseDir = await makeTempDir();
-		await saveSession(
-			session('s1', [
-				{ role: 'user', content: 'show image' },
-				{
-					role: 'assistant',
-					content: [{ type: 'tool_use', toolUseId: 't1', toolName: 'image_tool', toolArgs: {} }],
-				},
-				{
-					role: 'tool',
-					toolUseId: 't1',
-					content: [
-						{ type: 'image', mimeType: 'image/png', base64: 'abc123' },
-						{ type: 'text', text: 'x'.repeat(5_000) },
-					],
-				},
-			]),
-			{ baseDir: sessionBaseDir }
-		);
+	it('sanitizes image content from session transcripts', () => {
+		const text = sanitizeTranscriptForMemory([
+			{ role: 'user', content: 'show image' },
+			{
+				role: 'assistant',
+				content: [{ type: 'tool_use', toolUseId: 't1', toolName: 'image_tool', toolArgs: {} }],
+			},
+			{
+				role: 'tool',
+				toolUseId: 't1',
+				content: [
+					{ type: 'image', mimeType: 'image/png', base64: 'abc123' },
+					{ type: 'text', text: 'x'.repeat(5_000) },
+				],
+			},
+		]).map((entry) => entry.text).join('\n');
 
-		const result = await sessionsHistoryTool.execute(
-			{ sessionId: 's1', limit: 5, maxChars: 4_000 },
-			makeToolContext({ workspace, sessionId: 's1', sessionBaseDir, sessionVisibility: 'self' })
-		);
-
-		const text = result.content[0]?.type === 'text' ? result.content[0].text : '';
 		expect(text).toContain('[image result omitted');
 		expect(text).not.toContain('abc123');
-		expect(text.length).toBeLessThan(4_500);
-
-		await fs.rm(workspace, { recursive: true, force: true });
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
 	it('flushes pre-compaction memory append-only to the planned daily file', async () => {
@@ -145,15 +129,11 @@ describe('memory-runtime', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('returns structured unavailable payloads when memory search is disabled', async () => {
+	it('returns no search results when memory search is disabled', async () => {
 		const workspace = await makeTempDir();
-		const tool = createMemorySearchTool({ enabled: false });
-		const result = await tool.execute({ query: 'anything' }, makeToolContext({ workspace }));
-		expect(result.status).toBe('ok');
-		expect(result.details).toMatchObject({
-			status: 'unavailable',
-			reason: 'memory search is disabled',
-		});
+		const manager = new WorkspaceMemorySearchManager({ workspaceDir: workspace, enabled: false });
+		await expect(manager.search('anything')).resolves.toEqual([]);
+		await expect(manager.readFile('MEMORY.md')).rejects.toThrow('Memory search is disabled.');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 });
