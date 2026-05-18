@@ -28,7 +28,6 @@ import type { Model } from '../../../../shared/service';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
 import { AuroraWaveAnimation } from '@/components/ui/aurora-wave-animation';
 import { EmberWaveAnimation } from '@/components/ui/ember-wave-animation';
