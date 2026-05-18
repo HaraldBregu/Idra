@@ -387,7 +387,6 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		AppsInvokeChannelMap,
 		SkillsInvokeChannelMap,
-		TaskInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
@@ -412,10 +411,6 @@ interface ChannelsEventChannelMap {
 	[ChannelsChannels.statusChanged]: { data: import('./channels').ChannelStatusEvent };
 }
 
-interface TaskEventChannelMap {
-	[TaskChannels.event]: { data: import('./task').TaskEvent };
-}
-
 interface CronEventChannelMap {
 	[CronChannels.event]: { data: import('./cron').CronScheduleEvent };
 }
@@ -424,5 +419,4 @@ export interface EventChannelMap
 	extends AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
-		TaskEventChannelMap,
 		CronEventChannelMap {}
