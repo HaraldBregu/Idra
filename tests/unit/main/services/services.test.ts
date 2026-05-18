@@ -11,6 +11,7 @@ import {
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
+import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('apps service', () => {
@@ -389,26 +390,37 @@ describe('workspace service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('seeds canonical workspace files without overwriting user edits', async () => {
+	it('does not seed agent startup files into the workspace', async () => {
 		const root = await makeTempDir();
 		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
 
 		await service.ensureReady({ initializeGit: false });
-		await expect(fs.readFile(path.join(root, 'AGENTS.md'), 'utf8')).resolves.toContain(
-			'Workspace Rules'
+		await expect(fs.access(path.join(root, 'AGENTS.md'))).rejects.toThrow();
+		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('seeds agent startup files under .friday/agent without overwriting user edits', async () => {
+		const root = await makeTempDir();
+		const service = new AgentStartupFilesService({ rootPath: path.join(root, 'agent', 'workspaces') });
+
+		await service.ensureReady('main');
+		const agentRoot = service.getRootPath('main');
+		await expect(fs.readFile(path.join(agentRoot, 'AGENTS.md'), 'utf8')).resolves.toContain(
+			'startup context'
 		);
-		await expect(fs.readFile(path.join(root, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
+		await expect(fs.readFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
 			'First Run'
 		);
 
-		await fs.writeFile(path.join(root, 'SOUL.md'), 'custom soul', 'utf8');
-		await service.ensureReady({ initializeGit: false });
-		await expect(fs.readFile(path.join(root, 'SOUL.md'), 'utf8')).resolves.toBe('custom soul');
+		await service.writeFile('main', 'SOUL.md', 'custom soul');
+		await service.ensureReady('main');
+		await expect(fs.readFile(path.join(agentRoot, 'SOUL.md'), 'utf8')).resolves.toBe('custom soul');
 
-		await fs.rm(path.join(root, 'BOOTSTRAP.md'));
-		await service.ensureReady({ initializeGit: false });
-		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
-		await expect(service.isBootstrapPending()).resolves.toBe(false);
+		await service.completeBootstrap('main');
+		await service.ensureReady('main');
+		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
+		await expect(service.isBootstrapPending('main')).resolves.toBe(false);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
