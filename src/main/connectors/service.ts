@@ -858,7 +858,7 @@ function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): 
 	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) {
 		return false;
 	}
-	return false;
+	return true;
 }
 
 function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
