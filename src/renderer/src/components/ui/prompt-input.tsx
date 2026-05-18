@@ -145,7 +145,7 @@ function PromptInputVoiceWaveform({
   return (
     <div
       className={cn(
-        "relative h-16 min-w-0 overflow-hidden rounded-[2rem] bg-white/[0.055] shadow-inner",
+        "relative h-7 min-w-0 overflow-hidden rounded-full bg-white/[0.055] shadow-inner",
         muted && "bg-white/[0.045]"
       )}
       aria-hidden="true"
@@ -244,15 +244,15 @@ function PromptInputVoicePanel({
   return (
     <motion.div
       key={mode}
-      initial={{ opacity: 0, y: 12, scale: 0.985 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.985 }}
-      transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-      className="grid w-full cursor-default grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-x-3 rounded-[2rem] border border-white/10 bg-[#202024] px-3 py-3 text-white shadow-[0_22px_70px_rgba(0,0,0,0.46)] sm:grid-cols-[3.25rem_minmax(0,1fr)_auto] sm:gap-x-4 sm:rounded-[2.25rem] sm:px-4"
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
+      className="flex min-w-0 flex-1 cursor-default items-center gap-2 text-white"
     >
       <div
         className={cn(
-          "row-span-2 flex size-11 items-center justify-center rounded-full shadow-[0_0_34px_rgba(101,132,255,0.34)] sm:size-12",
+          "flex size-8 shrink-0 items-center justify-center rounded-full shadow-[0_0_24px_rgba(101,132,255,0.28)]",
           isDictation
             ? "bg-[#f35f54]/15 shadow-[0_0_28px_rgba(243,95,84,0.22)]"
             : isMuted
@@ -265,31 +265,37 @@ function PromptInputVoicePanel({
           className={cn(
             "block rounded-full",
             isDictation
-              ? "size-4 bg-[#ed5b50]"
+              ? "size-2.5 bg-[#ed5b50]"
               : isMuted
-              ? "size-8 bg-gradient-to-br from-[#9096a8] to-[#58617f] opacity-75"
-              : "size-9 bg-[radial-gradient(circle_at_35%_25%,#b9c8ff,#7190ff_58%,#556be7)] shadow-[0_0_0_3px_rgba(255,255,255,0.08),0_0_26px_rgba(111,140,255,0.82)]"
+              ? "size-5 bg-gradient-to-br from-[#9096a8] to-[#58617f] opacity-75"
+              : "size-6 bg-[radial-gradient(circle_at_35%_25%,#b9c8ff,#7190ff_58%,#556be7)] shadow-[0_0_0_2px_rgba(255,255,255,0.08),0_0_18px_rgba(111,140,255,0.76)]"
           )}
         />
       </div>
-      <div className="min-w-0 self-end">
-        <div className="flex items-center gap-2 truncate text-[0.72rem] font-bold uppercase tracking-[0.32em] text-white/52 sm:text-sm">
-          <span className="truncate">{status}</span>
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div
+          className={cn(
+            "flex shrink-0 items-center gap-1.5 truncate text-[0.65rem] font-bold uppercase tracking-[0.18em]",
+            isMuted ? "text-white/42" : "text-white/54"
+          )}
+        >
+          <span>{status}</span>
           <span className="text-white/34">·</span>
-          <span className="font-mono tracking-[0.12em]">
-            {formatVoiceDuration(elapsedSeconds)}
-          </span>
+          <span className="font-mono tracking-normal">{formatVoiceDuration(elapsedSeconds)}</span>
         </div>
         <p
           className={cn(
-            "mt-0.5 truncate text-lg font-semibold leading-tight tracking-normal sm:text-2xl",
+            "min-w-24 truncate text-sm font-medium leading-6 tracking-normal",
             isMuted ? "text-white/48" : "text-white/92"
           )}
         >
           {spokenText}
         </p>
+        <div className="hidden min-w-28 flex-1 sm:block">
+          <PromptInputVoiceWaveform muted={isMuted} mode={mode} />
+        </div>
       </div>
-      <div className="row-span-2 flex shrink-0 items-center gap-2 sm:gap-3">
+      <div className="flex shrink-0 items-center gap-1.5">
         {isDictation ? (
           <>
             <button
@@ -297,18 +303,18 @@ function PromptInputVoicePanel({
               aria-label="Cancel dictation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onCancel)}
-              className="flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.055] text-white/74 transition hover:bg-white/[0.085] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72b8ff]/55 disabled:pointer-events-none disabled:opacity-50 sm:size-14"
+              className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.055] text-white/74 transition hover:bg-white/[0.085] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72b8ff]/55 disabled:pointer-events-none disabled:opacity-50"
             >
-              <X className="size-6" strokeWidth={2.4} />
+              <X className="size-4" strokeWidth={2.4} />
             </button>
             <button
               type="button"
               aria-label="Confirm dictation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onConfirm)}
-              className="flex size-12 items-center justify-center rounded-full bg-[#67b4ff] text-white shadow-[0_0_30px_rgba(103,180,255,0.44)] transition hover:bg-[#7dc1ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9dd2ff]/70 disabled:pointer-events-none disabled:opacity-50 sm:size-16"
+              className="flex size-9 items-center justify-center rounded-full bg-[#67b4ff] text-white shadow-[0_0_24px_rgba(103,180,255,0.36)] transition hover:bg-[#7dc1ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9dd2ff]/70 disabled:pointer-events-none disabled:opacity-50"
             >
-              <Check className="size-7" strokeWidth={2.8} />
+              <Check className="size-4" strokeWidth={2.8} />
             </button>
           </>
         ) : (
@@ -322,16 +328,16 @@ function PromptInputVoicePanel({
                 setMuted((current) => !current)
               }}
               className={cn(
-                "flex size-12 items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 sm:size-14",
+                "flex size-8 items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
                 isMuted
                   ? "border-[#ee695d]/45 bg-[#ee695d]/16 text-[#ff7c70] focus-visible:ring-[#ee695d]/50"
                   : "border-white/10 bg-white/[0.055] text-white/74 hover:bg-white/[0.085] hover:text-white focus-visible:ring-[#7fa1ff]/55"
               )}
             >
               {isMuted ? (
-                <MicOff className="size-6" strokeWidth={2.4} />
+                <MicOff className="size-4" strokeWidth={2.4} />
               ) : (
-                <Mic className="size-6" strokeWidth={2.2} />
+                <Mic className="size-4" strokeWidth={2.2} />
               )}
             </button>
             <button
@@ -339,15 +345,14 @@ function PromptInputVoicePanel({
               aria-label="End voice conversation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onEnd)}
-              className="flex h-12 items-center gap-2 rounded-full bg-[#5c83f6] px-5 text-base font-bold text-white shadow-[0_0_32px_rgba(92,131,246,0.5)] transition hover:bg-[#6d91ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9bb5ff]/70 disabled:pointer-events-none disabled:opacity-50 sm:h-14 sm:px-6 sm:text-xl"
+              className="flex h-9 w-16 items-center justify-center gap-1 rounded-full bg-[#5c83f6] text-sm font-semibold text-white shadow-[0_0_24px_rgba(92,131,246,0.36)] transition hover:bg-[#6d91ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9bb5ff]/70 disabled:pointer-events-none disabled:opacity-50"
             >
-              <MoreHorizontal className="size-6" strokeWidth={3} />
+              <MoreHorizontal className="size-4" strokeWidth={3} />
               <span>End</span>
             </button>
           </>
         )}
       </div>
-      <PromptInputVoiceWaveform muted={isMuted} mode={mode} />
     </motion.div>
   )
 }
