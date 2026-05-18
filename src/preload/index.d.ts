@@ -56,6 +56,17 @@ export interface CronApi {
 	) => () => void;
 }
 
+export interface HeartbeatApi {
+	status: () => Promise<HeartbeatStatus>;
+	last: () => Promise<HeartbeatEventPayload | null>;
+	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
+	systemEvent: (
+		request: HeartbeatSystemEventRequest
+	) => Promise<HeartbeatSystemEventResult>;
+	request: (request: HeartbeatWakeRequest) => Promise<void>;
+	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
+}
+
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
@@ -123,6 +134,14 @@ import type {
 	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
+	HeartbeatEventPayload,
+	HeartbeatSetEnabledRequest,
+	HeartbeatStatus,
+	HeartbeatSystemEventRequest,
+	HeartbeatSystemEventResult,
+	HeartbeatWakeRequest,
+} from '../shared/heartbeat';
+import type {
 	Agent,
 	AgentHistoryMessage,
 	ApprovalDecision,
@@ -175,6 +194,7 @@ declare global {
 		app: AppApi;
 		agent: AgentApi;
 		cron: CronApi;
+		heartbeat: HeartbeatApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;

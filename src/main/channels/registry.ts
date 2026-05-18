@@ -234,8 +234,18 @@ export class ChannelRegistry {
 				},
 				dispatch: async (normalized) => {
 					if (!this.dependencies.agentService) return;
-					const reply = await this.dependencies.agentService.send(normalized.text);
 					const target = plugin.threading?.resolveReplyTarget(message) ?? { to: message.chatId };
+					const sessionKey = plugin.threading?.getSessionKey(normalized);
+					this.dependencies.eventBus.emit('channel:route', {
+						channel: channelId,
+						accountId,
+						to: target.to,
+						threadId: target.threadId,
+						replyToMessageId: target.replyToMessageId,
+						chatType: normalized.chatType,
+						sessionKey,
+					});
+					const reply = await this.dependencies.agentService.send(normalized.text);
 					await this.send({
 						type: channelId,
 						accountId,

@@ -8,6 +8,7 @@ import {
 	ConnectorsChannels,
 	ProviderChannels,
 	CronChannels,
+	HeartbeatChannels,
 	AppsChannels,
 	SkillsChannels,
 } from '../shared/ipc-channels';
@@ -17,6 +18,7 @@ import type {
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
+	HeartbeatApi,
 	SkillsApi,
 	WindowApi,
 } from './index.d';
@@ -37,6 +39,14 @@ import type {
 	FridayCronToolRequest,
 	FridayCronToolResponse,
 } from '../shared/cron';
+import type {
+	HeartbeatEventPayload,
+	HeartbeatSetEnabledRequest,
+	HeartbeatStatus,
+	HeartbeatSystemEventRequest,
+	HeartbeatSystemEventResult,
+	HeartbeatWakeRequest,
+} from '../shared/heartbeat';
 import type {
 	Agent,
 	AgentHistoryMessage,
@@ -274,6 +284,29 @@ export const cron: CronApi = {
 	},
 };
 
+export const heartbeat: HeartbeatApi = {
+	status: (): Promise<HeartbeatStatus> => {
+		return typedInvokeUnwrap(HeartbeatChannels.status);
+	},
+	last: (): Promise<HeartbeatEventPayload | null> => {
+		return typedInvokeUnwrap(HeartbeatChannels.last);
+	},
+	setEnabled: (request: HeartbeatSetEnabledRequest): Promise<HeartbeatStatus> => {
+		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, request);
+	},
+	systemEvent: (
+		request: HeartbeatSystemEventRequest
+	): Promise<HeartbeatSystemEventResult> => {
+		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, request);
+	},
+	request: (request: HeartbeatWakeRequest): Promise<void> => {
+		return typedInvokeUnwrap(HeartbeatChannels.request, request);
+	},
+	onEvent: (callback: (event: HeartbeatEventPayload) => void): (() => void) => {
+		return typedOn(HeartbeatChannels.event, callback);
+	},
+};
+
 export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
@@ -391,6 +424,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('cron', cron);
+		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
@@ -406,6 +440,8 @@ if (process.contextIsolated) {
 	globalThis.agent = agent;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
+	// @ts-ignore (define in dts)
+	globalThis.heartbeat = heartbeat;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)

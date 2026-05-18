@@ -5,6 +5,7 @@ import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { ChannelRegistry } from '../channels';
 import type { AgentService } from '../service';
+import type { HeartbeatService } from '../heartbeat';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
@@ -133,9 +134,12 @@ export class CronService implements Disposable {
 		agentService?: AgentService;
 		eventBus?: EventBus;
 		channelRegistry?: ChannelRegistry;
+		heartbeat?: HeartbeatService;
 	}): void {
 		if (dependencies.agentService) {
-			this.friday.setExecutor(new AgentServiceFridayCronExecutor(dependencies.agentService));
+			this.friday.setExecutor(
+				new AgentServiceFridayCronExecutor(dependencies.agentService, dependencies.heartbeat)
+			);
 		}
 		this.friday.setDelivery(
 			new GatewayFridayCronDelivery({

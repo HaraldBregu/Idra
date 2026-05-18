@@ -2,6 +2,8 @@ import type { ChannelRegistry } from '../../channels';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentService } from '../../service';
+import type { HeartbeatService } from '../../heartbeat';
+import type { HeartbeatWakeOverride } from '../../../shared/heartbeat';
 import type {
 	FridayCronDelivery,
 	FridayCronDeliveryState,
@@ -16,7 +18,10 @@ import type {
 import { DEFAULT_AGENT_ID } from '../../constants';
 
 export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
-	constructor(private readonly agentService: AgentService) {}
+	constructor(
+		private readonly agentService: AgentService,
+		private readonly heartbeat?: HeartbeatService
+	) {}
 
 	async execute(input: {
 		job: FridayCronJobDefinition;
@@ -30,6 +35,20 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 		const message = input.job.payload.kind === 'systemEvent'
 			? input.job.payload.text
 			: input.job.payload.message;
+		if (
+			input.job.payload.kind === 'systemEvent' &&
+			input.job.sessionTarget === 'main' &&
+			this.heartbeat
+		) {
+			await this.heartbeat.systemEvent({
+				text: message,
+				agentId,
+				sessionKey: input.job.sessionKey ?? agentId,
+				mode: input.job.wakeMode,
+				heartbeat: this.resolveHeartbeatOverride(input.job),
+			});
+			return { status: 'ok', output: '', alreadyDelivered: true };
+		}
 		const output = await this.agentService.send(message, agentId, {
 			sessionId,
 			cronContext: {
@@ -51,6 +70,18 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 		if (job.sessionTarget === 'isolated') return `cron:${job.id}`;
 		if (job.sessionTarget.startsWith('session:')) return job.sessionTarget.slice('session:'.length);
 		return this.resolveAgentId(job);
+	}
+
+	private resolveHeartbeatOverride(job: FridayCronJobDefinition): HeartbeatWakeOverride {
+		if (job.delivery.mode === 'none') return { target: 'none' };
+		if (job.delivery.mode === 'announce') {
+			return {
+				target: job.delivery.channel ?? 'last',
+				to: job.delivery.to,
+				accountId: job.delivery.accountId,
+			};
+		}
+		return { target: 'last' };
 	}
 }
 

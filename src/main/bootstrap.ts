@@ -24,10 +24,12 @@ import {
 	ChannelsIpc,
 	ConnectorsIpc,
 	CronIpc,
+	HeartbeatIpc,
 	SkillsIpc,
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
+import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -100,7 +102,19 @@ export function bootstrapServices(): BootstrapResult {
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
-	cron.configureFridayRuntime({ agentService, eventBus, channelRegistry });
+	const heartbeat = container.register(
+		'heartbeat',
+		new HeartbeatService({
+			store,
+			logger,
+			eventBus,
+			startupFiles,
+			agentService,
+			channelRegistry,
+		})
+	);
+	heartbeat.start();
+	cron.configureFridayRuntime({ agentService, eventBus, channelRegistry, heartbeat });
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
@@ -137,6 +151,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new ChannelsIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),
+		new HeartbeatIpc(),
 		new SkillsIpc(),
 		new WindowIpc(),
 	];
