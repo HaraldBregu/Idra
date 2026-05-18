@@ -104,12 +104,13 @@ function getConnectionBadgeVariant(
 	return 'outline';
 }
 
-const ChannelsPage: React.FC = () => {
+const ChannelDetailPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const { channelId } = useParams<{ channelId: string }>();
+	const selectedId = channelId && isChannelId(channelId) ? channelId : null;
 	const [catalog, setCatalog] = useState<readonly ChannelCatalogEntry[]>([]);
 	const [configs, setConfigs] = useState<Channel | null>(null);
-	const [selectedId, setSelectedId] = useState<ChannelType>('telegram');
-	const [filter, setFilter] = useState('');
 	const [listDrafts, setListDrafts] = useState<Record<ListField, string>>({
 		allowFrom: '',
 		groupAllowFrom: '',
@@ -133,7 +134,7 @@ const ChannelsPage: React.FC = () => {
 				}
 			})
 			.catch((error) => {
-				console.error('[ChannelsPage] Failed to load channel settings:', error);
+				console.error('[ChannelDetailPage] Failed to load channel settings:', error);
 				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
 			});
 
@@ -152,27 +153,16 @@ const ChannelsPage: React.FC = () => {
 		setListDrafts({ allowFrom: '', groupAllowFrom: '' });
 	}, [selectedId]);
 
-	const filteredCatalog = useMemo(() => {
-		const query = filter.trim().toLowerCase();
-		if (!query) return catalog;
-		return catalog.filter((entry) => {
-			return (
-				entry.id.includes(query) ||
-				entry.label.toLowerCase().includes(query) ||
-				entry.blurb.toLowerCase().includes(query) ||
-				entry.aliases.some((alias) => alias.includes(query))
-			);
-		});
-	}, [catalog, filter]);
-
-	const selectedEntry = catalog.find((entry) => entry.id === selectedId);
-	const selectedConfig = configs?.[selectedId] ?? null;
+	const selectedEntry = selectedId ? catalog.find((entry) => entry.id === selectedId) : null;
+	const selectedConfig = selectedId ? configs?.[selectedId] ?? null : null;
 	const selectedAccount = selectedConfig
 		? getDefaultAccountConfig(selectedId, selectedConfig)
-		: emptyAccountConfig(selectedId);
-	const selectedStatus = statusByChannel[selectedId] ?? 'disconnected';
+		: emptyAccountConfig(selectedId ?? 'telegram');
+	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
+	const HeaderIcon = selectedId ? CHANNEL_ICONS[selectedId] ?? Bot : Bot;
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
+		if (!selectedId) return;
 		setConfigs((current) => {
 			if (!current) return current;
 			return { ...current, [selectedId]: nextConfig };
