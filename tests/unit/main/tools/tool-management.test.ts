@@ -270,6 +270,31 @@ describe('tool management layer', () => {
 		expect(selected.rankedTools[0]?.tool.category).toBe('email');
 	});
 
+	it('keeps read available when selecting file mutation tools', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('read', 'Read files before moving or deleting them.'),
+				makeAgentTool('move', 'Move or rename one file from source to destination.'),
+				makeAgentTool('delete', 'Delete a file.'),
+				makeAgentTool('copy', 'Copy a file.'),
+				makeAgentTool('find', 'Find files.'),
+			],
+			'move the file from one directory to another',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['read', 'move']);
+		expect(selected.rankedTools.map((entry) => entry.tool.name)).toEqual(['move', 'read']);
+		expect(selected.systemPromptSuffix).toContain('Tool: read');
+	});
+
 	it('runs sensitive actions directly', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
