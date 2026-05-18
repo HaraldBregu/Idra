@@ -155,7 +155,7 @@ const ChannelDetailPage: React.FC = () => {
 
 	const selectedEntry = selectedId ? catalog.find((entry) => entry.id === selectedId) : null;
 	const selectedConfig = selectedId ? configs?.[selectedId] ?? null : null;
-	const selectedAccount = selectedConfig
+	const selectedAccount = selectedConfig && selectedId
 		? getDefaultAccountConfig(selectedId, selectedConfig)
 		: emptyAccountConfig(selectedId ?? 'telegram');
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
@@ -189,7 +189,7 @@ const ChannelDetailPage: React.FC = () => {
 	};
 
 	const saveSelectedConfig = async (): Promise<void> => {
-		if (!configs) return;
+		if (!configs || !selectedId) return;
 		await saveChannelConfig(selectedId, configs[selectedId]);
 	};
 
@@ -197,7 +197,7 @@ const ChannelDetailPage: React.FC = () => {
 		updater: (config: EditableChannelConfig) => EditableChannelConfig,
 		options?: { save?: boolean }
 	): void => {
-		if (!selectedConfig) return;
+		if (!selectedConfig || !selectedId) return;
 		const nextConfig = updater(selectedConfig);
 		setSelectedConfig(nextConfig);
 		if (options?.save) void saveChannelConfig(selectedId, nextConfig);
@@ -208,6 +208,7 @@ const ChannelDetailPage: React.FC = () => {
 		value: ChannelAccountProperties[keyof ChannelAccountProperties],
 		options?: { save?: boolean }
 	): void => {
+		if (!selectedId) return;
 		updateSelectedConfig(
 			(config) => updateDefaultAccountConfig(selectedId, config, { [field]: value }),
 			options
