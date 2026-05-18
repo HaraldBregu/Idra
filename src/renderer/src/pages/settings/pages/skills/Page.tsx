@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderInput, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { SkillInfo } from '../../../../../shared/skills';
+import type { SkillInfo } from '../../../../../../shared/skills';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
@@ -13,7 +13,7 @@ import {
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
-} from '../components';
+} from '../../components';
 
 function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {

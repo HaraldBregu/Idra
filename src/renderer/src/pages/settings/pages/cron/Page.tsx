@@ -5,7 +5,7 @@ import { AlertCircle, Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { OpenClawCronJob } from '../../../../../shared/cron';
+import type { OpenClawCronJob } from '../../../../../../shared/cron';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
@@ -13,8 +13,8 @@ import {
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
-} from '../components';
-import { formatSchedule, payloadSummary } from './cron-utils';
+} from '../../components';
+import { formatSchedule, payloadSummary } from './utils';
 
 function CronLoadingList(): React.JSX.Element {
 	return (

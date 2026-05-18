@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { DEFAULT_PROVIDERS } from '../../../../../shared/providers';
+import { DEFAULT_PROVIDERS } from '../../../../../../shared/providers';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
-} from '../components';
+} from '../../components';
 
 const MASKED_API_KEY = '••••••••' as const;
 

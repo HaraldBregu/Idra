@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { SettingsPageHeader, SettingsPageShell } from '../components';
+import { SettingsPageHeader, SettingsPageShell } from '../../components';
 import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../navigation';
 
 function SettingsOverviewCard({

@@ -14,9 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
-import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../components';
-import type { ChannelConnectionStatus, ChannelType } from '../../../../../shared/channels';
-import type { ChannelCatalogEntry } from '../../../../../shared/channel-catalog';
+import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
+import type { ChannelConnectionStatus, ChannelType } from '../../../../../../shared/channels';
+import type { ChannelCatalogEntry } from '../../../../../../shared/channel-catalog';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
 

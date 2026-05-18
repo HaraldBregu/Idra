@@ -4,7 +4,7 @@ import { Accessibility, FolderOpen, MonitorUp, PanelTop } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
-import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
 import { Switch } from '@/components/ui/switch';
 
 const GeneralPage: React.FC = () => {
