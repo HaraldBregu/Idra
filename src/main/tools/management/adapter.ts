@@ -117,7 +117,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
-	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
+	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
@@ -137,9 +137,9 @@ function inferPermissions(name: string, description = ''): string[] {
 			? ['calendar:write']
 			: ['calendar:read'];
 	}
-	if (['read', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
+	if (['read', 'find', 'inspect_file', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
 	if (name === 'startup_files') return ['agent:startup'];
-	if (['write', 'edit', 'apply_patch'].includes(name)) return ['workspace:write'];
+	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
 	if (name === 'cron') return ['calendar:read', 'calendar:write'];
@@ -152,7 +152,8 @@ function inferPermissions(name: string, description = ''): string[] {
 function inferSafety(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(send|trash|delete|create|update|modify)\b/.test(text) && /\b(gmail|email|mail|calendar|event)\b/.test(text)) return 'high';
-	if (['write', 'edit', 'apply_patch', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service', 'startup_files'].includes(name)) return 'high';
+	if (['write', 'edit', 'apply_patch', 'delete', 'move', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service', 'startup_files'].includes(name)) return 'high';
+	if (name === 'copy' || name === 'inspect_file') return 'medium';
 	if (
 		[
 			'web_fetch',
@@ -174,7 +175,7 @@ function inferLatency(name: string): Tool<Record<string, unknown>, AgentToolResu
 }
 
 function inferReliability(name: string): number {
-	if (['read', 'write', 'edit', 'find', 'update_plan'].includes(name)) return 0.95;
+	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'update_plan'].includes(name)) return 0.95;
 	if (['web_fetch', 'exec'].includes(name)) return 0.78;
 	return 0.88;
 }
@@ -192,13 +193,13 @@ function inferTags(name: string, category: ToolCategory): string[] {
 function inferPrivacy(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'private';
-	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'exec', 'process'].includes(name)) return 'private';
+	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'open_folder', 'exec', 'process'].includes(name)) return 'private';
 	if (name.includes('provider') || name.includes('agent')) return 'sensitive';
 	return 'internal';
 }
 
 function isReadOnly(name: string): boolean {
-	return ['read', 'find', 'web_fetch', 'get_workspace_content', 'get_workspace_path', 'get_provider_by_id', 'get_agent_service', 'get_agent_model', 'cron_list', 'process'].includes(name);
+	return ['read', 'find', 'inspect_file', 'web_fetch', 'get_workspace_content', 'get_workspace_path', 'get_provider_by_id', 'get_agent_service', 'get_agent_model', 'cron_list', 'process'].includes(name);
 }
 
 function isToolContext(value: unknown): value is ToolContext {
