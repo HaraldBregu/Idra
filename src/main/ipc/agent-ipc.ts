@@ -10,6 +10,7 @@ import type {
 	AgentPendingState,
 } from '../../shared/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
+import { DEFAULT_AGENT_ID } from '../constants';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
@@ -66,9 +67,9 @@ export class AgentIpc implements IpcModule {
 	readonly name = 'agent';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get('logger');
-		const agent = container.get('agentService');
-		const workspace = container.get('workspace');
+			const logger = container.get('logger');
+			const agent = container.get('agentService');
+			const startupFiles = container.get('startupFiles');
 
 		ipcMain.handle(
 			AgentChannels.send,
@@ -118,26 +119,26 @@ export class AgentIpc implements IpcModule {
 			}, AgentChannels.getPending)
 		);
 
-		ipcMain.handle(
-			AgentChannels.listWorkspaceFiles,
-			wrapSimpleHandler(() => {
-				return workspace.listWorkspaceFiles();
-			}, AgentChannels.listWorkspaceFiles)
-		);
+			ipcMain.handle(
+				AgentChannels.listWorkspaceFiles,
+				wrapSimpleHandler(() => {
+					return startupFiles.listFiles(DEFAULT_AGENT_ID);
+				}, AgentChannels.listWorkspaceFiles)
+			);
 
-		ipcMain.handle(
-			AgentChannels.readWorkspaceFile,
-			wrapSimpleHandler((name: string) => {
-				return workspace.readWorkspaceFile(name);
-			}, AgentChannels.readWorkspaceFile)
-		);
+			ipcMain.handle(
+				AgentChannels.readWorkspaceFile,
+				wrapSimpleHandler((name: string) => {
+					return startupFiles.readFile(DEFAULT_AGENT_ID, name);
+				}, AgentChannels.readWorkspaceFile)
+			);
 
-		ipcMain.handle(
-			AgentChannels.writeWorkspaceFile,
-			wrapSimpleHandler((name: string, content: string) => {
-				return workspace.writeWorkspaceFile(name, content);
-			}, AgentChannels.writeWorkspaceFile)
-		);
+			ipcMain.handle(
+				AgentChannels.writeWorkspaceFile,
+				wrapSimpleHandler((name: string, content: string) => {
+					return startupFiles.writeFile(DEFAULT_AGENT_ID, name, content);
+				}, AgentChannels.writeWorkspaceFile)
+			);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);
 	}
