@@ -3,27 +3,19 @@ import { AlertTriangle, Check, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared/providers';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
 	SettingsSection,
 } from '../../components';
 
 const MASKED_API_KEY = '••••••••' as const;
-
-function ProviderMark({ name }: { readonly name: string }): React.JSX.Element {
-	const initial = name.trim().slice(0, 1).toUpperCase();
-	return (
-		<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-semibold text-muted-foreground">
-			{initial}
-		</div>
-	);
-}
 
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -85,56 +77,114 @@ const ProvidersPage: React.FC = () => {
 			)}
 
 			<SettingsSection title={t('settings.providers.registeredProviders')}>
-				<div className="space-y-2">
+				<SettingsPanel>
 					{DEFAULT_PROVIDERS.map((provider) => {
 						const isSaved = apiKeyStatus[provider.id] ?? false;
 						const isEditing = editing[provider.id] ?? false;
 						const draft = drafts[provider.id] ?? '';
 						const isBusy = saving === provider.id;
 						const canSave = draft.trim().length > 0 && !isBusy;
+						const initial = provider.name.trim().slice(0, 1).toUpperCase();
 
 						return (
-							<Card
+							<Item
 								key={provider.id}
+								variant="outline"
+								size="md"
 								className={cn(
-									'rounded-lg border-border bg-card py-0 shadow-none',
-									isEditing && 'border-ring ring-2 ring-ring/20'
+									'border-b border-border/60 last:border-b-0',
+									isEditing && 'bg-muted/40 ring-1 ring-inset ring-ring/30'
 								)}
 							>
-								<CardContent className="p-0">
-									<div
-										className={cn(
-											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
-											isEditing && 'pb-2'
-										)}
-									>
-										<ProviderMark name={provider.name} />
-										<div className="min-w-0 flex-1">
-											<h2 className="truncate text-sm font-semibold leading-tight text-foreground">
-												{provider.name}
-											</h2>
-											<p className="truncate font-mono text-xs font-medium leading-tight text-muted-foreground">
-												{provider.baseUrl}
-											</p>
+								<ItemMedia variant="icon" className="size-8 text-sm font-semibold">
+									{initial}
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="w-full max-w-full truncate text-sm font-semibold leading-tight">
+										{provider.name}
+									</ItemTitle>
+									<p className="w-full truncate font-mono text-xs font-medium leading-tight text-muted-foreground">
+										{provider.baseUrl}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end gap-2">
+									{isSaved && !isEditing ? (
+										<>
+											<Badge variant="secondary" className="h-6 rounded-md px-2 text-xs font-semibold">
+												<Check className="size-3" />
+												{t('settings.providers.keySaved')}
+											</Badge>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon-xs"
+												aria-label={`Edit ${provider.name} API key`}
+												onClick={() => startEditing(provider.id)}
+											>
+												<Pencil className="size-3.5" />
+											</Button>
+										</>
+									) : !isEditing ? (
+										<Button
+											type="button"
+											variant="outline"
+											size="xs"
+											onClick={() => startEditing(provider.id)}
+										>
+											Add key
+										</Button>
+									) : null}
+								</ItemActions>
+
+								{isEditing && (
+									<div className="flex w-full flex-col gap-2 pl-11 sm:flex-row sm:items-center">
+										<Input
+											autoComplete="off"
+											type="password"
+											value={draft}
+											onChange={(e) =>
+												setDrafts((current) => ({ ...current, [provider.id]: e.target.value }))
+											}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' && canSave) void saveApiKey(provider.id);
+											}}
+											placeholder={t('settings.providers.apiKeyPlaceholder')}
+											className="h-8 flex-1 rounded-md px-2.5 text-xs"
+											aria-label={`${provider.name} API key`}
+											disabled={isBusy}
+										/>
+										<div className="flex shrink-0 items-center gap-2">
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												disabled={isBusy}
+												onClick={() => cancelEditing(provider.id)}
+											>
+												{t('common.cancel')}
+											</Button>
+											<Button
+												type="button"
+												size="sm"
+												disabled={!canSave}
+												onClick={() => void saveApiKey(provider.id)}
+											>
+												{isBusy && <LoaderCircle className="size-3.5 animate-spin" />}
+												{t('common.save')}
+											</Button>
 										</div>
-										<div className="flex shrink-0 items-center justify-end gap-2">
-											{isSaved && !isEditing ? (
-												<>
-													<Badge variant="secondary" className="h-6 rounded-md px-2 text-xs font-semibold">
-														<Check className="size-3" />
-														{t('settings.providers.keySaved')}
-													</Badge>
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon-xs"
-														aria-label={`Edit ${provider.name} API key`}
-														onClick={() => startEditing(provider.id)}
-													>
-														<Pencil className="size-3.5" />
-													</Button>
-												</>
-											) : !isEditing ? (
+									</div>
+								)}
+							</Item>
+						);
+					})}
+				</SettingsPanel>
+			</SettingsSection>
+		</SettingsPageShell>
+	);
+};
+
+export default ProvidersPage;
 												<Button
 													type="button"
 													variant="outline"
