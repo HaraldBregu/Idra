@@ -22,8 +22,14 @@ export type FileReadDetails = {
 
 const DEFAULT_MAX_LINES = TOOL_LIMITS.read.defaultLines;
 
-function resolveWorkspacePath(workspaceDir: string, target: string, allowAbsolutePaths = false): string {
-	const resolved = path.isAbsolute(target) ? path.resolve(target) : path.resolve(workspaceDir, target);
+function resolveWorkspacePath(
+	workspaceDir: string,
+	target: string,
+	allowAbsolutePaths = false
+): string {
+	const resolved = path.isAbsolute(target)
+		? path.resolve(target)
+		: path.resolve(workspaceDir, target);
 	const root = path.resolve(workspaceDir);
 	const insideRoot = resolved === root || resolved.startsWith(`${root}${path.sep}`);
 	if (!insideRoot && !allowAbsolutePaths) {
@@ -39,7 +45,9 @@ function throwIfAborted(signal?: AbortSignal): void {
 	throw error;
 }
 
-export function createReadTool(options: FileReadToolOptions): AgentTool<Record<string, unknown>, FileReadDetails> {
+export function createReadTool(
+	options: FileReadToolOptions
+): AgentTool<Record<string, unknown>, FileReadDetails> {
 	return markCoreTool({
 		name: 'read',
 		label: 'Read File',
@@ -63,7 +71,7 @@ export function createReadTool(options: FileReadToolOptions): AgentTool<Record<s
 			const limit = readNumberParam(record, 'limit', {
 				defaultValue: options.maxLines ?? DEFAULT_MAX_LINES,
 				min: 1,
-					max: TOOL_LIMITS.read.maxLines,
+				max: TOOL_LIMITS.read.maxLines,
 				integer: true,
 			})!;
 			const absolutePath = resolveWorkspacePath(
@@ -78,7 +86,9 @@ export function createReadTool(options: FileReadToolOptions): AgentTool<Record<s
 			const lines = raw.split('\n');
 			const startIndex = offset - 1;
 			const slice = lines.slice(startIndex, startIndex + limit);
-			const text = slice.map((line, index) => `${String(offset + index).padStart(6, ' ')}\t${line}`).join('\n');
+			const text = slice
+				.map((line, index) => `${String(offset + index).padStart(6, ' ')}\t${line}`)
+				.join('\n');
 			const truncated = startIndex + limit < lines.length;
 			return {
 				content: [

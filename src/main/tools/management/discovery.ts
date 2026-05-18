@@ -1,5 +1,13 @@
 import { ToolRanker } from './ranker';
-import { TOOL_PRIVACY_ORDER, TOOL_SAFETY_ORDER, type RankedTool, type RelevantMemory, type SessionContext, type Tool, type ToolCategory } from './types';
+import {
+	TOOL_PRIVACY_ORDER,
+	TOOL_SAFETY_ORDER,
+	type RankedTool,
+	type RelevantMemory,
+	type SessionContext,
+	type Tool,
+	type ToolCategory,
+} from './types';
 import type { ToolRegistry } from './registry';
 import { TOOL_LIMITS } from '../limits';
 
@@ -38,7 +46,9 @@ export class ToolDiscovery {
 }
 
 export function hasPermissions(tool: Tool, availablePermissions: ReadonlySet<string>): boolean {
-	return tool.permissionsRequired.every((permission) => availablePermissions.has(permission) || availablePermissions.has('*'));
+	return tool.permissionsRequired.every(
+		(permission) => availablePermissions.has(permission) || availablePermissions.has('*')
+	);
 }
 
 function passesSafety(tool: Tool, sessionContext: SessionContext): boolean {
@@ -47,10 +57,17 @@ function passesSafety(tool: Tool, sessionContext: SessionContext): boolean {
 }
 
 function passesPrivacy(tool: Tool, sessionContext: SessionContext): boolean {
-	const allowed = sessionContext.privacyConstraints?.allowedPrivacyLevels ?? ['public', 'internal', 'private'];
+	const allowed = sessionContext.privacyConstraints?.allowedPrivacyLevels ?? [
+		'public',
+		'internal',
+		'private',
+	];
 	const privacy = tool.metadata.privacyLevel ?? 'public';
 	if (!allowed.includes(privacy)) return false;
-	if (sessionContext.privacyConstraints?.disallowExternalPrivateData && TOOL_PRIVACY_ORDER[privacy] >= TOOL_PRIVACY_ORDER.private) {
+	if (
+		sessionContext.privacyConstraints?.disallowExternalPrivateData &&
+		TOOL_PRIVACY_ORDER[privacy] >= TOOL_PRIVACY_ORDER.private
+	) {
 		return tool.category !== 'web' && tool.category !== 'search' && tool.category !== 'internalApi';
 	}
 	return true;

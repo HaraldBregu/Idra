@@ -35,7 +35,8 @@ export function agentToolToManagedTool(
 			required: ['status', 'content'],
 			additionalProperties: true,
 		},
-		permissionsRequired: options.permissionsRequired ?? inferPermissions(agentTool.name, agentTool.description),
+		permissionsRequired:
+			options.permissionsRequired ?? inferPermissions(agentTool.name, agentTool.description),
 		safetyLevel: inferSafety(agentTool.name, agentTool.description),
 		costEstimate: { amount: 0, currency: 'none', unit: 'call', tier: 'free' },
 		latencyEstimate: inferLatency(agentTool.name),
@@ -48,13 +49,16 @@ export function agentToolToManagedTool(
 		owner: options.owner ?? 'friday',
 		metadata: {
 			whenToUse: agentTool.description,
-			whenNotToUse: 'Do not use if the user request can be answered directly without this capability.',
-				privacyLevel: inferPrivacy(agentTool.name, agentTool.description),
-				readOnly: isReadOnly(agentTool.name),
-				executionTimeoutMs: inferExecutionTimeout(agentTool.name),
-				requiresConfirmation: false,
+			whenNotToUse:
+				'Do not use if the user request can be answered directly without this capability.',
+			privacyLevel: inferPrivacy(agentTool.name, agentTool.description),
+			readOnly: isReadOnly(agentTool.name),
+			executionTimeoutMs: inferExecutionTimeout(agentTool.name),
+			requiresConfirmation: false,
 			cacheable: isReadOnly(agentTool.name),
-			safetyNotes: agentTool.needsApproval ? 'Legacy approval gate applies before execution.' : undefined,
+			safetyNotes: agentTool.needsApproval
+				? 'Legacy approval gate applies before execution.'
+				: undefined,
 		},
 		async execute(input: Record<string, unknown>, context: ToolExecutionContext) {
 			const startedAt = new Date();
@@ -74,10 +78,10 @@ export function agentToolToManagedTool(
 						finishedAt: new Date(),
 					});
 				}
-					const data = await agentTool.execute(input, {
-						...legacyContext,
-						signal: context.signal,
-					});
+				const data = await agentTool.execute(input, {
+					...legacyContext,
+					signal: context.signal,
+				});
 				return createToolResult({
 					toolId: id,
 					success: data.status === 'ok',
@@ -86,7 +90,9 @@ export function agentToolToManagedTool(
 						data.status === 'error'
 							? {
 									code: 'AGENT_TOOL_ERROR',
-									message: data.content.map((block) => (block.type === 'text' ? (block.text ?? '') : '')).join('\n'),
+									message: data.content
+										.map((block) => (block.type === 'text' ? (block.text ?? '') : ''))
+										.join('\n'),
 									retryable: false,
 									category: 'provider',
 								}
@@ -122,11 +128,34 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
-	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
+	if (
+		[
+			'read',
+			'write',
+			'edit',
+			'apply_patch',
+			'delete',
+			'copy',
+			'move',
+			'inspect_file',
+			'find',
+			'get_workspace_content',
+			'get_workspace_path',
+			'startup_files',
+		].includes(name)
+	)
+		return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
-	if (name.includes('provider') || name.includes('agent') || name.includes('app') || name.includes('theme') || name.includes('menu')) return 'internalApi';
+	if (
+		name.includes('provider') ||
+		name.includes('agent') ||
+		name.includes('app') ||
+		name.includes('theme') ||
+		name.includes('menu')
+	)
+		return 'internalApi';
 	return 'utility';
 }
 
@@ -138,13 +167,15 @@ function inferPermissions(name: string, description = ''): string[] {
 			: ['email:read'];
 	}
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) {
-		return /\b(create|update|delete|write)\b/.test(text)
-			? ['calendar:write']
-			: ['calendar:read'];
+		return /\b(create|update|delete|write)\b/.test(text) ? ['calendar:write'] : ['calendar:read'];
 	}
-	if (['read', 'find', 'inspect_file', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
+	if (
+		['read', 'find', 'inspect_file', 'get_workspace_content', 'get_workspace_path'].includes(name)
+	)
+		return ['workspace:read'];
 	if (name === 'startup_files') return ['agent:startup'];
-	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name)) return ['workspace:write'];
+	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name))
+		return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
 	if (name === 'cron') return ['calendar:read', 'calendar:write'];
@@ -154,37 +185,79 @@ function inferPermissions(name: string, description = ''): string[] {
 	return [];
 }
 
-function inferSafety(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
+function inferSafety(
+	name: string,
+	description = ''
+): Tool<Record<string, unknown>, AgentToolResult>['safetyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
-	if (/\b(send|trash|delete|create|update|modify)\b/.test(text) && /\b(gmail|email|mail|calendar|event)\b/.test(text)) return 'high';
-	if (['write', 'edit', 'apply_patch', 'delete', 'move', 'exec', 'cron', 'cron_add', 'cron_remove', 'set_provider_api_key', 'set_agent_service', 'startup_files'].includes(name)) return 'high';
-	if (name === 'copy' || name === 'inspect_file') return 'medium';
+	if (
+		/\b(send|trash|delete|create|update|modify)\b/.test(text) &&
+		/\b(gmail|email|mail|calendar|event)\b/.test(text)
+	)
+		return 'high';
 	if (
 		[
-			'web_fetch',
-			'open_accessibility',
-			'open_screen_recording',
+			'write',
+			'edit',
+			'apply_patch',
+			'delete',
+			'move',
+			'exec',
+			'cron',
+			'cron_add',
+			'cron_remove',
+			'set_provider_api_key',
+			'set_agent_service',
+			'startup_files',
 		].includes(name)
 	)
-		return 'medium';
+		return 'high';
+	if (name === 'copy' || name === 'inspect_file') return 'medium';
+	if (['web_fetch', 'open_accessibility', 'open_screen_recording'].includes(name)) return 'medium';
 	return 'low';
 }
 
-function inferLatency(name: string): Tool<Record<string, unknown>, AgentToolResult>['latencyEstimate'] {
+function inferLatency(
+	name: string
+): Tool<Record<string, unknown>, AgentToolResult>['latencyEstimate'] {
 	if (name === 'exec') return { p50Ms: 1_000, p95Ms: TOOL_LIMITS.exec.timeoutMs };
 	if (name.includes('web')) return { p50Ms: 800, p95Ms: 5_000 };
 	return { p50Ms: 50, p95Ms: 500 };
 }
 
 function inferReliability(name: string): number {
-	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'update_plan'].includes(name)) return 0.95;
+	if (
+		[
+			'read',
+			'write',
+			'edit',
+			'apply_patch',
+			'delete',
+			'copy',
+			'move',
+			'inspect_file',
+			'find',
+			'update_plan',
+		].includes(name)
+	)
+		return 0.95;
 	if (['web_fetch', 'exec'].includes(name)) return 0.78;
 	return 0.88;
 }
 
 function inferRateLimit(name: string): Tool<Record<string, unknown>, AgentToolResult>['rateLimit'] {
-	if (name === 'web_fetch') return { maxCalls: TOOL_LIMITS.webFetch.rateLimitCalls, windowMs: TOOL_LIMITS.webFetch.rateLimitWindowMs, scope: 'session' };
-	if (name === 'exec') return { maxCalls: TOOL_LIMITS.exec.rateLimitCalls, windowMs: TOOL_LIMITS.exec.rateLimitWindowMs, scope: 'session' };
+	if (name === 'web_fetch')
+		return {
+			maxCalls: TOOL_LIMITS.webFetch.rateLimitCalls,
+			windowMs: TOOL_LIMITS.webFetch.rateLimitWindowMs,
+			scope: 'session',
+		};
+	if (name === 'exec')
+		return {
+			maxCalls: TOOL_LIMITS.exec.rateLimitCalls,
+			windowMs: TOOL_LIMITS.exec.rateLimitWindowMs,
+			scope: 'session',
+		};
 	return undefined;
 }
 
@@ -197,18 +270,55 @@ function inferTags(name: string, category: ToolCategory): string[] {
 	return [category, ...name.split('_')].filter(Boolean);
 }
 
-function inferPrivacy(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
+function inferPrivacy(
+	name: string,
+	description = ''
+): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
-	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'private';
-	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process'].includes(name)) return 'private';
+	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment)\b/.test(text))
+		return 'private';
+	if (
+		[
+			'read',
+			'write',
+			'edit',
+			'apply_patch',
+			'delete',
+			'copy',
+			'move',
+			'inspect_file',
+			'find',
+			'exec',
+			'process',
+		].includes(name)
+	)
+		return 'private';
 	if (name.includes('provider') || name.includes('agent')) return 'sensitive';
 	return 'internal';
 }
 
 function isReadOnly(name: string): boolean {
-	return ['read', 'find', 'inspect_file', 'web_fetch', 'get_workspace_content', 'get_workspace_path', 'get_provider_by_id', 'get_agent_service', 'get_agent_model', 'cron_list', 'process'].includes(name);
+	return [
+		'read',
+		'find',
+		'inspect_file',
+		'web_fetch',
+		'get_workspace_content',
+		'get_workspace_path',
+		'get_provider_by_id',
+		'get_agent_service',
+		'get_agent_model',
+		'cron_list',
+		'process',
+	].includes(name);
 }
 
 function isToolContext(value: unknown): value is ToolContext {
-	return typeof value === 'object' && value !== null && 'workspace' in value && 'sessionId' in value && 'services' in value;
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		'workspace' in value &&
+		'sessionId' in value &&
+		'services' in value
+	);
 }

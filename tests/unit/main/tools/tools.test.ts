@@ -18,11 +18,23 @@ import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
 import { openBrowserTool } from '../../../../src/main/tools/app';
-import { cronAddTool, cronListTool, cronRemoveTool, cronTool } from '../../../../src/main/tools/cron';
+import {
+	cronAddTool,
+	cronListTool,
+	cronRemoveTool,
+	cronTool,
+} from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
-import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from '../../../../src/main/tools/services';
+import {
+	getAgentModelTool,
+	getAgentServiceTool,
+	setAgentServiceTool,
+} from '../../../../src/main/tools/services';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
-import { getWorkspaceContentTool, getWorkspacePathTool } from '../../../../src/main/tools/workspace';
+import {
+	getWorkspaceContentTool,
+	getWorkspacePathTool,
+} from '../../../../src/main/tools/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
@@ -43,16 +55,32 @@ describe('tools/policy and registry', () => {
 	}));
 
 	it('filters by profile, allow globs, and deny globs', () => {
-		expect(filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)).toEqual([]);
-		expect(filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read'], deny: [] }).map((t) => t.name)).toEqual(['read']);
-		expect(filterTools(all, { profile: 'full', allow: ['w*'], deny: ['web_*'] }).map((t) => t.name)).toEqual(['write']);
-		expect(createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')).toBe(false);
+		expect(
+			filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)
+		).toEqual([]);
+		expect(
+			filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read'], deny: [] }).map(
+				(t) => t.name
+			)
+		).toEqual(['read']);
+		expect(
+			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['web_*'] }).map((t) => t.name)
+		).toEqual(['write']);
+		expect(
+			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
+		).toBe(false);
 	});
 });
 
 describe('tools/before-call', () => {
 	it('auto-allows legacy approval-marked tools and warns on repeated identical calls', async () => {
-		const tool: AgentTool = { name: 'write', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
+		const tool: AgentTool = {
+			name: 'write',
+			description: '',
+			schema: {},
+			needsApproval: true,
+			execute: jest.fn(),
+		};
 		const ask = jest.fn(async () => 'allow-always' as const);
 		const ctx = makeToolContext({ approveStream: { ask } });
 		const tracker = newCallTracker();
@@ -66,7 +94,13 @@ describe('tools/before-call', () => {
 	});
 
 	it('does not ask the approval stream for legacy approval markers', async () => {
-		const tool: AgentTool = { name: 'write', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
+		const tool: AgentTool = {
+			name: 'write',
+			description: '',
+			schema: {},
+			needsApproval: true,
+			execute: jest.fn(),
+		};
 		const ask = jest.fn(async () => 'allow-once' as const);
 		const ctx = makeToolContext({ approveStream: { ask } });
 		const tracker = newCallTracker();
@@ -77,7 +111,13 @@ describe('tools/before-call', () => {
 	});
 
 	it('ignores denied and unavailable approval streams before execution', async () => {
-		const tool: AgentTool = { name: 'exec', description: '', schema: {}, needsApproval: true, execute: jest.fn() };
+		const tool: AgentTool = {
+			name: 'exec',
+			description: '',
+			schema: {},
+			needsApproval: true,
+			execute: jest.fn(),
+		};
 		const tracker = newCallTracker();
 		const denied = await beforeToolCall(
 			tool,
@@ -109,10 +149,16 @@ describe('tools/fs', () => {
 		const read = await readTool.execute({ path: 'a.txt', limit: 2 }, ctx);
 		expect(read.content[0]?.text).toContain('1\tone');
 
-		const blocked = await writeTool.execute({ path: 'a.txt', content: 'x' }, makeToolContext({ workspace }));
+		const blocked = await writeTool.execute(
+			{ path: 'a.txt', content: 'x' },
+			makeToolContext({ workspace })
+		);
 		expect(blocked.status).toBe('error');
 
-		const edit = await editTool.execute({ path: 'a.txt', old: 'one', new: 'ONE', replaceAll: true }, ctx);
+		const edit = await editTool.execute(
+			{ path: 'a.txt', old: 'one', new: 'ONE', replaceAll: true },
+			ctx
+		);
 		expect(edit.status).toBe('ok');
 		await expect(fs.readFile(path.join(workspace, 'a.txt'), 'utf8')).resolves.toContain('ONE');
 
@@ -131,11 +177,15 @@ describe('tools/fs', () => {
 		const ctx = makeToolContext({ workspace, fsPolicy: { workspaceOnly: true } });
 
 		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
-		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe('error');
-		await expect(writeTool.execute(
-			{ path: 'new.txt', content: 'x' },
-			makeToolContext({ workspace, fsPolicy: { readOnly: true } })
-		)).resolves.toMatchObject({ status: 'error' });
+		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
+			'error'
+		);
+		await expect(
+			writeTool.execute(
+				{ path: 'new.txt', content: 'x' },
+				makeToolContext({ workspace, fsPolicy: { readOnly: true } })
+			)
+		).resolves.toMatchObject({ status: 'error' });
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
@@ -148,17 +198,20 @@ describe('tools/fs', () => {
 		const ctx = makeToolContext({ workspace });
 		await readTool.execute({ path: 'patch.txt' }, ctx);
 
-		const result = await applyPatchTool.execute({
-			diff: [
-				'--- a/patch.txt',
-				'+++ b/patch.txt',
-				'@@ -1,3 +1,3 @@',
-				' one',
-				'-two',
-				'+TWO',
-				' three',
-			].join('\n'),
-		}, ctx);
+		const result = await applyPatchTool.execute(
+			{
+				diff: [
+					'--- a/patch.txt',
+					'+++ b/patch.txt',
+					'@@ -1,3 +1,3 @@',
+					' one',
+					'-two',
+					'+TWO',
+					' three',
+				].join('\n'),
+			},
+			ctx
+		);
 
 		expect(result.status).toBe('ok');
 		await expect(fs.readFile(file, 'utf8')).resolves.toBe('one\nTWO\nthree\n');
@@ -176,15 +229,21 @@ describe('tools/fs', () => {
 		);
 		await fs.writeFile(path.join(workspace, 'pixel.png'), png);
 
-		expect((await copyTool.execute({ source: 'source.txt', destination: 'copy.txt' }, ctx)).status).toBe('ok');
+		expect(
+			(await copyTool.execute({ source: 'source.txt', destination: 'copy.txt' }, ctx)).status
+		).toBe('ok');
 		await expect(fs.readFile(path.join(workspace, 'copy.txt'), 'utf8')).resolves.toBe('alpha');
 
 		await readTool.execute({ path: 'copy.txt' }, ctx);
-		expect((await moveTool.execute({ source: 'copy.txt', destination: 'moved.txt' }, ctx)).status).toBe('ok');
+		expect(
+			(await moveTool.execute({ source: 'copy.txt', destination: 'moved.txt' }, ctx)).status
+		).toBe('ok');
 		await expect(fs.readFile(path.join(workspace, 'moved.txt'), 'utf8')).resolves.toBe('alpha');
 		await expect(fs.stat(path.join(workspace, 'copy.txt'))).rejects.toThrow();
 
-		expect((await deleteTool.execute({ path: 'delete-me.txt' }, makeToolContext({ workspace }))).status).toBe('error');
+		expect(
+			(await deleteTool.execute({ path: 'delete-me.txt' }, makeToolContext({ workspace }))).status
+		).toBe('error');
 		await readTool.execute({ path: 'delete-me.txt' }, ctx);
 		expect((await deleteTool.execute({ path: 'delete-me.txt' }, ctx)).status).toBe('ok');
 		await expect(fs.stat(path.join(workspace, 'delete-me.txt'))).rejects.toThrow();
@@ -193,7 +252,11 @@ describe('tools/fs', () => {
 		expect(inspected.status).toBe('ok');
 		expect(inspected.content).toEqual(
 			expect.arrayContaining([
-				expect.objectContaining({ type: 'image', mimeType: 'image/png', base64: expect.any(String) }),
+				expect.objectContaining({
+					type: 'image',
+					mimeType: 'image/png',
+					base64: expect.any(String),
+				}),
 			])
 		);
 		expect(inspected.content[0]?.text).toContain('dimensions: 1x1');
@@ -245,7 +308,10 @@ describe('tools/exec', () => {
 
 	it('starts and inspects background processes', async () => {
 		const workspace = await makeTempDir();
-		const started = await execTool.execute({ command: 'printf bg', background: true }, makeToolContext({ workspace }));
+		const started = await execTool.execute(
+			{ command: 'printf bg', background: true },
+			makeToolContext({ workspace })
+		);
 		expect(started.status).toBe('ok');
 		const id = /process (\d+)/.exec(started.content[0]?.text ?? '')?.[1];
 		expect(id).toBeDefined();
@@ -259,7 +325,10 @@ describe('tools/exec', () => {
 describe('tools/plan', () => {
 	it('updates plan state in the tool context', async () => {
 		const ctx = makeToolContext();
-		const result = await updatePlanTool.execute({ plan: [{ task: 'ship', status: 'in_progress' }] }, ctx);
+		const result = await updatePlanTool.execute(
+			{ plan: [{ task: 'ship', status: 'in_progress' }] },
+			ctx
+		);
 		expect(result.status).toBe('ok');
 		expect(ctx.plan.entries).toEqual([{ task: 'ship', status: 'in_progress' }]);
 	});
@@ -270,7 +339,9 @@ describe('tools/app, cron, providers, services, workspace', () => {
 		const ctx = makeToolContext();
 		expect((await openBrowserTool.execute({ url: 'https://example.com' }, ctx)).status).toBe('ok');
 		expect(shell.openExternal).toHaveBeenCalledWith('https://example.com');
-		expect((await openBrowserTool.execute({ url: 'file:///tmp/secret' }, ctx)).status).toBe('error');
+		expect((await openBrowserTool.execute({ url: 'file:///tmp/secret' }, ctx)).status).toBe(
+			'error'
+		);
 	});
 
 	it('manages cron tools through CronService', async () => {
@@ -281,8 +352,17 @@ describe('tools/app, cron, providers, services, workspace', () => {
 			has: jest.fn((id: string) => jobs.has(id)),
 			unschedule: jest.fn((id: string) => jobs.delete(id)),
 		};
-		const ctx = makeToolContext({ services: { ...makeToolContext().services, cron: cron as never } });
-		expect((await cronAddTool.execute({ id: 'job1', expression: '* * * * *', data: { type: 'agent' } }, ctx)).status).toBe('ok');
+		const ctx = makeToolContext({
+			services: { ...makeToolContext().services, cron: cron as never },
+		});
+		expect(
+			(
+				await cronAddTool.execute(
+					{ id: 'job1', expression: '* * * * *', data: { type: 'agent' } },
+					ctx
+				)
+			).status
+		).toBe('ok');
 		expect((await cronListTool.execute({}, ctx)).content[0]?.text).toContain('job1');
 		expect((await cronRemoveTool.execute({ job_id: 'job1' }, ctx)).status).toBe('ok');
 	});
@@ -295,20 +375,30 @@ describe('tools/app, cron, providers, services, workspace', () => {
 				result: { enabled: true, timerArmed: false, jobCount: 0, runningCount: 0 },
 			})),
 		};
-		const ctx = makeToolContext({ services: { ...makeToolContext().services, cron: cron as never } });
+		const ctx = makeToolContext({
+			services: { ...makeToolContext().services, cron: cron as never },
+		});
 
 		const result = await cronTool.execute({ action: 'status' }, ctx);
 
 		expect(result.status).toBe('ok');
-		expect(cron.fridayAction).toHaveBeenCalledWith({ action: 'status' }, {
-			role: 'owner',
-			sessionId: 'test-session',
-		});
+		expect(cron.fridayAction).toHaveBeenCalledWith(
+			{ action: 'status' },
+			{
+				role: 'owner',
+				sessionId: 'test-session',
+			}
+		);
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
 	});
 
 	it('reads and updates provider and agent settings through StoreService', async () => {
-		const provider = { id: 'openai', name: 'OpenAI', apiKey: 'sk', baseUrl: 'https://api.openai.com/v1' };
+		const provider = {
+			id: 'openai',
+			name: 'OpenAI',
+			apiKey: 'sk',
+			baseUrl: 'https://api.openai.com/v1',
+		};
 		const store = {
 			getProviderById: jest.fn(() => provider),
 			setOpenAiApiKey: jest.fn(),
@@ -317,13 +407,26 @@ describe('tools/app, cron, providers, services, workspace', () => {
 			getAgentModel: jest.fn(() => ({ id: 'gpt', name: 'GPT' })),
 			setAgentService: jest.fn(() => true),
 		};
-		const ctx = makeToolContext({ services: { ...makeToolContext().services, store: store as never } });
-		expect((await getProviderByIdTool.execute({ id: 'openai' }, ctx)).content[0]?.text).toContain('OpenAI');
-		expect((await setProviderApiKeyTool.execute({ id: 'openai', apiKey: 'new' }, ctx)).status).toBe('ok');
+		const ctx = makeToolContext({
+			services: { ...makeToolContext().services, store: store as never },
+		});
+		expect((await getProviderByIdTool.execute({ id: 'openai' }, ctx)).content[0]?.text).toContain(
+			'OpenAI'
+		);
+		expect((await setProviderApiKeyTool.execute({ id: 'openai', apiKey: 'new' }, ctx)).status).toBe(
+			'ok'
+		);
 		expect(store.setOpenAiApiKey).toHaveBeenCalledWith('new');
 		expect((await getAgentServiceTool.execute({}, ctx)).content[0]?.text).toContain('GPT');
 		expect((await getAgentModelTool.execute({}, ctx)).content[0]?.text).toContain('gpt');
-		expect((await setAgentServiceTool.execute({ providerId: 'openai', modelId: 'gpt', modelName: 'GPT' }, ctx)).status).toBe('ok');
+		expect(
+			(
+				await setAgentServiceTool.execute(
+					{ providerId: 'openai', modelId: 'gpt', modelName: 'GPT' },
+					ctx
+				)
+			).status
+		).toBe('ok');
 	});
 
 	it('lists workspace content and returns workspace path', async () => {
@@ -341,7 +444,9 @@ describe('tools/app, cron, providers, services, workspace', () => {
 		const root = await makeTempDir();
 		const services = {
 			...makeToolContext().services,
-			startupFiles: new AgentStartupFilesService({ rootPath: path.join(root, 'agent', 'workspaces') }),
+			startupFiles: new AgentStartupFilesService({
+				rootPath: path.join(root, 'agent', 'workspaces'),
+			}),
 		};
 		const ctx = makeToolContext({ agentId: 'main', services });
 
@@ -349,11 +454,14 @@ describe('tools/app, cron, providers, services, workspace', () => {
 		expect(listed.status).toBe('ok');
 		expect(listed.content[0]?.text).toContain('IDENTITY.md');
 
-		const wrote = await startupFilesTool.execute({
-			action: 'write',
-			name: 'IDENTITY.md',
-			content: 'identity',
-		}, ctx);
+		const wrote = await startupFilesTool.execute(
+			{
+				action: 'write',
+				name: 'IDENTITY.md',
+				content: 'identity',
+			},
+			ctx
+		);
 		expect(wrote.status).toBe('ok');
 
 		const read = await startupFilesTool.execute({ action: 'read', name: 'IDENTITY.md' }, ctx);
@@ -361,7 +469,9 @@ describe('tools/app, cron, providers, services, workspace', () => {
 
 		const completed = await startupFilesTool.execute({ action: 'complete_bootstrap' }, ctx);
 		expect(completed.status).toBe('ok');
-		await expect(fs.access(path.join(root, 'agent', 'workspaces', 'main', 'BOOTSTRAP.md'))).rejects.toThrow();
+		await expect(
+			fs.access(path.join(root, 'agent', 'workspaces', 'main', 'BOOTSTRAP.md'))
+		).rejects.toThrow();
 		await fs.rm(root, { recursive: true, force: true });
 	});
 });

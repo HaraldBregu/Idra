@@ -1,4 +1,9 @@
-import { InMemoryToolAuditLog, redactSensitive, summarizeOutput, type ToolAuditLog } from './audit-log';
+import {
+	InMemoryToolAuditLog,
+	redactSensitive,
+	summarizeOutput,
+	type ToolAuditLog,
+} from './audit-log';
 import { validateJsonSchema } from './schema';
 import { createToolResult, type Tool, type ToolExecutionContext, type ToolResult } from './types';
 import { ToolOutputValidator } from './output-validator';
@@ -61,7 +66,10 @@ export class ToolExecutor {
 				const timeoutMs = executionTimeoutMs(tool, this.defaultTimeoutMs);
 				const controller = new AbortController();
 				const result = await this.withTimeout(
-					tool.execute(input, { ...context, signal: mergeAbortSignals(context.signal, controller.signal) }),
+					tool.execute(input, {
+						...context,
+						signal: mergeAbortSignals(context.signal, controller.signal),
+					}),
 					timeoutMs,
 					tool.id,
 					retryCount,
@@ -78,9 +86,15 @@ export class ToolExecutor {
 			await this.sleep(this.backoffMs * retryCount);
 		}
 
-		const finished = lastResult ?? this.errorResult(tool.id, startedAt, retryCount, new Error('tool did not return a result'));
+		const finished =
+			lastResult ??
+			this.errorResult(tool.id, startedAt, retryCount, new Error('tool did not return a result'));
 		if (finished.success) {
-			const output = this.outputValidator.validate(finished, tool.outputSchema, tool.metadata.maxAgeMs);
+			const output = this.outputValidator.validate(
+				finished,
+				tool.outputSchema,
+				tool.metadata.maxAgeMs
+			);
 			if (output.status === 'invalid') {
 				const invalid = createToolResult<TOutput>({
 					toolId: tool.id,
@@ -100,11 +114,17 @@ export class ToolExecutor {
 				await this.audit(tool, input, context, invalid);
 				return invalid;
 			}
-			finished.warnings.push(...output.warnings.filter((warning) => !finished.warnings.includes(warning)));
+			finished.warnings.push(
+				...output.warnings.filter((warning) => !finished.warnings.includes(warning))
+			);
 			if (output.normalizedData !== undefined) {
 				finished.data = output.normalizedData as TOutput;
 			}
-			finished.metadata = { ...finished.metadata, provenance: output.provenance, outputStatus: output.status };
+			finished.metadata = {
+				...finished.metadata,
+				provenance: output.provenance,
+				outputStatus: output.status,
+			};
 		}
 		await this.audit(tool, input, context, finished);
 		return finished;
@@ -121,7 +141,12 @@ export class ToolExecutor {
 			return createToolResult<TOutput>({
 				toolId: tool.id,
 				success: false,
-				error: { code: 'INPUT_SCHEMA_INVALID', message: validation.errors.join('; '), retryable: false, category: 'validation' },
+				error: {
+					code: 'INPUT_SCHEMA_INVALID',
+					message: validation.errors.join('; '),
+					retryable: false,
+					category: 'validation',
+				},
 				startedAt,
 				finishedAt: new Date(),
 			});
@@ -141,13 +166,15 @@ export class ToolExecutor {
 		if (!tool.rateLimit) return undefined;
 		const scopeKey =
 			tool.rateLimit.scope === 'user'
-				? context.userId ?? 'anonymous'
+				? (context.userId ?? 'anonymous')
 				: tool.rateLimit.scope === 'session'
 					? context.sessionId
 					: tool.id;
 		const key = `${tool.id}:${scopeKey}`;
 		const now = startedAt.getTime();
-		const bucket = (this.rateLimitBuckets.get(key) ?? []).filter((timestamp) => now - timestamp < tool.rateLimit!.windowMs);
+		const bucket = (this.rateLimitBuckets.get(key) ?? []).filter(
+			(timestamp) => now - timestamp < tool.rateLimit!.windowMs
+		);
 		if (bucket.length >= tool.rateLimit.maxCalls) {
 			this.rateLimitBuckets.set(key, bucket);
 			return createToolResult<TOutput>({
@@ -168,7 +195,11 @@ export class ToolExecutor {
 		return undefined;
 	}
 
-	private checkTurnLimit<TOutput>(toolId: string, context: ToolExecutionContext, startedAt: Date): ToolResult<TOutput> | undefined {
+	private checkTurnLimit<TOutput>(
+		toolId: string,
+		context: ToolExecutionContext,
+		startedAt: Date
+	): ToolResult<TOutput> | undefined {
 		const turnKey = context.turnId ?? context.sessionId;
 		const count = (this.turnCallCounts.get(turnKey) ?? 0) + 1;
 		this.turnCallCounts.set(turnKey, count);
@@ -199,11 +230,11 @@ export class ToolExecutor {
 		try {
 			return await Promise.race([
 				promise,
-					new Promise<ToolResult<TOutput>>((resolve) => {
-						timer = setTimeout(() => {
-							controller.abort();
-							resolve(
-								createToolResult<TOutput>({
+				new Promise<ToolResult<TOutput>>((resolve) => {
+					timer = setTimeout(() => {
+						controller.abort();
+						resolve(
+							createToolResult<TOutput>({
 								toolId,
 								success: false,
 								error: {
@@ -243,7 +274,12 @@ export class ToolExecutor {
 		};
 	}
 
-	private errorResult<TOutput>(toolId: string, startedAt: Date, retryCount: number, error: unknown): ToolResult<TOutput> {
+	private errorResult<TOutput>(
+		toolId: string,
+		startedAt: Date,
+		retryCount: number,
+		error: unknown
+	): ToolResult<TOutput> {
 		const retryable = error instanceof ToolTransientError;
 		return createToolResult<TOutput>({
 			toolId,
@@ -282,7 +318,10 @@ export class ToolExecutor {
 	}
 }
 
-function executionTimeoutMs<TInput, TOutput>(tool: Tool<TInput, TOutput>, defaultTimeoutMs: number): number {
+function executionTimeoutMs<TInput, TOutput>(
+	tool: Tool<TInput, TOutput>,
+	defaultTimeoutMs: number
+): number {
 	const timeoutMs = tool.metadata.executionTimeoutMs;
 	return typeof timeoutMs === 'number' && Number.isFinite(timeoutMs) && timeoutMs > 0
 		? Math.floor(timeoutMs)

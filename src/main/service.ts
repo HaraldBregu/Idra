@@ -5,10 +5,7 @@ import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { ConnectorsService } from './connectors';
-import {
-	resolveBootstrapMode,
-	type WorkspaceService,
-} from './workspace';
+import { resolveBootstrapMode, type WorkspaceService } from './workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
@@ -38,10 +35,7 @@ import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
 import type { ApprovalDecision, Service as SharedService } from '../shared/service';
 import type { FridayCronActor } from './cron';
-import {
-	createHeartbeatResponseTool,
-	type HeartbeatToolResponse,
-} from './heartbeat/response';
+import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
@@ -170,7 +164,11 @@ export class AgentService {
 	): Promise<string> {
 		const heartbeatOptions = options.heartbeat;
 		const runtimeAgentId = options.sessionId ?? agentId;
-		const runKind = heartbeatOptions ? 'heartbeat' : options.cronContext?.role === 'cron-self' ? 'cron' : 'default';
+		const runKind = heartbeatOptions
+			? 'heartbeat'
+			: options.cronContext?.role === 'cron-self'
+				? 'cron'
+				: 'default';
 		const runtime = this.ensureRuntime(runtimeAgentId);
 		if (runtime.currentAbort) {
 			if (heartbeatOptions) {
@@ -203,10 +201,8 @@ export class AgentService {
 		const phaseDurationsMs: Record<string, number> = {};
 
 		try {
-			const providerConfig = recordPhase(
-				phaseDurationsMs,
-				'resolve_provider_model',
-				() => this.resolveProviderAndModel()
+			const providerConfig = recordPhase(phaseDurationsMs, 'resolve_provider_model', () =>
+				this.resolveProviderAndModel()
 			);
 			const providerId = providerConfig.providerId;
 			const apiKey = providerConfig.apiKey;
@@ -235,11 +231,11 @@ export class AgentService {
 				sessionVisibility: 'agent',
 				readState: new Map(),
 				plan: { entries: runtime.session.plan },
-					approvalCache: new Set(),
-					approvalRequired: new Set(),
-					fsPolicy: { workspaceOnly: false, readOnly: false },
-					signal: abort.signal,
-					elicit: {
+				approvalCache: new Set(),
+				approvalRequired: new Set(),
+				fsPolicy: { workspaceOnly: false, readOnly: false },
+				signal: abort.signal,
+				elicit: {
 					ask: (question, suggestions) => {
 						streamEvent({
 							type: 'run_state',
@@ -254,10 +250,10 @@ export class AgentService {
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
 				new ToolUsePolicy().evaluate({ userRequest: message })
 			);
-				let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
-					this.isBootstrapPending(agentId)
-				);
-				let startupFiles: AgentStartupFile[] = [];
+			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
+				this.isBootstrapPending(agentId)
+			);
+			let startupFiles: AgentStartupFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
 				systemPromptSuffix: '',
@@ -314,19 +310,22 @@ export class AgentService {
 				skillChoices.length === 0;
 
 			if (!directAnswer) {
-					startupFiles = this.filterStartupFilesForRun(
-						await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
-							this.loadStartupFiles(agentId)
+				startupFiles = this.filterStartupFilesForRun(
+					await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
+						this.loadStartupFiles(agentId)
+					),
+					{
+						runKind,
+						lightContext: heartbeatOptions?.lightContext === true,
+						includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
+							this.getServiceConfig(),
+							agentId
 						),
-						{
-							runKind,
-							lightContext: heartbeatOptions?.lightContext === true,
-							includeHeartbeatContext: isHeartbeatSystemPromptEnabled(this.getServiceConfig(), agentId),
-						}
-					);
-					bootstrapPending =
-						bootstrapPending ||
-						startupFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
+					}
+				);
+				bootstrapPending =
+					bootstrapPending ||
+					startupFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
 				toolSelection = bootstrapPending
 					? {
 							toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
@@ -334,11 +333,11 @@ export class AgentService {
 							rankedTools: [],
 						}
 					: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								selectAgentToolsForTurn(baseTools, message, ctx, {
-									forceSelection: true,
-									maxPromptTools: TOOL_LIMITS.prompt.defaultMaxTools,
-								})
-							);
+							selectAgentToolsForTurn(baseTools, message, ctx, {
+								forceSelection: true,
+								maxPromptTools: TOOL_LIMITS.prompt.defaultMaxTools,
+							})
+						);
 				selectedTools = toolSelection.toolsForPrompt;
 				if (heartbeatOptions?.forceHeartbeatTool) {
 					const heartbeatTool = baseTools.find((tool) => tool.name === 'heartbeat_respond');
@@ -371,30 +370,30 @@ export class AgentService {
 				}
 			}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
-					const bootstrapMode = resolveBootstrapMode({
-						bootstrapPending,
-						isInteractiveUserFacing: true,
-						isPrimaryRun: agentId === this.defaultAgentId,
-						isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-						hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
-						runKind,
-					});
-				const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
-					buildSystemPrompt({
-						workspace: workspaceRoot,
-						date: new Date().toISOString().slice(0, 10),
-						model,
-						tools: selectedTools,
-						skills: skillChoices,
-						startupFiles,
-						bootstrapMode,
-						heartbeat: {
-							includeSection:
-								runKind === 'default' &&
-								isHeartbeatSystemPromptEnabled(this.getServiceConfig(), agentId),
-						},
-					})
-				);
+			const bootstrapMode = resolveBootstrapMode({
+				bootstrapPending,
+				isInteractiveUserFacing: true,
+				isPrimaryRun: agentId === this.defaultAgentId,
+				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
+				hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
+				runKind,
+			});
+			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
+				buildSystemPrompt({
+					workspace: workspaceRoot,
+					date: new Date().toISOString().slice(0, 10),
+					model,
+					tools: selectedTools,
+					skills: skillChoices,
+					startupFiles,
+					bootstrapMode,
+					heartbeat: {
+						includeSection:
+							runKind === 'default' &&
+							isHeartbeatSystemPromptEnabled(this.getServiceConfig(), agentId),
+					},
+				})
+			);
 			const systemPromptForTurn = toolSelection.systemPromptSuffix
 				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
 				: systemPrompt;
@@ -409,11 +408,11 @@ export class AgentService {
 				userMessageChars: message.length,
 				directAnswer,
 				bootstrapPending,
-					toolPolicyReason: toolPolicy.reason,
-					workspaceContextChars: startupContextChars(startupFiles),
-					prepStartedAt: runStartedAt,
-					phaseDurationsMs,
-				});
+				toolPolicyReason: toolPolicy.reason,
+				workspaceContextChars: startupContextChars(startupFiles),
+				prepStartedAt: runStartedAt,
+				phaseDurationsMs,
+			});
 			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
 				prompt: message,
 				messages: [...runtime.session.transcript, { role: 'user', content: message }],
@@ -460,8 +459,8 @@ export class AgentService {
 				model,
 				tools: selectedTools,
 				ctx,
-					maxTokens: TOOL_LIMITS.agent.maxTokens,
-					maxIterations: TOOL_LIMITS.agent.maxIterations,
+				maxTokens: TOOL_LIMITS.agent.maxTokens,
+				maxIterations: TOOL_LIMITS.agent.maxIterations,
 				streamEvent,
 				hooks,
 				signal: abort.signal,

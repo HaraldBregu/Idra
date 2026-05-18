@@ -229,19 +229,17 @@ export const TOOL_PRIVACY_ORDER: Record<PrivacyLevel, number> = {
 	sensitive: 3,
 };
 
-export function createToolResult<TOutput>(
-	input: {
-		toolId: string;
-		success: boolean;
-		data?: TOutput;
-		error?: ToolError;
-		warnings?: string[];
-		startedAt?: Date;
-		finishedAt?: Date;
-		retryCount?: number;
-		metadata?: Record<string, unknown>;
-	}
-): ToolResult<TOutput> {
+export function createToolResult<TOutput>(input: {
+	toolId: string;
+	success: boolean;
+	data?: TOutput;
+	error?: ToolError;
+	warnings?: string[];
+	startedAt?: Date;
+	finishedAt?: Date;
+	retryCount?: number;
+	metadata?: Record<string, unknown>;
+}): ToolResult<TOutput> {
 	const startedAt = input.startedAt ?? new Date();
 	const finishedAt = input.finishedAt ?? new Date();
 	return {

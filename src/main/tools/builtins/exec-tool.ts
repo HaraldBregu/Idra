@@ -34,7 +34,9 @@ const DENY_PATTERNS = [
 
 function resolveCwd(workspaceDir: string, requested?: string): string {
 	if (!requested) return workspaceDir;
-	return path.isAbsolute(requested) ? path.resolve(requested) : path.resolve(workspaceDir, requested);
+	return path.isAbsolute(requested)
+		? path.resolve(requested)
+		: path.resolve(workspaceDir, requested);
 }
 
 function truncate(text: string, maxBytes: number): { text: string; truncated: boolean } {
@@ -46,7 +48,9 @@ function deniedPattern(command: string): string | undefined {
 	return DENY_PATTERNS.find((pattern) => pattern.test(command))?.source;
 }
 
-export function createExecTool(options: ExecToolOptions): AgentTool<Record<string, unknown>, ExecDetails> {
+export function createExecTool(
+	options: ExecToolOptions
+): AgentTool<Record<string, unknown>, ExecDetails> {
 	return markCoreTool({
 		name: 'exec',
 		label: 'Run Command',
@@ -56,9 +60,15 @@ export function createExecTool(options: ExecToolOptions): AgentTool<Record<strin
 			type: 'object',
 			properties: {
 				command: { type: 'string', description: 'Shell command to execute.' },
-				workdir: { type: 'string', description: 'Workspace-relative or absolute working directory.' },
+				workdir: {
+					type: 'string',
+					description: 'Workspace-relative or absolute working directory.',
+				},
 				timeoutMs: { type: 'number', description: 'Timeout in milliseconds.' },
-				background: { type: 'boolean', description: 'Reserved for future background execution support.' },
+				background: {
+					type: 'boolean',
+					description: 'Reserved for future background execution support.',
+				},
 			},
 			required: ['command'],
 			additionalProperties: false,
@@ -71,7 +81,7 @@ export function createExecTool(options: ExecToolOptions): AgentTool<Record<strin
 			const timeoutMs = readNumberParam(record, 'timeoutMs', {
 				defaultValue: options.defaultTimeoutMs ?? DEFAULT_TIMEOUT_MS,
 				min: 1,
-					max: TOOL_LIMITS.exec.maxTimeoutMs,
+				max: TOOL_LIMITS.exec.maxTimeoutMs,
 				integer: true,
 			})!;
 			readBooleanParam(record, 'background', { defaultValue: false });
@@ -89,7 +99,14 @@ export function createExecTool(options: ExecToolOptions): AgentTool<Record<strin
 					},
 				};
 			}
-			return runCommand(command, cwd, timeoutMs, options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES, signal, onUpdate);
+			return runCommand(
+				command,
+				cwd,
+				timeoutMs,
+				options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,
+				signal,
+				onUpdate
+			);
 		},
 	});
 }
@@ -104,12 +121,16 @@ function runCommand(
 ): Promise<{ content: { type: 'text'; text: string }[]; details: ExecDetails }> {
 	return new Promise((resolve) => {
 		const start = Date.now();
-			const child = spawn(process.platform === 'win32' ? 'cmd.exe' : '/bin/bash', process.platform === 'win32' ? ['/c', command] : ['-lc', command], {
+		const child = spawn(
+			process.platform === 'win32' ? 'cmd.exe' : '/bin/bash',
+			process.platform === 'win32' ? ['/c', command] : ['-lc', command],
+			{
 				cwd,
 				env: process.env,
 				stdio: ['ignore', 'pipe', 'pipe'],
 				detached: process.platform !== 'win32',
-			});
+			}
+		);
 		let stdout = '';
 		let stderr = '';
 		let settled = false;
@@ -143,18 +164,18 @@ function runCommand(
 			});
 		};
 
-			const abort = (): void => {
-				aborted = true;
-				killProcessTree(child, 'SIGTERM');
-				setTimeout(() => {
-					if (!settled) killProcessTree(child, 'SIGKILL');
-				}, 250);
-			};
+		const abort = (): void => {
+			aborted = true;
+			killProcessTree(child, 'SIGTERM');
+			setTimeout(() => {
+				if (!settled) killProcessTree(child, 'SIGKILL');
+			}, 250);
+		};
 
-			const timer = setTimeout(() => {
-				aborted = true;
-				killProcessTree(child, 'SIGKILL');
-			}, timeoutMs);
+		const timer = setTimeout(() => {
+			aborted = true;
+			killProcessTree(child, 'SIGKILL');
+		}, timeoutMs);
 
 		if (signal?.aborted) abort();
 		else signal?.addEventListener('abort', abort, { once: true });

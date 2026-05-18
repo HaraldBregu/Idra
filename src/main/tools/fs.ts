@@ -19,7 +19,9 @@ function isInsidePath(root: string, target: string): boolean {
 
 function resolveAbs(workspace: string, target: string, workspaceOnly = false): string {
 	const expanded = expandUser(target);
-	const resolved = path.isAbsolute(expanded) ? path.resolve(expanded) : path.resolve(workspace, expanded);
+	const resolved = path.isAbsolute(expanded)
+		? path.resolve(expanded)
+		: path.resolve(workspace, expanded);
 	if (workspaceOnly && !isInsidePath(workspace, resolved)) {
 		throw new Error('Path is outside the workspace.');
 	}
@@ -30,9 +32,16 @@ function snapshot(stat: Stats): { mtimeMs: number; size: number } {
 	return { mtimeMs: stat.mtimeMs, size: stat.size };
 }
 
-function requireReadSnapshot(ctx: { readState: Map<string, { mtimeMs: number; size: number }> }, abs: string, stat: Stats, label: string, action: string): string | null {
+function requireReadSnapshot(
+	ctx: { readState: Map<string, { mtimeMs: number; size: number }> },
+	abs: string,
+	stat: Stats,
+	label: string,
+	action: string
+): string | null {
 	const last = ctx.readState.get(abs);
-	if (!last) return `${action}: must read ${label} before ${action === 'delete' ? 'deleting' : 'overwriting'}.`;
+	if (!last)
+		return `${action}: must read ${label} before ${action === 'delete' ? 'deleting' : 'overwriting'}.`;
 	if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
 		return `${action}: ${label} changed on disk since last read. Re-read first.`;
 	}
@@ -78,7 +87,10 @@ export const readTool: AgentTool<ReadArgs> = {
 			ctx.readState.set(abs, { mtimeMs: stat.mtimeMs, size: stat.size });
 			const lines = raw.split('\n');
 			const start = Math.max(1, args.offset ?? 1);
-				const limit = Math.max(1, Math.min(args.limit ?? DEFAULT_READ_LIMIT, TOOL_LIMITS.read.maxLines));
+			const limit = Math.max(
+				1,
+				Math.min(args.limit ?? DEFAULT_READ_LIMIT, TOOL_LIMITS.read.maxLines)
+			);
 			const slice = lines.slice(start - 1, start - 1 + limit);
 			const numbered = slice.map((line, i) => `${String(start + i).padStart(6, ' ')}\t${line}`);
 			const trailer =
@@ -112,7 +124,8 @@ export const writeTool: AgentTool<WriteArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) return textResult('write: disabled by read-only filesystem policy.', true);
+		if (ctx.fsPolicy?.readOnly)
+			return textResult('write: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
@@ -179,7 +192,8 @@ export const editTool: AgentTool<EditArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) return textResult('edit: disabled by read-only filesystem policy.', true);
+		if (ctx.fsPolicy?.readOnly)
+			return textResult('edit: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
@@ -289,7 +303,8 @@ function parseUnifiedDiff(diff: string): PatchFile[] {
 		if (line.startsWith('+++ ')) {
 			const raw = line.slice(4).trim().split(/\s+/)[0] ?? '';
 			const normalized = raw.replace(/^b\//, '');
-			if (normalized === '/dev/null') throw new Error('creating files via apply_patch is not supported');
+			if (normalized === '/dev/null')
+				throw new Error('creating files via apply_patch is not supported');
 			current = { path: normalized, hunks: [] };
 			files.push(current);
 			continue;
@@ -300,12 +315,17 @@ function parseUnifiedDiff(diff: string): PatchFile[] {
 		const hunkLines: string[] = [];
 		for (i++; i < lines.length; i++) {
 			const hunkLine = lines[i] ?? '';
-			if (hunkLine.startsWith('@@ ') || hunkLine.startsWith('--- ') || hunkLine.startsWith('+++ ')) {
+			if (
+				hunkLine.startsWith('@@ ') ||
+				hunkLine.startsWith('--- ') ||
+				hunkLine.startsWith('+++ ')
+			) {
 				i--;
 				break;
 			}
 			if (hunkLine === '\\ No newline at end of file') continue;
-			if (![' ', '+', '-'].includes(hunkLine[0] ?? '')) throw new Error(`invalid patch line: ${hunkLine}`);
+			if (![' ', '+', '-'].includes(hunkLine[0] ?? ''))
+				throw new Error(`invalid patch line: ${hunkLine}`);
 			hunkLines.push(hunkLine);
 		}
 		current.hunks.push({ oldStart: Number(match[1]), lines: hunkLines });
@@ -367,7 +387,8 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) return textResult('delete: disabled by read-only filesystem policy.', true);
+		if (ctx.fsPolicy?.readOnly)
+			return textResult('delete: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
@@ -379,7 +400,8 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		try {
 			const stat = await fs.stat(abs);
 			if (stat.isDirectory()) {
-				if (!args.recursive) return textResult('delete: recursive=true is required for directories.', true);
+				if (!args.recursive)
+					return textResult('delete: recursive=true is required for directories.', true);
 				await fs.rm(abs, { recursive: true });
 				return textResult(`deleted directory ${abs}`);
 			}
@@ -417,32 +439,43 @@ export const copyTool: AgentTool<CopyArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) return textResult('copy: disabled by read-only filesystem policy.', true);
+		if (ctx.fsPolicy?.readOnly)
+			return textResult('copy: disabled by read-only filesystem policy.', true);
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
 			sourceAbs = resolveAbs(ctx.workspace, args.source, ctx.fsPolicy?.workspaceOnly === true);
-			destinationAbs = resolveAbs(ctx.workspace, args.destination, ctx.fsPolicy?.workspaceOnly === true);
+			destinationAbs = resolveAbs(
+				ctx.workspace,
+				args.destination,
+				ctx.fsPolicy?.workspaceOnly === true
+			);
 		} catch (err) {
 			return textResult(`copy: ${(err as Error).message}`, true);
 		}
-		if (sourceAbs === destinationAbs) return textResult('copy: source and destination are identical.', true);
+		if (sourceAbs === destinationAbs)
+			return textResult('copy: source and destination are identical.', true);
 		try {
 			const sourceStat = await fs.stat(sourceAbs);
-			if (!sourceStat.isFile()) return textResult(`copy: source is not a file: ${args.source}`, true);
+			if (!sourceStat.isFile())
+				return textResult(`copy: source is not a file: ${args.source}`, true);
 			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
 			if (destinationStat) {
-				if (!args.overwrite) return textResult(`copy: destination exists: ${args.destination}`, true);
-				if (!destinationStat.isFile()) return textResult(`copy: destination is not a file: ${args.destination}`, true);
-				const blocked = requireReadSnapshot(ctx, destinationAbs, destinationStat, args.destination, 'copy');
+				if (!args.overwrite)
+					return textResult(`copy: destination exists: ${args.destination}`, true);
+				if (!destinationStat.isFile())
+					return textResult(`copy: destination is not a file: ${args.destination}`, true);
+				const blocked = requireReadSnapshot(
+					ctx,
+					destinationAbs,
+					destinationStat,
+					args.destination,
+					'copy'
+				);
 				if (blocked) return textResult(blocked, true);
 			}
 			await fs.mkdir(path.dirname(destinationAbs), { recursive: true });
-			await fs.copyFile(
-				sourceAbs,
-				destinationAbs,
-				args.overwrite ? 0 : fsConstants.COPYFILE_EXCL
-			);
+			await fs.copyFile(sourceAbs, destinationAbs, args.overwrite ? 0 : fsConstants.COPYFILE_EXCL);
 			const after = await fs.stat(destinationAbs);
 			ctx.readState.set(destinationAbs, snapshot(after));
 			return textResult(`copied ${sourceAbs} to ${destinationAbs} (${after.size} bytes)`);
@@ -474,26 +507,41 @@ export const moveTool: AgentTool<MoveArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) return textResult('move: disabled by read-only filesystem policy.', true);
+		if (ctx.fsPolicy?.readOnly)
+			return textResult('move: disabled by read-only filesystem policy.', true);
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
 			sourceAbs = resolveAbs(ctx.workspace, args.source, ctx.fsPolicy?.workspaceOnly === true);
-			destinationAbs = resolveAbs(ctx.workspace, args.destination, ctx.fsPolicy?.workspaceOnly === true);
+			destinationAbs = resolveAbs(
+				ctx.workspace,
+				args.destination,
+				ctx.fsPolicy?.workspaceOnly === true
+			);
 		} catch (err) {
 			return textResult(`move: ${(err as Error).message}`, true);
 		}
-		if (sourceAbs === destinationAbs) return textResult('move: source and destination are identical.', true);
+		if (sourceAbs === destinationAbs)
+			return textResult('move: source and destination are identical.', true);
 		try {
 			const sourceStat = await fs.stat(sourceAbs);
-			if (!sourceStat.isFile()) return textResult(`move: source is not a file: ${args.source}`, true);
+			if (!sourceStat.isFile())
+				return textResult(`move: source is not a file: ${args.source}`, true);
 			const sourceBlocked = requireReadSnapshot(ctx, sourceAbs, sourceStat, args.source, 'move');
 			if (sourceBlocked) return textResult(sourceBlocked, true);
 			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
 			if (destinationStat) {
-				if (!args.overwrite) return textResult(`move: destination exists: ${args.destination}`, true);
-				if (!destinationStat.isFile()) return textResult(`move: destination is not a file: ${args.destination}`, true);
-				const destinationBlocked = requireReadSnapshot(ctx, destinationAbs, destinationStat, args.destination, 'move');
+				if (!args.overwrite)
+					return textResult(`move: destination exists: ${args.destination}`, true);
+				if (!destinationStat.isFile())
+					return textResult(`move: destination is not a file: ${args.destination}`, true);
+				const destinationBlocked = requireReadSnapshot(
+					ctx,
+					destinationAbs,
+					destinationStat,
+					args.destination,
+					'move'
+				);
 				if (destinationBlocked) return textResult(destinationBlocked, true);
 				await fs.rm(destinationAbs);
 			}
@@ -536,7 +584,8 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 			path: { type: 'string' },
 			maxBytes: {
 				type: 'number',
-				description: 'Maximum bytes to load for previews or direct image content. Default 8388608, max 16777216.',
+				description:
+					'Maximum bytes to load for previews or direct image content. Default 8388608, max 16777216.',
 			},
 			includeImage: {
 				type: 'boolean',
@@ -556,26 +605,33 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`inspect_file: ${args.path} is not a file`, true);
-			const maxBytes = Math.floor(Math.max(1, Math.min(args.maxBytes ?? DEFAULT_INSPECT_BYTES, MAX_INSPECT_BYTES)));
+			const maxBytes = Math.floor(
+				Math.max(1, Math.min(args.maxBytes ?? DEFAULT_INSPECT_BYTES, MAX_INSPECT_BYTES))
+			);
 			const { buffer, truncated } = await readFileSample(abs, stat.size, maxBytes);
 			const detected = detectFileType(buffer, abs);
 			const hash = truncated ? undefined : createHash('sha256').update(buffer).digest('hex');
-			const textPreview = looksLikeText(buffer) ? buffer.subarray(0, PREVIEW_BYTES).toString('utf8') : undefined;
-			const hexPreview = buffer.subarray(0, PREVIEW_BYTES).toString('hex').replace(/(.{2})/g, '$1 ').trim();
+			const textPreview = looksLikeText(buffer)
+				? buffer.subarray(0, PREVIEW_BYTES).toString('utf8')
+				: undefined;
+			const hexPreview = buffer
+				.subarray(0, PREVIEW_BYTES)
+				.toString('hex')
+				.replace(/(.{2})/g, '$1 ')
+				.trim();
 			const lines = [
 				`# ${abs}`,
 				`size: ${stat.size} bytes`,
 				`loaded: ${buffer.length} bytes${truncated ? ' (truncated)' : ''}`,
 				`mimeType: ${detected.mimeType}`,
 			];
-			if (detected.width && detected.height) lines.push(`dimensions: ${detected.width}x${detected.height}`);
+			if (detected.width && detected.height)
+				lines.push(`dimensions: ${detected.width}x${detected.height}`);
 			if (hash) lines.push(`sha256: ${hash}`);
 			lines.push(`firstBytesHex: ${hexPreview || '(empty file)'}`);
 			if (textPreview) lines.push(`textPreview:\n${textPreview}`);
 			const includeImage =
-				args.includeImage !== false &&
-				!truncated &&
-				DIRECT_IMAGE_MIME_TYPES.has(detected.mimeType);
+				args.includeImage !== false && !truncated && DIRECT_IMAGE_MIME_TYPES.has(detected.mimeType);
 			if (DIRECT_IMAGE_MIME_TYPES.has(detected.mimeType) && !includeImage && truncated) {
 				lines.push(`imageContent: omitted because file exceeds maxBytes (${maxBytes})`);
 			}
@@ -610,7 +666,11 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 	},
 };
 
-async function readFileSample(abs: string, size: number, maxBytes: number): Promise<{ buffer: Buffer; truncated: boolean }> {
+async function readFileSample(
+	abs: string,
+	size: number,
+	maxBytes: number
+): Promise<{ buffer: Buffer; truncated: boolean }> {
 	if (size <= maxBytes) return { buffer: await fs.readFile(abs), truncated: false };
 	const handle = await fs.open(abs, 'r');
 	try {
@@ -630,22 +690,47 @@ function looksLikeText(buffer: Buffer): boolean {
 	return replacements <= Math.max(1, text.length * 0.01);
 }
 
-function detectFileType(buffer: Buffer, filePath: string): { mimeType: string; width?: number; height?: number } {
-	if (buffer.length >= 24 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
-		return { mimeType: 'image/png', width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+function detectFileType(
+	buffer: Buffer,
+	filePath: string
+): { mimeType: string; width?: number; height?: number } {
+	if (
+		buffer.length >= 24 &&
+		buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+	) {
+		return {
+			mimeType: 'image/png',
+			width: buffer.readUInt32BE(16),
+			height: buffer.readUInt32BE(20),
+		};
 	}
-	if (buffer.length >= 10 && buffer.subarray(0, 6).toString('ascii').match(/^GIF8[79]a$/)) {
+	if (
+		buffer.length >= 10 &&
+		buffer
+			.subarray(0, 6)
+			.toString('ascii')
+			.match(/^GIF8[79]a$/)
+	) {
 		return { mimeType: 'image/gif', width: buffer.readUInt16LE(6), height: buffer.readUInt16LE(8) };
 	}
 	if (buffer.length >= 4 && buffer[0] === 0xff && buffer[1] === 0xd8) {
 		return { mimeType: 'image/jpeg', ...jpegDimensions(buffer) };
 	}
-	if (buffer.length >= 16 && buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP') {
+	if (
+		buffer.length >= 16 &&
+		buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+		buffer.subarray(8, 12).toString('ascii') === 'WEBP'
+	) {
 		return { mimeType: 'image/webp', ...webpDimensions(buffer) };
 	}
 	if (buffer.subarray(0, 5).toString('ascii') === '%PDF-') return { mimeType: 'application/pdf' };
-	if (buffer.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04]))) return { mimeType: 'application/zip' };
-	return { mimeType: mimeFromExtension(filePath) ?? (looksLikeText(buffer) ? 'text/plain' : 'application/octet-stream') };
+	if (buffer.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04])))
+		return { mimeType: 'application/zip' };
+	return {
+		mimeType:
+			mimeFromExtension(filePath) ??
+			(looksLikeText(buffer) ? 'text/plain' : 'application/octet-stream'),
+	};
 }
 
 function jpegDimensions(buffer: Buffer): { width?: number; height?: number } {
@@ -737,7 +822,9 @@ export const findTool: AgentTool<FindArgs> = {
 				? Math.min(Math.floor(args.limit), TOOL_LIMITS.find.maxLimit)
 				: DEFAULT_FIND_LIMIT;
 		try {
-			const dir = args.path ? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true) : ctx.workspace;
+			const dir = args.path
+				? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true)
+				: ctx.workspace;
 			const stat = await fs.stat(dir).catch(() => null);
 			if (!stat || !stat.isDirectory()) return textResult(`find: not a directory: ${dir}`, true);
 			const results: string[] = [];

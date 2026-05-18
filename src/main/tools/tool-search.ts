@@ -48,7 +48,10 @@ export function createToolSearchControls(catalogedTools: AgentTool[]): AgentTool
 		},
 		async execute(_toolCallId, params) {
 			const record = asParamsRecord(params);
-			const query = readStringParam(record, 'query', { required: true, minLength: 1 })!.toLowerCase();
+			const query = readStringParam(record, 'query', {
+				required: true,
+				minLength: 1,
+			})!.toLowerCase();
 			const limit = readNumberParam(record, 'limit', {
 				defaultValue: TOOL_LIMITS.toolSearch.defaultLimit,
 				min: 1,
@@ -122,7 +125,13 @@ export function createToolSearchControls(catalogedTools: AgentTool[]): AgentTool
 
 function scoreTool(tool: AgentTool, terms: string[]): number {
 	const metadata = getToolMetadata(tool);
-	const haystack = [tool.name, tool.label, tool.description, metadata?.ownerKind, metadata?.pluginId]
+	const haystack = [
+		tool.name,
+		tool.label,
+		tool.description,
+		metadata?.ownerKind,
+		metadata?.pluginId,
+	]
 		.filter(Boolean)
 		.join(' ')
 		.toLowerCase();

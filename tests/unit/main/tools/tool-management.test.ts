@@ -5,23 +5,23 @@ import {
 	ToolConflictResolver,
 	ToolArgumentBuilder,
 	ToolDiscovery,
-		ToolExecutor,
-		ToolOutputValidator,
-		ToolPlanner,
-		ToolSelector,
-		ToolTransientError,
-		ToolUsePolicy,
-		agentToolToManagedTool,
-		executeAgentToolWithManagement,
-		selectAgentToolsForTurn,
+	ToolExecutor,
+	ToolOutputValidator,
+	ToolPlanner,
+	ToolSelector,
+	ToolTransientError,
+	ToolUsePolicy,
+	agentToolToManagedTool,
+	executeAgentToolWithManagement,
+	selectAgentToolsForTurn,
 	type RankedTool,
 	type SessionContext,
 	type Tool,
 	type ToolExecutionContext,
-	} from '../../../../src/main/tools/management';
-	import { execTool } from '../../../../src/main/tools/exec';
-	import { TOOL_LIMITS } from '../../../../src/main/tools/limits';
-	import type { AgentTool } from '../../../../src/main/tools/types';
+} from '../../../../src/main/tools/management';
+import { execTool } from '../../../../src/main/tools/exec';
+import { TOOL_LIMITS } from '../../../../src/main/tools/limits';
+import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeToolContext } from '../test-helpers';
 
 function sessionContext(permissions: string[] = ['*']): SessionContext {
@@ -44,7 +44,9 @@ function executionContext(permissions: string[] = ['*']): ToolExecutionContext {
 	};
 }
 
-function makeTool(overrides: Partial<Tool<Record<string, unknown>, Record<string, unknown>>> = {}): Tool<Record<string, unknown>, Record<string, unknown>> {
+function makeTool(
+	overrides: Partial<Tool<Record<string, unknown>, Record<string, unknown>>> = {}
+): Tool<Record<string, unknown>, Record<string, unknown>> {
 	const id = overrides.id ?? 'tool';
 	return {
 		id,
@@ -65,7 +67,12 @@ function makeTool(overrides: Partial<Tool<Record<string, unknown>, Record<string
 		},
 		permissionsRequired: overrides.permissionsRequired ?? [],
 		safetyLevel: overrides.safetyLevel ?? 'low',
-		costEstimate: overrides.costEstimate ?? { amount: 0, currency: 'none', unit: 'call', tier: 'free' },
+		costEstimate: overrides.costEstimate ?? {
+			amount: 0,
+			currency: 'none',
+			unit: 'call',
+			tier: 'free',
+		},
 		latencyEstimate: overrides.latencyEstimate ?? { p50Ms: 10, p95Ms: 50 },
 		reliabilityScore: overrides.reliabilityScore ?? 0.9,
 		rateLimit: overrides.rateLimit,
@@ -89,9 +96,23 @@ function makeTool(overrides: Partial<Tool<Record<string, unknown>, Record<string
 describe('tool management layer', () => {
 	it('selects the best specific tool from many candidates', async () => {
 		const tools = [
-			makeTool({ id: 'generic-search', name: 'Generic Search', category: 'search', tags: ['search'], reliabilityScore: 0.8 }),
-			makeTool({ id: 'weather', name: 'Weather', category: 'web', tags: ['weather', 'forecast'], description: 'Weather forecasts' }),
-			...Array.from({ length: 20 }, (_, index) => makeTool({ id: `utility-${index}`, category: 'utility', tags: ['misc'] })),
+			makeTool({
+				id: 'generic-search',
+				name: 'Generic Search',
+				category: 'search',
+				tags: ['search'],
+				reliabilityScore: 0.8,
+			}),
+			makeTool({
+				id: 'weather',
+				name: 'Weather',
+				category: 'web',
+				tags: ['weather', 'forecast'],
+				description: 'Weather forecasts',
+			}),
+			...Array.from({ length: 20 }, (_, index) =>
+				makeTool({ id: `utility-${index}`, category: 'utility', tags: ['misc'] })
+			),
 		];
 		const ranked = new ToolDiscovery(createToolRegistry(tools)).discover({
 			userIntent: 'What is the weather in Rome today?',
@@ -109,7 +130,11 @@ describe('tool management layer', () => {
 
 	it('rejects disabled tools and tools without required permission', () => {
 		const weather = makeTool({ id: 'weather', tags: ['weather'] });
-		const email = makeTool({ id: 'email-send', category: 'email', permissionsRequired: ['email:send'] });
+		const email = makeTool({
+			id: 'email-send',
+			category: 'email',
+			permissionsRequired: ['email:send'],
+		});
 		const registry = createToolRegistry([weather, email]);
 		registry.disableTool('weather');
 		const ranked = new ToolDiscovery(registry).discover({
@@ -124,14 +149,23 @@ describe('tool management layer', () => {
 	it('validates tool input and rejects unknown or missing fields', () => {
 		const tool = makeTool();
 		const builder = new ToolArgumentBuilder();
-		expect(builder.build(tool, { intendedCall: { query: 'ok', extra: true }, sessionContext: sessionContext() })).toMatchObject({
+		expect(
+			builder.build(tool, {
+				intendedCall: { query: 'ok', extra: true },
+				sessionContext: sessionContext(),
+			})
+		).toMatchObject({
 			type: 'clarificationRequired',
 		});
-		expect(builder.build(tool, { intendedCall: {}, sessionContext: sessionContext() })).toMatchObject({
+		expect(
+			builder.build(tool, { intendedCall: {}, sessionContext: sessionContext() })
+		).toMatchObject({
 			type: 'clarificationRequired',
 			missingFields: ['query'],
 		});
-		expect(builder.build(tool, { intendedCall: { query: 'ok' }, sessionContext: sessionContext() })).toMatchObject({
+		expect(
+			builder.build(tool, { intendedCall: { query: 'ok' }, sessionContext: sessionContext() })
+		).toMatchObject({
 			type: 'valid',
 			input: { query: 'ok' },
 		});
@@ -171,10 +205,19 @@ describe('tool management layer', () => {
 				createToolResult({
 					toolId: 'failing',
 					success: false,
-					error: { code: 'PROVIDER_DOWN', message: 'provider unavailable', retryable: false, category: 'provider' },
+					error: {
+						code: 'PROVIDER_DOWN',
+						message: 'provider unavailable',
+						retryable: false,
+						category: 'provider',
+					},
 				}),
 		});
-		const result = await new ToolExecutor({ sleep: async () => undefined }).execute(tool, { query: 'x' }, executionContext());
+		const result = await new ToolExecutor({ sleep: async () => undefined }).execute(
+			tool,
+			{ query: 'x' },
+			executionContext()
+		);
 		expect(result.success).toBe(false);
 		expect(result.error?.message).toContain('provider unavailable');
 	});
@@ -188,7 +231,11 @@ describe('tool management layer', () => {
 				return createToolResult({ toolId: 'retry', success: true, data: { ok: true } });
 			},
 		});
-		const result = await new ToolExecutor({ maxRetries: 2, sleep: async () => undefined }).execute(tool, { query: 'x' }, executionContext());
+		const result = await new ToolExecutor({ maxRetries: 2, sleep: async () => undefined }).execute(
+			tool,
+			{ query: 'x' },
+			executionContext()
+		);
 		expect(result.success).toBe(true);
 		expect(result.retryCount).toBe(1);
 		expect(calls).toBe(2);
@@ -223,9 +270,13 @@ describe('tool management layer', () => {
 			id: 'slow-timeout',
 			metadata: { privacyLevel: 'public', readOnly: true, executionTimeoutMs: 5 },
 			execute: async (_input, context) => {
-				context.signal?.addEventListener('abort', () => {
-					aborted = true;
-				}, { once: true });
+				context.signal?.addEventListener(
+					'abort',
+					() => {
+						aborted = true;
+					},
+					{ once: true }
+				);
 				return new Promise(() => undefined);
 			},
 		});
@@ -265,7 +316,9 @@ describe('tool management layer', () => {
 	});
 
 	it('avoids unnecessary tools for creative or provided-context tasks', () => {
-		expect(new ToolUsePolicy().evaluate({ userRequest: 'Write a short poem about spring.' })).toEqual({
+		expect(
+			new ToolUsePolicy().evaluate({ userRequest: 'Write a short poem about spring.' })
+		).toEqual({
 			shouldUseTools: false,
 			reason: 'request can be handled from provided context or general reasoning',
 		});
@@ -276,14 +329,18 @@ describe('tool management layer', () => {
 			shouldUseTools: true,
 			reason: 'request benefits from reliable computation or execution',
 		});
-		expect(new ToolUsePolicy().evaluate({ userRequest: 'Open a terminal and run scripts.' })).toEqual({
+		expect(
+			new ToolUsePolicy().evaluate({ userRequest: 'Open a terminal and run scripts.' })
+		).toEqual({
 			shouldUseTools: true,
 			reason: 'request benefits from reliable computation or execution',
 		});
 	});
 
 	it('treats tool inventory questions as tool-surface introspection', () => {
-		expect(new ToolUsePolicy().evaluate({ userRequest: 'Do you have any internal tools?' })).toEqual({
+		expect(
+			new ToolUsePolicy().evaluate({ userRequest: 'Do you have any internal tools?' })
+		).toEqual({
 			shouldUseTools: true,
 			reason: 'user is asking about available tools',
 		});
@@ -359,7 +416,11 @@ describe('tool management layer', () => {
 			safetyLevel: 'high',
 			metadata: { privacyLevel: 'private', readOnly: false, requiresConfirmation: true },
 		});
-		const result = await new ToolExecutor().execute(tool, { query: 'meeting' }, executionContext(['calendar:write']));
+		const result = await new ToolExecutor().execute(
+			tool,
+			{ query: 'meeting' },
+			executionContext(['calendar:write'])
+		);
 		expect(result.success).toBe(true);
 	});
 
@@ -379,7 +440,11 @@ describe('tool management layer', () => {
 			},
 			execute,
 		};
-		const result = await executeAgentToolWithManagement(tool, { path: 'a.txt', content: 'x' }, makeToolContext());
+		const result = await executeAgentToolWithManagement(
+			tool,
+			{ path: 'a.txt', content: 'x' },
+			makeToolContext()
+		);
 		expect(result.status).toBe('ok');
 		expect(execute).toHaveBeenCalledWith({ path: 'a.txt', content: 'x' }, expect.any(Object));
 	});
@@ -465,7 +530,10 @@ describe('tool management layer', () => {
 				{ id: 'price', value: '$12' },
 			],
 		});
-		const validated = new ToolOutputValidator().validate(result, { type: 'array', items: { type: 'object' } });
+		const validated = new ToolOutputValidator().validate(result, {
+			type: 'array',
+			items: { type: 'object' },
+		});
 		expect(validated.status).toBe('contradictory');
 		expect(validated.warnings.join(' ')).toContain('contradictory');
 	});
@@ -485,7 +553,11 @@ describe('tool management layer', () => {
 			},
 			{
 				rankedTool: { tool: authoritative, score: 45, explanations: ['authoritative'] },
-				result: createToolResult({ toolId: authoritative.id, success: true, data: { forecast: 'sun' } }),
+				result: createToolResult({
+					toolId: authoritative.id,
+					success: true,
+					data: { forecast: 'sun' },
+				}),
 			},
 		]);
 		expect(resolution).toMatchObject({ type: 'useResult', result: { toolId: 'weather-api' } });
@@ -494,7 +566,9 @@ describe('tool management layer', () => {
 	it('does not store sensitive tool output in memory', () => {
 		const tool = makeTool({ metadata: { privacyLevel: 'sensitive', readOnly: true } });
 		const result = createToolResult({ toolId: tool.id, success: true, data: { token: 'secret' } });
-		expect(new MemoryPolicy().evaluateToolOutput(tool, result)).toMatchObject({ shouldStore: false });
+		expect(new MemoryPolicy().evaluateToolOutput(tool, result)).toMatchObject({
+			shouldStore: false,
+		});
 	});
 
 	it('does not expose a large registry directly to the model prompt', () => {
@@ -537,7 +611,11 @@ describe('tool management layer', () => {
 				execute: jest.fn(),
 			},
 		];
-		const selection = selectAgentToolsForTurn(tools, 'Answer from memory and do not use tools.', makeToolContext());
+		const selection = selectAgentToolsForTurn(
+			tools,
+			'Answer from memory and do not use tools.',
+			makeToolContext()
+		);
 		expect(selection.toolsForPrompt).toEqual([]);
 		expect(selection.systemPromptSuffix).toBe('');
 	});

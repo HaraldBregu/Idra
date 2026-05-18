@@ -41,14 +41,14 @@ export const getWorkspaceContentTool: AgentTool<ListArgs> = {
 	async execute(args, ctx) {
 		const ws = ctx.services.workspace;
 		const rel = typeof args.path === 'string' ? args.path.trim() : '';
-			const depth =
-				typeof args.maxDepth === 'number' && args.maxDepth >= 0
-					? Math.min(Math.floor(args.maxDepth), TOOL_LIMITS.workspaceList.maxDepth)
-					: DEFAULT_DEPTH;
-			const limit =
-				typeof args.limit === 'number' && args.limit > 0
-					? Math.min(Math.floor(args.limit), TOOL_LIMITS.workspaceList.maxLimit)
-					: DEFAULT_LIMIT;
+		const depth =
+			typeof args.maxDepth === 'number' && args.maxDepth >= 0
+				? Math.min(Math.floor(args.maxDepth), TOOL_LIMITS.workspaceList.maxDepth)
+				: DEFAULT_DEPTH;
+		const limit =
+			typeof args.limit === 'number' && args.limit > 0
+				? Math.min(Math.floor(args.limit), TOOL_LIMITS.workspaceList.maxLimit)
+				: DEFAULT_LIMIT;
 		const root = ws.resolvePath(rel);
 		try {
 			await ws.ensureReady();

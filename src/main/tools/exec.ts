@@ -74,9 +74,15 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 		properties: {
 			command: { type: 'string', description: 'Shell command to execute.' },
 			workdir: { type: 'string', description: 'Working directory (relative or absolute).' },
-				timeoutMs: { type: 'number', description: `Timeout in milliseconds (default ${TOOL_LIMITS.exec.timeoutMs}).` },
+			timeoutMs: {
+				type: 'number',
+				description: `Timeout in milliseconds (default ${TOOL_LIMITS.exec.timeoutMs}).`,
+			},
 			env: { type: 'object', description: 'Extra environment variables.' },
-			background: { type: 'boolean', description: 'Start in the background and return a process id.' },
+			background: {
+				type: 'boolean',
+				description: 'Start in the background and return a process id.',
+			},
 		},
 		required: ['command'],
 		additionalProperties: false,
@@ -102,14 +108,15 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 				? args.workdir
 				: path.resolve(ctx.workspace, args.workdir)
 			: ctx.workspace;
-			if (args.background) return runBackground(command, cwd, args.env);
-			return runForeground(command, cwd, args.env, args.timeoutMs ?? DEFAULT_TIMEOUT_MS, ctx.signal);
+		if (args.background) return runBackground(command, cwd, args.env);
+		return runForeground(command, cwd, args.env, args.timeoutMs ?? DEFAULT_TIMEOUT_MS, ctx.signal);
 	},
 };
 
 export const processTool: AgentTool<{ action: 'list' | 'log' | 'kill'; id?: string }> = {
 	name: 'process',
-	description: 'List, inspect logs for, or kill background processes started with exec background=true.',
+	description:
+		'List, inspect logs for, or kill background processes started with exec background=true.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -174,7 +181,9 @@ function runBackground(
 	});
 	return {
 		status: 'ok',
-		content: [{ type: 'text', text: `started background process ${id} (pid ${child.pid ?? 'unknown'})` }],
+		content: [
+			{ type: 'text', text: `started background process ${id} (pid ${child.pid ?? 'unknown'})` },
+		],
 		details: { exitCode: 0, durationMs: 0, truncated: false },
 	};
 }
@@ -209,7 +218,9 @@ function runForeground(
 			clearTimeout(timer);
 			signal?.removeEventListener('abort', abort);
 			const exitCode = killed || aborted ? -1 : code;
-			resolve(formatResult(command, exitCode, killed || aborted, stdout, stderr, Date.now() - start));
+			resolve(
+				formatResult(command, exitCode, killed || aborted, stdout, stderr, Date.now() - start)
+			);
 		};
 
 		const abort = (): void => {
