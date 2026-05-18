@@ -1,18 +1,18 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
 import type {
 	OpenClawCronAddRequest,
 	OpenClawCronJobDefinition,
 	OpenClawCronRunRecord,
 } from '../../../../src/shared/cron';
 import {
-	FileOpenClawCronStore,
+	ElectronStoreOpenClawCronStore,
+	emptyOpenClawCronStoreState,
 	OpenClawCronScheduler,
+	type OpenClawCronStoreState,
 	type OpenClawCronDeliveryPort,
 	type OpenClawCronExecutionOutcome,
 	type OpenClawCronExecutor,
 } from '../../../../src/main/cron';
-import { makeTempDir } from '../test-helpers';
+import type { StoreService } from '../../../../src/main/store';
 
 class RecordingExecutor implements OpenClawCronExecutor {
 	calls: Array<{ job: OpenClawCronJobDefinition; runId: string }> = [];
@@ -47,9 +47,25 @@ class RecordingDelivery implements OpenClawCronDeliveryPort {
 	}
 }
 
+function createOpenClawStoreService(): {
+	service: StoreService;
+	readState: () => OpenClawCronStoreState;
+} {
+	let state = emptyOpenClawCronStoreState();
+	return {
+		service: {
+			getOpenClawCronState: jest.fn(() => state),
+			setOpenClawCronState: jest.fn((next: OpenClawCronStoreState) => {
+				state = next;
+			}),
+		} as unknown as StoreService,
+		readState: () => state,
+	};
+}
+
 async function makeHarness(options: { enabled?: boolean } = {}) {
-	const root = await makeTempDir('friday-openclaw-cron-');
-	const store = new FileOpenClawCronStore(root);
+	const storeService = createOpenClawStoreService();
+	const store = new ElectronStoreOpenClawCronStore(storeService.service);
 	const executor = new RecordingExecutor();
 	const delivery = new RecordingDelivery();
 	const scheduler = new OpenClawCronScheduler(store, executor, delivery, {
@@ -60,7 +76,7 @@ async function makeHarness(options: { enabled?: boolean } = {}) {
 		defaultMaxBackoffMs: 8_000,
 		scheduleErrorDisableThreshold: 3,
 	});
-	return { root, store, executor, delivery, scheduler };
+	return { store, storeService, executor, delivery, scheduler };
 }
 
 function agentJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCronAddRequest {
@@ -88,7 +104,7 @@ function systemJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCro
 
 describe('OpenClawCronScheduler', () => {
 	it('keeps CRUD working while globally disabled and does not arm or run timers', async () => {
-		const { scheduler, executor, root } = await makeHarness({ enabled: false });
+		const { scheduler, executor, storeService } = await makeHarness({ enabled: false });
 		await scheduler.start();
 		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() } }));
 
@@ -97,7 +113,7 @@ describe('OpenClawCronScheduler', () => {
 		expect((await scheduler.status()).enabled).toBe(false);
 		expect((await scheduler.status()).timerArmed).toBe(false);
 		expect(executor.calls).toHaveLength(0);
-		await expect(fs.readFile(path.join(root, 'jobs.json'), 'utf8')).resolves.toContain(job.id);
+		expect(storeService.readState().jobs).toEqual([expect.objectContaining({ id: job.id })]);
 		await scheduler.stop();
 	});
 

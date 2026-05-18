@@ -14,6 +14,8 @@ import type { ConnectorConfig } from '../../shared/connectors';
 import { SettingsStore, StoreSchema } from './types';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
+import type { OpenClawCronStoreState } from '../cron/openclaw/store';
+import { emptyOpenClawCronStoreState, migrateOpenClawCronStoreState } from '../cron/openclaw/store';
 
 export class StoreService {
 	private store: SettingsStore;
@@ -147,6 +149,14 @@ export class StoreService {
 
 	setCronSchedulerState(state: CronStoreState): void {
 		this.store.set('cronScheduler', migrateCronStoreState(state));
+	}
+
+	getOpenClawCronState(): OpenClawCronStoreState {
+		return migrateOpenClawCronStoreState(this.store.get('openClawCron') ?? emptyOpenClawCronStoreState());
+	}
+
+	setOpenClawCronState(state: OpenClawCronStoreState): void {
+		this.store.set('openClawCron', migrateOpenClawCronStoreState(state));
 	}
 
 	getConnectors(): ConnectorConfig[] {

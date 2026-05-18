@@ -5,7 +5,6 @@ import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { ChannelRegistry } from '../channels';
 import type { AgentService } from '../service';
-import { resolveDefaultUserDataPath, type UserDataDirectoryServicePort } from '../user-data';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
@@ -32,7 +31,7 @@ import {
 import {
 	InMemoryCronScheduleRunner,
 } from './scheduler/cron-runner';
-import { FileOpenClawCronStore } from './openclaw/file-store';
+import { ElectronStoreOpenClawCronStore } from './openclaw/store';
 import {
 	GatewayOpenClawCronDelivery,
 	AgentServiceOpenClawCronExecutor,
@@ -52,7 +51,6 @@ interface NextRunCapable {
 
 export interface CronServiceOptions {
 	enabled?: boolean;
-	userDataDirectory?: UserDataDirectoryServicePort;
 	openClaw?: OpenClawCronSchedulerOptions;
 }
 
@@ -95,9 +93,8 @@ export class CronService implements Disposable {
 			{},
 			logger
 		);
-		const openClawRoot = options.userDataDirectory?.resolve('cron') ?? resolveDefaultUserDataPath('cron');
 		this.openClaw = new OpenClawCronScheduler(
-			new FileOpenClawCronStore(openClawRoot),
+			new ElectronStoreOpenClawCronStore(store),
 			new NoopOpenClawCronExecutor(),
 			new NoopOpenClawCronDelivery(),
 			{

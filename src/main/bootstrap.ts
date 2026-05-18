@@ -69,7 +69,7 @@ export function bootstrapServices(): BootstrapResult {
 	const store = container.register('store', new StoreService());
 	const cron = container.register(
 		'cron',
-		new CronService(store, logger, { userDataDirectory })
+		new CronService(store, logger)
 	);
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);

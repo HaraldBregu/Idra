@@ -21,6 +21,7 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
+import { emptyOpenClawCronStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model, Service } from '../../../../src/shared/service';
@@ -137,6 +138,57 @@ describe('StoreService', () => {
 			expect(MockStore).toHaveBeenCalledWith({
 				name: 'settings',
 				accessPropertiesByDotNotation: false,
+			});
+		});
+	});
+
+	describe('OpenClaw cron state', () => {
+		it('persists OpenClaw cron jobs, states, and runs through the settings store', () => {
+			const service = new StoreService();
+			const state = {
+				...emptyOpenClawCronStoreState(),
+				jobs: [{
+					id: 'job-1',
+					name: 'Stored cron',
+					description: '',
+					enabled: true,
+					createdAtMs: 1,
+					updatedAtMs: 1,
+					schedule: { kind: 'every' as const, everyMs: 60_000 },
+					sessionTarget: 'isolated' as const,
+					wakeMode: 'now' as const,
+					payload: { kind: 'agentTurn' as const, message: 'Run' },
+					delivery: { mode: 'none' as const },
+				}],
+				states: {
+					'job-1': {
+						consecutiveErrors: 0,
+						consecutiveSkipped: 0,
+						consecutiveScheduleErrors: 0,
+						attempts: 0,
+					},
+				},
+				runs: {
+					'job-1': [{
+						runId: 'run-1',
+						jobId: 'job-1',
+						status: 'ok' as const,
+						mode: 'manual-force' as const,
+						scheduledForMs: 1,
+						startedAtMs: 1,
+						finishedAtMs: 2,
+						attempt: 1,
+					}],
+				},
+			};
+
+			expect(service.getOpenClawCronState()).toEqual(emptyOpenClawCronStoreState());
+			service.setOpenClawCronState(state);
+
+			expect(service.getOpenClawCronState()).toMatchObject({
+				jobs: [{ id: 'job-1' }],
+				states: { 'job-1': expect.objectContaining({ scheduleIdentity: 'every:60000:' }) },
+				runs: { 'job-1': [{ runId: 'run-1' }] },
 			});
 		});
 	});

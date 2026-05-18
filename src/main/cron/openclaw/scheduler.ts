@@ -19,8 +19,8 @@ import type {
 import type { CronSchedule } from '../core/cron.types';
 import { CronPermissionError, CronScheduleNotFoundError } from '../core/cron.errors';
 import { CronNextRunCalculator } from '../scheduler/cron-next-run-calculator';
-import type { OpenClawCronSnapshot, OpenClawCronStore } from './file-store';
-import { defaultOpenClawCronJobState } from './file-store';
+import type { OpenClawCronSnapshot, OpenClawCronStore } from './store';
+import { defaultOpenClawCronJobState } from './store';
 import {
 	assertSafeCronId,
 	assertTargetMatchesPayload,
