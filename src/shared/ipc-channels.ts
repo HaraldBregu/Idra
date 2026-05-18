@@ -250,7 +250,7 @@ interface CronInvokeChannelMap {
 	};
 	[CronChannels.runNow]: {
 		args: [scheduleId: string];
-		result: import('./task').Task;
+		result: import('./cron').CronScheduledTask;
 	};
 	[CronChannels.action]: {
 		args: [request: import('./cron').OpenClawCronToolRequest];
@@ -270,29 +270,6 @@ interface SkillsInvokeChannelMap {
 	[SkillsChannels.import]: { args: []; result: import('./skills').SkillInfo | undefined };
 	[SkillsChannels.delete]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
-}
-
-interface TaskInvokeChannelMap {
-	[TaskChannels.create]: {
-		args: [request: import('./task').TaskCreateRequest];
-		result: import('./task').Task;
-	};
-	[TaskChannels.get]: {
-		args: [taskId: import('./task').TaskId];
-		result: import('./task').Task;
-	};
-	[TaskChannels.list]: {
-		args: [filter?: import('./task').TaskListFilter];
-		result: import('./task').Task[];
-	};
-	[TaskChannels.cancel]: {
-		args: [taskId: import('./task').TaskId, reason?: string];
-		result: void;
-	};
-	[TaskChannels.retry]: {
-		args: [taskId: import('./task').TaskId];
-		result: void;
-	};
 }
 
 interface ConnectorsInvokeChannelMap {
