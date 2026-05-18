@@ -34,7 +34,7 @@ function StatCell({
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
-	return target instanceof HTMLElement && Boolean(target.closest('button,a,input,textarea,select,[role="switch"]'));
+	return target instanceof HTMLElement && Boolean(target.closest('button,a,input,textarea,select,label,[role="switch"]'));
 }
 
 export function ConnectorCard({
