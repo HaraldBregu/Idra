@@ -45,6 +45,7 @@ import type {
 	HeartbeatStatus,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
+	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
 import type {
@@ -293,6 +294,12 @@ export const heartbeat: HeartbeatApi = {
 	},
 	setEnabled: (request: HeartbeatSetEnabledRequest): Promise<HeartbeatStatus> => {
 		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, request);
+	},
+	getTiming: (): Promise<HeartbeatTimingSettings> => {
+		return typedInvokeUnwrap(HeartbeatChannels.getTiming);
+	},
+	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
+		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, request);
 	},
 	systemEvent: (
 		request: HeartbeatSystemEventRequest
