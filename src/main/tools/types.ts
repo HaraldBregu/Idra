@@ -70,6 +70,7 @@ export interface AgentToolResult<TDetails = unknown> {
 
 export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 	name: string;
+	displaySummary?: string;
 	description: string;
 	schema: JSONSchema;
 	/** Marks control-plane tools that should only be exposed to owner contexts. */
