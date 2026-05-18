@@ -59,6 +59,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [tools, setTools] = useState<readonly ConnectorTool[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [toolsError, setToolsError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
@@ -66,31 +67,44 @@ const ConnectorDetailsPage: React.FC = () => {
 		if (!connectorId) {
 			setLoading(false);
 			setError(t('settings.connectors.notFoundDescription'));
+			setToolsError(null);
 			return () => {
 				mounted = false;
 			};
 		}
 
 		setLoading(true);
-		Promise.all([
-			window.connectors.get(connectorId),
-			window.connectors.listTools(connectorId),
-		])
-			.then(([nextConnector, nextTools]) => {
+		setError(null);
+		setToolsError(null);
+
+		void (async () => {
+			try {
+				const nextConnector = await window.connectors.get(connectorId);
 				if (!mounted) return;
+
+				let nextTools: readonly ConnectorTool[] = [];
+				let nextToolsError: string | null = null;
+				try {
+					nextTools = await window.connectors.listTools(connectorId);
+				} catch (caught) {
+					nextToolsError = caught instanceof Error ? caught.message : String(caught);
+				}
+				if (!mounted) return;
+
 				setConnector(nextConnector);
 				setTools(nextTools);
 				setError(null);
-			})
-			.catch((caught) => {
+				setToolsError(nextToolsError);
+			} catch (caught) {
 				if (!mounted) return;
 				setConnector(null);
 				setTools([]);
 				setError(caught instanceof Error ? caught.message : String(caught));
-			})
-			.finally(() => {
+				setToolsError(null);
+			} finally {
 				if (mounted) setLoading(false);
-			});
+			}
+		})();
 
 		return () => {
 			mounted = false;
@@ -145,7 +159,7 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Enabled" value={connector.enabled ? 'Enabled' : 'Disabled'} />
 					<DetailRow label="Approval policy" value={connector.requireApproval.replaceAll('_', ' ')} />
 					<DetailRow label="Auth" value={connector.oauth ? 'Google OAuth' : 'Access token'} />
-					<DetailRow label="Connected account" value={connector.oauth?.email ?? '—'} />
+					<DetailRow label="Connected account" value={connector.oauth?.email ?? 'Not connected'} />
 					<DetailRow label="Last refreshed" value={formatTimestamp(connector.lastRefreshedAt)} />
 					<DetailRow label="Updated" value={formatTimestamp(connector.updatedAt)} />
 				</Card>
@@ -154,6 +168,12 @@ const ConnectorDetailsPage: React.FC = () => {
 			{connector.lastError && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{connector.lastError}
+				</SettingsNotice>
+			)}
+
+			{toolsError && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{toolsError}
 				</SettingsNotice>
 			)}
 
