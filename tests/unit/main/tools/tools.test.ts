@@ -17,7 +17,9 @@ import {
 import { cronAddTool, cronListTool, cronRemoveTool, cronTool } from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
 import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from '../../../../src/main/tools/services';
+import { startupFilesTool } from '../../../../src/main/tools/startup';
 import { getWorkspaceContentTool, getWorkspacePathTool } from '../../../../src/main/tools/workspace';
+import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
@@ -302,5 +304,33 @@ describe('tools/app, cron, providers, services, workspace', () => {
 		expect(listed.content[0]?.text).toContain('file.txt');
 		expect((await getWorkspacePathTool.execute({}, ctx)).content[0]?.text).toBe(workspace);
 		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('manages allowlisted agent startup files through the isolated startup tool', async () => {
+		const root = await makeTempDir();
+		const services = {
+			...makeToolContext().services,
+			startupFiles: new AgentStartupFilesService({ rootPath: path.join(root, 'agent', 'workspaces') }),
+		};
+		const ctx = makeToolContext({ agentId: 'main', services });
+
+		const listed = await startupFilesTool.execute({ action: 'list' }, ctx);
+		expect(listed.status).toBe('ok');
+		expect(listed.content[0]?.text).toContain('IDENTITY.md');
+
+		const wrote = await startupFilesTool.execute({
+			action: 'write',
+			name: 'IDENTITY.md',
+			content: 'identity',
+		}, ctx);
+		expect(wrote.status).toBe('ok');
+
+		const read = await startupFilesTool.execute({ action: 'read', name: 'IDENTITY.md' }, ctx);
+		expect(read.content[0]?.text).toContain('identity');
+
+		const completed = await startupFilesTool.execute({ action: 'complete_bootstrap' }, ctx);
+		expect(completed.status).toBe('ok');
+		await expect(fs.access(path.join(root, 'agent', 'workspaces', 'main', 'BOOTSTRAP.md'))).rejects.toThrow();
+		await fs.rm(root, { recursive: true, force: true });
 	});
 });
