@@ -117,11 +117,11 @@ import type {
 	CronTask,
 	CronTaskData,
 	CronTaskView,
+	CronScheduledTask,
 	OpenClawCronJob,
 	OpenClawCronToolRequest,
 	OpenClawCronToolResponse,
 } from '../shared/cron';
-import type { Task } from '../shared/task';
 import type {
 	Agent,
 	AgentHistoryMessage,
@@ -138,7 +138,6 @@ import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type { SkillInfo } from '../shared/skills';
-import type { Task, TaskCreateRequest, TaskEvent, TaskId, TaskListFilter } from '../shared/task';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -179,6 +178,5 @@ declare global {
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
-		tasks: TasksApi;
 	}
 }
