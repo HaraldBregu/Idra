@@ -7,6 +7,7 @@ import type {
 	WindowFactory,
 } from './core';
 import type { WindowContextManager } from './core';
+import type { AgentStartupFilesService } from './agent/startup-files';
 import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
@@ -28,6 +29,7 @@ export interface MainServices {
 	logger: LoggerService;
 	mcpRegistry: McpRegistry;
 	skills: SkillsService;
+	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
