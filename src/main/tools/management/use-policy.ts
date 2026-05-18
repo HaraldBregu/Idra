@@ -47,7 +47,7 @@ function needsExternalAccess(request: string): boolean {
 	if (/\b(get|fetch|read|show|check|list)\b.*\b(profile|account|messages?|emails?)\b/.test(request)) {
 		return true;
 	}
-		return /\b(current|latest|today|now|weather|news|look up|search|file|folder|directory|workspace|startup|bootstrap|identity|persona|profile|document|codebase|email|calendar|database|api|send|delete|purchase|post|schedule|create|edit|write|read|modify|change|fix|debug|test|build|implement|refactor|private|repo)\b/.test(
+		return /\b(current|latest|today|now|weather|news|look up|search|file|folder|directory|workspace|startup|bootstrap|identity|persona|document|codebase|email|calendar|database|api|send|delete|purchase|post|schedule|create|edit|write|read|modify|change|fix|debug|test|build|implement|refactor|private|repo)\b/.test(
 			request
 		);
 	}
