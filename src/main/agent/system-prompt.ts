@@ -5,9 +5,9 @@ import type { SkillPromptChoice } from '../skills/types';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	renderAgentStartupFiles,
-	type BootstrapMode,
 	type AgentStartupFile,
 } from './startup-files';
+import type { BootstrapMode } from '../workspace';
 
 export interface SystemPromptCtx {
 	workspace: string;
