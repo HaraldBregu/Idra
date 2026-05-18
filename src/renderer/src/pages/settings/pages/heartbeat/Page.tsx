@@ -586,34 +586,44 @@ const HeartbeatPage: React.FC = () => {
 							description={t('settings.heartbeat.last.emptyDescription')}
 						/>
 					) : (
-						<HeartbeatItem
-							icon={Activity}
-							title={t('settings.heartbeat.last.latest')}
-							description={lastDescription}
-							actions={
-								<>
-									<Badge
-										variant={statusVariant(lastHeartbeat.status)}
-										className="h-5 rounded-md px-1.5 text-[10px]"
-									>
-										{t(`settings.heartbeat.status.${lastHeartbeat.status}`)}
-									</Badge>
-									{lastTimestamp && (
-										<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
-											{lastTimestamp}
-										</Badge>
-									)}
-									{lastDuration && (
-										<Badge variant="outline" className="h-5 rounded-md px-1.5 font-mono text-[10px]">
-											{lastDuration}
-										</Badge>
-									)}
+						<Item
+							variant="outline"
+							size="md"
+							className="border-b border-border/60 px-3 py-2 last:border-b-0"
+						>
+							<ItemMedia variant="icon" className="size-6">
+								<Activity className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle className="max-w-full truncate">
+									{t('settings.heartbeat.last.latest')}
+								</ItemTitle>
+								<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{lastDescription}
+								</p>
+							</ItemContent>
+							<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
+								<Badge
+									variant={statusVariant(lastHeartbeat.status)}
+									className="h-5 rounded-md px-1.5 text-[10px]"
+								>
+									{t(`settings.heartbeat.status.${lastHeartbeat.status}`)}
+								</Badge>
+								{lastTimestamp && (
 									<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
-										{lastHeartbeat.channel ?? t('settings.heartbeat.values.noChannel')}
+										{lastTimestamp}
 									</Badge>
-								</>
-							}
-						/>
+								)}
+								{lastDuration && (
+									<Badge variant="outline" className="h-5 rounded-md px-1.5 font-mono text-[10px]">
+										{lastDuration}
+									</Badge>
+								)}
+								<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+									{lastHeartbeat.channel ?? t('settings.heartbeat.values.noChannel')}
+								</Badge>
+							</ItemActions>
+						</Item>
 					)}
 				</SettingsPanel>
 			</SettingsSection>
@@ -622,11 +632,23 @@ const HeartbeatPage: React.FC = () => {
 				title={t('settings.heartbeat.controls.title')}
 			>
 				<SettingsPanel>
-					<HeartbeatItem
-						icon={Zap}
-						title={t('settings.heartbeat.controls.wakeNow')}
-						description={t('settings.heartbeat.controls.wakeNowDescription')}
-						actions={
+					<Item
+						variant="outline"
+						size="md"
+						className="border-b border-border/60 px-3 py-2 last:border-b-0"
+					>
+						<ItemMedia variant="icon" className="size-6">
+							<Zap className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle className="max-w-full truncate">
+								{t('settings.heartbeat.controls.wakeNow')}
+							</ItemTitle>
+							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+								{t('settings.heartbeat.controls.wakeNowDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
 							<Button
 								type="button"
 								variant="outline"
@@ -637,14 +659,25 @@ const HeartbeatPage: React.FC = () => {
 								<Zap className="size-3" />
 								{t('settings.heartbeat.actions.wakeNow')}
 							</Button>
-						}
-					/>
-					<HeartbeatItem
-						icon={Send}
-						title={t('settings.heartbeat.controls.systemEvent')}
-						description={t('settings.heartbeat.controls.systemEventDescription')}
-						actionsClassName="sm:w-[520px]"
-						actions={
+						</ItemActions>
+					</Item>
+					<Item
+						variant="outline"
+						size="md"
+						className="border-b border-border/60 px-3 py-2 last:border-b-0"
+					>
+						<ItemMedia variant="icon" className="size-6">
+							<Send className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle className="max-w-full truncate">
+								{t('settings.heartbeat.controls.systemEvent')}
+							</ItemTitle>
+							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+								{t('settings.heartbeat.controls.systemEventDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[520px] sm:justify-end">
 							<div className="grid w-full gap-1.5">
 								<Textarea
 									id="heartbeat-system-event"
@@ -677,8 +710,8 @@ const HeartbeatPage: React.FC = () => {
 									</Button>
 								</div>
 							</div>
-						}
-					/>
+						</ItemActions>
+					</Item>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
