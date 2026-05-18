@@ -68,6 +68,73 @@ export const readTool: AgentTool<ReadArgs> = {
 	},
 };
 
+interface CopyImagesArgs {
+	sourceDir: string;
+	destDir?: string;
+	recursive?: boolean;
+	limit?: number;
+}
+
+const IMAGE_EXTENSIONS = new Set([
+	'.png',
+	'.jpg',
+	'.jpeg',
+	'.gif',
+	'.webp',
+	'.bmp',
+	'.tif',
+	'.tiff',
+	'.avif',
+	'.heic',
+	'.heif',
+]);
+const DEFAULT_COPY_IMAGES_LIMIT = 200;
+
+export const copyImagesTool: AgentTool<CopyImagesArgs> = {
+	name: 'copy_images',
+	description:
+		'Copy image files from a source folder, such as ~/Desktop, into the workspace without overwriting existing files.',
+	schema: {
+		type: 'object',
+		properties: {
+			sourceDir: { type: 'string', description: 'Source folder or image file. Absolute paths and ~ are supported.' },
+			destDir: { type: 'string', description: 'Workspace-relative destination folder. Defaults to workspace root.' },
+			recursive: { type: 'boolean', description: 'Copy images from nested folders too.' },
+			limit: { type: 'number', description: 'Maximum number of images to copy. Defaults to 200.' },
+		},
+		required: ['sourceDir'],
+		additionalProperties: false,
+	},
+	async execute(args, ctx) {
+		try {
+			const source = resolveAbs(ctx.workspace, args.sourceDir, false);
+			const destRoot = args.destDir
+				? resolveAbs(ctx.workspace, args.destDir, true)
+				: ctx.workspace;
+			const limit = Math.max(
+				1,
+				Math.min(
+					typeof args.limit === 'number' ? Math.floor(args.limit) : DEFAULT_COPY_IMAGES_LIMIT,
+					1000
+				)
+			);
+			const images = await collectImageSources(source, args.recursive === true, limit);
+			if (images.length === 0) return textResult(`copy_images: no supported image files found in ${source}`, true);
+			await fs.mkdir(destRoot, { recursive: true });
+
+			const copied: string[] = [];
+			for (const image of images) {
+				const dest = await uniqueDestination(destRoot, path.basename(image));
+				await fs.copyFile(image, dest);
+				copied.push(path.relative(ctx.workspace, dest).split(path.sep).join('/'));
+			}
+			return textResult(`Copied ${copied.length} image${copied.length === 1 ? '' : 's'}:\n${copied.join('\n')}`);
+		} catch (err) {
+			return textResult(`copy_images: ${(err as Error).message}`, true);
+		}
+	},
+};
+
 interface WriteArgs {
 	path: string;
 	content: string;
@@ -255,6 +322,42 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 		}
 	},
 };
+
+async function collectImageSources(source: string, recursive: boolean, limit: number): Promise<string[]> {
+	const stat = await fs.stat(source);
+	if (stat.isFile()) return isSupportedImage(source) ? [source] : [];
+	if (!stat.isDirectory()) throw new Error(`source is not a file or folder: ${source}`);
+
+	const images: string[] = [];
+	const pattern = recursive ? '**/*' : '*';
+	const iter = fs.glob(pattern, { cwd: source, exclude: FIND_EXCLUDES, withFileTypes: true });
+	for await (const dirent of iter) {
+		if (!dirent.isFile()) continue;
+		const full = path.join(dirent.parentPath, dirent.name);
+		if (!isSupportedImage(full)) continue;
+		images.push(full);
+		if (images.length >= limit) break;
+	}
+	return images;
+}
+
+function isSupportedImage(filePath: string): boolean {
+	return IMAGE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
+}
+
+async function uniqueDestination(destRoot: string, filename: string): Promise<string> {
+	const parsed = path.parse(filename);
+	for (let index = 0; index < 1000; index++) {
+		const suffix = index === 0 ? '' : `-${index}`;
+		const candidate = path.join(destRoot, `${parsed.name}${suffix}${parsed.ext}`);
+		try {
+			await fs.stat(candidate);
+		} catch {
+			return candidate;
+		}
+	}
+	throw new Error(`could not choose a non-existing destination for ${filename}`);
+}
 
 function parseUnifiedDiff(diff: string): PatchFile[] {
 	const lines = diff.split(/\r?\n/);
