@@ -209,7 +209,7 @@ function PageContent(): ReactElement {
 						/>
 					</div>
 				</ChatContainerRoot>
-				<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-4 pt-4">
+				<div className="z-20 flex shrink-0 justify-center border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
 					<PromptInput
 						value={agent.input}
 						onValueChange={agent.setInput}
