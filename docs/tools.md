@@ -13,7 +13,7 @@ This document lists the current tools and the filenames where they are defined. 
 | `cron_remove` | `cron.ts` |
 | `delete` | `fs.ts` |
 | `edit` | `fs.ts` |
-| `exec` | `exec.ts`, `exec-tool.ts` |
+| `exec` | `exec-tool.ts`, `exec.ts` |
 | `find` | `fs.ts` |
 | `get_agent_model` | `services.ts` |
 | `get_agent_service` | `services.ts` |
@@ -34,4 +34,3 @@ This document lists the current tools and the filenames where they are defined. 
 | `update_plan` | `plan.ts`, `update-plan-tool.ts` |
 | `web_fetch` | `web.ts` |
 | `write` | `fs.ts` |
-
