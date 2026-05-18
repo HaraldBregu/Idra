@@ -157,7 +157,7 @@ function PageContent(): ReactElement {
 				<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 					<ChatContainerContent
 						className={cn(
-							'mx-auto min-h-full w-full max-w-4xl gap-5',
+							'mx-auto min-h-full w-full max-w-4xl gap-5 pb-28',
 							showReferenceConversation ? 'justify-start pt-7' : 'pt-6'
 						)}
 					>
@@ -201,7 +201,7 @@ function PageContent(): ReactElement {
 						)}
 						<ChatContainerScrollAnchor />
 					</ChatContainerContent>
-					<div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
+					<div className="pointer-events-none absolute inset-x-0 bottom-24 flex justify-center">
 						<ScrollButton
 							type="button"
 							aria-label="Scroll to latest"
@@ -209,7 +209,7 @@ function PageContent(): ReactElement {
 						/>
 					</div>
 				</ChatContainerRoot>
-				<div className="z-20 flex shrink-0 justify-center border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+				<div className="absolute inset-x-0 bottom-0 z-20 flex justify-center border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
 					<PromptInput
 						value={agent.input}
 						onValueChange={agent.setInput}
