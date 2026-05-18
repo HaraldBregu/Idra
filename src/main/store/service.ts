@@ -16,7 +16,7 @@ import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
-import type { HeartbeatStoreState } from '../../shared/heartbeat';
+import type { AgentHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
 
 export class StoreService {
@@ -82,6 +82,34 @@ export class StoreService {
 		return this.store.get('service');
 	}
 
+	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
+		const current = this.store.get('service');
+		const currentAgents = current?.agents ?? {};
+		const currentDefaults = currentAgents.defaults ?? {};
+		const currentHeartbeat = currentDefaults.heartbeat ?? {};
+		const nextHeartbeat: AgentHeartbeatConfig = {
+			...currentHeartbeat,
+			...config,
+		};
+		if ('activeHours' in config && config.activeHours === undefined) {
+			delete nextHeartbeat.activeHours;
+		}
+		const next: Service = {
+			agent: current?.agent,
+			agents: {
+				...currentAgents,
+				defaults: {
+					...currentDefaults,
+					heartbeat: nextHeartbeat,
+				},
+			},
+			rag: current?.rag ?? '',
+			ocr: current?.ocr ?? '',
+		};
+		this.store.set('service', next);
+		return nextHeartbeat;
+	}
+
 	getAgentService(): Agent | undefined {
 		return this.store.get('service')?.agent;
 	}
@@ -109,6 +137,7 @@ export class StoreService {
 				},
 				model,
 			},
+			agents: current?.agents,
 			rag: current?.rag ?? '',
 			ocr: current?.ocr ?? '',
 		};
