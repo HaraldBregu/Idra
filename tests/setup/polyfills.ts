@@ -2,6 +2,9 @@
  * Jest setup file for the "renderer" project.
  * Adds browser polyfills needed by jsdom-based tests.
  */
+import { TextDecoder, TextEncoder } from 'node:util';
+
+Object.assign(globalThis, { TextDecoder, TextEncoder });
 
 // Polyfill PointerEvent (not implemented by jsdom, required by base-ui Switch)
 if (typeof globalThis.PointerEvent === 'undefined') {

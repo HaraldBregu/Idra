@@ -13,8 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Slider } from '@/components/ui/slider';
-import type { AppLanguage } from '../../../../contexts';
-import { useApp } from '@/contexts';
+import { useApp, type AppLanguage } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../../shared';
 import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
 

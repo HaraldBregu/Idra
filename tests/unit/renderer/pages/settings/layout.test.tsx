@@ -26,10 +26,10 @@ function renderSettings(path: string): void {
 }
 
 describe('Settings Layout', () => {
-	it('shows the current settings page and a General link', () => {
+	it('shows the current settings page and settings root link', () => {
 		renderSettings('/settings/cron');
 
 		expect(screen.getByText('settings.tabs.cron')).toBeInTheDocument();
-		expect(screen.getAllByRole('link', { name: 'settings.tabs.general' }).length).toBeGreaterThan(0);
+		expect(screen.getByRole('link', { name: 'settings.title' })).toHaveAttribute('href', '/settings');
 	});
 });

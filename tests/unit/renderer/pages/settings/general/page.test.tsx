@@ -24,7 +24,7 @@ describe('GeneralPage', () => {
 
 		expect(await screen.findByText('Friday')).toBeInTheDocument();
 		expect(screen.getByText('0.0.0-test')).toBeInTheDocument();
-		expect(screen.getByText('MIT')).toBeInTheDocument();
+		expect(screen.getByText('AI desktop assistant')).toBeInTheDocument();
 	});
 
 	it('loads and reflects the initial tray state', async () => {
