@@ -33,6 +33,10 @@ function StatCell({
 	);
 }
 
+function isInteractiveTarget(target: EventTarget | null): boolean {
+	return target instanceof HTMLElement && Boolean(target.closest('button,a,input,textarea,select,[role="switch"]'));
+}
+
 export function ConnectorCard({
 	connector,
 	busy,
@@ -59,7 +63,22 @@ export function ConnectorCard({
 	readonly setupUrl?: string;
 }): React.JSX.Element {
 	return (
-		<Card size="sm" className="gap-0 rounded-lg py-0 shadow-none">
+		<Card
+			size="sm"
+			role="button"
+			tabIndex={0}
+			onClick={(event) => {
+				if (isInteractiveTarget(event.target)) return;
+				onViewDetails();
+			}}
+			onKeyDown={(event) => {
+				if (isInteractiveTarget(event.target)) return;
+				if (event.key !== 'Enter' && event.key !== ' ') return;
+				event.preventDefault();
+				onViewDetails();
+			}}
+			className="cursor-pointer gap-0 rounded-lg py-0 shadow-none outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+		>
 			<CardContent className="flex flex-col p-0">
 
 				{/* Header */}
