@@ -52,9 +52,9 @@ export class WindowFactory {
 	 */
 	create(overrides: Partial<BrowserWindowConstructorOptions> = {}): BrowserWindow {
 		const options: BrowserWindowConstructorOptions = {
-			width: 405,
+			width: 440,
 			height: 555,
-			minWidth: 405,
+			minWidth: 440,
 			minHeight: 555,
 			show: false,
 			icon: this.iconPath,
