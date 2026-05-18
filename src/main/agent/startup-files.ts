@@ -276,8 +276,8 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		name: AgentStartupFileName,
 		filePath: string
 	): Promise<void> {
-		const rootRealPath = await fs.realpath(this.getRootPath(agentId));
-		if (!isPathInside(rootRealPath, filePath)) {
+		const rootPath = path.resolve(this.getRootPath(agentId));
+		if (!isPathInside(rootPath, filePath)) {
 			throw new Error(`Agent startup file resolves outside root: ${name}`);
 		}
 		try {
