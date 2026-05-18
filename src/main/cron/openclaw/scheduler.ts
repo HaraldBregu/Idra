@@ -28,7 +28,10 @@ import {
 	normalizeDelivery,
 	openClawScheduleIdentity,
 } from './validation';
-import { normalizeOpenClawCronToolRequest } from './normalize';
+import {
+	normalizeOpenClawCronToolRequest,
+	type OpenClawCronNormalizeContext,
+} from './normalize';
 
 export interface OpenClawCronLogger {
 	info(scope: string, message: string, metadata?: unknown): void;
@@ -354,10 +357,11 @@ export class OpenClawCronScheduler {
 
 	async handleToolAction(
 		request: OpenClawCronToolRequest | OpenClawCronCanonicalToolRequest | unknown,
-		actor: OpenClawCronActor = { role: 'owner' }
+		actor: OpenClawCronActor = { role: 'owner' },
+		context: Omit<OpenClawCronNormalizeContext, 'actor'> = {}
 	): Promise<OpenClawCronToolResponse> {
 		try {
-			const normalized = normalizeOpenClawCronToolRequest(request, { actor });
+			const normalized = normalizeOpenClawCronToolRequest(request, { ...context, actor });
 			const result = await this.handleToolActionOrThrow(normalized, actor);
 			return {
 				status: 'ok',
