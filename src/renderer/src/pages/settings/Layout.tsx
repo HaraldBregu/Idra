@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, Settings } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
-import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { SETTINGS_NAVIGATION } from './navigation';
 
@@ -18,7 +17,6 @@ function useSettingsCurrentPage(): { labelKey: string; path: string } | null {
 
 function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const current = useSettingsCurrentPage();
 	const isOverview = current?.path === '/settings';
 
@@ -46,16 +44,6 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 					</>
 				)}
 			</nav>
-			{!isOverview && (
-				<Button
-					type="button"
-					variant="outline"
-					size="xs"
-					onClick={() => navigate('/settings')}
-				>
-					{t('settings.overview.backToSettings')}
-				</Button>
-			)}
 		</header>
 	);
 }
