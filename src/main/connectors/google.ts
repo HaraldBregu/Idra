@@ -741,6 +741,21 @@ export function projectGoogleDriveFile(file: GoogleDriveFile): Record<string, un
 	};
 }
 
+export function projectGoogleDrivePermission(permission: GoogleDrivePermission): Record<string, unknown> {
+	return {
+		id: permission.id,
+		type: permission.type,
+		role: permission.role,
+		emailAddress: permission.emailAddress,
+		displayName: permission.displayName,
+		domain: permission.domain,
+		allowFileDiscovery: permission.allowFileDiscovery,
+		deleted: permission.deleted,
+		pendingOwner: permission.pendingOwner,
+		photoLink: permission.photoLink,
+	};
+}
+
 export function buildRawEmail(input: {
 	to: string[];
 	subject: string;
@@ -818,6 +833,19 @@ const GOOGLE_DRIVE_FILE_FIELDS = [
 	'driveId',
 	'parents',
 	'trashed',
+].join(',');
+
+const GOOGLE_DRIVE_PERMISSION_FIELDS = [
+	'id',
+	'type',
+	'role',
+	'emailAddress',
+	'displayName',
+	'domain',
+	'allowFileDiscovery',
+	'deleted',
+	'pendingOwner',
+	'photoLink',
 ].join(',');
 
 function buildDriveSearchQuery(query: string | undefined, mimeType: string | undefined): string {
