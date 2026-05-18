@@ -285,7 +285,6 @@
 			"enabled": "Attiva",
 			"disabled": "Disattivata",
 			"detailsTitle": "Dettagli Cron",
-			"backToCron": "Attivita cron",
 			"notFoundTitle": "Attivita cron non trovata",
 			"notFoundDescription": "L'attivita cron potrebbe essere stata rimossa.",
 			"emptyTitle": "Nessuna attivita cron",
