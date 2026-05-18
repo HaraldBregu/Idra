@@ -601,9 +601,9 @@ export class ConnectorsService {
 		const clientSecret =
 			this.options.googleOAuthClientSecret ||
 			process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-		if (!clientId) {
+		if (!clientId || !clientSecret) {
 			throw new Error(
-				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID in the app environment.'
+				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment.'
 			);
 		}
 		return {
