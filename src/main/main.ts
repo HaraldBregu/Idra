@@ -20,12 +20,6 @@ function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptio
 		};
 	}
 
-	if (process.platform === 'win32') {
-		return {
-			backgroundMaterial: 'acrylic',
-		};
-	}
-
 	return {};
 }
 
