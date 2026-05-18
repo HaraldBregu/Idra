@@ -192,19 +192,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'cron',
-						element: (
-							<RouteWrapper>
-								<CronPage />
-							</RouteWrapper>
-						),
-					},
-					{
-						path: 'cron/crondetails/:jobId',
-						element: (
-							<RouteWrapper>
-								<CronDetailsPage />
-							</RouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<RouteWrapper>
+										<CronPage />
+									</RouteWrapper>
+								),
+							},
+							{
+								path: 'crondetails/:jobId',
+								element: (
+									<RouteWrapper>
+										<CronDetailsPage />
+									</RouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'apps',
