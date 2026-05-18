@@ -32,6 +32,7 @@ export const GOOGLE_CALENDAR_SCOPES = {
 export const GOOGLE_DRIVE_SCOPES = {
 	profile: GOOGLE_GMAIL_SCOPES.profile,
 	read: ['https://www.googleapis.com/auth/drive.readonly'],
+	write: ['https://www.googleapis.com/auth/drive.file'],
 } as const;
 
 export type FetchLike = typeof fetch;
@@ -197,6 +198,25 @@ export interface GoogleDriveListResponse {
 	nextPageToken?: string;
 }
 
+export interface GoogleDrivePermission {
+	id?: string;
+	type?: string;
+	role?: string;
+	emailAddress?: string;
+	displayName?: string;
+	domain?: string;
+	allowFileDiscovery?: boolean;
+	deleted?: boolean;
+	pendingOwner?: boolean;
+	photoLink?: string;
+}
+
+export interface GoogleDrivePermissionListResponse {
+	permissions?: GoogleDrivePermission[];
+	nextPageToken?: string;
+	kind?: string;
+}
+
 export function buildGoogleAuthorizationUrl(input: {
 	clientId: string;
 	redirectUri?: string;
@@ -257,6 +277,9 @@ export function scopesForGoogleDriveTools(toolNames: readonly string[]): string[
 	const scopes = new Set<string>(GOOGLE_DRIVE_SCOPES.profile);
 	if (toolNames.some((tool) => tool !== 'get_profile')) {
 		GOOGLE_DRIVE_SCOPES.read.forEach((scope) => scopes.add(scope));
+	}
+	if (toolNames.includes('create_file')) {
+		GOOGLE_DRIVE_SCOPES.write.forEach((scope) => scopes.add(scope));
 	}
 	return [...scopes];
 }
