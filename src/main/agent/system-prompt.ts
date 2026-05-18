@@ -28,7 +28,7 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
 	find: 'Glob-search the workspace for files.',
-	exec: 'Run a shell command. Output capped at 200 lines / 16KB.',
+	exec: 'Run a shell command. Output capped at 200 lines / 16KB. Use `python3` for Python scripts unless the project specifies another command.',
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
 	cron: 'Create, update, list, run, or delete scheduled cron tasks.',
