@@ -6,9 +6,9 @@ import type { WindowContextManager } from './core/window-context';
 import type { MainServices } from './service-registry';
 
 const DEFAULT_WINDOW_WIDTH = 440;
-const DEFAULT_WINDOW_HEIGHT = 555;
+const DEFAULT_WINDOW_HEIGHT = 600;
 const STARTUP_WINDOW_WIDTH = 440;
-const STARTUP_WINDOW_HEIGHT = 555;
+const STARTUP_WINDOW_HEIGHT = 600;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
 
