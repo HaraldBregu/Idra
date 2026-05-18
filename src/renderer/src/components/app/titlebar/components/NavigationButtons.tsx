@@ -9,10 +9,10 @@ export function NavigationButtons() {
 
 	return (
 		<>
-			<NavButton onClick={goBack} disabled={!canGoBack} title={t('titleBar.navigateBack')}>
+			<NavButton ghost onClick={goBack} disabled={!canGoBack} title={t('titleBar.navigateBack')}>
 				<ArrowLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
 			</NavButton>
-			<NavButton onClick={goForward} disabled={!canGoForward} title={t('titleBar.navigateForward')}>
+			<NavButton ghost onClick={goForward} disabled={!canGoForward} title={t('titleBar.navigateForward')}>
 				<ArrowRight className="h-[15px] w-[15px]" strokeWidth={1.5} />
 			</NavButton>
 		</>
