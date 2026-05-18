@@ -255,100 +255,29 @@ const ChannelDetailPage: React.FC = () => {
 	};
 
 	return (
-		<SettingsPageShell className="max-w-6xl">
+		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.channels')}
-				description={t('settings.channels.description')}
+				title={selectedEntry?.label ?? t('settings.channels.configuration')}
+				description={selectedEntry?.blurb}
+				icon={HeaderIcon}
 				action={
 					<Button
 						type="button"
 						variant="outline"
 						size="xs"
-						disabled={!selectedConfig || busyChannel === selectedId}
-						onClick={() => void saveSelectedConfig()}
+						onClick={() => navigate('/settings/channels')}
 					>
-						<Save className="size-3" />
-						{t('common.save')}
+						<ChevronLeft className="size-3" />
+						{t('settings.tabs.channels')}
 					</Button>
 				}
 			/>
 
-			<div className="grid gap-3 lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
-				<SettingsSection
-					title={t('settings.channels.catalog')}
-					action={
-						<InputGroup className="h-7 w-full sm:w-56">
-							<InputGroupInput
-								value={filter}
-								onChange={(event) => setFilter(event.target.value)}
-								placeholder={t('settings.channels.searchPlaceholder')}
-								className="h-7 min-w-0 px-2 text-xs md:text-xs"
-								aria-label={t('settings.channels.searchPlaceholder')}
-							/>
-							<InputGroupAddon align="inline-start">
-								<Search className="size-3 text-muted-foreground" />
-							</InputGroupAddon>
-						</InputGroup>
-					}
-				>
-					<SettingsPanel>
-						<div className="grid max-h-[620px] overflow-y-auto p-1.5">
-							{filteredCatalog.map((entry) => {
-								const Icon = CHANNEL_ICONS[entry.id] ?? Bot;
-								const config = configs?.[entry.id];
-								const account = config
-									? getDefaultAccountConfig(entry.id, config)
-									: emptyAccountConfig(entry.id);
-								const isSelected = entry.id === selectedId;
-								const isEnabled = isChannelEnabled(entry.id, config);
-								const isConfigured = isAccountConfigured(account);
+			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
 
-								return (
-									<button
-										key={entry.id}
-										type="button"
-										onClick={() => setSelectedId(entry.id)}
-										className={cn(
-											'grid min-h-14 grid-cols-[auto_minmax(0,1fr)] items-start gap-2 rounded-md px-2 py-2 text-left outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring',
-											isSelected && 'bg-muted text-foreground'
-										)}
-									>
-										<span className="mt-0.5 flex size-7 items-center justify-center rounded-md bg-background text-muted-foreground ring-1 ring-border/70">
-											<Icon className="size-3.5" />
-										</span>
-										<span className="min-w-0">
-											<span className="flex min-w-0 items-center gap-1.5">
-												<span className="truncate text-xs font-medium">{entry.label}</span>
-												{isEnabled && (
-													<CheckCircle2 className="size-3 shrink-0 text-emerald-600" />
-												)}
-											</span>
-											<span className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-												{entry.blurb}
-											</span>
-											<span className="mt-1 flex flex-wrap gap-1">
-												<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-													{isConfigured
-														? t('settings.channels.configured')
-														: t('settings.channels.notConfigured')}
-												</Badge>
-												<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-													{RUNTIME_CHANNELS.has(entry.id)
-														? t('settings.channels.runtime')
-														: t('settings.channels.configOnly')}
-												</Badge>
-											</span>
-										</span>
-									</button>
-								);
-							})}
-						</div>
-					</SettingsPanel>
-				</SettingsSection>
-
+			{selectedId ? (
 				<SettingsSection
-					title={selectedEntry?.label ?? t('settings.channels.configuration')}
-					description={selectedEntry?.blurb}
+					title={t('settings.channels.configuration')}
 					action={
 						<div className="flex flex-wrap items-center gap-1.5">
 							<Badge variant="outline" className="h-5 px-2 text-[10px]">
@@ -365,7 +294,7 @@ const ChannelDetailPage: React.FC = () => {
 						</div>
 					}
 				>
-					<SettingsPanel>
+					<Card size="sm" className="gap-0! p-0!">
 						<Item variant="outline" size="sm" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<ShieldCheck className="size-3" strokeWidth={1.8} />
