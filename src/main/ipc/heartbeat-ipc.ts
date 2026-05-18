@@ -7,6 +7,7 @@ import { HeartbeatChannels } from '../../shared/ipc-channels';
 import type {
 	HeartbeatSetEnabledRequest,
 	HeartbeatSystemEventRequest,
+	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../../shared/heartbeat';
 
@@ -39,6 +40,19 @@ export class HeartbeatIpc implements IpcModule {
 				if (typeof request.enabled !== 'boolean') throw new Error('enabled must be boolean.');
 				return heartbeat.setEnabled(request.enabled);
 			}, HeartbeatChannels.setEnabled)
+		);
+
+		ipcMain.handle(
+			HeartbeatChannels.getTiming,
+			wrapSimpleHandler(() => heartbeat.getTiming(), HeartbeatChannels.getTiming)
+		);
+
+		ipcMain.handle(
+			HeartbeatChannels.updateTiming,
+			wrapSimpleHandler((request: HeartbeatTimingSettings) => {
+				assertObject(request);
+				return heartbeat.updateTiming(request);
+			}, HeartbeatChannels.updateTiming)
 		);
 
 		ipcMain.handle(
