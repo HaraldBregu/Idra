@@ -452,12 +452,23 @@ const HeartbeatPage: React.FC = () => {
 						<SettingsLoadingRows rows={2} />
 					) : (
 						<>
-							<HeartbeatItem
-								icon={Clock3}
-								title={t('settings.heartbeat.timing.every')}
-								description={t('settings.heartbeat.timing.everyDescription')}
-								actionsClassName="sm:w-[520px]"
-								actions={
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Clock3 className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.timing.every')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.timing.everyDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[520px] sm:justify-end">
 									<div className="grid w-full gap-1.5">
 										<Input
 											id="heartbeat-every"
@@ -488,14 +499,25 @@ const HeartbeatPage: React.FC = () => {
 											))}
 										</div>
 									</div>
-								}
-							/>
-							<HeartbeatItem
-								icon={TimerReset}
-								title={t('settings.heartbeat.timing.activeHours')}
-								description={t('settings.heartbeat.timing.activeHoursDescription')}
-								actionsClassName="sm:w-[620px]"
-								actions={
+								</ItemActions>
+							</Item>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<TimerReset className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.timing.activeHours')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.timing.activeHoursDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[620px] sm:justify-end">
 									<div className="grid w-full gap-2">
 										<div className="grid gap-1.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)]">
 											<Input
@@ -544,8 +566,8 @@ const HeartbeatPage: React.FC = () => {
 											</Button>
 										</div>
 									</div>
-								}
-							/>
+								</ItemActions>
+							</Item>
 						</>
 					)}
 				</SettingsPanel>
