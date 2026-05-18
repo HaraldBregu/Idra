@@ -257,6 +257,14 @@ function deliveryFrom(
 	if (threadId) delivery.threadId = threadId;
 	if (accountId) delivery.accountId = accountId;
 	if (bestEffort !== undefined) delivery.bestEffort = bestEffort;
+	if (
+		inferred &&
+		(delivery.mode ?? inferred.mode) === 'announce' &&
+		!delivery.to &&
+		!delivery.channel
+	) {
+		return { ...inferred, ...delivery };
+	}
 	return delivery;
 }
 
