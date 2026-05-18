@@ -157,7 +157,7 @@ function PageContent(): ReactElement {
 				<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 					<ChatContainerContent
 						className={cn(
-							'mx-auto min-h-full w-full max-w-4xl gap-5 pb-28 px-6',
+							'mx-auto min-h-full w-full max-w-4xl gap-5 pb-28 px-4',
 							showReferenceConversation ? 'justify-start pt-7' : 'pt-6'
 						)}
 					>
