@@ -263,12 +263,17 @@
 			"details": {
 				"id": "Id",
 				"schedule": "Pianificazione",
+				"target": "Destinazione",
+				"delivery": "Consegna",
 				"timezone": "Fuso Orario",
 				"createdAt": "Creata",
+				"updatedAt": "Aggiornata",
 				"lastRun": "Ultima Esecuzione",
 				"nextRun": "Prossima Esecuzione",
 				"payload": "Payload"
 			},
+			"enabled": "Attiva",
+			"disabled": "Disattivata",
 			"emptyTitle": "Nessuna attivita cron",
 			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."
 		},
