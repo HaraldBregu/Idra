@@ -93,10 +93,10 @@ describe('Tray', () => {
 		const callbacks = createCallbacks();
 		new Tray(callbacks).create();
 		const tray = getCreatedTray();
-		const contextMenu = (Menu.buildFromTemplate as jest.Mock).mock.results.at(-1)?.value;
 
 		tray?.emit('right-click');
 
+		const contextMenu = (Menu.buildFromTemplate as jest.Mock).mock.results.at(-1)?.value;
 		expect(callbacks.onShowApp).not.toHaveBeenCalled();
 		expect(tray?.popUpContextMenu).toHaveBeenCalledWith(contextMenu);
 		expect(tray?.setContextMenu).not.toHaveBeenCalled();
