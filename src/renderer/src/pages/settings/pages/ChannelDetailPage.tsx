@@ -60,7 +60,6 @@ import { isChannelId, type ChannelCatalogEntry } from '../../../../../shared/cha
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
-const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
 const PHONE_CHANNELS = new Set<ChannelType>([
 	'imessage',
 	'line',
@@ -780,15 +779,6 @@ function updateChannelEnabled(
 function isChannelEnabled(channelId: ChannelType, config: EditableChannelConfig | null | undefined): boolean {
 	if (!config) return false;
 	return Boolean((config as GenericChannelProperties).enabled ?? getDefaultAccountConfig(channelId, config).enabled);
-}
-
-function isAccountConfigured(account: ChannelAccountProperties): boolean {
-	return Boolean(
-		account.token?.trim() ||
-			account.webhookUrl?.trim() ||
-			account.serverUrl?.trim() ||
-			account.phoneNumber?.trim()
-	);
 }
 
 function emptyAccountConfig(channelId: ChannelType): ChannelAccountProperties {
