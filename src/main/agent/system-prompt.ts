@@ -1,5 +1,4 @@
 import type { AgentTool } from '../tools/types';
-import { createMemoryPromptSection } from '../memory-runtime';
 import type { MemoryManager } from '../memory';
 import type { SkillPromptChoice } from '../skills/types';
 import {
@@ -60,8 +59,6 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			guidance.push(`- **${tool.name}** — ${line}`);
 		}
 		parts.push(guidance.join('\n'));
-		const memoryPromptSection = createMemoryPromptSection(ctx.tools);
-		if (memoryPromptSection) parts.push(memoryPromptSection);
 	} else {
 		parts.push(
 			[
