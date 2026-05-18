@@ -61,6 +61,9 @@ export function selectAgentToolsForTurn(
 		topN: options.maxPromptTools ?? TOOL_LIMITS.prompt.defaultMaxTools,
 	});
 	const selectedNames = new Set(rankedTools.map((entry) => entry.tool.name));
+	for (const toolName of selectGoogleCalendarToolNames(tools, userMessage)) {
+		selectedNames.add(toolName);
+	}
 	const addedPrerequisites = addPrerequisiteToolNames(selectedNames, tools);
 	const toolsForPrompt = tools.filter((tool) => selectedNames.has(tool.name));
 	const rankedToolsForPrompt = appendPrerequisiteRankedTools(
@@ -83,6 +86,34 @@ const TOOL_PREREQUISITES: Record<string, string[]> = {
 	copy: ['read'],
 	move: ['read'],
 };
+
+function selectGoogleCalendarToolNames(tools: AgentTool[], userMessage: string): Set<string> {
+	const request = userMessage.toLowerCase();
+	if (!/\b(google calendar|calendar|agenda|availability|available|free|busy|meetings?|events?|appointments?|schedule)\b/.test(request)) {
+		return new Set();
+	}
+
+	const suffixes = new Set<string>(['list_calendars', 'search_events']);
+	if (/\b(fetch|read|details?|open)\b/.test(request)) {
+		suffixes.add('read_event');
+		suffixes.add('fetch');
+	}
+	if (/\b(create|add|schedule|book|new)\b/.test(request)) suffixes.add('create_event');
+	if (/\b(update|reschedule|move|change|edit|modify)\b/.test(request)) suffixes.add('update_event');
+	if (/\b(delete|cancel|remove)\b/.test(request)) suffixes.add('delete_event');
+
+	return new Set(
+		tools
+			.filter(isGoogleCalendarTool)
+			.filter((tool) => [...suffixes].some((suffix) => tool.name.endsWith(`_${suffix}`)))
+			.map((tool) => tool.name)
+	);
+}
+
+function isGoogleCalendarTool(tool: AgentTool): boolean {
+	const text = `${tool.name} ${tool.description}`.toLowerCase();
+	return text.includes('google calendar') || text.includes('google_calendar');
+}
 
 function addPrerequisiteToolNames(selectedNames: Set<string>, tools: AgentTool[]): Set<string> {
 	const availableNames = new Set(tools.map((tool) => tool.name));

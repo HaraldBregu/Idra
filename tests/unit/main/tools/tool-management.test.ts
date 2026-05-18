@@ -602,6 +602,37 @@ describe('tool management layer', () => {
 		expect(selection.systemPromptSuffix).toBe('');
 	});
 
+	it('keeps Google Calendar connector tools available for calendar intents', () => {
+		const tools: AgentTool[] = [
+			...Array.from({ length: 20 }, (_, index) => ({
+				name: index === 0 ? 'web_fetch' : `tool_${index}`,
+				description: index === 0 ? 'Fetch current data from the web.' : 'Generic utility.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			})),
+			{
+				name: 'google_calendar_list_calendars',
+				description: 'Google Calendar: List Google calendars available to the connected account.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			},
+			{
+				name: 'google_calendar_search_events',
+				description: 'Google Calendar: Search Google Calendar events by text and time range.',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			},
+		];
+		const selection = selectAgentToolsForTurn(tools, 'Show my agenda tomorrow', makeToolContext(), {
+			forceSelection: true,
+			maxPromptTools: 4,
+		});
+		const selectedToolNames = selection.toolsForPrompt.map((tool) => tool.name);
+
+		expect(selectedToolNames).toContain('google_calendar_list_calendars');
+		expect(selectedToolNames).toContain('google_calendar_search_events');
+	});
+
 	it('honors explicit no-tool requests even with a small tool set', () => {
 		const tools: AgentTool[] = [
 			{
