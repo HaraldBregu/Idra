@@ -48,7 +48,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
-	const { isFullScreen, isMaximized } = useWindowState();
+	const { isFullScreen } = useWindowState();
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
@@ -57,7 +57,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const homeButtonLabel = t('titleBar.home', 'Home');
 
 	return (
-		<TitleBarProvider value={{ isMac, isFullScreen, isMaximized }}>
+		<TitleBarProvider value={{ isMac, isFullScreen }}>
 			<TitleBarContainer className={className} style={style}>
 				{/* ── Left: platform menu + sidebar toggle + nav buttons ── */}
 				<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
@@ -151,7 +151,7 @@ export const TitleBar = React.memo(function TitleBar({
 					</div>
 				)}
 
-				{/* ── Windows only: minimize / maximize / close ── */}
+				{/* ── Windows only: minimize / close ── */}
 				{!isMac && <WindowControls />}
 			</TitleBarContainer>
 		</TitleBarProvider>

@@ -1,14 +1,12 @@
-import { Maximize2, Minus, X } from 'lucide-react';
+import { Minus, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TitleBarRightContainer } from '../TitleBarRightContainer';
-import { useTitleBarContext } from '../context/TitleBarContext';
 
 const btnBase =
 	'flex items-center justify-center h-full w-[46px] text-muted-foreground hover:bg-accent/80 hover:text-foreground active:bg-accent transition-colors duration-100';
 
 export function WindowControls() {
 	const { t } = useTranslation();
-	const { isMaximized } = useTitleBarContext();
 
 	return (
 		<TitleBarRightContainer>
@@ -19,15 +17,6 @@ export function WindowControls() {
 				title={t('titleBar.minimize')}
 			>
 				<Minus className="h-[13px] w-[13px]" strokeWidth={1.5} />
-			</button>
-
-			<button
-				type="button"
-				onClick={() => window.win?.maximize()}
-				className={btnBase}
-				title={isMaximized ? t('titleBar.restore', 'Restore') : t('titleBar.maximize', 'Maximize')}
-			>
-				<Maximize2 className="h-[12px] w-[12px]" strokeWidth={1.5} />
 			</button>
 
 			<button

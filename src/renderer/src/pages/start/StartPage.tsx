@@ -1520,7 +1520,7 @@ const StartPage: React.FC = () => {
 
 	return (
 		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			<header className="shrink-0 border-b border-border/50 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+			<header className="pointer-events-none fixed inset-x-0 top-12 z-40 px-4 py-3 sm:px-6">
 				<nav
 					aria-label="Setup navigation"
 					className="mx-auto flex w-full max-w-2xl items-center justify-end"
@@ -1529,6 +1529,7 @@ const StartPage: React.FC = () => {
 						type="button"
 						variant="ghost"
 						size="xs"
+						className="pointer-events-auto"
 						onClick={() => navigate('/home')}
 					>
 						Skip
