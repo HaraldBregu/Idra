@@ -222,6 +222,43 @@ describe('tool management layer', () => {
 		});
 	});
 
+	it('treats Google profile and mail requests as tool-backed private data access', () => {
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Get my Gmail profile.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request depends on external, private, current, or mutable data',
+		});
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Show my messages.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request depends on external, private, current, or mutable data',
+		});
+	});
+
+	it('selects connector Gmail tools from their descriptions even with custom labels', () => {
+		const gmailProfileTool: AgentTool = {
+			name: 'work_get_profile',
+			description: 'Work Gmail: Get the connected Gmail profile.',
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		};
+		const selected = selectAgentToolsForTurn(
+			[
+				{
+					name: 'read',
+					description: 'Read files',
+					schema: { type: 'object', properties: {}, additionalProperties: false },
+					execute: jest.fn(),
+				},
+				gmailProfileTool,
+			],
+			'get my gmail profile',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['work_get_profile']);
+		expect(selected.rankedTools[0]?.tool.category).toBe('email');
+	});
+
 	it('runs sensitive actions directly', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
