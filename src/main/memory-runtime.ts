@@ -249,18 +249,6 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 	}
 }
 
-export function createMemoryPromptSection(tools: Array<{ name: string }>): string | undefined {
-	const names = new Set(tools.map((tool) => tool.name));
-	if (!names.has('memory_search') || !names.has('memory_get')) return undefined;
-	return [
-		'## Memory Recall',
-		'- Use `memory_search` before answering questions about prior work, decisions, user preferences, people, dates, TODOs, or project history.',
-		'- After a useful memory hit, use `memory_get` to inspect the source file before relying on it.',
-		'- Search `corpus: "sessions"` when the user asks about previous conversations or session history.',
-		'- Do not pretend to remember prior context unless you searched memory in this turn or the user supplied it in the current conversation.',
-	].join('\n');
-}
-
 export function canAccessSession(
 	requesterSessionId: string | undefined,
 	target: Pick<SessionFile, 'id' | 'parentSessionId' | 'spawnedBySessionId'>,
