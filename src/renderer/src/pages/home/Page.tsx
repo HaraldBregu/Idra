@@ -86,7 +86,7 @@ function SubmitButton({
 				type="button"
 				variant="default"
 				size="icon"
-				className="size-9 overflow-hidden rounded-lg bg-foreground text-background hover:bg-foreground/90"
+				className="size-9 overflow-hidden rounded-full bg-foreground text-background hover:bg-foreground/90"
 				aria-label={label}
 				onClick={onAction}
 			>
