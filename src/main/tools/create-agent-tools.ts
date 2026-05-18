@@ -87,6 +87,10 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
 	write: 'includeFileTools',
 	edit: 'includeFileTools',
 	apply_patch: 'includeFileTools',
+	delete: 'includeFileTools',
+	copy: 'includeFileTools',
+	move: 'includeFileTools',
+	inspect_file: 'includeFileTools',
 	find: 'includeFileTools',
 	exec: 'includeShellTools',
 	process: 'includeShellTools',
@@ -255,7 +259,7 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 }
 
 function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
-	return readOnly ? { deny: ['write', 'edit', 'apply_patch'] } : undefined;
+	return readOnly ? { deny: ['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'] } : undefined;
 }
 
 function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy | undefined {
