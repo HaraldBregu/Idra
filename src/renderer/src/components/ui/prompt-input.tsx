@@ -145,13 +145,12 @@ function PromptInputVoiceWaveform({
   return (
     <div
       className={cn(
-        "relative min-w-0 overflow-hidden rounded-full bg-muted/70 shadow-inner",
+        "min-w-0 overflow-hidden rounded-full bg-muted/70 shadow-inner",
         muted && "bg-muted/50"
       )}
-      style={{ height: 28 }}
       aria-hidden="true"
     >
-      <WaveAnimation active={!muted} height={28} className="absolute inset-0" />
+      <WaveAnimation active={!muted} height={28} />
     </div>
   )
 }
