@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CHANNEL_PROVIDER_IDS, type Channel, type ChannelType } from '../../../../../src/shared/channels';
-import { listChannelCatalog } from '../../../../../src/shared/channel-catalog';
-import ChannelsPage from '../../../../../src/renderer/src/pages/settings/pages/ChannelsPage';
+import { CHANNEL_PROVIDER_IDS, type Channel, type ChannelType } from '../../../../../../src/shared/channels';
+import { listChannelCatalog } from '../../../../../../src/shared/channel-catalog';
+import ChannelsPage from '../../../../../../src/renderer/src/pages/settings/pages/channels/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({

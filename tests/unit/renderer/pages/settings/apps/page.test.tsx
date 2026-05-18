@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { AppInfo } from '../../../../../src/shared/apps';
-import AppsPage from '../../../../../src/renderer/src/pages/settings/pages/AppsPage';
+import type { AppInfo } from '../../../../../../src/shared/apps';
+import AppsPage from '../../../../../../src/renderer/src/pages/settings/pages/apps/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { OpenClawCronJob } from '../../../../../src/shared/cron';
-import CronPage from '../../../../../src/renderer/src/pages/settings/pages/CronPage';
+import type { OpenClawCronJob } from '../../../../../../src/shared/cron';
+import CronPage from '../../../../../../src/renderer/src/pages/settings/pages/cron/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({

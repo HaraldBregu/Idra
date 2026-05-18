@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { SkillInfo } from '../../../../../src/shared/skills';
-import SkillsPage from '../../../../../src/renderer/src/pages/settings/pages/SkillsPage';
+import type { SkillInfo } from '../../../../../../src/shared/skills';
+import SkillsPage from '../../../../../../src/renderer/src/pages/settings/pages/skills/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
