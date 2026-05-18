@@ -41,6 +41,11 @@ describe('HeartbeatPage', () => {
 			status: jest.fn(async () => makeStatus()),
 			last: jest.fn(async () => makeLastHeartbeat()),
 			setEnabled: jest.fn(async (request) => makeStatus({ enabled: request.enabled })),
+			getTiming: jest.fn(async () => ({
+				every: '30m',
+				activeHours: { start: '09:00', end: '18:00', timezone: 'Europe/Rome' },
+			})),
+			updateTiming: jest.fn(async (request) => request),
 			systemEvent: jest.fn(async () => ({
 				queued: true,
 				sessionKey: 'agent:default:main',
@@ -57,6 +62,23 @@ describe('HeartbeatPage', () => {
 		expect(await screen.findByText('settings.heartbeat.values.enabled')).toBeInTheDocument();
 		expect(screen.getByText('settings.heartbeat.values.active')).toBeInTheDocument();
 		expect(screen.getByText('Review needed')).toBeInTheDocument();
+	});
+
+	it('saves heartbeat timing changes', async () => {
+		const user = userEvent.setup();
+		render(<HeartbeatPage />);
+
+		const everyInput = await screen.findByLabelText('settings.heartbeat.timing.every');
+		await user.clear(everyInput);
+		await user.type(everyInput, '15m');
+		await user.click(screen.getByRole('button', { name: 'settings.heartbeat.actions.saveTiming' }));
+
+		await waitFor(() => {
+			expect(window.heartbeat.updateTiming).toHaveBeenCalledWith({
+				every: '15m',
+				activeHours: { start: '09:00', end: '18:00', timezone: 'Europe/Rome' },
+			});
+		});
 	});
 
 	it('toggles global heartbeat execution', async () => {
