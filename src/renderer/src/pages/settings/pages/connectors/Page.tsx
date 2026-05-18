@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { AlertTriangle, ExternalLink, Plug, Plus, Wrench } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, ExternalLink, Plug, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,6 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
-import { ConnectorToolsList } from './components/ConnectorToolsList';
 import { useConnectors, type ConnectorCatalog } from './hooks/useConnectors';
 
 interface ConnectorFormState {
@@ -127,14 +127,13 @@ function getRedirectUri(item: ConnectorCatalog[number] | undefined): string {
 }
 
 const ConnectorsPage: React.FC = () => {
+	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId, connectingId,
 		error, setError,
 		statusMessage,
-		selectedId, selectedTools,
 		load,
 		toggleConnector, refreshTools, connectOAuth, removeConnector,
-		viewDetails, clearSelection,
 	} = useConnectors();
 
 	const [showForm, setShowForm] = useState(false);
@@ -207,6 +206,10 @@ const ConnectorsPage: React.FC = () => {
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
+	};
+
+	const openConnectorDetails = (id: string): void => {
+		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
 	};
 
 	return (
@@ -493,37 +496,13 @@ const ConnectorsPage: React.FC = () => {
 									onConnect={() => void connectOAuth(connector)}
 									onEdit={() => void editConnector(connector.id)}
 									onRemove={() => void removeConnector(connector)}
-									onViewDetails={() => void viewDetails(connector.id)}
+									onViewDetails={() => openConnectorDetails(connector.id)}
 								/>
 							);
 						})}
 					</div>
 				)}
 			</SettingsSection>
-
-			{selectedId && (
-				<SettingsSection
-					title="Tools"
-					action={
-						<Button variant="outline" size="xs" onClick={clearSelection}>
-							Close
-						</Button>
-					}
-				>
-					<SettingsPanel>
-						<div className="border-b border-border/60 px-3 py-2">
-							<Badge
-								variant="outline"
-								className="h-5 rounded-md bg-muted/40 px-1.5 text-[10px] text-muted-foreground"
-							>
-								<Wrench className="mr-1 size-3" />
-								{selectedTools.length} tools
-							</Badge>
-						</div>
-						<ConnectorToolsList tools={selectedTools} />
-					</SettingsPanel>
-				</SettingsSection>
-			)}
 		</SettingsPageShell>
 	);
 };
