@@ -35,7 +35,7 @@ function SettingsBreadcrumbHeader(): React.JSX.Element {
 				>
 					{t('settings.title')}
 				</Link>
-				{current && (
+				{current && !isOverview && (
 					<>
 						<ChevronRight className="size-3 shrink-0 text-muted-foreground/60" strokeWidth={1.8} />
 						<span className="min-w-0 truncate font-medium text-foreground">
