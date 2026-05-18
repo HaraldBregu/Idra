@@ -436,7 +436,7 @@ function PromptInput({
               className={cn(
                 "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
                 voiceMode
-                  ? "flex min-h-10 items-center gap-2 rounded-full border-[#2f3035] bg-[#202024] p-1.5 text-white shadow-[0_12px_35px_rgba(0,0,0,0.26)] focus-within:ring-0"
+                  ? "flex min-h-10 items-center gap-2 rounded-full p-1.5 focus-within:ring-0"
                   : isExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
                   : "flex min-h-10 items-center gap-2 rounded-full p-1.5",
