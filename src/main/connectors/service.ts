@@ -881,6 +881,13 @@ function readString(params: Record<string, unknown>, key: string): string | unde
 	return trimmed || undefined;
 }
 
+function readText(params: Record<string, unknown>, key: string): string | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
+	return value;
+}
+
 function readNumber(params: Record<string, unknown>, key: string): number | undefined {
 	const value = params[key];
 	if (value === undefined || value === null || value === '') return undefined;
@@ -949,7 +956,7 @@ function readDriveCreateFileParams(params: Record<string, unknown>): {
 	return {
 		name,
 		mimeType: readString(params, 'mimeType'),
-		content: readString(params, 'content') ?? readString(params, 'text'),
+		content: readText(params, 'content') ?? readText(params, 'text'),
 		contentMimeType: readString(params, 'contentMimeType'),
 		parents: readStringList(params, 'parents') ?? (parentId ? [parentId] : undefined),
 		description: readString(params, 'description'),
