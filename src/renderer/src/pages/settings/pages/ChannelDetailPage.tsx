@@ -281,14 +281,14 @@ const ChannelDetailPage: React.FC = () => {
 					}
 				>
 					<Card size="sm" className="gap-0! p-0!">
-						<Item variant="outline" size="sm" className="border-b border-border/60">
+						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<ShieldCheck className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.enabled')}</ItemTitle>
 							</ItemContent>
-							<ItemActions>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<Switch
 									size="sm"
 									checked={isChannelEnabled(selectedId, selectedConfig)}
@@ -302,14 +302,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm" className="border-b border-border/60">
+						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<UserRound className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.accountLabel')}</ItemTitle>
 							</ItemContent>
-							<ItemActions>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<Input
 									value={selectedAccount.label ?? ''}
 									onChange={(event) => updateAccountField('label', event.target.value)}
@@ -321,14 +321,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm" className="border-b border-border/60">
+						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<KeyRound className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.token')}</ItemTitle>
 							</ItemContent>
-							<ItemActions>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<Input
 									type="password"
 									value={selectedAccount.token ?? ''}
@@ -342,14 +342,14 @@ const ChannelDetailPage: React.FC = () => {
 						</Item>
 
 						{PHONE_CHANNELS.has(selectedId) && (
-							<Item variant="outline" size="sm" className="border-b border-border/60">
+							<Item variant="outline" size="md" className="border-b border-border/60">
 								<ItemMedia variant="icon">
 									<Phone className="size-3" strokeWidth={1.8} />
 								</ItemMedia>
 								<ItemContent>
 									<ItemTitle>{t('settings.channels.phoneNumber')}</ItemTitle>
 								</ItemContent>
-								<ItemActions>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Input
 										type="tel"
 										value={selectedAccount.phoneNumber ?? ''}
@@ -364,14 +364,14 @@ const ChannelDetailPage: React.FC = () => {
 						)}
 
 						{SERVER_CHANNELS.has(selectedId) && (
-							<Item variant="outline" size="sm" className="border-b border-border/60">
+							<Item variant="outline" size="md" className="border-b border-border/60">
 								<ItemMedia variant="icon">
 									<Server className="size-3" strokeWidth={1.8} />
 								</ItemMedia>
 								<ItemContent>
 									<ItemTitle>{t('settings.channels.serverUrl')}</ItemTitle>
 								</ItemContent>
-								<ItemActions>
+								<ItemActions className="ml-auto flex-none justify-end">
 									<Input
 										value={selectedAccount.serverUrl ?? ''}
 										onChange={(event) => updateAccountField('serverUrl', event.target.value)}
@@ -384,14 +384,14 @@ const ChannelDetailPage: React.FC = () => {
 							</Item>
 						)}
 
-						<Item variant="outline" size="sm" className="border-b border-border/60">
+						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<Link2 className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.webhookUrl')}</ItemTitle>
 							</ItemContent>
-							<ItemActions>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<Input
 									value={selectedAccount.webhookUrl ?? ''}
 									onChange={(event) => updateAccountField('webhookUrl', event.target.value)}
@@ -403,14 +403,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm" className="border-b border-border/60">
+						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<Hash className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.defaultTarget')}</ItemTitle>
 							</ItemContent>
-							<ItemActions>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<Input
 									value={selectedAccount.defaultTarget ?? ''}
 									onChange={(event) => updateAccountField('defaultTarget', event.target.value)}
@@ -422,14 +422,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm" className="border-b border-border/60">
+						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<ShieldCheck className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
 							</ItemContent>
-							<ItemActions>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<Select
 									value={selectedAccount.dmPolicy ?? 'allowlist'}
 									onValueChange={(value) =>
@@ -450,14 +450,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm" className="border-b border-border/60 flex-wrap">
+						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
 							<ItemMedia variant="icon">
 								<UserRound className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
 							</ItemContent>
-							<ItemActions className="w-full sm:w-[26rem] sm:flex-none">
+							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
 								<ListEditor
 									value={listDrafts.allowFrom}
 									items={selectedAccount.allowFrom ?? []}
@@ -474,14 +474,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm" className="border-b border-border/60 flex-wrap">
+						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
 							<ItemMedia variant="icon">
 								<Hash className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
 							</ItemContent>
-							<ItemActions className="w-full sm:w-[26rem] sm:flex-none">
+							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
 								<ListEditor
 									value={listDrafts.groupAllowFrom}
 									items={selectedAccount.groupAllowFrom ?? []}
@@ -498,14 +498,14 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="sm">
+						<Item variant="outline" size="md">
 							<ItemMedia variant="icon">
 								<RadioTower className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>{t('settings.channels.status')}</ItemTitle>
 							</ItemContent>
-							<ItemActions className="flex-wrap gap-2">
+							<ItemActions className="ml-auto flex-none flex-wrap justify-end gap-2">
 								<Badge
 									variant={getConnectionBadgeVariant(selectedStatus)}
 									className="h-4 px-1.5 text-[10px] capitalize"
