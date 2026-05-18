@@ -30,7 +30,7 @@ export class ToolUsePolicy {
 		if (needsExternalAccess(request)) {
 			return { shouldUseTools: true, reason: 'request depends on external, private, current, or mutable data' };
 		}
-		if (/\b(calculate|compute|math|run tests|build|execute)\b/.test(request)) {
+		if (/\b(calculate|compute|math|run tests?|build|execute|run|script|python|terminal|shell)\b/.test(request)) {
 			return { shouldUseTools: true, reason: 'request benefits from reliable computation or execution' };
 		}
 		if (input.modelUncertainty) {
