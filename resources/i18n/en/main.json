@@ -299,29 +299,32 @@
 			"emptyDescription": "Cron tasks will appear here once they are configured."
 		},
 		"heartbeat": {
-			"description": "Monitor the gateway-owned heartbeat runner and queue manual checks.",
+			"description": "Heartbeat runner and manual checks.",
 			"runtime": {
 				"title": "Runtime",
-				"description": "Global execution state for configured heartbeat agents.",
+				"description": "Runner state.",
 				"enabled": "Heartbeats",
-				"enabledDescription": "Pause or resume all heartbeat execution without deleting schedules.",
+				"enabledDescription": "Pause or resume checks.",
 				"toggleLabel": "Toggle heartbeats",
 				"runner": "Runner",
 				"runnerDescription": "Whether the control-plane scheduler is currently active.",
 				"agents": "Configured Agents",
 				"agentsDescription": "Agents with a positive heartbeat cadence.",
+				"agentCount": "{{count}} agents",
 				"nextDue": "Next Due",
-				"nextDueDescription": "Earliest scheduled heartbeat slot."
+				"nextDueDescription": "Earliest scheduled check."
 			},
 			"timing": {
 				"title": "Timing",
-				"description": "Set the default heartbeat cadence and optional active hours.",
+				"description": "Default cadence.",
 				"cadence": "Cadence",
 				"cadenceDescription": "Approximate interval for phase-aligned heartbeat checks.",
 				"every": "Every",
-				"everyDescription": "Use duration strings such as 5m, 30m, 1h, or 0m to disable cadence.",
+				"everyDescription": "Duration or 0m.",
 				"everyPlaceholder": "30m",
 				"disablePreset": "Disable",
+				"activeHours": "Active Hours",
+				"activeHoursDescription": "Optional local window.",
 				"activeStart": "Active Start",
 				"activeEnd": "Active End",
 				"timezone": "Timezone",
@@ -330,6 +333,7 @@
 			"last": {
 				"title": "Last Event",
 				"description": "Latest heartbeat status emitted by the gateway.",
+				"latest": "Latest",
 				"emptyTitle": "No heartbeat events",
 				"emptyDescription": "Events will appear after the first heartbeat run or skip.",
 				"status": "Status",
@@ -343,9 +347,9 @@
 				"title": "Manual Controls",
 				"description": "Queue an immediate check or add a system event to the heartbeat path.",
 				"wakeNow": "Wake Now",
-				"wakeNowDescription": "Request a manual heartbeat using the wake queue.",
+				"wakeNowDescription": "Queue a manual check.",
 				"systemEvent": "System Event",
-				"systemEventDescription": "Add a short event to the main heartbeat session.",
+				"systemEventDescription": "Add event text.",
 				"systemEventPlaceholder": "Reminder or event text"
 			},
 			"actions": {
