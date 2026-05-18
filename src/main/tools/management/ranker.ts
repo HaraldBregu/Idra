@@ -81,7 +81,7 @@ export function inferCategories(userIntent: string, memory?: RelevantMemory): Se
 	if (/\b(weather|forecast|temperature|rain|snow)\b/.test(text)) categories.add('web');
 	if (/\b(calculate|calculator|math|sum|average|percent|equation)\b/.test(text)) categories.add('calculator');
 	if (/\b(file|folder|directory|read|write|edit|find in repo|search files)\b/.test(text)) categories.add('files');
-	if (/\b(startup|bootstrap|identity|persona|profile|soul|preferences)\b/.test(text)) categories.add('files');
+	if (/\b(startup|bootstrap|identity|persona|soul|preferences)\b/.test(text)) categories.add('files');
 	if (/\b(email|mail|inbox|draft|send)\b/.test(text)) categories.add('email');
 	if (/\b(calendar|meeting|schedule|event|appointment)\b/.test(text)) categories.add('calendar');
 	if (/\b(database|sql|query|record)\b/.test(text)) categories.add('database');
