@@ -17,6 +17,10 @@ export class ToolUsePolicy {
 		if (isToolIntrospectionRequest(request)) {
 			return { shouldUseTools: true, reason: 'user is asking about available tools' };
 		}
+		// Any message containing a URL requires tool use (open, fetch, screenshot, etc.)
+		if (/https?:\/\/\S+/.test(input.userRequest)) {
+			return { shouldUseTools: true, reason: 'request contains a URL' };
+		}
 		if (/\b(write|draft|compose|create)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
 		}

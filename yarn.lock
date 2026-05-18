@@ -8523,6 +8523,7 @@ __metadata:
     node-cron: "npm:^4.2.1"
     openai: "npm:^6.33.0"
     pino: "npm:^9.6.0"
+    playwright-core: "npm:^1.52.0"
     postcss: "npm:8.4.31"
     prettier: "npm:^3.8.1"
     qrcode: "npm:^1.5.4"
@@ -13432,7 +13433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.60.0":
+"playwright-core@npm:1.60.0, playwright-core@npm:^1.52.0":
   version: 1.60.0
   resolution: "playwright-core@npm:1.60.0"
   bin:
