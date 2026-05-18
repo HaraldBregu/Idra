@@ -193,6 +193,55 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('runs a cron turn in its own session while using the main agent context', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const contexts: unknown[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () =>
+				provider([
+					{ type: 'message_start' },
+					{ type: 'text_delta', text: 'cron ok' },
+					{
+						type: 'message_end',
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					},
+				]),
+			toolsFactory: async (context) => {
+				contexts.push(context);
+				return [];
+			},
+		});
+
+		await expect(
+			service.send('read a file for cron', 'main', {
+				sessionId: 'cron:job-1',
+				cronContext: { role: 'cron-self', jobId: 'job-1', agentId: 'main' },
+			})
+		).resolves.toBe('cron ok');
+
+		expect(contexts[0]).toMatchObject({
+			agentId: 'main',
+			session: expect.objectContaining({ id: 'cron:job-1' }),
+		});
+		expect(deps.startupFiles.isBootstrapPending).toHaveBeenCalledWith('main');
+		expect(deps.startupFiles.isBootstrapPending).not.toHaveBeenCalledWith('cron:job-1');
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
+			'agent:response',
+			expect.objectContaining({ agentId: 'cron:job-1', delta: 'cron ok' })
+		);
+		await expect(service.getHistory()).resolves.toEqual([]);
+		await expect(service.getHistory('cron:job-1')).resolves.toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ role: 'user', content: 'read a file for cron' }),
+			])
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('does not expose tools or skill guidance when a request can be answered directly', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();

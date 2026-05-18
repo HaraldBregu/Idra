@@ -6,6 +6,7 @@ import type {
 import {
 	ElectronStoreFridayCronStore,
 	emptyFridayCronStoreState,
+	AgentServiceFridayCronExecutor,
 	FridayCronScheduler,
 	type FridayCronStoreState,
 	type FridayCronDeliveryPort,
@@ -346,5 +347,90 @@ describe('FridayCronScheduler', () => {
 		await expect(scheduler.handleToolAction({ action: 'status' }, { role: 'subagent' })).resolves.toMatchObject({
 			status: 'error',
 		});
+	});
+});
+
+describe('AgentServiceFridayCronExecutor', () => {
+	function executableJob(overrides: Partial<FridayCronJobDefinition> = {}): FridayCronJobDefinition {
+		return {
+			id: 'job-1',
+			name: 'Cron agent turn',
+			description: '',
+			enabled: true,
+			createdAtMs: 1,
+			updatedAtMs: 1,
+			schedule: { kind: 'every', everyMs: 60_000 },
+			sessionTarget: 'isolated',
+			wakeMode: 'now',
+			payload: { kind: 'agentTurn', message: 'Summarize inbox' },
+			delivery: { mode: 'none' },
+			agentId: 'main',
+			...overrides,
+		};
+	}
+
+	function runInput(job: FridayCronJobDefinition): Parameters<FridayCronExecutor['execute']>[0] {
+		return {
+			job,
+			runId: 'run-1',
+			scheduledForMs: 1,
+			signal: new AbortController().signal,
+		};
+	}
+
+	it('uses one stable isolated session per cron job instead of the main session', async () => {
+		const send = jest.fn(async () => 'agent output');
+		const executor = new AgentServiceFridayCronExecutor({ send } as never);
+
+		await executor.execute(runInput(executableJob({ id: 'job-a' })));
+		await executor.execute(runInput(executableJob({ id: 'job-b' })));
+
+		expect(send).toHaveBeenNthCalledWith(
+			1,
+			'Summarize inbox',
+			'main',
+			expect.objectContaining({
+				sessionId: 'cron:job-a',
+				cronContext: expect.objectContaining({
+					role: 'cron-self',
+					jobId: 'job-a',
+					agentId: 'main',
+				}),
+			})
+		);
+		expect(send).toHaveBeenNthCalledWith(
+			2,
+			'Summarize inbox',
+			'main',
+			expect.objectContaining({ sessionId: 'cron:job-b' })
+		);
+	});
+
+	it('honors explicit and main session targets', async () => {
+		const send = jest.fn(async () => 'agent output');
+		const executor = new AgentServiceFridayCronExecutor({ send } as never);
+
+		await executor.execute(runInput(executableJob({
+			id: 'session-job',
+			sessionTarget: 'session:custom-session',
+		})));
+		await executor.execute(runInput(executableJob({
+			id: 'main-job',
+			sessionTarget: 'main',
+			payload: { kind: 'systemEvent', text: 'Wake up' },
+		})));
+
+		expect(send).toHaveBeenNthCalledWith(
+			1,
+			'Summarize inbox',
+			'main',
+			expect.objectContaining({ sessionId: 'custom-session' })
+		);
+		expect(send).toHaveBeenNthCalledWith(
+			2,
+			'Wake up',
+			'main',
+			expect.objectContaining({ sessionId: 'main' })
+		);
 	});
 });

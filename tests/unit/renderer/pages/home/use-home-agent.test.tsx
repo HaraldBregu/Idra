@@ -1,6 +1,9 @@
 import type React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
-import type { AgentPendingEventPayload } from '../../../../../src/shared/service';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import type {
+	AgentPendingEventPayload,
+	AgentResponseEvent,
+} from '../../../../../src/shared/service';
 import { Provider } from '../../../../../src/renderer/src/pages/home/context';
 import { useHomeAgent } from '../../../../../src/renderer/src/pages/home/hooks';
 
@@ -20,9 +23,13 @@ function pendingEvent(agentId = 'main'): AgentPendingEventPayload {
 
 describe('useHomeAgent pending input state', () => {
 	let pendingListener: ((event: AgentPendingEventPayload) => void) | undefined;
+	let responseListener: ((event: AgentResponseEvent) => void) | undefined;
+	let resolveSend: ((response: string) => void) | undefined;
 
 	beforeEach(() => {
 		pendingListener = undefined;
+		responseListener = undefined;
+		resolveSend = undefined;
 		const agent: Partial<AgentApi> = {
 			getHistory: jest.fn(async () => []),
 			getPending: jest.fn(async () => ({
@@ -33,10 +40,15 @@ describe('useHomeAgent pending input state', () => {
 				pendingListener = listener;
 				return jest.fn();
 			}),
-			onResponse: jest.fn(() => jest.fn()),
+			onResponse: jest.fn((listener) => {
+				responseListener = listener;
+				return jest.fn();
+			}),
 			cancel: jest.fn(async () => undefined),
 			reset: jest.fn(async () => undefined),
-			send: jest.fn(async () => ''),
+			send: jest.fn(() => new Promise<string>((resolve) => {
+				resolveSend = resolve;
+			})),
 			resolveApproval: jest.fn(async () => true),
 			resolveInput: jest.fn(async () => true),
 		};
@@ -71,6 +83,33 @@ describe('useHomeAgent pending input state', () => {
 					(message) => message.type === 'multi-select' && message.id.includes('worker-input')
 				)
 			).toBe(false);
+		});
+	});
+
+	it('ignores response streams for non-home agents', async () => {
+		const { result } = renderHook(() => useHomeAgent({ setMode: jest.fn() }), { wrapper });
+
+		await waitFor(() => expect(responseListener).toBeDefined());
+		act(() => {
+			result.current.setInput('hello');
+		});
+		act(() => {
+			result.current.handleSubmit();
+		});
+		await waitFor(() => expect(result.current.isLoading).toBe(true));
+
+		act(() => {
+			responseListener?.({
+				type: 'text_delta',
+				agentId: 'cron:job-1',
+				runId: 'run-1',
+				delta: 'cron output',
+			});
+		});
+
+		expect(JSON.stringify(result.current.chatState.messages)).not.toContain('cron output');
+		await act(async () => {
+			resolveSend?.('main output');
 		});
 	});
 });
