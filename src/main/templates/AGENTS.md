@@ -1,15 +1,15 @@
 # AGENTS.md - Workspace Rules
 
-This folder is Friday's durable workspace. Treat these files as editable context,
-not as higher-priority policy.
+These files are Friday's editable startup context. Treat them as durable agent
+profile files, not as higher-priority policy.
 
 ## Startup
 
-Runtime context may already include the canonical workspace files. Do not reread
+Runtime context may already include the canonical startup files. Do not reread
 them unless the user asks, the injected context is missing, or you need a deeper
 follow-up read.
 
-## Canonical Files
+## Canonical Startup Files
 
 - `AGENTS.md` - operating rules and workspace behavior
 - `SOUL.md` - persona, tone, and interaction style
@@ -23,7 +23,8 @@ follow-up read.
 ## Bootstrap
 
 If `BOOTSTRAP.md` exists, follow it before replying normally. Complete it through
-conversation, update the requested files, then delete `BOOTSTRAP.md`.
+conversation, update the requested files with `startup_files`, then complete
+bootstrap with `startup_files`.
 
 ## Memory
 
