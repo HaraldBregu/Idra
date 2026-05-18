@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { Layout } from '../../../../../src/renderer/src/pages/settings';
+import { TextDecoder, TextEncoder } from 'node:util';
+
+Object.assign(globalThis, { TextDecoder, TextEncoder });
+
+const { MemoryRouter, Route, Routes } = require('react-router-dom') as typeof import('react-router-dom');
+const { Layout } = require('../../../../../src/renderer/src/pages/settings') as typeof import('../../../../../src/renderer/src/pages/settings');
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
