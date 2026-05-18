@@ -39,13 +39,13 @@ export function AgentActivityPanel({
 
 	return (
 		<div className="flex w-full flex-col gap-3">
-			<div className="flex items-start gap-2">
+			<div className="flex w-full flex-col gap-1.5">
 				{message.tools.length > 0 ? (
 					<AgentToolActivity
 						tools={message.tools}
 						label={labelContent}
 						indicator={null}
-						className="min-w-0 flex-1"
+						className="w-full"
 						triggerClassName={statusClassName}
 					/>
 				) : (
@@ -54,7 +54,7 @@ export function AgentActivityPanel({
 					</span>
 				)}
 				{message.runId && (
-					<span className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+					<span className="truncate font-mono text-[11px] text-muted-foreground">
 						{message.runId}
 					</span>
 				)}
