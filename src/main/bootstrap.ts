@@ -100,7 +100,7 @@ export function bootstrapServices(): BootstrapResult {
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
-	cron.configureOpenClawRuntime({ agentService, eventBus, channelRegistry });
+	cron.configureFridayRuntime({ agentService, eventBus, channelRegistry });
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});

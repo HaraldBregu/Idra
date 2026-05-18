@@ -11,7 +11,7 @@ import {
 	type CronScheduleCreateRequest,
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
-	type OpenClawCronToolRequest,
+	type FridayCronToolRequest,
 	type CronTask,
 	type CronTaskData,
 	type CronTaskView,
@@ -162,7 +162,7 @@ export class CronIpc implements IpcModule {
 
 		ipcMain.handle(
 			CronChannels.action,
-			wrapSimpleHandler((request: OpenClawCronToolRequest) => {
+			wrapSimpleHandler((request: FridayCronToolRequest) => {
 				return cron.openClawAction(request, { role: 'owner' });
 			}, CronChannels.action)
 		);

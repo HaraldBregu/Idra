@@ -26,7 +26,7 @@ export interface AgentApi {
 
 export interface CronApi {
 	list: () => Promise<CronTaskView[]>;
-	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<OpenClawCronJob[]>;
+	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<FridayCronJob[]>;
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
@@ -48,7 +48,7 @@ export interface CronApi {
 	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
 	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
 	runNow: (scheduleId: string) => Promise<CronScheduledTask>;
-	action: (request: OpenClawCronToolRequest) => Promise<OpenClawCronToolResponse>;
+	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
 	subscribeToSchedule: (
 		scheduleId: string,
@@ -118,9 +118,9 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
-	OpenClawCronJob,
-	OpenClawCronToolRequest,
-	OpenClawCronToolResponse,
+	FridayCronJob,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	Agent,

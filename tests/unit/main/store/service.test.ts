@@ -21,7 +21,7 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
-import { emptyOpenClawCronStoreState } from '../../../../src/main/cron';
+import { emptyFridayCronStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model, Service } from '../../../../src/shared/service';
@@ -142,11 +142,11 @@ describe('StoreService', () => {
 		});
 	});
 
-	describe('OpenClaw cron state', () => {
-		it('persists OpenClaw cron jobs, states, and runs through the settings store', () => {
+	describe('Friday cron state', () => {
+		it('persists Friday cron jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();
 			const state = {
-				...emptyOpenClawCronStoreState(),
+				...emptyFridayCronStoreState(),
 				jobs: [{
 					id: 'job-1',
 					name: 'Stored cron',
@@ -182,10 +182,10 @@ describe('StoreService', () => {
 				},
 			};
 
-			expect(service.getOpenClawCronState()).toEqual(emptyOpenClawCronStoreState());
-			service.setOpenClawCronState(state);
+			expect(service.getFridayCronState()).toEqual(emptyFridayCronStoreState());
+			service.setFridayCronState(state);
 
-			expect(service.getOpenClawCronState()).toMatchObject({
+			expect(service.getFridayCronState()).toMatchObject({
 				jobs: [{ id: 'job-1' }],
 				states: { 'job-1': expect.objectContaining({ scheduleIdentity: '{"everyMs":60000,"kind":"every"}' }) },
 				runs: { 'job-1': [{ runId: 'run-1' }] },

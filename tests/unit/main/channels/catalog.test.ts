@@ -5,7 +5,7 @@ import {
 } from '../../../../src/main/channels/catalog';
 
 describe('channel catalog', () => {
-	it('lists the OpenClaw provider inventory in stable order', () => {
+	it('lists the Friday provider inventory in stable order', () => {
 		const ids = listChannelCatalog().map((entry) => entry.id);
 
 		expect(ids).toEqual([
@@ -49,7 +49,7 @@ describe('channel catalog', () => {
 	});
 
 	it('falls back to the bundled catalog when package metadata is incomplete', () => {
-		expect(extractChannelCatalogFromPackageMetadata({ 'openclaw.channel': { catalog: [] } })).toBe(
+		expect(extractChannelCatalogFromPackageMetadata({ 'friday.channel': { catalog: [] } })).toBe(
 			listChannelCatalog()
 		);
 	});

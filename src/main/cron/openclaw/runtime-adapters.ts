@@ -3,25 +3,25 @@ import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentService } from '../../service';
 import type {
-	OpenClawCronDelivery,
-	OpenClawCronDeliveryState,
-	OpenClawCronJobDefinition,
-	OpenClawCronRunRecord,
+	FridayCronDelivery,
+	FridayCronDeliveryState,
+	FridayCronJobDefinition,
+	FridayCronRunRecord,
 } from '../../../shared/cron';
 import type {
-	OpenClawCronDeliveryPort,
-	OpenClawCronExecutionOutcome,
-	OpenClawCronExecutor,
+	FridayCronDeliveryPort,
+	FridayCronExecutionOutcome,
+	FridayCronExecutor,
 } from './scheduler';
 import { DEFAULT_AGENT_ID } from '../../constants';
 
-export class AgentServiceOpenClawCronExecutor implements OpenClawCronExecutor {
+export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 	constructor(private readonly agentService: AgentService) {}
 
 	async execute(input: {
-		job: OpenClawCronJobDefinition;
+		job: FridayCronJobDefinition;
 		signal: AbortSignal;
-	}): Promise<OpenClawCronExecutionOutcome> {
+	}): Promise<FridayCronExecutionOutcome> {
 		if (input.signal.aborted) {
 			return { status: 'skipped', skippedReason: 'aborted_before_start' };
 		}
@@ -40,7 +40,7 @@ export class AgentServiceOpenClawCronExecutor implements OpenClawCronExecutor {
 		return { status: 'ok', output };
 	}
 
-	private resolveAgentId(job: OpenClawCronJobDefinition): string {
+	private resolveAgentId(job: FridayCronJobDefinition): string {
 		if (job.agentId) return job.agentId;
 		if (job.sessionTarget === 'main') return DEFAULT_AGENT_ID;
 		if (job.sessionTarget === 'isolated') return `cron:${job.id}:${Date.now()}`;
@@ -49,7 +49,7 @@ export class AgentServiceOpenClawCronExecutor implements OpenClawCronExecutor {
 	}
 }
 
-export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
+export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 	constructor(
 		private readonly dependencies: {
 			eventBus?: EventBus;
@@ -59,12 +59,12 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 	) {}
 
 	async deliver(input: {
-		job: OpenClawCronJobDefinition;
-		run: Pick<OpenClawCronRunRecord, 'runId' | 'status' | 'error'>;
+		job: FridayCronJobDefinition;
+		run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
 		output: string;
-		delivery: OpenClawCronDelivery;
+		delivery: FridayCronDelivery;
 		failure: boolean;
-	}): Promise<OpenClawCronDeliveryState> {
+	}): Promise<FridayCronDeliveryState> {
 		const attemptedAtMs = Date.now();
 		if (input.delivery.mode === 'none') {
 			return { mode: 'none', status: 'skipped', attemptedAtMs };
@@ -77,14 +77,14 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 
 	private async deliverWebhook(
 		input: {
-			job: OpenClawCronJobDefinition;
-			run: Pick<OpenClawCronRunRecord, 'runId' | 'status' | 'error'>;
+			job: FridayCronJobDefinition;
+			run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
 			output: string;
-			delivery: OpenClawCronDelivery;
+			delivery: FridayCronDelivery;
 			failure: boolean;
 		},
 		attemptedAtMs: number
-	): Promise<OpenClawCronDeliveryState> {
+	): Promise<FridayCronDeliveryState> {
 		if (!input.delivery.to) {
 			return {
 				mode: 'webhook',
@@ -118,14 +118,14 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 
 	private async deliverAnnounce(
 		input: {
-			job: OpenClawCronJobDefinition;
-			run: Pick<OpenClawCronRunRecord, 'runId' | 'status' | 'error'>;
+			job: FridayCronJobDefinition;
+			run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
 			output: string;
-			delivery: OpenClawCronDelivery;
+			delivery: FridayCronDelivery;
 			failure: boolean;
 		},
 		attemptedAtMs: number
-	): Promise<OpenClawCronDeliveryState> {
+	): Promise<FridayCronDeliveryState> {
 		const target = {
 			channel: input.delivery.channel,
 			to: input.delivery.to,
@@ -144,7 +144,7 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 				});
 				return { mode: 'announce', status: 'sent', attemptedAtMs, target };
 			} catch (error) {
-				this.dependencies.logger?.warn('OpenClawCronDelivery', 'Channel announce failed.', {
+				this.dependencies.logger?.warn('FridayCronDelivery', 'Channel announce failed.', {
 					jobId: input.job.id,
 					error: error instanceof Error ? error.message : String(error),
 				});

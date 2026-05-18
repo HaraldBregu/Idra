@@ -1,25 +1,25 @@
 import type {
-	OpenClawCronAddRequest,
-	OpenClawCronJobDefinition,
-	OpenClawCronRunRecord,
+	FridayCronAddRequest,
+	FridayCronJobDefinition,
+	FridayCronRunRecord,
 } from '../../../../src/shared/cron';
 import {
-	ElectronStoreOpenClawCronStore,
-	emptyOpenClawCronStoreState,
-	OpenClawCronScheduler,
-	type OpenClawCronStoreState,
-	type OpenClawCronDeliveryPort,
-	type OpenClawCronExecutionOutcome,
-	type OpenClawCronExecutor,
+	ElectronStoreFridayCronStore,
+	emptyFridayCronStoreState,
+	FridayCronScheduler,
+	type FridayCronStoreState,
+	type FridayCronDeliveryPort,
+	type FridayCronExecutionOutcome,
+	type FridayCronExecutor,
 } from '../../../../src/main/cron';
 import type { StoreService } from '../../../../src/main/store';
 
-class RecordingExecutor implements OpenClawCronExecutor {
-	calls: Array<{ job: OpenClawCronJobDefinition; runId: string }> = [];
-	outcomes: Array<OpenClawCronExecutionOutcome | Error> = [];
+class RecordingExecutor implements FridayCronExecutor {
+	calls: Array<{ job: FridayCronJobDefinition; runId: string }> = [];
+	outcomes: Array<FridayCronExecutionOutcome | Error> = [];
 	onExecute?: () => Promise<void>;
 
-	async execute(input: Parameters<OpenClawCronExecutor['execute']>[0]): Promise<OpenClawCronExecutionOutcome> {
+	async execute(input: Parameters<FridayCronExecutor['execute']>[0]): Promise<FridayCronExecutionOutcome> {
 		this.calls.push({ job: input.job, runId: input.runId });
 		await this.onExecute?.();
 		const outcome = this.outcomes.shift();
@@ -28,10 +28,10 @@ class RecordingExecutor implements OpenClawCronExecutor {
 	}
 }
 
-class RecordingDelivery implements OpenClawCronDeliveryPort {
-	calls: Parameters<OpenClawCronDeliveryPort['deliver']>[0][] = [];
+class RecordingDelivery implements FridayCronDeliveryPort {
+	calls: Parameters<FridayCronDeliveryPort['deliver']>[0][] = [];
 
-	async deliver(input: Parameters<OpenClawCronDeliveryPort['deliver']>[0]) {
+	async deliver(input: Parameters<FridayCronDeliveryPort['deliver']>[0]) {
 		this.calls.push(input);
 		return {
 			mode: input.delivery.mode,
@@ -47,15 +47,15 @@ class RecordingDelivery implements OpenClawCronDeliveryPort {
 	}
 }
 
-function createOpenClawStoreService(): {
+function createFridayStoreService(): {
 	service: StoreService;
-	readState: () => OpenClawCronStoreState;
+	readState: () => FridayCronStoreState;
 } {
-	let state = emptyOpenClawCronStoreState();
+	let state = emptyFridayCronStoreState();
 	return {
 		service: {
-			getOpenClawCronState: jest.fn(() => state),
-			setOpenClawCronState: jest.fn((next: OpenClawCronStoreState) => {
+			getFridayCronState: jest.fn(() => state),
+			setFridayCronState: jest.fn((next: FridayCronStoreState) => {
 				state = next;
 			}),
 		} as unknown as StoreService,
@@ -64,11 +64,11 @@ function createOpenClawStoreService(): {
 }
 
 async function makeHarness(options: { enabled?: boolean } = {}) {
-	const storeService = createOpenClawStoreService();
-	const store = new ElectronStoreOpenClawCronStore(storeService.service);
+	const storeService = createFridayStoreService();
+	const store = new ElectronStoreFridayCronStore(storeService.service);
 	const executor = new RecordingExecutor();
 	const delivery = new RecordingDelivery();
-	const scheduler = new OpenClawCronScheduler(store, executor, delivery, {
+	const scheduler = new FridayCronScheduler(store, executor, delivery, {
 		enabled: options.enabled ?? true,
 		maintenanceIntervalMs: 60_000,
 		minRefireGapMs: 1,
@@ -79,7 +79,7 @@ async function makeHarness(options: { enabled?: boolean } = {}) {
 	return { store, storeService, executor, delivery, scheduler };
 }
 
-function agentJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCronAddRequest {
+function agentJob(overrides: Partial<FridayCronAddRequest> = {}): FridayCronAddRequest {
 	return {
 		id: `job-${Math.random().toString(16).slice(2)}`,
 		name: 'Cron agent turn',
@@ -91,7 +91,7 @@ function agentJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCron
 	};
 }
 
-function systemJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCronAddRequest {
+function systemJob(overrides: Partial<FridayCronAddRequest> = {}): FridayCronAddRequest {
 	return {
 		id: `job-${Math.random().toString(16).slice(2)}`,
 		name: 'Cron system event',
@@ -102,7 +102,7 @@ function systemJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCro
 	};
 }
 
-describe('OpenClawCronScheduler', () => {
+describe('FridayCronScheduler', () => {
 	it('keeps CRUD working while globally disabled and does not arm or run timers', async () => {
 		const { scheduler, executor, storeService } = await makeHarness({ enabled: false });
 		await scheduler.start();
@@ -299,7 +299,7 @@ describe('OpenClawCronScheduler', () => {
 	it('auto-disables jobs after repeated schedule computation errors', async () => {
 		const { scheduler, store } = await makeHarness();
 		const now = Date.now();
-		const badJob: OpenClawCronJobDefinition = {
+		const badJob: FridayCronJobDefinition = {
 			id: 'bad-cron',
 			name: 'Bad cron',
 			description: '',
@@ -325,7 +325,7 @@ describe('OpenClawCronScheduler', () => {
 
 	it('appends and reads run logs', async () => {
 		const { store } = await makeHarness();
-		const run: OpenClawCronRunRecord = {
+		const run: FridayCronRunRecord = {
 			runId: 'run-1',
 			jobId: 'log-job',
 			status: 'ok',

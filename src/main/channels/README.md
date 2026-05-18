@@ -2,11 +2,11 @@
 
 Channels are plugin-owned messaging adapters. Core code registers a `ChannelPlugin`, applies its generic config/security/threading adapters, and delegates platform transport to the channel runtime.
 
-The channel catalog in `catalog.ts` lists the OpenClaw-style provider inventory and aliases without importing provider runtimes. Catalog-only plugins are registered for providers that do not yet have bundled transports, so setup and discovery surfaces can reason about stable ids before a runtime exists.
+The channel catalog in `catalog.ts` lists the Friday-style provider inventory and aliases without importing provider runtimes. Catalog-only plugins are registered for providers that do not yet have bundled transports, so setup and discovery surfaces can reason about stable ids before a runtime exists.
 
 ## Current Plugin
 
-Telegram is declared by `telegram/openclaw.plugin.json` and implemented by `telegram/plugin.ts`.
+Telegram is declared by `telegram/friday.plugin.json` and implemented by `telegram/plugin.ts`.
 
 Required credential:
 

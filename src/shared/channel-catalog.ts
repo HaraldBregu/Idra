@@ -107,9 +107,9 @@ export function extractChannelCatalogFromPackageMetadata(
 ): readonly ChannelCatalogEntry[] {
 	if (!metadata || typeof metadata !== 'object') return CHANNEL_CATALOG;
 	const packageMetadata = metadata as Record<string, unknown>;
-	const openclawChannel = packageMetadata['openclaw.channel'];
-	if (!openclawChannel || typeof openclawChannel !== 'object') return CHANNEL_CATALOG;
-	const catalog = (openclawChannel as { catalog?: unknown }).catalog;
+	const fridayChannel = packageMetadata['friday.channel'];
+	if (!fridayChannel || typeof fridayChannel !== 'object') return CHANNEL_CATALOG;
+	const catalog = (fridayChannel as { catalog?: unknown }).catalog;
 	if (!Array.isArray(catalog)) return CHANNEL_CATALOG;
 
 	const entries = catalog.filter(isPackageCatalogEntry);

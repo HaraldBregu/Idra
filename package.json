@@ -10,7 +10,7 @@
 	"copyright": "© 2026 Friday Project. All rights reserved.",
 	"type": "module",
 	"license": "MIT",
-	"openclaw.channel": {
+	"friday.channel": {
 		"catalogPath": "src/main/channels/catalog.ts",
 		"ids": [
 			"clickclack",

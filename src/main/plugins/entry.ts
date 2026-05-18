@@ -3,15 +3,15 @@ import type {
 	ConnectorModelCatalogProviderRegistration,
 	ConnectorProviderRegistration,
 } from './registry';
-import type { OpenClawConnectorApi } from './api-builder';
+import type { FridayConnectorApi } from './api-builder';
 
-export interface OpenClawConnectorEntry {
+export interface FridayConnectorEntry {
 	id: string;
 	name: string;
 	description: string;
 	kind?: string | string[];
 	configSchema: ConnectorJsonSchema;
-	register(api: OpenClawConnectorApi): void | Promise<void>;
+	register(api: FridayConnectorApi): void | Promise<void>;
 }
 
 export interface DefinePluginEntryOptions {
@@ -20,7 +20,7 @@ export interface DefinePluginEntryOptions {
 	description: string;
 	kind?: string | string[];
 	configSchema?: ConnectorJsonSchema | (() => ConnectorJsonSchema);
-	register(api: OpenClawConnectorApi): void | Promise<void>;
+	register(api: FridayConnectorApi): void | Promise<void>;
 }
 
 export interface SingleProviderPluginOptions {
@@ -33,7 +33,7 @@ export interface SingleProviderPluginOptions {
 		id?: string;
 		modelCatalog?: Omit<ConnectorModelCatalogProviderRegistration, 'provider'>;
 	};
-	register?(api: OpenClawConnectorApi): void | Promise<void>;
+	register?(api: FridayConnectorApi): void | Promise<void>;
 }
 
 const EMPTY_CONFIG_SCHEMA: ConnectorJsonSchema = {
@@ -42,7 +42,7 @@ const EMPTY_CONFIG_SCHEMA: ConnectorJsonSchema = {
 	additionalProperties: false,
 };
 
-export function definePluginEntry(options: DefinePluginEntryOptions): OpenClawConnectorEntry {
+export function definePluginEntry(options: DefinePluginEntryOptions): FridayConnectorEntry {
 	let cachedConfigSchema: ConnectorJsonSchema | undefined;
 	return {
 		id: options.id,
@@ -64,7 +64,7 @@ export function definePluginEntry(options: DefinePluginEntryOptions): OpenClawCo
 
 export function defineSingleProviderPluginEntry(
 	options: SingleProviderPluginOptions
-): OpenClawConnectorEntry {
+): FridayConnectorEntry {
 	return definePluginEntry({
 		id: options.id,
 		name: options.name,

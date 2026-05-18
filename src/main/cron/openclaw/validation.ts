@@ -1,9 +1,9 @@
 import type {
-	OpenClawCronDelivery,
-	OpenClawCronJobDefinition,
-	OpenClawCronPayload,
-	OpenClawCronSchedule,
-	OpenClawCronSessionTarget,
+	FridayCronDelivery,
+	FridayCronJobDefinition,
+	FridayCronPayload,
+	FridayCronSchedule,
+	FridayCronSessionTarget,
 } from '../../../shared/cron';
 import {
 	CronExpressionError,
@@ -24,7 +24,7 @@ export function assertSafeCronId(id: string, field = 'id'): void {
 	}
 }
 
-export function assertValidSessionTarget(target: OpenClawCronSessionTarget): void {
+export function assertValidSessionTarget(target: FridayCronSessionTarget): void {
 	if (target === 'main' || target === 'isolated' || target === 'current') return;
 	if (!target.startsWith('session:')) {
 		throw new CronScheduleValidationError('sessionTarget is not supported.', { sessionTarget: target });
@@ -32,7 +32,7 @@ export function assertValidSessionTarget(target: OpenClawCronSessionTarget): voi
 	assertSafeCronId(target.slice('session:'.length), 'session id');
 }
 
-export function assertValidPayload(payload: OpenClawCronPayload): void {
+export function assertValidPayload(payload: FridayCronPayload): void {
 	if (payload.kind === 'systemEvent') {
 		if (!payload.text.trim()) {
 			throw new CronScheduleValidationError('systemEvent payload text is required.');
@@ -53,7 +53,7 @@ export function assertValidPayload(payload: OpenClawCronPayload): void {
 	throw new CronScheduleValidationError('payload kind is not supported.');
 }
 
-export function assertTargetMatchesPayload(target: OpenClawCronSessionTarget, payload: OpenClawCronPayload): void {
+export function assertTargetMatchesPayload(target: FridayCronSessionTarget, payload: FridayCronPayload): void {
 	if (target === 'main' && payload.kind !== 'systemEvent') {
 		throw new CronScheduleValidationError('main session cron jobs require payload.kind = systemEvent.');
 	}
@@ -64,7 +64,7 @@ export function assertTargetMatchesPayload(target: OpenClawCronSessionTarget, pa
 	}
 }
 
-export function assertValidSchedule(schedule: OpenClawCronSchedule): void {
+export function assertValidSchedule(schedule: FridayCronSchedule): void {
 	switch (schedule.kind) {
 		case 'at': {
 			const timestamp = Date.parse(schedule.at);
@@ -111,10 +111,10 @@ export function assertValidSchedule(schedule: OpenClawCronSchedule): void {
 }
 
 export function normalizeDelivery(
-	payload: OpenClawCronPayload,
-	target: OpenClawCronSessionTarget,
-	delivery?: Partial<OpenClawCronDelivery>
-): OpenClawCronDelivery {
+	payload: FridayCronPayload,
+	target: FridayCronSessionTarget,
+	delivery?: Partial<FridayCronDelivery>
+): FridayCronDelivery {
 	const defaultMode = payload.kind === 'agentTurn' && target !== 'main' ? 'announce' : 'none';
 	const mode = delivery?.mode ?? defaultMode;
 	if (!['announce', 'webhook', 'none'].includes(mode)) {
@@ -143,7 +143,7 @@ export function normalizeDelivery(
 	};
 }
 
-export function assertValidOpenClawJob(job: OpenClawCronJobDefinition): void {
+export function assertValidFridayJob(job: FridayCronJobDefinition): void {
 	assertSafeCronId(job.id);
 	if (!job.name.trim()) throw new CronScheduleValidationError('Cron job name is required.');
 	assertValidSchedule(job.schedule);
@@ -161,6 +161,6 @@ export function assertValidOpenClawJob(job: OpenClawCronJobDefinition): void {
 	}
 }
 
-export function openClawScheduleIdentity(schedule: OpenClawCronSchedule): string {
+export function openClawScheduleIdentity(schedule: FridayCronSchedule): string {
 	return JSON.stringify(schedule, Object.keys(schedule).sort());
 }

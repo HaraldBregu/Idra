@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { ConnectorManifestRecord } from './discovery';
 import {
-	OpenClawConnectorRegistry,
+	FridayConnectorRegistry,
 	type ConnectorModelCatalogProviderRegistration,
 	type ConnectorProviderRegistration,
 	type ConnectorRegistrationMode,
@@ -28,7 +28,7 @@ export interface ConnectorSessionTurnUnscheduleResult {
 	failed: number;
 }
 
-export interface OpenClawConnectorApi {
+export interface FridayConnectorApi {
 	id: string;
 	name: string;
 	description: string;
@@ -81,9 +81,9 @@ export interface OpenClawConnectorApi {
 	clearRunContext(key?: string, runId?: string): void;
 }
 
-export interface BuildOpenClawConnectorApiOptions {
+export interface BuildFridayConnectorApiOptions {
 	record: ConnectorManifestRecord;
-	registry: OpenClawConnectorRegistry;
+	registry: FridayConnectorRegistry;
 	registrationMode: ConnectorRegistrationMode;
 	pluginConfig?: Record<string, unknown>;
 }
@@ -98,9 +98,9 @@ type SurfacePolicy =
 	| 'memory'
 	| 'session';
 
-export function buildOpenClawConnectorApi(
-	options: BuildOpenClawConnectorApiOptions
-): OpenClawConnectorApi {
+export function buildFridayConnectorApi(
+	options: BuildFridayConnectorApiOptions
+): FridayConnectorApi {
 	const { record, registry, registrationMode } = options;
 	const attribution = {
 		pluginId: record.id,

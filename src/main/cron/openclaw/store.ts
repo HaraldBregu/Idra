@@ -1,7 +1,7 @@
 import type {
-	OpenClawCronJobDefinition,
-	OpenClawCronJobState,
-	OpenClawCronRunRecord,
+	FridayCronJobDefinition,
+	FridayCronJobState,
+	FridayCronRunRecord,
 } from '../../../shared/cron';
 import {
 	assertSafeCronId,
@@ -10,26 +10,26 @@ import {
 
 const SCHEMA_VERSION = 1;
 
-export interface OpenClawCronSnapshot {
-	jobs: OpenClawCronJobDefinition[];
-	states: Record<string, OpenClawCronJobState>;
+export interface FridayCronSnapshot {
+	jobs: FridayCronJobDefinition[];
+	states: Record<string, FridayCronJobState>;
 }
 
-export interface OpenClawCronStoreState extends OpenClawCronSnapshot {
+export interface FridayCronStoreState extends FridayCronSnapshot {
 	schemaVersion: number;
-	runs: Record<string, OpenClawCronRunRecord[]>;
+	runs: Record<string, FridayCronRunRecord[]>;
 }
 
-export interface OpenClawCronStore {
-	load(): Promise<OpenClawCronSnapshot>;
-	save(snapshot: OpenClawCronSnapshot): Promise<void>;
-	appendRun(record: OpenClawCronRunRecord): Promise<void>;
-	listRuns(jobId: string, limit?: number): Promise<OpenClawCronRunRecord[]>;
+export interface FridayCronStore {
+	load(): Promise<FridayCronSnapshot>;
+	save(snapshot: FridayCronSnapshot): Promise<void>;
+	appendRun(record: FridayCronRunRecord): Promise<void>;
+	listRuns(jobId: string, limit?: number): Promise<FridayCronRunRecord[]>;
 }
 
-interface OpenClawCronSettingsStore {
-	getOpenClawCronState(): OpenClawCronStoreState;
-	setOpenClawCronState(state: OpenClawCronStoreState): void;
+interface FridayCronSettingsStore {
+	getFridayCronState(): FridayCronStoreState;
+	setFridayCronState(state: FridayCronStoreState): void;
 }
 
 function clone<T>(value: T): T {
@@ -40,7 +40,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
 }
 
-function defaultState(job: OpenClawCronJobDefinition): OpenClawCronJobState {
+function defaultState(job: FridayCronJobDefinition): FridayCronJobState {
 	return {
 		consecutiveErrors: 0,
 		consecutiveSkipped: 0,
@@ -51,10 +51,10 @@ function defaultState(job: OpenClawCronJobDefinition): OpenClawCronJobState {
 }
 
 function normalizeState(
-	job: OpenClawCronJobDefinition,
-	state: Partial<OpenClawCronJobState> | undefined
-): OpenClawCronJobState {
-	const next: OpenClawCronJobState = {
+	job: FridayCronJobDefinition,
+	state: Partial<FridayCronJobState> | undefined
+): FridayCronJobState {
+	const next: FridayCronJobState = {
 		...defaultState(job),
 		...(state ?? {}),
 	};
@@ -71,14 +71,14 @@ function normalizeState(
 	return next;
 }
 
-function normalizeJobs(value: unknown): OpenClawCronJobDefinition[] {
+function normalizeJobs(value: unknown): FridayCronJobDefinition[] {
 	if (!Array.isArray(value)) return [];
-	const jobs: OpenClawCronJobDefinition[] = [];
+	const jobs: FridayCronJobDefinition[] = [];
 	for (const entry of value) {
 		if (!isRecord(entry) || typeof entry.id !== 'string') continue;
 		try {
 			assertSafeCronId(entry.id);
-			jobs.push(clone(entry as unknown as OpenClawCronJobDefinition));
+			jobs.push(clone(entry as unknown as FridayCronJobDefinition));
 		} catch {
 			continue;
 		}
@@ -86,7 +86,7 @@ function normalizeJobs(value: unknown): OpenClawCronJobDefinition[] {
 	return jobs;
 }
 
-function isRunRecord(value: unknown, jobId: string): value is OpenClawCronRunRecord {
+function isRunRecord(value: unknown, jobId: string): value is FridayCronRunRecord {
 	return (
 		isRecord(value) &&
 		typeof value.runId === 'string' &&
@@ -99,9 +99,9 @@ function isRunRecord(value: unknown, jobId: string): value is OpenClawCronRunRec
 	);
 }
 
-function normalizeRuns(value: unknown): Record<string, OpenClawCronRunRecord[]> {
+function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
 	if (!isRecord(value)) return {};
-	const runs: Record<string, OpenClawCronRunRecord[]> = {};
+	const runs: Record<string, FridayCronRunRecord[]> = {};
 	for (const [jobId, entries] of Object.entries(value)) {
 		try {
 			assertSafeCronId(jobId, 'jobId');
@@ -109,13 +109,13 @@ function normalizeRuns(value: unknown): Record<string, OpenClawCronRunRecord[]> 
 			continue;
 		}
 		if (!Array.isArray(entries)) continue;
-		const records = entries.filter((entry): entry is OpenClawCronRunRecord => isRunRecord(entry, jobId));
+		const records = entries.filter((entry): entry is FridayCronRunRecord => isRunRecord(entry, jobId));
 		if (records.length > 0) runs[jobId] = clone(records);
 	}
 	return runs;
 }
 
-export function emptyOpenClawCronStoreState(): OpenClawCronStoreState {
+export function emptyFridayCronStoreState(): FridayCronStoreState {
 	return {
 		schemaVersion: SCHEMA_VERSION,
 		jobs: [],
@@ -124,16 +124,16 @@ export function emptyOpenClawCronStoreState(): OpenClawCronStoreState {
 	};
 }
 
-export function migrateOpenClawCronStoreState(value: unknown): OpenClawCronStoreState {
+export function migrateFridayCronStoreState(value: unknown): FridayCronStoreState {
 	const source = isRecord(value) ? value : {};
 	const jobs = normalizeJobs(source.jobs);
 	const stateSource = isRecord(source.states) ? source.states : {};
-	const states: Record<string, OpenClawCronJobState> = {};
+	const states: Record<string, FridayCronJobState> = {};
 	for (const job of jobs) {
 		const current = stateSource[job.id];
 		states[job.id] = normalizeState(
 			job,
-			isRecord(current) ? current as Partial<OpenClawCronJobState> : undefined
+			isRecord(current) ? current as Partial<FridayCronJobState> : undefined
 		);
 	}
 	return {
@@ -144,10 +144,10 @@ export function migrateOpenClawCronStoreState(value: unknown): OpenClawCronStore
 	};
 }
 
-export class ElectronStoreOpenClawCronStore implements OpenClawCronStore {
-	constructor(private readonly store: OpenClawCronSettingsStore) {}
+export class ElectronStoreFridayCronStore implements FridayCronStore {
+	constructor(private readonly store: FridayCronSettingsStore) {}
 
-	async load(): Promise<OpenClawCronSnapshot> {
+	async load(): Promise<FridayCronSnapshot> {
 		const state = this.read();
 		return {
 			jobs: clone(state.jobs),
@@ -155,10 +155,10 @@ export class ElectronStoreOpenClawCronStore implements OpenClawCronStore {
 		};
 	}
 
-	async save(snapshot: OpenClawCronSnapshot): Promise<void> {
+	async save(snapshot: FridayCronSnapshot): Promise<void> {
 		const state = this.read();
 		const jobs = clone(snapshot.jobs);
-		const states: Record<string, OpenClawCronJobState> = {};
+		const states: Record<string, FridayCronJobState> = {};
 		for (const job of jobs) {
 			assertSafeCronId(job.id);
 			states[job.id] = normalizeState(job, snapshot.states[job.id]);
@@ -170,7 +170,7 @@ export class ElectronStoreOpenClawCronStore implements OpenClawCronStore {
 		});
 	}
 
-	async appendRun(record: OpenClawCronRunRecord): Promise<void> {
+	async appendRun(record: FridayCronRunRecord): Promise<void> {
 		assertSafeCronId(record.jobId, 'jobId');
 		const state = this.read();
 		const runs = state.runs[record.jobId] ?? [];
@@ -183,19 +183,19 @@ export class ElectronStoreOpenClawCronStore implements OpenClawCronStore {
 		});
 	}
 
-	async listRuns(jobId: string, limit = 50): Promise<OpenClawCronRunRecord[]> {
+	async listRuns(jobId: string, limit = 50): Promise<FridayCronRunRecord[]> {
 		assertSafeCronId(jobId, 'jobId');
 		const runs = this.read().runs[jobId] ?? [];
 		return clone(runs.slice(Math.max(0, runs.length - Math.max(1, limit))));
 	}
 
-	private read(): OpenClawCronStoreState {
-		return migrateOpenClawCronStoreState(this.store.getOpenClawCronState());
+	private read(): FridayCronStoreState {
+		return migrateFridayCronStoreState(this.store.getFridayCronState());
 	}
 
-	private write(state: OpenClawCronStoreState): void {
-		this.store.setOpenClawCronState(migrateOpenClawCronStoreState(state));
+	private write(state: FridayCronStoreState): void {
+		this.store.setFridayCronState(migrateFridayCronStoreState(state));
 	}
 }
 
-export { defaultState as defaultOpenClawCronJobState };
+export { defaultState as defaultFridayCronJobState };

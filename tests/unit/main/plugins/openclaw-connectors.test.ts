@@ -2,8 +2,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import {
 	ConnectorSetupRegistry,
-	OpenClawConnectorRegistry,
-	buildOpenClawConnectorApi,
+	FridayConnectorRegistry,
+	buildFridayConnectorApi,
 	defineSingleProviderPluginEntry,
 	discoverConnectorManifests,
 	loadConnectorEntry,
@@ -31,7 +31,7 @@ function record(manifest: unknown, overrides: Partial<ConnectorManifestRecord> =
 	return {
 		id: normalized.manifest.id,
 		manifest: normalized.manifest,
-		manifestPath: '/tmp/plugin/openclaw.plugin.json',
+		manifestPath: '/tmp/plugin/friday.plugin.json',
 		rootDir: '/tmp/plugin',
 		origin: 'workspace',
 		source: '/tmp/plugin/index.ts',
@@ -39,10 +39,10 @@ function record(manifest: unknown, overrides: Partial<ConnectorManifestRecord> =
 	};
 }
 
-describe('OpenClaw-style connector runtime', () => {
+describe('Friday-style connector runtime', () => {
 	it('loads and normalizes manifest ownership metadata', async () => {
 		const dir = await makeTempDir('friday-plugin-manifest-');
-		const manifestPath = path.join(dir, 'openclaw.plugin.json');
+		const manifestPath = path.join(dir, 'friday.plugin.json');
 		await fs.writeFile(
 			manifestPath,
 			JSON.stringify({
@@ -76,11 +76,11 @@ describe('OpenClaw-style connector runtime', () => {
 		const root = await makeTempDir('friday-plugin-root-');
 		const outside = await makeTempDir('friday-plugin-outside-');
 		await fs.writeFile(
-			path.join(outside, 'openclaw.plugin.json'),
+			path.join(outside, 'friday.plugin.json'),
 			JSON.stringify({ id: 'outside', contracts: { tools: ['x'] } }),
 			'utf8'
 		);
-		await fs.symlink(path.join(outside, 'openclaw.plugin.json'), path.join(root, 'openclaw.plugin.json'));
+		await fs.symlink(path.join(outside, 'friday.plugin.json'), path.join(root, 'friday.plugin.json'));
 
 		const result = discoverConnectorManifests({
 			roots: [{ rootDir: root, origin: 'workspace' }],
@@ -119,9 +119,9 @@ describe('OpenClaw-style connector runtime', () => {
 	});
 
 	it('enforces contracts.tools for tool registration and metadata ownership', () => {
-		const registry = new OpenClawConnectorRegistry();
+		const registry = new FridayConnectorRegistry();
 		const demo = record({ id: 'demo', contracts: { tools: ['declared'] } });
-		const api = buildOpenClawConnectorApi({ record: demo, registry, registrationMode: 'full' });
+		const api = buildFridayConnectorApi({ record: demo, registry, registrationMode: 'full' });
 
 		expect(() => api.registerTool(tool('undeclared'))).toThrow('undeclared tool');
 		api.registerTool(tool('declared'));
@@ -129,9 +129,9 @@ describe('OpenClaw-style connector runtime', () => {
 
 		const other = record(
 			{ id: 'other', contracts: { tools: ['declared'] } },
-			{ source: '/tmp/other/index.ts', rootDir: '/tmp/other', manifestPath: '/tmp/other/openclaw.plugin.json' }
+			{ source: '/tmp/other/index.ts', rootDir: '/tmp/other', manifestPath: '/tmp/other/friday.plugin.json' }
 		);
-		const otherApi = buildOpenClawConnectorApi({ record: other, registry, registrationMode: 'full' });
+		const otherApi = buildFridayConnectorApi({ record: other, registry, registrationMode: 'full' });
 
 		expect(() => otherApi.registerToolMetadata({ name: 'declared' })).toThrow('already owned');
 		expect(registry.listTools()).toHaveLength(1);
@@ -139,9 +139,9 @@ describe('OpenClaw-style connector runtime', () => {
 	});
 
 	it('supports optional tool factories returning null for unavailable contexts', async () => {
-		const registry = new OpenClawConnectorRegistry();
+		const registry = new FridayConnectorRegistry();
 		const demo = record({ id: 'demo', contracts: { tools: ['maybe_tool'] } });
-		const api = buildOpenClawConnectorApi({ record: demo, registry, registrationMode: 'full' });
+		const api = buildFridayConnectorApi({ record: demo, registry, registrationMode: 'full' });
 		const factory = jest.fn(() => null);
 
 		api.registerTool({ name: 'maybe_tool', optional: true, factory });
@@ -151,10 +151,10 @@ describe('OpenClaw-style connector runtime', () => {
 	});
 
 	it('suppresses unavailable registration surfaces by mode while keeping CLI metadata available', () => {
-		const registry = new OpenClawConnectorRegistry();
+		const registry = new FridayConnectorRegistry();
 		const demo = record({ id: 'demo', providers: ['demo-ai'], contracts: { tools: ['declared'] } });
-		const setupOnly = buildOpenClawConnectorApi({ record: demo, registry, registrationMode: 'setup-only' });
-		const cliMetadata = buildOpenClawConnectorApi({ record: demo, registry, registrationMode: 'cli-metadata' });
+		const setupOnly = buildFridayConnectorApi({ record: demo, registry, registrationMode: 'setup-only' });
+		const cliMetadata = buildFridayConnectorApi({ record: demo, registry, registrationMode: 'cli-metadata' });
 
 		setupOnly.registerTool(tool('declared'));
 		setupOnly.registerProvider({ id: 'demo-ai' });
@@ -167,7 +167,7 @@ describe('OpenClaw-style connector runtime', () => {
 	});
 
 	it('registers provider auth and catalog metadata through the single-provider helper', async () => {
-		const registry = new OpenClawConnectorRegistry();
+		const registry = new FridayConnectorRegistry();
 		const demo = record({ id: 'deepseek', providers: ['deepseek'], contracts: {} });
 		const entry = defineSingleProviderPluginEntry({
 			id: 'deepseek',
@@ -186,7 +186,7 @@ describe('OpenClaw-style connector runtime', () => {
 			},
 		});
 
-		await entry.register(buildOpenClawConnectorApi({ record: demo, registry, registrationMode: 'full' }));
+		await entry.register(buildFridayConnectorApi({ record: demo, registry, registrationMode: 'full' }));
 
 		expect(registry.listProviders()[0]?.value).toMatchObject({
 			id: 'deepseek',
@@ -200,14 +200,14 @@ describe('OpenClaw-style connector runtime', () => {
 	});
 
 	it('loads runtime entries through mode-scoped APIs', async () => {
-		const registry = new OpenClawConnectorRegistry();
+		const registry = new FridayConnectorRegistry();
 		const demo = record({ id: 'demo', contracts: { tools: ['declared'] } });
 		const entry = {
 			id: 'demo',
 			name: 'Demo',
 			description: 'Demo entry',
 			configSchema: {},
-			register(api: ReturnType<typeof buildOpenClawConnectorApi>) {
+			register(api: ReturnType<typeof buildFridayConnectorApi>) {
 				api.registerTool(tool('declared'));
 			},
 		};

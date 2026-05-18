@@ -5,7 +5,7 @@ import { AlertCircle, Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { OpenClawCronJob } from '../../../../../../shared/cron';
+import type { FridayCronJob } from '../../../../../../shared/cron';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
@@ -38,7 +38,7 @@ function CronLoadingList(): React.JSX.Element {
 const CronPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [jobs, setJobs] = useState<readonly OpenClawCronJob[]>([]);
+	const [jobs, setJobs] = useState<readonly FridayCronJob[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [removingId, setRemovingId] = useState<string | null>(null);

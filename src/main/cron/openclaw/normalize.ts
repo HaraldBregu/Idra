@@ -1,21 +1,21 @@
 import type {
-	OpenClawCronAddRequest,
-	OpenClawCronCanonicalToolRequest,
-	OpenClawCronDelivery,
-	OpenClawCronFailureAlert,
-	OpenClawCronPayload,
-	OpenClawCronSchedule,
-	OpenClawCronSessionTarget,
-	OpenClawCronToolRequest,
-	OpenClawCronUpdateRequest,
-	OpenClawCronWakeMode,
+	FridayCronAddRequest,
+	FridayCronCanonicalToolRequest,
+	FridayCronDelivery,
+	FridayCronFailureAlert,
+	FridayCronPayload,
+	FridayCronSchedule,
+	FridayCronSessionTarget,
+	FridayCronToolRequest,
+	FridayCronUpdateRequest,
+	FridayCronWakeMode,
 } from '../../../shared/cron';
-import type { OpenClawCronActor } from './scheduler';
+import type { FridayCronActor } from './scheduler';
 
-export interface OpenClawCronNormalizeContext {
-	actor?: OpenClawCronActor;
+export interface FridayCronNormalizeContext {
+	actor?: FridayCronActor;
 	recentContext?: string;
-	delivery?: Partial<OpenClawCronDelivery>;
+	delivery?: Partial<FridayCronDelivery>;
 }
 
 const CONTROL_FIELDS = new Set([
@@ -107,7 +107,7 @@ function normalizeAtTimestamp(value: string): string {
 	return trimmed;
 }
 
-function scheduleFrom(input: Record<string, unknown>): OpenClawCronSchedule | undefined {
+function scheduleFrom(input: Record<string, unknown>): FridayCronSchedule | undefined {
 	const explicit = record(input.schedule);
 	const source = Object.keys(explicit).length > 0 ? explicit : input;
 	const kind = stringValue(source.kind);
@@ -132,7 +132,7 @@ function scheduleFrom(input: Record<string, unknown>): OpenClawCronSchedule | un
 	if (kind === 'cron' || hasOwn(source, 'expr') || hasOwn(source, 'cron')) {
 		const expr = stringValue(source.expr) ?? stringValue(source.cron);
 		if (expr) {
-			const schedule: OpenClawCronSchedule = {
+			const schedule: FridayCronSchedule = {
 				kind: 'cron',
 				expr,
 			};
@@ -148,7 +148,7 @@ function scheduleFrom(input: Record<string, unknown>): OpenClawCronSchedule | un
 }
 
 function copyAgentTurnFields(
-	target: Extract<OpenClawCronPayload, { kind: 'agentTurn' }>,
+	target: Extract<FridayCronPayload, { kind: 'agentTurn' }>,
 	source: Record<string, unknown>
 ): void {
 	const model = stringValue(source.model);
@@ -170,7 +170,7 @@ function copyAgentTurnFields(
 	if (toolsAllow) target.toolsAllow = toolsAllow;
 }
 
-function payloadFrom(input: Record<string, unknown>, recentContext?: string): OpenClawCronPayload | undefined {
+function payloadFrom(input: Record<string, unknown>, recentContext?: string): FridayCronPayload | undefined {
 	const explicit = record(input.payload);
 	if (Object.keys(explicit).length > 0) {
 		if (explicit.kind === 'systemEvent') {
@@ -184,7 +184,7 @@ function payloadFrom(input: Record<string, unknown>, recentContext?: string): Op
 		if (explicit.kind === 'agentTurn') {
 			const message = stringValue(explicit.message);
 			if (!message) return undefined;
-			const payload: Extract<OpenClawCronPayload, { kind: 'agentTurn' }> = {
+			const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
 				kind: 'agentTurn',
 				message,
 			};
@@ -195,7 +195,7 @@ function payloadFrom(input: Record<string, unknown>, recentContext?: string): Op
 
 	const message = stringValue(input.message);
 	if (message) {
-		const payload: Extract<OpenClawCronPayload, { kind: 'agentTurn' }> = {
+		const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
 			kind: 'agentTurn',
 			message,
 		};
@@ -207,7 +207,7 @@ function payloadFrom(input: Record<string, unknown>, recentContext?: string): Op
 	if (!text) return undefined;
 	const hasAgentTurnField = AGENT_TURN_FIELDS.some((field) => hasOwn(input, field));
 	if (hasAgentTurnField) {
-		const payload: Extract<OpenClawCronPayload, { kind: 'agentTurn' }> = {
+		const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
 			kind: 'agentTurn',
 			message: text,
 		};
@@ -225,7 +225,7 @@ function appendRecentContext(text: string, recentContext?: string): string {
 	return `${text}\n\nRecent context:\n${recentContext.trim()}`;
 }
 
-function deliveryMode(value: unknown): OpenClawCronDelivery['mode'] | undefined {
+function deliveryMode(value: unknown): FridayCronDelivery['mode'] | undefined {
 	if (value === 'announce' || value === 'webhook' || value === 'none') return value;
 	if (value === true) return 'announce';
 	if (value === false) return 'none';
@@ -234,8 +234,8 @@ function deliveryMode(value: unknown): OpenClawCronDelivery['mode'] | undefined 
 
 function deliveryFrom(
 	input: Record<string, unknown>,
-	inferred?: Partial<OpenClawCronDelivery>
-): Partial<OpenClawCronDelivery> | undefined {
+	inferred?: Partial<FridayCronDelivery>
+): Partial<FridayCronDelivery> | undefined {
 	const explicit = record(input.delivery);
 	const hasTopLevelTarget = ['deliver', 'channel', 'to', 'threadId', 'accountId', 'bestEffort', 'bestEffortDeliver', 'provider']
 		.some((field) => hasOwn(input, field));
@@ -246,7 +246,7 @@ function deliveryFrom(
 	const source = Object.keys(explicit).length > 0 ? explicit : input;
 	const mode = deliveryMode(source.mode) ?? deliveryMode(input.deliver);
 	const bestEffort = booleanValue(source.bestEffort) ?? booleanValue(input.bestEffortDeliver);
-	const delivery: Partial<OpenClawCronDelivery> = {};
+	const delivery: Partial<FridayCronDelivery> = {};
 	if (mode) delivery.mode = mode;
 	const channel = stringValue(source.channel) ?? stringValue(input.provider);
 	const to = stringValue(source.to);
@@ -268,12 +268,12 @@ function deliveryFrom(
 	return delivery;
 }
 
-function failureAlertFrom(input: Record<string, unknown>): OpenClawCronFailureAlert | false | undefined {
+function failureAlertFrom(input: Record<string, unknown>): FridayCronFailureAlert | false | undefined {
 	if (!hasOwn(input, 'failureAlert')) return undefined;
 	if (input.failureAlert === false) return false;
 	const source = record(input.failureAlert);
 	if (Object.keys(source).length === 0) return undefined;
-	const alert: OpenClawCronFailureAlert = {};
+	const alert: FridayCronFailureAlert = {};
 	const after = numberValue(source.after);
 	const cooldownMs = numberValue(source.cooldownMs);
 	const includeSkipped = booleanValue(source.includeSkipped);
@@ -293,21 +293,21 @@ function failureAlertFrom(input: Record<string, unknown>): OpenClawCronFailureAl
 	return alert;
 }
 
-function sessionTargetFrom(input: Record<string, unknown>): OpenClawCronSessionTarget | undefined {
+function sessionTargetFrom(input: Record<string, unknown>): FridayCronSessionTarget | undefined {
 	const target = stringValue(input.sessionTarget) ?? stringValue(input.session);
 	if (!target) return undefined;
 	if (target === 'main' || target === 'isolated' || target === 'current' || target.startsWith('session:')) {
-		return target as OpenClawCronSessionTarget;
+		return target as FridayCronSessionTarget;
 	}
 	return undefined;
 }
 
-function wakeModeFrom(input: Record<string, unknown>): OpenClawCronWakeMode | undefined {
+function wakeModeFrom(input: Record<string, unknown>): FridayCronWakeMode | undefined {
 	const mode = stringValue(input.wakeMode);
 	return mode === 'now' || mode === 'next-heartbeat' ? mode : undefined;
 }
 
-function inferName(input: Record<string, unknown>, payload: OpenClawCronPayload, schedule: OpenClawCronSchedule): string {
+function inferName(input: Record<string, unknown>, payload: FridayCronPayload, schedule: FridayCronSchedule): string {
 	const explicit = stringValue(input.name);
 	if (explicit) return explicit;
 	const text = payload.kind === 'systemEvent' ? payload.text : payload.message;
@@ -326,8 +326,8 @@ function baseJob(input: Record<string, unknown>): Record<string, unknown> {
 
 export function normalizeCronJobCreate(
 	input: unknown,
-	context: OpenClawCronNormalizeContext = {}
-): OpenClawCronAddRequest {
+	context: FridayCronNormalizeContext = {}
+): FridayCronAddRequest {
 	const source = unwrapJob(input);
 	const schedule = scheduleFrom(source);
 	if (!schedule) throw new Error('Cron add requires a schedule.');
@@ -335,7 +335,7 @@ export function normalizeCronJobCreate(
 	if (!payload) throw new Error('Cron add requires a payload.');
 	const sessionTarget = sessionTargetFrom(source) ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
 	const delivery = deliveryFrom(source, context.delivery);
-	const request: OpenClawCronAddRequest = {
+	const request: FridayCronAddRequest = {
 		name: inferName(source, payload, schedule),
 		description: stringValue(source.description) ?? '',
 		enabled: booleanValue(source.enabled) ?? true,
@@ -361,9 +361,9 @@ export function normalizeCronJobCreate(
 	return request;
 }
 
-export function normalizeCronJobPatch(input: unknown): OpenClawCronUpdateRequest {
+export function normalizeCronJobPatch(input: unknown): FridayCronUpdateRequest {
 	const source = unwrapJob(input);
-	const patch: OpenClawCronUpdateRequest = {};
+	const patch: FridayCronUpdateRequest = {};
 	const schedule = scheduleFrom(source);
 	const payload = payloadFrom(source);
 	const delivery = deliveryFrom(source);
@@ -407,10 +407,10 @@ function includeMode(input: Record<string, unknown>): 'enabled' | 'disabled' | '
 	return 'enabled';
 }
 
-export function normalizeOpenClawCronToolRequest(
-	request: OpenClawCronToolRequest | unknown,
-	context: OpenClawCronNormalizeContext = {}
-): OpenClawCronCanonicalToolRequest {
+export function normalizeFridayCronToolRequest(
+	request: FridayCronToolRequest | unknown,
+	context: FridayCronNormalizeContext = {}
+): FridayCronCanonicalToolRequest {
 	const input = record(request);
 	const action = stringValue(input.action);
 	switch (action) {

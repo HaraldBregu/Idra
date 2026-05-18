@@ -5,7 +5,7 @@ import { AlertCircle, Clock3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { OpenClawCronJob } from '../../../../../../../shared/cron';
+import type { FridayCronJob } from '../../../../../../../shared/cron';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -16,7 +16,7 @@ import {
 	deliverySummary,
 	formatSchedule,
 	formatTimestamp,
-	isOpenClawCronJob,
+	isFridayCronJob,
 	payloadEntries,
 	payloadSummary,
 } from '../utils';
@@ -49,7 +49,7 @@ function CronDetail({
 const CronDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { jobId } = useParams<{ jobId: string }>();
-	const [job, setJob] = useState<OpenClawCronJob | null>(null);
+	const [job, setJob] = useState<FridayCronJob | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +69,7 @@ const CronDetailsPage: React.FC = () => {
 			.action({ action: 'get', jobId })
 			.then((response) => {
 				if (!mounted) return;
-				if (!isOpenClawCronJob(response.result)) {
+				if (!isFridayCronJob(response.result)) {
 					throw new Error(t('settings.cron.notFoundDescription'));
 				}
 				setJob(response.result);

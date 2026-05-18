@@ -413,7 +413,7 @@ export interface CronNextRunPreview {
 	description: string;
 }
 
-export type OpenClawCronSchedule =
+export type FridayCronSchedule =
 	| { kind: 'at'; at: string }
 	| { kind: 'every'; everyMs: number; anchorMs?: number }
 	| {
@@ -423,15 +423,15 @@ export type OpenClawCronSchedule =
 			staggerMs?: number;
 	  };
 
-export type OpenClawCronSessionTarget =
+export type FridayCronSessionTarget =
 	| 'main'
 	| 'isolated'
 	| 'current'
 	| `session:${string}`;
 
-export type OpenClawCronWakeMode = 'now' | 'next-heartbeat';
+export type FridayCronWakeMode = 'now' | 'next-heartbeat';
 
-export type OpenClawCronPayload =
+export type FridayCronPayload =
 	| { kind: 'systemEvent'; text: string }
 	| {
 			kind: 'agentTurn';
@@ -445,22 +445,22 @@ export type OpenClawCronPayload =
 			allowUnsafeExternalContent?: boolean;
 	  };
 
-export interface OpenClawCronDeliveryTarget {
+export interface FridayCronDeliveryTarget {
 	channel?: 'last' | string;
 	to?: string;
 	threadId?: string;
 	accountId?: string;
 }
 
-export interface OpenClawCronDelivery extends OpenClawCronDeliveryTarget {
+export interface FridayCronDelivery extends FridayCronDeliveryTarget {
 	mode: 'announce' | 'webhook' | 'none';
 	bestEffort?: boolean;
-	failureDestination?: OpenClawCronDeliveryTarget & {
+	failureDestination?: FridayCronDeliveryTarget & {
 		mode?: 'announce' | 'webhook' | 'none';
 	};
 }
 
-export interface OpenClawCronFailureAlert {
+export interface FridayCronFailureAlert {
 	after?: number;
 	cooldownMs?: number;
 	mode?: 'announce' | 'webhook' | 'none';
@@ -471,31 +471,31 @@ export interface OpenClawCronFailureAlert {
 	includeSkipped?: boolean;
 }
 
-export interface OpenClawCronDeliveryState {
-	mode: OpenClawCronDelivery['mode'];
+export interface FridayCronDeliveryState {
+	mode: FridayCronDelivery['mode'];
 	status: 'sent' | 'skipped' | 'failed';
 	attemptedAtMs: number;
-	target?: OpenClawCronDeliveryTarget;
+	target?: FridayCronDeliveryTarget;
 	error?: string;
 	duplicateSuppressed?: boolean;
 }
 
-export interface OpenClawCronRunError {
+export interface FridayCronRunError {
 	code: string;
 	message: string;
 	permanent?: boolean;
 }
 
-export type OpenClawCronRunStatus = 'ok' | 'error' | 'skipped';
+export type FridayCronRunStatus = 'ok' | 'error' | 'skipped';
 
-export interface OpenClawCronJobState {
+export interface FridayCronJobState {
 	nextRunAtMs?: number;
 	runningAtMs?: number;
 	lastRunAtMs?: number;
-	lastRunStatus?: OpenClawCronRunStatus;
-	lastError?: OpenClawCronRunError;
+	lastRunStatus?: FridayCronRunStatus;
+	lastError?: FridayCronRunError;
 	diagnostics?: CronJsonObject;
-	delivery?: OpenClawCronDeliveryState;
+	delivery?: FridayCronDeliveryState;
 	consecutiveErrors: number;
 	consecutiveSkipped: number;
 	consecutiveScheduleErrors: number;
@@ -504,19 +504,19 @@ export interface OpenClawCronJobState {
 	lastFailureAlertAtMs?: number;
 }
 
-export interface OpenClawCronJobDefinition {
+export interface FridayCronJobDefinition {
 	id: string;
 	name: string;
 	description: string;
 	enabled: boolean;
 	createdAtMs: number;
 	updatedAtMs: number;
-	schedule: OpenClawCronSchedule;
-	sessionTarget: OpenClawCronSessionTarget;
-	wakeMode: OpenClawCronWakeMode;
-	payload: OpenClawCronPayload;
-	delivery: OpenClawCronDelivery;
-	failureAlert?: OpenClawCronFailureAlert | false;
+	schedule: FridayCronSchedule;
+	sessionTarget: FridayCronSessionTarget;
+	wakeMode: FridayCronWakeMode;
+	payload: FridayCronPayload;
+	delivery: FridayCronDelivery;
+	failureAlert?: FridayCronFailureAlert | false;
 	agentId?: string | null;
 	sessionKey?: string | null;
 	deleteAfterRun?: boolean;
@@ -525,14 +525,14 @@ export interface OpenClawCronJobDefinition {
 	maxBackoffMs?: number;
 }
 
-export interface OpenClawCronJob extends OpenClawCronJobDefinition {
-	state: OpenClawCronJobState;
+export interface FridayCronJob extends FridayCronJobDefinition {
+	state: FridayCronJobState;
 }
 
-export interface OpenClawCronRunRecord {
+export interface FridayCronRunRecord {
 	runId: string;
 	jobId: string;
-	status: OpenClawCronRunStatus;
+	status: FridayCronRunStatus;
 	mode: 'automatic' | 'manual-force' | 'manual-due' | 'startup-recovery';
 	scheduledForMs: number;
 	startedAtMs: number;
@@ -540,22 +540,22 @@ export interface OpenClawCronRunRecord {
 	attempt: number;
 	output?: string;
 	skippedReason?: string;
-	error?: OpenClawCronRunError;
-	delivery?: OpenClawCronDeliveryState;
+	error?: FridayCronRunError;
+	delivery?: FridayCronDeliveryState;
 	alreadyDelivered?: boolean;
 }
 
-export interface OpenClawCronAddRequest {
+export interface FridayCronAddRequest {
 	id?: string;
 	name: string;
 	description?: string;
 	enabled?: boolean;
-	schedule: OpenClawCronSchedule;
-	sessionTarget?: OpenClawCronSessionTarget;
-	wakeMode?: OpenClawCronWakeMode;
-	payload: OpenClawCronPayload;
-	delivery?: Partial<OpenClawCronDelivery>;
-	failureAlert?: OpenClawCronFailureAlert | false;
+	schedule: FridayCronSchedule;
+	sessionTarget?: FridayCronSessionTarget;
+	wakeMode?: FridayCronWakeMode;
+	payload: FridayCronPayload;
+	delivery?: Partial<FridayCronDelivery>;
+	failureAlert?: FridayCronFailureAlert | false;
 	agentId?: string | null;
 	sessionKey?: string | null;
 	deleteAfterRun?: boolean;
@@ -564,16 +564,16 @@ export interface OpenClawCronAddRequest {
 	maxBackoffMs?: number;
 }
 
-export type OpenClawCronUpdateRequest = Partial<
-	Omit<OpenClawCronAddRequest, 'id' | 'name' | 'payload' | 'schedule' | 'delivery'>
+export type FridayCronUpdateRequest = Partial<
+	Omit<FridayCronAddRequest, 'id' | 'name' | 'payload' | 'schedule' | 'delivery'>
 > & {
 	name?: string;
-	payload?: OpenClawCronPayload;
-	schedule?: OpenClawCronSchedule;
-	delivery?: Partial<OpenClawCronDelivery>;
+	payload?: FridayCronPayload;
+	schedule?: FridayCronSchedule;
+	delivery?: Partial<FridayCronDelivery>;
 };
 
-export type OpenClawCronToolAction =
+export type FridayCronToolAction =
 	| 'status'
 	| 'list'
 	| 'get'
@@ -584,12 +584,12 @@ export type OpenClawCronToolAction =
 	| 'runs'
 	| 'wake';
 
-export interface OpenClawCronToolRequest {
-	action: OpenClawCronToolAction;
+export interface FridayCronToolRequest {
+	action: FridayCronToolAction;
 	jobId?: string;
 	id?: string;
-	job?: OpenClawCronAddRequest | Record<string, unknown>;
-	patch?: OpenClawCronUpdateRequest | Record<string, unknown>;
+	job?: FridayCronAddRequest | Record<string, unknown>;
+	patch?: FridayCronUpdateRequest | Record<string, unknown>;
 	include?: 'enabled' | 'disabled' | 'all';
 	includeDisabled?: boolean;
 	agentId?: string | null;
@@ -603,18 +603,18 @@ export interface OpenClawCronToolRequest {
 	[key: string]: unknown;
 }
 
-export type OpenClawCronCanonicalToolRequest =
+export type FridayCronCanonicalToolRequest =
 	| { action: 'status' }
 	| { action: 'list'; include?: 'enabled' | 'disabled' | 'all'; agentId?: string | null }
 	| { action: 'get'; jobId: string }
-	| { action: 'add'; job: OpenClawCronAddRequest }
-	| { action: 'update'; jobId: string; patch: OpenClawCronUpdateRequest }
+	| { action: 'add'; job: FridayCronAddRequest }
+	| { action: 'update'; jobId: string; patch: FridayCronUpdateRequest }
 	| { action: 'remove'; jobId: string }
 	| { action: 'run'; jobId: string; runMode?: 'force' | 'due' }
 	| { action: 'runs'; jobId: string; limit?: number }
 	| { action: 'wake'; text: string; mode: 'now' | 'next-heartbeat' };
 
-export interface OpenClawCronStatus {
+export interface FridayCronStatus {
 	enabled: boolean;
 	timerArmed: boolean;
 	jobCount: number;
@@ -623,18 +623,18 @@ export interface OpenClawCronStatus {
 	warning?: string;
 }
 
-export interface OpenClawCronToolResponse {
+export interface FridayCronToolResponse {
 	status: 'ok' | 'error';
 	enabled?: boolean;
 	warning?: string;
 	result?:
-		| OpenClawCronStatus
-		| OpenClawCronJob
-		| OpenClawCronJob[]
-		| OpenClawCronRunRecord
-		| OpenClawCronRunRecord[]
+		| FridayCronStatus
+		| FridayCronJob
+		| FridayCronJob[]
+		| FridayCronRunRecord
+		| FridayCronRunRecord[]
 		| { enabled: boolean }
 		| { removed: true; jobId: string }
-		| { woken: true; status: OpenClawCronStatus };
+		| { woken: true; status: FridayCronStatus };
 	error?: string;
 }

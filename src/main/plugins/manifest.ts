@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
-export const CONNECTOR_MANIFEST_FILENAME = 'openclaw.plugin.json';
+export const CONNECTOR_MANIFEST_FILENAME = 'friday.plugin.json';
 export const MAX_CONNECTOR_MANIFEST_BYTES = 256 * 1024;
 
 export type ConnectorOrigin = 'bundled' | 'installed' | 'workspace';

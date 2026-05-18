@@ -1,45 +1,45 @@
 import { randomUUID } from 'node:crypto';
 import type {
 	CronJsonObject,
-	OpenClawCronAddRequest,
-	OpenClawCronDelivery,
-	OpenClawCronDeliveryState,
-	OpenClawCronCanonicalToolRequest,
-	OpenClawCronJob,
-	OpenClawCronJobDefinition,
-	OpenClawCronJobState,
-	OpenClawCronRunError,
-	OpenClawCronRunRecord,
-	OpenClawCronSessionTarget,
-	OpenClawCronStatus,
-	OpenClawCronToolRequest,
-	OpenClawCronToolResponse,
-	OpenClawCronUpdateRequest,
+	FridayCronAddRequest,
+	FridayCronDelivery,
+	FridayCronDeliveryState,
+	FridayCronCanonicalToolRequest,
+	FridayCronJob,
+	FridayCronJobDefinition,
+	FridayCronJobState,
+	FridayCronRunError,
+	FridayCronRunRecord,
+	FridayCronSessionTarget,
+	FridayCronStatus,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
+	FridayCronUpdateRequest,
 } from '../../../shared/cron';
 import type { CronSchedule } from '../core/cron.types';
 import { CronPermissionError, CronScheduleNotFoundError } from '../core/cron.errors';
 import { CronNextRunCalculator } from '../scheduler/cron-next-run-calculator';
-import type { OpenClawCronSnapshot, OpenClawCronStore } from './store';
-import { defaultOpenClawCronJobState } from './store';
+import type { FridayCronSnapshot, FridayCronStore } from './store';
+import { defaultFridayCronJobState } from './store';
 import {
 	assertSafeCronId,
 	assertTargetMatchesPayload,
-	assertValidOpenClawJob,
+	assertValidFridayJob,
 	normalizeDelivery,
 	openClawScheduleIdentity,
 } from './validation';
 import {
-	normalizeOpenClawCronToolRequest,
-	type OpenClawCronNormalizeContext,
+	normalizeFridayCronToolRequest,
+	type FridayCronNormalizeContext,
 } from './normalize';
 
-export interface OpenClawCronLogger {
+export interface FridayCronLogger {
 	info(scope: string, message: string, metadata?: unknown): void;
 	warn(scope: string, message: string, metadata?: unknown): void;
 	error(scope: string, message: string, metadata?: unknown): void;
 }
 
-export interface OpenClawCronActor {
+export interface FridayCronActor {
 	role: 'owner' | 'subagent' | 'http' | 'cron-self';
 	jobId?: string;
 	sessionId?: string;
@@ -47,35 +47,35 @@ export interface OpenClawCronActor {
 	agentId?: string | null;
 }
 
-export interface OpenClawCronExecutionOutcome {
+export interface FridayCronExecutionOutcome {
 	status: 'ok' | 'skipped';
 	output?: string;
 	skippedReason?: string;
 	alreadyDelivered?: boolean;
-	delivery?: OpenClawCronDeliveryState;
+	delivery?: FridayCronDeliveryState;
 }
 
-export interface OpenClawCronExecutor {
+export interface FridayCronExecutor {
 	execute(input: {
-		job: OpenClawCronJobDefinition;
+		job: FridayCronJobDefinition;
 		runId: string;
 		scheduledForMs: number;
 		signal: AbortSignal;
-	}): Promise<OpenClawCronExecutionOutcome>;
-	cleanup?(job: OpenClawCronJobDefinition, run: OpenClawCronRunRecord): Promise<void>;
+	}): Promise<FridayCronExecutionOutcome>;
+	cleanup?(job: FridayCronJobDefinition, run: FridayCronRunRecord): Promise<void>;
 }
 
-export interface OpenClawCronDeliveryPort {
+export interface FridayCronDeliveryPort {
 	deliver(input: {
-		job: OpenClawCronJobDefinition;
-		run: Pick<OpenClawCronRunRecord, 'runId' | 'status' | 'error'>;
+		job: FridayCronJobDefinition;
+		run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
 		output: string;
-		delivery: OpenClawCronDelivery;
+		delivery: FridayCronDelivery;
 		failure: boolean;
-	}): Promise<OpenClawCronDeliveryState>;
+	}): Promise<FridayCronDeliveryState>;
 }
 
-export interface OpenClawCronSchedulerOptions {
+export interface FridayCronSchedulerOptions {
 	enabled?: boolean;
 	maintenanceIntervalMs?: number;
 	minRefireGapMs?: number;
@@ -86,10 +86,10 @@ export interface OpenClawCronSchedulerOptions {
 	defaultBackoffMs?: number;
 	defaultMaxBackoffMs?: number;
 	defaultTimezone?: string;
-	failureDestination?: OpenClawCronDelivery;
+	failureDestination?: FridayCronDelivery;
 }
 
-const DEFAULT_OPTIONS: Required<Omit<OpenClawCronSchedulerOptions, 'failureDestination'>> = {
+const DEFAULT_OPTIONS: Required<Omit<FridayCronSchedulerOptions, 'failureDestination'>> = {
 	enabled: process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false',
 	maintenanceIntervalMs: 60_000,
 	minRefireGapMs: 1_000,
@@ -102,8 +102,8 @@ const DEFAULT_OPTIONS: Required<Omit<OpenClawCronSchedulerOptions, 'failureDesti
 	defaultTimezone: 'UTC',
 };
 
-export class NoopOpenClawCronExecutor implements OpenClawCronExecutor {
-	async execute(input: { job: OpenClawCronJobDefinition }): Promise<OpenClawCronExecutionOutcome> {
+export class NoopFridayCronExecutor implements FridayCronExecutor {
+	async execute(input: { job: FridayCronJobDefinition }): Promise<FridayCronExecutionOutcome> {
 		return {
 			status: 'ok',
 			output:
@@ -114,10 +114,10 @@ export class NoopOpenClawCronExecutor implements OpenClawCronExecutor {
 	}
 }
 
-export class NoopOpenClawCronDelivery implements OpenClawCronDeliveryPort {
+export class NoopFridayCronDelivery implements FridayCronDeliveryPort {
 	async deliver(input: {
-		delivery: OpenClawCronDelivery;
-	}): Promise<OpenClawCronDeliveryState> {
+		delivery: FridayCronDelivery;
+	}): Promise<FridayCronDeliveryState> {
 		return {
 			mode: input.delivery.mode,
 			status: input.delivery.mode === 'none' ? 'skipped' : 'sent',
@@ -132,9 +132,9 @@ export class NoopOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 	}
 }
 
-export class OpenClawCronScheduler {
-	private readonly options: Required<Omit<OpenClawCronSchedulerOptions, 'failureDestination'>> & {
-		failureDestination?: OpenClawCronDelivery;
+export class FridayCronScheduler {
+	private readonly options: Required<Omit<FridayCronSchedulerOptions, 'failureDestination'>> & {
+		failureDestination?: FridayCronDelivery;
 	};
 	private readonly calculator = new CronNextRunCalculator();
 	private timer: NodeJS.Timeout | undefined;
@@ -142,20 +142,20 @@ export class OpenClawCronScheduler {
 	private running = 0;
 
 	constructor(
-		private readonly store: OpenClawCronStore,
-		private executor: OpenClawCronExecutor = new NoopOpenClawCronExecutor(),
-		private delivery: OpenClawCronDeliveryPort = new NoopOpenClawCronDelivery(),
-		options: OpenClawCronSchedulerOptions = {},
-		private readonly logger?: OpenClawCronLogger
+		private readonly store: FridayCronStore,
+		private executor: FridayCronExecutor = new NoopFridayCronExecutor(),
+		private delivery: FridayCronDeliveryPort = new NoopFridayCronDelivery(),
+		options: FridayCronSchedulerOptions = {},
+		private readonly logger?: FridayCronLogger
 	) {
 		this.options = { ...DEFAULT_OPTIONS, ...options };
 	}
 
-	setExecutor(executor: OpenClawCronExecutor): void {
+	setExecutor(executor: FridayCronExecutor): void {
 		this.executor = executor;
 	}
 
-	setDelivery(delivery: OpenClawCronDeliveryPort): void {
+	setDelivery(delivery: FridayCronDeliveryPort): void {
 		this.delivery = delivery;
 	}
 
@@ -163,7 +163,7 @@ export class OpenClawCronScheduler {
 		if (this.started) return;
 		this.started = true;
 		if (!this.options.enabled) {
-			this.logger?.warn('OpenClawCron', 'Cron scheduler is globally disabled; jobs are persisted but timers will not arm.');
+			this.logger?.warn('FridayCron', 'Cron scheduler is globally disabled; jobs are persisted but timers will not arm.');
 			return;
 		}
 		await this.recoverStartup();
@@ -177,7 +177,7 @@ export class OpenClawCronScheduler {
 		this.started = false;
 	}
 
-	async status(actor: OpenClawCronActor = { role: 'owner' }): Promise<OpenClawCronStatus> {
+	async status(actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronStatus> {
 		this.authorize(actor, 'status');
 		const snapshot = await this.store.load();
 		const visibleJobs = this.visibleJobs(snapshot, actor);
@@ -197,9 +197,9 @@ export class OpenClawCronScheduler {
 
 	async list(
 		include: 'enabled' | 'disabled' | 'all' = 'enabled',
-		actor: OpenClawCronActor = { role: 'owner' },
+		actor: FridayCronActor = { role: 'owner' },
 		agentId?: string | null
-	): Promise<OpenClawCronJob[]> {
+	): Promise<FridayCronJob[]> {
 		this.authorize(actor, 'list');
 		const snapshot = await this.store.load();
 		const effectiveAgentId = agentId === undefined ? actor.agentId : agentId;
@@ -212,14 +212,14 @@ export class OpenClawCronScheduler {
 			.map((job) => this.join(job, snapshot.states[job.id]));
 	}
 
-	async get(jobId: string, actor: OpenClawCronActor = { role: 'owner' }): Promise<OpenClawCronJob> {
+	async get(jobId: string, actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronJob> {
 		this.authorize(actor, 'get', jobId);
 		const snapshot = await this.store.load();
 		const job = this.requireJob(snapshot, jobId);
 		return this.join(job, snapshot.states[job.id]);
 	}
 
-	async add(request: OpenClawCronAddRequest, actor: OpenClawCronActor = { role: 'owner' }): Promise<OpenClawCronJob> {
+	async add(request: FridayCronAddRequest, actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronJob> {
 		this.authorize(actor, 'add');
 		const snapshot = await this.store.load();
 		const now = Date.now();
@@ -229,7 +229,7 @@ export class OpenClawCronScheduler {
 			throw new Error(`Cron job already exists: ${id}`);
 		}
 		const sessionTarget = this.resolveSessionTarget(request.sessionTarget, request.payload, actor.sessionId);
-		const job: OpenClawCronJobDefinition = {
+		const job: FridayCronJobDefinition = {
 			id,
 			name: request.name.trim(),
 			description: request.description?.trim() ?? '',
@@ -251,8 +251,8 @@ export class OpenClawCronScheduler {
 			backoffMs: request.backoffMs,
 			maxBackoffMs: request.maxBackoffMs,
 		};
-		assertValidOpenClawJob(job);
-		const state = defaultOpenClawCronJobState(job);
+		assertValidFridayJob(job);
+		const state = defaultFridayCronJobState(job);
 		if (job.enabled) {
 			state.nextRunAtMs = this.computeNextRun(job, state, now, true);
 		}
@@ -265,9 +265,9 @@ export class OpenClawCronScheduler {
 
 	async update(
 		jobId: string,
-		patch: OpenClawCronUpdateRequest,
-		actor: OpenClawCronActor = { role: 'owner' }
-	): Promise<OpenClawCronJob> {
+		patch: FridayCronUpdateRequest,
+		actor: FridayCronActor = { role: 'owner' }
+	): Promise<FridayCronJob> {
 		this.authorize(actor, 'update', jobId);
 		const snapshot = await this.store.load();
 		const index = snapshot.jobs.findIndex((job) => job.id === jobId);
@@ -279,7 +279,7 @@ export class OpenClawCronScheduler {
 			payload,
 			actor.sessionId
 		);
-		const job: OpenClawCronJobDefinition = {
+		const job: FridayCronJobDefinition = {
 			...current,
 			...patch,
 			description: patch.description ?? current.description,
@@ -290,8 +290,8 @@ export class OpenClawCronScheduler {
 				: current.delivery,
 			updatedAtMs: Date.now(),
 		};
-		assertValidOpenClawJob(job);
-		const state = snapshot.states[jobId] ?? defaultOpenClawCronJobState(job);
+		assertValidFridayJob(job);
+		const state = snapshot.states[jobId] ?? defaultFridayCronJobState(job);
 		const identity = openClawScheduleIdentity(job.schedule);
 		if (state.scheduleIdentity !== identity) {
 			state.nextRunAtMs = undefined;
@@ -311,7 +311,7 @@ export class OpenClawCronScheduler {
 		return this.join(job, state);
 	}
 
-	async remove(jobId: string, actor: OpenClawCronActor = { role: 'owner' }): Promise<void> {
+	async remove(jobId: string, actor: FridayCronActor = { role: 'owner' }): Promise<void> {
 		this.authorize(actor, 'remove', jobId);
 		const snapshot = await this.store.load();
 		snapshot.jobs = snapshot.jobs.filter((job) => job.id !== jobId);
@@ -323,12 +323,12 @@ export class OpenClawCronScheduler {
 	async run(
 		jobId: string,
 		mode: 'force' | 'due' = 'force',
-		actor: OpenClawCronActor = { role: 'owner' }
-	): Promise<OpenClawCronRunRecord> {
+		actor: FridayCronActor = { role: 'owner' }
+	): Promise<FridayCronRunRecord> {
 		this.authorize(actor, 'run', jobId);
 		const snapshot = await this.store.load();
 		const job = this.requireJob(snapshot, jobId);
-		const state = snapshot.states[job.id] ?? defaultOpenClawCronJobState(job);
+		const state = snapshot.states[job.id] ?? defaultFridayCronJobState(job);
 		const now = Date.now();
 		if (mode === 'due' && (!state.nextRunAtMs || state.nextRunAtMs > now)) {
 			const run = this.skippedRun(job, state.nextRunAtMs ?? now, 'manual-due', 'not_due');
@@ -338,15 +338,15 @@ export class OpenClawCronScheduler {
 		return this.executeJob(job.id, state.nextRunAtMs ?? now, mode === 'due' ? 'manual-due' : 'manual-force');
 	}
 
-	async runs(jobId: string, limit = 50, actor: OpenClawCronActor = { role: 'owner' }): Promise<OpenClawCronRunRecord[]> {
+	async runs(jobId: string, limit = 50, actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronRunRecord[]> {
 		this.authorize(actor, 'runs', jobId);
 		return this.store.listRuns(jobId, limit);
 	}
 
 	async wake(
-		actor: OpenClawCronActor = { role: 'owner' },
+		actor: FridayCronActor = { role: 'owner' },
 		mode: 'now' | 'next-heartbeat' = 'next-heartbeat'
-	): Promise<OpenClawCronStatus> {
+	): Promise<FridayCronStatus> {
 		this.authorize(actor, 'wake');
 		if (this.options.enabled && mode === 'now') {
 			await this.processDue(Date.now());
@@ -356,12 +356,12 @@ export class OpenClawCronScheduler {
 	}
 
 	async handleToolAction(
-		request: OpenClawCronToolRequest | OpenClawCronCanonicalToolRequest | unknown,
-		actor: OpenClawCronActor = { role: 'owner' },
-		context: Omit<OpenClawCronNormalizeContext, 'actor'> = {}
-	): Promise<OpenClawCronToolResponse> {
+		request: FridayCronToolRequest | FridayCronCanonicalToolRequest | unknown,
+		actor: FridayCronActor = { role: 'owner' },
+		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
+	): Promise<FridayCronToolResponse> {
 		try {
-			const normalized = normalizeOpenClawCronToolRequest(request, { ...context, actor });
+			const normalized = normalizeFridayCronToolRequest(request, { ...context, actor });
 			const result = await this.handleToolActionOrThrow(normalized, actor);
 			return {
 				status: 'ok',
@@ -383,9 +383,9 @@ export class OpenClawCronScheduler {
 		const snapshot = await this.store.load();
 		let changed = false;
 		for (const job of snapshot.jobs) {
-			const state = snapshot.states[job.id] ?? defaultOpenClawCronJobState(job);
+			const state = snapshot.states[job.id] ?? defaultFridayCronJobState(job);
 			if (state.runningAtMs) {
-				const run: OpenClawCronRunRecord = {
+				const run: FridayCronRunRecord = {
 					runId: randomUUID(),
 					jobId: job.id,
 					status: 'error',
@@ -422,7 +422,7 @@ export class OpenClawCronScheduler {
 		const snapshot = await this.store.load();
 		let changed = this.sweepStaleRunning(snapshot, now);
 		for (const job of snapshot.jobs) {
-			const state = snapshot.states[job.id] ?? defaultOpenClawCronJobState(job);
+			const state = snapshot.states[job.id] ?? defaultFridayCronJobState(job);
 			if (job.enabled && !state.runningAtMs && state.nextRunAtMs === undefined) {
 				this.refreshNextRun(job, state, now);
 				snapshot.states[job.id] = state;
@@ -444,9 +444,9 @@ export class OpenClawCronScheduler {
 	}
 
 	private async handleToolActionOrThrow(
-		request: OpenClawCronCanonicalToolRequest,
-		actor: OpenClawCronActor
-	): Promise<OpenClawCronToolResponse['result']> {
+		request: FridayCronCanonicalToolRequest,
+		actor: FridayCronActor
+	): Promise<FridayCronToolResponse['result']> {
 		switch (request.action) {
 			case 'status': {
 				const status = await this.status(actor);
@@ -477,11 +477,11 @@ export class OpenClawCronScheduler {
 	private async executeJob(
 		jobId: string,
 		scheduledForMs: number,
-		mode: OpenClawCronRunRecord['mode']
-	): Promise<OpenClawCronRunRecord> {
+		mode: FridayCronRunRecord['mode']
+	): Promise<FridayCronRunRecord> {
 		const snapshot = await this.store.load();
 		const job = this.requireJob(snapshot, jobId);
-		const state = snapshot.states[job.id] ?? defaultOpenClawCronJobState(job);
+		const state = snapshot.states[job.id] ?? defaultFridayCronJobState(job);
 		const now = Date.now();
 		if (state.runningAtMs && now - state.runningAtMs <= this.options.stuckRunThresholdMs) {
 			const run = this.skippedRun(job, scheduledForMs, mode, 'already_running');
@@ -524,20 +524,20 @@ export class OpenClawCronScheduler {
 	}
 
 	private async completeRun(
-		job: OpenClawCronJobDefinition,
+		job: FridayCronJobDefinition,
 		scheduledForMs: number,
-		mode: OpenClawCronRunRecord['mode'],
+		mode: FridayCronRunRecord['mode'],
 		runId: string,
 		finishedAtMs: number,
-		outcome: OpenClawCronExecutionOutcome
-	): Promise<OpenClawCronRunRecord> {
+		outcome: FridayCronExecutionOutcome
+	): Promise<FridayCronRunRecord> {
 		if (outcome.status === 'skipped') {
 			const run = this.skippedRun(job, scheduledForMs, mode, outcome.skippedReason ?? 'executor_skipped', runId, finishedAtMs);
 			await this.applyRunResult(job, run);
 			return run;
 		}
 
-		const baseRun: OpenClawCronRunRecord = {
+		const baseRun: FridayCronRunRecord = {
 			runId,
 			jobId: job.id,
 			status: 'ok',
@@ -557,14 +557,14 @@ export class OpenClawCronScheduler {
 	}
 
 	private async failRun(
-		job: OpenClawCronJobDefinition,
+		job: FridayCronJobDefinition,
 		scheduledForMs: number,
-		mode: OpenClawCronRunRecord['mode'],
+		mode: FridayCronRunRecord['mode'],
 		runId: string,
 		finishedAtMs: number,
 		error: unknown
-	): Promise<OpenClawCronRunRecord> {
-		const run: OpenClawCronRunRecord = {
+	): Promise<FridayCronRunRecord> {
+		const run: FridayCronRunRecord = {
 			runId,
 			jobId: job.id,
 			status: 'error',
@@ -579,7 +579,7 @@ export class OpenClawCronScheduler {
 		return run;
 	}
 
-	private async applyRunResult(job: OpenClawCronJobDefinition, run: OpenClawCronRunRecord): Promise<void> {
+	private async applyRunResult(job: FridayCronJobDefinition, run: FridayCronRunRecord): Promise<void> {
 		const snapshot = await this.store.load();
 		const index = snapshot.jobs.findIndex((entry) => entry.id === job.id);
 		if (index === -1) {
@@ -587,7 +587,7 @@ export class OpenClawCronScheduler {
 			return;
 		}
 		const currentJob = snapshot.jobs[index]!;
-		const state = snapshot.states[job.id] ?? defaultOpenClawCronJobState(currentJob);
+		const state = snapshot.states[job.id] ?? defaultFridayCronJobState(currentJob);
 		state.runningAtMs = undefined;
 		state.lastRunAtMs = run.finishedAtMs;
 		state.lastRunStatus = run.status;
@@ -638,10 +638,10 @@ export class OpenClawCronScheduler {
 	}
 
 	private async resolveDelivery(
-		job: OpenClawCronJobDefinition,
-		run: OpenClawCronRunRecord,
-		outcome: OpenClawCronExecutionOutcome
-	): Promise<OpenClawCronDeliveryState | undefined> {
+		job: FridayCronJobDefinition,
+		run: FridayCronRunRecord,
+		outcome: FridayCronExecutionOutcome
+	): Promise<FridayCronDeliveryState | undefined> {
 		if (outcome.delivery) return outcome.delivery;
 		if (outcome.alreadyDelivered) {
 			return {
@@ -672,9 +672,9 @@ export class OpenClawCronScheduler {
 	}
 
 	private async maybeAlertFailure(
-		job: OpenClawCronJobDefinition,
-		state: OpenClawCronJobState,
-		run: OpenClawCronRunRecord
+		job: FridayCronJobDefinition,
+		state: FridayCronJobState,
+		run: FridayCronRunRecord
 	): Promise<void> {
 		if (job.failureAlert === false) return;
 		if (run.status === 'skipped' && !job.failureAlert?.includeSkipped) return;
@@ -695,14 +695,14 @@ export class OpenClawCronScheduler {
 				failure: true,
 			});
 		} catch (error) {
-			this.logger?.warn('OpenClawCron', 'Failure alert delivery failed.', {
+			this.logger?.warn('FridayCron', 'Failure alert delivery failed.', {
 				jobId: job.id,
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
 	}
 
-	private failureDelivery(job: OpenClawCronJobDefinition): OpenClawCronDelivery | undefined {
+	private failureDelivery(job: FridayCronJobDefinition): FridayCronDelivery | undefined {
 		if (job.failureAlert && job.failureAlert.to) {
 			return {
 				mode: job.failureAlert.mode ?? 'announce',
@@ -730,13 +730,13 @@ export class OpenClawCronScheduler {
 	}
 
 	private skippedRun(
-		job: OpenClawCronJobDefinition,
+		job: FridayCronJobDefinition,
 		scheduledForMs: number,
-		mode: OpenClawCronRunRecord['mode'],
+		mode: FridayCronRunRecord['mode'],
 		reason: string,
 		runId: string = randomUUID(),
 		finishedAtMs: number = Date.now()
-	): OpenClawCronRunRecord {
+	): FridayCronRunRecord {
 		return {
 			runId,
 			jobId: job.id,
@@ -751,8 +751,8 @@ export class OpenClawCronScheduler {
 	}
 
 	private computeNextAfterSuccess(
-		job: OpenClawCronJobDefinition,
-		state: OpenClawCronJobState,
+		job: FridayCronJobDefinition,
+		state: FridayCronJobState,
 		fromMs: number
 	): number | undefined {
 		const next = this.computeNextRun(job, state, fromMs, false);
@@ -760,14 +760,14 @@ export class OpenClawCronScheduler {
 		return Math.max(next, fromMs + this.options.minRefireGapMs);
 	}
 
-	private nextAfterError(job: OpenClawCronJobDefinition, state: OpenClawCronJobState, now: number): number {
+	private nextAfterError(job: FridayCronJobDefinition, state: FridayCronJobState, now: number): number {
 		const base = Math.max(0, job.backoffMs ?? this.options.defaultBackoffMs);
 		const max = Math.max(base, job.maxBackoffMs ?? this.options.defaultMaxBackoffMs);
 		const multiplier = 2 ** Math.max(0, state.consecutiveErrors - 1);
 		return now + Math.min(max, base * multiplier);
 	}
 
-	private refreshNextRun(job: OpenClawCronJobDefinition, state: OpenClawCronJobState, now: number): void {
+	private refreshNextRun(job: FridayCronJobDefinition, state: FridayCronJobState, now: number): void {
 		try {
 			state.nextRunAtMs = this.computeNextRun(job, state, now, true);
 			state.consecutiveScheduleErrors = 0;
@@ -784,8 +784,8 @@ export class OpenClawCronScheduler {
 	}
 
 	private computeNextRun(
-		job: OpenClawCronJobDefinition,
-		state: OpenClawCronJobState,
+		job: FridayCronJobDefinition,
+		state: FridayCronJobState,
 		fromMs: number,
 		allowPastAt: boolean
 	): number | undefined {
@@ -846,7 +846,7 @@ export class OpenClawCronScheduler {
 		return next.getTime() + (job.schedule.staggerMs ?? 0);
 	}
 
-	private sweepStaleRunning(snapshot: OpenClawCronSnapshot, now: number): boolean {
+	private sweepStaleRunning(snapshot: FridayCronSnapshot, now: number): boolean {
 		let changed = false;
 		for (const job of snapshot.jobs) {
 			const state = snapshot.states[job.id];
@@ -880,31 +880,31 @@ export class OpenClawCronScheduler {
 		);
 		this.timer = setTimeout(() => {
 			void this.processDue(Date.now()).catch((error) => {
-				this.logger?.error('OpenClawCron', 'Cron tick failed.', error);
+				this.logger?.error('FridayCron', 'Cron tick failed.', error);
 			});
 		}, delayMs);
 		this.timer.unref?.();
 	}
 
-	private visibleJobs(snapshot: OpenClawCronSnapshot, actor: OpenClawCronActor): OpenClawCronJobDefinition[] {
+	private visibleJobs(snapshot: FridayCronSnapshot, actor: FridayCronActor): FridayCronJobDefinition[] {
 		if (actor.role === 'cron-self') {
 			return snapshot.jobs.filter((job) => job.id === actor.jobId);
 		}
 		return snapshot.jobs;
 	}
 
-	private requireJob(snapshot: OpenClawCronSnapshot, jobId: string): OpenClawCronJobDefinition {
+	private requireJob(snapshot: FridayCronSnapshot, jobId: string): FridayCronJobDefinition {
 		assertSafeCronId(jobId, 'jobId');
 		const job = snapshot.jobs.find((entry) => entry.id === jobId);
 		if (!job) throw new CronScheduleNotFoundError(jobId);
 		return job;
 	}
 
-	private join(job: OpenClawCronJobDefinition, state?: OpenClawCronJobState): OpenClawCronJob {
-		return { ...job, state: state ?? defaultOpenClawCronJobState(job) };
+	private join(job: FridayCronJobDefinition, state?: FridayCronJobState): FridayCronJob {
+		return { ...job, state: state ?? defaultFridayCronJobState(job) };
 	}
 
-	private authorize(actor: OpenClawCronActor, action: OpenClawCronCanonicalToolRequest['action'], jobId?: string): void {
+	private authorize(actor: FridayCronActor, action: FridayCronCanonicalToolRequest['action'], jobId?: string): void {
 		if (actor.role === 'owner') return;
 		if (actor.role === 'cron-self') {
 			if (action === 'status' || action === 'list') return;
@@ -923,10 +923,10 @@ export class OpenClawCronScheduler {
 	}
 
 	private resolveSessionTarget(
-		target: OpenClawCronSessionTarget | undefined,
-		payload: OpenClawCronJobDefinition['payload'],
+		target: FridayCronSessionTarget | undefined,
+		payload: FridayCronJobDefinition['payload'],
 		currentSessionId?: string
-	): OpenClawCronSessionTarget {
+	): FridayCronSessionTarget {
 		const inferred = target ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
 		const resolved = inferred === 'current'
 			? currentSessionId
@@ -937,11 +937,11 @@ export class OpenClawCronScheduler {
 		return resolved;
 	}
 
-	private maxAttempts(job: OpenClawCronJobDefinition): number {
+	private maxAttempts(job: FridayCronJobDefinition): number {
 		return job.maxAttempts ?? this.options.defaultOneShotMaxAttempts;
 	}
 
-	private toRunError(error: unknown, fallbackCode = 'CRON_RUN_ERROR'): OpenClawCronRunError {
+	private toRunError(error: unknown, fallbackCode = 'CRON_RUN_ERROR'): FridayCronRunError {
 		if (error && typeof error === 'object') {
 			const record = error as { code?: unknown; message?: unknown; permanent?: unknown; name?: unknown };
 			return {

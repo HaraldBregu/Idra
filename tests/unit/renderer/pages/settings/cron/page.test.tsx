@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import type { OpenClawCronJob } from '../../../../../../src/shared/cron';
+import type { FridayCronJob } from '../../../../../../src/shared/cron';
 import CronPage from '../../../../../../src/renderer/src/pages/settings/pages/cron/Page';
 
 jest.mock('react-i18next', () => ({
@@ -13,7 +13,7 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
-function makeJob(id: string, expr = '0 * * * *'): OpenClawCronJob {
+function makeJob(id: string, expr = '0 * * * *'): FridayCronJob {
 	return {
 		id,
 		name: `Job ${id}`,

@@ -35,7 +35,7 @@ import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
 import type { ApprovalDecision } from '../shared/service';
-import type { OpenClawCronActor } from './cron';
+import type { FridayCronActor } from './cron';
 
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
@@ -146,7 +146,7 @@ export class AgentService {
 	async send(
 		message: string,
 		agentId = this.defaultAgentId,
-		options: { cronContext?: OpenClawCronActor } = {}
+		options: { cronContext?: FridayCronActor } = {}
 	): Promise<string> {
 		const runtime = this.ensureRuntime(agentId);
 		if (runtime.currentAbort) {

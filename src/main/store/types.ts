@@ -2,7 +2,7 @@ import { Provider } from "../../shared/providers";
 import { Service } from "../../shared/service";
 import { CronTask } from "../../shared/cron";
 import type { CronStoreState } from "../cron/core/cron.types";
-import type { OpenClawCronStoreState } from "../cron/openclaw/store";
+import type { FridayCronStoreState } from "../cron/friday/store";
 import { Channel } from "../../shared/channels";
 import { ConnectorConfig } from "../../shared/connectors";
 
@@ -11,7 +11,7 @@ export interface StoreSchema {
 	service: Service;
 	cronTasks: CronTask[];
 	cronScheduler: CronStoreState;
-	openClawCron: OpenClawCronStoreState;
+	openClawCron: FridayCronStoreState;
 	channel: Channel;
 	connectors: ConnectorConfig[];
 }

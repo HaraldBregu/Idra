@@ -8,8 +8,8 @@ import type { AgentService } from '../service';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
-	type OpenClawCronToolRequest,
-	type OpenClawCronToolResponse,
+	type FridayCronToolRequest,
+	type FridayCronToolResponse,
 	type CronNextRunPreview,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
@@ -31,19 +31,19 @@ import {
 import {
 	InMemoryCronScheduleRunner,
 } from './scheduler/cron-runner';
-import { ElectronStoreOpenClawCronStore } from './openclaw/store';
+import { ElectronStoreFridayCronStore } from './friday/store';
 import {
-	GatewayOpenClawCronDelivery,
-	AgentServiceOpenClawCronExecutor,
-} from './openclaw/runtime-adapters';
+	GatewayFridayCronDelivery,
+	AgentServiceFridayCronExecutor,
+} from './friday/runtime-adapters';
 import {
-	NoopOpenClawCronDelivery,
-	NoopOpenClawCronExecutor,
-	OpenClawCronScheduler,
-	type OpenClawCronActor,
-	type OpenClawCronSchedulerOptions,
-} from './openclaw/scheduler';
-import type { OpenClawCronNormalizeContext } from './openclaw/normalize';
+	NoopFridayCronDelivery,
+	NoopFridayCronExecutor,
+	FridayCronScheduler,
+	type FridayCronActor,
+	type FridayCronSchedulerOptions,
+} from './friday/scheduler';
+import type { FridayCronNormalizeContext } from './friday/normalize';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
@@ -51,7 +51,7 @@ interface NextRunCapable {
 
 export interface CronServiceOptions {
 	enabled?: boolean;
-	openClaw?: OpenClawCronSchedulerOptions;
+	openClaw?: FridayCronSchedulerOptions;
 }
 
 /**
@@ -67,7 +67,7 @@ export class CronService implements Disposable {
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
-	private readonly openClaw: OpenClawCronScheduler;
+	private readonly openClaw: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
 
 	constructor(
@@ -93,10 +93,10 @@ export class CronService implements Disposable {
 			{},
 			logger
 		);
-		this.openClaw = new OpenClawCronScheduler(
-			new ElectronStoreOpenClawCronStore(store),
-			new NoopOpenClawCronExecutor(),
-			new NoopOpenClawCronDelivery(),
+		this.openClaw = new FridayCronScheduler(
+			new ElectronStoreFridayCronStore(store),
+			new NoopFridayCronExecutor(),
+			new NoopFridayCronDelivery(),
 			{
 				...options.openClaw,
 				enabled: this.automaticEnabled,
@@ -129,16 +129,16 @@ export class CronService implements Disposable {
 		if (this.automaticEnabled) await this.openClaw.recoverStartup();
 	}
 
-	configureOpenClawRuntime(dependencies: {
+	configureFridayRuntime(dependencies: {
 		agentService?: AgentService;
 		eventBus?: EventBus;
 		channelRegistry?: ChannelRegistry;
 	}): void {
 		if (dependencies.agentService) {
-			this.openClaw.setExecutor(new AgentServiceOpenClawCronExecutor(dependencies.agentService));
+			this.openClaw.setExecutor(new AgentServiceFridayCronExecutor(dependencies.agentService));
 		}
 		this.openClaw.setDelivery(
-			new GatewayOpenClawCronDelivery({
+			new GatewayFridayCronDelivery({
 				eventBus: dependencies.eventBus,
 				channelRegistry: dependencies.channelRegistry,
 				logger: this.logger,
@@ -147,10 +147,10 @@ export class CronService implements Disposable {
 	}
 
 	openClawAction(
-		request: OpenClawCronToolRequest,
-		actor?: OpenClawCronActor,
-		context: Omit<OpenClawCronNormalizeContext, 'actor'> = {}
-	): Promise<OpenClawCronToolResponse> {
+		request: FridayCronToolRequest,
+		actor?: FridayCronActor,
+		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
+	): Promise<FridayCronToolResponse> {
 		const effectiveActor = actor ?? { role: 'owner' as const };
 		return this.openClaw.handleToolAction(request, effectiveActor, context);
 	}

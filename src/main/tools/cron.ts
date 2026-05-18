@@ -2,16 +2,16 @@ import { randomUUID } from 'node:crypto';
 import {
 	isCronTaskData,
 	type CronTaskData,
-	type OpenClawCronToolRequest,
-	type OpenClawCronToolResponse,
+	type FridayCronToolRequest,
+	type FridayCronToolResponse,
 } from '../../shared/cron';
 import { loadExistingSession } from '../session/store';
 import type { TranscriptEntry } from '../provider/types';
 import type { AgentTool, ToolContext } from './types';
 import { textResult } from './types';
 
-function jsonResult(payload: OpenClawCronToolResponse): ReturnType<typeof textResult> & {
-	details: OpenClawCronToolResponse;
+function jsonResult(payload: FridayCronToolResponse): ReturnType<typeof textResult> & {
+	details: FridayCronToolResponse;
 } {
 	return {
 		status: payload.status,
@@ -29,7 +29,7 @@ function cronActor(ctx: ToolContext) {
 	return agentId === undefined ? actor : { ...actor, agentId };
 }
 
-function contextMessageCount(args: OpenClawCronToolRequest): number {
+function contextMessageCount(args: FridayCronToolRequest): number {
 	const count = typeof args.contextMessages === 'number' ? args.contextMessages : 0;
 	if (!Number.isFinite(count)) return 0;
 	return Math.max(0, Math.min(10, Math.floor(count)));
@@ -47,7 +47,7 @@ function blockText(entry: TranscriptEntry): string | null {
 	return null;
 }
 
-async function recentContext(args: OpenClawCronToolRequest, ctx: ToolContext): Promise<string | undefined> {
+async function recentContext(args: FridayCronToolRequest, ctx: ToolContext): Promise<string | undefined> {
 	const count = contextMessageCount(args);
 	if (count <= 0) return undefined;
 	const session = await loadExistingSession(ctx.sessionId, { baseDir: ctx.sessionBaseDir });
@@ -72,7 +72,7 @@ function inferredDelivery(ctx: ToolContext): Record<string, unknown> | undefined
 	return Object.keys(delivery).length > 1 ? delivery : undefined;
 }
 
-export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolResponse> = {
+export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> = {
 	name: 'cron',
 	ownerOnly: true,
 	displaySummary: 'Schedule cron jobs, reminders, and wake events.',

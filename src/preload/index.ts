@@ -33,9 +33,9 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
-	OpenClawCronJob,
-	OpenClawCronToolRequest,
-	OpenClawCronToolResponse,
+	FridayCronJob,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	Agent,
@@ -90,7 +90,7 @@ const win: WindowApi = {
 	},
 } satisfies WindowApi;
 
-function isOpenClawCronJob(value: unknown): value is OpenClawCronJob {
+function isFridayCronJob(value: unknown): value is FridayCronJob {
 	return (
 		typeof value === 'object' &&
 		value !== null &&
@@ -102,7 +102,7 @@ function isOpenClawCronJob(value: unknown): value is OpenClawCronJob {
 	);
 }
 
-async function cronAction(request: OpenClawCronToolRequest): Promise<OpenClawCronToolResponse> {
+async function cronAction(request: FridayCronToolRequest): Promise<FridayCronToolResponse> {
 	const response = await typedInvokeUnwrap(CronChannels.action, request);
 	if (response.status === 'error') {
 		throw new Error(response.error ?? 'Cron action failed.');
@@ -204,10 +204,10 @@ export const cron: CronApi = {
 	list: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
 	},
-	listJobs: async (include = 'all'): Promise<OpenClawCronJob[]> => {
+	listJobs: async (include = 'all'): Promise<FridayCronJob[]> => {
 		const response = await cronAction({ action: 'list', include });
 		if (!Array.isArray(response.result)) return [];
-		return response.result.filter(isOpenClawCronJob);
+		return response.result.filter(isFridayCronJob);
 	},
 	add: <TData extends CronTaskData>(
 		expression: string,

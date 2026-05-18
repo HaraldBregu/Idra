@@ -1,16 +1,16 @@
 import { pathToFileURL } from 'node:url';
-import { buildOpenClawConnectorApi } from './api-builder';
+import { buildFridayConnectorApi } from './api-builder';
 import type { ConnectorDiagnostic } from './manifest';
 import type { ConnectorManifestRecord } from './discovery';
 import {
-	OpenClawConnectorRegistry,
+	FridayConnectorRegistry,
 	type ConnectorRegistrationMode,
 } from './registry';
-import type { OpenClawConnectorEntry } from './entry';
+import type { FridayConnectorEntry } from './entry';
 
 export interface LoadConnectorOptions {
 	record: ConnectorManifestRecord;
-	registry: OpenClawConnectorRegistry;
+	registry: FridayConnectorRegistry;
 	mode: ConnectorRegistrationMode;
 	importer?: ConnectorEntryImporter;
 	pluginConfig?: Record<string, unknown>;
@@ -20,7 +20,7 @@ export type ConnectorEntryImporter = (source: string) => Promise<unknown>;
 
 export interface LoadConnectorResult {
 	ok: boolean;
-	entry?: OpenClawConnectorEntry;
+	entry?: FridayConnectorEntry;
 	diagnostics: ConnectorDiagnostic[];
 }
 
@@ -61,7 +61,7 @@ export async function loadConnectorEntry(options: LoadConnectorOptions): Promise
 			});
 			return { ok: false, entry, diagnostics };
 		}
-		const api = buildOpenClawConnectorApi({
+		const api = buildFridayConnectorApi({
 			record: options.record,
 			registry: options.registry,
 			registrationMode: options.mode,
@@ -81,7 +81,7 @@ export async function loadConnectorEntry(options: LoadConnectorOptions): Promise
 	}
 }
 
-function resolveConnectorEntry(moduleValue: unknown): OpenClawConnectorEntry | undefined {
+function resolveConnectorEntry(moduleValue: unknown): FridayConnectorEntry | undefined {
 	const candidates = [
 		moduleValue,
 		getObjectValue(moduleValue, 'default'),
@@ -91,9 +91,9 @@ function resolveConnectorEntry(moduleValue: unknown): OpenClawConnectorEntry | u
 	return candidates.find(isConnectorEntry);
 }
 
-function isConnectorEntry(value: unknown): value is OpenClawConnectorEntry {
+function isConnectorEntry(value: unknown): value is FridayConnectorEntry {
 	if (typeof value !== 'object' || value === null) return false;
-	const candidate = value as Partial<OpenClawConnectorEntry>;
+	const candidate = value as Partial<FridayConnectorEntry>;
 	return (
 		typeof candidate.id === 'string' &&
 		typeof candidate.name === 'string' &&

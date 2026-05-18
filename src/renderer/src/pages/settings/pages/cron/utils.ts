@@ -1,4 +1,4 @@
-import type { OpenClawCronJob, OpenClawCronPayload, OpenClawCronSchedule } from '../../../../../../shared/cron';
+import type { FridayCronJob, FridayCronPayload, FridayCronSchedule } from '../../../../../../shared/cron';
 
 export function formatTimestamp(value: number | string | undefined): string {
 	if (value === undefined || value === '') return '—';
@@ -26,7 +26,7 @@ function formatDetailValue(value: unknown): string {
 	return JSON.stringify(value);
 }
 
-export function formatSchedule(schedule: OpenClawCronSchedule): string {
+export function formatSchedule(schedule: FridayCronSchedule): string {
 	switch (schedule.kind) {
 		case 'at':
 			return formatTimestamp(schedule.at);
@@ -40,11 +40,11 @@ export function formatSchedule(schedule: OpenClawCronSchedule): string {
 	}
 }
 
-export function payloadSummary(payload: OpenClawCronPayload): string {
+export function payloadSummary(payload: FridayCronPayload): string {
 	return payload.kind === 'systemEvent' ? payload.text : payload.message;
 }
 
-export function deliverySummary(job: OpenClawCronJob): string {
+export function deliverySummary(job: FridayCronJob): string {
 	if (job.delivery.mode === 'none') return 'none';
 	const target = [job.delivery.channel, job.delivery.to, job.delivery.threadId]
 		.filter(Boolean)
@@ -52,14 +52,14 @@ export function deliverySummary(job: OpenClawCronJob): string {
 	return target ? `${job.delivery.mode}: ${target}` : job.delivery.mode;
 }
 
-export function payloadEntries(payload: OpenClawCronPayload): readonly (readonly [string, string])[] {
+export function payloadEntries(payload: FridayCronPayload): readonly (readonly [string, string])[] {
 	return Object.entries(payload)
 		.filter(([key]) => !['kind', 'message', 'text'].includes(key))
 		.map(([key, value]) => [key, formatDetailValue(value)] as const)
 		.filter(([, value]) => value !== '—');
 }
 
-export function isOpenClawCronJob(value: unknown): value is OpenClawCronJob {
+export function isFridayCronJob(value: unknown): value is FridayCronJob {
 	return (
 		typeof value === 'object' &&
 		value !== null &&

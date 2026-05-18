@@ -253,8 +253,8 @@ interface CronInvokeChannelMap {
 		result: import('./cron').CronScheduledTask;
 	};
 	[CronChannels.action]: {
-		args: [request: import('./cron').OpenClawCronToolRequest];
-		result: import('./cron').OpenClawCronToolResponse;
+		args: [request: import('./cron').FridayCronToolRequest];
+		result: import('./cron').FridayCronToolResponse;
 	};
 }
 

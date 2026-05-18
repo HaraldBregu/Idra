@@ -1,4 +1,4 @@
-import type { CronService, OpenClawCronActor } from '../cron';
+import type { CronService, FridayCronActor } from '../cron';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { AgentStartupFilesServicePort } from '../agent/startup-files';
@@ -37,7 +37,7 @@ export interface ToolContext {
 	/** Agent id that owns this run, when available. */
 	agentId?: string;
 	/** Cron authorization context supplied by the Gateway for owner or cron-self calls. */
-	cronContext?: OpenClawCronActor;
+	cronContext?: FridayCronActor;
 	/** Best-effort live chat delivery context for tools that can persist follow-up work. */
 	deliveryContext?: Record<string, unknown>;
 	/** Run-scoped id used by the run logger / session. */

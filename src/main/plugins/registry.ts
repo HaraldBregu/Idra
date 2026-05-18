@@ -106,7 +106,7 @@ export type ConnectorRegistrySurface =
 	| 'runtimeLifecycle'
 	| 'cleanup';
 
-export class OpenClawConnectorRegistry {
+export class FridayConnectorRegistry {
 	private readonly tools: RegisteredConnectorTool[] = [];
 	private readonly toolMetadata = new Map<string, RegisteredConnectorValue<ConnectorToolMetadataRegistration>>();
 	private readonly toolOwners = new Map<string, string>();
