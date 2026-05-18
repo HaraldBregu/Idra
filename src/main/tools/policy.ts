@@ -13,9 +13,9 @@ export interface PolicyConfig {
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 	minimal: [],
-	coding: ['read', 'write', 'edit', 'find', 'exec', 'process', 'web_fetch', 'cron'],
+	coding: ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process', 'web_fetch', 'cron'],
 	messaging: [],
-	standard: ['read', 'write', 'edit', 'find', 'exec', 'process', 'web_fetch', 'cron'],
+	standard: ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process', 'web_fetch', 'cron'],
 	full: 'all',
 };
 
