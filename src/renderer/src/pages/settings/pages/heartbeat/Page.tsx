@@ -127,6 +127,13 @@ const HeartbeatPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [status, setStatus] = useState<HeartbeatStatus | null>(null);
 	const [lastHeartbeat, setLastHeartbeat] = useState<HeartbeatEventPayload | null>(null);
+	const [timing, setTiming] = useState<HeartbeatTimingSettings | null>(null);
+	const [timingDraft, setTimingDraft] = useState<TimingDraft>({
+		every: '30m',
+		start: '',
+		end: '',
+		timezone: '',
+	});
 	const [loading, setLoading] = useState(true);
 	const [operation, setOperation] = useState<Operation>(null);
 	const [eventText, setEventText] = useState('');
@@ -138,19 +145,29 @@ const HeartbeatPage: React.FC = () => {
 		setLastHeartbeat(nextStatus.lastHeartbeat);
 	}, []);
 
-	const loadStatus = useCallback(
+	const applyTiming = useCallback((nextTiming: HeartbeatTimingSettings): void => {
+		setTiming(nextTiming);
+		setTimingDraft(timingToDraft(nextTiming));
+	}, []);
+
+	const loadHeartbeat = useCallback(
 		async (showLoading = false): Promise<void> => {
 			if (showLoading) setLoading(true);
 			setError(null);
 			try {
-				applyStatus(await window.heartbeat.status());
+				const [nextStatus, nextTiming] = await Promise.all([
+					window.heartbeat.status(),
+					window.heartbeat.getTiming(),
+				]);
+				applyStatus(nextStatus);
+				applyTiming(nextTiming);
 			} catch (caught) {
 				setError(caught instanceof Error ? caught.message : String(caught));
 			} finally {
 				if (showLoading) setLoading(false);
 			}
 		},
-		[applyStatus]
+		[applyStatus, applyTiming]
 	);
 
 	useEffect(() => {
@@ -158,9 +175,13 @@ const HeartbeatPage: React.FC = () => {
 
 		const loadInitialStatus = async (): Promise<void> => {
 			try {
-				const nextStatus = await window.heartbeat.status();
+				const [nextStatus, nextTiming] = await Promise.all([
+					window.heartbeat.status(),
+					window.heartbeat.getTiming(),
+				]);
 				if (!mounted) return;
 				applyStatus(nextStatus);
+				applyTiming(nextTiming);
 				setError(null);
 			} catch (caught) {
 				if (mounted) setError(caught instanceof Error ? caught.message : String(caught));
@@ -179,17 +200,17 @@ const HeartbeatPage: React.FC = () => {
 			mounted = false;
 			unsubscribe();
 		};
-	}, [applyStatus]);
+	}, [applyStatus, applyTiming]);
 
 	const handleRefresh = useCallback(async (): Promise<void> => {
 		setOperation('refresh');
 		setNotice(null);
 		try {
-			await loadStatus();
+			await loadHeartbeat();
 		} finally {
 			setOperation(null);
 		}
-	}, [loadStatus]);
+	}, [loadHeartbeat]);
 
 	const handleToggle = useCallback(
 		async (enabled: boolean): Promise<void> => {
@@ -219,13 +240,13 @@ const HeartbeatPage: React.FC = () => {
 				reason: 'settings page manual wake',
 			});
 			setNotice(t('settings.heartbeat.notices.wakeQueued'));
-			await loadStatus();
+			await loadHeartbeat();
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
 			setOperation(null);
 		}
-	}, [loadStatus, t]);
+	}, [loadHeartbeat, t]);
 
 	const handleSystemEvent = useCallback(
 		async (mode: 'now' | 'next-heartbeat'): Promise<void> => {
@@ -243,14 +264,14 @@ const HeartbeatPage: React.FC = () => {
 				const result = await window.heartbeat.systemEvent({ text, mode });
 				setEventText('');
 				setNotice(t('settings.heartbeat.notices.eventQueued', { session: result.sessionKey }));
-				await loadStatus();
+				await loadHeartbeat();
 			} catch (caught) {
 				setError(caught instanceof Error ? caught.message : String(caught));
 			} finally {
 				setOperation(null);
 			}
 		},
-		[eventText, loadStatus, t]
+		[eventText, loadHeartbeat, t]
 	);
 
 	const runtimeEnabled = Boolean(status?.enabled);
