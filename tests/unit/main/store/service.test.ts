@@ -187,7 +187,7 @@ describe('StoreService', () => {
 
 			expect(service.getOpenClawCronState()).toMatchObject({
 				jobs: [{ id: 'job-1' }],
-				states: { 'job-1': expect.objectContaining({ scheduleIdentity: 'every:60000:' }) },
+				states: { 'job-1': expect.objectContaining({ scheduleIdentity: '{"everyMs":60000,"kind":"every"}' }) },
 				runs: { 'job-1': [{ runId: 'run-1' }] },
 			});
 		});
