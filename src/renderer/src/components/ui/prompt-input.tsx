@@ -145,8 +145,8 @@ function PromptInputVoiceWaveform({
   return (
     <div
       className={cn(
-        "relative h-7 min-w-0 overflow-hidden rounded-full bg-white/[0.055] shadow-inner",
-        muted && "bg-white/[0.045]"
+        "relative h-7 min-w-0 overflow-hidden rounded-full bg-muted/70 shadow-inner",
+        muted && "bg-muted/50"
       )}
       aria-hidden="true"
     >
@@ -160,13 +160,10 @@ function PromptInputVoiceWaveform({
           <motion.path
             d="M28 43 C86 8 124 69 188 48 C252 26 303 64 360 36 C421 6 474 70 534 47 C578 32 603 34 624 43"
             fill="none"
-            stroke={
-              mode === "dictation"
-                ? "rgba(129, 178, 255, 0.74)"
-                : "rgba(126, 160, 255, 0.82)"
-            }
+            stroke="currentColor"
             strokeWidth="5"
             strokeLinecap="round"
+            className={mode === "dictation" ? "text-primary/70" : "text-primary/75"}
             initial={{ pathLength: 0.72, opacity: 0.52 }}
             animate={{ pathLength: [0.72, 1, 0.8], opacity: [0.45, 0.9, 0.55] }}
             transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
@@ -174,9 +171,10 @@ function PromptInputVoiceWaveform({
           <motion.path
             d="M30 35 C88 62 116 22 173 38 C225 53 274 48 323 22 C377 -6 419 55 474 46 C533 36 555 12 604 40"
             fill="none"
-            stroke="rgba(142, 211, 198, 0.66)"
+            stroke="currentColor"
             strokeWidth="4"
             strokeLinecap="round"
+            className="text-foreground/45"
             initial={{ pathLength: 0.82, opacity: 0.36 }}
             animate={{ pathLength: [0.82, 0.62, 1], opacity: [0.34, 0.72, 0.4] }}
             transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
@@ -184,9 +182,10 @@ function PromptInputVoiceWaveform({
           <motion.path
             d="M28 54 C84 20 125 66 190 53 C245 42 296 55 352 45 C414 32 456 10 510 37 C556 61 590 58 622 45"
             fill="none"
-            stroke="rgba(135, 117, 217, 0.42)"
+            stroke="currentColor"
             strokeWidth="4"
             strokeLinecap="round"
+            className="text-muted-foreground/50"
             initial={{ pathLength: 0.68, opacity: 0.24 }}
             animate={{ pathLength: [0.68, 0.92, 0.74], opacity: [0.22, 0.52, 0.28] }}
             transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
@@ -248,16 +247,16 @@ function PromptInputVoicePanel({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
       transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
-      className="flex min-w-0 flex-1 cursor-default items-center gap-2 text-white"
+      className="flex min-w-0 flex-1 cursor-default items-center gap-2 text-foreground"
     >
       <div
         className={cn(
-          "flex size-8 shrink-0 items-center justify-center rounded-full shadow-[0_0_24px_rgba(101,132,255,0.28)]",
+          "flex size-8 shrink-0 items-center justify-center rounded-full",
           isDictation
-            ? "bg-[#f35f54]/15 shadow-[0_0_28px_rgba(243,95,84,0.22)]"
+            ? "bg-destructive/10 text-destructive"
             : isMuted
-            ? "bg-[#747b99]/18 shadow-none"
-            : "bg-[#6f8cff]/20"
+            ? "bg-muted text-muted-foreground"
+            : "bg-primary/10 text-primary"
         )}
         aria-hidden="true"
       >
@@ -265,10 +264,10 @@ function PromptInputVoicePanel({
           className={cn(
             "block rounded-full",
             isDictation
-              ? "size-2.5 bg-[#ed5b50]"
+              ? "size-2.5 bg-current"
               : isMuted
-              ? "size-5 bg-gradient-to-br from-[#9096a8] to-[#58617f] opacity-75"
-              : "size-6 bg-[radial-gradient(circle_at_35%_25%,#b9c8ff,#7190ff_58%,#556be7)] shadow-[0_0_0_2px_rgba(255,255,255,0.08),0_0_18px_rgba(111,140,255,0.76)]"
+              ? "size-5 bg-current opacity-60"
+              : "size-6 bg-current ring-2 ring-primary/10"
           )}
         />
       </div>
@@ -276,17 +275,17 @@ function PromptInputVoicePanel({
         <div
           className={cn(
             "flex shrink-0 items-center gap-1.5 truncate text-[0.65rem] font-bold uppercase tracking-[0.18em]",
-            isMuted ? "text-white/42" : "text-white/54"
+            isMuted ? "text-muted-foreground/70" : "text-muted-foreground"
           )}
         >
           <span>{status}</span>
-          <span className="text-white/34">·</span>
+          <span className="text-muted-foreground/60">·</span>
           <span className="font-mono tracking-normal">{formatVoiceDuration(elapsedSeconds)}</span>
         </div>
         <p
           className={cn(
             "min-w-24 truncate text-sm font-medium leading-6 tracking-normal",
-            isMuted ? "text-white/48" : "text-white/92"
+            isMuted ? "text-muted-foreground" : "text-foreground"
           )}
         >
           {spokenText}
@@ -303,7 +302,7 @@ function PromptInputVoicePanel({
               aria-label="Cancel dictation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onCancel)}
-              className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.055] text-white/74 transition hover:bg-white/[0.085] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72b8ff]/55 disabled:pointer-events-none disabled:opacity-50"
+              className="flex size-8 items-center justify-center rounded-full border border-border bg-background/70 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
             >
               <X className="size-4" strokeWidth={2.4} />
             </button>
@@ -312,7 +311,7 @@ function PromptInputVoicePanel({
               aria-label="Confirm dictation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onConfirm)}
-              className="flex size-9 items-center justify-center rounded-full bg-[#67b4ff] text-white shadow-[0_0_24px_rgba(103,180,255,0.36)] transition hover:bg-[#7dc1ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9dd2ff]/70 disabled:pointer-events-none disabled:opacity-50"
+              className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
             >
               <Check className="size-4" strokeWidth={2.8} />
             </button>
@@ -330,8 +329,8 @@ function PromptInputVoicePanel({
               className={cn(
                 "flex size-8 items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
                 isMuted
-                  ? "border-[#ee695d]/45 bg-[#ee695d]/16 text-[#ff7c70] focus-visible:ring-[#ee695d]/50"
-                  : "border-white/10 bg-white/[0.055] text-white/74 hover:bg-white/[0.085] hover:text-white focus-visible:ring-[#7fa1ff]/55"
+                  ? "border-destructive/40 bg-destructive/10 text-destructive focus-visible:ring-destructive/40"
+                  : "border-border bg-background/70 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring/55"
               )}
             >
               {isMuted ? (
@@ -345,7 +344,7 @@ function PromptInputVoicePanel({
               aria-label="End voice conversation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onEnd)}
-              className="flex h-9 w-16 items-center justify-center gap-1 rounded-full bg-[#5c83f6] text-sm font-semibold text-white shadow-[0_0_24px_rgba(92,131,246,0.36)] transition hover:bg-[#6d91ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9bb5ff]/70 disabled:pointer-events-none disabled:opacity-50"
+              className="flex h-9 w-16 items-center justify-center gap-1 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
             >
               <MoreHorizontal className="size-4" strokeWidth={3} />
               <span>End</span>
