@@ -47,7 +47,7 @@ export interface CronApi {
 	getScheduleEvents: (scheduleId: string) => Promise<CronScheduleEvent[]>;
 	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
 	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
-	runNow: (scheduleId: string) => Promise<Task>;
+	runNow: (scheduleId: string) => Promise<CronScheduledTask>;
 	action: (request: OpenClawCronToolRequest) => Promise<OpenClawCronToolResponse>;
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
 	subscribeToSchedule: (
@@ -103,16 +103,6 @@ export interface SkillsApi {
 	importSkill: () => Promise<SkillInfo | undefined>;
 	delete: (id: string) => Promise<void>;
 	getRoot: () => Promise<string>;
-}
-
-export interface TasksApi {
-	createTask: (request: TaskCreateRequest) => Promise<Task>;
-	getTask: (taskId: TaskId) => Promise<Task>;
-	listTasks: (filter?: TaskListFilter) => Promise<Task[]>;
-	cancelTask: (taskId: TaskId, reason?: string) => Promise<void>;
-	retryTask: (taskId: TaskId) => Promise<void>;
-	subscribeToTask: (taskId: TaskId, callback: (event: TaskEvent) => void) => () => void;
-	subscribeToTaskList: (filter: TaskListFilter | undefined, callback: (event: TaskEvent) => void) => () => void;
 }
 
 import type { ProviderInput, PublicProvider } from '../shared/providers';
