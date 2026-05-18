@@ -34,7 +34,7 @@ export function useConnectors() {
 		void load();
 	}, []);
 
-	const run = async (id: string, action: () => Promise<void>): Promise<void> => {
+	const run = async (id: string, action: () => Promise<unknown>): Promise<void> => {
 		setBusyId(id);
 		setError(null);
 		setStatusMessage(null);
