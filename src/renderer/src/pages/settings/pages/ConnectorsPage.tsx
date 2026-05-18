@@ -14,7 +14,6 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { handleExternalLinkClick } from '@/lib/external-links';
-import { Item, ItemActions, ItemContent } from '@/components/ui/item';
 import type {
 	ConnectorApprovalMode,
 	ConnectorConfig,
