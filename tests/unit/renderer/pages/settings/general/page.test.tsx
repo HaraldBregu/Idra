@@ -4,6 +4,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import GeneralPage from '../../../../../../src/renderer/src/pages/settings/pages/general/Page';
 
 jest.mock('react-i18next', () => ({
+	initReactI18next: { type: '3rdParty', init: () => undefined },
 	useTranslation: () => ({
 		t: (key: string) => key,
 	}),
