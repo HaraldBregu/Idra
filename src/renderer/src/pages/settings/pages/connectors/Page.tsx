@@ -481,25 +481,20 @@ const ConnectorsPage: React.FC = () => {
 					</SettingsPanel>
 				) : (
 					<div className="grid gap-2">
-						{connectors.map((connector) => {
-							const catalogEntry = catalog.find((c) => c.id === connector.connectorId);
-							return (
-								<ConnectorCard
-									key={connector.id}
-									connector={connector}
-									busy={busyId === connector.id}
-									connecting={connectingId === connector.id}
-									setupInstructions={getSetupInstructions(catalogEntry)}
-									setupUrl={getSetupUrl(catalogEntry)}
-									onToggle={() => void toggleConnector(connector)}
-									onRefreshTools={() => void refreshTools(connector.id)}
-									onConnect={() => void connectOAuth(connector)}
-									onEdit={() => void editConnector(connector.id)}
-									onRemove={() => void removeConnector(connector)}
-									onViewDetails={() => openConnectorDetails(connector.id)}
-								/>
-							);
-						})}
+						{connectors.map((connector) => (
+							<ConnectorCard
+								key={connector.id}
+								connector={connector}
+								busy={busyId === connector.id}
+								connecting={connectingId === connector.id}
+								onToggle={() => void toggleConnector(connector)}
+								onRefreshTools={() => void refreshTools(connector.id)}
+								onConnect={() => void connectOAuth(connector)}
+								onEdit={() => void editConnector(connector.id)}
+								onRemove={() => void removeConnector(connector)}
+								onViewDetails={() => openConnectorDetails(connector.id)}
+							/>
+						))}
 					</div>
 				)}
 			</SettingsSection>
