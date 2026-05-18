@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
 	Bot,
-	CheckCircle2,
+	ChevronLeft,
 	CircleOff,
 	Hash,
 	KeyRound,
@@ -11,8 +12,6 @@ import {
 	Phone,
 	Plus,
 	RadioTower,
-	Save,
-	Search,
 	Send,
 	Server,
 	ShieldCheck,
@@ -22,6 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
 	InputGroup,
@@ -37,13 +37,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsPanel,
 	SettingsSection,
 } from '../components';
 import type {
@@ -57,7 +55,7 @@ import type {
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 } from '../../../../../shared/channels';
-import type { ChannelCatalogEntry } from '../../../../../shared/channel-catalog';
+import { isChannelId, type ChannelCatalogEntry } from '../../../../../shared/channel-catalog';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
