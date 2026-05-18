@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SettingsPageShell } from '../components';
+import { SettingsPageHeader, SettingsPageShell } from '../components';
 import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../navigation';
 
 function SettingsOverviewCard({
@@ -43,8 +43,14 @@ function SettingsOverviewCard({
 }
 
 const OverviewPage: React.FC = () => {
+	const { t } = useTranslation();
+
 	return (
 		<SettingsPageShell className="gap-2">
+			<SettingsPageHeader
+				title={t('settings.title')}
+				description={t('settings.description')}
+			/>
 			<div className="grid gap-2">
 				{SETTINGS_NAVIGATION.map((item) => (
 					<SettingsOverviewCard key={item.path} item={item} />
