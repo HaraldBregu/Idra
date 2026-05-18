@@ -11,12 +11,15 @@ import {
 	Send,
 	TimerReset,
 	Zap,
+	type LucideIcon,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatEventStatus,
@@ -25,15 +28,12 @@ import type {
 } from '../../../../../../shared/heartbeat';
 import {
 	SettingsEmptyState,
-	SettingsField,
 	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
-	SettingsValue,
 } from '../../components';
 
 type Operation = 'refresh' | 'toggle' | 'timing' | 'wake' | 'event-now' | 'event-next' | null;
@@ -121,6 +121,52 @@ function statusVariant(status: HeartbeatEventStatus): React.ComponentProps<typeo
 		case 'skipped':
 			return 'secondary';
 	}
+}
+
+function HeartbeatItem({
+	icon: Icon,
+	title,
+	description,
+	actions,
+	className,
+	actionsClassName,
+}: {
+	readonly icon: LucideIcon;
+	readonly title: React.ReactNode;
+	readonly description?: React.ReactNode;
+	readonly actions?: React.ReactNode;
+	readonly className?: string;
+	readonly actionsClassName?: string;
+}): React.JSX.Element {
+	return (
+		<Item
+			variant="outline"
+			size="md"
+			className={cn('border-b border-border/60 px-3 py-2 last:border-b-0', className)}
+		>
+			<ItemMedia variant="icon" className="size-6">
+				<Icon className="size-3" strokeWidth={1.8} />
+			</ItemMedia>
+			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+				<ItemTitle className="max-w-full truncate">{title}</ItemTitle>
+				{description && (
+					<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+						{description}
+					</p>
+				)}
+			</ItemContent>
+			{actions && (
+				<ItemActions
+					className={cn(
+						'w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end',
+						actionsClassName
+					)}
+				>
+					{actions}
+				</ItemActions>
+			)}
+		</Item>
+	);
 }
 
 const HeartbeatPage: React.FC = () => {
