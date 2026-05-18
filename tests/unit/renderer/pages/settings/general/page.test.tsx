@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import GeneralPage from '../../../../../../src/renderer/src/pages/settings/pages/general/Page';
 
@@ -22,8 +23,7 @@ jest.mock('@/contexts', () => ({
 }));
 
 jest.mock('@/components/ui/select', () => {
-	const React = jest.requireActual<typeof import('react')>('react');
-	const Passthrough = ({ children }: { readonly children?: React.ReactNode }) => (
+	const Passthrough = ({ children }: { readonly children?: ReactNode }) => (
 		<div>{children}</div>
 	);
 
