@@ -48,6 +48,9 @@ function needsExternalAccess(request: string): boolean {
 	if (/\b(gmail|google calendar|google account|google profile|inbox)\b/.test(request)) {
 		return true;
 	}
+	if (/\b(google drive|my drive|shared drive|drive files?|drive documents?)\b/.test(request)) {
+		return true;
+	}
 	if (/\b(calendar|agenda|availability|available|free|busy|meetings?|events?|appointments?)\b/.test(request)) {
 		return true;
 	}
