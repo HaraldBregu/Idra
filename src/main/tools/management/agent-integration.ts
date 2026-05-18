@@ -8,6 +8,7 @@ import { ToolExecutor } from './executor';
 import { ToolPromptBuilder } from './prompting';
 import { isToolIntrospectionRequest, ToolUsePolicy } from './use-policy';
 import type { RankedTool, RelevantMemory, SessionContext, ToolExecutionContext } from './types';
+import { TOOL_LIMITS } from '../limits';
 
 export interface AgentToolManagementOptions {
 	enabled?: boolean;
@@ -43,7 +44,7 @@ export function selectAgentToolsForTurn(
 	if (isToolIntrospectionRequest(userMessage.toLowerCase())) {
 		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
 	}
-	const threshold = options.useWhenToolCountExceeds ?? 12;
+	const threshold = options.useWhenToolCountExceeds ?? TOOL_LIMITS.prompt.useSelectionWhenToolCountExceeds;
 	if (!options.forceSelection && tools.length <= threshold) {
 		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
 	}
@@ -54,7 +55,7 @@ export function selectAgentToolsForTurn(
 		userIntent: userMessage,
 		sessionContext,
 		memory: options.memory,
-		topN: options.maxPromptTools ?? 6,
+		topN: options.maxPromptTools ?? TOOL_LIMITS.prompt.defaultMaxTools,
 	});
 	const selectedNames = new Set(rankedTools.map((entry) => entry.tool.name));
 	const addedPrerequisites = addPrerequisiteToolNames(selectedNames, tools);
@@ -160,14 +161,15 @@ function createExecutionContext(
 	if (ctx.approvalCache.has(legacyApprovalKey)) {
 		confirmedActionIds.add(`${managedToolId}:${JSON.stringify(redactSensitive(input))}`);
 	}
-	return {
-		userId: sessionContext.userId,
-		sessionId: ctx.sessionId,
-		userTimezone: sessionContext.userTimezone,
-		now: new Date(),
-		availablePermissions: sessionContext.availablePermissions,
-		confirmedActionIds,
-		reasonForUse: 'model selected tool',
+		return {
+			userId: sessionContext.userId,
+			sessionId: ctx.sessionId,
+			userTimezone: sessionContext.userTimezone,
+			now: new Date(),
+			availablePermissions: sessionContext.availablePermissions,
+			confirmedActionIds,
+			signal: ctx.signal,
+			reasonForUse: 'model selected tool',
 		turnId: ctx.sessionId,
 		metadata: { legacyToolContext: ctx, ...sessionContext.metadata },
 		async requestConfirmation() {

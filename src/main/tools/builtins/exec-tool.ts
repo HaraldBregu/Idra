@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { AgentTool, AgentToolUpdate } from '../common';
 import { markCoreTool } from '../common';
 import { asParamsRecord, readBooleanParam, readNumberParam, readStringParam } from '../params';
+import { TOOL_LIMITS } from '../limits';
 
 export type ExecToolOptions = {
 	workspaceDir: string;
@@ -19,8 +20,8 @@ export type ExecDetails = {
 	aborted: boolean;
 };
 
-const DEFAULT_TIMEOUT_MS = 120_000;
-const DEFAULT_MAX_OUTPUT_BYTES = 16 * 1024;
+const DEFAULT_TIMEOUT_MS = TOOL_LIMITS.exec.timeoutMs;
+const DEFAULT_MAX_OUTPUT_BYTES = TOOL_LIMITS.exec.maxOutputBytes;
 const DENY_PATTERNS = [
 	/\brm\s+-rf\s+\/(?:\s|$)/,
 	/\brm\s+-rf\s+\/\*/,
@@ -70,7 +71,7 @@ export function createExecTool(options: ExecToolOptions): AgentTool<Record<strin
 			const timeoutMs = readNumberParam(record, 'timeoutMs', {
 				defaultValue: options.defaultTimeoutMs ?? DEFAULT_TIMEOUT_MS,
 				min: 1,
-				max: 600_000,
+					max: TOOL_LIMITS.exec.maxTimeoutMs,
 				integer: true,
 			})!;
 			readBooleanParam(record, 'background', { defaultValue: false });
@@ -174,4 +175,3 @@ function runCommand(
 		child.on('close', (code) => finish(aborted ? -1 : code));
 	});
 }
-

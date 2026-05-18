@@ -54,6 +54,8 @@ export interface ToolContext {
 	approvalRequired: Set<string>;
 	/** Filesystem exposure policy for model-visible host tools. */
 	fsPolicy?: { workspaceOnly?: boolean; readOnly?: boolean };
+	/** Abort signal for the current tool call or agent run. */
+	signal?: AbortSignal;
 	/** Legacy compatibility cache (keyed by tool+args). */
 	approvalCache: Set<string>;
 	/** Legacy approval stream; no agent tool execution path should require it. */

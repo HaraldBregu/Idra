@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { AgentTool } from '../common';
 import { markCoreTool, ToolInputError } from '../common';
 import { asParamsRecord, readNumberParam, readStringParam } from '../params';
+import { TOOL_LIMITS } from '../limits';
 
 export type FileReadToolOptions = {
 	workspaceDir: string;
@@ -19,7 +20,7 @@ export type FileReadDetails = {
 	size: number;
 };
 
-const DEFAULT_MAX_LINES = 2_000;
+const DEFAULT_MAX_LINES = TOOL_LIMITS.read.defaultLines;
 
 function resolveWorkspacePath(workspaceDir: string, target: string, allowAbsolutePaths = false): string {
 	const resolved = path.isAbsolute(target) ? path.resolve(target) : path.resolve(workspaceDir, target);
@@ -62,7 +63,7 @@ export function createReadTool(options: FileReadToolOptions): AgentTool<Record<s
 			const limit = readNumberParam(record, 'limit', {
 				defaultValue: options.maxLines ?? DEFAULT_MAX_LINES,
 				min: 1,
-				max: 50_000,
+					max: TOOL_LIMITS.read.maxLines,
 				integer: true,
 			})!;
 			const absolutePath = resolveWorkspacePath(
@@ -98,4 +99,3 @@ export function createReadTool(options: FileReadToolOptions): AgentTool<Record<s
 		},
 	});
 }
-

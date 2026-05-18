@@ -3,6 +3,7 @@ import type { Readable } from 'node:stream';
 import path from 'node:path';
 import type { AgentTool } from './types';
 import { textResult } from './types';
+import { TOOL_LIMITS } from './limits';
 
 const DENY_PATTERNS: RegExp[] = [
 	/\brm\s+-rf\s+\/(?:\s|$)/,
@@ -15,9 +16,9 @@ const DENY_PATTERNS: RegExp[] = [
 	/\breboot\b/,
 ];
 
-const MAX_OUTPUT_BYTES = 16 * 1024;
-const MAX_OUTPUT_LINES = 200;
-const DEFAULT_TIMEOUT_MS = 120_000;
+const MAX_OUTPUT_BYTES = TOOL_LIMITS.exec.maxOutputBytes;
+const MAX_OUTPUT_LINES = TOOL_LIMITS.exec.maxOutputLines;
+const DEFAULT_TIMEOUT_MS = TOOL_LIMITS.exec.timeoutMs;
 
 interface ExecArgs {
 	command: string;
@@ -73,7 +74,7 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 		properties: {
 			command: { type: 'string', description: 'Shell command to execute.' },
 			workdir: { type: 'string', description: 'Working directory (relative or absolute).' },
-			timeoutMs: { type: 'number', description: 'Timeout in milliseconds (default 120000).' },
+				timeoutMs: { type: 'number', description: `Timeout in milliseconds (default ${TOOL_LIMITS.exec.timeoutMs}).` },
 			env: { type: 'object', description: 'Extra environment variables.' },
 			background: { type: 'boolean', description: 'Start in the background and return a process id.' },
 		},
@@ -101,8 +102,8 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 				? args.workdir
 				: path.resolve(ctx.workspace, args.workdir)
 			: ctx.workspace;
-		if (args.background) return runBackground(command, cwd, args.env);
-		return runForeground(command, cwd, args.env, args.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+			if (args.background) return runBackground(command, cwd, args.env);
+			return runForeground(command, cwd, args.env, args.timeoutMs ?? DEFAULT_TIMEOUT_MS, ctx.signal);
 	},
 };
 
@@ -182,7 +183,8 @@ function runForeground(
 	command: string,
 	cwd: string,
 	envExtra: Record<string, string> | undefined,
-	timeoutMs: number
+	timeoutMs: number,
+	signal?: AbortSignal
 ): Promise<ReturnType<typeof formatResult>> {
 	return new Promise((resolve) => {
 		const start = Date.now();
@@ -198,11 +200,28 @@ function runForeground(
 		let stdout = '';
 		let stderr = '';
 		let killed = false;
+		let settled = false;
+
+		const finish = (code: number | null, aborted = false): void => {
+			if (settled) return;
+			settled = true;
+			clearTimeout(timer);
+			signal?.removeEventListener('abort', abort);
+			const exitCode = killed || aborted ? -1 : code;
+			resolve(formatResult(command, exitCode, killed || aborted, stdout, stderr, Date.now() - start));
+		};
+
+		const abort = (): void => {
+			killed = true;
+			child.kill('SIGKILL');
+		};
 
 		const timer = setTimeout(() => {
 			killed = true;
 			child.kill('SIGKILL');
 		}, timeoutMs);
+		if (signal?.aborted) abort();
+		else signal?.addEventListener('abort', abort, { once: true });
 
 		child.stdout.on('data', (d: Buffer) => {
 			stdout += d.toString('utf8');
@@ -214,14 +233,12 @@ function runForeground(
 		});
 
 		child.on('close', (code) => {
-			clearTimeout(timer);
-			const exitCode = killed ? -1 : code;
-			resolve(formatResult(command, exitCode, killed, stdout, stderr, Date.now() - start));
+			finish(code);
 		});
 
 		child.on('error', (err) => {
-			clearTimeout(timer);
-			resolve(formatResult(command, -1, false, '', err.message, Date.now() - start));
+			stderr += err.message;
+			finish(-1);
 		});
 	});
 }

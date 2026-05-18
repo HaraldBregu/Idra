@@ -30,6 +30,7 @@ import {
 	ToolUsePolicy,
 	type AgentToolSelectionForTurn,
 } from './tools/management';
+import { TOOL_LIMITS } from './tools/limits';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
@@ -43,9 +44,6 @@ import {
 } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 
-const DEFAULT_MAX_TOKENS = 4096;
-const DEFAULT_MAX_ITERATIONS = 25;
-const DEFAULT_MAX_PROMPT_TOOLS = 6;
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
 
@@ -335,11 +333,11 @@ export class AgentService {
 							rankedTools: [],
 						}
 					: recordPhase(phaseDurationsMs, 'select_tools', () =>
-							selectAgentToolsForTurn(baseTools, message, ctx, {
-								forceSelection: true,
-								maxPromptTools: DEFAULT_MAX_PROMPT_TOOLS,
-							})
-						);
+								selectAgentToolsForTurn(baseTools, message, ctx, {
+									forceSelection: true,
+									maxPromptTools: TOOL_LIMITS.prompt.defaultMaxTools,
+								})
+							);
 				selectedTools = toolSelection.toolsForPrompt;
 				if (heartbeatOptions?.forceHeartbeatTool) {
 					const heartbeatTool = baseTools.find((tool) => tool.name === 'heartbeat_respond');
@@ -461,8 +459,8 @@ export class AgentService {
 				model,
 				tools: selectedTools,
 				ctx,
-				maxTokens: DEFAULT_MAX_TOKENS,
-				maxIterations: DEFAULT_MAX_ITERATIONS,
+					maxTokens: TOOL_LIMITS.agent.maxTokens,
+					maxIterations: TOOL_LIMITS.agent.maxIterations,
 				streamEvent,
 				hooks,
 				signal: abort.signal,

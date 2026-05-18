@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AgentTool, AgentToolResult } from './types';
 import { textResult } from './types';
+import { TOOL_LIMITS } from './limits';
 
 function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
@@ -52,7 +53,7 @@ interface ReadArgs {
 	limit?: number;
 }
 
-const DEFAULT_READ_LIMIT = 2000;
+const DEFAULT_READ_LIMIT = TOOL_LIMITS.read.defaultLines;
 
 export const readTool: AgentTool<ReadArgs> = {
 	name: 'read',
@@ -77,7 +78,7 @@ export const readTool: AgentTool<ReadArgs> = {
 			ctx.readState.set(abs, { mtimeMs: stat.mtimeMs, size: stat.size });
 			const lines = raw.split('\n');
 			const start = Math.max(1, args.offset ?? 1);
-			const limit = Math.max(1, Math.min(args.limit ?? DEFAULT_READ_LIMIT, 50_000));
+				const limit = Math.max(1, Math.min(args.limit ?? DEFAULT_READ_LIMIT, TOOL_LIMITS.read.maxLines));
 			const slice = lines.slice(start - 1, start - 1 + limit);
 			const numbered = slice.map((line, i) => `${String(start + i).padStart(6, ' ')}\t${line}`);
 			const trailer =
@@ -520,9 +521,9 @@ interface InspectFileArgs {
 	includeImage?: boolean;
 }
 
-const DEFAULT_INSPECT_BYTES = 8 * 1024 * 1024;
-const MAX_INSPECT_BYTES = 16 * 1024 * 1024;
-const PREVIEW_BYTES = 256;
+const DEFAULT_INSPECT_BYTES = TOOL_LIMITS.inspectFile.defaultBytes;
+const MAX_INSPECT_BYTES = TOOL_LIMITS.inspectFile.maxBytes;
+const PREVIEW_BYTES = TOOL_LIMITS.inspectFile.previewBytes;
 const DIRECT_IMAGE_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
 
 export const inspectFileTool: AgentTool<InspectFileArgs> = {
@@ -711,7 +712,7 @@ interface FindArgs {
 	limit?: number;
 }
 
-const DEFAULT_FIND_LIMIT = 1000;
+const DEFAULT_FIND_LIMIT = TOOL_LIMITS.find.defaultLimit;
 const FIND_EXCLUDES = ['**/node_modules/**', '**/.git/**'];
 
 export const findTool: AgentTool<FindArgs> = {
@@ -731,7 +732,10 @@ export const findTool: AgentTool<FindArgs> = {
 	async execute(args, ctx) {
 		const pattern = String(args.pattern ?? '').trim();
 		if (!pattern) return textResult('find: pattern required', true);
-		const limit = typeof args.limit === 'number' && args.limit > 0 ? args.limit : DEFAULT_FIND_LIMIT;
+		const limit =
+			typeof args.limit === 'number' && args.limit > 0
+				? Math.min(Math.floor(args.limit), TOOL_LIMITS.find.maxLimit)
+				: DEFAULT_FIND_LIMIT;
 		try {
 			const dir = args.path ? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true) : ctx.workspace;
 			const stat = await fs.stat(dir).catch(() => null);

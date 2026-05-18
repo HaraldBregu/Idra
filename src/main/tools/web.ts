@@ -1,5 +1,6 @@
 import type { AgentTool } from './types';
 import { textResult } from './types';
+import { TOOL_LIMITS } from './limits';
 
 export const webFetchTool: AgentTool<{ url: string }> = {
 	name: 'web_fetch',
@@ -25,7 +26,7 @@ export const webFetchTool: AgentTool<{ url: string }> = {
 		try {
 			const response = await fetch(url);
 			const contentType = response.headers.get('content-type') ?? '';
-			const raw = (await response.text()).slice(0, 1024 * 1024);
+			const raw = (await response.text()).slice(0, TOOL_LIMITS.webFetch.maxResponseBytes);
 			const text = contentType.includes('html') ? stripHtml(raw) : raw;
 			return {
 				...textResult(text),

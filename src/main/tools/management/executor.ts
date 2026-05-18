@@ -2,6 +2,7 @@ import { InMemoryToolAuditLog, redactSensitive, summarizeOutput, type ToolAuditL
 import { validateJsonSchema } from './schema';
 import { createToolResult, type Tool, type ToolExecutionContext, type ToolResult } from './types';
 import { ToolOutputValidator } from './output-validator';
+import { TOOL_LIMITS } from '../limits';
 
 export interface ToolExecutorOptions {
 	defaultTimeoutMs?: number;
@@ -32,10 +33,10 @@ export class ToolExecutor {
 	private readonly sleep: (ms: number) => Promise<void>;
 
 	constructor(options: ToolExecutorOptions = {}) {
-		this.defaultTimeoutMs = options.defaultTimeoutMs ?? 30_000;
-		this.maxRetries = options.maxRetries ?? 2;
-		this.backoffMs = options.backoffMs ?? 100;
-		this.maxToolCallsPerTurn = options.maxToolCallsPerTurn ?? 8;
+		this.defaultTimeoutMs = options.defaultTimeoutMs ?? TOOL_LIMITS.execution.defaultTimeoutMs;
+		this.maxRetries = options.maxRetries ?? TOOL_LIMITS.execution.maxRetries;
+		this.backoffMs = options.backoffMs ?? TOOL_LIMITS.execution.backoffMs;
+		this.maxToolCallsPerTurn = options.maxToolCallsPerTurn ?? TOOL_LIMITS.execution.maxCallsPerTurn;
 		this.auditLog = options.auditLog ?? new InMemoryToolAuditLog();
 		this.outputValidator = options.outputValidator ?? new ToolOutputValidator();
 		this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
@@ -57,7 +58,16 @@ export class ToolExecutor {
 		let lastResult: ToolResult<TOutput> | undefined;
 		while (retryCount <= this.maxRetries) {
 			try {
-				const result = await this.withTimeout(tool.execute(input, context), this.defaultTimeoutMs, tool.id, retryCount, startedAt);
+				const timeoutMs = executionTimeoutMs(tool, this.defaultTimeoutMs);
+				const controller = new AbortController();
+				const result = await this.withTimeout(
+					tool.execute(input, { ...context, signal: mergeAbortSignals(context.signal, controller.signal) }),
+					timeoutMs,
+					tool.id,
+					retryCount,
+					startedAt,
+					controller
+				);
 				lastResult = this.finalizeResult(tool, result, startedAt, retryCount);
 				if (!shouldRetry(lastResult) || retryCount >= this.maxRetries) break;
 			} catch (error) {
@@ -182,16 +192,18 @@ export class ToolExecutor {
 		timeoutMs: number,
 		toolId: string,
 		retryCount: number,
-		startedAt: Date
+		startedAt: Date,
+		controller: AbortController
 	): Promise<ToolResult<TOutput>> {
 		let timer: NodeJS.Timeout | undefined;
 		try {
 			return await Promise.race([
 				promise,
-				new Promise<ToolResult<TOutput>>((resolve) => {
-					timer = setTimeout(() => {
-						resolve(
-							createToolResult<TOutput>({
+					new Promise<ToolResult<TOutput>>((resolve) => {
+						timer = setTimeout(() => {
+							controller.abort();
+							resolve(
+								createToolResult<TOutput>({
 								toolId,
 								success: false,
 								error: {
@@ -268,6 +280,28 @@ export class ToolExecutor {
 			timestamp: new Date().toISOString(),
 		});
 	}
+}
+
+function executionTimeoutMs<TInput, TOutput>(tool: Tool<TInput, TOutput>, defaultTimeoutMs: number): number {
+	const timeoutMs = tool.metadata.executionTimeoutMs;
+	return typeof timeoutMs === 'number' && Number.isFinite(timeoutMs) && timeoutMs > 0
+		? Math.floor(timeoutMs)
+		: defaultTimeoutMs;
+}
+
+function mergeAbortSignals(parent: AbortSignal | undefined, child: AbortSignal): AbortSignal {
+	if (!parent) return child;
+	if (parent.aborted) {
+		const controller = new AbortController();
+		controller.abort();
+		return controller.signal;
+	}
+	if (typeof AbortSignal.any === 'function') return AbortSignal.any([parent, child]);
+	const controller = new AbortController();
+	const abort = (): void => controller.abort();
+	parent.addEventListener('abort', abort, { once: true });
+	child.addEventListener('abort', abort, { once: true });
+	return controller.signal;
 }
 
 function shouldRetry(result: ToolResult): boolean {

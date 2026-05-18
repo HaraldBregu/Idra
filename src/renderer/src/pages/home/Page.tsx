@@ -235,10 +235,11 @@ function PageContent(): ReactElement {
 						className="w-full"
 						actions={
 							<PromptInputActions className="justify-end gap-1.5">
-								<VoiceButton onVoiceModeRequest={startDictation} />
+								{!voiceMode && <VoiceButton onVoiceModeRequest={startDictation} />}
 								<SubmitButton
 									isLoading={agent.isLoading}
 									canSubmit={canSubmit}
+									voiceMode={voiceMode}
 									onAction={handlePrimaryAction}
 								/>
 							</PromptInputActions>

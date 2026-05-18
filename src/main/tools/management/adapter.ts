@@ -2,6 +2,7 @@ import type { AgentTool, AgentToolResult, ToolContext } from '../types';
 import { textResult } from '../types';
 import { createToolResult, type Tool, type ToolCategory, type ToolExecutionContext } from './types';
 import { createToolRegistry, type ToolRegistry } from './registry';
+import { TOOL_LIMITS } from '../limits';
 
 export interface AgentToolAdapterOptions {
 	idPrefix?: string;
@@ -48,9 +49,10 @@ export function agentToolToManagedTool(
 		metadata: {
 			whenToUse: agentTool.description,
 			whenNotToUse: 'Do not use if the user request can be answered directly without this capability.',
-			privacyLevel: inferPrivacy(agentTool.name, agentTool.description),
-			readOnly: isReadOnly(agentTool.name),
-			requiresConfirmation: false,
+				privacyLevel: inferPrivacy(agentTool.name, agentTool.description),
+				readOnly: isReadOnly(agentTool.name),
+				executionTimeoutMs: inferExecutionTimeout(agentTool.name),
+				requiresConfirmation: false,
 			cacheable: isReadOnly(agentTool.name),
 			safetyNotes: agentTool.needsApproval ? 'Legacy approval gate applies before execution.' : undefined,
 		},
@@ -72,7 +74,10 @@ export function agentToolToManagedTool(
 						finishedAt: new Date(),
 					});
 				}
-				const data = await agentTool.execute(input, legacyContext);
+					const data = await agentTool.execute(input, {
+						...legacyContext,
+						signal: context.signal,
+					});
 				return createToolResult({
 					toolId: id,
 					success: data.status === 'ok',
@@ -166,7 +171,7 @@ function inferSafety(name: string, description = ''): Tool<Record<string, unknow
 }
 
 function inferLatency(name: string): Tool<Record<string, unknown>, AgentToolResult>['latencyEstimate'] {
-	if (name === 'exec') return { p50Ms: 1_000, p95Ms: 120_000 };
+	if (name === 'exec') return { p50Ms: 1_000, p95Ms: TOOL_LIMITS.exec.timeoutMs };
 	if (name.includes('web')) return { p50Ms: 800, p95Ms: 5_000 };
 	return { p50Ms: 50, p95Ms: 500 };
 }
@@ -178,8 +183,13 @@ function inferReliability(name: string): number {
 }
 
 function inferRateLimit(name: string): Tool<Record<string, unknown>, AgentToolResult>['rateLimit'] {
-	if (name === 'web_fetch') return { maxCalls: 20, windowMs: 60_000, scope: 'session' };
-	if (name === 'exec') return { maxCalls: 10, windowMs: 60_000, scope: 'session' };
+	if (name === 'web_fetch') return { maxCalls: TOOL_LIMITS.webFetch.rateLimitCalls, windowMs: TOOL_LIMITS.webFetch.rateLimitWindowMs, scope: 'session' };
+	if (name === 'exec') return { maxCalls: TOOL_LIMITS.exec.rateLimitCalls, windowMs: TOOL_LIMITS.exec.rateLimitWindowMs, scope: 'session' };
+	return undefined;
+}
+
+function inferExecutionTimeout(name: string): number | undefined {
+	if (name === 'exec') return TOOL_LIMITS.exec.timeoutMs;
 	return undefined;
 }
 

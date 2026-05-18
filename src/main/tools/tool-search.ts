@@ -2,6 +2,7 @@ import type { AgentTool } from './common';
 import { copyToolMetadata, getToolMetadata, normalizeToolName, setToolMetadata } from './common';
 import { asParamsRecord, readNumberParam, readStringParam } from './params';
 import { jsonResult } from './results';
+import { TOOL_LIMITS } from './limits';
 
 export type ToolSearchCompactionOptions = {
 	enabled?: boolean;
@@ -19,7 +20,7 @@ export function applyToolSearchCompaction(
 	tools: AgentTool[],
 	options: ToolSearchCompactionOptions = {}
 ): ToolSearchCompactionResult {
-	const threshold = options.threshold ?? 24;
+	const threshold = options.threshold ?? TOOL_LIMITS.toolSearch.compactionThreshold;
 	if (options.enabled === false || tools.length <= threshold) {
 		return { tools, catalogedTools: [], visibleTools: tools };
 	}
@@ -48,7 +49,12 @@ export function createToolSearchControls(catalogedTools: AgentTool[]): AgentTool
 		async execute(_toolCallId, params) {
 			const record = asParamsRecord(params);
 			const query = readStringParam(record, 'query', { required: true, minLength: 1 })!.toLowerCase();
-			const limit = readNumberParam(record, 'limit', { defaultValue: 8, min: 1, max: 25, integer: true })!;
+			const limit = readNumberParam(record, 'limit', {
+				defaultValue: TOOL_LIMITS.toolSearch.defaultLimit,
+				min: 1,
+				max: TOOL_LIMITS.toolSearch.maxLimit,
+				integer: true,
+			})!;
 			const terms = query.split(/\s+/).filter(Boolean);
 			const matches = catalogedTools
 				.map((tool) => ({ tool, score: scoreTool(tool, terms) }))
@@ -128,4 +134,3 @@ export function cloneToolForCatalog(tool: AgentTool): AgentTool {
 	copyToolMetadata(tool, cloned);
 	return cloned;
 }
-

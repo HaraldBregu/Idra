@@ -1,6 +1,7 @@
 import { ToolRanker } from './ranker';
 import { TOOL_PRIVACY_ORDER, TOOL_SAFETY_ORDER, type RankedTool, type RelevantMemory, type SessionContext, type Tool, type ToolCategory } from './types';
 import type { ToolRegistry } from './registry';
+import { TOOL_LIMITS } from '../limits';
 
 export interface ToolDiscoveryInput {
 	userIntent: string;
@@ -17,7 +18,7 @@ export class ToolDiscovery {
 	) {}
 
 	discover(input: ToolDiscoveryInput): RankedTool[] {
-		const topN = clampTopN(input.topN ?? 6);
+		const topN = clampTopN(input.topN ?? TOOL_LIMITS.prompt.defaultMaxTools);
 		const candidates = this.registry
 			.listTools()
 			.filter((tool) => tool.enabled)
@@ -56,6 +57,5 @@ function passesPrivacy(tool: Tool, sessionContext: SessionContext): boolean {
 }
 
 function clampTopN(topN: number): number {
-	return Math.min(8, Math.max(1, Math.floor(topN)));
+	return Math.min(TOOL_LIMITS.prompt.hardMaxTools, Math.max(1, Math.floor(topN)));
 }
-

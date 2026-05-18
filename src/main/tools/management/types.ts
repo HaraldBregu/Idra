@@ -58,6 +58,7 @@ export interface ToolMetadata {
 	readOnly?: boolean;
 	cacheable?: boolean;
 	maxAgeMs?: number;
+	executionTimeoutMs?: number;
 	allowUnknownInputFields?: boolean;
 	[key: string]: unknown;
 }
@@ -267,4 +268,3 @@ export class ToolManagementError extends Error {
 		this.name = 'ToolManagementError';
 	}
 }
-
