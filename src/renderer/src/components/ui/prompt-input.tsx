@@ -139,6 +139,7 @@ function formatVoiceDuration(seconds: number) {
 
 function PromptInputVoiceWaveform({
   muted,
+  mode,
 }: {
   muted: boolean
   mode: PromptInputVoiceMode
@@ -151,7 +152,11 @@ function PromptInputVoiceWaveform({
       )}
       aria-hidden="true"
     >
-      <WaveAnimation active={!muted} height={28} />
+      {mode === "dictation" ? (
+        <BarWaveAnimation active={!muted} height={28} />
+      ) : (
+        <WaveAnimation active={!muted} height={28} />
+      )}
     </div>
   )
 }
