@@ -14,7 +14,6 @@ import { AppsService } from './apps';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
-import { createDefaultTaskManager } from './task-manager/factory';
 import { UserDataDirectoryService } from './user-data';
 
 import type { IpcModule } from './ipc';
@@ -25,7 +24,6 @@ import {
 	ConnectorsIpc,
 	CronIpc,
 	SkillsIpc,
-	TaskIpc,
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
@@ -63,13 +61,9 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
-	const tasks = container.register(
-		'tasks',
-		createDefaultTaskManager({ scopedServices: container })
-	);
 	const cron = container.register(
 		'cron',
-		new CronService(store, logger, tasks, { userDataDirectory })
+		new CronService(store, logger, { userDataDirectory })
 	);
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
@@ -136,7 +130,6 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new ConnectorsIpc(),
 		new CronIpc(),
 		new SkillsIpc(),
-		new TaskIpc(),
 		new WindowIpc(),
 	];
 

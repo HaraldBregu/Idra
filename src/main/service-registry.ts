@@ -14,7 +14,6 @@ import type { McpRegistry } from './mcp';
 import type { AgentService } from './service';
 import type { SkillsService } from './skills';
 import type { StoreService } from './store';
-import type { TaskManagerService } from './task-manager';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
 
@@ -30,7 +29,6 @@ export interface MainServices {
 	mcpRegistry: McpRegistry;
 	skills: SkillsService;
 	store: StoreService;
-	tasks: TaskManagerService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
