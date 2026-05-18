@@ -16,7 +16,6 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React, {
   createContext,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -132,12 +131,6 @@ function PromptInputMotionSlot({
   )
 }
 
-function formatVoiceDuration(seconds: number) {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
-}
-
 function PromptInputVoiceWaveform({
   muted,
   mode,
@@ -164,7 +157,6 @@ function PromptInputVoiceWaveform({
 
 function PromptInputVoicePanel({
   mode,
-  value,
   disabled,
   leadingAction,
   onEnd,
@@ -172,7 +164,6 @@ function PromptInputVoicePanel({
   onConfirm,
 }: {
   mode: PromptInputVoiceMode
-  value: string
   disabled?: boolean
   leadingAction?: React.ReactNode
   onEnd?: () => void
@@ -180,26 +171,9 @@ function PromptInputVoicePanel({
   onConfirm?: () => void
 }) {
   const promptInputContext = usePromptInput()
-  const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [muted, setMuted] = useState(false)
   const isDictation = mode === "dictation"
   const isMuted = !isDictation && muted
-  const status = isDictation ? "DICTATING" : isMuted ? "MUTED" : "LISTENING"
-  const spokenText = isMuted
-    ? "Tap the mic to resume"
-    : value.trim() ||
-      (isDictation ? "Move the one-on-one to Friday morning" : "What's urgent in my inbox today")
-
-  useEffect(() => {
-    setElapsedSeconds(0)
-    setMuted(false)
-    const startedAt = Date.now()
-    const timer = window.setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000))
-    }, 1000)
-
-    return () => window.clearInterval(timer)
-  }, [mode])
 
   const handleButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -248,24 +222,6 @@ function PromptInputVoicePanel({
         />
       </div>
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        {/* <div
-          className={cn(
-            "flex shrink-0 items-center gap-1.5 truncate text-[0.65rem] font-bold uppercase tracking-[0.18em]",
-            isMuted ? "text-muted-foreground/70" : "text-muted-foreground"
-          )}
-        >
-          <span>{status}</span>
-          <span className="text-muted-foreground/60">·</span>
-          <span className="font-mono tracking-normal">{formatVoiceDuration(elapsedSeconds)}</span>
-        </div>
-        <p
-          className={cn(
-            "min-w-24 truncate text-sm font-medium leading-6 tracking-normal",
-            isMuted ? "text-muted-foreground" : "text-foreground"
-          )}
-        >
-          {spokenText}
-        </p> */}
         <div className="min-w-28 flex-1">
           <PromptInputVoiceWaveform muted={isMuted} mode={mode} />
         </div>
@@ -424,7 +380,6 @@ function PromptInput({
               {voiceMode ? (
                 <PromptInputVoicePanel
                   mode={voiceMode}
-                  value={currentValue}
                   disabled={disabled}
                   leadingAction={leadingAction}
                   onEnd={onVoiceEnd}
