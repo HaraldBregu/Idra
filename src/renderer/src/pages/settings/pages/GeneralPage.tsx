@@ -66,7 +66,7 @@ const GeneralPage: React.FC = () => {
 						<ItemContent>
 							<ItemTitle>{t('settings.application.accessibility')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Button variant="outline" size="xs" onClick={handleOpenAccessibility} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openAccessibility')}
 							</Button>
@@ -79,7 +79,7 @@ const GeneralPage: React.FC = () => {
 						<ItemContent>
 							<ItemTitle>{t('settings.application.screenRecording')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openScreenRecording')}
 							</Button>
@@ -92,7 +92,7 @@ const GeneralPage: React.FC = () => {
 						<ItemContent>
 							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Switch size="sm" checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
 						</ItemActions>
 					</Item>
@@ -103,7 +103,7 @@ const GeneralPage: React.FC = () => {
 						<ItemContent>
 							<ItemTitle>{t('settings.application.appData')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openAppData')}
 							</Button>
@@ -116,7 +116,7 @@ const GeneralPage: React.FC = () => {
 						<ItemContent>
 							<ItemTitle>{t('settings.application.userData')}</ItemTitle>
 						</ItemContent>
-						<ItemActions>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder} className="h-6 px-2 text-[11px]">
 								{t('settings.application.openUserData')}
 							</Button>
