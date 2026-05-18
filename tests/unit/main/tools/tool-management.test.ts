@@ -5,20 +5,23 @@ import {
 	ToolConflictResolver,
 	ToolArgumentBuilder,
 	ToolDiscovery,
-	ToolExecutor,
-	ToolOutputValidator,
-	ToolPlanner,
-	ToolSelector,
-	ToolTransientError,
-	ToolUsePolicy,
-	executeAgentToolWithManagement,
-	selectAgentToolsForTurn,
+		ToolExecutor,
+		ToolOutputValidator,
+		ToolPlanner,
+		ToolSelector,
+		ToolTransientError,
+		ToolUsePolicy,
+		agentToolToManagedTool,
+		executeAgentToolWithManagement,
+		selectAgentToolsForTurn,
 	type RankedTool,
 	type SessionContext,
 	type Tool,
 	type ToolExecutionContext,
-} from '../../../../src/main/tools/management';
-import type { AgentTool } from '../../../../src/main/tools/types';
+	} from '../../../../src/main/tools/management';
+	import { execTool } from '../../../../src/main/tools/exec';
+	import { TOOL_LIMITS } from '../../../../src/main/tools/limits';
+	import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeToolContext } from '../test-helpers';
 
 function sessionContext(permissions: string[] = ['*']): SessionContext {
@@ -189,6 +192,59 @@ describe('tool management layer', () => {
 		expect(result.success).toBe(true);
 		expect(result.retryCount).toBe(1);
 		expect(calls).toBe(2);
+	});
+
+	it('uses per-tool execution timeout metadata instead of the generic default', async () => {
+		const tool = makeTool({
+			id: 'slow-ok',
+			metadata: {
+				privacyLevel: 'public',
+				readOnly: true,
+				executionTimeoutMs: 50,
+			},
+			execute: async () => {
+				await new Promise((resolve) => setTimeout(resolve, 10));
+				return createToolResult({ toolId: 'slow-ok', success: true, data: { ok: true } });
+			},
+		});
+
+		const result = await new ToolExecutor({ defaultTimeoutMs: 1, maxRetries: 0 }).execute(
+			tool,
+			{ query: 'x' },
+			executionContext()
+		);
+
+		expect(result.success).toBe(true);
+	});
+
+	it('aborts the managed execution signal when a tool times out', async () => {
+		let aborted = false;
+		const tool = makeTool({
+			id: 'slow-timeout',
+			metadata: { privacyLevel: 'public', readOnly: true, executionTimeoutMs: 5 },
+			execute: async (_input, context) => {
+				context.signal?.addEventListener('abort', () => {
+					aborted = true;
+				}, { once: true });
+				return new Promise(() => undefined);
+			},
+		});
+
+		const result = await new ToolExecutor({ maxRetries: 0 }).execute(
+			tool,
+			{ query: 'x' },
+			executionContext()
+		);
+
+		expect(result.success).toBe(false);
+		expect(result.error?.code).toBe('TOOL_TIMEOUT');
+		expect(aborted).toBe(true);
+	});
+
+	it('marks exec with the extended managed execution timeout', () => {
+		const managed = agentToolToManagedTool(execTool);
+
+		expect(managed.metadata.executionTimeoutMs).toBe(TOOL_LIMITS.exec.timeoutMs);
 	});
 
 	it('plans fallback tools without circular tool chains', () => {

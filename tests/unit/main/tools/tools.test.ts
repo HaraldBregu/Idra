@@ -226,6 +226,23 @@ describe('tools/exec', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
+	it('terminates foreground commands when the tool context is aborted', async () => {
+		const workspace = await makeTempDir();
+		const controller = new AbortController();
+		const promise = execTool.execute(
+			{ command: 'node -e "setTimeout(() => {}, 5000)"' },
+			makeToolContext({ workspace, signal: controller.signal })
+		);
+		setTimeout(() => controller.abort(), 20);
+
+		const result = await promise;
+
+		expect(result.status).toBe('error');
+		expect(result.details?.exitCode).toBe(-1);
+		expect(result.details?.durationMs).toBeLessThan(1000);
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
 	it('starts and inspects background processes', async () => {
 		const workspace = await makeTempDir();
 		const started = await execTool.execute({ command: 'printf bg', background: true }, makeToolContext({ workspace }));
