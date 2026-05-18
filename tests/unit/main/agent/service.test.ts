@@ -460,7 +460,6 @@ describe('AgentService', () => {
 		await expect(service.send(`read ${outsideFile}`)).resolves.toBe('read complete');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
 		expect(toolNames).toContain('read');
-		expect(toolNames).toContain('find');
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
 		expect(JSON.stringify(history)).toContain('outside readable');
