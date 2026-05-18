@@ -4,6 +4,7 @@ import type { AgentTool } from '../../../../src/main/tools/types';
 describe('agent/system-prompt', () => {
 	it('builds deterministic prompts with sorted tool guidance and memory blocks', async () => {
 		const tools: AgentTool[] = [
+			{ name: 'exec', description: 'Run commands', schema: {}, execute: jest.fn() },
 			{ name: 'write', description: 'Write files', schema: {}, execute: jest.fn() },
 			{ name: 'read', description: 'Read files', schema: {}, execute: jest.fn() },
 		];
