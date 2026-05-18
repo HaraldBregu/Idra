@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowUp, AudioLines, Mic, Plus, Square } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
@@ -13,6 +13,7 @@ import {
 	PromptInputAction,
 	PromptInputActions,
 	PromptInputTextarea,
+	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { useChatMode } from '@/contexts/chat-mode';
@@ -108,19 +109,46 @@ function SubmitButton({
 }
 
 function PageContent(): ReactElement {
-	const { setMode } = useChatMode();
+	const { mode, setMode } = useChatMode();
 	const agent = useHomeAgent({ setMode });
+	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const showReferenceConversation =
 		agent.chatState.messages.length <= 1 &&
 		!agent.isLoading &&
 		!agent.historyLoading;
 	const canSubmit = agent.input.trim().length > 0;
+
+	useEffect(() => {
+		if (mode === 'chat') setVoiceMode(null);
+	}, [mode]);
+
+	const returnToChat = (): void => {
+		setVoiceMode(null);
+		setMode('chat');
+	};
+
+	const startVoiceConversation = (): void => {
+		setVoiceMode('conversation');
+		setMode('voice');
+	};
+
+	const startDictation = (): void => {
+		setVoiceMode('dictation');
+		setMode('voice');
+	};
+
+	const confirmDictation = (): void => {
+		const shouldSubmit = agent.input.trim().length > 0;
+		returnToChat();
+		if (shouldSubmit) agent.handleSubmit();
+	};
+
 	const handlePrimaryAction = (): void => {
 		if (agent.isLoading || canSubmit) {
 			agent.handleSubmit();
 			return;
 		}
-		setMode('voice');
+		startVoiceConversation();
 	};
 
 	return (
@@ -190,10 +218,14 @@ function PageContent(): ReactElement {
 						onSubmit={agent.handleSubmit}
 						textareaRef={agent.inputRef}
 						leadingAction={<AttachmentButton />}
+						voiceMode={voiceMode}
+						onVoiceEnd={returnToChat}
+						onVoiceCancel={returnToChat}
+						onVoiceConfirm={confirmDictation}
 						className="w-full"
 						actions={
 							<PromptInputActions className="justify-end gap-1.5">
-								<VoiceButton onVoiceModeRequest={() => setMode('voice')} />
+								<VoiceButton onVoiceModeRequest={startDictation} />
 								<SubmitButton
 									isLoading={agent.isLoading}
 									canSubmit={canSubmit}
