@@ -241,7 +241,7 @@ function PromptInputVoicePanel({
         />
       </div>
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <div
+        {/* <div
           className={cn(
             "flex shrink-0 items-center gap-1.5 truncate text-[0.65rem] font-bold uppercase tracking-[0.18em]",
             isMuted ? "text-muted-foreground/70" : "text-muted-foreground"
@@ -258,7 +258,7 @@ function PromptInputVoicePanel({
           )}
         >
           {spokenText}
-        </p>
+        </p> */}
         <div className="hidden min-w-28 flex-1 sm:block">
           <PromptInputVoiceWaveform muted={isMuted} mode={mode} />
         </div>
