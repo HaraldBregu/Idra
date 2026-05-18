@@ -13,5 +13,5 @@ Learn enough to update:
 
 Optional: ask whether the user wants channel or integration setup later.
 
-When the setup is complete, delete `BOOTSTRAP.md`. Do not claim bootstrap is
-complete until those files are updated and this file is gone.
+When the setup is complete, use `startup_files` to complete bootstrap. Do not
+claim bootstrap is complete until those files are updated and this file is gone.
