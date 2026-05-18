@@ -302,24 +302,24 @@ export class AgentService {
 				}
 			}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
-			const bootstrapMode = resolveBootstrapMode({
-				bootstrapPending,
-				isInteractiveUserFacing: true,
+				const bootstrapMode = resolveBootstrapMode({
+					bootstrapPending,
+					isInteractiveUserFacing: true,
 					isPrimaryRun: agentId === this.defaultAgentId,
 					isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 					hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
 				});
-			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
-				buildSystemPrompt({
-					workspace: workspaceRoot,
-					date: new Date().toISOString().slice(0, 10),
+				const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
+					buildSystemPrompt({
+						workspace: workspaceRoot,
+						date: new Date().toISOString().slice(0, 10),
 						model,
 						tools: selectedTools,
 						skills: skillChoices,
 						startupFiles,
 						bootstrapMode,
 					})
-			);
+				);
 			const systemPromptForTurn = toolSelection.systemPromptSuffix
 				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
 				: systemPrompt;
