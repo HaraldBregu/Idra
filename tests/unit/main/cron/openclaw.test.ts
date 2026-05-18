@@ -68,9 +68,9 @@ function agentJob(overrides: Partial<OpenClawCronAddRequest> = {}): OpenClawCron
 		id: `job-${Math.random().toString(16).slice(2)}`,
 		name: 'Cron agent turn',
 		description: 'test',
-		schedule: { kind: 'every', intervalMs: 60_000 },
+		schedule: { kind: 'every', everyMs: 60_000 },
 		sessionTarget: 'isolated',
-		payload: { kind: 'agentTurn', prompt: 'Summarize inbox' },
+		payload: { kind: 'agentTurn', message: 'Summarize inbox' },
 		...overrides,
 	};
 }
@@ -175,9 +175,49 @@ describe('OpenClawCronScheduler', () => {
 		const self = { role: 'cron-self' as const, jobId: own.id };
 
 		await expect(scheduler.list('all', self)).resolves.toHaveLength(1);
-		await expect(scheduler.get(other.id, self)).rejects.toThrow(/owner-only/);
-		await expect(scheduler.add(agentJob({ id: 'new-job' }), self)).rejects.toThrow(/owner-only/);
+		await expect(scheduler.get(other.id, self)).rejects.toThrow(/restricted to the current cron job/);
+		await expect(scheduler.add(agentJob({ id: 'new-job' }), self)).rejects.toThrow(/restricted to the current cron job|owner-only/);
 		await expect(scheduler.remove(own.id, self)).resolves.toBeUndefined();
+	});
+
+	it('normalizes flat model-friendly tool add requests before storing jobs', async () => {
+		const { scheduler } = await makeHarness();
+
+		const response = await scheduler.handleToolAction({
+			action: 'add',
+			name: 'Hourly report',
+			cron: '0 * * * *',
+			tz: 'UTC',
+			staggerMs: 5000,
+			message: 'Send report',
+			enabled: 'true',
+		});
+
+		expect(response.status).toBe('ok');
+		expect(response.result).toMatchObject({
+			name: 'Hourly report',
+			schedule: { kind: 'cron', expr: '0 * * * *', tz: 'UTC', staggerMs: 5000 },
+			payload: { kind: 'agentTurn', message: 'Send report' },
+			enabled: true,
+			wakeMode: 'now',
+			sessionTarget: 'isolated',
+			delivery: { mode: 'announce' },
+		});
+	});
+
+	it('prefers jobId over id and filters tool lists by requester agent id', async () => {
+		const { scheduler } = await makeHarness();
+		const own = await scheduler.add(agentJob({ id: 'own-job', agentId: 'agent-1' }));
+		await scheduler.add(agentJob({ id: 'other-job', agentId: 'agent-2' }));
+
+		const listed = await scheduler.handleToolAction(
+			{ action: 'list' },
+			{ role: 'owner', agentId: 'agent-1' }
+		);
+		const fetched = await scheduler.handleToolAction({ action: 'get', jobId: own.id, id: 'other-job' });
+
+		expect(listed.result).toEqual([expect.objectContaining({ id: own.id })]);
+		expect(fetched.result).toMatchObject({ id: own.id });
 	});
 
 	it('suppresses fallback delivery when the agent already delivered', async () => {
@@ -231,7 +271,7 @@ describe('OpenClawCronScheduler', () => {
 		executor.outcomes.push(new Error('boom'));
 		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() }, deleteAfterRun: false }));
 
-		await scheduler.update(job.id, { schedule: { kind: 'every', intervalMs: 10_000 } });
+		await scheduler.update(job.id, { schedule: { kind: 'every', everyMs: 10_000 } });
 		const snapshotJob = await scheduler.get(job.id);
 		await scheduler.processDue(snapshotJob.state.nextRunAtMs ?? Date.now());
 
@@ -250,10 +290,10 @@ describe('OpenClawCronScheduler', () => {
 			enabled: true,
 			createdAtMs: now,
 			updatedAtMs: now,
-			schedule: { kind: 'cron', expression: 'not cron' },
+			schedule: { kind: 'cron', expr: 'not cron' },
 			sessionTarget: 'isolated',
 			wakeMode: 'now',
-			payload: { kind: 'agentTurn', prompt: 'run' },
+			payload: { kind: 'agentTurn', message: 'run' },
 			delivery: { mode: 'none' },
 		};
 		await store.save({ jobs: [badJob], states: { [badJob.id]: { consecutiveErrors: 0, consecutiveSkipped: 0, consecutiveScheduleErrors: 0, attempts: 0 } } });
