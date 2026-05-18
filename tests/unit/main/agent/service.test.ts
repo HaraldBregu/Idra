@@ -461,10 +461,62 @@ describe('AgentService', () => {
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
 		expect(toolNames).toContain('read');
 		expect(toolNames).toContain('find');
+		expect(toolNames).toContain('copy_images');
 		expect(toolNames).not.toEqual(expect.arrayContaining(['write', 'edit', 'startup_files', 'exec', 'process']));
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
 		expect(JSON.stringify(history)).toContain('outside readable');
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('can copy external images into the workspace without exposing generic write or shell tools', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const sessionBaseDir = await makeTempDir();
+		await fs.writeFile(path.join(outside, 'desktop-photo.png'), 'image data', 'utf8');
+		await fs.writeFile(path.join(outside, 'desktop-note.txt'), 'ignore me', 'utf8');
+		const deps = makeDeps(workspace);
+		const requests: ProviderStreamRequest[] = [];
+		let turn = 0;
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					if (turn++ === 0) {
+						yield { type: 'tool_call_start' as const, id: 'copy-images', name: 'copy_images' };
+						yield {
+							type: 'tool_call_args_delta' as const,
+							id: 'copy-images',
+							jsonDelta: JSON.stringify({ sourceDir: outside }),
+						};
+						yield { type: 'tool_call_end' as const, id: 'copy-images' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'tool_use',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+						return;
+					}
+					yield { type: 'text_delta' as const, text: 'copied' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send('can you copy the images from Desktop to the current workspace please')).resolves.toBe('copied');
+		const toolNames = requests[0]!.tools.map((tool) => tool.name);
+		expect(toolNames).toContain('copy_images');
+		expect(toolNames).not.toEqual(expect.arrayContaining(['write', 'edit', 'startup_files', 'exec', 'process']));
+		await expect(fs.readFile(path.join(workspace, 'desktop-photo.png'), 'utf8')).resolves.toBe('image data');
+		await expect(fs.stat(path.join(workspace, 'desktop-note.txt'))).rejects.toThrow();
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });

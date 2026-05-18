@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { nativeTheme, shell, app } from 'electron';
 import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/before-call';
 import { execTool, processTool } from '../../../../src/main/tools/exec';
-import { readTool, writeTool, editTool, findTool, applyPatchTool } from '../../../../src/main/tools/fs';
+import { readTool, copyImagesTool, writeTool, editTool, findTool, applyPatchTool } from '../../../../src/main/tools/fs';
 import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
@@ -133,6 +133,31 @@ describe('tools/fs', () => {
 			makeToolContext({ workspace, fsPolicy: { readOnly: true } })
 		)).resolves.toMatchObject({ status: 'error' });
 
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
+	it('copies image files from outside the workspace without overwriting existing files', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		await fs.mkdir(path.join(outside, 'nested'), { recursive: true });
+		await fs.writeFile(path.join(outside, 'photo.png'), 'image-one', 'utf8');
+		await fs.writeFile(path.join(outside, 'notes.txt'), 'not an image', 'utf8');
+		await fs.writeFile(path.join(outside, 'nested', 'photo.png'), 'image-two', 'utf8');
+		await fs.writeFile(path.join(workspace, 'photo.png'), 'existing', 'utf8');
+
+		const result = await copyImagesTool.execute(
+			{ sourceDir: outside, recursive: true },
+			makeToolContext({ workspace, fsPolicy: { workspaceOnly: false, readOnly: true } })
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.content[0]?.text).toContain('photo-1.png');
+		expect(result.content[0]?.text).toContain('photo-2.png');
+		await expect(fs.readFile(path.join(workspace, 'photo.png'), 'utf8')).resolves.toBe('existing');
+		await expect(fs.readFile(path.join(workspace, 'photo-1.png'), 'utf8')).resolves.toBe('image-one');
+		await expect(fs.readFile(path.join(workspace, 'photo-2.png'), 'utf8')).resolves.toBe('image-two');
+		await expect(fs.stat(path.join(workspace, 'notes.txt'))).rejects.toThrow();
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 	});
