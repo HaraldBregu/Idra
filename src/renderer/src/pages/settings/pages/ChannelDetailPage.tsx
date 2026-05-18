@@ -290,7 +290,6 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemContent>
 							<ItemActions className="ml-auto flex-none justify-end">
 								<Switch
-									size="sm"
 									checked={isChannelEnabled(selectedId, selectedConfig)}
 									onCheckedChange={(checked) =>
 										updateSelectedConfig((config) => updateChannelEnabled(selectedId, config, checked), {
