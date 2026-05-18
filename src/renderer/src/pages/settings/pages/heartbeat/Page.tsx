@@ -6,7 +6,6 @@ import {
 	BellOff,
 	Clock3,
 	Power,
-	RadioTower,
 	RefreshCw,
 	Send,
 	TimerReset,
@@ -365,6 +364,11 @@ const HeartbeatPage: React.FC = () => {
 	const nextDue = formatTimestamp(status?.nextDueMs);
 	const lastTimestamp = formatTimestamp(lastHeartbeat?.timestamp);
 	const lastDuration = formatDuration(lastHeartbeat?.durationMs);
+	const lastDescription =
+		lastHeartbeat?.preview ??
+		lastHeartbeat?.reason ??
+		lastTimestamp ??
+		t('settings.heartbeat.values.unknown');
 	const timingDirty = timing
 		? timingDraft.every.trim() !== timing.every ||
 			timingDraft.start.trim() !== (timing.activeHours?.start ?? '') ||
@@ -577,11 +581,10 @@ const HeartbeatPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.heartbeat.last.title')}
-				description={t('settings.heartbeat.last.description')}
 			>
 				<SettingsPanel>
 					{loading && !lastHeartbeat ? (
-						<SettingsLoadingRows rows={3} />
+						<SettingsLoadingRows rows={1} />
 					) : !lastHeartbeat ? (
 						<SettingsEmptyState
 							icon={BellOff}
@@ -589,87 +592,43 @@ const HeartbeatPage: React.FC = () => {
 							description={t('settings.heartbeat.last.emptyDescription')}
 						/>
 					) : (
-						<>
-							<SettingsRow
-								icon={Activity}
-								title={t('settings.heartbeat.last.status')}
-								actions={
+						<HeartbeatItem
+							icon={Activity}
+							title={t('settings.heartbeat.last.latest')}
+							description={lastDescription}
+							actions={
+								<>
 									<Badge
 										variant={statusVariant(lastHeartbeat.status)}
 										className="h-5 rounded-md px-1.5 text-[10px]"
 									>
 										{t(`settings.heartbeat.status.${lastHeartbeat.status}`)}
 									</Badge>
-								}
-							/>
-							<SettingsRow
-								icon={Clock3}
-								title={t('settings.heartbeat.last.timestamp')}
-								actions={
-									<SettingsValue>
-										{lastTimestamp ?? t('settings.heartbeat.values.unknown')}
-									</SettingsValue>
-								}
-							/>
-							{lastDuration && (
-								<SettingsRow
-									icon={TimerReset}
-									title={t('settings.heartbeat.last.duration')}
-									actions={<SettingsValue mono>{lastDuration}</SettingsValue>}
-								/>
-							)}
-							<SettingsRow
-								icon={RadioTower}
-								title={t('settings.heartbeat.last.route')}
-								actions={
-									<div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
-										<SettingsValue>
-											{lastHeartbeat.channel ?? t('settings.heartbeat.values.noChannel')}
-										</SettingsValue>
-										{lastHeartbeat.target && (
-											<SettingsValue className="max-w-52" mono>
-												{lastHeartbeat.target}
-											</SettingsValue>
-										)}
-										{lastHeartbeat.accountId && (
-											<SettingsValue className="max-w-40" mono>
-												{lastHeartbeat.accountId}
-											</SettingsValue>
-										)}
-									</div>
-								}
-							/>
-							{lastHeartbeat.reason && (
-								<SettingsRow
-									icon={AlertTriangle}
-									title={t('settings.heartbeat.last.reason')}
-									actions={
-										<SettingsValue className="max-w-72" mono>
-											{lastHeartbeat.reason}
-										</SettingsValue>
-									}
-								/>
-							)}
-							{lastHeartbeat.preview && (
-								<SettingsRow
-									icon={Send}
-									title={t('settings.heartbeat.last.preview')}
-									description={lastHeartbeat.preview}
-									className="sm:grid-cols-1"
-									contentClassName="items-start"
-								/>
-							)}
-						</>
+									{lastTimestamp && (
+										<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+											{lastTimestamp}
+										</Badge>
+									)}
+									{lastDuration && (
+										<Badge variant="outline" className="h-5 rounded-md px-1.5 font-mono text-[10px]">
+											{lastDuration}
+										</Badge>
+									)}
+									<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+										{lastHeartbeat.channel ?? t('settings.heartbeat.values.noChannel')}
+									</Badge>
+								</>
+							}
+						/>
 					)}
 				</SettingsPanel>
 			</SettingsSection>
 
 			<SettingsSection
 				title={t('settings.heartbeat.controls.title')}
-				description={t('settings.heartbeat.controls.description')}
 			>
 				<SettingsPanel>
-					<SettingsRow
+					<HeartbeatItem
 						icon={Zap}
 						title={t('settings.heartbeat.controls.wakeNow')}
 						description={t('settings.heartbeat.controls.wakeNowDescription')}
@@ -686,22 +645,23 @@ const HeartbeatPage: React.FC = () => {
 							</Button>
 						}
 					/>
-					<div className="grid gap-2 px-3 py-2">
-						<SettingsField
-							id="heartbeat-system-event"
-							label={t('settings.heartbeat.controls.systemEvent')}
-							description={t('settings.heartbeat.controls.systemEventDescription')}
-						>
+					<HeartbeatItem
+						icon={Send}
+						title={t('settings.heartbeat.controls.systemEvent')}
+						description={t('settings.heartbeat.controls.systemEventDescription')}
+						actionsClassName="sm:w-[520px]"
+						actions={
+							<div className="grid w-full gap-1.5">
 							<Textarea
 								id="heartbeat-system-event"
 								value={eventText}
 								onChange={(event) => setEventText(event.target.value)}
 								disabled={loading || isBusy}
 								placeholder={t('settings.heartbeat.controls.systemEventPlaceholder')}
-								className="min-h-20 resize-y text-xs leading-5 md:text-xs"
+									className="min-h-16 resize-y text-xs leading-5 md:text-xs"
+									aria-label={t('settings.heartbeat.controls.systemEvent')}
 							/>
-						</SettingsField>
-						<div className="flex flex-wrap items-center gap-1.5">
+								<div className="flex flex-wrap items-center justify-end gap-1.5">
 							<Button
 								type="button"
 								size="xs"
@@ -721,8 +681,11 @@ const HeartbeatPage: React.FC = () => {
 								<TimerReset className="size-3" />
 								{t('settings.heartbeat.actions.sendNext')}
 							</Button>
+								</div>
+							</div>
+						}
+					/>
 						</div>
-					</div>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
