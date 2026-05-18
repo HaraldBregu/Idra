@@ -94,7 +94,7 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+							<Switch size="sm" checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
 						</ItemActions>
 					</Item>
 					<Item variant="outline" size="sm" className="border-b border-border/60">
