@@ -8,6 +8,7 @@ import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { AgentService } from './service';
+import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
 import { AppsService } from './apps';
@@ -36,6 +37,7 @@ export interface BootstrapResult {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryService;
 	workspace: WorkspaceService;
+	startupFiles: AgentStartupFilesService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -59,6 +61,10 @@ export function bootstrapServices(): BootstrapResult {
 		'workspace',
 		new WorkspaceService(logger, { userDataDirectory })
 	);
+	const startupFiles = container.register(
+		'startupFiles',
+		new AgentStartupFilesService({ userDataDirectory })
+	);
 
 	const store = container.register('store', new StoreService());
 	const cron = container.register(
@@ -81,10 +87,11 @@ export function bootstrapServices(): BootstrapResult {
 			store,
 			cron,
 			logger,
-			eventBus,
-			workspace,
-			userDataDirectory,
-			connectors,
+				eventBus,
+				workspace,
+				startupFiles,
+				userDataDirectory,
+				connectors,
 			mcpRegistry,
 			skills,
 		})
@@ -116,6 +123,7 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		userDataDirectory,
 		workspace,
+		startupFiles,
 		windowContextManager,
 	};
 }
