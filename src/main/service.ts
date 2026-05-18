@@ -213,9 +213,9 @@ export class AgentService {
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
 				new ToolUsePolicy().evaluate({ userRequest: message })
 			);
-			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
-				this.isBootstrapPending()
-			);
+				let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
+					this.isBootstrapPending(agentId)
+				);
 				let startupFiles: AgentStartupFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
@@ -521,31 +521,22 @@ export class AgentService {
 		}
 	}
 
-	private async isBootstrapPending(): Promise<boolean> {
-		const workspace = this.dependencies.workspace as Partial<WorkspaceService>;
+	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
-			if (typeof workspace.isBootstrapPending === 'function') {
-				return await workspace.isBootstrapPending();
-			}
+			return await this.dependencies.startupFiles.isBootstrapPending(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
 				error: (error as Error).message,
 			});
+			return false;
 		}
-		return false;
 	}
 
-	private async loadWorkspaceFiles(): Promise<WorkspaceContextFile[]> {
-		const workspace = this.dependencies.workspace as Partial<WorkspaceService>;
+	private async loadStartupFiles(agentId: string): Promise<AgentStartupFile[]> {
 		try {
-			if (typeof workspace.ensureReady === 'function') {
-				await workspace.ensureReady();
-			}
-			if (typeof workspace.loadContextFiles === 'function') {
-				return await workspace.loadContextFiles();
-			}
+			return await this.dependencies.startupFiles.loadContextFiles(agentId);
 		} catch (error) {
-			this.dependencies.logger.warn('AgentService', 'Workspace context unavailable', {
+			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
 				error: (error as Error).message,
 			});
 		}
