@@ -209,7 +209,7 @@ function PageContent(): ReactElement {
 						/>
 					</div>
 				</ChatContainerRoot>
-				<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-4">
+				<div className="flex shrink-0 justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-5 pb-4 pt-4">
 					<PromptInput
 						value={agent.input}
 						onValueChange={agent.setInput}
