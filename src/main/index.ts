@@ -32,7 +32,7 @@ function loadLocalEnv(): void {
 			if (separatorIndex <= 0) continue;
 			const key = trimmed.slice(0, separatorIndex).trim();
 			const rawValue = trimmed.slice(separatorIndex + 1).trim();
-			if (!key || process.env[key] !== undefined) continue;
+			if (!key || process.env[key]?.trim()) continue;
 			process.env[key] = rawValue.replace(/^(['"])(.*)\1$/, '$2');
 		}
 	}
