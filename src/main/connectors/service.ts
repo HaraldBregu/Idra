@@ -80,6 +80,8 @@ function knownTools(connector: ConnectorConfig): ConnectorTool[] {
 
 	return names.map((name) => ({
 		name,
+		description: descriptionForTool(connector, name),
+		inputSchema: schemaForTool(connector, name),
 		requiresApproval: requiresApprovalForTool(connector, name),
 	}));
 }
