@@ -320,10 +320,7 @@ export class AgentService {
 						{
 							runKind,
 							lightContext: heartbeatOptions?.lightContext === true,
-							includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
-								this.dependencies.store.getService(),
-								agentId
-							),
+							includeHeartbeatContext: isHeartbeatSystemPromptEnabled(this.getServiceConfig(), agentId),
 						}
 					);
 					bootstrapPending =
@@ -393,7 +390,7 @@ export class AgentService {
 						heartbeat: {
 							includeSection:
 								runKind === 'default' &&
-								isHeartbeatSystemPromptEnabled(this.dependencies.store.getService(), agentId),
+								isHeartbeatSystemPromptEnabled(this.getServiceConfig(), agentId),
 						},
 					})
 				);
@@ -603,6 +600,11 @@ export class AgentService {
 		} catch {
 			return resolveDefaultUserDataPath('workspace');
 		}
+	}
+
+	private getServiceConfig() {
+		const maybeStore = this.dependencies.store as { getService?: () => ReturnType<typeof this.dependencies.store.getService> };
+		return typeof maybeStore.getService === 'function' ? maybeStore.getService() : undefined;
 	}
 
 	private async isBootstrapPending(agentId: string): Promise<boolean> {

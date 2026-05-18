@@ -185,7 +185,7 @@ export class StoreService {
 		const channel = this.store.get('channel');
 		const next = createDefaultChannelState();
 		if (channel?.defaults && typeof channel.defaults === 'object') {
-			next.defaults = channel.defaults;
+			setChannelDefaults(next, channel.defaults);
 		}
 		for (const channelId of CHANNEL_PROVIDER_IDS) {
 			setChannelConfigValue(
@@ -273,11 +273,20 @@ export class StoreService {
 
 function createDefaultChannelState(): Channel {
 	const state = {} as Channel;
-	state.defaults = {};
+	setChannelDefaults(state, {});
 	for (const channelId of CHANNEL_PROVIDER_IDS) {
 		setChannelConfigValue(state, channelId, createDefaultChannelConfig(channelId));
 	}
 	return state;
+}
+
+function setChannelDefaults(state: Channel, defaults: Channel['defaults']): void {
+	Object.defineProperty(state, 'defaults', {
+		value: defaults,
+		enumerable: false,
+		writable: true,
+		configurable: true,
+	});
 }
 
 function setChannelConfigValue<TKey extends ChannelType>(
