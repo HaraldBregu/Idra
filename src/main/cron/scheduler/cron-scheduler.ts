@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import type { Task } from '../../task-manager/core/task.types';
 import type {
 	CronActorContext,
 	CronExecutionRecord,
@@ -21,6 +20,7 @@ import type {
 	CronScheduleSource,
 	CronScheduleUpdateRequest,
 	CronScheduleStore,
+	CronScheduledTask,
 } from '../core/cron.types';
 import { ScheduleDescriber } from '../core/cron.describer';
 import {
@@ -342,7 +342,7 @@ export class CronSchedulerService implements CronScheduler {
 		});
 	}
 
-	async runScheduleNow(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<Task> {
+	async runScheduleNow(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<CronScheduledTask> {
 		const schedule = await this.store.getSchedule(scheduleId);
 		await this.accessPolicy.authorize({ action: 'runScheduleNow', schedule, actor });
 		const task = await this.triggerSchedule(schedule, new Date().toISOString(), false, true);
@@ -480,7 +480,7 @@ export class CronSchedulerService implements CronScheduler {
 		scheduledRunAt: string,
 		missedRun: boolean,
 		manual: boolean
-	): Promise<Task | undefined> {
+	): Promise<CronScheduledTask | undefined> {
 		const locked = await this.store.acquireScheduleLock(inputSchedule.id, this.options.runnerId, this.options.lockTtlMs);
 		if (!locked) return undefined;
 
@@ -587,7 +587,7 @@ export class CronSchedulerService implements CronScheduler {
 		scheduledRunAt: string,
 		missedRun: boolean,
 		idempotencyKey: string
-	): Promise<Task> {
+	): Promise<CronScheduledTask> {
 		const maxAttempts = Math.max(1, schedule.retryPolicy.maxAttempts);
 		let attempt = 0;
 		let lastError: unknown;

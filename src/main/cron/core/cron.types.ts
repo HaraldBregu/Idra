@@ -14,8 +14,9 @@ import type {
 	CronSchedulePermissionLevel,
 	CronScheduleSource,
 	CronScheduleUpdateRequest,
+	CronScheduledTask,
+	CronScheduledTaskStatus,
 } from '../../../shared/cron';
-import type { Task, TaskCreateRequest, TaskListFilter } from '../../task-manager/core/task.types';
 
 export type {
 	CronConcurrencyPolicy,
@@ -43,6 +44,8 @@ export type {
 	CronScheduleType,
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
+	CronScheduledTask,
+	CronScheduledTaskStatus,
 	CronTaskPriority,
 	CronTimezone,
 	CronValidationResult,
@@ -86,20 +89,13 @@ export interface CronScheduleRunner {
 		missedRun: boolean;
 		idempotencyKey: string;
 		runnerId: string;
-	}): Promise<Task>;
+	}): Promise<CronScheduledTask>;
 	findExistingTask?(filter: {
 		scheduleId: CronScheduleId;
 		scheduledRunAt: string;
-	}): Promise<Task | undefined>;
-	listRunningTasks?(scheduleId: CronScheduleId): Promise<Task[]>;
+	}): Promise<CronScheduledTask | undefined>;
+	listRunningTasks?(scheduleId: CronScheduleId): Promise<CronScheduledTask[]>;
 	cancelRunningTasks?(scheduleId: CronScheduleId, reason: string): Promise<void>;
-}
-
-export interface CronTaskManagerPort {
-	createTask(request: TaskCreateRequest): Promise<Task>;
-	listTasks(filter?: TaskListFilter): Promise<Task[]>;
-	cancelTask?(taskId: string, reason?: string): Promise<void>;
-	enqueueTask?(taskId: string): Promise<void>;
 }
 
 export interface CronScheduleAccessPolicy {
@@ -136,7 +132,7 @@ export interface CronScheduler {
 	deleteSchedule(scheduleId: CronScheduleId, actor?: CronActorContext): Promise<void>;
 	getSchedule(scheduleId: CronScheduleId, actor?: CronActorContext): Promise<CronSchedule>;
 	listSchedules(filter?: CronScheduleFilter, actor?: CronActorContext): Promise<CronSchedule[]>;
-	runScheduleNow(scheduleId: CronScheduleId, actor?: CronActorContext): Promise<Task>;
+	runScheduleNow(scheduleId: CronScheduleId, actor?: CronActorContext): Promise<CronScheduledTask>;
 	computeNextRun(schedule: CronSchedule, from?: Date): Promise<Date | null>;
 	recoverSchedulesOnStartup(): Promise<void>;
 	processDueSchedules(now: Date): Promise<void>;

@@ -150,6 +150,13 @@ export type CronDstPolicy =
 
 export type CronTaskPriority = 'low' | 'normal' | 'high' | 'critical';
 
+export type CronScheduledTaskStatus =
+	| 'queued'
+	| 'running'
+	| 'completed'
+	| 'failed'
+	| 'cancelled';
+
 export type CronJsonValue =
 	| string
 	| number
@@ -159,6 +166,25 @@ export type CronJsonValue =
 	| { [key: string]: CronJsonValue };
 
 export type CronJsonObject = Record<string, CronJsonValue>;
+
+export interface CronScheduledTask {
+	id: string;
+	type: string;
+	title: string;
+	description?: string;
+	source: 'cron';
+	sourceId: CronScheduleId;
+	userId?: string;
+	sessionId?: string;
+	input: CronJsonValue;
+	status: CronScheduledTaskStatus;
+	priority: CronTaskPriority;
+	visibility: CronScheduleVisibility;
+	tags: string[];
+	metadata: CronJsonObject;
+	createdAt: string;
+	updatedAt: string;
+}
 
 export interface CronRetryPolicy {
 	maxAttempts: number;

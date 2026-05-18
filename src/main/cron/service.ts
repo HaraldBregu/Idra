@@ -22,7 +22,7 @@ import {
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext, CronTaskManagerPort } from './core/cron.types';
+import type { CronActorContext } from './core/cron.types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
 import {
@@ -30,8 +30,7 @@ import {
 	DEFAULT_CRON_RUN_POLICY,
 } from './scheduler/cron-scheduler';
 import {
-	StoreBackedCronTaskManager,
-	TaskManagerCronScheduleRunner,
+	InMemoryCronScheduleRunner,
 } from './scheduler/cron-runner';
 import { FileOpenClawCronStore } from './openclaw/file-store';
 import {
@@ -76,7 +75,6 @@ export class CronService implements Disposable {
 	constructor(
 		store: StoreService,
 		logger: LoggerService,
-		taskManager?: CronTaskManagerPort,
 		options: CronServiceOptions = {}
 	) {
 		this.store = store;
@@ -84,7 +82,7 @@ export class CronService implements Disposable {
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(store);
-		const runner = new TaskManagerCronScheduleRunner(taskManager ?? new StoreBackedCronTaskManager());
+		const runner = new InMemoryCronScheduleRunner();
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
 			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
 			highFrequencyThresholdMs: DEFAULT_CRON_RUN_POLICY.highFrequencyThresholdMs,

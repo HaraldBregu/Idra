@@ -8,7 +8,7 @@ import type {
 	CronScheduler,
 	CronScheduleUpdateRequest,
 } from '../core/cron.types';
-import type { Task } from '../../task-manager/core/task.types';
+import type { CronScheduledTask } from '../../../shared/cron';
 import { ScheduleDescriber } from '../core/cron.describer';
 
 export interface AgentCronContext {
@@ -97,7 +97,7 @@ export class AgentCronService {
 		return this.scheduler.getNextRuns(scheduleId, count, this.actor(agentContext));
 	}
 
-	runScheduleNowFromAgent(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<Task> {
+	runScheduleNowFromAgent(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<CronScheduledTask> {
 		return this.scheduler.runScheduleNow(scheduleId, this.actor(agentContext));
 	}
 

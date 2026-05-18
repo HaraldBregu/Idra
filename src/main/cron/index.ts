@@ -27,4 +27,3 @@ export * from './agent/agent-cron-service';
 export type * from './electron/cron-client';
 export * from './examples/example-cron-definitions';
 export * from './examples/example-agent-cron-usage';
-export * from './examples/example-task-manager-integration';
