@@ -1,7 +1,6 @@
 import {
 	Activity,
 	AppWindow,
-	Bot,
 	CalendarClock,
 	Info,
 	Plug,
@@ -50,7 +49,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Apps
 	{ path: '/settings/apps', labelKey: 'settings.apps.title', keywords: 'installed packages manifests folder delete' },
 	// Agents
-	{ path: '/settings/agents', labelKey: 'settings.agents.title', keywords: 'friday main agent default' },
+	{ path: '/settings/general/agentdetails/main', labelKey: 'settings.agents.title', descriptionKey: 'settings.agents.fridayDescription', keywords: 'friday main agent default provider model' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
 	// Heartbeat
@@ -81,12 +80,6 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.connectors',
 		descriptionKey: 'settings.overview.descriptions.connectors',
 		icon: Plug,
-	},
-	{
-		path: '/settings/agents',
-		labelKey: 'settings.tabs.agents',
-		descriptionKey: 'settings.overview.descriptions.agents',
-		icon: Bot,
 	},
 	{
 		path: '/settings/providers',

@@ -60,7 +60,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: connectorDetailName ?? t('settings.connectors.detailsTitle') });
 	}
 
-	if (location.pathname.startsWith('/settings/agents/agentdetails/')) {
+	if (location.pathname.startsWith('/settings/general/agentdetails/')) {
 		const agentId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
 		items[0] = { ...items[0], path: current.path };
 		items.push({

@@ -23,8 +23,7 @@ const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
 const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
-const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
-const AgentDetailsPage = lazy(() => import('./pages/settings/pages/agents/details/Page'));
+const AgentDetailsPage = lazy(() => import('./pages/settings/pages/general/agentdetails/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
@@ -119,11 +118,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'general',
-						element: (
-							<RouteWrapper>
-								<GeneralPage />
-							</RouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<RouteWrapper>
+										<GeneralPage />
+									</RouteWrapper>
+								),
+							},
+							{
+								path: 'agentdetails/:agentId',
+								element: (
+									<RouteWrapper>
+										<AgentDetailsPage />
+									</RouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'channels',
@@ -174,27 +186,6 @@ const routes: RouteObject[] = [
 								<SkillsPage />
 							</RouteWrapper>
 						),
-					},
-					{
-						path: 'agents',
-						children: [
-							{
-								index: true,
-								element: (
-									<RouteWrapper>
-										<AgentsPage />
-									</RouteWrapper>
-								),
-							},
-							{
-								path: 'agentdetails/:agentId',
-								element: (
-									<RouteWrapper>
-										<AgentDetailsPage />
-									</RouteWrapper>
-								),
-							},
-						],
 					},
 					{
 						path: 'providers',
