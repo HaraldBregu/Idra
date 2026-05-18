@@ -114,7 +114,6 @@ function PageContent(): ReactElement {
 		agent.chatState.messages.length <= 1 &&
 		!agent.isLoading &&
 		!agent.historyLoading;
-	const canReset = agent.chatState.messages.length > 1 || agent.isLoading;
 	const canSubmit = agent.input.trim().length > 0;
 	const handlePrimaryAction = (): void => {
 		if (agent.isLoading || canSubmit) {
