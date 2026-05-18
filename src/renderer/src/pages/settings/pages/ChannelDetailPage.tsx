@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
 	Bot,
-	ChevronLeft,
 	CircleOff,
 	Hash,
 	KeyRound,
@@ -105,7 +104,6 @@ function getConnectionBadgeVariant(
 
 const ChannelDetailPage: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { channelId } = useParams<{ channelId: string }>();
 	const selectedId = channelId && isChannelId(channelId) ? channelId : null;
 	const [catalog, setCatalog] = useState<readonly ChannelCatalogEntry[]>([]);
@@ -259,17 +257,6 @@ const ChannelDetailPage: React.FC = () => {
 				title={selectedEntry?.label ?? t('settings.channels.configuration')}
 				description={selectedEntry?.blurb}
 				icon={HeaderIcon}
-				action={
-					<Button
-						type="button"
-						variant="outline"
-						size="xs"
-						onClick={() => navigate('/settings/channels')}
-					>
-						<ChevronLeft className="size-3" />
-						{t('settings.tabs.channels')}
-					</Button>
-				}
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
