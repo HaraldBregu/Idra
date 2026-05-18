@@ -12,6 +12,7 @@ import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
+import type { HeartbeatService } from './heartbeat';
 import type { AgentService } from './service';
 import type { SkillsService } from './skills';
 import type { StoreService } from './store';
@@ -26,6 +27,7 @@ export interface MainServices {
 	connectors: ConnectorsService;
 	cron: CronService;
 	eventBus: EventBus;
+	heartbeat: HeartbeatService;
 	logger: LoggerService;
 	mcpRegistry: McpRegistry;
 	skills: SkillsService;

@@ -47,6 +47,16 @@ export interface AppEvents {
 	'task:cancelled': { taskId: string; taskType: string; windowId?: number };
 	'tray:set-enabled': { enabled: boolean };
 	'channel:status': import('../../shared/channels').ChannelStatusEvent;
+	'channel:route': {
+		channel: import('../../shared/channels').ChannelType;
+		accountId?: string;
+		to: string;
+		threadId?: string;
+		replyToMessageId?: string;
+		chatType?: import('../channels/types').ChannelChatType;
+		sessionKey?: string;
+	};
+	'heartbeat:event': import('../../shared/heartbeat').HeartbeatEventPayload;
 }
 
 /**

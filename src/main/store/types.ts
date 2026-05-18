@@ -3,6 +3,7 @@ import { Service } from "../../shared/service";
 import { CronTask } from "../../shared/cron";
 import type { CronStoreState } from "../cron/core/cron.types";
 import type { FridayCronStoreState } from "../cron/friday/store";
+import type { HeartbeatStoreState } from "../heartbeat/store";
 import { Channel } from "../../shared/channels";
 import { ConnectorConfig } from "../../shared/connectors";
 
@@ -12,6 +13,7 @@ export interface StoreSchema {
 	cronTasks: CronTask[];
 	cronScheduler: CronStoreState;
 	fridayCron: FridayCronStoreState;
+	heartbeat: HeartbeatStoreState;
 	channel: Channel;
 	connectors: ConnectorConfig[];
 }

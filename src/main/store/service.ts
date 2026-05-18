@@ -16,6 +16,8 @@ import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
+import type { HeartbeatStoreState } from '../heartbeat/store';
+import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
 
 export class StoreService {
 	private store: SettingsStore;
@@ -159,6 +161,14 @@ export class StoreService {
 		this.store.set('fridayCron', migrateFridayCronStoreState(state));
 	}
 
+	getHeartbeatState(): HeartbeatStoreState {
+		return migrateHeartbeatStoreState(this.store.get('heartbeat') ?? emptyHeartbeatStoreState());
+	}
+
+	setHeartbeatState(state: HeartbeatStoreState): void {
+		this.store.set('heartbeat', migrateHeartbeatStoreState(state));
+	}
+
 	getConnectors(): ConnectorConfig[] {
 		return this.store.get('connectors') ?? [];
 	}
@@ -174,6 +184,9 @@ export class StoreService {
 	getChannel(): Channel {
 		const channel = this.store.get('channel');
 		const next = createDefaultChannelState();
+		if (channel?.defaults && typeof channel.defaults === 'object') {
+			next.defaults = channel.defaults;
+		}
 		for (const channelId of CHANNEL_PROVIDER_IDS) {
 			setChannelConfigValue(
 				next,
@@ -260,6 +273,7 @@ export class StoreService {
 
 function createDefaultChannelState(): Channel {
 	const state = {} as Channel;
+	state.defaults = {};
 	for (const channelId of CHANNEL_PROVIDER_IDS) {
 		setChannelConfigValue(state, channelId, createDefaultChannelConfig(channelId));
 	}
@@ -410,9 +424,20 @@ function normalizeAccounts(input: unknown): Record<string, ChannelAccountPropert
 				accountObject.dmPolicy === 'deny'
 					? accountObject.dmPolicy
 					: 'allowlist',
+			heartbeat: normalizeHeartbeatVisibility(accountObject.heartbeat),
 		};
 	}
 	return Object.keys(accounts).length > 0 ? accounts : undefined;
+}
+
+function normalizeHeartbeatVisibility(input: unknown) {
+	if (!input || typeof input !== 'object') return undefined;
+	const source = input as Record<string, unknown>;
+	return {
+		showOk: typeof source.showOk === 'boolean' ? source.showOk : undefined,
+		showAlerts: typeof source.showAlerts === 'boolean' ? source.showAlerts : undefined,
+		useIndicator: typeof source.useIndicator === 'boolean' ? source.useIndicator : undefined,
+	};
 }
 
 function normalizeStringList(input: unknown): string[] {
