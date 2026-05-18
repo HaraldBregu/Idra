@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import type {
 	ProviderAdapter,
 	ProviderEvent,
@@ -28,7 +29,7 @@ function providerTurns(turns: ProviderEvent[][]): ProviderAdapter {
 	};
 }
 
-function makeDeps() {
+function makeDeps(workspace = '/workspace') {
 	const providerRecord = {
 		id: 'openai',
 		name: 'OpenAI',
@@ -54,16 +55,16 @@ function makeDeps() {
 			sendTo: jest.fn(),
 		} as never,
 		userDataDirectory: {
-			getRootPath: jest.fn(() => '/workspace'),
-			ensureRoot: jest.fn(async () => '/workspace'),
-			resolve: jest.fn((...segments: string[]) => ['/workspace', ...segments].join('/')),
+			getRootPath: jest.fn(() => workspace),
+			ensureRoot: jest.fn(async () => workspace),
+			resolve: jest.fn((...segments: string[]) => [workspace, ...segments].join('/')),
 			resolveExisting: jest.fn(async (...segments: string[]) =>
-				['/workspace', ...segments].join('/')
+				[workspace, ...segments].join('/')
 			),
 		} as never,
-		workspace: { getRootPath: jest.fn(() => '/workspace') } as never,
+		workspace: { getRootPath: jest.fn(() => workspace) } as never,
 		startupFiles: {
-			getRootPath: jest.fn(() => '/workspace/agent/workspaces/main'),
+			getRootPath: jest.fn(() => `${workspace}/agent/workspaces/main`),
 			ensureReady: jest.fn(async () => undefined),
 			isBootstrapPending: jest.fn(async () => false),
 			loadContextFiles: jest.fn(async () => []),
@@ -413,6 +414,59 @@ describe('AgentService', () => {
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
 		expect(connectors.createAgentTools).toHaveBeenCalled();
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('defaults to outside-readable but read-only local tools with no shell access', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const sessionBaseDir = await makeTempDir();
+		const outsideFile = path.join(outside, 'outside.txt');
+		await fs.writeFile(outsideFile, 'outside readable', 'utf8');
+		const deps = makeDeps(workspace);
+		const requests: ProviderStreamRequest[] = [];
+		let turn = 0;
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					if (turn++ === 0) {
+						yield { type: 'tool_call_start' as const, id: 'read-outside', name: 'read' };
+						yield {
+							type: 'tool_call_args_delta' as const,
+							id: 'read-outside',
+							jsonDelta: JSON.stringify({ path: outsideFile }),
+						};
+						yield { type: 'tool_call_end' as const, id: 'read-outside' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'tool_use',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+						return;
+					}
+					yield { type: 'text_delta' as const, text: 'read complete' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send(`read ${outsideFile}`)).resolves.toBe('read complete');
+		const toolNames = requests[0]!.tools.map((tool) => tool.name);
+		expect(toolNames).toContain('read');
+		expect(toolNames).toContain('find');
+		expect(toolNames).not.toEqual(expect.arrayContaining(['write', 'edit', 'startup_files', 'exec', 'process']));
+		const history = await service.getHistory();
+		expect(JSON.stringify(history)).toContain(outsideFile);
+		expect(JSON.stringify(history)).toContain('outside readable');
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
