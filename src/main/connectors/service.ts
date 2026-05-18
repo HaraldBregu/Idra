@@ -1021,10 +1021,17 @@ function readEmailDraftParams(params: Record<string, unknown>): {
 function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
 	const driveDescriptions: Record<string, string> = {
 		get_profile: 'Get the connected Google account profile.',
+		search_files: 'Search Google Drive files by name or content.',
+		list_recent_files: 'List recently modified Google Drive files.',
+		read_file_content: 'Read text content from a Google Drive file.',
+		get_file_metadata: 'Get Google Drive file metadata by id.',
+		get_file_permissions: 'List permissions for a Google Drive file or shared drive.',
+		download_file_content: 'Download text content from a Google Drive file.',
+		create_file: 'Create a Google Drive file.',
 		list_drives: 'List shared drives available to the connected account.',
-		search: 'Search Google Drive files by name or content.',
-		recent_documents: 'List recently modified Google Drive files.',
-		fetch: 'Fetch Google Drive file metadata and text content.',
+		search: 'Search Google Drive files by name or content. Legacy alias for search_files.',
+		recent_documents: 'List recently modified Google Drive files. Legacy alias for list_recent_files.',
+		fetch: 'Fetch Google Drive file metadata and text content. Legacy alias for read_file_content.',
 	};
 	const calendarDescriptions: Record<string, string> = {
 		get_profile: 'Get the connected Google account profile.',
