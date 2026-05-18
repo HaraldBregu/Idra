@@ -5,6 +5,7 @@ import { filterTools, type PolicyConfig } from './policy';
 import { startupFilesTool } from './startup';
 import { webFetchTool } from './web';
 import { openBrowserTool } from './app';
+import { browserTool } from '../browser';
 import type { AgentTool } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +20,7 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	webFetchTool,
 	cronTool,
 	openBrowserTool,
+	browserTool,
 ];
 
 export function createTools(cfg: PolicyConfig): AgentTool[] {
