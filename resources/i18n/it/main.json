@@ -251,6 +251,11 @@
 			"mode": "Modalità Sviluppatore",
 			"modeDescription": "Abilita strumenti e opzioni avanzate per sviluppatori"
 		},
+		"connectors": {
+			"detailsTitle": "Dettagli Connettore",
+			"notFoundTitle": "Connettore non trovato",
+			"notFoundDescription": "Il connettore potrebbe essere stato rimosso."
+		},
 		"cron": {
 			"columns": {
 				"id": "Id",
