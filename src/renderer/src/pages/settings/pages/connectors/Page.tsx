@@ -16,7 +16,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { handleExternalLinkClick } from '@/lib/external-links';
 import type {
 	ConnectorApprovalMode,
-	ConnectorConfig,
 	ConnectorInput,
 	ConnectorUpdateInput,
 	OpenAiConnectorId,
@@ -88,23 +87,6 @@ function formToInput(form: ConnectorFormState): ConnectorInput {
 	};
 }
 
-function connectorToForm(connector: ConnectorConfig): ConnectorFormState {
-	return {
-		id: connector.id,
-		name: connector.name,
-		connectorId: connector.connectorId,
-		serverLabel: connector.serverLabel,
-		serverDescription: connector.serverDescription ?? '',
-		authorization: connector.authorization,
-		oauthClientId: connector.oauth?.clientId ?? '',
-		oauthClientSecret: '',
-		requireApproval: connector.requireApproval,
-		allowedTools: connector.allowedTools,
-		deferLoading: connector.deferLoading,
-		enabled: connector.enabled,
-	};
-}
-
 function isGoogleOAuth(catalog: ConnectorCatalog, connectorId: string): boolean {
 	const item = catalog.find((c) => c.id === connectorId);
 	return Boolean(item && 'authKind' in item && item.authKind === 'google_oauth');
@@ -129,11 +111,11 @@ function getRedirectUri(item: ConnectorCatalog[number] | undefined): string {
 const ConnectorsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const {
-		catalog, connectors, busyId, connectingId,
+		catalog, connectors, busyId,
 		error, setError,
 		statusMessage,
 		load,
-		toggleConnector, refreshTools, connectOAuth, removeConnector,
+		toggleConnector,
 	} = useConnectors();
 
 	const [showForm, setShowForm] = useState(false);
@@ -195,16 +177,6 @@ const ConnectorsPage: React.FC = () => {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
 			setSaving(false);
-		}
-	};
-
-	const editConnector = async (id: string): Promise<void> => {
-		try {
-			const connector = await window.connectors.get(id);
-			setForm(connectorToForm(connector));
-			setShowForm(true);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : String(err));
 		}
 	};
 
@@ -486,12 +458,7 @@ const ConnectorsPage: React.FC = () => {
 								key={connector.id}
 								connector={connector}
 								busy={busyId === connector.id}
-								connecting={connectingId === connector.id}
 								onToggle={() => void toggleConnector(connector)}
-								onRefreshTools={() => void refreshTools(connector.id)}
-								onConnect={() => void connectOAuth(connector)}
-								onEdit={() => void editConnector(connector.id)}
-								onRemove={() => void removeConnector(connector)}
 								onViewDetails={() => openConnectorDetails(connector.id)}
 							/>
 						))}
