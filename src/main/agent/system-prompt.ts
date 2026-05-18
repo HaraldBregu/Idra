@@ -34,6 +34,8 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
 	cron: 'Create, update, list, run, or delete scheduled cron tasks.',
 	open_browser: "Open an http/https URL in the user's default browser.",
+	browser:
+		'Control a managed Chromium browser. Use "open" for a new tab, "snapshot" before "act" (refs come from the snapshot), "navigate" to load a URL in the current tab, "screenshot" to see the page. Preserve targetId across calls.',
 };
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
