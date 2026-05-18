@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
 	AppWindow,
+	Bot,
 	BotMessageSquare,
 	CalendarClock,
 	Home,
@@ -30,6 +31,7 @@ const COMMAND_ITEMS: readonly CommandItem[] = [
 	{ id: 'settings-channels', label: 'Channels', group: 'Settings', icon: BotMessageSquare, path: '/settings/channels', keywords: 'telegram discord slack whatsapp teams matrix signal bot' },
 	{ id: 'settings-connectors', label: 'Connectors', group: 'Settings', icon: Plug, path: '/settings/connectors', keywords: 'mcp tools integration' },
 	{ id: 'settings-skills', label: 'Skills', group: 'Settings', icon: Sparkles, path: '/settings/skills', keywords: 'plugins capabilities' },
+	{ id: 'settings-agents', label: 'Agents', group: 'Settings', icon: Bot, path: '/settings/agents', keywords: 'friday main agent default' },
 	{ id: 'settings-providers', label: 'Providers', group: 'Settings', icon: Server, path: '/settings/providers', keywords: 'api key openai anthropic model' },
 	{ id: 'settings-cron', label: 'Cron', group: 'Settings', icon: CalendarClock, path: '/settings/cron', keywords: 'schedule jobs tasks recurring' },
 	{ id: 'settings-apps', label: 'Apps', group: 'Settings', icon: AppWindow, path: '/settings/apps', keywords: 'installed packages' },
