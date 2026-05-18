@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, Clock3 } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { AlertCircle, Clock3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { OpenClawCronJob } from '../../../../../shared/cron';
@@ -49,7 +48,6 @@ function CronDetail({
 
 const CronDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { jobId } = useParams<{ jobId: string }>();
 	const [job, setJob] = useState<OpenClawCronJob | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -91,17 +89,10 @@ const CronDetailsPage: React.FC = () => {
 		};
 	}, [jobId, t]);
 
-	const headerAction = (
-		<Button type="button" variant="outline" size="xs" onClick={() => navigate('/settings/cron')}>
-			<ArrowLeft className="size-3" />
-			{t('settings.cron.backToCron')}
-		</Button>
-	);
-
 	if (loading) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.cron.detailsTitle')} action={headerAction} />
+				<SettingsPageHeader title={t('settings.cron.detailsTitle')} />
 				<Card size="sm" className="gap-0! p-3!">
 					<Skeleton className="h-5 w-56 max-w-full" />
 					<Skeleton className="mt-3 h-16 w-full" />
@@ -113,7 +104,7 @@ const CronDetailsPage: React.FC = () => {
 	if (!job) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.cron.detailsTitle')} action={headerAction} />
+				<SettingsPageHeader title={t('settings.cron.detailsTitle')} />
 				<Card size="sm" className="gap-0! p-0!">
 					<SettingsEmptyState
 						icon={Clock3}
@@ -134,7 +125,6 @@ const CronDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={job.name}
 				description={job.description}
-				action={headerAction}
 			/>
 
 			{error && (
