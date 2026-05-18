@@ -16,7 +16,7 @@ function useSettingsCurrentPage(): { labelKey: string; path: string } | null {
 	return null;
 }
 
-function SettingsBreadcrumbHeader(): React.JSX.Element {
+function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const current = useSettingsCurrentPage();
