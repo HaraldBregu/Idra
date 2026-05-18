@@ -24,6 +24,7 @@ const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/ChannelDetailPage'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
+const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/ConnectorDetailsPage'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/SkillsPage'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
@@ -160,11 +161,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'connectors',
-						element: (
-							<RouteWrapper>
-								<ConnectorsPage />
-							</RouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<RouteWrapper>
+										<ConnectorsPage />
+									</RouteWrapper>
+								),
+							},
+							{
+								path: 'connectordetails/:connectorId',
+								element: (
+									<RouteWrapper>
+										<ConnectorDetailsPage />
+									</RouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'skills',
