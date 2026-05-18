@@ -300,8 +300,10 @@ const ConnectorsPage: React.FC = () => {
 			{showForm && (
 				<SettingsSection title={form.id ? 'Edit connector' : 'Add connector'}>
 					<SettingsPanel>
-						<form className="grid gap-3 p-3" onSubmit={submit}>
-							<div className="grid gap-3 md:grid-cols-2">
+						<form onSubmit={submit}>
+
+							{/* Basic fields */}
+							<div className="grid gap-3 border-b border-border/60 p-3 md:grid-cols-2">
 								<SettingsField id="connector-kind" label="Connector">
 									<Select
 										value={form.connectorId || null}
@@ -371,22 +373,35 @@ const ConnectorsPage: React.FC = () => {
 										</SelectContent>
 									</Select>
 								</SettingsField>
+
+								<div className="md:col-span-2">
+									<SettingsField id="connector-description" label="Description">
+										<Textarea
+											id="connector-description"
+											value={form.serverDescription}
+											onChange={(event) => update('serverDescription', event.target.value)}
+											placeholder={selectedCatalog?.description}
+											className="min-h-14 py-1.5 text-xs md:text-xs"
+										/>
+									</SettingsField>
+								</div>
+
+								{selectedCatalog && selectedCatalog.scopes.length > 0 && (
+									<div className="md:col-span-2 flex flex-wrap gap-1.5">
+										{selectedCatalog.scopes.map((scope) => (
+											<Badge key={scope} variant="outline" className="h-4 px-1.5 text-[10px]">
+												{scope}
+											</Badge>
+										))}
+									</div>
+								)}
 							</div>
 
-							<SettingsField id="connector-description" label="Description">
-								<Textarea
-									id="connector-description"
-									value={form.serverDescription}
-									onChange={(event) => update('serverDescription', event.target.value)}
-									placeholder={selectedCatalog?.description}
-									className="min-h-14 py-1.5 text-xs md:text-xs"
-								/>
-							</SettingsField>
-
+							{/* Setup instructions */}
 							{selectedCatalog && catalogSetupInstructions(selectedCatalog).length > 0 && (
-								<div className="grid gap-2 rounded-md border border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
+								<div className="grid gap-1.5 border-b border-border/60 px-3 py-2.5">
 									<div className="flex flex-wrap items-center justify-between gap-2">
-										<Label className="text-[11px] leading-4">Setup instructions</Label>
+										<span className="text-[11px] font-medium text-foreground">Setup instructions</span>
 										{catalogSetupUrl(selectedCatalog) && (
 											<a
 												href={catalogSetupUrl(selectedCatalog)}
@@ -402,7 +417,7 @@ const ConnectorsPage: React.FC = () => {
 											</a>
 										)}
 									</div>
-									<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4">
+									<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground">
 										{catalogSetupInstructions(selectedCatalog).map((instruction) => (
 											<li key={instruction}>{instruction}</li>
 										))}
@@ -410,56 +425,60 @@ const ConnectorsPage: React.FC = () => {
 								</div>
 							)}
 
-							{isGoogleOAuth ? (
-								<div className="grid gap-3 md:grid-cols-2">
-									<SettingsField id="connector-oauth-client-id" label="Google OAuth client ID">
-										<Input
-											id="connector-oauth-client-id"
-											value={form.oauthClientId}
-											onChange={(event) => update('oauthClientId', event.target.value)}
-											placeholder="Optional Google OAuth client ID"
-											className="h-7 px-2 text-xs md:text-xs"
-										/>
-									</SettingsField>
-									<SettingsField id="connector-oauth-client-secret" label="Google OAuth client secret">
-										<Input
-											id="connector-oauth-client-secret"
-											type="password"
-											value={form.oauthClientSecret}
-											onChange={(event) => update('oauthClientSecret', event.target.value)}
-											placeholder={form.id ? 'Leave blank to keep saved secret' : 'Optional Google OAuth client secret'}
-											className="h-7 px-2 text-xs md:text-xs"
-										/>
-									</SettingsField>
-									<div className="md:col-span-2">
-										<SettingsNotice variant="default">
-											Save, then connect with Google OAuth. Friday opens your browser and
-											listens on a temporary loopback redirect:{' '}
-											<span className="font-mono">{catalogRedirectUri(selectedCatalog)}</span>
-										</SettingsNotice>
+							{/* Auth */}
+							<div className="border-b border-border/60 p-3">
+								{isGoogleOAuth ? (
+									<div className="grid gap-3 md:grid-cols-2">
+										<SettingsField id="connector-oauth-client-id" label="Google OAuth client ID">
+											<Input
+												id="connector-oauth-client-id"
+												value={form.oauthClientId}
+												onChange={(event) => update('oauthClientId', event.target.value)}
+												placeholder="Optional Google OAuth client ID"
+												className="h-7 px-2 text-xs md:text-xs"
+											/>
+										</SettingsField>
+										<SettingsField id="connector-oauth-client-secret" label="Google OAuth client secret">
+											<Input
+												id="connector-oauth-client-secret"
+												type="password"
+												value={form.oauthClientSecret}
+												onChange={(event) => update('oauthClientSecret', event.target.value)}
+												placeholder={form.id ? 'Leave blank to keep saved secret' : 'Optional Google OAuth client secret'}
+												className="h-7 px-2 text-xs md:text-xs"
+											/>
+										</SettingsField>
+										<div className="md:col-span-2">
+											<SettingsNotice variant="default">
+												Save, then connect with Google OAuth. Friday opens your browser and
+												listens on a temporary loopback redirect:{' '}
+												<span className="font-mono">{catalogRedirectUri(selectedCatalog)}</span>
+											</SettingsNotice>
+										</div>
 									</div>
-								</div>
-							) : (
-								<SettingsField id="connector-authorization" label="OAuth access token">
-									<Input
-										id="connector-authorization"
-										type="password"
-										value={form.authorization}
-										onChange={(event) => update('authorization', event.target.value)}
-										placeholder="Paste OAuth access token"
-										className="h-7 px-2 text-xs md:text-xs"
-									/>
-								</SettingsField>
-							)}
+								) : (
+									<SettingsField id="connector-authorization" label="OAuth access token">
+										<Input
+											id="connector-authorization"
+											type="password"
+											value={form.authorization}
+											onChange={(event) => update('authorization', event.target.value)}
+											placeholder="Paste OAuth access token"
+											className="h-7 px-2 text-xs md:text-xs"
+										/>
+									</SettingsField>
+								)}
+							</div>
 
-							<div className="grid gap-2">
+							{/* Allowed tools */}
+							<div className="grid gap-2 border-b border-border/60 px-3 py-2.5">
 								<div className="flex flex-wrap items-center justify-between gap-2">
-									<Label className="text-[11px] leading-4">Allowed tools</Label>
-									<span className="text-xs text-muted-foreground">
+									<span className="text-[11px] font-medium text-foreground">Allowed tools</span>
+									<span className="text-[11px] text-muted-foreground">
 										Leave all unselected to allow every available tool.
 									</span>
 								</div>
-								<div className="flex min-h-10 flex-wrap gap-1.5 rounded-md border border-border/70 bg-muted/20 p-2">
+								<div className="flex min-h-8 flex-wrap gap-1.5">
 									{selectedCatalog ? (
 										selectedCatalog.tools.map((tool) => {
 											const selected = form.allowedTools.includes(tool);
@@ -477,61 +496,49 @@ const ConnectorsPage: React.FC = () => {
 											);
 										})
 									) : (
-										<p className="text-xs text-muted-foreground">Select a connector first.</p>
+										<p className="text-[11px] text-muted-foreground">Select a connector first.</p>
 									)}
 								</div>
 							</div>
 
-							<div className="grid overflow-hidden rounded-md border border-border/60 divide-y divide-border/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-								<Item size="sm" variant="ghost">
-									<ItemContent className="flex-col items-start gap-0.5">
-										<label htmlFor="connector-defer-loading" className="cursor-pointer text-[13px] font-medium text-foreground">
+							{/* Toggles */}
+							<div className="grid divide-y divide-border/60 border-b border-border/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+								<div className="flex items-center justify-between gap-3 px-3 py-2.5">
+									<div className="min-w-0">
+										<label htmlFor="connector-defer-loading" className="cursor-pointer block text-[13px] font-medium text-foreground">
 											Defer tool loading
 										</label>
-										<span className="text-[11px] leading-4 text-muted-foreground">
+										<p className="text-[11px] leading-4 text-muted-foreground">
 											Load tools only when the connector is used.
-										</span>
-									</ItemContent>
-									<ItemActions className="flex-none">
-										<Switch
-											size="sm"
-											id="connector-defer-loading"
-											checked={form.deferLoading}
-											onCheckedChange={(checked) => update('deferLoading', checked)}
-										/>
-									</ItemActions>
-								</Item>
-								<Item size="sm" variant="ghost">
-									<ItemContent className="flex-col items-start gap-0.5">
-										<label htmlFor="connector-enabled" className="cursor-pointer text-[13px] font-medium text-foreground">
+										</p>
+									</div>
+									<Switch
+										size="sm"
+										id="connector-defer-loading"
+										checked={form.deferLoading}
+										onCheckedChange={(checked) => update('deferLoading', checked)}
+									/>
+								</div>
+								<div className="flex items-center justify-between gap-3 px-3 py-2.5">
+									<div className="min-w-0">
+										<label htmlFor="connector-enabled" className="cursor-pointer block text-[13px] font-medium text-foreground">
 											Enabled
 										</label>
-										<span className="text-[11px] leading-4 text-muted-foreground">
+										<p className="text-[11px] leading-4 text-muted-foreground">
 											Make this connector available to agent runs.
-										</span>
-									</ItemContent>
-									<ItemActions className="flex-none">
-										<Switch
-											size="sm"
-											id="connector-enabled"
-											checked={form.enabled}
-											onCheckedChange={(checked) => update('enabled', checked)}
-										/>
-									</ItemActions>
-								</Item>
+										</p>
+									</div>
+									<Switch
+										size="sm"
+										id="connector-enabled"
+										checked={form.enabled}
+										onCheckedChange={(checked) => update('enabled', checked)}
+									/>
+								</div>
 							</div>
 
-							{selectedCatalog && (
-								<div className="flex flex-wrap gap-1.5 rounded-md border border-border/70 bg-muted/20 p-2">
-									{selectedCatalog.scopes.map((scope) => (
-										<Badge key={scope} variant="outline" className="h-4 px-1.5 text-[10px]">
-											{scope}
-										</Badge>
-									))}
-								</div>
-							)}
-
-							<div className="flex flex-wrap justify-end gap-2">
+							{/* Footer */}
+							<div className="flex flex-wrap justify-end gap-2 px-3 py-2">
 								<Button
 									type="button"
 									variant="outline"
@@ -545,6 +552,7 @@ const ConnectorsPage: React.FC = () => {
 									{saving ? 'Saving...' : form.id ? 'Save Connector' : 'Add Connector'}
 								</Button>
 							</div>
+
 						</form>
 					</SettingsPanel>
 				</SettingsSection>
