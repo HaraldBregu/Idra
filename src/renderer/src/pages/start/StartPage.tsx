@@ -957,7 +957,7 @@ const StartPage: React.FC = () => {
 			<div className="flex min-h-full flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 				<DomeWaveAnimation height={128} className="max-w-sm" />
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
-					Hello, Anna
+					Hello there
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
 					{PRODUCT_NAME} is a small agent that lives in your menu bar. Ask her
