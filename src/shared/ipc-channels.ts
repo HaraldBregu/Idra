@@ -69,6 +69,8 @@ export const HeartbeatChannels = {
 	status: 'heartbeat:status',
 	last: 'heartbeat:last',
 	setEnabled: 'heartbeat:set-enabled',
+	getTiming: 'heartbeat:get-timing',
+	updateTiming: 'heartbeat:update-timing',
 	systemEvent: 'heartbeat:system-event',
 	request: 'heartbeat:request',
 	event: 'heartbeat:event',
@@ -279,6 +281,14 @@ interface HeartbeatInvokeChannelMap {
 	[HeartbeatChannels.setEnabled]: {
 		args: [request: import('./heartbeat').HeartbeatSetEnabledRequest];
 		result: import('./heartbeat').HeartbeatStatus;
+	};
+	[HeartbeatChannels.getTiming]: {
+		args: [];
+		result: import('./heartbeat').HeartbeatTimingSettings;
+	};
+	[HeartbeatChannels.updateTiming]: {
+		args: [request: import('./heartbeat').HeartbeatTimingSettings];
+		result: import('./heartbeat').HeartbeatTimingSettings;
 	};
 	[HeartbeatChannels.systemEvent]: {
 		args: [request: import('./heartbeat').HeartbeatSystemEventRequest];
