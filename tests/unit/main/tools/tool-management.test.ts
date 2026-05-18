@@ -215,6 +215,17 @@ describe('tool management layer', () => {
 		});
 	});
 
+	it('uses tools for plain script and Python execution requests', () => {
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run the Python script.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request benefits from reliable computation or execution',
+		});
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Open a terminal and run scripts.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request benefits from reliable computation or execution',
+		});
+	});
+
 	it('treats tool inventory questions as tool-surface introspection', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Do you have any internal tools?' })).toEqual({
 			shouldUseTools: true,
