@@ -1,4 +1,5 @@
 import {
+	Activity,
 	AppWindow,
 	CalendarClock,
 	Info,
@@ -49,6 +50,8 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/apps', labelKey: 'settings.apps.title', keywords: 'installed packages manifests folder delete' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
+	// Heartbeat
+	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
@@ -87,6 +90,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.cron',
 		descriptionKey: 'settings.overview.descriptions.cron',
 		icon: CalendarClock,
+	},
+	{
+		path: '/settings/heartbeat',
+		labelKey: 'settings.tabs.heartbeat',
+		descriptionKey: 'settings.overview.descriptions.heartbeat',
+		icon: Activity,
 	},
 	{
 		path: '/settings/apps',

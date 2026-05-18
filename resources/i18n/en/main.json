@@ -155,6 +155,7 @@
 				"connectors": "Connected apps",
 				"providers": "AI API keys",
 				"cron": "Scheduled tasks",
+				"heartbeat": "Periodic agent checks",
 				"apps": "Installed apps"
 			}
 		},
@@ -172,6 +173,7 @@
 			"themes": "Themes",
 			"editor": "Editor",
 			"cron": "Cron",
+			"heartbeat": "Heartbeat",
 			"developer": "Developer",
 			"apps": "Apps",
 			"skills": "Skills"
@@ -202,6 +204,7 @@
 			"profile": "Profile",
 			"editor": "Editor",
 			"cron": "Cron Tasks",
+			"heartbeat": "Heartbeat",
 			"developer": "Developer"
 		},
 		"profile": {
@@ -294,6 +297,74 @@
 			"notFoundDescription": "The cron task may have been removed.",
 			"emptyTitle": "No cron tasks",
 			"emptyDescription": "Cron tasks will appear here once they are configured."
+		},
+		"heartbeat": {
+			"description": "Monitor the gateway-owned heartbeat runner and queue manual checks.",
+			"runtime": {
+				"title": "Runtime",
+				"description": "Global execution state for configured heartbeat agents.",
+				"enabled": "Heartbeats",
+				"enabledDescription": "Pause or resume all heartbeat execution without deleting schedules.",
+				"toggleLabel": "Toggle heartbeats",
+				"runner": "Runner",
+				"runnerDescription": "Whether the control-plane scheduler is currently active.",
+				"agents": "Configured Agents",
+				"agentsDescription": "Agents with a positive heartbeat cadence.",
+				"nextDue": "Next Due",
+				"nextDueDescription": "Earliest scheduled heartbeat slot."
+			},
+			"last": {
+				"title": "Last Event",
+				"description": "Latest heartbeat status emitted by the gateway.",
+				"emptyTitle": "No heartbeat events",
+				"emptyDescription": "Events will appear after the first heartbeat run or skip.",
+				"status": "Status",
+				"timestamp": "Timestamp",
+				"duration": "Duration",
+				"route": "Route",
+				"reason": "Reason",
+				"preview": "Preview"
+			},
+			"controls": {
+				"title": "Manual Controls",
+				"description": "Queue an immediate check or add a system event to the heartbeat path.",
+				"wakeNow": "Wake Now",
+				"wakeNowDescription": "Request a manual heartbeat using the wake queue.",
+				"systemEvent": "System Event",
+				"systemEventDescription": "Add a short event to the main heartbeat session.",
+				"systemEventPlaceholder": "Reminder or event text"
+			},
+			"actions": {
+				"refresh": "Refresh",
+				"wakeNow": "Wake now",
+				"sendNow": "Send now",
+				"sendNext": "Send next"
+			},
+			"values": {
+				"enabled": "Enabled",
+				"paused": "Paused",
+				"active": "Active",
+				"idle": "Idle",
+				"notScheduled": "Not scheduled",
+				"unknown": "Unknown",
+				"noChannel": "No channel"
+			},
+			"status": {
+				"sent": "Sent",
+				"ok-empty": "OK empty",
+				"ok-token": "OK token",
+				"skipped": "Skipped",
+				"failed": "Failed"
+			},
+			"notices": {
+				"enabled": "Heartbeats resumed.",
+				"disabled": "Heartbeats paused.",
+				"wakeQueued": "Manual heartbeat queued.",
+				"eventQueued": "System event queued for {{session}}."
+			},
+			"errors": {
+				"emptyEvent": "Enter event text before sending."
+			}
 		},
 		"permissions": {
 			"microphone": "Microphone",

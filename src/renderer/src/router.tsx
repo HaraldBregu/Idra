@@ -29,6 +29,7 @@ const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
+const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
 const AppsPage = lazy(() => import('./pages/settings/pages/apps/Page'));
 
 function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
@@ -215,6 +216,14 @@ const routes: RouteObject[] = [
 								),
 							},
 						],
+					},
+					{
+						path: 'heartbeat',
+						element: (
+							<RouteWrapper>
+								<HeartbeatPage />
+							</RouteWrapper>
+						),
 					},
 					{
 						path: 'apps',

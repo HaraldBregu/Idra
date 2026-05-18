@@ -155,6 +155,7 @@
 				"connectors": "App collegate",
 				"providers": "Chiavi API AI",
 				"cron": "Attivita programmate",
+				"heartbeat": "Controlli periodici agenti",
 				"apps": "App installate"
 			}
 		},
@@ -172,6 +173,7 @@
 			"themes": "Temi",
 			"editor": "Editor",
 			"cron": "Cron",
+			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore",
 			"apps": "App",
 			"skills": "Abilità"
@@ -202,6 +204,7 @@
 			"profile": "Profilo",
 			"editor": "Editor",
 			"cron": "Attivita Cron",
+			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore"
 		},
 		"profile": {
@@ -294,6 +297,74 @@
 			"notFoundDescription": "L'attivita cron potrebbe essere stata rimossa.",
 			"emptyTitle": "Nessuna attivita cron",
 			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."
+		},
+		"heartbeat": {
+			"description": "Monitora il runner heartbeat del gateway e accoda controlli manuali.",
+			"runtime": {
+				"title": "Runtime",
+				"description": "Stato globale di esecuzione per gli agenti heartbeat configurati.",
+				"enabled": "Heartbeat",
+				"enabledDescription": "Sospendi o riprendi tutti gli heartbeat senza eliminare le pianificazioni.",
+				"toggleLabel": "Attiva o disattiva heartbeat",
+				"runner": "Runner",
+				"runnerDescription": "Indica se lo scheduler del control-plane e attivo.",
+				"agents": "Agenti Configurati",
+				"agentsDescription": "Agenti con cadenza heartbeat positiva.",
+				"nextDue": "Prossimo Slot",
+				"nextDueDescription": "Primo slot heartbeat pianificato."
+			},
+			"last": {
+				"title": "Ultimo Evento",
+				"description": "Ultimo stato heartbeat emesso dal gateway.",
+				"emptyTitle": "Nessun evento heartbeat",
+				"emptyDescription": "Gli eventi appariranno dopo la prima esecuzione o salto heartbeat.",
+				"status": "Stato",
+				"timestamp": "Orario",
+				"duration": "Durata",
+				"route": "Route",
+				"reason": "Motivo",
+				"preview": "Anteprima"
+			},
+			"controls": {
+				"title": "Controlli Manuali",
+				"description": "Accoda un controllo immediato o aggiungi un evento di sistema al percorso heartbeat.",
+				"wakeNow": "Sveglia Ora",
+				"wakeNowDescription": "Richiedi un heartbeat manuale tramite la coda wake.",
+				"systemEvent": "Evento Sistema",
+				"systemEventDescription": "Aggiungi un evento breve alla sessione heartbeat principale.",
+				"systemEventPlaceholder": "Testo promemoria o evento"
+			},
+			"actions": {
+				"refresh": "Aggiorna",
+				"wakeNow": "Sveglia ora",
+				"sendNow": "Invia ora",
+				"sendNext": "Invia dopo"
+			},
+			"values": {
+				"enabled": "Attivo",
+				"paused": "In pausa",
+				"active": "Attivo",
+				"idle": "Inattivo",
+				"notScheduled": "Non pianificato",
+				"unknown": "Sconosciuto",
+				"noChannel": "Nessun canale"
+			},
+			"status": {
+				"sent": "Inviato",
+				"ok-empty": "OK vuoto",
+				"ok-token": "Token OK",
+				"skipped": "Saltato",
+				"failed": "Fallito"
+			},
+			"notices": {
+				"enabled": "Heartbeat ripresi.",
+				"disabled": "Heartbeat sospesi.",
+				"wakeQueued": "Heartbeat manuale accodato.",
+				"eventQueued": "Evento di sistema accodato per {{session}}."
+			},
+			"errors": {
+				"emptyEvent": "Inserisci il testo dell'evento prima di inviare."
+			}
 		},
 		"permissions": {
 			"microphone": "Microfono",
