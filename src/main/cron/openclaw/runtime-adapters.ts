@@ -28,8 +28,15 @@ export class AgentServiceOpenClawCronExecutor implements OpenClawCronExecutor {
 		const agentId = this.resolveAgentId(input.job);
 		const message = input.job.payload.kind === 'systemEvent'
 			? input.job.payload.text
-			: input.job.payload.prompt;
-		const output = await this.agentService.send(message, agentId);
+			: input.job.payload.message;
+		const output = await this.agentService.send(message, agentId, {
+			cronContext: {
+				role: 'cron-self',
+				jobId: input.job.id,
+				agentId: input.job.agentId,
+				sessionKey: input.job.sessionKey,
+			},
+		});
 		return { status: 'ok', output };
 	}
 
@@ -78,7 +85,7 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 		},
 		attemptedAtMs: number
 	): Promise<OpenClawCronDeliveryState> {
-		if (!input.delivery.url) {
+		if (!input.delivery.to) {
 			return {
 				mode: 'webhook',
 				status: 'failed',
@@ -86,7 +93,7 @@ export class GatewayOpenClawCronDelivery implements OpenClawCronDeliveryPort {
 				error: 'webhook URL is missing',
 			};
 		}
-		const response = await fetch(input.delivery.url, {
+		const response = await fetch(input.delivery.to, {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({
