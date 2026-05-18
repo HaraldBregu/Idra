@@ -235,10 +235,11 @@ export class AgentService {
 				sessionVisibility: 'agent',
 				readState: new Map(),
 				plan: { entries: runtime.session.plan },
-				approvalCache: new Set(),
-				approvalRequired: new Set(),
-				fsPolicy: { workspaceOnly: false, readOnly: false },
-				elicit: {
+					approvalCache: new Set(),
+					approvalRequired: new Set(),
+					fsPolicy: { workspaceOnly: false, readOnly: false },
+					signal: abort.signal,
+					elicit: {
 					ask: (question, suggestions) => {
 						streamEvent({
 							type: 'run_state',

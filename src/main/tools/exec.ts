@@ -195,6 +195,7 @@ function runForeground(
 			cwd,
 			env: { ...process.env, ...(envExtra ?? {}) },
 			stdio: ['ignore', 'pipe', 'pipe'],
+			detached: !isWin,
 		});
 
 		let stdout = '';
@@ -213,12 +214,12 @@ function runForeground(
 
 		const abort = (): void => {
 			killed = true;
-			child.kill('SIGKILL');
+			killProcessTree(child);
 		};
 
 		const timer = setTimeout(() => {
 			killed = true;
-			child.kill('SIGKILL');
+			killProcessTree(child);
 		}, timeoutMs);
 		if (signal?.aborted) abort();
 		else signal?.addEventListener('abort', abort, { once: true });
@@ -241,6 +242,19 @@ function runForeground(
 			finish(-1);
 		});
 	});
+}
+
+function killProcessTree(child: ChildProcessByStdio<null, Readable, Readable>): void {
+	if (child.pid === undefined) return;
+	if (process.platform === 'win32') {
+		child.kill('SIGKILL');
+		return;
+	}
+	try {
+		process.kill(-child.pid, 'SIGKILL');
+	} catch {
+		child.kill('SIGKILL');
+	}
 }
 
 function formatResult(
