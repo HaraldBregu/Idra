@@ -200,6 +200,7 @@ function PromptInputVoicePanel({
   mode,
   value,
   disabled,
+  leadingAction,
   onEnd,
   onCancel,
   onConfirm,
@@ -207,6 +208,7 @@ function PromptInputVoicePanel({
   mode: PromptInputVoiceMode
   value: string
   disabled?: boolean
+  leadingAction?: React.ReactNode
   onEnd?: () => void
   onCancel?: () => void
   onConfirm?: () => void
@@ -249,6 +251,11 @@ function PromptInputVoicePanel({
       transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
       className="flex min-w-0 flex-1 cursor-default items-center gap-2 text-foreground"
     >
+      {leadingAction ? (
+        <div className="pointer-events-none shrink-0 opacity-50" aria-disabled="true">
+          {leadingAction}
+        </div>
+      ) : null}
       <div
         className={cn(
           "flex size-8 shrink-0 items-center justify-center rounded-full",
@@ -450,6 +457,7 @@ function PromptInput({
                   mode={voiceMode}
                   value={currentValue}
                   disabled={disabled}
+                  leadingAction={leadingAction}
                   onEnd={onVoiceEnd}
                   onCancel={onVoiceCancel}
                   onConfirm={onVoiceConfirm ?? onSubmit}
