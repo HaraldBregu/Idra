@@ -636,4 +636,5 @@ export {
   PromptInputActions,
   PromptInputAction,
   PromptInputCharCount,
+  usePromptInput,
 }
