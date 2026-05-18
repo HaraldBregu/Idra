@@ -18,6 +18,9 @@ export interface SystemPromptCtx {
 	skills?: SkillPromptChoice[];
 	startupFiles?: AgentStartupFile[];
 	bootstrapMode?: BootstrapMode;
+	heartbeat?: {
+		includeSection: boolean;
+	};
 }
 
 const TOOL_GUIDANCE: Record<string, string> = {
@@ -81,6 +84,16 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			}),
 		];
 		parts.push(skills.join('\n'));
+	}
+
+	if (ctx.heartbeat?.includeSection) {
+		parts.push(
+			[
+				'## Heartbeat',
+				'HEARTBEAT.md may contain periodic guidance for heartbeat turns.',
+				'Do not treat heartbeat-only guidance as a user request during ordinary conversations.',
+			].join('\n')
+		);
 	}
 
 	if (ctx.memory) {

@@ -11,6 +11,7 @@ import {
 } from './workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
+	DEFAULT_HEARTBEAT_FILENAME,
 	type AgentStartupFile,
 	type AgentStartupFilesServicePort,
 } from './agent/startup-files';
@@ -36,6 +37,11 @@ import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
 import type { ApprovalDecision } from '../shared/service';
 import type { FridayCronActor } from './cron';
+import {
+	createHeartbeatResponseTool,
+	type HeartbeatToolResponse,
+} from './heartbeat/response';
+import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
@@ -82,6 +88,16 @@ export interface AgentServiceOptions {
 export interface AgentSendOptions {
 	cronContext?: FridayCronActor;
 	sessionId?: string;
+	heartbeat?: {
+		model?: string;
+		timeoutSeconds?: number;
+		lightContext?: boolean;
+		suppressToolErrorWarnings?: boolean;
+		enableHeartbeatTool?: boolean;
+		forceHeartbeatTool?: boolean;
+		suppressAgentEvents?: boolean;
+		onToolResponse?: (response: HeartbeatToolResponse) => void;
+	};
 }
 
 interface Runtime {
@@ -153,18 +169,31 @@ export class AgentService {
 		agentId = this.defaultAgentId,
 		options: AgentSendOptions = {}
 	): Promise<string> {
+		const heartbeatOptions = options.heartbeat;
 		const runtimeAgentId = options.sessionId ?? agentId;
-		const runKind = options.cronContext?.role === 'cron-self' ? 'cron' : 'default';
+		const runKind = heartbeatOptions ? 'heartbeat' : options.cronContext?.role === 'cron-self' ? 'cron' : 'default';
 		const runtime = this.ensureRuntime(runtimeAgentId);
 		if (runtime.currentAbort) {
+			if (heartbeatOptions) {
+				throw new Error(`Agent runtime is busy: ${runtimeAgentId}`);
+			}
 			runtime.currentAbort.abort();
 			runtime.hitl.cancelAll('user_continued');
 		}
 
 		const abort = new AbortController();
 		runtime.currentAbort = abort;
+		const timeoutMs =
+			heartbeatOptions?.timeoutSeconds && heartbeatOptions.timeoutSeconds > 0
+				? heartbeatOptions.timeoutSeconds * 1000
+				: undefined;
+		const runTimeout = timeoutMs ? setTimeout(() => abort.abort(), timeoutMs) : undefined;
+		const clearRunTimeout = (): void => {
+			if (runTimeout) clearTimeout(runTimeout);
+		};
 		const runId = randomUUID();
 		const streamEvent = (event: AgentRunStreamEvent): void => {
+			if (heartbeatOptions?.suppressAgentEvents) return;
 			this.dependencies.eventBus.broadcast('agent:response', {
 				agentId: runtimeAgentId,
 				runId,
@@ -175,11 +204,15 @@ export class AgentService {
 		const phaseDurationsMs: Record<string, number> = {};
 
 		try {
-			const { providerId, apiKey, model, baseURL } = recordPhase(
+			const providerConfig = recordPhase(
 				phaseDurationsMs,
 				'resolve_provider_model',
 				() => this.resolveProviderAndModel()
 			);
+			const providerId = providerConfig.providerId;
+			const apiKey = providerConfig.apiKey;
+			const model = heartbeatOptions?.model?.trim() || providerConfig.model;
+			const baseURL = providerConfig.baseURL;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
 					baseDir: this.sessionBaseDir,
@@ -233,7 +266,12 @@ export class AgentService {
 			let baseTools: AgentTool[] = [];
 			let skillChoices: SkillPromptChoice[] = [];
 
-			if (bootstrapPending || toolPolicy.shouldUseTools || this.dependencies.skills) {
+			if (
+				bootstrapPending ||
+				toolPolicy.shouldUseTools ||
+				this.dependencies.skills ||
+				heartbeatOptions?.enableHeartbeatTool
+			) {
 				baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
 					Promise.resolve(
 						this.toolsFactory({
@@ -248,6 +286,12 @@ export class AgentService {
 						})
 					)
 				);
+				if (heartbeatOptions?.enableHeartbeatTool) {
+					baseTools = [
+						...baseTools,
+						createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
+					];
+				}
 
 				if (!bootstrapPending && this.dependencies.skills) {
 					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
@@ -262,11 +306,25 @@ export class AgentService {
 				}
 			}
 
-			const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools && skillChoices.length === 0;
+			const directAnswer =
+				!heartbeatOptions &&
+				!bootstrapPending &&
+				!toolPolicy.shouldUseTools &&
+				skillChoices.length === 0;
 
 			if (!directAnswer) {
-					startupFiles = await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
-						this.loadStartupFiles(agentId)
+					startupFiles = this.filterStartupFilesForRun(
+						await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
+							this.loadStartupFiles(agentId)
+						),
+						{
+							runKind,
+							lightContext: heartbeatOptions?.lightContext === true,
+							includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
+								this.dependencies.store.getService(),
+								agentId
+							),
+						}
 					);
 					bootstrapPending =
 						bootstrapPending ||
@@ -284,6 +342,12 @@ export class AgentService {
 							})
 						);
 				selectedTools = toolSelection.toolsForPrompt;
+				if (heartbeatOptions?.forceHeartbeatTool) {
+					const heartbeatTool = baseTools.find((tool) => tool.name === 'heartbeat_respond');
+					if (heartbeatTool && !selectedTools.some((tool) => tool.name === heartbeatTool.name)) {
+						selectedTools = [...selectedTools, heartbeatTool];
+					}
+				}
 
 				if (skillChoices.length > 0 && this.dependencies.skills) {
 					const selectedNames = new Set(selectedTools.map((tool) => tool.name));
@@ -326,6 +390,11 @@ export class AgentService {
 						skills: skillChoices,
 						startupFiles,
 						bootstrapMode,
+						heartbeat: {
+							includeSection:
+								runKind === 'default' &&
+								isHeartbeatSystemPromptEnabled(this.dependencies.store.getService(), agentId),
+						},
 					})
 				);
 			const systemPromptForTurn = toolSelection.systemPromptSuffix
@@ -366,6 +435,7 @@ export class AgentService {
 				};
 				await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
 				runtime.currentAbort = null;
+				clearRunTimeout();
 				streamEvent({ type: 'text_delta', delta: beforeRun.message });
 				streamEvent({
 					type: 'run_state',
@@ -403,6 +473,7 @@ export class AgentService {
 			runtime.session = result.session;
 			await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
 			runtime.currentAbort = null;
+			clearRunTimeout();
 			streamEvent({
 				type: 'run_state',
 				state: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
@@ -411,6 +482,7 @@ export class AgentService {
 			return result.finalText;
 		} catch (err) {
 			runtime.currentAbort = null;
+			clearRunTimeout();
 			streamEvent({
 				type: 'run_state',
 				state: abort.signal.aborted ? 'cancelled' : 'error',
@@ -474,6 +546,10 @@ export class AgentService {
 			runtime.currentAbort = null;
 		}
 		runtime.hitl.cancelAll('cancelled');
+	}
+
+	isBusy(agentId = this.defaultAgentId): boolean {
+		return Boolean(this.runtimes.get(agentId)?.currentAbort);
 	}
 
 	getPending(agentId = this.defaultAgentId): ReturnType<HitlBridge['getPending']> {
@@ -549,6 +625,25 @@ export class AgentService {
 			});
 		}
 		return [];
+	}
+
+	private filterStartupFilesForRun(
+		files: AgentStartupFile[],
+		params: {
+			runKind: 'default' | 'heartbeat' | 'cron';
+			lightContext: boolean;
+			includeHeartbeatContext: boolean;
+		}
+	): AgentStartupFile[] {
+		if (params.runKind === 'heartbeat') {
+			return params.lightContext
+				? files.filter((file) => file.name === DEFAULT_HEARTBEAT_FILENAME)
+				: files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
+		}
+		if (params.runKind === 'default' && !params.includeHeartbeatContext) {
+			return files.filter((file) => file.name !== DEFAULT_HEARTBEAT_FILENAME);
+		}
+		return files;
 	}
 
 	private buildHooks(
