@@ -1,4 +1,6 @@
 import { app, BrowserWindow, nativeTheme, protocol, net, crashReporter } from 'electron';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Main } from './main';
 import { Tray } from './tray';
@@ -13,6 +15,30 @@ app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
 if (process.platform === 'linux') {
 	app.commandLine.appendSwitch('enable-transparent-visuals');
 }
+
+function loadLocalEnv(): void {
+	const paths = Array.from(new Set([
+		resolve(process.cwd(), '.env'),
+		resolve(app.getAppPath(), '.env'),
+	]));
+
+	for (const envPath of paths) {
+		if (!existsSync(envPath)) continue;
+		const lines = readFileSync(envPath, 'utf8').split(/\r?\n/);
+		for (const line of lines) {
+			const trimmed = line.trim();
+			if (!trimmed || trimmed.startsWith('#')) continue;
+			const separatorIndex = trimmed.indexOf('=');
+			if (separatorIndex <= 0) continue;
+			const key = trimmed.slice(0, separatorIndex).trim();
+			const rawValue = trimmed.slice(separatorIndex + 1).trim();
+			if (!key || process.env[key] !== undefined) continue;
+			process.env[key] = rawValue.replace(/^(['"])(.*)\1$/, '$2');
+		}
+	}
+}
+
+loadLocalEnv();
 
 // Register custom scheme before app is ready so the renderer can load local files.
 protocol.registerSchemesAsPrivileged([
