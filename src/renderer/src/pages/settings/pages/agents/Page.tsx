@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Bot, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsPageHeader,
@@ -68,17 +67,7 @@ const AgentsPage: React.FC = () => {
 									{t(agent.descriptionKey)}
 								</p>
 							</ItemContent>
-							<ItemActions className="ml-auto flex-none flex-wrap justify-end gap-1.5">
-								<Badge variant="secondary" className="h-5 rounded-md px-2 text-[11px]">
-									<CheckCircle2 className="size-3" />
-									{t('settings.agents.defaultAgent')}
-								</Badge>
-								<Badge
-									variant="outline"
-									className="h-5 rounded-md bg-muted/40 px-2 font-mono text-[10px] text-muted-foreground"
-								>
-									{agent.id}
-								</Badge>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<ItemIcon icon={ChevronRight} className="bg-transparent text-muted-foreground" />
 							</ItemActions>
 						</Item>
