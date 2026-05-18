@@ -84,6 +84,37 @@ export const TitleBar = React.memo(function TitleBar({
 		};
 	}, []);
 
+	useEffect(() => {
+		if (isProgNav.current) {
+			isProgNav.current = false;
+			return;
+		}
+		setNavState(prev => {
+			if (prev.stack[prev.index] === location.pathname) return prev;
+			const newStack = [...prev.stack.slice(0, prev.index + 1), location.pathname];
+			return { stack: newStack, index: newStack.length - 1 };
+		});
+	}, [location.pathname]);
+
+	const canGoBack = navState.index > 0;
+	const canGoForward = navState.index < navState.stack.length - 1;
+
+	const handleBack = () => {
+		if (!canGoBack) return;
+		isProgNav.current = true;
+		const newIndex = navState.index - 1;
+		setNavState(prev => ({ ...prev, index: newIndex }));
+		navigate(navState.stack[newIndex]);
+	};
+
+	const handleForward = () => {
+		if (!canGoForward) return;
+		isProgNav.current = true;
+		const newIndex = navState.index + 1;
+		setNavState(prev => ({ ...prev, index: newIndex }));
+		navigate(navState.stack[newIndex]);
+	};
+
 	const btnBase = `
     flex items-center justify-center h-full w-[46px]
     text-muted-foreground
