@@ -191,13 +191,6 @@ export class Menu {
 					},
 					{ type: 'separator' as const },
 					{
-						label: m.tasks,
-						click: (): void => {
-							const win = BrowserWindow.getFocusedWindow();
-							if (win) win.webContents.send('app:open-tasks-dialog');
-						},
-					},
-					{
 						label: m.logs,
 						click: (): void => {
 							const win = BrowserWindow.getFocusedWindow();

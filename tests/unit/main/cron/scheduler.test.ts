@@ -1,4 +1,4 @@
-import type { Task } from '../../../../src/shared/task';
+import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
 	AgentCronService,
 	CronSchedulerService,
@@ -12,12 +12,12 @@ import {
 } from '../../../../src/main/cron';
 
 class RecordingRunner implements CronScheduleRunner {
-	tasks: Task[] = [];
-	running: Task[] = [];
+	tasks: CronScheduledTask[] = [];
+	running: CronScheduledTask[] = [];
 	failuresBeforeSuccess = 0;
 	cancelled: string[] = [];
 
-	async createTaskForSchedule(input: Parameters<CronScheduleRunner['createTaskForSchedule']>[0]): Promise<Task> {
+	async createTaskForSchedule(input: Parameters<CronScheduleRunner['createTaskForSchedule']>[0]): Promise<CronScheduledTask> {
 		if (this.failuresBeforeSuccess > 0) {
 			this.failuresBeforeSuccess--;
 			throw new Error('transient create failure');
@@ -33,12 +33,12 @@ class RecordingRunner implements CronScheduleRunner {
 				scheduledRunAt: input.scheduledRunAt,
 				idempotencyKey: input.idempotencyKey,
 			},
-		} as Task;
+		} as CronScheduledTask;
 		this.tasks.push(task);
 		return task;
 	}
 
-	async findExistingTask(filter: { scheduleId: string; scheduledRunAt: string }): Promise<Task | undefined> {
+	async findExistingTask(filter: { scheduleId: string; scheduledRunAt: string }): Promise<CronScheduledTask | undefined> {
 		return this.tasks.find(
 			(task) =>
 				task.metadata.cronScheduleId === filter.scheduleId &&
@@ -46,7 +46,7 @@ class RecordingRunner implements CronScheduleRunner {
 		);
 	}
 
-	async listRunningTasks(): Promise<Task[]> {
+	async listRunningTasks(): Promise<CronScheduledTask[]> {
 		return this.running;
 	}
 
@@ -242,7 +242,7 @@ describe('CronSchedulerService', () => {
 
 	it('applies skipIfRunning and queueIfRunning concurrency policies', async () => {
 		const runner = new RecordingRunner();
-		runner.running = [{ id: 'active-task', status: 'running', metadata: {} } as Task];
+		runner.running = [{ id: 'active-task', status: 'running', metadata: {} } as CronScheduledTask];
 		const { scheduler, store } = makeScheduler(runner);
 		const skip = await scheduler.createSchedule(request({ concurrencyPolicy: 'skipIfRunning' }), actor);
 		const queue = await scheduler.createSchedule(request({ name: 'queue', concurrencyPolicy: 'queueIfRunning' }), actor);
