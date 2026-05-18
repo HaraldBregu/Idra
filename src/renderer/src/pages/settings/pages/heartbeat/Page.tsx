@@ -14,12 +14,14 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatEventStatus,
 	HeartbeatStatus,
+	HeartbeatTimingSettings,
 } from '../../../../../../shared/heartbeat';
 import {
 	SettingsEmptyState,
@@ -34,7 +36,64 @@ import {
 	SettingsValue,
 } from '../../components';
 
-type Operation = 'refresh' | 'toggle' | 'wake' | 'event-now' | 'event-next' | null;
+type Operation = 'refresh' | 'toggle' | 'timing' | 'wake' | 'event-now' | 'event-next' | null;
+
+interface TimingDraft {
+	every: string;
+	start: string;
+	end: string;
+	timezone: string;
+}
+
+const TIMING_PRESETS = ['5m', '15m', '30m', '1h', '0m'] as const;
+const DURATION_TOKEN_RE = /(\d+(?:\.\d+)?)\s*(ms|s|m|h|d)/gi;
+const UNIT_MS: Record<string, number> = {
+	ms: 1,
+	s: 1_000,
+	m: 60_000,
+	h: 60 * 60_000,
+	d: 24 * 60 * 60_000,
+};
+
+function timingToDraft(timing: HeartbeatTimingSettings): TimingDraft {
+	return {
+		every: timing.every,
+		start: timing.activeHours?.start ?? '',
+		end: timing.activeHours?.end ?? '',
+		timezone: timing.activeHours?.timezone ?? '',
+	};
+}
+
+function parseDurationMs(raw: string): number | null {
+	const trimmed = raw.trim();
+	if (!trimmed) return null;
+	if (/^\d+(?:\.\d+)?$/.test(trimmed)) {
+		const value = Number(trimmed) * UNIT_MS.m;
+		return Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
+	}
+
+	let total = 0;
+	let consumed = '';
+	for (const match of trimmed.matchAll(DURATION_TOKEN_RE)) {
+		const value = Number(match[1]);
+		const unit = match[2]?.toLowerCase() ?? 'm';
+		const unitMs = UNIT_MS[unit];
+		if (!Number.isFinite(value) || !unitMs) return null;
+		total += value * unitMs;
+		consumed += match[0];
+	}
+
+	if (consumed.replace(/\s+/g, '') !== trimmed.replace(/\s+/g, '')) return null;
+	return Number.isFinite(total) && total > 0 ? Math.floor(total) : null;
+}
+
+function isDisabledDuration(raw: string): boolean {
+	return /^0+(?:\.0+)?\s*(ms|s|m|h|d)?$/i.test(raw.trim());
+}
+
+function isValidEvery(raw: string): boolean {
+	return parseDurationMs(raw) !== null || isDisabledDuration(raw);
+}
 
 function formatTimestamp(value?: number): string | null {
 	if (typeof value !== 'number' || !Number.isFinite(value)) return null;
