@@ -110,7 +110,7 @@ const GeneralPage: React.FC = () => {
 							</Button>
 						</ItemActions>
 					</Item>
-					<Item variant="outline" size="md">
+					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
 							<FolderOpen className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
