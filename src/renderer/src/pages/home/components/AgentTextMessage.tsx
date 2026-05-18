@@ -13,7 +13,7 @@ export function AgentTextMessage({
 	readonly isStreaming?: boolean;
 }): ReactElement {
 	return (
-		<Message className="min-w-0 w-[85%] max-w-[35.7rem]">
+		<Message className="min-w-0 w-full">
 			<div className="flex min-w-0 flex-1 items-start gap-2">
 				<div className="flex min-w-0 flex-1 flex-col gap-2">
 					<AgentActivityPanel message={message} isStreaming={isStreaming} />
