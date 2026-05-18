@@ -148,14 +148,14 @@
 			"searchTitle": "Use search as a power layer",
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
 			"descriptions": {
-				"general": "Application info, appearance, permissions, folders, menu bar",
+				"general": "App info and permissions",
 				"system": "Theme, language, translucency, window chrome",
-				"channels": "Telegram, messaging routes, sender controls",
-				"skills": "Local capabilities, imports, installed skill folders",
-				"connectors": "Connected apps, MCP tools, OAuth tokens",
-				"providers": "AI endpoints, API keys, model providers",
-				"cron": "Scheduled tasks, recurrences, run details",
-				"apps": "Installed packages, app folders, local manifests"
+				"channels": "Messaging channels",
+				"skills": "Installed skills",
+				"connectors": "Connected apps",
+				"providers": "AI API keys",
+				"cron": "Scheduled tasks",
+				"apps": "Installed apps"
 			}
 		},
 		"tabs": {
