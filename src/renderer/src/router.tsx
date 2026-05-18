@@ -4,7 +4,6 @@ import {
 	Outlet,
 	createHashRouter,
 	useLocation,
-	useNavigate,
 	type RouteObject,
 } from 'react-router-dom';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
@@ -15,7 +14,6 @@ import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
-import { Button } from './components/ui/button';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/Page'));
@@ -43,21 +41,9 @@ function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX
 function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 	const location = useLocation();
-	const navigate = useNavigate();
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 
 	const isStart = location.pathname === '/start';
-
-	const startTitleBarAction = isStart ? (
-		<Button
-			type="button"
-			variant="ghost"
-			size="xs"
-			onClick={() => navigate('/home')}
-		>
-			Skip
-		</Button>
-	) : undefined;
 
 	return (
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
@@ -68,7 +54,6 @@ function RootRouteComponent(): React.JSX.Element {
 			>
 				<TitleBar
 					title={isStart ? 'Set up Friday' : t('appTitle')}
-					rightContent={startTitleBarAction}
 				/>
 				<div className="min-h-0 flex-1 overflow-hidden pt-12">
 					<PageTransition>
