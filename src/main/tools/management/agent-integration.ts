@@ -61,13 +61,23 @@ export function selectAgentToolsForTurn(
 		topN: options.maxPromptTools ?? TOOL_LIMITS.prompt.defaultMaxTools,
 	});
 	const selectedNames = new Set(rankedTools.map((entry) => entry.tool.name));
-	for (const toolName of selectGoogleCalendarToolNames(tools, userMessage)) {
+	const forcedToolNames = new Set([
+		...selectGoogleCalendarToolNames(tools, userMessage),
+		...selectGoogleDriveToolNames(tools, userMessage),
+	]);
+	for (const toolName of forcedToolNames) {
 		selectedNames.add(toolName);
 	}
 	const addedPrerequisites = addPrerequisiteToolNames(selectedNames, tools);
 	const toolsForPrompt = tools.filter((tool) => selectedNames.has(tool.name));
-	const rankedToolsForPrompt = appendPrerequisiteRankedTools(
+	const rankedToolsWithForced = appendSelectedRankedTools(
 		rankedTools,
+		registry,
+		forcedToolNames,
+		'forced selected for matching connector intent'
+	);
+	const rankedToolsForPrompt = appendPrerequisiteRankedTools(
+		rankedToolsWithForced,
 		registry,
 		addedPrerequisites
 	);
@@ -115,6 +125,36 @@ function isGoogleCalendarTool(tool: AgentTool): boolean {
 	return text.includes('google calendar') || text.includes('google_calendar');
 }
 
+function selectGoogleDriveToolNames(tools: AgentTool[], userMessage: string): Set<string> {
+	const request = userMessage.toLowerCase();
+	if (!/\b(google drive|my drive|shared drive|drive files?|drive documents?|drive folders?)\b/.test(request)) {
+		return new Set();
+	}
+
+	const suffixes = new Set<string>(['search_files']);
+	if (/\b(recent|latest|modified|changed|list|show)\b/.test(request)) suffixes.add('list_recent_files');
+	if (/\b(fetch|read|content|contents|open|summarize|summary)\b/.test(request)) {
+		suffixes.add('read_file_content');
+		suffixes.add('get_file_metadata');
+	}
+	if (/\b(metadata|details?|info|properties)\b/.test(request)) suffixes.add('get_file_metadata');
+	if (/\b(permission|permissions|sharing|shared with|access)\b/.test(request)) suffixes.add('get_file_permissions');
+	if (/\b(download|export)\b/.test(request)) suffixes.add('download_file_content');
+	if (/\b(create|new|upload|save|write)\b/.test(request)) suffixes.add('create_file');
+
+	return new Set(
+		tools
+			.filter(isGoogleDriveTool)
+			.filter((tool) => [...suffixes].some((suffix) => tool.name.endsWith(`_${suffix}`)))
+			.map((tool) => tool.name)
+	);
+}
+
+function isGoogleDriveTool(tool: AgentTool): boolean {
+	const text = `${tool.name} ${tool.description}`.toLowerCase();
+	return text.includes('google drive') || text.includes('google_drive');
+}
+
 function addPrerequisiteToolNames(selectedNames: Set<string>, tools: AgentTool[]): Set<string> {
 	const availableNames = new Set(tools.map((tool) => tool.name));
 	const added = new Set<string>();
@@ -126,6 +166,24 @@ function addPrerequisiteToolNames(selectedNames: Set<string>, tools: AgentTool[]
 		}
 	}
 	return added;
+}
+
+function appendSelectedRankedTools(
+	rankedTools: RankedTool[],
+	registry: ReturnType<typeof createAgentToolRegistry>,
+	selectedNames: Set<string>,
+	explanation: string
+): RankedTool[] {
+	if (selectedNames.size === 0) return rankedTools;
+	const existing = new Set(rankedTools.map((entry) => entry.tool.name));
+	const out = [...rankedTools];
+	for (const name of selectedNames) {
+		if (existing.has(name)) continue;
+		const tool = registry.listTools().find((candidate) => candidate.name === name);
+		if (!tool) continue;
+		out.push({ tool, score: 0, explanations: [explanation] });
+	}
+	return out;
 }
 
 function appendPrerequisiteRankedTools(
