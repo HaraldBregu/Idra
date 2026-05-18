@@ -117,7 +117,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
-	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
+	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
@@ -137,7 +137,7 @@ function inferPermissions(name: string, description = ''): string[] {
 			? ['calendar:write']
 			: ['calendar:read'];
 	}
-	if (['read', 'find', 'inspect_file', 'open_folder', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
+	if (['read', 'find', 'inspect_file', 'get_workspace_content', 'get_workspace_path'].includes(name)) return ['workspace:read'];
 	if (name === 'startup_files') return ['agent:startup'];
 	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name)) return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
@@ -157,9 +157,6 @@ function inferSafety(name: string, description = ''): Tool<Record<string, unknow
 	if (
 		[
 			'web_fetch',
-			'open_folder',
-			'open_app_data_folder',
-			'open_user_data_folder',
 			'open_accessibility',
 			'open_screen_recording',
 		].includes(name)
@@ -193,7 +190,7 @@ function inferTags(name: string, category: ToolCategory): string[] {
 function inferPrivacy(name: string, description = ''): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'private';
-	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'open_folder', 'exec', 'process'].includes(name)) return 'private';
+	if (['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process'].includes(name)) return 'private';
 	if (name.includes('provider') || name.includes('agent')) return 'sensitive';
 	return 'internal';
 }
