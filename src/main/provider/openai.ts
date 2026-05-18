@@ -32,7 +32,7 @@ function buildChatMessages(
 				}));
 			const msg: OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam = {
 				role: 'assistant',
-				content: text || null,
+				content: text,
 			};
 			if (tools.length > 0) msg.tool_calls = tools;
 			msgs.push(msg);

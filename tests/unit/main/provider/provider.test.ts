@@ -142,6 +142,55 @@ describe('provider/openai', () => {
 			{ role: 'tool', tool_call_id: 'call-1', content: 'failed\n[binary content]' },
 		]);
 	});
+
+	it('uses an empty string for OpenAI assistant messages with tool calls and no text', async () => {
+		async function* chunks() {
+			yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+		}
+		const create = jest.fn(async () => chunks());
+		const adapter = new OpenAIAdapter({
+			apiKey: 'sk-test',
+			clientFactory: () => ({
+				chat: { completions: { create } },
+			}) as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'gpt-test',
+			system: '',
+			messages: [
+				{ role: 'user', content: 'read it' },
+				{
+					role: 'assistant',
+					content: [
+						{
+							type: 'tool_use',
+							toolUseId: 'call-1',
+							toolName: 'read_file',
+							toolArgs: { path: 'README.md' },
+						},
+					],
+				},
+			],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0].messages).toEqual([
+			{ role: 'user', content: 'read it' },
+			{
+				role: 'assistant',
+				content: '',
+				tool_calls: [
+					{
+						id: 'call-1',
+						type: 'function',
+						function: { name: 'read_file', arguments: '{"path":"README.md"}' },
+					},
+				],
+			},
+		]);
+	});
 });
 
 describe('provider/anthropic', () => {
