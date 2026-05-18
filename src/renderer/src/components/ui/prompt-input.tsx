@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip"
+import { WaveAnimation } from "./wave-animation"
 import { cn } from "@/lib/utils"
 import { Check, Mic, MicOff, MoreHorizontal, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
