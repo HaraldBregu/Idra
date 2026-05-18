@@ -60,6 +60,8 @@ export interface HeartbeatApi {
 	status: () => Promise<HeartbeatStatus>;
 	last: () => Promise<HeartbeatEventPayload | null>;
 	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
+	getTiming: () => Promise<HeartbeatTimingSettings>;
+	updateTiming: (request: HeartbeatTimingSettings) => Promise<HeartbeatTimingSettings>;
 	systemEvent: (
 		request: HeartbeatSystemEventRequest
 	) => Promise<HeartbeatSystemEventResult>;
