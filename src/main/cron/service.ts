@@ -51,7 +51,7 @@ interface NextRunCapable {
 
 export interface CronServiceOptions {
 	enabled?: boolean;
-	openClaw?: FridayCronSchedulerOptions;
+	friday?: FridayCronSchedulerOptions;
 }
 
 /**
@@ -67,7 +67,7 @@ export class CronService implements Disposable {
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
-	private readonly openClaw: FridayCronScheduler;
+	private readonly friday: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
 
 	constructor(
@@ -93,12 +93,12 @@ export class CronService implements Disposable {
 			{},
 			logger
 		);
-		this.openClaw = new FridayCronScheduler(
+		this.friday = new FridayCronScheduler(
 			new ElectronStoreFridayCronStore(store),
 			new NoopFridayCronExecutor(),
 			new NoopFridayCronDelivery(),
 			{
-				...options.openClaw,
+				...options.friday,
 				enabled: this.automaticEnabled,
 			},
 			logger
@@ -112,21 +112,21 @@ export class CronService implements Disposable {
 	async start(): Promise<void> {
 		if (!this.automaticEnabled) {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
-			await this.openClaw.start();
+			await this.friday.start();
 			return;
 		}
 		await this.scheduler.start();
-		await this.openClaw.start();
+		await this.friday.start();
 	}
 
 	async stop(): Promise<void> {
 		await this.scheduler.stop();
-		await this.openClaw.stop();
+		await this.friday.stop();
 	}
 
 	async reload(): Promise<void> {
 		await this.scheduler.reload();
-		if (this.automaticEnabled) await this.openClaw.recoverStartup();
+		if (this.automaticEnabled) await this.friday.recoverStartup();
 	}
 
 	configureFridayRuntime(dependencies: {
@@ -135,9 +135,9 @@ export class CronService implements Disposable {
 		channelRegistry?: ChannelRegistry;
 	}): void {
 		if (dependencies.agentService) {
-			this.openClaw.setExecutor(new AgentServiceFridayCronExecutor(dependencies.agentService));
+			this.friday.setExecutor(new AgentServiceFridayCronExecutor(dependencies.agentService));
 		}
-		this.openClaw.setDelivery(
+		this.friday.setDelivery(
 			new GatewayFridayCronDelivery({
 				eventBus: dependencies.eventBus,
 				channelRegistry: dependencies.channelRegistry,
@@ -146,13 +146,13 @@ export class CronService implements Disposable {
 		);
 	}
 
-	openClawAction(
+	fridayAction(
 		request: FridayCronToolRequest,
 		actor?: FridayCronActor,
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
 	): Promise<FridayCronToolResponse> {
 		const effectiveActor = actor ?? { role: 'owner' as const };
-		return this.openClaw.handleToolAction(request, effectiveActor, context);
+		return this.friday.handleToolAction(request, effectiveActor, context);
 	}
 
 	createSchedule(
@@ -353,7 +353,7 @@ export class CronService implements Disposable {
 
 	destroy(): void {
 		void this.scheduler.stop();
-		void this.openClaw.stop();
+		void this.friday.stop();
 		for (const job of this.jobs.values()) {
 			try {
 				job.task.stop();

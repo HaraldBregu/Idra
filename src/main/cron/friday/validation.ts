@@ -161,6 +161,6 @@ export function assertValidFridayJob(job: FridayCronJobDefinition): void {
 	}
 }
 
-export function openClawScheduleIdentity(schedule: FridayCronSchedule): string {
+export function fridayScheduleIdentity(schedule: FridayCronSchedule): string {
 	return JSON.stringify(schedule, Object.keys(schedule).sort());
 }

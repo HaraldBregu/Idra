@@ -5,7 +5,7 @@ import type {
 } from '../../../shared/cron';
 import {
 	assertSafeCronId,
-	openClawScheduleIdentity,
+	fridayScheduleIdentity,
 } from './validation';
 
 const SCHEMA_VERSION = 1;
@@ -46,7 +46,7 @@ function defaultState(job: FridayCronJobDefinition): FridayCronJobState {
 		consecutiveSkipped: 0,
 		consecutiveScheduleErrors: 0,
 		attempts: 0,
-		scheduleIdentity: openClawScheduleIdentity(job.schedule),
+		scheduleIdentity: fridayScheduleIdentity(job.schedule),
 	};
 }
 
@@ -58,7 +58,7 @@ function normalizeState(
 		...defaultState(job),
 		...(state ?? {}),
 	};
-	const identity = openClawScheduleIdentity(job.schedule);
+	const identity = fridayScheduleIdentity(job.schedule);
 	if (next.scheduleIdentity && next.scheduleIdentity !== identity) {
 		next.nextRunAtMs = undefined;
 		next.runningAtMs = undefined;

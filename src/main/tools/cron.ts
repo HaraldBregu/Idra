@@ -152,11 +152,11 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 		const delivery = inferredDelivery(ctx);
 		const actor = cronActor(ctx);
 		const response = capturedContext || delivery
-			? await ctx.services.cron.openClawAction(args, actor, {
+			? await ctx.services.cron.fridayAction(args, actor, {
 					recentContext: capturedContext,
 					delivery,
 				})
-			: await ctx.services.cron.openClawAction(args, actor);
+			: await ctx.services.cron.fridayAction(args, actor);
 		return jsonResult(response);
 	},
 };

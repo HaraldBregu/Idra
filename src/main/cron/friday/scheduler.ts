@@ -26,7 +26,7 @@ import {
 	assertTargetMatchesPayload,
 	assertValidFridayJob,
 	normalizeDelivery,
-	openClawScheduleIdentity,
+	fridayScheduleIdentity,
 } from './validation';
 import {
 	normalizeFridayCronToolRequest,
@@ -292,7 +292,7 @@ export class FridayCronScheduler {
 		};
 		assertValidFridayJob(job);
 		const state = snapshot.states[jobId] ?? defaultFridayCronJobState(job);
-		const identity = openClawScheduleIdentity(job.schedule);
+		const identity = fridayScheduleIdentity(job.schedule);
 		if (state.scheduleIdentity !== identity) {
 			state.nextRunAtMs = undefined;
 			state.runningAtMs = undefined;

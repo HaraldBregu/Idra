@@ -11,7 +11,7 @@ export interface StoreSchema {
 	service: Service;
 	cronTasks: CronTask[];
 	cronScheduler: CronStoreState;
-	openClawCron: FridayCronStoreState;
+	fridayCron: FridayCronStoreState;
 	channel: Channel;
 	connectors: ConnectorConfig[];
 }

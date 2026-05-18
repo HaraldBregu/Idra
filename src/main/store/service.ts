@@ -152,11 +152,11 @@ export class StoreService {
 	}
 
 	getFridayCronState(): FridayCronStoreState {
-		return migrateFridayCronStoreState(this.store.get('openClawCron') ?? emptyFridayCronStoreState());
+		return migrateFridayCronStoreState(this.store.get('fridayCron') ?? emptyFridayCronStoreState());
 	}
 
 	setFridayCronState(state: FridayCronStoreState): void {
-		this.store.set('openClawCron', migrateFridayCronStoreState(state));
+		this.store.set('fridayCron', migrateFridayCronStoreState(state));
 	}
 
 	getConnectors(): ConnectorConfig[] {

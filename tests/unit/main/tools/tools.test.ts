@@ -258,7 +258,7 @@ describe('tools/app, cron, providers, services, workspace', () => {
 
 	it('routes structured cron tool actions through CronService', async () => {
 		const cron = {
-			openClawAction: jest.fn(async () => ({
+			fridayAction: jest.fn(async () => ({
 				status: 'ok',
 				enabled: true,
 				result: { enabled: true, timerArmed: false, jobCount: 0, runningCount: 0 },
@@ -269,7 +269,7 @@ describe('tools/app, cron, providers, services, workspace', () => {
 		const result = await cronTool.execute({ action: 'status' }, ctx);
 
 		expect(result.status).toBe('ok');
-		expect(cron.openClawAction).toHaveBeenCalledWith({ action: 'status' }, {
+		expect(cron.fridayAction).toHaveBeenCalledWith({ action: 'status' }, {
 			role: 'owner',
 			sessionId: 'test-session',
 		});
