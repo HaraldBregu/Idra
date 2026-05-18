@@ -48,13 +48,6 @@ These tools are defined under `src/main/tools` but are not currently included in
 | `cron_add` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/cron.ts` | Legacy helper for scheduling a recurring cron job from an expression, typed task data, optional id, and timezone. It is approval-marked. |
 | `cron_list` | No by default | Not in `ALL_TOOLS` | `src/main/tools/cron.ts` | Legacy helper that lists scheduled cron jobs from `ctx.services.cron`. |
 | `cron_remove` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/cron.ts` | Legacy helper that removes a scheduled cron job by `job_id`. It is approval-marked and errors when the id does not exist. |
-| `set_theme_mode` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Sets Electron `nativeTheme.themeSource` to `light`, `dark`, or `system`, then emits `theme:changed`. |
-| `open_app_data_folder` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Opens Electron's `userData` folder in the OS file manager. |
-| `open_user_data_folder` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Ensures and opens Friday's user-owned `.friday` data folder. |
-| `open_folder` | No by default | Not in `ALL_TOOLS`; workspace-only path check | `src/main/tools/app.ts` | Opens a folder inside the current workspace. It resolves real paths and rejects files, missing folders, and paths outside the workspace. |
-| `open_accessibility_settings` | No by default | Not in `ALL_TOOLS`; macOS only | `src/main/tools/app.ts` | Opens macOS Accessibility privacy settings. It returns an error on non-macOS platforms. |
-| `open_screen_recording_settings` | No by default | Not in `ALL_TOOLS`; macOS only | `src/main/tools/app.ts` | Opens macOS Screen Recording privacy settings. It returns an error on non-macOS platforms. |
-| `set_menu_bar` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Emits `tray:set-enabled` to show or hide the menu bar icon. |
 | `get_workspace_content` | No by default | Not in `ALL_TOOLS` | `src/main/tools/workspace.ts` | Lists files and folders under the workspace with bounded depth and result count. |
 | `get_workspace_path` | No by default | Not in `ALL_TOOLS` | `src/main/tools/workspace.ts` | Returns the absolute workspace root from `ctx.services.workspace`. |
 | `get_provider_by_id` | No by default | Not in `ALL_TOOLS` | `src/main/tools/providers.ts` | Reads a stored provider by id from `ctx.services.store`. |
@@ -63,15 +56,6 @@ These tools are defined under `src/main/tools` but are not currently included in
 | `get_agent_model` | No by default | Not in `ALL_TOOLS` | `src/main/tools/services.ts` | Reads the currently configured agent model from the store. |
 | `set_agent_service` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/services.ts` | Sets the agent service by provider id, model id, and model name. It is approval-marked and fails when the provider id is unknown. |
 | `update_plan` | No by default | Not in `ALL_TOOLS` | `src/main/tools/plan.ts` | Legacy planner tool that replaces `ctx.plan.entries` with entries using `pending`, `in_progress`, or `done`. |
-| `sessions_list` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Lists visible sessions with optional search, status, label, and last-message metadata. Visibility is controlled by `ctx.sessionVisibility`. |
-| `sessions_history` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Reads bounded, sanitized transcript history for the current or another visible session. |
-| `sessions_send` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Appends a user message to another visible session and marks it waiting. This runtime records the message but does not start a model run. |
-| `sessions_spawn` | No by default | Not in `ALL_TOOLS`; child session only | `src/main/tools/sessions.ts` | Creates a controlled child session with inherited workspace and session constraints. It records the task as the first user transcript entry when provided. |
-| `sessions_yield` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Reports that the current turn can yield while waiting for a visible session. The current runtime returns a note that host turn-yield scheduling is unavailable. |
-| `subagents` | No by default | Not in `ALL_TOOLS`; controlled child sessions only | `src/main/tools/sessions.ts` | Lists, cancels, or steers controlled child sessions spawned by the current session. |
-| `session_status` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Reads or updates status, task, and model override for the current or another visible session. |
-| `memory_search` | No by default | Not in `ALL_TOOLS`; disabled when memory search is disabled | `src/main/tools/memory.ts` | Searches durable workspace memory and visible session transcripts. It supports `memory`, `sessions`, and `all` corpora; `wiki` returns unavailable in this runtime. |
-| `memory_get` | No by default | Not in `ALL_TOOLS`; disabled when memory search is disabled | `src/main/tools/memory.ts` | Reads a bounded range from configured memory Markdown files after a search result identifies a useful path. |
 
 ## New Runtime Built-Ins
 
