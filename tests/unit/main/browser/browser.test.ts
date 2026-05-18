@@ -3,10 +3,8 @@ import { BrowserRuntime } from '../../../../src/main/browser/runtime';
 import { BrowserService } from '../../../../src/main/browser/service';
 import { makeTempDir } from '../test-helpers';
 
-const launchPersistentContext = jest.fn();
-
 jest.mock('playwright-core', () => ({
-	chromium: { launchPersistentContext },
+	chromium: { launchPersistentContext: jest.fn() },
 }));
 
 type PageHandler = (page: FakePage) => void;
@@ -83,13 +81,21 @@ class FakeContext {
 
 const fakeRedirects = new Map<string, string>();
 
+function launchPersistentContext(): jest.Mock {
+	return (
+		jest.requireMock('playwright-core') as {
+			chromium: { launchPersistentContext: jest.Mock };
+		}
+	).chromium.launchPersistentContext;
+}
+
 describe('browser runtime', () => {
 	let context: FakeContext;
 
 	beforeEach(() => {
 		context = new FakeContext();
 		fakeRedirects.clear();
-		launchPersistentContext.mockResolvedValue(context);
+		launchPersistentContext().mockResolvedValue(context);
 	});
 
 	it('opens a new tab once even when the context emits a page event', async () => {
