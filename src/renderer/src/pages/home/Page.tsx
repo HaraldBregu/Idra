@@ -13,6 +13,7 @@ import {
 	PromptInputAction,
 	PromptInputActions,
 	PromptInputTextarea,
+	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
 import { ScrollButton } from '@/components/ui/scroll-button';
