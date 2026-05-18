@@ -36,6 +36,8 @@ export interface ToolContext {
 	agentId?: string;
 	/** Cron authorization context supplied by the Gateway for owner or cron-self calls. */
 	cronContext?: OpenClawCronActor;
+	/** Best-effort live chat delivery context for tools that can persist follow-up work. */
+	deliveryContext?: Record<string, unknown>;
 	/** Run-scoped id used by the run logger / session. */
 	sessionId: string;
 	/** Optional override for persisted session files. */
@@ -70,6 +72,8 @@ export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> 
 	name: string;
 	description: string;
 	schema: JSONSchema;
+	/** Marks control-plane tools that should only be exposed to owner contexts. */
+	ownerOnly?: boolean;
 	/** Legacy approval marker; execution proceeds without human approval. */
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
