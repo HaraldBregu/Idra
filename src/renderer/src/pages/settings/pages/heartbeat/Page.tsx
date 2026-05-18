@@ -430,6 +430,123 @@ const HeartbeatPage: React.FC = () => {
 			</SettingsSection>
 
 			<SettingsSection
+				title={t('settings.heartbeat.timing.title')}
+				description={t('settings.heartbeat.timing.description')}
+			>
+				<SettingsPanel>
+					{loading && !timing ? (
+						<SettingsLoadingRows rows={3} />
+					) : (
+						<>
+							<SettingsRow
+								icon={Clock3}
+								title={t('settings.heartbeat.timing.cadence')}
+								description={t('settings.heartbeat.timing.cadenceDescription')}
+								actions={
+									<SettingsValue mono>
+										{timingDraft.every || t('settings.heartbeat.values.notScheduled')}
+									</SettingsValue>
+								}
+							/>
+							<div className="grid gap-3 px-3 py-2">
+								<SettingsField
+									id="heartbeat-every"
+									label={t('settings.heartbeat.timing.every')}
+									description={t('settings.heartbeat.timing.everyDescription')}
+								>
+									<Input
+										id="heartbeat-every"
+										value={timingDraft.every}
+										onChange={(event) =>
+											setTimingDraft((current) => ({ ...current, every: event.target.value }))
+										}
+										disabled={loading || isBusy}
+										placeholder={t('settings.heartbeat.timing.everyPlaceholder')}
+										className="h-8 font-mono text-xs md:text-xs"
+										aria-invalid={!isValidEvery(timingDraft.every)}
+									/>
+								</SettingsField>
+								<div className="flex flex-wrap items-center gap-1.5">
+									{TIMING_PRESETS.map((preset) => (
+										<Button
+											key={preset}
+											type="button"
+											variant={timingDraft.every.trim() === preset ? 'secondary' : 'outline'}
+											size="xs"
+											onClick={() => setTimingDraft((current) => ({ ...current, every: preset }))}
+											disabled={loading || isBusy}
+										>
+											{preset === '0m'
+												? t('settings.heartbeat.timing.disablePreset')
+												: preset}
+										</Button>
+									))}
+								</div>
+								<div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]">
+									<SettingsField
+										id="heartbeat-active-start"
+										label={t('settings.heartbeat.timing.activeStart')}
+									>
+										<Input
+											id="heartbeat-active-start"
+											type="time"
+											value={timingDraft.start}
+											onChange={(event) =>
+												setTimingDraft((current) => ({ ...current, start: event.target.value }))
+											}
+											disabled={loading || isBusy}
+											className="h-8 text-xs md:text-xs"
+										/>
+									</SettingsField>
+									<SettingsField
+										id="heartbeat-active-end"
+										label={t('settings.heartbeat.timing.activeEnd')}
+									>
+										<Input
+											id="heartbeat-active-end"
+											type="time"
+											value={timingDraft.end}
+											onChange={(event) =>
+												setTimingDraft((current) => ({ ...current, end: event.target.value }))
+											}
+											disabled={loading || isBusy}
+											className="h-8 text-xs md:text-xs"
+										/>
+									</SettingsField>
+									<SettingsField
+										id="heartbeat-active-timezone"
+										label={t('settings.heartbeat.timing.timezone')}
+									>
+										<Input
+											id="heartbeat-active-timezone"
+											value={timingDraft.timezone}
+											onChange={(event) =>
+												setTimingDraft((current) => ({ ...current, timezone: event.target.value }))
+											}
+											disabled={loading || isBusy}
+											placeholder={t('settings.heartbeat.timing.timezonePlaceholder')}
+											className="h-8 font-mono text-xs md:text-xs"
+										/>
+									</SettingsField>
+								</div>
+								<div className="flex flex-wrap items-center justify-end gap-1.5">
+									<Button
+										type="button"
+										size="xs"
+										onClick={handleSaveTiming}
+										disabled={loading || isBusy || !timingDirty || !timingValid}
+									>
+										<TimerReset className="size-3" />
+										{t('settings.heartbeat.actions.saveTiming')}
+									</Button>
+								</div>
+							</div>
+						</>
+					)}
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
 				title={t('settings.heartbeat.last.title')}
 				description={t('settings.heartbeat.last.description')}
 			>
