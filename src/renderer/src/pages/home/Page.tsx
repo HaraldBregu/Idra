@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowUp, AudioLines, Mic, Plus, RotateCcw, Square } from 'lucide-react';
+import { ArrowUp, AudioLines, Mic, Plus, Square } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import {
