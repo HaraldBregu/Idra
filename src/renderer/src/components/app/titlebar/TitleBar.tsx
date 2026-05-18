@@ -172,26 +172,35 @@ export const TitleBar = React.memo(function TitleBar({
 					</button>
 				)}
 
-				{onNavigateBack && (
-					<button
-						type="button"
-						onClick={onNavigateBack}
-						className={leftNavButtonClass}
-						title={t('titleBar.navigateBack')}
-					>
-						<ArrowLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
-					</button>
-				)}
-
-				{onNavigateForward && (
-					<button
-						type="button"
-						onClick={onNavigateForward}
-						className={leftNavButtonClass}
-						title={t('titleBar.navigateForward')}
-					>
-						<ArrowRight className="h-[15px] w-[15px]" strokeWidth={1.5} />
-					</button>
+				{isSettings && (
+					<>
+						<button
+							type="button"
+							onClick={handleBack}
+							disabled={!canGoBack}
+							className={cn(
+								leftNavButtonClass,
+								!canGoBack &&
+									'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground'
+							)}
+							title={t('titleBar.navigateBack')}
+						>
+							<ArrowLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
+						</button>
+						<button
+							type="button"
+							onClick={handleForward}
+							disabled={!canGoForward}
+							className={cn(
+								leftNavButtonClass,
+								!canGoForward &&
+									'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground'
+							)}
+							title={t('titleBar.navigateForward')}
+						>
+							<ArrowRight className="h-[15px] w-[15px]" strokeWidth={1.5} />
+						</button>
+					</>
 				)}
 			</TitleBarLeftContainer>
 
