@@ -79,7 +79,7 @@ function SubmitButton({
 	) : canSubmit ? (
 		<ArrowUp className="size-4" />
 	) : (
-		<AudioLines className="size-4" />
+		<TypingLoader size="sm" />
 	);
 
 	return (
