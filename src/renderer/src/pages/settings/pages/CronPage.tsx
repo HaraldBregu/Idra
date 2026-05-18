@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, Clock3, Trash2 } from 'lucide-react';
+import { AlertCircle, ChevronDown, Clock3, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { OpenClawCronJob, OpenClawCronPayload, OpenClawCronSchedule } from '../../../../../shared/cron';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { cn } from '@/lib/utils';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -123,6 +129,7 @@ const CronPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [removingId, setRemovingId] = useState<string | null>(null);
+	const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(() => new Set());
 
 	useEffect(() => {
 		let mounted = true;
@@ -153,11 +160,25 @@ const CronPage: React.FC = () => {
 		try {
 			await window.cron.removeJob(jobId);
 			setJobs((current) => current.filter((job) => job.id !== jobId));
+			setExpandedIds((current) => {
+				const next = new Set(current);
+				next.delete(jobId);
+				return next;
+			});
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
 			setRemovingId(null);
 		}
+	};
+
+	const setJobExpanded = (jobId: string, open: boolean): void => {
+		setExpandedIds((current) => {
+			const next = new Set(current);
+			if (open) next.add(jobId);
+			else next.delete(jobId);
+			return next;
+		});
 	};
 
 	return (
@@ -190,88 +211,113 @@ const CronPage: React.FC = () => {
 							const schedule = formatSchedule(job.schedule);
 							const summary = payloadSummary(job.payload);
 							const entries = payloadEntries(job.payload);
+							const isExpanded = expandedIds.has(job.id);
 
 							return (
 								<SettingsPanel key={job.id}>
-									<Item variant="outline" size="sm" className="items-start">
-										<ItemMedia variant="icon">
-											<Clock3 className="size-3" strokeWidth={1.8} />
-										</ItemMedia>
-										<ItemContent className="min-w-0 flex-1 items-start">
-											<div className="min-w-0 flex-1">
-												<ItemTitle className="w-full max-w-full truncate">{job.name}</ItemTitle>
-												<p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-													{summary}
-												</p>
-												<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-													<Badge
-														variant={job.enabled ? 'outline' : 'destructive'}
-														className="h-4 px-1.5 text-[10px]"
-													>
-														{job.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
-													</Badge>
-													<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-														{job.payload.kind}
-													</Badge>
-													<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-														{job.schedule.kind}
-													</Badge>
-													<Badge variant="outline" className="h-4 max-w-full px-1.5 font-mono text-[10px]">
-														<span className="truncate">{schedule}</span>
-													</Badge>
+									<Collapsible
+										open={isExpanded}
+										onOpenChange={(open) => setJobExpanded(job.id, open)}
+									>
+										<Item variant="outline" size="sm" className="items-start">
+											<ItemMedia variant="icon">
+												<Clock3 className="size-3" strokeWidth={1.8} />
+											</ItemMedia>
+											<ItemContent className="min-w-0 flex-1 items-start">
+												<div className="min-w-0 flex-1">
+													<ItemTitle className="w-full max-w-full truncate">{job.name}</ItemTitle>
+													<p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+														{summary}
+													</p>
+													<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+														<Badge
+															variant={job.enabled ? 'outline' : 'destructive'}
+															className="h-4 px-1.5 text-[10px]"
+														>
+															{job.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
+														</Badge>
+														<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+															{job.payload.kind}
+														</Badge>
+														<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+															{job.schedule.kind}
+														</Badge>
+														<Badge variant="outline" className="h-4 max-w-full px-1.5 font-mono text-[10px]">
+															<span className="truncate">{schedule}</span>
+														</Badge>
+													</div>
 												</div>
-											</div>
-										</ItemContent>
-										<ItemActions className="flex-none justify-end">
-											<Button
-												type="button"
-												variant="destructive"
-												size="icon-xs"
-												disabled={removingId === job.id}
-												onClick={() => void handleRemoveJob(job.id)}
-												aria-label={t('settings.cron.actions.removeLabel', { id: job.id })}
-												title={t('settings.cron.actions.remove')}
-											>
-												<Trash2 className="size-3" />
-											</Button>
-										</ItemActions>
-									</Item>
+											</ItemContent>
+											<ItemActions className="flex-none justify-end gap-1">
+												<CollapsibleTrigger
+													className="inline-flex size-6 items-center justify-center rounded-[min(var(--radius-md),10px)] text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+													aria-label={t(
+														isExpanded
+															? 'settings.cron.actions.collapseLabel'
+															: 'settings.cron.actions.expandLabel',
+														{ id: job.id }
+													)}
+													title={t(isExpanded ? 'settings.cron.actions.collapse' : 'settings.cron.actions.expand')}
+												>
+													<ChevronDown
+														className={cn(
+															'size-3 transition-transform',
+															isExpanded && 'rotate-180'
+														)}
+													/>
+												</CollapsibleTrigger>
+												<Button
+													type="button"
+													variant="destructive"
+													size="icon-xs"
+													disabled={removingId === job.id}
+													onClick={() => void handleRemoveJob(job.id)}
+													aria-label={t('settings.cron.actions.removeLabel', { id: job.id })}
+													title={t('settings.cron.actions.remove')}
+												>
+													<Trash2 className="size-3" />
+												</Button>
+											</ItemActions>
+										</Item>
 
-									<dl className="grid gap-2 border-b border-border/70 bg-muted/10 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
-										<CronDetail label={t('settings.cron.details.id')} value={job.id} mono />
-										<CronDetail label={t('settings.cron.details.schedule')} value={schedule} mono />
-										<CronDetail label={t('settings.cron.details.target')} value={job.sessionTarget} mono />
-										<CronDetail label={t('settings.cron.details.delivery')} value={deliverySummary(job)} mono />
-										<CronDetail
-											label={t('settings.cron.details.createdAt')}
-											value={formatTimestamp(job.createdAtMs)}
-										/>
-										<CronDetail
-											label={t('settings.cron.details.updatedAt')}
-											value={formatTimestamp(job.updatedAtMs)}
-										/>
-										<CronDetail
-											label={t('settings.cron.details.lastRun')}
-											value={formatTimestamp(job.state.lastRunAtMs)}
-										/>
-										<CronDetail
-											label={t('settings.cron.details.nextRun')}
-											value={formatTimestamp(job.state.nextRunAtMs)}
-										/>
-									</dl>
-
-									{entries.length > 0 && (
-										<div className="px-3 py-2">
-											<div className="text-[11px] font-medium text-muted-foreground">
-												{t('settings.cron.details.payload')}
-											</div>
-											<dl className="mt-1.5 grid gap-2 sm:grid-cols-2">
-												{entries.map(([key, value]) => (
-													<CronDetail key={key} label={key} value={value} mono />
-												))}
+										<CollapsibleContent>
+											<dl className="grid gap-2 border-t border-border/70 bg-muted/10 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
+												<CronDetail label={t('settings.cron.details.id')} value={job.id} mono />
+												<CronDetail label={t('settings.cron.details.schedule')} value={schedule} mono />
+												<CronDetail label={t('settings.cron.details.target')} value={job.sessionTarget} mono />
+												<CronDetail label={t('settings.cron.details.delivery')} value={deliverySummary(job)} mono />
+												<CronDetail
+													label={t('settings.cron.details.createdAt')}
+													value={formatTimestamp(job.createdAtMs)}
+												/>
+												<CronDetail
+													label={t('settings.cron.details.updatedAt')}
+													value={formatTimestamp(job.updatedAtMs)}
+												/>
+												<CronDetail
+													label={t('settings.cron.details.lastRun')}
+													value={formatTimestamp(job.state.lastRunAtMs)}
+												/>
+												<CronDetail
+													label={t('settings.cron.details.nextRun')}
+													value={formatTimestamp(job.state.nextRunAtMs)}
+												/>
 											</dl>
-										</div>
-									)}
+
+											{entries.length > 0 && (
+												<div className="border-t border-border/70 px-3 py-2">
+													<div className="text-[11px] font-medium text-muted-foreground">
+														{t('settings.cron.details.payload')}
+													</div>
+													<dl className="mt-1.5 grid gap-2 sm:grid-cols-2">
+														{entries.map(([key, value]) => (
+															<CronDetail key={key} label={key} value={value} mono />
+														))}
+													</dl>
+												</div>
+											)}
+										</CollapsibleContent>
+									</Collapsible>
 								</SettingsPanel>
 							);
 						})}
