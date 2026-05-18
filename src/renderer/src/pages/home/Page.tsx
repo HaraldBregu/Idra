@@ -31,27 +31,10 @@ function AttachmentButton(): ReactElement {
 				type="button"
 				variant="ghost"
 				size="icon"
-				className="size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+				className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
 				aria-label="Add attachment"
 			>
 				<Plus className="size-4" />
-			</Button>
-		</PromptInputAction>
-	);
-}
-
-function ResetButton({ onReset }: { readonly onReset: () => void }): ReactElement {
-	return (
-		<PromptInputAction tooltip="Reset conversation">
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-				aria-label="Reset conversation"
-				onClick={onReset}
-			>
-				<RotateCcw className="size-4" />
 			</Button>
 		</PromptInputAction>
 	);
@@ -68,7 +51,7 @@ function VoiceButton({
 				type="button"
 				variant="ghost"
 				size="icon"
-				className="size-8 rounded-lg text-foreground hover:bg-muted"
+				className="size-8 rounded-full text-foreground hover:bg-muted"
 				aria-label="Switch to voice"
 				onClick={onVoiceModeRequest}
 			>
