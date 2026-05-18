@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { nativeTheme, shell, app } from 'electron';
+import { shell } from 'electron';
 import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/before-call';
 import { execTool, processTool } from '../../../../src/main/tools/exec';
 import {
@@ -17,13 +17,7 @@ import {
 import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
-import {
-	setThemeModeTool,
-	openAppDataFolderTool,
-	openUserDataFolderTool,
-	openFolderTool,
-	setMenuBarTool,
-} from '../../../../src/main/tools/app';
+import { openBrowserTool } from '../../../../src/main/tools/app';
 import { cronAddTool, cronListTool, cronRemoveTool, cronTool } from '../../../../src/main/tools/cron';
 import { getProviderByIdTool, setProviderApiKeyTool } from '../../../../src/main/tools/providers';
 import { getAgentModelTool, getAgentServiceTool, setAgentServiceTool } from '../../../../src/main/tools/services';
@@ -255,48 +249,11 @@ describe('tools/plan', () => {
 });
 
 describe('tools/app, cron, providers, services, workspace', () => {
-	it('runs app tools through Electron and EventBus seams', async () => {
+	it('opens browser URLs through Electron and rejects non-http URLs', async () => {
 		const ctx = makeToolContext();
-		expect((await setThemeModeTool.execute({ mode: 'dark' }, ctx)).status).toBe('ok');
-		expect(nativeTheme.themeSource).toBe('dark');
-		expect(ctx.services.eventBus.emit).toHaveBeenCalledWith('theme:changed', { theme: 'dark' });
-
-		(app.getPath as jest.Mock).mockReturnValueOnce('/tmp/userData');
-		await openAppDataFolderTool.execute({}, ctx);
-		expect(shell.openPath).toHaveBeenCalledWith('/tmp/userData');
-
-		await openUserDataFolderTool.execute({}, ctx);
-		expect(ctx.services.userDataDirectory.ensureRoot).toHaveBeenCalled();
-		expect(shell.openPath).toHaveBeenCalledWith(ctx.workspace);
-
-		const workspace = await makeTempDir();
-		const folderCtx = makeToolContext({ workspace });
-		await fs.mkdir(path.join(workspace, 'nested'));
-		const opened = await openFolderTool.execute({ path: 'nested' }, folderCtx);
-		expect(opened.status).toBe('ok');
-		await expect(fs.realpath(path.join(workspace, 'nested'))).resolves.toBe(
-			(shell.openPath as jest.Mock).mock.calls.at(-1)?.[0]
-		);
-		await expect(fs.rm(workspace, { recursive: true, force: true })).resolves.toBeUndefined();
-
-		await setMenuBarTool.execute({ enabled: true }, ctx);
-		expect(ctx.services.eventBus.emit).toHaveBeenCalledWith('tray:set-enabled', { enabled: true });
-	});
-
-	it('confines open_folder to existing workspace folders and surfaces open errors', async () => {
-		const workspace = await makeTempDir();
-		const ctx = makeToolContext({ workspace });
-		await fs.writeFile(path.join(workspace, 'file.txt'), 'x');
-
-		await expect(openFolderTool.execute({ path: 'missing' }, ctx)).resolves.toMatchObject({ status: 'error' });
-		await expect(openFolderTool.execute({ path: 'file.txt' }, ctx)).resolves.toMatchObject({ status: 'error' });
-		await expect(openFolderTool.execute({ path: '..' }, ctx)).resolves.toMatchObject({ status: 'error' });
-
-		(shell.openPath as jest.Mock).mockResolvedValueOnce('permission denied');
-		const blocked = await openFolderTool.execute({}, ctx);
-		expect(blocked).toMatchObject({ status: 'error' });
-		expect(blocked.content[0]?.text).toBe('permission denied');
-		await fs.rm(workspace, { recursive: true, force: true });
+		expect((await openBrowserTool.execute({ url: 'https://example.com' }, ctx)).status).toBe('ok');
+		expect(shell.openExternal).toHaveBeenCalledWith('https://example.com');
+		expect((await openBrowserTool.execute({ url: 'file:///tmp/secret' }, ctx)).status).toBe('error');
 	});
 
 	it('manages cron tools through CronService', async () => {
