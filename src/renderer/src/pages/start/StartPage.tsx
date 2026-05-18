@@ -8,7 +8,6 @@ import {
 	KeyRound,
 	LoaderCircle,
 	Lock,
-	MessageSquare,
 	Mic,
 	Pencil,
 	Plug,
@@ -369,25 +368,6 @@ function StepProgress({ currentIndex }: { readonly currentIndex: number }): Reac
 					)}
 				/>
 			))}
-		</div>
-	);
-}
-
-function FeaturePill({
-	icon: Icon,
-	label,
-}: {
-	readonly icon: typeof MessageSquare;
-	readonly label: string;
-}): React.JSX.Element {
-	return (
-		<div className="flex min-w-0 flex-col items-center gap-2 text-center">
-			<div className="flex size-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm">
-				<Icon className="size-4" strokeWidth={1.9} />
-			</div>
-			<p className="whitespace-nowrap text-sm font-medium leading-tight text-muted-foreground">
-				{label}
-			</p>
 		</div>
 	);
 }
@@ -972,20 +952,15 @@ const StartPage: React.FC = () => {
 
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
-			<div className="flex min-h-full flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-6">
+			<div className="flex min-h-full flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 				<VoiceOrbThree showInitialOrbits showStatus={false} size={128} />
 				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Hello, Anna
 				</h1>
-				<p className="mt-4 max-w-sm text-base font-medium leading-relaxed text-muted-foreground">
+				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
 					{PRODUCT_NAME} is a small agent that lives in your menu bar. Ask her
 					things by typing or just by talking.
 				</p>
-				<div className="mt-8 grid w-full max-w-xs grid-cols-3 gap-3">
-					<FeaturePill icon={MessageSquare} label="Type to ask" />
-					<FeaturePill icon={Mic} label="Hold to speak" />
-					<FeaturePill icon={Lock} label="Stays on your Mac" />
-				</div>
 			</div>
 		);
 	}
