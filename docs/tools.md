@@ -43,45 +43,45 @@ These tools are in `ALL_TOOLS` in `src/main/tools/registry.ts`.
 
 These tools are defined under `src/main/tools` but are not currently included in `ALL_TOOLS` unless another caller imports and exposes them.
 
-| Tool | Used? | Source | How it is used |
-| --- | --- | --- | --- |
-| `cron_add` | No by default | `src/main/tools/cron.ts` | Legacy helper for scheduling a recurring cron job from an expression, typed task data, optional id, and timezone. It is approval-marked. |
-| `cron_list` | No by default | `src/main/tools/cron.ts` | Legacy helper that lists scheduled cron jobs from `ctx.services.cron`. |
-| `cron_remove` | No by default | `src/main/tools/cron.ts` | Legacy helper that removes a scheduled cron job by `job_id`. It is approval-marked and errors when the id does not exist. |
-| `set_theme_mode` | No by default | `src/main/tools/app.ts` | Sets Electron `nativeTheme.themeSource` to `light`, `dark`, or `system`, then emits `theme:changed`. |
-| `open_app_data_folder` | No by default | `src/main/tools/app.ts` | Opens Electron's `userData` folder in the OS file manager. |
-| `open_user_data_folder` | No by default | `src/main/tools/app.ts` | Ensures and opens Friday's user-owned `.friday` data folder. |
-| `open_folder` | No by default | `src/main/tools/app.ts` | Opens a folder inside the current workspace. It resolves real paths and rejects files, missing folders, and paths outside the workspace. |
-| `open_accessibility_settings` | No by default | `src/main/tools/app.ts` | Opens macOS Accessibility privacy settings. It returns an error on non-macOS platforms. |
-| `open_screen_recording_settings` | No by default | `src/main/tools/app.ts` | Opens macOS Screen Recording privacy settings. It returns an error on non-macOS platforms. |
-| `set_menu_bar` | No by default | `src/main/tools/app.ts` | Emits `tray:set-enabled` to show or hide the menu bar icon. |
-| `get_workspace_content` | No by default | `src/main/tools/workspace.ts` | Lists files and folders under the workspace with bounded depth and result count. |
-| `get_workspace_path` | No by default | `src/main/tools/workspace.ts` | Returns the absolute workspace root from `ctx.services.workspace`. |
-| `get_provider_by_id` | No by default | `src/main/tools/providers.ts` | Reads a stored provider by id from `ctx.services.store`. |
-| `set_provider_api_key` | No by default | `src/main/tools/providers.ts` | Stores an API key for supported provider ids, currently `openai` and `anthropic`. It is approval-marked. |
-| `get_agent_service` | No by default | `src/main/tools/services.ts` | Reads the configured agent service, including provider and model, from the store. |
-| `get_agent_model` | No by default | `src/main/tools/services.ts` | Reads the currently configured agent model from the store. |
-| `set_agent_service` | No by default | `src/main/tools/services.ts` | Sets the agent service by provider id, model id, and model name. It is approval-marked and fails when the provider id is unknown. |
-| `update_plan` | No by default | `src/main/tools/plan.ts` | Legacy planner tool that replaces `ctx.plan.entries` with entries using `pending`, `in_progress`, or `done`. |
-| `sessions_list` | No by default | `src/main/tools/sessions.ts` | Lists visible sessions with optional search, status, label, and last-message metadata. Visibility is controlled by `ctx.sessionVisibility`. |
-| `sessions_history` | No by default | `src/main/tools/sessions.ts` | Reads bounded, sanitized transcript history for the current or another visible session. |
-| `sessions_send` | No by default | `src/main/tools/sessions.ts` | Appends a user message to another visible session and marks it waiting. This runtime records the message but does not start a model run. |
-| `sessions_spawn` | No by default | `src/main/tools/sessions.ts` | Creates a controlled child session with inherited workspace and session constraints. It records the task as the first user transcript entry when provided. |
-| `sessions_yield` | No by default | `src/main/tools/sessions.ts` | Reports that the current turn can yield while waiting for a visible session. The current runtime returns a note that host turn-yield scheduling is unavailable. |
-| `subagents` | No by default | `src/main/tools/sessions.ts` | Lists, cancels, or steers controlled child sessions spawned by the current session. |
-| `session_status` | No by default | `src/main/tools/sessions.ts` | Reads or updates status, task, and model override for the current or another visible session. |
-| `memory_search` | No by default | `src/main/tools/memory.ts` | Searches durable workspace memory and visible session transcripts. It supports `memory`, `sessions`, and `all` corpora; `wiki` returns unavailable in this runtime. |
-| `memory_get` | No by default | `src/main/tools/memory.ts` | Reads a bounded range from configured memory Markdown files after a search result identifies a useful path. |
+| Tool | Used? | Policy | Source | How it is used |
+| --- | --- | --- | --- | --- |
+| `cron_add` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/cron.ts` | Legacy helper for scheduling a recurring cron job from an expression, typed task data, optional id, and timezone. It is approval-marked. |
+| `cron_list` | No by default | Not in `ALL_TOOLS` | `src/main/tools/cron.ts` | Legacy helper that lists scheduled cron jobs from `ctx.services.cron`. |
+| `cron_remove` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/cron.ts` | Legacy helper that removes a scheduled cron job by `job_id`. It is approval-marked and errors when the id does not exist. |
+| `set_theme_mode` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Sets Electron `nativeTheme.themeSource` to `light`, `dark`, or `system`, then emits `theme:changed`. |
+| `open_app_data_folder` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Opens Electron's `userData` folder in the OS file manager. |
+| `open_user_data_folder` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Ensures and opens Friday's user-owned `.friday` data folder. |
+| `open_folder` | No by default | Not in `ALL_TOOLS`; workspace-only path check | `src/main/tools/app.ts` | Opens a folder inside the current workspace. It resolves real paths and rejects files, missing folders, and paths outside the workspace. |
+| `open_accessibility_settings` | No by default | Not in `ALL_TOOLS`; macOS only | `src/main/tools/app.ts` | Opens macOS Accessibility privacy settings. It returns an error on non-macOS platforms. |
+| `open_screen_recording_settings` | No by default | Not in `ALL_TOOLS`; macOS only | `src/main/tools/app.ts` | Opens macOS Screen Recording privacy settings. It returns an error on non-macOS platforms. |
+| `set_menu_bar` | No by default | Not in `ALL_TOOLS` | `src/main/tools/app.ts` | Emits `tray:set-enabled` to show or hide the menu bar icon. |
+| `get_workspace_content` | No by default | Not in `ALL_TOOLS` | `src/main/tools/workspace.ts` | Lists files and folders under the workspace with bounded depth and result count. |
+| `get_workspace_path` | No by default | Not in `ALL_TOOLS` | `src/main/tools/workspace.ts` | Returns the absolute workspace root from `ctx.services.workspace`. |
+| `get_provider_by_id` | No by default | Not in `ALL_TOOLS` | `src/main/tools/providers.ts` | Reads a stored provider by id from `ctx.services.store`. |
+| `set_provider_api_key` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/providers.ts` | Stores an API key for supported provider ids, currently `openai` and `anthropic`. It is approval-marked. |
+| `get_agent_service` | No by default | Not in `ALL_TOOLS` | `src/main/tools/services.ts` | Reads the configured agent service, including provider and model, from the store. |
+| `get_agent_model` | No by default | Not in `ALL_TOOLS` | `src/main/tools/services.ts` | Reads the currently configured agent model from the store. |
+| `set_agent_service` | No by default | Not in `ALL_TOOLS`; approval | `src/main/tools/services.ts` | Sets the agent service by provider id, model id, and model name. It is approval-marked and fails when the provider id is unknown. |
+| `update_plan` | No by default | Not in `ALL_TOOLS` | `src/main/tools/plan.ts` | Legacy planner tool that replaces `ctx.plan.entries` with entries using `pending`, `in_progress`, or `done`. |
+| `sessions_list` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Lists visible sessions with optional search, status, label, and last-message metadata. Visibility is controlled by `ctx.sessionVisibility`. |
+| `sessions_history` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Reads bounded, sanitized transcript history for the current or another visible session. |
+| `sessions_send` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Appends a user message to another visible session and marks it waiting. This runtime records the message but does not start a model run. |
+| `sessions_spawn` | No by default | Not in `ALL_TOOLS`; child session only | `src/main/tools/sessions.ts` | Creates a controlled child session with inherited workspace and session constraints. It records the task as the first user transcript entry when provided. |
+| `sessions_yield` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Reports that the current turn can yield while waiting for a visible session. The current runtime returns a note that host turn-yield scheduling is unavailable. |
+| `subagents` | No by default | Not in `ALL_TOOLS`; controlled child sessions only | `src/main/tools/sessions.ts` | Lists, cancels, or steers controlled child sessions spawned by the current session. |
+| `session_status` | No by default | Not in `ALL_TOOLS`; session visibility enforced | `src/main/tools/sessions.ts` | Reads or updates status, task, and model override for the current or another visible session. |
+| `memory_search` | No by default | Not in `ALL_TOOLS`; disabled when memory search is disabled | `src/main/tools/memory.ts` | Searches durable workspace memory and visible session transcripts. It supports `memory`, `sessions`, and `all` corpora; `wiki` returns unavailable in this runtime. |
+| `memory_get` | No by default | Not in `ALL_TOOLS`; disabled when memory search is disabled | `src/main/tools/memory.ts` | Reads a bounded range from configured memory Markdown files after a search result identifies a useful path. |
 
 ## New Runtime Built-Ins
 
 These tools are created by `src/main/tools/create-agent-tools.ts` for the newer runtime path.
 
-| Tool | Used? | Source | How it is used |
-| --- | --- | --- | --- |
-| `read` | Yes in new runtime | `src/main/tools/builtins/read-tool.ts` | Reads a workspace file as UTF-8 and returns line-numbered text. It supports `offset` and `limit`, enforces workspace-only access unless absolute paths are explicitly allowed, and returns file details such as size and truncation. |
-| `exec` | Yes in new runtime | `src/main/tools/builtins/exec-tool.ts` | Runs a shell command with timeout, output cap, abort-signal support, stdout/stderr progress updates, and dangerous-command deny patterns. The `background` parameter is accepted but reserved. |
-| `update_plan` | Yes in new runtime | `src/main/tools/builtins/update-plan-tool.ts` | Updates the current task plan with `pending`, `in_progress`, or `completed` steps. It calls the optional `onUpdatePlan` callback and returns the updated plan in details. |
+| Tool | Used? | Policy | Source | How it is used |
+| --- | --- | --- | --- | --- |
+| `read` | Yes in new runtime | `group:file`, `coding`, `full`; workspace scope can be restricted | `src/main/tools/builtins/read-tool.ts` | Reads a workspace file as UTF-8 and returns line-numbered text. It supports `offset` and `limit`, enforces workspace-only access unless absolute paths are explicitly allowed, and returns file details such as size and truncation. |
+| `exec` | Yes in new runtime | `group:shell`, `coding`, `full`; hidden when sandbox disallows shell | `src/main/tools/builtins/exec-tool.ts` | Runs a shell command with timeout, output cap, abort-signal support, stdout/stderr progress updates, and dangerous-command deny patterns. The `background` parameter is accepted but reserved. |
+| `update_plan` | Yes in new runtime | `group:planning`, `group:session`, `minimal`, `coding`, `full` | `src/main/tools/builtins/update-plan-tool.ts` | Updates the current task plan with `pending`, `in_progress`, or `completed` steps. It calls the optional `onUpdatePlan` callback and returns the updated plan in details. |
 
 `createAgentTools` includes these built-ins based on `toolsAllow` and the computed construction plan. It can also filter shell tools when `sandbox.allowShell === false`, apply read-only filesystem policy, normalize schemas for the selected provider, wrap tools with before-call checks, and compact large tool sets behind `tool_search`.
 
@@ -89,22 +89,22 @@ These tools are created by `src/main/tools/create-agent-tools.ts` for the newer 
 
 These tools are materialized at runtime rather than hard-coded in `ALL_TOOLS`.
 
-| Tool family | Used? | Source | How it is used |
-| --- | --- | --- | --- |
-| Plugin tools | Runtime-dependent | `src/main/tools/create-agent-tools.ts` | When plugin tools are enabled and a `pluginRegistry` is present, `pluginRegistry.resolveTools` contributes tools. They are marked with plugin metadata and can be selected by policy entries such as `group:plugins` or `plugin:<id>`. |
-| MCP tools | Runtime-dependent | `src/main/tools/external/mcp-tools.ts` | `materializeMcpTools` asks the MCP runtime for descriptors, creates safe provider tool names like `mcp_<server>_<tool>`, and delegates execution to `runtime.callTool(serverId, toolName, params, signal)`. |
-| LSP tools | Runtime-dependent | `src/main/tools/external/lsp-tools.ts` | `materializeLspTools` creates `lsp_hover`, `lsp_definition`, and `lsp_references` when the LSP runtime advertises matching capabilities. Each accepts `path`, zero-based `line`, and zero-based `character`. |
-| Client-hosted tools | Runtime-dependent | `src/main/tools/create-agent-tools.ts` | Caller-supplied `clientTools` are marked as client tools. The model-facing adapter delegates their execution to the client instead of executing them in the main process. |
+| Tool family | Used? | Policy | Source | How it is used |
+| --- | --- | --- | --- | --- |
+| Plugin tools | Runtime-dependent | `group:plugins`, `plugin:<id>`, `full`, or explicit allow | `src/main/tools/create-agent-tools.ts` | When plugin tools are enabled and a `pluginRegistry` is present, `pluginRegistry.resolveTools` contributes tools. They are marked with plugin metadata and can be selected by policy entries such as `group:plugins` or `plugin:<id>`. |
+| MCP tools | Runtime-dependent | `group:mcp`, `mcp_*`, `full`, or explicit allow | `src/main/tools/external/mcp-tools.ts` | `materializeMcpTools` asks the MCP runtime for descriptors, creates safe provider tool names like `mcp_<server>_<tool>`, and delegates execution to `runtime.callTool(serverId, toolName, params, signal)`. |
+| LSP tools | Runtime-dependent | `group:lsp`, `lsp_*`, `full`, or explicit allow | `src/main/tools/external/lsp-tools.ts` | `materializeLspTools` creates `lsp_hover`, `lsp_definition`, and `lsp_references` when the LSP runtime advertises matching capabilities. Each accepts `path`, zero-based `line`, and zero-based `character`. |
+| Client-hosted tools | Runtime-dependent | `group:client`, `full`, or explicit allow | `src/main/tools/create-agent-tools.ts` | Caller-supplied `clientTools` are marked as client tools. The model-facing adapter delegates their execution to the client instead of executing them in the main process. |
 
 ## Tool Search Controls
 
 When tool-search compaction is enabled and the effective tool list exceeds the threshold, `src/main/tools/tool-search.ts` hides cataloged tools behind three controls.
 
-| Tool | Used? | How it is used |
-| --- | --- | --- |
-| `tool_search` | Conditional | Searches hidden tools by keyword and returns matching names, labels, and descriptions. |
-| `tool_describe` | Conditional | Returns full schema and metadata for one hidden catalog tool by name. |
-| `tool_call` | Conditional | Executes a hidden catalog tool by name with `args`, forwarding through the same wrapped execution path. |
+| Tool | Used? | Policy | How it is used |
+| --- | --- | --- | --- |
+| `tool_search` | Conditional | Created when tool-search compaction is enabled or explicitly allowed | Searches hidden tools by keyword and returns matching names, labels, and descriptions. |
+| `tool_describe` | Conditional | Created when tool-search compaction is enabled or explicitly allowed | Returns full schema and metadata for one hidden catalog tool by name. |
+| `tool_call` | Conditional | Created when tool-search compaction is enabled or explicitly allowed | Executes a hidden catalog tool by name with `args`, forwarding through the same wrapped execution path. |
 
 ## Policy, Safety, And Results
 
