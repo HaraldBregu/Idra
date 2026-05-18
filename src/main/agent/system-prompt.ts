@@ -25,7 +25,6 @@ export interface SystemPromptCtx {
 
 const TOOL_GUIDANCE: Record<string, string> = {
 	read: 'Read a file before editing or overwriting it.',
-	copy_images: 'Copy image files into the workspace without shell access or overwriting existing files.',
 	startup_files: 'Manage allowlisted agent startup files under .friday/agent/workspaces/<agentId>.',
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',

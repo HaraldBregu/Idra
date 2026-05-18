@@ -1,6 +1,6 @@
 import { cronTool } from './cron';
 import { execTool, processTool } from './exec';
-import { copyImagesTool, editTool, findTool, readTool, writeTool } from './fs';
+import { editTool, findTool, readTool, writeTool } from './fs';
 import { filterTools, type PolicyConfig } from './policy';
 import { startupFilesTool } from './startup';
 import { webFetchTool } from './web';
@@ -11,7 +11,6 @@ import type { AgentTool } from './types';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ALL_TOOLS: AgentTool<any, any>[] = [
 	readTool,
-	copyImagesTool,
 	writeTool,
 	editTool,
 	findTool,
