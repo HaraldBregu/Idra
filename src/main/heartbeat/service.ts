@@ -15,6 +15,7 @@ import type {
 	HeartbeatStoreState,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
+	HeartbeatTimingSettings,
 	HeartbeatWakeOverride,
 	HeartbeatWakeRequest,
 } from '../../shared/heartbeat';
@@ -22,6 +23,7 @@ import { HEARTBEAT_OK } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
 import { activeHoursIdentity, isWithinActiveHours } from './active-hours';
 import {
+	DEFAULT_HEARTBEAT_EVERY,
 	resolveDefaultHeartbeatAgentId,
 	resolveHeartbeatAgentSummaries,
 	resolveHeartbeatSummaryForAgent,
@@ -216,6 +218,27 @@ export class HeartbeatService implements Disposable {
 			this.timer = null;
 		}
 		return this.getStatus();
+	}
+
+	getTiming(): HeartbeatTimingSettings {
+		const heartbeat = this.dependencies.store.getService()?.agents?.defaults?.heartbeat;
+		return {
+			every: typeof heartbeat?.every === 'string' && heartbeat.every.trim()
+				? heartbeat.every.trim()
+				: DEFAULT_HEARTBEAT_EVERY,
+			...(heartbeat?.activeHours ? { activeHours: heartbeat.activeHours } : {}),
+		};
+	}
+
+	updateTiming(request: HeartbeatTimingSettings): HeartbeatTimingSettings {
+		const every = typeof request.every === 'string' ? request.every.trim() : '';
+		if (!every) throw new Error('Heartbeat cadence is required.');
+		this.dependencies.store.setDefaultHeartbeatConfig({
+			every,
+			activeHours: this.normalizeActiveHours(request.activeHours),
+		});
+		this.updateConfig();
+		return this.getTiming();
 	}
 
 	request(wake: HeartbeatWakeRequest): void {
@@ -577,6 +600,20 @@ export class HeartbeatService implements Disposable {
 		if (sessionKey.startsWith('subagent:') || sessionKey.includes(':subagent:')) return false;
 		if (sessionKey.startsWith('cron:')) return false;
 		return sessionKey === agentId || !sessionKey.startsWith('agent:') || sessionKey.startsWith(`agent:${agentId}:`);
+	}
+
+	private normalizeActiveHours(
+		activeHours: HeartbeatTimingSettings['activeHours']
+	): HeartbeatTimingSettings['activeHours'] {
+		const start = activeHours?.start?.trim();
+		const end = activeHours?.end?.trim();
+		const timezone = activeHours?.timezone?.trim();
+		if (!start && !end && !timezone) return undefined;
+		return {
+			...(start ? { start } : {}),
+			...(end ? { end } : {}),
+			...(timezone ? { timezone } : {}),
+		};
 	}
 
 	private async readHeartbeatFile(agentId: string): Promise<{
