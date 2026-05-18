@@ -22,7 +22,7 @@ const HomePage = lazy(() => import('./pages/home/Page'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/OverviewPage'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/GeneralPage'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/ChannelsPage'));
-const ConnectorsPage = lazy(() => import('./pages/settings/pages/ConnectorsPage'));
+const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/SkillsPage'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/ProvidersPage'));
 const SystemPage = lazy(() => import('./pages/settings/pages/SystemPage'));
