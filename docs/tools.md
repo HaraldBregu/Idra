@@ -14,28 +14,30 @@ The newer runtime shape is defined in `src/main/tools/common.ts`. These tools ex
 
 In the tables below, `Used?` describes current exposure: `Yes` means the tool is in the default legacy registry, `Yes in new runtime` means it is assembled by `createAgentTools` when that family is enabled, `No by default` means it is defined but not currently in `ALL_TOOLS`, and `Runtime-dependent` or `Conditional` means availability depends on runtime configuration.
 
+`Policy` summarizes the main profile, group, approval, owner-only, sandbox, or read-only rule that controls exposure or execution.
+
 ## Default Legacy Tools
 
 These tools are in `ALL_TOOLS` in `src/main/tools/registry.ts`.
 
-| Tool | Used? | Source | How it is used |
-| --- | --- | --- | --- |
-| `read` | Yes | `src/main/tools/fs.ts` | Reads a UTF-8 file from an absolute or workspace-relative path. It returns line-numbered text, supports `offset` and `limit`, and records file metadata in `ctx.readState` so later writes can enforce read-before-write. |
-| `write` | Yes | `src/main/tools/fs.ts` | Writes UTF-8 content to `path`, creating parent directories. Existing files require a prior `read` in the same run and must not have changed on disk. Disabled when `ctx.fsPolicy.readOnly` is set. |
-| `edit` | Yes | `src/main/tools/fs.ts` | Performs exact string replacement in a UTF-8 file. The file must have been read first, and `old` must be unique unless `replaceAll` is true. Disabled by read-only filesystem policy. |
-| `apply_patch` | Yes | `src/main/tools/fs.ts` | Applies a unified diff to existing workspace files after those files have been read. It rejects new-file patches, context conflicts, read-only policy, and files changed since the last read. |
-| `delete` | Yes | `src/main/tools/fs.ts` | Deletes a file after it has been read in the current run. Directories require `recursive: true`, root paths are guarded, and read-only filesystem policy disables deletion. |
-| `copy` | Yes | `src/main/tools/fs.ts` | Copies one file to another path and creates parent directories. Existing destinations require `overwrite: true` and a prior read snapshot of the destination. |
-| `move` | Yes | `src/main/tools/fs.ts` | Moves or renames one file. The source must have been read earlier, and overwriting a destination requires `overwrite: true` plus a prior read snapshot of the destination. |
-| `inspect_file` | Yes | `src/main/tools/fs.ts` | Inspects any file as bytes, returning size, MIME type, hash when practical, hex/text previews, and direct image content for supported image files. |
-| `find` | Yes | `src/main/tools/fs.ts` | Finds files and directories by glob pattern under the workspace or a supplied directory. It excludes `node_modules` and `.git`, supports `limit`, and returns relative paths. |
-| `exec` | Yes | `src/main/tools/exec.ts` | Runs a shell command in the workspace or supplied working directory. It supports `timeoutMs`, extra `env`, and `background`. Output is capped, and dangerous command patterns are denied. |
-| `process` | Yes | `src/main/tools/exec.ts` | Lists, reads logs for, or kills background processes that were started by `exec` with `background: true`. |
-| `startup_files` | Yes | `src/main/tools/startup.ts` | Lists, reads, writes, or completes bootstrap for allowlisted agent startup files under `.friday/agent/workspaces/<agentId>`. Write and bootstrap completion are approval-marked. |
-| `web_fetch` | Yes | `src/main/tools/web.ts` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. HTML responses are stripped to text. Non-HTTP protocols are rejected. |
-| `cron` | Yes | `src/main/tools/cron.ts` | Schedules and manages jobs through the Gateway-owned scheduler. It supports status, list, get, add, update, remove, run, runs, and wake actions. Mutating actions are approval-marked. |
-| `open_browser` | Yes | `src/main/tools/app.ts` | Opens an HTTP or HTTPS URL in the user's default browser through Electron `shell.openExternal`. |
-| `browser` | Yes | `src/main/browser/tool.ts` | Imported into the registry from outside `src/main/tools`. It controls the managed browser service with actions such as status, start, stop, tabs, open, navigate, snapshot, screenshot, and act. |
+| Tool | Used? | Policy | Source | How it is used |
+| --- | --- | --- | --- | --- |
+| `read` | Yes | `coding`, `standard`, `full`; workspace scope can be restricted | `src/main/tools/fs.ts` | Reads a UTF-8 file from an absolute or workspace-relative path. It returns line-numbered text, supports `offset` and `limit`, and records file metadata in `ctx.readState` so later writes can enforce read-before-write. |
+| `write` | Yes | `coding`, `standard`, `full`; approval; denied by read-only policy | `src/main/tools/fs.ts` | Writes UTF-8 content to `path`, creating parent directories. Existing files require a prior `read` in the same run and must not have changed on disk. Disabled when `ctx.fsPolicy.readOnly` is set. |
+| `edit` | Yes | `coding`, `standard`, `full`; approval; denied by read-only policy | `src/main/tools/fs.ts` | Performs exact string replacement in a UTF-8 file. The file must have been read first, and `old` must be unique unless `replaceAll` is true. Disabled by read-only filesystem policy. |
+| `apply_patch` | Yes | `coding`, `standard`, `full`; approval; denied by read-only policy | `src/main/tools/fs.ts` | Applies a unified diff to existing workspace files after those files have been read. It rejects new-file patches, context conflicts, read-only policy, and files changed since the last read. |
+| `delete` | Yes | `coding`, `standard`, `full`; approval; denied by read-only policy | `src/main/tools/fs.ts` | Deletes a file after it has been read in the current run. Directories require `recursive: true`, root paths are guarded, and read-only filesystem policy disables deletion. |
+| `copy` | Yes | `coding`, `standard`, `full`; approval; denied by read-only policy | `src/main/tools/fs.ts` | Copies one file to another path and creates parent directories. Existing destinations require `overwrite: true` and a prior read snapshot of the destination. |
+| `move` | Yes | `coding`, `standard`, `full`; approval; denied by read-only policy | `src/main/tools/fs.ts` | Moves or renames one file. The source must have been read earlier, and overwriting a destination requires `overwrite: true` plus a prior read snapshot of the destination. |
+| `inspect_file` | Yes | `coding`, `standard`, `full`; workspace scope can be restricted | `src/main/tools/fs.ts` | Inspects any file as bytes, returning size, MIME type, hash when practical, hex/text previews, and direct image content for supported image files. |
+| `find` | Yes | `coding`, `standard`, `full`; workspace scope can be restricted | `src/main/tools/fs.ts` | Finds files and directories by glob pattern under the workspace or a supplied directory. It excludes `node_modules` and `.git`, supports `limit`, and returns relative paths. |
+| `exec` | Yes | `coding`, `standard`, `full`; approval; command deny patterns | `src/main/tools/exec.ts` | Runs a shell command in the workspace or supplied working directory. It supports `timeoutMs`, extra `env`, and `background`. Output is capped, and dangerous command patterns are denied. |
+| `process` | Yes | `coding`, `standard`, `full` | `src/main/tools/exec.ts` | Lists, reads logs for, or kills background processes that were started by `exec` with `background: true`. |
+| `startup_files` | Yes | `full`; write/bootstrap approval | `src/main/tools/startup.ts` | Lists, reads, writes, or completes bootstrap for allowlisted agent startup files under `.friday/agent/workspaces/<agentId>`. Write and bootstrap completion are approval-marked. |
+| `web_fetch` | Yes | `coding`, `standard`, `full`; HTTP(S) only | `src/main/tools/web.ts` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. HTML responses are stripped to text. Non-HTTP protocols are rejected. |
+| `cron` | Yes | `coding`, `standard`, `full`; owner-only; mutating actions require approval | `src/main/tools/cron.ts` | Schedules and manages jobs through the Gateway-owned scheduler. It supports status, list, get, add, update, remove, run, runs, and wake actions. Mutating actions are approval-marked. |
+| `open_browser` | Yes | `full`; HTTP(S) only | `src/main/tools/app.ts` | Opens an HTTP or HTTPS URL in the user's default browser through Electron `shell.openExternal`. |
+| `browser` | Yes | `full` | `src/main/browser/tool.ts` | Imported into the registry from outside `src/main/tools`. It controls the managed browser service with actions such as status, start, stop, tabs, open, navigate, snapshot, screenshot, and act. |
 
 ## Other Legacy Tool Definitions
 
