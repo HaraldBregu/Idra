@@ -509,6 +509,32 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('exposes read with move for file relocation requests', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'ready' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send('Move the file from one directory to another.')).resolves.toBe('ready');
+		const toolNames = requests[0]!.tools.map((tool) => tool.name);
+		expect(toolNames).toEqual(expect.arrayContaining(['read', 'move']));
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('exposes exec for plain Python script run requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
