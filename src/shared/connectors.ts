@@ -41,7 +41,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		setupInstructions: [
 			'Go to Google Cloud Console, enable the Gmail API, and configure the OAuth consent screen.',
 			'Create an OAuth client with application type Desktop app.',
-			'Configure the app with GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET, or enter them once as an optional override.',
+			'Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment before launching Friday.',
 			'Save the connector, then use Connect to finish Google consent.',
 		],
 	},
@@ -73,7 +73,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		setupInstructions: [
 			'Go to Google Cloud Console, enable the Google Calendar API, and configure the OAuth consent screen.',
 			'Create an OAuth client with application type Desktop app.',
-			'Configure the app with GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET, or enter them once as an optional override.',
+			'Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment before launching Friday.',
 			'Save the connector, then use Connect to finish Google consent.',
 		],
 	},
@@ -158,7 +158,7 @@ export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth';
 
 export interface GoogleOAuthCredential {
 	provider: 'google';
-	clientId: string;
+	clientId?: string;
 	clientSecret?: string;
 	redirectUri: string;
 	accessToken?: string;
@@ -219,8 +219,6 @@ export interface ConnectorInput {
 	serverLabel?: string;
 	serverDescription?: string;
 	authorization?: string;
-	oauthClientId?: string;
-	oauthClientSecret?: string;
 	requireApproval?: ConnectorApprovalMode;
 	allowedTools?: string[];
 	deferLoading?: boolean;
@@ -247,6 +245,13 @@ export interface ConnectorCallToolOptions {
 
 export function getConnectorCatalogItem(id: OpenAiConnectorId) {
 	return OPENAI_CONNECTOR_CATALOG.find((connector) => connector.id === id);
+}
+
+export function getConnectorAuthKind(id: OpenAiConnectorId): ConnectorAuthKind {
+	const connector = getConnectorCatalogItem(id);
+	return connector && 'authKind' in connector && connector.authKind === 'google_oauth'
+		? 'google_oauth'
+		: 'manual_oauth_access_token';
 }
 
 export function isOpenAiConnectorId(value: string): value is OpenAiConnectorId {

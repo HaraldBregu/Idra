@@ -7,6 +7,7 @@ import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
 import {
 	OPENAI_CONNECTOR_CATALOG,
+	getConnectorAuthKind,
 	getConnectorCatalogItem,
 	isOpenAiConnectorId,
 	type ConnectorConfig,
@@ -42,6 +43,8 @@ import {
 const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar']);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
+
+type GoogleOAuthRuntimeCredential = GoogleOAuthCredential & { clientId: string };
 
 interface OAuthLoopbackServer {
 	redirectUri: string;
@@ -95,7 +98,7 @@ function toView(connector: ConnectorConfig): ConnectorView {
 		id: connector.id,
 		name: connector.name,
 		connectorId: connector.connectorId,
-		authKind: isGoogleConnector(connector.connectorId) ? 'google_oauth' : 'manual_oauth_access_token',
+		authKind: getConnectorAuthKind(connector.connectorId),
 		serverLabel: connector.serverLabel,
 		enabled: connector.enabled,
 		status: statusFor(connector),
@@ -109,7 +112,7 @@ function toView(connector: ConnectorConfig): ConnectorView {
 	};
 }
 
-function sanitizeInput(input: ConnectorInput, current?: ConnectorConfig): ConnectorInput {
+function sanitizeInput(input: ConnectorInput): ConnectorInput {
 	const name = input.name.trim();
 	const connectorId = input.connectorId.trim();
 	const authorization = input.authorization?.trim() ?? '';
@@ -139,8 +142,6 @@ function sanitizeInput(input: ConnectorInput, current?: ConnectorConfig): Connec
 		serverLabel,
 		serverDescription: serverDescription || catalog?.description,
 		authorization,
-		oauthClientId: input.oauthClientId?.trim() || current?.oauth?.clientId,
-		oauthClientSecret: input.oauthClientSecret?.trim() || current?.oauth?.clientSecret,
 		requireApproval: input.requireApproval ?? 'always',
 		allowedTools,
 		deferLoading: input.deferLoading ?? false,
@@ -227,9 +228,7 @@ export class ConnectorsService {
 			allowedTools: input.allowedTools ?? current.allowedTools,
 			deferLoading: input.deferLoading ?? current.deferLoading,
 			enabled: input.enabled ?? current.enabled,
-			oauthClientId: input.oauthClientId ?? current.oauth?.clientId,
-			oauthClientSecret: input.oauthClientSecret ?? current.oauth?.clientSecret,
-		}, current);
+		});
 		const next = this.withKnownTools({
 			...current,
 			...merged,
@@ -327,11 +326,11 @@ export class ConnectorsService {
 			const profile = await new GoogleProfileClient(connected.accessToken!, this.fetchImpl()).getUserInfo();
 			const next = this.withKnownTools({
 				...connector,
-				oauth: {
+				oauth: stripGoogleOAuthClientCredentials({
 					...connected,
 					email: profile.email,
 					connectedAt: new Date().toISOString(),
-				},
+				}),
 				lastError: undefined,
 				updatedAt: new Date().toISOString(),
 			});
@@ -418,14 +417,9 @@ export class ConnectorsService {
 	}
 
 	private validConnectors(): ConnectorConfig[] {
-		return this.store.getConnectors().filter((connector) => {
-			return (
-				typeof connector.id === 'string' &&
-				typeof connector.name === 'string' &&
-				typeof connector.connectorId === 'string' &&
-				isOpenAiConnectorId(connector.connectorId)
-			);
-		});
+		return this.store.getConnectors()
+			.filter(isStoredConnectorValid)
+			.map(normalizeStoredConnector);
 	}
 
 	private replace(connector: ConnectorConfig): void {
@@ -587,7 +581,7 @@ export class ConnectorsService {
 		});
 		const next = {
 			...connector,
-			oauth: mergeGoogleOAuthCredential(oauth, token),
+			oauth: stripGoogleOAuthClientCredentials(mergeGoogleOAuthCredential(oauth, token)),
 			updatedAt: new Date().toISOString(),
 			lastError: undefined,
 		};
@@ -595,38 +589,26 @@ export class ConnectorsService {
 		return next.oauth.accessToken!;
 	}
 
-	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthCredential {
-		const oauth = connector.oauth;
-		const shared = this.googleOAuthClientDefaults(connector.id);
+	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthRuntimeCredential {
+		const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
 		const clientId =
-			oauth?.clientId ||
 			this.options.googleOAuthClientId ||
-			process.env.GOOGLE_OAUTH_CLIENT_ID ||
-			shared?.clientId;
+			process.env.GOOGLE_OAUTH_CLIENT_ID;
 		const clientSecret =
-			oauth?.clientSecret ||
 			this.options.googleOAuthClientSecret ||
-			process.env.GOOGLE_OAUTH_CLIENT_SECRET ||
-			shared?.clientSecret;
+			process.env.GOOGLE_OAUTH_CLIENT_SECRET;
 		if (!clientId) {
 			throw new Error(
-				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID or add it once on any Google connector.'
+				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID in the app environment.'
 			);
 		}
 		return {
 			provider: 'google',
-			redirectUri: oauth?.redirectUri || shared?.redirectUri || this.oauthRedirectUri(),
+			redirectUri: oauth?.redirectUri || this.oauthRedirectUri(),
 			...oauth,
 			clientId,
 			clientSecret,
 		};
-	}
-
-	private googleOAuthClientDefaults(excludeConnectorId?: string): GoogleOAuthCredential | undefined {
-		return this.validConnectors()
-			.filter((connector) => connector.id !== excludeConnectorId && isGoogleConnector(connector.connectorId))
-			.map((connector) => connector.oauth)
-			.find((oauth): oauth is GoogleOAuthCredential => Boolean(oauth?.clientId));
 	}
 
 	private openOAuthLoopbackServer(expectedState: string): Promise<OAuthLoopbackServer> {
@@ -727,33 +709,53 @@ function isGoogleConnector(connectorId: string): boolean {
 	return GOOGLE_CONNECTOR_IDS.has(connectorId);
 }
 
+function isStoredConnectorValid(connector: ConnectorConfig): boolean {
+	return (
+		typeof connector.id === 'string' &&
+		typeof connector.name === 'string' &&
+		typeof connector.connectorId === 'string' &&
+		isOpenAiConnectorId(connector.connectorId)
+	);
+}
+
+function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
+	if (!isGoogleConnector(connector.connectorId) || !connector.oauth) return connector;
+	const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
+	return oauth === connector.oauth ? connector : { ...connector, oauth };
+}
+
 function buildOAuthConfig(
 	input: ConnectorInput,
 	current: GoogleOAuthCredential | undefined,
 	redirectUri: string
 ): GoogleOAuthCredential | undefined {
-	if (!isGoogleConnector(input.connectorId)) return current;
-	const clientId = input.oauthClientId?.trim() || current?.clientId;
-	const clientSecret = input.oauthClientSecret?.trim() || current?.clientSecret;
-	if (!clientId) return current;
+	if (!isGoogleConnector(input.connectorId)) return undefined;
+	const oauth = stripGoogleOAuthClientCredentials(current);
 	return {
 		provider: 'google',
-		redirectUri: current?.redirectUri || redirectUri,
-		...current,
-		clientId,
-		clientSecret,
+		redirectUri: oauth?.redirectUri || redirectUri,
+		...oauth,
 	};
+}
+
+function stripGoogleOAuthClientCredentials(oauth: GoogleOAuthCredential | undefined): GoogleOAuthCredential | undefined {
+	if (!oauth) return undefined;
+	const { clientId: _clientId, clientSecret: _clientSecret, ...safeOAuth } = oauth;
+	return safeOAuth;
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	if (!connector.oauth) return { ...connector };
-	const { accessToken: _accessToken, refreshToken: _refreshToken, clientSecret, ...oauth } = connector.oauth;
+	const {
+		accessToken: _accessToken,
+		refreshToken: _refreshToken,
+		clientId: _clientId,
+		clientSecret: _clientSecret,
+		...oauth
+	} = connector.oauth;
 	return {
 		...connector,
-		oauth: {
-			...oauth,
-			clientSecret: clientSecret ? '' : undefined,
-		},
+		oauth,
 	};
 }
 

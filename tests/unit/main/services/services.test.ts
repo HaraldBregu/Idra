@@ -124,6 +124,8 @@ describe('connectors service', () => {
 		}) as unknown as typeof fetch;
 		const service = new ConnectorsService(store as never, makeLogger() as never, {
 			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
 			createOAuthLoopbackServer: async () => ({
 				redirectUri: 'http://127.0.0.1:49152',
 				callback: Promise.resolve({ code: 'code-1' }),
@@ -142,8 +144,6 @@ describe('connectors service', () => {
 		const added = await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
-			oauthClientId: 'client-id',
-			oauthClientSecret: 'client-secret',
 			allowedTools: ['get_profile'],
 		});
 
@@ -152,6 +152,12 @@ describe('connectors service', () => {
 			connectedAccount: 'user@example.com',
 		});
 		expect(openedUrls).toHaveLength(1);
+		expect(connectors[0]).toMatchObject({
+			oauth: expect.not.objectContaining({
+				clientId: expect.any(String),
+				clientSecret: expect.any(String),
+			}),
+		});
 		expect(service.list()[0]).toMatchObject({
 			status: 'configured',
 			connectedAccount: 'user@example.com',
@@ -189,12 +195,14 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
 		await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
-			oauthClientId: 'client-id',
-			oauthClientSecret: 'client-secret',
 			allowedTools: ['search_emails'],
 			requireApproval: 'never_for_allowed_tools',
 		});
@@ -259,7 +267,7 @@ describe('connectors service', () => {
 		});
 	});
 
-	it('reuses saved Google OAuth client settings across Google connectors', async () => {
+	it('ignores legacy saved Google OAuth client settings and uses app-level credentials', async () => {
 		let connectors: unknown[] = [];
 		const store = {
 			getConnectors: jest.fn(() => connectors),
@@ -268,8 +276,8 @@ describe('connectors service', () => {
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
 				const body = String(init?.body);
-				expect(body).toContain('client_id=shared-client-id');
-				expect(body).toContain('client_secret=shared-client-secret');
+				expect(body).toContain('client_id=app-client-id');
+				expect(body).toContain('client_secret=app-client-secret');
 				return jsonResponse({ access_token: 'fresh-token', expires_in: 3600, token_type: 'Bearer' });
 			}
 			if (url.startsWith('https://www.googleapis.com/calendar/v3/calendars/primary/events?')) {
@@ -277,12 +285,14 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'app-client-id',
+			googleOAuthClientSecret: 'app-client-secret',
+		});
 		await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
-			oauthClientId: 'shared-client-id',
-			oauthClientSecret: 'shared-client-secret',
 			allowedTools: ['get_profile'],
 		});
 		const calendar = await service.add({
@@ -294,7 +304,13 @@ describe('connectors service', () => {
 			connectors[0],
 			{
 				...(connectors[1] as Record<string, unknown>),
-				oauth: { provider: 'google', redirectUri: 'http://127.0.0.1:49152', refreshToken: 'refresh-token' },
+				oauth: {
+					provider: 'google',
+					redirectUri: 'http://127.0.0.1:49152',
+					clientId: 'legacy-client-id',
+					clientSecret: 'legacy-client-secret',
+					refreshToken: 'refresh-token',
+				},
 			},
 		];
 
@@ -339,12 +355,14 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
 		const added = await service.add({
 			name: 'My Calendar',
 			connectorId: 'connector_googlecalendar',
-			oauthClientId: 'client-id',
-			oauthClientSecret: 'client-secret',
 			allowedTools: ['search_events', 'create_event'],
 			requireApproval: 'never_for_allowed_tools',
 		});

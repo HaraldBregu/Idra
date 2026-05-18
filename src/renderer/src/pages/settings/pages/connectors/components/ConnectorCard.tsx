@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import type { ConnectorView } from '../../../../../../../shared/connectors';
+import { ConnectorStatusBadge } from './ConnectorStatusBadge';
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a,input,textarea,select,label,[role="switch"]'));
@@ -34,15 +35,20 @@ const CONNECTOR_ICONS = {
 export function ConnectorCard({
 	connector,
 	busy,
+	connecting,
+	onConnectOAuth,
 	onToggle,
 	onViewDetails,
 }: {
 	readonly connector: ConnectorView;
 	readonly busy: boolean;
+	readonly connecting: boolean;
+	readonly onConnectOAuth: () => void;
 	readonly onToggle: () => void;
 	readonly onViewDetails: () => void;
 }): React.JSX.Element {
 	const ConnectorIcon = CONNECTOR_ICONS[connector.connectorId] ?? Plug;
+	const canConnectOAuth = connector.authKind === 'google_oauth';
 
 	return (
 		<Item
@@ -59,8 +65,26 @@ export function ConnectorCard({
 			</ItemMedia>
 			<ItemContent className="min-w-0">
 				<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
+				<div className="mt-1 flex min-w-0 items-center gap-1.5">
+					<ConnectorStatusBadge status={connector.status} />
+					{connector.connectedAccount && (
+						<span className="truncate text-[11px] leading-4 text-muted-foreground">
+							{connector.connectedAccount}
+						</span>
+					)}
+				</div>
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end gap-1">
+				{canConnectOAuth && (
+					<Button
+						variant={connector.status === 'configured' ? 'ghost' : 'outline'}
+						size="xs"
+						disabled={busy || connecting}
+						onClick={onConnectOAuth}
+					>
+						{connecting ? 'Connecting...' : connector.status === 'configured' ? 'Reconnect' : 'Connect'}
+					</Button>
+				)}
 				<Switch
 					checked={connector.enabled}
 					disabled={busy}

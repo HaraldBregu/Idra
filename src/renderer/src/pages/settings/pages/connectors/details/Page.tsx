@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, Plug, Wrench } from 'lucide-react';
+import { AlertTriangle, LoaderCircle, Plug, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorConfig, ConnectorTool } from '../../../../../../../shared/connectors';
+import {
+	getConnectorAuthKind,
+	type ConnectorConfig,
+	type ConnectorTool,
+} from '../../../../../../../shared/connectors';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -21,6 +26,10 @@ function formatTimestamp(value?: string): string {
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return 'Never';
 	return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+}
+
+function formatApprovalPolicy(value: ConnectorConfig['requireApproval']): string {
+	return value.replaceAll('_', ' ');
 }
 
 function DetailRow({
@@ -58,7 +67,9 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [connector, setConnector] = useState<ConnectorConfig | null>(null);
 	const [tools, setTools] = useState<readonly ConnectorTool[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [connecting, setConnecting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [toolsError, setToolsError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -75,6 +86,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 		setLoading(true);
 		setError(null);
+		setStatusMessage(null);
 		setToolsError(null);
 
 		void (async () => {
@@ -111,6 +123,29 @@ const ConnectorDetailsPage: React.FC = () => {
 		};
 	}, [connectorId, t]);
 
+	const connectGoogleOAuth = async (): Promise<void> => {
+		if (!connector) return;
+		setConnecting(true);
+		setError(null);
+		setStatusMessage(`Opening browser for ${connector.name}...`);
+		try {
+			const result = await window.connectors.connectOAuth(connector.id);
+			const [nextConnector, nextTools] = await Promise.all([
+				window.connectors.get(connector.id),
+				window.connectors.listTools(connector.id),
+			]);
+			setConnector(nextConnector);
+			setTools(nextTools);
+			setStatusMessage(result.message ?? `${connector.name} connected.`);
+			setToolsError(null);
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+			setStatusMessage(null);
+		} finally {
+			setConnecting(false);
+		}
+	};
+
 	if (loading) {
 		return (
 			<SettingsPageShell>
@@ -139,11 +174,28 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
+	const authKind = getConnectorAuthKind(connector.connectorId);
+	const googleOAuth = authKind === 'google_oauth';
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title={connector.name}
 				description={connector.serverDescription}
+				action={
+					googleOAuth ? (
+						<Button
+							type="button"
+							size="xs"
+							variant={connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'outline' : 'default'}
+							disabled={connecting}
+							onClick={() => void connectGoogleOAuth()}
+						>
+							{connecting && <LoaderCircle className="size-3 animate-spin" />}
+							{connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'Reconnect Google' : 'Connect Google'}
+						</Button>
+					) : undefined
+				}
 			/>
 
 			{error && (
@@ -151,14 +203,21 @@ const ConnectorDetailsPage: React.FC = () => {
 					{error}
 				</SettingsNotice>
 			)}
+			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
 			<SettingsSection title="Configuration">
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={connector.connectorId} mono />
 					<DetailRow label="Server label" value={connector.serverLabel} mono />
 					<DetailRow label="Enabled" value={connector.enabled ? 'Enabled' : 'Disabled'} />
-					<DetailRow label="Approval policy" value={connector.requireApproval.replaceAll('_', ' ')} />
-					<DetailRow label="Auth" value={connector.oauth ? 'Google OAuth' : 'Access token'} />
+					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.requireApproval)} />
+					<DetailRow label="Auth" value={googleOAuth ? 'Google OAuth' : 'Access token'} />
+					{googleOAuth && (
+						<DetailRow
+							label="OAuth client"
+							value="Environment variables"
+						/>
+					)}
 					<DetailRow label="Connected account" value={connector.oauth?.email ?? 'Not connected'} />
 					<DetailRow label="Last refreshed" value={formatTimestamp(connector.lastRefreshedAt)} />
 					<DetailRow label="Updated" value={formatTimestamp(connector.updatedAt)} />

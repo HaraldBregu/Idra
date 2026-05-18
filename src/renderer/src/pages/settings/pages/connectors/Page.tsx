@@ -39,8 +39,6 @@ interface ConnectorFormState {
 	readonly serverLabel: string;
 	readonly serverDescription: string;
 	readonly authorization: string;
-	readonly oauthClientId: string;
-	readonly oauthClientSecret: string;
 	readonly requireApproval: ConnectorApprovalMode;
 	readonly allowedTools: string[];
 	readonly deferLoading: boolean;
@@ -54,8 +52,6 @@ const emptyForm: ConnectorFormState = {
 	serverLabel: '',
 	serverDescription: '',
 	authorization: '',
-	oauthClientId: '',
-	oauthClientSecret: '',
 	requireApproval: 'always',
 	allowedTools: [],
 	deferLoading: false,
@@ -78,8 +74,6 @@ function formToInput(form: ConnectorFormState): ConnectorInput {
 		serverLabel: form.serverLabel || serverLabelFromName(form.name),
 		serverDescription: form.serverDescription || undefined,
 		authorization: form.authorization,
-		oauthClientId: form.oauthClientId || undefined,
-		oauthClientSecret: form.oauthClientSecret || undefined,
 		requireApproval: form.requireApproval,
 		allowedTools: form.allowedTools,
 		deferLoading: form.deferLoading,
@@ -112,9 +106,11 @@ const ConnectorsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId,
+		connectingId,
 		error, setError,
 		statusMessage,
 		load,
+		connectOAuth,
 		toggleConnector,
 	} = useConnectors();
 
@@ -319,33 +315,12 @@ const ConnectorsPage: React.FC = () => {
 							{/* Auth */}
 							<div className="border-b border-border/60 p-3">
 								{googleOAuth ? (
-									<div className="grid gap-3 md:grid-cols-2">
-										<SettingsField id="connector-oauth-client-id" label="Google OAuth client ID">
-											<Input
-												id="connector-oauth-client-id"
-												value={form.oauthClientId}
-												onChange={(e) => update('oauthClientId', e.target.value)}
-												placeholder="Optional Google OAuth client ID"
-												className="h-7 px-2 text-xs md:text-xs"
-											/>
-										</SettingsField>
-										<SettingsField id="connector-oauth-client-secret" label="Google OAuth client secret">
-											<Input
-												id="connector-oauth-client-secret"
-												type="password"
-												value={form.oauthClientSecret}
-												onChange={(e) => update('oauthClientSecret', e.target.value)}
-												placeholder={form.id ? 'Leave blank to keep saved secret' : 'Optional Google OAuth client secret'}
-												className="h-7 px-2 text-xs md:text-xs"
-											/>
-										</SettingsField>
-										<div className="md:col-span-2">
-											<SettingsNotice variant="default">
-												Save, then connect with Google OAuth. Friday opens your browser and listens on a temporary loopback redirect:{' '}
-												<span className="font-mono">{getRedirectUri(selected)}</span>
-											</SettingsNotice>
-										</div>
-									</div>
+									<SettingsNotice variant="default">
+										Google OAuth uses <span className="font-mono">GOOGLE_OAUTH_CLIENT_ID</span> and{' '}
+										<span className="font-mono">GOOGLE_OAUTH_CLIENT_SECRET</span> from the app environment.
+										Save, then connect with Google OAuth. Redirect:{' '}
+										<span className="font-mono">{getRedirectUri(selected)}</span>
+									</SettingsNotice>
 								) : (
 									<SettingsField id="connector-authorization" label="OAuth access token">
 										<Input
@@ -458,6 +433,8 @@ const ConnectorsPage: React.FC = () => {
 								key={connector.id}
 								connector={connector}
 								busy={busyId === connector.id}
+								connecting={connectingId === connector.id}
+								onConnectOAuth={() => void connectOAuth(connector)}
 								onToggle={() => void toggleConnector(connector)}
 								onViewDetails={() => openConnectorDetails(connector.id)}
 							/>
