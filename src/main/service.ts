@@ -32,6 +32,7 @@ import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
 import type { ApprovalDecision } from '../shared/service';
+import type { OpenClawCronActor } from './cron';
 
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
@@ -138,7 +139,11 @@ export class AgentService {
 		this.ensureRuntime(this.defaultAgentId);
 	}
 
-	async send(message: string, agentId = this.defaultAgentId): Promise<string> {
+	async send(
+		message: string,
+		agentId = this.defaultAgentId,
+		options: { cronContext?: OpenClawCronActor } = {}
+	): Promise<string> {
 		const runtime = this.ensureRuntime(agentId);
 		if (runtime.currentAbort) {
 			runtime.currentAbort.abort();
@@ -178,6 +183,10 @@ export class AgentService {
 			const ctx: ToolContext = {
 				workspace: workspaceRoot,
 				agentId,
+				cronContext: options.cronContext ?? {
+					role: agentId === this.defaultAgentId ? 'owner' : 'subagent',
+					agentId,
+				},
 				sessionId: runtime.session.id,
 				sessionBaseDir: this.sessionBaseDir,
 				sessionVisibility: 'agent',
