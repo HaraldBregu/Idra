@@ -34,6 +34,7 @@ import {
 	projectGoogleCalendarEvent,
 	projectGoogleCalendarListEntry,
 	projectGoogleDriveFile,
+	projectGoogleDrivePermission,
 	projectGmailMessage,
 	projectGmailMessageWithBody,
 	refreshGoogleAccessToken,
