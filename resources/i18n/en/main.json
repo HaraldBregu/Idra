@@ -313,6 +313,20 @@
 				"nextDue": "Next Due",
 				"nextDueDescription": "Earliest scheduled heartbeat slot."
 			},
+			"timing": {
+				"title": "Timing",
+				"description": "Set the default heartbeat cadence and optional active hours.",
+				"cadence": "Cadence",
+				"cadenceDescription": "Approximate interval for phase-aligned heartbeat checks.",
+				"every": "Every",
+				"everyDescription": "Use duration strings such as 5m, 30m, 1h, or 0m to disable cadence.",
+				"everyPlaceholder": "30m",
+				"disablePreset": "Disable",
+				"activeStart": "Active Start",
+				"activeEnd": "Active End",
+				"timezone": "Timezone",
+				"timezonePlaceholder": "Local timezone"
+			},
 			"last": {
 				"title": "Last Event",
 				"description": "Latest heartbeat status emitted by the gateway.",
@@ -336,6 +350,7 @@
 			},
 			"actions": {
 				"refresh": "Refresh",
+				"saveTiming": "Save timing",
 				"wakeNow": "Wake now",
 				"sendNow": "Send now",
 				"sendNext": "Send next"
@@ -359,11 +374,14 @@
 			"notices": {
 				"enabled": "Heartbeats resumed.",
 				"disabled": "Heartbeats paused.",
+				"timingSaved": "Heartbeat timing saved.",
 				"wakeQueued": "Manual heartbeat queued.",
 				"eventQueued": "System event queued for {{session}}."
 			},
 			"errors": {
-				"emptyEvent": "Enter event text before sending."
+				"emptyEvent": "Enter event text before sending.",
+				"invalidEvery": "Enter a valid duration such as 5m, 30m, 1h, or 0m.",
+				"activeHoursRange": "Set both active start and active end, or leave both empty."
 			}
 		},
 		"permissions": {

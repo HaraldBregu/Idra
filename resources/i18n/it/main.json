@@ -313,6 +313,20 @@
 				"nextDue": "Prossimo Slot",
 				"nextDueDescription": "Primo slot heartbeat pianificato."
 			},
+			"timing": {
+				"title": "Orario",
+				"description": "Imposta la cadenza heartbeat predefinita e le ore attive opzionali.",
+				"cadence": "Cadenza",
+				"cadenceDescription": "Intervallo approssimativo per controlli heartbeat phase-aligned.",
+				"every": "Ogni",
+				"everyDescription": "Usa durate come 5m, 30m, 1h o 0m per disattivare la cadenza.",
+				"everyPlaceholder": "30m",
+				"disablePreset": "Disattiva",
+				"activeStart": "Inizio Attivo",
+				"activeEnd": "Fine Attiva",
+				"timezone": "Fuso Orario",
+				"timezonePlaceholder": "Fuso orario locale"
+			},
 			"last": {
 				"title": "Ultimo Evento",
 				"description": "Ultimo stato heartbeat emesso dal gateway.",
@@ -336,6 +350,7 @@
 			},
 			"actions": {
 				"refresh": "Aggiorna",
+				"saveTiming": "Salva orario",
 				"wakeNow": "Sveglia ora",
 				"sendNow": "Invia ora",
 				"sendNext": "Invia dopo"
@@ -359,11 +374,14 @@
 			"notices": {
 				"enabled": "Heartbeat ripresi.",
 				"disabled": "Heartbeat sospesi.",
+				"timingSaved": "Orario heartbeat salvato.",
 				"wakeQueued": "Heartbeat manuale accodato.",
 				"eventQueued": "Evento di sistema accodato per {{session}}."
 			},
 			"errors": {
-				"emptyEvent": "Inserisci il testo dell'evento prima di inviare."
+				"emptyEvent": "Inserisci il testo dell'evento prima di inviare.",
+				"invalidEvery": "Inserisci una durata valida come 5m, 30m, 1h o 0m.",
+				"activeHoursRange": "Imposta sia inizio che fine attiva, oppure lascia entrambi vuoti."
 			}
 		},
 		"permissions": {
