@@ -43,10 +43,12 @@ import {
 	NoopOpenClawCronExecutor,
 	OpenClawCronScheduler,
 	type OpenClawCronActor,
-	type OpenClawCronNormalizeContext,
 	type OpenClawCronSchedulerOptions,
 } from './openclaw/scheduler';
-import { normalizeOpenClawCronToolRequest } from './openclaw/normalize';
+import {
+	normalizeOpenClawCronToolRequest,
+	type OpenClawCronNormalizeContext,
+} from './openclaw/normalize';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
