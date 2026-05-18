@@ -21,11 +21,12 @@ function jsonResult(payload: OpenClawCronToolResponse): ReturnType<typeof textRe
 }
 
 function cronActor(ctx: ToolContext) {
-	return {
+	const actor = {
 		...(ctx.cronContext ?? { role: 'owner' as const }),
-		agentId: ctx.cronContext?.agentId ?? ctx.agentId,
 		sessionId: ctx.sessionId,
 	};
+	const agentId = ctx.cronContext?.agentId ?? ctx.agentId;
+	return agentId === undefined ? actor : { ...actor, agentId };
 }
 
 function contextMessageCount(args: OpenClawCronToolRequest): number {
@@ -147,10 +148,15 @@ export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolRespon
 	},
 	needsApproval: (args) => ['add', 'update', 'remove', 'run', 'wake'].includes(args.action),
 	async execute(args, ctx) {
-		const response = await ctx.services.cron.openClawAction(args, cronActor(ctx), {
-			recentContext: await recentContext(args, ctx),
-			delivery: inferredDelivery(ctx),
-		});
+		const capturedContext = await recentContext(args, ctx);
+		const delivery = inferredDelivery(ctx);
+		const actor = cronActor(ctx);
+		const response = capturedContext || delivery
+			? await ctx.services.cron.openClawAction(args, actor, {
+					recentContext: capturedContext,
+					delivery,
+				})
+			: await ctx.services.cron.openClawAction(args, actor);
 		return jsonResult(response);
 	},
 };
