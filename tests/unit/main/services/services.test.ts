@@ -96,11 +96,14 @@ describe('connectors service', () => {
 
 	it('builds least required Google Drive OAuth scopes for file tools', () => {
 		const profileOnlyScopes = scopesForGoogleDriveTools(['get_profile']);
-		const fileScopes = scopesForGoogleDriveTools(['search', 'fetch']);
+		const fileScopes = scopesForGoogleDriveTools(['search_files', 'read_file_content']);
+		const writeScopes = scopesForGoogleDriveTools(['create_file']);
 
 		expect(profileOnlyScopes).toContain('https://www.googleapis.com/auth/userinfo.email');
 		expect(profileOnlyScopes).not.toContain('https://www.googleapis.com/auth/drive.readonly');
 		expect(fileScopes).toContain('https://www.googleapis.com/auth/drive.readonly');
+		expect(fileScopes).not.toContain('https://www.googleapis.com/auth/drive.file');
+		expect(writeScopes).toContain('https://www.googleapis.com/auth/drive.file');
 	});
 
 	it('opens Google OAuth with a runtime loopback redirect and exchanges the code with PKCE', async () => {
@@ -396,7 +399,7 @@ describe('connectors service', () => {
 		})).resolves.toMatchObject({ id: 'event-2', summary: 'Demo' });
 	});
 
-	it('executes Google Drive search and fetch tools with Google OAuth tokens', async () => {
+	it('executes Google Drive MCP-style tools with Google OAuth tokens', async () => {
 		let connectors: unknown[] = [];
 		const store = {
 			getConnectors: jest.fn(() => connectors),
@@ -436,6 +439,26 @@ describe('connectors service', () => {
 				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
 				return textResponse('Drive document body');
 			}
+			if (url.startsWith('https://www.googleapis.com/drive/v3/files/file-1/permissions?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					permissions: [
+						{ id: 'permission-1', type: 'user', role: 'reader', emailAddress: 'reader@example.com' },
+					],
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/upload/drive/v3/files?')) {
+				expect(init?.method).toBe('POST');
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				expect(String(init?.body)).toContain('Draft note');
+				expect(String(init?.body)).toContain('Hello Drive');
+				return jsonResponse({
+					id: 'file-2',
+					name: 'Draft note',
+					mimeType: 'text/plain',
+					webViewLink: 'https://drive.google.com/file/d/file-2/view',
+				});
+			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
 		const service = new ConnectorsService(store as never, makeLogger() as never, {
@@ -446,7 +469,13 @@ describe('connectors service', () => {
 		const added = await service.add({
 			name: 'My Drive',
 			connectorId: 'connector_googledrive',
-			allowedTools: ['search', 'fetch'],
+			allowedTools: [
+				'search_files',
+				'read_file_content',
+				'get_file_metadata',
+				'get_file_permissions',
+				'create_file',
+			],
 			requireApproval: 'never_for_allowed_tools',
 		});
 		connectors = [
@@ -460,13 +489,24 @@ describe('connectors service', () => {
 		];
 
 		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
-		await expect(service.callTool(added.id, 'search', { query: 'roadmap' })).resolves.toMatchObject({
+		await expect(service.callTool(added.id, 'search_files', { query: 'roadmap' })).resolves.toMatchObject({
 			files: [expect.objectContaining({ id: 'file-1', name: 'Roadmap' })],
 		});
-		await expect(service.callTool(added.id, 'fetch', { id: 'file-1' })).resolves.toMatchObject({
+		await expect(service.callTool(added.id, 'read_file_content', { id: 'file-1' })).resolves.toMatchObject({
 			id: 'file-1',
 			content: 'Drive document body',
 		});
+		await expect(service.callTool(added.id, 'get_file_metadata', { id: 'file-1' })).resolves.toMatchObject({
+			id: 'file-1',
+			name: 'Roadmap',
+		});
+		await expect(service.callTool(added.id, 'get_file_permissions', { id: 'file-1' })).resolves.toMatchObject({
+			permissions: [expect.objectContaining({ id: 'permission-1', role: 'reader' })],
+		});
+		await expect(service.callTool(added.id, 'create_file', {
+			name: 'Draft note',
+			content: 'Hello Drive',
+		})).resolves.toMatchObject({ id: 'file-2', name: 'Draft note' });
 	});
 });
 
