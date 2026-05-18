@@ -652,40 +652,39 @@ const HeartbeatPage: React.FC = () => {
 						actionsClassName="sm:w-[520px]"
 						actions={
 							<div className="grid w-full gap-1.5">
-							<Textarea
-								id="heartbeat-system-event"
-								value={eventText}
-								onChange={(event) => setEventText(event.target.value)}
-								disabled={loading || isBusy}
-								placeholder={t('settings.heartbeat.controls.systemEventPlaceholder')}
+								<Textarea
+									id="heartbeat-system-event"
+									value={eventText}
+									onChange={(event) => setEventText(event.target.value)}
+									disabled={loading || isBusy}
+									placeholder={t('settings.heartbeat.controls.systemEventPlaceholder')}
 									className="min-h-16 resize-y text-xs leading-5 md:text-xs"
 									aria-label={t('settings.heartbeat.controls.systemEvent')}
-							/>
+								/>
 								<div className="flex flex-wrap items-center justify-end gap-1.5">
-							<Button
-								type="button"
-								size="xs"
-								onClick={() => handleSystemEvent('now')}
-								disabled={loading || isBusy || eventText.trim().length === 0}
-							>
-								<Send className="size-3" />
-								{t('settings.heartbeat.actions.sendNow')}
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								size="xs"
-								onClick={() => handleSystemEvent('next-heartbeat')}
-								disabled={loading || isBusy || eventText.trim().length === 0}
-							>
-								<TimerReset className="size-3" />
-								{t('settings.heartbeat.actions.sendNext')}
-							</Button>
+									<Button
+										type="button"
+										size="xs"
+										onClick={() => handleSystemEvent('now')}
+										disabled={loading || isBusy || eventText.trim().length === 0}
+									>
+										<Send className="size-3" />
+										{t('settings.heartbeat.actions.sendNow')}
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										size="xs"
+										onClick={() => handleSystemEvent('next-heartbeat')}
+										disabled={loading || isBusy || eventText.trim().length === 0}
+									>
+										<TimerReset className="size-3" />
+										{t('settings.heartbeat.actions.sendNext')}
+									</Button>
 								</div>
 							</div>
 						}
 					/>
-						</div>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
