@@ -11,34 +11,18 @@ import {
 	DEFAULT_WORKSPACE_CONTEXT_MAX_CHARS,
 	DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS,
 	MAX_WORKSPACE_CONTEXT_FILE_BYTES,
-	OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES,
-	SEEDED_WORKSPACE_FILE_NAMES,
 	WORKSPACE_CONTEXT_FILE_NAMES,
 	assertWorkspaceFileName,
 	isPathInside,
-	loadWorkspaceTemplate,
 	safeReadWorkspaceFile,
-	writeFileIfMissing,
-	type OptionalWorkspaceTemplateFileName,
 	type WorkspaceContextFile,
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
 } from './files';
 
 const execFileAsync = promisify(execFile);
-const WORKSPACE_STATE_DIRNAME = '.friday';
-const WORKSPACE_STATE_FILENAME = 'workspace-state.json';
-const WORKSPACE_STATE_VERSION = 1;
-
-type WorkspaceSetupState = {
-	version: typeof WORKSPACE_STATE_VERSION;
-	bootstrapSeededAt?: string;
-	setupCompletedAt?: string;
-};
 
 export type EnsureWorkspaceOptions = {
-	skipBootstrap?: boolean;
-	skipOptionalFiles?: OptionalWorkspaceTemplateFileName[];
 	initializeGit?: boolean;
 };
 
@@ -164,7 +148,7 @@ export class WorkspaceService {
 		if (Buffer.byteLength(content, 'utf8') > MAX_WORKSPACE_CONTEXT_FILE_BYTES) {
 			throw new Error(`Workspace file exceeds ${MAX_WORKSPACE_CONTEXT_FILE_BYTES} bytes: ${name}`);
 		}
-		await this.ensureReady({ skipBootstrap: name === DEFAULT_BOOTSTRAP_FILENAME });
+			await this.ensureReady();
 		const filePath = path.join(this.rootPath, name);
 		await this.assertSafeWritableWorkspaceFile(name, filePath);
 		await fs.writeFile(filePath, content, { encoding: 'utf8', mode: 0o600 });
@@ -173,90 +157,7 @@ export class WorkspaceService {
 
 	async isBootstrapPending(): Promise<boolean> {
 		await this.ensureReady();
-		const state = await this.readSetupState();
-		if (state.setupCompletedAt) return false;
 		return this.exists(DEFAULT_BOOTSTRAP_FILENAME);
-	}
-
-	private async seedWorkspaceFiles(options: EnsureWorkspaceOptions): Promise<void> {
-		const skipped = new Set(options.skipOptionalFiles ?? []);
-		const optional = new Set<string>(OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES);
-		for (const name of SEEDED_WORKSPACE_FILE_NAMES) {
-			if (optional.has(name) && skipped.has(name as OptionalWorkspaceTemplateFileName)) continue;
-			await writeFileIfMissing(
-				path.join(this.rootPath, name),
-				await loadWorkspaceTemplate(name as WorkspaceFileName)
-			);
-		}
-	}
-
-	private async reconcileBootstrapState(options: EnsureWorkspaceOptions): Promise<void> {
-		const statePath = this.statePath();
-		let state = await this.readSetupState();
-		let dirty = false;
-		const bootstrapPath = path.join(this.rootPath, DEFAULT_BOOTSTRAP_FILENAME);
-		const bootstrapExists = await this.pathExists(bootstrapPath);
-		const now = (): string => new Date().toISOString();
-
-		if (state.setupCompletedAt) return;
-
-		if (state.bootstrapSeededAt && !bootstrapExists) {
-			state = { ...state, setupCompletedAt: now() };
-			dirty = true;
-		}
-
-		if (!state.bootstrapSeededAt && bootstrapExists) {
-			state = { ...state, bootstrapSeededAt: now() };
-			dirty = true;
-		}
-
-		if (!options.skipBootstrap && !state.bootstrapSeededAt && !state.setupCompletedAt) {
-			const wrote = await writeFileIfMissing(
-				bootstrapPath,
-				await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
-			);
-			if (wrote || (await this.pathExists(bootstrapPath))) {
-				state = { ...state, bootstrapSeededAt: now() };
-				dirty = true;
-			}
-		}
-
-		if (dirty) {
-			await this.writeSetupState(statePath, state);
-		}
-	}
-
-	private async readSetupState(): Promise<WorkspaceSetupState> {
-		try {
-			const raw = await fs.readFile(this.statePath(), 'utf8');
-			const parsed = JSON.parse(raw) as Partial<WorkspaceSetupState>;
-			return {
-				version: WORKSPACE_STATE_VERSION,
-				bootstrapSeededAt:
-					typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
-				setupCompletedAt:
-					typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
-			};
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-				this.logger.warn('WorkspaceService', 'Could not read workspace state', {
-					error: (error as Error).message,
-				});
-			}
-			return { version: WORKSPACE_STATE_VERSION };
-		}
-	}
-
-	private async writeSetupState(statePath: string, state: WorkspaceSetupState): Promise<void> {
-		await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
-		await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
-			encoding: 'utf8',
-			mode: 0o600,
-		});
-	}
-
-	private statePath(): string {
-		return path.join(this.rootPath, WORKSPACE_STATE_DIRNAME, WORKSPACE_STATE_FILENAME);
 	}
 
 	private async isBrandNewWorkspace(): Promise<boolean> {
