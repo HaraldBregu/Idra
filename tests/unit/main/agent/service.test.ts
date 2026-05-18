@@ -509,6 +509,31 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('exposes exec for plain Python script run requests', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'ready' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send('Run the Python script.')).resolves.toBe('ready');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('exec');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('executes legacy approval-marked tools without IPC pending approval', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
