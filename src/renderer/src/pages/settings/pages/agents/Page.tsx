@@ -1,8 +1,9 @@
 import React from 'react';
-import { Bot, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bot, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemIcon, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -20,6 +21,20 @@ const AGENTS = [
 
 const AgentsPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
+
+	const openAgent = (agentId: string): void => {
+		navigate(`/settings/agents/agentdetails/${encodeURIComponent(agentId)}`);
+	};
+
+	const handleAgentKeyDown = (
+		event: React.KeyboardEvent<HTMLDivElement>,
+		agentId: string
+	): void => {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		openAgent(agentId);
+	};
 
 	return (
 		<SettingsPageShell>
@@ -32,7 +47,16 @@ const AgentsPage: React.FC = () => {
 			<SettingsSection title={t('settings.agents.allAgents')}>
 				<SettingsPanel>
 					{AGENTS.map((agent) => (
-						<Item key={agent.id} variant="outline" size="sm" className="border-b border-border/60 last:border-b-0">
+						<Item
+							key={agent.id}
+							role="button"
+							tabIndex={0}
+							variant="outline"
+							size="sm"
+							className="cursor-pointer border-b border-border/60 last:border-b-0 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring/55"
+							onClick={() => openAgent(agent.id)}
+							onKeyDown={(event) => handleAgentKeyDown(event, agent.id)}
+						>
 							<ItemMedia variant="icon">
 								<Bot className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
@@ -55,6 +79,7 @@ const AgentsPage: React.FC = () => {
 								>
 									{agent.id}
 								</Badge>
+								<ItemIcon icon={ChevronRight} className="bg-transparent text-muted-foreground" />
 							</ItemActions>
 						</Item>
 					))}

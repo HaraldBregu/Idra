@@ -1,0 +1,351 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { AlertTriangle, Bot, CheckCircle2, CircleOff, LoaderCircle, Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import {
+	SettingsEmptyState,
+	SettingsField,
+	SettingsLoadingRows,
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+} from '../../../components';
+import type { PublicProvider } from '../../../../../../../shared/providers';
+import type { Agent, Model } from '../../../../../../../shared/service';
+
+const FRIDAY_AGENT_ID = 'main';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+	if (error instanceof Error && error.message.trim().length > 0) {
+		return error.message;
+	}
+	return fallback;
+}
+
+function mergeProviders(
+	providers: readonly PublicProvider[],
+	agent: Agent | undefined
+): PublicProvider[] {
+	const byId = new Map(providers.map((provider) => [provider.id, provider]));
+	if (agent && !byId.has(agent.provider.id)) {
+		byId.set(agent.provider.id, agent.provider);
+	}
+	return [...byId.values()];
+}
+
+const AgentDetailsPage: React.FC = () => {
+	const { t } = useTranslation();
+	const { agentId } = useParams<{ agentId: string }>();
+	const decodedAgentId = decodeURIComponent(agentId ?? '');
+	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_ID;
+	const [providers, setProviders] = useState<PublicProvider[]>([]);
+	const [currentAgent, setCurrentAgent] = useState<Agent | undefined>();
+	const [providerId, setProviderId] = useState('');
+	const [models, setModels] = useState<Model[]>([]);
+	const [modelId, setModelId] = useState('');
+	const [loading, setLoading] = useState(true);
+	const [loadingModels, setLoadingModels] = useState(false);
+	const [saving, setSaving] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
+	const [successMessage, setSuccessMessage] = useState('');
+
+	useEffect(() => {
+		let mounted = true;
+
+		if (!isFridayAgent) {
+			setLoading(false);
+			return () => {
+				mounted = false;
+			};
+		}
+
+		setLoading(true);
+		setErrorMessage('');
+		setSuccessMessage('');
+
+		void Promise.all([window.app.getProviders(), window.app.getAgentService()])
+			.then(([nextProviders, nextAgent]) => {
+				if (!mounted) return;
+				const mergedProviders = mergeProviders(nextProviders, nextAgent);
+				const preferredProvider =
+					mergedProviders.find((provider) => provider.id === nextAgent?.provider.id) ??
+					mergedProviders[0];
+
+				setProviders(mergedProviders);
+				setCurrentAgent(nextAgent);
+				setProviderId(preferredProvider?.id ?? '');
+				setModelId(
+					nextAgent && preferredProvider?.id === nextAgent.provider.id
+						? nextAgent.model.id
+						: ''
+				);
+			})
+			.catch((error) => {
+				if (!mounted) return;
+				setProviders([]);
+				setCurrentAgent(undefined);
+				setProviderId('');
+				setModelId('');
+				setErrorMessage(getErrorMessage(error, t('settings.agents.loadError')));
+			})
+			.finally(() => {
+				if (mounted) setLoading(false);
+			});
+
+		return () => {
+			mounted = false;
+		};
+	}, [isFridayAgent, t]);
+
+	const selectedProvider = providers.find((provider) => provider.id === providerId);
+
+	useEffect(() => {
+		let mounted = true;
+
+		if (!selectedProvider) {
+			setModels([]);
+			setModelId('');
+			return () => {
+				mounted = false;
+			};
+		}
+
+		setLoadingModels(true);
+		setErrorMessage('');
+
+		void window.app
+			.getModels(selectedProvider)
+			.then((nextModels) => {
+				if (!mounted) return;
+				setModels(nextModels);
+				setModelId((current) => {
+					if (current && nextModels.some((model) => model.id === current)) return current;
+					if (currentAgent?.provider.id === selectedProvider.id) return currentAgent.model.id;
+					return nextModels[0]?.id ?? '';
+				});
+			})
+			.catch((error) => {
+				if (!mounted) return;
+				setModels([]);
+				setModelId('');
+				setErrorMessage(getErrorMessage(error, t('settings.agents.modelsLoadError')));
+			})
+			.finally(() => {
+				if (mounted) setLoadingModels(false);
+			});
+
+		return () => {
+			mounted = false;
+		};
+	}, [currentAgent, selectedProvider, t]);
+
+	const modelOptions = useMemo(() => {
+		const byId = new Map(models.map((model) => [model.id, model]));
+		if (
+			currentAgent?.provider.id === providerId &&
+			currentAgent.model.id &&
+			!byId.has(currentAgent.model.id)
+		) {
+			byId.set(currentAgent.model.id, currentAgent.model);
+		}
+		return [...byId.values()];
+	}, [currentAgent, models, providerId]);
+
+	const selectedModel = modelOptions.find((model) => model.id === modelId);
+	const hasChanges =
+		!currentAgent ||
+		currentAgent.provider.id !== providerId ||
+		currentAgent.model.id !== modelId;
+	const canSave = Boolean(selectedProvider && selectedModel && hasChanges && !loadingModels && !saving);
+
+	const handleProviderChange = useCallback((nextValue: string | null): void => {
+		setProviderId(nextValue ?? '');
+		setModelId('');
+		setSuccessMessage('');
+	}, []);
+
+	const handleModelChange = useCallback((nextValue: string | null): void => {
+		setModelId(nextValue ?? '');
+		setSuccessMessage('');
+	}, []);
+
+	const handleSave = useCallback(async (): Promise<void> => {
+		if (!selectedProvider || !selectedModel || !canSave) return;
+
+		setSaving(true);
+		setErrorMessage('');
+		setSuccessMessage('');
+		try {
+			const saved = await window.app.saveAgentService(selectedProvider, selectedModel);
+			if (!saved) throw new Error(t('settings.agents.saveError'));
+			setCurrentAgent({ provider: selectedProvider, model: selectedModel });
+			setSuccessMessage(t('settings.agents.saved'));
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, t('settings.agents.saveError')));
+		} finally {
+			setSaving(false);
+		}
+	}, [canSave, selectedModel, selectedProvider, t]);
+
+	if (loading) {
+		return (
+			<SettingsPageShell>
+				<SettingsPageHeader
+					title={t('settings.agents.detailsTitle')}
+					description={t('settings.agents.description')}
+					icon={Bot}
+				/>
+				<SettingsPanel>
+					<SettingsLoadingRows rows={3} />
+				</SettingsPanel>
+			</SettingsPageShell>
+		);
+	}
+
+	if (!isFridayAgent) {
+		return (
+			<SettingsPageShell>
+				<SettingsPageHeader title={t('settings.agents.detailsTitle')} icon={Bot} />
+				<SettingsPanel>
+					<SettingsEmptyState
+						icon={CircleOff}
+						title={t('settings.agents.notFoundTitle')}
+						description={t('settings.agents.notFoundDescription')}
+						className="min-h-28"
+					/>
+				</SettingsPanel>
+			</SettingsPageShell>
+		);
+	}
+
+	return (
+		<SettingsPageShell>
+			<SettingsPageHeader
+				title={t('settings.agents.fridayName')}
+				description={t('settings.agents.fridayDescription')}
+				icon={Bot}
+			/>
+
+			{errorMessage && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{errorMessage}
+				</SettingsNotice>
+			)}
+
+			{successMessage && (
+				<SettingsNotice icon={CheckCircle2}>
+					{successMessage}
+				</SettingsNotice>
+			)}
+
+			<SettingsSection title={t('settings.agents.identity')}>
+				<SettingsPanel>
+					<SettingsRow
+						icon={Bot}
+						title={t('settings.agents.fridayName')}
+						description={t('settings.agents.fridayDescription')}
+						actions={
+							<Badge
+								variant="outline"
+								className="h-5 rounded-md bg-muted/40 px-2 font-mono text-[10px] text-muted-foreground"
+							>
+								{FRIDAY_AGENT_ID}
+							</Badge>
+						}
+					/>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
+				title={t('settings.agents.configuration')}
+				description={t('settings.agents.subtitle')}
+			>
+				<SettingsPanel>
+					<div className="grid gap-3 p-3">
+						<SettingsField
+							id="agent-provider"
+							label={t('settings.agents.provider')}
+							description={t('settings.agents.providerDescription')}
+						>
+							<Select
+								value={providerId}
+								onValueChange={handleProviderChange}
+								disabled={providers.length === 0 || saving}
+							>
+								<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
+									<SelectValue placeholder={t('settings.agents.providerPlaceholder')} />
+								</SelectTrigger>
+								<SelectContent>
+									{providers.map((provider) => (
+										<SelectItem key={provider.id} value={provider.id}>
+											{provider.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</SettingsField>
+
+						<SettingsField
+							id="agent-model"
+							label={t('settings.agents.model')}
+							description={t('settings.agents.modelDescription')}
+						>
+							<Select
+								value={modelId}
+								onValueChange={handleModelChange}
+								disabled={!selectedProvider || loadingModels || modelOptions.length === 0 || saving}
+							>
+								<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
+									<SelectValue
+										placeholder={
+											loadingModels
+												? t('settings.agents.modelsLoading')
+												: t('settings.agents.modelPlaceholder')
+										}
+									/>
+								</SelectTrigger>
+								<SelectContent>
+									{modelOptions.map((model) => (
+										<SelectItem key={model.id} value={model.id}>
+											{model.name || model.id}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{selectedProvider && !loadingModels && modelOptions.length === 0 && (
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.agents.noModels')}
+								</p>
+							)}
+						</SettingsField>
+
+						<div className="flex justify-end">
+							<Button type="button" size="sm" disabled={!canSave} onClick={() => void handleSave()}>
+								{saving ? (
+									<LoaderCircle className="size-3.5 animate-spin" />
+								) : (
+									<Save className="size-3.5" />
+								)}
+								{saving ? t('settings.agents.saving') : t('common.save')}
+							</Button>
+						</div>
+					</div>
+				</SettingsPanel>
+			</SettingsSection>
+		</SettingsPageShell>
+	);
+};
+
+export default AgentDetailsPage;
