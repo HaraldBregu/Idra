@@ -39,13 +39,34 @@ function makeHeartbeatHarness(options: {
 	send?: jest.Mock<Promise<string>, [string, string?, unknown?]>;
 }) {
 	let heartbeatState: HeartbeatStoreState = emptyHeartbeatStoreState();
+	let service = options.service ?? serviceConfig();
 	const eventBus = {
 		emit: jest.fn(),
 		broadcast: jest.fn(),
 		on: jest.fn(() => jest.fn()),
 	};
 	const store = {
-		getService: jest.fn(() => options.service ?? serviceConfig()),
+		getService: jest.fn(() => service),
+		setDefaultHeartbeatConfig: jest.fn((config) => {
+			const currentAgents = service.agents ?? {};
+			const currentDefaults = currentAgents.defaults ?? {};
+			const currentHeartbeat = currentDefaults.heartbeat ?? {};
+			const nextHeartbeat = { ...currentHeartbeat, ...config };
+			if ('activeHours' in config && config.activeHours === undefined) {
+				delete nextHeartbeat.activeHours;
+			}
+			service = {
+				...service,
+				agents: {
+					...currentAgents,
+					defaults: {
+						...currentDefaults,
+						heartbeat: nextHeartbeat,
+					},
+				},
+			};
+			return nextHeartbeat;
+		}),
 		getHeartbeatState: jest.fn(() => heartbeatState),
 		setHeartbeatState: jest.fn((next: HeartbeatStoreState) => {
 			heartbeatState = next;
@@ -108,6 +129,29 @@ describe('heartbeat helpers', () => {
 
 		expect(summaries.map((summary) => summary.agentId)).toEqual(['ops']);
 		expect(summaries[0]?.everyMs).toBe(5 * 60_000);
+	});
+
+	it('updates default heartbeat timing and recomputes schedules', () => {
+		const { heartbeat, store } = makeHeartbeatHarness({
+			service: serviceConfig({
+				agents: { defaults: { heartbeat: { every: '30m', target: 'none' } } },
+			}),
+		});
+
+		const timing = heartbeat.updateTiming({
+			every: '10m',
+			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
+		});
+
+		expect(timing).toEqual({
+			every: '10m',
+			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
+		});
+		expect(store.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+			every: '10m',
+			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
+		});
+		expect(heartbeat.getStatus().agentCount).toBe(1);
 	});
 
 	it('computes stable phase scheduling and preserves nextDueMs only when identity is unchanged', () => {
