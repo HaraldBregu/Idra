@@ -5,6 +5,8 @@ import {
 	type OpenClawCronToolRequest,
 	type OpenClawCronToolResponse,
 } from '../../shared/cron';
+import { loadExistingSession } from '../session/store';
+import type { TranscriptEntry } from '../provider/types';
 import type { AgentTool, ToolContext } from './types';
 import { textResult } from './types';
 
@@ -19,16 +21,62 @@ function jsonResult(payload: OpenClawCronToolResponse): ReturnType<typeof textRe
 }
 
 function cronActor(ctx: ToolContext) {
-	return ctx.cronContext ?? {
-		role: 'owner' as const,
+	return {
+		...(ctx.cronContext ?? { role: 'owner' as const }),
+		agentId: ctx.cronContext?.agentId ?? ctx.agentId,
 		sessionId: ctx.sessionId,
 	};
 }
 
+function contextMessageCount(args: OpenClawCronToolRequest): number {
+	const count = typeof args.contextMessages === 'number' ? args.contextMessages : 0;
+	if (!Number.isFinite(count)) return 0;
+	return Math.max(0, Math.min(10, Math.floor(count)));
+}
+
+function blockText(entry: TranscriptEntry): string | null {
+	if (entry.role === 'user') return entry.content;
+	if (entry.role === 'assistant') {
+		const text = entry.content
+			.map((block) => block.type === 'text' ? block.text : '')
+			.join('')
+			.trim();
+		return text || null;
+	}
+	return null;
+}
+
+async function recentContext(args: OpenClawCronToolRequest, ctx: ToolContext): Promise<string | undefined> {
+	const count = contextMessageCount(args);
+	if (count <= 0) return undefined;
+	const session = await loadExistingSession(ctx.sessionId, { baseDir: ctx.sessionBaseDir });
+	if (!session) return undefined;
+	const lines = session.transcript
+		.flatMap((entry) => {
+			const text = blockText(entry);
+			return text ? [`${entry.role}: ${text.slice(0, 1000)}`] : [];
+		})
+		.slice(-count);
+	const combined = lines.join('\n');
+	return combined.length > 4000 ? combined.slice(0, 4000) : combined;
+}
+
+function inferredDelivery(ctx: ToolContext): Record<string, unknown> | undefined {
+	const source = ctx.deliveryContext;
+	if (!source) return undefined;
+	const delivery: Record<string, unknown> = { mode: 'announce' };
+	for (const key of ['channel', 'to', 'threadId', 'accountId'] as const) {
+		if (typeof source[key] === 'string' && source[key].trim()) delivery[key] = source[key];
+	}
+	return Object.keys(delivery).length > 1 ? delivery : undefined;
+}
+
 export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolResponse> = {
 	name: 'cron',
+	ownerOnly: true,
+	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
 	description:
-		'Manage Gateway-owned scheduled automation. Use for reminders, delayed follow-ups, recurring reports, and background chores. Do not emulate scheduling with sleep loops, shell loops, or process polling. Prefer isolated agentTurn jobs unless the user asked for main-session event injection or current-session binding.',
+		'Schedule cron jobs, reminders, and wake events through the Gateway-owned scheduler. Use this for reminders, delayed follow-ups, recurring reports, scheduled background chores, manual runs, run history, and wake events. Do not emulate scheduling with sleep loops, shell loops, long-running process polling, or model-side timers. For cron schedules, write expressions in the supplied timezone local wall-clock time; do not convert requested local time to UTC first. Use jobId as the canonical id. Prefer isolated agentTurn jobs unless the user asked for main-session systemEvent injection.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -37,7 +85,12 @@ export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolRespon
 				enum: ['status', 'list', 'get', 'add', 'update', 'remove', 'run', 'runs', 'wake'],
 			},
 			jobId: { type: 'string', description: 'Canonical cron job id.' },
+			id: { type: 'string', description: 'Compatibility alias for jobId.' },
 			include: { type: 'string', enum: ['enabled', 'disabled', 'all'] },
+			includeDisabled: { type: 'boolean' },
+			agentId: { type: 'string' },
+			contextMessages: { type: 'number', description: 'For systemEvent reminders only; capture 1-10 recent messages.' },
+			timeoutMs: { type: 'number' },
 			job: {
 				type: 'object',
 				additionalProperties: true,
@@ -48,7 +101,44 @@ export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolRespon
 				additionalProperties: true,
 				description: 'Patch payload for action=update.',
 			},
-			mode: { type: 'string', enum: ['force', 'due'] },
+			name: { type: 'string' },
+			description: { type: 'string' },
+			enabled: { type: 'boolean' },
+			deleteAfterRun: { type: 'boolean' },
+			schedule: { type: 'object', additionalProperties: true },
+			sessionTarget: { type: 'string' },
+			session: { type: 'string', description: 'Compatibility alias for sessionTarget.' },
+			wakeMode: { type: 'string', enum: ['now', 'next-heartbeat'] },
+			payload: { type: 'object', additionalProperties: true },
+			delivery: { type: 'object', additionalProperties: true },
+			failureAlert: { type: 'object', additionalProperties: true },
+			at: { type: 'string' },
+			atMs: { type: 'number' },
+			everyMs: { type: 'number' },
+			anchorMs: { type: 'number' },
+			cron: { type: 'string', description: 'Cron expression compatibility field.' },
+			expr: { type: 'string', description: 'Cron expression.' },
+			tz: { type: 'string', description: 'IANA timezone for cron local wall-clock time.' },
+			staggerMs: { type: 'number' },
+			exact: { type: 'boolean', description: 'When true, normalizes to staggerMs 0.' },
+			text: { type: 'string', description: 'systemEvent text or wake text.' },
+			message: { type: 'string', description: 'agentTurn message.' },
+			model: { type: 'string' },
+			fallbacks: { type: 'array', items: { type: 'string' } },
+			thinking: { type: 'string', enum: ['low', 'medium', 'high'] },
+			timeoutSeconds: { type: 'number' },
+			lightContext: { type: 'boolean' },
+			allowUnsafeExternalContent: { type: 'boolean' },
+			toolsAllow: { type: 'array', items: { type: 'string' } },
+			channel: { type: 'string' },
+			to: { type: 'string' },
+			threadId: { type: 'string' },
+			accountId: { type: 'string' },
+			bestEffort: { type: 'boolean' },
+			bestEffortDeliver: { type: 'boolean' },
+			provider: { type: 'string' },
+			mode: { type: 'string', enum: ['force', 'due', 'now', 'next-heartbeat'] },
+			runMode: { type: 'string', enum: ['force', 'due'] },
 			force: { type: 'boolean' },
 			limit: { type: 'number' },
 		},
@@ -57,7 +147,10 @@ export const cronTool: AgentTool<OpenClawCronToolRequest, OpenClawCronToolRespon
 	},
 	needsApproval: (args) => ['add', 'update', 'remove', 'run', 'wake'].includes(args.action),
 	async execute(args, ctx) {
-		const response = await ctx.services.cron.openClawAction(args, cronActor(ctx));
+		const response = await ctx.services.cron.openClawAction(args, cronActor(ctx), {
+			recentContext: await recentContext(args, ctx),
+			delivery: inferredDelivery(ctx),
+		});
 		return jsonResult(response);
 	},
 };
