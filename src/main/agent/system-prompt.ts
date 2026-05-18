@@ -33,6 +33,7 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
 	cron: 'Create, update, list, run, or delete scheduled cron tasks.',
+	open_browser: "Open an http/https URL in the user's default browser.",
 };
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
