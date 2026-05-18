@@ -39,10 +39,6 @@ export interface TitleBarProps {
 	rightContent?: ReactNode;
 	/** Called when the sidebar toggle button is clicked */
 	onToggleSidebar?: () => void;
-	/** Called when the back navigation button is clicked */
-	onNavigateBack?: () => void;
-	/** Called when the forward navigation button is clicked */
-	onNavigateForward?: () => void;
 	/** When true, renders agentic + info sidebar toggle buttons on the right */
 	showSidebarToggles?: boolean;
 }

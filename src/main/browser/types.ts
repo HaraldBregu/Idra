@@ -8,6 +8,7 @@ export interface BrowserProfile {
 	userDataDir?: string;
 	attachOnly?: boolean;
 	executablePath?: string;
+	color?: string;
 }
 
 export interface BrowserTab {
@@ -22,4 +23,12 @@ export interface BrowserStatus {
 	running: boolean;
 	profile: string;
 	tabs: BrowserTab[];
+}
+
+export interface BrowserProfileStatus {
+	name: string;
+	driver: BrowserProfileDriver;
+	running: boolean;
+	attachOnly?: boolean;
+	color?: string;
 }

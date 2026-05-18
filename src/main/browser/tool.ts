@@ -11,6 +11,7 @@ interface BrowserToolArgs {
 	targetId?: string;
 	profile?: string;
 	label?: string;
+	target?: 'host' | 'sandbox' | 'node';
 	timeoutMs?: number;
 	request?: Record<string, unknown>;
 }
@@ -51,6 +52,11 @@ export function createBrowserTool(service: BrowserService): AgentTool<BrowserToo
 				},
 				profile: { type: 'string', description: 'Browser profile name. Defaults to "default".' },
 				label: { type: 'string', description: 'Human-readable tab label for open.' },
+				target: {
+					type: 'string',
+					enum: ['host', 'sandbox', 'node'],
+					description: 'Reserved backend target selector. Defaults to the managed host browser service.',
+				},
 				timeoutMs: { type: 'number' },
 				request: {
 					type: 'object',
@@ -79,8 +85,8 @@ export function createBrowserTool(service: BrowserService): AgentTool<BrowserToo
 						return textResult(JSON.stringify(s, null, 2));
 					}
 					case 'stop': {
-						await service.stop(profile);
-						return textResult(JSON.stringify({ ok: true, stopped: true }));
+						const stopped = await service.stop(profile);
+						return textResult(JSON.stringify({ ok: true, stopped }));
 					}
 					case 'profiles': {
 						return textResult(JSON.stringify({ profiles: service.profiles() }, null, 2));

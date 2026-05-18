@@ -17,11 +17,14 @@ const LAUNCH_ARGS = [
 
 const NAV_TIMEOUT = 30_000;
 const ACT_TIMEOUT = 10_000;
+const SAFE_LABEL_PATTERN = /^[A-Za-z0-9_.:-]{1,64}$/;
+const REDACTED_URL = '[blocked by browser policy]';
 
 export class BrowserRuntime {
 	private context: BrowserContext | null = null;
 	private _running = false;
 	private pages = new Map<string, Page>();
+	private pageIds = new WeakMap<Page, string>();
 	private aliases = new Map<string, string>(); // alias (t1, t2…) -> targetId
 	private labels = new Map<string, string>(); // user label -> targetId
 	private counter = 0;
@@ -58,8 +61,10 @@ export class BrowserRuntime {
 			this._running = false;
 			this.context = null;
 			this.pages.clear();
+			this.pageIds = new WeakMap();
 			this.aliases.clear();
 			this.labels.clear();
+			this.counter = 0;
 			this.lastTargetId = null;
 		});
 		this.context.on('page', (page) => void this.trackPage(page));
@@ -69,15 +74,21 @@ export class BrowserRuntime {
 	}
 
 	private async trackPage(page: Page): Promise<string> {
+		const existing = this.pageIds.get(page);
+		if (existing) return existing;
+
 		const n = ++this.counter;
 		const alias = `t${n}`;
-		// Use alias as stable targetId for this runtime instance
+		this.pageIds.set(page, alias);
 		this.pages.set(alias, page);
 		this.aliases.set(alias, alias);
 		this.lastTargetId = alias;
 		page.once('close', () => {
 			this.pages.delete(alias);
 			this.aliases.delete(alias);
+			for (const [label, targetId] of this.labels.entries()) {
+				if (targetId === alias) this.labels.delete(label);
+			}
 			if (this.lastTargetId === alias) {
 				this.lastTargetId = [...this.pages.keys()].at(-1) ?? null;
 			}
@@ -88,26 +99,32 @@ export class BrowserRuntime {
 	async openTab(url: string, label?: string): Promise<BrowserTab> {
 		const v = validateUrl(url);
 		if (!v.ok) throw new Error(v.reason);
+		const safeLabel = this.validateLabel(label);
 		await this.ensure();
 		const page = await this.context!.newPage();
 		const targetId = await this.trackPage(page);
-		if (label) this.labels.set(label, targetId);
-		await page.goto(v.url.href, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
-		const finalUrl = page.url();
-		const title = await page.title();
-		return { targetId, alias: targetId, label, title, url: finalUrl };
+		try {
+			await page.goto(v.url.href, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
+			const finalUrl = this.validateFinalUrl(page.url());
+			if (safeLabel) this.labels.set(safeLabel, targetId);
+			const title = await page.title();
+			return { targetId, alias: targetId, label: safeLabel, title, url: finalUrl };
+		} catch (err) {
+			await page.close().catch(() => {});
+			throw err;
+		}
 	}
 
 	async navigate(targetId: string | undefined, url: string): Promise<{ targetId: string; url: string }> {
 		const v = validateUrl(url);
 		if (!v.ok) throw new Error(v.reason);
 		await this.ensure();
-		const id = this.resolveId(targetId);
-		if (!id) throw new Error('no active tab — use action "open" first');
+		const id = await this.resolveOrCreatePage(targetId);
 		const page = this.pages.get(id)!;
 		await page.goto(v.url.href, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
+		const finalUrl = this.validateFinalUrl(page.url());
 		this.lastTargetId = id;
-		return { targetId: id, url: page.url() };
+		return { targetId: id, url: finalUrl };
 	}
 
 	async snapshot(targetId?: string): Promise<string> {
@@ -115,7 +132,7 @@ export class BrowserRuntime {
 		const id = this.resolveId(targetId);
 		if (!id) throw new Error('no active tab');
 		const page = this.pages.get(id)!;
-		const url = page.url();
+		const url = safeOutputUrl(page.url());
 		const title = await page.title();
 		const aria = await page.ariaSnapshot();
 		return `url: ${url}\ntitle: ${title}\n\n${aria}`;
@@ -177,7 +194,7 @@ export class BrowserRuntime {
 			if (url === 'about:blank') continue;
 			const title = await page.title().catch(() => '');
 			const label = [...this.labels.entries()].find(([, id]) => id === targetId)?.[0];
-			result.push({ targetId, alias: targetId, label, title, url });
+			result.push({ targetId, alias: targetId, label, title, url: safeOutputUrl(url) });
 		}
 		return result;
 	}
@@ -204,10 +221,46 @@ export class BrowserRuntime {
 	private resolveId(ref?: string): string | null {
 		if (!ref) return this.lastTargetId ?? [...this.pages.keys()][0] ?? null;
 		if (this.pages.has(ref)) return ref;
-		if (this.labels.has(ref)) return this.labels.get(ref)!;
-		const prefix = [...this.pages.keys()].find((k) => k.startsWith(ref));
-		return prefix ?? null;
+		const alias = this.aliases.get(ref);
+		if (alias && this.pages.has(alias)) return alias;
+		const labeled = this.labels.get(ref);
+		if (labeled && this.pages.has(labeled)) return labeled;
+		const matches = [...this.pages.keys()].filter((k) => k.startsWith(ref));
+		if (matches.length > 1) throw new Error(`ambiguous tab reference: ${ref}`);
+		return matches[0] ?? null;
 	}
+
+	private async resolveOrCreatePage(ref?: string): Promise<string> {
+		const id = this.resolveId(ref);
+		if (id) return id;
+		if (ref) throw new Error(`tab not found: ${ref}`);
+		const page = await this.context!.newPage();
+		return this.trackPage(page);
+	}
+
+	private validateLabel(label?: string): string | undefined {
+		if (label === undefined) return undefined;
+		const trimmed = label.trim();
+		if (!SAFE_LABEL_PATTERN.test(trimmed)) {
+			throw new Error('label must match /^[A-Za-z0-9_.:-]{1,64}$/');
+		}
+		const existing = this.labels.get(trimmed);
+		if (existing && this.pages.has(existing)) {
+			throw new Error(`label already in use: ${trimmed}`);
+		}
+		return trimmed;
+	}
+
+	private validateFinalUrl(url: string): string {
+		const v = validateUrl(url);
+		if (!v.ok) throw new Error(`navigation blocked after redirect: ${v.reason}`);
+		return v.url.href;
+	}
+}
+
+function safeOutputUrl(url: string): string {
+	if (url === 'about:blank') return url;
+	return validateUrl(url).ok ? url : REDACTED_URL;
 }
 
 function resolveLocator(page: Page, ref: string) {
