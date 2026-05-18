@@ -12,6 +12,8 @@ The newer runtime shape is defined in `src/main/tools/common.ts`. These tools ex
 
 `src/main/tools/tool-definition-adapter.ts` adapts the newer runtime shape into model-facing tool definitions. Client-hosted tools are not executed in the main process; the adapter returns a pending result and terminates so the client can execute them.
 
+In the tables below, `Used?` describes current exposure: `Yes` means the tool is in the default legacy registry, `Yes in new runtime` means it is assembled by `createAgentTools` when that family is enabled, `No by default` means it is defined but not currently in `ALL_TOOLS`, and `Runtime-dependent` or `Conditional` means availability depends on runtime configuration.
+
 ## Default Legacy Tools
 
 These tools are in `ALL_TOOLS` in `src/main/tools/registry.ts`.
