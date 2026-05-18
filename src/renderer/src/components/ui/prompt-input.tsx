@@ -312,12 +312,15 @@ function PromptInput({
   onVoiceEnd,
   onVoiceCancel,
   onVoiceConfirm,
+  onFilesChange,
   onClick,
   ...props
 }: PromptInputProps) {
   const [internalValue, setInternalValue] = useState(value || "")
   const internalTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = externalTextareaRef ?? internalTextareaRef
+  const triggerFileUpload = () => fileInputRef.current?.click()
   const currentValue = value ?? internalValue
   const hasAdaptiveLayout = Boolean(leadingAction || actions)
   const transition = usePromptInputTransition()
