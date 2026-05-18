@@ -88,5 +88,6 @@ export function inferCategories(userIntent: string, memory?: RelevantMemory): Se
 	if (/\b(run|execute|script|test|build|terminal|shell)\b/.test(text)) categories.add('codeExecution');
 	if (/\b(memory|remember|preference|recall)\b/.test(text)) categories.add('memory');
 	if (/\b(search|current|latest|today|news|look up|web)\b/.test(text)) categories.add('search');
+	if (/\b(browser|navigate|screenshot|webpage|web page|visit|automation|click|fill|interact)\b/.test(text)) categories.add('web');
 	return categories;
 }
