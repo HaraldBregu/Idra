@@ -960,29 +960,9 @@ const StartPage: React.FC = () => {
 					Hello there
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					{PRODUCT_NAME} is a small agent that lives in your menu bar. Ask her
-					things by typing or just by talking.
+					Ask anything — set a reminder, draft a message, look something up, or
+					just think out loud. Type or talk, {PRODUCT_NAME} is here to help.
 				</p>
-				<div className="mt-8 grid w-full max-w-sm grid-cols-3 gap-2">
-					<div className="overflow-hidden rounded-xl border border-border bg-card/60 px-2 pb-1.5 pt-2">
-						<DomeWaveAnimation height={52} />
-						<p className="mt-1 text-center text-[10px] font-semibold tracking-wide text-muted-foreground">
-							Listening
-						</p>
-					</div>
-					<div className="overflow-hidden rounded-xl border border-border bg-card/60 px-2 pb-1.5 pt-2">
-						<AuroraWaveAnimation height={52} />
-						<p className="mt-1 text-center text-[10px] font-semibold tracking-wide text-muted-foreground">
-							Thinking
-						</p>
-					</div>
-					<div className="overflow-hidden rounded-xl border border-border bg-card/60 px-2 pb-1.5 pt-2">
-						<EmberWaveAnimation height={52} />
-						<p className="mt-1 text-center text-[10px] font-semibold tracking-wide text-muted-foreground">
-							Speaking
-						</p>
-					</div>
-				</div>
 			</div>
 		);
 	}
