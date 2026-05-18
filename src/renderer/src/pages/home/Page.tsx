@@ -66,23 +66,18 @@ function VoiceButton({
 function SubmitButton({
 	isLoading,
 	canSubmit,
-	voiceMode,
 	onAction,
 }: {
 	readonly isLoading: boolean;
 	readonly canSubmit: boolean;
-	readonly voiceMode: PromptInputVoiceMode | null;
 	readonly onAction: () => void;
 }): ReactElement {
-	const isConversation = voiceMode === 'conversation';
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : isConversation ? 'End voice conversation' : 'Start voice conversation';
-	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : isConversation ? 'typing' : 'voice';
+	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
 	) : canSubmit ? (
 		<ArrowUp className="size-4" />
-	) : isConversation ? (
-		<TypingLoader size="sm" />
 	) : (
 		<AudioLines className="size-4" />
 	);

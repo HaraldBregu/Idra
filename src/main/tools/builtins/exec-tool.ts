@@ -104,11 +104,12 @@ function runCommand(
 ): Promise<{ content: { type: 'text'; text: string }[]; details: ExecDetails }> {
 	return new Promise((resolve) => {
 		const start = Date.now();
-		const child = spawn(process.platform === 'win32' ? 'cmd.exe' : '/bin/bash', process.platform === 'win32' ? ['/c', command] : ['-lc', command], {
-			cwd,
-			env: process.env,
-			stdio: ['ignore', 'pipe', 'pipe'],
-		});
+			const child = spawn(process.platform === 'win32' ? 'cmd.exe' : '/bin/bash', process.platform === 'win32' ? ['/c', command] : ['-lc', command], {
+				cwd,
+				env: process.env,
+				stdio: ['ignore', 'pipe', 'pipe'],
+				detached: process.platform !== 'win32',
+			});
 		let stdout = '';
 		let stderr = '';
 		let settled = false;
@@ -142,18 +143,18 @@ function runCommand(
 			});
 		};
 
-		const abort = (): void => {
-			aborted = true;
-			child.kill('SIGTERM');
-			setTimeout(() => {
-				if (!settled) child.kill('SIGKILL');
-			}, 250);
-		};
+			const abort = (): void => {
+				aborted = true;
+				killProcessTree(child, 'SIGTERM');
+				setTimeout(() => {
+					if (!settled) killProcessTree(child, 'SIGKILL');
+				}, 250);
+			};
 
-		const timer = setTimeout(() => {
-			aborted = true;
-			child.kill('SIGKILL');
-		}, timeoutMs);
+			const timer = setTimeout(() => {
+				aborted = true;
+				killProcessTree(child, 'SIGKILL');
+			}, timeoutMs);
 
 		if (signal?.aborted) abort();
 		else signal?.addEventListener('abort', abort, { once: true });
@@ -174,4 +175,17 @@ function runCommand(
 		});
 		child.on('close', (code) => finish(aborted ? -1 : code));
 	});
+}
+
+function killProcessTree(child: ReturnType<typeof spawn>, signal: NodeJS.Signals): void {
+	if (child.pid === undefined) return;
+	if (process.platform === 'win32') {
+		child.kill(signal);
+		return;
+	}
+	try {
+		process.kill(-child.pid, signal);
+	} catch {
+		child.kill(signal);
+	}
 }
