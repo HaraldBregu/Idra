@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import type { OpenClawCronJob } from '../../../../../../src/shared/cron';
 import CronPage from '../../../../../../src/renderer/src/pages/settings/pages/cron/Page';
 
@@ -34,6 +35,20 @@ function makeJob(id: string, expr = '0 * * * *'): OpenClawCronJob {
 	};
 }
 
+function LocationProbe(): React.JSX.Element {
+	const location = useLocation();
+	return <div data-testid="location">{location.pathname}</div>;
+}
+
+function renderCronPage(): void {
+	render(
+		<MemoryRouter initialEntries={['/settings/cron']}>
+			<CronPage />
+			<LocationProbe />
+		</MemoryRouter>
+	);
+}
+
 describe('CronPage', () => {
 	beforeEach(() => {
 		window.cron = {
@@ -44,7 +59,7 @@ describe('CronPage', () => {
 	});
 
 	it('shows empty state when there are no scheduled tasks', async () => {
-		render(<CronPage />);
+		renderCronPage();
 
 		expect(await screen.findByText('settings.cron.emptyTitle')).toBeInTheDocument();
 	});
@@ -55,7 +70,7 @@ describe('CronPage', () => {
 			makeJob('task-2', '0 0 1 * *'),
 		]);
 
-		render(<CronPage />);
+		renderCronPage();
 
 		// Each task renders a remove button — two tasks means two buttons
 		const removeButtons = await screen.findAllByRole('button', {
@@ -64,35 +79,22 @@ describe('CronPage', () => {
 		expect(removeButtons).toHaveLength(2);
 	});
 
-	it('lets more than one scheduled task stay expanded', async () => {
-		(window.cron.listJobs as jest.Mock).mockResolvedValue([
-			makeJob('task-1', '30 8 * * 1-5'),
-			makeJob('task-2', '0 0 1 * *'),
-		]);
+	it('navigates to job details when a scheduled task is selected', async () => {
+		(window.cron.listJobs as jest.Mock).mockResolvedValue([makeJob('task-1', '30 8 * * 1-5')]);
 
 		const user = userEvent.setup();
-		render(<CronPage />);
+		renderCronPage();
 
-		await user.click(await screen.findByRole('button', {
-			name: 'settings.cron.actions.expandLabel:task-1',
-		}));
-		await user.click(await screen.findByRole('button', {
-			name: 'settings.cron.actions.expandLabel:task-2',
-		}));
+		await user.click(await screen.findByText('Job task-1'));
 
-		expect(screen.getByRole('button', {
-			name: 'settings.cron.actions.collapseLabel:task-1',
-		})).toBeInTheDocument();
-		expect(screen.getByRole('button', {
-			name: 'settings.cron.actions.collapseLabel:task-2',
-		})).toBeInTheDocument();
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/cron/crondetails/task-1');
 	});
 
 	it('calls remove and removes the card from the list', async () => {
 		(window.cron.listJobs as jest.Mock).mockResolvedValue([makeJob('task-1', '0 8 * * 1')]);
 
 		const user = userEvent.setup();
-		render(<CronPage />);
+		renderCronPage();
 
 		const removeButton = await screen.findByRole('button', {
 			name: 'settings.cron.actions.removeLabel:task-1',
