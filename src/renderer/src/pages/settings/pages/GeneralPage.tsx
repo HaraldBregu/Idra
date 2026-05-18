@@ -42,19 +42,31 @@ const GeneralPage: React.FC = () => {
 			<SettingsPageHeader title={t('settings.tabs.general')} />
 
 			<SettingsSection title={t('settings.application.information')}>
-				<Card size="sm" className="gap-0 p-0!">
-					<div className="flex items-center border-b border-border/60 px-3 py-1.5">
-						<span className="w-32 shrink-0 text-[11px] text-muted-foreground">{t('settings.application.name')}</span>
-						<span className="text-[11px] text-foreground">{__APP_NAME__}</span>
-					</div>
-					<div className="flex items-center border-b border-border/60 px-3 py-1.5">
-						<span className="w-32 shrink-0 text-[11px] text-muted-foreground">{t('settings.application.description')}</span>
-						<span className="text-[11px] text-foreground">{__APP_DESCRIPTION__}</span>
-					</div>
-					<div className="flex items-center px-3 py-1.5">
-						<span className="w-32 shrink-0 text-[11px] text-muted-foreground">{t('settings.application.version')}</span>
-						<span className="font-mono text-[11px] text-foreground">{__APP_VERSION__}</span>
-					</div>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent>
+							<ItemTitle>{t('settings.application.name')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="text-[13px] text-foreground">{__APP_NAME__}</span>
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent>
+							<ItemTitle>{t('settings.application.description')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="text-[13px] text-foreground">{__APP_DESCRIPTION__}</span>
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent>
+							<ItemTitle>{t('settings.application.version')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="font-mono text-[13px] text-foreground">{__APP_VERSION__}</span>
+						</ItemActions>
+					</Item>
 				</Card>
 			</SettingsSection>
 
