@@ -22,6 +22,7 @@ import {
 } from '../../shared/connectors';
 import {
 	GoogleCalendarApiClient,
+	GoogleDriveApiClient,
 	GoogleProfileClient,
 	GmailApiClient,
 	GOOGLE_OAUTH_REDIRECT_URI,
@@ -32,6 +33,7 @@ import {
 	mergeGoogleOAuthCredential,
 	projectGoogleCalendarEvent,
 	projectGoogleCalendarListEntry,
+	projectGoogleDriveFile,
 	projectGmailMessage,
 	projectGmailMessageWithBody,
 	refreshGoogleAccessToken,
@@ -40,7 +42,7 @@ import {
 	type GoogleCalendarEvent,
 } from './google';
 
-const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar']);
+const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar', 'connector_googledrive']);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
 
@@ -376,6 +378,9 @@ export class ConnectorsService {
 		if (connector.connectorId === 'connector_googlecalendar') {
 			return this.callGoogleCalendarTool(connector, name, args);
 		}
+		if (connector.connectorId === 'connector_googledrive') {
+			return this.callGoogleDriveTool(connector, name, args);
+		}
 		throw new Error(`Local execution is not implemented for ${connector.connectorId}.`);
 	}
 
@@ -558,6 +563,64 @@ export class ConnectorsService {
 			}
 			default:
 				throw new Error(`Unsupported Google Calendar tool: ${name}`);
+		}
+	}
+
+	private async callGoogleDriveTool(
+		connector: ConnectorConfig,
+		name: string,
+		args: unknown
+	): Promise<unknown> {
+		const accessToken = await this.getGoogleAccessToken(connector);
+		const drive = new GoogleDriveApiClient(accessToken, this.fetchImpl());
+		const params = paramsRecord(args);
+		switch (name) {
+			case 'get_profile':
+				return new GoogleProfileClient(accessToken, this.fetchImpl()).getUserInfo();
+			case 'list_drives':
+				return drive.listDrives({
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+				});
+			case 'search': {
+				const listed = await drive.searchFiles({
+					query: readString(params, 'query'),
+					driveQuery: readString(params, 'driveQuery'),
+					mimeType: readString(params, 'mimeType'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					orderBy: readString(params, 'orderBy'),
+				});
+				return {
+					...listed,
+					files: (listed.files ?? []).map(projectGoogleDriveFile),
+				};
+			}
+			case 'recent_documents': {
+				const listed = await drive.searchFiles({
+					mimeType: readString(params, 'mimeType'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					orderBy: 'modifiedTime desc',
+				});
+				return {
+					...listed,
+					files: (listed.files ?? []).map(projectGoogleDriveFile),
+				};
+			}
+			case 'fetch': {
+				const file = await drive.getFile(readDriveFileId(params));
+				const content = await drive.getFileContent(
+					file,
+					readString(params, 'exportMimeType') ?? readString(params, 'mimeType')
+				);
+				return {
+					...projectGoogleDriveFile(file),
+					content: content.slice(0, 64 * 1024),
+				};
+			}
+			default:
+				throw new Error(`Unsupported Google Drive tool: ${name}`);
 		}
 	}
 
@@ -837,6 +900,12 @@ function readEventLookupParams(params: Record<string, unknown>): { calendarId: s
 	return { calendarId: readCalendarId(params), eventId };
 }
 
+function readDriveFileId(params: Record<string, unknown>): string {
+	const id = readString(params, 'fileId') ?? readString(params, 'id');
+	if (!id) throw new Error('A Google Drive file id is required.');
+	return id;
+}
+
 function readCalendarDateTime(
 	params: Record<string, unknown>,
 	key: string,
@@ -903,6 +972,13 @@ function readEmailDraftParams(params: Record<string, unknown>): {
 }
 
 function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
+	const driveDescriptions: Record<string, string> = {
+		get_profile: 'Get the connected Google account profile.',
+		list_drives: 'List shared drives available to the connected account.',
+		search: 'Search Google Drive files by name or content.',
+		recent_documents: 'List recently modified Google Drive files.',
+		fetch: 'Fetch Google Drive file metadata and text content.',
+	};
 	const calendarDescriptions: Record<string, string> = {
 		get_profile: 'Get the connected Google account profile.',
 		list_calendars: 'List Google calendars available to the connected account.',
@@ -925,7 +1001,11 @@ function descriptionForTool(connector: ConnectorConfig, toolName: string): strin
 		send_email: 'Send a Gmail email.',
 		trash_email: 'Move a Gmail message to trash.',
 	};
-	const descriptions = connector.connectorId === 'connector_googlecalendar' ? calendarDescriptions : gmailDescriptions;
+	const descriptions = connector.connectorId === 'connector_googlecalendar'
+		? calendarDescriptions
+		: connector.connectorId === 'connector_googledrive'
+			? driveDescriptions
+			: gmailDescriptions;
 	return descriptions[toolName] ?? `Run ${toolName}.`;
 }
 
@@ -935,6 +1015,9 @@ function schemaForTool(connector: ConnectorConfig, toolName: string): AgentTool[
 	}
 	if (connector.connectorId === 'connector_googlecalendar') {
 		return schemaForGoogleCalendarTool(toolName);
+	}
+	if (connector.connectorId === 'connector_googledrive') {
+		return schemaForGoogleDriveTool(toolName);
 	}
 	if (['search_emails', 'search_email_ids'].includes(toolName)) {
 		return {
@@ -988,6 +1071,43 @@ function schemaForTool(connector: ConnectorConfig, toolName: string): AgentTool[
 		properties: {
 			id: { type: 'string', description: 'Gmail message id.' },
 			messageId: { type: 'string', description: 'Gmail message id.' },
+		},
+		additionalProperties: false,
+	};
+}
+
+function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
+	if (toolName === 'list_drives') {
+		return {
+			type: 'object',
+			properties: {
+				maxResults: { type: 'integer', description: 'Maximum shared drives to return, capped at 100.' },
+				pageToken: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (toolName === 'fetch') {
+		return {
+			type: 'object',
+			properties: {
+				id: { type: 'string', description: 'Google Drive file id.' },
+				fileId: { type: 'string', description: 'Google Drive file id.' },
+				exportMimeType: { type: 'string', description: 'Export MIME type for Google Workspace files.' },
+				mimeType: { type: 'string', description: 'Alias for exportMimeType on Google Workspace files.' },
+			},
+			additionalProperties: false,
+		};
+	}
+	return {
+		type: 'object',
+		properties: {
+			query: { type: 'string', description: 'Search text matched against Drive file names and content.' },
+			driveQuery: { type: 'string', description: 'Raw Google Drive q expression for advanced searches.' },
+			mimeType: { type: 'string', description: 'Restrict results to one MIME type.' },
+			maxResults: { type: 'integer', description: 'Maximum files to return, capped at 20.' },
+			pageToken: { type: 'string' },
+			orderBy: { type: 'string', description: 'Google Drive orderBy expression.' },
 		},
 		additionalProperties: false,
 	};

@@ -5,6 +5,7 @@ import { AppsService } from '../../../../src/main/apps';
 import { ConnectorsService } from '../../../../src/main/connectors';
 import {
 	buildGoogleAuthorizationUrl,
+	scopesForGoogleDriveTools,
 	scopesForGmailTools,
 	scopesForGoogleCalendarTools,
 } from '../../../../src/main/connectors/google';
@@ -91,6 +92,15 @@ describe('connectors service', () => {
 		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events.readonly');
 		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events');
 		expect(scopes).toContain('https://www.googleapis.com/auth/userinfo.email');
+	});
+
+	it('builds least required Google Drive OAuth scopes for file tools', () => {
+		const profileOnlyScopes = scopesForGoogleDriveTools(['get_profile']);
+		const fileScopes = scopesForGoogleDriveTools(['search', 'fetch']);
+
+		expect(profileOnlyScopes).toContain('https://www.googleapis.com/auth/userinfo.email');
+		expect(profileOnlyScopes).not.toContain('https://www.googleapis.com/auth/drive.readonly');
+		expect(fileScopes).toContain('https://www.googleapis.com/auth/drive.readonly');
 	});
 
 	it('opens Google OAuth with a runtime loopback redirect and exchanges the code with PKCE', async () => {
@@ -385,6 +395,79 @@ describe('connectors service', () => {
 			end: '2026-05-18T11:00:00Z',
 		})).resolves.toMatchObject({ id: 'event-2', summary: 'Demo' });
 	});
+
+	it('executes Google Drive search and fetch tools with Google OAuth tokens', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = String(init?.body);
+				expect(body).toContain('client_id=client-id');
+				expect(body).toContain('client_secret=client-secret');
+				expect(body).toContain('grant_type=refresh_token');
+				return jsonResponse({ access_token: 'fresh-token', expires_in: 3600, token_type: 'Bearer' });
+			}
+			if (url.startsWith('https://www.googleapis.com/drive/v3/files?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					files: [
+						{
+							id: 'file-1',
+							name: 'Roadmap',
+							mimeType: 'application/vnd.google-apps.document',
+							webViewLink: 'https://drive.google.com/file/d/file-1/view',
+						},
+					],
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/drive/v3/files/file-1?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					id: 'file-1',
+					name: 'Roadmap',
+					mimeType: 'application/vnd.google-apps.document',
+					webViewLink: 'https://drive.google.com/file/d/file-1/view',
+				});
+			}
+			if (url === 'https://www.googleapis.com/drive/v3/files/file-1/export?mimeType=text%2Fplain') {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return textResponse('Drive document body');
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
+		const added = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			allowedTools: ['search', 'fetch'],
+			requireApproval: 'never_for_allowed_tools',
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...((connectors[0] as { oauth: Record<string, unknown> }).oauth),
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		await expect(service.callTool(added.id, 'search', { query: 'roadmap' })).resolves.toMatchObject({
+			files: [expect.objectContaining({ id: 'file-1', name: 'Roadmap' })],
+		});
+		await expect(service.callTool(added.id, 'fetch', { id: 'file-1' })).resolves.toMatchObject({
+			id: 'file-1',
+			content: 'Drive document body',
+		});
+	});
 });
 
 function jsonResponse(payload: unknown, status = 200): Response {
@@ -393,6 +476,15 @@ function jsonResponse(payload: unknown, status = 200): Response {
 		status,
 		json: async () => payload,
 		text: async () => JSON.stringify(payload),
+	} as Response;
+}
+
+function textResponse(payload: string, status = 200): Response {
+	return {
+		ok: status >= 200 && status < 300,
+		status,
+		json: async () => JSON.parse(payload),
+		text: async () => payload,
 	} as Response;
 }
 

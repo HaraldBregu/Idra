@@ -6,6 +6,7 @@ export const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
 export const GOOGLE_GMAIL_API_BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 export const GOOGLE_CALENDAR_API_BASE = 'https://www.googleapis.com/calendar/v3';
+export const GOOGLE_DRIVE_API_BASE = 'https://www.googleapis.com/drive/v3';
 export const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1';
 
 export const GOOGLE_GMAIL_SCOPES = {
@@ -26,6 +27,11 @@ export const GOOGLE_CALENDAR_SCOPES = {
 		'https://www.googleapis.com/auth/calendar.events.readonly',
 	],
 	write: ['https://www.googleapis.com/auth/calendar.events'],
+} as const;
+
+export const GOOGLE_DRIVE_SCOPES = {
+	profile: GOOGLE_GMAIL_SCOPES.profile,
+	read: ['https://www.googleapis.com/auth/drive.readonly'],
 } as const;
 
 export type FetchLike = typeof fetch;
@@ -155,6 +161,42 @@ export interface GoogleCalendarEventsResponse {
 	updated?: string;
 }
 
+export interface GoogleDriveOwner {
+	displayName?: string;
+	emailAddress?: string;
+}
+
+export interface GoogleDriveFile {
+	id?: string;
+	name?: string;
+	mimeType?: string;
+	webViewLink?: string;
+	iconLink?: string;
+	createdTime?: string;
+	modifiedTime?: string;
+	size?: string;
+	owners?: GoogleDriveOwner[];
+	driveId?: string;
+	parents?: string[];
+	trashed?: boolean;
+}
+
+export interface GoogleDriveFileListResponse {
+	files?: GoogleDriveFile[];
+	nextPageToken?: string;
+}
+
+export interface GoogleDriveEntry {
+	id?: string;
+	name?: string;
+	kind?: string;
+}
+
+export interface GoogleDriveListResponse {
+	drives?: GoogleDriveEntry[];
+	nextPageToken?: string;
+}
+
 export function buildGoogleAuthorizationUrl(input: {
 	clientId: string;
 	redirectUri?: string;
@@ -211,11 +253,20 @@ export function scopesForGoogleCalendarTools(toolNames: readonly string[]): stri
 	return [...scopes];
 }
 
+export function scopesForGoogleDriveTools(toolNames: readonly string[]): string[] {
+	const scopes = new Set<string>(GOOGLE_DRIVE_SCOPES.profile);
+	if (toolNames.some((tool) => tool !== 'get_profile')) {
+		GOOGLE_DRIVE_SCOPES.read.forEach((scope) => scopes.add(scope));
+	}
+	return [...scopes];
+}
+
 export function scopesForGoogleConnectorTools(
 	connectorId: string,
 	toolNames: readonly string[]
 ): string[] {
 	if (connectorId === 'connector_googlecalendar') return scopesForGoogleCalendarTools(toolNames);
+	if (connectorId === 'connector_googledrive') return scopesForGoogleDriveTools(toolNames);
 	return scopesForGmailTools(toolNames);
 }
 
@@ -447,6 +498,80 @@ export class GoogleCalendarApiClient {
 	}
 }
 
+export class GoogleDriveApiClient {
+	constructor(
+		private readonly accessToken: string,
+		private readonly fetchImpl: FetchLike = fetch
+	) {}
+
+	async listDrives(input: {
+		maxResults?: number;
+		pageToken?: string;
+	} = {}): Promise<GoogleDriveListResponse> {
+		const url = new URL(`${GOOGLE_DRIVE_API_BASE}/drives`);
+		url.searchParams.set('pageSize', String(clampMaxResults(input.maxResults, 100)));
+		url.searchParams.set('fields', 'nextPageToken,drives(id,name,kind)');
+		if (input.pageToken) url.searchParams.set('pageToken', input.pageToken);
+		return this.fetchJson<GoogleDriveListResponse>(url.toString());
+	}
+
+	async searchFiles(input: {
+		query?: string;
+		driveQuery?: string;
+		mimeType?: string;
+		maxResults?: number;
+		pageToken?: string;
+		orderBy?: string;
+	} = {}): Promise<GoogleDriveFileListResponse> {
+		const url = new URL(`${GOOGLE_DRIVE_API_BASE}/files`);
+		url.searchParams.set('pageSize', String(clampMaxResults(input.maxResults, 20)));
+		url.searchParams.set('fields', `nextPageToken,files(${GOOGLE_DRIVE_FILE_FIELDS})`);
+		url.searchParams.set('supportsAllDrives', 'true');
+		url.searchParams.set('includeItemsFromAllDrives', 'true');
+		url.searchParams.set('orderBy', input.orderBy || 'modifiedTime desc');
+		url.searchParams.set('q', input.driveQuery || buildDriveSearchQuery(input.query, input.mimeType));
+		if (input.pageToken) url.searchParams.set('pageToken', input.pageToken);
+		return this.fetchJson<GoogleDriveFileListResponse>(url.toString());
+	}
+
+	async getFile(fileId: string): Promise<GoogleDriveFile> {
+		const url = new URL(`${GOOGLE_DRIVE_API_BASE}/files/${encodeURIComponent(fileId)}`);
+		url.searchParams.set('fields', GOOGLE_DRIVE_FILE_FIELDS);
+		url.searchParams.set('supportsAllDrives', 'true');
+		return this.fetchJson<GoogleDriveFile>(url.toString());
+	}
+
+	async getFileContent(file: GoogleDriveFile, exportMimeType?: string): Promise<string> {
+		if (!file.id) throw new Error('Google Drive file id is required.');
+		const url = isGoogleWorkspaceFile(file.mimeType)
+			? new URL(`${GOOGLE_DRIVE_API_BASE}/files/${encodeURIComponent(file.id)}/export`)
+			: new URL(`${GOOGLE_DRIVE_API_BASE}/files/${encodeURIComponent(file.id)}`);
+		if (isGoogleWorkspaceFile(file.mimeType)) {
+			url.searchParams.set('mimeType', exportMimeType || defaultDriveExportMimeType(file.mimeType));
+		} else {
+			url.searchParams.set('alt', 'media');
+			url.searchParams.set('supportsAllDrives', 'true');
+		}
+		const response = await this.fetchImpl(url.toString(), {
+			headers: { authorization: `Bearer ${this.accessToken}` },
+		});
+		if (!response.ok) throw await googleHttpError(response, 'Google Drive API request failed');
+		return response.text();
+	}
+
+	private async fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
+		const response = await this.fetchImpl(url, {
+			...init,
+			headers: {
+				authorization: `Bearer ${this.accessToken}`,
+				...(init.headers ?? {}),
+			},
+		});
+		if (!response.ok) throw await googleHttpError(response, 'Google Drive API request failed');
+		return (await response.json()) as T;
+	}
+}
+
 export function projectGmailMessage(message: GmailMessage): Record<string, unknown> {
 	const headers = headersToObject(message.payload?.headers ?? []);
 	return {
@@ -502,6 +627,26 @@ export function projectGoogleCalendarEvent(event: GoogleCalendarEvent): Record<s
 		recurrence: event.recurrence,
 		recurringEventId: event.recurringEventId,
 		updated: event.updated,
+	};
+}
+
+export function projectGoogleDriveFile(file: GoogleDriveFile): Record<string, unknown> {
+	return {
+		id: file.id,
+		name: file.name,
+		mimeType: file.mimeType,
+		webViewLink: file.webViewLink,
+		iconLink: file.iconLink,
+		createdTime: file.createdTime,
+		modifiedTime: file.modifiedTime,
+		size: file.size,
+		owners: file.owners?.map((owner) => ({
+			displayName: owner.displayName,
+			emailAddress: owner.emailAddress,
+		})),
+		driveId: file.driveId,
+		parents: file.parents,
+		trashed: file.trashed,
 	};
 }
 
@@ -567,6 +712,44 @@ async function googleHttpError(response: Response, fallback: string): Promise<Er
 		}
 	}
 	return new Error(`${message} (${response.status})`);
+}
+
+const GOOGLE_DRIVE_FILE_FIELDS = [
+	'id',
+	'name',
+	'mimeType',
+	'webViewLink',
+	'iconLink',
+	'createdTime',
+	'modifiedTime',
+	'size',
+	'owners(displayName,emailAddress)',
+	'driveId',
+	'parents',
+	'trashed',
+].join(',');
+
+function buildDriveSearchQuery(query: string | undefined, mimeType: string | undefined): string {
+	const clauses = ['trashed = false'];
+	if (query) {
+		const escaped = escapeDriveQueryValue(query);
+		clauses.push(`(name contains '${escaped}' or fullText contains '${escaped}')`);
+	}
+	if (mimeType) clauses.push(`mimeType = '${escapeDriveQueryValue(mimeType)}'`);
+	return clauses.join(' and ');
+}
+
+function escapeDriveQueryValue(value: string): string {
+	return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function isGoogleWorkspaceFile(mimeType: string | undefined): boolean {
+	return Boolean(mimeType?.startsWith('application/vnd.google-apps.'));
+}
+
+function defaultDriveExportMimeType(mimeType: string | undefined): string {
+	if (mimeType === 'application/vnd.google-apps.spreadsheet') return 'text/csv';
+	return 'text/plain';
 }
 
 function headersToObject(headers: GmailMessageHeader[]): Record<string, string> {

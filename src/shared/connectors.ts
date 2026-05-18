@@ -82,12 +82,19 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		name: 'Google Drive',
 		description: 'Search, list, and fetch Google Drive files.',
 		tools: ['get_profile', 'list_drives', 'search', 'recent_documents', 'fetch'],
-		scopes: ['userinfo.email', 'userinfo.profile', 'drive.readonly'],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/drive.readonly',
+		],
+		authKind: 'google_oauth',
+		redirectUri: 'http://127.0.0.1:<temporary-port>',
 		setupUrl: 'https://console.cloud.google.com/apis/credentials',
 		setupInstructions: [
-			'Go to Google Cloud Console and enable the Google Drive API.',
-			'Create or reuse an OAuth client with the listed Drive read scopes.',
-			'Complete OAuth for your Google account and paste the resulting access token here.',
+			'Go to Google Cloud Console, enable the Google Drive API, and configure the OAuth consent screen.',
+			'Create an OAuth client with application type Desktop app.',
+			'Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment before launching Friday.',
+			'Save the connector, then use Connect to finish Google consent.',
 		],
 	},
 	{
