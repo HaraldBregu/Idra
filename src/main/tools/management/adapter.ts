@@ -119,7 +119,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
 	if (['read', 'write', 'edit', 'apply_patch', 'find', 'open_folder', 'get_workspace_content', 'get_workspace_path', 'startup_files'].includes(name)) return 'files';
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
-	if (name.includes('web')) return 'web';
+	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
 	if (name.includes('provider') || name.includes('agent') || name.includes('app') || name.includes('theme') || name.includes('menu')) return 'internalApi';
 	return 'utility';
