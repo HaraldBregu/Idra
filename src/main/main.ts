@@ -5,10 +5,10 @@ import type { WindowFactory } from './core/window-factory';
 import type { WindowContextManager } from './core/window-context';
 import type { MainServices } from './service-registry';
 
-const DEFAULT_WINDOW_WIDTH = 500;
-const DEFAULT_WINDOW_HEIGHT = 700;
-const STARTUP_WINDOW_WIDTH = 500;
-const STARTUP_WINDOW_HEIGHT = 700;
+const DEFAULT_WINDOW_WIDTH = 400;
+const DEFAULT_WINDOW_HEIGHT = 550;
+const STARTUP_WINDOW_WIDTH = 400;
+const STARTUP_WINDOW_HEIGHT = 550;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
 
