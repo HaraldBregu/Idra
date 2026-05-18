@@ -1,24 +1,17 @@
-import React, { useState, useEffect, useRef, type ReactNode } from 'react';
-import {
-	Menu,
-	Maximize2,
-	PanelLeft,
-	Minus,
-	X,
-	ArrowLeft,
-	ArrowRight,
-	Home,
-	Settings,
-} from 'lucide-react';
+import React, { type ReactNode } from 'react';
+import { Home, Menu, PanelLeft, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
 import { TitleBarCenterContainer } from './TitleBarCenterContainer';
 import { TitleBarLeftContainer } from './TitleBarLeftContainer';
-import { TitleBarRightContainer } from './TitleBarRightContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { TitleBarProvider } from './context/TitleBarContext';
+import { NavButton } from './components/NavButton';
+import { NavigationButtons } from './components/NavigationButtons';
+import { WindowControls } from './components/WindowControls';
+import { useWindowState } from './hooks/useWindowState';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -55,14 +48,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
-	const [isFullScreen, setIsFullScreen] = useState(false);
-	const [isMaximized, setIsMaximized] = useState(false);
-
-	const [navState, setNavState] = useState<{ stack: string[]; index: number }>(() => ({
-		stack: [location.pathname],
-		index: 0,
-	}));
-	const isProgNav = useRef(false);
+	const { isFullScreen, isMaximized } = useWindowState();
 
 	const isHome = location.pathname === '/home';
 	const isStart = location.pathname === '/start';
@@ -70,234 +56,105 @@ export const TitleBar = React.memo(function TitleBar({
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
 
-	useEffect(() => {
-		if (!window.win) return;
-
-		window.win.isFullScreen().then(setIsFullScreen);
-		window.win.isMaximized().then(setIsMaximized);
-
-		const unsubFs = window.win.onFullScreenChange(setIsFullScreen);
-		const unsubMax = window.win.onMaximizeChange(setIsMaximized);
-		return () => {
-			unsubFs();
-			unsubMax();
-		};
-	}, []);
-
-	useEffect(() => {
-		if (isProgNav.current) {
-			isProgNav.current = false;
-			return;
-		}
-		setNavState(prev => {
-			if (prev.stack[prev.index] === location.pathname) return prev;
-			const newStack = [...prev.stack.slice(0, prev.index + 1), location.pathname];
-			return { stack: newStack, index: newStack.length - 1 };
-		});
-	}, [location.pathname]);
-
-	const canGoBack = navState.index > 0;
-	const canGoForward = navState.index < navState.stack.length - 1;
-
-	const handleBack = () => {
-		if (!canGoBack) return;
-		isProgNav.current = true;
-		const newIndex = navState.index - 1;
-		setNavState(prev => ({ ...prev, index: newIndex }));
-		navigate(navState.stack[newIndex]);
-	};
-
-	const handleForward = () => {
-		if (!canGoForward) return;
-		isProgNav.current = true;
-		const newIndex = navState.index + 1;
-		setNavState(prev => ({ ...prev, index: newIndex }));
-		navigate(navState.stack[newIndex]);
-	};
-
-	const btnBase = `
-    flex items-center justify-center h-full w-[46px]
-    text-muted-foreground
-    hover:bg-accent/80 hover:text-foreground
-    active:bg-accent
-    transition-colors duration-100
-  `;
-
-	const leftButtonClass =
-		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100';
-
-	const leftButtonNoHoverClass =
-		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground';
-
-	const leftNavButtonClass =
-		'flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100 hover:bg-accent/80 hover:text-foreground';
-
 	return (
-		<TitleBarContainer className={className} style={style}>
-			{/* ── Left: burger menu (Windows) + optional sidebar toggle ── */}
-			<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
-				{!isMac && (
-					<button
-						type="button"
-						onClick={() => window.win?.popupMenu()}
-						className={cn(
-							'ml-2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground'
-						)}
-						title={t('titleBar.applicationMenu')}
-					>
-						<Menu className="h-[15px] w-[15px]" strokeWidth={1.5} />
-					</button>
-				)}
-
-				{!isHome && !isStart && !isSettings && (
-					<Button
-						type="button"
-						variant="default"
-						size="xs"
-						onClick={() => navigate('/home')}
-						title={homeButtonLabel}
-					>
-						{homeButtonLabel}
-					</Button>
-				)}
-
-				{onToggleSidebar && (
-					<button
-						type="button"
-						onClick={onToggleSidebar}
-						className={isMac ? leftButtonClass : leftButtonNoHoverClass}
-						title={t('titleBar.toggleSidebar')}
-					>
-						<PanelLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
-					</button>
-				)}
-
-				{isSettings && (
-					<>
+		<TitleBarProvider value={{ isMac, isFullScreen, isMaximized }}>
+			<TitleBarContainer className={className} style={style}>
+				{/* ── Left: platform menu + sidebar toggle + nav buttons ── */}
+				<TitleBarLeftContainer isMac={isMac} isFullScreen={isFullScreen}>
+					{!isMac && (
 						<button
 							type="button"
-							onClick={handleBack}
-							disabled={!canGoBack}
-							className={cn(
-								leftNavButtonClass,
-								!canGoBack &&
-									'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground'
-							)}
-							title={t('titleBar.navigateBack')}
+							onClick={() => window.win?.popupMenu()}
+							className="ml-2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground"
+							title={t('titleBar.applicationMenu')}
 						>
-							<ArrowLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
+							<Menu className="h-[15px] w-[15px]" strokeWidth={1.5} />
 						</button>
-						<button
-							type="button"
-							onClick={handleForward}
-							disabled={!canGoForward}
-							className={cn(
-								leftNavButtonClass,
-								!canGoForward &&
-									'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground'
-							)}
-							title={t('titleBar.navigateForward')}
-						>
-							<ArrowRight className="h-[15px] w-[15px]" strokeWidth={1.5} />
-						</button>
-					</>
-				)}
-			</TitleBarLeftContainer>
+					)}
 
-			{/* ── Center: app title (absolutely placed so it's always truly centered) ── */}
-			<TitleBarCenterContainer>
-				{centerContent && !isSettings ? (
-					centerContent
-				) : (
-					<TitleBarCenterContainerTitle>{titleBarTitle}</TitleBarCenterContainerTitle>
-				)}
-			</TitleBarCenterContainer>
-
-			{/* ── Spacer (pushes right buttons to the right) ── */}
-			<div className="flex-1" />
-
-			{rightContent ? (
-				<div
-					className="z-10 mr-3 flex h-full items-center"
-					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-				>
-					{rightContent}
-				</div>
-			) : null}
-
-			{!isStart && (
-				<div
-					className="z-10 mr-3 flex h-full items-center"
-					style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-				>
-					{isSettings ? (
+					{!isHome && !isStart && !isSettings && (
 						<Button
 							type="button"
-							variant="secondary"
-							size="icon"
-							className="size-8 rounded-full"
+							variant="default"
+							size="xs"
 							onClick={() => navigate('/home')}
 							title={homeButtonLabel}
-							aria-label={homeButtonLabel}
 						>
-							<Home className="size-4" strokeWidth={1.8} />
-						</Button>
-					) : (
-						<Button
-							type="button"
-							variant="secondary"
-							size="icon"
-							className="size-8 rounded-full"
-							onClick={() => navigate('/settings')}
-							title={t('settings.title', 'Settings')}
-							aria-label={t('settings.title', 'Settings')}
-						>
-							<Settings className="size-4" strokeWidth={1.8} />
+							{homeButtonLabel}
 						</Button>
 					)}
-				</div>
-			)}
 
-			{/* ── Right: minimize / maximize / close (Windows only) ── */}
-			{!isMac && (
-				<TitleBarRightContainer>
-					<button
-						type="button"
-						onClick={() => window.win?.minimize()}
-						className={btnBase}
-						title={t('titleBar.minimize')}
-					>
-						<Minus className="h-[17px] w-[17px]" strokeWidth={1.5} />
-					</button>
+					{onToggleSidebar && (
+						<NavButton
+							onClick={onToggleSidebar}
+							title={t('titleBar.toggleSidebar')}
+							className={!isMac ? 'hover:bg-transparent hover:text-muted-foreground transition-none' : ''}
+						>
+							<PanelLeft className="h-[15px] w-[15px]" strokeWidth={1.5} />
+						</NavButton>
+					)}
 
-					<button
-						type="button"
-						onClick={() => window.win?.maximize()}
-						className={btnBase}
-						title={
-							isMaximized ? t('titleBar.restore', 'Restore') : t('titleBar.maximize', 'Maximize')
-						}
-					>
-						<Maximize2 className="h-[15px] w-[15px]" strokeWidth={1.5} />
-					</button>
+					{isSettings && <NavigationButtons />}
+				</TitleBarLeftContainer>
 
-					<button
-						type="button"
-						onClick={() => window.win?.close()}
-						className={`
-              flex items-center justify-center h-full w-[46px]
-              text-muted-foreground
-              hover:bg-[#e81123] hover:text-white
-              active:bg-[#c42b1c] active:text-white
-              transition-colors duration-100
-            `}
-						title={t('titleBar.close')}
+				{/* ── Center: absolutely placed so it's always truly centered ── */}
+				<TitleBarCenterContainer>
+					{centerContent && !isSettings ? (
+						centerContent
+					) : (
+						<TitleBarCenterContainerTitle>{titleBarTitle}</TitleBarCenterContainerTitle>
+					)}
+				</TitleBarCenterContainer>
+
+				<div className="flex-1" />
+
+				{rightContent && (
+					<div
+						className="z-10 mr-3 flex h-full items-center"
+						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
-						<X className="h-[17px] w-[17px]" strokeWidth={1.5} />
-					</button>
-				</TitleBarRightContainer>
-			)}
-		</TitleBarContainer>
+						{rightContent}
+					</div>
+				)}
+
+				{/* ── Right action: home (in settings) or settings (elsewhere) ── */}
+				{!isStart && (
+					<div
+						className="z-10 mr-3 flex h-full items-center"
+						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+					>
+						{isSettings ? (
+							<Button
+								type="button"
+								variant="secondary"
+								size="icon"
+								className="size-8 rounded-full"
+								onClick={() => navigate('/home')}
+								title={homeButtonLabel}
+								aria-label={homeButtonLabel}
+							>
+								<Home className="size-4" strokeWidth={1.8} />
+							</Button>
+						) : (
+							<Button
+								type="button"
+								variant="secondary"
+								size="icon"
+								className="size-8 rounded-full"
+								onClick={() => navigate('/settings')}
+								title={t('settings.title', 'Settings')}
+								aria-label={t('settings.title', 'Settings')}
+							>
+								<Settings className="size-4" strokeWidth={1.8} />
+							</Button>
+						)}
+					</div>
+				)}
+
+				{/* ── Windows only: minimize / maximize / close ── */}
+				{!isMac && <WindowControls />}
+			</TitleBarContainer>
+		</TitleBarProvider>
 	);
 });
 TitleBar.displayName = 'TitleBar';
