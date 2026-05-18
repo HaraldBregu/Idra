@@ -8,3 +8,4 @@ export * from './providers';
 export * from './shortcuts';
 export * from './skills';
 export * from './cron';
+export * from './heartbeat';

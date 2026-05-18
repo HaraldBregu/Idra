@@ -65,6 +65,15 @@ export const CronChannels = {
 	event: 'cron:event',
 } as const;
 
+export const HeartbeatChannels = {
+	status: 'heartbeat:status',
+	last: 'heartbeat:last',
+	setEnabled: 'heartbeat:set-enabled',
+	systemEvent: 'heartbeat:system-event',
+	request: 'heartbeat:request',
+	event: 'heartbeat:event',
+} as const;
+
 export const AppsChannels = {
 	list: 'apps:list',
 	openFolder: 'apps:open-folder',
@@ -258,6 +267,29 @@ interface CronInvokeChannelMap {
 	};
 }
 
+interface HeartbeatInvokeChannelMap {
+	[HeartbeatChannels.status]: {
+		args: [];
+		result: import('./heartbeat').HeartbeatStatus;
+	};
+	[HeartbeatChannels.last]: {
+		args: [];
+		result: import('./heartbeat').HeartbeatEventPayload | null;
+	};
+	[HeartbeatChannels.setEnabled]: {
+		args: [request: import('./heartbeat').HeartbeatSetEnabledRequest];
+		result: import('./heartbeat').HeartbeatStatus;
+	};
+	[HeartbeatChannels.systemEvent]: {
+		args: [request: import('./heartbeat').HeartbeatSystemEventRequest];
+		result: import('./heartbeat').HeartbeatSystemEventResult;
+	};
+	[HeartbeatChannels.request]: {
+		args: [request: import('./heartbeat').HeartbeatWakeRequest];
+		result: void;
+	};
+}
+
 interface AppsInvokeChannelMap {
 	[AppsChannels.list]: { args: []; result: import('./apps').AppInfo[] };
 	[AppsChannels.openFolder]: { args: [id: string]; result: void };
@@ -385,6 +417,7 @@ export interface InvokeChannelMap
 		AgentInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
+		HeartbeatInvokeChannelMap,
 		AppsInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
@@ -415,8 +448,13 @@ interface CronEventChannelMap {
 	[CronChannels.event]: { data: import('./cron').CronScheduleEvent };
 }
 
+interface HeartbeatEventChannelMap {
+	[HeartbeatChannels.event]: { data: import('./heartbeat').HeartbeatEventPayload };
+}
+
 export interface EventChannelMap
 	extends AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
-		CronEventChannelMap {}
+		CronEventChannelMap,
+		HeartbeatEventChannelMap {}

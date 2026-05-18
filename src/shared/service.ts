@@ -1,7 +1,9 @@
 import { Provider } from "./providers";
+import type { AgentsHeartbeatConfig } from './heartbeat';
 
 export interface Service {
 	agent?: Agent;
+	agents?: AgentsHeartbeatConfig;
 	rag: string;
 	ocr: string;
 }

@@ -28,6 +28,12 @@ export type ChannelType = (typeof CHANNEL_PROVIDER_IDS)[number];
 
 export type ChannelDmPolicy = 'allowlist' | 'pairing' | 'open' | 'deny';
 
+export interface ChannelHeartbeatVisibilityConfig {
+	showOk?: boolean;
+	showAlerts?: boolean;
+	useIndicator?: boolean;
+}
+
 export interface ChannelAccountProperties {
 	label?: string;
 	enabled?: boolean;
@@ -45,6 +51,7 @@ export interface ChannelAccountProperties {
 	groupAllowFrom?: string[];
 	defaultTarget?: string;
 	dmPolicy?: ChannelDmPolicy;
+	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
 export interface TelegramChannelProperties {
@@ -56,6 +63,7 @@ export interface TelegramChannelProperties {
 	dmPolicy?: ChannelDmPolicy;
 	groupAllowFrom?: string[];
 	accounts?: Record<string, TelegramChannelAccountProperties>;
+	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
 export interface TelegramChannelAccountProperties extends ChannelAccountProperties {
@@ -72,6 +80,7 @@ export interface WhatsappChannelProperties {
 	allowFrom?: string[];
 	groupAllowFrom?: string[];
 	accounts?: Record<string, ChannelAccountProperties>;
+	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
 export interface DiscordChannelProperties {
@@ -83,12 +92,18 @@ export interface DiscordChannelProperties {
 	dmPolicy?: ChannelDmPolicy;
 	groupAllowFrom?: string[];
 	accounts?: Record<string, ChannelAccountProperties>;
+	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
 export interface GenericChannelProperties {
 	enabled?: boolean;
 	defaultAccountId?: string;
 	accounts?: Record<string, ChannelAccountProperties>;
+	heartbeat?: ChannelHeartbeatVisibilityConfig;
+}
+
+export interface ChannelDefaultsProperties {
+	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
 type ChannelConfigById = {
@@ -96,6 +111,7 @@ type ChannelConfigById = {
 };
 
 export interface Channel extends ChannelConfigById {
+	defaults?: ChannelDefaultsProperties;
 	telegram: TelegramChannelProperties;
 	whatsapp: WhatsappChannelProperties;
 	discord: DiscordChannelProperties;
