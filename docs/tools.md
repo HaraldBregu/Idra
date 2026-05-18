@@ -23,6 +23,11 @@ These tools are in `ALL_TOOLS` in `src/main/tools/registry.ts`.
 | `read` | Yes | `src/main/tools/fs.ts` | Reads a UTF-8 file from an absolute or workspace-relative path. It returns line-numbered text, supports `offset` and `limit`, and records file metadata in `ctx.readState` so later writes can enforce read-before-write. |
 | `write` | Yes | `src/main/tools/fs.ts` | Writes UTF-8 content to `path`, creating parent directories. Existing files require a prior `read` in the same run and must not have changed on disk. Disabled when `ctx.fsPolicy.readOnly` is set. |
 | `edit` | Yes | `src/main/tools/fs.ts` | Performs exact string replacement in a UTF-8 file. The file must have been read first, and `old` must be unique unless `replaceAll` is true. Disabled by read-only filesystem policy. |
+| `apply_patch` | Yes | `src/main/tools/fs.ts` | Applies a unified diff to existing workspace files after those files have been read. It rejects new-file patches, context conflicts, read-only policy, and files changed since the last read. |
+| `delete` | Yes | `src/main/tools/fs.ts` | Deletes a file after it has been read in the current run. Directories require `recursive: true`, root paths are guarded, and read-only filesystem policy disables deletion. |
+| `copy` | Yes | `src/main/tools/fs.ts` | Copies one file to another path and creates parent directories. Existing destinations require `overwrite: true` and a prior read snapshot of the destination. |
+| `move` | Yes | `src/main/tools/fs.ts` | Moves or renames one file. The source must have been read earlier, and overwriting a destination requires `overwrite: true` plus a prior read snapshot of the destination. |
+| `inspect_file` | Yes | `src/main/tools/fs.ts` | Inspects any file as bytes, returning size, MIME type, hash when practical, hex/text previews, and direct image content for supported image files. |
 | `find` | Yes | `src/main/tools/fs.ts` | Finds files and directories by glob pattern under the workspace or a supplied directory. It excludes `node_modules` and `.git`, supports `limit`, and returns relative paths. |
 | `exec` | Yes | `src/main/tools/exec.ts` | Runs a shell command in the workspace or supplied working directory. It supports `timeoutMs`, extra `env`, and `background`. Output is capped, and dangerous command patterns are denied. |
 | `process` | Yes | `src/main/tools/exec.ts` | Lists, reads logs for, or kills background processes that were started by `exec` with `background: true`. |
@@ -38,7 +43,6 @@ These tools are defined under `src/main/tools` but are not currently included in
 
 | Tool | Used? | Source | How it is used |
 | --- | --- | --- | --- |
-| `apply_patch` | No by default | `src/main/tools/fs.ts` | Applies a unified diff to existing workspace files after those files have been read. It rejects new-file patches, context conflicts, read-only policy, and files changed since the last read. |
 | `cron_add` | No by default | `src/main/tools/cron.ts` | Legacy helper for scheduling a recurring cron job from an expression, typed task data, optional id, and timezone. It is approval-marked. |
 | `cron_list` | No by default | `src/main/tools/cron.ts` | Legacy helper that lists scheduled cron jobs from `ctx.services.cron`. |
 | `cron_remove` | No by default | `src/main/tools/cron.ts` | Legacy helper that removes a scheduled cron job by `job_id`. It is approval-marked and errors when the id does not exist. |
