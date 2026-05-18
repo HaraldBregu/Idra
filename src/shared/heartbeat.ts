@@ -127,6 +127,11 @@ export interface HeartbeatSetEnabledRequest {
 	enabled: boolean;
 }
 
+export interface HeartbeatTimingSettings {
+	every: string;
+	activeHours?: HeartbeatActiveHoursConfig;
+}
+
 export interface HeartbeatSystemEventRequest {
 	text: string;
 	mode?: 'now' | 'next-heartbeat';
