@@ -4,25 +4,40 @@ import { ChevronRight, Settings } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { useTranslation } from 'react-i18next';
 import { SETTINGS_NAVIGATION } from './navigation';
+import { getChannelCatalogEntry } from '../../../../shared/channel-catalog';
 
-function useSettingsCurrentPage(): { labelKey: string; path: string } | null {
+interface SettingsBreadcrumbItem {
+	readonly label: string;
+	readonly path?: string;
+}
+
+function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
+	const { t } = useTranslation();
 	const location = useLocation();
+	if (location.pathname === '/settings') return [];
+
 	const current = SETTINGS_NAVIGATION.find((item) => (
 		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
 	));
-	if (current) return { labelKey: current.labelKey, path: current.path };
-	if (location.pathname === '/settings') {
-		return { labelKey: 'settings.breadcrumb.overview', path: '/settings' };
+	if (!current) return [];
+
+	const items: SettingsBreadcrumbItem[] = [{ label: t(current.labelKey) }];
+
+	if (location.pathname.startsWith('/settings/channels/channelDetail/')) {
+		const channelId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
+		const channelLabel = getChannelCatalogEntry(channelId)?.label ?? channelId;
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: channelLabel });
 	}
-	return null;
+
+	return items;
 }
 
 function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	const { t } = useTranslation();
-	const current = useSettingsCurrentPage();
-	const isOverview = current?.path === '/settings';
+	const items = useSettingsBreadcrumbItems();
 
-	if (isOverview) return null;
+	if (items.length === 0) return null;
 
 	return (
 		<header className="mx-auto mb-5 flex w-full max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -37,14 +52,23 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 				>
 					{t('settings.title')}
 				</Link>
-				{current && !isOverview && (
-					<>
+				{items.map((item, index) => (
+					<React.Fragment key={`${item.label}-${index}`}>
 						<ChevronRight className="size-3 shrink-0 text-muted-foreground/60" strokeWidth={1.8} />
-						<span className="min-w-0 truncate font-medium text-foreground">
-							{t(current.labelKey)}
-						</span>
-					</>
-				)}
+						{item.path ? (
+							<Link
+								to={item.path}
+								className="min-w-0 rounded-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
+							>
+								{item.label}
+							</Link>
+						) : (
+							<span className="min-w-0 truncate font-medium text-foreground">
+								{item.label}
+							</span>
+						)}
+					</React.Fragment>
+				))}
 			</nav>
 		</header>
 	);
