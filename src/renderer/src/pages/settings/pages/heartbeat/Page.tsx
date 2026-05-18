@@ -371,54 +371,74 @@ const HeartbeatPage: React.FC = () => {
 						<SettingsLoadingRows rows={2} />
 					) : (
 						<>
-							<HeartbeatItem
-								icon={Power}
-								title={t('settings.heartbeat.runtime.enabled')}
-								description={t('settings.heartbeat.runtime.enabledDescription')}
-								actions={
-									<>
-										<Badge
-											variant={runtimeEnabled ? 'outline' : 'secondary'}
-											className="h-5 rounded-md px-1.5 text-[10px]"
-										>
-											{runtimeEnabled
-												? t('settings.heartbeat.values.enabled')
-												: t('settings.heartbeat.values.paused')}
-										</Badge>
-										<Switch
-											checked={runtimeEnabled}
-											disabled={loading || isBusy}
-											onCheckedChange={handleToggle}
-											aria-label={t('settings.heartbeat.runtime.toggleLabel')}
-										/>
-									</>
-								}
-							/>
-							<HeartbeatItem
-								icon={TimerReset}
-								title={t('settings.heartbeat.runtime.nextDue')}
-								description={t('settings.heartbeat.runtime.nextDueDescription')}
-								actions={
-									<>
-										<Badge
-											variant={status?.runnerActive ? 'outline' : 'secondary'}
-											className="h-5 rounded-md px-1.5 text-[10px]"
-										>
-											{status?.runnerActive
-												? t('settings.heartbeat.values.active')
-												: t('settings.heartbeat.values.idle')}
-										</Badge>
-										<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
-											{t('settings.heartbeat.runtime.agentCount', { count: status?.agentCount ?? 0 })}
-										</Badge>
-										<Badge variant="outline" className="h-5 max-w-full rounded-md px-1.5 text-[10px]">
-											<span className="truncate">
-												{nextDue ?? t('settings.heartbeat.values.notScheduled')}
-											</span>
-										</Badge>
-									</>
-								}
-							/>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Power className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.runtime.enabled')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.runtime.enabledDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
+									<Badge
+										variant={runtimeEnabled ? 'outline' : 'secondary'}
+										className="h-5 rounded-md px-1.5 text-[10px]"
+									>
+										{runtimeEnabled
+											? t('settings.heartbeat.values.enabled')
+											: t('settings.heartbeat.values.paused')}
+									</Badge>
+									<Switch
+										checked={runtimeEnabled}
+										disabled={loading || isBusy}
+										onCheckedChange={handleToggle}
+										aria-label={t('settings.heartbeat.runtime.toggleLabel')}
+									/>
+								</ItemActions>
+							</Item>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<TimerReset className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.runtime.nextDue')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.runtime.nextDueDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
+									<Badge
+										variant={status?.runnerActive ? 'outline' : 'secondary'}
+										className="h-5 rounded-md px-1.5 text-[10px]"
+									>
+										{status?.runnerActive
+											? t('settings.heartbeat.values.active')
+											: t('settings.heartbeat.values.idle')}
+									</Badge>
+									<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+										{t('settings.heartbeat.runtime.agentCount', { count: status?.agentCount ?? 0 })}
+									</Badge>
+									<Badge variant="outline" className="h-5 max-w-full rounded-md px-1.5 text-[10px]">
+										<span className="truncate">
+											{nextDue ?? t('settings.heartbeat.values.notScheduled')}
+										</span>
+									</Badge>
+								</ItemActions>
+							</Item>
 						</>
 					)}
 				</SettingsPanel>
