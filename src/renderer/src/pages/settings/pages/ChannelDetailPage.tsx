@@ -805,4 +805,4 @@ function getTokenPlaceholder(channelId: ChannelType, t: (key: string) => string)
 	return t('settings.channels.tokenPlaceholder');
 }
 
-export default ChannelsPage;
+export default ChannelDetailPage;
