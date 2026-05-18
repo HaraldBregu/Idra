@@ -585,11 +585,14 @@ export class ConnectorsService {
 					maxResults: readNumber(params, 'maxResults'),
 					pageToken: readString(params, 'pageToken'),
 				});
+			case 'search_files':
 			case 'search': {
 				const listed = await drive.searchFiles({
-					query: readString(params, 'query'),
+					query: readString(params, 'query') ?? readString(params, 'q'),
 					driveQuery: readString(params, 'driveQuery'),
 					mimeType: readString(params, 'mimeType'),
+					driveId: readString(params, 'driveId'),
+					corpora: readString(params, 'corpora'),
 					maxResults: readNumber(params, 'maxResults'),
 					pageToken: readString(params, 'pageToken'),
 					orderBy: readString(params, 'orderBy'),
@@ -599,9 +602,12 @@ export class ConnectorsService {
 					files: (listed.files ?? []).map(projectGoogleDriveFile),
 				};
 			}
+			case 'list_recent_files':
 			case 'recent_documents': {
 				const listed = await drive.searchFiles({
 					mimeType: readString(params, 'mimeType'),
+					driveId: readString(params, 'driveId'),
+					corpora: readString(params, 'corpora'),
 					maxResults: readNumber(params, 'maxResults'),
 					pageToken: readString(params, 'pageToken'),
 					orderBy: 'modifiedTime desc',
@@ -611,6 +617,21 @@ export class ConnectorsService {
 					files: (listed.files ?? []).map(projectGoogleDriveFile),
 				};
 			}
+			case 'get_file_metadata':
+				return projectGoogleDriveFile(await drive.getFile(readDriveFileId(params)));
+			case 'get_file_permissions': {
+				const listed = await drive.listPermissions({
+					fileId: readDriveFileId(params),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+				});
+				return {
+					...listed,
+					permissions: (listed.permissions ?? []).map(projectGoogleDrivePermission),
+				};
+			}
+			case 'read_file_content':
+			case 'download_file_content':
 			case 'fetch': {
 				const file = await drive.getFile(readDriveFileId(params));
 				const content = await drive.getFileContent(
@@ -622,6 +643,8 @@ export class ConnectorsService {
 					content: content.slice(0, 64 * 1024),
 				};
 			}
+			case 'create_file':
+				return projectGoogleDriveFile(await drive.createFile(readDriveCreateFileParams(params)));
 			default:
 				throw new Error(`Unsupported Google Drive tool: ${name}`);
 		}
