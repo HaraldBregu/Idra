@@ -10,7 +10,6 @@ import {
 	CronChannels,
 	AppsChannels,
 	SkillsChannels,
-	TaskChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
@@ -19,7 +18,6 @@ import type {
 	ConnectorsApi,
 	CronApi,
 	SkillsApi,
-	TasksApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -34,6 +32,7 @@ import type {
 	CronTask,
 	CronTaskData,
 	CronTaskView,
+	CronScheduledTask,
 	OpenClawCronJob,
 	OpenClawCronToolRequest,
 	OpenClawCronToolResponse,
@@ -63,7 +62,6 @@ import type {
 	ConnectorUpdateInput,
 	ConnectorView,
 } from '../shared/connectors';
-import type { Task, TaskCreateRequest, TaskEvent, TaskId, TaskListFilter } from '../shared/task';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -259,7 +257,7 @@ export const cron: CronApi = {
 	getNextRuns: (scheduleId: string, count: number): Promise<CronNextRunPreview> => {
 		return typedInvokeUnwrap(CronChannels.getNextRuns, scheduleId, count);
 	},
-	runNow: (scheduleId: string): Promise<Task> => {
+	runNow: (scheduleId: string): Promise<CronScheduledTask> => {
 		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
 	},
 	action: cronAction,
@@ -288,32 +286,6 @@ export const skills: SkillsApi = {
 	},
 	getRoot: (): Promise<string> => {
 		return typedInvokeUnwrap(SkillsChannels.getRoot);
-	},
-};
-
-export const tasks: TasksApi = {
-	createTask: (request: TaskCreateRequest): Promise<Task> => {
-		return typedInvokeUnwrap(TaskChannels.create, request);
-	},
-	getTask: (taskId: TaskId): Promise<Task> => {
-		return typedInvokeUnwrap(TaskChannels.get, taskId);
-	},
-	listTasks: (filter?: TaskListFilter): Promise<Task[]> => {
-		return typedInvokeUnwrap(TaskChannels.list, filter);
-	},
-	cancelTask: (taskId: TaskId, reason?: string): Promise<void> => {
-		return typedInvokeUnwrap(TaskChannels.cancel, taskId, reason);
-	},
-	retryTask: (taskId: TaskId): Promise<void> => {
-		return typedInvokeUnwrap(TaskChannels.retry, taskId);
-	},
-	subscribeToTask: (taskId: TaskId, callback: (event: TaskEvent) => void): (() => void) => {
-		return typedOn(TaskChannels.event, (event) => {
-			if (event.taskId === taskId) callback(event);
-		});
-	},
-	subscribeToTaskList: (_filter: TaskListFilter | undefined, callback: (event: TaskEvent) => void): (() => void) => {
-		return typedOn(TaskChannels.event, callback);
 	},
 };
 
@@ -422,7 +394,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
-		contextBridge.exposeInMainWorld('tasks', tasks);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -441,6 +412,4 @@ if (process.contextIsolated) {
 	globalThis.connectors = connectors;
 	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
-	// @ts-ignore (define in dts)
-	globalThis.tasks = tasks;
 }
