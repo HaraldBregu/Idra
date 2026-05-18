@@ -422,22 +422,15 @@ function PromptInput({
               {...(props as React.ComponentProps<typeof motion.div>)}
             >
               {voiceMode ? (
-                <>
-                  <PromptInputVoicePanel
-                    mode={voiceMode}
-                    value={currentValue}
-                    disabled={disabled}
-                    leadingAction={leadingAction}
-                    onEnd={onVoiceEnd}
-                    onCancel={onVoiceCancel}
-                    onConfirm={onVoiceConfirm ?? onSubmit}
-                  />
-                  {actions && (
-                    <div className="shrink-0">
-                      {actions}
-                    </div>
-                  )}
-                </>
+                <PromptInputVoicePanel
+                  mode={voiceMode}
+                  value={currentValue}
+                  disabled={disabled}
+                  leadingAction={leadingAction}
+                  onEnd={onVoiceEnd}
+                  onCancel={onVoiceCancel}
+                  onConfirm={onVoiceConfirm ?? onSubmit}
+                />
               ) : (
                 <>
                   <AnimatePresence initial={false}>
