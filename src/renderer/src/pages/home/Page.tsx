@@ -27,6 +27,7 @@ import { Provider } from './context';
 import { useHomeAgent } from './hooks';
 
 function AttachmentButton(): ReactElement {
+	const { triggerFileUpload } = usePromptInput();
 	return (
 		<PromptInputAction tooltip="Add attachment">
 			<Button
@@ -35,6 +36,7 @@ function AttachmentButton(): ReactElement {
 				size="icon"
 				className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
 				aria-label="Add attachment"
+				onClick={triggerFileUpload}
 			>
 				<Plus className="size-4" />
 			</Button>
