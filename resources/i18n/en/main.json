@@ -279,6 +279,7 @@
 				"updatedAt": "Updated",
 				"lastRun": "Last Run",
 				"nextRun": "Next Run",
+				"prompt": "Prompt",
 				"payload": "Payload"
 			},
 			"enabled": "Enabled",
