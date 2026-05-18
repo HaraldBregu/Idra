@@ -12,10 +12,10 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	if (items.length === 0) return null;
 
 	return (
-		<header className="mx-auto mb-5 flex w-full max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+		<header className="sticky top-0 z-20 border-b border-border/50 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
 			<nav
 				aria-label={t('settings.breadcrumb.label')}
-				className="flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground"
+				className="mx-auto flex w-full max-w-4xl min-w-0 items-center gap-1 text-[11px] text-muted-foreground"
 			>
 				<Settings className="size-3 shrink-0" strokeWidth={1.8} />
 				<Link
@@ -49,9 +49,11 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 export function Layout(): React.JSX.Element {
 	return (
 		<PageContainer className="bg-muted/20">
-			<main className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+			<main className="min-h-0 flex-1 overflow-y-auto">
 				<SettingsBreadcrumbHeader />
-				<Outlet />
+				<div className="px-4 py-4">
+					<Outlet />
+				</div>
 			</main>
 			<footer className="shrink-0 border-t border-border/50 px-4 py-2 sm:px-6 lg:px-8">
 				<div className="mx-auto flex max-w-4xl items-center justify-between">

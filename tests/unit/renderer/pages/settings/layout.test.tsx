@@ -28,4 +28,10 @@ describe('Settings Layout', () => {
 		expect(screen.getByText('settings.tabs.cron')).toBeInTheDocument();
 		expect(screen.getByRole('link', { name: 'settings.title' })).toHaveAttribute('href', '/settings');
 	});
+
+	it('keeps the breadcrumb fixed at the top of the settings scroll area', () => {
+		renderSettings('/settings/cron');
+
+		expect(screen.getByRole('banner')).toHaveClass('sticky', 'top-0', 'z-20');
+	});
 });
