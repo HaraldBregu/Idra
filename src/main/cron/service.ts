@@ -45,10 +45,7 @@ import {
 	type OpenClawCronActor,
 	type OpenClawCronSchedulerOptions,
 } from './openclaw/scheduler';
-import {
-	normalizeOpenClawCronToolRequest,
-	type OpenClawCronNormalizeContext,
-} from './openclaw/normalize';
+import type { OpenClawCronNormalizeContext } from './openclaw/normalize';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
@@ -160,10 +157,7 @@ export class CronService implements Disposable {
 		context: Omit<OpenClawCronNormalizeContext, 'actor'> = {}
 	): Promise<OpenClawCronToolResponse> {
 		const effectiveActor = actor ?? { role: 'owner' as const };
-		return this.openClaw.handleToolAction(
-			normalizeOpenClawCronToolRequest(request, { ...context, actor: effectiveActor }),
-			effectiveActor
-		);
+		return this.openClaw.handleToolAction(request, effectiveActor, context);
 	}
 
 	createSchedule(
