@@ -274,11 +274,60 @@ const HeartbeatPage: React.FC = () => {
 		[eventText, loadHeartbeat, t]
 	);
 
+	const handleSaveTiming = useCallback(async (): Promise<void> => {
+		const every = timingDraft.every.trim();
+		const start = timingDraft.start.trim();
+		const end = timingDraft.end.trim();
+		const timezone = timingDraft.timezone.trim();
+		if (!every || !isValidEvery(every)) {
+			setNotice(null);
+			setError(t('settings.heartbeat.errors.invalidEvery'));
+			return;
+		}
+		if ((start && !end) || (!start && end)) {
+			setNotice(null);
+			setError(t('settings.heartbeat.errors.activeHoursRange'));
+			return;
+		}
+
+		setOperation('timing');
+		setNotice(null);
+		setError(null);
+		try {
+			const nextTiming = await window.heartbeat.updateTiming({
+				every,
+				activeHours: start || end || timezone
+					? {
+							...(start ? { start } : {}),
+							...(end ? { end } : {}),
+							...(timezone ? { timezone } : {}),
+					  }
+					: undefined,
+			});
+			applyTiming(nextTiming);
+			setNotice(t('settings.heartbeat.notices.timingSaved'));
+			await loadHeartbeat();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setOperation(null);
+		}
+	}, [applyTiming, loadHeartbeat, t, timingDraft]);
+
 	const runtimeEnabled = Boolean(status?.enabled);
 	const isBusy = operation !== null;
 	const nextDue = formatTimestamp(status?.nextDueMs);
 	const lastTimestamp = formatTimestamp(lastHeartbeat?.timestamp);
 	const lastDuration = formatDuration(lastHeartbeat?.durationMs);
+	const timingDirty = timing
+		? timingDraft.every.trim() !== timing.every ||
+			timingDraft.start.trim() !== (timing.activeHours?.start ?? '') ||
+			timingDraft.end.trim() !== (timing.activeHours?.end ?? '') ||
+			timingDraft.timezone.trim() !== (timing.activeHours?.timezone ?? '')
+		: false;
+	const timingValid = isValidEvery(timingDraft.every) &&
+		((timingDraft.start.trim() && timingDraft.end.trim()) ||
+			(!timingDraft.start.trim() && !timingDraft.end.trim()));
 
 	return (
 		<SettingsPageShell>
