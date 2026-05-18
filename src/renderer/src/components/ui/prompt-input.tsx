@@ -8,10 +8,12 @@ import {
   TooltipTrigger,
 } from "./tooltip"
 import { cn } from "@/lib/utils"
+import { Check, Mic, MicOff, MoreHorizontal, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React, {
   createContext,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -64,7 +66,13 @@ export type PromptInputProps = {
   actions?: React.ReactNode
   disabled?: boolean
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>
+  voiceMode?: PromptInputVoiceMode | null
+  onVoiceEnd?: () => void
+  onVoiceCancel?: () => void
+  onVoiceConfirm?: () => void
 } & React.ComponentProps<"div">
+
+export type PromptInputVoiceMode = "conversation" | "dictation"
 
 function usePromptInputTransition() {
   const prefersReducedMotion = useReducedMotion()
