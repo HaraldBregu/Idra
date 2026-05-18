@@ -6,11 +6,14 @@ import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { ConnectorsService } from './connectors';
 import {
-	DEFAULT_BOOTSTRAP_FILENAME,
 	resolveBootstrapMode,
-	type WorkspaceContextFile,
 	type WorkspaceService,
 } from './workspace';
+import {
+	DEFAULT_BOOTSTRAP_FILENAME,
+	type AgentStartupFile,
+	type AgentStartupFilesServicePort,
+} from './agent/startup-files';
 import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
@@ -37,7 +40,7 @@ import type { OpenClawCronActor } from './cron';
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_MAX_ITERATIONS = 25;
 const DEFAULT_MAX_PROMPT_TOOLS = 6;
-const BOOTSTRAP_TOOL_NAMES = new Set(['read', 'write', 'edit', 'exec', 'get_workspace_path']);
+const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -45,6 +48,7 @@ export interface AgentServiceDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	workspace: WorkspaceService;
+	startupFiles: AgentStartupFilesServicePort;
 	userDataDirectory: UserDataDirectoryServicePort;
 	connectors?: ConnectorsService;
 	mcpRegistry?: McpRegistry;
@@ -86,7 +90,7 @@ function emptyUsage(): TokenUsage {
 	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
 
-function workspaceContextChars(files: WorkspaceContextFile[]): number {
+function startupContextChars(files: AgentStartupFile[]): number {
 	return files.reduce((total, file) => total + (file.content?.length ?? 0), 0);
 }
 
@@ -212,7 +216,7 @@ export class AgentService {
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending()
 			);
-			let workspaceFiles: WorkspaceContextFile[] = [];
+				let startupFiles: AgentStartupFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
 				systemPromptSuffix: '',
@@ -254,12 +258,12 @@ export class AgentService {
 			const directAnswer = !bootstrapPending && !toolPolicy.shouldUseTools && skillChoices.length === 0;
 
 			if (!directAnswer) {
-				workspaceFiles = await recordAsyncPhase(phaseDurationsMs, 'load_workspace_context', () =>
-					this.loadWorkspaceFiles()
-				);
-				bootstrapPending =
-					bootstrapPending ||
-					workspaceFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
+					startupFiles = await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
+						this.loadStartupFiles(agentId)
+					);
+					bootstrapPending =
+						bootstrapPending ||
+						startupFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
 				toolSelection = bootstrapPending
 					? {
 							toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
@@ -301,23 +305,20 @@ export class AgentService {
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
 				isInteractiveUserFacing: true,
-				isPrimaryRun: agentId === this.defaultAgentId,
-				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-				hasBootstrapFileAccess:
-					selectedToolNames.has('read') &&
-					(selectedToolNames.has('write') || selectedToolNames.has('edit')) &&
-					selectedToolNames.has('exec'),
-			});
+					isPrimaryRun: agentId === this.defaultAgentId,
+					isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
+					hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
+				});
 			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
 				buildSystemPrompt({
 					workspace: workspaceRoot,
 					date: new Date().toISOString().slice(0, 10),
-					model,
-					tools: selectedTools,
-					skills: skillChoices,
-					workspaceFiles,
-					bootstrapMode,
-				})
+						model,
+						tools: selectedTools,
+						skills: skillChoices,
+						startupFiles,
+						bootstrapMode,
+					})
 			);
 			const systemPromptForTurn = toolSelection.systemPromptSuffix
 				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
@@ -333,11 +334,11 @@ export class AgentService {
 				userMessageChars: message.length,
 				directAnswer,
 				bootstrapPending,
-				toolPolicyReason: toolPolicy.reason,
-				workspaceContextChars: workspaceContextChars(workspaceFiles),
-				prepStartedAt: runStartedAt,
-				phaseDurationsMs,
-			});
+					toolPolicyReason: toolPolicy.reason,
+					workspaceContextChars: startupContextChars(startupFiles),
+					prepStartedAt: runStartedAt,
+					phaseDurationsMs,
+				});
 			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
 				prompt: message,
 				messages: [...runtime.session.transcript, { role: 'user', content: message }],
