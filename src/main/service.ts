@@ -35,7 +35,7 @@ import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger
 import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
-import type { ApprovalDecision } from '../shared/service';
+import type { ApprovalDecision, Service as SharedService } from '../shared/service';
 import type { FridayCronActor } from './cron';
 import {
 	createHeartbeatResponseTool,
@@ -602,8 +602,8 @@ export class AgentService {
 		}
 	}
 
-	private getServiceConfig() {
-		const maybeStore = this.dependencies.store as { getService?: () => ReturnType<typeof this.dependencies.store.getService> };
+	private getServiceConfig(): SharedService | undefined {
+		const maybeStore = this.dependencies.store as { getService?: () => SharedService | undefined };
 		return typeof maybeStore.getService === 'function' ? maybeStore.getService() : undefined;
 	}
 
