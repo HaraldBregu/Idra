@@ -79,6 +79,11 @@ export interface AgentServiceOptions {
 	beforeAgentRunHooks?: BeforeAgentRunHook[];
 }
 
+export interface AgentSendOptions {
+	cronContext?: FridayCronActor;
+	sessionId?: string;
+}
+
 interface Runtime {
 	hitl: HitlBridge;
 	runLogger: AgentRunLogger;
@@ -146,9 +151,11 @@ export class AgentService {
 	async send(
 		message: string,
 		agentId = this.defaultAgentId,
-		options: { cronContext?: FridayCronActor } = {}
+		options: AgentSendOptions = {}
 	): Promise<string> {
-		const runtime = this.ensureRuntime(agentId);
+		const runtimeAgentId = options.sessionId ?? agentId;
+		const runKind = options.cronContext?.role === 'cron-self' ? 'cron' : 'default';
+		const runtime = this.ensureRuntime(runtimeAgentId);
 		if (runtime.currentAbort) {
 			runtime.currentAbort.abort();
 			runtime.hitl.cancelAll('user_continued');
@@ -159,7 +166,7 @@ export class AgentService {
 		const runId = randomUUID();
 		const streamEvent = (event: AgentRunStreamEvent): void => {
 			this.dependencies.eventBus.broadcast('agent:response', {
-				agentId,
+				agentId: runtimeAgentId,
 				runId,
 				...event,
 			});
@@ -174,7 +181,7 @@ export class AgentService {
 				() => this.resolveProviderAndModel()
 			);
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
-				loadSession(agentId, model, providerId, {
+				loadSession(runtimeAgentId, model, providerId, {
 					baseDir: this.sessionBaseDir,
 				})
 			);
@@ -302,13 +309,14 @@ export class AgentService {
 				}
 			}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
-				const bootstrapMode = resolveBootstrapMode({
-					bootstrapPending,
-					isInteractiveUserFacing: true,
-					isPrimaryRun: agentId === this.defaultAgentId,
-					isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-					hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
-				});
+					const bootstrapMode = resolveBootstrapMode({
+						bootstrapPending,
+						isInteractiveUserFacing: true,
+						isPrimaryRun: agentId === this.defaultAgentId,
+						isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
+						hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
+						runKind,
+					});
 				const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
 					buildSystemPrompt({
 						workspace: workspaceRoot,
@@ -324,7 +332,7 @@ export class AgentService {
 				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
 				: systemPrompt;
 
-			const hooks = this.buildHooks(agentId, {
+			const hooks = this.buildHooks(runtimeAgentId, {
 				runId,
 				providerId,
 				model,
@@ -414,7 +422,7 @@ export class AgentService {
 			});
 			await runtime.runLogger.logFinish({
 				runId,
-				agentId,
+				agentId: runtimeAgentId,
 				provider: 'unknown',
 				model: 'unknown',
 				status: 'error',

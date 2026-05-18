@@ -173,6 +173,7 @@ export function useHomeAgent({
 
 		const offResponse = agent.onResponse((event: AgentResponseEvent) => {
 			if (!requestActiveRef.current) return;
+			if (event.agentId !== HOME_AGENT_ID) return;
 			dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 		});
 

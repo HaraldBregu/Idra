@@ -26,14 +26,16 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			return { status: 'skipped', skippedReason: 'aborted_before_start' };
 		}
 		const agentId = this.resolveAgentId(input.job);
+		const sessionId = this.resolveSessionId(input.job);
 		const message = input.job.payload.kind === 'systemEvent'
 			? input.job.payload.text
 			: input.job.payload.message;
 		const output = await this.agentService.send(message, agentId, {
+			sessionId,
 			cronContext: {
 				role: 'cron-self',
 				jobId: input.job.id,
-				agentId: input.job.agentId,
+				agentId,
 				sessionKey: input.job.sessionKey,
 			},
 		});
@@ -41,11 +43,14 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 	}
 
 	private resolveAgentId(job: FridayCronJobDefinition): string {
-		if (job.agentId) return job.agentId;
-		if (job.sessionTarget === 'main') return DEFAULT_AGENT_ID;
-		if (job.sessionTarget === 'isolated') return `cron:${job.id}:${Date.now()}`;
+		return job.agentId ?? DEFAULT_AGENT_ID;
+	}
+
+	private resolveSessionId(job: FridayCronJobDefinition): string {
+		if (job.sessionTarget === 'main') return this.resolveAgentId(job);
+		if (job.sessionTarget === 'isolated') return `cron:${job.id}`;
 		if (job.sessionTarget.startsWith('session:')) return job.sessionTarget.slice('session:'.length);
-		return DEFAULT_AGENT_ID;
+		return this.resolveAgentId(job);
 	}
 }
 
