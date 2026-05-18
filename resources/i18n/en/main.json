@@ -257,6 +257,10 @@
 			},
 			"actions": {
 				"placeholder": "No actions",
+				"expand": "Expand",
+				"expandLabel": "Expand cron task {{id}}",
+				"collapse": "Collapse",
+				"collapseLabel": "Collapse cron task {{id}}",
 				"remove": "Remove",
 				"removeLabel": "Remove cron task {{id}}"
 			},
