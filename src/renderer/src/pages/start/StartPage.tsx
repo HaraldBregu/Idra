@@ -948,7 +948,7 @@ const StartPage: React.FC = () => {
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
 						Add one API key so {PRODUCT_NAME} can start answering your requests.
-						Your key stays encrypted in macOS Keychain.
+						Your key is saved locally in {PRODUCT_NAME}'s app data folder.
 					</p>
 				</div>
 
@@ -1099,8 +1099,8 @@ const StartPage: React.FC = () => {
 					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 						<KeyRound className="size-4 shrink-0" />
 						<p className="text-xs font-medium leading-snug">
-							Keys are encrypted in Keychain and never sent to us. You can revoke any
-							provider anytime.
+							Keys stay in {PRODUCT_NAME}'s local app data folder and are only used
+							for providers you connect. You can revoke them anytime.
 						</p>
 					</div>
 				</div>
