@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Clock3, Trash2 } from 'lucide-react';
+import { AlertCircle, Clock3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FridayCronJob } from '../../../../../../shared/cron';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -41,7 +40,6 @@ const CronPage: React.FC = () => {
 	const [jobs, setJobs] = useState<readonly FridayCronJob[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [removingId, setRemovingId] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
@@ -65,19 +63,6 @@ const CronPage: React.FC = () => {
 			mounted = false;
 		};
 	}, []);
-
-	const handleRemoveJob = async (jobId: string): Promise<void> => {
-		setRemovingId(jobId);
-		setError(null);
-		try {
-			await window.cron.removeJob(jobId);
-			setJobs((current) => current.filter((job) => job.id !== jobId));
-		} catch (caught) {
-			setError(caught instanceof Error ? caught.message : String(caught));
-		} finally {
-			setRemovingId(null);
-		}
-	};
 
 	const navigateToJob = (jobId: string): void => {
 		navigate(`/settings/cron/crondetails/${encodeURIComponent(jobId)}`);
@@ -150,23 +135,6 @@ const CronPage: React.FC = () => {
 													</div>
 												</div>
 											</ItemContent>
-											<ItemActions className="flex-none justify-end gap-1">
-												<Button
-													type="button"
-													variant="destructive"
-													size="icon-xs"
-													disabled={removingId === job.id}
-													onKeyDown={(event) => event.stopPropagation()}
-													onClick={(event) => {
-														event.stopPropagation();
-														void handleRemoveJob(job.id);
-													}}
-													aria-label={t('settings.cron.actions.removeLabel', { id: job.id })}
-													title={t('settings.cron.actions.remove')}
-												>
-													<Trash2 className="size-3" />
-												</Button>
-											</ItemActions>
 										</Item>
 									</SettingsPanel>
 								</div>
