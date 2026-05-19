@@ -126,6 +126,38 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('passes saved OpenAI model effort into provider requests', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		deps.store.getAgentService.mockReturnValue({
+			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
+			model: { id: 'gpt-5.5', name: 'GPT-5.5', effort: 'xhigh' },
+		});
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+			toolsFactory: () => [],
+		});
+
+		await expect(service.send('hi')).resolves.toBe('done');
+		expect(requests[0]).toMatchObject({ model: 'gpt-5.5', effort: 'xhigh' });
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
 	it('blocks before model inference without persisting the raw prompt', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
