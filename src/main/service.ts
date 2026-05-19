@@ -54,6 +54,22 @@ import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
 
+function toolAllowPatternMatches(pattern: string, name: string): boolean {
+	if (pattern === '*' || pattern === name) return true;
+	if (!pattern.includes('*')) return false;
+	const re = new RegExp(
+		'^' + pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$'
+	);
+	return re.test(name);
+}
+
+function filterToolsByAllowlist(tools: AgentTool[], allowlist?: string[]): AgentTool[] {
+	if (!allowlist) return tools;
+	const patterns = allowlist.map((entry) => entry.trim()).filter(Boolean);
+	if (patterns.length === 0) return [];
+	return tools.filter((tool) => patterns.some((pattern) => toolAllowPatternMatches(pattern, tool.name)));
+}
+
 export interface AgentServiceDependencies {
 	store: StoreService;
 	cron: CronService;
@@ -94,6 +110,10 @@ export interface AgentServiceOptions {
 export interface AgentSendOptions {
 	cronContext?: FridayCronActor;
 	sessionId?: string;
+	model?: string;
+	effort?: ModelReasoningEffort;
+	lightContext?: boolean;
+	toolsAllow?: string[];
 	heartbeat?: {
 		model?: string;
 		timeoutSeconds?: number;
@@ -227,8 +247,10 @@ export class AgentService {
 			);
 			const providerId = providerConfig.providerId;
 			const apiKey = providerConfig.apiKey;
-			const model = heartbeatOptions?.model?.trim() || providerConfig.model;
-			const effort = providerConfig.effort;
+			const model = options.model?.trim() || heartbeatOptions?.model?.trim() || providerConfig.model;
+			const effort = providerId === 'openai'
+				? requireModelReasoningEffort(model, options.effort ?? providerConfig.effort)
+				: providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
@@ -320,6 +342,7 @@ export class AgentService {
 				) {
 					baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
 				}
+				baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 
 				if (!bootstrapPending && this.dependencies.skills) {
 					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
@@ -347,7 +370,7 @@ export class AgentService {
 					),
 					{
 						runKind,
-						lightContext: heartbeatOptions?.lightContext === true,
+						lightContext: heartbeatOptions?.lightContext === true || options.lightContext === true,
 						includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
 							this.getServiceConfig(),
 							agentId
