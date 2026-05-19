@@ -20,6 +20,7 @@ interface MockWindow {
 	isVisible: jest.Mock;
 	setBackgroundColor: jest.Mock;
 	setAlwaysOnTop: jest.Mock;
+	setVisibleOnAllWorkspaces: jest.Mock;
 	webContents: {
 		on: jest.Mock;
 		send: jest.Mock;
@@ -36,6 +37,12 @@ function createMockWindow(id: number): MockWindow {
 		const eventListeners = listeners.get(event) ?? [];
 		eventListeners.push(listener);
 		listeners.set(event, eventListeners);
+	};
+
+	const emitWindowEvent = (event: string, ...args: unknown[]): void => {
+		for (const listener of listeners.get(event) ?? []) {
+			listener(...args);
+		}
 	};
 
 	const win: MockWindow = {
@@ -58,15 +65,18 @@ function createMockWindow(id: number): MockWindow {
 		}),
 		show: jest.fn(() => {
 			visible = true;
+			emitWindowEvent('show');
 		}),
 		hide: jest.fn(() => {
 			visible = false;
+			emitWindowEvent('hide');
 		}),
 		focus: jest.fn(),
 		isDestroyed: jest.fn(() => destroyed),
 		isVisible: jest.fn(() => visible),
 		setBackgroundColor: jest.fn(),
 		setAlwaysOnTop: jest.fn(),
+		setVisibleOnAllWorkspaces: jest.fn(),
 		webContents: {
 			on: jest.fn(),
 			send: jest.fn(),
@@ -76,9 +86,7 @@ function createMockWindow(id: number): MockWindow {
 				destroyed = true;
 				visible = false;
 			}
-			for (const listener of listeners.get(event) ?? []) {
-				listener(...args);
-			}
+			emitWindowEvent(event, ...args);
 		},
 	};
 
@@ -145,6 +153,13 @@ describe('Main windows', () => {
 		expect(appWindow.show).not.toHaveBeenCalled();
 		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#000000');
 		expect(trayWindow.setAlwaysOnTop).toHaveBeenCalledWith(true, 'floating');
+		expect(trayWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(
+			true,
+			{ visibleOnFullScreen: true }
+		);
+		expect(
+			trayWindow.setVisibleOnAllWorkspaces.mock.invocationCallOrder[0]
+		).toBeLessThan(trayWindow.show.mock.invocationCallOrder[0]);
 		expect(trayWindow.show).toHaveBeenCalledTimes(1);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(1);
 	});
@@ -158,9 +173,11 @@ describe('Main windows', () => {
 
 		main.showTrayWindow();
 		trayWindow.hide.mockClear();
+		trayWindow.setVisibleOnAllWorkspaces.mockClear();
 		trayWindow.emit('blur');
 
 		expect(trayWindow.hide).toHaveBeenCalledTimes(1);
+		expect(trayWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(false);
 	});
 
 	it('keeps tray window visibility out of main-window show and hide state', () => {
