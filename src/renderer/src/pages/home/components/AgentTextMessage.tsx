@@ -9,13 +9,15 @@ import { markdownComponents } from './markdown';
 export function AgentTextMessage({
 	message,
 	isStreaming = false,
+	showHeader = true,
 }: {
 	readonly message: AgentMessage;
 	readonly isStreaming?: boolean;
+	readonly showHeader?: boolean;
 }): ReactElement {
 	return (
 		<Message className="min-w-0 w-full flex-col gap-2">
-			<AssistantMessageHeader />
+			{showHeader && <AssistantMessageHeader />}
 			<div className="flex min-w-0 w-full flex-col gap-2">
 				<AgentActivityPanel message={message} isStreaming={isStreaming} />
 				{message.content.length > 0 && (

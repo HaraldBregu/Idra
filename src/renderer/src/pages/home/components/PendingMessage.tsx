@@ -18,6 +18,7 @@ export function PendingMessage({
 	onInputAnswerChange,
 	onSelectApprovalOption,
 	onSubmit,
+	showHeader = true,
 }: {
 	readonly message: HomeMultiSelectMessage;
 	readonly selectedOptions: readonly string[];
@@ -32,6 +33,7 @@ export function PendingMessage({
 		message: HomeMultiSelectMessage,
 		immediateApproval?: ImmediateApprovalSelection
 	) => void;
+	readonly showHeader?: boolean;
 }): ReactElement {
 	const approvalOptions = message.options.filter((option) => option.kind === 'approval');
 	const inputOptions = message.options.filter((option) => option.kind === 'input');
@@ -52,7 +54,7 @@ export function PendingMessage({
 
 	return (
 		<Message className="w-full max-w-2xl flex-col gap-2">
-			<AssistantMessageHeader />
+			{showHeader && <AssistantMessageHeader />}
 			<MessageContent
 				className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
 				role="group"
