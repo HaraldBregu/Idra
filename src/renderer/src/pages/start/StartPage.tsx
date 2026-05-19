@@ -285,7 +285,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 			initial: providerId.slice(0, 1).toUpperCase(),
 			swatchClassName: 'bg-muted text-muted-foreground',
 			supported: supportedProviderIds.has(providerId),
-			apiConfigurationUrl: providerOptions.find((provider) => provider.value === providerId)?.label,
 		}
 	);
 }
