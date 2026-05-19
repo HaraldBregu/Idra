@@ -17,8 +17,11 @@ import {
 import { compact } from './compaction';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
 import type { SessionFile } from '../session/store';
-import type { AgentRunState, ReasoningSummaryState } from '../../shared/service';
-import type { ModelReasoningEffort } from '../../shared/service';
+import type {
+	AgentRunState,
+	ModelReasoningEffort,
+	ReasoningSummaryState,
+} from '../../shared/service';
 
 export interface AgentRunHooks {
 	onStart?: (info: { runId: string }) => void | Promise<void>;

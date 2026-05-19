@@ -9,9 +9,8 @@ export interface Service {
 }
 
 export const MODEL_REASONING_EFFORTS = ['low', 'medium', 'high', 'xhigh'] as const;
-export const DEFAULT_MODEL_REASONING_EFFORT: ModelReasoningEffort = 'medium';
-
 export type ModelReasoningEffort = (typeof MODEL_REASONING_EFFORTS)[number];
+export const DEFAULT_MODEL_REASONING_EFFORT: ModelReasoningEffort = 'medium';
 
 export function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
