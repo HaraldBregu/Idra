@@ -521,6 +521,8 @@
 			"effort": "Impegno di ragionamento",
 			"effortDescription": "Budget di ragionamento OpenAI per le risposte di Friday.",
 			"effortOptions": {
+				"none": "Nessuno",
+				"minimal": "Minimo",
 				"low": "Basso",
 				"medium": "Medio",
 				"high": "Alto",

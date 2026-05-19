@@ -8,7 +8,14 @@ export interface Service {
 	ocr: string;
 }
 
-export const MODEL_REASONING_EFFORTS = ['low', 'medium', 'high', 'xhigh'] as const;
+export const MODEL_REASONING_EFFORTS = [
+	'none',
+	'minimal',
+	'low',
+	'medium',
+	'high',
+	'xhigh',
+] as const;
 export type ModelReasoningEffort = (typeof MODEL_REASONING_EFFORTS)[number];
 export const DEFAULT_MODEL_REASONING_EFFORT: ModelReasoningEffort = 'medium';
 

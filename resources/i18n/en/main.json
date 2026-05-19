@@ -521,6 +521,8 @@
 			"effort": "Reasoning effort",
 			"effortDescription": "OpenAI reasoning budget for Friday responses.",
 			"effortOptions": {
+				"none": "None",
+				"minimal": "Minimal",
 				"low": "Low",
 				"medium": "Medium",
 				"high": "High",
