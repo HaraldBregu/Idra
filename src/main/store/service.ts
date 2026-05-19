@@ -17,7 +17,12 @@ import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-s
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
 import type { AgentHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
+import type { AppPermissionSettings } from '../../shared/app-permissions';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
+
+const DEFAULT_APP_PERMISSIONS: AppPermissionSettings = {
+	microphoneEnabled: true,
+};
 
 export class StoreService {
 	private store: SettingsStore;
@@ -38,6 +43,26 @@ export class StoreService {
 
 	getProviders(): Provider[] {
 		return this.store.get('providers') ?? [];
+	}
+
+	getAppPermissions(): AppPermissionSettings {
+		return {
+			...DEFAULT_APP_PERMISSIONS,
+			...(this.store.get('appPermissions') ?? {}),
+		};
+	}
+
+	getMicrophoneEnabled(): boolean {
+		return this.getAppPermissions().microphoneEnabled;
+	}
+
+	setMicrophoneEnabled(enabled: boolean): AppPermissionSettings {
+		const next = {
+			...this.getAppPermissions(),
+			microphoneEnabled: enabled,
+		};
+		this.store.set('appPermissions', next);
+		return next;
 	}
 
 	addProvider(input: Provider): Provider {
