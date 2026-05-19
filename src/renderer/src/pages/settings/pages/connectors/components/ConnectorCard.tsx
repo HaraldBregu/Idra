@@ -64,13 +64,6 @@ export function ConnectorCard({
 			</ItemMedia>
 			<ItemContent className="min-w-0">
 				<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
-				{connector.connectedAccount && (
-					<div className="mt-1 flex min-w-0 items-center">
-						<span className="truncate text-[11px] leading-4 text-muted-foreground">
-							{connector.connectedAccount}
-						</span>
-					</div>
-				)}
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end gap-1">
 				{canConnectOAuth && (
