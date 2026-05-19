@@ -210,7 +210,6 @@ function inferSafety(
 			'cron',
 			'cron_add',
 			'cron_remove',
-			'set_provider_api_key',
 			'set_agent_service',
 			'startup_files',
 		].includes(name)
@@ -320,7 +319,6 @@ function isReadOnly(name: string): boolean {
 		'web_fetch',
 		'get_workspace_content',
 		'get_workspace_path',
-		'get_provider_by_id',
 		'get_agent_service',
 		'get_agent_model',
 		'cron_list',

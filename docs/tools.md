@@ -52,13 +52,6 @@ Policies are summarized from the current tool policy code. Global allow/deny fil
 | --- | --- |
 | `update_plan` | Runtime group: `group:planning`. Runtime profiles: `minimal`, `coding`, `full`. Session coordination tool; no mutation outside the in-memory plan. |
 
-## `providers.ts`
-
-| Tool | Policies |
-| --- | --- |
-| `get_provider_by_id` | `explicit/imported`. Read-only provider lookup. |
-| `set_provider_api_key` | `explicit/imported`. Carries the legacy approval marker and writes stored provider credentials. |
-
 ## `read-tool.ts`
 
 | Tool | Policies |
