@@ -152,6 +152,12 @@ function parseToolArgsForExecution(
 	}
 }
 
+function isVisibleAssistantBlock(
+	block: AgentContentBlock
+): block is Extract<AgentContentBlock, { type: 'text' | 'tool_use' }> {
+	return block.type === 'text' || block.type === 'tool_use';
+}
+
 function resultBlocksToText(content: ToolResultBlock[]): string {
 	return content.map((c) => (c.type === 'text' ? c.text : '[binary content]')).join('\n');
 }
@@ -244,6 +250,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			const iterStart = Date.now();
 			let text = '';
 			const blocks: AgentContentBlock[] = [];
+			const reasoningBlocks: AgentContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsStr: string }>();
 			let turnStop = 'end_turn';
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
@@ -263,6 +270,13 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					signal,
 				})) {
 					switch (event.type) {
+						case 'reasoning_item':
+							reasoningBlocks.push({
+								type: 'reasoning',
+								provider: 'openai',
+								item: event.item,
+							});
+							break;
 						case 'text_delta':
 							firstTokenLatencyMs ??= Date.now() - runStart;
 							if (!didStartAnswering) {
@@ -363,12 +377,13 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				durationMs: Date.now() - iterStart,
 			});
 
+			blocks.push(...reasoningBlocks);
 			if (text) blocks.push({ type: 'text', text });
 			for (const [id, t] of pending) {
 				const parsed = parseToolArgs(t.argsStr, { __unparsed: t.argsStr });
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
-			if (blocks.length === 0) blocks.push({ type: 'text', text: '' });
+			if (!blocks.some(isVisibleAssistantBlock)) blocks.push({ type: 'text', text: '' });
 			session.transcript.push({ role: 'assistant', content: blocks });
 			finalText += text;
 

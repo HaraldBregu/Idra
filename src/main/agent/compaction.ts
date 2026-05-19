@@ -60,6 +60,7 @@ function renderForSummary(entries: TranscriptEntry[]): string {
 			const text = e.content
 				.map((b) => {
 					if (b.type === 'text') return b.text;
+					if (b.type === 'reasoning') return '';
 					if (b.type === 'tool_use') {
 						return `[tool ${b.toolName} ${JSON.stringify(b.toolArgs ?? {}).slice(0, 200)}]`;
 					}

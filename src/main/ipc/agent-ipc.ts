@@ -47,7 +47,10 @@ export function transcriptToHistory(t: TranscriptEntry[]): AgentHistoryMessage[]
 				.filter((b) => b.type === 'text')
 				.map((b) => b.text)
 				.join('');
-			return { role: 'assistant', content: text || null, contentBlocks: entry.content };
+			const contentBlocks = entry.content.filter(
+				(b) => b.type === 'text' || b.type === 'tool_use'
+			);
+			return { role: 'assistant', content: text || null, contentBlocks };
 		}
 		const status = toolResultStatus(entry);
 		return {

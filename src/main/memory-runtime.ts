@@ -458,6 +458,7 @@ function renderTranscriptEntry(entry: TranscriptEntry): string {
 		return entry.content
 			.map((block) => {
 				if (block.type === 'text') return block.text;
+				if (block.type === 'reasoning') return '';
 				return `[tool_call ${block.toolName} ${truncate(JSON.stringify(block.toolArgs ?? {}), 500)}]`;
 			})
 			.join('\n')

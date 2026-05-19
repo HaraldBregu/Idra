@@ -15,6 +15,7 @@ export interface Usage {
 
 export type ProviderEvent =
 	| { type: 'message_start' }
+	| { type: 'reasoning_item'; item: unknown }
 	| { type: 'text_delta'; text: string }
 	| { type: 'tool_call_start'; id: string; name: string }
 	| { type: 'tool_call_args_delta'; id: string; jsonDelta: string }
@@ -23,6 +24,7 @@ export type ProviderEvent =
 
 export type AgentContentBlock =
 	| { type: 'text'; text: string }
+	| { type: 'reasoning'; provider: 'openai'; item: unknown }
 	| {
 			type: 'tool_use';
 			toolUseId: string;
