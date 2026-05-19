@@ -87,10 +87,10 @@ export function useRealtimeTranscriptionEndpoint(url: URL): void {
 	url.pathname = `${url.pathname.replace(/\/$/, '')}${REALTIME_TRANSCRIPTION_PATH_SUFFIX}`;
 }
 
-async function createRealtimeTranscriptionSocket(
+function createRealtimeTranscriptionSocket(
 	client: Pick<OpenAI, 'apiKey' | 'baseURL'>,
 	model: string
-): Promise<OpenAIRealtimeWebSocket> {
+): OpenAIRealtimeWebSocket {
 	return new OpenAIRealtimeWebSocket({ model, onURL: useRealtimeTranscriptionEndpoint }, client);
 }
 
