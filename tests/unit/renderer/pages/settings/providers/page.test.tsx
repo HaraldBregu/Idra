@@ -8,6 +8,13 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
+jest.mock('@/components/provider-avatar', () => ({
+	ProviderAvatar: ({ name }: { name: string }) => {
+		const React = jest.requireActual('react') as typeof import('react');
+		return React.createElement('span', { 'aria-hidden': 'true' }, name.slice(0, 1));
+	},
+}));
+
 describe('ProvidersPage', () => {
 	beforeEach(() => {
 		window.app = {
