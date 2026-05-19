@@ -42,7 +42,7 @@ import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
 import {
-	normalizeModelReasoningEffort,
+	requireModelReasoningEffort,
 	type ApprovalDecision,
 	type ModelReasoningEffort,
 	type Service as SharedService,
@@ -620,7 +620,7 @@ export class AgentService {
 		const savedEffort = agent?.model.effort;
 		let effort: ModelReasoningEffort | undefined;
 		if (providerId === 'openai') {
-			effort = normalizeModelReasoningEffort(model, savedEffort);
+			effort = requireModelReasoningEffort(model, savedEffort);
 		}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
