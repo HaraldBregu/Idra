@@ -1,4 +1,3 @@
-import { DEFAULT_AGENT_ID } from '../constants';
 import type { AgentStartupFileName } from '../agent/startup-files';
 import type { AgentTool } from './types';
 import { textResult } from './types';
@@ -37,10 +36,8 @@ export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 	},
 	needsApproval: (args) => args.action === 'write' || args.action === 'complete_bootstrap',
 	async execute(args, ctx) {
-		const agentId = ctx.agentId ?? DEFAULT_AGENT_ID;
 		try {
 			if (args.action === 'list') {
-				void agentId;
 				const files = await ctx.services.workspace.listWorkspaceFiles();
 				return textResult(JSON.stringify({
 					rootPath: ctx.services.workspace.getRootPath(),
