@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import type { ConnectorView } from '../../../../../../../shared/connectors';
-import { ConnectorStatusBadge } from './ConnectorStatusBadge';
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a,input,textarea,select,label,[role="switch"]'));
@@ -65,14 +64,13 @@ export function ConnectorCard({
 			</ItemMedia>
 			<ItemContent className="min-w-0">
 				<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
-				<div className="mt-1 flex min-w-0 items-center gap-1.5">
-					<ConnectorStatusBadge status={connector.status} />
-					{connector.connectedAccount && (
+				{connector.connectedAccount && (
+					<div className="mt-1 flex min-w-0 items-center">
 						<span className="truncate text-[11px] leading-4 text-muted-foreground">
 							{connector.connectedAccount}
 						</span>
-					)}
-				</div>
+					</div>
+				)}
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end gap-1">
 				{canConnectOAuth && (
