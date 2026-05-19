@@ -25,22 +25,18 @@ export function AgentToolActivity({
 		(tool) => tool.state === 'input-streaming' || tool.state === 'input-available'
 	);
 	const hasError = tools.some((tool) => tool.state === 'output-error');
-	const fallbackLabel =
-		hasRunning || hasError
-			? 'Tool calls and responses'
-			: `${tools.length} tool response${tools.length === 1 ? '' : 's'}`;
+	const fallbackLabel = tools.length === 1 ? tools[0]?.type : 'Tools used';
+	const triggerIcon =
+		indicator === undefined ? <ListChecks className="size-3.5 shrink-0" /> : indicator;
 
 	return (
 		<Steps defaultOpen={defaultOpen} className={className}>
-			<StepsTrigger className={triggerClassName}>
-				<span className="inline-flex min-w-0 items-center gap-1.5">
-					{indicator === undefined ? (
-						<ListChecks className="size-3.5 shrink-0" />
-					) : (
-						indicator
-					)}
-					<span className="truncate">{label ?? fallbackLabel}</span>
-				</span>
+			<StepsTrigger
+				className={triggerClassName}
+				leftIcon={triggerIcon}
+				swapIconOnHover={false}
+			>
+				<span className="truncate">{label ?? fallbackLabel}</span>
 			</StepsTrigger>
 			<StepsContent>
 				{tools.map((tool) => (
