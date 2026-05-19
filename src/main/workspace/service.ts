@@ -248,10 +248,9 @@ export class WorkspaceService {
 
 	private async ensureBootstrapFiles(options: { skipOptionalBootstrapFiles: string[] }): Promise<void> {
 		const skipOptionalBootstrapFiles = new Set(options.skipOptionalBootstrapFiles);
+		const optionalTemplateFiles = new Set<string>(OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES);
 		const shouldWriteTemplate = (name: WorkspaceFileName): boolean =>
-			!OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES.includes(
-				name as (typeof OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES)[number]
-			) || !skipOptionalBootstrapFiles.has(name);
+			!optionalTemplateFiles.has(name) || !skipOptionalBootstrapFiles.has(name);
 
 		for (const name of SEEDED_WORKSPACE_FILE_NAMES) {
 			if (!shouldWriteTemplate(name)) continue;
