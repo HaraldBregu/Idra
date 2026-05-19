@@ -7,6 +7,7 @@ import {
 	ChannelsChannels,
 	ConnectorsChannels,
 	ProviderChannels,
+	RealtimeTranscriptionChannels,
 	CronChannels,
 	HeartbeatChannels,
 	AppsChannels,
@@ -19,6 +20,7 @@ import type {
 	ConnectorsApi,
 	CronApi,
 	HeartbeatApi,
+	RealtimeTranscriptionApi,
 	SkillsApi,
 	WindowApi,
 } from './index.d';
@@ -230,6 +232,24 @@ export const app: AppApi = {
 	},
 	getAppsRoot: (): Promise<string> => {
 		return typedInvokeUnwrap(AppsChannels.getRoot);
+	},
+};
+
+export const realtimeTranscription: RealtimeTranscriptionApi = {
+	start: (request) => {
+		return typedInvokeUnwrap(RealtimeTranscriptionChannels.start, request);
+	},
+	appendAudio: (sessionId: string, audio: string): void => {
+		typedSend(RealtimeTranscriptionChannels.appendAudio, sessionId, audio);
+	},
+	finish: (sessionId: string): Promise<void> => {
+		return typedInvokeUnwrap(RealtimeTranscriptionChannels.finish, sessionId);
+	},
+	cancel: (sessionId: string): Promise<void> => {
+		return typedInvokeUnwrap(RealtimeTranscriptionChannels.cancel, sessionId);
+	},
+	onEvent: (callback): (() => void) => {
+		return typedOn(RealtimeTranscriptionChannels.event, callback);
 	},
 };
 
