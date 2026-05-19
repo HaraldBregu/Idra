@@ -6,17 +6,19 @@ import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { ConnectorsService } from './connectors';
 import {
+	resolveBootstrapMode,
+	type WorkspaceService,
+} from './workspace';
+import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_TOOLS_FILENAME,
 	DEFAULT_USER_FILENAME,
-	resolveBootstrapMode,
-	type WorkspaceContextFile,
-	type WorkspaceService,
-} from './workspace';
-import type { AgentStartupFilesServicePort } from './agent/startup-files';
+	type AgentStartupFile,
+	type AgentStartupFilesServicePort,
+} from './agent/startup-files';
 import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
@@ -110,7 +112,7 @@ function emptyUsage(): TokenUsage {
 	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
 
-function startupContextChars(files: WorkspaceContextFile[]): number {
+function startupContextChars(files: AgentStartupFile[]): number {
 	return files.reduce((total, file) => total + (file.content?.length ?? 0), 0);
 }
 
@@ -265,11 +267,11 @@ export class AgentService {
 				new ToolUsePolicy().evaluate({ userRequest: message })
 			);
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
-				this.isBootstrapPending()
+				this.isBootstrapPending(agentId)
 			);
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
-			let startupFiles: WorkspaceContextFile[] = [];
+			let startupFiles: AgentStartupFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
 				systemPromptSuffix: '',
@@ -335,7 +337,7 @@ export class AgentService {
 			if (!directAnswer) {
 				startupFiles = this.filterStartupFilesForRun(
 					await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
-						this.loadStartupFiles()
+						this.loadStartupFiles(agentId)
 					),
 					{
 						runKind,
@@ -632,9 +634,9 @@ export class AgentService {
 		return typeof maybeStore.getService === 'function' ? maybeStore.getService() : undefined;
 	}
 
-	private async isBootstrapPending(): Promise<boolean> {
+	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
-			return await this.dependencies.workspace.isBootstrapPending();
+			return await this.dependencies.startupFiles.isBootstrapPending(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
 				error: (error as Error).message,
@@ -643,9 +645,9 @@ export class AgentService {
 		}
 	}
 
-	private async loadStartupFiles(): Promise<WorkspaceContextFile[]> {
+	private async loadStartupFiles(agentId: string): Promise<AgentStartupFile[]> {
 		try {
-			return await this.dependencies.workspace.loadContextFiles();
+			return await this.dependencies.startupFiles.loadContextFiles(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
 				error: (error as Error).message,
@@ -655,14 +657,14 @@ export class AgentService {
 	}
 
 	private filterStartupFilesForRun(
-		files: WorkspaceContextFile[],
+		files: AgentStartupFile[],
 		params: {
 			runKind: 'default' | 'heartbeat' | 'cron';
 			lightContext: boolean;
 			includeHeartbeatContext: boolean;
 			isPrimaryRun: boolean;
 		}
-	): WorkspaceContextFile[] {
+	): AgentStartupFile[] {
 		if (params.runKind === 'heartbeat') {
 			return params.lightContext
 				? files.filter((file) => file.name === DEFAULT_HEARTBEAT_FILENAME)
@@ -678,9 +680,9 @@ export class AgentService {
 	}
 
 	private filterStartupFilesForBootstrapMode(
-		files: WorkspaceContextFile[],
+		files: AgentStartupFile[],
 		bootstrapMode: 'none' | 'limited' | 'full'
-	): WorkspaceContextFile[] {
+	): AgentStartupFile[] {
 		if (bootstrapMode === 'full') return files;
 		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
 	}
