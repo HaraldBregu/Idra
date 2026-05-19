@@ -8,7 +8,6 @@ import {
 } from './common';
 import { createReadTool } from './builtins/read-tool';
 import { createExecTool } from './builtins/exec-tool';
-import { createUpdatePlanTool, type PlanEntry } from './builtins/update-plan-tool';
 import { normalizeToolSchemas } from './schema-normalization';
 import { applyToolPolicyPipeline, type PolicyStageName } from './tool-policy-pipeline';
 import { wrapToolWithBeforeToolCall, type BeforeToolCallContext, newCallTracker } from './before-tool-call';
@@ -58,7 +57,6 @@ export type CreateAgentToolsOptions = {
 	mcpRuntime?: McpRuntime;
 	lspRuntime?: LspRuntime;
 	clientTools?: AgentTool[];
-	onUpdatePlan?: (plan: PlanEntry[], explanation?: string) => void | Promise<void>;
 	beforeToolCall?: Omit<BeforeToolCallContext, 'signal' | 'loopDetector'>;
 };
 
@@ -67,7 +65,6 @@ export type ToolConstructionPlan = {
 	includeShellTools: boolean;
 	includeWebTools: boolean;
 	includeMessagingTools: boolean;
-	includeSessionTools: boolean;
 	includePluginTools: boolean;
 	includeMcpTools: boolean;
 	includeLspTools: boolean;
@@ -97,7 +94,6 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
 	web_fetch: 'includeWebTools',
 	web_search: 'includeWebTools',
 	message: 'includeMessagingTools',
-	update_plan: 'includeSessionTools',
 };
 
 export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPlan {
@@ -106,7 +102,6 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		includeShellTools: false,
 		includeWebTools: false,
 		includeMessagingTools: false,
-		includeSessionTools: false,
 		includePluginTools: false,
 		includeMcpTools: false,
 		includeLspTools: false,
@@ -118,7 +113,6 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 			...empty,
 			includeFileTools: true,
 			includeShellTools: true,
-			includeSessionTools: true,
 			includePluginTools: true,
 			includeToolSearchControls: true,
 		};
@@ -136,7 +130,7 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		else if (name.startsWith('group:shell')) plan.includeShellTools = true;
 		else if (name.startsWith('group:web')) plan.includeWebTools = true;
 		else if (name.startsWith('group:messaging')) plan.includeMessagingTools = true;
-		else if (name.startsWith('group:session') || name.startsWith('group:planning')) plan.includeSessionTools = true;
+		else if (name.startsWith('group:session') || name.startsWith('group:planning')) continue;
 		else {
 			const family = CORE_TOOL_FAMILIES[name];
 			if (family) plan[family] = true;
@@ -168,9 +162,6 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 			stage: 'construction',
 			reason: 'sandbox disallows shell tools',
 		});
-	}
-	if (plan.includeSessionTools) {
-		candidates.push(createUpdatePlanTool({ onUpdatePlan: options.onUpdatePlan }));
 	}
 
 	const existingNames = new Set(candidates.map((tool) => normalizeToolName(tool.name)));
