@@ -964,6 +964,7 @@ const StartPage: React.FC = () => {
 									>
 										<ProviderMark
 											initial={provider.initial}
+											icon={provider.icon}
 											className={provider.swatchClassName}
 										/>
 										<div className="min-w-0 flex-1">
