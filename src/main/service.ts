@@ -5,11 +5,19 @@ import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { ConnectorsService } from './connectors';
-import { resolveBootstrapMode, type WorkspaceService } from './workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
-	type AgentStartupFile,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_MEMORY_FILENAME,
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_TOOLS_FILENAME,
+	DEFAULT_USER_FILENAME,
+	resolveBootstrapMode,
+	type WorkspaceContextFile,
+	type WorkspaceService,
+} from './workspace';
+import {
 	type AgentStartupFilesServicePort,
 } from './agent/startup-files';
 import type { UserDataDirectoryServicePort } from './user-data';
@@ -104,9 +112,17 @@ function emptyUsage(): TokenUsage {
 	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
 
-function startupContextChars(files: AgentStartupFile[]): number {
+function startupContextChars(files: WorkspaceContextFile[]): number {
 	return files.reduce((total, file) => total + (file.content?.length ?? 0), 0);
 }
+
+const SECONDARY_SESSION_CONTEXT_ALLOWLIST = new Set([
+	'AGENTS.md',
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_TOOLS_FILENAME,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_USER_FILENAME,
+]);
 
 function recordPhase<T>(durations: Record<string, number>, name: string, work: () => T): T {
 	const start = Date.now();
@@ -253,7 +269,9 @@ export class AgentService {
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending(agentId)
 			);
-			let startupFiles: AgentStartupFile[] = [];
+			const isPrimaryRun =
+				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
+			let startupFiles: WorkspaceContextFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
 				systemPromptSuffix: '',
@@ -321,6 +339,7 @@ export class AgentService {
 							this.getServiceConfig(),
 							agentId
 						),
+						isPrimaryRun,
 					}
 				);
 				bootstrapPending =
@@ -373,11 +392,12 @@ export class AgentService {
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
 				isInteractiveUserFacing: true,
-				isPrimaryRun: agentId === this.defaultAgentId,
+				isPrimaryRun,
 				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 				hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
 				runKind,
 			});
+			startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
 			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
 				buildSystemPrompt({
 					workspace: workspaceRoot,
@@ -609,7 +629,8 @@ export class AgentService {
 
 	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
-			return await this.dependencies.startupFiles.isBootstrapPending(agentId);
+			void agentId;
+			return await this.dependencies.workspace.isBootstrapPending();
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
 				error: (error as Error).message,
@@ -618,9 +639,10 @@ export class AgentService {
 		}
 	}
 
-	private async loadStartupFiles(agentId: string): Promise<AgentStartupFile[]> {
+	private async loadStartupFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		try {
-			return await this.dependencies.startupFiles.loadContextFiles(agentId);
+			void agentId;
+			return await this.dependencies.workspace.loadContextFiles();
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
 				error: (error as Error).message,
@@ -630,22 +652,34 @@ export class AgentService {
 	}
 
 	private filterStartupFilesForRun(
-		files: AgentStartupFile[],
+		files: WorkspaceContextFile[],
 		params: {
 			runKind: 'default' | 'heartbeat' | 'cron';
 			lightContext: boolean;
 			includeHeartbeatContext: boolean;
+			isPrimaryRun: boolean;
 		}
-	): AgentStartupFile[] {
+	): WorkspaceContextFile[] {
 		if (params.runKind === 'heartbeat') {
 			return params.lightContext
 				? files.filter((file) => file.name === DEFAULT_HEARTBEAT_FILENAME)
 				: files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
 		}
+		if (!params.isPrimaryRun || params.runKind === 'cron') {
+			return files.filter((file) => SECONDARY_SESSION_CONTEXT_ALLOWLIST.has(file.name));
+		}
 		if (params.runKind === 'default' && !params.includeHeartbeatContext) {
 			return files.filter((file) => file.name !== DEFAULT_HEARTBEAT_FILENAME);
 		}
 		return files;
+	}
+
+	private filterStartupFilesForBootstrapMode(
+		files: WorkspaceContextFile[],
+		bootstrapMode: 'none' | 'limited' | 'full'
+	): WorkspaceContextFile[] {
+		if (bootstrapMode === 'full') return files;
+		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
 	private buildHooks(
