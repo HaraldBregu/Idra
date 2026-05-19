@@ -379,7 +379,7 @@ function PageContent(): ReactElement {
 							<EmptyConversation />
 						) : (
 							<>
-								{visibleMessages.map((message, index) => {
+								{visibleMessages.map((message) => {
 									if (message.role === 'user') {
 										return <UserMessage key={message.id} content={message.content} />;
 									}
