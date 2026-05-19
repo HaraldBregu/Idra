@@ -100,57 +100,6 @@ const STEP_TITLES: Record<SetupStep, string> = {
 	models: 'Models',
 };
 
-const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
-	{
-		id: 'anthropic',
-		name: 'Anthropic',
-		capabilities: 'Chat',
-		initial: 'A',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		supported: true,
-	},
-	{
-		id: 'openai',
-		name: 'OpenAI',
-		capabilities: 'Chat - Speech-to-text - Text-to-speech',
-		initial: 'O',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		supported: true,
-	},
-	{
-		id: 'google',
-		name: 'Google',
-		capabilities: 'Chat - Speech-to-text',
-		initial: 'G',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		supported: false,
-	},
-	{
-		id: 'elevenlabs',
-		name: 'ElevenLabs',
-		capabilities: 'Text-to-speech - Speech-to-text',
-		initial: 'E',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		supported: false,
-	},
-	{
-		id: 'groq',
-		name: 'Groq',
-		capabilities: 'Chat - Speech-to-text',
-		initial: 'Q',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		supported: false,
-	},
-	{
-		id: 'ollama',
-		name: 'Local - Ollama',
-		capabilities: 'auto',
-		initial: '',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		supported: false,
-	},
-];
-
 const SPEECH_MODELS: readonly StaticModelOption[] = [
 	{
 		id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
@@ -852,7 +801,7 @@ const StartPage: React.FC = () => {
 				</div>
 
 				<div className="mt-4 space-y-2">
-					{PROVIDER_CATALOG.map((provider) => {
+					{actionableProviderCatalog.map((provider) => {
 						const entry = providerEntries.find((item) => item.providerId === provider.id);
 						const connected = entry?.apiKeySaved ?? false;
 						const editing = entry?.editing ?? false;
