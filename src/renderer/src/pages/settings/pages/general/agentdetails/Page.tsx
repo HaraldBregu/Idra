@@ -624,6 +624,7 @@ const AgentDetailsPage: React.FC = () => {
 					</div>
 				</SettingsPanel>
 			</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };
