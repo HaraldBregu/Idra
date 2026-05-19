@@ -121,6 +121,7 @@ export class StoreService {
 		}
 		const next: Service = {
 			agent: current?.agent,
+			speechTranscriber: current?.speechTranscriber,
 			agents: {
 				...currentAgents,
 				defaults: {
@@ -147,6 +148,10 @@ export class StoreService {
 		return this.store.get('service')?.agent?.provider;
 	}
 
+	getSpeechTranscriberService(): Agent | undefined {
+		return this.store.get('service')?.speechTranscriber;
+	}
+
 	setAgentService(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
@@ -155,6 +160,31 @@ export class StoreService {
 		const current = this.store.get('service');
 		const next: Service = {
 			agent: {
+				provider: {
+					id: provider.id,
+					name: provider.name,
+					baseUrl: provider.baseUrl,
+				},
+				model,
+			},
+			speechTranscriber: current?.speechTranscriber,
+			agents: current?.agents,
+			rag: current?.rag ?? '',
+			ocr: current?.ocr ?? '',
+		};
+		this.store.set('service', next);
+		return true;
+	}
+
+	setSpeechTranscriberService(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const current = this.store.get('service');
+		const next: Service = {
+			agent: current?.agent,
+			speechTranscriber: {
 				provider: {
 					id: provider.id,
 					name: provider.name,
