@@ -1,10 +1,14 @@
-import { app, ipcMain, BrowserWindow, nativeTheme, shell } from 'electron';
+import { app, ipcMain, BrowserWindow, nativeTheme, shell, systemPreferences } from 'electron';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import type { Agent, Model } from '../../shared/service';
+import type {
+	MicrophonePermissionSettings,
+	MicrophoneSystemPermissionStatus,
+} from '../../shared/app-permissions';
 import { DEFAULT_PROVIDERS, type ProviderInput, type PublicProvider } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
@@ -16,6 +20,29 @@ import {
 } from '../provider/model-policy';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
+
+function getMicrophoneSystemStatus(): MicrophoneSystemPermissionStatus {
+	if (process.platform !== 'darwin') return 'unknown';
+
+	try {
+		return systemPreferences.getMediaAccessStatus('microphone');
+	} catch {
+		return 'unknown';
+	}
+}
+
+function canRequestMicrophoneAccess(status: MicrophoneSystemPermissionStatus): boolean {
+	return process.platform === 'darwin' && status === 'not-determined';
+}
+
+function microphoneSettings(enabled: boolean): MicrophonePermissionSettings {
+	const systemStatus = getMicrophoneSystemStatus();
+	return {
+		enabled,
+		systemStatus,
+		canRequest: canRequestMicrophoneAccess(systemStatus),
+	};
+}
 
 async function openPathOrThrow(target: string): Promise<void> {
 	const error = await shell.openPath(target);
@@ -145,6 +172,32 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(() => {
 				return this.trayEnabled;
 			}, AppChannels.getTrayEnabled)
+		);
+
+		ipcMain.handle(
+			AppChannels.getMicrophonePermission,
+			wrapSimpleHandler(() => {
+				return microphoneSettings(store.getMicrophoneEnabled());
+			}, AppChannels.getMicrophonePermission)
+		);
+
+		ipcMain.handle(
+			AppChannels.setMicrophoneEnabled,
+			wrapSimpleHandler((enabled: boolean) => {
+				const next = store.setMicrophoneEnabled(Boolean(enabled));
+				return microphoneSettings(next.microphoneEnabled);
+			}, AppChannels.setMicrophoneEnabled)
+		);
+
+		ipcMain.handle(
+			AppChannels.requestMicrophonePermission,
+			wrapSimpleHandler(async () => {
+				const enabled = store.getMicrophoneEnabled();
+				if (process.platform === 'darwin' && enabled) {
+					await systemPreferences.askForMediaAccess('microphone');
+				}
+				return microphoneSettings(enabled);
+			}, AppChannels.requestMicrophonePermission)
 		);
 
 		ipcMain.handle(
