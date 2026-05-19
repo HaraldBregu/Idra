@@ -236,7 +236,8 @@ describe('AgentService', () => {
 			agentId: 'main',
 			session: expect.objectContaining({ id: 'cron:job-1' }),
 		});
-		expect(deps.workspace.isBootstrapPending).toHaveBeenCalled();
+		expect(deps.startupFiles.isBootstrapPending).toHaveBeenCalledWith('main');
+		expect(deps.startupFiles.isBootstrapPending).not.toHaveBeenCalledWith('cron:job-1');
 		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
 			'agent:response',
 			expect.objectContaining({ agentId: 'cron:job-1', delta: 'cron ok' })
@@ -334,7 +335,6 @@ describe('AgentService', () => {
 
 		await expect(service.send('hello there')).resolves.toBe('hello');
 		expect(toolsFactory).not.toHaveBeenCalled();
-		expect(deps.workspace.loadContextFiles).not.toHaveBeenCalled();
 		expect(startupFiles.loadContextFiles).not.toHaveBeenCalled();
 		expect(requests[0]!.tools).toEqual([]);
 		expect(requests[0]!.system).toContain('No tools are available for this turn');
@@ -517,15 +517,20 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('adds workspace bootstrap context and startup_files for full bootstrap turns', async () => {
+	it('adds agent startup context and startup_files for full bootstrap turns', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps('/workspace');
-		(deps.workspace.isBootstrapPending as jest.Mock).mockResolvedValue(true);
-		(deps.workspace.loadContextFiles as jest.Mock).mockResolvedValue([
-			{ name: 'AGENTS.md', path: '/workspace/AGENTS.md', content: 'rules', missing: false },
+		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
+		(deps.startupFiles.loadContextFiles as jest.Mock).mockResolvedValue([
+			{
+				name: 'AGENTS.md',
+				path: '/workspace/agent/workspaces/main/AGENTS.md',
+				content: 'rules',
+				missing: false,
+			},
 			{
 				name: 'BOOTSTRAP.md',
-				path: '/workspace/BOOTSTRAP.md',
+				path: '/workspace/agent/workspaces/main/BOOTSTRAP.md',
 				content: 'bootstrap ritual',
 				missing: false,
 			},
@@ -557,13 +562,23 @@ describe('AgentService', () => {
 	it('strips BOOTSTRAP.md from secondary session context', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps('/workspace');
-		(deps.workspace.isBootstrapPending as jest.Mock).mockResolvedValue(true);
-		(deps.workspace.loadContextFiles as jest.Mock).mockResolvedValue([
-			{ name: 'AGENTS.md', path: '/workspace/AGENTS.md', content: 'rules', missing: false },
-			{ name: 'MEMORY.md', path: '/workspace/MEMORY.md', content: 'memory', missing: false },
+		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
+		(deps.startupFiles.loadContextFiles as jest.Mock).mockResolvedValue([
+			{
+				name: 'AGENTS.md',
+				path: '/workspace/agent/workspaces/main/AGENTS.md',
+				content: 'rules',
+				missing: false,
+			},
+			{
+				name: 'MEMORY.md',
+				path: '/workspace/agent/workspaces/main/MEMORY.md',
+				content: 'memory',
+				missing: false,
+			},
 			{
 				name: 'BOOTSTRAP.md',
-				path: '/workspace/BOOTSTRAP.md',
+				path: '/workspace/agent/workspaces/main/BOOTSTRAP.md',
 				content: 'bootstrap ritual',
 				missing: false,
 			},
