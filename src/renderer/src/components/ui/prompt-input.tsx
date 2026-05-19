@@ -71,9 +71,12 @@ export type PromptInputProps = {
   disabled?: boolean
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>
   voiceMode?: PromptInputVoiceMode | null
+  voiceElapsedMs?: number
+  voiceMuted?: boolean
   onVoiceEnd?: () => void
   onVoiceCancel?: () => void
   onVoiceConfirm?: () => void
+  onVoiceMutedChange?: (muted: boolean) => void
   onFilesChange?: (files: File[]) => void
 } & React.ComponentProps<"div">
 
@@ -158,25 +161,38 @@ function PromptInputVoiceWaveform({
   )
 }
 
+function formatVoiceDuration(elapsedMs: number) {
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`
+}
+
 function PromptInputVoicePanel({
   mode,
   disabled,
   leadingAction,
+  elapsedMs,
+  muted,
   onEnd,
   onCancel,
   onConfirm,
+  onMutedChange,
 }: {
   mode: PromptInputVoiceMode
   disabled?: boolean
   leadingAction?: React.ReactNode
+  elapsedMs?: number
+  muted?: boolean
   onEnd?: () => void
   onCancel?: () => void
   onConfirm?: () => void
+  onMutedChange?: (muted: boolean) => void
 }) {
   const promptInputContext = usePromptInput()
-  const [muted, setMuted] = useState(false)
+  const [localMuted, setLocalMuted] = useState(false)
   const isDictation = mode === "dictation"
-  const isMuted = !isDictation && muted
+  const isMuted = !isDictation && (muted ?? localMuted)
 
   const handleButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -184,6 +200,11 @@ function PromptInputVoicePanel({
   ) => {
     event.stopPropagation()
     action?.()
+  }
+
+  const handleMutedChange = (nextMuted: boolean) => {
+    setLocalMuted(nextMuted)
+    onMutedChange?.(nextMuted)
   }
 
   return (
@@ -228,6 +249,11 @@ function PromptInputVoicePanel({
         <div className="min-w-28 flex-1">
           <PromptInputVoiceWaveform muted={isMuted} mode={mode} />
         </div>
+        {elapsedMs !== undefined ? (
+          <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
+            {formatVoiceDuration(elapsedMs)}
+          </span>
+        ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
         {isDictation ? (
@@ -259,7 +285,7 @@ function PromptInputVoicePanel({
               disabled={disabled}
               onClick={(event) => {
                 event.stopPropagation()
-                setMuted((current) => !current)
+                handleMutedChange(!isMuted)
               }}
               className={cn(
                 "flex size-8 items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
@@ -309,9 +335,12 @@ function PromptInput({
   disabled = false,
   textareaRef: externalTextareaRef,
   voiceMode,
+  voiceElapsedMs,
+  voiceMuted,
   onVoiceEnd,
   onVoiceCancel,
   onVoiceConfirm,
+  onVoiceMutedChange,
   onFilesChange,
   onClick,
   ...props
@@ -389,9 +418,12 @@ function PromptInput({
                   mode={voiceMode}
                   disabled={disabled}
                   leadingAction={leadingAction}
+                  elapsedMs={voiceElapsedMs}
+                  muted={voiceMuted}
                   onEnd={onVoiceEnd}
                   onCancel={onVoiceCancel}
                   onConfirm={onVoiceConfirm ?? onSubmit}
+                  onMutedChange={onVoiceMutedChange}
                 />
               ) : (
                 <>

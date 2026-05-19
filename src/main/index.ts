@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme, protocol, net, crashReporter } from 'electron';
+import { app, BrowserWindow, nativeTheme, protocol, net, crashReporter, session } from 'electron';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -47,6 +47,88 @@ protocol.registerSchemesAsPrivileged([
 		privileges: { standard: true, secure: true, bypassCSP: true, supportFetchAPI: true },
 	},
 ]);
+
+function rendererDevOrigin(): string | null {
+	const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
+	if (!rendererUrl) return null;
+
+	try {
+		return new URL(rendererUrl).origin;
+	} catch {
+		return null;
+	}
+}
+
+function isTrustedRendererOrigin(origin?: string): boolean {
+	if (!origin) return false;
+	if (origin === 'file://') return true;
+	const devOrigin = rendererDevOrigin();
+	return Boolean(devOrigin && origin === devOrigin);
+}
+
+function isTrustedRendererUrl(url?: string): boolean {
+	if (!url) return false;
+	if (url.startsWith('file://')) return true;
+
+	try {
+		return isTrustedRendererOrigin(new URL(url).origin);
+	} catch {
+		return false;
+	}
+}
+
+function isAppWindowWebContents(webContents: Electron.WebContents | null): boolean {
+	return Boolean(webContents && BrowserWindow.fromWebContents(webContents));
+}
+
+function isTrustedMediaRequestSource(
+	requestingOrigin: string | undefined,
+	requestingUrl: string | undefined,
+	securityOrigin: string | undefined
+): boolean {
+	return (
+		isTrustedRendererOrigin(requestingOrigin) ||
+		isTrustedRendererOrigin(securityOrigin) ||
+		isTrustedRendererUrl(requestingUrl)
+	);
+}
+
+function setupMediaPermissionHandlers(): void {
+	session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+		if (permission !== 'media') return false;
+		if (details.mediaType !== 'audio') return false;
+		if (!details.isMainFrame) return false;
+		if (!isAppWindowWebContents(webContents)) return false;
+		return isTrustedMediaRequestSource(
+			requestingOrigin,
+			details.requestingUrl,
+			details.securityOrigin
+		);
+	});
+
+	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
+		if (permission !== 'media') {
+			callback(false);
+			return;
+		}
+
+		const mediaDetails = details as Electron.MediaAccessPermissionRequest;
+		const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
+		const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
+		const allowed =
+			requestsAudio &&
+			!requestsVideo &&
+			mediaDetails.isMainFrame &&
+			isAppWindowWebContents(webContents) &&
+			isTrustedMediaRequestSource(
+				undefined,
+				mediaDetails.requestingUrl,
+				mediaDetails.securityOrigin
+			);
+
+		callback(allowed);
+	});
+}
 
 import type { ThemeMode } from '../shared';
 import { AppChannels } from '../shared/ipc-channels';
@@ -172,6 +254,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	setupMediaPermissionHandlers();
 	menuManager.create();
 	void menuManager.refreshApps();
 	trayManager.create();

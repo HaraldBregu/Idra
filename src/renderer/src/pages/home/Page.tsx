@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowUp, AudioLines, Mic, Plus, Square } from 'lucide-react';
+import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +24,121 @@ import { PendingMessage } from './components/PendingMessage';
 import { ReferenceConversation } from './components/ReferenceConversation';
 import { UserMessage } from './components/UserMessage';
 import { Provider } from './context';
-import { useHomeAgent } from './hooks';
+import { useAudioRecorder, useHomeAgent, type AudioRecording } from './hooks';
+
+type PromptAttachment = {
+	readonly id: string;
+	readonly kind: 'file' | 'audio';
+	readonly file: File;
+	readonly url?: string;
+	readonly durationMs?: number;
+};
+
+function attachmentId(): string {
+	if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+	return `attachment-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function formatDuration(durationMs: number): string {
+	const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = totalSeconds % 60;
+	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function formatFileSize(size: number): string {
+	if (size < 1024) return `${size} B`;
+	if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+	return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function recordingToAttachment(recording: AudioRecording): PromptAttachment {
+	return {
+		id: recording.id,
+		kind: 'audio',
+		file: recording.file,
+		url: recording.url,
+		durationMs: recording.durationMs,
+	};
+}
+
+function filesToAttachments(files: File[]): PromptAttachment[] {
+	return files.map((file) => ({
+		id: attachmentId(),
+		kind: 'file',
+		file,
+	}));
+}
+
+function RecorderErrorMessage({
+	message,
+}: {
+	readonly message: string | null;
+}): ReactElement | null {
+	if (!message) return null;
+
+	return (
+		<div className="mb-2 flex min-w-0 items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive shadow-sm">
+			<AlertCircle className="size-4 shrink-0" />
+			<p className="min-w-0 truncate text-xs font-medium">{message}</p>
+		</div>
+	);
+}
+
+function AttachmentTray({
+	attachments,
+	onRemove,
+}: {
+	readonly attachments: readonly PromptAttachment[];
+	readonly onRemove: (id: string) => void;
+}): ReactElement | null {
+	if (attachments.length === 0) return null;
+
+	return (
+		<div className="mb-2 flex max-h-32 w-full flex-col gap-1.5 overflow-y-auto rounded-lg border border-border/60 bg-card/95 p-2 shadow-sm shadow-foreground/5">
+			{attachments.map((attachment) => {
+				const isAudio = attachment.kind === 'audio';
+				const title = isAudio
+					? `Audio ${formatDuration(attachment.durationMs ?? 0)}`
+					: attachment.file.name;
+
+				return (
+					<div
+						key={attachment.id}
+						className="flex min-w-0 items-center gap-2 rounded-md border border-border/50 bg-background/70 px-2 py-1.5"
+					>
+						<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+							{isAudio ? <FileAudio className="size-4" /> : <Paperclip className="size-4" />}
+						</span>
+						<div className="min-w-0 flex-1">
+							<p className="truncate text-xs font-medium leading-4">{title}</p>
+							<p className="truncate text-[11px] leading-4 text-muted-foreground">
+								{attachment.file.name} - {formatFileSize(attachment.file.size)}
+							</p>
+						</div>
+						{isAudio && attachment.url ? (
+							<audio
+								controls
+								src={attachment.url}
+								className="h-7 w-32 shrink-0 sm:w-40"
+							/>
+						) : null}
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="size-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+							aria-label={`Remove ${title}`}
+							onClick={() => onRemove(attachment.id)}
+						>
+							<X className="size-3.5" />
+						</Button>
+					</div>
+				);
+			})}
+		</div>
+	);
+}
 
 function AttachmentButton(): ReactElement {
 	const { triggerFileUpload } = usePromptInput();
@@ -46,17 +160,20 @@ function AttachmentButton(): ReactElement {
 
 function VoiceButton({
 	onVoiceModeRequest,
+	disabled,
 }: {
 	readonly onVoiceModeRequest: () => void;
+	readonly disabled?: boolean;
 }): ReactElement {
 	return (
-		<PromptInputAction tooltip="Voice agent">
+		<PromptInputAction tooltip="Record audio">
 			<Button
 				type="button"
 				variant="ghost"
 				size="icon"
 				className="size-8 rounded-full text-foreground hover:bg-muted"
-				aria-label="Switch to voice"
+				aria-label="Record audio"
+				disabled={disabled}
 				onClick={onVoiceModeRequest}
 			>
 				<Mic className="size-4" />
@@ -68,13 +185,15 @@ function VoiceButton({
 function SubmitButton({
 	isLoading,
 	canSubmit,
+	disabled,
 	onAction,
 }: {
 	readonly isLoading: boolean;
 	readonly canSubmit: boolean;
+	readonly disabled?: boolean;
 	readonly onAction: () => void;
 }): ReactElement {
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start audio recording';
 	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
@@ -92,6 +211,7 @@ function SubmitButton({
 				size="icon"
 				className="size-9 overflow-hidden rounded-full bg-foreground text-background hover:bg-foreground/90"
 				aria-label={label}
+				disabled={disabled}
 				onClick={onAction}
 			>
 				<AnimatePresence mode="wait" initial={false}>
@@ -114,37 +234,73 @@ function SubmitButton({
 function PageContent(): ReactElement {
 	const { mode, setMode } = useChatMode();
 	const agent = useHomeAgent({ setMode });
+	const audioRecorder = useAudioRecorder();
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
-	const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
+	const recordedUrlsRef = useRef<Set<string>>(new Set());
 	const showReferenceConversation =
 		agent.chatState.messages.length <= 1 &&
 		!agent.isLoading &&
 		!agent.historyLoading;
 	const canSubmit = agent.input.trim().length > 0;
+	const recorderBusy =
+		audioRecorder.status === 'checking-permission' || audioRecorder.status === 'stopping';
 
 	useEffect(() => {
-		if (mode === 'chat') setVoiceMode(null);
-	}, [mode]);
+		if (mode !== 'chat') return;
+		setVoiceMode(null);
+		if (audioRecorder.status === 'recording') void audioRecorder.cancel();
+	}, [audioRecorder, mode]);
+
+	useEffect(() => {
+		return () => {
+			recordedUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+			recordedUrlsRef.current.clear();
+		};
+	}, []);
+
+	const addRecordingAttachment = useCallback((recording: AudioRecording): void => {
+		if (recording.url) recordedUrlsRef.current.add(recording.url);
+		setAttachments((current) => [...current, recordingToAttachment(recording)]);
+	}, []);
+
+	const removeAttachment = useCallback((id: string): void => {
+		setAttachments((current) =>
+			current.filter((attachment) => {
+				if (attachment.id !== id) return true;
+				if (attachment.url) {
+					URL.revokeObjectURL(attachment.url);
+					recordedUrlsRef.current.delete(attachment.url);
+				}
+				return false;
+			})
+		);
+	}, []);
 
 	const returnToChat = (): void => {
 		setVoiceMode(null);
 		setMode('chat');
 	};
 
-	const startVoiceConversation = (): void => {
-		setVoiceMode('conversation');
-		setMode('voice');
-	};
-
-	const startDictation = (): void => {
+	const startAudioRecording = async (): Promise<void> => {
+		const started = await audioRecorder.start();
+		if (!started) {
+			setMode('chat');
+			return;
+		}
 		setVoiceMode('dictation');
 		setMode('voice');
 	};
 
-	const confirmDictation = (): void => {
-		const shouldSubmit = agent.input.trim().length > 0;
+	const cancelRecording = async (): Promise<void> => {
+		await audioRecorder.cancel();
 		returnToChat();
-		if (shouldSubmit) agent.handleSubmit();
+	};
+
+	const confirmRecording = async (): Promise<void> => {
+		const recording = await audioRecorder.stop();
+		if (recording) addRecordingAttachment(recording);
+		returnToChat();
 	};
 
 	const handlePrimaryAction = (): void => {
@@ -152,7 +308,7 @@ function PageContent(): ReactElement {
 			agent.handleSubmit();
 			return;
 		}
-		startVoiceConversation();
+		void startAudioRecording();
 	};
 
 	return (
@@ -214,33 +370,47 @@ function PageContent(): ReactElement {
 					</div>
 				</ChatContainerRoot>
 				<div className="absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 py-3">
-					<PromptInput
-						value={agent.input}
-						onValueChange={agent.setInput}
-						isLoading={agent.isLoading}
-						maxHeight={360}
-						onSubmit={agent.handleSubmit}
-						textareaRef={agent.inputRef}
-						leadingAction={<AttachmentButton />}
-						voiceMode={voiceMode}
-						onVoiceEnd={returnToChat}
-						onVoiceCancel={returnToChat}
-						onVoiceConfirm={confirmDictation}
-						onFilesChange={(files) => setAttachedFiles((prev) => [...prev, ...files])}
-						className="w-full"
-						actions={
-							<PromptInputActions className="justify-end gap-1.5">
-								<VoiceButton onVoiceModeRequest={startDictation} />
-								<SubmitButton
-									isLoading={agent.isLoading}
-									canSubmit={canSubmit}
-									onAction={handlePrimaryAction}
-								/>
-							</PromptInputActions>
-						}
-					>
-						<PromptInputTextarea placeholder="Ask anything" aria-label="Message Friday" />
-					</PromptInput>
+					<div className="w-full max-w-[96rem]">
+						<RecorderErrorMessage message={audioRecorder.errorMessage} />
+						<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
+						<PromptInput
+							value={agent.input}
+							onValueChange={agent.setInput}
+							isLoading={agent.isLoading}
+							maxHeight={360}
+							onSubmit={agent.handleSubmit}
+							textareaRef={agent.inputRef}
+							leadingAction={<AttachmentButton />}
+							voiceMode={voiceMode}
+							voiceElapsedMs={audioRecorder.elapsedMs}
+							voiceMuted={audioRecorder.isMuted}
+							onVoiceMutedChange={audioRecorder.setMuted}
+							onVoiceEnd={() => void confirmRecording()}
+							onVoiceCancel={() => void cancelRecording()}
+							onVoiceConfirm={() => void confirmRecording()}
+							onFilesChange={(files) =>
+								setAttachments((current) => [...current, ...filesToAttachments(files)])
+							}
+							wrapperClassName="max-w-none"
+							className="w-full"
+							actions={
+								<PromptInputActions className="justify-end gap-1.5">
+									<VoiceButton
+										onVoiceModeRequest={() => void startAudioRecording()}
+										disabled={recorderBusy || agent.isLoading}
+									/>
+									<SubmitButton
+										isLoading={agent.isLoading}
+										canSubmit={canSubmit}
+										disabled={recorderBusy}
+										onAction={handlePrimaryAction}
+									/>
+								</PromptInputActions>
+							}
+						>
+							<PromptInputTextarea placeholder="Ask anything" aria-label="Message Friday" />
+						</PromptInput>
+					</div>
 				</div>
 			</div>
 		</PageContainer>
