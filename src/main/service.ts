@@ -16,9 +16,7 @@ import {
 	type WorkspaceContextFile,
 	type WorkspaceService,
 } from './workspace';
-import {
-	type AgentStartupFilesServicePort,
-} from './agent/startup-files';
+import type { AgentStartupFilesServicePort } from './agent/startup-files';
 import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
