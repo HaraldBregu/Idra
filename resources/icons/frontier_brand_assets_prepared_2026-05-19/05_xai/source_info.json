@@ -1,0 +1,45 @@
+{
+  "provider_entry": {
+    "provider": "xAI",
+    "region": "United States",
+    "official_asset_page_url": "https://x.ai/legal/brand-guidelines",
+    "direct_download_url": "https://data.x.ai/logos/xAI_Grok_Assets.zip",
+    "asset_page_type": "official_brand_guidelines",
+    "download_status": "direct_zip_available",
+    "notes": "xAI brand guidelines include a direct logo ZIP download."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/xai-text.svg",
+    "fallback_lobehub/svg/xai.svg",
+    "fallback_lobehub/png_light/xai-text.png",
+    "fallback_lobehub/png_light/xai.png",
+    "fallback_lobehub/png_dark/xai-text.png",
+    "fallback_lobehub/png_dark/xai.png",
+    "fallback_lobehub/svg/grok-text.svg",
+    "fallback_lobehub/svg/grok.svg",
+    "fallback_lobehub/png_light/grok-text.png",
+    "fallback_lobehub/png_light/grok.png",
+    "fallback_lobehub/png_dark/grok-text.png",
+    "fallback_lobehub/png_dark/grok.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://x.ai/legal/brand-guidelines"
+    },
+    {
+      "type": "direct_download_url",
+      "url": "https://data.x.ai/logos/xAI_Grok_Assets.zip"
+    },
+    {
+      "type": "known_direct_zip_link_not_downloaded",
+      "url": "https://data.x.ai/logos/xAI_Grok_Assets.zip"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

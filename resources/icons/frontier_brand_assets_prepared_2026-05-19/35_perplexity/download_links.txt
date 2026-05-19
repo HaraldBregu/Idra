@@ -1,0 +1,2 @@
+official_asset_page_url: https://www.perplexity.ai/
+fallback_asset_page_url: https://brandfetch.com/perplexity.ai

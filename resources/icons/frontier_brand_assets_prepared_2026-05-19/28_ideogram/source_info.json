@@ -1,0 +1,36 @@
+{
+  "provider_entry": {
+    "provider": "Ideogram",
+    "region": "Canada",
+    "official_asset_page_url": "https://ideogram.ai/",
+    "fallback_asset_page_url": "https://brandfetch.com/ideogram.ai",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+    "download_status": "no_official_download_page_found; fallback_may_be_available",
+    "notes": "No official downloadable brand-kit page found in this pass."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/ideogram-text.svg",
+    "fallback_lobehub/svg/ideogram.svg",
+    "fallback_lobehub/png_light/ideogram-text.png",
+    "fallback_lobehub/png_light/ideogram.png",
+    "fallback_lobehub/png_dark/ideogram-text.png",
+    "fallback_lobehub/png_dark/ideogram.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://ideogram.ai/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://brandfetch.com/ideogram.ai"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

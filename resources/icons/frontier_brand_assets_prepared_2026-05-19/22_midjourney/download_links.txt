@@ -1,0 +1,2 @@
+official_asset_page_url: https://docs.midjourney.com/hc/en-us/articles/32084281102349-Midjourney-Trademark-Policy
+fallback_asset_page_url: https://opttab.com/ai-model-logos/midjourney

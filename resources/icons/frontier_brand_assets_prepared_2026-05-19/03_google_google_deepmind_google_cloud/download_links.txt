@@ -1,0 +1,3 @@
+official_asset_page_url: https://about.google/brand-resource-center/products-and-services/
+additional_official_asset_urls: https://www.googlecloudpresscorner.com/digital-assets
+additional_official_asset_urls: https://blog.google/image-library/

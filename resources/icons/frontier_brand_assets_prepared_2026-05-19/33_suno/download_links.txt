@@ -1,0 +1,3 @@
+official_asset_page_url: https://suno.com/
+fallback_asset_page_url: https://brandfetch.com/suno.com
+additional_fallback_asset_urls: https://opttab.com/ai-model-logos/suno

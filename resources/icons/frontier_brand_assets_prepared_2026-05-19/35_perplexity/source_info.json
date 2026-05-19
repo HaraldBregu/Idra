@@ -1,0 +1,41 @@
+{
+  "provider_entry": {
+    "provider": "Perplexity",
+    "region": "United States",
+    "official_asset_page_url": "https://www.perplexity.ai/",
+    "fallback_asset_page_url": "https://brandfetch.com/perplexity.ai",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+    "download_status": "no_official_download_page_found; fallback_may_be_available",
+    "notes": "No official downloadable brand-kit page found in this pass."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/perplexity-color.svg",
+    "fallback_lobehub/svg/perplexity-text.svg",
+    "fallback_lobehub/svg/perplexity.svg",
+    "fallback_lobehub/png_light/perplexity-color.png",
+    "fallback_lobehub/png_light/perplexity-text.png",
+    "fallback_lobehub/png_light/perplexity.png",
+    "fallback_lobehub/png_dark/perplexity-color.png",
+    "fallback_lobehub/png_dark/perplexity-text.png",
+    "fallback_lobehub/png_dark/perplexity.png",
+    "fallback_simpleicons/svg/perplexity.svg",
+    "fallback_simpleicons/png/perplexity.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://www.perplexity.ai/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://brandfetch.com/perplexity.ai"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

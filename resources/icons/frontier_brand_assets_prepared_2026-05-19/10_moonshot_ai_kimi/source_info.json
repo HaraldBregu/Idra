@@ -1,0 +1,52 @@
+{
+  "provider_entry": {
+    "provider": "Moonshot AI / Kimi",
+    "region": "China",
+    "official_asset_page_url": "https://www.moonshot.ai/",
+    "additional_official_asset_urls": [
+      "https://moonshotai.github.io/Branding-Guide/"
+    ],
+    "fallback_asset_page_url": "https://lobehub.com/icons/kimi",
+    "direct_download_url": null,
+    "asset_page_type": "official_or_affiliated_branding_guide_plus_icon_repository",
+    "download_status": "downloadable_assets_on_branding_guide; fallback_available",
+    "notes": "Kimi branding guide is hosted under MoonshotAI GitHub Pages and includes SVG/PNG downloads."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/moonshot-text.svg",
+    "fallback_lobehub/svg/moonshot.svg",
+    "fallback_lobehub/png_light/moonshot-text.png",
+    "fallback_lobehub/png_light/moonshot.png",
+    "fallback_lobehub/png_dark/moonshot-text.png",
+    "fallback_lobehub/png_dark/moonshot.png",
+    "fallback_lobehub/svg/kimi-color.svg",
+    "fallback_lobehub/svg/kimi-text.svg",
+    "fallback_lobehub/svg/kimi.svg",
+    "fallback_lobehub/png_light/kimi-color.png",
+    "fallback_lobehub/png_light/kimi-text.png",
+    "fallback_lobehub/png_light/kimi.png",
+    "fallback_lobehub/png_dark/kimi-color.png",
+    "fallback_lobehub/png_dark/kimi-text.png",
+    "fallback_lobehub/png_dark/kimi.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://www.moonshot.ai/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://lobehub.com/icons/kimi"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://moonshotai.github.io/Branding-Guide/"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

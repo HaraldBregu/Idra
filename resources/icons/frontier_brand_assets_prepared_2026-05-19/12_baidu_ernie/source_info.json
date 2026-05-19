@@ -1,0 +1,75 @@
+{
+  "provider_entry": {
+    "provider": "Baidu / ERNIE",
+    "region": "China",
+    "official_asset_page_url": "https://ernie.baidu.com/",
+    "additional_official_asset_urls": [
+      "https://huggingface.co/baidu"
+    ],
+    "fallback_asset_page_url": "https://lobehub.com/icons/baidu",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+    "download_status": "no_official_download_page_found; fallback_available",
+    "notes": "No official Baidu/ERNIE brand-kit download page was found in this pass; fallback icon repository included."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/baidu-brand-color.svg",
+    "fallback_lobehub/svg/baidu-brand.svg",
+    "fallback_lobehub/svg/baidu-color.svg",
+    "fallback_lobehub/svg/baidu-text-cn.svg",
+    "fallback_lobehub/svg/baidu-text.svg",
+    "fallback_lobehub/svg/baidu.svg",
+    "fallback_lobehub/png_light/baidu-brand-color.png",
+    "fallback_lobehub/png_light/baidu-brand.png",
+    "fallback_lobehub/png_light/baidu-color.png",
+    "fallback_lobehub/png_light/baidu-text-cn.png",
+    "fallback_lobehub/png_light/baidu-text.png",
+    "fallback_lobehub/png_light/baidu.png",
+    "fallback_lobehub/png_dark/baidu-brand-color.png",
+    "fallback_lobehub/png_dark/baidu-brand.png",
+    "fallback_lobehub/png_dark/baidu-color.png",
+    "fallback_lobehub/png_dark/baidu-text-cn.png",
+    "fallback_lobehub/png_dark/baidu-text.png",
+    "fallback_lobehub/png_dark/baidu.png",
+    "fallback_lobehub/svg/baiducloud-color.svg",
+    "fallback_lobehub/svg/baiducloud-text.svg",
+    "fallback_lobehub/svg/baiducloud.svg",
+    "fallback_lobehub/png_light/baiducloud-color.png",
+    "fallback_lobehub/png_light/baiducloud-text.png",
+    "fallback_lobehub/png_light/baiducloud.png",
+    "fallback_lobehub/png_dark/baiducloud-color.png",
+    "fallback_lobehub/png_dark/baiducloud-text.png",
+    "fallback_lobehub/png_dark/baiducloud.png",
+    "fallback_lobehub/svg/wenxin-color.svg",
+    "fallback_lobehub/svg/wenxin-text.svg",
+    "fallback_lobehub/svg/wenxin.svg",
+    "fallback_lobehub/png_light/wenxin-color.png",
+    "fallback_lobehub/png_light/wenxin-text.png",
+    "fallback_lobehub/png_light/wenxin.png",
+    "fallback_lobehub/png_dark/wenxin-color.png",
+    "fallback_lobehub/png_dark/wenxin-text.png",
+    "fallback_lobehub/png_dark/wenxin.png",
+    "fallback_simpleicons/svg/baidu.svg",
+    "fallback_simpleicons/png/baidu.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://ernie.baidu.com/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://lobehub.com/icons/baidu"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://huggingface.co/baidu"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

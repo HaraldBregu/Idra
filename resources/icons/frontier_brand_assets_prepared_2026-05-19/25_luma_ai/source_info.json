@@ -1,0 +1,39 @@
+{
+  "provider_entry": {
+    "provider": "Luma AI",
+    "region": "United States",
+    "official_asset_page_url": "https://lumalabs.ai/",
+    "fallback_asset_page_url": "https://brandfetch.com/lumalabs.ai",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+    "download_status": "no_official_download_page_found; fallback_may_be_available",
+    "notes": "No official downloadable brand-kit page found in this pass."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/luma-color.svg",
+    "fallback_lobehub/svg/luma-text.svg",
+    "fallback_lobehub/svg/luma.svg",
+    "fallback_lobehub/png_light/luma-color.png",
+    "fallback_lobehub/png_light/luma-text.png",
+    "fallback_lobehub/png_light/luma.png",
+    "fallback_lobehub/png_dark/luma-color.png",
+    "fallback_lobehub/png_dark/luma-text.png",
+    "fallback_lobehub/png_dark/luma.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://lumalabs.ai/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://brandfetch.com/lumalabs.ai"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

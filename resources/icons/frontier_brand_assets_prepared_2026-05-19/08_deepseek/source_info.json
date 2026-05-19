@@ -1,0 +1,41 @@
+{
+  "provider_entry": {
+    "provider": "DeepSeek",
+    "region": "China",
+    "official_asset_page_url": "https://www.deepseek.com/en/",
+    "fallback_asset_page_url": "https://lobehub.com/icons/deepseek",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+    "download_status": "no_official_download_page_found; fallback_available",
+    "notes": "Official homepage displays logo, but no official downloadable brand-kit page was found in this pass. LobeHub provides SVG/PNG/WebP icon variants."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/deepseek-color.svg",
+    "fallback_lobehub/svg/deepseek-text.svg",
+    "fallback_lobehub/svg/deepseek.svg",
+    "fallback_lobehub/png_light/deepseek-color.png",
+    "fallback_lobehub/png_light/deepseek-text.png",
+    "fallback_lobehub/png_light/deepseek.png",
+    "fallback_lobehub/png_dark/deepseek-color.png",
+    "fallback_lobehub/png_dark/deepseek-text.png",
+    "fallback_lobehub/png_dark/deepseek.png",
+    "fallback_simpleicons/svg/deepseek.svg",
+    "fallback_simpleicons/png/deepseek.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://www.deepseek.com/en/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://lobehub.com/icons/deepseek"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

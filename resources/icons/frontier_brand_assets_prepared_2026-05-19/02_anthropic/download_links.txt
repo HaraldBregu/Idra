@@ -1,0 +1,2 @@
+official_asset_page_url: https://www.anthropic.com/news
+direct_download_url: https://anthropic.com/press-kit

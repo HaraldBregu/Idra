@@ -1,0 +1,3 @@
+official_asset_page_url: https://cartesia.ai/
+fallback_asset_page_url: https://brandfetch.com/cartesia.ai
+additional_official_asset_urls: https://cartesia.ai/blog

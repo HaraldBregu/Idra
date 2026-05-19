@@ -1,0 +1,4 @@
+official_asset_page_url: https://www.alibabagroup.com/resource-logos
+fallback_asset_page_url: https://lobehub.com/icons/qwen
+additional_official_asset_urls: https://www.alibabacloud.com/en/press-room/media-kits
+additional_official_asset_urls: https://qwen.ai/

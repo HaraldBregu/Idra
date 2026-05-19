@@ -1,0 +1,31 @@
+{
+  "provider_entry": {
+    "provider": "Runway",
+    "region": "United States",
+    "official_asset_page_url": "https://runwayml.com/brand-guidelines",
+    "direct_download_url": null,
+    "asset_page_type": "official_brand_guidelines_and_assets",
+    "download_status": "assets_available_on_page",
+    "notes": "Official Runway brand guidelines and assets page."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/runway-text.svg",
+    "fallback_lobehub/svg/runway.svg",
+    "fallback_lobehub/png_light/runway-text.png",
+    "fallback_lobehub/png_light/runway.png",
+    "fallback_lobehub/png_dark/runway-text.png",
+    "fallback_lobehub/png_dark/runway.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://runwayml.com/brand-guidelines"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

@@ -1,0 +1,6 @@
+official_asset_page_url: https://bfl.ai/brand
+direct_download_url: https://bfl.ai/brand/logotype-black.svg
+additional_official_asset_urls: https://bfl.ai/brand/logotype-black.png
+additional_official_asset_urls: https://bfl.ai/brand/logotype-white.svg
+additional_official_asset_urls: https://bfl.ai/brand/symbol-black.svg
+additional_official_asset_urls: https://bfl.ai/brand/symbol-white.svg

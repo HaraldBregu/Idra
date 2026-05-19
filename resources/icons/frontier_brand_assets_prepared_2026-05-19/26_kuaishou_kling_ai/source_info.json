@@ -1,0 +1,46 @@
+{
+  "provider_entry": {
+    "provider": "Kuaishou / Kling AI",
+    "region": "China",
+    "official_asset_page_url": "https://kling.ai/",
+    "additional_official_asset_urls": [
+      "https://ir.kuaishou.com/news-releases/news-release-details/kling-ai-launches-30-model-ushering-era-where-everyone-can-be"
+    ],
+    "fallback_asset_page_url": "https://brandfetch.com/kuaishou.com",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_investor_newsroom_and_fallback",
+    "download_status": "no_official_download_page_found; fallback_may_be_available",
+    "notes": "No official Kling downloadable brand-kit page found in this pass."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/kling-color.svg",
+    "fallback_lobehub/svg/kling-text.svg",
+    "fallback_lobehub/svg/kling.svg",
+    "fallback_lobehub/png_light/kling-color.png",
+    "fallback_lobehub/png_light/kling-text.png",
+    "fallback_lobehub/png_light/kling.png",
+    "fallback_lobehub/png_dark/kling-color.png",
+    "fallback_lobehub/png_dark/kling-text.png",
+    "fallback_lobehub/png_dark/kling.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://kling.ai/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://brandfetch.com/kuaishou.com"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://ir.kuaishou.com/news-releases/news-release-details/kling-ai-launches-30-model-ushering-era-where-everyone-can-be"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

@@ -1,0 +1,2 @@
+official_asset_page_url: https://www.assemblyai.com/newsroom
+fallback_asset_page_url: https://brandfetch.com/assemblyai.com

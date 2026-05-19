@@ -1,0 +1,3 @@
+official_asset_page_url: https://www.speechmatics.com/brand
+direct_download_url: https://www.speechmatics.com/static/assets/logos/logo_speechmatics_black.svg
+additional_official_asset_urls: https://www.speechmatics.com/static/assets/logos/logo_speechmatics_black.png

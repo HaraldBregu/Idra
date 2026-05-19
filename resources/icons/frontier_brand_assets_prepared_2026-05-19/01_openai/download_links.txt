@@ -1,0 +1,2 @@
+official_asset_page_url: https://openai.com/brand/
+known_direct_zip_link_not_downloaded: https://cdn.openai.com/brand/OpenAI-Partnership-Templates-2025.zip

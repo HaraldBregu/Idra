@@ -1,0 +1,4 @@
+official_asset_page_url: https://mistral.ai/brand
+direct_download_url: https://mistral.ai/static/branding/mistral-brand-assets.zip
+known_direct_zip_link_not_downloaded: https://mistral.ai/static/branding/mistral-brand-assets.zip
+known_direct_zip_link_not_downloaded: https://mistral.ai/static/branding/mistral-brand-asset-logo.zip

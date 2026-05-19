@@ -1,0 +1,3 @@
+official_asset_page_url: https://z.ai/
+fallback_asset_page_url: https://dashboardicons.com/icons/z-ai
+additional_official_asset_urls: https://z.ai/company

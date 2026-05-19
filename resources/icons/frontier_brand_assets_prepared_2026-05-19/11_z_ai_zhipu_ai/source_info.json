@@ -1,0 +1,70 @@
+{
+  "provider_entry": {
+    "provider": "Z.ai / Zhipu AI",
+    "region": "China",
+    "official_asset_page_url": "https://z.ai/",
+    "additional_official_asset_urls": [
+      "https://z.ai/company"
+    ],
+    "fallback_asset_page_url": "https://dashboardicons.com/icons/z-ai",
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+    "download_status": "no_official_download_page_found; fallback_available",
+    "notes": "No official downloadable brand-kit page was found in this pass; Dashboard Icons provides SVG/PNG/WebP."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/zai-text.svg",
+    "fallback_lobehub/svg/zai.svg",
+    "fallback_lobehub/png_light/zai-text.png",
+    "fallback_lobehub/png_light/zai.png",
+    "fallback_lobehub/png_dark/zai-text.png",
+    "fallback_lobehub/png_dark/zai.png",
+    "fallback_lobehub/svg/zhipu-color.svg",
+    "fallback_lobehub/svg/zhipu-text.svg",
+    "fallback_lobehub/svg/zhipu.svg",
+    "fallback_lobehub/png_light/zhipu-color.png",
+    "fallback_lobehub/png_light/zhipu-text.png",
+    "fallback_lobehub/png_light/zhipu.png",
+    "fallback_lobehub/png_dark/zhipu-color.png",
+    "fallback_lobehub/png_dark/zhipu-text.png",
+    "fallback_lobehub/png_dark/zhipu.png",
+    "fallback_lobehub/svg/chatglm-color.svg",
+    "fallback_lobehub/svg/chatglm-text.svg",
+    "fallback_lobehub/svg/chatglm.svg",
+    "fallback_lobehub/png_light/chatglm-color.png",
+    "fallback_lobehub/png_light/chatglm-text.png",
+    "fallback_lobehub/png_light/chatglm.png",
+    "fallback_lobehub/png_dark/chatglm-color.png",
+    "fallback_lobehub/png_dark/chatglm-text.png",
+    "fallback_lobehub/png_dark/chatglm.png",
+    "fallback_lobehub/svg/glmv-color.svg",
+    "fallback_lobehub/svg/glmv-text.svg",
+    "fallback_lobehub/svg/glmv.svg",
+    "fallback_lobehub/png_light/glmv-color.png",
+    "fallback_lobehub/png_light/glmv-text.png",
+    "fallback_lobehub/png_light/glmv.png",
+    "fallback_lobehub/png_dark/glmv-color.png",
+    "fallback_lobehub/png_dark/glmv-text.png",
+    "fallback_lobehub/png_dark/glmv.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://z.ai/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://dashboardicons.com/icons/z-ai"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://z.ai/company"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

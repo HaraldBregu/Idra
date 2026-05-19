@@ -1,0 +1,395 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-19",
+  "interpretation": "Interpreted user's 'branch assets' as 'brand assets'. URLs are asset/brand/press-kit/trademark pages where downloadable logos/media assets are available. Official provider URLs are preferred. If no official downloadable brand-asset page was found in this pass, the entry is marked as fallback/no_official_download_found and may include a third-party icon repository or the provider homepage/newsroom.",
+  "count": 35,
+  "providers": [
+    {
+      "provider": "OpenAI",
+      "region": "United States",
+      "official_asset_page_url": "https://openai.com/brand/",
+      "direct_download_url": null,
+      "asset_page_type": "official_brand_page",
+      "download_status": "assets_available_on_page",
+      "notes": "Official OpenAI brand/design page with logo and usage guidance."
+    },
+    {
+      "provider": "Anthropic",
+      "region": "United States",
+      "official_asset_page_url": "https://www.anthropic.com/news",
+      "direct_download_url": "https://anthropic.com/press-kit",
+      "asset_page_type": "official_newsroom_press_kit",
+      "download_status": "press_kit_download_link_on_newsroom",
+      "notes": "Anthropic newsroom links to a downloadable press kit."
+    },
+    {
+      "provider": "Google / Google DeepMind / Google Cloud",
+      "region": "United States / United Kingdom",
+      "official_asset_page_url": "https://about.google/brand-resource-center/products-and-services/",
+      "additional_official_asset_urls": [
+        "https://www.googlecloudpresscorner.com/digital-assets",
+        "https://blog.google/image-library/"
+      ],
+      "direct_download_url": null,
+      "asset_page_type": "official_brand_resource_center_and_press_assets",
+      "download_status": "some_assets_downloadable; some_require_partner_access_or_permission",
+      "notes": "Google Brand Resource Center covers brand guidance; Google Cloud Press Corner has product-logo downloads; Google image library covers press images."
+    },
+    {
+      "provider": "Meta",
+      "region": "United States",
+      "official_asset_page_url": "https://www.meta.com/brand/resources/meta/company-brand/",
+      "direct_download_url": null,
+      "asset_page_type": "official_brand_resources",
+      "download_status": "brand_guidelines; use_requires_approval",
+      "notes": "Meta brand resource center; page states usage requires approval/brand review."
+    },
+    {
+      "provider": "xAI",
+      "region": "United States",
+      "official_asset_page_url": "https://x.ai/legal/brand-guidelines",
+      "direct_download_url": "https://data.x.ai/logos/xAI_Grok_Assets.zip",
+      "asset_page_type": "official_brand_guidelines",
+      "download_status": "direct_zip_available",
+      "notes": "xAI brand guidelines include a direct logo ZIP download."
+    },
+    {
+      "provider": "Mistral AI",
+      "region": "France / European Union",
+      "official_asset_page_url": "https://mistral.ai/brand",
+      "direct_download_url": "https://mistral.ai/static/branding/mistral-brand-assets.zip",
+      "asset_page_type": "official_brand_assets",
+      "download_status": "direct_zip_available",
+      "notes": "Official Mistral brand-assets page with full brand kit and individual model icons."
+    },
+    {
+      "provider": "Cohere",
+      "region": "Canada",
+      "official_asset_page_url": "https://cohere.com/newsroom",
+      "direct_download_url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip",
+      "additional_official_asset_urls": [
+        "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip"
+      ],
+      "asset_page_type": "official_newsroom_brand_assets",
+      "download_status": "direct_zip_available",
+      "notes": "Cohere newsroom includes logo ZIP and full media-resource ZIP."
+    },
+    {
+      "provider": "DeepSeek",
+      "region": "China",
+      "official_asset_page_url": "https://www.deepseek.com/en/",
+      "fallback_asset_page_url": "https://lobehub.com/icons/deepseek",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "Official homepage displays logo, but no official downloadable brand-kit page was found in this pass. LobeHub provides SVG/PNG/WebP icon variants."
+    },
+    {
+      "provider": "Alibaba Group / Alibaba Cloud / Qwen",
+      "region": "China",
+      "official_asset_page_url": "https://www.alibabagroup.com/resource-logos",
+      "additional_official_asset_urls": [
+        "https://www.alibabacloud.com/en/press-room/media-kits",
+        "https://qwen.ai/"
+      ],
+      "fallback_asset_page_url": "https://lobehub.com/icons/qwen",
+      "direct_download_url": null,
+      "asset_page_type": "official_group_logo_resources_plus_qwen_fallback_icons",
+      "download_status": "alibaba_assets_downloadable; qwen_specific_official_download_not_found",
+      "notes": "Alibaba Group logo resource page is official; Qwen-specific downloadable brand assets were not found, so Qwen icon fallback is included."
+    },
+    {
+      "provider": "Moonshot AI / Kimi",
+      "region": "China",
+      "official_asset_page_url": "https://www.moonshot.ai/",
+      "additional_official_asset_urls": [
+        "https://moonshotai.github.io/Branding-Guide/"
+      ],
+      "fallback_asset_page_url": "https://lobehub.com/icons/kimi",
+      "direct_download_url": null,
+      "asset_page_type": "official_or_affiliated_branding_guide_plus_icon_repository",
+      "download_status": "downloadable_assets_on_branding_guide; fallback_available",
+      "notes": "Kimi branding guide is hosted under MoonshotAI GitHub Pages and includes SVG/PNG downloads."
+    },
+    {
+      "provider": "Z.ai / Zhipu AI",
+      "region": "China",
+      "official_asset_page_url": "https://z.ai/",
+      "additional_official_asset_urls": [
+        "https://z.ai/company"
+      ],
+      "fallback_asset_page_url": "https://dashboardicons.com/icons/z-ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No official downloadable brand-kit page was found in this pass; Dashboard Icons provides SVG/PNG/WebP."
+    },
+    {
+      "provider": "Baidu / ERNIE",
+      "region": "China",
+      "official_asset_page_url": "https://ernie.baidu.com/",
+      "additional_official_asset_urls": [
+        "https://huggingface.co/baidu"
+      ],
+      "fallback_asset_page_url": "https://lobehub.com/icons/baidu",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No official Baidu/ERNIE brand-kit download page was found in this pass; fallback icon repository included."
+    },
+    {
+      "provider": "Tencent / Hunyuan",
+      "region": "China",
+      "official_asset_page_url": "https://www.tencent.com/",
+      "additional_official_asset_urls": [
+        "https://hunyuan.tencent.com/"
+      ],
+      "fallback_asset_page_url": "https://lobehub.com/icons/hunyuan",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No official Hunyuan downloadable brand kit was found in this pass; LobeHub has Hunyuan icon variants."
+    },
+    {
+      "provider": "ByteDance Seed",
+      "region": "China",
+      "official_asset_page_url": "https://seed.bytedance.com/en/models",
+      "fallback_asset_page_url": "https://brandfetch.com/bytedance.com",
+      "direct_download_url": null,
+      "asset_page_type": "provider_product_page_plus_third_party_brand_asset_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No Seed-specific official brand kit found; ByteDance brand asset fallback included."
+    },
+    {
+      "provider": "MiniMax / Hailuo",
+      "region": "China",
+      "official_asset_page_url": "https://www.minimax.io/",
+      "fallback_asset_page_url": "https://lobehub.com/icons/minimax",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No official MiniMax downloadable brand-kit page was found in this pass; fallback icon repository included."
+    },
+    {
+      "provider": "ElevenLabs",
+      "region": "United States / United Kingdom",
+      "official_asset_page_url": "https://elevenlabs.io/brand",
+      "direct_download_url": null,
+      "asset_page_type": "official_brand_guidelines_and_press_kit",
+      "download_status": "logo_and_press_kit_available_on_page",
+      "notes": "Official brand guidelines and press-kit page with SVG/PNG logo downloads."
+    },
+    {
+      "provider": "Deepgram",
+      "region": "United States",
+      "official_asset_page_url": "https://deepgram.com/company/newsroom",
+      "direct_download_url": "https://cdn.sanity.io/files/10fppwnn/production/f0d532ab9996fc41b353fd0fb1d24b055618361a.zip",
+      "asset_page_type": "official_newsroom_press_kit",
+      "download_status": "direct_zip_available",
+      "notes": "Deepgram newsroom includes a direct press-kit ZIP."
+    },
+    {
+      "provider": "Cartesia",
+      "region": "United States",
+      "official_asset_page_url": "https://cartesia.ai/",
+      "additional_official_asset_urls": [
+        "https://cartesia.ai/blog"
+      ],
+      "fallback_asset_page_url": "https://brandfetch.com/cartesia.ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable brand-kit page was found in this pass."
+    },
+    {
+      "provider": "AssemblyAI",
+      "region": "United States",
+      "official_asset_page_url": "https://www.assemblyai.com/newsroom",
+      "direct_download_url": null,
+      "fallback_asset_page_url": "https://brandfetch.com/assemblyai.com",
+      "asset_page_type": "official_newsroom_media_kit",
+      "download_status": "media_kit_download_on_newsroom",
+      "notes": "AssemblyAI newsroom includes 'Download our media kit'."
+    },
+    {
+      "provider": "Speechmatics",
+      "region": "United Kingdom",
+      "official_asset_page_url": "https://www.speechmatics.com/brand",
+      "direct_download_url": "https://www.speechmatics.com/static/assets/logos/logo_speechmatics_black.svg",
+      "additional_official_asset_urls": [
+        "https://www.speechmatics.com/static/assets/logos/logo_speechmatics_black.png"
+      ],
+      "asset_page_type": "official_brand_assets",
+      "download_status": "direct_svg_png_jpg_available",
+      "notes": "Official Speechmatics brand page provides SVG, PNG, and JPG logo downloads."
+    },
+    {
+      "provider": "Black Forest Labs",
+      "region": "Germany",
+      "official_asset_page_url": "https://bfl.ai/brand",
+      "direct_download_url": "https://bfl.ai/brand/logotype-black.svg",
+      "additional_official_asset_urls": [
+        "https://bfl.ai/brand/logotype-black.png",
+        "https://bfl.ai/brand/logotype-white.svg",
+        "https://bfl.ai/brand/symbol-black.svg",
+        "https://bfl.ai/brand/symbol-white.svg"
+      ],
+      "asset_page_type": "official_brand_assets",
+      "download_status": "direct_svg_png_available",
+      "notes": "Official BFL brand page provides individual logo/symbol PNG and SVG downloads."
+    },
+    {
+      "provider": "Midjourney",
+      "region": "United States",
+      "official_asset_page_url": "https://docs.midjourney.com/hc/en-us/articles/32084281102349-Midjourney-Trademark-Policy",
+      "fallback_asset_page_url": "https://opttab.com/ai-model-logos/midjourney",
+      "direct_download_url": null,
+      "asset_page_type": "official_trademark_policy_plus_third_party_icon_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "Official trademark policy gives rules; no official downloadable logo pack found in this pass."
+    },
+    {
+      "provider": "Adobe / Firefly",
+      "region": "United States",
+      "official_asset_page_url": "https://www.adobe.com/legal/permissions/icons-web-logos.html",
+      "additional_official_asset_urls": [
+        "https://www.adobe.com/products/firefly.html"
+      ],
+      "fallback_asset_page_url": null,
+      "direct_download_url": null,
+      "asset_page_type": "official_icon_logo_permissions",
+      "download_status": "permission_guidelines; no_public_firefly_asset_kit_found",
+      "notes": "Adobe provides official permissions guidance for Adobe icons/logos; use may require permission."
+    },
+    {
+      "provider": "Runway",
+      "region": "United States",
+      "official_asset_page_url": "https://runwayml.com/brand-guidelines",
+      "direct_download_url": null,
+      "asset_page_type": "official_brand_guidelines_and_assets",
+      "download_status": "assets_available_on_page",
+      "notes": "Official Runway brand guidelines and assets page."
+    },
+    {
+      "provider": "Luma AI",
+      "region": "United States",
+      "official_asset_page_url": "https://lumalabs.ai/",
+      "fallback_asset_page_url": "https://brandfetch.com/lumalabs.ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "Kuaishou / Kling AI",
+      "region": "China",
+      "official_asset_page_url": "https://kling.ai/",
+      "additional_official_asset_urls": [
+        "https://ir.kuaishou.com/news-releases/news-release-details/kling-ai-launches-30-model-ushering-era-where-everyone-can-be"
+      ],
+      "fallback_asset_page_url": "https://brandfetch.com/kuaishou.com",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_investor_newsroom_and_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official Kling downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "Stability AI",
+      "region": "United Kingdom / United States",
+      "official_asset_page_url": "https://stability.ai/",
+      "fallback_asset_page_url": "https://brandfetch.com/stability.ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable press/brand kit found in this pass."
+    },
+    {
+      "provider": "Ideogram",
+      "region": "Canada",
+      "official_asset_page_url": "https://ideogram.ai/",
+      "fallback_asset_page_url": "https://brandfetch.com/ideogram.ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "AI21 Labs",
+      "region": "Israel",
+      "official_asset_page_url": "https://www.ai21.com/",
+      "fallback_asset_page_url": "https://brandfetch.com/ai21.com",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "Amazon / AWS / Amazon Nova",
+      "region": "United States",
+      "official_asset_page_url": "https://press.aboutamazon.com/logos",
+      "additional_official_asset_urls": [
+        "https://aws.amazon.com/architecture/icons/",
+        "https://aws.amazon.com/partners/branding/"
+      ],
+      "direct_download_url": null,
+      "asset_page_type": "official_press_logo_page_and_aws_icon_resources",
+      "download_status": "official_logo_and_architecture_icon_downloads_available",
+      "notes": "Amazon Press Center has logos; AWS provides architecture icons and partner branding resources. Nova-specific public brand kit not found."
+    },
+    {
+      "provider": "NVIDIA / Nemotron",
+      "region": "United States",
+      "official_asset_page_url": "https://nvidianews.nvidia.com/multimedia/corporate/nvidia-logos",
+      "additional_official_asset_urls": [
+        "https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/"
+      ],
+      "direct_download_url": null,
+      "asset_page_type": "official_newsroom_logo_assets_and_brand_guidelines",
+      "download_status": "logos_available; usage_requires_authorization",
+      "notes": "NVIDIA Newsroom hosts logo assets; brand guidelines state use requires authorization."
+    },
+    {
+      "provider": "Hume AI",
+      "region": "United States",
+      "official_asset_page_url": "https://www.hume.ai/",
+      "fallback_asset_page_url": "https://logokit.com/brands/hume.ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_logo_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "Suno",
+      "region": "United States",
+      "official_asset_page_url": "https://suno.com/",
+      "fallback_asset_page_url": "https://brandfetch.com/suno.com",
+      "additional_fallback_asset_urls": [
+        "https://opttab.com/ai-model-logos/suno"
+      ],
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_third_party_brand_asset_repository",
+      "download_status": "no_official_download_page_found; fallback_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "Udio",
+      "region": "United States",
+      "official_asset_page_url": "https://www.udio.com/",
+      "fallback_asset_page_url": "https://brandfetch.com/udio.com",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    },
+    {
+      "provider": "Perplexity",
+      "region": "United States",
+      "official_asset_page_url": "https://www.perplexity.ai/",
+      "fallback_asset_page_url": "https://brandfetch.com/perplexity.ai",
+      "direct_download_url": null,
+      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
+      "download_status": "no_official_download_page_found; fallback_may_be_available",
+      "notes": "No official downloadable brand-kit page found in this pass."
+    }
+  ]
+}

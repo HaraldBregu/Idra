@@ -1,0 +1,3 @@
+official_asset_page_url: https://x.ai/legal/brand-guidelines
+direct_download_url: https://data.x.ai/logos/xAI_Grok_Assets.zip
+known_direct_zip_link_not_downloaded: https://data.x.ai/logos/xAI_Grok_Assets.zip

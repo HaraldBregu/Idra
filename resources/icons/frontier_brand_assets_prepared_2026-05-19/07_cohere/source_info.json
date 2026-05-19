@@ -1,0 +1,53 @@
+{
+  "provider_entry": {
+    "provider": "Cohere",
+    "region": "Canada",
+    "official_asset_page_url": "https://cohere.com/newsroom",
+    "direct_download_url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip",
+    "additional_official_asset_urls": [
+      "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip"
+    ],
+    "asset_page_type": "official_newsroom_brand_assets",
+    "download_status": "direct_zip_available",
+    "notes": "Cohere newsroom includes logo ZIP and full media-resource ZIP."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/cohere-color.svg",
+    "fallback_lobehub/svg/cohere-text.svg",
+    "fallback_lobehub/svg/cohere.svg",
+    "fallback_lobehub/png_light/cohere-color.png",
+    "fallback_lobehub/png_light/cohere-text.png",
+    "fallback_lobehub/png_light/cohere.png",
+    "fallback_lobehub/png_dark/cohere-color.png",
+    "fallback_lobehub/png_dark/cohere-text.png",
+    "fallback_lobehub/png_dark/cohere.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://cohere.com/newsroom"
+    },
+    {
+      "type": "direct_download_url",
+      "url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip"
+    },
+    {
+      "type": "known_direct_zip_link_not_downloaded",
+      "url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip"
+    },
+    {
+      "type": "known_direct_zip_link_not_downloaded",
+      "url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

@@ -1,0 +1,2 @@
+official_asset_page_url: https://www.hume.ai/
+fallback_asset_page_url: https://logokit.com/brands/hume.ai

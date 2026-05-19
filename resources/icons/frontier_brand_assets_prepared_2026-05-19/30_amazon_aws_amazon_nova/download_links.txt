@@ -1,0 +1,3 @@
+official_asset_page_url: https://press.aboutamazon.com/logos
+additional_official_asset_urls: https://aws.amazon.com/architecture/icons/
+additional_official_asset_urls: https://aws.amazon.com/partners/branding/

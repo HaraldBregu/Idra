@@ -1,0 +1,5 @@
+official_asset_page_url: https://cohere.com/newsroom
+direct_download_url: https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip
+additional_official_asset_urls: https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip
+known_direct_zip_link_not_downloaded: https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip
+known_direct_zip_link_not_downloaded: https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip

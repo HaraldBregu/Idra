@@ -1,0 +1,51 @@
+{
+  "provider_entry": {
+    "provider": "Meta",
+    "region": "United States",
+    "official_asset_page_url": "https://www.meta.com/brand/resources/meta/company-brand/",
+    "direct_download_url": null,
+    "asset_page_type": "official_brand_resources",
+    "download_status": "brand_guidelines; use_requires_approval",
+    "notes": "Meta brand resource center; page states usage requires approval/brand review."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/meta-brand-color.svg",
+    "fallback_lobehub/svg/meta-brand.svg",
+    "fallback_lobehub/svg/meta-color.svg",
+    "fallback_lobehub/svg/meta-text.svg",
+    "fallback_lobehub/svg/meta.svg",
+    "fallback_lobehub/png_light/meta-brand-color.png",
+    "fallback_lobehub/png_light/meta-brand.png",
+    "fallback_lobehub/png_light/meta-color.png",
+    "fallback_lobehub/png_light/meta-text.png",
+    "fallback_lobehub/png_light/meta.png",
+    "fallback_lobehub/png_dark/meta-brand-color.png",
+    "fallback_lobehub/png_dark/meta-brand.png",
+    "fallback_lobehub/png_dark/meta-color.png",
+    "fallback_lobehub/png_dark/meta-text.png",
+    "fallback_lobehub/png_dark/meta.png",
+    "fallback_lobehub/svg/metaai-color.svg",
+    "fallback_lobehub/svg/metaai-text.svg",
+    "fallback_lobehub/svg/metaai.svg",
+    "fallback_lobehub/png_light/metaai-color.png",
+    "fallback_lobehub/png_light/metaai-text.png",
+    "fallback_lobehub/png_light/metaai.png",
+    "fallback_lobehub/png_dark/metaai-color.png",
+    "fallback_lobehub/png_dark/metaai-text.png",
+    "fallback_lobehub/png_dark/metaai.png",
+    "fallback_simpleicons/svg/meta.svg",
+    "fallback_simpleicons/png/meta.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://www.meta.com/brand/resources/meta/company-brand/"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

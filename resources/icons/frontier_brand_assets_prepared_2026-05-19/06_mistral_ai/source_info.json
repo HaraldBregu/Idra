@@ -1,0 +1,73 @@
+{
+  "provider_entry": {
+    "provider": "Mistral AI",
+    "region": "France / European Union",
+    "official_asset_page_url": "https://mistral.ai/brand",
+    "direct_download_url": "https://mistral.ai/static/branding/mistral-brand-assets.zip",
+    "asset_page_type": "official_brand_assets",
+    "download_status": "direct_zip_available",
+    "notes": "Official Mistral brand-assets page with full brand kit and individual model icons."
+  },
+  "official_downloaded_assets": [
+    {
+      "file": "official_downloaded_assets/mistral-logo-color-black.png",
+      "source_url": "https://mistral.ai/static/branding/mistral-logo/mistral-logo-color-black.png"
+    },
+    {
+      "file": "official_downloaded_assets/mistral-logo-color-white.png",
+      "source_url": "https://mistral.ai/static/branding/mistral-logo/mistral-logo-color-white.png"
+    },
+    {
+      "file": "official_downloaded_assets/mistral-logo-black.png",
+      "source_url": "https://mistral.ai/static/branding/mistral-logo/mistral-logo-black.png"
+    },
+    {
+      "file": "official_downloaded_assets/mistral-logo-white.png",
+      "source_url": "https://mistral.ai/static/branding/mistral-logo/mistral-logo-white.png"
+    },
+    {
+      "file": "official_downloaded_assets/mistral-m-rainbow.png",
+      "source_url": "https://mistral.ai/static/branding/m/m-rainbow.png"
+    },
+    {
+      "file": "official_downloaded_assets/mistral-m-black.png",
+      "source_url": "https://mistral.ai/static/branding/m/m-black.png"
+    }
+  ],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/mistral-color.svg",
+    "fallback_lobehub/svg/mistral-text.svg",
+    "fallback_lobehub/svg/mistral.svg",
+    "fallback_lobehub/png_light/mistral-color.png",
+    "fallback_lobehub/png_light/mistral-text.png",
+    "fallback_lobehub/png_light/mistral.png",
+    "fallback_lobehub/png_dark/mistral-color.png",
+    "fallback_lobehub/png_dark/mistral-text.png",
+    "fallback_lobehub/png_dark/mistral.png",
+    "fallback_simpleicons/svg/mistralai.svg",
+    "fallback_simpleicons/png/mistralai.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://mistral.ai/brand"
+    },
+    {
+      "type": "direct_download_url",
+      "url": "https://mistral.ai/static/branding/mistral-brand-assets.zip"
+    },
+    {
+      "type": "known_direct_zip_link_not_downloaded",
+      "url": "https://mistral.ai/static/branding/mistral-brand-assets.zip"
+    },
+    {
+      "type": "known_direct_zip_link_not_downloaded",
+      "url": "https://mistral.ai/static/branding/mistral-brand-asset-logo.zip"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

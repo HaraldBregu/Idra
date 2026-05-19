@@ -1,0 +1,80 @@
+{
+  "provider_entry": {
+    "provider": "Black Forest Labs",
+    "region": "Germany",
+    "official_asset_page_url": "https://bfl.ai/brand",
+    "direct_download_url": "https://bfl.ai/brand/logotype-black.svg",
+    "additional_official_asset_urls": [
+      "https://bfl.ai/brand/logotype-black.png",
+      "https://bfl.ai/brand/logotype-white.svg",
+      "https://bfl.ai/brand/symbol-black.svg",
+      "https://bfl.ai/brand/symbol-white.svg"
+    ],
+    "asset_page_type": "official_brand_assets",
+    "download_status": "direct_svg_png_available",
+    "notes": "Official BFL brand page provides individual logo/symbol PNG and SVG downloads."
+  },
+  "official_downloaded_assets": [
+    {
+      "file": "official_downloaded_assets/bfl-logotype-black.png",
+      "source_url": "https://bfl.ai/brand/logotype-black.png"
+    },
+    {
+      "file": "official_downloaded_assets/bfl-logotype-white.png",
+      "source_url": "https://bfl.ai/brand/logotype-white.png"
+    },
+    {
+      "file": "official_downloaded_assets/bfl-symbol-black.png",
+      "source_url": "https://bfl.ai/brand/symbol-black.png"
+    },
+    {
+      "file": "official_downloaded_assets/bfl-symbol-white.png",
+      "source_url": "https://bfl.ai/brand/symbol-white.png"
+    }
+  ],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/bfl-text.svg",
+    "fallback_lobehub/svg/bfl.svg",
+    "fallback_lobehub/png_light/bfl-text.png",
+    "fallback_lobehub/png_light/bfl.png",
+    "fallback_lobehub/png_dark/bfl-text.png",
+    "fallback_lobehub/png_dark/bfl.png",
+    "fallback_lobehub/svg/flux-text.svg",
+    "fallback_lobehub/svg/flux.svg",
+    "fallback_lobehub/png_light/flux-text.png",
+    "fallback_lobehub/png_light/flux.png",
+    "fallback_lobehub/png_dark/flux-text.png",
+    "fallback_lobehub/png_dark/flux.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://bfl.ai/brand"
+    },
+    {
+      "type": "direct_download_url",
+      "url": "https://bfl.ai/brand/logotype-black.svg"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://bfl.ai/brand/logotype-black.png"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://bfl.ai/brand/logotype-white.svg"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://bfl.ai/brand/symbol-black.svg"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://bfl.ai/brand/symbol-white.svg"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

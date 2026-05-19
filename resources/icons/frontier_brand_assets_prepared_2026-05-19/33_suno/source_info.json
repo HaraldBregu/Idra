@@ -1,0 +1,45 @@
+{
+  "provider_entry": {
+    "provider": "Suno",
+    "region": "United States",
+    "official_asset_page_url": "https://suno.com/",
+    "fallback_asset_page_url": "https://brandfetch.com/suno.com",
+    "additional_fallback_asset_urls": [
+      "https://opttab.com/ai-model-logos/suno"
+    ],
+    "direct_download_url": null,
+    "asset_page_type": "provider_homepage_plus_third_party_brand_asset_repository",
+    "download_status": "no_official_download_page_found; fallback_available",
+    "notes": "No official downloadable brand-kit page found in this pass."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/suno-text.svg",
+    "fallback_lobehub/svg/suno.svg",
+    "fallback_lobehub/png_light/suno-text.png",
+    "fallback_lobehub/png_light/suno.png",
+    "fallback_lobehub/png_dark/suno-text.png",
+    "fallback_lobehub/png_dark/suno.png",
+    "fallback_simpleicons/svg/suno.svg",
+    "fallback_simpleicons/png/suno.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://suno.com/"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://brandfetch.com/suno.com"
+    },
+    {
+      "type": "additional_fallback_asset_urls",
+      "url": "https://opttab.com/ai-model-logos/suno"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

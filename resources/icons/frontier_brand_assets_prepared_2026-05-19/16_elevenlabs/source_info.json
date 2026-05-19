@@ -1,0 +1,46 @@
+{
+  "provider_entry": {
+    "provider": "ElevenLabs",
+    "region": "United States / United Kingdom",
+    "official_asset_page_url": "https://elevenlabs.io/brand",
+    "direct_download_url": null,
+    "asset_page_type": "official_brand_guidelines_and_press_kit",
+    "download_status": "logo_and_press_kit_available_on_page",
+    "notes": "Official brand guidelines and press-kit page with SVG/PNG logo downloads."
+  },
+  "official_downloaded_assets": [
+    {
+      "file": "official_downloaded_assets/elevenlabs-logo-black.png",
+      "source_url": "https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/0b9cd3e1-9fad-4a5b-b3a0-c96b0a1f1d2b/elevenlabs-logo-black.png"
+    },
+    {
+      "file": "official_downloaded_assets/elevenlabs-logo-white.png",
+      "source_url": "https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/0b9cd3e1-9fad-4a5b-b3a0-c96b0a1f1d2b/elevenlabs-logo-white.png"
+    },
+    {
+      "file": "official_downloaded_assets/elevenlabs-symbol.png",
+      "source_url": "https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/a2ea339b-8b5e-41bb-b706-24eda8a4c9e3/elevenlabs-symbol.png"
+    }
+  ],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/elevenlabs-text.svg",
+    "fallback_lobehub/svg/elevenlabs.svg",
+    "fallback_lobehub/png_light/elevenlabs-text.png",
+    "fallback_lobehub/png_light/elevenlabs.png",
+    "fallback_lobehub/png_dark/elevenlabs-text.png",
+    "fallback_lobehub/png_dark/elevenlabs.png",
+    "fallback_simpleicons/svg/elevenlabs.svg",
+    "fallback_simpleicons/png/elevenlabs.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://elevenlabs.io/brand"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

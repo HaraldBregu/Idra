@@ -1,0 +1,3 @@
+official_asset_page_url: https://kling.ai/
+fallback_asset_page_url: https://brandfetch.com/kuaishou.com
+additional_official_asset_urls: https://ir.kuaishou.com/news-releases/news-release-details/kling-ai-launches-30-model-ushering-era-where-everyone-can-be

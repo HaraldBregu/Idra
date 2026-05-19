@@ -1,0 +1,3 @@
+official_asset_page_url: https://www.tencent.com/
+fallback_asset_page_url: https://lobehub.com/icons/hunyuan
+additional_official_asset_urls: https://hunyuan.tencent.com/

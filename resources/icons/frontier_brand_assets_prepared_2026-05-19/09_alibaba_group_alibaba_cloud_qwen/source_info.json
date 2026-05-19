@@ -1,0 +1,83 @@
+{
+  "provider_entry": {
+    "provider": "Alibaba Group / Alibaba Cloud / Qwen",
+    "region": "China",
+    "official_asset_page_url": "https://www.alibabagroup.com/resource-logos",
+    "additional_official_asset_urls": [
+      "https://www.alibabacloud.com/en/press-room/media-kits",
+      "https://qwen.ai/"
+    ],
+    "fallback_asset_page_url": "https://lobehub.com/icons/qwen",
+    "direct_download_url": null,
+    "asset_page_type": "official_group_logo_resources_plus_qwen_fallback_icons",
+    "download_status": "alibaba_assets_downloadable; qwen_specific_official_download_not_found",
+    "notes": "Alibaba Group logo resource page is official; Qwen-specific downloadable brand assets were not found, so Qwen icon fallback is included."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/alibaba-brand-color.svg",
+    "fallback_lobehub/svg/alibaba-brand.svg",
+    "fallback_lobehub/svg/alibaba-color.svg",
+    "fallback_lobehub/svg/alibaba-text-cn.svg",
+    "fallback_lobehub/svg/alibaba-text.svg",
+    "fallback_lobehub/svg/alibaba.svg",
+    "fallback_lobehub/png_light/alibaba-brand-color.png",
+    "fallback_lobehub/png_light/alibaba-brand.png",
+    "fallback_lobehub/png_light/alibaba-color.png",
+    "fallback_lobehub/png_light/alibaba-text-cn.png",
+    "fallback_lobehub/png_light/alibaba-text.png",
+    "fallback_lobehub/png_light/alibaba.png",
+    "fallback_lobehub/png_dark/alibaba-brand-color.png",
+    "fallback_lobehub/png_dark/alibaba-brand.png",
+    "fallback_lobehub/png_dark/alibaba-color.png",
+    "fallback_lobehub/png_dark/alibaba-text-cn.png",
+    "fallback_lobehub/png_dark/alibaba-text.png",
+    "fallback_lobehub/png_dark/alibaba.png",
+    "fallback_lobehub/svg/alibabacloud-color.svg",
+    "fallback_lobehub/svg/alibabacloud-text-cn.svg",
+    "fallback_lobehub/svg/alibabacloud-text.svg",
+    "fallback_lobehub/svg/alibabacloud.svg",
+    "fallback_lobehub/png_light/alibabacloud-color.png",
+    "fallback_lobehub/png_light/alibabacloud-text-cn.png",
+    "fallback_lobehub/png_light/alibabacloud-text.png",
+    "fallback_lobehub/png_light/alibabacloud.png",
+    "fallback_lobehub/png_dark/alibabacloud-color.png",
+    "fallback_lobehub/png_dark/alibabacloud-text-cn.png",
+    "fallback_lobehub/png_dark/alibabacloud-text.png",
+    "fallback_lobehub/png_dark/alibabacloud.png",
+    "fallback_lobehub/svg/qwen-color.svg",
+    "fallback_lobehub/svg/qwen-text.svg",
+    "fallback_lobehub/svg/qwen.svg",
+    "fallback_lobehub/png_light/qwen-color.png",
+    "fallback_lobehub/png_light/qwen-text.png",
+    "fallback_lobehub/png_light/qwen.png",
+    "fallback_lobehub/png_dark/qwen-color.png",
+    "fallback_lobehub/png_dark/qwen-text.png",
+    "fallback_lobehub/png_dark/qwen.png",
+    "fallback_simpleicons/svg/qwen.svg",
+    "fallback_simpleicons/png/qwen.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://www.alibabagroup.com/resource-logos"
+    },
+    {
+      "type": "fallback_asset_page_url",
+      "url": "https://lobehub.com/icons/qwen"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://www.alibabacloud.com/en/press-room/media-kits"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://qwen.ai/"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}

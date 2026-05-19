@@ -261,8 +261,6 @@ function StaticModelSelect({
 	readonly onValueChange: (value: string) => void;
 	readonly disabled?: boolean;
 }): React.JSX.Element {
-	const selected = options.find((option) => option.id === value) ?? options[0];
-
 	return (
 		<div className="space-y-2">
 			<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -293,16 +291,12 @@ function StaticProviderSelect({
 	label,
 	value,
 	name,
-	initial,
-	swatchClassName,
 	disabled = false,
 }: {
 	readonly id: string;
 	readonly label: string;
 	readonly value: string;
 	readonly name: string;
-	readonly initial: string;
-	readonly swatchClassName: string;
 	readonly disabled?: boolean;
 }): React.JSX.Element {
 	return (

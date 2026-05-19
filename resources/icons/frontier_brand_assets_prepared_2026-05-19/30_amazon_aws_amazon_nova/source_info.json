@@ -1,0 +1,70 @@
+{
+  "provider_entry": {
+    "provider": "Amazon / AWS / Amazon Nova",
+    "region": "United States",
+    "official_asset_page_url": "https://press.aboutamazon.com/logos",
+    "additional_official_asset_urls": [
+      "https://aws.amazon.com/architecture/icons/",
+      "https://aws.amazon.com/partners/branding/"
+    ],
+    "direct_download_url": null,
+    "asset_page_type": "official_press_logo_page_and_aws_icon_resources",
+    "download_status": "official_logo_and_architecture_icon_downloads_available",
+    "notes": "Amazon Press Center has logos; AWS provides architecture icons and partner branding resources. Nova-specific public brand kit not found."
+  },
+  "official_downloaded_assets": [],
+  "fallback_assets_added": [
+    "fallback_lobehub/svg/aws-brand-color.svg",
+    "fallback_lobehub/svg/aws-brand.svg",
+    "fallback_lobehub/svg/aws-color.svg",
+    "fallback_lobehub/svg/aws-text.svg",
+    "fallback_lobehub/svg/aws.svg",
+    "fallback_lobehub/png_light/aws-brand-color.png",
+    "fallback_lobehub/png_light/aws-brand.png",
+    "fallback_lobehub/png_light/aws-color.png",
+    "fallback_lobehub/png_light/aws-text.png",
+    "fallback_lobehub/png_light/aws.png",
+    "fallback_lobehub/png_dark/aws-brand-color.png",
+    "fallback_lobehub/png_dark/aws-brand.png",
+    "fallback_lobehub/png_dark/aws-color.png",
+    "fallback_lobehub/png_dark/aws-text.png",
+    "fallback_lobehub/png_dark/aws.png",
+    "fallback_lobehub/svg/bedrock-color.svg",
+    "fallback_lobehub/svg/bedrock-text.svg",
+    "fallback_lobehub/svg/bedrock.svg",
+    "fallback_lobehub/png_light/bedrock-color.png",
+    "fallback_lobehub/png_light/bedrock-text.png",
+    "fallback_lobehub/png_light/bedrock.png",
+    "fallback_lobehub/png_dark/bedrock-color.png",
+    "fallback_lobehub/png_dark/bedrock-text.png",
+    "fallback_lobehub/png_dark/bedrock.png",
+    "fallback_lobehub/svg/nova-color.svg",
+    "fallback_lobehub/svg/nova-text.svg",
+    "fallback_lobehub/svg/nova.svg",
+    "fallback_lobehub/png_light/nova-color.png",
+    "fallback_lobehub/png_light/nova-text.png",
+    "fallback_lobehub/png_light/nova.png",
+    "fallback_lobehub/png_dark/nova-color.png",
+    "fallback_lobehub/png_dark/nova-text.png",
+    "fallback_lobehub/png_dark/nova.png"
+  ],
+  "source_urls": [
+    {
+      "type": "official_asset_page_url",
+      "url": "https://press.aboutamazon.com/logos"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://aws.amazon.com/architecture/icons/"
+    },
+    {
+      "type": "additional_official_asset_urls",
+      "url": "https://aws.amazon.com/partners/branding/"
+    }
+  ],
+  "known_limitations": [
+    "Public ZIP brand kits were preserved as links when ZIP MIME download was blocked.",
+    "No font files are included.",
+    "Fallback icon repositories are not equivalent to provider-approved brand kits unless the provider explicitly links to them."
+  ]
+}
