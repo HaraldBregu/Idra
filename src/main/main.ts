@@ -15,7 +15,68 @@ const TRAY_CHILD_WINDOW_HEIGHT = 240;
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
 const TRAY_CHILD_WINDOW_BACKGROUND = '#000000';
 const TRAY_CHILD_WINDOW_HTML = encodeURIComponent(
-	'<!doctype html><html><head><meta charset="UTF-8"><style>html,body{width:100%;height:100%;margin:0;background:#000;overflow:hidden;}</style></head><body></body></html>'
+	`<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				background: #000;
+				overflow: hidden;
+				font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			}
+
+			main {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 12px;
+				padding: 24px;
+			}
+
+			button {
+				width: 132px;
+				height: 42px;
+				border: 1px solid #3f3f46;
+				border-radius: 8px;
+				background: #18181b;
+				color: #fafafa;
+				font: inherit;
+				font-size: 14px;
+				font-weight: 500;
+				letter-spacing: 0;
+				cursor: default;
+			}
+
+			button:hover {
+				background: #27272a;
+				border-color: #71717a;
+			}
+
+			button:focus-visible {
+				outline: 2px solid #fafafa;
+				outline-offset: 3px;
+			}
+		</style>
+	</head>
+	<body>
+		<main aria-label="Friday tray actions">
+			<button type="button">Ask Friday</button>
+			<button type="button">New Task</button>
+			<button type="button">Open App</button>
+		</main>
+	</body>
+</html>`
 );
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {

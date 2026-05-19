@@ -137,6 +137,12 @@ describe('Main windows', () => {
 		expect(trayWindow.loadURL).toHaveBeenCalledWith(expect.stringContaining('data:text/html;charset=utf-8,'));
 		expect(trayWindow.show).toHaveBeenCalledTimes(1);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(1);
+
+		const loadUrl = trayWindow.loadURL.mock.calls[0]?.[0] as string;
+		const html = decodeURIComponent(loadUrl.replace('data:text/html;charset=utf-8,', ''));
+		expect(html).toContain('<button type="button">Ask Friday</button>');
+		expect(html).toContain('<button type="button">New Task</button>');
+		expect(html).toContain('<button type="button">Open App</button>');
 	});
 
 	it('keeps tray child visibility out of main-window show and hide state', () => {
