@@ -236,8 +236,7 @@ describe('AgentService', () => {
 			agentId: 'main',
 			session: expect.objectContaining({ id: 'cron:job-1' }),
 		});
-		expect(deps.startupFiles.isBootstrapPending).toHaveBeenCalledWith('main');
-		expect(deps.startupFiles.isBootstrapPending).not.toHaveBeenCalledWith('cron:job-1');
+		expect(deps.workspace.isBootstrapPending).toHaveBeenCalled();
 		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
 			'agent:response',
 			expect.objectContaining({ agentId: 'cron:job-1', delta: 'cron ok' })
@@ -335,6 +334,7 @@ describe('AgentService', () => {
 
 		await expect(service.send('hello there')).resolves.toBe('hello');
 		expect(toolsFactory).not.toHaveBeenCalled();
+		expect(deps.workspace.loadContextFiles).not.toHaveBeenCalled();
 		expect(startupFiles.loadContextFiles).not.toHaveBeenCalled();
 		expect(requests[0]!.tools).toEqual([]);
 		expect(requests[0]!.system).toContain('No tools are available for this turn');
