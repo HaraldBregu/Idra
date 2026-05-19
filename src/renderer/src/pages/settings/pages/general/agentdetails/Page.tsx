@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, Bot, CheckCircle2, CircleOff, LoaderCircle, Mic, Save } from 'lucide-react';
+import {
+	AlertTriangle,
+	Bot,
+	CheckCircle2,
+	CircleOff,
+	ImageIcon,
+	LoaderCircle,
+	Mic,
+	Save,
+	Volume2,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,12 +32,20 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from '../../../components';
-import type { PublicProvider } from '../../../../../../../shared/providers';
+import {
+	DEFAULT_PROVIDERS,
+	type PublicProvider,
+} from '../../../../../../../shared/providers';
 import {
 	DEFAULT_MODEL_REASONING_EFFORT,
+	IMAGE_ASSISTANT_AGENT_ID,
+	IMAGE_ASSISTANT_MODELS,
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	SPEECH_TRANSCRIBER_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
+	TEXT_TO_SPEECH_AGENT_ID,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_PROVIDER_ID,
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
 	isModelReasoningEffortSupported,
