@@ -202,34 +202,18 @@ const ConnectorDetailsPage: React.FC = () => {
 				title={connector.name}
 				description={connector.serverDescription}
 				action={
-					<>
-						{googleOAuth && (
-							<Button
-								type="button"
-								size="xs"
-								variant={connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'outline' : 'default'}
-								disabled={connecting || deleting}
-								onClick={() => void connectGoogleOAuth()}
-							>
-								{connecting && <LoaderCircle className="size-3 animate-spin" />}
-								{connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'Reconnect Google' : 'Connect Google'}
-							</Button>
-						)}
+					googleOAuth ? (
 						<Button
 							type="button"
 							size="xs"
-							variant="destructive"
+							variant={connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'outline' : 'default'}
 							disabled={connecting || deleting}
-							onClick={() => void deleteConnector()}
+							onClick={() => void connectGoogleOAuth()}
 						>
-							{deleting ? (
-								<LoaderCircle className="size-3 animate-spin" />
-							) : (
-								<Trash2 className="size-3" />
-							)}
-							{deleting ? 'Deleting...' : 'Delete Connector'}
+							{connecting && <LoaderCircle className="size-3 animate-spin" />}
+							{connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'Reconnect Google' : 'Connect Google'}
 						</Button>
-					</>
+					) : undefined
 				}
 			/>
 
@@ -285,6 +269,23 @@ const ConnectorDetailsPage: React.FC = () => {
 			>
 				<ConnectorToolsList tools={tools} />
 			</SettingsSection>
+
+			<div className="flex justify-end border-t border-border/60 pt-3">
+				<Button
+					type="button"
+					size="xs"
+					variant="destructive"
+					disabled={connecting || deleting}
+					onClick={() => void deleteConnector()}
+				>
+					{deleting ? (
+						<LoaderCircle className="size-3 animate-spin" />
+					) : (
+						<Trash2 className="size-3" />
+					)}
+					{deleting ? 'Deleting...' : 'Delete Connector'}
+				</Button>
+			</div>
 		</SettingsPageShell>
 	);
 };
