@@ -805,6 +805,16 @@ const StartPage: React.FC = () => {
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
+			const openAiProvider = providers.find((provider) => provider.id === 'openai');
+			const selectedSpeechOption = SPEECH_MODELS.find(
+				(model) => model.id === selectedSpeechModel
+			);
+			if (openAiProvider && selectedSpeechOption) {
+				await window.app.saveSpeechTranscriberService(openAiProvider, {
+					id: selectedSpeechOption.id,
+					name: selectedSpeechOption.name,
+				});
+			}
 			goToStep('connectors');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
