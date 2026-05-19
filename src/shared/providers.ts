@@ -406,6 +406,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.openai.com/v1',
 		apiKey: '',
 		capabilities: 'Chat - Speech-to-text - Text-to-speech - Image - Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.openai,
 	},
 	{
 		id: 'anthropic',
@@ -413,6 +414,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.anthropic.com',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.anthropic,
 	},
 	{
 		id: 'google',
@@ -420,6 +422,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
 		apiKey: '',
 		capabilities: 'Chat - Speech-to-text - Text-to-speech - Image - Video - Music',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.google,
 	},
 	{
 		id: 'meta',
@@ -427,6 +430,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://ai.meta.com',
 		apiKey: '',
 		capabilities: 'Chat - Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.meta,
 	},
 	{
 		id: 'xai',
@@ -434,6 +438,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.x.ai/v1',
 		apiKey: '',
 		capabilities: 'Chat - Realtime voice - Image - Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.xai,
 	},
 	{
 		id: 'mistral',
@@ -441,13 +446,15 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.mistral.ai/v1',
 		apiKey: '',
 		capabilities: 'Chat - Speech-to-text - Text-to-speech',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.mistral,
 	},
 	{
 		id: 'cohere',
 		name: 'Cohere',
-		baseUrl: ' ',
+		baseUrl: 'https://api.cohere.com',
 		apiKey: '',
 		capabilities: 'Chat - Speech-to-text',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.cohere,
 	},
 	{
 		id: 'deepseek',
@@ -455,6 +462,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.deepseek.com/v1',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.deepseek,
 	},
 	{
 		id: 'qwen',
@@ -462,6 +470,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
 		apiKey: '',
 		capabilities: 'Chat - Omni - Image - Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.qwen,
 	},
 	{
 		id: 'kimi',
@@ -469,6 +478,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.moonshot.ai/v1',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.kimi,
 	},
 	{
 		id: 'zai',
@@ -476,6 +486,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.z.ai/api/paas/v4',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.zai,
 	},
 	{
 		id: 'baidu',
@@ -483,6 +494,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://qianfan.baidubce.com/v2',
 		apiKey: '',
 		capabilities: 'Chat - Omni - Image',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.baidu,
 	},
 	{
 		id: 'tencent-hunyuan',
@@ -490,6 +502,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://hunyuan.tencent.com',
 		apiKey: '',
 		capabilities: 'Chat - Image - Video - 3D',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS['tencent-hunyuan'],
 	},
 	{
 		id: 'bytedance-seed',
@@ -497,6 +510,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
 		apiKey: '',
 		capabilities: 'Chat - Image - Video - 3D',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS['bytedance-seed'],
 	},
 	{
 		id: 'minimax',
@@ -504,6 +518,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.minimax.io/v1',
 		apiKey: '',
 		capabilities: 'Chat - Text-to-speech - Video - Music',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.minimax,
 	},
 	{
 		id: 'elevenlabs',
@@ -511,6 +526,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.elevenlabs.io/v1',
 		apiKey: '',
 		capabilities: 'Speech-to-text - Text-to-speech - Audio - Music',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.elevenlabs,
 	},
 	{
 		id: 'deepgram',
@@ -518,6 +534,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.deepgram.com/v1',
 		apiKey: '',
 		capabilities: 'Speech-to-text - Text-to-speech',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.deepgram,
 	},
 	{
 		id: 'cartesia',
@@ -525,6 +542,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.cartesia.ai',
 		apiKey: '',
 		capabilities: 'Text-to-speech',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.cartesia,
 	},
 	{
 		id: 'black-forest-labs',
@@ -532,6 +550,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.bfl.ai/v1',
 		apiKey: '',
 		capabilities: 'Image',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS['black-forest-labs'],
 	},
 	{
 		id: 'midjourney',
@@ -539,6 +558,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://www.midjourney.com',
 		apiKey: '',
 		capabilities: 'Image - Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.midjourney,
 	},
 	{
 		id: 'adobe-firefly',
@@ -546,6 +566,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://firefly-api.adobe.io',
 		apiKey: '',
 		capabilities: 'Image - Video - Audio',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS['adobe-firefly'],
 	},
 	{
 		id: 'kling',
@@ -553,6 +574,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://kling.ai',
 		apiKey: '',
 		capabilities: 'Image - Video - Audio',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.kling,
 	},
 	{
 		id: 'runway',
@@ -560,6 +582,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.dev.runwayml.com/v1',
 		apiKey: '',
 		capabilities: 'Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.runway,
 	},
 	{
 		id: 'luma',
@@ -567,6 +590,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.lumalabs.ai/dream-machine/v1',
 		apiKey: '',
 		capabilities: 'Omni - Image - Video - 3D',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.luma,
 	},
 	{
 		id: 'stability-ai',
@@ -574,6 +598,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.stability.ai/v2beta',
 		apiKey: '',
 		capabilities: 'Image - Video - Audio',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS['stability-ai'],
 	},
 	{
 		id: 'ideogram',
@@ -581,6 +606,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.ideogram.ai',
 		apiKey: '',
 		capabilities: 'Image',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.ideogram,
 	},
 	{
 		id: 'pika',
@@ -588,6 +614,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://pika.art',
 		apiKey: '',
 		capabilities: 'Video',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.pika,
 	},
 	{
 		id: 'suno',
@@ -595,6 +622,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://suno.com',
 		apiKey: '',
 		capabilities: 'Music',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.suno,
 	},
 	{
 		id: 'reka',
@@ -602,6 +630,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.reka.ai/v1',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.reka,
 	},
 	{
 		id: 'ai21',
@@ -609,6 +638,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.ai21.com/studio/v1',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.ai21,
 	},
 	{
 		id: 'perplexity',
@@ -616,6 +646,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://api.perplexity.ai',
 		apiKey: '',
 		capabilities: 'Research chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.perplexity,
 	},
 	{
 		id: 'nvidia',
@@ -623,6 +654,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		baseUrl: 'https://integrate.api.nvidia.com/v1',
 		apiKey: '',
 		capabilities: 'Chat',
+		apiConfiguration: PROVIDER_API_CONFIGURATIONS.nvidia,
 	},
 ];
 
