@@ -239,10 +239,20 @@ describe('home page HITL wiring', () => {
 		});
 	});
 
-	it('starts dictation from the empty primary action', async () => {
+	it('keeps voice conversation on the empty primary action', async () => {
 		render(<Page />);
 
-		await userEvent.click(screen.getByRole('button', { name: 'Start dictation' }));
+		await userEvent.click(screen.getByRole('button', { name: 'Start voice conversation' }));
+
+		expect(dictation.start).not.toHaveBeenCalled();
+		expect(mockSetMode).toHaveBeenCalledWith('voice');
+		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', 'conversation');
+	});
+
+	it('starts dictation from the dedicated dictation action', async () => {
+		render(<Page />);
+
+		await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
 
 		expect(dictation.start).toHaveBeenCalledTimes(1);
 		expect(mockSetMode).toHaveBeenCalledWith('voice');
@@ -253,7 +263,7 @@ describe('home page HITL wiring', () => {
 		dictation.start.mockResolvedValue(false);
 		render(<Page />);
 
-		await userEvent.click(screen.getByRole('button', { name: 'Start dictation' }));
+		await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
 
 		expect(mockSetMode).toHaveBeenCalledWith('chat');
 		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', '');
@@ -262,7 +272,7 @@ describe('home page HITL wiring', () => {
 	it('finishes dictation before returning to chat', async () => {
 		render(<Page />);
 
-		await userEvent.click(screen.getByRole('button', { name: 'Start dictation' }));
+		await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
 		await userEvent.click(screen.getByRole('button', { name: 'Confirm dictation' }));
 
 		expect(dictation.finish).toHaveBeenCalledTimes(1);
