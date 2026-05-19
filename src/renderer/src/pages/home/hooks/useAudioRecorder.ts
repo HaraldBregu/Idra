@@ -23,8 +23,10 @@ const RECORDING_TIMESLICE_MS = 1000;
 const CLOCK_INTERVAL_MS = 250;
 
 function canRecordAudio(): boolean {
+	const mediaDevices = navigator.mediaDevices as MediaDevices | undefined;
 	return Boolean(
-		navigator.mediaDevices?.getUserMedia &&
+		mediaDevices &&
+			typeof mediaDevices.getUserMedia === 'function' &&
 			typeof MediaRecorder !== 'undefined'
 	);
 }
