@@ -299,6 +299,32 @@ export function SettingsLoadingRows({
 	);
 }
 
+export function SettingsPageSkeleton(): React.JSX.Element {
+	return (
+		<SettingsPageShell>
+			<header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+				<div className="min-w-0">
+					<Skeleton className="h-5 w-40 max-w-full" />
+					<Skeleton className="mt-2 h-3 w-72 max-w-full" />
+				</div>
+				<Skeleton className="h-6 w-24 max-w-full" />
+			</header>
+
+			{[0, 1, 2].map((section) => (
+				<SettingsSection
+					key={section}
+					title={<Skeleton className="h-3 w-24" />}
+					action={section === 0 ? <Skeleton className="h-5 w-16" /> : undefined}
+				>
+					<SettingsPanel>
+						<SettingsLoadingRows rows={section === 0 ? 3 : 2} />
+					</SettingsPanel>
+				</SettingsSection>
+			))}
+		</SettingsPageShell>
+	);
+}
+
 interface SettingsFieldProps {
 	readonly id: string;
 	readonly label: ReactNode;
