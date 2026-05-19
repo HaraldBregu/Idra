@@ -34,13 +34,10 @@ function SettingsOverviewCard({
 			className="group min-h-12 flex-nowrap gap-3 rounded-lg border border-border/70 bg-card text-left text-card-foreground whitespace-normal hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55"
 		>
 			<ItemIcon icon={item.icon} className="transition group-hover:bg-foreground group-hover:text-background" />
-			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+			<ItemContent className="min-w-0 flex-1">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
 				</ItemTitle>
-				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-					{t(item.descriptionKey)}
-				</p>
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end">
 				<ChevronRight
