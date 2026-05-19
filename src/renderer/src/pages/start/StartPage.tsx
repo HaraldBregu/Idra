@@ -936,49 +936,6 @@ const StartPage: React.FC = () => {
 					Let's get your assistant ready. Connect one AI provider, choose the
 					model {PRODUCT_NAME} should use, and add the tools you want help with.
 				</p>
-				<div className="mt-6 w-full max-w-lg overflow-hidden rounded-lg border border-border bg-card text-left shadow-none">
-					<div className="grid divide-y divide-border">
-						<div className="flex items-start gap-3 px-3 py-3">
-							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">
-								1
-							</span>
-							<div className="min-w-0">
-								<p className="text-sm font-semibold leading-tight text-foreground">
-									Connect an AI provider
-								</p>
-								<p className="mt-1 text-xs font-medium leading-snug text-muted-foreground">
-									Add an API key so {PRODUCT_NAME} can answer your requests.
-								</p>
-							</div>
-						</div>
-						<div className="flex items-start gap-3 px-3 py-3">
-							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">
-								2
-							</span>
-							<div className="min-w-0">
-								<p className="text-sm font-semibold leading-tight text-foreground">
-									Pick your default model
-								</p>
-								<p className="mt-1 text-xs font-medium leading-snug text-muted-foreground">
-									Choose the model Friday uses for everyday conversation.
-								</p>
-							</div>
-						</div>
-						<div className="flex items-start gap-3 px-3 py-3">
-							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">
-								3
-							</span>
-							<div className="min-w-0">
-								<p className="text-sm font-semibold leading-tight text-foreground">
-									Connect tools when you are ready
-								</p>
-								<p className="mt-1 text-xs font-medium leading-snug text-muted-foreground">
-									Link apps now, or skip this and finish setup later.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
 				<p className="mt-4 max-w-md text-xs font-medium leading-relaxed text-muted-foreground">
 					You can skip setup now and come back from Settings anytime.
 				</p>
