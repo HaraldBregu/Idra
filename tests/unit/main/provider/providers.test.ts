@@ -4,7 +4,9 @@ import {
 	DEFAULT_AGENT_MODELS_BY_PROVIDER,
 	DEFAULT_PROVIDERS,
 	getDefaultAgentModels,
+	getProviderApiConfigurationUrl,
 	hasDefaultAgentModels,
+	PROVIDER_API_CONFIGURATIONS,
 } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/service';
 
@@ -98,6 +100,37 @@ describe('provider model policy', () => {
 			'perplexity',
 			'nvidia',
 		]);
+	});
+
+	it('includes API setup configuration metadata for every default provider', () => {
+		const apiConfigurations = PROVIDER_API_CONFIGURATIONS as Readonly<Record<string, unknown>>;
+
+		for (const provider of DEFAULT_PROVIDERS) {
+			expect(apiConfigurations[provider.id]).toBeDefined();
+			expect(provider.apiConfiguration).toBe(apiConfigurations[provider.id]);
+			expect(getProviderApiConfigurationUrl(provider)).toMatch(/^https:\/\//);
+		}
+	});
+
+	it('resolves provider API setup URLs from key pages, docs, or provider fallback sites', () => {
+		const openai = DEFAULT_PROVIDERS.find((provider) => provider.id === 'openai');
+		const midjourney = DEFAULT_PROVIDERS.find((provider) => provider.id === 'midjourney');
+		const suno = DEFAULT_PROVIDERS.find((provider) => provider.id === 'suno');
+
+		expect(openai?.apiConfiguration?.apiKeyManagementUrl).toBe(
+			'https://platform.openai.com/api-keys'
+		);
+		expect(openai?.apiConfiguration?.recommendedEnvVars).toContain('OPENAI_API_KEY');
+		expect(openai ? getProviderApiConfigurationUrl(openai) : '').toBe(
+			'https://platform.openai.com/api-keys'
+		);
+		expect(midjourney?.apiConfiguration?.apiKeyManagementUrl).toBeNull();
+		expect(midjourney ? getProviderApiConfigurationUrl(midjourney) : '').toBe(
+			'https://docs.midjourney.com/hc/en-us'
+		);
+		expect(suno?.apiConfiguration?.apiKeyManagementUrl).toBeNull();
+		expect(suno?.apiConfiguration?.configurationDocsUrl).toBeNull();
+		expect(suno ? getProviderApiConfigurationUrl(suno) : '').toBe('https://suno.com');
 	});
 
 	it('includes chat-capable defaults for additional catalog providers', () => {
