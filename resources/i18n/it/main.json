@@ -518,6 +518,14 @@
 			"temperature": "Temperatura",
 			"thinkingMode": "Modalità Ragionamento",
 			"thinkingModeDescription": "Abilita il ragionamento esteso per attività complesse",
+			"effort": "Impegno di ragionamento",
+			"effortDescription": "Budget di ragionamento OpenAI per le risposte di Friday.",
+			"effortOptions": {
+				"low": "Basso",
+				"medium": "Medio",
+				"high": "Alto",
+				"xhigh": "Extra alto"
+			},
 			"saving": "Salvataggio...",
 			"saved": "Salvato",
 			"notFoundTitle": "Agente non trovato",

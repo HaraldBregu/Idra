@@ -518,6 +518,14 @@
 			"temperature": "Temperature",
 			"thinkingMode": "Thinking Mode",
 			"thinkingModeDescription": "Enable extended reasoning for complex tasks",
+			"effort": "Reasoning effort",
+			"effortDescription": "OpenAI reasoning budget for Friday responses.",
+			"effortOptions": {
+				"low": "Low",
+				"medium": "Medium",
+				"high": "High",
+				"xhigh": "Extra high"
+			},
 			"saving": "Saving...",
 			"saved": "Saved",
 			"notFoundTitle": "Agent not found",
