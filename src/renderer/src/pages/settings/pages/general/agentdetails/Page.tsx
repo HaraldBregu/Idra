@@ -262,6 +262,15 @@ const AgentDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 		try {
+			if (isSpeechTranscriberAgent) {
+				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
+				const saved = await window.app.saveSpeechTranscriberService(selectedProvider, modelToSave);
+				if (!saved) throw new Error(t('settings.agents.saveError'));
+				setCurrentSpeechTranscriber({ provider: selectedProvider, model: modelToSave });
+				setSuccessMessage(t('settings.agents.saved'));
+				return;
+			}
+
 			const modelToSave: Model = isOpenAiProvider(selectedProvider.id)
 				? { ...selectedModel, effort }
 				: { id: selectedModel.id, name: selectedModel.name };
@@ -274,7 +283,7 @@ const AgentDetailsPage: React.FC = () => {
 		} finally {
 			setSaving(false);
 		}
-	}, [canSave, effort, selectedModel, selectedProvider, t]);
+	}, [canSave, effort, isSpeechTranscriberAgent, selectedModel, selectedProvider, t]);
 
 	if (loading) {
 		return (
