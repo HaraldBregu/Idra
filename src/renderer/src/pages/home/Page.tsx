@@ -294,8 +294,11 @@ function PageContent(): ReactElement {
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
 	const recordedUrlsRef = useRef<Set<string>>(new Set());
+	const visibleMessages = agent.chatState.messages.filter(
+		(message) => message.id !== welcomeMessage.id
+	);
 	const showEmptyConversation =
-		agent.chatState.messages.every((message) => message.id === welcomeMessage.id) &&
+		visibleMessages.length === 0 &&
 		!agent.isLoading &&
 		!agent.historyLoading;
 	const showPromptSuggestions =
@@ -391,7 +394,7 @@ function PageContent(): ReactElement {
 							<EmptyConversation />
 						) : (
 							<>
-								{agent.chatState.messages.map((message) => {
+								{visibleMessages.map((message) => {
 									if (message.role === 'user') {
 										return <UserMessage key={message.id} content={message.content} />;
 									}
