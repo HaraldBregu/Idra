@@ -300,8 +300,10 @@
 				"expandLabel": "Espandi attivita cron {{id}}",
 				"collapse": "Comprimi",
 				"collapseLabel": "Comprimi attivita cron {{id}}",
-				"remove": "Rimuovi",
-				"removeLabel": "Rimuovi attivita cron {{id}}"
+				"remove": "Elimina",
+				"removeLabel": "Elimina attivita cron {{id}}",
+				"confirmRemove": "Eliminare l'attivita cron {{id}}?",
+				"removing": "Eliminazione..."
 			},
 			"details": {
 				"id": "Id",
