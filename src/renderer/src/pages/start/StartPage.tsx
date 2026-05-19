@@ -999,29 +999,20 @@ const StartPage: React.FC = () => {
 										<div className="flex shrink-0 justify-end gap-2">
 											{provider.supported ? (
 												connected && !editing ? (
-													<div className="flex items-center gap-2">
-														<Badge
-															variant="secondary"
-															className="h-6 rounded-md px-2 text-xs font-semibold"
-														>
-															<Check className="size-3" />
-															Connected
-														</Badge>
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon-xs"
-															aria-label={`Edit ${provider.name} API key`}
-															onClick={() => {
-																updateProviderEntry(provider.id, {
-																	editing: true,
-																	apiKey: MASKED_API_KEY,
-																});
-															}}
-														>
-															<Pencil className="size-3.5" />
-														</Button>
-													</div>
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-xs"
+														aria-label={`Edit ${provider.name} API key`}
+														onClick={() => {
+															updateProviderEntry(provider.id, {
+																editing: true,
+																apiKey: MASKED_API_KEY,
+															});
+														}}
+													>
+														<Pencil className="size-3.5" />
+													</Button>
 												) : editing ? null : (
 													<Button
 														type="button"
