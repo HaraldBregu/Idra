@@ -10,16 +10,9 @@ import {
 	LoaderCircle,
 	Mic,
 	Pencil,
-	Plug,
 	Volume2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type {
-	ConnectorInput,
-	ConnectorView,
-	OPENAI_CONNECTOR_CATALOG,
-	OpenAiConnectorId,
-} from '../../../../shared/connectors';
 import {
 	DEFAULT_PROVIDERS,
 	type Provider,
@@ -58,9 +51,8 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep = 'welcome' | 'providers' | 'models' | 'connectors';
+type SetupStep = 'welcome' | 'providers' | 'models';
 type ModelSetupCardId = 'friday' | 'voice-input' | 'voice-output' | 'image-creator';
-type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
 type ProviderCatalogItem = {
 	id: string;
@@ -92,16 +84,6 @@ type AgentModelOption = {
 	model: Model;
 };
 
-type ConnectorSetupGroup = {
-	id: string;
-	name: string;
-	description: string;
-	initial: string;
-	swatchClassName: string;
-	connectorIds: readonly OpenAiConnectorId[];
-	supported: boolean;
-};
-
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
@@ -109,14 +91,12 @@ const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
 	'providers',
 	'models',
-	'connectors',
 ];
 
 const STEP_TITLES: Record<SetupStep, string> = {
 	welcome: 'Welcome',
 	providers: 'Providers',
 	models: 'Models',
-	connectors: 'Connectors',
 };
 
 const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
@@ -192,55 +172,6 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 	},
 ];
 
-const CONNECTOR_SETUP_GROUPS: readonly ConnectorSetupGroup[] = [
-	{
-		id: 'google',
-		name: 'Google Workspace',
-		description: 'Gmail, Calendar, and Drive',
-		initial: 'G',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		connectorIds: [
-			'connector_gmail',
-			'connector_googlecalendar',
-			'connector_googledrive',
-		],
-		supported: true,
-	},
-	{
-		id: 'microsoft',
-		name: 'Microsoft 365',
-		description: 'Outlook, Calendar, Teams, and SharePoint',
-		initial: 'M',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		connectorIds: [
-			'connector_outlookemail',
-			'connector_outlookcalendar',
-			'connector_microsoftteams',
-			'connector_sharepoint',
-		],
-		supported: true,
-	},
-	{
-		id: 'github',
-		name: 'GitHub',
-		description: 'Issues, pull requests, and repositories',
-		initial: 'GH',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		connectorIds: [],
-		supported: false,
-	},
-	{
-		id: 'dropbox',
-		name: 'Dropbox',
-		description: 'Files and recent documents',
-		initial: 'D',
-		swatchClassName: 'bg-muted text-muted-foreground',
-		connectorIds: ['connector_dropbox'],
-		supported: true,
-	},
-];
-
-
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
@@ -282,14 +213,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 
 function getAgentModelValue(providerId: string, modelId: string): string {
 	return `${providerId}${AGENT_MODEL_VALUE_SEPARATOR}${modelId}`;
-}
-
-function serverLabelFromName(name: string): string {
-	return name
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9_-]+/g, '_')
-		.replace(/^_+|_+$/g, '');
 }
 
 function ProviderMark({
