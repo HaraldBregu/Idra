@@ -910,14 +910,67 @@ const StartPage: React.FC = () => {
 
 	function renderWelcomeStep(): React.JSX.Element {
 		return (
-			<div className="flex min-h-full flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
-				<DomeWaveAnimation height={128} className="max-w-sm" />
-				<h1 className="mt-6 text-3xl font-bold leading-none tracking-normal text-foreground">
-					Hello there
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
+				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
+				<Badge
+					variant="secondary"
+					className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold"
+				>
+					<Check className="size-3" />
+					Setup takes about a minute
+				</Badge>
+				<h1 className="mt-5 text-3xl font-bold leading-none tracking-normal text-foreground">
+					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Ask anything — set a reminder, draft a message, look something up, or
-					just think out loud. Type or talk, {PRODUCT_NAME} is here to help.
+					Let's get your assistant ready. Connect one AI provider, choose the
+					model {PRODUCT_NAME} should use, and add the tools you want help with.
+				</p>
+				<div className="mt-6 w-full max-w-lg overflow-hidden rounded-lg border border-border bg-card text-left shadow-none">
+					<div className="grid divide-y divide-border">
+						<div className="flex items-start gap-3 px-3 py-3">
+							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">
+								1
+							</span>
+							<div className="min-w-0">
+								<p className="text-sm font-semibold leading-tight text-foreground">
+									Connect an AI provider
+								</p>
+								<p className="mt-1 text-xs font-medium leading-snug text-muted-foreground">
+									Add an API key so {PRODUCT_NAME} can answer your requests.
+								</p>
+							</div>
+						</div>
+						<div className="flex items-start gap-3 px-3 py-3">
+							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">
+								2
+							</span>
+							<div className="min-w-0">
+								<p className="text-sm font-semibold leading-tight text-foreground">
+									Pick your default model
+								</p>
+								<p className="mt-1 text-xs font-medium leading-snug text-muted-foreground">
+									Choose the model Friday uses for everyday conversation.
+								</p>
+							</div>
+						</div>
+						<div className="flex items-start gap-3 px-3 py-3">
+							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">
+								3
+							</span>
+							<div className="min-w-0">
+								<p className="text-sm font-semibold leading-tight text-foreground">
+									Connect tools when you are ready
+								</p>
+								<p className="mt-1 text-xs font-medium leading-snug text-muted-foreground">
+									Link apps now, or skip this and finish setup later.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<p className="mt-4 max-w-md text-xs font-medium leading-relaxed text-muted-foreground">
+					You can skip setup now and come back from Settings anytime.
 				</p>
 			</div>
 		);
