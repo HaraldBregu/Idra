@@ -29,6 +29,7 @@ import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
+import { startupFilesTool } from './tools/startup';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
@@ -305,6 +306,9 @@ export class AgentService {
 						...baseTools,
 						createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
 					];
+				}
+				if (bootstrapPending && !baseTools.some((tool) => tool.name === startupFilesTool.name)) {
+					baseTools = [...baseTools, startupFilesTool];
 				}
 
 				if (!bootstrapPending && this.dependencies.skills) {
