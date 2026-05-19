@@ -34,27 +34,25 @@ type BarWaveAnimationProps = {
   mediaStream?: MediaStream | null
 }
 
-function readAnalyserAmps(
-  target: Float32Array,
+function readAnalyserAmp(
   analyser: AnalyserNode,
   dataArray: Uint8Array<ArrayBuffer>
-) {
+): number {
   analyser.getByteTimeDomainData(dataArray)
-  const samplesPerBar = Math.max(1, Math.floor(dataArray.length / target.length))
+  let sumSquares = 0
 
-  for (let i = 0; i < target.length; i++) {
-    const start = i * samplesPerBar
-    const end = Math.min(dataArray.length, start + samplesPerBar)
-    let sum = 0
-
-    for (let j = start; j < end; j++) {
-      sum += Math.abs((dataArray[j] - 128) / 128)
-    }
-
-    const raw = end > start ? sum / (end - start) : 0
-    const gated = raw < 0.015 ? 0.006 : Math.min(1, raw * 4.8)
-    target[i] = target[i] * 0.62 + gated * 0.38
+  for (let i = 0; i < dataArray.length; i++) {
+    const centered = (dataArray[i] - 128) / 128
+    sumSquares += centered * centered
   }
+
+  const rms = Math.sqrt(sumSquares / dataArray.length)
+  return rms < 0.015 ? 0.006 : Math.min(1, rms * 5.4)
+}
+
+function appendAmp(target: Float32Array, amp: number) {
+  target.copyWithin(0, 1)
+  target[target.length - 1] = amp
 }
 
 function decayAmps(target: Float32Array) {
@@ -144,6 +142,7 @@ export function BarWaveAnimation({
     scene.add(barMesh)
 
     let phase = 0
+    let liveAmp = 0.006
 
     function redraw() {
       const pitch = 2 / NUM
@@ -177,11 +176,12 @@ export function BarWaveAnimation({
       const analyser = analyserRef.current
       const dataArray = dataArrayRef.current
       if (activeRef.current && analyser && dataArray) {
-        readAnalyserAmps(ampBuf, analyser, dataArray)
+        const nextAmp = readAnalyserAmp(analyser, dataArray)
+        liveAmp = liveAmp * 0.55 + nextAmp * 0.45
+        appendAmp(ampBuf, liveAmp)
         redraw()
       } else if (activeRef.current) {
-        ampBuf.copyWithin(0, 1)
-        ampBuf[NUM - 1] = getAmp(phase)
+        appendAmp(ampBuf, getAmp(phase))
         phase += 0.22
         redraw()
       } else {
