@@ -9,6 +9,7 @@ import {
 	Sparkles,
 	type LucideIcon,
 } from 'lucide-react';
+import { SPEECH_TRANSCRIBER_AGENT_ID } from '../../../../shared/service';
 
 export interface SettingsNavigationItem {
 	readonly path: string;
@@ -51,6 +52,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/apps', labelKey: 'settings.apps.title', keywords: 'installed packages manifests folder delete' },
 	// Agents
 	{ path: '/settings/general/agentdetails/main', labelKey: 'settings.agents.title', descriptionKey: 'settings.agents.fridayDescription', keywords: 'friday main agent default provider model' },
+	{ path: `/settings/general/agentdetails/${SPEECH_TRANSCRIBER_AGENT_ID}`, labelKey: 'settings.agents.speechTranscriberName', descriptionKey: 'settings.agents.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
 	// Heartbeat
