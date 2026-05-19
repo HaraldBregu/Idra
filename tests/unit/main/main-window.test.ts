@@ -135,7 +135,7 @@ describe('Main windows', () => {
 		});
 	});
 
-	it('opens a standalone 600x240 black tray window without showing the main window', () => {
+	it('opens a standalone 300x100 black tray window without showing the main window', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main, create } = createMain([appWindow, trayWindow]);
@@ -148,12 +148,12 @@ describe('Main windows', () => {
 
 		const trayOptions = create.mock.calls.at(-1)?.[0] as Record<string, unknown>;
 		expect(create).toHaveBeenLastCalledWith(expect.objectContaining({
-			width: 600,
-			height: 240,
-			minWidth: 600,
-			minHeight: 240,
-			maxWidth: 600,
-			maxHeight: 240,
+			width: 300,
+			height: 100,
+			minWidth: 300,
+			minHeight: 100,
+			maxWidth: 300,
+			maxHeight: 100,
 			backgroundColor: '#000000',
 			show: false,
 			frame: false,
@@ -241,7 +241,7 @@ describe('Main windows', () => {
 		main.showTrayWindow({ x: 700, y: 0, width: 20, height: 22 });
 
 		expect(screen.getDisplayNearestPoint).toHaveBeenCalledWith({ x: 710, y: 22 });
-		expect(trayWindow.setPosition).toHaveBeenCalledWith(410, 24, false);
+		expect(trayWindow.setPosition).toHaveBeenCalledWith(560, 24, false);
 		expect(
 			trayWindow.setPosition.mock.invocationCallOrder[0]
 		).toBeLessThan(trayWindow.show.mock.invocationCallOrder[0]);
