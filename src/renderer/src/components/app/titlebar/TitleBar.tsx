@@ -7,6 +7,7 @@ import { TitleBarCenterContainer } from './TitleBarCenterContainer';
 import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
+import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
 import { NavigationButtons } from './components/NavigationButtons';
