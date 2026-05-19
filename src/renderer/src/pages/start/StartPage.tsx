@@ -31,9 +31,7 @@ import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
-	SelectGroup,
 	SelectItem,
-	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
@@ -243,12 +241,14 @@ function StaticModelSelect({
 	value,
 	options,
 	onValueChange,
+	disabled = false,
 }: {
 	readonly id: string;
 	readonly label: string;
 	readonly value: string;
 	readonly options: readonly StaticModelOption[];
 	readonly onValueChange: (value: string) => void;
+	readonly disabled?: boolean;
 }): React.JSX.Element {
 	const selected = options.find((option) => option.id === value) ?? options[0];
 
@@ -257,7 +257,11 @@ function StaticModelSelect({
 			<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 				{label}
 			</Label>
-			<Select value={value} onValueChange={(nextValue) => onValueChange(nextValue ?? '')}>
+			<Select
+				value={value}
+				onValueChange={(nextValue) => onValueChange(nextValue ?? '')}
+				disabled={disabled}
+			>
 				<SelectTrigger
 					id={id}
 					className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
@@ -284,6 +288,51 @@ function StaticModelSelect({
 							{option.name}
 						</SelectItem>
 					))}
+				</SelectContent>
+			</Select>
+		</div>
+	);
+}
+
+function StaticProviderSelect({
+	id,
+	label,
+	value,
+	name,
+	initial,
+	swatchClassName,
+	disabled = false,
+}: {
+	readonly id: string;
+	readonly label: string;
+	readonly value: string;
+	readonly name: string;
+	readonly initial: string;
+	readonly swatchClassName: string;
+	readonly disabled?: boolean;
+}): React.JSX.Element {
+	return (
+		<div className="space-y-2">
+			<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+				{label}
+			</Label>
+			<Select value={value} disabled={disabled}>
+				<SelectTrigger
+					id={id}
+					className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+				>
+					<SelectValue className="sr-only" />
+					<div className="flex min-w-0 items-center gap-2.5">
+						<ProviderMark initial={initial} className={swatchClassName} />
+						<p className="truncate text-sm font-semibold leading-tight text-foreground">
+							{name}
+						</p>
+					</div>
+				</SelectTrigger>
+				<SelectContent align="start" className="rounded-lg p-1">
+					<SelectItem value={value} className="h-10 px-2 py-0 pr-8 text-sm font-semibold">
+						{name}
+					</SelectItem>
 				</SelectContent>
 			</Select>
 		</div>
