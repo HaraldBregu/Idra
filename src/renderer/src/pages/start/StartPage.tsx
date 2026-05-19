@@ -1163,7 +1163,7 @@ const StartPage: React.FC = () => {
 							/>
 						</div>
 						{!openAiConnected ? (
-							<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
+							<div className="mt-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 								<Mic className="size-4 shrink-0" />
 								<p className="text-xs font-medium leading-snug">
 									Connect OpenAI to enable live speech transcription.
@@ -1229,7 +1229,7 @@ const StartPage: React.FC = () => {
 								disabled
 							/>
 						</div>
-						<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
+						<div className="mt-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 							<ImageIcon className="size-4 shrink-0" />
 							<p className="text-xs font-medium leading-snug">
 								Image creation is not configurable yet. It will appear here when an
