@@ -19,6 +19,7 @@ export function PendingMessage({
 	onSelectApprovalOption,
 	onSubmit,
 	showHeader = true,
+	className,
 }: {
 	readonly message: HomeMultiSelectMessage;
 	readonly selectedOptions: readonly string[];
@@ -34,6 +35,7 @@ export function PendingMessage({
 		immediateApproval?: ImmediateApprovalSelection
 	) => void;
 	readonly showHeader?: boolean;
+	readonly className?: string;
 }): ReactElement {
 	const approvalOptions = message.options.filter((option) => option.kind === 'approval');
 	const inputOptions = message.options.filter((option) => option.kind === 'input');
@@ -53,7 +55,7 @@ export function PendingMessage({
 	);
 
 	return (
-		<Message className="w-full max-w-2xl flex-col gap-2">
+		<Message className={cn('w-full max-w-2xl flex-col gap-2', className)}>
 			{showHeader && <AssistantMessageHeader />}
 			<MessageContent
 				className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"

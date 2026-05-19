@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message } from '@/components/ui/message';
+import { cn } from '@/lib/utils';
 import type { AgentMessage } from '../context';
 import { AssistantMessageHeader } from './AssistantMessageHeader';
 import { AgentActivityPanel } from './AgentActivityPanel';
@@ -10,13 +11,15 @@ export function AgentTextMessage({
 	message,
 	isStreaming = false,
 	showHeader = true,
+	className,
 }: {
 	readonly message: AgentMessage;
 	readonly isStreaming?: boolean;
 	readonly showHeader?: boolean;
+	readonly className?: string;
 }): ReactElement {
 	return (
-		<Message className="min-w-0 w-full flex-col">
+		<Message className={cn('min-w-0 w-full flex-col', className)}>
 			{showHeader && <AssistantMessageHeader />}
 			<div className="flex min-w-0 w-full flex-col">
 				<AgentActivityPanel message={message} isStreaming={isStreaming} />

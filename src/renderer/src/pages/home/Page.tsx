@@ -382,6 +382,7 @@ function PageContent(): ReactElement {
 								{visibleMessages.map((message, index) => {
 									const previous = index > 0 ? visibleMessages[index - 1] : null;
 									const showAssistantHeader = !previous || previous.role !== 'agent';
+									const groupedAssistantClassName = showAssistantHeader ? undefined : '-mt-5';
 
 									if (message.role === 'user') {
 										return <UserMessage key={message.id} content={message.content} />;
@@ -400,6 +401,7 @@ function PageContent(): ReactElement {
 													void agent.submitMultiSelect(pendingMessage, immediateApproval)
 												}
 												showHeader={showAssistantHeader}
+												className={groupedAssistantClassName}
 											/>
 										);
 									}
@@ -413,6 +415,7 @@ function PageContent(): ReactElement {
 												message.id === agent.chatState.activeAgentId
 											}
 											showHeader={showAssistantHeader}
+											className={groupedAssistantClassName}
 										/>
 									);
 								})}
