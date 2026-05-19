@@ -211,7 +211,7 @@ const AgentDetailsPage: React.FC = () => {
 		setSuccessMessage('');
 	}, []);
 
-	const handleEffortChange = useCallback((nextValue: string): void => {
+	const handleEffortChange = useCallback((nextValue: string | null): void => {
 		setEffort(normalizeEffort(nextValue));
 		setSuccessMessage('');
 	}, []);
