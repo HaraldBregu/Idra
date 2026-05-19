@@ -40,6 +40,12 @@ export function makeToolContext(overrides: Partial<ToolContext> = {}): ToolConte
 					getRootPath: jest.fn(() => workspace),
 					resolvePath: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
 					ensureReady: jest.fn(async () => undefined),
+					isBootstrapPending: jest.fn(async () => false),
+					loadContextFiles: jest.fn(async () => []),
+					listWorkspaceFiles: jest.fn(async () => []),
+					readWorkspaceFile: jest.fn(),
+					writeWorkspaceFile: jest.fn(),
+					completeBootstrap: jest.fn(),
 				} as unknown as ToolContext['services']['workspace'],
 				startupFiles: {
 					getRootPath: jest.fn(() => path.resolve(workspace, 'agent', 'workspaces', 'main')),
