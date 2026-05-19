@@ -108,7 +108,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			parts.push(
 				[
 					'## Bootstrap',
-					`${DEFAULT_BOOTSTRAP_FILENAME} is pending and included in Startup Context.`,
+					`${DEFAULT_BOOTSTRAP_FILENAME} is pending and included in Project Context.`,
 					'Follow it before replying normally.',
 					'Do not use a generic greeting.',
 					'Do not claim bootstrap is complete unless the requested files are updated with `startup_files` and BOOTSTRAP.md is completed.',
