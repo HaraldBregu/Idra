@@ -162,7 +162,7 @@ export function GradientSphere({ size = 20, className, mode = "webgl" }: Gradien
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate)
-      const elapsed = clockRef.current.getElapsedTime()
+      const elapsed = clockRef.current.getElapsed .getElapsedTime()
       uniforms.uTime.value = elapsed
 
       const targetRotY = elapsed * 0.08 + mouseX * 0.3
