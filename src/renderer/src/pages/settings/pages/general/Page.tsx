@@ -32,6 +32,7 @@ import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../co
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../../shared';
+import { SPEECH_TRANSCRIBER_AGENT_ID } from '../../../../../../shared/service';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -78,11 +79,11 @@ const AGENT_ROWS = [
 		configurable: true,
 	},
 	{
-		id: 'speech-to-text',
+		id: SPEECH_TRANSCRIBER_AGENT_ID,
 		nameKey: 'settings.agents.speechTranscriberName',
 		descriptionKey: 'settings.agents.speechTranscriberDescription',
 		icon: Mic,
-		configurable: false,
+		configurable: true,
 	},
 ] as const;
 
@@ -186,17 +187,17 @@ const GeneralPage: React.FC = () => {
 		void window.app.openUserDataFolder();
 	}, []);
 
-	const openFridayAgent = useCallback(() => {
-		navigate(`/settings/general/agentdetails/${FRIDAY_AGENT_ID}`);
+	const openAgent = useCallback((agentId: string) => {
+		navigate(`/settings/general/agentdetails/${encodeURIComponent(agentId)}`);
 	}, [navigate]);
 
-	const handleFridayAgentKeyDown = useCallback(
-		(event: React.KeyboardEvent<HTMLDivElement>) => {
+	const handleAgentKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>, agentId: string) => {
 			if (event.key !== 'Enter' && event.key !== ' ') return;
 			event.preventDefault();
-			openFridayAgent();
+			openAgent(agentId);
 		},
-		[openFridayAgent]
+		[openAgent]
 	);
 
 	const handleLanguageChange = (next: string | null): void => {
@@ -260,8 +261,12 @@ const GeneralPage: React.FC = () => {
 										? 'cursor-pointer border-b border-border/60 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring/55'
 										: 'border-b border-border/60 last:border-b-0'
 								}
-								onClick={agent.configurable ? openFridayAgent : undefined}
-								onKeyDown={agent.configurable ? handleFridayAgentKeyDown : undefined}
+								onClick={agent.configurable ? () => openAgent(agent.id) : undefined}
+								onKeyDown={
+									agent.configurable
+										? (event) => handleAgentKeyDown(event, agent.id)
+										: undefined
+								}
 							>
 								<ItemMedia variant="icon">
 									<Icon className="size-3" strokeWidth={1.8} />
