@@ -28,8 +28,9 @@ import {
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	SPEECH_TRANSCRIBER_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
+	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
-	normalizeModelReasoningEffort,
+	isModelReasoningEffortSupported,
 	type Agent,
 	type Model,
 	type ModelReasoningEffort,
@@ -47,6 +48,17 @@ function getErrorMessage(error: unknown, fallback: string): string {
 		return error.message;
 	}
 	return fallback;
+}
+
+function effortForModel(modelId: string, value: unknown): ModelReasoningEffort {
+	return isModelReasoningEffortSupported(modelId, value)
+		? value
+		: getDefaultModelReasoningEffort(modelId);
+}
+
+function storedEffortForComparison(model: Model): ModelReasoningEffort | undefined {
+	if (model.effort === undefined) return getDefaultModelReasoningEffort(model.id);
+	return isModelReasoningEffortSupported(model.id, model.effort) ? model.effort : undefined;
 }
 
 function mergeProviders(
