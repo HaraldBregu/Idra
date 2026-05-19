@@ -37,6 +37,17 @@ const ipcMain = {
 	removeHandler: jest.fn(),
 };
 
+const ipcRenderer = {
+	invoke: jest.fn(),
+	send: jest.fn(),
+	on: jest.fn(),
+	removeListener: jest.fn(),
+};
+
+const contextBridge = {
+	exposeInMainWorld: jest.fn(),
+};
+
 const BrowserWindow = jest.fn().mockImplementation(() => ({
 	id: 1,
 	loadURL: jest.fn(),
@@ -55,4 +66,14 @@ BrowserWindow.getAllWindows = jest.fn(() => []);
 BrowserWindow.fromId = jest.fn(() => undefined);
 BrowserWindow.fromWebContents = jest.fn(() => undefined);
 
-module.exports = { app, ipcMain, BrowserWindow, shell, nativeTheme, systemPreferences, session };
+module.exports = {
+	app,
+	BrowserWindow,
+	contextBridge,
+	ipcMain,
+	ipcRenderer,
+	nativeTheme,
+	session,
+	shell,
+	systemPreferences,
+};
