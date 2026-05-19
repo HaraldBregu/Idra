@@ -191,6 +191,33 @@ function payloadFrom(input: Record<string, unknown>, recentContext?: string): Fr
 			copyAgentTurnFields(payload, { ...input, ...explicit });
 			return payload;
 		}
+
+		const message = stringValue(explicit.message);
+		if (message) {
+			const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+				kind: 'agentTurn',
+				message,
+			};
+			copyAgentTurnFields(payload, { ...input, ...explicit });
+			return payload;
+		}
+
+		const text = stringValue(explicit.text);
+		if (text) {
+			const hasAgentTurnField = AGENT_TURN_FIELDS.some((field) => hasOwn(explicit, field));
+			if (hasAgentTurnField) {
+				const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+					kind: 'agentTurn',
+					message: text,
+				};
+				copyAgentTurnFields(payload, { ...input, ...explicit });
+				return payload;
+			}
+			return {
+				kind: 'systemEvent',
+				text: appendRecentContext(text, recentContext),
+			};
+		}
 	}
 
 	const message = stringValue(input.message);
