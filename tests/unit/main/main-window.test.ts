@@ -83,20 +83,24 @@ function createMockWindow(id: number): MockWindow {
 }
 
 function createMain(appWindows: MockWindow[]) {
+	const create = jest.fn(() => {
+		const win = appWindows.shift();
+		if (!win) {
+			throw new Error('No mock app window available');
+		}
+		return win;
+	});
 	const windowFactory = {
-		create: jest.fn(() => {
-			const win = appWindows.shift();
-			if (!win) {
-				throw new Error('No mock app window available');
-			}
-			return win;
-		}),
+		create,
 	} as unknown as WindowFactory;
 	const windowContextManager = {
 		create: jest.fn(),
 	} as unknown as WindowContextManager<MainServices>;
 
-	return new Main(new AppState(), windowFactory, windowContextManager);
+	return {
+		main: new Main(new AppState(), windowFactory, windowContextManager),
+		create,
+	};
 }
 
 describe('Main windows', () => {
@@ -107,16 +111,15 @@ describe('Main windows', () => {
 	it('opens a 600x240 black tray child window without showing the main window', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
-		const main = createMain([appWindow]);
+		const { main, create } = createMain([appWindow, trayWindow]);
 		main.create();
 		appWindow.emit('ready-to-show');
 		appWindow.hide();
 		appWindow.show.mockClear();
-		(BrowserWindow as unknown as jest.Mock).mockImplementationOnce(() => trayWindow);
 
 		main.showTrayChildWindow();
 
-		expect(BrowserWindow).toHaveBeenCalledWith(expect.objectContaining({
+		expect(create).toHaveBeenLastCalledWith(expect.objectContaining({
 			width: 600,
 			height: 240,
 			minWidth: 600,
@@ -131,27 +134,19 @@ describe('Main windows', () => {
 				nodeIntegration: false,
 				sandbox: true,
 			}),
-		}));
+		}), { html: 'tray.html' });
 		expect(appWindow.show).not.toHaveBeenCalled();
 		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#000000');
-		expect(trayWindow.loadURL).toHaveBeenCalledWith(expect.stringContaining('data:text/html;charset=utf-8,'));
 		expect(trayWindow.show).toHaveBeenCalledTimes(1);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(1);
-
-		const loadUrl = trayWindow.loadURL.mock.calls[0]?.[0] as string;
-		const html = decodeURIComponent(loadUrl.replace('data:text/html;charset=utf-8,', ''));
-		expect(html).toContain('<button type="button">Ask Friday</button>');
-		expect(html).toContain('<button type="button">New Task</button>');
-		expect(html).toContain('<button type="button">Open App</button>');
 	});
 
 	it('keeps tray child visibility out of main-window show and hide state', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
-		const main = createMain([appWindow]);
+		const { main } = createMain([appWindow, trayWindow]);
 		main.create();
 		appWindow.emit('ready-to-show');
-		(BrowserWindow as unknown as jest.Mock).mockImplementationOnce(() => trayWindow);
 
 		main.showTrayChildWindow();
 		appWindow.hide.mockClear();
@@ -167,15 +162,14 @@ describe('Main windows', () => {
 	it('reuses the existing tray child window while it is open', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
-		const main = createMain([appWindow]);
+		const { main, create } = createMain([appWindow, trayWindow]);
 		main.create();
 		appWindow.emit('ready-to-show');
-		(BrowserWindow as unknown as jest.Mock).mockImplementationOnce(() => trayWindow);
 
 		main.showTrayChildWindow();
 		main.showTrayChildWindow();
 
-		expect(BrowserWindow).toHaveBeenCalledTimes(1);
+		expect(create).toHaveBeenCalledTimes(2);
 		expect(trayWindow.show).toHaveBeenCalledTimes(2);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(2);
 	});

@@ -57,5 +57,13 @@ export default defineConfig({
 			react(),
 			tsconfigPaths({ ignoreConfigErrors: true }),
 		],
+		build: {
+			rollupOptions: {
+				input: {
+					index: resolve(__dirname, 'src/renderer/index.html'),
+					tray: resolve(__dirname, 'src/renderer/tray.html'),
+				},
+			},
+		},
 	},
 });

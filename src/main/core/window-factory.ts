@@ -9,6 +9,11 @@ export interface WindowPreset {
 	options: Partial<BrowserWindowConstructorOptions>;
 }
 
+export interface RendererContentOptions {
+	html?: string;
+	hash?: string;
+}
+
 /**
  * Factory for creating BrowserWindow instances with consistent configuration.
  * Eliminates duplicated webPreferences and window config across Main
@@ -50,7 +55,10 @@ export class WindowFactory {
 	/**
 	 * Create a BrowserWindow with base security defaults merged with overrides.
 	 */
-	create(overrides: Partial<BrowserWindowConstructorOptions> = {}): BrowserWindow {
+	create(
+		overrides: Partial<BrowserWindowConstructorOptions> = {},
+		content: RendererContentOptions = {}
+	): BrowserWindow {
 		const options: BrowserWindowConstructorOptions = {
 			width: 440,
 			height: 600,
@@ -97,22 +105,27 @@ export class WindowFactory {
 			}
 		});
 
-		this.loadContent(win);
+		this.loadContent(win, content);
 		return win;
 	}
 
 	/**
 	 * Load the renderer content (dev URL or production file).
 	 */
-	loadContent(win: BrowserWindow, hash?: string): void {
+	loadContent(win: BrowserWindow, content: RendererContentOptions = {}): void {
+		const { html = 'index.html', hash } = content;
+
 		if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-			const url = hash
-				? `${process.env['ELECTRON_RENDERER_URL']}#/${hash}`
-				: process.env['ELECTRON_RENDERER_URL'];
-			win.loadURL(url);
+			const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
+			const baseUrl = rendererUrl.endsWith('/') ? rendererUrl : `${rendererUrl}/`;
+			const url = html === 'index.html' ? new URL(rendererUrl) : new URL(html, baseUrl);
+			if (hash) {
+				url.hash = `/${hash}`;
+			}
+			win.loadURL(url.toString());
 		} else {
 			const loadOptions = hash ? { hash } : undefined;
-			win.loadFile(path.join(__dirname, '../renderer/index.html'), loadOptions);
+			win.loadFile(path.join(__dirname, '../renderer', html), loadOptions);
 		}
 	}
 }
