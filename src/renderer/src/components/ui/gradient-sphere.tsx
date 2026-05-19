@@ -128,7 +128,7 @@ type GradientSphereProps = {
 export function GradientSphere({ size = 20, className, mode = "webgl" }: GradientSphereProps) {
   const mountRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef(0)
-  const clockRef = useRef(new THREE.Clock())
+  const clockRef = useRef(new THREE.Timer())
 
   useEffect(() => {
     if (mode !== "webgl") return
