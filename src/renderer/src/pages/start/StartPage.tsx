@@ -932,7 +932,7 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Let's get your assistant ready. Connect one AI provider, choose the
+					Let&apos;s get your assistant ready. Connect one AI provider, choose the
 					model {PRODUCT_NAME} should use, and add the tools you want help with.
 				</p>
 			</div>
