@@ -121,6 +121,7 @@ describe('Main windows', () => {
 
 		main.showTrayWindow();
 
+		const trayOptions = create.mock.calls.at(-1)?.[0] as Record<string, unknown>;
 		expect(create).toHaveBeenLastCalledWith(expect.objectContaining({
 			width: 600,
 			height: 240,
@@ -133,13 +134,13 @@ describe('Main windows', () => {
 			resizable: false,
 			alwaysOnTop: true,
 			skipTaskbar: true,
-			parent: undefined,
 			webPreferences: expect.objectContaining({
 				contextIsolation: true,
 				nodeIntegration: false,
 				sandbox: true,
 			}),
 		}), { html: 'tray.html' });
+		expect(trayOptions.parent).toBeUndefined();
 		expect(appWindow.show).not.toHaveBeenCalled();
 		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#000000');
 		expect(trayWindow.setAlwaysOnTop).toHaveBeenCalledWith(true, 'floating');
@@ -161,7 +162,7 @@ describe('Main windows', () => {
 		expect(trayWindow.hide).toHaveBeenCalledTimes(1);
 	});
 
-	it('keeps tray child visibility out of main-window show and hide state', () => {
+	it('keeps tray window visibility out of main-window show and hide state', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main } = createMain([appWindow, trayWindow]);
