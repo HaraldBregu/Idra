@@ -14,7 +14,7 @@ const TRAY_WINDOW_HEIGHT = 100;
 const TRAY_WINDOW_EDGE_MARGIN = 8;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
-const TRAY_WINDOW_BACKGROUND = TRANSPARENT_WINDOW_BACKGROUND;
+const TRAY_WINDOW_BACKGROUND = 'rgba(10, 12, 18, 0.78)';
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
 	if (process.platform === 'darwin') {
@@ -298,6 +298,12 @@ export class Main {
 		const win = this.windowFactory.create(options, { html: 'tray.html' });
 		win.setBackgroundColor(TRAY_WINDOW_BACKGROUND);
 		win.setAlwaysOnTop(true, 'floating');
+		win.webContents.on('before-input-event', (event, input) => {
+			if (input.type === 'keyDown' && input.key === 'Escape') {
+				event.preventDefault();
+				win.hide();
+			}
+		});
 		win.on('blur', () => {
 			win.hide();
 		});
