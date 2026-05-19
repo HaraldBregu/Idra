@@ -14,7 +14,6 @@ import { wrapIpcHandler } from './ipc-error-handler';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-	REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isRealtimeSpeechTranscriberModel,
@@ -37,6 +36,8 @@ const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 3_000;
 const PCM_BYTES_PER_SAMPLE = 2;
 const MINIMUM_COMMIT_AUDIO_MS = 100;
+const REALTIME_TRANSCRIPTION_SOCKET_MODEL = 'gpt-realtime';
+const REALTIME_TRANSCRIPTION_INTENT = 'transcription';
 export const MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES =
 	(REALTIME_TRANSCRIPTION_SAMPLE_RATE * PCM_BYTES_PER_SAMPLE * MINIMUM_COMMIT_AUDIO_MS) / 1_000;
 
@@ -95,11 +96,16 @@ export function isInputAudioBufferTooSmallError(message: string): boolean {
 	return /input audio buffer/i.test(message) && /buffer too small/i.test(message);
 }
 
+export function useRealtimeTranscriptionIntent(url: URL): void {
+	url.searchParams.delete('model');
+	url.searchParams.set('intent', REALTIME_TRANSCRIPTION_INTENT);
+}
+
 export function createRealtimeTranscriptionSocket(
 	client: Pick<OpenAI, 'apiKey' | 'baseURL'>
 ): OpenAIRealtimeWebSocket {
 	return new OpenAIRealtimeWebSocket(
-		{ model: REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID },
+		{ model: REALTIME_TRANSCRIPTION_SOCKET_MODEL, onURL: useRealtimeTranscriptionIntent },
 		client
 	);
 }

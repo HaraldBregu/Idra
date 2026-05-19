@@ -13,10 +13,10 @@ import {
 	hasMinimumRealtimeTranscriptionAudio,
 	isInputAudioBufferTooSmallError,
 	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
+	useRealtimeTranscriptionIntent,
 } from '../../../../src/main/ipc/realtime-transcription-ipc';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-	REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
 
@@ -25,7 +25,7 @@ describe('realtime transcription IPC', () => {
 		jest.clearAllMocks();
 	});
 
-	it('connects through the realtime socket model while reserving whisper for transcription', () => {
+	it('connects realtime transcription sockets with the transcription intent', () => {
 		const client = {
 			apiKey: 'sk-test',
 			baseURL: 'https://api.openai.com/v1',
@@ -33,10 +33,18 @@ describe('realtime transcription IPC', () => {
 
 		createRealtimeTranscriptionSocket(client);
 
-		expect(OpenAIRealtimeWebSocket).toHaveBeenCalledWith(
-			{ model: REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID },
-			client
-		);
+		const [props, passedClient] = (OpenAIRealtimeWebSocket as jest.Mock).mock.calls[0];
+		expect(props.model).toBe('gpt-realtime');
+		expect(props.onURL).toBe(useRealtimeTranscriptionIntent);
+		expect(passedClient).toBe(client);
+	});
+
+	it('uses the documented realtime transcription websocket intent', () => {
+		const url = new URL('wss://api.openai.com/v1/realtime?model=gpt-realtime');
+
+		useRealtimeTranscriptionIntent(url);
+
+		expect(url.toString()).toBe('wss://api.openai.com/v1/realtime?intent=transcription');
 	});
 
 	it('builds a transcription session update for gpt-realtime-whisper without VAD', () => {
