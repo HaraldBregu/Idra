@@ -5,6 +5,7 @@ const originalMediaDevices = navigator.mediaDevices;
 const originalPermissions = navigator.permissions;
 const originalMediaRecorder = globalThis.MediaRecorder;
 const originalCreateObjectUrl = URL.createObjectURL;
+const originalApp = window.app;
 
 function defineNavigatorValue<TKey extends keyof Navigator>(key: TKey, value: Navigator[TKey]): void {
 	Object.defineProperty(navigator, key, {
@@ -27,12 +28,20 @@ function defineCreateObjectUrl(value: typeof URL.createObjectURL | undefined): v
 	});
 }
 
+function defineApp(value: Partial<Window['app']> | undefined): void {
+	Object.defineProperty(window, 'app', {
+		configurable: true,
+		value,
+	});
+}
+
 describe('useAudioRecorder', () => {
 	afterEach(() => {
 		defineNavigatorValue('mediaDevices', originalMediaDevices);
 		defineNavigatorValue('permissions', originalPermissions);
 		defineGlobalMediaRecorder(originalMediaRecorder);
 		defineCreateObjectUrl(originalCreateObjectUrl);
+		defineApp(originalApp);
 	});
 
 	it('reports unsupported recording when media APIs are unavailable', async () => {
@@ -66,6 +75,32 @@ describe('useAudioRecorder', () => {
 		expect(getUserMedia).not.toHaveBeenCalled();
 		expect(result.current.permissionState).toBe('denied');
 		expect(result.current.errorMessage).toBe('Microphone access is blocked. Allow microphone access and try again.');
+	});
+
+	it('does not request a stream when microphone recording is disabled in settings', async () => {
+		const getUserMedia = jest.fn();
+		defineNavigatorValue('mediaDevices', { getUserMedia } as unknown as MediaDevices);
+		defineNavigatorValue('permissions', {
+			query: jest.fn(async () => ({ state: 'granted' })),
+		} as unknown as Permissions);
+		defineGlobalMediaRecorder(class FakeMediaRecorder {} as typeof MediaRecorder);
+		defineApp({
+			getMicrophonePermission: jest.fn(async () => ({
+				enabled: false,
+				systemStatus: 'granted',
+				canRequest: false,
+			})),
+		});
+
+		const { result } = renderHook(() => useAudioRecorder());
+
+		await act(async () => {
+			await expect(result.current.start()).resolves.toBe(false);
+		});
+
+		expect(getUserMedia).not.toHaveBeenCalled();
+		expect(result.current.permissionState).toBe('disabled');
+		expect(result.current.errorMessage).toBe('Microphone recording is disabled in Settings.');
 	});
 
 	it('records audio and returns a file when stopped', async () => {
