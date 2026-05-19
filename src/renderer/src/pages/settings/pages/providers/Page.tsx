@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Check, LoaderCircle, Pencil } from 'lucide-react';
+import { AlertTriangle, Check, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import { DEFAULT_PROVIDERS } from '../../../../../../shared/providers';
+import {
+	DEFAULT_PROVIDERS,
+	getProviderApiConfigurationUrl,
+} from '../../../../../../shared/providers';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
@@ -85,6 +89,7 @@ const ProvidersPage: React.FC = () => {
 						const isBusy = saving === provider.id;
 						const canSave = draft.trim().length > 0 && !isBusy;
 						const initial = provider.name.trim().slice(0, 1).toUpperCase();
+						const apiConfigurationUrl = getProviderApiConfigurationUrl(provider);
 
 						return (
 							<Item
@@ -108,6 +113,15 @@ const ProvidersPage: React.FC = () => {
 									</p>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end gap-2">
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-xs"
+										aria-label={`Open ${provider.name} API setup`}
+										onClick={() => openExternalUrl(apiConfigurationUrl)}
+									>
+										<ExternalLink className="size-3.5" />
+									</Button>
 									{isSaved && !isEditing ? (
 										<>
 											<Badge variant="secondary" className="h-6 rounded-md px-2 text-xs font-semibold">
