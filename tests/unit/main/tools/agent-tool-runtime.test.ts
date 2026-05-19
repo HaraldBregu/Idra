@@ -13,7 +13,6 @@ import {
 } from '../../../../src/main/tools/params';
 import { createReadTool } from '../../../../src/main/tools/builtins/read-tool';
 import { createExecTool } from '../../../../src/main/tools/builtins/exec-tool';
-import { createUpdatePlanTool } from '../../../../src/main/tools/builtins/update-plan-tool';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create-agent-tools';
 import { applyToolPolicyPipeline } from '../../../../src/main/tools/tool-policy-pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normalization';
@@ -53,7 +52,7 @@ describe('canonical agent tool runtime', () => {
 		expect(() => readStringParam(params, 'missing', { required: true })).toThrow('Missing required parameter');
 	});
 
-	it('runs built-in read, exec, and update_plan tools', async () => {
+	it('runs built-in read and exec tools', async () => {
 		const workspace = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'a.txt'), 'one\ntwo\n', 'utf8');
 		const read = await createReadTool({ workspaceDir: workspace }).execute('tc1', { path: 'a.txt', limit: 1 });
@@ -62,13 +61,6 @@ describe('canonical agent tool runtime', () => {
 		const exec = await createExecTool({ workspaceDir: workspace }).execute('tc2', { command: 'printf hello' });
 		expect(exec.details.exitCode).toBe(0);
 		expect(exec.content[0]?.text).toContain('hello');
-
-		const updates: unknown[] = [];
-		const plan = await createUpdatePlanTool({ onUpdatePlan: (next) => updates.push(next) }).execute('tc3', {
-			plan: [{ step: 'ship', status: 'in_progress' }],
-		});
-		expect(plan.details.plan).toEqual([{ step: 'ship', status: 'in_progress' }]);
-		expect(updates).toHaveLength(1);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 

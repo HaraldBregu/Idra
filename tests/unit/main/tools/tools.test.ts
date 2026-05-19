@@ -14,7 +14,6 @@ import {
 	readTool,
 	writeTool,
 } from '../../../../src/main/tools/fs';
-import { updatePlanTool } from '../../../../src/main/tools/plan';
 import { filterTools } from '../../../../src/main/tools/policy';
 import { createTools } from '../../../../src/main/tools/registry';
 import { openBrowserTool } from '../../../../src/main/tools/app';
@@ -25,10 +24,6 @@ import {
 	cronTool,
 } from '../../../../src/main/tools/cron';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
-import {
-	getWorkspaceContentTool,
-	getWorkspacePathTool,
-} from '../../../../src/main/tools/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
@@ -316,19 +311,7 @@ describe('tools/exec', () => {
 	});
 });
 
-describe('tools/plan', () => {
-	it('updates plan state in the tool context', async () => {
-		const ctx = makeToolContext();
-		const result = await updatePlanTool.execute(
-			{ plan: [{ task: 'ship', status: 'in_progress' }] },
-			ctx
-		);
-		expect(result.status).toBe('ok');
-		expect(ctx.plan.entries).toEqual([{ task: 'ship', status: 'in_progress' }]);
-	});
-});
-
-describe('tools/app, cron, providers, services, workspace', () => {
+describe('tools/app, cron, and startup', () => {
 	it('opens browser URLs through Electron and rejects non-http URLs', async () => {
 		const ctx = makeToolContext();
 		expect((await openBrowserTool.execute({ url: 'https://example.com' }, ctx)).status).toBe('ok');
@@ -384,17 +367,6 @@ describe('tools/app, cron, providers, services, workspace', () => {
 			}
 		);
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
-	});
-
-	it('lists workspace content and returns workspace path', async () => {
-		const workspace = await makeTempDir();
-		await fs.mkdir(path.join(workspace, 'dir'));
-		await fs.writeFile(path.join(workspace, 'dir', 'file.txt'), 'x');
-		const ctx = makeToolContext({ workspace });
-		const listed = await getWorkspaceContentTool.execute({ maxDepth: 2 }, ctx);
-		expect(listed.content[0]?.text).toContain('file.txt');
-		expect((await getWorkspacePathTool.execute({}, ctx)).content[0]?.text).toBe(workspace);
-		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
 	it('manages allowlisted agent startup files through the isolated startup tool', async () => {
