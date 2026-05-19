@@ -158,6 +158,35 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('rejects unsupported OpenAI model effort before calling the provider', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		deps.store.getAgentService.mockReturnValue({
+			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
+			model: { id: 'gpt-5.4-mini', name: 'GPT-5.4 mini', effort: 'minimal' },
+		});
+		const providerFactory = jest.fn(() =>
+			provider([
+				{ type: 'message_start' },
+				{ type: 'text_delta', text: 'should not run' },
+			])
+		);
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+			providerFactory,
+			toolsFactory: () => [],
+		});
+
+		await expect(service.send('hi')).rejects.toThrow(
+			'Reasoning effort "minimal" is not supported for model "gpt-5.4-mini"'
+		);
+		expect(providerFactory).not.toHaveBeenCalled();
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
 	it('blocks before model inference without persisting the raw prompt', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
