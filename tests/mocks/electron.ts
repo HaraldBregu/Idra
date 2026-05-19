@@ -18,6 +18,18 @@ const nativeTheme = {
 	themeSource: 'system',
 };
 
+const systemPreferences = {
+	askForMediaAccess: jest.fn(async () => true),
+	getMediaAccessStatus: jest.fn(() => 'not-determined'),
+};
+
+const session = {
+	defaultSession: {
+		setPermissionCheckHandler: jest.fn(),
+		setPermissionRequestHandler: jest.fn(),
+	},
+};
+
 const ipcMain = {
 	handle: jest.fn(),
 	on: jest.fn(),
@@ -41,5 +53,6 @@ const BrowserWindow = jest.fn().mockImplementation(() => ({
 
 BrowserWindow.getAllWindows = jest.fn(() => []);
 BrowserWindow.fromId = jest.fn(() => undefined);
+BrowserWindow.fromWebContents = jest.fn(() => undefined);
 
-module.exports = { app, ipcMain, BrowserWindow, shell, nativeTheme };
+module.exports = { app, ipcMain, BrowserWindow, shell, nativeTheme, systemPreferences, session };
