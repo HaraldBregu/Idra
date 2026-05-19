@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message } from '@/components/ui/message';
 import type { AgentMessage } from '../context';
+import { AssistantMessageHeader } from './AssistantMessageHeader';
 import { AgentActivityPanel } from './AgentActivityPanel';
-import { AssistantLogo } from './AssistantLogo';
 import { markdownComponents } from './markdown';
 
 export function AgentTextMessage({
@@ -17,7 +17,7 @@ export function AgentTextMessage({
 }): ReactElement {
 	return (
 		<Message className="min-w-0 w-full flex-col gap-2">
-			{isFirstInRun && <AssistantLogo />}
+			{isFirstInRun && <AssistantMessageHeader />}
 			<div className="flex min-w-0 w-full flex-col gap-2">
 				<AgentActivityPanel message={message} isStreaming={isStreaming} />
 				{message.content.length > 0 && (
