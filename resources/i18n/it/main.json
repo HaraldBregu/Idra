@@ -242,6 +242,33 @@
 			"userDataDescription": "Cartella in cui Friday salva file, workspace, app, abilita e dati assistente dell'utente",
 			"openUserData": "Apri Cartella"
 		},
+		"microphone": {
+			"title": "Permessi microfono",
+			"description": "Controlla se Friday puo registrare audio dal campo prompt.",
+			"recording": "Registrazione audio",
+			"recordingDescription": "Consenti la registrazione dal microfono nel campo prompt di Friday.",
+			"systemPermission": "Permesso di sistema",
+			"systemPermissionDescription": "Accesso al microfono del sistema operativo per Friday.",
+			"actions": {
+				"activate": "Attiva",
+				"check": "Controlla",
+				"request": "Richiedi accesso",
+				"refresh": "Aggiorna permesso microfono"
+			},
+			"status": {
+				"not-determined": "Non richiesto",
+				"granted": "Attivo",
+				"denied": "Bloccato",
+				"restricted": "Limitato",
+				"unknown": "Sconosciuto",
+				"unsupported": "Non supportato"
+			},
+			"errors": {
+				"load": "Impossibile caricare il permesso microfono.",
+				"save": "Impossibile salvare l'impostazione del microfono.",
+				"request": "Impossibile richiedere l'accesso al microfono."
+			}
+		},
 		"editor": {
 			"font": "Carattere",
 			"fontDescription": "Scegli il carattere utilizzato nell'editor",

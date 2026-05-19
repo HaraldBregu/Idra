@@ -242,6 +242,33 @@
 			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, apps, skills, and agent data",
 			"openUserData": "Open Folder"
 		},
+		"microphone": {
+			"title": "Microphone permissions",
+			"description": "Control whether Friday can record audio from the prompt input.",
+			"recording": "Audio recording",
+			"recordingDescription": "Allow prompt input microphone recording inside Friday.",
+			"systemPermission": "System permission",
+			"systemPermissionDescription": "Current operating system microphone access for Friday.",
+			"actions": {
+				"activate": "Activate",
+				"check": "Check",
+				"request": "Request Access",
+				"refresh": "Refresh microphone permission"
+			},
+			"status": {
+				"not-determined": "Not Asked",
+				"granted": "Active",
+				"denied": "Blocked",
+				"restricted": "Restricted",
+				"unknown": "Unknown",
+				"unsupported": "Unsupported"
+			},
+			"errors": {
+				"load": "Could not load microphone permission.",
+				"save": "Could not save microphone setting.",
+				"request": "Could not request microphone access."
+			}
+		},
 		"editor": {
 			"font": "Font",
 			"fontDescription": "Choose the font used in the editor",
