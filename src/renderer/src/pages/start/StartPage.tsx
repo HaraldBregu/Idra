@@ -1022,20 +1022,11 @@ const StartPage: React.FC = () => {
 								>
 									<SelectTrigger
 										id="agent-provider"
-										className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+										className="w-full text-xs sm:w-72"
 									>
-										<SelectValue className="sr-only" />
-										<div className="flex min-w-0 items-center gap-2.5">
-											<ProviderMark
-												initial={selectedProviderCatalog.initial}
-												className={selectedProviderCatalog.swatchClassName}
-											/>
-											<p className="truncate text-sm font-semibold leading-tight text-foreground">
-												{configProviderName || modelCountLabel}
-											</p>
-										</div>
+										<SelectValue placeholder={modelCountLabel} />
 									</SelectTrigger>
-									<SelectContent align="start" className="rounded-lg p-1">
+									<SelectContent>
 										{agentModelGroups.map((group) => {
 											const catalog = getProviderCatalogItem(group.provider.id);
 
@@ -1043,18 +1034,8 @@ const StartPage: React.FC = () => {
 												<SelectItem
 													key={group.provider.id}
 													value={group.provider.id}
-													className="h-10 px-2 py-0 pr-8 text-sm font-semibold"
 												>
-													<span className="flex min-w-0 items-center gap-2">
-														<ProviderMark
-															initial={catalog.initial}
-															className={cn(
-																catalog.swatchClassName,
-																'size-4 rounded-full text-[0.625rem]'
-															)}
-														/>
-														<span className="truncate">{catalog.name}</span>
-													</span>
+													{catalog.name}
 												</SelectItem>
 											);
 										})}
@@ -1072,26 +1053,17 @@ const StartPage: React.FC = () => {
 								>
 									<SelectTrigger
 										id="agent-model"
-										className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+										className="w-full text-xs sm:w-72"
 									>
-										<SelectValue className="sr-only" />
-										<div className="min-w-0">
-											<p className="truncate text-sm font-semibold leading-tight text-foreground">
-												{selectedModelName || modelCountLabel}
-											</p>
-										</div>
+										<SelectValue placeholder={modelCountLabel} />
 									</SelectTrigger>
-									<SelectContent align="start" className="rounded-lg p-1">
+									<SelectContent>
 										{selectedAgentModels.map((model) => (
 											<SelectItem
 												key={model.id}
 												value={model.id}
-												className={cn(
-													'h-10 px-2 py-0 pr-8 text-sm font-semibold',
-													model.id === selectedModel && 'bg-accent text-accent-foreground'
-												)}
 											>
-												<span className="truncate">{model.name}</span>
+												{model.name}
 											</SelectItem>
 										))}
 									</SelectContent>
