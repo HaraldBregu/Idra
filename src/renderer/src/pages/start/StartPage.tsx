@@ -2,12 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
 	AlertCircle,
 	ArrowRight,
+	Bot,
+	ChevronDown,
 	Check,
+	ImageIcon,
 	KeyRound,
 	LoaderCircle,
 	Mic,
 	Pencil,
 	Plug,
+	Volume2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type {
@@ -55,6 +59,7 @@ type ProviderSetupEntry = {
 };
 
 type SetupStep = 'welcome' | 'providers' | 'models' | 'connectors';
+type ModelSetupCardId = 'friday' | 'voice-input' | 'voice-output' | 'image-creator';
 type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
 type ProviderCatalogItem = {
@@ -393,9 +398,71 @@ function StaticModelSelect({
 	);
 }
 
+function ModelSetupCard({
+	id,
+	title,
+	description,
+	status,
+	icon: Icon,
+	open,
+	onToggle,
+	children,
+}: {
+	readonly id: string;
+	readonly title: string;
+	readonly description: string;
+	readonly status: string;
+	readonly icon: React.ComponentType<{ className?: string }>;
+	readonly open: boolean;
+	readonly onToggle: () => void;
+	readonly children: React.ReactNode;
+}): React.JSX.Element {
+	return (
+		<Card className="rounded-lg border-border bg-card py-0 shadow-none">
+			<CardContent className="p-0">
+				<button
+					type="button"
+					aria-expanded={open}
+					aria-controls={id}
+					className="flex w-full items-center gap-3 px-3 py-3 text-left outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/40"
+					onClick={onToggle}
+				>
+					<span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+						<Icon className="size-4" />
+					</span>
+					<span className="min-w-0 flex-1">
+						<span className="block truncate text-sm font-semibold leading-tight text-foreground">
+							{title}
+						</span>
+						<span className="mt-1 block truncate text-xs font-medium leading-tight text-muted-foreground">
+							{description}
+						</span>
+					</span>
+					<span className="hidden shrink-0 text-xs font-medium text-muted-foreground sm:block">
+						{status}
+					</span>
+					<ChevronDown
+						className={cn(
+							'size-4 shrink-0 text-muted-foreground transition-transform',
+							open && 'rotate-180'
+						)}
+					/>
+				</button>
+				{open ? (
+					<div id={id} className="border-t border-border px-3 py-3">
+						{children}
+					</div>
+				) : null}
+			</CardContent>
+		</Card>
+	);
+}
+
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState<SetupStep>('welcome');
+	const [expandedModelCardId, setExpandedModelCardId] =
+		useState<ModelSetupCardId>('friday');
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
