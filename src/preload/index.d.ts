@@ -187,6 +187,8 @@ export interface AppApi {
 	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
+	getKeepAwakeEnabled: () => Promise<boolean>;
+	setKeepAwakeEnabled: (enabled: boolean) => Promise<boolean>;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
 	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;

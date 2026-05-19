@@ -18,6 +18,12 @@ const nativeTheme = {
 	themeSource: 'system',
 };
 
+const powerSaveBlocker = {
+	start: jest.fn(() => 1),
+	stop: jest.fn(() => true),
+	isStarted: jest.fn(() => true),
+};
+
 const systemPreferences = {
 	askForMediaAccess: jest.fn(async () => true),
 	getMediaAccessStatus: jest.fn(() => 'not-determined'),
@@ -73,6 +79,7 @@ module.exports = {
 	ipcMain,
 	ipcRenderer,
 	nativeTheme,
+	powerSaveBlocker,
 	session,
 	shell,
 	systemPreferences,

@@ -142,6 +142,25 @@ describe('StoreService', () => {
 		});
 	});
 
+	describe('app settings', () => {
+		it('defaults microphone on and keep-awake off', () => {
+			const service = new StoreService();
+
+			expect(service.getMicrophoneEnabled()).toBe(true);
+			expect(service.getKeepAwakeEnabled()).toBe(false);
+		});
+
+		it('persists the keep-awake setting', () => {
+			const service = new StoreService();
+
+			expect(service.setKeepAwakeEnabled(true)).toEqual({ keepAwakeEnabled: true });
+			expect(service.getKeepAwakeEnabled()).toBe(true);
+
+			expect(service.setKeepAwakeEnabled(false)).toEqual({ keepAwakeEnabled: false });
+			expect(service.getKeepAwakeEnabled()).toBe(false);
+		});
+	});
+
 	describe('Friday cron state', () => {
 		it('persists Friday cron jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();

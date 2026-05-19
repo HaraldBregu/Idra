@@ -12,6 +12,7 @@ import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
+import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { HeartbeatService } from './heartbeat';
 import type { AgentService } from './service';
 import type { SkillsService } from './skills';
@@ -30,6 +31,7 @@ export interface MainServices {
 	heartbeat: HeartbeatService;
 	logger: LoggerService;
 	mcpRegistry: McpRegistry;
+	powerSaveBlocker: PowerSaveBlockerService;
 	skills: SkillsService;
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;

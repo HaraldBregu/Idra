@@ -7,6 +7,7 @@ import type { HeartbeatStoreState } from "../../shared/heartbeat";
 import { Channel } from "../../shared/channels";
 import { ConnectorConfig } from "../../shared/connectors";
 import type { AppPermissionSettings } from "../../shared/app-permissions";
+import type { AppSettings } from "../../shared/app-settings";
 
 export interface StoreSchema {
 	providers: Provider[];
@@ -18,6 +19,7 @@ export interface StoreSchema {
 	channel: Channel;
 	connectors: ConnectorConfig[];
 	appPermissions: AppPermissionSettings;
+	appSettings: AppSettings;
 }
 
 export type SettingsStore = {

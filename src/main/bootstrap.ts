@@ -16,6 +16,7 @@ import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
 import { UserDataDirectoryService } from './user-data';
+import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
 import type { IpcModule } from './ipc';
 import {
@@ -70,6 +71,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
+	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register(
 		'cron',
 		new CronService(store, logger)
@@ -141,6 +143,21 @@ export function bootstrapServices(): BootstrapResult {
 		startupFiles,
 		windowContextManager,
 	};
+}
+
+export function restorePowerSaveBlocker(container: MainServiceContainer): void {
+	const store = container.get('store');
+	if (!store.getKeepAwakeEnabled()) return;
+
+	const logger = container.get('logger');
+	const powerSaveBlocker = container.get('powerSaveBlocker');
+	try {
+		const enabled = powerSaveBlocker.setEnabled(true);
+		store.setKeepAwakeEnabled(enabled);
+	} catch (error) {
+		store.setKeepAwakeEnabled(false);
+		logger.error('PowerSaveBlocker', 'Failed to restore keep-awake setting', error);
+	}
 }
 
 export function bootstrapIpcModules(container: MainServiceContainer, eventBus: EventBus): void {

@@ -138,6 +138,7 @@ import { AppChannels } from '../shared/ipc-channels';
 import {
 	bootstrapServices,
 	bootstrapIpcModules,
+	restorePowerSaveBlocker,
 	setupAppLifecycle,
 	setupEventLogging,
 	setupProcessSafetyNet,
@@ -257,6 +258,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	restorePowerSaveBlocker(container);
 	setupMediaPermissionHandlers(container.get('store'));
 	menuManager.create();
 	void menuManager.refreshApps();

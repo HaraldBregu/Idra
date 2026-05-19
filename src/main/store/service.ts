@@ -18,10 +18,15 @@ import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
 import type { AgentHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
 import type { AppPermissionSettings } from '../../shared/app-permissions';
+import type { AppSettings } from '../../shared/app-settings';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
 
 const DEFAULT_APP_PERMISSIONS: AppPermissionSettings = {
 	microphoneEnabled: true,
+};
+
+const DEFAULT_APP_SETTINGS: AppSettings = {
+	keepAwakeEnabled: false,
 };
 
 export class StoreService {
@@ -54,6 +59,26 @@ export class StoreService {
 
 	getMicrophoneEnabled(): boolean {
 		return this.getAppPermissions().microphoneEnabled;
+	}
+
+	getAppSettings(): AppSettings {
+		return {
+			...DEFAULT_APP_SETTINGS,
+			...(this.store.get('appSettings') ?? {}),
+		};
+	}
+
+	getKeepAwakeEnabled(): boolean {
+		return this.getAppSettings().keepAwakeEnabled;
+	}
+
+	setKeepAwakeEnabled(enabled: boolean): AppSettings {
+		const next = {
+			...this.getAppSettings(),
+			keepAwakeEnabled: enabled,
+		};
+		this.store.set('appSettings', next);
+		return next;
 	}
 
 	setMicrophoneEnabled(enabled: boolean): AppPermissionSettings {

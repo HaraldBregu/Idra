@@ -54,6 +54,8 @@ export const AppChannels = {
 	openExternalUrl: 'app:open-external-url',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
+	getKeepAwakeEnabled: 'app:get-keep-awake-enabled',
+	setKeepAwakeEnabled: 'app:set-keep-awake-enabled',
 	getMicrophonePermission: 'app:get-microphone-permission',
 	setMicrophoneEnabled: 'app:set-microphone-enabled',
 	requestMicrophonePermission: 'app:request-microphone-permission',
@@ -164,6 +166,14 @@ interface AppInvokeChannelMap {
 	};
 	[AppChannels.getTrayEnabled]: {
 		args: [];
+		result: boolean;
+	};
+	[AppChannels.getKeepAwakeEnabled]: {
+		args: [];
+		result: boolean;
+	};
+	[AppChannels.setKeepAwakeEnabled]: {
+		args: [enabled: boolean];
 		result: boolean;
 	};
 	[AppChannels.getMicrophonePermission]: {

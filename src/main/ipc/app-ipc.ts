@@ -51,6 +51,13 @@ function microphoneSettings(enabled: boolean): MicrophonePermissionSettings {
 	};
 }
 
+function requireBoolean(value: unknown, label: string): boolean {
+	if (typeof value !== 'boolean') {
+		throw new Error(`${label} must be a boolean.`);
+	}
+	return value;
+}
+
 async function openPathOrThrow(target: string): Promise<void> {
 	const error = await shell.openPath(target);
 	if (error) {
@@ -69,6 +76,7 @@ export class AppIpc implements IpcModule {
 		const logger = container.get('logger');
 		const store = container.get('store');
 		const apps = container.get('apps');
+		const powerSaveBlocker = container.get('powerSaveBlocker');
 		const userDataDirectory = container.get('userDataDirectory');
 
 		// Language handler
@@ -159,6 +167,21 @@ export class AppIpc implements IpcModule {
 			wrapSimpleHandler(() => {
 				return this.trayEnabled;
 			}, AppChannels.getTrayEnabled)
+		);
+
+		ipcMain.handle(
+			AppChannels.getKeepAwakeEnabled,
+			wrapSimpleHandler(() => {
+				return store.getKeepAwakeEnabled();
+			}, AppChannels.getKeepAwakeEnabled)
+		);
+
+		ipcMain.handle(
+			AppChannels.setKeepAwakeEnabled,
+			wrapSimpleHandler((enabled: boolean) => {
+				const nextEnabled = powerSaveBlocker.setEnabled(requireBoolean(enabled, 'Keep awake enabled'));
+				return store.setKeepAwakeEnabled(nextEnabled).keepAwakeEnabled;
+			}, AppChannels.setKeepAwakeEnabled)
 		);
 
 		ipcMain.handle(

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
 	Accessibility,
+	BatteryCharging,
 	Bot,
 	ChevronRight,
 	FolderOpen,
@@ -129,6 +130,8 @@ const GeneralPage: React.FC = () => {
 	const { theme, translucency, language, setTheme, setTranslucency, setLanguage } = useApp();
 
 	const [trayEnabled, setTrayEnabled] = useState(true);
+	const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
+	const [keepAwakeLoading, setKeepAwakeLoading] = useState(true);
 	const [microphonePermission, setMicrophonePermission] =
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
 	const [microphoneLoading, setMicrophoneLoading] = useState(true);
@@ -136,6 +139,23 @@ const GeneralPage: React.FC = () => {
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
+	}, []);
+
+	useEffect(() => {
+		let mounted = true;
+		void window.app.getKeepAwakeEnabled()
+			.then((enabled) => {
+				if (mounted) setKeepAwakeEnabled(enabled);
+			})
+			.catch(() => {
+				if (mounted) setKeepAwakeEnabled(false);
+			})
+			.finally(() => {
+				if (mounted) setKeepAwakeLoading(false);
+			});
+		return () => {
+			mounted = false;
+		};
 	}, []);
 
 	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
@@ -159,6 +179,20 @@ const GeneralPage: React.FC = () => {
 	const handleTrayToggle = useCallback((checked: boolean) => {
 		setTrayEnabled(checked);
 		void window.app.setTrayEnabled(checked);
+	}, []);
+
+	const handleKeepAwakeToggle = useCallback((checked: boolean) => {
+		setKeepAwakeEnabled(checked);
+		setKeepAwakeLoading(true);
+		void window.app.setKeepAwakeEnabled(checked)
+			.then(setKeepAwakeEnabled)
+			.catch(() => {
+				setKeepAwakeEnabled(!checked);
+				void window.app.getKeepAwakeEnabled()
+					.then(setKeepAwakeEnabled)
+					.catch(() => undefined);
+			})
+			.finally(() => setKeepAwakeLoading(false));
 	}, []);
 
 	const handleMicrophoneToggle = useCallback((checked: boolean) => {
@@ -508,6 +542,25 @@ const GeneralPage: React.FC = () => {
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
 							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<BatteryCharging className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle>{t('settings.application.keepAwake')}</ItemTitle>
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+								{t('settings.application.keepAwakeDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Switch
+								checked={keepAwakeEnabled}
+								disabled={keepAwakeLoading}
+								onCheckedChange={handleKeepAwakeToggle}
+								aria-label={t('settings.application.keepAwake')}
+							/>
 						</ItemActions>
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
