@@ -209,6 +209,8 @@ const AgentDetailsPage: React.FC = () => {
 	}, [currentAgent, currentSpeechTranscriber, isSpeechTranscriberAgent, selectedProvider, t]);
 
 	const modelOptions = useMemo(() => {
+		if (isSpeechTranscriberAgent) return Array.from(SPEECH_TRANSCRIBER_MODELS);
+
 		const byId = new Map(models.map((model) => [model.id, model]));
 		if (
 			currentAgent?.provider.id === providerId &&
@@ -218,19 +220,22 @@ const AgentDetailsPage: React.FC = () => {
 			byId.set(currentAgent.model.id, currentAgent.model);
 		}
 		return [...byId.values()];
-	}, [currentAgent, models, providerId]);
+	}, [currentAgent, isSpeechTranscriberAgent, models, providerId]);
 
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
-	const showEffort = isOpenAiProvider(providerId);
+	const showEffort = isFridayAgent && isOpenAiProvider(providerId);
 	const selectedEffort = showEffort ? effort : undefined;
 	const currentEffort = currentAgent && isOpenAiProvider(currentAgent.provider.id)
 		? normalizeEffort(currentAgent.model.effort)
 		: undefined;
-	const hasChanges =
-		!currentAgent ||
-		currentAgent.provider.id !== providerId ||
-		currentAgent.model.id !== modelId ||
-		currentEffort !== selectedEffort;
+	const hasChanges = isSpeechTranscriberAgent
+		? !currentSpeechTranscriber ||
+			currentSpeechTranscriber.provider.id !== providerId ||
+			currentSpeechTranscriber.model.id !== modelId
+		: !currentAgent ||
+			currentAgent.provider.id !== providerId ||
+			currentAgent.model.id !== modelId ||
+			currentEffort !== selectedEffort;
 	const canSave = Boolean(selectedProvider && selectedModel && hasChanges && !loadingModels && !saving);
 
 	const handleProviderChange = useCallback((nextValue: string | null): void => {
