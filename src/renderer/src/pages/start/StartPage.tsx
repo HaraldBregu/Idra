@@ -7,6 +7,7 @@ import {
 	Check,
 	ImageIcon,
 	KeyRound,
+	Link2,
 	LoaderCircle,
 	Mic,
 	Pencil,
@@ -92,6 +93,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 
 type ProviderOption = {
@@ -148,6 +150,7 @@ type AgentModelOption = {
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
+const DEFAULT_PROVIDER_LINK_URL = 'https://www.google.com';
 const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
 	'providers',
