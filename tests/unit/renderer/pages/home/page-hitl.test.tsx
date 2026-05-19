@@ -51,8 +51,9 @@ jest.mock('@/components/ui/prompt-input', () => ({
 	PromptInput: ({
 		children,
 		actions,
-	}: React.PropsWithChildren<{ actions?: React.ReactNode }>) => (
-		<div>
+		voiceMode,
+	}: React.PropsWithChildren<{ actions?: React.ReactNode; voiceMode?: string | null }>) => (
+		<div data-testid="prompt-input" data-voice-mode={voiceMode ?? ''}>
 			{children}
 			{actions}
 		</div>
@@ -198,5 +199,14 @@ describe('home page HITL wiring', () => {
 			decision: 'allow-once',
 			optionId: 'approval:approval-1:allow-once',
 		});
+	});
+
+	it('starts voice conversation from the empty primary action', async () => {
+		render(<Page />);
+
+		await userEvent.click(screen.getByRole('button', { name: 'Start voice conversation' }));
+
+		expect(mockSetMode).toHaveBeenCalledWith('voice');
+		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', 'conversation');
 	});
 });
