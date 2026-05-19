@@ -12,7 +12,7 @@ The agent first evaluates the user message with a tool-use policy.
 - Creative writing, rewriting, translation, summarization, and brainstorming are answered without tools unless the request also needs external access.
 - If no rule requires tools, the run is a direct answer: tools are not built, startup context is not loaded, and the provider receives an empty tool list.
 
-When tools are needed, the default candidate set is the full local tool registry plus enabled, configured connector tools. The default local set excludes `startup_files`; bootstrap mode only exposes `startup_files` if the active tool factory supplied it. Heartbeat runs can add `heartbeat_respond`. Skill-backed runs can add the skill execution tool and any tools required by the selected skills.
+When tools are needed, the default candidate set is the full local tool registry plus enabled, configured connector tools. The default local set excludes `startup_files` outside bootstrap; pending bootstrap turns add it explicitly. Heartbeat runs can add `heartbeat_respond`. Skill-backed runs can add the skill execution tool and any tools required by the selected skills.
 
 ## Current Tool Surface
 
