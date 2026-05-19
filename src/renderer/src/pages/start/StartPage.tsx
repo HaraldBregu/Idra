@@ -448,6 +448,10 @@ const StartPage: React.FC = () => {
 	const selectedAgentModelOption = agentModelOptions.find(
 		(option) => option.value === selectedAgentModelValue
 	);
+	const selectedAgentModelGroup = agentModelGroups.find(
+		(group) => group.provider.id === configProvider
+	);
+	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
 	const selectedProvider =
 		selectedAgentModelOption?.provider ??
 		providers.find((provider) => provider.id === configProvider);
@@ -728,13 +732,18 @@ const StartPage: React.FC = () => {
 		}
 	}
 
-	function handleAgentModelChange(value: string | null): void {
-		const option = agentModelOptions.find((item) => item.value === value);
-		if (!option) return;
+	function handleAgentProviderChange(value: string | null): void {
+		const providerId = value ?? '';
+		const group = agentModelGroups.find((item) => item.provider.id === providerId);
 
 		setErrorMessage('');
-		setConfigProvider(option.provider.id);
-		setSelectedModel(option.model.id);
+		setConfigProvider(providerId);
+		setSelectedModel(group?.models[0]?.id ?? '');
+	}
+
+	function handleAgentModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedModel(value ?? '');
 	}
 
 	async function handleSaveAgentModel(): Promise<void> {
