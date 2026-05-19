@@ -5,3 +5,5 @@ export type {
 	AudioRecording,
 } from './useAudioRecorder';
 export { useHomeAgent } from './useHomeAgent';
+export { useRealtimeDictation } from './useRealtimeDictation';
+export type { RealtimeDictationStatus } from './useRealtimeDictation';
