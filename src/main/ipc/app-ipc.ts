@@ -7,8 +7,7 @@ import type { MainServiceContainer } from '../service-registry';
 import {
 	SPEECH_TRANSCRIBER_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
-	isModelReasoningEffort,
-	normalizeModelReasoningEffort,
+	requireModelReasoningEffort,
 	type Agent,
 	type Model,
 } from '../../shared/service';
@@ -338,15 +337,8 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-				if (
-					normalizedProviderId === 'openai' &&
-					model.effort !== undefined &&
-					!isModelReasoningEffort(model.effort)
-				) {
-					throw new Error(`Reasoning effort is not supported: ${model.effort}`);
-				}
 				const modelToSave = normalizedProviderId === 'openai'
-					? { ...model, effort: normalizeModelReasoningEffort(model.id, model.effort) }
+					? { ...model, effort: requireModelReasoningEffort(model.id, model.effort) }
 					: { id: model.id, name: model.name };
 				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)
