@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { CircleUser, Home, Menu, PanelLeft } from 'lucide-react';
+import { Home, Menu, PanelLeft, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
