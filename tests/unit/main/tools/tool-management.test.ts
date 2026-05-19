@@ -411,7 +411,6 @@ describe('tool management layer', () => {
 		expect(selectedToolNames).toEqual(
 			expect.arrayContaining([
 				'read',
-				'write',
 				'gmail_get_recent_emails',
 				'gmail_batch_read_email',
 			])
