@@ -472,6 +472,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
+		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('channels', channels);
@@ -487,6 +488,8 @@ if (process.contextIsolated) {
 	globalThis.win = win;
 	// @ts-ignore (define in dts)
 	globalThis.agent = agent;
+	// @ts-ignore (define in dts)
+	globalThis.realtimeTranscription = realtimeTranscription;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)
