@@ -238,10 +238,10 @@ describe('Main windows', () => {
 		main.create();
 		appWindow.emit('ready-to-show');
 
-		main.showTrayWindow({ x: 1220, y: 0, width: 20, height: 22 });
+		main.showTrayWindow({ x: 700, y: 0, width: 20, height: 22 });
 
-		expect(screen.getDisplayNearestPoint).toHaveBeenCalledWith({ x: 1230, y: 22 });
-		expect(trayWindow.setPosition).toHaveBeenCalledWith(930, 24, false);
+		expect(screen.getDisplayNearestPoint).toHaveBeenCalledWith({ x: 710, y: 22 });
+		expect(trayWindow.setPosition).toHaveBeenCalledWith(410, 24, false);
 		expect(
 			trayWindow.setPosition.mock.invocationCallOrder[0]
 		).toBeLessThan(trayWindow.show.mock.invocationCallOrder[0]);
