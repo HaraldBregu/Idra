@@ -163,7 +163,8 @@ export class OpenAIAdapter implements ProviderAdapter {
 		const stateFor = (
 			outputIndex: number,
 			fallbackId: string,
-			fallbackName = ''
+			fallbackName = '',
+			preferId = false
 		): ResponseToolCallState => {
 			let state = callsByOutputIndex.get(outputIndex);
 			if (!state) {
@@ -176,7 +177,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 				};
 				callsByOutputIndex.set(outputIndex, state);
 			}
-			if (fallbackId) state.id = fallbackId;
+			if (fallbackId && (preferId || !state.id)) state.id = fallbackId;
 			if (fallbackName) state.name = fallbackName;
 			return state;
 		};
@@ -220,7 +221,8 @@ export class OpenAIAdapter implements ProviderAdapter {
 		stateFor: (
 			outputIndex: number,
 			fallbackId: string,
-			fallbackName?: string
+			fallbackName?: string,
+			preferId?: boolean
 		) => ResponseToolCallState,
 		emitToolStart: (state: ResponseToolCallState) => Iterable<ProviderEvent>,
 		emitToolEnd: (state: ResponseToolCallState) => Iterable<ProviderEvent>,
@@ -230,7 +232,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 			case 'response.output_item.added': {
 				if (event.item.type !== 'function_call') break;
 				const item = event.item as ResponseFunctionToolCall;
-				const state = stateFor(event.output_index, item.call_id, item.name);
+				const state = stateFor(event.output_index, item.call_id, item.name, true);
 				for (const providerEvent of emitToolStart(state)) yield providerEvent;
 				break;
 			}
@@ -268,7 +270,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 				}
 				if (event.item.type !== 'function_call') break;
 				const item = event.item as ResponseFunctionToolCall;
-				const state = stateFor(event.output_index, item.call_id, item.name);
+				const state = stateFor(event.output_index, item.call_id, item.name, true);
 				for (const providerEvent of emitToolStart(state)) yield providerEvent;
 				if (!state.argsStr && item.arguments) {
 					state.argsStr = item.arguments;
