@@ -96,6 +96,9 @@ const AgentDetailsPage: React.FC = () => {
 	const decodedAgentId = decodeURIComponent(agentId ?? '');
 	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_ID;
 	const isSpeechTranscriberAgent = decodedAgentId === SPEECH_TRANSCRIBER_AGENT_ID;
+	const isTextToSpeechAgent = decodedAgentId === TEXT_TO_SPEECH_AGENT_ID;
+	const isImageAssistantAgent = decodedAgentId === IMAGE_ASSISTANT_AGENT_ID;
+	const isServiceBackedAgent = isFridayAgent || isSpeechTranscriberAgent;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAgent, setCurrentAgent] = useState<Agent | undefined>();
 	const [currentSpeechTranscriber, setCurrentSpeechTranscriber] = useState<Agent | undefined>();
