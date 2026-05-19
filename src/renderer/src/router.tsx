@@ -7,7 +7,10 @@ import {
 	type RouteObject,
 } from 'react-router-dom';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
-import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
+import {
+	HomePageLoadingSkeleton,
+	PageLoadingSkeleton,
+} from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
 import { SettingsPageSkeleton } from './pages/settings/components';
@@ -32,10 +35,16 @@ const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/P
 const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
 const AppsPage = lazy(() => import('./pages/settings/pages/apps/Page'));
 
-function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
+function RouteWrapper({
+	children,
+	fallback = <PageLoadingSkeleton />,
+}: {
+	readonly children: ReactNode;
+	readonly fallback?: ReactNode;
+}): React.JSX.Element {
 	return (
 		<ErrorBoundary level="route">
-			<Suspense fallback={<PageLoadingSkeleton />}>{children}</Suspense>
+			<Suspense fallback={fallback}>{children}</Suspense>
 		</ErrorBoundary>
 	);
 }
@@ -104,7 +113,7 @@ const routes: RouteObject[] = [
 			{
 				path: 'home',
 				element: (
-					<RouteWrapper>
+					<RouteWrapper fallback={<HomePageLoadingSkeleton />}>
 						<HomePage />
 					</RouteWrapper>
 				),
