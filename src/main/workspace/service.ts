@@ -104,12 +104,6 @@ export class WorkspaceService {
 	async ensureReady(options: EnsureWorkspaceOptions = {}): Promise<void> {
 		const brandNewWorkspace = await this.isBrandNewWorkspace();
 		await fs.mkdir(this.rootPath, { recursive: true });
-		if (!(options.skipBootstrap ?? this.skipBootstrap)) {
-			await this.ensureBootstrapFiles({
-				skipOptionalBootstrapFiles:
-					options.skipOptionalBootstrapFiles ?? this.skipOptionalBootstrapFiles,
-			});
-		}
 		if (options.initializeGit ?? true) {
 			await this.ensureGitRepo(brandNewWorkspace);
 		}
