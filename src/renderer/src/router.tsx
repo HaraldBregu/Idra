@@ -10,6 +10,7 @@ import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBou
 import { PageLoadingSkeleton } from './components/app/base/PageLoadingSkeleton';
 import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
+import { SettingsPageSkeleton } from './pages/settings/components';
 import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
@@ -35,6 +36,14 @@ function RouteWrapper({ children }: { readonly children: ReactNode }): React.JSX
 	return (
 		<ErrorBoundary level="route">
 			<Suspense fallback={<PageLoadingSkeleton />}>{children}</Suspense>
+		</ErrorBoundary>
+	);
+}
+
+function SettingsRouteWrapper({ children }: { readonly children: ReactNode }): React.JSX.Element {
+	return (
+		<ErrorBoundary level="route">
+			<Suspense fallback={<SettingsPageSkeleton />}>{children}</Suspense>
 		</ErrorBoundary>
 	);
 }
