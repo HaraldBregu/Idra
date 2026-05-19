@@ -619,11 +619,12 @@ export class AgentService {
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 		const savedEffort = agent?.model.effort;
-		const effort = providerId === 'openai'
-			? isModelReasoningEffort(savedEffort)
+		let effort: ModelReasoningEffort | undefined;
+		if (providerId === 'openai') {
+			effort = isModelReasoningEffort(savedEffort)
 				? savedEffort
-				: DEFAULT_MODEL_REASONING_EFFORT
-			: undefined;
+				: DEFAULT_MODEL_REASONING_EFFORT;
+		}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
 
