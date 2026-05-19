@@ -32,6 +32,8 @@ export const ProviderChannels = {
 	getModels: 'provider:get-models',
 	getAgentService: 'provider:get-agent-service',
 	saveAgentService: 'provider:save-agent-service',
+	getSpeechTranscriberService: 'provider:get-speech-transcriber-service',
+	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
 } as const;
 
 export const AppChannels = {
@@ -193,6 +195,14 @@ interface AppInvokeChannelMap {
 		result: import('./service').Agent | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[ProviderChannels.getSpeechTranscriberService]: {
+		args: [];
+		result: import('./service').Agent | undefined;
+	};
+	[ProviderChannels.saveSpeechTranscriberService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};
