@@ -11,3 +11,7 @@ export interface MicrophonePermissionSettings {
 	readonly systemStatus: MicrophoneSystemPermissionStatus;
 	readonly canRequest: boolean;
 }
+
+export interface AppPermissionSettings {
+	readonly microphoneEnabled: boolean;
+}
