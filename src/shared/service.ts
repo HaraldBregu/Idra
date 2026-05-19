@@ -48,6 +48,14 @@ export function isModelReasoningEffortSupported(
 	return isModelReasoningEffort(effort) && getModelReasoningEfforts(modelId).includes(effort);
 }
 
+export function normalizeModelReasoningEffort(
+	modelId: string,
+	effort: unknown
+): ModelReasoningEffort {
+	if (isModelReasoningEffortSupported(modelId, effort)) return effort;
+	return getDefaultModelReasoningEffort(modelId);
+}
+
 export function requireModelReasoningEffort(
 	modelId: string,
 	effort: unknown
