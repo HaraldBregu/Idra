@@ -429,10 +429,6 @@ const StartPage: React.FC = () => {
 		(group) => group.provider.id === configProvider
 	);
 	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
-	const selectedProvider =
-		selectedAgentModelOption?.provider ??
-		providers.find((provider) => provider.id === configProvider);
-	const configProviderName = selectedProvider?.name ?? configProvider;
 	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
@@ -976,7 +972,6 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderModelsStep(): React.JSX.Element {
-		const selectedProviderCatalog = getProviderCatalogItem(configProvider);
 		const openAiCatalog = getProviderCatalogItem('openai');
 		const ttsProviderCatalog = getProviderCatalogItem('elevenlabs');
 		const openAiConnected = connectedProviderIds.has('openai');
