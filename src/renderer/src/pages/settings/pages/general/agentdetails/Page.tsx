@@ -484,7 +484,7 @@ const AgentDetailsPage: React.FC = () => {
 								<Select
 									value={effort}
 									onValueChange={handleEffortChange}
-									disabled={!selectedProvider || saving}
+									disabled={!selectedProvider || !selectedModel || saving}
 								>
 									<SelectTrigger id="agent-effort" className="w-full text-xs sm:w-72">
 										<SelectValue />
