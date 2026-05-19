@@ -1179,127 +1179,179 @@ const StartPage: React.FC = () => {
 		const selectedCatalog =
 			selectedAgentModelOption?.catalog ?? getProviderCatalogItem(configProvider);
 		const openAiConnected = connectedProviderIds.has('openai');
+		const selectedSpeechOption =
+			SPEECH_MODELS.find((option) => option.id === selectedSpeechModel) ?? SPEECH_MODELS[0];
+		const selectedTtsOption =
+			TTS_MODELS.find((option) => option.id === selectedTtsModel) ?? TTS_MODELS[0];
+		const toggleModelCard = (cardId: ModelSetupCardId): void => {
+			setExpandedModelCardId((current) => (current === cardId ? 'friday' : cardId));
+		};
 
 		return (
 			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Choose your models
+						Configure your AI setup
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Pick the model Friday uses for text responses. Only models from
-						providers you connected appear.
+						Choose the models Friday will use for chat, voice, and creative work.
+						Only connected providers appear.
 					</p>
 				</div>
 
-				<div className="mt-4 space-y-4">
-					<div className="space-y-2">
-						<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-							Agent
-						</Label>
-						<Select
-							value={selectedAgentModelValue}
-							onValueChange={handleAgentModelChange}
-							disabled={loadingModels || agentModelOptions.length === 0 || savingConfig}
-						>
-							<SelectTrigger
-								id="agent-model"
-								className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+				<div className="mt-4 space-y-2">
+					<ModelSetupCard
+						id="friday-assistant-model"
+						title={`${PRODUCT_NAME} Assistant`}
+						description="Answers questions, plans work, and uses tools."
+						status={selectedModelName || modelCountLabel}
+						icon={Bot}
+						open={expandedModelCardId === 'friday'}
+						onToggle={() => toggleModelCard('friday')}
+					>
+						<div className="space-y-2">
+							<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+								Model
+							</Label>
+							<Select
+								value={selectedAgentModelValue}
+								onValueChange={handleAgentModelChange}
+								disabled={loadingModels || agentModelOptions.length === 0 || savingConfig}
 							>
-								<SelectValue className="sr-only" />
-								<div className="flex min-w-0 items-center gap-2.5">
-									<ProviderMark
-										initial={selectedCatalog.initial}
-										className={selectedCatalog.swatchClassName}
-									/>
-									<div className="min-w-0">
-										<p className="truncate text-sm font-semibold leading-tight text-foreground">
-											{selectedModelName || modelCountLabel}
-										</p>
-										<p className="truncate text-xs font-medium text-muted-foreground">
-											{configProviderName || 'No provider'} - The brain that answers your
-											questions
-										</p>
+								<SelectTrigger
+									id="agent-model"
+									className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+								>
+									<SelectValue className="sr-only" />
+									<div className="flex min-w-0 items-center gap-2.5">
+										<ProviderMark
+											initial={selectedCatalog.initial}
+											className={selectedCatalog.swatchClassName}
+										/>
+										<div className="min-w-0">
+											<p className="truncate text-sm font-semibold leading-tight text-foreground">
+												{selectedModelName || modelCountLabel}
+											</p>
+											<p className="truncate text-xs font-medium text-muted-foreground">
+												{configProviderName || 'No provider'} - Chat, reasoning, and tool use
+											</p>
+										</div>
 									</div>
-								</div>
-							</SelectTrigger>
-							<SelectContent align="start" className="rounded-lg p-1">
-								{agentModelGroups.map((group) => {
-									const catalog = getProviderCatalogItem(group.provider.id);
+								</SelectTrigger>
+								<SelectContent align="start" className="rounded-lg p-1">
+									{agentModelGroups.map((group) => {
+										const catalog = getProviderCatalogItem(group.provider.id);
 
-									return (
-										<SelectGroup key={group.provider.id}>
-											<SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-												<ProviderMark
-													initial={catalog.initial}
-													className={cn(
-														catalog.swatchClassName,
-														'size-4 rounded-full text-[0.625rem]'
-													)}
-												/>
-												{catalog.name}
-											</SelectLabel>
-											{group.models.map((model) => {
-												const value = getAgentModelValue(group.provider.id, model.id);
-												const selected = value === selectedAgentModelValue;
-
-												return (
-													<SelectItem
-														key={value}
-														value={value}
+										return (
+											<SelectGroup key={group.provider.id}>
+												<SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+													<ProviderMark
+														initial={catalog.initial}
 														className={cn(
-															'h-10 px-2 py-0 pr-8 text-sm font-semibold',
-															selected && 'bg-accent text-accent-foreground'
+															catalog.swatchClassName,
+															'size-4 rounded-full text-[0.625rem]'
 														)}
-													>
-														<span className="flex min-w-0 items-center gap-2">
-															<span
-																className={cn(
-																	'flex size-4 shrink-0 items-center justify-center rounded-full border border-border',
-																	selected &&
-																		'rounded-md border-primary bg-primary text-primary-foreground'
-																)}
-															>
-																{selected ? <Check className="size-3" /> : null}
+													/>
+													{catalog.name}
+												</SelectLabel>
+												{group.models.map((model) => {
+													const value = getAgentModelValue(group.provider.id, model.id);
+													const selected = value === selectedAgentModelValue;
+
+													return (
+														<SelectItem
+															key={value}
+															value={value}
+															className={cn(
+																'h-10 px-2 py-0 pr-8 text-sm font-semibold',
+																selected && 'bg-accent text-accent-foreground'
+															)}
+														>
+															<span className="flex min-w-0 items-center gap-2">
+																<span
+																	className={cn(
+																		'flex size-4 shrink-0 items-center justify-center rounded-full border border-border',
+																		selected &&
+																			'rounded-md border-primary bg-primary text-primary-foreground'
+																	)}
+																>
+																	{selected ? <Check className="size-3" /> : null}
+																</span>
+																<span className="truncate">{model.name}</span>
 															</span>
-															<span className="truncate">{model.name}</span>
-														</span>
-													</SelectItem>
-												);
-											})}
-										</SelectGroup>
-									);
-								})}
-							</SelectContent>
-						</Select>
-					</div>
+														</SelectItem>
+													);
+												})}
+											</SelectGroup>
+										);
+									})}
+								</SelectContent>
+							</Select>
+						</div>
+					</ModelSetupCard>
 
-					{openAiConnected ? (
-						<StaticModelSelect
-							id="speech-model"
-							label="Speech-to-text"
-							value={selectedSpeechModel}
-							options={SPEECH_MODELS}
-							onValueChange={setSelectedSpeechModel}
-						/>
-					) : (
-						<Card className="rounded-lg border-dashed border-border bg-card/70 py-0 shadow-none">
-							<CardContent className="flex min-h-12 items-center gap-2 p-3 text-muted-foreground">
+					<ModelSetupCard
+						id="voice-input-model"
+						title="Voice Input"
+						description="Transcribes your microphone into text."
+						status={openAiConnected ? selectedSpeechOption?.name ?? 'Ready' : 'OpenAI required'}
+						icon={Mic}
+						open={expandedModelCardId === 'voice-input'}
+						onToggle={() => toggleModelCard('voice-input')}
+					>
+						{openAiConnected ? (
+							<StaticModelSelect
+								id="speech-model"
+								label="Transcription model"
+								value={selectedSpeechModel}
+								options={SPEECH_MODELS}
+								onValueChange={setSelectedSpeechModel}
+							/>
+						) : (
+							<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 								<Mic className="size-4 shrink-0" />
-								<p className="text-xs font-medium">
-									Connect OpenAI to choose a speech-to-text model.
+								<p className="text-xs font-medium leading-snug">
+									Connect OpenAI to enable live speech transcription.
 								</p>
-							</CardContent>
-						</Card>
-					)}
+							</div>
+						)}
+					</ModelSetupCard>
 
-					<StaticModelSelect
-						id="tts-model"
-						label="Text-to-speech"
-						value={selectedTtsModel}
-						options={TTS_MODELS}
-						onValueChange={setSelectedTtsModel}
-					/>
+					<ModelSetupCard
+						id="voice-output-model"
+						title="Voice Output"
+						description="Chooses the voice Friday uses when speaking."
+						status={selectedTtsOption?.name ?? 'Not selected'}
+						icon={Volume2}
+						open={expandedModelCardId === 'voice-output'}
+						onToggle={() => toggleModelCard('voice-output')}
+					>
+						<StaticModelSelect
+							id="tts-model"
+							label="Voice model"
+							value={selectedTtsModel}
+							options={TTS_MODELS}
+							onValueChange={setSelectedTtsModel}
+						/>
+					</ModelSetupCard>
+
+					<ModelSetupCard
+						id="image-creator-model"
+						title="Image Creator"
+						description="Generates and edits images when image models are available."
+						status="Coming soon"
+						icon={ImageIcon}
+						open={expandedModelCardId === 'image-creator'}
+						onToggle={() => toggleModelCard('image-creator')}
+					>
+						<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
+							<ImageIcon className="size-4 shrink-0" />
+							<p className="text-xs font-medium leading-snug">
+								Image generation is listed here so setup has a home for it, but this
+								build does not expose an image model provider yet.
+							</p>
+						</div>
+					</ModelSetupCard>
 				</div>
 			</div>
 		);
