@@ -75,6 +75,15 @@ export const REALTIME_TRANSCRIPTION_SAMPLE_RATE = 24000;
 export const SPEECH_TRANSCRIBER_MODELS = [
 	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
 ] satisfies readonly Model[];
+export const TEXT_TO_SPEECH_AGENT_ID = 'text-to-speech';
+export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
+export const TEXT_TO_SPEECH_MODELS = [
+	{ id: 'rachel-multilingual', name: 'Rachel - multilingual' },
+] satisfies readonly Model[];
+export const IMAGE_ASSISTANT_AGENT_ID = 'image-assistant';
+export const IMAGE_ASSISTANT_MODELS = [
+	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
+] satisfies readonly Model[];
 
 export function isRealtimeSpeechTranscriberModel(modelId: string): boolean {
 	return modelId.trim() === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
