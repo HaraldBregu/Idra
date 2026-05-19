@@ -35,8 +35,6 @@ const execFileAsync = promisify(execFile);
 
 export type EnsureWorkspaceOptions = {
 	initializeGit?: boolean;
-	skipBootstrap?: boolean;
-	skipOptionalBootstrapFiles?: string[];
 };
 
 export type BootstrapMode = 'none' | 'limited' | 'full';
@@ -70,8 +68,6 @@ const CONTEXT_FILE_PROMPT_ORDER = new Map<WorkspaceFileName, number>([
 export class WorkspaceService {
 	private readonly rootPath: string;
 	private readonly contextHooks: NonNullable<WorkspaceServiceOptions['contextHooks']>;
-	private readonly skipBootstrap: boolean;
-	private readonly skipOptionalBootstrapFiles: string[];
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -82,8 +78,6 @@ export class WorkspaceService {
 			options.userDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
 			resolveDefaultUserDataPath(options.workspaceName ?? 'workspace');
 		this.contextHooks = options.contextHooks ?? [];
-		this.skipBootstrap = options.skipBootstrap === true;
-		this.skipOptionalBootstrapFiles = options.skipOptionalBootstrapFiles ?? [];
 	}
 
 	getRootPath(): string {
