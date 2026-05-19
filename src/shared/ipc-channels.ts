@@ -44,6 +44,9 @@ export const AppChannels = {
 	openExternalUrl: 'app:open-external-url',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
+	getMicrophonePermission: 'app:get-microphone-permission',
+	setMicrophoneEnabled: 'app:set-microphone-enabled',
+	requestMicrophonePermission: 'app:request-microphone-permission',
 } as const;
 
 export const CronChannels = {
@@ -152,6 +155,18 @@ interface AppInvokeChannelMap {
 	[AppChannels.getTrayEnabled]: {
 		args: [];
 		result: boolean;
+	};
+	[AppChannels.getMicrophonePermission]: {
+		args: [];
+		result: import('./app-permissions').MicrophonePermissionSettings;
+	};
+	[AppChannels.setMicrophoneEnabled]: {
+		args: [enabled: boolean];
+		result: import('./app-permissions').MicrophonePermissionSettings;
+	};
+	[AppChannels.requestMicrophonePermission]: {
+		args: [];
+		result: import('./app-permissions').MicrophonePermissionSettings;
 	};
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
