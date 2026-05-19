@@ -239,7 +239,7 @@ function SubmitButton({
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
 }): ReactElement {
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start dictation';
 	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
@@ -332,11 +332,6 @@ function PageContent(): ReactElement {
 		setMode('chat');
 	};
 
-	const startVoiceConversation = (): void => {
-		setVoiceMode('conversation');
-		setMode('voice');
-	};
-
 	const startDictation = async (): Promise<void> => {
 		const started = await dictation.start();
 		if (!started) {
@@ -362,7 +357,7 @@ function PageContent(): ReactElement {
 			agent.handleSubmit();
 			return;
 		}
-		startVoiceConversation();
+		void startDictation();
 	};
 
 	return (
