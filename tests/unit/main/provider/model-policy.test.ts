@@ -9,6 +9,7 @@ describe('provider model policy', () => {
 		{ id: 'gpt-4o', name: 'GPT-4o' },
 		{ id: 'gpt-5.1', name: 'GPT-5.1' },
 		{ id: 'gpt-5.5', name: 'GPT-5.5' },
+		{ id: 'gpt-5.4', name: 'GPT-5.4' },
 		{ id: 'gpt-5.4-mini', name: 'GPT-5.4 mini' },
 		{ id: 'text-embedding-3-large', name: 'Embedding' },
 	];
@@ -16,13 +17,16 @@ describe('provider model policy', () => {
 	it('limits OpenAI selectable agent models to approved tool-capable models', () => {
 		expect(filterSelectableAgentModels('openai', models)).toEqual([
 			{ id: 'gpt-5.5', name: 'GPT-5.5' },
+			{ id: 'gpt-5.4', name: 'GPT-5.4' },
 			{ id: 'gpt-5.4-mini', name: 'GPT-5.4 mini' },
-			{ id: 'gpt-5.1', name: 'GPT-5.1' },
 		]);
 	});
 
 	it('allows only approved OpenAI agent model ids to be saved', () => {
 		expect(isAllowedAgentModel('openai', 'gpt-5.5')).toBe(true);
+		expect(isAllowedAgentModel('openai', 'gpt-5.4')).toBe(true);
+		expect(isAllowedAgentModel('openai', 'gpt-5.4-mini')).toBe(true);
+		expect(isAllowedAgentModel('openai', 'gpt-5.1')).toBe(false);
 		expect(isAllowedAgentModel('openai', 'gpt-4o')).toBe(false);
 		expect(isAllowedAgentModel('openai', 'text-embedding-3-large')).toBe(false);
 	});

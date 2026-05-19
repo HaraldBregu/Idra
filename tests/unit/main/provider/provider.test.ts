@@ -69,6 +69,7 @@ describe('provider/openai', () => {
 
 		await collectAsync(adapter.stream({
 			model: 'gpt-5.5',
+			effort: 'high',
 			system: 'sys',
 			messages: [{ role: 'user', content: 'hello' }],
 			tools: [],
@@ -76,7 +77,7 @@ describe('provider/openai', () => {
 		}));
 
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ max_completion_tokens: 100 }),
+			expect.objectContaining({ max_completion_tokens: 100, reasoning_effort: 'high' }),
 			expect.any(Object)
 		);
 		expect(create.mock.calls[0][0]).not.toHaveProperty('max_tokens');
