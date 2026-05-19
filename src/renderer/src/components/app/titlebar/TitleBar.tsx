@@ -133,7 +133,7 @@ export const TitleBar = React.memo(function TitleBar({
 								title={homeButtonLabel}
 								aria-label={homeButtonLabel}
 							>
-								<Home className="size-4" strokeWidth={1.8} />
+								<Sparkles className="size-4" strokeWidth={1.8} />
 							</Button>
 						) : (
 							<Button
