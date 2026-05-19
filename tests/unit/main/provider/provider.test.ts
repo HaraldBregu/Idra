@@ -1,14 +1,14 @@
 import { AnthropicAdapter } from '../../../../src/main/provider/anthropic';
-import { OpenAIAdapter } from '../../../../src/main/provider/openai';
+import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/provider/openai';
 import { makeProvider } from '../../../../src/main/provider/factory';
 import { ProviderAuthError } from '../../../../src/main/provider/types';
 import { collectAsync } from '../test-helpers';
 
 describe('provider/factory', () => {
-	it('returns AnthropicAdapter for anthropic and OpenAIAdapter for everything else', () => {
+	it('returns native adapters for first-party providers and chat adapter for compatible providers', () => {
 		expect(makeProvider({ id: 'anthropic', apiKey: 'key' })).toBeInstanceOf(AnthropicAdapter);
 		expect(makeProvider({ id: 'openai', apiKey: 'key' })).toBeInstanceOf(OpenAIAdapter);
-		expect(makeProvider({ id: 'groq', apiKey: 'key' })).toBeInstanceOf(OpenAIAdapter);
+		expect(makeProvider({ id: 'groq', apiKey: 'key' })).toBeInstanceOf(OpenAIChatAdapter);
 	});
 
 	it('throws ProviderAuthError when the API key is empty', () => {
