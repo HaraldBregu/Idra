@@ -1,5 +1,5 @@
 import { AnthropicAdapter } from './anthropic';
-import { OpenAIAdapter } from './openai';
+import { OpenAIAdapter, OpenAIChatAdapter } from './openai';
 import type { ProviderAdapter } from './types';
 
 export interface ProviderSpec {
@@ -10,13 +10,18 @@ export interface ProviderSpec {
 
 /**
  * Build a {@link ProviderAdapter} from a stored provider record.
- * Anthropic uses its own wire format; every other provider (OpenAI,
- * Google, Mistral, Groq, xAI, Together, Perplexity, DeepSeek, Ollama …)
- * uses the OpenAI-compatible API.
+ *
+ * - anthropic → Anthropic Messages API via @anthropic-ai/sdk
+ * - openai    → OpenAI Responses API via openai SDK (native, supports reasoning)
+ * - all others → OpenAI Chat Completions API via openai SDK (compatible endpoint)
  */
 export function makeProvider(provider: ProviderSpec): ProviderAdapter {
-	if (provider.id.toLowerCase() === 'anthropic') {
+	const id = provider.id.toLowerCase();
+	if (id === 'anthropic') {
 		return new AnthropicAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 	}
-	return new OpenAIAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
+	if (id === 'openai') {
+		return new OpenAIAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
+	}
+	return new OpenAIChatAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 }
