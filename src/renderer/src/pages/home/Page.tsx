@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
@@ -25,7 +25,7 @@ import { AgentTextMessage } from './components/AgentTextMessage';
 import { PendingMessage } from './components/PendingMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
-import { useAudioRecorder, useHomeAgent, type AudioRecording } from './hooks';
+import { useHomeAgent, useRealtimeDictation } from './hooks';
 
 type PromptAttachment = {
 	readonly id: string;
@@ -69,16 +69,6 @@ function formatFileSize(size: number): string {
 	if (size < 1024) return `${size} B`;
 	if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
 	return `${(size / 1024 / 1024).toFixed(1)} MB`;
-}
-
-function recordingToAttachment(recording: AudioRecording): PromptAttachment {
-	return {
-		id: recording.id,
-		kind: 'audio',
-		file: recording.file,
-		url: recording.url,
-		durationMs: recording.durationMs,
-	};
 }
 
 function filesToAttachments(files: File[]): PromptAttachment[] {
@@ -222,13 +212,13 @@ function VoiceButton({
 	readonly disabled?: boolean;
 }): ReactElement {
 	return (
-		<PromptInputAction tooltip="Record audio">
+		<PromptInputAction tooltip="Dictate">
 			<Button
 				type="button"
 				variant="ghost"
 				size="icon"
 				className="size-8 rounded-full text-foreground hover:bg-muted"
-				aria-label="Record audio"
+				aria-label="Dictate"
 				disabled={disabled}
 				onClick={onVoiceModeRequest}
 			>
@@ -290,10 +280,12 @@ function SubmitButton({
 function PageContent(): ReactElement {
 	const { mode, setMode } = useChatMode();
 	const agent = useHomeAgent({ setMode });
-	const audioRecorder = useAudioRecorder();
+	const dictation = useRealtimeDictation({
+		value: agent.input,
+		onValueChange: agent.setInput,
+	});
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
-	const recordedUrlsRef = useRef<Set<string>>(new Set());
 	const visibleMessages = agent.chatState.messages.filter(
 		(message) => message.id !== welcomeMessage.id
 	);
@@ -304,29 +296,24 @@ function PageContent(): ReactElement {
 	const showPromptSuggestions =
 		showEmptyConversation && agent.input.trim().length === 0 && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0;
-	const recorderStatus = audioRecorder.status;
-	const cancelAudioRecording = audioRecorder.cancel;
-	const recorderBusy =
-		recorderStatus === 'checking-permission' || recorderStatus === 'stopping';
+	const dictationStatus = dictation.status;
+	const cancelDictationSession = dictation.cancel;
+	const dictationBusy =
+		dictationStatus === 'checking-permission' ||
+		dictationStatus === 'connecting' ||
+		dictationStatus === 'finishing';
 
 	useEffect(() => {
 		if (mode !== 'chat') return;
 		setVoiceMode(null);
-		if (recorderStatus === 'recording') void cancelAudioRecording();
-	}, [cancelAudioRecording, mode, recorderStatus]);
-
-	useEffect(() => {
-		const recordedUrls = recordedUrlsRef.current;
-		return () => {
-			recordedUrls.forEach((url) => URL.revokeObjectURL(url));
-			recordedUrls.clear();
-		};
-	}, []);
-
-	const addRecordingAttachment = useCallback((recording: AudioRecording): void => {
-		if (recording.url) recordedUrlsRef.current.add(recording.url);
-		setAttachments((current) => [...current, recordingToAttachment(recording)]);
-	}, []);
+		if (
+			dictationStatus === 'checking-permission' ||
+			dictationStatus === 'connecting' ||
+			dictationStatus === 'recording'
+		) {
+			void cancelDictationSession();
+		}
+	}, [cancelDictationSession, dictationStatus, mode]);
 
 	const removeAttachment = useCallback((id: string): void => {
 		setAttachments((current) =>
@@ -334,7 +321,6 @@ function PageContent(): ReactElement {
 				if (attachment.id !== id) return true;
 				if (attachment.url) {
 					URL.revokeObjectURL(attachment.url);
-					recordedUrlsRef.current.delete(attachment.url);
 				}
 				return false;
 			})
@@ -351,8 +337,8 @@ function PageContent(): ReactElement {
 		setMode('voice');
 	};
 
-	const startAudioRecording = async (): Promise<void> => {
-		const started = await audioRecorder.start();
+	const startDictation = async (): Promise<void> => {
+		const started = await dictation.start();
 		if (!started) {
 			setMode('chat');
 			return;
@@ -361,14 +347,13 @@ function PageContent(): ReactElement {
 		setMode('voice');
 	};
 
-	const cancelRecording = async (): Promise<void> => {
-		await audioRecorder.cancel();
+	const cancelDictation = async (): Promise<void> => {
+		await dictation.cancel();
 		returnToChat();
 	};
 
-	const confirmRecording = async (): Promise<void> => {
-		const recording = await audioRecorder.stop();
-		if (recording) addRecordingAttachment(recording);
+	const confirmDictation = async (): Promise<void> => {
+		await dictation.finish();
 		returnToChat();
 	};
 
@@ -440,7 +425,7 @@ function PageContent(): ReactElement {
 				</ChatContainerRoot>
 				<div className="absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 py-3">
 					<div className="w-full max-w-[96rem]">
-						<RecorderErrorMessage message={audioRecorder.errorMessage} />
+						<RecorderErrorMessage message={dictation.errorMessage} />
 						<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
 						{showPromptSuggestions ? (
 							<PromptSuggestions onUseSuggestion={agent.useSuggestion} />
@@ -454,13 +439,13 @@ function PageContent(): ReactElement {
 							textareaRef={agent.inputRef}
 							leadingAction={<AttachmentButton />}
 							voiceMode={voiceMode}
-							voiceElapsedMs={voiceMode === 'dictation' ? audioRecorder.elapsedMs : undefined}
-							voiceMuted={voiceMode === 'dictation' ? audioRecorder.isMuted : undefined}
-							voiceMediaStream={voiceMode === 'dictation' ? audioRecorder.stream : null}
-							onVoiceMutedChange={voiceMode === 'dictation' ? audioRecorder.setMuted : undefined}
+							voiceElapsedMs={voiceMode === 'dictation' ? dictation.elapsedMs : undefined}
+							voiceMuted={voiceMode === 'dictation' ? dictation.isMuted : undefined}
+							voiceMediaStream={voiceMode === 'dictation' ? dictation.stream : null}
+							onVoiceMutedChange={voiceMode === 'dictation' ? dictation.setMuted : undefined}
 							onVoiceEnd={returnToChat}
-							onVoiceCancel={() => void cancelRecording()}
-							onVoiceConfirm={() => void confirmRecording()}
+							onVoiceCancel={() => void cancelDictation()}
+							onVoiceConfirm={() => void confirmDictation()}
 							onFilesChange={(files) =>
 								setAttachments((current) => [...current, ...filesToAttachments(files)])
 							}
@@ -469,13 +454,13 @@ function PageContent(): ReactElement {
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
 									<VoiceButton
-										onVoiceModeRequest={() => void startAudioRecording()}
-										disabled={recorderBusy || agent.isLoading}
+										onVoiceModeRequest={() => void startDictation()}
+										disabled={dictationBusy || agent.isLoading}
 									/>
 									<SubmitButton
 										isLoading={agent.isLoading}
 										canSubmit={canSubmit}
-										disabled={recorderBusy}
+										disabled={dictationBusy}
 										onAction={handlePrimaryAction}
 									/>
 								</PromptInputActions>
