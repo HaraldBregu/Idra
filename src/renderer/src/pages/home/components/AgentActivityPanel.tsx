@@ -39,8 +39,8 @@ export function AgentActivityPanel({
 	);
 
 	return (
-		<div className="flex w-full flex-col gap-3">
-			<div className="flex w-full flex-col gap-1.5">
+		<div className="flex w-full flex-col gap-1.5">
+			<div className="flex w-full flex-col gap-1">
 				{hasTools ? (
 					<AgentToolActivity
 						tools={message.tools}

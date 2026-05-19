@@ -18,7 +18,7 @@ export function AgentTextMessage({
 	return (
 		<Message className="min-w-0 w-full flex-col gap-2">
 			{showHeader && <AssistantMessageHeader />}
-			<div className="flex min-w-0 w-full flex-col gap-2">
+			<div className="flex min-w-0 w-full flex-col gap-1.5">
 				<AgentActivityPanel message={message} isStreaming={isStreaming} />
 				{message.content.length > 0 && (
 					<Markdown
