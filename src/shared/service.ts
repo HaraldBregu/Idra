@@ -34,15 +34,32 @@ export function getModelReasoningEfforts(modelId: string): readonly ModelReasoni
 	return MODEL_REASONING_EFFORTS;
 }
 
-export function normalizeModelReasoningEffort(
+export function getDefaultModelReasoningEffort(modelId: string): ModelReasoningEffort {
+	const supportedEfforts = getModelReasoningEfforts(modelId);
+	return supportedEfforts.includes(DEFAULT_MODEL_REASONING_EFFORT)
+		? DEFAULT_MODEL_REASONING_EFFORT
+		: supportedEfforts[0] ?? DEFAULT_MODEL_REASONING_EFFORT;
+}
+
+export function isModelReasoningEffortSupported(
+	modelId: string,
+	effort: unknown
+): effort is ModelReasoningEffort {
+	return isModelReasoningEffort(effort) && getModelReasoningEfforts(modelId).includes(effort);
+}
+
+export function requireModelReasoningEffort(
 	modelId: string,
 	effort: unknown
 ): ModelReasoningEffort {
 	const supportedEfforts = getModelReasoningEfforts(modelId);
-	if (isModelReasoningEffort(effort) && supportedEfforts.includes(effort)) return effort;
-	return supportedEfforts.includes(DEFAULT_MODEL_REASONING_EFFORT)
-		? DEFAULT_MODEL_REASONING_EFFORT
-		: supportedEfforts[0] ?? DEFAULT_MODEL_REASONING_EFFORT;
+	if (effort === undefined || effort === null || effort === '') {
+		return getDefaultModelReasoningEffort(modelId);
+	}
+	if (isModelReasoningEffortSupported(modelId, effort)) return effort;
+	throw new Error(
+		`Reasoning effort "${String(effort)}" is not supported for model "${modelId}". Supported values are: ${supportedEfforts.join(', ')}.`
+	);
 }
 
 export interface Model {
