@@ -427,7 +427,6 @@ const StartPage: React.FC = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
-	const stepNumber = stepIndex + 1;
 	const hasProviderDraft = providerEntries.some(
 		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
 	);
@@ -935,9 +934,6 @@ const StartPage: React.FC = () => {
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
 					Let's get your assistant ready. Connect one AI provider, choose the
 					model {PRODUCT_NAME} should use, and add the tools you want help with.
-				</p>
-				<p className="mt-4 max-w-md text-xs font-medium leading-relaxed text-muted-foreground">
-					You can skip setup now and come back from Settings anytime.
 				</p>
 			</div>
 		);
@@ -1452,7 +1448,7 @@ const StartPage: React.FC = () => {
 				<div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
 					<StepProgress currentIndex={stepIndex} />
 					<p className="truncate text-xs font-semibold text-muted-foreground">
-						Step {stepNumber} of {SETUP_STEPS.length} - {STEP_TITLES[step]}
+						{STEP_TITLES[step]}
 					</p>
 				</div>
 				<div className="flex items-center gap-2">
