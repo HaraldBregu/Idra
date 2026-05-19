@@ -8,6 +8,7 @@ import {
 	ChatContainerRoot,
 	ChatContainerScrollAnchor,
 } from '@/components/ui/chat-container';
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import {
 	PromptInput,
 	PromptInputAction,
@@ -16,14 +17,14 @@ import {
 	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
+import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
 import { AgentTextMessage } from './components/AgentTextMessage';
 import { PendingMessage } from './components/PendingMessage';
-import { ReferenceConversation } from './components/ReferenceConversation';
 import { UserMessage } from './components/UserMessage';
-import { Provider } from './context';
+import { Provider, welcomeMessage } from './context';
 import { useAudioRecorder, useHomeAgent, type AudioRecording } from './hooks';
 
 type PromptAttachment = {
@@ -33,6 +34,21 @@ type PromptAttachment = {
 	readonly url?: string;
 	readonly durationMs?: number;
 };
+
+const promptSuggestions = [
+	{
+		label: 'Inspect this page',
+		prompt: 'inspect src/renderer/src/pages/home/Page.tsx and explain what to improve',
+	},
+	{
+		label: 'Make a focused edit',
+		prompt: 'make a focused UI improvement in the current page',
+	},
+	{
+		label: 'Plan next step',
+		prompt: 'look at the project and tell me the next best implementation step',
+	},
+] as const;
 
 function attachmentId(): string {
 	if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
@@ -81,6 +97,43 @@ function RecorderErrorMessage({
 		<div className="mb-2 flex min-w-0 items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive shadow-sm">
 			<AlertCircle className="size-4 shrink-0" />
 			<p className="min-w-0 truncate text-xs font-medium">{message}</p>
+		</div>
+	);
+}
+
+function EmptyConversation(): ReactElement {
+	return (
+		<Empty className="mx-auto max-w-sm border-0 p-0">
+			<EmptyHeader>
+				<EmptyTitle>Start a conversation</EmptyTitle>
+				<EmptyDescription>
+					Ask Friday to inspect code, make a change, or help plan the next step.
+				</EmptyDescription>
+			</EmptyHeader>
+		</Empty>
+	);
+}
+
+function PromptSuggestions({
+	onUseSuggestion,
+}: {
+	readonly onUseSuggestion: (prompt: string) => void;
+}): ReactElement {
+	return (
+		<div className="mb-2 flex flex-wrap justify-center gap-2 px-1" aria-label="Prompt suggestions">
+			{promptSuggestions.map((suggestion) => (
+				<PromptSuggestion
+					key={suggestion.label}
+					type="button"
+					variant="outline"
+					size="sm"
+					className="h-8 max-w-full border-border/70 bg-card/95 px-3 text-xs font-medium text-muted-foreground shadow-sm shadow-foreground/5 hover:text-foreground"
+					aria-label={suggestion.prompt}
+					onClick={() => onUseSuggestion(suggestion.prompt)}
+				>
+					{suggestion.label}
+				</PromptSuggestion>
+			))}
 		</div>
 	);
 }
@@ -238,10 +291,12 @@ function PageContent(): ReactElement {
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
 	const recordedUrlsRef = useRef<Set<string>>(new Set());
-	const showReferenceConversation =
-		agent.chatState.messages.length <= 1 &&
+	const showEmptyConversation =
+		agent.chatState.messages.every((message) => message.id === welcomeMessage.id) &&
 		!agent.isLoading &&
 		!agent.historyLoading;
+	const showPromptSuggestions =
+		showEmptyConversation && agent.input.trim().length === 0 && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0;
 	const recorderStatus = audioRecorder.status;
 	const cancelAudioRecording = audioRecorder.cancel;
@@ -325,12 +380,12 @@ function PageContent(): ReactElement {
 				<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 					<ChatContainerContent
 						className={cn(
-							'mx-auto min-h-full w-full max-w-4xl gap-5 pb-28 px-2',
-							showReferenceConversation ? 'justify-start pt-7' : 'pt-6'
+							'mx-auto min-h-full w-full max-w-4xl gap-5 px-2 pb-28',
+							showEmptyConversation ? 'justify-center pb-40 pt-6' : 'pt-6'
 						)}
 					>
-						{showReferenceConversation ? (
-							<ReferenceConversation onUseSuggestion={agent.useSuggestion} />
+						{showEmptyConversation ? (
+							<EmptyConversation />
 						) : (
 							<>
 								{agent.chatState.messages.map((message) => {
@@ -381,6 +436,9 @@ function PageContent(): ReactElement {
 					<div className="w-full max-w-[96rem]">
 						<RecorderErrorMessage message={audioRecorder.errorMessage} />
 						<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
+						{showPromptSuggestions ? (
+							<PromptSuggestions onUseSuggestion={agent.useSuggestion} />
+						) : null}
 						<PromptInput
 							value={agent.input}
 							onValueChange={agent.setInput}
