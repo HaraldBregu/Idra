@@ -37,8 +37,6 @@ export function AgentActivityPanel({
 		'inline-flex min-h-6 max-w-full items-center rounded-full px-2 py-0.5 text-xs font-semibold',
 		stateTone(message.state)
 	);
-	const toolTriggerClassName =
-		'inline-flex min-h-6 max-w-full items-center rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground hover:text-foreground';
 
 	return (
 		<div className="flex w-full flex-col gap-3">
@@ -47,7 +45,6 @@ export function AgentActivityPanel({
 					<AgentToolActivity
 						tools={message.tools}
 						className="w-full"
-						triggerClassName={toolTriggerClassName}
 					/>
 				) : (
 					<span className={statusClassName}>
