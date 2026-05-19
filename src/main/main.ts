@@ -270,6 +270,7 @@ export class Main {
 			maxWidth: TRAY_WINDOW_WIDTH,
 			maxHeight: TRAY_WINDOW_HEIGHT,
 			show: false,
+			frame: false,
 			resizable: false,
 			alwaysOnTop: true,
 			skipTaskbar: true,
