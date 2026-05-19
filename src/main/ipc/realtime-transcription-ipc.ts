@@ -33,6 +33,8 @@ type WebSocketLike = {
 const SOCKET_OPEN = 1;
 const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 3_000;
+const REALTIME_PATH_SUFFIX = '/realtime';
+const REALTIME_TRANSCRIPTION_PATH_SUFFIX = '/realtime/transcription_sessions';
 
 interface RealtimeTranscriptionRuntime {
 	id: string;
@@ -73,6 +75,23 @@ function resolveConfiguredSpeechTranscriber(agent: Agent | undefined): string {
 		throw new Error(`Live dictation requires ${REALTIME_SPEECH_TRANSCRIBER_MODEL_ID}.`);
 	}
 	return model;
+}
+
+export function useRealtimeTranscriptionEndpoint(url: URL): void {
+	if (url.pathname.endsWith(REALTIME_TRANSCRIPTION_PATH_SUFFIX)) return;
+	if (url.pathname.endsWith(REALTIME_PATH_SUFFIX)) {
+		url.pathname = `${url.pathname.slice(0, -REALTIME_PATH_SUFFIX.length)}${REALTIME_TRANSCRIPTION_PATH_SUFFIX}`;
+		return;
+	}
+
+	url.pathname = `${url.pathname.replace(/\/$/, '')}${REALTIME_TRANSCRIPTION_PATH_SUFFIX}`;
+}
+
+async function createRealtimeTranscriptionSocket(
+	client: Pick<OpenAI, 'apiKey' | 'baseURL'>,
+	model: string
+): Promise<OpenAIRealtimeWebSocket> {
+	return new OpenAIRealtimeWebSocket({ model, onURL: useRealtimeTranscriptionEndpoint }, client);
 }
 
 function waitForSocketOpen(socket: WebSocketLike): Promise<void> {
@@ -135,7 +154,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 					}
 
 					const client = new OpenAI({ apiKey, baseURL: provider.baseUrl });
-					const socket = await OpenAIRealtimeWebSocket.create(client, { model });
+					const socket = await createRealtimeTranscriptionSocket(client, model);
 					const sessionId = randomUUID();
 					const runtime: RealtimeTranscriptionRuntime = {
 						id: sessionId,
