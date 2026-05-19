@@ -383,6 +383,41 @@ describe('tool management layer', () => {
 		expect(selected.rankedTools[0]?.tool.category).toBe('email');
 	});
 
+	it('keeps Gmail read tools available for concise email summary tasks', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const tools: AgentTool[] = [
+			makeAgentTool('read', 'Read files before writing them.'),
+			makeAgentTool('write', 'Create or update files with summary content.'),
+			...Array.from({ length: 20 }, (_, index) =>
+				makeAgentTool(`tool_${index}`, 'Generic utility.')
+			),
+			makeAgentTool('gmail_get_recent_emails', 'Gmail: Get recent emails from the inbox.'),
+			makeAgentTool('gmail_batch_read_email', 'Gmail: Read multiple email bodies by id.'),
+		];
+
+		const selected = selectAgentToolsForTurn(
+			tools,
+			'Check the latest received emails, summarize the important ones, and create or update /Users/haraldbregu/.friday/workspace/email_summary.md with the summary. Keep it concise.',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+		const selectedToolNames = selected.toolsForPrompt.map((tool) => tool.name);
+
+		expect(selectedToolNames).toEqual(
+			expect.arrayContaining([
+				'read',
+				'write',
+				'gmail_get_recent_emails',
+				'gmail_batch_read_email',
+			])
+		);
+	});
+
 	it('keeps read available when selecting file mutation tools', () => {
 		const makeAgentTool = (name: string, description: string): AgentTool => ({
 			name,
