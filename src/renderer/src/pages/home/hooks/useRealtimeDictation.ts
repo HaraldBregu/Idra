@@ -250,6 +250,10 @@ export function useRealtimeDictation({
 		baseTextRef.current = valueRef.current;
 
 		try {
+			const transcriptionApi = window.realtimeTranscription;
+			if (!transcriptionApi) {
+				throw new Error('Realtime transcription API is unavailable.');
+			}
 			if (!(await getAppMicrophoneEnabled())) {
 				throw new Error('Microphone recording is disabled in Settings.');
 			}
@@ -263,7 +267,7 @@ export function useRealtimeDictation({
 			});
 
 			setStatus('connecting');
-			const session = await window.realtimeTranscription.start({
+			const session = await transcriptionApi.start({
 				language: preferredLanguage(),
 			});
 			sessionIdRef.current = session.id;
@@ -278,7 +282,7 @@ export function useRealtimeDictation({
 				const input = event.inputBuffer.getChannelData(0);
 				const pcm = resampleToPcm16(input, audioContext.sampleRate, session.sampleRate);
 				if (pcm.length === 0) return;
-				window.realtimeTranscription.appendAudio(sessionId, pcm16ToBase64(pcm));
+				transcriptionApi.appendAudio(sessionId, pcm16ToBase64(pcm));
 			};
 
 			source.connect(processor);
@@ -296,7 +300,7 @@ export function useRealtimeDictation({
 			return true;
 		} catch (error) {
 			if (sessionIdRef.current) {
-				await window.realtimeTranscription.cancel(sessionIdRef.current).catch(() => undefined);
+				await window.realtimeTranscription?.cancel(sessionIdRef.current).catch(() => undefined);
 				sessionIdRef.current = null;
 			}
 			stopClock();
@@ -317,7 +321,7 @@ export function useRealtimeDictation({
 		mutedRef.current = false;
 		setElapsedMs(0);
 		setStatus('idle');
-		if (sessionId) await window.realtimeTranscription.cancel(sessionId).catch(() => undefined);
+		if (sessionId) await window.realtimeTranscription?.cancel(sessionId).catch(() => undefined);
 	}, [stopAudio, stopClock]);
 
 	const finish = useCallback(async (): Promise<void> => {
@@ -334,7 +338,7 @@ export function useRealtimeDictation({
 
 		setStatus('finishing');
 		try {
-			await window.realtimeTranscription.finish(sessionId);
+			await window.realtimeTranscription?.finish(sessionId);
 		} catch (error) {
 			sessionIdRef.current = null;
 			setStatus('error');
@@ -348,7 +352,7 @@ export function useRealtimeDictation({
 			sessionIdRef.current = null;
 			stopClock();
 			stopAudio();
-			if (sessionId) void window.realtimeTranscription.cancel(sessionId).catch(() => undefined);
+			if (sessionId) void window.realtimeTranscription?.cancel(sessionId).catch(() => undefined);
 		};
 	}, [stopAudio, stopClock]);
 
