@@ -129,7 +129,10 @@ const AgentDetailsPage: React.FC = () => {
 				setProviderId(preferredProvider?.id ?? '');
 				setModelId(
 					nextService && preferredProvider?.id === nextService.provider.id
-						? nextService.model.id
+						? isSpeechTranscriberAgent &&
+							!SPEECH_TRANSCRIBER_MODELS.some((model) => model.id === nextService.model.id)
+							? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? ''
+							: nextService.model.id
 						: isSpeechTranscriberAgent ? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? '' : ''
 				);
 				setEffort(
@@ -173,13 +176,16 @@ const AgentDetailsPage: React.FC = () => {
 		if (isSpeechTranscriberAgent) {
 			const speechModels = Array.from(SPEECH_TRANSCRIBER_MODELS);
 			setModels(speechModels);
-			setModelId((current) => {
-				if (current && speechModels.some((model) => model.id === current)) return current;
-				if (currentSpeechTranscriber?.provider.id === selectedProvider.id) {
-					return currentSpeechTranscriber.model.id;
-				}
-				return speechModels[0]?.id ?? '';
-			});
+				setModelId((current) => {
+					if (current && speechModels.some((model) => model.id === current)) return current;
+					if (
+						currentSpeechTranscriber?.provider.id === selectedProvider.id &&
+						speechModels.some((model) => model.id === currentSpeechTranscriber.model.id)
+					) {
+						return currentSpeechTranscriber.model.id;
+					}
+					return speechModels[0]?.id ?? '';
+				});
 			setLoadingModels(false);
 			setErrorMessage('');
 			return () => {
