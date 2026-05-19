@@ -243,19 +243,22 @@ function PageContent(): ReactElement {
 		!agent.isLoading &&
 		!agent.historyLoading;
 	const canSubmit = agent.input.trim().length > 0;
+	const recorderStatus = audioRecorder.status;
+	const cancelAudioRecording = audioRecorder.cancel;
 	const recorderBusy =
-		audioRecorder.status === 'checking-permission' || audioRecorder.status === 'stopping';
+		recorderStatus === 'checking-permission' || recorderStatus === 'stopping';
 
 	useEffect(() => {
 		if (mode !== 'chat') return;
 		setVoiceMode(null);
-		if (audioRecorder.status === 'recording') void audioRecorder.cancel();
-	}, [audioRecorder, mode]);
+		if (recorderStatus === 'recording') void cancelAudioRecording();
+	}, [cancelAudioRecording, mode, recorderStatus]);
 
 	useEffect(() => {
+		const recordedUrls = recordedUrlsRef.current;
 		return () => {
-			recordedUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-			recordedUrlsRef.current.clear();
+			recordedUrls.forEach((url) => URL.revokeObjectURL(url));
+			recordedUrls.clear();
 		};
 	}, []);
 
