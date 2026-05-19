@@ -1,7 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Accessibility, Bot, ChevronRight, FolderOpen, Languages, Monitor, MonitorUp, Moon, PanelTop, Sun } from 'lucide-react';
+import {
+	Accessibility,
+	Bot,
+	ChevronRight,
+	FolderOpen,
+	Languages,
+	Mic,
+	Monitor,
+	MonitorUp,
+	Moon,
+	PanelTop,
+	RefreshCw,
+	ShieldCheck,
+	Sun,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Card } from '@/components/ui/card';
@@ -18,6 +32,10 @@ import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../co
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../../shared';
+import type {
+	MicrophonePermissionSettings,
+	MicrophoneSystemPermissionStatus,
+} from '../../../../../../shared/app-permissions';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
@@ -50,6 +68,22 @@ const TRANSLUCENCY_OPTIONS = [
 }[];
 
 const FRIDAY_AGENT_ID = 'main';
+
+const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
+	enabled: true,
+	systemStatus: 'unknown',
+	canRequest: false,
+};
+
+function microphoneStatusKey(status: MicrophoneSystemPermissionStatus): string {
+	return `settings.microphone.status.${status}`;
+}
+
+function microphoneActionKey(permission: MicrophonePermissionSettings): string {
+	if (!permission.enabled) return 'settings.microphone.actions.activate';
+	if (permission.systemStatus === 'granted') return 'settings.microphone.actions.check';
+	return 'settings.microphone.actions.request';
+}
 
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
