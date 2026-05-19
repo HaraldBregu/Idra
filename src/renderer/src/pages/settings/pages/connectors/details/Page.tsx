@@ -270,11 +270,12 @@ const ConnectorDetailsPage: React.FC = () => {
 				<ConnectorToolsList tools={tools} />
 			</SettingsSection>
 
-			<div className="flex justify-end border-t border-border/60 pt-3">
+			<div className="border-t border-border/60 pt-3">
 				<Button
 					type="button"
-					size="xs"
+					size="lg"
 					variant="destructive"
+					className="w-full"
 					disabled={connecting || deleting}
 					onClick={() => void deleteConnector()}
 				>
