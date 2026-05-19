@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from 'node:fs';
+import path from 'node:path';
 import {
 	CONNECTOR_CATALOG_COUNTS,
 	CONNECTOR_IMPLEMENTATION_CONTROLS,
@@ -33,6 +35,22 @@ describe('shared connector catalog', () => {
 	it('maps configured OpenAI connector entries to shared direct catalog metadata', () => {
 		for (const connector of OPENAI_CONNECTOR_CATALOG) {
 			expect(isDirectConnectorCatalogId(connector.directConnectorId)).toBe(true);
+		}
+	});
+
+	it('ships light and dark icon assets for every direct connector icon folder', () => {
+		const iconRoot = path.join(process.cwd(), 'resources/icons/direct_connectors');
+		const iconIds = readdirSync(iconRoot, { withFileTypes: true })
+			.filter((entry) => entry.isDirectory())
+			.map((entry) => entry.name);
+
+		expect(iconIds.length).toBeGreaterThanOrEqual(DIRECT_CONNECTOR_CATALOG.length);
+		for (const iconId of iconIds) {
+			const folder = path.join(iconRoot, iconId);
+			const files = readdirSync(folder);
+			expect(existsSync(path.join(folder, 'SOURCE.json'))).toBe(true);
+			expect(files.some((file) => file === `${iconId}_light.png` || file === `${iconId}_light_NOT_A_LOGO.png`)).toBe(true);
+			expect(files.some((file) => file === `${iconId}_dark.png` || file === `${iconId}_dark_NOT_A_LOGO.png`)).toBe(true);
 		}
 	});
 });
