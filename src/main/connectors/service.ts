@@ -16,7 +16,6 @@ import {
 	type ConnectorStatus,
 	type ConnectorTestResult,
 	type ConnectorTool,
-	type ConnectorUpdateInput,
 	type ConnectorView,
 	type GoogleOAuthCredential,
 	type OpenAiConnectorId,
@@ -124,6 +123,46 @@ function toView(connector: ConnectorConfig): ConnectorView {
 	};
 }
 
+function requireObject(value: unknown, label: string): Record<string, unknown> {
+	if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+		return value as Record<string, unknown>;
+	}
+	throw new Error(`${label} is required.`);
+}
+
+function readOptionalString(params: Record<string, unknown>, key: string): string | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
+	return value;
+}
+
+function readOptionalBoolean(params: Record<string, unknown>, key: string): boolean | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value !== 'boolean') throw new Error(`${key} must be a boolean.`);
+	return value;
+}
+
+function readOptionalStringArray(params: Record<string, unknown>, key: string): string[] | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
+		throw new Error(`${key} must be an array of strings.`);
+	}
+	return value.map((entry) => entry.trim()).filter(Boolean);
+}
+
+function readOptionalApprovalMode(
+	params: Record<string, unknown>,
+	key: string
+): ConnectorInput['requireApproval'] | undefined {
+	const value = readOptionalString(params, key);
+	if (value === undefined) return undefined;
+	if (value === 'always' || value === 'never' || value === 'never_for_allowed_tools') return value;
+	throw new Error(`${key} must be one of: always, never, never_for_allowed_tools.`);
+}
+
 function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
 	const name = readOptionalString(raw, 'name')?.trim() ?? '';
@@ -146,7 +185,7 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const catalog = getConnectorCatalogItem(connectorId);
 	const knownToolNames = new Set<string>(catalog?.tools ?? []);
 	const uniqueAllowedTools = Array.from(new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean)));
-	const unknownTool = allowedTools.find((tool) => !knownToolNames.has(tool));
+	const unknownTool = uniqueAllowedTools.find((tool) => !knownToolNames.has(tool));
 	if (unknownTool) {
 		throw new Error(`Tool "${unknownTool}" is not available for ${catalog?.name ?? connectorId}.`);
 	}
