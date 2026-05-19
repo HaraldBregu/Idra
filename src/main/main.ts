@@ -252,6 +252,7 @@ export class Main {
 
 	showTrayWindow(): void {
 		const win = this.getTrayWindow();
+		win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 		win.show();
 		win.focus();
 	}
@@ -292,6 +293,9 @@ export class Main {
 		win.setAlwaysOnTop(true, 'floating');
 		win.on('blur', () => {
 			win.hide();
+		});
+		win.on('hide', () => {
+			win.setVisibleOnAllWorkspaces(false);
 		});
 		win.on('closed', () => {
 			if (this.trayWindow?.id === win.id) {
