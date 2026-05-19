@@ -1,4 +1,4 @@
-import { Tray as ElectronTray, Menu, nativeImage } from 'electron';
+import { Tray as ElectronTray, Menu, nativeImage, type Rectangle } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import { loadTranslations } from './i18n';
@@ -6,7 +6,7 @@ import { loadTranslations } from './i18n';
 interface TrayManagerCallbacks {
 	onShowApp: () => void;
 	onHideApp: () => void;
-	onShowTrayWindow: () => void;
+	onShowTrayWindow: (bounds?: Rectangle) => void;
 	onToggleApp: () => void;
 	onQuit: () => void;
 	isAppVisible: () => boolean;
@@ -33,7 +33,7 @@ export class Tray {
 		this.tray.setToolTip('Friday');
 
 		this.tray.on('click', () => {
-			this.callbacks.onShowTrayWindow();
+			this.callbacks.onShowTrayWindow(this.tray?.getBounds());
 			this.buildContextMenu();
 		});
 

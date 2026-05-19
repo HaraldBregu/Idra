@@ -1,4 +1,5 @@
-import type { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
+import { screen } from 'electron';
+import type { BrowserWindow, BrowserWindowConstructorOptions, Rectangle } from 'electron';
 import type { AppState } from './core/app-state';
 import type { RendererContentOptions, WindowFactory } from './core/window-factory';
 import type { WindowContextManager } from './core/window-context';
@@ -11,6 +12,7 @@ const STARTUP_WINDOW_WIDTH = 440;
 const STARTUP_WINDOW_HEIGHT = 600;
 const TRAY_WINDOW_WIDTH = 600;
 const TRAY_WINDOW_HEIGHT = 240;
+const TRAY_WINDOW_EDGE_MARGIN = 8;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
 const TRAY_WINDOW_BACKGROUND = '#000000';
@@ -250,11 +252,33 @@ export class Main {
 		win.webContents.send(AppChannels.trayChatMessage, message);
 	}
 
-	showTrayWindow(): void {
+	showTrayWindow(trayBounds?: Rectangle): void {
 		const win = this.getTrayWindow();
 		win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+		this.positionTrayWindowUnderIcon(win, trayBounds);
 		win.show();
 		win.focus();
+	}
+
+	private positionTrayWindowUnderIcon(win: BrowserWindow, trayBounds?: Rectangle): void {
+		if (process.platform !== 'darwin' || !trayBounds) return;
+
+		const iconCenterX = trayBounds.x + trayBounds.width / 2;
+		const targetY = trayBounds.y + trayBounds.height;
+		const display = screen.getDisplayNearestPoint({
+			x: Math.round(iconCenterX),
+			y: Math.round(targetY),
+		});
+		const { workArea } = display;
+		const minX = workArea.x + TRAY_WINDOW_EDGE_MARGIN;
+		const maxX = workArea.x + workArea.width - TRAY_WINDOW_WIDTH - TRAY_WINDOW_EDGE_MARGIN;
+		const minY = workArea.y;
+		const maxY = workArea.y + workArea.height - TRAY_WINDOW_HEIGHT;
+
+		const x = Math.round(Math.min(Math.max(iconCenterX - TRAY_WINDOW_WIDTH / 2, minX), Math.max(minX, maxX)));
+		const y = Math.round(Math.min(Math.max(targetY, minY), Math.max(minY, maxY)));
+
+		win.setPosition(x, y, false);
 	}
 
 	private getTrayWindow(): BrowserWindow {
