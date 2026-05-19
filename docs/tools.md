@@ -46,12 +46,6 @@ Policies are summarized from the current tool policy code. Global allow/deny fil
 | `read` | Legacy profiles: `coding`, `standard`, `full`. Runtime group: `group:file`. Uses workspace path policy and records read state. |
 | `write` | Legacy profiles: `coding`, `standard`, `full`. Runtime group: `group:file`. Carries the legacy approval marker. Disabled by read-only filesystem policy; overwrites require prior read state. |
 
-## `plan.ts`
-
-| Tool | Policies |
-| --- | --- |
-| `update_plan` | Runtime group: `group:planning`. Runtime profiles: `minimal`, `coding`, `full`. Session coordination tool; no mutation outside the in-memory plan. |
-
 ## `read-tool.ts`
 
 | Tool | Policies |
@@ -78,21 +72,8 @@ Policies are summarized from the current tool policy code. Global allow/deny fil
 | --- | --- |
 | `browser` | Legacy profile: `full` or explicit allow. Browser URL policy allows only `http` and `https` and blocks local, private, and metadata hosts. |
 
-## `update-plan-tool.ts`
-
-| Tool | Policies |
-| --- | --- |
-| `update_plan` | Runtime group: `group:planning`. Runtime profiles: `minimal`, `coding`, `full`. Core session coordination tool; no mutation outside the current plan callback. |
-
 ## `web.ts`
 
 | Tool | Policies |
 | --- | --- |
 | `web_fetch` | Legacy profiles: `coding`, `standard`, `full`. Runtime group: `group:web`. Allows only `http` and `https`; response size is capped. |
-
-## `workspace.ts`
-
-| Tool | Policies |
-| --- | --- |
-| `get_workspace_content` | `explicit/imported`. Read-only workspace listing through the workspace service, with depth and result limits. |
-| `get_workspace_path` | Runtime profile: `minimal` or explicit allow. Read-only workspace path lookup. |
