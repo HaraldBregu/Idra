@@ -9,7 +9,6 @@ import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
-	DEFAULT_MEMORY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_TOOLS_FILENAME,
 	DEFAULT_USER_FILENAME,
@@ -267,7 +266,7 @@ export class AgentService {
 				new ToolUsePolicy().evaluate({ userRequest: message })
 			);
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
-				this.isBootstrapPending(agentId)
+				this.isBootstrapPending()
 			);
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
@@ -330,7 +329,7 @@ export class AgentService {
 			if (!directAnswer) {
 				startupFiles = this.filterStartupFilesForRun(
 					await recordAsyncPhase(phaseDurationsMs, 'load_startup_context', () =>
-						this.loadStartupFiles(agentId)
+						this.loadStartupFiles()
 					),
 					{
 						runKind,
@@ -627,9 +626,8 @@ export class AgentService {
 		return typeof maybeStore.getService === 'function' ? maybeStore.getService() : undefined;
 	}
 
-	private async isBootstrapPending(agentId: string): Promise<boolean> {
+	private async isBootstrapPending(): Promise<boolean> {
 		try {
-			void agentId;
 			return await this.dependencies.workspace.isBootstrapPending();
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
@@ -639,9 +637,8 @@ export class AgentService {
 		}
 	}
 
-	private async loadStartupFiles(agentId: string): Promise<WorkspaceContextFile[]> {
+	private async loadStartupFiles(): Promise<WorkspaceContextFile[]> {
 		try {
-			void agentId;
 			return await this.dependencies.workspace.loadContextFiles();
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
