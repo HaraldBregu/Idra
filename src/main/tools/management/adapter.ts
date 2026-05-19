@@ -140,8 +140,6 @@ function inferCategory(name: string, description = ''): ToolCategory {
 			'move',
 			'inspect_file',
 			'find',
-			'get_workspace_content',
-			'get_workspace_path',
 			'startup_files',
 		].includes(name)
 	)
@@ -173,9 +171,7 @@ function inferPermissions(name: string, description = ''): string[] {
 	if (/\b(google drive|drive file|drive files|drive document|drive documents)\b/.test(text)) {
 		return /\b(create|upload|write)\b/.test(text) ? ['drive:write'] : ['drive:read'];
 	}
-	if (
-		['read', 'find', 'inspect_file', 'get_workspace_content', 'get_workspace_path'].includes(name)
-	)
+	if (['read', 'find', 'inspect_file'].includes(name))
 		return ['workspace:read'];
 	if (name === 'startup_files') return ['agent:startup'];
 	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name))
@@ -239,7 +235,6 @@ function inferReliability(name: string): number {
 			'move',
 			'inspect_file',
 			'find',
-			'update_plan',
 		].includes(name)
 	)
 		return 0.95;
@@ -316,8 +311,6 @@ function isReadOnly(name: string): boolean {
 		'find',
 		'inspect_file',
 		'web_fetch',
-		'get_workspace_content',
-		'get_workspace_path',
 		'cron_list',
 		'process',
 	].includes(name);
