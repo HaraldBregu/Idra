@@ -985,6 +985,15 @@ const StartPage: React.FC = () => {
 											</p>
 										</div>
 										<div className="flex shrink-0 justify-end gap-2">
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon-xs"
+												aria-label={`Open ${provider.name} link`}
+												onClick={handleOpenProviderLink}
+											>
+												<Link2 className="size-3" />
+											</Button>
 											{provider.supported ? (
 												connected && !editing ? (
 													<div className="flex items-center gap-2">
