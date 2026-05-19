@@ -9,6 +9,10 @@ import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
 import {
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
+	decodedRealtimeTranscriptionAudioByteLength,
+	hasMinimumRealtimeTranscriptionAudio,
+	isInputAudioBufferTooSmallError,
+	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 } from '../../../../src/main/ipc/realtime-transcription-ipc';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
@@ -71,5 +75,22 @@ describe('realtime transcription IPC', () => {
 			(event.session as { audio: { input: { transcription: { language?: string } } } })
 				.audio.input.transcription.language
 		).toBeUndefined();
+	});
+
+	it('guards manual commits until enough PCM audio is buffered', () => {
+		expect(decodedRealtimeTranscriptionAudioByteLength('AAAA')).toBe(3);
+		expect(hasMinimumRealtimeTranscriptionAudio(MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES - 1)).toBe(
+			false
+		);
+		expect(hasMinimumRealtimeTranscriptionAudio(MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES)).toBe(
+			true
+		);
+	});
+
+	it('recognizes the realtime empty audio commit error as ignorable during finish', () => {
+		expect(
+			isInputAudioBufferTooSmallError('Error committing input audio buffer: buffer too small:')
+		).toBe(true);
+		expect(isInputAudioBufferTooSmallError('Realtime transcription failed.')).toBe(false);
 	});
 });
