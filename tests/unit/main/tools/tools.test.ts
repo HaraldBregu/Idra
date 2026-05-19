@@ -25,6 +25,7 @@ import {
 } from '../../../../src/main/tools/cron';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
+import { WorkspaceService } from '../../../../src/main/workspace';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
@@ -373,6 +374,7 @@ describe('tools/app, cron, and startup', () => {
 		const root = await makeTempDir();
 		const services = {
 			...makeToolContext().services,
+			workspace: new WorkspaceService(makeLogger() as never, { rootPath: root }),
 			startupFiles: new AgentStartupFilesService({
 				rootPath: path.join(root, 'agent', 'workspaces'),
 			}),
@@ -398,9 +400,7 @@ describe('tools/app, cron, and startup', () => {
 
 		const completed = await startupFilesTool.execute({ action: 'complete_bootstrap' }, ctx);
 		expect(completed.status).toBe('ok');
-		await expect(
-			fs.access(path.join(root, 'agent', 'workspaces', 'main', 'BOOTSTRAP.md'))
-		).rejects.toThrow();
+		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
 		await fs.rm(root, { recursive: true, force: true });
 	});
 });
