@@ -193,7 +193,7 @@ function SubmitButton({
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
 }): ReactElement {
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start audio recording';
+	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
 	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
@@ -285,6 +285,11 @@ function PageContent(): ReactElement {
 		setMode('chat');
 	};
 
+	const startVoiceConversation = (): void => {
+		setVoiceMode('conversation');
+		setMode('voice');
+	};
+
 	const startAudioRecording = async (): Promise<void> => {
 		const started = await audioRecorder.start();
 		if (!started) {
@@ -311,7 +316,7 @@ function PageContent(): ReactElement {
 			agent.handleSubmit();
 			return;
 		}
-		void startAudioRecording();
+		startVoiceConversation();
 	};
 
 	return (
@@ -385,10 +390,10 @@ function PageContent(): ReactElement {
 							textareaRef={agent.inputRef}
 							leadingAction={<AttachmentButton />}
 							voiceMode={voiceMode}
-							voiceElapsedMs={audioRecorder.elapsedMs}
-							voiceMuted={audioRecorder.isMuted}
-							onVoiceMutedChange={audioRecorder.setMuted}
-							onVoiceEnd={() => void confirmRecording()}
+							voiceElapsedMs={voiceMode === 'dictation' ? audioRecorder.elapsedMs : undefined}
+							voiceMuted={voiceMode === 'dictation' ? audioRecorder.isMuted : undefined}
+							onVoiceMutedChange={voiceMode === 'dictation' ? audioRecorder.setMuted : undefined}
+							onVoiceEnd={returnToChat}
 							onVoiceCancel={() => void cancelRecording()}
 							onVoiceConfirm={() => void confirmRecording()}
 							onFilesChange={(files) =>
