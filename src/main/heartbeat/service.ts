@@ -3,6 +3,7 @@ import type { AppEvent, EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { AgentStartupFilesServicePort } from '../agent/startup-files';
+import type { WorkspaceService } from '../workspace';
 import type { ChannelRegistry } from '../channels';
 import { normalizeChannelId } from '../channels';
 import type { ChannelChatType, ChannelOutboundMessage } from '../channels/types';
@@ -61,6 +62,7 @@ export interface HeartbeatServiceDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	startupFiles: AgentStartupFilesServicePort;
+	workspace?: Pick<WorkspaceService, 'readWorkspaceFile'>;
 	agentService?: AgentService;
 	channelRegistry?: ChannelRegistry;
 }
@@ -622,7 +624,9 @@ export class HeartbeatService implements Disposable {
 		content?: string;
 	}> {
 		try {
-			const file = await this.dependencies.startupFiles.readFile(agentId, 'HEARTBEAT.md');
+			const file = this.dependencies.workspace
+				? await this.dependencies.workspace.readWorkspaceFile('HEARTBEAT.md')
+				: await this.dependencies.startupFiles.readFile(agentId, 'HEARTBEAT.md');
 			return {
 				exists: !file.missing,
 				path: file.path,
