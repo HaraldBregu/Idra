@@ -185,6 +185,8 @@ export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
 	openUserDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
+	sendTrayChatMessage: (message: string) => Promise<void>;
+	onTrayChatMessage: (callback: (message: string) => void) => () => void;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
 	getKeepAwakeEnabled: () => Promise<boolean>;

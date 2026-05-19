@@ -52,6 +52,8 @@ export const AppChannels = {
 	openAppDataFolder: 'app:open-app-data-folder',
 	openUserDataFolder: 'app:open-user-data-folder',
 	openExternalUrl: 'app:open-external-url',
+	sendTrayChatMessage: 'app:send-tray-chat-message',
+	trayChatMessage: 'app:tray-chat-message',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
 	getKeepAwakeEnabled: 'app:get-keep-awake-enabled',
@@ -158,6 +160,10 @@ interface AppInvokeChannelMap {
 	};
 	[AppChannels.openExternalUrl]: {
 		args: [url: string];
+		result: void;
+	};
+	[AppChannels.sendTrayChatMessage]: {
+		args: [message: string];
 		result: void;
 	};
 	[AppChannels.setTrayEnabled]: {
@@ -503,6 +509,7 @@ export interface SendChannelMap {
 
 interface AppEventChannelMap {
 	[AppChannels.themeChanged]: { data: import('./theme').ThemeMode };
+	[AppChannels.trayChatMessage]: { data: string };
 	[RealtimeTranscriptionChannels.event]: {
 		data: import('./realtime-transcription').RealtimeTranscriptionEvent;
 	};

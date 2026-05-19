@@ -46,6 +46,7 @@ export interface AppEvents {
 	};
 	'task:cancelled': { taskId: string; taskType: string; windowId?: number };
 	'tray:set-enabled': { enabled: boolean };
+	'tray:chat-message': { message: string };
 	'channel:status': import('../../shared/channels').ChannelStatusEvent;
 	'channel:route': {
 		channel: import('../../shared/channels').ChannelType;

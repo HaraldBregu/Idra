@@ -1,9 +1,10 @@
-import React, { Suspense, lazy, useState, type ReactNode } from 'react';
+import React, { Suspense, lazy, useEffect, useState, type ReactNode } from 'react';
 import {
 	Navigate,
 	Outlet,
 	createHashRouter,
 	useLocation,
+	useNavigate,
 	type RouteObject,
 } from 'react-router-dom';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
@@ -18,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
+import { publishTrayChatMessage } from './tray-chat-events';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/Page'));
@@ -60,9 +62,17 @@ function SettingsRouteWrapper({ children }: { readonly children: ReactNode }): R
 function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 	const location = useLocation();
+	const navigate = useNavigate();
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
 
 	const isStart = location.pathname === '/start';
+
+	useEffect(() => {
+		return window.app.onTrayChatMessage((message) => {
+			navigate('/home');
+			publishTrayChatMessage(message);
+		});
+	}, [navigate]);
 
 	return (
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
