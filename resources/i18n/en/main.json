@@ -300,8 +300,10 @@
 				"expandLabel": "Expand cron task {{id}}",
 				"collapse": "Collapse",
 				"collapseLabel": "Collapse cron task {{id}}",
-				"remove": "Remove",
-				"removeLabel": "Remove cron task {{id}}"
+				"remove": "Delete",
+				"removeLabel": "Delete cron task {{id}}",
+				"confirmRemove": "Delete cron task {{id}}?",
+				"removing": "Deleting..."
 			},
 			"details": {
 				"id": "Id",
