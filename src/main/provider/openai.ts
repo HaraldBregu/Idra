@@ -89,16 +89,6 @@ function buildResponseInput(transcript: TranscriptEntry[]): ResponseInput {
 	return input;
 }
 
-function usageFromResponse(response: { usage?: {
-	input_tokens?: number;
-	output_tokens?: number;
-} | null }): Usage {
-	return {
-		inputTokens: response.usage?.input_tokens ?? 0,
-		outputTokens: response.usage?.output_tokens ?? 0,
-	};
-}
-
 function hasFunctionCall(output: ResponseOutputItem[] | undefined): boolean {
 	return output?.some((item) => item.type === 'function_call') ?? false;
 }
@@ -197,7 +187,6 @@ export class OpenAIAdapter implements ProviderAdapter {
 				for (const providerEvent of this.adaptResponseEvent(
 					event,
 					usage,
-					callsByOutputIndex,
 					stateFor,
 					emitToolStart,
 					emitToolEnd,
@@ -228,7 +217,6 @@ export class OpenAIAdapter implements ProviderAdapter {
 	private *adaptResponseEvent(
 		event: ResponseStreamEvent,
 		usage: Usage,
-		callsByOutputIndex: Map<number, ResponseToolCallState>,
 		stateFor: (
 			outputIndex: number,
 			fallbackId: string,
