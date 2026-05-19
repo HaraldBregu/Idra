@@ -1,0 +1,30 @@
+{
+  "id": "bamboohr",
+  "name": "BambooHR",
+  "entry_type": "direct_connector",
+  "domain": "bamboohr.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "BambooHR API docs",
+      "url": "https://documentation.bamboohr.com/docs",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "BambooHR API reference",
+      "url": "https://documentation.bamboohr.com/reference",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "composio_open_logos_repository",
+  "source_url": "https://github.com/ComposioHQ/open-logos/blob/master/bamboohr.svg",
+  "verification_notes": "Real logo artwork from ComposioHQ/open-logos; not verified as the vendor official brand-kit source.",
+  "files": {
+    "light": "direct_connectors/bamboohr/bamboohr_light.png",
+    "dark": "direct_connectors/bamboohr/bamboohr_dark.png",
+    "raw_source": "direct_connectors/bamboohr/raw/bamboohr_source.svg"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "power_bi",
+  "name": "Power BI",
+  "entry_type": "direct_connector",
+  "domain": "powerbi.microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Power BI REST API",
+      "url": "https://learn.microsoft.com/en-us/rest/api/power-bi/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Power BI REST API overview",
+      "url": "https://learn.microsoft.com/en-us/rest/api/power-bi/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:microsoft-power-bi",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "direct_connectors/power_bi/power_bi_light.png",
+    "dark": "direct_connectors/power_bi/power_bi_dark.png",
+    "raw_source": "direct_connectors/power_bi/raw/power_bi_source.svg"
+  }
+}

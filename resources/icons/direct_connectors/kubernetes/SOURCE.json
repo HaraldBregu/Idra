@@ -1,0 +1,30 @@
+{
+  "id": "kubernetes",
+  "name": "Kubernetes",
+  "entry_type": "direct_connector",
+  "domain": "kubernetes.io",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Kubernetes API overview",
+      "url": "https://kubernetes.io/docs/concepts/overview/kubernetes-api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Kubernetes API reference",
+      "url": "https://kubernetes.io/docs/reference/kubernetes-api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://github.com/kubernetes/kubernetes/tree/cac53883f4714452f3084a22e4be20d042a9df33/logo",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/kubernetes/kubernetes_light.png",
+    "dark": "direct_connectors/kubernetes/kubernetes_dark.png",
+    "raw_source": "direct_connectors/kubernetes/raw/kubernetes_source.svg"
+  }
+}

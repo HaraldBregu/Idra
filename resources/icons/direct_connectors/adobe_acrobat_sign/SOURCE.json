@@ -1,0 +1,30 @@
+{
+  "id": "adobe_acrobat_sign",
+  "name": "Adobe Acrobat Sign",
+  "entry_type": "direct_connector",
+  "domain": "adobe.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Adobe Acrobat Sign API",
+      "url": "https://developer.adobe.com/document-services/docs/overview/pdf-services-api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Adobe Acrobat Sign API docs",
+      "url": "https://secure.na1.adobesign.com/public/docs/restapi/v6",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:adobe-icon",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "direct_connectors/adobe_acrobat_sign/adobe_acrobat_sign_light.png",
+    "dark": "direct_connectors/adobe_acrobat_sign/adobe_acrobat_sign_dark.png",
+    "raw_source": "direct_connectors/adobe_acrobat_sign/raw/adobe_acrobat_sign_source.svg"
+  }
+}

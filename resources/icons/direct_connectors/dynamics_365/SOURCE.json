@@ -1,0 +1,29 @@
+{
+  "id": "dynamics_365",
+  "name": "Dynamics 365",
+  "entry_type": "direct_connector",
+  "domain": "microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Dynamics 365 Web API",
+      "url": "https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/overview",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "Dataverse Web API",
+      "url": "https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "direct_connectors/dynamics_365/dynamics_365_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "direct_connectors/dynamics_365/dynamics_365_dark_NOT_A_LOGO.png"
+  }
+}

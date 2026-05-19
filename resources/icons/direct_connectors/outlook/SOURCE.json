@@ -1,0 +1,30 @@
+{
+  "id": "outlook",
+  "name": "Outlook Mail and Calendar",
+  "entry_type": "direct_connector",
+  "domain": "outlook.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Outlook mail API overview",
+      "url": "https://learn.microsoft.com/en-us/graph/outlook-mail-concept-overview",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "Outlook calendar API overview",
+      "url": "https://learn.microsoft.com/en-us/graph/outlook-calendar-concept-overview",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_vscode",
+  "source_url": "local npm package @iconify-json/vscode:file-type-outlook",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "direct_connectors/outlook/outlook_light.png",
+    "dark": "direct_connectors/outlook/outlook_dark.png",
+    "raw_source": "direct_connectors/outlook/raw/outlook_source.svg"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "github",
+  "name": "GitHub",
+  "entry_type": "direct_connector",
+  "domain": "github.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "GitHub REST API",
+      "url": "https://docs.github.com/en/rest",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "GitHub Actions REST API",
+      "url": "https://docs.github.com/en/rest/actions",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "GitHub Pull Requests REST API",
+      "url": "https://docs.github.com/en/rest/pulls",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": true,
+  "source_kind": "official_brand_page_asset",
+  "source_url": "https://brand.github.com/_next/static/media/logo-03.cc5e5332.png",
+  "verification_notes": "GitHub logo asset from GitHub Brand page.",
+  "files": {
+    "light": "direct_connectors/github/github_light.png",
+    "dark": "direct_connectors/github/github_dark.png",
+    "raw_source": "direct_connectors/github/raw/github_source.png"
+  }
+}

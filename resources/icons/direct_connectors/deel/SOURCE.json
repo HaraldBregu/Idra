@@ -1,0 +1,23 @@
+{
+  "id": "deel",
+  "name": "Deel",
+  "entry_type": "direct_connector",
+  "domain": "deel.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Deel API docs",
+      "url": "https://developer.deel.com/docs",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "direct_connectors/deel/deel_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "direct_connectors/deel/deel_dark_NOT_A_LOGO.png"
+  }
+}

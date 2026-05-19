@@ -1,0 +1,30 @@
+{
+  "id": "intercom",
+  "name": "Intercom",
+  "entry_type": "direct_connector",
+  "domain": "intercom.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Intercom API reference",
+      "url": "https://developers.intercom.com/docs/references/rest-api/api.intercom.io/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Intercom conversations API",
+      "url": "https://developers.intercom.com/docs/references/rest-api/api.intercom.io/conversations",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://www.intercom.com/press",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/intercom/intercom_light.png",
+    "dark": "direct_connectors/intercom/intercom_dark.png",
+    "raw_source": "direct_connectors/intercom/raw/intercom_source.svg"
+  }
+}

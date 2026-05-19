@@ -1,0 +1,30 @@
+{
+  "id": "google_cloud",
+  "name": "Google Cloud",
+  "entry_type": "direct_connector",
+  "domain": "cloud.google.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Google Cloud APIs",
+      "url": "https://cloud.google.com/apis/docs/overview",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Google Cloud API Explorer",
+      "url": "https://cloud.google.com/apis/explorer",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://cloud.google.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/google_cloud/google_cloud_light.png",
+    "dark": "direct_connectors/google_cloud/google_cloud_dark.png",
+    "raw_source": "direct_connectors/google_cloud/raw/google_cloud_source.svg"
+  }
+}

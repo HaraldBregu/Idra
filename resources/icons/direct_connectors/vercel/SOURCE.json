@@ -1,0 +1,24 @@
+{
+  "id": "vercel",
+  "name": "Vercel",
+  "entry_type": "direct_connector",
+  "domain": "vercel.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Vercel REST API",
+      "url": "https://vercel.com/docs/rest-api",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://vercel.com/geist/brands",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/vercel/vercel_light.png",
+    "dark": "direct_connectors/vercel/vercel_dark.png",
+    "raw_source": "direct_connectors/vercel/raw/vercel_source.svg"
+  }
+}

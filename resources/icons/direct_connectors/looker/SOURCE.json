@@ -1,0 +1,24 @@
+{
+  "id": "looker",
+  "name": "Looker",
+  "entry_type": "direct_connector",
+  "domain": "looker.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Looker API docs",
+      "url": "https://cloud.google.com/looker/docs/reference/looker-api/latest",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://looker.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/looker/looker_light.png",
+    "dark": "direct_connectors/looker/looker_dark.png",
+    "raw_source": "direct_connectors/looker/raw/looker_source.svg"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "google_ads",
+  "name": "Google Ads",
+  "entry_type": "direct_connector",
+  "domain": "ads.google.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Google Ads API docs",
+      "url": "https://developers.google.com/google-ads/api/docs/start",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://ads.google.com/home/",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/google_ads/google_ads_light.png",
+    "dark": "direct_connectors/google_ads/google_ads_dark.png",
+    "raw_source": "direct_connectors/google_ads/raw/google_ads_source.svg"
+  }
+}

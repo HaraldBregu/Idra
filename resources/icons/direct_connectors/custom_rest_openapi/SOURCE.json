@@ -1,0 +1,30 @@
+{
+  "id": "custom_rest_openapi",
+  "name": "Custom REST / OpenAPI APIs",
+  "entry_type": "direct_connector",
+  "domain": null,
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "OpenAPI Specification",
+      "url": "https://spec.openapis.org/oas/latest.html",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "OpenAPI Initiative",
+      "url": "https://www.openapis.org/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "conceptual_simpleicons_for_internal_connector",
+  "source_url": "https://www.openapis.org/faq/style-guide",
+  "verification_notes": "Conceptual technology icon for an internal/custom connector, not an external provider logo.",
+  "files": {
+    "light": "direct_connectors/custom_rest_openapi/custom_rest_openapi_light.png",
+    "dark": "direct_connectors/custom_rest_openapi/custom_rest_openapi_dark.png",
+    "raw_source": "direct_connectors/custom_rest_openapi/raw/custom_rest_openapi_source.svg"
+  }
+}

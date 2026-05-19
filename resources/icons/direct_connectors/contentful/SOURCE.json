@@ -1,0 +1,30 @@
+{
+  "id": "contentful",
+  "name": "Contentful",
+  "entry_type": "direct_connector",
+  "domain": "contentful.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Contentful Content Management API",
+      "url": "https://www.contentful.com/developers/docs/references/content-management-api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Contentful developer portal",
+      "url": "https://www.contentful.com/developers/docs/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://press.contentful.com/media_kits",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/contentful/contentful_light.png",
+    "dark": "direct_connectors/contentful/contentful_dark.png",
+    "raw_source": "direct_connectors/contentful/raw/contentful_source.svg"
+  }
+}

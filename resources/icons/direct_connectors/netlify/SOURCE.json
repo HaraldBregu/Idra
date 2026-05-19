@@ -1,0 +1,24 @@
+{
+  "id": "netlify",
+  "name": "Netlify",
+  "entry_type": "direct_connector",
+  "domain": "netlify.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Netlify API documentation",
+      "url": "https://docs.netlify.com/api/get-started/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://www.netlify.com/press/",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/netlify/netlify_light.png",
+    "dark": "direct_connectors/netlify/netlify_dark.png",
+    "raw_source": "direct_connectors/netlify/raw/netlify_source.svg"
+  }
+}

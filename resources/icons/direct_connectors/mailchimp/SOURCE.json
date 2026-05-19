@@ -1,0 +1,30 @@
+{
+  "id": "mailchimp",
+  "name": "Mailchimp",
+  "entry_type": "direct_connector",
+  "domain": "mailchimp.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Mailchimp Marketing API",
+      "url": "https://mailchimp.com/developer/marketing/api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Mailchimp API fundamentals",
+      "url": "https://mailchimp.com/developer/marketing/guides/get-started-with-mailchimp-api-3/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://mailchimp.com/about/brand-assets",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "direct_connectors/mailchimp/mailchimp_light.png",
+    "dark": "direct_connectors/mailchimp/mailchimp_dark.png",
+    "raw_source": "direct_connectors/mailchimp/raw/mailchimp_source.svg"
+  }
+}
