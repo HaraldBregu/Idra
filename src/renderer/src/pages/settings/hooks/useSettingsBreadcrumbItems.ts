@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
-import { SPEECH_TRANSCRIBER_AGENT_ID } from '../../../../../shared/service';
+import {
+	IMAGE_ASSISTANT_AGENT_ID,
+	SPEECH_TRANSCRIBER_AGENT_ID,
+	TEXT_TO_SPEECH_AGENT_ID,
+} from '../../../../../shared/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
 
 interface SettingsBreadcrumbItem {
@@ -68,7 +72,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 			? t('settings.agents.fridayName')
 			: agentId === SPEECH_TRANSCRIBER_AGENT_ID
 				? t('settings.agents.speechTranscriberName')
-				: agentId;
+				: agentId === TEXT_TO_SPEECH_AGENT_ID
+					? t('settings.agents.textToSpeechName')
+					: agentId === IMAGE_ASSISTANT_AGENT_ID
+						? t('settings.agents.imageAssistantName')
+						: agentId;
 		items.push({
 			label,
 		});
