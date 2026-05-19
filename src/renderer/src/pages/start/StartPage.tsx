@@ -5,9 +5,9 @@ import {
 	Bot,
 	ChevronDown,
 	Check,
+	ExternalLink,
 	ImageIcon,
 	KeyRound,
-	Link2,
 	LoaderCircle,
 	Mic,
 	Pencil,
@@ -975,9 +975,21 @@ const StartPage: React.FC = () => {
 											className={provider.swatchClassName}
 										/>
 										<div className="min-w-0 flex-1">
-											<h2 className="truncate text-sm font-semibold leading-tight text-foreground">
-												{provider.name}
-											</h2>
+											<div className="flex min-w-0 items-center gap-1.5">
+												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
+													{provider.name}
+												</h2>
+												<Button
+													type="button"
+													variant="ghost"
+													size="icon-xs"
+													className="size-5 text-muted-foreground hover:text-foreground"
+													aria-label={`Open ${provider.name} link`}
+													onClick={handleOpenProviderLink}
+												>
+													<ExternalLink className="size-3" />
+												</Button>
+											</div>
 											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
 												{connected && entry?.apiKey === MASKED_API_KEY
 													? 'sk-************'
@@ -985,15 +997,6 @@ const StartPage: React.FC = () => {
 											</p>
 										</div>
 										<div className="flex shrink-0 justify-end gap-2">
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon-xs"
-												aria-label={`Open ${provider.name} link`}
-												onClick={handleOpenProviderLink}
-											>
-												<Link2 className="size-3" />
-											</Button>
 											{provider.supported ? (
 												connected && !editing ? (
 													<div className="flex items-center gap-2">
