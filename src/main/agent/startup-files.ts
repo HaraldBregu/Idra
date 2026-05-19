@@ -255,10 +255,10 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 			if (await this.startupProfileLooksConfigured(agentId, { includeGitEvidence: true })) {
 				markState({ setupCompletedAt: now() });
 			} else {
-			const wrote = await writeFileIfMissing(
-				bootstrapPath,
-				await loadAgentStartupTemplate(DEFAULT_BOOTSTRAP_FILENAME)
-			);
+				const wrote = await writeFileIfMissing(
+					bootstrapPath,
+					await loadAgentStartupTemplate(DEFAULT_BOOTSTRAP_FILENAME)
+				);
 				bootstrapExists = wrote || (await this.pathExists(bootstrapPath));
 				if (bootstrapExists) markState({ bootstrapSeededAt: now() });
 			}
