@@ -15,7 +15,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
-	hasDefaultAgentModels,
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
@@ -122,19 +121,6 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 	},
 ];
 
-const PROVIDER_CAPABILITIES_BY_ID: Readonly<Record<string, string>> = {
-	openai: 'Chat - Speech-to-text - Text-to-speech',
-	anthropic: 'Chat',
-	google: 'Chat',
-	mistral: 'Chat',
-	groq: 'OpenAI-compatible chat',
-	xai: 'Chat',
-	together: 'OpenAI-compatible chat',
-	perplexity: 'Research chat',
-	deepseek: 'Chat',
-	ollama: 'Local OpenAI-compatible chat',
-};
-
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
@@ -166,9 +152,7 @@ const actionableProviderCatalog: readonly ProviderCatalogItem[] = DEFAULT_PROVID
 	(provider) => ({
 		id: provider.id,
 		name: provider.name,
-		capabilities:
-			PROVIDER_CAPABILITIES_BY_ID[provider.id] ??
-			(hasDefaultAgentModels(provider.id) ? 'Chat' : 'OpenAI-compatible provider'),
+		capabilities: provider.capabilities ?? 'AI provider',
 		initial: providerInitial(provider.name),
 		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: true,
