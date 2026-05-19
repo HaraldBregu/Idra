@@ -192,6 +192,8 @@ export interface AppApi {
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	getAgentService: () => Promise<Agent | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getSpeechTranscriberService: () => Promise<Agent | undefined>;
+	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	listApps: () => Promise<AppInfo[]>;
 	openAppFolder: (id: string) => Promise<void>;
 	deleteApp: (id: string) => Promise<void>;
