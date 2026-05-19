@@ -25,6 +25,7 @@ import {
 	ConnectorsIpc,
 	CronIpc,
 	HeartbeatIpc,
+	RealtimeTranscriptionIpc,
 	SkillsIpc,
 	WindowIpc,
 } from './ipc';
@@ -152,6 +153,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new ConnectorsIpc(),
 		new CronIpc(),
 		new HeartbeatIpc(),
+		new RealtimeTranscriptionIpc(),
 		new SkillsIpc(),
 		new WindowIpc(),
 	];
