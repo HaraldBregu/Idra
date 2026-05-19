@@ -2,6 +2,7 @@ import {
 	filterSelectableAgentModels,
 	isAllowedAgentModel,
 	DEFAULT_AGENT_MODELS_BY_PROVIDER,
+	DEFAULT_PROVIDERS,
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
 } from '../../../../src/shared/providers';
@@ -61,6 +62,66 @@ describe('provider model policy', () => {
 		]);
 	});
 
+	it('lists every provider from the frontier catalog in the shared provider defaults', () => {
+		expect(DEFAULT_PROVIDERS).toHaveLength(32);
+		expect(DEFAULT_PROVIDERS.map((provider) => provider.id)).toEqual([
+			'openai',
+			'anthropic',
+			'google',
+			'meta',
+			'xai',
+			'mistral',
+			'cohere',
+			'deepseek',
+			'qwen',
+			'kimi',
+			'zai',
+			'baidu',
+			'tencent-hunyuan',
+			'bytedance-seed',
+			'minimax',
+			'elevenlabs',
+			'deepgram',
+			'cartesia',
+			'black-forest-labs',
+			'midjourney',
+			'adobe-firefly',
+			'kling',
+			'runway',
+			'luma',
+			'stability-ai',
+			'ideogram',
+			'pika',
+			'suno',
+			'reka',
+			'ai21',
+			'perplexity',
+			'nvidia',
+		]);
+	});
+
+	it('includes chat-capable defaults for additional catalog providers', () => {
+		expect(getDefaultAgentModels('qwen').map((model) => model.id)).toEqual([
+			'qwen3-max',
+			'qwen3.5-plus',
+			'qwen3.5-omni-plus',
+			'qwen3-coder',
+			'qwen3-vl',
+		]);
+		expect(getDefaultAgentModels('cohere').map((model) => model.id)).toEqual([
+			'command-a-03-2025',
+			'command-a-reasoning-08-2025',
+			'command-a-vision-07-2025',
+			'aya-vision',
+		]);
+		expect(getDefaultAgentModels('nvidia').map((model) => model.id)).toEqual([
+			'nemotron-ultra-latest',
+			'llama-nemotron-super',
+			'llama-nemotron-nano',
+			'nemotron-vl',
+		]);
+	});
+
 	it('returns copies of static default model entries', () => {
 		const models = getDefaultAgentModels('openai');
 		models[0] = { id: 'changed', name: 'Changed' };
@@ -71,6 +132,8 @@ describe('provider model policy', () => {
 	it('reports whether a provider has static defaults', () => {
 		expect(hasDefaultAgentModels('openai')).toBe(true);
 		expect(hasDefaultAgentModels('google')).toBe(true);
+		expect(hasDefaultAgentModels('qwen')).toBe(true);
+		expect(hasDefaultAgentModels('elevenlabs')).toBe(false);
 		expect(hasDefaultAgentModels('custom')).toBe(false);
 	});
 
