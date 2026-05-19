@@ -161,6 +161,7 @@ import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type { SkillInfo } from '../shared/skills';
 import type { ThemeMode } from '../shared/theme';
+import type { MicrophonePermissionSettings } from '../shared/app-permissions';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -181,6 +182,9 @@ export interface AppApi {
 	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
+	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
+	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
+	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;
