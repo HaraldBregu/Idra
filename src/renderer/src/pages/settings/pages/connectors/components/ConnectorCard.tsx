@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-	ArrowRight,
 	Box,
 	Calendar,
 	CalendarDays,
+	ChevronRight,
 	FolderOpen,
 	HardDrive,
 	Inbox,
@@ -88,7 +88,7 @@ export function ConnectorCard({
 					onClick={onViewDetails}
 					aria-label={`View ${connector.name} details`}
 				>
-					<ArrowRight className="size-3" />
+					<ChevronRight className="size-3" />
 				</Button>
 			</ItemActions>
 		</Item>
