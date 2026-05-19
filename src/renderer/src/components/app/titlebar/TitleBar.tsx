@@ -145,7 +145,7 @@ export const TitleBar = React.memo(function TitleBar({
 								title={t('settings.title', 'Settings')}
 								aria-label={t('settings.title', 'Settings')}
 							>
-								<CircleUser className="size-4" strokeWidth={1.8} />
+								<User className="size-4" strokeWidth={1.8} />
 							</Button>
 						)}
 					</div>
