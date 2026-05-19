@@ -51,7 +51,7 @@ export function Layout(): React.JSX.Element {
 		<PageContainer className="bg-muted/20">
 			<main className="min-h-0 flex-1 overflow-y-auto">
 				<SettingsBreadcrumbHeader />
-				<div className="px-8 py-6">
+				<div className="px-6 py-6">
 					<Outlet />
 				</div>
 			</main>
