@@ -163,6 +163,11 @@ import type { SkillInfo } from '../shared/skills';
 import type { ThemeMode } from '../shared/theme';
 import type { MicrophonePermissionSettings } from '../shared/app-permissions';
 import type {
+	RealtimeTranscriptionEvent,
+	RealtimeTranscriptionSession,
+	RealtimeTranscriptionStartRequest,
+} from '../shared/realtime-transcription';
+import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
@@ -200,11 +205,20 @@ export interface AppApi {
 	getAppsRoot: () => Promise<string>;
 }
 
+export interface RealtimeTranscriptionApi {
+	start: (request?: RealtimeTranscriptionStartRequest) => Promise<RealtimeTranscriptionSession>;
+	appendAudio: (sessionId: string, audio: string) => void;
+	finish: (sessionId: string) => Promise<void>;
+	cancel: (sessionId: string) => Promise<void>;
+	onEvent: (callback: (event: RealtimeTranscriptionEvent) => void) => () => void;
+}
+
 declare global {
 	interface Window {
 		win?: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
+		realtimeTranscription: RealtimeTranscriptionApi;
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
 		channels: ChannelsApi;
