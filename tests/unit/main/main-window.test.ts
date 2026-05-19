@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { AppState } from '../../../src/main/core/app-state';
 import { Main } from '../../../src/main/main';
+import { AppChannels } from '../../../src/shared/ipc-channels';
 import type { WindowFactory } from '../../../src/main/core/window-factory';
 import type { WindowContextManager } from '../../../src/main/core/window-context';
 import type { MainServices } from '../../../src/main/service-registry';
@@ -193,5 +194,49 @@ describe('Main windows', () => {
 		expect(create).toHaveBeenCalledTimes(2);
 		expect(trayWindow.show).toHaveBeenCalledTimes(2);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(2);
+	});
+
+	it('creates the primary home window before forwarding a tray chat message', () => {
+		const appWindow = createMockWindow(1);
+		const { main, create } = createMain([appWindow]);
+
+		main.showHomeWithTrayMessage('from tray');
+
+		expect(create).toHaveBeenCalledWith(expect.objectContaining({
+			width: 440,
+			height: 600,
+			show: false,
+		}), { hash: 'home' });
+		expect(appWindow.webContents.send).not.toHaveBeenCalledWith(
+			AppChannels.trayChatMessage,
+			'from tray'
+		);
+
+		appWindow.emit('ready-to-show');
+
+		expect(appWindow.show).toHaveBeenCalledTimes(1);
+		expect(appWindow.webContents.send).toHaveBeenCalledWith(
+			AppChannels.trayChatMessage,
+			'from tray'
+		);
+	});
+
+	it('focuses the existing primary window before forwarding a tray chat message', () => {
+		const appWindow = createMockWindow(1);
+		const { main } = createMain([appWindow]);
+		main.create();
+		appWindow.emit('ready-to-show');
+		appWindow.show.mockClear();
+		appWindow.focus.mockClear();
+		appWindow.webContents.send.mockClear();
+
+		main.showHomeWithTrayMessage('from tray');
+
+		expect(appWindow.show).toHaveBeenCalledTimes(1);
+		expect(appWindow.focus).toHaveBeenCalledTimes(1);
+		expect(appWindow.webContents.send).toHaveBeenCalledWith(
+			AppChannels.trayChatMessage,
+			'from tray'
+		);
 	});
 });
