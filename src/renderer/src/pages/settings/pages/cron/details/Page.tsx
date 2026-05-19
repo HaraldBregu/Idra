@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import { AlertCircle, Clock3 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AlertCircle, Clock3, LoaderCircle, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FridayCronJob } from '../../../../../../../shared/cron';
@@ -48,10 +49,12 @@ function CronDetail({
 
 const CronDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { jobId } = useParams<{ jobId: string }>();
 	const [job, setJob] = useState<FridayCronJob | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [removing, setRemoving] = useState(false);
 
 	useEffect(() => {
 		let mounted = true;
@@ -88,6 +91,21 @@ const CronDetailsPage: React.FC = () => {
 			mounted = false;
 		};
 	}, [jobId, t]);
+
+	const handleRemoveJob = async (): Promise<void> => {
+		if (!job) return;
+		if (!window.confirm(t('settings.cron.actions.confirmRemove', { id: job.id }))) return;
+
+		setRemoving(true);
+		setError(null);
+		try {
+			await window.cron.removeJob(job.id);
+			navigate('/settings/cron');
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+			setRemoving(false);
+		}
+	};
 
 	if (loading) {
 		return (
@@ -198,6 +216,25 @@ const CronDetailsPage: React.FC = () => {
 					</Card>
 				</SettingsSection>
 			)}
+
+			<div className="border-t border-border/60 pt-3">
+				<Button
+					type="button"
+					size="lg"
+					variant="destructive"
+					className="w-full"
+					disabled={removing}
+					onClick={() => void handleRemoveJob()}
+					aria-label={t('settings.cron.actions.removeLabel', { id: job.id })}
+				>
+					{removing ? (
+						<LoaderCircle className="size-3 animate-spin" />
+					) : (
+						<Trash2 className="size-3" />
+					)}
+					{removing ? t('settings.cron.actions.removing') : t('settings.cron.actions.remove')}
+				</Button>
+			</div>
 		</SettingsPageShell>
 	);
 };
