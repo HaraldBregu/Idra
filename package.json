@@ -2,7 +2,7 @@
 	"name": "friday",
 	"productName": "Friday",
 	"homepage": "https://github.com/HaraldBregu/friday",
-	"description": "A desktop app with multi prebuilt features",
+	"description": "Your desktop AI copilot for everyday tasks",
 	"author": "Harald Bregu <harald.bregu@gmail.com>",
 	"version": "1.0.0",
 	"private": true,
