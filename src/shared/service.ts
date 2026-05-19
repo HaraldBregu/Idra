@@ -8,9 +8,12 @@ export interface Service {
 	ocr: string;
 }
 
+export type ModelReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh';
+
 export interface Model {
 	id: string;
 	name: string;
+	effort?: ModelReasoningEffort;
 }
 
 export interface Agent {
