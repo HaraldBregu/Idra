@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import type { HomeMultiSelectMessage, ImmediateApprovalSelection } from '../../../../../src/renderer/src/pages/home/context';
 
 const mockSubmitMultiSelect = jest.fn();
-const mockUseAudioRecorder = jest.fn();
+const mockUseRealtimeDictation = jest.fn();
 const mockUseHomeAgent = jest.fn();
 const mockSetMode = jest.fn();
 
@@ -116,8 +116,8 @@ jest.mock('../../../../../src/renderer/src/pages/home/components/PendingMessage'
 }));
 
 jest.mock('../../../../../src/renderer/src/pages/home/hooks', () => ({
-	useAudioRecorder: mockUseAudioRecorder,
 	useHomeAgent: mockUseHomeAgent,
+	useRealtimeDictation: mockUseRealtimeDictation,
 }));
 
 import Page from '../../../../../src/renderer/src/pages/home/Page';
@@ -150,20 +150,20 @@ const pendingMessage: HomeMultiSelectMessage = {
 describe('home page HITL wiring', () => {
 	beforeEach(() => {
 		mockSubmitMultiSelect.mockReset();
-		mockUseAudioRecorder.mockReset();
+		mockUseRealtimeDictation.mockReset();
 		mockUseHomeAgent.mockReset();
 		mockSetMode.mockReset();
-		mockUseAudioRecorder.mockReturnValue({
+		mockUseRealtimeDictation.mockReturnValue({
 			cancel: jest.fn(),
 			elapsedMs: 0,
 			errorMessage: null,
+			finish: jest.fn(async () => undefined),
 			isMuted: false,
 			isSupported: true,
-			permissionState: 'unknown',
 			setMuted: jest.fn(),
 			start: jest.fn(async () => true),
 			status: 'idle',
-			stop: jest.fn(async () => null),
+			stream: null,
 		});
 		mockUseHomeAgent.mockReturnValue({
 			chatState: {
