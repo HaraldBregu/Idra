@@ -19,6 +19,7 @@ import {
 	type ConnectorUpdateInput,
 	type ConnectorView,
 	type GoogleOAuthCredential,
+	type OpenAiConnectorId,
 } from '../../shared/connectors';
 import {
 	GoogleCalendarApiClient,
@@ -64,6 +65,12 @@ interface ConnectorsServiceOptions {
 	googleOAuthClientId?: string;
 	googleOAuthClientSecret?: string;
 }
+
+type ConnectorToolStrategy = (
+	connector: ConnectorConfig,
+	name: string,
+	args: unknown
+) => Promise<unknown>;
 
 function serverLabelFromName(name: string): string {
 	return name
@@ -117,12 +124,17 @@ function toView(connector: ConnectorConfig): ConnectorView {
 	};
 }
 
-function sanitizeInput(input: ConnectorInput): ConnectorInput {
-	const name = input.name.trim();
-	const connectorId = input.connectorId.trim();
-	const authorization = input.authorization?.trim() ?? '';
-	const serverLabel = input.serverLabel?.trim() || serverLabelFromName(name);
-	const serverDescription = input.serverDescription?.trim();
+function sanitizeInput(input: unknown): ConnectorInput {
+	const raw = requireObject(input, 'Connector configuration');
+	const name = readOptionalString(raw, 'name')?.trim() ?? '';
+	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? '';
+	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
+	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || serverLabelFromName(name);
+	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim();
+	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? 'always';
+	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
+	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? false;
+	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
 
 	if (!name) throw new Error('Connector name is required.');
 	if (!isOpenAiConnectorId(connectorId)) throw new Error(`Unsupported connector id: ${connectorId}`);
@@ -133,9 +145,7 @@ function sanitizeInput(input: ConnectorInput): ConnectorInput {
 
 	const catalog = getConnectorCatalogItem(connectorId);
 	const knownToolNames = new Set<string>(catalog?.tools ?? []);
-	const allowedTools = Array.from(
-		new Set((input.allowedTools ?? []).map((tool) => tool.trim()).filter(Boolean))
-	);
+	const uniqueAllowedTools = Array.from(new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean)));
 	const unknownTool = allowedTools.find((tool) => !knownToolNames.has(tool));
 	if (unknownTool) {
 		throw new Error(`Tool "${unknownTool}" is not available for ${catalog?.name ?? connectorId}.`);
@@ -147,14 +157,22 @@ function sanitizeInput(input: ConnectorInput): ConnectorInput {
 		serverLabel,
 		serverDescription: serverDescription || catalog?.description,
 		authorization,
-		requireApproval: input.requireApproval ?? 'always',
-		allowedTools,
-		deferLoading: input.deferLoading ?? false,
-		enabled: input.enabled ?? true,
+		requireApproval,
+		allowedTools: uniqueAllowedTools,
+		deferLoading,
+		enabled,
 	};
 }
 
 export class ConnectorsService {
+	private readonly toolStrategies: Partial<Record<OpenAiConnectorId, ConnectorToolStrategy>> = {
+		connector_gmail: (connector, name, args) => this.callGmailTool(connector, name, args),
+		connector_googlecalendar: (connector, name, args) =>
+			this.callGoogleCalendarTool(connector, name, args),
+		connector_googledrive: (connector, name, args) =>
+			this.callGoogleDriveTool(connector, name, args),
+	};
+
 	constructor(
 		private readonly store: StoreService,
 		private readonly logger: LoggerService,
@@ -197,7 +215,7 @@ export class ConnectorsService {
 		}
 	}
 
-	async add(input: ConnectorInput): Promise<ConnectorConfig> {
+	async add(input: unknown): Promise<ConnectorConfig> {
 		const sanitized = sanitizeInput(input);
 		const now = new Date().toISOString();
 		const connector: ConnectorConfig = {
@@ -221,18 +239,19 @@ export class ConnectorsService {
 		return redactConnectorSecrets(next);
 	}
 
-	async update(id: string, input: ConnectorUpdateInput): Promise<ConnectorConfig> {
+	async update(id: string, input: unknown): Promise<ConnectorConfig> {
 		const current = this.getStored(id);
+		const patch = requireObject(input, 'Connector update');
 		const merged = sanitizeInput({
-			name: input.name ?? current.name,
-			connectorId: input.connectorId ?? current.connectorId,
-			serverLabel: input.serverLabel ?? current.serverLabel,
-			serverDescription: input.serverDescription ?? current.serverDescription,
-			authorization: input.authorization ?? current.authorization,
-			requireApproval: input.requireApproval ?? current.requireApproval,
-			allowedTools: input.allowedTools ?? current.allowedTools,
-			deferLoading: input.deferLoading ?? current.deferLoading,
-			enabled: input.enabled ?? current.enabled,
+			name: readOptionalString(patch, 'name') ?? current.name,
+			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
+			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
+			serverDescription: readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
+			requireApproval: readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
+			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
+			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
+			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
 		});
 		const next = this.withKnownTools({
 			...current,
@@ -375,15 +394,8 @@ export class ConnectorsService {
 		if (!connector.tools.some((tool) => tool.name === name)) {
 			throw new Error(`Tool ${name} is not enabled for ${connector.name}.`);
 		}
-		if (connector.connectorId === 'connector_gmail') {
-			return this.callGmailTool(connector, name, args);
-		}
-		if (connector.connectorId === 'connector_googlecalendar') {
-			return this.callGoogleCalendarTool(connector, name, args);
-		}
-		if (connector.connectorId === 'connector_googledrive') {
-			return this.callGoogleDriveTool(connector, name, args);
-		}
+		const strategy = this.toolStrategies[connector.connectorId];
+		if (strategy) return strategy(connector, name, args);
 		throw new Error(`Local execution is not implemented for ${connector.connectorId}.`);
 	}
 
