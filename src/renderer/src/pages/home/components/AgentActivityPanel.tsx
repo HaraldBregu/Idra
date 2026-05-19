@@ -24,9 +24,10 @@ export function AgentActivityPanel({
 	readonly message: AgentMessage;
 	readonly isStreaming: boolean;
 }): ReactElement | null {
+	const hasTools = message.tools.length > 0;
 	const showActivity =
-		message.state !== 'idle' ||
-		message.tools.length > 0 ||
+		hasTools ||
+		(message.state !== 'idle' && message.state !== 'completed') ||
 		Boolean(message.errorText);
 
 	if (!showActivity) return null;
@@ -42,7 +43,7 @@ export function AgentActivityPanel({
 	return (
 		<div className="flex w-full flex-col gap-3">
 			<div className="flex w-full flex-col gap-1.5">
-				{message.tools.length > 0 ? (
+				{hasTools ? (
 					<AgentToolActivity
 						tools={message.tools}
 						className="w-full"
