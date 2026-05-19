@@ -6,8 +6,6 @@ export interface WorkspaceServiceOptions {
 	rootPath?: string;
 	userDataDirectory?: UserDataDirectoryServicePort;
 	contextHooks?: WorkspaceContextHook[];
-	skipBootstrap?: boolean;
-	skipOptionalBootstrapFiles?: string[];
 }
 
 export interface WriteFileOptions {
