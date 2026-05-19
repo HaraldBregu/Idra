@@ -305,7 +305,11 @@ export class AgentService {
 						createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
 					];
 				}
-				if (bootstrapPending && !baseTools.some((tool) => tool.name === startupFilesTool.name)) {
+				if (
+					bootstrapPending &&
+					isPrimaryRun &&
+					!baseTools.some((tool) => tool.name === startupFilesTool.name)
+				) {
 					baseTools = [...baseTools, startupFilesTool];
 				}
 
@@ -346,7 +350,7 @@ export class AgentService {
 				bootstrapPending =
 					bootstrapPending ||
 					startupFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
-				toolSelection = bootstrapPending
+				toolSelection = bootstrapPending && isPrimaryRun
 					? {
 							toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
 							systemPromptSuffix: '',
