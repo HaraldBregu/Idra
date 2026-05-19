@@ -5,10 +5,10 @@ import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import {
-	DEFAULT_MODEL_REASONING_EFFORT,
 	SPEECH_TRANSCRIBER_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isModelReasoningEffort,
+	normalizeModelReasoningEffort,
 	type Agent,
 	type Model,
 } from '../../shared/service';
@@ -346,7 +346,7 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Reasoning effort is not supported: ${model.effort}`);
 				}
 				const modelToSave = normalizedProviderId === 'openai'
-					? { ...model, effort: model.effort ?? DEFAULT_MODEL_REASONING_EFFORT }
+					? { ...model, effort: normalizeModelReasoningEffort(model.id, model.effort) }
 					: { id: model.id, name: model.name };
 				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)

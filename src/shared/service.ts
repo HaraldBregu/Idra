@@ -24,6 +24,27 @@ export function isModelReasoningEffort(value: unknown): value is ModelReasoningE
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
 }
 
+const GPT_5_4_MINI_REASONING_EFFORTS = MODEL_REASONING_EFFORTS.filter(
+	(effort) => effort !== 'minimal'
+);
+
+export function getModelReasoningEfforts(modelId: string): readonly ModelReasoningEffort[] {
+	const normalizedModelId = modelId.trim().toLowerCase();
+	if (normalizedModelId === 'gpt-5.4-mini') return GPT_5_4_MINI_REASONING_EFFORTS;
+	return MODEL_REASONING_EFFORTS;
+}
+
+export function normalizeModelReasoningEffort(
+	modelId: string,
+	effort: unknown
+): ModelReasoningEffort {
+	const supportedEfforts = getModelReasoningEfforts(modelId);
+	if (isModelReasoningEffort(effort) && supportedEfforts.includes(effort)) return effort;
+	return supportedEfforts.includes(DEFAULT_MODEL_REASONING_EFFORT)
+		? DEFAULT_MODEL_REASONING_EFFORT
+		: supportedEfforts[0] ?? DEFAULT_MODEL_REASONING_EFFORT;
+}
+
 export interface Model {
 	id: string;
 	name: string;

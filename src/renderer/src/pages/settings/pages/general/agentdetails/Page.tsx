@@ -28,8 +28,8 @@ import {
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	SPEECH_TRANSCRIBER_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
-	isModelReasoningEffort,
-	MODEL_REASONING_EFFORTS,
+	getModelReasoningEfforts,
+	normalizeModelReasoningEffort,
 	type Agent,
 	type Model,
 	type ModelReasoningEffort,
@@ -40,10 +40,6 @@ const OPENAI_PROVIDER_ID = 'openai';
 
 function isOpenAiProvider(providerId: string): boolean {
 	return providerId.trim().toLowerCase() === OPENAI_PROVIDER_ID;
-}
-
-function normalizeEffort(effort: unknown): ModelReasoningEffort {
-	return isModelReasoningEffort(effort) ? effort : DEFAULT_MODEL_REASONING_EFFORT;
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -126,7 +122,7 @@ const AgentDetailsPage: React.FC = () => {
 				);
 				setEffort(
 					nextService && preferredProvider?.id === nextService.provider.id && isFridayAgent
-						? normalizeEffort(nextService.model.effort)
+						? normalizeModelReasoningEffort(nextService.model.id, nextService.model.effort)
 						: DEFAULT_MODEL_REASONING_EFFORT
 				);
 			})
@@ -224,9 +220,13 @@ const AgentDetailsPage: React.FC = () => {
 
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
 	const showEffort = isFridayAgent && isOpenAiProvider(providerId);
+	const effortOptions = useMemo(
+		() => showEffort ? getModelReasoningEfforts(modelId) : [],
+		[modelId, showEffort]
+	);
 	const selectedEffort = showEffort ? effort : undefined;
 	const currentEffort = currentAgent && isOpenAiProvider(currentAgent.provider.id)
-		? normalizeEffort(currentAgent.model.effort)
+		? normalizeModelReasoningEffort(currentAgent.model.id, currentAgent.model.effort)
 		: undefined;
 	const hasChanges = isSpeechTranscriberAgent
 		? !currentSpeechTranscriber ||
@@ -246,14 +246,21 @@ const AgentDetailsPage: React.FC = () => {
 	}, []);
 
 	const handleModelChange = useCallback((nextValue: string | null): void => {
-		setModelId(nextValue ?? '');
+		const nextModelId = nextValue ?? '';
+		setModelId(nextModelId);
+		setEffort((current) => normalizeModelReasoningEffort(nextModelId, current));
 		setSuccessMessage('');
 	}, []);
 
 	const handleEffortChange = useCallback((nextValue: string | null): void => {
-		setEffort(normalizeEffort(nextValue));
+		setEffort(normalizeModelReasoningEffort(modelId, nextValue));
 		setSuccessMessage('');
-	}, []);
+	}, [modelId]);
+
+	useEffect(() => {
+		if (!showEffort) return;
+		setEffort((current) => normalizeModelReasoningEffort(modelId, current));
+	}, [modelId, showEffort]);
 
 	const handleSave = useCallback(async (): Promise<void> => {
 		if (!selectedProvider || !selectedModel || !canSave) return;
@@ -272,7 +279,7 @@ const AgentDetailsPage: React.FC = () => {
 			}
 
 			const modelToSave: Model = isOpenAiProvider(selectedProvider.id)
-				? { ...selectedModel, effort }
+				? { ...selectedModel, effort: normalizeModelReasoningEffort(selectedModel.id, effort) }
 				: { id: selectedModel.id, name: selectedModel.name };
 			const saved = await window.app.saveAgentService(selectedProvider, modelToSave);
 			if (!saved) throw new Error(t('settings.agents.saveError'));
@@ -471,7 +478,7 @@ const AgentDetailsPage: React.FC = () => {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										{MODEL_REASONING_EFFORTS.map((value) => (
+										{effortOptions.map((value) => (
 											<SelectItem key={value} value={value}>
 												{t(`settings.agents.effortOptions.${value}`)}
 											</SelectItem>
