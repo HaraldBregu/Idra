@@ -1,6 +1,7 @@
 import {
 	CONNECTOR_CATALOG_COUNTS,
 	CONNECTOR_IMPLEMENTATION_CONTROLS,
+	CONNECTOR_PROVIDER_PLATFORMS,
 	DIRECT_CONNECTOR_CATALOG,
 	OPENAI_CONNECTOR_CATALOG,
 	getDirectConnectorCatalogItem,
@@ -10,6 +11,7 @@ import {
 
 describe('shared connector catalog', () => {
 	it('exposes production connector metadata for frontend and backend use', () => {
+		expect(CONNECTOR_PROVIDER_PLATFORMS).toHaveLength(23);
 		expect(CONNECTOR_CATALOG_COUNTS.directConnectors).toBe(DIRECT_CONNECTOR_CATALOG.length);
 		expect(CONNECTOR_CATALOG_COUNTS.totalCatalogEntries).toBeGreaterThan(DIRECT_CONNECTOR_CATALOG.length);
 		expect(getDirectConnectorCatalogItem('gmail')).toMatchObject({

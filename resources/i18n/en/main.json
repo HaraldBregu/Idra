@@ -475,6 +475,8 @@
 			"title": "Providers",
 			"description": "Manage AI service providers available to Friday.",
 			"registeredProviders": "Registered Providers",
+			"connectorProviderPlatforms": "Connector Provider Platforms",
+			"connectorProviderPlatformsDescription": "Review integration platforms available for future connector execution and governance.",
 			"manageNote": "Manage provider API keys from the Models page in the main navigation.",
 			"noProviders": "No providers configured yet.",
 			"modelsCount": "{{count}} models",
