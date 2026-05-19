@@ -20,7 +20,9 @@ export function AgentTextMessage({
 }): ReactElement {
 	return (
 		<Message className={cn('min-w-0 w-full flex-col', className)}>
-			{showHeader && <AssistantMessageHeader />}
+			{showHeader && (
+				<AssistantMessageHeader avatarState={isStreaming ? 'active' : 'stopped'} />
+			)}
 			<AgentActivityPanel message={message} isStreaming={isStreaming} />
 			{message.content.length > 0 && (
 				<Markdown
