@@ -22,6 +22,7 @@ import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	type Model,
 } from '../../../../shared/service';
+import { hasDefaultAgentModels } from '../../../../shared/provider-models';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -172,6 +173,19 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 	},
 ];
 
+const PROVIDER_CAPABILITIES_BY_ID: Readonly<Record<string, string>> = {
+	openai: 'Chat - Speech-to-text - Text-to-speech',
+	anthropic: 'Chat',
+	google: 'Chat',
+	mistral: 'Chat',
+	groq: 'OpenAI-compatible chat',
+	xai: 'Chat',
+	together: 'OpenAI-compatible chat',
+	perplexity: 'Research chat',
+	deepseek: 'Chat',
+	ollama: 'Local OpenAI-compatible chat',
+};
+
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
@@ -182,12 +196,34 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	};
 }
 
+function providerInitial(name: string): string {
+	const words = name
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean);
+	const initials = words
+		.slice(0, 2)
+		.map((word) => word[0]?.toUpperCase() ?? '')
+		.join('');
+
+	return initials || name.slice(0, 1).toUpperCase();
+}
+
 const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 	normalizeProvider(provider, index)
 );
 const supportedProviderIds = new Set(providerOptions.map((provider) => provider.value));
-const actionableProviderCatalog = PROVIDER_CATALOG.filter((provider) =>
-	supportedProviderIds.has(provider.id)
+const actionableProviderCatalog: readonly ProviderCatalogItem[] = DEFAULT_PROVIDERS.map(
+	(provider) => ({
+		id: provider.id,
+		name: provider.name,
+		capabilities:
+			PROVIDER_CAPABILITIES_BY_ID[provider.id] ??
+			(hasDefaultAgentModels(provider.id) ? 'Chat' : 'OpenAI-compatible provider'),
+		initial: providerInitial(provider.name),
+		swatchClassName: 'bg-muted text-muted-foreground',
+		supported: true,
+	})
 );
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -200,7 +236,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 
 function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	return (
-		PROVIDER_CATALOG.find((provider) => provider.id === providerId) ?? {
+		actionableProviderCatalog.find((provider) => provider.id === providerId) ?? {
 			id: providerId,
 			name: providerOptions.find((provider) => provider.value === providerId)?.label ?? providerId,
 			capabilities: 'Chat',
