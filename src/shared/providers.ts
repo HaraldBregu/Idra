@@ -57,7 +57,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	{
 		id: 'cohere',
 		name: 'Cohere',
-		baseUrl: 'https://api.cohere.com/v2',
+		baseUrl: ' ',
 		apiKey: '',
 		capabilities: 'Chat - Speech-to-text',
 	},
