@@ -31,7 +31,7 @@ These are the named tools the runtime can expose when they are present in the ac
 | `find` | Searches the workspace for matching files while respecting workspace path policy. |
 | `exec` | Runs shell commands for build, test, script, and terminal tasks with capped output, timeout, and loop controls. |
 | `process` | Inspects or stops background processes that were started through `exec`. |
-| `startup_files` | Manages allowlisted agent startup files during bootstrap-oriented runs; it is denied by the default local tool set. |
+| `startup_files` | Manages allowlisted workspace startup files during bootstrap-oriented runs; it is denied by the default local tool set. |
 | `web_fetch` | Fetches HTTP or HTTPS content when the request needs current external documentation or web data. |
 | `cron` | Schedules, lists, updates, removes, manually runs, or wakes Gateway-owned scheduled jobs; mutating actions are approval-marked but do not pause the active agent path. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
