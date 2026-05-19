@@ -1,7 +1,7 @@
 import type { ChannelRegistry } from '../../channels';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
-import type { AgentService } from '../../service';
+import type { AgentSendOptions, AgentService } from '../../service';
 import type { HeartbeatService } from '../../heartbeat';
 import type { HeartbeatWakeOverride } from '../../../shared/heartbeat';
 import type {
@@ -49,7 +49,7 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			});
 			return { status: 'ok', output: '', alreadyDelivered: true };
 		}
-		const output = await this.agentService.send(message, agentId, {
+		const sendOptions: AgentSendOptions = {
 			sessionId,
 			cronContext: {
 				role: 'cron-self',
@@ -57,7 +57,16 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 				agentId,
 				sessionKey: input.job.sessionKey,
 			},
-		});
+		};
+		if (input.job.payload.kind === 'agentTurn') {
+			if (input.job.payload.model) sendOptions.model = input.job.payload.model;
+			if (input.job.payload.thinking) sendOptions.effort = input.job.payload.thinking;
+			if (input.job.payload.lightContext !== undefined) {
+				sendOptions.lightContext = input.job.payload.lightContext;
+			}
+			if (input.job.payload.toolsAllow) sendOptions.toolsAllow = input.job.payload.toolsAllow;
+		}
+		const output = await this.agentService.send(message, agentId, sendOptions);
 		return { status: 'ok', output };
 	}
 
