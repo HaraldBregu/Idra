@@ -134,7 +134,7 @@ const AgentDetailsPage: React.FC = () => {
 				);
 				setEffort(
 					nextService && preferredProvider?.id === nextService.provider.id && isFridayAgent
-						? normalizeModelReasoningEffort(nextService.model.id, nextService.model.effort)
+						? effortForModel(nextService.model.id, nextService.model.effort)
 						: DEFAULT_MODEL_REASONING_EFFORT
 				);
 			})
@@ -238,7 +238,7 @@ const AgentDetailsPage: React.FC = () => {
 	);
 	const selectedEffort = showEffort ? effort : undefined;
 	const currentEffort = currentAgent && isOpenAiProvider(currentAgent.provider.id)
-		? normalizeModelReasoningEffort(currentAgent.model.id, currentAgent.model.effort)
+		? storedEffortForComparison(currentAgent.model)
 		: undefined;
 	const hasChanges = isSpeechTranscriberAgent
 		? !currentSpeechTranscriber ||
@@ -260,18 +260,18 @@ const AgentDetailsPage: React.FC = () => {
 	const handleModelChange = useCallback((nextValue: string | null): void => {
 		const nextModelId = nextValue ?? '';
 		setModelId(nextModelId);
-		setEffort((current) => normalizeModelReasoningEffort(nextModelId, current));
+		setEffort((current) => effortForModel(nextModelId, current));
 		setSuccessMessage('');
 	}, []);
 
 	const handleEffortChange = useCallback((nextValue: string | null): void => {
-		setEffort(normalizeModelReasoningEffort(modelId, nextValue));
+		setEffort(effortForModel(modelId, nextValue));
 		setSuccessMessage('');
 	}, [modelId]);
 
 	useEffect(() => {
 		if (!showEffort) return;
-		setEffort((current) => normalizeModelReasoningEffort(modelId, current));
+		setEffort((current) => effortForModel(modelId, current));
 	}, [modelId, showEffort]);
 
 	const handleSave = useCallback(async (): Promise<void> => {
@@ -291,7 +291,7 @@ const AgentDetailsPage: React.FC = () => {
 			}
 
 			const modelToSave: Model = isOpenAiProvider(selectedProvider.id)
-				? { ...selectedModel, effort: normalizeModelReasoningEffort(selectedModel.id, effort) }
+				? { ...selectedModel, effort: effortForModel(selectedModel.id, effort) }
 				: { id: selectedModel.id, name: selectedModel.name };
 			const saved = await window.app.saveAgentService(selectedProvider, modelToSave);
 			if (!saved) throw new Error(t('settings.agents.saveError'));
