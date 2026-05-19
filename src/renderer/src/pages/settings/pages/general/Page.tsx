@@ -69,6 +69,23 @@ const TRANSLUCENCY_OPTIONS = [
 
 const FRIDAY_AGENT_ID = 'main';
 
+const AGENT_ROWS = [
+	{
+		id: FRIDAY_AGENT_ID,
+		nameKey: 'settings.agents.fridayName',
+		descriptionKey: 'settings.agents.fridayDescription',
+		icon: Bot,
+		configurable: true,
+	},
+	{
+		id: 'speech-to-text',
+		nameKey: 'settings.agents.speechTranscriberName',
+		descriptionKey: 'settings.agents.speechTranscriberDescription',
+		icon: Mic,
+		configurable: false,
+	},
+] as const;
+
 const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
 	enabled: true,
 	systemStatus: 'unknown',
@@ -229,30 +246,42 @@ const GeneralPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.agents.title')}>
 				<Card size="sm" className="gap-0! p-0!">
-					<Item
-						role="button"
-						tabIndex={0}
-						variant="outline"
-						size="md"
-						className="cursor-pointer border-b border-border/60 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring/55"
-						onClick={openFridayAgent}
-						onKeyDown={handleFridayAgentKeyDown}
-					>
-						<ItemMedia variant="icon">
-							<Bot className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-								{t('settings.agents.fridayName')}
-							</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-								{t('settings.agents.fridayDescription')}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
-						</ItemActions>
-					</Item>
+					{AGENT_ROWS.map((agent) => {
+						const Icon = agent.icon;
+						return (
+							<Item
+								key={agent.id}
+								role={agent.configurable ? 'button' : undefined}
+								tabIndex={agent.configurable ? 0 : undefined}
+								variant="outline"
+								size="md"
+								className={
+									agent.configurable
+										? 'cursor-pointer border-b border-border/60 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring/55'
+										: 'border-b border-border/60 last:border-b-0'
+								}
+								onClick={agent.configurable ? openFridayAgent : undefined}
+								onKeyDown={agent.configurable ? handleFridayAgentKeyDown : undefined}
+							>
+								<ItemMedia variant="icon">
+									<Icon className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+										{t(agent.nameKey)}
+									</ItemTitle>
+									<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+										{t(agent.descriptionKey)}
+									</p>
+								</ItemContent>
+								{agent.configurable && (
+									<ItemActions className="ml-auto flex-none justify-end">
+										<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
+									</ItemActions>
+								)}
+							</Item>
+						);
+					})}
 				</Card>
 			</SettingsSection>
 
