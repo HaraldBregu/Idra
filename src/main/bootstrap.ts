@@ -109,7 +109,6 @@ export function bootstrapServices(): BootstrapResult {
 			logger,
 			eventBus,
 			startupFiles,
-			workspace,
 			agentService,
 			channelRegistry,
 		})
