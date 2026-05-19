@@ -14,7 +14,7 @@ interface StartupFilesArgs {
 export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 	name: 'startup_files',
 	description:
-		'List, read, write, or complete bootstrap for allowlisted agent startup files under .friday/agent/workspaces/<agentId>.',
+		'List, read, write, or complete bootstrap for allowlisted workspace startup files at the active workspace root.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -40,16 +40,17 @@ export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 		const agentId = ctx.agentId ?? DEFAULT_AGENT_ID;
 		try {
 			if (args.action === 'list') {
-				const files = await ctx.services.startupFiles.listFiles(agentId);
+				void agentId;
+				const files = await ctx.services.workspace.listWorkspaceFiles();
 				return textResult(JSON.stringify({
-					rootPath: ctx.services.startupFiles.getRootPath(agentId),
+					rootPath: ctx.services.workspace.getRootPath(),
 					files,
 				}, null, 2));
 			}
 
 			if (args.action === 'read') {
 				if (!args.name) return textResult('startup_files: name is required for read.', true);
-				const file = await ctx.services.startupFiles.readFile(agentId, args.name);
+				const file = await ctx.services.workspace.readWorkspaceFile(args.name);
 				if (file.missing) {
 					return textResult(`startup_files: ${args.name} is missing at ${file.path}`, true);
 				}
@@ -61,12 +62,12 @@ export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 				if (typeof args.content !== 'string') {
 					return textResult('startup_files: content is required for write.', true);
 				}
-				const file = await ctx.services.startupFiles.writeFile(agentId, args.name, args.content);
+				const file = await ctx.services.workspace.writeWorkspaceFile(args.name, args.content);
 				return textResult(`wrote ${file.path} (${Buffer.byteLength(file.content ?? '', 'utf8')} bytes)`);
 			}
 
 			if (args.action === 'complete_bootstrap') {
-				await ctx.services.startupFiles.completeBootstrap(agentId);
+				await ctx.services.workspace.completeBootstrap();
 				return textResult('completed startup bootstrap');
 			}
 
