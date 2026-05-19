@@ -35,21 +35,31 @@ interface MockWindow {
 		send: jest.Mock;
 	};
 	emit: (event: string, ...args: unknown[]) => void;
+	emitWebContents: (event: string, ...args: unknown[]) => void;
 }
 
 function createMockWindow(id: number): MockWindow {
 	const listeners = new Map<string, Listener[]>();
+	const webContentsListeners = new Map<string, Listener[]>();
 	let visible = false;
 	let destroyed = false;
 
-	const addListener = (event: string, listener: Listener): void => {
-		const eventListeners = listeners.get(event) ?? [];
+	const addListener = (
+		targetListeners: Map<string, Listener[]>,
+		event: string,
+		listener: Listener
+	): void => {
+		const eventListeners = targetListeners.get(event) ?? [];
 		eventListeners.push(listener);
-		listeners.set(event, eventListeners);
+		targetListeners.set(event, eventListeners);
 	};
 
-	const emitWindowEvent = (event: string, ...args: unknown[]): void => {
-		for (const listener of listeners.get(event) ?? []) {
+	const emitEvent = (
+		targetListeners: Map<string, Listener[]>,
+		event: string,
+		...args: unknown[]
+	): void => {
+		for (const listener of targetListeners.get(event) ?? []) {
 			listener(...args);
 		}
 	};
@@ -58,7 +68,7 @@ function createMockWindow(id: number): MockWindow {
 		id,
 		loadURL: jest.fn(async () => undefined),
 		on: jest.fn((event: string, listener: Listener) => {
-			addListener(event, listener);
+			addListener(listeners, event, listener);
 			return win;
 		}),
 		once: jest.fn((event: string, listener: Listener) => {
@@ -69,16 +79,16 @@ function createMockWindow(id: number): MockWindow {
 				);
 				listener(...args);
 			};
-			addListener(event, onceListener);
+			addListener(listeners, event, onceListener);
 			return win;
 		}),
 		show: jest.fn(() => {
 			visible = true;
-			emitWindowEvent('show');
+			emitEvent(listeners, 'show');
 		}),
 		hide: jest.fn(() => {
 			visible = false;
-			emitWindowEvent('hide');
+			emitEvent(listeners, 'hide');
 		}),
 		focus: jest.fn(),
 		isDestroyed: jest.fn(() => destroyed),
@@ -88,7 +98,10 @@ function createMockWindow(id: number): MockWindow {
 		setVisibleOnAllWorkspaces: jest.fn(),
 		setPosition: jest.fn(),
 		webContents: {
-			on: jest.fn(),
+			on: jest.fn((event: string, listener: Listener) => {
+				addListener(webContentsListeners, event, listener);
+				return win.webContents;
+			}),
 			send: jest.fn(),
 		},
 		emit: (event: string, ...args: unknown[]) => {
@@ -96,7 +109,10 @@ function createMockWindow(id: number): MockWindow {
 				destroyed = true;
 				visible = false;
 			}
-			emitWindowEvent(event, ...args);
+			emitEvent(listeners, event, ...args);
+		},
+		emitWebContents: (event: string, ...args: unknown[]) => {
+			emitEvent(webContentsListeners, event, ...args);
 		},
 	};
 
@@ -153,7 +169,7 @@ describe('Main windows', () => {
 			minHeight: 100,
 			maxWidth: 300,
 			maxHeight: 100,
-			backgroundColor: '#00000000',
+			backgroundColor: 'rgba(10, 12, 18, 0.78)',
 			show: false,
 			transparent: true,
 			frame: false,
@@ -168,7 +184,7 @@ describe('Main windows', () => {
 		}), { html: 'tray.html' });
 		expect(trayOptions.parent).toBeUndefined();
 		expect(appWindow.show).not.toHaveBeenCalled();
-		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#00000000');
+		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('rgba(10, 12, 18, 0.78)');
 		expect(trayWindow.setAlwaysOnTop).toHaveBeenCalledWith(true, 'floating');
 		expect(trayWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(
 			true,
@@ -193,6 +209,27 @@ describe('Main windows', () => {
 		trayWindow.setVisibleOnAllWorkspaces.mockClear();
 		trayWindow.emit('blur');
 
+		expect(trayWindow.hide).toHaveBeenCalledTimes(1);
+		expect(trayWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(false);
+	});
+
+	it('hides the tray window when Escape is pressed', () => {
+		const appWindow = createMockWindow(1);
+		const trayWindow = createMockWindow(2);
+		const { main } = createMain([appWindow, trayWindow]);
+		main.create();
+		appWindow.emit('ready-to-show');
+
+		main.showTrayWindow();
+		trayWindow.hide.mockClear();
+		trayWindow.setVisibleOnAllWorkspaces.mockClear();
+		const event = { preventDefault: jest.fn() };
+		trayWindow.emitWebContents('before-input-event', event, {
+			type: 'keyDown',
+			key: 'Escape',
+		});
+
+		expect(event.preventDefault).toHaveBeenCalledTimes(1);
 		expect(trayWindow.hide).toHaveBeenCalledTimes(1);
 		expect(trayWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(false);
 	});
