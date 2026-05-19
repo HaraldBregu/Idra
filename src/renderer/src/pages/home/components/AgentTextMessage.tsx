@@ -16,9 +16,9 @@ export function AgentTextMessage({
 	readonly showHeader?: boolean;
 }): ReactElement {
 	return (
-		<Message className="min-w-0 w-full flex-col gap-2">
+		<Message className="min-w-0 w-full flex-col">
 			{showHeader && <AssistantMessageHeader />}
-			<div className="flex min-w-0 w-full flex-col gap-1.5">
+			<div className="flex min-w-0 w-full flex-col">
 				<AgentActivityPanel message={message} isStreaming={isStreaming} />
 				{message.content.length > 0 && (
 					<Markdown
