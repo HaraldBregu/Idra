@@ -6,6 +6,8 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import {
 	DEFAULT_MODEL_REASONING_EFFORT,
+	SPEECH_TRANSCRIBER_MODELS,
+	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isModelReasoningEffort,
 	type Agent,
 	type Model,
@@ -348,6 +350,27 @@ export class AppIpc implements IpcModule {
 					: { id: model.id, name: model.name };
 				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.getSpeechTranscriberService,
+			wrapSimpleHandler((): Agent | undefined => {
+				return store.getSpeechTranscriberService();
+			}, ProviderChannels.getSpeechTranscriberService)
+		);
+
+		ipcMain.handle(
+			ProviderChannels.saveSpeechTranscriberService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				const normalizedProviderId = provider.id.trim().toLowerCase();
+				if (normalizedProviderId !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
+					throw new Error('Speech transcription currently supports OpenAI only.');
+				}
+				if (!SPEECH_TRANSCRIBER_MODELS.some((option) => option.id === model.id)) {
+					throw new Error(`Model is not supported for speech transcription: ${model.id}`);
+				}
+				return store.setSpeechTranscriberService(provider.id, { id: model.id, name: model.name });
+			}, ProviderChannels.saveSpeechTranscriberService)
 		);
 
 		ipcMain.handle(
