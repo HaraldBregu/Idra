@@ -6,6 +6,7 @@ import type { FridayCronStoreState } from "../cron/friday/store";
 import type { HeartbeatStoreState } from "../../shared/heartbeat";
 import { Channel } from "../../shared/channels";
 import { ConnectorConfig } from "../../shared/connectors";
+import type { AppPermissionSettings } from "../../shared/app-permissions";
 
 export interface StoreSchema {
 	providers: Provider[];
@@ -16,6 +17,7 @@ export interface StoreSchema {
 	heartbeat: HeartbeatStoreState;
 	channel: Channel;
 	connectors: ConnectorConfig[];
+	appPermissions: AppPermissionSettings;
 }
 
 export type SettingsStore = {
