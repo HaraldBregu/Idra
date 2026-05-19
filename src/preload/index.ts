@@ -183,6 +183,15 @@ export const app: AppApi = {
 	getTrayEnabled: (): Promise<boolean> => {
 		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
 	},
+	getMicrophonePermission: () => {
+		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
+	},
+	setMicrophoneEnabled: (enabled: boolean) => {
+		return typedInvokeUnwrap(AppChannels.setMicrophoneEnabled, enabled);
+	},
+	requestMicrophonePermission: () => {
+		return typedInvokeUnwrap(AppChannels.requestMicrophonePermission);
+	},
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
