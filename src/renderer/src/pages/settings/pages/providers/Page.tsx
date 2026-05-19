@@ -124,7 +124,10 @@ const ProvidersPage: React.FC = () => {
 									</Button>
 									{isSaved && !isEditing ? (
 										<>
-											<Badge variant="secondary" className="h-6 rounded-md px-2 text-xs font-semibold">
+											<Badge
+												variant="secondary"
+												className="h-6 rounded-md px-2 text-xs font-semibold"
+											>
 												<Check className="size-3" />
 												{t('settings.providers.keySaved')}
 											</Badge>

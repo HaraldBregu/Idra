@@ -20,10 +20,7 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import {
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-	type Model,
-} from '../../../../shared/service';
+import { REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, type Model } from '../../../../shared/service';
 import adobeFireflyIconDark from '@resources/icons/model_providers/23_adobe_firefly/fallback_lobehub/png_dark/adobefirefly-color.png';
 import adobeFireflyIconLight from '@resources/icons/model_providers/23_adobe_firefly/fallback_lobehub/png_light/adobefirefly-color.png';
 import ai21IconDark from '@resources/icons/model_providers/29_ai21_labs/fallback_lobehub/png_dark/ai21.png';
@@ -152,11 +149,7 @@ type AgentModelOption = {
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
-const SETUP_STEPS: readonly SetupStep[] = [
-	'welcome',
-	'providers',
-	'models',
-];
+const SETUP_STEPS: readonly SetupStep[] = ['welcome', 'providers', 'models'];
 
 const STEP_TITLES: Record<SetupStep, string> = {
 	welcome: 'Welcome',
@@ -208,10 +201,7 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 }
 
 function providerInitial(name: string): string {
-	const words = name
-		.trim()
-		.split(/\s+/)
-		.filter(Boolean);
+	const words = name.trim().split(/\s+/).filter(Boolean);
 	const initials = words
 		.slice(0, 2)
 		.map((word) => word[0]?.toUpperCase() ?? '')
@@ -325,12 +315,7 @@ function ProviderMark({
 
 	if (!initial) {
 		return (
-			<div
-				className={cn(
-					'flex size-8 shrink-0 items-center justify-center rounded-md',
-					className
-				)}
-			>
+			<div className={cn('flex size-8 shrink-0 items-center justify-center rounded-md', className)}>
 				<div className="size-4 rounded-full border-2 border-current/80" />
 			</div>
 		);
@@ -502,8 +487,7 @@ function ModelSetupCard({
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState<SetupStep>('welcome');
-	const [expandedModelCardId, setExpandedModelCardId] =
-		useState<ModelSetupCardId>('friday');
+	const [expandedModelCardId, setExpandedModelCardId] = useState<ModelSetupCardId>('friday');
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
@@ -559,16 +543,12 @@ const StartPage: React.FC = () => {
 			? 'No models available'
 			: `${agentModelOptions.length} models available`;
 	const canSaveAgentModel =
-		selectedAgentModelOption !== undefined &&
-		!loadingModels &&
-		!savingConfig;
+		selectedAgentModelOption !== undefined && !loadingModels && !savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
 	const connectedProviderIds = useMemo(
 		() =>
 			new Set(
-				providerEntries
-					.filter((entry) => entry.apiKeySaved)
-					.map((entry) => entry.providerId)
+				providerEntries.filter((entry) => entry.apiKeySaved).map((entry) => entry.providerId)
 			),
 		[providerEntries]
 	);
@@ -597,9 +577,9 @@ const StartPage: React.FC = () => {
 
 						return {
 							providerId: provider.id,
-							apiKey: saved ? MASKED_API_KEY : current?.apiKey ?? '',
+							apiKey: saved ? MASKED_API_KEY : (current?.apiKey ?? ''),
 							apiKeySaved: saved,
-							editing: saved ? false : current?.editing ?? (!hasSavedProvider && index === 0),
+							editing: saved ? false : (current?.editing ?? (!hasSavedProvider && index === 0)),
 						};
 					})
 				);
@@ -634,9 +614,7 @@ const StartPage: React.FC = () => {
 					supportedProviderIds.has(provider.id)
 				);
 				const preferredProvider =
-					selectableProviders.find(
-						(provider) => provider.id === agentService?.provider.id
-					) ??
+					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
 					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 					selectableProviders[0];
 
@@ -699,8 +677,7 @@ const StartPage: React.FC = () => {
 				);
 				const preferredAgentOption =
 					agentOptions.find(
-						(option) =>
-							option.provider.id === configProvider && option.model.id === savedModelId
+						(option) => option.provider.id === configProvider && option.model.id === savedModelId
 					) ??
 					agentOptions.find((option) => option.provider.id === configProvider) ??
 					agentOptions[0];
@@ -795,8 +772,7 @@ const StartPage: React.FC = () => {
 		try {
 			const entriesToSave = providerEntries.filter((entry) => {
 				return (
-					entry.apiKey.trim().length > 0 &&
-					(!entry.apiKeySaved || entry.apiKey !== MASKED_API_KEY)
+					entry.apiKey.trim().length > 0 && (!entry.apiKeySaved || entry.apiKey !== MASKED_API_KEY)
 				);
 			});
 
@@ -859,9 +835,7 @@ const StartPage: React.FC = () => {
 				selectedAgentModelOption.model
 			);
 			const openAiProvider = providers.find((provider) => provider.id === 'openai');
-			const selectedSpeechOption = SPEECH_MODELS.find(
-				(model) => model.id === selectedSpeechModel
-			);
+			const selectedSpeechOption = SPEECH_MODELS.find((model) => model.id === selectedSpeechModel);
 			if (openAiProvider && selectedSpeechOption) {
 				await window.app.saveSpeechTranscriberService(openAiProvider, {
 					id: selectedSpeechOption.id,
@@ -913,10 +887,7 @@ const StartPage: React.FC = () => {
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
-				<Badge
-					variant="secondary"
-					className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold"
-				>
+				<Badge variant="secondary" className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold">
 					<Check className="size-3" />
 					Setup takes about a minute
 				</Badge>
@@ -924,8 +895,8 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Let&apos;s get your assistant ready. Connect one AI provider, choose the
-					model {PRODUCT_NAME} should use, and add the tools you want help with.
+					Let&apos;s get your assistant ready. Connect one AI provider, choose the model{' '}
+					{PRODUCT_NAME} should use, and add the tools you want help with.
 				</p>
 			</div>
 		);
@@ -939,8 +910,8 @@ const StartPage: React.FC = () => {
 						Connect your AI provider
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Add one API key so {PRODUCT_NAME} can start answering your requests.
-						Your key is saved locally in {PRODUCT_NAME}'s app data folder.
+						Add one API key so {PRODUCT_NAME} can start answering your requests. Your key is saved
+						locally in {PRODUCT_NAME}'s app data folder.
 					</p>
 				</div>
 
@@ -1030,12 +1001,7 @@ const StartPage: React.FC = () => {
 													</Button>
 												)
 											) : (
-												<Button
-													type="button"
-													variant="outline"
-													size="xs"
-													disabled
-												>
+												<Button type="button" variant="outline" size="xs" disabled>
 													Soon
 												</Button>
 											)}
@@ -1095,8 +1061,8 @@ const StartPage: React.FC = () => {
 					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 						<KeyRound className="size-4 shrink-0" />
 						<p className="text-xs font-medium leading-snug">
-							Keys stay in {PRODUCT_NAME}'s local app data folder and are only used
-							for providers you connect. You can revoke them anytime.
+							Keys stay in {PRODUCT_NAME}'s local app data folder and are only used for providers
+							you connect. You can revoke them anytime.
 						</p>
 					</div>
 				</div>
@@ -1123,8 +1089,8 @@ const StartPage: React.FC = () => {
 						Configure your AI setup
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the models Friday will use for chat, voice, and creative work.
-						Only connected providers appear.
+						Choose the models Friday will use for chat, voice, and creative work. Only connected
+						providers appear.
 					</p>
 				</div>
 
@@ -1148,10 +1114,7 @@ const StartPage: React.FC = () => {
 									onValueChange={handleAgentProviderChange}
 									disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
 								>
-									<SelectTrigger
-										id="agent-provider"
-										className="w-full text-xs sm:w-72"
-									>
+									<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
 										<SelectValue placeholder={modelCountLabel} />
 									</SelectTrigger>
 									<SelectContent>
@@ -1159,10 +1122,7 @@ const StartPage: React.FC = () => {
 											const catalog = getProviderCatalogItem(group.provider.id);
 
 											return (
-												<SelectItem
-													key={group.provider.id}
-													value={group.provider.id}
-												>
+												<SelectItem key={group.provider.id} value={group.provider.id}>
 													{catalog.name}
 												</SelectItem>
 											);
@@ -1179,18 +1139,12 @@ const StartPage: React.FC = () => {
 									onValueChange={handleAgentModelChange}
 									disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
 								>
-									<SelectTrigger
-										id="agent-model"
-										className="w-full text-xs sm:w-72"
-									>
+									<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
 										<SelectValue placeholder={modelCountLabel} />
 									</SelectTrigger>
 									<SelectContent>
 										{selectedAgentModels.map((model) => (
-											<SelectItem
-												key={model.id}
-												value={model.id}
-											>
+											<SelectItem key={model.id} value={model.id}>
 												{model.name}
 											</SelectItem>
 										))}
@@ -1204,7 +1158,7 @@ const StartPage: React.FC = () => {
 						id="voice-input-model"
 						title="Voice Input"
 						description="Transcribes your microphone into text."
-						status={openAiConnected ? selectedSpeechOption?.name ?? 'Ready' : 'OpenAI required'}
+						status={openAiConnected ? (selectedSpeechOption?.name ?? 'Ready') : 'OpenAI required'}
 						icon={Mic}
 						open={expandedModelCardId === 'voice-input'}
 						onToggle={() => toggleModelCard('voice-input')}
@@ -1292,8 +1246,8 @@ const StartPage: React.FC = () => {
 						<div className="mt-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 							<ImageIcon className="size-4 shrink-0" />
 							<p className="text-xs font-medium leading-snug">
-								Image creation is not configurable yet. It will appear here when an
-								image provider is available.
+								Image creation is not configurable yet. It will appear here when an image provider
+								is available.
 							</p>
 						</div>
 					</ModelSetupCard>

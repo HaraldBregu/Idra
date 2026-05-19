@@ -78,9 +78,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		authMethod: 'HTTP Bearer token',
 		recommendedEnvVars: ['XAI_API_KEY'],
 		baseUrls: ['https://api.x.ai/v1'],
-		importantNotes: [
-			'Generate key in the xAI console/API Keys page, then export XAI_API_KEY.',
-		],
+		importantNotes: ['Generate key in the xAI console/API Keys page, then export XAI_API_KEY.'],
 	},
 	mistral: {
 		credentialType: 'API key',
@@ -172,11 +170,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		apiKeyManagementUrl: 'https://console.cloud.tencent.com/cam/capi',
 		configurationDocsUrl: 'https://intl.cloud.tencent.com/ind/document/product/1290/79463',
 		authMethod: 'Tencent Cloud API 3.0 signature or Hunyuan API key depending on endpoint',
-		recommendedEnvVars: [
-			'TENCENTCLOUD_SECRET_ID',
-			'TENCENTCLOUD_SECRET_KEY',
-			'HUNYUAN_API_KEY',
-		],
+		recommendedEnvVars: ['TENCENTCLOUD_SECRET_ID', 'TENCENTCLOUD_SECRET_KEY', 'HUNYUAN_API_KEY'],
 		baseUrls: [],
 		importantNotes: [
 			'Tencent Cloud services often use SecretId/SecretKey signing rather than a single API key; Hunyuan console also exposes API-key pages for some products/regions.',
@@ -184,8 +178,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 	},
 	'bytedance-seed': {
 		credentialType: 'BytePlus ModelArk API key',
-		apiKeyManagementUrl:
-			'https://console.byteplus.com/ark/region:ark+ap-southeast-1/apiKey',
+		apiKeyManagementUrl: 'https://console.byteplus.com/ark/region:ark+ap-southeast-1/apiKey',
 		configurationDocsUrl: 'https://docs.byteplus.com/en/docs/ModelArk/1399008',
 		authMethod: 'API key / Bearer token',
 		recommendedEnvVars: ['ARK_API_KEY', 'BYTEPLUS_API_KEY'],
@@ -196,8 +189,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 	},
 	minimax: {
 		credentialType: 'API key; Token Plan key is separate',
-		apiKeyManagementUrl:
-			'https://platform.minimax.io/user-center/basic-information/interface-key',
+		apiKeyManagementUrl: 'https://platform.minimax.io/user-center/basic-information/interface-key',
 		configurationDocsUrl: 'https://platform.minimax.io/docs/api-reference/api-overview',
 		authMethod: 'API key / Bearer token',
 		recommendedEnvVars: ['MINIMAX_API_KEY'],
@@ -262,8 +254,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 	'adobe-firefly': {
 		credentialType: 'Adobe Developer API key/client credentials plus access token',
 		apiKeyManagementUrl: 'https://developer.adobe.com/console',
-		configurationDocsUrl:
-			'https://developer.adobe.com/firefly-services/docs/guides/get-started',
+		configurationDocsUrl: 'https://developer.adobe.com/firefly-services/docs/guides/get-started',
 		authMethod: 'Adobe API key + OAuth access token',
 		recommendedEnvVars: [
 			'FIREFLY_SERVICES_CLIENT_ID',
@@ -305,9 +296,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		authMethod: 'API key authentication',
 		recommendedEnvVars: ['LUMA_API_KEY'],
 		baseUrls: ['https://api.lumalabs.ai/dream-machine/v1'],
-		importantNotes: [
-			"Dream Machine API keys and billing are managed in Luma's API dashboard.",
-		],
+		importantNotes: ["Dream Machine API keys and billing are managed in Luma's API dashboard."],
 	},
 	'stability-ai': {
 		credentialType: 'API key',
@@ -375,8 +364,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 	perplexity: {
 		credentialType: 'API key',
 		apiKeyManagementUrl: 'https://www.perplexity.ai/settings/api',
-		configurationDocsUrl:
-			'https://docs.perplexity.ai/docs/admin/api-key-management',
+		configurationDocsUrl: 'https://docs.perplexity.ai/docs/admin/api-key-management',
 		authMethod: 'Bearer token',
 		recommendedEnvVars: ['PPLX_API_KEY', 'PERPLEXITY_API_KEY'],
 		baseUrls: ['https://api.perplexity.ai'],
@@ -389,8 +377,7 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		apiKeyManagementUrl: 'https://build.nvidia.com/settings/api-keys',
 		configurationDocsUrl:
 			'https://docs.nvidia.com/nim/large-language-models/latest/getting-started.html',
-		authMethod:
-			'Bearer token for hosted NVIDIA NIM endpoints; NGC key for NGC services',
+		authMethod: 'Bearer token for hosted NVIDIA NIM endpoints; NGC key for NGC services',
 		recommendedEnvVars: ['NVIDIA_API_KEY', 'NGC_API_KEY'],
 		baseUrls: ['https://integrate.api.nvidia.com/v1'],
 		importantNotes: [
@@ -736,19 +723,13 @@ export const DEFAULT_AGENT_MODELS_BY_PROVIDER: Readonly<Record<string, readonly 
 		{ id: 'ernie-x1.1', name: 'ERNIE X1.1' },
 		{ id: 'ernie-4.5', name: 'ERNIE 4.5' },
 	],
-	'tencent-hunyuan': [
-		{ id: 'hy3-preview', name: 'Hy3 Preview' },
-	],
+	'tencent-hunyuan': [{ id: 'hy3-preview', name: 'Hy3 Preview' }],
 	'bytedance-seed': [
 		{ id: 'seed2.0-pro', name: 'Seed2.0 Pro' },
 		{ id: 'seed2.0-code', name: 'Seed2.0 Code' },
 	],
-	minimax: [
-		{ id: 'minimax-m2.7', name: 'MiniMax M2.7' },
-	],
-	luma: [
-		{ id: 'uni-1', name: 'Uni-1' },
-	],
+	minimax: [{ id: 'minimax-m2.7', name: 'MiniMax M2.7' }],
+	luma: [{ id: 'uni-1', name: 'Uni-1' }],
 	reka: [
 		{ id: 'reka-core', name: 'Reka Core' },
 		{ id: 'reka-flash', name: 'Reka Flash' },
@@ -789,9 +770,9 @@ export function getProviderApiConfigurationUrl(
 }
 
 export function getDefaultAgentModels(providerId: string): Model[] {
-	return (DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] ?? []).map(
-		(model) => ({ ...model })
-	);
+	return (DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] ?? []).map((model) => ({
+		...model,
+	}));
 }
 
 export function hasDefaultAgentModels(providerId: string): boolean {
