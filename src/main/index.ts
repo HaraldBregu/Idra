@@ -6,6 +6,7 @@ import { Main } from './main';
 import { Tray } from './tray';
 import { Menu } from './menu';
 import { ShortcutManager } from './shortcuts';
+import type { StoreService } from './store';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -93,9 +94,10 @@ function isTrustedMediaRequestSource(
 	);
 }
 
-function setupMediaPermissionHandlers(): void {
+function setupMediaPermissionHandlers(store: StoreService): void {
 	session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
 		if (permission !== 'media') return false;
+		if (!store.getMicrophoneEnabled()) return false;
 		if (details.mediaType !== 'audio') return false;
 		if (!details.isMainFrame) return false;
 		if (!isAppWindowWebContents(webContents)) return false;
@@ -116,6 +118,7 @@ function setupMediaPermissionHandlers(): void {
 		const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
 		const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
 		const allowed =
+			store.getMicrophoneEnabled() &&
 			requestsAudio &&
 			!requestsVideo &&
 			mediaDetails.isMainFrame &&
@@ -254,7 +257,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	setupMediaPermissionHandlers();
+	setupMediaPermissionHandlers(container.get('store'));
 	menuManager.create();
 	void menuManager.refreshApps();
 	trayManager.create();
