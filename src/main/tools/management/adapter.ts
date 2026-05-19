@@ -173,7 +173,7 @@ function inferPermissions(name: string, description = ''): string[] {
 	}
 	if (['read', 'find', 'inspect_file'].includes(name))
 		return ['workspace:read'];
-	if (name === 'startup_files') return ['workspace:startup'];
+	if (name === 'startup_files') return ['agent:startup'];
 	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name))
 		return ['workspace:write'];
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
