@@ -739,67 +739,11 @@ const StartPage: React.FC = () => {
 					name: selectedSpeechOption.name,
 				});
 			}
-			goToStep('connectors');
+			navigate('/home');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
 		} finally {
 			setSavingConfig(false);
-		}
-	}
-
-	async function saveConnectorGroup(group: ConnectorSetupGroup): Promise<boolean> {
-		if (!group.supported || group.connectorIds.length === 0) return false;
-
-		const authorization = (connectorDrafts[group.id] ?? '').trim();
-		if (!authorization) {
-			setErrorMessage(`Paste an OAuth access token for ${group.name}.`);
-			return false;
-		}
-
-		setSavingConnectorGroupId(group.id);
-		setErrorMessage('');
-		try {
-			for (const connectorId of group.connectorIds) {
-				const catalogItem = connectorCatalogById.get(connectorId);
-				if (!catalogItem) {
-					throw new Error(`${group.name} is not available in the connector catalog.`);
-				}
-
-				const existingConnector = configuredConnectorByCatalogId.get(connectorId);
-				if (existingConnector) {
-					await window.connectors.update(existingConnector.id, {
-						authorization,
-						enabled: true,
-					});
-				} else {
-					const input: ConnectorInput = {
-						name: catalogItem.name,
-						connectorId,
-						serverLabel: serverLabelFromName(catalogItem.name),
-						serverDescription: catalogItem.description,
-						authorization,
-						requireApproval: 'always',
-						allowedTools: [],
-						deferLoading: false,
-						enabled: true,
-					};
-					await window.connectors.add(input);
-				}
-			}
-
-			const [, connectors] = await Promise.all([
-				window.connectors.catalog(),
-				window.connectors.list(),
-			]);
-			setConfiguredConnectors(connectors);
-			setConnectorDrafts((drafts) => ({ ...drafts, [group.id]: '' }));
-			setEditingConnectorGroupId(null);
-			return true;
-		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save connectors.'));
-			return false;
-		} finally {
-			setSavingConnectorGroupId(null);
 		}
 	}
 
@@ -819,17 +763,11 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		if (step === 'connectors') {
-			navigate('/home');
-			return;
-		}
-
 		navigate('/home');
 	}
 
 	function getPrimaryLabel(): string {
 		if (step === 'welcome') return 'Get started';
-		if (step === 'connectors') return `Open ${PRODUCT_NAME}`;
 		if (savingProviderId !== null || savingConfig) return 'Saving...';
 
 		return 'Continue';
