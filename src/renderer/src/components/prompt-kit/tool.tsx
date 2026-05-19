@@ -93,7 +93,7 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 	const output = toolPart.output ?? toolPart.outputText;
 
 	return (
-		<div className={cn('mt-3 overflow-hidden rounded-lg', className)}>
+		<div className={cn('overflow-hidden rounded-lg', className)}>
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				<CollapsibleTrigger
 					render={
