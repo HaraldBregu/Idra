@@ -206,6 +206,7 @@ const mainWindow = new Main(appState, windowFactory, windowContextManager);
 const trayManager = new Tray({
 	onShowApp: () => mainWindow.showOrCreate(),
 	onHideApp: () => mainWindow.hide(),
+	onShowTrayChildWindow: () => mainWindow.showTrayChildWindow(),
 	onToggleApp: () => mainWindow.toggleVisibility(),
 	onQuit: () => {
 		appState.setQuitting();

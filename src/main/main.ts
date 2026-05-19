@@ -9,8 +9,14 @@ const DEFAULT_WINDOW_WIDTH = 440;
 const DEFAULT_WINDOW_HEIGHT = 600;
 const STARTUP_WINDOW_WIDTH = 440;
 const STARTUP_WINDOW_HEIGHT = 600;
+const TRAY_CHILD_WINDOW_WIDTH = 600;
+const TRAY_CHILD_WINDOW_HEIGHT = 240;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
+const TRAY_CHILD_WINDOW_BACKGROUND = '#000000';
+const TRAY_CHILD_WINDOW_HTML = encodeURIComponent(
+	'<!doctype html><html><head><meta charset="UTF-8"><style>html,body{width:100%;height:100%;margin:0;background:#000;overflow:hidden;}</style></head><body></body></html>'
+);
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
 	if (process.platform === 'darwin') {
@@ -25,6 +31,8 @@ function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptio
 
 export class Main {
 	private window: BrowserWindow | null = null;
+	private trayChildWindow: BrowserWindow | null = null;
+	private readonly appWindows = new Set<BrowserWindow>();
 	private onWindowVisibilityChange?: () => void;
 
 	constructor(
@@ -107,6 +115,7 @@ export class Main {
 		});
 
 		win.on('closed', () => {
+			this.appWindows.delete(win);
 			if (this.window?.id === win.id) {
 				this.window = null;
 			}
@@ -123,6 +132,7 @@ export class Main {
 		const { closeToTray = false, onReadyToShow } = options;
 		const win = this.windowFactory.create(this.createStartupWindowOptions());
 		win.setBackgroundColor(TRANSPARENT_WINDOW_BACKGROUND);
+		this.appWindows.add(win);
 
 		// Create window context for isolated services
 		this.windowContextManager.create(win);
@@ -157,7 +167,19 @@ export class Main {
 			return this.window;
 		}
 
-		return BrowserWindow.getAllWindows()[0] ?? null;
+		return this.getOpenAppWindows()[0] ?? null;
+	}
+
+	private getOpenAppWindows(): BrowserWindow[] {
+		const windows: BrowserWindow[] = [];
+		for (const win of this.appWindows) {
+			if (win.isDestroyed()) {
+				this.appWindows.delete(win);
+				continue;
+			}
+			windows.push(win);
+		}
+		return windows;
 	}
 
 	create(): BrowserWindow {
@@ -176,7 +198,7 @@ export class Main {
 	}
 
 	hide(): void {
-		BrowserWindow.getAllWindows().forEach((win) => {
+		this.getOpenAppWindows().forEach((win) => {
 			win.hide();
 		});
 	}
@@ -187,7 +209,7 @@ export class Main {
 			return;
 		}
 
-		const windows = BrowserWindow.getAllWindows();
+		const windows = this.getOpenAppWindows();
 		if (windows.length === 0) {
 			this.create();
 			return;
@@ -199,7 +221,7 @@ export class Main {
 	}
 
 	isVisible(): boolean {
-		return BrowserWindow.getAllWindows().some((win) => win.isVisible());
+		return this.getOpenAppWindows().some((win) => win.isVisible());
 	}
 
 	setOnWindowVisibilityChange(callback: () => void): void {
@@ -210,9 +232,60 @@ export class Main {
 		return this.createLauncherWindow();
 	}
 
+	showTrayChildWindow(): void {
+		const win = this.getTrayChildWindow();
+		win.show();
+		win.focus();
+	}
+
+	private getTrayChildWindow(): BrowserWindow {
+		if (this.trayChildWindow && !this.trayChildWindow.isDestroyed()) {
+			return this.trayChildWindow;
+		}
+
+		const parent = this.getPreferredWindow();
+		const visibleParent = parent && parent.isVisible() ? parent : undefined;
+		const options: BrowserWindowConstructorOptions = {
+			width: TRAY_CHILD_WINDOW_WIDTH,
+			height: TRAY_CHILD_WINDOW_HEIGHT,
+			minWidth: TRAY_CHILD_WINDOW_WIDTH,
+			minHeight: TRAY_CHILD_WINDOW_HEIGHT,
+			maxWidth: TRAY_CHILD_WINDOW_WIDTH,
+			maxHeight: TRAY_CHILD_WINDOW_HEIGHT,
+			show: false,
+			resizable: false,
+			maximizable: false,
+			fullscreenable: false,
+			autoHideMenuBar: true,
+			title: 'Friday',
+			backgroundColor: TRAY_CHILD_WINDOW_BACKGROUND,
+			...(visibleParent ? { parent: visibleParent } : {}),
+			webPreferences: {
+				sandbox: true,
+				nodeIntegration: false,
+				contextIsolation: true,
+				devTools: false,
+				webSecurity: true,
+				allowRunningInsecureContent: false,
+				spellcheck: false,
+			},
+		};
+		const win = new BrowserWindow(options);
+		win.setBackgroundColor(TRAY_CHILD_WINDOW_BACKGROUND);
+		void win.loadURL(`data:text/html;charset=utf-8,${TRAY_CHILD_WINDOW_HTML}`);
+		win.on('closed', () => {
+			if (this.trayChildWindow?.id === win.id) {
+				this.trayChildWindow = null;
+			}
+		});
+		this.trayChildWindow = win;
+		return win;
+	}
+
 	createWindowForFile(filePath: string): BrowserWindow {
 		const win = this.windowFactory.create(this.createWindowOptions({ x: 9, y: 9 }));
 		win.setBackgroundColor(TRANSPARENT_WINDOW_BACKGROUND);
+		this.appWindows.add(win);
 
 		this.windowContextManager.create(win);
 		this.attachCommonWindowHandlers(win);

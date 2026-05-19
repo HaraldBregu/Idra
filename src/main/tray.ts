@@ -6,6 +6,7 @@ import { loadTranslations } from './i18n';
 interface TrayManagerCallbacks {
 	onShowApp: () => void;
 	onHideApp: () => void;
+	onShowTrayChildWindow: () => void;
 	onToggleApp: () => void;
 	onQuit: () => void;
 	isAppVisible: () => boolean;
@@ -32,7 +33,7 @@ export class Tray {
 		this.tray.setToolTip('Friday');
 
 		this.tray.on('click', () => {
-			this.callbacks.onShowApp();
+			this.callbacks.onShowTrayChildWindow();
 			this.buildContextMenu();
 		});
 
