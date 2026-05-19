@@ -471,6 +471,52 @@ const AgentDetailsPage: React.FC = () => {
 				</SettingsPanel>
 			</SettingsSection>
 
+			{!isServiceBackedAgent ? (
+				<SettingsSection
+					title={t('settings.agents.configuration')}
+					description={configurationDescription}
+				>
+					<SettingsPanel>
+						<div className="grid gap-3 p-3">
+							<SettingsNotice icon={CircleOff}>
+								{t('settings.agents.configurationPending')}
+							</SettingsNotice>
+
+							<SettingsField
+								id="agent-provider"
+								label={t('settings.agents.provider')}
+								description={providerDescription}
+							>
+								<Select value={readOnlyProviderValue} disabled>
+									<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value={readOnlyProviderValue}>
+											{readOnlyProviderName}
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</SettingsField>
+
+							<SettingsField
+								id="agent-model"
+								label={modelLabel}
+								description={modelDescription}
+							>
+								<Select value={readOnlyModelId} disabled>
+									<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value={readOnlyModelId}>{readOnlyModelName}</SelectItem>
+									</SelectContent>
+								</Select>
+							</SettingsField>
+						</div>
+					</SettingsPanel>
+				</SettingsSection>
+			) : (
 			<SettingsSection
 				title={t('settings.agents.configuration')}
 				description={configurationDescription}
