@@ -840,6 +840,10 @@ const StartPage: React.FC = () => {
 		setSelectedModel(value ?? '');
 	}
 
+	function handleOpenProviderLink(): void {
+		openExternalUrl(DEFAULT_PROVIDER_LINK_URL);
+	}
+
 	async function handleSaveAgentModel(): Promise<void> {
 		if (!selectedAgentModelOption || !canSaveAgentModel) return;
 
