@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, Bot, CheckCircle2, CircleOff, LoaderCircle, Save } from 'lucide-react';
+import { AlertTriangle, Bot, CheckCircle2, CircleOff, LoaderCircle, Mic, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,9 @@ import {
 import type { PublicProvider } from '../../../../../../../shared/providers';
 import {
 	DEFAULT_MODEL_REASONING_EFFORT,
+	SPEECH_TRANSCRIBER_AGENT_ID,
+	SPEECH_TRANSCRIBER_MODELS,
+	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isModelReasoningEffort,
 	MODEL_REASONING_EFFORTS,
 	type Agent,
