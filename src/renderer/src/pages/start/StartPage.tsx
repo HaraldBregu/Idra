@@ -21,7 +21,10 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import type { Model } from '../../../../shared/service';
+import {
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	type Model,
+} from '../../../../shared/service';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -164,10 +167,10 @@ const PROVIDER_CATALOG: readonly ProviderCatalogItem[] = [
 
 const SPEECH_MODELS: readonly StaticModelOption[] = [
 	{
-		id: 'whisper-large-v3',
-		name: 'Whisper Large v3',
+		id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+		name: 'GPT Realtime Whisper',
 		provider: 'OpenAI',
-		description: 'Transcribes you when you talk',
+		description: 'Streams live dictation into chat',
 		initial: 'O',
 		swatchClassName: 'bg-muted text-muted-foreground',
 	},
