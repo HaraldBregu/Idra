@@ -27,7 +27,7 @@ import { startupFilesTool } from '../../../../src/main/tools/startup';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { WorkspaceService } from '../../../../src/main/workspace';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
-import { makeTempDir, makeToolContext } from '../test-helpers';
+import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
 
 describe('tools/types', () => {
 	it('creates text results with ok and error status', () => {
