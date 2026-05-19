@@ -275,7 +275,9 @@ export class Main {
 		const minY = workArea.y;
 		const maxY = workArea.y + workArea.height - TRAY_WINDOW_HEIGHT;
 
-		const x = Math.round(Math.min(Math.max(iconCenterX - TRAY_WINDOW_WIDTH / 2, minX), Math.max(minX, maxX)));
+		const x = Math.round(
+			Math.min(Math.max(iconCenterX - TRAY_WINDOW_WIDTH / 2, minX), Math.max(minX, maxX))
+		);
 		const y = Math.round(Math.min(Math.max(targetY, minY), Math.max(minY, maxY)));
 
 		win.setPosition(x, y, false);

@@ -33,7 +33,8 @@ export class Tray {
 		this.tray.setToolTip('Friday');
 
 		this.tray.on('click', () => {
-			this.callbacks.onShowTrayWindow(this.tray?.getBounds());
+			const bounds = process.platform === 'darwin' ? this.tray?.getBounds() : undefined;
+			this.callbacks.onShowTrayWindow(bounds);
 			this.buildContextMenu();
 		});
 

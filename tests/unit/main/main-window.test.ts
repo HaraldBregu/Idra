@@ -8,6 +8,15 @@ import type { MainServices } from '../../../src/main/service-registry';
 
 type Listener = (...args: unknown[]) => void;
 
+const originalPlatform = process.platform;
+
+function mockPlatform(platform: NodeJS.Platform): void {
+	Object.defineProperty(process, 'platform', {
+		configurable: true,
+		value: platform,
+	});
+}
+
 interface MockWindow {
 	id: number;
 	loadURL: jest.Mock;
@@ -119,6 +128,7 @@ function createMain(appWindows: MockWindow[]) {
 describe('Main windows', () => {
 	beforeEach(() => {
 		(BrowserWindow as unknown as jest.Mock).mockReset();
+		mockPlatform(originalPlatform);
 		(screen.getDisplayNearestPoint as jest.Mock).mockReturnValue({
 			workArea: { x: 0, y: 24, width: 1440, height: 876 },
 			bounds: { x: 0, y: 0, width: 1440, height: 900 },
@@ -221,6 +231,7 @@ describe('Main windows', () => {
 	});
 
 	it('positions the tray window under the macOS tray icon', () => {
+		mockPlatform('darwin');
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main } = createMain([appWindow, trayWindow]);

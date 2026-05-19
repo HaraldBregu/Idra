@@ -57,6 +57,15 @@ jest.mock('electron', () => {
 import { Menu } from 'electron';
 import { Tray } from '../../../src/main/tray';
 
+const originalPlatform = process.platform;
+
+function mockPlatform(platform: NodeJS.Platform): void {
+	Object.defineProperty(process, 'platform', {
+		configurable: true,
+		value: platform,
+	});
+}
+
 function createCallbacks() {
 	return {
 		onShowApp: jest.fn(),
@@ -76,9 +85,11 @@ function getCreatedTray() {
 describe('Tray', () => {
 	beforeEach(() => {
 		(jest.requireMock('electron') as { __mockTrayInstances: unknown[] }).__mockTrayInstances.length = 0;
+		mockPlatform(originalPlatform);
 	});
 
-	it('opens the tray child window on tray click', () => {
+	it('opens the tray window with icon bounds on macOS tray click', () => {
+		mockPlatform('darwin');
 		const callbacks = createCallbacks();
 		new Tray(callbacks).create();
 
