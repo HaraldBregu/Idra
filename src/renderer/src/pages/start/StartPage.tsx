@@ -16,6 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
+	getProviderApiConfigurationUrl,
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
@@ -118,6 +119,7 @@ type ProviderCatalogItem = {
 	initial: string;
 	swatchClassName: string;
 	supported: boolean;
+	apiConfigurationUrl?: string;
 	icon?: ProviderIconAsset;
 };
 
@@ -150,7 +152,6 @@ type AgentModelOption = {
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
-const DEFAULT_PROVIDER_LINK_URL = 'https://www.google.com';
 const SETUP_STEPS: readonly SetupStep[] = [
 	'welcome',
 	'providers',
@@ -262,6 +263,7 @@ const actionableProviderCatalog: readonly ProviderCatalogItem[] = DEFAULT_PROVID
 		initial: providerInitial(provider.name),
 		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: true,
+		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
 		icon: providerIconAssets[provider.id],
 	})
 );
@@ -283,6 +285,7 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 			initial: providerId.slice(0, 1).toUpperCase(),
 			swatchClassName: 'bg-muted text-muted-foreground',
 			supported: supportedProviderIds.has(providerId),
+			apiConfigurationUrl: providerOptions.find((provider) => provider.value === providerId)?.label,
 		}
 	);
 }
@@ -840,8 +843,10 @@ const StartPage: React.FC = () => {
 		setSelectedModel(value ?? '');
 	}
 
-	function handleOpenProviderLink(): void {
-		openExternalUrl(DEFAULT_PROVIDER_LINK_URL);
+	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
+		if (!provider.apiConfigurationUrl) return;
+
+		openExternalUrl(provider.apiConfigurationUrl);
 	}
 
 	async function handleSaveAgentModel(): Promise<void> {
@@ -984,8 +989,8 @@ const StartPage: React.FC = () => {
 													variant="ghost"
 													size="icon-xs"
 													className="size-5 text-muted-foreground hover:text-foreground"
-													aria-label={`Open ${provider.name} link`}
-													onClick={handleOpenProviderLink}
+													aria-label={`Open ${provider.name} API setup`}
+													onClick={() => handleOpenProviderLink(provider)}
 												>
 													<ExternalLink className="size-3" />
 												</Button>
