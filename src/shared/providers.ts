@@ -778,6 +778,16 @@ function normalizeProviderId(providerId: string): string {
 	return providerId.trim().toLowerCase();
 }
 
+export function getProviderApiConfigurationUrl(
+	provider: Pick<Provider, 'apiConfiguration' | 'baseUrl'>
+): string {
+	return (
+		provider.apiConfiguration?.apiKeyManagementUrl?.trim() ||
+		provider.apiConfiguration?.configurationDocsUrl?.trim() ||
+		provider.baseUrl.trim()
+	);
+}
+
 export function getDefaultAgentModels(providerId: string): Model[] {
 	return (DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] ?? []).map(
 		(model) => ({ ...model })
