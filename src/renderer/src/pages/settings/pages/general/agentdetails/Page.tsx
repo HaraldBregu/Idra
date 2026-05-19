@@ -115,7 +115,7 @@ const AgentDetailsPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		if (!isFridayAgent && !isSpeechTranscriberAgent) {
+		if (!isServiceBackedAgent) {
 			setLoading(false);
 			return () => {
 				mounted = false;
@@ -179,7 +179,7 @@ const AgentDetailsPage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [isFridayAgent, isSpeechTranscriberAgent, t]);
+	}, [isFridayAgent, isServiceBackedAgent, isSpeechTranscriberAgent, t]);
 
 	const selectedProvider = providers.find((provider) => provider.id === providerId);
 
