@@ -392,8 +392,8 @@ export class WorkspaceService {
 		name: WorkspaceFileName,
 		filePath: string
 	): Promise<void> {
-		const rootRealPath = await fs.realpath(this.rootPath);
-		if (!isPathInside(rootRealPath, filePath)) {
+		const rootPath = path.resolve(this.rootPath);
+		if (!isPathInside(rootPath, filePath)) {
 			throw new Error(`Workspace file resolves outside root: ${name}`);
 		}
 		try {
@@ -401,6 +401,13 @@ export class WorkspaceService {
 			if (stat.isSymbolicLink()) throw new Error(`Refusing to write symlink: ${name}`);
 			if (!stat.isFile()) throw new Error(`Refusing to write non-file: ${name}`);
 			if (stat.nlink > 1) throw new Error(`Refusing to write hard-linked file: ${name}`);
+			const [rootRealPath, fileRealPath] = await Promise.all([
+				fs.realpath(this.rootPath),
+				fs.realpath(filePath),
+			]);
+			if (!isPathInside(rootRealPath, fileRealPath)) {
+				throw new Error(`Workspace file resolves outside root: ${name}`);
+			}
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
 		}
