@@ -202,7 +202,7 @@ export class WorkspaceService {
 		const filePath = path.join(this.rootPath, name);
 		await this.assertSafeWritableWorkspaceFile(name, filePath);
 		await fs.writeFile(filePath, content, { encoding: 'utf8', mode: 0o600 });
-		return this.readWorkspaceFile(name);
+		return safeReadWorkspaceFile(this.rootPath, name);
 	}
 
 	async isBootstrapPending(): Promise<boolean> {
