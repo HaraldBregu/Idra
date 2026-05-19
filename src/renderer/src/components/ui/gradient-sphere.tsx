@@ -122,14 +122,16 @@ const fragmentShader = `
 type GradientSphereProps = {
   size?: number
   className?: string
+  mode?: "webgl" | "css"
 }
 
-export function GradientSphere({ size = 20, className }: GradientSphereProps) {
+export function GradientSphere({ size = 20, className, mode = "webgl" }: GradientSphereProps) {
   const mountRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef(0)
   const clockRef = useRef(new THREE.Clock())
 
   useEffect(() => {
+    if (mode !== "webgl") return
     const container = mountRef.current
     if (!container) return
 
@@ -182,7 +184,22 @@ export function GradientSphere({ size = 20, className }: GradientSphereProps) {
         container.removeChild(renderer.domElement)
       }
     }
-  }, [size])
+  }, [mode, size])
+
+  if (mode === "css") {
+    return (
+      <div
+        aria-hidden="true"
+        className={cn(
+          "relative inline-flex shrink-0 overflow-hidden rounded-full bg-[radial-gradient(circle_at_34%_26%,#ffe39b_0%,#f0a24a_28%,#b12767_56%,#351353_100%)] shadow-[inset_-4px_-6px_12px_rgba(18,8,34,0.38),inset_3px_3px_8px_rgba(255,238,176,0.35)]",
+          className
+        )}
+        style={{ width: size, height: size }}
+      >
+        <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,246,198,0.72),transparent_42%)]" />
+      </div>
+    )
+  }
 
   return (
     <div

@@ -400,9 +400,6 @@ function PageContent(): ReactElement {
 										);
 									}
 
-									const prev = index > 0 ? visibleMessages[index - 1] : null;
-									const isFirstInRun = !prev || prev.type !== 'agent';
-
 									return (
 										<AgentTextMessage
 											key={message.id}
@@ -411,7 +408,6 @@ function PageContent(): ReactElement {
 												agent.isLoading &&
 												message.id === agent.chatState.activeAgentId
 											}
-											isFirstInRun={isFirstInRun}
 										/>
 									);
 								})}
