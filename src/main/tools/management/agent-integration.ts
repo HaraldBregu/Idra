@@ -64,6 +64,7 @@ export function selectAgentToolsForTurn(
 	const forcedToolNames = new Set([
 		...selectGoogleCalendarToolNames(tools, userMessage),
 		...selectGoogleDriveToolNames(tools, userMessage),
+		...selectGmailToolNames(tools, userMessage),
 	]);
 	for (const toolName of forcedToolNames) {
 		selectedNames.add(toolName);
@@ -153,6 +154,45 @@ function selectGoogleDriveToolNames(tools: AgentTool[], userMessage: string): Se
 function isGoogleDriveTool(tool: AgentTool): boolean {
 	const text = `${tool.name} ${tool.description}`.toLowerCase();
 	return text.includes('google drive') || text.includes('google_drive');
+}
+
+function selectGmailToolNames(tools: AgentTool[], userMessage: string): Set<string> {
+	const request = userMessage.toLowerCase();
+	if (!/\b(gmail|email|emails|mail|inbox|messages?)\b/.test(request)) {
+		return new Set();
+	}
+
+	const suffixes = new Set<string>();
+	if (/\b(profile|account)\b/.test(request)) suffixes.add('get_profile');
+	if (/\b(latest|recent|received|inbox|check|list|show|messages?|emails?)\b/.test(request)) {
+		suffixes.add('get_recent_emails');
+	}
+	if (/\b(search|find|from|sender|to|subject|unread|important|label|google|received)\b/.test(request)) {
+		suffixes.add('search_emails');
+	}
+	if (/\b(read|summarize|summary|important|body|content|full|details?|open)\b/.test(request)) {
+		suffixes.add('batch_read_email');
+		suffixes.add('read_email');
+	}
+	if (/\b(draft|compose)\b/.test(request)) suffixes.add('create_draft');
+	if (/\b(send|reply|forward)\b/.test(request)) suffixes.add('send_email');
+	if (/\b(trash|delete|remove)\b/.test(request)) suffixes.add('trash_email');
+	if (suffixes.size === 0) {
+		suffixes.add('get_recent_emails');
+		suffixes.add('search_emails');
+	}
+
+	return new Set(
+		tools
+			.filter(isGmailTool)
+			.filter((tool) => [...suffixes].some((suffix) => tool.name.endsWith(`_${suffix}`)))
+			.map((tool) => tool.name)
+	);
+}
+
+function isGmailTool(tool: AgentTool): boolean {
+	const text = `${tool.name} ${tool.description}`.toLowerCase();
+	return text.includes('gmail') || text.includes('google mail');
 }
 
 function addPrerequisiteToolNames(selectedNames: Set<string>, tools: AgentTool[]): Set<string> {
