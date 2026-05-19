@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message } from '@/components/ui/message';
-import { GradientSphere } from '@/components/ui/gradient-sphere';
 import type { AgentMessage } from '../context';
 import { AgentActivityPanel } from './AgentActivityPanel';
+import { AssistantLogo } from './AssistantLogo';
 import { markdownComponents } from './markdown';
 
 export function AgentTextMessage({
@@ -18,9 +18,9 @@ export function AgentTextMessage({
 	return (
 		<Message className="min-w-0 w-full">
 			{isFirstInRun ? (
-				<GradientSphere size={24} className="mt-1 shrink-0" />
+				<AssistantLogo className="mt-1" />
 			) : (
-				<div className="w-6 shrink-0" />
+				<div className="w-8 shrink-0" />
 			)}
 			<div className="flex min-w-0 flex-1 items-start gap-2">
 				<div className="flex min-w-0 flex-1 flex-col gap-2">

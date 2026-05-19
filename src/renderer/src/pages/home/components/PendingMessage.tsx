@@ -9,6 +9,7 @@ import {
 	type ImmediateApprovalSelection,
 	type HomeMultiSelectOption,
 } from '../context';
+import { AssistantLogo } from './AssistantLogo';
 
 export function PendingMessage({
 	message,
@@ -51,6 +52,7 @@ export function PendingMessage({
 
 	return (
 		<Message className="w-full max-w-2xl">
+			<AssistantLogo className="mt-1" />
 			<MessageContent
 				className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
 				role="group"
