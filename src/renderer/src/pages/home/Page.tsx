@@ -37,16 +37,16 @@ type PromptAttachment = {
 
 const promptSuggestions = [
 	{
-		label: 'Draft a deck',
-		prompt: 'create a presentation outline with a clear narrative, slide titles, and speaker notes',
+		label: 'Introduce yourself',
+		prompt: 'introduce yourself and tell me how you can help as my personal assistant',
 	},
 	{
-		label: 'Improve slides',
-		prompt: 'review this presentation and suggest sharper structure, copy, and visual hierarchy',
+		label: 'Say hi',
+		prompt: 'say hi and help me get started',
 	},
 	{
-		label: 'Build a pitch',
-		prompt: 'make a concise pitch deck for this idea with problem, solution, proof, and next steps',
+		label: 'Meet Friday',
+		prompt: 'show me what my personal assistant can do today',
 	},
 ] as const;
 
