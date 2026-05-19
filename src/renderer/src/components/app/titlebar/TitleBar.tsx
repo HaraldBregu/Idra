@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Menu, PanelLeft, Sparkles, User } from 'lucide-react';
+import { Menu, PanelLeft, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
