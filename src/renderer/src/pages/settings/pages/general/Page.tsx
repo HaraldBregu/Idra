@@ -6,6 +6,7 @@ import {
 	Bot,
 	ChevronRight,
 	FolderOpen,
+	ImageIcon,
 	Languages,
 	Mic,
 	Monitor,
@@ -15,6 +16,7 @@ import {
 	RefreshCw,
 	ShieldCheck,
 	Sun,
+	Volume2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -32,7 +34,11 @@ import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../co
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../../shared';
-import { SPEECH_TRANSCRIBER_AGENT_ID } from '../../../../../../shared/service';
+import {
+	IMAGE_ASSISTANT_AGENT_ID,
+	SPEECH_TRANSCRIBER_AGENT_ID,
+	TEXT_TO_SPEECH_AGENT_ID,
+} from '../../../../../../shared/service';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -83,6 +89,20 @@ const AGENT_ROWS = [
 		nameKey: 'settings.agents.speechTranscriberName',
 		descriptionKey: 'settings.agents.speechTranscriberDescription',
 		icon: Mic,
+		configurable: true,
+	},
+	{
+		id: TEXT_TO_SPEECH_AGENT_ID,
+		nameKey: 'settings.agents.textToSpeechName',
+		descriptionKey: 'settings.agents.textToSpeechDescription',
+		icon: Volume2,
+		configurable: true,
+	},
+	{
+		id: IMAGE_ASSISTANT_AGENT_ID,
+		nameKey: 'settings.agents.imageAssistantName',
+		descriptionKey: 'settings.agents.imageAssistantDescription',
+		icon: ImageIcon,
 		configurable: true,
 	},
 ] as const;
