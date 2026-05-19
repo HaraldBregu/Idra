@@ -379,7 +379,7 @@ function PageContent(): ReactElement {
 							<EmptyConversation />
 						) : (
 							<>
-								{visibleMessages.map((message) => {
+								{visibleMessages.map((message, index) => {
 									if (message.role === 'user') {
 										return <UserMessage key={message.id} content={message.content} />;
 									}
@@ -400,6 +400,9 @@ function PageContent(): ReactElement {
 										);
 									}
 
+									const prev = index > 0 ? visibleMessages[index - 1] : null;
+									const isFirstInRun = !prev || prev.type !== 'agent';
+
 									return (
 										<AgentTextMessage
 											key={message.id}
@@ -408,6 +411,7 @@ function PageContent(): ReactElement {
 												agent.isLoading &&
 												message.id === agent.chatState.activeAgentId
 											}
+											isFirstInRun={isFirstInRun}
 										/>
 									);
 								})}
