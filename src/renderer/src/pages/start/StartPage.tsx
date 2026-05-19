@@ -273,25 +273,8 @@ function StaticModelSelect({
 				onValueChange={(nextValue) => onValueChange(nextValue ?? '')}
 				disabled={disabled}
 			>
-				<SelectTrigger
-					id={id}
-					className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
-				>
-					<SelectValue className="sr-only" />
-					<div className="flex min-w-0 items-center gap-2.5">
-						<ProviderMark
-							initial={selected.initial}
-							className={selected.swatchClassName}
-						/>
-						<div className="min-w-0">
-							<p className="truncate text-sm font-semibold leading-tight text-foreground">
-								{selected.name}
-							</p>
-							<p className="truncate text-xs font-medium text-muted-foreground">
-								{selected.provider} - {selected.description}
-							</p>
-						</div>
-					</div>
+				<SelectTrigger id={id} className="w-full text-xs sm:w-72">
+					<SelectValue />
 				</SelectTrigger>
 				<SelectContent>
 					{options.map((option) => (
@@ -328,22 +311,11 @@ function StaticProviderSelect({
 				{label}
 			</Label>
 			<Select value={value} disabled={disabled}>
-				<SelectTrigger
-					id={id}
-					className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
-				>
-					<SelectValue className="sr-only" />
-					<div className="flex min-w-0 items-center gap-2.5">
-						<ProviderMark initial={initial} className={swatchClassName} />
-						<p className="truncate text-sm font-semibold leading-tight text-foreground">
-							{name}
-						</p>
-					</div>
+				<SelectTrigger id={id} className="w-full text-xs sm:w-72">
+					<SelectValue />
 				</SelectTrigger>
-				<SelectContent align="start" className="rounded-lg p-1">
-					<SelectItem value={value} className="h-10 px-2 py-0 pr-8 text-sm font-semibold">
-						{name}
-					</SelectItem>
+				<SelectContent>
+					<SelectItem value={value}>{name}</SelectItem>
 				</SelectContent>
 			</Select>
 		</div>
