@@ -281,11 +281,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	eventBus.on('tray:chat-message', (event) => {
-		const { message } = event.payload as { message: string };
-		mainWindow.showHomeWithTrayMessage(message);
-	});
-
 	// Create main window
 	mainWindow.create();
 

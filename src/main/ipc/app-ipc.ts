@@ -58,17 +58,6 @@ function requireBoolean(value: unknown, label: string): boolean {
 	return value;
 }
 
-function requireNonEmptyString(value: unknown, label: string): string {
-	if (typeof value !== 'string') {
-		throw new Error(`${label} must be a string.`);
-	}
-	const trimmed = value.trim();
-	if (!trimmed) {
-		throw new Error(`${label} is required.`);
-	}
-	return trimmed;
-}
-
 async function openPathOrThrow(target: string): Promise<void> {
 	const error = await shell.openPath(target);
 	if (error) {
@@ -163,15 +152,6 @@ export class AppIpc implements IpcModule {
 				}
 				await shell.openExternal(externalUrl);
 			}, AppChannels.openExternalUrl)
-		);
-
-		ipcMain.handle(
-			AppChannels.sendTrayChatMessage,
-			wrapSimpleHandler((message: string) => {
-				eventBus.emit('tray:chat-message', {
-					message: requireNonEmptyString(message, 'Tray chat message'),
-				});
-			}, AppChannels.sendTrayChatMessage)
 		);
 
 		ipcMain.handle(

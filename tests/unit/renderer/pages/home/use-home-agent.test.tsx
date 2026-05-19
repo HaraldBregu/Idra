@@ -6,7 +6,6 @@ import type {
 } from '../../../../../src/shared/service';
 import { Provider } from '../../../../../src/renderer/src/pages/home/context';
 import { useHomeAgent } from '../../../../../src/renderer/src/pages/home/hooks';
-import { publishTrayChatMessage } from '../../../../../src/renderer/src/tray-chat-events';
 
 type AgentApi = Window['agent'];
 
@@ -114,23 +113,4 @@ describe('useHomeAgent pending input state', () => {
 		});
 	});
 
-	it('sends tray chat messages through the home agent', async () => {
-		const setMode = jest.fn();
-		renderHook(() => useHomeAgent({ setMode }), { wrapper });
-
-		await waitFor(() => expect(window.agent.getHistory).toHaveBeenCalled());
-
-		act(() => {
-			publishTrayChatMessage('from tray');
-		});
-
-		await waitFor(() => {
-			expect(window.agent.send).toHaveBeenCalledWith('from tray');
-		});
-		expect(setMode).toHaveBeenCalledWith('chat');
-
-		await act(async () => {
-			resolveSend?.('done');
-		});
-	});
 });

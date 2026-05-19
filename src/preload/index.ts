@@ -179,12 +179,6 @@ export const app: AppApi = {
 	openExternalUrl: (url: string): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
 	},
-	sendTrayChatMessage: (message: string): Promise<void> => {
-		return typedInvokeUnwrap(AppChannels.sendTrayChatMessage, message);
-	},
-	onTrayChatMessage: (callback: (message: string) => void): (() => void) => {
-		return typedOn(AppChannels.trayChatMessage, callback);
-	},
 	setTrayEnabled: (enabled: boolean): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
 	},

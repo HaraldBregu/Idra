@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
-import { subscribeTrayChatMessage } from '@/tray-chat-events';
 import type {
 	ApprovalDecision,
 	AgentPendingEventPayload,
@@ -141,13 +140,6 @@ export function useHomeAgent({
 		},
 		[dispatchChat]
 	);
-
-	useEffect(() => {
-		return subscribeTrayChatMessage((message) => {
-			setMode('chat');
-			void sendPrompt(message);
-		});
-	}, [sendPrompt, setMode]);
 
 	const applyPendingEvent = useCallback(
 		(event: AgentPendingEventPayload): void => {

@@ -4,7 +4,6 @@ import type { AppState } from './core/app-state';
 import type { RendererContentOptions, WindowFactory } from './core/window-factory';
 import type { WindowContextManager } from './core/window-context';
 import type { MainServices } from './service-registry';
-import { AppChannels } from '../shared/ipc-channels';
 
 const DEFAULT_WINDOW_WIDTH = 440;
 const DEFAULT_WINDOW_HEIGHT = 600;
@@ -230,26 +229,6 @@ export class Main {
 
 	createAdditionalWindow(): BrowserWindow {
 		return this.createLauncherWindow();
-	}
-
-	showHomeWithTrayMessage(message: string): void {
-		const preferredWindow = this.getPreferredWindow();
-		if (!preferredWindow) {
-			this.createLauncherWindow({
-				closeToTray: true,
-				content: { hash: 'home' },
-				onReadyToShow: (win) => this.sendTrayChatMessage(win, message),
-			});
-			return;
-		}
-
-		preferredWindow.show();
-		preferredWindow.focus();
-		this.sendTrayChatMessage(preferredWindow, message);
-	}
-
-	private sendTrayChatMessage(win: BrowserWindow, message: string): void {
-		win.webContents.send(AppChannels.trayChatMessage, message);
 	}
 
 	showTrayWindow(trayBounds?: Rectangle): void {
