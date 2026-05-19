@@ -3,6 +3,7 @@ import type { AgentsHeartbeatConfig } from './heartbeat';
 
 export interface Service {
 	agent?: Agent;
+	speechTranscriber?: Agent;
 	agents?: AgentsHeartbeatConfig;
 	rag: string;
 	ocr: string;
@@ -28,6 +29,12 @@ export interface Model {
 	name: string;
 	effort?: ModelReasoningEffort;
 }
+
+export const SPEECH_TRANSCRIBER_AGENT_ID = 'speech-to-text';
+export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
+export const SPEECH_TRANSCRIBER_MODELS = [
+	{ id: 'whisper-large-v3', name: 'Whisper Large v3' },
+] satisfies readonly Model[];
 
 export interface Agent {
 	provider: Omit<Provider, "apiKey">;
