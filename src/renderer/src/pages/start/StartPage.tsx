@@ -1099,46 +1099,37 @@ const StartPage: React.FC = () => {
 								<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 									Model
 								</Label>
-							<Select
-								value={selectedModel}
-								onValueChange={handleAgentModelChange}
-								disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
-							>
-								<SelectTrigger
-									id="agent-model"
-									className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+								<Select
+									value={selectedModel}
+									onValueChange={handleAgentModelChange}
+									disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
 								>
-									<SelectValue className="sr-only" />
-									<div className="flex min-w-0 items-center gap-2.5">
-										<ProviderMark
-											initial={selectedProviderCatalog.initial}
-											className={selectedProviderCatalog.swatchClassName}
-										/>
+									<SelectTrigger
+										id="agent-model"
+										className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+									>
+										<SelectValue className="sr-only" />
 										<div className="min-w-0">
 											<p className="truncate text-sm font-semibold leading-tight text-foreground">
 												{selectedModelName || modelCountLabel}
 											</p>
-											<p className="truncate text-xs font-medium text-muted-foreground">
-												{configProviderName || 'No provider'} - Chat, reasoning, and tool use
-											</p>
 										</div>
-									</div>
-								</SelectTrigger>
-								<SelectContent align="start" className="rounded-lg p-1">
-									{selectedAgentModels.map((model) => (
-										<SelectItem
-											key={model.id}
-											value={model.id}
-											className={cn(
-												'h-10 px-2 py-0 pr-8 text-sm font-semibold',
-												model.id === selectedModel && 'bg-accent text-accent-foreground'
-											)}
-										>
-											<span className="truncate">{model.name}</span>
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+									</SelectTrigger>
+									<SelectContent align="start" className="rounded-lg p-1">
+										{selectedAgentModels.map((model) => (
+											<SelectItem
+												key={model.id}
+												value={model.id}
+												className={cn(
+													'h-10 px-2 py-0 pr-8 text-sm font-semibold',
+													model.id === selectedModel && 'bg-accent text-accent-foreground'
+												)}
+											>
+												<span className="truncate">{model.name}</span>
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
 							</div>
 						</div>
 					</ModelSetupCard>
@@ -1152,22 +1143,33 @@ const StartPage: React.FC = () => {
 						open={expandedModelCardId === 'voice-input'}
 						onToggle={() => toggleModelCard('voice-input')}
 					>
-						{openAiConnected ? (
+						<div className="grid gap-3 sm:grid-cols-2">
+							<StaticProviderSelect
+								id="speech-provider"
+								label="Provider"
+								value="openai"
+								name={openAiCatalog.name}
+								initial={openAiCatalog.initial}
+								swatchClassName={openAiCatalog.swatchClassName}
+								disabled
+							/>
 							<StaticModelSelect
 								id="speech-model"
 								label="Transcription model"
 								value={selectedSpeechModel}
 								options={SPEECH_MODELS}
 								onValueChange={setSelectedSpeechModel}
+								disabled={!openAiConnected}
 							/>
-						) : (
+						</div>
+						{!openAiConnected ? (
 							<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 								<Mic className="size-4 shrink-0" />
 								<p className="text-xs font-medium leading-snug">
 									Connect OpenAI to enable live speech transcription.
 								</p>
 							</div>
-						)}
+						) : null}
 					</ModelSetupCard>
 
 					<ModelSetupCard
@@ -1179,13 +1181,24 @@ const StartPage: React.FC = () => {
 						open={expandedModelCardId === 'voice-output'}
 						onToggle={() => toggleModelCard('voice-output')}
 					>
-						<StaticModelSelect
-							id="tts-model"
-							label="Voice model"
-							value={selectedTtsModel}
-							options={TTS_MODELS}
-							onValueChange={setSelectedTtsModel}
-						/>
+						<div className="grid gap-3 sm:grid-cols-2">
+							<StaticProviderSelect
+								id="tts-provider"
+								label="Provider"
+								value="elevenlabs"
+								name={ttsProviderCatalog.name}
+								initial={ttsProviderCatalog.initial}
+								swatchClassName={ttsProviderCatalog.swatchClassName}
+								disabled
+							/>
+							<StaticModelSelect
+								id="tts-model"
+								label="Voice model"
+								value={selectedTtsModel}
+								options={TTS_MODELS}
+								onValueChange={setSelectedTtsModel}
+							/>
+						</div>
 					</ModelSetupCard>
 
 					<ModelSetupCard
@@ -1197,6 +1210,25 @@ const StartPage: React.FC = () => {
 						open={expandedModelCardId === 'image-creator'}
 						onToggle={() => toggleModelCard('image-creator')}
 					>
+						<div className="grid gap-3 sm:grid-cols-2">
+							<StaticProviderSelect
+								id="image-provider"
+								label="Provider"
+								value="image-provider-coming-soon"
+								name="Image provider"
+								initial="I"
+								swatchClassName="bg-muted text-muted-foreground"
+								disabled
+							/>
+							<StaticModelSelect
+								id="image-model"
+								label="Image model"
+								value={IMAGE_MODELS[0]?.id ?? ''}
+								options={IMAGE_MODELS}
+								onValueChange={() => undefined}
+								disabled
+							/>
+						</div>
 						<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 							<ImageIcon className="size-4 shrink-0" />
 							<p className="text-xs font-medium leading-snug">
