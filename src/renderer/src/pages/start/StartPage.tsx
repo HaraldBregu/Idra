@@ -119,6 +119,17 @@ const TTS_MODELS: readonly StaticModelOption[] = [
 	},
 ];
 
+const IMAGE_MODELS: readonly StaticModelOption[] = [
+	{
+		id: 'image-provider-coming-soon',
+		name: 'Not available yet',
+		provider: 'Image Provider',
+		description: 'Provider support coming soon',
+		initial: 'I',
+		swatchClassName: 'bg-muted text-muted-foreground',
+	},
+];
+
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
