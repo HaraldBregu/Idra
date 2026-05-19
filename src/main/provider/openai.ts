@@ -17,7 +17,6 @@ import type {
 	Usage,
 } from './types';
 import { ContextOverflowError, ProviderAuthError } from './types';
-import { normalizeModelReasoningEffort } from '../../shared/service';
 
 function toolResultText(entry: Extract<TranscriptEntry, { role: 'tool' }>): string {
 	return entry.content
@@ -127,15 +126,12 @@ export class OpenAIAdapter implements ProviderAdapter {
 			strict: false,
 		}));
 
-		const reasoningEffort = req.effort
-			? normalizeModelReasoningEffort(req.model, req.effort)
-			: undefined;
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
 			instructions: req.system || undefined,
 			input: buildResponseInput(req.messages),
 			tools: tools.length > 0 ? tools : undefined,
-			reasoning: reasoningEffort ? { effort: reasoningEffort } : undefined,
+			reasoning: req.effort ? { effort: req.effort } : undefined,
 			max_output_tokens: req.maxTokens,
 			include: ['reasoning.encrypted_content'],
 			stream: true,
