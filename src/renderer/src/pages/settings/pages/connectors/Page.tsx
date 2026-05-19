@@ -30,6 +30,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
+import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors, type ConnectorCatalog } from './hooks/useConnectors';
 
 interface ConnectorFormState {
@@ -221,7 +222,17 @@ const ConnectorsPage: React.FC = () => {
 										</SelectTrigger>
 										<SelectContent>
 											{catalog.map((c) => (
-												<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+												<SelectItem key={c.id} value={c.id}>
+													<span className="flex min-w-0 items-center gap-2">
+														<ConnectorIcon
+															directConnectorId={c.directConnectorId}
+															name={c.name}
+															className="size-4 rounded-sm border-0 bg-transparent p-0"
+															fallbackClassName="size-3"
+														/>
+														<span className="truncate">{c.name}</span>
+													</span>
+												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
