@@ -71,6 +71,7 @@ export interface Model {
 export const SPEECH_TRANSCRIBER_AGENT_ID = 'speech-to-text';
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
 export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
+export const REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID = 'gpt-realtime';
 export const REALTIME_TRANSCRIPTION_SAMPLE_RATE = 24000;
 export const SPEECH_TRANSCRIBER_MODELS = [
 	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },

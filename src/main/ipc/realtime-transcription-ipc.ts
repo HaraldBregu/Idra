@@ -13,6 +13,7 @@ import { wrapIpcHandler } from './ipc-error-handler';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isRealtimeSpeechTranscriberModel,
@@ -33,8 +34,6 @@ type WebSocketLike = {
 const SOCKET_OPEN = 1;
 const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 3_000;
-const REALTIME_PATH_SUFFIX = '/realtime';
-const REALTIME_TRANSCRIPTION_PATH_SUFFIX = '/realtime/transcription_sessions';
 
 interface RealtimeTranscriptionRuntime {
 	id: string;
@@ -77,21 +76,39 @@ function resolveConfiguredSpeechTranscriber(agent: Agent | undefined): string {
 	return model;
 }
 
-export function useRealtimeTranscriptionEndpoint(url: URL): void {
-	if (url.pathname.endsWith(REALTIME_TRANSCRIPTION_PATH_SUFFIX)) return;
-	if (url.pathname.endsWith(REALTIME_PATH_SUFFIX)) {
-		url.pathname = `${url.pathname.slice(0, -REALTIME_PATH_SUFFIX.length)}${REALTIME_TRANSCRIPTION_PATH_SUFFIX}`;
-		return;
-	}
-
-	url.pathname = `${url.pathname.replace(/\/$/, '')}${REALTIME_TRANSCRIPTION_PATH_SUFFIX}`;
+export function createRealtimeTranscriptionSocket(
+	client: Pick<OpenAI, 'apiKey' | 'baseURL'>
+): OpenAIRealtimeWebSocket {
+	return new OpenAIRealtimeWebSocket(
+		{ model: REALTIME_TRANSCRIPTION_CONNECTION_MODEL_ID },
+		client
+	);
 }
 
-function createRealtimeTranscriptionSocket(
-	client: Pick<OpenAI, 'apiKey' | 'baseURL'>,
-	model: string
-): OpenAIRealtimeWebSocket {
-	return new OpenAIRealtimeWebSocket({ model, onURL: useRealtimeTranscriptionEndpoint }, client);
+export function createRealtimeTranscriptionSessionUpdate(
+	model: string,
+	request?: RealtimeTranscriptionStartRequest
+): RealtimeClientEvent {
+	const language = normalizeLanguage(request?.language);
+	return {
+		type: 'session.update',
+		session: {
+			type: 'transcription',
+			audio: {
+				input: {
+					format: {
+						type: 'audio/pcm',
+						rate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
+					},
+					transcription: {
+						model,
+						...(language ? { language } : {}),
+					},
+					turn_detection: null,
+				},
+			},
+		},
+	} as RealtimeClientEvent;
 }
 
 function waitForSocketOpen(socket: WebSocketLike): Promise<void> {
@@ -154,7 +171,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 					}
 
 					const client = new OpenAI({ apiKey, baseURL: provider.baseUrl });
-					const socket = await createRealtimeTranscriptionSocket(client, model);
+					const socket = createRealtimeTranscriptionSocket(client);
 					const sessionId = randomUUID();
 					const runtime: RealtimeTranscriptionRuntime = {
 						id: sessionId,
@@ -177,7 +194,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 						throw error;
 					}
 
-					socket.send(this.sessionUpdateEvent(model, request));
+					socket.send(createRealtimeTranscriptionSessionUpdate(model, request));
 					this.sendToRenderer(runtime, {
 						type: 'started',
 						sessionId,
@@ -230,37 +247,6 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 		);
 
 		logger.info('RealtimeTranscriptionIpc', `Registered ${this.name} module`);
-	}
-
-	private sessionUpdateEvent(
-		model: string,
-		request?: RealtimeTranscriptionStartRequest
-	): RealtimeClientEvent {
-		const language = normalizeLanguage(request?.language);
-		return {
-			type: 'session.update',
-			session: {
-				type: 'transcription',
-				audio: {
-					input: {
-						format: {
-							type: 'audio/pcm',
-							rate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
-						},
-						transcription: {
-							model,
-							...(language ? { language } : {}),
-						},
-						turn_detection: {
-							type: 'server_vad',
-							threshold: 0.5,
-							prefix_padding_ms: 300,
-							silence_duration_ms: 500,
-						},
-					},
-				},
-			},
-		} as RealtimeClientEvent;
 	}
 
 	private bindSocket(runtime: RealtimeTranscriptionRuntime): void {
