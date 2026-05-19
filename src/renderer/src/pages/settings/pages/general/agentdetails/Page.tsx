@@ -162,6 +162,23 @@ const AgentDetailsPage: React.FC = () => {
 			};
 		}
 
+		if (isSpeechTranscriberAgent) {
+			const speechModels = Array.from(SPEECH_TRANSCRIBER_MODELS);
+			setModels(speechModels);
+			setModelId((current) => {
+				if (current && speechModels.some((model) => model.id === current)) return current;
+				if (currentSpeechTranscriber?.provider.id === selectedProvider.id) {
+					return currentSpeechTranscriber.model.id;
+				}
+				return speechModels[0]?.id ?? '';
+			});
+			setLoadingModels(false);
+			setErrorMessage('');
+			return () => {
+				mounted = false;
+			};
+		}
+
 		setLoadingModels(true);
 		setErrorMessage('');
 
@@ -189,7 +206,7 @@ const AgentDetailsPage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [currentAgent, selectedProvider, t]);
+	}, [currentAgent, currentSpeechTranscriber, isSpeechTranscriberAgent, selectedProvider, t]);
 
 	const modelOptions = useMemo(() => {
 		const byId = new Map(models.map((model) => [model.id, model]));
