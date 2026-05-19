@@ -51,8 +51,8 @@ export function PendingMessage({
 	);
 
 	return (
-		<Message className="w-full max-w-2xl">
-			<AssistantLogo className="mt-1" />
+		<Message className="w-full max-w-2xl flex-col gap-2">
+			<AssistantLogo />
 			<MessageContent
 				className="flex min-w-0 flex-1 flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
 				role="group"
