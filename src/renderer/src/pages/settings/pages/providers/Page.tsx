@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Check, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
+import { AlertTriangle, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
+import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 import {
@@ -15,7 +15,6 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsPanel,
 	SettingsSection,
 } from '../../components';
 
