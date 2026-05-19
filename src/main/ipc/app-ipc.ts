@@ -15,6 +15,7 @@ import type {
 } from '../../shared/app-permissions';
 import {
 	DEFAULT_PROVIDERS,
+	isAllowedAgentModel,
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
 	type ProviderInput,
@@ -24,9 +25,6 @@ import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 import { normalizeExternalUrl } from '../../shared/external-links';
-import {
-	isAllowedAgentModel,
-} from '../provider/model-policy';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
 

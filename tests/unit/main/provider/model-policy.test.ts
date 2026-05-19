@@ -1,8 +1,6 @@
 import {
 	filterSelectableAgentModels,
 	isAllowedAgentModel,
-} from '../../../../src/main/provider/model-policy';
-import {
 	DEFAULT_AGENT_MODELS_BY_PROVIDER,
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
