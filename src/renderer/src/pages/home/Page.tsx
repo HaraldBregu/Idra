@@ -37,16 +37,16 @@ type PromptAttachment = {
 
 const promptSuggestions = [
 	{
-		label: 'Inspect this page',
-		prompt: 'inspect src/renderer/src/pages/home/Page.tsx and explain what to improve',
+		label: 'Draft a deck',
+		prompt: 'create a presentation outline with a clear narrative, slide titles, and speaker notes',
 	},
 	{
-		label: 'Make a focused edit',
-		prompt: 'make a focused UI improvement in the current page',
+		label: 'Improve slides',
+		prompt: 'review this presentation and suggest sharper structure, copy, and visual hierarchy',
 	},
 	{
-		label: 'Plan next step',
-		prompt: 'look at the project and tell me the next best implementation step',
+		label: 'Build a pitch',
+		prompt: 'make a concise pitch deck for this idea with problem, solution, proof, and next steps',
 	},
 ] as const;
 
