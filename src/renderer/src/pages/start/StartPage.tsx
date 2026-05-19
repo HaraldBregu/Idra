@@ -1010,8 +1010,9 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderModelsStep(): React.JSX.Element {
-		const selectedCatalog =
-			selectedAgentModelOption?.catalog ?? getProviderCatalogItem(configProvider);
+		const selectedProviderCatalog = getProviderCatalogItem(configProvider);
+		const openAiCatalog = getProviderCatalogItem('openai');
+		const ttsProviderCatalog = getProviderCatalogItem('elevenlabs');
 		const openAiConnected = connectedProviderIds.has('openai');
 		const selectedSpeechOption =
 			SPEECH_MODELS.find((option) => option.id === selectedSpeechModel) ?? SPEECH_MODELS[0];
@@ -1043,24 +1044,75 @@ const StartPage: React.FC = () => {
 						open={expandedModelCardId === 'friday'}
 						onToggle={() => toggleModelCard('friday')}
 					>
-						<div className="space-y-2">
-							<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-								Model
-							</Label>
+						<div className="grid gap-3 sm:grid-cols-2">
+							<div className="space-y-2">
+								<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+									Provider
+								</Label>
+								<Select
+									value={configProvider}
+									onValueChange={handleAgentProviderChange}
+									disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
+								>
+									<SelectTrigger
+										id="agent-provider"
+										className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+									>
+										<SelectValue className="sr-only" />
+										<div className="flex min-w-0 items-center gap-2.5">
+											<ProviderMark
+												initial={selectedProviderCatalog.initial}
+												className={selectedProviderCatalog.swatchClassName}
+											/>
+											<p className="truncate text-sm font-semibold leading-tight text-foreground">
+												{configProviderName || modelCountLabel}
+											</p>
+										</div>
+									</SelectTrigger>
+									<SelectContent align="start" className="rounded-lg p-1">
+										{agentModelGroups.map((group) => {
+											const catalog = getProviderCatalogItem(group.provider.id);
+
+											return (
+												<SelectItem
+													key={group.provider.id}
+													value={group.provider.id}
+													className="h-10 px-2 py-0 pr-8 text-sm font-semibold"
+												>
+													<span className="flex min-w-0 items-center gap-2">
+														<ProviderMark
+															initial={catalog.initial}
+															className={cn(
+																catalog.swatchClassName,
+																'size-4 rounded-full text-[0.625rem]'
+															)}
+														/>
+														<span className="truncate">{catalog.name}</span>
+													</span>
+												</SelectItem>
+											);
+										})}
+									</SelectContent>
+								</Select>
+							</div>
+							<div className="space-y-2">
+								<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+									Model
+								</Label>
 							<Select
-								value={selectedAgentModelValue}
+								value={selectedModel}
 								onValueChange={handleAgentModelChange}
-								disabled={loadingModels || agentModelOptions.length === 0 || savingConfig}
+								disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
 							>
 								<SelectTrigger
 									id="agent-model"
-									className="!h-14 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
+									className="!h-12 w-full rounded-lg border-border bg-card px-3 text-left shadow-none"
 								>
 									<SelectValue className="sr-only" />
 									<div className="flex min-w-0 items-center gap-2.5">
 										<ProviderMark
-											initial={selectedCatalog.initial}
-											className={selectedCatalog.swatchClassName}
+											initial={selectedProviderCatalog.initial}
+											className={selectedProviderCatalog.swatchClassName}
 										/>
 										<div className="min-w-0">
 											<p className="truncate text-sm font-semibold leading-tight text-foreground">
@@ -1073,54 +1125,21 @@ const StartPage: React.FC = () => {
 									</div>
 								</SelectTrigger>
 								<SelectContent align="start" className="rounded-lg p-1">
-									{agentModelGroups.map((group) => {
-										const catalog = getProviderCatalogItem(group.provider.id);
-
-										return (
-											<SelectGroup key={group.provider.id}>
-												<SelectLabel className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-													<ProviderMark
-														initial={catalog.initial}
-														className={cn(
-															catalog.swatchClassName,
-															'size-4 rounded-full text-[0.625rem]'
-														)}
-													/>
-													{catalog.name}
-												</SelectLabel>
-												{group.models.map((model) => {
-													const value = getAgentModelValue(group.provider.id, model.id);
-													const selected = value === selectedAgentModelValue;
-
-													return (
-														<SelectItem
-															key={value}
-															value={value}
-															className={cn(
-																'h-10 px-2 py-0 pr-8 text-sm font-semibold',
-																selected && 'bg-accent text-accent-foreground'
-															)}
-														>
-															<span className="flex min-w-0 items-center gap-2">
-																<span
-																	className={cn(
-																		'flex size-4 shrink-0 items-center justify-center rounded-full border border-border',
-																		selected &&
-																			'rounded-md border-primary bg-primary text-primary-foreground'
-																	)}
-																>
-																	{selected ? <Check className="size-3" /> : null}
-																</span>
-																<span className="truncate">{model.name}</span>
-															</span>
-														</SelectItem>
-													);
-												})}
-											</SelectGroup>
-										);
-									})}
+									{selectedAgentModels.map((model) => (
+										<SelectItem
+											key={model.id}
+											value={model.id}
+											className={cn(
+												'h-10 px-2 py-0 pr-8 text-sm font-semibold',
+												model.id === selectedModel && 'bg-accent text-accent-foreground'
+											)}
+										>
+											<span className="truncate">{model.name}</span>
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
+							</div>
 						</div>
 					</ModelSetupCard>
 
