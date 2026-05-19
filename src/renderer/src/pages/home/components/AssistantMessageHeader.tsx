@@ -11,7 +11,7 @@ export function AssistantMessageHeader({
 		<div className={cn('flex min-w-0 items-center gap-2', className)}>
 			<GradientSphere size={32} />
 			<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
-				DFriday
+				Friday
 			</span>
 		</div>
 	);
