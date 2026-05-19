@@ -222,6 +222,38 @@ describe('FridayCronScheduler', () => {
 		});
 	});
 
+	it('normalizes nested agent payloads without requiring an explicit kind', async () => {
+		const { scheduler } = await makeHarness();
+
+		const response = await scheduler.handleToolAction({
+			action: 'add',
+			job: {
+				name: 'Email summary task',
+				schedule: { cron: '* * * * *', tz: 'Europe/Rome' },
+				sessionTarget: 'isolated',
+				payload: {
+					message: 'Check latest emails',
+					toolsAllow: ['gmail_get_recent_emails', 'gmail_batch_read_email', 'read', 'write'],
+					lightContext: true,
+					thinking: 'low',
+				},
+			},
+		});
+
+		expect(response.status).toBe('ok');
+		expect(response.result).toMatchObject({
+			name: 'Email summary task',
+			schedule: { kind: 'cron', expr: '* * * * *', tz: 'Europe/Rome' },
+			payload: {
+				kind: 'agentTurn',
+				message: 'Check latest emails',
+				toolsAllow: ['gmail_get_recent_emails', 'gmail_batch_read_email', 'read', 'write'],
+				lightContext: true,
+				thinking: 'low',
+			},
+		});
+	});
+
 	it('prefers jobId over id and filters tool lists by requester agent id', async () => {
 		const { scheduler } = await makeHarness();
 		const own = await scheduler.add(agentJob({ id: 'own-job', agentId: 'agent-1' }));
@@ -431,6 +463,33 @@ describe('AgentServiceFridayCronExecutor', () => {
 			'Wake up',
 			'main',
 			expect.objectContaining({ sessionId: 'main' })
+		);
+	});
+
+	it('passes agent-turn runtime options into AgentService.send', async () => {
+		const send = jest.fn(async () => 'agent output');
+		const executor = new AgentServiceFridayCronExecutor({ send } as never);
+
+		await executor.execute(runInput(executableJob({
+			payload: {
+				kind: 'agentTurn',
+				message: 'Summarize inbox',
+				toolsAllow: ['gmail_get_recent_emails', 'write'],
+				lightContext: true,
+				thinking: 'low',
+				model: 'gpt-5.5',
+			},
+		})));
+
+		expect(send).toHaveBeenCalledWith(
+			'Summarize inbox',
+			'main',
+			expect.objectContaining({
+				model: 'gpt-5.5',
+				effort: 'low',
+				lightContext: true,
+				toolsAllow: ['gmail_get_recent_emails', 'write'],
+			})
 		);
 	});
 
