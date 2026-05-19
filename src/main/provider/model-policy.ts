@@ -1,6 +1,6 @@
 import type { Model } from '../../shared/service';
 
-export const DEFAULT_AGENT_MODELS_BY_PROVIDER = {
+export const DEFAULT_AGENT_MODELS_BY_PROVIDER: Readonly<Record<string, readonly Model[]>> = {
 	openai: [
 		{ id: 'gpt-5.5', name: 'GPT-5.5' },
 		{ id: 'gpt-5.5-pro', name: 'GPT-5.5 Pro' },
@@ -47,7 +47,7 @@ export const DEFAULT_AGENT_MODELS_BY_PROVIDER = {
 		{ id: 'deepseek-v3.2', name: 'DeepSeek V3.2' },
 		{ id: 'deepseek-r1', name: 'DeepSeek R1' },
 	],
-} as const satisfies Readonly<Record<string, readonly Model[]>>;
+} as const;
 
 function normalizeProviderId(providerId: string): string {
 	return providerId.trim().toLowerCase();

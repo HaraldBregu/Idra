@@ -95,7 +95,6 @@ describe('provider model policy', () => {
 			{ id: 'gpt-5.5-pro', name: 'GPT-5.5 Pro' },
 			{ id: 'gpt-5.4', name: 'GPT-5.4' },
 			{ id: 'gpt-5.4-pro', name: 'GPT-5.4 Pro' },
-			{ id: 'gpt-5.4', name: 'GPT-5.4' },
 			{ id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' },
 		]);
 	});
@@ -114,15 +113,19 @@ describe('provider model policy', () => {
 	it('limits Anthropic selectable agent models to the top Claude models', () => {
 		const anthropicModels: Model[] = [
 			{ id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet' },
+			{ id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
 			{ id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
+			{ id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5' },
 			{ id: 'claude-opus-4-7', name: 'Claude Opus 4.7' },
-			{ id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
+			{ id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },
 		];
 
 		expect(filterSelectableAgentModels('anthropic', anthropicModels)).toEqual([
 			{ id: 'claude-opus-4-7', name: 'Claude Opus 4.7' },
+			{ id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
 			{ id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
-			{ id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
+			{ id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5' },
+			{ id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },
 		]);
 	});
 
