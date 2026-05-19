@@ -23,9 +23,25 @@ import {
 	SettingsSection,
 } from '../../../components';
 import type { PublicProvider } from '../../../../../../../shared/providers';
-import type { Agent, Model } from '../../../../../../../shared/service';
+import {
+	DEFAULT_MODEL_REASONING_EFFORT,
+	isModelReasoningEffort,
+	MODEL_REASONING_EFFORTS,
+	type Agent,
+	type Model,
+	type ModelReasoningEffort,
+} from '../../../../../../../shared/service';
 
 const FRIDAY_AGENT_ID = 'main';
+const OPENAI_PROVIDER_ID = 'openai';
+
+function isOpenAiProvider(providerId: string): boolean {
+	return providerId.trim().toLowerCase() === OPENAI_PROVIDER_ID;
+}
+
+function normalizeEffort(effort: unknown): ModelReasoningEffort {
+	return isModelReasoningEffort(effort) ? effort : DEFAULT_MODEL_REASONING_EFFORT;
+}
 
 function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
@@ -55,6 +71,7 @@ const AgentDetailsPage: React.FC = () => {
 	const [providerId, setProviderId] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [modelId, setModelId] = useState('');
+	const [effort, setEffort] = useState<ModelReasoningEffort>(DEFAULT_MODEL_REASONING_EFFORT);
 	const [loading, setLoading] = useState(true);
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [saving, setSaving] = useState(false);
@@ -91,6 +108,11 @@ const AgentDetailsPage: React.FC = () => {
 						? nextAgent.model.id
 						: ''
 				);
+				setEffort(
+					nextAgent && preferredProvider?.id === nextAgent.provider.id
+						? normalizeEffort(nextAgent.model.effort)
+						: DEFAULT_MODEL_REASONING_EFFORT
+				);
 			})
 			.catch((error) => {
 				if (!mounted) return;
@@ -98,6 +120,7 @@ const AgentDetailsPage: React.FC = () => {
 				setCurrentAgent(undefined);
 				setProviderId('');
 				setModelId('');
+				setEffort(DEFAULT_MODEL_REASONING_EFFORT);
 				setErrorMessage(getErrorMessage(error, t('settings.agents.loadError')));
 			})
 			.finally(() => {
@@ -164,20 +187,32 @@ const AgentDetailsPage: React.FC = () => {
 	}, [currentAgent, models, providerId]);
 
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
+	const showEffort = isOpenAiProvider(providerId);
+	const selectedEffort = showEffort ? effort : undefined;
+	const currentEffort = currentAgent && isOpenAiProvider(currentAgent.provider.id)
+		? normalizeEffort(currentAgent.model.effort)
+		: undefined;
 	const hasChanges =
 		!currentAgent ||
 		currentAgent.provider.id !== providerId ||
-		currentAgent.model.id !== modelId;
+		currentAgent.model.id !== modelId ||
+		currentEffort !== selectedEffort;
 	const canSave = Boolean(selectedProvider && selectedModel && hasChanges && !loadingModels && !saving);
 
 	const handleProviderChange = useCallback((nextValue: string | null): void => {
 		setProviderId(nextValue ?? '');
 		setModelId('');
+		setEffort(DEFAULT_MODEL_REASONING_EFFORT);
 		setSuccessMessage('');
 	}, []);
 
 	const handleModelChange = useCallback((nextValue: string | null): void => {
 		setModelId(nextValue ?? '');
+		setSuccessMessage('');
+	}, []);
+
+	const handleEffortChange = useCallback((nextValue: string): void => {
+		setEffort(normalizeEffort(nextValue));
 		setSuccessMessage('');
 	}, []);
 
@@ -188,16 +223,19 @@ const AgentDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 		try {
-			const saved = await window.app.saveAgentService(selectedProvider, selectedModel);
+			const modelToSave: Model = isOpenAiProvider(selectedProvider.id)
+				? { ...selectedModel, effort }
+				: { id: selectedModel.id, name: selectedModel.name };
+			const saved = await window.app.saveAgentService(selectedProvider, modelToSave);
 			if (!saved) throw new Error(t('settings.agents.saveError'));
-			setCurrentAgent({ provider: selectedProvider, model: selectedModel });
+			setCurrentAgent({ provider: selectedProvider, model: modelToSave });
 			setSuccessMessage(t('settings.agents.saved'));
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, t('settings.agents.saveError')));
 		} finally {
 			setSaving(false);
 		}
-	}, [canSave, selectedModel, selectedProvider, t]);
+	}, [canSave, effort, selectedModel, selectedProvider, t]);
 
 	if (loading) {
 		return (
@@ -330,6 +368,31 @@ const AgentDetailsPage: React.FC = () => {
 								</p>
 							)}
 						</SettingsField>
+
+						{showEffort && (
+							<SettingsField
+								id="agent-effort"
+								label={t('settings.agents.effort')}
+								description={t('settings.agents.effortDescription')}
+							>
+								<Select
+									value={effort}
+									onValueChange={handleEffortChange}
+									disabled={!selectedProvider || saving}
+								>
+									<SelectTrigger id="agent-effort" className="w-full text-xs sm:w-72">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{MODEL_REASONING_EFFORTS.map((value) => (
+											<SelectItem key={value} value={value}>
+												{t(`settings.agents.effortOptions.${value}`)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</SettingsField>
+						)}
 
 						<div className="flex justify-end">
 							<Button type="button" size="sm" disabled={!canSave} onClick={() => void handleSave()}>
