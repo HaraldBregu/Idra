@@ -331,38 +331,74 @@ const AgentDetailsPage: React.FC = () => {
 		}
 	}, [canSave, effort, isSpeechTranscriberAgent, selectedModel, selectedProvider, t]);
 
-	const isKnownAgent = isFridayAgent || isSpeechTranscriberAgent;
-	const agentIcon = isSpeechTranscriberAgent ? Mic : Bot;
-	const agentName = t(
-		isSpeechTranscriberAgent
-			? 'settings.agents.speechTranscriberName'
-			: 'settings.agents.fridayName'
+	const isKnownAgent =
+		isFridayAgent || isSpeechTranscriberAgent || isTextToSpeechAgent || isImageAssistantAgent;
+	const agentIcon = isImageAssistantAgent
+		? ImageIcon
+		: isTextToSpeechAgent
+			? Volume2
+			: isSpeechTranscriberAgent
+				? Mic
+				: Bot;
+	const agentNameKey = isImageAssistantAgent
+		? 'settings.agents.imageAssistantName'
+		: isTextToSpeechAgent
+			? 'settings.agents.textToSpeechName'
+			: isSpeechTranscriberAgent
+				? 'settings.agents.speechTranscriberName'
+				: 'settings.agents.fridayName';
+	const agentDescriptionKey = isImageAssistantAgent
+		? 'settings.agents.imageAssistantDescription'
+		: isTextToSpeechAgent
+			? 'settings.agents.textToSpeechDescription'
+			: isSpeechTranscriberAgent
+				? 'settings.agents.speechTranscriberDescription'
+				: 'settings.agents.fridayDescription';
+	const configurationDescriptionKey = isImageAssistantAgent
+		? 'settings.agents.imageConfigurationSubtitle'
+		: isTextToSpeechAgent
+			? 'settings.agents.textToSpeechConfigurationSubtitle'
+			: isSpeechTranscriberAgent
+				? 'settings.agents.speechConfigurationSubtitle'
+				: 'settings.agents.subtitle';
+	const providerDescriptionKey = isImageAssistantAgent
+		? 'settings.agents.imageProviderDescription'
+		: isTextToSpeechAgent
+			? 'settings.agents.textToSpeechProviderDescription'
+			: isSpeechTranscriberAgent
+				? 'settings.agents.speechProviderDescription'
+				: 'settings.agents.providerDescription';
+	const modelLabelKey = isImageAssistantAgent
+		? 'settings.agents.imageModel'
+		: isTextToSpeechAgent
+			? 'settings.agents.textToSpeechModel'
+			: isSpeechTranscriberAgent
+				? 'settings.agents.speechModel'
+				: 'settings.agents.model';
+	const modelDescriptionKey = isImageAssistantAgent
+		? 'settings.agents.imageModelDescription'
+		: isTextToSpeechAgent
+			? 'settings.agents.textToSpeechModelDescription'
+			: isSpeechTranscriberAgent
+				? 'settings.agents.speechModelDescription'
+				: 'settings.agents.modelDescription';
+	const agentName = t(agentNameKey);
+	const agentDescription = t(agentDescriptionKey);
+	const configurationDescription = t(configurationDescriptionKey);
+	const providerDescription = t(providerDescriptionKey);
+	const modelLabel = t(modelLabelKey);
+	const modelDescription = t(modelDescriptionKey);
+	const textToSpeechProvider = DEFAULT_PROVIDERS.find(
+		(provider) => provider.id === TEXT_TO_SPEECH_PROVIDER_ID
 	);
-	const agentDescription = t(
-		isSpeechTranscriberAgent
-			? 'settings.agents.speechTranscriberDescription'
-			: 'settings.agents.fridayDescription'
-	);
-	const configurationDescription = t(
-		isSpeechTranscriberAgent
-			? 'settings.agents.speechConfigurationSubtitle'
-			: 'settings.agents.subtitle'
-	);
-	const providerDescription = t(
-		isSpeechTranscriberAgent
-			? 'settings.agents.speechProviderDescription'
-			: 'settings.agents.providerDescription'
-	);
-	const modelLabel = t(
-		isSpeechTranscriberAgent
-			? 'settings.agents.speechModel'
-			: 'settings.agents.model'
-	);
-	const modelDescription = t(
-		isSpeechTranscriberAgent
-			? 'settings.agents.speechModelDescription'
-			: 'settings.agents.modelDescription'
-	);
+	const readOnlyProviderName = isTextToSpeechAgent
+		? textToSpeechProvider?.name ?? 'ElevenLabs'
+		: 'Image provider';
+	const readOnlyProviderValue = isTextToSpeechAgent
+		? TEXT_TO_SPEECH_PROVIDER_ID
+		: 'image-provider-coming-soon';
+	const readOnlyModel =
+		isTextToSpeechAgent ? TEXT_TO_SPEECH_MODELS[0] : IMAGE_ASSISTANT_MODELS[0];
 
 	if (loading) {
 		return (
