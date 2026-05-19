@@ -170,12 +170,27 @@ const pendingMessage: HomeMultiSelectMessage = {
 };
 
 describe('home page HITL wiring', () => {
+	let dictation: {
+		cancel: jest.Mock<Promise<void>, []>;
+		elapsedMs: number;
+		errorMessage: string | null;
+		finish: jest.Mock<Promise<void>, []>;
+		isMuted: boolean;
+		isSupported: boolean;
+		setMuted: jest.Mock<void, [boolean]>;
+		start: jest.Mock<Promise<boolean>, []>;
+		status: string;
+		stream: MediaStream | null;
+	};
+
 	beforeEach(() => {
 		mockSubmitMultiSelect.mockReset();
 		mockUseRealtimeDictation.mockReset();
 		mockUseHomeAgent.mockReset();
 		mockSetMode.mockReset();
-		mockUseRealtimeDictation.mockReturnValue({
+		mockUseChatMode.mockReset();
+		mockUseChatMode.mockReturnValue({ mode: 'chat', setMode: mockSetMode });
+		dictation = {
 			cancel: jest.fn(),
 			elapsedMs: 0,
 			errorMessage: null,
@@ -186,7 +201,8 @@ describe('home page HITL wiring', () => {
 			start: jest.fn(async () => true),
 			status: 'idle',
 			stream: null,
-		});
+		};
+		mockUseRealtimeDictation.mockReturnValue(dictation);
 		mockUseHomeAgent.mockReturnValue({
 			chatState: {
 				messages: [
@@ -223,12 +239,34 @@ describe('home page HITL wiring', () => {
 		});
 	});
 
-	it('starts voice conversation from the empty primary action', async () => {
+	it('starts dictation from the empty primary action', async () => {
 		render(<Page />);
 
-		await userEvent.click(screen.getByRole('button', { name: 'Start voice conversation' }));
+		await userEvent.click(screen.getByRole('button', { name: 'Start dictation' }));
 
+		expect(dictation.start).toHaveBeenCalledTimes(1);
 		expect(mockSetMode).toHaveBeenCalledWith('voice');
-		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', 'conversation');
+		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', 'dictation');
+	});
+
+	it('returns to chat when dictation cannot start', async () => {
+		dictation.start.mockResolvedValue(false);
+		render(<Page />);
+
+		await userEvent.click(screen.getByRole('button', { name: 'Start dictation' }));
+
+		expect(mockSetMode).toHaveBeenCalledWith('chat');
+		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', '');
+	});
+
+	it('finishes dictation before returning to chat', async () => {
+		render(<Page />);
+
+		await userEvent.click(screen.getByRole('button', { name: 'Start dictation' }));
+		await userEvent.click(screen.getByRole('button', { name: 'Confirm dictation' }));
+
+		expect(dictation.finish).toHaveBeenCalledTimes(1);
+		expect(mockSetMode).toHaveBeenLastCalledWith('chat');
+		expect(screen.getByTestId('prompt-input')).toHaveAttribute('data-voice-mode', '');
 	});
 });
