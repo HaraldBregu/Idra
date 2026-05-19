@@ -57,16 +57,8 @@ type ProviderCatalogItem = {
 	id: string;
 	name: string;
 	capabilities: string;
-	initial: string;
-	swatchClassName: string;
 	supported: boolean;
 	apiConfigurationUrl?: string;
-	icon?: ProviderIconAsset;
-};
-
-type ProviderIconAsset = {
-	light: string;
-	dark: string;
 };
 
 type StaticModelOption = {
@@ -144,61 +136,17 @@ function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	};
 }
 
-function providerInitial(name: string): string {
-	const words = name.trim().split(/\s+/).filter(Boolean);
-	const initials = words
-		.slice(0, 2)
-		.map((word) => word[0]?.toUpperCase() ?? '')
-		.join('');
-
-	return initials || name.slice(0, 1).toUpperCase();
-}
-
 const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
 	normalizeProvider(provider, index)
 );
 const supportedProviderIds = new Set(providerOptions.map((provider) => provider.value));
-const providerIconAssets: Readonly<Record<string, ProviderIconAsset>> = {
-	openai: { light: openaiIconLight, dark: openaiIconDark },
-	anthropic: { light: anthropicIconLight, dark: anthropicIconDark },
-	google: { light: googleIconLight, dark: googleIconDark },
-	meta: { light: metaIconLight, dark: metaIconDark },
-	xai: { light: xaiIconLight, dark: xaiIconDark },
-	mistral: { light: mistralIconLight, dark: mistralIconDark },
-	cohere: { light: cohereIconLight, dark: cohereIconDark },
-	deepseek: { light: deepseekIconLight, dark: deepseekIconDark },
-	qwen: { light: qwenIconLight, dark: qwenIconDark },
-	kimi: { light: kimiIconLight, dark: kimiIconDark },
-	zai: { light: zaiIconLight, dark: zaiIconDark },
-	baidu: { light: baiduIconLight, dark: baiduIconDark },
-	'tencent-hunyuan': { light: tencentHunyuanIconLight, dark: tencentHunyuanIconDark },
-	'bytedance-seed': { light: bytedanceSeedIconLight, dark: bytedanceSeedIconDark },
-	minimax: { light: minimaxIconLight, dark: minimaxIconDark },
-	elevenlabs: { light: elevenlabsIconLight, dark: elevenlabsIconDark },
-	deepgram: { light: deepgramIcon, dark: deepgramIcon },
-	'black-forest-labs': { light: blackForestLabsIconLight, dark: blackForestLabsIconDark },
-	midjourney: { light: midjourneyIconLight, dark: midjourneyIconDark },
-	'adobe-firefly': { light: adobeFireflyIconLight, dark: adobeFireflyIconDark },
-	kling: { light: klingIconLight, dark: klingIconDark },
-	runway: { light: runwayIconLight, dark: runwayIconDark },
-	luma: { light: lumaIconLight, dark: lumaIconDark },
-	'stability-ai': { light: stabilityAiIconLight, dark: stabilityAiIconDark },
-	ideogram: { light: ideogramIconLight, dark: ideogramIconDark },
-	suno: { light: sunoIconLight, dark: sunoIconDark },
-	ai21: { light: ai21IconLight, dark: ai21IconDark },
-	perplexity: { light: perplexityIconLight, dark: perplexityIconDark },
-	nvidia: { light: nvidiaIconLight, dark: nvidiaIconDark },
-};
 const actionableProviderCatalog: readonly ProviderCatalogItem[] = DEFAULT_PROVIDERS.map(
 	(provider) => ({
 		id: provider.id,
 		name: provider.name,
 		capabilities: provider.capabilities ?? 'AI provider',
-		initial: providerInitial(provider.name),
-		swatchClassName: 'bg-muted text-muted-foreground',
 		supported: true,
 		apiConfigurationUrl: getProviderApiConfigurationUrl(provider),
-		icon: providerIconAssets[provider.id],
 	})
 );
 
@@ -216,8 +164,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 			id: providerId,
 			name: providerOptions.find((provider) => provider.value === providerId)?.label ?? providerId,
 			capabilities: 'Chat',
-			initial: providerId.slice(0, 1).toUpperCase(),
-			swatchClassName: 'bg-muted text-muted-foreground',
 			supported: supportedProviderIds.has(providerId),
 		}
 	);
@@ -225,56 +171,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 
 function getAgentModelValue(providerId: string, modelId: string): string {
 	return `${providerId}${AGENT_MODEL_VALUE_SEPARATOR}${modelId}`;
-}
-
-function ProviderMark({
-	initial,
-	icon,
-	className,
-}: {
-	readonly initial: string;
-	readonly icon?: ProviderIconAsset;
-	readonly className: string;
-}): React.JSX.Element {
-	if (icon) {
-		return (
-			<div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-background p-1">
-				<img
-					src={icon.light}
-					alt=""
-					aria-hidden="true"
-					draggable={false}
-					className="size-full object-contain dark:hidden"
-				/>
-				<img
-					src={icon.dark}
-					alt=""
-					aria-hidden="true"
-					draggable={false}
-					className="hidden size-full object-contain dark:block"
-				/>
-			</div>
-		);
-	}
-
-	if (!initial) {
-		return (
-			<div className={cn('flex size-8 shrink-0 items-center justify-center rounded-md', className)}>
-				<div className="size-4 rounded-full border-2 border-current/80" />
-			</div>
-		);
-	}
-
-	return (
-		<div
-			className={cn(
-				'flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-semibold',
-				className
-			)}
-		>
-			{initial}
-		</div>
-	);
 }
 
 function StepProgress({ currentIndex }: { readonly currentIndex: number }): React.JSX.Element {
