@@ -448,6 +448,52 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('filters the tool surface with an explicit allowlist', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'allowed tools' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+			toolsFactory: () => [
+				makeAgentTool('read', 'Read files'),
+				makeAgentTool('write', 'Write files'),
+				makeAgentTool('find', 'Find files'),
+				makeAgentTool('gmail_get_recent_emails', 'Gmail: Get recent emails.'),
+				makeAgentTool('web_fetch', 'Fetch web pages.'),
+			],
+		});
+
+		await expect(
+			service.send('What tools do you have?', 'main', {
+				toolsAllow: ['read', 'write', 'gmail_*'],
+			})
+		).resolves.toBe('allowed tools');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual([
+			'read',
+			'write',
+			'gmail_get_recent_emails',
+		]);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('exposes connected Google connector tools for Gmail profile requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
