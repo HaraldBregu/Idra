@@ -62,6 +62,21 @@ describe('GeneralPage', () => {
 			...window.app,
 			getTrayEnabled: jest.fn(async () => true),
 			setTrayEnabled: jest.fn(async () => undefined),
+			getMicrophonePermission: jest.fn(async () => ({
+				enabled: true,
+				systemStatus: 'not-determined',
+				canRequest: true,
+			})),
+			setMicrophoneEnabled: jest.fn(async (enabled: boolean) => ({
+				enabled,
+				systemStatus: 'not-determined',
+				canRequest: true,
+			})),
+			requestMicrophonePermission: jest.fn(async () => ({
+				enabled: true,
+				systemStatus: 'granted',
+				canRequest: false,
+			})),
 			openAppDataFolder: jest.fn(async () => undefined),
 			openUserDataFolder: jest.fn(async () => undefined),
 		};
@@ -94,6 +109,38 @@ describe('GeneralPage', () => {
 
 		await waitFor(() => {
 			expect(window.app.setTrayEnabled).toHaveBeenCalledWith(false);
+		});
+	});
+
+	it('loads microphone permission state', async () => {
+		renderGeneralPage();
+
+		expect(
+			await screen.findByRole('switch', { name: 'settings.microphone.recording' })
+		).toHaveAttribute('aria-checked', 'true');
+		expect(screen.getByText('settings.microphone.status.not-determined')).toBeInTheDocument();
+	});
+
+	it('calls setMicrophoneEnabled when the microphone switch is toggled', async () => {
+		const user = userEvent.setup();
+		renderGeneralPage();
+
+		const toggle = await screen.findByRole('switch', { name: 'settings.microphone.recording' });
+		await user.click(toggle);
+
+		await waitFor(() => {
+			expect(window.app.setMicrophoneEnabled).toHaveBeenCalledWith(false);
+		});
+	});
+
+	it('requests microphone permission from the action button', async () => {
+		const user = userEvent.setup();
+		renderGeneralPage();
+
+		await user.click(await screen.findByRole('button', { name: 'settings.microphone.actions.request' }));
+
+		await waitFor(() => {
+			expect(window.app.requestMicrophonePermission).toHaveBeenCalled();
 		});
 	});
 
