@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import { AlertTriangle, LoaderCircle, Plug, Wrench } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AlertTriangle, LoaderCircle, Plug, Trash2, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -63,11 +63,13 @@ function DetailRow({
 
 const ConnectorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { connectorId } = useParams<{ connectorId: string }>();
 	const [connector, setConnector] = useState<ConnectorConfig | null>(null);
 	const [tools, setTools] = useState<readonly ConnectorTool[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [connecting, setConnecting] = useState(false);
+	const [deleting, setDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [toolsError, setToolsError] = useState<string | null>(null);
@@ -146,6 +148,23 @@ const ConnectorDetailsPage: React.FC = () => {
 		}
 	};
 
+	const deleteConnector = async (): Promise<void> => {
+		if (!connector) return;
+		if (!window.confirm(`Delete ${connector.name}?`)) return;
+
+		setDeleting(true);
+		setError(null);
+		setStatusMessage(null);
+		try {
+			await window.connectors.remove(connector.id);
+			navigate('/settings/connectors');
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setDeleting(false);
+		}
+	};
+
 	if (loading) {
 		return (
 			<SettingsPageShell>
@@ -183,18 +202,34 @@ const ConnectorDetailsPage: React.FC = () => {
 				title={connector.name}
 				description={connector.serverDescription}
 				action={
-					googleOAuth ? (
+					<>
+						{googleOAuth && (
+							<Button
+								type="button"
+								size="xs"
+								variant={connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'outline' : 'default'}
+								disabled={connecting || deleting}
+								onClick={() => void connectGoogleOAuth()}
+							>
+								{connecting && <LoaderCircle className="size-3 animate-spin" />}
+								{connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'Reconnect Google' : 'Connect Google'}
+							</Button>
+						)}
 						<Button
 							type="button"
 							size="xs"
-							variant={connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'outline' : 'default'}
-							disabled={connecting}
-							onClick={() => void connectGoogleOAuth()}
+							variant="destructive"
+							disabled={connecting || deleting}
+							onClick={() => void deleteConnector()}
 						>
-							{connecting && <LoaderCircle className="size-3 animate-spin" />}
-							{connector.oauth?.refreshToken || connector.oauth?.accessToken ? 'Reconnect Google' : 'Connect Google'}
+							{deleting ? (
+								<LoaderCircle className="size-3 animate-spin" />
+							) : (
+								<Trash2 className="size-3" />
+							)}
+							{deleting ? 'Deleting...' : 'Delete Connector'}
 						</Button>
-					) : undefined
+					</>
 				}
 			/>
 
