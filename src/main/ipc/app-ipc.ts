@@ -1,6 +1,4 @@
 import { app, ipcMain, BrowserWindow, nativeTheme, shell, systemPreferences } from 'electron';
-import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
@@ -21,7 +19,8 @@ import { isThemeMode, ThemeMode } from '../../shared';
 import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 import { normalizeExternalUrl } from '../../shared/external-links';
 import {
-	filterSelectableAgentModels,
+	getDefaultAgentModels,
+	hasDefaultAgentModels,
 	isAllowedAgentModel,
 } from '../provider/model-policy';
 
@@ -55,26 +54,6 @@ async function openPathOrThrow(target: string): Promise<void> {
 	if (error) {
 		throw new Error(error);
 	}
-}
-
-async function getOpenAiModels(apiKey: string): Promise<Model[]> {
-	const client = new OpenAI({ apiKey });
-	const models = await client.models.list();
-
-	return models.data.map((model) => ({
-		id: model.id,
-		name: model.id,
-	}));
-}
-
-async function getAnthropicModels(apiKey: string): Promise<Model[]> {
-	const client = new Anthropic({ apiKey });
-	const models = await client.models.list();
-
-	return models.data.map((model) => ({
-		id: model.id,
-		name: model.display_name,
-	}));
 }
 
 export class AppIpc implements IpcModule {
@@ -311,12 +290,8 @@ export class AppIpc implements IpcModule {
 
 				const normalizedProviderId = storedProvider.id.trim().toLowerCase();
 
-				if (normalizedProviderId === 'openai') {
-					return filterSelectableAgentModels(storedProvider.id, await getOpenAiModels(apiKey));
-				}
-
-				if (normalizedProviderId === 'anthropic') {
-					return filterSelectableAgentModels(storedProvider.id, await getAnthropicModels(apiKey));
+				if (hasDefaultAgentModels(normalizedProviderId)) {
+					return getDefaultAgentModels(normalizedProviderId);
 				}
 
 				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
