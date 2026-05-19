@@ -392,6 +392,7 @@ function PageContent(): ReactElement {
 							voiceMode={voiceMode}
 							voiceElapsedMs={voiceMode === 'dictation' ? audioRecorder.elapsedMs : undefined}
 							voiceMuted={voiceMode === 'dictation' ? audioRecorder.isMuted : undefined}
+							voiceMediaStream={voiceMode === 'dictation' ? audioRecorder.stream : null}
 							onVoiceMutedChange={voiceMode === 'dictation' ? audioRecorder.setMuted : undefined}
 							onVoiceEnd={returnToChat}
 							onVoiceCancel={() => void cancelRecording()}

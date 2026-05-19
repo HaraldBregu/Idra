@@ -31,15 +31,82 @@ type BarWaveAnimationProps = {
   active?: boolean
   height?: number
   className?: string
+  mediaStream?: MediaStream | null
 }
 
-export function BarWaveAnimation({ active = true, height = 80, className }: BarWaveAnimationProps) {
+function readAnalyserAmps(
+  target: Float32Array,
+  analyser: AnalyserNode,
+  dataArray: Uint8Array
+) {
+  analyser.getByteTimeDomainData(dataArray)
+  const samplesPerBar = Math.max(1, Math.floor(dataArray.length / target.length))
+
+  for (let i = 0; i < target.length; i++) {
+    const start = i * samplesPerBar
+    const end = Math.min(dataArray.length, start + samplesPerBar)
+    let sum = 0
+
+    for (let j = start; j < end; j++) {
+      sum += Math.abs((dataArray[j] - 128) / 128)
+    }
+
+    const raw = end > start ? sum / (end - start) : 0
+    const gated = raw < 0.015 ? 0.006 : Math.min(1, raw * 4.8)
+    target[i] = target[i] * 0.62 + gated * 0.38
+  }
+}
+
+function decayAmps(target: Float32Array) {
+  for (let i = 0; i < target.length; i++) {
+    target[i] = target[i] * 0.82 + 0.006 * 0.18
+  }
+}
+
+export function BarWaveAnimation({
+  active = true,
+  height = 80,
+  className,
+  mediaStream,
+}: BarWaveAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const activeRef = useRef(active)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const dataArrayRef = useRef<Uint8Array | null>(null)
 
   useEffect(() => {
     activeRef.current = active
   }, [active])
+
+  useEffect(() => {
+    if (!mediaStream) {
+      analyserRef.current = null
+      dataArrayRef.current = null
+      return
+    }
+
+    const AudioContextCtor = window.AudioContext
+    if (!AudioContextCtor) return
+
+    const audioContext = new AudioContextCtor()
+    const source = audioContext.createMediaStreamSource(mediaStream)
+    const analyser = audioContext.createAnalyser()
+    analyser.fftSize = 512
+    analyser.smoothingTimeConstant = 0.72
+    source.connect(analyser)
+
+    analyserRef.current = analyser
+    dataArrayRef.current = new Uint8Array(analyser.fftSize)
+    void audioContext.resume().catch(() => undefined)
+
+    return () => {
+      analyserRef.current = null
+      dataArrayRef.current = null
+      source.disconnect()
+      analyser.disconnect()
+      void audioContext.close().catch(() => undefined)
+    }
+  }, [mediaStream])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -107,10 +174,18 @@ export function BarWaveAnimation({ active = true, height = 80, className }: BarW
     let rafId = 0
     const tick = () => {
       rafId = requestAnimationFrame(tick)
-      if (activeRef.current) {
+      const analyser = analyserRef.current
+      const dataArray = dataArrayRef.current
+      if (activeRef.current && analyser && dataArray) {
+        readAnalyserAmps(ampBuf, analyser, dataArray)
+        redraw()
+      } else if (activeRef.current) {
         ampBuf.copyWithin(0, 1)
         ampBuf[NUM - 1] = getAmp(phase)
         phase += 0.22
+        redraw()
+      } else {
+        decayAmps(ampBuf)
         redraw()
       }
       renderer.render(scene, camera)

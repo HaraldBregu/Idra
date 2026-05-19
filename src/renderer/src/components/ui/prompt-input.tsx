@@ -73,6 +73,7 @@ export type PromptInputProps = {
   voiceMode?: PromptInputVoiceMode | null
   voiceElapsedMs?: number
   voiceMuted?: boolean
+  voiceMediaStream?: MediaStream | null
   onVoiceEnd?: () => void
   onVoiceCancel?: () => void
   onVoiceConfirm?: () => void
@@ -140,9 +141,11 @@ function PromptInputMotionSlot({
 function PromptInputVoiceWaveform({
   muted,
   mode,
+  mediaStream,
 }: {
   muted: boolean
   mode: PromptInputVoiceMode
+  mediaStream?: MediaStream | null
 }) {
   return (
     <div
@@ -153,7 +156,7 @@ function PromptInputVoiceWaveform({
       aria-hidden="true"
     >
       {mode === "dictation" ? (
-        <BarWaveAnimation active={!muted} height={28} />
+        <BarWaveAnimation active={!muted} height={28} mediaStream={mediaStream} />
       ) : (
         <WaveAnimation active={!muted} height={28} />
       )}
@@ -174,6 +177,7 @@ function PromptInputVoicePanel({
   leadingAction,
   elapsedMs,
   muted,
+  mediaStream,
   onEnd,
   onCancel,
   onConfirm,
@@ -184,6 +188,7 @@ function PromptInputVoicePanel({
   leadingAction?: React.ReactNode
   elapsedMs?: number
   muted?: boolean
+  mediaStream?: MediaStream | null
   onEnd?: () => void
   onCancel?: () => void
   onConfirm?: () => void
@@ -247,7 +252,7 @@ function PromptInputVoicePanel({
       </div>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <div className="min-w-28 flex-1">
-          <PromptInputVoiceWaveform muted={isMuted} mode={mode} />
+          <PromptInputVoiceWaveform muted={isMuted} mode={mode} mediaStream={mediaStream} />
         </div>
         {elapsedMs !== undefined ? (
           <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
@@ -337,6 +342,7 @@ function PromptInput({
   voiceMode,
   voiceElapsedMs,
   voiceMuted,
+  voiceMediaStream,
   onVoiceEnd,
   onVoiceCancel,
   onVoiceConfirm,
@@ -420,6 +426,7 @@ function PromptInput({
                   leadingAction={leadingAction}
                   elapsedMs={voiceElapsedMs}
                   muted={voiceMuted}
+                  mediaStream={voiceMediaStream}
                   onEnd={onVoiceEnd}
                   onCancel={onVoiceCancel}
                   onConfirm={onVoiceConfirm ?? onSubmit}

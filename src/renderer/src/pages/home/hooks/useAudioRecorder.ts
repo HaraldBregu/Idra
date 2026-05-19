@@ -120,6 +120,7 @@ export function useAudioRecorder() {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [elapsedMs, setElapsedMs] = useState(0);
 	const [isMuted, setIsMuted] = useState(false);
+	const [stream, setStream] = useState<MediaStream | null>(null);
 
 	const recorderRef = useRef<MediaRecorder | null>(null);
 	const streamRef = useRef<MediaStream | null>(null);
@@ -147,6 +148,7 @@ export function useAudioRecorder() {
 		stopStream(streamRef.current);
 		recorderRef.current = null;
 		streamRef.current = null;
+		setStream(null);
 		chunksRef.current = [];
 		startedAtMsRef.current = 0;
 		discardOnStopRef.current = false;
@@ -208,6 +210,7 @@ export function useAudioRecorder() {
 
 			recorderRef.current = recorder;
 			streamRef.current = stream;
+			setStream(stream);
 			chunksRef.current = [];
 			startedAtMsRef.current = Date.now();
 
@@ -340,6 +343,7 @@ export function useAudioRecorder() {
 		setMuted,
 		start,
 		status,
+		stream,
 		stop,
 	};
 }
