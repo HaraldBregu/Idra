@@ -6,7 +6,7 @@ import {
 	DEFAULT_AGENT_MODELS_BY_PROVIDER,
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
-} from '../../../../src/shared/provider-models';
+} from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/service';
 
 describe('provider model policy', () => {

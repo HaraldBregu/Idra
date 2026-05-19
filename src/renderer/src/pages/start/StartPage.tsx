@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
+	hasDefaultAgentModels,
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
@@ -22,7 +23,6 @@ import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	type Model,
 } from '../../../../shared/service';
-import { hasDefaultAgentModels } from '../../../../shared/provider-models';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

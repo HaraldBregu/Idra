@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_MODELS_BY_PROVIDER } from '../../shared/provider-models';
+import { DEFAULT_AGENT_MODELS_BY_PROVIDER } from '../../shared/providers';
 import type { Model } from '../../shared/service';
 
 function normalizeProviderId(providerId: string): string {

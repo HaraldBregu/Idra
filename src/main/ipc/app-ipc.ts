@@ -13,15 +13,17 @@ import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
 } from '../../shared/app-permissions';
-import { DEFAULT_PROVIDERS, type ProviderInput, type PublicProvider } from '../../shared/providers';
+import {
+	DEFAULT_PROVIDERS,
+	getDefaultAgentModels,
+	hasDefaultAgentModels,
+	type ProviderInput,
+	type PublicProvider,
+} from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
 import { normalizeExternalUrl } from '../../shared/external-links';
-import {
-	getDefaultAgentModels,
-	hasDefaultAgentModels,
-} from '../../shared/provider-models';
 import {
 	isAllowedAgentModel,
 } from '../provider/model-policy';
