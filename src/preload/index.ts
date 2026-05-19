@@ -213,6 +213,12 @@ export const app: AppApi = {
 	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(ProviderChannels.saveAgentService, provider, model);
 	},
+	getSpeechTranscriberService: (): Promise<Agent | undefined> => {
+		return typedInvokeUnwrap(ProviderChannels.getSpeechTranscriberService);
+	},
+	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(ProviderChannels.saveSpeechTranscriberService, provider, model);
+	},
 	listApps: (): Promise<AppInfo[]> => {
 		return typedInvokeUnwrap(AppsChannels.list);
 	},
