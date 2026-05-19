@@ -17,18 +17,27 @@ describe('provider/factory', () => {
 });
 
 describe('provider/openai', () => {
-	it('normalizes chat completion stream events', async () => {
+	it('normalizes Responses API stream events', async () => {
 		const create = jest.fn(async () => chunks());
 		async function* chunks() {
-			yield { choices: [{ delta: { content: 'hi ' } }] };
-			yield { choices: [{ delta: { tool_calls: [{ index: 0, id: 'call1', function: { name: 'read', arguments: '{"path"' } }] } }] };
-			yield { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: ':"a"}' } }] } }] };
-			yield { choices: [{ delta: {}, finish_reason: 'tool_calls' }], usage: { prompt_tokens: 2, completion_tokens: 3 } };
+			yield { type: 'response.output_text.delta', delta: 'hi ', output_index: 0, content_index: 0, item_id: 'msg1', sequence_number: 1 };
+			yield { type: 'response.output_item.added', output_index: 1, sequence_number: 2, item: { type: 'function_call', call_id: 'call1', name: 'read', arguments: '' } };
+			yield { type: 'response.function_call_arguments.delta', output_index: 1, item_id: 'item1', delta: '{"path"', sequence_number: 3 };
+			yield { type: 'response.function_call_arguments.delta', output_index: 1, item_id: 'item1', delta: ':"a"}', sequence_number: 4 };
+			yield { type: 'response.function_call_arguments.done', output_index: 1, item_id: 'item1', name: 'read', arguments: '{"path":"a"}', sequence_number: 5 };
+			yield {
+				type: 'response.completed',
+				sequence_number: 6,
+				response: {
+					output: [{ type: 'function_call', call_id: 'call1', name: 'read', arguments: '{"path":"a"}' }],
+					usage: { input_tokens: 2, output_tokens: 3 },
+				},
+			};
 		}
 		const adapter = new OpenAIAdapter({
 			apiKey: 'sk-test',
 			clientFactory: () => ({
-				chat: { completions: { create } },
+				responses: { create },
 			}) as never,
 		});
 
@@ -50,20 +59,36 @@ describe('provider/openai', () => {
 			{ type: 'message_end', stopReason: 'tool_calls', usage: { inputTokens: 2, outputTokens: 3 } },
 		]);
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ max_tokens: 100 }),
+			expect.objectContaining({
+				max_output_tokens: 100,
+				stream: true,
+				tools: [
+					{
+						type: 'function',
+						name: 'read',
+						description: 'Read',
+						parameters: { type: 'object' },
+						strict: false,
+					},
+				],
+			}),
 			expect.any(Object)
 		);
 	});
 
-	it('uses max_completion_tokens for GPT-5 chat completion requests', async () => {
+	it('uses Responses API reasoning effort and max output tokens for GPT-5 requests', async () => {
 		async function* chunks() {
-			yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+			yield {
+				type: 'response.completed',
+				sequence_number: 1,
+				response: { output: [], usage: { input_tokens: 1, output_tokens: 2 } },
+			};
 		}
 		const create = jest.fn(async () => chunks());
 		const adapter = new OpenAIAdapter({
 			apiKey: 'sk-test',
 			clientFactory: () => ({
-				chat: { completions: { create } },
+				responses: { create },
 			}) as never,
 		});
 
@@ -77,24 +102,38 @@ describe('provider/openai', () => {
 		}));
 
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ max_completion_tokens: 100, reasoning_effort: 'minimal' }),
+			expect.objectContaining({
+				max_output_tokens: 100,
+				reasoning: { effort: 'minimal' },
+			}),
 			expect.any(Object)
 		);
-		expect(create.mock.calls[0][0]).not.toHaveProperty('max_tokens');
+		expect(create.mock.calls[0][0]).not.toHaveProperty('max_completion_tokens');
+		expect(create.mock.calls[0][0]).not.toHaveProperty('reasoning_effort');
 	});
 
-	it('converts prior tool calls and results into OpenAI chat messages', async () => {
+	it('converts prior tool calls, reasoning, and results into Responses input items', async () => {
 		async function* chunks() {
-			yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+			yield {
+				type: 'response.completed',
+				sequence_number: 1,
+				response: { output: [], usage: { input_tokens: 1, output_tokens: 1 } },
+			};
 		}
 		const create = jest.fn(async () => chunks());
 		const adapter = new OpenAIAdapter({
 			apiKey: 'sk-test',
 			clientFactory: () => ({
-				chat: { completions: { create } },
+				responses: { create },
 			}) as never,
 		});
 
+		const reasoning = {
+			id: 'rs1',
+			type: 'reasoning',
+			summary: [],
+			encrypted_content: 'encrypted',
+		};
 		await collectAsync(adapter.stream({
 			model: 'gpt-test',
 			system: 'sys',
@@ -103,6 +142,7 @@ describe('provider/openai', () => {
 				{
 					role: 'assistant',
 					content: [
+						{ type: 'reasoning', provider: 'openai', item: reasoning },
 						{ type: 'text', text: 'Reading.' },
 						{
 							type: 'tool_use',
@@ -126,33 +166,39 @@ describe('provider/openai', () => {
 			maxTokens: 100,
 		}));
 
-		expect(create.mock.calls[0][0].messages).toEqual([
-			{ role: 'system', content: 'sys' },
+		expect(create.mock.calls[0][0].instructions).toBe('sys');
+		expect(create.mock.calls[0][0].input).toEqual([
 			{ role: 'user', content: 'read it' },
+			reasoning,
 			{
+				type: 'message',
 				role: 'assistant',
 				content: 'Reading.',
-				tool_calls: [
-					{
-						id: 'call-1',
-						type: 'function',
-						function: { name: 'read_file', arguments: '{"path":"README.md"}' },
-					},
-				],
+				phase: 'commentary',
 			},
-			{ role: 'tool', tool_call_id: 'call-1', content: 'failed\n[binary content]' },
+			{
+				type: 'function_call',
+				call_id: 'call-1',
+				name: 'read_file',
+				arguments: '{"path":"README.md"}',
+			},
+			{ type: 'function_call_output', call_id: 'call-1', output: 'failed\n[binary content]' },
 		]);
 	});
 
-	it('uses an empty string for OpenAI assistant messages with tool calls and no text', async () => {
+	it('omits empty assistant messages when Responses input has tool calls and no text', async () => {
 		async function* chunks() {
-			yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+			yield {
+				type: 'response.completed',
+				sequence_number: 1,
+				response: { output: [], usage: { input_tokens: 1, output_tokens: 1 } },
+			};
 		}
 		const create = jest.fn(async () => chunks());
 		const adapter = new OpenAIAdapter({
 			apiKey: 'sk-test',
 			clientFactory: () => ({
-				chat: { completions: { create } },
+				responses: { create },
 			}) as never,
 		});
 
@@ -177,18 +223,13 @@ describe('provider/openai', () => {
 			maxTokens: 100,
 		}));
 
-		expect(create.mock.calls[0][0].messages).toEqual([
+		expect(create.mock.calls[0][0].input).toEqual([
 			{ role: 'user', content: 'read it' },
 			{
-				role: 'assistant',
-				content: '',
-				tool_calls: [
-					{
-						id: 'call-1',
-						type: 'function',
-						function: { name: 'read_file', arguments: '{"path":"README.md"}' },
-					},
-				],
+				type: 'function_call',
+				call_id: 'call-1',
+				name: 'read_file',
+				arguments: '{"path":"README.md"}',
 			},
 		]);
 	});
