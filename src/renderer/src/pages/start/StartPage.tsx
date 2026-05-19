@@ -1115,8 +1115,6 @@ const StartPage: React.FC = () => {
 								label="Provider"
 								value="openai"
 								name={openAiCatalog.name}
-								initial={openAiCatalog.initial}
-								swatchClassName={openAiCatalog.swatchClassName}
 								disabled
 							/>
 							<StaticModelSelect
@@ -1153,8 +1151,6 @@ const StartPage: React.FC = () => {
 								label="Provider"
 								value="elevenlabs"
 								name={ttsProviderCatalog.name}
-								initial={ttsProviderCatalog.initial}
-								swatchClassName={ttsProviderCatalog.swatchClassName}
 								disabled
 							/>
 							<StaticModelSelect
@@ -1182,8 +1178,6 @@ const StartPage: React.FC = () => {
 								label="Provider"
 								value="image-provider-coming-soon"
 								name="Image provider"
-								initial="I"
-								swatchClassName="bg-muted text-muted-foreground"
 								disabled
 							/>
 							<StaticModelSelect
