@@ -45,13 +45,13 @@ function formatValue(value: unknown): string {
 function stateIcon(state: ToolPart['state']) {
 	switch (state) {
 		case 'input-streaming':
-			return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+			return <Loader2 className="size-3.5 animate-spin text-muted-foreground" />;
 		case 'input-available':
-			return <Settings className="h-4 w-4 text-orange-500" />;
+			return <Settings className="size-3.5 text-muted-foreground" />;
 		case 'output-available':
-			return <CheckCircle className="h-4 w-4 text-green-500" />;
+			return <CheckCircle className="size-3.5 text-muted-foreground" />;
 		case 'output-error':
-			return <XCircle className="h-4 w-4 text-red-500" />;
+			return <XCircle className="size-3.5 text-muted-foreground" />;
 	}
 }
 
@@ -60,10 +60,10 @@ function ToolInput({ input }: { readonly input: unknown }) {
 
 	return (
 		<div>
-			<h4 className="mb-1 text-sm font-medium text-muted-foreground">Input</h4>
-			<div className="rounded bg-muted/40 px-2 py-1.5 font-mono text-sm">
+			<h4 className="mb-0.5 text-xs font-medium text-muted-foreground">Input</h4>
+			<div className="rounded bg-muted/30 px-1.5 py-1 font-mono text-xs text-muted-foreground">
 				{Object.entries(input).map(([key, value]) => (
-					<div key={key} className="mb-1">
+					<div key={key} className="mb-0.5">
 						<span className="text-muted-foreground">{key}:</span>{' '}
 						<span>{formatValue(value)}</span>
 					</div>
@@ -78,8 +78,8 @@ function ToolOutput({ output }: { readonly output: unknown }) {
 
 	return (
 		<div>
-			<h4 className="mb-1 text-sm font-medium text-muted-foreground">Output</h4>
-			<div className="max-h-60 overflow-auto rounded bg-muted/40 px-2 py-1.5 font-mono text-sm">
+			<h4 className="mb-0.5 text-xs font-medium text-muted-foreground">Output</h4>
+			<div className="max-h-60 overflow-auto rounded bg-muted/30 px-1.5 py-1 font-mono text-xs text-muted-foreground">
 				<pre className="whitespace-pre-wrap">{formatValue(output)}</pre>
 			</div>
 		</div>
@@ -93,22 +93,22 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 	const output = toolPart.output ?? toolPart.outputText;
 
 	return (
-		<div className={cn('overflow-hidden rounded-lg', className)}>
+		<div className={cn('overflow-hidden rounded-md', className)}>
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				<CollapsibleTrigger
 					render={
 						<Button
 							type="button"
 							variant="ghost"
-							className="h-auto w-full justify-between rounded-lg bg-background px-2 py-1.5 font-normal"
+							className="h-auto w-full justify-between rounded-md bg-background px-1.5 py-1 font-normal text-muted-foreground"
 						>
-							<div className="flex min-w-0 items-center gap-2">
+							<div className="flex min-w-0 items-center gap-1.5">
 								{stateIcon(state)}
-								<span className="truncate font-mono text-sm font-medium">
+								<span className="truncate font-mono text-xs font-medium">
 									{toolPart.type}
 								</span>
 							</div>
-							<ChevronDown className={cn('h-4 w-4', isOpen && 'rotate-180')} />
+							<ChevronDown className={cn('size-3.5', isOpen && 'rotate-180')} />
 						</Button>
 					}
 				/>
@@ -118,25 +118,25 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 						'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down'
 					)}
 				>
-					<div className="space-y-2 bg-background px-2 py-1.5">
+					<div className="space-y-1.5 bg-background px-1.5 py-1">
 						<ToolInput input={input} />
 						<ToolOutput output={output} />
 
 						{state === 'output-error' && toolPart.errorText && (
 							<div>
-								<h4 className="mb-1 text-sm font-medium text-red-500">Error</h4>
-								<div className="rounded bg-red-500/10 px-2 py-1.5 text-sm">
+								<h4 className="mb-0.5 text-xs font-medium text-muted-foreground">Error</h4>
+								<div className="rounded bg-muted/30 px-1.5 py-1 text-xs text-muted-foreground">
 									{toolPart.errorText}
 								</div>
 							</div>
 						)}
 
 						{state === 'input-streaming' && (
-							<div className="text-sm text-muted-foreground">Processing tool call...</div>
+							<div className="text-xs text-muted-foreground">Processing tool call...</div>
 						)}
 
 						{toolCallId && (
-							<div className="text-xs text-muted-foreground">
+							<div className="text-[11px] text-muted-foreground">
 								<span className="font-mono">Call ID: {toolCallId}</span>
 							</div>
 						)}

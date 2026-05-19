@@ -13,7 +13,7 @@ export function AgentToolActivity({
 	if (tools.length === 0) return null;
 
 	return (
-		<div className={cn('flex w-full flex-col gap-1.5', className)}>
+		<div className={cn('flex w-full flex-col gap-0', className)}>
 			{tools.map((tool) => (
 				<Tool key={tool.toolCallId} toolPart={tool} className="mt-0 w-full max-w-md" />
 			))}
