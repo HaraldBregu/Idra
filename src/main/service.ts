@@ -41,7 +41,13 @@ import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger
 import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
-import type { ApprovalDecision, Service as SharedService } from '../shared/service';
+import {
+	DEFAULT_MODEL_REASONING_EFFORT,
+	isModelReasoningEffort,
+	type ApprovalDecision,
+	type ModelReasoningEffort,
+	type Service as SharedService,
+} from '../shared/service';
 import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
@@ -223,6 +229,7 @@ export class AgentService {
 			const providerId = providerConfig.providerId;
 			const apiKey = providerConfig.apiKey;
 			const model = heartbeatOptions?.model?.trim() || providerConfig.model;
+			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
@@ -484,6 +491,7 @@ export class AgentService {
 				session: runtime.session,
 				provider,
 				model,
+				effort,
 				tools: selectedTools,
 				ctx,
 				maxTokens: TOOL_LIMITS.agent.maxTokens,
@@ -598,6 +606,7 @@ export class AgentService {
 		providerId: string;
 		apiKey: string;
 		model: string;
+		effort?: ModelReasoningEffort;
 		baseURL?: string;
 	} {
 		const agent = this.dependencies.store.getAgentService();
@@ -609,7 +618,13 @@ export class AgentService {
 		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
-		return { providerId, apiKey, model, baseURL: provider.baseUrl };
+		const savedEffort = agent?.model.effort;
+		const effort = providerId === 'openai'
+			? isModelReasoningEffort(savedEffort)
+				? savedEffort
+				: DEFAULT_MODEL_REASONING_EFFORT
+			: undefined;
+		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
 
 	private tryResolveProviderAndModel(): { providerId: string; model: string } {

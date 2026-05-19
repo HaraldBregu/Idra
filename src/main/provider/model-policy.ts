@@ -4,9 +4,6 @@ const OPENAI_AGENT_MODEL_ORDER = [
 	'gpt-5.5',
 	'gpt-5.4',
 	'gpt-5.4-mini',
-	'gpt-5.2',
-	'gpt-5.1',
-	'gpt-5',
 ] as const;
 
 const OPENAI_AGENT_MODEL_IDS = new Set<string>(OPENAI_AGENT_MODEL_ORDER);

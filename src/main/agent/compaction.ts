@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import type { CompactionMarker } from '../session/store';
+import type { ModelReasoningEffort } from '../../shared/service';
 
 const KEEP_RECENT = 6;
 
@@ -15,7 +16,8 @@ export async function compact(
 	sessionId: string,
 	transcript: TranscriptEntry[],
 	provider: ProviderAdapter,
-	model: string
+	model: string,
+	effort?: ModelReasoningEffort
 ): Promise<{ transcript: TranscriptEntry[]; marker: CompactionMarker | null }> {
 	if (compactionMutex.has(sessionId)) {
 		await compactionMutex.get(sessionId);
@@ -32,7 +34,7 @@ export async function compact(
 		const keep = transcript.slice(transcript.length - KEEP_RECENT);
 
 		const dropText = renderForSummary(toDrop);
-		const summary = await runSummarize(provider, model, dropText);
+		const summary = await runSummarize(provider, model, dropText, effort);
 
 		const synthetic: TranscriptEntry = {
 			role: 'user',
@@ -79,7 +81,8 @@ function renderForSummary(entries: TranscriptEntry[]): string {
 async function runSummarize(
 	provider: ProviderAdapter,
 	model: string,
-	body: string
+	body: string,
+	effort?: ModelReasoningEffort
 ): Promise<string> {
 	const system =
 		'Summarize the following conversation compactly. Preserve facts, decisions, file paths, and exact command outputs that matter. Output plain text only.';
@@ -87,6 +90,7 @@ async function runSummarize(
 	let collected = '';
 	for await (const event of provider.stream({
 		model,
+		effort,
 		system,
 		messages: [userMsg],
 		tools: [],

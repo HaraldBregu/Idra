@@ -103,6 +103,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 			stream: true,
 			stream_options: { include_usage: true },
 		};
+		if (req.effort) params.reasoning_effort = req.effort;
 		applyMaxTokens(params, req.model, req.maxTokens);
 
 		yield { type: 'message_start' };

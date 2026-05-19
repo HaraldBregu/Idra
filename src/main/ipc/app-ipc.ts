@@ -4,7 +4,12 @@ import OpenAI from 'openai';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
-import type { Agent, Model } from '../../shared/service';
+import {
+	DEFAULT_MODEL_REASONING_EFFORT,
+	isModelReasoningEffort,
+	type Agent,
+	type Model,
+} from '../../shared/service';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -330,7 +335,18 @@ export class AppIpc implements IpcModule {
 				if (!isAllowedAgentModel(provider.id, model.id)) {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
-				return store.setAgentService(provider.id, model);
+				const normalizedProviderId = provider.id.trim().toLowerCase();
+				if (
+					normalizedProviderId === 'openai' &&
+					model.effort !== undefined &&
+					!isModelReasoningEffort(model.effort)
+				) {
+					throw new Error(`Reasoning effort is not supported: ${model.effort}`);
+				}
+				const modelToSave = normalizedProviderId === 'openai'
+					? { ...model, effort: model.effort ?? DEFAULT_MODEL_REASONING_EFFORT }
+					: { id: model.id, name: model.name };
+				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)
 		);
 

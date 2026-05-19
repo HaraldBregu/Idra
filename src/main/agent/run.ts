@@ -18,6 +18,7 @@ import { compact } from './compaction';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
 import type { SessionFile } from '../session/store';
 import type { AgentRunState, ReasoningSummaryState } from '../../shared/service';
+import type { ModelReasoningEffort } from '../../shared/service';
 
 export interface AgentRunHooks {
 	onStart?: (info: { runId: string }) => void | Promise<void>;
@@ -102,6 +103,7 @@ export interface AgentRunInput {
 	session: SessionFile;
 	provider: ProviderAdapter;
 	model: string;
+	effort?: ModelReasoningEffort;
 	tools: AgentTool[];
 	ctx: ToolContext;
 	maxTokens?: number;
@@ -190,6 +192,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		session,
 		provider,
 		model,
+		effort,
 		tools,
 		ctx,
 		maxTokens = 4096,
@@ -245,6 +248,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			try {
 				for await (const event of provider.stream({
 					model,
+					effort,
 					system: systemPromptForTurn,
 					messages: session.transcript,
 					tools: toolsForPrompt.map((t) => ({
@@ -321,7 +325,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						session.id,
 						session.transcript,
 						provider,
-						model
+						model,
+						effort
 					);
 					session.transcript = next;
 					if (marker) session.compactionMarkers.push(marker);

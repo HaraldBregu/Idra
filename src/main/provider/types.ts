@@ -1,3 +1,5 @@
+import type { ModelReasoningEffort } from '../../shared/service';
+
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.
  *
@@ -64,6 +66,7 @@ export interface ProviderToolSpec {
 
 export interface ProviderStreamRequest {
 	model: string;
+	effort?: ModelReasoningEffort;
 	system: string;
 	messages: TranscriptEntry[];
 	tools: ProviderToolSpec[];
