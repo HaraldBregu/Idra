@@ -517,6 +517,81 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('adds workspace bootstrap context and startup_files for full bootstrap turns', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps('/workspace');
+		(deps.workspace.isBootstrapPending as jest.Mock).mockResolvedValue(true);
+		(deps.workspace.loadContextFiles as jest.Mock).mockResolvedValue([
+			{ name: 'AGENTS.md', path: '/workspace/AGENTS.md', content: 'rules', missing: false },
+			{
+				name: 'BOOTSTRAP.md',
+				path: '/workspace/BOOTSTRAP.md',
+				content: 'bootstrap ritual',
+				missing: false,
+			},
+		]);
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'bootstrap ready' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send('hi')).resolves.toBe('bootstrap ready');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['startup_files']);
+		expect(requests[0]!.system).toContain('## Bootstrap');
+		expect(requests[0]!.system).toContain('bootstrap ritual');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('strips BOOTSTRAP.md from secondary session context', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps('/workspace');
+		(deps.workspace.isBootstrapPending as jest.Mock).mockResolvedValue(true);
+		(deps.workspace.loadContextFiles as jest.Mock).mockResolvedValue([
+			{ name: 'AGENTS.md', path: '/workspace/AGENTS.md', content: 'rules', missing: false },
+			{ name: 'MEMORY.md', path: '/workspace/MEMORY.md', content: 'memory', missing: false },
+			{
+				name: 'BOOTSTRAP.md',
+				path: '/workspace/BOOTSTRAP.md',
+				content: 'bootstrap ritual',
+				missing: false,
+			},
+		]);
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'subagent ready' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(service.send('read a file', 'worker')).resolves.toBe('subagent ready');
+		expect(requests[0]!.system).toContain('rules');
+		expect(requests[0]!.system).not.toContain('bootstrap ritual');
+		expect(requests[0]!.system).not.toContain('memory');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('exposes read with move for file relocation requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
