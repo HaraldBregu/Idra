@@ -1347,8 +1347,8 @@ const StartPage: React.FC = () => {
 						<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 							<ImageIcon className="size-4 shrink-0" />
 							<p className="text-xs font-medium leading-snug">
-								Image generation is listed here so setup has a home for it, but this
-								build does not expose an image model provider yet.
+								Image creation is not configurable yet. It will appear here when an
+								image provider is available.
 							</p>
 						</div>
 					</ModelSetupCard>
