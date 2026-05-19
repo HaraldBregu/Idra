@@ -18,14 +18,10 @@ import {
 	DEFAULT_WORKSPACE_CONTEXT_MAX_CHARS,
 	DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS,
 	MAX_WORKSPACE_CONTEXT_FILE_BYTES,
-	OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES,
-	SEEDED_WORKSPACE_FILE_NAMES,
 	WORKSPACE_CONTEXT_FILE_NAMES,
 	assertWorkspaceFileName,
 	isPathInside,
-	loadWorkspaceTemplate,
 	safeReadWorkspaceFile,
-	writeFileIfMissing,
 	type WorkspaceContextFile,
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
@@ -42,11 +38,6 @@ export type BootstrapMode = 'none' | 'limited' | 'full';
 const WORKSPACE_STATE_DIRNAME = '.friday';
 const WORKSPACE_STATE_FILENAME = 'workspace-state.json';
 const WORKSPACE_STATE_VERSION = 1;
-const WORKSPACE_PROFILE_FILENAMES = [
-	DEFAULT_SOUL_FILENAME,
-	DEFAULT_IDENTITY_FILENAME,
-	DEFAULT_USER_FILENAME,
-] as const;
 
 type WorkspaceSetupState = {
 	version: typeof WORKSPACE_STATE_VERSION;
@@ -231,105 +222,6 @@ export class WorkspaceService {
 			this.logger.debug('WorkspaceService', 'Skipping git initialization', {
 				rootPath: this.rootPath,
 			});
-		}
-	}
-
-	private async ensureBootstrapFiles(options: { skipOptionalBootstrapFiles: string[] }): Promise<void> {
-		const skipOptionalBootstrapFiles = new Set(options.skipOptionalBootstrapFiles);
-		const optionalTemplateFiles = new Set<string>(OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES);
-		const shouldWriteTemplate = (name: WorkspaceFileName): boolean =>
-			!optionalTemplateFiles.has(name) || !skipOptionalBootstrapFiles.has(name);
-
-		for (const name of SEEDED_WORKSPACE_FILE_NAMES) {
-			if (!shouldWriteTemplate(name)) continue;
-			await writeFileIfMissing(
-				path.join(this.rootPath, name),
-				await loadWorkspaceTemplate(name)
-			);
-		}
-
-		let state = await this.readSetupState();
-		let stateDirty = false;
-		const bootstrapPath = path.join(this.rootPath, DEFAULT_BOOTSTRAP_FILENAME);
-		let bootstrapExists = await this.pathExists(bootstrapPath);
-		const now = (): string => new Date().toISOString();
-		const markState = (next: Partial<WorkspaceSetupState>): void => {
-			state = { ...state, ...next };
-			stateDirty = true;
-		};
-
-		if (!state.bootstrapSeededAt && bootstrapExists) {
-			markState({ bootstrapSeededAt: now() });
-		}
-
-		if (!state.setupCompletedAt && state.bootstrapSeededAt && !bootstrapExists) {
-			markState({ setupCompletedAt: now() });
-		}
-
-		if (
-			!state.setupCompletedAt &&
-			bootstrapExists &&
-			(await this.workspaceProfileLooksConfigured({ includeGitEvidence: false }))
-		) {
-			await fs.rm(bootstrapPath, { force: true });
-			bootstrapExists = false;
-			markState({
-				bootstrapSeededAt: state.bootstrapSeededAt ?? now(),
-				setupCompletedAt: now(),
-			});
-		}
-
-		if (!state.bootstrapSeededAt && !state.setupCompletedAt && !bootstrapExists) {
-			if (await this.workspaceProfileLooksConfigured({ includeGitEvidence: true })) {
-				markState({ setupCompletedAt: now() });
-			} else {
-				const wrote = await writeFileIfMissing(
-					bootstrapPath,
-					await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
-				);
-				bootstrapExists = wrote || (await this.pathExists(bootstrapPath));
-				if (bootstrapExists) markState({ bootstrapSeededAt: now() });
-			}
-		}
-
-		if (stateDirty) await this.writeSetupState(state);
-	}
-
-	private async workspaceProfileLooksConfigured(options: {
-		includeGitEvidence: boolean;
-	}): Promise<boolean> {
-		for (const name of WORKSPACE_PROFILE_FILENAMES) {
-			if (
-				await this.fileContentDiffersFromTemplate(
-					path.join(this.rootPath, name),
-					await loadWorkspaceTemplate(name)
-				)
-			) {
-				return true;
-			}
-		}
-
-		if (await this.pathExists(path.join(this.rootPath, 'memory'))) return true;
-		if (await this.exactRootEntryExists(DEFAULT_MEMORY_FILENAME)) return true;
-		return options.includeGitEvidence && (await this.pathExists(path.join(this.rootPath, '.git')));
-	}
-
-	private async fileContentDiffersFromTemplate(filePath: string, template: string): Promise<boolean> {
-		try {
-			return (await fs.readFile(filePath, 'utf8')) !== template;
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-			return false;
-		}
-	}
-
-	private async exactRootEntryExists(name: string): Promise<boolean> {
-		try {
-			const entries = await fs.readdir(this.rootPath);
-			return entries.includes(name);
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
-			throw error;
 		}
 	}
 
