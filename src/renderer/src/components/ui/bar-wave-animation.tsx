@@ -37,7 +37,7 @@ type BarWaveAnimationProps = {
 function readAnalyserAmps(
   target: Float32Array,
   analyser: AnalyserNode,
-  dataArray: Uint8Array
+  dataArray: Uint8Array<ArrayBuffer>
 ) {
   analyser.getByteTimeDomainData(dataArray)
   const samplesPerBar = Math.max(1, Math.floor(dataArray.length / target.length))
@@ -72,7 +72,7 @@ export function BarWaveAnimation({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const activeRef = useRef(active)
   const analyserRef = useRef<AnalyserNode | null>(null)
-  const dataArrayRef = useRef<Uint8Array | null>(null)
+  const dataArrayRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
 
   useEffect(() => {
     activeRef.current = active
