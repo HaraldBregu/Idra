@@ -91,15 +91,67 @@ const GeneralPage: React.FC = () => {
 	const { theme, translucency, language, setTheme, setTranslucency, setLanguage } = useApp();
 
 	const [trayEnabled, setTrayEnabled] = useState(true);
+	const [microphonePermission, setMicrophonePermission] =
+		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
+	const [microphoneLoading, setMicrophoneLoading] = useState(true);
+	const [microphoneError, setMicrophoneError] = useState('');
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
 	}, []);
 
+	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
+		setMicrophoneLoading(true);
+		setMicrophoneError('');
+		try {
+			setMicrophonePermission(await window.app.getMicrophonePermission());
+		} catch (error) {
+			setMicrophoneError(
+				error instanceof Error ? error.message : t('settings.microphone.errors.load')
+			);
+		} finally {
+			setMicrophoneLoading(false);
+		}
+	}, [t]);
+
+	useEffect(() => {
+		void refreshMicrophonePermission();
+	}, [refreshMicrophonePermission]);
+
 	const handleTrayToggle = useCallback((checked: boolean) => {
 		setTrayEnabled(checked);
 		void window.app.setTrayEnabled(checked);
 	}, []);
+
+	const handleMicrophoneToggle = useCallback((checked: boolean) => {
+		setMicrophonePermission((current) => ({ ...current, enabled: checked }));
+		setMicrophoneError('');
+		void window.app.setMicrophoneEnabled(checked)
+			.then(setMicrophonePermission)
+			.catch((error: unknown) => {
+				setMicrophoneError(
+					error instanceof Error ? error.message : t('settings.microphone.errors.save')
+				);
+				void refreshMicrophonePermission();
+			});
+	}, [refreshMicrophonePermission, t]);
+
+	const handleMicrophoneAction = useCallback(async (): Promise<void> => {
+		setMicrophoneLoading(true);
+		setMicrophoneError('');
+		try {
+			if (!microphonePermission.enabled) {
+				await window.app.setMicrophoneEnabled(true);
+			}
+			setMicrophonePermission(await window.app.requestMicrophonePermission());
+		} catch (error) {
+			setMicrophoneError(
+				error instanceof Error ? error.message : t('settings.microphone.errors.request')
+			);
+		} finally {
+			setMicrophoneLoading(false);
+		}
+	}, [microphonePermission.enabled, t]);
 
 	const handleOpenAccessibility = useCallback(() => {
 		// window.app.openSystemAccessibility();
