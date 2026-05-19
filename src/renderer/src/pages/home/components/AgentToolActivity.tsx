@@ -48,7 +48,7 @@ export function AgentToolActivity({
 							)}
 							aria-hidden
 						/>
-						<Tool toolPart={tool} defaultOpen className="min-w-0 flex-1" />
+						<Tool toolPart={tool} collapsible={false} className="min-w-0 flex-1" />
 					</StepsItem>
 				))}
 			</StepsContent>
