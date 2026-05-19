@@ -804,10 +804,18 @@ export class HeartbeatService implements Disposable {
 }
 
 export class NoopHeartbeatService implements Disposable {
-	start(): void {}
-	stop(): void {}
-	destroy(): void {}
-	updateConfig(): void {}
+	start(): void {
+		return;
+	}
+	stop(): void {
+		return;
+	}
+	destroy(): void {
+		return;
+	}
+	updateConfig(): void {
+		return;
+	}
 	getStatus(): HeartbeatStatus {
 		return { enabled: false, runnerActive: false, agentCount: 0, lastHeartbeat: null };
 	}
@@ -817,7 +825,9 @@ export class NoopHeartbeatService implements Disposable {
 	setEnabled(): HeartbeatStatus {
 		return this.getStatus();
 	}
-	request(): void {}
+	request(): void {
+		return;
+	}
 	async systemEvent(request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> {
 		if (!request.text?.trim()) throw new Error('system-event text is required.');
 		return {

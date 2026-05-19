@@ -1437,7 +1437,7 @@ export class ConnectorExecutionGateway {
 				}
 			}
 
-			let explicitConsent = true;
+			const explicitConsent = true;
 			if (confirmationId) {
 				this.dependencies.confirmationManager.consume(
 					confirmationId,
