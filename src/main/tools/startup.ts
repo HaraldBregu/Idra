@@ -1,4 +1,4 @@
-import type { AgentStartupFileName } from '../agent/startup-files';
+import type { WorkspaceFileName } from '../workspace';
 import type { AgentTool } from './types';
 import { textResult } from './types';
 
@@ -6,7 +6,7 @@ type StartupFilesAction = 'list' | 'read' | 'write' | 'complete_bootstrap';
 
 interface StartupFilesArgs {
 	action: StartupFilesAction;
-	name?: AgentStartupFileName;
+	name?: WorkspaceFileName;
 	content?: string;
 }
 
