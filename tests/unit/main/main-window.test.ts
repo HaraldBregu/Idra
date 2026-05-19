@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 import { AppState } from '../../../src/main/core/app-state';
 import { Main } from '../../../src/main/main';
 import { AppChannels } from '../../../src/shared/ipc-channels';
@@ -21,6 +21,7 @@ interface MockWindow {
 	setBackgroundColor: jest.Mock;
 	setAlwaysOnTop: jest.Mock;
 	setVisibleOnAllWorkspaces: jest.Mock;
+	setPosition: jest.Mock;
 	webContents: {
 		on: jest.Mock;
 		send: jest.Mock;
@@ -77,6 +78,7 @@ function createMockWindow(id: number): MockWindow {
 		setBackgroundColor: jest.fn(),
 		setAlwaysOnTop: jest.fn(),
 		setVisibleOnAllWorkspaces: jest.fn(),
+		setPosition: jest.fn(),
 		webContents: {
 			on: jest.fn(),
 			send: jest.fn(),
@@ -117,6 +119,10 @@ function createMain(appWindows: MockWindow[]) {
 describe('Main windows', () => {
 	beforeEach(() => {
 		(BrowserWindow as unknown as jest.Mock).mockReset();
+		(screen.getDisplayNearestPoint as jest.Mock).mockReturnValue({
+			workArea: { x: 0, y: 24, width: 1440, height: 876 },
+			bounds: { x: 0, y: 0, width: 1440, height: 900 },
+		});
 	});
 
 	it('opens a standalone 600x240 black tray window without showing the main window', () => {
@@ -212,6 +218,22 @@ describe('Main windows', () => {
 		expect(create).toHaveBeenCalledTimes(2);
 		expect(trayWindow.show).toHaveBeenCalledTimes(2);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(2);
+	});
+
+	it('positions the tray window under the macOS tray icon', () => {
+		const appWindow = createMockWindow(1);
+		const trayWindow = createMockWindow(2);
+		const { main } = createMain([appWindow, trayWindow]);
+		main.create();
+		appWindow.emit('ready-to-show');
+
+		main.showTrayWindow({ x: 1220, y: 0, width: 20, height: 22 });
+
+		expect(screen.getDisplayNearestPoint).toHaveBeenCalledWith({ x: 1230, y: 22 });
+		expect(trayWindow.setPosition).toHaveBeenCalledWith(930, 24, false);
+		expect(
+			trayWindow.setPosition.mock.invocationCallOrder[0]
+		).toBeLessThan(trayWindow.show.mock.invocationCallOrder[0]);
 	});
 
 	it('creates the primary home window before forwarding a tray chat message', () => {

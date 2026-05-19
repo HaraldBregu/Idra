@@ -36,6 +36,13 @@ const session = {
 	},
 };
 
+const screen = {
+	getDisplayNearestPoint: jest.fn(() => ({
+		workArea: { x: 0, y: 24, width: 1440, height: 876 },
+		bounds: { x: 0, y: 0, width: 1440, height: 900 },
+	})),
+};
+
 const ipcMain = {
 	handle: jest.fn(),
 	on: jest.fn(),
@@ -80,6 +87,7 @@ module.exports = {
 	ipcRenderer,
 	nativeTheme,
 	powerSaveBlocker,
+	screen,
 	session,
 	shell,
 	systemPreferences,

@@ -23,6 +23,7 @@ jest.mock('electron', () => {
 		public readonly destroy = jest.fn();
 		public readonly setContextMenu = jest.fn();
 		public readonly popUpContextMenu = jest.fn();
+		public readonly getBounds = jest.fn(() => ({ x: 100, y: 0, width: 18, height: 22 }));
 
 		emit(event: string, ...args: unknown[]): void {
 			for (const listener of this.listeners.get(event) ?? []) {
@@ -68,7 +69,7 @@ function createCallbacks() {
 }
 
 function getCreatedTray() {
-	const electron = jest.requireMock('electron') as { __mockTrayInstances: Array<{ emit: (event: string) => void; setContextMenu: jest.Mock; popUpContextMenu: jest.Mock }> };
+	const electron = jest.requireMock('electron') as { __mockTrayInstances: Array<{ emit: (event: string) => void; setContextMenu: jest.Mock; popUpContextMenu: jest.Mock; getBounds: jest.Mock }> };
 	return electron.__mockTrayInstances.at(-1);
 }
 
@@ -85,6 +86,12 @@ describe('Tray', () => {
 		tray?.emit('click');
 
 		expect(callbacks.onShowTrayWindow).toHaveBeenCalledTimes(1);
+		expect(callbacks.onShowTrayWindow).toHaveBeenCalledWith({
+			x: 100,
+			y: 0,
+			width: 18,
+			height: 22,
+		});
 		expect(callbacks.onShowApp).not.toHaveBeenCalled();
 		expect(callbacks.onToggleApp).not.toHaveBeenCalled();
 		expect(tray?.setContextMenu).not.toHaveBeenCalled();
