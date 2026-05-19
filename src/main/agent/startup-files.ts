@@ -32,6 +32,12 @@ export const SEEDED_AGENT_STARTUP_FILE_NAMES = [
 	DEFAULT_HEARTBEAT_FILENAME,
 ] as const;
 
+const AGENT_STARTUP_PROFILE_FILE_NAMES = [
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_USER_FILENAME,
+] as const;
+
 export const DEFAULT_STARTUP_CONTEXT_MAX_CHARS = 12_000;
 export const DEFAULT_STARTUP_CONTEXT_TOTAL_MAX_CHARS = 60_000;
 export const MAX_AGENT_STARTUP_FILE_BYTES = 2 * 1024 * 1024;
@@ -145,7 +151,14 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	async loadContextFiles(agentId: string): Promise<AgentStartupFile[]> {
 		await this.ensureReady(agentId);
 		const rootPath = this.getRootPath(agentId);
-		return Promise.all(AGENT_STARTUP_FILE_NAMES.map((name) => safeReadAgentStartupFile(rootPath, name)));
+		let files = await Promise.all(
+			AGENT_STARTUP_FILE_NAMES.map((name) => safeReadAgentStartupFile(rootPath, name))
+		);
+		const state = await this.readSetupState(agentId);
+		if (state.setupCompletedAt) {
+			files = files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
+		}
+		return files.filter((file) => file.name !== DEFAULT_MEMORY_FILENAME || !file.missing);
 	}
 
 	async listFiles(agentId: string): Promise<AgentStartupFileSummary[]> {
@@ -203,34 +216,94 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private async reconcileBootstrapState(agentId: string): Promise<void> {
 		let state = await this.readSetupState(agentId);
 		let dirty = false;
-		const bootstrapPath = path.join(this.getRootPath(agentId), DEFAULT_BOOTSTRAP_FILENAME);
-		const bootstrapExists = await this.pathExists(bootstrapPath);
+		const rootPath = this.getRootPath(agentId);
+		const bootstrapPath = path.join(rootPath, DEFAULT_BOOTSTRAP_FILENAME);
+		let bootstrapExists = await this.pathExists(bootstrapPath);
 		const now = (): string => new Date().toISOString();
+		const markState = (next: Partial<StartupSetupState>): void => {
+			state = { ...state, ...next };
+			dirty = true;
+		};
 
-		if (state.setupCompletedAt) return;
+		if (state.setupCompletedAt) {
+			if (bootstrapExists) await fs.rm(bootstrapPath, { force: true });
+			return;
+		}
 
 		if (state.bootstrapSeededAt && !bootstrapExists) {
-			state = { ...state, setupCompletedAt: now() };
-			dirty = true;
+			markState({ setupCompletedAt: now() });
 		}
 
 		if (!state.bootstrapSeededAt && bootstrapExists) {
-			state = { ...state, bootstrapSeededAt: now() };
-			dirty = true;
+			markState({ bootstrapSeededAt: now() });
 		}
 
-		if (!state.bootstrapSeededAt && !state.setupCompletedAt) {
+		if (
+			!state.setupCompletedAt &&
+			bootstrapExists &&
+			(await this.startupProfileLooksConfigured(agentId, { includeGitEvidence: false }))
+		) {
+			await fs.rm(bootstrapPath, { force: true });
+			bootstrapExists = false;
+			markState({
+				bootstrapSeededAt: state.bootstrapSeededAt ?? now(),
+				setupCompletedAt: now(),
+			});
+		}
+
+		if (!state.bootstrapSeededAt && !state.setupCompletedAt && !bootstrapExists) {
+			if (await this.startupProfileLooksConfigured(agentId, { includeGitEvidence: true })) {
+				markState({ setupCompletedAt: now() });
+			} else {
 			const wrote = await writeFileIfMissing(
 				bootstrapPath,
 				await loadAgentStartupTemplate(DEFAULT_BOOTSTRAP_FILENAME)
 			);
-			if (wrote || (await this.pathExists(bootstrapPath))) {
-				state = { ...state, bootstrapSeededAt: now() };
-				dirty = true;
+				bootstrapExists = wrote || (await this.pathExists(bootstrapPath));
+				if (bootstrapExists) markState({ bootstrapSeededAt: now() });
 			}
 		}
 
 		if (dirty) await this.writeSetupState(agentId, state);
+	}
+
+	private async startupProfileLooksConfigured(
+		agentId: string,
+		options: { includeGitEvidence: boolean }
+	): Promise<boolean> {
+		const rootPath = this.getRootPath(agentId);
+		for (const name of AGENT_STARTUP_PROFILE_FILE_NAMES) {
+			if (
+				await this.fileContentDiffersFromTemplate(
+					path.join(rootPath, name),
+					await loadAgentStartupTemplate(name)
+				)
+			) {
+				return true;
+			}
+		}
+
+		if (await this.pathExists(path.join(rootPath, 'memory'))) return true;
+		if (await this.exactRootEntryExists(agentId, DEFAULT_MEMORY_FILENAME)) return true;
+		return options.includeGitEvidence && (await this.pathExists(path.join(rootPath, '.git')));
+	}
+
+	private async fileContentDiffersFromTemplate(filePath: string, template: string): Promise<boolean> {
+		try {
+			return (await fs.readFile(filePath, 'utf8')) !== template;
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+			return false;
+		}
+	}
+
+	private async exactRootEntryExists(agentId: string, name: string): Promise<boolean> {
+		try {
+			return (await fs.readdir(this.getRootPath(agentId))).includes(name);
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+			throw error;
+		}
 	}
 
 	private async markSetupCompleted(agentId: string): Promise<void> {
