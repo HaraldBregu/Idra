@@ -1,6 +1,1051 @@
+export const CONNECTOR_PRIORITY_TIERS = ['P0', 'P1', 'P2', 'P3'] as const;
+export type ConnectorPriorityTier = (typeof CONNECTOR_PRIORITY_TIERS)[number];
+
+export const CONNECTOR_WRITE_RISKS = ['low', 'medium', 'high', 'critical'] as const;
+export type ConnectorWriteRisk = (typeof CONNECTOR_WRITE_RISKS)[number];
+
+export const CONNECTOR_DOCUMENTATION_STATUSES = [
+	'official_public_web_checked_2026-05-19',
+	'official_public_url_not_reverified_in_this_run',
+	'vendor_portal_or_customer_access_required',
+	'general_product_or_documentation_page',
+] as const;
+export type ConnectorDocumentationStatus = (typeof CONNECTOR_DOCUMENTATION_STATUSES)[number];
+
+export type ConnectorDocumentationType = 'official_docs';
+
+export type ConnectorImplementationPattern =
+	| 'direct_api_or_connector_provider_tool'
+	| 'custom_mcp_or_tool_wrapper_over_openapi'
+	| 'custom_mcp_or_tool_wrapper_over_graphql'
+	| 'controlled_query_gateway_with_read_only_roles'
+	| 'event_trigger_into_agent_or_workflow_orchestrator'
+	| 'local_or_enterprise_file_mcp_server'
+	| 'rpa_or_browser_agent_with_policy_guardrails'
+	| 'sandboxed_command_tool_or_mcp_server';
+
+export type ConnectorRecommendedInitialMode = 'read_only_then_draft_write_actions';
+
+export interface ConnectorDocumentationPage {
+	readonly label: string;
+	readonly url: string;
+	readonly status: ConnectorDocumentationStatus;
+	readonly type: ConnectorDocumentationType;
+}
+
+export interface ConnectorProviderPlatform {
+	readonly id: string;
+	readonly name: string;
+	readonly category: string;
+	readonly recommendedRole: string;
+	readonly websiteUrl: string;
+	readonly documentationPages: readonly ConnectorDocumentationPage[];
+	readonly bestFor: string;
+	readonly coverageSummary: string;
+	readonly supportedPatterns: readonly string[];
+	readonly agenticFit: string;
+	readonly notes: string;
+}
+
+export const CONNECTOR_PROVIDER_PLATFORMS = [
+	{
+		id: 'composio',
+		name: 'Composio',
+		category: 'ai_agent_connector_platform',
+		recommendedRole: 'primary_agent_tool_provider',
+		websiteUrl: 'https://composio.dev/',
+		documentationPages: [
+			{
+				label: 'Composio toolkits',
+				url: 'https://composio.dev/toolkits',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+			{
+				label: 'Composio docs',
+				url: 'https://docs.composio.dev/',
+				status: 'official_public_url_not_reverified_in_this_run',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Agent-native SaaS tool calling, MCP/direct API access, and broad tool coverage.',
+		coverageSummary: 'Advertises 1,000+ toolkits and 20,000+ tools.',
+		supportedPatterns: ['MCP', 'REST/direct APIs', 'OAuth', 'managed tool execution'],
+		agenticFit: 'excellent',
+		notes: 'Recommended as the default aggregation layer for a general-purpose agentic assistant.',
+	},
+	{
+		id: 'pipedream_connect',
+		name: 'Pipedream Connect',
+		category: 'developer_integration_platform',
+		recommendedRole: 'secondary_developer_tool_provider',
+		websiteUrl: 'https://pipedream.com/connect',
+		documentationPages: [
+			{
+				label: 'Pipedream Connect',
+				url: 'https://pipedream.com/connect',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+			{
+				label: 'Pipedream Connect docs',
+				url: 'https://pipedream.com/docs/connect/',
+				status: 'official_public_url_not_reverified_in_this_run',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Embedded integrations, managed auth, workflow execution, MCP servers, and developer-first agent infrastructure.',
+		coverageSummary: 'Advertises 2,700+ integrations and 10,000+ tools.',
+		supportedPatterns: ['MCP', 'OAuth', 'workflows', 'webhooks', 'code steps'],
+		agenticFit: 'excellent',
+		notes: 'Good secondary provider when programmable workflows and serverless execution matter.',
+	},
+	{
+		id: 'zapier',
+		name: 'Zapier',
+		category: 'no_code_integration_platform',
+		recommendedRole: 'business_no_code_provider',
+		websiteUrl: 'https://zapier.com/',
+		documentationPages: [
+			{
+				label: 'Zapier developer docs',
+				url: 'https://docs.zapier.com/',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'No-code and low-code automation across a large SaaS ecosystem.',
+		coverageSummary: 'Advertises coverage across thousands of apps and supports AI workflow patterns.',
+		supportedPatterns: ['OAuth', 'triggers/actions', 'MCP/AI actions', 'webhooks'],
+		agenticFit: 'very_good',
+		notes: 'Best for business-user automations and long-tail SaaS coverage.',
+	},
+	{
+		id: 'nango',
+		name: 'Nango',
+		category: 'code_first_integration_platform',
+		recommendedRole: 'custom_sync_and_auth_provider',
+		websiteUrl: 'https://nango.dev/',
+		documentationPages: [
+			{
+				label: 'Nango documentation',
+				url: 'https://docs.nango.dev/',
+				status: 'official_public_url_not_reverified_in_this_run',
+				type: 'official_docs',
+			},
+			{
+				label: 'Nango unified APIs',
+				url: 'https://nango.dev/docs/implementation-guides/use-cases/unified-apis',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Code-first SaaS integrations, auth, sync jobs, webhooks, and unified APIs.',
+		coverageSummary: 'Advertises support for 700+ APIs.',
+		supportedPatterns: ['OAuth', 'API sync', 'webhooks', 'unified APIs'],
+		agenticFit: 'very_good',
+		notes: 'Useful when per-tenant sync frequency, schemas, and integration logic need control.',
+	},
+	{
+		id: 'merge_agent_handler',
+		name: 'Merge Agent Handler',
+		category: 'agent_connector_governance',
+		recommendedRole: 'enterprise_safe_tool_layer',
+		websiteUrl: 'https://www.merge.dev/',
+		documentationPages: [
+			{
+				label: 'Merge Agent Handler overview',
+				url: 'https://docs.merge.dev/merge-agent-handler/overview',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Enterprise-safe AI agent access to third-party systems with scoping and auditability.',
+		coverageSummary: 'Hundreds of third-party services exposed for AI agents.',
+		supportedPatterns: ['MCP', 'OAuth', 'tool scoping', 'audit logs', 'DLP'],
+		agenticFit: 'excellent_for_enterprise',
+		notes: 'Use when customer-level governance, DLP, and permissioned tool access are core requirements.',
+	},
+	{
+		id: 'workato',
+		name: 'Workato',
+		category: 'enterprise_ipaas',
+		recommendedRole: 'enterprise_workflow_provider',
+		websiteUrl: 'https://www.workato.com/',
+		documentationPages: [
+			{
+				label: 'Workato MCP',
+				url: 'https://docs.workato.com/mcp.html',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+			{
+				label: 'Workato connectors',
+				url: 'https://docs.workato.com/connectors.html',
+				status: 'official_public_url_not_reverified_in_this_run',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Enterprise iPaaS, deterministic workflows, governance, and business process automation.',
+		coverageSummary: 'Advertises 1,400+ business apps/connectors.',
+		supportedPatterns: ['MCP', 'recipes', 'OAuth', 'enterprise governance'],
+		agenticFit: 'very_good_for_enterprise',
+		notes: 'Good fit for enterprises already using iPaaS and controlled process automation.',
+	},
+	{
+		id: 'n8n',
+		name: 'n8n',
+		category: 'self_hostable_workflow_automation',
+		recommendedRole: 'self_hosted_automation_provider',
+		websiteUrl: 'https://n8n.io/',
+		documentationPages: [
+			{
+				label: 'n8n integrations',
+				url: 'https://n8n.io/integrations/',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+			{
+				label: 'n8n AI Agent node',
+				url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Self-hostable visual workflows, code steps, and AI-agent automations.',
+		coverageSummary: 'Advertises 1,000+ integrations.',
+		supportedPatterns: ['workflows', 'self-hosting', 'webhooks', 'AI agent nodes'],
+		agenticFit: 'very_good_for_self_hosting',
+		notes: 'Strong choice for technical teams wanting deployment control.',
+	},
+	{
+		id: 'glean',
+		name: 'Glean',
+		category: 'enterprise_search_and_knowledge',
+		recommendedRole: 'enterprise_rag_provider',
+		websiteUrl: 'https://www.glean.com/',
+		documentationPages: [
+			{
+				label: 'Glean data-source setup',
+				url: 'https://docs.glean.com/get-started/setup/connect-data-sources',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+			{
+				label: 'Glean connector hub',
+				url: 'https://www.glean.com/connectors',
+				status: 'official_public_web_checked_2026-05-19',
+				type: 'official_docs',
+			},
+		],
+		bestFor: 'Enterprise search and permission-aware RAG across company apps.',
+		coverageSummary: 'Documents 100+ connectors and popular enterprise sources.',
+		supportedPatterns: ['enterprise search', 'connectors', 'RAG', 'permissions'],
+		agenticFit: 'excellent_for_knowledge_retrieval',
+		notes: 'Best when the assistant must retrieve internal knowledge more than perform actions.',
+	},
+] as const satisfies readonly ConnectorProviderPlatform[];
+
+export type ConnectorProviderPlatformId = (typeof CONNECTOR_PROVIDER_PLATFORMS)[number]['id'];
+
+export interface DirectConnectorCatalogEntry {
+	readonly id: string;
+	readonly name: string;
+	readonly vendor: string;
+	readonly category: string;
+	readonly priorityTier: ConnectorPriorityTier;
+	readonly usefulnessScore0To100: number;
+	readonly implementationPattern: ConnectorImplementationPattern;
+	readonly recommendedProviderStrategy: string;
+	readonly documentationPages: readonly ConnectorDocumentationPage[];
+	readonly authModels: readonly string[];
+	readonly coreAgentActions: readonly string[];
+	readonly writeRisk: ConnectorWriteRisk;
+	readonly humanApprovalRequiredFor: readonly string[];
+	readonly recommendedInitialMode: ConnectorRecommendedInitialMode;
+	readonly notes: string;
+	readonly supportedProviderPlatformIds?: readonly ConnectorProviderPlatformId[];
+}
+
+const DOC_STATUS = 'official_public_web_checked_2026-05-19';
+const DOC_STATUS_UNVERIFIED = 'official_public_url_not_reverified_in_this_run';
+
+export const DIRECT_CONNECTOR_CATALOG = [
+	{
+		id: 'gmail',
+		name: 'Gmail',
+		vendor: 'Google',
+		category: 'productivity_email',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 98,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Direct API for core email workflows; Composio/Pipedream/Zapier for simpler automations.',
+		documentationPages: [
+			{ label: 'Gmail API guides', url: 'https://developers.google.com/workspace/gmail/api/guides', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Gmail API reference', url: 'https://developers.google.com/workspace/gmail/api/reference/rest', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'domain-wide delegation/service account for Workspace admins'],
+		coreAgentActions: ['read and search email', 'summarize threads', 'draft replies', 'send approved email', 'label and archive messages'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['send_email', 'delete_email', 'create_forwarding_rule', 'modify_security_sensitive_settings'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Email is high prompt-injection risk; treat message body as untrusted content.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'google_drive',
+		name: 'Google Drive',
+		vendor: 'Google',
+		category: 'file_storage',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 97,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Google Drive API overview', url: 'https://developers.google.com/workspace/drive/api/guides/about-sdk', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+			{ label: 'Google Drive API reference', url: 'https://developers.google.com/drive/api/reference/rest/v3', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'service account/domain-wide delegation'],
+		coreAgentActions: ['search files', 'retrieve documents', 'create folders', 'upload files', 'manage sharing after approval'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['change_sharing_permissions', 'delete_files', 'move_sensitive_files', 'publish_files'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use permission-aware retrieval; never bypass Drive ACLs.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'google_docs',
+		name: 'Google Docs',
+		vendor: 'Google',
+		category: 'documents',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 94,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Google Docs API reference', url: 'https://developers.google.com/workspace/docs/api/reference/rest', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'service account/domain-wide delegation'],
+		coreAgentActions: ['read documents', 'create drafts', 'insert text', 'summarize documents', 'apply approved edits'],
+		writeRisk: 'medium',
+		humanApprovalRequiredFor: ['overwrite_document', 'share_document_externally', 'delete_content'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Useful for report, policy, proposal, and meeting-note workflows.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'google_sheets',
+		name: 'Google Sheets',
+		vendor: 'Google',
+		category: 'spreadsheets',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 95,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Google Sheets API reference', url: 'https://developers.google.com/workspace/sheets/api/reference/rest', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'service account/domain-wide delegation'],
+		coreAgentActions: ['read sheets', 'append rows', 'update cells', 'create reports', 'generate formulas'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['write_financial_data', 'bulk_update_cells', 'delete_sheets', 'share_spreadsheet'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Validate formulas and ranges to avoid accidental overwrites.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'google_calendar',
+		name: 'Google Calendar',
+		vendor: 'Google',
+		category: 'calendar',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 95,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Google Calendar API overview', url: 'https://developers.google.com/workspace/calendar/api/guides/overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Google Calendar API reference', url: 'https://developers.google.com/workspace/calendar/api/v3/reference', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'service account/domain-wide delegation'],
+		coreAgentActions: ['read availability', 'schedule meetings', 'reschedule events', 'create reminders', 'summarize agenda'],
+		writeRisk: 'medium',
+		humanApprovalRequiredFor: ['invite_external_guests', 'cancel_events', 'modify_recurring_events'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'For scheduling agents, enforce attendee/timezone confirmation rules.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'google_chat',
+		name: 'Google Chat',
+		vendor: 'Google',
+		category: 'messaging',
+		priorityTier: 'P1',
+		usefulnessScore0To100: 82,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Google Chat API overview', url: 'https://developers.google.com/workspace/chat/api/guides/overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Google Chat API reference', url: 'https://developers.google.com/workspace/chat/api/reference/rest', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'service account', 'app authentication'],
+		coreAgentActions: ['post messages', 'create spaces', 'summarize spaces', 'route approvals', 'notify users'],
+		writeRisk: 'medium',
+		humanApprovalRequiredFor: ['post_to_large_channel', 'create_external_space', 'delete_messages'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Best for Google Workspace-first organizations.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'google_meet',
+		name: 'Google Meet',
+		vendor: 'Google',
+		category: 'meetings',
+		priorityTier: 'P1',
+		usefulnessScore0To100: 84,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Google Meet API overview', url: 'https://developers.google.com/workspace/meet/api/guides/overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Google Meet API reference', url: 'https://developers.google.com/workspace/meet/api/reference/rest', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0'],
+		coreAgentActions: ['create meeting spaces', 'retrieve conference records', 'summarize meeting metadata', 'link meetings to calendar events'],
+		writeRisk: 'medium',
+		humanApprovalRequiredFor: ['create_external_meeting', 'change_meeting_access'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Pair with Calendar and transcription/recording sources where permitted.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'microsoft_graph',
+		name: 'Microsoft Graph / Microsoft 365',
+		vendor: 'Microsoft',
+		category: 'productivity_suite',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 98,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use Microsoft Graph directly for core enterprise workflows; optionally wrap selected operations as MCP tools.',
+		documentationPages: [
+			{ label: 'Microsoft Graph overview', url: 'https://learn.microsoft.com/en-us/graph/overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Use the Microsoft Graph API', url: 'https://learn.microsoft.com/en-us/graph/use-the-api', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'Microsoft Entra app registration', 'delegated permissions', 'application permissions'],
+		coreAgentActions: ['access Microsoft 365 data', 'query users/groups', 'read files/mail/calendars', 'automate collaboration workflows'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['application_permission_access', 'send_mail', 'change_group_membership', 'share_files_externally'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Central API surface for Outlook, Teams, SharePoint, OneDrive, users, groups, and more.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'outlook',
+		name: 'Outlook Mail and Calendar',
+		vendor: 'Microsoft',
+		category: 'productivity_email_calendar',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 96,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Outlook mail API overview', url: 'https://learn.microsoft.com/en-us/graph/outlook-mail-concept-overview', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+			{ label: 'Outlook calendar API overview', url: 'https://learn.microsoft.com/en-us/graph/outlook-calendar-concept-overview', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0 via Microsoft Graph', 'delegated/application permissions'],
+		coreAgentActions: ['read mail', 'draft/send email', 'schedule meetings', 'summarize threads', 'manage calendar events'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['send_email', 'delete_email', 'cancel_events', 'invite_external_guests'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Treat inbox content as untrusted input and enforce scoped permissions.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'microsoft_teams',
+		name: 'Microsoft Teams',
+		vendor: 'Microsoft',
+		category: 'messaging_collaboration',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 94,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Microsoft Teams Graph API overview', url: 'https://learn.microsoft.com/en-us/graph/teams-concept-overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Microsoft Teams API reference', url: 'https://learn.microsoft.com/en-us/graph/api/resources/teams-api-overview?view=graph-rest-1.0', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0 via Microsoft Graph', 'delegated/application permissions'],
+		coreAgentActions: ['summarize channels', 'send messages', 'create meetings', 'route approvals', 'retrieve team/channel context'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['post_to_broad_channel', 'create_team', 'change_membership', 'send_external_message'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Core communication connector for Microsoft-first companies.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'sharepoint_onedrive',
+		name: 'SharePoint and OneDrive',
+		vendor: 'Microsoft',
+		category: 'file_storage',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 96,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'OneDrive/SharePoint files in Microsoft Graph', url: 'https://learn.microsoft.com/en-us/graph/api/resources/onedrive?view=graph-rest-1.0', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'SharePoint sites API', url: 'https://learn.microsoft.com/en-us/graph/api/resources/sharepoint?view=graph-rest-1.0', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0 via Microsoft Graph', 'delegated/application permissions'],
+		coreAgentActions: ['search files', 'retrieve content', 'summarize documents', 'create files', 'manage links after approval'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['share_externally', 'delete_files', 'change_site_permissions'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use ACL-preserving retrieval and sensitivity label awareness where available.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'microsoft_excel',
+		name: 'Microsoft Excel',
+		vendor: 'Microsoft',
+		category: 'spreadsheets',
+		priorityTier: 'P1',
+		usefulnessScore0To100: 90,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Excel in Microsoft Graph', url: 'https://learn.microsoft.com/en-us/graph/api/resources/excel?view=graph-rest-1.0', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0 via Microsoft Graph'],
+		coreAgentActions: ['read workbooks', 'update ranges', 'create tables', 'generate reports', 'calculate workbook data'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['bulk_update_ranges', 'delete_worksheets', 'write_financial_data'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Useful for finance, operations, and reporting agents.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'slack',
+		name: 'Slack',
+		vendor: 'Salesforce',
+		category: 'messaging_collaboration',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 97,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct Slack app for core assistant UX; use provider tooling for standard actions.',
+		documentationPages: [
+			{ label: 'Slack developer docs', url: 'https://docs.slack.dev/', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Slack agents', url: 'https://docs.slack.dev/ai/agents', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'Slack app tokens', 'bot/user tokens'],
+		coreAgentActions: ['read channel context', 'summarize conversations', 'post messages', 'create workflow notifications', 'collect approvals'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['post_to_broad_channel', 'invite_external_users', 'delete_messages', 'read_private_channels'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Limit long-term retention/indexing and preserve workspace permissions.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'github',
+		name: 'GitHub',
+		vendor: 'GitHub/Microsoft',
+		category: 'source_control_engineering',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 98,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use GitHub App/direct API for production coding agents; expose tightly scoped MCP tools.',
+		documentationPages: [
+			{ label: 'GitHub REST API', url: 'https://docs.github.com/en/rest', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'GitHub Pull Requests REST API', url: 'https://docs.github.com/en/rest/pulls', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth app', 'GitHub App', 'fine-grained personal access token'],
+		coreAgentActions: ['search repositories', 'read code', 'open issues', 'review pull requests', 'create branches', 'trigger workflows'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['push_code', 'merge_pull_request', 'delete_branch', 'modify_workflows', 'change_repo_permissions'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use least-privilege repo scopes and never allow autonomous merges without policy gates.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'jira',
+		name: 'Jira Cloud',
+		vendor: 'Atlassian',
+		category: 'project_management',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 95,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Jira Cloud REST API v3', url: 'https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'API token', 'Atlassian Forge/Connect app'],
+		coreAgentActions: ['create issues', 'update tickets', 'summarize sprint status', 'link blockers', 'triage backlog'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['bulk_update_issues', 'delete_issues', 'change_project_permissions', 'transition_critical_work_items'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Key connector for engineering/product agents.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'confluence',
+		name: 'Confluence Cloud',
+		vendor: 'Atlassian',
+		category: 'knowledge_base',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Confluence Cloud REST API', url: 'https://developer.atlassian.com/cloud/confluence/rest/', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'API token', 'Atlassian Forge/Connect app'],
+		coreAgentActions: ['search pages', 'summarize docs', 'create pages', 'update runbooks', 'link Jira issues'],
+		writeRisk: 'medium',
+		humanApprovalRequiredFor: ['publish_policy_pages', 'delete_pages', 'change_page_restrictions'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use page-level permission checks in RAG and editing flows.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'notion',
+		name: 'Notion',
+		vendor: 'Notion',
+		category: 'knowledge_base_database',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 93,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Notion API overview', url: 'https://developers.notion.com/reference/intro', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Notion database API', url: 'https://developers.notion.com/reference/database', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'internal integration token'],
+		coreAgentActions: ['search pages', 'read databases', 'create pages', 'update databases', 'summarize workspaces'],
+		writeRisk: 'medium',
+		humanApprovalRequiredFor: ['modify_shared_pages', 'delete_content', 'publish_sensitive_pages'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Strong knowledge/database connector for startups and product teams.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'salesforce',
+		name: 'Salesforce',
+		vendor: 'Salesforce',
+		category: 'crm_revenue',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 97,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Direct API for revenue-critical production workflows; provider platform for lower-risk actions.',
+		documentationPages: [
+			{ label: 'Salesforce API library', url: 'https://developer.salesforce.com/docs/apis', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Salesforce REST API', url: 'https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'connected app', 'JWT bearer flow'],
+		coreAgentActions: ['read accounts/opportunities', 'summarize pipeline', 'update records', 'create tasks', 'draft follow-ups'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['update_revenue_records', 'delete_records', 'change_ownership', 'mass_update_records'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Apply field-level security, record visibility, and audit logging.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'hubspot',
+		name: 'HubSpot',
+		vendor: 'HubSpot',
+		category: 'crm_marketing_sales',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'HubSpot API reference', url: 'https://developers.hubspot.com/docs/api-reference/overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'HubSpot CRM guide', url: 'https://developers.hubspot.com/docs/guides/crm/overview', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'private app access token'],
+		coreAgentActions: ['read contacts/companies/deals', 'create CRM notes', 'update lifecycle stages', 'draft sales emails', 'summarize pipeline'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['bulk_update_contacts', 'send_sales_email', 'delete_records', 'change_deal_stage'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Good all-in-one CRM/marketing connector for SMB/mid-market.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'zendesk',
+		name: 'Zendesk',
+		vendor: 'Zendesk',
+		category: 'customer_support',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Zendesk API reference', url: 'https://developer.zendesk.com/api-reference/', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Zendesk Tickets API', url: 'https://developer.zendesk.com/api-reference/ticketing/tickets/tickets/', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'API token', 'basic auth'],
+		coreAgentActions: ['read tickets', 'triage requests', 'draft replies', 'update status', 'summarize customer history'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['send_customer_reply', 'close_ticket', 'delete_ticket', 'change_user_data'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use draft-and-approve mode for customer-facing messages.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'servicenow',
+		name: 'ServiceNow',
+		vendor: 'ServiceNow',
+		category: 'itsm_enterprise_workflows',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 90,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'ServiceNow REST APIs', url: 'https://developer.servicenow.com/dev.do#!/reference/api/utah/rest/c_TableAPI', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'ServiceNow REST API docs', url: 'https://www.servicenow.com/docs/bundle/xanadu-api-reference/page/integrate/inbound-rest/concept/c_RESTAPI.html', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['Basic auth', 'OAuth 2.0', 'mutual TLS/enterprise SSO options'],
+		coreAgentActions: ['read incidents', 'create/change tickets', 'summarize incidents', 'route approvals', 'update CMDB records'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['close_incident', 'change_cmdb', 'approve_change_request', 'delete_records'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Important for ITSM and enterprise operations; change-management guardrails are mandatory.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'snowflake',
+		name: 'Snowflake',
+		vendor: 'Snowflake',
+		category: 'data_warehouse',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 93,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct governed SQL/API access; restrict agents to read-only roles by default.',
+		documentationPages: [
+			{ label: 'Snowflake SQL API', url: 'https://docs.snowflake.com/en/developer-guide/sql-api/index', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Snowflake SQL API reference', url: 'https://docs.snowflake.com/en/developer-guide/sql-api/reference', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'key-pair auth', 'username/password', 'external browser/SSO'],
+		coreAgentActions: ['query warehouse', 'generate reports', 'summarize data', 'create temporary tables', 'support analytics Q&A'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['write_or_delete_data', 'run_expensive_queries', 'change_roles', 'grant_permissions'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Create dedicated read-only roles and query budgets.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'bigquery',
+		name: 'BigQuery',
+		vendor: 'Google Cloud',
+		category: 'data_warehouse',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'BigQuery API overview', url: 'https://cloud.google.com/bigquery/docs/reference/rest', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'BigQuery client libraries/API docs', url: 'https://cloud.google.com/bigquery/docs/reference/libraries', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'service account', 'workload identity'],
+		coreAgentActions: ['query datasets', 'create reports', 'summarize metrics', 'export results', 'support analytics agents'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['modify_datasets', 'run_high_cost_queries', 'delete_tables', 'grant_iam'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use authorized views, row-level security, and cost controls.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'postgresql',
+		name: 'PostgreSQL',
+		vendor: 'PostgreSQL Global Development Group',
+		category: 'database',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 90,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct database client through a controlled query gateway; default to read-only.',
+		documentationPages: [
+			{ label: 'PostgreSQL documentation', url: 'https://www.postgresql.org/docs/', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'PostgreSQL protocol docs', url: 'https://www.postgresql.org/docs/current/protocol.html', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['database username/password', 'SCRAM', 'Kerberos', 'certificates', 'cloud IAM depending on host'],
+		coreAgentActions: ['query relational data', 'generate reports', 'insert/update records', 'explain schemas', 'support internal APIs'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['write_data', 'delete_data', 'alter_schema', 'grant_privileges'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Never expose arbitrary SQL writes without allowlists, timeouts, and transaction controls.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'aws',
+		name: 'Amazon Web Services',
+		vendor: 'AWS',
+		category: 'cloud_platform',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct cloud SDKs through a policy-controlled execution layer; do not expose broad admin credentials to agents.',
+		documentationPages: [
+			{ label: 'AWS documentation', url: 'https://docs.aws.amazon.com/', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'AWS SDKs and tools', url: 'https://docs.aws.amazon.com/sdkref/latest/guide/overview.html', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['IAM roles', 'IAM users/access keys', 'STS AssumeRole', 'OIDC federation'],
+		coreAgentActions: ['inspect resources', 'read logs/metrics', 'summarize costs', 'trigger runbooks', 'manage infrastructure after approval'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['create_or_delete_resources', 'change_iam', 'modify_security_groups', 'production_deployments'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Prefer read-only and diagnostic permissions first; use separate break-glass/change workflows.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'okta',
+		name: 'Okta',
+		vendor: 'Okta',
+		category: 'identity_access_management',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct IAM APIs with strict allowlists and approval for any access-changing operation.',
+		documentationPages: [
+			{ label: 'Okta API docs', url: 'https://developer.okta.com/docs/api/', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Okta users API', url: 'https://developer.okta.com/docs/api/openapi/okta-management/management/tag/User/', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'API token'],
+		coreAgentActions: ['look up users', 'manage groups', 'support access reviews', 'provision/deprovision after approval', 'audit identity state'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['deactivate_user', 'reset_mfa', 'change_group_membership', 'grant_admin_role'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Identity connectors require the strongest policy controls.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'microsoft_entra_id',
+		name: 'Microsoft Entra ID',
+		vendor: 'Microsoft',
+		category: 'identity_access_management',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 92,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Microsoft Graph users API', url: 'https://learn.microsoft.com/en-us/graph/api/resources/users?view=graph-rest-1.0', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Microsoft Graph groups API', url: 'https://learn.microsoft.com/en-us/graph/api/resources/groups-overview?view=graph-rest-1.0', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0 via Microsoft Entra', 'delegated/application permissions'],
+		coreAgentActions: ['look up users', 'manage groups', 'support access reviews', 'provision/deprovision', 'query directory state'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['change_group_membership', 'grant_roles', 'disable_user', 'reset_credentials'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use PIM/conditional access and separate approval for privileged changes.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'stripe',
+		name: 'Stripe',
+		vendor: 'Stripe',
+		category: 'payments_billing',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 95,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct Stripe API with restricted keys for production payment workflows.',
+		documentationPages: [
+			{ label: 'Stripe API reference', url: 'https://docs.stripe.com/api', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Stripe APIs overview', url: 'https://docs.stripe.com/apis', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['secret API key', 'restricted API key', 'OAuth 2.0 for Connect'],
+		coreAgentActions: ['look up customers', 'summarize invoices', 'create payment links', 'issue approved refunds', 'analyze subscriptions'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['refund_payment', 'create_charge', 'change_subscription', 'delete_customer', 'payout_or_transfer'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Payment and refund actions should require explicit user approval and audit logs.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'shopify',
+		name: 'Shopify',
+		vendor: 'Shopify',
+		category: 'commerce',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 90,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Shopify GraphQL Admin API', url: 'https://shopify.dev/docs/api/admin-graphql', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Shopify REST Admin API', url: 'https://shopify.dev/docs/api/admin-rest', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'custom app access token'],
+		coreAgentActions: ['look up orders', 'summarize inventory', 'draft product updates', 'manage customers', 'process fulfillment workflows'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['refund_order', 'cancel_order', 'change_inventory', 'publish_product_changes'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use approval gates for refunds, cancellations, and product publishing.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
+	},
+	{
+		id: 'dropbox',
+		name: 'Dropbox',
+		vendor: 'Dropbox',
+		category: 'file_storage',
+		priorityTier: 'P1',
+		usefulnessScore0To100: 85,
+		implementationPattern: 'direct_api_or_connector_provider_tool',
+		recommendedProviderStrategy: 'Use direct API for core workflows; use Composio/Pipedream/Zapier for long-tail actions.',
+		documentationPages: [
+			{ label: 'Dropbox HTTP API overview', url: 'https://www.dropbox.com/developers/documentation/http/overview', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Dropbox Business API', url: 'https://www.dropbox.com/developers/documentation/http/teams', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'team app scopes'],
+		coreAgentActions: ['search files', 'download/upload files', 'create folders', 'summarize documents', 'manage links'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['share_files_externally', 'delete_files', 'team_admin_actions'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Use team-space permissions and scoped tokens.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
+	},
+	{
+		id: 'custom_rest_openapi',
+		name: 'Custom REST / OpenAPI APIs',
+		vendor: 'Internal or third-party',
+		category: 'custom_internal_systems',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 96,
+		implementationPattern: 'custom_mcp_or_tool_wrapper_over_openapi',
+		recommendedProviderStrategy: 'Implement as MCP tools or typed function tools with strict schemas, allowlists, and policy checks.',
+		documentationPages: [
+			{ label: 'OpenAPI Specification', url: 'https://spec.openapis.org/oas/latest.html', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+			{ label: 'OpenAPI Initiative', url: 'https://www.openapis.org/', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'API keys', 'mTLS', 'service-to-service auth', 'custom auth'],
+		coreAgentActions: ['call internal services', 'retrieve proprietary data', 'trigger workflows', 'wrap business operations as tools'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['any_state_changing_operation', 'payments', 'deletes', 'external_notifications', 'permission_changes'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Usually the highest-value connector family because it exposes proprietary business systems.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'nango'],
+	},
+	{
+		id: 'custom_graphql',
+		name: 'Custom GraphQL APIs',
+		vendor: 'Internal or third-party',
+		category: 'custom_internal_systems',
+		priorityTier: 'P1',
+		usefulnessScore0To100: 84,
+		implementationPattern: 'custom_mcp_or_tool_wrapper_over_graphql',
+		recommendedProviderStrategy: 'Expose only selected queries/mutations; do not give agents broad arbitrary GraphQL access by default.',
+		documentationPages: [
+			{ label: 'GraphQL specification', url: 'https://spec.graphql.org/', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+			{ label: 'GraphQL official site', url: 'https://graphql.org/', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['OAuth 2.0', 'API keys', 'JWT', 'mTLS', 'custom auth'],
+		coreAgentActions: ['query internal data', 'perform mutations', 'inspect schemas', 'build typed assistant tools'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['mutations', 'bulk_updates', 'permission_changes', 'delete_operations'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'GraphQL mutations should be converted into explicit, named, policy-checked tools.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'nango'],
+	},
+	{
+		id: 'sql_gateway',
+		name: 'Controlled SQL Gateway',
+		vendor: 'Internal',
+		category: 'custom_data_access',
+		priorityTier: 'P0',
+		usefulnessScore0To100: 90,
+		implementationPattern: 'controlled_query_gateway_with_read_only_roles',
+		recommendedProviderStrategy: 'Build a query gateway with read-only roles, query allowlists, timeouts, row limits, and cost controls.',
+		documentationPages: [
+			{ label: 'PostgreSQL docs as example SQL backend', url: 'https://www.postgresql.org/docs/', status: DOC_STATUS, type: 'official_docs' },
+			{ label: 'Snowflake SQL API as example governed SQL API', url: 'https://docs.snowflake.com/en/developer-guide/sql-api/index', status: DOC_STATUS, type: 'official_docs' },
+		],
+		authModels: ['database roles', 'OIDC/IAM', 'service account', 'query gateway tokens'],
+		coreAgentActions: ['answer business questions', 'generate governed reports', 'run approved queries', 'summarize database schemas'],
+		writeRisk: 'critical',
+		humanApprovalRequiredFor: ['write_queries', 'schema_changes', 'unbounded_queries', 'sensitive_data_export'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Prefer semantic-layer queries or generated SQL review for regulated data.',
+		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'n8n'],
+	},
+	{
+		id: 'webhooks',
+		name: 'Webhooks',
+		vendor: 'Internal or third-party',
+		category: 'eventing_workflow',
+		priorityTier: 'P1',
+		usefulnessScore0To100: 82,
+		implementationPattern: 'event_trigger_into_agent_or_workflow_orchestrator',
+		recommendedProviderStrategy: 'Use signed events, replay protection, idempotency keys, and event allowlists.',
+		documentationPages: [
+			{ label: 'GitHub webhooks example', url: 'https://docs.github.com/en/webhooks', status: DOC_STATUS_UNVERIFIED, type: 'official_docs' },
+		],
+		authModels: ['HMAC signatures', 'shared secret', 'mTLS', 'OAuth-backed event subscriptions'],
+		coreAgentActions: ['receive events', 'trigger workflows', 'notify agents', 'start background processing', 'sync external state'],
+		writeRisk: 'high',
+		humanApprovalRequiredFor: ['trigger_destructive_workflow', 'external_notifications', 'payment_or_access_workflows'],
+		recommendedInitialMode: 'read_only_then_draft_write_actions',
+		notes: 'Validate webhook signatures and guard against replay attacks.',
+		supportedProviderPlatformIds: ['pipedream_connect', 'zapier', 'n8n', 'workato'],
+	},
+] as const satisfies readonly DirectConnectorCatalogEntry[];
+
+export type DirectConnectorCatalogId = (typeof DIRECT_CONNECTOR_CATALOG)[number]['id'];
+
+export const CONNECTOR_CATALOG_METADATA = {
+	title: 'Agentic AI Assistant Connector Catalog',
+	schemaVersion: '1.0',
+	generatedDate: '2026-05-19',
+	timezoneContext: 'Europe/Rome',
+	scope: 'Curated production-oriented catalog of useful direct connectors and connector-provider platforms for an agentic AI assistant.',
+	recommendedPrimaryConnectorProvider: 'composio',
+	recommendedArchitecture: 'MCP + direct strategic connectors + connector aggregation platform + permission-aware enterprise search/RAG.',
+} as const;
+
+export const CONNECTOR_IMPLEMENTATION_CONTROLS = {
+	globalDefaults: [
+		'Start every connector in read-only mode where possible.',
+		'Expose write operations only as narrowly scoped tools with typed schemas.',
+		'Use OAuth or service accounts with least privilege; avoid shared user credentials.',
+		'Preserve source-system permissions in retrieval and search flows.',
+		'Require human approval for destructive, external-facing, financial, legal, HR, identity, production, and security actions.',
+		'Log every tool call with user, connector, input, output summary, approval status, and resulting external record IDs.',
+		'Add rate limits, retries, idempotency keys, and loop-detection safeguards.',
+		'Treat content from email, chat, docs, tickets, and websites as untrusted input to mitigate prompt injection.',
+	],
+	recommendedV1ConnectorGroups: [
+		'Google Workspace or Microsoft 365',
+		'Slack or Microsoft Teams',
+		'GitHub or GitLab',
+		'Jira/Confluence or Linear/Notion',
+		'Salesforce or HubSpot',
+		'Zendesk/Intercom/ServiceNow',
+		'Snowflake/BigQuery/Databricks/PostgreSQL',
+		'Okta or Microsoft Entra ID',
+		'Stripe/Shopify/QuickBooks/NetSuite depending on business model',
+		'Custom REST/OpenAPI, GraphQL, SQL gateway, and webhook connectors',
+	],
+} as const;
+
+const DIRECT_CONNECTOR_BY_ID = new Map<string, DirectConnectorCatalogEntry>(
+	DIRECT_CONNECTOR_CATALOG.map((connector) => [connector.id, connector])
+);
+
+export const CONNECTOR_CATALOG_COUNTS = {
+	providerPlatforms: CONNECTOR_PROVIDER_PLATFORMS.length,
+	directConnectors: DIRECT_CONNECTOR_CATALOG.length,
+	totalCatalogEntries: CONNECTOR_PROVIDER_PLATFORMS.length + DIRECT_CONNECTOR_CATALOG.length,
+} as const;
+
+export function getDirectConnectorCatalogItem(id: string): DirectConnectorCatalogEntry | undefined {
+	return DIRECT_CONNECTOR_BY_ID.get(id);
+}
+
+export function isDirectConnectorCatalogId(value: string): value is DirectConnectorCatalogId {
+	return DIRECT_CONNECTOR_BY_ID.has(value);
+}
+
+export function listDirectConnectorsByPriority(
+	priorityTier: ConnectorPriorityTier
+): DirectConnectorCatalogEntry[] {
+	return DIRECT_CONNECTOR_CATALOG.filter((connector) => connector.priorityTier === priorityTier);
+}
+
 export const OPENAI_CONNECTOR_CATALOG = [
 	{
 		id: 'connector_dropbox',
+		directConnectorId: 'dropbox',
 		name: 'Dropbox',
 		description: 'Search and fetch files from Dropbox.',
 		tools: ['search', 'fetch', 'search_files', 'fetch_file', 'list_recent_files', 'get_profile'],
@@ -14,6 +1059,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_gmail',
+		directConnectorId: 'gmail',
 		name: 'Gmail',
 		description: 'Search, read, draft, send, and manage Gmail messages.',
 		tools: [
@@ -47,6 +1093,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_googlecalendar',
+		directConnectorId: 'google_calendar',
 		name: 'Google Calendar',
 		description: 'Search, read, create, update, and delete Google Calendar events.',
 		tools: [
@@ -79,6 +1126,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_googledrive',
+		directConnectorId: 'google_drive',
 		name: 'Google Drive',
 		description: 'Search, read, create, and inspect Google Drive files.',
 		tools: [
@@ -113,6 +1161,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_microsoftteams',
+		directConnectorId: 'microsoft_teams',
 		name: 'Microsoft Teams',
 		description: 'Search Teams chats and channel messages.',
 		tools: ['search', 'fetch', 'get_chat_members', 'get_profile'],
@@ -126,6 +1175,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_outlookcalendar',
+		directConnectorId: 'outlook',
 		name: 'Outlook Calendar',
 		description: 'Search and read Outlook Calendar events.',
 		tools: ['search_events', 'fetch_event', 'fetch_events_batch', 'list_events', 'get_profile'],
@@ -139,6 +1189,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_outlookemail',
+		directConnectorId: 'outlook',
 		name: 'Outlook Email',
 		description: 'Search and read Outlook email messages.',
 		tools: [
@@ -159,6 +1210,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 	},
 	{
 		id: 'connector_sharepoint',
+		directConnectorId: 'sharepoint_onedrive',
 		name: 'SharePoint',
 		description: 'Search and fetch SharePoint and OneDrive documents.',
 		tools: ['get_site', 'search', 'list_recent_documents', 'fetch', 'get_profile'],
