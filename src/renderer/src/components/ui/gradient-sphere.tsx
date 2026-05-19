@@ -119,16 +119,29 @@ const fragmentShader = `
   }
 `
 
+export type GradientSphereState = "active" | "stopped"
+
 type GradientSphereProps = {
   size?: number
   className?: string
   mode?: "webgl" | "css"
+  state?: GradientSphereState
 }
 
-export function GradientSphere({ size = 20, className, mode = "webgl" }: GradientSphereProps) {
+export function GradientSphere({
+  size = 20,
+  className,
+  mode = "webgl",
+  state = "active",
+}: GradientSphereProps) {
   const mountRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef(0)
   const clockRef = useRef(new THREE.Timer())
+  const stateRef = useRef(state)
+
+  useEffect(() => {
+    stateRef.current = state
+  }, [state])
 
   useEffect(() => {
     if (mode !== "webgl") return
@@ -162,13 +175,18 @@ export function GradientSphere({ size = 20, className, mode = "webgl" }: Gradien
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate)
-      const elapsed = clockRef.current.getElapsed()
+      const isActive = stateRef.current === "active"
+      const elapsed = isActive ? clockRef.current.getElapsed() : 0
       uniforms.uTime.value = elapsed
 
-      const targetRotY = elapsed * 0.08 + mouseX * 0.3
-      const targetRotX = mouseY * 0.2
-      mesh.rotation.y += (targetRotY - mesh.rotation.y) * 0.02
-      mesh.rotation.x += (targetRotX - mesh.rotation.x) * 0.02
+      if (isActive) {
+        const targetRotY = elapsed * 0.08 + mouseX * 0.3
+        const targetRotX = mouseY * 0.2
+        mesh.rotation.y += (targetRotY - mesh.rotation.y) * 0.02
+        mesh.rotation.x += (targetRotX - mesh.rotation.x) * 0.02
+      } else {
+        mesh.rotation.set(0, 0, 0)
+      }
 
       renderer.render(scene, camera)
     }
