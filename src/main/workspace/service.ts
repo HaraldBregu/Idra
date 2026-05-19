@@ -7,14 +7,25 @@ import type { LoggerService } from '../logger';
 import { resolveDefaultUserDataPath } from '../user-data';
 import type { ReadFileOptions, WorkspaceServiceOptions, WriteFileOptions } from './types';
 import {
+	DEFAULT_AGENTS_FILENAME,
 	DEFAULT_BOOTSTRAP_FILENAME,
+	DEFAULT_HEARTBEAT_FILENAME,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_MEMORY_FILENAME,
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_TOOLS_FILENAME,
+	DEFAULT_USER_FILENAME,
 	DEFAULT_WORKSPACE_CONTEXT_MAX_CHARS,
 	DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS,
 	MAX_WORKSPACE_CONTEXT_FILE_BYTES,
+	OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES,
+	SEEDED_WORKSPACE_FILE_NAMES,
 	WORKSPACE_CONTEXT_FILE_NAMES,
 	assertWorkspaceFileName,
 	isPathInside,
+	loadWorkspaceTemplate,
 	safeReadWorkspaceFile,
+	writeFileIfMissing,
 	type WorkspaceContextFile,
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
@@ -24,13 +35,43 @@ const execFileAsync = promisify(execFile);
 
 export type EnsureWorkspaceOptions = {
 	initializeGit?: boolean;
+	skipBootstrap?: boolean;
+	skipOptionalBootstrapFiles?: string[];
 };
 
 export type BootstrapMode = 'none' | 'limited' | 'full';
 
+const WORKSPACE_STATE_DIRNAME = '.friday';
+const WORKSPACE_STATE_FILENAME = 'workspace-state.json';
+const WORKSPACE_STATE_VERSION = 1;
+const WORKSPACE_PROFILE_FILENAMES = [
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_USER_FILENAME,
+] as const;
+
+type WorkspaceSetupState = {
+	version: typeof WORKSPACE_STATE_VERSION;
+	bootstrapSeededAt?: string;
+	setupCompletedAt?: string;
+};
+
+const CONTEXT_FILE_PROMPT_ORDER = new Map<WorkspaceFileName, number>([
+	[DEFAULT_AGENTS_FILENAME, 10],
+	[DEFAULT_SOUL_FILENAME, 20],
+	[DEFAULT_IDENTITY_FILENAME, 30],
+	[DEFAULT_USER_FILENAME, 40],
+	[DEFAULT_TOOLS_FILENAME, 50],
+	[DEFAULT_BOOTSTRAP_FILENAME, 60],
+	[DEFAULT_MEMORY_FILENAME, 70],
+	[DEFAULT_HEARTBEAT_FILENAME, 80],
+]);
+
 export class WorkspaceService {
 	private readonly rootPath: string;
 	private readonly contextHooks: NonNullable<WorkspaceServiceOptions['contextHooks']>;
+	private readonly skipBootstrap: boolean;
+	private readonly skipOptionalBootstrapFiles: string[];
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -41,6 +82,8 @@ export class WorkspaceService {
 			options.userDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
 			resolveDefaultUserDataPath(options.workspaceName ?? 'workspace');
 		this.contextHooks = options.contextHooks ?? [];
+		this.skipBootstrap = options.skipBootstrap === true;
+		this.skipOptionalBootstrapFiles = options.skipOptionalBootstrapFiles ?? [];
 	}
 
 	getRootPath(): string {
@@ -61,6 +104,12 @@ export class WorkspaceService {
 	async ensureReady(options: EnsureWorkspaceOptions = {}): Promise<void> {
 		const brandNewWorkspace = await this.isBrandNewWorkspace();
 		await fs.mkdir(this.rootPath, { recursive: true });
+		if (!(options.skipBootstrap ?? this.skipBootstrap)) {
+			await this.ensureBootstrapFiles({
+				skipOptionalBootstrapFiles:
+					options.skipOptionalBootstrapFiles ?? this.skipOptionalBootstrapFiles,
+			});
+		}
 		if (options.initializeGit ?? true) {
 			await this.ensureGitRepo(brandNewWorkspace);
 		}
@@ -114,6 +163,7 @@ export class WorkspaceService {
 		let files = await Promise.all(
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(this.rootPath, name))
 		);
+		files = files.filter((file) => file.name !== DEFAULT_MEMORY_FILENAME || !file.missing);
 		for (const hook of this.contextHooks) {
 			files = await hook({ workspaceRoot: this.rootPath, files });
 		}
@@ -148,7 +198,7 @@ export class WorkspaceService {
 		if (Buffer.byteLength(content, 'utf8') > MAX_WORKSPACE_CONTEXT_FILE_BYTES) {
 			throw new Error(`Workspace file exceeds ${MAX_WORKSPACE_CONTEXT_FILE_BYTES} bytes: ${name}`);
 		}
-			await this.ensureReady();
+		await this.ensureReady();
 		const filePath = path.join(this.rootPath, name);
 		await this.assertSafeWritableWorkspaceFile(name, filePath);
 		await fs.writeFile(filePath, content, { encoding: 'utf8', mode: 0o600 });
@@ -157,7 +207,16 @@ export class WorkspaceService {
 
 	async isBootstrapPending(): Promise<boolean> {
 		await this.ensureReady();
+		const state = await this.readSetupState();
+		if (state.setupCompletedAt) return false;
 		return this.exists(DEFAULT_BOOTSTRAP_FILENAME);
+	}
+
+	async completeBootstrap(): Promise<WorkspaceContextFile> {
+		await this.ensureReady();
+		await fs.rm(path.join(this.rootPath, DEFAULT_BOOTSTRAP_FILENAME), { force: true });
+		await this.markSetupCompleted();
+		return this.readWorkspaceFile(DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
 	private async isBrandNewWorkspace(): Promise<boolean> {
@@ -181,6 +240,149 @@ export class WorkspaceService {
 				rootPath: this.rootPath,
 			});
 		}
+	}
+
+	private async ensureBootstrapFiles(options: { skipOptionalBootstrapFiles: string[] }): Promise<void> {
+		const skipOptionalBootstrapFiles = new Set(options.skipOptionalBootstrapFiles);
+		const shouldWriteTemplate = (name: WorkspaceFileName): boolean =>
+			!OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES.includes(
+				name as (typeof OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES)[number]
+			) || !skipOptionalBootstrapFiles.has(name);
+
+		for (const name of SEEDED_WORKSPACE_FILE_NAMES) {
+			if (!shouldWriteTemplate(name)) continue;
+			await writeFileIfMissing(
+				path.join(this.rootPath, name),
+				await loadWorkspaceTemplate(name)
+			);
+		}
+
+		let state = await this.readSetupState();
+		let stateDirty = false;
+		const bootstrapPath = path.join(this.rootPath, DEFAULT_BOOTSTRAP_FILENAME);
+		let bootstrapExists = await this.pathExists(bootstrapPath);
+		const now = (): string => new Date().toISOString();
+		const markState = (next: Partial<WorkspaceSetupState>): void => {
+			state = { ...state, ...next };
+			stateDirty = true;
+		};
+
+		if (!state.bootstrapSeededAt && bootstrapExists) {
+			markState({ bootstrapSeededAt: now() });
+		}
+
+		if (!state.setupCompletedAt && state.bootstrapSeededAt && !bootstrapExists) {
+			markState({ setupCompletedAt: now() });
+		}
+
+		if (
+			!state.setupCompletedAt &&
+			bootstrapExists &&
+			(await this.workspaceProfileLooksConfigured({ includeGitEvidence: false }))
+		) {
+			await fs.rm(bootstrapPath, { force: true });
+			bootstrapExists = false;
+			markState({
+				bootstrapSeededAt: state.bootstrapSeededAt ?? now(),
+				setupCompletedAt: now(),
+			});
+		}
+
+		if (!state.bootstrapSeededAt && !state.setupCompletedAt && !bootstrapExists) {
+			if (await this.workspaceProfileLooksConfigured({ includeGitEvidence: true })) {
+				markState({ setupCompletedAt: now() });
+			} else {
+				const wrote = await writeFileIfMissing(
+					bootstrapPath,
+					await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
+				);
+				bootstrapExists = wrote || (await this.pathExists(bootstrapPath));
+				if (bootstrapExists) markState({ bootstrapSeededAt: now() });
+			}
+		}
+
+		if (stateDirty) await this.writeSetupState(state);
+	}
+
+	private async workspaceProfileLooksConfigured(options: {
+		includeGitEvidence: boolean;
+	}): Promise<boolean> {
+		for (const name of WORKSPACE_PROFILE_FILENAMES) {
+			if (
+				await this.fileContentDiffersFromTemplate(
+					path.join(this.rootPath, name),
+					await loadWorkspaceTemplate(name)
+				)
+			) {
+				return true;
+			}
+		}
+
+		if (await this.pathExists(path.join(this.rootPath, 'memory'))) return true;
+		if (await this.exactRootEntryExists(DEFAULT_MEMORY_FILENAME)) return true;
+		return options.includeGitEvidence && (await this.pathExists(path.join(this.rootPath, '.git')));
+	}
+
+	private async fileContentDiffersFromTemplate(filePath: string, template: string): Promise<boolean> {
+		try {
+			return (await fs.readFile(filePath, 'utf8')) !== template;
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+			return false;
+		}
+	}
+
+	private async exactRootEntryExists(name: string): Promise<boolean> {
+		try {
+			const entries = await fs.readdir(this.rootPath);
+			return entries.includes(name);
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+			throw error;
+		}
+	}
+
+	private async markSetupCompleted(): Promise<void> {
+		const state = await this.readSetupState();
+		await this.writeSetupState({
+			...state,
+			setupCompletedAt: state.setupCompletedAt ?? new Date().toISOString(),
+		});
+	}
+
+	private async readSetupState(): Promise<WorkspaceSetupState> {
+		try {
+			const raw = await fs.readFile(this.statePath(), 'utf8');
+			const parsed = JSON.parse(raw) as Partial<WorkspaceSetupState>;
+			return {
+				version: WORKSPACE_STATE_VERSION,
+				bootstrapSeededAt:
+					typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
+				setupCompletedAt:
+					typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
+			};
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+				return { version: WORKSPACE_STATE_VERSION };
+			}
+			if (error instanceof SyntaxError) {
+				return { version: WORKSPACE_STATE_VERSION };
+			}
+			throw error;
+		}
+	}
+
+	private async writeSetupState(state: WorkspaceSetupState): Promise<void> {
+		const statePath = this.statePath();
+		await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
+		await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
+			encoding: 'utf8',
+			mode: 0o600,
+		});
+	}
+
+	private statePath(): string {
+		return path.join(this.rootPath, WORKSPACE_STATE_DIRNAME, WORKSPACE_STATE_FILENAME);
 	}
 
 	private async assertSafeWritableWorkspaceFile(
@@ -234,7 +436,7 @@ export function renderWorkspaceContextFiles(
 	let remaining = options.totalMaxChars ?? DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS;
 	const blocks: string[] = [];
 
-	for (const file of files) {
+	for (const file of [...files].sort(compareContextFilesForPrompt)) {
 		if (remaining <= 0) break;
 		const content = file.missing
 			? `[MISSING] Expected at: ${file.path}${file.detail ? ` (${file.detail})` : ''}`
@@ -251,6 +453,13 @@ export function renderWorkspaceContextFiles(
 	}
 
 	return blocks.join('\n\n');
+}
+
+function compareContextFilesForPrompt(a: WorkspaceContextFile, b: WorkspaceContextFile): number {
+	const aOrder = CONTEXT_FILE_PROMPT_ORDER.get(a.name) ?? Number.MAX_SAFE_INTEGER;
+	const bOrder = CONTEXT_FILE_PROMPT_ORDER.get(b.name) ?? Number.MAX_SAFE_INTEGER;
+	if (aOrder !== bOrder) return aOrder - bOrder;
+	return a.path.localeCompare(b.path);
 }
 
 function trimWithMarker(content: string, fileName: string, maxChars: number): string {
