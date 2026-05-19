@@ -140,6 +140,7 @@ describe('Main windows', () => {
 			maxHeight: 240,
 			backgroundColor: '#000000',
 			show: false,
+			frame: false,
 			resizable: false,
 			alwaysOnTop: true,
 			skipTaskbar: true,
