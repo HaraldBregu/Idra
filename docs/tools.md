@@ -58,14 +58,6 @@ Policies are summarized from the current tool policy code. Global allow/deny fil
 | --- | --- |
 | `read` | Runtime group: `group:file`. Runtime profiles: `coding`, `full`. Core tool. Workspace-only by default unless absolute paths are explicitly allowed. |
 
-## `services.ts`
-
-| Tool | Policies |
-| --- | --- |
-| `get_agent_model` | `explicit/imported`. Read-only agent model lookup. |
-| `get_agent_service` | `explicit/imported`. Read-only agent service lookup. |
-| `set_agent_service` | `explicit/imported`. Carries the legacy approval marker and writes agent service configuration. |
-
 ## `startup.ts`
 
 | Tool | Policies |

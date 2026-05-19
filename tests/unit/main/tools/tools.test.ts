@@ -24,11 +24,6 @@ import {
 	cronRemoveTool,
 	cronTool,
 } from '../../../../src/main/tools/cron';
-import {
-	getAgentModelTool,
-	getAgentServiceTool,
-	setAgentServiceTool,
-} from '../../../../src/main/tools/services';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
 import {
 	getWorkspaceContentTool,
@@ -389,33 +384,6 @@ describe('tools/app, cron, providers, services, workspace', () => {
 			}
 		);
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
-	});
-
-	it('reads and updates agent settings through StoreService', async () => {
-		const provider = {
-			id: 'openai',
-			name: 'OpenAI',
-			apiKey: 'sk',
-			baseUrl: 'https://api.openai.com/v1',
-		};
-		const store = {
-			getAgentService: jest.fn(() => ({ provider, model: { id: 'gpt', name: 'GPT' } })),
-			getAgentModel: jest.fn(() => ({ id: 'gpt', name: 'GPT' })),
-			setAgentService: jest.fn(() => true),
-		};
-		const ctx = makeToolContext({
-			services: { ...makeToolContext().services, store: store as never },
-		});
-		expect((await getAgentServiceTool.execute({}, ctx)).content[0]?.text).toContain('GPT');
-		expect((await getAgentModelTool.execute({}, ctx)).content[0]?.text).toContain('gpt');
-		expect(
-			(
-				await setAgentServiceTool.execute(
-					{ providerId: 'openai', modelId: 'gpt', modelName: 'GPT' },
-					ctx
-				)
-			).status
-		).toBe('ok');
 	});
 
 	it('lists workspace content and returns workspace path', async () => {
