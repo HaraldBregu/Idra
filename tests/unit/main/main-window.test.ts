@@ -135,7 +135,7 @@ describe('Main windows', () => {
 		});
 	});
 
-	it('opens a standalone 300x100 black tray window without showing the main window', () => {
+	it('opens a standalone 300x100 translucent tray window without showing the main window', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main, create } = createMain([appWindow, trayWindow]);
@@ -154,8 +154,9 @@ describe('Main windows', () => {
 			minHeight: 100,
 			maxWidth: 300,
 			maxHeight: 100,
-			backgroundColor: '#000000',
+			backgroundColor: '#00000000',
 			show: false,
+			transparent: true,
 			frame: false,
 			resizable: false,
 			alwaysOnTop: true,
@@ -168,7 +169,7 @@ describe('Main windows', () => {
 		}), { html: 'tray.html' });
 		expect(trayOptions.parent).toBeUndefined();
 		expect(appWindow.show).not.toHaveBeenCalled();
-		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#000000');
+		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#00000000');
 		expect(trayWindow.setAlwaysOnTop).toHaveBeenCalledWith(true, 'floating');
 		expect(trayWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(
 			true,

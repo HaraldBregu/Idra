@@ -15,7 +15,7 @@ const TRAY_WINDOW_HEIGHT = 100;
 const TRAY_WINDOW_EDGE_MARGIN = 8;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
-const TRAY_WINDOW_BACKGROUND = '#000000';
+const TRAY_WINDOW_BACKGROUND = TRANSPARENT_WINDOW_BACKGROUND;
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
 	if (process.platform === 'darwin') {
@@ -296,6 +296,7 @@ export class Main {
 			maxWidth: TRAY_WINDOW_WIDTH,
 			maxHeight: TRAY_WINDOW_HEIGHT,
 			show: false,
+			transparent: true,
 			frame: false,
 			resizable: false,
 			alwaysOnTop: true,
