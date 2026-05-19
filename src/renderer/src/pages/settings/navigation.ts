@@ -9,7 +9,11 @@ import {
 	Sparkles,
 	type LucideIcon,
 } from 'lucide-react';
-import { SPEECH_TRANSCRIBER_AGENT_ID } from '../../../../shared/service';
+import {
+	IMAGE_ASSISTANT_AGENT_ID,
+	SPEECH_TRANSCRIBER_AGENT_ID,
+	TEXT_TO_SPEECH_AGENT_ID,
+} from '../../../../shared/service';
 
 export interface SettingsNavigationItem {
 	readonly path: string;
@@ -53,6 +57,8 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Agents
 	{ path: '/settings/general/agentdetails/main', labelKey: 'settings.agents.title', descriptionKey: 'settings.agents.fridayDescription', keywords: 'friday main agent default provider model' },
 	{ path: `/settings/general/agentdetails/${SPEECH_TRANSCRIBER_AGENT_ID}`, labelKey: 'settings.agents.speechTranscriberName', descriptionKey: 'settings.agents.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
+	{ path: `/settings/general/agentdetails/${TEXT_TO_SPEECH_AGENT_ID}`, labelKey: 'settings.agents.textToSpeechName', descriptionKey: 'settings.agents.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
+	{ path: `/settings/general/agentdetails/${IMAGE_ASSISTANT_AGENT_ID}`, labelKey: 'settings.agents.imageAssistantName', descriptionKey: 'settings.agents.imageAssistantDescription', keywords: 'image assistant generation editing creative model' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
 	// Heartbeat
