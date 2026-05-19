@@ -1,4 +1,5 @@
 import { ipcMain, type IpcMainEvent, type IpcMainInvokeEvent, type WebContents } from 'electron';
+import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
@@ -34,13 +35,17 @@ type WebSocketLike = {
 const SOCKET_OPEN = 1;
 const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 3_000;
+const PCM_BYTES_PER_SAMPLE = 2;
+const MINIMUM_COMMIT_AUDIO_MS = 100;
+export const MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES =
+	(REALTIME_TRANSCRIPTION_SAMPLE_RATE * PCM_BYTES_PER_SAMPLE * MINIMUM_COMMIT_AUDIO_MS) / 1_000;
 
 interface RealtimeTranscriptionRuntime {
 	id: string;
 	model: string;
 	socket: OpenAIRealtimeWebSocket;
 	webContents: WebContents;
-	audioAppended: boolean;
+	audioByteLength: number;
 	closeAfterFinal: boolean;
 	closeTimer: NodeJS.Timeout | null;
 }
@@ -74,6 +79,20 @@ function resolveConfiguredSpeechTranscriber(agent: Agent | undefined): string {
 		throw new Error(`Live dictation requires ${REALTIME_SPEECH_TRANSCRIBER_MODEL_ID}.`);
 	}
 	return model;
+}
+
+export function decodedRealtimeTranscriptionAudioByteLength(audio: string): number {
+	const trimmed = audio.trim();
+	if (!trimmed) return 0;
+	return Buffer.byteLength(trimmed, 'base64');
+}
+
+export function hasMinimumRealtimeTranscriptionAudio(audioByteLength: number): boolean {
+	return audioByteLength >= MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES;
+}
+
+export function isInputAudioBufferTooSmallError(message: string): boolean {
+	return /input audio buffer/i.test(message) && /buffer too small/i.test(message);
 }
 
 export function createRealtimeTranscriptionSocket(
@@ -178,7 +197,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 						model,
 						socket,
 						webContents: event.sender,
-						audioAppended: false,
+						audioByteLength: 0,
 						closeAfterFinal: false,
 						closeTimer: null,
 					};
@@ -215,7 +234,10 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 				if (!runtime || runtime.webContents.id !== event.sender.id) return;
 				if (typeof audio !== 'string' || audio.length === 0) return;
 
-				runtime.audioAppended = true;
+				const audioByteLength = decodedRealtimeTranscriptionAudioByteLength(audio);
+				if (audioByteLength === 0) return;
+
+				runtime.audioByteLength += audioByteLength;
 				runtime.socket.send({
 					type: 'input_audio_buffer.append',
 					audio,
@@ -227,7 +249,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 			RealtimeTranscriptionChannels.finish,
 			wrapIpcHandler((event: IpcMainInvokeEvent, sessionId: string): void => {
 				const runtime = this.requireSessionForSender(sessionId, event.sender);
-				if (!runtime.audioAppended) {
+				if (!hasMinimumRealtimeTranscriptionAudio(runtime.audioByteLength)) {
 					this.closeSession(sessionId);
 					return;
 				}
@@ -254,6 +276,11 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 			this.handleServerEvent(runtime, event);
 		});
 		runtime.socket.on('error', (error) => {
+			if (runtime.closeAfterFinal && isInputAudioBufferTooSmallError(error.message)) {
+				this.closeSession(runtime.id);
+				return;
+			}
+
 			this.sendToRenderer(runtime, {
 				type: 'error',
 				sessionId: runtime.id,
@@ -307,6 +334,11 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 		}
 
 		if (event.type === 'error') {
+			if (runtime.closeAfterFinal && isInputAudioBufferTooSmallError(event.error.message)) {
+				this.closeSession(runtime.id);
+				return;
+			}
+
 			this.sendToRenderer(runtime, {
 				type: 'error',
 				sessionId: runtime.id,
