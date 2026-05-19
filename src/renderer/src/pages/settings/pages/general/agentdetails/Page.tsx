@@ -285,13 +285,46 @@ const AgentDetailsPage: React.FC = () => {
 		}
 	}, [canSave, effort, isSpeechTranscriberAgent, selectedModel, selectedProvider, t]);
 
+	const isKnownAgent = isFridayAgent || isSpeechTranscriberAgent;
+	const agentIcon = isSpeechTranscriberAgent ? Mic : Bot;
+	const agentName = t(
+		isSpeechTranscriberAgent
+			? 'settings.agents.speechTranscriberName'
+			: 'settings.agents.fridayName'
+	);
+	const agentDescription = t(
+		isSpeechTranscriberAgent
+			? 'settings.agents.speechTranscriberDescription'
+			: 'settings.agents.fridayDescription'
+	);
+	const configurationDescription = t(
+		isSpeechTranscriberAgent
+			? 'settings.agents.speechConfigurationSubtitle'
+			: 'settings.agents.subtitle'
+	);
+	const providerDescription = t(
+		isSpeechTranscriberAgent
+			? 'settings.agents.speechProviderDescription'
+			: 'settings.agents.providerDescription'
+	);
+	const modelLabel = t(
+		isSpeechTranscriberAgent
+			? 'settings.agents.speechModel'
+			: 'settings.agents.model'
+	);
+	const modelDescription = t(
+		isSpeechTranscriberAgent
+			? 'settings.agents.speechModelDescription'
+			: 'settings.agents.modelDescription'
+	);
+
 	if (loading) {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader
 					title={t('settings.agents.detailsTitle')}
 					description={t('settings.agents.description')}
-					icon={Bot}
+					icon={agentIcon}
 				/>
 				<SettingsPanel>
 					<SettingsLoadingRows rows={3} />
@@ -300,7 +333,7 @@ const AgentDetailsPage: React.FC = () => {
 		);
 	}
 
-	if (!isFridayAgent) {
+	if (!isKnownAgent) {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader title={t('settings.agents.detailsTitle')} icon={Bot} />
@@ -319,9 +352,9 @@ const AgentDetailsPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.agents.fridayName')}
-				description={t('settings.agents.fridayDescription')}
-				icon={Bot}
+				title={agentName}
+				description={agentDescription}
+				icon={agentIcon}
 			/>
 
 			{errorMessage && (
@@ -339,15 +372,15 @@ const AgentDetailsPage: React.FC = () => {
 			<SettingsSection title={t('settings.agents.identity')}>
 				<SettingsPanel>
 					<SettingsRow
-						icon={Bot}
-						title={t('settings.agents.fridayName')}
-						description={t('settings.agents.fridayDescription')}
+						icon={agentIcon}
+						title={agentName}
+						description={agentDescription}
 						actions={
 							<Badge
 								variant="outline"
 								className="h-5 rounded-md bg-muted/40 px-2 font-mono text-[10px] text-muted-foreground"
 							>
-								{FRIDAY_AGENT_ID}
+								{decodedAgentId}
 							</Badge>
 						}
 					/>
@@ -356,14 +389,20 @@ const AgentDetailsPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.agents.configuration')}
-				description={t('settings.agents.subtitle')}
+				description={configurationDescription}
 			>
 				<SettingsPanel>
 					<div className="grid gap-3 p-3">
+						{isSpeechTranscriberAgent && providers.length === 0 && (
+							<SettingsNotice icon={AlertTriangle}>
+								{t('settings.agents.speechProviderMissing')}
+							</SettingsNotice>
+						)}
+
 						<SettingsField
 							id="agent-provider"
 							label={t('settings.agents.provider')}
-							description={t('settings.agents.providerDescription')}
+							description={providerDescription}
 						>
 							<Select
 								value={providerId}
@@ -385,8 +424,8 @@ const AgentDetailsPage: React.FC = () => {
 
 						<SettingsField
 							id="agent-model"
-							label={t('settings.agents.model')}
-							description={t('settings.agents.modelDescription')}
+							label={modelLabel}
+							description={modelDescription}
 						>
 							<Select
 								value={modelId}
