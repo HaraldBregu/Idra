@@ -18,6 +18,7 @@ interface MockWindow {
 	isDestroyed: jest.Mock;
 	isVisible: jest.Mock;
 	setBackgroundColor: jest.Mock;
+	setAlwaysOnTop: jest.Mock;
 	webContents: {
 		on: jest.Mock;
 		send: jest.Mock;
@@ -64,6 +65,7 @@ function createMockWindow(id: number): MockWindow {
 		isDestroyed: jest.fn(() => destroyed),
 		isVisible: jest.fn(() => visible),
 		setBackgroundColor: jest.fn(),
+		setAlwaysOnTop: jest.fn(),
 		webContents: {
 			on: jest.fn(),
 			send: jest.fn(),
@@ -129,6 +131,8 @@ describe('Main windows', () => {
 			backgroundColor: '#000000',
 			show: false,
 			resizable: false,
+			alwaysOnTop: true,
+			skipTaskbar: true,
 			webPreferences: expect.objectContaining({
 				contextIsolation: true,
 				nodeIntegration: false,
@@ -137,8 +141,23 @@ describe('Main windows', () => {
 		}), { html: 'tray.html' });
 		expect(appWindow.show).not.toHaveBeenCalled();
 		expect(trayWindow.setBackgroundColor).toHaveBeenCalledWith('#000000');
+		expect(trayWindow.setAlwaysOnTop).toHaveBeenCalledWith(true, 'floating');
 		expect(trayWindow.show).toHaveBeenCalledTimes(1);
 		expect(trayWindow.focus).toHaveBeenCalledTimes(1);
+	});
+
+	it('hides the tray child window when focus moves outside it', () => {
+		const appWindow = createMockWindow(1);
+		const trayWindow = createMockWindow(2);
+		const { main } = createMain([appWindow, trayWindow]);
+		main.create();
+		appWindow.emit('ready-to-show');
+
+		main.showTrayChildWindow();
+		trayWindow.hide.mockClear();
+		trayWindow.emit('blur');
+
+		expect(trayWindow.hide).toHaveBeenCalledTimes(1);
 	});
 
 	it('keeps tray child visibility out of main-window show and hide state', () => {

@@ -250,6 +250,8 @@ export class Main {
 			maxHeight: TRAY_CHILD_WINDOW_HEIGHT,
 			show: false,
 			resizable: false,
+			alwaysOnTop: true,
+			skipTaskbar: true,
 			maximizable: false,
 			fullscreenable: false,
 			autoHideMenuBar: true,
@@ -268,6 +270,10 @@ export class Main {
 		};
 		const win = this.windowFactory.create(options, { html: 'tray.html' });
 		win.setBackgroundColor(TRAY_CHILD_WINDOW_BACKGROUND);
+		win.setAlwaysOnTop(true, 'floating');
+		win.on('blur', () => {
+			win.hide();
+		});
 		win.on('closed', () => {
 			if (this.trayChildWindow?.id === win.id) {
 				this.trayChildWindow = null;
