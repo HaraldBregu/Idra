@@ -12,7 +12,7 @@ export const TOOL_LIMITS = {
 		defaultTimeoutMs: 30_000,
 		maxRetries: 2,
 		backoffMs: 100,
-		maxCallsPerTurn: 8,
+		maxCallsPerTurn: 16,
 	},
 	exec: {
 		timeoutMs: 120_000,
