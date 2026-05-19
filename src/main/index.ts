@@ -206,7 +206,7 @@ const mainWindow = new Main(appState, windowFactory, windowContextManager);
 const trayManager = new Tray({
 	onShowApp: () => mainWindow.showOrCreate(),
 	onHideApp: () => mainWindow.hide(),
-	onShowTrayChildWindow: () => mainWindow.showTrayChildWindow(),
+	onShowTrayWindow: () => mainWindow.showTrayWindow(),
 	onToggleApp: () => mainWindow.toggleVisibility(),
 	onQuit: () => {
 		appState.setQuitting();
@@ -290,7 +290,7 @@ app.whenReady().then(async () => {
 	});
 
 	app.on('activate', () => {
-		if (BrowserWindow.getAllWindows().length === 0) {
+		if (BrowserWindow.getAllWindows().length === 0 && !trayManager.isCreated()) {
 			mainWindow.create();
 		}
 	});

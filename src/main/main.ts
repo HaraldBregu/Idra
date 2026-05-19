@@ -8,11 +8,11 @@ const DEFAULT_WINDOW_WIDTH = 440;
 const DEFAULT_WINDOW_HEIGHT = 600;
 const STARTUP_WINDOW_WIDTH = 440;
 const STARTUP_WINDOW_HEIGHT = 600;
-const TRAY_CHILD_WINDOW_WIDTH = 600;
-const TRAY_CHILD_WINDOW_HEIGHT = 240;
+const TRAY_WINDOW_WIDTH = 600;
+const TRAY_WINDOW_HEIGHT = 240;
 
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
-const TRAY_CHILD_WINDOW_BACKGROUND = '#000000';
+const TRAY_WINDOW_BACKGROUND = '#000000';
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
 	if (process.platform === 'darwin') {
@@ -27,7 +27,7 @@ function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptio
 
 export class Main {
 	private window: BrowserWindow | null = null;
-	private trayChildWindow: BrowserWindow | null = null;
+	private trayWindow: BrowserWindow | null = null;
 	private readonly appWindows = new Set<BrowserWindow>();
 	private onWindowVisibilityChange?: () => void;
 
@@ -228,26 +228,24 @@ export class Main {
 		return this.createLauncherWindow();
 	}
 
-	showTrayChildWindow(): void {
-		const win = this.getTrayChildWindow();
+	showTrayWindow(): void {
+		const win = this.getTrayWindow();
 		win.show();
 		win.focus();
 	}
 
-	private getTrayChildWindow(): BrowserWindow {
-		if (this.trayChildWindow && !this.trayChildWindow.isDestroyed()) {
-			return this.trayChildWindow;
+	private getTrayWindow(): BrowserWindow {
+		if (this.trayWindow && !this.trayWindow.isDestroyed()) {
+			return this.trayWindow;
 		}
 
-		const parent = this.getPreferredWindow();
-		const visibleParent = parent && parent.isVisible() ? parent : undefined;
 		const options: BrowserWindowConstructorOptions = {
-			width: TRAY_CHILD_WINDOW_WIDTH,
-			height: TRAY_CHILD_WINDOW_HEIGHT,
-			minWidth: TRAY_CHILD_WINDOW_WIDTH,
-			minHeight: TRAY_CHILD_WINDOW_HEIGHT,
-			maxWidth: TRAY_CHILD_WINDOW_WIDTH,
-			maxHeight: TRAY_CHILD_WINDOW_HEIGHT,
+			width: TRAY_WINDOW_WIDTH,
+			height: TRAY_WINDOW_HEIGHT,
+			minWidth: TRAY_WINDOW_WIDTH,
+			minHeight: TRAY_WINDOW_HEIGHT,
+			maxWidth: TRAY_WINDOW_WIDTH,
+			maxHeight: TRAY_WINDOW_HEIGHT,
 			show: false,
 			resizable: false,
 			alwaysOnTop: true,
@@ -256,8 +254,7 @@ export class Main {
 			fullscreenable: false,
 			autoHideMenuBar: true,
 			title: 'Friday',
-			backgroundColor: TRAY_CHILD_WINDOW_BACKGROUND,
-			...(visibleParent ? { parent: visibleParent } : {}),
+			backgroundColor: TRAY_WINDOW_BACKGROUND,
 			webPreferences: {
 				sandbox: true,
 				nodeIntegration: false,
@@ -269,17 +266,17 @@ export class Main {
 			},
 		};
 		const win = this.windowFactory.create(options, { html: 'tray.html' });
-		win.setBackgroundColor(TRAY_CHILD_WINDOW_BACKGROUND);
+		win.setBackgroundColor(TRAY_WINDOW_BACKGROUND);
 		win.setAlwaysOnTop(true, 'floating');
 		win.on('blur', () => {
 			win.hide();
 		});
 		win.on('closed', () => {
-			if (this.trayChildWindow?.id === win.id) {
-				this.trayChildWindow = null;
+			if (this.trayWindow?.id === win.id) {
+				this.trayWindow = null;
 			}
 		});
-		this.trayChildWindow = win;
+		this.trayWindow = win;
 		return win;
 	}
 

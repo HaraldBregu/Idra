@@ -60,7 +60,7 @@ function createCallbacks() {
 	return {
 		onShowApp: jest.fn(),
 		onHideApp: jest.fn(),
-		onShowTrayChildWindow: jest.fn(),
+		onShowTrayWindow: jest.fn(),
 		onToggleApp: jest.fn(),
 		onQuit: jest.fn(),
 		isAppVisible: jest.fn(() => false),
@@ -84,7 +84,7 @@ describe('Tray', () => {
 		const tray = getCreatedTray();
 		tray?.emit('click');
 
-		expect(callbacks.onShowTrayChildWindow).toHaveBeenCalledTimes(1);
+		expect(callbacks.onShowTrayWindow).toHaveBeenCalledTimes(1);
 		expect(callbacks.onShowApp).not.toHaveBeenCalled();
 		expect(callbacks.onToggleApp).not.toHaveBeenCalled();
 		expect(tray?.setContextMenu).not.toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('Tray', () => {
 
 		const contextMenu = (Menu.buildFromTemplate as jest.Mock).mock.results.at(-1)?.value;
 		expect(callbacks.onShowApp).not.toHaveBeenCalled();
-		expect(callbacks.onShowTrayChildWindow).not.toHaveBeenCalled();
+		expect(callbacks.onShowTrayWindow).not.toHaveBeenCalled();
 		expect(tray?.popUpContextMenu).toHaveBeenCalledWith(contextMenu);
 		expect(tray?.setContextMenu).not.toHaveBeenCalled();
 	});

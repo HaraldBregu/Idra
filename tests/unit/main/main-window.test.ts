@@ -110,7 +110,7 @@ describe('Main windows', () => {
 		(BrowserWindow as unknown as jest.Mock).mockReset();
 	});
 
-	it('opens a 600x240 black tray child window without showing the main window', () => {
+	it('opens a standalone 600x240 black tray window without showing the main window', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main, create } = createMain([appWindow, trayWindow]);
@@ -119,7 +119,7 @@ describe('Main windows', () => {
 		appWindow.hide();
 		appWindow.show.mockClear();
 
-		main.showTrayChildWindow();
+		main.showTrayWindow();
 
 		expect(create).toHaveBeenLastCalledWith(expect.objectContaining({
 			width: 600,
@@ -133,6 +133,7 @@ describe('Main windows', () => {
 			resizable: false,
 			alwaysOnTop: true,
 			skipTaskbar: true,
+			parent: undefined,
 			webPreferences: expect.objectContaining({
 				contextIsolation: true,
 				nodeIntegration: false,
@@ -146,14 +147,14 @@ describe('Main windows', () => {
 		expect(trayWindow.focus).toHaveBeenCalledTimes(1);
 	});
 
-	it('hides the tray child window when focus moves outside it', () => {
+	it('hides the tray window when focus moves outside it', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main } = createMain([appWindow, trayWindow]);
 		main.create();
 		appWindow.emit('ready-to-show');
 
-		main.showTrayChildWindow();
+		main.showTrayWindow();
 		trayWindow.hide.mockClear();
 		trayWindow.emit('blur');
 
@@ -167,7 +168,7 @@ describe('Main windows', () => {
 		main.create();
 		appWindow.emit('ready-to-show');
 
-		main.showTrayChildWindow();
+		main.showTrayWindow();
 		appWindow.hide.mockClear();
 		trayWindow.hide.mockClear();
 
@@ -185,8 +186,8 @@ describe('Main windows', () => {
 		main.create();
 		appWindow.emit('ready-to-show');
 
-		main.showTrayChildWindow();
-		main.showTrayChildWindow();
+		main.showTrayWindow();
+		main.showTrayWindow();
 
 		expect(create).toHaveBeenCalledTimes(2);
 		expect(trayWindow.show).toHaveBeenCalledTimes(2);
