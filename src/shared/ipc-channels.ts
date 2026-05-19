@@ -36,6 +36,14 @@ export const ProviderChannels = {
 	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
 } as const;
 
+export const RealtimeTranscriptionChannels = {
+	start: 'realtime-transcription:start',
+	appendAudio: 'realtime-transcription:append-audio',
+	finish: 'realtime-transcription:finish',
+	cancel: 'realtime-transcription:cancel',
+	event: 'realtime-transcription:event',
+} as const;
+
 export const AppChannels = {
 	setTheme: 'set-theme',
 	themeChanged: 'change-theme',
@@ -205,6 +213,18 @@ interface AppInvokeChannelMap {
 	[ProviderChannels.saveSpeechTranscriberService]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
+	};
+	[RealtimeTranscriptionChannels.start]: {
+		args: [request?: import('./realtime-transcription').RealtimeTranscriptionStartRequest];
+		result: import('./realtime-transcription').RealtimeTranscriptionSession;
+	};
+	[RealtimeTranscriptionChannels.finish]: {
+		args: [sessionId: string];
+		result: void;
+	};
+	[RealtimeTranscriptionChannels.cancel]: {
+		args: [sessionId: string];
+		result: void;
 	};
 }
 
@@ -466,10 +486,16 @@ export interface SendChannelMap {
 	[WindowChannels.close]: { args: [] };
 	[WindowChannels.popupMenu]: { args: [] };
 	[AppChannels.setTheme]: { args: [theme: import('./theme').ThemeMode] };
+	[RealtimeTranscriptionChannels.appendAudio]: {
+		args: [sessionId: string, audio: string];
+	};
 }
 
 interface AppEventChannelMap {
 	[AppChannels.themeChanged]: { data: import('./theme').ThemeMode };
+	[RealtimeTranscriptionChannels.event]: {
+		data: import('./realtime-transcription').RealtimeTranscriptionEvent;
+	};
 }
 
 interface AgentEventChannelMap {
