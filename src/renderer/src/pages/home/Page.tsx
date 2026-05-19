@@ -38,15 +38,18 @@ type PromptAttachment = {
 const promptSuggestions = [
 	{
 		label: 'Introduce yourself',
-		prompt: 'introduce yourself and tell me how you can help as my personal assistant',
+		prompt:
+			'Introduce yourself as Friday, my personal assistant. Keep it brief and specific: explain what you can help me do, how I should ask for help, and suggest three useful first tasks.',
 	},
 	{
 		label: 'Say hi',
-		prompt: 'say hi and help me get started',
+		prompt:
+			'Say hi and start a short onboarding conversation. Ask what I am working on today, then offer a few practical ways you can help me right now.',
 	},
 	{
-		label: 'Meet Friday',
-		prompt: 'show me what my personal assistant can do today',
+		label: 'Meet your assistant',
+		prompt:
+			'Give me a quick tour of Friday as my personal assistant. Summarize your main capabilities, explain the best way to work with you, and propose three starter prompts I can try.',
 	},
 ] as const;
 
