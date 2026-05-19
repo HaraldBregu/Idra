@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
+import { useState } from 'react';
 import { CheckCircle, ChevronDown, Loader2, Settings, XCircle } from 'lucide-react';
-
+import { Button } from '@/components/ui/button';
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -28,8 +28,11 @@ export type ToolProps = {
 	toolPart: ToolPart;
 	defaultOpen?: boolean;
 	className?: string;
-	collapsible?: boolean;
 };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
 
 function formatValue(value: unknown): string {
 	if (value === null) return 'null';
@@ -39,148 +42,160 @@ function formatValue(value: unknown): string {
 	return String(value);
 }
 
-function formatDuration(durationMs: number): string {
-	if (durationMs < 1000) return `${Math.max(0, Math.round(durationMs))}ms`;
-	return `${(durationMs / 1000).toFixed(1)}s`;
-}
-
-function stateMeta(state: ToolPart['state'], status?: ToolPart['status']): {
-	label: string;
-	icon: React.ReactNode;
-	className: string;
-} {
+function stateIcon(state: ToolPart['state']) {
 	switch (state) {
 		case 'input-streaming':
-			return {
-				label: 'Processing',
-				icon: <Loader2 className="size-3.5 animate-spin" />,
-				className: 'text-muted-foreground',
-			};
+			return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
 		case 'input-available':
-			return {
-				label: 'Ready',
-				icon: <Settings className="size-3.5" />,
-				className: 'text-info',
-			};
+			return <Settings className="h-4 w-4 text-orange-500" />;
 		case 'output-available':
-			return {
-				label: 'Done',
-				icon: <CheckCircle className="size-3.5" />,
-				className: 'text-success',
-			};
+			return <CheckCircle className="h-4 w-4 text-green-500" />;
 		case 'output-error':
-			return {
-				label: status === 'rejected' ? 'Denied' : 'Error',
-				icon: <XCircle className="size-3.5" />,
-				className: 'text-destructive',
-			};
+			return <XCircle className="h-4 w-4 text-red-500" />;
 	}
 }
 
-function ToolHeader({
-	toolPart,
-	isOpen,
-	showChevron,
-}: {
-	readonly toolPart: ToolPart;
-	readonly isOpen: boolean;
-	readonly showChevron: boolean;
-}) {
-	const meta = stateMeta(toolPart.state, toolPart.status);
-	const details = [
-		meta.label,
-		toolPart.iteration !== undefined ? `Iteration ${toolPart.iteration + 1}` : undefined,
-		toolPart.durationMs !== undefined ? formatDuration(toolPart.durationMs) : undefined,
-	].filter(Boolean);
+function StateBadge({ state }: { readonly state: ToolPart['state'] }) {
+	const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
 
-	return (
-		<>
-			<span className={cn('shrink-0 transition-colors', meta.className)}>{meta.icon}</span>
-			<span className="min-w-0 flex-1">
-				<span className="block truncate text-sm font-medium text-foreground">
-					{toolPart.type}
-				</span>
-				{details.length > 0 && (
-					<span className="block truncate text-[11px] text-muted-foreground">
-						{details.join(' · ')}
-					</span>
-				)}
-			</span>
-			{showChevron && (
-				<ChevronDown
+	switch (state) {
+		case 'input-streaming':
+			return (
+				<span
 					className={cn(
-						'size-3.5 shrink-0 text-muted-foreground transition-transform',
-						isOpen && 'rotate-180'
+						baseClasses,
+						'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
 					)}
-				/>
-			)}
-		</>
-	);
+				>
+					Processing
+				</span>
+			);
+		case 'input-available':
+			return (
+				<span
+					className={cn(
+						baseClasses,
+						'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+					)}
+				>
+					Ready
+				</span>
+			);
+		case 'output-available':
+			return (
+				<span
+					className={cn(
+						baseClasses,
+						'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+					)}
+				>
+					Completed
+				</span>
+			);
+		case 'output-error':
+			return (
+				<span
+					className={cn(
+						baseClasses,
+						'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+					)}
+				>
+					Error
+				</span>
+			);
+	}
 }
 
-function ToolDetails({ toolPart }: { readonly toolPart: ToolPart }) {
-	const input = toolPart.input ?? toolPart.inputText;
-	const output = toolPart.output ?? toolPart.outputText;
+function ToolInput({ input }: { readonly input: unknown }) {
+	if (!isRecord(input) || Object.keys(input).length === 0) return null;
 
 	return (
-		<div className="mt-2 flex flex-col gap-2 pl-5">
-			{input !== undefined && (
-				<section className="flex flex-col gap-1">
-					<h4 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-						Input
-					</h4>
-					<pre className="max-h-48 overflow-auto rounded-md bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-						{formatValue(input)}
-					</pre>
-				</section>
-			)}
-			{output !== undefined && (
-				<section className="flex flex-col gap-1">
-					<h4 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-						Output
-					</h4>
-					<pre className="max-h-48 overflow-auto rounded-md bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-						{formatValue(output)}
-					</pre>
-				</section>
-			)}
-			{toolPart.state === 'output-error' && toolPart.errorText && (
-				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
-					{toolPart.errorText}
-				</p>
-			)}
-			{toolPart.toolCallId && (
-				<p className="font-mono text-[11px] text-muted-foreground">
-					{toolPart.toolCallId}
-				</p>
-			)}
+		<div>
+			<h4 className="mb-2 text-sm font-medium text-muted-foreground">Input</h4>
+			<div className="rounded border bg-background p-2 font-mono text-sm">
+				{Object.entries(input).map(([key, value]) => (
+					<div key={key} className="mb-1">
+						<span className="text-muted-foreground">{key}:</span>{' '}
+						<span>{formatValue(value)}</span>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }
 
-function Tool({ toolPart, defaultOpen = false, className, collapsible = true }: ToolProps) {
-	const [isOpen, setIsOpen] = React.useState(defaultOpen);
-
-	if (!collapsible) {
-		return (
-			<div className={cn('w-full', className)}>
-				<div className="flex w-full items-center gap-2 text-left">
-					<ToolHeader toolPart={toolPart} isOpen={false} showChevron={false} />
-				</div>
-				<ToolDetails toolPart={toolPart} />
-			</div>
-		);
-	}
+function ToolOutput({ output }: { readonly output: unknown }) {
+	if (output === undefined) return null;
 
 	return (
-		<Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('w-full', className)}>
-			<CollapsibleTrigger className="group flex w-full items-center gap-2 text-left">
-				<ToolHeader toolPart={toolPart} isOpen={isOpen} showChevron />
-			</CollapsibleTrigger>
-			<CollapsibleContent>
-				<ToolDetails toolPart={toolPart} />
-			</CollapsibleContent>
-		</Collapsible>
+		<div>
+			<h4 className="mb-2 text-sm font-medium text-muted-foreground">Output</h4>
+			<div className="max-h-60 overflow-auto rounded border bg-background p-2 font-mono text-sm">
+				<pre className="whitespace-pre-wrap">{formatValue(output)}</pre>
+			</div>
+		</div>
+	);
+}
+
+function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
+	const [isOpen, setIsOpen] = useState(defaultOpen);
+	const { state, toolCallId } = toolPart;
+	const input = toolPart.input ?? (toolPart.inputText ? { raw: toolPart.inputText } : undefined);
+	const output = toolPart.output ?? toolPart.outputText;
+
+	return (
+		<div className={cn('mt-3 overflow-hidden rounded-lg border border-border', className)}>
+			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
+				<CollapsibleTrigger
+					render={
+						<Button
+							type="button"
+							variant="ghost"
+							className="h-auto w-full justify-between rounded-b-none bg-background px-3 py-2 font-normal"
+						>
+							<div className="flex min-w-0 items-center gap-2">
+								{stateIcon(state)}
+								<span className="truncate font-mono text-sm font-medium">
+									{toolPart.type}
+								</span>
+								<StateBadge state={state} />
+							</div>
+							<ChevronDown className={cn('h-4 w-4', isOpen && 'rotate-180')} />
+						</Button>
+					}
+				/>
+				<CollapsibleContent
+					className={cn(
+						'overflow-hidden border-t border-border',
+						'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down'
+					)}
+				>
+					<div className="space-y-3 bg-background p-3">
+						<ToolInput input={input} />
+						<ToolOutput output={output} />
+
+						{state === 'output-error' && toolPart.errorText && (
+							<div>
+								<h4 className="mb-2 text-sm font-medium text-red-500">Error</h4>
+								<div className="rounded border border-red-200 bg-background p-2 text-sm dark:border-red-950 dark:bg-red-900/20">
+									{toolPart.errorText}
+								</div>
+							</div>
+						)}
+
+						{state === 'input-streaming' && (
+							<div className="text-sm text-muted-foreground">Processing tool call...</div>
+						)}
+
+						{toolCallId && (
+							<div className="border-t border-blue-200 pt-2 text-xs text-muted-foreground">
+								<span className="font-mono">Call ID: {toolCallId}</span>
+							</div>
+						)}
+					</div>
+				</CollapsibleContent>
+			</Collapsible>
+		</div>
 	);
 }
 

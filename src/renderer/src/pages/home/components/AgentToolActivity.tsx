@@ -7,7 +7,7 @@ import type { AgentToolPart } from '../context';
 function ToolStep({ tool }: { readonly tool: AgentToolPart }): ReactElement {
 	return (
 		<StepsItem>
-			<Tool toolPart={tool} collapsible={false} className="min-w-0 flex-1" />
+			<Tool toolPart={tool} className="min-w-0 w-full max-w-md flex-1" />
 		</StepsItem>
 	);
 }
