@@ -65,6 +65,42 @@ describe('connectors service', () => {
 		await expect(service.add({ name: 'Bad', connectorId: 'connector_gmail', authorization: 'x', allowedTools: ['missing'] })).rejects.toThrow(/not available/);
 	});
 
+	it('validates connector add and update payloads before storing them', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
+
+		await expect(service.add(undefined)).rejects.toThrow(/Connector configuration is required/);
+		await expect(service.add({
+			name: 'Bad',
+			connectorId: 'connector_gmail',
+			allowedTools: ['get_profile', 42],
+		})).rejects.toThrow(/allowedTools must be an array of strings/);
+		await expect(service.add({
+			name: 'Bad',
+			connectorId: 'connector_gmail',
+			requireApproval: 'sometimes',
+		})).rejects.toThrow(/requireApproval must be one of/);
+
+		const added = await service.add({
+			name: '  My Gmail  ',
+			connectorId: 'connector_gmail',
+			authorization: ' token ',
+			allowedTools: [' get_profile ', 'get_profile', ''],
+		});
+
+		expect(connectors[0]).toMatchObject({
+			name: 'My Gmail',
+			authorization: 'token',
+			allowedTools: ['get_profile'],
+		});
+		await expect(service.update(added.id, undefined)).rejects.toThrow(/Connector update is required/);
+		await expect(service.update(added.id, { enabled: 'false' })).rejects.toThrow(/enabled must be a boolean/);
+	});
+
 	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
 		const url = new URL(buildGoogleAuthorizationUrl({
 			clientId: 'client-id',
