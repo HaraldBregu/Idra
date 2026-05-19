@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { MicrophonePermissionSettings } from '../../../../../../shared/app-permissions';
 
 export type AudioRecorderStatus = 'idle' | 'checking-permission' | 'recording' | 'stopping' | 'error';
-export type AudioRecorderPermissionState = 'unknown' | 'prompt' | 'granted' | 'denied' | 'unsupported';
+export type AudioRecorderPermissionState =
+	| 'unknown'
+	| 'prompt'
+	| 'granted'
+	| 'denied'
+	| 'disabled'
+	| 'unsupported';
 
 export type AudioRecording = {
 	readonly id: string;
@@ -65,6 +72,17 @@ async function queryMicrophonePermission(): Promise<AudioRecorderPermissionState
 		return normalizePermissionState(status.state);
 	} catch {
 		return 'unknown';
+	}
+}
+
+async function getAppMicrophonePermission(): Promise<MicrophonePermissionSettings | null> {
+	const appApi = (window as Window & { app?: Partial<Window['app']> }).app;
+	if (!appApi?.getMicrophonePermission) return null;
+
+	try {
+		return await appApi.getMicrophonePermission();
+	} catch {
+		return null;
 	}
 }
 
@@ -162,6 +180,20 @@ export function useAudioRecorder() {
 			const nextPermissionState = await queryMicrophonePermission();
 			setPermissionState(nextPermissionState);
 			if (nextPermissionState === 'denied') {
+				throw new Error('Microphone access is blocked. Allow microphone access and try again.');
+			}
+
+			const appPermission = await getAppMicrophonePermission();
+			if (appPermission && !appPermission.enabled) {
+				setPermissionState('disabled');
+				throw new Error('Microphone recording is disabled in Settings.');
+			}
+
+			if (
+				appPermission?.systemStatus === 'denied' ||
+				appPermission?.systemStatus === 'restricted'
+			) {
+				setPermissionState('denied');
 				throw new Error('Microphone access is blocked. Allow microphone access and try again.');
 			}
 
