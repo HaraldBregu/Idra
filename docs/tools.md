@@ -14,6 +14,42 @@ The agent first evaluates the user message with a tool-use policy.
 
 When tools are needed, the default candidate set is the full local tool registry plus enabled, configured connector tools. The default local set excludes `startup_files`; bootstrap mode only exposes `startup_files` if the active tool factory supplied it. Heartbeat runs can add `heartbeat_respond`. Skill-backed runs can add the skill execution tool and any tools required by the selected skills.
 
+## Current Tool Surface
+
+These are the named tools the runtime can expose when they are present in the active candidate set and pass the turn's policy, ranking, and context filters.
+
+| Tool | How it is used |
+| --- | --- |
+| `read` | Reads file content and records read state so later file edits or overwrites can satisfy the read-before-write rule. |
+| `write` | Creates or overwrites files after the tool-selection layer keeps `read` available as a prerequisite when possible. |
+| `edit` | Applies a surgical string replacement to a file after the file has been read. |
+| `apply_patch` | Applies patch-style file changes after the relevant file state has been read. |
+| `delete` | Deletes files after prior read state and path safety checks. |
+| `copy` | Copies files; overwriting an existing destination depends on prior destination read state. |
+| `move` | Moves or renames files after source, and any overwritten destination, have prior read state. |
+| `inspect_file` | Inspects file metadata or binary/file previews and records read state. |
+| `find` | Searches the workspace for matching files while respecting workspace path policy. |
+| `exec` | Runs shell commands for build, test, script, and terminal tasks with capped output, timeout, and loop controls. |
+| `process` | Inspects or stops background processes that were started through `exec`. |
+| `startup_files` | Manages allowlisted agent startup files during bootstrap-oriented runs; it is denied by the default local tool set. |
+| `web_fetch` | Fetches HTTP or HTTPS content when the request needs current external documentation or web data. |
+| `cron` | Schedules, lists, updates, removes, manually runs, or wakes Gateway-owned scheduled jobs; mutating actions are approval-marked but do not pause the active agent path. |
+| `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
+| `browser` | Controls the managed browser for navigation, snapshots, screenshots, and element interaction. |
+| `cron_add` | Schedules a recurring cron-expression job when this explicit helper is imported into the active tool set. |
+| `cron_list` | Lists scheduled cron jobs when this explicit helper is imported into the active tool set. |
+| `cron_remove` | Removes a scheduled cron job when this explicit helper is imported into the active tool set. |
+| `heartbeat_respond` | Records the structured result of a heartbeat run when heartbeat tooling is enabled for that run. |
+| `execute_skill` | Runs a selected local skill workflow and is added only when skill discovery selects relevant skills. |
+| `tool_search` | Searches hidden catalog tools when tool-search compaction is enabled for a large tool surface. |
+| `tool_describe` | Returns schema and metadata for a hidden catalog tool when tool-search compaction is enabled. |
+| `tool_call` | Executes a hidden catalog tool through the same wrapped execution path when tool-search compaction is enabled. |
+| Connector tools | Enabled, configured connectors expose account-specific tools under connector-prefixed names; Gmail, Google Calendar, and Google Drive requests are selected from the connector tool descriptions and routed through the connector service. |
+| Plugin tools | Plugin-provided tools are resolved from active plugin registrations, filtered by policy, and rejected if they conflict with existing names or are not declared by the plugin. |
+| MCP tools | MCP tools are materialized from connected MCP runtimes with safe generated names and then ranked like other tools. |
+| LSP tools | LSP hover, definition, and references tools are materialized only when an LSP runtime is supplied. |
+| Client tools | Client-hosted tools can be exposed as selected tools, but execution is delegated to the client and returned as pending. |
+
 The runtime then narrows the candidate list for the specific turn. In the default service path this narrowing is forced and capped at 8 prompt tools.
 
 - Tool inventory questions skip narrowing and expose all available tools.
