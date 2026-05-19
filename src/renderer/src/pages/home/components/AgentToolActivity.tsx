@@ -21,11 +21,7 @@ export function AgentToolActivity({
 	readonly defaultOpen?: boolean;
 }): ReactElement | null {
 	if (tools.length === 0) return null;
-	const hasRunning = tools.some(
-		(tool) => tool.state === 'input-streaming' || tool.state === 'input-available'
-	);
-	const hasError = tools.some((tool) => tool.state === 'output-error');
-	const fallbackLabel = tools.length === 1 ? tools[0]?.type : 'Tools used';
+	const fallbackLabel = tools.length === 1 ? tools[0]?.type ?? 'Tool used' : 'Tools used';
 	const triggerIcon =
 		indicator === undefined ? <ListChecks className="size-3.5 shrink-0" /> : indicator;
 
