@@ -86,7 +86,7 @@ const AgentDetailsPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		if (!isFridayAgent) {
+		if (!isFridayAgent && !isSpeechTranscriberAgent) {
 			setLoading(false);
 			return () => {
 				mounted = false;
@@ -97,25 +97,36 @@ const AgentDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 
-		void Promise.all([window.app.getProviders(), window.app.getAgentService()])
-			.then(([nextProviders, nextAgent]) => {
-				if (!mounted) return;
-				const mergedProviders = mergeProviders(nextProviders, nextAgent);
-				const preferredProvider =
-					mergedProviders.find((provider) => provider.id === nextAgent?.provider.id) ??
-					mergedProviders[0];
+		const serviceRequest = isSpeechTranscriberAgent
+			? window.app.getSpeechTranscriberService()
+			: window.app.getAgentService();
 
-				setProviders(mergedProviders);
-				setCurrentAgent(nextAgent);
+		void Promise.all([window.app.getProviders(), serviceRequest])
+			.then(([nextProviders, nextService]) => {
+				if (!mounted) return;
+				const mergedProviders = mergeProviders(nextProviders, nextService);
+				const availableProviders = isSpeechTranscriberAgent
+					? mergedProviders.filter((provider) => isOpenAiProvider(provider.id))
+					: mergedProviders;
+				const preferredProvider = isSpeechTranscriberAgent
+					? availableProviders.find((provider) => provider.id === nextService?.provider.id) ??
+						availableProviders.find((provider) => provider.id === SPEECH_TRANSCRIBER_PROVIDER_ID) ??
+						availableProviders[0]
+					: availableProviders.find((provider) => provider.id === nextService?.provider.id) ??
+						availableProviders[0];
+
+				setProviders(availableProviders);
+				setCurrentAgent(isFridayAgent ? nextService : undefined);
+				setCurrentSpeechTranscriber(isSpeechTranscriberAgent ? nextService : undefined);
 				setProviderId(preferredProvider?.id ?? '');
 				setModelId(
-					nextAgent && preferredProvider?.id === nextAgent.provider.id
-						? nextAgent.model.id
-						: ''
+					nextService && preferredProvider?.id === nextService.provider.id
+						? nextService.model.id
+						: isSpeechTranscriberAgent ? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? '' : ''
 				);
 				setEffort(
-					nextAgent && preferredProvider?.id === nextAgent.provider.id
-						? normalizeEffort(nextAgent.model.effort)
+					nextService && preferredProvider?.id === nextService.provider.id && isFridayAgent
+						? normalizeEffort(nextService.model.effort)
 						: DEFAULT_MODEL_REASONING_EFFORT
 				);
 			})
@@ -123,6 +134,7 @@ const AgentDetailsPage: React.FC = () => {
 				if (!mounted) return;
 				setProviders([]);
 				setCurrentAgent(undefined);
+				setCurrentSpeechTranscriber(undefined);
 				setProviderId('');
 				setModelId('');
 				setEffort(DEFAULT_MODEL_REASONING_EFFORT);
@@ -135,7 +147,7 @@ const AgentDetailsPage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [isFridayAgent, t]);
+	}, [isFridayAgent, isSpeechTranscriberAgent, t]);
 
 	const selectedProvider = providers.find((provider) => provider.id === providerId);
 
