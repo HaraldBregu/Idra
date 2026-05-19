@@ -117,6 +117,8 @@ const AgentDetailsPage: React.FC = () => {
 
 		if (!isServiceBackedAgent) {
 			setLoading(false);
+			setErrorMessage('');
+			setSuccessMessage('');
 			return () => {
 				mounted = false;
 			};
