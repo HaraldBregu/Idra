@@ -356,6 +356,67 @@ const GeneralPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
+			<SettingsSection
+				title={t('settings.microphone.title')}
+				description={t('settings.microphone.description')}
+			>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<Mic className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle>{t('settings.microphone.recording')}</ItemTitle>
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+								{t('settings.microphone.recordingDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Switch
+								checked={microphonePermission.enabled}
+								disabled={microphoneLoading}
+								onCheckedChange={handleMicrophoneToggle}
+								aria-label={t('settings.microphone.recording')}
+							/>
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<ShieldCheck className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle>{t('settings.microphone.systemPermission')}</ItemTitle>
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+								{microphoneError || t('settings.microphone.systemPermissionDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end gap-2">
+							<span className="rounded-md border border-border/60 bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground">
+								{t(microphoneStatusKey(microphonePermission.systemStatus))}
+							</span>
+							<Button
+								variant="outline"
+								size="xs"
+								onClick={() => void handleMicrophoneAction()}
+								disabled={microphoneLoading}
+							>
+								{t(microphoneActionKey(microphonePermission))}
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								onClick={() => void refreshMicrophonePermission()}
+								disabled={microphoneLoading}
+								aria-label={t('settings.microphone.actions.refresh')}
+								title={t('settings.microphone.actions.refresh')}
+							>
+								<RefreshCw className="size-3" />
+							</Button>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
 			<SettingsSection title={t('settings.application.actions')}>
 				<Card size="sm" className="gap-0! p-0!">
 					<Item variant="outline" size="md" className="border-b border-border/60">
