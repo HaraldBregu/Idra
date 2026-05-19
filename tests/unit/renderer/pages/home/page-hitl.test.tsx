@@ -7,6 +7,7 @@ const mockSubmitMultiSelect = jest.fn();
 const mockUseRealtimeDictation = jest.fn();
 const mockUseHomeAgent = jest.fn();
 const mockSetMode = jest.fn();
+const mockUseChatMode = jest.fn();
 
 jest.mock('motion/react', () => ({
 	AnimatePresence: ({ children }: React.PropsWithChildren) => <>{children}</>,
@@ -21,12 +22,16 @@ jest.mock('motion/react', () => ({
 }));
 
 jest.mock('lucide-react', () => ({
+	AlertCircle: () => <span data-testid="alert-circle" />,
 	ArrowUp: () => <span data-testid="arrow-up" />,
 	AudioLines: () => <span data-testid="audio-lines" />,
+	FileAudio: () => <span data-testid="file-audio" />,
 	Mic: () => <span data-testid="mic" />,
+	Paperclip: () => <span data-testid="paperclip" />,
 	Plus: () => <span data-testid="plus" />,
 	RotateCcw: () => <span data-testid="rotate" />,
 	Square: () => <span data-testid="square" />,
+	X: () => <span data-testid="x" />,
 }));
 
 jest.mock('@/components/app/base/page', () => ({
@@ -52,9 +57,26 @@ jest.mock('@/components/ui/prompt-input', () => ({
 		children,
 		actions,
 		voiceMode,
-	}: React.PropsWithChildren<{ actions?: React.ReactNode; voiceMode?: string | null }>) => (
+		onVoiceCancel,
+		onVoiceConfirm,
+	}: React.PropsWithChildren<{
+		actions?: React.ReactNode;
+		onVoiceCancel?: () => void;
+		onVoiceConfirm?: () => void;
+		voiceMode?: string | null;
+	}>) => (
 		<div data-testid="prompt-input" data-voice-mode={voiceMode ?? ''}>
 			{children}
+			{voiceMode === 'dictation' ? (
+				<>
+					<button type="button" onClick={onVoiceCancel}>
+						Cancel dictation
+					</button>
+					<button type="button" onClick={onVoiceConfirm}>
+						Confirm dictation
+					</button>
+				</>
+			) : null}
 			{actions}
 		</div>
 	),
@@ -70,7 +92,7 @@ jest.mock('@/components/ui/scroll-button', () => ({
 }));
 
 jest.mock('@/contexts/chat-mode', () => ({
-	useChatMode: () => ({ setMode: mockSetMode }),
+	useChatMode: () => mockUseChatMode(),
 }));
 
 jest.mock('@/lib/utils', () => ({
