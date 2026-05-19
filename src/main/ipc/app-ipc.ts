@@ -21,6 +21,8 @@ import { normalizeExternalUrl } from '../../shared/external-links';
 import {
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
+} from '../../shared/provider-models';
+import {
 	isAllowedAgentModel,
 } from '../provider/model-policy';
 

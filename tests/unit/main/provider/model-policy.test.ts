@@ -1,10 +1,12 @@
 import {
-	DEFAULT_AGENT_MODELS_BY_PROVIDER,
 	filterSelectableAgentModels,
-	getDefaultAgentModels,
-	hasDefaultAgentModels,
 	isAllowedAgentModel,
 } from '../../../../src/main/provider/model-policy';
+import {
+	DEFAULT_AGENT_MODELS_BY_PROVIDER,
+	getDefaultAgentModels,
+	hasDefaultAgentModels,
+} from '../../../../src/shared/provider-models';
 import type { Model } from '../../../../src/shared/service';
 
 describe('provider model policy', () => {
