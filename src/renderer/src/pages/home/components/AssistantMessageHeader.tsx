@@ -9,7 +9,7 @@ export function AssistantMessageHeader({
 }): ReactElement {
 	return (
 		<div className={cn('flex min-w-0 items-center gap-2', className)}>
-			<GradientSphere size={32} mode="css" />
+			<GradientSphere size={24} mode="css" />
 			<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
 				Friday
 			</span>
