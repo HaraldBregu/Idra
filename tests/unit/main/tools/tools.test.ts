@@ -370,7 +370,7 @@ describe('tools/app, cron, and startup', () => {
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
 	});
 
-	it('manages allowlisted agent startup files through the isolated startup tool', async () => {
+	it('manages allowlisted workspace startup files through the startup tool', async () => {
 		const root = await makeTempDir();
 		const services = {
 			...makeToolContext().services,
