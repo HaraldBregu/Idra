@@ -399,6 +399,8 @@ const AgentDetailsPage: React.FC = () => {
 		: 'image-provider-coming-soon';
 	const readOnlyModel =
 		isTextToSpeechAgent ? TEXT_TO_SPEECH_MODELS[0] : IMAGE_ASSISTANT_MODELS[0];
+	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
+	const readOnlyModelName = readOnlyModel?.name ?? t('settings.agents.modelUnavailable');
 
 	if (loading) {
 		return (
