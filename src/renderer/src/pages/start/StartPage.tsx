@@ -400,16 +400,6 @@ const StartPage: React.FC = () => {
 	const [savedModelId, setSavedModelId] = useState('');
 	const [agentModelGroups, setAgentModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
-	const [connectorCatalog, setConnectorCatalog] = useState<ConnectorCatalog>([]);
-	const [configuredConnectors, setConfiguredConnectors] = useState<ConnectorView[]>([]);
-	const [connectorDrafts, setConnectorDrafts] = useState<Record<string, string>>({});
-	const [editingConnectorGroupId, setEditingConnectorGroupId] = useState<string | null>(
-		null
-	);
-	const [loadingConnectors, setLoadingConnectors] = useState(false);
-	const [savingConnectorGroupId, setSavingConnectorGroupId] = useState<string | null>(
-		null
-	);
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
 	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
@@ -463,26 +453,6 @@ const StartPage: React.FC = () => {
 					.map((entry) => entry.providerId)
 			),
 		[providerEntries]
-	);
-	const connectorCatalogById = useMemo(
-		() => new Map(connectorCatalog.map((connector) => [connector.id, connector])),
-		[connectorCatalog]
-	);
-	const configuredConnectorByCatalogId = useMemo(
-		() =>
-			new Map(
-				configuredConnectors.map((connector) => [connector.connectorId, connector])
-			),
-		[configuredConnectors]
-	);
-	const connectedConnectorIds = useMemo(
-		() =>
-			new Set(
-				configuredConnectors
-					.filter((connector) => connector.status === 'configured')
-					.map((connector) => connector.connectorId)
-			),
-		[configuredConnectors]
 	);
 
 	useEffect(() => {
@@ -642,41 +612,6 @@ const StartPage: React.FC = () => {
 			cancelled = true;
 		};
 	}, [providers, savedModelId, step]);
-
-	useEffect(() => {
-		if (step !== 'connectors') return;
-
-		let cancelled = false;
-
-		async function loadConnectors(): Promise<void> {
-			setLoadingConnectors(true);
-			setErrorMessage('');
-			try {
-				const [catalog, connectors] = await Promise.all([
-					window.connectors.catalog(),
-					window.connectors.list(),
-				]);
-				if (cancelled) return;
-
-				setConnectorCatalog(catalog);
-				setConfiguredConnectors(connectors);
-			} catch (error) {
-				if (cancelled) return;
-
-				setErrorMessage(getErrorMessage(error, 'Could not load connectors.'));
-			} finally {
-				if (!cancelled) {
-					setLoadingConnectors(false);
-				}
-			}
-		}
-
-		void loadConnectors();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [step]);
 
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
