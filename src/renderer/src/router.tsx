@@ -120,9 +120,9 @@ const routes: RouteObject[] = [
 					{
 						index: true,
 						element: (
-							<RouteWrapper>
+							<SettingsRouteWrapper>
 								<SettingsOverviewPage />
-							</RouteWrapper>
+							</SettingsRouteWrapper>
 						),
 					},
 					{
@@ -131,17 +131,17 @@ const routes: RouteObject[] = [
 							{
 								index: true,
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<GeneralPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 							{
 								path: 'agentdetails/:agentId',
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<AgentDetailsPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 						],
@@ -152,17 +152,17 @@ const routes: RouteObject[] = [
 							{
 								index: true,
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<ChannelsPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 							{
 								path: 'channelDetail/:channelId',
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<ChannelDetailPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 						],
@@ -173,17 +173,17 @@ const routes: RouteObject[] = [
 							{
 								index: true,
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<ConnectorsPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 							{
 								path: 'connectordetails/:connectorId',
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<ConnectorDetailsPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 						],
@@ -191,17 +191,17 @@ const routes: RouteObject[] = [
 					{
 						path: 'skills',
 						element: (
-							<RouteWrapper>
+							<SettingsRouteWrapper>
 								<SkillsPage />
-							</RouteWrapper>
+							</SettingsRouteWrapper>
 						),
 					},
 					{
 						path: 'providers',
 						element: (
-							<RouteWrapper>
+							<SettingsRouteWrapper>
 								<ProvidersPage />
-							</RouteWrapper>
+							</SettingsRouteWrapper>
 						),
 					},
 					{
@@ -210,17 +210,17 @@ const routes: RouteObject[] = [
 							{
 								index: true,
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<CronPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 							{
 								path: 'crondetails/:jobId',
 								element: (
-									<RouteWrapper>
+									<SettingsRouteWrapper>
 										<CronDetailsPage />
-									</RouteWrapper>
+									</SettingsRouteWrapper>
 								),
 							},
 						],
@@ -228,17 +228,17 @@ const routes: RouteObject[] = [
 					{
 						path: 'heartbeat',
 						element: (
-							<RouteWrapper>
+							<SettingsRouteWrapper>
 								<HeartbeatPage />
-							</RouteWrapper>
+							</SettingsRouteWrapper>
 						),
 					},
 					{
 						path: 'apps',
 						element: (
-							<RouteWrapper>
+							<SettingsRouteWrapper>
 								<AppsPage />
-							</RouteWrapper>
+							</SettingsRouteWrapper>
 						),
 					},
 					{
