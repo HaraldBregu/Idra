@@ -310,7 +310,7 @@ export class AgentService {
 					isPrimaryRun &&
 					!baseTools.some((tool) => tool.name === startupFilesTool.name)
 				) {
-					baseTools = [...baseTools, startupFilesTool];
+					baseTools = [...baseTools, startupFilesTool as AgentTool];
 				}
 
 				if (!bootstrapPending && this.dependencies.skills) {
