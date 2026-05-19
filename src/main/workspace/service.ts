@@ -163,6 +163,10 @@ export class WorkspaceService {
 		let files = await Promise.all(
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(this.rootPath, name))
 		);
+		const state = await this.readSetupState();
+		if (state.setupCompletedAt) {
+			files = files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
+		}
 		files = files.filter((file) => file.name !== DEFAULT_MEMORY_FILENAME || !file.missing);
 		for (const hook of this.contextHooks) {
 			files = await hook({ workspaceRoot: this.rootPath, files });
