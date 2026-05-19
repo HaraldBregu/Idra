@@ -181,7 +181,7 @@ describe('Main windows', () => {
 		expect(main.isVisible()).toBe(false);
 	});
 
-	it('reuses the existing tray child window while it is open', () => {
+	it('reuses the existing tray window while it is open', () => {
 		const appWindow = createMockWindow(1);
 		const trayWindow = createMockWindow(2);
 		const { main, create } = createMain([appWindow, trayWindow]);
@@ -205,7 +205,6 @@ describe('Main windows', () => {
 		expect(create).toHaveBeenCalledWith(expect.objectContaining({
 			width: 440,
 			height: 600,
-			show: false,
 		}), { hash: 'home' });
 		expect(appWindow.webContents.send).not.toHaveBeenCalledWith(
 			AppChannels.trayChatMessage,
