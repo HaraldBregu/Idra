@@ -22,7 +22,7 @@ Use this skill when the user needs a short, source-grounded brief rather than a 
 3. Extract facts, claims, dates, figures, and uncertainties.
 4. Separate direct evidence from inference.
 5. Write a compact brief with an executive summary, key findings, risks, and next steps.
-6. If the user asks to save the brief, write the final Markdown brief to the requested file path.
+6. If the user asks for a saved file, analysis document, or output path, complete the analysis first, then write a standalone Markdown brief to the requested file path.
 
 Use `references/brief-outline.md` when the user asks for a full decision memo or market scan.
 Use `assets/brief-template.md` when the user asks for a reusable Markdown template.
@@ -30,7 +30,8 @@ Use `assets/brief-template.md` when the user asks for a reusable Markdown templa
 ## File Output
 
 - Default to replying in chat unless the user asks for a file or provides an output path.
-- When saving, use the available `write` tool and write Markdown using the same brief structure requested for the chat response.
+- When saving, use the available `write` tool to create a Markdown analysis document after the source analysis is complete.
+- The saved Markdown document must include: title, executive summary, key findings, risks or unknowns, and next steps.
 - If the destination file already exists, read it before overwriting.
 - After writing, reply with the saved path and a short summary of what was included.
 
