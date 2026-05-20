@@ -2,21 +2,26 @@ import React, { type HTMLAttributes, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ItemProps extends HTMLAttributes<HTMLDivElement> {
+interface ItemProps extends HTMLAttributes<HTMLElement> {
 	readonly children: ReactNode;
 	readonly variant?: 'outline' | 'ghost';
 	readonly size?: 'sm' | 'md';
+	readonly as?: 'div' | 'button';
+	readonly type?: 'button' | 'submit' | 'reset';
 }
 
 function Item({
+	as = 'div',
 	children,
 	variant = 'outline',
 	size = 'sm',
 	className,
 	...props
 }: ItemProps): React.JSX.Element {
+	const Component = as;
+
 	return (
-		<div
+		<Component
 			{...props}
 			data-slot="item"
 			data-variant={variant}
@@ -30,7 +35,7 @@ function Item({
 			)}
 		>
 			{children}
-		</div>
+		</Component>
 	);
 }
 
