@@ -3,18 +3,8 @@ import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
-	AppWindow,
-	Bot,
-	BotMessageSquare,
-	CalendarClock,
 	Home,
-	Info,
-	KeyRound,
-	Plug,
-	Search,
-	Server,
 	Settings,
-	Sparkles,
 	type LucideIcon,
 } from 'lucide-react';
 import {
@@ -26,7 +16,7 @@ import {
 	CommandList,
 	CommandShortcut,
 } from '@/components/ui/command';
-import { SETTINGS_DETAIL_ITEMS, SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
+import { SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
 
 interface AppRouteItem {
 	readonly id: string;
@@ -63,14 +53,6 @@ const TOP_LEVEL_ROUTES: readonly StaticRouteDefinition[] = [
 		keywords: 'chat agent ai assistant friday',
 	},
 	{
-		id: 'route-start',
-		label: 'Set up Friday',
-		description: 'Connect provider tokens',
-		icon: KeyRound,
-		path: '/start',
-		keywords: 'setup onboarding providers api token config first time',
-	},
-	{
 		id: 'route-settings',
 		label: 'Settings',
 		description: 'Configure Friday',
@@ -79,17 +61,6 @@ const TOP_LEVEL_ROUTES: readonly StaticRouteDefinition[] = [
 		keywords: 'preferences configuration settings',
 	},
 ] as const;
-
-const SETTINGS_ROUTE_ICONS = {
-	'/settings/general': Info,
-	'/settings/providers': Server,
-	'/settings/agents': Bot,
-	'/settings/skills': Sparkles,
-	'/settings/connectors': Plug,
-	'/settings/channels': BotMessageSquare,
-	'/settings/cron': CalendarClock,
-	'/settings/apps': AppWindow,
-} as const satisfies Partial<Record<string, LucideIcon>>;
 
 function toKeywords(...values: Array<string | undefined>): string[] {
 	const seen = new Set<string>();
@@ -117,7 +88,7 @@ function createCommandItem({
 }: Omit<AppRouteItem, 'searchValue' | 'keywords'> & {
 	readonly keywords?: string;
 }): AppRouteItem {
-	const keywordList = toKeywords(id, label, description, group, path, keywords);
+	const keywordList = toKeywords(label, description, keywords);
 
 	return {
 		id,
@@ -127,14 +98,13 @@ function createCommandItem({
 		icon,
 		path,
 		keywords: keywordList,
-		searchValue: [id, label, description, group, path, keywords].filter(Boolean).join(' '),
+		searchValue: [label, description, keywords].filter(Boolean).join(' '),
 	};
 }
 
 function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 	const routesHeading = t('command.groups.routes', 'Routes');
 	const settingsRoutesHeading = t('command.groups.settingsRoutes', 'Settings routes');
-	const settingsItemsHeading = t('command.groups.settingsItems', 'Settings items');
 
 	const routes = TOP_LEVEL_ROUTES.map((route) =>
 		createCommandItem({
@@ -151,26 +121,12 @@ function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 			group: settingsRoutesHeading,
 			icon: item.icon,
 			path: item.path,
-			keywords: item.path,
-		})
-	);
-
-	const settingsItems = SETTINGS_DETAIL_ITEMS.map((item, index) =>
-		createCommandItem({
-			id: `settings-item-${index}-${item.path}`,
-			label: t(item.labelKey),
-			description: item.descriptionKey ? t(item.descriptionKey) : undefined,
-			group: settingsItemsHeading,
-			icon: SETTINGS_ROUTE_ICONS[item.path as keyof typeof SETTINGS_ROUTE_ICONS] ?? Search,
-			path: item.path,
-			keywords: item.keywords,
 		})
 	);
 
 	return [
 		{ heading: routesHeading, items: routes },
 		{ heading: settingsRoutesHeading, items: settingsRoutes },
-		{ heading: settingsItemsHeading, items: settingsItems },
 	];
 }
 
