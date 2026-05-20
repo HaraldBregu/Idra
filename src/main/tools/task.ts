@@ -60,7 +60,7 @@ function taskRecordResult(task: TaskRecord): AgentToolResult<TaskRecord> {
 	};
 }
 
-export const taskTool: AgentTool<TaskToolArgs, TaskRecord> = {
+export const taskTool: AgentTool<TaskToolArgs> = {
 	name: 'task',
 	displaySummary: 'Start an immediate background task.',
 	description:
