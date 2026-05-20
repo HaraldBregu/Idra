@@ -58,14 +58,19 @@ function compactHomePath(filePath: string): string {
 }
 
 function formatSkillsForPrompt(skills: SkillPromptChoice[]): string {
+	const hasExecutableSkills = skills.some((skill) => !skill.path);
 	const lines = [
-		'## Skill guidance',
+		'## Skills',
 		'The following skills provide specialized instructions for specific tasks.',
-		'Use `execute_skill` to load a skill when the task matches its description.',
+		'Scan <available_skills>. If one clearly applies and has a <location>, read its SKILL.md at the exact <location> with `read`, then follow it.',
+		'If several apply, choose the most specific. If none clearly apply, read none.',
+		'Use at most one skill up front. Never guess or fabricate skill paths.',
 		'When a skill references a relative path, resolve it against the skill directory shown by its location.',
-		'',
-		'<available_skills>',
 	];
+	if (hasExecutableSkills) {
+		lines.push('For entries without <location>, use `execute_skill` only when that tool is available.');
+	}
+	lines.push('', '<available_skills>');
 	for (const skill of skills) {
 		lines.push('  <skill>');
 		lines.push(`    <id>${escapeXml(`${skill.id}@${skill.version}`)}</id>`);
