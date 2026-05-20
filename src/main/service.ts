@@ -412,16 +412,25 @@ export class AgentService {
 							selectedNames.add(tool.name);
 						}
 					}
+					if (skillChoices.some((skill) => skill.path) && !selectedNames.has('read')) {
+						const readTool = baseTools.find((tool) => tool.name === 'read');
+						if (readTool) {
+							selectedTools.push(readTool);
+							selectedNames.add(readTool.name);
+						}
+					}
 					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
-					selectedTools.push(
-						this.dependencies.skills.createExecutionTool({
-							userId: agentId,
-							sessionId: runtime.session.id,
-							tools: selectedTools,
-							connectors: [],
-							signal: abort.signal,
-						})
-					);
+					if (skillChoices.some((skill) => !skill.path)) {
+						selectedTools.push(
+							this.dependencies.skills.createExecutionTool({
+								userId: agentId,
+								sessionId: runtime.session.id,
+								tools: selectedTools,
+								connectors: [],
+								signal: abort.signal,
+							})
+						);
+					}
 				}
 			}
 			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
