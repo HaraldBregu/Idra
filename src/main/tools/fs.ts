@@ -3,7 +3,7 @@ import { constants as fsConstants, promises as fs } from 'node:fs';
 import type { Stats } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { AgentTool, AgentToolResult } from './types';
+import type { AgentTool, AgentToolResult, ToolContext } from './types';
 import { textResult } from './types';
 import { TOOL_LIMITS } from './limits';
 
@@ -26,6 +26,17 @@ function resolveAbs(workspace: string, target: string, workspaceOnly = false): s
 		throw new Error('Path is outside the workspace.');
 	}
 	return resolved;
+}
+
+function readWorkspaceOnly(ctx: ToolContext): boolean {
+	return ctx.fsPolicy?.workspaceOnly === true;
+}
+
+function writeWorkspaceOnly(ctx: ToolContext, defaultWhenUnset = false): boolean {
+	if (ctx.fsPolicy?.workspaceOnly === true) return true;
+	if (ctx.fsPolicy?.writeWorkspaceOnly !== undefined) return ctx.fsPolicy.writeWorkspaceOnly;
+	if (ctx.fsPolicy?.workspaceOnly === false) return false;
+	return defaultWhenUnset;
 }
 
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
@@ -80,7 +91,7 @@ export const readTool: AgentTool<ReadArgs> = {
 	},
 	async execute(args, ctx) {
 		try {
-			const abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+				const abs = resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx));
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
 			const raw = await fs.readFile(abs, 'utf8');
@@ -128,7 +139,7 @@ export const writeTool: AgentTool<WriteArgs> = {
 			return textResult('write: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+				abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
 		} catch (err) {
 			return textResult(`write: ${(err as Error).message}`, true);
 		}
@@ -196,7 +207,7 @@ export const editTool: AgentTool<EditArgs> = {
 			return textResult('edit: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+				abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
 		} catch (err) {
 			return textResult(`edit: ${(err as Error).message}`, true);
 		}
@@ -273,7 +284,7 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 			if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
 			const changed: string[] = [];
 			for (const patch of patches) {
-				const abs = resolveAbs(ctx.workspace, patch.path, ctx.fsPolicy?.workspaceOnly !== false);
+					const abs = resolveAbs(ctx.workspace, patch.path, writeWorkspaceOnly(ctx, true));
 				const stat = await fs.stat(abs);
 				const last = ctx.readState.get(abs);
 				if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
@@ -391,7 +402,7 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 			return textResult('delete: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+				abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
 		} catch (err) {
 			return textResult(`delete: ${(err as Error).message}`, true);
 		}
@@ -444,12 +455,12 @@ export const copyTool: AgentTool<CopyArgs> = {
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
-			sourceAbs = resolveAbs(ctx.workspace, args.source, ctx.fsPolicy?.workspaceOnly === true);
-			destinationAbs = resolveAbs(
-				ctx.workspace,
-				args.destination,
-				ctx.fsPolicy?.workspaceOnly === true
-			);
+				sourceAbs = resolveAbs(ctx.workspace, args.source, readWorkspaceOnly(ctx));
+				destinationAbs = resolveAbs(
+					ctx.workspace,
+					args.destination,
+					writeWorkspaceOnly(ctx)
+				);
 		} catch (err) {
 			return textResult(`copy: ${(err as Error).message}`, true);
 		}
@@ -512,12 +523,12 @@ export const moveTool: AgentTool<MoveArgs> = {
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
-			sourceAbs = resolveAbs(ctx.workspace, args.source, ctx.fsPolicy?.workspaceOnly === true);
-			destinationAbs = resolveAbs(
-				ctx.workspace,
-				args.destination,
-				ctx.fsPolicy?.workspaceOnly === true
-			);
+				sourceAbs = resolveAbs(ctx.workspace, args.source, writeWorkspaceOnly(ctx));
+				destinationAbs = resolveAbs(
+					ctx.workspace,
+					args.destination,
+					writeWorkspaceOnly(ctx)
+				);
 		} catch (err) {
 			return textResult(`move: ${(err as Error).message}`, true);
 		}
@@ -598,7 +609,7 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 	async execute(args, ctx) {
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true);
+				abs = resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx));
 		} catch (err) {
 			return textResult(`inspect_file: ${(err as Error).message}`, true);
 		}
@@ -822,9 +833,9 @@ export const findTool: AgentTool<FindArgs> = {
 				? Math.min(Math.floor(args.limit), TOOL_LIMITS.find.maxLimit)
 				: DEFAULT_FIND_LIMIT;
 		try {
-			const dir = args.path
-				? resolveAbs(ctx.workspace, args.path, ctx.fsPolicy?.workspaceOnly === true)
-				: ctx.workspace;
+				const dir = args.path
+					? resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx))
+					: ctx.workspace;
 			const stat = await fs.stat(dir).catch(() => null);
 			if (!stat || !stat.isDirectory()) return textResult(`find: not a directory: ${dir}`, true);
 			const results: string[] = [];
