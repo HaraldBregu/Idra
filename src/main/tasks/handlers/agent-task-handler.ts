@@ -12,6 +12,7 @@ export interface AgentTaskInput {
 	message: string;
 	agentId?: string;
 	sessionId?: string;
+	providerId?: string;
 	model?: string;
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
@@ -81,6 +82,7 @@ export class AgentTaskHandler implements TaskHandler<AgentTaskInput, AgentTaskRe
 			message,
 			agentId: optionalString(input, 'agentId'),
 			sessionId: optionalString(input, 'sessionId'),
+			providerId: optionalString(input, 'providerId'),
 			model: optionalString(input, 'model'),
 			effort: effort as ModelReasoningEffort | undefined,
 			lightContext: optionalBoolean(input, 'lightContext'),
@@ -95,6 +97,7 @@ export class AgentTaskHandler implements TaskHandler<AgentTaskInput, AgentTaskRe
 		const agentId = input.agentId ?? DEFAULT_AGENT_ID;
 		const sessionId = input.sessionId ?? `task:${context.taskId}`;
 		const options: AgentSendOptions = { sessionId };
+		if (input.providerId) options.providerId = input.providerId;
 		if (input.model) options.model = input.model;
 		if (input.effort) options.effort = input.effort;
 		if (input.lightContext !== undefined) options.lightContext = input.lightContext;

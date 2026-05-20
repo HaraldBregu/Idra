@@ -63,13 +63,16 @@ Timing:
 
 - Resolution happens once per `AgentService.send` call during the
   `resolve_provider_model` phase.
-- The selected model may then be overridden by `AgentSendOptions.model`.
+- The selected provider may be overridden by `AgentSendOptions.providerId`.
+- The selected model may be overridden by `AgentSendOptions.model`.
 - Heartbeat runs can also pass `heartbeat.model`; the normal `options.model`
   override wins over the heartbeat override.
-- The provider id, API key, and base URL are not overridden per run in this
-  path.
+- Per-run provider overrides still resolve API key and base URL from the stored
+  provider record.
 - The session is loaded with the selected model and provider id before the
   provider adapter, tools, prompt, hooks, and `runAgent` call are prepared.
+- `agent.run` tasks can pass `providerId` and `model` in their input so
+  independent tasks can use different configured providers and models.
 
 How the values are used:
 

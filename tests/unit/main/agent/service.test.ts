@@ -159,6 +159,70 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('uses per-run provider and model overrides', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		deps.store.getProviderById.mockImplementation((id: string) => {
+			if (id === 'anthropic') {
+				return {
+					id: 'anthropic',
+					name: 'Anthropic',
+					apiKey: 'sk-ant-test',
+					baseUrl: 'https://api.anthropic.com',
+				};
+			}
+			return {
+				id: 'openai',
+				name: 'OpenAI',
+				apiKey: 'sk-test',
+				baseUrl: 'https://api.openai.com/v1',
+			};
+		});
+		const requests: ProviderStreamRequest[] = [];
+		const contexts: unknown[] = [];
+		const providerFactory = jest.fn(() => ({
+			async *stream(req) {
+				requests.push(req);
+				yield { type: 'text_delta' as const, text: 'done' };
+				yield {
+					type: 'message_end' as const,
+					stopReason: 'end_turn',
+					usage: { inputTokens: 1, outputTokens: 1 },
+				};
+			},
+		}));
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+			providerFactory,
+			toolsFactory: (context) => {
+				contexts.push(context);
+				return [];
+			},
+		});
+
+		await expect(
+			service.send('read a file', 'main', {
+				providerId: ' Anthropic ',
+				model: 'claude-test',
+			})
+		).resolves.toBe('done');
+		expect(deps.store.getProviderById).toHaveBeenCalledWith('anthropic');
+		expect(providerFactory).toHaveBeenCalledWith({
+			id: 'anthropic',
+			apiKey: 'sk-ant-test',
+			baseURL: 'https://api.anthropic.com',
+		});
+		expect(requests[0]).toMatchObject({ model: 'claude-test', effort: undefined });
+		expect(contexts[0]).toMatchObject({
+			providerId: 'anthropic',
+			model: 'claude-test',
+		});
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
 	it('rejects unsupported OpenAI model effort before calling the provider', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();

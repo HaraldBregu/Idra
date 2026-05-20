@@ -111,6 +111,7 @@ export interface AgentServiceOptions {
 export interface AgentSendOptions {
 	cronContext?: FridayCronActor;
 	sessionId?: string;
+	providerId?: string;
 	model?: string;
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
@@ -244,16 +245,16 @@ export class AgentService {
 
 		try {
 			const providerConfig = recordPhase(phaseDurationsMs, 'resolve_provider_model', () =>
-				this.resolveProviderAndModel()
+				this.resolveProviderAndModel({
+					providerId: options.providerId,
+					model: options.model?.trim() || heartbeatOptions?.model?.trim(),
+					effort: options.effort,
+				})
 			);
 			const providerId = providerConfig.providerId;
 			const apiKey = providerConfig.apiKey;
-			const model =
-				options.model?.trim() || heartbeatOptions?.model?.trim() || providerConfig.model;
-			const effort =
-				providerId === 'openai'
-					? requireModelReasoningEffort(model, options.effort ?? providerConfig.effort)
-					: providerConfig.effort;
+			const model = providerConfig.model;
+			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
@@ -637,7 +638,11 @@ export class AgentService {
 		return runtime;
 	}
 
-	private resolveProviderAndModel(): {
+	private resolveProviderAndModel(overrides: {
+		providerId?: string;
+		model?: string;
+		effort?: ModelReasoningEffort;
+	} = {}): {
 		providerId: string;
 		apiKey: string;
 		model: string;
@@ -645,8 +650,10 @@ export class AgentService {
 		baseURL?: string;
 	} {
 		const agent = this.dependencies.store.getAgentService();
-		const providerId = agent?.provider.id.trim().toLowerCase() ?? '';
-		const model = agent?.model.id.trim() || agent?.model.name.trim() || '';
+		const configuredProviderId = agent?.provider.id.trim().toLowerCase() ?? '';
+		const configuredModel = agent?.model.id.trim() || agent?.model.name.trim() || '';
+		const providerId = overrides.providerId?.trim().toLowerCase() || configuredProviderId;
+		const model = overrides.model?.trim() || configuredModel;
 		if (!providerId) throw new Error('Agent provider not configured.');
 		if (!model) throw new Error('Agent model not configured.');
 		const provider = this.dependencies.store.getProviderById(providerId);
@@ -656,7 +663,7 @@ export class AgentService {
 		const savedEffort = agent?.model.effort;
 		let effort: ModelReasoningEffort | undefined;
 		if (providerId === 'openai') {
-			effort = requireModelReasoningEffort(model, savedEffort);
+			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort);
 		}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
