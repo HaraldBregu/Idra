@@ -12,8 +12,8 @@ The agent first evaluates the user message with a tool-use policy.
   answer from the current registry.
 - URLs, current information, private account data, workspace files, codebase
   work, shell execution, tests, builds, debugging, mutation, browser actions,
-  email, calendar, Drive, cron, task actions, and similar external or
-  mutable tasks require tools.
+  email, calendar, Drive, cron jobs, and similar external or mutable work
+  require tools.
 - Creative writing, rewriting, translation, summarization, and brainstorming
   are answered without tools unless the request also needs external access.
 - If no rule requires tools and no skill is selected, the run is a direct
@@ -49,7 +49,6 @@ policy, ranking, and run context before it is exposed to the provider.
 | `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
 | `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
 | `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs. |
-| `task` | Starts, lists, retrieves, and cancels in-memory task records. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
 | `browser` | Controls the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions. |
 
@@ -75,32 +74,16 @@ These tools are added only when the corresponding runtime condition applies.
 | `tool_describe` | Returns schema and metadata for a hidden tool when tool-search compaction is enabled. |
 | `tool_call` | Executes a hidden tool through the same wrapped execution path when tool-search compaction is enabled. |
 
-## Task Tool
+## Cron Scheduling
 
-The `task` tool is a simple local tool for active in-memory tasks. It exposes a
-small action set for starting a task, checking current task records, retrieving
-one record, or requesting cancellation.
+`cron` is the agent-facing tool for future, delayed, recurring, reminder, wake,
+and manual-run scheduling. The agent should not emulate scheduling with sleep
+loops, shell loops, long-running polling, or model-side timers.
 
-Supported actions:
-
-| Action | Behavior |
-| --- | --- |
-| `start` | Validate a `TaskRunRequest`, create one in-memory task record, and start the registered handler. |
-| `list` | Return all in-memory task records for the current app session. |
-| `get` | Return one task record by id. |
-| `cancel` | Request cooperative cancellation for one task by id. |
-
-Rules:
-
-- Use one task record per operation.
-- Start only registered and approved user-facing task types.
-- Keep privileged validation and handler selection in the main process.
-- Return sanitized task records only; do not expose raw handler functions,
-  `AbortController`, promises, secrets, credentials, or large unbounded output.
-- Do not add task-manager-level timeouts. A task finishes only when the handler
-  returns, throws, cooperatively cancels, or the app process exits.
-- Use `cron` for scheduling future or recurring work. Use `task` for active
-  in-memory execution state.
+There is no agent-facing `task` tool in the default local registry. In-memory
+task execution remains an internal app capability exposed through the task
+manager and IPC where needed, but the model should use `cron` for scheduled
+work.
 
 ## Prompt Narrowing
 
