@@ -384,6 +384,77 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
+	it('maps Agent Skill allowed-tools into the runtime tool contract', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'tool-skill');
+		await fs.mkdir(dir);
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: tool-skill',
+				'description: Uses an optional runtime tool when available.',
+				'allowed-tools: web_fetch',
+				'---',
+				'Use the tool only when useful.',
+			].join('\n')
+		);
+
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		expect(loaded.skill.requiredTools).toEqual([]);
+		expect(loaded.skill.contract.allowedTools).toEqual(['web_fetch']);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('keeps disable-model-invocation Agent Skills out of discovery', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'hidden-skill');
+		await fs.mkdir(dir);
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: hidden-skill',
+				'description: Handles zzhidden requests.',
+				'disable-model-invocation: true',
+				'---',
+				'Use only when invoked explicitly.',
+			].join('\n')
+		);
+
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		const registry = setupRegistry(false);
+		registry.registerSkill(loaded.skill);
+		const discovery = await new SkillDiscovery(
+			registry,
+			new SkillRanker(),
+			new SkillSafetyPolicy()
+		).discover(
+			'zzhidden request',
+			makeDiscoveryContext({
+				userId: 'u1',
+				sessionId: 's1',
+				availableTools: [],
+				availableConnectors: [],
+				permissions: ['skill.execute'],
+				userPreferences: {
+					preferredSkills: [],
+					avoidedSkills: [],
+					preferredWorkflowStyles: [],
+					preferredOutputFormats: [],
+					metadata: {},
+				},
+			}),
+			executionContext()
+		);
+
+		expect(discovery.candidates).toHaveLength(0);
+		expect(discovery.filtered).toContainEqual(
+			expect.objectContaining({ skillId: 'hidden-skill', reason: 'model_invocation_disabled' })
+		);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
 	it('rejects oversized Agent Skill instruction files', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'huge-skill');
@@ -401,6 +472,54 @@ describe('skill system', () => {
 
 		await expect(new SkillLoader().loadPackage(dir)).rejects.toThrow(
 			'SKILL.md exceeds 256000 bytes'
+		);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('refreshes managed dynamic skills after their SKILL.md changes', async () => {
+		const root = await makeTempDir();
+		const skillsRoot = path.join(root, 'skills');
+		const dir = path.join(skillsRoot, 'refresh-skill');
+		await fs.mkdir(dir, { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: refresh-skill',
+				'description: Handles zzbefore requests.',
+				'---',
+				'Use before instructions.',
+			].join('\n')
+		);
+		const service = new SkillsService(makeLogger() as never, {
+			userDataDirectory: userDataDirectory(root) as never,
+		});
+		const runtimeInput = {
+			userId: 'u1',
+			sessionId: 's1',
+			tools: [],
+			toolContext: makeToolContext({ workspace: root }),
+		};
+
+		const before = await service.discoverForPrompt('zzbefore request', runtimeInput);
+		expect(before.some((skill) => skill.id === 'refresh-skill')).toBe(true);
+
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: refresh-skill',
+				'description: Handles zzafter requests.',
+				'---',
+				'Use after instructions.',
+			].join('\n')
+		);
+
+		const stale = await service.discoverForPrompt('zzbefore request', runtimeInput);
+		const after = await service.discoverForPrompt('zzafter request', runtimeInput);
+		expect(stale.some((skill) => skill.id === 'refresh-skill')).toBe(false);
+		expect(after.find((skill) => skill.id === 'refresh-skill')?.description).toBe(
+			'Handles zzafter requests.'
 		);
 		await fs.rm(root, { recursive: true, force: true });
 	});
