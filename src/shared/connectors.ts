@@ -33,539 +33,6 @@ export interface ConnectorDocumentationPage {
 	readonly type: ConnectorDocumentationType;
 }
 
-export interface ConnectorProviderPlatform {
-	readonly id: string;
-	readonly name: string;
-	readonly category: string;
-	readonly recommendedRole: string;
-	readonly websiteUrl: string;
-	readonly documentationPages: readonly ConnectorDocumentationPage[];
-	readonly bestFor: string;
-	readonly coverageSummary: string;
-	readonly supportedPatterns: readonly string[];
-	readonly agenticFit: string;
-	readonly notes: string;
-}
-
-export const CONNECTOR_PROVIDER_PLATFORMS = [
-	{
-		id: 'composio',
-		name: 'Composio',
-		category: 'ai_agent_connector_platform',
-		recommendedRole: 'primary_agent_tool_provider',
-		websiteUrl: 'https://composio.dev/',
-		documentationPages: [
-			{
-				label: 'Composio toolkits',
-				url: 'https://composio.dev/toolkits',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'Composio docs',
-				url: 'https://docs.composio.dev/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Agent-native SaaS tool calling, MCP/direct API access, and broad tool coverage.',
-		coverageSummary: 'Advertises 1,000+ toolkits and 20,000+ tools.',
-		supportedPatterns: ['MCP', 'REST/direct APIs', 'OAuth', 'managed tool execution'],
-		agenticFit: 'excellent',
-		notes: 'Recommended as the default aggregation layer for a general-purpose agentic assistant.',
-	},
-	{
-		id: 'pipedream_connect',
-		name: 'Pipedream Connect',
-		category: 'developer_integration_platform',
-		recommendedRole: 'secondary_developer_tool_provider',
-		websiteUrl: 'https://pipedream.com/connect',
-		documentationPages: [
-			{
-				label: 'Pipedream Connect',
-				url: 'https://pipedream.com/connect',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'Pipedream Connect docs',
-				url: 'https://pipedream.com/docs/connect/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Embedded integrations, managed auth, workflow execution, MCP servers, and developer-first agent infrastructure.',
-		coverageSummary: 'Advertises 2,700+ integrations and 10,000+ tools.',
-		supportedPatterns: ['MCP', 'OAuth', 'workflows', 'webhooks', 'code steps'],
-		agenticFit: 'excellent',
-		notes: 'Good secondary provider when programmable workflows and serverless execution matter.',
-	},
-	{
-		id: 'zapier',
-		name: 'Zapier',
-		category: 'no_code_integration_platform',
-		recommendedRole: 'business_no_code_provider',
-		websiteUrl: 'https://zapier.com/',
-		documentationPages: [
-			{
-				label: 'Zapier developer docs',
-				url: 'https://docs.zapier.com/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'No-code and low-code automation across a large SaaS ecosystem.',
-		coverageSummary: 'Advertises coverage across thousands of apps and supports AI workflow patterns.',
-		supportedPatterns: ['OAuth', 'triggers/actions', 'MCP/AI actions', 'webhooks'],
-		agenticFit: 'very_good',
-		notes: 'Best for business-user automations and long-tail SaaS coverage.',
-	},
-	{
-		id: 'nango',
-		name: 'Nango',
-		category: 'code_first_integration_platform',
-		recommendedRole: 'custom_sync_and_auth_provider',
-		websiteUrl: 'https://nango.dev/',
-		documentationPages: [
-			{
-				label: 'Nango documentation',
-				url: 'https://docs.nango.dev/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-			{
-				label: 'Nango unified APIs',
-				url: 'https://nango.dev/docs/implementation-guides/use-cases/unified-apis',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Code-first SaaS integrations, auth, sync jobs, webhooks, and unified APIs.',
-		coverageSummary: 'Advertises support for 700+ APIs.',
-		supportedPatterns: ['OAuth', 'API sync', 'webhooks', 'unified APIs'],
-		agenticFit: 'very_good',
-		notes: 'Useful when per-tenant sync frequency, schemas, and integration logic need control.',
-	},
-	{
-		id: 'merge_agent_handler',
-		name: 'Merge Agent Handler',
-		category: 'agent_connector_governance',
-		recommendedRole: 'enterprise_safe_tool_layer',
-		websiteUrl: 'https://www.merge.dev/',
-		documentationPages: [
-			{
-				label: 'Merge Agent Handler overview',
-				url: 'https://docs.merge.dev/merge-agent-handler/overview',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Enterprise-safe AI agent access to third-party systems with scoping and auditability.',
-		coverageSummary: 'Hundreds of third-party services exposed for AI agents.',
-		supportedPatterns: ['MCP', 'OAuth', 'tool scoping', 'audit logs', 'DLP'],
-		agenticFit: 'excellent_for_enterprise',
-		notes: 'Use when customer-level governance, DLP, and permissioned tool access are core requirements.',
-	},
-	{
-		id: 'workato',
-		name: 'Workato',
-		category: 'enterprise_ipaas',
-		recommendedRole: 'enterprise_workflow_provider',
-		websiteUrl: 'https://www.workato.com/',
-		documentationPages: [
-			{
-				label: 'Workato MCP',
-				url: 'https://docs.workato.com/mcp.html',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'Workato connectors',
-				url: 'https://docs.workato.com/connectors.html',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Enterprise iPaaS, deterministic workflows, governance, and business process automation.',
-		coverageSummary: 'Advertises 1,400+ business apps/connectors.',
-		supportedPatterns: ['MCP', 'recipes', 'OAuth', 'enterprise governance'],
-		agenticFit: 'very_good_for_enterprise',
-		notes: 'Good fit for enterprises already using iPaaS and controlled process automation.',
-	},
-	{
-		id: 'tray_ai',
-		name: 'Tray.ai',
-		category: 'enterprise_orchestration',
-		recommendedRole: 'enterprise_orchestration_provider',
-		websiteUrl: 'https://tray.ai/',
-		documentationPages: [
-			{
-				label: 'Tray documentation',
-				url: 'https://tray.ai/documentation/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-			{
-				label: 'Tray connectors',
-				url: 'https://tray.ai/connectors/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Enterprise automation, agent gateways, and integration orchestration.',
-		coverageSummary: 'Advertises hundreds of connectors and AI-ready orchestration patterns.',
-		supportedPatterns: ['connectors', 'workflows', 'agent gateway', 'governance'],
-		agenticFit: 'good',
-		notes: 'Useful for operations-heavy enterprises that need governed orchestration.',
-	},
-	{
-		id: 'boomi',
-		name: 'Boomi',
-		category: 'enterprise_integration_platform',
-		recommendedRole: 'enterprise_integration_provider',
-		websiteUrl: 'https://boomi.com/',
-		documentationPages: [
-			{
-				label: 'Boomi connectors',
-				url: 'https://boomi.com/connectors/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'Boomi developer docs',
-				url: 'https://developer.boomi.com/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Enterprise integration across applications, data, APIs, and process automation.',
-		coverageSummary: 'Advertises 1,000+ prebuilt connectors.',
-		supportedPatterns: ['connectors', 'APIs', 'data integration', 'workflow automation'],
-		agenticFit: 'good',
-		notes: 'Appropriate for established enterprise integration programs.',
-	},
-	{
-		id: 'mulesoft',
-		name: 'MuleSoft Anypoint Platform',
-		category: 'enterprise_api_integration',
-		recommendedRole: 'api_led_connectivity_provider',
-		websiteUrl: 'https://www.mulesoft.com/',
-		documentationPages: [
-			{
-				label: 'MuleSoft connectors',
-				url: 'https://docs.mulesoft.com/connectors/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'API-led connectivity, enterprise integrations, and reusable API products.',
-		coverageSummary: 'Large enterprise connector ecosystem.',
-		supportedPatterns: ['connectors', 'APIs', 'API management', 'enterprise governance'],
-		agenticFit: 'good_for_api_led_enterprises',
-		notes: 'Best where the organization already standardizes on MuleSoft.',
-	},
-	{
-		id: 'microsoft_power_automate',
-		name: 'Microsoft Power Automate',
-		category: 'workflow_automation',
-		recommendedRole: 'microsoft_first_provider',
-		websiteUrl: 'https://powerautomate.microsoft.com/',
-		documentationPages: [
-			{
-				label: 'Power Automate connector reference',
-				url: 'https://learn.microsoft.com/en-us/connectors/connector-reference/connector-reference-powerautomate-connectors',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Microsoft 365/Dynamics/Power Platform automation with a large connector catalog.',
-		coverageSummary: 'Large official connector reference for Power Automate.',
-		supportedPatterns: ['connectors', 'flows', 'OAuth', 'Dataverse'],
-		agenticFit: 'excellent_for_microsoft_stack',
-		notes: 'Use for Microsoft-centric organizations, especially with Copilot Studio and Power Platform.',
-	},
-	{
-		id: 'n8n',
-		name: 'n8n',
-		category: 'self_hostable_workflow_automation',
-		recommendedRole: 'self_hosted_automation_provider',
-		websiteUrl: 'https://n8n.io/',
-		documentationPages: [
-			{
-				label: 'n8n integrations',
-				url: 'https://n8n.io/integrations/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'n8n AI Agent node',
-				url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Self-hostable visual workflows, code steps, and AI-agent automations.',
-		coverageSummary: 'Advertises 1,000+ integrations.',
-		supportedPatterns: ['workflows', 'self-hosting', 'webhooks', 'AI agent nodes'],
-		agenticFit: 'very_good_for_self_hosting',
-		notes: 'Strong choice for technical teams wanting deployment control.',
-	},
-	{
-		id: 'make',
-		name: 'Make',
-		category: 'visual_workflow_automation',
-		recommendedRole: 'smb_midmarket_automation_provider',
-		websiteUrl: 'https://www.make.com/',
-		documentationPages: [
-			{
-				label: 'Make integrations',
-				url: 'https://www.make.com/en/integrations',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'Make help center',
-				url: 'https://www.make.com/en/help',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Visual workflow automation and no-code/low-code operational automations.',
-		coverageSummary: 'Large app catalog and AI automation modules.',
-		supportedPatterns: ['visual scenarios', 'connectors', 'webhooks', 'OAuth'],
-		agenticFit: 'good',
-		notes: 'Best for ops teams that prefer visual automation.',
-	},
-	{
-		id: 'paragon',
-		name: 'Paragon',
-		category: 'embedded_integration_platform',
-		recommendedRole: 'embedded_saas_integration_provider',
-		websiteUrl: 'https://www.useparagon.com/',
-		documentationPages: [
-			{
-				label: 'Paragon docs',
-				url: 'https://docs.useparagon.com/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Customer-facing embedded integrations inside B2B SaaS products.',
-		coverageSummary: 'Prebuilt connectors, customer auth, and integration UI patterns.',
-		supportedPatterns: ['embedded auth', 'workflows', 'webhooks', 'managed integrations'],
-		agenticFit: 'good_for_saas_products',
-		notes: 'Use when users configure integrations inside your product.',
-	},
-	{
-		id: 'prismatic',
-		name: 'Prismatic',
-		category: 'embedded_integration_platform',
-		recommendedRole: 'embedded_saas_integration_provider',
-		websiteUrl: 'https://prismatic.io/',
-		documentationPages: [
-			{
-				label: 'Prismatic docs',
-				url: 'https://prismatic.io/docs/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Embedded integrations and integration marketplace for B2B SaaS teams.',
-		coverageSummary: 'Connector marketplace, workflow builder, deployment and customer configuration.',
-		supportedPatterns: ['embedded workflows', 'connectors', 'marketplace', 'customer config'],
-		agenticFit: 'good_for_saas_products',
-		notes: 'Good for SaaS companies that need a governed customer integration layer.',
-	},
-	{
-		id: 'apideck',
-		name: 'Apideck',
-		category: 'unified_api_platform',
-		recommendedRole: 'unified_api_provider',
-		websiteUrl: 'https://www.apideck.com/',
-		documentationPages: [
-			{
-				label: 'Apideck developer docs',
-				url: 'https://developers.apideck.com/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Unified APIs for accounting, CRM, file storage, HRIS, and other categories.',
-		coverageSummary: 'Normalizes third-party SaaS APIs into domain APIs.',
-		supportedPatterns: ['unified APIs', 'OAuth', 'normalized schemas'],
-		agenticFit: 'good_for_normalized_schemas',
-		notes: 'Useful when app-level differences should be abstracted away.',
-	},
-	{
-		id: 'unified_to',
-		name: 'Unified.to',
-		category: 'unified_api_and_mcp_platform',
-		recommendedRole: 'ai_first_unified_api_provider',
-		websiteUrl: 'https://unified.to/',
-		documentationPages: [
-			{
-				label: 'Unified.to docs',
-				url: 'https://docs.unified.to/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'AI-first unified API/MCP access across multiple SaaS categories.',
-		coverageSummary: 'Normalizes integrations and exposes MCP-friendly patterns.',
-		supportedPatterns: ['MCP', 'unified APIs', 'OAuth'],
-		agenticFit: 'good',
-		notes: 'Evaluate for AI-first unified API coverage and category breadth.',
-	},
-	{
-		id: 'finch',
-		name: 'Finch',
-		category: 'hris_payroll_unified_api',
-		recommendedRole: 'hr_payroll_provider',
-		websiteUrl: 'https://www.tryfinch.com/',
-		documentationPages: [
-			{
-				label: 'Finch developer docs',
-				url: 'https://developer.tryfinch.com/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Unified HRIS, payroll, benefits, and directory data integrations.',
-		coverageSummary: 'Advertises coverage across 220+ HRIS/payroll systems.',
-		supportedPatterns: ['unified API', 'OAuth', 'HRIS/payroll data'],
-		agenticFit: 'excellent_for_hr_payroll',
-		notes: 'Use rather than building one-off payroll/HRIS connectors.',
-	},
-	{
-		id: 'glean',
-		name: 'Glean',
-		category: 'enterprise_search_and_knowledge',
-		recommendedRole: 'enterprise_rag_provider',
-		websiteUrl: 'https://www.glean.com/',
-		documentationPages: [
-			{
-				label: 'Glean data-source setup',
-				url: 'https://docs.glean.com/get-started/setup/connect-data-sources',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-			{
-				label: 'Glean connector hub',
-				url: 'https://www.glean.com/connectors',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Enterprise search and permission-aware RAG across company apps.',
-		coverageSummary: 'Documents 100+ connectors and popular enterprise sources.',
-		supportedPatterns: ['enterprise search', 'connectors', 'RAG', 'permissions'],
-		agenticFit: 'excellent_for_knowledge_retrieval',
-		notes: 'Best when the assistant must retrieve internal knowledge more than perform actions.',
-	},
-	{
-		id: 'elastic',
-		name: 'Elastic',
-		category: 'search_and_rag_infrastructure',
-		recommendedRole: 'search_index_provider',
-		websiteUrl: 'https://www.elastic.co/',
-		documentationPages: [
-			{
-				label: 'Elastic Workplace Search content sources',
-				url: 'https://www.elastic.co/guide/en/workplace-search/current/workplace-search-content-sources.html',
-				status: 'official_public_web_checked_2026-05-19',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Search indexing, enterprise search, observability, and retrieval infrastructure.',
-		coverageSummary: 'Includes workplace content-source connectors and search tooling.',
-		supportedPatterns: ['search', 'connectors', 'indexing', 'RAG'],
-		agenticFit: 'good_for_search_infra',
-		notes: 'Use when you need custom search/RAG infra rather than broad SaaS action tools.',
-	},
-	{
-		id: 'algolia',
-		name: 'Algolia',
-		category: 'search_infrastructure',
-		recommendedRole: 'search_provider',
-		websiteUrl: 'https://www.algolia.com/',
-		documentationPages: [
-			{
-				label: 'Algolia docs',
-				url: 'https://www.algolia.com/doc/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Hosted search and discovery APIs.',
-		coverageSummary: 'Search APIs, crawler/connectors, and relevance tooling.',
-		supportedPatterns: ['search APIs', 'indexing', 'crawler'],
-		agenticFit: 'good_for_search',
-		notes: 'Useful for product/search experiences and content retrieval.',
-	},
-	{
-		id: 'pinecone',
-		name: 'Pinecone',
-		category: 'vector_database',
-		recommendedRole: 'vector_search_provider',
-		websiteUrl: 'https://www.pinecone.io/',
-		documentationPages: [
-			{
-				label: 'Pinecone docs',
-				url: 'https://docs.pinecone.io/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Managed vector database for semantic search and retrieval-augmented generation.',
-		coverageSummary: 'Vector indexes, namespaces, metadata filtering, and hosted inference options.',
-		supportedPatterns: ['vector search', 'RAG', 'metadata filtering'],
-		agenticFit: 'good_for_rag',
-		notes: 'Not an app connector, but often needed for assistant memory/search.',
-	},
-	{
-		id: 'weaviate',
-		name: 'Weaviate',
-		category: 'vector_database',
-		recommendedRole: 'vector_search_provider',
-		websiteUrl: 'https://weaviate.io/',
-		documentationPages: [
-			{
-				label: 'Weaviate docs',
-				url: 'https://weaviate.io/developers/weaviate',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Open-source and cloud vector database for semantic search and RAG.',
-		coverageSummary: 'Vector search, hybrid search, modules/integrations.',
-		supportedPatterns: ['vector search', 'hybrid search', 'RAG'],
-		agenticFit: 'good_for_rag',
-		notes: 'Good for self-hosted or managed semantic retrieval.',
-	},
-	{
-		id: 'qdrant',
-		name: 'Qdrant',
-		category: 'vector_database',
-		recommendedRole: 'vector_search_provider',
-		websiteUrl: 'https://qdrant.tech/',
-		documentationPages: [
-			{
-				label: 'Qdrant documentation',
-				url: 'https://qdrant.tech/documentation/',
-				status: 'official_public_url_not_reverified_in_this_run',
-				type: 'official_docs',
-			},
-		],
-		bestFor: 'Vector database and similarity search engine.',
-		coverageSummary: 'Vector search, payload filters, collections, cloud/self-hosted options.',
-		supportedPatterns: ['vector search', 'payload filtering', 'RAG'],
-		agenticFit: 'good_for_rag',
-		notes: 'Useful for technical teams building custom retrieval infrastructure.',
-	},
-] as const satisfies readonly ConnectorProviderPlatform[];
-
-export type ConnectorProviderPlatformId = (typeof CONNECTOR_PROVIDER_PLATFORMS)[number]['id'];
-
 export interface DirectConnectorCatalogEntry {
 	readonly id: string;
 	readonly name: string;
@@ -582,7 +49,6 @@ export interface DirectConnectorCatalogEntry {
 	readonly humanApprovalRequiredFor: readonly string[];
 	readonly recommendedInitialMode: ConnectorRecommendedInitialMode;
 	readonly notes: string;
-	readonly supportedProviderPlatformIds?: readonly ConnectorProviderPlatformId[];
 }
 
 const DOC_STATUS = 'official_public_web_checked_2026-05-19';
@@ -608,7 +74,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['send_email', 'delete_email', 'create_forwarding_rule', 'modify_security_sensitive_settings'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Email is high prompt-injection risk; treat message body as untrusted content.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'google_drive',
@@ -629,7 +94,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['change_sharing_permissions', 'delete_files', 'move_sensitive_files', 'publish_files'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use permission-aware retrieval; never bypass Drive ACLs.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'google_docs',
@@ -649,7 +113,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['overwrite_document', 'share_document_externally', 'delete_content'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Useful for report, policy, proposal, and meeting-note workflows.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'google_sheets',
@@ -669,7 +132,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['write_financial_data', 'bulk_update_cells', 'delete_sheets', 'share_spreadsheet'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Validate formulas and ranges to avoid accidental overwrites.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'google_calendar',
@@ -690,7 +152,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['invite_external_guests', 'cancel_events', 'modify_recurring_events'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'For scheduling agents, enforce attendee/timezone confirmation rules.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'google_chat',
@@ -711,7 +172,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['post_to_large_channel', 'create_external_space', 'delete_messages'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Best for Google Workspace-first organizations.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'google_meet',
@@ -732,7 +192,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['create_external_meeting', 'change_meeting_access'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Pair with Calendar and transcription/recording sources where permitted.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'microsoft_graph',
@@ -753,7 +212,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['application_permission_access', 'send_mail', 'change_group_membership', 'share_files_externally'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Central API surface for Outlook, Teams, SharePoint, OneDrive, users, groups, and more.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'outlook',
@@ -774,7 +232,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['send_email', 'delete_email', 'cancel_events', 'invite_external_guests'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Treat inbox content as untrusted input and enforce scoped permissions.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'microsoft_teams',
@@ -795,7 +252,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['post_to_broad_channel', 'create_team', 'change_membership', 'send_external_message'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Core communication connector for Microsoft-first companies.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'sharepoint_onedrive',
@@ -816,7 +272,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['share_externally', 'delete_files', 'change_site_permissions'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use ACL-preserving retrieval and sensitivity label awareness where available.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'microsoft_excel',
@@ -836,7 +291,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['bulk_update_ranges', 'delete_worksheets', 'write_financial_data'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Useful for finance, operations, and reporting agents.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'slack',
@@ -857,7 +311,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['post_to_broad_channel', 'invite_external_users', 'delete_messages', 'read_private_channels'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Limit long-term retention/indexing and preserve workspace permissions.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'github',
@@ -878,7 +331,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['push_code', 'merge_pull_request', 'delete_branch', 'modify_workflows', 'change_repo_permissions'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use least-privilege repo scopes and never allow autonomous merges without policy gates.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'jira',
@@ -898,7 +350,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['bulk_update_issues', 'delete_issues', 'change_project_permissions', 'transition_critical_work_items'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Key connector for engineering/product agents.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'confluence',
@@ -918,7 +369,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['publish_policy_pages', 'delete_pages', 'change_page_restrictions'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use page-level permission checks in RAG and editing flows.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'notion',
@@ -939,7 +389,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['modify_shared_pages', 'delete_content', 'publish_sensitive_pages'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Strong knowledge/database connector for startups and product teams.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'salesforce',
@@ -960,7 +409,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['update_revenue_records', 'delete_records', 'change_ownership', 'mass_update_records'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Apply field-level security, record visibility, and audit logging.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'hubspot',
@@ -981,7 +429,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['bulk_update_contacts', 'send_sales_email', 'delete_records', 'change_deal_stage'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Good all-in-one CRM/marketing connector for SMB/mid-market.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'zendesk',
@@ -1002,7 +449,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['send_customer_reply', 'close_ticket', 'delete_ticket', 'change_user_data'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use draft-and-approve mode for customer-facing messages.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'servicenow',
@@ -1023,7 +469,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['close_incident', 'change_cmdb', 'approve_change_request', 'delete_records'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Important for ITSM and enterprise operations; change-management guardrails are mandatory.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'snowflake',
@@ -1044,7 +489,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['write_or_delete_data', 'run_expensive_queries', 'change_roles', 'grant_permissions'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Create dedicated read-only roles and query budgets.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'bigquery',
@@ -1065,7 +509,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['modify_datasets', 'run_high_cost_queries', 'delete_tables', 'grant_iam'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use authorized views, row-level security, and cost controls.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'postgresql',
@@ -1086,7 +529,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['write_data', 'delete_data', 'alter_schema', 'grant_privileges'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Never expose arbitrary SQL writes without allowlists, timeouts, and transaction controls.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'aws',
@@ -1107,7 +549,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['create_or_delete_resources', 'change_iam', 'modify_security_groups', 'production_deployments'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Prefer read-only and diagnostic permissions first; use separate break-glass/change workflows.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'okta',
@@ -1128,7 +569,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['deactivate_user', 'reset_mfa', 'change_group_membership', 'grant_admin_role'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Identity connectors require the strongest policy controls.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'microsoft_entra_id',
@@ -1149,7 +589,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['change_group_membership', 'grant_roles', 'disable_user', 'reset_credentials'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use PIM/conditional access and separate approval for privileged changes.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'stripe',
@@ -1170,7 +609,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['refund_payment', 'create_charge', 'change_subscription', 'delete_customer', 'payout_or_transfer'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Payment and refund actions should require explicit user approval and audit logs.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'shopify',
@@ -1191,7 +629,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['refund_order', 'cancel_order', 'change_inventory', 'publish_product_changes'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use approval gates for refunds, cancellations, and product publishing.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier'],
 	},
 	{
 		id: 'dropbox',
@@ -1212,7 +649,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['share_files_externally', 'delete_files', 'team_admin_actions'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Use team-space permissions and scoped tokens.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'zapier', 'glean'],
 	},
 	{
 		id: 'custom_rest_openapi',
@@ -1233,7 +669,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['any_state_changing_operation', 'payments', 'deletes', 'external_notifications', 'permission_changes'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Usually the highest-value connector family because it exposes proprietary business systems.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'nango'],
 	},
 	{
 		id: 'custom_graphql',
@@ -1254,7 +689,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['mutations', 'bulk_updates', 'permission_changes', 'delete_operations'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'GraphQL mutations should be converted into explicit, named, policy-checked tools.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'nango'],
 	},
 	{
 		id: 'sql_gateway',
@@ -1275,7 +709,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['write_queries', 'schema_changes', 'unbounded_queries', 'sensitive_data_export'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Prefer semantic-layer queries or generated SQL review for regulated data.',
-		supportedProviderPlatformIds: ['composio', 'pipedream_connect', 'n8n'],
 	},
 	{
 		id: 'webhooks',
@@ -1295,7 +728,6 @@ export const DIRECT_CONNECTOR_CATALOG = [
 		humanApprovalRequiredFor: ['trigger_destructive_workflow', 'external_notifications', 'payment_or_access_workflows'],
 		recommendedInitialMode: 'read_only_then_draft_write_actions',
 		notes: 'Validate webhook signatures and guard against replay attacks.',
-		supportedProviderPlatformIds: ['pipedream_connect', 'zapier', 'n8n', 'workato'],
 	},
 ] as const satisfies readonly DirectConnectorCatalogEntry[];
 
@@ -1306,9 +738,8 @@ export const CONNECTOR_CATALOG_METADATA = {
 	schemaVersion: '1.0',
 	generatedDate: '2026-05-19',
 	timezoneContext: 'Europe/Rome',
-	scope: 'Curated production-oriented catalog of useful direct connectors and connector-provider platforms for an agentic AI assistant.',
-	recommendedPrimaryConnectorProvider: 'composio',
-	recommendedArchitecture: 'MCP + direct strategic connectors + connector aggregation platform + permission-aware enterprise search/RAG.',
+	scope: 'Curated production-oriented catalog of useful direct connectors for an agentic AI assistant.',
+	recommendedArchitecture: 'MCP + direct strategic connectors + permission-aware enterprise search/RAG.',
 } as const;
 
 export const CONNECTOR_IMPLEMENTATION_CONTROLS = {
@@ -1341,9 +772,8 @@ const DIRECT_CONNECTOR_BY_ID = new Map<string, DirectConnectorCatalogEntry>(
 );
 
 export const CONNECTOR_CATALOG_COUNTS = {
-	providerPlatforms: CONNECTOR_PROVIDER_PLATFORMS.length,
 	directConnectors: DIRECT_CONNECTOR_CATALOG.length,
-	totalCatalogEntries: CONNECTOR_PROVIDER_PLATFORMS.length + DIRECT_CONNECTOR_CATALOG.length,
+	totalCatalogEntries: DIRECT_CONNECTOR_CATALOG.length,
 } as const;
 
 export function getDirectConnectorCatalogItem(id: string): DirectConnectorCatalogEntry | undefined {
