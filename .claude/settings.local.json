@@ -205,7 +205,8 @@
       "Bash(curl *)",
       "Bash(xargs -I{} basename {})",
       "Bash(echo \"Exit: $?\")",
-      "WebFetch(domain:prompt-kit.com)"
+      "WebFetch(domain:prompt-kit.com)",
+      "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": [
       "Bash(git push --force:*)",
