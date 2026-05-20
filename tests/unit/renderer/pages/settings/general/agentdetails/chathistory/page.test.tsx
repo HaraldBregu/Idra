@@ -4,14 +4,16 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { AgentHistoryMessage } from '../../../../../../../../src/shared/service';
 import ChatHistoryPage from '../../../../../../../../src/renderer/src/pages/settings/pages/general/agentdetails/chathistory/Page';
 
+const mockT = (key: string, params?: Record<string, unknown>): string => {
+	if (!params) return key;
+	return `${key}:${Object.entries(params)
+		.map(([paramKey, value]) => `${paramKey}=${String(value)}`)
+		.join(',')}`;
+};
+
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
-		t: (key: string, params?: Record<string, unknown>) => {
-			if (!params) return key;
-			return `${key}:${Object.entries(params)
-				.map(([paramKey, value]) => `${paramKey}=${String(value)}`)
-				.join(',')}`;
-		},
+		t: mockT,
 	}),
 }));
 
