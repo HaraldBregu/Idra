@@ -1,4 +1,5 @@
 import { AnthropicAdapter } from '../../../../src/main/provider/anthropic';
+import { DeepSeekAdapter } from '../../../../src/main/provider/deepseek';
 import { MistralAdapter } from '../../../../src/main/provider/mistral';
 import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/provider/openai';
 import { makeProvider } from '../../../../src/main/provider/factory';
