@@ -349,6 +349,7 @@ const AgentDetailsPage: React.FC = () => {
 			: isSpeechTranscriberAgent
 				? Mic
 				: Bot;
+	const AgentIcon = agentIcon;
 	const agentNameKey = isImageAssistantAgent
 		? 'settings.agents.imageAssistantName'
 		: isTextToSpeechAgent
@@ -555,7 +556,7 @@ const AgentDetailsPage: React.FC = () => {
 						>
 							<span className="flex min-w-0 items-center gap-2">
 								<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-									<agentIcon className="size-3" strokeWidth={1.8} />
+									<AgentIcon className="size-3" strokeWidth={1.8} />
 								</span>
 								<span className="min-w-0 flex-1">
 									<span className="block text-[13px] font-medium leading-4 tracking-normal text-foreground">
@@ -644,29 +645,29 @@ const AgentDetailsPage: React.FC = () => {
 								</SettingsField>
 
 								{showEffort && (
-							<SettingsField
-								id="agent-effort"
-								label={t('settings.agents.effort')}
-								description={t('settings.agents.effortDescription')}
-							>
-								<Select
-									value={effort}
-									onValueChange={handleEffortChange}
-									disabled={!selectedProvider || !selectedModel || saving}
-								>
-									<SelectTrigger id="agent-effort" className="w-full text-xs sm:w-72">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{effortOptions.map((value) => (
-											<SelectItem key={value} value={value}>
-												{t(`settings.agents.effortOptions.${value}`)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</SettingsField>
-						)}
+									<SettingsField
+										id="agent-effort"
+										label={t('settings.agents.effort')}
+										description={t('settings.agents.effortDescription')}
+									>
+										<Select
+											value={effort}
+											onValueChange={handleEffortChange}
+											disabled={!selectedProvider || !selectedModel || saving}
+										>
+											<SelectTrigger id="agent-effort" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{effortOptions.map((value) => (
+													<SelectItem key={value} value={value}>
+														{t(`settings.agents.effortOptions.${value}`)}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+								)}
 
 								<div className="flex justify-end">
 									<Button
