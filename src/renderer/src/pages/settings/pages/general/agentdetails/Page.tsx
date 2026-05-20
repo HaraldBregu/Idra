@@ -470,23 +470,20 @@ const AgentDetailsPage: React.FC = () => {
 			{isFridayAgent && (
 				<SettingsSection title={t('settings.agents.history')}>
 					<SettingsPanel>
-						<button
+						<Item
+							as="button"
 							type="button"
-							className="block w-full p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
+							size="md"
+							className="border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
 							onClick={openChatHistory}
 						>
-							<Item
-								size="md"
-								className="border-b border-border/60 hover:bg-muted/30 last:border-b-0"
-							>
-								<ItemContent className="min-w-0 flex-1">
-									<ItemTitle>{t('settings.chatHistory.title')}</ItemTitle>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none justify-end">
-									<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
-								</ItemActions>
-							</Item>
-						</button>
+							<ItemContent className="min-w-0 flex-1">
+								<ItemTitle>{t('settings.chatHistory.title')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
+							</ItemActions>
+						</Item>
 					</SettingsPanel>
 				</SettingsSection>
 			)}
@@ -536,33 +533,32 @@ const AgentDetailsPage: React.FC = () => {
 					description={configurationDescription}
 				>
 					<SettingsPanel>
-						<button
+						<Item
+							as="button"
 							type="button"
 							aria-expanded={providerCardOpen}
 							aria-controls="agent-provider-card-content"
-							className="block w-full p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
+							size="md"
+							className={`text-left hover:bg-muted/30 ${
+								providerCardOpen ? 'border-b border-border/60' : ''
+							}`}
 							onClick={() => setProviderCardOpen((open) => !open)}
 						>
-							<Item
-								size="md"
-								className={`hover:bg-muted/30 ${providerCardOpen ? 'border-b border-border/60' : ''}`}
-							>
-								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-									<ItemTitle>{t('settings.agents.provider')}</ItemTitle>
-									<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-										{providerCardSummary}
-									</p>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none justify-end">
-									<ChevronDown
-										className={`size-3 text-muted-foreground transition-transform ${
-											providerCardOpen ? 'rotate-180' : ''
-										}`}
-										strokeWidth={1.8}
-									/>
-								</ItemActions>
-							</Item>
-						</button>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle>{t('settings.agents.provider')}</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{providerCardSummary}
+								</p>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronDown
+									className={`size-3 text-muted-foreground transition-transform ${
+										providerCardOpen ? 'rotate-180' : ''
+									}`}
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
 
 						{providerCardOpen && (
 							<div id="agent-provider-card-content" className="grid gap-3 p-3">
