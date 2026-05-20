@@ -65,6 +65,12 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: connectorDetailName ?? t('settings.connectors.detailsTitle') });
 	}
 
+	if (location.pathname.startsWith('/settings/skills/skilldetails/')) {
+		const skillId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: skillId });
+	}
+
 	if (location.pathname.startsWith('/settings/general/agentdetails/')) {
 		const agentId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
 		items[0] = { ...items[0], path: current.path };
