@@ -3,15 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import {
 	CircleOff,
-	Database,
 	FolderOpen,
-	MessageSquareText,
-	RefreshCw,
 	Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -148,7 +145,6 @@ const ChatHistoryPage: React.FC = () => {
 				<SettingsPageHeader
 					title={t('settings.chatHistory.title')}
 					description={t('settings.chatHistory.description')}
-					icon={MessageSquareText}
 				/>
 				<Card size="sm" className="p-0!">
 					<SettingsEmptyState
@@ -167,15 +163,11 @@ const ChatHistoryPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.chatHistory.title')}
 				description={t('settings.chatHistory.description')}
-				icon={MessageSquareText}
 			/>
 
 			<SettingsSection title={t('settings.chatHistory.title')}>
 				<Card size="sm" className="gap-0! p-0!">
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<MessageSquareText className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
+					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 							<ItemTitle>{t('settings.chatHistory.messages')}</ItemTitle>
 							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
@@ -198,10 +190,7 @@ const ChatHistoryPage: React.FC = () => {
 							</span>
 						</ItemActions>
 					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Database className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
+					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 							<ItemTitle>{t('settings.chatHistory.contextSize')}</ItemTitle>
 							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
@@ -219,11 +208,8 @@ const ChatHistoryPage: React.FC = () => {
 							</span>
 						</ItemActions>
 					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Trash2 className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
+						<ItemContent className="min-w-48 flex-[1_1_auto] flex-col items-start gap-0">
 							<ItemTitle>{t('settings.chatHistory.actions')}</ItemTitle>
 							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
 								{chatHistoryErrorKey
@@ -231,7 +217,7 @@ const ChatHistoryPage: React.FC = () => {
 									: t('settings.chatHistory.actionsDescription')}
 							</p>
 						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end gap-2">
+						<ItemActions className="ml-auto flex-none justify-end gap-1.5">
 							<Button
 								variant="ghost"
 								size="icon-xs"
@@ -241,15 +227,6 @@ const ChatHistoryPage: React.FC = () => {
 								title={t('settings.chatHistory.openFolder')}
 							>
 								<FolderOpen className="size-3" />
-							</Button>
-							<Button
-								variant="outline"
-								size="xs"
-								onClick={() => void refreshChatHistory()}
-								disabled={chatHistoryLoading || chatHistoryDeleting}
-							>
-								<RefreshCw className="size-3" />
-								{t('settings.chatHistory.refresh')}
 							</Button>
 							<Button
 								variant="destructive"
