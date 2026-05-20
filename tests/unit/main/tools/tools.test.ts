@@ -316,6 +316,18 @@ describe('tools/exec', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
+	it('allows disabling the foreground command timeout', async () => {
+		const workspace = await makeTempDir();
+		const result = await execTool.execute(
+			{ command: 'node -e "setTimeout(() => console.log(\'done\'), 25)"', timeoutMs: 0 },
+			makeToolContext({ workspace })
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.content[0]?.text).toContain('done');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
 	it('keeps shell workdirs inside the workspace when writeWorkspaceOnly is enabled', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
