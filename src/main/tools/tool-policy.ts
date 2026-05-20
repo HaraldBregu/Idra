@@ -8,7 +8,7 @@ export type ToolPolicy = {
 	allow?: string[];
 	alsoAllow?: string[];
 	deny?: string[];
-	fs?: { workspaceOnly?: boolean; readOnly?: boolean };
+	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	exec?: Record<string, unknown>;
 };
 
