@@ -14,10 +14,16 @@ Use this prompt to test `research-brief` with a local document:
 Use the research-brief skill to create a concise research brief from docs/agent-skills.md. Include key findings, risks, and next steps.
 ```
 
+Use this prompt to test saving the brief to a file:
+
+```text
+Use the research-brief skill to create a concise research brief from docs/agent-skills.md and write it to docs/research-brief-output.md. Include key findings, risks, and next steps.
+```
+
 Expected result:
 
 - The assistant reads `resources/demo-skills/research-brief/SKILL.md` with `read`.
-- The final answer is a short brief with findings, risks, and next steps.
+- The final answer is a short brief with findings, risks, and next steps, or confirms the saved output path when a file path is requested.
 - The assistant message shows a `Skill used` chip for `research-brief`.
 
 ## Release Notes Drafter
