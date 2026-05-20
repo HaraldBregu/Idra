@@ -251,7 +251,10 @@ describe('provider model policy', () => {
 		expect(isAllowedAgentModel('mistral', 'mistral-large-latest')).toBe(true);
 		expect(isAllowedAgentModel('mistral', 'mistral-large-3')).toBe(false);
 		expect(isAllowedAgentModel('deepseek', 'deepseek-v4-pro')).toBe(true);
-		expect(isAllowedAgentModel('deepseek', 'deepseek-chat')).toBe(false);
+		expect(isAllowedAgentModel('deepseek', 'deepseek-v4-flash')).toBe(true);
+		expect(isAllowedAgentModel('deepseek', 'deepseek-reasoner')).toBe(true);
+		expect(isAllowedAgentModel('deepseek', 'deepseek-chat')).toBe(true);
+		expect(isAllowedAgentModel('deepseek', 'deepseek-r1')).toBe(false);
 	});
 
 	it('leaves other providers unrestricted', () => {
