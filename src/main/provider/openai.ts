@@ -83,12 +83,14 @@ interface ChatToolCallState {
 
 export class OpenAIChatAdapter implements ProviderAdapter {
 	private readonly client: OpenAI;
+	private readonly reasoningEffortEnabled: boolean;
 
 	constructor(opts: OpenAIChatAdapterOptions) {
 		if (!opts.apiKey) throw new ProviderAuthError('API key not configured');
 		const factory =
 			opts.clientFactory ?? ((c) => new OpenAI({ apiKey: c.apiKey, baseURL: c.baseURL }));
 		this.client = factory({ apiKey: opts.apiKey, baseURL: opts.baseURL });
+		this.reasoningEffortEnabled = opts.reasoningEffortEnabled ?? false;
 	}
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
