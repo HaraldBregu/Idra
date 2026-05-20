@@ -77,7 +77,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		const isChatHistoryPage = parts[5] === 'chathistory';
 		items[0] = { ...items[0], path: current.path };
 		const label = agentId === 'friday' || agentId === 'main'
-			? t('settings.agents.fridayName')
+			? t('settings.agents.fridayBreadcrumb')
 			: agentId === SPEECH_TRANSCRIBER_AGENT_ID
 				? t('settings.agents.speechTranscriberName')
 				: agentId === TEXT_TO_SPEECH_AGENT_ID

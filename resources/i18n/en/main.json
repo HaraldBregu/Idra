@@ -533,6 +533,7 @@
 			"allAgents": "All agents",
 			"identity": "Identity",
 			"configuration": "Configuration",
+			"fridayBreadcrumb": "Friday",
 			"fridayName": "Friday Assistant",
 			"fridayDescription": "Answers questions, plans work, and uses tools.",
 			"speechTranscriberName": "Speech to Text",

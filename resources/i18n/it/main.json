@@ -533,6 +533,7 @@
 			"allAgents": "Tutti gli agenti",
 			"identity": "Identita",
 			"configuration": "Configurazione",
+			"fridayBreadcrumb": "Friday",
 			"fridayName": "Assistente Friday",
 			"fridayDescription": "Risponde alle domande, pianifica il lavoro e usa strumenti.",
 			"speechTranscriberName": "Speech to Text",

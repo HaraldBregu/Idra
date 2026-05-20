@@ -14,6 +14,7 @@ function renderSettings(path: string): void {
 			<Routes>
 				<Route path="/settings" element={<Layout />}>
 					<Route path="general" element={<div>General page</div>} />
+					<Route path="agents/:agentId/details" element={<div>Agent details page</div>} />
 					<Route path="cron" element={<div>Cron page</div>} />
 				</Route>
 			</Routes>
@@ -33,5 +34,12 @@ describe('Settings Layout', () => {
 		renderSettings('/settings/cron');
 
 		expect(screen.getByRole('banner')).toHaveClass('sticky', 'top-0', 'z-20');
+	});
+
+	it('uses the short Friday label for the Friday agent breadcrumb', () => {
+		renderSettings('/settings/agents/friday/details');
+
+		expect(screen.getByText('settings.agents.fridayBreadcrumb')).toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.fridayName')).not.toBeInTheDocument();
 	});
 });
