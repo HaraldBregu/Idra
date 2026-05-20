@@ -6,7 +6,7 @@ describe('AgentTaskHandler', () => {
 		const cancel = jest.fn();
 		const handler = new AgentTaskHandler({ send, cancel } as never);
 		const input = handler.validateInput({
-			message: 'Summarize reports',
+			message: ' Summarize reports ',
 			agentId: 'analyst',
 			sessionId: 'task-session',
 			providerId: ' Anthropic ',
@@ -35,5 +35,34 @@ describe('AgentTaskHandler', () => {
 		);
 		expect(updateProgress).toHaveBeenCalledWith({ message: 'Starting agent' });
 		expect(updateProgress).toHaveBeenCalledWith({ message: 'Agent completed' });
+	});
+
+	it('cancels the agent session when the task signal aborts', async () => {
+		let rejectSend: ((error: unknown) => void) | undefined;
+		const send = jest.fn(
+			() =>
+				new Promise<string>((_resolve, reject) => {
+					rejectSend = reject;
+				})
+		);
+		const cancel = jest.fn();
+		const handler = new AgentTaskHandler({ send, cancel } as never);
+		const input = handler.validateInput({
+			message: 'Run background research',
+			sessionId: 'task-session',
+		});
+		const controller = new AbortController();
+
+		const run = handler.run({
+			taskId: 'task-1',
+			input,
+			signal: controller.signal,
+			updateProgress: jest.fn(),
+		});
+		controller.abort();
+		rejectSend?.(new Error('cancelled'));
+
+		await expect(run).rejects.toMatchObject({ name: 'AbortError' });
+		expect(cancel).toHaveBeenCalledWith('task-session');
 	});
 });
