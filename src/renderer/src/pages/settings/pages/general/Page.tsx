@@ -246,7 +246,7 @@ const GeneralPage: React.FC = () => {
 	}, [navigate]);
 
 	const handleAgentKeyDown = useCallback(
-		(event: React.KeyboardEvent<HTMLDivElement>, agentId: string) => {
+		(event: React.KeyboardEvent<HTMLElement>, agentId: string) => {
 			if (event.key !== 'Enter' && event.key !== ' ') return;
 			event.preventDefault();
 			openAgent(agentId);
