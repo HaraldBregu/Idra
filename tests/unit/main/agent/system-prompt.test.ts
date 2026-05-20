@@ -83,6 +83,8 @@ describe('agent/system-prompt', () => {
 		});
 
 		expect(prompt).toContain('<available_skills>');
+		expect(prompt).toContain('read its SKILL.md at the exact <location> with `read`');
+		expect(prompt).not.toContain('Use `execute_skill` to load a skill');
 		expect(prompt).toContain('<id>xml-skill@1.0.0</id>');
 		expect(prompt).toContain('<name>xml &amp; support</name>');
 		expect(prompt).toContain('<description>Use &lt;policy&gt; references for support replies.</description>');
