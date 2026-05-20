@@ -156,7 +156,7 @@ describe('SkillsPage', () => {
 		expect(screen.getByText('web_fetch')).toBeInTheDocument();
 	});
 
-	it('calls delete and refreshes the list after confirming', async () => {
+	it('calls delete and returns to the list after confirming', async () => {
 		const skill = makeSkill('greet', 'Greet');
 		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 		jest.spyOn(window, 'confirm').mockReturnValue(true);
