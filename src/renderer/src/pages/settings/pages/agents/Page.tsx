@@ -12,7 +12,6 @@ import {
 	Volume2,
 	type LucideIcon,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsPageHeader,
@@ -37,7 +36,6 @@ const AGENT_ROWS = [
 		nameKey: 'settings.agents.fridayName',
 		descriptionKey: 'settings.agents.fridayDescription',
 		icon: Bot,
-		badgeKey: 'settings.agents.defaultAgent',
 	},
 	{
 		id: SPEECH_TRANSCRIBER_AGENT_ID,
@@ -80,7 +78,6 @@ const AGENT_ROWS = [
 	readonly nameKey: string;
 	readonly descriptionKey: string;
 	readonly icon: LucideIcon;
-	readonly badgeKey?: string;
 }[];
 
 const AgentsPage: React.FC = () => {
@@ -119,14 +116,6 @@ const AgentsPage: React.FC = () => {
 									<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 										<span className="flex min-w-0 flex-wrap items-center gap-1.5">
 											<span className="truncate">{t(agent.nameKey)}</span>
-											{agent.badgeKey && (
-												<Badge
-													variant="outline"
-													className="h-4 rounded-md bg-muted/40 px-1.5 py-0 text-[10px] text-muted-foreground"
-												>
-													{t(agent.badgeKey)}
-												</Badge>
-											)}
 										</span>
 									</ItemTitle>
 									<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">

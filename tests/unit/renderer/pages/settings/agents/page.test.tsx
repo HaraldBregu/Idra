@@ -24,11 +24,11 @@ function renderAgentsPage(): void {
 }
 
 describe('AgentsPage', () => {
-	it('renders the default Friday agent', () => {
+	it('renders the Friday agent without a default badge', () => {
 		renderAgentsPage();
 
 		expect(screen.getByText('settings.agents.fridayName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.defaultAgent')).toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.defaultAgent')).not.toBeInTheDocument();
 	});
 
 	it('renders speech, image, video, music, and document agents', () => {
