@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { useIsDark } from "@/hooks/use-is-dark"
 import React, { useEffect, useState } from "react"
 import { codeToHtml } from "shiki"
 
@@ -32,10 +33,12 @@ export type CodeBlockCodeProps = {
 function CodeBlockCode({
   code,
   language = "tsx",
-  theme = "github-light",
+  theme,
   className,
   ...props
 }: CodeBlockCodeProps) {
+  const isDark = useIsDark()
+  const activeTheme = theme ?? (isDark ? "github-dark" : "github-light")
   const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null)
 
   useEffect(() => {
@@ -45,11 +48,11 @@ function CodeBlockCode({
         return
       }
 
-      const html = await codeToHtml(code, { lang: language, theme })
+      const html = await codeToHtml(code, { lang: language, theme: activeTheme })
       setHighlightedHtml(html)
     }
     highlight()
-  }, [code, language, theme])
+  }, [activeTheme, code, language])
 
   const classNames = cn(
     "w-full overflow-x-auto text-[13px] [&>pre]:px-4 [&>pre]:py-4",
