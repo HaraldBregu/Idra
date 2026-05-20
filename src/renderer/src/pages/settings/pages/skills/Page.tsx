@@ -38,8 +38,8 @@ function getErrorMessage(error: unknown, fallback: string): string {
 	return fallback;
 }
 
-function compactList(values: readonly string[] | undefined): string {
-	return values && values.length > 0 ? values.join(', ') : 'None';
+function compactList(values: readonly string[] | undefined, emptyLabel: string): string {
+	return values && values.length > 0 ? values.join(', ') : emptyLabel;
 }
 
 function metadataFlag(skill: SkillInfo, key: string): boolean | undefined {
@@ -277,18 +277,24 @@ const SkillsPage: React.FC = () => {
 								/>
 								<SkillDetail
 									label={t('settings.skills.detailTools')}
-									value={compactList([
-										...(selectedSkill.manifest.requiredTools ?? []),
-										...(selectedSkill.manifest.allowedTools ?? []),
-									])}
+									value={compactList(
+										[
+											...(selectedSkill.manifest.requiredTools ?? []),
+											...(selectedSkill.manifest.allowedTools ?? []),
+										],
+										t('settings.skills.none')
+									)}
 								/>
 								<SkillDetail
 									label={t('settings.skills.detailConnectors')}
-									value={compactList(selectedSkill.manifest.requiredConnectors)}
+									value={compactList(
+										selectedSkill.manifest.requiredConnectors,
+										t('settings.skills.none')
+									)}
 								/>
 								<SkillDetail
 									label={t('settings.skills.detailTags')}
-									value={compactList(selectedSkill.manifest.tags)}
+									value={compactList(selectedSkill.manifest.tags, t('settings.skills.none'))}
 								/>
 								<SkillDetail
 									label={t('settings.skills.detailModel')}
