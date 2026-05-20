@@ -7,7 +7,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
-import { AgentService } from './service';
+import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
@@ -93,7 +93,7 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
-	const agentDependencies = {
+	const agentDependencies: AgentServiceDependencies = {
 		store,
 		cron,
 		logger,
