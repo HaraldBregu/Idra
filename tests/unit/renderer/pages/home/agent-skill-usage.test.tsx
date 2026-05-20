@@ -32,7 +32,6 @@ describe('agent skill usage', () => {
 		]);
 
 		expect(usages).toEqual([
-			{ id: 'research-brief', label: 'research-brief' },
 			{ id: 'research-brief', version: '1.0.0', label: 'research-brief@1.0.0' },
 			{ id: 'summary-helper', version: '0.2.0', label: 'summary-helper@0.2.0' },
 			{ id: 'data-quality-check', version: '1.0.0', label: 'data-quality-check@1.0.0' },

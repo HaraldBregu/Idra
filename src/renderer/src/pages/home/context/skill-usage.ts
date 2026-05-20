@@ -43,6 +43,14 @@ function addUsage(
 	if (!usage) return;
 	const key = usage.version ? `${usage.id}@${usage.version}` : usage.id;
 	if (seen.has(key)) return;
+	if (!usage.version && items.some((item) => item.id === usage.id)) return;
+	if (usage.version) {
+		const unversionedIndex = items.findIndex((item) => item.id === usage.id && !item.version);
+		if (unversionedIndex !== -1) {
+			seen.delete(usage.id);
+			items.splice(unversionedIndex, 1);
+		}
+	}
 	seen.add(key);
 	items.push(usage);
 }
