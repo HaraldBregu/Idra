@@ -42,6 +42,18 @@ describe('AgentsPage', () => {
 		expect(screen.getByText('settings.agents.documentReaderName')).toBeInTheDocument();
 	});
 
+	it('does not render agent descriptions in the list', () => {
+		renderAgentsPage();
+
+		expect(screen.queryByText('settings.agents.fridayDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.speechTranscriberDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.textToSpeechDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.imageAssistantDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.videoCreatorDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.musicCreatorDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.agents.documentReaderDescription')).not.toBeInTheDocument();
+	});
+
 	it('navigates to the Friday agent details route when clicked', async () => {
 		const user = userEvent.setup();
 		renderAgentsPage();

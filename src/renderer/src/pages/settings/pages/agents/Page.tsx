@@ -34,49 +34,41 @@ const AGENT_ROWS = [
 	{
 		id: FRIDAY_AGENT_SLUG,
 		nameKey: 'settings.agents.fridayName',
-		descriptionKey: 'settings.agents.fridayDescription',
 		icon: Bot,
 	},
 	{
 		id: SPEECH_TRANSCRIBER_AGENT_ID,
 		nameKey: 'settings.agents.speechTranscriberName',
-		descriptionKey: 'settings.agents.speechTranscriberDescription',
 		icon: Mic,
 	},
 	{
 		id: TEXT_TO_SPEECH_AGENT_ID,
 		nameKey: 'settings.agents.textToSpeechName',
-		descriptionKey: 'settings.agents.textToSpeechDescription',
 		icon: Volume2,
 	},
 	{
 		id: IMAGE_ASSISTANT_AGENT_ID,
 		nameKey: 'settings.agents.imageAssistantName',
-		descriptionKey: 'settings.agents.imageAssistantDescription',
 		icon: ImageIcon,
 	},
 	{
 		id: VIDEO_CREATOR_AGENT_ID,
 		nameKey: 'settings.agents.videoCreatorName',
-		descriptionKey: 'settings.agents.videoCreatorDescription',
 		icon: Video,
 	},
 	{
 		id: MUSIC_CREATOR_AGENT_ID,
 		nameKey: 'settings.agents.musicCreatorName',
-		descriptionKey: 'settings.agents.musicCreatorDescription',
 		icon: Music,
 	},
 	{
 		id: DOCUMENT_READER_AGENT_ID,
 		nameKey: 'settings.agents.documentReaderName',
-		descriptionKey: 'settings.agents.documentReaderDescription',
 		icon: ScanText,
 	},
 ] satisfies readonly {
 	readonly id: string;
 	readonly nameKey: string;
-	readonly descriptionKey: string;
 	readonly icon: LucideIcon;
 }[];
 
@@ -118,9 +110,6 @@ const AgentsPage: React.FC = () => {
 											<span className="truncate">{t(agent.nameKey)}</span>
 										</span>
 									</ItemTitle>
-									<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-										{t(agent.descriptionKey)}
-									</p>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end">
 									<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
