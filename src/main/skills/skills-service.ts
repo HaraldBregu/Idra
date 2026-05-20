@@ -344,7 +344,7 @@ export class SkillsService {
 		const root = this.getSkillsRoot();
 		const entries = await fs.promises.readdir(root, { withFileTypes: true });
 		for (const entry of entries) {
-			if (!entry.isDirectory()) continue;
+			if (!entry.isDirectory() || isIgnoredSkillDirectoryName(entry.name)) continue;
 			const folderPath = path.join(root, entry.name);
 			try {
 				await this.registerDynamicSkill(folderPath);
