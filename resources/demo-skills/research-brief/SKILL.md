@@ -30,7 +30,7 @@ Use `assets/brief-template.md` when the user asks for a reusable Markdown templa
 ## File Output
 
 - Default to replying in chat unless the user asks for a file or provides an output path.
-- When saving, write Markdown using the same brief structure requested for the chat response.
+- When saving, use the available `write` tool and write Markdown using the same brief structure requested for the chat response.
 - If the destination file already exists, read it before overwriting.
 - After writing, reply with the saved path and a short summary of what was included.
 
