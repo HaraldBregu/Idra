@@ -373,6 +373,30 @@
 			"emptyDescription": "Le attivita appariranno qui una volta avviate.",
 			"notFoundTitle": "Attivita non trovata",
 			"notFoundDescription": "L'attivita potrebbe essere stata rimossa.",
+			"create": {
+				"title": "Crea attivita",
+				"type": "Tipo",
+				"typeAgent": "Esecuzione agente",
+				"typeOcr": "Esecuzione OCR",
+				"taskTitle": "Titolo",
+				"taskTitlePlaceholder": "Titolo attivita opzionale",
+				"message": "Messaggio",
+				"messagePlaceholder": "Chiedi a Friday di fare qualcosa",
+				"imageBase64": "Immagine Base64",
+				"imageBase64Placeholder": "Incolla il payload base64 dell'immagine",
+				"mimeType": "Tipo MIME",
+				"mimeTypePlaceholder": "image/png",
+				"language": "Lingua",
+				"languagePlaceholder": "Codice lingua opzionale",
+				"start": "Avvia attivita",
+				"starting": "Avvio...",
+				"defaultAgentTitle": "Attivita agente",
+				"defaultOcrTitle": "Attivita OCR",
+				"errors": {
+					"messageRequired": "Il messaggio e obbligatorio.",
+					"imageRequired": "L'immagine Base64 e obbligatoria."
+				}
+			},
 			"fields": {
 				"id": "Id",
 				"type": "Tipo",

@@ -373,6 +373,30 @@
 			"emptyDescription": "Tasks will appear here once they are started.",
 			"notFoundTitle": "Task not found",
 			"notFoundDescription": "The task may have been removed.",
+			"create": {
+				"title": "Create Task",
+				"type": "Type",
+				"typeAgent": "Agent run",
+				"typeOcr": "OCR run",
+				"taskTitle": "Title",
+				"taskTitlePlaceholder": "Optional task title",
+				"message": "Message",
+				"messagePlaceholder": "Ask Friday to do something",
+				"imageBase64": "Image Base64",
+				"imageBase64Placeholder": "Paste the base64 image payload",
+				"mimeType": "MIME type",
+				"mimeTypePlaceholder": "image/png",
+				"language": "Language",
+				"languagePlaceholder": "Optional language code",
+				"start": "Start Task",
+				"starting": "Starting...",
+				"defaultAgentTitle": "Agent task",
+				"defaultOcrTitle": "OCR task",
+				"errors": {
+					"messageRequired": "Message is required.",
+					"imageRequired": "Image Base64 is required."
+				}
+			},
 			"fields": {
 				"id": "Id",
 				"type": "Type",

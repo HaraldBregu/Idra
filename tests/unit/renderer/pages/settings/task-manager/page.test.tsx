@@ -98,6 +98,40 @@ describe('TaskManagerPage', () => {
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/task-manager/taskdetails/task-1');
 	});
 
+	it('creates an agent task and opens its detail page', async () => {
+		mockTasksApi({
+			start: jest.fn(async () => makeTask('task-created', 'queued')),
+		});
+
+		const user = userEvent.setup();
+		renderTaskManagerPage();
+
+		await user.type(await screen.findByLabelText('settings.taskManager.create.taskTitle'), 'Summarize');
+		await user.type(screen.getByLabelText('settings.taskManager.create.message'), 'Summarize the workspace');
+		await user.click(screen.getByRole('button', { name: /settings\.taskManager\.create\.start/ }));
+
+		await waitFor(() => {
+			expect(window.tasks.start).toHaveBeenCalledWith({
+				type: 'agent.run',
+				title: 'Summarize',
+				input: { message: 'Summarize the workspace' },
+			});
+		});
+		expect(screen.getByTestId('location')).toHaveTextContent(
+			'/settings/task-manager/taskdetails/task-created'
+		);
+	});
+
+	it('requires an agent task message before starting', async () => {
+		const user = userEvent.setup();
+		renderTaskManagerPage();
+
+		await user.click(await screen.findByRole('button', { name: /settings\.taskManager\.create\.start/ }));
+
+		expect(await screen.findByText('settings.taskManager.create.errors.messageRequired')).toBeInTheDocument();
+		expect(window.tasks.start).not.toHaveBeenCalled();
+	});
+
 	it('updates the list from task lifecycle events', async () => {
 		let listener: ((event: TaskEvent) => void) | null = null;
 		mockTasksApi({
