@@ -513,6 +513,15 @@ async function listSkillResources(sourcePath: string): Promise<string[]> {
 	return resources;
 }
 
+async function listPresentResourceDirectories(sourcePath: string): Promise<string[]> {
+	const directories: string[] = [];
+	for (const directoryName of RESOURCE_DIRS) {
+		const stat = await fs.stat(path.join(sourcePath, directoryName)).catch(() => undefined);
+		if (stat?.isDirectory()) directories.push(directoryName);
+	}
+	return directories;
+}
+
 function tokenOverlapScore(query: string, skill: SkillManifest): number {
 	const queryTokens = new Set(query.toLowerCase().split(/[^a-z0-9]+/).filter((item) => item.length > 2));
 	const skillText = [skill.name, skill.description, ...(skill.tags ?? [])].join(' ').toLowerCase();
@@ -653,9 +662,7 @@ export class SkillLoader {
 			format: 'agent-skill',
 			standard: 'agentskills.io',
 			kind: options.structureKind ?? 'direct',
-			resourceDirectories: RESOURCE_DIRS.filter((directoryName) =>
-				fs.stat(path.join(sourcePath, directoryName)).then((stat) => stat.isDirectory()).catch(() => false)
-			) as unknown as string[],
+			resourceDirectories: await listPresentResourceDirectories(sourcePath),
 		};
 		const manifest = {
 			...parsed.manifest,
