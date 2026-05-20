@@ -86,6 +86,7 @@ export function inferCategories(userIntent: string, memory?: RelevantMemory): Se
 	if (/\b(email|mail|inbox|draft|send)\b/.test(text)) categories.add('email');
 	if (/\b(calendar|agenda|availability|available|free|busy|meeting|schedule|event|appointment)\b/.test(text)) categories.add('calendar');
 	if (/\b(database|sql|query|record)\b/.test(text)) categories.add('database');
+	if (/\b(background tasks?|tasks?|task manager)\b/.test(text)) categories.add('internalApi');
 	if (/\b(run|execute|script|test|build|terminal|shell)\b/.test(text)) categories.add('codeExecution');
 	if (/\b(memory|remember|preference|recall)\b/.test(text)) categories.add('memory');
 	if (/\b(search|current|latest|today|news|look up|web)\b/.test(text)) categories.add('search');

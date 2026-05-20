@@ -362,10 +362,38 @@ describe('tool management layer', () => {
 			shouldUseTools: true,
 			reason: 'request depends on external, private, current, or mutable data',
 		});
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run a task in background.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request depends on external, private, current, or mutable data',
+		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Cancel task task-1.' })).toEqual({
 			shouldUseTools: true,
 			reason: 'request depends on external, private, current, or mutable data',
 		});
+	});
+
+	it('selects the task tool for immediate background task requests', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('exec', 'Run a shell command in the workspace.'),
+				makeAgentTool(
+					'task',
+					'Start an immediate in-memory background task by calling TaskManager.run from src/main/tasks. Use this tool when the user asks to "run a task in background".'
+				),
+				makeAgentTool('process', 'List background processes started by exec.'),
+			],
+			'run a task in background',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
 	});
 
 	it('selects connector Gmail tools from their descriptions even with custom labels', () => {

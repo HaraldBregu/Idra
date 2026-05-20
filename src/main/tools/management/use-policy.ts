@@ -60,9 +60,9 @@ function needsExternalAccess(request: string): boolean {
 	if (/\b(browser|navigate|screenshot|visit|open (url|link|page|site|tab)|go to|launch browser)\b/.test(request)) {
 		return true;
 	}
-	if (/\b(start|list|show|get|retrieve|cancel|check)\b.*\btasks?\b/.test(request)) {
-		return true;
-	}
+		if (/\b(run|start|list|show|get|retrieve|cancel|check)\b.*\btasks?\b/.test(request)) {
+			return true;
+		}
 	if (/\btasks?\b.*\b(records?|status|running|active|start|list|show|get|retrieve|cancel)\b/.test(request)) {
 		return true;
 	}
