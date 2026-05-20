@@ -605,6 +605,22 @@ describe('skill system', () => {
 		await fs.rm(source, { recursive: true, force: true });
 	});
 
+	it('loads bundled demo Agent Skills from resources', async () => {
+		const discovery = await new SkillLoader().loadPackages(
+			path.resolve('resources', 'demo-skills'),
+			{ trusted: true }
+		);
+
+		expect(discovery.skipped).toEqual([]);
+		expect(discovery.packages.map((item) => item.manifest.id).sort()).toEqual([
+			'data-quality-check',
+			'release-notes-drafter',
+			'research-brief',
+		]);
+		expect(discovery.packages.every((item) => item.structure.standard === 'agentskills.io')).toBe(true);
+		expect(discovery.packages.every((item) => item.diagnostics.length === 0)).toBe(true);
+	});
+
 	it('imports standard Agent Skills from a project .agents skills folder', async () => {
 		const root = await makeTempDir();
 		const source = await makeTempDir();
