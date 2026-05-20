@@ -277,7 +277,7 @@ export class AgentService {
 				plan: { entries: runtime.session.plan },
 				approvalCache: new Set(),
 				approvalRequired: new Set(),
-				fsPolicy: { workspaceOnly: false, readOnly: false },
+				fsPolicy: { workspaceOnly: false, writeWorkspaceOnly: true, readOnly: false },
 				signal: abort.signal,
 				elicit: {
 					ask: (question, suggestions) => {
