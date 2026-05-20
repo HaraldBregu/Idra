@@ -39,6 +39,12 @@ function extractOcrText(payload: unknown): string {
 	return JSON.stringify(payload);
 }
 
+function abortError(): Error {
+	const error = new Error('Task was cancelled.');
+	error.name = 'AbortError';
+	return error;
+}
+
 export class OcrTaskHandler implements TaskHandler<OcrTaskInput, OcrTaskResult> {
 	readonly type = OCR_TASK_TYPE;
 
@@ -61,16 +67,20 @@ export class OcrTaskHandler implements TaskHandler<OcrTaskInput, OcrTaskResult> 
 	}
 
 	async run(context: TaskContext<OcrTaskInput>): Promise<OcrTaskResult> {
+		if (context.signal.aborted) throw abortError();
+
 		const endpoint = this.store.getService()?.ocr?.trim();
 		if (!endpoint) throw new Error('OCR service is not configured.');
 
 		context.updateProgress({ message: 'Submitting OCR request' });
+		if (context.signal.aborted) throw abortError();
 		const response = await fetch(endpoint, {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify(context.input),
 			signal: context.signal,
 		});
+		if (context.signal.aborted) throw abortError();
 		if (!response.ok) {
 			throw new Error(`OCR request failed with status ${response.status}.`);
 		}
@@ -79,6 +89,7 @@ export class OcrTaskHandler implements TaskHandler<OcrTaskInput, OcrTaskResult> 
 		const raw = contentType.includes('json')
 			? ((await response.json()) as unknown)
 			: await response.text();
+		if (context.signal.aborted) throw abortError();
 		const text = extractOcrText(raw);
 		context.updateProgress({ message: 'OCR completed' });
 		return { text, raw };
