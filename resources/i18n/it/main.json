@@ -504,8 +504,6 @@
 			"title": "Provider",
 			"description": "Gestisci i provider di servizi AI disponibili per Friday.",
 			"registeredProviders": "Provider Registrati",
-			"connectorProviderPlatforms": "Piattaforme Provider Connector",
-			"connectorProviderPlatformsDescription": "Rivedi le piattaforme di integrazione disponibili per esecuzione e governance future dei connector.",
 			"manageNote": "Gestisci le chiavi API dei provider dalla pagina Modelli nella navigazione principale.",
 			"noProviders": "Nessun provider configurato.",
 			"modelsCount": "{{count}} modelli",
