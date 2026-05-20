@@ -573,7 +573,6 @@
 			"documentReaderModelDescription": "Model used to extract text.",
 			"configurationPending": "This agent is available in the setup list, but its model settings are not saved from Settings yet.",
 			"modelUnavailable": "Not available yet",
-			"defaultAgent": "Default agent",
 			"provider": "Provider",
 			"providerDescription": "AI service provider this agent uses.",
 			"providerPlaceholder": "Select provider",

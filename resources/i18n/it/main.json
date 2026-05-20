@@ -573,7 +573,6 @@
 			"documentReaderModelDescription": "Modello usato per estrarre testo.",
 			"configurationPending": "Questo agente e disponibile nella configurazione iniziale, ma le impostazioni modello non vengono ancora salvate dalle Impostazioni.",
 			"modelUnavailable": "Non ancora disponibile",
-			"defaultAgent": "Agente predefinito",
 			"provider": "Provider",
 			"providerDescription": "Provider AI usato da questo agente.",
 			"providerPlaceholder": "Seleziona provider",
