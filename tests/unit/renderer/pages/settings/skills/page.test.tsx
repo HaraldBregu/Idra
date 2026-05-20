@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { SkillInfo } from '../../../../../../src/shared/skills';
 import SkillsPage from '../../../../../../src/renderer/src/pages/settings/pages/skills/Page';
+import SkillDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/skills/details/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
@@ -36,6 +38,28 @@ function makeSkill(id: string, name: string): SkillInfo {
 	};
 }
 
+function renderSkillsPage(): ReturnType<typeof render> {
+	return render(
+		<MemoryRouter initialEntries={['/settings/skills']}>
+			<Routes>
+				<Route path="/settings/skills" element={<SkillsPage />} />
+				<Route path="/settings/skills/skilldetails/:skillId" element={<div>skill detail route</div>} />
+			</Routes>
+		</MemoryRouter>
+	);
+}
+
+function renderSkillDetailsPage(skillId = 'greet'): ReturnType<typeof render> {
+	return render(
+		<MemoryRouter initialEntries={[`/settings/skills/skilldetails/${skillId}`]}>
+			<Routes>
+				<Route path="/settings/skills" element={<div>skills list route</div>} />
+				<Route path="/settings/skills/skilldetails/:skillId" element={<SkillDetailsPage />} />
+			</Routes>
+		</MemoryRouter>
+	);
+}
+
 describe('SkillsPage', () => {
 	beforeEach(() => {
 		window.skills = {
@@ -48,7 +72,7 @@ describe('SkillsPage', () => {
 	});
 
 	it('shows empty state when no skills are installed', async () => {
-		render(<SkillsPage />);
+		renderSkillsPage();
 
 		expect(await screen.findByText('settings.skills.empty')).toBeInTheDocument();
 	});
@@ -59,11 +83,12 @@ describe('SkillsPage', () => {
 			makeSkill('summarize', 'Summarize'),
 		]);
 
-		render(<SkillsPage />);
+		renderSkillsPage();
 
 		expect(await screen.findByText('Greet')).toBeInTheDocument();
 		expect(screen.getByText('Summarize')).toBeInTheDocument();
-		expect(screen.getAllByText('v1.2.3')).toHaveLength(2);
+		expect(screen.getByText('Greet description')).toBeInTheDocument();
+		expect(screen.queryByText('v1.2.3')).not.toBeInTheDocument();
 	});
 
 	it('uploads a skill and refreshes the list', async () => {
@@ -74,7 +99,7 @@ describe('SkillsPage', () => {
 		});
 		const user = userEvent.setup();
 
-		render(<SkillsPage />);
+		renderSkillsPage();
 
 		await screen.findByText('settings.skills.empty');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.upload' }));
@@ -85,21 +110,17 @@ describe('SkillsPage', () => {
 		expect(window.skills.list).toHaveBeenCalled();
 	});
 
-	it('shows skill details', async () => {
+	it('navigates to a skill detail page from the row', async () => {
 		const skill = makeSkill('greet', 'Greet');
 		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 		const user = userEvent.setup();
 
-		render(<SkillsPage />);
+		renderSkillsPage();
 
 		await screen.findByText('Greet');
-		await user.click(screen.getByRole('button', { name: 'settings.skills.details' }));
+		await user.click(screen.getByRole('button', { name: /Greet/ }));
 
-		expect(screen.getByText('settings.skills.detailVersion')).toBeInTheDocument();
-		expect(screen.getByText('agentskills.io')).toBeInTheDocument();
-		expect(screen.getByText('1.2.3')).toBeInTheDocument();
-		expect(screen.getByText('/skills/greet/SKILL.md')).toBeInTheDocument();
-		expect(screen.getByText('web_fetch')).toBeInTheDocument();
+		expect(await screen.findByText('skill detail route')).toBeInTheDocument();
 	});
 
 	it('downloads an installed skill', async () => {
@@ -111,7 +132,7 @@ describe('SkillsPage', () => {
 		});
 		const user = userEvent.setup();
 
-		render(<SkillsPage />);
+		renderSkillDetailsPage();
 
 		await screen.findByText('Greet');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.download' }));
@@ -122,13 +143,26 @@ describe('SkillsPage', () => {
 		expect(await screen.findByText('settings.skills.downloaded:Greet:/downloads/greet')).toBeInTheDocument();
 	});
 
+	it('shows skill details on the detail page', async () => {
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
+
+		renderSkillDetailsPage();
+
+		expect(await screen.findByText('settings.skills.detailVersion')).toBeInTheDocument();
+		expect(screen.getByText('agentskills.io')).toBeInTheDocument();
+		expect(screen.getByText('1.2.3')).toBeInTheDocument();
+		expect(screen.getByText('/skills/greet/SKILL.md')).toBeInTheDocument();
+		expect(screen.getByText('web_fetch')).toBeInTheDocument();
+	});
+
 	it('calls delete and refreshes the list after confirming', async () => {
 		const skill = makeSkill('greet', 'Greet');
 		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 		jest.spyOn(window, 'confirm').mockReturnValue(true);
 
 		const user = userEvent.setup();
-		render(<SkillsPage />);
+		renderSkillDetailsPage();
 
 		await screen.findByText('Greet');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.delete' }));
@@ -136,6 +170,7 @@ describe('SkillsPage', () => {
 		await waitFor(() => {
 			expect(window.skills.delete).toHaveBeenCalledWith('greet');
 		});
+		expect(await screen.findByText('skills list route')).toBeInTheDocument();
 	});
 
 	it('does not delete when the confirmation is dismissed', async () => {
@@ -144,7 +179,7 @@ describe('SkillsPage', () => {
 		jest.spyOn(window, 'confirm').mockReturnValue(false);
 
 		const user = userEvent.setup();
-		render(<SkillsPage />);
+		renderSkillDetailsPage();
 
 		await screen.findByText('Greet');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.delete' }));
