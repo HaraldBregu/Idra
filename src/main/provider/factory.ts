@@ -33,5 +33,8 @@ export function makeProvider(provider: ProviderSpec): ProviderAdapter {
 	if (id === 'deepseek') {
 		return new DeepSeekAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 	}
+	if (id === 'qwen') {
+		return new QwenAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
+	}
 	return new OpenAIChatAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 }
