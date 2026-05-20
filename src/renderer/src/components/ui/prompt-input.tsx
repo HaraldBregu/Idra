@@ -365,6 +365,9 @@ function PromptInput({
     threshold: expandedThreshold,
     enabled: hasAdaptiveLayout,
   })
+  const isConversationMode = voiceMode === "conversation"
+  const isDictationMode = voiceMode === "dictation"
+  const isPromptExpanded = isExpanded || isDictationMode
 
   const handleChange = (newValue: string) => {
     setInternalValue(newValue)
@@ -390,7 +393,7 @@ function PromptInput({
           onSubmit,
           disabled,
           textareaRef,
-          isExpanded,
+          isExpanded: isPromptExpanded,
           adaptiveLayout: hasAdaptiveLayout,
           triggerFileUpload,
         }}
@@ -404,14 +407,14 @@ function PromptInput({
             <motion.div
               layout
               transition={transition}
-              onClick={voiceMode ? onClick : handleClick}
-              data-expanded={isExpanded}
+              onClick={isConversationMode ? onClick : handleClick}
+              data-expanded={isPromptExpanded}
               data-voice-mode={voiceMode ?? undefined}
               className={cn(
                 "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
-                voiceMode
+                isConversationMode
                   ? "flex min-h-10 items-center gap-2 rounded-full p-1.5 focus-within:ring-0"
-                  : isExpanded
+                  : isPromptExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
                   : "flex min-h-10 items-center gap-2 rounded-full p-1.5",
                 disabled && "cursor-not-allowed opacity-60",
@@ -419,7 +422,7 @@ function PromptInput({
               )}
               {...(props as React.ComponentProps<typeof motion.div>)}
             >
-              {voiceMode ? (
+              {isConversationMode ? (
                 <PromptInputVoicePanel
                   mode={voiceMode}
                   disabled={disabled}
@@ -435,7 +438,7 @@ function PromptInput({
               ) : (
                 <>
                   <AnimatePresence initial={false}>
-                    {!isExpanded && leadingAction && (
+                    {!isPromptExpanded && leadingAction && (
                       <PromptInputMotionSlot transition={transition}>
                         {leadingAction}
                       </PromptInputMotionSlot>
@@ -445,7 +448,7 @@ function PromptInput({
                     layout
                     transition={transition}
                     className={cn(
-                      isExpanded ? "min-h-0 flex-1" : "min-w-0 flex-1",
+                      isPromptExpanded ? "min-h-0 flex-1" : "min-w-0 flex-1",
                       contentClassName
                     )}
                   >
@@ -455,20 +458,33 @@ function PromptInput({
                     layout
                     transition={transition}
                     className={cn(
-                      isExpanded
+                      isPromptExpanded
                         ? "mt-3 flex items-center justify-between gap-2"
                         : "flex shrink-0 items-center gap-1.5",
                       footerClassName
                     )}
                   >
                     <AnimatePresence initial={false}>
-                      {isExpanded && leadingAction && (
+                      {isPromptExpanded && leadingAction && (
                         <PromptInputMotionSlot transition={transition}>
                           {leadingAction}
                         </PromptInputMotionSlot>
                       )}
                     </AnimatePresence>
-                    {actions}
+                    {isDictationMode ? (
+                      <PromptInputVoicePanel
+                        mode="dictation"
+                        disabled={disabled}
+                        elapsedMs={voiceElapsedMs}
+                        muted={voiceMuted}
+                        mediaStream={voiceMediaStream}
+                        onCancel={onVoiceCancel}
+                        onConfirm={onVoiceConfirm ?? onSubmit}
+                        onMutedChange={onVoiceMutedChange}
+                      />
+                    ) : (
+                      actions
+                    )}
                   </motion.div>
                 </>
               )}
