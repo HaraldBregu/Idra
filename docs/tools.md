@@ -80,10 +80,7 @@ These tools are added only when the corresponding runtime condition applies.
 and manual-run scheduling. The agent should not emulate scheduling with sleep
 loops, shell loops, long-running polling, or model-side timers.
 
-There is no agent-facing `task` tool in the default local registry. In-memory
-task execution remains an internal app capability exposed through the task
-manager and IPC where needed, but the model should use `cron` for scheduled
-work.
+Use `cron` only when the request is actually scheduled.
 
 ## Prompt Narrowing
 
