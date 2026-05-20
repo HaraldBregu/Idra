@@ -53,7 +53,7 @@ export interface ToolContext {
 	/** Legacy compatibility set; tools no longer block on human approval. */
 	approvalRequired: Set<string>;
 	/** Filesystem exposure policy for model-visible host tools. */
-	fsPolicy?: { workspaceOnly?: boolean; readOnly?: boolean };
+	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	/** Abort signal for the current tool call or agent run. */
 	signal?: AbortSignal;
 	/** Legacy compatibility cache (keyed by tool+args). */
