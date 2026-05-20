@@ -5,7 +5,8 @@ import type { UserDataDirectoryServicePort } from '../user-data';
 import { resolveDefaultUserDataPath } from '../user-data';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
-import type { SkillDownloadResult, SkillInfo } from '../../shared/skills';
+import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../../shared/skills';
+import type { SkillPackage } from './loader';
 import { SkillAuditLog } from './audit-log';
 import { SkillDependencyResolver } from './dependency-resolver';
 import { SkillDiscovery, makeDiscoveryContext } from './discovery';
@@ -248,44 +249,65 @@ export class SkillsService {
 	}
 
 	async importFromPath(sourceDir: string): Promise<SkillInfo> {
+		const result = await this.importFromPath(sourceDir);
+		if (result.imported.length === 0) {
+			throw new Error(result.skipped[0]?.reason ?? 'No skills were imported.');
+		}
+		return result.imported[0]!;
+	}
+
+	async importFromPath(sourceDir: string): Promise<SkillImportResult> {
 		const source = path.resolve(sourceDir);
 		const stat = await fs.promises.stat(source);
 		if (!stat.isDirectory()) {
 			throw new Error('Select a skill folder.');
 		}
 
-		const loaded = await this.loader.loadPackage(source, { trusted: true });
+		const discovery = await this.loader.loadPackages(source, { trusted: true });
+		const imported: SkillInfo[] = [];
+		const skipped = [...discovery.skipped];
 
-		const id = toSkillId(loaded.manifest.id ?? loaded.manifest.name ?? path.basename(source));
-		const target = this.resolveSkillDir(id);
+		for (const loaded of discovery.packages) {
+			const id = toSkillId(loaded.manifest.id ?? loaded.manifest.name ?? path.basename(loaded.sourcePath));
+			const target = this.resolveSkillDir(id);
 
-		if (source === target) {
-			throw new Error('This skill is already managed by Friday.');
-		}
-
-		try {
-			await fs.promises.cp(source, target, {
-				recursive: true,
-				errorOnExist: true,
-				force: false,
-				filter: (sourcePath) => shouldCopySkillPath(source, sourcePath),
-			});
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code === 'ERR_FS_CP_EEXIST') {
-				throw new Error(`Skill already exists: ${id}`);
+			if (loaded.sourcePath === target) {
+				skipped.push({ name: id, sourcePath: loaded.sourcePath, reason: 'This skill is already managed by Friday.' });
+				continue;
 			}
-			throw error;
+
+			try {
+				await fs.promises.cp(loaded.sourcePath, target, {
+					recursive: true,
+					errorOnExist: true,
+					force: false,
+					filter: (sourcePath) => shouldCopySkillPath(loaded.sourcePath, sourcePath),
+				});
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code === 'ERR_FS_CP_EEXIST') {
+					skipped.push({ name: id, sourcePath: loaded.sourcePath, reason: `Skill already exists: ${id}` });
+					continue;
+				}
+				throw error;
+			}
+
+			const skill = await this.readSkillInfo(target, id);
+			if (!skill) {
+				await fs.promises.rm(target, { recursive: true, force: true });
+				skipped.push({ name: id, sourcePath: loaded.sourcePath, reason: 'Imported folder is missing SKILL.md.' });
+				continue;
+			}
+
+			this.logger.info('SkillsService', `Imported skill folder: ${id}`);
+			await this.registerDynamicSkill(target);
+			imported.push(skill);
 		}
 
-		const skill = await this.readSkillInfo(target, id);
-		if (!skill) {
-			await fs.promises.rm(target, { recursive: true, force: true });
-			throw new Error('Imported folder is missing SKILL.md.');
+		if (imported.length === 0 && skipped.length > 0) {
+			throw new Error(skipped.map((item) => `${item.name}: ${item.reason}`).join('; '));
 		}
 
-		this.logger.info('SkillsService', `Imported skill folder: ${id}`);
-		await this.registerDynamicSkill(target);
-		return skill;
+		return { imported, skipped };
 	}
 
 	async delete(id: string): Promise<void> {
@@ -351,12 +373,7 @@ export class SkillsService {
 	private async readSkillInfo(folderPath: string, id: string): Promise<SkillInfo | null> {
 		try {
 			const loaded = await this.loader.loadPackage(folderPath, { trusted: true });
-			return {
-				id,
-				folderPath,
-				skillPath: loaded.skillPath,
-				manifest: loaded.manifest,
-			};
+			return this.toSkillInfo(loaded, id, folderPath);
 		} catch (error) {
 			const code = (error as NodeJS.ErrnoException).code;
 			if (code !== 'ENOENT') {
@@ -366,6 +383,17 @@ export class SkillsService {
 			}
 			return null;
 		}
+	}
+
+	private toSkillInfo(loaded: SkillPackage, id: string, folderPath: string): SkillInfo {
+		return {
+			id,
+			folderPath,
+			skillPath: loaded.skillPath,
+			manifest: loaded.manifest,
+			diagnostics: loaded.diagnostics,
+			structure: loaded.structure,
+		};
 	}
 
 	private async registerDynamicSkill(folderPath: string): Promise<void> {
