@@ -108,6 +108,33 @@ export interface TaskContext<TInput> {
 
 Handlers may call APIs, run local functions, start agents, or start OCR. Handlers must not mutate the task store directly; they report progress through the provided context and return a result or throw an error.
 
+## Agent Tasks
+
+The task manager can run agent work through the registered `agent.run` handler. An agent task is still a normal task record: it is created, started, updated, completed, failed, cancelled, listed, and retrieved through the same task manager lifecycle as every other task type.
+
+The `agent.run` input must include a non-empty `message`. It may also include:
+
+- `agentId`: target agent id; defaults to the main agent when omitted.
+- `sessionId`: agent session id; defaults to `task:<taskId>` so each task gets an isolated agent session.
+- `providerId`: configured provider override for this run.
+- `model`: configured model override for this run.
+- `effort`: reasoning effort override for providers that support it.
+- `lightContext`: whether to run with reduced context.
+- `toolsAllow`: optional list of tool names exposed for the run.
+
+The agent task handler must validate and trim task input before it reaches the agent service. It must not accept API keys, credentials, base URLs, or provider records from task input. Provider and model selection stays inside the agent service: the handler passes sanitized `providerId`, `model`, `effort`, `lightContext`, `toolsAllow`, and `sessionId` as send options, and the service resolves configured providers, models, API keys, tools, skills, startup files, hooks, and the final system prompt before running the agent loop.
+
+Agent task execution flow:
+
+1. The task manager validates the `TaskRunRequest`, creates one `agent.run` task record, stores it in memory, and emits `task:created`.
+2. The task moves to `running`, emits `task:started`, and the handler receives the validated input plus an `AbortSignal`.
+3. The handler chooses `agentId` and `sessionId`, reports progress as `Starting agent`, and calls `AgentService.send(message, agentId, options)`.
+4. The agent service prepares the provider-neutral run, evaluates pre-run hooks, streams provider/tool-loop work, compacts context if needed, and returns the final assistant text.
+5. The handler reports progress as `Agent completed` and returns `{ text }`, which becomes the sanitized task result.
+6. The task manager marks the task `succeeded`, stores the bounded result, and emits `task:succeeded`.
+
+Cancellation remains cooperative. When an `agent.run` task is cancelled, the task manager aborts the task signal. The handler must call `AgentService.cancel(sessionId)` and then let the running agent stop through the normal cancellation path. If cancellation wins, the task manager records the task as `cancelled`; if the agent throws a non-abort error first, the task records a normal failure.
+
 ## Main-Process Architecture
 
 Add a main-process task module when this feature is implemented:
