@@ -47,6 +47,7 @@ function CommandDialog({
 
 function CommandInput({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
@@ -61,6 +62,7 @@ function CommandInput({
           "flex h-8 w-full rounded-md bg-transparent py-1.5 text-[13px] outline-none ring-0 placeholder:text-muted-foreground focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
+        style={{ ...style, outline: "none" }}
         {...props}
       />
     </div>
