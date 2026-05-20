@@ -8,6 +8,7 @@ jest.mock('react-i18next', () => ({
 		t: (key: string, params?: Record<string, string>) => {
 			if (params?.name && params.path) return `${key}:${params.name}:${params.path}`;
 			if (params?.name) return `${key}:${params.name}`;
+			if (params?.count) return `${key}:${params.count}:${params.skipped ?? '0'}`;
 			return key;
 		},
 	}),
@@ -18,6 +19,12 @@ function makeSkill(id: string, name: string): SkillInfo {
 		id,
 		folderPath: `/skills/${id}`,
 		skillPath: `/skills/${id}/SKILL.md`,
+		structure: {
+			format: 'agent-skill',
+			standard: 'agentskills.io',
+			kind: 'direct',
+			resourceDirectories: ['references'],
+		},
 		manifest: {
 			name,
 			description: `${name} description`,
@@ -61,7 +68,10 @@ describe('SkillsPage', () => {
 
 	it('uploads a skill and refreshes the list', async () => {
 		const skill = makeSkill('greet', 'Greet');
-		(window.skills.importSkill as jest.Mock).mockResolvedValue(skill);
+		(window.skills.importSkill as jest.Mock).mockResolvedValue({
+			imported: [skill],
+			skipped: [],
+		});
 		const user = userEvent.setup();
 
 		render(<SkillsPage />);
@@ -86,6 +96,7 @@ describe('SkillsPage', () => {
 		await user.click(screen.getByRole('button', { name: 'settings.skills.details' }));
 
 		expect(screen.getByText('settings.skills.detailVersion')).toBeInTheDocument();
+		expect(screen.getByText('agentskills.io')).toBeInTheDocument();
 		expect(screen.getByText('1.2.3')).toBeInTheDocument();
 		expect(screen.getByText('/skills/greet/SKILL.md')).toBeInTheDocument();
 		expect(screen.getByText('web_fetch')).toBeInTheDocument();
