@@ -110,16 +110,21 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 		const pending = new Map<number, ChatToolCallState>();
 
 		try {
+			const deepSeekEfforts = new Set(['low', 'medium', 'high']);
+			const params: Record<string, unknown> = {
+				model: req.model,
+				messages: buildChatMessages(req.system, req.messages),
+				tools: tools.length > 0 ? tools : undefined,
+				tool_choice: tools.length > 0 ? 'auto' : undefined,
+				max_tokens: req.maxTokens,
+				stream: true,
+				stream_options: { include_usage: true },
+			};
+			if (this.reasoningEffortEnabled && req.effort && deepSeekEfforts.has(req.effort)) {
+				params.reasoning_effort = req.effort;
+			}
 			const stream = await this.client.chat.completions.create(
-				{
-					model: req.model,
-					messages: buildChatMessages(req.system, req.messages),
-					tools: tools.length > 0 ? tools : undefined,
-					tool_choice: tools.length > 0 ? 'auto' : undefined,
-					max_tokens: req.maxTokens,
-					stream: true,
-					stream_options: { include_usage: true },
-				},
+				params as OpenAI.Chat.ChatCompletionCreateParamsStreaming,
 				{ signal: req.signal }
 			);
 
