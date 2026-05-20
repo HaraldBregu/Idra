@@ -49,6 +49,7 @@ policy, ranking, and run context before it is exposed to the provider.
 | `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
 | `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
 | `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs. |
+| `task` | Starts, lists, retrieves, and cancels in-memory task records. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
 | `browser` | Controls the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions. |
 
@@ -65,7 +66,6 @@ These tools are added only when the corresponding runtime condition applies.
 | `startup_files` | Added only for pending primary bootstrap runs. During bootstrap, it is the only local tool exposed. |
 | `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
 | `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
-| `task` | Added when task tooling is enabled. Starts, lists, retrieves, and cancels in-memory task records. |
 | Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
 | Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
 | MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
