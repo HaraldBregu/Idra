@@ -69,3 +69,8 @@ export interface SkillInfo {
 	skillPath?: string;
 	manifest: SkillManifest;
 }
+
+export interface SkillDownloadResult {
+	id: string;
+	destinationPath: string;
+}
