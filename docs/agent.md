@@ -50,11 +50,26 @@ The default service path prepares an agent run in this order:
 The `src/main/agent` module does not choose the provider or model by itself.
 `AgentService.send` resolves them before the agent module runs.
 
+Design boundary:
+
+- `AgentService.send` is the facade for preparing a run.
+- `StoreService` is the source of configured provider records.
+- `makeProvider` is the factory that turns a provider record into a
+  `ProviderAdapter`.
+- Provider adapters translate provider-specific streaming into the shared
+  provider event contract.
+- `runAgent` stays provider-neutral and receives an already constructed
+  adapter plus the selected model string.
+
 Current source:
 
 - The stored agent service configuration comes from `StoreService.getAgentService`.
 - The provider id comes from `agent.provider.id`, trimmed and lowercased.
 - The model comes from `agent.model.id`, falling back to `agent.model.name`.
+- Callers may pass `AgentSendOptions.providerId`; it is trimmed, lowercased,
+  and used instead of the stored provider id for that run.
+- Callers may pass `AgentSendOptions.model`; it is trimmed and used instead of
+  the stored model for that run.
 - The provider record comes from `StoreService.getProviderById(providerId)` and
   supplies the API key and optional base URL.
 - `makeProvider` converts the provider id into a `ProviderAdapter`.
@@ -74,6 +89,26 @@ Timing:
 - `agent.run` tasks can pass `providerId` and `model` in their input so
   independent tasks can use different configured providers and models.
 
+Example:
+
+```ts
+await agentService.send('Summarize the finance report.', 'main', {
+	sessionId: 'task:finance-summary',
+	providerId: 'anthropic',
+	model: 'claude-test',
+});
+```
+
+The same fields are accepted by the `agent.run` task input:
+
+```ts
+{
+	message: 'Summarize the finance report.',
+	providerId: 'anthropic',
+	model: 'claude-test',
+}
+```
+
 How the values are used:
 
 - `buildSystemPrompt` receives the selected model for prompt context.
@@ -90,6 +125,19 @@ Failure behavior:
   record, or missing API key fails before the provider is called.
 - OpenAI runs require a resolved reasoning effort; per-run effort overrides can
   replace the saved effort for that run.
+
+Standards:
+
+- Treat task input as an unsafe boundary. Validate and trim `providerId` and
+  `model` before converting them into `AgentSendOptions`.
+- Never accept API keys, credentials, or base URLs from task input or per-run
+  send options. Those values must come from the configured provider record.
+- Preserve backward compatibility: omitting both overrides must use the saved
+  agent provider and model exactly as before.
+- Prefer passing both `providerId` and `model` when running a task against a
+  provider different from the saved agent provider.
+- Keep override resolution in the service layer. Do not move store lookups,
+  provider factory calls, or API key handling into `runAgent`.
 
 ## Exported Surfaces
 
@@ -123,6 +171,8 @@ Expected behavior:
 
 - Keep the loop provider-neutral. Provider-specific event translation belongs in
   provider adapters.
+- Do not resolve provider ids, provider records, API keys, base URLs, or task
+  input inside `runAgent`.
 - Never execute a tool if arguments fail JSON parsing or if the tool was not
   exposed for the run.
 - Preserve stable provider call ids in assistant tool-use blocks and matching
