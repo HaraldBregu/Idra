@@ -93,25 +93,26 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
+	const agentDependencies = {
+		store,
+		cron,
+		logger,
+		eventBus,
+		workspace,
+		startupFiles,
+		userDataDirectory,
+		connectors,
+		mcpRegistry,
+		skills,
+	};
 	const agentService = container.register(
 		'agentService',
-		new AgentService({
-			store,
-			cron,
-			logger,
-				eventBus,
-				workspace,
-				startupFiles,
-				userDataDirectory,
-				connectors,
-			mcpRegistry,
-			skills,
-		})
+		new AgentService(agentDependencies)
 	);
 	const taskRegistry = new TaskRegistry();
 	taskRegistry.register(new AgentTaskHandler(agentService), { userFacing: true });
 	taskRegistry.register(new OcrTaskHandler(store), { userFacing: true });
-	container.register(
+	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({
 			registry: taskRegistry,
@@ -119,6 +120,7 @@ export function bootstrapServices(): BootstrapResult {
 			logger,
 		})
 	);
+	agentDependencies.taskManager = taskManager;
 	const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
