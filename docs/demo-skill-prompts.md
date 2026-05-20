@@ -16,7 +16,7 @@ Use the research-brief skill to create a concise research brief from docs/agent-
 
 Expected result:
 
-- The assistant calls `execute_skill` with `research-brief`.
+- The assistant reads `resources/demo-skills/research-brief/SKILL.md` with `read`.
 - The final answer is a short brief with findings, risks, and next steps.
 - The assistant message shows a `Skill used` chip for `research-brief`.
 
@@ -30,7 +30,7 @@ Use the release-notes-drafter skill to draft user-facing release notes from the 
 
 Expected result:
 
-- The assistant calls `execute_skill` with `release-notes-drafter`.
+- The assistant reads `resources/demo-skills/release-notes-drafter/SKILL.md` with `read`.
 - The output groups changes into user-facing release note sections.
 - The assistant message shows a `Skill used` chip for `release-notes-drafter`.
 
@@ -44,7 +44,7 @@ Use the data-quality-check skill to inspect /path/to/file.csv for missing values
 
 Expected result:
 
-- The assistant calls `execute_skill` with `data-quality-check`.
+- The assistant reads `resources/demo-skills/data-quality-check/SKILL.md` with `read`.
 - The output reports schema, missing-value, duplicate, and import-readiness issues.
 - The assistant message shows a `Skill used` chip for `data-quality-check`.
 
