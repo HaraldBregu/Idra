@@ -87,19 +87,29 @@ function scopedTools(skill: SkillDefinition, available: ReadonlyMap<string, Agen
 	return out;
 }
 
-function timeoutPromise<T>(promise: Promise<T>, timeoutMs: number, signal?: AbortSignal): Promise<T> {
+function timeoutPromise<T>(
+	promise: Promise<T>,
+	timeoutMs: number | null,
+	signal?: AbortSignal
+): Promise<T> {
 	return new Promise<T>((resolve, reject) => {
 		if (signal?.aborted) {
 			reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
 			return;
 		}
-		const timeout = setTimeout(() => reject(Object.assign(new Error('timeout'), { name: 'TimeoutError' })), timeoutMs);
+		const timeout =
+			timeoutMs === null
+				? undefined
+				: setTimeout(
+						() => reject(Object.assign(new Error('timeout'), { name: 'TimeoutError' })),
+						timeoutMs
+					);
 		const abort = (): void => reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
 		signal?.addEventListener('abort', abort, { once: true });
 		promise
 			.then(resolve, reject)
 			.finally(() => {
-				clearTimeout(timeout);
+				if (timeout) clearTimeout(timeout);
 				signal?.removeEventListener('abort', abort);
 			});
 	});
@@ -178,11 +188,11 @@ export class SkillExecutionEngine {
 		for (;;) {
 			try {
 				const context = this.createExecutionContext(skill, request.context, state, startedAt, retryCount);
-				const raw = await timeoutPromise(
-					skill.execute(request.input, context),
-					request.context.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-					request.context.cancellationToken
-				);
+					const raw = await timeoutPromise(
+						skill.execute(request.input, context),
+						request.context.timeoutMs === undefined ? DEFAULT_TIMEOUT_MS : request.context.timeoutMs,
+						request.context.cancellationToken
+					);
 				result = this.normalizeResult(skill, raw, state, startedAt, retryCount);
 				if (!result.success && isRetryable(result.error) && retryCount < maxRetries) {
 					retryCount++;
