@@ -13,6 +13,7 @@ import { SkillRanker } from '../../../../src/main/skills/ranker';
 import { SkillRegistry } from '../../../../src/main/skills/registry';
 import { SkillSafetyPolicy } from '../../../../src/main/skills/safety-policy';
 import { SkillSelector } from '../../../../src/main/skills/selector';
+import { SkillsService } from '../../../../src/main/skills/skills-service';
 import type {
 	SkillConnector,
 	SkillDefinition,
@@ -97,6 +98,15 @@ function setupEngine(registry = setupRegistry()) {
 	const audit = new SkillAuditLog(makeLogger() as never);
 	const engine = new SkillExecutionEngine(registry, audit, preferences);
 	return { registry, preferences, audit, engine };
+}
+
+function userDataDirectory(root: string) {
+	return {
+		getRootPath: jest.fn(() => root),
+		ensureRoot: jest.fn(async () => root),
+		resolve: jest.fn((...segments: string[]) => path.join(root, ...segments)),
+		resolveExisting: jest.fn(async (...segments: string[]) => path.join(root, ...segments)),
+	};
 }
 
 function executionContext(input: {
