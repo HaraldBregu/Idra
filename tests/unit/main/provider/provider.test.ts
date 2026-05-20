@@ -521,6 +521,58 @@ describe('provider/deepseek', () => {
 	});
 });
 
+describe('provider/qwen', () => {
+	function makeClient() {
+		const create = jest.fn(async function* () {
+			yield { choices: [{ delta: { content: 'hello' }, finish_reason: null }], usage: null };
+			yield { choices: [{ delta: {}, finish_reason: 'stop' }], usage: { prompt_tokens: 2, completion_tokens: 4 } };
+		});
+		return { client: { chat: { completions: { create } } }, create };
+	}
+
+	it('normalizes Qwen stream events', async () => {
+		const { client, create } = makeClient();
+		const adapter = new QwenAdapter({
+			apiKey: 'qw-test',
+			clientFactory: () => client as never,
+		});
+
+		const events = await collectAsync(adapter.stream({
+			model: 'qwen3-max',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hi' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(events).toEqual([
+			{ type: 'message_start' },
+			{ type: 'text_delta', text: 'hello' },
+			{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 2, outputTokens: 4 } },
+		]);
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({ model: 'qwen3-max', stream: true }),
+			expect.any(Object)
+		);
+	});
+
+	it('defaults to the Qwen base URL when none is provided', () => {
+		const clientFactory = jest.fn(() => ({ chat: { completions: { create: jest.fn() } } }));
+		new QwenAdapter({ apiKey: 'qw-test', clientFactory: clientFactory as never });
+		expect(clientFactory).toHaveBeenCalledWith(
+			expect.objectContaining({ baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1' })
+		);
+	});
+
+	it('respects a custom base URL when provided', () => {
+		const clientFactory = jest.fn(() => ({ chat: { completions: { create: jest.fn() } } }));
+		new QwenAdapter({ apiKey: 'qw-test', baseURL: 'https://custom.example.com', clientFactory: clientFactory as never });
+		expect(clientFactory).toHaveBeenCalledWith(
+			expect.objectContaining({ baseURL: 'https://custom.example.com' })
+		);
+	});
+});
+
 describe('provider/anthropic', () => {
 	it('normalizes Anthropic stream events', async () => {
 		async function* chunks() {
