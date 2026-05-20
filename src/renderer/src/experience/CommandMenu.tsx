@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
 	AppWindow,
@@ -9,258 +9,247 @@ import {
 	CalendarClock,
 	Home,
 	Info,
+	KeyRound,
 	Plug,
 	Search,
 	Server,
+	Settings,
 	Sparkles,
+	type LucideIcon,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import {
+	CommandDialog,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+	CommandShortcut,
+} from '@/components/ui/command';
+import { SETTINGS_DETAIL_ITEMS, SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
 
-interface CommandItem {
+interface AppRouteItem {
 	readonly id: string;
 	readonly label: string;
+	readonly description?: string;
 	readonly group: string;
-	readonly icon: React.ElementType;
+	readonly icon: LucideIcon;
 	readonly path: string;
-	readonly keywords?: string;
+	readonly searchValue: string;
+	readonly keywords: string[];
 }
 
-const COMMAND_ITEMS: readonly CommandItem[] = [
-	{ id: 'home', label: 'Home', group: 'Navigation', icon: Home, path: '/home', keywords: 'chat agent ai' },
-	{ id: 'settings-general', label: 'General', group: 'Settings', icon: Info, path: '/settings/general', keywords: 'info app version theme language translucency appearance' },
-	{ id: 'settings-agents', label: 'Agents', group: 'Settings', icon: Bot, path: '/settings/agents', keywords: 'friday assistant default agent model' },
-	{ id: 'settings-channels', label: 'Channels', group: 'Settings', icon: BotMessageSquare, path: '/settings/channels', keywords: 'telegram discord slack whatsapp teams matrix signal bot' },
-	{ id: 'settings-connectors', label: 'Connectors', group: 'Settings', icon: Plug, path: '/settings/connectors', keywords: 'mcp tools integration' },
-	{ id: 'settings-skills', label: 'Skills', group: 'Settings', icon: Sparkles, path: '/settings/skills', keywords: 'plugins capabilities' },
-	{ id: 'settings-providers', label: 'Providers', group: 'Settings', icon: Server, path: '/settings/providers', keywords: 'api key openai anthropic model' },
-	{ id: 'settings-cron', label: 'Cron', group: 'Settings', icon: CalendarClock, path: '/settings/cron', keywords: 'schedule jobs tasks recurring' },
-	{ id: 'settings-apps', label: 'Apps', group: 'Settings', icon: AppWindow, path: '/settings/apps', keywords: 'installed packages' },
+interface AppRouteGroup {
+	readonly heading: string;
+	readonly items: AppRouteItem[];
+}
+
+interface StaticRouteDefinition {
+	readonly id: string;
+	readonly label: string;
+	readonly description: string;
+	readonly icon: LucideIcon;
+	readonly path: string;
+	readonly keywords: string;
+}
+
+const TOP_LEVEL_ROUTES: readonly StaticRouteDefinition[] = [
+	{
+		id: 'route-home',
+		label: 'Home',
+		description: 'Chat with Friday',
+		icon: Home,
+		path: '/home',
+		keywords: 'chat agent ai assistant friday',
+	},
+	{
+		id: 'route-start',
+		label: 'Set up Friday',
+		description: 'Connect provider tokens',
+		icon: KeyRound,
+		path: '/start',
+		keywords: 'setup onboarding providers api token config first time',
+	},
+	{
+		id: 'route-settings',
+		label: 'Settings',
+		description: 'Configure Friday',
+		icon: Settings,
+		path: '/settings',
+		keywords: 'preferences configuration settings',
+	},
 ] as const;
 
-function filterItems(query: string): CommandItem[] {
-	if (!query.trim()) return [...COMMAND_ITEMS];
-	const q = query.toLowerCase();
-	return COMMAND_ITEMS.filter(
-		(item) =>
-			item.label.toLowerCase().includes(q) ||
-			item.group.toLowerCase().includes(q) ||
-			(item.keywords ?? '').includes(q)
-	);
+const SETTINGS_ROUTE_ICONS = {
+	'/settings/general': Info,
+	'/settings/providers': Server,
+	'/settings/agents': Bot,
+	'/settings/skills': Sparkles,
+	'/settings/connectors': Plug,
+	'/settings/channels': BotMessageSquare,
+	'/settings/cron': CalendarClock,
+	'/settings/apps': AppWindow,
+} as const satisfies Partial<Record<string, LucideIcon>>;
+
+function toKeywords(...values: Array<string | undefined>): string[] {
+	const seen = new Set<string>();
+	const keywords: string[] = [];
+
+	for (const value of values) {
+		for (const token of (value ?? '').toLowerCase().split(/[\s/._:-]+/)) {
+			if (!token || seen.has(token)) continue;
+			seen.add(token);
+			keywords.push(token);
+		}
+	}
+
+	return keywords;
 }
 
-function groupItems(items: CommandItem[]): [string, CommandItem[]][] {
-	const map = new Map<string, CommandItem[]>();
-	for (const item of items) {
-		if (!map.has(item.group)) map.set(item.group, []);
-		map.get(item.group)!.push(item);
-	}
-	return [...map.entries()];
+function createCommandItem({
+	id,
+	label,
+	description,
+	group,
+	icon,
+	path,
+	keywords,
+}: Omit<AppRouteItem, 'searchValue' | 'keywords'> & {
+	readonly keywords?: string;
+}): AppRouteItem {
+	const keywordList = toKeywords(id, label, description, group, path, keywords);
+
+	return {
+		id,
+		label,
+		description,
+		group,
+		icon,
+		path,
+		keywords: keywordList,
+		searchValue: [id, label, description, group, path, keywords].filter(Boolean).join(' '),
+	};
+}
+
+function buildCommandGroups(t: TFunction): AppRouteGroup[] {
+	const routesHeading = t('command.groups.routes', 'Routes');
+	const settingsRoutesHeading = t('command.groups.settingsRoutes', 'Settings routes');
+	const settingsItemsHeading = t('command.groups.settingsItems', 'Settings items');
+
+	const routes = TOP_LEVEL_ROUTES.map((route) =>
+		createCommandItem({
+			...route,
+			group: routesHeading,
+		})
+	);
+
+	const settingsRoutes = SETTINGS_NAVIGATION.map((item) =>
+		createCommandItem({
+			id: `settings-route-${item.path}`,
+			label: t(item.labelKey),
+			description: t(item.descriptionKey),
+			group: settingsRoutesHeading,
+			icon: item.icon,
+			path: item.path,
+			keywords: item.path,
+		})
+	);
+
+	const settingsItems = SETTINGS_DETAIL_ITEMS.map((item, index) =>
+		createCommandItem({
+			id: `settings-item-${index}-${item.path}`,
+			label: t(item.labelKey),
+			description: item.descriptionKey ? t(item.descriptionKey) : undefined,
+			group: settingsItemsHeading,
+			icon: SETTINGS_ROUTE_ICONS[item.path as keyof typeof SETTINGS_ROUTE_ICONS] ?? Search,
+			path: item.path,
+			keywords: item.keywords,
+		})
+	);
+
+	return [
+		{ heading: routesHeading, items: routes },
+		{ heading: settingsRoutesHeading, items: settingsRoutes },
+		{ heading: settingsItemsHeading, items: settingsItems },
+	];
 }
 
 export function CommandMenu(): React.JSX.Element {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
-	const [query, setQuery] = useState('');
-	const [activeIndex, setActiveIndex] = useState(0);
-	const inputRef = useRef<HTMLInputElement>(null);
-	const prefersReducedMotion = useReducedMotion();
+	const groups = useMemo(() => buildCommandGroups(t), [t]);
 
-	const filtered = filterItems(query);
-	const groups = groupItems(filtered);
+	const handleOpenChange = useCallback((nextOpen: boolean) => {
+		setOpen(nextOpen);
+	}, []);
 
-	const closeMenu = useCallback(() => setOpen(false), []);
-
-	const execute = useCallback(
-		(item: CommandItem) => {
-			navigate(item.path);
-			closeMenu();
+	const navigateTo = useCallback(
+		(path: string) => {
+			setOpen(false);
+			navigate(path);
 		},
-		[navigate, closeMenu]
+		[navigate]
 	);
 
-	// ⌘K global toggle
 	useEffect(() => {
 		const handler = (e: KeyboardEvent): void => {
 			if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
 				e.preventDefault();
-				setOpen((prev) => {
-					if (!prev) {
-						setQuery('');
-						setActiveIndex(0);
-					}
-					return !prev;
-				});
+				setOpen((prev) => !prev);
 			}
 		};
 		window.addEventListener('keydown', handler);
 		return () => window.removeEventListener('keydown', handler);
 	}, []);
 
-	// Focus input on open
-	useEffect(() => {
-		if (!open) return;
-		const id = setTimeout(() => inputRef.current?.focus(), 16);
-		return () => clearTimeout(id);
-	}, [open]);
+	return (
+		<CommandDialog
+			open={open}
+			onOpenChange={handleOpenChange}
+			label={t('command.label', 'Route search')}
+			loop
+		>
+			<CommandInput placeholder={t('command.placeholder', 'Search routes and settings...')} />
+			<CommandList>
+				<CommandEmpty>
+					{t('command.empty', 'No matching route or setting.')}
+				</CommandEmpty>
+				{groups.map((group) => (
+					<CommandGroup key={group.heading} heading={group.heading}>
+						{group.items.map((item) => {
+							const Icon = item.icon;
 
-	// Reset active index when filtered list changes
-	useEffect(() => {
-		setActiveIndex(0);
-	}, [query]);
-
-	const handleKeyDown = (e: React.KeyboardEvent): void => {
-		switch (e.key) {
-			case 'Escape':
-				closeMenu();
-				break;
-			case 'ArrowDown':
-				e.preventDefault();
-				setActiveIndex((i) => Math.min(i + 1, filtered.length - 1));
-				break;
-			case 'ArrowUp':
-				e.preventDefault();
-				setActiveIndex((i) => Math.max(i - 1, 0));
-				break;
-			case 'Enter': {
-				e.preventDefault();
-				const item = filtered[activeIndex];
-				if (item) execute(item);
-				break;
-			}
-		}
-	};
-
-	const motionDuration = prefersReducedMotion ? 0 : 0.14;
-
-	const portal = (
-		<AnimatePresence>
-			{open && (
-				<>
-					{/* Backdrop */}
-					<motion.div
-						key="cmd-backdrop"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						transition={{ duration: motionDuration }}
-						className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
-						onClick={closeMenu}
-						aria-hidden="true"
-					/>
-
-					{/* Panel */}
-					<motion.div
-						key="cmd-panel"
-						role="dialog"
-						aria-label="Command menu"
-						aria-modal="true"
-						initial={{ opacity: 0, scale: 0.96, y: -10 }}
-						animate={{ opacity: 1, scale: 1, y: 0 }}
-						exit={{ opacity: 0, scale: 0.96, y: -6 }}
-						transition={{ duration: motionDuration, ease: [0, 0, 0.2, 1] }}
-						className="fixed left-1/2 top-[22%] z-50 w-full max-w-[440px] -translate-x-1/2 overflow-hidden rounded-xl border border-border/80 bg-card/95 shadow-2xl shadow-black/25 backdrop-blur-xl"
-						onKeyDown={handleKeyDown}
-					>
-						{/* Search bar */}
-						<div className="flex items-center gap-3 border-b border-border/70 px-4 py-3">
-							<Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-							<input
-								ref={inputRef}
-								type="text"
-								value={query}
-								onChange={(e) => setQuery(e.target.value)}
-								placeholder="Search…"
-								className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-								aria-label="Search commands"
-								role="combobox"
-								aria-expanded="true"
-								aria-autocomplete="list"
-								aria-controls="cmd-listbox"
-								aria-activedescendant={filtered[activeIndex] ? `cmd-item-${filtered[activeIndex].id}` : undefined}
-							/>
-							<kbd className="hidden shrink-0 rounded border border-border/60 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
-								ESC
-							</kbd>
-						</div>
-
-						{/* Results */}
-						<div
-							id="cmd-listbox"
-							role="listbox"
-							aria-label="Commands"
-							className="no-scrollbar max-h-[280px] overflow-y-auto py-1.5"
-						>
-							{filtered.length === 0 ? (
-								<p className="px-4 py-8 text-center text-sm text-muted-foreground">
-									No results for &ldquo;{query}&rdquo;
-								</p>
-							) : (
-								groups.map(([group, groupItems]) => (
-									<div key={group}>
-										<div
-											className="px-4 pb-1 pt-2.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70"
-											aria-hidden="true"
-										>
-											{group}
-										</div>
-										{groupItems.map((item) => {
-											const idx = filtered.indexOf(item);
-											const isActive = idx === activeIndex;
-											const Icon = item.icon;
-
-											return (
-												<button
-													key={item.id}
-													id={`cmd-item-${item.id}`}
-													type="button"
-													role="option"
-													aria-selected={isActive}
-													onClick={() => execute(item)}
-													onMouseEnter={() => setActiveIndex(idx)}
-													className={cn(
-														'flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors focus-visible:outline-none',
-														isActive
-															? 'bg-accent text-accent-foreground'
-															: 'text-foreground hover:bg-accent/60 hover:text-accent-foreground'
-													)}
-												>
-													<span
-														className={cn(
-															'flex size-6 shrink-0 items-center justify-center rounded-md transition-colors',
-															isActive ? 'bg-accent-foreground/10' : 'bg-muted/60'
-														)}
-													>
-														<Icon className="size-3.5" aria-hidden="true" />
-													</span>
-													<span className="flex-1 truncate">{item.label}</span>
-												</button>
-											);
-										})}
-									</div>
-								))
-							)}
-						</div>
-
-						{/* Footer hint */}
-						<div className="flex items-center justify-between border-t border-border/60 px-4 py-2 text-[10px] text-muted-foreground/60">
-							<span className="flex items-center gap-2">
-								<span className="flex items-center gap-0.5">
-									<kbd className="rounded border border-border/60 bg-muted/40 px-1 py-0.5 font-mono">↑</kbd>
-									<kbd className="rounded border border-border/60 bg-muted/40 px-1 py-0.5 font-mono">↓</kbd>
-									<span className="ml-1">navigate</span>
-								</span>
-								<span className="flex items-center gap-0.5">
-									<kbd className="rounded border border-border/60 bg-muted/40 px-1.5 py-0.5 font-mono">↵</kbd>
-									<span className="ml-1">open</span>
-								</span>
-							</span>
-							<span>⌘K to toggle</span>
-						</div>
-					</motion.div>
-				</>
-			)}
-		</AnimatePresence>
+							return (
+								<CommandItem
+									key={item.id}
+									value={item.searchValue}
+									keywords={item.keywords}
+									onSelect={() => navigateTo(item.path)}
+									className="items-start gap-2.5 px-2 py-2"
+								>
+									<span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
+										<Icon className="size-3.5" aria-hidden="true" strokeWidth={1.8} />
+									</span>
+									<span className="flex min-w-0 flex-1 flex-col">
+										<span className="truncate text-[13px] font-medium leading-4">
+											{item.label}
+										</span>
+										{item.description && (
+											<span className="truncate text-[11px] leading-4 text-muted-foreground">
+												{item.description}
+											</span>
+										)}
+									</span>
+									<CommandShortcut className="hidden max-w-36 truncate font-mono text-[10px] sm:block">
+										{item.path}
+									</CommandShortcut>
+								</CommandItem>
+							);
+						})}
+					</CommandGroup>
+				))}
+			</CommandList>
+		</CommandDialog>
 	);
-
-	return createPortal(portal, document.body) as React.JSX.Element;
 }
