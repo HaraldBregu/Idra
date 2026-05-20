@@ -77,10 +77,9 @@ These tools are added only when the corresponding runtime condition applies.
 
 ## Task Tool
 
-The `task` tool is a simple local tool for active in-memory tasks, similar to
-how `cron` is the local tool for scheduled work. It exposes a small action set
-for starting a task, checking current task records, retrieving one record, or
-requesting cancellation.
+The `task` tool is a simple local tool for active in-memory tasks. It exposes a
+small action set for starting a task, checking current task records, retrieving
+one record, or requesting cancellation.
 
 Supported actions:
 
