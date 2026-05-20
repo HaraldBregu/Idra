@@ -543,12 +543,13 @@ describe('skill system', () => {
 		const service = new SkillsService(makeLogger() as never, {
 			userDataDirectory: userDataDirectory(root) as never,
 		});
+		const destinationRealPath = await fs.realpath(destinationRoot);
 
 		const result = await service.downloadToPath('download-skill', destinationRoot);
 
 		expect(result).toEqual({
 			id: 'download-skill',
-			destinationPath: path.join(destinationRoot, 'download-skill'),
+			destinationPath: path.join(destinationRealPath, 'download-skill'),
 		});
 		await expect(fs.stat(path.join(result.destinationPath, 'SKILL.md'))).resolves.toBeDefined();
 		await expect(fs.stat(path.join(result.destinationPath, 'node_modules'))).rejects.toThrow();
