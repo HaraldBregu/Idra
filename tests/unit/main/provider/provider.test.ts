@@ -1,4 +1,5 @@
 import { AnthropicAdapter } from '../../../../src/main/provider/anthropic';
+import { MistralAdapter } from '../../../../src/main/provider/mistral';
 import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/provider/openai';
 import { makeProvider } from '../../../../src/main/provider/factory';
 import { ProviderAuthError } from '../../../../src/main/provider/types';
@@ -7,6 +8,8 @@ import { collectAsync } from '../test-helpers';
 describe('provider/factory', () => {
 	it('returns native adapters for first-party providers and chat adapter for compatible providers', () => {
 		expect(makeProvider({ id: 'anthropic', apiKey: 'key' })).toBeInstanceOf(AnthropicAdapter);
+		expect(makeProvider({ id: 'mistral', apiKey: 'key' })).toBeInstanceOf(MistralAdapter);
+		expect(makeProvider({ id: 'mistal', apiKey: 'key' })).toBeInstanceOf(MistralAdapter);
 		expect(makeProvider({ id: 'openai', apiKey: 'key' })).toBeInstanceOf(OpenAIAdapter);
 		expect(makeProvider({ id: 'groq', apiKey: 'key' })).toBeInstanceOf(OpenAIChatAdapter);
 	});
@@ -232,6 +235,191 @@ describe('provider/openai', () => {
 				arguments: '{"path":"README.md"}',
 			},
 		]);
+	});
+});
+
+describe('provider/mistral', () => {
+	it('normalizes Mistral stream events', async () => {
+		async function* chunks() {
+			yield {
+				data: {
+					choices: [{ index: 0, delta: { content: 'hi ' }, finishReason: null }],
+				},
+			};
+			yield {
+				data: {
+					choices: [
+						{
+							index: 0,
+							delta: {
+								toolCalls: [
+									{
+										id: 'call-1',
+										type: 'function',
+										index: 0,
+										function: { name: 'read', arguments: '{"path"' },
+									},
+								],
+							},
+							finishReason: null,
+						},
+					],
+				},
+			};
+			yield {
+				data: {
+					usage: { promptTokens: 2, completionTokens: 3 },
+					choices: [
+						{
+							index: 0,
+							delta: {
+								toolCalls: [
+									{
+										id: 'call-1',
+										type: 'function',
+										index: 0,
+										function: { name: 'read', arguments: '{"path":"a"}' },
+									},
+								],
+							},
+							finishReason: 'tool_calls',
+						},
+					],
+				},
+			};
+		}
+		const stream = jest.fn(async () => chunks());
+		const adapter = new MistralAdapter({
+			apiKey: 'mis-test',
+			clientFactory: () => ({ chat: { stream } }),
+		});
+
+		const events = await collectAsync(adapter.stream({
+			model: 'mistral-test',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hello' }],
+			tools: [{ name: 'read', description: 'Read', schema: { type: 'object' } }],
+			maxTokens: 100,
+		}));
+
+		expect(events).toEqual([
+			{ type: 'message_start' },
+			{ type: 'text_delta', text: 'hi ' },
+			{ type: 'tool_call_start', id: 'call-1', name: 'read' },
+			{ type: 'tool_call_args_delta', id: 'call-1', jsonDelta: '{"path"' },
+			{ type: 'tool_call_args_delta', id: 'call-1', jsonDelta: ':"a"}' },
+			{ type: 'tool_call_end', id: 'call-1' },
+			{ type: 'message_end', stopReason: 'tool_calls', usage: { inputTokens: 2, outputTokens: 3 } },
+		]);
+		expect(stream).toHaveBeenCalledWith(
+			expect.objectContaining({
+				model: 'mistral-test',
+				maxTokens: 100,
+				messages: [
+					{ role: 'system', content: 'sys' },
+					{ role: 'user', content: 'hello' },
+				],
+				tools: [
+					{
+						type: 'function',
+						function: {
+							name: 'read',
+							description: 'Read',
+							parameters: { type: 'object' },
+						},
+					},
+				],
+				toolChoice: 'auto',
+			}),
+			expect.any(Object)
+		);
+	});
+
+	it('converts prior tool calls and results into Mistral messages', async () => {
+		async function* chunks() {
+			yield {
+				data: {
+					usage: { promptTokens: 1, completionTokens: 1 },
+					choices: [{ index: 0, delta: {}, finishReason: 'stop' }],
+				},
+			};
+		}
+		const stream = jest.fn(async () => chunks());
+		const adapter = new MistralAdapter({
+			apiKey: 'mis-test',
+			clientFactory: () => ({ chat: { stream } }),
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'mistral-test',
+			system: 'sys',
+			messages: [
+				{ role: 'user', content: 'read it' },
+				{
+					role: 'assistant',
+					content: [
+						{ type: 'text', text: 'Reading.' },
+						{
+							type: 'tool_use',
+							toolUseId: 'call-1',
+							toolName: 'read_file',
+							toolArgs: { path: 'README.md' },
+						},
+					],
+				},
+				{
+					role: 'tool',
+					toolUseId: 'call-1',
+					isError: true,
+					content: [
+						{ type: 'text', text: 'failed' },
+						{ type: 'image', mimeType: 'image/png', base64: 'abc' },
+					],
+				},
+			],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(stream.mock.calls[0][0].messages).toEqual([
+			{ role: 'system', content: 'sys' },
+			{ role: 'user', content: 'read it' },
+			{
+				role: 'assistant',
+				content: 'Reading.',
+				toolCalls: [
+					{
+						id: 'call-1',
+						type: 'function',
+						index: 0,
+						function: { name: 'read_file', arguments: '{"path":"README.md"}' },
+					},
+				],
+			},
+			{
+				role: 'tool',
+				toolCallId: 'call-1',
+				name: 'read_file',
+				content: 'failed\n[binary content]',
+			},
+		]);
+	});
+
+	it('normalizes the stored Mistral /v1 URL for the SDK server URL', () => {
+		const clientFactory = jest.fn(() => ({
+			chat: { stream: jest.fn() },
+		}));
+
+		new MistralAdapter({
+			apiKey: 'mis-test',
+			baseURL: 'https://api.mistral.ai/v1',
+			clientFactory,
+		});
+
+		expect(clientFactory).toHaveBeenCalledWith({
+			apiKey: 'mis-test',
+			serverURL: 'https://api.mistral.ai',
+		});
 	});
 });
 
