@@ -446,7 +446,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	{
 		id: 'deepseek',
 		name: 'DeepSeek',
-		baseUrl: 'https://api.deepseek.com/v1',
+		baseUrl: 'https://api.deepseek.com',
 		apiKey: '',
 		capabilities: 'Chat',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.deepseek,
