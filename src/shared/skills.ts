@@ -68,9 +68,35 @@ export interface SkillInfo {
 	folderPath: string;
 	skillPath?: string;
 	manifest: SkillManifest;
+	diagnostics?: SkillDiagnostic[];
+	structure?: SkillStructureInfo;
 }
 
 export interface SkillDownloadResult {
 	id: string;
 	destinationPath: string;
+}
+
+export interface SkillDiagnostic {
+	level: 'warning' | 'error';
+	code: string;
+	message: string;
+}
+
+export interface SkillStructureInfo {
+	format: 'agent-skill';
+	standard: 'agentskills.io';
+	kind: 'direct' | 'container-child';
+	resourceDirectories: string[];
+}
+
+export interface SkillImportSkipped {
+	name: string;
+	sourcePath: string;
+	reason: string;
+}
+
+export interface SkillImportResult {
+	imported: SkillInfo[];
+	skipped: SkillImportSkipped[];
 }
