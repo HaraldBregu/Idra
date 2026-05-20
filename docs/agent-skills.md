@@ -3,6 +3,9 @@
 Friday accepts local Agent Skills using the portable structure documented at
 https://agentskills.io/home.
 
+For copy-ready prompts that exercise the bundled demo skills, see
+[`demo-skill-prompts.md`](demo-skill-prompts.md).
+
 ## Accepted folder shapes
 
 Upload either a single skill folder:
