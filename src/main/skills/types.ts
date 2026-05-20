@@ -332,7 +332,7 @@ export interface SkillExecutionRequestContext {
 	parentSkillId?: string;
 	provenanceChain: SkillProvenance[];
 	toolContext: import('../tools/types').ToolContext;
-	timeoutMs?: number;
+	timeoutMs?: number | null;
 	maxRetries?: number;
 	maxDepth?: number;
 }
