@@ -403,11 +403,14 @@ export class AgentService {
 
 				if (skillChoices.length > 0 && this.dependencies.skills) {
 					const selectedNames = new Set(selectedTools.map((tool) => tool.name));
-					const requiredSkillToolNames = new Set(
-						skillChoices.flatMap((skill) => skill.requiredTools)
+					const skillToolNames = new Set(
+						skillChoices.flatMap((skill) => [
+							...skill.requiredTools,
+							...(skill.allowedTools ?? []),
+						])
 					);
 					for (const tool of baseTools) {
-						if (requiredSkillToolNames.has(tool.name) && !selectedNames.has(tool.name)) {
+						if (skillToolNames.has(tool.name) && !selectedNames.has(tool.name)) {
 							selectedTools.push(tool);
 							selectedNames.add(tool.name);
 						}
