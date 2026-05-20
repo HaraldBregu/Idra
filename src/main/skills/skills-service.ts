@@ -234,14 +234,18 @@ export class SkillsService {
 				properties: {
 					skillId: { type: 'string' },
 					version: { type: 'string' },
-					input: { type: 'object' },
+					input: { type: 'object', additionalProperties: true },
 				},
-				required: ['skillId', 'input'],
-				additionalProperties: false,
+				required: ['skillId'],
+				additionalProperties: true,
 			},
 			execute: async (args, toolContext) => {
-				const skillId = typeof args.skillId === 'string' ? args.skillId : '';
-				const version = typeof args.version === 'string' ? args.version : undefined;
+				const parsedSkill = splitSkillIdAndVersion(
+					typeof args.skillId === 'string' ? args.skillId : '',
+					typeof args.version === 'string' ? args.version : undefined
+				);
+				const skillId = parsedSkill.skillId;
+				const version = parsedSkill.version;
 				if (!skillId) return textResult('execute_skill: skillId is required', true);
 
 				const userPreferences = await this.preferences.getPreferences(input.userId);
@@ -252,7 +256,7 @@ export class SkillsService {
 				const result = await this.engine.execute({
 					skillId,
 					version,
-					input: args.input ?? {},
+					input: normalizeSkillToolInput(args),
 					context,
 				});
 				const payload = {
