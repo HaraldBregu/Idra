@@ -15,6 +15,12 @@ import { AppsService } from './apps';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
+import {
+	AgentTaskHandler,
+	OcrTaskHandler,
+	TaskManager,
+	TaskRegistry,
+} from './tasks';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
@@ -28,6 +34,7 @@ import {
 	HeartbeatIpc,
 	RealtimeTranscriptionIpc,
 	SkillsIpc,
+	TasksIpc,
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
@@ -101,6 +108,17 @@ export function bootstrapServices(): BootstrapResult {
 			skills,
 		})
 	);
+	const taskRegistry = new TaskRegistry();
+	taskRegistry.register(new AgentTaskHandler(agentService));
+	taskRegistry.register(new OcrTaskHandler(store));
+	container.register(
+		'taskManager',
+		new TaskManager({
+			registry: taskRegistry,
+			eventBus,
+			logger,
+		})
+	);
 	const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
@@ -172,6 +190,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new HeartbeatIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SkillsIpc(),
+		new TasksIpc(),
 		new WindowIpc(),
 	];
 

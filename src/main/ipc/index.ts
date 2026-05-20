@@ -12,4 +12,5 @@ export { CronIpc } from './cron-ipc';
 export { HeartbeatIpc } from './heartbeat-ipc';
 export { RealtimeTranscriptionIpc } from './realtime-transcription-ipc';
 export { SkillsIpc } from './skills-ipc';
+export { TasksIpc } from './tasks-ipc';
 export { WindowIpc } from './window-ipc';

@@ -1,5 +1,8 @@
 import { BrowserWindow } from 'electron';
 import type { ThemeMode } from '../../shared';
+import type { TaskEvent } from '../../shared/tasks';
+
+type TaskEventOf<TType extends TaskEvent['type']> = Extract<TaskEvent, { type: TType }>;
 
 /**
  * Base event structure for main process events
@@ -21,30 +24,12 @@ export interface AppEvents {
 	'window:created': { windowId: number; type: string };
 	'window:closed': { windowId: number };
 	'theme:changed': { theme: ThemeMode };
-	// Task lifecycle events — emitted by TaskExecutor for main-process observers (e.g. TaskReactionBus)
-	'task:submitted': {
-		taskId: string;
-		taskType: string;
-		input: unknown;
-		priority: string;
-		windowId?: number;
-	};
-	'task:started': { taskId: string; taskType: string; windowId?: number };
-	'task:completed': {
-		taskId: string;
-		taskType: string;
-		result: unknown;
-		durationMs: number;
-		windowId?: number;
-	};
-	'task:failed': {
-		taskId: string;
-		taskType: string;
-		error: string;
-		code: string;
-		windowId?: number;
-	};
-	'task:cancelled': { taskId: string; taskType: string; windowId?: number };
+	'task:created': TaskEventOf<'task:created'>;
+	'task:started': TaskEventOf<'task:started'>;
+	'task:updated': TaskEventOf<'task:updated'>;
+	'task:succeeded': TaskEventOf<'task:succeeded'>;
+	'task:failed': TaskEventOf<'task:failed'>;
+	'task:cancelled': TaskEventOf<'task:cancelled'>;
 	'tray:set-enabled': { enabled: boolean };
 	'channel:status': import('../../shared/channels').ChannelStatusEvent;
 	'channel:route': {

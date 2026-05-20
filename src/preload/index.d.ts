@@ -70,6 +70,13 @@ export interface HeartbeatApi {
 	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
 }
 
+export interface TasksApi {
+	list: () => Promise<TaskRecord[]>;
+	get: (id: string) => Promise<TaskRecord | undefined>;
+	cancel: (id: string) => Promise<TaskRecord>;
+	onEvent: (callback: (event: TaskEvent) => void) => () => void;
+}
+
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
@@ -169,6 +176,7 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
+import type { TaskEvent, TaskRecord } from '../shared/tasks';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -225,6 +233,7 @@ declare global {
 		realtimeTranscription: RealtimeTranscriptionApi;
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
+		tasks: TasksApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;

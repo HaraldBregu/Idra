@@ -45,6 +45,13 @@ export const RealtimeTranscriptionChannels = {
 	event: 'realtime-transcription:event',
 } as const;
 
+export const TaskChannels = {
+	list: 'tasks:list',
+	get: 'tasks:get',
+	cancel: 'tasks:cancel',
+	event: 'tasks:event',
+} as const;
+
 export const AppChannels = {
 	setTheme: 'set-theme',
 	themeChanged: 'change-theme',
@@ -363,6 +370,21 @@ interface HeartbeatInvokeChannelMap {
 	};
 }
 
+interface TaskInvokeChannelMap {
+	[TaskChannels.list]: {
+		args: [];
+		result: import('./tasks').TaskRecord[];
+	};
+	[TaskChannels.get]: {
+		args: [id: string];
+		result: import('./tasks').TaskRecord | undefined;
+	};
+	[TaskChannels.cancel]: {
+		args: [id: string];
+		result: import('./tasks').TaskRecord;
+	};
+}
+
 interface AppsInvokeChannelMap {
 	[AppsChannels.list]: { args: []; result: import('./apps').AppInfo[] };
 	[AppsChannels.openFolder]: { args: [id: string]; result: void };
@@ -492,6 +514,7 @@ export interface InvokeChannelMap
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
+		TaskInvokeChannelMap,
 		AppsInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
@@ -537,10 +560,15 @@ interface HeartbeatEventChannelMap {
 	[HeartbeatChannels.event]: { data: import('./heartbeat').HeartbeatEventPayload };
 }
 
+interface TaskEventChannelMap {
+	[TaskChannels.event]: { data: import('./tasks').TaskEvent };
+}
+
 export interface EventChannelMap
 	extends AppEventChannelMap,
 		AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
-		HeartbeatEventChannelMap {}
+		HeartbeatEventChannelMap,
+		TaskEventChannelMap {}

@@ -10,3 +10,4 @@ export * from './skills';
 export * from './connectors';
 export * from './cron';
 export * from './heartbeat';
+export * from './tasks';
