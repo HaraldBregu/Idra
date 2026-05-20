@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { AgentHistoryMessage } from '../../../../../../../../src/shared/service';
-import ChatHistoryPage from '../../../../../../../../src/renderer/src/pages/settings/pages/general/agentdetails/chathistory/Page';
+import ChatHistoryPage from '../../../../../../../../src/renderer/src/pages/settings/pages/agents/details/chathistory/Page';
 
 const mockT = (key: string, params?: Record<string, unknown>): string => {
 	if (!params) return key;
@@ -17,12 +17,12 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
-function renderChatHistoryPage(path = '/settings/general/agentdetails/main/chathistory'): void {
+function renderChatHistoryPage(path = '/settings/agents/friday/details/chathistory'): void {
 	render(
 		<MemoryRouter initialEntries={[path]}>
 			<Routes>
 				<Route
-					path="/settings/general/agentdetails/:agentId/chathistory"
+					path="/settings/agents/:agentId/details/chathistory"
 					element={<ChatHistoryPage />}
 				/>
 			</Routes>

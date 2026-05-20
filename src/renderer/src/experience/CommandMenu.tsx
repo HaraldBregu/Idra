@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
 	AppWindow,
+	Bot,
 	BotMessageSquare,
 	CalendarClock,
 	Home,
@@ -27,6 +28,7 @@ interface CommandItem {
 const COMMAND_ITEMS: readonly CommandItem[] = [
 	{ id: 'home', label: 'Home', group: 'Navigation', icon: Home, path: '/home', keywords: 'chat agent ai' },
 	{ id: 'settings-general', label: 'General', group: 'Settings', icon: Info, path: '/settings/general', keywords: 'info app version theme language translucency appearance' },
+	{ id: 'settings-agents', label: 'Agents', group: 'Settings', icon: Bot, path: '/settings/agents', keywords: 'friday assistant default agent model' },
 	{ id: 'settings-channels', label: 'Channels', group: 'Settings', icon: BotMessageSquare, path: '/settings/channels', keywords: 'telegram discord slack whatsapp teams matrix signal bot' },
 	{ id: 'settings-connectors', label: 'Connectors', group: 'Settings', icon: Plug, path: '/settings/connectors', keywords: 'mcp tools integration' },
 	{ id: 'settings-skills', label: 'Skills', group: 'Settings', icon: Sparkles, path: '/settings/skills', keywords: 'plugins capabilities' },

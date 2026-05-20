@@ -23,12 +23,13 @@ const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/Page'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
+const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
 const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
-const AgentDetailsPage = lazy(() => import('./pages/settings/pages/general/agentdetails/Page'));
-const ChatHistoryPage = lazy(() => import('./pages/settings/pages/general/agentdetails/chathistory/Page'));
+const AgentDetailsPage = lazy(() => import('./pages/settings/pages/agents/details/Page'));
+const ChatHistoryPage = lazy(() => import('./pages/settings/pages/agents/details/chathistory/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
@@ -138,17 +139,25 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'general',
+						element: (
+							<SettingsRouteWrapper>
+								<GeneralPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'agents',
 						children: [
 							{
 								index: true,
 								element: (
 									<SettingsRouteWrapper>
-										<GeneralPage />
+										<AgentsPage />
 									</SettingsRouteWrapper>
 								),
 							},
 							{
-								path: 'agentdetails/:agentId',
+								path: ':agentId/details',
 								children: [
 									{
 										index: true,

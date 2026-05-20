@@ -149,6 +149,7 @@
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
 			"descriptions": {
 				"general": "Info e permessi app",
+				"agents": "Configurazione agenti",
 				"system": "Tema, lingua, traslucenza, finestra",
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
@@ -161,6 +162,7 @@
 		},
 		"tabs": {
 			"general": "Generale",
+			"agents": "Agenti",
 			"channels": "Canali",
 			"connectors": "Connettori",
 			"workspace": "Area di Lavoro",

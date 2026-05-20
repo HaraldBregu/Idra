@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import GeneralPage from '../../../../../../src/renderer/src/pages/settings/pages/general/Page';
 
 jest.mock('react-i18next', () => ({
@@ -47,16 +47,10 @@ jest.mock('@/components/ui/slider', () => ({
 	),
 }));
 
-function LocationProbe(): React.JSX.Element {
-	const location = useLocation();
-	return <div data-testid="location">{location.pathname}</div>;
-}
-
 function renderGeneralPage(): void {
 	render(
 		<MemoryRouter initialEntries={['/settings/general']}>
 			<GeneralPage />
-			<LocationProbe />
 		</MemoryRouter>
 	);
 }
@@ -190,12 +184,11 @@ describe('GeneralPage', () => {
 		});
 	});
 
-	it('navigates to the Friday agent details when the agent row is clicked', async () => {
-		const user = userEvent.setup();
+	it('does not render the agents list in General settings', async () => {
 		renderGeneralPage();
 
-		await user.click(await screen.findByRole('button', { name: /settings\.agents\.fridayName/ }));
+		await screen.findByText('Friday');
 
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/general/agentdetails/main');
+		expect(screen.queryByText('settings.agents.fridayName')).not.toBeInTheDocument();
 	});
 });

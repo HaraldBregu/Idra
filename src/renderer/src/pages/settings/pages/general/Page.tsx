@@ -1,13 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import {
 	Accessibility,
 	BatteryCharging,
-	Bot,
-	ChevronRight,
 	FolderOpen,
-	ImageIcon,
 	Languages,
 	Mic,
 	Monitor,
@@ -17,7 +13,6 @@ import {
 	RefreshCw,
 	ShieldCheck,
 	Sun,
-	Volume2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -35,11 +30,6 @@ import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../co
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../../shared';
-import {
-	IMAGE_ASSISTANT_AGENT_ID,
-	SPEECH_TRANSCRIBER_AGENT_ID,
-	TEXT_TO_SPEECH_AGENT_ID,
-} from '../../../../../../shared/service';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -75,39 +65,6 @@ const TRANSLUCENCY_OPTIONS = [
 	readonly icon: typeof Sun;
 }[];
 
-const FRIDAY_AGENT_ID = 'main';
-
-const AGENT_ROWS = [
-	{
-		id: FRIDAY_AGENT_ID,
-		nameKey: 'settings.agents.fridayName',
-		descriptionKey: 'settings.agents.fridayDescription',
-		icon: Bot,
-		configurable: true,
-	},
-	{
-		id: SPEECH_TRANSCRIBER_AGENT_ID,
-		nameKey: 'settings.agents.speechTranscriberName',
-		descriptionKey: 'settings.agents.speechTranscriberDescription',
-		icon: Mic,
-		configurable: true,
-	},
-	{
-		id: TEXT_TO_SPEECH_AGENT_ID,
-		nameKey: 'settings.agents.textToSpeechName',
-		descriptionKey: 'settings.agents.textToSpeechDescription',
-		icon: Volume2,
-		configurable: true,
-	},
-	{
-		id: IMAGE_ASSISTANT_AGENT_ID,
-		nameKey: 'settings.agents.imageAssistantName',
-		descriptionKey: 'settings.agents.imageAssistantDescription',
-		icon: ImageIcon,
-		configurable: true,
-	},
-] as const;
-
 const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
 	enabled: true,
 	systemStatus: 'unknown',
@@ -126,7 +83,6 @@ function microphoneActionKey(permission: MicrophonePermissionSettings): string {
 
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { theme, translucency, language, setTheme, setTranslucency, setLanguage } = useApp();
 
 	const [trayEnabled, setTrayEnabled] = useState(true);
@@ -241,19 +197,6 @@ const GeneralPage: React.FC = () => {
 		void window.app.openUserDataFolder();
 	}, []);
 
-	const openAgent = useCallback((agentId: string) => {
-		navigate(`/settings/general/agentdetails/${encodeURIComponent(agentId)}`);
-	}, [navigate]);
-
-	const handleAgentKeyDown = useCallback(
-		(event: React.KeyboardEvent<HTMLElement>, agentId: string) => {
-			if (event.key !== 'Enter' && event.key !== ' ') return;
-			event.preventDefault();
-			openAgent(agentId);
-		},
-		[openAgent]
-	);
-
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
 		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);
@@ -296,51 +239,6 @@ const GeneralPage: React.FC = () => {
 							<span className="font-mono text-[13px] text-foreground">{__APP_VERSION__}</span>
 						</ItemActions>
 					</Item>
-				</Card>
-			</SettingsSection>
-
-			<SettingsSection title={t('settings.agents.title')}>
-				<Card size="sm" className="gap-0! p-0!">
-					{AGENT_ROWS.map((agent) => {
-						const Icon = agent.icon;
-						return (
-							<Item
-								key={agent.id}
-								role={agent.configurable ? 'button' : undefined}
-								tabIndex={agent.configurable ? 0 : undefined}
-								variant="outline"
-								size="md"
-								className={
-									agent.configurable
-										? 'cursor-pointer border-b border-border/60 hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring/55'
-										: 'border-b border-border/60 last:border-b-0'
-								}
-								onClick={agent.configurable ? () => openAgent(agent.id) : undefined}
-								onKeyDown={
-									agent.configurable
-										? (event) => handleAgentKeyDown(event, agent.id)
-										: undefined
-								}
-							>
-								<ItemMedia variant="icon">
-									<Icon className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-									<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-										{t(agent.nameKey)}
-									</ItemTitle>
-									<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-										{t(agent.descriptionKey)}
-									</p>
-								</ItemContent>
-								{agent.configurable && (
-									<ItemActions className="ml-auto flex-none justify-end">
-										<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
-									</ItemActions>
-								)}
-							</Item>
-						);
-					})}
 				</Card>
 			</SettingsSection>
 

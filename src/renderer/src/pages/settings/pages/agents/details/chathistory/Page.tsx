@@ -16,6 +16,7 @@ import type {
 } from '../../../../../../../../shared/service';
 
 const FRIDAY_AGENT_ID = 'main';
+const FRIDAY_AGENT_SLUG = 'friday';
 
 interface ChatHistoryStats {
 	readonly messageCount: number;
@@ -83,7 +84,7 @@ const ChatHistoryPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { agentId } = useParams<{ agentId: string }>();
 	const decodedAgentId = decodeURIComponent(agentId ?? '');
-	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_ID;
+	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_SLUG || decodedAgentId === FRIDAY_AGENT_ID;
 	const [chatHistory, setChatHistory] = useState<ChatHistoryStats>(EMPTY_CHAT_HISTORY_STATS);
 	const [chatHistoryLoading, setChatHistoryLoading] = useState(true);
 	const [chatHistoryDeleting, setChatHistoryDeleting] = useState(false);

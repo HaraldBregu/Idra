@@ -56,6 +56,7 @@ import {
 } from '../../../../../../../shared/service';
 
 const FRIDAY_AGENT_ID = 'main';
+const FRIDAY_AGENT_SLUG = 'friday';
 const OPENAI_PROVIDER_ID = 'openai';
 
 function isOpenAiProvider(providerId: string): boolean {
@@ -96,7 +97,7 @@ const AgentDetailsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { agentId } = useParams<{ agentId: string }>();
 	const decodedAgentId = decodeURIComponent(agentId ?? '');
-	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_ID;
+	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_SLUG || decodedAgentId === FRIDAY_AGENT_ID;
 	const isSpeechTranscriberAgent = decodedAgentId === SPEECH_TRANSCRIBER_AGENT_ID;
 	const isTextToSpeechAgent = decodedAgentId === TEXT_TO_SPEECH_AGENT_ID;
 	const isImageAssistantAgent = decodedAgentId === IMAGE_ASSISTANT_AGENT_ID;
@@ -337,7 +338,7 @@ const AgentDetailsPage: React.FC = () => {
 	}, [canSave, effort, isSpeechTranscriberAgent, selectedModel, selectedProvider, t]);
 
 	const openChatHistory = useCallback(() => {
-		navigate(`/settings/general/agentdetails/${encodeURIComponent(FRIDAY_AGENT_ID)}/chathistory`);
+		navigate(`/settings/agents/${FRIDAY_AGENT_SLUG}/details/chathistory`);
 	}, [navigate]);
 
 	const isKnownAgent =

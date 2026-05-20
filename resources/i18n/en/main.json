@@ -149,6 +149,7 @@
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
 			"descriptions": {
 				"general": "App info and permissions",
+				"agents": "Agent configuration",
 				"system": "Theme, language, translucency, window chrome",
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
@@ -161,6 +162,7 @@
 		},
 		"tabs": {
 			"general": "General",
+			"agents": "Agents",
 			"channels": "Channels",
 			"connectors": "Connectors",
 			"workspace": "Workspace",

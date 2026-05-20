@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import AgentDetailsPage from '../../../../../../../src/renderer/src/pages/settings/pages/general/agentdetails/Page';
+import AgentDetailsPage from '../../../../../../../src/renderer/src/pages/settings/pages/agents/details/Page';
 
 const mockT = (key: string): string => key;
 
@@ -29,13 +29,13 @@ function LocationProbe(): React.JSX.Element {
 	return <div data-testid="location">{location.pathname}</div>;
 }
 
-function renderAgentDetailsPage(path = '/settings/general/agentdetails/main'): void {
+function renderAgentDetailsPage(path = '/settings/agents/friday/details'): void {
 	render(
 		<MemoryRouter initialEntries={[path]}>
 			<Routes>
-				<Route path="/settings/general/agentdetails/:agentId" element={<AgentDetailsPage />} />
+				<Route path="/settings/agents/:agentId/details" element={<AgentDetailsPage />} />
 				<Route
-					path="/settings/general/agentdetails/:agentId/chathistory"
+					path="/settings/agents/:agentId/details/chathistory"
 					element={<div>Chat history route</div>}
 				/>
 			</Routes>
@@ -70,7 +70,7 @@ describe('AgentDetailsPage', () => {
 		await user.click(await screen.findByRole('button', { name: /settings\.chatHistory\.title/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent(
-			'/settings/general/agentdetails/main/chathistory'
+			'/settings/agents/friday/details/chathistory'
 		);
 	});
 

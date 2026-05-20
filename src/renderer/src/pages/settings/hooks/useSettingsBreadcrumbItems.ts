@@ -71,13 +71,12 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: skillId });
 	}
 
-	if (location.pathname.startsWith('/settings/general/agentdetails/')) {
+	if (location.pathname.startsWith('/settings/agents/')) {
 		const parts = location.pathname.split('/');
-		const agentDetailsIndex = parts.indexOf('agentdetails');
-		const agentId = decodeURIComponent(parts[agentDetailsIndex + 1] ?? '');
-		const isChatHistoryPage = parts[agentDetailsIndex + 2] === 'chathistory';
+		const agentId = decodeURIComponent(parts[3] ?? '');
+		const isChatHistoryPage = parts[5] === 'chathistory';
 		items[0] = { ...items[0], path: current.path };
-		const label = agentId === 'main'
+		const label = agentId === 'friday' || agentId === 'main'
 			? t('settings.agents.fridayName')
 			: agentId === SPEECH_TRANSCRIBER_AGENT_ID
 				? t('settings.agents.speechTranscriberName')
@@ -88,7 +87,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 						: agentId;
 		items.push({
 			label,
-			path: isChatHistoryPage ? `/settings/general/agentdetails/${encodeURIComponent(agentId)}` : undefined,
+			path: isChatHistoryPage ? `/settings/agents/${encodeURIComponent(agentId)}/details` : undefined,
 		});
 		if (isChatHistoryPage) {
 			items.push({ label: t('settings.agents.history') });
