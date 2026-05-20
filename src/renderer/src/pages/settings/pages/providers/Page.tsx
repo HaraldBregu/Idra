@@ -195,7 +195,6 @@ const ProvidersPage: React.FC = () => {
 					})}
 				</div>
 			</SettingsSection>
-
 		</SettingsPageShell>
 	);
 };
