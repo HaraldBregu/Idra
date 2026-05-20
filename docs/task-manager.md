@@ -4,7 +4,7 @@ This document defines the future task manager for Friday. It is an implementatio
 
 ## Purpose
 
-The task manager owns background work that can run at the same time as other work in the app. A task can represent any executable unit, including an agent run, OCR job, API call, connector sync, local function, file operation, or a task that starts child tasks.
+The task manager owns background work that can run at the same time as other work in the app. A task can represent any executable unit, including an agent run, OCR job, API call, connector sync, local function, or file operation.
 
 The task manager is not a scheduler. Cron and heartbeat features may create tasks, but the task manager only owns task execution and task state for the current app session.
 
@@ -15,7 +15,7 @@ The task manager is not a scheduler. Cron and heartbeat features may create task
 - Expose task state to the renderer through a typed preload API.
 - Allow the user to cancel a running task.
 - Support any task type through registered task handlers.
-- Support parent and child tasks, such as an agent task that starts an OCR task.
+- Use one task record per operation.
 - Emit lifecycle updates when a task is created, started, updated, completed, failed, or cancelled.
 - Never auto-complete, auto-fail, or auto-cancel a task because of a timeout.
 
@@ -48,7 +48,7 @@ Allowed transitions:
 - `cancelling` -> `cancelled`
 - `cancelling` -> `failed`
 
-Cancellation must be cooperative. The task manager should pass an `AbortSignal` to every handler and to child task helpers. Handlers must check the signal before expensive work, pass it into APIs that accept cancellation, and stop child tasks when their parent is cancelled.
+Cancellation must be cooperative. The task manager should pass an `AbortSignal` to every handler. Handlers must check the signal before expensive work and pass it into APIs that accept cancellation.
 
 ## Task Record
 
@@ -71,8 +71,6 @@ export interface TaskRecord<TResult = unknown> {
 	createdAt: string;
 	startedAt?: string;
 	finishedAt?: string;
-	parentTaskId?: string;
-	childTaskIds: string[];
 	progress?: {
 		current?: number;
 		total?: number;
@@ -104,13 +102,10 @@ export interface TaskContext<TInput> {
 	input: TInput;
 	signal: AbortSignal;
 	updateProgress(progress: TaskRecord['progress']): void;
-	startChildTask<TChildInput>(
-		request: TaskStartRequest<TChildInput>
-	): Promise<TaskRecord>;
 }
 ```
 
-Handlers may call APIs, run local functions, start agents, start OCR, or create child tasks. Handlers must not mutate the task store directly; they report progress through the provided context and return a result or throw an error.
+Handlers may call APIs, run local functions, start agents, or start OCR. Handlers must not mutate the task store directly; they report progress through the provided context and return a result or throw an error.
 
 ## Main-Process Architecture
 
@@ -156,7 +151,7 @@ export type TaskEvent =
 	| { type: 'task:cancelled'; task: TaskRecord };
 ```
 
-When child tasks are created, update the parent `childTaskIds` and emit an update for the parent. Cancelling a parent task should request cancellation for all active child tasks.
+Each task event describes one task record. A single user operation should not create a parent task plus child task records; model it as one task unless a separate operation is started.
 
 ## Timeout Rule
 
@@ -190,7 +185,7 @@ If a specific external API requires its own timeout, keep that timeout local to 
 4. Add IPC handlers and the `window.tasks` preload API.
 5. Add the first concrete handlers, starting with agent and OCR tasks.
 6. Add renderer retrieval and cancellation UI where needed.
-7. Add focused tests for lifecycle transitions, concurrent execution, cancellation, child task cancellation, and no default timeout behavior.
+7. Add focused tests for lifecycle transitions, concurrent execution, cancellation, and no default timeout behavior.
 
 ## Verification
 
@@ -207,6 +202,6 @@ Required tests:
 - Two tasks can run concurrently and complete independently.
 - `list` and `get` return current in-memory records through IPC.
 - Cancelling a running task moves it through `cancelling` to `cancelled`.
-- Cancelling a parent task requests cancellation for active child tasks.
+- One operation creates one task record.
 - A task does not fail or cancel because elapsed time passes.
 - Completed, failed, and cancelled tasks remain retrievable until the app session ends.
