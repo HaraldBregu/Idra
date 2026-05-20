@@ -67,10 +67,11 @@ export class AgentTaskHandler implements TaskHandler<AgentTaskInput, AgentTaskRe
 
 	validateInput(input: unknown): AgentTaskInput {
 		assertRecord(input);
-		const message = input.message;
-		if (typeof message !== 'string' || !message.trim()) {
+		if (typeof input.message !== 'string') {
 			throw new Error('message is required.');
 		}
+		const message = input.message.trim();
+		if (!message) throw new Error('message is required.');
 		if (message.length > 200_000) throw new Error('message is too long.');
 
 		const effort = input.effort;
