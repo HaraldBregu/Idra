@@ -194,9 +194,12 @@ export function CommandMenu(): React.JSX.Element {
 
 	useEffect(() => {
 		const handler = (e: KeyboardEvent): void => {
-			if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+			const isSearchShortcut =
+				(e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'f';
+
+			if (isSearchShortcut) {
 				e.preventDefault();
-				setOpen((prev) => !prev);
+				setOpen(true);
 			}
 		};
 		window.addEventListener('keydown', handler);
