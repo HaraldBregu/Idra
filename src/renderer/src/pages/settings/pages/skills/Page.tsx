@@ -85,9 +85,16 @@ const SkillsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 		try {
-			const imported = await window.skills.importSkill();
-			if (imported) {
-				setSuccessMessage(t('settings.skills.uploaded', { name: imported.manifest.name }));
+			const result = await window.skills.importSkill();
+			if (result) {
+				const importedCount = result.imported.length;
+				const skippedCount = result.skipped.length;
+				setSuccessMessage(
+					t('settings.skills.uploaded', {
+						count: String(importedCount),
+						skipped: String(skippedCount),
+					})
+				);
 				await loadSkills();
 			}
 		} catch (error) {
@@ -202,7 +209,7 @@ const SkillsPage: React.FC = () => {
 											>
 												v{skillVersion(skill)}
 											</Badge>
-											{metadataFlag(skill, 'disableModelInvocation') === true && (
+									{metadataFlag(skill, 'disableModelInvocation') === true && (
 												<Badge
 													variant="outline"
 													className="h-4 rounded-md border-amber-500/30 bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-700 dark:text-amber-300"
@@ -258,6 +265,10 @@ const SkillsPage: React.FC = () => {
 							</DialogHeader>
 							<dl className="grid gap-2 text-xs sm:grid-cols-[8rem_minmax(0,1fr)]">
 								<SkillDetail label={t('settings.skills.detailId')} value={selectedSkill.id} mono />
+								<SkillDetail
+									label={t('settings.skills.detailFormat')}
+									value={selectedSkill.structure?.standard || t('settings.skills.none')}
+								/>
 								<SkillDetail label={t('settings.skills.detailVersion')} value={skillVersion(selectedSkill)} />
 								<SkillDetail
 									label={t('settings.skills.detailCategory')}
@@ -310,6 +321,23 @@ const SkillsPage: React.FC = () => {
 									value={selectedSkill.skillPath || t('settings.skills.none')}
 									mono
 								/>
+								{selectedSkill.diagnostics && selectedSkill.diagnostics.length > 0 && (
+									<>
+										<dt className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+											{t('settings.skills.detailDiagnostics')}
+										</dt>
+										<dd className="space-y-1 text-foreground">
+											{selectedSkill.diagnostics.map((diagnostic) => (
+												<div
+													key={`${diagnostic.code}:${diagnostic.message}`}
+													className="rounded-md border border-border/70 bg-muted/30 px-2 py-1 text-[11px] leading-4"
+												>
+													<span className="font-medium">{diagnostic.code}</span>: {diagnostic.message}
+												</div>
+											))}
+										</dd>
+									</>
+								)}
 							</dl>
 						</>
 					)}
