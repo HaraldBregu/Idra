@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { CircleOff, FolderOpen, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
@@ -204,39 +203,58 @@ const ChatHistoryPage: React.FC = () => {
 							</span>
 						</ItemActions>
 					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
-						<ItemContent className="min-w-48 flex-[1_1_auto] flex-col items-start gap-0">
-							<ItemTitle>{t('settings.chatHistory.actions')}</ItemTitle>
+				</Card>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.chatHistory.actions')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item
+						as="button"
+						type="button"
+						variant="outline"
+						size="md"
+						className="border-b border-border/60 text-left hover:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-50 last:border-b-0"
+						onClick={handleOpenChatHistoryFolder}
+						disabled={chatHistoryDeleting}
+						aria-label={t('settings.chatHistory.openFolder')}
+					>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle>{t('settings.chatHistory.openFolder')}</ItemTitle>
+							{chatHistoryErrorKey === 'settings.chatHistory.errors.openFolder' && (
+								<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+									{t(chatHistoryErrorKey)}
+								</p>
+							)}
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<FolderOpen className="size-3 text-muted-foreground" strokeWidth={1.8} />
+						</ItemActions>
+					</Item>
+
+					<Item
+						as="button"
+						type="button"
+						variant="outline"
+						size="md"
+						className="border-b border-border/60 text-left hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50 last:border-b-0"
+						onClick={() => void handleDeleteChatHistory()}
+						disabled={chatHistoryLoading || chatHistoryDeleting || chatHistory.messageCount === 0}
+						aria-label={t('settings.chatHistory.delete')}
+					>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle>
+								{chatHistoryDeleting
+									? t('settings.chatHistory.deleting')
+									: t('settings.chatHistory.delete')}
+							</ItemTitle>
 							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-								{chatHistoryErrorKey
+								{chatHistoryErrorKey === 'settings.chatHistory.errors.delete'
 									? t(chatHistoryErrorKey)
 									: t('settings.chatHistory.actionsDescription')}
 							</p>
 						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end gap-1.5">
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								onClick={handleOpenChatHistoryFolder}
-								disabled={chatHistoryDeleting}
-								aria-label={t('settings.chatHistory.openFolder')}
-								title={t('settings.chatHistory.openFolder')}
-							>
-								<FolderOpen className="size-3" />
-							</Button>
-							<Button
-								variant="destructive"
-								size="xs"
-								onClick={() => void handleDeleteChatHistory()}
-								disabled={
-									chatHistoryLoading || chatHistoryDeleting || chatHistory.messageCount === 0
-								}
-							>
-								<Trash2 className="size-3" />
-								{chatHistoryDeleting
-									? t('settings.chatHistory.deleting')
-									: t('settings.chatHistory.delete')}
-							</Button>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Trash2 className="size-3 text-destructive" strokeWidth={1.8} />
 						</ItemActions>
 					</Item>
 				</Card>
