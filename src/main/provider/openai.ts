@@ -124,7 +124,7 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 				params.reasoning_effort = req.effort;
 			}
 			const stream = await this.client.chat.completions.create(
-				params as OpenAI.Chat.ChatCompletionCreateParamsStreaming,
+				params as unknown as OpenAI.Chat.ChatCompletionCreateParamsStreaming,
 				{ signal: req.signal }
 			);
 
