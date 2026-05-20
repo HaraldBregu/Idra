@@ -189,9 +189,9 @@ describe('tools/fs', () => {
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
 		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
-		expect((await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status).toBe(
-			'error'
-		);
+		expect(
+			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
+		).toBe('error');
 		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
 
 		expect(
@@ -200,8 +200,12 @@ describe('tools/fs', () => {
 		await expect(fs.readFile(path.join(workspace, 'copied.txt'), 'utf8')).resolves.toBe('outside');
 
 		expect(
-			(await copyTool.execute({ source: 'inside.txt', destination: path.join(outside, 'copy.txt') }, ctx))
-				.status
+			(
+				await copyTool.execute(
+					{ source: 'inside.txt', destination: path.join(outside, 'copy.txt') },
+					ctx
+				)
+			).status
 		).toBe('error');
 
 		expect(

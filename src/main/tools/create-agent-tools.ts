@@ -10,11 +10,20 @@ import { createReadTool } from './builtins/read-tool';
 import { createExecTool } from './builtins/exec-tool';
 import { normalizeToolSchemas } from './schema-normalization';
 import { applyToolPolicyPipeline, type PolicyStageName } from './tool-policy-pipeline';
-import { wrapToolWithBeforeToolCall, type BeforeToolCallContext, newCallTracker } from './before-tool-call';
+import {
+	wrapToolWithBeforeToolCall,
+	type BeforeToolCallContext,
+	newCallTracker,
+} from './before-tool-call';
 import { applyToolSearchCompaction, type ToolSearchCompactionOptions } from './tool-search';
 import { materializeMcpTools, type McpRuntime } from './external/mcp-tools';
 import { materializeLspTools, type LspRuntime } from './external/lsp-tools';
-import type { AppConfig, AuthContext, DeliveryContext, PluginToolContext } from '../plugins/tool-types';
+import type {
+	AppConfig,
+	AuthContext,
+	DeliveryContext,
+	PluginToolContext,
+} from '../plugins/tool-types';
 import type { PluginToolRegistry } from '../plugins/tool-registry';
 import type { ToolPolicy } from './tool-policy';
 
@@ -30,7 +39,7 @@ export type CreateAgentToolsOptions = {
 		toolPolicies?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
 		toolSearch?: ToolSearchCompactionOptions;
 		tools?: {
-				fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
+			fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 			exec?: Record<string, unknown>;
 		};
 	};
@@ -137,21 +146,28 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 			else plan.includePluginTools = true;
 		}
 	}
-	plan.includeToolSearchControls = normalized.includes('tool_search') || normalized.includes('tool_call') || normalized.includes('tool_describe');
+	plan.includeToolSearchControls =
+		normalized.includes('tool_search') ||
+		normalized.includes('tool_call') ||
+		normalized.includes('tool_describe');
 	return plan;
 }
 
-export async function createAgentTools(options: CreateAgentToolsOptions): Promise<CreateAgentToolsResult> {
+export async function createAgentTools(
+	options: CreateAgentToolsOptions
+): Promise<CreateAgentToolsResult> {
 	const diagnostics = createToolDiagnostics();
 	const plan = planToolConstruction(options.toolsAllow);
 	const candidates: AgentTool[] = [];
 
 	const fsPolicy = options.config?.tools?.fs;
 	if (plan.includeFileTools) {
-		candidates.push(createReadTool({
-			workspaceDir: options.workspaceDir,
-			allowAbsolutePaths: fsPolicy?.workspaceOnly === false,
-		}));
+		candidates.push(
+			createReadTool({
+				workspaceDir: options.workspaceDir,
+				allowAbsolutePaths: fsPolicy?.workspaceOnly === false,
+			})
+		);
 	}
 	if (plan.includeShellTools && options.sandbox?.allowShell !== false) {
 		candidates.push(createExecTool({ workspaceDir: options.workspaceDir }));
@@ -192,7 +208,8 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 		);
 	}
 
-	if (plan.includeLspTools) candidates.push(...(await materializeLspTools({ runtime: options.lspRuntime })));
+	if (plan.includeLspTools)
+		candidates.push(...(await materializeLspTools({ runtime: options.lspRuntime })));
 
 	for (const clientTool of options.clientTools ?? []) {
 		candidates.push(markClientTool(clientTool, options.sender?.channel));
@@ -201,7 +218,8 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 	assertUniqueToolNames(candidates);
 	diagnostics.builtTools.push(...candidates.map((tool) => tool.name));
 
-	const runtimeAllow = options.toolsAllow ?? (hasToolControlsWithoutGrants(options.config) ? [] : undefined);
+	const runtimeAllow =
+		options.toolsAllow ?? (hasToolControlsWithoutGrants(options.config) ? [] : undefined);
 	const stages: Partial<Record<PolicyStageName, ToolPolicy | undefined>> = {
 		...(options.config?.toolPolicies ?? {}),
 		sandbox: mergeToolPolicy(
@@ -233,7 +251,10 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 	);
 
 	const searchOptions = options.config?.toolSearch;
-	if (searchOptions?.enabled || (plan.includeToolSearchControls && searchOptions?.enabled !== false)) {
+	if (
+		searchOptions?.enabled ||
+		(plan.includeToolSearchControls && searchOptions?.enabled !== false)
+	) {
 		effective = applyToolSearchCompaction(effective, searchOptions).tools;
 	}
 
@@ -250,7 +271,9 @@ export async function createAgentTools(options: CreateAgentToolsOptions): Promis
 }
 
 function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
-	return readOnly ? { deny: ['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'] } : undefined;
+	return readOnly
+		? { deny: ['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'] }
+		: undefined;
 }
 
 function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy | undefined {
@@ -301,7 +324,5 @@ function pluginContext(options: CreateAgentToolsOptions): PluginToolContext {
 }
 
 export function clientToolNames(tools: AgentTool[]): string[] {
-	return tools
-		.filter((tool) => getToolMetadata(tool)?.clientHosted)
-		.map((tool) => tool.name);
+	return tools.filter((tool) => getToolMetadata(tool)?.clientHosted).map((tool) => tool.name);
 }

@@ -7,7 +7,10 @@ import { SkillDiscovery, makeDiscoveryContext } from '../../../../src/main/skill
 import { SkillExecutionEngine } from '../../../../src/main/skills/execution-engine';
 import { createExampleSkills } from '../../../../src/main/skills/example-skills';
 import { SkillLoader } from '../../../../src/main/skills/loader';
-import { DefaultSkillMemoryPolicy, NoopSkillMemoryRetriever } from '../../../../src/main/skills/memory-policy';
+import {
+	DefaultSkillMemoryPolicy,
+	NoopSkillMemoryRetriever,
+} from '../../../../src/main/skills/memory-policy';
 import { InMemorySkillPreferenceStore } from '../../../../src/main/skills/preferences';
 import { SkillRanker } from '../../../../src/main/skills/ranker';
 import { SkillRegistry } from '../../../../src/main/skills/registry';
@@ -31,13 +34,18 @@ function webFetchTool(): AgentTool {
 		name: 'web_fetch',
 		description: 'Fetch',
 		schema: { type: 'object' },
-		execute: jest.fn(async (args) => textResult(`Fetched ${(args as { url?: string }).url ?? 'none'}`)),
+		execute: jest.fn(async (args) =>
+			textResult(`Fetched ${(args as { url?: string }).url ?? 'none'}`)
+		),
 	};
 }
 
 function basicSkill(
 	id: string,
-	execute: (input: Record<string, unknown>, context: SkillExecutionContext) => Promise<ReturnType<SkillExecutionContext['complete']>>,
+	execute: (
+		input: Record<string, unknown>,
+		context: SkillExecutionContext
+	) => Promise<ReturnType<SkillExecutionContext['complete']>>,
 	overrides: Partial<SkillDefinition<Record<string, unknown>, unknown>> = {}
 ): SkillDefinition<Record<string, unknown>, unknown> {
 	const requiredTools = overrides.requiredTools ?? [];
@@ -110,14 +118,16 @@ function userDataDirectory(root: string) {
 	};
 }
 
-function executionContext(input: {
-	tools?: AgentTool[];
-	connectors?: SkillConnector[];
-	permissions?: string[];
-	grantToolPermissions?: boolean;
-	signal?: AbortSignal;
-	maxRetries?: number;
-} = {}): SkillExecutionRequestContext {
+function executionContext(
+	input: {
+		tools?: AgentTool[];
+		connectors?: SkillConnector[];
+		permissions?: string[];
+		grantToolPermissions?: boolean;
+		signal?: AbortSignal;
+		maxRetries?: number;
+	} = {}
+): SkillExecutionRequestContext {
 	const tools = input.tools ?? [];
 	const connectors = input.connectors ?? [];
 	const preferences = new InMemorySkillPreferenceStore();
@@ -181,7 +191,9 @@ describe('skill system', () => {
 
 		expect(result.candidates).toHaveLength(5);
 		expect(result.totalAvailable).toBeGreaterThan(25);
-		expect(result.candidates.some((candidate) => candidate.skill.id.includes('research'))).toBe(true);
+		expect(result.candidates.some((candidate) => candidate.skill.id.includes('research'))).toBe(
+			true
+		);
 		expect(result.candidates[0]!.ranking.score).toBeGreaterThanOrEqual(
 			result.candidates[1]!.ranking.score
 		);
@@ -333,9 +345,13 @@ describe('skill system', () => {
 		expect(registry.getSkill('versioned')?.version).toBe('2.0.0');
 		expect(manager.compatible(versions, '^1.0.0')?.version).toBe('1.0.0');
 
-		const dependent = basicSkill('dependent', async (_input, context) => context.complete({ ok: true }), {
-			dependencies: [{ id: 'versioned', version: '^1.0.0' }],
-		});
+		const dependent = basicSkill(
+			'dependent',
+			async (_input, context) => context.complete({ ok: true }),
+			{
+				dependencies: [{ id: 'versioned', version: '^1.0.0' }],
+			}
+		);
 		expect(new SkillDependencyResolver(registry).resolve(dependent).ok).toBe(true);
 	});
 
@@ -489,13 +505,9 @@ describe('skill system', () => {
 		await fs.mkdir(dir);
 		await fs.writeFile(
 			path.join(dir, 'SKILL.md'),
-			[
-				'---',
-				'name: huge-skill',
-				'description: Huge package.',
-				'---',
-				'x'.repeat(256_001),
-			].join('\n')
+			['---', 'name: huge-skill', 'description: Huge package.', '---', 'x'.repeat(256_001)].join(
+				'\n'
+			)
 		);
 
 		await expect(new SkillLoader().loadPackage(dir)).rejects.toThrow(
@@ -621,14 +633,21 @@ describe('skill system', () => {
 
 		const result = await service.importFromPath(source);
 
-		expect(result.imported.map((skill) => skill.id).sort()).toEqual(['first-skill', 'second-skill']);
+		expect(result.imported.map((skill) => skill.id).sort()).toEqual([
+			'first-skill',
+			'second-skill',
+		]);
 		expect(result.imported[0]?.structure).toMatchObject({
 			format: 'agent-skill',
 			standard: 'agentskills.io',
 			kind: 'direct',
 		});
-		await expect(fs.stat(path.join(root, 'skills', 'first-skill', 'SKILL.md'))).resolves.toBeDefined();
-		await expect(fs.stat(path.join(root, 'skills', 'second-skill', 'SKILL.md'))).resolves.toBeDefined();
+		await expect(
+			fs.stat(path.join(root, 'skills', 'first-skill', 'SKILL.md'))
+		).resolves.toBeDefined();
+		await expect(
+			fs.stat(path.join(root, 'skills', 'second-skill', 'SKILL.md'))
+		).resolves.toBeDefined();
 		await fs.rm(root, { recursive: true, force: true });
 		await fs.rm(source, { recursive: true, force: true });
 	});
@@ -639,15 +658,17 @@ describe('skill system', () => {
 			{ trusted: true }
 		);
 
-			expect(discovery.skipped).toEqual([]);
-			expect(discovery.packages.map((item) => item.manifest.id).sort()).toEqual([
-				'claude-code-executor',
-				'codex-project-executor',
-				'data-quality-check',
-				'release-notes-drafter',
-				'research-brief',
-			]);
-		expect(discovery.packages.every((item) => item.structure.standard === 'agentskills.io')).toBe(true);
+		expect(discovery.skipped).toEqual([]);
+		expect(discovery.packages.map((item) => item.manifest.id).sort()).toEqual([
+			'claude-code-executor',
+			'codex-project-executor',
+			'data-quality-check',
+			'release-notes-drafter',
+			'research-brief',
+		]);
+		expect(discovery.packages.every((item) => item.structure.standard === 'agentskills.io')).toBe(
+			true
+		);
 		expect(discovery.packages.every((item) => item.diagnostics.length === 0)).toBe(true);
 	});
 
@@ -673,7 +694,9 @@ describe('skill system', () => {
 		const result = await service.importFromPath(source);
 
 		expect(result.imported.map((skill) => skill.id)).toEqual(['project-skill']);
-		await expect(fs.stat(path.join(root, 'skills', 'project-skill', 'SKILL.md'))).resolves.toBeDefined();
+		await expect(
+			fs.stat(path.join(root, 'skills', 'project-skill', 'SKILL.md'))
+		).resolves.toBeDefined();
 		await fs.rm(root, { recursive: true, force: true });
 		await fs.rm(source, { recursive: true, force: true });
 	});

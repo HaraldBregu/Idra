@@ -5,10 +5,7 @@ import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
 import type { ConnectorsService } from './connectors';
-import {
-	resolveBootstrapMode,
-	type WorkspaceService,
-} from './workspace';
+import { resolveBootstrapMode, type WorkspaceService } from './workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
@@ -67,7 +64,9 @@ function filterToolsByAllowlist(tools: AgentTool[], allowlist?: string[]): Agent
 	if (!allowlist) return tools;
 	const patterns = allowlist.map((entry) => entry.trim()).filter(Boolean);
 	if (patterns.length === 0) return [];
-	return tools.filter((tool) => patterns.some((pattern) => toolAllowPatternMatches(pattern, tool.name)));
+	return tools.filter((tool) =>
+		patterns.some((pattern) => toolAllowPatternMatches(pattern, tool.name))
+	);
 }
 
 export interface AgentServiceDependencies {
@@ -247,10 +246,12 @@ export class AgentService {
 			);
 			const providerId = providerConfig.providerId;
 			const apiKey = providerConfig.apiKey;
-			const model = options.model?.trim() || heartbeatOptions?.model?.trim() || providerConfig.model;
-			const effort = providerId === 'openai'
-				? requireModelReasoningEffort(model, options.effort ?? providerConfig.effort)
-				: providerConfig.effort;
+			const model =
+				options.model?.trim() || heartbeatOptions?.model?.trim() || providerConfig.model;
+			const effort =
+				providerId === 'openai'
+					? requireModelReasoningEffort(model, options.effort ?? providerConfig.effort)
+					: providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
@@ -381,18 +382,19 @@ export class AgentService {
 				bootstrapPending =
 					bootstrapPending ||
 					startupFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
-				toolSelection = bootstrapPending && isPrimaryRun
-					? {
-							toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
-							systemPromptSuffix: '',
-							rankedTools: [],
-						}
-					: recordPhase(phaseDurationsMs, 'select_tools', () =>
-							selectAgentToolsForTurn(baseTools, message, ctx, {
-								forceSelection: true,
-								maxPromptTools: TOOL_LIMITS.prompt.defaultMaxTools,
-							})
-						);
+				toolSelection =
+					bootstrapPending && isPrimaryRun
+						? {
+								toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
+								systemPromptSuffix: '',
+								rankedTools: [],
+							}
+						: recordPhase(phaseDurationsMs, 'select_tools', () =>
+								selectAgentToolsForTurn(baseTools, message, ctx, {
+									forceSelection: true,
+									maxPromptTools: TOOL_LIMITS.prompt.defaultMaxTools,
+								})
+							);
 				selectedTools = toolSelection.toolsForPrompt;
 				if (heartbeatOptions?.forceHeartbeatTool) {
 					const heartbeatTool = baseTools.find((tool) => tool.name === 'heartbeat_respond');
@@ -404,10 +406,7 @@ export class AgentService {
 				if (skillChoices.length > 0 && this.dependencies.skills) {
 					const selectedNames = new Set(selectedTools.map((tool) => tool.name));
 					const skillToolNames = new Set(
-						skillChoices.flatMap((skill) => [
-							...skill.requiredTools,
-							...(skill.allowedTools ?? []),
-						])
+						skillChoices.flatMap((skill) => [...skill.requiredTools, ...(skill.allowedTools ?? [])])
 					);
 					for (const tool of baseTools) {
 						if (skillToolNames.has(tool.name) && !selectedNames.has(tool.name)) {

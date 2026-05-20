@@ -13,7 +13,17 @@ export type ToolPolicy = {
 };
 
 export const CORE_TOOL_GROUPS: Record<string, string[]> = {
-	'group:file': ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find'],
+	'group:file': [
+		'read',
+		'write',
+		'edit',
+		'apply_patch',
+		'delete',
+		'copy',
+		'move',
+		'inspect_file',
+		'find',
+	],
 	'group:shell': ['exec', 'process', 'safe_exec'],
 	'group:web': ['web_search', 'web_fetch'],
 	'group:messaging': ['message'],
@@ -27,7 +37,19 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | '*'> = {
 	minimal: [],
-	coding: ['read', 'write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'inspect_file', 'find', 'exec', 'process'],
+	coding: [
+		'read',
+		'write',
+		'edit',
+		'apply_patch',
+		'delete',
+		'copy',
+		'move',
+		'inspect_file',
+		'find',
+		'exec',
+		'process',
+	],
 	messaging: ['message', 'session_create', 'session_resume', 'session_close'],
 	full: '*',
 };
@@ -94,7 +116,8 @@ export function expandPolicyEntries(
 		}
 		if (entry.includes('*')) {
 			const matches = allNames.filter((name) => globMatch(entry, name));
-			if (matches.length === 0) diagnostics?.warnings.push(`${stage}: allow/deny entry '${rawEntry}' matched no tools`);
+			if (matches.length === 0)
+				diagnostics?.warnings.push(`${stage}: allow/deny entry '${rawEntry}' matched no tools`);
 			matches.forEach((name) => expanded.add(name));
 			continue;
 		}
