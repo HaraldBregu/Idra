@@ -4,6 +4,7 @@ import {
 	AlertTriangle,
 	Bot,
 	CheckCircle2,
+	ChevronDown,
 	ChevronRight,
 	CircleOff,
 	ImageIcon,
@@ -14,7 +15,6 @@ import {
 	Volume2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Select,
@@ -31,7 +31,6 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 } from '../../../components';
 import {
@@ -114,6 +113,7 @@ const AgentDetailsPage: React.FC = () => {
 	const [saving, setSaving] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
+	const [providerCardOpen, setProviderCardOpen] = useState(true);
 
 	useEffect(() => {
 		let mounted = true;
@@ -410,6 +410,11 @@ const AgentDetailsPage: React.FC = () => {
 		isTextToSpeechAgent ? TEXT_TO_SPEECH_MODELS[0] : IMAGE_ASSISTANT_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
 	const readOnlyModelName = readOnlyModel?.name ?? t('settings.agents.modelUnavailable');
+	const providerCardSummary = selectedProvider
+		? selectedModel
+			? `${selectedProvider.name} / ${selectedModel.name || selectedModel.id}`
+			: selectedProvider.name
+		: t('settings.agents.providerPlaceholder');
 
 	if (loading) {
 		return (
