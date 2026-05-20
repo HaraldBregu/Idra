@@ -5,9 +5,32 @@ import type { SkillManifest } from '../../shared/skills';
 import type { SkillDefinition, SkillExecutionContext, SkillResult } from './types';
 
 const MAX_SKILL_FILES = 500;
-const MAX_SKILL_FILE_BYTES = 25 * 1024 * 1024;
+const MAX_SKILL_DIRECTORIES = 500;
+const MAX_SKILL_FILE_BYTES = 256_000;
+const MAX_SKILL_BUNDLE_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_LISTED_RESOURCES = 100;
+const MAX_LISTED_RESOURCE_DIRECTORIES = 100;
+const MAX_RESOURCE_DEPTH = 4;
 const RESOURCE_DIRS = ['scripts', 'references', 'assets'] as const;
+const SKILL_MARKDOWN_NAME = 'skill.md';
+const IGNORED_SKILL_DIRECTORY_NAMES = new Set([
+	'.cache',
+	'.git',
+	'.hg',
+	'.mypy_cache',
+	'.pytest_cache',
+	'.ruff_cache',
+	'.svn',
+	'.tox',
+	'.venv',
+	'__pycache__',
+	'build',
+	'coverage',
+	'dist',
+	'node_modules',
+	'out',
+	'venv',
+]);
 
 export interface SkillPackage {
 	manifest: SkillManifest;
@@ -97,15 +120,28 @@ function metadataRecord(value: unknown): Record<string, unknown> {
 	return isRecord(value) ? value : {};
 }
 
-function validateAgentSkillName(name: string, parentDirectoryName: string): void {
-	if (name.length < 1 || name.length > 64) {
-		throw new Error('Skill name must be 1-64 characters.');
+function normalizeAgentSkillId(value: string): string {
+	const id = value
+		.trim()
+		.toLowerCase()
+		.replace(/[^a-z0-9._-]+/g, '-')
+		.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '')
+		.slice(0, 64)
+		.replace(/[-._]+$/g, '');
+
+	if (!id) {
+		throw new Error('Skill name must contain at least one letter or number.');
 	}
-	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) {
-		throw new Error('Skill name must use lowercase letters, numbers, and single hyphens only.');
+
+	return id;
+}
+
+function validateAgentSkillName(name: string): void {
+	if (name.length < 1 || name.length > 128) {
+		throw new Error('Skill name must be 1-128 characters.');
 	}
-	if (name !== parentDirectoryName) {
-		throw new Error(`Skill name must match parent folder name: ${parentDirectoryName}`);
+	if (/[\0\r\n]/.test(name)) {
+		throw new Error('Skill name must be a single line without null bytes.');
 	}
 }
 
@@ -116,12 +152,13 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 
 	const parsed = matter(raw);
 	const data = parsed.data as AgentSkillFrontMatter;
-	const name = asString(data.name);
+	const name = asString(data.name) ?? parentDirectoryName.trim();
 	const description = asString(data.description);
-	if (!name) throw new Error('Skill front matter requires a non-empty name.');
 	if (!description) throw new Error('Skill front matter requires a non-empty description.');
+	if (!name) throw new Error('Skill front matter requires a non-empty name.');
+	validateAgentSkillName(name);
 	if (description.length > 1024) throw new Error('Skill description must be 1024 characters or less.');
-	validateAgentSkillName(name, parentDirectoryName);
+	const id = normalizeAgentSkillId(name);
 
 	const metadata = metadataRecord(data.metadata);
 	const version = asString(data.version) ?? asString(metadata.version) ?? '0.1.0';
@@ -135,7 +172,7 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 
 	return {
 		manifest: {
-			id: name,
+			id,
 			name,
 			description,
 			license: asString(data.license),
@@ -168,9 +205,46 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 	};
 }
 
-async function validateSkillBundle(sourcePath: string): Promise<string> {
+export function isIgnoredSkillDirectoryName(name: string): boolean {
+	return name.startsWith('.') || IGNORED_SKILL_DIRECTORY_NAMES.has(name.toLowerCase());
+}
+
+function isPathInside(rootPath: string, targetPath: string): boolean {
+	const relativePath = path.relative(path.resolve(rootPath), path.resolve(targetPath));
+	return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+}
+
+async function listRootSkillFiles(sourcePath: string): Promise<string[]> {
+	const entries = await fs.readdir(sourcePath, { withFileTypes: true });
+	const skillPaths: string[] = [];
+	for (const entry of entries) {
+		if (entry.name.toLowerCase() !== SKILL_MARKDOWN_NAME) continue;
+		const fullPath = path.join(sourcePath, entry.name);
+		const stat = await fs.lstat(fullPath);
+		if (!stat.isFile()) continue;
+		skillPaths.push(fullPath);
+	}
+	return skillPaths;
+}
+
+async function validateSkillBundle(
+	sourcePath: string,
+	options: { maxSkillFileBytes?: number } = {}
+): Promise<string> {
+	const sourceStat = await fs.lstat(sourcePath);
+	if (sourceStat.isSymbolicLink()) {
+		throw new Error('Skill package source cannot be a symbolic link.');
+	}
+
+	const rootRealPath = await fs.realpath(sourcePath);
+	if (!isPathInside(rootRealPath, sourcePath)) {
+		throw new Error('Skill package source resolves outside its configured root.');
+	}
+
 	const skillPaths: string[] = [];
 	let fileCount = 0;
+	let directoryCount = 0;
+	const maxSkillFileBytes = options.maxSkillFileBytes ?? MAX_SKILL_FILE_BYTES;
 
 	async function walk(directory: string): Promise<void> {
 		const entries = await fs.readdir(directory, { withFileTypes: true });
@@ -180,7 +254,18 @@ async function validateSkillBundle(sourcePath: string): Promise<string> {
 			if (stat.isSymbolicLink()) {
 				throw new Error('Skill bundles cannot contain symbolic links.');
 			}
+			const realPath = await fs.realpath(fullPath);
+			if (!isPathInside(rootRealPath, realPath)) {
+				throw new Error('Skill bundle path resolves outside the skill root.');
+			}
 			if (stat.isDirectory()) {
+				if (directory !== sourcePath && isIgnoredSkillDirectoryName(entry.name)) {
+					continue;
+				}
+				directoryCount++;
+				if (directoryCount > MAX_SKILL_DIRECTORIES) {
+					throw new Error(`Skill bundle exceeds ${MAX_SKILL_DIRECTORIES} directories.`);
+				}
 				await walk(fullPath);
 				continue;
 			}
@@ -191,7 +276,12 @@ async function validateSkillBundle(sourcePath: string): Promise<string> {
 			}
 			if (stat.size > MAX_SKILL_FILE_BYTES) {
 				throw new Error(
-					`Skill file exceeds ${MAX_SKILL_FILE_BYTES} bytes: ${path.relative(sourcePath, fullPath)}`
+					`SKILL.md exceeds ${maxSkillFileBytes} bytes: ${path.relative(sourcePath, fullPath)}`
+				);
+			}
+			if (stat.size > MAX_SKILL_BUNDLE_FILE_BYTES) {
+				throw new Error(
+					`Skill file exceeds ${MAX_SKILL_BUNDLE_FILE_BYTES} bytes: ${path.relative(sourcePath, fullPath)}`
 				);
 			}
 			if (entry.name.toLowerCase() === 'skill.md') {
@@ -200,11 +290,14 @@ async function validateSkillBundle(sourcePath: string): Promise<string> {
 		}
 	}
 
+	const rootSkillPaths = await listRootSkillFiles(sourcePath);
+	if (rootSkillPaths.length === 0) throw new Error('Skill package must include SKILL.md.');
+	if (rootSkillPaths.length > 1) throw new Error('Skill package must include exactly one SKILL.md file.');
+
 	await walk(sourcePath);
-	if (skillPaths.length === 0) throw new Error('Skill package must include SKILL.md.');
 	if (skillPaths.length > 1) throw new Error('Skill package must include exactly one SKILL.md file.');
 
-	const skillPath = skillPaths[0]!;
+	const skillPath = rootSkillPaths[0]!;
 	if (path.dirname(skillPath) !== sourcePath) {
 		throw new Error('SKILL.md must be in the skill package root.');
 	}
@@ -213,15 +306,20 @@ async function validateSkillBundle(sourcePath: string): Promise<string> {
 
 async function listSkillResources(sourcePath: string): Promise<string[]> {
 	const resources: string[] = [];
+	let directoryCount = 0;
 
-	async function walk(directory: string): Promise<void> {
+	async function walk(directory: string, depth = 0): Promise<void> {
 		if (resources.length >= MAX_LISTED_RESOURCES) return;
+		if (depth > MAX_RESOURCE_DEPTH) return;
 		const entries = await fs.readdir(directory, { withFileTypes: true }).catch(() => []);
 		for (const entry of entries) {
 			if (resources.length >= MAX_LISTED_RESOURCES) return;
 			const fullPath = path.join(directory, entry.name);
 			if (entry.isDirectory()) {
-				await walk(fullPath);
+				if (isIgnoredSkillDirectoryName(entry.name)) continue;
+				directoryCount++;
+				if (directoryCount > MAX_LISTED_RESOURCE_DIRECTORIES) return;
+				await walk(fullPath, depth + 1);
 			} else if (entry.isFile()) {
 				resources.push(path.relative(sourcePath, fullPath).split(path.sep).join('/'));
 			}
@@ -352,13 +450,18 @@ function manifestOnlySkill(
 }
 
 export class SkillLoader {
-	async loadPackage(sourceDir: string, options: { trusted?: boolean } = {}): Promise<SkillPackage> {
+	async loadPackage(
+		sourceDir: string,
+		options: { trusted?: boolean; maxSkillFileBytes?: number } = {}
+	): Promise<SkillPackage> {
 		const sourcePath = path.resolve(sourceDir);
 		const stat = await fs.stat(sourcePath);
 		if (!stat.isDirectory()) throw new Error('Skill package source must be a directory.');
 
 		const trusted = options.trusted ?? false;
-		const skillPath = await validateSkillBundle(sourcePath);
+		const skillPath = await validateSkillBundle(sourcePath, {
+			maxSkillFileBytes: options.maxSkillFileBytes,
+		});
 		const raw = await fs.readFile(skillPath, 'utf8');
 		const parsed = parseSkillMarkdown(raw, path.basename(sourcePath), trusted);
 		const manifest = {
