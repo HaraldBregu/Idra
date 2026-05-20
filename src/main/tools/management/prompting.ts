@@ -7,7 +7,7 @@ export class ToolPromptBuilder {
 			name: tool.name,
 			id: tool.id,
 			purpose: tool.description,
-			whenToUse: tool.metadata.whenToUse ?? `Use for ${tool.category} tasks that match the description.`,
+			whenToUse: tool.metadata.whenToUse ?? `Use for ${tool.category} requests that match the description.`,
 			whenNotToUse: tool.metadata.whenNotToUse ?? 'Do not use when the answer can be produced safely without external access.',
 			requiredInputs: requiredSchemaFields(tool.inputSchema),
 			safetyNotes: tool.metadata.safetyNotes ?? `Safety level: ${tool.safetyLevel}. Permissions: ${tool.permissionsRequired.join(', ') || 'none'}.`,
@@ -36,4 +36,3 @@ export class ToolPromptBuilder {
 		return lines.join('\n\n');
 	}
 }
-

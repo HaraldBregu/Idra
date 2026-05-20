@@ -77,7 +77,7 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 	ownerOnly: true,
 	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
 	description:
-		'Manage scheduled jobs through the Gateway-owned scheduler. Use this only for future, delayed, recurring, reminder, wake, or manual-run scheduling. Do not use this to start immediate in-memory task execution; use the task tool for work that should begin now. Do not emulate scheduling with sleep loops, shell loops, long-running process polling, or model-side timers. For cron schedules, write expressions in the supplied timezone local wall-clock time; do not convert requested local time to UTC first. Use jobId as the canonical id. Prefer isolated agentTurn jobs unless the user asked for main-session systemEvent injection.',
+		'Manage scheduled jobs through the Gateway-owned scheduler. Use this only for future, delayed, recurring, reminder, wake, or manual-run scheduling. Do not use this to start immediate in-memory execution. Do not emulate scheduling with sleep loops, shell loops, long-running process polling, or model-side timers. For cron schedules, write expressions in the supplied timezone local wall-clock time; do not convert requested local time to UTC first. Use jobId as the canonical id. Prefer isolated agentTurn jobs unless the user asked for main-session systemEvent injection.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -175,10 +175,10 @@ export const cronAddTool: AgentTool<CronAddArgs> = {
 	schema: {
 		type: 'object',
 		properties: {
-			expression: { type: 'string', description: "Cron expression, e.g. '0 9 * * *'." },
-			data: {
-				type: 'object',
-				description: "Task payload. Must include a string 'type' discriminator.",
+				expression: { type: 'string', description: "Cron expression, e.g. '0 9 * * *'." },
+				data: {
+					type: 'object',
+					description: "Job payload. Must include a string 'type' discriminator.",
 				properties: { type: { type: 'string' } },
 				required: ['type'],
 				additionalProperties: true,
