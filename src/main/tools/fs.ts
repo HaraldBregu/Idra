@@ -135,11 +135,12 @@ export const writeTool: AgentTool<WriteArgs> = {
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly)
+		if (ctx.fsPolicy?.readOnly) {
 			return textResult('write: disabled by read-only filesystem policy.', true);
-			let abs: string;
-			try {
-				abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
+		}
+		let abs: string;
+		try {
+			abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
 			} catch (err) {
 				return textResult(`write: ${(err as Error).message}`, true);
 			}
