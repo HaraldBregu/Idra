@@ -161,6 +161,7 @@
 				"connectors": "App collegate",
 				"providers": "Chiavi API AI",
 				"cron": "Attivita programmate",
+				"taskManager": "Esecuzioni in background",
 				"heartbeat": "Controlli periodici agenti",
 				"apps": "App installate"
 			}
@@ -179,6 +180,7 @@
 			"themes": "Temi",
 			"editor": "Editor",
 			"cron": "Cron",
+			"taskManager": "Gestore attivita",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore",
 			"apps": "App",
@@ -210,6 +212,7 @@
 			"profile": "Profilo",
 			"editor": "Editor",
 			"cron": "Attivita Cron",
+			"taskManager": "Gestore attivita",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore"
 		},
@@ -357,6 +360,38 @@
 			"notFoundDescription": "L'attivita cron potrebbe essere stata rimossa.",
 			"emptyTitle": "Nessuna attivita cron",
 			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."
+		},
+		"taskManager": {
+			"description": "Esecuzioni in background e stato corrente.",
+			"detailsTitle": "Dettagli attivita",
+			"details": "Dettagli",
+			"progress": "Avanzamento",
+			"metadata": "Metadati",
+			"result": "Risultato",
+			"error": "Errore",
+			"emptyTitle": "Nessuna attivita",
+			"emptyDescription": "Le attivita appariranno qui una volta avviate.",
+			"notFoundTitle": "Attivita non trovata",
+			"notFoundDescription": "L'attivita potrebbe essere stata rimossa.",
+			"fields": {
+				"id": "Id",
+				"type": "Tipo",
+				"createdAt": "Creata",
+				"startedAt": "Avviata",
+				"finishedAt": "Terminata",
+				"current": "Corrente",
+				"total": "Totale",
+				"message": "Messaggio",
+				"code": "Codice"
+			},
+			"status": {
+				"queued": "In coda",
+				"running": "In esecuzione",
+				"cancelling": "Annullamento",
+				"cancelled": "Annullata",
+				"succeeded": "Completata",
+				"failed": "Fallita"
+			}
 		},
 		"heartbeat": {
 			"description": "Runner heartbeat e controlli manuali.",

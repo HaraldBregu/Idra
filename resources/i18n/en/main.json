@@ -161,6 +161,7 @@
 				"connectors": "Connected apps",
 				"providers": "AI API keys",
 				"cron": "Scheduled tasks",
+				"taskManager": "Background task runs",
 				"heartbeat": "Periodic agent checks",
 				"apps": "Installed apps"
 			}
@@ -179,6 +180,7 @@
 			"themes": "Themes",
 			"editor": "Editor",
 			"cron": "Cron",
+			"taskManager": "Task Manager",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer",
 			"apps": "Apps",
@@ -210,6 +212,7 @@
 			"profile": "Profile",
 			"editor": "Editor",
 			"cron": "Cron Tasks",
+			"taskManager": "Task Manager",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer"
 		},
@@ -357,6 +360,38 @@
 			"notFoundDescription": "The cron task may have been removed.",
 			"emptyTitle": "No cron tasks",
 			"emptyDescription": "Cron tasks will appear here once they are configured."
+		},
+		"taskManager": {
+			"description": "Background task runs and their current state.",
+			"detailsTitle": "Task Details",
+			"details": "Details",
+			"progress": "Progress",
+			"metadata": "Metadata",
+			"result": "Result",
+			"error": "Error",
+			"emptyTitle": "No tasks",
+			"emptyDescription": "Tasks will appear here once they are started.",
+			"notFoundTitle": "Task not found",
+			"notFoundDescription": "The task may have been removed.",
+			"fields": {
+				"id": "Id",
+				"type": "Type",
+				"createdAt": "Created",
+				"startedAt": "Started",
+				"finishedAt": "Finished",
+				"current": "Current",
+				"total": "Total",
+				"message": "Message",
+				"code": "Code"
+			},
+			"status": {
+				"queued": "Queued",
+				"running": "Running",
+				"cancelling": "Cancelling",
+				"cancelled": "Cancelled",
+				"succeeded": "Succeeded",
+				"failed": "Failed"
+			}
 		},
 		"heartbeat": {
 			"description": "Heartbeat runner and manual checks.",
