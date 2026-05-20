@@ -467,24 +467,6 @@ const AgentDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.agents.identity')}>
-				<SettingsPanel>
-					<SettingsRow
-						icon={agentIcon}
-						title={agentName}
-						description={agentDescription}
-						actions={
-							<Badge
-								variant="outline"
-								className="h-5 rounded-md bg-muted/40 px-2 font-mono text-[10px] text-muted-foreground"
-							>
-								{decodedAgentId}
-							</Badge>
-						}
-					/>
-				</SettingsPanel>
-			</SettingsSection>
-
 			{isFridayAgent && (
 				<SettingsSection title={t('settings.agents.history')}>
 					<SettingsPanel>
@@ -500,9 +482,6 @@ const AgentDetailsPage: React.FC = () => {
 								<span className="min-w-0 flex-1">
 									<span className="block text-[13px] font-medium leading-4 tracking-normal text-foreground">
 										{t('settings.chatHistory.title')}
-									</span>
-									<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
-										{t('settings.chatHistory.description')}
 									</span>
 								</span>
 							</span>
