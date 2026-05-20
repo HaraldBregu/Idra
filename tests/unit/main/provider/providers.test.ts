@@ -68,9 +68,8 @@ describe('provider model policy', () => {
 		expect(getDefaultAgentModels('deepseek').map((model) => model.id)).toEqual([
 			'deepseek-v4-pro',
 			'deepseek-v4-flash',
-			'deepseek-v3.2-speciale',
-			'deepseek-v3.2',
-			'deepseek-r1',
+			'deepseek-reasoner',
+			'deepseek-chat',
 		]);
 	});
 
