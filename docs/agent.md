@@ -1,4 +1,4 @@
-# Agent Module
+# Agent
 
 This document describes the `src/main/agent` module: the functions it exposes,
 how the current runtime uses them, and the behavior future changes should keep
