@@ -25,7 +25,7 @@ export class TasksIpc implements IpcModule {
 			TaskChannels.start,
 			wrapSimpleHandler((request: unknown): TaskRecord => {
 				if (!isTaskRunRequest(request)) throw new Error('Task request is required.');
-				return taskManager.run(request);
+				return taskManager.startUserTask(request);
 			}, TaskChannels.start)
 		);
 

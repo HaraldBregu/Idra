@@ -76,6 +76,28 @@ function createManager(...handlers: TaskHandler[]) {
 	return { manager, events };
 }
 
+function createManagerWithUserFacing(
+	userFacingHandlers: TaskHandler[],
+	internalHandlers: TaskHandler[] = []
+) {
+	let nextId = 1;
+	const registry = new TaskRegistry();
+	for (const handler of userFacingHandlers) {
+		registry.register(handler, { userFacing: true });
+	}
+	for (const handler of internalHandlers) {
+		registry.register(handler);
+	}
+	const manager = new TaskManager({
+		registry,
+		eventBus: new EventBus(),
+		logger,
+		idFactory: () => `user-task-${nextId++}`,
+		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
+	});
+	return manager;
+}
+
 describe('TaskManager', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -130,6 +152,30 @@ describe('TaskManager', () => {
 			status: 'running',
 			metadata: { token: '[redacted]', visible: 'yes' },
 		});
+	});
+
+	it('starts user-created tasks only for approved user-facing task types', async () => {
+		const approved = new ControlledHandler();
+		const internal = new ControlledHandler();
+		Object.defineProperty(internal, 'type', { value: 'test.internal' });
+		const manager = createManagerWithUserFacing([approved], [internal]);
+
+		const task = manager.startUserTask({
+			type: approved.type,
+			title: 'Approved task',
+			input: { key: 'a' },
+		});
+		await flushMicrotasks();
+
+		expect(task.status).toBe('queued');
+		expect(manager.get(task.id)?.status).toBe('running');
+		expect(() =>
+			manager.startUserTask({
+				type: internal.type,
+				title: 'Internal task',
+				input: { key: 'b' },
+			})
+		).toThrow(/not approved for renderer start/);
 	});
 
 	it('moves a running task through cancelling to cancelled', async () => {

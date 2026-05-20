@@ -109,8 +109,8 @@ export function bootstrapServices(): BootstrapResult {
 		})
 	);
 	const taskRegistry = new TaskRegistry();
-	taskRegistry.register(new AgentTaskHandler(agentService));
-	taskRegistry.register(new OcrTaskHandler(store));
+	taskRegistry.register(new AgentTaskHandler(agentService), { userFacing: true });
+	taskRegistry.register(new OcrTaskHandler(store), { userFacing: true });
 	container.register(
 		'taskManager',
 		new TaskManager({

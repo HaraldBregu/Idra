@@ -154,9 +154,22 @@ export class TaskManager {
 	}
 
 	run<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
+		return this.createTask(request, this.registry.require(request.type));
+	}
+
+	startUserTask<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
+		return this.createTask(request, this.registry.requireUserFacing(request.type));
+	}
+
+	private createTask<TResult = unknown>(
+		request: TaskRunRequest,
+		handler: TaskHandler
+	): TaskRecord<TResult> {
 		const type = requireString(request.type, 'Task type');
 		const title = requireString(request.title, 'Task title');
-		const handler = this.registry.require(type);
+		if (handler.type !== type) {
+			throw new Error(`Task handler type mismatch: ${type}`);
+		}
 		const input = handler.validateInput ? handler.validateInput(request.input) : request.input;
 		const id = request.id ? requireString(request.id, 'Task id') : this.idFactory();
 		if (this.tasks.has(id)) throw new Error(`Task already exists: ${id}`);
