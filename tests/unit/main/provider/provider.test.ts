@@ -425,6 +425,100 @@ describe('provider/mistral', () => {
 	});
 });
 
+describe('provider/deepseek', () => {
+	function makeClient(chunks: () => AsyncGenerator<unknown>) {
+		const create = jest.fn(async () => chunks());
+		return { client: { chat: { completions: { create } } }, create };
+	}
+
+	async function* basicChunks() {
+		yield { choices: [{ delta: { content: 'hello' }, finish_reason: null }], usage: null };
+		yield { choices: [{ delta: {}, finish_reason: 'stop' }], usage: { prompt_tokens: 3, completion_tokens: 5 } };
+	}
+
+	it('normalizes DeepSeek stream events', async () => {
+		const { client, create } = makeClient(basicChunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		const events = await collectAsync(adapter.stream({
+			model: 'deepseek-v4-flash',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hi' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(events).toEqual([
+			{ type: 'message_start' },
+			{ type: 'text_delta', text: 'hello' },
+			{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 3, outputTokens: 5 } },
+		]);
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({ model: 'deepseek-v4-flash', stream: true }),
+			expect.any(Object)
+		);
+	});
+
+	it('passes reasoning_effort for supported effort values', async () => {
+		const { client, create } = makeClient(basicChunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'deepseek-v4-pro',
+			effort: 'high',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'think' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0]).toHaveProperty('reasoning_effort', 'high');
+	});
+
+	it('omits reasoning_effort for non-DeepSeek effort values', async () => {
+		const { client, create } = makeClient(basicChunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		for (const effort of ['none', 'minimal', 'xhigh'] as const) {
+			create.mockClear();
+			await collectAsync(adapter.stream({
+				model: 'deepseek-v4-pro',
+				effort,
+				system: 'sys',
+				messages: [{ role: 'user', content: 'hi' }],
+				tools: [],
+				maxTokens: 100,
+			}));
+			expect(create.mock.calls[0][0]).not.toHaveProperty('reasoning_effort');
+		}
+	});
+
+	it('defaults to the DeepSeek base URL when none is provided', () => {
+		const clientFactory = jest.fn(() => ({ chat: { completions: { create: jest.fn() } } }));
+		new DeepSeekAdapter({ apiKey: 'ds-test', clientFactory: clientFactory as never });
+		expect(clientFactory).toHaveBeenCalledWith(
+			expect.objectContaining({ baseURL: 'https://api.deepseek.com' })
+		);
+	});
+
+	it('respects a custom base URL when provided', () => {
+		const clientFactory = jest.fn(() => ({ chat: { completions: { create: jest.fn() } } }));
+		new DeepSeekAdapter({ apiKey: 'ds-test', baseURL: 'https://custom.example.com', clientFactory: clientFactory as never });
+		expect(clientFactory).toHaveBeenCalledWith(
+			expect.objectContaining({ baseURL: 'https://custom.example.com' })
+		);
+	});
+});
+
 describe('provider/anthropic', () => {
 	it('normalizes Anthropic stream events', async () => {
 		async function* chunks() {
