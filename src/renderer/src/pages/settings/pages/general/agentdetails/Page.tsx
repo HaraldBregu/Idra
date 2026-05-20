@@ -9,13 +9,13 @@ import {
 	CircleOff,
 	ImageIcon,
 	LoaderCircle,
-	MessageSquareText,
 	Mic,
 	Save,
 	Volume2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	Select,
 	SelectContent,
@@ -113,7 +113,7 @@ const AgentDetailsPage: React.FC = () => {
 	const [saving, setSaving] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
-	const [providerCardOpen, setProviderCardOpen] = useState(true);
+	const [providerCardOpen, setProviderCardOpen] = useState(false);
 
 	useEffect(() => {
 		let mounted = true;
@@ -349,7 +349,6 @@ const AgentDetailsPage: React.FC = () => {
 			: isSpeechTranscriberAgent
 				? Mic
 				: Bot;
-	const AgentIcon = agentIcon;
 	const agentNameKey = isImageAssistantAgent
 		? 'settings.agents.imageAssistantName'
 		: isTextToSpeechAgent
@@ -423,7 +422,7 @@ const AgentDetailsPage: React.FC = () => {
 				<SettingsPageHeader
 					title={t('settings.agents.detailsTitle')}
 					description={t('settings.agents.description')}
-					icon={agentIcon}
+					icon={isFridayAgent ? undefined : agentIcon}
 				/>
 				<SettingsPanel>
 					<SettingsLoadingRows rows={3} />
@@ -453,7 +452,7 @@ const AgentDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={agentName}
 				description={agentDescription}
-				icon={agentIcon}
+				icon={isFridayAgent ? undefined : agentIcon}
 			/>
 
 			{errorMessage && (
@@ -473,22 +472,17 @@ const AgentDetailsPage: React.FC = () => {
 					<SettingsPanel>
 						<button
 							type="button"
-							className="grid min-h-11 w-full items-center gap-2 border-b border-border/60 px-3 py-2 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 sm:grid-cols-[minmax(0,1fr)_auto]"
+							className="block w-full p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
 							onClick={openChatHistory}
 						>
-							<span className="flex min-w-0 items-center gap-2">
-								<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-									<MessageSquareText className="size-3" strokeWidth={1.8} />
-								</span>
-								<span className="min-w-0 flex-1">
-									<span className="block text-[13px] font-medium leading-4 tracking-normal text-foreground">
-										{t('settings.chatHistory.title')}
-									</span>
-								</span>
-							</span>
-							<span className="flex w-full min-w-0 items-center justify-start gap-1.5 sm:ml-auto sm:w-auto sm:justify-end">
+							<Item size="md" className="border-b border-border/60 hover:bg-muted/30 last:border-b-0">
+								<ItemContent className="min-w-0 flex-1">
+									<ItemTitle>{t('settings.chatHistory.title')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 								<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
-							</span>
+								</ItemActions>
+							</Item>
 						</button>
 					</SettingsPanel>
 				</SettingsSection>
@@ -549,32 +543,28 @@ const AgentDetailsPage: React.FC = () => {
 							type="button"
 							aria-expanded={providerCardOpen}
 							aria-controls="agent-provider-card-content"
-							className={`grid min-h-11 w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 sm:grid-cols-[minmax(0,1fr)_auto] ${
-								providerCardOpen ? 'border-b border-border/60' : ''
-							}`}
+							className="block w-full p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
 							onClick={() => setProviderCardOpen((open) => !open)}
 						>
-							<span className="flex min-w-0 items-center gap-2">
-								<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-									<AgentIcon className="size-3" strokeWidth={1.8} />
-								</span>
-								<span className="min-w-0 flex-1">
-									<span className="block text-[13px] font-medium leading-4 tracking-normal text-foreground">
-										{t('settings.agents.provider')}
-									</span>
-								</span>
-							</span>
-							<span className="flex w-full min-w-0 items-center justify-start gap-1.5 sm:ml-auto sm:w-auto sm:justify-end">
-								<span className="max-w-full truncate rounded-md border border-border/60 bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground sm:max-w-72">
-									{providerCardSummary}
-								</span>
+							<Item
+								size="md"
+								className={`hover:bg-muted/30 ${providerCardOpen ? 'border-b border-border/60' : ''}`}
+							>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle>{t('settings.agents.provider')}</ItemTitle>
+									<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{providerCardSummary}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
 								<ChevronDown
 									className={`size-3 text-muted-foreground transition-transform ${
 										providerCardOpen ? 'rotate-180' : ''
 									}`}
 									strokeWidth={1.8}
 								/>
-							</span>
+								</ItemActions>
+							</Item>
 						</button>
 
 						{providerCardOpen && (
