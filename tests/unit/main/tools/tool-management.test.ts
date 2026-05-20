@@ -357,6 +357,17 @@ describe('tool management layer', () => {
 		});
 	});
 
+	it('treats task record actions as tool-backed mutable state access', () => {
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'List active tasks.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request depends on external, private, current, or mutable data',
+		});
+		expect(new ToolUsePolicy().evaluate({ userRequest: 'Cancel task task-1.' })).toEqual({
+			shouldUseTools: true,
+			reason: 'request depends on external, private, current, or mutable data',
+		});
+	});
+
 	it('selects connector Gmail tools from their descriptions even with custom labels', () => {
 		const gmailProfileTool: AgentTool = {
 			name: 'work_get_profile',
