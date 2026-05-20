@@ -539,76 +539,111 @@ const AgentDetailsPage: React.FC = () => {
 					</SettingsPanel>
 				</SettingsSection>
 			) : (
-			<SettingsSection
-				title={t('settings.agents.configuration')}
-				description={configurationDescription}
-			>
-				<SettingsPanel>
-					<div className="grid gap-3 p-3">
-						{isSpeechTranscriberAgent && providers.length === 0 && (
-							<SettingsNotice icon={AlertTriangle}>
-								{t('settings.agents.speechProviderMissing')}
-							</SettingsNotice>
-						)}
-
-						<SettingsField
-							id="agent-provider"
-							label={t('settings.agents.provider')}
-							description={providerDescription}
+				<SettingsSection
+					title={t('settings.agents.configuration')}
+					description={configurationDescription}
+				>
+					<SettingsPanel>
+						<button
+							type="button"
+							aria-expanded={providerCardOpen}
+							aria-controls="agent-provider-card-content"
+							className={`grid min-h-11 w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 sm:grid-cols-[minmax(0,1fr)_auto] ${
+								providerCardOpen ? 'border-b border-border/60' : ''
+							}`}
+							onClick={() => setProviderCardOpen((open) => !open)}
 						>
-							<Select
-								value={providerId}
-								onValueChange={handleProviderChange}
-								disabled={providers.length === 0 || saving}
-							>
-								<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
-									<SelectValue placeholder={t('settings.agents.providerPlaceholder')} />
-								</SelectTrigger>
-								<SelectContent>
-									{providers.map((provider) => (
-										<SelectItem key={provider.id} value={provider.id}>
-											{provider.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</SettingsField>
+							<span className="flex min-w-0 items-center gap-2">
+								<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+									<agentIcon className="size-3" strokeWidth={1.8} />
+								</span>
+								<span className="min-w-0 flex-1">
+									<span className="block text-[13px] font-medium leading-4 tracking-normal text-foreground">
+										{t('settings.agents.provider')}
+									</span>
+								</span>
+							</span>
+							<span className="flex w-full min-w-0 items-center justify-start gap-1.5 sm:ml-auto sm:w-auto sm:justify-end">
+								<span className="max-w-full truncate rounded-md border border-border/60 bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground sm:max-w-72">
+									{providerCardSummary}
+								</span>
+								<ChevronDown
+									className={`size-3 text-muted-foreground transition-transform ${
+										providerCardOpen ? 'rotate-180' : ''
+									}`}
+									strokeWidth={1.8}
+								/>
+							</span>
+						</button>
 
-						<SettingsField
-							id="agent-model"
-							label={modelLabel}
-							description={modelDescription}
-						>
-							<Select
-								value={modelId}
-								onValueChange={handleModelChange}
-								disabled={!selectedProvider || loadingModels || modelOptions.length === 0 || saving}
-							>
-								<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
-									<SelectValue
-										placeholder={
-											loadingModels
-												? t('settings.agents.modelsLoading')
-												: t('settings.agents.modelPlaceholder')
+						{providerCardOpen && (
+							<div id="agent-provider-card-content" className="grid gap-3 p-3">
+								{isSpeechTranscriberAgent && providers.length === 0 && (
+									<SettingsNotice icon={AlertTriangle}>
+										{t('settings.agents.speechProviderMissing')}
+									</SettingsNotice>
+								)}
+
+								<SettingsField
+									id="agent-provider"
+									label={t('settings.agents.provider')}
+									description={providerDescription}
+								>
+									<Select
+										value={providerId}
+										onValueChange={handleProviderChange}
+										disabled={providers.length === 0 || saving}
+									>
+										<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
+											<SelectValue placeholder={t('settings.agents.providerPlaceholder')} />
+										</SelectTrigger>
+										<SelectContent>
+											{providers.map((provider) => (
+												<SelectItem key={provider.id} value={provider.id}>
+													{provider.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+
+								<SettingsField
+									id="agent-model"
+									label={modelLabel}
+									description={modelDescription}
+								>
+									<Select
+										value={modelId}
+										onValueChange={handleModelChange}
+										disabled={
+											!selectedProvider || loadingModels || modelOptions.length === 0 || saving
 										}
-									/>
-								</SelectTrigger>
-								<SelectContent>
-									{modelOptions.map((model) => (
-										<SelectItem key={model.id} value={model.id}>
-											{model.name || model.id}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							{selectedProvider && !loadingModels && modelOptions.length === 0 && (
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.agents.noModels')}
-								</p>
-							)}
-						</SettingsField>
+									>
+										<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
+											<SelectValue
+												placeholder={
+													loadingModels
+														? t('settings.agents.modelsLoading')
+														: t('settings.agents.modelPlaceholder')
+												}
+											/>
+										</SelectTrigger>
+										<SelectContent>
+											{modelOptions.map((model) => (
+												<SelectItem key={model.id} value={model.id}>
+													{model.name || model.id}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{selectedProvider && !loadingModels && modelOptions.length === 0 && (
+										<p className="text-[11px] leading-4 text-muted-foreground">
+											{t('settings.agents.noModels')}
+										</p>
+									)}
+								</SettingsField>
 
-						{showEffort && (
+								{showEffort && (
 							<SettingsField
 								id="agent-effort"
 								label={t('settings.agents.effort')}
@@ -633,19 +668,25 @@ const AgentDetailsPage: React.FC = () => {
 							</SettingsField>
 						)}
 
-						<div className="flex justify-end">
-							<Button type="button" size="sm" disabled={!canSave} onClick={() => void handleSave()}>
-								{saving ? (
-									<LoaderCircle className="size-3.5 animate-spin" />
-								) : (
-									<Save className="size-3.5" />
-								)}
-								{saving ? t('settings.agents.saving') : t('common.save')}
-							</Button>
-						</div>
-					</div>
-				</SettingsPanel>
-			</SettingsSection>
+								<div className="flex justify-end">
+									<Button
+										type="button"
+										size="sm"
+										disabled={!canSave}
+										onClick={() => void handleSave()}
+									>
+										{saving ? (
+											<LoaderCircle className="size-3.5 animate-spin" />
+										) : (
+											<Save className="size-3.5" />
+										)}
+										{saving ? t('settings.agents.saving') : t('common.save')}
+									</Button>
+								</div>
+							</div>
+						)}
+					</SettingsPanel>
+				</SettingsSection>
 			)}
 		</SettingsPageShell>
 	);
