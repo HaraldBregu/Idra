@@ -207,6 +207,8 @@ describe('FridayCronScheduler', () => {
 			tz: 'UTC',
 			staggerMs: 5000,
 			message: 'Send report',
+			providerId: 'anthropic',
+			model: 'claude-test',
 			enabled: 'true',
 		});
 
@@ -214,7 +216,12 @@ describe('FridayCronScheduler', () => {
 		expect(response.result).toMatchObject({
 			name: 'Hourly report',
 			schedule: { kind: 'cron', expr: '0 * * * *', tz: 'UTC', staggerMs: 5000 },
-			payload: { kind: 'agentTurn', message: 'Send report' },
+			payload: {
+				kind: 'agentTurn',
+				message: 'Send report',
+				providerId: 'anthropic',
+				model: 'claude-test',
+			},
 			enabled: true,
 			wakeMode: 'now',
 			sessionTarget: 'isolated',
@@ -477,6 +484,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 				toolsAllow: ['gmail_get_recent_emails', 'write'],
 				lightContext: true,
 				thinking: 'low',
+				providerId: 'anthropic',
 				model: 'gpt-5.5',
 			},
 		})));
@@ -485,6 +493,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 			'Summarize inbox',
 			'main',
 			expect.objectContaining({
+				providerId: 'anthropic',
 				model: 'gpt-5.5',
 				effort: 'low',
 				lightContext: true,

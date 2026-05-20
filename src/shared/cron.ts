@@ -10,6 +10,7 @@ export interface CronTaskData<TType extends string = string> {
 
 export interface CronTaskAgentData extends CronTaskData<'agent'> {
 	readonly prompt: string;
+	readonly providerId?: string;
 	readonly model?: string;
 }
 
@@ -436,6 +437,7 @@ export type FridayCronPayload =
 	| {
 			kind: 'agentTurn';
 			message: string;
+			providerId?: string;
 			model?: string;
 			fallbacks?: string[];
 			thinking?: 'low' | 'medium' | 'high';

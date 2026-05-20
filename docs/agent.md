@@ -88,6 +88,7 @@ Timing:
   provider adapter, tools, prompt, hooks, and `runAgent` call are prepared.
 - `agent.run` tasks can pass `providerId` and `model` in their input so
   independent tasks can use different configured providers and models.
+- Scheduled `agentTurn` jobs can pass the same `providerId` and `model` fields.
 
 Example:
 

@@ -59,6 +59,7 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			},
 		};
 		if (input.job.payload.kind === 'agentTurn') {
+			if (input.job.payload.providerId) sendOptions.providerId = input.job.payload.providerId;
 			if (input.job.payload.model) sendOptions.model = input.job.payload.model;
 			if (input.job.payload.thinking) sendOptions.effort = input.job.payload.thinking;
 			if (input.job.payload.lightContext !== undefined) {

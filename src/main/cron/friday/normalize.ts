@@ -36,6 +36,7 @@ const CONTROL_FIELDS = new Set([
 ]);
 
 const AGENT_TURN_FIELDS = [
+	'providerId',
 	'model',
 	'fallbacks',
 	'thinking',
@@ -151,6 +152,7 @@ function copyAgentTurnFields(
 	target: Extract<FridayCronPayload, { kind: 'agentTurn' }>,
 	source: Record<string, unknown>
 ): void {
+	const providerId = stringValue(source.providerId);
 	const model = stringValue(source.model);
 	const fallbacks = stringArray(source.fallbacks);
 	const thinking = stringValue(source.thinking);
@@ -159,6 +161,7 @@ function copyAgentTurnFields(
 	const allowUnsafeExternalContent = booleanValue(source.allowUnsafeExternalContent);
 	const toolsAllow = stringArray(source.toolsAllow);
 
+	if (providerId) target.providerId = providerId;
 	if (model) target.model = model;
 	if (fallbacks) target.fallbacks = fallbacks;
 	if (thinking === 'low' || thinking === 'medium' || thinking === 'high') target.thinking = thinking;

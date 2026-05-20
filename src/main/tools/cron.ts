@@ -124,6 +124,7 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 			exact: { type: 'boolean', description: 'When true, normalizes to staggerMs 0.' },
 			text: { type: 'string', description: 'systemEvent text or wake text.' },
 			message: { type: 'string', description: 'agentTurn message.' },
+			providerId: { type: 'string', description: 'Configured provider id for agentTurn jobs.' },
 			model: { type: 'string' },
 			fallbacks: { type: 'array', items: { type: 'string' } },
 			thinking: { type: 'string', enum: ['low', 'medium', 'high'] },
