@@ -17,8 +17,8 @@ export class SkillsIpc implements IpcModule {
 		registerCommandWithEvent(SkillsChannels.import, async (event) => {
 			const parent = BrowserWindow.fromWebContents(event.sender);
 			const options: OpenDialogOptions = {
-				title: 'Import Skill',
-				buttonLabel: 'Import Skill',
+				title: 'Upload Skill',
+				buttonLabel: 'Upload Skill',
 				properties: ['openDirectory'],
 			};
 			const result = parent
@@ -30,6 +30,24 @@ export class SkillsIpc implements IpcModule {
 			}
 
 			return skills.importFromPath(result.filePaths[0]);
+		});
+
+		registerCommandWithEvent(SkillsChannels.download, async (event, id) => {
+			const parent = BrowserWindow.fromWebContents(event.sender);
+			const options: OpenDialogOptions = {
+				title: 'Download Skill',
+				buttonLabel: 'Download Skill',
+				properties: ['openDirectory', 'createDirectory'],
+			};
+			const result = parent
+				? await dialog.showOpenDialog(parent, options)
+				: await dialog.showOpenDialog(options);
+
+			if (result.canceled || result.filePaths.length === 0) {
+				return undefined;
+			}
+
+			return skills.downloadToPath(id, result.filePaths[0]);
 		});
 
 		registerCommand(SkillsChannels.delete, (id: string) => skills.delete(id));
