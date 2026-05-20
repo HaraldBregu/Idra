@@ -45,6 +45,49 @@ The default service path prepares an agent run in this order:
 7. Stop when the model no longer requests tools, the max iteration count is hit,
    cancellation occurs, or an unrecoverable error is thrown.
 
+## Provider And Model Resolution
+
+The `src/main/agent` module does not choose the provider or model by itself.
+`AgentService.send` resolves them before the agent module runs.
+
+Current source:
+
+- The stored agent service configuration comes from `StoreService.getAgentService`.
+- The provider id comes from `agent.provider.id`, trimmed and lowercased.
+- The model comes from `agent.model.id`, falling back to `agent.model.name`.
+- The provider record comes from `StoreService.getProviderById(providerId)` and
+  supplies the API key and optional base URL.
+- `makeProvider` converts the provider id into a `ProviderAdapter`.
+
+Timing:
+
+- Resolution happens once per `AgentService.send` call during the
+  `resolve_provider_model` phase.
+- The selected model may then be overridden by `AgentSendOptions.model`.
+- Heartbeat runs can also pass `heartbeat.model`; the normal `options.model`
+  override wins over the heartbeat override.
+- The provider id, API key, and base URL are not overridden per run in this
+  path.
+- The session is loaded with the selected model and provider id before the
+  provider adapter, tools, prompt, hooks, and `runAgent` call are prepared.
+
+How the values are used:
+
+- `buildSystemPrompt` receives the selected model for prompt context.
+- The tool factory receives the provider id and model while constructing tools.
+- `runAgent` receives the provider adapter, selected model, and optional
+  reasoning effort.
+- `runAgent` passes `model` and `effort` into each `provider.stream` call.
+- If context overflow triggers compaction, `compact` uses the same provider,
+  model, and effort to summarize older transcript entries.
+
+Failure behavior:
+
+- Missing provider configuration, missing model configuration, missing provider
+  record, or missing API key fails before the provider is called.
+- OpenAI runs require a resolved reasoning effort; per-run effort overrides can
+  replace the saved effort for that run.
+
 ## Exported Surfaces
 
 ### `runAgent(input)`
