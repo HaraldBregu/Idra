@@ -124,10 +124,11 @@ function executionContext(
 		connectors?: SkillConnector[];
 		permissions?: string[];
 		grantToolPermissions?: boolean;
-		signal?: AbortSignal;
-		maxRetries?: number;
-	} = {}
-): SkillExecutionRequestContext {
+			signal?: AbortSignal;
+			maxRetries?: number;
+			timeoutMs?: number | null;
+		} = {}
+	): SkillExecutionRequestContext {
 	const tools = input.tools ?? [];
 	const connectors = input.connectors ?? [];
 	const preferences = new InMemorySkillPreferenceStore();
@@ -156,11 +157,12 @@ function executionContext(
 		logger: makeLogger() as never,
 		safetyPolicy: new SkillSafetyPolicy(),
 		skillDepth: 0,
-		provenanceChain: [],
-		toolContext: makeToolContext(),
-		maxDepth: 4,
-		maxRetries: input.maxRetries ?? 0,
-	};
+			provenanceChain: [],
+			toolContext: makeToolContext(),
+			timeoutMs: input.timeoutMs,
+			maxDepth: 4,
+			maxRetries: input.maxRetries ?? 0,
+		};
 }
 
 describe('skill system', () => {
@@ -212,6 +214,33 @@ describe('skill system', () => {
 		expect(result.usedSkills).toContain('summarize-document@1.0.0');
 		expect(result.provenance.skillId).toBe('summarize-document');
 		expect(audit.list()).toHaveLength(1);
+	});
+
+	it('allows disabling skill execution timeout', async () => {
+		const registry = setupRegistry(false);
+		registry.registerSkill(
+			basicSkill('slow', async (_input, context) => {
+				await new Promise((resolve) => setTimeout(resolve, 20));
+				return context.complete({ ok: true });
+			})
+		);
+		const { engine } = setupEngine(registry);
+
+		const timedOut = await engine.execute({
+			skillId: 'slow',
+			input: {},
+			context: executionContext({ timeoutMs: 1 }),
+		});
+		const noTimeout = await engine.execute({
+			skillId: 'slow',
+			input: {},
+			context: executionContext({ timeoutMs: null }),
+		});
+
+		expect(timedOut.success).toBe(false);
+		expect(timedOut.error?.code).toBe('timeout');
+		expect(noTimeout.success).toBe(true);
+		expect(noTimeout.data).toEqual({ ok: true });
 	});
 
 	it('executes nested multi-skill workflows and preserves used skill provenance', async () => {
