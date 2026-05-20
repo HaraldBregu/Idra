@@ -385,11 +385,18 @@ function PageContent(): ReactElement {
 							<>
 								{visibleMessages.map((message, index) => {
 									const previous = index > 0 ? visibleMessages[index - 1] : null;
+									const isPreviousMessage = index < visibleMessages.length - 1;
 									const showAssistantHeader = !previous || previous.role !== 'agent';
 									const groupedAssistantClassName = showAssistantHeader ? undefined : '-mt-5';
 
 									if (message.role === 'user') {
-										return <UserMessage key={message.id} content={message.content} />;
+										return (
+											<UserMessage
+												key={message.id}
+												content={message.content}
+												collapseLongContent={isPreviousMessage}
+											/>
+										);
 									}
 
 									if (message.type === 'multi-select') {
@@ -419,6 +426,7 @@ function PageContent(): ReactElement {
 												message.id === agent.chatState.activeAgentId
 											}
 											showHeader={showAssistantHeader}
+											collapseLongContent={isPreviousMessage}
 											className={groupedAssistantClassName}
 										/>
 									);
