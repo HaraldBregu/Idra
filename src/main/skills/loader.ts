@@ -151,7 +151,7 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 	}
 
 	const parsed = matter(raw);
-	const data = parsed.data as AgentSkillFrontMatter;
+	const data = (isRecord(parsed.data) ? parsed.data : {}) as AgentSkillFrontMatter;
 	const name = asString(data.name) ?? parentDirectoryName.trim();
 	const description = asString(data.description);
 	if (!description) throw new Error('Skill front matter requires a non-empty description.');
