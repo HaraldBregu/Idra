@@ -91,7 +91,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 			path: isChatHistoryPage ? `/settings/general/agentdetails/${encodeURIComponent(agentId)}` : undefined,
 		});
 		if (isChatHistoryPage) {
-			items.push({ label: t('settings.chatHistory.title') });
+			items.push({ label: t('settings.agents.history') });
 		}
 	}
 
