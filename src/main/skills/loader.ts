@@ -205,6 +205,14 @@ function collectStandardDiagnostics(input: {
 			)
 		);
 	}
+	if (input.name.length > 64) {
+		diagnostics.push(
+			skillDiagnostic(
+				'name_too_long',
+				'Agent Skills standard names should be 64 characters or less.'
+			)
+		);
+	}
 	if (input.name !== input.parentDirectoryName) {
 		diagnostics.push(
 			skillDiagnostic(
@@ -376,11 +384,18 @@ async function listChildDirectories(sourcePath: string): Promise<string[]> {
 
 async function listContainerSkillDirs(sourcePath: string): Promise<string[]> {
 	const candidateRoots = [sourcePath];
-	const nestedSkillsRoot = path.join(sourcePath, 'skills');
-	if (nestedSkillsRoot !== sourcePath) {
-		const nestedStat = await fs.stat(nestedSkillsRoot).catch(() => undefined);
-		if (nestedStat?.isDirectory()) {
-			candidateRoots.push(nestedSkillsRoot);
+	const sourceRealPath = await fs.realpath(sourcePath);
+	for (const nestedSkillsRoot of [
+		path.join(sourcePath, 'skills'),
+		path.join(sourcePath, '.agents', 'skills'),
+	]) {
+		if (nestedSkillsRoot === sourcePath) continue;
+		const nestedStat = await fs.lstat(nestedSkillsRoot).catch(() => undefined);
+		if (nestedStat?.isDirectory() && !nestedStat.isSymbolicLink()) {
+			const nestedRealPath = await fs.realpath(nestedSkillsRoot);
+			if (isPathInside(sourceRealPath, nestedRealPath)) {
+				candidateRoots.push(nestedSkillsRoot);
+			}
 		}
 	}
 
@@ -391,6 +406,8 @@ async function listContainerSkillDirs(sourcePath: string): Promise<string[]> {
 		const resolved = path.resolve(candidate);
 		if (seen.has(resolved)) return;
 		seen.add(resolved);
+		const realPath = await fs.realpath(resolved);
+		if (!isPathInside(sourceRealPath, realPath)) return;
 		if (await hasRootSkillFile(resolved)) {
 			skillDirs.push(resolved);
 		}
@@ -688,6 +705,10 @@ export class SkillLoader {
 		options: { trusted?: boolean; maxSkillFileBytes?: number } = {}
 	): Promise<SkillPackageDiscovery> {
 		const sourcePath = path.resolve(sourceDir);
+		const sourceStat = await fs.lstat(sourcePath);
+		if (sourceStat.isSymbolicLink()) {
+			throw new Error('Skill package source cannot be a symbolic link.');
+		}
 		const stat = await fs.stat(sourcePath);
 		if (!stat.isDirectory()) throw new Error('Skill package source must be a directory.');
 
