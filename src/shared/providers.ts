@@ -703,9 +703,8 @@ export const DEFAULT_AGENT_MODELS_BY_PROVIDER: Readonly<Record<string, readonly 
 	deepseek: [
 		{ id: 'deepseek-v4-pro', name: 'DeepSeek V4-Pro' },
 		{ id: 'deepseek-v4-flash', name: 'DeepSeek V4-Flash' },
-		{ id: 'deepseek-v3.2-speciale', name: 'DeepSeek V3.2-Speciale' },
-		{ id: 'deepseek-v3.2', name: 'DeepSeek V3.2' },
-		{ id: 'deepseek-r1', name: 'DeepSeek R1' },
+		{ id: 'deepseek-reasoner', name: 'DeepSeek Reasoner (deprecated)' },
+		{ id: 'deepseek-chat', name: 'DeepSeek Chat (deprecated)' },
 	],
 	qwen: [
 		{ id: 'qwen3-max', name: 'Qwen3-Max' },
