@@ -23,6 +23,7 @@ import type {
 import { SkillVersionManager } from '../../../../src/main/skills/version-manager';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { textResult } from '../../../../src/main/tools/types';
+import { executeAgentToolWithManagement } from '../../../../src/main/tools/management';
 import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
 
 function webFetchTool(): AgentTool {
@@ -741,7 +742,8 @@ describe('skill system', () => {
 			signal: undefined,
 		});
 
-		const result = await tool.execute(
+		const result = await executeAgentToolWithManagement(
+			tool,
 			{
 				skillId: 'support-replies@1.0.0',
 				path: '/tmp/source.md',
@@ -757,6 +759,24 @@ describe('skill system', () => {
 			name: 'support-replies',
 			directory: dir,
 		});
+
+		const nestedResult = await executeAgentToolWithManagement(
+			tool,
+			{
+				input: {
+					skillId: 'support-replies@1.0.0',
+					path: '/tmp/source.md',
+				},
+			},
+			makeToolContext()
+		);
+		const nestedPayload = JSON.parse(
+			nestedResult.content[0]?.type === 'text' ? nestedResult.content[0].text : '{}'
+		);
+
+		expect(nestedResult.status).toBe('ok');
+		expect(nestedPayload.success).toBe(true);
+		expect(nestedPayload.usedSkills).toEqual(['support-replies@1.0.0']);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
