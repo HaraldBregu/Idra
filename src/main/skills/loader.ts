@@ -256,7 +256,7 @@ async function validateSkillBundle(
 				throw new Error('Skill bundle path resolves outside the skill root.');
 			}
 			if (stat.isDirectory()) {
-				if (directory !== sourcePath && isIgnoredSkillDirectoryName(entry.name)) {
+				if (isIgnoredSkillDirectoryName(entry.name)) {
 					continue;
 				}
 				directoryCount++;
