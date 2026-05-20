@@ -452,6 +452,50 @@ describe('tools/app, cron, and startup', () => {
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
 	});
 
+	it('manages active task records through the task tool', async () => {
+		const created = {
+			id: 'task-1',
+			type: 'agent',
+			title: 'Run agent',
+			status: 'queued' as const,
+			createdAt: '2026-05-20T20:00:00.000Z',
+			metadata: {},
+		};
+		const cancelled = { ...created, status: 'cancelled' as const };
+		const taskManager = {
+			startUserTask: jest.fn(() => created),
+			list: jest.fn(() => [created]),
+			get: jest.fn(() => created),
+			cancel: jest.fn(() => cancelled),
+		};
+		const ctx = makeToolContext({
+			services: { ...makeToolContext().services, taskManager: taskManager as never },
+		});
+
+		const request = {
+			type: 'agent',
+			title: 'Run agent',
+			input: { message: 'hello' },
+			metadata: { source: 'tool' },
+		};
+
+		expect((await taskTool.execute({ action: 'start', request }, ctx)).status).toBe('ok');
+		expect(taskManager.startUserTask).toHaveBeenCalledWith(request);
+		expect((await taskTool.execute({ action: 'list' }, ctx)).content[0]?.text).toContain(
+			'"tasks"'
+		);
+		expect((await taskTool.execute({ action: 'get', id: 'task-1' }, ctx)).content[0]?.text).toContain(
+			'"task-1"'
+		);
+		expect((await taskTool.execute({ action: 'cancel', id: 'task-1' }, ctx)).details).toMatchObject(
+			{
+				status: 'ok',
+				action: 'cancel',
+				task: { status: 'cancelled' },
+			}
+		);
+	});
+
 	it('manages allowlisted agent startup files through the startup tool', async () => {
 		const root = await makeTempDir();
 		const services = {
