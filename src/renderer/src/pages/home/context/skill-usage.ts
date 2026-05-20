@@ -1,6 +1,7 @@
 import type { AgentToolPart } from './tool-parts';
 
 const EXECUTE_SKILL_TOOL_NAME = 'execute_skill';
+const READ_TOOL_NAME = 'read';
 
 export interface AgentSkillUsage {
 	readonly id: string;
@@ -33,6 +34,15 @@ function parseJsonObject(value: string | undefined): Record<string, unknown> | u
 	} catch {
 		return undefined;
 	}
+}
+
+function parseSkillLocation(value: unknown): AgentSkillUsage | undefined {
+	if (typeof value !== 'string') return undefined;
+	const normalized = value.trim().replace(/\\/g, '/');
+	if (!normalized.endsWith('/SKILL.md')) return undefined;
+	const parent = normalized.split('/').at(-2)?.trim();
+	if (!parent) return undefined;
+	return { id: parent, label: parent };
 }
 
 function addUsage(
@@ -72,22 +82,29 @@ export function getAgentSkillUsages(tools: readonly AgentToolPart[]): AgentSkill
 	const seen = new Set<string>();
 
 	for (const tool of tools) {
-		if (tool.type !== EXECUTE_SKILL_TOOL_NAME) continue;
-
-		if (isRecord(tool.input)) {
-			const skillId = parseSkillKey(tool.input.skillId);
-			const version = typeof tool.input.version === 'string' ? tool.input.version.trim() : '';
-			addUsage(
-				items,
-				seen,
-				skillId && version
-					? { id: skillId.id, version, label: `${skillId.id}@${version}` }
-					: skillId
-			);
+		if (tool.type === READ_TOOL_NAME) {
+			if (isRecord(tool.input)) {
+				addUsage(items, seen, parseSkillLocation(tool.input.path));
+			}
+			continue;
 		}
 
-		collectFromResultPayload(items, seen, tool.output);
-		collectFromResultPayload(items, seen, parseJsonObject(tool.outputText));
+		if (tool.type === EXECUTE_SKILL_TOOL_NAME) {
+			if (isRecord(tool.input)) {
+				const skillId = parseSkillKey(tool.input.skillId);
+				const version = typeof tool.input.version === 'string' ? tool.input.version.trim() : '';
+				addUsage(
+					items,
+					seen,
+					skillId && version
+						? { id: skillId.id, version, label: `${skillId.id}@${version}` }
+						: skillId
+				);
+			}
+
+			collectFromResultPayload(items, seen, tool.output);
+			collectFromResultPayload(items, seen, parseJsonObject(tool.outputText));
+		}
 	}
 
 	return items;
