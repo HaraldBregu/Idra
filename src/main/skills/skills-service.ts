@@ -5,7 +5,7 @@ import type { UserDataDirectoryServicePort } from '../user-data';
 import { resolveDefaultUserDataPath } from '../user-data';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
-import type { SkillInfo } from '../../shared/skills';
+import type { SkillDownloadResult, SkillInfo } from '../../shared/skills';
 import { SkillAuditLog } from './audit-log';
 import { SkillDependencyResolver } from './dependency-resolver';
 import { SkillDiscovery, makeDiscoveryContext } from './discovery';
@@ -47,6 +47,11 @@ function shouldCopySkillPath(root: string, sourcePath: string): boolean {
 	const relativePath = path.relative(root, sourcePath);
 	if (!relativePath) return true;
 	return !relativePath.split(/[\\/]+/).some(isIgnoredSkillDirectoryName);
+}
+
+function isPathInside(rootPath: string, targetPath: string): boolean {
+	const relativePath = path.relative(path.resolve(rootPath), path.resolve(targetPath));
+	return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 }
 
 export interface AgentSkillRuntimeInput {
@@ -294,6 +299,41 @@ export class SkillsService {
 		this.logger.info('SkillsService', `Deleted skill folder: ${id}`);
 	}
 
+	async downloadToPath(id: string, destinationRoot: string): Promise<SkillDownloadResult> {
+		const source = this.resolveSkillDir(id);
+		const skill = await this.readSkillInfo(source, id);
+		if (!skill) {
+			throw new Error(`Skill not found: ${id}`);
+		}
+
+		const destinationStat = await fs.promises.stat(destinationRoot);
+		if (!destinationStat.isDirectory()) {
+			throw new Error('Select a destination folder.');
+		}
+
+		const [sourceRealPath, destinationRealPath] = await Promise.all([
+			fs.promises.realpath(source),
+			fs.promises.realpath(destinationRoot),
+		]);
+		if (isPathInside(sourceRealPath, destinationRealPath)) {
+			throw new Error('Destination folder cannot be inside the skill folder.');
+		}
+
+		const destinationPath = path.join(destinationRealPath, skill.id);
+		if (await pathExists(destinationPath)) {
+			throw new Error(`Destination already exists: ${destinationPath}`);
+		}
+
+		await fs.promises.cp(sourceRealPath, destinationPath, {
+			recursive: true,
+			errorOnExist: true,
+			force: false,
+			filter: (sourcePath) => shouldCopySkillPath(sourceRealPath, sourcePath),
+		});
+		this.logger.info('SkillsService', `Downloaded skill folder: ${id}`, { destinationPath });
+		return { id: skill.id, destinationPath };
+	}
+
 	private resolveSkillDir(id: string): string {
 		if (!/^[a-z0-9][a-z0-9._-]*$/.test(id)) {
 			throw new Error(`Invalid skill id: ${id}`);
@@ -395,4 +435,13 @@ export class SkillsService {
 		};
 	}
 
+}
+
+async function pathExists(filePath: string): Promise<boolean> {
+	try {
+		await fs.promises.access(filePath);
+		return true;
+	} catch {
+		return false;
+	}
 }
