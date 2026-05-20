@@ -126,6 +126,44 @@ function asStringArray(value: unknown): string[] | undefined {
 	return undefined;
 }
 
+function normalizeSkillToolName(value: string): string {
+	const trimmed = value.trim();
+	if (/^bash(?:\(.*\))?$/i.test(trimmed)) return 'exec';
+	const key = trimmed.toLowerCase().replace(/[-_\s]/g, '');
+	switch (key) {
+		case 'read':
+		case 'readfile':
+			return 'read';
+		case 'write':
+		case 'writefile':
+			return 'write';
+		case 'edit':
+			return 'edit';
+		case 'grep':
+		case 'glob':
+		case 'find':
+			return 'find';
+		case 'shell':
+		case 'exec':
+			return 'exec';
+		case 'webfetch':
+			return 'web_fetch';
+		case 'openbrowser':
+			return 'open_browser';
+		case 'browser':
+			return 'browser';
+		default:
+			return trimmed;
+	}
+}
+
+function normalizeSkillToolNames(values: string[] | undefined): string[] | undefined {
+	if (!values?.length) return undefined;
+	const normalized = values.map(normalizeSkillToolName).filter(Boolean);
+	const unique = Array.from(new Set(normalized));
+	return unique.length > 0 ? unique : undefined;
+}
+
 function asNumber(value: unknown): number | undefined {
 	return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
@@ -296,8 +334,8 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 	const metadata = metadataRecord(data.metadata);
 	const version = asString(data.version) ?? asString(metadata.version) ?? '0.1.0';
 	const author = asString(data.author) ?? asString(metadata.author) ?? 'unknown';
-	const allowedTools = asStringArray(data['allowed-tools'] ?? data.allowedTools);
-	const requiredTools = asStringArray(data.requiredTools) ?? [];
+	const allowedTools = normalizeSkillToolNames(asStringArray(data['allowed-tools'] ?? data.allowedTools));
+	const requiredTools = normalizeSkillToolNames(asStringArray(data.requiredTools)) ?? [];
 	const requiredConnectors = asStringArray(data.requiredConnectors) ?? [];
 	const requiredMemoryKinds = asStringArray(data.requiredMemoryKinds) ?? [];
 	const inputSchema = isRecord(data.inputSchema) ? data.inputSchema : { type: 'object' };
