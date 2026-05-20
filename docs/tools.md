@@ -1,90 +1,149 @@
 # Tools
 
-This describes how the active agent runtime selects tools for a turn and how selected tools are executed. Source file paths are intentionally omitted.
+This document describes how Friday currently assembles, selects, and executes
+agent tools. Source file paths are intentionally omitted.
 
 ## Selection
 
 The agent first evaluates the user message with a tool-use policy.
 
 - If the user explicitly says not to use tools, no tools are exposed.
-- Tool inventory questions expose the available tool surface so the model can answer from the current registry.
-- URLs, current data, private account data, workspace files, codebase work, execution, tests, builds, debugging, mutation, email, calendar, Drive, browser, and similar external or mutable tasks require tools.
-- Creative writing, rewriting, translation, summarization, and brainstorming are answered without tools unless the request also needs external access.
-- If no rule requires tools, the run is a direct answer: tools are not built, startup context is not loaded, and the provider receives an empty tool list.
+- Tool inventory questions expose the available tool surface so the model can
+  answer from the current registry.
+- URLs, current information, private account data, workspace files, codebase
+  work, shell execution, tests, builds, debugging, mutation, browser actions,
+  email, calendar, Drive, cron, and similar external or mutable tasks require
+  tools.
+- Creative writing, rewriting, translation, summarization, and brainstorming
+  are answered without tools unless the request also needs external access.
+- If no rule requires tools and no skill is selected, the run is a direct
+  answer: startup context is not loaded for tool use, and the provider receives
+  no tools.
 
-When tools are needed, the default candidate set is the full local tool registry plus enabled, configured connector tools. The default local set excludes `startup_files` outside bootstrap; pending bootstrap turns add it explicitly. Heartbeat runs can add `heartbeat_respond`. Skill-backed runs can add the skill execution tool and any tools required by the selected skills.
+The default `AgentService` path builds the local tool set from the full local
+registry, denies `startup_files` by default, and adds enabled configured
+connector tools. It can then add dynamic tools for bootstrap, heartbeat, and
+skills.
 
-## Current Tool Surface
+There is also a run-scoped tool assembler for plugin, MCP, LSP, client-hosted,
+and tool-search catalog workflows. That path is available in the codebase, but
+it is separate from the default `AgentService` tool factory.
 
-These are the named tools the runtime can expose when they are present in the active candidate set and pass the turn's policy, ranking, and context filters.
+## Default Local Tools
+
+These are the local tools in the default registry. A tool still has to pass
+policy, ranking, and run context before it is exposed to the provider.
 
 | Tool | How it is used |
 | --- | --- |
-| `read` | Reads file content and records read state so later file edits or overwrites can satisfy the read-before-write rule. |
-| `write` | Creates or overwrites files after the tool-selection layer keeps `read` available as a prerequisite when possible. |
-| `edit` | Applies a surgical string replacement to a file after the file has been read. |
-| `apply_patch` | Applies patch-style file changes after the relevant file state has been read. |
-| `delete` | Deletes files after prior read state and path safety checks. |
-| `copy` | Copies files; overwriting an existing destination depends on prior destination read state. |
-| `move` | Moves or renames files after source, and any overwritten destination, have prior read state. |
-| `inspect_file` | Inspects file metadata or binary/file previews and records read state. |
-| `find` | Searches the workspace for matching files while respecting workspace path policy. |
-| `exec` | Runs shell commands for build, test, script, and terminal tasks with capped output, timeout, and loop controls. |
-| `process` | Inspects or stops background processes that were started through `exec`. |
-| `startup_files` | Manages allowlisted agent startup files under `agent/workspaces/<agentId>` during bootstrap-oriented runs; it is denied outside bootstrap. |
-| `web_fetch` | Fetches HTTP or HTTPS content when the request needs current external documentation or web data. |
-| `cron` | Schedules, lists, updates, removes, manually runs, or wakes Gateway-owned scheduled jobs; mutating actions are approval-marked but do not pause the active agent path. |
+| `read` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
+| `write` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
+| `edit` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
+| `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
+| `delete` | Deletes a file after it has been read. Directory deletion requires `recursive=true` and root paths are guarded. |
+| `copy` | Copies one file to another path. Overwriting requires prior read state for the destination. |
+| `move` | Moves or renames one file. The source must be read first; overwriting requires prior destination read state. |
+| `inspect_file` | Inspects bytes, size, MIME type, previews, hashes, and direct PNG/JPEG/GIF/WebP image content when practical. |
+| `find` | Finds files by glob pattern, excluding common generated directories such as `node_modules` and `.git`. |
+| `exec` | Runs a shell command in the workspace with capped output, denied dangerous command patterns, abort support, and an execution timeout. |
+| `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
+| `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
+| `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
-| `browser` | Controls the managed browser for navigation, snapshots, screenshots, and element interaction. |
-| `cron_add` | Schedules a recurring cron-expression job when this explicit helper is imported into the active tool set. |
-| `cron_list` | Lists scheduled cron jobs when this explicit helper is imported into the active tool set. |
-| `cron_remove` | Removes a scheduled cron job when this explicit helper is imported into the active tool set. |
-| `heartbeat_respond` | Records the structured result of a heartbeat run when heartbeat tooling is enabled for that run. |
-| `execute_skill` | Runs a selected local skill workflow and is added only when skill discovery selects relevant skills. |
-| `tool_search` | Searches hidden catalog tools when tool-search compaction is enabled for a large tool surface. |
-| `tool_describe` | Returns schema and metadata for a hidden catalog tool when tool-search compaction is enabled. |
-| `tool_call` | Executes a hidden catalog tool through the same wrapped execution path when tool-search compaction is enabled. |
-| Connector tools | Enabled, configured connectors expose account-specific tools under connector-prefixed names; Gmail, Google Calendar, and Google Drive requests are selected from the connector tool descriptions and routed through the connector service. |
-| Plugin tools | Plugin-provided tools are resolved from active plugin registrations, filtered by policy, and rejected if they conflict with existing names or are not declared by the plugin. |
-| MCP tools | MCP tools are materialized from connected MCP runtimes with safe generated names and then ranked like other tools. |
-| LSP tools | LSP hover, definition, and references tools are materialized only when an LSP runtime is supplied. |
-| Client tools | Client-hosted tools can be exposed as selected tools, but execution is delegated to the client and returned as pending. |
+| `browser` | Controls the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions. |
 
-The runtime then narrows the candidate list for the specific turn. In the default service path this narrowing is forced and capped at 8 prompt tools.
+`cron_add`, `cron_list`, and `cron_remove` exist as legacy helper exports, but
+they are not part of the current default local tool registry exposed by
+`AgentService`.
 
-- Tool inventory questions skip narrowing and expose all available tools.
-- Explicit no-tool requests return no prompt tools even if candidates exist.
-- Candidate tools are adapted into managed tool records with inferred category, permissions, safety level, privacy level, reliability, latency, and cost.
-- Discovery filters out disabled tools, tools without required permissions, tools above the current safety limit, and tools outside the current privacy constraints.
-- Ranking scores tools by request term matches, inferred category matches, user memory preferences, recent success, schema specificity, authoritative-source metadata, reliability, cost, latency, and safety.
-- Generic search is penalized when a more specific category matches.
-- Google Calendar and Google Drive intents force the relevant connector tools into the prompt even when the rank cap would otherwise omit them.
-- File mutation tools `write`, `edit`, `apply_patch`, `delete`, `copy`, and `move` automatically keep `read` available when `read` exists.
-- The selected prompt tools preserve the original candidate order; the ranking is used to decide membership and to generate compact guidance.
+## Dynamic Tools
 
-The system prompt lists only the selected tools for the turn. A compact tool card section is added when narrowing ran, including purpose, when to use the tool, when not to use it, required inputs, safety notes, and an example call. The provider receives only each selected tool's name, description, and JSON schema.
+These tools are added only when the corresponding runtime condition applies.
+
+| Tool or family | When it appears |
+| --- | --- |
+| `startup_files` | Added only for pending primary bootstrap runs. During bootstrap, it is the only local tool exposed. |
+| `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
+| `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
+| Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
+| Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
+| MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
+| LSP tools | Available through the run-scoped assembler when an LSP runtime supplies capabilities. |
+| Client tools | Available through the run-scoped assembler when the client provides hosted tool definitions. |
+| `tool_search` | Searches hidden tools when run-scoped tool-search compaction is enabled. |
+| `tool_describe` | Returns schema and metadata for a hidden tool when tool-search compaction is enabled. |
+| `tool_call` | Executes a hidden tool through the same wrapped execution path when tool-search compaction is enabled. |
+
+## Prompt Narrowing
+
+The default service path narrows the candidate list for each turn.
+
+- Explicit no-tool requests return no prompt tools.
+- Tool inventory requests skip narrowing and expose all currently available
+  tools.
+- Bootstrap runs expose only `startup_files`.
+- Otherwise, tool selection is forced and capped at 8 prompt tools by default.
+- Discovery filters disabled tools, tools without required permissions, tools
+  above the current safety level, and tools outside privacy constraints.
+- Ranking scores tools by request term matches, inferred category, memory
+  preferences, recent success, schema specificity, reliability, cost, latency,
+  and safety.
+- Google Calendar, Google Drive, and Gmail requests force matching connector
+  tools into the prompt even when ranking would omit them.
+- File mutation tools `write`, `edit`, `apply_patch`, `delete`, `copy`, and
+  `move` automatically keep `read` available when it exists.
+- Skill selection can force a skill's required or allowed tools into the prompt.
+  File-backed skills also force `read` when needed.
+- Heartbeat runs can force `heartbeat_respond` into the prompt.
+
+The system prompt lists only the selected tools for the turn. When narrowing
+selects ranked tools, a compact tool-card section is added with purpose,
+when-to-use guidance, when-not-to-use guidance, required inputs, safety notes,
+and an example call. The provider receives only each selected tool's name,
+description, and JSON schema.
 
 ## Use
 
-The model chooses whether to call one of the tools that were exposed for the turn. The runtime does not force a tool choice.
+The model chooses whether to call one of the tools that were exposed for the
+turn. The runtime does not force a tool call.
 
-When a provider streams a tool call, the runtime collects the call id, tool name, and JSON argument deltas. Invalid JSON is returned to the model as a tool error and the tool is not executed. A call to a tool name that was not exposed for the turn is also returned as a tool error.
+When a provider streams a tool call, the runtime collects the call id, tool name,
+and JSON argument deltas. Invalid JSON is returned to the model as a tool error
+and the tool is not executed. A call to a tool name that was not exposed for the
+turn is also returned as a tool error.
 
-Before execution, identical calls are tracked per turn. The third identical call and later receive a warning. After more than 5 identical calls, execution is vetoed and the model receives a loop-detector error. Legacy approval markers are recorded in the approval cache, but the active path does not pause for a human approval prompt.
+Before execution, identical calls are tracked per turn. The third identical call
+and later receive a warning. After more than 5 identical calls, execution is
+vetoed and the model receives a loop-detector error. Legacy approval markers are
+recorded for tools that require approval, but the current path does not pause the
+agent loop for an approval prompt.
 
 Execution then goes through the managed tool path.
 
-- Arguments are extracted from the raw call, sanitized against the input schema, and validated.
-- Unknown fields or missing required fields produce a clarification-style tool error instead of executing.
-- Common values are normalized where supported, such as numeric strings, email casing, currency casing, units, and relative dates like `today` or `tomorrow` in the session timezone.
+- Arguments are extracted from the raw call, sanitized against the input schema,
+  normalized, and validated.
+- Unknown fields or missing required fields produce a clarification-style tool
+  error instead of executing.
+- Common values are normalized where supported, such as numeric strings, email
+  casing, currency casing, units, and relative dates like `today` or `tomorrow`
+  in the session timezone.
 - Input schema validation runs before the tool executes.
 - Per-tool rate limits and the per-turn tool-call limit are enforced.
-- Tools run with an abort signal and an execution timeout. Transient failures can retry with backoff.
+- Tools run with an abort signal. Managed execution has a default timeout and
+  transient failures can retry with backoff.
 - Tool outputs are validated against the output schema.
-- Prompt-injection-like tool output is treated as untrusted and normalized before it is returned to the model.
-- Empty, partial, stale, contradictory, or otherwise suspicious output can add warnings.
+- Prompt-injection-like tool output is treated as untrusted and normalized
+  before it is returned to the model.
+- Empty, partial, stale, contradictory, or otherwise suspicious output can add
+  warnings.
 - Tool calls are audited with sensitive values redacted.
 
-Tool results are appended to the transcript as tool messages. The agent loop then calls the provider again with the updated transcript. This repeats until the provider stops calling tools, the run is cancelled, the context is compacted after one overflow retry, or the max iteration limit is reached.
+Tool results are appended to the transcript as tool messages. The agent loop
+then calls the provider again with the updated transcript. This repeats until the
+provider stops calling tools, the run is cancelled, the context is compacted
+after one overflow retry, or the max iteration limit is reached.
 
-Tool lifecycle events are streamed to the renderer: call start, argument deltas, parsed input, result, status, duration, and displayable output text. Run logs also record the selected tool names, policy reason, iterations, and tool-call outcomes.
+Tool lifecycle events are streamed to the renderer: call start, argument deltas,
+parsed input, result, status, duration, and displayable output text. Run logs
+record selected tool names, the tool-policy reason, phase durations, iterations,
+and tool-call outcomes.
