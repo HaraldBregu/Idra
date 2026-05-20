@@ -246,7 +246,7 @@
 		},
 		"chatHistory": {
 			"title": "Chat history",
-			"description": "Inspect the stored main chat context and clear the current conversation.",
+			"description": "Stored context and cleanup.",
 			"messages": "Stored messages",
 			"breakdown": "{{user}} user / {{assistant}} assistant / {{tool}} tool",
 			"messageCountValue": "{{count}} messages",
