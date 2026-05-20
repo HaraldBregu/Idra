@@ -53,29 +53,19 @@ const promptSuggestions = [
 			'Give me a quick tour of Friday as my personal assistant. Summarize your main capabilities, explain the best way to work with you, and propose three starter prompts I can try.',
 	},
 	{
-		label: 'Inspect this project',
+		label: 'Plan my day',
 		prompt:
-			'Inspect the current project structure and summarize the most important areas to understand before making changes.',
+			'Help me plan today. Ask for my priorities, time constraints, and any deadlines, then turn them into a practical schedule.',
 	},
 	{
-		label: 'Improve this page',
+		label: 'Draft a message',
 		prompt:
-			'Inspect src/renderer/src/pages/home/Page.tsx and suggest a focused UI improvement that would make the home screen easier to use.',
+			'Help me draft a clear message. Ask who it is for, what I need to say, and the tone I want.',
 	},
 	{
-		label: 'Plan next step',
+		label: 'Brainstorm ideas',
 		prompt:
-			'Look at the current workspace and recommend the next small implementation step, including what you would change and how you would verify it.',
-	},
-	{
-		label: 'Write tests',
-		prompt:
-			'Find a focused area in the renderer that would benefit from tests and propose the smallest useful test coverage to add.',
-	},
-	{
-		label: 'Debug an issue',
-		prompt:
-			'Help me debug a problem in this app. Start by asking for the symptom, expected behavior, and any relevant files or logs.',
+			'Brainstorm ten practical ideas for something I can improve this week, then help me choose one small next action.',
 	},
 ] as const;
 
