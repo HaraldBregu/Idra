@@ -47,12 +47,8 @@ export class ToolArgumentBuilder {
 	}
 }
 
-function extractRawArguments(intendedCall: unknown): unknown {
+function extractRawArguments(intendedCall: unknown, tool: Tool): unknown {
 	if (!isRecord(intendedCall)) return {};
-	return intendedCall;
-}
-
-function extractRawArgumentsForWrapper(intendedCall: Record<string, unknown>, tool: Tool): unknown {
 	const properties = schemaProperties(tool.inputSchema);
 	const required = requiredSchemaFields(tool.inputSchema);
 	const hasDirectSchemaField = Object.keys(intendedCall).some((key) => (
@@ -71,19 +67,6 @@ function extractRawArgumentsForWrapper(intendedCall: Record<string, unknown>, to
 	return intendedCall;
 }
 
-function extractRawArguments(intendedCall: unknown, tool: Tool): unknown {
-	if (!isRecord(intendedCall)) return {};
-	return extractRawArgumentsForWrapper(intendedCall, tool);
-}
-
-function previousExtractRawArguments(intendedCall: unknown): unknown {
-	if (!isRecord(intendedCall)) return {};
-	if (isRecord(intendedCall.input)) return intendedCall.input;
-	if (isRecord(intendedCall.arguments)) return intendedCall.arguments;
-	if (isRecord(intendedCall.args)) return intendedCall.args;
-	return intendedCall;
-}
-
 function normalizeArguments(value: Record<string, unknown>, tool: Tool, input: ToolArgumentBuildInput): Record<string, unknown> {
 	const properties = schemaProperties(tool.inputSchema);
 	const normalized: Record<string, unknown> = {};
@@ -91,8 +74,14 @@ function normalizeArguments(value: Record<string, unknown>, tool: Tool, input: T
 		const schema = properties[field];
 		normalized[field] = normalizeValue(field, rawValue, schema, input.sessionContext);
 	}
+	const nestedInput = isRecord(normalized.input) ? normalized.input : undefined;
 	for (const field of requiredSchemaFields(tool.inputSchema)) {
 		if (normalized[field] !== undefined) continue;
+		if (nestedInput && Object.prototype.hasOwnProperty.call(nestedInput, field)) {
+			const schema = properties[field];
+			normalized[field] = normalizeValue(field, nestedInput[field], schema, input.sessionContext);
+			continue;
+		}
 		const memoryValue = input.memory?.safeDefaults?.[field];
 		const schema = properties[field];
 		if (schema && (schema as Record<string, unknown>)['x-useMemory'] === true && memoryValue !== undefined) {
