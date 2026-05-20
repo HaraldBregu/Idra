@@ -367,7 +367,7 @@ interface AppsInvokeChannelMap {
 
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('./skills').SkillInfo[] };
-	[SkillsChannels.import]: { args: []; result: import('./skills').SkillInfo | undefined };
+	[SkillsChannels.import]: { args: []; result: import('./skills').SkillImportResult | undefined };
 	[SkillsChannels.download]: { args: [id: string]; result: import('./skills').SkillDownloadResult | undefined };
 	[SkillsChannels.delete]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
