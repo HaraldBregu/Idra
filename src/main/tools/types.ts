@@ -3,6 +3,7 @@ import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { AgentStartupFilesServicePort } from '../agent/startup-files';
 import type { StoreService } from '../store';
+import type { TaskManager } from '../tasks';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import type { WorkspaceService } from '../workspace';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
@@ -21,6 +22,7 @@ export interface FridayServices {
 	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
 	startupFiles: AgentStartupFilesServicePort;
+	taskManager?: TaskManager;
 }
 
 export interface ApprovalStreamLike {
