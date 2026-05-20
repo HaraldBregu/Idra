@@ -12,6 +12,7 @@ describe('provider/factory', () => {
 		expect(makeProvider({ id: 'mistral', apiKey: 'key' })).toBeInstanceOf(MistralAdapter);
 		expect(makeProvider({ id: 'mistal', apiKey: 'key' })).toBeInstanceOf(MistralAdapter);
 		expect(makeProvider({ id: 'openai', apiKey: 'key' })).toBeInstanceOf(OpenAIAdapter);
+		expect(makeProvider({ id: 'deepseek', apiKey: 'key' })).toBeInstanceOf(DeepSeekAdapter);
 		expect(makeProvider({ id: 'groq', apiKey: 'key' })).toBeInstanceOf(OpenAIChatAdapter);
 	});
 
