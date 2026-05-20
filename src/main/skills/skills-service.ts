@@ -64,9 +64,23 @@ function splitSkillIdAndVersion(skillId: string, version?: string): { skillId: s
 function normalizeSkillToolInput(args: Record<string, unknown>): Record<string, unknown> {
 	const nestedInput = isRecord(args.input) ? args.input : {};
 	const passthroughInput = Object.fromEntries(
-		Object.entries(args).filter(([key]) => key !== 'skillId' && key !== 'version' && key !== 'input')
+		Object.entries(args).filter(
+			([key]) =>
+				key !== 'skillId' &&
+				key !== 'version' &&
+				key !== 'input' &&
+				key !== 'timeoutMs' &&
+				key !== 'noTimeout'
+		)
 	);
 	return { ...passthroughInput, ...nestedInput };
+}
+
+function normalizeSkillExecutionTimeout(args: Record<string, unknown>): number | null | undefined {
+	if (args.noTimeout === true) return null;
+	if (typeof args.timeoutMs !== 'number' || !Number.isFinite(args.timeoutMs)) return undefined;
+	const timeoutMs = Math.floor(args.timeoutMs);
+	return timeoutMs > 0 ? timeoutMs : null;
 }
 
 function shouldCopySkillPath(root: string, sourcePath: string): boolean {
@@ -232,11 +246,19 @@ export class SkillsService {
 				'Execute one registered high-level skill by id. Skills run with scoped tools, connectors, permissions, memory policy, safety checks, and provenance.',
 			schema: {
 				type: 'object',
-				properties: {
-					skillId: { type: 'string' },
-					version: { type: 'string' },
-					input: { type: 'object', additionalProperties: true },
-				},
+					properties: {
+						skillId: { type: 'string' },
+						version: { type: 'string' },
+						input: { type: 'object', additionalProperties: true },
+						timeoutMs: {
+							type: 'number',
+							description: 'Skill execution timeout in milliseconds. Set to 0 to disable the timeout.',
+						},
+						noTimeout: {
+							type: 'boolean',
+							description: 'Disable the skill execution timeout for this invocation.',
+						},
+					},
 				required: ['skillId'],
 				additionalProperties: true,
 			},
@@ -250,11 +272,13 @@ export class SkillsService {
 				if (!skillId) return textResult('execute_skill: skillId is required', true);
 
 				const userPreferences = await this.preferences.getPreferences(input.userId);
-				const context = await this.createExecutionContext(
-					{ ...input, toolContext },
-					userPreferences
-				);
-				const result = await this.engine.execute({
+					const context = await this.createExecutionContext(
+						{ ...input, toolContext },
+						userPreferences
+					);
+					const timeoutMs = normalizeSkillExecutionTimeout(args);
+					if (timeoutMs !== undefined) context.timeoutMs = timeoutMs;
+					const result = await this.engine.execute({
 					skillId,
 					version,
 					input: normalizeSkillToolInput(args),
