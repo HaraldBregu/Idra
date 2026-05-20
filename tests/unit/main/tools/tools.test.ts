@@ -312,6 +312,23 @@ describe('tools/exec', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
+	it('keeps shell workdirs inside the workspace when writeWorkspaceOnly is enabled', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
+
+		const inside = await execTool.execute({ command: 'printf ok', workdir: workspace }, ctx);
+		expect(inside.status).toBe('ok');
+		expect(inside.content[0]?.text).toContain('ok');
+
+		const blocked = await execTool.execute({ command: 'printf no', workdir: outside }, ctx);
+		expect(blocked.status).toBe('error');
+		expect(blocked.content[0]?.text).toContain('workdir is outside the workspace');
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('runs Python scripts through shell execution', async () => {
 		const workspace = await makeTempDir();
 		const result = await execTool.execute(
