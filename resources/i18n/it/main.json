@@ -147,6 +147,11 @@
 			"searchCardLabel": "Apri il menu comandi con {{shortcut}}",
 			"searchTitle": "Usa la ricerca come livello rapido",
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
+			"groups": {
+				"general": "Configurazione generale",
+				"capabilities": "Agenti ed estensioni",
+				"automation": "Automazioni e app"
+			},
 			"descriptions": {
 				"general": "Info e permessi app",
 				"agents": "Configurazione agenti",

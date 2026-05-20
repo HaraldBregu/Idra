@@ -24,19 +24,30 @@ function renderOverviewPage(): void {
 }
 
 describe('OverviewPage', () => {
-	it('renders settings navigation rows in a grouped section', () => {
+	it('renders settings navigation rows in grouped sections', () => {
 		renderOverviewPage();
 
-		expect(screen.getByText('settings.overview.backToSettings')).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.general/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.providers/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.agents/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.skills/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.connectors/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.channels/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.heartbeat/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.cron/ })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /settings\.tabs\.apps/ })).toBeInTheDocument();
+		expect(screen.getByRole('heading', {
+			name: 'settings.overview.groups.general',
+		})).toBeInTheDocument();
+		expect(screen.getByRole('heading', {
+			name: 'settings.overview.groups.capabilities',
+		})).toBeInTheDocument();
+		expect(screen.getByRole('heading', {
+			name: 'settings.overview.groups.automation',
+		})).toBeInTheDocument();
+
+		expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+			'settings.tabs.general',
+			'settings.tabs.providers',
+			'settings.tabs.channels',
+			'settings.tabs.agents',
+			'settings.tabs.skills',
+			'settings.tabs.connectors',
+			'settings.tabs.heartbeat',
+			'settings.tabs.cron',
+			'settings.tabs.apps',
+		]);
 	});
 
 	it('navigates to the selected settings route when clicked', async () => {

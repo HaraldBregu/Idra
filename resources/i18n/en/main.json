@@ -147,6 +147,11 @@
 			"searchCardLabel": "Open command menu with {{shortcut}}",
 			"searchTitle": "Use search as a power layer",
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
+			"groups": {
+				"general": "General setup",
+				"capabilities": "Agents and extensions",
+				"automation": "Automation and apps"
+			},
 			"descriptions": {
 				"general": "App info and permissions",
 				"agents": "Agent configuration",

@@ -11,6 +11,28 @@ import {
 } from '../../components';
 import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../../navigation';
 
+const SETTINGS_OVERVIEW_GROUPS = [
+	{
+		titleKey: 'settings.overview.groups.general',
+		paths: ['/settings/general', '/settings/providers', '/settings/channels'],
+	},
+	{
+		titleKey: 'settings.overview.groups.capabilities',
+		paths: ['/settings/agents', '/settings/skills', '/settings/connectors'],
+	},
+	{
+		titleKey: 'settings.overview.groups.automation',
+		paths: ['/settings/heartbeat', '/settings/cron', '/settings/apps'],
+	},
+] satisfies readonly {
+	readonly titleKey: string;
+	readonly paths: readonly string[];
+}[];
+
+function getSettingsNavigationItem(path: string): SettingsNavigationItem {
+	return SETTINGS_NAVIGATION.find((item) => item.path === path)!;
+}
+
 function SettingsOverviewCard({
 	item,
 }: {
@@ -56,13 +78,16 @@ const OverviewPage: React.FC = () => {
 				title={t('settings.title')}
 				description={t('settings.description')}
 			/>
-			<SettingsSection title={t('settings.overview.backToSettings')}>
-				<SettingsPanel>
-					{SETTINGS_NAVIGATION.map((item) => (
-						<SettingsOverviewCard key={item.path} item={item} />
-					))}
-				</SettingsPanel>
-			</SettingsSection>
+			{SETTINGS_OVERVIEW_GROUPS.map((group) => (
+				<SettingsSection key={group.titleKey} title={t(group.titleKey)}>
+					<SettingsPanel>
+						{group.paths.map((path) => {
+							const item = getSettingsNavigationItem(path);
+							return <SettingsOverviewCard key={item.path} item={item} />;
+						})}
+					</SettingsPanel>
+				</SettingsSection>
+			))}
 		</SettingsPageShell>
 	);
 };
