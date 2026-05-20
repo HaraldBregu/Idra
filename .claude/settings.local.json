@@ -208,7 +208,9 @@
       "WebFetch(domain:prompt-kit.com)",
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(chmod +x *)",
-      "WebFetch(domain:api-docs.deepseek.com)"
+      "WebFetch(domain:api-docs.deepseek.com)",
+      "WebFetch(domain:docs.qwencloud.com)",
+      "WebFetch(domain:www.qwencloud.com)"
     ],
     "deny": [
       "Bash(git push --force:*)",
