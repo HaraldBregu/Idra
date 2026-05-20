@@ -129,11 +129,11 @@ export class AnthropicAdapter implements ProviderAdapter {
 					if (id) yield { type: 'tool_call_end', id };
 				} else if (event.type === 'message_delta') {
 					if (event.delta.stop_reason) stopReason = event.delta.stop_reason;
-					if (event.usage) usage.outputTokens += event.usage.output_tokens ?? 0;
+					if (event.usage) usage.outputTokens = event.usage.output_tokens ?? usage.outputTokens;
 				} else if (event.type === 'message_start') {
 					if (event.message.usage) {
-						usage.inputTokens += event.message.usage.input_tokens ?? 0;
-						usage.outputTokens += event.message.usage.output_tokens ?? 0;
+						usage.inputTokens = event.message.usage.input_tokens ?? usage.inputTokens;
+						usage.outputTokens = event.message.usage.output_tokens ?? usage.outputTokens;
 					}
 				}
 			}
