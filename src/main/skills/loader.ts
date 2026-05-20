@@ -67,6 +67,10 @@ interface AgentSkillFrontMatter {
 	examples?: unknown;
 	dependencies?: unknown;
 	deprecated?: unknown;
+	'disable-model-invocation'?: unknown;
+	disableModelInvocation?: unknown;
+	'user-invocable'?: unknown;
+	userInvocable?: unknown;
 }
 
 interface ParsedSkillMarkdown {
@@ -114,6 +118,15 @@ function asNumber(value: unknown): number | undefined {
 
 function asBoolean(value: unknown): boolean | undefined {
 	return typeof value === 'boolean' ? value : undefined;
+}
+
+function asBooleanLike(value: unknown): boolean | undefined {
+	if (typeof value === 'boolean') return value;
+	if (typeof value !== 'string') return undefined;
+	const normalized = value.trim().toLowerCase();
+	if (normalized === 'true') return true;
+	if (normalized === 'false') return false;
+	return undefined;
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {
@@ -169,6 +182,9 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 	const requiredMemoryKinds = asStringArray(data.requiredMemoryKinds) ?? [];
 	const inputSchema = isRecord(data.inputSchema) ? data.inputSchema : { type: 'object' };
 	const outputSchema = isRecord(data.outputSchema) ? data.outputSchema : { type: 'object' };
+	const disableModelInvocation =
+		asBooleanLike(data['disable-model-invocation'] ?? data.disableModelInvocation) ?? false;
+	const userInvocable = asBooleanLike(data['user-invocable'] ?? data.userInvocable) ?? true;
 
 	return {
 		manifest: {
@@ -199,7 +215,13 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 				? (data.dependencies as SkillManifest['dependencies'])
 				: [],
 			deprecated: asBoolean(data.deprecated) ?? false,
-			metadata: { ...metadata, dynamic: true, source: 'agent-skill' },
+			metadata: {
+				...metadata,
+				dynamic: true,
+				source: 'agent-skill',
+				disableModelInvocation,
+				userInvocable,
+			},
 		},
 		instructions: parsed.content.trim(),
 	};
@@ -410,7 +432,7 @@ function manifestOnlySkill(
 			},
 			sideEffects: ['Loads local Agent Skill instructions into model context.'],
 			permissionsRequired: manifest.permissionsRequired ?? [],
-			allowedTools: manifest.requiredTools ?? [],
+			allowedTools: manifest.allowedTools ?? [],
 			allowedConnectors: manifest.requiredConnectors ?? [],
 			memoryAccess: (manifest.requiredMemoryKinds ?? []).map((kind) => ({
 				kind,
