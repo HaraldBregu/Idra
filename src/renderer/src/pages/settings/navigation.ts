@@ -60,6 +60,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: `/settings/general/agentdetails/${SPEECH_TRANSCRIBER_AGENT_ID}`, labelKey: 'settings.agents.speechTranscriberName', descriptionKey: 'settings.agents.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
 	{ path: `/settings/general/agentdetails/${TEXT_TO_SPEECH_AGENT_ID}`, labelKey: 'settings.agents.textToSpeechName', descriptionKey: 'settings.agents.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
 	{ path: `/settings/general/agentdetails/${IMAGE_ASSISTANT_AGENT_ID}`, labelKey: 'settings.agents.imageAssistantName', descriptionKey: 'settings.agents.imageAssistantDescription', keywords: 'image assistant generation editing creative model' },
+	{ path: '/settings/general/agentdetails/main/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
 	// Heartbeat

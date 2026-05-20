@@ -527,6 +527,7 @@
 			"description": "Review the agents available to Friday.",
 			"subtitle": "Configure the model assignments each agent uses for its work.",
 			"detailsTitle": "Agent Details",
+			"history": "History",
 			"allAgents": "All agents",
 			"identity": "Identity",
 			"configuration": "Configuration",

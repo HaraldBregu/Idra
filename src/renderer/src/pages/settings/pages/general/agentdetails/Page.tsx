@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
 	AlertTriangle,
 	Bot,
 	CheckCircle2,
+	ChevronRight,
 	CircleOff,
 	ImageIcon,
 	LoaderCircle,
+	MessageSquareText,
 	Mic,
 	Save,
 	Volume2,
@@ -92,6 +94,7 @@ function mergeProviders(
 
 const AgentDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { agentId } = useParams<{ agentId: string }>();
 	const decodedAgentId = decodeURIComponent(agentId ?? '');
 	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_ID;
@@ -333,6 +336,10 @@ const AgentDetailsPage: React.FC = () => {
 		}
 	}, [canSave, effort, isSpeechTranscriberAgent, selectedModel, selectedProvider, t]);
 
+	const openChatHistory = useCallback(() => {
+		navigate(`/settings/general/agentdetails/${encodeURIComponent(FRIDAY_AGENT_ID)}/chathistory`);
+	}, [navigate]);
+
 	const isKnownAgent =
 		isFridayAgent || isSpeechTranscriberAgent || isTextToSpeechAgent || isImageAssistantAgent;
 	const agentIcon = isImageAssistantAgent
@@ -472,6 +479,35 @@ const AgentDetailsPage: React.FC = () => {
 					/>
 				</SettingsPanel>
 			</SettingsSection>
+
+			{isFridayAgent && (
+				<SettingsSection title={t('settings.agents.history')}>
+					<SettingsPanel>
+						<button
+							type="button"
+							className="grid min-h-11 w-full items-center gap-2 border-b border-border/60 px-3 py-2 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 sm:grid-cols-[minmax(0,1fr)_auto]"
+							onClick={openChatHistory}
+						>
+							<span className="flex min-w-0 items-center gap-2">
+								<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+									<MessageSquareText className="size-3" strokeWidth={1.8} />
+								</span>
+								<span className="min-w-0 flex-1">
+									<span className="block text-[13px] font-medium leading-4 tracking-normal text-foreground">
+										{t('settings.chatHistory.title')}
+									</span>
+									<span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+										{t('settings.chatHistory.description')}
+									</span>
+								</span>
+							</span>
+							<span className="flex w-full min-w-0 items-center justify-start gap-1.5 sm:ml-auto sm:w-auto sm:justify-end">
+								<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
+							</span>
+						</button>
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 
 			{!isServiceBackedAgent ? (
 				<SettingsSection

@@ -527,6 +527,7 @@
 			"description": "Rivedi gli agenti disponibili in Friday.",
 			"subtitle": "Configura le assegnazioni dei modelli che ogni agente usa per il suo lavoro.",
 			"detailsTitle": "Dettagli Agente",
+			"history": "Cronologia",
 			"allAgents": "Tutti gli agenti",
 			"identity": "Identita",
 			"configuration": "Configurazione",

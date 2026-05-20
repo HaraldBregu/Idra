@@ -72,7 +72,10 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	}
 
 	if (location.pathname.startsWith('/settings/general/agentdetails/')) {
-		const agentId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
+		const parts = location.pathname.split('/');
+		const agentDetailsIndex = parts.indexOf('agentdetails');
+		const agentId = decodeURIComponent(parts[agentDetailsIndex + 1] ?? '');
+		const isChatHistoryPage = parts[agentDetailsIndex + 2] === 'chathistory';
 		items[0] = { ...items[0], path: current.path };
 		const label = agentId === 'main'
 			? t('settings.agents.fridayName')
@@ -85,7 +88,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 						: agentId;
 		items.push({
 			label,
+			path: isChatHistoryPage ? `/settings/general/agentdetails/${encodeURIComponent(agentId)}` : undefined,
 		});
+		if (isChatHistoryPage) {
+			items.push({ label: t('settings.chatHistory.title') });
+		}
 	}
 
 	if (location.pathname.startsWith('/settings/cron/crondetails/')) {
