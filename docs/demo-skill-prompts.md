@@ -17,7 +17,7 @@ Use the research-brief skill to create a concise research brief from docs/agent-
 Use this prompt to test saving the brief to a file:
 
 ```text
-Use the research-brief skill to create a concise research brief from docs/agent-skills.md and write it to docs/research-brief-output.md. Include key findings, risks, and next steps.
+Use the research-brief skill to analyze docs/agent-skills.md and write a standalone Markdown analysis document to docs/research-brief-output.md. Include key findings, risks, and next steps.
 ```
 
 Expected result:
