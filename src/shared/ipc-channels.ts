@@ -103,6 +103,7 @@ export const AppsChannels = {
 export const SkillsChannels = {
 	list: 'skills:list',
 	import: 'skills:import',
+	download: 'skills:download',
 	delete: 'skills:delete',
 	getRoot: 'skills:get-root',
 } as const;
@@ -367,6 +368,7 @@ interface AppsInvokeChannelMap {
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('./skills').SkillInfo[] };
 	[SkillsChannels.import]: { args: []; result: import('./skills').SkillInfo | undefined };
+	[SkillsChannels.download]: { args: [id: string]; result: import('./skills').SkillDownloadResult | undefined };
 	[SkillsChannels.delete]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
