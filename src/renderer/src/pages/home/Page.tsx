@@ -8,7 +8,8 @@ import {
 	ChatContainerRoot,
 	ChatContainerScrollAnchor,
 } from '@/components/ui/chat-container';
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { GradientSphere } from '@/components/ui/gradient-sphere';
 import {
 	PromptInput,
 	PromptInputAction,
@@ -98,6 +99,9 @@ function EmptyConversation(): ReactElement {
 	return (
 		<Empty className="mx-auto max-w-sm border-0 p-0">
 			<EmptyHeader>
+				<EmptyMedia>
+					<GradientSphere size={48} />
+				</EmptyMedia>
 				<EmptyTitle>Start a conversation</EmptyTitle>
 				<EmptyDescription>
 					Ask Friday to inspect code, make a change, or help plan the next step.
