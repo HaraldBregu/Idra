@@ -71,6 +71,7 @@ export interface OpenAIChatAdapterOptions {
 	apiKey: string;
 	baseURL?: string;
 	clientFactory?: (opts: { apiKey: string; baseURL?: string }) => OpenAI;
+	reasoningEffortEnabled?: boolean;
 }
 
 interface ChatToolCallState {

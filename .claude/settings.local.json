@@ -207,7 +207,8 @@
       "Bash(echo \"Exit: $?\")",
       "WebFetch(domain:prompt-kit.com)",
       "WebFetch(domain:docs.anthropic.com)",
-      "Bash(chmod +x *)"
+      "Bash(chmod +x *)",
+      "WebFetch(domain:api-docs.deepseek.com)"
     ],
     "deny": [
       "Bash(git push --force:*)",
