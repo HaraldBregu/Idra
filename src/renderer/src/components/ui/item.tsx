@@ -8,6 +8,7 @@ interface ItemProps extends HTMLAttributes<HTMLElement> {
 	readonly size?: 'sm' | 'md';
 	readonly as?: 'div' | 'button';
 	readonly type?: 'button' | 'submit' | 'reset';
+	readonly disabled?: boolean;
 }
 
 function Item({
