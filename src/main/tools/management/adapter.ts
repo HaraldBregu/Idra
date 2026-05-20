@@ -147,6 +147,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
+	if (name === 'task') return 'internalApi';
 	if (
 		name.includes('provider') ||
 		name.includes('agent') ||
@@ -179,6 +180,7 @@ function inferPermissions(name: string, description = ''): string[] {
 	if (['exec', 'process'].includes(name)) return ['code:execute'];
 	if (name.includes('web')) return ['web:read'];
 	if (name === 'cron') return ['calendar:read', 'calendar:write'];
+	if (name === 'task') return [];
 	if (name.includes('cron_add') || name.includes('cron_remove')) return ['calendar:write'];
 	if (name.includes('cron_list')) return ['calendar:read'];
 	if (name.startsWith('set_') || name.startsWith('open_')) return ['app:write'];
@@ -204,6 +206,7 @@ function inferSafety(
 			'move',
 			'exec',
 			'cron',
+			'task',
 			'cron_add',
 			'cron_remove',
 			'startup_files',
@@ -287,6 +290,7 @@ function inferPrivacy(
 			'find',
 			'exec',
 			'process',
+			'task',
 		].includes(name)
 	)
 		return 'private';
