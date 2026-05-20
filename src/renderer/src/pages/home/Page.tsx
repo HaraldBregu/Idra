@@ -485,7 +485,7 @@ function PageContent(): ReactElement {
 								setAttachments((current) => [...current, ...filesToAttachments(files)])
 							}
 							wrapperClassName="max-w-none"
-							className="w-full"
+							className="w-full rounded-none"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
 									<VoiceButton
