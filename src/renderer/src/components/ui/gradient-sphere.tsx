@@ -152,7 +152,12 @@ export function GradientSphere({
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100)
     camera.position.z = 4
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    let renderer: THREE.WebGLRenderer
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    } catch {
+      return
+    }
     renderer.setClearColor(0, 0)
     renderer.setSize(size, size)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
