@@ -336,14 +336,16 @@ export class SkillsService {
 			this.logger.warn('SkillsService', `Skipping ${loaded.skill.id}: conflicts with a built-in skill`);
 			return;
 		}
-		const existing = this.registry.getSkill(loaded.skill.id, loaded.skill.version);
-		if (!existing) this.registerSkill(loaded.skill);
+		if (existingVersions.length > 0) {
+			this.registry.unregisterSkill(loaded.skill.id);
+		}
+		this.registerSkill(loaded.skill);
 	}
 
 	private async registerManagedDynamicSkills(): Promise<void> {
 		const root = this.getSkillsRoot();
 		const entries = await fs.promises.readdir(root, { withFileTypes: true });
-		for (const entry of entries) {
+		for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
 			if (!entry.isDirectory() || isIgnoredSkillDirectoryName(entry.name)) continue;
 			const folderPath = path.join(root, entry.name);
 			try {
