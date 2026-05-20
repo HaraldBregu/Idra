@@ -24,6 +24,7 @@ import {
 	cronTool,
 } from '../../../../src/main/tools/cron';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
+import { taskTool } from '../../../../src/main/tools/task';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
