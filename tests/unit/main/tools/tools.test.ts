@@ -180,6 +180,52 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
+	it('confines mutating file targets to the workspace when writeWorkspaceOnly is enabled', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
+		const outsideFile = path.join(outside, 'outside.txt');
+		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
+		await fs.writeFile(outsideFile, 'outside', 'utf8');
+
+		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
+		expect((await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status).toBe(
+			'error'
+		);
+		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
+
+		expect(
+			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
+		).toBe('ok');
+		await expect(fs.readFile(path.join(workspace, 'copied.txt'), 'utf8')).resolves.toBe('outside');
+
+		expect(
+			(await copyTool.execute({ source: 'inside.txt', destination: path.join(outside, 'copy.txt') }, ctx))
+				.status
+		).toBe('error');
+
+		expect(
+			(await editTool.execute({ path: outsideFile, old: 'outside', new: 'changed' }, ctx)).status
+		).toBe('error');
+		expect((await deleteTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
+		expect(
+			(await moveTool.execute({ source: outsideFile, destination: 'moved.txt' }, ctx)).status
+		).toBe('error');
+
+		const patch = [
+			`--- ${outsideFile}`,
+			`+++ ${outsideFile}`,
+			'@@ -1 +1 @@',
+			'-outside',
+			'+changed',
+		].join('\n');
+		expect((await applyPatchTool.execute({ diff: patch }, ctx)).status).toBe('error');
+		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('outside');
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('applies unified diffs only after reading the target file', async () => {
 		const workspace = await makeTempDir();
 		const file = path.join(workspace, 'patch.txt');
