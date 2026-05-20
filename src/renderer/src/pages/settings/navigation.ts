@@ -77,16 +77,16 @@ export const SETTINGS_NAVIGATION = [
 		icon: Info,
 	},
 	{
+		path: '/settings/providers',
+		labelKey: 'settings.tabs.providers',
+		descriptionKey: 'settings.overview.descriptions.providers',
+		icon: Server,
+	},
+	{
 		path: '/settings/agents',
 		labelKey: 'settings.tabs.agents',
 		descriptionKey: 'settings.overview.descriptions.agents',
 		icon: Bot,
-	},
-	{
-		path: '/settings/channels',
-		labelKey: 'settings.tabs.channels',
-		descriptionKey: 'settings.overview.descriptions.channels',
-		icon: RadioTower,
 	},
 	{
 		path: '/settings/skills',
@@ -101,22 +101,22 @@ export const SETTINGS_NAVIGATION = [
 		icon: Plug,
 	},
 	{
-		path: '/settings/providers',
-		labelKey: 'settings.tabs.providers',
-		descriptionKey: 'settings.overview.descriptions.providers',
-		icon: Server,
-	},
-	{
-		path: '/settings/cron',
-		labelKey: 'settings.tabs.cron',
-		descriptionKey: 'settings.overview.descriptions.cron',
-		icon: CalendarClock,
+		path: '/settings/channels',
+		labelKey: 'settings.tabs.channels',
+		descriptionKey: 'settings.overview.descriptions.channels',
+		icon: RadioTower,
 	},
 	{
 		path: '/settings/heartbeat',
 		labelKey: 'settings.tabs.heartbeat',
 		descriptionKey: 'settings.overview.descriptions.heartbeat',
 		icon: Activity,
+	},
+	{
+		path: '/settings/cron',
+		labelKey: 'settings.tabs.cron',
+		descriptionKey: 'settings.overview.descriptions.cron',
+		icon: CalendarClock,
 	},
 	{
 		path: '/settings/apps',
