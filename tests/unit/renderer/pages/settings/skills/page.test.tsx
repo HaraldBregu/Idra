@@ -6,6 +6,7 @@ import SkillsPage from '../../../../../../src/renderer/src/pages/settings/pages/
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string, params?: Record<string, string>) => {
+			if (params?.name && params.path) return `${key}:${params.name}:${params.path}`;
 			if (params?.name) return `${key}:${params.name}`;
 			return key;
 		},
@@ -16,7 +17,15 @@ function makeSkill(id: string, name: string): SkillInfo {
 	return {
 		id,
 		folderPath: `/skills/${id}`,
-		manifest: { name, description: `${name} description` },
+		skillPath: `/skills/${id}/SKILL.md`,
+		manifest: {
+			name,
+			description: `${name} description`,
+			version: '1.2.3',
+			category: 'workflow',
+			allowedTools: ['web_fetch'],
+			tags: ['test'],
+		},
 	};
 }
 
@@ -26,6 +35,7 @@ describe('SkillsPage', () => {
 			list: jest.fn(async () => []),
 			getRoot: jest.fn(async () => '/skills'),
 			importSkill: jest.fn(async () => undefined),
+			downloadSkill: jest.fn(async () => undefined),
 			delete: jest.fn(async () => undefined),
 		};
 	});
@@ -46,6 +56,59 @@ describe('SkillsPage', () => {
 
 		expect(await screen.findByText('Greet')).toBeInTheDocument();
 		expect(screen.getByText('Summarize')).toBeInTheDocument();
+		expect(screen.getAllByText('v1.2.3')).toHaveLength(2);
+	});
+
+	it('uploads a skill and refreshes the list', async () => {
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.importSkill as jest.Mock).mockResolvedValue(skill);
+		const user = userEvent.setup();
+
+		render(<SkillsPage />);
+
+		await screen.findByText('settings.skills.empty');
+		await user.click(screen.getByRole('button', { name: 'settings.skills.upload' }));
+
+		await waitFor(() => {
+			expect(window.skills.importSkill).toHaveBeenCalled();
+		});
+		expect(window.skills.list).toHaveBeenCalledTimes(2);
+	});
+
+	it('shows skill details', async () => {
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
+		const user = userEvent.setup();
+
+		render(<SkillsPage />);
+
+		await screen.findByText('Greet');
+		await user.click(screen.getByRole('button', { name: 'settings.skills.details' }));
+
+		expect(screen.getByText('settings.skills.detailVersion')).toBeInTheDocument();
+		expect(screen.getByText('1.2.3')).toBeInTheDocument();
+		expect(screen.getByText('/skills/greet/SKILL.md')).toBeInTheDocument();
+		expect(screen.getByText('web_fetch')).toBeInTheDocument();
+	});
+
+	it('downloads an installed skill', async () => {
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
+		(window.skills.downloadSkill as jest.Mock).mockResolvedValue({
+			id: 'greet',
+			destinationPath: '/downloads/greet',
+		});
+		const user = userEvent.setup();
+
+		render(<SkillsPage />);
+
+		await screen.findByText('Greet');
+		await user.click(screen.getByRole('button', { name: 'settings.skills.download' }));
+
+		await waitFor(() => {
+			expect(window.skills.downloadSkill).toHaveBeenCalledWith('greet');
+		});
+		expect(await screen.findByText('settings.skills.downloaded:Greet:/downloads/greet')).toBeInTheDocument();
 	});
 
 	it('calls delete and refreshes the list after confirming', async () => {
