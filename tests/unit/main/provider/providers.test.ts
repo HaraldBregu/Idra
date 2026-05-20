@@ -38,11 +38,21 @@ describe('provider model policy', () => {
 			'gemini-2.5-flash-lite',
 		]);
 		expect(getDefaultAgentModels('mistral').map((model) => model.id)).toEqual([
-			'mistral-large-3',
-			'mistral-medium-3.5',
-			'mistral-small-4',
-			'magistral-medium-1.2',
-			'devstral-2',
+			'mistral-large-2512',
+			'mistral-large-latest',
+			'mistral-medium-2604',
+			'mistral-medium-latest',
+			'mistral-medium-2508',
+			'mistral-small-2603',
+			'mistral-small-latest',
+			'ministral-14b-2512',
+			'ministral-14b-latest',
+			'ministral-8b-2512',
+			'ministral-8b-latest',
+			'ministral-3b-2512',
+			'ministral-3b-latest',
+			'magistral-medium-2509',
+			'magistral-medium-latest',
 		]);
 		expect(getDefaultAgentModels('xai').map((model) => model.id)).toEqual([
 			'grok-4.3',
@@ -238,8 +248,9 @@ describe('provider model policy', () => {
 	it('allows only static default model ids for catalog-backed non-OpenAI providers', () => {
 		expect(isAllowedAgentModel('google', 'gemini-3.1-pro-preview')).toBe(true);
 		expect(isAllowedAgentModel('google', 'gemini-1.5-pro')).toBe(false);
-		expect(isAllowedAgentModel('mistral', 'mistral-large-3')).toBe(true);
-		expect(isAllowedAgentModel('mistral', 'mistral-large-latest')).toBe(false);
+		expect(isAllowedAgentModel('mistral', 'mistral-large-2512')).toBe(true);
+		expect(isAllowedAgentModel('mistral', 'mistral-large-latest')).toBe(true);
+		expect(isAllowedAgentModel('mistral', 'mistral-large-3')).toBe(false);
 		expect(isAllowedAgentModel('deepseek', 'deepseek-v4-pro')).toBe(true);
 		expect(isAllowedAgentModel('deepseek', 'deepseek-chat')).toBe(false);
 	});
