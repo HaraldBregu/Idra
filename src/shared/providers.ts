@@ -707,9 +707,9 @@ export const DEFAULT_AGENT_MODELS_BY_PROVIDER: Readonly<Record<string, readonly 
 	qwen: [
 		{ id: 'qwen3-max', name: 'Qwen3-Max' },
 		{ id: 'qwen3.5-plus', name: 'Qwen3.5-Plus' },
-		{ id: 'qwen3.5-omni-plus', name: 'Qwen3.5-Omni-Plus' },
-		{ id: 'qwen3-coder', name: 'Qwen3-Coder' },
-		{ id: 'qwen3-vl', name: 'Qwen3-VL' },
+		{ id: 'qwen3.5-flash', name: 'Qwen3.5-Flash' },
+		{ id: 'qwen3-coder-plus', name: 'Qwen3-Coder-Plus' },
+		{ id: 'qwq-plus', name: 'QwQ-Plus' },
 	],
 	kimi: [
 		{ id: 'kimi-k2.6', name: 'Kimi K2.6' },
