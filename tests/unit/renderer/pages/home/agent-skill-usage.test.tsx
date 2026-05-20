@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import {
 	getAgentSkillUsages,
-	type AgentMessage,
 } from '../../../../../src/renderer/src/pages/home/context';
-import { AgentTextMessage } from '../../../../../src/renderer/src/pages/home/components/AgentTextMessage';
+import { AgentSkillUsage } from '../../../../../src/renderer/src/pages/home/components/AgentSkillUsage';
 
 describe('agent skill usage', () => {
 	it('extracts skill usage from execute_skill input and result payloads', () => {
@@ -38,24 +37,10 @@ describe('agent skill usage', () => {
 		]);
 	});
 
-	it('renders used skills below the assistant message', () => {
-		const message: AgentMessage = {
-			id: 'agent-1',
-			role: 'agent',
-			type: 'agent',
-			content: 'Done.',
-			state: 'completed',
-			tools: [
-				{
-					toolCallId: 'tool-1',
-					type: 'execute_skill',
-					state: 'output-available',
-					input: { skillId: 'release-notes-drafter' },
-				},
-			],
-		};
+	it('renders used skill chips', () => {
+		const skills = [{ id: 'release-notes-drafter', label: 'release-notes-drafter' }];
 
-		render(<AgentTextMessage message={message} />);
+		render(<AgentSkillUsage skills={skills} />);
 
 		expect(screen.getByLabelText('Skill used')).toBeInTheDocument();
 		expect(screen.getByText('release-notes-drafter')).toBeInTheDocument();

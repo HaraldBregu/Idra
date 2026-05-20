@@ -46,6 +46,7 @@ const SkillDetailsPage: React.FC = () => {
 	const [deleting, setDeleting] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
+	const loadErrorFallback = t('settings.skills.loadError');
 
 	const loadSkill = useCallback(async (): Promise<void> => {
 		setLoading(true);
@@ -54,12 +55,12 @@ const SkillDetailsPage: React.FC = () => {
 			const list = await window.skills.list();
 			setSkill(list.find((item) => item.id === decodedSkillId) ?? null);
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, t('settings.skills.loadError')));
+			setErrorMessage(getErrorMessage(error, loadErrorFallback));
 			setSkill(null);
 		} finally {
 			setLoading(false);
 		}
-	}, [decodedSkillId, t]);
+	}, [decodedSkillId, loadErrorFallback]);
 
 	useEffect(() => {
 		void loadSkill();
