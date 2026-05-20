@@ -132,8 +132,9 @@ const GeneralPage: React.FC = () => {
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
 	const [keepAwakeLoading, setKeepAwakeLoading] = useState(true);
-	const [microphonePermission, setMicrophonePermission] =
-		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
+	const [microphonePermission, setMicrophonePermission] = useState<MicrophonePermissionSettings>(
+		DEFAULT_MICROPHONE_PERMISSION
+	);
 	const [microphoneLoading, setMicrophoneLoading] = useState(true);
 	const [microphoneError, setMicrophoneError] = useState('');
 
@@ -143,7 +144,8 @@ const GeneralPage: React.FC = () => {
 
 	useEffect(() => {
 		let mounted = true;
-		void window.app.getKeepAwakeEnabled()
+		void window.app
+			.getKeepAwakeEnabled()
 			.then((enabled) => {
 				if (mounted) setKeepAwakeEnabled(enabled);
 			})
@@ -184,29 +186,35 @@ const GeneralPage: React.FC = () => {
 	const handleKeepAwakeToggle = useCallback((checked: boolean) => {
 		setKeepAwakeEnabled(checked);
 		setKeepAwakeLoading(true);
-		void window.app.setKeepAwakeEnabled(checked)
+		void window.app
+			.setKeepAwakeEnabled(checked)
 			.then(setKeepAwakeEnabled)
 			.catch(() => {
 				setKeepAwakeEnabled(!checked);
-				void window.app.getKeepAwakeEnabled()
+				void window.app
+					.getKeepAwakeEnabled()
 					.then(setKeepAwakeEnabled)
 					.catch(() => undefined);
 			})
 			.finally(() => setKeepAwakeLoading(false));
 	}, []);
 
-	const handleMicrophoneToggle = useCallback((checked: boolean) => {
-		setMicrophonePermission((current) => ({ ...current, enabled: checked }));
-		setMicrophoneError('');
-		void window.app.setMicrophoneEnabled(checked)
-			.then(setMicrophonePermission)
-			.catch((error: unknown) => {
-				setMicrophoneError(
-					error instanceof Error ? error.message : t('settings.microphone.errors.save')
-				);
-				void refreshMicrophonePermission();
-			});
-	}, [refreshMicrophonePermission, t]);
+	const handleMicrophoneToggle = useCallback(
+		(checked: boolean) => {
+			setMicrophonePermission((current) => ({ ...current, enabled: checked }));
+			setMicrophoneError('');
+			void window.app
+				.setMicrophoneEnabled(checked)
+				.then(setMicrophonePermission)
+				.catch((error: unknown) => {
+					setMicrophoneError(
+						error instanceof Error ? error.message : t('settings.microphone.errors.save')
+					);
+					void refreshMicrophonePermission();
+				});
+		},
+		[refreshMicrophonePermission, t]
+	);
 
 	const handleMicrophoneAction = useCallback(async (): Promise<void> => {
 		setMicrophoneLoading(true);
@@ -241,9 +249,12 @@ const GeneralPage: React.FC = () => {
 		void window.app.openUserDataFolder();
 	}, []);
 
-	const openAgent = useCallback((agentId: string) => {
-		navigate(`/settings/general/agentdetails/${encodeURIComponent(agentId)}`);
-	}, [navigate]);
+	const openAgent = useCallback(
+		(agentId: string) => {
+			navigate(`/settings/general/agentdetails/${encodeURIComponent(agentId)}`);
+		},
+		[navigate]
+	);
 
 	const handleAgentKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLElement>, agentId: string) => {
@@ -317,9 +328,7 @@ const GeneralPage: React.FC = () => {
 								}
 								onClick={agent.configurable ? () => openAgent(agent.id) : undefined}
 								onKeyDown={
-									agent.configurable
-										? (event) => handleAgentKeyDown(event, agent.id)
-										: undefined
+									agent.configurable ? (event) => handleAgentKeyDown(event, agent.id) : undefined
 								}
 							>
 								<ItemMedia variant="icon">
@@ -417,7 +426,12 @@ const GeneralPage: React.FC = () => {
 						const Icon = option.icon;
 						const value = translucency[option.value];
 						return (
-							<Item key={option.value} variant="outline" size="md" className="border-b border-border/60">
+							<Item
+								key={option.value}
+								variant="outline"
+								size="md"
+								className="border-b border-border/60"
+							>
 								<ItemMedia variant="icon">
 									<Icon className="size-3" strokeWidth={1.8} />
 								</ItemMedia>
@@ -528,7 +542,12 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.application.screenRecording')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording} className="h-6 px-2 text-[11px]">
+							<Button
+								variant="outline"
+								size="xs"
+								onClick={handleOpenScreenRecording}
+								className="h-6 px-2 text-[11px]"
+							>
 								{t('settings.application.openScreenRecording')}
 							</Button>
 						</ItemActions>
@@ -541,7 +560,11 @@ const GeneralPage: React.FC = () => {
 							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+							<Switch
+								checked={trayEnabled}
+								onCheckedChange={handleTrayToggle}
+								aria-label={t('settings.application.menuBar')}
+							/>
 						</ItemActions>
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
