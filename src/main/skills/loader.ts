@@ -237,9 +237,6 @@ async function validateSkillBundle(
 	}
 
 	const rootRealPath = await fs.realpath(sourcePath);
-	if (!isPathInside(rootRealPath, sourcePath)) {
-		throw new Error('Skill package source resolves outside its configured root.');
-	}
 
 	const skillPaths: string[] = [];
 	let fileCount = 0;
@@ -274,7 +271,7 @@ async function validateSkillBundle(
 			if (fileCount > MAX_SKILL_FILES) {
 				throw new Error(`Skill bundle exceeds ${MAX_SKILL_FILES} files.`);
 			}
-			if (stat.size > MAX_SKILL_FILE_BYTES) {
+			if (entry.name.toLowerCase() === SKILL_MARKDOWN_NAME && stat.size > maxSkillFileBytes) {
 				throw new Error(
 					`SKILL.md exceeds ${maxSkillFileBytes} bytes: ${path.relative(sourcePath, fullPath)}`
 				);
@@ -284,7 +281,7 @@ async function validateSkillBundle(
 					`Skill file exceeds ${MAX_SKILL_BUNDLE_FILE_BYTES} bytes: ${path.relative(sourcePath, fullPath)}`
 				);
 			}
-			if (entry.name.toLowerCase() === 'skill.md') {
+			if (entry.name.toLowerCase() === SKILL_MARKDOWN_NAME) {
 				skillPaths.push(fullPath);
 			}
 		}
