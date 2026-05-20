@@ -36,10 +36,13 @@ const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 3_000;
 const PCM_BYTES_PER_SAMPLE = 2;
 const MINIMUM_COMMIT_AUDIO_MS = 100;
+const STREAMING_COMMIT_AUDIO_MS = 900;
 const REALTIME_TRANSCRIPTION_SOCKET_MODEL = 'gpt-realtime';
 const REALTIME_TRANSCRIPTION_INTENT = 'transcription';
 export const MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES =
 	(REALTIME_TRANSCRIPTION_SAMPLE_RATE * PCM_BYTES_PER_SAMPLE * MINIMUM_COMMIT_AUDIO_MS) / 1_000;
+export const STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES =
+	(REALTIME_TRANSCRIPTION_SAMPLE_RATE * PCM_BYTES_PER_SAMPLE * STREAMING_COMMIT_AUDIO_MS) / 1_000;
 
 interface RealtimeTranscriptionRuntime {
 	id: string;
@@ -47,6 +50,8 @@ interface RealtimeTranscriptionRuntime {
 	socket: OpenAIRealtimeWebSocket;
 	webContents: WebContents;
 	audioByteLength: number;
+	pendingCommitCount: number;
+	pendingItemIds: Set<string>;
 	closeAfterFinal: boolean;
 	closeTimer: NodeJS.Timeout | null;
 }
@@ -90,6 +95,10 @@ export function decodedRealtimeTranscriptionAudioByteLength(audio: string): numb
 
 export function hasMinimumRealtimeTranscriptionAudio(audioByteLength: number): boolean {
 	return audioByteLength >= MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES;
+}
+
+export function hasStreamingRealtimeTranscriptionAudio(audioByteLength: number): boolean {
+	return audioByteLength >= STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES;
 }
 
 export function isInputAudioBufferTooSmallError(message: string): boolean {
@@ -204,6 +213,8 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 						socket,
 						webContents: event.sender,
 						audioByteLength: 0,
+						pendingCommitCount: 0,
+						pendingItemIds: new Set(),
 						closeAfterFinal: false,
 						closeTimer: null,
 					};
@@ -248,6 +259,9 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 					type: 'input_audio_buffer.append',
 					audio,
 				});
+				if (hasStreamingRealtimeTranscriptionAudio(runtime.audioByteLength)) {
+					this.commitAudioBuffer(runtime);
+				}
 			}
 		);
 
@@ -256,12 +270,18 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 			wrapIpcHandler((event: IpcMainInvokeEvent, sessionId: string): void => {
 				const runtime = this.requireSessionForSender(sessionId, event.sender);
 				if (!hasMinimumRealtimeTranscriptionAudio(runtime.audioByteLength)) {
-					this.closeSession(sessionId);
+					runtime.audioByteLength = 0;
+					runtime.closeAfterFinal = true;
+					if (this.hasPendingTranscription(runtime)) {
+						this.scheduleClose(runtime);
+					} else {
+						this.closeSession(sessionId);
+					}
 					return;
 				}
 
 				runtime.closeAfterFinal = true;
-				runtime.socket.send({ type: 'input_audio_buffer.commit' });
+				this.commitAudioBuffer(runtime);
 				this.scheduleClose(runtime);
 			}, RealtimeTranscriptionChannels.finish)
 		);
@@ -317,7 +337,19 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 			return;
 		}
 
+		if (event.type === 'input_audio_buffer.committed') {
+			runtime.pendingCommitCount = Math.max(0, runtime.pendingCommitCount - 1);
+			runtime.pendingItemIds.add(event.item_id);
+			this.sendToRenderer(runtime, {
+				type: 'committed',
+				sessionId: runtime.id,
+				itemId: event.item_id,
+			});
+			return;
+		}
+
 		if (event.type === 'conversation.item.input_audio_transcription.completed') {
+			runtime.pendingItemIds.delete(event.item_id);
 			this.sendToRenderer(runtime, {
 				type: 'completed',
 				sessionId: runtime.id,
@@ -325,17 +357,18 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 				contentIndex: event.content_index,
 				transcript: event.transcript,
 			});
-			if (runtime.closeAfterFinal) this.scheduleClose(runtime, 250);
+			this.closeFinishedSession(runtime);
 			return;
 		}
 
 		if (event.type === 'conversation.item.input_audio_transcription.failed') {
+			runtime.pendingItemIds.delete(event.item_id);
 			this.sendToRenderer(runtime, {
 				type: 'error',
 				sessionId: runtime.id,
 				message: event.error.message || 'Realtime transcription failed.',
 			});
-			if (runtime.closeAfterFinal) this.scheduleClose(runtime, 250);
+			this.closeFinishedSession(runtime);
 			return;
 		}
 
@@ -370,6 +403,22 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 	): void {
 		if (runtime.webContents.isDestroyed()) return;
 		runtime.webContents.send(RealtimeTranscriptionChannels.event, event);
+	}
+
+	private commitAudioBuffer(runtime: RealtimeTranscriptionRuntime): void {
+		if (!hasMinimumRealtimeTranscriptionAudio(runtime.audioByteLength)) return;
+		runtime.audioByteLength = 0;
+		runtime.pendingCommitCount += 1;
+		runtime.socket.send({ type: 'input_audio_buffer.commit' });
+	}
+
+	private hasPendingTranscription(runtime: RealtimeTranscriptionRuntime): boolean {
+		return runtime.pendingCommitCount > 0 || runtime.pendingItemIds.size > 0;
+	}
+
+	private closeFinishedSession(runtime: RealtimeTranscriptionRuntime): void {
+		if (!runtime.closeAfterFinal || this.hasPendingTranscription(runtime)) return;
+		this.scheduleClose(runtime, 250);
 	}
 
 	private scheduleClose(runtime: RealtimeTranscriptionRuntime, delayMs = FINISH_CLOSE_DELAY_MS): void {

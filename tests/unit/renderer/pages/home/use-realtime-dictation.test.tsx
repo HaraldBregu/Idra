@@ -206,6 +206,26 @@ describe('useRealtimeDictation', () => {
 
 		act(() => {
 			transcription.emit({
+				type: 'committed',
+				sessionId: 'session-1',
+				itemId: 'item-1',
+			});
+		});
+
+		act(() => {
+			transcription.emit({
+				type: 'delta',
+				sessionId: 'session-1',
+				itemId: 'item-1',
+				contentIndex: 0,
+				delta: 'hello',
+			});
+		});
+
+		expect(onValueChange).toHaveBeenLastCalledWith('Existing prompt hello');
+
+		act(() => {
+			transcription.emit({
 				type: 'completed',
 				sessionId: 'session-1',
 				itemId: 'item-1',

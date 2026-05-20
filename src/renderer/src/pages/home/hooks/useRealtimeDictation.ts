@@ -192,6 +192,11 @@ export function useRealtimeDictation({
 		return api.onEvent((event: RealtimeTranscriptionEvent) => {
 			if (event.sessionId && event.sessionId !== sessionIdRef.current) return;
 
+			if (event.type === 'committed') {
+				ensureItem(event.itemId);
+				return;
+			}
+
 			if (event.type === 'delta') {
 				ensureItem(event.itemId);
 				itemTextRef.current.set(

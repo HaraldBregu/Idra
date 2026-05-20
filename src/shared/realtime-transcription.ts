@@ -24,6 +24,11 @@ export type RealtimeTranscriptionEvent =
 			delta: string;
 	  }
 	| {
+			type: 'committed';
+			sessionId: string;
+			itemId: string;
+	  }
+	| {
 			type: 'completed';
 			sessionId: string;
 			itemId: string;

@@ -11,8 +11,10 @@ import {
 	createRealtimeTranscriptionSocket,
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
+	hasStreamingRealtimeTranscriptionAudio,
 	isInputAudioBufferTooSmallError,
 	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
+	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 	useRealtimeTranscriptionIntent,
 } from '../../../../src/main/ipc/realtime-transcription-ipc';
 import {
@@ -47,7 +49,7 @@ describe('realtime transcription IPC', () => {
 		expect(url.toString()).toBe('wss://api.openai.com/v1/realtime?intent=transcription');
 	});
 
-	it('builds a transcription session update for gpt-realtime-whisper without VAD', () => {
+	it('builds a transcription session update for gpt-realtime-whisper with manual chunking', () => {
 		expect(
 			createRealtimeTranscriptionSessionUpdate(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, {
 				language: 'en-US',
@@ -93,6 +95,12 @@ describe('realtime transcription IPC', () => {
 		expect(hasMinimumRealtimeTranscriptionAudio(MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES)).toBe(
 			true
 		);
+		expect(
+			hasStreamingRealtimeTranscriptionAudio(STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES - 1)
+		).toBe(false);
+		expect(
+			hasStreamingRealtimeTranscriptionAudio(STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES)
+		).toBe(true);
 	});
 
 	it('recognizes the realtime empty audio commit error as ignorable during finish', () => {
