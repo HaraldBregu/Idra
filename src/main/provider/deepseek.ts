@@ -1,11 +1,11 @@
-import { OpenAIChatAdapter } from './openai';
+import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openai';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 
 export class DeepSeekAdapter extends OpenAIChatAdapter {
-	constructor(opts: { apiKey: string; baseURL?: string }) {
+	constructor(opts: Omit<OpenAIChatAdapterOptions, 'reasoningEffortEnabled'>) {
 		super({
-			apiKey: opts.apiKey,
+			...opts,
 			baseURL: opts.baseURL ?? DEEPSEEK_BASE_URL,
 			reasoningEffortEnabled: true,
 		});
