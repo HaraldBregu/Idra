@@ -940,6 +940,7 @@ describe('AgentService', () => {
 			category: 'research',
 			tags: [],
 			requiredTools: [],
+			allowedTools: ['write'],
 			requiredConnectors: [],
 			permissionsRequired: [],
 			safetyLevel: 'low',
@@ -970,12 +971,28 @@ describe('AgentService', () => {
 						};
 					},
 				}),
-				toolsFactory: () => [readTool],
+				toolsFactory: () => [
+					readTool,
+					{
+						name: 'write',
+						description: 'Write files',
+						schema: {
+							type: 'object',
+							properties: { path: { type: 'string' }, content: { type: 'string' } },
+							required: ['path', 'content'],
+							additionalProperties: false,
+						},
+						execute: jest.fn(),
+					},
+				],
 			}
 		);
 
 		await expect(service.send('Use the research-brief skill')).resolves.toBe('done');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
+			expect.arrayContaining(['read', 'write'])
+		);
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
 		expect(skills.createExecutionTool).not.toHaveBeenCalled();
 		expect(requests[0]!.system).toContain('read its SKILL.md at the exact <location> with `read`');
 		expect(requests[0]!.system).toContain('<location>/workspace/skills/research-brief/SKILL.md</location>');
