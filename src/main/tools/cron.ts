@@ -77,7 +77,7 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 	ownerOnly: true,
 	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
 	description:
-		'Schedule cron jobs, reminders, and wake events through the Gateway-owned scheduler. Use this for reminders, delayed follow-ups, recurring reports, scheduled background chores, manual runs, run history, and wake events. Do not emulate scheduling with sleep loops, shell loops, long-running process polling, or model-side timers. For cron schedules, write expressions in the supplied timezone local wall-clock time; do not convert requested local time to UTC first. Use jobId as the canonical id. Prefer isolated agentTurn jobs unless the user asked for main-session systemEvent injection.',
+		'Manage scheduled jobs through the Gateway-owned scheduler. Use this only for future, delayed, recurring, reminder, wake, or manual-run scheduling. Do not use this to start immediate in-memory task execution; use the task tool for work that should begin now. Do not emulate scheduling with sleep loops, shell loops, long-running process polling, or model-side timers. For cron schedules, write expressions in the supplied timezone local wall-clock time; do not convert requested local time to UTC first. Use jobId as the canonical id. Prefer isolated agentTurn jobs unless the user asked for main-session systemEvent injection.',
 	schema: {
 		type: 'object',
 		properties: {

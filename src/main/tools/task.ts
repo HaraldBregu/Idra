@@ -74,9 +74,9 @@ function requireId(value: unknown): string | Error {
 
 export const taskTool: AgentTool<TaskToolArgs, TaskToolResponse> = {
 	name: 'task',
-	displaySummary: 'Start, list, retrieve, and cancel active in-memory tasks.',
+	displaySummary: 'Start and manage immediate in-memory tasks.',
 	description:
-		'Manage active in-memory task records. Use this for starting an approved task type, checking current task records, retrieving one task record, or requesting cooperative cancellation.',
+		'Start, list, get, or cancel immediate in-memory task runs. Use this only when work should begin now through a registered task handler. Do not use this for reminders, future scheduling, recurring jobs, cron expressions, wake events, or delayed follow-ups; use the cron tool for those.',
 	schema: {
 		type: 'object',
 		properties: {
