@@ -246,7 +246,7 @@
 		},
 		"chatHistory": {
 			"title": "Cronologia chat",
-			"description": "Controlla il contesto salvato della chat principale e cancella la conversazione corrente.",
+			"description": "Contesto salvato e pulizia.",
 			"messages": "Messaggi salvati",
 			"breakdown": "{{user}} utente / {{assistant}} assistente / {{tool}} strumenti",
 			"messageCountValue": "{{count}} messaggi",
