@@ -714,6 +714,52 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
+	it('execute_skill accepts versioned skill ids and top-level payload fields', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'support-replies');
+		await fs.mkdir(dir, { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: support-replies',
+				'description: Draft support replies when users ask for help with account issues.',
+				'metadata:',
+				'  version: "1.0.0"',
+				'---',
+				'Use this skill for support replies.',
+			].join('\n')
+		);
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		const service = new SkillsService(makeLogger() as never);
+		service.registerSkill(loaded.skill);
+		const tool = service.createExecutionTool({
+			userId: 'u1',
+			sessionId: 's1',
+			tools: [],
+			connectors: [],
+			signal: undefined,
+		});
+
+		const result = await tool.execute(
+			{
+				skillId: 'support-replies@1.0.0',
+				path: '/tmp/source.md',
+			},
+			makeToolContext()
+		);
+		const payload = JSON.parse(result.content[0]?.type === 'text' ? result.content[0].text : '{}');
+
+		expect(result.status).toBe('ok');
+		expect(payload.success).toBe(true);
+		expect(payload.usedSkills).toEqual(['support-replies@1.0.0']);
+		expect(payload.data).toMatchObject({
+			name: 'support-replies',
+			directory: dir,
+		});
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
 	it('rejects Agent Skill packages without exactly one root SKILL.md', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'broken-skill');
