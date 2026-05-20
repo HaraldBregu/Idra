@@ -86,13 +86,12 @@ describe('AgentDetailsPage', () => {
 
 		expect(screen.queryByText('settings.agents.identity')).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.chatHistory.description')).not.toBeInTheDocument();
-		expect(await screen.findByText('settings.agents.providerDescription')).toBeInTheDocument();
+		expect(providerCard).toHaveAttribute('aria-expanded', 'false');
+		expect(screen.queryByText('settings.agents.providerDescription')).not.toBeInTheDocument();
 
 		await user.click(providerCard);
 
-		expect(providerCard).toHaveAttribute('aria-expanded', 'false');
-		await waitFor(() => {
-			expect(screen.queryByText('settings.agents.providerDescription')).not.toBeInTheDocument();
-		});
+		expect(providerCard).toHaveAttribute('aria-expanded', 'true');
+		expect(await screen.findByText('settings.agents.providerDescription')).toBeInTheDocument();
 	});
 });
