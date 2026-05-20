@@ -14,6 +14,10 @@ export interface SkillDiscoveryOptions {
 	includeInternal?: boolean;
 }
 
+function disablesModelInvocation(metadata: Record<string, unknown>): boolean {
+	return metadata.disableModelInvocation === true;
+}
+
 export class SkillDiscovery {
 	constructor(
 		private readonly registry: SkillRegistry,
@@ -37,6 +41,11 @@ export class SkillDiscovery {
 		const skills = this.registry.listSkills();
 
 		for (const skill of skills) {
+			if (disablesModelInvocation(skill.metadata)) {
+				filtered.push({ skillId: skill.id, version: skill.version, reason: 'model_invocation_disabled' });
+				continue;
+			}
+
 			if (!options.includeInternal && skill.visibility === 'internal') {
 				filtered.push({ skillId: skill.id, version: skill.version, reason: 'internal' });
 				continue;
