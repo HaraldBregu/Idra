@@ -2,9 +2,10 @@ import type { ReactElement } from 'react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message } from '@/components/ui/message';
 import { cn } from '@/lib/utils';
-import type { AgentMessage } from '../context';
+import { getAgentSkillUsages, type AgentMessage } from '../context';
 import { AssistantMessageHeader } from './AssistantMessageHeader';
 import { AgentActivityPanel } from './AgentActivityPanel';
+import { AgentSkillUsage } from './AgentSkillUsage';
 import { markdownComponents } from './markdown';
 
 export function AgentTextMessage({
@@ -18,6 +19,8 @@ export function AgentTextMessage({
 	readonly showHeader?: boolean;
 	readonly className?: string;
 }): ReactElement {
+	const skillUsages = getAgentSkillUsages(message.tools);
+
 	return (
 		<Message className={cn('min-w-0 w-full flex-col', className)}>
 			{showHeader && (
@@ -32,6 +35,7 @@ export function AgentTextMessage({
 					{message.content}
 				</Markdown>
 			)}
+			<AgentSkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
 		</Message>
 	);
 }
