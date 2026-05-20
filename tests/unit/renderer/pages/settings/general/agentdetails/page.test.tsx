@@ -4,9 +4,11 @@ import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import AgentDetailsPage from '../../../../../../../src/renderer/src/pages/settings/pages/general/agentdetails/Page';
 
+const mockT = (key: string): string => key;
+
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
-		t: (key: string) => key,
+		t: mockT,
 	}),
 }));
 
