@@ -597,7 +597,7 @@ describe('skill system', () => {
 		expect(result.imported[0]?.structure).toMatchObject({
 			format: 'agent-skill',
 			standard: 'agentskills.io',
-			kind: 'container-child',
+			kind: 'direct',
 		});
 		await expect(fs.stat(path.join(root, 'skills', 'first-skill', 'SKILL.md'))).resolves.toBeDefined();
 		await expect(fs.stat(path.join(root, 'skills', 'second-skill', 'SKILL.md'))).resolves.toBeDefined();
