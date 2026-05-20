@@ -59,6 +59,9 @@ describe('tools/policy and registry', () => {
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
+		expect(
+			createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)
+		).toEqual(expect.arrayContaining(['cron', 'task']));
 	});
 });
 
