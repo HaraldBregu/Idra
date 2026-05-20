@@ -381,6 +381,7 @@ export interface SkillPromptChoice {
 	category: SkillCategory;
 	tags: string[];
 	requiredTools: string[];
+	allowedTools?: string[];
 	requiredConnectors: string[];
 	permissionsRequired: string[];
 	safetyLevel: SkillSafetyLevel;
