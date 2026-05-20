@@ -639,12 +639,14 @@ describe('skill system', () => {
 			{ trusted: true }
 		);
 
-		expect(discovery.skipped).toEqual([]);
-		expect(discovery.packages.map((item) => item.manifest.id).sort()).toEqual([
-			'data-quality-check',
-			'release-notes-drafter',
-			'research-brief',
-		]);
+			expect(discovery.skipped).toEqual([]);
+			expect(discovery.packages.map((item) => item.manifest.id).sort()).toEqual([
+				'claude-code-executor',
+				'codex-project-executor',
+				'data-quality-check',
+				'release-notes-drafter',
+				'research-brief',
+			]);
 		expect(discovery.packages.every((item) => item.structure.standard === 'agentskills.io')).toBe(true);
 		expect(discovery.packages.every((item) => item.diagnostics.length === 0)).toBe(true);
 	});
