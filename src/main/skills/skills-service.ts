@@ -249,9 +249,9 @@ export class SkillsService {
 			throw new Error('Select a skill folder.');
 		}
 
-		await this.loader.loadPackage(source, { trusted: true });
+		const loaded = await this.loader.loadPackage(source, { trusted: true });
 
-		const id = toSkillId(path.basename(source));
+		const id = toSkillId(loaded.manifest.id ?? loaded.manifest.name ?? path.basename(source));
 		const target = this.resolveSkillDir(id);
 
 		if (source === target) {
@@ -263,6 +263,7 @@ export class SkillsService {
 				recursive: true,
 				errorOnExist: true,
 				force: false,
+				filter: (sourcePath) => shouldCopySkillPath(source, sourcePath),
 			});
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code === 'ERR_FS_CP_EEXIST') {
@@ -284,7 +285,11 @@ export class SkillsService {
 
 	async delete(id: string): Promise<void> {
 		const folderPath = this.resolveSkillDir(id);
+		const skill = await this.readSkillInfo(folderPath, id);
 		await fs.promises.rm(folderPath, { recursive: true, force: true });
+		if (skill?.manifest.id && skill.manifest.id !== id) {
+			this.registry.unregisterSkill(skill.manifest.id);
+		}
 		this.registry.unregisterSkill(id);
 		this.logger.info('SkillsService', `Deleted skill folder: ${id}`);
 	}
