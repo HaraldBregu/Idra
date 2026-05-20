@@ -369,6 +369,9 @@ export const skills: SkillsApi = {
 	importSkill: () => {
 		return typedInvokeUnwrap(SkillsChannels.import);
 	},
+	downloadSkill: (id: string) => {
+		return typedInvokeUnwrap(SkillsChannels.download, id);
+	},
 	delete: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(SkillsChannels.delete, id);
 	},
