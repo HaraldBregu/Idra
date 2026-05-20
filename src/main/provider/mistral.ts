@@ -1,4 +1,3 @@
-import { Mistral } from '@mistralai/mistralai';
 import type {
 	AgentContentBlock,
 	ProviderAdapter,
@@ -212,18 +211,35 @@ function normalizeAbortError(err: unknown): never {
 	throw abortError;
 }
 
+function createMistralClient(opts: { apiKey: string; serverURL?: string }): MistralClient {
+	let clientPromise: Promise<MistralClient> | undefined;
+	const loadClient = async (): Promise<MistralClient> => {
+		clientPromise ??= import('@mistralai/mistralai').then(
+			({ Mistral }) =>
+				new Mistral({
+					apiKey: opts.apiKey,
+					serverURL: opts.serverURL,
+				}) as MistralClient
+		);
+		return clientPromise;
+	};
+
+	return {
+		chat: {
+			stream: async (request, options) => {
+				const client = await loadClient();
+				return client.chat.stream(request, options);
+			},
+		},
+	};
+}
+
 export class MistralAdapter implements ProviderAdapter {
 	private readonly client: MistralClient;
 
 	constructor(opts: MistralAdapterOptions) {
 		if (!opts.apiKey) throw new ProviderAuthError('Mistral api key not configured');
-		const factory =
-			opts.clientFactory ??
-			((clientOptions) =>
-				new Mistral({
-					apiKey: clientOptions.apiKey,
-					serverURL: clientOptions.serverURL,
-				}) as MistralClient);
+		const factory = opts.clientFactory ?? createMistralClient;
 		this.client = factory({
 			apiKey: opts.apiKey,
 			serverURL: normalizeMistralServerURL(opts.baseURL),
