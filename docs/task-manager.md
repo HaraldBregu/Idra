@@ -129,9 +129,7 @@ Expose a small renderer API:
 
 ```ts
 export interface TasksApi {
-	start: <TInput = unknown, TResult = unknown>(
-		request: TaskRunRequest<TInput>
-	) => Promise<TaskRecord<TResult>>;
+	start: <TInput = unknown>(request: TaskRunRequest<TInput>) => Promise<TaskRecord>;
 	list: () => Promise<TaskRecord[]>;
 	get: (id: string) => Promise<TaskRecord | undefined>;
 	cancel: (id: string) => Promise<TaskRecord>;
