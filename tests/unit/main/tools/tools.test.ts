@@ -24,7 +24,6 @@ import {
 	cronTool,
 } from '../../../../src/main/tools/cron';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
-import { taskTool } from '../../../../src/main/tools/task';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
@@ -58,12 +57,15 @@ describe('tools/policy and registry', () => {
 		).toEqual(['write']);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
-		).toBe(false);
-		expect(
-			createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)
-		).toEqual(expect.arrayContaining(['cron', 'task']));
+			).toBe(false);
+			expect(
+				createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)
+			).toEqual(expect.arrayContaining(['cron']));
+			expect(
+				createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
+			).toBe(false);
+		});
 	});
-});
 
 describe('tools/before-call', () => {
 	it('auto-allows legacy approval-marked tools and warns on repeated identical calls', async () => {
@@ -450,50 +452,6 @@ describe('tools/app, cron, and startup', () => {
 			}
 		);
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
-	});
-
-	it('manages active task records through the task tool', async () => {
-		const created = {
-			id: 'task-1',
-			type: 'agent',
-			title: 'Run agent',
-			status: 'queued' as const,
-			createdAt: '2026-05-20T20:00:00.000Z',
-			metadata: {},
-		};
-		const cancelled = { ...created, status: 'cancelled' as const };
-		const taskManager = {
-			startUserTask: jest.fn(() => created),
-			list: jest.fn(() => [created]),
-			get: jest.fn(() => created),
-			cancel: jest.fn(() => cancelled),
-		};
-		const ctx = makeToolContext({
-			services: { ...makeToolContext().services, taskManager: taskManager as never },
-		});
-
-		const request = {
-			type: 'agent',
-			title: 'Run agent',
-			input: { message: 'hello' },
-			metadata: { source: 'tool' },
-		};
-
-		expect((await taskTool.execute({ action: 'start', request }, ctx)).status).toBe('ok');
-		expect(taskManager.startUserTask).toHaveBeenCalledWith(request);
-		expect((await taskTool.execute({ action: 'list' }, ctx)).content[0]?.text).toContain(
-			'"tasks"'
-		);
-		expect((await taskTool.execute({ action: 'get', id: 'task-1' }, ctx)).content[0]?.text).toContain(
-			'"task-1"'
-		);
-		expect((await taskTool.execute({ action: 'cancel', id: 'task-1' }, ctx)).details).toMatchObject(
-			{
-				status: 'ok',
-				action: 'cancel',
-				task: { status: 'cancelled' },
-			}
-		);
 	});
 
 	it('manages allowlisted agent startup files through the startup tool', async () => {

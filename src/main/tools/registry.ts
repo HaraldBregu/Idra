@@ -13,7 +13,6 @@ import {
 } from './fs';
 import { filterTools, type PolicyConfig } from './policy';
 import { startupFilesTool } from './startup';
-import { taskTool } from './task';
 import { webFetchTool } from './web';
 import { openBrowserTool } from './app';
 import { browserTool } from '../browser';
@@ -35,7 +34,6 @@ export const ALL_TOOLS: AgentTool<any, any>[] = [
 	startupFilesTool,
 	webFetchTool,
 	cronTool,
-	taskTool,
 	openBrowserTool,
 	browserTool,
 ];
