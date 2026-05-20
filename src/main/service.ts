@@ -4,6 +4,7 @@ import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
+import type { TaskManager } from './tasks';
 import type { ConnectorsService } from './connectors';
 import { resolveBootstrapMode, type WorkspaceService } from './workspace';
 import {
@@ -80,6 +81,7 @@ export interface AgentServiceDependencies {
 	connectors?: ConnectorsService;
 	mcpRegistry?: McpRegistry;
 	skills?: SkillsService;
+	taskManager?: TaskManager;
 }
 
 export interface AgentToolsFactoryContext {
