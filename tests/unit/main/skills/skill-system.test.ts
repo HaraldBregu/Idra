@@ -407,6 +407,33 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
+	it('normalizes common Agent Skill tool names to Friday tool names', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'standard-tool-skill');
+		await fs.mkdir(dir);
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: standard-tool-skill',
+				'description: Uses standard Agent Skill tool names when saving generated output.',
+				'allowed-tools: Read Write Grep WebFetch Bash(node:*)',
+				'---',
+				'Use the available tools when useful.',
+			].join('\n')
+		);
+
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		expect(loaded.skill.contract.allowedTools).toEqual([
+			'read',
+			'write',
+			'find',
+			'web_fetch',
+			'exec',
+		]);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
 	it('keeps disable-model-invocation Agent Skills out of discovery', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'hidden-skill');
