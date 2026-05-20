@@ -1,11 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import {
-	CircleOff,
-	FolderOpen,
-	Trash2,
-} from 'lucide-react';
+import { CircleOff, FolderOpen, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
@@ -233,9 +229,7 @@ const ChatHistoryPage: React.FC = () => {
 								size="xs"
 								onClick={() => void handleDeleteChatHistory()}
 								disabled={
-									chatHistoryLoading ||
-									chatHistoryDeleting ||
-									chatHistory.messageCount === 0
+									chatHistoryLoading || chatHistoryDeleting || chatHistory.messageCount === 0
 								}
 							>
 								<Trash2 className="size-3" />

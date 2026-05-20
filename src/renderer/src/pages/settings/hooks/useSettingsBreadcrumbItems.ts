@@ -46,9 +46,9 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname === '/settings') return [];
 
-	const current = SETTINGS_NAVIGATION.find((item) => (
-		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
-	));
+	const current = SETTINGS_NAVIGATION.find(
+		(item) => location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
+	);
 	if (!current) return [];
 
 	const items: SettingsBreadcrumbItem[] = [{ label: t(current.labelKey) }];
@@ -77,18 +77,21 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		const agentId = decodeURIComponent(parts[agentDetailsIndex + 1] ?? '');
 		const isChatHistoryPage = parts[agentDetailsIndex + 2] === 'chathistory';
 		items[0] = { ...items[0], path: current.path };
-		const label = agentId === 'main'
-			? t('settings.agents.fridayName')
-			: agentId === SPEECH_TRANSCRIBER_AGENT_ID
-				? t('settings.agents.speechTranscriberName')
-				: agentId === TEXT_TO_SPEECH_AGENT_ID
-					? t('settings.agents.textToSpeechName')
-					: agentId === IMAGE_ASSISTANT_AGENT_ID
-						? t('settings.agents.imageAssistantName')
-						: agentId;
+		const label =
+			agentId === 'main'
+				? t('settings.agents.fridayName')
+				: agentId === SPEECH_TRANSCRIBER_AGENT_ID
+					? t('settings.agents.speechTranscriberName')
+					: agentId === TEXT_TO_SPEECH_AGENT_ID
+						? t('settings.agents.textToSpeechName')
+						: agentId === IMAGE_ASSISTANT_AGENT_ID
+							? t('settings.agents.imageAssistantName')
+							: agentId;
 		items.push({
 			label,
-			path: isChatHistoryPage ? `/settings/general/agentdetails/${encodeURIComponent(agentId)}` : undefined,
+			path: isChatHistoryPage
+				? `/settings/general/agentdetails/${encodeURIComponent(agentId)}`
+				: undefined,
 		});
 		if (isChatHistoryPage) {
 			items.push({ label: t('settings.agents.history') });

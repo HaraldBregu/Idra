@@ -13,9 +13,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@/components/ui/select', () => {
-	const Passthrough = ({ children }: { readonly children?: ReactNode }) => (
-		<div>{children}</div>
-	);
+	const Passthrough = ({ children }: { readonly children?: ReactNode }) => <div>{children}</div>;
 
 	return {
 		Select: Passthrough,

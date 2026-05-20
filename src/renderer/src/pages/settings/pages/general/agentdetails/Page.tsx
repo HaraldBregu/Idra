@@ -33,10 +33,7 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../../components';
-import {
-	DEFAULT_PROVIDERS,
-	type PublicProvider,
-} from '../../../../../../../shared/providers';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../../../../shared/providers';
 import {
 	DEFAULT_MODEL_REASONING_EFFORT,
 	IMAGE_ASSISTANT_AGENT_ID,
@@ -143,11 +140,11 @@ const AgentDetailsPage: React.FC = () => {
 					? mergedProviders.filter((provider) => isOpenAiProvider(provider.id))
 					: mergedProviders;
 				const preferredProvider = isSpeechTranscriberAgent
-					? availableProviders.find((provider) => provider.id === nextService?.provider.id) ??
+					? (availableProviders.find((provider) => provider.id === nextService?.provider.id) ??
 						availableProviders.find((provider) => provider.id === SPEECH_TRANSCRIBER_PROVIDER_ID) ??
-						availableProviders[0]
-					: availableProviders.find((provider) => provider.id === nextService?.provider.id) ??
-						availableProviders[0];
+						availableProviders[0])
+					: (availableProviders.find((provider) => provider.id === nextService?.provider.id) ??
+						availableProviders[0]);
 
 				setProviders(availableProviders);
 				setCurrentAgent(isFridayAgent ? nextService : undefined);
@@ -157,9 +154,11 @@ const AgentDetailsPage: React.FC = () => {
 					nextService && preferredProvider?.id === nextService.provider.id
 						? isSpeechTranscriberAgent &&
 							!SPEECH_TRANSCRIBER_MODELS.some((model) => model.id === nextService.model.id)
-							? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? ''
+							? (SPEECH_TRANSCRIBER_MODELS[0]?.id ?? '')
 							: nextService.model.id
-						: isSpeechTranscriberAgent ? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? '' : ''
+						: isSpeechTranscriberAgent
+							? (SPEECH_TRANSCRIBER_MODELS[0]?.id ?? '')
+							: ''
 				);
 				setEffort(
 					nextService && preferredProvider?.id === nextService.provider.id && isFridayAgent
@@ -202,16 +201,16 @@ const AgentDetailsPage: React.FC = () => {
 		if (isSpeechTranscriberAgent) {
 			const speechModels = Array.from(SPEECH_TRANSCRIBER_MODELS);
 			setModels(speechModels);
-				setModelId((current) => {
-					if (current && speechModels.some((model) => model.id === current)) return current;
-					if (
-						currentSpeechTranscriber?.provider.id === selectedProvider.id &&
-						speechModels.some((model) => model.id === currentSpeechTranscriber.model.id)
-					) {
-						return currentSpeechTranscriber.model.id;
-					}
-					return speechModels[0]?.id ?? '';
-				});
+			setModelId((current) => {
+				if (current && speechModels.some((model) => model.id === current)) return current;
+				if (
+					currentSpeechTranscriber?.provider.id === selectedProvider.id &&
+					speechModels.some((model) => model.id === currentSpeechTranscriber.model.id)
+				) {
+					return currentSpeechTranscriber.model.id;
+				}
+				return speechModels[0]?.id ?? '';
+			});
 			setLoadingModels(false);
 			setErrorMessage('');
 			return () => {
@@ -265,13 +264,14 @@ const AgentDetailsPage: React.FC = () => {
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
 	const showEffort = isFridayAgent && isOpenAiProvider(providerId);
 	const effortOptions = useMemo(
-		() => showEffort ? getModelReasoningEfforts(modelId) : [],
+		() => (showEffort ? getModelReasoningEfforts(modelId) : []),
 		[modelId, showEffort]
 	);
 	const selectedEffort = showEffort ? effort : undefined;
-	const currentEffort = currentAgent && isOpenAiProvider(currentAgent.provider.id)
-		? storedEffortForComparison(currentAgent.model)
-		: undefined;
+	const currentEffort =
+		currentAgent && isOpenAiProvider(currentAgent.provider.id)
+			? storedEffortForComparison(currentAgent.model)
+			: undefined;
 	const hasChanges = isSpeechTranscriberAgent
 		? !currentSpeechTranscriber ||
 			currentSpeechTranscriber.provider.id !== providerId ||
@@ -280,7 +280,9 @@ const AgentDetailsPage: React.FC = () => {
 			currentAgent.provider.id !== providerId ||
 			currentAgent.model.id !== modelId ||
 			currentEffort !== selectedEffort;
-	const canSave = Boolean(selectedProvider && selectedModel && hasChanges && !loadingModels && !saving);
+	const canSave = Boolean(
+		selectedProvider && selectedModel && hasChanges && !loadingModels && !saving
+	);
 
 	const handleProviderChange = useCallback((nextValue: string | null): void => {
 		setProviderId(nextValue ?? '');
@@ -296,10 +298,13 @@ const AgentDetailsPage: React.FC = () => {
 		setSuccessMessage('');
 	}, []);
 
-	const handleEffortChange = useCallback((nextValue: string | null): void => {
-		setEffort(effortForModel(modelId, nextValue));
-		setSuccessMessage('');
-	}, [modelId]);
+	const handleEffortChange = useCallback(
+		(nextValue: string | null): void => {
+			setEffort(effortForModel(modelId, nextValue));
+			setSuccessMessage('');
+		},
+		[modelId]
+	);
 
 	useEffect(() => {
 		if (!showEffort) return;
@@ -401,13 +406,12 @@ const AgentDetailsPage: React.FC = () => {
 		(provider) => provider.id === TEXT_TO_SPEECH_PROVIDER_ID
 	);
 	const readOnlyProviderName = isTextToSpeechAgent
-		? textToSpeechProvider?.name ?? 'ElevenLabs'
+		? (textToSpeechProvider?.name ?? 'ElevenLabs')
 		: 'Image provider';
 	const readOnlyProviderValue = isTextToSpeechAgent
 		? TEXT_TO_SPEECH_PROVIDER_ID
 		: 'image-provider-coming-soon';
-	const readOnlyModel =
-		isTextToSpeechAgent ? TEXT_TO_SPEECH_MODELS[0] : IMAGE_ASSISTANT_MODELS[0];
+	const readOnlyModel = isTextToSpeechAgent ? TEXT_TO_SPEECH_MODELS[0] : IMAGE_ASSISTANT_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
 	const readOnlyModelName = readOnlyModel?.name ?? t('settings.agents.modelUnavailable');
 	const providerCardSummary = selectedProvider
@@ -461,11 +465,7 @@ const AgentDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			{successMessage && (
-				<SettingsNotice icon={CheckCircle2}>
-					{successMessage}
-				</SettingsNotice>
-			)}
+			{successMessage && <SettingsNotice icon={CheckCircle2}>{successMessage}</SettingsNotice>}
 
 			{isFridayAgent && (
 				<SettingsSection title={t('settings.agents.history')}>
@@ -475,12 +475,15 @@ const AgentDetailsPage: React.FC = () => {
 							className="block w-full p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
 							onClick={openChatHistory}
 						>
-							<Item size="md" className="border-b border-border/60 hover:bg-muted/30 last:border-b-0">
+							<Item
+								size="md"
+								className="border-b border-border/60 hover:bg-muted/30 last:border-b-0"
+							>
 								<ItemContent className="min-w-0 flex-1">
 									<ItemTitle>{t('settings.chatHistory.title')}</ItemTitle>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
+									<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
 								</ItemActions>
 							</Item>
 						</button>
@@ -509,18 +512,12 @@ const AgentDetailsPage: React.FC = () => {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value={readOnlyProviderValue}>
-											{readOnlyProviderName}
-										</SelectItem>
+										<SelectItem value={readOnlyProviderValue}>{readOnlyProviderName}</SelectItem>
 									</SelectContent>
 								</Select>
 							</SettingsField>
 
-							<SettingsField
-								id="agent-model"
-								label={modelLabel}
-								description={modelDescription}
-							>
+							<SettingsField id="agent-model" label={modelLabel} description={modelDescription}>
 								<Select value={readOnlyModelId} disabled>
 									<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
 										<SelectValue />
@@ -557,12 +554,12 @@ const AgentDetailsPage: React.FC = () => {
 									</p>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronDown
-									className={`size-3 text-muted-foreground transition-transform ${
-										providerCardOpen ? 'rotate-180' : ''
-									}`}
-									strokeWidth={1.8}
-								/>
+									<ChevronDown
+										className={`size-3 text-muted-foreground transition-transform ${
+											providerCardOpen ? 'rotate-180' : ''
+										}`}
+										strokeWidth={1.8}
+									/>
 								</ItemActions>
 							</Item>
 						</button>
@@ -598,11 +595,7 @@ const AgentDetailsPage: React.FC = () => {
 									</Select>
 								</SettingsField>
 
-								<SettingsField
-									id="agent-model"
-									label={modelLabel}
-									description={modelDescription}
-								>
+								<SettingsField id="agent-model" label={modelLabel} description={modelDescription}>
 									<Select
 										value={modelId}
 										onValueChange={handleModelChange}
