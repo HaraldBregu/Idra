@@ -1,3 +1,5 @@
+import os from 'node:os';
+import path from 'node:path';
 import type { AgentTool } from '../tools/types';
 import type { MemoryManager } from '../memory';
 import type { SkillPromptChoice } from '../skills/types';
@@ -37,6 +39,47 @@ const TOOL_GUIDANCE: Record<string, string> = {
 		'Control a managed Chromium browser. Use "open" for a new tab, "snapshot" before "act" (refs come from the snapshot), "navigate" to load a URL in the current tab, "screenshot" to see the page. Preserve targetId across calls.',
 };
 
+function escapeXml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;');
+}
+
+function compactHomePath(filePath: string): string {
+	if (filePath.startsWith('~/')) return filePath;
+	const home = path.resolve(os.homedir());
+	const resolved = path.resolve(filePath);
+	const homePrefix = home.endsWith(path.sep) ? home : `${home}${path.sep}`;
+	if (!resolved.startsWith(homePrefix)) return filePath;
+	return `~/${resolved.slice(homePrefix.length).split(path.sep).join('/')}`;
+}
+
+function formatSkillsForPrompt(skills: SkillPromptChoice[]): string {
+	const lines = [
+		'## Skill guidance',
+		'The following skills provide specialized instructions for specific tasks.',
+		'Use `execute_skill` to load a skill when the task matches its description.',
+		'When a skill references a relative path, resolve it against the skill directory shown by its location.',
+		'',
+		'<available_skills>',
+	];
+	for (const skill of skills) {
+		lines.push('  <skill>');
+		lines.push(`    <id>${escapeXml(`${skill.id}@${skill.version}`)}</id>`);
+		lines.push(`    <name>${escapeXml(skill.name)}</name>`);
+		lines.push(`    <description>${escapeXml(skill.description)}</description>`);
+		if (skill.path) {
+			lines.push(`    <location>${escapeXml(compactHomePath(skill.path))}</location>`);
+		}
+		lines.push('  </skill>');
+	}
+	lines.push('</available_skills>');
+	return lines.join('\n');
+}
+
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 	const parts: string[] = [
 		`You are Friday, a personal AI agent. Today is ${ctx.date}. Your workspace is \`${ctx.workspace}\`.`,
@@ -69,21 +112,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 	}
 
 	if (ctx.skills?.length) {
-		const skills = [
-			'## Skill guidance',
-			'Use `execute_skill` for reusable high-level workflows and local Agent Skill instructions. Only these compact, pre-ranked candidates are relevant for this request:',
-			...ctx.skills.map((skill) => {
-				const toolText = skill.requiredTools.length
-					? ` tools=${skill.requiredTools.join(',')}`
-					: '';
-				const connectorText = skill.requiredConnectors.length
-					? ` connectors=${skill.requiredConnectors.join(',')}`
-					: '';
-				const pathText = skill.path ? ` path=${skill.path}` : '';
-				return `- ${skill.id}@${skill.version} (${skill.category}, score=${skill.score.toFixed(2)}, safety=${skill.safetyLevel}) — ${skill.description}${toolText}${connectorText}${pathText}`;
-			}),
-		];
-		parts.push(skills.join('\n'));
+		parts.push(formatSkillsForPrompt(ctx.skills));
 	}
 
 	if (ctx.heartbeat?.includeSection) {
