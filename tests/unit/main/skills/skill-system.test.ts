@@ -557,6 +557,54 @@ describe('skill system', () => {
 		await fs.rm(destinationRoot, { recursive: true, force: true });
 	});
 
+	it('imports standard Agent Skills from a container folder', async () => {
+		const root = await makeTempDir();
+		const source = await makeTempDir();
+		const first = path.join(source, 'agent-skills', 'first-skill');
+		const second = path.join(source, 'agent-skills', 'second-skill');
+		await fs.mkdir(path.join(first, 'references'), { recursive: true });
+		await fs.mkdir(second, { recursive: true });
+		await fs.writeFile(
+			path.join(first, 'SKILL.md'),
+			[
+				'---',
+				'name: first-skill',
+				'description: Handles first standard skill workflows when users mention alpha imports.',
+				'metadata:',
+				'  version: "1.0"',
+				'---',
+				'Use references/alpha.md when alpha import details are needed.',
+			].join('\n')
+		);
+		await fs.writeFile(path.join(first, 'references', 'alpha.md'), 'Alpha details.');
+		await fs.writeFile(
+			path.join(second, 'SKILL.md'),
+			[
+				'---',
+				'name: second-skill',
+				'description: Handles second standard skill workflows when users mention beta imports.',
+				'---',
+				'Use this for beta import details.',
+			].join('\n')
+		);
+		const service = new SkillsService(makeLogger() as never, {
+			userDataDirectory: userDataDirectory(root) as never,
+		});
+
+		const result = await service.importFromPath(source);
+
+		expect(result.imported.map((skill) => skill.id).sort()).toEqual(['first-skill', 'second-skill']);
+		expect(result.imported[0]?.structure).toMatchObject({
+			format: 'agent-skill',
+			standard: 'agentskills.io',
+			kind: 'container-child',
+		});
+		await expect(fs.stat(path.join(root, 'skills', 'first-skill', 'SKILL.md'))).resolves.toBeDefined();
+		await expect(fs.stat(path.join(root, 'skills', 'second-skill', 'SKILL.md'))).resolves.toBeDefined();
+		await fs.rm(root, { recursive: true, force: true });
+		await fs.rm(source, { recursive: true, force: true });
+	});
+
 	it('activates trusted Agent Skill packages as structured instructions', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'support-replies');
