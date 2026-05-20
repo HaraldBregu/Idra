@@ -12,7 +12,7 @@ The agent first evaluates the user message with a tool-use policy.
   answer from the current registry.
 - URLs, current information, private account data, workspace files, codebase
   work, shell execution, tests, builds, debugging, mutation, browser actions,
-  email, calendar, Drive, cron, task-manager actions, and similar external or
+  email, calendar, Drive, cron, task actions, and similar external or
   mutable tasks require tools.
 - Creative writing, rewriting, translation, summarization, and brainstorming
   are answered without tools unless the request also needs external access.
@@ -65,7 +65,7 @@ These tools are added only when the corresponding runtime condition applies.
 | `startup_files` | Added only for pending primary bootstrap runs. During bootstrap, it is the only local tool exposed. |
 | `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
 | `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
-| `task` | Added when task-manager tooling is enabled. Starts, lists, retrieves, and cancels in-memory task records backed by the task manager. |
+| `task` | Added when task tooling is enabled. Starts, lists, retrieves, and cancels in-memory task records. |
 | Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
 | Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
 | MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
@@ -77,9 +77,10 @@ These tools are added only when the corresponding runtime condition applies.
 
 ## Task Tool
 
-The `task` tool is the agent-facing surface for the task manager described in
-[task-manager.md](task-manager.md). It should use the same main-process task
-manager and IPC contract as `window.tasks`.
+The `task` tool is a simple local tool for active in-memory tasks, similar to
+how `cron` is the local tool for scheduled work. It exposes a small action set
+for starting a task, checking current task records, retrieving one record, or
+requesting cancellation.
 
 Supported actions:
 
