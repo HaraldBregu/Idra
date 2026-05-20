@@ -137,6 +137,9 @@ export const agent: AgentApi = {
 	getHistory: (): Promise<AgentHistoryMessage[]> => {
 		return typedInvokeUnwrap(AgentChannels.getHistory);
 	},
+	openHistoryFolder: (): Promise<void> => {
+		return typedInvokeUnwrap(AgentChannels.openHistoryFolder);
+	},
 	resolveApproval: (id: string, decision: ApprovalDecision | boolean): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.resolveApproval, id, decision);
 	},

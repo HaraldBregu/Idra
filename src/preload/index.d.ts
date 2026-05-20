@@ -14,6 +14,7 @@ export interface AgentApi {
 	reset: () => Promise<void>;
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AgentHistoryMessage[]>;
+	openHistoryFolder: () => Promise<void>;
 	resolveApproval: (id: string, decision: ApprovalDecision | boolean) => Promise<boolean>;
 	resolveInput: (id: string, answer: string) => Promise<boolean>;
 	getPending: () => Promise<AgentPendingState>;

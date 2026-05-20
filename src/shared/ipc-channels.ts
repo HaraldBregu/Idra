@@ -13,6 +13,7 @@ export const AgentChannels = {
 	send: 'agent:send',
 	reset: 'agent:reset',
 	getHistory: 'agent:get-history',
+	openHistoryFolder: 'agent:open-history-folder',
 	response: 'agent:response',
 	resolveApproval: 'agent:resolve-approval',
 	resolveInput: 'agent:resolve-input',
@@ -245,6 +246,10 @@ interface AgentInvokeChannelMap {
 	[AgentChannels.getHistory]: {
 		args: [];
 		result: import('./service').AgentHistoryMessage[];
+	};
+	[AgentChannels.openHistoryFolder]: {
+		args: [];
+		result: void;
 	};
 	[AgentChannels.resolveApproval]: {
 		args: [id: string, decision: import('./service').ApprovalDecision | boolean];

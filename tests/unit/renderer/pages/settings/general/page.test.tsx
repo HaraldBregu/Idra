@@ -93,6 +93,7 @@ describe('GeneralPage', () => {
 			reset: jest.fn(async () => undefined),
 			cancel: jest.fn(async () => undefined),
 			getHistory: jest.fn(async () => []),
+			openHistoryFolder: jest.fn(async () => undefined),
 			resolveApproval: jest.fn(async () => true),
 			resolveInput: jest.fn(async () => true),
 			getPending: jest.fn(async () => ({ approvals: [], inputs: [] })),
@@ -234,6 +235,19 @@ describe('GeneralPage', () => {
 		expect(
 			screen.getByText('settings.chatHistory.messageCountValue:count=0')
 		).toBeInTheDocument();
+	});
+
+	it('opens the chat history folder from the icon button', async () => {
+		const user = userEvent.setup();
+		renderGeneralPage();
+
+		await user.click(await screen.findByRole('button', {
+			name: 'settings.chatHistory.openFolder',
+		}));
+
+		await waitFor(() => {
+			expect(window.agent.openHistoryFolder).toHaveBeenCalled();
+		});
 	});
 
 	it('calls openAppDataFolder when the app data button is clicked', async () => {

@@ -256,13 +256,15 @@
 			"actions": "Azioni cronologia",
 			"actionsDescription": "L'eliminazione della cronologia cancella anche la trascrizione della chat attiva.",
 			"refresh": "Aggiorna",
+			"openFolder": "Apri cartella cronologia chat",
 			"delete": "Elimina Cronologia",
 			"deleting": "Eliminazione...",
 			"confirmDelete": "Eliminare la cronologia chat e cancellare la chat corrente?",
 			"loading": "Caricamento...",
 			"errors": {
 				"load": "Impossibile caricare la cronologia chat.",
-				"delete": "Impossibile eliminare la cronologia chat."
+				"delete": "Impossibile eliminare la cronologia chat.",
+				"openFolder": "Impossibile aprire la cartella della cronologia chat."
 			}
 		},
 		"microphone": {

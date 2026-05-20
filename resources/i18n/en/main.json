@@ -256,13 +256,15 @@
 			"actions": "History actions",
 			"actionsDescription": "Deleting history also clears the active chat transcript.",
 			"refresh": "Refresh",
+			"openFolder": "Open chat history folder",
 			"delete": "Delete History",
 			"deleting": "Deleting...",
 			"confirmDelete": "Delete chat history and clear the current chat?",
 			"loading": "Loading...",
 			"errors": {
 				"load": "Could not load chat history.",
-				"delete": "Could not delete chat history."
+				"delete": "Could not delete chat history.",
+				"openFolder": "Could not open the chat history folder."
 			}
 		},
 		"microphone": {

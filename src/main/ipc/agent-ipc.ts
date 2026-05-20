@@ -1,4 +1,5 @@
-import { ipcMain } from 'electron';
+import { promises as fs } from 'node:fs';
+import { ipcMain, shell } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
@@ -37,6 +38,13 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 	});
 }
 
+async function openPathOrThrow(target: string): Promise<void> {
+	const error = await shell.openPath(target);
+	if (error) {
+		throw new Error(error);
+	}
+}
+
 export function transcriptToHistory(t: TranscriptEntry[]): AgentHistoryMessage[] {
 	return t.map((entry) => {
 		if (entry.role === 'user') {
@@ -73,6 +81,7 @@ export class AgentIpc implements IpcModule {
 			const logger = container.get('logger');
 			const agent = container.get('agentService');
 			const startupFiles = container.get('startupFiles');
+			const userDataDirectory = container.get('userDataDirectory');
 
 		ipcMain.handle(
 			AgentChannels.send,
@@ -92,6 +101,18 @@ export class AgentIpc implements IpcModule {
 				const transcript = await agent.getHistory();
 				return transcriptToHistory(transcript);
 			}, AgentChannels.getHistory)
+		);
+
+		ipcMain.handle(
+			AgentChannels.openHistoryFolder,
+			wrapSimpleHandler(async (): Promise<void> => {
+				const target = userDataDirectory.resolve('agent', 'sessions');
+				await fs.mkdir(target, { recursive: true, mode: 0o700 });
+				if (process.platform !== 'win32') {
+					await fs.chmod(target, 0o700).catch(() => undefined);
+				}
+				await openPathOrThrow(target);
+			}, AgentChannels.openHistoryFolder)
 		);
 
 		ipcMain.handle(

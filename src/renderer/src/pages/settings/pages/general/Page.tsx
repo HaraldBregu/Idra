@@ -330,6 +330,13 @@ const GeneralPage: React.FC = () => {
 		void window.app.openUserDataFolder();
 	}, []);
 
+	const handleOpenChatHistoryFolder = useCallback(() => {
+		setChatHistoryErrorKey('');
+		void window.agent.openHistoryFolder().catch(() => {
+			setChatHistoryErrorKey('settings.chatHistory.errors.openFolder');
+		});
+	}, []);
+
 	const handleDeleteChatHistory = useCallback(async (): Promise<void> => {
 		if (!window.confirm(t('settings.chatHistory.confirmDelete'))) return;
 		setChatHistoryDeleting(true);
@@ -513,6 +520,16 @@ const GeneralPage: React.FC = () => {
 							</p>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end gap-2">
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								onClick={handleOpenChatHistoryFolder}
+								disabled={chatHistoryDeleting}
+								aria-label={t('settings.chatHistory.openFolder')}
+								title={t('settings.chatHistory.openFolder')}
+							>
+								<FolderOpen className="size-3" />
+							</Button>
 							<Button
 								variant="outline"
 								size="xs"
