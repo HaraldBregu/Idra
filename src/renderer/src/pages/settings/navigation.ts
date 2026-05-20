@@ -11,9 +11,12 @@ import {
 	type LucideIcon,
 } from 'lucide-react';
 import {
+	DOCUMENT_READER_AGENT_ID,
 	IMAGE_ASSISTANT_AGENT_ID,
+	MUSIC_CREATOR_AGENT_ID,
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	TEXT_TO_SPEECH_AGENT_ID,
+	VIDEO_CREATOR_AGENT_ID,
 } from '../../../../shared/service';
 
 export interface SettingsNavigationItem {
@@ -62,6 +65,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: `/settings/agents/${SPEECH_TRANSCRIBER_AGENT_ID}/details`, labelKey: 'settings.agents.speechTranscriberName', descriptionKey: 'settings.agents.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
 	{ path: `/settings/agents/${TEXT_TO_SPEECH_AGENT_ID}/details`, labelKey: 'settings.agents.textToSpeechName', descriptionKey: 'settings.agents.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
 	{ path: `/settings/agents/${IMAGE_ASSISTANT_AGENT_ID}/details`, labelKey: 'settings.agents.imageAssistantName', descriptionKey: 'settings.agents.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },
+	{ path: `/settings/agents/${VIDEO_CREATOR_AGENT_ID}/details`, labelKey: 'settings.agents.videoCreatorName', descriptionKey: 'settings.agents.videoCreatorDescription', keywords: 'video generation creator model' },
+	{ path: `/settings/agents/${MUSIC_CREATOR_AGENT_ID}/details`, labelKey: 'settings.agents.musicCreatorName', descriptionKey: 'settings.agents.musicCreatorDescription', keywords: 'music audio generation creator model' },
+	{ path: `/settings/agents/${DOCUMENT_READER_AGENT_ID}/details`, labelKey: 'settings.agents.documentReaderName', descriptionKey: 'settings.agents.documentReaderDescription', keywords: 'ocr document reader text extraction scan model' },
 	{ path: '/settings/agents/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },

@@ -31,12 +31,15 @@ describe('AgentsPage', () => {
 		expect(screen.getByText('settings.agents.defaultAgent')).toBeInTheDocument();
 	});
 
-	it('renders speech and image agents', () => {
+	it('renders speech, image, video, music, and document agents', () => {
 		renderAgentsPage();
 
 		expect(screen.getByText('settings.agents.speechTranscriberName')).toBeInTheDocument();
 		expect(screen.getByText('settings.agents.textToSpeechName')).toBeInTheDocument();
 		expect(screen.getByText('settings.agents.imageAssistantName')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.videoCreatorName')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.musicCreatorName')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.documentReaderName')).toBeInTheDocument();
 	});
 
 	it('navigates to the Friday agent details route when clicked', async () => {

@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
 import {
+	DOCUMENT_READER_AGENT_ID,
 	IMAGE_ASSISTANT_AGENT_ID,
+	MUSIC_CREATOR_AGENT_ID,
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	TEXT_TO_SPEECH_AGENT_ID,
+	VIDEO_CREATOR_AGENT_ID,
 } from '../../../../../shared/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
 
@@ -84,7 +87,13 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 					? t('settings.agents.textToSpeechName')
 					: agentId === IMAGE_ASSISTANT_AGENT_ID
 						? t('settings.agents.imageAssistantName')
-						: agentId;
+						: agentId === VIDEO_CREATOR_AGENT_ID
+							? t('settings.agents.videoCreatorName')
+							: agentId === MUSIC_CREATOR_AGENT_ID
+								? t('settings.agents.musicCreatorName')
+								: agentId === DOCUMENT_READER_AGENT_ID
+									? t('settings.agents.documentReaderName')
+									: agentId;
 		items.push({
 			label,
 			path: isChatHistoryPage ? `/settings/agents/${encodeURIComponent(agentId)}/details` : undefined,

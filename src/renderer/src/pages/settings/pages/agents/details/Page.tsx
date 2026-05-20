@@ -10,7 +10,10 @@ import {
 	ImageIcon,
 	LoaderCircle,
 	Mic,
+	Music,
 	Save,
+	ScanText,
+	Video,
 	Volume2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -39,14 +42,20 @@ import {
 } from '../../../../../../../shared/providers';
 import {
 	DEFAULT_MODEL_REASONING_EFFORT,
+	DOCUMENT_READER_AGENT_ID,
+	DOCUMENT_READER_MODELS,
 	IMAGE_ASSISTANT_AGENT_ID,
 	IMAGE_ASSISTANT_MODELS,
+	MUSIC_CREATOR_AGENT_ID,
+	MUSIC_CREATOR_MODELS,
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	SPEECH_TRANSCRIBER_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	TEXT_TO_SPEECH_AGENT_ID,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
+	VIDEO_CREATOR_AGENT_ID,
+	VIDEO_CREATOR_MODELS,
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
 	isModelReasoningEffortSupported,
@@ -101,6 +110,9 @@ const AgentDetailsPage: React.FC = () => {
 	const isSpeechTranscriberAgent = decodedAgentId === SPEECH_TRANSCRIBER_AGENT_ID;
 	const isTextToSpeechAgent = decodedAgentId === TEXT_TO_SPEECH_AGENT_ID;
 	const isImageAssistantAgent = decodedAgentId === IMAGE_ASSISTANT_AGENT_ID;
+	const isVideoCreatorAgent = decodedAgentId === VIDEO_CREATOR_AGENT_ID;
+	const isMusicCreatorAgent = decodedAgentId === MUSIC_CREATOR_AGENT_ID;
+	const isDocumentReaderAgent = decodedAgentId === DOCUMENT_READER_AGENT_ID;
 	const isServiceBackedAgent = isFridayAgent || isSpeechTranscriberAgent;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAgent, setCurrentAgent] = useState<Agent | undefined>();
@@ -342,9 +354,21 @@ const AgentDetailsPage: React.FC = () => {
 	}, [navigate]);
 
 	const isKnownAgent =
-		isFridayAgent || isSpeechTranscriberAgent || isTextToSpeechAgent || isImageAssistantAgent;
+		isFridayAgent ||
+		isSpeechTranscriberAgent ||
+		isTextToSpeechAgent ||
+		isImageAssistantAgent ||
+		isVideoCreatorAgent ||
+		isMusicCreatorAgent ||
+		isDocumentReaderAgent;
 	const agentIcon = isImageAssistantAgent
 		? ImageIcon
+		: isVideoCreatorAgent
+			? Video
+			: isMusicCreatorAgent
+				? Music
+				: isDocumentReaderAgent
+					? ScanText
 		: isTextToSpeechAgent
 			? Volume2
 			: isSpeechTranscriberAgent
@@ -352,6 +376,12 @@ const AgentDetailsPage: React.FC = () => {
 				: Bot;
 	const agentNameKey = isImageAssistantAgent
 		? 'settings.agents.imageAssistantName'
+		: isVideoCreatorAgent
+			? 'settings.agents.videoCreatorName'
+			: isMusicCreatorAgent
+				? 'settings.agents.musicCreatorName'
+				: isDocumentReaderAgent
+					? 'settings.agents.documentReaderName'
 		: isTextToSpeechAgent
 			? 'settings.agents.textToSpeechName'
 			: isSpeechTranscriberAgent
@@ -359,6 +389,12 @@ const AgentDetailsPage: React.FC = () => {
 				: 'settings.agents.fridayName';
 	const agentDescriptionKey = isImageAssistantAgent
 		? 'settings.agents.imageAssistantDescription'
+		: isVideoCreatorAgent
+			? 'settings.agents.videoCreatorDescription'
+			: isMusicCreatorAgent
+				? 'settings.agents.musicCreatorDescription'
+				: isDocumentReaderAgent
+					? 'settings.agents.documentReaderDescription'
 		: isTextToSpeechAgent
 			? 'settings.agents.textToSpeechDescription'
 			: isSpeechTranscriberAgent
@@ -366,6 +402,12 @@ const AgentDetailsPage: React.FC = () => {
 				: 'settings.agents.fridayDescription';
 	const configurationDescriptionKey = isImageAssistantAgent
 		? 'settings.agents.imageConfigurationSubtitle'
+		: isVideoCreatorAgent
+			? 'settings.agents.videoConfigurationSubtitle'
+			: isMusicCreatorAgent
+				? 'settings.agents.musicConfigurationSubtitle'
+				: isDocumentReaderAgent
+					? 'settings.agents.documentReaderConfigurationSubtitle'
 		: isTextToSpeechAgent
 			? 'settings.agents.textToSpeechConfigurationSubtitle'
 			: isSpeechTranscriberAgent
@@ -373,6 +415,12 @@ const AgentDetailsPage: React.FC = () => {
 				: 'settings.agents.subtitle';
 	const providerDescriptionKey = isImageAssistantAgent
 		? 'settings.agents.imageProviderDescription'
+		: isVideoCreatorAgent
+			? 'settings.agents.videoProviderDescription'
+			: isMusicCreatorAgent
+				? 'settings.agents.musicProviderDescription'
+				: isDocumentReaderAgent
+					? 'settings.agents.documentReaderProviderDescription'
 		: isTextToSpeechAgent
 			? 'settings.agents.textToSpeechProviderDescription'
 			: isSpeechTranscriberAgent
@@ -380,6 +428,12 @@ const AgentDetailsPage: React.FC = () => {
 				: 'settings.agents.providerDescription';
 	const modelLabelKey = isImageAssistantAgent
 		? 'settings.agents.imageModel'
+		: isVideoCreatorAgent
+			? 'settings.agents.videoModel'
+			: isMusicCreatorAgent
+				? 'settings.agents.musicModel'
+				: isDocumentReaderAgent
+					? 'settings.agents.documentReaderModel'
 		: isTextToSpeechAgent
 			? 'settings.agents.textToSpeechModel'
 			: isSpeechTranscriberAgent
@@ -387,6 +441,12 @@ const AgentDetailsPage: React.FC = () => {
 				: 'settings.agents.model';
 	const modelDescriptionKey = isImageAssistantAgent
 		? 'settings.agents.imageModelDescription'
+		: isVideoCreatorAgent
+			? 'settings.agents.videoModelDescription'
+			: isMusicCreatorAgent
+				? 'settings.agents.musicModelDescription'
+				: isDocumentReaderAgent
+					? 'settings.agents.documentReaderModelDescription'
 		: isTextToSpeechAgent
 			? 'settings.agents.textToSpeechModelDescription'
 			: isSpeechTranscriberAgent
@@ -403,12 +463,32 @@ const AgentDetailsPage: React.FC = () => {
 	);
 	const readOnlyProviderName = isTextToSpeechAgent
 		? textToSpeechProvider?.name ?? 'ElevenLabs'
+		: isVideoCreatorAgent
+			? 'Video provider'
+			: isMusicCreatorAgent
+				? 'Music provider'
+				: isDocumentReaderAgent
+					? 'OCR provider'
 		: 'Image provider';
 	const readOnlyProviderValue = isTextToSpeechAgent
 		? TEXT_TO_SPEECH_PROVIDER_ID
+		: isVideoCreatorAgent
+			? 'video-provider-coming-soon'
+			: isMusicCreatorAgent
+				? 'music-provider-coming-soon'
+				: isDocumentReaderAgent
+					? 'document-reader-provider-coming-soon'
 		: 'image-provider-coming-soon';
 	const readOnlyModel =
-		isTextToSpeechAgent ? TEXT_TO_SPEECH_MODELS[0] : IMAGE_ASSISTANT_MODELS[0];
+		isTextToSpeechAgent
+			? TEXT_TO_SPEECH_MODELS[0]
+			: isVideoCreatorAgent
+				? VIDEO_CREATOR_MODELS[0]
+				: isMusicCreatorAgent
+					? MUSIC_CREATOR_MODELS[0]
+					: isDocumentReaderAgent
+						? DOCUMENT_READER_MODELS[0]
+						: IMAGE_ASSISTANT_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
 	const readOnlyModelName = readOnlyModel?.name ?? t('settings.agents.modelUnavailable');
 	const providerCardSummary = selectedProvider

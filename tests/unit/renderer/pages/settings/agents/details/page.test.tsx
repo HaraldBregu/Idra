@@ -92,4 +92,13 @@ describe('AgentDetailsPage', () => {
 		expect(providerCard).toHaveAttribute('aria-expanded', 'true');
 		expect(await screen.findByText('settings.agents.providerDescription')).toBeInTheDocument();
 	});
+
+	it('renders placeholder settings for the document reader agent', async () => {
+		renderAgentDetailsPage('/settings/agents/document-reader/details');
+
+		expect(await screen.findByText('settings.agents.documentReaderName')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.configurationPending')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.documentReaderProviderDescription')).toBeInTheDocument();
+		expect(screen.getByText('OCR provider')).toBeInTheDocument();
+	});
 });

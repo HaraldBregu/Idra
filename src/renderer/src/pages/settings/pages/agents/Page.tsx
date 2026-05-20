@@ -1,7 +1,17 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Bot, ChevronRight, ImageIcon, Mic, Volume2, type LucideIcon } from 'lucide-react';
+import {
+	Bot,
+	ChevronRight,
+	ImageIcon,
+	Mic,
+	Music,
+	ScanText,
+	Video,
+	Volume2,
+	type LucideIcon,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
@@ -11,9 +21,12 @@ import {
 	SettingsSection,
 } from '../../components';
 import {
+	DOCUMENT_READER_AGENT_ID,
 	IMAGE_ASSISTANT_AGENT_ID,
+	MUSIC_CREATOR_AGENT_ID,
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	TEXT_TO_SPEECH_AGENT_ID,
+	VIDEO_CREATOR_AGENT_ID,
 } from '../../../../../../shared/service';
 
 const FRIDAY_AGENT_SLUG = 'friday';
@@ -43,6 +56,24 @@ const AGENT_ROWS = [
 		nameKey: 'settings.agents.imageAssistantName',
 		descriptionKey: 'settings.agents.imageAssistantDescription',
 		icon: ImageIcon,
+	},
+	{
+		id: VIDEO_CREATOR_AGENT_ID,
+		nameKey: 'settings.agents.videoCreatorName',
+		descriptionKey: 'settings.agents.videoCreatorDescription',
+		icon: Video,
+	},
+	{
+		id: MUSIC_CREATOR_AGENT_ID,
+		nameKey: 'settings.agents.musicCreatorName',
+		descriptionKey: 'settings.agents.musicCreatorDescription',
+		icon: Music,
+	},
+	{
+		id: DOCUMENT_READER_AGENT_ID,
+		nameKey: 'settings.agents.documentReaderName',
+		descriptionKey: 'settings.agents.documentReaderDescription',
+		icon: ScanText,
 	},
 ] satisfies readonly {
 	readonly id: string;

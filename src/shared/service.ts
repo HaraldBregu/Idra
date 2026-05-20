@@ -84,6 +84,18 @@ export const IMAGE_ASSISTANT_AGENT_ID = 'image-assistant';
 export const IMAGE_ASSISTANT_MODELS = [
 	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
+export const VIDEO_CREATOR_AGENT_ID = 'video-creator';
+export const VIDEO_CREATOR_MODELS = [
+	{ id: 'video-provider-coming-soon', name: 'Not available yet' },
+] satisfies readonly Model[];
+export const MUSIC_CREATOR_AGENT_ID = 'music-creator';
+export const MUSIC_CREATOR_MODELS = [
+	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
+] satisfies readonly Model[];
+export const DOCUMENT_READER_AGENT_ID = 'document-reader';
+export const DOCUMENT_READER_MODELS = [
+	{ id: 'document-reader-provider-coming-soon', name: 'Not available yet' },
+] satisfies readonly Model[];
 
 export function isRealtimeSpeechTranscriberModel(modelId: string): boolean {
 	return modelId.trim() === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
