@@ -36,7 +36,7 @@ function CommandDialog({
         overlayClassName
       )}
       contentClassName={cn(
-        "fixed left-1/2 top-[18vh] z-50 w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 overflow-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-2xl shadow-black/25 outline-none",
+        "fixed left-1/2 top-[16vh] z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 overflow-hidden rounded-lg border border-border/80 bg-popover text-popover-foreground shadow-xl shadow-black/20 outline-none",
         contentClassName
       )}
       className={cn("flex h-full w-full flex-col overflow-hidden", className)}
@@ -52,13 +52,13 @@ function CommandInput({
   return (
     <div
       data-slot="command-input-wrapper"
-      className="flex h-11 items-center gap-2 border-b border-border/70 px-3"
+      className="flex h-9 items-center gap-1.5 border-b border-border/70 px-2.5"
     >
-      <SearchIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-8 w-full rounded-md bg-transparent py-1.5 text-[13px] outline-none ring-0 placeholder:text-muted-foreground focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         {...props}
@@ -74,7 +74,7 @@ function CommandList({
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      className={cn("no-scrollbar max-h-[420px] overflow-y-auto overflow-x-hidden p-1", className)}
+      className={cn("no-scrollbar max-h-[340px] overflow-y-auto overflow-x-hidden p-1", className)}
       {...props}
     />
   )
@@ -87,7 +87,7 @@ function CommandEmpty({
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
-      className={cn("py-8 text-center text-sm text-muted-foreground", className)}
+      className={cn("py-6 text-center text-[13px] text-muted-foreground", className)}
       {...props}
     />
   )

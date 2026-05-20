@@ -229,22 +229,22 @@ export function CommandMenu(): React.JSX.Element {
 									value={item.searchValue}
 									keywords={item.keywords}
 									onSelect={() => navigateTo(item.path)}
-									className="items-start gap-2.5 px-2 py-2"
+									className="items-start gap-2 px-2 py-1.5"
 								>
-									<span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
-										<Icon className="size-3.5" aria-hidden="true" strokeWidth={1.8} />
+									<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
+										<Icon className="size-3" aria-hidden="true" strokeWidth={1.8} />
 									</span>
 									<span className="flex min-w-0 flex-1 flex-col">
-										<span className="truncate text-[13px] font-medium leading-4">
+										<span className="truncate text-xs font-medium leading-4">
 											{item.label}
 										</span>
 										{item.description && (
-											<span className="truncate text-[11px] leading-4 text-muted-foreground">
+											<span className="truncate text-[10px] leading-3.5 text-muted-foreground">
 												{item.description}
 											</span>
 										)}
 									</span>
-									<CommandShortcut className="hidden max-w-36 truncate font-mono text-[10px] sm:block">
+									<CommandShortcut className="hidden max-w-32 truncate font-mono text-[9px] sm:block">
 										{item.path}
 									</CommandShortcut>
 								</CommandItem>
