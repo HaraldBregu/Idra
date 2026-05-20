@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { SettingsPageHeader, SettingsPageShell } from '../../components';
+import {
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsSection,
+} from '../../components';
 import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../../navigation';
 
 function SettingsOverviewCard({
@@ -17,31 +22,24 @@ function SettingsOverviewCard({
 		navigate(item.path);
 	};
 
-	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
-		if (event.key !== 'Enter' && event.key !== ' ') return;
-		event.preventDefault();
-		handleActivate();
-	};
-
 	return (
 		<Item
-			role="button"
-			tabIndex={0}
+			as="button"
+			type="button"
 			onClick={handleActivate}
-			onKeyDown={handleKeyDown}
 			variant="outline"
-			size="sm"
-			className="group min-h-12 flex-nowrap gap-3 rounded-lg border border-border/70 bg-card text-left text-card-foreground whitespace-normal hover:border-foreground/15 hover:bg-card/95 focus-visible:ring-2 focus-visible:ring-ring/55"
+			size="md"
+			className="border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
 		>
-			<ItemIcon icon={item.icon} className="transition group-hover:bg-foreground group-hover:text-background" />
-			<ItemContent className="min-w-0 flex-1">
+			<ItemIcon icon={item.icon} />
+			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
 				</ItemTitle>
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none justify-end">
 				<ChevronRight
-					className="size-3 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
+					className="size-3 shrink-0 text-muted-foreground"
 					strokeWidth={1.8}
 				/>
 			</ItemActions>
@@ -53,16 +51,18 @@ const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
 
 	return (
-		<SettingsPageShell className="gap-2">
+		<SettingsPageShell>
 			<SettingsPageHeader
 				title={t('settings.title')}
 				description={t('settings.description')}
 			/>
-			<div className="grid gap-2">
-				{SETTINGS_NAVIGATION.map((item) => (
-					<SettingsOverviewCard key={item.path} item={item} />
-				))}
-			</div>
+			<SettingsSection title={t('settings.overview.backToSettings')}>
+				<SettingsPanel>
+					{SETTINGS_NAVIGATION.map((item) => (
+						<SettingsOverviewCard key={item.path} item={item} />
+					))}
+				</SettingsPanel>
+			</SettingsSection>
 		</SettingsPageShell>
 	);
 };
