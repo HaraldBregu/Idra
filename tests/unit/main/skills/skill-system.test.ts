@@ -486,7 +486,7 @@ describe('skill system', () => {
 			[
 				'---',
 				'name: refresh-skill',
-				'description: Handles zzbefore requests.',
+				'description: Handles zzoldtoken flows.',
 				'---',
 				'Use before instructions.',
 			].join('\n')
@@ -501,7 +501,7 @@ describe('skill system', () => {
 			toolContext: makeToolContext({ workspace: root }),
 		};
 
-		const before = await service.discoverForPrompt('zzbefore request', runtimeInput);
+		const before = await service.discoverForPrompt('zzoldtoken', runtimeInput);
 		expect(before.some((skill) => skill.id === 'refresh-skill')).toBe(true);
 
 		await fs.writeFile(
@@ -509,17 +509,17 @@ describe('skill system', () => {
 			[
 				'---',
 				'name: refresh-skill',
-				'description: Handles zzafter requests.',
+				'description: Handles zznewtoken flows.',
 				'---',
 				'Use after instructions.',
 			].join('\n')
 		);
 
-		const stale = await service.discoverForPrompt('zzbefore request', runtimeInput);
-		const after = await service.discoverForPrompt('zzafter request', runtimeInput);
+		const stale = await service.discoverForPrompt('zzoldtoken', runtimeInput);
+		const after = await service.discoverForPrompt('zznewtoken', runtimeInput);
 		expect(stale.some((skill) => skill.id === 'refresh-skill')).toBe(false);
 		expect(after.find((skill) => skill.id === 'refresh-skill')?.description).toBe(
-			'Handles zzafter requests.'
+			'Handles zznewtoken flows.'
 		);
 		await fs.rm(root, { recursive: true, force: true });
 	});
