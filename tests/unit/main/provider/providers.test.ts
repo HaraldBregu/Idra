@@ -144,9 +144,9 @@ describe('provider model policy', () => {
 		expect(getDefaultAgentModels('qwen').map((model) => model.id)).toEqual([
 			'qwen3-max',
 			'qwen3.5-plus',
-			'qwen3.5-omni-plus',
-			'qwen3-coder',
-			'qwen3-vl',
+			'qwen3.5-flash',
+			'qwen3-coder-plus',
+			'qwq-plus',
 		]);
 		expect(getDefaultAgentModels('cohere').map((model) => model.id)).toEqual([
 			'command-a-03-2025',
