@@ -1,7 +1,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import type { SkillManifest } from '../../shared/skills';
+import type {
+	SkillDiagnostic,
+	SkillImportSkipped,
+	SkillManifest,
+	SkillStructureInfo,
+} from '../../shared/skills';
 import type { SkillDefinition, SkillExecutionContext, SkillResult } from './types';
 
 const MAX_SKILL_FILES = 500;
@@ -13,6 +18,7 @@ const MAX_LISTED_RESOURCE_DIRECTORIES = 100;
 const MAX_RESOURCE_DEPTH = 4;
 const RESOURCE_DIRS = ['scripts', 'references', 'assets'] as const;
 const SKILL_MARKDOWN_NAME = 'skill.md';
+const MAX_SKILL_IMPORT_CANDIDATES = 300;
 const IGNORED_SKILL_DIRECTORY_NAMES = new Set([
 	'.cache',
 	'.git',
@@ -38,6 +44,13 @@ export interface SkillPackage {
 	sourcePath: string;
 	skillPath: string;
 	trusted: boolean;
+	diagnostics: SkillDiagnostic[];
+	structure: SkillStructureInfo;
+}
+
+export interface SkillPackageDiscovery {
+	packages: SkillPackage[];
+	skipped: SkillImportSkipped[];
 }
 
 interface AgentSkillFrontMatter {
@@ -76,6 +89,7 @@ interface AgentSkillFrontMatter {
 interface ParsedSkillMarkdown {
 	manifest: SkillManifest;
 	instructions: string;
+	diagnostics: SkillDiagnostic[];
 }
 
 interface AgentSkillActivationOutput {
@@ -133,6 +147,14 @@ function metadataRecord(value: unknown): Record<string, unknown> {
 	return isRecord(value) ? value : {};
 }
 
+function skillDiagnostic(
+	code: string,
+	message: string,
+	level: SkillDiagnostic['level'] = 'warning'
+): SkillDiagnostic {
+	return { level, code, message };
+}
+
 function normalizeAgentSkillId(value: string): string {
 	const id = value
 		.trim()
@@ -158,6 +180,82 @@ function validateAgentSkillName(name: string): void {
 	}
 }
 
+function collectStandardDiagnostics(input: {
+	frontmatter: AgentSkillFrontMatter;
+	name: string;
+	nameProvided: boolean;
+	description: string;
+	parentDirectoryName: string;
+	instructions: string;
+}): SkillDiagnostic[] {
+	const diagnostics: SkillDiagnostic[] = [];
+	if (!input.nameProvided) {
+		diagnostics.push(
+			skillDiagnostic(
+				'name_fallback',
+				'Agent Skills standard requires frontmatter.name; Friday used the folder name.'
+			)
+		);
+	}
+	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.name)) {
+		diagnostics.push(
+			skillDiagnostic(
+				'name_not_standard',
+				'Agent Skills standard names should use lowercase letters, numbers, and single hyphens only.'
+			)
+		);
+	}
+	if (input.name !== input.parentDirectoryName) {
+		diagnostics.push(
+			skillDiagnostic(
+				'name_folder_mismatch',
+				'Agent Skills standard names should match the parent folder name.'
+			)
+		);
+	}
+	if (input.description.length < 40) {
+		diagnostics.push(
+			skillDiagnostic(
+				'description_short',
+				'Description should include what the skill does and when to use it.'
+			)
+		);
+	}
+	if (typeof input.frontmatter.metadata !== 'undefined') {
+		if (!isRecord(input.frontmatter.metadata)) {
+			diagnostics.push(skillDiagnostic('metadata_not_map', 'metadata should be a key-value mapping.'));
+		} else {
+			for (const [key, value] of Object.entries(input.frontmatter.metadata)) {
+				if (typeof value !== 'string') {
+					diagnostics.push(
+						skillDiagnostic(
+							'metadata_value_not_string',
+							`metadata.${key} should be a string for maximum Agent Skills compatibility.`
+						)
+					);
+				}
+			}
+		}
+	}
+	if (Array.isArray(input.frontmatter['allowed-tools'] ?? input.frontmatter.allowedTools)) {
+		diagnostics.push(
+			skillDiagnostic(
+				'allowed_tools_array',
+				'allowed-tools is normally a space-separated string; Friday also accepts arrays.'
+			)
+		);
+	}
+	if (input.instructions.split(/\r?\n/).length > 500) {
+		diagnostics.push(
+			skillDiagnostic(
+				'instructions_long',
+				'Keep SKILL.md under 500 lines and move detailed material to references/ when possible.'
+			)
+		);
+	}
+	return diagnostics;
+}
+
 function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: boolean): ParsedSkillMarkdown {
 	if (!/^---\r?\n/.test(raw)) {
 		throw new Error('SKILL.md must start with YAML front matter.');
@@ -165,13 +263,27 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 
 	const parsed = matter(raw);
 	const data = (isRecord(parsed.data) ? parsed.data : {}) as AgentSkillFrontMatter;
-	const name = asString(data.name) ?? parentDirectoryName.trim();
+	const parsedContent = parsed.content.trim();
+	const parsedName = asString(data.name);
+	const name = parsedName ?? parentDirectoryName.trim();
 	const description = asString(data.description);
 	if (!description) throw new Error('Skill front matter requires a non-empty description.');
 	if (!name) throw new Error('Skill front matter requires a non-empty name.');
 	validateAgentSkillName(name);
 	if (description.length > 1024) throw new Error('Skill description must be 1024 characters or less.');
+	const compatibility = asString(data.compatibility);
+	if (compatibility && compatibility.length > 500) {
+		throw new Error('Skill compatibility must be 500 characters or less.');
+	}
 	const id = normalizeAgentSkillId(name);
+	const diagnostics = collectStandardDiagnostics({
+		frontmatter: data,
+		name,
+		nameProvided: Boolean(parsedName),
+		description,
+		parentDirectoryName,
+		instructions: parsedContent,
+	});
 
 	const metadata = metadataRecord(data.metadata);
 	const version = asString(data.version) ?? asString(metadata.version) ?? '0.1.0';
@@ -192,7 +304,7 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 			name,
 			description,
 			license: asString(data.license),
-			compatibility: asString(data.compatibility),
+			compatibility,
 			category: (asString(data.category) as SkillManifest['category']) ?? 'workflow',
 			tags: asStringArray(data.tags) ?? [],
 			version,
@@ -223,7 +335,8 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 				userInvocable,
 			},
 		},
-		instructions: parsed.content.trim(),
+		instructions: parsedContent,
+		diagnostics,
 	};
 }
 
@@ -247,6 +360,55 @@ async function listRootSkillFiles(sourcePath: string): Promise<string[]> {
 		skillPaths.push(fullPath);
 	}
 	return skillPaths;
+}
+
+async function hasRootSkillFile(sourcePath: string): Promise<boolean> {
+	return (await listRootSkillFiles(sourcePath)).length > 0;
+}
+
+async function listChildDirectories(sourcePath: string): Promise<string[]> {
+	const entries = await fs.readdir(sourcePath, { withFileTypes: true }).catch(() => []);
+	return entries
+		.filter((entry) => entry.isDirectory() && !isIgnoredSkillDirectoryName(entry.name))
+		.map((entry) => path.join(sourcePath, entry.name))
+		.sort((a, b) => path.basename(a).localeCompare(path.basename(b)));
+}
+
+async function listContainerSkillDirs(sourcePath: string): Promise<string[]> {
+	const candidateRoots = [sourcePath];
+	const nestedSkillsRoot = path.join(sourcePath, 'skills');
+	if (nestedSkillsRoot !== sourcePath) {
+		const nestedStat = await fs.stat(nestedSkillsRoot).catch(() => undefined);
+		if (nestedStat?.isDirectory()) {
+			candidateRoots.push(nestedSkillsRoot);
+		}
+	}
+
+	const seen = new Set<string>();
+	const skillDirs: string[] = [];
+	async function addCandidate(candidate: string): Promise<void> {
+		if (skillDirs.length >= MAX_SKILL_IMPORT_CANDIDATES) return;
+		const resolved = path.resolve(candidate);
+		if (seen.has(resolved)) return;
+		seen.add(resolved);
+		if (await hasRootSkillFile(resolved)) {
+			skillDirs.push(resolved);
+		}
+	}
+
+	for (const root of candidateRoots) {
+		for (const child of await listChildDirectories(root)) {
+			await addCandidate(child);
+			if (skillDirs.length >= MAX_SKILL_IMPORT_CANDIDATES) break;
+			if (!(await hasRootSkillFile(child))) {
+				for (const groupedChild of await listChildDirectories(child)) {
+					await addCandidate(groupedChild);
+					if (skillDirs.length >= MAX_SKILL_IMPORT_CANDIDATES) break;
+				}
+			}
+		}
+	}
+	return skillDirs;
 }
 
 async function validateSkillBundle(
@@ -471,7 +633,11 @@ function manifestOnlySkill(
 export class SkillLoader {
 	async loadPackage(
 		sourceDir: string,
-		options: { trusted?: boolean; maxSkillFileBytes?: number } = {}
+		options: {
+			trusted?: boolean;
+			maxSkillFileBytes?: number;
+			structureKind?: SkillStructureInfo['kind'];
+		} = {}
 	): Promise<SkillPackage> {
 		const sourcePath = path.resolve(sourceDir);
 		const stat = await fs.stat(sourcePath);
@@ -483,6 +649,14 @@ export class SkillLoader {
 		});
 		const raw = await fs.readFile(skillPath, 'utf8');
 		const parsed = parseSkillMarkdown(raw, path.basename(sourcePath), trusted);
+		const structure: SkillStructureInfo = {
+			format: 'agent-skill',
+			standard: 'agentskills.io',
+			kind: options.structureKind ?? 'direct',
+			resourceDirectories: RESOURCE_DIRS.filter((directoryName) =>
+				fs.stat(path.join(sourcePath, directoryName)).then((stat) => stat.isDirectory()).catch(() => false)
+			) as unknown as string[],
+		};
 		const manifest = {
 			...parsed.manifest,
 			metadata: {
@@ -491,6 +665,59 @@ export class SkillLoader {
 			},
 		};
 		const skill = manifestOnlySkill(manifest, sourcePath, skillPath, parsed.instructions, trusted);
-		return { manifest, skill, sourcePath, skillPath, trusted };
+		return {
+			manifest,
+			skill,
+			sourcePath,
+			skillPath,
+			trusted,
+			diagnostics: parsed.diagnostics,
+			structure,
+		};
+	}
+
+	async loadPackages(
+		sourceDir: string,
+		options: { trusted?: boolean; maxSkillFileBytes?: number } = {}
+	): Promise<SkillPackageDiscovery> {
+		const sourcePath = path.resolve(sourceDir);
+		const stat = await fs.stat(sourcePath);
+		if (!stat.isDirectory()) throw new Error('Skill package source must be a directory.');
+
+		if (await hasRootSkillFile(sourcePath)) {
+			return {
+				packages: [
+					await this.loadPackage(sourcePath, {
+						...options,
+						structureKind: 'direct',
+					}),
+				],
+				skipped: [],
+			};
+		}
+
+		const candidateDirs = await listContainerSkillDirs(sourcePath);
+		const packages: SkillPackage[] = [];
+		const skipped: SkillImportSkipped[] = [];
+		for (const candidateDir of candidateDirs) {
+			try {
+				packages.push(
+					await this.loadPackage(candidateDir, {
+						...options,
+						structureKind: 'container-child',
+					})
+				);
+			} catch (error) {
+				skipped.push({
+					name: path.basename(candidateDir),
+					sourcePath: candidateDir,
+					reason: error instanceof Error ? error.message : 'Unable to load skill.',
+				});
+			}
+		}
+		if (packages.length === 0 && skipped.length === 0) {
+			throw new Error('Selected folder must contain SKILL.md or skill subfolders with SKILL.md.');
+		}
+		return { packages, skipped };
 	}
 }
