@@ -12,8 +12,8 @@ The agent first evaluates the user message with a tool-use policy.
   answer from the current registry.
 - URLs, current information, private account data, workspace files, codebase
   work, shell execution, tests, builds, debugging, mutation, browser actions,
-  email, calendar, Drive, cron, task-manager actions, and similar external or
-  mutable tasks require tools.
+  email, calendar, Drive, cron, and similar external or mutable tasks require
+  tools.
 - Creative writing, rewriting, translation, summarization, and brainstorming
   are answered without tools unless the request also needs external access.
 - If no rule requires tools and no skill is selected, the run is a direct
@@ -65,7 +65,6 @@ These tools are added only when the corresponding runtime condition applies.
 | `startup_files` | Added only for pending primary bootstrap runs. During bootstrap, it is the only local tool exposed. |
 | `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
 | `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
-| `task` | Added when task-manager tooling is enabled. Starts, lists, retrieves, and cancels in-memory task records backed by the task manager. |
 | Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
 | Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
 | MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
@@ -75,32 +74,14 @@ These tools are added only when the corresponding runtime condition applies.
 | `tool_describe` | Returns schema and metadata for a hidden tool when tool-search compaction is enabled. |
 | `tool_call` | Executes a hidden tool through the same wrapped execution path when tool-search compaction is enabled. |
 
-## Task Tool
+## Task Manager
 
-The `task` tool is the agent-facing surface for the task manager described in
-[task-manager.md](task-manager.md). It should use the same main-process task
-manager and IPC contract as `window.tasks`.
-
-Supported actions:
-
-| Action | Behavior |
-| --- | --- |
-| `start` | Validate a `TaskRunRequest`, create one in-memory task record, and start the registered handler. |
-| `list` | Return all in-memory task records for the current app session. |
-| `get` | Return one task record by id. |
-| `cancel` | Request cooperative cancellation for one task by id. |
-
-Rules:
-
-- Use one task record per operation.
-- Start only registered and approved user-facing task types.
-- Keep privileged validation and handler selection in the main process.
-- Return sanitized task records only; do not expose raw handler functions,
-  `AbortController`, promises, secrets, credentials, or large unbounded output.
-- Do not add task-manager-level timeouts. A task finishes only when the handler
-  returns, throws, cooperatively cancels, or the app process exits.
-- Use `cron` for scheduling future or recurring work. Use `task` for active
-  in-memory execution state.
+The task manager described in [task-manager.md](task-manager.md) is currently
+exposed through the app task APIs, not as an agent-facing local tool. There is no
+`task` tool in the default registry or run-scoped assembler. If an agent tool is
+added later, it should share the same main-process task manager and IPC contract
+as `window.tasks`, return sanitized task records only, and keep handler
+selection and validation privileged.
 
 ## Prompt Narrowing
 
