@@ -10,6 +10,11 @@ import {
 	Sparkles,
 	type LucideIcon,
 } from 'lucide-react';
+import {
+	IMAGE_ASSISTANT_AGENT_ID,
+	SPEECH_TRANSCRIBER_AGENT_ID,
+	TEXT_TO_SPEECH_AGENT_ID,
+} from '../../../../shared/service';
 
 export interface SettingsNavigationItem {
 	readonly path: string;
@@ -54,6 +59,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Agents
 	{ path: '/settings/agents', labelKey: 'settings.agents.title', descriptionKey: 'settings.agents.description', keywords: 'friday agent default provider model' },
 	{ path: '/settings/agents/friday/details', labelKey: 'settings.agents.fridayName', descriptionKey: 'settings.agents.fridayDescription', keywords: 'friday agent default provider model' },
+	{ path: `/settings/agents/${SPEECH_TRANSCRIBER_AGENT_ID}/details`, labelKey: 'settings.agents.speechTranscriberName', descriptionKey: 'settings.agents.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
+	{ path: `/settings/agents/${TEXT_TO_SPEECH_AGENT_ID}/details`, labelKey: 'settings.agents.textToSpeechName', descriptionKey: 'settings.agents.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
+	{ path: `/settings/agents/${IMAGE_ASSISTANT_AGENT_ID}/details`, labelKey: 'settings.agents.imageAssistantName', descriptionKey: 'settings.agents.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },
 	{ path: '/settings/agents/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },

@@ -31,6 +31,14 @@ describe('AgentsPage', () => {
 		expect(screen.getByText('settings.agents.defaultAgent')).toBeInTheDocument();
 	});
 
+	it('renders speech and image agents', () => {
+		renderAgentsPage();
+
+		expect(screen.getByText('settings.agents.speechTranscriberName')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.textToSpeechName')).toBeInTheDocument();
+		expect(screen.getByText('settings.agents.imageAssistantName')).toBeInTheDocument();
+	});
+
 	it('navigates to the Friday agent details route when clicked', async () => {
 		const user = userEvent.setup();
 		renderAgentsPage();
@@ -38,5 +46,18 @@ describe('AgentsPage', () => {
 		await user.click(screen.getByRole('button', { name: /settings\.agents\.fridayName/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/agents/friday/details');
+	});
+
+	it('navigates to the Speech to Text agent details route when clicked', async () => {
+		const user = userEvent.setup();
+		renderAgentsPage();
+
+		await user.click(screen.getByRole('button', {
+			name: /settings\.agents\.speechTranscriberName/,
+		}));
+
+		expect(screen.getByTestId('location')).toHaveTextContent(
+			'/settings/agents/speech-to-text/details'
+		);
 	});
 });
