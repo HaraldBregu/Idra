@@ -17,10 +17,13 @@ export class TaskRegistry {
 
 	register(handler: TaskHandler): void {
 		const type = normalizeTaskType(handler.type);
+		if (handler.type !== type) {
+			throw new Error(`Task handler type must be normalized: ${handler.type}`);
+		}
 		if (this.handlers.has(type)) {
 			throw new Error(`Task handler already registered: ${type}`);
 		}
-		this.handlers.set(type, { ...handler, type });
+		this.handlers.set(type, handler);
 	}
 
 	require(type: string): TaskHandler {
