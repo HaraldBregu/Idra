@@ -77,7 +77,10 @@ function asSkillError(error: unknown): SkillError {
 	return { code: 'execution_failed', message: String(error), retryable: false };
 }
 
-function scopedTools(skill: SkillDefinition, available: ReadonlyMap<string, AgentTool>): Map<string, AgentTool> {
+function scopedTools(
+	skill: SkillDefinition,
+	available: ReadonlyMap<string, AgentTool>
+): Map<string, AgentTool> {
 	const allowed = new Set([...skill.requiredTools, ...skill.contract.allowedTools]);
 	const out = new Map<string, AgentTool>();
 	for (const name of allowed) {
@@ -106,12 +109,10 @@ function timeoutPromise<T>(
 					);
 		const abort = (): void => reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
 		signal?.addEventListener('abort', abort, { once: true });
-		promise
-			.then(resolve, reject)
-			.finally(() => {
-				if (timeout) clearTimeout(timeout);
-				signal?.removeEventListener('abort', abort);
-			});
+		promise.then(resolve, reject).finally(() => {
+			if (timeout) clearTimeout(timeout);
+			signal?.removeEventListener('abort', abort);
+		});
 	});
 }
 
@@ -127,10 +128,12 @@ export class SkillExecutionEngine {
 	): Promise<SkillResult<TOutput>> {
 		const skill = this.registry.getSkill<TInput, TOutput>(request.skillId, request.version);
 		const startedAt = new Date().toISOString();
-		const placeholderSkill = skill ?? ({
-			id: request.skillId,
-			version: request.version ?? 'unknown',
-		} as SkillDefinition);
+		const placeholderSkill =
+			skill ??
+			({
+				id: request.skillId,
+				version: request.version ?? 'unknown',
+			} as SkillDefinition);
 		const state: ExecutionState = {
 			usedSkills: [skillKey(request.skillId, request.version ?? skill?.version ?? 'unknown')],
 			usedTools: [],
@@ -167,7 +170,11 @@ export class SkillExecutionEngine {
 			return result;
 		}
 
-		const safety = await request.context.safetyPolicy.checkBeforeExecution(skill, request.input, request.context);
+		const safety = await request.context.safetyPolicy.checkBeforeExecution(
+			skill,
+			request.input,
+			request.context
+		);
 		state.warnings.push(...safety.warnings);
 		if (!safety.allowed) {
 			const result = errorResult<TOutput>(
@@ -187,12 +194,18 @@ export class SkillExecutionEngine {
 
 		for (;;) {
 			try {
-				const context = this.createExecutionContext(skill, request.context, state, startedAt, retryCount);
-					const raw = await timeoutPromise(
-						skill.execute(request.input, context),
-						request.context.timeoutMs === undefined ? DEFAULT_TIMEOUT_MS : request.context.timeoutMs,
-						request.context.cancellationToken
-					);
+				const context = this.createExecutionContext(
+					skill,
+					request.context,
+					state,
+					startedAt,
+					retryCount
+				);
+				const raw = await timeoutPromise(
+					skill.execute(request.input, context),
+					request.context.timeoutMs === undefined ? DEFAULT_TIMEOUT_MS : request.context.timeoutMs,
+					request.context.cancellationToken
+				);
 				result = this.normalizeResult(skill, raw, state, startedAt, retryCount);
 				if (!result.success && isRetryable(result.error) && retryCount < maxRetries) {
 					retryCount++;
@@ -281,7 +294,11 @@ export class SkillExecutionEngine {
 				state.provenance.toolsUsed.push(name);
 				return result as AgentToolResult<TDetails>;
 			},
-			callConnector: async (connectorId: string, toolName: string, args: unknown): Promise<unknown> => {
+			callConnector: async (
+				connectorId: string,
+				toolName: string,
+				args: unknown
+			): Promise<unknown> => {
 				const connector = base.allowedConnectors.get(connectorId);
 				if (!connector) throw new Error(`Skill ${skill.id} cannot use connector: ${connectorId}`);
 				const safety = await base.safetyPolicy.checkConnectorUse(
@@ -416,7 +433,11 @@ export class SkillExecutionEngine {
 				]),
 				finishedAt,
 			},
-			usedSkills: unique([skillKey(skill.id, skill.version), ...state.usedSkills, ...raw.usedSkills]),
+			usedSkills: unique([
+				skillKey(skill.id, skill.version),
+				...state.usedSkills,
+				...raw.usedSkills,
+			]),
 			usedTools: unique([...state.usedTools, ...raw.usedTools]),
 			usedConnectors: unique([...state.usedConnectors, ...raw.usedConnectors]),
 			memoryReads: [...state.memoryReads, ...raw.memoryReads],

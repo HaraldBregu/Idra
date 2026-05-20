@@ -75,8 +75,10 @@ export interface Skill<TInput = unknown, TOutput = unknown> {
 	execute(input: TInput, context: SkillExecutionContext): Promise<SkillResult<TOutput>>;
 }
 
-export interface SkillDefinition<TInput = unknown, TOutput = unknown>
-	extends Skill<TInput, TOutput> {
+export interface SkillDefinition<TInput = unknown, TOutput = unknown> extends Skill<
+	TInput,
+	TOutput
+> {
 	category: SkillCategory;
 	tags: string[];
 	author: string;

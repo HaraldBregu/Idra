@@ -124,11 +124,11 @@ function executionContext(
 		connectors?: SkillConnector[];
 		permissions?: string[];
 		grantToolPermissions?: boolean;
-			signal?: AbortSignal;
-			maxRetries?: number;
-			timeoutMs?: number | null;
-		} = {}
-	): SkillExecutionRequestContext {
+		signal?: AbortSignal;
+		maxRetries?: number;
+		timeoutMs?: number | null;
+	} = {}
+): SkillExecutionRequestContext {
 	const tools = input.tools ?? [];
 	const connectors = input.connectors ?? [];
 	const preferences = new InMemorySkillPreferenceStore();
@@ -157,12 +157,12 @@ function executionContext(
 		logger: makeLogger() as never,
 		safetyPolicy: new SkillSafetyPolicy(),
 		skillDepth: 0,
-			provenanceChain: [],
-			toolContext: makeToolContext(),
-			timeoutMs: input.timeoutMs,
-			maxDepth: 4,
-			maxRetries: input.maxRetries ?? 0,
-		};
+		provenanceChain: [],
+		toolContext: makeToolContext(),
+		timeoutMs: input.timeoutMs,
+		maxDepth: 4,
+		maxRetries: input.maxRetries ?? 0,
+	};
 }
 
 describe('skill system', () => {
@@ -857,42 +857,42 @@ describe('skill system', () => {
 
 		expect(nestedResult.status).toBe('ok');
 		expect(nestedPayload.success).toBe(true);
-			expect(nestedPayload.usedSkills).toEqual(['support-replies@1.0.0']);
-			await fs.rm(root, { recursive: true, force: true });
+		expect(nestedPayload.usedSkills).toEqual(['support-replies@1.0.0']);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('execute_skill supports disabling timeout without passing controls to skill input', async () => {
+		const service = new SkillsService(makeLogger() as never);
+		service.registerSkill(
+			basicSkill('echo-control', async (input, context) => context.complete({ input }), {
+				inputSchema: {
+					type: 'object',
+					properties: { path: { type: 'string' } },
+					required: ['path'],
+					additionalProperties: false,
+				},
+			})
+		);
+		const tool = service.createExecutionTool({
+			userId: 'u1',
+			sessionId: 's1',
+			tools: [],
+			connectors: [],
+			signal: undefined,
 		});
 
-		it('execute_skill supports disabling timeout without passing controls to skill input', async () => {
-			const service = new SkillsService(makeLogger() as never);
-			service.registerSkill(
-				basicSkill('echo-control', async (input, context) => context.complete({ input }), {
-					inputSchema: {
-						type: 'object',
-						properties: { path: { type: 'string' } },
-						required: ['path'],
-						additionalProperties: false,
-					},
-				})
-			);
-			const tool = service.createExecutionTool({
-				userId: 'u1',
-				sessionId: 's1',
-				tools: [],
-				connectors: [],
-				signal: undefined,
-			});
+		const result = await tool.execute(
+			{ skillId: 'echo-control', path: '/tmp/source.md', timeoutMs: 0, noTimeout: true },
+			makeToolContext()
+		);
+		const payload = JSON.parse(result.content[0]?.type === 'text' ? result.content[0].text : '{}');
 
-			const result = await tool.execute(
-				{ skillId: 'echo-control', path: '/tmp/source.md', timeoutMs: 0, noTimeout: true },
-				makeToolContext()
-			);
-			const payload = JSON.parse(result.content[0]?.type === 'text' ? result.content[0].text : '{}');
+		expect(result.status).toBe('ok');
+		expect(payload.success).toBe(true);
+		expect(payload.data.input).toEqual({ path: '/tmp/source.md' });
+	});
 
-			expect(result.status).toBe('ok');
-			expect(payload.success).toBe(true);
-			expect(payload.data.input).toEqual({ path: '/tmp/source.md' });
-		});
-
-		it('rejects Agent Skill packages without exactly one root SKILL.md', async () => {
+	it('rejects Agent Skill packages without exactly one root SKILL.md', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'broken-skill');
 		await fs.mkdir(path.join(dir, 'nested'), { recursive: true });

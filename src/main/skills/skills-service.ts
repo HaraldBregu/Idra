@@ -48,7 +48,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function splitSkillIdAndVersion(skillId: string, version?: string): { skillId: string; version?: string } {
+function splitSkillIdAndVersion(
+	skillId: string,
+	version?: string
+): { skillId: string; version?: string } {
 	const trimmedSkillId = skillId.trim();
 	const explicitVersion = version?.trim();
 	const atIndex = trimmedSkillId.lastIndexOf('@');
@@ -195,7 +198,10 @@ export class SkillsService {
 		return skills;
 	}
 
-	async discoverForPrompt(query: string, input: AgentSkillRuntimeInput): Promise<SkillPromptChoice[]> {
+	async discoverForPrompt(
+		query: string,
+		input: AgentSkillRuntimeInput
+	): Promise<SkillPromptChoice[]> {
 		await this.registerManagedDynamicSkills();
 		const userPreferences = await this.preferences.getPreferences(input.userId);
 		const priorSuccess = new Map<string, number>();
@@ -246,19 +252,20 @@ export class SkillsService {
 				'Execute one registered high-level skill by id. Skills run with scoped tools, connectors, permissions, memory policy, safety checks, and provenance.',
 			schema: {
 				type: 'object',
-					properties: {
-						skillId: { type: 'string' },
-						version: { type: 'string' },
-						input: { type: 'object', additionalProperties: true },
-						timeoutMs: {
-							type: 'number',
-							description: 'Skill execution timeout in milliseconds. Set to 0 to disable the timeout.',
-						},
-						noTimeout: {
-							type: 'boolean',
-							description: 'Disable the skill execution timeout for this invocation.',
-						},
+				properties: {
+					skillId: { type: 'string' },
+					version: { type: 'string' },
+					input: { type: 'object', additionalProperties: true },
+					timeoutMs: {
+						type: 'number',
+						description:
+							'Skill execution timeout in milliseconds. Set to 0 to disable the timeout.',
 					},
+					noTimeout: {
+						type: 'boolean',
+						description: 'Disable the skill execution timeout for this invocation.',
+					},
+				},
 				required: ['skillId'],
 				additionalProperties: true,
 			},
@@ -272,13 +279,13 @@ export class SkillsService {
 				if (!skillId) return textResult('execute_skill: skillId is required', true);
 
 				const userPreferences = await this.preferences.getPreferences(input.userId);
-					const context = await this.createExecutionContext(
-						{ ...input, toolContext },
-						userPreferences
-					);
-					const timeoutMs = normalizeSkillExecutionTimeout(args);
-					if (timeoutMs !== undefined) context.timeoutMs = timeoutMs;
-					const result = await this.engine.execute({
+				const context = await this.createExecutionContext(
+					{ ...input, toolContext },
+					userPreferences
+				);
+				const timeoutMs = normalizeSkillExecutionTimeout(args);
+				if (timeoutMs !== undefined) context.timeoutMs = timeoutMs;
+				const result = await this.engine.execute({
 					skillId,
 					version,
 					input: normalizeSkillToolInput(args),
@@ -314,11 +321,17 @@ export class SkillsService {
 		const skipped = [...discovery.skipped];
 
 		for (const loaded of discovery.packages) {
-			const id = toSkillId(loaded.manifest.id ?? loaded.manifest.name ?? path.basename(loaded.sourcePath));
+			const id = toSkillId(
+				loaded.manifest.id ?? loaded.manifest.name ?? path.basename(loaded.sourcePath)
+			);
 			const target = this.resolveSkillDir(id);
 
 			if (loaded.sourcePath === target) {
-				skipped.push({ name: id, sourcePath: loaded.sourcePath, reason: 'This skill is already managed by Friday.' });
+				skipped.push({
+					name: id,
+					sourcePath: loaded.sourcePath,
+					reason: 'This skill is already managed by Friday.',
+				});
 				continue;
 			}
 
@@ -331,7 +344,11 @@ export class SkillsService {
 				});
 			} catch (error) {
 				if ((error as NodeJS.ErrnoException).code === 'ERR_FS_CP_EEXIST') {
-					skipped.push({ name: id, sourcePath: loaded.sourcePath, reason: `Skill already exists: ${id}` });
+					skipped.push({
+						name: id,
+						sourcePath: loaded.sourcePath,
+						reason: `Skill already exists: ${id}`,
+					});
 					continue;
 				}
 				throw error;
@@ -340,7 +357,11 @@ export class SkillsService {
 			const skill = await this.readSkillInfo(target, id);
 			if (!skill) {
 				await fs.promises.rm(target, { recursive: true, force: true });
-				skipped.push({ name: id, sourcePath: loaded.sourcePath, reason: 'Imported folder is missing SKILL.md.' });
+				skipped.push({
+					name: id,
+					sourcePath: loaded.sourcePath,
+					reason: 'Imported folder is missing SKILL.md.',
+				});
 				continue;
 			}
 
@@ -447,7 +468,10 @@ export class SkillsService {
 		const existingVersions = this.registry.getSkillVersions(loaded.skill.id);
 		const conflictsWithBuiltIn = existingVersions.some((skill) => skill.metadata.dynamic !== true);
 		if (conflictsWithBuiltIn) {
-			this.logger.warn('SkillsService', `Skipping ${loaded.skill.id}: conflicts with a built-in skill`);
+			this.logger.warn(
+				'SkillsService',
+				`Skipping ${loaded.skill.id}: conflicts with a built-in skill`
+			);
 			return;
 		}
 		if (existingVersions.length > 0) {
@@ -508,7 +532,6 @@ export class SkillsService {
 			maxRetries: 1,
 		};
 	}
-
 }
 
 async function pathExists(filePath: string): Promise<boolean> {
