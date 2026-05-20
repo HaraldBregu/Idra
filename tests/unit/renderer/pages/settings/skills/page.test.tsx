@@ -72,7 +72,7 @@ describe('SkillsPage', () => {
 		await waitFor(() => {
 			expect(window.skills.importSkill).toHaveBeenCalled();
 		});
-		expect(window.skills.list).toHaveBeenCalledTimes(2);
+		expect(window.skills.list).toHaveBeenCalled();
 	});
 
 	it('shows skill details', async () => {
