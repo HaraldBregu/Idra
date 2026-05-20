@@ -605,6 +605,62 @@ describe('skill system', () => {
 		await fs.rm(source, { recursive: true, force: true });
 	});
 
+	it('imports standard Agent Skills from a project .agents skills folder', async () => {
+		const root = await makeTempDir();
+		const source = await makeTempDir();
+		const skillDir = path.join(source, '.agents', 'skills', 'project-skill');
+		await fs.mkdir(skillDir, { recursive: true });
+		await fs.writeFile(
+			path.join(skillDir, 'SKILL.md'),
+			[
+				'---',
+				'name: project-skill',
+				'description: Handles project-level skill workflows when users import a repository folder.',
+				'---',
+				'Use this skill for project-scoped agent workflows.',
+			].join('\n')
+		);
+		const service = new SkillsService(makeLogger() as never, {
+			userDataDirectory: userDataDirectory(root) as never,
+		});
+
+		const result = await service.importFromPath(source);
+
+		expect(result.imported.map((skill) => skill.id)).toEqual(['project-skill']);
+		await expect(fs.stat(path.join(root, 'skills', 'project-skill', 'SKILL.md'))).resolves.toBeDefined();
+		await fs.rm(root, { recursive: true, force: true });
+		await fs.rm(source, { recursive: true, force: true });
+	});
+
+	it('does not import container skills through a symlink escape', async () => {
+		const root = await makeTempDir();
+		const source = await makeTempDir();
+		const outside = await makeTempDir();
+		const outsideSkill = path.join(outside, 'escaped-skill');
+		await fs.mkdir(outsideSkill, { recursive: true });
+		await fs.writeFile(
+			path.join(outsideSkill, 'SKILL.md'),
+			[
+				'---',
+				'name: escaped-skill',
+				'description: Handles escaped skill workflows outside of the selected import folder.',
+				'---',
+				'This should not be imported through a symlinked skills folder.',
+			].join('\n')
+		);
+		await fs.symlink(outside, path.join(source, 'skills'), 'dir');
+		const service = new SkillsService(makeLogger() as never, {
+			userDataDirectory: userDataDirectory(root) as never,
+		});
+
+		await expect(service.importFromPath(source)).rejects.toThrow(
+			'Selected folder must contain SKILL.md or skill subfolders with SKILL.md.'
+		);
+		await fs.rm(root, { recursive: true, force: true });
+		await fs.rm(source, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('activates trusted Agent Skill packages as structured instructions', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'support-replies');
