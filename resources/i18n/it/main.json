@@ -244,6 +244,27 @@
 			"userDataDescription": "Cartella in cui Friday salva file, workspace, app, abilita e dati assistente dell'utente",
 			"openUserData": "Apri Cartella"
 		},
+		"chatHistory": {
+			"title": "Cronologia chat",
+			"description": "Controlla il contesto salvato della chat principale e cancella la conversazione corrente.",
+			"messages": "Messaggi salvati",
+			"breakdown": "{{user}} utente / {{assistant}} assistente / {{tool}} strumenti",
+			"messageCountValue": "{{count}} messaggi",
+			"contextSize": "Dimensione contesto",
+			"contextSizeDescription": "Quantita approssimativa di contenuto della trascrizione mantenuta per le risposte future.",
+			"contextSizeValue": "{{characters}} caratteri / ~{{tokens}} token",
+			"actions": "Azioni cronologia",
+			"actionsDescription": "L'eliminazione della cronologia cancella anche la trascrizione della chat attiva.",
+			"refresh": "Aggiorna",
+			"delete": "Elimina Cronologia",
+			"deleting": "Eliminazione...",
+			"confirmDelete": "Eliminare la cronologia chat e cancellare la chat corrente?",
+			"loading": "Caricamento...",
+			"errors": {
+				"load": "Impossibile caricare la cronologia chat.",
+				"delete": "Impossibile eliminare la cronologia chat."
+			}
+		},
 		"microphone": {
 			"title": "Permessi microfono",
 			"description": "Controlla se Friday puo registrare audio dal campo prompt.",

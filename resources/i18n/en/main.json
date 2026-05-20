@@ -244,6 +244,27 @@
 			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, apps, skills, and agent data",
 			"openUserData": "Open Folder"
 		},
+		"chatHistory": {
+			"title": "Chat history",
+			"description": "Inspect the stored main chat context and clear the current conversation.",
+			"messages": "Stored messages",
+			"breakdown": "{{user}} user / {{assistant}} assistant / {{tool}} tool",
+			"messageCountValue": "{{count}} messages",
+			"contextSize": "Context size",
+			"contextSizeDescription": "Approximate amount of transcript content kept for future replies.",
+			"contextSizeValue": "{{characters}} characters / ~{{tokens}} tokens",
+			"actions": "History actions",
+			"actionsDescription": "Deleting history also clears the active chat transcript.",
+			"refresh": "Refresh",
+			"delete": "Delete History",
+			"deleting": "Deleting...",
+			"confirmDelete": "Delete chat history and clear the current chat?",
+			"loading": "Loading...",
+			"errors": {
+				"load": "Could not load chat history.",
+				"delete": "Could not delete chat history."
+			}
+		},
 		"microphone": {
 			"title": "Microphone permissions",
 			"description": "Control whether Friday can record audio from the prompt input.",
