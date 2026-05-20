@@ -524,6 +524,38 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
+	it('downloads managed skills to a selected folder without generated directories', async () => {
+		const root = await makeTempDir();
+		const destinationRoot = await makeTempDir();
+		const dir = path.join(root, 'skills', 'download-skill');
+		await fs.mkdir(path.join(dir, 'node_modules', 'pkg'), { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: download-skill',
+				'description: Downloadable skill.',
+				'---',
+				'Use download instructions.',
+			].join('\n')
+		);
+		await fs.writeFile(path.join(dir, 'node_modules', 'pkg', 'ignored.txt'), 'ignored');
+		const service = new SkillsService(makeLogger() as never, {
+			userDataDirectory: userDataDirectory(root) as never,
+		});
+
+		const result = await service.downloadToPath('download-skill', destinationRoot);
+
+		expect(result).toEqual({
+			id: 'download-skill',
+			destinationPath: path.join(destinationRoot, 'download-skill'),
+		});
+		await expect(fs.stat(path.join(result.destinationPath, 'SKILL.md'))).resolves.toBeDefined();
+		await expect(fs.stat(path.join(result.destinationPath, 'node_modules'))).rejects.toThrow();
+		await fs.rm(root, { recursive: true, force: true });
+		await fs.rm(destinationRoot, { recursive: true, force: true });
+	});
+
 	it('activates trusted Agent Skill packages as structured instructions', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'support-replies');
