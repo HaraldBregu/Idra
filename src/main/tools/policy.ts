@@ -27,6 +27,7 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'process',
 		'web_fetch',
 		'cron',
+		'task',
 	],
 	messaging: [],
 	standard: [
@@ -43,6 +44,7 @@ const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
 		'process',
 		'web_fetch',
 		'cron',
+		'task',
 	],
 	full: 'all',
 };
