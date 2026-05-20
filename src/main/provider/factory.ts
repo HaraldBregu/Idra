@@ -1,4 +1,5 @@
 import { AnthropicAdapter } from './anthropic';
+import { DeepSeekAdapter } from './deepseek';
 import { MistralAdapter } from './mistral';
 import { OpenAIAdapter, OpenAIChatAdapter } from './openai';
 import type { ProviderAdapter } from './types';
