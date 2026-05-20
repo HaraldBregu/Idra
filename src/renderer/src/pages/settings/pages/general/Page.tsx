@@ -6,11 +6,9 @@ import {
 	BatteryCharging,
 	Bot,
 	ChevronRight,
-	Database,
 	FolderOpen,
 	ImageIcon,
 	Languages,
-	MessageSquareText,
 	Mic,
 	Monitor,
 	MonitorUp,
@@ -19,7 +17,6 @@ import {
 	RefreshCw,
 	ShieldCheck,
 	Sun,
-	Trash2,
 	Volume2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,8 +39,6 @@ import {
 	IMAGE_ASSISTANT_AGENT_ID,
 	SPEECH_TRANSCRIBER_AGENT_ID,
 	TEXT_TO_SPEECH_AGENT_ID,
-	type AgentHistoryContentBlock,
-	type AgentHistoryMessage,
 } from '../../../../../../shared/service';
 import type {
 	MicrophonePermissionSettings,
@@ -81,24 +76,6 @@ const TRANSLUCENCY_OPTIONS = [
 }[];
 
 const FRIDAY_AGENT_ID = 'main';
-
-interface ChatHistoryStats {
-	readonly messageCount: number;
-	readonly userMessages: number;
-	readonly assistantMessages: number;
-	readonly toolResults: number;
-	readonly contextCharacters: number;
-	readonly estimatedTokens: number;
-}
-
-const EMPTY_CHAT_HISTORY_STATS: ChatHistoryStats = {
-	messageCount: 0,
-	userMessages: 0,
-	assistantMessages: 0,
-	toolResults: 0,
-	contextCharacters: 0,
-	estimatedTokens: 0,
-};
 
 const AGENT_ROWS = [
 	{
@@ -147,50 +124,6 @@ function microphoneActionKey(permission: MicrophonePermissionSettings): string {
 	return 'settings.microphone.actions.request';
 }
 
-function formatCount(value: number): string {
-	return new Intl.NumberFormat().format(value);
-}
-
-function measureUnknown(value: unknown): number {
-	if (value === null || value === undefined) return 0;
-	if (typeof value === 'string') return value.length;
-	try {
-		return JSON.stringify(value).length;
-	} catch {
-		return String(value).length;
-	}
-}
-
-function contentBlockSize(block: AgentHistoryContentBlock): number {
-	if (block.type === 'text') return block.text.length;
-	return block.toolName.length + measureUnknown(block.toolArgs);
-}
-
-function chatHistoryMessageSize(message: AgentHistoryMessage): number {
-	if (message.role === 'user') return message.content.length;
-	if (message.role === 'tool') return message.content.length;
-	const blocks = message.contentBlocks ?? [];
-	if (blocks.length > 0) {
-		return blocks.reduce((total, block) => total + contentBlockSize(block), 0);
-	}
-	return message.content?.length ?? 0;
-}
-
-function chatHistoryStats(history: AgentHistoryMessage[]): ChatHistoryStats {
-	const contextCharacters = history.reduce(
-		(total, message) => total + chatHistoryMessageSize(message),
-		0
-	);
-	return {
-		messageCount: history.length,
-		userMessages: history.filter((message) => message.role === 'user').length,
-		assistantMessages: history.filter((message) => message.role === 'assistant').length,
-		toolResults: history.filter((message) => message.role === 'tool').length,
-		contextCharacters,
-		estimatedTokens: Math.ceil(contextCharacters / 4),
-	};
-}
-
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -203,10 +136,6 @@ const GeneralPage: React.FC = () => {
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
 	const [microphoneLoading, setMicrophoneLoading] = useState(true);
 	const [microphoneError, setMicrophoneError] = useState('');
-	const [chatHistory, setChatHistory] = useState<ChatHistoryStats>(EMPTY_CHAT_HISTORY_STATS);
-	const [chatHistoryLoading, setChatHistoryLoading] = useState(true);
-	const [chatHistoryDeleting, setChatHistoryDeleting] = useState(false);
-	const [chatHistoryErrorKey, setChatHistoryErrorKey] = useState('');
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
@@ -246,24 +175,6 @@ const GeneralPage: React.FC = () => {
 	useEffect(() => {
 		void refreshMicrophonePermission();
 	}, [refreshMicrophonePermission]);
-
-	const refreshChatHistory = useCallback(async (): Promise<void> => {
-		setChatHistoryLoading(true);
-		setChatHistoryErrorKey('');
-		try {
-			const history = await window.agent.getHistory();
-			setChatHistory(chatHistoryStats(history));
-		} catch {
-			setChatHistory(EMPTY_CHAT_HISTORY_STATS);
-			setChatHistoryErrorKey('settings.chatHistory.errors.load');
-		} finally {
-			setChatHistoryLoading(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		void refreshChatHistory();
-	}, [refreshChatHistory]);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
 		setTrayEnabled(checked);
@@ -329,28 +240,6 @@ const GeneralPage: React.FC = () => {
 	const handleOpenUserDataFolder = useCallback(() => {
 		void window.app.openUserDataFolder();
 	}, []);
-
-	const handleOpenChatHistoryFolder = useCallback(() => {
-		setChatHistoryErrorKey('');
-		void window.agent.openHistoryFolder().catch(() => {
-			setChatHistoryErrorKey('settings.chatHistory.errors.openFolder');
-		});
-	}, []);
-
-	const handleDeleteChatHistory = useCallback(async (): Promise<void> => {
-		if (!window.confirm(t('settings.chatHistory.confirmDelete'))) return;
-		setChatHistoryDeleting(true);
-		setChatHistoryErrorKey('');
-		try {
-			await window.agent.reset();
-			setChatHistory(EMPTY_CHAT_HISTORY_STATS);
-		} catch {
-			setChatHistoryErrorKey('settings.chatHistory.errors.delete');
-			await refreshChatHistory();
-		} finally {
-			setChatHistoryDeleting(false);
-		}
-	}, [refreshChatHistory, t]);
 
 	const openAgent = useCallback((agentId: string) => {
 		navigate(`/settings/general/agentdetails/${encodeURIComponent(agentId)}`);
@@ -452,110 +341,6 @@ const GeneralPage: React.FC = () => {
 							</Item>
 						);
 					})}
-				</Card>
-			</SettingsSection>
-
-			<SettingsSection
-				title={t('settings.chatHistory.title')}
-				description={t('settings.chatHistory.description')}
-			>
-				<Card size="sm" className="gap-0! p-0!">
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<MessageSquareText className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<ItemTitle>{t('settings.chatHistory.messages')}</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-								{chatHistoryLoading
-									? t('settings.chatHistory.loading')
-									: t('settings.chatHistory.breakdown', {
-											user: formatCount(chatHistory.userMessages),
-											assistant: formatCount(chatHistory.assistantMessages),
-											tool: formatCount(chatHistory.toolResults),
-										})}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<span className="rounded-md border border-border/60 bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground">
-								{chatHistoryLoading
-									? t('settings.chatHistory.loading')
-									: t('settings.chatHistory.messageCountValue', {
-											count: formatCount(chatHistory.messageCount),
-										})}
-							</span>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Database className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<ItemTitle>{t('settings.chatHistory.contextSize')}</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-								{t('settings.chatHistory.contextSizeDescription')}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<span className="rounded-md border border-border/60 bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground">
-								{chatHistoryLoading
-									? t('settings.chatHistory.loading')
-									: t('settings.chatHistory.contextSizeValue', {
-											characters: formatCount(chatHistory.contextCharacters),
-											tokens: formatCount(chatHistory.estimatedTokens),
-										})}
-							</span>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Trash2 className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<ItemTitle>{t('settings.chatHistory.actions')}</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
-								{chatHistoryErrorKey
-									? t(chatHistoryErrorKey)
-									: t('settings.chatHistory.actionsDescription')}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end gap-2">
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								onClick={handleOpenChatHistoryFolder}
-								disabled={chatHistoryDeleting}
-								aria-label={t('settings.chatHistory.openFolder')}
-								title={t('settings.chatHistory.openFolder')}
-							>
-								<FolderOpen className="size-3" />
-							</Button>
-							<Button
-								variant="outline"
-								size="xs"
-								onClick={() => void refreshChatHistory()}
-								disabled={chatHistoryLoading || chatHistoryDeleting}
-							>
-								<RefreshCw className="size-3" />
-								{t('settings.chatHistory.refresh')}
-							</Button>
-							<Button
-								variant="destructive"
-								size="xs"
-								onClick={() => void handleDeleteChatHistory()}
-								disabled={
-									chatHistoryLoading ||
-									chatHistoryDeleting ||
-									chatHistory.messageCount === 0
-								}
-							>
-								<Trash2 className="size-3" />
-								{chatHistoryDeleting
-									? t('settings.chatHistory.deleting')
-									: t('settings.chatHistory.delete')}
-							</Button>
-						</ItemActions>
-					</Item>
 				</Card>
 			</SettingsSection>
 
