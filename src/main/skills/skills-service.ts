@@ -216,6 +216,7 @@ export class SkillsService {
 			category: skill.category,
 			tags: skill.tags,
 			requiredTools: skill.requiredTools,
+			allowedTools: skill.contract.allowedTools,
 			requiredConnectors: skill.requiredConnectors,
 			permissionsRequired: skill.permissionsRequired,
 			safetyLevel: skill.safetyLevel,
