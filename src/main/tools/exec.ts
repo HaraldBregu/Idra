@@ -230,12 +230,12 @@ function runForeground(
 		let killed = false;
 		let settled = false;
 
-		const finish = (code: number | null, aborted = false): void => {
-			if (settled) return;
-			settled = true;
-			clearTimeout(timer);
-			signal?.removeEventListener('abort', abort);
-			const exitCode = killed || aborted ? -1 : code;
+			const finish = (code: number | null, aborted = false): void => {
+				if (settled) return;
+				settled = true;
+				if (timer) clearTimeout(timer);
+				signal?.removeEventListener('abort', abort);
+				const exitCode = killed || aborted ? -1 : code;
 			resolve(
 				formatResult(command, exitCode, killed || aborted, stdout, stderr, Date.now() - start)
 			);
