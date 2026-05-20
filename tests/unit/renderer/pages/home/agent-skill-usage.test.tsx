@@ -37,6 +37,25 @@ describe('agent skill usage', () => {
 		]);
 	});
 
+	it('extracts skill usage from SKILL.md read calls', () => {
+		const usages = getAgentSkillUsages([
+			{
+				toolCallId: 'tool-1',
+				type: 'read',
+				state: 'output-available',
+				input: { path: '/workspace/skills/research-brief/SKILL.md' },
+			},
+			{
+				toolCallId: 'tool-2',
+				type: 'read',
+				state: 'output-available',
+				input: { path: '/workspace/README.md' },
+			},
+		]);
+
+		expect(usages).toEqual([{ id: 'research-brief', label: 'research-brief' }]);
+	});
+
 	it('renders used skill chips', () => {
 		const skills = [{ id: 'release-notes-drafter', label: 'release-notes-drafter' }];
 
