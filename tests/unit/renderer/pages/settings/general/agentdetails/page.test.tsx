@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
@@ -74,5 +74,25 @@ describe('AgentDetailsPage', () => {
 		expect(screen.getByTestId('location')).toHaveTextContent(
 			'/settings/general/agentdetails/main/chathistory'
 		);
+	});
+
+	it('renders the Friday page without identity or history description and collapses provider settings', async () => {
+		const user = userEvent.setup();
+		renderAgentDetailsPage();
+
+		const providerCard = await screen.findByRole('button', {
+			name: /settings\.agents\.provider/,
+		});
+
+		expect(screen.queryByText('settings.agents.identity')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.chatHistory.description')).not.toBeInTheDocument();
+		expect(await screen.findByText('settings.agents.providerDescription')).toBeInTheDocument();
+
+		await user.click(providerCard);
+
+		expect(providerCard).toHaveAttribute('aria-expanded', 'false');
+		await waitFor(() => {
+			expect(screen.queryByText('settings.agents.providerDescription')).not.toBeInTheDocument();
+		});
 	});
 });
