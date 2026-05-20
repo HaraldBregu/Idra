@@ -25,8 +25,9 @@ describe('TasksIpc', () => {
 		jest.clearAllMocks();
 	});
 
-	it('returns task list, get, and cancel records through typed IPC handlers', async () => {
+	it('starts, lists, gets, and cancels records through typed IPC handlers', async () => {
 		const taskManager = {
+			run: jest.fn(() => record),
 			list: jest.fn(() => [record]),
 			get: jest.fn(() => record),
 			cancel: jest.fn(() => ({ ...record, status: 'cancelling' })),
@@ -38,6 +39,12 @@ describe('TasksIpc', () => {
 
 		new TasksIpc().register(container, eventBus);
 
+		const request = { type: record.type, title: record.title, input: { prompt: 'run' } };
+		await expect(registeredHandler(TaskChannels.start)({}, request)).resolves.toEqual({
+			success: true,
+			data: record,
+		});
+		expect(taskManager.run).toHaveBeenCalledWith(request);
 		await expect(registeredHandler(TaskChannels.list)({})).resolves.toEqual({
 			success: true,
 			data: [record],
@@ -54,6 +61,7 @@ describe('TasksIpc', () => {
 
 	it('forwards task lifecycle events to renderers on one event channel', () => {
 		const taskManager = {
+			run: jest.fn(),
 			list: jest.fn(),
 			get: jest.fn(),
 			cancel: jest.fn(),

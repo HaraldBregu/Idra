@@ -71,6 +71,9 @@ export interface HeartbeatApi {
 }
 
 export interface TasksApi {
+	start: <TInput = unknown, TResult = unknown>(
+		request: TaskRunRequest<TInput>
+	) => Promise<TaskRecord<TResult>>;
 	list: () => Promise<TaskRecord[]>;
 	get: (id: string) => Promise<TaskRecord | undefined>;
 	cancel: (id: string) => Promise<TaskRecord>;
@@ -176,7 +179,7 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
-import type { TaskEvent, TaskRecord } from '../shared/tasks';
+import type { TaskEvent, TaskRecord, TaskRunRequest } from '../shared/tasks';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,

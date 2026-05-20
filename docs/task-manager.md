@@ -13,6 +13,7 @@ The task manager is not a scheduler. Cron and heartbeat features may create task
 - Run multiple tasks concurrently.
 - Store every task record in memory for the current app session.
 - Expose task state to the renderer through a typed preload API.
+- Allow the user to manually create a task for approved user-facing task types.
 - Allow the user to cancel a running task.
 - Support any task type through registered task handlers.
 - Use one task record per operation.
@@ -115,7 +116,7 @@ Add a main-process task module when this feature is implemented:
 - `src/main/tasks/task-manager.ts`: in-memory task store, lifecycle transitions, cancellation, and event emission.
 - `src/main/tasks/task-registry.ts`: task type registration and lookup.
 - `src/main/tasks/handlers/*`: concrete task handlers, such as agent and OCR handlers.
-- `src/main/ipc/tasks-ipc.ts`: typed IPC handlers for task list/get/cancel and task events.
+- `src/main/ipc/tasks-ipc.ts`: typed IPC handlers for task start/list/get/cancel and task events.
 - `src/preload/index.ts` and `src/preload/index.d.ts`: `window.tasks` preload API.
 - `src/shared/ipc-channels.ts`: task IPC channel constants and invoke channel map entries.
 - `src/main/service-registry.ts`: register the task manager as a main service.
@@ -128,6 +129,9 @@ Expose a small renderer API:
 
 ```ts
 export interface TasksApi {
+	start: <TInput = unknown, TResult = unknown>(
+		request: TaskRunRequest<TInput>
+	) => Promise<TaskRecord<TResult>>;
 	list: () => Promise<TaskRecord[]>;
 	get: (id: string) => Promise<TaskRecord | undefined>;
 	cancel: (id: string) => Promise<TaskRecord>;
@@ -135,7 +139,15 @@ export interface TasksApi {
 }
 ```
 
-The renderer can retrieve and cancel tasks. Starting tasks from the renderer should be added only for specific user-facing task types and must validate the requested type and input in the main process.
+The renderer can start, retrieve, and cancel tasks. User-created tasks must go through `tasks.start(request)`, and the main process must validate the requested task type and input before running a handler.
+
+IPC channels:
+
+- `tasks:start`: validates a `TaskRunRequest`, creates one in-memory task record, and starts the registered handler.
+- `tasks:list`: returns all in-memory task records for the current app session.
+- `tasks:get`: returns one task record by id.
+- `tasks:cancel`: requests cooperative cancellation for one task by id.
+- `tasks:event`: broadcasts task lifecycle events to renderers.
 
 ## Events
 
@@ -169,6 +181,7 @@ If a specific external API requires its own timeout, keep that timeout local to 
 ## Safety Rules
 
 - Validate task type and input before running a handler.
+- Allow renderer-created tasks only for registered user-facing task types.
 - Keep privileged decisions in the main process.
 - Do not expose raw handler functions through preload.
 - Redact secrets before storing task input, metadata, progress, result, or error state.
@@ -182,7 +195,7 @@ If a specific external API requires its own timeout, keep that timeout local to 
 1. Add shared task types and IPC channel definitions.
 2. Add the main-process `TaskManager` and task registry.
 3. Register the task manager in the service container.
-4. Add IPC handlers and the `window.tasks` preload API.
+4. Add IPC handlers and the `window.tasks` preload API, including manual task creation.
 5. Add the first concrete handlers, starting with agent and OCR tasks.
 6. Add renderer retrieval and cancellation UI where needed.
 7. Add focused tests for lifecycle transitions, concurrent execution, cancellation, and no default timeout behavior.
@@ -200,6 +213,7 @@ yarn test
 Required tests:
 
 - Two tasks can run concurrently and complete independently.
+- A user-created task can be started through preload/IPC for an approved task type.
 - `list` and `get` return current in-memory records through IPC.
 - Cancelling a running task moves it through `cancelling` to `cancelled`.
 - One operation creates one task record.

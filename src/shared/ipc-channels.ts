@@ -46,6 +46,7 @@ export const RealtimeTranscriptionChannels = {
 } as const;
 
 export const TaskChannels = {
+	start: 'tasks:start',
 	list: 'tasks:list',
 	get: 'tasks:get',
 	cancel: 'tasks:cancel',
@@ -371,6 +372,10 @@ interface HeartbeatInvokeChannelMap {
 }
 
 interface TaskInvokeChannelMap {
+	[TaskChannels.start]: {
+		args: [request: import('./tasks').TaskRunRequest];
+		result: import('./tasks').TaskRecord;
+	};
 	[TaskChannels.list]: {
 		args: [];
 		result: import('./tasks').TaskRecord[];

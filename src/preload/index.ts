@@ -368,6 +368,9 @@ export const heartbeat: HeartbeatApi = {
 };
 
 export const tasks: TasksApi = {
+	start: (request) => {
+		return typedInvokeUnwrap(TaskChannels.start, request);
+	},
 	list: () => {
 		return typedInvokeUnwrap(TaskChannels.list);
 	},
