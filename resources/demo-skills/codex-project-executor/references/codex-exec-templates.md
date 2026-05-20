@@ -56,10 +56,10 @@ cat "$PROMPT_FILE" | codex exec --cd "$PROJECT" -
 Use when another command produces logs or data and the quoted prompt is the instruction.
 
 ```bash
-"$CONTEXT_COMMAND" | codex exec --cd "$PROJECT" "$PROMPT"
+npm test 2>&1 | codex exec --cd "$PROJECT" "$PROMPT"
 ```
 
-Replace `"$CONTEXT_COMMAND"` with a real command before running. Do not keep it as a literal placeholder.
+Replace the left side with the real context-producing command before running.
 
 ## Resume Last Project Session
 
