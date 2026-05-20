@@ -34,6 +34,16 @@ team-skills/
       SKILL.md
 ```
 
+Project folders can use the cross-client `.agents/skills` convention:
+
+```text
+project/
+  .agents/
+    skills/
+      project-skill/
+        SKILL.md
+```
+
 The importer ignores hidden directories, `.git`, `node_modules`, common build
 outputs, caches, and virtual environments.
 
@@ -55,6 +65,7 @@ Write concise instructions for the workflow.
 Standards Friday validates or reports as diagnostics:
 
 - `name` should be lowercase letters, numbers, and single hyphens.
+- `name` should be 64 characters or fewer.
 - `name` should match the parent folder name.
 - `description` is required and should explain both the task and trigger cases.
 - `compatibility` must be 500 characters or fewer.
