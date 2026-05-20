@@ -79,10 +79,10 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 		properties: {
 			command: { type: 'string', description: 'Shell command to execute.' },
 			workdir: { type: 'string', description: 'Working directory (relative or absolute).' },
-			timeoutMs: {
-				type: 'number',
-				description: `Timeout in milliseconds (default ${TOOL_LIMITS.exec.timeoutMs}).`,
-			},
+				timeoutMs: {
+					type: 'number',
+					description: `Timeout in milliseconds (default ${TOOL_LIMITS.exec.timeoutMs}). Set to 0 to disable the timeout.`,
+				},
 			env: { type: 'object', description: 'Extra environment variables.' },
 			background: {
 				type: 'boolean',
@@ -122,10 +122,14 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 				details: { exitCode: -1, durationMs: 0, truncated: false },
 			};
 		}
-		if (args.background) return runBackground(command, cwd, args.env);
-		return runForeground(command, cwd, args.env, args.timeoutMs ?? DEFAULT_TIMEOUT_MS, ctx.signal);
-	},
-};
+			if (args.background) return runBackground(command, cwd, args.env);
+			const timeoutMs =
+				typeof args.timeoutMs === 'number' && Number.isFinite(args.timeoutMs)
+					? Math.floor(args.timeoutMs)
+					: DEFAULT_TIMEOUT_MS;
+			return runForeground(command, cwd, args.env, timeoutMs > 0 ? timeoutMs : null, ctx.signal);
+		},
+	};
 
 export const processTool: AgentTool<{ action: 'list' | 'log' | 'kill'; id?: string }> = {
 	name: 'process',
@@ -206,7 +210,7 @@ function runForeground(
 	command: string,
 	cwd: string,
 	envExtra: Record<string, string> | undefined,
-	timeoutMs: number,
+	timeoutMs: number | null,
 	signal?: AbortSignal
 ): Promise<ReturnType<typeof formatResult>> {
 	return new Promise((resolve) => {
@@ -242,10 +246,13 @@ function runForeground(
 			killProcessTree(child);
 		};
 
-		const timer = setTimeout(() => {
-			killed = true;
-			killProcessTree(child);
-		}, timeoutMs);
+			const timer =
+				timeoutMs === null
+					? undefined
+					: setTimeout(() => {
+							killed = true;
+							killProcessTree(child);
+						}, timeoutMs);
 		if (signal?.aborted) abort();
 		else signal?.addEventListener('abort', abort, { once: true });
 
