@@ -16,7 +16,7 @@ import {
 	CommandList,
 	CommandShortcut,
 } from '@/components/ui/command';
-import { SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
+import { SETTINGS_DETAIL_ITEMS, SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
 
 interface AppRouteItem {
 	readonly id: string;
@@ -102,9 +102,16 @@ function createCommandItem({
 	};
 }
 
+function getSettingsRouteIcon(path: string): LucideIcon {
+	return SETTINGS_NAVIGATION.find(
+		(item) => path === item.path || path.startsWith(`${item.path}/`)
+	)?.icon ?? Settings;
+}
+
 function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 	const routesHeading = t('command.groups.routes', 'Routes');
 	const settingsRoutesHeading = t('command.groups.settingsRoutes', 'Settings routes');
+	const settingsPagePaths = new Set(SETTINGS_NAVIGATION.map((item) => item.path));
 
 	const routes = TOP_LEVEL_ROUTES.map((route) =>
 		createCommandItem({
@@ -123,10 +130,23 @@ function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 			path: item.path,
 		})
 	);
+	const settingsSubroutes = SETTINGS_DETAIL_ITEMS
+		.filter((item) => item.path.startsWith('/settings/') && !settingsPagePaths.has(item.path))
+		.map((item) =>
+			createCommandItem({
+				id: `settings-subroute-${item.path}`,
+				label: t(item.labelKey),
+				description: item.descriptionKey ? t(item.descriptionKey) : undefined,
+				group: settingsRoutesHeading,
+				icon: getSettingsRouteIcon(item.path),
+				path: item.path,
+				keywords: item.keywords,
+			})
+		);
 
 	return [
 		{ heading: routesHeading, items: routes },
-		{ heading: settingsRoutesHeading, items: settingsRoutes },
+		{ heading: settingsRoutesHeading, items: [...settingsRoutes, ...settingsSubroutes] },
 	];
 }
 
