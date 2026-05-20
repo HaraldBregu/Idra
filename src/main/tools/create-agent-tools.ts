@@ -30,7 +30,7 @@ export type CreateAgentToolsOptions = {
 		toolPolicies?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
 		toolSearch?: ToolSearchCompactionOptions;
 		tools?: {
-			fs?: { workspaceOnly?: boolean; readOnly?: boolean };
+				fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 			exec?: Record<string, unknown>;
 		};
 	};
