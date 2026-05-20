@@ -248,14 +248,6 @@ export class SkillsService {
 		};
 	}
 
-	async importFromPath(sourceDir: string): Promise<SkillInfo> {
-		const result = await this.importFromPath(sourceDir);
-		if (result.imported.length === 0) {
-			throw new Error(result.skipped[0]?.reason ?? 'No skills were imported.');
-		}
-		return result.imported[0]!;
-	}
-
 	async importFromPath(sourceDir: string): Promise<SkillImportResult> {
 		const source = path.resolve(sourceDir);
 		const stat = await fs.promises.stat(source);
