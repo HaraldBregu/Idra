@@ -13,7 +13,7 @@ export interface ToolArgumentBuildInput {
 
 export class ToolArgumentBuilder {
 	build<TInput>(tool: Tool<TInput>, input: ToolArgumentBuildInput): ToolArgumentBuildResult<TInput> {
-		const raw = extractRawArguments(input.intendedCall);
+		const raw = extractRawArguments(input.intendedCall, tool);
 		const allowUnknown = tool.metadata.allowUnknownInputFields === true || tool.inputSchema.additionalProperties !== false;
 		const sanitized = sanitizeObjectBySchema(raw, tool.inputSchema, allowUnknown);
 		if (sanitized.unknownFields.length > 0) {
@@ -48,6 +48,35 @@ export class ToolArgumentBuilder {
 }
 
 function extractRawArguments(intendedCall: unknown): unknown {
+	if (!isRecord(intendedCall)) return {};
+	return intendedCall;
+}
+
+function extractRawArgumentsForWrapper(intendedCall: Record<string, unknown>, tool: Tool): unknown {
+	const properties = schemaProperties(tool.inputSchema);
+	const required = requiredSchemaFields(tool.inputSchema);
+	const hasDirectSchemaField = Object.keys(intendedCall).some((key) => (
+		key !== 'input' && Object.prototype.hasOwnProperty.call(properties, key)
+	));
+	const nestedInput = isRecord(intendedCall.input) ? intendedCall.input : undefined;
+	const nestedHasRequiredField = nestedInput
+		? required.some((field) => Object.prototype.hasOwnProperty.call(nestedInput, field))
+		: false;
+	if (hasDirectSchemaField || (Object.prototype.hasOwnProperty.call(properties, 'input') && nestedHasRequiredField)) {
+		return intendedCall;
+	}
+	if (nestedInput) return nestedInput;
+	if (isRecord(intendedCall.arguments)) return intendedCall.arguments;
+	if (isRecord(intendedCall.args)) return intendedCall.args;
+	return intendedCall;
+}
+
+function extractRawArguments(intendedCall: unknown, tool: Tool): unknown {
+	if (!isRecord(intendedCall)) return {};
+	return extractRawArgumentsForWrapper(intendedCall, tool);
+}
+
+function previousExtractRawArguments(intendedCall: unknown): unknown {
 	if (!isRecord(intendedCall)) return {};
 	if (isRecord(intendedCall.input)) return intendedCall.input;
 	if (isRecord(intendedCall.arguments)) return intendedCall.arguments;
