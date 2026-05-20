@@ -108,5 +108,10 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: t('settings.cron.detailsTitle') });
 	}
 
+	if (location.pathname.startsWith('/settings/task-manager/taskdetails/')) {
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: t('settings.taskManager.detailsTitle') });
+	}
+
 	return items;
 }

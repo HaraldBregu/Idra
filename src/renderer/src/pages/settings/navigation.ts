@@ -3,6 +3,7 @@ import {
 	AppWindow,
 	Bot,
 	CalendarClock,
+	ClipboardList,
 	Info,
 	Plug,
 	RadioTower,
@@ -71,6 +72,8 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/agents/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
+	// Task manager
+	{ path: '/settings/task-manager', labelKey: 'settings.tabs.taskManager', descriptionKey: 'settings.taskManager.description', keywords: 'tasks running queued succeeded failed background' },
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
 ] as const;
@@ -123,6 +126,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.cron',
 		descriptionKey: 'settings.overview.descriptions.cron',
 		icon: CalendarClock,
+	},
+	{
+		path: '/settings/task-manager',
+		labelKey: 'settings.tabs.taskManager',
+		descriptionKey: 'settings.overview.descriptions.taskManager',
+		icon: ClipboardList,
 	},
 	{
 		path: '/settings/apps',

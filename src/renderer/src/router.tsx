@@ -35,6 +35,8 @@ const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/detail
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
+const TaskManagerPage = lazy(() => import('./pages/settings/pages/task-manager/Page'));
+const TaskDetailsPage = lazy(() => import('./pages/settings/pages/task-manager/details/Page'));
 const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
 const AppsPage = lazy(() => import('./pages/settings/pages/apps/Page'));
 
@@ -266,6 +268,27 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<CronDetailsPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
+					},
+					{
+						path: 'task-manager',
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<TaskManagerPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'taskdetails/:taskId',
+								element: (
+									<SettingsRouteWrapper>
+										<TaskDetailsPage />
 									</SettingsRouteWrapper>
 								),
 							},

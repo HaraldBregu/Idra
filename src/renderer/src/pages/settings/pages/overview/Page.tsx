@@ -22,7 +22,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		titleKey: 'settings.overview.groups.automation',
-		paths: ['/settings/heartbeat', '/settings/cron', '/settings/apps'],
+		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager', '/settings/apps'],
 	},
 ] satisfies readonly {
 	readonly titleKey: string;

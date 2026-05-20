@@ -11,6 +11,7 @@ describe('settings navigation', () => {
 			'settings.tabs.channels',
 			'settings.tabs.heartbeat',
 			'settings.tabs.cron',
+			'settings.tabs.taskManager',
 			'settings.tabs.apps',
 		]);
 	});

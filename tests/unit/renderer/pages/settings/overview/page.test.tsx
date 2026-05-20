@@ -46,6 +46,7 @@ describe('OverviewPage', () => {
 			'settings.tabs.connectors',
 			'settings.tabs.heartbeat',
 			'settings.tabs.cron',
+			'settings.tabs.taskManager',
 			'settings.tabs.apps',
 		]);
 	});
