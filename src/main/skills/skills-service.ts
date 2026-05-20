@@ -136,7 +136,7 @@ export class SkillsService {
 		const skills: SkillInfo[] = [];
 
 		for (const entry of entries) {
-			if (!entry.isDirectory()) continue;
+			if (!entry.isDirectory() || isIgnoredSkillDirectoryName(entry.name)) continue;
 
 			const id = entry.name;
 			const folderPath = path.join(root, id);
