@@ -353,6 +353,48 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
+	it('uses the directory name when Agent Skill front matter omits name', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'fallback-skill');
+		await fs.mkdir(dir);
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'description: Fallback package for local support workflows.',
+				'---',
+				'Use this skill for support workflow requests.',
+			].join('\n')
+		);
+
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		expect(loaded.manifest.id).toBe('fallback-skill');
+		expect(loaded.manifest.name).toBe('fallback-skill');
+		expect(loaded.skill.enabled).toBe(true);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('rejects oversized Agent Skill instruction files', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'huge-skill');
+		await fs.mkdir(dir);
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: huge-skill',
+				'description: Huge package.',
+				'---',
+				'x'.repeat(256_001),
+			].join('\n')
+		);
+
+		await expect(new SkillLoader().loadPackage(dir)).rejects.toThrow(
+			'SKILL.md exceeds 256000 bytes'
+		);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
 	it('activates trusted Agent Skill packages as structured instructions', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'support-replies');
