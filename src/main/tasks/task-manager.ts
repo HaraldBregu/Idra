@@ -211,7 +211,7 @@ export class TaskManager {
 
 	private async startTask(taskId: string, handler: TaskHandler): Promise<void> {
 		const state = this.tasks.get(taskId);
-		if (!state || state.record.status !== 'queued') return;
+		if (!state || !this.hasStatus(state, 'queued')) return;
 
 		this.transition(state, 'running', { startedAt: this.now() });
 		this.emitEvent({ type: 'task:started', task: cloneTaskRecord(state.record) });
@@ -294,6 +294,10 @@ export class TaskManager {
 			...patch,
 			status,
 		};
+	}
+
+	private hasStatus(state: InternalTaskState, status: TaskStatus): boolean {
+		return state.record.status === status;
 	}
 
 	private emitEvent(event: TaskEvent): void {
