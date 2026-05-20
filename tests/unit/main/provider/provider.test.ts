@@ -268,6 +268,36 @@ describe('provider/anthropic', () => {
 		]);
 	});
 
+	it('uses Anthropic usage snapshots without double counting streamed deltas', async () => {
+		async function* chunks() {
+			yield { type: 'message_start', message: { usage: { input_tokens: 4, output_tokens: 0 } } };
+			yield { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } };
+			yield { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'hi' } };
+			yield { type: 'message_delta', delta: { stop_reason: null }, usage: { output_tokens: 2 } };
+			yield { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 3 } };
+		}
+		const adapter = new AnthropicAdapter({
+			apiKey: 'ant-test',
+			clientFactory: () => ({
+				messages: { stream: jest.fn(() => chunks()) },
+			}) as never,
+		});
+
+		const events = await collectAsync(adapter.stream({
+			model: 'claude-test',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hello' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(events.at(-1)).toEqual({
+			type: 'message_end',
+			stopReason: 'end_turn',
+			usage: { inputTokens: 4, outputTokens: 3 },
+		});
+	});
+
 	it('converts prior tool calls and results into Anthropic messages', async () => {
 		async function* chunks() {
 			yield { type: 'message_start', message: { usage: { input_tokens: 1, output_tokens: 0 } } };
