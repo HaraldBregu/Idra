@@ -49,6 +49,7 @@ policy, ranking, and run context before it is exposed to the provider.
 | `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
 | `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
 | `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs. |
+| `task` | Starts an immediate in-memory background task by calling the task manager in `src/main/tasks`; this is the tool for “run a task in background”. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
 | `browser` | Controls the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions. |
 
@@ -81,6 +82,10 @@ and manual-run scheduling. The agent should not emulate scheduling with sleep
 loops, shell loops, long-running polling, or model-side timers.
 
 Use `cron` only when the request is actually scheduled.
+
+Use `task` for immediate background task creation. When the user asks to “run a
+task in background”, the agent should call `task` so the request goes through
+the registered `src/main/tasks` handler.
 
 ## Prompt Narrowing
 

@@ -23,6 +23,7 @@ import {
 	cronRemoveTool,
 	cronTool,
 } from '../../../../src/main/tools/cron';
+import { taskTool } from '../../../../src/main/tools/task';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
@@ -63,9 +64,59 @@ describe('tools/policy and registry', () => {
 			).toEqual(expect.arrayContaining(['cron']));
 			expect(
 				createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
-			).toBe(false);
+			).toBe(true);
 		});
 	});
+
+describe('tools/task', () => {
+	it('starts a background task through the main task manager', async () => {
+		const record = {
+			id: 'task-1',
+			type: 'agent.run',
+			title: 'Summarize workspace',
+			status: 'queued' as const,
+			createdAt: '2026-05-21T00:00:00.000Z',
+			metadata: {},
+		};
+		const taskManager = {
+			run: jest.fn(() => record),
+		};
+
+		const result = await taskTool.execute(
+			{
+				type: 'agent.run',
+				title: ' Summarize workspace ',
+				input: { message: 'Summarize the workspace' },
+				metadata: { source: 'test' },
+			},
+			makeToolContext({
+				services: {
+					...makeToolContext().services,
+					taskManager: taskManager as never,
+				},
+			})
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.details).toBe(record);
+		expect(taskManager.run).toHaveBeenCalledWith({
+			type: 'agent.run',
+			title: 'Summarize workspace',
+			input: { message: 'Summarize the workspace' },
+			metadata: { source: 'test' },
+		});
+	});
+
+	it('returns a tool error when the task manager service is unavailable', async () => {
+		const result = await taskTool.execute(
+			{ type: 'agent.run', title: 'Missing service', input: { message: 'hello' } },
+			makeToolContext()
+		);
+
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('TaskManager service is not available');
+	});
+});
 
 describe('tools/before-call', () => {
 	it('auto-allows legacy approval-marked tools and warns on repeated identical calls', async () => {
