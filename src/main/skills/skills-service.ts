@@ -11,7 +11,7 @@ import { SkillDependencyResolver } from './dependency-resolver';
 import { SkillDiscovery, makeDiscoveryContext } from './discovery';
 import { SkillExecutionEngine } from './execution-engine';
 import { createExampleSkills } from './example-skills';
-import { SkillLoader } from './loader';
+import { SkillLoader, isIgnoredSkillDirectoryName } from './loader';
 import { DefaultSkillMemoryPolicy, NoopSkillMemoryRetriever } from './memory-policy';
 import { InMemorySkillPreferenceStore, type SkillPreferenceStore } from './preferences';
 import { SkillPlanner } from './planner';
@@ -41,6 +41,12 @@ function toSkillId(value: string): string {
 	}
 
 	return id;
+}
+
+function shouldCopySkillPath(root: string, sourcePath: string): boolean {
+	const relativePath = path.relative(root, sourcePath);
+	if (!relativePath) return true;
+	return !relativePath.split(/[\\/]+/).some(isIgnoredSkillDirectoryName);
 }
 
 export interface AgentSkillRuntimeInput {
