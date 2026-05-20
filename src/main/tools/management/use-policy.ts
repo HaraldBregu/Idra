@@ -60,7 +60,13 @@ function needsExternalAccess(request: string): boolean {
 	if (/\b(browser|navigate|screenshot|visit|open (url|link|page|site|tab)|go to|launch browser)\b/.test(request)) {
 		return true;
 	}
-		return /\b(current|latest|today|now|weather|news|look up|search|file|folder|directory|workspace|startup|bootstrap|identity|persona|document|codebase|email|calendar|database|api|send|delete|copy|move|rename|inspect|binary|image|purchase|post|schedule|create|edit|write|read|modify|change|fix|debug|test|build|implement|refactor|private|repo)\b/.test(
-			request
-		);
+	if (/\b(start|list|show|get|retrieve|cancel|check)\b.*\btasks?\b/.test(request)) {
+		return true;
+	}
+	if (/\btasks?\b.*\b(records?|status|running|active|start|list|show|get|retrieve|cancel)\b/.test(request)) {
+		return true;
+	}
+	return /\b(current|latest|today|now|weather|news|look up|search|file|folder|directory|workspace|startup|bootstrap|identity|persona|document|codebase|email|calendar|database|api|send|delete|copy|move|rename|inspect|binary|image|purchase|post|schedule|create|edit|write|read|modify|change|fix|debug|test|build|implement|refactor|private|repo)\b/.test(
+		request
+	);
 }

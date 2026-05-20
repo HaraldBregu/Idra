@@ -33,7 +33,7 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	exec: 'Run a shell command. Output capped at 200 lines / 16KB. Use `python3` for Python scripts unless the project specifies another command.',
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
-	cron: 'Create, update, list, run, or delete future or recurring scheduled jobs, reminders, and wake events. Do not use for immediate in-memory execution.',
+	cron: 'Create, update, list, run, or delete future or recurring scheduled jobs, reminders, and wake events. Do not use for immediate in-memory task execution.',
 	open_browser: "Open an http/https URL in the user's default browser.",
 	browser:
 		'Control a managed Chromium browser. Use "open" for a new tab, "snapshot" before "act" (refs come from the snapshot), "navigate" to load a URL in the current tab, "screenshot" to see the page. Preserve targetId across calls.',
@@ -61,7 +61,7 @@ function formatSkillsForPrompt(skills: SkillPromptChoice[]): string {
 	const hasExecutableSkills = skills.some((skill) => !skill.path);
 	const lines = [
 		'## Skills',
-		'The following skills provide specialized instructions for specific requests.',
+		'The following skills provide specialized instructions for specific tasks.',
 		'Scan <available_skills>. If one clearly applies and has a <location>, read its SKILL.md at the exact <location> with `read`, then follow it.',
 		'If several apply, choose the most specific. If none clearly apply, read none.',
 		'Use at most one skill up front. Never guess or fabricate skill paths.',
