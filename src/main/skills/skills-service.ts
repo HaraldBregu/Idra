@@ -44,6 +44,31 @@ function toSkillId(value: string): string {
 	return id;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function splitSkillIdAndVersion(skillId: string, version?: string): { skillId: string; version?: string } {
+	const trimmedSkillId = skillId.trim();
+	const explicitVersion = version?.trim();
+	const atIndex = trimmedSkillId.lastIndexOf('@');
+	if (explicitVersion || atIndex <= 0 || atIndex >= trimmedSkillId.length - 1) {
+		return { skillId: trimmedSkillId, version: explicitVersion || undefined };
+	}
+	return {
+		skillId: trimmedSkillId.slice(0, atIndex),
+		version: trimmedSkillId.slice(atIndex + 1),
+	};
+}
+
+function normalizeSkillToolInput(args: Record<string, unknown>): Record<string, unknown> {
+	const nestedInput = isRecord(args.input) ? args.input : {};
+	const passthroughInput = Object.fromEntries(
+		Object.entries(args).filter(([key]) => key !== 'skillId' && key !== 'version' && key !== 'input')
+	);
+	return { ...passthroughInput, ...nestedInput };
+}
+
 function shouldCopySkillPath(root: string, sourcePath: string): boolean {
 	const relativePath = path.relative(root, sourcePath);
 	if (!relativePath) return true;
