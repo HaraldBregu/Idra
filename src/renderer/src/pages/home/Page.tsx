@@ -485,7 +485,7 @@ function PageContent(): ReactElement {
 								setAttachments((current) => [...current, ...filesToAttachments(files)])
 							}
 							wrapperClassName="max-w-none"
-							className="w-full rounded-none"
+							className="w-full"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
 									<VoiceButton
@@ -501,7 +501,11 @@ function PageContent(): ReactElement {
 								</PromptInputActions>
 							}
 						>
-							<PromptInputTextarea placeholder="Ask anything" aria-label="Message Friday" />
+							<PromptInputTextarea
+								placeholder="Ask anything"
+								aria-label="Message Friday"
+								className="rounded-none"
+							/>
 						</PromptInput>
 					</div>
 				</div>
