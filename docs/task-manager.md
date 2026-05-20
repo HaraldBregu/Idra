@@ -151,7 +151,7 @@ export type TaskEvent =
 	| { type: 'task:cancelled'; task: TaskRecord };
 ```
 
-Each task event describes one task record. A single user operation should not create a parent task plus child task records; model it as one task unless a separate operation is started.
+Each task event describes one task record. A single user operation should create one task record unless a separate operation is started.
 
 ## Timeout Rule
 
