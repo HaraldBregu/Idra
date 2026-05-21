@@ -231,6 +231,9 @@ export const app: AppApi = {
 	getSpeechToTextOperator: (): Promise<ConfiguredModelOperator | undefined> => {
 		return typedInvokeUnwrap(OperatorChannels.getSpeechToText);
 	},
+	getSpeechToTextModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(OperatorChannels.getSpeechToTextModels, provider);
+	},
 	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(OperatorChannels.saveSpeechToText, provider, model);
 	},

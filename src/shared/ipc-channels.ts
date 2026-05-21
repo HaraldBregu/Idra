@@ -41,6 +41,7 @@ export const OperatorChannels = {
 	getAssistant: 'operator:get-assistant',
 	saveAssistant: 'operator:save-assistant',
 	getSpeechToText: 'operator:get-speech-to-text',
+	getSpeechToTextModels: 'operator:get-speech-to-text-models',
 	saveSpeechToText: 'operator:save-speech-to-text',
 } as const;
 
@@ -252,6 +253,10 @@ interface AppInvokeChannelMap {
 	[OperatorChannels.getSpeechToText]: {
 		args: [];
 		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.getSpeechToTextModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
 	};
 	[OperatorChannels.saveSpeechToText]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];

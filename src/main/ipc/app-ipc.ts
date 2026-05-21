@@ -3,8 +3,8 @@ import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import {
-	SPEECH_TO_TEXT_MODELS,
-	SPEECH_TRANSCRIBER_PROVIDER_ID,
+	getSpeechToTextModels,
+	isAllowedSpeechToTextModel,
 	requireModelReasoningEffort,
 	type Agent,
 	type ConfiguredModelOperator,
@@ -28,6 +28,17 @@ import { AppChannels, AppsChannels, OperatorChannels, ProviderChannels } from '.
 import { normalizeExternalUrl } from '../../shared/external-links';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
+
+function speechToTextModelOrThrow(providerId: string, model: Model): Model {
+	if (!isAllowedSpeechToTextModel(providerId, model.id)) {
+		throw new Error(`Model is not supported for speech-to-text: ${model.id}`);
+	}
+	const catalogModel = getSpeechToTextModels(providerId).find((option) => option.id === model.id);
+	return {
+		id: catalogModel?.id ?? model.id,
+		name: catalogModel?.name ?? model.name,
+	};
+}
 
 function getMicrophoneSystemStatus(): MicrophoneSystemPermissionStatus {
 	if (process.platform !== 'darwin') return 'unknown';
@@ -353,16 +364,20 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			OperatorChannels.getSpeechToTextModels,
+			wrapSimpleHandler((provider: PublicProvider): Model[] => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return getSpeechToTextModels(storedProvider.id);
+			}, OperatorChannels.getSpeechToTextModels)
+		);
+
+		ipcMain.handle(
 			OperatorChannels.saveSpeechToText,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const normalizedProviderId = provider.id.trim().toLowerCase();
-				if (normalizedProviderId !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
-					throw new Error('Speech transcription currently supports OpenAI only.');
-				}
-				if (!SPEECH_TO_TEXT_MODELS.some((option) => option.id === model.id)) {
-					throw new Error(`Model is not supported for speech transcription: ${model.id}`);
-				}
-				return store.setSpeechToTextOperator(provider.id, { id: model.id, name: model.name });
+				return store.setSpeechToTextOperator(provider.id, speechToTextModelOrThrow(provider.id, model));
 			}, OperatorChannels.saveSpeechToText)
 		);
 
@@ -397,14 +412,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			ProviderChannels.saveSpeechTranscriberService,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const normalizedProviderId = provider.id.trim().toLowerCase();
-				if (normalizedProviderId !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
-					throw new Error('Speech transcription currently supports OpenAI only.');
-				}
-				if (!SPEECH_TO_TEXT_MODELS.some((option) => option.id === model.id)) {
-					throw new Error(`Model is not supported for speech transcription: ${model.id}`);
-				}
-				return store.setSpeechTranscriberService(provider.id, { id: model.id, name: model.name });
+				return store.setSpeechTranscriberService(provider.id, speechToTextModelOrThrow(provider.id, model));
 			}, ProviderChannels.saveSpeechTranscriberService)
 		);
 

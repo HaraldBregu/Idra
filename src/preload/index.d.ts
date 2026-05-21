@@ -212,6 +212,7 @@ export interface AppApi {
 	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	getSpeechToTextModels: (provider: PublicProvider) => Promise<Model[]>;
 	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getAgentService: () => Promise<Agent | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
