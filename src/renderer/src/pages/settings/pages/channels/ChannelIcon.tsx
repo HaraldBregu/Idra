@@ -2,6 +2,7 @@ import React from 'react';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ChannelType } from '../../../../../../shared/channels';
+import { getChannelBrandIconId } from '../../../../../../shared/channel-catalog';
 
 type ChannelIconAsset = {
 	readonly light: string;
@@ -12,13 +13,6 @@ const channelIconModules = import.meta.glob<string>('@resources/icons/brands/*/*
 	eager: true,
 	import: 'default',
 });
-
-const CHANNEL_BRAND_ICON_IDS: Partial<Record<ChannelType, string>> = {
-	discord: 'discord',
-	googlechat: 'google_chat',
-	msteams: 'microsoft_teams',
-	slack: 'slack',
-};
 
 function buildIconAssets(): Readonly<Record<string, ChannelIconAsset>> {
 	const partialAssets: Record<string, Partial<ChannelIconAsset>> = {};
@@ -46,17 +40,19 @@ const CHANNEL_ICON_ASSETS = buildIconAssets();
 export function ChannelIcon({
 	channelId,
 	name,
+	brandIconId,
 	className,
 	imageClassName,
 	fallbackClassName,
 }: {
 	readonly channelId: ChannelType | null | undefined;
 	readonly name: string;
+	readonly brandIconId?: string;
 	readonly className?: string;
 	readonly imageClassName?: string;
 	readonly fallbackClassName?: string;
 }): React.JSX.Element {
-	const iconId = channelId ? CHANNEL_BRAND_ICON_IDS[channelId] : undefined;
+	const iconId = brandIconId ?? (channelId ? getChannelBrandIconId(channelId) : undefined);
 	const asset = iconId ? CHANNEL_ICON_ASSETS[iconId] : undefined;
 
 	return (
