@@ -1,4 +1,8 @@
-import type { Provider } from "./providers";
+import {
+	hasDefaultProviderCapability,
+	providerHasImageCapability,
+	type Provider,
+} from "./providers";
 import type { AgentsHeartbeatConfig } from './heartbeat';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
@@ -225,7 +229,7 @@ export const OPERATOR_DEFINITIONS = {
 		name: 'Background task',
 		docsPath: 'background-task.md',
 		status: 'implemented',
-		registeredTaskTypes: ['agent.run', 'ocr.run'],
+		registeredTaskTypes: ['agent.run', 'ocr.run', 'image.create'],
 	},
 } as const satisfies {
 	assistant: OperatorBase;
@@ -278,6 +282,32 @@ export function hasSpeechToTextModels(providerId: string): boolean {
 export function isAllowedSpeechToTextModel(providerId: string, modelId: string): boolean {
 	const normalizedModelId = modelId.trim();
 	return getSpeechToTextModels(providerId).some((model) => model.id === normalizedModelId);
+}
+
+export function getImageCreatorModelsForProvider(
+	provider: Pick<Provider, 'id' | 'capabilities'>
+): Model[] {
+	if (!providerHasImageCapability(provider)) return [];
+	return IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
+}
+
+export function getImageCreatorModels(providerId: string): Model[] {
+	if (!hasDefaultProviderCapability(providerId, 'Image')) return [];
+	return IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
+}
+
+export function hasImageCreatorModelsForProvider(
+	provider: Pick<Provider, 'id' | 'capabilities'>
+): boolean {
+	return getImageCreatorModelsForProvider(provider).length > 0;
+}
+
+export function isAllowedImageCreatorModelForProvider(
+	provider: Pick<Provider, 'id' | 'capabilities'>,
+	modelId: string
+): boolean {
+	const normalizedModelId = modelId.trim();
+	return getImageCreatorModelsForProvider(provider).some((model) => model.id === normalizedModelId);
 }
 
 export function isEndpointOperator(
