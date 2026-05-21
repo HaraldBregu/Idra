@@ -55,6 +55,7 @@ Example STT provider/model choices:
 | --- | --- | --- |
 | `openai` | `gpt-realtime-whisper` | Realtime streaming |
 | Any STT-capable provider | Provider model id | Realtime or batch |
+| Local STT runtime | Local model id | On-device transcription |
 
 Some providers may require more than one model identifier internally. For
 example, an OpenAI realtime adapter can open a socket with one realtime model
@@ -82,7 +83,7 @@ It stores a public provider record and a selected model:
 {
 	id: 'speech-to-text',
 	name: 'Speech to text',
-	docsPath: 'speech-to-text.md',
+	docsPath: 'stt.md',
 	status: 'implemented',
 	provider: {
 		id: 'openai',
