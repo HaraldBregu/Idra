@@ -1,6 +1,9 @@
-import type { Model } from './service';
+export interface ProviderModel {
+	id: string;
+	name: string;
+}
 
-export type ModelCatalog = Readonly<Record<string, readonly Model[]>>;
+export type ModelCatalog = Readonly<Record<string, readonly ProviderModel[]>>;
 export type ModelCapability =
 	| 'llm'
 	| 'speech-to-text'
@@ -212,9 +215,9 @@ export const MODEL_CATALOGS_BY_CAPABILITY = {
 
 function modelsByProviderIds(
 	providerIds: readonly string[],
-	models: readonly Model[]
+	models: readonly ProviderModel[]
 ): ModelCatalog {
-	return providerIds.reduce<Record<string, readonly Model[]>>((catalog, providerId) => {
+	return providerIds.reduce<Record<string, readonly ProviderModel[]>>((catalog, providerId) => {
 		catalog[providerId] = models;
 		return catalog;
 	}, {});

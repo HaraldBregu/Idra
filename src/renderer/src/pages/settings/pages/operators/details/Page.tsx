@@ -41,15 +41,10 @@ import {
 	ASSISTANT_RUNTIME_ID,
 	DEFAULT_MODEL_REASONING_EFFORT,
 	IMAGE_CREATOR_OPERATOR_ID,
-	IMAGE_CREATOR_MODELS,
 	MUSIC_CREATOR_OPERATOR_ID,
-	MUSIC_CREATOR_MODELS,
 	OPERATOR_DEFINITIONS,
 	SPEECH_TO_TEXT_OPERATOR_ID,
 	TEXT_TO_SPEECH_OPERATOR_ID,
-	TEXT_TO_SPEECH_MODELS,
-	TEXT_TO_SPEECH_PROVIDER_ID,
-	TEXT_TO_VIDEO_MODELS,
 	TEXT_TO_VIDEO_OPERATOR_ID,
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
@@ -58,6 +53,13 @@ import {
 	type Model,
 	type ModelReasoningEffort,
 } from '../../../../../../../shared/service';
+import {
+	IMAGE_CREATOR_MODELS,
+	MUSIC_CREATOR_MODELS,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_PROVIDER_ID,
+	TEXT_TO_VIDEO_MODELS,
+} from '../../../../../../../shared/provider-models';
 
 const OPENAI_PROVIDER_ID = 'openai';
 const DEEPSEEK_PROVIDER_ID = 'deepseek';

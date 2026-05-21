@@ -1,5 +1,4 @@
 import {
-	IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels as getSpeechToTextModelsForProviderId,
@@ -10,6 +9,7 @@ import type { Provider } from './providers';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	MODEL_CATALOGS_BY_CAPABILITY,
+	IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS,
 	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,

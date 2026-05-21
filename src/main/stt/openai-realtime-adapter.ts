@@ -9,11 +9,13 @@ import type {
 	RealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
 import {
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
-	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isRealtimeSpeechTranscriberModel,
 } from '../../shared/service';
+import {
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	SPEECH_TRANSCRIBER_PROVIDER_ID,
+} from '../../shared/provider-models';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,

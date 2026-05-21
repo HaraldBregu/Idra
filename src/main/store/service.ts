@@ -2,10 +2,7 @@ import Store from 'electron-store';
 import { DEFAULT_PROVIDERS, getDefaultAgentModels, type Provider } from '../../shared/providers';
 import {
 	DOCUMENT_READER_OCR_MODELS,
-	MUSIC_CREATOR_MODELS,
 	OPERATOR_DEFINITIONS,
-	TEXT_TO_SPEECH_MODELS,
-	TEXT_TO_VIDEO_MODELS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
@@ -16,6 +13,11 @@ import {
 	type ModelOperatorSelection,
 	type OperatorStoreState,
 } from '../../shared/service';
+import {
+	MUSIC_CREATOR_MODELS,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_VIDEO_MODELS,
+} from '../../shared/provider-models';
 import type { CronTask } from '../../shared/cron';
 import {
 	CHANNEL_PROVIDER_IDS,

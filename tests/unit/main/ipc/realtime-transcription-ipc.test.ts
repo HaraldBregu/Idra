@@ -18,9 +18,9 @@ import {
 	useRealtimeTranscriptionIntent,
 } from '../../../../src/main/stt';
 import {
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
+import { REALTIME_SPEECH_TRANSCRIBER_MODEL_ID } from '../../../../src/shared/provider-models';
 
 describe('realtime transcription IPC', () => {
 	beforeEach(() => {
