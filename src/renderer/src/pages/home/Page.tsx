@@ -391,7 +391,7 @@ function PageContent(): ReactElement {
 					<ChatContainerContent
 						className={cn(
 							'mx-auto min-h-full w-full max-w-4xl gap-5 px-2 pb-28',
-							showEmptyConversation ? 'justify-center pb-40 pt-6' : 'pt-6'
+							showEmptyConversation ? 'justify-center pb-40 pt-24' : 'pt-6'
 						)}
 					>
 						{showEmptyConversation ? (
