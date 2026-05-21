@@ -47,11 +47,13 @@ export interface SettingsStore {
 	appSettings?: AppSettings;
 	appPermissions?: AppPermissionSettings;
 	modelProviders: ModelProviderSettings[];
+	agent?: ModelModuleSettings;
 	llmAgent?: ModelModuleSettings;
 	speechToText?: ModelModuleSettings;
 	textToSpeech?: ModelModuleSettings;
 	imageCreator?: ModelModuleSettings;
 	textToVideo?: ModelModuleSettings;
+	sound?: ModelModuleSettings;
 	textToSound?: ModelModuleSettings;
 	ocr?: OcrModuleSettings;
 	embedding?: EmbeddingModuleSettings;
