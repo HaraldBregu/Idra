@@ -24,7 +24,6 @@ const HomePage = lazy(() => import('./pages/home/Page'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
-const OperatorsPage = lazy(() => import('./pages/settings/pages/operators/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
@@ -161,11 +160,7 @@ const routes: RouteObject[] = [
 						children: [
 							{
 								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<OperatorsPage />
-									</SettingsRouteWrapper>
-								),
+								element: <Navigate to="/settings" replace />,
 							},
 							{
 								path: ':operatorId/details',
