@@ -1,6 +1,7 @@
 export {
 	CHANNEL_CATALOG,
 	extractChannelCatalogFromPackageMetadata,
+	getChannelBrandIconId,
 	getChannelCatalogEntry,
 	isChannelId,
 	listChannelCatalog,
