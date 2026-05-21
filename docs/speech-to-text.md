@@ -3,21 +3,6 @@
 This document describes how Friday should use speech-to-text models for live
 dictation and other audio transcription features.
 
-## Source Of Truth
-
-- `src/shared/service.ts`: speech-to-text module id, current settings shape,
-  model metadata, realtime sample rate, and model validation helpers.
-- `src/main/store/service.ts`: persisted root `speechToText` settings.
-- `src/main/ipc/app-ipc.ts`: Settings IPC for reading and saving the
-  speech-to-text root settings.
-- `src/main/ipc/realtime-transcription-ipc.ts`: realtime transcription IPC
-  boundary, audio commit thresholds, and event forwarding.
-- `src/shared/realtime-transcription.ts`: renderer-safe session and event
-  types.
-- `src/preload/index.ts`: `window.realtimeTranscription` preload API.
-- `src/renderer/src/pages/home/hooks/useRealtimeDictation.ts`: microphone
-  capture, PCM conversion, audio streaming, and transcript application.
-
 ## Main Process Module
 
 Speech to text should be a separated module in the main process. The renderer

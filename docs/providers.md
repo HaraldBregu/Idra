@@ -1,26 +1,7 @@
 # Providers
 
-This document describes the provider constants used by Friday, the default
-agent model catalogs attached to those providers, how reasoning effort is
-handled, and example configuration or run payloads for each provider currently
-listed in the constants.
-
-## Source Of Truth
-
-The provider catalog is defined in `src/shared/providers.ts`.
-
-- `PROVIDER_API_CONFIGURATIONS` contains provider credential metadata, official
-  API-key or credential links, documentation links, auth methods, environment
-  variable names, known base URLs, and provider-specific notes.
-- `DEFAULT_PROVIDERS` contains the providers shown in settings, including id,
-  display name, default base URL, capabilities, and the related API
-  configuration.
-- `DEFAULT_AGENT_MODELS_BY_PROVIDER` contains the model ids that Friday allows
-  for the main agent provider picker.
-- `src/shared/service.ts` contains shared model types and the reasoning effort
-  values that can be stored on OpenAI agent models.
-- `src/main/provider/factory.ts` selects the runtime adapter for a configured
-  provider.
+This document describes how Friday should handle provider configuration, agent
+model catalogs, reasoning effort, and provider-specific runtime behavior.
 
 Provider credentials are stored on the provider record. Per-run overrides can
 select `providerId`, `model`, and for OpenAI `effort`, but they do not accept
@@ -28,10 +9,10 @@ API keys or base URLs.
 
 ## Agent Model Selection
 
-The settings IPC path returns models from `DEFAULT_AGENT_MODELS_BY_PROVIDER`.
-If a known provider does not have an entry in that map, `provider:get-models`
-returns an empty model list for the main Friday agent. Unknown provider ids
-still return an unsupported-provider error.
+The settings path should return only models that are valid for the selected
+provider. If a known provider has no main-agent model catalog, the model list
+should be empty for the main Friday agent. Unknown provider ids should return
+an unsupported-provider error.
 
 When saving the main agent service:
 

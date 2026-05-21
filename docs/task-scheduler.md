@@ -47,28 +47,6 @@ tool. They store a compact job definition and run agent turns or system events.
 The legacy `node-cron` path schedules a persisted expression and handler
 directly. It remains available for simple cron tasks.
 
-## Main Files
-
-- `src/main/cron/service.ts`: top-level `CronService` facade used by the app.
-- `src/main/cron/scheduler/cron-scheduler.ts`: managed schedule lifecycle and
-  due-run processing.
-- `src/main/cron/scheduler/cron-next-run-calculator.ts`: next-run calculation
-  for managed schedules.
-- `src/main/cron/scheduler/cron-runner.ts`: creates in-memory task records when
-  managed schedules fire.
-- `src/main/cron/core/cron.validation.ts`: schedule shape, timezone, and cron
-  expression validation.
-- `src/main/cron/core/cron.describer.ts`: human-readable schedule descriptions.
-- `src/main/cron/store/electron-store-cron-schedule-store.ts`: persistence for
-  managed schedules, events, executions, and locks.
-- `src/main/cron/friday/scheduler.ts`: Friday cron job lifecycle.
-- `src/main/cron/friday/normalize.ts`: normalizes tool requests into Friday
-  cron add/update requests.
-- `src/main/cron/friday/validation.ts`: validates Friday cron jobs.
-- `src/main/ipc/cron-ipc.ts`: renderer IPC entry points for cron.
-- `src/shared/cron.ts`: shared cron types used across main, preload, and
-  renderer code.
-
 ## Managed Schedule Creation
 
 Managed schedules are created through `CronService.createSchedule(request,

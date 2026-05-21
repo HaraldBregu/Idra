@@ -3,16 +3,6 @@
 This document describes how Friday should use image generation models for
 creating and editing images.
 
-## Source Of Truth
-
-- `src/shared/service.ts`: image module id, current settings shape, and model
-  metadata.
-- `src/main/store/service.ts`: persisted root `imageCreator` settings.
-- `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  root module settings.
-- `src/main/tasks`: background task handlers that can request image work.
-- `src/main/cron`: schedules that can trigger image work through task handlers.
-
 ## Main Process Module
 
 Image creation should be a separated module in the main process. Renderer UI,

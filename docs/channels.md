@@ -4,31 +4,12 @@ This document describes Friday's messaging channel subsystem: the catalog shown
 in Settings, the shared channel configuration model, the main-process registry,
 and the currently bundled Telegram runtime.
 
-## Source Of Truth
-
-- `src/shared/channel-catalog.ts`: canonical channel catalog, aliases,
-  ordering, visibility, markdown capability, and docs path metadata.
-- `src/shared/channels.ts`: shared config, account, status, and channel id
-  types used by main, preload, and renderer code.
-- `src/main/channels`: channel plugin contracts, registry, ingress admission,
-  durable message helpers, and bundled runtime plugins.
-- `src/main/channels/catalog-plugins.ts`: catalog-only plugins for channels
-  that are configured in Settings but do not have a bundled runtime yet.
-- `src/main/channels/telegram`: the only bundled channel runtime currently
-  implemented.
-- `src/main/ipc/channels-ipc.ts`: renderer IPC entry points for channel catalog,
-  config, status, and Telegram runtime controls.
-- `src/preload/index.ts`: exposes the typed `window.channels` API.
-- `src/renderer/src/pages/settings/pages/channels`: Settings pages for the
-  channel catalog and per-channel configuration.
-
 ## Catalog
 
-`CHANNEL_PROVIDER_IDS` defines every supported channel id. `CHANNEL_CATALOG`
-adds labels, aliases, UI ordering, markdown support, exposure, and docs paths.
-Aliases are normalized through `normalizeChannelId()`, so `lark`, `gchat`,
-`google-chat`, `imsg`, `teams`, `nc`, `twitch-chat`, `zl`, and `zlu` resolve
-to their canonical ids.
+Friday should maintain a channel catalog with stable channel ids, labels,
+aliases, UI ordering, markdown support, exposure, and docs paths. Aliases such
+as `lark`, `gchat`, `google-chat`, `imsg`, `teams`, `nc`, `twitch-chat`, `zl`,
+and `zlu` should resolve to their canonical ids.
 
 Only `telegram` has a bundled runtime. All other entries are catalog-only
 plugins with disabled runtime capabilities. Catalog-only channels can still be

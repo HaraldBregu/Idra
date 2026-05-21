@@ -3,16 +3,6 @@
 This document describes how Friday should use video generation models for
 creating video output.
 
-## Source Of Truth
-
-- `src/shared/service.ts`: video module id, current settings shape, and model
-  metadata.
-- `src/main/store/service.ts`: persisted root `video` settings.
-- `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  root module settings.
-- `src/main/tasks`: background task handlers that can request video work.
-- `src/main/cron`: schedules that can trigger video work through task handlers.
-
 ## Main Process Module
 
 Video creation should be a separated module in the main process. Renderer UI,

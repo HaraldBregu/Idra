@@ -3,16 +3,6 @@
 This document describes how Friday should use text-to-speech models for spoken
 audio output.
 
-## Source Of Truth
-
-- `src/shared/service.ts`: text-to-speech module id, current settings shape,
-  and model metadata.
-- `src/main/store/service.ts`: persisted root `textToSpeech` settings.
-- `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  root module settings.
-- `src/main/tasks`: background task handlers that can request TTS work.
-- `src/main/cron`: schedules that can trigger TTS work through task handlers.
-
 ## Main Process Module
 
 Text to speech should be a separated module in the main process. Renderer UI,

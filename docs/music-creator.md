@@ -3,16 +3,6 @@
 This document describes how Friday should use sound and music generation models
 for creating audio output.
 
-## Source Of Truth
-
-- `src/shared/service.ts`: sound module id, current settings shape, and model
-  metadata.
-- `src/main/store/service.ts`: persisted root `sound` settings.
-- `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  root module settings.
-- `src/main/tasks`: background task handlers that can request sound work.
-- `src/main/cron`: schedules that can trigger sound work through task handlers.
-
 ## Main Process Module
 
 Sound creation should be a separated module in the main process. Renderer UI,
