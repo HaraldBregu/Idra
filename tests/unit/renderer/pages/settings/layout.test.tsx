@@ -36,10 +36,10 @@ describe('Settings Layout', () => {
 		expect(screen.getByRole('banner')).toHaveClass('sticky', 'top-0', 'z-20');
 	});
 
-	it('uses the short Friday label for the Friday operator breadcrumb', () => {
+	it('uses the short Friday label for the Assistant operator breadcrumb', () => {
 		renderSettings('/settings/operators/friday/details');
 
 		expect(screen.getByText('settings.operators.fridayBreadcrumb')).toBeInTheDocument();
-		expect(screen.queryByText('settings.operators.fridayName')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.assistantName')).not.toBeInTheDocument();
 	});
 });
