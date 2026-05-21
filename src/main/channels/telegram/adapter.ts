@@ -52,8 +52,8 @@ export class TelegramAdapter implements ChannelAdapter {
 		};
 	}
 
-	async send(message: ChannelOutboundMessage): Promise<void> {
-		await this.deliver(message);
+	async send(message: ChannelOutboundMessage): Promise<ChannelMessageReceipt> {
+		return this.deliver(message);
 	}
 
 	async deliver(message: ChannelOutboundMessage): Promise<ChannelMessageReceipt> {
