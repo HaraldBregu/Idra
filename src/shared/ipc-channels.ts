@@ -213,6 +213,22 @@ interface AppInvokeChannelMap {
 		args: [];
 		result: import('./app-permissions').MicrophonePermissionSettings;
 	};
+	[AppChannels.openSystemPreference]: {
+		args: [pane: import('./app-permissions').SystemPreferencePaneId];
+		result: void;
+	};
+	[AppChannels.getCameraPermission]: {
+		args: [];
+		result: import('./app-permissions').CameraPermissionSettings;
+	};
+	[AppChannels.setCameraEnabled]: {
+		args: [enabled: boolean];
+		result: import('./app-permissions').CameraPermissionSettings;
+	};
+	[AppChannels.requestCameraPermission]: {
+		args: [];
+		result: import('./app-permissions').CameraPermissionSettings;
+	};
 	[ProviderChannels.setApiKey]: {
 		args: [providerId: string, apikey: string];
 		result: void;
