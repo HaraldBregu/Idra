@@ -28,6 +28,15 @@ Official model families: Sonar, Sonar Pro, Sonar Reasoning Pro, Sonar Deep Resea
 
 Friday status: Friday has an explicit default agent catalog for Perplexity.
 
+Friday default agent models:
+
+| Model id | Display name |
+| --- | --- |
+| `sonar-reasoning-pro` | Sonar Reasoning Pro |
+| `sonar-pro` | Sonar Pro |
+| `sonar-deep-research` | Sonar Deep Research |
+| `r1-1776` | R1 1776 |
+
 ## Runtime Notes
 
 - Uses the generic OpenAI Chat Completions-compatible adapter.
