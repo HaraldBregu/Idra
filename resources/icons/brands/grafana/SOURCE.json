@@ -1,0 +1,30 @@
+{
+  "id": "grafana",
+  "name": "Grafana",
+  "entry_type": "direct_connector",
+  "domain": "grafana.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Grafana HTTP API",
+      "url": "https://grafana.com/docs/grafana/latest/developers/http_api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Grafana API docs",
+      "url": "https://grafana.com/docs/grafana/latest/developers/http_api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://grafana.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/grafana/grafana_light.png",
+    "dark": "brands/grafana/grafana_dark.png",
+    "raw_source": "brands/grafana/raw/grafana_source.svg"
+  }
+}

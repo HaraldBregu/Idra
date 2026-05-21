@@ -37,7 +37,7 @@ describe('shared connector catalog', () => {
 	});
 
 	it('ships light and dark icon assets for every direct connector icon folder', () => {
-		const iconRoot = path.join(process.cwd(), 'resources/icons/direct_connectors');
+		const iconRoot = path.join(process.cwd(), 'resources/icons/brands');
 		const iconIds = readdirSync(iconRoot, { withFileTypes: true })
 			.filter((entry) => entry.isDirectory())
 			.map((entry) => entry.name);

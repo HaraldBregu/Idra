@@ -1,0 +1,24 @@
+{
+  "id": "wordpress",
+  "name": "WordPress",
+  "entry_type": "direct_connector",
+  "domain": "wordpress.org",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "WordPress REST API",
+      "url": "https://developer.wordpress.org/rest-api/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://wordpress.org/about/logos",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/wordpress/wordpress_light.png",
+    "dark": "brands/wordpress/wordpress_dark.png",
+    "raw_source": "brands/wordpress/raw/wordpress_source.svg"
+  }
+}

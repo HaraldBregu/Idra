@@ -1,0 +1,24 @@
+{
+  "id": "meta_marketing_api",
+  "name": "Meta Marketing API",
+  "entry_type": "direct_connector",
+  "domain": "developers.facebook.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Meta Marketing API docs",
+      "url": "https://developers.facebook.com/docs/marketing-apis/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://www.meta.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/meta_marketing_api/meta_marketing_api_light.png",
+    "dark": "brands/meta_marketing_api/meta_marketing_api_dark.png",
+    "raw_source": "brands/meta_marketing_api/raw/meta_marketing_api_source.svg"
+  }
+}

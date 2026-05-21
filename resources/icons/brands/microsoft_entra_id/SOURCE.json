@@ -1,0 +1,29 @@
+{
+  "id": "microsoft_entra_id",
+  "name": "Microsoft Entra ID",
+  "entry_type": "direct_connector",
+  "domain": "microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Microsoft Graph users API",
+      "url": "https://learn.microsoft.com/en-us/graph/api/resources/users?view=graph-rest-1.0",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Microsoft Graph groups API",
+      "url": "https://learn.microsoft.com/en-us/graph/api/resources/groups-overview?view=graph-rest-1.0",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/microsoft_entra_id/microsoft_entra_id_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/microsoft_entra_id/microsoft_entra_id_dark_NOT_A_LOGO.png"
+  }
+}

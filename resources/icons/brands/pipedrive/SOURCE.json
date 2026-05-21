@@ -1,0 +1,30 @@
+{
+  "id": "pipedrive",
+  "name": "Pipedrive",
+  "entry_type": "direct_connector",
+  "domain": "pipedrive.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Pipedrive API reference",
+      "url": "https://developers.pipedrive.com/docs/api/v1",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Pipedrive developers",
+      "url": "https://developers.pipedrive.com/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:pipedrive",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/pipedrive/pipedrive_light.png",
+    "dark": "brands/pipedrive/pipedrive_dark.png",
+    "raw_source": "brands/pipedrive/raw/pipedrive_source.svg"
+  }
+}

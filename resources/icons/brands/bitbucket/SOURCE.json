@@ -1,0 +1,24 @@
+{
+  "id": "bitbucket",
+  "name": "Bitbucket Cloud",
+  "entry_type": "direct_connector",
+  "domain": "bitbucket.org",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Bitbucket Cloud REST API",
+      "url": "https://developer.atlassian.com/cloud/bitbucket/rest/intro/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://atlassian.design/resources/logo-library",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/bitbucket/bitbucket_light.png",
+    "dark": "brands/bitbucket/bitbucket_dark.png",
+    "raw_source": "brands/bitbucket/raw/bitbucket_source.svg"
+  }
+}

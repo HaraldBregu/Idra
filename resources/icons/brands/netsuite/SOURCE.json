@@ -1,0 +1,29 @@
+{
+  "id": "netsuite",
+  "name": "NetSuite",
+  "entry_type": "direct_connector",
+  "domain": "netsuite.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "NetSuite SuiteTalk REST Web Services",
+      "url": "https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/chapter_1543910433.html",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "NetSuite REST API browser",
+      "url": "https://www.netsuite.com/help/helpcenter/en_US/APIs/REST_API_Browser/record/v1/2024.1/index.html",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/netsuite/netsuite_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/netsuite/netsuite_dark_NOT_A_LOGO.png"
+  }
+}

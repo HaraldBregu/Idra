@@ -1,0 +1,30 @@
+{
+  "id": "azure_devops",
+  "name": "Azure DevOps",
+  "entry_type": "direct_connector",
+  "domain": "azure.microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Azure DevOps REST API",
+      "url": "https://learn.microsoft.com/en-us/rest/api/azure/devops/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Azure REST API reference",
+      "url": "https://learn.microsoft.com/en-us/rest/api/azure/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_devicon",
+  "source_url": "local npm package @iconify-json/devicon:azuredevops",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/azure_devops/azure_devops_light.png",
+    "dark": "brands/azure_devops/azure_devops_dark.png",
+    "raw_source": "brands/azure_devops/raw/azure_devops_source.svg"
+  }
+}

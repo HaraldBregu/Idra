@@ -1,0 +1,30 @@
+{
+  "id": "new_relic",
+  "name": "New Relic",
+  "entry_type": "direct_connector",
+  "domain": "newrelic.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "New Relic APIs",
+      "url": "https://docs.newrelic.com/docs/apis/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "NerdGraph API",
+      "url": "https://docs.newrelic.com/docs/apis/nerdgraph/get-started/introduction-new-relic-nerdgraph/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://newrelic.com/about/media-assets",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/new_relic/new_relic_light.png",
+    "dark": "brands/new_relic/new_relic_dark.png",
+    "raw_source": "brands/new_relic/raw/new_relic_source.svg"
+  }
+}

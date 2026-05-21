@@ -1,0 +1,30 @@
+{
+  "id": "azure",
+  "name": "Microsoft Azure",
+  "entry_type": "direct_connector",
+  "domain": "azure.microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Azure REST API reference",
+      "url": "https://learn.microsoft.com/en-us/rest/api/azure/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Azure REST API browser",
+      "url": "https://learn.microsoft.com/en-us/rest/api/azure/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:microsoft-azure",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/azure/azure_light.png",
+    "dark": "brands/azure/azure_dark.png",
+    "raw_source": "brands/azure/raw/azure_source.svg"
+  }
+}

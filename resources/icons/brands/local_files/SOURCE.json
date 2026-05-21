@@ -1,0 +1,29 @@
+{
+  "id": "local_files",
+  "name": "Local / Enterprise File Systems",
+  "entry_type": "direct_connector",
+  "domain": null,
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Model Context Protocol file-system server concept",
+      "url": "https://modelcontextprotocol.io/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "SMB protocol overview",
+      "url": "https://learn.microsoft.com/en-us/windows-server/storage/file-server/file-server-smb-overview",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/local_files/local_files_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/local_files/local_files_dark_NOT_A_LOGO.png"
+  }
+}

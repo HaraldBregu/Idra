@@ -1,0 +1,30 @@
+{
+  "id": "duo",
+  "name": "Cisco Duo",
+  "entry_type": "direct_connector",
+  "domain": "duo.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Duo Admin API",
+      "url": "https://duo.com/docs/adminapi",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Duo Auth API",
+      "url": "https://duo.com/docs/authapi",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://www.cisco.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/duo/duo_light.png",
+    "dark": "brands/duo/duo_dark.png",
+    "raw_source": "brands/duo/raw/duo_source.svg"
+  }
+}

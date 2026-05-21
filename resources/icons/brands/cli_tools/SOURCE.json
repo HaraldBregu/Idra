@@ -1,0 +1,24 @@
+{
+  "id": "cli_tools",
+  "name": "CLI / Shell Tools",
+  "entry_type": "direct_connector",
+  "domain": null,
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "conceptual_simpleicons_for_internal_connector",
+  "source_url": "https://github.com/odb/official-bash-logo/tree/61eff022f2dad3c7468f5deb4f06652d15f2c143",
+  "verification_notes": "Conceptual technology icon for an internal/custom connector, not an external provider logo.",
+  "files": {
+    "light": "brands/cli_tools/cli_tools_light.png",
+    "dark": "brands/cli_tools/cli_tools_dark.png",
+    "raw_source": "brands/cli_tools/raw/cli_tools_source.svg"
+  }
+}

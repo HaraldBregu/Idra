@@ -1,0 +1,329 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-19T12:51:23.888955Z",
+  "source_json": "/mnt/data/frontier_providers_brand_asset_urls_2026-05-19.json",
+  "provider_count": 35,
+  "notes": [
+    "Prepared folder contains official downloaded raster assets where accessible, plus public fallback SVG/PNG icon assets from local npm packages where no official public download was available.",
+    "Font files were excluded by design and the final package was scanned for font extensions before zipping.",
+    "Some official brand kits are ZIP downloads; direct ZIP retrieval was blocked by the secure downloader in this environment, so those links are preserved in each provider folder.",
+    "Check the usage/permission notes in each provider folder before publishing any asset."
+  ],
+  "providers": [
+    {
+      "provider": "OpenAI",
+      "folder": "openai",
+      "official_downloaded_asset_count": 1,
+      "fallback_asset_file_count": 6,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "assets_available_on_page"
+    },
+    {
+      "provider": "Anthropic",
+      "folder": "anthropic",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 17,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "press_kit_download_link_on_newsroom"
+    },
+    {
+      "provider": "Google / Google DeepMind / Google Cloud",
+      "folder": "google",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 46,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "some_assets_downloadable; some_require_partner_access_or_permission"
+    },
+    {
+      "provider": "Meta",
+      "folder": "meta",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 26,
+      "source_url_count": 1,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "brand_guidelines; use_requires_approval"
+    },
+    {
+      "provider": "xAI",
+      "folder": "xai",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 12,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "direct_zip_available"
+    },
+    {
+      "provider": "Mistral AI",
+      "folder": "mistral",
+      "official_downloaded_asset_count": 6,
+      "fallback_asset_file_count": 11,
+      "source_url_count": 4,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "direct_zip_available"
+    },
+    {
+      "provider": "Cohere",
+      "folder": "cohere",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 9,
+      "source_url_count": 5,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "direct_zip_available"
+    },
+    {
+      "provider": "DeepSeek",
+      "folder": "deepseek",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 11,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "Alibaba Group / Alibaba Cloud / Qwen",
+      "folder": "qwen",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 41,
+      "source_url_count": 4,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "alibaba_assets_downloadable; qwen_specific_official_download_not_found"
+    },
+    {
+      "provider": "Moonshot AI / Kimi",
+      "folder": "kimi",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 15,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "downloadable_assets_on_branding_guide; fallback_available"
+    },
+    {
+      "provider": "Z.ai / Zhipu AI",
+      "folder": "zai",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 33,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "Baidu / ERNIE",
+      "folder": "baidu",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 38,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "Tencent / Hunyuan",
+      "folder": "tencent_hunyuan",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 36,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "ByteDance Seed",
+      "folder": "bytedance",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 29,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "MiniMax / Hailuo",
+      "folder": "minimax",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 11,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "ElevenLabs",
+      "folder": "elevenlabs",
+      "official_downloaded_asset_count": 3,
+      "fallback_asset_file_count": 8,
+      "source_url_count": 1,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "logo_and_press_kit_available_on_page"
+    },
+    {
+      "provider": "Deepgram",
+      "folder": "deepgram",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 2,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "direct_zip_available"
+    },
+    {
+      "provider": "Cartesia",
+      "folder": "cartesia",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 0,
+      "source_url_count": 3,
+      "has_actual_asset_files": false,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "AssemblyAI",
+      "folder": "assemblyai",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 9,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "media_kit_download_on_newsroom"
+    },
+    {
+      "provider": "Speechmatics",
+      "folder": "speechmatics",
+      "official_downloaded_asset_count": 1,
+      "fallback_asset_file_count": 0,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "direct_svg_png_jpg_available"
+    },
+    {
+      "provider": "Black Forest Labs",
+      "folder": "black_forest_labs",
+      "official_downloaded_asset_count": 4,
+      "fallback_asset_file_count": 12,
+      "source_url_count": 6,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "direct_svg_png_available"
+    },
+    {
+      "provider": "Midjourney",
+      "folder": "midjourney",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 6,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "Adobe / Firefly",
+      "folder": "adobe_firefly",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 18,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "permission_guidelines; no_public_firefly_asset_kit_found"
+    },
+    {
+      "provider": "Runway",
+      "folder": "runway",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 6,
+      "source_url_count": 1,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "assets_available_on_page"
+    },
+    {
+      "provider": "Luma AI",
+      "folder": "luma",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 9,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "Kuaishou / Kling AI",
+      "folder": "kling",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 9,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "Stability AI",
+      "folder": "stability_ai",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 15,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "Ideogram",
+      "folder": "ideogram",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 6,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "AI21 Labs",
+      "folder": "ai21",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 12,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "Amazon / AWS / Amazon Nova",
+      "folder": "amazon",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 33,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "official_logo_and_architecture_icon_downloads_available"
+    },
+    {
+      "provider": "NVIDIA / Nemotron",
+      "folder": "nvidia",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 11,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "logos_available; usage_requires_authorization"
+    },
+    {
+      "provider": "Hume AI",
+      "folder": "hume",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 0,
+      "source_url_count": 2,
+      "has_actual_asset_files": false,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "Suno",
+      "folder": "suno",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 8,
+      "source_url_count": 3,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
+    },
+    {
+      "provider": "Udio",
+      "folder": "udio",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 9,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    },
+    {
+      "provider": "Perplexity",
+      "folder": "perplexity",
+      "official_downloaded_asset_count": 0,
+      "fallback_asset_file_count": 11,
+      "source_url_count": 2,
+      "has_actual_asset_files": true,
+      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
+    }
+  ]
+}

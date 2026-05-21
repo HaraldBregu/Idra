@@ -1,0 +1,29 @@
+{
+  "id": "docusign",
+  "name": "DocuSign eSignature",
+  "entry_type": "direct_connector",
+  "domain": "docusign.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "DocuSign eSignature REST API",
+      "url": "https://developers.docusign.com/docs/esign-rest-api/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "DocuSign developer center",
+      "url": "https://developers.docusign.com/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/docusign/docusign_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/docusign/docusign_dark_NOT_A_LOGO.png"
+  }
+}

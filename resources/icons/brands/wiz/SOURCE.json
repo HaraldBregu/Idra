@@ -1,0 +1,29 @@
+{
+  "id": "wiz",
+  "name": "Wiz",
+  "entry_type": "direct_connector",
+  "domain": "wiz.io",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Wiz documentation portal",
+      "url": "https://docs.wiz.io/",
+      "status": "vendor_portal_or_customer_access_required",
+      "type": "official_docs"
+    },
+    {
+      "label": "Wiz API reference/search page",
+      "url": "https://www.wiz.io/",
+      "status": "general_product_or_documentation_page",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/wiz/wiz_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/wiz/wiz_dark_NOT_A_LOGO.png"
+  }
+}

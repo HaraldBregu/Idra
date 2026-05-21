@@ -1,0 +1,36 @@
+{
+  "id": "salesforce",
+  "name": "Salesforce",
+  "entry_type": "direct_connector",
+  "domain": "salesforce.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Salesforce API library",
+      "url": "https://developer.salesforce.com/docs/apis",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Salesforce REST API",
+      "url": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "Salesforce Bulk API",
+      "url": "https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:salesforce",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/salesforce/salesforce_light.png",
+    "dark": "brands/salesforce/salesforce_dark.png",
+    "raw_source": "brands/salesforce/raw/salesforce_source.svg"
+  }
+}

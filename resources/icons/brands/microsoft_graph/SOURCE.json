@@ -1,0 +1,30 @@
+{
+  "id": "microsoft_graph",
+  "name": "Microsoft Graph / Microsoft 365",
+  "entry_type": "direct_connector",
+  "domain": "microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Microsoft Graph overview",
+      "url": "https://learn.microsoft.com/en-us/graph/overview",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Use the Microsoft Graph API",
+      "url": "https://learn.microsoft.com/en-us/graph/use-the-api",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:microsoft-icon",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/microsoft_graph/microsoft_graph_light.png",
+    "dark": "brands/microsoft_graph/microsoft_graph_dark.png",
+    "raw_source": "brands/microsoft_graph/raw/microsoft_graph_source.svg"
+  }
+}

@@ -13,7 +13,7 @@ type ConnectorIconAsset = {
 };
 
 const directConnectorIconModules = import.meta.glob<string>(
-	'@resources/icons/direct_connectors/*/*.png',
+	'@resources/icons/brands/*/*.png',
 	{ eager: true, import: 'default' }
 );
 

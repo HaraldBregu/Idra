@@ -1,0 +1,30 @@
+{
+  "id": "google_iam",
+  "name": "Google Cloud IAM",
+  "entry_type": "direct_connector",
+  "domain": "cloud.google.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Google IAM API",
+      "url": "https://cloud.google.com/iam/docs/reference/rest",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Google Cloud IAM docs",
+      "url": "https://cloud.google.com/iam/docs",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://cloud.google.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/google_iam/google_iam_light.png",
+    "dark": "brands/google_iam/google_iam_dark.png",
+    "raw_source": "brands/google_iam/raw/google_iam_source.svg"
+  }
+}

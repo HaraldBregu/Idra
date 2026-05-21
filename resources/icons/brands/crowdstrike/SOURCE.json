@@ -1,0 +1,29 @@
+{
+  "id": "crowdstrike",
+  "name": "CrowdStrike Falcon",
+  "entry_type": "direct_connector",
+  "domain": "crowdstrike.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "CrowdStrike developer portal",
+      "url": "https://developer.crowdstrike.com/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "CrowdStrike FalconPy / APIs",
+      "url": "https://www.falconpy.io/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/crowdstrike/crowdstrike_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/crowdstrike/crowdstrike_dark_NOT_A_LOGO.png"
+  }
+}

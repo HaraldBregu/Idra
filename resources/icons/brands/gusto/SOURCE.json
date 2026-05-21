@@ -1,0 +1,30 @@
+{
+  "id": "gusto",
+  "name": "Gusto",
+  "entry_type": "direct_connector",
+  "domain": "gusto.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Gusto Embedded Payroll API",
+      "url": "https://docs.gusto.com/embedded-payroll/docs",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "Gusto API reference",
+      "url": "https://docs.gusto.com/embedded-payroll/reference",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://gusto.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/gusto/gusto_light.png",
+    "dark": "brands/gusto/gusto_dark.png",
+    "raw_source": "brands/gusto/raw/gusto_source.svg"
+  }
+}

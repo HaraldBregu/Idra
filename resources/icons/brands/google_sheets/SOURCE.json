@@ -1,0 +1,24 @@
+{
+  "id": "google_sheets",
+  "name": "Google Sheets",
+  "entry_type": "direct_connector",
+  "domain": "sheets.google.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Google Sheets API reference",
+      "url": "https://developers.google.com/workspace/sheets/api/reference/rest",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://sheets.google.com",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/google_sheets/google_sheets_light.png",
+    "dark": "brands/google_sheets/google_sheets_dark.png",
+    "raw_source": "brands/google_sheets/raw/google_sheets_source.svg"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "custom_graphql",
+  "name": "Custom GraphQL APIs",
+  "entry_type": "direct_connector",
+  "domain": null,
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "GraphQL specification",
+      "url": "https://spec.graphql.org/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "GraphQL official site",
+      "url": "https://graphql.org/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "conceptual_simpleicons_for_internal_connector",
+  "source_url": "https://graphql.org/brand",
+  "verification_notes": "Conceptual technology icon for an internal/custom connector, not an external provider logo.",
+  "files": {
+    "light": "brands/custom_graphql/custom_graphql_light.png",
+    "dark": "brands/custom_graphql/custom_graphql_dark.png",
+    "raw_source": "brands/custom_graphql/raw/custom_graphql_source.svg"
+  }
+}

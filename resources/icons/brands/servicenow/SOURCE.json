@@ -1,0 +1,29 @@
+{
+  "id": "servicenow",
+  "name": "ServiceNow",
+  "entry_type": "direct_connector",
+  "domain": "servicenow.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "ServiceNow REST APIs",
+      "url": "https://developer.servicenow.com/dev.do#!/reference/api/utah/rest/c_TableAPI",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "ServiceNow REST API docs",
+      "url": "https://www.servicenow.com/docs/bundle/xanadu-api-reference/page/integrate/inbound-rest/concept/c_RESTAPI.html",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/servicenow/servicenow_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/servicenow/servicenow_dark_NOT_A_LOGO.png"
+  }
+}

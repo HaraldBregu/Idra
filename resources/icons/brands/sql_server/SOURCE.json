@@ -1,0 +1,30 @@
+{
+  "id": "sql_server",
+  "name": "SQL Server / Azure SQL",
+  "entry_type": "direct_connector",
+  "domain": "microsoft.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "SQL Server documentation",
+      "url": "https://learn.microsoft.com/en-us/sql/sql-server/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    },
+    {
+      "label": "Azure SQL documentation",
+      "url": "https://learn.microsoft.com/en-us/azure/azure-sql/",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_devicon",
+  "source_url": "local npm package @iconify-json/devicon:microsoftsqlserver",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/sql_server/sql_server_light.png",
+    "dark": "brands/sql_server/sql_server_dark.png",
+    "raw_source": "brands/sql_server/raw/sql_server_source.svg"
+  }
+}

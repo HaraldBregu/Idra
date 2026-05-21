@@ -1,0 +1,30 @@
+{
+  "id": "box",
+  "name": "Box",
+  "entry_type": "direct_connector",
+  "domain": "box.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Box API reference",
+      "url": "https://developer.box.com/reference/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Box platform docs",
+      "url": "https://developer.box.com/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://www.box.com/en-gb/about-us/press",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/box/box_light.png",
+    "dark": "brands/box/box_dark.png",
+    "raw_source": "brands/box/raw/box_source.svg"
+  }
+}

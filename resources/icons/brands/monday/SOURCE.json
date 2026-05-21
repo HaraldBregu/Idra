@@ -1,0 +1,24 @@
+{
+  "id": "monday",
+  "name": "monday.com",
+  "entry_type": "direct_connector",
+  "domain": "monday.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "monday.com API docs",
+      "url": "https://developer.monday.com/api-reference/docs",
+      "status": "official_public_url_not_reverified_in_this_run",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "iconify_logos",
+  "source_url": "local npm package @iconify-json/logos:monday",
+  "verification_notes": "Real brand/product logo from an open icon package; not independently verified against vendor brand kit.",
+  "files": {
+    "light": "brands/monday/monday_light.png",
+    "dark": "brands/monday/monday_dark.png",
+    "raw_source": "brands/monday/raw/monday_source.svg"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "ironclad",
+  "name": "Ironclad",
+  "entry_type": "direct_connector",
+  "domain": "ironcladapp.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "Ironclad API docs",
+      "url": "https://developer.ironcladapp.com/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "Ironclad API getting started",
+      "url": "https://developer.ironcladapp.com/docs/getting-started",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "missing_official_source",
+  "source_url": null,
+  "verification_notes": "No official/vendor-hosted logo source could be verified or rendered in this environment. No fake logo was created.",
+  "files": {
+    "light_not_a_logo": "brands/ironclad/ironclad_light_NOT_A_LOGO.png",
+    "dark_not_a_logo": "brands/ironclad/ironclad_dark_NOT_A_LOGO.png"
+  }
+}

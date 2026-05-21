@@ -1,0 +1,30 @@
+{
+  "id": "mongodb_atlas",
+  "name": "MongoDB Atlas",
+  "entry_type": "direct_connector",
+  "domain": "mongodb.com",
+  "website_url": null,
+  "integration_documentation_pages": [
+    {
+      "label": "MongoDB Atlas Administration API",
+      "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    },
+    {
+      "label": "MongoDB Atlas Admin API docs",
+      "url": "https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/",
+      "status": "official_public_web_checked_2026-05-19",
+      "type": "official_docs"
+    }
+  ],
+  "verified_official": false,
+  "source_kind": "simple_icons_latest",
+  "source_url": "https://www.mongodb.com/pressroom",
+  "verification_notes": "Simple Icons SVG with upstream source URL; not independently verified as the vendor official brand-kit file.",
+  "files": {
+    "light": "brands/mongodb_atlas/mongodb_atlas_light.png",
+    "dark": "brands/mongodb_atlas/mongodb_atlas_dark.png",
+    "raw_source": "brands/mongodb_atlas/raw/mongodb_atlas_source.svg"
+  }
+}

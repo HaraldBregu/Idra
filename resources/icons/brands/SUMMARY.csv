@@ -1,0 +1,36 @@
+provider,folder,official_downloaded_asset_count,fallback_asset_file_count,source_url_count,has_actual_asset_files,download_status_from_source_list
+OpenAI,openai,1,6,2,True,assets_available_on_page
+Anthropic,anthropic,0,17,2,True,press_kit_download_link_on_newsroom
+Google / Google DeepMind / Google Cloud,google,0,46,3,True,some_assets_downloadable; some_require_partner_access_or_permission
+Meta,meta,0,26,1,True,brand_guidelines; use_requires_approval
+xAI,xai,0,12,3,True,direct_zip_available
+Mistral AI,mistral,6,11,4,True,direct_zip_available
+Cohere,cohere,0,9,5,True,direct_zip_available
+DeepSeek,deepseek,0,11,2,True,no_official_download_page_found; fallback_available
+Alibaba Group / Alibaba Cloud / Qwen,qwen,0,41,4,True,alibaba_assets_downloadable; qwen_specific_official_download_not_found
+Moonshot AI / Kimi,kimi,0,15,3,True,downloadable_assets_on_branding_guide; fallback_available
+Z.ai / Zhipu AI,zai,0,33,3,True,no_official_download_page_found; fallback_available
+Baidu / ERNIE,baidu,0,38,3,True,no_official_download_page_found; fallback_available
+Tencent / Hunyuan,tencent_hunyuan,0,36,3,True,no_official_download_page_found; fallback_available
+ByteDance Seed,bytedance,0,29,2,True,no_official_download_page_found; fallback_available
+MiniMax / Hailuo,minimax,0,11,2,True,no_official_download_page_found; fallback_available
+ElevenLabs,elevenlabs,3,8,1,True,logo_and_press_kit_available_on_page
+Deepgram,deepgram,0,2,3,True,direct_zip_available
+Cartesia,cartesia,0,0,3,False,no_official_download_page_found; fallback_may_be_available
+AssemblyAI,assemblyai,0,9,2,True,media_kit_download_on_newsroom
+Speechmatics,speechmatics,1,0,3,True,direct_svg_png_jpg_available
+Black Forest Labs,black_forest_labs,4,12,6,True,direct_svg_png_available
+Midjourney,midjourney,0,6,2,True,no_official_download_page_found; fallback_available
+Adobe / Firefly,adobe_firefly,0,18,2,True,permission_guidelines; no_public_firefly_asset_kit_found
+Runway,runway,0,6,1,True,assets_available_on_page
+Luma AI,luma,0,9,2,True,no_official_download_page_found; fallback_may_be_available
+Kuaishou / Kling AI,kling,0,9,3,True,no_official_download_page_found; fallback_may_be_available
+Stability AI,stability_ai,0,15,2,True,no_official_download_page_found; fallback_may_be_available
+Ideogram,ideogram,0,6,2,True,no_official_download_page_found; fallback_may_be_available
+AI21 Labs,ai21,0,12,2,True,no_official_download_page_found; fallback_may_be_available
+Amazon / AWS / Amazon Nova,amazon,0,33,3,True,official_logo_and_architecture_icon_downloads_available
+NVIDIA / Nemotron,nvidia,0,11,2,True,logos_available; usage_requires_authorization
+Hume AI,hume,0,0,2,False,no_official_download_page_found; fallback_available
+Suno,suno,0,8,3,True,no_official_download_page_found; fallback_available
+Udio,udio,0,9,2,True,no_official_download_page_found; fallback_may_be_available
+Perplexity,perplexity,0,11,2,True,no_official_download_page_found; fallback_may_be_available
