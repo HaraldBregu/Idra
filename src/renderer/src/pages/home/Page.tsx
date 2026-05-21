@@ -115,7 +115,7 @@ function EmptyConversation(): ReactElement {
 		<Empty className="mx-auto max-w-sm border-0 p-0">
 			<EmptyHeader>
 				<EmptyMedia>
-					<GradientSphere size={48} />
+					<GradientSphere size={72} />
 				</EmptyMedia>
 				<EmptyTitle>Start a conversation</EmptyTitle>
 				<EmptyDescription>
