@@ -274,8 +274,8 @@
 				"yes": "Si",
 				"oftenYes": "Spesso si",
 				"sometimes": "A volte",
-				"yesAdmin": "Admin/root",
-				"yesHighPrivilege": "Privilegi elevati",
+				"yesAdmin": "Si, admin/root",
+				"yesHighPrivilege": "Si, privilegi elevati",
 				"usuallyNo": "Di solito no"
 			},
 			"capabilities": {
