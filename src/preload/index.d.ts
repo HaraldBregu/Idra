@@ -214,6 +214,9 @@ export interface AppApi {
 	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	getSpeechToTextModels: (provider: PublicProvider) => Promise<Model[]>;
 	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getImageCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	getImageCreatorModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveImageCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getAgentService: () => Promise<Agent | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<Agent | undefined>;

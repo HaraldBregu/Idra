@@ -237,6 +237,15 @@ export const app: AppApi = {
 	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(OperatorChannels.saveSpeechToText, provider, model);
 	},
+	getImageCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
+		return typedInvokeUnwrap(OperatorChannels.getImageCreator);
+	},
+	getImageCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(OperatorChannels.getImageCreatorModels, provider);
+	},
+	saveImageCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(OperatorChannels.saveImageCreator, provider, model);
+	},
 	getAgentService: (): Promise<Agent | undefined> => {
 		return typedInvokeUnwrap(ProviderChannels.getAgentService);
 	},
