@@ -39,6 +39,8 @@ describe('provider model catalogs', () => {
 		expect(getTextToVideoModelsByProvider('unknown')).toEqual([]);
 
 		expect(getMusicModelsByProvider('google')).toEqual(MUSIC_CREATOR_MODELS);
+		expect(getMusicModelsByProvider('adobe-firefly')).toEqual(MUSIC_CREATOR_MODELS);
+		expect(getMusicModelsByProvider('stability-ai')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getMusicModelsByProvider('suno')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getMusicModelsByProvider('unknown')).toEqual([]);
 	});
@@ -49,6 +51,9 @@ describe('provider model catalogs', () => {
 		);
 		expect(getModelsByCapability('text-to-image', 'ideogram')).toEqual(IMAGE_CREATOR_MODELS);
 		expect(getModelsByCapability('text-to-video', 'kling')).toEqual(TEXT_TO_VIDEO_MODELS);
+		expect(getModelsByCapability('text-to-audio', 'stability-ai')).toEqual(
+			MUSIC_CREATOR_MODELS
+		);
 		expect(getModelsByCapability('music', 'minimax')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getModelsByCapability('embedding', 'openai')).toEqual([]);
 	});
