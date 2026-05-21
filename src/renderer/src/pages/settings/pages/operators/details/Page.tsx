@@ -7,8 +7,6 @@ import {
 	ChevronDown,
 	ChevronRight,
 	CircleOff,
-	ClipboardList,
-	Clock3,
 	ImageIcon,
 	LoaderCircle,
 	Mic,
@@ -44,8 +42,6 @@ import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../../../../sha
 import {
 	ASSISTANT_OPERATOR_ID,
 	ASSISTANT_RUNTIME_ID,
-	BACKGROUND_TASK_OPERATOR_ID,
-	CRON_TASK_SCHEDULER_OPERATOR_ID,
 	DEFAULT_MODEL_REASONING_EFFORT,
 	DOCUMENT_READER_OCR_OPERATOR_ID,
 	DOCUMENT_READER_OCR_MODELS,
@@ -129,8 +125,6 @@ const OperatorDetailsPage: React.FC = () => {
 	const isVideoCreatorOperator = decodedOperatorId === TEXT_TO_VIDEO_OPERATOR_ID;
 	const isMusicCreatorOperator = decodedOperatorId === MUSIC_CREATOR_OPERATOR_ID;
 	const isDocumentReaderOcrOperator = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
-	const isCronTaskOperator = decodedOperatorId === CRON_TASK_SCHEDULER_OPERATOR_ID;
-	const isBackgroundTaskOperator = decodedOperatorId === BACKGROUND_TASK_OPERATOR_ID;
 	const isRuntimeBackedOperator =
 		isAssistantOperator || isSpeechToTextOperator || isImageCreatorOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
@@ -494,29 +488,6 @@ const OperatorDetailsPage: React.FC = () => {
 		navigate(`/settings/operators/${ASSISTANT_OPERATOR_ID}/details/chathistory`);
 	}, [navigate]);
 
-	const workflowConfiguration = isCronTaskOperator
-		? {
-				route: '/settings/cron',
-				openLabelKey: 'settings.operators.openCronTaskConfiguration',
-				runtimeTitleKey: 'settings.operators.cronTaskRuntime',
-				runtimeDescriptionKey: 'settings.operators.cronTaskRuntimeDescription',
-				runtimeValueKey: 'settings.operators.cronTaskRuntimeValue',
-				scopeTitleKey: 'settings.operators.cronTaskScope',
-				scopeDescriptionKey: 'settings.operators.cronTaskScopeDescription',
-				scopeValueKey: 'settings.operators.cronTaskScopeValue',
-			}
-		: isBackgroundTaskOperator
-			? {
-					route: '/settings/task-manager',
-					openLabelKey: 'settings.operators.openBackgroundTaskConfiguration',
-					runtimeTitleKey: 'settings.operators.backgroundTaskRuntime',
-					runtimeDescriptionKey: 'settings.operators.backgroundTaskRuntimeDescription',
-					runtimeValueKey: 'settings.operators.backgroundTaskRuntimeValue',
-					scopeTitleKey: 'settings.operators.backgroundTaskTypes',
-					scopeDescriptionKey: 'settings.operators.backgroundTaskTypesDescription',
-					scopeValueKey: 'settings.operators.backgroundTaskTypesValue',
-				}
-			: null;
 	const isKnownOperator =
 		isAssistantOperator ||
 		isSpeechToTextOperator ||
@@ -524,8 +495,7 @@ const OperatorDetailsPage: React.FC = () => {
 		isImageCreatorOperator ||
 		isVideoCreatorOperator ||
 		isMusicCreatorOperator ||
-		isDocumentReaderOcrOperator ||
-		Boolean(workflowConfiguration);
+		isDocumentReaderOcrOperator;
 	const operatorIcon = isImageCreatorOperator
 		? ImageIcon
 		: isVideoCreatorOperator
@@ -534,15 +504,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? Music
 				: isDocumentReaderOcrOperator
 					? ScanText
-					: isCronTaskOperator
-						? Clock3
-						: isBackgroundTaskOperator
-							? ClipboardList
-							: isTextToSpeechOperator
-								? Volume2
-								: isSpeechToTextOperator
-									? Mic
-									: Bot;
+					: isTextToSpeechOperator
+						? Volume2
+						: isSpeechToTextOperator
+							? Mic
+							: Bot;
 	const operatorNameKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantName'
 		: isVideoCreatorOperator
@@ -551,15 +517,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicCreatorName'
 				: isDocumentReaderOcrOperator
 					? 'settings.operators.documentReaderName'
-					: isCronTaskOperator
-						? 'settings.operators.cronTaskName'
-						: isBackgroundTaskOperator
-							? 'settings.operators.backgroundTaskName'
-							: isTextToSpeechOperator
-								? 'settings.operators.textToSpeechName'
-								: isSpeechToTextOperator
-									? 'settings.operators.speechTranscriberName'
-									: 'settings.operators.fridayName';
+					: isTextToSpeechOperator
+						? 'settings.operators.textToSpeechName'
+						: isSpeechToTextOperator
+							? 'settings.operators.speechTranscriberName'
+							: 'settings.operators.fridayName';
 	const operatorDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantDescription'
 		: isVideoCreatorOperator
@@ -568,15 +530,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicCreatorDescription'
 				: isDocumentReaderOcrOperator
 					? 'settings.operators.documentReaderDescription'
-					: isCronTaskOperator
-						? 'settings.operators.cronTaskDescription'
-						: isBackgroundTaskOperator
-							? 'settings.operators.backgroundTaskDescription'
-							: isTextToSpeechOperator
-								? 'settings.operators.textToSpeechDescription'
-								: isSpeechToTextOperator
-									? 'settings.operators.speechTranscriberDescription'
-									: 'settings.operators.fridayDescription';
+					: isTextToSpeechOperator
+						? 'settings.operators.textToSpeechDescription'
+						: isSpeechToTextOperator
+							? 'settings.operators.speechTranscriberDescription'
+							: 'settings.operators.fridayDescription';
 	const configurationDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageConfigurationSubtitle'
 		: isVideoCreatorOperator
@@ -585,15 +543,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicConfigurationSubtitle'
 				: isDocumentReaderOcrOperator
 					? 'settings.operators.documentReaderConfigurationSubtitle'
-					: isCronTaskOperator
-						? 'settings.operators.cronTaskConfigurationSubtitle'
-						: isBackgroundTaskOperator
-							? 'settings.operators.backgroundTaskConfigurationSubtitle'
-							: isTextToSpeechOperator
-								? 'settings.operators.textToSpeechConfigurationSubtitle'
-								: isSpeechToTextOperator
-									? 'settings.operators.speechConfigurationSubtitle'
-									: 'settings.operators.subtitle';
+					: isTextToSpeechOperator
+						? 'settings.operators.textToSpeechConfigurationSubtitle'
+						: isSpeechToTextOperator
+							? 'settings.operators.speechConfigurationSubtitle'
+							: 'settings.operators.subtitle';
 	const providerDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageProviderDescription'
 		: isVideoCreatorOperator
@@ -745,41 +699,7 @@ const OperatorDetailsPage: React.FC = () => {
 				</SettingsSection>
 			)}
 
-			{workflowConfiguration ? (
-				<SettingsSection
-					title={t('settings.operators.configuration')}
-					description={configurationDescription}
-				>
-					<SettingsPanel>
-						<SettingsRow
-							title={t(workflowConfiguration.runtimeTitleKey)}
-							description={t(workflowConfiguration.runtimeDescriptionKey)}
-						>
-							<SettingsValue>{t(workflowConfiguration.runtimeValueKey)}</SettingsValue>
-						</SettingsRow>
-						<SettingsRow
-							title={t(workflowConfiguration.scopeTitleKey)}
-							description={t(workflowConfiguration.scopeDescriptionKey)}
-						>
-							<SettingsValue mono>{t(workflowConfiguration.scopeValueKey)}</SettingsValue>
-						</SettingsRow>
-						<Item
-							as="button"
-							type="button"
-							size="md"
-							className="border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
-							onClick={() => navigate(workflowConfiguration.route)}
-						>
-							<ItemContent className="min-w-0 flex-1">
-								<ItemTitle>{t(workflowConfiguration.openLabelKey)}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
-							</ItemActions>
-						</Item>
-					</SettingsPanel>
-				</SettingsSection>
-			) : !isRuntimeBackedOperator ? (
+			{!isRuntimeBackedOperator ? (
 				<SettingsSection
 					title={t('settings.operators.configuration')}
 					description={configurationDescription}
