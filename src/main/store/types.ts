@@ -1,10 +1,10 @@
-import type { Provider } from "../../shared/providers";
-import type { ModelReasoningEffort } from "../../shared/service";
-import type { HeartbeatStoreState } from "../../shared/heartbeat";
-import { Channel } from "../../shared/channels";
-import { ConnectorConfig } from "../../shared/connectors";
-import type { AppPermissionSettings } from "../../shared/app-permissions";
-import type { AppSettings } from "../../shared/app-settings";
+import type { Provider } from '../../shared/providers';
+import type { ModelReasoningEffort } from '../../shared/service';
+import type { HeartbeatStoreState } from '../../shared/heartbeat';
+import type { Channel } from '../../shared/channels';
+import type { ConnectorConfig } from '../../shared/connectors';
+import type { AppPermissionSettings } from '../../shared/app-permissions';
+import type { AppSettings } from '../../shared/app-settings';
 
 export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 
@@ -44,15 +44,13 @@ export interface BackgroundTaskSettings {
 }
 
 export interface SettingsStore {
-	appSettings?: AppSettings;
-	appPermissions?: AppPermissionSettings;
 	modelProviders: ModelProviderSettings[];
-	agent?: ModelModuleSettings;
+	llmAgent?: ModelModuleSettings;
 	speechToText?: ModelModuleSettings;
 	textToSpeech?: ModelModuleSettings;
 	imageCreator?: ModelModuleSettings;
 	textToVideo?: ModelModuleSettings;
-	sound?: ModelModuleSettings;
+	textToSound?: ModelModuleSettings;
 	ocr?: OcrModuleSettings;
 	embedding?: EmbeddingModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
@@ -62,7 +60,12 @@ export interface SettingsStore {
 	channel?: Channel;
 }
 
-export type StoreSchema = SettingsStore;
+interface ApplicationSettingsStore {
+	appSettings?: AppSettings;
+	appPermissions?: AppPermissionSettings;
+}
+
+export type StoreSchema = SettingsStore & ApplicationSettingsStore;
 
 export type SettingsStoreAccessor = {
 	get<TKey extends keyof StoreSchema>(key: TKey): StoreSchema[TKey];
