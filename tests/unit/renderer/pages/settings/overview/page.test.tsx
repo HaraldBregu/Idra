@@ -55,7 +55,7 @@ describe('OverviewPage', () => {
 		const user = userEvent.setup();
 		renderOverviewPage();
 
-		await user.click(screen.getByRole('button', { name: /settings\.tabs\.agents/ }));
+		await user.click(screen.getByRole('button', { name: /settings\.tabs\.operators/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators');
 	});

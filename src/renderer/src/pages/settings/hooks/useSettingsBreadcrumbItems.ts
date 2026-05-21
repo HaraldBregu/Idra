@@ -76,27 +76,27 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname.startsWith('/settings/operators/')) {
 		const parts = location.pathname.split('/');
-		const agentId = decodeURIComponent(parts[3] ?? '');
+		const operatorId = decodeURIComponent(parts[3] ?? '');
 		const isChatHistoryPage = parts[5] === 'chathistory';
 		items[0] = { ...items[0], path: current.path };
-		const label = agentId === 'friday' || agentId === 'main'
+		const label = operatorId === 'friday' || operatorId === 'main'
 			? t('settings.operators.fridayBreadcrumb')
-			: agentId === SPEECH_TRANSCRIBER_AGENT_ID
+			: operatorId === SPEECH_TRANSCRIBER_AGENT_ID
 				? t('settings.operators.speechTranscriberName')
-				: agentId === TEXT_TO_SPEECH_AGENT_ID
+				: operatorId === TEXT_TO_SPEECH_AGENT_ID
 					? t('settings.operators.textToSpeechName')
-					: agentId === IMAGE_ASSISTANT_AGENT_ID
+					: operatorId === IMAGE_ASSISTANT_AGENT_ID
 						? t('settings.operators.imageAssistantName')
-						: agentId === VIDEO_CREATOR_AGENT_ID
+						: operatorId === VIDEO_CREATOR_AGENT_ID
 							? t('settings.operators.videoCreatorName')
-							: agentId === MUSIC_CREATOR_AGENT_ID
+							: operatorId === MUSIC_CREATOR_AGENT_ID
 								? t('settings.operators.musicCreatorName')
-								: agentId === DOCUMENT_READER_AGENT_ID
+								: operatorId === DOCUMENT_READER_AGENT_ID
 									? t('settings.operators.documentReaderName')
-									: agentId;
+									: operatorId;
 		items.push({
 			label,
-			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(agentId)}/details` : undefined,
+			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(operatorId)}/details` : undefined,
 		});
 		if (isChatHistoryPage) {
 			items.push({ label: t('settings.operators.history') });

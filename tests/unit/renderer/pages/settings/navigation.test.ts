@@ -4,6 +4,7 @@ describe('settings navigation', () => {
 	it('keeps the overview list in the requested order', () => {
 		expect(SETTINGS_NAVIGATION.map((item) => item.labelKey)).toEqual([
 			'settings.tabs.general',
+			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.operators',
 			'settings.tabs.skills',

@@ -24,14 +24,14 @@ function renderOperatorsPage(): void {
 }
 
 describe('OperatorsPage', () => {
-	it('renders the Friday agent without a default badge', () => {
+	it('renders the Friday operator without a default badge', () => {
 		renderOperatorsPage();
 
 		expect(screen.getByText('settings.operators.fridayName')).toBeInTheDocument();
-		expect(screen.queryByText('settings.operators.defaultAgent')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.defaultOperator')).not.toBeInTheDocument();
 	});
 
-	it('renders speech, image, video, music, and document agents', () => {
+	it('renders speech, image, video, music, and document operators', () => {
 		renderOperatorsPage();
 
 		expect(screen.getByText('settings.operators.speechTranscriberName')).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe('OperatorsPage', () => {
 		expect(screen.getByText('settings.operators.documentReaderName')).toBeInTheDocument();
 	});
 
-	it('does not render agent descriptions in the list', () => {
+	it('does not render operator descriptions in the list', () => {
 		renderOperatorsPage();
 
 		expect(screen.queryByText('settings.operators.fridayDescription')).not.toBeInTheDocument();
@@ -54,21 +54,21 @@ describe('OperatorsPage', () => {
 		expect(screen.queryByText('settings.operators.documentReaderDescription')).not.toBeInTheDocument();
 	});
 
-	it('navigates to the Friday agent details route when clicked', async () => {
+	it('navigates to the Friday operator details route when clicked', async () => {
 		const user = userEvent.setup();
 		renderOperatorsPage();
 
-		await user.click(screen.getByRole('button', { name: /settings\.agents\.fridayName/ }));
+		await user.click(screen.getByRole('button', { name: /settings\.operators\.fridayName/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
 	});
 
-	it('navigates to the Speech to Text agent details route when clicked', async () => {
+	it('navigates to the Speech to Text operator details route when clicked', async () => {
 		const user = userEvent.setup();
 		renderOperatorsPage();
 
 		await user.click(screen.getByRole('button', {
-			name: /settings\.agents\.speechTranscriberName/,
+			name: /settings\.operators\.speechTranscriberName/,
 		}));
 
 		expect(screen.getByTestId('location')).toHaveTextContent(

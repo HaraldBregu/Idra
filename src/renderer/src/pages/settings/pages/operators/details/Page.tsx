@@ -117,15 +117,15 @@ function mergeProviders(
 const OperatorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { agentId } = useParams<{ agentId: string }>();
-	const decodedAgentId = decodeURIComponent(agentId ?? '');
-	const isFridayAgent = decodedAgentId === FRIDAY_AGENT_SLUG || decodedAgentId === FRIDAY_AGENT_ID;
-	const isSpeechTranscriberAgent = decodedAgentId === SPEECH_TRANSCRIBER_AGENT_ID;
-	const isTextToSpeechAgent = decodedAgentId === TEXT_TO_SPEECH_AGENT_ID;
-	const isImageAssistantAgent = decodedAgentId === IMAGE_ASSISTANT_AGENT_ID;
-	const isVideoCreatorAgent = decodedAgentId === VIDEO_CREATOR_AGENT_ID;
-	const isMusicCreatorAgent = decodedAgentId === MUSIC_CREATOR_AGENT_ID;
-	const isDocumentReaderAgent = decodedAgentId === DOCUMENT_READER_AGENT_ID;
+	const { operatorId } = useParams<{ operatorId: string }>();
+	const decodedOperatorId = decodeURIComponent(operatorId ?? '');
+	const isFridayAgent = decodedOperatorId === FRIDAY_AGENT_SLUG || decodedOperatorId === FRIDAY_AGENT_ID;
+	const isSpeechTranscriberAgent = decodedOperatorId === SPEECH_TRANSCRIBER_AGENT_ID;
+	const isTextToSpeechAgent = decodedOperatorId === TEXT_TO_SPEECH_AGENT_ID;
+	const isImageAssistantAgent = decodedOperatorId === IMAGE_ASSISTANT_AGENT_ID;
+	const isVideoCreatorAgent = decodedOperatorId === VIDEO_CREATOR_AGENT_ID;
+	const isMusicCreatorAgent = decodedOperatorId === MUSIC_CREATOR_AGENT_ID;
+	const isDocumentReaderAgent = decodedOperatorId === DOCUMENT_READER_AGENT_ID;
 	const isServiceBackedAgent = isFridayAgent || isSpeechTranscriberAgent;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAgent, setCurrentAgent] = useState<Agent | undefined>();

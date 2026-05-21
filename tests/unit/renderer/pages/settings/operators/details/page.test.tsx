@@ -63,7 +63,7 @@ describe('OperatorDetailsPage', () => {
 		};
 	});
 
-	it('navigates from the Friday agent history row to chat history', async () => {
+	it('navigates from the Friday operator history row to chat history', async () => {
 		const user = userEvent.setup();
 		renderOperatorDetailsPage();
 
@@ -79,7 +79,7 @@ describe('OperatorDetailsPage', () => {
 		renderOperatorDetailsPage();
 
 		const providerCard = await screen.findByRole('button', {
-			name: /settings\.agents\.provider/,
+			name: /settings\.operators\.provider/,
 		});
 
 		expect(screen.queryByText('settings.operators.identity')).not.toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('OperatorDetailsPage', () => {
 		expect(await screen.findByText('settings.operators.providerDescription')).toBeInTheDocument();
 	});
 
-	it('renders placeholder settings for the document reader agent', async () => {
+	it('renders placeholder settings for the document reader operator', async () => {
 		renderOperatorDetailsPage('/settings/operators/document-reader/details');
 
 		expect(await screen.findByText('settings.operators.documentReaderName')).toBeInTheDocument();

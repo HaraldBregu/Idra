@@ -28,11 +28,11 @@ import {
 	VIDEO_CREATOR_AGENT_ID,
 } from '../../../../../../shared/service';
 
-const FRIDAY_AGENT_SLUG = 'friday';
+const FRIDAY_OPERATOR_SLUG = 'friday';
 
-const AGENT_ROWS = [
+const OPERATOR_ROWS = [
 	{
-		id: FRIDAY_AGENT_SLUG,
+		id: FRIDAY_OPERATOR_SLUG,
 		nameKey: 'settings.operators.fridayName',
 		icon: Bot,
 	},
@@ -76,8 +76,8 @@ const OperatorsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 
-	const openAgentDetails = useCallback((agentId: string) => {
-		navigate(`/settings/operators/${encodeURIComponent(agentId)}/details`);
+	const openOperatorDetails = useCallback((operatorId: string) => {
+		navigate(`/settings/operators/${encodeURIComponent(operatorId)}/details`);
 	}, [navigate]);
 
 	return (
@@ -87,19 +87,19 @@ const OperatorsPage: React.FC = () => {
 				description={t('settings.operators.description')}
 			/>
 
-			<SettingsSection title={t('settings.operators.allAgents')}>
+			<SettingsSection title={t('settings.operators.allOperators')}>
 				<SettingsPanel>
-					{AGENT_ROWS.map((agent) => {
-						const Icon = agent.icon;
+					{OPERATOR_ROWS.map((operator) => {
+						const Icon = operator.icon;
 						return (
 							<Item
-								key={agent.id}
+								key={operator.id}
 								as="button"
 								type="button"
 								variant="outline"
 								size="md"
 								className="border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
-								onClick={() => openAgentDetails(agent.id)}
+								onClick={() => openOperatorDetails(operator.id)}
 							>
 								<ItemMedia variant="icon">
 									<Icon className="size-3" strokeWidth={1.8} />
@@ -107,7 +107,7 @@ const OperatorsPage: React.FC = () => {
 								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 									<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 										<span className="flex min-w-0 flex-wrap items-center gap-1.5">
-											<span className="truncate">{t(agent.nameKey)}</span>
+											<span className="truncate">{t(operator.nameKey)}</span>
 										</span>
 									</ItemTitle>
 								</ItemContent>
