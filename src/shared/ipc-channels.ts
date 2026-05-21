@@ -44,13 +44,6 @@ export const OperatorChannels = {
 	saveSpeechToText: 'operator:save-speech-to-text',
 } as const;
 
-export const LegacyProviderOperatorChannels = {
-	getAgentService: 'provider:get-agent-service',
-	saveAgentService: 'provider:save-agent-service',
-	getSpeechTranscriberService: 'provider:get-speech-transcriber-service',
-	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
-} as const;
-
 export const RealtimeTranscriptionChannels = {
 	start: 'realtime-transcription:start',
 	appendAudio: 'realtime-transcription:append-audio',

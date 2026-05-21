@@ -3,7 +3,7 @@ import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import {
-	SPEECH_TRANSCRIBER_MODELS,
+	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	requireModelReasoningEffort,
 	type Agent,
@@ -359,7 +359,7 @@ export class AppIpc implements IpcModule {
 				if (normalizedProviderId !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
 					throw new Error('Speech transcription currently supports OpenAI only.');
 				}
-				if (!SPEECH_TRANSCRIBER_MODELS.some((option) => option.id === model.id)) {
+				if (!SPEECH_TO_TEXT_MODELS.some((option) => option.id === model.id)) {
 					throw new Error(`Model is not supported for speech transcription: ${model.id}`);
 				}
 				return store.setSpeechToTextOperator(provider.id, { id: model.id, name: model.name });
@@ -401,7 +401,7 @@ export class AppIpc implements IpcModule {
 				if (normalizedProviderId !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
 					throw new Error('Speech transcription currently supports OpenAI only.');
 				}
-				if (!SPEECH_TRANSCRIBER_MODELS.some((option) => option.id === model.id)) {
+				if (!SPEECH_TO_TEXT_MODELS.some((option) => option.id === model.id)) {
 					throw new Error(`Model is not supported for speech transcription: ${model.id}`);
 				}
 				return store.setSpeechTranscriberService(provider.id, { id: model.id, name: model.name });
