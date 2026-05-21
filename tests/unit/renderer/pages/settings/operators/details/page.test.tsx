@@ -67,12 +67,17 @@ describe('OperatorDetailsPage', () => {
 			getProviders: jest.fn(async () => [provider]),
 			getAssistantOperator: jest.fn(async () => assistantOperator),
 			getSpeechToTextOperator: jest.fn(async () => undefined),
+			getImageCreatorOperator: jest.fn(async () => undefined),
 			getModels: jest.fn(async () => [model]),
 			getSpeechToTextModels: jest.fn(async () => [
 				{ id: 'gpt-realtime-whisper', name: 'GPT Realtime Whisper' },
 			]),
+			getImageCreatorModels: jest.fn(async () => [
+				{ id: 'image-provider-coming-soon', name: 'Not available yet' },
+			]),
 			saveAssistantOperator: jest.fn(async () => true),
 			saveSpeechToTextOperator: jest.fn(async () => true),
+			saveImageCreatorOperator: jest.fn(async () => true),
 		};
 	});
 
@@ -113,6 +118,22 @@ describe('OperatorDetailsPage', () => {
 		expect(screen.getByText('settings.operators.configurationPending')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.documentReaderProviderDescription')).toBeInTheDocument();
 		expect(screen.getByText('OCR provider')).toBeInTheDocument();
+	});
+
+	it('renders configurable settings for the image creator operator', async () => {
+		const user = userEvent.setup();
+		renderOperatorDetailsPage('/settings/operators/image-assistant/details');
+
+		const providerCard = await screen.findByRole('button', {
+			name: /settings\.operators\.provider/,
+		});
+		expect(screen.queryByText('settings.operators.configurationPending')).not.toBeInTheDocument();
+
+		await user.click(providerCard);
+
+		expect(await screen.findByText('settings.operators.imageProviderDescription')).toBeInTheDocument();
+		expect(window.app.getImageCreatorOperator).toHaveBeenCalled();
+		expect(window.app.getImageCreatorModels).toHaveBeenCalled();
 	});
 
 	it('renders Cron Task configuration details', async () => {
