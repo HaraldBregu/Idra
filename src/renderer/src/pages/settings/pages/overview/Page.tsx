@@ -24,6 +24,10 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		titleKey: 'settings.overview.groups.capabilities',
 		operators: true,
+		paths: [],
+	},
+	{
+		titleKey: 'settings.overview.groups.aiFeatures',
 		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{

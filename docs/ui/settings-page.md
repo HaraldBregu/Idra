@@ -17,7 +17,8 @@ The settings overview groups navigation cards into:
 | Group | Entries |
 | --- | --- |
 | General | General, System, Providers, Channels |
-| Capabilities | Operators, Skills, Connectors |
+| Capabilities | Operators |
+| AI Features | Skills, Connectors |
 | Automation | Heartbeat, Cron, Task Manager, Apps |
 
 Each overview card navigates to a route in `SETTINGS_NAVIGATION` or

@@ -150,6 +150,7 @@
 			"groups": {
 				"general": "Configurazione generale",
 				"capabilities": "Operatori ed estensioni",
+				"aiFeatures": "Funzionalita AI",
 				"automation": "Automazioni e app"
 			},
 			"descriptions": {
