@@ -138,7 +138,7 @@ function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 				label: t(item.labelKey),
 				description: item.descriptionKey ? t(item.descriptionKey) : undefined,
 				group: settingsRoutesHeading,
-				icon: getSettingsRouteIcon(item.path),
+				icon: item.icon ?? getSettingsRouteIcon(item.path),
 				path: item.path,
 				keywords: item.keywords,
 			})
