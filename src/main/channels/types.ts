@@ -395,7 +395,7 @@ export interface ChannelPlugin<TConfig = unknown, TSetupInput = unknown> {
 export interface ChannelAdapter {
 	start(): Promise<void>;
 	stop(): Promise<void>;
-	send(message: ChannelOutboundMessage): Promise<void>;
+	send(message: ChannelOutboundMessage): Promise<ChannelMessageReceipt>;
 	deliver?(message: ChannelOutboundMessage): Promise<ChannelMessageReceipt>;
 	onMessage(handler: ChannelInboundHandler): () => void;
 	onStatus(handler: ChannelStatusHandler): () => void;
