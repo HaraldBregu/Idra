@@ -12,56 +12,36 @@
 | API-key link | [Meta Llama developer portal](https://llama.developer.meta.com/) |
 | Official docs | [Meta Llama API keys](https://llama.developer.meta.com/docs/api-keys/) |
 
+## Model Catalog Source
+
+The model sections below use the supplied provider/model catalog for this documentation update. They are based only on that supplied catalog.
+
+Status values:
+
+- `active`: listed as a current model in the supplied catalog.
+- `deprecated`: transitional model; avoid new integrations unless required.
+- `verify`: verify provider access and adapter support before production use.
+
 ## Model Type Coverage
 
-Official model references were checked in May 2026. Meta may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
-
-| Model type | Official provider coverage | Friday status |
-| --- | --- | --- |
-| Large Language Models | Llama API model families such as Llama 4 and Llama 3.x; the official Llama API docs may require login. Official references: [Llama API models](https://llama.developer.meta.com/docs/models/), [Meta AI resources](https://ai.meta.com/resources/). | Friday has an explicit default agent catalog for Meta. |
-| Video Models | Meta publishes video and world-model research resources; a generally available model API should be verified before runtime work. Official references: [Meta AI resources](https://ai.meta.com/resources/). | Friday exposes the shared `video-provider-coming-soon` placeholder for Meta video generation. |
+| Model type | Documented models |
+| --- | --- |
+| Large Language Models | `muse-spark`, `llama-4-maverick`, `llama-4-scout` |
+| Video Models | `movie-gen-video` |
 
 ## Large Language Models
 
-Official references: [Llama API models](https://llama.developer.meta.com/docs/models/), [Meta AI resources](https://ai.meta.com/resources/).
-
-Official model families: Llama API model families such as Llama 4 and Llama 3.x; the official Llama API docs may require login.
-
-Friday status: Friday has an explicit default agent catalog for Meta.
-
-Friday default agent models:
-
-| Model id | Display name |
+| Model id | Status |
 | --- | --- |
-| `llama-4-maverick` | Llama 4 Maverick |
-| `llama-4-scout` | Llama 4 Scout |
-| `llama-3.3-70b` | Llama 3.3 70B |
+| `muse-spark` | `active` |
+| `llama-4-maverick` | `active` |
+| `llama-4-scout` | `active` |
 
 ## Video Models
 
-Official references: [Meta AI resources](https://ai.meta.com/resources/).
-
-Official model families: Meta publishes video and world-model research resources; a generally available model API should be verified before runtime work.
-
-Friday status: Friday exposes the shared `video-provider-coming-soon` placeholder for Meta video generation.
-
-## Runtime Notes
-
-- No dedicated Meta adapter is registered.
-- `makeProvider` falls back to the generic OpenAI Chat Completions-compatible
-  adapter for this id.
-- Confirm that the configured endpoint is OpenAI-compatible before using Meta
-  as the main agent provider.
-
-## Example
-
-```json
-{
-	"message": "Draft a concise architectural decision record.",
-	"providerId": "meta",
-	"model": "llama-4-maverick"
-}
-```
+| Model id | Status |
+| --- | --- |
+| `movie-gen-video` | `verify` |
 
 ## Related Docs
 

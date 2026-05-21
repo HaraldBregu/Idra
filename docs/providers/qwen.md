@@ -4,7 +4,7 @@
 | --- | --- |
 | Provider id | `qwen` |
 | Display name | Alibaba / Qwen / Wan |
-| Capabilities | Chat - Speech-to-text - Omni - Image - Video |
+| Capabilities | Chat - Speech-to-text - Realtime voice/omni - Image - Video |
 | Default base URL | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
 | Credential type | Model Studio API key |
 | Auth method | API key; OpenAI-compatible or DashScope SDK depending on endpoint |
@@ -12,105 +12,63 @@
 | API-key link | [Alibaba Model Studio API keys](https://bailian.console.aliyun.com/?tab=api#/api-key) |
 | Official docs | [Alibaba Model Studio API key docs](https://www.alibabacloud.com/help/en/model-studio/get-api-key) |
 
+## Model Catalog Source
+
+The model sections below use the supplied provider/model catalog for this documentation update. They are based only on that supplied catalog.
+
+Status values:
+
+- `active`: listed as a current model in the supplied catalog.
+- `deprecated`: transitional model; avoid new integrations unless required.
+- `verify`: verify provider access and adapter support before production use.
+
 ## Model Type Coverage
 
-Official model references were checked in May 2026. Alibaba / Qwen / Wan may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
-
-| Model type | Official provider coverage | Friday status |
-| --- | --- | --- |
-| Large Language Models | Qwen-Max, Qwen-Plus, Qwen-Flash, Qwen-Coder, QwQ, Qwen open models, and domain-specific text models. Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/). | Friday has an explicit default agent catalog for Qwen. |
-| Speech-To-Text Models | Qwen realtime speech recognition, Qwen file recognition, Fun-ASR, Paraformer, and Qwen live-translation models. Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/), [Speech-to-speech models](https://www.alibabacloud.com/help/en/model-studio/speech-to-speech/). | Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for Qwen STT. |
-| Text-To-Speech Models | Qwen speech synthesis, realtime speech synthesis, and CosyVoice model families. Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/). | Friday does not currently list Qwen in the TTS provider catalog. |
-| Omni Models | Qwen3.5-Omni, Qwen3-Omni, and Qwen3-LiveTranslate families for text, audio, image, and video input. Official references: [Qwen-Omni](https://www.alibabacloud.com/help/en/model-studio/qwen-omni), [Speech-to-speech models](https://www.alibabacloud.com/help/en/model-studio/speech-to-speech/). | Friday has no separate omni module catalog; Qwen omni entries are documented under provider capabilities. |
-| Image Models | Wan image, Qwen Image, and Z-Image model families, including text-to-image and image editing. Official references: [Alibaba image generation models](https://www.alibabacloud.com/help/en/model-studio/image-model). | Friday exposes the shared `image-provider-coming-soon` placeholder for Qwen image generation. |
-| Video Models | Wan text-to-video, image-to-video, video editing, and audio/video generation families. Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/). | Friday exposes the shared `video-provider-coming-soon` placeholder for Qwen video generation. |
+| Model type | Documented models |
+| --- | --- |
+| Large Language Models | `qwen3.7-max`, `qwen3.6-plus`, `qwen3.6-flash` |
+| Speech-To-Text Models | `qwen3.5-omni`, `qwen3-omni-flash` |
+| Realtime Voice And Omni Models | `qwen-omni-realtime`, `qwen3.5-omni`, `qwen3-omni-flash` |
+| Image Models | `qwen-image`, `qwen-image-edit` |
+| Video Models | `wan2.7-t2v`, `wan2.7-i2v`, `wan2.7-video-edit` |
 
 ## Large Language Models
 
-Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/).
-
-Official model families: Qwen-Max, Qwen-Plus, Qwen-Flash, Qwen-Coder, QwQ, Qwen open models, and domain-specific text models.
-
-Friday status: Friday has an explicit default agent catalog for Qwen.
-
-Friday default agent models:
-
-| Model id | Display name |
+| Model id | Status |
 | --- | --- |
-| `qwen3-max` | Qwen3-Max |
-| `qwen3.5-plus` | Qwen3.5-Plus |
-| `qwen3.5-flash` | Qwen3.5-Flash |
-| `qwen3-coder-plus` | Qwen3-Coder-Plus |
-| `qwq-plus` | QwQ-Plus |
+| `qwen3.7-max` | `active` |
+| `qwen3.6-plus` | `active` |
+| `qwen3.6-flash` | `active` |
 
 ## Speech-To-Text Models
 
-Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/), [Speech-to-speech models](https://www.alibabacloud.com/help/en/model-studio/speech-to-speech/).
+| Model id | Status |
+| --- | --- |
+| `qwen3.5-omni` | `active` |
+| `qwen3-omni-flash` | `active` |
 
-Official model families: Qwen realtime speech recognition, Qwen file recognition, Fun-ASR, Paraformer, and Qwen live-translation models.
+## Realtime Voice And Omni Models
 
-Friday status: Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for Qwen STT.
-
-Documented provider model ids:
-
-| Model id | Display name | Runtime style |
-| --- | --- | --- |
-| `fun-asr-realtime` | Fun-ASR Realtime | Realtime transcription |
-| `qwen3-asr-flash-realtime` | Qwen3-ASR Flash Realtime | Realtime transcription |
-| `qwen3.5-omni-plus-realtime` | Qwen3.5-Omni Plus Realtime | Realtime transcription |
-| `fun-asr` | Fun-ASR | File transcription |
-| `qwen3-asr-flash-filetrans` | Qwen3-ASR Flash File Transcription | File transcription |
-| `qwen3.5-omni-plus` | Qwen3.5-Omni Plus | File transcription |
-| `qwen3.5-omni-flash` | Qwen3.5-Omni Flash | File transcription |
-
-## Text-To-Speech Models
-
-Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/).
-
-Official model families: Qwen speech synthesis, realtime speech synthesis, and CosyVoice model families.
-
-Friday status: Friday does not currently list Qwen in the TTS provider catalog.
-
-## Omni Models
-
-Official references: [Qwen-Omni](https://www.alibabacloud.com/help/en/model-studio/qwen-omni), [Speech-to-speech models](https://www.alibabacloud.com/help/en/model-studio/speech-to-speech/).
-
-Official model families: Qwen3.5-Omni, Qwen3-Omni, and Qwen3-LiveTranslate families for text, audio, image, and video input.
-
-Friday status: Friday has no separate omni module catalog; Qwen omni entries are documented under provider capabilities.
+| Model id | Status |
+| --- | --- |
+| `qwen-omni-realtime` | `active` |
+| `qwen3.5-omni` | `active` |
+| `qwen3-omni-flash` | `active` |
 
 ## Image Models
 
-Official references: [Alibaba image generation models](https://www.alibabacloud.com/help/en/model-studio/image-model).
-
-Official model families: Wan image, Qwen Image, and Z-Image model families, including text-to-image and image editing.
-
-Friday status: Friday exposes the shared `image-provider-coming-soon` placeholder for Qwen image generation.
+| Model id | Status |
+| --- | --- |
+| `qwen-image` | `active` |
+| `qwen-image-edit` | `active` |
 
 ## Video Models
 
-Official references: [Alibaba Model Studio model list](https://www.alibabacloud.com/help/en/model-studio/user-guide/model/).
-
-Official model families: Wan text-to-video, image-to-video, video editing, and audio/video generation families.
-
-Friday status: Friday exposes the shared `video-provider-coming-soon` placeholder for Qwen video generation.
-
-## Runtime Notes
-
-- Uses the dedicated Qwen adapter, which extends the OpenAI
-  Chat Completions-compatible adapter.
-- The adapter defaults to DashScope international compatible mode.
-- Friday does not save or pass reasoning effort for Qwen.
-
-## Example
-
-```json
-{
-	"message": "Refactor this parser without changing its public behavior.",
-	"providerId": "qwen",
-	"model": "qwen3-coder-plus"
-}
-```
+| Model id | Status |
+| --- | --- |
+| `wan2.7-t2v` | `active` |
+| `wan2.7-i2v` | `active` |
+| `wan2.7-video-edit` | `active` |
 
 ## Related Docs
 

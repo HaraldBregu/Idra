@@ -12,45 +12,28 @@
 | API-key link | [Reka platform](https://platform.reka.ai/) |
 | Official docs | [Reka quickstart](https://docs.reka.ai/quickstart) |
 
+## Model Catalog Source
+
+The model sections below use the supplied provider/model catalog for this documentation update. They are based only on that supplied catalog.
+
+Status values:
+
+- `active`: listed as a current model in the supplied catalog.
+- `deprecated`: transitional model; avoid new integrations unless required.
+- `verify`: verify provider access and adapter support before production use.
+
 ## Model Type Coverage
 
-Official model references were checked in May 2026. Reka AI may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
-
-| Model type | Official provider coverage | Friday status |
-| --- | --- | --- |
-| Large Language Models | Reka Core, Reka Flash, Reka Edge, and dated model snapshots. Official references: [Reka models](https://docs.reka.ai/chat/models), [Reka list models guide](https://v0.docs.reka.ai/guides/005-listing-models.html). | Friday has an explicit default agent catalog for Reka. |
+| Model type | Documented models |
+| --- | --- |
+| Large Language Models | `reka-flash`, `reka-edge-2603` |
 
 ## Large Language Models
 
-Official references: [Reka models](https://docs.reka.ai/chat/models), [Reka list models guide](https://v0.docs.reka.ai/guides/005-listing-models.html).
-
-Official model families: Reka Core, Reka Flash, Reka Edge, and dated model snapshots.
-
-Friday status: Friday has an explicit default agent catalog for Reka.
-
-Friday default agent models:
-
-| Model id | Display name |
+| Model id | Status |
 | --- | --- |
-| `reka-core` | Reka Core |
-| `reka-flash` | Reka Flash |
-| `reka-edge` | Reka Edge |
-
-## Runtime Notes
-
-- Uses the generic OpenAI Chat Completions-compatible adapter.
-- Confirm endpoint compatibility before using Reka as the main agent provider.
-- Friday does not save or pass reasoning effort for Reka.
-
-## Example
-
-```json
-{
-	"message": "Review this incident report and list follow-up actions.",
-	"providerId": "reka",
-	"model": "reka-core"
-}
-```
+| `reka-flash` | `active` |
+| `reka-edge-2603` | `active` |
 
 ## Related Docs
 

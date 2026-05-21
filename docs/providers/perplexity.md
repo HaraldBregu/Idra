@@ -12,46 +12,30 @@
 | API-key link | [Perplexity API settings](https://www.perplexity.ai/settings/api) |
 | Official docs | [Perplexity API key management](https://docs.perplexity.ai/docs/admin/api-key-management) |
 
+## Model Catalog Source
+
+The model sections below use the supplied provider/model catalog for this documentation update. They are based only on that supplied catalog.
+
+Status values:
+
+- `active`: listed as a current model in the supplied catalog.
+- `deprecated`: transitional model; avoid new integrations unless required.
+- `verify`: verify provider access and adapter support before production use.
+
 ## Model Type Coverage
 
-Official model references were checked in May 2026. Perplexity may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
-
-| Model type | Official provider coverage | Friday status |
-| --- | --- | --- |
-| Research Chat Models | Sonar, Sonar Pro, Sonar Reasoning Pro, Sonar Deep Research, and R1-1776 style research/reasoning models with citations/search context. Official references: [Sonar Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-pro), [Sonar Deep Research](https://docs.perplexity.ai/docs/sonar/models/sonar-deep-research), [Sonar Reasoning Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-reasoning-pro). | Friday has an explicit default agent catalog for Perplexity. |
+| Model type | Documented models |
+| --- | --- |
+| Research Chat Models | `sonar-deep-research`, `sonar-reasoning-pro`, `sonar-pro`, `sonar` |
 
 ## Research Chat Models
 
-Official references: [Sonar Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-pro), [Sonar Deep Research](https://docs.perplexity.ai/docs/sonar/models/sonar-deep-research), [Sonar Reasoning Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-reasoning-pro).
-
-Official model families: Sonar, Sonar Pro, Sonar Reasoning Pro, Sonar Deep Research, and R1-1776 style research/reasoning models with citations/search context.
-
-Friday status: Friday has an explicit default agent catalog for Perplexity.
-
-Friday default agent models:
-
-| Model id | Display name |
+| Model id | Status |
 | --- | --- |
-| `sonar-reasoning-pro` | Sonar Reasoning Pro |
-| `sonar-pro` | Sonar Pro |
-| `sonar-deep-research` | Sonar Deep Research |
-| `r1-1776` | R1 1776 |
-
-## Runtime Notes
-
-- Uses the generic OpenAI Chat Completions-compatible adapter.
-- The provider is labeled as research chat in capabilities.
-- Friday does not save or pass reasoning effort for Perplexity.
-
-## Example
-
-```json
-{
-	"message": "Research the latest context and cite what changed.",
-	"providerId": "perplexity",
-	"model": "sonar-pro"
-}
-```
+| `sonar-deep-research` | `active` |
+| `sonar-reasoning-pro` | `active` |
+| `sonar-pro` | `active` |
+| `sonar` | `active` |
 
 ## Related Docs
 

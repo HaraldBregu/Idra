@@ -12,95 +12,35 @@
 | API-key link | [Deepgram project keys](https://console.deepgram.com/project/keys) |
 | Official docs | [Deepgram API key docs](https://developers.deepgram.com/docs/create-additional-api-keys) |
 
+## Model Catalog Source
+
+The model sections below use the supplied provider/model catalog for this documentation update. They are based only on that supplied catalog.
+
+Status values:
+
+- `active`: listed as a current model in the supplied catalog.
+- `deprecated`: transitional model; avoid new integrations unless required.
+- `verify`: verify provider access and adapter support before production use.
+
 ## Model Type Coverage
 
-Official model references were checked in May 2026. Deepgram may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
-
-| Model type | Official provider coverage | Friday status |
-| --- | --- | --- |
-| Speech-To-Text Models | Nova, Flux conversational ASR, Whisper-hosted, and other Deepgram speech-to-text model families. Official references: [Deepgram STT models](https://developers.deepgram.com/docs/models-languages-overview), [Deepgram docs](https://developers.deepgram.com/documentation/). | Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for Deepgram STT. |
-| Text-To-Speech Models | Aura text-to-speech voice models such as `aura-2-thalia-en` and related voices/languages. Official references: [Deepgram Aura voices](https://developers.deepgram.com/docs/tts-models), [Deepgram TTS getting started](https://developers.deepgram.com/docs/text-to-speech). | Friday exposes the shared `text-to-speech-provider-coming-soon` placeholder for Deepgram TTS. |
+| Model type | Documented models |
+| --- | --- |
+| Speech-To-Text Models | `nova-3`, `flux` |
+| Text-To-Speech Models | `aura-2` |
 
 ## Speech-To-Text Models
 
-Official references: [Deepgram STT models](https://developers.deepgram.com/docs/models-languages-overview), [Deepgram docs](https://developers.deepgram.com/documentation/).
-
-Official model families: Nova, Flux conversational ASR, Whisper-hosted, and other Deepgram speech-to-text model families.
-
-Friday status: Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for Deepgram STT.
-
-Documented provider model ids:
-
-| Model id | Display name | Runtime style |
-| --- | --- | --- |
-| `flux-general-en` | Flux General English | Realtime voice-agent transcription |
-| `flux-general-multi` | Flux General Multilingual | Realtime voice-agent transcription |
-| `nova-3` | Nova-3 | Batch or streaming transcription |
-| `nova-3-general` | Nova-3 General | Batch or streaming transcription |
-| `nova-3-medical` | Nova-3 Medical | Medical transcription |
-| `nova-2` | Nova-2 | Batch or streaming transcription |
-| `nova-2-general` | Nova-2 General | Batch or streaming transcription |
-| `nova-2-meeting` | Nova-2 Meeting | Meeting transcription |
-| `nova-2-phonecall` | Nova-2 Phone Call | Phone-call transcription |
-| `nova-2-finance` | Nova-2 Finance | Finance transcription |
-| `nova-2-conversationalai` | Nova-2 Conversational AI | Conversational AI transcription |
-| `nova-2-voicemail` | Nova-2 Voicemail | Voicemail transcription |
-| `nova-2-video` | Nova-2 Video | Video transcription |
-| `nova-2-medical` | Nova-2 Medical | Medical transcription |
-| `nova-2-drivethru` | Nova-2 Drive-Thru | Drive-thru transcription |
-| `nova-2-automotive` | Nova-2 Automotive | Automotive transcription |
-| `nova-2-atc` | Nova-2 ATC | Air traffic control transcription |
-| `nova-2-<CUSTOM>` | Nova-2 Custom | Custom transcription model |
-| `nova` | Nova | Legacy transcription |
-| `nova-general` | Nova General | Legacy transcription |
-| `nova-phonecall` | Nova Phone Call | Legacy phone-call transcription |
-| `nova-medical` | Nova Medical | Legacy medical transcription |
-| `nova-<CUSTOM>` | Nova Custom | Custom legacy transcription model |
-| `enhanced` | Enhanced | Legacy enhanced transcription |
-| `enhanced-general` | Enhanced General | Legacy enhanced transcription |
-| `enhanced-meeting` | Enhanced Meeting | Legacy meeting transcription |
-| `enhanced-phonecall` | Enhanced Phone Call | Legacy phone-call transcription |
-| `enhanced-finance` | Enhanced Finance | Legacy finance transcription |
-| `enhanced-<CUSTOM>` | Enhanced Custom | Custom legacy enhanced transcription model |
-| `base` | Base | Legacy base transcription |
-| `base-general` | Base General | Legacy base transcription |
-| `base-meeting` | Base Meeting | Legacy meeting transcription |
-| `base-phonecall` | Base Phone Call | Legacy phone-call transcription |
-| `base-finance` | Base Finance | Legacy finance transcription |
-| `base-conversationalai` | Base Conversational AI | Legacy conversational AI transcription |
-| `base-voicemail` | Base Voicemail | Legacy voicemail transcription |
-| `base-video` | Base Video | Legacy video transcription |
-| `base-<CUSTOM>` | Base Custom | Custom legacy base transcription model |
-| `whisper` | Whisper Medium | Deepgram Whisper Cloud |
-| `whisper-tiny` | Whisper Tiny | Deepgram Whisper Cloud |
-| `whisper-base` | Whisper Base | Deepgram Whisper Cloud |
-| `whisper-small` | Whisper Small | Deepgram Whisper Cloud |
-| `whisper-medium` | Whisper Medium | Deepgram Whisper Cloud |
-| `whisper-large` | Whisper Large | Deepgram Whisper Cloud |
+| Model id | Status |
+| --- | --- |
+| `nova-3` | `active` |
+| `flux` | `active` |
 
 ## Text-To-Speech Models
 
-Official references: [Deepgram Aura voices](https://developers.deepgram.com/docs/tts-models), [Deepgram TTS getting started](https://developers.deepgram.com/docs/text-to-speech).
-
-Official model families: Aura text-to-speech voice models such as `aura-2-thalia-en` and related voices/languages.
-
-Friday status: Friday exposes the shared `text-to-speech-provider-coming-soon` placeholder for Deepgram TTS.
-
-## Runtime Notes
-
-- Deepgram is present as a provider credential and capability entry.
-- It is not currently selectable as the main Friday agent provider through the
-  default agent model picker.
-
-## Configuration Shape Example
-
-```json
-{
-	"id": "deepgram",
-	"baseUrl": "https://api.deepgram.com/v1",
-	"recommendedEnvVar": "DEEPGRAM_API_KEY"
-}
-```
+| Model id | Status |
+| --- | --- |
+| `aura-2` | `active` |
 
 ## Related Docs
 

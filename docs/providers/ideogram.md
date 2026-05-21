@@ -12,37 +12,28 @@
 | API-key link | [Ideogram Manage API](https://ideogram.ai/manage-api) |
 | Official docs | [Ideogram API setup](https://developer.ideogram.ai/ideogram-api/api-setup) |
 
+## Model Catalog Source
+
+The model sections below use the supplied provider/model catalog for this documentation update. They are based only on that supplied catalog.
+
+Status values:
+
+- `active`: listed as a current model in the supplied catalog.
+- `deprecated`: transitional model; avoid new integrations unless required.
+- `verify`: verify provider access and adapter support before production use.
+
 ## Model Type Coverage
 
-Official model references were checked in May 2026. Ideogram may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
-
-| Model type | Official provider coverage | Friday status |
-| --- | --- | --- |
-| Image Models | Ideogram 3.0, legacy V_2/V_3 image models, describe, generate, remix, edit, reframe, replace-background, transparent-background, and custom-model training. Official references: [Ideogram API overview](https://developer.ideogram.ai/), [Generate with Ideogram 3.0](https://developer.ideogram.ai/api-reference), [Custom Model Training](https://developer.ideogram.ai/ideogram-api/custom-model-training). | Friday exposes the shared `image-provider-coming-soon` placeholder for Ideogram image generation. |
+| Model type | Documented models |
+| --- | --- |
+| Image Models | `ideogram-3.0`, `ideogram-2a` |
 
 ## Image Models
 
-Official references: [Ideogram API overview](https://developer.ideogram.ai/), [Generate with Ideogram 3.0](https://developer.ideogram.ai/api-reference), [Custom Model Training](https://developer.ideogram.ai/ideogram-api/custom-model-training).
-
-Official model families: Ideogram 3.0, legacy V_2/V_3 image models, describe, generate, remix, edit, reframe, replace-background, transparent-background, and custom-model training.
-
-Friday status: Friday exposes the shared `image-provider-coming-soon` placeholder for Ideogram image generation.
-
-## Runtime Notes
-
-- Ideogram is present as an image-provider credential and capability entry.
-- It is not currently selectable as the main Friday agent provider through the
-  default agent model picker.
-
-## Configuration Shape Example
-
-```json
-{
-	"id": "ideogram",
-	"baseUrl": "https://api.ideogram.ai",
-	"recommendedEnvVar": "IDEOGRAM_API_KEY"
-}
-```
+| Model id | Status |
+| --- | --- |
+| `ideogram-3.0` | `active` |
+| `ideogram-2a` | `active` |
 
 ## Related Docs
 
