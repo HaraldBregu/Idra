@@ -128,7 +128,8 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	const text = `${name} ${description}`.toLowerCase();
 	if (/\b(gmail|email|mail|inbox)\b/.test(text)) return 'email';
 	if (/\b(google calendar|calendar|event|meeting|appointment)\b/.test(text)) return 'calendar';
-	if (/\b(google drive|drive file|drive files|drive document|drive documents)\b/.test(text)) return 'files';
+	if (/\b(google drive|drive file|drive files|drive document|drive documents)\b/.test(text))
+		return 'files';
 	if (
 		[
 			'read',
@@ -147,7 +148,8 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
-	if (name === 'text_to_image' || /\b(image generation|create an image|edit an image)\b/.test(text)) return 'image';
+	if (name === 'text_to_image' || /\b(image generation|create an image|edit an image)\b/.test(text))
+		return 'image';
 	if (name === 'task') return 'internalApi';
 	if (
 		name.includes('provider') ||
@@ -173,8 +175,7 @@ function inferPermissions(name: string, description = ''): string[] {
 	if (/\b(google drive|drive file|drive files|drive document|drive documents)\b/.test(text)) {
 		return /\b(create|upload|write)\b/.test(text) ? ['drive:write'] : ['drive:read'];
 	}
-	if (['read', 'find', 'inspect_file'].includes(name))
-		return ['workspace:read'];
+	if (['read', 'find', 'inspect_file'].includes(name)) return ['workspace:read'];
 	if (name === 'startup_files') return ['agent:startup'];
 	if (['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'].includes(name))
 		return ['workspace:write'];
@@ -276,7 +277,11 @@ function inferPrivacy(
 	description = ''
 ): Tool<Record<string, unknown>, AgentToolResult>['metadata']['privacyLevel'] {
 	const text = `${name} ${description}`.toLowerCase();
-	if (/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment|google drive|drive file|drive document)\b/.test(text))
+	if (
+		/\b(gmail|email|mail|inbox|google calendar|calendar|event|meeting|appointment|google drive|drive file|drive document)\b/.test(
+			text
+		)
+	)
 		return 'private';
 	if (
 		[
@@ -311,14 +316,7 @@ function isReadOnly(name: string): boolean {
 	) {
 		return true;
 	}
-	return [
-		'read',
-		'find',
-		'inspect_file',
-		'web_fetch',
-		'cron_list',
-		'process',
-	].includes(name);
+	return ['read', 'find', 'inspect_file', 'web_fetch', 'cron_list', 'process'].includes(name);
 }
 
 function isToolContext(value: unknown): value is ToolContext {

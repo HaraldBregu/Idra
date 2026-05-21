@@ -1,11 +1,6 @@
 import type { AppsService } from './apps';
 import type { ChannelRegistry } from './channels';
-import type {
-	AppState,
-	EventBus,
-	ServiceContainer,
-	WindowFactory,
-} from './core';
+import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core';
 import type { WindowContextManager } from './core';
 import type { AgentStartupFilesService } from './agent/startup-files';
 import type { ConnectorsService } from './connectors';

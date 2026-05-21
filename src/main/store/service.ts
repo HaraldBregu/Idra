@@ -90,7 +90,8 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
 	const record = readRecord(value);
 	if (!record) return undefined;
-	const providerId = typeof record.providerId === 'string' ? record.providerId.trim().toLowerCase() : '';
+	const providerId =
+		typeof record.providerId === 'string' ? record.providerId.trim().toLowerCase() : '';
 	const modelId = typeof record.modelId === 'string' ? record.modelId.trim() : '';
 	if (!providerId || !modelId) return undefined;
 	const effort = isModelReasoningEffort(record.effort) ? record.effort : undefined;
@@ -405,7 +406,9 @@ export class StoreService {
 		if (!isAllowedImageCreatorModelForProvider(provider, model.id)) {
 			return false;
 		}
-		const catalogModel = getImageCreatorModelsForProvider(provider).find((entry) => entry.id === model.id);
+		const catalogModel = getImageCreatorModelsForProvider(provider).find(
+			(entry) => entry.id === model.id
+		);
 		this.store.set('imageCreator', modelModuleSettings(provider.id, catalogModel ?? model));
 		return true;
 	}
@@ -448,7 +451,7 @@ export class StoreService {
 			apiKey: key,
 			baseUrl: 'https://api.openai.com/v1',
 		};
-		
+
 		if (openAiProviderIndex !== -1) {
 			providers[openAiProviderIndex] = newProvider;
 		} else {
@@ -508,7 +511,11 @@ export class StoreService {
 		if (settings) {
 			const provider = this.getProviderById(settings.providerId);
 			if (provider) {
-				return configuredModelOperator(key, publicProvider(provider), modelForModule(key, settings));
+				return configuredModelOperator(
+					key,
+					publicProvider(provider),
+					modelForModule(key, settings)
+				);
 			}
 		}
 
@@ -557,7 +564,7 @@ export class StoreService {
 		const modelProviders = this.store.get('modelProviders');
 		if (Array.isArray(modelProviders)) return modelProviders as Provider[];
 		const providers = this.store.get('providers');
-		return Array.isArray(providers) ? providers as Provider[] : [];
+		return Array.isArray(providers) ? (providers as Provider[]) : [];
 	}
 
 	private setStoredModelProviders(providers: Provider[]): void {
@@ -667,7 +674,7 @@ export class StoreService {
 			apiKey: key,
 			baseUrl: 'https://api.anthropic.com/v1',
 		};
-		
+
 		if (anthropicProviderIndex !== -1) {
 			providers[anthropicProviderIndex] = newProvider;
 		} else {
@@ -675,7 +682,6 @@ export class StoreService {
 		}
 		this.setStoredModelProviders(providers);
 	}
-		 
 }
 
 function createDefaultChannelState(): Channel {
@@ -766,7 +772,10 @@ function getStoredChannelConfig(channel: Channel | undefined, channelId: Channel
 	return channel[channelId];
 }
 
-function mergeChannelConfig<TKey extends ChannelType>(channelId: TKey, stored: unknown): Channel[TKey] {
+function mergeChannelConfig<TKey extends ChannelType>(
+	channelId: TKey,
+	stored: unknown
+): Channel[TKey] {
 	const defaults = createDefaultChannelConfig(channelId);
 	if (!stored || typeof stored !== 'object') return defaults;
 	const storedObject = stored as Record<string, unknown>;
@@ -806,7 +815,8 @@ function mergeChannelConfig<TKey extends ChannelType>(channelId: TKey, stored: u
 	return {
 		...defaults,
 		...storedObject,
-		accounts: normalizeAccounts(storedObject.accounts) ?? (defaults as GenericChannelProperties).accounts,
+		accounts:
+			normalizeAccounts(storedObject.accounts) ?? (defaults as GenericChannelProperties).accounts,
 	} as Channel[TKey];
 }
 

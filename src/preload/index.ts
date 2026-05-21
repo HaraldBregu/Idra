@@ -65,7 +65,12 @@ import type {
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 } from '../shared/service';
-import type { Channel, ChannelStatusEvent, ChannelType, TelegramChannelProperties } from '../shared/channels';
+import type {
+	Channel,
+	ChannelStatusEvent,
+	ChannelType,
+	TelegramChannelProperties,
+} from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type { ThemeMode } from '../shared/theme';
@@ -317,10 +322,7 @@ export const cron: CronApi = {
 	createSchedule: (request: CronScheduleCreateRequest): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.createSchedule, request);
 	},
-	updateSchedule: (
-		scheduleId: string,
-		patch: CronScheduleUpdateRequest
-	): Promise<CronSchedule> => {
+	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.updateSchedule, scheduleId, patch);
 	},
 	pauseSchedule: (scheduleId: string): Promise<void> => {
@@ -380,9 +382,7 @@ export const heartbeat: HeartbeatApi = {
 	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
 		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, request);
 	},
-	systemEvent: (
-		request: HeartbeatSystemEventRequest
-	): Promise<HeartbeatSystemEventResult> => {
+	systemEvent: (request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> => {
 		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, request);
 	},
 	request: (request: HeartbeatWakeRequest): Promise<void> => {
@@ -453,9 +453,7 @@ export const channels: ChannelsApi = {
 	getTelegramConfig: (): Promise<TelegramChannelProperties> => {
 		return typedInvokeUnwrap(ChannelsChannels.getTelegramConfig);
 	},
-	saveTelegramConfig: (
-		config: TelegramChannelProperties
-	): Promise<TelegramChannelProperties> => {
+	saveTelegramConfig: (config: TelegramChannelProperties): Promise<TelegramChannelProperties> => {
 		return typedInvokeUnwrap(ChannelsChannels.saveTelegramConfig, config);
 	},
 	getTelegramStatus: (): Promise<ChannelStatusEvent | undefined> => {

@@ -82,10 +82,7 @@ export function bootstrapServices(): BootstrapResult {
 	const store = container.register('store', new StoreService());
 	const textToImage = container.register('textToImage', new TextToImageService(store));
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
-	const cron = container.register(
-		'cron',
-		new CronService(store, logger)
-	);
+	const cron = container.register('cron', new CronService(store, logger));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
@@ -109,10 +106,7 @@ export function bootstrapServices(): BootstrapResult {
 		skills,
 		textToImage,
 	};
-	const agentService = container.register(
-		'agentService',
-		new AgentService(agentDependencies)
-	);
+	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();
 	taskRegistry.register(new AgentTaskHandler(agentService), { userFacing: true });
 	taskRegistry.register(new ImageCreateTaskHandler(textToImage), { userFacing: true });

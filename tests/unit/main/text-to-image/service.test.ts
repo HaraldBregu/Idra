@@ -1,4 +1,7 @@
-import { TextToImageService, type TextToImageAdapterRegistry } from '../../../../src/main/text-to-image';
+import {
+	TextToImageService,
+	type TextToImageAdapterRegistry,
+} from '../../../../src/main/text-to-image';
 import type { StoreService } from '../../../../src/main/store';
 import type { Provider } from '../../../../src/shared/providers';
 

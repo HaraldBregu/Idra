@@ -92,7 +92,9 @@ function optionalStyleHints(input: Record<string, unknown>): string[] | undefine
 	return hints.length > 0 ? hints.slice(0, 12) : undefined;
 }
 
-function optionalReferences(input: Record<string, unknown>): TextToImageAssetReference[] | undefined {
+function optionalReferences(
+	input: Record<string, unknown>
+): TextToImageAssetReference[] | undefined {
 	const value = input.references;
 	if (value === undefined || value === null) return undefined;
 	if (!Array.isArray(value)) throw new Error('references must be an array.');

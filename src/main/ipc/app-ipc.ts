@@ -26,7 +26,12 @@ import {
 } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
-import { AppChannels, AppsChannels, OperatorChannels, ProviderChannels } from '../../shared/ipc-channels';
+import {
+	AppChannels,
+	AppsChannels,
+	OperatorChannels,
+	ProviderChannels,
+} from '../../shared/ipc-channels';
 import { normalizeExternalUrl } from '../../shared/external-links';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
@@ -193,7 +198,9 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.setKeepAwakeEnabled,
 			wrapSimpleHandler((enabled: boolean) => {
-				const nextEnabled = powerSaveBlocker.setEnabled(requireBoolean(enabled, 'Keep awake enabled'));
+				const nextEnabled = powerSaveBlocker.setEnabled(
+					requireBoolean(enabled, 'Keep awake enabled')
+				);
 				return store.setKeepAwakeEnabled(nextEnabled).keepAwakeEnabled;
 			}, AppChannels.setKeepAwakeEnabled)
 		);
@@ -358,9 +365,13 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave = normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
-					? { ...model, effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId) }
-					: { id: model.id, name: model.name };
+				const modelToSave =
+					normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
+						? {
+								...model,
+								effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
+							}
+						: { id: model.id, name: model.name };
 				return store.setAssistantOperator(provider.id, modelToSave);
 			}, OperatorChannels.saveAssistant)
 		);
@@ -446,9 +457,13 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave = normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
-					? { ...model, effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId) }
-					: { id: model.id, name: model.name };
+				const modelToSave =
+					normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
+						? {
+								...model,
+								effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
+							}
+						: { id: model.id, name: model.name };
 				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)
 		);

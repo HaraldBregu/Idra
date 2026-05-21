@@ -5,21 +5,23 @@ describe('ImageCreateTaskHandler', () => {
 	it('validates safe image task input', () => {
 		const handler = new ImageCreateTaskHandler({} as TextToImageService);
 
-		expect(handler.validateInput({
-			prompt: '  create a product image  ',
-			negativePrompt: ' blur ',
-			aspectRatio: '1:1',
-			count: 1,
-			seed: 42,
-			styleHints: [' studio ', ''],
-			references: [
-				{
-					type: 'workspace-file',
-					path: 'input.png',
-					mimeType: 'image/png',
-				},
-			],
-		})).toEqual({
+		expect(
+			handler.validateInput({
+				prompt: '  create a product image  ',
+				negativePrompt: ' blur ',
+				aspectRatio: '1:1',
+				count: 1,
+				seed: 42,
+				styleHints: [' studio ', ''],
+				references: [
+					{
+						type: 'workspace-file',
+						path: 'input.png',
+						mimeType: 'image/png',
+					},
+				],
+			})
+		).toEqual({
 			prompt: 'create a product image',
 			negativePrompt: 'blur',
 			aspectRatio: '1:1',
@@ -67,12 +69,14 @@ describe('ImageCreateTaskHandler', () => {
 		const updateProgress = jest.fn();
 		const input = handler.validateInput({ prompt: 'image', count: 1 });
 
-		await expect(handler.run({
-			taskId: 'task-1',
-			input,
-			signal: controller.signal,
-			updateProgress,
-		})).resolves.toBe(result);
+		await expect(
+			handler.run({
+				taskId: 'task-1',
+				input,
+				signal: controller.signal,
+				updateProgress,
+			})
+		).resolves.toBe(result);
 
 		expect(service.create).toHaveBeenCalledWith(input, controller.signal);
 		expect(updateProgress).toHaveBeenCalledWith({ message: 'Creating image' });

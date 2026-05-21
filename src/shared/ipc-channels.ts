@@ -443,7 +443,10 @@ interface AppsInvokeChannelMap {
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('./skills').SkillInfo[] };
 	[SkillsChannels.import]: { args: []; result: import('./skills').SkillImportResult | undefined };
-	[SkillsChannels.download]: { args: [id: string]; result: import('./skills').SkillDownloadResult | undefined };
+	[SkillsChannels.download]: {
+		args: [id: string];
+		result: import('./skills').SkillDownloadResult | undefined;
+	};
 	[SkillsChannels.delete]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
@@ -557,7 +560,8 @@ interface ChannelsInvokeChannelMap {
 }
 
 export interface InvokeChannelMap
-	extends AppInvokeChannelMap,
+	extends
+		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
@@ -613,7 +617,8 @@ interface TaskEventChannelMap {
 }
 
 export interface EventChannelMap
-	extends AppEventChannelMap,
+	extends
+		AppEventChannelMap,
 		AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,

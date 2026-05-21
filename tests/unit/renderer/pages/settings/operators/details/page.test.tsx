@@ -116,7 +116,9 @@ describe('OperatorDetailsPage', () => {
 
 		expect(await screen.findByText('settings.operators.documentReaderName')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.configurationPending')).toBeInTheDocument();
-		expect(screen.getByText('settings.operators.documentReaderProviderDescription')).toBeInTheDocument();
+		expect(
+			screen.getByText('settings.operators.documentReaderProviderDescription')
+		).toBeInTheDocument();
 		expect(screen.getByText('OCR provider')).toBeInTheDocument();
 	});
 
@@ -131,7 +133,9 @@ describe('OperatorDetailsPage', () => {
 
 		await user.click(providerCard);
 
-		expect(await screen.findByText('settings.operators.imageProviderDescription')).toBeInTheDocument();
+		expect(
+			await screen.findByText('settings.operators.imageProviderDescription')
+		).toBeInTheDocument();
 		expect(window.app.getImageCreatorOperator).toHaveBeenCalled();
 		expect(window.app.getImageCreatorModels).toHaveBeenCalled();
 	});
@@ -144,9 +148,11 @@ describe('OperatorDetailsPage', () => {
 		expect(screen.getByText('settings.operators.cronTaskRuntimeValue')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.cronTaskScopeValue')).toBeInTheDocument();
 
-		await user.click(screen.getByRole('button', {
-			name: 'settings.operators.openCronTaskConfiguration',
-		}));
+		await user.click(
+			screen.getByRole('button', {
+				name: 'settings.operators.openCronTaskConfiguration',
+			})
+		);
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/cron');
 	});
@@ -159,9 +165,11 @@ describe('OperatorDetailsPage', () => {
 		expect(screen.getByText('settings.operators.backgroundTaskRuntimeValue')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.backgroundTaskTypesValue')).toBeInTheDocument();
 
-		await user.click(screen.getByRole('button', {
-			name: 'settings.operators.openBackgroundTaskConfiguration',
-		}));
+		await user.click(
+			screen.getByRole('button', {
+				name: 'settings.operators.openBackgroundTaskConfiguration',
+			})
+		);
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/task-manager');
 	});

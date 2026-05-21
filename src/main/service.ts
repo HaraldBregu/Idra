@@ -644,11 +644,13 @@ export class AgentService {
 		return runtime;
 	}
 
-	private resolveProviderAndModel(overrides: {
-		providerId?: string;
-		model?: string;
-		effort?: ModelReasoningEffort;
-	} = {}): {
+	private resolveProviderAndModel(
+		overrides: {
+			providerId?: string;
+			model?: string;
+			effort?: ModelReasoningEffort;
+		} = {}
+	): {
 		providerId: string;
 		apiKey: string;
 		model: string;
@@ -692,7 +694,9 @@ export class AgentService {
 	}
 
 	private getOperatorConfig(): OperatorStoreState | undefined {
-		const maybeStore = this.dependencies.store as { getOperator?: () => OperatorStoreState | undefined };
+		const maybeStore = this.dependencies.store as {
+			getOperator?: () => OperatorStoreState | undefined;
+		};
 		return typeof maybeStore.getOperator === 'function' ? maybeStore.getOperator() : undefined;
 	}
 

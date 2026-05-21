@@ -79,13 +79,15 @@ export function createTextToImageTool(textToImage: TextToImageService): AgentToo
 				prompt: { type: 'string', description: 'Image generation prompt.' },
 				negativePrompt: { type: 'string', description: 'Optional negative prompt.' },
 				aspectRatio: { type: 'string', description: 'Optional aspect ratio, such as 1:1 or 16:9.' },
-				count: { type: 'integer', minimum: 1, maximum: 4, description: 'Number of images to create.' },
+				count: {
+					type: 'integer',
+					minimum: 1,
+					maximum: 4,
+					description: 'Number of images to create.',
+				},
 				seed: { type: 'integer', minimum: 0, description: 'Optional deterministic seed.' },
 				styleHints: {
-					oneOf: [
-						{ type: 'string' },
-						{ type: 'array', items: { type: 'string' }, maxItems: 12 },
-					],
+					oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' }, maxItems: 12 }],
 					description: 'Optional style hints.',
 				},
 			},

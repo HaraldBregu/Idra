@@ -796,7 +796,9 @@ export function providerHasImageCapability(provider: Pick<Provider, 'capabilitie
 
 export function hasDefaultProviderCapability(providerId: string, capability: string): boolean {
 	const normalizedProviderId = normalizeProviderId(providerId);
-	const provider = DEFAULT_PROVIDERS.find((entry) => normalizeProviderId(entry.id) === normalizedProviderId);
+	const provider = DEFAULT_PROVIDERS.find(
+		(entry) => normalizeProviderId(entry.id) === normalizedProviderId
+	);
 	return provider ? providerHasCapability(provider, capability) : false;
 }
 

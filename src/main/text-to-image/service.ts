@@ -92,13 +92,13 @@ export class TextToImageService {
 		}
 
 		if (!isAllowedImageCreatorModelForProvider(provider, settings.modelId)) {
-			throw new Error(
-				`Saved model is not supported for text-to-image work: ${settings.modelId}`
-			);
+			throw new Error(`Saved model is not supported for text-to-image work: ${settings.modelId}`);
 		}
 
 		if (!provider.apiKey.trim()) {
-			throw new Error(`Provider credentials are missing for text-to-image provider: ${provider.id}`);
+			throw new Error(
+				`Provider credentials are missing for text-to-image provider: ${provider.id}`
+			);
 		}
 
 		const adapter = this.adapters.resolve(provider, settings.modelId);

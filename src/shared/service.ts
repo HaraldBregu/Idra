@@ -2,7 +2,7 @@ import {
 	hasDefaultProviderCapability,
 	providerHasImageCapability,
 	type Provider,
-} from "./providers";
+} from './providers';
 import type { AgentsHeartbeatConfig } from './heartbeat';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
@@ -107,7 +107,7 @@ export function getDefaultModelReasoningEffort(
 	const supportedEfforts = getModelReasoningEfforts(modelId, providerId);
 	return supportedEfforts.includes(DEFAULT_MODEL_REASONING_EFFORT)
 		? DEFAULT_MODEL_REASONING_EFFORT
-		: supportedEfforts[0] ?? DEFAULT_MODEL_REASONING_EFFORT;
+		: (supportedEfforts[0] ?? DEFAULT_MODEL_REASONING_EFFORT);
 }
 
 export function isModelReasoningEffortSupported(
@@ -115,7 +115,9 @@ export function isModelReasoningEffortSupported(
 	effort: unknown,
 	providerId?: string
 ): effort is ModelReasoningEffort {
-	return isModelReasoningEffort(effort) && getModelReasoningEfforts(modelId, providerId).includes(effort);
+	return (
+		isModelReasoningEffort(effort) && getModelReasoningEfforts(modelId, providerId).includes(effort)
+	);
 }
 
 export function requireModelReasoningEffort(
@@ -275,8 +277,9 @@ function normalizeSpeechToTextProviderId(providerId: string): string {
 }
 
 export function getSpeechToTextModels(providerId: string): Model[] {
-	return (SPEECH_TO_TEXT_MODELS_BY_PROVIDER[normalizeSpeechToTextProviderId(providerId)] ?? [])
-		.map((model) => ({ ...model }));
+	return (SPEECH_TO_TEXT_MODELS_BY_PROVIDER[normalizeSpeechToTextProviderId(providerId)] ?? []).map(
+		(model) => ({ ...model })
+	);
 }
 
 export function hasSpeechToTextModels(providerId: string): boolean {
@@ -356,7 +359,7 @@ export type AgentHistoryMessage =
 			content: string | null;
 			contentBlocks: AgentHistoryContentBlock[];
 	  }
-		| {
+	| {
 			role: 'tool';
 			toolUseId: string;
 			content: string;

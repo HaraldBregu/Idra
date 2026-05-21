@@ -1,5 +1,12 @@
 import { schemaProperties } from './schema';
-import { TOOL_SAFETY_ORDER, type RankedTool, type RelevantMemory, type SessionContext, type Tool, type ToolCategory } from './types';
+import {
+	TOOL_SAFETY_ORDER,
+	type RankedTool,
+	type RelevantMemory,
+	type SessionContext,
+	type Tool,
+	type ToolCategory,
+} from './types';
 import { tokenize } from './registry';
 
 export interface ToolRankInput {
@@ -19,10 +26,17 @@ export class ToolRanker {
 	}
 }
 
-function rankTool(tool: Tool, terms: string[], categories: Set<ToolCategory>, memory?: RelevantMemory): RankedTool {
+function rankTool(
+	tool: Tool,
+	terms: string[],
+	categories: Set<ToolCategory>,
+	memory?: RelevantMemory
+): RankedTool {
 	let score = 0;
 	const explanations: string[] = [];
-	const text = [tool.id, tool.name, tool.description, tool.category, ...tool.tags].join(' ').toLowerCase();
+	const text = [tool.id, tool.name, tool.description, tool.category, ...tool.tags]
+		.join(' ')
+		.toLowerCase();
 	const matchedTerms = terms.filter((term) => text.includes(term));
 	if (matchedTerms.length > 0) {
 		const gain = matchedTerms.length * 10;
@@ -79,18 +93,44 @@ export function inferCategories(userIntent: string, memory?: RelevantMemory): Se
 	const text = userIntent.toLowerCase();
 	const categories = new Set<ToolCategory>(memory?.preferredCategories ?? []);
 	if (/\b(weather|forecast|temperature|rain|snow)\b/.test(text)) categories.add('web');
-	if (/\b(calculate|calculator|math|sum|average|percent|equation)\b/.test(text)) categories.add('calculator');
-	if (/\b(file|folder|directory|read|write|edit|delete|copy|move|rename|inspect|binary|image|find in repo|search files)\b/.test(text)) categories.add('files');
-	if (/\b(generate|create|edit|vary|variation)\b.*\b(image|picture|photo|illustration)\b/.test(text)) categories.add('image');
-	if (/\b(google drive|my drive|shared drive|drive files?|drive documents?|drive folder|drive folders)\b/.test(text)) categories.add('files');
-	if (/\b(startup|bootstrap|identity|persona|soul|preferences)\b/.test(text)) categories.add('files');
+	if (/\b(calculate|calculator|math|sum|average|percent|equation)\b/.test(text))
+		categories.add('calculator');
+	if (
+		/\b(file|folder|directory|read|write|edit|delete|copy|move|rename|inspect|binary|image|find in repo|search files)\b/.test(
+			text
+		)
+	)
+		categories.add('files');
+	if (
+		/\b(generate|create|edit|vary|variation)\b.*\b(image|picture|photo|illustration)\b/.test(text)
+	)
+		categories.add('image');
+	if (
+		/\b(google drive|my drive|shared drive|drive files?|drive documents?|drive folder|drive folders)\b/.test(
+			text
+		)
+	)
+		categories.add('files');
+	if (/\b(startup|bootstrap|identity|persona|soul|preferences)\b/.test(text))
+		categories.add('files');
 	if (/\b(email|mail|inbox|draft|send)\b/.test(text)) categories.add('email');
-	if (/\b(calendar|agenda|availability|available|free|busy|meeting|schedule|event|appointment)\b/.test(text)) categories.add('calendar');
+	if (
+		/\b(calendar|agenda|availability|available|free|busy|meeting|schedule|event|appointment)\b/.test(
+			text
+		)
+	)
+		categories.add('calendar');
 	if (/\b(database|sql|query|record)\b/.test(text)) categories.add('database');
 	if (/\b(background tasks?|tasks?|task manager)\b/.test(text)) categories.add('internalApi');
-	if (/\b(run|execute|script|test|build|terminal|shell)\b/.test(text)) categories.add('codeExecution');
+	if (/\b(run|execute|script|test|build|terminal|shell)\b/.test(text))
+		categories.add('codeExecution');
 	if (/\b(memory|remember|preference|recall)\b/.test(text)) categories.add('memory');
 	if (/\b(search|current|latest|today|news|look up|web)\b/.test(text)) categories.add('search');
-	if (/\b(browser|navigate|screenshot|webpage|web page|visit|automation|click|fill|interact)\b/.test(text)) categories.add('web');
+	if (
+		/\b(browser|navigate|screenshot|webpage|web page|visit|automation|click|fill|interact)\b/.test(
+			text
+		)
+	)
+		categories.add('web');
 	return categories;
 }

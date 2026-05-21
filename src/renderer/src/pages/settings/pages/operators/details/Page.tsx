@@ -40,10 +40,7 @@ import {
 	SettingsSection,
 	SettingsValue,
 } from '../../../components';
-import {
-	DEFAULT_PROVIDERS,
-	type PublicProvider,
-} from '../../../../../../../shared/providers';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../../../../shared/providers';
 import {
 	ASSISTANT_OPERATOR_ID,
 	ASSISTANT_RUNTIME_ID,
@@ -76,7 +73,9 @@ const DEEPSEEK_PROVIDER_ID = 'deepseek';
 
 function supportsReasoningEffortProvider(providerId: string): boolean {
 	const normalizedProviderId = providerId.trim().toLowerCase();
-	return normalizedProviderId === OPENAI_PROVIDER_ID || normalizedProviderId === DEEPSEEK_PROVIDER_ID;
+	return (
+		normalizedProviderId === OPENAI_PROVIDER_ID || normalizedProviderId === DEEPSEEK_PROVIDER_ID
+	);
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -101,7 +100,9 @@ function storedEffortForComparison(
 	providerId: string
 ): ModelReasoningEffort | undefined {
 	if (model.effort === undefined) return getDefaultModelReasoningEffort(model.id, providerId);
-	return isModelReasoningEffortSupported(model.id, model.effort, providerId) ? model.effort : undefined;
+	return isModelReasoningEffortSupported(model.id, model.effort, providerId)
+		? model.effort
+		: undefined;
 }
 
 function mergeProviders(
@@ -120,7 +121,8 @@ const OperatorDetailsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { operatorId } = useParams<{ operatorId: string }>();
 	const decodedOperatorId = decodeURIComponent(operatorId ?? '');
-	const isAssistantOperator = decodedOperatorId === ASSISTANT_OPERATOR_ID || decodedOperatorId === ASSISTANT_RUNTIME_ID;
+	const isAssistantOperator =
+		decodedOperatorId === ASSISTANT_OPERATOR_ID || decodedOperatorId === ASSISTANT_RUNTIME_ID;
 	const isSpeechToTextOperator = decodedOperatorId === SPEECH_TO_TEXT_OPERATOR_ID;
 	const isTextToSpeechOperator = decodedOperatorId === TEXT_TO_SPEECH_OPERATOR_ID;
 	const isImageCreatorOperator = decodedOperatorId === IMAGE_CREATOR_OPERATOR_ID;
@@ -129,11 +131,18 @@ const OperatorDetailsPage: React.FC = () => {
 	const isDocumentReaderOcrOperator = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
 	const isCronTaskOperator = decodedOperatorId === CRON_TASK_SCHEDULER_OPERATOR_ID;
 	const isBackgroundTaskOperator = decodedOperatorId === BACKGROUND_TASK_OPERATOR_ID;
-	const isRuntimeBackedOperator = isAssistantOperator || isSpeechToTextOperator || isImageCreatorOperator;
+	const isRuntimeBackedOperator =
+		isAssistantOperator || isSpeechToTextOperator || isImageCreatorOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
-	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<ConfiguredModelOperator | undefined>();
-	const [currentSpeechToTextOperator, setCurrentSpeechToTextOperator] = useState<ConfiguredModelOperator | undefined>();
-	const [currentImageCreatorOperator, setCurrentImageCreatorOperator] = useState<ConfiguredModelOperator | undefined>();
+	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<
+		ConfiguredModelOperator | undefined
+	>();
+	const [currentSpeechToTextOperator, setCurrentSpeechToTextOperator] = useState<
+		ConfiguredModelOperator | undefined
+	>();
+	const [currentImageCreatorOperator, setCurrentImageCreatorOperator] = useState<
+		ConfiguredModelOperator | undefined
+	>();
 	const [providerId, setProviderId] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [modelId, setModelId] = useState('');
@@ -190,14 +199,14 @@ const OperatorDetailsPage: React.FC = () => {
 					availableProviders.find((provider) => provider.id === nextOperator?.provider.id) ??
 					availableProviders[0];
 				const preferredCapabilityModels = preferredProvider
-					? capabilityModelsByProvider.get(preferredProvider.id) ?? []
+					? (capabilityModelsByProvider.get(preferredProvider.id) ?? [])
 					: [];
 				const preferredCapabilityModelId =
 					nextOperator &&
-						preferredProvider?.id === nextOperator.provider.id &&
-						preferredCapabilityModels.some((model) => model.id === nextOperator.model.id)
+					preferredProvider?.id === nextOperator.provider.id &&
+					preferredCapabilityModels.some((model) => model.id === nextOperator.model.id)
 						? nextOperator.model.id
-						: preferredCapabilityModels[0]?.id ?? '';
+						: (preferredCapabilityModels[0]?.id ?? '');
 
 				setProviders(availableProviders);
 				setCurrentAssistantOperator(isAssistantOperator ? nextOperator : undefined);
@@ -206,8 +215,12 @@ const OperatorDetailsPage: React.FC = () => {
 				setProviderId(preferredProvider?.id ?? '');
 				setModelId(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id
-						? isSpeechToTextOperator || isImageCreatorOperator ? preferredCapabilityModelId : nextOperator.model.id
-						: isSpeechToTextOperator || isImageCreatorOperator ? preferredCapabilityModelId : ''
+						? isSpeechToTextOperator || isImageCreatorOperator
+							? preferredCapabilityModelId
+							: nextOperator.model.id
+						: isSpeechToTextOperator || isImageCreatorOperator
+							? preferredCapabilityModelId
+							: ''
 				);
 				setEffort(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id && isAssistantOperator
@@ -233,7 +246,13 @@ const OperatorDetailsPage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [isAssistantOperator, isImageCreatorOperator, isRuntimeBackedOperator, isSpeechToTextOperator, t]);
+	}, [
+		isAssistantOperator,
+		isImageCreatorOperator,
+		isRuntimeBackedOperator,
+		isSpeechToTextOperator,
+		t,
+	]);
 
 	const selectedProvider = providers.find((provider) => provider.id === providerId);
 
@@ -296,7 +315,8 @@ const OperatorDetailsPage: React.FC = () => {
 				setModels(nextModels);
 				setModelId((current) => {
 					if (current && nextModels.some((model) => model.id === current)) return current;
-					if (currentAssistantOperator?.provider.id === selectedProvider.id) return currentAssistantOperator.model.id;
+					if (currentAssistantOperator?.provider.id === selectedProvider.id)
+						return currentAssistantOperator.model.id;
 					return nextModels[0]?.id ?? '';
 				});
 			})
@@ -350,13 +370,18 @@ const OperatorDetailsPage: React.FC = () => {
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
 	const showEffort = isAssistantOperator && supportsReasoningEffortProvider(providerId);
 	const effortOptions = useMemo(
-		() => showEffort ? getModelReasoningEfforts(modelId, providerId) : [],
+		() => (showEffort ? getModelReasoningEfforts(modelId, providerId) : []),
 		[modelId, providerId, showEffort]
 	);
 	const selectedEffort = showEffort ? effort : undefined;
-	const currentEffort = currentAssistantOperator && supportsReasoningEffortProvider(currentAssistantOperator.provider.id)
-		? storedEffortForComparison(currentAssistantOperator.model, currentAssistantOperator.provider.id)
-		: undefined;
+	const currentEffort =
+		currentAssistantOperator &&
+		supportsReasoningEffortProvider(currentAssistantOperator.provider.id)
+			? storedEffortForComparison(
+					currentAssistantOperator.model,
+					currentAssistantOperator.provider.id
+				)
+			: undefined;
 	const hasChanges = isSpeechToTextOperator
 		? !currentSpeechToTextOperator ||
 			currentSpeechToTextOperator.provider.id !== providerId ||
@@ -369,7 +394,9 @@ const OperatorDetailsPage: React.FC = () => {
 				currentAssistantOperator.provider.id !== providerId ||
 				currentAssistantOperator.model.id !== modelId ||
 				currentEffort !== selectedEffort;
-	const canSave = Boolean(selectedProvider && selectedModel && hasChanges && !loadingModels && !saving);
+	const canSave = Boolean(
+		selectedProvider && selectedModel && hasChanges && !loadingModels && !saving
+	);
 
 	const handleProviderChange = useCallback((nextValue: string | null): void => {
 		setProviderId(nextValue ?? '');
@@ -378,17 +405,23 @@ const OperatorDetailsPage: React.FC = () => {
 		setSuccessMessage('');
 	}, []);
 
-	const handleModelChange = useCallback((nextValue: string | null): void => {
-		const nextModelId = nextValue ?? '';
-		setModelId(nextModelId);
-		setEffort((current) => effortForModel(nextModelId, current, providerId));
-		setSuccessMessage('');
-	}, [providerId]);
+	const handleModelChange = useCallback(
+		(nextValue: string | null): void => {
+			const nextModelId = nextValue ?? '';
+			setModelId(nextModelId);
+			setEffort((current) => effortForModel(nextModelId, current, providerId));
+			setSuccessMessage('');
+		},
+		[providerId]
+	);
 
-	const handleEffortChange = useCallback((nextValue: string | null): void => {
-		setEffort(effortForModel(modelId, nextValue, providerId));
-		setSuccessMessage('');
-	}, [modelId, providerId]);
+	const handleEffortChange = useCallback(
+		(nextValue: string | null): void => {
+			setEffort(effortForModel(modelId, nextValue, providerId));
+			setSuccessMessage('');
+		},
+		[modelId, providerId]
+	);
 
 	useEffect(() => {
 		if (!showEffort) return;
@@ -429,7 +462,10 @@ const OperatorDetailsPage: React.FC = () => {
 			}
 
 			const modelToSave: Model = supportsReasoningEffortProvider(selectedProvider.id)
-				? { ...selectedModel, effort: effortForModel(selectedModel.id, effort, selectedProvider.id) }
+				? {
+						...selectedModel,
+						effort: effortForModel(selectedModel.id, effort, selectedProvider.id),
+					}
 				: { id: selectedModel.id, name: selectedModel.name };
 			const saved = await window.app.saveAssistantOperator(selectedProvider, modelToSave);
 			if (!saved) throw new Error(t('settings.operators.saveError'));
@@ -444,7 +480,15 @@ const OperatorDetailsPage: React.FC = () => {
 		} finally {
 			setSaving(false);
 		}
-	}, [canSave, effort, isImageCreatorOperator, isSpeechToTextOperator, selectedModel, selectedProvider, t]);
+	}, [
+		canSave,
+		effort,
+		isImageCreatorOperator,
+		isSpeechToTextOperator,
+		selectedModel,
+		selectedProvider,
+		t,
+	]);
 
 	const openChatHistory = useCallback(() => {
 		navigate(`/settings/operators/${ASSISTANT_OPERATOR_ID}/details/chathistory`);
@@ -494,11 +538,11 @@ const OperatorDetailsPage: React.FC = () => {
 						? Clock3
 						: isBackgroundTaskOperator
 							? ClipboardList
-		: isTextToSpeechOperator
-			? Volume2
-			: isSpeechToTextOperator
-				? Mic
-				: Bot;
+							: isTextToSpeechOperator
+								? Volume2
+								: isSpeechToTextOperator
+									? Mic
+									: Bot;
 	const operatorNameKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantName'
 		: isVideoCreatorOperator
@@ -511,11 +555,11 @@ const OperatorDetailsPage: React.FC = () => {
 						? 'settings.operators.cronTaskName'
 						: isBackgroundTaskOperator
 							? 'settings.operators.backgroundTaskName'
-		: isTextToSpeechOperator
-			? 'settings.operators.textToSpeechName'
-			: isSpeechToTextOperator
-				? 'settings.operators.speechTranscriberName'
-				: 'settings.operators.fridayName';
+							: isTextToSpeechOperator
+								? 'settings.operators.textToSpeechName'
+								: isSpeechToTextOperator
+									? 'settings.operators.speechTranscriberName'
+									: 'settings.operators.fridayName';
 	const operatorDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantDescription'
 		: isVideoCreatorOperator
@@ -528,11 +572,11 @@ const OperatorDetailsPage: React.FC = () => {
 						? 'settings.operators.cronTaskDescription'
 						: isBackgroundTaskOperator
 							? 'settings.operators.backgroundTaskDescription'
-		: isTextToSpeechOperator
-			? 'settings.operators.textToSpeechDescription'
-			: isSpeechToTextOperator
-				? 'settings.operators.speechTranscriberDescription'
-				: 'settings.operators.fridayDescription';
+							: isTextToSpeechOperator
+								? 'settings.operators.textToSpeechDescription'
+								: isSpeechToTextOperator
+									? 'settings.operators.speechTranscriberDescription'
+									: 'settings.operators.fridayDescription';
 	const configurationDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageConfigurationSubtitle'
 		: isVideoCreatorOperator
@@ -545,11 +589,11 @@ const OperatorDetailsPage: React.FC = () => {
 						? 'settings.operators.cronTaskConfigurationSubtitle'
 						: isBackgroundTaskOperator
 							? 'settings.operators.backgroundTaskConfigurationSubtitle'
-		: isTextToSpeechOperator
-			? 'settings.operators.textToSpeechConfigurationSubtitle'
-			: isSpeechToTextOperator
-				? 'settings.operators.speechConfigurationSubtitle'
-				: 'settings.operators.subtitle';
+							: isTextToSpeechOperator
+								? 'settings.operators.textToSpeechConfigurationSubtitle'
+								: isSpeechToTextOperator
+									? 'settings.operators.speechConfigurationSubtitle'
+									: 'settings.operators.subtitle';
 	const providerDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageProviderDescription'
 		: isVideoCreatorOperator
@@ -558,11 +602,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicProviderDescription'
 				: isDocumentReaderOcrOperator
 					? 'settings.operators.documentReaderProviderDescription'
-		: isTextToSpeechOperator
-			? 'settings.operators.textToSpeechProviderDescription'
-			: isSpeechToTextOperator
-				? 'settings.operators.speechProviderDescription'
-				: 'settings.operators.providerDescription';
+					: isTextToSpeechOperator
+						? 'settings.operators.textToSpeechProviderDescription'
+						: isSpeechToTextOperator
+							? 'settings.operators.speechProviderDescription'
+							: 'settings.operators.providerDescription';
 	const modelLabelKey = isImageCreatorOperator
 		? 'settings.operators.imageModel'
 		: isVideoCreatorOperator
@@ -571,11 +615,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicModel'
 				: isDocumentReaderOcrOperator
 					? 'settings.operators.documentReaderModel'
-		: isTextToSpeechOperator
-			? 'settings.operators.textToSpeechModel'
-			: isSpeechToTextOperator
-				? 'settings.operators.speechModel'
-				: 'settings.operators.model';
+					: isTextToSpeechOperator
+						? 'settings.operators.textToSpeechModel'
+						: isSpeechToTextOperator
+							? 'settings.operators.speechModel'
+							: 'settings.operators.model';
 	const modelDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageModelDescription'
 		: isVideoCreatorOperator
@@ -584,11 +628,11 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicModelDescription'
 				: isDocumentReaderOcrOperator
 					? 'settings.operators.documentReaderModelDescription'
-		: isTextToSpeechOperator
-			? 'settings.operators.textToSpeechModelDescription'
-			: isSpeechToTextOperator
-				? 'settings.operators.speechModelDescription'
-				: 'settings.operators.modelDescription';
+					: isTextToSpeechOperator
+						? 'settings.operators.textToSpeechModelDescription'
+						: isSpeechToTextOperator
+							? 'settings.operators.speechModelDescription'
+							: 'settings.operators.modelDescription';
 	const operatorName = t(operatorNameKey);
 	const operatorDescription = t(operatorDescriptionKey);
 	const configurationDescription = t(configurationDescriptionKey);
@@ -599,14 +643,14 @@ const OperatorDetailsPage: React.FC = () => {
 		(provider) => provider.id === TEXT_TO_SPEECH_PROVIDER_ID
 	);
 	const readOnlyProviderName = isTextToSpeechOperator
-		? textToSpeechProvider?.name ?? 'ElevenLabs'
+		? (textToSpeechProvider?.name ?? 'ElevenLabs')
 		: isVideoCreatorOperator
 			? 'Video provider'
 			: isMusicCreatorOperator
 				? 'Music provider'
 				: isDocumentReaderOcrOperator
 					? 'OCR provider'
-		: 'Image provider';
+					: 'Image provider';
 	const readOnlyProviderValue = isTextToSpeechOperator
 		? TEXT_TO_SPEECH_PROVIDER_ID
 		: isVideoCreatorOperator
@@ -615,17 +659,16 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'music-provider-coming-soon'
 				: isDocumentReaderOcrOperator
 					? 'document-reader-provider-coming-soon'
-		: 'image-provider-coming-soon';
-	const readOnlyModel =
-		isTextToSpeechOperator
-			? TEXT_TO_SPEECH_MODELS[0]
-			: isVideoCreatorOperator
-				? TEXT_TO_VIDEO_MODELS[0]
-				: isMusicCreatorOperator
-					? MUSIC_CREATOR_MODELS[0]
-					: isDocumentReaderOcrOperator
-						? DOCUMENT_READER_OCR_MODELS[0]
-						: IMAGE_CREATOR_MODELS[0];
+					: 'image-provider-coming-soon';
+	const readOnlyModel = isTextToSpeechOperator
+		? TEXT_TO_SPEECH_MODELS[0]
+		: isVideoCreatorOperator
+			? TEXT_TO_VIDEO_MODELS[0]
+			: isMusicCreatorOperator
+				? MUSIC_CREATOR_MODELS[0]
+				: isDocumentReaderOcrOperator
+					? DOCUMENT_READER_OCR_MODELS[0]
+					: IMAGE_CREATOR_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
 	const readOnlyModelName = readOnlyModel?.name ?? t('settings.operators.modelUnavailable');
 	const providerCardSummary = selectedProvider
@@ -679,11 +722,7 @@ const OperatorDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			{successMessage && (
-				<SettingsNotice icon={CheckCircle2}>
-					{successMessage}
-				</SettingsNotice>
-			)}
+			{successMessage && <SettingsNotice icon={CheckCircle2}>{successMessage}</SettingsNotice>}
 
 			{isAssistantOperator && (
 				<SettingsSection title={t('settings.operators.history')}>
@@ -761,18 +800,12 @@ const OperatorDetailsPage: React.FC = () => {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value={readOnlyProviderValue}>
-											{readOnlyProviderName}
-										</SelectItem>
+										<SelectItem value={readOnlyProviderValue}>{readOnlyProviderName}</SelectItem>
 									</SelectContent>
 								</Select>
 							</SettingsField>
 
-							<SettingsField
-								id="operator-model"
-								label={modelLabel}
-								description={modelDescription}
-							>
+							<SettingsField id="operator-model" label={modelLabel} description={modelDescription}>
 								<Select value={readOnlyModelId} disabled>
 									<SelectTrigger id="operator-model" className="w-full text-xs sm:w-72">
 										<SelectValue />

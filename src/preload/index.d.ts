@@ -36,10 +36,7 @@ export interface CronApi {
 	remove: (id: string) => Promise<void>;
 	removeJob: (id: string) => Promise<void>;
 	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
-	updateSchedule: (
-		scheduleId: string,
-		patch: CronScheduleUpdateRequest
-	) => Promise<CronSchedule>;
+	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest) => Promise<CronSchedule>;
 	pauseSchedule: (scheduleId: string) => Promise<void>;
 	resumeSchedule: (scheduleId: string) => Promise<void>;
 	deleteSchedule: (scheduleId: string) => Promise<void>;
@@ -63,9 +60,7 @@ export interface HeartbeatApi {
 	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
 	getTiming: () => Promise<HeartbeatTimingSettings>;
 	updateTiming: (request: HeartbeatTimingSettings) => Promise<HeartbeatTimingSettings>;
-	systemEvent: (
-		request: HeartbeatSystemEventRequest
-	) => Promise<HeartbeatSystemEventResult>;
+	systemEvent: (request: HeartbeatSystemEventRequest) => Promise<HeartbeatSystemEventResult>;
 	request: (request: HeartbeatWakeRequest) => Promise<void>;
 	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
 }
@@ -88,9 +83,7 @@ export interface ChannelsApi {
 	) => Promise<Channel[TKey]>;
 	getStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
 	getTelegramConfig: () => Promise<TelegramChannelProperties>;
-	saveTelegramConfig: (
-		config: TelegramChannelProperties
-	) => Promise<TelegramChannelProperties>;
+	saveTelegramConfig: (config: TelegramChannelProperties) => Promise<TelegramChannelProperties>;
 	getTelegramStatus: () => Promise<ChannelStatusEvent | undefined>;
 	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
 	stopTelegram: () => Promise<void>;
