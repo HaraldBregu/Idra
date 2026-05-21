@@ -5,10 +5,8 @@ boundary, dependencies, settings, and service API. Some modules can also be
 wrapped as LLM tools, but tool exposure is only one possible surface for a
 module.
 
-Do not use "operator" as the product model for these pieces. Existing
-implementation types and persisted settings keys may still contain
-`Operator` or `operator.*` for compatibility, but documentation should describe
-the product architecture in terms of modules.
+Use module terminology for product architecture, documentation, UI descriptions,
+and future runtime boundaries.
 
 ## Rules
 

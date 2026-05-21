@@ -246,9 +246,8 @@ and sanitized task input only. The task handler or target main-process module
 resolves its own provider, model, endpoint, and runtime dependencies when it
 executes.
 
-Current compatibility settings are still stored under keys such as
-`operator.imageCreator`. Treat those as storage keys, not as the product model
-for these modules.
+Persisted module selections are storage details. Schedules should depend on
+task types and sanitized inputs, not on settings key names.
 
 Recommended module task types:
 

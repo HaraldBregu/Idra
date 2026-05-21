@@ -7,11 +7,8 @@ for creating audio output.
 
 - `src/shared/service.ts`: sound module id, current settings shape, and model
   metadata.
-- `src/main/store/service.ts`: persisted sound module selection, currently
-  stored at `operator.musicCreator`.
+- `src/main/store/service.ts`: persisted sound module selection.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  module selections.
-- `src/renderer/src/pages/settings/pages/operators`: current Settings UI for
   module selections.
 - `src/main/tasks`: background task handlers that can request sound work.
 - `src/main/cron`: schedules that can trigger sound work through task handlers.
@@ -32,9 +29,8 @@ The main-process sound module owns:
 - Keeping provider-specific prompt, duration, stem, voice, style, polling, and
   download details inside adapters.
 
-The current compatibility settings key is `operator.musicCreator`, which covers
-generated sound, audio, and music. Provider-specific code belongs behind
-adapters inside the sound module.
+The sound module covers generated sound, audio, and music. Provider-specific
+code belongs behind adapters inside the sound module.
 
 ## Service And Tool Exposure
 
@@ -68,13 +64,7 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The sound module currently stores its settings at:
-
-```ts
-operator.musicCreator
-```
-
-It stores a public provider record and a selected model:
+The sound module stores a public provider record and a selected model:
 
 ```ts
 {

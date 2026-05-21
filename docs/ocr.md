@@ -33,10 +33,8 @@ Dependencies:
 
 ## Settings
 
-The current compatibility state can include:
-
-- `operator.documentReaderOcr`: future module selection metadata.
-- `ocr`: legacy OCR endpoint string.
+The current compatibility state can include a future module selection record and
+a legacy OCR endpoint string.
 
 Treat those as storage keys. The module name is OCR.
 

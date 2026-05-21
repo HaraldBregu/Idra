@@ -7,11 +7,8 @@ audio output.
 
 - `src/shared/service.ts`: text-to-speech module id, current settings shape,
   and model metadata.
-- `src/main/store/service.ts`: persisted text-to-speech module selection,
-  currently stored at `operator.textToSpeech`.
+- `src/main/store/service.ts`: persisted text-to-speech module selection.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  module selections.
-- `src/renderer/src/pages/settings/pages/operators`: current Settings UI for
   module selections.
 - `src/main/tasks`: background task handlers that can request TTS work.
 - `src/main/cron`: schedules that can trigger TTS work through task handlers.
@@ -31,7 +28,6 @@ The main-process TTS module owns:
 - Keeping provider-specific voice, format, and streaming details inside
   adapters.
 
-The current compatibility settings key is `operator.textToSpeech`.
 Provider-specific code belongs behind adapters inside the TTS module.
 
 ## Service And Tool Exposure
@@ -65,13 +61,7 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The text-to-speech module currently stores its settings at:
-
-```ts
-operator.textToSpeech
-```
-
-It stores a public provider record and a selected model:
+The text-to-speech module stores a public provider record and a selected model:
 
 ```ts
 {

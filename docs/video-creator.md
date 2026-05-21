@@ -7,11 +7,8 @@ creating video output.
 
 - `src/shared/service.ts`: video module id, current settings shape, and model
   metadata.
-- `src/main/store/service.ts`: persisted video module selection, currently
-  stored at `operator.videoCreator`.
+- `src/main/store/service.ts`: persisted video module selection.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  module selections.
-- `src/renderer/src/pages/settings/pages/operators`: current Settings UI for
   module selections.
 - `src/main/tasks`: background task handlers that can request video work.
 - `src/main/cron`: schedules that can trigger video work through task handlers.
@@ -31,7 +28,6 @@ The main-process video module owns:
 - Keeping provider-specific prompt, duration, reference asset, webhook, polling,
   and download details inside adapters.
 
-The current compatibility settings key is `operator.videoCreator`.
 Provider-specific code belongs behind adapters inside the video module.
 
 ## Service And Tool Exposure
@@ -66,13 +62,7 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The video module currently stores its settings at:
-
-```ts
-operator.videoCreator
-```
-
-It stores a public provider record and a selected model:
+The video module stores a public provider record and a selected model:
 
 ```ts
 {

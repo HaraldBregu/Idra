@@ -7,11 +7,8 @@ creating and editing images.
 
 - `src/shared/service.ts`: image module id, current settings shape, and model
   metadata.
-- `src/main/store/service.ts`: persisted image module selection, currently
-  stored at `operator.imageCreator`.
+- `src/main/store/service.ts`: persisted image module selection.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  module selections.
-- `src/renderer/src/pages/settings/pages/operators`: current Settings UI for
   module selections.
 - `src/main/tasks`: background task handlers that can request image work.
 - `src/main/cron`: schedules that can trigger image work through task handlers.
@@ -32,7 +29,6 @@ The main-process image module owns:
 - Keeping provider-specific prompt, size, seed, edit, and polling details
   inside adapters.
 
-The current compatibility settings key is `operator.imageCreator`.
 Provider-specific code belongs behind adapters inside the image module.
 
 ## Service And Tool Exposure
@@ -67,13 +63,7 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The image module currently stores its settings at:
-
-```ts
-operator.imageCreator
-```
-
-It stores a public provider record and a selected model:
+The image module stores a public provider record and a selected model:
 
 ```ts
 {

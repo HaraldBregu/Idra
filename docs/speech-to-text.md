@@ -7,9 +7,8 @@ dictation and other audio transcription features.
 
 - `src/shared/service.ts`: speech-to-text module id, current settings shape,
   model metadata, realtime sample rate, and model validation helpers.
-- `src/main/store/service.ts`: persisted speech-to-text module selection,
-  currently stored at `operator.speechToText`, and legacy
-  `speechTranscriber` compatibility.
+- `src/main/store/service.ts`: persisted speech-to-text module selection and
+  legacy speech transcriber compatibility.
 - `src/main/ipc/app-ipc.ts`: Settings IPC for reading and saving the
   speech-to-text module selection.
 - `src/main/ipc/realtime-transcription-ipc.ts`: realtime transcription IPC
@@ -82,13 +81,7 @@ a local model.
 
 ## Module Settings
 
-The speech-to-text module currently stores its settings at:
-
-```ts
-operator.speechToText
-```
-
-It stores a public provider record and a selected model:
+The speech-to-text module stores a public provider record and a selected model:
 
 ```ts
 {
@@ -112,12 +105,8 @@ Credentials are not stored on the module selection. The API key, base URL, and
 any other private provider configuration are resolved from the stored provider
 record when transcription starts.
 
-Settings can read and save the module selection through:
-
-- `operator:get-speech-to-text`
-- `operator:save-speech-to-text`
-
-Legacy compatibility IPC still exists:
+Settings can read and save the module selection through Settings IPC. Legacy
+compatibility IPC still exists:
 
 - `provider:get-speech-transcriber-service`
 - `provider:save-speech-transcriber-service`
@@ -141,7 +130,7 @@ The Settings module details page also supports the same selection:
    models.
 3. It uses the selected provider's speech-to-text capable model list as the
    model picker list.
-4. It saves through `window.app.saveSpeechToTextOperator()`.
+4. It saves through the speech-to-text settings preload API.
 
 ## Runtime Flow
 
@@ -155,7 +144,8 @@ await window.realtimeTranscription.finish(session.id);
 
 Runtime startup:
 
-1. `realtime-transcription:start` calls `store.getSpeechToTextOperator()`.
+1. `realtime-transcription:start` loads saved speech-to-text settings from
+   `StoreService`.
 2. The main process verifies that the speech-to-text settings are configured.
 3. It reads provider id and model id from the saved settings.
 4. It loads API key, base URL, and provider configuration from
