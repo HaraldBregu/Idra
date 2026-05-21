@@ -5,6 +5,7 @@ import type {
 	RealtimeServerEvent,
 } from 'openai/resources/realtime/realtime';
 import type { RealtimeTranscriptionStartRequest } from '../../shared/realtime-transcription';
+import type { RealtimeTranscriptionSession } from '../../shared/realtime-transcription';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
@@ -155,7 +156,7 @@ class OpenAIRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 		return this.config.sessionId;
 	}
 
-	async start(): Promise<{ id: string; model: string; sampleRate: number }> {
+	async start(): Promise<RealtimeTranscriptionSession> {
 		try {
 			await waitForSocketOpen(this.socket.socket as WebSocketLike);
 		} catch (error) {

@@ -4,6 +4,7 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
+import type { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/service';
 import type { ConfiguredModelOperator, Model } from '../../shared/service';
 
 export interface SpeechToTextSessionCallbacks {
@@ -23,7 +24,7 @@ export interface SpeechToTextRuntimeConfig {
 export interface SpeechToTextRealtimeSession {
 	readonly id: string;
 	readonly model: string;
-	readonly sampleRate: number;
+	readonly sampleRate: typeof REALTIME_TRANSCRIPTION_SAMPLE_RATE;
 	start: () => Promise<RealtimeTranscriptionSession>;
 	appendAudio: (audio: string) => void;
 	finish: () => void;
