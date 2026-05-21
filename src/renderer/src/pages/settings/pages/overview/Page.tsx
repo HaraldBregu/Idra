@@ -9,7 +9,12 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../../navigation';
+import {
+	SETTINGS_NAVIGATION,
+	SETTINGS_OPERATOR_ITEMS,
+	type SettingsNavigationItem,
+	type SettingsOperatorItem,
+} from '../../navigation';
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
@@ -18,7 +23,8 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		titleKey: 'settings.overview.groups.capabilities',
-		paths: ['/settings/operators', '/settings/skills', '/settings/connectors'],
+		operators: true,
+		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
 		titleKey: 'settings.overview.groups.automation',
@@ -26,6 +32,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 ] satisfies readonly {
 	readonly titleKey: string;
+	readonly operators?: boolean;
 	readonly paths: readonly string[];
 }[];
 
@@ -36,7 +43,7 @@ function getSettingsNavigationItem(path: string): SettingsNavigationItem {
 function SettingsOverviewCard({
 	item,
 }: {
-	readonly item: SettingsNavigationItem;
+	readonly item: SettingsNavigationItem | SettingsOperatorItem;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -51,7 +58,7 @@ function SettingsOverviewCard({
 			onClick={handleActivate}
 			variant="outline"
 			size="md"
-			className="border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
+			className="grid grid-cols-[1.5rem_minmax(0,1fr)_0.75rem] items-center border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
 		>
 			<ItemIcon icon={item.icon} />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
@@ -59,7 +66,7 @@ function SettingsOverviewCard({
 					{t(item.labelKey)}
 				</ItemTitle>
 			</ItemContent>
-			<ItemActions className="ml-auto flex-none justify-end">
+			<ItemActions className="ml-0 flex-none justify-end">
 				<ChevronRight
 					className="size-3 shrink-0 text-muted-foreground"
 					strokeWidth={1.8}
@@ -81,6 +88,9 @@ const OverviewPage: React.FC = () => {
 			{SETTINGS_OVERVIEW_GROUPS.map((group) => (
 				<SettingsSection key={group.titleKey} title={t(group.titleKey)}>
 					<SettingsPanel>
+						{group.operators && SETTINGS_OPERATOR_ITEMS.map((item) => (
+							<SettingsOverviewCard key={item.path} item={item} />
+						))}
 						{group.paths.map((path) => {
 							const item = getSettingsNavigationItem(path);
 							return <SettingsOverviewCard key={item.path} item={item} />;
