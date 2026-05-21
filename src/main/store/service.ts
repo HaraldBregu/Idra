@@ -104,12 +104,6 @@ function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
 	};
 }
 
-function hasModelSelection(value: unknown): value is ModelOperatorSelection {
-	if (!value || typeof value !== 'object') return false;
-	const selection = value as Partial<ModelOperatorSelection>;
-	return Boolean(selection.provider?.id && selection.model?.id);
-}
-
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	return value as Record<string, unknown>;
@@ -166,6 +160,46 @@ function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
 	};
 }
 
+function modelProviderSettings(provider: Provider): ModelProviderSettings {
+	return {
+		id: provider.id.trim().toLowerCase(),
+		name: provider.name.trim(),
+		baseUrl: provider.baseUrl.trim(),
+		apiKey: provider.apiKey.trim(),
+	};
+}
+
+function readModelProviderSettings(value: unknown): ModelProviderSettings | undefined {
+	const record = readRecord(value);
+	if (!record) return undefined;
+	const id = typeof record.id === 'string' ? record.id.trim().toLowerCase() : '';
+	const name = typeof record.name === 'string' ? record.name.trim() : '';
+	const baseUrl = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : '';
+	const apiKey = typeof record.apiKey === 'string' ? record.apiKey.trim() : '';
+	if (!id || !name || !baseUrl) return undefined;
+	return { id, name, baseUrl, apiKey };
+}
+
+function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] {
+	if (!Array.isArray(value)) return [];
+	return value.flatMap((entry) => {
+		const provider = readModelProviderSettings(entry);
+		return provider ? [provider] : [];
+	});
+}
+
+function defaultProviderForId(id: string): Provider | undefined {
+	const providerId = id.trim().toLowerCase();
+	return DEFAULT_PROVIDERS.find((provider) => provider.id.trim().toLowerCase() === providerId);
+}
+
+function providerFromSettings(settings: ModelProviderSettings): Provider {
+	return {
+		...(defaultProviderForId(settings.id) ?? {}),
+		...settings,
+	};
+}
+
 function modelModuleSettings(
 	providerId: string,
 	model: Model,
@@ -180,13 +214,27 @@ function modelModuleSettings(
 	return next;
 }
 
-function modelForModule(key: ConfiguredModelOperatorKey, settings: ModelModuleSettings): Model {
-	const catalog =
-		key === 'speechToText'
-			? getSpeechToTextModels(settings.providerId)
-			: key === 'imageCreator'
-				? getImageCreatorModels(settings.providerId)
-				: getDefaultAgentModels(settings.providerId);
+function modelForModule(
+	key: ConfiguredModelOperatorKey,
+	settings: ModelModuleSettings,
+	provider?: Provider
+): Model {
+	let catalog: readonly Model[];
+	if (key === 'speechToText') {
+		catalog = getSpeechToTextModels(settings.providerId);
+	} else if (key === 'textToSpeech') {
+		catalog = TEXT_TO_SPEECH_MODELS;
+	} else if (key === 'imageCreator') {
+		catalog = provider
+			? getImageCreatorModelsForProvider(provider)
+			: getImageCreatorModels(settings.providerId);
+	} else if (key === 'textToVideo') {
+		catalog = TEXT_TO_VIDEO_MODELS;
+	} else if (key === 'textToSound') {
+		catalog = MUSIC_CREATOR_MODELS;
+	} else {
+		catalog = getDefaultAgentModels(settings.providerId);
+	}
 	const model = catalog.find((entry) => entry.id === settings.modelId) ?? {
 		id: settings.modelId,
 		name: settings.modelId,
@@ -210,7 +258,7 @@ function configuredModelOperator(
 	model: Model
 ): ConfiguredModelOperator {
 	return {
-		...OPERATOR_DEFINITIONS[key],
+		...OPERATOR_DEFINITIONS[OPERATOR_DEFINITION_KEYS[key]],
 		provider,
 		model,
 	};
