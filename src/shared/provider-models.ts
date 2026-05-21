@@ -10,6 +10,7 @@ export type ModelCapability =
 	| 'text-to-speech'
 	| 'text-to-image'
 	| 'text-to-video'
+	| 'text-to-audio'
 	| 'music'
 	| 'embedding';
 
@@ -211,7 +212,15 @@ export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderId
 export const MUSIC_CREATOR_MODELS = [
 	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly ProviderModel[];
-export const MUSIC_PROVIDER_IDS = ['google', 'minimax', 'elevenlabs', 'suno'] as const;
+export const MUSIC_PROVIDER_IDS = [
+	'google',
+	'minimax',
+	'elevenlabs',
+	'adobe-firefly',
+	'kling',
+	'stability-ai',
+	'suno',
+] as const;
 export const MUSIC_CREATOR_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderIds(
 	MUSIC_PROVIDER_IDS,
 	MUSIC_CREATOR_MODELS
@@ -225,6 +234,7 @@ export const MODEL_CATALOGS_BY_CAPABILITY = {
 	'text-to-speech': TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	'text-to-image': TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	'text-to-video': TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
+	'text-to-audio': MUSIC_CREATOR_MODELS_BY_PROVIDER,
 	music: MUSIC_CREATOR_MODELS_BY_PROVIDER,
 	embedding: EMBEDDING_MODELS_BY_PROVIDER,
 } as const satisfies Readonly<Record<ModelCapability, ModelCatalog>>;
