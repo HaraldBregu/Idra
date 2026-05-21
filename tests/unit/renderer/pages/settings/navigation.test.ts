@@ -1,4 +1,7 @@
-import { SETTINGS_NAVIGATION } from '../../../../../src/renderer/src/pages/settings/navigation';
+import {
+	SETTINGS_NAVIGATION,
+	SETTINGS_OPERATOR_ITEMS,
+} from '../../../../../src/renderer/src/pages/settings/navigation';
 
 describe('settings navigation', () => {
 	it('keeps the overview list in the requested order', () => {
@@ -6,7 +9,6 @@ describe('settings navigation', () => {
 			'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
-			'settings.tabs.operators',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.channels',
@@ -14,6 +16,20 @@ describe('settings navigation', () => {
 			'settings.tabs.cron',
 			'settings.tabs.taskManager',
 			'settings.tabs.apps',
+		]);
+	});
+
+	it('keeps operator rows available for the settings overview', () => {
+		expect(SETTINGS_OPERATOR_ITEMS.map((item) => item.labelKey)).toEqual([
+			'settings.operators.fridayName',
+			'settings.operators.speechTranscriberName',
+			'settings.operators.textToSpeechName',
+			'settings.operators.imageAssistantName',
+			'settings.operators.videoCreatorName',
+			'settings.operators.musicCreatorName',
+			'settings.operators.documentReaderName',
+			'settings.operators.cronTaskName',
+			'settings.operators.backgroundTaskName',
 		]);
 	});
 });

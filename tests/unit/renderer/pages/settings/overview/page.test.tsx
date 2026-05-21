@@ -42,7 +42,15 @@ describe('OverviewPage', () => {
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.channels',
-			'settings.tabs.operators',
+			'settings.operators.fridayName',
+			'settings.operators.speechTranscriberName',
+			'settings.operators.textToSpeechName',
+			'settings.operators.imageAssistantName',
+			'settings.operators.videoCreatorName',
+			'settings.operators.musicCreatorName',
+			'settings.operators.documentReaderName',
+			'settings.operators.cronTaskName',
+			'settings.operators.backgroundTaskName',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.heartbeat',
@@ -56,8 +64,8 @@ describe('OverviewPage', () => {
 		const user = userEvent.setup();
 		renderOverviewPage();
 
-		await user.click(screen.getByRole('button', { name: /settings\.tabs\.operators/ }));
+		await user.click(screen.getByRole('button', { name: /settings\.operators\.fridayName/ }));
 
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators');
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
 	});
 });
