@@ -209,6 +209,12 @@ describe('StoreService', () => {
 				states: { 'job-1': expect.objectContaining({ scheduleIdentity: '{"everyMs":60000,"kind":"every"}' }) },
 				runs: { 'job-1': [{ runId: 'run-1' }] },
 			});
+			expect((service as unknown as { store: { get: (k: string) => unknown } }).store.get('taskScheduler'))
+				.toMatchObject({
+					friday: {
+						jobs: [{ id: 'job-1' }],
+					},
+				});
 		});
 	});
 
