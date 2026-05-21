@@ -37,6 +37,20 @@ export const ProviderChannels = {
 	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
 } as const;
 
+export const OperatorChannels = {
+	getAssistant: 'operator:get-assistant',
+	saveAssistant: 'operator:save-assistant',
+	getSpeechToText: 'operator:get-speech-to-text',
+	saveSpeechToText: 'operator:save-speech-to-text',
+} as const;
+
+export const LegacyProviderOperatorChannels = {
+	getAgentService: 'provider:get-agent-service',
+	saveAgentService: 'provider:save-agent-service',
+	getSpeechTranscriberService: 'provider:get-speech-transcriber-service',
+	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
+} as const;
+
 export const RealtimeTranscriptionChannels = {
 	start: 'realtime-transcription:start',
 	appendAudio: 'realtime-transcription:append-audio',
@@ -231,6 +245,22 @@ interface AppInvokeChannelMap {
 		result: import('./service').Agent | undefined;
 	};
 	[ProviderChannels.saveSpeechTranscriberService]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[OperatorChannels.getAssistant]: {
+		args: [];
+		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.saveAssistant]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[OperatorChannels.getSpeechToText]: {
+		args: [];
+		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.saveSpeechToText]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};
