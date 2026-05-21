@@ -1,13 +1,62 @@
-import { Provider } from "./providers";
+import type { Provider } from "./providers";
 import type { AgentsHeartbeatConfig } from './heartbeat';
 
-export interface Service {
-	agent?: Agent;
-	speechTranscriber?: Agent;
-	agents?: AgentsHeartbeatConfig;
-	rag: string;
-	ocr: string;
+export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
+
+export interface OperatorBase {
+	id: string;
+	name: string;
+	docsPath: string;
+	status: OperatorStatus;
 }
+
+export interface ModelOperator extends OperatorBase {
+	provider?: Omit<Provider, 'apiKey'>;
+	model?: Model;
+}
+
+export interface ModelOperatorSelection {
+	provider: Omit<Provider, 'apiKey'>;
+	model: Model;
+}
+
+export type ConfiguredModelOperator = ModelOperator & ModelOperatorSelection;
+
+export interface EndpointOperator extends OperatorBase {
+	endpoint: string;
+}
+
+export interface SchedulerOperator extends OperatorBase {}
+
+export interface TaskOperator extends OperatorBase {
+	registeredTaskTypes: string[];
+}
+
+export interface Operator {
+	assistant?: ModelOperator;
+	speechToText?: ModelOperator;
+	textToSpeech?: ModelOperator;
+	imageCreator?: ModelOperator;
+	videoCreator?: ModelOperator;
+	musicCreator?: ModelOperator;
+	documentReaderOcr?: ModelOperator | EndpointOperator;
+	cronTaskScheduler?: SchedulerOperator;
+	backgroundTask?: TaskOperator;
+}
+
+export interface OperatorStoreState extends Operator {
+	agents?: AgentsHeartbeatConfig;
+	rag?: string;
+	ocr?: string;
+	agent?: ModelOperatorSelection;
+	speechTranscriber?: ModelOperatorSelection;
+}
+
+/** @deprecated Use OperatorStoreState. Persisted storage may still use the `service` key. */
+export type Service = OperatorStoreState;
+
+/** @deprecated Use ConfiguredModelOperator for operator settings selections. */
+export type Agent = ModelOperatorSelection;
 
 export const MODEL_REASONING_EFFORTS = [
 	'none',
@@ -86,42 +135,134 @@ export interface Model {
 	effort?: ModelReasoningEffort;
 }
 
-export const SPEECH_TRANSCRIBER_AGENT_ID = 'speech-to-text';
+export const ASSISTANT_OPERATOR_ID = 'friday';
+export const ASSISTANT_RUNTIME_ID = 'main';
+export const SPEECH_TO_TEXT_OPERATOR_ID = 'speech-to-text';
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
 export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
 export const REALTIME_TRANSCRIPTION_SAMPLE_RATE = 24000;
-export const SPEECH_TRANSCRIBER_MODELS = [
+export const SPEECH_TO_TEXT_MODELS = [
 	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
 ] satisfies readonly Model[];
-export const TEXT_TO_SPEECH_AGENT_ID = 'text-to-speech';
+export const TEXT_TO_SPEECH_OPERATOR_ID = 'text-to-speech';
 export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
 export const TEXT_TO_SPEECH_MODELS = [
 	{ id: 'rachel-multilingual', name: 'Rachel - multilingual' },
 ] satisfies readonly Model[];
-export const IMAGE_ASSISTANT_AGENT_ID = 'image-assistant';
-export const IMAGE_ASSISTANT_MODELS = [
+export const IMAGE_CREATOR_OPERATOR_ID = 'image-assistant';
+export const IMAGE_CREATOR_MODELS = [
 	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
-export const VIDEO_CREATOR_AGENT_ID = 'video-creator';
+export const VIDEO_CREATOR_OPERATOR_ID = 'video-creator';
 export const VIDEO_CREATOR_MODELS = [
 	{ id: 'video-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
-export const MUSIC_CREATOR_AGENT_ID = 'music-creator';
+export const MUSIC_CREATOR_OPERATOR_ID = 'music-creator';
 export const MUSIC_CREATOR_MODELS = [
 	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
-export const DOCUMENT_READER_AGENT_ID = 'document-reader';
-export const DOCUMENT_READER_MODELS = [
+export const DOCUMENT_READER_OCR_OPERATOR_ID = 'document-reader';
+export const DOCUMENT_READER_OCR_MODELS = [
 	{ id: 'document-reader-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
+export const CRON_TASK_SCHEDULER_OPERATOR_ID = 'cron-task-scheduler';
+export const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
+
+export const OPERATOR_DEFINITIONS = {
+	assistant: {
+		id: ASSISTANT_OPERATOR_ID,
+		name: 'Assistant',
+		docsPath: 'agent.md',
+		status: 'implemented',
+	},
+	speechToText: {
+		id: SPEECH_TO_TEXT_OPERATOR_ID,
+		name: 'Speech to text',
+		docsPath: 'speech-to-text.md',
+		status: 'implemented',
+	},
+	textToSpeech: {
+		id: TEXT_TO_SPEECH_OPERATOR_ID,
+		name: 'Text to speech',
+		docsPath: 'text-to-speech.md',
+		status: 'pending-runtime',
+	},
+	imageCreator: {
+		id: IMAGE_CREATOR_OPERATOR_ID,
+		name: 'Image creator',
+		docsPath: 'image-creator.md',
+		status: 'pending-runtime',
+	},
+	videoCreator: {
+		id: VIDEO_CREATOR_OPERATOR_ID,
+		name: 'Video creator',
+		docsPath: 'video-creator.md',
+		status: 'pending-runtime',
+	},
+	musicCreator: {
+		id: MUSIC_CREATOR_OPERATOR_ID,
+		name: 'Music creator',
+		docsPath: 'music-creator.md',
+		status: 'pending-runtime',
+	},
+	documentReaderOcr: {
+		id: DOCUMENT_READER_OCR_OPERATOR_ID,
+		name: 'Document reader OCR',
+		docsPath: 'document-reader-ocr.md',
+		status: 'pending-runtime',
+	},
+	cronTaskScheduler: {
+		id: CRON_TASK_SCHEDULER_OPERATOR_ID,
+		name: 'Cron task scheduler',
+		docsPath: 'cron.md',
+		status: 'implemented',
+	},
+	backgroundTask: {
+		id: BACKGROUND_TASK_OPERATOR_ID,
+		name: 'Background task',
+		docsPath: 'task-manager.md',
+		status: 'implemented',
+		registeredTaskTypes: ['agent.run', 'ocr.run'],
+	},
+} as const satisfies {
+	assistant: OperatorBase;
+	speechToText: OperatorBase;
+	textToSpeech: OperatorBase;
+	imageCreator: OperatorBase;
+	videoCreator: OperatorBase;
+	musicCreator: OperatorBase;
+	documentReaderOcr: OperatorBase;
+	cronTaskScheduler: SchedulerOperator;
+	backgroundTask: TaskOperator;
+};
+
+/** @deprecated Use SPEECH_TO_TEXT_OPERATOR_ID. */
+export const SPEECH_TRANSCRIBER_AGENT_ID = SPEECH_TO_TEXT_OPERATOR_ID;
+/** @deprecated Use SPEECH_TO_TEXT_MODELS. */
+export const SPEECH_TRANSCRIBER_MODELS = SPEECH_TO_TEXT_MODELS;
+/** @deprecated Use TEXT_TO_SPEECH_OPERATOR_ID. */
+export const TEXT_TO_SPEECH_AGENT_ID = TEXT_TO_SPEECH_OPERATOR_ID;
+/** @deprecated Use IMAGE_CREATOR_OPERATOR_ID. */
+export const IMAGE_ASSISTANT_AGENT_ID = IMAGE_CREATOR_OPERATOR_ID;
+/** @deprecated Use IMAGE_CREATOR_MODELS. */
+export const IMAGE_ASSISTANT_MODELS = IMAGE_CREATOR_MODELS;
+/** @deprecated Use VIDEO_CREATOR_OPERATOR_ID. */
+export const VIDEO_CREATOR_AGENT_ID = VIDEO_CREATOR_OPERATOR_ID;
+/** @deprecated Use MUSIC_CREATOR_OPERATOR_ID. */
+export const MUSIC_CREATOR_AGENT_ID = MUSIC_CREATOR_OPERATOR_ID;
+/** @deprecated Use DOCUMENT_READER_OCR_OPERATOR_ID. */
+export const DOCUMENT_READER_AGENT_ID = DOCUMENT_READER_OCR_OPERATOR_ID;
+/** @deprecated Use DOCUMENT_READER_OCR_MODELS. */
+export const DOCUMENT_READER_MODELS = DOCUMENT_READER_OCR_MODELS;
 
 export function isRealtimeSpeechTranscriberModel(modelId: string): boolean {
 	return modelId.trim() === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
 }
 
-export interface Agent {
-	provider: Omit<Provider, "apiKey">;
-	model: Model;
+export function isEndpointOperator(
+	operator: ModelOperator | EndpointOperator | undefined
+): operator is EndpointOperator {
+	return Boolean(operator && 'endpoint' in operator);
 }
 
 export type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
