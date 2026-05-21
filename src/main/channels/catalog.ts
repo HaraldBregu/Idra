@@ -1,5 +1,6 @@
 export {
 	CHANNEL_CATALOG,
+	buildChannelDocsUrl,
 	extractChannelCatalogFromPackageMetadata,
 	getChannelBrandIconId,
 	getChannelCatalogEntry,

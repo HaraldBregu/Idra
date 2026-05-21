@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import {
 	CircleOff,
+	ExternalLink,
 	Hash,
 	KeyRound,
 	Link2,
@@ -40,6 +41,7 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
+import { openExternalUrl } from '@/lib/external-links';
 import type {
 	Channel,
 	ChannelAccountProperties,
@@ -51,7 +53,11 @@ import type {
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
 } from '../../../../../../../shared/channels';
-import { isChannelId, type ChannelCatalogEntry } from '../../../../../../../shared/channel-catalog';
+import {
+	buildChannelDocsUrl,
+	isChannelId,
+	type ChannelCatalogEntry,
+} from '../../../../../../../shared/channel-catalog';
 import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
@@ -148,6 +154,7 @@ const ChannelDetailPage: React.FC = () => {
 		: emptyAccountConfig(selectedId ?? 'telegram');
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
+	const selectedDocsUrl = selectedEntry ? buildChannelDocsUrl(selectedEntry.docsPath, __APP_HOMEPAGE__) : null;
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
 		if (!selectedId) return;
@@ -247,6 +254,20 @@ const ChannelDetailPage: React.FC = () => {
 			<SettingsPageHeader
 				title={selectedTitle}
 				description={selectedEntry?.blurb}
+				action={
+					selectedDocsUrl && selectedEntry ? (
+						<Button
+							type="button"
+							variant="outline"
+							size="icon-xs"
+							aria-label={selectedEntry.docsLabel}
+							title={selectedEntry.docsLabel}
+							onClick={() => openExternalUrl(selectedDocsUrl)}
+						>
+							<ExternalLink className="size-3" />
+						</Button>
+					) : undefined
+				}
 				iconNode={
 					selectedId ? (
 						<ChannelIcon

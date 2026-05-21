@@ -1,6 +1,7 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
+	buildChannelDocsUrl,
 	extractChannelCatalogFromPackageMetadata,
 	listChannelCatalog,
 	normalizeChannelId,
@@ -66,6 +67,21 @@ describe('channel catalog', () => {
 			expect(existsSync(path.join(folder, `${entry.brandIconId}_light.png`))).toBe(true);
 			expect(existsSync(path.join(folder, `${entry.brandIconId}_dark.png`))).toBe(true);
 		}
+	});
+
+	it('keeps catalog docs paths backed by bundled docs files', () => {
+		const docsIndex = readFileSync(path.join(process.cwd(), 'docs/channels/index.md'), 'utf8');
+
+		for (const entry of listChannelCatalog()) {
+			expect(entry.docsPath).toBe(`docs/channels/${entry.id}.md`);
+			expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
+			expect(docsIndex).toContain(`[\`${entry.id}\`](${entry.id}.md)`);
+			expect(buildChannelDocsUrl(entry.docsPath, 'https://github.com/HaraldBregu/friday')).toBe(
+				`https://github.com/HaraldBregu/friday/blob/main/docs/channels/${entry.id}.md`
+			);
+		}
+
+		expect(buildChannelDocsUrl('../secrets.md', 'https://github.com/HaraldBregu/friday')).toBeNull();
 	});
 
 	it('falls back to the bundled catalog when package metadata is incomplete', () => {

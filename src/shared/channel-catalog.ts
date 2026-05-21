@@ -109,6 +109,15 @@ export function getChannelBrandIconId(idOrAlias: string): string | undefined {
 	return getChannelCatalogEntry(idOrAlias)?.brandIconId;
 }
 
+export function buildChannelDocsUrl(docsPath: string, repositoryHomepage: string): string | null {
+	const normalizedPath = normalizeChannelDocsPath(docsPath);
+	const normalizedHomepage = repositoryHomepage.trim().replace(/\/+$/, '');
+	if (!normalizedPath || !/^https?:\/\//.test(normalizedHomepage)) return null;
+
+	const encodedPath = normalizedPath.split('/').map(encodeURIComponent).join('/');
+	return `${normalizedHomepage}/blob/main/${encodedPath}`;
+}
+
 export function normalizeChannelId(idOrAlias: string): ChannelType | null {
 	const normalized = normalizeChannelKey(idOrAlias);
 	return CHANNEL_ALIAS_TO_ID.get(normalized) ?? (CHANNEL_IDS.has(normalized) ? (normalized as ChannelType) : null);
@@ -160,6 +169,19 @@ function entry(
 
 function normalizeChannelKey(value: string): string {
 	return value.trim().toLowerCase();
+}
+
+function normalizeChannelDocsPath(value: string): string | null {
+	const normalized = value.trim().replace(/^\/+/, '');
+	const segments = normalized.split('/');
+	if (
+		!normalized.startsWith('docs/channels/') ||
+		!normalized.endsWith('.md') ||
+		segments.some((segment) => !segment || segment === '.' || segment === '..')
+	) {
+		return null;
+	}
+	return normalized;
 }
 
 function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {

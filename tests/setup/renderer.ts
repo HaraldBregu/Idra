@@ -10,5 +10,6 @@ Object.assign(globalThis, {
 	__APP_VERSION__: '0.0.0-test',
 	__APP_DESCRIPTION__: 'AI desktop assistant',
 	__APP_AUTHOR__: 'Test',
+	__APP_HOMEPAGE__: 'https://github.com/HaraldBregu/friday',
 	__APP_LICENSE__: 'MIT',
 });
