@@ -1,16 +1,18 @@
 import Store from 'electron-store';
-import { getDefaultAgentModels, type Provider } from '../../shared/providers';
+import { DEFAULT_PROVIDERS, getDefaultAgentModels, type Provider } from '../../shared/providers';
 import {
+	DOCUMENT_READER_OCR_MODELS,
+	MUSIC_CREATOR_MODELS,
 	OPERATOR_DEFINITIONS,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_VIDEO_MODELS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
 	isAllowedImageCreatorModelForProvider,
-	isEndpointOperator,
 	isModelReasoningEffort,
 	type ConfiguredModelOperator,
 	type Model,
-	type ModelOperator,
 	type ModelOperatorSelection,
 	type OperatorStoreState,
 } from '../../shared/service';
@@ -26,6 +28,7 @@ import {
 import type { ConnectorConfig } from '../../shared/connectors';
 import type {
 	BackgroundTaskSettings,
+	ModelProviderSettings,
 	ModelModuleSettings,
 	OcrModuleSettings,
 	SettingsStoreAccessor,
@@ -53,21 +56,45 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 	keepAwakeEnabled: false,
 };
 
-type ConfiguredModelOperatorKey = 'assistant' | 'speechToText' | 'imageCreator';
-type LegacyBackedModelOperatorKey = 'assistant' | 'speechToText';
-type LegacyModelOperatorKey = 'agent' | 'speechTranscriber';
-type ModelModuleRootKey = 'agent' | 'speechToText' | 'imageCreator';
-
-const LEGACY_MODEL_OPERATOR_KEYS = {
-	assistant: 'agent',
-	speechToText: 'speechTranscriber',
-} satisfies Record<LegacyBackedModelOperatorKey, LegacyModelOperatorKey>;
+type ConfiguredModelOperatorKey =
+	| 'assistant'
+	| 'speechToText'
+	| 'textToSpeech'
+	| 'imageCreator'
+	| 'textToVideo'
+	| 'textToSound';
+type ModelModuleRootKey =
+	| 'llmAgent'
+	| 'speechToText'
+	| 'textToSpeech'
+	| 'imageCreator'
+	| 'textToVideo'
+	| 'textToSound';
+type OperatorDefinitionKey =
+	| 'assistant'
+	| 'speechToText'
+	| 'textToSpeech'
+	| 'imageCreator'
+	| 'videoCreator'
+	| 'musicCreator';
 
 const MODEL_MODULE_ROOT_KEYS = {
-	assistant: 'agent',
+	assistant: 'llmAgent',
 	speechToText: 'speechToText',
+	textToSpeech: 'textToSpeech',
 	imageCreator: 'imageCreator',
+	textToVideo: 'textToVideo',
+	textToSound: 'textToSound',
 } satisfies Record<ConfiguredModelOperatorKey, ModelModuleRootKey>;
+
+const OPERATOR_DEFINITION_KEYS = {
+	assistant: 'assistant',
+	speechToText: 'speechToText',
+	textToSpeech: 'textToSpeech',
+	imageCreator: 'imageCreator',
+	textToVideo: 'videoCreator',
+	textToSound: 'musicCreator',
+} satisfies Record<ConfiguredModelOperatorKey, OperatorDefinitionKey>;
 
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
 	return {
