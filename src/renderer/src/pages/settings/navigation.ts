@@ -4,7 +4,6 @@ import {
 	Bot,
 	CalendarClock,
 	ClipboardList,
-	Clock3,
 	ImageIcon,
 	Info,
 	Mic,
@@ -20,8 +19,6 @@ import {
 	type LucideIcon,
 } from 'lucide-react';
 import {
-	BACKGROUND_TASK_OPERATOR_ID,
-	CRON_TASK_SCHEDULER_OPERATOR_ID,
 	DOCUMENT_READER_OCR_OPERATOR_ID,
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
@@ -110,22 +107,6 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.documentReaderDescription',
 		keywords: 'ocr document reader text extraction scan model',
 		icon: ScanText,
-	},
-	{
-		id: CRON_TASK_SCHEDULER_OPERATOR_ID,
-		path: `/settings/operators/${CRON_TASK_SCHEDULER_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.cronTaskName',
-		descriptionKey: 'settings.operators.cronTaskDescription',
-		keywords: 'cron schedule recurring task operator',
-		icon: Clock3,
-	},
-	{
-		id: BACKGROUND_TASK_OPERATOR_ID,
-		path: `/settings/operators/${BACKGROUND_TASK_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.backgroundTaskName',
-		descriptionKey: 'settings.operators.backgroundTaskDescription',
-		keywords: 'background task queue agent run ocr operator',
-		icon: ClipboardList,
 	},
 ] as const;
 
