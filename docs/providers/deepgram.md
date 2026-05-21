@@ -12,11 +12,24 @@
 | API-key link | [Deepgram project keys](https://console.deepgram.com/project/keys) |
 | Official docs | [Deepgram API key docs](https://developers.deepgram.com/docs/create-additional-api-keys) |
 
-Default agent models:
+## Model Type Coverage
 
-None in `DEFAULT_AGENT_MODELS_BY_PROVIDER`.
+Official model references were checked in May 2026. Deepgram may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
 
-Speech-to-text models:
+| Model type | Official provider coverage | Friday status |
+| --- | --- | --- |
+| Speech-To-Text Models | Nova, Flux conversational ASR, Whisper-hosted, and other Deepgram speech-to-text model families. Official references: [Deepgram STT models](https://developers.deepgram.com/docs/models-languages-overview), [Deepgram docs](https://developers.deepgram.com/documentation/). | Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for Deepgram STT. |
+| Text-To-Speech Models | Aura text-to-speech voice models such as `aura-2-thalia-en` and related voices/languages. Official references: [Deepgram Aura voices](https://developers.deepgram.com/docs/tts-models), [Deepgram TTS getting started](https://developers.deepgram.com/docs/text-to-speech). | Friday exposes the shared `text-to-speech-provider-coming-soon` placeholder for Deepgram TTS. |
+
+## Speech-To-Text Models
+
+Official references: [Deepgram STT models](https://developers.deepgram.com/docs/models-languages-overview), [Deepgram docs](https://developers.deepgram.com/documentation/).
+
+Official model families: Nova, Flux conversational ASR, Whisper-hosted, and other Deepgram speech-to-text model families.
+
+Friday status: Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for Deepgram STT.
+
+Documented provider model ids:
 
 | Model id | Display name | Runtime style |
 | --- | --- | --- |
@@ -65,13 +78,21 @@ Speech-to-text models:
 | `whisper-medium` | Whisper Medium | Deepgram Whisper Cloud |
 | `whisper-large` | Whisper Large | Deepgram Whisper Cloud |
 
-Runtime notes:
+## Text-To-Speech Models
+
+Official references: [Deepgram Aura voices](https://developers.deepgram.com/docs/tts-models), [Deepgram TTS getting started](https://developers.deepgram.com/docs/text-to-speech).
+
+Official model families: Aura text-to-speech voice models such as `aura-2-thalia-en` and related voices/languages.
+
+Friday status: Friday exposes the shared `text-to-speech-provider-coming-soon` placeholder for Deepgram TTS.
+
+## Runtime Notes
 
 - Deepgram is present as a provider credential and capability entry.
 - It is not currently selectable as the main Friday agent provider through the
   default agent model picker.
 
-Configuration shape example:
+## Configuration Shape Example
 
 ```json
 {

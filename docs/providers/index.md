@@ -110,6 +110,12 @@ Friday cron `agentTurn` jobs can also pass `providerId`, `model`, and
 `thinking` in the job payload. `thinking` is converted to the send option
 `effort`, but the main service currently applies that value only to OpenAI.
 
+## Provider Page Model Sections
+
+Each provider page separates model coverage by model type. Use these section names when adding or updating providers: Large Language Models, Speech-To-Text Models, Text-To-Speech Models, Image Models, Video Models, Music And Audio Models, Embedding Models, OCR Models, 3D Models, Vision Models, Omni Models, and provider-specific sections such as Research Chat Models or Agent Systems.
+
+Provider pages distinguish official provider model families from Friday runtime readiness. Official references point to provider-owned documentation checked in May 2026. Friday status entries must stay aligned with `src/shared/provider-models.ts`, `DEFAULT_PROVIDERS`, and `DEFAULT_AGENT_MODELS_BY_PROVIDER`.
+
 ## Provider Catalog
 
 Each provider name links to its provider-specific markdown file.

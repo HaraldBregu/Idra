@@ -12,22 +12,29 @@
 | API-key link | [Perplexity API settings](https://www.perplexity.ai/settings/api) |
 | Official docs | [Perplexity API key management](https://docs.perplexity.ai/docs/admin/api-key-management) |
 
-Default agent models:
+## Model Type Coverage
 
-| Model id | Display name |
-| --- | --- |
-| `sonar-reasoning-pro` | Sonar Reasoning Pro |
-| `sonar-pro` | Sonar Pro |
-| `sonar-deep-research` | Sonar Deep Research |
-| `r1-1776` | R1 1776 |
+Official model references were checked in May 2026. Perplexity may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
 
-Runtime notes:
+| Model type | Official provider coverage | Friday status |
+| --- | --- | --- |
+| Research Chat Models | Sonar, Sonar Pro, Sonar Reasoning Pro, Sonar Deep Research, and R1-1776 style research/reasoning models with citations/search context. Official references: [Sonar Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-pro), [Sonar Deep Research](https://docs.perplexity.ai/docs/sonar/models/sonar-deep-research), [Sonar Reasoning Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-reasoning-pro). | Friday has an explicit default agent catalog for Perplexity. |
+
+## Research Chat Models
+
+Official references: [Sonar Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-pro), [Sonar Deep Research](https://docs.perplexity.ai/docs/sonar/models/sonar-deep-research), [Sonar Reasoning Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-reasoning-pro).
+
+Official model families: Sonar, Sonar Pro, Sonar Reasoning Pro, Sonar Deep Research, and R1-1776 style research/reasoning models with citations/search context.
+
+Friday status: Friday has an explicit default agent catalog for Perplexity.
+
+## Runtime Notes
 
 - Uses the generic OpenAI Chat Completions-compatible adapter.
 - The provider is labeled as research chat in capabilities.
 - Friday does not save or pass reasoning effort for Perplexity.
 
-Example:
+## Example
 
 ```json
 {

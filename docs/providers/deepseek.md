@@ -12,14 +12,30 @@
 | API-key link | [DeepSeek API keys](https://platform.deepseek.com/api_keys) |
 | Official docs | [DeepSeek API docs](https://api-docs.deepseek.com/) |
 
-Default agent models:
+## Model Type Coverage
+
+Official model references were checked in May 2026. DeepSeek may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
+
+| Model type | Official provider coverage | Friday status |
+| --- | --- | --- |
+| Large Language Models | DeepSeek V4-Pro and V4-Flash, with legacy `deepseek-chat` and `deepseek-reasoner` aliases documented for migration windows. Official references: [DeepSeek list models](https://api-docs.deepseek.com/api/list-models/), [DeepSeek reasoning model](https://api-docs.deepseek.com/guides/reasoning_model), [DeepSeek changelog](https://api-docs.deepseek.com/updates/). | Friday has an explicit default agent catalog for DeepSeek. |
+
+## Large Language Models
+
+Official references: [DeepSeek list models](https://api-docs.deepseek.com/api/list-models/), [DeepSeek reasoning model](https://api-docs.deepseek.com/guides/reasoning_model), [DeepSeek changelog](https://api-docs.deepseek.com/updates/).
+
+Official model families: DeepSeek V4-Pro and V4-Flash, with legacy `deepseek-chat` and `deepseek-reasoner` aliases documented for migration windows.
+
+Friday status: Friday has an explicit default agent catalog for DeepSeek.
+
+Friday default agent models:
 
 | Model id | Display name |
 | --- | --- |
 | `deepseek-v4-pro` | DeepSeek V4-Pro |
 | `deepseek-v4-flash` | DeepSeek V4-Flash |
 
-Runtime notes:
+## Runtime Notes
 
 - Uses the dedicated DeepSeek adapter, which extends the OpenAI
   Chat Completions-compatible adapter.
@@ -29,7 +45,7 @@ Runtime notes:
   reaches the adapter; the main agent service currently only resolves effort for
   OpenAI.
 
-Example:
+## Example
 
 ```json
 {

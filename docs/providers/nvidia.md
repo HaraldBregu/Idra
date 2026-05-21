@@ -12,7 +12,26 @@
 | API-key link | [NVIDIA API keys](https://build.nvidia.com/settings/api-keys) |
 | Official docs | [NVIDIA NIM getting started](https://docs.nvidia.com/nim/large-language-models/latest/getting-started.html) |
 
-Default agent models:
+## Model Type Coverage
+
+Official model references were checked in May 2026. NVIDIA may expose additional account-, region-, or preview-gated models; verify the linked provider docs before adding runtime adapters.
+
+| Model type | Official provider coverage | Friday status |
+| --- | --- | --- |
+| Large Language Models | Hosted and self-hosted NIM LLM families including Llama, Nemotron, DeepSeek, Qwen, Mistral, Gemma, Granite, and other optimized profiles. Official references: [NVIDIA NIM for LLMs](https://docs.nvidia.com/nim/large-language-models/latest/index.html), [NIM support matrix](https://docs.nvidia.com/nim/large-language-models/latest/reference/support-matrix.html). | Friday has an explicit default agent catalog for NVIDIA. |
+| Speech-To-Text Models | NIM for Automatic Speech Recognition and NVIDIA Speech/Riva ASR model services. Official references: [NVIDIA NIM docs](https://docs.nvidia.com/nim/index.html). | Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for NVIDIA STT. |
+| Text-To-Speech Models | NIM for Text-To-Speech and NVIDIA Speech/Riva TTS model services. Official references: [NVIDIA NIM docs](https://docs.nvidia.com/nim/index.html). | Friday does not currently list NVIDIA in the TTS provider catalog. |
+| Vision And Embedding Models | NIM for Vision Language Models, text embedding, text reranking, image OCR, object detection, NV-CLIP, and visual generative AI. Official references: [NVIDIA NIM docs](https://docs.nvidia.com/nim/index.html). | Friday has no NVIDIA vision, embedding, rerank, OCR, or visual-generation catalog yet. |
+
+## Large Language Models
+
+Official references: [NVIDIA NIM for LLMs](https://docs.nvidia.com/nim/large-language-models/latest/index.html), [NIM support matrix](https://docs.nvidia.com/nim/large-language-models/latest/reference/support-matrix.html).
+
+Official model families: Hosted and self-hosted NIM LLM families including Llama, Nemotron, DeepSeek, Qwen, Mistral, Gemma, Granite, and other optimized profiles.
+
+Friday status: Friday has an explicit default agent catalog for NVIDIA.
+
+Friday default agent models:
 
 | Model id | Display name |
 | --- | --- |
@@ -21,7 +40,15 @@ Default agent models:
 | `llama-nemotron-nano` | Llama Nemotron Nano |
 | `nemotron-vl` | Nemotron VL |
 
-Speech-to-text models:
+## Speech-To-Text Models
+
+Official references: [NVIDIA NIM docs](https://docs.nvidia.com/nim/index.html).
+
+Official model families: NIM for Automatic Speech Recognition and NVIDIA Speech/Riva ASR model services.
+
+Friday status: Friday exposes the shared `speech-to-text-provider-coming-soon` placeholder for NVIDIA STT.
+
+Documented provider model ids:
 
 | Model id | Display name | Runtime style |
 | --- | --- | --- |
@@ -37,14 +64,30 @@ Speech-to-text models:
 | `canary-1b-asr` | Canary 1B ASR | Speech-to-text recognition and translation |
 | `whisper-large-v3` | Whisper Large v3 | ASR transcription through NVIDIA NIM catalog |
 
-Runtime notes:
+## Text-To-Speech Models
+
+Official references: [NVIDIA NIM docs](https://docs.nvidia.com/nim/index.html).
+
+Official model families: NIM for Text-To-Speech and NVIDIA Speech/Riva TTS model services.
+
+Friday status: Friday does not currently list NVIDIA in the TTS provider catalog.
+
+## Vision And Embedding Models
+
+Official references: [NVIDIA NIM docs](https://docs.nvidia.com/nim/index.html).
+
+Official model families: NIM for Vision Language Models, text embedding, text reranking, image OCR, object detection, NV-CLIP, and visual generative AI.
+
+Friday status: Friday has no NVIDIA vision, embedding, rerank, OCR, or visual-generation catalog yet.
+
+## Runtime Notes
 
 - Uses the generic OpenAI Chat Completions-compatible adapter.
 - Hosted NVIDIA NIM endpoints use NVIDIA API keys; self-hosted NIM deployments
   may use different auth.
 - Friday does not save or pass reasoning effort for NVIDIA.
 
-Example:
+## Example
 
 ```json
 {
