@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { AppIpc } from '../../../../src/main/ipc/app-ipc';
 import type { MainServiceContainer } from '../../../../src/main/service-registry';
-import { ProviderChannels } from '../../../../src/shared/ipc-channels';
+import { OperatorChannels, ProviderChannels } from '../../../../src/shared/ipc-channels';
 import type { Provider, PublicProvider } from '../../../../src/shared/providers';
 
 function registeredHandler(channel: string) {
@@ -95,6 +95,63 @@ describe('AppIpc', () => {
 		expect(setAgentService).toHaveBeenCalledWith('deepseek', {
 			id: 'deepseek-v4-pro',
 			name: 'DeepSeek V4-Pro',
+		});
+	});
+
+	it('returns text-to-speech models for configured providers', async () => {
+		const provider: Provider = {
+			id: 'elevenlabs',
+			name: 'ElevenLabs',
+			baseUrl: 'https://api.elevenlabs.io/v1',
+			apiKey: 'test-key',
+		};
+		const publicProvider: PublicProvider = {
+			id: provider.id,
+			name: provider.name,
+			baseUrl: provider.baseUrl,
+		};
+
+		new AppIpc().register(createContainer(provider), new EventBus());
+
+		await expect(
+			registeredHandler(OperatorChannels.getTextToSpeechModels)({}, publicProvider)
+		).resolves.toEqual({
+			success: true,
+			data: [{ id: 'rachel-multilingual', name: 'Rachel - multilingual' }],
+		});
+	});
+
+	it('normalizes text-to-video model saves through the catalog', async () => {
+		const provider: Provider = {
+			id: 'runway',
+			name: 'Runway',
+			baseUrl: 'https://api.dev.runwayml.com/v1',
+			apiKey: 'test-key',
+		};
+		const setTextToVideoOperator = jest.fn(() => true);
+		const publicProvider: PublicProvider = {
+			id: provider.id,
+			name: provider.name,
+			baseUrl: provider.baseUrl,
+		};
+
+		new AppIpc().register(
+			createContainer(provider, { setTextToVideoOperator }),
+			new EventBus()
+		);
+
+		await expect(
+			registeredHandler(OperatorChannels.saveTextToVideo)({}, publicProvider, {
+				id: 'video-provider-coming-soon',
+				name: 'Submitted name',
+			})
+		).resolves.toEqual({
+			success: true,
+			data: true,
+		});
+		expect(setTextToVideoOperator).toHaveBeenCalledWith('runway', {
+			id: 'video-provider-coming-soon',
+			name: 'Not available yet',
 		});
 	});
 });

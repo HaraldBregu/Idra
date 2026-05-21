@@ -73,8 +73,32 @@ const imageProvider: Provider = {
 	capabilities: 'Image',
 };
 
+const textToSpeechProvider: Provider = {
+	id: 'elevenlabs',
+	name: 'ElevenLabs',
+	apiKey: 'eleven-old',
+	baseUrl: 'https://api.elevenlabs.io/v1',
+};
+
+const videoProvider: Provider = {
+	id: 'runway',
+	name: 'Runway',
+	apiKey: 'runway-old',
+	baseUrl: 'https://api.dev.runwayml.com/v1',
+};
+
+const musicProvider: Provider = {
+	id: 'suno',
+	name: 'Suno',
+	apiKey: 'suno-old',
+	baseUrl: 'https://suno.com',
+};
+
 const model: Model = { id: 'gpt-5.4', name: 'GPT-5.4' };
 const imageModel: Model = { id: 'image-provider-coming-soon', name: 'Not available yet' };
+const textToSpeechModel: Model = { id: 'rachel-multilingual', name: 'Rachel - multilingual' };
+const videoModel: Model = { id: 'video-provider-coming-soon', name: 'Not available yet' };
+const musicModel: Model = { id: 'music-provider-coming-soon', name: 'Not available yet' };
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -780,6 +804,60 @@ describe('StoreService', () => {
 
 			expect(service.setImageCreatorOperator('black-forest-labs', model)).toBe(false);
 			expect(service.getImageCreatorOperator()).toBeUndefined();
+		});
+	});
+
+	describe('pending runtime model operators', () => {
+		it('persists compact text-to-speech, video, and music selections', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('modelProviders', [textToSpeechProvider, videoProvider, musicProvider]);
+
+			expect(service.setTextToSpeechOperator('elevenlabs', textToSpeechModel)).toBe(true);
+			expect(service.setTextToVideoOperator('runway', videoModel)).toBe(true);
+			expect(service.setMusicCreatorOperator('suno', musicModel)).toBe(true);
+
+			expect(store.get('textToSpeech')).toEqual({
+				providerId: 'elevenlabs',
+				modelId: 'rachel-multilingual',
+			});
+			expect(store.get('textToVideo')).toEqual({
+				providerId: 'runway',
+				modelId: 'video-provider-coming-soon',
+			});
+			expect(store.get('textToSound')).toEqual({
+				providerId: 'suno',
+				modelId: 'music-provider-coming-soon',
+			});
+			expect(service.getTextToSpeechOperator()).toMatchObject({
+				id: 'text-to-speech',
+				provider: { id: 'elevenlabs', name: 'ElevenLabs' },
+				model: textToSpeechModel,
+			});
+			expect(service.getTextToVideoOperator()).toMatchObject({
+				id: 'text-to-video',
+				provider: { id: 'runway', name: 'Runway' },
+				model: videoModel,
+			});
+			expect(service.getMusicCreatorOperator()).toMatchObject({
+				id: 'music-creator',
+				provider: { id: 'suno', name: 'Suno' },
+				model: musicModel,
+			});
+			expect(service.getMusicCreatorOperator()?.provider).not.toHaveProperty('apiKey');
+		});
+
+		it('rejects unsupported pending-runtime model selections', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('modelProviders', [textToSpeechProvider, videoProvider, anthropicProvider]);
+
+			expect(service.setTextToSpeechOperator('elevenlabs', model)).toBe(false);
+			expect(service.setTextToVideoOperator('runway', model)).toBe(false);
+			expect(service.setMusicCreatorOperator('anthropic', musicModel)).toBe(false);
+			expect(service.getTextToSpeechOperator()).toBeUndefined();
+			expect(service.getTextToVideoOperator()).toBeUndefined();
+			expect(service.getMusicCreatorOperator()).toBeUndefined();
 		});
 	});
 

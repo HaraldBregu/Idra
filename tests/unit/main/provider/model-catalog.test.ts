@@ -21,6 +21,12 @@ import {
 	getTextToSpeechModels,
 	getTextToVideoModels,
 } from '../../../../src/shared/models';
+import {
+	isAllowedMusicCreatorModel,
+	isAllowedSpeechToTextModel,
+	isAllowedTextToSpeechModel,
+	isAllowedTextToVideoModel,
+} from '../../../../src/shared/service';
 
 describe('provider model catalogs', () => {
 	it('returns speech-to-text models by provider', () => {
@@ -80,6 +86,20 @@ describe('provider model catalogs', () => {
 		);
 		expect(getModelsByCapability('music', 'minimax')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getModelsByCapability('embedding', 'openai')).toEqual([]);
+	});
+
+	it('validates model ids against each capability catalog', () => {
+		expect(isAllowedSpeechToTextModel('openai', 'gpt-realtime-whisper')).toBe(true);
+		expect(isAllowedSpeechToTextModel('openai', 'speech-to-text-provider-coming-soon')).toBe(
+			false
+		);
+		expect(isAllowedTextToSpeechModel('elevenlabs', 'rachel-multilingual')).toBe(true);
+		expect(isAllowedTextToSpeechModel('cartesia', 'text-to-speech-provider-coming-soon')).toBe(
+			true
+		);
+		expect(isAllowedTextToVideoModel('runway', 'video-provider-coming-soon')).toBe(true);
+		expect(isAllowedMusicCreatorModel('suno', 'music-provider-coming-soon')).toBe(true);
+		expect(isAllowedMusicCreatorModel('deepseek', 'music-provider-coming-soon')).toBe(false);
 	});
 
 	it('exposes the same provider catalogs through the shared models facade', () => {
