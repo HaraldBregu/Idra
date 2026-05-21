@@ -7,7 +7,7 @@ dictation and other audio transcription features.
 
 - `src/shared/service.ts`: speech-to-text module id, current settings shape,
   model metadata, realtime sample rate, and model validation helpers.
-- `src/main/store/service.ts`: persisted speech-to-text module selection and
+- `src/main/store/service.ts`: persisted root `speechToText` settings and
   legacy speech transcriber compatibility.
 - `src/main/ipc/app-ipc.ts`: Settings IPC for reading and saving the
   speech-to-text module selection.
@@ -81,23 +81,13 @@ a local model.
 
 ## Module Settings
 
-The speech-to-text module stores a public provider record and a selected model:
+The speech-to-text module stores provider and model ids at the root
+`speechToText` key:
 
 ```ts
 {
-	id: 'speech-to-text',
-	name: 'Speech to text',
-	docsPath: 'speech-to-text.md',
-	status: 'implemented',
-	provider: {
-		id: 'openai',
-		name: 'OpenAI',
-		baseUrl: 'https://api.openai.com/v1'
-	},
-	model: {
-		id: 'gpt-realtime-whisper',
-		name: 'GPT Realtime Whisper'
-	}
+	providerId: 'openai',
+	modelId: 'gpt-realtime-whisper',
 }
 ```
 
@@ -147,7 +137,7 @@ Runtime startup:
 1. `realtime-transcription:start` loads saved speech-to-text settings from
    `StoreService`.
 2. The main process verifies that the speech-to-text settings are configured.
-3. It reads provider id and model id from the saved settings.
+3. It reads `providerId` and `modelId` from `speechToText`.
 4. It loads API key, base URL, and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the speech-to-text adapter for the selected provider and model.

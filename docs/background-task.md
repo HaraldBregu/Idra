@@ -16,7 +16,8 @@ Module surfaces:
 - Registry: `TaskRegistry`.
 - LLM tool: `task`.
 - Renderer IPC: `tasks:*` channels.
-- Storage: in-memory only.
+- Storage: root `backgroundTask` settings for task policy; task records remain
+  in memory only.
 
 Dependencies:
 
@@ -259,6 +260,7 @@ The implemented task module owns these files:
 - `src/shared/ipc-channels.ts`: task IPC channel constants and invoke channel
   map entries.
 - `src/main/service-registry.ts`: service registration.
+- [store.md](store.md): persistent root `backgroundTask` settings.
 
 The task manager should use a `Map<string, InternalTaskState>` for in-memory
 storage. Internal state may include the handler promise and `AbortController`;

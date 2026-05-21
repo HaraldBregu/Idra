@@ -26,7 +26,7 @@ Module surfaces:
 
 Dependencies:
 
-- `StoreService` for saved module settings.
+- `StoreService` for saved root `embedding` settings.
 - Provider records and embedding adapters for hosted embedding models.
 - Local vector storage or an external vector backend.
 - Background task module for indexing and maintenance jobs.
@@ -34,12 +34,9 @@ Dependencies:
 
 ## Settings
 
-The module should store only public provider/model selection metadata and
-non-secret index configuration. Credentials, base URLs, and API keys must stay
-on configured provider records or secret-backed connector records.
-
-If legacy `rag` endpoint state is still present, treat it as compatibility
-storage, not as the module boundary.
+The module should store only provider/model ids and non-secret index
+configuration in `embedding`. Credentials, base URLs, and API keys must stay on
+configured provider records or secret-backed connector records.
 
 ## Runtime Flow
 
@@ -48,8 +45,7 @@ Target embedding flow:
 1. UI, task, schedule, or tool code passes text, file references, or query input
    to the embedding module service.
 2. The embedding module validates and chunks input where needed.
-3. The module resolves its saved provider/model or local runtime settings from
-   `StoreService`.
+3. The module resolves `embedding` settings from `StoreService`.
 4. The module creates an embedding adapter or local runtime.
 5. The module writes vectors to the selected index or returns normalized search
    results.

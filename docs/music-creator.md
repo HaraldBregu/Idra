@@ -7,7 +7,7 @@ for creating audio output.
 
 - `src/shared/service.ts`: sound module id, current settings shape, and model
   metadata.
-- `src/main/store/service.ts`: persisted sound module selection.
+- `src/main/store/service.ts`: persisted root `sound` settings.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
   module selections.
 - `src/main/tasks`: background task handlers that can request sound work.
@@ -64,23 +64,12 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The sound module stores a public provider record and a selected model:
+The sound module stores provider and model ids at the root `sound` key:
 
 ```ts
 {
-	id: 'music-creator',
-	name: 'Sound / music creator',
-	docsPath: 'music-creator.md',
-	status: 'pending-runtime',
-	provider: {
-		id: 'stability-ai',
-		name: 'Stability AI',
-		baseUrl: 'https://api.stability.ai/v2beta'
-	},
-	model: {
-		id: 'provider-sound-model',
-		name: 'Provider sound model'
-	}
+	providerId: 'stability-ai',
+	modelId: 'provider-sound-model',
 }
 ```
 
@@ -103,8 +92,8 @@ pass provider records, API keys, or base URLs.
 Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests sound work.
-2. The sound module reads its saved settings.
-3. It reads provider id and model id from the saved module settings.
+2. The sound module reads `sound`.
+3. It reads `providerId` and `modelId` from the saved module settings.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the sound adapter for the selected provider and model.

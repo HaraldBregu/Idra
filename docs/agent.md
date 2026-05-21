@@ -31,7 +31,7 @@ Service surfaces:
 
 Dependencies:
 
-- `StoreService` for configured provider records and saved agent settings.
+- `StoreService` for configured provider records and saved `agent` settings.
 - Provider adapters created by `makeProvider()`.
 - Session storage, tool construction, skills, hooks, and startup files supplied
   by the service layer.
@@ -86,9 +86,9 @@ Design boundary:
 
 Current source:
 
-- The stored agent service configuration comes from `StoreService.getAgentService`.
-- The provider id comes from `agent.provider.id`, trimmed and lowercased.
-- The model comes from `agent.model.id`, falling back to `agent.model.name`.
+- The saved agent service configuration comes from the root `agent` settings.
+- The provider id comes from `agent.providerId`, trimmed and lowercased.
+- The model comes from `agent.modelId`, trimmed before use.
 - Callers may pass `AgentSendOptions.providerId`; it is trimmed, lowercased,
   and used instead of the stored provider id for that run.
 - Callers may pass `AgentSendOptions.model`; it is trimmed and used instead of

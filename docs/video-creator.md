@@ -7,7 +7,7 @@ creating video output.
 
 - `src/shared/service.ts`: video module id, current settings shape, and model
   metadata.
-- `src/main/store/service.ts`: persisted video module selection.
+- `src/main/store/service.ts`: persisted root `video` settings.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
   module selections.
 - `src/main/tasks`: background task handlers that can request video work.
@@ -62,23 +62,12 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The video module stores a public provider record and a selected model:
+The video module stores provider and model ids at the root `video` key:
 
 ```ts
 {
-	id: 'video-creator',
-	name: 'Video creator',
-	docsPath: 'video-creator.md',
-	status: 'pending-runtime',
-	provider: {
-		id: 'runway',
-		name: 'Runway',
-		baseUrl: 'https://api.dev.runwayml.com/v1'
-	},
-	model: {
-		id: 'provider-video-model',
-		name: 'Provider video model'
-	}
+	providerId: 'runway',
+	modelId: 'provider-video-model',
 }
 ```
 
@@ -100,8 +89,8 @@ pass provider records, API keys, base URLs, or webhook secrets.
 Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests video work.
-2. The video module reads its saved settings.
-3. It reads provider id and model id from the saved module settings.
+2. The video module reads `video`.
+3. It reads `providerId` and `modelId` from the saved module settings.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the video adapter for the selected provider and model.

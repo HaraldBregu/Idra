@@ -14,8 +14,7 @@ Module surfaces:
 - Service/facade: `CronService` in the main process.
 - LLM tool: `cron`.
 - Renderer IPC: `cron:*` channels.
-- Storage: managed scheduler state under `cronScheduler` and Friday tool
-  schedules under `fridayCron`.
+- Storage: root `taskScheduler` settings.
 
 Dependencies:
 
@@ -247,7 +246,7 @@ resolves its own provider, model, endpoint, and runtime dependencies when it
 executes.
 
 Persisted module selections are storage details. Schedules should depend on
-task types and sanitized inputs, not on settings key names.
+task types and sanitized inputs, not on other module settings keys.
 
 Recommended module task types:
 

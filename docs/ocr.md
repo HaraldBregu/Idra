@@ -11,8 +11,9 @@ and it can be invoked through background tasks or scheduled work.
 Current runtime status:
 
 - `ocr.run` is implemented as a background task handler in
-  `src/main/tasks/handlers/ocr-task-handler.ts`.
-- The current handler reads the configured OCR endpoint from `StoreService`.
+`src/main/tasks/handlers/ocr-task-handler.ts`.
+- The current handler reads the configured root `ocr` settings from
+  `StoreService`.
 - A dedicated `src/main/ocr` module and provider/model picker are still future
   work.
 
@@ -25,16 +26,15 @@ Module surfaces:
 
 Dependencies:
 
-- `StoreService` for the saved OCR endpoint or future provider/model
-  selection.
+- `StoreService` for saved root `ocr` settings.
 - Provider records and OCR adapters when the module becomes provider-backed.
 - Background task module for immediate OCR jobs.
 - Task scheduler for scheduled OCR jobs.
 
 ## Settings
 
-The current compatibility state can include a future module selection record and
-a legacy OCR endpoint string.
+The `ocr` root key can store endpoint-backed settings now and provider/model
+settings later.
 
 Treat those as storage keys. The module name is OCR.
 
@@ -58,7 +58,7 @@ Target module flow:
 
 1. UI, task, schedule, or tool code passes document/image input to the OCR
    module service.
-2. The OCR module resolves its saved settings from `StoreService`.
+2. The OCR module resolves `ocr` from `StoreService`.
 3. The OCR module resolves endpoint/provider credentials from the configured
    provider record.
 4. The OCR adapter extracts text and returns a normalized OCR result.
