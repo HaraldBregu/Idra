@@ -1,4 +1,4 @@
-# Task Scheduler
+# Scheduled Tasks
 
 This document describes how the task scheduler module should create, persist,
 and evaluate schedules.

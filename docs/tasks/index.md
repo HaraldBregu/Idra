@@ -7,8 +7,8 @@ own or dispatch.
 
 | Module | Store key | Documentation | Purpose |
 | --- | --- | --- | --- |
-| Background task | `backgroundTask` | [background-task.md](background-task.md) | Runs immediate in-memory tasks through registered handlers. |
-| Task scheduler | `taskScheduler` | [task-scheduler.md](task-scheduler.md) | Persists schedules and creates due scheduled work. |
+| Background task | `backgroundTask` | [background.md](background.md) | Runs immediate in-memory tasks through registered handlers. |
+| Task scheduler | `taskScheduler` | [scheduled.md](scheduled.md) | Persists schedules and creates due scheduled work. |
 
 ## Current Background Task Types
 
