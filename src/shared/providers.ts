@@ -92,15 +92,6 @@ export const PROVIDER_API_CONFIGURATIONS = {
 			'Create keys in La Plateforme/admin console; use the same key across Mistral API calls subject to account permissions.',
 		],
 	},
-	cohere: {
-		credentialType: 'API key',
-		apiKeyManagementUrl: 'https://dashboard.cohere.com/api-keys',
-		configurationDocsUrl: 'https://docs.cohere.com/reference/about',
-		authMethod: 'Bearer/API key auth via official SDKs',
-		recommendedEnvVars: ['COHERE_API_KEY'],
-		baseUrls: ['https://api.cohere.com'],
-		importantNotes: ['Cohere distinguishes evaluation/trial keys and production keys.'],
-	},
 	deepseek: {
 		credentialType: 'API key',
 		apiKeyManagementUrl: 'https://platform.deepseek.com/api_keys',
@@ -147,45 +138,6 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		baseUrls: ['https://open.bigmodel.cn/api/paas/v4'],
 		importantNotes: [
 			'Zhipu/BigModel is the mainland China platform; Z.ai branding may use related GLM endpoints.',
-		],
-	},
-	baidu: {
-		credentialType: 'Qianfan API key / access token credentials',
-		apiKeyManagementUrl:
-			'https://console.bce.baidu.com/qianfan/ais/console/applicationConsole/application',
-		configurationDocsUrl: 'https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb',
-		authMethod: 'Qianfan API key or access-token flow depending on API generation',
-		recommendedEnvVars: [
-			'QIANFAN_API_KEY',
-			'QIANFAN_SECRET_KEY',
-			'QIANFAN_ACCESS_KEY',
-			'QIANFAN_SECRET_ACCESS_KEY',
-		],
-		baseUrls: ['https://qianfan.baidubce.com/v2'],
-		importantNotes: [
-			'Baidu Qianfan credentials can involve API key/secret or access-token management depending on SDK/API path.',
-		],
-	},
-	'tencent-hunyuan': {
-		credentialType: 'Tencent Cloud SecretId/SecretKey or Hunyuan API key',
-		apiKeyManagementUrl: 'https://console.cloud.tencent.com/cam/capi',
-		configurationDocsUrl: 'https://intl.cloud.tencent.com/ind/document/product/1290/79463',
-		authMethod: 'Tencent Cloud API 3.0 signature or Hunyuan API key depending on endpoint',
-		recommendedEnvVars: ['TENCENTCLOUD_SECRET_ID', 'TENCENTCLOUD_SECRET_KEY', 'HUNYUAN_API_KEY'],
-		baseUrls: [],
-		importantNotes: [
-			'Tencent Cloud services often use SecretId/SecretKey signing rather than a single API key; Hunyuan console also exposes API-key pages for some products/regions.',
-		],
-	},
-	'bytedance-seed': {
-		credentialType: 'BytePlus ModelArk API key',
-		apiKeyManagementUrl: 'https://console.byteplus.com/ark/region:ark+ap-southeast-1/apiKey',
-		configurationDocsUrl: 'https://docs.byteplus.com/en/docs/ModelArk/1399008',
-		authMethod: 'API key / Bearer token',
-		recommendedEnvVars: ['ARK_API_KEY', 'BYTEPLUS_API_KEY'],
-		baseUrls: ['https://ark.ap-southeast.bytepluses.com/api/v3'],
-		importantNotes: [
-			'Obtain and configure an API key, then enable the relevant ModelArk model service.',
 		],
 	},
 	minimax: {
@@ -250,21 +202,6 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		baseUrls: [],
 		importantNotes: [
 			'Midjourney has official product/user docs but no generally available official public API-key configuration page found.',
-		],
-	},
-	'adobe-firefly': {
-		credentialType: 'Adobe Developer API key/client credentials plus access token',
-		apiKeyManagementUrl: 'https://developer.adobe.com/console',
-		configurationDocsUrl: 'https://developer.adobe.com/firefly-services/docs/guides/get-started',
-		authMethod: 'Adobe API key + OAuth access token',
-		recommendedEnvVars: [
-			'FIREFLY_SERVICES_CLIENT_ID',
-			'FIREFLY_SERVICES_CLIENT_SECRET',
-			'FIREFLY_SERVICES_ACCESS_TOKEN',
-		],
-		baseUrls: ['https://firefly-api.adobe.io'],
-		importantNotes: [
-			'Firefly Services require Adobe Developer Console credentials and an access token; not just a static API key.',
 		],
 	},
 	kling: {
@@ -353,15 +290,6 @@ export const PROVIDER_API_CONFIGURATIONS = {
 			'Reka docs instruct users to obtain an API key by setting up an account in the Reka Platform.',
 		],
 	},
-	ai21: {
-		credentialType: 'API key',
-		apiKeyManagementUrl: 'https://studio.ai21.com/account/api-keys',
-		configurationDocsUrl: 'https://docs.ai21.com/docs/create-api-key',
-		authMethod: 'API key authentication',
-		recommendedEnvVars: ['AI21_API_KEY'],
-		baseUrls: ['https://api.ai21.com/studio/v1'],
-		importantNotes: ['Create keys in AI21 Studio settings; save/copy the key securely.'],
-	},
 	perplexity: {
 		credentialType: 'API key',
 		apiKeyManagementUrl: 'https://www.perplexity.ai/settings/api',
@@ -371,18 +299,6 @@ export const PROVIDER_API_CONFIGURATIONS = {
 		baseUrls: ['https://api.perplexity.ai'],
 		importantNotes: [
 			'API keys are shown only once; save immediately. Docs cover create/manage/rotate operations.',
-		],
-	},
-	nvidia: {
-		credentialType: 'NVIDIA API key / NGC API key depending on service',
-		apiKeyManagementUrl: 'https://build.nvidia.com/settings/api-keys',
-		configurationDocsUrl:
-			'https://docs.nvidia.com/nim/large-language-models/latest/getting-started.html',
-		authMethod: 'Bearer token for hosted NVIDIA NIM endpoints; NGC key for NGC services',
-		recommendedEnvVars: ['NVIDIA_API_KEY', 'NGC_API_KEY'],
-		baseUrls: ['https://integrate.api.nvidia.com/v1'],
-		importantNotes: [
-			'NVIDIA hosted NIM endpoints require a cloud API key; self-hosted NIM deployments may not require the same hosted key.',
 		],
 	},
 } as const satisfies Readonly<Record<string, ProviderApiConfiguration>>;
@@ -437,14 +353,6 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.mistral,
 	},
 	{
-		id: 'cohere',
-		name: 'Cohere',
-		baseUrl: 'https://api.cohere.com',
-		apiKey: '',
-		capabilities: 'Chat - Speech-to-text',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS.cohere,
-	},
-	{
 		id: 'deepseek',
 		name: 'DeepSeek',
 		baseUrl: 'https://api.deepseek.com',
@@ -475,30 +383,6 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		apiKey: '',
 		capabilities: 'Chat',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.zai,
-	},
-	{
-		id: 'baidu',
-		name: 'Baidu',
-		baseUrl: 'https://qianfan.baidubce.com/v2',
-		apiKey: '',
-		capabilities: 'Chat - Speech-to-text - Omni - Image',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS.baidu,
-	},
-	{
-		id: 'tencent-hunyuan',
-		name: 'Tencent Hunyuan',
-		baseUrl: 'https://hunyuan.tencent.com',
-		apiKey: '',
-		capabilities: 'Chat - Image - Video - 3D',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS['tencent-hunyuan'],
-	},
-	{
-		id: 'bytedance-seed',
-		name: 'ByteDance Seed',
-		baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-		apiKey: '',
-		capabilities: 'Chat - Image - Video - 3D',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS['bytedance-seed'],
 	},
 	{
 		id: 'minimax',
@@ -547,14 +431,6 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		apiKey: '',
 		capabilities: 'Image - Video',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.midjourney,
-	},
-	{
-		id: 'adobe-firefly',
-		name: 'Adobe Firefly',
-		baseUrl: 'https://firefly-api.adobe.io',
-		apiKey: '',
-		capabilities: 'Image - Video - Audio',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS['adobe-firefly'],
 	},
 	{
 		id: 'kling',
@@ -621,28 +497,12 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.reka,
 	},
 	{
-		id: 'ai21',
-		name: 'AI21 Labs',
-		baseUrl: 'https://api.ai21.com/studio/v1',
-		apiKey: '',
-		capabilities: 'Chat',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS.ai21,
-	},
-	{
 		id: 'perplexity',
 		name: 'Perplexity',
 		baseUrl: 'https://api.perplexity.ai',
 		apiKey: '',
 		capabilities: 'Research chat',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.perplexity,
-	},
-	{
-		id: 'nvidia',
-		name: 'NVIDIA',
-		baseUrl: 'https://integrate.api.nvidia.com/v1',
-		apiKey: '',
-		capabilities: 'Chat - Speech-to-text',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS.nvidia,
 	},
 ];
 
