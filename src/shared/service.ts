@@ -144,6 +144,9 @@ export const REALTIME_TRANSCRIPTION_SAMPLE_RATE = 24000;
 export const SPEECH_TO_TEXT_MODELS = [
 	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
 ] satisfies readonly Model[];
+export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
+	openai: SPEECH_TO_TEXT_MODELS,
+} as const satisfies Readonly<Record<string, readonly Model[]>>;
 export const TEXT_TO_SPEECH_OPERATOR_ID = 'text-to-speech';
 export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
 export const TEXT_TO_SPEECH_MODELS = [
@@ -178,7 +181,7 @@ export const OPERATOR_DEFINITIONS = {
 	speechToText: {
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		name: 'Speech to text',
-		docsPath: 'speech-to-text.md',
+		docsPath: 'stt.md',
 		status: 'implemented',
 	},
 	textToSpeech: {
@@ -257,6 +260,24 @@ export const DOCUMENT_READER_MODELS = DOCUMENT_READER_OCR_MODELS;
 
 export function isRealtimeSpeechTranscriberModel(modelId: string): boolean {
 	return modelId.trim() === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
+}
+
+function normalizeSpeechToTextProviderId(providerId: string): string {
+	return providerId.trim().toLowerCase();
+}
+
+export function getSpeechToTextModels(providerId: string): Model[] {
+	return (SPEECH_TO_TEXT_MODELS_BY_PROVIDER[normalizeSpeechToTextProviderId(providerId)] ?? [])
+		.map((model) => ({ ...model }));
+}
+
+export function hasSpeechToTextModels(providerId: string): boolean {
+	return getSpeechToTextModels(providerId).length > 0;
+}
+
+export function isAllowedSpeechToTextModel(providerId: string, modelId: string): boolean {
+	const normalizedModelId = modelId.trim();
+	return getSpeechToTextModels(providerId).some((model) => model.id === normalizedModelId);
 }
 
 export function isEndpointOperator(
