@@ -17,6 +17,9 @@ import {
 	MUSIC_CREATOR_MODELS,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_VIDEO_MODELS,
+	getMusicModelsByProvider,
+	getTextToSpeechModelsByProvider,
+	getTextToVideoModelsByProvider,
 } from '../../shared/provider-models';
 import type { CronTask } from '../../shared/cron';
 import {
@@ -237,15 +240,15 @@ function modelForModule(
 	if (key === 'speechToText') {
 		catalog = getSpeechToTextModels(settings.providerId);
 	} else if (key === 'textToSpeech') {
-		catalog = TEXT_TO_SPEECH_MODELS;
+		catalog = getTextToSpeechModelsByProvider(settings.providerId);
 	} else if (key === 'imageCreator') {
 		catalog = provider
 			? getImageCreatorModelsForProvider(provider)
 			: getImageCreatorModels(settings.providerId);
 	} else if (key === 'textToVideo') {
-		catalog = TEXT_TO_VIDEO_MODELS;
+		catalog = getTextToVideoModelsByProvider(settings.providerId);
 	} else if (key === 'textToSound') {
-		catalog = MUSIC_CREATOR_MODELS;
+		catalog = getMusicModelsByProvider(settings.providerId);
 	} else {
 		catalog = getDefaultAgentModels(settings.providerId);
 	}
