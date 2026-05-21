@@ -21,15 +21,13 @@ describe('settings navigation', () => {
 
 	it('keeps operator rows available for the settings overview', () => {
 		expect(SETTINGS_OPERATOR_ITEMS.map((item) => item.labelKey)).toEqual([
-			'settings.operators.fridayName',
+			'settings.operators.assistantName',
 			'settings.operators.speechTranscriberName',
 			'settings.operators.textToSpeechName',
 			'settings.operators.imageAssistantName',
 			'settings.operators.videoCreatorName',
 			'settings.operators.musicCreatorName',
 			'settings.operators.documentReaderName',
-			'settings.operators.cronTaskName',
-			'settings.operators.backgroundTaskName',
 		]);
 	});
 });
