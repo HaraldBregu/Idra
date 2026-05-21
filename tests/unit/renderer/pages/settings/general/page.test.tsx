@@ -189,6 +189,6 @@ describe('GeneralPage', () => {
 
 		await screen.findByText('Friday');
 
-		expect(screen.queryByText('settings.operators.fridayName')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.assistantName')).not.toBeInTheDocument();
 	});
 });
