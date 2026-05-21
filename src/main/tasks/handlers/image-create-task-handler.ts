@@ -96,6 +96,7 @@ function optionalReferences(input: Record<string, unknown>): TextToImageAssetRef
 	const value = input.references;
 	if (value === undefined || value === null) return undefined;
 	if (!Array.isArray(value)) throw new Error('references must be an array.');
+	if (value.length > 8) throw new Error('references can include at most 8 assets.');
 	return value.map((item) => {
 		assertRecord(item);
 		const type = item.type;
