@@ -475,7 +475,7 @@ export class StoreService {
 		key: ConfiguredModelOperatorKey
 	): ConfiguredModelOperator | undefined {
 		const rootKey = MODEL_MODULE_ROOT_KEYS[key];
-		const settings = readModelModuleSettings(this.store.get(rootKey));
+		const settings = this.getModelModuleSettings(rootKey);
 		if (settings) {
 			const provider = this.getProviderById(settings.providerId);
 			if (provider) {
@@ -498,6 +498,25 @@ export class StoreService {
 
 	private getLegacyOperator(): OperatorStoreState | undefined {
 		return this.store.get('service') as OperatorStoreState | undefined;
+	}
+
+	private getModelModuleSettings(rootKey: ModelModuleRootKey): ModelModuleSettings | undefined {
+		const settings = readModelModuleSettings(this.store.get(rootKey));
+		if (settings) return settings;
+		if (rootKey === 'llmAgent') return readModelModuleSettings(this.store.get('agent'));
+		return undefined;
+	}
+
+	private getStoredModelProviders(): Provider[] {
+		const modelProviders = this.store.get('modelProviders');
+		if (Array.isArray(modelProviders)) return modelProviders as Provider[];
+		const providers = this.store.get('providers');
+		return Array.isArray(providers) ? providers as Provider[] : [];
+	}
+
+	private setStoredModelProviders(providers: Provider[]): void {
+		this.store.set('modelProviders', providers);
+		this.store.delete('providers');
 	}
 
 	private getTaskSchedulerSettings(): TaskSchedulerSettings {
