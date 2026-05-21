@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "generated_at": "2026-05-19",
   "interpretation": "Interpreted user's 'branch assets' as 'brand assets'. URLs are asset/brand/press-kit/trademark pages where downloadable logos/media assets are available. Official provider URLs are preferred. If no official downloadable brand-asset page was found in this pass, the entry is marked as fallback/no_official_download_found and may include a third-party icon repository or the provider homepage/newsroom.",
-  "count": 35,
+  "count": 28,
   "providers": [
     {
       "provider": "OpenAI",
@@ -63,18 +63,6 @@
       "notes": "Official Mistral brand-assets page with full brand kit and individual model icons."
     },
     {
-      "provider": "Cohere",
-      "region": "Canada",
-      "official_asset_page_url": "https://cohere.com/newsroom",
-      "direct_download_url": "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/eb387f38d43d3987e636fb86591794f71aeb4b5d.zip",
-      "additional_official_asset_urls": [
-        "https://cdn.sanity.io/files/rjtqmwfu/web3-prod/ae474a39bc0f399f00257bd15b94d6c16689f483.zip"
-      ],
-      "asset_page_type": "official_newsroom_brand_assets",
-      "download_status": "direct_zip_available",
-      "notes": "Cohere newsroom includes logo ZIP and full media-resource ZIP."
-    },
-    {
       "provider": "DeepSeek",
       "region": "China",
       "official_asset_page_url": "https://www.deepseek.com/en/",
@@ -123,42 +111,6 @@
       "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
       "download_status": "no_official_download_page_found; fallback_available",
       "notes": "No official downloadable brand-kit page was found in this pass; Dashboard Icons provides SVG/PNG/WebP."
-    },
-    {
-      "provider": "Baidu / ERNIE",
-      "region": "China",
-      "official_asset_page_url": "https://ernie.baidu.com/",
-      "additional_official_asset_urls": [
-        "https://huggingface.co/baidu"
-      ],
-      "fallback_asset_page_url": "https://lobehub.com/icons/baidu",
-      "direct_download_url": null,
-      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
-      "download_status": "no_official_download_page_found; fallback_available",
-      "notes": "No official Baidu/ERNIE brand-kit download page was found in this pass; fallback icon repository included."
-    },
-    {
-      "provider": "Tencent / Hunyuan",
-      "region": "China",
-      "official_asset_page_url": "https://www.tencent.com/",
-      "additional_official_asset_urls": [
-        "https://hunyuan.tencent.com/"
-      ],
-      "fallback_asset_page_url": "https://lobehub.com/icons/hunyuan",
-      "direct_download_url": null,
-      "asset_page_type": "provider_homepage_plus_third_party_icon_repository",
-      "download_status": "no_official_download_page_found; fallback_available",
-      "notes": "No official Hunyuan downloadable brand kit was found in this pass; LobeHub has Hunyuan icon variants."
-    },
-    {
-      "provider": "ByteDance Seed",
-      "region": "China",
-      "official_asset_page_url": "https://seed.bytedance.com/en/models",
-      "fallback_asset_page_url": "https://brandfetch.com/bytedance.com",
-      "direct_download_url": null,
-      "asset_page_type": "provider_product_page_plus_third_party_brand_asset_repository",
-      "download_status": "no_official_download_page_found; fallback_available",
-      "notes": "No Seed-specific official brand kit found; ByteDance brand asset fallback included."
     },
     {
       "provider": "MiniMax / Hailuo",
@@ -249,19 +201,6 @@
       "notes": "Official trademark policy gives rules; no official downloadable logo pack found in this pass."
     },
     {
-      "provider": "Adobe / Firefly",
-      "region": "United States",
-      "official_asset_page_url": "https://www.adobe.com/legal/permissions/icons-web-logos.html",
-      "additional_official_asset_urls": [
-        "https://www.adobe.com/products/firefly.html"
-      ],
-      "fallback_asset_page_url": null,
-      "direct_download_url": null,
-      "asset_page_type": "official_icon_logo_permissions",
-      "download_status": "permission_guidelines; no_public_firefly_asset_kit_found",
-      "notes": "Adobe provides official permissions guidance for Adobe icons/logos; use may require permission."
-    },
-    {
       "provider": "Runway",
       "region": "United States",
       "official_asset_page_url": "https://runwayml.com/brand-guidelines",
@@ -314,16 +253,6 @@
       "notes": "No official downloadable brand-kit page found in this pass."
     },
     {
-      "provider": "AI21 Labs",
-      "region": "Israel",
-      "official_asset_page_url": "https://www.ai21.com/",
-      "fallback_asset_page_url": "https://brandfetch.com/ai21.com",
-      "direct_download_url": null,
-      "asset_page_type": "provider_homepage_plus_brandfetch_fallback",
-      "download_status": "no_official_download_page_found; fallback_may_be_available",
-      "notes": "No official downloadable brand-kit page found in this pass."
-    },
-    {
       "provider": "Amazon / AWS / Amazon Nova",
       "region": "United States",
       "official_asset_page_url": "https://press.aboutamazon.com/logos",
@@ -335,18 +264,6 @@
       "asset_page_type": "official_press_logo_page_and_aws_icon_resources",
       "download_status": "official_logo_and_architecture_icon_downloads_available",
       "notes": "Amazon Press Center has logos; AWS provides architecture icons and partner branding resources. Nova-specific public brand kit not found."
-    },
-    {
-      "provider": "NVIDIA / Nemotron",
-      "region": "United States",
-      "official_asset_page_url": "https://nvidianews.nvidia.com/multimedia/corporate/nvidia-logos",
-      "additional_official_asset_urls": [
-        "https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/"
-      ],
-      "direct_download_url": null,
-      "asset_page_type": "official_newsroom_logo_assets_and_brand_guidelines",
-      "download_status": "logos_available; usage_requires_authorization",
-      "notes": "NVIDIA Newsroom hosts logo assets; brand guidelines state use requires authorization."
     },
     {
       "provider": "Hume AI",

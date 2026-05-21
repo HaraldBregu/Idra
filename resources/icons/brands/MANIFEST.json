@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "generated_at": "2026-05-19T12:51:23.888955Z",
   "source_json": "/mnt/data/frontier_providers_brand_asset_urls_2026-05-19.json",
-  "provider_count": 35,
+  "provider_count": 28,
   "notes": [
     "Prepared folder contains official downloaded raster assets where accessible, plus public fallback SVG/PNG icon assets from local npm packages where no official public download was available.",
     "Font files were excluded by design and the final package was scanned for font extensions before zipping.",
@@ -65,15 +65,6 @@
       "download_status_from_source_list": "direct_zip_available"
     },
     {
-      "provider": "Cohere",
-      "folder": "cohere",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 9,
-      "source_url_count": 5,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "direct_zip_available"
-    },
-    {
       "provider": "DeepSeek",
       "folder": "deepseek",
       "official_downloaded_asset_count": 0,
@@ -106,33 +97,6 @@
       "official_downloaded_asset_count": 0,
       "fallback_asset_file_count": 33,
       "source_url_count": 3,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
-    },
-    {
-      "provider": "Baidu / ERNIE",
-      "folder": "baidu",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 38,
-      "source_url_count": 3,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
-    },
-    {
-      "provider": "Tencent / Hunyuan",
-      "folder": "tencent_hunyuan",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 36,
-      "source_url_count": 3,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "no_official_download_page_found; fallback_available"
-    },
-    {
-      "provider": "ByteDance Seed",
-      "folder": "bytedance",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 29,
-      "source_url_count": 2,
       "has_actual_asset_files": true,
       "download_status_from_source_list": "no_official_download_page_found; fallback_available"
     },
@@ -209,15 +173,6 @@
       "download_status_from_source_list": "no_official_download_page_found; fallback_available"
     },
     {
-      "provider": "Adobe / Firefly",
-      "folder": "adobe_firefly",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 18,
-      "source_url_count": 2,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "permission_guidelines; no_public_firefly_asset_kit_found"
-    },
-    {
       "provider": "Runway",
       "folder": "runway",
       "official_downloaded_asset_count": 0,
@@ -263,15 +218,6 @@
       "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
     },
     {
-      "provider": "AI21 Labs",
-      "folder": "ai21",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 12,
-      "source_url_count": 2,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "no_official_download_page_found; fallback_may_be_available"
-    },
-    {
       "provider": "Amazon / AWS / Amazon Nova",
       "folder": "amazon",
       "official_downloaded_asset_count": 0,
@@ -279,15 +225,6 @@
       "source_url_count": 3,
       "has_actual_asset_files": true,
       "download_status_from_source_list": "official_logo_and_architecture_icon_downloads_available"
-    },
-    {
-      "provider": "NVIDIA / Nemotron",
-      "folder": "nvidia",
-      "official_downloaded_asset_count": 0,
-      "fallback_asset_file_count": 11,
-      "source_url_count": 2,
-      "has_actual_asset_files": true,
-      "download_status_from_source_list": "logos_available; usage_requires_authorization"
     },
     {
       "provider": "Hume AI",
