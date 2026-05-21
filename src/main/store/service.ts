@@ -2,7 +2,10 @@ import Store from 'electron-store';
 import { getDefaultAgentModels, type Provider } from '../../shared/providers';
 import {
 	OPERATOR_DEFINITIONS,
+	getImageCreatorModels,
+	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
+	isAllowedImageCreatorModelForProvider,
 	isEndpointOperator,
 	isModelReasoningEffort,
 	type ConfiguredModelOperator,
@@ -49,18 +52,20 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 	keepAwakeEnabled: false,
 };
 
-type ConfiguredModelOperatorKey = 'assistant' | 'speechToText';
+type ConfiguredModelOperatorKey = 'assistant' | 'speechToText' | 'imageCreator';
+type LegacyBackedModelOperatorKey = 'assistant' | 'speechToText';
 type LegacyModelOperatorKey = 'agent' | 'speechTranscriber';
-type ModelModuleRootKey = 'llmAgent' | 'speechToText';
+type ModelModuleRootKey = 'llmAgent' | 'speechToText' | 'imageCreator';
 
 const LEGACY_MODEL_OPERATOR_KEYS = {
 	assistant: 'agent',
 	speechToText: 'speechTranscriber',
-} satisfies Record<ConfiguredModelOperatorKey, LegacyModelOperatorKey>;
+} satisfies Record<LegacyBackedModelOperatorKey, LegacyModelOperatorKey>;
 
 const MODEL_MODULE_ROOT_KEYS = {
 	assistant: 'llmAgent',
 	speechToText: 'speechToText',
+	imageCreator: 'imageCreator',
 } satisfies Record<ConfiguredModelOperatorKey, ModelModuleRootKey>;
 
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
@@ -130,7 +135,9 @@ function modelForModule(key: ConfiguredModelOperatorKey, settings: ModelModuleSe
 	const catalog =
 		key === 'speechToText'
 			? getSpeechToTextModels(settings.providerId)
-			: getDefaultAgentModels(settings.providerId);
+			: key === 'imageCreator'
+				? getImageCreatorModels(settings.providerId)
+				: getDefaultAgentModels(settings.providerId);
 	const model = catalog.find((entry) => entry.id === settings.modelId) ?? {
 		id: settings.modelId,
 		name: settings.modelId,
