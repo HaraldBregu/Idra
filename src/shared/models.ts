@@ -19,7 +19,11 @@ import {
 } from './service';
 
 export type { Model, ModelReasoningEffort };
-export { IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS, SPEECH_TO_TEXT_MODELS, TEXT_TO_SPEECH_MODELS };
+export {
+	IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS,
+	SPEECH_TO_TEXT_MODELS,
+	TEXT_TO_SPEECH_MODELS,
+};
 
 export type ModelCatalog = Readonly<Record<string, readonly Model[]>>;
 export type ModelCapability = 'llm' | 'speech-to-text' | 'text-to-speech' | 'text-to-image';
@@ -65,17 +69,17 @@ export function getTextToImageModelsForProvider(
 	return getImageCreatorModelsForProvider(provider);
 }
 
-export function getModelsByCapability(
-	capability: ModelCapability,
-	providerId: string
-): Model[] {
+export function getModelsByCapability(capability: ModelCapability, providerId: string): Model[] {
 	if (capability === 'llm') return getLlmModels(providerId);
 	if (capability === 'speech-to-text') return getSpeechToTextModels(providerId);
 	if (capability === 'text-to-speech') return getTextToSpeechModels(providerId);
 	return getTextToImageModels(providerId);
 }
 
-function modelCatalogForProviderCapability(capability: string, models: readonly Model[]): ModelCatalog {
+function modelCatalogForProviderCapability(
+	capability: string,
+	models: readonly Model[]
+): ModelCatalog {
 	return DEFAULT_PROVIDERS.reduce<Record<string, readonly Model[]>>((catalog, provider) => {
 		if (providerHasCapability(provider, capability)) {
 			catalog[provider.id] = models;
