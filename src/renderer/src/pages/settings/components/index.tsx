@@ -32,6 +32,7 @@ interface SettingsPageHeaderProps {
 	readonly title: ReactNode;
 	readonly description?: ReactNode;
 	readonly icon?: LucideIcon;
+	readonly iconNode?: ReactNode;
 	readonly action?: ReactNode;
 }
 
@@ -39,14 +40,17 @@ export function SettingsPageHeader({
 	title,
 	description,
 	icon: Icon,
+	iconNode,
 	action,
 }: SettingsPageHeaderProps): React.JSX.Element {
+	const renderedIcon = iconNode ?? (Icon ? <Icon className="size-3" strokeWidth={1.8} /> : null);
+
 	return (
 		<header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 			<div className="flex min-w-0 items-start gap-2">
-				{Icon && (
+				{renderedIcon && (
 					<div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
-						<Icon className="size-3" strokeWidth={1.8} />
+						{renderedIcon}
 					</div>
 				)}
 				<div className="min-w-0">

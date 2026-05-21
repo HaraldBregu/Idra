@@ -1,31 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import {
-	Bot,
-	ChevronRight,
-	CircleOff,
-	Hash,
-	MessageCircleMore,
-	Phone,
-	Send,
-} from 'lucide-react';
+import { ChevronRight, CircleOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
 import type { ChannelConnectionStatus, ChannelType } from '../../../../../../shared/channels';
 import type { ChannelCatalogEntry } from '../../../../../../shared/channel-catalog';
+import { ChannelIcon } from './ChannelIcon';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
-
-const CHANNEL_ICONS: Partial<Record<ChannelType, typeof Send>> = {
-	discord: MessageCircleMore,
-	slack: Hash,
-	telegram: Send,
-	whatsapp: Phone,
-};
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
@@ -81,7 +67,6 @@ const ChannelsPage: React.FC = () => {
 			<SettingsSection title={t('settings.channels.catalog')}>
 				<Card size="sm" className="gap-0! p-0!">
 					{catalog.map((entry, index) => {
-						const Icon = CHANNEL_ICONS[entry.id] ?? Bot;
 						const isRuntimeChannel = RUNTIME_CHANNELS.has(entry.id);
 						const status = statusByChannel[entry.id] ?? 'disconnected';
 
@@ -102,9 +87,7 @@ const ChannelsPage: React.FC = () => {
 										index === catalog.length - 1 && 'border-b-0'
 									)}
 								>
-									<ItemMedia variant="icon" className="size-7">
-										<Icon className="size-3.5" strokeWidth={1.8} />
-									</ItemMedia>
+									<ChannelIcon channelId={entry.id} name={entry.label} />
 									<ItemContent className="min-w-0">
 										<ItemTitle className="w-full max-w-full truncate">{entry.label}</ItemTitle>
 									</ItemContent>

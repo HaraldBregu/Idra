@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import {
-	Bot,
 	CircleOff,
 	Hash,
 	KeyRound,
 	Link2,
-	MessageCircleMore,
 	Phone,
 	Plus,
 	RadioTower,
-	Send,
 	Server,
 	ShieldCheck,
 	UserRound,
@@ -55,6 +52,7 @@ import type {
 	WhatsappChannelProperties,
 } from '../../../../../../../shared/channels';
 import { isChannelId, type ChannelCatalogEntry } from '../../../../../../../shared/channel-catalog';
+import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
@@ -84,13 +82,6 @@ const SERVER_CHANNELS = new Set<ChannelType>([
 	'tlon',
 	'twitch',
 ]);
-
-const CHANNEL_ICONS: Partial<Record<ChannelType, typeof Send>> = {
-	discord: MessageCircleMore,
-	slack: Hash,
-	telegram: Send,
-	whatsapp: Phone,
-};
 
 const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 
@@ -156,7 +147,7 @@ const ChannelDetailPage: React.FC = () => {
 		? getDefaultAccountConfig(selectedId, selectedConfig)
 		: emptyAccountConfig(selectedId ?? 'telegram');
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
-	const HeaderIcon = selectedId ? CHANNEL_ICONS[selectedId] ?? Bot : Bot;
+	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
 		if (!selectedId) return;
@@ -254,9 +245,18 @@ const ChannelDetailPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={selectedEntry?.label ?? t('settings.channels.configuration')}
+				title={selectedTitle}
 				description={selectedEntry?.blurb}
-				icon={HeaderIcon}
+				iconNode={
+					selectedId ? (
+						<ChannelIcon
+							channelId={selectedId}
+							name={selectedTitle}
+							className="size-full border-0 bg-transparent p-1"
+							fallbackClassName="size-3"
+						/>
+					) : undefined
+				}
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
