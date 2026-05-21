@@ -1,0 +1,22 @@
+# Google Chat Channel
+
+Catalog metadata for Friday's Google Chat channel.
+
+| Field | Value |
+| --- | --- |
+| Channel id | `googlechat` |
+| Label | Google Chat |
+| Aliases | `gchat`, `google-chat` |
+| Runtime | Catalog-only |
+
+Google Chat can be configured in Settings, but Friday does not currently bundle
+a Google Chat runtime adapter.
+
+## Platform Documentation
+
+- [Google Chat developer docs](https://developers.google.com/workspace/chat)
+- [Google Chat API reference](https://developers.google.com/workspace/chat/api/reference/rest)
+
+## Related Docs
+
+- [Channel subsystem](../channels.md)
