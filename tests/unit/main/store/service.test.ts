@@ -505,34 +505,23 @@ describe('StoreService', () => {
 			expect(service.getOperator()?.assistant).toBeDefined();
 		});
 
-		it('preserves existing rag and ocr values from the current service', () => {
-			const existing: OperatorStoreState = {
-				assistant: {
-					id: 'friday',
-					name: 'Assistant',
-					docsPath: 'agent.md',
-					status: 'implemented',
-					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-					model,
-				},
-				rag: 'existing-rag',
-				ocr: 'existing-ocr',
-			};
+		it('preserves safe llmAgent options when changing the assistant model', () => {
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
-				[openaiProvider]
-			);
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				existing
-			);
+			const store = storeFor(service);
+			store.set('modelProviders', [openaiProvider]);
+			store.set('llmAgent', {
+				providerId: 'openai',
+				modelId: 'old-model',
+				options: { agents: { defaultAgentId: 'main' } },
+			});
 
 			service.setAssistantOperator('openai', model);
 
-			const written = service.getOperator();
-			expect(written?.rag).toBe('existing-rag');
-			expect(written?.ocr).toBe('existing-ocr');
+			expect(store.get('llmAgent')).toEqual({
+				providerId: 'openai',
+				modelId: 'gpt-5.4',
+				options: { agents: { defaultAgentId: 'main' } },
+			});
 		});
 
 		it('does not create legacy rag and ocr fields when no current operator state exists', () => {
@@ -590,12 +579,12 @@ describe('StoreService', () => {
 
 			service.setAssistantOperator('openai', { ...model, effort: 'high' });
 
-			expect(store.get('agent')).toEqual({
+			expect(store.get('llmAgent')).toEqual({
 				providerId: 'openai',
 				modelId: 'gpt-5.4',
 				effort: 'high',
 			});
-			expect(store.get('llmAgent')).toBeUndefined();
+			expect(store.get('agent')).toBeUndefined();
 			expect(store.get('service')).toBeUndefined();
 		});
 	});
