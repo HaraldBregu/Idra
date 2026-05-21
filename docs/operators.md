@@ -133,14 +133,19 @@ overrides, but credentials still resolve from stored provider records.
 - Documentation: [stt.md](stt.md)
 - Runtime status: implemented through realtime transcription IPC
 
-Speech-to-text stores its provider and model on `operator.speechToText`.
+Speech-to-text stores its provider and model on `operator.speechToText`. The
+runtime should be a separated main-process STT module. IPC handlers pass audio
+and session commands to that module; they do not decide which provider or model
+to use.
 
-Current constraints:
+Provider/model rules:
 
-- Provider must be `openai`.
-- Model must be `gpt-realtime-whisper`.
-- Runtime socket model is `gpt-realtime` with transcription intent.
-- The OpenAI API key and base URL come from the stored `openai` provider.
+- Provider is not limited to one vendor.
+- Model is not limited to one STT model.
+- The selected provider and model come from `operator.speechToText`.
+- The STT module resolves API key, base URL, and provider configuration from
+  the matching configured provider in `StoreService`.
+- Provider-specific runtime details stay inside STT adapters.
 
 Operator-selection IPC:
 
@@ -155,9 +160,10 @@ Runtime IPC:
 - `realtime-transcription:cancel`
 - `realtime-transcription:event`
 
-The realtime transcription IPC rejects startup when the speech transcriber is
-not configured, the provider is not OpenAI, the selected model is not the
-realtime whisper model, or the OpenAI provider record has no API key.
+The realtime transcription IPC rejects startup when the speech-to-text operator
+is not configured, the selected provider record is missing credentials, the
+selected model does not support STT, or no adapter exists for the selected
+provider/model pair.
 
 ## Text To Speech
 
