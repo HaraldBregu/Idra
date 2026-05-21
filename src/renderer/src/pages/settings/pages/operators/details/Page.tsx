@@ -248,23 +248,28 @@ const OperatorDetailsPage: React.FC = () => {
 			};
 		}
 
-		if (isSpeechToTextOperator) {
+		if (isSpeechToTextOperator || isImageCreatorOperator) {
 			setLoadingModels(true);
 			setErrorMessage('');
-			void window.app
-				.getSpeechToTextModels(selectedProvider)
-				.then((speechModels) => {
+			const loadCapabilityModels = isImageCreatorOperator
+				? window.app.getImageCreatorModels(selectedProvider)
+				: window.app.getSpeechToTextModels(selectedProvider);
+			void loadCapabilityModels
+				.then((capabilityModels) => {
 					if (!mounted) return;
-					setModels(speechModels);
+					const currentOperator = isImageCreatorOperator
+						? currentImageCreatorOperator
+						: currentSpeechToTextOperator;
+					setModels(capabilityModels);
 					setModelId((current) => {
-						if (current && speechModels.some((model) => model.id === current)) return current;
+						if (current && capabilityModels.some((model) => model.id === current)) return current;
 						if (
-							currentSpeechToTextOperator?.provider.id === selectedProvider.id &&
-							speechModels.some((model) => model.id === currentSpeechToTextOperator.model.id)
+							currentOperator?.provider.id === selectedProvider.id &&
+							capabilityModels.some((model) => model.id === currentOperator.model.id)
 						) {
-							return currentSpeechToTextOperator.model.id;
+							return currentOperator.model.id;
 						}
-						return speechModels[0]?.id ?? '';
+						return capabilityModels[0]?.id ?? '';
 					});
 				})
 				.catch((error) => {
@@ -308,21 +313,39 @@ const OperatorDetailsPage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [currentAssistantOperator, currentSpeechToTextOperator, isSpeechToTextOperator, selectedProvider, t]);
+	}, [
+		currentAssistantOperator,
+		currentImageCreatorOperator,
+		currentSpeechToTextOperator,
+		isImageCreatorOperator,
+		isSpeechToTextOperator,
+		selectedProvider,
+		t,
+	]);
 
 	const modelOptions = useMemo(() => {
 		if (isSpeechToTextOperator) return models;
 
 		const byId = new Map(models.map((model) => [model.id, model]));
+		const currentModelOperator = isImageCreatorOperator
+			? currentImageCreatorOperator
+			: currentAssistantOperator;
 		if (
-			currentAssistantOperator?.provider.id === providerId &&
-			currentAssistantOperator.model.id &&
-			!byId.has(currentAssistantOperator.model.id)
+			currentModelOperator?.provider.id === providerId &&
+			currentModelOperator.model.id &&
+			!byId.has(currentModelOperator.model.id)
 		) {
-			byId.set(currentAssistantOperator.model.id, currentAssistantOperator.model);
+			byId.set(currentModelOperator.model.id, currentModelOperator.model);
 		}
 		return [...byId.values()];
-	}, [currentAssistantOperator, isSpeechToTextOperator, models, providerId]);
+	}, [
+		currentAssistantOperator,
+		currentImageCreatorOperator,
+		isImageCreatorOperator,
+		isSpeechToTextOperator,
+		models,
+		providerId,
+	]);
 
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
 	const showEffort = isAssistantOperator && supportsReasoningEffortProvider(providerId);
