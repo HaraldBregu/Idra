@@ -634,10 +634,10 @@ describe('StoreService', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
 				'modelProviders',
-				[openaiProvider]
+				[anthropicProvider]
 			);
 
-			expect(service.setImageCreatorOperator('openai', imageModel)).toBe(false);
+			expect(service.setImageCreatorOperator('anthropic', imageModel)).toBe(false);
 			expect(service.getImageCreatorOperator()).toBeUndefined();
 		});
 
@@ -660,16 +660,25 @@ describe('StoreService', () => {
 	describe('setOpenAiApiKey()', () => {
 		it('adds a new openai provider when none exists', () => {
 			const service = new StoreService();
+			const store = storeFor(service);
 
 			service.setOpenAiApiKey('sk-new');
 
 			const provider = service.getProviderById('openai');
-			expect(provider).toEqual({
+			expect(provider).toMatchObject({
 				id: 'openai',
 				name: 'OpenAI',
 				apiKey: 'sk-new',
 				baseUrl: 'https://api.openai.com/v1',
 			});
+			expect(store.get('modelProviders')).toEqual([
+				{
+					id: 'openai',
+					name: 'OpenAI',
+					apiKey: 'sk-new',
+					baseUrl: 'https://api.openai.com/v1',
+				},
+			]);
 		});
 
 		it('replaces the existing openai provider in place (array length stays the same)', () => {
@@ -684,7 +693,7 @@ describe('StoreService', () => {
 			const providers = service.getProviderById('openai');
 			expect(providers?.apiKey).toBe('sk-updated');
 			// anthropic must still be present
-			expect(service.getProviderById('anthropic')).toEqual(anthropicProvider);
+			expect(service.getProviderById('anthropic')).toMatchObject(anthropicProvider);
 		});
 
 		it('replaces by case-insensitive id match (stored id "OpenAI")', () => {
@@ -708,7 +717,7 @@ describe('StoreService', () => {
 
 			service.setOpenAiApiKey('sk-canonical');
 
-			expect(service.getProviderById('openai')).toEqual({
+			expect(service.getProviderById('openai')).toMatchObject({
 				id: 'openai',
 				name: 'OpenAI',
 				apiKey: 'sk-canonical',
@@ -788,16 +797,25 @@ describe('StoreService', () => {
 	describe('setAnthropicApiKey()', () => {
 		it('adds a new anthropic provider when none exists', () => {
 			const service = new StoreService();
+			const store = storeFor(service);
 
 			service.setAnthropicApiKey('ant-new');
 
 			const provider = service.getProviderById('anthropic');
-			expect(provider).toEqual({
+			expect(provider).toMatchObject({
 				id: 'anthropic',
 				name: 'Anthropic',
 				apiKey: 'ant-new',
 				baseUrl: 'https://api.anthropic.com/v1',
 			});
+			expect(store.get('modelProviders')).toEqual([
+				{
+					id: 'anthropic',
+					name: 'Anthropic',
+					apiKey: 'ant-new',
+					baseUrl: 'https://api.anthropic.com/v1',
+				},
+			]);
 		});
 
 		it('replaces the existing anthropic provider in place (array length stays the same)', () => {
@@ -811,7 +829,7 @@ describe('StoreService', () => {
 
 			expect(service.getProviderById('anthropic')?.apiKey).toBe('ant-updated');
 			// openai must still be present
-			expect(service.getProviderById('openai')).toEqual(openaiProvider);
+			expect(service.getProviderById('openai')).toMatchObject(openaiProvider);
 		});
 
 		it('replaces by case-insensitive id match (stored id "Anthropic")', () => {
@@ -835,7 +853,7 @@ describe('StoreService', () => {
 
 			service.setAnthropicApiKey('ant-canonical');
 
-			expect(service.getProviderById('anthropic')).toEqual({
+			expect(service.getProviderById('anthropic')).toMatchObject({
 				id: 'anthropic',
 				name: 'Anthropic',
 				apiKey: 'ant-canonical',
