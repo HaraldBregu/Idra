@@ -5,7 +5,10 @@ import OverviewPage from '../../../../../../src/renderer/src/pages/settings/page
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
-		t: (key: string) => key,
+		t: (key: string) => {
+			if (key === 'settings.operators.assistantName') return 'AI Assistant';
+			return key;
+		},
 	}),
 }));
 
@@ -46,7 +49,7 @@ describe('OverviewPage', () => {
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.channels',
-			'settings.operators.assistantName',
+				'AI Assistant',
 			'settings.operators.speechTranscriberName',
 			'settings.operators.textToSpeechName',
 			'settings.operators.imageAssistantName',
@@ -74,7 +77,7 @@ describe('OverviewPage', () => {
 		const user = userEvent.setup();
 		renderOverviewPage();
 
-		await user.click(screen.getByRole('button', { name: /settings\.operators\.assistantName/ }));
+		await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
 	});
