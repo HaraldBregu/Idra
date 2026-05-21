@@ -136,7 +136,23 @@ export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
 export const SPEECH_TO_TEXT_MODELS = [
 	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
 ] satisfies readonly ProviderModel[];
+export const SPEECH_TO_TEXT_PROVIDER_MODELS = [
+	{ id: 'speech-to-text-provider-coming-soon', name: 'Provider speech-to-text model' },
+] satisfies readonly ProviderModel[];
+export const SPEECH_TO_TEXT_PROVIDER_IDS = [
+	'openai',
+	'google',
+	'xai',
+	'mistral',
+	'cohere',
+	'qwen',
+	'baidu',
+	'elevenlabs',
+	'deepgram',
+	'nvidia',
+] as const;
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER: ModelCatalog = {
+	...modelsByProviderIds(SPEECH_TO_TEXT_PROVIDER_IDS, SPEECH_TO_TEXT_PROVIDER_MODELS),
 	[SPEECH_TRANSCRIBER_PROVIDER_ID]: SPEECH_TO_TEXT_MODELS,
 };
 
@@ -149,6 +165,7 @@ export const TEXT_TO_SPEECH_PROVIDER_MODELS = [
 ] satisfies readonly ProviderModel[];
 export const TEXT_TO_SPEECH_PROVIDER_IDS = [
 	'openai',
+	'google',
 	'mistral',
 	'minimax',
 	'elevenlabs',
