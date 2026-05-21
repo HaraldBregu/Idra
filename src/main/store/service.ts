@@ -7,6 +7,9 @@ import {
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
 	isAllowedImageCreatorModelForProvider,
+	isAllowedMusicCreatorModel,
+	isAllowedTextToSpeechModel,
+	isAllowedTextToVideoModel,
 	isModelReasoningEffort,
 	type ConfiguredModelOperator,
 	type Model,
@@ -488,8 +491,20 @@ export class StoreService {
 		return this.getConfiguredModelOperator('speechToText');
 	}
 
+	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('textToSpeech');
+	}
+
 	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('imageCreator');
+	}
+
+	getTextToVideoOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('textToVideo');
+	}
+
+	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('textToSound');
 	}
 
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
@@ -527,6 +542,25 @@ export class StoreService {
 		return true;
 	}
 
+	setTextToSpeechOperator(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedTextToSpeechModel(provider.id, model.id)) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('textToSpeech');
+		const catalogModel = getTextToSpeechModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
+		this.store.set(
+			'textToSpeech',
+			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
+		);
+		return true;
+	}
+
 	setImageCreatorOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
@@ -539,6 +573,44 @@ export class StoreService {
 			(entry) => entry.id === model.id
 		);
 		this.store.set('imageCreator', modelModuleSettings(provider.id, catalogModel ?? model));
+		return true;
+	}
+
+	setTextToVideoOperator(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedTextToVideoModel(provider.id, model.id)) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('textToVideo');
+		const catalogModel = getTextToVideoModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
+		this.store.set(
+			'textToVideo',
+			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
+		);
+		return true;
+	}
+
+	setMusicCreatorOperator(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedMusicCreatorModel(provider.id, model.id)) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('textToSound');
+		const catalogModel = getMusicModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
+		this.store.set(
+			'textToSound',
+			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
+		);
 		return true;
 	}
 

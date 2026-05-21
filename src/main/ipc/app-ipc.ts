@@ -5,8 +5,14 @@ import type { MainServiceContainer } from '../service-registry';
 import {
 	getSpeechToTextModels,
 	getImageCreatorModelsForProvider,
+	getMusicCreatorModels,
+	getTextToSpeechModels,
+	getTextToVideoModels,
 	isAllowedSpeechToTextModel,
 	isAllowedImageCreatorModelForProvider,
+	isAllowedMusicCreatorModel,
+	isAllowedTextToSpeechModel,
+	isAllowedTextToVideoModel,
 	requireModelReasoningEffort,
 	supportsModelReasoningEffortProvider,
 	type Agent,
@@ -48,10 +54,26 @@ import { normalizeExternalUrl } from '../../shared/external-links';
 const VALID_LANGUAGES = ['en', 'it'] as const;
 
 function speechToTextModelOrThrow(providerId: string, model: Model): Model {
-	if (!isAllowedSpeechToTextModel(providerId, model.id)) {
-		throw new Error(`Model is not supported for speech-to-text: ${model.id}`);
+	return catalogModelOrThrow(
+		providerId,
+		model,
+		getSpeechToTextModels,
+		isAllowedSpeechToTextModel,
+		'speech-to-text'
+	);
+}
+
+function catalogModelOrThrow(
+	providerId: string,
+	model: Model,
+	getModelsForProvider: (providerId: string) => Model[],
+	isAllowedModel: (providerId: string, modelId: string) => boolean,
+	label: string
+): Model {
+	if (!isAllowedModel(providerId, model.id)) {
+		throw new Error(`Model is not supported for ${label}: ${model.id}`);
 	}
-	const catalogModel = getSpeechToTextModels(providerId).find((option) => option.id === model.id);
+	const catalogModel = getModelsForProvider(providerId).find((option) => option.id === model.id);
 	return {
 		id: catalogModel?.id ?? model.id,
 		name: catalogModel?.name ?? model.name,
@@ -479,6 +501,44 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			OperatorChannels.getTextToSpeech,
+			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
+				return store.getTextToSpeechOperator();
+			}, OperatorChannels.getTextToSpeech)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getTextToSpeechModels,
+			wrapSimpleHandler((provider: PublicProvider): Model[] => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return getTextToSpeechModels(storedProvider.id);
+			}, OperatorChannels.getTextToSpeechModels)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.saveTextToSpeech,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return store.setTextToSpeechOperator(
+					storedProvider.id,
+					catalogModelOrThrow(
+						storedProvider.id,
+						model,
+						getTextToSpeechModels,
+						isAllowedTextToSpeechModel,
+						'text-to-speech work'
+					)
+				);
+			}, OperatorChannels.saveTextToSpeech)
+		);
+
+		ipcMain.handle(
 			OperatorChannels.getImageCreator,
 			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
 				return store.getImageCreatorOperator();
@@ -511,6 +571,82 @@ export class AppIpc implements IpcModule {
 					name: model.name,
 				});
 			}, OperatorChannels.saveImageCreator)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getTextToVideo,
+			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
+				return store.getTextToVideoOperator();
+			}, OperatorChannels.getTextToVideo)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getTextToVideoModels,
+			wrapSimpleHandler((provider: PublicProvider): Model[] => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return getTextToVideoModels(storedProvider.id);
+			}, OperatorChannels.getTextToVideoModels)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.saveTextToVideo,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return store.setTextToVideoOperator(
+					storedProvider.id,
+					catalogModelOrThrow(
+						storedProvider.id,
+						model,
+						getTextToVideoModels,
+						isAllowedTextToVideoModel,
+						'text-to-video work'
+					)
+				);
+			}, OperatorChannels.saveTextToVideo)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getMusicCreator,
+			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
+				return store.getMusicCreatorOperator();
+			}, OperatorChannels.getMusicCreator)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getMusicCreatorModels,
+			wrapSimpleHandler((provider: PublicProvider): Model[] => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return getMusicCreatorModels(storedProvider.id);
+			}, OperatorChannels.getMusicCreatorModels)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.saveMusicCreator,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return store.setMusicCreatorOperator(
+					storedProvider.id,
+					catalogModelOrThrow(
+						storedProvider.id,
+						model,
+						getMusicCreatorModels,
+						isAllowedMusicCreatorModel,
+						'music creation work'
+					)
+				);
+			}, OperatorChannels.saveMusicCreator)
 		);
 
 		ipcMain.handle(

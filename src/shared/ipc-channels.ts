@@ -43,9 +43,18 @@ export const OperatorChannels = {
 	getSpeechToText: 'operator:get-speech-to-text',
 	getSpeechToTextModels: 'operator:get-speech-to-text-models',
 	saveSpeechToText: 'operator:save-speech-to-text',
+	getTextToSpeech: 'operator:get-text-to-speech',
+	getTextToSpeechModels: 'operator:get-text-to-speech-models',
+	saveTextToSpeech: 'operator:save-text-to-speech',
 	getImageCreator: 'operator:get-image-creator',
 	getImageCreatorModels: 'operator:get-image-creator-models',
 	saveImageCreator: 'operator:save-image-creator',
+	getTextToVideo: 'operator:get-text-to-video',
+	getTextToVideoModels: 'operator:get-text-to-video-models',
+	saveTextToVideo: 'operator:save-text-to-video',
+	getMusicCreator: 'operator:get-music-creator',
+	getMusicCreatorModels: 'operator:get-music-creator-models',
+	saveMusicCreator: 'operator:save-music-creator',
 } as const;
 
 export const RealtimeTranscriptionChannels = {
@@ -285,6 +294,18 @@ interface AppInvokeChannelMap {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};
+	[OperatorChannels.getTextToSpeech]: {
+		args: [];
+		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.getTextToSpeechModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
+	};
+	[OperatorChannels.saveTextToSpeech]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
 	[OperatorChannels.getImageCreator]: {
 		args: [];
 		result: import('./service').ConfiguredModelOperator | undefined;
@@ -294,6 +315,30 @@ interface AppInvokeChannelMap {
 		result: import('./service').Model[];
 	};
 	[OperatorChannels.saveImageCreator]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[OperatorChannels.getTextToVideo]: {
+		args: [];
+		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.getTextToVideoModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
+	};
+	[OperatorChannels.saveTextToVideo]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[OperatorChannels.getMusicCreator]: {
+		args: [];
+		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.getMusicCreatorModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
+	};
+	[OperatorChannels.saveMusicCreator]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};

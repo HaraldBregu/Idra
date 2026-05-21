@@ -254,6 +254,15 @@ export const app: AppApi = {
 	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(OperatorChannels.saveSpeechToText, provider, model);
 	},
+	getTextToSpeechOperator: (): Promise<ConfiguredModelOperator | undefined> => {
+		return typedInvokeUnwrap(OperatorChannels.getTextToSpeech);
+	},
+	getTextToSpeechModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(OperatorChannels.getTextToSpeechModels, provider);
+	},
+	saveTextToSpeechOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(OperatorChannels.saveTextToSpeech, provider, model);
+	},
 	getImageCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
 		return typedInvokeUnwrap(OperatorChannels.getImageCreator);
 	},
@@ -262,6 +271,24 @@ export const app: AppApi = {
 	},
 	saveImageCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(OperatorChannels.saveImageCreator, provider, model);
+	},
+	getTextToVideoOperator: (): Promise<ConfiguredModelOperator | undefined> => {
+		return typedInvokeUnwrap(OperatorChannels.getTextToVideo);
+	},
+	getTextToVideoModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(OperatorChannels.getTextToVideoModels, provider);
+	},
+	saveTextToVideoOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(OperatorChannels.saveTextToVideo, provider, model);
+	},
+	getMusicCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
+		return typedInvokeUnwrap(OperatorChannels.getMusicCreator);
+	},
+	getMusicCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(OperatorChannels.getMusicCreatorModels, provider);
+	},
+	saveMusicCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(OperatorChannels.saveMusicCreator, provider, model);
 	},
 	getAgentService: (): Promise<Agent | undefined> => {
 		return typedInvokeUnwrap(ProviderChannels.getAgentService);
