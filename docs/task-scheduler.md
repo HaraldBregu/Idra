@@ -245,8 +245,8 @@ and sanitized task input only. The task handler or target main-process module
 resolves its own provider, model, endpoint, and runtime dependencies when it
 executes.
 
-Persisted module selections are storage details. Schedules should depend on
-task types and sanitized inputs, not on other module settings keys.
+Persisted module settings are storage details. Schedules should depend on task
+types and sanitized inputs, not on other module settings keys.
 
 Recommended module task types:
 
