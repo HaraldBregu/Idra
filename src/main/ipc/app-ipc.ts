@@ -36,6 +36,13 @@ import {
 	OperatorChannels,
 	ProviderChannels,
 } from '../../shared/ipc-channels';
+
+const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
+	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
+	ScreenCapture: 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
+	Camera: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Camera',
+	Microphone: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone',
+};
 import { normalizeExternalUrl } from '../../shared/external-links';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
