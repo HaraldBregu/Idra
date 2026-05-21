@@ -129,10 +129,11 @@ const OperatorDetailsPage: React.FC = () => {
 	const isDocumentReaderOcrOperator = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
 	const isCronTaskOperator = decodedOperatorId === CRON_TASK_SCHEDULER_OPERATOR_ID;
 	const isBackgroundTaskOperator = decodedOperatorId === BACKGROUND_TASK_OPERATOR_ID;
-	const isRuntimeBackedOperator = isAssistantOperator || isSpeechToTextOperator;
+	const isRuntimeBackedOperator = isAssistantOperator || isSpeechToTextOperator || isImageCreatorOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<ConfiguredModelOperator | undefined>();
 	const [currentSpeechToTextOperator, setCurrentSpeechToTextOperator] = useState<ConfiguredModelOperator | undefined>();
+	const [currentImageCreatorOperator, setCurrentImageCreatorOperator] = useState<ConfiguredModelOperator | undefined>();
 	const [providerId, setProviderId] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [modelId, setModelId] = useState('');
@@ -162,48 +163,51 @@ const OperatorDetailsPage: React.FC = () => {
 
 		const operatorRequest = isSpeechToTextOperator
 			? window.app.getSpeechToTextOperator()
-			: window.app.getAssistantOperator();
+			: isImageCreatorOperator
+				? window.app.getImageCreatorOperator()
+				: window.app.getAssistantOperator();
 
 		void Promise.all([window.app.getProviders(), operatorRequest])
 			.then(async ([nextProviders, nextOperator]) => {
 				if (!mounted) return;
 				const mergedProviders = mergeProviders(nextProviders, nextOperator);
-				const speechModelsByProvider = new Map<string, Model[]>();
+				const capabilityModelsByProvider = new Map<string, Model[]>();
 				let availableProviders = mergedProviders;
-				if (isSpeechToTextOperator) {
-					const providersWithSpeechModels: PublicProvider[] = [];
+				if (isSpeechToTextOperator || isImageCreatorOperator) {
+					const providersWithCapabilityModels: PublicProvider[] = [];
 					for (const provider of mergedProviders) {
-						const nextModels = await window.app.getSpeechToTextModels(provider).catch(() => []);
+						const nextModels = isImageCreatorOperator
+							? await window.app.getImageCreatorModels(provider).catch(() => [])
+							: await window.app.getSpeechToTextModels(provider).catch(() => []);
 						if (nextModels.length > 0 || provider.id === nextOperator?.provider.id) {
-							providersWithSpeechModels.push(provider);
-							speechModelsByProvider.set(provider.id, nextModels);
+							providersWithCapabilityModels.push(provider);
+							capabilityModelsByProvider.set(provider.id, nextModels);
 						}
 					}
-					availableProviders = providersWithSpeechModels;
+					availableProviders = providersWithCapabilityModels;
 				}
-				const preferredProvider = isSpeechToTextOperator
-					? availableProviders.find((provider) => provider.id === nextOperator?.provider.id) ??
-						availableProviders[0]
-					: availableProviders.find((provider) => provider.id === nextOperator?.provider.id) ??
-						availableProviders[0];
-				const preferredSpeechModels = preferredProvider
-					? speechModelsByProvider.get(preferredProvider.id) ?? []
+				const preferredProvider =
+					availableProviders.find((provider) => provider.id === nextOperator?.provider.id) ??
+					availableProviders[0];
+				const preferredCapabilityModels = preferredProvider
+					? capabilityModelsByProvider.get(preferredProvider.id) ?? []
 					: [];
-				const preferredSpeechModelId =
+				const preferredCapabilityModelId =
 					nextOperator &&
-					preferredProvider?.id === nextOperator.provider.id &&
-					preferredSpeechModels.some((model) => model.id === nextOperator.model.id)
+						preferredProvider?.id === nextOperator.provider.id &&
+						preferredCapabilityModels.some((model) => model.id === nextOperator.model.id)
 						? nextOperator.model.id
-						: preferredSpeechModels[0]?.id ?? '';
+						: preferredCapabilityModels[0]?.id ?? '';
 
 				setProviders(availableProviders);
 				setCurrentAssistantOperator(isAssistantOperator ? nextOperator : undefined);
 				setCurrentSpeechToTextOperator(isSpeechToTextOperator ? nextOperator : undefined);
+				setCurrentImageCreatorOperator(isImageCreatorOperator ? nextOperator : undefined);
 				setProviderId(preferredProvider?.id ?? '');
 				setModelId(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id
-						? isSpeechToTextOperator ? preferredSpeechModelId : nextOperator.model.id
-						: isSpeechToTextOperator ? preferredSpeechModelId : ''
+						? isSpeechToTextOperator || isImageCreatorOperator ? preferredCapabilityModelId : nextOperator.model.id
+						: isSpeechToTextOperator || isImageCreatorOperator ? preferredCapabilityModelId : ''
 				);
 				setEffort(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id && isAssistantOperator
@@ -216,6 +220,7 @@ const OperatorDetailsPage: React.FC = () => {
 				setProviders([]);
 				setCurrentAssistantOperator(undefined);
 				setCurrentSpeechToTextOperator(undefined);
+				setCurrentImageCreatorOperator(undefined);
 				setProviderId('');
 				setModelId('');
 				setEffort(DEFAULT_MODEL_REASONING_EFFORT);
@@ -228,7 +233,7 @@ const OperatorDetailsPage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [isAssistantOperator, isRuntimeBackedOperator, isSpeechToTextOperator, t]);
+	}, [isAssistantOperator, isImageCreatorOperator, isRuntimeBackedOperator, isSpeechToTextOperator, t]);
 
 	const selectedProvider = providers.find((provider) => provider.id === providerId);
 
