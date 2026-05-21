@@ -8,9 +8,12 @@ import {
 	IMAGE_CREATOR_MODELS,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TO_TEXT_MODELS,
+	getMusicModelsByProvider,
 	TEXT_TO_VIDEO_MODELS,
 	getSpeechToTextModelsByProvider,
 	getTextToImageModelsByProvider,
+	getTextToSpeechModelsByProvider,
+	getTextToVideoModelsByProvider,
 } from './provider-models';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
@@ -271,6 +274,15 @@ export function isAllowedSpeechToTextModel(providerId: string, modelId: string):
 	return getSpeechToTextModels(providerId).some((model) => model.id === normalizedModelId);
 }
 
+export function getTextToSpeechModels(providerId: string): Model[] {
+	return getTextToSpeechModelsByProvider(providerId);
+}
+
+export function isAllowedTextToSpeechModel(providerId: string, modelId: string): boolean {
+	const normalizedModelId = modelId.trim();
+	return getTextToSpeechModels(providerId).some((model) => model.id === normalizedModelId);
+}
+
 export function getImageCreatorModelsForProvider(
 	provider: Pick<Provider, 'id' | 'capabilities'>
 ): Model[] {
@@ -298,6 +310,24 @@ export function isAllowedImageCreatorModelForProvider(
 ): boolean {
 	const normalizedModelId = modelId.trim();
 	return getImageCreatorModelsForProvider(provider).some((model) => model.id === normalizedModelId);
+}
+
+export function getTextToVideoModels(providerId: string): Model[] {
+	return getTextToVideoModelsByProvider(providerId);
+}
+
+export function isAllowedTextToVideoModel(providerId: string, modelId: string): boolean {
+	const normalizedModelId = modelId.trim();
+	return getTextToVideoModels(providerId).some((model) => model.id === normalizedModelId);
+}
+
+export function getMusicCreatorModels(providerId: string): Model[] {
+	return getMusicModelsByProvider(providerId);
+}
+
+export function isAllowedMusicCreatorModel(providerId: string, modelId: string): boolean {
+	const normalizedModelId = modelId.trim();
+	return getMusicCreatorModels(providerId).some((model) => model.id === normalizedModelId);
 }
 
 export function isEndpointOperator(
