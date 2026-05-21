@@ -43,7 +43,7 @@ Operator cards are defined by `SETTINGS_OPERATOR_ITEMS`.
 | Speech to text | `speech-to-text` | Runtime-backed provider/transcription model settings. |
 | Text to speech | `text-to-speech` | Read-only pending configuration with ElevenLabs / Rachel - multilingual. |
 | Image creator | `image-assistant` | Runtime-backed settings page, but model catalog is placeholder unless a provider exposes image models. |
-| Text to video | `text-to-video` | Read-only pending configuration with `video-provider-coming-soon`. |
+| Text to video | `video-creator` | Read-only pending configuration with `video-provider-coming-soon`. |
 | Music creator | `music-creator` | Read-only pending configuration with `music-provider-coming-soon`. |
 | Document reader OCR | `document-reader` | Read-only pending configuration with `document-reader-provider-coming-soon`. |
 | Cron task scheduler | `cron-task-scheduler` | Workflow-backed page that links to Cron configuration. |
