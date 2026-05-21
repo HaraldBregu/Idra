@@ -201,6 +201,10 @@ export interface AppApi {
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
 	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
+	openSystemPreference: (pane: SystemPreferencePaneId) => Promise<void>;
+	getCameraPermission: () => Promise<CameraPermissionSettings>;
+	setCameraEnabled: (enabled: boolean) => Promise<CameraPermissionSettings>;
+	requestCameraPermission: () => Promise<CameraPermissionSettings>;
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;
