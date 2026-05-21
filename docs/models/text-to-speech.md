@@ -36,15 +36,26 @@ The Settings model picker should show provider/model choices that have a TTS
 capability. Saving `textToSpeech` should validate capability compatibility, not
 a hard-coded provider id.
 
-Example TTS provider/model choices:
+Current catalog status:
+
+- `elevenlabs` has the concrete `rachel-multilingual` model entry.
+- Other text-to-speech capable providers use the placeholder
+  `text-to-speech-provider-coming-soon` model id.
+- The operator remains `pending-runtime`; provider-specific TTS adapters still
+  need to validate model, voice, format, and streaming compatibility before
+  text is sent to a provider.
+
+Cataloged TTS provider/model choices:
 
 | Provider | Model id | Runtime style |
 | --- | --- | --- |
 | `elevenlabs` | `rachel-multilingual` | Hosted voice synthesis |
-| `deepgram` | Provider model id | Hosted voice synthesis |
-| `cartesia` | Provider model id | Hosted voice synthesis |
-| `openai` | Provider model id | Hosted voice synthesis |
-| Any TTS-capable provider | Provider model id | Streaming or batch |
+| `openai` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `google` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `mistral` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `minimax` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `deepgram` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `cartesia` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
 
 Provider catalog and official provider links are maintained in
 [providers.md](../providers/index.md).

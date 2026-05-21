@@ -6,10 +6,13 @@ and where runtime support is implemented versus still capability-backed.
 
 The source of truth is:
 
+- Model catalogs and provider-keyed placeholder catalogs in
+  `src/shared/provider-models.ts`.
 - `DEFAULT_AGENT_MODELS_BY_PROVIDER` and `DEFAULT_PROVIDERS` in
   `src/shared/providers.ts`.
 - Module model constants and operator status in `src/shared/service.ts`.
 - Provider adapter routing in `src/main/provider/factory.ts`.
+- Module services, task handlers, and tool wrappers under `src/main`.
 
 ## Support Levels
 
@@ -18,20 +21,22 @@ Friday uses two different kinds of model support:
 | Support level | Meaning |
 | --- | --- |
 | Explicit model catalog | Friday stores concrete model ids for a provider and can validate saved selections against that list. |
-| Provider capability catalog | Friday knows a provider has a capability, but the exact model ids are provider-specific and the runtime adapter may still be pending. |
+| Provider-keyed placeholder catalog | Friday exposes provider/model settings for a capability, but the model id is a placeholder until provider-specific catalogs and adapters exist. |
+| Endpoint-backed module | Friday can run through a configured endpoint instead of a provider/model adapter. |
+| No default catalog | Friday has the store shape and target module contract, but no selectable default provider/model entries yet. |
 
 Current module status:
 
 | Module | Store key | Support level | Runtime status |
 | --- | --- | --- | --- |
-| [Large language model](large-language-model.md) | `agent` / target `llmAgent` | Explicit model catalog | Implemented |
-| [Speech to text](speech-to-text.md) | `speechToText` | Explicit model catalog for OpenAI | Implemented |
-| [Text to speech](text-to-speech.md) | `textToSpeech` | Placeholder model constant | Pending runtime |
-| [Text to image](text-to-image.md) | `imageCreator` | Provider capability catalog | Pending runtime |
-| [Text to video](text-to-video.md) | `textToVideo` | Provider capability catalog | Pending runtime |
-| [Text to audio](music-creator.md) | `sound` | Placeholder model constant | Pending runtime |
-| [OCR](ocr.md) | `ocr` | Placeholder model or endpoint-backed settings | Pending runtime |
-| [Embedding](embedding.md) | `embedding` | Provider capability catalog | Pending runtime |
+| [Large language model](large-language-model.md) | `llmAgent` | Explicit model catalog | Implemented |
+| [Speech to text](speech-to-text.md) | `speechToText` | OpenAI explicit model plus provider placeholders | Implemented for OpenAI realtime |
+| [Text to speech](text-to-speech.md) | `textToSpeech` | ElevenLabs explicit model plus provider placeholders | Pending runtime |
+| [Text to image](text-to-image.md) | `imageCreator` | Provider-keyed placeholder catalog | Service, task, and tool path exist; provider adapters pending |
+| [Text to video](text-to-video.md) | `textToVideo` | Provider-keyed placeholder catalog | Pending runtime |
+| [Text to audio](music-creator.md) | `textToSound` | Provider-keyed placeholder catalog | Pending runtime |
+| [OCR](ocr.md) | `ocr` | Endpoint-backed now; placeholder model constant for future provider mode | `ocr.run` endpoint path implemented; provider runtime pending |
+| [Embedding](embedding.md) | `embedding` | No default catalog | Pending runtime |
 
 ## LLM Agent Models
 
@@ -68,8 +73,7 @@ LLM reasoning effort:
 | Provider | Saved effort behavior |
 | --- | --- |
 | `openai` | Saved and passed to the Responses API as `reasoning.effort`. `gpt-5.4-mini` excludes `minimal`; other configured OpenAI models allow `none`, `minimal`, `low`, `medium`, `high`, and `xhigh`. |
-| `deepseek` | Saved with `none`, `high`, or `xhigh`; the adapter can map supported values to DeepSeek-compatible `reasoning_effort`. |
-| Other providers | Saved model data is reduced to `{ id, name }`; effort is not saved for the main agent path. |
+| Other providers | Saved model data is reduced to `{ id, name }`; effort is not saved or passed by the default main-agent service path. |
 
 ## Speech-To-Text Models
 
@@ -79,47 +83,61 @@ Speech to text currently has one explicit provider/model entry:
 | --- | --- | --- | --- | --- |
 | `openai` | OpenAI | `gpt-realtime-whisper` | GPT Realtime Whisper | Uses the OpenAI realtime adapter for live dictation and transcription. The configured model id represents the transcription model; the realtime socket may use a separate OpenAI realtime connection model internally. |
 
-Other default providers advertise speech-to-text capability in the provider
-catalog, but they do not have explicit speech-to-text model ids in
-`SPEECH_TO_TEXT_MODELS_BY_PROVIDER` yet.
+Other speech-to-text capable providers return the placeholder model id
+`speech-to-text-provider-coming-soon` through
+`SPEECH_TO_TEXT_MODELS_BY_PROVIDER` until provider-specific model catalogs and
+runtime adapters are added: `google`, `xai`, `mistral`, `cohere`, `qwen`,
+`baidu`, `elevenlabs`, `deepgram`, and `nvidia`.
 
 ## Text-To-Speech Models
 
 Text to speech is modeled as a future module. The current code exposes one
-placeholder selection:
+concrete ElevenLabs selection and placeholder selections for other
+text-to-speech capable providers:
 
-| Provider id | Provider | Model id | Display name | Runtime notes |
-| --- | --- | --- | --- | --- |
-| `elevenlabs` | ElevenLabs | `rachel-multilingual` | Rachel - multilingual | Stored as the default TTS selection constant, but the operator status is `pending-runtime`. |
+| Provider id | Provider | Catalog model id | Runtime notes |
+| --- | --- | --- | --- |
+| `elevenlabs` | ElevenLabs | `rachel-multilingual` | Concrete catalog entry, but operator status is `pending-runtime`. |
+| `openai` | OpenAI | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
+| `google` | Google DeepMind / Google | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
+| `mistral` | Mistral AI | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
+| `minimax` | MiniMax | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
+| `deepgram` | Deepgram | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
+| `cartesia` | Cartesia | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
 
-Provider examples already listed for future TTS support include `elevenlabs`,
-`deepgram`, `cartesia`, and `openai`. Exact provider/model compatibility should
-be validated by the TTS adapter when runtime support is added.
+Exact provider/model compatibility should be validated by the TTS adapter when
+runtime support is added.
 
 ## Text-To-Image Providers
 
-Image creation uses the provider capability catalog today. Friday does not yet
-store an explicit image model catalog per provider; `IMAGE_CREATOR_MODELS`
-contains `image-provider-coming-soon` as a placeholder.
+Image creation has a provider-keyed placeholder catalog today.
+`TEXT_TO_IMAGE_MODELS_BY_PROVIDER` maps image-capable providers to the shared
+`image-provider-coming-soon` model id until provider-specific image catalogs
+exist.
+
+`TextToImageService`, the `text_to_image` local tool wrapper, and the
+`image.create` background task handler are implemented. The default adapter
+registry is empty, so real provider execution still requires an image adapter
+for the selected provider/model pair.
 
 Providers with image capability in `DEFAULT_PROVIDERS`:
 
-| Provider id | Provider | Catalog capability | Model selection status |
+| Provider id | Provider | Catalog model id | Model selection status |
 | --- | --- | --- | --- |
-| `openai` | OpenAI | Image | Provider model id, pending image runtime adapter |
-| `google` | Google DeepMind / Google | Image | Provider model id, pending image runtime adapter |
-| `xai` | xAI | Image | Provider model id, pending image runtime adapter |
-| `qwen` | Alibaba / Qwen / Wan | Image | Provider model id, pending image runtime adapter |
-| `baidu` | Baidu | Image | Provider model id, pending image runtime adapter |
-| `tencent-hunyuan` | Tencent Hunyuan | Image | Provider model id, pending image runtime adapter |
-| `bytedance-seed` | ByteDance Seed | Image | Provider model id, pending image runtime adapter |
-| `black-forest-labs` | Black Forest Labs | Image | Provider model id, pending image runtime adapter |
-| `midjourney` | Midjourney | Image | Provider model id, pending image runtime adapter |
-| `adobe-firefly` | Adobe Firefly | Image | Provider model id, pending image runtime adapter |
-| `kling` | Kuaishou / Kling AI | Image | Provider model id, pending image runtime adapter |
-| `luma` | Luma AI | Image | Provider model id, pending image runtime adapter |
-| `stability-ai` | Stability AI | Image | Provider model id, pending image runtime adapter |
-| `ideogram` | Ideogram | Image | Provider model id, pending image runtime adapter |
+| `openai` | OpenAI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `google` | Google DeepMind / Google | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `xai` | xAI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `qwen` | Alibaba / Qwen / Wan | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `baidu` | Baidu | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `tencent-hunyuan` | Tencent Hunyuan | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `bytedance-seed` | ByteDance Seed | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `black-forest-labs` | Black Forest Labs | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `midjourney` | Midjourney | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `adobe-firefly` | Adobe Firefly | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `kling` | Kuaishou / Kling AI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `luma` | Luma AI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `stability-ai` | Stability AI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `ideogram` | Ideogram | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 
 Expected runtime boundary:
 
@@ -135,29 +153,30 @@ records.
 
 ## Text-To-Video Providers
 
-Text-to-video also uses the provider capability catalog today. Friday does not
-yet store an explicit video model catalog per provider; `TEXT_TO_VIDEO_MODELS`
-contains `video-provider-coming-soon` as a placeholder.
+Text-to-video also has a provider-keyed placeholder catalog today.
+`TEXT_TO_VIDEO_MODELS_BY_PROVIDER` maps video-capable providers to the shared
+`video-provider-coming-soon` model id until provider-specific video catalogs
+and adapters exist.
 
 Providers with video capability in `DEFAULT_PROVIDERS`:
 
-| Provider id | Provider | Catalog capability | Model selection status |
+| Provider id | Provider | Catalog model id | Model selection status |
 | --- | --- | --- | --- |
-| `openai` | OpenAI | Video | Provider model id, pending video runtime adapter |
-| `google` | Google DeepMind / Google | Video | Provider model id, pending video runtime adapter |
-| `meta` | Meta | Video | Provider model id, pending video runtime adapter |
-| `xai` | xAI | Video | Provider model id, pending video runtime adapter |
-| `qwen` | Alibaba / Qwen / Wan | Video | Provider model id, pending video runtime adapter |
-| `tencent-hunyuan` | Tencent Hunyuan | Video | Provider model id, pending video runtime adapter |
-| `bytedance-seed` | ByteDance Seed | Video | Provider model id, pending video runtime adapter |
-| `minimax` | MiniMax | Video | Provider model id, pending video runtime adapter |
-| `midjourney` | Midjourney | Video | Provider model id, pending video runtime adapter |
-| `adobe-firefly` | Adobe Firefly | Video | Provider model id, pending video runtime adapter |
-| `kling` | Kuaishou / Kling AI | Video | Provider model id, pending video runtime adapter |
-| `runway` | Runway | Video | Provider model id, pending video runtime adapter |
-| `luma` | Luma AI | Video | Provider model id, pending video runtime adapter |
-| `stability-ai` | Stability AI | Video | Provider model id, pending video runtime adapter |
-| `pika` | Pika | Video | Provider model id, pending video runtime adapter |
+| `openai` | OpenAI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `google` | Google DeepMind / Google | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `meta` | Meta | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `xai` | xAI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `qwen` | Alibaba / Qwen / Wan | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `tencent-hunyuan` | Tencent Hunyuan | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `bytedance-seed` | ByteDance Seed | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `minimax` | MiniMax | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `midjourney` | Midjourney | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `adobe-firefly` | Adobe Firefly | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `kling` | Kuaishou / Kling AI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `runway` | Runway | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `luma` | Luma AI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `stability-ai` | Stability AI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `pika` | Pika | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 
 Expected runtime boundary:
 
@@ -173,6 +192,36 @@ The LLM tool wrapper, if exposed, should pass only prompt, duration, aspect
 ratio, and safe reference asset data. It must not accept API keys, base URLs,
 webhook secrets, or raw provider records.
 
+## Text-To-Audio Providers
+
+Text-to-audio and music generation use the root `textToSound` settings key and
+the `MUSIC_CREATOR_MODELS_BY_PROVIDER` catalog. The catalog is provider-keyed
+but placeholder-backed with `music-provider-coming-soon`.
+
+Providers with sound or music capability in the default provider catalog:
+
+| Provider id | Provider | Catalog model id | Model selection status |
+| --- | --- | --- | --- |
+| `google` | Google DeepMind / Google | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `minimax` | MiniMax | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `elevenlabs` | ElevenLabs | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `adobe-firefly` | Adobe Firefly | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `kling` | Kuaishou / Kling AI | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `stability-ai` | Stability AI | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `suno` | Suno | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+
+## OCR And Embedding
+
+OCR currently supports the endpoint-backed `ocr.run` task path. Provider-backed
+OCR settings can use `ocr` with `mode: 'model'`, but the only model constant is
+`document-reader-provider-coming-soon` until an OCR provider catalog and
+adapters exist.
+
+Embedding has the root `embedding` settings shape for future semantic indexing,
+but `EMBEDDING_MODELS_BY_PROVIDER` is empty. Do not show embedding provider
+model choices until provider catalogs, vector index behavior, and runtime
+adapters are implemented.
+
 ## Selection And Validation Rules
 
 - Store only `providerId`, `modelId`, and safe non-secret options in module
@@ -181,8 +230,13 @@ webhook secrets, or raw provider records.
 - Validate saved LLM selections against `DEFAULT_AGENT_MODELS_BY_PROVIDER` when
   a provider has a static catalog.
 - Validate speech-to-text selections against `SPEECH_TO_TEXT_MODELS_BY_PROVIDER`.
-- For image and video, validate provider capability and adapter availability
-  before sending prompts or assets to a provider.
+- For image, video, and sound, distinguish placeholder catalog selection from
+  runtime readiness; validate adapter availability before sending prompts or
+  assets to a provider.
+- For OCR, endpoint-backed execution must use the configured endpoint; model
+  mode must resolve a provider/model adapter before sending document data.
+- For embedding, no default provider/model selections should be exposed until
+  the catalog is populated.
 - Do not duplicate provider records in task, cron, channel, or tool payloads.
 
 ## Related Documentation

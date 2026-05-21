@@ -9,9 +9,9 @@ settings without a migration.
 
 ## Main Process Module
 
-Text-to-image should be a separated module in the main process. Renderer UI,
-task handlers, cron, and LLM tool wrappers should not know which provider,
-model, credential, or endpoint is used.
+Text-to-image is a separated module in the main process. Renderer UI, task
+handlers, cron, and LLM tool wrappers should not know which provider, model,
+credential, or endpoint is used.
 
 The main-process text-to-image module owns:
 
@@ -31,6 +31,17 @@ Provider-specific code belongs behind adapters inside the module.
 Text-to-image can be exposed as both a service and an LLM tool. The LLM tool
 must stay a thin wrapper around the module service and must not accept provider
 credentials, base URLs, or raw provider records.
+
+Current runtime surfaces:
+
+- `TextToImageService` resolves settings, credentials, model compatibility, and
+  adapter availability before execution.
+- `image.create` is a registered background task handler.
+- `text_to_image` is added to the agent tool set only when
+  `TextToImageService.canCreateImages()` reports configured settings,
+  credentials, an allowed model, and an available adapter.
+- The default adapter registry is empty, so provider execution remains pending
+  until provider-specific image adapters are registered.
 
 Allowed caller input:
 
@@ -54,28 +65,29 @@ The Settings model picker should show provider/model choices that have an image
 capability. Saving `imageCreator` should validate capability compatibility, not
 a hard-coded provider id.
 
-Current provider support is capability-backed. `IMAGE_CREATOR_MODELS` contains
-the placeholder model id `image-provider-coming-soon` until provider-specific
-image model catalogs and adapters are implemented.
+Current provider support is provider-keyed but placeholder-backed.
+`TEXT_TO_IMAGE_MODELS_BY_PROVIDER` maps each image-capable provider below to
+the shared placeholder model id `image-provider-coming-soon` until
+provider-specific image model catalogs and adapters are implemented.
 
 Providers with image capability in the default provider catalog include:
 
-| Provider id | Provider | Runtime style |
-| --- | --- | --- |
-| `openai` | OpenAI | Hosted image generation or editing |
-| `google` | Google DeepMind / Google | Hosted image generation |
-| `xai` | xAI | Hosted image generation |
-| `qwen` | Alibaba / Qwen / Wan | Hosted image generation |
-| `baidu` | Baidu | Hosted image generation |
-| `tencent-hunyuan` | Tencent Hunyuan | Hosted image generation |
-| `bytedance-seed` | ByteDance Seed | Hosted image generation |
-| `black-forest-labs` | Black Forest Labs | Hosted image generation |
-| `midjourney` | Midjourney | Hosted image generation |
-| `adobe-firefly` | Adobe Firefly | Hosted image generation or editing |
-| `kling` | Kuaishou / Kling AI | Hosted image generation |
-| `luma` | Luma AI | Hosted image generation |
-| `stability-ai` | Stability AI | Hosted image generation or editing |
-| `ideogram` | Ideogram | Hosted image generation |
+| Provider id | Provider | Catalog model id | Runtime status |
+| --- | --- | --- | --- |
+| `openai` | OpenAI | `image-provider-coming-soon` | Adapter pending |
+| `google` | Google DeepMind / Google | `image-provider-coming-soon` | Adapter pending |
+| `xai` | xAI | `image-provider-coming-soon` | Adapter pending |
+| `qwen` | Alibaba / Qwen / Wan | `image-provider-coming-soon` | Adapter pending |
+| `baidu` | Baidu | `image-provider-coming-soon` | Adapter pending |
+| `tencent-hunyuan` | Tencent Hunyuan | `image-provider-coming-soon` | Adapter pending |
+| `bytedance-seed` | ByteDance Seed | `image-provider-coming-soon` | Adapter pending |
+| `black-forest-labs` | Black Forest Labs | `image-provider-coming-soon` | Adapter pending |
+| `midjourney` | Midjourney | `image-provider-coming-soon` | Adapter pending |
+| `adobe-firefly` | Adobe Firefly | `image-provider-coming-soon` | Adapter pending |
+| `kling` | Kuaishou / Kling AI | `image-provider-coming-soon` | Adapter pending |
+| `luma` | Luma AI | `image-provider-coming-soon` | Adapter pending |
+| `stability-ai` | Stability AI | `image-provider-coming-soon` | Adapter pending |
+| `ideogram` | Ideogram | `image-provider-coming-soon` | Adapter pending |
 
 Provider credentials, base URLs, and official provider links are maintained in
 [providers.md](../providers/index.md). The consolidated model overview is

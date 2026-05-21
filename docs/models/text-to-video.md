@@ -36,16 +36,32 @@ The Settings model picker should show provider/model choices that have a video
 capability. Saving `textToVideo` should validate capability compatibility, not
 a hard-coded provider id.
 
-Example video provider/model choices:
+Current catalog status:
+
+- `TEXT_TO_VIDEO_MODELS_BY_PROVIDER` maps video-capable providers to the
+  placeholder `video-provider-coming-soon` model id.
+- The operator remains `pending-runtime`; provider-specific video adapters and
+  a registered `video.create` handler are not implemented yet.
+
+Cataloged video provider/model choices:
 
 | Provider | Model id | Runtime style |
 | --- | --- | --- |
-| `runway` | Provider model id | Hosted async video job |
-| `kling` | Provider model id | Hosted async video job |
-| `pika` | Provider model id | Hosted async video job |
-| `luma` | Provider model id | Hosted async video job |
-| `openai` | Provider model id | Hosted video generation |
-| Any video-capable provider | Provider model id | Async or streaming |
+| `openai` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `google` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `meta` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `xai` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `qwen` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `tencent-hunyuan` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `bytedance-seed` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `minimax` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `midjourney` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `adobe-firefly` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `kling` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `runway` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `luma` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `stability-ai` | `video-provider-coming-soon` | Placeholder catalog entry |
+| `pika` | `video-provider-coming-soon` | Placeholder catalog entry |
 
 Provider catalog and official provider links are maintained in
 [providers.md](../providers/index.md).

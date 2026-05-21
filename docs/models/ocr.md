@@ -13,6 +13,9 @@ Current runtime status:
 - `ocr.run` is implemented as a background task handler.
 - The current handler reads the configured root `ocr` settings from
   `StoreService`.
+- Endpoint-backed OCR is the current runnable path.
+- `DOCUMENT_READER_OCR_MODELS` contains the placeholder
+  `document-reader-provider-coming-soon` for future provider-backed OCR mode.
 - The dedicated OCR module should depend on `StoreService` to resolve the
   selected provider and correct OCR model.
 

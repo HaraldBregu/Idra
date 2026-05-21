@@ -11,6 +11,8 @@ tool, and it can be invoked through background tasks or scheduled work.
 Current runtime status:
 
 - A dedicated embedding module is not implemented yet.
+- `EMBEDDING_MODELS_BY_PROVIDER` is empty, so there are no default selectable
+  embedding provider/model entries yet.
 - Provider tests ensure embedding models are not selectable as main agent chat
   models.
 
@@ -36,6 +38,9 @@ Dependencies:
 The module should store only provider/model ids and non-secret index
 configuration in `embedding`. Credentials, base URLs, and API keys must stay on
 configured provider records or secret-backed connector records.
+
+Do not expose a Settings model picker for embedding until the provider catalog,
+index behavior, and runtime adapters are implemented.
 
 ## Runtime Flow
 

@@ -41,13 +41,27 @@ The Settings model picker should show provider/model choices that have a
 speech-to-text capability. Saving `speechToText` should validate capability
 compatibility, not a hard-coded provider id.
 
-Example speech-to-text provider/model choices:
+Current catalog status:
+
+- `openai` has the concrete `gpt-realtime-whisper` transcription model.
+- Other speech-to-text capable providers use the placeholder
+  `speech-to-text-provider-coming-soon` model id until provider-specific
+  catalogs and adapters are implemented.
+
+Cataloged speech-to-text provider/model choices:
 
 | Provider | Model id | Runtime style |
 | --- | --- | --- |
 | `openai` | `gpt-realtime-whisper` | Realtime streaming |
-| Any speech-to-text capable provider | Provider model id | Realtime or batch |
-| Local speech-to-text runtime | Local model id | On-device transcription |
+| `google` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `xai` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `mistral` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `cohere` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `qwen` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `baidu` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `elevenlabs` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `deepgram` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `nvidia` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
 
 Some providers may require more than one model identifier internally. For
 example, an OpenAI realtime adapter can open a socket with one realtime model

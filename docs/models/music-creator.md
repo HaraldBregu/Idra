@@ -35,26 +35,34 @@ provider can be used if Friday has a sound adapter for it and the selected
 model supports audio or music generation.
 
 The Settings model picker should show provider/model choices that have a music
-or audio capability. Saving `sound` should validate capability compatibility,
-not a hard-coded provider id.
+or audio capability. Saving `textToSound` should validate capability
+compatibility, not a hard-coded provider id.
 
-Example sound provider/model choices:
+Current catalog status:
+
+- `MUSIC_CREATOR_MODELS_BY_PROVIDER` maps sound-capable providers to the
+  placeholder `music-provider-coming-soon` model id.
+- The operator remains `pending-runtime`; provider-specific sound adapters and
+  a registered `sound.create` handler are not implemented yet.
+
+Cataloged sound provider/model choices:
 
 | Provider | Model id | Runtime style |
 | --- | --- | --- |
-| `google` | Provider model id | Hosted music or audio generation |
-| `minimax` | Provider model id | Hosted music or audio generation |
-| `elevenlabs` | Provider model id | Hosted audio generation |
-| `stability-ai` | Provider model id | Hosted audio generation |
-| `suno` | Provider model id | Hosted music generation |
-| Any sound-capable provider | Provider model id | Async or streaming |
+| `google` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `minimax` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `elevenlabs` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `adobe-firefly` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `kling` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `stability-ai` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `suno` | `music-provider-coming-soon` | Placeholder catalog entry |
 
 Provider catalog and official provider links are maintained in
 [providers.md](../providers/index.md).
 
 ## Module Settings
 
-The sound module stores provider and model ids at the root `sound` key:
+The sound module stores provider and model ids at the root `textToSound` key:
 
 ```ts
 {
@@ -63,7 +71,7 @@ The sound module stores provider and model ids at the root `sound` key:
 }
 ```
 
-Credentials are not stored on `sound`. The API key, base URL, and
+Credentials are not stored on `textToSound`. The API key, base URL, and
 any other private provider configuration are resolved from the stored provider
 record when sound work starts.
 
@@ -82,8 +90,8 @@ pass provider records, API keys, or base URLs.
 Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests sound work.
-2. The sound module reads `sound`.
-3. It reads `providerId` and `modelId` from `sound`.
+2. The sound module reads `textToSound`.
+3. It reads `providerId` and `modelId` from `textToSound`.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the sound adapter for the selected provider and model.
