@@ -4,7 +4,7 @@
 | --- | --- |
 | Provider id | `nvidia` |
 | Display name | NVIDIA |
-| Capabilities | Chat |
+| Capabilities | Chat - Speech-to-text |
 | Default base URL | `https://integrate.api.nvidia.com/v1` |
 | Credential type | NVIDIA API key / NGC API key depending on service |
 | Auth method | Bearer token for hosted NVIDIA NIM endpoints; NGC key for NGC services |
@@ -20,6 +20,22 @@ Default agent models:
 | `llama-nemotron-super` | Llama Nemotron Super |
 | `llama-nemotron-nano` | Llama Nemotron Nano |
 | `nemotron-vl` | Nemotron VL |
+
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `nemotron-asr-streaming` | Nemotron ASR Streaming | Realtime transcription |
+| `parakeet-1.1b-rnnt-multilingual-asr` | Parakeet 1.1B RNNT Multilingual ASR | ASR transcription |
+| `parakeet-tdt-0.6b-v2` | Parakeet TDT 0.6B v2 | ASR transcription |
+| `parakeet-ctc-1.1b-asr` | Parakeet CTC 1.1B ASR | ASR transcription |
+| `parakeet-ctc-0.6b-asr` | Parakeet CTC 0.6B ASR | ASR transcription |
+| `parakeet-ctc-0.6b-zh-tw` | Parakeet CTC 0.6B zh-TW | Mandarin Taiwanese English transcription |
+| `parakeet-ctc-0.6b-vi` | Parakeet CTC 0.6B vi | Vietnamese-English transcription |
+| `parakeet-ctc-0.6b-zh-cn` | Parakeet CTC 0.6B zh-CN | Mandarin-English transcription |
+| `parakeet-ctc-0.6b-es` | Parakeet CTC 0.6B es | Spanish-English transcription |
+| `canary-1b-asr` | Canary 1B ASR | Speech-to-text recognition and translation |
+| `whisper-large-v3` | Whisper Large v3 | ASR transcription through NVIDIA NIM catalog |
 
 Runtime notes:
 

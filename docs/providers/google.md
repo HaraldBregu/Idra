@@ -22,6 +22,14 @@ Default agent models:
 | `gemini-2.5-flash` | Gemini 2.5 Flash |
 | `gemini-2.5-flash-lite` | Gemini 2.5 Flash-Lite |
 
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `chirp_3` | Chirp 3 | Cloud Speech-to-Text V2 streaming or batch |
+| `chirp_2` | Chirp 2 | Cloud Speech-to-Text V2 streaming or batch |
+| `telephony` | Telephony | Cloud Speech-to-Text V2 phone-call transcription |
+
 Runtime notes:
 
 - Uses the generic OpenAI Chat Completions-compatible adapter.

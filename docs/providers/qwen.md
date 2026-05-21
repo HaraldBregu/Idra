@@ -4,7 +4,7 @@
 | --- | --- |
 | Provider id | `qwen` |
 | Display name | Alibaba / Qwen / Wan |
-| Capabilities | Chat - Omni - Image - Video |
+| Capabilities | Chat - Speech-to-text - Omni - Image - Video |
 | Default base URL | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
 | Credential type | Model Studio API key |
 | Auth method | API key; OpenAI-compatible or DashScope SDK depending on endpoint |
@@ -21,6 +21,18 @@ Default agent models:
 | `qwen3.5-flash` | Qwen3.5-Flash |
 | `qwen3-coder-plus` | Qwen3-Coder-Plus |
 | `qwq-plus` | QwQ-Plus |
+
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `fun-asr-realtime` | Fun-ASR Realtime | Realtime transcription |
+| `qwen3-asr-flash-realtime` | Qwen3-ASR Flash Realtime | Realtime transcription |
+| `qwen3.5-omni-plus-realtime` | Qwen3.5-Omni Plus Realtime | Realtime transcription |
+| `fun-asr` | Fun-ASR | File transcription |
+| `qwen3-asr-flash-filetrans` | Qwen3-ASR Flash File Transcription | File transcription |
+| `qwen3.5-omni-plus` | Qwen3.5-Omni Plus | File transcription |
+| `qwen3.5-omni-flash` | Qwen3.5-Omni Flash | File transcription |
 
 Runtime notes:
 

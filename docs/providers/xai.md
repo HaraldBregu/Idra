@@ -4,7 +4,7 @@
 | --- | --- |
 | Provider id | `xai` |
 | Display name | xAI |
-| Capabilities | Chat - Realtime voice - Image - Video |
+| Capabilities | Chat - Speech-to-text - Realtime voice - Image - Video |
 | Default base URL | `https://api.x.ai/v1` |
 | Credential type | API key |
 | Auth method | HTTP Bearer token |
@@ -19,6 +19,12 @@ Default agent models:
 | `grok-4.3` | Grok 4.3 |
 | `grok-4.3-fast` | Grok 4.3 Fast |
 | `grok-code-fast` | Grok Code Fast |
+
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| Not exposed | xAI Speech to Text | REST file transcription and realtime WebSocket transcription |
 
 Runtime notes:
 

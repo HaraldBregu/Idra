@@ -22,6 +22,16 @@ Default agent models:
 | `gpt-5.4-pro` | GPT-5.4 Pro | `none`, `minimal`, `low`, `medium`, `high`, `xhigh`; default `medium` |
 | `gpt-5.4-mini` | GPT-5.4 Mini | `none`, `low`, `medium`, `high`, `xhigh`; default `medium` |
 
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `gpt-realtime-whisper` | GPT Realtime Whisper | Realtime transcription |
+| `gpt-4o-transcribe` | GPT-4o Transcribe | File transcription |
+| `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | File transcription |
+| `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | File transcription with diarization |
+| `whisper-1` | Whisper | File transcription and translation |
+
 Runtime notes:
 
 - Uses the native OpenAI Responses adapter.

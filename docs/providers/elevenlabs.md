@@ -16,6 +16,13 @@ Default agent models:
 
 None in `DEFAULT_AGENT_MODELS_BY_PROVIDER`.
 
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `scribe_v2` | Scribe v2 | File transcription |
+| `scribe_v2_realtime` | Scribe v2 Realtime | Realtime transcription |
+
 Module-specific model constants:
 
 | Model id | Display name | Module |

@@ -21,6 +21,12 @@ Default agent models:
 | `command-a-vision-07-2025` | Command A Vision |
 | `aya-vision` | Aya Vision |
 
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `cohere-transcribe-03-2026` | Cohere Transcribe | File transcription |
+
 Runtime notes:
 
 - No dedicated Cohere adapter is registered.

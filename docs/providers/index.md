@@ -120,14 +120,14 @@ Each provider name links to its provider-specific markdown file.
 | [Anthropic](anthropic.md) | `anthropic` | Chat | Configured |
 | [Google DeepMind / Google](google.md) | `google` | Chat - Speech-to-text - Text-to-speech - Image - Video - Music | Configured |
 | [Meta](meta.md) | `meta` | Chat - Video | Configured |
-| [xAI](xai.md) | `xai` | Chat - Realtime voice - Image - Video | Configured |
+| [xAI](xai.md) | `xai` | Chat - Speech-to-text - Realtime voice - Image - Video | Configured |
 | [Mistral AI](mistral.md) | `mistral` | Chat - Speech-to-text - Text-to-speech | Configured |
 | [Cohere](cohere.md) | `cohere` | Chat - Speech-to-text | Configured |
 | [DeepSeek](deepseek.md) | `deepseek` | Chat | Configured |
-| [Alibaba / Qwen / Wan](qwen.md) | `qwen` | Chat - Omni - Image - Video | Configured |
+| [Alibaba / Qwen / Wan](qwen.md) | `qwen` | Chat - Speech-to-text - Omni - Image - Video | Configured |
 | [Moonshot AI / Kimi](kimi.md) | `kimi` | Chat | Configured |
 | [Z.ai / Zhipu AI](zai.md) | `zai` | Chat | Configured |
-| [Baidu](baidu.md) | `baidu` | Chat - Omni - Image | Configured |
+| [Baidu](baidu.md) | `baidu` | Chat - Speech-to-text - Omni - Image | Configured |
 | [Tencent Hunyuan](tencent-hunyuan.md) | `tencent-hunyuan` | Chat - Image - Video - 3D | Configured |
 | [ByteDance Seed](bytedance-seed.md) | `bytedance-seed` | Chat - Image - Video - 3D | Configured |
 | [MiniMax](minimax.md) | `minimax` | Chat - Text-to-speech - Video - Music | Configured |
@@ -147,7 +147,7 @@ Each provider name links to its provider-specific markdown file.
 | [Reka AI](reka.md) | `reka` | Chat | Configured |
 | [AI21 Labs](ai21.md) | `ai21` | Chat | Configured |
 | [Perplexity](perplexity.md) | `perplexity` | Research chat | Configured |
-| [NVIDIA](nvidia.md) | `nvidia` | Chat | Configured |
+| [NVIDIA](nvidia.md) | `nvidia` | Chat - Speech-to-text | Configured |
 
 ## Provider Lists Without Main-Agent Models
 

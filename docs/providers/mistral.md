@@ -32,6 +32,14 @@ Default agent models:
 | `magistral-medium-2509` | Magistral Medium 1.2 |
 | `magistral-medium-latest` | Magistral Medium Latest |
 
+Speech-to-text models:
+
+| Model id | Display name | Runtime style |
+| --- | --- | --- |
+| `voxtral-mini-latest` | Voxtral Mini Transcribe Latest | Offline/file transcription |
+| `voxtral-mini-2602` | Voxtral Mini Transcribe | Offline/file transcription |
+| `voxtral-mini-transcribe-realtime-2602` | Voxtral Mini Transcribe Realtime | Realtime transcription |
+
 Runtime notes:
 
 - Uses the dedicated Mistral adapter and Mistral SDK chat streaming.

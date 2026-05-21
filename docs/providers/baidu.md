@@ -4,7 +4,7 @@
 | --- | --- |
 | Provider id | `baidu` |
 | Display name | Baidu |
-| Capabilities | Chat - Omni - Image |
+| Capabilities | Chat - Speech-to-text - Omni - Image |
 | Default base URL | `https://qianfan.baidubce.com/v2` |
 | Credential type | Qianfan API key / access token credentials |
 | Auth method | Qianfan API key or access-token flow depending on API generation |
@@ -20,6 +20,22 @@ Default agent models:
 | `ernie-5.0` | ERNIE 5.0 |
 | `ernie-x1.1` | ERNIE X1.1 |
 | `ernie-4.5` | ERNIE 4.5 |
+
+Speech-to-text models:
+
+| Model id or code | Display name | Runtime style |
+| --- | --- | --- |
+| `audio-mini-realtime-near` | End-to-end Speech Language Model Lite near-field | Realtime WebSocket transcription |
+| `audio-mini-realtime-far` | End-to-end Speech Language Model Lite far-field | Realtime WebSocket transcription |
+| `audio-realtime-near` | End-to-end Speech Language Model Pro near-field | Realtime WebSocket transcription |
+| `audio-realtime-far` | End-to-end Speech Language Model Pro far-field | Realtime WebSocket transcription |
+| `1537` | Mandarin near-field recognition model | Short speech `dev_pid` |
+| `1737` | English model | Short speech `dev_pid` |
+| `1637` | Cantonese model | Short speech `dev_pid` |
+| `1837` | Sichuan dialect model | Short speech `dev_pid` |
+| `8953` | Speaker separation model | File transcription `pid` |
+| `80006` | Chinese audio/video caption model | File transcription `pid` |
+| `80001` | Chinese near-field recognition speed model | File transcription `pid` |
 
 Runtime notes:
 
