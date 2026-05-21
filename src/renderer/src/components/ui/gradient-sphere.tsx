@@ -180,6 +180,7 @@ export function GradientSphere({
 
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate)
+      clockRef.current.update()
       const isActive = stateRef.current === "active"
       const elapsed = isActive ? clockRef.current.getElapsed() : 0
       uniforms.uTime.value = elapsed
