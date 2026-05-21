@@ -18,6 +18,29 @@ It does not own provider-specific streaming, UI state, session persistence,
 global tool construction, connector discovery, or workspace file APIs. Those
 are assembled by the higher-level service layer before calling into this module.
 
+## Module Contract
+
+The agent is a separated module with dependencies. It is exposed as a service,
+not as a direct LLM tool for now.
+
+Service surfaces:
+
+- `AgentService.send()` prepares and runs the default assistant service path.
+- `runAgent(input)` executes the provider-neutral model/tool loop.
+- `AgentStartupFilesService` owns per-agent startup context files.
+
+Dependencies:
+
+- `StoreService` for configured provider records and saved agent settings.
+- Provider adapters created by `makeProvider()`.
+- Session storage, tool construction, skills, hooks, and startup files supplied
+  by the service layer.
+
+Other modules may call the agent service through validated paths. For example,
+the background task module can run `agent.run`, and the task scheduler can run
+Friday cron `agentTurn` jobs. Those paths do not make `agent` itself an LLM
+tool.
+
 ## Runtime Flow
 
 The default service path prepares an agent run in this order:

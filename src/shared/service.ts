@@ -181,7 +181,7 @@ export const OPERATOR_DEFINITIONS = {
 	speechToText: {
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		name: 'Speech to text',
-		docsPath: 'stt.md',
+		docsPath: 'speech-to-text.md',
 		status: 'implemented',
 	},
 	textToSpeech: {
@@ -211,19 +211,19 @@ export const OPERATOR_DEFINITIONS = {
 	documentReaderOcr: {
 		id: DOCUMENT_READER_OCR_OPERATOR_ID,
 		name: 'Document reader OCR',
-		docsPath: 'document-reader-ocr.md',
+		docsPath: 'ocr.md',
 		status: 'pending-runtime',
 	},
 	cronTaskScheduler: {
 		id: CRON_TASK_SCHEDULER_OPERATOR_ID,
 		name: 'Cron task scheduler',
-		docsPath: 'cron.md',
+		docsPath: 'task-scheduler.md',
 		status: 'implemented',
 	},
 	backgroundTask: {
 		id: BACKGROUND_TASK_OPERATOR_ID,
 		name: 'Background task',
-		docsPath: 'task-manager.md',
+		docsPath: 'background-task.md',
 		status: 'implemented',
 		registeredTaskTypes: ['agent.run', 'ocr.run'],
 	},

@@ -5,12 +5,14 @@ creating and editing images.
 
 ## Source Of Truth
 
-- `src/shared/service.ts`: image creator operator id, operator shape, and model
+- `src/shared/service.ts`: image module id, current settings shape, and model
   metadata.
-- `src/main/store/service.ts`: persisted `operator.imageCreator` selection.
+- `src/main/store/service.ts`: persisted image module selection, currently
+  stored at `operator.imageCreator`.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  operator selections.
-- `src/renderer/src/pages/settings/pages/operators`: operator settings UI.
+  module selections.
+- `src/renderer/src/pages/settings/pages/operators`: current Settings UI for
+  module selections.
 - `src/main/tasks`: background task handlers that can request image work.
 - `src/main/cron`: schedules that can trigger image work through task handlers.
 
@@ -21,7 +23,7 @@ task handlers, and cron should not know which provider or model is used.
 
 The main-process image module owns:
 
-- Reading `operator.imageCreator` from `StoreService`.
+- Reading its saved settings from `StoreService`.
 - Resolving the configured provider record from `StoreService`.
 - Loading provider credentials, base URL, and provider configuration.
 - Selecting the correct image runtime adapter for the provider and model.
@@ -30,8 +32,14 @@ The main-process image module owns:
 - Keeping provider-specific prompt, size, seed, edit, and polling details
   inside adapters.
 
-The product contract is `operator.imageCreator`. Provider-specific code belongs
-behind adapters inside the image module.
+The current compatibility settings key is `operator.imageCreator`.
+Provider-specific code belongs behind adapters inside the image module.
+
+## Service And Tool Exposure
+
+Image creation can be exposed as both a service and an LLM tool. The LLM tool
+must stay a thin wrapper around the image service and must not accept provider
+credentials, base URLs, or raw provider records.
 
 ## Supported Providers And Models
 
@@ -40,8 +48,8 @@ provider can be used if Friday has an image adapter for it and the selected
 model supports image creation or editing.
 
 The Settings model picker should show provider/model choices that have an image
-capability. Saving the operator should validate capability compatibility, not a
-hard-coded provider id.
+capability. Saving the module selection should validate capability
+compatibility, not a hard-coded provider id.
 
 Example image provider/model choices:
 
@@ -57,9 +65,9 @@ Example image provider/model choices:
 Provider catalog and official provider links are maintained in
 [providers.md](providers.md).
 
-## Operator Selection
+## Module Settings
 
-The image creator operator is:
+The image module currently stores its settings at:
 
 ```ts
 operator.imageCreator
@@ -85,8 +93,8 @@ It stores a public provider record and a selected model:
 }
 ```
 
-Credentials are not stored on the operator. The API key, base URL, and any
-other private provider configuration are resolved from the stored provider
+Credentials are not stored on the module selection. The API key, base URL, and
+any other private provider configuration are resolved from the stored provider
 record when image work starts.
 
 Save paths should enforce these rules:
@@ -103,7 +111,7 @@ pass provider records, API keys, or base URLs.
 Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests image work.
-2. The image module reads `operator.imageCreator`.
+2. The image module reads its saved settings.
 3. It reads provider id and model id from the operator selection.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
@@ -115,12 +123,12 @@ sent to the provider.
 
 ## Task And Cron Use
 
-Immediate background work should use an operator-backed task handler such as
+Immediate background work should use a module-backed task handler such as
 `image.create`.
 
-Scheduled work should use cron only for timing. When the cron job fires, it
-should create or dispatch the same task type. Cron must not store provider
-credentials or duplicate the selected model.
+Scheduled work should use the task scheduler only for timing. When the schedule
+fires, it should create or dispatch the same task type. The schedule must not
+store provider credentials or duplicate the selected model.
 
 Recommended task input:
 
@@ -133,16 +141,15 @@ Recommended task input:
 ```
 
 The task handler validates the input and calls the image module. The image
-module resolves provider and model from `operator.imageCreator`.
+module resolves provider and model from its saved settings.
 
 ## Failure Cases
 
 Common startup failures:
 
-- Image creator operator is not configured.
+- Image module settings are not configured.
 - Saved provider is missing.
 - Saved model is missing or does not support image work for that provider.
 - Provider credentials are missing.
 - No image adapter exists for the selected provider/model pair.
 - The provider job fails, times out, or returns no usable image asset.
-

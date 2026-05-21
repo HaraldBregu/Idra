@@ -1,0 +1,84 @@
+# Embedding
+
+This document describes the embedding module contract for Friday semantic
+indexing and retrieval work.
+
+## Module Contract
+
+Embedding is a separated module. It can be exposed as a service and as an LLM
+tool, and it can be invoked through background tasks or scheduled work.
+
+Current runtime status:
+
+- A dedicated embedding module is not implemented yet.
+- Legacy state may still contain a `rag` endpoint string.
+- Provider tests ensure embedding models are not selectable as main agent chat
+  models.
+
+Module surfaces:
+
+- Service API: future main-process embedding module.
+- Background tasks: future task types such as `embedding.index`,
+  `embedding.search`, or `embedding.delete`.
+- LLM tool: allowed as a thin wrapper when the module service exists.
+- Scheduler use: task scheduler can dispatch embedding tasks for recurring
+  indexing.
+
+Dependencies:
+
+- `StoreService` for saved module settings.
+- Provider records and embedding adapters for hosted embedding models.
+- Local vector storage or an external vector backend.
+- Background task module for indexing and maintenance jobs.
+- Task scheduler for recurring indexing.
+
+## Settings
+
+The module should store only public provider/model selection metadata and
+non-secret index configuration. Credentials, base URLs, and API keys must stay
+on configured provider records or secret-backed connector records.
+
+If legacy `rag` endpoint state is still present, treat it as compatibility
+storage, not as the module boundary.
+
+## Runtime Flow
+
+Target embedding flow:
+
+1. UI, task, schedule, or tool code passes text, file references, or query input
+   to the embedding module service.
+2. The embedding module validates and chunks input where needed.
+3. The module resolves its saved provider/model or local runtime settings from
+   `StoreService`.
+4. The module creates an embedding adapter or local runtime.
+5. The module writes vectors to the selected index or returns normalized search
+   results.
+
+## Task And Scheduler Use
+
+Immediate embedding work should use registered background task handlers.
+
+Scheduled embedding work should use the task scheduler only for timing. The
+schedule stores sanitized task input and dispatches an embedding task; the
+embedding module resolves provider, index, and credentials at execution time.
+
+Example future indexing task input:
+
+```json
+{
+	"source": "workspace",
+	"path": "docs",
+	"mode": "incremental"
+}
+```
+
+## Failure Cases
+
+Common startup failures:
+
+- Embedding module settings are not configured.
+- Saved provider or local runtime is missing.
+- Saved model does not support embeddings.
+- Provider credentials are missing.
+- Vector index storage is unavailable.
+- Input is too large and cannot be chunked within configured bounds.

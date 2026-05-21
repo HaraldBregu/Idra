@@ -753,9 +753,9 @@ Default agent models:
 
 None in `DEFAULT_AGENT_MODELS_BY_PROVIDER`.
 
-Operator-specific model constants:
+Module-specific model constants:
 
-| Model id | Display name | Operator |
+| Model id | Display name | Module |
 | --- | --- | --- |
 | `rachel-multilingual` | Rachel - multilingual | Text-to-speech |
 

@@ -5,12 +5,13 @@ dictation and other audio transcription features.
 
 ## Source Of Truth
 
-- `src/shared/service.ts`: speech-to-text operator id, operator shape, model
-  metadata, realtime sample rate, and model validation helpers.
-- `src/main/store/service.ts`: persisted `operator.speechToText` selection and
-  legacy `speechTranscriber` compatibility.
+- `src/shared/service.ts`: speech-to-text module id, current settings shape,
+  model metadata, realtime sample rate, and model validation helpers.
+- `src/main/store/service.ts`: persisted speech-to-text module selection,
+  currently stored at `operator.speechToText`, and legacy
+  `speechTranscriber` compatibility.
 - `src/main/ipc/app-ipc.ts`: Settings IPC for reading and saving the
-  speech-to-text operator.
+  speech-to-text module selection.
 - `src/main/ipc/realtime-transcription-ipc.ts`: realtime transcription IPC
   boundary, audio commit thresholds, and event forwarding.
 - `src/shared/realtime-transcription.ts`: renderer-safe session and event
@@ -27,7 +28,7 @@ translate renderer calls into module calls.
 
 The main-process speech-to-text module owns:
 
-- Reading `operator.speechToText` from `StoreService`.
+- Reading its saved settings from `StoreService`.
 - Resolving the configured provider record from `StoreService`.
 - Loading provider credentials and base URL from the configured provider record.
 - Selecting the correct speech-to-text runtime adapter for the provider and
@@ -38,7 +39,14 @@ The main-process speech-to-text module owns:
 
 Provider-specific code belongs behind adapters inside this module. For example,
 an OpenAI realtime adapter can use OpenAI-specific socket setup internally, but
-the product contract remains `operator.speechToText`, not `openai`.
+the speech-to-text module contract remains provider-neutral.
+
+## Service And Tool Exposure
+
+Speech to text can be exposed as both a service and an LLM tool. Live dictation
+uses the service path today. A future LLM tool must stay a thin wrapper around
+the speech-to-text service and must not accept provider credentials, base URLs,
+or raw provider records.
 
 ## Supported Providers And Models
 
@@ -47,8 +55,8 @@ provider can be used if Friday has a speech-to-text adapter for it and the
 selected model supports speech-to-text input.
 
 The Settings model picker should show provider/model choices that have a
-speech-to-text capability. Saving the operator should validate capability
-compatibility, not a hard-coded provider id.
+speech-to-text capability. Saving the module selection should validate
+capability compatibility, not a hard-coded provider id.
 
 Example speech-to-text provider/model choices:
 
@@ -63,7 +71,8 @@ example, an OpenAI realtime adapter can open a socket with one realtime model
 and select a transcription model in the session config:
 
 - `gpt-realtime-whisper` is the configured transcription model stored on the
-  speech-to-text operator and sent in the adapter's transcription config.
+  speech-to-text module selection and sent in the adapter's transcription
+  config.
 - `gpt-realtime` is the OpenAI realtime WebSocket connection model used by
   that adapter.
 
@@ -71,9 +80,9 @@ Do not make that adapter detail the global speech-to-text contract. Other
 providers may use only one model id, a batch endpoint, a streaming endpoint, or
 a local model.
 
-## Operator Selection
+## Module Settings
 
-The speech-to-text operator is:
+The speech-to-text module currently stores its settings at:
 
 ```ts
 operator.speechToText
@@ -99,11 +108,11 @@ It stores a public provider record and a selected model:
 }
 ```
 
-Credentials are not stored on the operator. The API key, base URL, and any
-other private provider configuration are resolved from the stored provider
+Credentials are not stored on the module selection. The API key, base URL, and
+any other private provider configuration are resolved from the stored provider
 record when transcription starts.
 
-Settings can read and save the operator through:
+Settings can read and save the module selection through:
 
 - `operator:get-speech-to-text`
 - `operator:save-speech-to-text`
@@ -121,11 +130,11 @@ Both save paths should enforce the same rules:
 
 ## Startup And Settings
 
-The first-run setup page can save the speech-to-text operator automatically
-when a speech-to-text capable provider is connected and a transcription model is
-selected.
+The first-run setup page can save the speech-to-text module selection
+automatically when a speech-to-text capable provider is connected and a
+transcription model is selected.
 
-The Settings operator details page also supports the same selection:
+The Settings module details page also supports the same selection:
 
 1. It loads configured providers.
 2. It filters available providers to providers with speech-to-text capable
@@ -147,8 +156,8 @@ await window.realtimeTranscription.finish(session.id);
 Runtime startup:
 
 1. `realtime-transcription:start` calls `store.getSpeechToTextOperator()`.
-2. The main process verifies that the operator is configured.
-3. It reads provider id and model id from `operator.speechToText`.
+2. The main process verifies that the speech-to-text settings are configured.
+3. It reads provider id and model id from the saved settings.
 4. It loads API key, base URL, and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the speech-to-text adapter for the selected provider and model.
@@ -202,7 +211,7 @@ and cancels or finishes the realtime session when the user stops recording.
 
 Common startup failures:
 
-- Speech-to-text operator is not configured.
+- Speech-to-text module settings are not configured.
 - Saved provider is missing.
 - Saved model is missing or does not support speech to text for that provider.
 - Provider credentials are missing.
