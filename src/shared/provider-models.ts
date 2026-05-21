@@ -10,7 +10,8 @@ export type ModelCapability =
 	| 'text-to-speech'
 	| 'text-to-image'
 	| 'text-to-video'
-	| 'music';
+	| 'music'
+	| 'embedding';
 
 export const LLM_MODELS_BY_PROVIDER: ModelCatalog = {
 	openai: [
@@ -142,7 +143,19 @@ export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
 export const TEXT_TO_SPEECH_MODELS = [
 	{ id: 'rachel-multilingual', name: 'Rachel - multilingual' },
 ] satisfies readonly ProviderModel[];
+export const TEXT_TO_SPEECH_PROVIDER_MODELS = [
+	{ id: 'text-to-speech-provider-coming-soon', name: 'Provider text-to-speech model' },
+] satisfies readonly ProviderModel[];
+export const TEXT_TO_SPEECH_PROVIDER_IDS = [
+	'openai',
+	'mistral',
+	'minimax',
+	'elevenlabs',
+	'deepgram',
+	'cartesia',
+] as const;
 export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER: ModelCatalog = {
+	...modelsByProviderIds(TEXT_TO_SPEECH_PROVIDER_IDS, TEXT_TO_SPEECH_PROVIDER_MODELS),
 	[TEXT_TO_SPEECH_PROVIDER_ID]: TEXT_TO_SPEECH_MODELS,
 };
 
@@ -204,14 +217,59 @@ export const MUSIC_CREATOR_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderId
 	MUSIC_CREATOR_MODELS
 );
 
+export const EMBEDDING_MODELS_BY_PROVIDER: ModelCatalog = {};
+
 export const MODEL_CATALOGS_BY_CAPABILITY = {
 	llm: LLM_MODELS_BY_PROVIDER,
-	speechToText: SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
-	textToSpeech: TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-	textToImage: TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
-	textToVideo: TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
+	'speech-to-text': SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	'text-to-speech': TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	'text-to-image': TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
+	'text-to-video': TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
 	music: MUSIC_CREATOR_MODELS_BY_PROVIDER,
-} as const satisfies Readonly<Record<string, ModelCatalog>>;
+	embedding: EMBEDDING_MODELS_BY_PROVIDER,
+} as const satisfies Readonly<Record<ModelCapability, ModelCatalog>>;
+
+export function getModelsForProvider(
+	catalog: ModelCatalog,
+	providerId: string
+): ProviderModel[] {
+	return cloneModels(catalog[normalizeProviderId(providerId)]);
+}
+
+export function getLlmModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(LLM_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getSpeechToTextModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(SPEECH_TO_TEXT_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getTextToSpeechModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(TEXT_TO_SPEECH_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getTextToImageModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(TEXT_TO_IMAGE_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getTextToVideoModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(TEXT_TO_VIDEO_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getMusicModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(MUSIC_CREATOR_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getEmbeddingModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(EMBEDDING_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getModelsByCapability(
+	capability: ModelCapability,
+	providerId: string
+): ProviderModel[] {
+	return getModelsForProvider(MODEL_CATALOGS_BY_CAPABILITY[capability], providerId);
+}
 
 function modelsByProviderIds(
 	providerIds: readonly string[],
@@ -221,4 +279,12 @@ function modelsByProviderIds(
 		catalog[providerId] = models;
 		return catalog;
 	}, {});
+}
+
+function cloneModels(models: readonly ProviderModel[] | undefined): ProviderModel[] {
+	return (models ?? []).map((model) => ({ ...model }));
+}
+
+function normalizeProviderId(providerId: string): string {
+	return providerId.trim().toLowerCase();
 }
