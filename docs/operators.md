@@ -149,6 +149,8 @@ Provider/model rules:
 
 Operator-selection IPC:
 
+- `operator:get-speech-to-text`
+- `operator:save-speech-to-text`
 - `provider:get-speech-transcriber-service`
 - `provider:save-speech-transcriber-service`
 
