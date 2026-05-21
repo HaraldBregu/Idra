@@ -4,7 +4,7 @@ This document defines the future task manager for Friday. It is an implementatio
 
 ## Purpose
 
-The task manager owns background work that can run at the same time as other work in the app. A task can represent any executable unit, including an agent run, OCR job, API call, connector sync, local function, or file operation.
+The task manager owns background work that can run at the same time as other work in the app. A task can represent any executable unit, including an agent run, OCR job, TTS job, image generation job, video generation job, sound generation job, API call, connector sync, local function, or file operation.
 
 The task manager is not a scheduler. Cron and heartbeat features may create tasks, but the task manager only owns task execution and task state for the current app session.
 
@@ -135,6 +135,47 @@ Agent task execution flow:
 
 Cancellation remains cooperative. When an `agent.run` task is cancelled, the task manager aborts the task signal. The handler must call `AgentService.cancel(sessionId)` and then let the running agent stop through the normal cancellation path. If cancellation wins, the task manager records the task as `cancelled`; if the agent throws a non-abort error first, the task records a normal failure.
 
+## Operator-Backed Tasks
+
+Media and ML tasks should be thin wrappers around main-process operator
+modules. The task manager owns lifecycle state; the operator module owns
+provider/model resolution and execution.
+
+Recommended task types:
+
+- `text-to-speech.run`: calls the TTS module documented in
+  [text-to-speech.md](text-to-speech.md).
+- `image.create`: calls the image module documented in
+  [image-creator.md](image-creator.md).
+- `video.create`: calls the video module documented in
+  [video-creator.md](video-creator.md).
+- `sound.create`: calls the sound module documented in
+  [music-creator.md](music-creator.md).
+- `ocr.run`: calls the document reader OCR module or endpoint.
+
+Operator-backed handlers must:
+
+- Validate and trim task input before calling the operator module.
+- Pass the task `AbortSignal` into adapters that support cancellation.
+- Store only sanitized progress and result summaries on the task record.
+- Avoid accepting API keys, base URLs, webhook secrets, or provider records
+  from task input.
+- Use provider/model settings from the matching operator in `StoreService`.
+
+Provider and model selection should not be copied into every task. The default
+path is:
+
+1. Task handler receives user input, such as text, prompt, duration, format, or
+   asset references.
+2. Task handler calls the matching main-process operator module.
+3. Operator module reads its `operator.*` settings from `StoreService`.
+4. Operator module resolves the configured provider record from `StoreService`.
+5. Operator module creates the provider adapter and returns a normalized result.
+
+Per-task provider/model overrides should be avoided for media operators. If an
+operator later supports overrides, task input may pass only provider/model ids;
+credentials and provider records must still come from `StoreService`.
+
 ## Main-Process Architecture
 
 Add a main-process task module when this feature is implemented:
@@ -142,7 +183,7 @@ Add a main-process task module when this feature is implemented:
 - `src/shared/tasks.ts`: shared task types and IPC-safe event payloads.
 - `src/main/tasks/task-manager.ts`: in-memory task store, lifecycle transitions, cancellation, and event emission.
 - `src/main/tasks/task-registry.ts`: task type registration and lookup.
-- `src/main/tasks/handlers/*`: concrete task handlers, such as agent and OCR handlers.
+- `src/main/tasks/handlers/*`: concrete task handlers, such as agent, OCR, TTS, image, video, and sound handlers.
 - `src/main/ipc/tasks-ipc.ts`: typed IPC handlers for task start/list/get/cancel and task events.
 - `src/preload/index.ts` and `src/preload/index.d.ts`: `window.tasks` preload API.
 - `src/shared/ipc-channels.ts`: task IPC channel constants and invoke channel map entries.
@@ -222,8 +263,10 @@ If a specific external API requires its own timeout, keep that timeout local to 
 3. Register the task manager in the service container.
 4. Add IPC handlers and the `window.tasks` preload API, including manual task creation.
 5. Add the first concrete handlers, starting with agent and OCR tasks.
-6. Add renderer retrieval and cancellation UI where needed.
-7. Add focused tests for lifecycle transitions, concurrent execution, cancellation, and no default timeout behavior.
+6. Add operator-backed handlers for TTS, image, video, and sound when those
+   main-process modules exist.
+7. Add renderer retrieval and cancellation UI where needed.
+8. Add focused tests for lifecycle transitions, concurrent execution, cancellation, and no default timeout behavior.
 
 ## Verification
 
@@ -244,3 +287,5 @@ Required tests:
 - One operation creates one task record.
 - A task does not fail or cancel because elapsed time passes.
 - Completed, failed, and cancelled tasks remain retrievable until the app session ends.
+- Operator-backed media tasks resolve provider/model through `StoreService` and
+  reject task input that contains credentials or provider records.
