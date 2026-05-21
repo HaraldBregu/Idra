@@ -61,9 +61,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
 	// Apps
 	{ path: '/settings/apps', labelKey: 'settings.apps.title', keywords: 'installed packages manifests folder delete' },
-	// Agents
-	{ path: '/settings/operators', labelKey: 'settings.operators.title', descriptionKey: 'settings.operators.description', keywords: 'friday agent default provider model' },
-	{ path: '/settings/operators/friday/details', labelKey: 'settings.operators.fridayName', descriptionKey: 'settings.operators.fridayDescription', keywords: 'friday agent default provider model' },
+	// Operators
+	{ path: '/settings/operators', labelKey: 'settings.operators.title', descriptionKey: 'settings.operators.description', keywords: 'friday operator default provider model' },
+	{ path: '/settings/operators/friday/details', labelKey: 'settings.operators.fridayName', descriptionKey: 'settings.operators.fridayDescription', keywords: 'friday operator default provider model' },
 	{ path: `/settings/operators/${SPEECH_TRANSCRIBER_AGENT_ID}/details`, labelKey: 'settings.operators.speechTranscriberName', descriptionKey: 'settings.operators.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
 	{ path: `/settings/operators/${TEXT_TO_SPEECH_AGENT_ID}/details`, labelKey: 'settings.operators.textToSpeechName', descriptionKey: 'settings.operators.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
 	{ path: `/settings/operators/${IMAGE_ASSISTANT_AGENT_ID}/details`, labelKey: 'settings.operators.imageAssistantName', descriptionKey: 'settings.operators.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },

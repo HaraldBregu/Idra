@@ -650,7 +650,7 @@
 			"modelsLoadError": "Impossibile caricare i modelli per questo provider.",
 			"noModels": "Nessun modello disponibile per questo provider.",
 			"textModel": "Generazione testo",
-			"textModelDescription": "Usato dall'assistente per scrittura, chat, ragionamento e modifiche ai documenti.",
+			"textModelDescription": "Usato dall'operatore per scrittura, chat, ragionamento e modifiche ai documenti.",
 			"temperature": "Temperatura",
 			"thinkingMode": "Modalità Ragionamento",
 			"thinkingModeDescription": "Abilita il ragionamento esteso per attività complesse",
