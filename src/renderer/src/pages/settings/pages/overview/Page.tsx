@@ -18,24 +18,33 @@ import {
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
+		id: 'general',
 		titleKey: 'settings.overview.groups.general',
 		paths: ['/settings/general', '/settings/system', '/settings/providers', '/settings/channels'],
 	},
 	{
+		id: 'aiAgents',
 		titleKey: 'settings.overview.groups.aiAgents',
 		operators: true,
 		paths: [],
 	},
 	{
+		id: 'aiFeatures',
 		titleKey: 'settings.overview.groups.aiFeatures',
 		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
-		titleKey: 'settings.overview.groups.automation',
-		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager', '/settings/apps'],
+		id: 'automations',
+		titleKey: 'settings.overview.groups.automations',
+		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager'],
+	},
+	{
+		id: 'apps',
+		paths: ['/settings/apps'],
 	},
 ] satisfies readonly {
-	readonly titleKey: string;
+	readonly id: string;
+	readonly titleKey?: string;
 	readonly operators?: boolean;
 	readonly paths: readonly string[];
 }[];
@@ -85,25 +94,39 @@ const OverviewPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
-				title={t('settings.title')}
-				description={t('settings.description')}
-			/>
-			{SETTINGS_OVERVIEW_GROUPS.map((group) => (
-				<SettingsSection key={group.titleKey} title={t(group.titleKey)}>
-					<SettingsPanel>
-						{group.operators && SETTINGS_OPERATOR_ITEMS.map((item) => (
-							<SettingsOverviewCard key={item.path} item={item} />
-						))}
-						{group.paths.map((path) => {
-							const item = getSettingsNavigationItem(path);
-							return <SettingsOverviewCard key={item.path} item={item} />;
-						})}
-					</SettingsPanel>
-				</SettingsSection>
-			))}
-		</SettingsPageShell>
-	);
-};
+				<SettingsPageHeader
+					title={t('settings.title')}
+					description={t('settings.description')}
+				/>
+				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
+					const panel = (
+						<SettingsPanel>
+							{group.operators && SETTINGS_OPERATOR_ITEMS.map((item) => (
+								<SettingsOverviewCard key={item.path} item={item} />
+							))}
+							{group.paths.map((path) => {
+								const item = getSettingsNavigationItem(path);
+								return <SettingsOverviewCard key={item.path} item={item} />;
+							})}
+						</SettingsPanel>
+					);
+
+					if (!group.titleKey) {
+						return (
+							<section key={group.id} className="flex flex-col gap-2">
+								{panel}
+							</section>
+						);
+					}
+
+					return (
+						<SettingsSection key={group.id} title={t(group.titleKey)}>
+							{panel}
+						</SettingsSection>
+					);
+				})}
+			</SettingsPageShell>
+		);
+	};
 
 export default OverviewPage;

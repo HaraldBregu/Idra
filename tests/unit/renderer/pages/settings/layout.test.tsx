@@ -26,7 +26,7 @@ describe('Settings Layout', () => {
 	it('shows the current settings page and settings root link', () => {
 		renderSettings('/settings/cron');
 
-		expect(screen.getByText('settings.tabs.cron')).toBeInTheDocument();
+		expect(screen.getByText('settings.tabs.taskScheduler')).toBeInTheDocument();
 		expect(screen.getByRole('link', { name: 'settings.title' })).toHaveAttribute('href', '/settings');
 	});
 

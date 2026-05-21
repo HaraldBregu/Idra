@@ -70,8 +70,8 @@ const CronPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.cron')} />
-			<SettingsSection title={t('settings.sections.cron')}>
+			<SettingsPageHeader title={t('settings.tabs.taskScheduler')} />
+			<SettingsSection title={t('settings.sections.taskScheduler')}>
 				{error && (
 					<SettingsPanel>
 						<div className="flex min-w-0 items-start gap-2 px-3 py-2 text-destructive">

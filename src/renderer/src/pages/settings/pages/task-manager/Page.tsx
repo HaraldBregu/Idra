@@ -157,7 +157,7 @@ const TaskManagerPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.taskManager')}
+				title={t('settings.tabs.backgroundTasks')}
 				description={t('settings.taskManager.description')}
 			/>
 			<SettingsSection title={t('settings.taskManager.create.title')}>
@@ -268,7 +268,7 @@ const TaskManagerPage: React.FC = () => {
 					</form>
 				</SettingsPanel>
 			</SettingsSection>
-			<SettingsSection title={t('settings.sections.taskManager')}>
+			<SettingsSection title={t('settings.sections.backgroundTasks')}>
 				{error && (
 					<SettingsPanel>
 						<div className="flex min-w-0 items-start gap-2 px-3 py-2 text-destructive">

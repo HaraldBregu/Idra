@@ -10,13 +10,13 @@ describe('settings navigation', () => {
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.skills',
-			'settings.tabs.connectors',
-			'settings.tabs.channels',
-			'settings.tabs.heartbeat',
-			'settings.tabs.cron',
-			'settings.tabs.taskManager',
-			'settings.tabs.apps',
-		]);
+				'settings.tabs.connectors',
+				'settings.tabs.channels',
+				'settings.tabs.heartbeat',
+				'settings.tabs.taskScheduler',
+				'settings.tabs.backgroundTasks',
+				'settings.tabs.apps',
+			]);
 	});
 
 	it('keeps operator rows available for the settings overview', () => {

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import OverviewPage from '../../../../../../src/renderer/src/pages/settings/pages/overview/Page';
@@ -33,15 +33,16 @@ describe('OverviewPage', () => {
 		expect(screen.getByRole('heading', {
 			name: 'settings.overview.groups.aiAgents',
 		})).toBeInTheDocument();
-		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.aiFeatures',
-		})).toBeInTheDocument();
-		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.automation',
-		})).toBeInTheDocument();
+			expect(screen.getByRole('heading', {
+				name: 'settings.overview.groups.aiFeatures',
+			})).toBeInTheDocument();
+			const automationsSection = screen.getByRole('heading', {
+				name: 'settings.overview.groups.automations',
+			}).closest('section');
+			expect(automationsSection).not.toBeNull();
 
-		expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
-			'settings.tabs.general',
+			expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+				'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.channels',
@@ -51,14 +52,23 @@ describe('OverviewPage', () => {
 			'settings.operators.imageAssistantName',
 			'settings.operators.videoCreatorName',
 			'settings.operators.musicCreatorName',
-			'settings.tabs.skills',
-			'settings.tabs.connectors',
-			'settings.tabs.heartbeat',
-			'settings.tabs.cron',
-			'settings.tabs.taskManager',
-			'settings.tabs.apps',
-		]);
-	});
+				'settings.tabs.skills',
+				'settings.tabs.connectors',
+				'settings.tabs.heartbeat',
+				'settings.tabs.taskScheduler',
+				'settings.tabs.backgroundTasks',
+				'settings.tabs.apps',
+			]);
+			expect(within(automationsSection as HTMLElement).getAllByRole('button').map((button) => button.textContent)).toEqual([
+				'settings.tabs.heartbeat',
+				'settings.tabs.taskScheduler',
+				'settings.tabs.backgroundTasks',
+			]);
+
+			const appsSection = screen.getByRole('button', { name: 'settings.tabs.apps' }).closest('section');
+			expect(appsSection).not.toBe(automationsSection);
+			expect(within(appsSection as HTMLElement).queryByRole('heading')).not.toBeInTheDocument();
+		});
 
 	it('navigates to the selected settings route when clicked', async () => {
 		const user = userEvent.setup();

@@ -151,7 +151,7 @@
 				"general": "General setup",
 				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",
-				"automation": "Automation and apps"
+				"automations": "Automations"
 			},
 			"descriptions": {
 				"general": "App info, appearance, folders",
@@ -161,8 +161,8 @@
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
 				"providers": "AI API keys",
-				"cron": "Scheduled tasks",
-				"taskManager": "Background task runs",
+				"cron": "Task scheduler",
+				"taskManager": "Background tasks",
 				"heartbeat": "Periodic agent checks",
 				"apps": "Installed apps"
 			}
@@ -180,8 +180,8 @@
 			"system": "System",
 			"themes": "Themes",
 			"editor": "Editor",
-			"cron": "Cron",
-			"taskManager": "Task Manager",
+			"taskScheduler": "Task scheduler",
+			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer",
 			"apps": "Apps",
@@ -212,8 +212,8 @@
 			"application": "Application",
 			"profile": "Profile",
 			"editor": "Editor",
-			"cron": "Cron Tasks",
-			"taskManager": "Task Manager",
+			"taskScheduler": "Scheduled tasks",
+			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer"
 		},
@@ -336,12 +336,12 @@
 			"actions": {
 				"placeholder": "No actions",
 				"expand": "Expand",
-				"expandLabel": "Expand cron task {{id}}",
+				"expandLabel": "Expand scheduled task {{id}}",
 				"collapse": "Collapse",
-				"collapseLabel": "Collapse cron task {{id}}",
+				"collapseLabel": "Collapse scheduled task {{id}}",
 				"remove": "Delete",
-				"removeLabel": "Delete cron task {{id}}",
-				"confirmRemove": "Delete cron task {{id}}?",
+				"removeLabel": "Delete scheduled task {{id}}",
+				"confirmRemove": "Delete scheduled task {{id}}?",
 				"removing": "Deleting..."
 			},
 			"details": {
@@ -359,11 +359,11 @@
 			},
 			"enabled": "Enabled",
 			"disabled": "Disabled",
-			"detailsTitle": "Cron Details",
-			"notFoundTitle": "Cron task not found",
-			"notFoundDescription": "The cron task may have been removed.",
-			"emptyTitle": "No cron tasks",
-			"emptyDescription": "Cron tasks will appear here once they are configured."
+			"detailsTitle": "Task scheduler details",
+			"notFoundTitle": "Scheduled task not found",
+			"notFoundDescription": "The scheduled task may have been removed.",
+			"emptyTitle": "No scheduled tasks",
+			"emptyDescription": "Scheduled tasks will appear here once they are configured."
 		},
 		"taskManager": {
 			"description": "Background task runs and their current state.",

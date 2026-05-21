@@ -151,7 +151,7 @@
 				"general": "Configurazione generale",
 				"aiAgents": "Agenti AI",
 				"aiFeatures": "Funzionalita AI",
-				"automation": "Automazioni e app"
+				"automations": "Automazioni"
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
@@ -161,8 +161,8 @@
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
 				"providers": "Chiavi API AI",
-				"cron": "Attivita programmate",
-				"taskManager": "Esecuzioni in background",
+				"cron": "Pianificatore attivita",
+				"taskManager": "Attivita in background",
 				"heartbeat": "Controlli periodici agenti",
 				"apps": "App installate"
 			}
@@ -180,8 +180,8 @@
 			"system": "Sistema",
 			"themes": "Temi",
 			"editor": "Editor",
-			"cron": "Cron",
-			"taskManager": "Gestore attivita",
+			"taskScheduler": "Pianificatore attivita",
+			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore",
 			"apps": "App",
@@ -212,8 +212,8 @@
 			"application": "Applicazione",
 			"profile": "Profilo",
 			"editor": "Editor",
-			"cron": "Attivita Cron",
-			"taskManager": "Gestore attivita",
+			"taskScheduler": "Attivita programmate",
+			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore"
 		},
@@ -336,12 +336,12 @@
 			"actions": {
 				"placeholder": "Nessuna azione",
 				"expand": "Espandi",
-				"expandLabel": "Espandi attivita cron {{id}}",
+				"expandLabel": "Espandi attivita programmata {{id}}",
 				"collapse": "Comprimi",
-				"collapseLabel": "Comprimi attivita cron {{id}}",
+				"collapseLabel": "Comprimi attivita programmata {{id}}",
 				"remove": "Elimina",
-				"removeLabel": "Elimina attivita cron {{id}}",
-				"confirmRemove": "Eliminare l'attivita cron {{id}}?",
+				"removeLabel": "Elimina attivita programmata {{id}}",
+				"confirmRemove": "Eliminare l'attivita programmata {{id}}?",
 				"removing": "Eliminazione..."
 			},
 			"details": {
@@ -359,11 +359,11 @@
 			},
 			"enabled": "Attiva",
 			"disabled": "Disattivata",
-			"detailsTitle": "Dettagli Cron",
-			"notFoundTitle": "Attivita cron non trovata",
-			"notFoundDescription": "L'attivita cron potrebbe essere stata rimossa.",
-			"emptyTitle": "Nessuna attivita cron",
-			"emptyDescription": "Le attivita cron appariranno qui dopo la configurazione."
+			"detailsTitle": "Dettagli pianificatore attivita",
+			"notFoundTitle": "Attivita programmata non trovata",
+			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
+			"emptyTitle": "Nessuna attivita programmata",
+			"emptyDescription": "Le attivita programmate appariranno qui dopo la configurazione."
 		},
 		"taskManager": {
 			"description": "Esecuzioni in background e stato corrente.",
