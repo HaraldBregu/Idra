@@ -102,7 +102,7 @@ matching provider record.
 
 | Operator | Stable id | Operator doc | Operator interface field | Runtime status |
 | --- | --- | --- | --- | --- |
-| Assistant (Friday) | `friday`, runtime `main` | [agent.md](agent.md) | `operator.assistant` stores provider and model. Provider credentials are in `providers`. | Implemented through `AgentService.send`. |
+| Assistant | `friday`, runtime `main` | [agent.md](agent.md) | `operator.assistant` stores provider and model. Provider credentials are in `providers`. | Implemented through `AgentService.send`. |
 | Speech to text | `speech-to-text` | `speech-to-text.md` | `operator.speechToText` stores provider and model. Currently OpenAI only. | Implemented through realtime transcription IPC. |
 | Text to speech | `text-to-speech` | `text-to-speech.md` | `operator.textToSpeech` stores provider and model. Current placeholder uses provider `elevenlabs` and model `rachel-multilingual`. | Pending runtime. |
 | Image creator | `image-assistant` | `image-creator.md` | `operator.imageCreator` stores provider and model. Current placeholder uses `image-provider-coming-soon`. | Pending runtime. |
@@ -118,7 +118,7 @@ contract.
 
 ## Provider And Model Resolution
 
-### Assistant (Friday)
+### Assistant
 
 The Friday assistant stores its default provider/model at `operator.assistant`.
 `ProviderChannels.saveAgentService` validates the selected provider and model
