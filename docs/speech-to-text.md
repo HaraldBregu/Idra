@@ -7,10 +7,9 @@ dictation and other audio transcription features.
 
 - `src/shared/service.ts`: speech-to-text module id, current settings shape,
   model metadata, realtime sample rate, and model validation helpers.
-- `src/main/store/service.ts`: persisted root `speechToText` settings and
-  legacy speech transcriber compatibility.
+- `src/main/store/service.ts`: persisted root `speechToText` settings.
 - `src/main/ipc/app-ipc.ts`: Settings IPC for reading and saving the
-  speech-to-text module selection.
+  speech-to-text root settings.
 - `src/main/ipc/realtime-transcription-ipc.ts`: realtime transcription IPC
   boundary, audio commit thresholds, and event forwarding.
 - `src/shared/realtime-transcription.ts`: renderer-safe session and event
@@ -54,8 +53,8 @@ provider can be used if Friday has a speech-to-text adapter for it and the
 selected model supports speech-to-text input.
 
 The Settings model picker should show provider/model choices that have a
-speech-to-text capability. Saving the module selection should validate
-capability compatibility, not a hard-coded provider id.
+speech-to-text capability. Saving `speechToText` should validate capability
+compatibility, not a hard-coded provider id.
 
 Example speech-to-text provider/model choices:
 
@@ -69,9 +68,8 @@ Some providers may require more than one model identifier internally. For
 example, an OpenAI realtime adapter can open a socket with one realtime model
 and select a transcription model in the session config:
 
-- `gpt-realtime-whisper` is the configured transcription model stored on the
-  speech-to-text module selection and sent in the adapter's transcription
-  config.
+- `gpt-realtime-whisper` is the configured transcription model stored in
+  `speechToText` and sent in the adapter's transcription config.
 - `gpt-realtime` is the OpenAI realtime WebSocket connection model used by
   that adapter.
 
@@ -91,12 +89,12 @@ The speech-to-text module stores provider and model ids at the root
 }
 ```
 
-Credentials are not stored on the module selection. The API key, base URL, and
-any other private provider configuration are resolved from the stored provider
+Credentials are not stored on `speechToText`. The API key, base URL, and any
+other private provider configuration are resolved from the stored provider
 record when transcription starts.
 
-Settings can read and save the module selection through Settings IPC. Legacy
-compatibility IPC still exists:
+Settings can read and save `speechToText` through Settings IPC. Compatibility
+IPC still exists:
 
 - `provider:get-speech-transcriber-service`
 - `provider:save-speech-transcriber-service`
@@ -109,9 +107,9 @@ Both save paths should enforce the same rules:
 
 ## Startup And Settings
 
-The first-run setup page can save the speech-to-text module selection
-automatically when a speech-to-text capable provider is connected and a
-transcription model is selected.
+The first-run setup page can save `speechToText` automatically when a
+speech-to-text capable provider is connected and a transcription model is
+selected.
 
 The Settings module details page also supports the same selection:
 

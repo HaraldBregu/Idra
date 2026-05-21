@@ -9,7 +9,7 @@ creating and editing images.
   metadata.
 - `src/main/store/service.ts`: persisted root `imageCreator` settings.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  module selections.
+  root module settings.
 - `src/main/tasks`: background task handlers that can request image work.
 - `src/main/cron`: schedules that can trigger image work through task handlers.
 
@@ -44,8 +44,8 @@ provider can be used if Friday has an image adapter for it and the selected
 model supports image creation or editing.
 
 The Settings model picker should show provider/model choices that have an image
-capability. Saving the module selection should validate capability
-compatibility, not a hard-coded provider id.
+capability. Saving `imageCreator` should validate capability compatibility, not
+a hard-coded provider id.
 
 Example image provider/model choices:
 
@@ -72,7 +72,7 @@ The image module stores provider and model ids at the root `imageCreator` key:
 }
 ```
 
-Credentials are not stored on the module selection. The API key, base URL, and
+Credentials are not stored on `imageCreator`. The API key, base URL, and
 any other private provider configuration are resolved from the stored provider
 record when image work starts.
 
@@ -91,7 +91,7 @@ Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests image work.
 2. The image module reads `imageCreator`.
-3. It reads `providerId` and `modelId` from the saved module settings.
+3. It reads `providerId` and `modelId` from `imageCreator`.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the image adapter for the selected provider and model.

@@ -9,7 +9,7 @@ creating video output.
   metadata.
 - `src/main/store/service.ts`: persisted root `video` settings.
 - `src/main/ipc/app-ipc.ts`: Settings IPC boundary for reading and saving
-  module selections.
+  root module settings.
 - `src/main/tasks`: background task handlers that can request video work.
 - `src/main/cron`: schedules that can trigger video work through task handlers.
 
@@ -43,8 +43,8 @@ provider can be used if Friday has a video adapter for it and the selected
 model supports video creation.
 
 The Settings model picker should show provider/model choices that have a video
-capability. Saving the module selection should validate capability
-compatibility, not a hard-coded provider id.
+capability. Saving `video` should validate capability compatibility, not a
+hard-coded provider id.
 
 Example video provider/model choices:
 
@@ -71,9 +71,9 @@ The video module stores provider and model ids at the root `video` key:
 }
 ```
 
-Credentials are not stored on the module selection. The API key, base URL,
-webhook secret, and any other private provider configuration are resolved from
-the stored provider record when video work starts.
+Credentials are not stored on `video`. The API key, base URL, webhook secret,
+and any other private provider configuration are resolved from the stored
+provider record when video work starts.
 
 Save paths should enforce these rules:
 
@@ -90,7 +90,7 @@ Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests video work.
 2. The video module reads `video`.
-3. It reads `providerId` and `modelId` from the saved module settings.
+3. It reads `providerId` and `modelId` from `video`.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the video adapter for the selected provider and model.

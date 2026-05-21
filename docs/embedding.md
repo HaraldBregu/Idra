@@ -11,7 +11,6 @@ tool, and it can be invoked through background tasks or scheduled work.
 Current runtime status:
 
 - A dedicated embedding module is not implemented yet.
-- Legacy state may still contain a `rag` endpoint string.
 - Provider tests ensure embedding models are not selectable as main agent chat
   models.
 

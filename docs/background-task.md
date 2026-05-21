@@ -225,7 +225,7 @@ Module-backed handlers must:
 - Store only sanitized progress and result summaries on the task record.
 - Avoid accepting API keys, base URLs, webhook secrets, or provider records
   from task input.
-- Use provider/model settings from the matching module selection in
+- Use provider/model settings from the matching root module key in
   `StoreService`.
 
 Provider and model selection should not be copied into every task. The default
