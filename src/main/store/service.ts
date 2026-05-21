@@ -25,6 +25,7 @@ import {
 } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';
 import type {
+	BackgroundTaskSettings,
 	ModelModuleSettings,
 	OcrModuleSettings,
 	SettingsStoreAccessor,
@@ -116,6 +117,26 @@ function readOcrSettings(value: unknown): OcrModuleSettings | undefined {
 		return settings ? { mode: 'model', ...settings } : undefined;
 	}
 	return undefined;
+}
+
+function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
+	const record = readRecord(value);
+	if (!record) return {};
+	const allowedTaskTypes = Array.isArray(record.allowedTaskTypes)
+		? record.allowedTaskTypes.flatMap((item) =>
+				typeof item === 'string' && item.trim() ? [item.trim()] : []
+			)
+		: undefined;
+	const defaultConcurrency =
+		typeof record.defaultConcurrency === 'number' &&
+		Number.isInteger(record.defaultConcurrency) &&
+		record.defaultConcurrency > 0
+			? record.defaultConcurrency
+			: undefined;
+	return {
+		...(allowedTaskTypes && allowedTaskTypes.length > 0 ? { allowedTaskTypes } : {}),
+		...(defaultConcurrency ? { defaultConcurrency } : {}),
+	};
 }
 
 function modelModuleSettings(
@@ -362,6 +383,10 @@ export class StoreService {
 
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
 		return this.getModelModuleSettings('imageCreator');
+	}
+
+	getBackgroundTaskSettings(): BackgroundTaskSettings {
+		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
 	}
 
 	getDocumentReaderOcrEndpoint(): string | undefined {
