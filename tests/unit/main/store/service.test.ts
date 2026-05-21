@@ -24,7 +24,7 @@ import { StoreService } from '../../../../src/main/store';
 import { emptyFridayCronStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { Provider } from '../../../../src/shared/providers';
-import type { Model, Service } from '../../../../src/shared/service';
+import type { Model, OperatorStoreState } from '../../../../src/shared/service';
 
 // ---------------------------------------------------------------------------
 // Typed accessor for the mocked Store constructor.
@@ -270,159 +270,170 @@ describe('StoreService', () => {
 	});
 
 	// -------------------------------------------------------------------------
-	// getService
+	// getOperator
 	// -------------------------------------------------------------------------
 
-	describe('getService()', () => {
-		it('returns the stored service when present', () => {
-			const svc: Service = {
-				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+	describe('getOperator()', () => {
+		it('returns the stored operator state when present', () => {
+			const operator: OperatorStoreState = {
+				assistant: { id: 'friday', name: 'Assistant', docsPath: 'agent.md', status: 'implemented', provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'rag-url',
 				ocr: 'ocr-url',
 			};
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', svc);
+				.store.set('service', operator);
 
-			expect(service.getService()).toEqual(svc);
+			expect(service.getOperator()).toEqual(operator);
 		});
 
-		it('returns undefined when service is absent', () => {
+		it('returns undefined when operator state is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getService()).toBeUndefined();
+			expect(service.getOperator()).toBeUndefined();
 		});
 	});
 
 	// -------------------------------------------------------------------------
-	// getAgentService
+	// getAssistantOperator
 	// -------------------------------------------------------------------------
 
-	describe('getAgentService()', () => {
-		it('returns the agent block when service is set', () => {
-			const svc: Service = {
-				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+	describe('getAssistantOperator()', () => {
+		it('returns the assistant block when operator state is set', () => {
+			const assistant = { id: 'friday', name: 'Assistant', docsPath: 'agent.md', status: 'implemented' as const, provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model };
+			const operator: OperatorStoreState = {
+				assistant,
 				rag: '',
 				ocr: '',
 			};
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', svc);
+				.store.set('service', operator);
 
-			expect(service.getAgentService()).toEqual(svc.agent);
+			expect(service.getAssistantOperator()).toEqual(assistant);
 		});
 
-		it('returns undefined when service is absent', () => {
-			const service = new StoreService();
-
-			expect(service.getAgentService()).toBeUndefined();
-		});
-
-		it('returns undefined when service has no agent field', () => {
-			// Store a partial service (as unknown cast so TS does not complain).
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
-
-			expect(service.getAgentService()).toBeUndefined();
-		});
-	});
-
-	// -------------------------------------------------------------------------
-	// getAgentModel
-	// -------------------------------------------------------------------------
-
-	describe('getAgentModel()', () => {
-		it('returns the model when service and agent are set', () => {
-			const svc: Service = {
+		it('reads legacy agent selections as assistant operators', () => {
+			const operator: OperatorStoreState = {
 				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
-				rag: '',
-				ocr: '',
 			};
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', svc);
+				.store.set('service', operator);
 
-			expect(service.getAgentModel()).toEqual(model);
+			expect(service.getAssistantOperator()).toMatchObject({
+				id: 'friday',
+				provider: operator.agent?.provider,
+				model,
+			});
 		});
 
-		it('returns undefined when service is absent', () => {
+		it('returns undefined when operator state is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAgentModel()).toBeUndefined();
+			expect(service.getAssistantOperator()).toBeUndefined();
 		});
 
-		it('returns undefined when agent is absent from the service', () => {
+		it('returns undefined when operator state has no assistant field', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
+				.store.set('service', { rag: '', ocr: '' } as unknown as OperatorStoreState);
 
-			expect(service.getAgentModel()).toBeUndefined();
+			expect(service.getAssistantOperator()).toBeUndefined();
 		});
 	});
 
 	// -------------------------------------------------------------------------
-	// getAgentProvider
+	// getAssistantModel
 	// -------------------------------------------------------------------------
 
-	describe('getAgentProvider()', () => {
-		it('returns the provider block when service and agent are set', () => {
+	describe('getAssistantModel()', () => {
+		it('returns the model when assistant is set', () => {
+			const operator: OperatorStoreState = {
+				assistant: { id: 'friday', name: 'Assistant', docsPath: 'agent.md', status: 'implemented', provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+			};
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
+				.store.set('service', operator);
+
+			expect(service.getAssistantModel()).toEqual(model);
+		});
+
+		it('returns undefined when operator state is absent', () => {
+			const service = new StoreService();
+
+			expect(service.getAssistantModel()).toBeUndefined();
+		});
+
+		it('returns undefined when assistant is absent from the operator state', () => {
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
+				.store.set('service', { rag: '', ocr: '' } as unknown as OperatorStoreState);
+
+			expect(service.getAssistantModel()).toBeUndefined();
+		});
+	});
+
+	// -------------------------------------------------------------------------
+	// getAssistantProvider
+	// -------------------------------------------------------------------------
+
+	describe('getAssistantProvider()', () => {
+		it('returns the provider block when assistant is set', () => {
 			const providerRef = { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
-			const svc: Service = {
-				agent: { provider: providerRef, model },
-				rag: '',
-				ocr: '',
+			const operator: OperatorStoreState = {
+				assistant: { id: 'friday', name: 'Assistant', docsPath: 'agent.md', status: 'implemented', provider: providerRef, model },
 			};
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', svc);
+				.store.set('service', operator);
 
-			expect(service.getAgentProvider()).toEqual(providerRef);
+			expect(service.getAssistantProvider()).toEqual(providerRef);
 		});
 
-		it('returns undefined when service is absent', () => {
+		it('returns undefined when operator state is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAgentProvider()).toBeUndefined();
+			expect(service.getAssistantProvider()).toBeUndefined();
 		});
 
-		it('returns undefined when agent is absent from the service', () => {
+		it('returns undefined when assistant is absent from the operator state', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
-				.store.set('service', { rag: '', ocr: '' } as unknown as Service);
+				.store.set('service', { rag: '', ocr: '' } as unknown as OperatorStoreState);
 
-			expect(service.getAgentProvider()).toBeUndefined();
+			expect(service.getAssistantProvider()).toBeUndefined();
 		});
 	});
 
 	// -------------------------------------------------------------------------
-	// setAgentService
+	// setAssistantOperator
 	// -------------------------------------------------------------------------
 
-	describe('setAgentService()', () => {
+	describe('setAssistantOperator()', () => {
 		it('returns false and does not write when the provider id is not found', () => {
 			const service = new StoreService();
 
-			const result = service.setAgentService('unknown', model);
+			const result = service.setAssistantOperator('unknown', model);
 
 			expect(result).toBe(false);
-			expect(service.getService()).toBeUndefined();
+			expect(service.getOperator()).toBeUndefined();
 		});
 
-		it('returns true and writes the service when the provider is found', () => {
+		it('returns true and writes the assistant operator when the provider is found', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			const result = service.setAgentService('openai', model);
+			const result = service.setAssistantOperator('openai', model);
 
 			expect(result).toBe(true);
-			expect(service.getService()).toBeDefined();
+			expect(service.getOperator()?.assistant).toBeDefined();
 		});
 
 		it('preserves existing rag and ocr values from the current service', () => {
-			const existing: Service = {
-				agent: { provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
+			const existing: OperatorStoreState = {
+				assistant: { id: 'friday', name: 'Assistant', docsPath: 'agent.md', status: 'implemented', provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }, model },
 				rag: 'existing-rag',
 				ocr: 'existing-ocr',
 			};
@@ -432,23 +443,23 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('service', existing);
 
-			service.setAgentService('openai', model);
+			service.setAssistantOperator('openai', model);
 
-			const written = service.getService();
+			const written = service.getOperator();
 			expect(written?.rag).toBe('existing-rag');
 			expect(written?.ocr).toBe('existing-ocr');
 		});
 
-		it('defaults rag and ocr to empty strings when no current service exists', () => {
+		it('does not create legacy rag and ocr fields when no current operator state exists', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			service.setAgentService('openai', model);
+			service.setAssistantOperator('openai', model);
 
-			const written = service.getService();
-			expect(written?.rag).toBe('');
-			expect(written?.ocr).toBe('');
+			const written = service.getOperator();
+			expect(written?.rag).toBeUndefined();
+			expect(written?.ocr).toBeUndefined();
 		});
 
 		it('writes the provider without the apiKey field', () => {
@@ -456,11 +467,11 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			service.setAgentService('openai', model);
+			service.setAssistantOperator('openai', model);
 
-			const written = service.getService();
-			expect(written?.agent?.provider).not.toHaveProperty('apiKey');
-			expect(written?.agent?.provider).toEqual({
+			const written = service.getOperator();
+			expect(written?.assistant?.provider).not.toHaveProperty('apiKey');
+			expect(written?.assistant?.provider).toEqual({
 				id: 'openai',
 				name: 'OpenAI',
 				baseUrl: 'https://api.openai.com/v1',
@@ -472,9 +483,9 @@ describe('StoreService', () => {
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
 				.store.set('providers', [openaiProvider]);
 
-			service.setAgentService('openai', model);
+			service.setAssistantOperator('openai', model);
 
-			expect(service.getService()?.agent?.model).toEqual(model);
+			expect(service.getOperator()?.assistant?.model).toEqual(model);
 		});
 	});
 
