@@ -6,7 +6,7 @@ import { ConnectorConfig } from "../../shared/connectors";
 import type { AppPermissionSettings } from "../../shared/app-permissions";
 import type { AppSettings } from "../../shared/app-settings";
 
-export type ProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
+export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 
 export interface ModelModuleSettings {
 	providerId: string;
@@ -46,13 +46,13 @@ export interface BackgroundTaskSettings {
 export interface SettingsStore {
 	appSettings?: AppSettings;
 	appPermissions?: AppPermissionSettings;
-	providers: ProviderSettings[];
-	agent?: ModelModuleSettings;
+	modelProviders: ModelProviderSettings[];
+	llmAgent?: ModelModuleSettings;
 	speechToText?: ModelModuleSettings;
 	textToSpeech?: ModelModuleSettings;
 	imageCreator?: ModelModuleSettings;
-	video?: ModelModuleSettings;
-	sound?: ModelModuleSettings;
+	textToVideo?: ModelModuleSettings;
+	textToSound?: ModelModuleSettings;
 	ocr?: OcrModuleSettings;
 	embedding?: EmbeddingModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
