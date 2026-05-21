@@ -7,14 +7,14 @@ class.
 
 ## Source Of Truth
 
-- `src/shared/service.ts`: shared `Service`, `Agent`, `Model`, reasoning
-  effort, and operator model constants.
+- `src/shared/service.ts`: shared operator settings shape, `Agent`, `Model`,
+  reasoning effort, and operator model constants.
 - `src/shared/providers.ts`: provider catalog, provider capabilities, official
   provider docs, and default agent model catalogs.
-- `src/main/store/service.ts`: persisted provider records and operator service
+- `src/main/store/service.ts`: persisted provider records and operator
   selections.
 - `src/main/service.ts`: Friday agent runtime and provider/model resolution.
-- `src/main/ipc/app-ipc.ts`: provider and service IPC handlers.
+- `src/main/ipc/app-ipc.ts`: provider and operator-selection IPC handlers.
 - `src/main/ipc/realtime-transcription-ipc.ts`: speech-to-text runtime.
 - `src/main/tasks`: in-memory background task manager and registered task
   handlers.
@@ -24,13 +24,16 @@ class.
 ## Operator Contract
 
 An operator must know which provider and model to use before it starts work.
-That selection comes from Settings through `StoreService`.
+That selection comes from Settings through `StoreService`. The documentation
+name for this settings shape is `Operator`. The implementation may still use
+the persisted key `service` for backwards compatibility; do not treat that
+storage key as the product name.
 
 Rules:
 
 - Store provider credentials only on configured provider records under
   `providers`.
-- Store operator provider/model choices on `service` or another typed
+- Store operator provider/model choices on `operator` or another typed
   StoreService-backed state object.
 - Resolve provider id, model id, API key, and base URL once at the start of the
   operation.
@@ -41,35 +44,76 @@ Rules:
 - Keep unsupported operators visible as Settings placeholders only until they
   have a StoreService slot and runtime.
 
-The current `Service` shape stores:
+The target `Operator` interface contains every product-level operator. Operators
+that are not runtime-backed yet should still appear here so Settings, docs, and
+future runtime work share stable names.
 
 ```ts
-interface Service {
-	agent?: Agent;
-	speechTranscriber?: Agent;
+interface Operator {
+	agent?: ModelOperator;
+	speechToText?: ModelOperator;
+	textToSpeech?: ModelOperator;
+	imageCreator?: ModelOperator;
+	videoCreator?: ModelOperator;
+	musicCreator?: ModelOperator;
+	documentReaderOcr?: ModelOperator | EndpointOperator;
+	cronTaskScheduler?: SchedulerOperator;
+	backgroundTask?: TaskOperator;
 	agents?: AgentsHeartbeatConfig;
-	rag: string;
-	ocr: string;
+	rag?: string;
+	ocr?: string;
+}
+
+interface ModelOperator {
+	id: string;
+	name: string;
+	docsPath: string;
+	provider?: Omit<Provider, 'apiKey'>;
+	model?: Model;
+	status: 'implemented' | 'placeholder' | 'pending-runtime';
+}
+
+interface EndpointOperator {
+	id: string;
+	name: string;
+	docsPath: string;
+	endpoint: string;
+	status: 'implemented' | 'placeholder' | 'pending-runtime';
+}
+
+interface SchedulerOperator {
+	id: string;
+	name: string;
+	docsPath: string;
+	status: 'implemented' | 'placeholder' | 'pending-runtime';
+}
+
+interface TaskOperator {
+	id: string;
+	name: string;
+	docsPath: string;
+	registeredTaskTypes: string[];
+	status: 'implemented' | 'placeholder' | 'pending-runtime';
 }
 ```
 
-`Agent` means a public provider record without `apiKey` plus a selected model.
-The private API key and base URL are resolved later from the matching provider
-record.
+`ModelOperator.provider` is a public provider record without `apiKey` plus a
+selected model. The private API key and base URL are resolved later from the
+matching provider record.
 
 ## Current Operators
 
-| Operator | Stable id | Operator doc | Store-backed selection | Runtime status |
+| Operator | Stable id | Operator doc | Operator interface field | Runtime status |
 | --- | --- | --- | --- | --- |
-| Agent (Friday) | `friday`, runtime `main` | [agent.md](agent.md) | `service.agent` stores provider and model. Provider credentials are in `providers`. | Implemented through `AgentService.send`. |
-| Speech to text | `speech-to-text` | `speech-to-text.md` | `service.speechTranscriber` stores provider and model. Currently OpenAI only. | Implemented through realtime transcription IPC. |
-| Text to speech | `text-to-speech` | `text-to-speech.md` | Static Settings placeholder uses provider `elevenlabs` and model `rachel-multilingual`; no dedicated StoreService slot yet. | Pending runtime. |
-| Image creator | `image-assistant` | `image-creator.md` | Static Settings placeholder uses `image-provider-coming-soon`; no dedicated StoreService slot yet. | Pending runtime. |
-| Video creator | `video-creator` | `video-creator.md` | Static Settings placeholder uses `video-provider-coming-soon`; no dedicated StoreService slot yet. | Pending runtime. |
-| Music creator | `music-creator` | `music-creator.md` | Static Settings placeholder uses `music-provider-coming-soon`; no dedicated StoreService slot yet. | Pending runtime. |
-| Document reader OCR | `document-reader`, task `ocr.run` | `document-reader-ocr.md` | Settings placeholder uses `document-reader-provider-coming-soon`. The implemented OCR task currently reads endpoint `service.ocr`. | OCR task implemented; provider/model picker pending. |
-| Cron task scheduler | `cron-task-scheduler` | [cron.md](cron.md) | Schedules persist in `cronScheduler` and `fridayCron`. Agent cron payloads may carry provider/model ids that are resolved by `AgentService`; otherwise the saved agent selection is used. | Implemented. |
-| Background task | `background-task` | [task-manager.md](task-manager.md) | Tasks are in-memory. Each registered task handler resolves its own operator config, for example `agent.run` or `ocr.run`. | Implemented for `agent.run` and `ocr.run`. |
+| Agent (Friday) | `friday`, runtime `main` | [agent.md](agent.md) | `operator.agent` stores provider and model. Provider credentials are in `providers`. | Implemented through `AgentService.send`. |
+| Speech to text | `speech-to-text` | `speech-to-text.md` | `operator.speechToText` stores provider and model. Currently OpenAI only. | Implemented through realtime transcription IPC. |
+| Text to speech | `text-to-speech` | `text-to-speech.md` | `operator.textToSpeech` stores provider and model. Current placeholder uses provider `elevenlabs` and model `rachel-multilingual`. | Pending runtime. |
+| Image creator | `image-assistant` | `image-creator.md` | `operator.imageCreator` stores provider and model. Current placeholder uses `image-provider-coming-soon`. | Pending runtime. |
+| Video creator | `video-creator` | `video-creator.md` | `operator.videoCreator` stores provider and model. Current placeholder uses `video-provider-coming-soon`. | Pending runtime. |
+| Music creator | `music-creator` | `music-creator.md` | `operator.musicCreator` stores provider and model. Current placeholder uses `music-provider-coming-soon`. | Pending runtime. |
+| Document reader OCR | `document-reader`, task `ocr.run` | `document-reader-ocr.md` | `operator.documentReaderOcr` stores provider/model or endpoint configuration. Current OCR task reads endpoint `ocr`. | OCR task implemented; provider/model picker pending. |
+| Cron task scheduler | `cron-task-scheduler` | [cron.md](cron.md) | `operator.cronTaskScheduler` describes scheduler state. Schedules persist in `cronScheduler` and `fridayCron`. | Implemented. |
+| Background task | `background-task` | [task-manager.md](task-manager.md) | `operator.backgroundTask` describes registered task types such as `agent.run` and `ocr.run`. | Implemented for `agent.run` and `ocr.run`. |
 
 Use the operator doc filename as the stable documentation target. If a target
 file does not exist yet, this page is the current owner for that operator's
@@ -79,7 +123,7 @@ contract.
 
 ### Agent (Friday)
 
-The Friday agent stores its default provider/model at `service.agent`.
+The Friday agent stores its default provider/model at `operator.agent`.
 `ProviderChannels.saveAgentService` validates the selected provider and model
 before saving.
 
@@ -97,7 +141,7 @@ credentials.
 
 ### Speech To Text
 
-Speech-to-text stores its selection at `service.speechTranscriber`.
+Speech-to-text stores its selection at `operator.speechToText`.
 
 Current constraints:
 
@@ -147,7 +191,7 @@ Current OCR flow:
 1. `TaskManager` starts a task of type `ocr.run`.
 2. `OcrTaskHandler` validates `imageBase64`, optional `mimeType`, and optional
    `language`.
-3. The handler reads `StoreService.getService()?.ocr`.
+3. The handler reads the configured OCR endpoint.
 4. The handler posts the OCR input as JSON to that endpoint.
 5. The handler extracts text from a string response or from JSON keys `text`,
    `result`, or `output`.
