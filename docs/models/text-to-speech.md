@@ -47,15 +47,15 @@ Current catalog status:
 
 Cataloged TTS provider/model choices:
 
-| Provider | Model id | Runtime style |
-| --- | --- | --- |
-| `elevenlabs` | `rachel-multilingual` | Hosted voice synthesis |
-| `openai` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
-| `google` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
-| `mistral` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
-| `minimax` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
-| `deepgram` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
-| `cartesia` | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| Provider     | Model id                              | Runtime style             |
+| ------------ | ------------------------------------- | ------------------------- |
+| `elevenlabs` | `rachel-multilingual`                 | Hosted voice synthesis    |
+| `openai`     | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `google`     | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `mistral`    | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `minimax`    | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `deepgram`   | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
+| `cartesia`   | `text-to-speech-provider-coming-soon` | Placeholder catalog entry |
 
 Provider catalog and official provider links are maintained in
 [providers.md](../providers/index.md).

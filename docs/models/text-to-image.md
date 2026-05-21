@@ -72,22 +72,22 @@ provider-specific image model catalogs and adapters are implemented.
 
 Providers with image capability in the default provider catalog include:
 
-| Provider id | Provider | Catalog model id | Runtime status |
-| --- | --- | --- | --- |
-| `openai` | OpenAI | `image-provider-coming-soon` | Adapter pending |
-| `google` | Google DeepMind / Google | `image-provider-coming-soon` | Adapter pending |
-| `xai` | xAI | `image-provider-coming-soon` | Adapter pending |
-| `qwen` | Alibaba / Qwen / Wan | `image-provider-coming-soon` | Adapter pending |
-| `baidu` | Baidu | `image-provider-coming-soon` | Adapter pending |
-| `tencent-hunyuan` | Tencent Hunyuan | `image-provider-coming-soon` | Adapter pending |
-| `bytedance-seed` | ByteDance Seed | `image-provider-coming-soon` | Adapter pending |
-| `black-forest-labs` | Black Forest Labs | `image-provider-coming-soon` | Adapter pending |
-| `midjourney` | Midjourney | `image-provider-coming-soon` | Adapter pending |
-| `adobe-firefly` | Adobe Firefly | `image-provider-coming-soon` | Adapter pending |
-| `kling` | Kuaishou / Kling AI | `image-provider-coming-soon` | Adapter pending |
-| `luma` | Luma AI | `image-provider-coming-soon` | Adapter pending |
-| `stability-ai` | Stability AI | `image-provider-coming-soon` | Adapter pending |
-| `ideogram` | Ideogram | `image-provider-coming-soon` | Adapter pending |
+| Provider id         | Provider                 | Catalog model id             | Runtime status  |
+| ------------------- | ------------------------ | ---------------------------- | --------------- |
+| `openai`            | OpenAI                   | `image-provider-coming-soon` | Adapter pending |
+| `google`            | Google DeepMind / Google | `image-provider-coming-soon` | Adapter pending |
+| `xai`               | xAI                      | `image-provider-coming-soon` | Adapter pending |
+| `qwen`              | Alibaba / Qwen / Wan     | `image-provider-coming-soon` | Adapter pending |
+| `baidu`             | Baidu                    | `image-provider-coming-soon` | Adapter pending |
+| `tencent-hunyuan`   | Tencent Hunyuan          | `image-provider-coming-soon` | Adapter pending |
+| `bytedance-seed`    | ByteDance Seed           | `image-provider-coming-soon` | Adapter pending |
+| `black-forest-labs` | Black Forest Labs        | `image-provider-coming-soon` | Adapter pending |
+| `midjourney`        | Midjourney               | `image-provider-coming-soon` | Adapter pending |
+| `adobe-firefly`     | Adobe Firefly            | `image-provider-coming-soon` | Adapter pending |
+| `kling`             | Kuaishou / Kling AI      | `image-provider-coming-soon` | Adapter pending |
+| `luma`              | Luma AI                  | `image-provider-coming-soon` | Adapter pending |
+| `stability-ai`      | Stability AI             | `image-provider-coming-soon` | Adapter pending |
+| `ideogram`          | Ideogram                 | `image-provider-coming-soon` | Adapter pending |
 
 Provider credentials, base URLs, and official provider links are maintained in
 [providers.md](../providers/index.md). The consolidated model overview is

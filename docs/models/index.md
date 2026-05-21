@@ -19,25 +19,25 @@ The source of truth is:
 
 Friday uses several kinds of model support:
 
-| Support level | Meaning |
-| --- | --- |
-| Explicit model catalog | Friday stores concrete model ids for a provider and can validate saved selections against that list. |
+| Support level                      | Meaning                                                                                                                                         |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Explicit model catalog             | Friday stores concrete model ids for a provider and can validate saved selections against that list.                                            |
 | Provider-keyed placeholder catalog | Friday exposes provider/model settings for a capability, but the model id is a placeholder until provider-specific catalogs and adapters exist. |
-| Endpoint-backed module | Friday can run through a configured endpoint instead of a provider/model adapter. |
-| No default catalog | Friday has the store shape and target module contract, but no selectable default provider/model entries yet. |
+| Endpoint-backed module             | Friday can run through a configured endpoint instead of a provider/model adapter.                                                               |
+| No default catalog                 | Friday has the store shape and target module contract, but no selectable default provider/model entries yet.                                    |
 
 Current module status:
 
-| Module | Store key | Support level | Runtime status |
-| --- | --- | --- | --- |
-| [Large language model](large-language-model.md) | `llmAgent` | Explicit model catalog | Implemented |
-| [Speech to text](speech-to-text.md) | `speechToText` | OpenAI explicit model plus provider placeholders | Implemented for OpenAI realtime |
-| [Text to speech](text-to-speech.md) | `textToSpeech` | ElevenLabs explicit model plus provider placeholders | Pending runtime |
-| [Text to image](text-to-image.md) | `imageCreator` | Provider-keyed placeholder catalog | Service, task, and tool path exist; provider adapters pending |
-| [Text to video](text-to-video.md) | `textToVideo` | Provider-keyed placeholder catalog | Pending runtime |
-| [Text to audio](music-creator.md) | `textToSound` | Provider-keyed placeholder catalog | Pending runtime |
-| [OCR](ocr.md) | `ocr` | Endpoint-backed now; placeholder model constant for future provider mode | `ocr.run` endpoint path implemented; provider runtime pending |
-| [Embedding](embedding.md) | `embedding` | No default catalog | Pending runtime |
+| Module                                          | Store key      | Support level                                                            | Runtime status                                                |
+| ----------------------------------------------- | -------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| [Large language model](large-language-model.md) | `llmAgent`     | Explicit model catalog                                                   | Implemented                                                   |
+| [Speech to text](speech-to-text.md)             | `speechToText` | OpenAI explicit model plus provider placeholders                         | Implemented for OpenAI realtime                               |
+| [Text to speech](text-to-speech.md)             | `textToSpeech` | ElevenLabs explicit model plus provider placeholders                     | Pending runtime                                               |
+| [Text to image](text-to-image.md)               | `imageCreator` | Provider-keyed placeholder catalog                                       | Service, task, and tool path exist; provider adapters pending |
+| [Text to video](text-to-video.md)               | `textToVideo`  | Provider-keyed placeholder catalog                                       | Pending runtime                                               |
+| [Text to audio](music-creator.md)               | `textToSound`  | Provider-keyed placeholder catalog                                       | Pending runtime                                               |
+| [OCR](ocr.md)                                   | `ocr`          | Endpoint-backed now; placeholder model constant for future provider mode | `ocr.run` endpoint path implemented; provider runtime pending |
+| [Embedding](embedding.md)                       | `embedding`    | No default catalog                                                       | Pending runtime                                               |
 
 ## LLM Agent Models
 
@@ -46,43 +46,43 @@ static catalog for known catalog-backed providers. Known providers without a
 main-agent catalog return an empty model list for the assistant. Unknown
 provider ids are rejected.
 
-| Provider id | Provider | Runtime adapter | Supported model ids |
-| --- | --- | --- | --- |
-| `openai` | OpenAI | Native OpenAI Responses adapter | `gpt-5.5`, `gpt-5.5-pro`, `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.4-mini` |
-| `anthropic` | Anthropic | Native Anthropic Messages adapter | `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-haiku-4-5` |
-| `google` | Google DeepMind / Google | OpenAI-compatible chat adapter | `gemini-3.1-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite` |
-| `meta` | Meta | OpenAI-compatible chat adapter | `llama-4-maverick`, `llama-4-scout`, `llama-3.3-70b` |
-| `xai` | xAI | OpenAI-compatible chat adapter | `grok-4.3`, `grok-4.3-fast`, `grok-code-fast` |
-| `mistral` | Mistral AI | Native Mistral adapter | `mistral-large-2512`, `mistral-large-latest`, `mistral-medium-2604`, `mistral-medium-latest`, `mistral-medium-2508`, `mistral-small-2603`, `mistral-small-latest`, `ministral-14b-2512`, `ministral-14b-latest`, `ministral-8b-2512`, `ministral-8b-latest`, `ministral-3b-2512`, `ministral-3b-latest`, `magistral-medium-2509`, `magistral-medium-latest` |
-| `cohere` | Cohere | OpenAI-compatible chat adapter | `command-a-03-2025`, `command-a-reasoning-08-2025`, `command-a-vision-07-2025`, `aya-vision` |
-| `deepseek` | DeepSeek | Native DeepSeek adapter | `deepseek-v4-pro`, `deepseek-v4-flash` |
-| `qwen` | Alibaba / Qwen / Wan | Native Qwen adapter | `qwen3-max`, `qwen3.5-plus`, `qwen3.5-flash`, `qwen3-coder-plus`, `qwq-plus` |
-| `kimi` | Moonshot AI / Kimi | OpenAI-compatible chat adapter | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2`, `kimi-latest` |
-| `zai` | Z.ai / Zhipu AI | OpenAI-compatible chat adapter | `glm-5.1`, `glm-5`, `glm-4.6`, `glm-4.5v`, `glm-z1` |
-| `baidu` | Baidu | OpenAI-compatible chat adapter | `ernie-5.1`, `ernie-5.0`, `ernie-x1.1`, `ernie-4.5` |
-| `tencent-hunyuan` | Tencent Hunyuan | OpenAI-compatible chat adapter | `hy3-preview` |
-| `bytedance-seed` | ByteDance Seed | OpenAI-compatible chat adapter | `seed2.0-pro`, `seed2.0-code` |
-| `minimax` | MiniMax | OpenAI-compatible chat adapter | `minimax-m2.7` |
-| `luma` | Luma AI | OpenAI-compatible chat adapter | `uni-1` |
-| `reka` | Reka AI | OpenAI-compatible chat adapter | `reka-core`, `reka-flash`, `reka-edge` |
-| `ai21` | AI21 Labs | OpenAI-compatible chat adapter | `jamba-large`, `jamba-mini`, `jamba-1.5-large`, `jamba-1.5-mini` |
-| `perplexity` | Perplexity | OpenAI-compatible chat adapter | `sonar-reasoning-pro`, `sonar-pro`, `sonar-deep-research`, `r1-1776` |
-| `nvidia` | NVIDIA | OpenAI-compatible chat adapter | `nemotron-ultra-latest`, `llama-nemotron-super`, `llama-nemotron-nano`, `nemotron-vl` |
+| Provider id       | Provider                 | Runtime adapter                   | Supported model ids                                                                                                                                                                                                                                                                                                                                         |
+| ----------------- | ------------------------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `openai`          | OpenAI                   | Native OpenAI Responses adapter   | `gpt-5.5`, `gpt-5.5-pro`, `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.4-mini`                                                                                                                                                                                                                                                                                          |
+| `anthropic`       | Anthropic                | Native Anthropic Messages adapter | `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-haiku-4-5`                                                                                                                                                                                                                                                          |
+| `google`          | Google DeepMind / Google | OpenAI-compatible chat adapter    | `gemini-3.1-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`                                                                                                                                                                                                                                           |
+| `meta`            | Meta                     | OpenAI-compatible chat adapter    | `llama-4-maverick`, `llama-4-scout`, `llama-3.3-70b`                                                                                                                                                                                                                                                                                                        |
+| `xai`             | xAI                      | OpenAI-compatible chat adapter    | `grok-4.3`, `grok-4.3-fast`, `grok-code-fast`                                                                                                                                                                                                                                                                                                               |
+| `mistral`         | Mistral AI               | Native Mistral adapter            | `mistral-large-2512`, `mistral-large-latest`, `mistral-medium-2604`, `mistral-medium-latest`, `mistral-medium-2508`, `mistral-small-2603`, `mistral-small-latest`, `ministral-14b-2512`, `ministral-14b-latest`, `ministral-8b-2512`, `ministral-8b-latest`, `ministral-3b-2512`, `ministral-3b-latest`, `magistral-medium-2509`, `magistral-medium-latest` |
+| `cohere`          | Cohere                   | OpenAI-compatible chat adapter    | `command-a-03-2025`, `command-a-reasoning-08-2025`, `command-a-vision-07-2025`, `aya-vision`                                                                                                                                                                                                                                                                |
+| `deepseek`        | DeepSeek                 | Native DeepSeek adapter           | `deepseek-v4-pro`, `deepseek-v4-flash`                                                                                                                                                                                                                                                                                                                      |
+| `qwen`            | Alibaba / Qwen / Wan     | Native Qwen adapter               | `qwen3-max`, `qwen3.5-plus`, `qwen3.5-flash`, `qwen3-coder-plus`, `qwq-plus`                                                                                                                                                                                                                                                                                |
+| `kimi`            | Moonshot AI / Kimi       | OpenAI-compatible chat adapter    | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2`, `kimi-latest`                                                                                                                                                                                                                                                                                                          |
+| `zai`             | Z.ai / Zhipu AI          | OpenAI-compatible chat adapter    | `glm-5.1`, `glm-5`, `glm-4.6`, `glm-4.5v`, `glm-z1`                                                                                                                                                                                                                                                                                                         |
+| `baidu`           | Baidu                    | OpenAI-compatible chat adapter    | `ernie-5.1`, `ernie-5.0`, `ernie-x1.1`, `ernie-4.5`                                                                                                                                                                                                                                                                                                         |
+| `tencent-hunyuan` | Tencent Hunyuan          | OpenAI-compatible chat adapter    | `hy3-preview`                                                                                                                                                                                                                                                                                                                                               |
+| `bytedance-seed`  | ByteDance Seed           | OpenAI-compatible chat adapter    | `seed2.0-pro`, `seed2.0-code`                                                                                                                                                                                                                                                                                                                               |
+| `minimax`         | MiniMax                  | OpenAI-compatible chat adapter    | `minimax-m2.7`                                                                                                                                                                                                                                                                                                                                              |
+| `luma`            | Luma AI                  | OpenAI-compatible chat adapter    | `uni-1`                                                                                                                                                                                                                                                                                                                                                     |
+| `reka`            | Reka AI                  | OpenAI-compatible chat adapter    | `reka-core`, `reka-flash`, `reka-edge`                                                                                                                                                                                                                                                                                                                      |
+| `ai21`            | AI21 Labs                | OpenAI-compatible chat adapter    | `jamba-large`, `jamba-mini`, `jamba-1.5-large`, `jamba-1.5-mini`                                                                                                                                                                                                                                                                                            |
+| `perplexity`      | Perplexity               | OpenAI-compatible chat adapter    | `sonar-reasoning-pro`, `sonar-pro`, `sonar-deep-research`, `r1-1776`                                                                                                                                                                                                                                                                                        |
+| `nvidia`          | NVIDIA                   | OpenAI-compatible chat adapter    | `nemotron-ultra-latest`, `llama-nemotron-super`, `llama-nemotron-nano`, `nemotron-vl`                                                                                                                                                                                                                                                                       |
 
 LLM reasoning effort:
 
-| Provider | Saved effort behavior |
-| --- | --- |
-| `openai` | Saved and passed to the Responses API as `reasoning.effort`. `gpt-5.4-mini` excludes `minimal`; other configured OpenAI models allow `none`, `minimal`, `low`, `medium`, `high`, and `xhigh`. |
-| Other providers | Saved model data is reduced to `{ id, name }`; effort is not saved or passed by the default main-agent service path. |
+| Provider        | Saved effort behavior                                                                                                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `openai`        | Saved and passed to the Responses API as `reasoning.effort`. `gpt-5.4-mini` excludes `minimal`; other configured OpenAI models allow `none`, `minimal`, `low`, `medium`, `high`, and `xhigh`. |
+| Other providers | Saved model data is reduced to `{ id, name }`; effort is not saved or passed by the default main-agent service path.                                                                          |
 
 ## Speech-To-Text Models
 
 Speech to text currently has one explicit provider/model entry:
 
-| Provider id | Provider | Model id | Display name | Runtime notes |
-| --- | --- | --- | --- | --- |
-| `openai` | OpenAI | `gpt-realtime-whisper` | GPT Realtime Whisper | Uses the OpenAI realtime adapter for live dictation and transcription. The configured model id represents the transcription model; the realtime socket may use a separate OpenAI realtime connection model internally. |
+| Provider id | Provider | Model id               | Display name         | Runtime notes                                                                                                                                                                                                          |
+| ----------- | -------- | ---------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `openai`    | OpenAI   | `gpt-realtime-whisper` | GPT Realtime Whisper | Uses the OpenAI realtime adapter for live dictation and transcription. The configured model id represents the transcription model; the realtime socket may use a separate OpenAI realtime connection model internally. |
 
 Other speech-to-text capable providers return the placeholder model id
 `speech-to-text-provider-coming-soon` through
@@ -96,15 +96,15 @@ Text to speech is modeled as a future module. The current code exposes one
 concrete ElevenLabs selection and placeholder selections for other
 text-to-speech capable providers:
 
-| Provider id | Provider | Catalog model id | Runtime notes |
-| --- | --- | --- | --- |
-| `elevenlabs` | ElevenLabs | `rachel-multilingual` | Concrete catalog entry, but operator status is `pending-runtime`. |
-| `openai` | OpenAI | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
-| `google` | Google DeepMind / Google | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
-| `mistral` | Mistral AI | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
-| `minimax` | MiniMax | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
-| `deepgram` | Deepgram | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
-| `cartesia` | Cartesia | `text-to-speech-provider-coming-soon` | Placeholder catalog entry. |
+| Provider id  | Provider                 | Catalog model id                      | Runtime notes                                                     |
+| ------------ | ------------------------ | ------------------------------------- | ----------------------------------------------------------------- |
+| `elevenlabs` | ElevenLabs               | `rachel-multilingual`                 | Concrete catalog entry, but operator status is `pending-runtime`. |
+| `openai`     | OpenAI                   | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
+| `google`     | Google DeepMind / Google | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
+| `mistral`    | Mistral AI               | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
+| `minimax`    | MiniMax                  | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
+| `deepgram`   | Deepgram                 | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
+| `cartesia`   | Cartesia                 | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
 
 Exact provider/model compatibility should be validated by the TTS adapter when
 runtime support is added.
@@ -123,22 +123,22 @@ for the selected provider/model pair.
 
 Providers with image capability in `DEFAULT_PROVIDERS`:
 
-| Provider id | Provider | Catalog model id | Model selection status |
-| --- | --- | --- | --- |
-| `openai` | OpenAI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `google` | Google DeepMind / Google | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `xai` | xAI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `qwen` | Alibaba / Qwen / Wan | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `baidu` | Baidu | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `tencent-hunyuan` | Tencent Hunyuan | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `bytedance-seed` | ByteDance Seed | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `black-forest-labs` | Black Forest Labs | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `midjourney` | Midjourney | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `adobe-firefly` | Adobe Firefly | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `kling` | Kuaishou / Kling AI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `luma` | Luma AI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `stability-ai` | Stability AI | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `ideogram` | Ideogram | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| Provider id         | Provider                 | Catalog model id             | Model selection status                      |
+| ------------------- | ------------------------ | ---------------------------- | ------------------------------------------- |
+| `openai`            | OpenAI                   | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `google`            | Google DeepMind / Google | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `xai`               | xAI                      | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `qwen`              | Alibaba / Qwen / Wan     | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `baidu`             | Baidu                    | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `tencent-hunyuan`   | Tencent Hunyuan          | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `bytedance-seed`    | ByteDance Seed           | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `black-forest-labs` | Black Forest Labs        | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `midjourney`        | Midjourney               | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `adobe-firefly`     | Adobe Firefly            | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `kling`             | Kuaishou / Kling AI      | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `luma`              | Luma AI                  | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `stability-ai`      | Stability AI             | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
+| `ideogram`          | Ideogram                 | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 
 Expected runtime boundary:
 
@@ -161,23 +161,23 @@ and adapters exist.
 
 Providers with video capability in `DEFAULT_PROVIDERS`:
 
-| Provider id | Provider | Catalog model id | Model selection status |
-| --- | --- | --- | --- |
-| `openai` | OpenAI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `google` | Google DeepMind / Google | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `meta` | Meta | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `xai` | xAI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `qwen` | Alibaba / Qwen / Wan | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `tencent-hunyuan` | Tencent Hunyuan | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `bytedance-seed` | ByteDance Seed | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `minimax` | MiniMax | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `midjourney` | Midjourney | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `adobe-firefly` | Adobe Firefly | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `kling` | Kuaishou / Kling AI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `runway` | Runway | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `luma` | Luma AI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `stability-ai` | Stability AI | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `pika` | Pika | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| Provider id       | Provider                 | Catalog model id             | Model selection status                      |
+| ----------------- | ------------------------ | ---------------------------- | ------------------------------------------- |
+| `openai`          | OpenAI                   | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `google`          | Google DeepMind / Google | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `meta`            | Meta                     | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `xai`             | xAI                      | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `qwen`            | Alibaba / Qwen / Wan     | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `tencent-hunyuan` | Tencent Hunyuan          | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `bytedance-seed`  | ByteDance Seed           | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `minimax`         | MiniMax                  | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `midjourney`      | Midjourney               | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `adobe-firefly`   | Adobe Firefly            | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `kling`           | Kuaishou / Kling AI      | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `runway`          | Runway                   | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `luma`            | Luma AI                  | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `stability-ai`    | Stability AI             | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
+| `pika`            | Pika                     | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 
 Expected runtime boundary:
 
@@ -201,15 +201,15 @@ but placeholder-backed with `music-provider-coming-soon`.
 
 Providers with sound or music capability in the default provider catalog:
 
-| Provider id | Provider | Catalog model id | Model selection status |
-| --- | --- | --- | --- |
-| `google` | Google DeepMind / Google | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `minimax` | MiniMax | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `elevenlabs` | ElevenLabs | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `adobe-firefly` | Adobe Firefly | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `kling` | Kuaishou / Kling AI | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `stability-ai` | Stability AI | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `suno` | Suno | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| Provider id     | Provider                 | Catalog model id             | Model selection status                      |
+| --------------- | ------------------------ | ---------------------------- | ------------------------------------------- |
+| `google`        | Google DeepMind / Google | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `minimax`       | MiniMax                  | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `elevenlabs`    | ElevenLabs               | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `adobe-firefly` | Adobe Firefly            | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `kling`         | Kuaishou / Kling AI      | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `stability-ai`  | Stability AI             | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
+| `suno`          | Suno                     | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
 
 ## OCR And Embedding
 

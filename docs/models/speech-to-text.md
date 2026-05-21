@@ -50,18 +50,18 @@ Current catalog status:
 
 Cataloged speech-to-text provider/model choices:
 
-| Provider | Model id | Runtime style |
-| --- | --- | --- |
-| `openai` | `gpt-realtime-whisper` | Realtime streaming |
-| `google` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `xai` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `mistral` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `cohere` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `qwen` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `baidu` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| Provider     | Model id                              | Runtime style             |
+| ------------ | ------------------------------------- | ------------------------- |
+| `openai`     | `gpt-realtime-whisper`                | Realtime streaming        |
+| `google`     | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `xai`        | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `mistral`    | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `cohere`     | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `qwen`       | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `baidu`      | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
 | `elevenlabs` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `deepgram` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `nvidia` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `deepgram`   | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `nvidia`     | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
 
 Some providers may require more than one model identifier internally. For
 example, an OpenAI realtime adapter can open a socket with one realtime model

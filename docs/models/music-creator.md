@@ -47,15 +47,15 @@ Current catalog status:
 
 Cataloged sound provider/model choices:
 
-| Provider | Model id | Runtime style |
-| --- | --- | --- |
-| `google` | `music-provider-coming-soon` | Placeholder catalog entry |
-| `minimax` | `music-provider-coming-soon` | Placeholder catalog entry |
-| `elevenlabs` | `music-provider-coming-soon` | Placeholder catalog entry |
+| Provider        | Model id                     | Runtime style             |
+| --------------- | ---------------------------- | ------------------------- |
+| `google`        | `music-provider-coming-soon` | Placeholder catalog entry |
+| `minimax`       | `music-provider-coming-soon` | Placeholder catalog entry |
+| `elevenlabs`    | `music-provider-coming-soon` | Placeholder catalog entry |
 | `adobe-firefly` | `music-provider-coming-soon` | Placeholder catalog entry |
-| `kling` | `music-provider-coming-soon` | Placeholder catalog entry |
-| `stability-ai` | `music-provider-coming-soon` | Placeholder catalog entry |
-| `suno` | `music-provider-coming-soon` | Placeholder catalog entry |
+| `kling`         | `music-provider-coming-soon` | Placeholder catalog entry |
+| `stability-ai`  | `music-provider-coming-soon` | Placeholder catalog entry |
+| `suno`          | `music-provider-coming-soon` | Placeholder catalog entry |
 
 Provider catalog and official provider links are maintained in
 [providers.md](../providers/index.md).
