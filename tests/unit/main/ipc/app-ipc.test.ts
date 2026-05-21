@@ -17,6 +17,7 @@ function createContainer(provider: Provider | undefined): MainServiceContainer {
 		logger: {
 			getLogDirectory: jest.fn(),
 			getRecentLogs: jest.fn(),
+			info: jest.fn(),
 		},
 		powerSaveBlocker: {
 			setEnabled: jest.fn(),
