@@ -41,7 +41,7 @@ describe('OverviewPage', () => {
 			'settings.tabs.general',
 			'settings.tabs.providers',
 			'settings.tabs.channels',
-			'settings.tabs.agents',
+			'settings.tabs.operators',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.heartbeat',
@@ -57,6 +57,6 @@ describe('OverviewPage', () => {
 
 		await user.click(screen.getByRole('button', { name: /settings\.tabs\.agents/ }));
 
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/agents');
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators');
 	});
 });

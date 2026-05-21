@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import AgentDetailsPage from '../../../../../../../src/renderer/src/pages/settings/pages/agents/details/Page';
+import OperatorDetailsPage from '../../../../../../../src/renderer/src/pages/settings/pages/operators/details/Page';
 
 const mockT = (key: string): string => key;
 
@@ -29,13 +29,13 @@ function LocationProbe(): React.JSX.Element {
 	return <div data-testid="location">{location.pathname}</div>;
 }
 
-function renderAgentDetailsPage(path = '/settings/agents/friday/details'): void {
+function renderOperatorDetailsPage(path = '/settings/operators/friday/details'): void {
 	render(
 		<MemoryRouter initialEntries={[path]}>
 			<Routes>
-				<Route path="/settings/agents/:agentId/details" element={<AgentDetailsPage />} />
+				<Route path="/settings/operators/:operatorId/details" element={<OperatorDetailsPage />} />
 				<Route
-					path="/settings/agents/:agentId/details/chathistory"
+					path="/settings/operators/:operatorId/details/chathistory"
 					element={<div>Chat history route</div>}
 				/>
 			</Routes>
@@ -44,7 +44,7 @@ function renderAgentDetailsPage(path = '/settings/agents/friday/details'): void 
 	);
 }
 
-describe('AgentDetailsPage', () => {
+describe('OperatorDetailsPage', () => {
 	beforeEach(() => {
 		const provider = {
 			id: 'openai',
@@ -65,40 +65,40 @@ describe('AgentDetailsPage', () => {
 
 	it('navigates from the Friday agent history row to chat history', async () => {
 		const user = userEvent.setup();
-		renderAgentDetailsPage();
+		renderOperatorDetailsPage();
 
 		await user.click(await screen.findByRole('button', { name: /settings\.chatHistory\.title/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent(
-			'/settings/agents/friday/details/chathistory'
+			'/settings/operators/friday/details/chathistory'
 		);
 	});
 
 	it('renders the Friday page without identity or history description and collapses provider settings', async () => {
 		const user = userEvent.setup();
-		renderAgentDetailsPage();
+		renderOperatorDetailsPage();
 
 		const providerCard = await screen.findByRole('button', {
 			name: /settings\.agents\.provider/,
 		});
 
-		expect(screen.queryByText('settings.agents.identity')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.identity')).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.chatHistory.description')).not.toBeInTheDocument();
 		expect(providerCard).toHaveAttribute('aria-expanded', 'false');
-		expect(screen.queryByText('settings.agents.providerDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.providerDescription')).not.toBeInTheDocument();
 
 		await user.click(providerCard);
 
 		expect(providerCard).toHaveAttribute('aria-expanded', 'true');
-		expect(await screen.findByText('settings.agents.providerDescription')).toBeInTheDocument();
+		expect(await screen.findByText('settings.operators.providerDescription')).toBeInTheDocument();
 	});
 
 	it('renders placeholder settings for the document reader agent', async () => {
-		renderAgentDetailsPage('/settings/agents/document-reader/details');
+		renderOperatorDetailsPage('/settings/operators/document-reader/details');
 
-		expect(await screen.findByText('settings.agents.documentReaderName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.configurationPending')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.documentReaderProviderDescription')).toBeInTheDocument();
+		expect(await screen.findByText('settings.operators.documentReaderName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.configurationPending')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.documentReaderProviderDescription')).toBeInTheDocument();
 		expect(screen.getByText('OCR provider')).toBeInTheDocument();
 	});
 });

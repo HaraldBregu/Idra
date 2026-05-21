@@ -14,7 +14,7 @@ function renderSettings(path: string): void {
 			<Routes>
 				<Route path="/settings" element={<Layout />}>
 					<Route path="general" element={<div>General page</div>} />
-					<Route path="agents/:agentId/details" element={<div>Agent details page</div>} />
+					<Route path="agents/:operatorId/details" element={<div>Agent details page</div>} />
 					<Route path="cron" element={<div>Cron page</div>} />
 				</Route>
 			</Routes>
@@ -37,9 +37,9 @@ describe('Settings Layout', () => {
 	});
 
 	it('uses the short Friday label for the Friday agent breadcrumb', () => {
-		renderSettings('/settings/agents/friday/details');
+		renderSettings('/settings/operators/friday/details');
 
-		expect(screen.getByText('settings.agents.fridayBreadcrumb')).toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.fridayName')).not.toBeInTheDocument();
+		expect(screen.getByText('settings.operators.fridayBreadcrumb')).toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.fridayName')).not.toBeInTheDocument();
 	});
 });

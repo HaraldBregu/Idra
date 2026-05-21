@@ -5,7 +5,7 @@ describe('settings navigation', () => {
 		expect(SETTINGS_NAVIGATION.map((item) => item.labelKey)).toEqual([
 			'settings.tabs.general',
 			'settings.tabs.providers',
-			'settings.tabs.agents',
+			'settings.tabs.operators',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.channels',

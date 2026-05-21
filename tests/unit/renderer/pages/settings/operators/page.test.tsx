@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import AgentsPage from '../../../../../../src/renderer/src/pages/settings/pages/agents/Page';
+import OperatorsPage from '../../../../../../src/renderer/src/pages/settings/pages/operators/Page';
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
@@ -14,65 +14,65 @@ function LocationProbe(): React.JSX.Element {
 	return <div data-testid="location">{location.pathname}</div>;
 }
 
-function renderAgentsPage(): void {
+function renderOperatorsPage(): void {
 	render(
-		<MemoryRouter initialEntries={['/settings/agents']}>
-			<AgentsPage />
+		<MemoryRouter initialEntries={['/settings/operators']}>
+			<OperatorsPage />
 			<LocationProbe />
 		</MemoryRouter>
 	);
 }
 
-describe('AgentsPage', () => {
+describe('OperatorsPage', () => {
 	it('renders the Friday agent without a default badge', () => {
-		renderAgentsPage();
+		renderOperatorsPage();
 
-		expect(screen.getByText('settings.agents.fridayName')).toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.defaultAgent')).not.toBeInTheDocument();
+		expect(screen.getByText('settings.operators.fridayName')).toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.defaultAgent')).not.toBeInTheDocument();
 	});
 
 	it('renders speech, image, video, music, and document agents', () => {
-		renderAgentsPage();
+		renderOperatorsPage();
 
-		expect(screen.getByText('settings.agents.speechTranscriberName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.textToSpeechName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.imageAssistantName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.videoCreatorName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.musicCreatorName')).toBeInTheDocument();
-		expect(screen.getByText('settings.agents.documentReaderName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.speechTranscriberName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.textToSpeechName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.imageAssistantName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.videoCreatorName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.musicCreatorName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.documentReaderName')).toBeInTheDocument();
 	});
 
 	it('does not render agent descriptions in the list', () => {
-		renderAgentsPage();
+		renderOperatorsPage();
 
-		expect(screen.queryByText('settings.agents.fridayDescription')).not.toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.speechTranscriberDescription')).not.toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.textToSpeechDescription')).not.toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.imageAssistantDescription')).not.toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.videoCreatorDescription')).not.toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.musicCreatorDescription')).not.toBeInTheDocument();
-		expect(screen.queryByText('settings.agents.documentReaderDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.fridayDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.speechTranscriberDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.textToSpeechDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.imageAssistantDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.videoCreatorDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.musicCreatorDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.documentReaderDescription')).not.toBeInTheDocument();
 	});
 
 	it('navigates to the Friday agent details route when clicked', async () => {
 		const user = userEvent.setup();
-		renderAgentsPage();
+		renderOperatorsPage();
 
 		await user.click(screen.getByRole('button', { name: /settings\.agents\.fridayName/ }));
 
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/agents/friday/details');
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
 	});
 
 	it('navigates to the Speech to Text agent details route when clicked', async () => {
 		const user = userEvent.setup();
-		renderAgentsPage();
+		renderOperatorsPage();
 
 		await user.click(screen.getByRole('button', {
 			name: /settings\.agents\.speechTranscriberName/,
 		}));
 
 		expect(screen.getByTestId('location')).toHaveTextContent(
-			'/settings/agents/speech-to-text/details'
+			'/settings/operators/speech-to-text/details'
 		);
 	});
 });

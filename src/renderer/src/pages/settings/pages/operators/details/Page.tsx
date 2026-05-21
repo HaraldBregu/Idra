@@ -114,7 +114,7 @@ function mergeProviders(
 	return [...byId.values()];
 }
 
-const AgentDetailsPage: React.FC = () => {
+const OperatorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { agentId } = useParams<{ agentId: string }>();
@@ -201,7 +201,7 @@ const AgentDetailsPage: React.FC = () => {
 				setProviderId('');
 				setModelId('');
 				setEffort(DEFAULT_MODEL_REASONING_EFFORT);
-				setErrorMessage(getErrorMessage(error, t('settings.agents.loadError')));
+				setErrorMessage(getErrorMessage(error, t('settings.operators.loadError')));
 			})
 			.finally(() => {
 				if (mounted) setLoading(false);
@@ -263,7 +263,7 @@ const AgentDetailsPage: React.FC = () => {
 				if (!mounted) return;
 				setModels([]);
 				setModelId('');
-				setErrorMessage(getErrorMessage(error, t('settings.agents.modelsLoadError')));
+				setErrorMessage(getErrorMessage(error, t('settings.operators.modelsLoadError')));
 			})
 			.finally(() => {
 				if (mounted) setLoadingModels(false);
@@ -342,9 +342,9 @@ const AgentDetailsPage: React.FC = () => {
 			if (isSpeechTranscriberAgent) {
 				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
 				const saved = await window.app.saveSpeechTranscriberService(selectedProvider, modelToSave);
-				if (!saved) throw new Error(t('settings.agents.saveError'));
+				if (!saved) throw new Error(t('settings.operators.saveError'));
 				setCurrentSpeechTranscriber({ provider: selectedProvider, model: modelToSave });
-				setSuccessMessage(t('settings.agents.saved'));
+				setSuccessMessage(t('settings.operators.saved'));
 				return;
 			}
 
@@ -352,18 +352,18 @@ const AgentDetailsPage: React.FC = () => {
 				? { ...selectedModel, effort: effortForModel(selectedModel.id, effort, selectedProvider.id) }
 				: { id: selectedModel.id, name: selectedModel.name };
 			const saved = await window.app.saveAgentService(selectedProvider, modelToSave);
-			if (!saved) throw new Error(t('settings.agents.saveError'));
+			if (!saved) throw new Error(t('settings.operators.saveError'));
 			setCurrentAgent({ provider: selectedProvider, model: modelToSave });
-			setSuccessMessage(t('settings.agents.saved'));
+			setSuccessMessage(t('settings.operators.saved'));
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, t('settings.agents.saveError')));
+			setErrorMessage(getErrorMessage(error, t('settings.operators.saveError')));
 		} finally {
 			setSaving(false);
 		}
 	}, [canSave, effort, isSpeechTranscriberAgent, selectedModel, selectedProvider, t]);
 
 	const openChatHistory = useCallback(() => {
-		navigate(`/settings/agents/${FRIDAY_AGENT_SLUG}/details/chathistory`);
+		navigate(`/settings/operators/${FRIDAY_AGENT_SLUG}/details/chathistory`);
 	}, [navigate]);
 
 	const isKnownAgent =
@@ -388,83 +388,83 @@ const AgentDetailsPage: React.FC = () => {
 				? Mic
 				: Bot;
 	const agentNameKey = isImageAssistantAgent
-		? 'settings.agents.imageAssistantName'
+		? 'settings.operators.imageAssistantName'
 		: isVideoCreatorAgent
-			? 'settings.agents.videoCreatorName'
+			? 'settings.operators.videoCreatorName'
 			: isMusicCreatorAgent
-				? 'settings.agents.musicCreatorName'
+				? 'settings.operators.musicCreatorName'
 				: isDocumentReaderAgent
-					? 'settings.agents.documentReaderName'
+					? 'settings.operators.documentReaderName'
 		: isTextToSpeechAgent
-			? 'settings.agents.textToSpeechName'
+			? 'settings.operators.textToSpeechName'
 			: isSpeechTranscriberAgent
-				? 'settings.agents.speechTranscriberName'
-				: 'settings.agents.fridayName';
+				? 'settings.operators.speechTranscriberName'
+				: 'settings.operators.fridayName';
 	const agentDescriptionKey = isImageAssistantAgent
-		? 'settings.agents.imageAssistantDescription'
+		? 'settings.operators.imageAssistantDescription'
 		: isVideoCreatorAgent
-			? 'settings.agents.videoCreatorDescription'
+			? 'settings.operators.videoCreatorDescription'
 			: isMusicCreatorAgent
-				? 'settings.agents.musicCreatorDescription'
+				? 'settings.operators.musicCreatorDescription'
 				: isDocumentReaderAgent
-					? 'settings.agents.documentReaderDescription'
+					? 'settings.operators.documentReaderDescription'
 		: isTextToSpeechAgent
-			? 'settings.agents.textToSpeechDescription'
+			? 'settings.operators.textToSpeechDescription'
 			: isSpeechTranscriberAgent
-				? 'settings.agents.speechTranscriberDescription'
-				: 'settings.agents.fridayDescription';
+				? 'settings.operators.speechTranscriberDescription'
+				: 'settings.operators.fridayDescription';
 	const configurationDescriptionKey = isImageAssistantAgent
-		? 'settings.agents.imageConfigurationSubtitle'
+		? 'settings.operators.imageConfigurationSubtitle'
 		: isVideoCreatorAgent
-			? 'settings.agents.videoConfigurationSubtitle'
+			? 'settings.operators.videoConfigurationSubtitle'
 			: isMusicCreatorAgent
-				? 'settings.agents.musicConfigurationSubtitle'
+				? 'settings.operators.musicConfigurationSubtitle'
 				: isDocumentReaderAgent
-					? 'settings.agents.documentReaderConfigurationSubtitle'
+					? 'settings.operators.documentReaderConfigurationSubtitle'
 		: isTextToSpeechAgent
-			? 'settings.agents.textToSpeechConfigurationSubtitle'
+			? 'settings.operators.textToSpeechConfigurationSubtitle'
 			: isSpeechTranscriberAgent
-				? 'settings.agents.speechConfigurationSubtitle'
-				: 'settings.agents.subtitle';
+				? 'settings.operators.speechConfigurationSubtitle'
+				: 'settings.operators.subtitle';
 	const providerDescriptionKey = isImageAssistantAgent
-		? 'settings.agents.imageProviderDescription'
+		? 'settings.operators.imageProviderDescription'
 		: isVideoCreatorAgent
-			? 'settings.agents.videoProviderDescription'
+			? 'settings.operators.videoProviderDescription'
 			: isMusicCreatorAgent
-				? 'settings.agents.musicProviderDescription'
+				? 'settings.operators.musicProviderDescription'
 				: isDocumentReaderAgent
-					? 'settings.agents.documentReaderProviderDescription'
+					? 'settings.operators.documentReaderProviderDescription'
 		: isTextToSpeechAgent
-			? 'settings.agents.textToSpeechProviderDescription'
+			? 'settings.operators.textToSpeechProviderDescription'
 			: isSpeechTranscriberAgent
-				? 'settings.agents.speechProviderDescription'
-				: 'settings.agents.providerDescription';
+				? 'settings.operators.speechProviderDescription'
+				: 'settings.operators.providerDescription';
 	const modelLabelKey = isImageAssistantAgent
-		? 'settings.agents.imageModel'
+		? 'settings.operators.imageModel'
 		: isVideoCreatorAgent
-			? 'settings.agents.videoModel'
+			? 'settings.operators.videoModel'
 			: isMusicCreatorAgent
-				? 'settings.agents.musicModel'
+				? 'settings.operators.musicModel'
 				: isDocumentReaderAgent
-					? 'settings.agents.documentReaderModel'
+					? 'settings.operators.documentReaderModel'
 		: isTextToSpeechAgent
-			? 'settings.agents.textToSpeechModel'
+			? 'settings.operators.textToSpeechModel'
 			: isSpeechTranscriberAgent
-				? 'settings.agents.speechModel'
-				: 'settings.agents.model';
+				? 'settings.operators.speechModel'
+				: 'settings.operators.model';
 	const modelDescriptionKey = isImageAssistantAgent
-		? 'settings.agents.imageModelDescription'
+		? 'settings.operators.imageModelDescription'
 		: isVideoCreatorAgent
-			? 'settings.agents.videoModelDescription'
+			? 'settings.operators.videoModelDescription'
 			: isMusicCreatorAgent
-				? 'settings.agents.musicModelDescription'
+				? 'settings.operators.musicModelDescription'
 				: isDocumentReaderAgent
-					? 'settings.agents.documentReaderModelDescription'
+					? 'settings.operators.documentReaderModelDescription'
 		: isTextToSpeechAgent
-			? 'settings.agents.textToSpeechModelDescription'
+			? 'settings.operators.textToSpeechModelDescription'
 			: isSpeechTranscriberAgent
-				? 'settings.agents.speechModelDescription'
-				: 'settings.agents.modelDescription';
+				? 'settings.operators.speechModelDescription'
+				: 'settings.operators.modelDescription';
 	const agentName = t(agentNameKey);
 	const agentDescription = t(agentDescriptionKey);
 	const configurationDescription = t(configurationDescriptionKey);
@@ -503,19 +503,19 @@ const AgentDetailsPage: React.FC = () => {
 						? DOCUMENT_READER_MODELS[0]
 						: IMAGE_ASSISTANT_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
-	const readOnlyModelName = readOnlyModel?.name ?? t('settings.agents.modelUnavailable');
+	const readOnlyModelName = readOnlyModel?.name ?? t('settings.operators.modelUnavailable');
 	const providerCardSummary = selectedProvider
 		? selectedModel
 			? `${selectedProvider.name} / ${selectedModel.name || selectedModel.id}`
 			: selectedProvider.name
-		: t('settings.agents.providerPlaceholder');
+		: t('settings.operators.providerPlaceholder');
 
 	if (loading) {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader
-					title={t('settings.agents.detailsTitle')}
-					description={t('settings.agents.description')}
+					title={t('settings.operators.detailsTitle')}
+					description={t('settings.operators.description')}
 					icon={isFridayAgent ? undefined : agentIcon}
 				/>
 				<SettingsPanel>
@@ -528,12 +528,12 @@ const AgentDetailsPage: React.FC = () => {
 	if (!isKnownAgent) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.agents.detailsTitle')} icon={Bot} />
+				<SettingsPageHeader title={t('settings.operators.detailsTitle')} icon={Bot} />
 				<SettingsPanel>
 					<SettingsEmptyState
 						icon={CircleOff}
-						title={t('settings.agents.notFoundTitle')}
-						description={t('settings.agents.notFoundDescription')}
+						title={t('settings.operators.notFoundTitle')}
+						description={t('settings.operators.notFoundDescription')}
 						className="min-h-28"
 					/>
 				</SettingsPanel>
@@ -562,7 +562,7 @@ const AgentDetailsPage: React.FC = () => {
 			)}
 
 			{isFridayAgent && (
-				<SettingsSection title={t('settings.agents.history')}>
+				<SettingsSection title={t('settings.operators.history')}>
 					<SettingsPanel>
 						<Item
 							as="button"
@@ -584,18 +584,18 @@ const AgentDetailsPage: React.FC = () => {
 
 			{!isServiceBackedAgent ? (
 				<SettingsSection
-					title={t('settings.agents.configuration')}
+					title={t('settings.operators.configuration')}
 					description={configurationDescription}
 				>
 					<SettingsPanel>
 						<div className="grid gap-3 p-3">
 							<SettingsNotice icon={CircleOff}>
-								{t('settings.agents.configurationPending')}
+								{t('settings.operators.configurationPending')}
 							</SettingsNotice>
 
 							<SettingsField
 								id="agent-provider"
-								label={t('settings.agents.provider')}
+								label={t('settings.operators.provider')}
 								description={providerDescription}
 							>
 								<Select value={readOnlyProviderValue} disabled>
@@ -629,7 +629,7 @@ const AgentDetailsPage: React.FC = () => {
 				</SettingsSection>
 			) : (
 				<SettingsSection
-					title={t('settings.agents.configuration')}
+					title={t('settings.operators.configuration')}
 					description={configurationDescription}
 				>
 					<SettingsPanel>
@@ -645,7 +645,7 @@ const AgentDetailsPage: React.FC = () => {
 							onClick={() => setProviderCardOpen((open) => !open)}
 						>
 							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle>{t('settings.agents.provider')}</ItemTitle>
+								<ItemTitle>{t('settings.operators.provider')}</ItemTitle>
 								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 									{providerCardSummary}
 								</p>
@@ -664,13 +664,13 @@ const AgentDetailsPage: React.FC = () => {
 							<div id="agent-provider-card-content" className="grid gap-3 p-3">
 								{isSpeechTranscriberAgent && providers.length === 0 && (
 									<SettingsNotice icon={AlertTriangle}>
-										{t('settings.agents.speechProviderMissing')}
+										{t('settings.operators.speechProviderMissing')}
 									</SettingsNotice>
 								)}
 
 								<SettingsField
 									id="agent-provider"
-									label={t('settings.agents.provider')}
+									label={t('settings.operators.provider')}
 									description={providerDescription}
 								>
 									<Select
@@ -679,7 +679,7 @@ const AgentDetailsPage: React.FC = () => {
 										disabled={providers.length === 0 || saving}
 									>
 										<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
-											<SelectValue placeholder={t('settings.agents.providerPlaceholder')} />
+											<SelectValue placeholder={t('settings.operators.providerPlaceholder')} />
 										</SelectTrigger>
 										<SelectContent>
 											{providers.map((provider) => (
@@ -707,8 +707,8 @@ const AgentDetailsPage: React.FC = () => {
 											<SelectValue
 												placeholder={
 													loadingModels
-														? t('settings.agents.modelsLoading')
-														: t('settings.agents.modelPlaceholder')
+														? t('settings.operators.modelsLoading')
+														: t('settings.operators.modelPlaceholder')
 												}
 											/>
 										</SelectTrigger>
@@ -722,7 +722,7 @@ const AgentDetailsPage: React.FC = () => {
 									</Select>
 									{selectedProvider && !loadingModels && modelOptions.length === 0 && (
 										<p className="text-[11px] leading-4 text-muted-foreground">
-											{t('settings.agents.noModels')}
+											{t('settings.operators.noModels')}
 										</p>
 									)}
 								</SettingsField>
@@ -730,8 +730,8 @@ const AgentDetailsPage: React.FC = () => {
 								{showEffort && (
 									<SettingsField
 										id="agent-effort"
-										label={t('settings.agents.effort')}
-										description={t('settings.agents.effortDescription')}
+										label={t('settings.operators.effort')}
+										description={t('settings.operators.effortDescription')}
 									>
 										<Select
 											value={effort}
@@ -744,7 +744,7 @@ const AgentDetailsPage: React.FC = () => {
 											<SelectContent>
 												{effortOptions.map((value) => (
 													<SelectItem key={value} value={value}>
-														{t(`settings.agents.effortOptions.${value}`)}
+														{t(`settings.operators.effortOptions.${value}`)}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -764,7 +764,7 @@ const AgentDetailsPage: React.FC = () => {
 										) : (
 											<Save className="size-3.5" />
 										)}
-										{saving ? t('settings.agents.saving') : t('common.save')}
+										{saving ? t('settings.operators.saving') : t('common.save')}
 									</Button>
 								</div>
 							</div>
@@ -776,4 +776,4 @@ const AgentDetailsPage: React.FC = () => {
 	);
 };
 
-export default AgentDetailsPage;
+export default OperatorDetailsPage;

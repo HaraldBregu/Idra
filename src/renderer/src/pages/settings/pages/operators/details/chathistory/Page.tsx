@@ -145,8 +145,8 @@ const ChatHistoryPage: React.FC = () => {
 				<Card size="sm" className="p-0!">
 					<SettingsEmptyState
 						icon={CircleOff}
-						title={t('settings.agents.notFoundTitle')}
-						description={t('settings.agents.notFoundDescription')}
+						title={t('settings.operators.notFoundTitle')}
+						description={t('settings.operators.notFoundDescription')}
 						className="min-h-28"
 					/>
 				</Card>

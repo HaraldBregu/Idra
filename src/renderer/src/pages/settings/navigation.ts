@@ -62,15 +62,15 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Apps
 	{ path: '/settings/apps', labelKey: 'settings.apps.title', keywords: 'installed packages manifests folder delete' },
 	// Agents
-	{ path: '/settings/agents', labelKey: 'settings.agents.title', descriptionKey: 'settings.agents.description', keywords: 'friday agent default provider model' },
-	{ path: '/settings/agents/friday/details', labelKey: 'settings.agents.fridayName', descriptionKey: 'settings.agents.fridayDescription', keywords: 'friday agent default provider model' },
-	{ path: `/settings/agents/${SPEECH_TRANSCRIBER_AGENT_ID}/details`, labelKey: 'settings.agents.speechTranscriberName', descriptionKey: 'settings.agents.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
-	{ path: `/settings/agents/${TEXT_TO_SPEECH_AGENT_ID}/details`, labelKey: 'settings.agents.textToSpeechName', descriptionKey: 'settings.agents.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
-	{ path: `/settings/agents/${IMAGE_ASSISTANT_AGENT_ID}/details`, labelKey: 'settings.agents.imageAssistantName', descriptionKey: 'settings.agents.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },
-	{ path: `/settings/agents/${VIDEO_CREATOR_AGENT_ID}/details`, labelKey: 'settings.agents.videoCreatorName', descriptionKey: 'settings.agents.videoCreatorDescription', keywords: 'video generation creator model' },
-	{ path: `/settings/agents/${MUSIC_CREATOR_AGENT_ID}/details`, labelKey: 'settings.agents.musicCreatorName', descriptionKey: 'settings.agents.musicCreatorDescription', keywords: 'music audio generation creator model' },
-	{ path: `/settings/agents/${DOCUMENT_READER_AGENT_ID}/details`, labelKey: 'settings.agents.documentReaderName', descriptionKey: 'settings.agents.documentReaderDescription', keywords: 'ocr document reader text extraction scan model' },
-	{ path: '/settings/agents/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
+	{ path: '/settings/operators', labelKey: 'settings.operators.title', descriptionKey: 'settings.operators.description', keywords: 'friday agent default provider model' },
+	{ path: '/settings/operators/friday/details', labelKey: 'settings.operators.fridayName', descriptionKey: 'settings.operators.fridayDescription', keywords: 'friday agent default provider model' },
+	{ path: `/settings/operators/${SPEECH_TRANSCRIBER_AGENT_ID}/details`, labelKey: 'settings.operators.speechTranscriberName', descriptionKey: 'settings.operators.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
+	{ path: `/settings/operators/${TEXT_TO_SPEECH_AGENT_ID}/details`, labelKey: 'settings.operators.textToSpeechName', descriptionKey: 'settings.operators.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
+	{ path: `/settings/operators/${IMAGE_ASSISTANT_AGENT_ID}/details`, labelKey: 'settings.operators.imageAssistantName', descriptionKey: 'settings.operators.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },
+	{ path: `/settings/operators/${VIDEO_CREATOR_AGENT_ID}/details`, labelKey: 'settings.operators.videoCreatorName', descriptionKey: 'settings.operators.videoCreatorDescription', keywords: 'video generation creator model' },
+	{ path: `/settings/operators/${MUSIC_CREATOR_AGENT_ID}/details`, labelKey: 'settings.operators.musicCreatorName', descriptionKey: 'settings.operators.musicCreatorDescription', keywords: 'music audio generation creator model' },
+	{ path: `/settings/operators/${DOCUMENT_READER_AGENT_ID}/details`, labelKey: 'settings.operators.documentReaderName', descriptionKey: 'settings.operators.documentReaderDescription', keywords: 'ocr document reader text extraction scan model' },
+	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
 	// Task manager
@@ -99,9 +99,9 @@ export const SETTINGS_NAVIGATION = [
 		icon: Server,
 	},
 	{
-		path: '/settings/agents',
-		labelKey: 'settings.tabs.agents',
-		descriptionKey: 'settings.overview.descriptions.agents',
+		path: '/settings/operators',
+		labelKey: 'settings.tabs.operators',
+		descriptionKey: 'settings.overview.descriptions.operators',
 		icon: Bot,
 	},
 	{

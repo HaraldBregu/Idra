@@ -18,7 +18,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		titleKey: 'settings.overview.groups.capabilities',
-		paths: ['/settings/agents', '/settings/skills', '/settings/connectors'],
+		paths: ['/settings/operators', '/settings/skills', '/settings/connectors'],
 	},
 	{
 		titleKey: 'settings.overview.groups.automation',

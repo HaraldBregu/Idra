@@ -33,37 +33,37 @@ const FRIDAY_AGENT_SLUG = 'friday';
 const AGENT_ROWS = [
 	{
 		id: FRIDAY_AGENT_SLUG,
-		nameKey: 'settings.agents.fridayName',
+		nameKey: 'settings.operators.fridayName',
 		icon: Bot,
 	},
 	{
 		id: SPEECH_TRANSCRIBER_AGENT_ID,
-		nameKey: 'settings.agents.speechTranscriberName',
+		nameKey: 'settings.operators.speechTranscriberName',
 		icon: Mic,
 	},
 	{
 		id: TEXT_TO_SPEECH_AGENT_ID,
-		nameKey: 'settings.agents.textToSpeechName',
+		nameKey: 'settings.operators.textToSpeechName',
 		icon: Volume2,
 	},
 	{
 		id: IMAGE_ASSISTANT_AGENT_ID,
-		nameKey: 'settings.agents.imageAssistantName',
+		nameKey: 'settings.operators.imageAssistantName',
 		icon: ImageIcon,
 	},
 	{
 		id: VIDEO_CREATOR_AGENT_ID,
-		nameKey: 'settings.agents.videoCreatorName',
+		nameKey: 'settings.operators.videoCreatorName',
 		icon: Video,
 	},
 	{
 		id: MUSIC_CREATOR_AGENT_ID,
-		nameKey: 'settings.agents.musicCreatorName',
+		nameKey: 'settings.operators.musicCreatorName',
 		icon: Music,
 	},
 	{
 		id: DOCUMENT_READER_AGENT_ID,
-		nameKey: 'settings.agents.documentReaderName',
+		nameKey: 'settings.operators.documentReaderName',
 		icon: ScanText,
 	},
 ] satisfies readonly {
@@ -72,22 +72,22 @@ const AGENT_ROWS = [
 	readonly icon: LucideIcon;
 }[];
 
-const AgentsPage: React.FC = () => {
+const OperatorsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 
 	const openAgentDetails = useCallback((agentId: string) => {
-		navigate(`/settings/agents/${encodeURIComponent(agentId)}/details`);
+		navigate(`/settings/operators/${encodeURIComponent(agentId)}/details`);
 	}, [navigate]);
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.agents')}
-				description={t('settings.agents.description')}
+				title={t('settings.tabs.operators')}
+				description={t('settings.operators.description')}
 			/>
 
-			<SettingsSection title={t('settings.agents.allAgents')}>
+			<SettingsSection title={t('settings.operators.allAgents')}>
 				<SettingsPanel>
 					{AGENT_ROWS.map((agent) => {
 						const Icon = agent.icon;
@@ -123,4 +123,4 @@ const AgentsPage: React.FC = () => {
 	);
 };
 
-export default AgentsPage;
+export default OperatorsPage;

@@ -74,32 +74,32 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: skillId });
 	}
 
-	if (location.pathname.startsWith('/settings/agents/')) {
+	if (location.pathname.startsWith('/settings/operators/')) {
 		const parts = location.pathname.split('/');
 		const agentId = decodeURIComponent(parts[3] ?? '');
 		const isChatHistoryPage = parts[5] === 'chathistory';
 		items[0] = { ...items[0], path: current.path };
 		const label = agentId === 'friday' || agentId === 'main'
-			? t('settings.agents.fridayBreadcrumb')
+			? t('settings.operators.fridayBreadcrumb')
 			: agentId === SPEECH_TRANSCRIBER_AGENT_ID
-				? t('settings.agents.speechTranscriberName')
+				? t('settings.operators.speechTranscriberName')
 				: agentId === TEXT_TO_SPEECH_AGENT_ID
-					? t('settings.agents.textToSpeechName')
+					? t('settings.operators.textToSpeechName')
 					: agentId === IMAGE_ASSISTANT_AGENT_ID
-						? t('settings.agents.imageAssistantName')
+						? t('settings.operators.imageAssistantName')
 						: agentId === VIDEO_CREATOR_AGENT_ID
-							? t('settings.agents.videoCreatorName')
+							? t('settings.operators.videoCreatorName')
 							: agentId === MUSIC_CREATOR_AGENT_ID
-								? t('settings.agents.musicCreatorName')
+								? t('settings.operators.musicCreatorName')
 								: agentId === DOCUMENT_READER_AGENT_ID
-									? t('settings.agents.documentReaderName')
+									? t('settings.operators.documentReaderName')
 									: agentId;
 		items.push({
 			label,
-			path: isChatHistoryPage ? `/settings/agents/${encodeURIComponent(agentId)}/details` : undefined,
+			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(agentId)}/details` : undefined,
 		});
 		if (isChatHistoryPage) {
-			items.push({ label: t('settings.agents.history') });
+			items.push({ label: t('settings.operators.history') });
 		}
 	}
 
