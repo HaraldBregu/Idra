@@ -161,13 +161,13 @@ function configuredModelOperator(
 }
 
 export class StoreService {
-	private store: SettingsStore;
+	private store: SettingsStoreAccessor;
 
 	constructor() {
 		this.store = new Store<StoreSchema>({
 			name: 'settings',
 			accessPropertiesByDotNotation: false,
-		}) as unknown as SettingsStore;
+		}) as unknown as SettingsStoreAccessor;
 	}
 
 	getProviderById(id: string): Provider | undefined {
@@ -260,7 +260,34 @@ export class StoreService {
 	}
 
 	getOperator(): OperatorStoreState | undefined {
-		return this.store.get('service');
+		const legacy = this.getLegacyOperator();
+		const next: OperatorStoreState = {
+			...(legacy ?? {}),
+		};
+		const assistant = this.getConfiguredModelOperator('assistant');
+		if (assistant) next.assistant = assistant;
+		const speechToText = this.getConfiguredModelOperator('speechToText');
+		if (speechToText) next.speechToText = speechToText;
+		const ocr = readOcrSettings(this.store.get('ocr'));
+		if (ocr?.mode === 'endpoint') {
+			next.documentReaderOcr = {
+				...OPERATOR_DEFINITIONS.documentReaderOcr,
+				endpoint: ocr.endpoint,
+			};
+		} else if (ocr?.mode === 'model') {
+			const provider = this.getProviderById(ocr.providerId);
+			if (provider) {
+				next.documentReaderOcr = {
+					...OPERATOR_DEFINITIONS.documentReaderOcr,
+					provider: publicProvider(provider),
+					model: modelForModule('assistant', ocr),
+				};
+			}
+		}
+		const agentSettings = readModelModuleSettings(this.store.get('agent'));
+		const agents = readAgentsHeartbeatConfig(agentSettings);
+		if (agents) next.agents = agents;
+		return Object.keys(next).length > 0 ? next : undefined;
 	}
 
 	getService(): OperatorStoreState | undefined {
@@ -268,7 +295,8 @@ export class StoreService {
 	}
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const current = this.getOperator();
+		const currentAgentSettings = readModelModuleSettings(this.store.get('agent'));
+		const current = this.getLegacyOperator();
 		const currentAgents = current?.agents ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
 		const currentHeartbeat = currentDefaults.heartbeat ?? {};
@@ -289,7 +317,17 @@ export class StoreService {
 				},
 			},
 		};
-		this.store.set('service', next);
+		if (currentAgentSettings) {
+			this.store.set('agent', {
+				...currentAgentSettings,
+				options: {
+					...(currentAgentSettings.options ?? {}),
+					agents: next.agents,
+				},
+			});
+		} else {
+			this.store.set('service', next);
+		}
 		return nextHeartbeat;
 	}
 
@@ -310,12 +348,14 @@ export class StoreService {
 	}
 
 	getDocumentReaderOcrEndpoint(): string | undefined {
-		const documentReader = this.getOperator()?.documentReaderOcr;
+		const ocr = readOcrSettings(this.store.get('ocr'));
+		if (ocr?.mode === 'endpoint') return ocr.endpoint;
+		const documentReader = this.getLegacyOperator()?.documentReaderOcr;
 		if (isEndpointOperator(documentReader)) {
 			const endpoint = documentReader.endpoint.trim();
 			if (endpoint) return endpoint;
 		}
-		const legacyEndpoint = this.getOperator()?.ocr?.trim();
+		const legacyEndpoint = this.getLegacyOperator()?.ocr?.trim();
 		return legacyEndpoint || undefined;
 	}
 
@@ -324,13 +364,8 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
-		const current = this.getOperator();
-		const next: OperatorStoreState = {
-			...current,
-			assistant: configuredModelOperator('assistant', publicProvider(provider), model),
-		};
-		delete next.agent;
-		this.store.set('service', next);
+		const current = readModelModuleSettings(this.store.get('agent'));
+		this.store.set('agent', modelModuleSettings(provider.id, model, current?.options));
 		return true;
 	}
 
@@ -339,13 +374,8 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
-		const current = this.getOperator();
-		const next: OperatorStoreState = {
-			...current,
-			speechToText: configuredModelOperator('speechToText', publicProvider(provider), model),
-		};
-		delete next.speechTranscriber;
-		this.store.set('service', next);
+		const current = readModelModuleSettings(this.store.get('speechToText'));
+		this.store.set('speechToText', modelModuleSettings(provider.id, model, current?.options));
 		return true;
 	}
 
