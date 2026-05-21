@@ -22,4 +22,4 @@ Official user/device docs:
 
 ## Related Docs
 
-- [Channel subsystem](../channels.md)
+- [Channel subsystem](index.md)

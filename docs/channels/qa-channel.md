@@ -18,4 +18,4 @@ Internal synthetic test channel. There is no external official documentation.
 
 ## Related Docs
 
-- [Channel subsystem](../channels.md)
+- [Channel subsystem](index.md)

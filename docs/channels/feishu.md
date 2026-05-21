@@ -19,4 +19,4 @@ Feishu runtime adapter.
 
 ## Related Docs
 
-- [Channel subsystem](../channels.md)
+- [Channel subsystem](index.md)

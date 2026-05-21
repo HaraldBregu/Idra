@@ -21,4 +21,4 @@ Zalo developer docs only for supported Official Account flows.
 
 ## Related Docs
 
-- [Channel subsystem](../channels.md)
+- [Channel subsystem](index.md)
