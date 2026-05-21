@@ -130,7 +130,7 @@ overrides, but credentials still resolve from stored provider records.
 
 - Stable id: `speech-to-text`
 - Operator field: `operator.speechToText`
-- Documentation: `speech-to-text.md`
+- Documentation: [stt.md](stt.md)
 - Runtime status: implemented through realtime transcription IPC
 
 Speech-to-text stores its provider and model on `operator.speechToText`.
@@ -302,4 +302,3 @@ Task IPC:
 
 Task records are in-memory only. Task inputs, metadata, progress, results, and
 errors are sanitized before they are stored on records.
-
