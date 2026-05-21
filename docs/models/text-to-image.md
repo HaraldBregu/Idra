@@ -79,7 +79,7 @@ Providers with image capability in the default provider catalog include:
 
 Provider credentials, base URLs, and official provider links are maintained in
 [providers.md](../providers.md). The consolidated model overview is maintained
-in [models/index.md](index.md).
+in the [model catalog](index.md).
 
 ## Module Settings
 
