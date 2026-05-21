@@ -532,7 +532,7 @@ export class StoreService {
 	}
 
 	private getLegacyModelModuleSettings(
-		key: ConfiguredModelOperatorKey
+		key: LegacyBackedModelOperatorKey
 	): ModelModuleSettings | undefined {
 		const current = this.getLegacyOperator();
 		const operator = current?.[key] as ModelOperator | undefined;
