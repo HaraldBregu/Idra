@@ -52,6 +52,7 @@ import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbe
 
 const DEFAULT_APP_PERMISSIONS: AppPermissionSettings = {
 	microphoneEnabled: true,
+	cameraEnabled: true,
 };
 
 const DEFAULT_APP_SETTINGS: AppSettings = {
