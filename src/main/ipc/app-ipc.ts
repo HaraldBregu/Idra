@@ -366,12 +366,12 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-					const modelToSave =
-						supportsModelReasoningEffortProvider(normalizedProviderId)
-							? {
-									...model,
-									effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
-								}
+				const modelToSave =
+					supportsModelReasoningEffortProvider(normalizedProviderId)
+						? {
+								...model,
+								effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
+							}
 						: { id: model.id, name: model.name };
 				return store.setAssistantOperator(provider.id, modelToSave);
 			}, OperatorChannels.saveAssistant)
