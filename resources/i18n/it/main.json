@@ -256,7 +256,141 @@
 			"openUserData": "Apri Cartella"
 		},
 		"system": {
-			"description": "Gestisci permessi del sistema operativo e comportamento in background."
+			"description": "Gestisci permessi del sistema operativo, comportamento in background e limiti delle capacita desktop.",
+			"actionsDescription": "Apri i pannelli richiesti del sistema operativo e controlla il comportamento energetico in background.",
+			"mediaPermissions": {
+				"title": "Permessi media",
+				"description": "Controlla l'accesso a fotocamera e microfono usato dalle funzionalita di Friday."
+			},
+			"permissionStatus": {
+				"not-determined": "Non richiesto",
+				"granted": "Attivo",
+				"denied": "Bloccato",
+				"restricted": "Limitato",
+				"unknown": "Sconosciuto",
+				"unsupported": "Non supportato"
+			},
+			"availability": {
+				"yes": "Si",
+				"oftenYes": "Spesso si",
+				"sometimes": "A volte",
+				"yesAdmin": "Admin/root",
+				"yesHighPrivilege": "Privilegi elevati",
+				"usuallyNo": "Di solito no"
+			},
+			"capabilities": {
+				"title": "Capacita di sistema",
+				"description": "Riferimento di cio che Friday puo usare tramite il sistema operativo.",
+				"groups": {
+					"core": {
+						"title": "Accesso desktop base",
+						"description": "Finestre, file, rete, lavoro in background e informazioni dispositivo."
+					},
+					"media": {
+						"title": "Media e sensori",
+						"description": "Fotocamera, microfono, riproduzione, notifiche e posizione."
+					},
+					"devices": {
+						"title": "Dispositivi e input",
+						"description": "Dispositivi esterni e superfici di input utente."
+					},
+					"privileged": {
+						"title": "Operazioni privilegiate",
+						"description": "Operazioni che normalmente richiedono fiducia elevata."
+					}
+				},
+				"items": {
+					"openWindowsAndUi": {
+						"title": "Aprire finestre e UI",
+						"note": "Comportamento base di un'app desktop."
+					},
+					"readWriteFiles": {
+						"title": "Leggere/scrivere file",
+						"note": "Di solito limitato dai permessi utente."
+					},
+					"accessInternetNetwork": {
+						"title": "Accedere a internet/rete",
+						"note": "HTTP, socket, API, server, ecc."
+					},
+					"startOtherPrograms": {
+						"title": "Avviare altri programmi",
+						"note": "Soggetto a permessi."
+					},
+					"runBackgroundTasks": {
+						"title": "Eseguire attivita in background",
+						"note": "Piu limitato su alcuni sistemi."
+					},
+					"accessSystemInformation": {
+						"title": "Accedere alle informazioni di sistema",
+						"note": "CPU, RAM, versione OS, info dispositivo, ecc."
+					},
+					"useWebcam": {
+						"title": "Usare la webcam",
+						"note": "Di solito richiede il permesso fotocamera."
+					},
+					"useMicrophoneRecordVoice": {
+						"title": "Usare il microfono / registrare voce",
+						"note": "Di solito richiede il permesso microfono."
+					},
+					"playAudioVideo": {
+						"title": "Riprodurre audio/video",
+						"note": "Altoparlanti, file multimediali, streaming."
+					},
+					"sendNotifications": {
+						"title": "Inviare notifiche",
+						"note": "Tramite il sistema notifiche del sistema operativo."
+					},
+					"useGpsLocation": {
+						"title": "Usare GPS/posizione",
+						"note": "Richiede hardware e permesso del sistema operativo."
+					},
+					"useBluetooth": {
+						"title": "Usare Bluetooth",
+						"note": "Tramite API Bluetooth del sistema operativo, spesso controllate da permessi."
+					},
+					"accessUsbDevices": {
+						"title": "Accedere a dispositivi USB",
+						"note": "Dipende da driver e permessi."
+					},
+					"usePrinterScanner": {
+						"title": "Usare stampante/scanner",
+						"note": "Tramite API di stampa/scansione del sistema operativo."
+					},
+					"accessKeyboardMouseInput": {
+						"title": "Accedere a input tastiera/mouse",
+						"note": "L'input normale e consentito; il monitoraggio globale e limitato."
+					},
+					"readClipboard": {
+						"title": "Leggere gli appunti",
+						"note": "Alcuni sistemi operativi avvisano o limitano questa azione."
+					},
+					"useGpu": {
+						"title": "Usare GPU",
+						"note": "Grafica, AI, giochi, calcolo."
+					},
+					"changeSystemSettings": {
+						"title": "Cambiare impostazioni di sistema",
+						"note": "Di solito richiede admin/root."
+					},
+					"installServicesDaemons": {
+						"title": "Installare servizi/daemon",
+						"note": "Usato da updater, VPN, antivirus, ecc."
+					},
+					"accessLowLevelHardwareDirectly": {
+						"title": "Accedere direttamente a hardware low-level",
+						"note": "Richiede driver o API privilegiate."
+					},
+					"installDrivers": {
+						"title": "Installare driver",
+						"note": "Spesso richiede firma/approvazione di fiducia."
+					}
+				}
+			},
+			"errors": {
+				"openPreference": "Impossibile aprire il pannello preferenze di sistema.",
+				"keepAwakeLoad": "Impossibile caricare lo stato mantieni attivo.",
+				"keepAwakeSave": "Impossibile salvare l'impostazione mantieni attivo."
+			}
 		},
 		"chatHistory": {
 			"title": "Cronologia chat",
@@ -292,6 +426,7 @@
 				"activate": "Attiva",
 				"check": "Controlla",
 				"request": "Richiedi accesso",
+				"openSettings": "Apri impostazioni",
 				"refresh": "Aggiorna permesso microfono"
 			},
 			"status": {
@@ -306,6 +441,26 @@
 				"load": "Impossibile caricare il permesso microfono.",
 				"save": "Impossibile salvare l'impostazione del microfono.",
 				"request": "Impossibile richiedere l'accesso al microfono."
+			}
+		},
+		"camera": {
+			"title": "Permessi fotocamera",
+			"description": "Controlla se Friday puo usare la webcam.",
+			"access": "Accesso fotocamera",
+			"accessDescription": "Consenti alle funzionalita di Friday di usare la fotocamera.",
+			"systemPermission": "Permesso di sistema",
+			"systemPermissionDescription": "Accesso alla fotocamera del sistema operativo per Friday.",
+			"actions": {
+				"activate": "Attiva",
+				"check": "Controlla",
+				"request": "Richiedi accesso",
+				"openSettings": "Apri impostazioni",
+				"refresh": "Aggiorna permesso fotocamera"
+			},
+			"errors": {
+				"load": "Impossibile caricare il permesso fotocamera.",
+				"save": "Impossibile salvare l'impostazione della fotocamera.",
+				"request": "Impossibile richiedere l'accesso alla fotocamera."
 			}
 		},
 		"editor": {
