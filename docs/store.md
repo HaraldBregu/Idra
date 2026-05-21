@@ -67,13 +67,13 @@ are safe to store and are not credentials.
 | Root key | Module | Documentation | Notes |
 | --- | --- | --- | --- |
 | `llmAgent` | LLM agent | [agent.md](agent.md) | Main assistant provider, model, and effort. |
-| `speechToText` | Speech to text | [speech-to-text.md](speech-to-text.md) | Live dictation and transcription model settings. |
-| `textToSpeech` | Text to speech | [text-to-speech.md](text-to-speech.md) | Voice synthesis model settings. |
-| `imageCreator` | Text to image | [text-to-image.md](text-to-image.md) | Text-to-image generation/editing model settings. |
-| `textToVideo` | Text to video | [text-to-video.md](text-to-video.md) | Video generation model settings. |
-| `textToSound` | Text to sound | [music-creator.md](music-creator.md) | Sound, audio, and music generation model settings. |
-| `ocr` | OCR | [ocr.md](ocr.md) | OCR endpoint or provider/model settings. |
-| `embedding` | Embedding | [embedding.md](embedding.md) | Embedding provider/model and index settings. |
+| `speechToText` | Speech to text | [speech-to-text.md](models/speech-to-text.md) | Live dictation and transcription model settings. |
+| `textToSpeech` | Text to speech | [text-to-speech.md](models/text-to-speech.md) | Voice synthesis model settings. |
+| `imageCreator` | Text to image | [text-to-image.md](models/text-to-image.md) | Text-to-image generation/editing model settings. |
+| `textToVideo` | Text to video | [text-to-video.md](models/text-to-video.md) | Video generation model settings. |
+| `textToSound` | Text to sound | [music-creator.md](models/music-creator.md) | Sound, audio, and music generation model settings. |
+| `ocr` | OCR | [ocr.md](models/ocr.md) | OCR endpoint or provider/model settings. |
+| `embedding` | Embedding | [embedding.md](models/embedding.md) | Embedding provider/model and index settings. |
 | `taskScheduler` | Task scheduler | [task-scheduler.md](task-scheduler.md) | Managed schedules, Friday tool schedules, and legacy schedule state. |
 | `backgroundTask` | Background task | [background-task.md](background-task.md) | Task registry and allowed user-facing task settings. |
 

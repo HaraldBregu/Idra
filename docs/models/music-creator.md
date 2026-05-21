@@ -50,7 +50,7 @@ Example sound provider/model choices:
 | Any sound-capable provider | Provider model id | Async or streaming |
 
 Provider catalog and official provider links are maintained in
-[providers.md](providers.md).
+[providers.md](../providers.md).
 
 ## Module Settings
 

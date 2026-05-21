@@ -191,37 +191,37 @@ export const OPERATOR_DEFINITIONS = {
 	speechToText: {
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		name: 'Speech to text',
-		docsPath: 'speech-to-text.md',
+		docsPath: 'models/speech-to-text.md',
 		status: 'implemented',
 	},
 	textToSpeech: {
 		id: TEXT_TO_SPEECH_OPERATOR_ID,
 		name: 'Text to speech',
-		docsPath: 'text-to-speech.md',
+		docsPath: 'models/text-to-speech.md',
 		status: 'pending-runtime',
 	},
 	imageCreator: {
 		id: IMAGE_CREATOR_OPERATOR_ID,
 		name: 'Text to image',
-		docsPath: 'text-to-image.md',
+		docsPath: 'models/text-to-image.md',
 		status: 'pending-runtime',
 	},
 	videoCreator: {
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
 		name: 'Text to video',
-		docsPath: 'text-to-video.md',
+		docsPath: 'models/text-to-video.md',
 		status: 'pending-runtime',
 	},
 	musicCreator: {
 		id: MUSIC_CREATOR_OPERATOR_ID,
 		name: 'Text to audio',
-		docsPath: 'music-creator.md',
+		docsPath: 'models/music-creator.md',
 		status: 'pending-runtime',
 	},
 	documentReaderOcr: {
 		id: DOCUMENT_READER_OCR_OPERATOR_ID,
 		name: 'Document reader OCR',
-		docsPath: 'ocr.md',
+		docsPath: 'models/ocr.md',
 		status: 'pending-runtime',
 	},
 	cronTaskScheduler: {

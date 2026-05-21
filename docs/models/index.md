@@ -24,11 +24,14 @@ Current module status:
 
 | Module | Store key | Support level | Runtime status |
 | --- | --- | --- | --- |
-| LLM agent | `agent` / target `llmAgent` | Explicit model catalog | Implemented |
-| Speech to text | `speechToText` | Explicit model catalog for OpenAI | Implemented |
-| Text to speech | `textToSpeech` | Placeholder model constant | Pending runtime |
-| Text to image | `imageCreator` | Provider capability catalog | Pending runtime |
-| Text to video | `textToVideo` | Provider capability catalog | Pending runtime |
+| [LLM agent](llm-agent.md) | `agent` / target `llmAgent` | Explicit model catalog | Implemented |
+| [Speech to text](speech-to-text.md) | `speechToText` | Explicit model catalog for OpenAI | Implemented |
+| [Text to speech](text-to-speech.md) | `textToSpeech` | Placeholder model constant | Pending runtime |
+| [Text to image](text-to-image.md) | `imageCreator` | Provider capability catalog | Pending runtime |
+| [Text to video](text-to-video.md) | `textToVideo` | Provider capability catalog | Pending runtime |
+| [Text to audio](music-creator.md) | `sound` | Placeholder model constant | Pending runtime |
+| [OCR](ocr.md) | `ocr` | Placeholder model or endpoint-backed settings | Pending runtime |
+| [Embedding](embedding.md) | `embedding` | Provider capability catalog | Pending runtime |
 
 ## LLM Agent Models
 
@@ -184,12 +187,12 @@ webhook secrets, or raw provider records.
 
 ## Related Documentation
 
-- [providers.md](providers.md) documents provider credentials, API setup links,
+- [providers.md](../providers.md) documents provider credentials, API setup links,
   and runtime adapter behavior.
-- [agent.md](agent.md) documents LLM agent execution and provider/model
+- [agent.md](../agent.md) documents LLM agent execution and provider/model
   resolution.
 - [text-to-image.md](text-to-image.md) documents text-to-image module
   boundaries.
 - [text-to-video.md](text-to-video.md) documents text-to-video module
   boundaries.
-- [store.md](store.md) documents the target model-backed store shape.
+- [store.md](../store.md) documents the target model-backed store shape.

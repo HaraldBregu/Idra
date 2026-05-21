@@ -94,7 +94,7 @@ goes through a registered background task handler.
 Use `text_to_image` when the user asks the agent to generate, edit, or vary an
 image and store the result in the workspace as part of the current turn. The
 tool should be a thin wrapper around the text-to-image module documented in
-[text-to-image.md](text-to-image.md). It accepts prompt instructions, safe
+[text-to-image.md](models/text-to-image.md). It accepts prompt instructions, safe
 generation options, safe input asset references, and a workspace-relative output
 path or output directory. It must validate that every generated file stays
 inside the workspace, then return normalized local image references.
