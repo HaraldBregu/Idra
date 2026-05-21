@@ -45,6 +45,10 @@ import {
 	type PublicProvider,
 } from '../../../../../../../shared/providers';
 import {
+	ASSISTANT_OPERATOR_ID,
+	ASSISTANT_RUNTIME_ID,
+	BACKGROUND_TASK_OPERATOR_ID,
+	CRON_TASK_SCHEDULER_OPERATOR_ID,
 	DEFAULT_MODEL_REASONING_EFFORT,
 	DOCUMENT_READER_OCR_OPERATOR_ID,
 	DOCUMENT_READER_OCR_MODELS,
@@ -52,6 +56,7 @@ import {
 	IMAGE_CREATOR_MODELS,
 	MUSIC_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_MODELS,
+	OPERATOR_DEFINITIONS,
 	SPEECH_TO_TEXT_OPERATOR_ID,
 	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
@@ -63,17 +68,13 @@ import {
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
 	isModelReasoningEffortSupported,
-	type Agent,
+	type ConfiguredModelOperator,
 	type Model,
 	type ModelReasoningEffort,
 } from '../../../../../../../shared/service';
 
-const ASSISTANT_RUNTIME_ID = 'main';
-const ASSISTANT_OPERATOR_ID = 'friday';
 const OPENAI_PROVIDER_ID = 'openai';
 const DEEPSEEK_PROVIDER_ID = 'deepseek';
-const CRON_TASK_OPERATOR_ID = 'cron-task';
-const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
 
 function isOpenAiProvider(providerId: string): boolean {
 	return providerId.trim().toLowerCase() === OPENAI_PROVIDER_ID;
@@ -111,11 +112,11 @@ function storedEffortForComparison(
 
 function mergeProviders(
 	providers: readonly PublicProvider[],
-	agent: Agent | undefined
+	operator: ConfiguredModelOperator | undefined
 ): PublicProvider[] {
 	const byId = new Map(providers.map((provider) => [provider.id, provider]));
-	if (agent && !byId.has(agent.provider.id)) {
-		byId.set(agent.provider.id, agent.provider);
+	if (operator && !byId.has(operator.provider.id)) {
+		byId.set(operator.provider.id, operator.provider);
 	}
 	return [...byId.values()];
 }
@@ -132,12 +133,12 @@ const OperatorDetailsPage: React.FC = () => {
 	const isVideoCreatorOperator = decodedOperatorId === VIDEO_CREATOR_OPERATOR_ID;
 	const isMusicCreatorOperator = decodedOperatorId === MUSIC_CREATOR_OPERATOR_ID;
 	const isDocumentReaderOcrOperator = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
-	const isCronTaskOperator = decodedOperatorId === CRON_TASK_OPERATOR_ID;
+	const isCronTaskOperator = decodedOperatorId === CRON_TASK_SCHEDULER_OPERATOR_ID;
 	const isBackgroundTaskOperator = decodedOperatorId === BACKGROUND_TASK_OPERATOR_ID;
 	const isRuntimeBackedOperator = isAssistantOperator || isSpeechToTextOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
-	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<Agent | undefined>();
-	const [currentSpeechToTextOperator, setCurrentSpeechToTextOperator] = useState<Agent | undefined>();
+	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<ConfiguredModelOperator | undefined>();
+	const [currentSpeechToTextOperator, setCurrentSpeechToTextOperator] = useState<ConfiguredModelOperator | undefined>();
 	const [providerId, setProviderId] = useState('');
 	const [models, setModels] = useState<Model[]>([]);
 	const [modelId, setModelId] = useState('');
@@ -351,7 +352,11 @@ const OperatorDetailsPage: React.FC = () => {
 				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
 				const saved = await window.app.saveSpeechToTextOperator(selectedProvider, modelToSave);
 				if (!saved) throw new Error(t('settings.operators.saveError'));
-				setCurrentSpeechToTextOperator({ provider: selectedProvider, model: modelToSave });
+				setCurrentSpeechToTextOperator({
+					...OPERATOR_DEFINITIONS.speechToText,
+					provider: selectedProvider,
+					model: modelToSave,
+				});
 				setSuccessMessage(t('settings.operators.saved'));
 				return;
 			}
@@ -361,7 +366,11 @@ const OperatorDetailsPage: React.FC = () => {
 				: { id: selectedModel.id, name: selectedModel.name };
 			const saved = await window.app.saveAssistantOperator(selectedProvider, modelToSave);
 			if (!saved) throw new Error(t('settings.operators.saveError'));
-			setCurrentAssistantOperator({ provider: selectedProvider, model: modelToSave });
+			setCurrentAssistantOperator({
+				...OPERATOR_DEFINITIONS.assistant,
+				provider: selectedProvider,
+				model: modelToSave,
+			});
 			setSuccessMessage(t('settings.operators.saved'));
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, t('settings.operators.saveError')));

@@ -14,9 +14,10 @@ import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
 } from '../../../../../../../../shared/service';
-
-const FRIDAY_AGENT_ID = 'main';
-const FRIDAY_AGENT_SLUG = 'friday';
+import {
+	ASSISTANT_OPERATOR_ID,
+	ASSISTANT_RUNTIME_ID,
+} from '../../../../../../../../shared/service';
 
 interface ChatHistoryStats {
 	readonly messageCount: number;

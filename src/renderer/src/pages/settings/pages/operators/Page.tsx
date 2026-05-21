@@ -22,6 +22,8 @@ import {
 	SettingsSection,
 } from '../../components';
 import {
+	BACKGROUND_TASK_OPERATOR_ID,
+	CRON_TASK_SCHEDULER_OPERATOR_ID,
 	DOCUMENT_READER_OCR_OPERATOR_ID,
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
@@ -31,8 +33,6 @@ import {
 } from '../../../../../../shared/service';
 
 const FRIDAY_OPERATOR_SLUG = 'friday';
-const CRON_TASK_OPERATOR_ID = 'cron-task';
-const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
 
 const OPERATOR_ROWS = [
 	{
@@ -71,7 +71,7 @@ const OPERATOR_ROWS = [
 		icon: ScanText,
 	},
 	{
-		id: CRON_TASK_OPERATOR_ID,
+		id: CRON_TASK_SCHEDULER_OPERATOR_ID,
 		nameKey: 'settings.operators.cronTaskName',
 		icon: Clock3,
 	},

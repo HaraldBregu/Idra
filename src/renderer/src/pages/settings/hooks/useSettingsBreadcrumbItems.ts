@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
 import {
+	BACKGROUND_TASK_OPERATOR_ID,
+	CRON_TASK_SCHEDULER_OPERATOR_ID,
 	DOCUMENT_READER_OCR_OPERATOR_ID,
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
@@ -11,9 +13,6 @@ import {
 	VIDEO_CREATOR_OPERATOR_ID,
 } from '../../../../../shared/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
-
-const CRON_TASK_OPERATOR_ID = 'cron-task';
-const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
 
 interface SettingsBreadcrumbItem {
 	readonly label: string;
@@ -96,7 +95,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 								? t('settings.operators.musicCreatorName')
 								: operatorId === DOCUMENT_READER_OCR_OPERATOR_ID
 									? t('settings.operators.documentReaderName')
-									: operatorId === CRON_TASK_OPERATOR_ID
+									: operatorId === CRON_TASK_SCHEDULER_OPERATOR_ID
 										? t('settings.operators.cronTaskName')
 										: operatorId === BACKGROUND_TASK_OPERATOR_ID
 											? t('settings.operators.backgroundTaskName')
