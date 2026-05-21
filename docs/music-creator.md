@@ -1,4 +1,4 @@
-# Sound / Music Creator
+# Text To Audio
 
 This document describes how Friday should use sound and music generation models
 for creating audio output.
