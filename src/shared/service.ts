@@ -185,7 +185,7 @@ export const OPERATOR_DEFINITIONS = {
 	assistant: {
 		id: ASSISTANT_OPERATOR_ID,
 		name: 'Assistant',
-		docsPath: 'agent.md',
+		docsPath: 'models/large-language-model.md',
 		status: 'implemented',
 	},
 	speechToText: {

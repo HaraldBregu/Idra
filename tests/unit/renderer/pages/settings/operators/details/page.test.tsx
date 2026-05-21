@@ -55,7 +55,7 @@ describe('OperatorDetailsPage', () => {
 		const assistantOperator = {
 			id: 'friday',
 			name: 'Assistant',
-			docsPath: 'agent.md',
+			docsPath: 'models/large-language-model.md',
 			status: 'implemented' as const,
 			provider,
 			model,

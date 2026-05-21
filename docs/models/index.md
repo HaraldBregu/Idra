@@ -24,7 +24,7 @@ Current module status:
 
 | Module | Store key | Support level | Runtime status |
 | --- | --- | --- | --- |
-| [LLM agent](llm-agent.md) | `agent` / target `llmAgent` | Explicit model catalog | Implemented |
+| [Large language model](large-language-model.md) | `agent` / target `llmAgent` | Explicit model catalog | Implemented |
 | [Speech to text](speech-to-text.md) | `speechToText` | Explicit model catalog for OpenAI | Implemented |
 | [Text to speech](text-to-speech.md) | `textToSpeech` | Placeholder model constant | Pending runtime |
 | [Text to image](text-to-image.md) | `imageCreator` | Provider capability catalog | Pending runtime |
@@ -189,8 +189,8 @@ webhook secrets, or raw provider records.
 
 - [providers.md](../providers.md) documents provider credentials, API setup links,
   and runtime adapter behavior.
-- [agent.md](../agent.md) documents LLM agent execution and provider/model
-  resolution.
+- [large-language-model.md](large-language-model.md) documents LLM agent
+  execution and provider/model resolution.
 - [text-to-image.md](text-to-image.md) documents text-to-image module
   boundaries.
 - [text-to-video.md](text-to-video.md) documents text-to-video module

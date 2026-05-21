@@ -358,7 +358,7 @@ describe('StoreService', () => {
 				assistant: {
 					id: 'friday',
 					name: 'Assistant',
-					docsPath: 'agent.md',
+					docsPath: 'models/large-language-model.md',
 					status: 'implemented',
 					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 					model,
@@ -390,7 +390,7 @@ describe('StoreService', () => {
 			expect(service.getAssistantOperator()).toMatchObject({
 				id: 'friday',
 				name: 'Assistant',
-				docsPath: 'agent.md',
+				docsPath: 'models/large-language-model.md',
 				status: 'implemented',
 				provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 				model,

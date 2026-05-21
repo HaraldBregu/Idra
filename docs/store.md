@@ -66,7 +66,7 @@ are safe to store and are not credentials.
 
 | Root key | Module | Documentation | Notes |
 | --- | --- | --- | --- |
-| `llmAgent` | LLM agent | [agent.md](agent.md) | Main assistant provider, model, and effort. |
+| `llmAgent` | LLM agent | [large-language-model.md](models/large-language-model.md) | Main assistant provider, model, and effort. |
 | `speechToText` | Speech to text | [speech-to-text.md](models/speech-to-text.md) | Live dictation and transcription model settings. |
 | `textToSpeech` | Text to speech | [text-to-speech.md](models/text-to-speech.md) | Voice synthesis model settings. |
 | `imageCreator` | Text to image | [text-to-image.md](models/text-to-image.md) | Text-to-image generation/editing model settings. |

@@ -1,4 +1,4 @@
-# Agent
+# Large Language Model
 
 This document describes how the agent module should run agent turns, expose
 service behavior, and keep provider-specific work outside the agent loop.

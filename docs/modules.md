@@ -29,7 +29,7 @@ and future runtime boundaries.
 | --- | --- | --- | --- |
 | Task scheduler | `taskScheduler` | [task-scheduler.md](task-scheduler.md) | Service, IPC, LLM tool `cron` |
 | Background task | `backgroundTask` | [background-task.md](background-task.md) | Service, IPC, LLM tool `task` |
-| Agent | `agent` | [agent.md](agent.md) | Service only for now |
+| Agent | `agent` | [large-language-model.md](models/large-language-model.md) | Service only for now |
 | Speech to text | `speechToText` | [speech-to-text.md](models/speech-to-text.md) | Service, future/optional LLM tool |
 | Text to speech | `textToSpeech` | [text-to-speech.md](models/text-to-speech.md) | Service, future/optional LLM tool |
 | Text to image | `imageCreator` | [text-to-image.md](models/text-to-image.md) | Service, future/optional LLM tool |
