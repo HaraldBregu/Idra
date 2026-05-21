@@ -50,7 +50,7 @@ const anthropicProvider: Provider = {
 	baseUrl: 'https://api.anthropic.com/v1',
 };
 
-const model: Model = { id: 'gpt-4o', name: 'GPT-4o' };
+const model: Model = { id: 'gpt-5.4', name: 'GPT-5.4' };
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -486,6 +486,23 @@ describe('StoreService', () => {
 			service.setAssistantOperator('openai', model);
 
 			expect(service.getOperator()?.assistant?.model).toEqual(model);
+		});
+
+		it('persists the compact agent module selection at the root', () => {
+			const service = new StoreService();
+			const store = (service as unknown as {
+				store: { get: (k: string) => unknown; set: (k: string, v: unknown) => void };
+			}).store;
+			store.set('providers', [openaiProvider]);
+
+			service.setAssistantOperator('openai', { ...model, effort: 'high' });
+
+			expect(store.get('agent')).toEqual({
+				providerId: 'openai',
+				modelId: 'gpt-5.4',
+				effort: 'high',
+			});
+			expect(store.get('service')).toBeUndefined();
 		});
 	});
 
