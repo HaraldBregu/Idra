@@ -66,7 +66,7 @@ const ChannelsPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.channels.catalog')}>
 				<Card size="sm" className="gap-0! p-0!">
-					{catalog.map((entry, index) => {
+					{catalog.filter((entry) => entry.catalogVisible).map((entry, index, visibleCatalog) => {
 						const isRuntimeChannel = RUNTIME_CHANNELS.has(entry.id);
 						const status = statusByChannel[entry.id] ?? 'disconnected';
 
@@ -84,10 +84,14 @@ const ChannelsPage: React.FC = () => {
 									size="md"
 									className={cn(
 										'cursor-pointer border-b border-border/60 hover:bg-muted/50',
-										index === catalog.length - 1 && 'border-b-0'
+										index === visibleCatalog.length - 1 && 'border-b-0'
 									)}
 								>
-									<ChannelIcon channelId={entry.id} name={entry.label} />
+									<ChannelIcon
+										channelId={entry.id}
+										name={entry.label}
+										brandIconId={entry.brandIconId}
+									/>
 									<ItemContent className="min-w-0">
 										<ItemTitle className="w-full max-w-full truncate">{entry.label}</ItemTitle>
 									</ItemContent>
