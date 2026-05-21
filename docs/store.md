@@ -74,8 +74,8 @@ are safe to store and are not credentials.
 | `textToSound` | Text to sound | [music-creator.md](models/music-creator.md) | Sound, audio, and music generation model settings. |
 | `ocr` | OCR | [ocr.md](models/ocr.md) | OCR endpoint or provider/model settings. |
 | `embedding` | Embedding | [embedding.md](models/embedding.md) | Embedding provider/model and index settings. |
-| `taskScheduler` | Task scheduler | [task-scheduler.md](task-scheduler.md) | Managed schedules, Friday tool schedules, and legacy schedule state. |
-| `backgroundTask` | Background task | [background-task.md](background-task.md) | Task registry and allowed user-facing task settings. |
+| `taskScheduler` | Task scheduler | [task-scheduler.md](tasks/task-scheduler.md) | Managed schedules, Friday tool schedules, and legacy schedule state. |
+| `backgroundTask` | Background task | [background-task.md](tasks/background-task.md) | Task registry and allowed user-facing task settings. |
 
 ## OCR Settings
 

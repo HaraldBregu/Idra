@@ -227,13 +227,13 @@ export const OPERATOR_DEFINITIONS = {
 	cronTaskScheduler: {
 		id: CRON_TASK_SCHEDULER_OPERATOR_ID,
 		name: 'Cron task scheduler',
-		docsPath: 'task-scheduler.md',
+		docsPath: 'tasks/task-scheduler.md',
 		status: 'implemented',
 	},
 	backgroundTask: {
 		id: BACKGROUND_TASK_OPERATOR_ID,
 		name: 'Background task',
-		docsPath: 'background-task.md',
+		docsPath: 'tasks/background-task.md',
 		status: 'implemented',
 		registeredTaskTypes: ['agent.run', 'image.create', 'ocr.run'],
 	},
