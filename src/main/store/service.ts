@@ -617,7 +617,9 @@ export class StoreService {
 	}
 
 	private getStoredModelProviders(): Provider[] {
-		return readModelProviderSettingsList(this.store.get('modelProviders')).map(providerFromSettings);
+		return readModelProviderSettingsList(this.store.get('modelProviders')).map(
+			providerFromSettings
+		);
 	}
 
 	private setStoredModelProviders(providers: Provider[]): void {

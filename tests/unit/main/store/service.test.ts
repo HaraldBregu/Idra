@@ -166,7 +166,7 @@ describe('StoreService', () => {
 		});
 	});
 
-		describe('app settings', () => {
+	describe('app settings', () => {
 		it('defaults microphone on and keep-awake off', () => {
 			const service = new StoreService();
 
@@ -182,28 +182,28 @@ describe('StoreService', () => {
 
 			expect(service.setKeepAwakeEnabled(false)).toEqual({ keepAwakeEnabled: false });
 			expect(service.getKeepAwakeEnabled()).toBe(false);
-			});
 		});
+	});
 
-		describe('background task settings', () => {
-			it('normalizes allowed task policy from the backgroundTask root', () => {
-				const service = new StoreService();
-				(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-					'backgroundTask',
-					{
-						allowedTaskTypes: [' agent.run ', '', 42, 'ocr.run'],
-						defaultConcurrency: 2,
-					}
-				);
-
-				expect(service.getBackgroundTaskSettings()).toEqual({
-					allowedTaskTypes: ['agent.run', 'ocr.run'],
+	describe('background task settings', () => {
+		it('normalizes allowed task policy from the backgroundTask root', () => {
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
+				'backgroundTask',
+				{
+					allowedTaskTypes: [' agent.run ', '', 42, 'ocr.run'],
 					defaultConcurrency: 2,
-				});
+				}
+			);
+
+			expect(service.getBackgroundTaskSettings()).toEqual({
+				allowedTaskTypes: ['agent.run', 'ocr.run'],
+				defaultConcurrency: 2,
 			});
 		});
+	});
 
-		describe('Friday cron state', () => {
+	describe('Friday cron state', () => {
 		it('persists Friday cron jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();
 			const state = {
