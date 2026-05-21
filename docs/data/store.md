@@ -59,24 +59,24 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 
 ## Root Ownership
 
-| Root key | Owner | Documentation | Persisted data |
-| --- | --- | --- | --- |
-| `modelProviders` | Provider settings | [providers/index.md](../providers/index.md) | Provider ids, names, base URLs, and API keys for model-backed modules. |
-| `llmAgent` | LLM agent | [large-language-model.md](../models/large-language-model.md) | Main assistant provider, model, effort, and safe agent options. |
-| `speechToText` | Speech to text | [speech-to-text.md](../models/speech-to-text.md) | Live dictation and transcription provider/model settings. |
-| `textToSpeech` | Text to speech | [text-to-speech.md](../models/text-to-speech.md) | Voice synthesis provider/model settings. |
-| `imageCreator` | Text to image | [text-to-image.md](../models/text-to-image.md) | Image generation/editing provider/model settings. |
-| `textToVideo` | Text to video | [text-to-video.md](../models/text-to-video.md) | Video generation provider/model settings. |
-| `textToSound` | Text to sound | [music-creator.md](../models/music-creator.md) | Sound, audio, and music generation provider/model settings. |
-| `ocr` | OCR | [ocr.md](../models/ocr.md) | OCR endpoint settings or OCR provider/model settings. |
-| `embedding` | Embedding | [embedding.md](../models/embedding.md) | Embedding provider/model and index settings. |
-| `taskScheduler` | Task scheduler | [scheduled.md](../tasks/scheduled.md) | Managed schedule state, Friday cron state, and legacy cron task state. |
-| `backgroundTask` | Background task | [background.md](../tasks/background.md) | Task policy settings only; task records stay in memory. |
-| `heartbeat` | Heartbeat | [tasks/scheduled.md](../tasks/scheduled.md) | Heartbeat run state and last delivered heartbeat text by key. |
-| `connectors` | Connectors | [connectors/index.md](../connectors/index.md) | Connector configuration records and credential references. |
-| `channel` | Channels | [channels/index.md](../channels/index.md) | Channel defaults, account settings, tokens, routing, and allowlists. |
-| `appSettings` | App settings | [settings-page.md](../ui/settings-page.md) | App-level non-permission settings such as keep-awake. |
-| `appPermissions` | App permissions | [settings-page.md](../ui/settings-page.md) | User toggles for app-level microphone and camera enablement. |
+| Root key         | Owner             | Documentation                                                | Persisted data                                                         |
+| ---------------- | ----------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `modelProviders` | Provider settings | [providers/index.md](../providers/index.md)                  | Provider ids, names, base URLs, and API keys for model-backed modules. |
+| `llmAgent`       | LLM agent         | [large-language-model.md](../models/large-language-model.md) | Main assistant provider, model, effort, and safe agent options.        |
+| `speechToText`   | Speech to text    | [speech-to-text.md](../models/speech-to-text.md)             | Live dictation and transcription provider/model settings.              |
+| `textToSpeech`   | Text to speech    | [text-to-speech.md](../models/text-to-speech.md)             | Voice synthesis provider/model settings.                               |
+| `imageCreator`   | Text to image     | [text-to-image.md](../models/text-to-image.md)               | Image generation/editing provider/model settings.                      |
+| `textToVideo`    | Text to video     | [text-to-video.md](../models/text-to-video.md)               | Video generation provider/model settings.                              |
+| `textToSound`    | Text to sound     | [music-creator.md](../models/music-creator.md)               | Sound, audio, and music generation provider/model settings.            |
+| `ocr`            | OCR               | [ocr.md](../models/ocr.md)                                   | OCR endpoint settings or OCR provider/model settings.                  |
+| `embedding`      | Embedding         | [embedding.md](../models/embedding.md)                       | Embedding provider/model and index settings.                           |
+| `taskScheduler`  | Task scheduler    | [scheduled.md](../tasks/scheduled.md)                        | Managed schedule state, Friday cron state, and legacy cron task state. |
+| `backgroundTask` | Background task   | [background.md](../tasks/background.md)                      | Task policy settings only; task records stay in memory.                |
+| `heartbeat`      | Heartbeat         | [tasks/scheduled.md](../tasks/scheduled.md)                  | Heartbeat run state and last delivered heartbeat text by key.          |
+| `connectors`     | Connectors        | [connectors/index.md](../connectors/index.md)                | Connector configuration records and credential references.             |
+| `channel`        | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
+| `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
+| `appPermissions` | App permissions   | [settings-page.md](../ui/settings-page.md)                   | User toggles for app-level microphone and camera enablement.           |
 
 Do not add new cross-module bags such as `service`, `operator`, `agent`, or
 `settings`. Add a new root key only when a module owns that data.
