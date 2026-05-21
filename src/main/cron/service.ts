@@ -6,6 +6,7 @@ import type { StoreService } from '../store';
 import type { ChannelRegistry } from '../channels';
 import type { AgentService } from '../service';
 import type { HeartbeatService } from '../heartbeat';
+import type { TaskManager } from '../tasks';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
@@ -30,7 +31,8 @@ import {
 	DEFAULT_CRON_RUN_POLICY,
 } from './scheduler/cron-scheduler';
 import {
-	InMemoryCronScheduleRunner,
+	DelegatingCronScheduleRunner,
+	TaskManagerCronScheduleRunner,
 } from './scheduler/cron-runner';
 import { ElectronStoreFridayCronStore } from './friday/store';
 import {
@@ -67,6 +69,7 @@ export class CronService implements Disposable {
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
+	private readonly runner: DelegatingCronScheduleRunner;
 	private readonly scheduler: CronSchedulerService;
 	private readonly friday: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
@@ -81,7 +84,7 @@ export class CronService implements Disposable {
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(store);
-		const runner = new InMemoryCronScheduleRunner();
+		this.runner = new DelegatingCronScheduleRunner();
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
 			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
 			highFrequencyThresholdMs: DEFAULT_CRON_RUN_POLICY.highFrequencyThresholdMs,
@@ -89,7 +92,7 @@ export class CronService implements Disposable {
 		});
 		this.scheduler = new CronSchedulerService(
 			this.scheduleStore,
-			runner,
+			this.runner,
 			accessPolicy,
 			{},
 			logger
@@ -104,6 +107,10 @@ export class CronService implements Disposable {
 			},
 			logger
 		);
+	}
+
+	configureTaskRuntime(dependencies: { taskManager: TaskManager }): void {
+		this.runner.setDelegate(new TaskManagerCronScheduleRunner(dependencies.taskManager));
 	}
 
 	get events(): CronSchedulerService['events'] {
