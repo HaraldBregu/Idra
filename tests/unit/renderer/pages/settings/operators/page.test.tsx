@@ -31,7 +31,7 @@ describe('OperatorsPage', () => {
 		expect(screen.queryByText('settings.operators.defaultOperator')).not.toBeInTheDocument();
 	});
 
-	it('renders speech, image, video, music, and document operators', () => {
+	it('renders speech, image, video, music, document, cron, and background operators', () => {
 		renderOperatorsPage();
 
 		expect(screen.getByText('settings.operators.speechTranscriberName')).toBeInTheDocument();
@@ -40,6 +40,8 @@ describe('OperatorsPage', () => {
 		expect(screen.getByText('settings.operators.videoCreatorName')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.musicCreatorName')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.documentReaderName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.cronTaskName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.backgroundTaskName')).toBeInTheDocument();
 	});
 
 	it('does not render operator descriptions in the list', () => {
@@ -52,6 +54,8 @@ describe('OperatorsPage', () => {
 		expect(screen.queryByText('settings.operators.videoCreatorDescription')).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.operators.musicCreatorDescription')).not.toBeInTheDocument();
 		expect(screen.queryByText('settings.operators.documentReaderDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.cronTaskDescription')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.operators.backgroundTaskDescription')).not.toBeInTheDocument();
 	});
 
 	it('navigates to the Friday operator details route when clicked', async () => {
@@ -73,6 +77,19 @@ describe('OperatorsPage', () => {
 
 		expect(screen.getByTestId('location')).toHaveTextContent(
 			'/settings/operators/speech-to-text/details'
+		);
+	});
+
+	it('navigates to the Cron Task operator details route when clicked', async () => {
+		const user = userEvent.setup();
+		renderOperatorsPage();
+
+		await user.click(screen.getByRole('button', {
+			name: /settings\.operators\.cronTaskName/,
+		}));
+
+		expect(screen.getByTestId('location')).toHaveTextContent(
+			'/settings/operators/cron-task/details'
 		);
 	});
 });

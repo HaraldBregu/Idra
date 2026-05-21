@@ -38,6 +38,8 @@ function renderOperatorDetailsPage(path = '/settings/operators/friday/details'):
 					path="/settings/operators/:operatorId/details/chathistory"
 					element={<div>Chat history route</div>}
 				/>
+				<Route path="/settings/cron" element={<div>Cron settings route</div>} />
+				<Route path="/settings/task-manager" element={<div>Task Manager settings route</div>} />
 			</Routes>
 			<LocationProbe />
 		</MemoryRouter>
@@ -100,5 +102,35 @@ describe('OperatorDetailsPage', () => {
 		expect(screen.getByText('settings.operators.configurationPending')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.documentReaderProviderDescription')).toBeInTheDocument();
 		expect(screen.getByText('OCR provider')).toBeInTheDocument();
+	});
+
+	it('renders Cron Task configuration details', async () => {
+		const user = userEvent.setup();
+		renderOperatorDetailsPage('/settings/operators/cron-task/details');
+
+		expect(await screen.findByText('settings.operators.cronTaskName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.cronTaskRuntimeValue')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.cronTaskScopeValue')).toBeInTheDocument();
+
+		await user.click(screen.getByRole('button', {
+			name: 'settings.operators.openCronTaskConfiguration',
+		}));
+
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/cron');
+	});
+
+	it('renders Background Task configuration details', async () => {
+		const user = userEvent.setup();
+		renderOperatorDetailsPage('/settings/operators/background-task/details');
+
+		expect(await screen.findByText('settings.operators.backgroundTaskName')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.backgroundTaskRuntimeValue')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.backgroundTaskTypesValue')).toBeInTheDocument();
+
+		await user.click(screen.getByRole('button', {
+			name: 'settings.operators.openBackgroundTaskConfiguration',
+		}));
+
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/task-manager');
 	});
 });

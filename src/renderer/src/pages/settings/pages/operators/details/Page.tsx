@@ -7,6 +7,8 @@ import {
 	ChevronDown,
 	ChevronRight,
 	CircleOff,
+	ClipboardList,
+	Clock3,
 	ImageIcon,
 	LoaderCircle,
 	Mic,
@@ -34,7 +36,9 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
+	SettingsValue,
 } from '../../../components';
 import {
 	DEFAULT_PROVIDERS,
@@ -68,6 +72,8 @@ const FRIDAY_AGENT_ID = 'main';
 const FRIDAY_AGENT_SLUG = 'friday';
 const OPENAI_PROVIDER_ID = 'openai';
 const DEEPSEEK_PROVIDER_ID = 'deepseek';
+const CRON_TASK_OPERATOR_ID = 'cron-task';
+const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
 
 function isOpenAiProvider(providerId: string): boolean {
 	return providerId.trim().toLowerCase() === OPENAI_PROVIDER_ID;
@@ -126,6 +132,8 @@ const OperatorDetailsPage: React.FC = () => {
 	const isVideoCreatorAgent = decodedOperatorId === VIDEO_CREATOR_AGENT_ID;
 	const isMusicCreatorAgent = decodedOperatorId === MUSIC_CREATOR_AGENT_ID;
 	const isDocumentReaderAgent = decodedOperatorId === DOCUMENT_READER_AGENT_ID;
+	const isCronTaskOperator = decodedOperatorId === CRON_TASK_OPERATOR_ID;
+	const isBackgroundTaskOperator = decodedOperatorId === BACKGROUND_TASK_OPERATOR_ID;
 	const isServiceBackedAgent = isFridayAgent || isSpeechTranscriberAgent;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAgent, setCurrentAgent] = useState<Agent | undefined>();
@@ -366,14 +374,38 @@ const OperatorDetailsPage: React.FC = () => {
 		navigate(`/settings/operators/${FRIDAY_AGENT_SLUG}/details/chathistory`);
 	}, [navigate]);
 
-	const isKnownAgent =
+	const workflowConfiguration = isCronTaskOperator
+		? {
+				route: '/settings/cron',
+				openLabelKey: 'settings.operators.openCronTaskConfiguration',
+				runtimeTitleKey: 'settings.operators.cronTaskRuntime',
+				runtimeDescriptionKey: 'settings.operators.cronTaskRuntimeDescription',
+				runtimeValueKey: 'settings.operators.cronTaskRuntimeValue',
+				scopeTitleKey: 'settings.operators.cronTaskScope',
+				scopeDescriptionKey: 'settings.operators.cronTaskScopeDescription',
+				scopeValueKey: 'settings.operators.cronTaskScopeValue',
+			}
+		: isBackgroundTaskOperator
+			? {
+					route: '/settings/task-manager',
+					openLabelKey: 'settings.operators.openBackgroundTaskConfiguration',
+					runtimeTitleKey: 'settings.operators.backgroundTaskRuntime',
+					runtimeDescriptionKey: 'settings.operators.backgroundTaskRuntimeDescription',
+					runtimeValueKey: 'settings.operators.backgroundTaskRuntimeValue',
+					scopeTitleKey: 'settings.operators.backgroundTaskTypes',
+					scopeDescriptionKey: 'settings.operators.backgroundTaskTypesDescription',
+					scopeValueKey: 'settings.operators.backgroundTaskTypesValue',
+				}
+			: null;
+	const isKnownOperator =
 		isFridayAgent ||
 		isSpeechTranscriberAgent ||
 		isTextToSpeechAgent ||
 		isImageAssistantAgent ||
 		isVideoCreatorAgent ||
 		isMusicCreatorAgent ||
-		isDocumentReaderAgent;
+		isDocumentReaderAgent ||
+		Boolean(workflowConfiguration);
 	const agentIcon = isImageAssistantAgent
 		? ImageIcon
 		: isVideoCreatorAgent
@@ -382,6 +414,10 @@ const OperatorDetailsPage: React.FC = () => {
 				? Music
 				: isDocumentReaderAgent
 					? ScanText
+					: isCronTaskOperator
+						? Clock3
+						: isBackgroundTaskOperator
+							? ClipboardList
 		: isTextToSpeechAgent
 			? Volume2
 			: isSpeechTranscriberAgent
@@ -395,6 +431,10 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicCreatorName'
 				: isDocumentReaderAgent
 					? 'settings.operators.documentReaderName'
+					: isCronTaskOperator
+						? 'settings.operators.cronTaskName'
+						: isBackgroundTaskOperator
+							? 'settings.operators.backgroundTaskName'
 		: isTextToSpeechAgent
 			? 'settings.operators.textToSpeechName'
 			: isSpeechTranscriberAgent
@@ -408,6 +448,10 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicCreatorDescription'
 				: isDocumentReaderAgent
 					? 'settings.operators.documentReaderDescription'
+					: isCronTaskOperator
+						? 'settings.operators.cronTaskDescription'
+						: isBackgroundTaskOperator
+							? 'settings.operators.backgroundTaskDescription'
 		: isTextToSpeechAgent
 			? 'settings.operators.textToSpeechDescription'
 			: isSpeechTranscriberAgent
@@ -421,6 +465,10 @@ const OperatorDetailsPage: React.FC = () => {
 				? 'settings.operators.musicConfigurationSubtitle'
 				: isDocumentReaderAgent
 					? 'settings.operators.documentReaderConfigurationSubtitle'
+					: isCronTaskOperator
+						? 'settings.operators.cronTaskConfigurationSubtitle'
+						: isBackgroundTaskOperator
+							? 'settings.operators.backgroundTaskConfigurationSubtitle'
 		: isTextToSpeechAgent
 			? 'settings.operators.textToSpeechConfigurationSubtitle'
 			: isSpeechTranscriberAgent
@@ -525,7 +573,7 @@ const OperatorDetailsPage: React.FC = () => {
 		);
 	}
 
-	if (!isKnownAgent) {
+	if (!isKnownOperator) {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader title={t('settings.operators.detailsTitle')} icon={Bot} />
@@ -582,7 +630,41 @@ const OperatorDetailsPage: React.FC = () => {
 				</SettingsSection>
 			)}
 
-			{!isServiceBackedAgent ? (
+			{workflowConfiguration ? (
+				<SettingsSection
+					title={t('settings.operators.configuration')}
+					description={configurationDescription}
+				>
+					<SettingsPanel>
+						<SettingsRow
+							title={t(workflowConfiguration.runtimeTitleKey)}
+							description={t(workflowConfiguration.runtimeDescriptionKey)}
+						>
+							<SettingsValue>{t(workflowConfiguration.runtimeValueKey)}</SettingsValue>
+						</SettingsRow>
+						<SettingsRow
+							title={t(workflowConfiguration.scopeTitleKey)}
+							description={t(workflowConfiguration.scopeDescriptionKey)}
+						>
+							<SettingsValue mono>{t(workflowConfiguration.scopeValueKey)}</SettingsValue>
+						</SettingsRow>
+						<Item
+							as="button"
+							type="button"
+							size="md"
+							className="border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
+							onClick={() => navigate(workflowConfiguration.route)}
+						>
+							<ItemContent className="min-w-0 flex-1">
+								<ItemTitle>{t(workflowConfiguration.openLabelKey)}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronRight className="size-3 text-muted-foreground" strokeWidth={1.8} />
+							</ItemActions>
+						</Item>
+					</SettingsPanel>
+				</SettingsSection>
+			) : !isServiceBackedAgent ? (
 				<SettingsSection
 					title={t('settings.operators.configuration')}
 					description={configurationDescription}

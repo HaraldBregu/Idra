@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import {
 	Bot,
 	ChevronRight,
+	ClipboardList,
+	Clock3,
 	ImageIcon,
 	Mic,
 	Music,
@@ -29,6 +31,8 @@ import {
 } from '../../../../../../shared/service';
 
 const FRIDAY_OPERATOR_SLUG = 'friday';
+const CRON_TASK_OPERATOR_ID = 'cron-task';
+const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
 
 const OPERATOR_ROWS = [
 	{
@@ -65,6 +69,16 @@ const OPERATOR_ROWS = [
 		id: DOCUMENT_READER_AGENT_ID,
 		nameKey: 'settings.operators.documentReaderName',
 		icon: ScanText,
+	},
+	{
+		id: CRON_TASK_OPERATOR_ID,
+		nameKey: 'settings.operators.cronTaskName',
+		icon: Clock3,
+	},
+	{
+		id: BACKGROUND_TASK_OPERATOR_ID,
+		nameKey: 'settings.operators.backgroundTaskName',
+		icon: ClipboardList,
 	},
 ] satisfies readonly {
 	readonly id: string;

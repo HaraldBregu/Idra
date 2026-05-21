@@ -12,6 +12,9 @@ import {
 } from '../../../../../shared/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
 
+const CRON_TASK_OPERATOR_ID = 'cron-task';
+const BACKGROUND_TASK_OPERATOR_ID = 'background-task';
+
 interface SettingsBreadcrumbItem {
 	readonly label: string;
 	readonly path?: string;
@@ -93,7 +96,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 								? t('settings.operators.musicCreatorName')
 								: operatorId === DOCUMENT_READER_AGENT_ID
 									? t('settings.operators.documentReaderName')
-									: operatorId;
+									: operatorId === CRON_TASK_OPERATOR_ID
+										? t('settings.operators.cronTaskName')
+										: operatorId === BACKGROUND_TASK_OPERATOR_ID
+											? t('settings.operators.backgroundTaskName')
+											: operatorId;
 		items.push({
 			label,
 			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(operatorId)}/details` : undefined,

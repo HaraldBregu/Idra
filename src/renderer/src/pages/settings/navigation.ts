@@ -70,6 +70,8 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: `/settings/operators/${VIDEO_CREATOR_AGENT_ID}/details`, labelKey: 'settings.operators.videoCreatorName', descriptionKey: 'settings.operators.videoCreatorDescription', keywords: 'video generation creator model' },
 	{ path: `/settings/operators/${MUSIC_CREATOR_AGENT_ID}/details`, labelKey: 'settings.operators.musicCreatorName', descriptionKey: 'settings.operators.musicCreatorDescription', keywords: 'music audio generation creator model' },
 	{ path: `/settings/operators/${DOCUMENT_READER_AGENT_ID}/details`, labelKey: 'settings.operators.documentReaderName', descriptionKey: 'settings.operators.documentReaderDescription', keywords: 'ocr document reader text extraction scan model' },
+	{ path: '/settings/operators/cron-task/details', labelKey: 'settings.operators.cronTaskName', descriptionKey: 'settings.operators.cronTaskDescription', keywords: 'cron schedule recurring task operator' },
+	{ path: '/settings/operators/background-task/details', labelKey: 'settings.operators.backgroundTaskName', descriptionKey: 'settings.operators.backgroundTaskDescription', keywords: 'background task queue agent run ocr operator' },
 	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.cron', keywords: 'schedule recurring task expression timezone' },
