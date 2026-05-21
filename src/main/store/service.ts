@@ -275,6 +275,8 @@ export class StoreService {
 		if (assistant) next.assistant = assistant;
 		const speechToText = this.getConfiguredModelOperator('speechToText');
 		if (speechToText) next.speechToText = speechToText;
+		const imageCreator = this.getConfiguredModelOperator('imageCreator');
+		if (imageCreator) next.imageCreator = imageCreator;
 		const ocr = readOcrSettings(this.store.get('ocr'));
 		if (ocr?.mode === 'endpoint') {
 			next.documentReaderOcr = {
@@ -354,6 +356,14 @@ export class StoreService {
 		return this.getConfiguredModelOperator('speechToText');
 	}
 
+	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('imageCreator');
+	}
+
+	getImageCreatorSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('imageCreator');
+	}
+
 	getDocumentReaderOcrEndpoint(): string | undefined {
 		const ocr = readOcrSettings(this.store.get('ocr'));
 		if (ocr?.mode === 'endpoint') return ocr.endpoint;
@@ -384,6 +394,19 @@ export class StoreService {
 		}
 		const current = this.getModelModuleSettings('speechToText');
 		this.store.set('speechToText', modelModuleSettings(provider.id, model, current?.options));
+		return true;
+	}
+
+	setImageCreatorOperator(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedImageCreatorModelForProvider(provider, model.id)) {
+			return false;
+		}
+		const catalogModel = getImageCreatorModelsForProvider(provider).find((entry) => entry.id === model.id);
+		this.store.set('imageCreator', modelModuleSettings(provider.id, catalogModel ?? model));
 		return true;
 	}
 
@@ -494,6 +517,8 @@ export class StoreService {
 		if (hasModelSelection(operator)) {
 			return configuredModelOperator(key, operator.provider, operator.model);
 		}
+
+		if (key === 'imageCreator') return undefined;
 
 		const legacyOperator = current?.[LEGACY_MODEL_OPERATOR_KEYS[key]];
 		if (hasModelSelection(legacyOperator)) {
