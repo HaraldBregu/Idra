@@ -1,8 +1,10 @@
 import Store from 'electron-store';
-import type { Provider } from '../../shared/providers';
+import { getDefaultAgentModels, type Provider } from '../../shared/providers';
 import {
 	OPERATOR_DEFINITIONS,
+	getSpeechToTextModels,
 	isEndpointOperator,
+	isModelReasoningEffort,
 	type ConfiguredModelOperator,
 	type Model,
 	type ModelOperator,
@@ -19,12 +21,22 @@ import {
 	type TelegramChannelProperties,
 } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';
-import { SettingsStore, StoreSchema } from './types';
+import type {
+	ModelModuleSettings,
+	OcrModuleSettings,
+	SettingsStoreAccessor,
+	StoreSchema,
+	TaskSchedulerSettings,
+} from './types';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
-import type { AgentHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
+import type {
+	AgentHeartbeatConfig,
+	AgentsHeartbeatConfig,
+	HeartbeatStoreState,
+} from '../../shared/heartbeat';
 import type { AppPermissionSettings } from '../../shared/app-permissions';
 import type { AppSettings } from '../../shared/app-settings';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
@@ -39,11 +51,17 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 
 type ConfiguredModelOperatorKey = 'assistant' | 'speechToText';
 type LegacyModelOperatorKey = 'agent' | 'speechTranscriber';
+type ModelModuleRootKey = 'agent' | 'speechToText';
 
 const LEGACY_MODEL_OPERATOR_KEYS = {
 	assistant: 'agent',
 	speechToText: 'speechTranscriber',
 } satisfies Record<ConfiguredModelOperatorKey, LegacyModelOperatorKey>;
+
+const MODEL_MODULE_ROOT_KEYS = {
+	assistant: 'agent',
+	speechToText: 'speechToText',
+} satisfies Record<ConfiguredModelOperatorKey, ModelModuleRootKey>;
 
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
 	return {
@@ -57,6 +75,77 @@ function hasModelSelection(value: unknown): value is ModelOperatorSelection {
 	if (!value || typeof value !== 'object') return false;
 	const selection = value as Partial<ModelOperatorSelection>;
 	return Boolean(selection.provider?.id && selection.model?.id);
+}
+
+function readRecord(value: unknown): Record<string, unknown> | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	return value as Record<string, unknown>;
+}
+
+function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
+	const record = readRecord(value);
+	if (!record) return undefined;
+	const providerId = typeof record.providerId === 'string' ? record.providerId.trim().toLowerCase() : '';
+	const modelId = typeof record.modelId === 'string' ? record.modelId.trim() : '';
+	if (!providerId || !modelId) return undefined;
+	const effort = isModelReasoningEffort(record.effort) ? record.effort : undefined;
+	const options = readRecord(record.options);
+	return {
+		providerId,
+		modelId,
+		...(effort ? { effort } : {}),
+		...(options ? { options } : {}),
+	};
+}
+
+function readOcrSettings(value: unknown): OcrModuleSettings | undefined {
+	const record = readRecord(value);
+	if (!record) return undefined;
+	if (record.mode === 'endpoint') {
+		const endpoint = typeof record.endpoint === 'string' ? record.endpoint.trim() : '';
+		return endpoint ? { mode: 'endpoint', endpoint } : undefined;
+	}
+	if (record.mode === 'model') {
+		const settings = readModelModuleSettings(record);
+		return settings ? { mode: 'model', ...settings } : undefined;
+	}
+	return undefined;
+}
+
+function modelModuleSettings(
+	providerId: string,
+	model: Model,
+	options?: Record<string, unknown>
+): ModelModuleSettings {
+	const next: ModelModuleSettings = {
+		providerId: providerId.trim().toLowerCase(),
+		modelId: model.id.trim(),
+	};
+	if (model.effort) next.effort = model.effort;
+	if (options) next.options = options;
+	return next;
+}
+
+function modelForModule(key: ConfiguredModelOperatorKey, settings: ModelModuleSettings): Model {
+	const catalog =
+		key === 'speechToText'
+			? getSpeechToTextModels(settings.providerId)
+			: getDefaultAgentModels(settings.providerId);
+	const model = catalog.find((entry) => entry.id === settings.modelId) ?? {
+		id: settings.modelId,
+		name: settings.modelId,
+	};
+	return {
+		...model,
+		...(settings.effort ? { effort: settings.effort } : {}),
+	};
+}
+
+function readAgentsHeartbeatConfig(
+	settings: ModelModuleSettings | undefined
+): AgentsHeartbeatConfig | undefined {
+	const agents = readRecord(settings?.options?.agents);
+	return agents as AgentsHeartbeatConfig | undefined;
 }
 
 function configuredModelOperator(
