@@ -208,11 +208,11 @@ export class StoreService {
 		return this.getConfiguredModelOperator('assistant');
 	}
 
-	getAgentModel(): Model | undefined {
+	getAssistantModel(): Model | undefined {
 		return this.getAssistantOperator()?.model;
 	}
 
-	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
+	getAssistantProvider(): Omit<Provider, 'apiKey'> | undefined {
 		return this.getAssistantOperator()?.provider;
 	}
 
@@ -258,6 +258,14 @@ export class StoreService {
 		delete next.speechTranscriber;
 		this.store.set('service', next);
 		return true;
+	}
+
+	getAgentModel(): Model | undefined {
+		return this.getAssistantModel();
+	}
+
+	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
+		return this.getAssistantProvider();
 	}
 
 	getAgentService(): ModelOperatorSelection | undefined {
