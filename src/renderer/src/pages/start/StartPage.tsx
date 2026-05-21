@@ -444,7 +444,7 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, agentService] = await Promise.all([
+				const [storedProviders, assistantOperator] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAssistantOperator(),
 				]);
@@ -454,13 +454,13 @@ const StartPage: React.FC = () => {
 					supportedProviderIds.has(provider.id)
 				);
 				const preferredProvider =
-					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
+					selectableProviders.find((provider) => provider.id === assistantOperator?.provider.id) ??
 					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 					selectableProviders[0];
 
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId(agentService?.model.id ?? '');
+				setSavedModelId(assistantOperator?.model.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 
