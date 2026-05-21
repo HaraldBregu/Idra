@@ -7,6 +7,7 @@ import {
 } from './providers';
 import {
 	IMAGE_CREATOR_MODELS,
+	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
@@ -18,12 +19,14 @@ import {
 } from './service';
 
 export type { Model, ModelReasoningEffort };
+export { IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS, SPEECH_TO_TEXT_MODELS, TEXT_TO_SPEECH_MODELS };
 
 export type ModelCatalog = Readonly<Record<string, readonly Model[]>>;
 export type ModelCapability = 'llm' | 'speech-to-text' | 'text-to-speech' | 'text-to-image';
 
 export const LLM_MODELS_BY_PROVIDER: ModelCatalog = DEFAULT_AGENT_MODELS_BY_PROVIDER;
-export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER_CATALOG: ModelCatalog = SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
+export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER_CATALOG: ModelCatalog =
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
 export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER: ModelCatalog = {
 	[TEXT_TO_SPEECH_PROVIDER_ID]: TEXT_TO_SPEECH_MODELS,
 };
