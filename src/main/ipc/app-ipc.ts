@@ -265,6 +265,43 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.openSystemPreference,
+			wrapSimpleHandler(async (pane: SystemPreferencePaneId) => {
+				const url = SYSTEM_PREFERENCE_PANES[pane];
+				if (!url) {
+					throw new Error(`Unknown system preference pane: ${pane}`);
+				}
+				await shell.openExternal(url);
+			}, AppChannels.openSystemPreference)
+		);
+
+		ipcMain.handle(
+			AppChannels.getCameraPermission,
+			wrapSimpleHandler(() => {
+				return cameraSettings(store.getCameraEnabled());
+			}, AppChannels.getCameraPermission)
+		);
+
+		ipcMain.handle(
+			AppChannels.setCameraEnabled,
+			wrapSimpleHandler((enabled: boolean) => {
+				const next = store.setCameraEnabled(Boolean(enabled));
+				return cameraSettings(next.cameraEnabled);
+			}, AppChannels.setCameraEnabled)
+		);
+
+		ipcMain.handle(
+			AppChannels.requestCameraPermission,
+			wrapSimpleHandler(async () => {
+				const enabled = store.getCameraEnabled();
+				if (process.platform === 'darwin' && enabled) {
+					await systemPreferences.askForMediaAccess('camera');
+				}
+				return cameraSettings(enabled);
+			}, AppChannels.requestCameraPermission)
+		);
+
+		ipcMain.handle(
 			ProviderChannels.setApiKey,
 			wrapSimpleHandler((providerId: string, apiKey: string) => {
 				const normalizedProviderId = providerId.trim().toLowerCase();
