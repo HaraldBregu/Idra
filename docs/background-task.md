@@ -21,8 +21,8 @@ Module surfaces:
 
 Dependencies:
 
-- Registered task handlers under `src/main/tasks/handlers`.
-- `AgentService` for the `agent.run` handler.
+- Registered task handlers.
+- The agent service for the `agent.run` handler.
 - OCR, TTS, image, video, sound, and embedding modules when their handlers are
   registered.
 - Logger/event infrastructure for lifecycle updates.
@@ -246,25 +246,14 @@ ids; credentials and provider records must still come from `StoreService`.
 
 ## Main-Process Architecture
 
-The implemented task module owns these files:
+The background task module should keep a private in-memory task store, a task
+registry, concrete handlers, typed IPC, a preload API, and service
+registration. Persistent settings for task policy belong in the root
+`backgroundTask` store key documented in [store.md](store.md).
 
-- `src/shared/tasks.ts`: shared task types and IPC-safe event payloads.
-- `src/main/tasks/task-manager.ts`: in-memory task store, lifecycle
-  transitions, cancellation, and event emission.
-- `src/main/tasks/task-registry.ts`: task type registration and lookup.
-- `src/main/tasks/handlers/*`: concrete task handlers, such as agent and OCR.
-- `src/main/ipc/tasks-ipc.ts`: typed IPC handlers for task start/list/get/cancel
-  and task events.
-- `src/preload/index.ts` and `src/preload/index.d.ts`: `window.tasks` preload
-  API.
-- `src/shared/ipc-channels.ts`: task IPC channel constants and invoke channel
-  map entries.
-- `src/main/service-registry.ts`: service registration.
-- [store.md](store.md): persistent root `backgroundTask` settings.
-
-The task manager should use a `Map<string, InternalTaskState>` for in-memory
-storage. Internal state may include the handler promise and `AbortController`;
-the public `TaskRecord` must not.
+The task manager should use an in-memory map for internal task state. Internal
+state may include the handler promise and `AbortController`; the public
+`TaskRecord` must not.
 
 ## Preload API
 

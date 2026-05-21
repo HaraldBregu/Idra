@@ -208,8 +208,8 @@ Use the existing Telegram plugin as the template.
 
 1. Add or verify the id in `CHANNEL_PROVIDER_IDS`.
 2. Add catalog metadata in `CHANNEL_CATALOG_INPUT`.
-3. Define the shared config shape in `src/shared/channels.ts` only if the
-   generic account shape is not enough.
+3. Define a shared config shape only if the generic account shape is not
+   enough.
 4. Implement a `ChannelPlugin` with config, setup, security, messaging,
    threading, and doctor adapters.
 5. Implement a runtime `ChannelAdapter` with `start()`, `stop()`, `send()`,

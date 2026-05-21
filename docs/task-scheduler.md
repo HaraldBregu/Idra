@@ -1,7 +1,7 @@
 # Task Scheduler
 
-This document describes the task scheduler module in `src/main/cron` and how
-schedules are created, persisted, and evaluated.
+This document describes how the task scheduler module should create, persist,
+and evaluate schedules.
 
 ## Module Contract
 
@@ -79,7 +79,7 @@ The managed creation flow is:
 
 ## Managed Schedule Request
 
-The create request type is `CronScheduleCreateRequest` in `src/shared/cron.ts`.
+The create request should use this shape:
 
 Required fields:
 

@@ -10,12 +10,10 @@ and it can be invoked through background tasks or scheduled work.
 
 Current runtime status:
 
-- `ocr.run` is implemented as a background task handler in
-`src/main/tasks/handlers/ocr-task-handler.ts`.
+- `ocr.run` is implemented as a background task handler.
 - The current handler reads the configured root `ocr` settings from
   `StoreService`.
-- A dedicated `src/main/ocr` module and provider/model picker are still future
-  work.
+- A dedicated OCR module and provider/model picker are still future work.
 
 Module surfaces:
 

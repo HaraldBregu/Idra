@@ -1,8 +1,7 @@
 # Agent
 
-This document describes the `src/main/agent` module: the functions it exposes,
-how the current runtime uses them, and the behavior future changes should keep
-intact.
+This document describes how the agent module should run agent turns, expose
+service behavior, and keep provider-specific work outside the agent loop.
 
 ## Scope
 
@@ -70,8 +69,8 @@ The default service path prepares an agent run in this order:
 
 ## Provider And Model Resolution
 
-The `src/main/agent` module does not choose the provider or model by itself.
-`AgentService.send` resolves them before the agent module runs.
+The agent module does not choose the provider or model by itself. The agent
+service resolves them before the agent module runs.
 
 Design boundary:
 

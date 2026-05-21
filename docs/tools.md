@@ -1,7 +1,7 @@
 # Tools
 
-This document describes how Friday currently assembles, selects, and executes
-agent tools. Source file paths are intentionally omitted.
+This document describes how Friday should assemble, select, and execute agent
+tools.
 
 ## Selection
 
@@ -49,7 +49,7 @@ policy, ranking, and run context before it is exposed to the provider.
 | `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
 | `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
 | `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs through the task scheduler module. |
-| `task` | Starts an immediate in-memory background task by calling the background task module in `src/main/tasks`; this is the tool for “run a task in background”. |
+| `task` | Starts an immediate in-memory background task by calling the background task module; this is the tool for “run a task in background”. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
 | `browser` | Controls the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions. |
 
@@ -88,7 +88,7 @@ Use `cron` only when the request is actually scheduled.
 Use `task` for immediate background task creation through the background task
 module documented in [background-task.md](background-task.md). When the user
 asks to “run a task in background”, the agent should call `task` so the request
-goes through the registered `src/main/tasks` handler.
+goes through a registered background task handler.
 
 Media and ML module tools, such as future TTS, STT, image, video, sound, OCR,
 or embedding tools, should be thin wrappers around their module services. They

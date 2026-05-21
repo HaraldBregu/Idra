@@ -25,18 +25,18 @@ and future runtime boundaries.
 
 ## Module Inventory
 
-| Module | Store key | Documentation | Main owner | Surfaces |
-| --- | --- | --- | --- | --- |
-| Task scheduler | `taskScheduler` | [task-scheduler.md](task-scheduler.md) | `src/main/cron` | Service, IPC, LLM tool `cron` |
-| Background task | `backgroundTask` | [background-task.md](background-task.md) | `src/main/tasks` | Service, IPC, LLM tool `task` |
-| Agent | `agent` | [agent.md](agent.md) | `src/main/agent` and `AgentService` | Service only for now |
-| Speech to text | `speechToText` | [speech-to-text.md](speech-to-text.md) | `src/main/stt` | Service, future/optional LLM tool |
-| Text to speech | `textToSpeech` | [text-to-speech.md](text-to-speech.md) | Future `src/main/tts` | Service, future/optional LLM tool |
-| Image | `imageCreator` | [image-creator.md](image-creator.md) | Future `src/main/image` | Service, future/optional LLM tool |
-| Video | `video` | [video-creator.md](video-creator.md) | Future `src/main/video` | Service, future/optional LLM tool |
-| Sound | `sound` | [music-creator.md](music-creator.md) | Future `src/main/sound` | Service, future/optional LLM tool |
-| OCR | `ocr` | [ocr.md](ocr.md) | Current `ocr.run` handler, future `src/main/ocr` | Service, future/optional LLM tool |
-| Embedding | `embedding` | [embedding.md](embedding.md) | Future `src/main/embedding` | Service, future/optional LLM tool |
+| Module | Store key | Documentation | Surfaces |
+| --- | --- | --- | --- |
+| Task scheduler | `taskScheduler` | [task-scheduler.md](task-scheduler.md) | Service, IPC, LLM tool `cron` |
+| Background task | `backgroundTask` | [background-task.md](background-task.md) | Service, IPC, LLM tool `task` |
+| Agent | `agent` | [agent.md](agent.md) | Service only for now |
+| Speech to text | `speechToText` | [speech-to-text.md](speech-to-text.md) | Service, future/optional LLM tool |
+| Text to speech | `textToSpeech` | [text-to-speech.md](text-to-speech.md) | Service, future/optional LLM tool |
+| Image | `imageCreator` | [image-creator.md](image-creator.md) | Service, future/optional LLM tool |
+| Video | `video` | [video-creator.md](video-creator.md) | Service, future/optional LLM tool |
+| Sound | `sound` | [music-creator.md](music-creator.md) | Service, future/optional LLM tool |
+| OCR | `ocr` | [ocr.md](ocr.md) | Service, future/optional LLM tool |
+| Embedding | `embedding` | [embedding.md](embedding.md) | Service, future/optional LLM tool |
 
 ## Tool And Service Boundaries
 
