@@ -294,7 +294,7 @@ export class StoreService {
 				};
 			}
 		}
-		const agentSettings = this.getModelModuleSettings('llmAgent');
+		const agentSettings = this.getModelModuleSettings('agent');
 		const agents = readAgentsHeartbeatConfig(agentSettings);
 		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
@@ -306,7 +306,7 @@ export class StoreService {
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
 		const currentAgentSettings =
-			this.getModelModuleSettings('llmAgent') ?? this.getLegacyModelModuleSettings('assistant');
+			this.getModelModuleSettings('agent') ?? this.getLegacyModelModuleSettings('assistant');
 		const current = this.getLegacyOperator();
 		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? current?.agents ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
