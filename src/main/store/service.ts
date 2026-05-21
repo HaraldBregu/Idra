@@ -364,16 +364,19 @@ export class StoreService {
 	}
 
 	getOperator(): OperatorStoreState | undefined {
-		const legacy = this.getLegacyOperator();
-		const next: OperatorStoreState = {
-			...(legacy ?? {}),
-		};
+		const next: OperatorStoreState = {};
 		const assistant = this.getConfiguredModelOperator('assistant');
 		if (assistant) next.assistant = assistant;
 		const speechToText = this.getConfiguredModelOperator('speechToText');
 		if (speechToText) next.speechToText = speechToText;
+		const textToSpeech = this.getConfiguredModelOperator('textToSpeech');
+		if (textToSpeech) next.textToSpeech = textToSpeech;
 		const imageCreator = this.getConfiguredModelOperator('imageCreator');
 		if (imageCreator) next.imageCreator = imageCreator;
+		const textToVideo = this.getConfiguredModelOperator('textToVideo');
+		if (textToVideo) next.videoCreator = textToVideo;
+		const textToSound = this.getConfiguredModelOperator('textToSound');
+		if (textToSound) next.musicCreator = textToSound;
 		const ocr = readOcrSettings(this.store.get('ocr'));
 		if (ocr?.mode === 'endpoint') {
 			next.documentReaderOcr = {
@@ -386,11 +389,11 @@ export class StoreService {
 				next.documentReaderOcr = {
 					...OPERATOR_DEFINITIONS.documentReaderOcr,
 					provider: publicProvider(provider),
-					model: modelForModule('assistant', ocr),
+					model: modelForModule('assistant', ocr, provider),
 				};
 			}
 		}
-		const agentSettings = this.getModelModuleSettings('agent');
+		const agentSettings = this.getModelModuleSettings('llmAgent');
 		const agents = readAgentsHeartbeatConfig(agentSettings);
 		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
@@ -401,10 +404,8 @@ export class StoreService {
 	}
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const currentAgentSettings =
-			this.getModelModuleSettings('agent') ?? this.getLegacyModelModuleSettings('assistant');
-		const current = this.getLegacyOperator();
-		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? current?.agents ?? {};
+		const currentAgentSettings = this.getModelModuleSettings('llmAgent');
+		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
 		const currentHeartbeat = currentDefaults.heartbeat ?? {};
 		const nextHeartbeat: AgentHeartbeatConfig = {
@@ -415,7 +416,6 @@ export class StoreService {
 			delete nextHeartbeat.activeHours;
 		}
 		const next: OperatorStoreState = {
-			...current,
 			agents: {
 				...currentAgents,
 				defaults: {
@@ -424,17 +424,17 @@ export class StoreService {
 				},
 			},
 		};
-			if (currentAgentSettings) {
-				this.store.set('agent', {
-					...currentAgentSettings,
-					options: {
-						...(currentAgentSettings.options ?? {}),
-						agents: next.agents,
-					},
-				});
-			}
-			return nextHeartbeat;
+		if (currentAgentSettings) {
+			this.store.set('llmAgent', {
+				...currentAgentSettings,
+				options: {
+					...(currentAgentSettings.options ?? {}),
+					agents: next.agents,
+				},
+			});
 		}
+		return nextHeartbeat;
+	}
 
 	getAssistantOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('assistant');
@@ -467,13 +467,7 @@ export class StoreService {
 	getDocumentReaderOcrEndpoint(): string | undefined {
 		const ocr = readOcrSettings(this.store.get('ocr'));
 		if (ocr?.mode === 'endpoint') return ocr.endpoint;
-		const documentReader = this.getLegacyOperator()?.documentReaderOcr;
-		if (isEndpointOperator(documentReader)) {
-			const endpoint = documentReader.endpoint.trim();
-			if (endpoint) return endpoint;
-		}
-		const legacyEndpoint = this.getLegacyOperator()?.ocr?.trim();
-		return legacyEndpoint || undefined;
+		return undefined;
 	}
 
 	setAssistantOperator(providerId: string, model: Model): boolean {
@@ -481,9 +475,9 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
-		const current = this.getModelModuleSettings('agent');
+		const current = this.getModelModuleSettings('llmAgent');
 		const settings = modelModuleSettings(provider.id, model, current?.options);
-		this.store.set('agent', settings);
+		this.store.set('llmAgent', settings);
 		return true;
 	}
 
