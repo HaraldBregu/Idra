@@ -467,9 +467,6 @@ function PageContent(): ReactElement {
 					<div className="w-full max-w-[96rem]">
 						<RecorderErrorMessage message={dictation.errorMessage} />
 						<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
-						{showPromptSuggestions ? (
-							<PromptSuggestions onUseSuggestion={agent.useSuggestion} />
-						) : null}
 						<PromptInput
 							value={agent.input}
 							onValueChange={agent.setInput}
