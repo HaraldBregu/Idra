@@ -153,9 +153,9 @@
 				"automation": "Automazioni e app"
 			},
 			"descriptions": {
-				"general": "Info e aspetto app",
+				"general": "Info, aspetto e cartelle app",
 				"agents": "Configurazione agenti",
-				"system": "Permessi, cartelle, barra menu, attivita",
+				"system": "Permessi e attivita in background",
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
@@ -255,7 +255,7 @@
 			"openUserData": "Apri Cartella"
 		},
 		"system": {
-			"description": "Gestisci permessi del sistema operativo, comportamento in background e cartelle di archiviazione."
+			"description": "Gestisci permessi del sistema operativo e comportamento in background."
 		},
 		"chatHistory": {
 			"title": "Cronologia chat",

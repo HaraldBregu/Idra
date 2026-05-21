@@ -153,9 +153,9 @@
 				"automation": "Automation and apps"
 			},
 			"descriptions": {
-				"general": "App info and appearance",
+				"general": "App info, appearance, folders",
 				"agents": "Agent configuration",
-				"system": "Permissions, folders, menu bar, keep awake",
+				"system": "Permissions and keep-awake controls",
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
@@ -255,7 +255,7 @@
 			"openUserData": "Open Folder"
 		},
 		"system": {
-			"description": "Manage operating system permissions, background behavior, and storage folders."
+			"description": "Manage operating system permissions and background behavior."
 		},
 		"chatHistory": {
 			"title": "Chat history",

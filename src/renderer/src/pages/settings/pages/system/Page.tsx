@@ -3,11 +3,9 @@ import { useTranslation } from 'react-i18next';
 import {
 	Accessibility,
 	BatteryCharging,
-	FolderOpen,
 	Mic,
 	MonitorCog,
 	MonitorUp,
-	PanelTop,
 	RefreshCw,
 	ShieldCheck,
 } from 'lucide-react';
@@ -39,17 +37,12 @@ function microphoneActionKey(permission: MicrophonePermissionSettings): string {
 
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
 	const [keepAwakeLoading, setKeepAwakeLoading] = useState(true);
 	const [microphonePermission, setMicrophonePermission] =
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
 	const [microphoneLoading, setMicrophoneLoading] = useState(true);
 	const [microphoneError, setMicrophoneError] = useState('');
-
-	useEffect(() => {
-		void window.app.getTrayEnabled().then(setTrayEnabled);
-	}, []);
 
 	useEffect(() => {
 		let mounted = true;
@@ -85,11 +78,6 @@ const SystemPage: React.FC = () => {
 	useEffect(() => {
 		void refreshMicrophonePermission();
 	}, [refreshMicrophonePermission]);
-
-	const handleTrayToggle = useCallback((checked: boolean) => {
-		setTrayEnabled(checked);
-		void window.app.setTrayEnabled(checked);
-	}, []);
 
 	const handleKeepAwakeToggle = useCallback((checked: boolean) => {
 		setKeepAwakeEnabled(checked);
@@ -138,14 +126,6 @@ const SystemPage: React.FC = () => {
 	const handleOpenAccessibility = useCallback(() => undefined, []);
 
 	const handleOpenScreenRecording = useCallback(() => undefined, []);
-
-	const handleOpenAppDataFolder = useCallback(() => {
-		void window.app.openAppDataFolder();
-	}, []);
-
-	const handleOpenUserDataFolder = useCallback(() => {
-		void window.app.openUserDataFolder();
-	}, []);
 
 	return (
 		<SettingsPageShell>
@@ -246,17 +226,6 @@ const SystemPage: React.FC = () => {
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
-							<PanelTop className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent>
-							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
 							<BatteryCharging className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
@@ -272,32 +241,6 @@ const SystemPage: React.FC = () => {
 								onCheckedChange={handleKeepAwakeToggle}
 								aria-label={t('settings.application.keepAwake')}
 							/>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<FolderOpen className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent>
-							<ItemTitle>{t('settings.application.appData')}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
-								{t('settings.application.openAppData')}
-							</Button>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<FolderOpen className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent>
-							<ItemTitle>{t('settings.application.userData')}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder}>
-								{t('settings.application.openUserData')}
-							</Button>
 						</ItemActions>
 					</Item>
 				</Card>

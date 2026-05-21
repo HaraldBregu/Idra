@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+	FolderOpen,
 	Languages,
 	Monitor,
 	Moon,
+	PanelTop,
 	Sun,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
+import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 import type { ThemeMode, ThemeVariant } from '../../../../../../shared';
 
@@ -55,6 +58,24 @@ const TRANSLUCENCY_OPTIONS = [
 const GeneralPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { theme, translucency, language, setTheme, setTranslucency, setLanguage } = useApp();
+	const [trayEnabled, setTrayEnabled] = useState(true);
+
+	useEffect(() => {
+		void window.app.getTrayEnabled().then(setTrayEnabled);
+	}, []);
+
+	const handleTrayToggle = useCallback((checked: boolean) => {
+		setTrayEnabled(checked);
+		void window.app.setTrayEnabled(checked);
+	}, []);
+
+	const handleOpenAppDataFolder = useCallback(() => {
+		void window.app.openAppDataFolder();
+	}, []);
+
+	const handleOpenUserDataFolder = useCallback(() => {
+		void window.app.openUserDataFolder();
+	}, []);
 
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
@@ -96,6 +117,48 @@ const GeneralPage: React.FC = () => {
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
 							<span className="font-mono text-[13px] text-foreground">{__APP_VERSION__}</span>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.application.actions')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<PanelTop className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<FolderOpen className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.appData')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
+								{t('settings.application.openAppData')}
+							</Button>
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<FolderOpen className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.userData')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder}>
+								{t('settings.application.openUserData')}
+							</Button>
 						</ItemActions>
 					</Item>
 				</Card>
@@ -200,7 +263,6 @@ const GeneralPage: React.FC = () => {
 					})}
 				</Card>
 			</SettingsSection>
-
 		</SettingsPageShell>
 	);
 };
