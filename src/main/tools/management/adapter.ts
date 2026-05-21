@@ -147,6 +147,7 @@ function inferCategory(name: string, description = ''): ToolCategory {
 	if (['exec', 'process'].includes(name)) return 'codeExecution';
 	if (name.includes('web') || name === 'browser') return 'web';
 	if (name.includes('cron')) return 'calendar';
+	if (name === 'text_to_image' || /\b(image generation|create an image|edit an image)\b/.test(text)) return 'image';
 	if (name === 'task') return 'internalApi';
 	if (
 		name.includes('provider') ||
