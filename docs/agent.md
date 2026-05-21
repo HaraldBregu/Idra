@@ -75,7 +75,7 @@ service resolves them before the agent module runs.
 Design boundary:
 
 - `AgentService.send` is the facade for preparing a run.
-- `StoreService` is the source of configured provider records.
+- `StoreService` provides configured provider records.
 - `makeProvider` is the factory that turns a provider record into a
   `ProviderAdapter`.
 - Provider adapters translate provider-specific streaming into the shared
@@ -83,7 +83,7 @@ Design boundary:
 - `runAgent` stays provider-neutral and receives an already constructed
   adapter plus the selected model string.
 
-Current source:
+Resolution behavior:
 
 - The saved agent service configuration comes from the root `agent` settings.
 - The provider id comes from `agent.providerId`, trimmed and lowercased.
@@ -358,8 +358,8 @@ Expected behavior:
 
 When changing this module:
 
-- Start from the tests under `tests/unit/main/agent` and the startup-file tests
-  in `tests/unit/main/services/services.test.ts`.
+- Start from focused tests for agent runs, startup files, and service
+  integration.
 - Add or update tests for changes to transcript shape, stop reasons, tool-call
   handling, prompt composition, compaction, startup-file safety, and hook
   redaction.

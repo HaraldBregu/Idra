@@ -30,7 +30,7 @@ all share stable ids.
 | `msteams` | Microsoft Teams | `teams` | Catalog-only | [Microsoft Teams developer platform](https://learn.microsoft.com/en-us/microsoftteams/platform/overview), [Teams Graph API overview](https://learn.microsoft.com/en-us/graph/teams-concept-overview). |
 | `nextcloud-talk` | Nextcloud Talk | `nc-talk`, `nc` | Catalog-only | [Nextcloud Talk API documentation](https://nextcloud-talk.readthedocs.io/en/latest/), [Bots and webhooks](https://nextcloud-talk.readthedocs.io/en/latest/bots/). |
 | `nostr` | Nostr | none | Catalog-only | [Nostr NIPs](https://github.com/nostr-protocol/nips), [NIP-04 encrypted direct message](https://github.com/nostr-protocol/nips/blob/master/04.md). |
-| `qa-channel` | QA Channel | none | Hidden catalog-only | Internal synthetic test channel. Use the local tests under `tests/unit/main/channels`; there is no external official documentation. |
+| `qa-channel` | QA Channel | none | Hidden catalog-only | Internal synthetic test channel. There is no external official documentation. |
 | `qqbot` | QQ Bot | none | Catalog-only | [QQ Bot official docs](https://bot.q.qq.com/wiki/). |
 | `signal` | Signal | none | Catalog-only | Signal does not publish an official bot API for this use case. Official user/device docs: [Signal linked devices](https://support.signal.org/hc/en-us/articles/360007320551-Linked-Devices). |
 | `slack` | Slack | none | Catalog-only | [Slack API docs](https://docs.slack.dev/apis/), [Slack app manifests](https://docs.slack.dev/app-manifests/). |
