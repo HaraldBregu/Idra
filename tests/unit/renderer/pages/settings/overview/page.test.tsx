@@ -39,6 +39,7 @@ describe('OverviewPage', () => {
 
 		expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
 			'settings.tabs.general',
+			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.channels',
 			'settings.tabs.operators',
