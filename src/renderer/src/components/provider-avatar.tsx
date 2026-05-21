@@ -1,18 +1,8 @@
 import React from 'react';
-import adobeFireflyIconDark from '@resources/icons/brands/adobe_firefly/fallback_lobehub/png_dark/adobefirefly-color.png';
-import adobeFireflyIconLight from '@resources/icons/brands/adobe_firefly/fallback_lobehub/png_light/adobefirefly-color.png';
-import ai21IconDark from '@resources/icons/brands/ai21/fallback_lobehub/png_dark/ai21.png';
-import ai21IconLight from '@resources/icons/brands/ai21/fallback_lobehub/png_light/ai21.png';
 import anthropicIconDark from '@resources/icons/brands/anthropic/fallback_lobehub/png_dark/anthropic.png';
 import anthropicIconLight from '@resources/icons/brands/anthropic/fallback_lobehub/png_light/anthropic.png';
-import baiduIconDark from '@resources/icons/brands/baidu/fallback_lobehub/png_dark/baidu-color.png';
-import baiduIconLight from '@resources/icons/brands/baidu/fallback_lobehub/png_light/baidu-color.png';
 import blackForestLabsIconDark from '@resources/icons/brands/black_forest_labs/official_downloaded_assets/bfl-symbol-white.png';
 import blackForestLabsIconLight from '@resources/icons/brands/black_forest_labs/official_downloaded_assets/bfl-symbol-black.png';
-import bytedanceSeedIconDark from '@resources/icons/brands/bytedance/fallback_lobehub/png_dark/bytedance-color.png';
-import bytedanceSeedIconLight from '@resources/icons/brands/bytedance/fallback_lobehub/png_light/bytedance-color.png';
-import cohereIconDark from '@resources/icons/brands/cohere/fallback_lobehub/png_dark/cohere-color.png';
-import cohereIconLight from '@resources/icons/brands/cohere/fallback_lobehub/png_light/cohere-color.png';
 import deepgramIcon from '@resources/icons/brands/deepgram/fallback_simpleicons/png/deepgram.png';
 import deepseekIconDark from '@resources/icons/brands/deepseek/fallback_lobehub/png_dark/deepseek-color.png';
 import deepseekIconLight from '@resources/icons/brands/deepseek/fallback_lobehub/png_light/deepseek-color.png';
@@ -36,8 +26,6 @@ import minimaxIconDark from '@resources/icons/brands/minimax/fallback_lobehub/pn
 import minimaxIconLight from '@resources/icons/brands/minimax/fallback_lobehub/png_light/minimax-color.png';
 import mistralIconDark from '@resources/icons/brands/mistral/fallback_lobehub/png_dark/mistral-color.png';
 import mistralIconLight from '@resources/icons/brands/mistral/fallback_lobehub/png_light/mistral-color.png';
-import nvidiaIconDark from '@resources/icons/brands/nvidia/fallback_lobehub/png_dark/nvidia-color.png';
-import nvidiaIconLight from '@resources/icons/brands/nvidia/fallback_lobehub/png_light/nvidia-color.png';
 import openaiIconDark from '@resources/icons/brands/openai/fallback_lobehub/png_dark/openai.png';
 import openaiIconLight from '@resources/icons/brands/openai/fallback_lobehub/png_light/openai.png';
 import perplexityIconDark from '@resources/icons/brands/perplexity/fallback_lobehub/png_dark/perplexity-color.png';
@@ -50,8 +38,6 @@ import stabilityAiIconDark from '@resources/icons/brands/stability_ai/fallback_l
 import stabilityAiIconLight from '@resources/icons/brands/stability_ai/fallback_lobehub/png_light/stability-color.png';
 import sunoIconDark from '@resources/icons/brands/suno/fallback_lobehub/png_dark/suno.png';
 import sunoIconLight from '@resources/icons/brands/suno/fallback_lobehub/png_light/suno.png';
-import tencentHunyuanIconDark from '@resources/icons/brands/tencent_hunyuan/fallback_lobehub/png_dark/hunyuan-color.png';
-import tencentHunyuanIconLight from '@resources/icons/brands/tencent_hunyuan/fallback_lobehub/png_light/hunyuan-color.png';
 import xaiIconDark from '@resources/icons/brands/xai/fallback_lobehub/png_dark/xai.png';
 import xaiIconLight from '@resources/icons/brands/xai/fallback_lobehub/png_light/xai.png';
 import zaiIconDark from '@resources/icons/brands/zai/fallback_lobehub/png_dark/zai.png';
@@ -70,29 +56,22 @@ const providerIconAssets: Readonly<Record<string, ProviderIconAsset>> = {
 	meta: { light: metaIconLight, dark: metaIconDark },
 	xai: { light: xaiIconLight, dark: xaiIconDark },
 	mistral: { light: mistralIconLight, dark: mistralIconDark },
-	cohere: { light: cohereIconLight, dark: cohereIconDark },
 	deepseek: { light: deepseekIconLight, dark: deepseekIconDark },
 	qwen: { light: qwenIconLight, dark: qwenIconDark },
 	kimi: { light: kimiIconLight, dark: kimiIconDark },
 	zai: { light: zaiIconLight, dark: zaiIconDark },
-	baidu: { light: baiduIconLight, dark: baiduIconDark },
-	'tencent-hunyuan': { light: tencentHunyuanIconLight, dark: tencentHunyuanIconDark },
-	'bytedance-seed': { light: bytedanceSeedIconLight, dark: bytedanceSeedIconDark },
 	minimax: { light: minimaxIconLight, dark: minimaxIconDark },
 	elevenlabs: { light: elevenlabsIconLight, dark: elevenlabsIconDark },
 	deepgram: { light: deepgramIcon, dark: deepgramIcon },
 	'black-forest-labs': { light: blackForestLabsIconLight, dark: blackForestLabsIconDark },
 	midjourney: { light: midjourneyIconLight, dark: midjourneyIconDark },
-	'adobe-firefly': { light: adobeFireflyIconLight, dark: adobeFireflyIconDark },
 	kling: { light: klingIconLight, dark: klingIconDark },
 	runway: { light: runwayIconLight, dark: runwayIconDark },
 	luma: { light: lumaIconLight, dark: lumaIconDark },
 	'stability-ai': { light: stabilityAiIconLight, dark: stabilityAiIconDark },
 	ideogram: { light: ideogramIconLight, dark: ideogramIconDark },
 	suno: { light: sunoIconLight, dark: sunoIconDark },
-	ai21: { light: ai21IconLight, dark: ai21IconDark },
 	perplexity: { light: perplexityIconLight, dark: perplexityIconDark },
-	nvidia: { light: nvidiaIconLight, dark: nvidiaIconDark },
 };
 
 function getProviderInitial(name: string): string {
