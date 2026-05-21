@@ -33,5 +33,4 @@ The root route renders:
 
 - [Start page](start-page.md)
 - [Home page](home-page.md)
-- [Settings and operators](settings.md)
-
+- [Settings and operators](settings-page.md)
