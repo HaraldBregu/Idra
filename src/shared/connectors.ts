@@ -33,6 +33,16 @@ export interface ConnectorDocumentationPage {
 	readonly type: ConnectorDocumentationType;
 }
 
+export interface ConnectorPlatformDocumentationPage {
+	readonly label: string;
+	readonly url: string;
+}
+
+export interface ConnectorCatalogExample {
+	readonly tool: string;
+	readonly input: Readonly<Record<string, unknown>>;
+}
+
 export interface DirectConnectorCatalogEntry {
 	readonly id: string;
 	readonly name: string;
@@ -49,6 +59,24 @@ export interface DirectConnectorCatalogEntry {
 	readonly humanApprovalRequiredFor: readonly string[];
 	readonly recommendedInitialMode: ConnectorRecommendedInitialMode;
 	readonly notes: string;
+}
+
+export interface OpenAiConnectorCatalogEntry {
+	readonly id: string;
+	readonly directConnectorId: DirectConnectorCatalogId;
+	readonly name: string;
+	readonly description: string;
+	readonly docsPath: string;
+	readonly docsLabel: string;
+	readonly environmentSecretNames: readonly string[];
+	readonly platformDocumentationPages: readonly ConnectorPlatformDocumentationPage[];
+	readonly example: ConnectorCatalogExample;
+	readonly tools: readonly string[];
+	readonly scopes: readonly string[];
+	readonly setupUrl: string;
+	readonly setupInstructions: readonly string[];
+	readonly authKind?: 'google_oauth';
+	readonly redirectUri?: string;
 }
 
 const DOC_STATUS = 'official_public_web_checked_2026-05-19';
@@ -796,6 +824,14 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'dropbox',
 		name: 'Dropbox',
 		description: 'Search and fetch files from Dropbox.',
+		docsPath: 'docs/connectors/dropbox.md',
+		docsLabel: 'Dropbox connector guide',
+		environmentSecretNames: ['DROPBOX_CLIENT_ID', 'DROPBOX_CLIENT_SECRET', 'DROPBOX_ACCESS_TOKEN'],
+		platformDocumentationPages: [
+			{ label: 'Dropbox HTTP API', url: 'https://www.dropbox.com/developers/documentation/http/overview' },
+			{ label: 'Dropbox OAuth guide', url: 'https://developers.dropbox.com/oauth-guide' },
+		],
+		example: { tool: 'search_files', input: { query: 'quarterly report' } },
 		tools: ['search', 'fetch', 'search_files', 'fetch_file', 'list_recent_files', 'get_profile'],
 		scopes: ['files.metadata.read', 'files.content.read', 'account_info.read'],
 		setupUrl: 'https://www.dropbox.com/developers/apps',
@@ -810,6 +846,14 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'gmail',
 		name: 'Gmail',
 		description: 'Search, read, draft, send, and manage Gmail messages.',
+		docsPath: 'docs/connectors/gmail.md',
+		docsLabel: 'Gmail connector guide',
+		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+		platformDocumentationPages: [
+			{ label: 'Gmail API guides', url: 'https://developers.google.com/workspace/gmail/api/guides' },
+			{ label: 'Gmail API reference', url: 'https://developers.google.com/workspace/gmail/api/reference/rest' },
+		],
+		example: { tool: 'search_emails', input: { query: 'from:alice@example.com newer_than:7d' } },
 		tools: [
 			'get_profile',
 			'search_emails',
@@ -844,6 +888,14 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'google_calendar',
 		name: 'Google Calendar',
 		description: 'Search, read, create, update, and delete Google Calendar events.',
+		docsPath: 'docs/connectors/google-calendar.md',
+		docsLabel: 'Google Calendar connector guide',
+		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+		platformDocumentationPages: [
+			{ label: 'Google Calendar API overview', url: 'https://developers.google.com/workspace/calendar/api/guides/overview' },
+			{ label: 'Calendar API reference', url: 'https://developers.google.com/workspace/calendar/api/v3/reference' },
+		],
+		example: { tool: 'search_events', input: { query: 'planning', calendarId: 'primary' } },
 		tools: [
 			'get_profile',
 			'list_calendars',
@@ -877,6 +929,14 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'google_drive',
 		name: 'Google Drive',
 		description: 'Search, read, create, and inspect Google Drive files.',
+		docsPath: 'docs/connectors/google-drive.md',
+		docsLabel: 'Google Drive connector guide',
+		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+		platformDocumentationPages: [
+			{ label: 'Google Drive API overview', url: 'https://developers.google.com/workspace/drive/api/guides/about-sdk' },
+			{ label: 'Drive API reference', url: 'https://developers.google.com/drive/api/reference/rest/v3' },
+		],
+		example: { tool: 'search_files', input: { query: "name contains 'proposal'" } },
 		tools: [
 			'get_profile',
 			'search_files',
@@ -912,6 +972,19 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'microsoft_teams',
 		name: 'Microsoft Teams',
 		description: 'Search Teams chats and channel messages.',
+		docsPath: 'docs/connectors/microsoft-teams.md',
+		docsLabel: 'Microsoft Teams connector guide',
+		environmentSecretNames: [
+			'MICROSOFT_TENANT_ID',
+			'MICROSOFT_CLIENT_ID',
+			'MICROSOFT_CLIENT_SECRET',
+			'MICROSOFT_TEAMS_ACCESS_TOKEN',
+		],
+		platformDocumentationPages: [
+			{ label: 'Microsoft Teams Graph overview', url: 'https://learn.microsoft.com/en-us/graph/teams-concept-overview' },
+			{ label: 'Teams API reference', url: 'https://learn.microsoft.com/en-us/graph/api/resources/teams-api-overview?view=graph-rest-1.0' },
+		],
+		example: { tool: 'search', input: { query: 'deployment incident' } },
 		tools: ['search', 'fetch', 'get_chat_members', 'get_profile'],
 		scopes: ['Chat.Read', 'ChannelMessage.Read.All', 'User.Read'],
 		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
@@ -926,6 +999,19 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'outlook',
 		name: 'Outlook Calendar',
 		description: 'Search and read Outlook Calendar events.',
+		docsPath: 'docs/connectors/outlook-calendar.md',
+		docsLabel: 'Outlook Calendar connector guide',
+		environmentSecretNames: [
+			'MICROSOFT_TENANT_ID',
+			'MICROSOFT_CLIENT_ID',
+			'MICROSOFT_CLIENT_SECRET',
+			'MICROSOFT_OUTLOOK_CALENDAR_ACCESS_TOKEN',
+		],
+		platformDocumentationPages: [
+			{ label: 'Outlook calendar API overview', url: 'https://learn.microsoft.com/en-us/graph/outlook-calendar-concept-overview' },
+			{ label: 'Microsoft Graph auth concepts', url: 'https://learn.microsoft.com/en-us/graph/auth/auth-concepts' },
+		],
+		example: { tool: 'list_events', input: { calendarId: 'primary' } },
 		tools: ['search_events', 'fetch_event', 'fetch_events_batch', 'list_events', 'get_profile'],
 		scopes: ['Calendars.Read', 'User.Read'],
 		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
@@ -940,6 +1026,19 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'outlook',
 		name: 'Outlook Email',
 		description: 'Search and read Outlook email messages.',
+		docsPath: 'docs/connectors/outlook-email.md',
+		docsLabel: 'Outlook Email connector guide',
+		environmentSecretNames: [
+			'MICROSOFT_TENANT_ID',
+			'MICROSOFT_CLIENT_ID',
+			'MICROSOFT_CLIENT_SECRET',
+			'MICROSOFT_OUTLOOK_EMAIL_ACCESS_TOKEN',
+		],
+		platformDocumentationPages: [
+			{ label: 'Outlook mail API overview', url: 'https://learn.microsoft.com/en-us/graph/outlook-mail-concept-overview' },
+			{ label: 'Microsoft Graph auth concepts', url: 'https://learn.microsoft.com/en-us/graph/auth/auth-concepts' },
+		],
+		example: { tool: 'search_messages', input: { query: 'invoice hasAttachments:true' } },
 		tools: [
 			'get_profile',
 			'list_messages',
@@ -961,6 +1060,19 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'sharepoint_onedrive',
 		name: 'SharePoint',
 		description: 'Search and fetch SharePoint and OneDrive documents.',
+		docsPath: 'docs/connectors/sharepoint.md',
+		docsLabel: 'SharePoint connector guide',
+		environmentSecretNames: [
+			'MICROSOFT_TENANT_ID',
+			'MICROSOFT_CLIENT_ID',
+			'MICROSOFT_CLIENT_SECRET',
+			'MICROSOFT_SHAREPOINT_ACCESS_TOKEN',
+		],
+		platformDocumentationPages: [
+			{ label: 'OneDrive files in Microsoft Graph', url: 'https://learn.microsoft.com/en-us/graph/api/resources/onedrive?view=graph-rest-1.0' },
+			{ label: 'SharePoint sites API', url: 'https://learn.microsoft.com/en-us/graph/api/resources/sharepoint?view=graph-rest-1.0' },
+		],
+		example: { tool: 'fetch', input: { id: 'drive-item-id' } },
 		tools: ['get_site', 'search', 'list_recent_documents', 'fetch', 'get_profile'],
 		scopes: ['Sites.Read.All', 'Files.Read.All', 'User.Read'],
 		setupUrl: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade',
@@ -970,7 +1082,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'Complete OAuth for the account and paste the resulting access token here.',
 		],
 	},
-] as const;
+] as const satisfies readonly OpenAiConnectorCatalogEntry[];
 
 export type OpenAiConnectorId = (typeof OPENAI_CONNECTOR_CATALOG)[number]['id'];
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
