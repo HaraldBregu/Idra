@@ -77,10 +77,10 @@ describe('tools/task', () => {
 			status: 'queued' as const,
 			createdAt: '2026-05-21T00:00:00.000Z',
 			metadata: {},
-		};
-		const taskManager = {
-			run: jest.fn(() => record),
-		};
+			};
+			const taskManager = {
+				startUserTask: jest.fn(() => record),
+			};
 
 		const result = await taskTool.execute(
 			{
@@ -97,12 +97,12 @@ describe('tools/task', () => {
 			})
 		);
 
-		expect(result.status).toBe('ok');
-		expect(result.details).toBe(record);
-		expect(taskManager.run).toHaveBeenCalledWith({
-			type: 'agent.run',
-			title: 'Summarize workspace',
-			input: { message: 'Summarize the workspace' },
+			expect(result.status).toBe('ok');
+			expect(result.details).toBe(record);
+			expect(taskManager.startUserTask).toHaveBeenCalledWith({
+				type: 'agent.run',
+				title: 'Summarize workspace',
+				input: { message: 'Summarize the workspace' },
 			metadata: { source: 'test' },
 		});
 	});
