@@ -97,7 +97,7 @@ function SettingsOverviewCard({
 			size="md"
 			className="grid grid-cols-[1.5rem_minmax(0,1fr)_0.75rem] items-center border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
 		>
-			<ItemIcon icon={item.icon} />
+			<ItemIcon icon={item.icon} className={ICON_COLORS[item.path]} />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
