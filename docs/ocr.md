@@ -13,7 +13,8 @@ Current runtime status:
 - `ocr.run` is implemented as a background task handler.
 - The current handler reads the configured root `ocr` settings from
   `StoreService`.
-- A dedicated OCR module and provider/model picker are still future work.
+- The dedicated OCR module should depend on `StoreService` to resolve the
+  selected provider and correct OCR model.
 
 Module surfaces:
 
@@ -24,7 +25,8 @@ Module surfaces:
 
 Dependencies:
 
-- `StoreService` for saved root `ocr` settings.
+- `StoreService` for saved root `ocr` settings, including the selected provider
+  and correct OCR model.
 - Provider records and OCR adapters when the module becomes provider-backed.
 - Background task module for immediate OCR jobs.
 - Task scheduler for scheduled OCR jobs.
@@ -56,7 +58,8 @@ Target module flow:
 
 1. UI, task, schedule, or tool code passes document/image input to the OCR
    module service.
-2. The OCR module resolves `ocr` from `StoreService`.
+2. The OCR module uses `StoreService` to resolve the selected provider and
+   correct OCR model from `ocr`.
 3. The OCR module resolves endpoint/provider credentials from the configured
    provider record.
 4. The OCR adapter extracts text and returns a normalized OCR result.
