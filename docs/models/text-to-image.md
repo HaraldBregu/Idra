@@ -78,8 +78,8 @@ Providers with image capability in the default provider catalog include:
 | `ideogram` | Ideogram | Hosted image generation |
 
 Provider credentials, base URLs, and official provider links are maintained in
-[providers.md](../providers.md). The consolidated model overview is maintained
-in the [model catalog](index.md).
+[providers.md](../providers/index.md). The consolidated model overview is
+maintained in the [model catalog](index.md).
 
 ## Module Settings
 

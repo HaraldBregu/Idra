@@ -47,7 +47,7 @@ Example TTS provider/model choices:
 | Any TTS-capable provider | Provider model id | Streaming or batch |
 
 Provider catalog and official provider links are maintained in
-[providers.md](../providers.md).
+[providers.md](../providers/index.md).
 
 ## Module Settings
 

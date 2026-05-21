@@ -187,8 +187,8 @@ webhook secrets, or raw provider records.
 
 ## Related Documentation
 
-- [providers.md](../providers.md) documents provider credentials, API setup links,
-  and runtime adapter behavior.
+- [providers.md](../providers/index.md) documents provider credentials, API
+  setup links, and runtime adapter behavior.
 - [large-language-model.md](large-language-model.md) documents LLM agent
   execution and provider/model resolution.
 - [text-to-image.md](text-to-image.md) documents text-to-image module
