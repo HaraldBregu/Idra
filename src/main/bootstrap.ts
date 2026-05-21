@@ -17,10 +17,12 @@ import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
 import {
 	AgentTaskHandler,
+	ImageCreateTaskHandler,
 	OcrTaskHandler,
 	TaskManager,
 	TaskRegistry,
 } from './tasks';
+import { TextToImageService } from './text-to-image';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
@@ -78,6 +80,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
+	const textToImage = container.register('textToImage', new TextToImageService(store));
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register(
 		'cron',
@@ -104,6 +107,7 @@ export function bootstrapServices(): BootstrapResult {
 		connectors,
 		mcpRegistry,
 		skills,
+		textToImage,
 	};
 	const agentService = container.register(
 		'agentService',
@@ -111,6 +115,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 	const taskRegistry = new TaskRegistry();
 	taskRegistry.register(new AgentTaskHandler(agentService), { userFacing: true });
+	taskRegistry.register(new ImageCreateTaskHandler(textToImage), { userFacing: true });
 	taskRegistry.register(new OcrTaskHandler(store), { userFacing: true });
 	const taskManager = container.register(
 		'taskManager',
