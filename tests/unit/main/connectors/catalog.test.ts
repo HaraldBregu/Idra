@@ -10,6 +10,10 @@ import {
 	listDirectConnectorsByPriority,
 } from '../../../../src/shared/connectors';
 
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 describe('shared connector catalog', () => {
 	it('exposes production connector metadata for frontend and backend use', () => {
 		expect(CONNECTOR_CATALOG_COUNTS.directConnectors).toBe(DIRECT_CONNECTOR_CATALOG.length);
@@ -45,9 +49,9 @@ describe('shared connector catalog', () => {
 			const markdown = readFileSync(docsPath, 'utf8');
 			catalogDocs.add(path.basename(connector.docsPath));
 
-			expect(markdown).toContain(`Connector id | \`${connector.id}\``);
-			expect(markdown).toContain(`Direct connector id | \`${connector.directConnectorId}\``);
-			expect(markdown).toContain(`Name | ${connector.name}`);
+			expect(markdown).toMatch(new RegExp(`\\|\\s*Connector id\\s*\\|\\s*\`${escapeRegExp(connector.id)}\``));
+			expect(markdown).toMatch(new RegExp(`\\|\\s*Direct connector id\\s*\\|\\s*\`${escapeRegExp(connector.directConnectorId)}\``));
+			expect(markdown).toMatch(new RegExp(`\\|\\s*Name\\s*\\|\\s*${escapeRegExp(connector.name)}\\s*\\|`));
 			expect(markdown).toContain(connector.setupUrl);
 			expect(markdown).toContain(`Use with \`${connector.example.tool}\`.`);
 
