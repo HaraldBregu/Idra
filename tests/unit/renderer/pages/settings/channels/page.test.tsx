@@ -4,6 +4,10 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import { listChannelCatalog } from '../../../../../../src/shared/channel-catalog';
 import ChannelsPage from '../../../../../../src/renderer/src/pages/settings/pages/channels/Page';
 
+jest.mock('../../../../../../src/renderer/src/pages/settings/pages/channels/ChannelIcon', () => ({
+	ChannelIcon: ({ name }: { readonly name: string }) => <span aria-hidden="true">{name}</span>,
+}));
+
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
