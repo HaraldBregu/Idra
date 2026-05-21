@@ -150,6 +150,7 @@
 	--app-surface-background-base: oklch(0.205 0 0);
 	--app-popover-background-base: oklch(0.205 0 0);
 	--app-sidebar-background-base: oklch(0.205 0 0);
+	--app-scrollbar-track: oklch(1 0 0 / 6%);
 	--app-scrollbar-thumb: color-mix(in oklch, var(--foreground) 24%, transparent);
 	--app-scrollbar-thumb-hover: color-mix(in oklch, var(--foreground) 38%, transparent);
 	--background: var(--app-window-background);
