@@ -58,8 +58,6 @@ import {
 	MUSIC_CREATOR_MODELS,
 	OPERATOR_DEFINITIONS,
 	SPEECH_TO_TEXT_OPERATOR_ID,
-	SPEECH_TO_TEXT_MODELS,
-	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	TEXT_TO_SPEECH_OPERATOR_ID,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
@@ -171,18 +169,36 @@ const OperatorDetailsPage: React.FC = () => {
 			: window.app.getAssistantOperator();
 
 		void Promise.all([window.app.getProviders(), operatorRequest])
-			.then(([nextProviders, nextOperator]) => {
+			.then(async ([nextProviders, nextOperator]) => {
 				if (!mounted) return;
 				const mergedProviders = mergeProviders(nextProviders, nextOperator);
-				const availableProviders = isSpeechToTextOperator
-					? mergedProviders.filter((provider) => isOpenAiProvider(provider.id))
-					: mergedProviders;
+				const speechModelsByProvider = new Map<string, Model[]>();
+				let availableProviders = mergedProviders;
+				if (isSpeechToTextOperator) {
+					const providersWithSpeechModels: PublicProvider[] = [];
+					for (const provider of mergedProviders) {
+						const nextModels = await window.app.getSpeechToTextModels(provider).catch(() => []);
+						if (nextModels.length > 0 || provider.id === nextOperator?.provider.id) {
+							providersWithSpeechModels.push(provider);
+							speechModelsByProvider.set(provider.id, nextModels);
+						}
+					}
+					availableProviders = providersWithSpeechModels;
+				}
 				const preferredProvider = isSpeechToTextOperator
 					? availableProviders.find((provider) => provider.id === nextOperator?.provider.id) ??
-						availableProviders.find((provider) => provider.id === SPEECH_TRANSCRIBER_PROVIDER_ID) ??
 						availableProviders[0]
 					: availableProviders.find((provider) => provider.id === nextOperator?.provider.id) ??
 						availableProviders[0];
+				const preferredSpeechModels = preferredProvider
+					? speechModelsByProvider.get(preferredProvider.id) ?? []
+					: [];
+				const preferredSpeechModelId =
+					nextOperator &&
+					preferredProvider?.id === nextOperator.provider.id &&
+					preferredSpeechModels.some((model) => model.id === nextOperator.model.id)
+						? nextOperator.model.id
+						: preferredSpeechModels[0]?.id ?? '';
 
 				setProviders(availableProviders);
 				setCurrentAssistantOperator(isAssistantOperator ? nextOperator : undefined);
@@ -190,11 +206,8 @@ const OperatorDetailsPage: React.FC = () => {
 				setProviderId(preferredProvider?.id ?? '');
 				setModelId(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id
-						? isSpeechToTextOperator &&
-							!SPEECH_TO_TEXT_MODELS.some((model) => model.id === nextOperator.model.id)
-							? SPEECH_TO_TEXT_MODELS[0]?.id ?? ''
-							: nextOperator.model.id
-						: isSpeechToTextOperator ? SPEECH_TO_TEXT_MODELS[0]?.id ?? '' : ''
+						? isSpeechToTextOperator ? preferredSpeechModelId : nextOperator.model.id
+						: isSpeechToTextOperator ? preferredSpeechModelId : ''
 				);
 				setEffort(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id && isAssistantOperator
@@ -235,20 +248,33 @@ const OperatorDetailsPage: React.FC = () => {
 		}
 
 		if (isSpeechToTextOperator) {
-			const speechModels = Array.from(SPEECH_TO_TEXT_MODELS);
-			setModels(speechModels);
-				setModelId((current) => {
-					if (current && speechModels.some((model) => model.id === current)) return current;
-					if (
-						currentSpeechToTextOperator?.provider.id === selectedProvider.id &&
-						speechModels.some((model) => model.id === currentSpeechToTextOperator.model.id)
-					) {
-						return currentSpeechToTextOperator.model.id;
-					}
-					return speechModels[0]?.id ?? '';
-				});
-			setLoadingModels(false);
+			setLoadingModels(true);
 			setErrorMessage('');
+			void window.app
+				.getSpeechToTextModels(selectedProvider)
+				.then((speechModels) => {
+					if (!mounted) return;
+					setModels(speechModels);
+					setModelId((current) => {
+						if (current && speechModels.some((model) => model.id === current)) return current;
+						if (
+							currentSpeechToTextOperator?.provider.id === selectedProvider.id &&
+							speechModels.some((model) => model.id === currentSpeechToTextOperator.model.id)
+						) {
+							return currentSpeechToTextOperator.model.id;
+						}
+						return speechModels[0]?.id ?? '';
+					});
+				})
+				.catch((error) => {
+					if (!mounted) return;
+					setModels([]);
+					setModelId('');
+					setErrorMessage(getErrorMessage(error, t('settings.operators.modelsLoadError')));
+				})
+				.finally(() => {
+					if (mounted) setLoadingModels(false);
+				});
 			return () => {
 				mounted = false;
 			};
@@ -284,7 +310,7 @@ const OperatorDetailsPage: React.FC = () => {
 	}, [currentAssistantOperator, currentSpeechToTextOperator, isSpeechToTextOperator, selectedProvider, t]);
 
 	const modelOptions = useMemo(() => {
-		if (isSpeechToTextOperator) return Array.from(SPEECH_TO_TEXT_MODELS);
+		if (isSpeechToTextOperator) return models;
 
 		const byId = new Map(models.map((model) => [model.id, model]));
 		if (
