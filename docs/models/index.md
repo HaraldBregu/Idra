@@ -81,7 +81,6 @@ Speech to text currently has one explicit provider/model entry:
 Other speech-to-text capable providers return the placeholder model id
 `speech-to-text-provider-coming-soon` through
 `SPEECH_TO_TEXT_MODELS_BY_PROVIDER` until provider-specific model catalogs and
-runtime adapters are added: `google`, `xai`, `mistral`, `cohere`, `qwen`,
 runtime adapters are added: `google`, `xai`, `mistral`, `qwen`, `elevenlabs`,
 and `deepgram`.
 
