@@ -252,6 +252,7 @@ const ChannelDetailPage: React.FC = () => {
 						<ChannelIcon
 							channelId={selectedId}
 							name={selectedTitle}
+							brandIconId={selectedEntry?.brandIconId}
 							className="size-full border-0 bg-transparent p-1"
 							fallbackClassName="size-3"
 						/>
@@ -260,6 +261,11 @@ const ChannelDetailPage: React.FC = () => {
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
+			{selectedEntry && selectedId !== 'telegram' && (
+				<SettingsNotice icon={CircleOff}>
+					{t('settings.channels.runtimeUnavailable')}
+				</SettingsNotice>
+			)}
 
 			{selectedId ? (
 				<SettingsSection
