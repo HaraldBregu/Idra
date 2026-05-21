@@ -40,6 +40,7 @@ describe('shared connector catalog', () => {
 		const iconRoot = path.join(process.cwd(), 'resources/icons/brands');
 		const iconIds = readdirSync(iconRoot, { withFileTypes: true })
 			.filter((entry) => entry.isDirectory())
+			.filter((entry) => existsSync(path.join(iconRoot, entry.name, 'SOURCE.json')))
 			.map((entry) => entry.name);
 
 		expect(iconIds.length).toBeGreaterThanOrEqual(DIRECT_CONNECTOR_CATALOG.length);

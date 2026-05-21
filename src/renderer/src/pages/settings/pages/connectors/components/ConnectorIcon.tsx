@@ -30,7 +30,7 @@ function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 	const partialAssets: Record<string, Partial<ConnectorIconAsset>> = {};
 
 	for (const [path, url] of Object.entries(directConnectorIconModules)) {
-		const match = path.match(/direct_connectors\/([^/]+)\/[^/]+_(light|dark)(?:_NOT_A_LOGO)?\.png$/);
+		const match = path.match(/brands\/[^/]+\/([^/]+)_(light|dark)(?:_NOT_A_LOGO)?\.png$/);
 		if (!match) continue;
 		const [, id, theme] = match;
 		if (!id || (theme !== 'light' && theme !== 'dark')) continue;
