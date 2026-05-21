@@ -57,11 +57,11 @@ describe('OperatorDetailsPage', () => {
 		window.app = {
 			...window.app,
 			getProviders: jest.fn(async () => [provider]),
-			getAgentService: jest.fn(async () => ({ provider, model })),
-			getSpeechTranscriberService: jest.fn(async () => undefined),
+			getAssistantOperator: jest.fn(async () => ({ provider, model })),
+			getSpeechToTextOperator: jest.fn(async () => undefined),
 			getModels: jest.fn(async () => [model]),
-			saveAgentService: jest.fn(async () => true),
-			saveSpeechTranscriberService: jest.fn(async () => true),
+			saveAssistantOperator: jest.fn(async () => true),
+			saveSpeechToTextOperator: jest.fn(async () => true),
 		};
 	});
 

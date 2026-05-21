@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
 import {
-	DOCUMENT_READER_AGENT_ID,
-	IMAGE_ASSISTANT_AGENT_ID,
-	MUSIC_CREATOR_AGENT_ID,
-	SPEECH_TRANSCRIBER_AGENT_ID,
-	TEXT_TO_SPEECH_AGENT_ID,
-	VIDEO_CREATOR_AGENT_ID,
+	DOCUMENT_READER_OCR_OPERATOR_ID,
+	IMAGE_CREATOR_OPERATOR_ID,
+	MUSIC_CREATOR_OPERATOR_ID,
+	SPEECH_TO_TEXT_OPERATOR_ID,
+	TEXT_TO_SPEECH_OPERATOR_ID,
+	VIDEO_CREATOR_OPERATOR_ID,
 } from '../../../../../shared/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
 
@@ -84,17 +84,17 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items[0] = { ...items[0], path: current.path };
 		const label = operatorId === 'friday' || operatorId === 'main'
 			? t('settings.operators.fridayBreadcrumb')
-			: operatorId === SPEECH_TRANSCRIBER_AGENT_ID
+			: operatorId === SPEECH_TO_TEXT_OPERATOR_ID
 				? t('settings.operators.speechTranscriberName')
-				: operatorId === TEXT_TO_SPEECH_AGENT_ID
+				: operatorId === TEXT_TO_SPEECH_OPERATOR_ID
 					? t('settings.operators.textToSpeechName')
-					: operatorId === IMAGE_ASSISTANT_AGENT_ID
+					: operatorId === IMAGE_CREATOR_OPERATOR_ID
 						? t('settings.operators.imageAssistantName')
-						: operatorId === VIDEO_CREATOR_AGENT_ID
+						: operatorId === VIDEO_CREATOR_OPERATOR_ID
 							? t('settings.operators.videoCreatorName')
-							: operatorId === MUSIC_CREATOR_AGENT_ID
+							: operatorId === MUSIC_CREATOR_OPERATOR_ID
 								? t('settings.operators.musicCreatorName')
-								: operatorId === DOCUMENT_READER_AGENT_ID
+								: operatorId === DOCUMENT_READER_OCR_OPERATOR_ID
 									? t('settings.operators.documentReaderName')
 									: operatorId === CRON_TASK_OPERATOR_ID
 										? t('settings.operators.cronTaskName')

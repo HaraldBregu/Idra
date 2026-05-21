@@ -22,12 +22,12 @@ import {
 	SettingsSection,
 } from '../../components';
 import {
-	DOCUMENT_READER_AGENT_ID,
-	IMAGE_ASSISTANT_AGENT_ID,
-	MUSIC_CREATOR_AGENT_ID,
-	SPEECH_TRANSCRIBER_AGENT_ID,
-	TEXT_TO_SPEECH_AGENT_ID,
-	VIDEO_CREATOR_AGENT_ID,
+	DOCUMENT_READER_OCR_OPERATOR_ID,
+	IMAGE_CREATOR_OPERATOR_ID,
+	MUSIC_CREATOR_OPERATOR_ID,
+	SPEECH_TO_TEXT_OPERATOR_ID,
+	TEXT_TO_SPEECH_OPERATOR_ID,
+	VIDEO_CREATOR_OPERATOR_ID,
 } from '../../../../../../shared/service';
 
 const FRIDAY_OPERATOR_SLUG = 'friday';
@@ -41,32 +41,32 @@ const OPERATOR_ROWS = [
 		icon: Bot,
 	},
 	{
-		id: SPEECH_TRANSCRIBER_AGENT_ID,
+		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		nameKey: 'settings.operators.speechTranscriberName',
 		icon: Mic,
 	},
 	{
-		id: TEXT_TO_SPEECH_AGENT_ID,
+		id: TEXT_TO_SPEECH_OPERATOR_ID,
 		nameKey: 'settings.operators.textToSpeechName',
 		icon: Volume2,
 	},
 	{
-		id: IMAGE_ASSISTANT_AGENT_ID,
+		id: IMAGE_CREATOR_OPERATOR_ID,
 		nameKey: 'settings.operators.imageAssistantName',
 		icon: ImageIcon,
 	},
 	{
-		id: VIDEO_CREATOR_AGENT_ID,
+		id: VIDEO_CREATOR_OPERATOR_ID,
 		nameKey: 'settings.operators.videoCreatorName',
 		icon: Video,
 	},
 	{
-		id: MUSIC_CREATOR_AGENT_ID,
+		id: MUSIC_CREATOR_OPERATOR_ID,
 		nameKey: 'settings.operators.musicCreatorName',
 		icon: Music,
 	},
 	{
-		id: DOCUMENT_READER_AGENT_ID,
+		id: DOCUMENT_READER_OCR_OPERATOR_ID,
 		nameKey: 'settings.operators.documentReaderName',
 		icon: ScanText,
 	},

@@ -446,7 +446,7 @@ const StartPage: React.FC = () => {
 			try {
 				const [storedProviders, agentService] = await Promise.all([
 					window.app.getProviders(),
-					window.app.getAgentService(),
+					window.app.getAssistantOperator(),
 				]);
 				if (cancelled) return;
 
@@ -670,14 +670,14 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAgentService(
+			await window.app.saveAssistantOperator(
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
 			const openAiProvider = providers.find((provider) => provider.id === 'openai');
 			const selectedSpeechOption = SPEECH_MODELS.find((model) => model.id === selectedSpeechModel);
 			if (openAiProvider && selectedSpeechOption) {
-				await window.app.saveSpeechTranscriberService(openAiProvider, {
+				await window.app.saveSpeechToTextOperator(openAiProvider, {
 					id: selectedSpeechOption.id,
 					name: selectedSpeechOption.name,
 				});

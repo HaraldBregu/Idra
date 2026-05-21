@@ -46,19 +46,19 @@ import {
 } from '../../../../../../../shared/providers';
 import {
 	DEFAULT_MODEL_REASONING_EFFORT,
-	DOCUMENT_READER_AGENT_ID,
-	DOCUMENT_READER_MODELS,
-	IMAGE_ASSISTANT_AGENT_ID,
-	IMAGE_ASSISTANT_MODELS,
-	MUSIC_CREATOR_AGENT_ID,
+	DOCUMENT_READER_OCR_OPERATOR_ID,
+	DOCUMENT_READER_OCR_MODELS,
+	IMAGE_CREATOR_OPERATOR_ID,
+	IMAGE_CREATOR_MODELS,
+	MUSIC_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_MODELS,
-	SPEECH_TRANSCRIBER_AGENT_ID,
-	SPEECH_TRANSCRIBER_MODELS,
+	SPEECH_TO_TEXT_OPERATOR_ID,
+	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
-	TEXT_TO_SPEECH_AGENT_ID,
+	TEXT_TO_SPEECH_OPERATOR_ID,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
-	VIDEO_CREATOR_AGENT_ID,
+	VIDEO_CREATOR_OPERATOR_ID,
 	VIDEO_CREATOR_MODELS,
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
@@ -126,12 +126,12 @@ const OperatorDetailsPage: React.FC = () => {
 	const { operatorId } = useParams<{ operatorId: string }>();
 	const decodedOperatorId = decodeURIComponent(operatorId ?? '');
 	const isFridayAgent = decodedOperatorId === FRIDAY_AGENT_SLUG || decodedOperatorId === FRIDAY_AGENT_ID;
-	const isSpeechTranscriberAgent = decodedOperatorId === SPEECH_TRANSCRIBER_AGENT_ID;
-	const isTextToSpeechAgent = decodedOperatorId === TEXT_TO_SPEECH_AGENT_ID;
-	const isImageAssistantAgent = decodedOperatorId === IMAGE_ASSISTANT_AGENT_ID;
-	const isVideoCreatorAgent = decodedOperatorId === VIDEO_CREATOR_AGENT_ID;
-	const isMusicCreatorAgent = decodedOperatorId === MUSIC_CREATOR_AGENT_ID;
-	const isDocumentReaderAgent = decodedOperatorId === DOCUMENT_READER_AGENT_ID;
+	const isSpeechTranscriberAgent = decodedOperatorId === SPEECH_TO_TEXT_OPERATOR_ID;
+	const isTextToSpeechAgent = decodedOperatorId === TEXT_TO_SPEECH_OPERATOR_ID;
+	const isImageAssistantAgent = decodedOperatorId === IMAGE_CREATOR_OPERATOR_ID;
+	const isVideoCreatorAgent = decodedOperatorId === VIDEO_CREATOR_OPERATOR_ID;
+	const isMusicCreatorAgent = decodedOperatorId === MUSIC_CREATOR_OPERATOR_ID;
+	const isDocumentReaderAgent = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
 	const isCronTaskOperator = decodedOperatorId === CRON_TASK_OPERATOR_ID;
 	const isBackgroundTaskOperator = decodedOperatorId === BACKGROUND_TASK_OPERATOR_ID;
 	const isServiceBackedAgent = isFridayAgent || isSpeechTranscriberAgent;
@@ -166,8 +166,8 @@ const OperatorDetailsPage: React.FC = () => {
 		setSuccessMessage('');
 
 		const serviceRequest = isSpeechTranscriberAgent
-			? window.app.getSpeechTranscriberService()
-			: window.app.getAgentService();
+			? window.app.getSpeechToTextOperator()
+			: window.app.getAssistantOperator();
 
 		void Promise.all([window.app.getProviders(), serviceRequest])
 			.then(([nextProviders, nextService]) => {
@@ -190,10 +190,10 @@ const OperatorDetailsPage: React.FC = () => {
 				setModelId(
 					nextService && preferredProvider?.id === nextService.provider.id
 						? isSpeechTranscriberAgent &&
-							!SPEECH_TRANSCRIBER_MODELS.some((model) => model.id === nextService.model.id)
-							? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? ''
+							!SPEECH_TO_TEXT_MODELS.some((model) => model.id === nextService.model.id)
+							? SPEECH_TO_TEXT_MODELS[0]?.id ?? ''
 							: nextService.model.id
-						: isSpeechTranscriberAgent ? SPEECH_TRANSCRIBER_MODELS[0]?.id ?? '' : ''
+						: isSpeechTranscriberAgent ? SPEECH_TO_TEXT_MODELS[0]?.id ?? '' : ''
 				);
 				setEffort(
 					nextService && preferredProvider?.id === nextService.provider.id && isFridayAgent
@@ -234,7 +234,7 @@ const OperatorDetailsPage: React.FC = () => {
 		}
 
 		if (isSpeechTranscriberAgent) {
-			const speechModels = Array.from(SPEECH_TRANSCRIBER_MODELS);
+			const speechModels = Array.from(SPEECH_TO_TEXT_MODELS);
 			setModels(speechModels);
 				setModelId((current) => {
 					if (current && speechModels.some((model) => model.id === current)) return current;
@@ -283,7 +283,7 @@ const OperatorDetailsPage: React.FC = () => {
 	}, [currentAgent, currentSpeechTranscriber, isSpeechTranscriberAgent, selectedProvider, t]);
 
 	const modelOptions = useMemo(() => {
-		if (isSpeechTranscriberAgent) return Array.from(SPEECH_TRANSCRIBER_MODELS);
+		if (isSpeechTranscriberAgent) return Array.from(SPEECH_TO_TEXT_MODELS);
 
 		const byId = new Map(models.map((model) => [model.id, model]));
 		if (
@@ -349,7 +349,7 @@ const OperatorDetailsPage: React.FC = () => {
 		try {
 			if (isSpeechTranscriberAgent) {
 				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
-				const saved = await window.app.saveSpeechTranscriberService(selectedProvider, modelToSave);
+				const saved = await window.app.saveSpeechToTextOperator(selectedProvider, modelToSave);
 				if (!saved) throw new Error(t('settings.operators.saveError'));
 				setCurrentSpeechTranscriber({ provider: selectedProvider, model: modelToSave });
 				setSuccessMessage(t('settings.operators.saved'));
@@ -359,7 +359,7 @@ const OperatorDetailsPage: React.FC = () => {
 			const modelToSave: Model = supportsReasoningEffortProvider(selectedProvider.id)
 				? { ...selectedModel, effort: effortForModel(selectedModel.id, effort, selectedProvider.id) }
 				: { id: selectedModel.id, name: selectedModel.name };
-			const saved = await window.app.saveAgentService(selectedProvider, modelToSave);
+			const saved = await window.app.saveAssistantOperator(selectedProvider, modelToSave);
 			if (!saved) throw new Error(t('settings.operators.saveError'));
 			setCurrentAgent({ provider: selectedProvider, model: modelToSave });
 			setSuccessMessage(t('settings.operators.saved'));
@@ -548,8 +548,8 @@ const OperatorDetailsPage: React.FC = () => {
 				: isMusicCreatorAgent
 					? MUSIC_CREATOR_MODELS[0]
 					: isDocumentReaderAgent
-						? DOCUMENT_READER_MODELS[0]
-						: IMAGE_ASSISTANT_MODELS[0];
+						? DOCUMENT_READER_OCR_MODELS[0]
+						: IMAGE_CREATOR_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
 	const readOnlyModelName = readOnlyModel?.name ?? t('settings.operators.modelUnavailable');
 	const providerCardSummary = selectedProvider

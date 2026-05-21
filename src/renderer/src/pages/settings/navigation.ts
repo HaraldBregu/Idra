@@ -13,12 +13,12 @@ import {
 	type LucideIcon,
 } from 'lucide-react';
 import {
-	DOCUMENT_READER_AGENT_ID,
-	IMAGE_ASSISTANT_AGENT_ID,
-	MUSIC_CREATOR_AGENT_ID,
-	SPEECH_TRANSCRIBER_AGENT_ID,
-	TEXT_TO_SPEECH_AGENT_ID,
-	VIDEO_CREATOR_AGENT_ID,
+	DOCUMENT_READER_OCR_OPERATOR_ID,
+	IMAGE_CREATOR_OPERATOR_ID,
+	MUSIC_CREATOR_OPERATOR_ID,
+	SPEECH_TO_TEXT_OPERATOR_ID,
+	TEXT_TO_SPEECH_OPERATOR_ID,
+	VIDEO_CREATOR_OPERATOR_ID,
 } from '../../../../shared/service';
 
 export interface SettingsNavigationItem {
@@ -64,12 +64,12 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Operators
 	{ path: '/settings/operators', labelKey: 'settings.operators.title', descriptionKey: 'settings.operators.description', keywords: 'friday operator default provider model' },
 	{ path: '/settings/operators/friday/details', labelKey: 'settings.operators.fridayName', descriptionKey: 'settings.operators.fridayDescription', keywords: 'friday operator default provider model' },
-	{ path: `/settings/operators/${SPEECH_TRANSCRIBER_AGENT_ID}/details`, labelKey: 'settings.operators.speechTranscriberName', descriptionKey: 'settings.operators.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
-	{ path: `/settings/operators/${TEXT_TO_SPEECH_AGENT_ID}/details`, labelKey: 'settings.operators.textToSpeechName', descriptionKey: 'settings.operators.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
-	{ path: `/settings/operators/${IMAGE_ASSISTANT_AGENT_ID}/details`, labelKey: 'settings.operators.imageAssistantName', descriptionKey: 'settings.operators.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },
-	{ path: `/settings/operators/${VIDEO_CREATOR_AGENT_ID}/details`, labelKey: 'settings.operators.videoCreatorName', descriptionKey: 'settings.operators.videoCreatorDescription', keywords: 'video generation creator model' },
-	{ path: `/settings/operators/${MUSIC_CREATOR_AGENT_ID}/details`, labelKey: 'settings.operators.musicCreatorName', descriptionKey: 'settings.operators.musicCreatorDescription', keywords: 'music audio generation creator model' },
-	{ path: `/settings/operators/${DOCUMENT_READER_AGENT_ID}/details`, labelKey: 'settings.operators.documentReaderName', descriptionKey: 'settings.operators.documentReaderDescription', keywords: 'ocr document reader text extraction scan model' },
+	{ path: `/settings/operators/${SPEECH_TO_TEXT_OPERATOR_ID}/details`, labelKey: 'settings.operators.speechTranscriberName', descriptionKey: 'settings.operators.speechTranscriberDescription', keywords: 'speech transcription transcribe audio voice microphone model' },
+	{ path: `/settings/operators/${TEXT_TO_SPEECH_OPERATOR_ID}/details`, labelKey: 'settings.operators.textToSpeechName', descriptionKey: 'settings.operators.textToSpeechDescription', keywords: 'text to speech tts voice output speaking audio model' },
+	{ path: `/settings/operators/${IMAGE_CREATOR_OPERATOR_ID}/details`, labelKey: 'settings.operators.imageAssistantName', descriptionKey: 'settings.operators.imageAssistantDescription', keywords: 'image generation image assistant editing creative model' },
+	{ path: `/settings/operators/${VIDEO_CREATOR_OPERATOR_ID}/details`, labelKey: 'settings.operators.videoCreatorName', descriptionKey: 'settings.operators.videoCreatorDescription', keywords: 'video generation creator model' },
+	{ path: `/settings/operators/${MUSIC_CREATOR_OPERATOR_ID}/details`, labelKey: 'settings.operators.musicCreatorName', descriptionKey: 'settings.operators.musicCreatorDescription', keywords: 'music audio generation creator model' },
+	{ path: `/settings/operators/${DOCUMENT_READER_OCR_OPERATOR_ID}/details`, labelKey: 'settings.operators.documentReaderName', descriptionKey: 'settings.operators.documentReaderDescription', keywords: 'ocr document reader text extraction scan model' },
 	{ path: '/settings/operators/cron-task/details', labelKey: 'settings.operators.cronTaskName', descriptionKey: 'settings.operators.cronTaskDescription', keywords: 'cron schedule recurring task operator' },
 	{ path: '/settings/operators/background-task/details', labelKey: 'settings.operators.backgroundTaskName', descriptionKey: 'settings.operators.backgroundTaskDescription', keywords: 'background task queue agent run ocr operator' },
 	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder' },
