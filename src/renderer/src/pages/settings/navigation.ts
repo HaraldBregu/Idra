@@ -11,7 +11,6 @@ import {
 	Music,
 	Plug,
 	RadioTower,
-	ScanText,
 	Server,
 	Sparkles,
 	Video,
@@ -19,7 +18,6 @@ import {
 	type LucideIcon,
 } from 'lucide-react';
 import {
-	DOCUMENT_READER_OCR_OPERATOR_ID,
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
 	SPEECH_TO_TEXT_OPERATOR_ID,
@@ -99,14 +97,6 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.musicCreatorDescription',
 		keywords: 'music audio generation creator model',
 		icon: Music,
-	},
-	{
-		id: DOCUMENT_READER_OCR_OPERATOR_ID,
-		path: `/settings/operators/${DOCUMENT_READER_OCR_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.documentReaderName',
-		descriptionKey: 'settings.operators.documentReaderDescription',
-		keywords: 'ocr document reader text extraction scan model',
-		icon: ScanText,
 	},
 ] as const;
 

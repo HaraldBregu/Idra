@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
 import {
-	DOCUMENT_READER_OCR_OPERATOR_ID,
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
 	SPEECH_TO_TEXT_OPERATOR_ID,
@@ -65,9 +64,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 							? t('settings.operators.videoCreatorName')
 							: operatorId === MUSIC_CREATOR_OPERATOR_ID
 								? t('settings.operators.musicCreatorName')
-								: operatorId === DOCUMENT_READER_OCR_OPERATOR_ID
-									? t('settings.operators.documentReaderName')
-									: operatorId;
+								: operatorId;
 		const items: SettingsBreadcrumbItem[] = [{
 			label,
 			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(operatorId)}/details` : undefined,

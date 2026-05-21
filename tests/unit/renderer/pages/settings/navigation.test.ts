@@ -27,7 +27,6 @@ describe('settings navigation', () => {
 			'settings.operators.imageAssistantName',
 			'settings.operators.videoCreatorName',
 			'settings.operators.musicCreatorName',
-			'settings.operators.documentReaderName',
 		]);
 	});
 });

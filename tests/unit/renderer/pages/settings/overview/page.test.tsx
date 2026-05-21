@@ -48,7 +48,6 @@ describe('OverviewPage', () => {
 			'settings.operators.imageAssistantName',
 			'settings.operators.videoCreatorName',
 			'settings.operators.musicCreatorName',
-			'settings.operators.documentReaderName',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.heartbeat',

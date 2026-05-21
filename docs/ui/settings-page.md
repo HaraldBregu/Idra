@@ -42,14 +42,13 @@ Operator cards are defined by `SETTINGS_OPERATOR_ITEMS`.
 | Assistant | `friday` | Runtime-backed provider/model settings. |
 | Speech to text | `speech-to-text` | Runtime-backed provider/transcription model settings. |
 | Text to speech | `text-to-speech` | Read-only pending configuration with ElevenLabs / Rachel - multilingual. |
-| Image creator | `image-assistant` | Runtime-backed settings page, but model catalog is placeholder unless a provider exposes image models. |
-| Text to video | `video-creator` | Read-only pending configuration with `video-provider-coming-soon`. |
-| Music creator | `music-creator` | Read-only pending configuration with `music-provider-coming-soon`. |
-| Document reader OCR | `document-reader` | Read-only pending configuration with `document-reader-provider-coming-soon`. |
+| Text to image | `image-assistant` | Runtime-backed settings page, but model catalog is placeholder unless a provider exposes image models. |
+| Text to video | `text-to-video` | Read-only pending configuration with `video-provider-coming-soon`. |
+| Text to audio | `music-creator` | Read-only pending configuration with `music-provider-coming-soon`. |
 
 The operator detail page uses one reusable implementation. Assistant,
 speech-to-text, and image creator are runtime-backed and can save provider/model
-choices. Text-to-speech, video, music, and OCR currently show pending
+choices. Text-to-speech, video, and audio currently show pending
 configuration notices with disabled provider/model selectors.
 
 ## Assistant-Specific Settings
@@ -76,5 +75,5 @@ The current explicit speech-to-text model catalog is OpenAI
 
 The docs and store model include additional module settings for text-to-video,
 text-to-audio/music, OCR, and embedding. Renderer settings currently expose
-pending operator pages for video, music, and OCR. A dedicated embedding settings
-page is not present in the current renderer navigation.
+pending operator pages for video and audio. A dedicated embedding settings page
+is not present in the current renderer navigation.

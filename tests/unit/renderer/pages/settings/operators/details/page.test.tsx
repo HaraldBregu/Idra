@@ -141,6 +141,7 @@ describe('OperatorDetailsPage', () => {
 	it.each([
 		'/settings/operators/cron-task-scheduler/details',
 		'/settings/operators/background-task/details',
+		'/settings/operators/document-reader/details',
 	])('does not render removed workflow operator details for %s', async (path) => {
 		renderOperatorDetailsPage(path);
 

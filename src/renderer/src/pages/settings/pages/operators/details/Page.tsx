@@ -12,7 +12,6 @@ import {
 	Mic,
 	Music,
 	Save,
-	ScanText,
 	Video,
 	Volume2,
 } from 'lucide-react';
@@ -41,8 +40,6 @@ import {
 	ASSISTANT_OPERATOR_ID,
 	ASSISTANT_RUNTIME_ID,
 	DEFAULT_MODEL_REASONING_EFFORT,
-	DOCUMENT_READER_OCR_OPERATOR_ID,
-	DOCUMENT_READER_OCR_MODELS,
 	IMAGE_CREATOR_OPERATOR_ID,
 	IMAGE_CREATOR_MODELS,
 	MUSIC_CREATOR_OPERATOR_ID,
@@ -122,7 +119,6 @@ const OperatorDetailsPage: React.FC = () => {
 	const isImageCreatorOperator = decodedOperatorId === IMAGE_CREATOR_OPERATOR_ID;
 	const isVideoCreatorOperator = decodedOperatorId === TEXT_TO_VIDEO_OPERATOR_ID;
 	const isMusicCreatorOperator = decodedOperatorId === MUSIC_CREATOR_OPERATOR_ID;
-	const isDocumentReaderOcrOperator = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
 	const isRuntimeBackedOperator =
 		isAssistantOperator || isSpeechToTextOperator || isImageCreatorOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
@@ -492,99 +488,84 @@ const OperatorDetailsPage: React.FC = () => {
 		isTextToSpeechOperator ||
 		isImageCreatorOperator ||
 		isVideoCreatorOperator ||
-		isMusicCreatorOperator ||
-		isDocumentReaderOcrOperator;
+		isMusicCreatorOperator;
 	const operatorIcon = isImageCreatorOperator
 		? ImageIcon
 		: isVideoCreatorOperator
 			? Video
 			: isMusicCreatorOperator
 				? Music
-				: isDocumentReaderOcrOperator
-					? ScanText
-					: isTextToSpeechOperator
-						? Volume2
-						: isSpeechToTextOperator
-							? Mic
-							: Bot;
+				: isTextToSpeechOperator
+					? Volume2
+					: isSpeechToTextOperator
+						? Mic
+						: Bot;
 	const operatorNameKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantName'
 		: isVideoCreatorOperator
 			? 'settings.operators.videoCreatorName'
 			: isMusicCreatorOperator
 				? 'settings.operators.musicCreatorName'
-				: isDocumentReaderOcrOperator
-					? 'settings.operators.documentReaderName'
-					: isTextToSpeechOperator
-						? 'settings.operators.textToSpeechName'
-						: isSpeechToTextOperator
-							? 'settings.operators.speechTranscriberName'
-							: 'settings.operators.assistantName';
+				: isTextToSpeechOperator
+					? 'settings.operators.textToSpeechName'
+					: isSpeechToTextOperator
+						? 'settings.operators.speechTranscriberName'
+						: 'settings.operators.assistantName';
 	const operatorDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantDescription'
 		: isVideoCreatorOperator
 			? 'settings.operators.videoCreatorDescription'
 			: isMusicCreatorOperator
 				? 'settings.operators.musicCreatorDescription'
-				: isDocumentReaderOcrOperator
-					? 'settings.operators.documentReaderDescription'
-					: isTextToSpeechOperator
-						? 'settings.operators.textToSpeechDescription'
-						: isSpeechToTextOperator
-							? 'settings.operators.speechTranscriberDescription'
-							: 'settings.operators.fridayDescription';
+				: isTextToSpeechOperator
+					? 'settings.operators.textToSpeechDescription'
+					: isSpeechToTextOperator
+						? 'settings.operators.speechTranscriberDescription'
+						: 'settings.operators.fridayDescription';
 	const configurationDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageConfigurationSubtitle'
 		: isVideoCreatorOperator
 			? 'settings.operators.videoConfigurationSubtitle'
 			: isMusicCreatorOperator
 				? 'settings.operators.musicConfigurationSubtitle'
-				: isDocumentReaderOcrOperator
-					? 'settings.operators.documentReaderConfigurationSubtitle'
-					: isTextToSpeechOperator
-						? 'settings.operators.textToSpeechConfigurationSubtitle'
-						: isSpeechToTextOperator
-							? 'settings.operators.speechConfigurationSubtitle'
-							: 'settings.operators.subtitle';
+				: isTextToSpeechOperator
+					? 'settings.operators.textToSpeechConfigurationSubtitle'
+					: isSpeechToTextOperator
+						? 'settings.operators.speechConfigurationSubtitle'
+						: 'settings.operators.subtitle';
 	const providerDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageProviderDescription'
 		: isVideoCreatorOperator
 			? 'settings.operators.videoProviderDescription'
 			: isMusicCreatorOperator
 				? 'settings.operators.musicProviderDescription'
-				: isDocumentReaderOcrOperator
-					? 'settings.operators.documentReaderProviderDescription'
-					: isTextToSpeechOperator
-						? 'settings.operators.textToSpeechProviderDescription'
-						: isSpeechToTextOperator
-							? 'settings.operators.speechProviderDescription'
-							: 'settings.operators.providerDescription';
+				: isTextToSpeechOperator
+					? 'settings.operators.textToSpeechProviderDescription'
+					: isSpeechToTextOperator
+						? 'settings.operators.speechProviderDescription'
+						: 'settings.operators.providerDescription';
 	const modelLabelKey = isImageCreatorOperator
 		? 'settings.operators.imageModel'
 		: isVideoCreatorOperator
 			? 'settings.operators.videoModel'
 			: isMusicCreatorOperator
 				? 'settings.operators.musicModel'
-				: isDocumentReaderOcrOperator
-					? 'settings.operators.documentReaderModel'
-					: isTextToSpeechOperator
-						? 'settings.operators.textToSpeechModel'
-						: isSpeechToTextOperator
-							? 'settings.operators.speechModel'
-							: 'settings.operators.model';
+				: isTextToSpeechOperator
+					? 'settings.operators.textToSpeechModel'
+					: isSpeechToTextOperator
+						? 'settings.operators.speechModel'
+						: 'settings.operators.model';
 	const modelDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageModelDescription'
 		: isVideoCreatorOperator
 			? 'settings.operators.videoModelDescription'
 			: isMusicCreatorOperator
 				? 'settings.operators.musicModelDescription'
-				: isDocumentReaderOcrOperator
-					? 'settings.operators.documentReaderModelDescription'
-					: isTextToSpeechOperator
-						? 'settings.operators.textToSpeechModelDescription'
-						: isSpeechToTextOperator
-							? 'settings.operators.speechModelDescription'
-							: 'settings.operators.modelDescription';
+				: isTextToSpeechOperator
+					? 'settings.operators.textToSpeechModelDescription'
+					: isSpeechToTextOperator
+						? 'settings.operators.speechModelDescription'
+						: 'settings.operators.modelDescription';
 	const operatorName = t(operatorNameKey);
 	const operatorDescription = t(operatorDescriptionKey);
 	const configurationDescription = t(configurationDescriptionKey);
@@ -600,27 +581,21 @@ const OperatorDetailsPage: React.FC = () => {
 			? 'Video provider'
 			: isMusicCreatorOperator
 				? 'Music provider'
-				: isDocumentReaderOcrOperator
-					? 'OCR provider'
-					: 'Image provider';
+				: 'Image provider';
 	const readOnlyProviderValue = isTextToSpeechOperator
 		? TEXT_TO_SPEECH_PROVIDER_ID
 		: isVideoCreatorOperator
 			? 'video-provider-coming-soon'
 			: isMusicCreatorOperator
 				? 'music-provider-coming-soon'
-				: isDocumentReaderOcrOperator
-					? 'document-reader-provider-coming-soon'
-					: 'image-provider-coming-soon';
+				: 'image-provider-coming-soon';
 	const readOnlyModel = isTextToSpeechOperator
 		? TEXT_TO_SPEECH_MODELS[0]
 		: isVideoCreatorOperator
 			? TEXT_TO_VIDEO_MODELS[0]
 			: isMusicCreatorOperator
 				? MUSIC_CREATOR_MODELS[0]
-				: isDocumentReaderOcrOperator
-					? DOCUMENT_READER_OCR_MODELS[0]
-					: IMAGE_CREATOR_MODELS[0];
+				: IMAGE_CREATOR_MODELS[0];
 	const readOnlyModelId = readOnlyModel?.id ?? 'not-available';
 	const readOnlyModelName = readOnlyModel?.name ?? t('settings.operators.modelUnavailable');
 	const providerCardSummary = selectedProvider
