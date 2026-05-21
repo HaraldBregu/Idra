@@ -4,6 +4,29 @@ import {
 	type Provider,
 } from './providers';
 import type { AgentsHeartbeatConfig } from './heartbeat';
+import {
+	IMAGE_CREATOR_MODELS,
+	MUSIC_CREATOR_MODELS,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	SPEECH_TO_TEXT_MODELS,
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	SPEECH_TRANSCRIBER_PROVIDER_ID,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_PROVIDER_ID,
+	TEXT_TO_VIDEO_MODELS,
+} from './provider-models';
+
+export {
+	IMAGE_CREATOR_MODELS,
+	MUSIC_CREATOR_MODELS,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	SPEECH_TO_TEXT_MODELS,
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	SPEECH_TRANSCRIBER_PROVIDER_ID,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_PROVIDER_ID,
+	TEXT_TO_VIDEO_MODELS,
+} from './provider-models';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
 
@@ -144,36 +167,15 @@ export interface Model {
 export const ASSISTANT_OPERATOR_ID = 'friday';
 export const ASSISTANT_RUNTIME_ID = 'main';
 export const SPEECH_TO_TEXT_OPERATOR_ID = 'speech-to-text';
-export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
-export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
 export const REALTIME_TRANSCRIPTION_SAMPLE_RATE = 24000;
-export const SPEECH_TO_TEXT_MODELS = [
-	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
-] satisfies readonly Model[];
-export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
-	openai: SPEECH_TO_TEXT_MODELS,
-} as const satisfies Readonly<Record<string, readonly Model[]>>;
 export const TEXT_TO_SPEECH_OPERATOR_ID = 'text-to-speech';
-export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
-export const TEXT_TO_SPEECH_MODELS = [
-	{ id: 'rachel-multilingual', name: 'Rachel - multilingual' },
-] satisfies readonly Model[];
 export const IMAGE_CREATOR_OPERATOR_ID = 'image-assistant';
-export const IMAGE_CREATOR_MODELS = [
-	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly Model[];
 export const TEXT_TO_VIDEO_OPERATOR_ID = 'text-to-video';
-export const TEXT_TO_VIDEO_MODELS = [
-	{ id: 'video-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly Model[];
 /** @deprecated Use TEXT_TO_VIDEO_OPERATOR_ID. */
 export const VIDEO_CREATOR_OPERATOR_ID = TEXT_TO_VIDEO_OPERATOR_ID;
 /** @deprecated Use TEXT_TO_VIDEO_MODELS. */
 export const VIDEO_CREATOR_MODELS = TEXT_TO_VIDEO_MODELS;
 export const MUSIC_CREATOR_OPERATOR_ID = 'music-creator';
-export const MUSIC_CREATOR_MODELS = [
-	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly Model[];
 export const DOCUMENT_READER_OCR_OPERATOR_ID = 'document-reader';
 export const DOCUMENT_READER_OCR_MODELS = [
 	{ id: 'document-reader-provider-coming-soon', name: 'Not available yet' },

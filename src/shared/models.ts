@@ -1,54 +1,41 @@
 import {
-	DEFAULT_AGENT_MODELS_BY_PROVIDER,
-	DEFAULT_PROVIDERS,
-	getDefaultAgentModels,
-	providerHasCapability,
-	type Provider,
-} from './providers';
-import {
-	IMAGE_CREATOR_MODELS,
-	SPEECH_TO_TEXT_MODELS,
-	SPEECH_TO_TEXT_MODELS_BY_PROVIDER as SERVICE_SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
-	TEXT_TO_SPEECH_MODELS,
-	TEXT_TO_SPEECH_PROVIDER_ID,
+	IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels as getSpeechToTextModelsForProviderId,
 	type Model,
 	type ModelReasoningEffort,
 } from './service';
+import type { Provider } from './providers';
+import {
+	LLM_MODELS_BY_PROVIDER,
+	MODEL_CATALOGS_BY_CAPABILITY,
+	SPEECH_TO_TEXT_MODELS,
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	TEXT_TO_SPEECH_PROVIDER_ID,
+	type ModelCapability,
+	type ModelCatalog,
+} from './provider-models';
 
 export type { Model, ModelReasoningEffort };
 export {
-	IMAGE_CREATOR_MODELS as TEXT_TO_IMAGE_MODELS,
+	LLM_MODELS_BY_PROVIDER,
+	MODEL_CATALOGS_BY_CAPABILITY,
 	SPEECH_TO_TEXT_MODELS,
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	TEXT_TO_IMAGE_MODELS,
+	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 };
 
-export type ModelCatalog = Readonly<Record<string, readonly Model[]>>;
-export type ModelCapability = 'llm' | 'speech-to-text' | 'text-to-speech' | 'text-to-image';
-
-export const LLM_MODELS_BY_PROVIDER: ModelCatalog = DEFAULT_AGENT_MODELS_BY_PROVIDER;
-export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER: ModelCatalog =
-	SERVICE_SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
-export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER: ModelCatalog = {
-	[TEXT_TO_SPEECH_PROVIDER_ID]: TEXT_TO_SPEECH_MODELS,
-};
-
-export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER: ModelCatalog = modelCatalogForProviderCapability(
-	'Image',
-	IMAGE_CREATOR_MODELS
-);
-
-export const MODEL_CATALOGS_BY_CAPABILITY = {
-	llm: LLM_MODELS_BY_PROVIDER,
-	speechToText: SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
-	textToSpeech: TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-	textToImage: TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
-} as const satisfies Readonly<Record<string, ModelCatalog>>;
+export type { ModelCapability, ModelCatalog };
 
 export function getLlmModels(providerId: string): Model[] {
-	return getDefaultAgentModels(providerId);
+	return cloneModels(LLM_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
 }
 
 export function getSpeechToTextModels(providerId: string): Model[] {
@@ -73,19 +60,13 @@ export function getModelsByCapability(capability: ModelCapability, providerId: s
 	if (capability === 'llm') return getLlmModels(providerId);
 	if (capability === 'speech-to-text') return getSpeechToTextModels(providerId);
 	if (capability === 'text-to-speech') return getTextToSpeechModels(providerId);
+	if (capability === 'text-to-video') {
+		return cloneModels(MODEL_CATALOGS_BY_CAPABILITY.textToVideo[normalizeProviderId(providerId)]);
+	}
+	if (capability === 'music') {
+		return cloneModels(MODEL_CATALOGS_BY_CAPABILITY.music[normalizeProviderId(providerId)]);
+	}
 	return getTextToImageModels(providerId);
-}
-
-function modelCatalogForProviderCapability(
-	capability: string,
-	models: readonly Model[]
-): ModelCatalog {
-	return DEFAULT_PROVIDERS.reduce<Record<string, readonly Model[]>>((catalog, provider) => {
-		if (providerHasCapability(provider, capability)) {
-			catalog[provider.id] = models;
-		}
-		return catalog;
-	}, {});
 }
 
 function cloneModels(models: readonly Model[] | undefined): Model[] {
