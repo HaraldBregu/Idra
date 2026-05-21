@@ -395,7 +395,12 @@ function PageContent(): ReactElement {
 						)}
 					>
 						{showEmptyConversation ? (
-							<EmptyConversation />
+							<>
+								<EmptyConversation />
+								{showPromptSuggestions ? (
+									<PromptSuggestions onUseSuggestion={agent.useSuggestion} />
+								) : null}
+							</>
 						) : (
 							<>
 								{visibleMessages.map((message, index) => {
