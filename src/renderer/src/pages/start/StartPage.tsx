@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	Select,
 	SelectContent,
@@ -35,6 +35,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { SettingsField, SettingsNotice, SettingsPanel } from '../settings/components';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 
@@ -50,8 +51,8 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep = 'welcome' | 'providers' | 'models';
-type ModelSetupCardId = 'friday' | 'voice-input' | 'voice-output' | 'image-creator';
+type SetupStep = 'welcome' | 'providers' | 'operators';
+type OperatorCardId = 'friday' | 'voice-input' | 'voice-output' | 'image-creator';
 
 type ProviderCatalogItem = {
 	id: string;
@@ -85,12 +86,12 @@ type AgentModelOption = {
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY = '********' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
-const SETUP_STEPS: readonly SetupStep[] = ['welcome', 'providers', 'models'];
+const SETUP_STEPS: readonly SetupStep[] = ['welcome', 'providers', 'operators'];
 
 const STEP_TITLES: Record<SetupStep, string> = {
 	welcome: 'Welcome',
 	providers: 'Providers',
-	models: 'Models',
+	operators: 'Operators',
 };
 
 const SPEECH_MODELS: readonly StaticModelOption[] = [
@@ -129,11 +130,7 @@ const IMAGE_MODELS: readonly StaticModelOption[] = [
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
-
-	return {
-		label,
-		value,
-	};
+	return { label, value };
 }
 
 const providerOptions = DEFAULT_PROVIDERS.map((provider, index) =>
@@ -154,7 +151,6 @@ function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
 		return error.message;
 	}
-
 	return fallback;
 }
 
@@ -194,140 +190,10 @@ function StepProgress({ currentIndex }: { readonly currentIndex: number }): Reac
 	);
 }
 
-function StaticModelSelect({
-	id,
-	label,
-	value,
-	options,
-	onValueChange,
-	disabled = false,
-}: {
-	readonly id: string;
-	readonly label: string;
-	readonly value: string;
-	readonly options: readonly StaticModelOption[];
-	readonly onValueChange: (value: string) => void;
-	readonly disabled?: boolean;
-}): React.JSX.Element {
-	return (
-		<div className="space-y-2">
-			<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-				{label}
-			</Label>
-			<Select
-				value={value}
-				onValueChange={(nextValue) => onValueChange(nextValue ?? '')}
-				disabled={disabled}
-			>
-				<SelectTrigger id={id} className="w-full text-xs sm:w-72">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					{options.map((option) => (
-						<SelectItem key={option.id} value={option.id}>
-							{option.name}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-		</div>
-	);
-}
-
-function StaticProviderSelect({
-	id,
-	label,
-	value,
-	name,
-	disabled = false,
-}: {
-	readonly id: string;
-	readonly label: string;
-	readonly value: string;
-	readonly name: string;
-	readonly disabled?: boolean;
-}): React.JSX.Element {
-	return (
-		<div className="space-y-2">
-			<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-				{label}
-			</Label>
-			<Select value={value} disabled={disabled}>
-				<SelectTrigger id={id} className="w-full text-xs sm:w-72">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value={value}>{name}</SelectItem>
-				</SelectContent>
-			</Select>
-		</div>
-	);
-}
-
-function ModelSetupCard({
-	id,
-	title,
-	description,
-	status,
-	icon: Icon,
-	open,
-	onToggle,
-	children,
-}: {
-	readonly id: string;
-	readonly title: string;
-	readonly description: string;
-	readonly status: string;
-	readonly icon: React.ComponentType<{ className?: string }>;
-	readonly open: boolean;
-	readonly onToggle: () => void;
-	readonly children: React.ReactNode;
-}): React.JSX.Element {
-	return (
-		<Card className="rounded-lg border-border bg-card py-0 shadow-none">
-			<CardContent className="p-0">
-				<button
-					type="button"
-					aria-expanded={open}
-					aria-controls={id}
-					className="flex w-full items-center gap-3 px-3 py-3 text-left outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/40"
-					onClick={onToggle}
-				>
-					<span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-						<Icon className="size-4" />
-					</span>
-					<span className="min-w-0 flex-1">
-						<span className="block truncate text-sm font-semibold leading-tight text-foreground">
-							{title}
-						</span>
-						<span className="mt-1 block truncate text-xs font-medium leading-tight text-muted-foreground">
-							{description}
-						</span>
-					</span>
-					<span className="hidden shrink-0 text-xs font-medium text-muted-foreground sm:block">
-						{status}
-					</span>
-					<ChevronDown
-						className={cn(
-							'size-4 shrink-0 text-muted-foreground transition-transform',
-							open && 'rotate-180'
-						)}
-					/>
-				</button>
-				{open ? (
-					<div id={id} className="border-t border-border px-3 py-3">
-						{children}
-					</div>
-				) : null}
-			</CardContent>
-		</Card>
-	);
-}
-
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState<SetupStep>('welcome');
-	const [expandedModelCardId, setExpandedModelCardId] = useState<ModelSetupCardId>('friday');
+	const [expandedOperatorId, setExpandedOperatorId] = useState<OperatorCardId>('friday');
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
@@ -357,7 +223,6 @@ const StartPage: React.FC = () => {
 		() =>
 			agentModelGroups.flatMap((group) => {
 				const catalog = getProviderCatalogItem(group.provider.id);
-
 				return group.models.map((model) => ({
 					value: getAgentModelValue(group.provider.id, model.id),
 					provider: group.provider,
@@ -402,7 +267,6 @@ const StartPage: React.FC = () => {
 				const savedEntries = await Promise.all(
 					actionableProviderCatalog.map(async (provider) => {
 						const saved = await window.app.isProviderApiKeySaved(provider.id);
-
 						return [provider.id, saved] as const;
 					})
 				);
@@ -414,7 +278,6 @@ const StartPage: React.FC = () => {
 					actionableProviderCatalog.map((provider, index) => {
 						const current = entries.find((entry) => entry.providerId === provider.id);
 						const saved = savedByProviderId.get(provider.id) ?? false;
-
 						return {
 							providerId: provider.id,
 							apiKey: saved ? MASKED_API_KEY : (current?.apiKey ?? ''),
@@ -425,7 +288,6 @@ const StartPage: React.FC = () => {
 				);
 			} catch (error) {
 				if (cancelled) return;
-
 				setErrorMessage(getErrorMessage(error, 'Could not check saved provider access.'));
 			}
 		}
@@ -438,7 +300,7 @@ const StartPage: React.FC = () => {
 	}, [step]);
 
 	useEffect(() => {
-		if (step !== 'models') return;
+		if (step !== 'operators') return;
 
 		let cancelled = false;
 
@@ -463,11 +325,10 @@ const StartPage: React.FC = () => {
 				setSavedModelId(assistantOperator?.model.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
-
 				setProviders([]);
 				setConfigProvider('');
 				setSavedModelId('');
-				setErrorMessage(getErrorMessage(error, 'Could not load agent providers.'));
+				setErrorMessage(getErrorMessage(error, 'Could not load operators.'));
 			}
 		}
 
@@ -479,7 +340,7 @@ const StartPage: React.FC = () => {
 	}, [connectedProviderIds, step]);
 
 	useEffect(() => {
-		if (step !== 'models') return;
+		if (step !== 'operators') return;
 
 		let cancelled = false;
 
@@ -499,7 +360,6 @@ const StartPage: React.FC = () => {
 				for (const provider of providers) {
 					try {
 						const agentModels = await window.app.getModels(provider);
-
 						if (agentModels.length > 0) {
 							nextAgentGroups.push({ provider, models: agentModels });
 						}
@@ -530,7 +390,6 @@ const StartPage: React.FC = () => {
 				}
 			} catch (error) {
 				if (cancelled) return;
-
 				setAgentModelGroups([]);
 				setSelectedModel('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
@@ -566,9 +425,7 @@ const StartPage: React.FC = () => {
 
 	function handleProviderApiKeyChange(providerId: string, apiKey: string): void {
 		setErrorMessage('');
-		updateProviderEntry(providerId, {
-			apiKey,
-		});
+		updateProviderEntry(providerId, { apiKey });
 	}
 
 	async function saveProviderEntry(providerId: string): Promise<boolean> {
@@ -625,18 +482,13 @@ const StartPage: React.FC = () => {
 				setProviderEntries((entries) =>
 					entries.map((entry) =>
 						savedProviderIds.has(entry.providerId)
-							? {
-									...entry,
-									apiKey: MASKED_API_KEY,
-									apiKeySaved: true,
-									editing: false,
-								}
+							? { ...entry, apiKey: MASKED_API_KEY, apiKeySaved: true, editing: false }
 							: entry
 					)
 				);
 			}
 
-			goToStep('models');
+			goToStep('operators');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save provider API keys.'));
 		} finally {
@@ -647,7 +499,6 @@ const StartPage: React.FC = () => {
 	function handleAgentProviderChange(value: string | null): void {
 		const providerId = value ?? '';
 		const group = agentModelGroups.find((item) => item.provider.id === providerId);
-
 		setErrorMessage('');
 		setConfigProvider(providerId);
 		setSelectedModel(group?.models[0]?.id ?? '');
@@ -660,7 +511,6 @@ const StartPage: React.FC = () => {
 
 	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
 		if (!provider.apiConfigurationUrl) return;
-
 		openExternalUrl(provider.apiConfigurationUrl);
 	}
 
@@ -684,7 +534,7 @@ const StartPage: React.FC = () => {
 			}
 			navigate('/home');
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
+			setErrorMessage(getErrorMessage(error, 'Could not save the selected operators.'));
 		} finally {
 			setSavingConfig(false);
 		}
@@ -701,7 +551,7 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		if (step === 'models') {
+		if (step === 'operators') {
 			void handleSaveAgentModel();
 			return;
 		}
@@ -712,14 +562,12 @@ const StartPage: React.FC = () => {
 	function getPrimaryLabel(): string {
 		if (step === 'welcome') return 'Get started';
 		if (savingProviderId !== null || savingConfig) return 'Saving...';
-
 		return 'Continue';
 	}
 
 	function isPrimaryDisabled(): boolean {
 		if (step === 'providers') return !canContinueProviders;
-		if (step === 'models') return !canSaveAgentModel;
-
+		if (step === 'operators') return !canSaveAgentModel;
 		return isBusy;
 	}
 
@@ -906,7 +754,7 @@ const StartPage: React.FC = () => {
 		);
 	}
 
-	function renderModelsStep(): React.JSX.Element {
+	function renderOperatorsStep(): React.JSX.Element {
 		const openAiCatalog = getProviderCatalogItem('openai');
 		const ttsProviderCatalog = getProviderCatalogItem('elevenlabs');
 		const openAiConnected = connectedProviderIds.has('openai');
@@ -914,179 +762,305 @@ const StartPage: React.FC = () => {
 			SPEECH_MODELS.find((option) => option.id === selectedSpeechModel) ?? SPEECH_MODELS[0];
 		const selectedTtsOption =
 			TTS_MODELS.find((option) => option.id === selectedTtsModel) ?? TTS_MODELS[0];
-		const toggleModelCard = (cardId: ModelSetupCardId): void => {
-			setExpandedModelCardId((current) => (current === cardId ? 'friday' : cardId));
+		const toggleOperator = (operatorId: OperatorCardId): void => {
+			setExpandedOperatorId((current) => (current === operatorId ? 'friday' : operatorId));
 		};
 
 		return (
 			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Configure your AI setup
+						Configure operators
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the models Friday will use for chat, voice, and creative work. Only connected
-						providers appear.
+						Choose the provider and model each operator will use. Only connected providers appear.
 					</p>
 				</div>
 
 				<div className="mt-4 space-y-2">
-					<ModelSetupCard
-						id="friday-assistant-model"
-						title={`${PRODUCT_NAME} Assistant`}
-						description="Answers questions, plans work, and uses tools."
-						status={selectedModelName || modelCountLabel}
-						icon={Bot}
-						open={expandedModelCardId === 'friday'}
-						onToggle={() => toggleModelCard('friday')}
-					>
-						<div className="grid gap-3 sm:grid-cols-2">
-							<div className="space-y-2">
-								<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-									Provider
-								</Label>
-								<Select
-									value={configProvider}
-									onValueChange={handleAgentProviderChange}
-									disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
-								>
-									<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
-										<SelectValue placeholder={modelCountLabel} />
-									</SelectTrigger>
-									<SelectContent>
-										{agentModelGroups.map((group) => {
-											const catalog = getProviderCatalogItem(group.provider.id);
-
-											return (
-												<SelectItem key={group.provider.id} value={group.provider.id}>
-													{catalog.name}
-												</SelectItem>
-											);
-										})}
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="space-y-2">
-								<Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-									Model
-								</Label>
-								<Select
-									value={selectedModel}
-									onValueChange={handleAgentModelChange}
-									disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
-								>
-									<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
-										<SelectValue placeholder={modelCountLabel} />
-									</SelectTrigger>
-									<SelectContent>
-										{selectedAgentModels.map((model) => (
-											<SelectItem key={model.id} value={model.id}>
-												{model.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
-					</ModelSetupCard>
-
-					<ModelSetupCard
-						id="voice-input-model"
-						title="Voice Input"
-						description="Transcribes your microphone into text."
-						status={openAiConnected ? (selectedSpeechOption?.name ?? 'Ready') : 'OpenAI required'}
-						icon={Mic}
-						open={expandedModelCardId === 'voice-input'}
-						onToggle={() => toggleModelCard('voice-input')}
-					>
-						<div className="grid gap-3 sm:grid-cols-2">
-							<StaticProviderSelect
-								id="speech-provider"
-								label="Provider"
-								value="openai"
-								name={openAiCatalog.name}
-								disabled
-							/>
-							<StaticModelSelect
-								id="speech-model"
-								label="Transcription model"
-								value={selectedSpeechModel}
-								options={SPEECH_MODELS}
-								onValueChange={setSelectedSpeechModel}
-								disabled={!openAiConnected}
-							/>
-						</div>
-						{!openAiConnected ? (
-							<div className="mt-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
-								<Mic className="size-4 shrink-0" />
-								<p className="text-xs font-medium leading-snug">
-									Connect OpenAI to enable live speech transcription.
+					<SettingsPanel>
+						<Item
+							as="button"
+							type="button"
+							size="md"
+							aria-expanded={expandedOperatorId === 'friday'}
+							aria-controls="operator-friday"
+							className={cn(
+								'text-left hover:bg-muted/30',
+								expandedOperatorId === 'friday' && 'border-b border-border/60'
+							)}
+							onClick={() => toggleOperator('friday')}
+						>
+							<ItemMedia variant="icon">
+								<Bot className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle>{PRODUCT_NAME} Assistant</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{selectedModelName || modelCountLabel}
 								</p>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronDown
+									className={cn(
+										'size-3 text-muted-foreground transition-transform',
+										expandedOperatorId === 'friday' && 'rotate-180'
+									)}
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
+						{expandedOperatorId === 'friday' && (
+							<div id="operator-friday" className="grid gap-3 p-3">
+								<div className="grid gap-3 sm:grid-cols-2">
+									<SettingsField id="agent-provider" label="Provider">
+										<Select
+											value={configProvider}
+											onValueChange={handleAgentProviderChange}
+											disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
+										>
+											<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
+												<SelectValue placeholder={modelCountLabel} />
+											</SelectTrigger>
+											<SelectContent>
+												{agentModelGroups.map((group) => {
+													const catalog = getProviderCatalogItem(group.provider.id);
+													return (
+														<SelectItem key={group.provider.id} value={group.provider.id}>
+															{catalog.name}
+														</SelectItem>
+													);
+												})}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+									<SettingsField id="agent-model" label="Model">
+										<Select
+											value={selectedModel}
+											onValueChange={handleAgentModelChange}
+											disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
+										>
+											<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
+												<SelectValue placeholder={modelCountLabel} />
+											</SelectTrigger>
+											<SelectContent>
+												{selectedAgentModels.map((model) => (
+													<SelectItem key={model.id} value={model.id}>
+														{model.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+								</div>
 							</div>
-						) : null}
-					</ModelSetupCard>
+						)}
+					</SettingsPanel>
 
-					<ModelSetupCard
-						id="voice-output-model"
-						title="Voice Output"
-						description="Chooses the voice Friday uses when speaking."
-						status={selectedTtsOption?.name ?? 'Not selected'}
-						icon={Volume2}
-						open={expandedModelCardId === 'voice-output'}
-						onToggle={() => toggleModelCard('voice-output')}
-					>
-						<div className="grid gap-3 sm:grid-cols-2">
-							<StaticProviderSelect
-								id="tts-provider"
-								label="Provider"
-								value="elevenlabs"
-								name={ttsProviderCatalog.name}
-								disabled
-							/>
-							<StaticModelSelect
-								id="tts-model"
-								label="Voice model"
-								value={selectedTtsModel}
-								options={TTS_MODELS}
-								onValueChange={setSelectedTtsModel}
-							/>
-						</div>
-					</ModelSetupCard>
+					<SettingsPanel>
+						<Item
+							as="button"
+							type="button"
+							size="md"
+							aria-expanded={expandedOperatorId === 'voice-input'}
+							aria-controls="operator-voice-input"
+							className={cn(
+								'text-left hover:bg-muted/30',
+								expandedOperatorId === 'voice-input' && 'border-b border-border/60'
+							)}
+							onClick={() => toggleOperator('voice-input')}
+						>
+							<ItemMedia variant="icon">
+								<Mic className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle>Voice Input</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{openAiConnected ? (selectedSpeechOption?.name ?? 'Ready') : 'OpenAI required'}
+								</p>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronDown
+									className={cn(
+										'size-3 text-muted-foreground transition-transform',
+										expandedOperatorId === 'voice-input' && 'rotate-180'
+									)}
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
+						{expandedOperatorId === 'voice-input' && (
+							<div id="operator-voice-input" className="grid gap-3 p-3">
+								<div className="grid gap-3 sm:grid-cols-2">
+									<SettingsField id="speech-provider" label="Provider">
+										<Select value="openai" disabled>
+											<SelectTrigger id="speech-provider" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="openai">{openAiCatalog.name}</SelectItem>
+											</SelectContent>
+										</Select>
+									</SettingsField>
+									<SettingsField id="speech-model" label="Transcription model">
+										<Select
+											value={selectedSpeechModel}
+											onValueChange={setSelectedSpeechModel}
+											disabled={!openAiConnected}
+										>
+											<SelectTrigger id="speech-model" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{SPEECH_MODELS.map((option) => (
+													<SelectItem key={option.id} value={option.id}>
+														{option.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+								</div>
+								{!openAiConnected ? (
+									<SettingsNotice icon={Mic}>
+										Connect OpenAI to enable live speech transcription.
+									</SettingsNotice>
+								) : null}
+							</div>
+						)}
+					</SettingsPanel>
 
-					<ModelSetupCard
-						id="image-creator-model"
-						title="Image Creator"
-						description="Generates and edits images when image models are available."
-						status="Coming soon"
-						icon={ImageIcon}
-						open={expandedModelCardId === 'image-creator'}
-						onToggle={() => toggleModelCard('image-creator')}
-					>
-						<div className="grid gap-3 sm:grid-cols-2">
-							<StaticProviderSelect
-								id="image-provider"
-								label="Provider"
-								value="image-provider-coming-soon"
-								name="Image provider"
-								disabled
-							/>
-							<StaticModelSelect
-								id="image-model"
-								label="Image model"
-								value={IMAGE_MODELS[0]?.id ?? ''}
-								options={IMAGE_MODELS}
-								onValueChange={() => undefined}
-								disabled
-							/>
-						</div>
-						<div className="mt-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
-							<ImageIcon className="size-4 shrink-0" />
-							<p className="text-xs font-medium leading-snug">
-								Image creation is not configurable yet. It will appear here when an image provider
-								is available.
-							</p>
-						</div>
-					</ModelSetupCard>
+					<SettingsPanel>
+						<Item
+							as="button"
+							type="button"
+							size="md"
+							aria-expanded={expandedOperatorId === 'voice-output'}
+							aria-controls="operator-voice-output"
+							className={cn(
+								'text-left hover:bg-muted/30',
+								expandedOperatorId === 'voice-output' && 'border-b border-border/60'
+							)}
+							onClick={() => toggleOperator('voice-output')}
+						>
+							<ItemMedia variant="icon">
+								<Volume2 className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle>Voice Output</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{selectedTtsOption?.name ?? 'Not selected'}
+								</p>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronDown
+									className={cn(
+										'size-3 text-muted-foreground transition-transform',
+										expandedOperatorId === 'voice-output' && 'rotate-180'
+									)}
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
+						{expandedOperatorId === 'voice-output' && (
+							<div id="operator-voice-output" className="grid gap-3 p-3">
+								<div className="grid gap-3 sm:grid-cols-2">
+									<SettingsField id="tts-provider" label="Provider">
+										<Select value="elevenlabs" disabled>
+											<SelectTrigger id="tts-provider" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="elevenlabs">{ttsProviderCatalog.name}</SelectItem>
+											</SelectContent>
+										</Select>
+									</SettingsField>
+									<SettingsField id="tts-model" label="Voice model">
+										<Select value={selectedTtsModel} onValueChange={setSelectedTtsModel}>
+											<SelectTrigger id="tts-model" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{TTS_MODELS.map((option) => (
+													<SelectItem key={option.id} value={option.id}>
+														{option.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+								</div>
+							</div>
+						)}
+					</SettingsPanel>
+
+					<SettingsPanel>
+						<Item
+							as="button"
+							type="button"
+							size="md"
+							aria-expanded={expandedOperatorId === 'image-creator'}
+							aria-controls="operator-image-creator"
+							className={cn(
+								'text-left hover:bg-muted/30',
+								expandedOperatorId === 'image-creator' && 'border-b border-border/60'
+							)}
+							onClick={() => toggleOperator('image-creator')}
+						>
+							<ItemMedia variant="icon">
+								<ImageIcon className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle>Image Creator</ItemTitle>
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+									Coming soon
+								</p>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronDown
+									className={cn(
+										'size-3 text-muted-foreground transition-transform',
+										expandedOperatorId === 'image-creator' && 'rotate-180'
+									)}
+									strokeWidth={1.8}
+								/>
+							</ItemActions>
+						</Item>
+						{expandedOperatorId === 'image-creator' && (
+							<div id="operator-image-creator" className="grid gap-3 p-3">
+								<div className="grid gap-3 sm:grid-cols-2">
+									<SettingsField id="image-provider" label="Provider">
+										<Select value="image-provider-coming-soon" disabled>
+											<SelectTrigger id="image-provider" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="image-provider-coming-soon">Image provider</SelectItem>
+											</SelectContent>
+										</Select>
+									</SettingsField>
+									<SettingsField id="image-model" label="Image model">
+										<Select value={IMAGE_MODELS[0]?.id ?? ''} disabled>
+											<SelectTrigger id="image-model" className="w-full text-xs sm:w-72">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{IMAGE_MODELS.map((option) => (
+													<SelectItem key={option.id} value={option.id}>
+														{option.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+								</div>
+								<SettingsNotice icon={ImageIcon}>
+									Image creation is not configurable yet. It will appear here when an image provider
+									is available.
+								</SettingsNotice>
+							</div>
+						)}
+					</SettingsPanel>
 				</div>
 			</div>
 		);
@@ -1095,8 +1069,7 @@ const StartPage: React.FC = () => {
 	function renderStepContent(): React.JSX.Element {
 		if (step === 'welcome') return renderWelcomeStep();
 		if (step === 'providers') return renderProviderStep();
-
-		return renderModelsStep();
+		return renderOperatorsStep();
 	}
 
 	return (
