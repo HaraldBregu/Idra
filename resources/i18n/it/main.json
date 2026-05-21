@@ -153,9 +153,9 @@
 				"automation": "Automazioni e app"
 			},
 			"descriptions": {
-				"general": "Info e permessi app",
+				"general": "Info e aspetto app",
 				"agents": "Configurazione agenti",
-				"system": "Tema, lingua, traslucenza, finestra",
+				"system": "Permessi, cartelle, barra menu, attivita",
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
@@ -176,7 +176,7 @@
 			"media": "Media",
 			"devices": "Dispositivi",
 			"tools": "Strumenti",
-			"system": "Aspetto",
+			"system": "Sistema",
 			"themes": "Temi",
 			"editor": "Editor",
 			"cron": "Cron",
@@ -253,6 +253,9 @@
 			"userData": "Dati Utente",
 			"userDataDescription": "Cartella in cui Friday salva file, workspace, app, abilita e dati assistente dell'utente",
 			"openUserData": "Apri Cartella"
+		},
+		"system": {
+			"description": "Gestisci permessi del sistema operativo, comportamento in background e cartelle di archiviazione."
 		},
 		"chatHistory": {
 			"title": "Cronologia chat",

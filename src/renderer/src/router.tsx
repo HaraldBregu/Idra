@@ -23,6 +23,7 @@ const StartPage = lazy(() => import('./pages/start/StartPage'));
 const HomePage = lazy(() => import('./pages/home/Page'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
+const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const AgentsPage = lazy(() => import('./pages/settings/pages/agents/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
@@ -144,6 +145,14 @@ const routes: RouteObject[] = [
 						element: (
 							<SettingsRouteWrapper>
 								<GeneralPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'system',
+						element: (
+							<SettingsRouteWrapper>
+								<SystemPage />
 							</SettingsRouteWrapper>
 						),
 					},

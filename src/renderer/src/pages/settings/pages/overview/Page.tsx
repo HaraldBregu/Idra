@@ -14,7 +14,7 @@ import { SETTINGS_NAVIGATION, type SettingsNavigationItem } from '../../navigati
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		titleKey: 'settings.overview.groups.general',
-		paths: ['/settings/general', '/settings/providers', '/settings/channels'],
+		paths: ['/settings/general', '/settings/system', '/settings/providers', '/settings/channels'],
 	},
 	{
 		titleKey: 'settings.overview.groups.capabilities',

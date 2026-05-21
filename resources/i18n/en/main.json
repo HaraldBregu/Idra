@@ -153,9 +153,9 @@
 				"automation": "Automation and apps"
 			},
 			"descriptions": {
-				"general": "App info and permissions",
+				"general": "App info and appearance",
 				"agents": "Agent configuration",
-				"system": "Theme, language, translucency, window chrome",
+				"system": "Permissions, folders, menu bar, keep awake",
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
@@ -176,7 +176,7 @@
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
-			"system": "Appearance",
+			"system": "System",
 			"themes": "Themes",
 			"editor": "Editor",
 			"cron": "Cron",
@@ -253,6 +253,9 @@
 			"userData": "User Data",
 			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, apps, skills, and agent data",
 			"openUserData": "Open Folder"
+		},
+		"system": {
+			"description": "Manage operating system permissions, background behavior, and storage folders."
 		},
 		"chatHistory": {
 			"title": "Chat history",
