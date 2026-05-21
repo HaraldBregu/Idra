@@ -1,6 +1,6 @@
 # Outlook Email Connector
 
-Catalog metadata for Friday's Outlook Email connector.
+Catalog notes for Friday's Outlook Email connector.
 
 | Field | Value |
 | --- | --- |
@@ -31,6 +31,33 @@ Catalog metadata for Friday's Outlook Email connector.
 
 - `User.Read`
 - `Mail.Read`
+
+## Current Runtime
+
+Outlook Email is present in the Settings catalog with setup metadata, scopes,
+and tool names. It does not have a local `ConnectorToolStrategy` yet, so default
+agent tool execution is not implemented for this connector.
+
+The Settings access-token field can store a manual Microsoft Graph OAuth access
+token for local development. For production work, add a real OAuth or
+secret-backed credential flow before relying on this connector.
+
+## Setup Checklist
+
+1. Create or open an app registration in Microsoft Entra.
+2. Grant the listed Microsoft Graph mail permissions.
+3. Complete OAuth for the mailbox account.
+4. Paste the access token into the Settings OAuth access-token field only for
+   local development.
+5. Keep `allowedTools` limited to read/search tools until local execution and
+   approval behavior are implemented.
+
+## Implementation Work Remaining
+
+- Add Microsoft OAuth and token refresh handling.
+- Add a local tool strategy in `ConnectorsService`.
+- Add typed schemas, output projection, redaction tests, and at least one
+  representative read test.
 
 ## Example
 

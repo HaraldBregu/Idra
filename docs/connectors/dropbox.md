@@ -1,6 +1,6 @@
 # Dropbox Connector
 
-Catalog metadata for Friday's Dropbox connector.
+Catalog notes for Friday's Dropbox connector.
 
 | Field | Value |
 | --- | --- |
@@ -31,6 +31,34 @@ Catalog metadata for Friday's Dropbox connector.
 - `files.metadata.read`
 - `files.content.read`
 - `account_info.read`
+
+## Current Runtime
+
+Dropbox is present in the Settings catalog with setup metadata, scopes, and tool
+names. It does not have a local `ConnectorToolStrategy` yet, so default agent
+tool execution is not implemented for this connector.
+
+The Settings access-token field can store a manual OAuth access token for local
+development. For production work, add a real OAuth or secret-backed credential
+flow before relying on this connector.
+
+## Setup Checklist
+
+1. Create or open a Dropbox app in the Dropbox App Console.
+2. Grant the listed file metadata, file content, and account scopes.
+3. Complete OAuth for the account.
+4. Paste the access token into the Settings OAuth access-token field only for
+   local development.
+5. Keep `allowedTools` limited to the smallest read/search surface until local
+   execution and approval behavior are implemented.
+
+## Implementation Work Remaining
+
+- Add token refresh or expiration handling if the selected Dropbox app flow
+  requires it.
+- Add a local tool strategy in `ConnectorsService`.
+- Add typed schemas, output projection, redaction tests, and at least one
+  representative read test.
 
 ## Example
 
