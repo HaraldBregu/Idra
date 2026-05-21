@@ -118,8 +118,7 @@ const OperatorDetailsPage: React.FC = () => {
 		isImageCreatorOperator ||
 		isVideoCreatorOperator ||
 		isMusicCreatorOperator;
-	const isRuntimeBackedOperator =
-		isAssistantOperator || isCapabilityOperator;
+	const isRuntimeBackedOperator = isAssistantOperator || isCapabilityOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<
 		ConfiguredModelOperator | undefined
@@ -434,10 +433,6 @@ const OperatorDetailsPage: React.FC = () => {
 			currentAssistantOperator.provider.id !== providerId ||
 			currentAssistantOperator.model.id !== modelId ||
 			currentEffort !== selectedEffort;
-			: !currentAssistantOperator ||
-				currentAssistantOperator.provider.id !== providerId ||
-				currentAssistantOperator.model.id !== modelId ||
-				currentEffort !== selectedEffort;
 	const canSave = Boolean(
 		selectedProvider && selectedModel && hasChanges && !loadingModels && !saving
 	);
