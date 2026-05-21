@@ -50,7 +50,7 @@ future runtime work share stable names.
 
 ```ts
 interface Operator {
-	agent?: ModelOperator;
+	a?: ModelOperator;
 	speechToText?: ModelOperator;
 	textToSpeech?: ModelOperator;
 	imageCreator?: ModelOperator;
