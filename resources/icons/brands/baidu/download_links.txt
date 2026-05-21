@@ -1,3 +1,0 @@
-official_asset_page_url: https://ernie.baidu.com/
-fallback_asset_page_url: https://lobehub.com/icons/baidu
-additional_official_asset_urls: https://huggingface.co/baidu

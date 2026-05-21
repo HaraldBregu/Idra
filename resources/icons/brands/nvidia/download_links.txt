@@ -1,2 +1,0 @@
-official_asset_page_url: https://nvidianews.nvidia.com/multimedia/corporate/nvidia-logos
-additional_official_asset_urls: https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/

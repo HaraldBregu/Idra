@@ -1,2 +1,0 @@
-official_asset_page_url: https://seed.bytedance.com/en/models
-fallback_asset_page_url: https://brandfetch.com/bytedance.com

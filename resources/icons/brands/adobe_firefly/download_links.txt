@@ -1,2 +1,0 @@
-official_asset_page_url: https://www.adobe.com/legal/permissions/icons-web-logos.html
-additional_official_asset_urls: https://www.adobe.com/products/firefly.html
