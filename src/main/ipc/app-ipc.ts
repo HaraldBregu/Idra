@@ -4,7 +4,9 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import {
 	getSpeechToTextModels,
+	getImageCreatorModelsForProvider,
 	isAllowedSpeechToTextModel,
+	isAllowedImageCreatorModelForProvider,
 	requireModelReasoningEffort,
 	type Agent,
 	type ConfiguredModelOperator,
@@ -393,6 +395,41 @@ export class AppIpc implements IpcModule {
 					speechToTextModelOrThrow(storedProvider.id, model)
 				);
 			}, OperatorChannels.saveSpeechToText)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getImageCreator,
+			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
+				return store.getImageCreatorOperator();
+			}, OperatorChannels.getImageCreator)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getImageCreatorModels,
+			wrapSimpleHandler((provider: PublicProvider): Model[] => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return getImageCreatorModelsForProvider(storedProvider);
+			}, OperatorChannels.getImageCreatorModels)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.saveImageCreator,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				if (!isAllowedImageCreatorModelForProvider(storedProvider, model.id)) {
+					throw new Error(`Model is not supported for text-to-image work: ${model.id}`);
+				}
+				return store.setImageCreatorOperator(storedProvider.id, {
+					id: model.id,
+					name: model.name,
+				});
+			}, OperatorChannels.saveImageCreator)
 		);
 
 		ipcMain.handle(
