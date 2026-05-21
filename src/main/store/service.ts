@@ -332,6 +332,19 @@ export class StoreService {
 		return next;
 	}
 
+	getCameraEnabled(): boolean {
+		return this.getAppPermissions().cameraEnabled;
+	}
+
+	setCameraEnabled(enabled: boolean): AppPermissionSettings {
+		const next = {
+			...this.getAppPermissions(),
+			cameraEnabled: enabled,
+		};
+		this.store.set('appPermissions', next);
+		return next;
+	}
+
 	addProvider(input: Provider): Provider {
 		const id = input.id.trim().toLowerCase();
 		const providers = this.getStoredModelProviders();
