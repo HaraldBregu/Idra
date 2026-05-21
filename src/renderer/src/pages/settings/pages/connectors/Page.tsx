@@ -30,6 +30,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
+import { ConnectorDocumentationRows } from './components/ConnectorDocumentationRows';
 import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors, type ConnectorCatalog } from './hooks/useConnectors';
 
@@ -321,6 +322,10 @@ const ConnectorsPage: React.FC = () => {
 										))}
 									</ol>
 								</div>
+							)}
+
+							{selected && (
+								<ConnectorDocumentationRows connector={selected} className="border-b border-border/60" />
 							)}
 
 							{/* Auth */}

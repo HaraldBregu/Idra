@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
+	getConnectorCatalogItem,
 	getConnectorAuthKind,
 	type ConnectorConfig,
 	type ConnectorTool,
@@ -19,6 +20,7 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
+import { ConnectorDocumentationRows } from '../components/ConnectorDocumentationRows';
 import { ConnectorToolsList } from '../components/ConnectorToolsList';
 
 function formatTimestamp(value?: string): string {
@@ -195,6 +197,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	const authKind = getConnectorAuthKind(connector.connectorId);
 	const googleOAuth = authKind === 'google_oauth';
+	const catalogItem = getConnectorCatalogItem(connector.connectorId);
 
 	return (
 		<SettingsPageShell>
@@ -242,6 +245,14 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Updated" value={formatTimestamp(connector.updatedAt)} />
 				</Card>
 			</SettingsSection>
+
+			{catalogItem && (
+				<SettingsSection title="Documentation">
+					<Card size="sm" className="gap-0! p-0!">
+						<ConnectorDocumentationRows connector={catalogItem} />
+					</Card>
+				</SettingsSection>
+			)}
 
 			{connector.lastError && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
