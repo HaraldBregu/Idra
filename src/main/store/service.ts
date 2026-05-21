@@ -55,7 +55,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 type ConfiguredModelOperatorKey = 'assistant' | 'speechToText' | 'imageCreator';
 type LegacyBackedModelOperatorKey = 'assistant' | 'speechToText';
 type LegacyModelOperatorKey = 'agent' | 'speechTranscriber';
-type ModelModuleRootKey = 'llmAgent' | 'speechToText' | 'imageCreator';
+type ModelModuleRootKey = 'agent' | 'speechToText' | 'imageCreator';
 
 const LEGACY_MODEL_OPERATOR_KEYS = {
 	assistant: 'agent',
@@ -63,7 +63,7 @@ const LEGACY_MODEL_OPERATOR_KEYS = {
 } satisfies Record<LegacyBackedModelOperatorKey, LegacyModelOperatorKey>;
 
 const MODEL_MODULE_ROOT_KEYS = {
-	assistant: 'llmAgent',
+	assistant: 'agent',
 	speechToText: 'speechToText',
 	imageCreator: 'imageCreator',
 } satisfies Record<ConfiguredModelOperatorKey, ModelModuleRootKey>;
@@ -329,15 +329,13 @@ export class StoreService {
 			},
 		};
 			if (currentAgentSettings) {
-				const nextAgentSettings = {
+				this.store.set('agent', {
 					...currentAgentSettings,
 					options: {
 						...(currentAgentSettings.options ?? {}),
 						agents: next.agents,
 					},
-				};
-				this.store.set('llmAgent', nextAgentSettings);
-				this.store.set('agent', nextAgentSettings);
+				});
 			}
 			return nextHeartbeat;
 		}
@@ -383,9 +381,8 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
-		const current = this.getModelModuleSettings('llmAgent');
+		const current = this.getModelModuleSettings('agent');
 		const settings = modelModuleSettings(provider.id, model, current?.options);
-		this.store.set('llmAgent', settings);
 		this.store.set('agent', settings);
 		return true;
 	}
@@ -556,10 +553,7 @@ export class StoreService {
 	}
 
 	private getModelModuleSettings(rootKey: ModelModuleRootKey): ModelModuleSettings | undefined {
-		const settings = readModelModuleSettings(this.store.get(rootKey));
-		if (settings) return settings;
-		if (rootKey === 'llmAgent') return readModelModuleSettings(this.store.get('agent'));
-		return undefined;
+		return readModelModuleSettings(this.store.get(rootKey));
 	}
 
 	private getStoredModelProviders(): Provider[] {
