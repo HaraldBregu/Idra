@@ -442,7 +442,7 @@ const OperatorDetailsPage: React.FC = () => {
 				return;
 			}
 
-			const modelToSave: Model = supportsReasoningEffortProvider(selectedProvider.id)
+			const modelToSave: Model = supportsModelReasoningEffortProvider(selectedProvider.id)
 				? {
 						...selectedModel,
 						effort: effortForModel(selectedModel.id, effort, selectedProvider.id),
