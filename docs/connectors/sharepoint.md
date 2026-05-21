@@ -2,14 +2,14 @@
 
 Catalog notes for Friday's SharePoint connector.
 
-| Field | Value |
-| --- | --- |
-| Connector id | `connector_sharepoint` |
-| Direct connector id | `sharepoint_onedrive` |
-| Name | SharePoint |
-| Runtime status | Settings catalog only |
-| Auth kind | Manual OAuth access token |
-| Setup URL | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
+| Field               | Value                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Connector id        | `connector_sharepoint`                                                                                                    |
+| Direct connector id | `sharepoint_onedrive`                                                                                                     |
+| Name                | SharePoint                                                                                                                |
+| Runtime status      | Settings catalog only                                                                                                     |
+| Auth kind           | Manual OAuth access token                                                                                                 |
+| Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Environment Secrets
 

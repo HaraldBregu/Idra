@@ -2,14 +2,14 @@
 
 Catalog notes for Friday's Outlook Calendar connector.
 
-| Field | Value |
-| --- | --- |
-| Connector id | `connector_outlookcalendar` |
-| Direct connector id | `outlook` |
-| Name | Outlook Calendar |
-| Runtime status | Settings catalog only |
-| Auth kind | Manual OAuth access token |
-| Setup URL | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
+| Field               | Value                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Connector id        | `connector_outlookcalendar`                                                                                               |
+| Direct connector id | `outlook`                                                                                                                 |
+| Name                | Outlook Calendar                                                                                                          |
+| Runtime status      | Settings catalog only                                                                                                     |
+| Auth kind           | Manual OAuth access token                                                                                                 |
+| Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Environment Secrets
 
