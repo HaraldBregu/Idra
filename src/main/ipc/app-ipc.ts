@@ -377,7 +377,14 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			OperatorChannels.saveSpeechToText,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return store.setSpeechToTextOperator(provider.id, speechToTextModelOrThrow(provider.id, model));
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return store.setSpeechToTextOperator(
+					storedProvider.id,
+					speechToTextModelOrThrow(storedProvider.id, model)
+				);
 			}, OperatorChannels.saveSpeechToText)
 		);
 
@@ -412,7 +419,14 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			ProviderChannels.saveSpeechTranscriberService,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return store.setSpeechTranscriberService(provider.id, speechToTextModelOrThrow(provider.id, model));
+				const storedProvider = store.getProviderById(provider.id);
+				if (!storedProvider) {
+					throw new Error(`Provider not found: ${provider.id}`);
+				}
+				return store.setSpeechTranscriberService(
+					storedProvider.id,
+					speechToTextModelOrThrow(storedProvider.id, model)
+				);
 			}, ProviderChannels.saveSpeechTranscriberService)
 		);
 
