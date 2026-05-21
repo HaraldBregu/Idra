@@ -50,7 +50,7 @@ future runtime work share stable names.
 
 ```ts
 interface Operator {
-	a?: ModelOperator;
+	agent?: ModelOperator;
 	speechToText?: ModelOperator;
 	textToSpeech?: ModelOperator;
 	imageCreator?: ModelOperator;
@@ -59,9 +59,6 @@ interface Operator {
 	documentReaderOcr?: ModelOperator | EndpointOperator;
 	cronTaskScheduler?: SchedulerOperator;
 	backgroundTask?: TaskOperator;
-	agents?: AgentsHeartbeatConfig;
-	rag?: string;
-	ocr?: string;
 }
 
 interface ModelOperator {
