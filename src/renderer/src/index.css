@@ -240,6 +240,10 @@
 	}
 }
 
+.dark *::-webkit-scrollbar-thumb {
+	border-width: 2px;
+}
+
 .scrollbar {
 	overflow: overlay;
 }
