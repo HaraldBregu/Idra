@@ -51,7 +51,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 
 type ConfiguredModelOperatorKey = 'assistant' | 'speechToText';
 type LegacyModelOperatorKey = 'agent' | 'speechTranscriber';
-type ModelModuleRootKey = 'agent' | 'speechToText';
+type ModelModuleRootKey = 'llmAgent' | 'speechToText';
 
 const LEGACY_MODEL_OPERATOR_KEYS = {
 	assistant: 'agent',
@@ -59,7 +59,7 @@ const LEGACY_MODEL_OPERATOR_KEYS = {
 } satisfies Record<ConfiguredModelOperatorKey, LegacyModelOperatorKey>;
 
 const MODEL_MODULE_ROOT_KEYS = {
-	assistant: 'agent',
+	assistant: 'llmAgent',
 	speechToText: 'speechToText',
 } satisfies Record<ConfiguredModelOperatorKey, ModelModuleRootKey>;
 
@@ -172,13 +172,13 @@ export class StoreService {
 
 	getProviderById(id: string): Provider | undefined {
 		const providerId = id.trim().toLowerCase();
-		return (this.store.get('providers') ?? []).find(
+		return this.getStoredModelProviders().find(
 			(provider) => provider.id.trim().toLowerCase() === providerId
 		);
 	}
 
 	getProviders(): Provider[] {
-		return this.store.get('providers') ?? [];
+		return this.getStoredModelProviders();
 	}
 
 	getAppPermissions(): AppPermissionSettings {
@@ -223,7 +223,7 @@ export class StoreService {
 
 	addProvider(input: Provider): Provider {
 		const id = input.id.trim().toLowerCase();
-		const providers = this.store.get('providers') ?? [];
+		const providers = this.getStoredModelProviders();
 		const exists = providers.some((provider) => provider.id.trim().toLowerCase() === id);
 
 		if (exists) {
@@ -237,13 +237,13 @@ export class StoreService {
 			apiKey: input.apiKey.trim(),
 		};
 
-		this.store.set('providers', [...providers, provider]);
+		this.setStoredModelProviders([...providers, provider]);
 		return provider;
 	}
 
 	upsertProvider(input: Provider): void {
 		const id = input.id.trim().toLowerCase();
-		const providers = this.store.get('providers') ?? [];
+		const providers = this.getStoredModelProviders();
 		const index = providers.findIndex((p) => p.id.trim().toLowerCase() === id);
 		const record: Provider = {
 			id,
@@ -256,7 +256,7 @@ export class StoreService {
 		} else {
 			providers.push(record);
 		}
-		this.store.set('providers', providers);
+		this.setStoredModelProviders(providers);
 	}
 
 	getOperator(): OperatorStoreState | undefined {
@@ -284,7 +284,7 @@ export class StoreService {
 				};
 			}
 		}
-		const agentSettings = readModelModuleSettings(this.store.get('agent'));
+		const agentSettings = this.getModelModuleSettings('llmAgent');
 		const agents = readAgentsHeartbeatConfig(agentSettings);
 		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
@@ -295,9 +295,9 @@ export class StoreService {
 	}
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const currentAgentSettings = readModelModuleSettings(this.store.get('agent'));
+		const currentAgentSettings = this.getModelModuleSettings('llmAgent');
 		const current = this.getLegacyOperator();
-		const currentAgents = current?.agents ?? {};
+		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? current?.agents ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
 		const currentHeartbeat = currentDefaults.heartbeat ?? {};
 		const nextHeartbeat: AgentHeartbeatConfig = {
@@ -318,13 +318,14 @@ export class StoreService {
 			},
 		};
 		if (currentAgentSettings) {
-			this.store.set('agent', {
+			this.store.set('llmAgent', {
 				...currentAgentSettings,
 				options: {
 					...(currentAgentSettings.options ?? {}),
 					agents: next.agents,
 				},
 			});
+			this.store.delete('agent');
 		} else {
 			this.store.set('service', next);
 		}
@@ -364,8 +365,9 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
-		const current = readModelModuleSettings(this.store.get('agent'));
-		this.store.set('agent', modelModuleSettings(provider.id, model, current?.options));
+		const current = this.getModelModuleSettings('llmAgent');
+		this.store.set('llmAgent', modelModuleSettings(provider.id, model, current?.options));
+		this.store.delete('agent');
 		return true;
 	}
 
@@ -374,7 +376,7 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
-		const current = readModelModuleSettings(this.store.get('speechToText'));
+		const current = this.getModelModuleSettings('speechToText');
 		this.store.set('speechToText', modelModuleSettings(provider.id, model, current?.options));
 		return true;
 	}
@@ -406,7 +408,7 @@ export class StoreService {
 	}
 
 	setOpenAiApiKey(key: string): void {
-		const providers = this.store.get('providers') ?? [];
+		const providers = this.getStoredModelProviders();
 		const openAiProviderIndex = providers.findIndex(
 			(provider) => provider.id.trim().toLowerCase() === 'openai'
 		);
@@ -423,7 +425,7 @@ export class StoreService {
 		} else {
 			providers.push(newProvider);
 		}
-		this.store.set('providers', providers);
+		this.setStoredModelProviders(providers);
 	}
 
 	getCronTasks(): CronTask[] {
