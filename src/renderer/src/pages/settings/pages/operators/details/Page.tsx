@@ -61,8 +61,8 @@ import {
 	TEXT_TO_SPEECH_OPERATOR_ID,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
-	VIDEO_CREATOR_OPERATOR_ID,
-	VIDEO_CREATOR_MODELS,
+	TEXT_TO_VIDEO_MODELS,
+	TEXT_TO_VIDEO_OPERATOR_ID,
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
 	isModelReasoningEffortSupported,
@@ -124,7 +124,7 @@ const OperatorDetailsPage: React.FC = () => {
 	const isSpeechToTextOperator = decodedOperatorId === SPEECH_TO_TEXT_OPERATOR_ID;
 	const isTextToSpeechOperator = decodedOperatorId === TEXT_TO_SPEECH_OPERATOR_ID;
 	const isImageCreatorOperator = decodedOperatorId === IMAGE_CREATOR_OPERATOR_ID;
-	const isVideoCreatorOperator = decodedOperatorId === VIDEO_CREATOR_OPERATOR_ID;
+	const isVideoCreatorOperator = decodedOperatorId === TEXT_TO_VIDEO_OPERATOR_ID;
 	const isMusicCreatorOperator = decodedOperatorId === MUSIC_CREATOR_OPERATOR_ID;
 	const isDocumentReaderOcrOperator = decodedOperatorId === DOCUMENT_READER_OCR_OPERATOR_ID;
 	const isCronTaskOperator = decodedOperatorId === CRON_TASK_SCHEDULER_OPERATOR_ID;
@@ -620,7 +620,7 @@ const OperatorDetailsPage: React.FC = () => {
 		isTextToSpeechOperator
 			? TEXT_TO_SPEECH_MODELS[0]
 			: isVideoCreatorOperator
-				? VIDEO_CREATOR_MODELS[0]
+				? TEXT_TO_VIDEO_MODELS[0]
 				: isMusicCreatorOperator
 					? MUSIC_CREATOR_MODELS[0]
 					: isDocumentReaderOcrOperator

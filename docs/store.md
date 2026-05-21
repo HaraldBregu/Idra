@@ -74,7 +74,7 @@ are safe to store and are not credentials.
 | `speechToText` | Speech to text | [speech-to-text.md](speech-to-text.md) | Live dictation and transcription model settings. |
 | `textToSpeech` | Text to speech | [text-to-speech.md](text-to-speech.md) | Voice synthesis model settings. |
 | `imageCreator` | Text to image | [text-to-image.md](text-to-image.md) | Text-to-image generation/editing model settings. |
-| `textToVideo` | Text to video | [video-creator.md](video-creator.md) | Video generation model settings. |
+| `textToVideo` | Text to video | [text-to-video.md](text-to-video.md) | Video generation model settings. |
 | `textToSound` | Text to sound | [music-creator.md](music-creator.md) | Sound, audio, and music generation model settings. |
 | `ocr` | OCR | [ocr.md](ocr.md) | OCR endpoint or provider/model settings. |
 | `embedding` | Embedding | [embedding.md](embedding.md) | Embedding provider/model and index settings. |

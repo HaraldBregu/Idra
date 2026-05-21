@@ -160,10 +160,14 @@ export const IMAGE_CREATOR_OPERATOR_ID = 'image-assistant';
 export const IMAGE_CREATOR_MODELS = [
 	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
-export const VIDEO_CREATOR_OPERATOR_ID = 'video-creator';
-export const VIDEO_CREATOR_MODELS = [
+export const TEXT_TO_VIDEO_OPERATOR_ID = 'text-to-video';
+export const TEXT_TO_VIDEO_MODELS = [
 	{ id: 'video-provider-coming-soon', name: 'Not available yet' },
 ] satisfies readonly Model[];
+/** @deprecated Use TEXT_TO_VIDEO_OPERATOR_ID. */
+export const VIDEO_CREATOR_OPERATOR_ID = TEXT_TO_VIDEO_OPERATOR_ID;
+/** @deprecated Use TEXT_TO_VIDEO_MODELS. */
+export const VIDEO_CREATOR_MODELS = TEXT_TO_VIDEO_MODELS;
 export const MUSIC_CREATOR_OPERATOR_ID = 'music-creator';
 export const MUSIC_CREATOR_MODELS = [
 	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
@@ -201,9 +205,9 @@ export const OPERATOR_DEFINITIONS = {
 		status: 'pending-runtime',
 	},
 	videoCreator: {
-		id: VIDEO_CREATOR_OPERATOR_ID,
-		name: 'Video creator',
-		docsPath: 'video-creator.md',
+		id: TEXT_TO_VIDEO_OPERATOR_ID,
+		name: 'Text to video',
+		docsPath: 'text-to-video.md',
 		status: 'pending-runtime',
 	},
 	musicCreator: {

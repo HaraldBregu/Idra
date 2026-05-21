@@ -28,7 +28,7 @@ Current module status:
 | Speech to text | `speechToText` | Explicit model catalog for OpenAI | Implemented |
 | Text to speech | `textToSpeech` | Placeholder model constant | Pending runtime |
 | Text to image | `imageCreator` | Provider capability catalog | Pending runtime |
-| Text to video | `videoCreator` / target `textToVideo` | Provider capability catalog | Pending runtime |
+| Text to video | `textToVideo` | Provider capability catalog | Pending runtime |
 
 ## LLM Agent Models
 
@@ -132,8 +132,8 @@ records.
 
 ## Text-To-Video Providers
 
-Video creation also uses the provider capability catalog today. Friday does not
-yet store an explicit video model catalog per provider; `VIDEO_CREATOR_MODELS`
+Text-to-video also uses the provider capability catalog today. Friday does not
+yet store an explicit video model catalog per provider; `TEXT_TO_VIDEO_MODELS`
 contains `video-provider-coming-soon` as a placeholder.
 
 Providers with video capability in `DEFAULT_PROVIDERS`:
@@ -158,7 +158,7 @@ Providers with video capability in `DEFAULT_PROVIDERS`:
 
 Expected runtime boundary:
 
-1. The video module reads `textToVideo` or the current video operator setting.
+1. The video module reads `textToVideo`.
 2. It resolves `providerId` and `modelId` from saved module settings.
 3. It loads credentials, base URL, and webhook configuration from
    `StoreService.getProviderById`.
@@ -190,5 +190,6 @@ webhook secrets, or raw provider records.
   resolution.
 - [text-to-image.md](text-to-image.md) documents text-to-image module
   boundaries.
-- [video-creator.md](video-creator.md) documents video module boundaries.
+- [text-to-video.md](text-to-video.md) documents text-to-video module
+  boundaries.
 - [store.md](store.md) documents the target model-backed store shape.

@@ -1,14 +1,14 @@
-# Video Creator
+# Text To Video
 
-This document describes how Friday should use video generation models for
-creating video output.
+This document describes how Friday should use text-to-video models for creating
+video output from prompts and optional reference assets.
 
 ## Main Process Module
 
-Video creation should be a separated module in the main process. Renderer UI,
+Text-to-video should be a separated module in the main process. Renderer UI,
 task handlers, and cron should not know which provider or model is used.
 
-The main-process video module owns:
+The main-process text-to-video module owns:
 
 - Reading its saved settings from `StoreService`.
 - Resolving the configured provider record from `StoreService`.
@@ -22,19 +22,19 @@ Provider-specific code belongs behind adapters inside the video module.
 
 ## Service And Tool Exposure
 
-Video creation can be exposed as both a service and an LLM tool. The LLM tool
+Text-to-video can be exposed as both a service and an LLM tool. The LLM tool
 must stay a thin wrapper around the video service and must not accept provider
 credentials, base URLs, webhook secrets, or raw provider records.
 
 ## Supported Providers And Models
 
-Video creation is not limited to a single provider or model. Any configured
+Text-to-video is not limited to a single provider or model. Any configured
 provider can be used if Friday has a video adapter for it and the selected
-model supports video creation.
+model supports text-to-video generation.
 
 The Settings model picker should show provider/model choices that have a video
-capability. Saving `video` should validate capability compatibility, not a
-hard-coded provider id.
+capability. Saving `textToVideo` should validate capability compatibility, not
+a hard-coded provider id.
 
 Example video provider/model choices:
 
@@ -52,7 +52,8 @@ Provider catalog and official provider links are maintained in
 
 ## Module Settings
 
-The video module stores provider and model ids at the root `video` key:
+The text-to-video module stores provider and model ids at the root
+`textToVideo` key:
 
 ```ts
 {
@@ -61,9 +62,9 @@ The video module stores provider and model ids at the root `video` key:
 }
 ```
 
-Credentials are not stored on `video`. The API key, base URL, webhook secret,
-and any other private provider configuration are resolved from the stored
-provider record when video work starts.
+Credentials are not stored on `textToVideo`. The API key, base URL, webhook
+secret, and any other private provider configuration are resolved from the
+stored provider record when text-to-video work starts.
 
 Save paths should enforce these rules:
 
@@ -79,8 +80,8 @@ pass provider records, API keys, base URLs, or webhook secrets.
 Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests video work.
-2. The video module reads `video`.
-3. It reads `providerId` and `modelId` from `video`.
+2. The video module reads `textToVideo`.
+3. It reads `providerId` and `modelId` from `textToVideo`.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the video adapter for the selected provider and model.

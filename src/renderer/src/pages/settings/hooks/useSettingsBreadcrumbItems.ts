@@ -10,7 +10,7 @@ import {
 	MUSIC_CREATOR_OPERATOR_ID,
 	SPEECH_TO_TEXT_OPERATOR_ID,
 	TEXT_TO_SPEECH_OPERATOR_ID,
-	VIDEO_CREATOR_OPERATOR_ID,
+	TEXT_TO_VIDEO_OPERATOR_ID,
 } from '../../../../../shared/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
 
@@ -63,7 +63,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 					? t('settings.operators.textToSpeechName')
 					: operatorId === IMAGE_CREATOR_OPERATOR_ID
 						? t('settings.operators.imageAssistantName')
-						: operatorId === VIDEO_CREATOR_OPERATOR_ID
+						: operatorId === TEXT_TO_VIDEO_OPERATOR_ID
 							? t('settings.operators.videoCreatorName')
 							: operatorId === MUSIC_CREATOR_OPERATOR_ID
 								? t('settings.operators.musicCreatorName')

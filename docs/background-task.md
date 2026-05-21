@@ -210,8 +210,8 @@ Recommended task types:
   [speech-to-text.md](speech-to-text.md).
 - `image.create`: calls the image module documented in
   [text-to-image.md](text-to-image.md).
-- `video.create`: calls the video module documented in
-  [video-creator.md](video-creator.md).
+- `video.create`: calls the text-to-video module documented in
+  [text-to-video.md](text-to-video.md).
 - `sound.create`: calls the sound module documented in
   [music-creator.md](music-creator.md).
 - `ocr.run`: calls the OCR module documented in [ocr.md](ocr.md).

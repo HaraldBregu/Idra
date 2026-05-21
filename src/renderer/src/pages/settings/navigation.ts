@@ -27,7 +27,7 @@ import {
 	MUSIC_CREATOR_OPERATOR_ID,
 	SPEECH_TO_TEXT_OPERATOR_ID,
 	TEXT_TO_SPEECH_OPERATOR_ID,
-	VIDEO_CREATOR_OPERATOR_ID,
+	TEXT_TO_VIDEO_OPERATOR_ID,
 } from '../../../../shared/service';
 
 export interface SettingsNavigationItem {
@@ -88,11 +88,11 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		icon: ImageIcon,
 	},
 	{
-		id: VIDEO_CREATOR_OPERATOR_ID,
-		path: `/settings/operators/${VIDEO_CREATOR_OPERATOR_ID}/details`,
+		id: TEXT_TO_VIDEO_OPERATOR_ID,
+		path: `/settings/operators/${TEXT_TO_VIDEO_OPERATOR_ID}/details`,
 		labelKey: 'settings.operators.videoCreatorName',
 		descriptionKey: 'settings.operators.videoCreatorDescription',
-		keywords: 'video generation creator model',
+		keywords: 'text to video generation model',
 		icon: Video,
 	},
 	{

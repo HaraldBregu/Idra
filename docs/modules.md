@@ -33,7 +33,7 @@ and future runtime boundaries.
 | Speech to text | `speechToText` | [speech-to-text.md](speech-to-text.md) | Service, future/optional LLM tool |
 | Text to speech | `textToSpeech` | [text-to-speech.md](text-to-speech.md) | Service, future/optional LLM tool |
 | Text to image | `imageCreator` | [text-to-image.md](text-to-image.md) | Service, future/optional LLM tool |
-| Video | `video` | [video-creator.md](video-creator.md) | Service, future/optional LLM tool |
+| Text to video | `textToVideo` | [text-to-video.md](text-to-video.md) | Service, future/optional LLM tool |
 | Sound | `sound` | [music-creator.md](music-creator.md) | Service, future/optional LLM tool |
 | OCR | `ocr` | [ocr.md](ocr.md) | Service, future/optional LLM tool |
 | Embedding | `embedding` | [embedding.md](embedding.md) | Service, future/optional LLM tool |
