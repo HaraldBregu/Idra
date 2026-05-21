@@ -554,6 +554,11 @@ const StartPage: React.FC = () => {
 		setSelectedSpeechModel(value ?? '');
 	}
 
+	function handleTtsModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedTtsModel(value ?? '');
+	}
+
 	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
@@ -1042,7 +1047,7 @@ const StartPage: React.FC = () => {
 										</Select>
 									</SettingsField>
 									<SettingsField id="tts-model" label="Voice model">
-										<Select value={selectedTtsModel} onValueChange={setSelectedTtsModel}>
+										<Select value={selectedTtsModel} onValueChange={handleTtsModelChange}>
 											<SelectTrigger id="tts-model" className="w-full text-xs sm:w-72">
 												<SelectValue />
 											</SelectTrigger>

@@ -74,10 +74,6 @@ import {
 const OPENAI_PROVIDER_ID = 'openai';
 const DEEPSEEK_PROVIDER_ID = 'deepseek';
 
-function isOpenAiProvider(providerId: string): boolean {
-	return providerId.trim().toLowerCase() === OPENAI_PROVIDER_ID;
-}
-
 function supportsReasoningEffortProvider(providerId: string): boolean {
 	const normalizedProviderId = providerId.trim().toLowerCase();
 	return normalizedProviderId === OPENAI_PROVIDER_ID || normalizedProviderId === DEEPSEEK_PROVIDER_ID;
