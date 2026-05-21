@@ -22,6 +22,12 @@ import { ContextOverflowError, ProviderAuthError } from './types';
 // OpenAIChatAdapter — Chat Completions API for OpenAI-compatible providers
 // ---------------------------------------------------------------------------
 
+type ReasoningContentBlock = Extract<AgentContentBlock, { type: 'reasoning' }>;
+
+function isDeepSeekReasoningBlock(block: AgentContentBlock): block is ReasoningContentBlock {
+	return block.type === 'reasoning' && block.provider === 'deepseek';
+}
+
 function buildChatMessages(
 	system: string,
 	transcript: TranscriptEntry[],
@@ -55,7 +61,7 @@ function buildChatMessages(
 			};
 			if (options.includeReasoningContent) {
 				const reasoningContent = entry.content
-					.filter((b) => b.type === 'reasoning' && b.provider === 'deepseek')
+					.filter(isDeepSeekReasoningBlock)
 					.map((b) => (typeof b.item === 'string' ? b.item : ''))
 					.join('');
 				if (reasoningContent) {
@@ -235,7 +241,7 @@ function toolResultText(entry: Extract<TranscriptEntry, { role: 'tool' }>): stri
 
 function isOpenAIReasoningBlock(
 	block: AgentContentBlock
-): block is Extract<AgentContentBlock, { type: 'reasoning'; provider: 'openai' }> {
+): block is ReasoningContentBlock & { provider: 'openai' } {
 	return block.type === 'reasoning' && block.provider === 'openai';
 }
 
