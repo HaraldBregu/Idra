@@ -427,27 +427,38 @@ export class StoreService {
 	}
 
 	getCronTasks(): CronTask[] {
-		return this.store.get('cronTasks') ?? [];
+		const legacyTasks = this.getTaskSchedulerSettings().legacyTasks;
+		if (Array.isArray(legacyTasks)) return legacyTasks as CronTask[];
+		return (this.store.get('cronTasks') as CronTask[] | undefined) ?? [];
 	}
 
 	setCronTasks(tasks: CronTask[]): void {
-		this.store.set('cronTasks', tasks);
+		this.setTaskSchedulerSettings({ legacyTasks: tasks });
+		this.store.delete('cronTasks');
 	}
 
 	getCronSchedulerState(): CronStoreState {
-		return migrateCronStoreState(this.store.get('cronScheduler') ?? emptyCronStoreState());
+		const managed = this.getTaskSchedulerSettings().managed;
+		return migrateCronStoreState(
+			managed ?? this.store.get('cronScheduler') ?? emptyCronStoreState()
+		);
 	}
 
 	setCronSchedulerState(state: CronStoreState): void {
-		this.store.set('cronScheduler', migrateCronStoreState(state));
+		this.setTaskSchedulerSettings({ managed: migrateCronStoreState(state) });
+		this.store.delete('cronScheduler');
 	}
 
 	getFridayCronState(): FridayCronStoreState {
-		return migrateFridayCronStoreState(this.store.get('fridayCron') ?? emptyFridayCronStoreState());
+		const friday = this.getTaskSchedulerSettings().friday;
+		return migrateFridayCronStoreState(
+			friday ?? this.store.get('fridayCron') ?? emptyFridayCronStoreState()
+		);
 	}
 
 	setFridayCronState(state: FridayCronStoreState): void {
-		this.store.set('fridayCron', migrateFridayCronStoreState(state));
+		this.setTaskSchedulerSettings({ friday: migrateFridayCronStoreState(state) });
+		this.store.delete('fridayCron');
 	}
 
 	getHeartbeatState(): HeartbeatStoreState {
