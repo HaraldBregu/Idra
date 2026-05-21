@@ -171,59 +171,89 @@ provider/model pair.
 
 - Stable id: `text-to-speech`
 - Operator field: `operator.textToSpeech`
-- Documentation: `text-to-speech.md`
+- Documentation: [text-to-speech.md](text-to-speech.md)
 - Runtime status: pending runtime
 
-Text-to-speech is listed in Settings with:
+Text-to-speech stores its provider and model on `operator.textToSpeech`. The
+runtime should be a separated main-process TTS module. UI, task handlers, and
+cron pass text and synthesis options to that module; they do not decide which
+provider or model to use.
 
-- Provider id: `elevenlabs`
-- Model id: `rachel-multilingual`
+Provider/model rules:
 
-The UI is read-only today. Before this operator runs work, add a StoreService
-slot, IPC save/load handlers, and a runtime adapter that resolves the selected
-provider and model from settings.
+- Provider is not limited to one vendor.
+- Model is not limited to one TTS model.
+- The selected provider and model come from `operator.textToSpeech`.
+- The TTS module resolves API key, base URL, and provider configuration from
+  the matching configured provider in `StoreService`.
+- Provider-specific runtime details stay inside TTS adapters.
+- Recommended task type: `text-to-speech.run`.
 
 ## Image Creator
 
 - Stable id: `image-assistant`
 - Operator field: `operator.imageCreator`
-- Documentation: `image-creator.md`
+- Documentation: [image-creator.md](image-creator.md)
 - Runtime status: pending runtime
 
-Image creator is listed in Settings as a placeholder with model
-`image-provider-coming-soon`.
+Image creator stores its provider and model on `operator.imageCreator`. The
+runtime should be a separated main-process image module. UI, task handlers, and
+cron pass prompt and asset references to that module; they do not decide which
+provider or model to use.
 
-Before this operator generates output, it needs a persisted provider/model
-selection, a runtime adapter, and task or UI entry points that pass only ids
-into execution.
+Provider/model rules:
+
+- Provider is not limited to one vendor.
+- Model is not limited to one image model.
+- The selected provider and model come from `operator.imageCreator`.
+- The image module resolves API key, base URL, and provider configuration from
+  the matching configured provider in `StoreService`.
+- Provider-specific runtime details stay inside image adapters.
+- Recommended task type: `image.create`.
 
 ## Video Creator
 
 - Stable id: `video-creator`
 - Operator field: `operator.videoCreator`
-- Documentation: `video-creator.md`
+- Documentation: [video-creator.md](video-creator.md)
 - Runtime status: pending runtime
 
-Video creator is listed in Settings as a placeholder with model
-`video-provider-coming-soon`.
+Video creator stores its provider and model on `operator.videoCreator`. The
+runtime should be a separated main-process video module. UI, task handlers, and
+cron pass prompt and asset references to that module; they do not decide which
+provider or model to use.
 
-Before this operator generates output, it needs a persisted provider/model
-selection, a runtime adapter, and task or UI entry points that pass only ids
-into execution.
+Provider/model rules:
 
-## Music Creator
+- Provider is not limited to one vendor.
+- Model is not limited to one video model.
+- The selected provider and model come from `operator.videoCreator`.
+- The video module resolves API key, base URL, webhook secrets, and provider
+  configuration from the matching configured provider in `StoreService`.
+- Provider-specific runtime details stay inside video adapters.
+- Recommended task type: `video.create`.
+
+## Sound / Music Creator
 
 - Stable id: `music-creator`
 - Operator field: `operator.musicCreator`
-- Documentation: `music-creator.md`
+- Documentation: [music-creator.md](music-creator.md)
 - Runtime status: pending runtime
 
-Music creator is listed in Settings as a placeholder with model
-`music-provider-coming-soon`.
+Sound and music creation stores its provider and model on
+`operator.musicCreator`. The runtime should be a separated main-process sound
+module. UI, task handlers, and cron pass prompt and audio options to that
+module; they do not decide which provider or model to use.
 
-Before this operator generates output, it needs a persisted provider/model
-selection, a runtime adapter, and task or UI entry points that pass only ids
-into execution.
+Provider/model rules:
+
+- Provider is not limited to one vendor.
+- Model is not limited to one sound or music model.
+- The selected provider and model come from `operator.musicCreator`.
+- The sound module resolves API key, base URL, and provider configuration from
+  the matching configured provider in `StoreService`.
+- Provider-specific runtime details stay inside sound adapters.
+- Recommended task type: `sound.create`.
 
 ## Document Reader OCR
 
@@ -257,7 +287,9 @@ selection when the document reader runtime becomes provider-backed.
 - Runtime status: implemented
 
 Cron performs scheduled work and can trigger model runs. Cron itself does not
-own a model selection.
+own a model selection. For operator-backed work, cron owns timing only; the
+task handler or operator module resolves provider and model from `StoreService`
+at execution time.
 
 State and runtime:
 
@@ -267,6 +299,11 @@ State and runtime:
   `thinking`, `lightContext`, and `toolsAllow`.
 - `AgentServiceFridayCronExecutor` converts those ids into `AgentSendOptions`.
 - `AgentService` resolves actual provider records and model execution settings.
+- Media schedules should use task types such as `text-to-speech.run`,
+  `image.create`, `video.create`, or `sound.create` and store only sanitized
+  task input.
+- Cron payloads must not store API keys, base URLs, webhook secrets, or raw
+  provider records.
 
 Cron IPC:
 
@@ -292,13 +329,27 @@ assistant turn when the target is the main session.
 
 The task manager is the operator boundary for immediate background work. It
 does not choose providers or models itself. Each registered task handler
-resolves its own operator configuration.
+resolves its own operator configuration or calls an operator module that does.
 
 Current registered task handlers:
 
 - `agent.run`: validates a message and optional provider/model ids, then calls
   `AgentService.send()`.
 - `ocr.run`: validates image input, then calls the configured OCR endpoint.
+
+Recommended operator-backed task handlers:
+
+- `text-to-speech.run`: validates text and audio options, then calls the TTS
+  module.
+- `image.create`: validates prompt and image options, then calls the image
+  module.
+- `video.create`: validates prompt and video options, then calls the video
+  module.
+- `sound.create`: validates prompt and audio options, then calls the sound
+  module.
+
+Task payloads should not include credentials or provider records. Provider and
+model selection comes from the matching operator in `StoreService`.
 
 Task IPC:
 
