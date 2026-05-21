@@ -184,7 +184,7 @@ describe('GeneralPage', () => {
 		});
 	});
 
-	it('does not render the agents list in General settings', async () => {
+	it('does not render the operators list in General settings', async () => {
 		renderGeneralPage();
 
 		await screen.findByText('Friday');
