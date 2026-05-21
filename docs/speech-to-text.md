@@ -25,12 +25,13 @@ Speech to text should be a separated module in the main process. The renderer
 should not know which provider or model is used, and IPC handlers should only
 translate renderer calls into module calls.
 
-The main-process STT module owns:
+The main-process speech-to-text module owns:
 
 - Reading `operator.speechToText` from `StoreService`.
 - Resolving the configured provider record from `StoreService`.
 - Loading provider credentials and base URL from the configured provider record.
-- Selecting the correct STT runtime adapter for the provider and model.
+- Selecting the correct speech-to-text runtime adapter for the provider and
+  model.
 - Normalizing provider-specific transcript events into Friday transcription
   events.
 - Closing sessions when the renderer goes away.
@@ -42,20 +43,20 @@ the product contract remains `operator.speechToText`, not `openai`.
 ## Supported Providers And Models
 
 Speech to text is not limited to a single provider or model. Any configured
-provider can be used if Friday has an STT adapter for it and the selected model
-supports speech-to-text input.
+provider can be used if Friday has a speech-to-text adapter for it and the
+selected model supports speech-to-text input.
 
-The Settings model picker should show provider/model choices that have an STT
-capability. Saving the operator should validate capability compatibility, not a
-hard-coded provider id.
+The Settings model picker should show provider/model choices that have a
+speech-to-text capability. Saving the operator should validate capability
+compatibility, not a hard-coded provider id.
 
-Example STT provider/model choices:
+Example speech-to-text provider/model choices:
 
 | Provider | Model id | Runtime style |
 | --- | --- | --- |
 | `openai` | `gpt-realtime-whisper` | Realtime streaming |
-| Any STT-capable provider | Provider model id | Realtime or batch |
-| Local STT runtime | Local model id | On-device transcription |
+| Any speech-to-text capable provider | Provider model id | Realtime or batch |
+| Local speech-to-text runtime | Local model id | On-device transcription |
 
 Some providers may require more than one model identifier internally. For
 example, an OpenAI realtime adapter can open a socket with one realtime model
@@ -66,8 +67,9 @@ and select a transcription model in the session config:
 - `gpt-realtime` is the OpenAI realtime WebSocket connection model used by
   that adapter.
 
-Do not make that adapter detail the global STT contract. Other providers may
-use only one model id, a batch endpoint, a streaming endpoint, or a local model.
+Do not make that adapter detail the global speech-to-text contract. Other
+providers may use only one model id, a batch endpoint, a streaming endpoint, or
+a local model.
 
 ## Operator Selection
 
@@ -83,7 +85,7 @@ It stores a public provider record and a selected model:
 {
 	id: 'speech-to-text',
 	name: 'Speech to text',
-	docsPath: 'stt.md',
+	docsPath: 'speech-to-text.md',
 	status: 'implemented',
 	provider: {
 		id: 'openai',
@@ -114,21 +116,22 @@ Legacy compatibility IPC still exists:
 Both save paths should enforce the same rules:
 
 - Provider id must reference a configured provider.
-- Model id must be valid for that provider and support STT.
+- Model id must be valid for that provider and support speech to text.
 - Saved model data is reduced to `{ id, name }`.
 
 ## Startup And Settings
 
 The first-run setup page can save the speech-to-text operator automatically
-when an STT-capable provider is connected and a transcription model is
+when a speech-to-text capable provider is connected and a transcription model is
 selected.
 
 The Settings operator details page also supports the same selection:
 
 1. It loads configured providers.
-2. It filters available providers to providers with STT-capable models.
-3. It uses the selected provider's STT-capable model list as the model picker
-   list.
+2. It filters available providers to providers with speech-to-text capable
+   models.
+3. It uses the selected provider's speech-to-text capable model list as the
+   model picker list.
 4. It saves through `window.app.saveSpeechToTextOperator()`.
 
 ## Runtime Flow
@@ -148,7 +151,7 @@ Runtime startup:
 3. It reads provider id and model id from `operator.speechToText`.
 4. It loads API key, base URL, and provider configuration from
    `StoreService.getProviderById(providerId)`.
-5. It creates the STT adapter for the selected provider and model.
+5. It creates the speech-to-text adapter for the selected provider and model.
 6. The adapter starts a realtime or batch transcription session.
 7. Friday forwards normalized transcript events back to the renderer.
 
@@ -201,9 +204,9 @@ Common startup failures:
 
 - Speech-to-text operator is not configured.
 - Saved provider is missing.
-- Saved model is missing or does not support STT for that provider.
+- Saved model is missing or does not support speech to text for that provider.
 - Provider credentials are missing.
-- No STT adapter exists for the selected provider/model pair.
+- No speech-to-text adapter exists for the selected provider/model pair.
 - The provider connection or transcription session times out.
 
 Common runtime behavior:

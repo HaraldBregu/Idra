@@ -110,7 +110,7 @@ Recommended module ownership:
 | Operator field | Module owner | Responsibility |
 | --- | --- | --- |
 | `operator.assistant` | Assistant module | Assistant runs, provider/model resolution, tool loop |
-| `operator.speechToText` | STT module | Audio transcription sessions and STT adapters |
+| `operator.speechToText` | Speech-to-text module | Audio transcription sessions and speech-to-text adapters |
 | `operator.textToSpeech` | TTS module | Speech synthesis and TTS adapters |
 | `operator.imageCreator` | Image module | Image generation/editing and image adapters |
 | `operator.videoCreator` | Video module | Video generation jobs and video adapters |
@@ -162,22 +162,22 @@ overrides, but credentials still resolve from stored provider records.
 
 - Stable id: `speech-to-text`
 - Operator field: `operator.speechToText`
-- Documentation: [stt.md](stt.md)
+- Documentation: [speech-to-text.md](speech-to-text.md)
 - Runtime status: implemented through realtime transcription IPC
 
 Speech-to-text stores its provider and model on `operator.speechToText`. The
-runtime should be a separated main-process STT module. IPC handlers pass audio
-and session commands to that module; they do not decide which provider or model
-to use.
+runtime should be a separated main-process speech-to-text module. IPC handlers
+pass audio and session commands to that module; they do not decide which
+provider or model to use.
 
 Provider/model rules:
 
 - Provider is not limited to one vendor.
-- Model is not limited to one STT model.
+- Model is not limited to one speech-to-text model.
 - The selected provider and model come from `operator.speechToText`.
-- The STT module resolves API key, base URL, and provider configuration from
-  the matching configured provider in `StoreService`.
-- Provider-specific runtime details stay inside STT adapters.
+- The speech-to-text module resolves API key, base URL, and provider
+  configuration from the matching configured provider in `StoreService`.
+- Provider-specific runtime details stay inside speech-to-text adapters.
 
 Operator-selection IPC:
 
@@ -196,8 +196,8 @@ Runtime IPC:
 
 The realtime transcription IPC rejects startup when the speech-to-text operator
 is not configured, the selected provider record is missing credentials, the
-selected model does not support STT, or no adapter exists for the selected
-provider/model pair.
+selected model does not support speech to text, or no adapter exists for the
+selected provider/model pair.
 
 ## Text To Speech
 
@@ -325,7 +325,8 @@ task handler or operator module resolves provider and model from `StoreService`
 at execution time.
 
 Cron is its own main-process operator module. It should not contain provider
-adapters for assistant, TTS, STT, image, video, sound, or OCR work.
+adapters for assistant, text-to-speech, speech-to-text, image, video, sound, or
+OCR work.
 
 State and runtime:
 
