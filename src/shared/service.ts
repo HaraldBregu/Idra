@@ -10,6 +10,8 @@ import {
 	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	TEXT_TO_VIDEO_MODELS,
+	getSpeechToTextModelsByProvider,
+	getTextToImageModelsByProvider,
 } from './provider-models';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
@@ -257,14 +259,8 @@ export function isRealtimeSpeechTranscriberModel(modelId: string): boolean {
 	return modelId.trim() === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
 }
 
-function normalizeSpeechToTextProviderId(providerId: string): string {
-	return providerId.trim().toLowerCase();
-}
-
 export function getSpeechToTextModels(providerId: string): Model[] {
-	return (SPEECH_TO_TEXT_MODELS_BY_PROVIDER[normalizeSpeechToTextProviderId(providerId)] ?? []).map(
-		(model) => ({ ...model })
-	);
+	return getSpeechToTextModelsByProvider(providerId);
 }
 
 export function hasSpeechToTextModels(providerId: string): boolean {
@@ -280,12 +276,13 @@ export function getImageCreatorModelsForProvider(
 	provider: Pick<Provider, 'id' | 'capabilities'>
 ): Model[] {
 	if (!providerHasImageCapability(provider)) return [];
-	return IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
+	const catalogModels = getTextToImageModelsByProvider(provider.id);
+	return catalogModels.length > 0 ? catalogModels : IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
 }
 
 export function getImageCreatorModels(providerId: string): Model[] {
 	if (!hasDefaultProviderCapability(providerId, 'Image')) return [];
-	return IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
+	return getTextToImageModelsByProvider(providerId);
 }
 
 export function hasImageCreatorModelsForProvider(
