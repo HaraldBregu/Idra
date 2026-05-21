@@ -347,8 +347,14 @@ describe('StoreService', () => {
 	// -------------------------------------------------------------------------
 
 	describe('getOperator()', () => {
-		it('returns the stored operator state when present', () => {
-			const operator: OperatorStoreState = {
+		it('builds operator state from documented module roots', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('modelProviders', [openaiProvider]);
+			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
+			store.set('ocr', { mode: 'endpoint', endpoint: 'ocr-url' });
+
+			expect(service.getOperator()).toMatchObject({
 				assistant: {
 					id: 'friday',
 					name: 'Assistant',
@@ -357,16 +363,10 @@ describe('StoreService', () => {
 					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 					model,
 				},
-				rag: 'rag-url',
-				ocr: 'ocr-url',
-			};
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				operator
-			);
-
-			expect(service.getOperator()).toEqual(operator);
+				documentReaderOcr: expect.objectContaining({ endpoint: 'ocr-url' }),
+			});
+			expect(service.getOperator()).not.toHaveProperty('rag');
+			expect(service.getOperator()).not.toHaveProperty('ocr');
 		});
 
 		it('returns undefined when operator state is absent', () => {
@@ -381,47 +381,33 @@ describe('StoreService', () => {
 	// -------------------------------------------------------------------------
 
 	describe('getAssistantOperator()', () => {
-		it('returns the assistant block when operator state is set', () => {
-			const assistant = {
+		it('returns the assistant block when llmAgent is set', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('modelProviders', [openaiProvider]);
+			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
+
+			expect(service.getAssistantOperator()).toMatchObject({
 				id: 'friday',
 				name: 'Assistant',
 				docsPath: 'agent.md',
-				status: 'implemented' as const,
+				status: 'implemented',
 				provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 				model,
-			};
-			const operator: OperatorStoreState = {
-				assistant,
-				rag: '',
-				ocr: '',
-			};
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				operator
-			);
-
-			expect(service.getAssistantOperator()).toEqual(assistant);
+			});
 		});
 
-		it('reads legacy agent selections as assistant operators', () => {
-			const operator: OperatorStoreState = {
+		it('ignores legacy service agent selections', () => {
+			const legacyOperator = {
 				agent: {
 					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 					model,
 				},
 			};
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				operator
-			);
+			storeFor(service).set('service', legacyOperator);
 
-			expect(service.getAssistantOperator()).toMatchObject({
-				id: 'friday',
-				provider: operator.agent?.provider,
-				model,
-			});
+			expect(service.getAssistantOperator()).toBeUndefined();
 		});
 
 		it('returns undefined when operator state is absent', () => {
@@ -430,12 +416,8 @@ describe('StoreService', () => {
 			expect(service.getAssistantOperator()).toBeUndefined();
 		});
 
-		it('returns undefined when operator state has no assistant field', () => {
+		it('returns undefined when llmAgent is absent', () => {
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				{ rag: '', ocr: '' } as unknown as OperatorStoreState
-			);
 
 			expect(service.getAssistantOperator()).toBeUndefined();
 		});
@@ -447,21 +429,10 @@ describe('StoreService', () => {
 
 	describe('getAssistantModel()', () => {
 		it('returns the model when assistant is set', () => {
-			const operator: OperatorStoreState = {
-				assistant: {
-					id: 'friday',
-					name: 'Assistant',
-					docsPath: 'agent.md',
-					status: 'implemented',
-					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-					model,
-				},
-			};
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				operator
-			);
+			const store = storeFor(service);
+			store.set('modelProviders', [openaiProvider]);
+			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
 
 			expect(service.getAssistantModel()).toEqual(model);
 		});
@@ -472,12 +443,8 @@ describe('StoreService', () => {
 			expect(service.getAssistantModel()).toBeUndefined();
 		});
 
-		it('returns undefined when assistant is absent from the operator state', () => {
+		it('returns undefined when llmAgent is absent', () => {
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				{ rag: '', ocr: '' } as unknown as OperatorStoreState
-			);
 
 			expect(service.getAssistantModel()).toBeUndefined();
 		});
@@ -490,21 +457,10 @@ describe('StoreService', () => {
 	describe('getAssistantProvider()', () => {
 		it('returns the provider block when assistant is set', () => {
 			const providerRef = { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
-			const operator: OperatorStoreState = {
-				assistant: {
-					id: 'friday',
-					name: 'Assistant',
-					docsPath: 'agent.md',
-					status: 'implemented',
-					provider: providerRef,
-					model,
-				},
-			};
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				operator
-			);
+			const store = storeFor(service);
+			store.set('modelProviders', [openaiProvider]);
+			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
 
 			expect(service.getAssistantProvider()).toEqual(providerRef);
 		});
@@ -515,12 +471,8 @@ describe('StoreService', () => {
 			expect(service.getAssistantProvider()).toBeUndefined();
 		});
 
-		it('returns undefined when assistant is absent from the operator state', () => {
+		it('returns undefined when llmAgent is absent', () => {
 			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'service',
-				{ rag: '', ocr: '' } as unknown as OperatorStoreState
-			);
 
 			expect(service.getAssistantProvider()).toBeUndefined();
 		});
