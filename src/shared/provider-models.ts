@@ -133,7 +133,7 @@ export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
 export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
 export const SPEECH_TO_TEXT_MODELS = [
 	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
-] satisfies readonly Model[];
+] satisfies readonly ProviderModel[];
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER: ModelCatalog = {
 	[SPEECH_TRANSCRIBER_PROVIDER_ID]: SPEECH_TO_TEXT_MODELS,
 };
@@ -141,14 +141,14 @@ export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER: ModelCatalog = {
 export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
 export const TEXT_TO_SPEECH_MODELS = [
 	{ id: 'rachel-multilingual', name: 'Rachel - multilingual' },
-] satisfies readonly Model[];
+] satisfies readonly ProviderModel[];
 export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER: ModelCatalog = {
 	[TEXT_TO_SPEECH_PROVIDER_ID]: TEXT_TO_SPEECH_MODELS,
 };
 
 export const IMAGE_CREATOR_MODELS = [
 	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly Model[];
+] satisfies readonly ProviderModel[];
 export const TEXT_TO_IMAGE_PROVIDER_IDS = [
 	'openai',
 	'google',
@@ -172,7 +172,7 @@ export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderId
 
 export const TEXT_TO_VIDEO_MODELS = [
 	{ id: 'video-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly Model[];
+] satisfies readonly ProviderModel[];
 export const TEXT_TO_VIDEO_PROVIDER_IDS = [
 	'openai',
 	'google',
@@ -197,7 +197,7 @@ export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderId
 
 export const MUSIC_CREATOR_MODELS = [
 	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly Model[];
+] satisfies readonly ProviderModel[];
 export const MUSIC_PROVIDER_IDS = ['google', 'minimax', 'elevenlabs', 'suno'] as const;
 export const MUSIC_CREATOR_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderIds(
 	MUSIC_PROVIDER_IDS,
