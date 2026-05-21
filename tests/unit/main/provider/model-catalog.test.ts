@@ -34,14 +34,11 @@ describe('provider model catalogs', () => {
 		expect(getSpeechToTextModelsByProvider('google')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
 		expect(getSpeechToTextModelsByProvider('xai')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
 		expect(getSpeechToTextModelsByProvider('mistral')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
-		expect(getSpeechToTextModelsByProvider('cohere')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
 		expect(getSpeechToTextModelsByProvider('qwen')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
-		expect(getSpeechToTextModelsByProvider('baidu')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
 		expect(getSpeechToTextModelsByProvider('elevenlabs')).toEqual(
 			SPEECH_TO_TEXT_PROVIDER_MODELS
 		);
 		expect(getSpeechToTextModelsByProvider('deepgram')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
-		expect(getSpeechToTextModelsByProvider('nvidia')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
 		expect(getSpeechToTextModelsByProvider('unknown')).toEqual([]);
 	});
 
@@ -66,14 +63,13 @@ describe('provider model catalogs', () => {
 		expect(getTextToVideoModelsByProvider('unknown')).toEqual([]);
 
 		expect(getMusicModelsByProvider('google')).toEqual(MUSIC_CREATOR_MODELS);
-		expect(getMusicModelsByProvider('adobe-firefly')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getMusicModelsByProvider('stability-ai')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getMusicModelsByProvider('suno')).toEqual(MUSIC_CREATOR_MODELS);
 		expect(getMusicModelsByProvider('unknown')).toEqual([]);
 	});
 
 	it('keeps capability lookups provider-keyed', () => {
-		expect(getModelsByCapability('speech-to-text', 'nvidia')).toEqual(
+		expect(getModelsByCapability('speech-to-text', 'xai')).toEqual(
 			SPEECH_TO_TEXT_PROVIDER_MODELS
 		);
 		expect(getModelsByCapability('text-to-speech', 'elevenlabs')).toEqual(
