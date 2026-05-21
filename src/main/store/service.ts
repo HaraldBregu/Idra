@@ -6,6 +6,7 @@ import {
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
+	isAllowedSpeechToTextModel,
 	isAllowedImageCreatorModelForProvider,
 	isAllowedMusicCreatorModel,
 	isAllowedTextToSpeechModel,
@@ -537,8 +538,15 @@ export class StoreService {
 		if (!provider) {
 			return false;
 		}
+		if (!isAllowedSpeechToTextModel(provider.id, model.id)) {
+			return false;
+		}
 		const current = this.getModelModuleSettings('speechToText');
-		this.store.set('speechToText', modelModuleSettings(provider.id, model, current?.options));
+		const catalogModel = getSpeechToTextModels(provider.id).find((entry) => entry.id === model.id);
+		this.store.set(
+			'speechToText',
+			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
+		);
 		return true;
 	}
 
