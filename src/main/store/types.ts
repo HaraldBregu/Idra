@@ -58,14 +58,11 @@ export interface SettingsStore {
 	heartbeat?: HeartbeatStoreState;
 	connectors?: ConnectorConfig[];
 	channel?: Channel;
-}
-
-interface ApplicationSettingsStore {
 	appSettings?: AppSettings;
 	appPermissions?: AppPermissionSettings;
 }
 
-export type StoreSchema = SettingsStore & ApplicationSettingsStore;
+export type StoreSchema = SettingsStore;
 
 export type SettingsStoreAccessor = {
 	get<TKey extends keyof StoreSchema>(key: TKey): StoreSchema[TKey];

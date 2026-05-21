@@ -29,12 +29,12 @@ and future runtime boundaries.
 | --- | --- | --- | --- |
 | Task scheduler | `taskScheduler` | [scheduled.md](tasks/scheduled.md) | Service, IPC, LLM tool `cron` |
 | Background task | `backgroundTask` | [background.md](tasks/background.md) | Service, IPC, LLM tool `task` |
-| Agent | `agent` | [large-language-model.md](models/large-language-model.md) | Service only for now |
+| Agent | `llmAgent` | [large-language-model.md](models/large-language-model.md) | Service only for now |
 | Speech to text | `speechToText` | [speech-to-text.md](models/speech-to-text.md) | Service, future/optional LLM tool |
 | Text to speech | `textToSpeech` | [text-to-speech.md](models/text-to-speech.md) | Service, future/optional LLM tool |
 | Text to image | `imageCreator` | [text-to-image.md](models/text-to-image.md) | Service, future/optional LLM tool |
 | Text to video | `textToVideo` | [text-to-video.md](models/text-to-video.md) | Service, future/optional LLM tool |
-| Sound | `sound` | [music-creator.md](models/music-creator.md) | Service, future/optional LLM tool |
+| Sound | `textToSound` | [music-creator.md](models/music-creator.md) | Service, future/optional LLM tool |
 | OCR | `ocr` | [ocr.md](models/ocr.md) | Service, future/optional LLM tool |
 | Embedding | `embedding` | [embedding.md](models/embedding.md) | Service, future/optional LLM tool |
 

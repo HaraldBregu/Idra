@@ -112,6 +112,28 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 	return value as Record<string, unknown>;
 }
 
+function readBoolean(value: unknown, fallback: boolean): boolean {
+	return typeof value === 'boolean' ? value : fallback;
+}
+
+function readAppPermissionSettings(value: unknown): AppPermissionSettings {
+	const record = readRecord(value);
+	return {
+		microphoneEnabled: readBoolean(
+			record?.microphoneEnabled,
+			DEFAULT_APP_PERMISSIONS.microphoneEnabled
+		),
+		cameraEnabled: readBoolean(record?.cameraEnabled, DEFAULT_APP_PERMISSIONS.cameraEnabled),
+	};
+}
+
+function readAppSettings(value: unknown): AppSettings {
+	const record = readRecord(value);
+	return {
+		keepAwakeEnabled: readBoolean(record?.keepAwakeEnabled, DEFAULT_APP_SETTINGS.keepAwakeEnabled),
+	};
+}
+
 function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
 	const record = readRecord(value);
 	if (!record) return undefined;
@@ -293,10 +315,7 @@ export class StoreService {
 	}
 
 	getAppPermissions(): AppPermissionSettings {
-		return {
-			...DEFAULT_APP_PERMISSIONS,
-			...(this.store.get('appPermissions') ?? {}),
-		};
+		return readAppPermissionSettings(this.store.get('appPermissions'));
 	}
 
 	getMicrophoneEnabled(): boolean {
@@ -304,10 +323,7 @@ export class StoreService {
 	}
 
 	getAppSettings(): AppSettings {
-		return {
-			...DEFAULT_APP_SETTINGS,
-			...(this.store.get('appSettings') ?? {}),
-		};
+		return readAppSettings(this.store.get('appSettings'));
 	}
 
 	getKeepAwakeEnabled(): boolean {
@@ -654,7 +670,8 @@ export class StoreService {
 	}
 
 	getConnectors(): ConnectorConfig[] {
-		return this.store.get('connectors') ?? [];
+		const connectors = this.store.get('connectors');
+		return Array.isArray(connectors) ? connectors : [];
 	}
 
 	getConnectorById(id: string): ConnectorConfig | undefined {

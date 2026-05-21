@@ -174,6 +174,22 @@ describe('StoreService', () => {
 			expect(service.getKeepAwakeEnabled()).toBe(false);
 		});
 
+		it('normalizes invalid app setting roots to documented defaults', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('appSettings', { keepAwakeEnabled: 'yes' });
+			store.set('appPermissions', {
+				microphoneEnabled: 'no',
+				cameraEnabled: null,
+			});
+
+			expect(service.getAppSettings()).toEqual({ keepAwakeEnabled: false });
+			expect(service.getAppPermissions()).toEqual({
+				microphoneEnabled: true,
+				cameraEnabled: true,
+			});
+		});
+
 		it('persists the keep-awake setting', () => {
 			const service = new StoreService();
 
@@ -203,7 +219,43 @@ describe('StoreService', () => {
 		});
 	});
 
+	describe('connectors', () => {
+		it('defaults missing or invalid connector roots to an empty list', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+
+			expect(service.getConnectors()).toEqual([]);
+
+			store.set('connectors', { id: 'gmail' });
+			expect(service.getConnectors()).toEqual([]);
+		});
+	});
+
 	describe('Friday cron state', () => {
+		it('patches legacy cron tasks without replacing sibling scheduler state', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			const managed = { schedules: [{ id: 'schedule-1' }] };
+			const friday = { jobs: [{ id: 'job-1' }] };
+			const legacyTasks = [
+				{
+					id: 'legacy-1',
+					expression: '* * * * *',
+					data: { type: 'agent', prompt: 'Run' },
+					createdAt: '2026-05-22T00:00:00.000Z',
+				},
+			];
+			store.set('taskScheduler', { managed, friday });
+
+			service.setCronTasks(legacyTasks);
+
+			expect(store.get('taskScheduler')).toEqual({
+				managed,
+				friday,
+				legacyTasks,
+			});
+		});
+
 		it('persists Friday cron jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();
 			const state = {
@@ -367,6 +419,84 @@ describe('StoreService', () => {
 			});
 			expect(service.getOperator()).not.toHaveProperty('rag');
 			expect(service.getOperator()).not.toHaveProperty('ocr');
+		});
+
+		it('hydrates documented pending media module roots without exposing provider keys', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('modelProviders', [
+				{
+					id: 'elevenlabs',
+					name: 'ElevenLabs',
+					apiKey: 'elevenlabs-key',
+					baseUrl: 'https://api.elevenlabs.io/v1',
+				},
+				{
+					id: 'runway',
+					name: 'Runway',
+					apiKey: 'runway-key',
+					baseUrl: 'https://api.dev.runwayml.com/v1',
+				},
+				{
+					id: 'suno',
+					name: 'Suno',
+					apiKey: 'suno-key',
+					baseUrl: 'https://api.suno.ai/v1',
+				},
+			]);
+			store.set('textToSpeech', {
+				providerId: ' elevenlabs ',
+				modelId: ' rachel-multilingual ',
+			});
+			store.set('textToVideo', {
+				providerId: ' runway ',
+				modelId: ' video-provider-coming-soon ',
+			});
+			store.set('textToSound', {
+				providerId: ' suno ',
+				modelId: ' music-provider-coming-soon ',
+			});
+
+			const operator = service.getOperator();
+
+			expect(operator).toMatchObject({
+				textToSpeech: {
+					id: 'text-to-speech',
+					docsPath: 'models/text-to-speech.md',
+					status: 'pending-runtime',
+					provider: {
+						id: 'elevenlabs',
+						name: 'ElevenLabs',
+						baseUrl: 'https://api.elevenlabs.io/v1',
+					},
+					model: { id: 'rachel-multilingual', name: 'Rachel - multilingual' },
+				},
+				videoCreator: {
+					id: 'text-to-video',
+					docsPath: 'models/text-to-video.md',
+					status: 'pending-runtime',
+					provider: {
+						id: 'runway',
+						name: 'Runway',
+						baseUrl: 'https://api.dev.runwayml.com/v1',
+					},
+					model: { id: 'video-provider-coming-soon', name: 'Not available yet' },
+				},
+				musicCreator: {
+					id: 'music-creator',
+					docsPath: 'models/music-creator.md',
+					status: 'pending-runtime',
+					provider: {
+						id: 'suno',
+						name: 'Suno',
+						baseUrl: 'https://api.suno.ai/v1',
+					},
+					model: { id: 'music-provider-coming-soon', name: 'Not available yet' },
+				},
+			});
+			expect(operator?.textToSpeech?.provider).not.toHaveProperty('apiKey');
+			expect(operator?.videoCreator?.provider).not.toHaveProperty('apiKey');
+			expect(operator?.musicCreator?.provider).not.toHaveProperty('apiKey');
 		});
 
 		it('returns undefined when operator state is absent', () => {
