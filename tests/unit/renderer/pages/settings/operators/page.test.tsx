@@ -89,7 +89,7 @@ describe('OperatorsPage', () => {
 		}));
 
 		expect(screen.getByTestId('location')).toHaveTextContent(
-			'/settings/operators/cron-task/details'
+			'/settings/operators/cron-task-scheduler/details'
 		);
 	});
 });

@@ -54,10 +54,18 @@ describe('OperatorDetailsPage', () => {
 			baseUrl: 'https://api.openai.com/v1',
 		};
 		const model = { id: 'gpt-5', name: 'GPT-5' };
+		const assistantOperator = {
+			id: 'friday',
+			name: 'Assistant',
+			docsPath: 'agent.md',
+			status: 'implemented' as const,
+			provider,
+			model,
+		};
 		window.app = {
 			...window.app,
 			getProviders: jest.fn(async () => [provider]),
-			getAssistantOperator: jest.fn(async () => ({ provider, model })),
+			getAssistantOperator: jest.fn(async () => assistantOperator),
 			getSpeechToTextOperator: jest.fn(async () => undefined),
 			getModels: jest.fn(async () => [model]),
 			saveAssistantOperator: jest.fn(async () => true),
