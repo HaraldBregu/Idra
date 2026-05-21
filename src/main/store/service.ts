@@ -214,6 +214,17 @@ function modelModuleSettings(
 	return next;
 }
 
+function modelFromCatalog(catalog: readonly Model[], settings: ModelModuleSettings): Model {
+	const model = catalog.find((entry) => entry.id === settings.modelId) ?? {
+		id: settings.modelId,
+		name: settings.modelId,
+	};
+	return {
+		...model,
+		...(settings.effort ? { effort: settings.effort } : {}),
+	};
+}
+
 function modelForModule(
 	key: ConfiguredModelOperatorKey,
 	settings: ModelModuleSettings,
@@ -235,14 +246,7 @@ function modelForModule(
 	} else {
 		catalog = getDefaultAgentModels(settings.providerId);
 	}
-	const model = catalog.find((entry) => entry.id === settings.modelId) ?? {
-		id: settings.modelId,
-		name: settings.modelId,
-	};
-	return {
-		...model,
-		...(settings.effort ? { effort: settings.effort } : {}),
-	};
+	return modelFromCatalog(catalog, settings);
 }
 
 function readAgentsHeartbeatConfig(
@@ -389,7 +393,7 @@ export class StoreService {
 				next.documentReaderOcr = {
 					...OPERATOR_DEFINITIONS.documentReaderOcr,
 					provider: publicProvider(provider),
-					model: modelForModule('assistant', ocr, provider),
+					model: modelFromCatalog(DOCUMENT_READER_OCR_MODELS, ocr),
 				};
 			}
 		}
