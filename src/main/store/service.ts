@@ -610,7 +610,7 @@ export class StoreService {
 	}
 
 	setAnthropicApiKey(key: string): void {
-		const providers = this.store.get('providers') ?? [];
+		const providers = this.getStoredModelProviders();
 		const anthropicProviderIndex = providers.findIndex(
 			(provider) => provider.id.trim().toLowerCase() === 'anthropic'
 		);
@@ -627,7 +627,7 @@ export class StoreService {
 		} else {
 			providers.push(newProvider);
 		}
-		this.store.set('providers', providers);
+		this.setStoredModelProviders(providers);
 	}
 		 
 }
