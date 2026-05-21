@@ -19,7 +19,7 @@ class.
 - `src/main/tasks`: in-memory background task manager and registered task
   handlers.
 - `src/main/cron`: cron scheduler and Friday cron runtime.
-- `src/renderer/src/pages/settings/pages/agents`: operator settings UI.
+- `src/renderer/src/pages/settings/pages/operators`: operator settings UI.
 
 ## Operator Contract
 
@@ -239,4 +239,3 @@ Speech-to-text runtime:
 8. Pass only ids through task, cron, channel, or renderer runtime payloads.
 9. Redact secrets from logs, task records, events, and user-visible errors.
 10. Add an operator documentation target and update the catalog table above.
-
