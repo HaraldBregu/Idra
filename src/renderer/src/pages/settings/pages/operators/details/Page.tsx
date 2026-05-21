@@ -112,8 +112,14 @@ const OperatorDetailsPage: React.FC = () => {
 	const isImageCreatorOperator = decodedOperatorId === IMAGE_CREATOR_OPERATOR_ID;
 	const isVideoCreatorOperator = decodedOperatorId === TEXT_TO_VIDEO_OPERATOR_ID;
 	const isMusicCreatorOperator = decodedOperatorId === MUSIC_CREATOR_OPERATOR_ID;
+	const isCapabilityOperator =
+		isSpeechToTextOperator ||
+		isTextToSpeechOperator ||
+		isImageCreatorOperator ||
+		isVideoCreatorOperator ||
+		isMusicCreatorOperator;
 	const isRuntimeBackedOperator =
-		isAssistantOperator || isSpeechToTextOperator || isImageCreatorOperator;
+		isAssistantOperator || isCapabilityOperator;
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [currentAssistantOperator, setCurrentAssistantOperator] = useState<
 		ConfiguredModelOperator | undefined
@@ -121,7 +127,16 @@ const OperatorDetailsPage: React.FC = () => {
 	const [currentSpeechToTextOperator, setCurrentSpeechToTextOperator] = useState<
 		ConfiguredModelOperator | undefined
 	>();
+	const [currentTextToSpeechOperator, setCurrentTextToSpeechOperator] = useState<
+		ConfiguredModelOperator | undefined
+	>();
 	const [currentImageCreatorOperator, setCurrentImageCreatorOperator] = useState<
+		ConfiguredModelOperator | undefined
+	>();
+	const [currentTextToVideoOperator, setCurrentTextToVideoOperator] = useState<
+		ConfiguredModelOperator | undefined
+	>();
+	const [currentMusicCreatorOperator, setCurrentMusicCreatorOperator] = useState<
 		ConfiguredModelOperator | undefined
 	>();
 	const [providerId, setProviderId] = useState('');
@@ -153,9 +168,15 @@ const OperatorDetailsPage: React.FC = () => {
 
 		const operatorRequest = isSpeechToTextOperator
 			? window.app.getSpeechToTextOperator()
-			: isImageCreatorOperator
-				? window.app.getImageCreatorOperator()
-				: window.app.getAssistantOperator();
+			: isTextToSpeechOperator
+				? window.app.getTextToSpeechOperator()
+				: isImageCreatorOperator
+					? window.app.getImageCreatorOperator()
+					: isVideoCreatorOperator
+						? window.app.getTextToVideoOperator()
+						: isMusicCreatorOperator
+							? window.app.getMusicCreatorOperator()
+							: window.app.getAssistantOperator();
 
 		void Promise.all([window.app.getProviders(), operatorRequest])
 			.then(async ([nextProviders, nextOperator]) => {
@@ -163,12 +184,18 @@ const OperatorDetailsPage: React.FC = () => {
 				const mergedProviders = mergeProviders(nextProviders, nextOperator);
 				const capabilityModelsByProvider = new Map<string, Model[]>();
 				let availableProviders = mergedProviders;
-				if (isSpeechToTextOperator || isImageCreatorOperator) {
+				if (isCapabilityOperator) {
 					const providersWithCapabilityModels: PublicProvider[] = [];
 					for (const provider of mergedProviders) {
 						const nextModels = isImageCreatorOperator
 							? await window.app.getImageCreatorModels(provider).catch(() => [])
-							: await window.app.getSpeechToTextModels(provider).catch(() => []);
+							: isTextToSpeechOperator
+								? await window.app.getTextToSpeechModels(provider).catch(() => [])
+								: isVideoCreatorOperator
+									? await window.app.getTextToVideoModels(provider).catch(() => [])
+									: isMusicCreatorOperator
+										? await window.app.getMusicCreatorModels(provider).catch(() => [])
+										: await window.app.getSpeechToTextModels(provider).catch(() => []);
 						if (nextModels.length > 0 || provider.id === nextOperator?.provider.id) {
 							providersWithCapabilityModels.push(provider);
 							capabilityModelsByProvider.set(provider.id, nextModels);
@@ -192,14 +219,17 @@ const OperatorDetailsPage: React.FC = () => {
 				setProviders(availableProviders);
 				setCurrentAssistantOperator(isAssistantOperator ? nextOperator : undefined);
 				setCurrentSpeechToTextOperator(isSpeechToTextOperator ? nextOperator : undefined);
+				setCurrentTextToSpeechOperator(isTextToSpeechOperator ? nextOperator : undefined);
 				setCurrentImageCreatorOperator(isImageCreatorOperator ? nextOperator : undefined);
+				setCurrentTextToVideoOperator(isVideoCreatorOperator ? nextOperator : undefined);
+				setCurrentMusicCreatorOperator(isMusicCreatorOperator ? nextOperator : undefined);
 				setProviderId(preferredProvider?.id ?? '');
 				setModelId(
 					nextOperator && preferredProvider?.id === nextOperator.provider.id
-						? isSpeechToTextOperator || isImageCreatorOperator
+						? isCapabilityOperator
 							? preferredCapabilityModelId
 							: nextOperator.model.id
-						: isSpeechToTextOperator || isImageCreatorOperator
+						: isCapabilityOperator
 							? preferredCapabilityModelId
 							: ''
 				);
@@ -214,7 +244,10 @@ const OperatorDetailsPage: React.FC = () => {
 				setProviders([]);
 				setCurrentAssistantOperator(undefined);
 				setCurrentSpeechToTextOperator(undefined);
+				setCurrentTextToSpeechOperator(undefined);
 				setCurrentImageCreatorOperator(undefined);
+				setCurrentTextToVideoOperator(undefined);
+				setCurrentMusicCreatorOperator(undefined);
 				setProviderId('');
 				setModelId('');
 				setEffort(DEFAULT_MODEL_REASONING_EFFORT);
@@ -229,9 +262,13 @@ const OperatorDetailsPage: React.FC = () => {
 		};
 	}, [
 		isAssistantOperator,
+		isCapabilityOperator,
 		isImageCreatorOperator,
 		isRuntimeBackedOperator,
+		isMusicCreatorOperator,
 		isSpeechToTextOperator,
+		isTextToSpeechOperator,
+		isVideoCreatorOperator,
 		t,
 	]);
 
@@ -248,18 +285,30 @@ const OperatorDetailsPage: React.FC = () => {
 			};
 		}
 
-		if (isSpeechToTextOperator || isImageCreatorOperator) {
+		if (isCapabilityOperator) {
 			setLoadingModels(true);
 			setErrorMessage('');
 			const loadCapabilityModels = isImageCreatorOperator
 				? window.app.getImageCreatorModels(selectedProvider)
-				: window.app.getSpeechToTextModels(selectedProvider);
+				: isTextToSpeechOperator
+					? window.app.getTextToSpeechModels(selectedProvider)
+					: isVideoCreatorOperator
+						? window.app.getTextToVideoModels(selectedProvider)
+						: isMusicCreatorOperator
+							? window.app.getMusicCreatorModels(selectedProvider)
+							: window.app.getSpeechToTextModels(selectedProvider);
 			void loadCapabilityModels
 				.then((capabilityModels) => {
 					if (!mounted) return;
 					const currentOperator = isImageCreatorOperator
 						? currentImageCreatorOperator
-						: currentSpeechToTextOperator;
+						: isTextToSpeechOperator
+							? currentTextToSpeechOperator
+							: isVideoCreatorOperator
+								? currentTextToVideoOperator
+								: isMusicCreatorOperator
+									? currentMusicCreatorOperator
+									: currentSpeechToTextOperator;
 					setModels(capabilityModels);
 					setModelId((current) => {
 						if (current && capabilityModels.some((model) => model.id === current)) return current;
@@ -317,19 +366,34 @@ const OperatorDetailsPage: React.FC = () => {
 	}, [
 		currentAssistantOperator,
 		currentImageCreatorOperator,
+		currentMusicCreatorOperator,
 		currentSpeechToTextOperator,
+		currentTextToSpeechOperator,
+		currentTextToVideoOperator,
+		isCapabilityOperator,
 		isImageCreatorOperator,
+		isMusicCreatorOperator,
 		isSpeechToTextOperator,
+		isTextToSpeechOperator,
+		isVideoCreatorOperator,
 		selectedProvider,
 		t,
 	]);
 
-	const modelOptions = useMemo(() => {
-		if (isSpeechToTextOperator) return models;
+	const currentCapabilityOperator = isImageCreatorOperator
+		? currentImageCreatorOperator
+		: isTextToSpeechOperator
+			? currentTextToSpeechOperator
+			: isVideoCreatorOperator
+				? currentTextToVideoOperator
+				: isMusicCreatorOperator
+					? currentMusicCreatorOperator
+					: currentSpeechToTextOperator;
 
+	const modelOptions = useMemo(() => {
 		const byId = new Map(models.map((model) => [model.id, model]));
-		const currentModelOperator = isImageCreatorOperator
-			? currentImageCreatorOperator
+		const currentModelOperator = isCapabilityOperator
+			? currentCapabilityOperator
 			: currentAssistantOperator;
 		if (
 			currentModelOperator?.provider.id === providerId &&
@@ -341,9 +405,8 @@ const OperatorDetailsPage: React.FC = () => {
 		return [...byId.values()];
 	}, [
 		currentAssistantOperator,
-		currentImageCreatorOperator,
-		isImageCreatorOperator,
-		isSpeechToTextOperator,
+		currentCapabilityOperator,
+		isCapabilityOperator,
 		models,
 		providerId,
 	]);
@@ -363,14 +426,14 @@ const OperatorDetailsPage: React.FC = () => {
 					currentAssistantOperator.provider.id
 				)
 			: undefined;
-	const hasChanges = isSpeechToTextOperator
-		? !currentSpeechToTextOperator ||
-			currentSpeechToTextOperator.provider.id !== providerId ||
-			currentSpeechToTextOperator.model.id !== modelId
-		: isImageCreatorOperator
-			? !currentImageCreatorOperator ||
-				currentImageCreatorOperator.provider.id !== providerId ||
-				currentImageCreatorOperator.model.id !== modelId
+	const hasChanges = isCapabilityOperator
+		? !currentCapabilityOperator ||
+			currentCapabilityOperator.provider.id !== providerId ||
+			currentCapabilityOperator.model.id !== modelId
+		: !currentAssistantOperator ||
+			currentAssistantOperator.provider.id !== providerId ||
+			currentAssistantOperator.model.id !== modelId ||
+			currentEffort !== selectedEffort;
 			: !currentAssistantOperator ||
 				currentAssistantOperator.provider.id !== providerId ||
 				currentAssistantOperator.model.id !== modelId ||
@@ -429,12 +492,51 @@ const OperatorDetailsPage: React.FC = () => {
 				return;
 			}
 
+			if (isTextToSpeechOperator) {
+				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
+				const saved = await window.app.saveTextToSpeechOperator(selectedProvider, modelToSave);
+				if (!saved) throw new Error(t('settings.operators.saveError'));
+				setCurrentTextToSpeechOperator({
+					...OPERATOR_DEFINITIONS.textToSpeech,
+					provider: selectedProvider,
+					model: modelToSave,
+				});
+				setSuccessMessage(t('settings.operators.saved'));
+				return;
+			}
+
 			if (isImageCreatorOperator) {
 				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
 				const saved = await window.app.saveImageCreatorOperator(selectedProvider, modelToSave);
 				if (!saved) throw new Error(t('settings.operators.saveError'));
 				setCurrentImageCreatorOperator({
 					...OPERATOR_DEFINITIONS.imageCreator,
+					provider: selectedProvider,
+					model: modelToSave,
+				});
+				setSuccessMessage(t('settings.operators.saved'));
+				return;
+			}
+
+			if (isVideoCreatorOperator) {
+				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
+				const saved = await window.app.saveTextToVideoOperator(selectedProvider, modelToSave);
+				if (!saved) throw new Error(t('settings.operators.saveError'));
+				setCurrentTextToVideoOperator({
+					...OPERATOR_DEFINITIONS.videoCreator,
+					provider: selectedProvider,
+					model: modelToSave,
+				});
+				setSuccessMessage(t('settings.operators.saved'));
+				return;
+			}
+
+			if (isMusicCreatorOperator) {
+				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
+				const saved = await window.app.saveMusicCreatorOperator(selectedProvider, modelToSave);
+				if (!saved) throw new Error(t('settings.operators.saveError'));
+				setCurrentMusicCreatorOperator({
+					...OPERATOR_DEFINITIONS.musicCreator,
 					provider: selectedProvider,
 					model: modelToSave,
 				});
@@ -465,7 +567,10 @@ const OperatorDetailsPage: React.FC = () => {
 		canSave,
 		effort,
 		isImageCreatorOperator,
+		isMusicCreatorOperator,
 		isSpeechToTextOperator,
+		isTextToSpeechOperator,
+		isVideoCreatorOperator,
 		selectedModel,
 		selectedProvider,
 		t,
