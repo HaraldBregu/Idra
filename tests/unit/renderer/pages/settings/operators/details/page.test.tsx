@@ -140,37 +140,13 @@ describe('OperatorDetailsPage', () => {
 		expect(window.app.getImageCreatorModels).toHaveBeenCalled();
 	});
 
-	it('renders Cron Task configuration details', async () => {
-		const user = userEvent.setup();
-		renderOperatorDetailsPage('/settings/operators/cron-task-scheduler/details');
+	it.each([
+		'/settings/operators/cron-task-scheduler/details',
+		'/settings/operators/background-task/details',
+	])('does not render removed workflow operator details for %s', async (path) => {
+		renderOperatorDetailsPage(path);
 
-		expect(await screen.findByText('settings.operators.cronTaskName')).toBeInTheDocument();
-		expect(screen.getByText('settings.operators.cronTaskRuntimeValue')).toBeInTheDocument();
-		expect(screen.getByText('settings.operators.cronTaskScopeValue')).toBeInTheDocument();
-
-		await user.click(
-			screen.getByRole('button', {
-				name: 'settings.operators.openCronTaskConfiguration',
-			})
-		);
-
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/cron');
-	});
-
-	it('renders Background Task configuration details', async () => {
-		const user = userEvent.setup();
-		renderOperatorDetailsPage('/settings/operators/background-task/details');
-
-		expect(await screen.findByText('settings.operators.backgroundTaskName')).toBeInTheDocument();
-		expect(screen.getByText('settings.operators.backgroundTaskRuntimeValue')).toBeInTheDocument();
-		expect(screen.getByText('settings.operators.backgroundTaskTypesValue')).toBeInTheDocument();
-
-		await user.click(
-			screen.getByRole('button', {
-				name: 'settings.operators.openBackgroundTaskConfiguration',
-			})
-		);
-
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/task-manager');
+		expect(await screen.findByText('settings.operators.notFoundTitle')).toBeInTheDocument();
+		expect(screen.getByText('settings.operators.notFoundDescription')).toBeInTheDocument();
 	});
 });
