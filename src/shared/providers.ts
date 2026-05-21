@@ -776,6 +776,30 @@ export function getProviderApiConfigurationUrl(
 	);
 }
 
+function providerCapabilityTokens(provider: Pick<Provider, 'capabilities'>): string[] {
+	return (provider.capabilities ?? '')
+		.split(/\s+-\s+/)
+		.map((capability) => capability.trim().toLowerCase())
+		.filter(Boolean);
+}
+
+export function providerHasCapability(
+	provider: Pick<Provider, 'capabilities'>,
+	capability: string
+): boolean {
+	return providerCapabilityTokens(provider).includes(capability.trim().toLowerCase());
+}
+
+export function providerHasImageCapability(provider: Pick<Provider, 'capabilities'>): boolean {
+	return providerHasCapability(provider, 'Image');
+}
+
+export function hasDefaultProviderCapability(providerId: string, capability: string): boolean {
+	const normalizedProviderId = normalizeProviderId(providerId);
+	const provider = DEFAULT_PROVIDERS.find((entry) => normalizeProviderId(entry.id) === normalizedProviderId);
+	return provider ? providerHasCapability(provider, capability) : false;
+}
+
 export function getDefaultAgentModels(providerId: string): Model[] {
 	return (DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] ?? []).map((model) => ({
 		...model,
