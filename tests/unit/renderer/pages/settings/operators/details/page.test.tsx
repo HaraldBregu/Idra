@@ -38,8 +38,6 @@ function renderOperatorDetailsPage(path = '/settings/operators/friday/details'):
 					path="/settings/operators/:operatorId/details/chathistory"
 					element={<div>Chat history route</div>}
 				/>
-				<Route path="/settings/cron" element={<div>Cron settings route</div>} />
-				<Route path="/settings/task-manager" element={<div>Task Manager settings route</div>} />
 			</Routes>
 			<LocationProbe />
 		</MemoryRouter>
