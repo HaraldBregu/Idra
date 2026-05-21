@@ -186,12 +186,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Server,
 	},
 	{
-		path: '/settings/operators',
-		labelKey: 'settings.tabs.operators',
-		descriptionKey: 'settings.overview.descriptions.operators',
-		icon: Bot,
-	},
-	{
 		path: '/settings/skills',
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
