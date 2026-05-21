@@ -556,36 +556,29 @@ export class StoreService {
 	getCronTasks(): CronTask[] {
 		const legacyTasks = this.getTaskSchedulerSettings().legacyTasks;
 		if (Array.isArray(legacyTasks)) return legacyTasks as CronTask[];
-		return (this.store.get('cronTasks') as CronTask[] | undefined) ?? [];
+		return [];
 	}
 
 	setCronTasks(tasks: CronTask[]): void {
 		this.setTaskSchedulerSettings({ legacyTasks: tasks });
-		this.store.delete('cronTasks');
 	}
 
 	getCronSchedulerState(): CronStoreState {
 		const managed = this.getTaskSchedulerSettings().managed;
-		return migrateCronStoreState(
-			managed ?? this.store.get('cronScheduler') ?? emptyCronStoreState()
-		);
+		return migrateCronStoreState(managed ?? emptyCronStoreState());
 	}
 
 	setCronSchedulerState(state: CronStoreState): void {
 		this.setTaskSchedulerSettings({ managed: migrateCronStoreState(state) });
-		this.store.delete('cronScheduler');
 	}
 
 	getFridayCronState(): FridayCronStoreState {
 		const friday = this.getTaskSchedulerSettings().friday;
-		return migrateFridayCronStoreState(
-			friday ?? this.store.get('fridayCron') ?? emptyFridayCronStoreState()
-		);
+		return migrateFridayCronStoreState(friday ?? emptyFridayCronStoreState());
 	}
 
 	setFridayCronState(state: FridayCronStoreState): void {
 		this.setTaskSchedulerSettings({ friday: migrateFridayCronStoreState(state) });
-		this.store.delete('fridayCron');
 	}
 
 	getHeartbeatState(): HeartbeatStoreState {
@@ -607,42 +600,11 @@ export class StoreService {
 				return configuredModelOperator(
 					key,
 					publicProvider(provider),
-					modelForModule(key, settings)
+					modelForModule(key, settings, provider)
 				);
 			}
 		}
 
-		const current = this.getLegacyOperator();
-		const operator = current?.[key] as ModelOperator | undefined;
-		if (hasModelSelection(operator)) {
-			return configuredModelOperator(key, operator.provider, operator.model);
-		}
-
-		if (key === 'imageCreator') return undefined;
-
-		const legacyOperator = current?.[LEGACY_MODEL_OPERATOR_KEYS[key]];
-		if (hasModelSelection(legacyOperator)) {
-			return configuredModelOperator(key, legacyOperator.provider, legacyOperator.model);
-		}
-		return undefined;
-	}
-
-	private getLegacyOperator(): OperatorStoreState | undefined {
-		return this.store.get('service') as OperatorStoreState | undefined;
-	}
-
-	private getLegacyModelModuleSettings(
-		key: LegacyBackedModelOperatorKey
-	): ModelModuleSettings | undefined {
-		const current = this.getLegacyOperator();
-		const operator = current?.[key] as ModelOperator | undefined;
-		if (hasModelSelection(operator)) {
-			return modelModuleSettings(operator.provider.id, operator.model);
-		}
-		const legacyOperator = current?.[LEGACY_MODEL_OPERATOR_KEYS[key]];
-		if (hasModelSelection(legacyOperator)) {
-			return modelModuleSettings(legacyOperator.provider.id, legacyOperator.model);
-		}
 		return undefined;
 	}
 
@@ -651,15 +613,11 @@ export class StoreService {
 	}
 
 	private getStoredModelProviders(): Provider[] {
-		const modelProviders = this.store.get('modelProviders');
-		if (Array.isArray(modelProviders)) return modelProviders as Provider[];
-		const providers = this.store.get('providers');
-		return Array.isArray(providers) ? (providers as Provider[]) : [];
+		return readModelProviderSettingsList(this.store.get('modelProviders')).map(providerFromSettings);
 	}
 
 	private setStoredModelProviders(providers: Provider[]): void {
-		this.store.set('modelProviders', providers);
-		this.store.delete('providers');
+		this.store.set('modelProviders', providers.map(modelProviderSettings));
 	}
 
 	private getTaskSchedulerSettings(): TaskSchedulerSettings {
