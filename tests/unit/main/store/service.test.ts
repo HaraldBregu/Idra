@@ -650,7 +650,6 @@ describe('StoreService', () => {
 					id: 'black-forest-labs',
 					name: 'Black Forest Labs',
 					baseUrl: 'https://api.bfl.ai/v1',
-					capabilities: 'Image',
 				},
 				model: imageModel,
 			});
