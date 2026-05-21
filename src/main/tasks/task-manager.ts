@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
+import type { BackgroundTaskSettings } from '../store/types';
 import type {
 	TaskEvent,
 	TaskHandler,
@@ -24,6 +25,7 @@ export interface TaskManagerOptions {
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 	idFactory?: () => string;
 	now?: () => string;
+	policy?: () => BackgroundTaskSettings;
 }
 
 const TERMINAL_STATUSES = new Set<TaskStatus>(['cancelled', 'succeeded', 'failed']);
@@ -144,6 +146,7 @@ export class TaskManager {
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 	private readonly idFactory: () => string;
 	private readonly now: () => string;
+	private readonly policy?: () => BackgroundTaskSettings;
 
 	constructor(options: TaskManagerOptions) {
 		this.registry = options.registry;
@@ -151,6 +154,7 @@ export class TaskManager {
 		this.logger = options.logger;
 		this.idFactory = options.idFactory ?? randomUUID;
 		this.now = options.now ?? (() => new Date().toISOString());
+		this.policy = options.policy;
 	}
 
 	run<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
@@ -158,7 +162,17 @@ export class TaskManager {
 	}
 
 	startUserTask<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
+		this.assertTaskPolicyAllows(request.type);
 		return this.createTask(request, this.registry.requireUserFacing(request.type));
+	}
+
+	private assertTaskPolicyAllows(type: string): void {
+		const allowedTaskTypes = this.policy?.().allowedTaskTypes;
+		if (!allowedTaskTypes || allowedTaskTypes.length === 0) return;
+		const normalized = requireString(type, 'Task type');
+		if (!allowedTaskTypes.includes(normalized)) {
+			throw new Error(`Task type is not allowed by background task policy: ${normalized}`);
+		}
 	}
 
 	private createTask<TResult = unknown>(
