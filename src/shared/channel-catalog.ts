@@ -6,6 +6,7 @@ export interface ChannelCatalogEntry {
 	blurb: string;
 	docsPath: string;
 	docsLabel: string;
+	brandIconId?: string;
 	aliases: readonly string[];
 	order: number;
 	markdownCapable: boolean;
@@ -21,7 +22,7 @@ type ChannelCatalogInput = Omit<ChannelCatalogEntry, 'docsLabel' | 'setupVisible
 
 const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	entry('clickclack', 'ClickClack', 'Connect ClickClack conversations.', [], 10, false),
-	entry('discord', 'Discord', 'Receive and send Discord bot messages.', [], 20, true),
+	entry('discord', 'Discord', 'Receive and send Discord bot messages.', [], 20, true, 'preview', 'discord'),
 	entry('feishu', 'Feishu', 'Connect Feishu or Lark chat workspaces.', ['lark'], 30, true),
 	entry(
 		'googlechat',
@@ -29,14 +30,25 @@ const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 		'Connect Google Chat spaces and DMs.',
 		['gchat', 'google-chat'],
 		40,
-		true
+		true,
+		'preview',
+		'google_chat'
 	),
 	entry('imessage', 'iMessage', 'Route local-device iMessage conversations.', ['imsg'], 50, false),
 	entry('irc', 'IRC', 'Connect Internet Relay Chat networks.', ['internet-relay-chat'], 60, false),
 	entry('line', 'LINE', 'Connect LINE bot chats.', [], 70, false),
 	entry('matrix', 'Matrix', 'Connect Matrix rooms and direct messages.', [], 80, true),
 	entry('mattermost', 'Mattermost', 'Connect Mattermost teams and channels.', [], 90, true),
-	entry('msteams', 'Microsoft Teams', 'Connect Microsoft Teams chats and channels.', ['teams'], 100, true),
+	entry(
+		'msteams',
+		'Microsoft Teams',
+		'Connect Microsoft Teams chats and channels.',
+		['teams'],
+		100,
+		true,
+		'preview',
+		'microsoft_teams'
+	),
 	entry(
 		'nextcloud-talk',
 		'Nextcloud Talk',
@@ -57,7 +69,7 @@ const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	),
 	entry('qqbot', 'QQ Bot', 'Connect QQ bot conversations.', [], 140, false),
 	entry('signal', 'Signal', 'Connect Signal local-device messages.', [], 150, false),
-	entry('slack', 'Slack', 'Connect Slack channels, DMs, and threads.', [], 160, true),
+	entry('slack', 'Slack', 'Connect Slack channels, DMs, and threads.', [], 160, true, 'preview', 'slack'),
 	entry('synology-chat', 'Synology Chat', 'Connect Synology Chat channels.', [], 170, true),
 	entry('telegram', 'Telegram', 'Receive Telegram bot messages and send agent replies.', [], 180, true),
 	entry('tlon', 'Tlon', 'Connect Tlon groups and conversations.', [], 190, true),
@@ -71,7 +83,7 @@ export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = CHANNEL_CATALOG_I
 	...item,
 	docsLabel: item.docsLabel ?? `${item.label} setup`,
 	setupVisible: item.setupVisible ?? item.exposure !== 'hidden',
-	catalogVisible: item.catalogVisible ?? true,
+	catalogVisible: item.catalogVisible ?? item.exposure !== 'hidden',
 })).sort((left, right) => left.order - right.order);
 
 const CHANNEL_IDS = new Set<string>(CHANNEL_PROVIDER_IDS);
@@ -91,6 +103,10 @@ export function listChannelCatalog(): readonly ChannelCatalogEntry[] {
 export function getChannelCatalogEntry(idOrAlias: string): ChannelCatalogEntry | undefined {
 	const id = normalizeChannelId(idOrAlias);
 	return id ? CHANNEL_CATALOG.find((entry) => entry.id === id) : undefined;
+}
+
+export function getChannelBrandIconId(idOrAlias: string): string | undefined {
+	return getChannelCatalogEntry(idOrAlias)?.brandIconId;
 }
 
 export function normalizeChannelId(idOrAlias: string): ChannelType | null {
@@ -123,7 +139,8 @@ function entry(
 	aliases: readonly string[],
 	order: number,
 	markdownCapable: boolean,
-	exposure: ChannelCatalogEntry['exposure'] = 'preview'
+	exposure: ChannelCatalogEntry['exposure'] = 'preview',
+	brandIconId?: string
 ): ChannelCatalogInput {
 	return {
 		id,
@@ -131,6 +148,7 @@ function entry(
 		blurb,
 		docsPath: `docs/channels/${id}.md`,
 		docsLabel: `${label} setup`,
+		...(brandIconId ? { brandIconId } : {}),
 		aliases,
 		order,
 		markdownCapable,
@@ -154,6 +172,7 @@ function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {
 		typeof item.blurb === 'string' &&
 		typeof item.docsPath === 'string' &&
 		typeof item.docsLabel === 'string' &&
+		(item.brandIconId === undefined || typeof item.brandIconId === 'string') &&
 		Array.isArray(item.aliases) &&
 		typeof item.order === 'number' &&
 		typeof item.markdownCapable === 'boolean' &&
