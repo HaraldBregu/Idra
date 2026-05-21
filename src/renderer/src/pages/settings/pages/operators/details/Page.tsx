@@ -415,6 +415,19 @@ const OperatorDetailsPage: React.FC = () => {
 				return;
 			}
 
+			if (isImageCreatorOperator) {
+				const modelToSave: Model = { id: selectedModel.id, name: selectedModel.name };
+				const saved = await window.app.saveImageCreatorOperator(selectedProvider, modelToSave);
+				if (!saved) throw new Error(t('settings.operators.saveError'));
+				setCurrentImageCreatorOperator({
+					...OPERATOR_DEFINITIONS.imageCreator,
+					provider: selectedProvider,
+					model: modelToSave,
+				});
+				setSuccessMessage(t('settings.operators.saved'));
+				return;
+			}
+
 			const modelToSave: Model = supportsReasoningEffortProvider(selectedProvider.id)
 				? { ...selectedModel, effort: effortForModel(selectedModel.id, effort, selectedProvider.id) }
 				: { id: selectedModel.id, name: selectedModel.name };
@@ -431,7 +444,7 @@ const OperatorDetailsPage: React.FC = () => {
 		} finally {
 			setSaving(false);
 		}
-	}, [canSave, effort, isSpeechToTextOperator, selectedModel, selectedProvider, t]);
+	}, [canSave, effort, isImageCreatorOperator, isSpeechToTextOperator, selectedModel, selectedProvider, t]);
 
 	const openChatHistory = useCallback(() => {
 		navigate(`/settings/operators/${ASSISTANT_OPERATOR_ID}/details/chathistory`);
