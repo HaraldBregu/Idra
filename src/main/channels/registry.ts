@@ -9,12 +9,13 @@ import { listChannelCatalog, normalizeChannelId } from './catalog';
 import { telegramChannelPlugin } from './telegram/plugin';
 import { runChannelTurn } from './turn';
 import type {
-	ChannelAdapter,
-	ChannelInboundMessage,
-	ChannelPlugin,
-	ChannelOutboundMessage,
-	ChannelStatusUpdate,
-} from './types';
+		ChannelAdapter,
+		ChannelInboundMessage,
+		ChannelMessageReceipt,
+		ChannelPlugin,
+		ChannelOutboundMessage,
+		ChannelStatusUpdate,
+	} from './types';
 import type { ChannelType, TelegramChannelProperties } from '../../shared/channels';
 
 export interface ChannelRegistryOptions {
@@ -170,13 +171,14 @@ export class ChannelRegistry {
 		await this.startChannel(type, config);
 	}
 
-	async send(message: ChannelOutboundMessage): Promise<void> {
+	async send(message: ChannelOutboundMessage): Promise<ChannelMessageReceipt> {
 		const channelId = this.requireChannelId(message.type);
 		const adapter = this.adapters.get(channelId);
 		if (!adapter) {
 			throw new Error(`${this.plugins.get(channelId)?.meta.name ?? channelId} channel is not running`);
 		}
-		await adapter.send({ ...message, type: channelId });
+		const normalized = { ...message, type: channelId };
+		return adapter.deliver ? adapter.deliver(normalized) : adapter.send(normalized);
 	}
 
 	getStatus(type: ChannelType | string = 'telegram'): ChannelStatusEvent | undefined {
