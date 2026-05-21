@@ -6,6 +6,9 @@ import {
 	getDefaultAgentModels,
 	getProviderApiConfigurationUrl,
 	hasDefaultAgentModels,
+	hasDefaultProviderCapability,
+	providerHasCapability,
+	providerHasImageCapability,
 	PROVIDER_API_CONFIGURATIONS,
 } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/service';
@@ -175,6 +178,19 @@ describe('provider model policy', () => {
 		expect(hasDefaultAgentModels('qwen')).toBe(true);
 		expect(hasDefaultAgentModels('elevenlabs')).toBe(false);
 		expect(hasDefaultAgentModels('custom')).toBe(false);
+	});
+
+	it('matches provider capabilities as catalog tokens', () => {
+		const openai = DEFAULT_PROVIDERS.find((provider) => provider.id === 'openai');
+		const bfl = DEFAULT_PROVIDERS.find((provider) => provider.id === 'black-forest-labs');
+		const anthropic = DEFAULT_PROVIDERS.find((provider) => provider.id === 'anthropic');
+
+		expect(openai ? providerHasCapability(openai, 'Speech-to-text') : false).toBe(true);
+		expect(openai ? providerHasImageCapability(openai) : false).toBe(true);
+		expect(bfl ? providerHasImageCapability(bfl) : false).toBe(true);
+		expect(anthropic ? providerHasImageCapability(anthropic) : true).toBe(false);
+		expect(hasDefaultProviderCapability('stability-ai', 'Image')).toBe(true);
+		expect(hasDefaultProviderCapability('deepseek', 'Image')).toBe(false);
 	});
 
 	it('orders known provider model lists by the static frontier catalog', () => {
