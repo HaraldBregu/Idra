@@ -17,8 +17,6 @@ interface SettingsStore {
 	imageCreator?: ModelModuleSettings;
 	textToVideo?: ModelModuleSettings;
 	textToSound?: ModelModuleSettings;
-	ocr?: OcrModuleSettings;
-	embedding?: EmbeddingModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
 	heartbeat?: HeartbeatStoreState;
