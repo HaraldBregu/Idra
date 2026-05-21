@@ -472,7 +472,16 @@ export class StoreService {
 	private getConfiguredModelOperator(
 		key: ConfiguredModelOperatorKey
 	): ConfiguredModelOperator | undefined {
-		const current = this.getOperator();
+		const rootKey = MODEL_MODULE_ROOT_KEYS[key];
+		const settings = readModelModuleSettings(this.store.get(rootKey));
+		if (settings) {
+			const provider = this.getProviderById(settings.providerId);
+			if (provider) {
+				return configuredModelOperator(key, publicProvider(provider), modelForModule(key, settings));
+			}
+		}
+
+		const current = this.getLegacyOperator();
 		const operator = current?.[key] as ModelOperator | undefined;
 		if (hasModelSelection(operator)) {
 			return configuredModelOperator(key, operator.provider, operator.model);
@@ -483,6 +492,21 @@ export class StoreService {
 			return configuredModelOperator(key, legacyOperator.provider, legacyOperator.model);
 		}
 		return undefined;
+	}
+
+	private getLegacyOperator(): OperatorStoreState | undefined {
+		return this.store.get('service') as OperatorStoreState | undefined;
+	}
+
+	private getTaskSchedulerSettings(): TaskSchedulerSettings {
+		return readRecord(this.store.get('taskScheduler')) ?? {};
+	}
+
+	private setTaskSchedulerSettings(patch: TaskSchedulerSettings): void {
+		this.store.set('taskScheduler', {
+			...this.getTaskSchedulerSettings(),
+			...patch,
+		});
 	}
 
 	getConnectors(): ConnectorConfig[] {
