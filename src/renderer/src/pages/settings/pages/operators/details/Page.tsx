@@ -34,9 +34,7 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
-	SettingsValue,
 } from '../../../components';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../../../../shared/providers';
 import {
@@ -521,7 +519,7 @@ const OperatorDetailsPage: React.FC = () => {
 						? 'settings.operators.textToSpeechName'
 						: isSpeechToTextOperator
 							? 'settings.operators.speechTranscriberName'
-							: 'settings.operators.fridayName';
+							: 'settings.operators.assistantName';
 	const operatorDescriptionKey = isImageCreatorOperator
 		? 'settings.operators.imageAssistantDescription'
 		: isVideoCreatorOperator
