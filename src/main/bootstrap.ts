@@ -114,10 +114,11 @@ export function bootstrapServices(): BootstrapResult {
 	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({
-			registry: taskRegistry,
-			eventBus,
-			logger,
-		})
+				registry: taskRegistry,
+				eventBus,
+				logger,
+				policy: () => store.getBackgroundTaskSettings(),
+			})
 		);
 		agentDependencies.taskManager = taskManager;
 		cron.configureTaskRuntime({ taskManager });
