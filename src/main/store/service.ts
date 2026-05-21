@@ -14,9 +14,6 @@ import {
 	type OperatorStoreState,
 } from '../../shared/service';
 import {
-	MUSIC_CREATOR_MODELS,
-	TEXT_TO_SPEECH_MODELS,
-	TEXT_TO_VIDEO_MODELS,
 	getMusicModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
