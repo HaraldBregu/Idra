@@ -67,6 +67,7 @@ These tools are added only when the corresponding runtime condition applies.
 | `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
 | `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
 | Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
+| `text_to_image` | Added when the text-to-image module is configured with an image-capable provider/model and a runtime adapter. |
 | Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
 | MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
 | LSP tools | Available through the run-scoped assembler when an LSP runtime supplies capabilities. |
@@ -90,9 +91,21 @@ module documented in [background-task.md](background-task.md). When the user
 asks to “run a task in background”, the agent should call `task` so the request
 goes through a registered background task handler.
 
-Media and ML module tools, such as future TTS, STT, image, video, sound, OCR,
+Use `text_to_image` when the user asks the agent to generate, edit, or vary an
+image and store the result in the workspace as part of the current turn. The
+tool should be a thin wrapper around the text-to-image module documented in
+[text-to-image.md](text-to-image.md). It accepts prompt instructions, safe
+generation options, safe input asset references, and a workspace-relative output
+path or output directory. It must validate that every generated file stays
+inside the workspace, then return normalized local image references.
+
+Long-running or background image work should still go through `task` with the
+registered `image.create` task type.
+
+Media and ML module tools, such as TTS, STT, text-to-image, video, sound, OCR,
 or embedding tools, should be thin wrappers around their module services. They
-must not own credentials or provider/model selection.
+must not own credentials, provider/model selection, or provider-specific request
+payloads.
 
 ## Prompt Narrowing
 
