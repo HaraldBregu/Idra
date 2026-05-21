@@ -7,6 +7,7 @@ import {
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	requireModelReasoningEffort,
 	type Agent,
+	type ConfiguredModelOperator,
 	type Model,
 } from '../../shared/service';
 import type {
@@ -23,7 +24,7 @@ import {
 } from '../../shared/providers';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
-import { AppChannels, AppsChannels, ProviderChannels } from '../../shared/ipc-channels';
+import { AppChannels, AppsChannels, OperatorChannels, ProviderChannels } from '../../shared/ipc-channels';
 import { normalizeExternalUrl } from '../../shared/external-links';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
@@ -321,6 +322,48 @@ export class AppIpc implements IpcModule {
 
 				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
 			}, ProviderChannels.getModels)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getAssistant,
+			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
+				return store.getAssistantOperator();
+			}, OperatorChannels.getAssistant)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.saveAssistant,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				if (!isAllowedAgentModel(provider.id, model.id)) {
+					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
+				}
+				const normalizedProviderId = provider.id.trim().toLowerCase();
+				const modelToSave = normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
+					? { ...model, effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId) }
+					: { id: model.id, name: model.name };
+				return store.setAssistantOperator(provider.id, modelToSave);
+			}, OperatorChannels.saveAssistant)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.getSpeechToText,
+			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
+				return store.getSpeechToTextOperator();
+			}, OperatorChannels.getSpeechToText)
+		);
+
+		ipcMain.handle(
+			OperatorChannels.saveSpeechToText,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				const normalizedProviderId = provider.id.trim().toLowerCase();
+				if (normalizedProviderId !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
+					throw new Error('Speech transcription currently supports OpenAI only.');
+				}
+				if (!SPEECH_TRANSCRIBER_MODELS.some((option) => option.id === model.id)) {
+					throw new Error(`Model is not supported for speech transcription: ${model.id}`);
+				}
+				return store.setSpeechToTextOperator(provider.id, { id: model.id, name: model.name });
+			}, OperatorChannels.saveSpeechToText)
 		);
 
 		ipcMain.handle(
