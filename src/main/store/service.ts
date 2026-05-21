@@ -1,6 +1,14 @@
 import Store from 'electron-store';
 import type { Provider } from '../../shared/providers';
-import type { Agent, Model, Service } from '../../shared/service';
+import {
+	OPERATOR_DEFINITIONS,
+	isEndpointOperator,
+	type ConfiguredModelOperator,
+	type Model,
+	type ModelOperator,
+	type ModelOperatorSelection,
+	type OperatorStoreState,
+} from '../../shared/service';
 import type { CronTask } from '../../shared/cron';
 import {
 	CHANNEL_PROVIDER_IDS,
@@ -28,6 +36,40 @@ const DEFAULT_APP_PERMISSIONS: AppPermissionSettings = {
 const DEFAULT_APP_SETTINGS: AppSettings = {
 	keepAwakeEnabled: false,
 };
+
+type ConfiguredModelOperatorKey = 'assistant' | 'speechToText';
+type LegacyModelOperatorKey = 'agent' | 'speechTranscriber';
+
+const LEGACY_MODEL_OPERATOR_KEYS = {
+	assistant: 'agent',
+	speechToText: 'speechTranscriber',
+} satisfies Record<ConfiguredModelOperatorKey, LegacyModelOperatorKey>;
+
+function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
+	return {
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+	};
+}
+
+function hasModelSelection(value: unknown): value is ModelOperatorSelection {
+	if (!value || typeof value !== 'object') return false;
+	const selection = value as Partial<ModelOperatorSelection>;
+	return Boolean(selection.provider?.id && selection.model?.id);
+}
+
+function configuredModelOperator(
+	key: ConfiguredModelOperatorKey,
+	provider: Omit<Provider, 'apiKey'>,
+	model: Model
+): ConfiguredModelOperator {
+	return {
+		...OPERATOR_DEFINITIONS[key],
+		provider,
+		model,
+	};
+}
 
 export class StoreService {
 	private store: SettingsStore;
@@ -128,12 +170,16 @@ export class StoreService {
 		this.store.set('providers', providers);
 	}
 
-	getService(): Service | undefined {
+	getOperator(): OperatorStoreState | undefined {
 		return this.store.get('service');
 	}
 
+	getService(): OperatorStoreState | undefined {
+		return this.getOperator();
+	}
+
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const current = this.store.get('service');
+		const current = this.getOperator();
 		const currentAgents = current?.agents ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
 		const currentHeartbeat = currentDefaults.heartbeat ?? {};
@@ -144,9 +190,8 @@ export class StoreService {
 		if ('activeHours' in config && config.activeHours === undefined) {
 			delete nextHeartbeat.activeHours;
 		}
-		const next: Service = {
-			agent: current?.agent,
-			speechTranscriber: current?.speechTranscriber,
+		const next: OperatorStoreState = {
+			...current,
 			agents: {
 				...currentAgents,
 				defaults: {
@@ -154,75 +199,83 @@ export class StoreService {
 					heartbeat: nextHeartbeat,
 				},
 			},
-			rag: current?.rag ?? '',
-			ocr: current?.ocr ?? '',
 		};
 		this.store.set('service', next);
 		return nextHeartbeat;
 	}
 
-	getAgentService(): Agent | undefined {
-		return this.store.get('service')?.agent;
+	getAssistantOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('assistant');
 	}
 
 	getAgentModel(): Model | undefined {
-		return this.store.get('service')?.agent?.model;
+		return this.getAssistantOperator()?.model;
 	}
 
 	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
-		return this.store.get('service')?.agent?.provider;
+		return this.getAssistantOperator()?.provider;
 	}
 
-	getSpeechTranscriberService(): Agent | undefined {
-		return this.store.get('service')?.speechTranscriber;
+	getSpeechToTextOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('speechToText');
+	}
+
+	getDocumentReaderOcrEndpoint(): string | undefined {
+		const documentReader = this.getOperator()?.documentReaderOcr;
+		if (isEndpointOperator(documentReader)) {
+			const endpoint = documentReader.endpoint.trim();
+			if (endpoint) return endpoint;
+		}
+		const legacyEndpoint = this.getOperator()?.ocr?.trim();
+		return legacyEndpoint || undefined;
+	}
+
+	setAssistantOperator(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const current = this.getOperator();
+		const next: OperatorStoreState = {
+			...current,
+			assistant: configuredModelOperator('assistant', publicProvider(provider), model),
+		};
+		delete next.agent;
+		this.store.set('service', next);
+		return true;
+	}
+
+	setSpeechToTextOperator(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const current = this.getOperator();
+		const next: OperatorStoreState = {
+			...current,
+			speechToText: configuredModelOperator('speechToText', publicProvider(provider), model),
+		};
+		delete next.speechTranscriber;
+		this.store.set('service', next);
+		return true;
+	}
+
+	getAgentService(): ModelOperatorSelection | undefined {
+		const operator = this.getAssistantOperator();
+		return operator ? { provider: operator.provider, model: operator.model } : undefined;
+	}
+
+	getSpeechTranscriberService(): ModelOperatorSelection | undefined {
+		const operator = this.getSpeechToTextOperator();
+		return operator ? { provider: operator.provider, model: operator.model } : undefined;
 	}
 
 	setAgentService(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		const current = this.store.get('service');
-		const next: Service = {
-			agent: {
-				provider: {
-					id: provider.id,
-					name: provider.name,
-					baseUrl: provider.baseUrl,
-				},
-				model,
-			},
-			speechTranscriber: current?.speechTranscriber,
-			agents: current?.agents,
-			rag: current?.rag ?? '',
-			ocr: current?.ocr ?? '',
-		};
-		this.store.set('service', next);
-		return true;
+		return this.setAssistantOperator(providerId, model);
 	}
 
 	setSpeechTranscriberService(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		const current = this.store.get('service');
-		const next: Service = {
-			agent: current?.agent,
-			speechTranscriber: {
-				provider: {
-					id: provider.id,
-					name: provider.name,
-					baseUrl: provider.baseUrl,
-				},
-				model,
-			},
-			agents: current?.agents,
-			rag: current?.rag ?? '',
-			ocr: current?.ocr ?? '',
-		};
-		this.store.set('service', next);
-		return true;
+		return this.setSpeechToTextOperator(providerId, model);
 	}
 
 	setOpenAiApiKey(key: string): void {
@@ -276,6 +329,22 @@ export class StoreService {
 
 	setHeartbeatState(state: HeartbeatStoreState): void {
 		this.store.set('heartbeat', migrateHeartbeatStoreState(state));
+	}
+
+	private getConfiguredModelOperator(
+		key: ConfiguredModelOperatorKey
+	): ConfiguredModelOperator | undefined {
+		const current = this.getOperator();
+		const operator = current?.[key] as ModelOperator | undefined;
+		if (hasModelSelection(operator)) {
+			return configuredModelOperator(key, operator.provider, operator.model);
+		}
+
+		const legacyOperator = current?.[LEGACY_MODEL_OPERATOR_KEYS[key]];
+		if (hasModelSelection(legacyOperator)) {
+			return configuredModelOperator(key, legacyOperator.provider, legacyOperator.model);
+		}
+		return undefined;
 	}
 
 	getConnectors(): ConnectorConfig[] {

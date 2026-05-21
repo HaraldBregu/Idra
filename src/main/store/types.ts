@@ -1,5 +1,5 @@
 import { Provider } from "../../shared/providers";
-import { Service } from "../../shared/service";
+import { OperatorStoreState } from "../../shared/service";
 import { CronTask } from "../../shared/cron";
 import type { CronStoreState } from "../cron/core/cron.types";
 import type { FridayCronStoreState } from "../cron/friday/store";
@@ -11,7 +11,7 @@ import type { AppSettings } from "../../shared/app-settings";
 
 export interface StoreSchema {
 	providers: Provider[];
-	service: Service;
+	service: OperatorStoreState;
 	cronTasks: CronTask[];
 	cronScheduler: CronStoreState;
 	fridayCron: FridayCronStoreState;
