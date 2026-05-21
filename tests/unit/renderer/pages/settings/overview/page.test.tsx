@@ -31,7 +31,7 @@ describe('OverviewPage', () => {
 			name: 'settings.overview.groups.general',
 		})).toBeInTheDocument();
 		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.capabilities',
+			name: 'settings.overview.groups.aiAgents',
 		})).toBeInTheDocument();
 		expect(screen.getByRole('heading', {
 			name: 'settings.overview.groups.aiFeatures',

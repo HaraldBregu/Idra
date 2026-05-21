@@ -22,7 +22,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/general', '/settings/system', '/settings/providers', '/settings/channels'],
 	},
 	{
-		titleKey: 'settings.overview.groups.capabilities',
+		titleKey: 'settings.overview.groups.aiAgents',
 		operators: true,
 		paths: [],
 	},

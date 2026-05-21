@@ -149,7 +149,7 @@
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
 			"groups": {
 				"general": "General setup",
-				"capabilities": "Operators and extensions",
+				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",
 				"automation": "Automation and apps"
 			},
