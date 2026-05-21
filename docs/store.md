@@ -10,8 +10,6 @@ Target shape:
 
 ```ts
 interface SettingsStore {
-	appSettings?: AppSettings;
-	appPermissions?: AppPermissionSettings;
 	modelProviders: ModelProviderSettings[];
 	llmAgent?: ModelModuleSettings;
 	speechToText?: ModelModuleSettings;
