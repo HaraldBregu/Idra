@@ -4,8 +4,10 @@ import type {
 	RealtimeClientEvent,
 	RealtimeServerEvent,
 } from 'openai/resources/realtime/realtime';
-import type { RealtimeTranscriptionStartRequest } from '../../shared/realtime-transcription';
-import type { RealtimeTranscriptionSession } from '../../shared/realtime-transcription';
+import type {
+	RealtimeTranscriptionSession,
+	RealtimeTranscriptionStartRequest,
+} from '../../shared/realtime-transcription';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
