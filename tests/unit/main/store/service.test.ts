@@ -285,7 +285,8 @@ describe('StoreService', () => {
 
 			const result = service.getProviderById('openai');
 
-			expect(result).toEqual(openaiProvider);
+			expect(result).toMatchObject(openaiProvider);
+			expect(result?.capabilities).toContain('Chat');
 		});
 
 		it('matches case-insensitively on the queried id', () => {
@@ -296,7 +297,7 @@ describe('StoreService', () => {
 			);
 
 			// stored as 'openai', queried as 'OpenAI'
-			expect(service.getProviderById('OpenAI')).toEqual(openaiProvider);
+			expect(service.getProviderById('OpenAI')).toMatchObject(openaiProvider);
 		});
 
 		it('trims whitespace from the queried id before matching', () => {
@@ -306,7 +307,7 @@ describe('StoreService', () => {
 				[openaiProvider]
 			);
 
-			expect(service.getProviderById('  openai  ')).toEqual(openaiProvider);
+			expect(service.getProviderById('  openai  ')).toMatchObject(openaiProvider);
 		});
 
 		it('trims whitespace from the stored id when matching', () => {
@@ -317,7 +318,10 @@ describe('StoreService', () => {
 				[paddedProvider]
 			);
 
-			expect(service.getProviderById('openai')).toEqual(paddedProvider);
+			expect(service.getProviderById('openai')).toMatchObject({
+				...paddedProvider,
+				id: 'openai',
+			});
 		});
 
 		it('returns undefined when no provider matches the given id', () => {
