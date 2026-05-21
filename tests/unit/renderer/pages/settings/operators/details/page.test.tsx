@@ -109,18 +109,7 @@ describe('OperatorDetailsPage', () => {
 		expect(await screen.findByText('settings.operators.providerDescription')).toBeInTheDocument();
 	});
 
-	it('renders placeholder settings for the document reader operator', async () => {
-		renderOperatorDetailsPage('/settings/operators/document-reader/details');
-
-		expect(await screen.findByText('settings.operators.documentReaderName')).toBeInTheDocument();
-		expect(screen.getByText('settings.operators.configurationPending')).toBeInTheDocument();
-		expect(
-			screen.getByText('settings.operators.documentReaderProviderDescription')
-		).toBeInTheDocument();
-		expect(screen.getByText('OCR provider')).toBeInTheDocument();
-	});
-
-	it('renders configurable settings for the image creator operator', async () => {
+	it('renders configurable settings for the text-to-image operator', async () => {
 		const user = userEvent.setup();
 		renderOperatorDetailsPage('/settings/operators/image-assistant/details');
 

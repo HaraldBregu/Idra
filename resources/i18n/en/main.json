@@ -939,7 +939,7 @@
 		"title": "Agents",
 		"contentReviewer": "Content Reviewer",
 		"contentWriter": "Content Writer",
-		"imageCreator": "Image Creator",
+		"imageCreator": "Text to Image",
 		"agent": "Agent"
 	},
 	"channels": {

@@ -1082,7 +1082,7 @@ const StartPage: React.FC = () => {
 								<ImageIcon className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle>Image Creator</ItemTitle>
+								<ItemTitle>Text to Image</ItemTitle>
 								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 									Coming soon
 								</p>

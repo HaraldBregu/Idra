@@ -202,7 +202,7 @@ export const OPERATOR_DEFINITIONS = {
 	},
 	imageCreator: {
 		id: IMAGE_CREATOR_OPERATOR_ID,
-		name: 'Image creator',
+		name: 'Text to image',
 		docsPath: 'text-to-image.md',
 		status: 'pending-runtime',
 	},
@@ -214,7 +214,7 @@ export const OPERATOR_DEFINITIONS = {
 	},
 	musicCreator: {
 		id: MUSIC_CREATOR_OPERATOR_ID,
-		name: 'Music creator',
+		name: 'Text to audio',
 		docsPath: 'music-creator.md',
 		status: 'pending-runtime',
 	},

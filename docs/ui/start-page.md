@@ -123,9 +123,9 @@ Voice output displays text-to-speech settings:
 This selection is rendered in the start flow, but the start page currently does
 not persist a text-to-speech operator selection in `handleSaveAgentModel`.
 
-### Image Creator
+### Text To Image
 
-Image Creator is shown as a placeholder:
+Text to Image is shown as a placeholder:
 
 - Provider: Image provider
 - Image model: `image-provider-coming-soon` / Not available yet
@@ -139,4 +139,3 @@ The broader operator model includes text-to-video, text-to-audio/music, OCR,
 embedding, cron tasks, and background tasks. The current start page does not
 render those setup controls. They should either remain in Settings only or be
 added as new operator cards if first-run setup needs to configure them.
-
