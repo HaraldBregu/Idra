@@ -235,7 +235,7 @@ export const OPERATOR_DEFINITIONS = {
 		name: 'Background task',
 		docsPath: 'background-task.md',
 		status: 'implemented',
-		registeredTaskTypes: ['agent.run', 'ocr.run', 'image.create'],
+		registeredTaskTypes: ['agent.run', 'image.create', 'ocr.run'],
 	},
 } as const satisfies {
 	assistant: OperatorBase;
