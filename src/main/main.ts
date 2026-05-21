@@ -258,10 +258,6 @@ export class Main {
 		const options: BrowserWindowConstructorOptions = {
 			width: TRAY_WINDOW_WIDTH,
 			height: TRAY_WINDOW_HEIGHT,
-			minWidth: TRAY_WINDOW_WIDTH,
-			minHeight: TRAY_WINDOW_HEIGHT,
-			maxWidth: TRAY_WINDOW_WIDTH,
-			maxHeight: TRAY_WINDOW_HEIGHT,
 			show: false,
 			transparent: true,
 			frame: false,
