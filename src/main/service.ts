@@ -660,10 +660,10 @@ export class AgentService {
 		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
-		const savedEffort = agent?.model.effort;
+		const savedEffort = providerId === configuredProviderId ? agent?.model.effort : undefined;
 		let effort: ModelReasoningEffort | undefined;
-		if (providerId === 'openai') {
-			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort);
+		if (providerId === 'openai' || providerId === 'deepseek') {
+			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
 		}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}

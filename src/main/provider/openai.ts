@@ -24,7 +24,8 @@ import { ContextOverflowError, ProviderAuthError } from './types';
 
 function buildChatMessages(
 	system: string,
-	transcript: TranscriptEntry[]
+	transcript: TranscriptEntry[],
+	options: { includeReasoningContent?: boolean } = {}
 ): OpenAI.ChatCompletionMessageParam[] {
 	const msgs: OpenAI.ChatCompletionMessageParam[] = [];
 	if (system) msgs.push({ role: 'system', content: system });
@@ -52,6 +53,16 @@ function buildChatMessages(
 				role: 'assistant',
 				content: text || null,
 			};
+			if (options.includeReasoningContent) {
+				const reasoningContent = entry.content
+					.filter((b) => b.type === 'reasoning' && b.provider === 'deepseek')
+					.map((b) => (typeof b.item === 'string' ? b.item : ''))
+					.join('');
+				if (reasoningContent) {
+					(msg as OpenAI.ChatCompletionAssistantMessageParam & { reasoning_content?: string })
+						.reasoning_content = reasoningContent;
+				}
+			}
 			if (toolCalls.length > 0) msg.tool_calls = toolCalls;
 			msgs.push(msg);
 			continue;
@@ -72,6 +83,8 @@ export interface OpenAIChatAdapterOptions {
 	baseURL?: string;
 	clientFactory?: (opts: { apiKey: string; baseURL?: string }) => OpenAI;
 	reasoningEffortEnabled?: boolean;
+	reasoningContentEnabled?: boolean;
+	thinkingModeEnabled?: boolean;
 }
 
 interface ChatToolCallState {
@@ -84,6 +97,8 @@ interface ChatToolCallState {
 export class OpenAIChatAdapter implements ProviderAdapter {
 	private readonly client: OpenAI;
 	private readonly reasoningEffortEnabled: boolean;
+	private readonly reasoningContentEnabled: boolean;
+	private readonly thinkingModeEnabled: boolean;
 
 	constructor(opts: OpenAIChatAdapterOptions) {
 		if (!opts.apiKey) throw new ProviderAuthError('API key not configured');
@@ -91,6 +106,8 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 			opts.clientFactory ?? ((c) => new OpenAI({ apiKey: c.apiKey, baseURL: c.baseURL }));
 		this.client = factory({ apiKey: opts.apiKey, baseURL: opts.baseURL });
 		this.reasoningEffortEnabled = opts.reasoningEffortEnabled ?? false;
+		this.reasoningContentEnabled = opts.reasoningContentEnabled ?? false;
+		this.thinkingModeEnabled = opts.thinkingModeEnabled ?? false;
 	}
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
@@ -110,18 +127,23 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 		const pending = new Map<number, ChatToolCallState>();
 
 		try {
-			const deepSeekEfforts = new Set(['low', 'medium', 'high']);
 			const params: Record<string, unknown> = {
 				model: req.model,
-				messages: buildChatMessages(req.system, req.messages),
+				messages: buildChatMessages(req.system, req.messages, {
+					includeReasoningContent: this.reasoningContentEnabled,
+				}),
 				tools: tools.length > 0 ? tools : undefined,
 				tool_choice: tools.length > 0 ? 'auto' : undefined,
 				max_tokens: req.maxTokens,
 				stream: true,
 				stream_options: { include_usage: true },
 			};
-			if (this.reasoningEffortEnabled && req.effort && deepSeekEfforts.has(req.effort)) {
-				params.reasoning_effort = req.effort;
+			if (this.thinkingModeEnabled) {
+				params.thinking = { type: req.effort === 'none' ? 'disabled' : 'enabled' };
+			}
+			if (this.reasoningEffortEnabled) {
+				const reasoningEffort = toDeepSeekReasoningEffort(req.effort);
+				if (reasoningEffort) params.reasoning_effort = reasoningEffort;
 			}
 			const stream = await this.client.chat.completions.create(
 				params as unknown as OpenAI.Chat.ChatCompletionCreateParamsStreaming,
@@ -138,6 +160,15 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 				if (!choice) continue;
 
 				const delta = choice.delta;
+
+				const reasoningContent = (delta as { reasoning_content?: unknown }).reasoning_content;
+				if (
+					this.reasoningContentEnabled &&
+					typeof reasoningContent === 'string' &&
+					reasoningContent.length > 0
+				) {
+					yield { type: 'reasoning_item', provider: 'deepseek', item: reasoningContent };
+				}
 
 				if (delta.content) {
 					yield { type: 'text_delta', text: delta.content };
@@ -186,6 +217,14 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 
 		yield { type: 'message_end', stopReason, usage };
 	}
+}
+
+function toDeepSeekReasoningEffort(
+	effort: ProviderStreamRequest['effort']
+): 'high' | 'max' | undefined {
+	if (!effort || effort === 'none') return undefined;
+	if (effort === 'xhigh') return 'max';
+	return 'high';
 }
 
 function toolResultText(entry: Extract<TranscriptEntry, { role: 'tool' }>): string {

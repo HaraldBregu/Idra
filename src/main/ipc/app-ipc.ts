@@ -337,8 +337,8 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave = normalizedProviderId === 'openai'
-					? { ...model, effort: requireModelReasoningEffort(model.id, model.effort) }
+				const modelToSave = normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
+					? { ...model, effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId) }
 					: { id: model.id, name: model.name };
 				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)

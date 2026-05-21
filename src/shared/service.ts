@@ -19,6 +19,8 @@ export const MODEL_REASONING_EFFORTS = [
 ] as const;
 export type ModelReasoningEffort = (typeof MODEL_REASONING_EFFORTS)[number];
 export const DEFAULT_MODEL_REASONING_EFFORT: ModelReasoningEffort = 'medium';
+const DEFAULT_DEEPSEEK_REASONING_EFFORT: ModelReasoningEffort = 'high';
+const DEEPSEEK_REASONING_EFFORTS = ['none', 'high', 'xhigh'] as const;
 
 export function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
@@ -28,14 +30,28 @@ const GPT_5_4_MINI_REASONING_EFFORTS = MODEL_REASONING_EFFORTS.filter(
 	(effort) => effort !== 'minimal'
 );
 
-export function getModelReasoningEfforts(modelId: string): readonly ModelReasoningEffort[] {
+function isDeepSeekReasoningTarget(modelId: string, providerId?: string): boolean {
+	const normalizedProviderId = providerId?.trim().toLowerCase();
+	if (normalizedProviderId === 'deepseek') return true;
+	return modelId.trim().toLowerCase().startsWith('deepseek-');
+}
+
+export function getModelReasoningEfforts(
+	modelId: string,
+	providerId?: string
+): readonly ModelReasoningEffort[] {
+	if (isDeepSeekReasoningTarget(modelId, providerId)) return DEEPSEEK_REASONING_EFFORTS;
 	const normalizedModelId = modelId.trim().toLowerCase();
 	if (normalizedModelId === 'gpt-5.4-mini') return GPT_5_4_MINI_REASONING_EFFORTS;
 	return MODEL_REASONING_EFFORTS;
 }
 
-export function getDefaultModelReasoningEffort(modelId: string): ModelReasoningEffort {
-	const supportedEfforts = getModelReasoningEfforts(modelId);
+export function getDefaultModelReasoningEffort(
+	modelId: string,
+	providerId?: string
+): ModelReasoningEffort {
+	if (isDeepSeekReasoningTarget(modelId, providerId)) return DEFAULT_DEEPSEEK_REASONING_EFFORT;
+	const supportedEfforts = getModelReasoningEfforts(modelId, providerId);
 	return supportedEfforts.includes(DEFAULT_MODEL_REASONING_EFFORT)
 		? DEFAULT_MODEL_REASONING_EFFORT
 		: supportedEfforts[0] ?? DEFAULT_MODEL_REASONING_EFFORT;
@@ -43,20 +59,22 @@ export function getDefaultModelReasoningEffort(modelId: string): ModelReasoningE
 
 export function isModelReasoningEffortSupported(
 	modelId: string,
-	effort: unknown
+	effort: unknown,
+	providerId?: string
 ): effort is ModelReasoningEffort {
-	return isModelReasoningEffort(effort) && getModelReasoningEfforts(modelId).includes(effort);
+	return isModelReasoningEffort(effort) && getModelReasoningEfforts(modelId, providerId).includes(effort);
 }
 
 export function requireModelReasoningEffort(
 	modelId: string,
-	effort: unknown
+	effort: unknown,
+	providerId?: string
 ): ModelReasoningEffort {
-	const supportedEfforts = getModelReasoningEfforts(modelId);
+	const supportedEfforts = getModelReasoningEfforts(modelId, providerId);
 	if (effort === undefined || effort === null || effort === '') {
-		return getDefaultModelReasoningEffort(modelId);
+		return getDefaultModelReasoningEffort(modelId, providerId);
 	}
-	if (isModelReasoningEffortSupported(modelId, effort)) return effort;
+	if (isModelReasoningEffortSupported(modelId, effort, providerId)) return effort;
 	throw new Error(
 		`Reasoning effort "${String(effort)}" is not supported for model "${modelId}". Supported values are: ${supportedEfforts.join(', ')}.`
 	);

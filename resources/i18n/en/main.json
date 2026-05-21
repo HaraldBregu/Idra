@@ -652,7 +652,7 @@
 			"thinkingMode": "Thinking Mode",
 			"thinkingModeDescription": "Enable extended reasoning for complex tasks",
 			"effort": "Reasoning effort",
-			"effortDescription": "OpenAI reasoning budget for Friday responses.",
+			"effortDescription": "Reasoning budget for Friday responses.",
 			"effortOptions": {
 				"none": "None",
 				"minimal": "Minimal",

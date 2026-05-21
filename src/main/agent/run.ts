@@ -273,7 +273,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						case 'reasoning_item':
 							reasoningBlocks.push({
 								type: 'reasoning',
-								provider: 'openai',
+								provider: event.provider ?? 'openai',
 								item: event.item,
 							});
 							break;

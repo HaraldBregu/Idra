@@ -459,12 +459,16 @@ describe('provider/deepseek', () => {
 			{ type: 'message_end', stopReason: 'end_turn', usage: { inputTokens: 3, outputTokens: 5 } },
 		]);
 		expect(create).toHaveBeenCalledWith(
-			expect.objectContaining({ model: 'deepseek-v4-flash', stream: true }),
+			expect.objectContaining({
+				model: 'deepseek-v4-flash',
+				stream: true,
+				thinking: { type: 'enabled' },
+			}),
 			expect.any(Object)
 		);
 	});
 
-	it('passes reasoning_effort for supported effort values', async () => {
+	it('passes DeepSeek thinking controls for supported effort values', async () => {
 		const { client, create } = makeClient(basicChunks);
 		const adapter = new DeepSeekAdapter({
 			apiKey: 'ds-test',
@@ -481,27 +485,133 @@ describe('provider/deepseek', () => {
 		}));
 
 		expect(create.mock.calls[0][0]).toHaveProperty('reasoning_effort', 'high');
+		expect(create.mock.calls[0][0]).toHaveProperty('thinking', { type: 'enabled' });
 	});
 
-	it('omits reasoning_effort for non-DeepSeek effort values', async () => {
+	it('maps extra high DeepSeek effort to max', async () => {
 		const { client, create } = makeClient(basicChunks);
 		const adapter = new DeepSeekAdapter({
 			apiKey: 'ds-test',
 			clientFactory: () => client as never,
 		});
 
-		for (const effort of ['none', 'minimal', 'xhigh'] as const) {
-			create.mockClear();
-			await collectAsync(adapter.stream({
-				model: 'deepseek-v4-pro',
-				effort,
-				system: 'sys',
-				messages: [{ role: 'user', content: 'hi' }],
-				tools: [],
-				maxTokens: 100,
-			}));
-			expect(create.mock.calls[0][0]).not.toHaveProperty('reasoning_effort');
+		await collectAsync(adapter.stream({
+			model: 'deepseek-v4-pro',
+			effort: 'xhigh',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hi' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0]).toHaveProperty('reasoning_effort', 'max');
+	});
+
+	it('disables DeepSeek thinking when effort is none', async () => {
+		const { client, create } = makeClient(basicChunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'deepseek-v4-pro',
+			effort: 'none',
+			system: 'sys',
+			messages: [{ role: 'user', content: 'hi' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0]).toHaveProperty('thinking', { type: 'disabled' });
+		expect(create.mock.calls[0][0]).not.toHaveProperty('reasoning_effort');
+	});
+
+	it('round-trips DeepSeek reasoning_content for tool-call turns', async () => {
+		const { client, create } = makeClient(basicChunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'deepseek-v4-pro',
+			effort: 'high',
+			system: '',
+			messages: [
+				{
+					role: 'assistant',
+					content: [
+						{ type: 'reasoning', provider: 'deepseek', item: 'I need a tool.' },
+						{ type: 'text', text: 'Checking.' },
+						{
+							type: 'tool_use',
+							toolUseId: 'call-1',
+							toolName: 'get_date',
+							toolArgs: {},
+						},
+					],
+				},
+				{
+					role: 'tool',
+					toolUseId: 'call-1',
+					content: [{ type: 'text', text: '2026-05-21' }],
+				},
+			],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0].messages[0]).toEqual({
+			role: 'assistant',
+			content: 'Checking.',
+			reasoning_content: 'I need a tool.',
+			tool_calls: [
+				{
+					id: 'call-1',
+					type: 'function',
+					function: { name: 'get_date', arguments: '{}' },
+				},
+			],
+		});
+	});
+
+	it('emits streamed DeepSeek reasoning_content as provider reasoning items', async () => {
+		async function* chunks() {
+			yield {
+				choices: [{ delta: { reasoning_content: 'Think.' }, finish_reason: null }],
+				usage: null,
+			};
+			yield {
+				choices: [{ delta: { content: 'Done.' }, finish_reason: null }],
+				usage: null,
+			};
+			yield {
+				choices: [{ delta: {}, finish_reason: 'stop' }],
+				usage: { prompt_tokens: 1, completion_tokens: 2 },
+			};
 		}
+		const { client } = makeClient(chunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		const events = await collectAsync(adapter.stream({
+			model: 'deepseek-v4-pro',
+			effort: 'high',
+			system: '',
+			messages: [{ role: 'user', content: 'hi' }],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(events).toContainEqual({
+			type: 'reasoning_item',
+			provider: 'deepseek',
+			item: 'Think.',
+		});
+		expect(events).toContainEqual({ type: 'text_delta', text: 'Done.' });
 	});
 
 	it('defaults to the DeepSeek base URL when none is provided', () => {

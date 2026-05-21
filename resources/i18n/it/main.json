@@ -652,7 +652,7 @@
 			"thinkingMode": "Modalità Ragionamento",
 			"thinkingModeDescription": "Abilita il ragionamento esteso per attività complesse",
 			"effort": "Impegno di ragionamento",
-			"effortDescription": "Budget di ragionamento OpenAI per le risposte di Friday.",
+			"effortDescription": "Budget di ragionamento per le risposte di Friday.",
 			"effortOptions": {
 				"none": "Nessuno",
 				"minimal": "Minimo",
