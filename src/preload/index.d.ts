@@ -156,6 +156,7 @@ import type {
 } from '../shared/heartbeat';
 import type {
 	Agent,
+	ConfiguredModelOperator,
 	AgentHistoryMessage,
 	ApprovalDecision,
 	AgentPendingEventPayload,
@@ -208,6 +209,10 @@ export interface AppApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
+	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getAgentService: () => Promise<Agent | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<Agent | undefined>;

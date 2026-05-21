@@ -6,6 +6,7 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
+	OperatorChannels,
 	ProviderChannels,
 	RealtimeTranscriptionChannels,
 	TaskChannels,
@@ -54,6 +55,7 @@ import type {
 } from '../shared/heartbeat';
 import type {
 	Agent,
+	ConfiguredModelOperator,
 	AgentHistoryMessage,
 	ApprovalDecision,
 	AgentPendingEventPayload,
@@ -219,6 +221,18 @@ export const app: AppApi = {
 	},
 	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
+	},
+	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
+		return typedInvokeUnwrap(OperatorChannels.getAssistant);
+	},
+	saveAssistantOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(OperatorChannels.saveAssistant, provider, model);
+	},
+	getSpeechToTextOperator: (): Promise<ConfiguredModelOperator | undefined> => {
+		return typedInvokeUnwrap(OperatorChannels.getSpeechToText);
+	},
+	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(OperatorChannels.saveSpeechToText, provider, model);
 	},
 	getAgentService: (): Promise<Agent | undefined> => {
 		return typedInvokeUnwrap(ProviderChannels.getAgentService);
