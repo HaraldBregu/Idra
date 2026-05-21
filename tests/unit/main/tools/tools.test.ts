@@ -24,6 +24,7 @@ import {
 	cronTool,
 } from '../../../../src/main/tools/cron';
 import { taskTool } from '../../../../src/main/tools/task';
+import { createTextToImageTool } from '../../../../src/main/tools/text-to-image';
 import { startupFilesTool } from '../../../../src/main/tools/startup';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
@@ -58,15 +59,15 @@ describe('tools/policy and registry', () => {
 		).toEqual(['write']);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
-			).toBe(false);
-			expect(
-				createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)
-			).toEqual(expect.arrayContaining(['cron']));
-			expect(
-				createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
-			).toBe(true);
-		});
+		).toBe(false);
+		expect(createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)).toEqual(
+			expect.arrayContaining(['cron'])
+		);
+		expect(
+			createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
+		).toBe(true);
 	});
+});
 
 describe('tools/task', () => {
 	it('starts a background task through the main task manager', async () => {
@@ -77,10 +78,10 @@ describe('tools/task', () => {
 			status: 'queued' as const,
 			createdAt: '2026-05-21T00:00:00.000Z',
 			metadata: {},
-			};
-			const taskManager = {
-				startUserTask: jest.fn(() => record),
-			};
+		};
+		const taskManager = {
+			startUserTask: jest.fn(() => record),
+		};
 
 		const result = await taskTool.execute(
 			{
@@ -97,12 +98,12 @@ describe('tools/task', () => {
 			})
 		);
 
-			expect(result.status).toBe('ok');
-			expect(result.details).toBe(record);
-			expect(taskManager.startUserTask).toHaveBeenCalledWith({
-				type: 'agent.run',
-				title: 'Summarize workspace',
-				input: { message: 'Summarize the workspace' },
+		expect(result.status).toBe('ok');
+		expect(result.details).toBe(record);
+		expect(taskManager.startUserTask).toHaveBeenCalledWith({
+			type: 'agent.run',
+			title: 'Summarize workspace',
+			input: { message: 'Summarize the workspace' },
 			metadata: { source: 'test' },
 		});
 	});
@@ -115,6 +116,38 @@ describe('tools/task', () => {
 
 		expect(result.status).toBe('error');
 		expect(result.content[0]?.text).toContain('TaskManager service is not available');
+	});
+});
+
+describe('tools/text-to-image', () => {
+	it('stores generated image assets inside the workspace', async () => {
+		const workspace = await makeTempDir();
+		const tool = createTextToImageTool({
+			create: jest.fn(async () => ({
+				providerId: 'test-provider',
+				modelId: 'test-model',
+				images: [
+					{
+						assetUrl: `data:image/png;base64,${Buffer.from('png').toString('base64')}`,
+						mimeType: 'image/png',
+						providerId: 'test-provider',
+						modelId: 'test-model',
+					},
+				],
+			})),
+		} as never);
+
+		const result = await tool.execute(
+			{ prompt: 'make a test image', outputPath: 'images/test.png' },
+			makeToolContext({ workspace })
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.details).toMatchObject({
+			images: [{ localFile: 'images/test.png' }],
+		});
+		await expect(fs.readFile(path.join(workspace, 'images/test.png'), 'utf8')).resolves.toBe('png');
+		await fs.rm(workspace, { recursive: true, force: true });
 	});
 });
 
