@@ -1,11 +1,14 @@
 import {
 	IMAGE_CREATOR_MODELS,
 	MUSIC_CREATOR_MODELS,
+	SPEECH_TO_TEXT_MODELS,
+	SPEECH_TO_TEXT_PROVIDER_MODELS,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_MODELS,
 	TEXT_TO_VIDEO_MODELS,
 	getModelsByCapability,
 	getMusicModelsByProvider,
+	getSpeechToTextModelsByProvider,
 	getTextToImageModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
@@ -13,15 +16,33 @@ import {
 import {
 	getModelsByCapability as getSharedModelsByCapability,
 	getMusicModels,
+	getSpeechToTextModels,
 	getTextToImageModels,
 	getTextToSpeechModels,
 	getTextToVideoModels,
 } from '../../../../src/shared/models';
 
 describe('provider model catalogs', () => {
+	it('returns speech-to-text models by provider', () => {
+		expect(getSpeechToTextModelsByProvider('openai')).toEqual(SPEECH_TO_TEXT_MODELS);
+		expect(getSpeechToTextModelsByProvider('google')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('xai')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('mistral')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('cohere')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('qwen')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('baidu')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('elevenlabs')).toEqual(
+			SPEECH_TO_TEXT_PROVIDER_MODELS
+		);
+		expect(getSpeechToTextModelsByProvider('deepgram')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('nvidia')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
+		expect(getSpeechToTextModelsByProvider('unknown')).toEqual([]);
+	});
+
 	it('returns text-to-speech models by provider', () => {
 		expect(getTextToSpeechModelsByProvider('elevenlabs')).toEqual(TEXT_TO_SPEECH_MODELS);
 		expect(getTextToSpeechModelsByProvider('openai')).toEqual(TEXT_TO_SPEECH_PROVIDER_MODELS);
+		expect(getTextToSpeechModelsByProvider('google')).toEqual(TEXT_TO_SPEECH_PROVIDER_MODELS);
 		expect(getTextToSpeechModelsByProvider('mistral')).toEqual(TEXT_TO_SPEECH_PROVIDER_MODELS);
 		expect(getTextToSpeechModelsByProvider('minimax')).toEqual(TEXT_TO_SPEECH_PROVIDER_MODELS);
 		expect(getTextToSpeechModelsByProvider('deepgram')).toEqual(TEXT_TO_SPEECH_PROVIDER_MODELS);
@@ -46,6 +67,9 @@ describe('provider model catalogs', () => {
 	});
 
 	it('keeps capability lookups provider-keyed', () => {
+		expect(getModelsByCapability('speech-to-text', 'nvidia')).toEqual(
+			SPEECH_TO_TEXT_PROVIDER_MODELS
+		);
 		expect(getModelsByCapability('text-to-speech', 'elevenlabs')).toEqual(
 			TEXT_TO_SPEECH_MODELS
 		);
@@ -59,6 +83,7 @@ describe('provider model catalogs', () => {
 	});
 
 	it('exposes the same provider catalogs through the shared models facade', () => {
+		expect(getSpeechToTextModels('google')).toEqual(SPEECH_TO_TEXT_PROVIDER_MODELS);
 		expect(getTextToSpeechModels('openai')).toEqual(TEXT_TO_SPEECH_PROVIDER_MODELS);
 		expect(getTextToImageModels('qwen')).toEqual(IMAGE_CREATOR_MODELS);
 		expect(getTextToVideoModels('luma')).toEqual(TEXT_TO_VIDEO_MODELS);
