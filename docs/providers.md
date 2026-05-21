@@ -29,8 +29,9 @@ API keys or base URLs.
 ## Agent Model Selection
 
 The settings IPC path returns models from `DEFAULT_AGENT_MODELS_BY_PROVIDER`.
-If a provider does not have an entry in that map, `provider:get-models` returns
-an unsupported-provider error for the main Friday agent.
+If a known provider does not have an entry in that map, `provider:get-models`
+returns an empty model list for the main Friday agent. Unknown provider ids
+still return an unsupported-provider error.
 
 When saving the main agent service:
 

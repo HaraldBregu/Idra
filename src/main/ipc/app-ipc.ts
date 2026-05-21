@@ -331,6 +331,13 @@ export class AppIpc implements IpcModule {
 					return getDefaultAgentModels(normalizedProviderId);
 				}
 
+				const isKnownProvider = DEFAULT_PROVIDERS.some(
+					(defaultProvider) => defaultProvider.id.trim().toLowerCase() === normalizedProviderId
+				);
+				if (isKnownProvider) {
+					return [];
+				}
+
 				throw new Error(`Unsupported provider id: ${storedProvider.id}`);
 			}, ProviderChannels.getModels)
 		);
