@@ -361,10 +361,14 @@ const OperatorDetailsPage: React.FC = () => {
 		? !currentSpeechToTextOperator ||
 			currentSpeechToTextOperator.provider.id !== providerId ||
 			currentSpeechToTextOperator.model.id !== modelId
-		: !currentAssistantOperator ||
-			currentAssistantOperator.provider.id !== providerId ||
-			currentAssistantOperator.model.id !== modelId ||
-			currentEffort !== selectedEffort;
+		: isImageCreatorOperator
+			? !currentImageCreatorOperator ||
+				currentImageCreatorOperator.provider.id !== providerId ||
+				currentImageCreatorOperator.model.id !== modelId
+			: !currentAssistantOperator ||
+				currentAssistantOperator.provider.id !== providerId ||
+				currentAssistantOperator.model.id !== modelId ||
+				currentEffort !== selectedEffort;
 	const canSave = Boolean(selectedProvider && selectedModel && hasChanges && !loadingModels && !saving);
 
 	const handleProviderChange = useCallback((nextValue: string | null): void => {
