@@ -64,7 +64,7 @@ export const taskTool: AgentTool<TaskToolArgs> = {
 	name: 'task',
 	displaySummary: 'Start an immediate background task.',
 	description:
-		'Start an immediate in-memory background task by calling TaskManager.run from src/main/tasks. Use this tool when the user asks to "run a task in background" or to start a registered task now. It creates one task record and returns that record; it does not schedule future work, run shell background processes, or emulate timers. Use cron for future, delayed, or recurring jobs, and use exec/process only for shell commands.',
+		'Start an immediate in-memory background task through a user-facing src/main/tasks handler. Use this tool when the user asks to "run a task in background" or to start a registered task now. It creates one task record and returns that record; it does not schedule future work, run shell background processes, or emulate timers. Use cron for future, delayed, or recurring jobs, and use exec/process only for shell commands.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -93,7 +93,7 @@ export const taskTool: AgentTool<TaskToolArgs> = {
 		if (!taskManager) return textResult('task: TaskManager service is not available.', true);
 
 		try {
-			const task = taskManager.run(taskRequest(args));
+			const task = taskManager.startUserTask(taskRequest(args));
 			return taskRecordResult(task);
 		} catch (error) {
 			return textResult(`task: ${error instanceof Error ? error.message : String(error)}`, true);
