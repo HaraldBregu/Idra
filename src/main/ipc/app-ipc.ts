@@ -16,6 +16,9 @@ import {
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
+	CameraPermissionSettings,
+	CameraSystemPermissionStatus,
+	SystemPreferencePaneId,
 } from '../../shared/app-permissions';
 import {
 	DEFAULT_PROVIDERS,
