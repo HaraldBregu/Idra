@@ -8,7 +8,6 @@ import {
 	IMAGE_CREATOR_MODELS,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TO_TEXT_MODELS,
-	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	TEXT_TO_VIDEO_MODELS,
 	getSpeechToTextModelsByProvider,
 	getTextToImageModelsByProvider,
@@ -277,7 +276,9 @@ export function getImageCreatorModelsForProvider(
 ): Model[] {
 	if (!providerHasImageCapability(provider)) return [];
 	const catalogModels = getTextToImageModelsByProvider(provider.id);
-	return catalogModels.length > 0 ? catalogModels : IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
+	return catalogModels.length > 0
+		? catalogModels
+		: IMAGE_CREATOR_MODELS.map((model) => ({ ...model }));
 }
 
 export function getImageCreatorModels(providerId: string): Model[] {
