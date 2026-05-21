@@ -16,7 +16,7 @@ import {
 	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 	useRealtimeTranscriptionIntent,
-} from '../../../../src/main/ipc/realtime-transcription-ipc';
+} from '../../../../src/main/stt';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,

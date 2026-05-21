@@ -68,6 +68,9 @@ describe('OperatorDetailsPage', () => {
 			getAssistantOperator: jest.fn(async () => assistantOperator),
 			getSpeechToTextOperator: jest.fn(async () => undefined),
 			getModels: jest.fn(async () => [model]),
+			getSpeechToTextModels: jest.fn(async () => [
+				{ id: 'gpt-realtime-whisper', name: 'GPT Realtime Whisper' },
+			]),
 			saveAssistantOperator: jest.fn(async () => true),
 			saveSpeechToTextOperator: jest.fn(async () => true),
 		};
