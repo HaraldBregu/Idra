@@ -69,7 +69,7 @@ export class OcrTaskHandler implements TaskHandler<OcrTaskInput, OcrTaskResult> 
 	async run(context: TaskContext<OcrTaskInput>): Promise<OcrTaskResult> {
 		if (context.signal.aborted) throw abortError();
 
-		const endpoint = this.store.getService()?.ocr?.trim();
+		const endpoint = this.store.getDocumentReaderOcrEndpoint();
 		if (!endpoint) throw new Error('OCR service is not configured.');
 
 		context.updateProgress({ message: 'Submitting OCR request' });
