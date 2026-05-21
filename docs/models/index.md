@@ -54,20 +54,14 @@ provider ids are rejected.
 | `meta`            | Meta                     | OpenAI-compatible chat adapter    | `llama-4-maverick`, `llama-4-scout`, `llama-3.3-70b`                                                                                                                                                                                                                                                                                                        |
 | `xai`             | xAI                      | OpenAI-compatible chat adapter    | `grok-4.3`, `grok-4.3-fast`, `grok-code-fast`                                                                                                                                                                                                                                                                                                               |
 | `mistral`         | Mistral AI               | Native Mistral adapter            | `mistral-large-2512`, `mistral-large-latest`, `mistral-medium-2604`, `mistral-medium-latest`, `mistral-medium-2508`, `mistral-small-2603`, `mistral-small-latest`, `ministral-14b-2512`, `ministral-14b-latest`, `ministral-8b-2512`, `ministral-8b-latest`, `ministral-3b-2512`, `ministral-3b-latest`, `magistral-medium-2509`, `magistral-medium-latest` |
-| `cohere`          | Cohere                   | OpenAI-compatible chat adapter    | `command-a-03-2025`, `command-a-reasoning-08-2025`, `command-a-vision-07-2025`, `aya-vision`                                                                                                                                                                                                                                                                |
 | `deepseek`        | DeepSeek                 | Native DeepSeek adapter           | `deepseek-v4-pro`, `deepseek-v4-flash`                                                                                                                                                                                                                                                                                                                      |
 | `qwen`            | Alibaba / Qwen / Wan     | Native Qwen adapter               | `qwen3-max`, `qwen3.5-plus`, `qwen3.5-flash`, `qwen3-coder-plus`, `qwq-plus`                                                                                                                                                                                                                                                                                |
 | `kimi`            | Moonshot AI / Kimi       | OpenAI-compatible chat adapter    | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2`, `kimi-latest`                                                                                                                                                                                                                                                                                                          |
 | `zai`             | Z.ai / Zhipu AI          | OpenAI-compatible chat adapter    | `glm-5.1`, `glm-5`, `glm-4.6`, `glm-4.5v`, `glm-z1`                                                                                                                                                                                                                                                                                                         |
-| `baidu`           | Baidu                    | OpenAI-compatible chat adapter    | `ernie-5.1`, `ernie-5.0`, `ernie-x1.1`, `ernie-4.5`                                                                                                                                                                                                                                                                                                         |
-| `tencent-hunyuan` | Tencent Hunyuan          | OpenAI-compatible chat adapter    | `hy3-preview`                                                                                                                                                                                                                                                                                                                                               |
-| `bytedance-seed`  | ByteDance Seed           | OpenAI-compatible chat adapter    | `seed2.0-pro`, `seed2.0-code`                                                                                                                                                                                                                                                                                                                               |
 | `minimax`         | MiniMax                  | OpenAI-compatible chat adapter    | `minimax-m2.7`                                                                                                                                                                                                                                                                                                                                              |
 | `luma`            | Luma AI                  | OpenAI-compatible chat adapter    | `uni-1`                                                                                                                                                                                                                                                                                                                                                     |
 | `reka`            | Reka AI                  | OpenAI-compatible chat adapter    | `reka-core`, `reka-flash`, `reka-edge`                                                                                                                                                                                                                                                                                                                      |
-| `ai21`            | AI21 Labs                | OpenAI-compatible chat adapter    | `jamba-large`, `jamba-mini`, `jamba-1.5-large`, `jamba-1.5-mini`                                                                                                                                                                                                                                                                                            |
 | `perplexity`      | Perplexity               | OpenAI-compatible chat adapter    | `sonar-reasoning-pro`, `sonar-pro`, `sonar-deep-research`, `r1-1776`                                                                                                                                                                                                                                                                                        |
-| `nvidia`          | NVIDIA                   | OpenAI-compatible chat adapter    | `nemotron-ultra-latest`, `llama-nemotron-super`, `llama-nemotron-nano`, `nemotron-vl`                                                                                                                                                                                                                                                                       |
 
 LLM reasoning effort:
 
@@ -88,7 +82,8 @@ Other speech-to-text capable providers return the placeholder model id
 `speech-to-text-provider-coming-soon` through
 `SPEECH_TO_TEXT_MODELS_BY_PROVIDER` until provider-specific model catalogs and
 runtime adapters are added: `google`, `xai`, `mistral`, `cohere`, `qwen`,
-`baidu`, `elevenlabs`, `deepgram`, and `nvidia`.
+runtime adapters are added: `google`, `xai`, `mistral`, `qwen`, `elevenlabs`,
+and `deepgram`.
 
 ## Text-To-Speech Models
 
@@ -129,12 +124,8 @@ Providers with image capability in `DEFAULT_PROVIDERS`:
 | `google`            | Google DeepMind / Google | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `xai`               | xAI                      | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `qwen`              | Alibaba / Qwen / Wan     | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `baidu`             | Baidu                    | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `tencent-hunyuan`   | Tencent Hunyuan          | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `bytedance-seed`    | ByteDance Seed           | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `black-forest-labs` | Black Forest Labs        | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `midjourney`        | Midjourney               | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
-| `adobe-firefly`     | Adobe Firefly            | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `kling`             | Kuaishou / Kling AI      | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `luma`              | Luma AI                  | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
 | `stability-ai`      | Stability AI             | `image-provider-coming-soon` | Placeholder model id, pending image adapter |
@@ -168,11 +159,8 @@ Providers with video capability in `DEFAULT_PROVIDERS`:
 | `meta`            | Meta                     | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `xai`             | xAI                      | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `qwen`            | Alibaba / Qwen / Wan     | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `tencent-hunyuan` | Tencent Hunyuan          | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `bytedance-seed`  | ByteDance Seed           | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `minimax`         | MiniMax                  | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `midjourney`      | Midjourney               | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
-| `adobe-firefly`   | Adobe Firefly            | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `kling`           | Kuaishou / Kling AI      | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `runway`          | Runway                   | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
 | `luma`            | Luma AI                  | `video-provider-coming-soon` | Placeholder model id, pending video adapter |
@@ -206,7 +194,6 @@ Providers with sound or music capability in the default provider catalog:
 | `google`        | Google DeepMind / Google | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
 | `minimax`       | MiniMax                  | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
 | `elevenlabs`    | ElevenLabs               | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
-| `adobe-firefly` | Adobe Firefly            | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
 | `kling`         | Kuaishou / Kling AI      | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
 | `stability-ai`  | Stability AI             | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |
 | `suno`          | Suno                     | `music-provider-coming-soon` | Placeholder model id, pending sound adapter |

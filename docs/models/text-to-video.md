@@ -52,11 +52,8 @@ Cataloged video provider/model choices:
 | `meta`            | `video-provider-coming-soon` | Placeholder catalog entry |
 | `xai`             | `video-provider-coming-soon` | Placeholder catalog entry |
 | `qwen`            | `video-provider-coming-soon` | Placeholder catalog entry |
-| `tencent-hunyuan` | `video-provider-coming-soon` | Placeholder catalog entry |
-| `bytedance-seed`  | `video-provider-coming-soon` | Placeholder catalog entry |
 | `minimax`         | `video-provider-coming-soon` | Placeholder catalog entry |
 | `midjourney`      | `video-provider-coming-soon` | Placeholder catalog entry |
-| `adobe-firefly`   | `video-provider-coming-soon` | Placeholder catalog entry |
 | `kling`           | `video-provider-coming-soon` | Placeholder catalog entry |
 | `runway`          | `video-provider-coming-soon` | Placeholder catalog entry |
 | `luma`            | `video-provider-coming-soon` | Placeholder catalog entry |

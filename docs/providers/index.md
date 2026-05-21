@@ -128,21 +128,16 @@ Each provider name links to its provider-specific markdown file.
 | [Meta](meta.md) | `meta` | Chat - Video | Configured |
 | [xAI](xai.md) | `xai` | Chat - Speech-to-text - Realtime voice - Image - Video | Configured |
 | [Mistral AI](mistral.md) | `mistral` | Chat - Speech-to-text - Text-to-speech | Configured |
-| [Cohere](cohere.md) | `cohere` | Chat - Speech-to-text | Configured |
 | [DeepSeek](deepseek.md) | `deepseek` | Chat | Configured |
 | [Alibaba / Qwen / Wan](qwen.md) | `qwen` | Chat - Speech-to-text - Omni - Image - Video | Configured |
 | [Moonshot AI / Kimi](kimi.md) | `kimi` | Chat | Configured |
 | [Z.ai / Zhipu AI](zai.md) | `zai` | Chat | Configured |
-| [Baidu](baidu.md) | `baidu` | Chat - Speech-to-text - Omni - Image | Configured |
-| [Tencent Hunyuan](tencent-hunyuan.md) | `tencent-hunyuan` | Chat - Image - Video - 3D | Configured |
-| [ByteDance Seed](bytedance-seed.md) | `bytedance-seed` | Chat - Image - Video - 3D | Configured |
 | [MiniMax](minimax.md) | `minimax` | Chat - Text-to-speech - Video - Music | Configured |
 | [ElevenLabs](elevenlabs.md) | `elevenlabs` | Speech-to-text - Text-to-speech - Audio - Music | None |
 | [Deepgram](deepgram.md) | `deepgram` | Speech-to-text - Text-to-speech | None |
 | [Cartesia](cartesia.md) | `cartesia` | Text-to-speech | None |
 | [Black Forest Labs](black-forest-labs.md) | `black-forest-labs` | Image | None |
 | [Midjourney](midjourney.md) | `midjourney` | Image - Video | None |
-| [Adobe Firefly](adobe-firefly.md) | `adobe-firefly` | Image - Video - Audio | None |
 | [Kuaishou / Kling AI](kling.md) | `kling` | Image - Video - Audio | None |
 | [Runway](runway.md) | `runway` | Video | None |
 | [Luma AI](luma.md) | `luma` | Omni - Image - Video - 3D | Configured |
@@ -151,9 +146,7 @@ Each provider name links to its provider-specific markdown file.
 | [Pika](pika.md) | `pika` | Video | None |
 | [Suno](suno.md) | `suno` | Music | None |
 | [Reka AI](reka.md) | `reka` | Chat | Configured |
-| [AI21 Labs](ai21.md) | `ai21` | Chat | Configured |
 | [Perplexity](perplexity.md) | `perplexity` | Research chat | Configured |
-| [NVIDIA](nvidia.md) | `nvidia` | Chat - Speech-to-text | Configured |
 
 ## Provider Lists Without Main-Agent Models
 
@@ -167,7 +160,6 @@ entry in `DEFAULT_AGENT_MODELS_BY_PROVIDER`:
 | [`cartesia`](cartesia.md) | Text-to-speech credentials. |
 | [`black-forest-labs`](black-forest-labs.md) | Image generation credentials. |
 | [`midjourney`](midjourney.md) | Image and video provider placeholder with no configured official API-key link. |
-| [`adobe-firefly`](adobe-firefly.md) | Adobe Firefly Services credentials. |
 | [`kling`](kling.md) | Kling image/video/audio credentials. |
 | [`runway`](runway.md) | Runway video credentials. |
 | [`stability-ai`](stability-ai.md) | Stability image/video/audio credentials. |

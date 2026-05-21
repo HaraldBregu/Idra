@@ -53,21 +53,16 @@ masked placeholder.
 | `meta` | Meta | Chat - Video |
 | `xai` | xAI | Chat - Realtime voice - Image - Video |
 | `mistral` | Mistral AI | Chat - Speech-to-text - Text-to-speech |
-| `cohere` | Cohere | Chat - Speech-to-text |
 | `deepseek` | DeepSeek | Chat |
 | `qwen` | Alibaba / Qwen / Wan | Chat - Omni - Image - Video |
 | `kimi` | Moonshot AI / Kimi | Chat |
 | `zai` | Z.ai / Zhipu AI | Chat |
-| `baidu` | Baidu | Chat - Omni - Image |
-| `tencent-hunyuan` | Tencent Hunyuan | Chat - Image - Video - 3D |
-| `bytedance-seed` | ByteDance Seed | Chat - Image - Video - 3D |
 | `minimax` | MiniMax | Chat - Text-to-speech - Video - Music |
 | `elevenlabs` | ElevenLabs | Speech-to-text - Text-to-speech - Audio - Music |
 | `deepgram` | Deepgram | Speech-to-text - Text-to-speech |
 | `cartesia` | Cartesia | Text-to-speech |
 | `black-forest-labs` | Black Forest Labs | Image |
 | `midjourney` | Midjourney | Image - Video |
-| `adobe-firefly` | Adobe Firefly | Image - Video - Audio |
 | `kling` | Kuaishou / Kling AI | Image - Video - Audio |
 | `runway` | Runway | Video |
 | `luma` | Luma AI | Omni - Image - Video - 3D |
@@ -76,9 +71,7 @@ masked placeholder.
 | `pika` | Pika | Video |
 | `suno` | Suno | Music |
 | `reka` | Reka AI | Chat |
-| `ai21` | AI21 Labs | Chat |
 | `perplexity` | Perplexity | Research chat |
-| `nvidia` | NVIDIA | Chat |
 
 ## Step 3: Agent Configuration
 
