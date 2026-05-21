@@ -56,7 +56,7 @@ Target embedding flow:
 
 ## Task And Scheduler Use
 
-Immediate embedding work should use registered background task handlers.
+Future immediate embedding work should use registered background task handlers.
 
 Scheduled embedding work should use the task scheduler only for timing. The
 schedule stores sanitized task input and dispatches an embedding task; the

@@ -88,8 +88,8 @@ Resolution behavior:
 - The saved agent service configuration comes from the root `llmAgent`
   settings. Compatibility IPC can still expose this as the agent service, but
   persisted settings should not use the legacy `agent` or `service` root keys.
-- The provider id comes from `agent.providerId`, trimmed and lowercased.
-- The model comes from `agent.modelId`, trimmed before use.
+- The provider id comes from `llmAgent.providerId`, trimmed and lowercased.
+- The model comes from `llmAgent.modelId`, trimmed before use.
 - Callers may pass `AgentSendOptions.providerId`; it is trimmed, lowercased,
   and used instead of the stored provider id for that run.
 - Callers may pass `AgentSendOptions.model`; it is trimmed and used instead of

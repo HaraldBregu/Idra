@@ -102,8 +102,8 @@ provider.
 
 ## Task And Cron Use
 
-Immediate background work should use a module-backed task handler such as
-`text-to-speech.run`.
+Future immediate background work should use a module-backed task handler such
+as `text-to-speech.run`.
 
 Scheduled work should use the task scheduler only for timing. When the schedule
 fires, it should create or dispatch the same task type. The schedule must not
@@ -119,8 +119,8 @@ Recommended task input:
 }
 ```
 
-The task handler validates the input and calls the TTS module. The TTS module
-resolves provider and model from its saved settings.
+When registered, the task handler validates the input and calls the TTS module.
+The TTS module resolves provider and model from its saved settings.
 
 ## Failure Cases
 

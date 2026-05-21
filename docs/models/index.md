@@ -2,7 +2,8 @@
 
 This document is the user-facing model catalog for Friday. It summarizes the
 model families Friday currently exposes, which providers own each model list,
-and where runtime support is implemented versus still capability-backed.
+and where runtime support is implemented versus still placeholder-backed or
+pending.
 
 The source of truth is:
 
@@ -16,7 +17,7 @@ The source of truth is:
 
 ## Support Levels
 
-Friday uses two different kinds of model support:
+Friday uses several kinds of model support:
 
 | Support level | Meaning |
 | --- | --- |
