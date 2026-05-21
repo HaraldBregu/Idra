@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import {
 	CONNECTOR_CATALOG_COUNTS,
@@ -34,6 +34,41 @@ describe('shared connector catalog', () => {
 		for (const connector of OPENAI_CONNECTOR_CATALOG) {
 			expect(isDirectConnectorCatalogId(connector.directConnectorId)).toBe(true);
 		}
+	});
+
+	it('keeps Settings connector docs in sync with the shared catalog', () => {
+		const docsRoot = path.join(process.cwd(), 'docs/connectors');
+		const catalogDocs = new Set<string>();
+
+		for (const connector of OPENAI_CONNECTOR_CATALOG) {
+			const docsPath = path.join(process.cwd(), connector.docsPath);
+			const markdown = readFileSync(docsPath, 'utf8');
+			catalogDocs.add(path.basename(connector.docsPath));
+
+			expect(markdown).toContain(`Connector id | \`${connector.id}\``);
+			expect(markdown).toContain(`Direct connector id | \`${connector.directConnectorId}\``);
+			expect(markdown).toContain(`Name | ${connector.name}`);
+			expect(markdown).toContain(connector.setupUrl);
+			expect(markdown).toContain(`Use with \`${connector.example.tool}\`.`);
+
+			for (const secret of connector.environmentSecretNames) {
+				expect(markdown).toContain(`- \`${secret}\``);
+			}
+			for (const tool of connector.tools) {
+				expect(markdown).toContain(`- \`${tool}\``);
+			}
+			for (const scope of connector.scopes) {
+				expect(markdown).toContain(`- \`${scope}\``);
+			}
+			for (const page of connector.platformDocumentationPages) {
+				expect(markdown).toContain(page.url);
+			}
+		}
+
+		const docsFiles = readdirSync(docsRoot)
+			.filter((file) => file.endsWith('.md') && file !== 'index.md')
+			.sort();
+		expect(docsFiles).toEqual(Array.from(catalogDocs).sort());
 	});
 
 	it('ships light and dark icon assets for every direct connector icon folder', () => {
