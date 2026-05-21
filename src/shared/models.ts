@@ -8,7 +8,7 @@ import {
 import {
 	IMAGE_CREATOR_MODELS,
 	SPEECH_TO_TEXT_MODELS,
-	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER as SERVICE_SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	getImageCreatorModels,
@@ -25,8 +25,8 @@ export type ModelCatalog = Readonly<Record<string, readonly Model[]>>;
 export type ModelCapability = 'llm' | 'speech-to-text' | 'text-to-speech' | 'text-to-image';
 
 export const LLM_MODELS_BY_PROVIDER: ModelCatalog = DEFAULT_AGENT_MODELS_BY_PROVIDER;
-export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER_CATALOG: ModelCatalog =
-	SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
+export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER: ModelCatalog =
+	SERVICE_SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
 export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER: ModelCatalog = {
 	[TEXT_TO_SPEECH_PROVIDER_ID]: TEXT_TO_SPEECH_MODELS,
 };
@@ -38,7 +38,7 @@ export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER: ModelCatalog = modelCatalogForPro
 
 export const MODEL_CATALOGS_BY_CAPABILITY = {
 	llm: LLM_MODELS_BY_PROVIDER,
-	speechToText: SPEECH_TO_TEXT_MODELS_BY_PROVIDER_CATALOG,
+	speechToText: SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	textToSpeech: TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	textToImage: TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 } as const satisfies Readonly<Record<string, ModelCatalog>>;
