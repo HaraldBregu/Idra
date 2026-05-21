@@ -175,6 +175,56 @@ The default runner is `InMemoryCronScheduleRunner`. It creates a `CronScheduledT
 - `input`: redacted schedule `taskInput`
 - metadata containing the scheduled time, actual trigger time, run number, missed-run flag, runner id, and idempotency key
 
+## Operator-Backed Scheduled Work
+
+Cron owns timing, persistence, and due-run processing. It does not own provider
+or model selection for model-backed work.
+
+When a schedule triggers an operator-backed task, the schedule should store the
+task type and sanitized task input only. The task handler or main-process
+operator module resolves provider and model from `StoreService` at execution
+time.
+
+Recommended operator task types:
+
+- `text-to-speech.run`: uses `operator.textToSpeech`.
+- `image.create`: uses `operator.imageCreator`.
+- `video.create`: uses `operator.videoCreator`.
+- `sound.create`: uses `operator.musicCreator`.
+- `ocr.run`: uses `operator.documentReaderOcr` or the configured OCR endpoint.
+
+Cron payloads must not store API keys, base URLs, webhook secrets, or raw
+provider records. If a future scheduled task supports a provider/model override,
+the payload may contain only ids; credentials and full provider configuration
+must still be resolved from `StoreService`.
+
+Example media schedule:
+
+```ts
+await cron.createSchedule({
+	name: 'Create weekly product image',
+	type: 'cron',
+	source: 'agent',
+	sourceId: 'agent',
+	createdBy: 'agent',
+	visibility: 'user',
+	timezone: 'Europe/Rome',
+	cronExpression: '0 8 * * 1',
+	missedRunPolicy: 'skip',
+	concurrencyPolicy: 'skipIfRunning',
+	taskType: 'image.create',
+	taskInput: {
+		prompt: 'Create a square product image for the weekly announcement.',
+		aspectRatio: '1:1',
+		count: 1
+	},
+});
+```
+
+When this schedule fires, cron creates or dispatches an `image.create` task.
+The image task calls the image module, and the image module reads
+`operator.imageCreator` to choose the provider and model.
+
 ## Missed Runs
 
 Startup recovery handles schedules whose persisted `nextRunAt` is already in the past.
@@ -283,4 +333,3 @@ await cron.createSchedule({
 ```
 
 This creates an active schedule that runs every Monday at 09:00 in the `Europe/Rome` timezone. During creation, the scheduler validates the cron expression, computes the first `nextRunAt`, persists the schedule, and emits `schedule.created`.
-
