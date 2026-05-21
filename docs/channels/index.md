@@ -4,12 +4,24 @@ This document describes Friday's messaging channel subsystem: the catalog shown
 in Settings, the shared channel configuration model, the main-process registry,
 the unified agent gateway contract, and the currently bundled Telegram runtime.
 
+The source-of-truth files are:
+
+- `src/shared/channels.ts` for channel ids, shared config types, and runtime
+  status events.
+- `src/shared/channel-catalog.ts` for catalog metadata, aliases, docs paths,
+  visibility, setup visibility, markdown capability, and brand icon ids.
+- `src/main/channels/registry.ts` for plugin registration, runtime factory
+  registration, adapter lifecycle, inbound dispatch, outbound sends, and status
+  broadcasts.
+- `src/main/channels/telegram/plugin.ts` and
+  `src/main/channels/telegram/adapter.ts` for the reference runtime.
+
 ## Catalog
 
-Friday should maintain a channel catalog with stable channel ids, labels,
+Friday maintains a channel catalog with stable channel ids, labels,
 aliases, UI ordering, markdown support, exposure, and docs paths. Aliases such
-as `lark`, `gchat`, `google-chat`, `imsg`, `teams`, `nc`, `twitch-chat`, `zl`,
-and `zlu` should resolve to their canonical ids.
+as `lark`, `gchat`, `google-chat`, `imsg`, `internet-relay-chat`, `teams`,
+`nc-talk`, `nc`, `twitch-chat`, `zl`, and `zlu` resolve to their canonical ids.
 
 The channel ids below link to the per-channel markdown files used by the
 catalog docs path.
@@ -45,6 +57,19 @@ all share stable ids.
 | [`zalo`](zalo.md) | Zalo | `zl` | Catalog-only | [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147), [Zalo API Explorer](https://developers.zalo.me/tools/explorer/). |
 | [`zalouser`](zalouser.md) | Zalo Personal | `zlu` | Catalog-only | No verified official personal-user automation API docs found. Reuse official Zalo developer docs only for supported Official Account flows: [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147). |
 
+Catalog metadata rules:
+
+- `docsPath` must point at the matching file under `docs/channels/`.
+- `docsLabel` defaults to `<label> setup`.
+- `setupVisible` and `catalogVisible` default to `false` only for hidden
+  entries.
+- `qa-channel` is hidden and is for tests, not the Settings catalog.
+- `brandIconId` is currently set for Discord, Google Chat, Microsoft Teams, and
+  Slack. Matching light and dark icon assets must exist under
+  `resources/icons/brands/<brandIconId>/`.
+- `markdownCapable` records provider capability for future runtime work. It
+  does not mean a catalog-only provider can currently send or render messages.
+
 ## Configuration Model
 
 The stored channel state is a `Channel` object keyed by `ChannelType`. Each
@@ -67,14 +92,22 @@ WhatsApp, and Discord have first-class top-level config shapes because they need
 common token, allowlist, and account fields. Other channels use the generic
 account map.
 
-All channels default to disabled. The default direct-message policy is
-`allowlist`, so an empty `allowFrom` list denies direct messages unless a user
-explicitly changes `dmPolicy` to `open`.
+All channels default to disabled with `defaultAccountId: "default"`. The stored
+default direct-message policy is `allowlist`, so an empty `allowFrom` list
+denies direct messages unless a user explicitly changes `dmPolicy` to `open`.
+Catalog-only plugins still report their accounts as unconfigured until a runtime
+implementation exists.
 
 Treat all token, secret, webhook, and client credential fields as secrets. Do
 not log them, add them to docs examples as real values, commit them, or include
 them in agent-visible output. The Telegram plugin also advertises
 `TELEGRAM_BOT_TOKEN` and secret assignment paths for future secret-store work.
+
+The Settings detail view writes the same shared account fields for every
+channel. Phone-number inputs are shown for iMessage, LINE, QQ Bot, Signal,
+Telegram, WhatsApp, Zalo, and Zalo Personal. Server URL inputs are shown for
+Discord, Feishu, Google Chat, IRC, Matrix, Mattermost, Microsoft Teams,
+Nextcloud Talk, Nostr, Slack, Synology Chat, Tlon, and Twitch.
 
 ## Renderer IPC API
 
@@ -98,6 +131,11 @@ The preload layer exposes `window.channels`:
 `ChannelsIpc` validates channel ids with `normalizeChannelId()` before reading
 or writing config. Unsupported ids throw an IPC error.
 
+The renderer currently exposes runtime controls only for Telegram. Generic
+`startChannel()`, `stopChannel()`, and `restartChannel()` methods exist on
+`ChannelRegistry` for tests and future host code, but they are not renderer IPC
+APIs yet.
+
 ## Registry And Plugin Lifecycle
 
 `ChannelRegistry` owns registered plugins, runtime factories, active adapters,
@@ -108,7 +146,8 @@ Startup behavior:
 1. Register catalog-only plugins for every catalog entry.
 2. Register the Telegram runtime plugin, overriding the catalog-only Telegram
    entry.
-3. Register the lazy Telegram runtime factory.
+3. Register the lazy Telegram runtime factory, which imports the adapter only
+   when Telegram is started.
 4. Register any injected runtime factories from tests or future host code.
 
 Runtime start behavior:
@@ -232,7 +271,9 @@ to Telegram forum topic message thread ids.
 Use the existing Telegram plugin as the template.
 
 1. Add or verify the id in `CHANNEL_PROVIDER_IDS`.
-2. Add catalog metadata in `CHANNEL_CATALOG_INPUT`.
+2. Add catalog metadata in `CHANNEL_CATALOG_INPUT`, including aliases,
+   markdown capability, exposure, docs path defaults, and `brandIconId` when a
+   local brand icon should be used.
 3. Define a shared config shape only if the generic account shape is not
    enough.
 4. Implement a `ChannelPlugin` with config, setup, security, messaging,
@@ -245,11 +286,13 @@ Use the existing Telegram plugin as the template.
 6. Register the plugin and runtime factory in `ChannelRegistry`.
 7. Add IPC helpers only when generic `saveChannelConfig()` and `getStatus()` are
    not enough.
-8. Update Settings UI only for fields that need channel-specific controls.
+8. Update Settings UI only for fields, runtime actions, or status behavior that
+   need channel-specific controls.
 9. Add tests for catalog normalization, config normalization, ingress admission,
    message normalization, durable sends, registry start/stop/send behavior, and
    any target parsing rules.
-10. Add official docs links to the catalog table above.
+10. Add or update the per-channel docs page, official docs links in the catalog
+    table above, and brand icon assets/tests if `brandIconId` is set.
 
 Do not bypass `ChannelRegistry`, `ChannelRegistry.send()`, or
 `runChannelTurn()` for agent message-in or message-out. That path keeps account
