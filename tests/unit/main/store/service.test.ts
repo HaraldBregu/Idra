@@ -3,7 +3,7 @@
  *
  * electron-store is mocked with an in-memory Map so that the real
  * StoreService logic (case-insensitive lookups, provider upserts,
- * service writes) is exercised without touching the filesystem.
+ * module writes) is exercised without touching the filesystem.
  */
 
 // jest.mock is hoisted before any import declarations, so the factory
@@ -28,13 +28,24 @@ import { StoreService } from '../../../../src/main/store';
 import { emptyFridayCronStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { Provider } from '../../../../src/shared/providers';
-import type { Model, OperatorStoreState } from '../../../../src/shared/service';
+import type { Model } from '../../../../src/shared/service';
 
 // ---------------------------------------------------------------------------
 // Typed accessor for the mocked Store constructor.
 // ---------------------------------------------------------------------------
 
 const MockStore = Store as jest.MockedClass<typeof Store>;
+
+function storeFor(service: StoreService): {
+	get: (key: string) => unknown;
+	set: (key: string, value: unknown) => void;
+} {
+	return (
+		service as unknown as {
+			store: { get: (key: string) => unknown; set: (key: string, value: unknown) => void };
+		}
+	).store;
+}
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
