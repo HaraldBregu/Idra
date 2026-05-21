@@ -50,7 +50,16 @@ const anthropicProvider: Provider = {
 	baseUrl: 'https://api.anthropic.com/v1',
 };
 
+const imageProvider: Provider = {
+	id: 'black-forest-labs',
+	name: 'Black Forest Labs',
+	apiKey: 'bfl-old',
+	baseUrl: 'https://api.bfl.ai/v1',
+	capabilities: 'Image',
+};
+
 const model: Model = { id: 'gpt-5.4', name: 'GPT-5.4' };
+const imageModel: Model = { id: 'image-provider-coming-soon', name: 'Not available yet' };
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -510,6 +519,63 @@ describe('StoreService', () => {
 			});
 			expect(store.get('agent')).toBeUndefined();
 			expect(store.get('service')).toBeUndefined();
+		});
+	});
+
+	describe('setImageCreatorOperator()', () => {
+		it('persists the compact imageCreator module selection at the root', () => {
+			const service = new StoreService();
+			const store = (service as unknown as {
+				store: { get: (k: string) => unknown; set: (k: string, v: unknown) => void };
+			}).store;
+			store.set('modelProviders', [imageProvider]);
+
+			const result = service.setImageCreatorOperator('black-forest-labs', imageModel);
+
+			expect(result).toBe(true);
+			expect(store.get('imageCreator')).toEqual({
+				providerId: 'black-forest-labs',
+				modelId: 'image-provider-coming-soon',
+			});
+			expect(store.get('service')).toBeUndefined();
+		});
+
+		it('returns the image creator operator without exposing the provider api key', () => {
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
+				.store.set('modelProviders', [imageProvider]);
+
+			service.setImageCreatorOperator('black-forest-labs', imageModel);
+
+			expect(service.getImageCreatorOperator()).toMatchObject({
+				id: 'image-assistant',
+				provider: {
+					id: 'black-forest-labs',
+					name: 'Black Forest Labs',
+					baseUrl: 'https://api.bfl.ai/v1',
+					capabilities: 'Image',
+				},
+				model: imageModel,
+			});
+			expect(service.getImageCreatorOperator()?.provider).not.toHaveProperty('apiKey');
+		});
+
+		it('rejects providers without image capability', () => {
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
+				.store.set('modelProviders', [openaiProvider]);
+
+			expect(service.setImageCreatorOperator('openai', imageModel)).toBe(false);
+			expect(service.getImageCreatorOperator()).toBeUndefined();
+		});
+
+		it('rejects unsupported image model ids', () => {
+			const service = new StoreService();
+			(service as unknown as { store: { set: (k: string, v: unknown) => void } })
+				.store.set('modelProviders', [imageProvider]);
+
+			expect(service.setImageCreatorOperator('black-forest-labs', model)).toBe(false);
+			expect(service.getImageCreatorOperator()).toBeUndefined();
 		});
 	});
 
