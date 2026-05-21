@@ -67,7 +67,7 @@ These tools are added only when the corresponding runtime condition applies.
 | `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
 | `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
 | Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
-| `text_to_image` | Added when the text-to-image module is configured with an image-capable provider/model and a runtime adapter. |
+| Media generation tools | Added when a text-to-speech, text-to-video, or text-to-image module is configured with a capable provider/model and runtime adapter. |
 | Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
 | MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
 | LSP tools | Available through the run-scoped assembler when an LSP runtime supplies capabilities. |
