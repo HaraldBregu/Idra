@@ -12,6 +12,10 @@ Catalog metadata for Friday's QA channel.
 QA Channel is an internal synthetic test channel for local QA and contract
 tests. It has no external runtime adapter.
 
+The catalog entry is hidden: it is available to code and tests through the
+shared channel catalog, but it should not appear in the Settings channel
+catalog.
+
 ## Implementation Contract
 
 Synthetic channel tests should use Friday's unified channel gateway described in

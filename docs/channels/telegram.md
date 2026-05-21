@@ -11,6 +11,17 @@ Catalog metadata for Friday's Telegram channel.
 
 Telegram has a bundled runtime adapter implemented with `grammy`.
 
+## Configuration Notes
+
+Telegram uses the shared channel settings model with a first-class top-level
+config shape. The saved token can come from the top-level `token` field or from
+the selected account config. `defaultAccountId` falls back to `default`, and the
+default account label is `Telegram bot`.
+
+The default direct-message policy is `allowlist`. With an empty `allowFrom`
+list, direct messages are denied unless `dmPolicy` is explicitly changed to
+`open`. `groupAllowFrom` limits non-DM routes when the list is not empty.
+
 ## Implementation Contract
 
 Telegram is Friday's reference implementation of the unified channel gateway
@@ -42,7 +53,8 @@ telegram:<accountId>/<chatId>#<threadId>
 ```
 
 Negative Telegram ids generally represent groups or supergroups. Thread ids map
-to Telegram forum topic message thread ids.
+to Telegram forum topic message thread ids. Outbound sends currently preserve
+plain text and do not set a Telegram parse mode.
 
 ## Official Documentation
 
