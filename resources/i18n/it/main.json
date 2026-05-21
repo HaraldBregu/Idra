@@ -149,12 +149,12 @@
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
 			"groups": {
 				"general": "Configurazione generale",
-				"capabilities": "Agenti ed estensioni",
+				"capabilities": "Operatori ed estensioni",
 				"automation": "Automazioni e app"
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
-				"agents": "Configurazione agenti",
+				"operators": "Configurazione operatori",
 				"system": "Permessi e attivita in background",
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
@@ -168,7 +168,7 @@
 		},
 		"tabs": {
 			"general": "Generale",
-			"agents": "Agenti",
+			"operators": "Operatori",
 			"channels": "Canali",
 			"connectors": "Connettori",
 			"workspace": "Area di Lavoro",
@@ -589,13 +589,13 @@
 			"keySaved": "Chiave API salvata",
 			"keyMissing": "Chiave API mancante"
 		},
-		"agents": {
-			"title": "Agenti",
-			"description": "Rivedi gli agenti disponibili in Friday.",
-			"subtitle": "Configura le assegnazioni dei modelli che ogni agente usa per il suo lavoro.",
-			"detailsTitle": "Dettagli Agente",
+		"operators": {
+			"title": "Operatori",
+			"description": "Rivedi gli operatori con incarichi specifici disponibili in Friday.",
+			"subtitle": "Configura le assegnazioni dei modelli che ogni operatore usa per il suo incarico.",
+			"detailsTitle": "Dettagli Operatore",
 			"history": "Cronologia",
-			"allAgents": "Tutti gli agenti",
+			"allOperators": "Tutti gli operatori",
 			"identity": "Identita",
 			"configuration": "Configurazione",
 			"fridayBreadcrumb": "Friday",
@@ -638,13 +638,13 @@
 			"documentReaderProviderDescription": "Provider usato per OCR.",
 			"documentReaderModel": "Modello OCR",
 			"documentReaderModelDescription": "Modello usato per estrarre testo.",
-			"configurationPending": "Questo agente e disponibile nella configurazione iniziale, ma le impostazioni modello non vengono ancora salvate dalle Impostazioni.",
+			"configurationPending": "Questo operatore e disponibile nella configurazione iniziale, ma le impostazioni modello non vengono ancora salvate dalle Impostazioni.",
 			"modelUnavailable": "Non ancora disponibile",
 			"provider": "Provider",
-			"providerDescription": "Provider AI usato da questo agente.",
+			"providerDescription": "Provider AI usato da questo operatore.",
 			"providerPlaceholder": "Seleziona provider",
 			"model": "Modello",
-			"modelDescription": "Modello usato da questo agente per le risposte testuali.",
+			"modelDescription": "Modello usato da questo operatore per le risposte testuali.",
 			"modelPlaceholder": "Seleziona modello",
 			"modelsLoading": "Caricamento…",
 			"modelsLoadError": "Impossibile caricare i modelli per questo provider.",
@@ -666,10 +666,10 @@
 			},
 			"saving": "Salvataggio...",
 			"saved": "Salvato",
-			"notFoundTitle": "Agente non trovato",
-			"notFoundDescription": "L'agente richiesto non e disponibile.",
-			"loadError": "Impossibile caricare le impostazioni degli agenti.",
-			"saveError": "Impossibile salvare le impostazioni degli agenti."
+			"notFoundTitle": "Operatore non trovato",
+			"notFoundDescription": "L'operatore richiesto non e disponibile.",
+			"loadError": "Impossibile caricare le impostazioni degli operatori.",
+			"saveError": "Impossibile salvare le impostazioni degli operatori."
 		},
 		"skills": {
 			"title": "Abilità installate",
