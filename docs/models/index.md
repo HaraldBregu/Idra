@@ -195,4 +195,4 @@ webhook secrets, or raw provider records.
   boundaries.
 - [text-to-video.md](text-to-video.md) documents text-to-video module
   boundaries.
-- [store.md](../store.md) documents the target model-backed store shape.
+- [store.md](../data/store.md) documents the target model-backed store shape.

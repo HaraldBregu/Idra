@@ -79,7 +79,7 @@ These tools are added only when the corresponding runtime condition applies.
 ## Scheduling And Background Tasks
 
 `cron` is the agent-facing tool for the task scheduler module documented in
-[scheduled.md](tasks/scheduled.md). Use it for future, delayed, recurring,
+[scheduled.md](../tasks/scheduled.md). Use it for future, delayed, recurring,
 reminder, wake, and manual-run scheduling. The agent should not emulate
 scheduling with sleep loops, shell loops, long-running polling, or model-side
 timers.
@@ -87,14 +87,14 @@ timers.
 Use `cron` only when the request is actually scheduled.
 
 Use `task` for immediate background task creation through the background task
-module documented in [background.md](tasks/background.md). When the user
+module documented in [background.md](../tasks/background.md). When the user
 asks to “run a task in background”, the agent should call `task` so the request
 goes through a registered background task handler.
 
 Use `text_to_image` when the user asks the agent to generate, edit, or vary an
 image and store the result in the workspace as part of the current turn. The
 tool should be a thin wrapper around the text-to-image module documented in
-[text-to-image.md](models/text-to-image.md). It accepts prompt instructions, safe
+[text-to-image.md](../models/text-to-image.md). It accepts prompt instructions, safe
 generation options, safe input asset references, and a workspace-relative output
 path or output directory. It must validate that every generated file stays
 inside the workspace, then return normalized local image references.

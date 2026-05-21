@@ -57,5 +57,5 @@ records, or other credentials.
 ## Related Docs
 
 - [Modules](../modules.md)
-- [Store](../store.md)
-- [Tools](../tools.md)
+- [Store](../data/store.md)
+- [Tools](../ai/tools.md)

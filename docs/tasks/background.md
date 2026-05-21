@@ -249,7 +249,7 @@ ids; credentials and provider records must still come from `StoreService`.
 The background task module should keep a private in-memory task store, a task
 registry, concrete handlers, typed IPC, a preload API, and service
 registration. Persistent settings for task policy belong in the root
-`backgroundTask` store key documented in [store.md](../store.md).
+`backgroundTask` store key documented in [store.md](../data/store.md).
 
 The task manager should use an in-memory map for internal task state. Internal
 state may include the handler promise and `AbortController`; the public

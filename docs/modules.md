@@ -5,7 +5,7 @@ boundary, dependencies, root store settings, and service API. Some modules can
 also be wrapped as LLM tools, but tool exposure is only one possible surface
 for a module.
 
-Store settings are documented in [store.md](store.md). Each module owns one
+Store settings are documented in [store.md](data/store.md). Each module owns one
 root-level store property.
 
 Use module terminology for product architecture, documentation, UI descriptions,
