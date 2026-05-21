@@ -2,7 +2,7 @@
 
 This document describes Friday's messaging channel subsystem: the catalog shown
 in Settings, the shared channel configuration model, the main-process registry,
-and the currently bundled Telegram runtime.
+the unified agent gateway contract, and the currently bundled Telegram runtime.
 
 ## Catalog
 
@@ -124,12 +124,34 @@ Runtime start behavior:
 Status events are cached, emitted on the main event bus as `channel:status`,
 and broadcast to the renderer as `channels:status-changed`.
 
+## Unified Gateway Contract
+
+`ChannelRegistry` is Friday's only agent-facing message gateway for channel
+traffic. Provider runtimes may use webhooks, polling, WebSockets, local device
+bridges, or hosted APIs, but the agent must only receive and send the shared
+channel message shapes.
+
+Every runtime provider must implement the same boundary:
+
+| Direction | Provider responsibility | Shared format |
+| --- | --- | --- |
+| Message in | Receive provider events, validate provider authentication, deduplicate platform message ids, preserve provider facts in `provenance`, and emit the raw channel message through `ChannelAdapter.onMessage()`. | `ChannelInboundMessage` |
+| Agent dispatch | Let `runChannelTurn()` resolve the account, normalize the inbound message, apply security and admission policy, record diagnostics, call `AgentService.send()`, and resolve the reply route. | `ChannelNormalizedInboundMessage` |
+| Message out | Accept sends only through `ChannelRegistry.send()`, map `to`, `threadId`, and `replyToMessageId` to the provider API, and return a delivery result. | `ChannelOutboundMessage` to `ChannelMessageReceipt` |
+
+Do not add provider-specific agent dispatch paths, provider-specific renderer
+send IPC, or direct `AgentService` calls inside a provider runtime.
+Provider-specific fields belong in config, target parsing, `provenance`, and
+receipts. Catalog-only providers must keep runtime capabilities disabled until
+they can satisfy this gateway contract.
+
 ## Inbound Flow
 
 For runtime channels, inbound messages follow this path:
 
 1. The platform adapter receives a platform event and emits a
-   `ChannelInboundMessage`.
+   `ChannelInboundMessage`. This is the only provider-to-agent message-in
+   entry point.
 2. `ChannelRegistry.handleMessage()` resolves the plugin, account id, and saved
    config.
 3. `runChannelTurn()` resolves the configured account.
@@ -215,8 +237,11 @@ Use the existing Telegram plugin as the template.
    enough.
 4. Implement a `ChannelPlugin` with config, setup, security, messaging,
    threading, and doctor adapters.
-5. Implement a runtime `ChannelAdapter` with `start()`, `stop()`, `send()`,
-   `onMessage()`, and `onStatus()`.
+5. Implement a runtime `ChannelAdapter` as the provider gateway with `start()`,
+   `stop()`, `send()`, `onMessage()`, and `onStatus()`. It must convert
+   provider message-in events to `ChannelInboundMessage` and convert
+   `ChannelOutboundMessage` sends to provider API calls that return
+   `ChannelMessageReceipt`.
 6. Register the plugin and runtime factory in `ChannelRegistry`.
 7. Add IPC helpers only when generic `saveChannelConfig()` and `getStatus()` are
    not enough.
@@ -226,6 +251,7 @@ Use the existing Telegram plugin as the template.
    any target parsing rules.
 10. Add official docs links to the catalog table above.
 
-Do not bypass `runChannelTurn()` for inbound agent dispatch. That path keeps
-account resolution, security policy, diagnostics, and reply routing consistent
-across runtimes.
+Do not bypass `ChannelRegistry`, `ChannelRegistry.send()`, or
+`runChannelTurn()` for agent message-in or message-out. That path keeps account
+resolution, security policy, diagnostics, and reply routing consistent across
+runtimes.

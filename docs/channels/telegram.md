@@ -11,6 +11,14 @@ Catalog metadata for Friday's Telegram channel.
 
 Telegram has a bundled runtime adapter implemented with `grammy`.
 
+## Implementation Contract
+
+Telegram is Friday's reference implementation of the unified channel gateway
+described in [Channel subsystem](index.md#unified-gateway-contract). Telegram
+updates become `ChannelInboundMessage`, agent replies are sent through
+`ChannelRegistry.send()` as `ChannelOutboundMessage`, and delivery returns
+`ChannelMessageReceipt`.
+
 Current behavior:
 
 - Uses long polling with `drop_pending_updates: true`.
@@ -36,7 +44,7 @@ telegram:<accountId>/<chatId>#<threadId>
 Negative Telegram ids generally represent groups or supergroups. Thread ids map
 to Telegram forum topic message thread ids.
 
-## Platform Documentation
+## Official Documentation
 
 - [Telegram Bot API](https://core.telegram.org/bots/api)
 - [grammY documentation](https://grammy.dev/)
@@ -44,3 +52,4 @@ to Telegram forum topic message thread ids.
 ## Related Docs
 
 - [Channel subsystem](index.md)
+- [Unified gateway contract](index.md#unified-gateway-contract)
