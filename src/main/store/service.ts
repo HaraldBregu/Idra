@@ -328,18 +328,19 @@ export class StoreService {
 				},
 			},
 		};
-		if (currentAgentSettings) {
-			this.store.set('llmAgent', {
-				...currentAgentSettings,
-				options: {
-					...(currentAgentSettings.options ?? {}),
-					agents: next.agents,
-				},
-			});
-			this.store.delete('agent');
+			if (currentAgentSettings) {
+				const nextAgentSettings = {
+					...currentAgentSettings,
+					options: {
+						...(currentAgentSettings.options ?? {}),
+						agents: next.agents,
+					},
+				};
+				this.store.set('llmAgent', nextAgentSettings);
+				this.store.set('agent', nextAgentSettings);
+			}
+			return nextHeartbeat;
 		}
-		return nextHeartbeat;
-	}
 
 	getAssistantOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('assistant');
@@ -383,8 +384,9 @@ export class StoreService {
 			return false;
 		}
 		const current = this.getModelModuleSettings('llmAgent');
-		this.store.set('llmAgent', modelModuleSettings(provider.id, model, current?.options));
-		this.store.delete('agent');
+		const settings = modelModuleSettings(provider.id, model, current?.options);
+		this.store.set('llmAgent', settings);
+		this.store.set('agent', settings);
 		return true;
 	}
 
