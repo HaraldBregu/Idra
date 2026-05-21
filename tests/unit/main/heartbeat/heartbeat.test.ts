@@ -1,4 +1,4 @@
-import type { Service } from '../../../../src/shared/service';
+import type { OperatorStoreState } from '../../../../src/shared/service';
 import {
 	HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
 	HeartbeatService,
@@ -25,7 +25,7 @@ import {
 import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import { makeLogger } from '../test-helpers';
 
-function serviceConfig(overrides: Partial<Service> = {}): Service {
+function operatorConfig(overrides: Partial<OperatorStoreState> = {}): OperatorStoreState {
 	return {
 		rag: '',
 		ocr: '',
@@ -34,19 +34,19 @@ function serviceConfig(overrides: Partial<Service> = {}): Service {
 }
 
 function makeHeartbeatHarness(options: {
-	service?: Service;
+	service?: OperatorStoreState;
 	heartbeatFile?: { missing: boolean; content?: string; path?: string };
 	send?: jest.Mock<Promise<string>, [string, string?, unknown?]>;
 }) {
 	let heartbeatState: HeartbeatStoreState = emptyHeartbeatStoreState();
-	let service = options.service ?? serviceConfig();
+	let service = options.service ?? operatorConfig();
 	const eventBus = {
 		emit: jest.fn(),
 		broadcast: jest.fn(),
 		on: jest.fn(() => jest.fn()),
 	};
 	const store = {
-		getService: jest.fn(() => service),
+		getOperator: jest.fn(() => service),
 		setDefaultHeartbeatConfig: jest.fn((config) => {
 			const currentAgents = service.agents ?? {};
 			const currentDefaults = currentAgents.defaults ?? {};
@@ -116,7 +116,7 @@ describe('heartbeat helpers', () => {
 
 	it('selects only explicit per-agent heartbeat blocks when any are present', () => {
 		const summaries = resolveHeartbeatAgentSummaries(
-			serviceConfig({
+			operatorConfig({
 				agents: {
 					defaults: { heartbeat: { every: '15m' } },
 					list: [
@@ -133,7 +133,7 @@ describe('heartbeat helpers', () => {
 
 	it('updates default heartbeat timing and recomputes schedules', () => {
 		const { heartbeat, store } = makeHeartbeatHarness({
-			service: serviceConfig({
+			service: operatorConfig({
 				agents: { defaults: { heartbeat: { every: '30m', target: 'none' } } },
 			}),
 		});
@@ -365,7 +365,7 @@ describe('heartbeat wake queue', () => {
 describe('HeartbeatService', () => {
 	it('runs when HEARTBEAT.md is missing and suppresses OK-only replies', async () => {
 		const { heartbeat, agentService, eventBus } = makeHeartbeatHarness({
-			service: serviceConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
 			heartbeatFile: { missing: true },
 		});
 
@@ -376,7 +376,7 @@ describe('HeartbeatService', () => {
 
 	it('skips effectively empty HEARTBEAT.md files before model calls', async () => {
 		const { heartbeat, agentService } = makeHeartbeatHarness({
-			service: serviceConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
 			heartbeatFile: { missing: false, content: '# HEARTBEAT.md\n\n- [ ]' },
 		});
 
@@ -389,7 +389,7 @@ describe('HeartbeatService', () => {
 
 	it('updates due task timestamps after successful heartbeat runs', async () => {
 		const { heartbeat, getHeartbeatState } = makeHeartbeatHarness({
-			service: serviceConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
 			heartbeatFile: {
 				missing: false,
 				content: 'tasks:\n  - name: inbox\n    interval: 30m\n    prompt: "Check inbox."',
