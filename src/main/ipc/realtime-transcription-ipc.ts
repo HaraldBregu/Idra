@@ -17,7 +17,7 @@ import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	isRealtimeSpeechTranscriberModel,
-	type ConfiguredModelOperator,
+	type Agent,
 } from '../../shared/service';
 import type {
 	RealtimeTranscriptionEvent,
@@ -72,15 +72,15 @@ function normalizeLanguage(language: unknown): string | undefined {
 	return trimmed;
 }
 
-function resolveConfiguredSpeechTranscriber(operator: ConfiguredModelOperator | undefined): string {
-	if (!operator) {
+function resolveConfiguredSpeechTranscriber(agent: Agent | undefined): string {
+	if (!agent) {
 		throw new Error('Speech-to-text is not configured. Select OpenAI and GPT Realtime Whisper in Settings.');
 	}
-	if (operator.provider.id.trim().toLowerCase() !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
+	if (agent.provider.id.trim().toLowerCase() !== SPEECH_TRANSCRIBER_PROVIDER_ID) {
 		throw new Error('Live dictation currently supports OpenAI speech-to-text only.');
 	}
 
-	const model = operator.model.id.trim();
+	const model = agent.model.id.trim();
 	if (!isRealtimeSpeechTranscriberModel(model)) {
 		throw new Error(`Live dictation requires ${REALTIME_SPEECH_TRANSCRIBER_MODEL_ID}.`);
 	}
@@ -197,7 +197,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 					event: IpcMainInvokeEvent,
 					request?: RealtimeTranscriptionStartRequest
 				): Promise<RealtimeTranscriptionSession> => {
-					const model = resolveConfiguredSpeechTranscriber(store.getSpeechToTextOperator());
+					const model = resolveConfiguredSpeechTranscriber(store.getSpeechTranscriberService());
 					const provider = store.getProviderById(SPEECH_TRANSCRIBER_PROVIDER_ID);
 					const apiKey = provider?.apiKey.trim();
 					if (!provider || !apiKey) {

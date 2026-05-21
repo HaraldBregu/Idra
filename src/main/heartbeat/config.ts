@@ -1,5 +1,5 @@
 import { DEFAULT_AGENT_ID } from '../constants';
-import type { OperatorStoreState } from '../../shared/service';
+import type { Service } from '../../shared/service';
 import type { AgentHeartbeatConfig, AgentsHeartbeatConfig } from '../../shared/heartbeat';
 import { parseHeartbeatDurationMs } from './duration';
 
@@ -33,12 +33,12 @@ export interface HeartbeatSummary {
 	raw: AgentHeartbeatConfig;
 }
 
-function operatorAgents(operator?: OperatorStoreState): AgentsHeartbeatConfig {
-	return operator?.agents ?? {};
+function serviceAgents(service?: Service): AgentsHeartbeatConfig {
+	return service?.agents ?? {};
 }
 
-export function resolveDefaultHeartbeatAgentId(operator?: OperatorStoreState): string {
-	return operatorAgents(operator).defaultAgentId?.trim() || DEFAULT_AGENT_ID;
+export function resolveDefaultHeartbeatAgentId(service?: Service): string {
+	return serviceAgents(service).defaultAgentId?.trim() || DEFAULT_AGENT_ID;
 }
 
 function hasExplicitHeartbeatAgents(agents: AgentsHeartbeatConfig): boolean {
@@ -66,10 +66,10 @@ export function resolveHeartbeatPrompt(raw?: string): string {
 }
 
 export function resolveHeartbeatSummaryForAgent(
-	operator: OperatorStoreState | undefined,
-	agentId = resolveDefaultHeartbeatAgentId(operator)
+	service: Service | undefined,
+	agentId = resolveDefaultHeartbeatAgentId(service)
 ): HeartbeatSummary {
-	const agents = operatorAgents(operator);
+	const agents = serviceAgents(service);
 	const defaults = agents.defaults?.heartbeat;
 	const listEntry = (agents.list ?? []).find((entry) => entry.id === agentId);
 	const explicit = hasExplicitHeartbeatAgents(agents);
@@ -110,8 +110,8 @@ export function resolveHeartbeatSummaryForAgent(
 	};
 }
 
-export function resolveHeartbeatAgentSummaries(operator?: OperatorStoreState): HeartbeatSummary[] {
-	const agents = operatorAgents(operator);
+export function resolveHeartbeatAgentSummaries(service?: Service): HeartbeatSummary[] {
+	const agents = serviceAgents(service);
 	const defaults = agents.defaults?.heartbeat;
 	const list = agents.list ?? [];
 	const explicit = hasExplicitHeartbeatAgents(agents);
@@ -119,21 +119,21 @@ export function resolveHeartbeatAgentSummaries(operator?: OperatorStoreState): H
 	if (explicit) {
 		return list
 			.filter((entry) => entry.heartbeat)
-			.map((entry) => resolveHeartbeatSummaryForAgent(operator, entry.id));
+			.map((entry) => resolveHeartbeatSummaryForAgent(service, entry.id));
 	}
 
 	if (defaults) {
-		const agentIds = list.length > 0 ? list.map((entry) => entry.id) : [resolveDefaultHeartbeatAgentId(operator)];
-		return agentIds.map((agentId) => resolveHeartbeatSummaryForAgent(operator, agentId));
+		const agentIds = list.length > 0 ? list.map((entry) => entry.id) : [resolveDefaultHeartbeatAgentId(service)];
+		return agentIds.map((agentId) => resolveHeartbeatSummaryForAgent(service, agentId));
 	}
 
-	return [resolveHeartbeatSummaryForAgent(operator, resolveDefaultHeartbeatAgentId(operator))];
+	return [resolveHeartbeatSummaryForAgent(service, resolveDefaultHeartbeatAgentId(service))];
 }
 
-export function isHeartbeatSystemPromptEnabled(operator: OperatorStoreState | undefined, agentId: string): boolean {
-	const summary = resolveHeartbeatSummaryForAgent(operator, agentId);
+export function isHeartbeatSystemPromptEnabled(service: Service | undefined, agentId: string): boolean {
+	const summary = resolveHeartbeatSummaryForAgent(service, agentId);
 	return (
-		agentId === resolveDefaultHeartbeatAgentId(operator) &&
+		agentId === resolveDefaultHeartbeatAgentId(service) &&
 		summary.enabled &&
 		(summary.everyMs ?? 0) > 0 &&
 		summary.includeSystemPromptSection

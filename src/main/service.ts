@@ -43,7 +43,7 @@ import {
 	requireModelReasoningEffort,
 	type ApprovalDecision,
 	type ModelReasoningEffort,
-	type OperatorStoreState,
+	type Service as SharedService,
 } from '../shared/service';
 import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
@@ -376,7 +376,7 @@ export class AgentService {
 						runKind,
 						lightContext: heartbeatOptions?.lightContext === true || options.lightContext === true,
 						includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
-							this.getOperatorConfig(),
+							this.getServiceConfig(),
 							agentId
 						),
 						isPrimaryRun,
@@ -460,7 +460,7 @@ export class AgentService {
 					heartbeat: {
 						includeSection:
 							runKind === 'default' &&
-							isHeartbeatSystemPromptEnabled(this.getOperatorConfig(), agentId),
+							isHeartbeatSystemPromptEnabled(this.getServiceConfig(), agentId),
 					},
 				})
 			);
@@ -649,9 +649,9 @@ export class AgentService {
 		effort?: ModelReasoningEffort;
 		baseURL?: string;
 	} {
-		const assistant = this.dependencies.store.getAssistantOperator();
-		const configuredProviderId = assistant?.provider.id.trim().toLowerCase() ?? '';
-		const configuredModel = assistant?.model.id.trim() || assistant?.model.name.trim() || '';
+		const agent = this.dependencies.store.getAgentService();
+		const configuredProviderId = agent?.provider.id.trim().toLowerCase() ?? '';
+		const configuredModel = agent?.model.id.trim() || agent?.model.name.trim() || '';
 		const providerId = overrides.providerId?.trim().toLowerCase() || configuredProviderId;
 		const model = overrides.model?.trim() || configuredModel;
 		if (!providerId) throw new Error('Agent provider not configured.');
@@ -660,7 +660,7 @@ export class AgentService {
 		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
-		const savedEffort = providerId === configuredProviderId ? assistant?.model.effort : undefined;
+		const savedEffort = providerId === configuredProviderId ? agent?.model.effort : undefined;
 		let effort: ModelReasoningEffort | undefined;
 		if (providerId === 'openai' || providerId === 'deepseek') {
 			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
@@ -685,9 +685,9 @@ export class AgentService {
 		}
 	}
 
-	private getOperatorConfig(): OperatorStoreState | undefined {
-		const maybeStore = this.dependencies.store as { getOperator?: () => OperatorStoreState | undefined };
-		return typeof maybeStore.getOperator === 'function' ? maybeStore.getOperator() : undefined;
+	private getServiceConfig(): SharedService | undefined {
+		const maybeStore = this.dependencies.store as { getService?: () => SharedService | undefined };
+		return typeof maybeStore.getService === 'function' ? maybeStore.getService() : undefined;
 	}
 
 	private async isBootstrapPending(agentId: string): Promise<boolean> {

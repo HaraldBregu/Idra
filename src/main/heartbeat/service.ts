@@ -145,8 +145,8 @@ export class HeartbeatService implements Disposable {
 
 	updateConfig(): void {
 		const now = Date.now();
-		const operator = this.dependencies.store.getOperator();
-		const summaries = resolveHeartbeatAgentSummaries(operator);
+		const service = this.dependencies.store.getService();
+		const summaries = resolveHeartbeatAgentSummaries(service);
 		const next = new Map<string, AgentSchedule>();
 		for (const summary of summaries) {
 			if (!summary.enabled || !summary.everyMs) continue;
@@ -221,7 +221,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	getTiming(): HeartbeatTimingSettings {
-		const heartbeat = this.dependencies.store.getOperator()?.agents?.defaults?.heartbeat;
+		const heartbeat = this.dependencies.store.getService()?.agents?.defaults?.heartbeat;
 		return {
 			every: typeof heartbeat?.every === 'string' && heartbeat.every.trim()
 				? heartbeat.every.trim()
@@ -248,8 +248,8 @@ export class HeartbeatService implements Disposable {
 	async systemEvent(request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> {
 		const text = request.text?.trim();
 		if (!text) throw new Error('system-event text is required.');
-		const operator = this.dependencies.store.getOperator();
-		const agentId = request.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
+		const service = this.dependencies.store.getService();
+		const agentId = request.agentId?.trim() || resolveDefaultHeartbeatAgentId(service);
 		const sessionKey = request.sessionKey?.trim() || agentId;
 		const mode = request.mode ?? 'next-heartbeat';
 		this.enqueueSystemEvent(sessionKey, {
@@ -279,9 +279,9 @@ export class HeartbeatService implements Disposable {
 
 	async runHeartbeatOnce(wake: HeartbeatWakeRequest): Promise<HeartbeatRunResult> {
 		const startedAt = Date.now();
-		const operator = this.dependencies.store.getOperator();
-		const agentId = wake.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
-		const summary = this.mergeWakeOverride(resolveHeartbeatSummaryForAgent(operator, agentId), wake.heartbeat);
+		const service = this.dependencies.store.getService();
+		const agentId = wake.agentId?.trim() || resolveDefaultHeartbeatAgentId(service);
+		const summary = this.mergeWakeOverride(resolveHeartbeatSummaryForAgent(service, agentId), wake.heartbeat);
 		const schedule = this.ensureSchedule(summary);
 		const baseSessionKey = this.resolveBaseSessionKey(summary, wake.sessionKey);
 		const actualSessionKey = summary.isolatedSession
