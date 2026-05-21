@@ -12,6 +12,23 @@ export interface MicrophonePermissionSettings {
 	readonly canRequest: boolean;
 }
 
+export type CameraSystemPermissionStatus =
+	| 'not-determined'
+	| 'granted'
+	| 'denied'
+	| 'restricted'
+	| 'unknown'
+	| 'unsupported';
+
+export interface CameraPermissionSettings {
+	readonly enabled: boolean;
+	readonly systemStatus: CameraSystemPermissionStatus;
+	readonly canRequest: boolean;
+}
+
+export type SystemPreferencePaneId = 'Accessibility' | 'ScreenCapture' | 'Camera' | 'Microphone';
+
 export interface AppPermissionSettings {
 	readonly microphoneEnabled: boolean;
+	readonly cameraEnabled: boolean;
 }
