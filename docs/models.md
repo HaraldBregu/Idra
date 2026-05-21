@@ -27,7 +27,7 @@ Current module status:
 | LLM agent | `agent` / target `llmAgent` | Explicit model catalog | Implemented |
 | Speech to text | `speechToText` | Explicit model catalog for OpenAI | Implemented |
 | Text to speech | `textToSpeech` | Placeholder model constant | Pending runtime |
-| Image creator | `imageCreator` | Provider capability catalog | Pending runtime |
+| Text to image | `imageCreator` | Provider capability catalog | Pending runtime |
 | Text to video | `videoCreator` / target `textToVideo` | Provider capability catalog | Pending runtime |
 
 ## LLM Agent Models
@@ -188,6 +188,7 @@ webhook secrets, or raw provider records.
   and runtime adapter behavior.
 - [agent.md](agent.md) documents LLM agent execution and provider/model
   resolution.
-- [image-creator.md](image-creator.md) documents image module boundaries.
+- [text-to-image.md](text-to-image.md) documents text-to-image module
+  boundaries.
 - [video-creator.md](video-creator.md) documents video module boundaries.
 - [store.md](store.md) documents the target model-backed store shape.

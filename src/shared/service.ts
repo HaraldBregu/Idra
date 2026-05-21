@@ -193,7 +193,7 @@ export const OPERATOR_DEFINITIONS = {
 	imageCreator: {
 		id: IMAGE_CREATOR_OPERATOR_ID,
 		name: 'Image creator',
-		docsPath: 'image-creator.md',
+		docsPath: 'text-to-image.md',
 		status: 'pending-runtime',
 	},
 	videoCreator: {

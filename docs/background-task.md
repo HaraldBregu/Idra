@@ -209,7 +209,7 @@ Recommended task types:
 - `speech-to-text.transcribe`: calls the speech-to-text module documented in
   [speech-to-text.md](speech-to-text.md).
 - `image.create`: calls the image module documented in
-  [image-creator.md](image-creator.md).
+  [text-to-image.md](text-to-image.md).
 - `video.create`: calls the video module documented in
   [video-creator.md](video-creator.md).
 - `sound.create`: calls the sound module documented in

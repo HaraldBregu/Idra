@@ -32,7 +32,7 @@ and future runtime boundaries.
 | Agent | `agent` | [agent.md](agent.md) | Service only for now |
 | Speech to text | `speechToText` | [speech-to-text.md](speech-to-text.md) | Service, future/optional LLM tool |
 | Text to speech | `textToSpeech` | [text-to-speech.md](text-to-speech.md) | Service, future/optional LLM tool |
-| Image | `imageCreator` | [image-creator.md](image-creator.md) | Service, future/optional LLM tool |
+| Text to image | `imageCreator` | [text-to-image.md](text-to-image.md) | Service, future/optional LLM tool |
 | Video | `video` | [video-creator.md](video-creator.md) | Service, future/optional LLM tool |
 | Sound | `sound` | [music-creator.md](music-creator.md) | Service, future/optional LLM tool |
 | OCR | `ocr` | [ocr.md](ocr.md) | Service, future/optional LLM tool |
@@ -49,6 +49,7 @@ not be exposed as a direct LLM tool for now. Other modules may call the agent
 service through validated paths, such as the `agent.run` background task handler
 or Friday cron `agentTurn` jobs.
 
-TTS, STT, image, video, sound, OCR, and embedding are module services first.
-They may also have LLM tools, but those tools must stay thin wrappers around the
-module service and must not own provider/model selection or credentials.
+TTS, STT, text-to-image, video, sound, OCR, and embedding are module services
+first. They may also have LLM tools, but those tools must stay thin wrappers
+around the module service and must not own provider/model selection or
+credentials.
