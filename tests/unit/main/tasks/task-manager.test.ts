@@ -78,7 +78,8 @@ function createManager(...handlers: TaskHandler[]) {
 
 function createManagerWithUserFacing(
 	userFacingHandlers: TaskHandler[],
-	internalHandlers: TaskHandler[] = []
+	internalHandlers: TaskHandler[] = [],
+	allowedTaskTypes?: string[]
 ) {
 	let nextId = 1;
 	const registry = new TaskRegistry();
@@ -91,12 +92,13 @@ function createManagerWithUserFacing(
 	const manager = new TaskManager({
 		registry,
 		eventBus: new EventBus(),
-		logger,
-		idFactory: () => `user-task-${nextId++}`,
-		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
-	});
-	return manager;
-}
+			logger,
+			idFactory: () => `user-task-${nextId++}`,
+			now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
+			policy: allowedTaskTypes ? () => ({ allowedTaskTypes }) : undefined,
+		});
+		return manager;
+	}
 
 describe('TaskManager', () => {
 	beforeEach(() => {
@@ -176,6 +178,21 @@ describe('TaskManager', () => {
 				input: { key: 'b' },
 			})
 		).toThrow(/not approved for renderer start/);
+	});
+
+	it('applies backgroundTask allowed task policy to user-created tasks', () => {
+		const approved = new ControlledHandler();
+		const blocked = new ControlledHandler();
+		Object.defineProperty(blocked, 'type', { value: 'test.blocked' });
+		const manager = createManagerWithUserFacing([approved, blocked], [], [approved.type]);
+
+		expect(() =>
+			manager.startUserTask({
+				type: blocked.type,
+				title: 'Blocked task',
+				input: { key: 'b' },
+			})
+		).toThrow(/not allowed by background task policy/);
 	});
 
 	it('moves a running task through cancelling to cancelled', async () => {
