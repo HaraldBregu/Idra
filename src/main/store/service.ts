@@ -295,7 +295,8 @@ export class StoreService {
 	}
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const currentAgentSettings = this.getModelModuleSettings('llmAgent');
+		const currentAgentSettings =
+			this.getModelModuleSettings('llmAgent') ?? this.getLegacyModelModuleSettings('assistant');
 		const current = this.getLegacyOperator();
 		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? current?.agents ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
@@ -326,8 +327,6 @@ export class StoreService {
 				},
 			});
 			this.store.delete('agent');
-		} else {
-			this.store.set('service', next);
 		}
 		return nextHeartbeat;
 	}
@@ -498,6 +497,21 @@ export class StoreService {
 
 	private getLegacyOperator(): OperatorStoreState | undefined {
 		return this.store.get('service') as OperatorStoreState | undefined;
+	}
+
+	private getLegacyModelModuleSettings(
+		key: ConfiguredModelOperatorKey
+	): ModelModuleSettings | undefined {
+		const current = this.getLegacyOperator();
+		const operator = current?.[key] as ModelOperator | undefined;
+		if (hasModelSelection(operator)) {
+			return modelModuleSettings(operator.provider.id, operator.model);
+		}
+		const legacyOperator = current?.[LEGACY_MODEL_OPERATOR_KEYS[key]];
+		if (hasModelSelection(legacyOperator)) {
+			return modelModuleSettings(legacyOperator.provider.id, legacyOperator.model);
+		}
+		return undefined;
 	}
 
 	private getModelModuleSettings(rootKey: ModelModuleRootKey): ModelModuleSettings | undefined {
