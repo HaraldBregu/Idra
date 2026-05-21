@@ -118,9 +118,10 @@ export function bootstrapServices(): BootstrapResult {
 			eventBus,
 			logger,
 		})
-	);
-	agentDependencies.taskManager = taskManager;
-	const channelRegistry = container.register(
+		);
+		agentDependencies.taskManager = taskManager;
+		cron.configureTaskRuntime({ taskManager });
+		const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
