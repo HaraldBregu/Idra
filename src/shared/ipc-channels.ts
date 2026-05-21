@@ -43,6 +43,9 @@ export const OperatorChannels = {
 	getSpeechToText: 'operator:get-speech-to-text',
 	getSpeechToTextModels: 'operator:get-speech-to-text-models',
 	saveSpeechToText: 'operator:save-speech-to-text',
+	getImageCreator: 'operator:get-image-creator',
+	getImageCreatorModels: 'operator:get-image-creator-models',
+	saveImageCreator: 'operator:save-image-creator',
 } as const;
 
 export const RealtimeTranscriptionChannels = {
@@ -259,6 +262,18 @@ interface AppInvokeChannelMap {
 		result: import('./service').Model[];
 	};
 	[OperatorChannels.saveSpeechToText]: {
+		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		result: boolean;
+	};
+	[OperatorChannels.getImageCreator]: {
+		args: [];
+		result: import('./service').ConfiguredModelOperator | undefined;
+	};
+	[OperatorChannels.getImageCreatorModels]: {
+		args: [provider: import('./providers').PublicProvider];
+		result: import('./service').Model[];
+	};
+	[OperatorChannels.saveImageCreator]: {
 		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
 		result: boolean;
 	};
