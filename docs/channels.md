@@ -37,8 +37,8 @@ all share stable ids.
 
 | Channel id | Label | Aliases | Runtime | Official/platform documentation |
 | --- | --- | --- | --- | --- |
-| `clickclack` | ClickClack | none | Catalog-only | No verified vendor-official public API docs found. Existing external channel docs: [OpenClaw ClickClack channel](https://documentation.openclaw.ai/es/channels/clickclack). |
-| `discord` | Discord | none | Catalog-only | [Discord Developer Platform](https://docs.discord.com/developers/intro), [Discord Bots](https://docs.discord.com/developers/docs/quick-start/getting-started). |
+| `clickclack` | ClickClack | none | Catalog-only | No verified vendor-official public API docs found. Existing external channel docs: [OpenClaw ClickClack plugin](https://docs.openclaw.ai/plugins/reference/clickclack). |
+| `discord` | Discord | none | Catalog-only | [Discord Developer Platform](https://docs.discord.com/developers/intro), [Discord Bots](https://docs.discord.com/developers/bots). |
 | `feishu` | Feishu | `lark` | Catalog-only | [Feishu Open Platform](https://open.feishu.cn/document/home/index), [Lark Developer](https://open.larksuite.com/document/home/index). |
 | `googlechat` | Google Chat | `gchat`, `google-chat` | Catalog-only | [Google Chat developer docs](https://developers.google.com/workspace/chat), [Google Chat API reference](https://developers.google.com/workspace/chat/api/reference/rest). |
 | `imessage` | iMessage | `imsg` | Catalog-only | [Apple Messages framework](https://developer.apple.com/documentation/messages), [Apple Business Chat / Messages for Business](https://developer.apple.com/business-chat/). |
@@ -53,7 +53,7 @@ all share stable ids.
 | `qqbot` | QQ Bot | none | Catalog-only | [QQ Bot official docs](https://bot.q.qq.com/wiki/). |
 | `signal` | Signal | none | Catalog-only | Signal does not publish an official bot API for this use case. Official user/device docs: [Signal linked devices](https://support.signal.org/hc/en-us/articles/360007320551-Linked-Devices). |
 | `slack` | Slack | none | Catalog-only | [Slack API docs](https://docs.slack.dev/apis/), [Slack app manifests](https://docs.slack.dev/app-manifests/). |
-| `synology-chat` | Synology Chat | none | Catalog-only | [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat), [Synology Chat custom integration knowledge base](https://kb.synology.com/en-us/search?services%5B%5D=Synology_Chat). |
+| `synology-chat` | Synology Chat | none | Catalog-only | [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat), [Using Integration in Synology Chat](https://kb.synology.com/en-global/DSM/help/Chat/chat_integration). |
 | `telegram` | Telegram | none | Bundled runtime | [Telegram Bot API](https://core.telegram.org/bots/api), [grammY documentation](https://grammy.dev/). |
 | `tlon` | Tlon | none | Catalog-only | [Tlon developer docs](https://dev.tlon.io/), [Urbit developer docs](https://docs.urbit.org/). |
 | `twitch` | Twitch | `twitch-chat` | Catalog-only | [Twitch Chat and Chatbots](https://dev.twitch.tv/docs/chat/), [Twitch API reference](https://dev.twitch.tv/docs/api/). |
