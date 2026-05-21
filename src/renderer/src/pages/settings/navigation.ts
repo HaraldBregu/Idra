@@ -55,7 +55,7 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 	{
 		id: 'friday',
 		path: '/settings/operators/friday/details',
-		labelKey: 'settings.operators.fridayName',
+		labelKey: 'settings.operators.assistantName',
 		descriptionKey: 'settings.operators.fridayDescription',
 		keywords: 'friday operator default provider model',
 		icon: Bot,
