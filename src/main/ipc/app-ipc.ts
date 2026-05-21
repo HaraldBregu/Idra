@@ -81,6 +81,28 @@ function microphoneSettings(enabled: boolean): MicrophonePermissionSettings {
 	};
 }
 
+function getCameraSystemStatus(): CameraSystemPermissionStatus {
+	if (process.platform !== 'darwin') return 'unknown';
+	try {
+		return systemPreferences.getMediaAccessStatus('camera');
+	} catch {
+		return 'unknown';
+	}
+}
+
+function canRequestCameraAccess(status: CameraSystemPermissionStatus): boolean {
+	return process.platform === 'darwin' && status === 'not-determined';
+}
+
+function cameraSettings(enabled: boolean): CameraPermissionSettings {
+	const systemStatus = getCameraSystemStatus();
+	return {
+		enabled,
+		systemStatus,
+		canRequest: canRequestCameraAccess(systemStatus),
+	};
+}
+
 function requireBoolean(value: unknown, label: string): boolean {
 	if (typeof value !== 'boolean') {
 		throw new Error(`${label} must be a boolean.`);
