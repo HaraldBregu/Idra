@@ -5,23 +5,22 @@ configured LLM provider, ML provider, model, endpoint, scheduler, or task
 runtime. They are the product-level roles shown in Settings, not every internal
 class.
 
-## Source Of Truth
+Source of truth:
 
 - `src/shared/service.ts`: shared operator settings shape, `Agent`, `Model`,
   reasoning effort, and operator model constants.
 - `src/shared/providers.ts`: provider catalog, provider capabilities, official
-  provider docs, and default agent model catalogs.
+  provider docs, and default assistant model catalogs.
 - `src/main/store/service.ts`: persisted provider records and operator
   selections.
-- `src/main/service.ts`: Friday agent runtime and provider/model resolution.
+- `src/main/service.ts`: Friday assistant runtime and provider/model
+  resolution.
 - `src/main/ipc/app-ipc.ts`: provider and operator-selection IPC handlers.
 - `src/main/ipc/realtime-transcription-ipc.ts`: speech-to-text runtime.
 - `src/main/tasks`: in-memory background task manager and registered task
   handlers.
 - `src/main/cron`: cron scheduler and Friday cron runtime.
 - `src/renderer/src/pages/settings/pages/operators`: operator settings UI.
-
-## Operator Contract
 
 An operator must know which provider and model to use before it starts work.
 That selection comes from Settings through `StoreService`. The documentation
@@ -44,9 +43,9 @@ Rules:
 - Keep unsupported operators visible as Settings placeholders only until they
   have a StoreService slot and runtime.
 
-The target `Operator` interface contains every product-level operator. Operators
-that are not runtime-backed yet should still appear here so Settings, docs, and
-future runtime work share stable names.
+The target `Operator` interface contains every product-level operator.
+Operators that are not runtime-backed yet should still appear here so Settings,
+docs, and future runtime work share stable names.
 
 ```ts
 interface Operator {
@@ -98,47 +97,43 @@ interface TaskOperator {
 selected model. The private API key and base URL are resolved later from the
 matching provider record.
 
-## Current Operators
+## Assistant
 
-| Operator | Stable id | Operator doc | Operator interface field | Runtime status |
-| --- | --- | --- | --- | --- |
-| Assistant | `friday`, runtime `main` | [agent.md](agent.md) | `operator.assistant` stores provider and model. Provider credentials are in `providers`. | Implemented through `AgentService.send`. |
-| Speech to text | `speech-to-text` | `speech-to-text.md` | `operator.speechToText` stores provider and model. Currently OpenAI only. | Implemented through realtime transcription IPC. |
-| Text to speech | `text-to-speech` | `text-to-speech.md` | `operator.textToSpeech` stores provider and model. Current placeholder uses provider `elevenlabs` and model `rachel-multilingual`. | Pending runtime. |
-| Image creator | `image-assistant` | `image-creator.md` | `operator.imageCreator` stores provider and model. Current placeholder uses `image-provider-coming-soon`. | Pending runtime. |
-| Video creator | `video-creator` | `video-creator.md` | `operator.videoCreator` stores provider and model. Current placeholder uses `video-provider-coming-soon`. | Pending runtime. |
-| Music creator | `music-creator` | `music-creator.md` | `operator.musicCreator` stores provider and model. Current placeholder uses `music-provider-coming-soon`. | Pending runtime. |
-| Document reader OCR | `document-reader`, task `ocr.run` | `document-reader-ocr.md` | `operator.documentReaderOcr` stores provider/model or endpoint configuration. Current OCR task reads endpoint `ocr`. | OCR task implemented; provider/model picker pending. |
-| Cron task scheduler | `cron-task-scheduler` | [cron.md](cron.md) | `operator.cronTaskScheduler` describes scheduler state. Schedules persist in `cronScheduler` and `fridayCron`. | Implemented. |
-| Background task | `background-task` | [task-manager.md](task-manager.md) | `operator.backgroundTask` describes registered task types such as `agent.run` and `ocr.run`. | Implemented for `agent.run` and `ocr.run`. |
+- Stable id: `friday`
+- Runtime id: `main`
+- Operator field: `operator.assistant`
+- Documentation: [agent.md](agent.md)
+- Runtime status: implemented through `AgentService.send`
 
-Use the operator doc filename as the stable documentation target. If a target
-file does not exist yet, this page is the current owner for that operator's
-contract.
-
-## Provider And Model Resolution
-
-### Assistant
-
-The Friday assistant stores its default provider/model at `operator.assistant`.
-`ProviderChannels.saveAgentService` validates the selected provider and model
-before saving.
+The Friday assistant stores its default provider and model on
+`operator.assistant`. Provider credentials stay on the matching provider record
+under `providers`.
 
 Execution path:
 
-1. `AgentService.send()` reads `StoreService.getAgentService()`.
+1. `AgentService.send()` reads the saved assistant provider/model selection.
 2. Optional send overrides can replace `providerId`, `model`, and `effort`.
 3. `StoreService.getProviderById(providerId)` supplies API key and base URL.
 4. `makeProvider()` creates the runtime adapter.
-5. The selected model is passed into the provider-neutral agent loop.
+5. The selected model is passed into the provider-neutral assistant loop.
 
-`agent.run` background tasks and Friday cron `agentTurn` jobs can pass
-provider/model ids as overrides. They still rely on stored provider records for
-credentials.
+Renderer/provider IPC:
 
-### Speech To Text
+- `provider:get-agent-service`
+- `provider:save-agent-service`
 
-Speech-to-text stores its selection at `operator.speechToText`.
+Background tasks and cron jobs can run the assistant through `agent.run` or
+Friday cron `agentTurn` payloads. Those payloads may pass provider/model ids as
+overrides, but credentials still resolve from stored provider records.
+
+## Speech To Text
+
+- Stable id: `speech-to-text`
+- Operator field: `operator.speechToText`
+- Documentation: `speech-to-text.md`
+- Runtime status: implemented through realtime transcription IPC
+
+Speech-to-text stores its provider and model on `operator.speechToText`.
 
 Current constraints:
 
@@ -147,15 +142,32 @@ Current constraints:
 - Runtime socket model is `gpt-realtime` with transcription intent.
 - The OpenAI API key and base URL come from the stored `openai` provider.
 
+Operator-selection IPC:
+
+- `provider:get-speech-transcriber-service`
+- `provider:save-speech-transcriber-service`
+
+Runtime IPC:
+
+- `realtime-transcription:start`
+- `realtime-transcription:append-audio`
+- `realtime-transcription:finish`
+- `realtime-transcription:cancel`
+- `realtime-transcription:event`
+
 The realtime transcription IPC rejects startup when the speech transcriber is
 not configured, the provider is not OpenAI, the selected model is not the
 realtime whisper model, or the OpenAI provider record has no API key.
 
-### Text To Speech
+## Text To Speech
+
+- Stable id: `text-to-speech`
+- Operator field: `operator.textToSpeech`
+- Documentation: `text-to-speech.md`
+- Runtime status: pending runtime
 
 Text-to-speech is listed in Settings with:
 
-- Operator id: `text-to-speech`
 - Provider id: `elevenlabs`
 - Model id: `rachel-multilingual`
 
@@ -163,22 +175,55 @@ The UI is read-only today. Before this operator runs work, add a StoreService
 slot, IPC save/load handlers, and a runtime adapter that resolves the selected
 provider and model from settings.
 
-### Creative Operators
+## Image Creator
 
-Image creator, video creator, and music creator are Settings-visible
-placeholders today.
+- Stable id: `image-assistant`
+- Operator field: `operator.imageCreator`
+- Documentation: `image-creator.md`
+- Runtime status: pending runtime
 
-Current model constants:
+Image creator is listed in Settings as a placeholder with model
+`image-provider-coming-soon`.
 
-- `image-assistant`: `image-provider-coming-soon`
-- `video-creator`: `video-provider-coming-soon`
-- `music-creator`: `music-provider-coming-soon`
+Before this operator generates output, it needs a persisted provider/model
+selection, a runtime adapter, and task or UI entry points that pass only ids
+into execution.
 
-Before any of these operators generate output, they need the same contract as
-the Friday agent: a persisted provider/model selection, a runtime adapter, and
-task or UI entry points that pass only ids into execution.
+## Video Creator
 
-### Document Reader OCR
+- Stable id: `video-creator`
+- Operator field: `operator.videoCreator`
+- Documentation: `video-creator.md`
+- Runtime status: pending runtime
+
+Video creator is listed in Settings as a placeholder with model
+`video-provider-coming-soon`.
+
+Before this operator generates output, it needs a persisted provider/model
+selection, a runtime adapter, and task or UI entry points that pass only ids
+into execution.
+
+## Music Creator
+
+- Stable id: `music-creator`
+- Operator field: `operator.musicCreator`
+- Documentation: `music-creator.md`
+- Runtime status: pending runtime
+
+Music creator is listed in Settings as a placeholder with model
+`music-provider-coming-soon`.
+
+Before this operator generates output, it needs a persisted provider/model
+selection, a runtime adapter, and task or UI entry points that pass only ids
+into execution.
+
+## Document Reader OCR
+
+- Stable id: `document-reader`
+- Task type: `ocr.run`
+- Operator field: `operator.documentReaderOcr`
+- Documentation: `document-reader-ocr.md`
+- Runtime status: OCR task implemented; provider/model picker pending
 
 The document reader settings row is a placeholder, but OCR execution exists as
 the `ocr.run` task handler.
@@ -196,12 +241,17 @@ Current OCR flow:
 This endpoint-based OCR path should be migrated to a provider/model StoreService
 selection when the document reader runtime becomes provider-backed.
 
-### Cron Task Scheduler
+## Cron Task Scheduler
 
-Cron is an operator because it performs scheduled work and can trigger model
-runs. Cron itself does not own a model selection.
+- Stable id: `cron-task-scheduler`
+- Operator field: `operator.cronTaskScheduler`
+- Documentation: [cron.md](cron.md)
+- Runtime status: implemented
 
-Resolution rules:
+Cron performs scheduled work and can trigger model runs. Cron itself does not
+own a model selection.
+
+State and runtime:
 
 - Managed schedules persist under `cronScheduler`.
 - Friday tool schedules persist under `fridayCron`.
@@ -210,44 +260,7 @@ Resolution rules:
 - `AgentServiceFridayCronExecutor` converts those ids into `AgentSendOptions`.
 - `AgentService` resolves actual provider records and model execution settings.
 
-System-event cron jobs can wake heartbeat instead of directly running an agent
-turn when the target is the main session.
-
-### Background Task
-
-The task manager is an operator boundary for immediate background work. It does
-not choose providers or models itself.
-
-Current registered task handlers:
-
-- `agent.run`: validates a message and optional provider/model ids, then calls
-  `AgentService.send()`.
-- `ocr.run`: validates image input, then calls the configured OCR endpoint.
-
-Task records are in-memory only. Task inputs, metadata, progress, results, and
-errors are sanitized before they are stored on records.
-
-## Settings And IPC
-
-Provider settings:
-
-- `provider:get-all`
-- `provider:add`
-- `provider:get-models`
-- `provider:get-agent-service`
-- `provider:save-agent-service`
-- `provider:get-speech-transcriber-service`
-- `provider:save-speech-transcriber-service`
-
-Task settings:
-
-- `tasks:start`
-- `tasks:list`
-- `tasks:get`
-- `tasks:cancel`
-- `tasks:event`
-
-Cron settings:
+Cron IPC:
 
 - `cron:createSchedule`
 - `cron:updateSchedule`
@@ -259,24 +272,34 @@ Cron settings:
 - `cron:action`
 - `cron:event`
 
-Speech-to-text runtime:
+System-event cron jobs can wake heartbeat instead of directly running an
+assistant turn when the target is the main session.
 
-- `realtime-transcription:start`
-- `realtime-transcription:append-audio`
-- `realtime-transcription:finish`
-- `realtime-transcription:cancel`
-- `realtime-transcription:event`
+## Background Task
 
-## Adding An Operator
+- Stable id: `background-task`
+- Operator field: `operator.backgroundTask`
+- Documentation: [task-manager.md](task-manager.md)
+- Runtime status: implemented for `agent.run` and `ocr.run`
 
-1. Add a stable operator id and display row in Settings.
-2. Add shared model/provider constants in `src/shared/service.ts` only if the
-   operator needs static default options.
-3. Add a typed StoreService-backed selection for runtime-backed operators.
-4. Add IPC load/save handlers for the selection.
-5. Validate selectable providers and models before saving.
-6. Implement the runtime adapter or task handler.
-7. Resolve provider/model/credentials from StoreService at execution start.
-8. Pass only ids through task, cron, channel, or renderer runtime payloads.
-9. Redact secrets from logs, task records, events, and user-visible errors.
-10. Add an operator documentation target and update the catalog table above.
+The task manager is the operator boundary for immediate background work. It
+does not choose providers or models itself. Each registered task handler
+resolves its own operator configuration.
+
+Current registered task handlers:
+
+- `agent.run`: validates a message and optional provider/model ids, then calls
+  `AgentService.send()`.
+- `ocr.run`: validates image input, then calls the configured OCR endpoint.
+
+Task IPC:
+
+- `tasks:start`
+- `tasks:list`
+- `tasks:get`
+- `tasks:cancel`
+- `tasks:event`
+
+Task records are in-memory only. Task inputs, metadata, progress, results, and
+errors are sanitized before they are stored on records.
+
