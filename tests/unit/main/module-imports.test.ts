@@ -15,6 +15,7 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/provider/factory')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/session/store')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/store')).resolves.toBeTruthy();
+		await expect(import('../../../src/main/text-to-image')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/tools')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/workspace')).resolves.toBeTruthy();
 	});
