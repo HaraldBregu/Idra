@@ -51,6 +51,39 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname === '/settings') return [];
 
+	if (location.pathname.startsWith('/settings/operators/')) {
+		const parts = location.pathname.split('/');
+		const operatorId = decodeURIComponent(parts[3] ?? '');
+		const isChatHistoryPage = parts[5] === 'chathistory';
+		const label = operatorId === 'friday' || operatorId === 'main'
+			? t('settings.operators.fridayBreadcrumb')
+			: operatorId === SPEECH_TO_TEXT_OPERATOR_ID
+				? t('settings.operators.speechTranscriberName')
+				: operatorId === TEXT_TO_SPEECH_OPERATOR_ID
+					? t('settings.operators.textToSpeechName')
+					: operatorId === IMAGE_CREATOR_OPERATOR_ID
+						? t('settings.operators.imageAssistantName')
+						: operatorId === VIDEO_CREATOR_OPERATOR_ID
+							? t('settings.operators.videoCreatorName')
+							: operatorId === MUSIC_CREATOR_OPERATOR_ID
+								? t('settings.operators.musicCreatorName')
+								: operatorId === DOCUMENT_READER_OCR_OPERATOR_ID
+									? t('settings.operators.documentReaderName')
+									: operatorId === CRON_TASK_SCHEDULER_OPERATOR_ID
+										? t('settings.operators.cronTaskName')
+										: operatorId === BACKGROUND_TASK_OPERATOR_ID
+											? t('settings.operators.backgroundTaskName')
+											: operatorId;
+		const items: SettingsBreadcrumbItem[] = [{
+			label,
+			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(operatorId)}/details` : undefined,
+		}];
+		if (isChatHistoryPage) {
+			items.push({ label: t('settings.operators.history') });
+		}
+		return items;
+	}
+
 	const current = SETTINGS_NAVIGATION.find((item) => (
 		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
 	));
@@ -74,39 +107,6 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		const skillId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
 		items[0] = { ...items[0], path: current.path };
 		items.push({ label: skillId });
-	}
-
-	if (location.pathname.startsWith('/settings/operators/')) {
-		const parts = location.pathname.split('/');
-		const operatorId = decodeURIComponent(parts[3] ?? '');
-		const isChatHistoryPage = parts[5] === 'chathistory';
-		items[0] = { ...items[0], path: current.path };
-		const label = operatorId === 'friday' || operatorId === 'main'
-			? t('settings.operators.fridayBreadcrumb')
-			: operatorId === SPEECH_TO_TEXT_OPERATOR_ID
-				? t('settings.operators.speechTranscriberName')
-				: operatorId === TEXT_TO_SPEECH_OPERATOR_ID
-					? t('settings.operators.textToSpeechName')
-					: operatorId === IMAGE_CREATOR_OPERATOR_ID
-						? t('settings.operators.imageAssistantName')
-						: operatorId === VIDEO_CREATOR_OPERATOR_ID
-							? t('settings.operators.videoCreatorName')
-							: operatorId === MUSIC_CREATOR_OPERATOR_ID
-								? t('settings.operators.musicCreatorName')
-								: operatorId === DOCUMENT_READER_OCR_OPERATOR_ID
-									? t('settings.operators.documentReaderName')
-									: operatorId === CRON_TASK_SCHEDULER_OPERATOR_ID
-										? t('settings.operators.cronTaskName')
-										: operatorId === BACKGROUND_TASK_OPERATOR_ID
-											? t('settings.operators.backgroundTaskName')
-											: operatorId;
-		items.push({
-			label,
-			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(operatorId)}/details` : undefined,
-		});
-		if (isChatHistoryPage) {
-			items.push({ label: t('settings.operators.history') });
-		}
 	}
 
 	if (location.pathname.startsWith('/settings/cron/crondetails/')) {
