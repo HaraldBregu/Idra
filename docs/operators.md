@@ -30,6 +30,7 @@ storage key as the product name.
 
 Rules:
 
+- Give every operator its own main-process module.
 - Store provider credentials only on configured provider records under
   `providers`.
 - Store operator provider/model choices on `operator` or another typed
@@ -97,6 +98,34 @@ interface TaskOperator {
 selected model. The private API key and base URL are resolved later from the
 matching provider record.
 
+## Module Boundary
+
+Each operator must have its own main-process module. IPC handlers, task
+handlers, cron runners, renderer code, and provider adapters should call the
+operator module instead of sharing provider/model logic across unrelated
+operators.
+
+Recommended module ownership:
+
+| Operator field | Module owner | Responsibility |
+| --- | --- | --- |
+| `operator.assistant` | Assistant module | Assistant runs, provider/model resolution, tool loop |
+| `operator.speechToText` | STT module | Audio transcription sessions and STT adapters |
+| `operator.textToSpeech` | TTS module | Speech synthesis and TTS adapters |
+| `operator.imageCreator` | Image module | Image generation/editing and image adapters |
+| `operator.videoCreator` | Video module | Video generation jobs and video adapters |
+| `operator.musicCreator` | Sound module | Sound/music generation and audio adapters |
+| `operator.documentReaderOcr` | Document reader OCR module | OCR execution and OCR adapters |
+| `operator.cronTaskScheduler` | Cron module | Scheduling, persistence, due-run processing |
+| `operator.backgroundTask` | Task module | Immediate task lifecycle and task registry |
+
+Every model-backed operator module should expose a small service API, read its
+own `operator.*` selection from `StoreService`, resolve the configured provider
+record from `StoreService`, and keep provider-specific behavior behind
+adapters. Task and cron modules remain operator modules too, but they should
+dispatch to other operator modules for provider-backed work instead of hosting
+provider/model execution themselves.
+
 ## Assistant
 
 - Stable id: `friday`
@@ -108,6 +137,9 @@ matching provider record.
 The Friday assistant stores its default provider and model on
 `operator.assistant`. Provider credentials stay on the matching provider record
 under `providers`.
+
+The assistant should be owned by its own main-process assistant module.
+Existing `AgentService` behavior belongs behind that module boundary.
 
 Execution path:
 
@@ -263,8 +295,9 @@ Provider/model rules:
 - Documentation: `document-reader-ocr.md`
 - Runtime status: OCR task implemented; provider/model picker pending
 
-The document reader settings row is a placeholder, but OCR execution exists as
-the `ocr.run` task handler.
+Document reader OCR should be owned by its own main-process OCR module. The
+document reader settings row is a placeholder today, but OCR execution exists
+as the `ocr.run` task handler.
 
 Current OCR flow:
 
@@ -290,6 +323,9 @@ Cron performs scheduled work and can trigger model runs. Cron itself does not
 own a model selection. For operator-backed work, cron owns timing only; the
 task handler or operator module resolves provider and model from `StoreService`
 at execution time.
+
+Cron is its own main-process operator module. It should not contain provider
+adapters for assistant, TTS, STT, image, video, sound, or OCR work.
 
 State and runtime:
 
@@ -330,6 +366,10 @@ assistant turn when the target is the main session.
 The task manager is the operator boundary for immediate background work. It
 does not choose providers or models itself. Each registered task handler
 resolves its own operator configuration or calls an operator module that does.
+
+Background task is its own main-process operator module. It owns task lifecycle
+and task registry behavior, not provider-specific runtime logic for other
+operators.
 
 Current registered task handlers:
 
