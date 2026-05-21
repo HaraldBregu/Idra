@@ -670,9 +670,9 @@ export class AgentService {
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 		const savedEffort = providerId === configuredProviderId ? assistant?.model.effort : undefined;
 		let effort: ModelReasoningEffort | undefined;
-		if (providerId === 'openai' || providerId === 'deepseek') {
-			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
-		}
+			if (providerId === 'openai') {
+				effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
+			}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
 
