@@ -2,15 +2,15 @@
 
 Catalog and runtime notes for Friday's Google Calendar connector.
 
-| Field | Value |
-| --- | --- |
-| Connector id | `connector_googlecalendar` |
-| Direct connector id | `google_calendar` |
-| Name | Google Calendar |
-| Runtime status | Local OAuth and local tool execution |
-| Auth kind | Google OAuth |
-| Redirect URI | `http://127.0.0.1:<temporary-port>` |
-| Setup URL | [Google Cloud credentials](https://console.cloud.google.com/apis/credentials) |
+| Field               | Value                                                                         |
+| ------------------- | ----------------------------------------------------------------------------- |
+| Connector id        | `connector_googlecalendar`                                                    |
+| Direct connector id | `google_calendar`                                                             |
+| Name                | Google Calendar                                                               |
+| Runtime status      | Local OAuth and local tool execution                                          |
+| Auth kind           | Google OAuth                                                                  |
+| Redirect URI        | `http://127.0.0.1:<temporary-port>`                                           |
+| Setup URL           | [Google Cloud credentials](https://console.cloud.google.com/apis/credentials) |
 
 ## Environment Secrets
 

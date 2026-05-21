@@ -2,14 +2,14 @@
 
 Catalog notes for Friday's Dropbox connector.
 
-| Field | Value |
-| --- | --- |
-| Connector id | `connector_dropbox` |
-| Direct connector id | `dropbox` |
-| Name | Dropbox |
-| Runtime status | Settings catalog only |
-| Auth kind | Manual OAuth access token |
-| Setup URL | [Dropbox App Console](https://www.dropbox.com/developers/apps) |
+| Field               | Value                                                          |
+| ------------------- | -------------------------------------------------------------- |
+| Connector id        | `connector_dropbox`                                            |
+| Direct connector id | `dropbox`                                                      |
+| Name                | Dropbox                                                        |
+| Runtime status      | Settings catalog only                                          |
+| Auth kind           | Manual OAuth access token                                      |
+| Setup URL           | [Dropbox App Console](https://www.dropbox.com/developers/apps) |
 
 ## Environment Secrets
 
