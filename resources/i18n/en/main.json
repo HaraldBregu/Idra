@@ -256,7 +256,141 @@
 			"openUserData": "Open Folder"
 		},
 		"system": {
-			"description": "Manage operating system permissions and background behavior."
+			"description": "Manage operating system permissions, background behavior, and desktop capability boundaries.",
+			"actionsDescription": "Open required operating system panels and control background power behavior.",
+			"mediaPermissions": {
+				"title": "Media permissions",
+				"description": "Control camera and microphone access used by Friday features."
+			},
+			"permissionStatus": {
+				"not-determined": "Not Asked",
+				"granted": "Active",
+				"denied": "Blocked",
+				"restricted": "Restricted",
+				"unknown": "Unknown",
+				"unsupported": "Unsupported"
+			},
+			"availability": {
+				"yes": "Yes",
+				"oftenYes": "Often yes",
+				"sometimes": "Sometimes",
+				"yesAdmin": "Admin/root",
+				"yesHighPrivilege": "High privilege",
+				"usuallyNo": "Usually no"
+			},
+			"capabilities": {
+				"title": "System capabilities",
+				"description": "Reference of what Friday can use through the operating system.",
+				"groups": {
+					"core": {
+						"title": "Core desktop access",
+						"description": "Windows, files, networking, background work, and device information."
+					},
+					"media": {
+						"title": "Media and sensors",
+						"description": "Camera, microphone, playback, notifications, and location."
+					},
+					"devices": {
+						"title": "Devices and input",
+						"description": "External devices and user input surfaces."
+					},
+					"privileged": {
+						"title": "Privileged operations",
+						"description": "Operations that normally require elevated trust."
+					}
+				},
+				"items": {
+					"openWindowsAndUi": {
+						"title": "Open windows and UI",
+						"note": "Basic desktop app behavior."
+					},
+					"readWriteFiles": {
+						"title": "Read/write files",
+						"note": "Usually limited by user permissions."
+					},
+					"accessInternetNetwork": {
+						"title": "Access internet/network",
+						"note": "HTTP, sockets, APIs, servers, etc."
+					},
+					"startOtherPrograms": {
+						"title": "Start other programs",
+						"note": "Subject to permissions."
+					},
+					"runBackgroundTasks": {
+						"title": "Run background tasks",
+						"note": "More restricted on some systems."
+					},
+					"accessSystemInformation": {
+						"title": "Access system information",
+						"note": "CPU, RAM, OS version, device info, etc."
+					},
+					"useWebcam": {
+						"title": "Use webcam",
+						"note": "Usually needs camera permission."
+					},
+					"useMicrophoneRecordVoice": {
+						"title": "Use microphone / record voice",
+						"note": "Usually needs microphone permission."
+					},
+					"playAudioVideo": {
+						"title": "Play audio/video",
+						"note": "Speakers, media files, streaming."
+					},
+					"sendNotifications": {
+						"title": "Send notifications",
+						"note": "Through OS notification system."
+					},
+					"useGpsLocation": {
+						"title": "Use GPS/location",
+						"note": "Requires hardware and OS permission."
+					},
+					"useBluetooth": {
+						"title": "Use Bluetooth",
+						"note": "Through OS Bluetooth APIs, often permission-controlled."
+					},
+					"accessUsbDevices": {
+						"title": "Access USB devices",
+						"note": "Depends on drivers and permissions."
+					},
+					"usePrinterScanner": {
+						"title": "Use printer/scanner",
+						"note": "Through OS print/scan APIs."
+					},
+					"accessKeyboardMouseInput": {
+						"title": "Access keyboard/mouse input",
+						"note": "Normal input is allowed; global monitoring is restricted."
+					},
+					"readClipboard": {
+						"title": "Read clipboard",
+						"note": "Some OSes warn or restrict this."
+					},
+					"useGpu": {
+						"title": "Use GPU",
+						"note": "Graphics, AI, games, compute."
+					},
+					"changeSystemSettings": {
+						"title": "Change system settings",
+						"note": "Usually requires admin/root."
+					},
+					"installServicesDaemons": {
+						"title": "Install services/daemons",
+						"note": "Used by updaters, VPNs, antivirus, etc."
+					},
+					"accessLowLevelHardwareDirectly": {
+						"title": "Access low-level hardware directly",
+						"note": "Needs drivers or privileged APIs."
+					},
+					"installDrivers": {
+						"title": "Install drivers",
+						"note": "Often requires signing/trust approval."
+					}
+				}
+			},
+			"errors": {
+				"openPreference": "Could not open the system preference pane.",
+				"keepAwakeLoad": "Could not load keep-awake status.",
+				"keepAwakeSave": "Could not save keep-awake setting."
+			}
 		},
 		"chatHistory": {
 			"title": "Chat history",
@@ -292,6 +426,7 @@
 				"activate": "Activate",
 				"check": "Check",
 				"request": "Request Access",
+				"openSettings": "Open Settings",
 				"refresh": "Refresh microphone permission"
 			},
 			"status": {
@@ -306,6 +441,26 @@
 				"load": "Could not load microphone permission.",
 				"save": "Could not save microphone setting.",
 				"request": "Could not request microphone access."
+			}
+		},
+		"camera": {
+			"title": "Camera permissions",
+			"description": "Control whether Friday can use the webcam.",
+			"access": "Camera access",
+			"accessDescription": "Allow Friday features to use the camera.",
+			"systemPermission": "System permission",
+			"systemPermissionDescription": "Current operating system camera access for Friday.",
+			"actions": {
+				"activate": "Activate",
+				"check": "Check",
+				"request": "Request Access",
+				"openSettings": "Open Settings",
+				"refresh": "Refresh camera permission"
+			},
+			"errors": {
+				"load": "Could not load camera permission.",
+				"save": "Could not save camera setting.",
+				"request": "Could not request camera access."
 			}
 		},
 		"editor": {
