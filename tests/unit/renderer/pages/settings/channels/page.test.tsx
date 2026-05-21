@@ -54,6 +54,7 @@ describe('ChannelsPage', () => {
 		expect(await screen.findByRole('button', { name: /Slack/ })).toBeInTheDocument();
 		expect(screen.getByText('Connected')).toBeInTheDocument();
 		expect(screen.getAllByText('Configuration only').length).toBeGreaterThan(0);
+		expect(screen.queryByRole('button', { name: /QA Channel/ })).not.toBeInTheDocument();
 	});
 
 	it('navigates to channel details when a channel is selected', async () => {
