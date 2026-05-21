@@ -20,7 +20,7 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import { REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, type Model } from '../../../../shared/service';
+import type { Model } from '../../../../shared/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -93,17 +93,6 @@ const STEP_TITLES: Record<SetupStep, string> = {
 	providers: 'Providers',
 	operators: 'Operators',
 };
-
-const SPEECH_MODELS: readonly StaticModelOption[] = [
-	{
-		id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-		name: 'GPT Realtime Whisper',
-		provider: 'OpenAI',
-		description: 'Streams live dictation into chat',
-		initial: 'O',
-		swatchClassName: 'bg-muted text-muted-foreground',
-	},
-];
 
 const TTS_MODELS: readonly StaticModelOption[] = [
 	{
@@ -209,7 +198,11 @@ const StartPage: React.FC = () => {
 	const [agentModelGroups, setAgentModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedModel, setSelectedModel] = useState('');
 	const [loadingModels, setLoadingModels] = useState(false);
-	const [selectedSpeechModel, setSelectedSpeechModel] = useState(SPEECH_MODELS[0]?.id ?? '');
+	const [speechProviderId, setSpeechProviderId] = useState('');
+	const [savedSpeechProviderId, setSavedSpeechProviderId] = useState('');
+	const [savedSpeechModelId, setSavedSpeechModelId] = useState('');
+	const [speechModelGroups, setSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
+	const [selectedSpeechModel, setSelectedSpeechModel] = useState('');
 	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -306,9 +299,10 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, assistantOperator] = await Promise.all([
+				const [storedProviders, assistantOperator, speechToTextOperator] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAssistantOperator(),
+					window.app.getSpeechToTextOperator(),
 				]);
 				if (cancelled) return;
 
@@ -323,11 +317,17 @@ const StartPage: React.FC = () => {
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
 				setSavedModelId(assistantOperator?.model.id ?? '');
+				setSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
+				setSavedSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
+				setSavedSpeechModelId(speechToTextOperator?.model?.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
 				setConfigProvider('');
 				setSavedModelId('');
+				setSpeechProviderId('');
+				setSavedSpeechProviderId('');
+				setSavedSpeechModelId('');
 				setErrorMessage(getErrorMessage(error, 'Could not load operators.'));
 			}
 		}
@@ -347,7 +347,10 @@ const StartPage: React.FC = () => {
 		async function loadModels(): Promise<void> {
 			if (providers.length === 0) {
 				setAgentModelGroups([]);
+				setSpeechModelGroups([]);
 				setSelectedModel('');
+				setSpeechProviderId('');
+				setSelectedSpeechModel('');
 				return;
 			}
 
@@ -355,6 +358,7 @@ const StartPage: React.FC = () => {
 			setErrorMessage('');
 			try {
 				const nextAgentGroups: ProviderModelGroup[] = [];
+				const nextSpeechGroups: ProviderModelGroup[] = [];
 				let firstError: unknown;
 
 				for (const provider of providers) {
@@ -366,11 +370,21 @@ const StartPage: React.FC = () => {
 					} catch (error) {
 						firstError ??= error;
 					}
+
+					try {
+						const speechModels = await window.app.getSpeechToTextModels(provider);
+						if (speechModels.length > 0) {
+							nextSpeechGroups.push({ provider, models: speechModels });
+						}
+					} catch (error) {
+						firstError ??= error;
+					}
 				}
 
 				if (cancelled) return;
 
 				setAgentModelGroups(nextAgentGroups);
+				setSpeechModelGroups(nextSpeechGroups);
 
 				const agentOptions = nextAgentGroups.flatMap((group) =>
 					group.models.map((model) => ({ provider: group.provider, model }))
@@ -385,13 +399,31 @@ const StartPage: React.FC = () => {
 				setConfigProvider(preferredAgentOption?.provider.id ?? '');
 				setSelectedModel(preferredAgentOption?.model.id ?? '');
 
-				if (!preferredAgentOption && firstError) {
+				const speechOptions = nextSpeechGroups.flatMap((group) =>
+					group.models.map((model) => ({ provider: group.provider, model }))
+				);
+				const preferredSpeechOption =
+					speechOptions.find(
+						(option) =>
+							option.provider.id === savedSpeechProviderId &&
+							option.model.id === savedSpeechModelId
+					) ??
+					speechOptions.find((option) => option.provider.id === savedSpeechProviderId) ??
+					speechOptions[0];
+
+				setSpeechProviderId(preferredSpeechOption?.provider.id ?? '');
+				setSelectedSpeechModel(preferredSpeechOption?.model.id ?? '');
+
+				if (!preferredAgentOption && nextSpeechGroups.length === 0 && firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
 				}
 			} catch (error) {
 				if (cancelled) return;
 				setAgentModelGroups([]);
+				setSpeechModelGroups([]);
 				setSelectedModel('');
+				setSpeechProviderId('');
+				setSelectedSpeechModel('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
 				if (!cancelled) {
@@ -405,7 +437,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [providers, savedModelId, step]);
+	}, [providers, savedModelId, savedSpeechModelId, savedSpeechProviderId, step]);
 
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
@@ -509,6 +541,19 @@ const StartPage: React.FC = () => {
 		setSelectedModel(value ?? '');
 	}
 
+	function handleSpeechProviderChange(value: string | null): void {
+		const providerId = value ?? '';
+		const group = speechModelGroups.find((item) => item.provider.id === providerId);
+		setErrorMessage('');
+		setSpeechProviderId(providerId);
+		setSelectedSpeechModel(group?.models[0]?.id ?? '');
+	}
+
+	function handleSpeechModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedSpeechModel(value ?? '');
+	}
+
 	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
@@ -524,10 +569,14 @@ const StartPage: React.FC = () => {
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
-			const openAiProvider = providers.find((provider) => provider.id === 'openai');
-			const selectedSpeechOption = SPEECH_MODELS.find((model) => model.id === selectedSpeechModel);
-			if (openAiProvider && selectedSpeechOption) {
-				await window.app.saveSpeechToTextOperator(openAiProvider, {
+			const selectedSpeechGroup = speechModelGroups.find(
+				(group) => group.provider.id === speechProviderId
+			);
+			const selectedSpeechOption = selectedSpeechGroup?.models.find(
+				(model) => model.id === selectedSpeechModel
+			);
+			if (selectedSpeechGroup && selectedSpeechOption) {
+				await window.app.saveSpeechToTextOperator(selectedSpeechGroup.provider, {
 					id: selectedSpeechOption.id,
 					name: selectedSpeechOption.name,
 				});
@@ -755,11 +804,17 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderOperatorsStep(): React.JSX.Element {
-		const openAiCatalog = getProviderCatalogItem('openai');
 		const ttsProviderCatalog = getProviderCatalogItem('elevenlabs');
-		const openAiConnected = connectedProviderIds.has('openai');
-		const selectedSpeechOption =
-			SPEECH_MODELS.find((option) => option.id === selectedSpeechModel) ?? SPEECH_MODELS[0];
+		const selectedSpeechGroup = speechModelGroups.find(
+			(group) => group.provider.id === speechProviderId
+		);
+		const selectedSpeechModels = selectedSpeechGroup?.models ?? [];
+		const selectedSpeechOption = selectedSpeechModels.find(
+			(option) => option.id === selectedSpeechModel
+		);
+		const speechStatus = loadingModels
+			? 'Loading models...'
+			: (selectedSpeechOption?.name ?? 'No transcription model');
 		const selectedTtsOption =
 			TTS_MODELS.find((option) => option.id === selectedTtsModel) ?? TTS_MODELS[0];
 		const toggleOperator = (operatorId: OperatorCardId): void => {
@@ -876,7 +931,7 @@ const StartPage: React.FC = () => {
 							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 								<ItemTitle>Voice Input</ItemTitle>
 								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-									{openAiConnected ? (selectedSpeechOption?.name ?? 'Ready') : 'OpenAI required'}
+									{speechStatus}
 								</p>
 							</ItemContent>
 							<ItemActions className="ml-auto flex-none justify-end">
@@ -893,26 +948,37 @@ const StartPage: React.FC = () => {
 							<div id="operator-voice-input" className="grid gap-3 p-3">
 								<div className="grid gap-3 sm:grid-cols-2">
 									<SettingsField id="speech-provider" label="Provider">
-										<Select value="openai" disabled>
+										<Select
+											value={speechProviderId}
+											onValueChange={handleSpeechProviderChange}
+											disabled={loadingModels || speechModelGroups.length === 0 || savingConfig}
+										>
 											<SelectTrigger id="speech-provider" className="w-full text-xs sm:w-72">
-												<SelectValue />
+												<SelectValue placeholder={speechStatus} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="openai">{openAiCatalog.name}</SelectItem>
+												{speechModelGroups.map((group) => {
+													const catalog = getProviderCatalogItem(group.provider.id);
+													return (
+														<SelectItem key={group.provider.id} value={group.provider.id}>
+															{catalog.name}
+														</SelectItem>
+													);
+												})}
 											</SelectContent>
 										</Select>
 									</SettingsField>
 									<SettingsField id="speech-model" label="Transcription model">
 										<Select
 											value={selectedSpeechModel}
-											onValueChange={setSelectedSpeechModel}
-											disabled={!openAiConnected}
+											onValueChange={handleSpeechModelChange}
+											disabled={loadingModels || selectedSpeechModels.length === 0 || savingConfig}
 										>
 											<SelectTrigger id="speech-model" className="w-full text-xs sm:w-72">
-												<SelectValue />
+												<SelectValue placeholder={speechStatus} />
 											</SelectTrigger>
 											<SelectContent>
-												{SPEECH_MODELS.map((option) => (
+												{selectedSpeechModels.map((option) => (
 													<SelectItem key={option.id} value={option.id}>
 														{option.name}
 													</SelectItem>
@@ -921,9 +987,9 @@ const StartPage: React.FC = () => {
 										</Select>
 									</SettingsField>
 								</div>
-								{!openAiConnected ? (
+								{speechModelGroups.length === 0 ? (
 									<SettingsNotice icon={Mic}>
-										Connect OpenAI to enable live speech transcription.
+										Connect a speech-to-text capable provider to enable live transcription.
 									</SettingsNotice>
 								) : null}
 							</div>
