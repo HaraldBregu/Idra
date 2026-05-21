@@ -1,7 +1,6 @@
 import type { ModelModuleSettings } from '../store/types';
 import type { StoreService } from '../store';
 import { isAllowedImageCreatorModelForProvider } from '../../shared/service';
-import type { Model } from '../../shared/service';
 import type { Provider } from '../../shared/providers';
 import {
 	EMPTY_TEXT_TO_IMAGE_ADAPTER_REGISTRY,
@@ -13,7 +12,6 @@ import type { TextToImageRequest, TextToImageResult } from './types';
 interface TextToImageRuntime {
 	settings: ModelModuleSettings;
 	provider: Provider;
-	model: Model;
 	adapter: TextToImageAdapter;
 }
 
@@ -113,7 +111,6 @@ export class TextToImageService {
 		return {
 			settings,
 			provider,
-			model: { id: settings.modelId, name: settings.modelId },
 			adapter,
 		};
 	}
