@@ -106,7 +106,7 @@ describe('OperatorDetailsPage', () => {
 
 	it('renders Cron Task configuration details', async () => {
 		const user = userEvent.setup();
-		renderOperatorDetailsPage('/settings/operators/cron-task/details');
+		renderOperatorDetailsPage('/settings/operators/cron-task-scheduler/details');
 
 		expect(await screen.findByText('settings.operators.cronTaskName')).toBeInTheDocument();
 		expect(screen.getByText('settings.operators.cronTaskRuntimeValue')).toBeInTheDocument();

@@ -85,14 +85,15 @@ const ChatHistoryPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { operatorId } = useParams<{ operatorId: string }>();
 	const decodedOperatorId = decodeURIComponent(operatorId ?? '');
-	const isFridayAgent = decodedOperatorId === FRIDAY_AGENT_SLUG || decodedOperatorId === FRIDAY_AGENT_ID;
+	const isAssistantOperator =
+		decodedOperatorId === ASSISTANT_OPERATOR_ID || decodedOperatorId === ASSISTANT_RUNTIME_ID;
 	const [chatHistory, setChatHistory] = useState<ChatHistoryStats>(EMPTY_CHAT_HISTORY_STATS);
 	const [chatHistoryLoading, setChatHistoryLoading] = useState(true);
 	const [chatHistoryDeleting, setChatHistoryDeleting] = useState(false);
 	const [chatHistoryErrorKey, setChatHistoryErrorKey] = useState('');
 
 	const refreshChatHistory = useCallback(async (): Promise<void> => {
-		if (!isFridayAgent) return;
+		if (!isAssistantOperator) return;
 		setChatHistoryLoading(true);
 		setChatHistoryErrorKey('');
 		try {
@@ -104,15 +105,15 @@ const ChatHistoryPage: React.FC = () => {
 		} finally {
 			setChatHistoryLoading(false);
 		}
-	}, [isFridayAgent]);
+	}, [isAssistantOperator]);
 
 	useEffect(() => {
-		if (!isFridayAgent) {
+		if (!isAssistantOperator) {
 			setChatHistoryLoading(false);
 			return;
 		}
 		void refreshChatHistory();
-	}, [isFridayAgent, refreshChatHistory]);
+	}, [isAssistantOperator, refreshChatHistory]);
 
 	const handleOpenChatHistoryFolder = useCallback(() => {
 		setChatHistoryErrorKey('');
@@ -136,7 +137,7 @@ const ChatHistoryPage: React.FC = () => {
 		}
 	}, [refreshChatHistory, t]);
 
-	if (!isFridayAgent) {
+	if (!isAssistantOperator) {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader
