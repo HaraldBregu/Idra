@@ -114,7 +114,7 @@ Runtime startup:
 
 1. A UI action, background task, or cron-triggered task requests sound work.
 2. The sound module reads its saved settings.
-3. It reads provider id and model id from the operator selection.
+3. It reads provider id and model id from the saved module settings.
 4. It loads credentials and provider configuration from
    `StoreService.getProviderById(providerId)`.
 5. It creates the sound adapter for the selected provider and model.
