@@ -605,12 +605,12 @@ describe('StoreService', () => {
 
 			service.setAssistantOperator('openai', { ...model, effort: 'high' });
 
-			expect(store.get('llmAgent')).toEqual({
+			expect(store.get('agent')).toEqual({
 				providerId: 'openai',
 				modelId: 'gpt-5.4',
 				effort: 'high',
 			});
-			expect(store.get('agent')).toBeUndefined();
+			expect(store.get('llmAgent')).toBeUndefined();
 			expect(store.get('service')).toBeUndefined();
 		});
 	});
