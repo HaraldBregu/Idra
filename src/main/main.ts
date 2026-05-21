@@ -239,24 +239,13 @@ export class Main {
 	}
 
 	private positionTrayWindowUnderIcon(win: BrowserWindow, trayBounds?: Rectangle): void {
-		if (process.platform !== 'darwin' || !trayBounds) return;
+		const referencePoint = trayBounds
+			? { x: Math.round(trayBounds.x + trayBounds.width / 2), y: Math.round(trayBounds.y) }
+			: screen.getCursorScreenPoint();
+		const { workArea } = screen.getDisplayNearestPoint(referencePoint);
 
-		const iconCenterX = trayBounds.x + trayBounds.width / 2;
-		const targetY = trayBounds.y + trayBounds.height;
-		const display = screen.getDisplayNearestPoint({
-			x: Math.round(iconCenterX),
-			y: Math.round(targetY),
-		});
-		const { workArea } = display;
-		const minX = workArea.x + TRAY_WINDOW_EDGE_MARGIN;
-		const maxX = workArea.x + workArea.width - TRAY_WINDOW_WIDTH - TRAY_WINDOW_EDGE_MARGIN;
-		const minY = workArea.y;
-		const maxY = workArea.y + workArea.height - TRAY_WINDOW_HEIGHT;
-
-		const x = Math.round(
-			Math.min(Math.max(iconCenterX - TRAY_WINDOW_WIDTH / 2, minX), Math.max(minX, maxX))
-		);
-		const y = Math.round(Math.min(Math.max(targetY, minY), Math.max(minY, maxY)));
+		const x = Math.round(workArea.x + (workArea.width - TRAY_WINDOW_WIDTH) / 2);
+		const y = Math.round(workArea.y + (workArea.height - TRAY_WINDOW_HEIGHT) / 2);
 
 		win.setPosition(x, y, false);
 	}
