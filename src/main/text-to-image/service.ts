@@ -4,10 +4,9 @@ import { isAllowedImageCreatorModelForProvider } from '../../shared/service';
 import type { Provider } from '../../shared/providers';
 import {
 	EMPTY_TEXT_TO_IMAGE_ADAPTER_REGISTRY,
-	type TextToImageAdapter,
 	type TextToImageAdapterRegistry,
 } from './adapters';
-import type { TextToImageRequest, TextToImageResult } from './types';
+import type { TextToImageAdapter, TextToImageRequest, TextToImageResult } from './types';
 
 interface TextToImageRuntime {
 	settings: ModelModuleSettings;
