@@ -165,7 +165,11 @@ import type { ChannelCatalogEntry } from '../shared/channel-catalog';
 import type { AppInfo } from '../shared/apps';
 import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
 import type { ThemeMode } from '../shared/theme';
-import type { MicrophonePermissionSettings } from '../shared/app-permissions';
+import type {
+	MicrophonePermissionSettings,
+	CameraPermissionSettings,
+	SystemPreferencePaneId,
+} from '../shared/app-permissions';
 import type {
 	RealtimeTranscriptionEvent,
 	RealtimeTranscriptionSession,
