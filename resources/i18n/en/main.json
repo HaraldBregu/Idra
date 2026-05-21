@@ -156,7 +156,7 @@
 			"descriptions": {
 				"general": "App info, appearance, folders",
 				"operators": "Operator configuration",
-				"system": "Permissions and keep-awake controls",
+				"system": "Permissions, keep-awake controls, and desktop capabilities",
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
