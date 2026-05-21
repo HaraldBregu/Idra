@@ -80,7 +80,7 @@ describe('provider model policy', () => {
 	});
 
 	it('lists every provider from the frontier catalog in the shared provider defaults', () => {
-		expect(DEFAULT_PROVIDERS).toHaveLength(32);
+		expect(DEFAULT_PROVIDERS).toHaveLength(25);
 		expect(DEFAULT_PROVIDERS.map((provider) => provider.id)).toEqual([
 			'openai',
 			'anthropic',
@@ -88,21 +88,16 @@ describe('provider model policy', () => {
 			'meta',
 			'xai',
 			'mistral',
-			'cohere',
 			'deepseek',
 			'qwen',
 			'kimi',
 			'zai',
-			'baidu',
-			'tencent-hunyuan',
-			'bytedance-seed',
 			'minimax',
 			'elevenlabs',
 			'deepgram',
 			'cartesia',
 			'black-forest-labs',
 			'midjourney',
-			'adobe-firefly',
 			'kling',
 			'runway',
 			'luma',
@@ -111,9 +106,7 @@ describe('provider model policy', () => {
 			'pika',
 			'suno',
 			'reka',
-			'ai21',
 			'perplexity',
-			'nvidia',
 		]);
 	});
 
@@ -156,17 +149,16 @@ describe('provider model policy', () => {
 			'qwen3-coder-plus',
 			'qwq-plus',
 		]);
-		expect(getDefaultAgentModels('cohere').map((model) => model.id)).toEqual([
-			'command-a-03-2025',
-			'command-a-reasoning-08-2025',
-			'command-a-vision-07-2025',
-			'aya-vision',
+		expect(getDefaultAgentModels('kimi').map((model) => model.id)).toEqual([
+			'kimi-k2.6',
+			'kimi-k2.5',
+			'kimi-k2',
+			'kimi-latest',
 		]);
-		expect(getDefaultAgentModels('nvidia').map((model) => model.id)).toEqual([
-			'nemotron-ultra-latest',
-			'llama-nemotron-super',
-			'llama-nemotron-nano',
-			'nemotron-vl',
+		expect(getDefaultAgentModels('reka').map((model) => model.id)).toEqual([
+			'reka-core',
+			'reka-flash',
+			'reka-edge',
 		]);
 	});
 
