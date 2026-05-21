@@ -79,8 +79,7 @@ export const MODEL_REASONING_EFFORTS = [
 ] as const;
 export type ModelReasoningEffort = (typeof MODEL_REASONING_EFFORTS)[number];
 export const DEFAULT_MODEL_REASONING_EFFORT: ModelReasoningEffort = 'medium';
-const DEFAULT_DEEPSEEK_REASONING_EFFORT: ModelReasoningEffort = 'high';
-const DEEPSEEK_REASONING_EFFORTS = ['none', 'high', 'xhigh'] as const;
+const MODEL_REASONING_EFFORT_PROVIDER_ID = 'openai';
 
 export function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
@@ -90,17 +89,15 @@ const GPT_5_4_MINI_REASONING_EFFORTS = MODEL_REASONING_EFFORTS.filter(
 	(effort) => effort !== 'minimal'
 );
 
-function isDeepSeekReasoningTarget(modelId: string, providerId?: string): boolean {
-	const normalizedProviderId = providerId?.trim().toLowerCase();
-	if (normalizedProviderId === 'deepseek') return true;
-	return modelId.trim().toLowerCase().startsWith('deepseek-');
+export function supportsModelReasoningEffortProvider(providerId: string): boolean {
+	return providerId.trim().toLowerCase() === MODEL_REASONING_EFFORT_PROVIDER_ID;
 }
 
 export function getModelReasoningEfforts(
 	modelId: string,
 	providerId?: string
 ): readonly ModelReasoningEffort[] {
-	if (isDeepSeekReasoningTarget(modelId, providerId)) return DEEPSEEK_REASONING_EFFORTS;
+	if (providerId !== undefined && !supportsModelReasoningEffortProvider(providerId)) return [];
 	const normalizedModelId = modelId.trim().toLowerCase();
 	if (normalizedModelId === 'gpt-5.4-mini') return GPT_5_4_MINI_REASONING_EFFORTS;
 	return MODEL_REASONING_EFFORTS;
@@ -110,7 +107,6 @@ export function getDefaultModelReasoningEffort(
 	modelId: string,
 	providerId?: string
 ): ModelReasoningEffort {
-	if (isDeepSeekReasoningTarget(modelId, providerId)) return DEFAULT_DEEPSEEK_REASONING_EFFORT;
 	const supportedEfforts = getModelReasoningEfforts(modelId, providerId);
 	return supportedEfforts.includes(DEFAULT_MODEL_REASONING_EFFORT)
 		? DEFAULT_MODEL_REASONING_EFFORT
@@ -133,6 +129,9 @@ export function requireModelReasoningEffort(
 	providerId?: string
 ): ModelReasoningEffort {
 	const supportedEfforts = getModelReasoningEfforts(modelId, providerId);
+	if (supportedEfforts.length === 0) {
+		throw new Error(`Reasoning effort is not supported for provider "${providerId ?? ''}".`);
+	}
 	if (effort === undefined || effort === null || effort === '') {
 		return getDefaultModelReasoningEffort(modelId, providerId);
 	}

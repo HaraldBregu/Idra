@@ -49,6 +49,7 @@ import {
 	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
 	isModelReasoningEffortSupported,
+	supportsModelReasoningEffortProvider,
 	type ConfiguredModelOperator,
 	type Model,
 	type ModelReasoningEffort,
@@ -60,16 +61,6 @@ import {
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	TEXT_TO_VIDEO_MODELS,
 } from '../../../../../../../shared/provider-models';
-
-const OPENAI_PROVIDER_ID = 'openai';
-const DEEPSEEK_PROVIDER_ID = 'deepseek';
-
-function supportsReasoningEffortProvider(providerId: string): boolean {
-	const normalizedProviderId = providerId.trim().toLowerCase();
-	return (
-		normalizedProviderId === OPENAI_PROVIDER_ID || normalizedProviderId === DEEPSEEK_PROVIDER_ID
-	);
-}
 
 function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {
@@ -358,7 +349,7 @@ const OperatorDetailsPage: React.FC = () => {
 	]);
 
 	const selectedModel = modelOptions.find((model) => model.id === modelId);
-	const showEffort = isAssistantOperator && supportsReasoningEffortProvider(providerId);
+	const showEffort = isAssistantOperator && supportsModelReasoningEffortProvider(providerId);
 	const effortOptions = useMemo(
 		() => (showEffort ? getModelReasoningEfforts(modelId, providerId) : []),
 		[modelId, providerId, showEffort]
@@ -366,7 +357,7 @@ const OperatorDetailsPage: React.FC = () => {
 	const selectedEffort = showEffort ? effort : undefined;
 	const currentEffort =
 		currentAssistantOperator &&
-		supportsReasoningEffortProvider(currentAssistantOperator.provider.id)
+		supportsModelReasoningEffortProvider(currentAssistantOperator.provider.id)
 			? storedEffortForComparison(
 					currentAssistantOperator.model,
 					currentAssistantOperator.provider.id

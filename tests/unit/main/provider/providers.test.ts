@@ -11,7 +11,12 @@ import {
 	providerHasImageCapability,
 	PROVIDER_API_CONFIGURATIONS,
 } from '../../../../src/shared/providers';
-import type { Model } from '../../../../src/shared/service';
+import {
+	getModelReasoningEfforts,
+	isModelReasoningEffortSupported,
+	MODEL_REASONING_EFFORTS,
+	type Model,
+} from '../../../../src/shared/service';
 
 describe('provider model policy', () => {
 	const models: Model[] = [
@@ -271,8 +276,26 @@ describe('provider model policy', () => {
 		expect(isAllowedAgentModel('deepseek', 'deepseek-r1')).toBe(false);
 	});
 
-	it('leaves other providers unrestricted', () => {
+	it('returns no selectable main-agent models for known providers without catalogs', () => {
+		expect(filterSelectableAgentModels('elevenlabs', models)).toEqual([]);
+		expect(isAllowedAgentModel('elevenlabs', 'rachel-multilingual')).toBe(false);
+	});
+
+	it('leaves custom providers unrestricted', () => {
 		expect(filterSelectableAgentModels('custom', models)).toBe(models);
 		expect(isAllowedAgentModel('custom', 'local-model')).toBe(true);
+	});
+
+	it('limits saved reasoning effort metadata to OpenAI providers', () => {
+		expect(getModelReasoningEfforts('gpt-5.5', 'openai')).toEqual(MODEL_REASONING_EFFORTS);
+		expect(getModelReasoningEfforts('gpt-5.4-mini', 'openai')).toEqual([
+			'none',
+			'low',
+			'medium',
+			'high',
+			'xhigh',
+		]);
+		expect(getModelReasoningEfforts('deepseek-v4-pro', 'deepseek')).toEqual([]);
+		expect(isModelReasoningEffortSupported('deepseek-v4-pro', 'high', 'deepseek')).toBe(false);
 	});
 });

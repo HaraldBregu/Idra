@@ -11,7 +11,10 @@ function registeredHandler(channel: string) {
 	return call[1] as (event: unknown, ...args: unknown[]) => Promise<unknown>;
 }
 
-function createContainer(provider: Provider | undefined): MainServiceContainer {
+function createContainer(
+	provider: Provider | undefined,
+	storeOverrides: Record<string, unknown> = {}
+): MainServiceContainer {
 	const services = {
 		apps: {},
 		logger: {
@@ -24,6 +27,8 @@ function createContainer(provider: Provider | undefined): MainServiceContainer {
 		},
 		store: {
 			getProviderById: jest.fn(() => provider),
+			setAgentService: jest.fn(() => true),
+			...storeOverrides,
 		},
 		userDataDirectory: {
 			ensureRoot: jest.fn(),
@@ -58,6 +63,38 @@ describe('AppIpc', () => {
 		await expect(registeredHandler(ProviderChannels.getModels)({}, publicProvider)).resolves.toEqual({
 			success: true,
 			data: [],
+		});
+	});
+
+	it('strips effort when saving non-OpenAI agent service models', async () => {
+		const provider: Provider = {
+			id: 'deepseek',
+			name: 'DeepSeek',
+			baseUrl: 'https://api.deepseek.com',
+			apiKey: 'test-key',
+		};
+		const setAgentService = jest.fn(() => true);
+		const publicProvider: PublicProvider = {
+			id: provider.id,
+			name: provider.name,
+			baseUrl: provider.baseUrl,
+		};
+
+		new AppIpc().register(createContainer(provider, { setAgentService }), new EventBus());
+
+		await expect(
+			registeredHandler(ProviderChannels.saveAgentService)({}, publicProvider, {
+				id: 'deepseek-v4-pro',
+				name: 'DeepSeek V4-Pro',
+				effort: 'high',
+			})
+		).resolves.toEqual({
+			success: true,
+			data: true,
+		});
+		expect(setAgentService).toHaveBeenCalledWith('deepseek', {
+			id: 'deepseek-v4-pro',
+			name: 'DeepSeek V4-Pro',
 		});
 	});
 });

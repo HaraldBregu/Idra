@@ -8,6 +8,7 @@ import {
 	isAllowedSpeechToTextModel,
 	isAllowedImageCreatorModelForProvider,
 	requireModelReasoningEffort,
+	supportsModelReasoningEffortProvider,
 	type Agent,
 	type ConfiguredModelOperator,
 	type Model,
@@ -366,7 +367,7 @@ export class AppIpc implements IpcModule {
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
 					const modelToSave =
-						normalizedProviderId === 'openai'
+						supportsModelReasoningEffortProvider(normalizedProviderId)
 							? {
 									...model,
 									effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
@@ -458,7 +459,7 @@ export class AppIpc implements IpcModule {
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
 				const modelToSave =
-					normalizedProviderId === 'openai' || normalizedProviderId === 'deepseek'
+					supportsModelReasoningEffortProvider(normalizedProviderId)
 						? {
 								...model,
 								effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),

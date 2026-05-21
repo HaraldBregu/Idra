@@ -652,6 +652,13 @@ function normalizeProviderId(providerId: string): string {
 	return providerId.trim().toLowerCase();
 }
 
+function isDefaultProvider(providerId: string): boolean {
+	const normalizedProviderId = normalizeProviderId(providerId);
+	return DEFAULT_PROVIDERS.some(
+		(provider) => normalizeProviderId(provider.id) === normalizedProviderId
+	);
+}
+
 export function getProviderApiConfigurationUrl(
 	provider: Pick<Provider, 'apiConfiguration' | 'baseUrl'>
 ): string {
@@ -710,13 +717,13 @@ export function isAllowedAgentModel(providerId: string, modelId: string): boolea
 		return defaultModels.some((model) => model.id === normalizedModelId);
 	}
 
-	return true;
+	return !isDefaultProvider(providerId);
 }
 
 export function filterSelectableAgentModels(providerId: string, models: Model[]): Model[] {
 	const defaultModels = defaultModelsForProvider(providerId);
 	if (!defaultModels) {
-		return models;
+		return isDefaultProvider(providerId) ? [] : models;
 	}
 
 	const byId = new Map(models.map((model) => [model.id.trim(), model]));
