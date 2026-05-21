@@ -212,6 +212,18 @@ export const app: AppApi = {
 	requestMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.requestMicrophonePermission);
 	},
+	openSystemPreference: (pane) => {
+		return typedInvokeUnwrap(AppChannels.openSystemPreference, pane);
+	},
+	getCameraPermission: () => {
+		return typedInvokeUnwrap(AppChannels.getCameraPermission);
+	},
+	setCameraEnabled: (enabled: boolean) => {
+		return typedInvokeUnwrap(AppChannels.setCameraEnabled, enabled);
+	},
+	requestCameraPermission: () => {
+		return typedInvokeUnwrap(AppChannels.requestCameraPermission);
+	},
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
 		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
