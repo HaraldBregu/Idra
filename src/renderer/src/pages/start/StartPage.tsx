@@ -237,35 +237,6 @@ function getProviderModelSelectionLabel(option: ProviderModelOption | undefined)
 	return `${option.provider.name} - ${option.model.name}`;
 }
 
-function getStatusLabel(status: ModelAreaStatus): string {
-	if (status === 'implemented') return 'Implemented';
-	if (status === 'pending-runtime') return 'Pending runtime';
-	if (status === 'placeholder') return 'Placeholder';
-	if (status === 'endpoint-backed') return 'Endpoint-backed';
-	return 'Unavailable';
-}
-
-function getStatusClassName(status: ModelAreaStatus): string {
-	if (status === 'implemented') {
-		return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
-	}
-	if (status === 'endpoint-backed') {
-		return 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300';
-	}
-	if (status === 'unavailable') {
-		return 'border-border bg-muted/40 text-muted-foreground';
-	}
-	return 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300';
-}
-
-function StatusBadge({ status }: { readonly status: ModelAreaStatus }): React.JSX.Element {
-	return (
-		<Badge variant="outline" className={cn('h-5 rounded-md px-1.5', getStatusClassName(status))}>
-			{getStatusLabel(status)}
-		</Badge>
-	);
-}
-
 function StepProgress({ currentIndex }: { readonly currentIndex: number }): React.JSX.Element {
 	return (
 		<div
