@@ -143,63 +143,16 @@ describe('tools/before-call', () => {
 			needsApproval: true,
 			execute: jest.fn(),
 		};
-		const ask = jest.fn(async () => 'allow-always' as const);
-		const ctx = makeToolContext({ approveStream: { ask } });
+		const ctx = makeToolContext();
 		const tracker = newCallTracker();
 
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
-		expect(ask).not.toHaveBeenCalled();
 		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(true);
 	});
 
-	it('does not ask the approval stream for legacy approval markers', async () => {
-		const tool: AgentTool = {
-			name: 'write',
-			description: '',
-			schema: {},
-			needsApproval: true,
-			execute: jest.fn(),
-		};
-		const ask = jest.fn(async () => 'allow-once' as const);
-		const ctx = makeToolContext({ approveStream: { ask } });
-		const tracker = newCallTracker();
-
-		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
-		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
-		expect(ask).not.toHaveBeenCalled();
-	});
-
-	it('ignores denied and unavailable approval streams before execution', async () => {
-		const tool: AgentTool = {
-			name: 'exec',
-			description: '',
-			schema: {},
-			needsApproval: true,
-			execute: jest.fn(),
-		};
-		const tracker = newCallTracker();
-		const denied = await beforeToolCall(
-			tool,
-			{ command: 'printf no' },
-			makeToolContext({ approveStream: { ask: jest.fn(async () => 'deny' as const) } }),
-			tracker
-		);
-		expect(denied.proceed).toBe(true);
-		expect(denied.vetoResult).toBeUndefined();
-
-		const unavailable = await beforeToolCall(
-			tool,
-			{ command: 'printf maybe' },
-			makeToolContext({ approveStream: { ask: jest.fn(async () => null) } }),
-			tracker
-		);
-		expect(unavailable.proceed).toBe(true);
-		expect(unavailable.vetoResult).toBeUndefined();
-		expect(tool.execute).not.toHaveBeenCalled();
-	});
 });
 
 describe('tools/fs', () => {

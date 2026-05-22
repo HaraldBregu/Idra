@@ -23,7 +23,6 @@ import { ScrollButton } from '@/components/ui/scroll-button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
 import { AgentTextMessage } from './components/AgentTextMessage';
-import { PendingMessage } from './components/PendingMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
 import { useHomeAgent, useRealtimeDictation } from './hooks';
@@ -420,23 +419,6 @@ function PageContent(): ReactElement {
 										);
 									}
 
-									if (message.type === 'multi-select') {
-										return (
-											<PendingMessage
-												key={message.id}
-												message={message}
-												selectedOptions={agent.selectedOptions[message.id] ?? []}
-												inputAnswers={agent.pendingInputAnswers}
-												onInputAnswerChange={agent.updatePendingInputAnswer}
-												onSelectApprovalOption={agent.selectApprovalOption}
-												onSubmit={(pendingMessage, immediateApproval) =>
-													void agent.submitMultiSelect(pendingMessage, immediateApproval)
-												}
-												showHeader={showAssistantHeader}
-												className={groupedAssistantClassName}
-											/>
-										);
-									}
 
 									return (
 										<AgentTextMessage

@@ -5,7 +5,6 @@ const runStateLabels: Record<AgentRunState, string> = {
 	thinking: 'Thinking',
 	reasoning: 'Thinking',
 	using_tools: 'Using tools',
-	waiting_for_approval: 'Waiting for input',
 	answering: 'Answering',
 	completed: 'Completed',
 	cancelled: 'Cancelled',
@@ -17,7 +16,6 @@ export function isRunningState(state: AgentRunState): boolean {
 		state === 'thinking' ||
 		state === 'reasoning' ||
 		state === 'using_tools' ||
-		state === 'waiting_for_approval' ||
 		state === 'answering'
 	);
 }
@@ -26,7 +24,6 @@ export function stateTone(state: AgentRunState): string {
 	if (state === 'error') return 'bg-destructive/10 text-destructive';
 	if (state === 'cancelled') return 'bg-muted text-muted-foreground';
 	if (state === 'completed') return 'bg-success/10 text-success';
-	if (state === 'waiting_for_approval') return 'bg-warning/10 text-warning';
 	return 'bg-info/10 text-info';
 }
 

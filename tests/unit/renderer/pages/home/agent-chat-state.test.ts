@@ -1,14 +1,11 @@
 import type {
 	AgentHistoryMessage,
-	AgentPendingEventPayload,
 	AgentResponseEvent,
 } from '../../../../../src/shared/service';
 import {
 	agentChatReducer,
-	defaultPendingSelections,
 	historyToChatMessages,
 	initialAgentChatState,
-	pendingToMultiSelectMessage,
 	type AgentMessage,
 } from '../../../../../src/renderer/src/pages/home/context';
 
@@ -180,62 +177,6 @@ describe('agent chat state', () => {
 		]);
 	});
 
-	it('inserts pending input messages and ignores approval prompts', () => {
-		const pending = pendingToMultiSelectMessage(
-			{
-				agentId: 'agent',
-				approvals: [
-					{
-						id: 'approval-1',
-						kind: 'exec',
-						toolName: 'exec',
-						question: 'Approve?',
-						title: 'Approve?',
-						command: 'ls',
-						runId: 'run-1',
-						toolCallId: 'tool-1',
-						derivedPaths: ['/workspace/README.md'],
-						createdAtMs: 1,
-						expiresAtMs: 2,
-						allowedDecisions: ['allow-once', 'deny'],
-					},
-				],
-				inputs: [{ id: 'input-1', question: 'What path?' }],
-			} satisfies AgentPendingEventPayload,
-			100
-		);
-
-		expect(pending).not.toBeNull();
-		expect(pending?.id).toBe('agent-pending-i:input-1');
-		expect(pending?.options.map((option) => option.kind)).toEqual(['input']);
-		expect(pending?.options.map((option) => option.label)).toEqual(['Answer']);
-		expect(defaultPendingSelections(pending!)).toEqual([]);
-	});
-
-	it('returns no pending message for approval-only events', () => {
-		const pending = pendingToMultiSelectMessage(
-			{
-				agentId: 'agent',
-				approvals: [
-					{
-						id: 'approval-1',
-						kind: 'plugin',
-						toolName: 'plugin:demo',
-						question: 'Approve plugin?',
-						title: 'Plugin approval',
-						argsPreview: { action: 'write' },
-						createdAtMs: 1,
-						expiresAtMs: Date.now() + 60_000,
-						allowedDecisions: ['deny'],
-					},
-				],
-				inputs: [],
-			} satisfies AgentPendingEventPayload,
-			100
-		);
-
-		expect(pending).toBeNull();
-	});
 
 	it('marks cancellation on the active agent message', () => {
 		const cancelled = agentChatReducer(startRun(), { type: 'cancel_active' });

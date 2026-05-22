@@ -2,7 +2,6 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 } from '../../../../../shared/agents/service';
-import type { HomeMultiSelectMessage } from './state';
 
 export type AgentChatAction =
 	| {
@@ -14,7 +13,6 @@ export type AgentChatAction =
 	  }
 	| { type: 'append_user_message'; messageId: string; content: string }
 	| { type: 'apply_response_event'; event: AgentResponseEvent; receivedAtMs: number }
-	| { type: 'set_pending_message'; message: HomeMultiSelectMessage | null }
 	| { type: 'complete_active'; response: string; completedAtMs?: number }
 	| { type: 'cancel_active'; completedAtMs?: number }
 	| { type: 'error_active'; errorText: string; completedAtMs?: number }

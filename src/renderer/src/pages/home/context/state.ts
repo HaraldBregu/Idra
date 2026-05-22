@@ -1,4 +1,4 @@
-import type { ApprovalDecision, AgentRunState } from '../../../../../shared/agents/service';
+import type { AgentRunState } from '../../../../../shared/agents/service';
 import type { AgentToolPart } from './tool-parts';
 
 export type { AgentRunState, AgentToolPart };
@@ -23,34 +23,7 @@ export interface AgentMessage {
 	readonly completedAtMs?: number;
 }
 
-export interface HomeMultiSelectOption {
-	readonly id: string;
-	readonly kind: 'approval' | 'input';
-	readonly label: string;
-	readonly description: string;
-	readonly subject?: string;
-	readonly meta?: string;
-	readonly paths?: readonly string[];
-	readonly approvalId?: string;
-	readonly decision?: ApprovalDecision;
-	readonly inputId?: string;
-}
-
-export interface HomeMultiSelectMessage {
-	readonly id: string;
-	readonly role: 'agent';
-	readonly type: 'multi-select';
-	readonly prompt: string;
-	readonly options: readonly HomeMultiSelectOption[];
-}
-
-export interface ImmediateApprovalSelection {
-	readonly approvalId: string;
-	readonly decision: ApprovalDecision;
-	readonly optionId: string;
-}
-
-export type HomeChatMessage = UserMessage | AgentMessage | HomeMultiSelectMessage;
+export type HomeChatMessage = UserMessage | AgentMessage;
 
 export interface AgentChatState {
 	readonly messages: readonly HomeChatMessage[];
@@ -72,6 +45,3 @@ export const initialAgentChatState: AgentChatState = {
 	messages: [welcomeMessage],
 };
 
-export function inputAnswerKey(messageId: string, inputId: string): string {
-	return `${messageId}:${inputId}`;
-}

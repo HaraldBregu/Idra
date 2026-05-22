@@ -26,13 +26,6 @@ export interface FridayServices {
 	taskManager?: TaskManager;
 }
 
-export interface ApprovalStreamLike {
-	ask(question: string, args?: unknown, toolName?: string): Promise<ApprovalDecision | null>;
-}
-
-export interface ElicitationStreamLike {
-	ask(question: string, suggestions?: string[]): Promise<string>;
-}
 
 export interface ToolContext {
 	/** Workspace root (absolute path). */
@@ -61,10 +54,6 @@ export interface ToolContext {
 	signal?: AbortSignal;
 	/** Legacy compatibility cache (keyed by tool+args). */
 	approvalCache: Set<string>;
-	/** Legacy approval stream; no agent tool execution path should require it. */
-	approveStream?: ApprovalStreamLike;
-	/** Elicitation stream for explicit host-provided input collection. */
-	elicit?: ElicitationStreamLike;
 	/** Friday-side services (store, cron, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }

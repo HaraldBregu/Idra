@@ -1,19 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
-import type {
-	ApprovalDecision,
-	AgentPendingEventPayload,
-	AgentPendingState,
-	AgentResponseEvent,
-} from '../../../../../shared/agents/service';
-import {
-	defaultPendingSelections,
-	inputAnswerKey,
-	pendingToMultiSelectMessage,
-	type ImmediateApprovalSelection,
-	type HomeMultiSelectMessage,
-	useHomeAgentContext,
-} from '../context';
+import type { AgentResponseEvent } from '../../../../../shared/agents/service';
+import { useHomeAgentContext } from '../context';
 
 type WindowWithOptionalAgent = Window & {
 	agent?: Window['agent'];
@@ -38,8 +26,6 @@ export function useHomeAgent({
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(true);
-	const [selectedOptions, setSelectedOptions] = useState<Record<string, readonly string[]>>({});
-	const [pendingInputAnswers, setPendingInputAnswers] = useState<Record<string, string>>({});
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -141,35 +127,9 @@ export function useHomeAgent({
 		[dispatchChat]
 	);
 
-	const applyPendingEvent = useCallback(
-		(event: AgentPendingEventPayload): void => {
-			if (event.agentId !== HOME_AGENT_ID) return;
-			const pendingMessage = pendingToMultiSelectMessage(event, Date.now());
-
-			if (pendingMessage) {
-				setSelectedOptions((current) =>
-					current[pendingMessage.id]
-						? current
-						: {
-								...current,
-								[pendingMessage.id]: defaultPendingSelections(pendingMessage),
-							}
-				);
-			} else {
-				setSelectedOptions({});
-				setPendingInputAnswers({});
-			}
-
-			dispatchChat({ type: 'set_pending_message', message: pendingMessage });
-		},
-		[dispatchChat]
-	);
-
 	useEffect(() => {
 		const agent = getAgentApi();
 		if (!agent) return;
-
-		const offPending = agent.onPending(applyPendingEvent);
 
 		const offResponse = agent.onResponse((event: AgentResponseEvent) => {
 			if (!requestActiveRef.current) return;
@@ -177,17 +137,10 @@ export function useHomeAgent({
 			dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 		});
 
-		let cancelled = false;
-		void agent.getPending().then((pending: AgentPendingState) => {
-			if (!cancelled) applyPendingEvent({ agentId: HOME_AGENT_ID, ...pending });
-		}).catch(() => undefined);
-
 		return () => {
-			cancelled = true;
-			offPending();
 			offResponse();
 		};
-	}, [applyPendingEvent, dispatchChat]);
+	}, [dispatchChat]);
 
 	const handleSubmit = useCallback((): void => {
 		if (isLoading) {
@@ -202,103 +155,12 @@ export function useHomeAgent({
 		requestActiveRef.current = false;
 		setInput('');
 		setIsLoading(false);
-		setSelectedOptions({});
-		setPendingInputAnswers({});
 		dispatchChat({ type: 'reset' });
 		void getAgentApi()?.reset().catch((error: unknown) => {
 			const message = error instanceof Error ? error.message : 'Reset failed.';
 			dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 		});
 	}, [dispatchChat]);
-
-	const selectApprovalOption = useCallback(
-		(messageId: string, approvalId: string, optionId: string): void => {
-			setSelectedOptions((current) => {
-				const selected = current[messageId] ?? [];
-				const next = [
-					...selected.filter((id) => !id.startsWith(`approval:${approvalId}:`)),
-					optionId,
-				];
-				return { ...current, [messageId]: next };
-			});
-		},
-		[]
-	);
-
-	const updatePendingInputAnswer = useCallback(
-		(messageId: string, inputId: string, value: string): void => {
-			setPendingInputAnswers((current) => ({
-				...current,
-				[inputAnswerKey(messageId, inputId)]: value,
-			}));
-		},
-		[]
-	);
-
-	const submitMultiSelect = useCallback(
-		async (
-			message: HomeMultiSelectMessage,
-			immediateApproval?: ImmediateApprovalSelection
-		): Promise<void> => {
-			const selected = new Set(selectedOptions[message.id] ?? []);
-			if (immediateApproval) selected.add(immediateApproval.optionId);
-
-			try {
-				const agent = getAgentApi();
-				if (!agent) throw new Error('Agent API is unavailable.');
-				const approvals = new Map<string, ApprovalDecision>();
-				const inputLabels: string[] = [];
-
-				for (const option of message.options) {
-					if (option.kind === 'approval' && option.approvalId) {
-						if (!approvals.has(option.approvalId)) approvals.set(option.approvalId, 'deny');
-						if (selected.has(option.id)) approvals.set(option.approvalId, option.decision ?? 'deny');
-					} else if (option.kind === 'input' && option.inputId) {
-						const answer = pendingInputAnswers[inputAnswerKey(message.id, option.inputId)] ?? '';
-						await agent.resolveInput(option.inputId, answer);
-						inputLabels.push(option.label);
-					}
-				}
-
-				for (const [id, decision] of approvals) {
-					await agent.resolveApproval(id, decision);
-				}
-
-				const selectedLabels = message.options
-					.filter((option) => selected.has(option.id))
-					.map((option) => option.label);
-				const labels = [...selectedLabels, ...inputLabels];
-
-				dispatchChat({
-					type: 'append_user_message',
-					messageId: messageId('user'),
-					content: labels.length > 0 ? `Selected: ${labels.join(', ')}` : 'No actions selected.',
-				});
-				setSelectedOptions((current) => {
-					const next = { ...current };
-					delete next[message.id];
-					return next;
-				});
-				setPendingInputAnswers((current) => {
-					const next = { ...current };
-					for (const option of message.options) {
-						if (option.kind === 'input' && option.inputId) {
-							delete next[inputAnswerKey(message.id, option.inputId)];
-						}
-					}
-					return next;
-				});
-			} catch (error) {
-				const messageText = error instanceof Error ? error.message : 'Selection failed.';
-				dispatchChat({
-					type: 'error_active',
-					errorText: messageText,
-					completedAtMs: Date.now(),
-				});
-			}
-		},
-		[dispatchChat, pendingInputAnswers, selectedOptions]
-	);
 
 	useEffect(() => {
 		return () => {
@@ -325,14 +187,9 @@ export function useHomeAgent({
 		input,
 		inputRef,
 		isLoading,
-		pendingInputAnswers,
 		resetChat,
-		selectedOptions,
-		selectApprovalOption,
 		setInput,
-		submitMultiSelect,
 		switchToTyping,
-		updatePendingInputAnswer,
 		useSuggestion,
 	};
 }

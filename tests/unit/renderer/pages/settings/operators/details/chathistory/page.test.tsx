@@ -38,14 +38,10 @@ describe('ChatHistoryPage', () => {
 			cancel: jest.fn(async () => undefined),
 			getHistory: jest.fn(async () => []),
 			openHistoryFolder: jest.fn(async () => undefined),
-			resolveApproval: jest.fn(async () => true),
-			resolveInput: jest.fn(async () => true),
-			getPending: jest.fn(async () => ({ approvals: [], inputs: [] })),
 			listWorkspaceFiles: jest.fn(async () => []),
 			readWorkspaceFile: jest.fn(),
 			writeWorkspaceFile: jest.fn(),
 			onResponse: jest.fn(() => jest.fn()),
-			onPending: jest.fn(() => jest.fn()),
 		};
 	});
 

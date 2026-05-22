@@ -1,8 +1,6 @@
 export type {
 	AgentTool,
 	AgentToolResult,
-	ApprovalStreamLike,
-	ElicitationStreamLike,
 	FridayServices,
 	PlanEntry,
 	ToolContext,

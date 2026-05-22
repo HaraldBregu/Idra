@@ -1,7 +1,5 @@
 import type {
 	AgentHistoryMessage,
-	AgentPendingEventPayload,
-	AgentPendingInput,
 	AgentResponseEvent,
 	AgentToolCallStatus,
 } from '../../../../../shared/agents/service';
@@ -18,14 +16,9 @@ import {
 	type AgentChatState,
 	type AgentMessage,
 	type HomeChatMessage,
-	type HomeMultiSelectMessage,
-	type HomeMultiSelectOption,
 	type UserMessage,
 } from './state';
 
-function removePendingMessages(messages: readonly HomeChatMessage[]): HomeChatMessage[] {
-	return messages.filter((message) => message.type !== 'multi-select');
-}
 
 function isAgentMessage(message: HomeChatMessage): message is AgentMessage {
 	return message.role === 'agent' && message.type === 'agent';
@@ -103,7 +96,7 @@ function ensureAgentForRun(
 	return {
 		state: {
 			...state,
-			messages: [...removePendingMessages(state.messages), message],
+			messages: [...state.messages, message],
 			activeAgentId: message.id,
 			activeRunId: runId,
 		},
@@ -255,61 +248,6 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 	return out;
 }
 
-export function pendingToMultiSelectMessage(
-	event: AgentPendingEventPayload,
-	createdAtMs: number
-): HomeMultiSelectMessage | null {
-	const { inputs } = event;
-	if (inputs.length === 0) return null;
-
-	const options: HomeMultiSelectOption[] = [
-		...inputs.map((input: AgentPendingInput) => ({
-			id: `input:${input.id}`,
-			kind: 'input' as const,
-			label: 'Answer',
-			description:
-				input.question +
-				(input.suggestions ? `\nSuggestions: ${input.suggestions.join(' | ')}` : ''),
-			subject: input.question,
-			meta: 'Input requested',
-			inputId: input.id,
-		})),
-	];
-
-	return {
-		id: pendingMessageId(event, createdAtMs),
-		role: 'agent',
-		type: 'multi-select',
-		prompt: 'The agent needs your input:',
-		options,
-	};
-}
-
-function pendingMessageId(event: AgentPendingEventPayload, fallbackMs: number): string {
-	const ids = [
-		...event.inputs.map((input) => `i:${input.id}`),
-	].sort();
-	return ids.length > 0 ? `agent-pending-${ids.join('-')}` : `agent-pending-${fallbackMs}`;
-}
-
-export function defaultPendingSelections(message: HomeMultiSelectMessage): string[] {
-	const selections: string[] = [];
-	const seenApprovals = new Set<string>();
-
-	for (const option of message.options) {
-		if (
-			option.kind === 'approval' &&
-			option.approvalId &&
-			option.decision === 'deny' &&
-			!seenApprovals.has(option.approvalId)
-		) {
-			selections.push(option.id);
-			seenApprovals.add(option.approvalId);
-		}
-	}
-
-	return selections;
-}
 
 export function agentChatReducer(
 	state: AgentChatState,
@@ -324,32 +262,17 @@ export function agentChatReducer(
 				action.submittedAtMs
 			);
 			return {
-				messages: [...removePendingMessages(state.messages), userMessage, agentMessage],
+				messages: [...state.messages, userMessage, agentMessage],
 				activeAgentId: agentMessage.id,
 			};
 		}
 		case 'append_user_message':
 			return {
 				...state,
-				messages: [
-					...removePendingMessages(state.messages),
-					createUserMessage(action.messageId, action.content),
-				],
+				messages: [...state.messages, createUserMessage(action.messageId, action.content)],
 			};
 		case 'apply_response_event':
 			return applyResponseEvent(state, action.event, action.receivedAtMs);
-		case 'set_pending_message': {
-			const messages = removePendingMessages(state.messages);
-			const withPending = action.message ? [...messages, action.message] : messages;
-			if (!action.message) return { ...state, messages: withPending };
-			const current = activeAgent(state);
-			if (!current) return { ...state, messages: withPending };
-			return updateAgentMessage(
-				{ ...state, messages: withPending },
-				current.id,
-				(message) => ({ ...message, state: 'waiting_for_approval' })
-			);
-		}
 		case 'complete_active': {
 			const current = activeAgent(state);
 			if (!current) {
@@ -364,7 +287,7 @@ export function agentChatReducer(
 					state: 'completed',
 					completedAtMs: action.completedAtMs,
 				};
-				return { ...state, messages: [...removePendingMessages(state.messages), message] };
+				return { ...state, messages: [...state.messages, message] };
 			}
 
 			const nextState = updateAgentMessage(state, current.id, (message) => ({
@@ -405,7 +328,7 @@ export function agentChatReducer(
 					errorText: action.errorText,
 					completedAtMs: action.completedAtMs,
 				};
-				return { ...state, messages: [...removePendingMessages(state.messages), message] };
+				return { ...state, messages: [...state.messages, message] };
 			}
 
 			const nextState = updateAgentMessage(state, current.id, (message) => ({

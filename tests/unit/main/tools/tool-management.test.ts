@@ -538,12 +538,10 @@ describe('tool management layer', () => {
 			},
 			execute,
 		};
-		const ask = jest.fn(async () => 'deny' as const);
-		const ctx = makeToolContext({ approveStream: { ask } });
+		const ctx = makeToolContext();
 		ctx.approvalCache.add('write::{"path":"a.txt","content":"x"}');
 		const result = await executeAgentToolWithManagement(tool, { path: 'a.txt', content: 'x' }, ctx);
 		expect(result.status).toBe('ok');
-		expect(ask).not.toHaveBeenCalled();
 		expect(execute).toHaveBeenCalled();
 	});
 
