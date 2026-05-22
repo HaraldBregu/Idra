@@ -500,6 +500,23 @@
 				"prompt": "Prompt",
 				"payload": "Payload"
 			},
+			"runtime": {
+				"title": "Agent runtime",
+				"description": "Provider and model used when scheduled agent tasks start.",
+				"provider": "Provider",
+				"model": "Model",
+				"providerPlaceholder": "Select provider",
+				"modelPlaceholder": "Select model",
+				"modelsLoading": "Loading models...",
+				"noProviders": "No providers are configured.",
+				"noModels": "No models are available for this provider.",
+				"save": "Save runtime",
+				"saving": "Saving...",
+				"saved": "Runtime saved.",
+				"errors": {
+					"saveFailed": "Runtime settings were not saved."
+				}
+			},
 			"enabled": "Enabled",
 			"disabled": "Disabled",
 			"detailsTitle": "Task scheduler details",

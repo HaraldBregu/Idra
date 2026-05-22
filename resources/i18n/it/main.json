@@ -500,6 +500,23 @@
 				"prompt": "Prompt",
 				"payload": "Payload"
 			},
+			"runtime": {
+				"title": "Runtime agente",
+				"description": "Provider e modello usati all'avvio delle attivita agente programmate.",
+				"provider": "Provider",
+				"model": "Modello",
+				"providerPlaceholder": "Seleziona provider",
+				"modelPlaceholder": "Seleziona modello",
+				"modelsLoading": "Caricamento modelli...",
+				"noProviders": "Nessun provider configurato.",
+				"noModels": "Nessun modello disponibile per questo provider.",
+				"save": "Salva runtime",
+				"saving": "Salvataggio...",
+				"saved": "Runtime salvato.",
+				"errors": {
+					"saveFailed": "Le impostazioni runtime non sono state salvate."
+				}
+			},
 			"enabled": "Attiva",
 			"disabled": "Disattivata",
 			"detailsTitle": "Dettagli pianificatore attivita",
