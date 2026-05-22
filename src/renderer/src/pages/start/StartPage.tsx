@@ -846,7 +846,7 @@ const StartPage: React.FC = () => {
 	}
 
 	async function handleSaveAgentModel(): Promise<void> {
-		if (!selectedAgentModelOption || !canSaveAgentModel) return;
+		if (!selectedAgentModelOption || !canSaveModelSetup) return;
 
 		setSavingConfig(true);
 		setErrorMessage('');
@@ -902,7 +902,7 @@ const StartPage: React.FC = () => {
 
 	function isPrimaryDisabled(): boolean {
 		if (step === 'providers') return !canContinueProviders;
-		if (step === 'models') return !canSaveAgentModel;
+		if (step === 'models') return !canSaveModelSetup;
 		return isBusy;
 	}
 
