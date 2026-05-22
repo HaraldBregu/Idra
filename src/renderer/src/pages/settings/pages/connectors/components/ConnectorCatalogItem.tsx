@@ -108,6 +108,7 @@ export function ConnectorCatalogItem({
 
 	const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
 		event.preventDefault();
+		if (alreadyConfigured) return;
 		setSaving(true);
 		try {
 			await onAdd(formToInput(form, item.id as OpenAiConnectorId, !googleOAuth));
