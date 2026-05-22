@@ -14,8 +14,8 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs/), [Cartesia](cartesia/), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax/), [Mistral AI](mistral/), [Deepgram](deepgram/) |
 | Realtime Voice And Omni Models | 8 | [OpenAI](openai.md), [xAI](xai/), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [Luma AI](luma.md) |
 | Image Models | 18 | [OpenAI](openai.md), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [Black Forest Labs](black-forest-labs/), [Midjourney](midjourney/), [Luma AI](luma.md), [Stability AI](stability-ai.md), [Ideogram](ideogram.md) |
-| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway/), [Luma AI](luma.md), [MiniMax](minimax/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [OpenAI](openai.md), [Meta](meta/), [Midjourney](midjourney/), [Pika](pika.md), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling.md) |
-| Music And Audio Models | 11 | [Google DeepMind / Google](google/), [Suno](suno.md), [MiniMax](minimax/), [ElevenLabs](elevenlabs/), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling.md) |
+| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway/), [Luma AI](luma.md), [MiniMax](minimax/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [OpenAI](openai.md), [Meta](meta/), [Midjourney](midjourney/), [Pika](pika.md), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling/) |
+| Music And Audio Models | 11 | [Google DeepMind / Google](google/), [Suno](suno.md), [MiniMax](minimax/), [ElevenLabs](elevenlabs/), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling/) |
 | 3D Models | 2 | [Luma AI](luma.md) |
 
 ## Provider Catalog
@@ -33,7 +33,7 @@ Each provider name links to its provider-specific markdown file.
 | [Google DeepMind / Google](google/) | `google` | Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio | Large Language Models - Text-To-Speech Models - Realtime Voice And Omni Models - Image Models - Video Models - Music And Audio Models |
 | [Ideogram](ideogram.md) | `ideogram` | Image | Image Models |
 | [Moonshot AI / Kimi](kimi/) | `kimi` | Chat | Large Language Models |
-| [Kuaishou / Kling AI](kling.md) | `kling` | Video - Music/audio | Video Models - Music And Audio Models |
+| [Kuaishou / Kling AI](kling/) | `kling` | Video - Music/audio | Video Models - Music And Audio Models |
 | [Luma AI](luma.md) | `luma` | Realtime voice/omni - Image - Video - 3D | Realtime Voice And Omni Models - Image Models - Video Models - 3D Models |
 | [Meta](meta/) | `meta` | Chat - Video | Large Language Models - Video Models |
 | [Midjourney](midjourney/) | `midjourney` | Image - Video | Image Models - Video Models |
@@ -61,7 +61,7 @@ These providers do not have Large Language Models in the supplied catalog but do
 | [Deepgram](deepgram/) | `deepgram` | Speech-to-text - Text-to-speech |
 | [ElevenLabs](elevenlabs/) | `elevenlabs` | Speech-to-text - Text-to-speech - Music/audio |
 | [Ideogram](ideogram.md) | `ideogram` | Image |
-| [Kuaishou / Kling AI](kling.md) | `kling` | Video - Music/audio |
+| [Kuaishou / Kling AI](kling/) | `kling` | Video - Music/audio |
 | [Luma AI](luma.md) | `luma` | Realtime voice/omni - Image - Video - 3D |
 | [Midjourney](midjourney/) | `midjourney` | Image - Video |
 | [Perplexity](perplexity.md) | `perplexity` | Research chat |
@@ -78,9 +78,9 @@ These providers do not have Large Language Models in the supplied catalog but do
 
 | Provider | Model id | Status | Model type |
 | --- | --- | --- | --- |
-| [Kuaishou / Kling AI](kling.md) | `kling-2.6` | `verify` | Video Models |
-| [Kuaishou / Kling AI](kling.md) | `kling-2.1` | `verify` | Video Models |
-| [Kuaishou / Kling AI](kling.md) | `kling-audio` | `verify` | Music And Audio Models |
+| [Kuaishou / Kling AI](kling/) | `kling-2.6` | `verify` | Video Models |
+| [Kuaishou / Kling AI](kling/) | `kling-2.1` | `verify` | Video Models |
+| [Kuaishou / Kling AI](kling/) | `kling-audio` | `verify` | Music And Audio Models |
 | [Luma AI](luma.md) | `genie` | `verify` | 3D Models |
 | [Luma AI](luma.md) | `interactive-scenes` | `verify` | 3D Models |
 | [Meta](meta/) | `movie-gen-video` | `verify` | Video Models |
