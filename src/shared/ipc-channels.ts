@@ -256,90 +256,90 @@ interface AppInvokeChannelMap {
 	};
 	[ProviderChannels.getModels]: {
 		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
+		result: import('./agents/service').Model[];
 	};
 	[ProviderChannels.getAgentService]: {
 		args: [];
-		result: import('./service').Agent | undefined;
+		result: import('./agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[ProviderChannels.getSpeechTranscriberService]: {
 		args: [];
-		result: import('./service').Agent | undefined;
+		result: import('./agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveSpeechTranscriberService]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getAssistant]: {
 		args: [];
-		result: import('./service').ConfiguredModelOperator | undefined;
+		result: import('./agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.saveAssistant]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getSpeechToText]: {
 		args: [];
-		result: import('./service').ConfiguredModelOperator | undefined;
+		result: import('./agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.getSpeechToTextModels]: {
 		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
+		result: import('./agents/service').Model[];
 	};
 	[OperatorChannels.saveSpeechToText]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToSpeech]: {
 		args: [];
-		result: import('./service').ConfiguredModelOperator | undefined;
+		result: import('./agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.getTextToSpeechModels]: {
 		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
+		result: import('./agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToSpeech]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getImageCreator]: {
 		args: [];
-		result: import('./service').ConfiguredModelOperator | undefined;
+		result: import('./agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.getImageCreatorModels]: {
 		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
+		result: import('./agents/service').Model[];
 	};
 	[OperatorChannels.saveImageCreator]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToVideo]: {
 		args: [];
-		result: import('./service').ConfiguredModelOperator | undefined;
+		result: import('./agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.getTextToVideoModels]: {
 		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
+		result: import('./agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToVideo]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getMusicCreator]: {
 		args: [];
-		result: import('./service').ConfiguredModelOperator | undefined;
+		result: import('./agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.getMusicCreatorModels]: {
 		args: [provider: import('./providers').PublicProvider];
-		result: import('./service').Model[];
+		result: import('./agents/service').Model[];
 	};
 	[OperatorChannels.saveMusicCreator]: {
-		args: [provider: import('./providers').PublicProvider, model: import('./service').Model];
+		args: [provider: import('./providers').PublicProvider, model: import('./agents/service').Model];
 		result: boolean;
 	};
 	[RealtimeTranscriptionChannels.start]: {
@@ -361,14 +361,14 @@ interface AgentInvokeChannelMap {
 	[AgentChannels.reset]: { args: []; result: void };
 	[AgentChannels.getHistory]: {
 		args: [];
-		result: import('./service').AgentHistoryMessage[];
+		result: import('./agents/service').AgentHistoryMessage[];
 	};
 	[AgentChannels.openHistoryFolder]: {
 		args: [];
 		result: void;
 	};
 	[AgentChannels.resolveApproval]: {
-		args: [id: string, decision: import('./service').ApprovalDecision | boolean];
+		args: [id: string, decision: import('./agents/service').ApprovalDecision | boolean];
 		result: boolean;
 	};
 	[AgentChannels.resolveInput]: {
@@ -378,19 +378,19 @@ interface AgentInvokeChannelMap {
 	[AgentChannels.cancel]: { args: []; result: void };
 	[AgentChannels.getPending]: {
 		args: [];
-		result: import('./service').AgentPendingState;
+		result: import('./agents/service').AgentPendingState;
 	};
 	[AgentChannels.listWorkspaceFiles]: {
 		args: [];
-		result: import('./service').WorkspaceFileSummary[];
+		result: import('./agents/service').WorkspaceFileSummary[];
 	};
 	[AgentChannels.readWorkspaceFile]: {
 		args: [name: string];
-		result: import('./service').WorkspaceFileContent;
+		result: import('./agents/service').WorkspaceFileContent;
 	};
 	[AgentChannels.writeWorkspaceFile]: {
 		args: [name: string, content: string];
-		result: import('./service').WorkspaceFileContent;
+		result: import('./agents/service').WorkspaceFileContent;
 	};
 }
 
@@ -656,8 +656,8 @@ interface AppEventChannelMap {
 }
 
 interface AgentEventChannelMap {
-	[AgentChannels.response]: { data: import('./service').AgentResponseEvent };
-	[AgentChannels.pending]: { data: import('./service').AgentPendingEventPayload };
+	[AgentChannels.response]: { data: import('./agents/service').AgentResponseEvent };
+	[AgentChannels.pending]: { data: import('./agents/service').AgentPendingEventPayload };
 }
 
 interface WindowEventChannelMap {
