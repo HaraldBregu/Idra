@@ -59,6 +59,17 @@ Scheduled tasks may use simple timing shapes:
 
 Disabled, deleted, or completed schedules should not start new background tasks.
 
+## Agent Tool
+
+Scheduled task creation can also be exposed as a tool for the agent. The tool
+should let an agent save a future or recurring agent run when the work should not
+start immediately.
+
+The tool should create a normal scheduled task entry and return enough
+information for the user or calling agent to track it. It should not run the
+agent directly, expose arbitrary execution, or accept credentials, provider
+configuration, base URLs, or secret values.
+
 ## Startup Recovery
 
 On startup, Friday should load saved schedules before checking for due work. If a
@@ -86,6 +97,7 @@ due time.
 - A due schedule creates a normal visible background task.
 - The created background task runs the agent in its own session.
 - Provider and model choices come from the store at run time.
+- An agent can create a scheduled task through the scheduled task tool.
 - Immediate agent runs use background tasks directly.
 - Scheduled payloads do not contain secrets or provider credentials.
 - Duplicate processing for the same due time is ignored.
