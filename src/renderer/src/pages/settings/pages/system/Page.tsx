@@ -12,6 +12,7 @@ import {
 	type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import {
@@ -19,7 +20,6 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 } from '../../components';
 import type {
@@ -169,6 +169,46 @@ function AvailabilityBadge({
 	);
 }
 
+function SystemSettingsItem({
+	title,
+	description,
+	icon,
+	actions,
+	actionClassName,
+}: {
+	readonly title: React.ReactNode;
+	readonly description?: React.ReactNode;
+	readonly icon: LucideIcon;
+	readonly actions?: React.ReactNode;
+	readonly actionClassName?: string;
+}): React.JSX.Element {
+	return (
+		<Item variant="outline" size="md" className="min-h-11 border-b border-border/60 last:border-b-0">
+			<ItemIcon icon={icon} />
+			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0.5">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+					{title}
+				</ItemTitle>
+				{description && (
+					<p className="max-w-full text-[11px] leading-4 text-muted-foreground">
+						{description}
+					</p>
+				)}
+			</ItemContent>
+			{actions && (
+				<ItemActions
+					className={cn(
+						'ml-auto flex-none flex-wrap justify-end gap-1.5',
+						actionClassName
+					)}
+				>
+					{actions}
+				</ItemActions>
+			)}
+		</Item>
+	);
+}
+
 function MediaPermissionRows({
 	kind,
 	icon: Icon,
@@ -193,7 +233,7 @@ function MediaPermissionRows({
 
 	return (
 		<>
-			<SettingsRow
+			<SystemSettingsItem
 				title={t(copy.enabledTitleKey)}
 				description={t(copy.enabledDescriptionKey)}
 				icon={Icon}
@@ -206,7 +246,7 @@ function MediaPermissionRows({
 					/>
 				}
 			/>
-			<SettingsRow
+			<SystemSettingsItem
 				title={t(copy.systemPermissionKey)}
 				description={error || t(copy.systemPermissionDescriptionKey)}
 				icon={ShieldCheck}
@@ -247,7 +287,7 @@ function SystemCapabilityRow({
 	const { t } = useTranslation();
 
 	return (
-		<SettingsRow
+		<SystemSettingsItem
 			title={t(capability.titleKey)}
 			description={t(capability.noteKey)}
 			icon={capability.icon}
@@ -499,7 +539,7 @@ const SystemPage: React.FC = () => {
 				description={t('settings.system.actionsDescription')}
 			>
 				<SettingsPanel>
-					<SettingsRow
+					<SystemSettingsItem
 						title={t('settings.application.accessibility')}
 						description={t('settings.application.accessibilityDescription')}
 						icon={Accessibility}
@@ -509,7 +549,7 @@ const SystemPage: React.FC = () => {
 							</Button>
 						}
 					/>
-					<SettingsRow
+					<SystemSettingsItem
 						title={t('settings.application.screenRecording')}
 						description={t('settings.application.screenRecordingDescription')}
 						icon={MonitorUp}
@@ -519,7 +559,7 @@ const SystemPage: React.FC = () => {
 							</Button>
 						}
 					/>
-					<SettingsRow
+					<SystemSettingsItem
 						title={t('settings.application.keepAwake')}
 						description={t('settings.application.keepAwakeDescription')}
 						icon={BatteryCharging}
