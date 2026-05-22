@@ -37,7 +37,6 @@ import {
 	isAllowedAgentModel,
 } from '../../shared/agents/models';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import { isThemeMode, ThemeMode } from '../../shared';
 import {
 	AppChannels,
 	AppsChannels,
@@ -144,7 +143,6 @@ async function openPathOrThrow(target: string): Promise<void> {
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
-	private lastTheme: ThemeMode | null = null;
 	private lastLanguage: string | null = null;
 	private trayEnabled = true;
 

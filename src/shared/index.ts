@@ -2,7 +2,6 @@ export * from './app-log';
 export * from './app-info';
 export * from './agents';
 export * from './ipc';
-export * from './theme';
 export * from './channels';
 export * from './ipc-channels';
 export * from './providers';
