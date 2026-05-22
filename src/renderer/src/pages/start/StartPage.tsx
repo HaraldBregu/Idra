@@ -1327,10 +1327,93 @@ const StartPage: React.FC = () => {
 		const speechStatus = loadingModels
 			? 'Loading models...'
 			: (selectedSpeechOption?.name ?? 'No transcription model');
+		const selectedTextToSpeechGroup = textToSpeechModelGroups.find(
+			(group) => group.provider.id === textToSpeechProviderId
+		);
+		const selectedTextToSpeechModels = selectedTextToSpeechGroup?.models ?? [];
+		const selectedImageCreatorGroup = imageCreatorModelGroups.find(
+			(group) => group.provider.id === imageCreatorProviderId
+		);
+		const selectedImageCreatorModels = selectedImageCreatorGroup?.models ?? [];
+		const selectedTextToVideoGroup = textToVideoModelGroups.find(
+			(group) => group.provider.id === textToVideoProviderId
+		);
+		const selectedTextToVideoModels = selectedTextToVideoGroup?.models ?? [];
+		const selectedMusicCreatorGroup = musicCreatorModelGroups.find(
+			(group) => group.provider.id === musicCreatorProviderId
+		);
+		const selectedMusicCreatorModels = selectedMusicCreatorGroup?.models ?? [];
 		const ocrModelName = DOCUMENT_READER_OCR_MODELS[0]?.name ?? 'Not available yet';
 		const toggleModelArea = (areaId: ModelAreaId): void => {
 			setExpandedModelAreaId((current) => (current === areaId ? 'assistant' : areaId));
 		};
+		const renderProviderModelFields = ({
+			providerSelectId,
+			modelSelectId,
+			providerId,
+			modelId,
+			groups,
+			models,
+			providerLabel,
+			modelLabel,
+			placeholder,
+			onProviderChange,
+			onModelChange,
+		}: {
+			readonly providerSelectId: string;
+			readonly modelSelectId: string;
+			readonly providerId: string;
+			readonly modelId: string;
+			readonly groups: readonly ProviderModelGroup[];
+			readonly models: readonly Model[];
+			readonly providerLabel: string;
+			readonly modelLabel: string;
+			readonly placeholder: string;
+			readonly onProviderChange: (value: string | null) => void;
+			readonly onModelChange: (value: string | null) => void;
+		}): React.JSX.Element => (
+			<div className="grid gap-3 sm:grid-cols-2">
+				<SettingsField id={providerSelectId} label={providerLabel}>
+					<Select
+						value={providerId}
+						onValueChange={onProviderChange}
+						disabled={loadingModels || groups.length === 0 || savingConfig}
+					>
+						<SelectTrigger id={providerSelectId} className="w-full text-xs sm:w-72">
+							<SelectValue placeholder={placeholder} />
+						</SelectTrigger>
+						<SelectContent>
+							{groups.map((group) => {
+								const catalog = getProviderCatalogItem(group.provider.id);
+								return (
+									<SelectItem key={group.provider.id} value={group.provider.id}>
+										{catalog.name}
+									</SelectItem>
+								);
+							})}
+						</SelectContent>
+					</Select>
+				</SettingsField>
+				<SettingsField id={modelSelectId} label={modelLabel}>
+					<Select
+						value={modelId}
+						onValueChange={onModelChange}
+						disabled={loadingModels || models.length === 0 || savingConfig}
+					>
+						<SelectTrigger id={modelSelectId} className="w-full text-xs sm:w-72">
+							<SelectValue placeholder={placeholder} />
+						</SelectTrigger>
+						<SelectContent>
+							{models.map((model) => (
+								<SelectItem key={model.id} value={model.id}>
+									{model.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</SettingsField>
+			</div>
+		);
 		const renderModelAreaPanel = (
 			areaId: ModelAreaId,
 			summary: string,
