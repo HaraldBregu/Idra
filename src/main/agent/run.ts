@@ -110,8 +110,8 @@ export interface AgentRunInput {
 	userMessage: string;
 	systemPrompt: string;
 	session: SessionFile;
-	provider: ProviderAdapter;
-	model: string;
+	provider?: ProviderAdapter;
+	model?: string;
 	effort?: ModelReasoningEffort;
 	tools: AgentTool[];
 	ctx: ToolContext;
@@ -122,6 +122,8 @@ export interface AgentRunInput {
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
+	store?: AgentProviderStore;
+	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
 }
 
 export interface AgentRunResult {
