@@ -1,4 +1,4 @@
-import { MODEL_CAPABILITIES, type ModelCapability } from '../providers';
+import { MODEL_CAPABILITIES, type ModelCapability } from '../providers/models';
 
 export const ASSISTANT_AGENT_ID = 'assistant';
 export const DOCUMENT_READER_AGENT_ID = 'document-reader';
