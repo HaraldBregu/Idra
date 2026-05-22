@@ -26,17 +26,6 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import {
-	CHAT_MODELS_BY_PROVIDER,
-	EMBEDDING_MODELS_BY_PROVIDER,
-	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
-	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
-	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
-	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
-	type ModelCatalog,
-	type ProviderModel,
-} from '../../../../shared/provider-models';
-import {
 	DOCUMENT_READER_OCR_MODELS,
 	OPERATOR_DEFINITIONS,
 	type ConfiguredModelOperator,
