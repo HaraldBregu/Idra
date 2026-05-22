@@ -19,7 +19,7 @@ import {
 	type ConnectorView,
 	type GoogleOAuthCredential,
 	type OpenAiConnectorId,
-} from '../../shared/connectors';
+} from '../../shared/connector';
 import {
 	GoogleCalendarApiClient,
 	GoogleDriveApiClient,

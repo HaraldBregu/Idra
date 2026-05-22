@@ -3,7 +3,7 @@ import { BookOpen, ExternalLink, FileText, KeyRound, Terminal } from 'lucide-rea
 import { Badge } from '@/components/ui/badge';
 import { handleExternalLinkClick } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
-import type { OPENAI_CONNECTOR_CATALOG } from '../../../../../../../shared/connectors';
+import type { OPENAI_CONNECTOR_CATALOG } from '../../../../../../../shared/connector';
 
 type ConnectorCatalogItem = (typeof OPENAI_CONNECTOR_CATALOG)[number];
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldCheck, ShieldAlert, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import type { ConnectorTool } from '../../../../../../../shared/connectors';
+import type { ConnectorTool } from '../../../../../../../shared/connector';
 import { SettingsEmptyState } from '../../../components';
 
 export function ConnectorToolsList({

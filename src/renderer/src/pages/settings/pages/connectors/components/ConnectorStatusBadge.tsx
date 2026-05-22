@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import type { ConnectorStatus } from '../../../../../../../shared/connectors';
+import type { ConnectorStatus } from '../../../../../../../shared/connector';
 
 export function ConnectorStatusBadge({
 	status,

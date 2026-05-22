@@ -2,7 +2,7 @@ import type { Provider } from '../../shared/providers';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import type { Channel } from '../../shared/channels';
-import type { ConnectorConfig } from '../../shared/connectors';
+import type { ConnectorConfig } from '../../shared/connector';
 
 export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 

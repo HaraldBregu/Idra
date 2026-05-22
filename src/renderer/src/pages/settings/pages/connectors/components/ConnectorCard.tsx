@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
-import type { ConnectorView } from '../../../../../../../shared/connectors';
+import type { ConnectorView } from '../../../../../../../shared/connector';
 import { ConnectorIcon } from './ConnectorIcon';
 
 function isInteractiveTarget(target: EventTarget | null): boolean {

@@ -6,7 +6,7 @@ export * from './ipc-channels';
 export * from './providers';
 export * from './shortcuts';
 export * from './skills';
-export * from './connectors';
+export * from './connector';
 export * from './cron';
 export * from './heartbeat';
 export * from './tasks';

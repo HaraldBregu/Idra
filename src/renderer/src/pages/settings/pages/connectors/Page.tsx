@@ -19,7 +19,7 @@ import type {
 	ConnectorInput,
 	ConnectorUpdateInput,
 	OpenAiConnectorId,
-} from '../../../../../../shared/connectors';
+} from '../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsField,

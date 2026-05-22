@@ -12,7 +12,7 @@ import {
 	getConnectorAuthKind,
 	type ConnectorConfig,
 	type ConnectorTool,
-} from '../../../../../../../shared/connectors';
+} from '../../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,

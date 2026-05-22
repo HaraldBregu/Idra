@@ -5,7 +5,7 @@ import {
 	OPENAI_CONNECTOR_CATALOG,
 	type DirectConnectorCatalogId,
 	type OpenAiConnectorId,
-} from '../../../../../../../shared/connectors';
+} from '../../../../../../../shared/connector';
 
 type ConnectorIconAsset = {
 	readonly light: string;

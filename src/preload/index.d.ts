@@ -177,7 +177,7 @@ import type {
 	ConnectorTool,
 	ConnectorUpdateInput,
 	ConnectorView,
-} from '../shared/connectors';
+} from '../shared/connector';
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

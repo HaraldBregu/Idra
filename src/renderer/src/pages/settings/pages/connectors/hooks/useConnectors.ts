@@ -3,7 +3,7 @@ import type {
 	ConnectorTool,
 	ConnectorView,
 	OPENAI_CONNECTOR_CATALOG,
-} from '../../../../../../../shared/connectors';
+} from '../../../../../../../shared/connector';
 
 export type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 

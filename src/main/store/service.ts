@@ -31,7 +31,7 @@ import {
 	type GenericChannelProperties,
 	type TelegramChannelProperties,
 } from '../../shared/channels';
-import type { ConnectorConfig } from '../../shared/connectors';
+import type { ConnectorConfig } from '../../shared/connector';
 import type {
 	BackgroundTaskSettings,
 	ModelProviderSettings,

@@ -78,7 +78,7 @@ import type {
 	ConnectorTool,
 	ConnectorUpdateInput,
 	ConnectorView,
-} from '../shared/connectors';
+} from '../shared/connector';
 
 const win: WindowApi = {
 	minimize: (): void => {
