@@ -309,7 +309,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'OpenAI',
 		baseUrl: 'https://api.openai.com/v1',
 		apiKey: '',
-		capabilities: 'Chat - Speech-to-text - Text-to-speech - Realtime voice/omni - Image - Video',
+		capabilities: 'Chat - Text-to-speech - Speech-to-text',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.openai,
 	},
 	{
@@ -485,7 +485,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'Suno',
 		baseUrl: 'https://suno.com',
 		apiKey: '',
-		capabilities: 'Music',
+		capabilities: 'Music/audio',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.suno,
 	},
 	{
