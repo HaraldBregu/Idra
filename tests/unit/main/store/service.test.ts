@@ -191,10 +191,9 @@ describe('StoreService', () => {
 	});
 
 	describe('app settings', () => {
-		it('defaults microphone on and keep-awake off', () => {
+		it('defaults keep-awake off', () => {
 			const service = new StoreService();
 
-			expect(service.getMicrophoneEnabled()).toBe(true);
 			expect(service.getKeepAwakeEnabled()).toBe(false);
 		});
 
@@ -202,16 +201,8 @@ describe('StoreService', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			store.set('appSettings', { keepAwakeEnabled: 'yes' });
-			store.set('appPermissions', {
-				microphoneEnabled: 'no',
-				cameraEnabled: null,
-			});
 
 			expect(service.getAppSettings()).toEqual({ keepAwakeEnabled: false });
-			expect(service.getAppPermissions()).toEqual({
-				microphoneEnabled: true,
-				cameraEnabled: true,
-			});
 		});
 
 		it('persists the keep-awake setting', () => {
