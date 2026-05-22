@@ -102,7 +102,7 @@ export function bootstrapServices(): BootstrapResult {
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();
-	taskRegistry.register(new AgentTaskHandler(agentService), { userFacing: true });
+	taskRegistry.register(new AgentTaskHandler(agentService, store), { userFacing: true });
 	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({
