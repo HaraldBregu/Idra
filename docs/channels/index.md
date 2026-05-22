@@ -6,9 +6,9 @@ the unified agent gateway contract, and the currently bundled Telegram runtime.
 
 The source-of-truth files are:
 
-- `src/shared/channels.ts` for channel ids, shared config types, and runtime
-  status events.
-- `src/shared/channel-catalog.ts` for catalog metadata, aliases, docs paths,
+- `src/shared/channels/definitions.ts` for channel ids, shared config types,
+  and runtime status events.
+- `src/shared/channels/catalog.ts` for catalog metadata, aliases, docs paths,
   visibility, setup visibility, markdown capability, and brand icon ids.
 - `src/main/channels/registry.ts` for plugin registration, runtime factory
   registration, adapter lifecycle, inbound dispatch, outbound sends, and status

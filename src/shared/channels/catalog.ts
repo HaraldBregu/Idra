@@ -1,4 +1,4 @@
-import { CHANNEL_PROVIDER_IDS, type ChannelType } from './channels';
+import { CHANNEL_PROVIDER_IDS, type ChannelType } from './definitions';
 
 export interface ChannelCatalogEntry {
 	id: ChannelType;
@@ -155,7 +155,7 @@ function entry(
 		id,
 		label,
 		blurb,
-		docsPath: `docs/channels/${id}.md`,
+		docsPath: `docs/channels/${id}/index.md`,
 		docsLabel: `${label} setup`,
 		...(brandIconId ? { brandIconId } : {}),
 		aliases,
