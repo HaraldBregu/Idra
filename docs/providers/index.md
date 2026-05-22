@@ -9,7 +9,7 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 | Model type | Model count | Providers |
 | --- | --- | --- |
 | Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai/), [Mistral AI](mistral/), [DeepSeek](deepseek/), [Alibaba / Qwen / Wan](qwen/), [Moonshot AI / Kimi](kimi/), [Z.ai / Zhipu AI](zai/), [MiniMax](minimax/), [Reka AI](reka/) |
-| Research Chat Models | 4 | [Perplexity](perplexity.md) |
+| Research Chat Models | 4 | [Perplexity](perplexity/) |
 | Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram/), [ElevenLabs](elevenlabs/), [Mistral AI](mistral/), [xAI](xai/), [Alibaba / Qwen / Wan](qwen/) |
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs/), [Cartesia](cartesia/), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax/), [Mistral AI](mistral/), [Deepgram](deepgram/) |
 | Realtime Voice And Omni Models | 8 | [OpenAI](openai.md), [xAI](xai/), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [Luma AI](luma/) |
@@ -40,7 +40,7 @@ Each provider name links to its provider-specific markdown file.
 | [MiniMax](minimax/) | `minimax` | Chat - Text-to-speech - Video - Music/audio | Large Language Models - Text-To-Speech Models - Video Models - Music And Audio Models |
 | [Mistral AI](mistral/) | `mistral` | Chat - Speech-to-text - Text-to-speech | Large Language Models - Speech-To-Text Models - Text-To-Speech Models |
 | [OpenAI](openai.md) | `openai` | Chat - Speech-to-text - Text-to-speech - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Text-To-Speech Models - Realtime Voice And Omni Models - Image Models - Video Models |
-| [Perplexity](perplexity.md) | `perplexity` | Research chat | Research Chat Models |
+| [Perplexity](perplexity/) | `perplexity` | Research chat | Research Chat Models |
 | [Pika](pika/) | `pika` | Video | Video Models |
 | [Alibaba / Qwen / Wan](qwen/) | `qwen` | Chat - Speech-to-text - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Realtime Voice And Omni Models - Image Models - Video Models |
 | [Reka AI](reka/) | `reka` | Chat | Large Language Models |
@@ -64,7 +64,7 @@ These providers do not have Large Language Models in the supplied catalog but do
 | [Kuaishou / Kling AI](kling/) | `kling` | Video - Music/audio |
 | [Luma AI](luma/) | `luma` | Realtime voice/omni - Image - Video - 3D |
 | [Midjourney](midjourney/) | `midjourney` | Image - Video |
-| [Perplexity](perplexity.md) | `perplexity` | Research chat |
+| [Perplexity](perplexity/) | `perplexity` | Research chat |
 | [Pika](pika/) | `pika` | Video |
 | [Runway](runway/) | `runway` | Video |
 | [Stability AI](stability-ai/) | `stability-ai` | Image - Video - Music/audio |
