@@ -1496,7 +1496,7 @@ const StartPage: React.FC = () => {
 								onModelChange: handleTextToSpeechModelChange,
 							})}
 							<SettingsNotice icon={Volume2}>
-								Voice output has a catalog, but spoken output runtime is still pending.
+								Voice output can be selected here, but spoken output runtime is still pending.
 							</SettingsNotice>
 						</>
 					)}
@@ -1546,7 +1546,7 @@ const StartPage: React.FC = () => {
 								onModelChange: handleTextToVideoModelChange,
 							})}
 							<SettingsNotice icon={Video}>
-								Video model selection is cataloged; provider adapters and runtime execution are
+								Video model selection is available here; provider adapters and runtime execution are
 								pending.
 							</SettingsNotice>
 						</>
@@ -1572,8 +1572,8 @@ const StartPage: React.FC = () => {
 								onModelChange: handleMusicCreatorModelChange,
 							})}
 							<SettingsNotice icon={Music}>
-								Sound and music generation are cataloged; provider adapters and runtime execution are
-								pending.
+								Sound and music model selection is available here; provider adapters and runtime
+								execution are pending.
 							</SettingsNotice>
 						</>
 					)}
