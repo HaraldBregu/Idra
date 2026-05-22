@@ -27,6 +27,11 @@ const ConnectorsPage = () => {
 	const addConnector = async (input: ConnectorInput): Promise<void> => {
 		setError(null);
 		try {
+			const alreadyConfigured = connectors.some((connector) => connector.connectorId === input.connectorId);
+			if (alreadyConfigured) {
+				setError(`Connector ${input.connectorId} is already configured.`);
+				return;
+			}
 			await window.connectors.add(input);
 			await load();
 		} catch (err) {
@@ -79,6 +84,7 @@ const ConnectorsPage = () => {
 						key={item.id}
 						item={item}
 						onAdd={addConnector}
+						alreadyConfigured={connectors.some((connector) => connector.connectorId === item.id)}
 					/>
 				))}
 			</div>
