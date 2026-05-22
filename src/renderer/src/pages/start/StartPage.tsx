@@ -92,15 +92,9 @@ type ProviderModelOption = {
 	model: Model;
 };
 
-type CatalogModelGroup = {
-	provider: ProviderCatalogItem;
-	models: readonly ProviderModel[];
-};
-
 type AgentModelOption = {
 	value: string;
 	provider: PublicProvider;
-	catalog: ProviderCatalogItem;
 	model: Model;
 };
 
