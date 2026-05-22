@@ -1,20 +1,17 @@
 import path from 'node:path';
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
-import type { ThemeMode } from '../shared';
 import type { AppInfo } from '../shared/app-info';
 import type { AppsService } from './apps';
 import type { LoggerService } from './logger';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
-	onThemeChange: (theme: ThemeMode) => void;
 	onNewWindow: () => void;
 }
 
 export class Menu {
 	private currentLanguage = 'en';
-	private currentTheme: ThemeMode = 'system';
 	private callbacks: MenuManagerCallbacks;
 	private apps: AppInfo[] = [];
 
@@ -63,11 +60,6 @@ export class Menu {
 		this.buildMenu();
 	}
 
-	updateTheme(theme: ThemeMode): void {
-		this.currentTheme = theme;
-		this.buildMenu();
-	}
-
 	private buildMenu(): void {
 		const isMac = process.platform === 'darwin';
 		const m = loadTranslations(this.currentLanguage, 'menu');
@@ -76,12 +68,6 @@ export class Menu {
 			this.currentLanguage = lng;
 			this.buildMenu();
 			this.callbacks.onLanguageChange(lng);
-		};
-
-		const switchTheme = (theme: ThemeMode): void => {
-			this.currentTheme = theme;
-			this.buildMenu();
-			this.callbacks.onThemeChange(theme);
 		};
 
 		const template: Electron.MenuItemConstructorOptions[] = [
@@ -166,30 +152,6 @@ export class Menu {
 							},
 						],
 					},
-					{
-						label: m.theme,
-						submenu: [
-							{
-								label: m.light,
-								type: 'radio' as const,
-								checked: this.currentTheme === 'light',
-								click: (): void => switchTheme('light'),
-							},
-							{
-								label: m.dark,
-								type: 'radio' as const,
-								checked: this.currentTheme === 'dark',
-								click: (): void => switchTheme('dark'),
-							},
-							{
-								label: m.system,
-								type: 'radio' as const,
-								checked: this.currentTheme === 'system',
-								click: (): void => switchTheme('system'),
-							},
-						],
-					},
-					{ type: 'separator' as const },
 					{
 						label: m.logs,
 						click: (): void => {
