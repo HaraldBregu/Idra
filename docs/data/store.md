@@ -10,7 +10,7 @@ The source of truth for this document is:
 - `src/main/store/service.ts` for normalization, defaults, and read/write
   behavior.
 - Module docs under `docs/models`, `docs/tasks`, `docs/channels`, and
-  `docs/connectors` for each root owner's behavior.
+  `docs/providers` for each root owner's behavior.
 
 ## Design Rules
 
