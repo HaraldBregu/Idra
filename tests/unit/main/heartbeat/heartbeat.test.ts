@@ -1,6 +1,7 @@
 import type { OperatorStoreState } from '../../../../src/shared/service';
 import {
 	HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
+	HeartbeatRuntimeState,
 	HeartbeatService,
 	buildCronEventPrompt,
 	buildExecEventPrompt,
@@ -21,6 +22,7 @@ import {
 	seekNextActivePhaseDueMs,
 	setHeartbeatWakeHandler,
 	shouldDeferWake,
+	StoreServiceHeartbeatStateStorage,
 } from '../../../../src/main/heartbeat';
 import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import { makeLogger } from '../test-helpers';
@@ -152,6 +154,32 @@ describe('heartbeat helpers', () => {
 			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
 		});
 		expect(heartbeat.getStatus().agentCount).toBe(1);
+	});
+
+	it('stores heartbeat runtime state through the store service adapter', () => {
+		let state: HeartbeatStoreState = emptyHeartbeatStoreState();
+		const store = {
+			getHeartbeatState: jest.fn(() => state),
+			setHeartbeatState: jest.fn((next: HeartbeatStoreState) => {
+				state = next;
+			}),
+		};
+		const runtimeState = new HeartbeatRuntimeState(
+			new StoreServiceHeartbeatStateStorage(store)
+		);
+
+		runtimeState.markTasksRun('main', 'main', [{ name: 'inbox' }], 100);
+		expect(store.getHeartbeatState).toHaveBeenCalled();
+		expect(store.setHeartbeatState).toHaveBeenLastCalledWith({
+			version: 1,
+			taskState: { 'main:main:inbox': { lastRunMs: 100 } },
+			lastDelivered: {},
+		});
+		expect(runtimeState.getTaskLastRunMs('main', 'main', 'inbox')).toBe(100);
+
+		runtimeState.recordDeliveredText('main', 'alert', 200);
+		expect(runtimeState.isDuplicateAlert('main', 'alert', 201)).toBe(true);
+		expect(state.lastDelivered.main).toEqual({ text: 'alert', atMs: 200 });
 	});
 
 	it('computes stable phase scheduling and preserves nextDueMs only when identity is unchanged', () => {
