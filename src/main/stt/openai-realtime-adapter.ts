@@ -78,9 +78,6 @@ export function createRealtimeTranscriptionSocket(
 export function resolveOpenAIRealtimeTranscriptionModel(model: string): string | null {
 	const normalizedModel = model.trim();
 	if (isRealtimeSpeechTranscriberModel(normalizedModel)) return normalizedModel;
-	if ((LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(normalizedModel)) {
-		return REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
-	}
 	return null;
 }
 
@@ -90,6 +87,7 @@ export function createRealtimeTranscriptionSessionUpdate(
 ): RealtimeClientEvent {
 	const language = normalizeLanguage(request?.language);
 	const transcriptionModel = resolveOpenAIRealtimeTranscriptionModel(model) ?? model.trim();
+	const supportsDelay = transcriptionModel === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
 	return {
 		type: 'session.update',
 		session: {
@@ -102,7 +100,7 @@ export function createRealtimeTranscriptionSessionUpdate(
 					},
 					transcription: {
 						model: transcriptionModel,
-						delay: REALTIME_TRANSCRIPTION_DELAY,
+						...(supportsDelay ? { delay: REALTIME_TRANSCRIPTION_DELAY } : {}),
 						...(language ? { language } : {}),
 					},
 					turn_detection: null,
