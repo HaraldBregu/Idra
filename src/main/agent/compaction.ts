@@ -44,6 +44,7 @@ export async function compact(
 		};
 		const next: TranscriptEntry[] = [synthetic, ...keep];
 		const hash = createHash('sha1').update(summary).digest('hex').slice(0, 12);
+		agentLogger.info('agent:compaction', 'compaction complete', { sessionId, hash });
 		return {
 			transcript: next,
 			marker: { atTurn: transcript.length, droppedCount: toDrop.length, summaryHash: hash },
