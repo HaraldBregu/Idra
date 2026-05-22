@@ -24,6 +24,7 @@ import {
 	hasStreamingRealtimeTranscriptionAudio,
 	isInputAudioBufferTooSmallError,
 	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
+	resolveOpenAIRealtimeTranscriptionModel,
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 	SpeechToTextService,
 	useRealtimeTranscriptionIntent,
@@ -87,8 +88,7 @@ describe('realtime transcription IPC', () => {
 						},
 						transcription: {
 							model: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-							prompt:
-								'Transcribe the input audio exactly as spoken. Do not translate, paraphrase, summarize, correct wording, answer the speaker, or add content. Preserve the original spoken language and only output transcript text.',
+							delay: 'high',
 							language: 'en-US',
 						},
 						turn_detection: null,
@@ -98,11 +98,14 @@ describe('realtime transcription IPC', () => {
 		});
 	});
 
-	it('supports every OpenAI catalog transcription model in the realtime adapter', () => {
+	it('supports OpenAI realtime transcription and maps legacy saved model ids', () => {
 		const adapter = createOpenAIRealtimeSpeechToTextAdapter();
 
 		expect(adapter.supports('openai', REALTIME_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(true);
 		expect(adapter.supports('openai', MINI_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(true);
+		expect(resolveOpenAIRealtimeTranscriptionModel(MINI_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(
+			REALTIME_SPEECH_TRANSCRIBER_MODEL_ID
+		);
 		expect(adapter.supports('mistral', MINI_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(false);
 	});
 
