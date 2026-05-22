@@ -82,22 +82,30 @@ remains `operators` for route/state compatibility. It loads connected providers,
 assistant settings, speech-to-text settings, and model lists through the preload
 APIs.
 
-Only connected providers are shown in model selectors.
+Only connected providers are shown in model selectors. The model catalog and
+module contracts come from [docs/models](../models/index.md); this start-page
+document should summarize that catalog instead of redefining provider/model
+ownership.
 
-The model catalog and module contracts are documented under `docs/models`:
+| Start setup area | Store key | Source model docs | Start-page behavior | Runtime status from `docs/models` |
+| --- | --- | --- | --- | --- |
+| Friday Assistant | `llmAgent` | [Large language model](../models/large-language-model.md) | Shows connected providers with explicit assistant model catalogs from `window.app.getModels(provider)`. | Implemented |
+| Voice Input | `speechToText` | [Speech to text](../models/speech-to-text.md) | Shows connected providers with speech-to-text model catalogs from `window.app.getSpeechToTextModels(provider)`. | Implemented for OpenAI realtime |
+| Voice Output | `textToSpeech` | [Text to speech](../models/text-to-speech.md) | Renders the current ElevenLabs model selection, but does not save it from start setup yet. | Pending runtime |
+| Text To Image | `imageCreator` | [Text to image](../models/text-to-image.md) | Renders a disabled placeholder model card. | Service, task, and tool path exist; provider adapters pending |
 
-| Start setup area | Model docs |
-| --- | --- |
-| Overall model catalog | [Models](../models/index.md) |
-| Friday Assistant | [Large language model](../models/large-language-model.md) |
-| Voice Input | [Speech to text](../models/speech-to-text.md) |
-| Voice Output | [Text to speech](../models/text-to-speech.md) |
-| Text To Image | [Text to image](../models/text-to-image.md) |
-| Not yet in start setup | [Text to video](../models/text-to-video.md), [Text to audio](../models/music-creator.md), [OCR](../models/ocr.md), [Embedding](../models/embedding.md) |
+Model families documented in `docs/models` but not rendered in start setup:
+
+| Model family | Store key | Source model docs | Start setup status |
+| --- | --- | --- | --- |
+| Text to video | `textToVideo` | [Text to video](../models/text-to-video.md) | Settings-only / future setup card |
+| Text to audio / music | `textToSound` | [Text to audio](../models/music-creator.md) | Settings-only / future setup card |
+| OCR | `ocr` | [OCR](../models/ocr.md) | Settings-only / future setup card |
+| Embedding | `embedding` | [Embedding](../models/embedding.md) | Not exposed until the default catalog is populated |
 
 ### Friday Assistant
 
-The assistant operator configures:
+The assistant model card configures:
 
 - Provider
 - Assistant model
@@ -126,7 +134,7 @@ Voice output displays text-to-speech settings:
 - Voice model: `rachel-multilingual` / Rachel - multilingual
 
 This selection is rendered in the start flow, but the start page currently does
-not persist a text-to-speech operator selection in `handleSaveAgentModel`.
+not persist a text-to-speech model selection in `handleSaveAgentModel`.
 
 ### Text To Image
 
@@ -143,4 +151,5 @@ configurable yet.
 The broader model catalog includes text-to-video, text-to-audio/music, OCR,
 embedding, cron tasks, and background tasks. The current start page does not
 render those setup controls. They should either remain in Settings only or be
-added as new model cards if first-run setup needs to configure them.
+added as new model cards if first-run setup needs to configure them. Update the
+matching `docs/models` page first, then update this start-page summary.
