@@ -2,7 +2,7 @@ import {
 	hasDefaultProviderCapability,
 	providerHasImageCapability,
 	type Provider,
-} from './providers';
+} from '../providers';
 import type { AgentsHeartbeatConfig } from '../heartbeat';
 import {
 	IMAGE_CREATOR_MODELS,
@@ -16,7 +16,7 @@ import {
 	getTextToImageModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
-} from './provider-models';
+} from '../providers';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
 
