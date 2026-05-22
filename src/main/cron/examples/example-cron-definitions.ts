@@ -1,4 +1,5 @@
 import type { CronScheduleCreateRequest } from '../core/cron.types';
+import { AGENT_TASK_TYPE } from '../../tasks';
 
 export function createExampleCronDefinitions(timezone = 'UTC'): CronScheduleCreateRequest[] {
 	return [
@@ -12,8 +13,10 @@ export function createExampleCronDefinitions(timezone = 'UTC'): CronScheduleCrea
 			cronExpression: '0 3 * * *',
 			missedRunPolicy: 'runOnce',
 			concurrencyPolicy: 'skipIfRunning',
-			taskType: 'cron.maintenance',
-			taskInput: { kind: 'daily' },
+			taskType: AGENT_TASK_TYPE,
+			taskInput: {
+				message: 'Run the daily maintenance check and summarize anything that needs attention.',
+			},
 			taskPriority: 'low',
 			taskTags: ['maintenance'],
 		},
@@ -27,8 +30,10 @@ export function createExampleCronDefinitions(timezone = 'UTC'): CronScheduleCrea
 			cronExpression: '0 2 * * *',
 			missedRunPolicy: 'skip',
 			concurrencyPolicy: 'skipIfRunning',
-			taskType: 'memory.compact',
-			taskInput: { mode: 'background' },
+			taskType: AGENT_TASK_TYPE,
+			taskInput: {
+				message: 'Review memory health and summarize any compaction work that should be done.',
+			},
 			taskPriority: 'low',
 			taskTags: ['memory'],
 		},
@@ -43,8 +48,10 @@ export function createExampleCronDefinitions(timezone = 'UTC'): CronScheduleCrea
 			intervalMs: 30 * 60_000,
 			missedRunPolicy: 'skip',
 			concurrencyPolicy: 'skipIfRunning',
-			taskType: 'connector.sync',
-			taskInput: { connectorId: 'github' },
+			taskType: AGENT_TASK_TYPE,
+			taskInput: {
+				message: 'Check GitHub connector sync status and summarize any user-visible issues.',
+			},
 			taskPriority: 'normal',
 			taskTags: ['sync', 'github'],
 			requiredPermissions: ['scheduleConnectorAccess', 'scheduleNetworkAccess'],
@@ -60,8 +67,8 @@ export function createExampleCronDefinitions(timezone = 'UTC'): CronScheduleCrea
 			cronExpression: '0 17 * * 5',
 			missedRunPolicy: 'runOnce',
 			concurrencyPolicy: 'queueIfRunning',
-			taskType: 'ai.agent.run',
-			taskInput: { prompt: 'Generate the weekly summary.' },
+			taskType: AGENT_TASK_TYPE,
+			taskInput: { message: 'Generate the weekly summary.' },
 			taskPriority: 'normal',
 			taskTags: ['summary'],
 			requiredPermissions: ['scheduleReadPrivateData'],
