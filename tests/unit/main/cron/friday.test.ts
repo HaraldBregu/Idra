@@ -8,12 +8,19 @@ import {
 	emptyFridayCronStoreState,
 	AgentServiceFridayCronExecutor,
 	FridayCronScheduler,
+	TaskManagerFridayCronExecutor,
 	type FridayCronStoreState,
 	type FridayCronDeliveryPort,
 	type FridayCronExecutionOutcome,
 	type FridayCronExecutor,
 } from '../../../../src/main/cron';
+import { EventBus } from '../../../../src/main/core';
 import type { StoreService } from '../../../../src/main/store';
+import {
+	AGENT_TASK_TYPE,
+	TaskManager,
+	TaskRegistry,
+} from '../../../../src/main/tasks';
 
 class RecordingExecutor implements FridayCronExecutor {
 	calls: Array<{ job: FridayCronJobDefinition; runId: string }> = [];
@@ -197,7 +204,7 @@ describe('FridayCronScheduler', () => {
 		await expect(scheduler.remove(own.id, self)).resolves.toBeUndefined();
 	});
 
-	it('normalizes flat model-friendly tool add requests before storing jobs', async () => {
+	it('normalizes flat tool add requests without storing provider or model choices', async () => {
 		const { scheduler } = await makeHarness();
 
 		const response = await scheduler.handleToolAction({
@@ -219,14 +226,18 @@ describe('FridayCronScheduler', () => {
 			payload: {
 				kind: 'agentTurn',
 				message: 'Send report',
-				providerId: 'anthropic',
-				model: 'claude-test',
 			},
 			enabled: true,
 			wakeMode: 'now',
 			sessionTarget: 'isolated',
 			delivery: { mode: 'announce' },
 		});
+		expect(response.result).toEqual(expect.objectContaining({
+			payload: expect.not.objectContaining({
+				providerId: expect.anything(),
+				model: expect.anything(),
+			}),
+		}));
 	});
 
 	it('normalizes nested agent payloads without requiring an explicit kind', async () => {
@@ -473,7 +484,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 		);
 	});
 
-	it('passes agent-turn runtime options into AgentService.send', async () => {
+	it('passes safe agent-turn runtime options into AgentService.send', async () => {
 		const send = jest.fn(async () => 'agent output');
 		const executor = new AgentServiceFridayCronExecutor({ send } as never);
 
@@ -484,8 +495,6 @@ describe('AgentServiceFridayCronExecutor', () => {
 				toolsAllow: ['gmail_get_recent_emails', 'write'],
 				lightContext: true,
 				thinking: 'low',
-				providerId: 'anthropic',
-				model: 'gpt-5.5',
 			},
 		})));
 
@@ -493,8 +502,6 @@ describe('AgentServiceFridayCronExecutor', () => {
 			'Summarize inbox',
 			'main',
 			expect.objectContaining({
-				providerId: 'anthropic',
-				model: 'gpt-5.5',
 				effort: 'low',
 				lightContext: true,
 				toolsAllow: ['gmail_get_recent_emails', 'write'],
@@ -523,5 +530,65 @@ describe('AgentServiceFridayCronExecutor', () => {
 			mode: 'now',
 			heartbeat: { target: 'telegram', to: '123', accountId: undefined },
 		});
+	});
+});
+
+describe('TaskManagerFridayCronExecutor', () => {
+	it('creates a visible background agent task and returns its result', async () => {
+		const eventBus = new EventBus();
+		const registry = new TaskRegistry();
+		const run = jest.fn(async (context) => ({ text: `done: ${context.input.message}` }));
+		registry.register({
+			type: AGENT_TASK_TYPE,
+			validateInput(input: unknown) {
+				return input as { message: string };
+			},
+			run,
+		}, { userFacing: true });
+		const taskManager = new TaskManager({ registry, eventBus });
+		const fallback = { execute: jest.fn() };
+		const executor = new TaskManagerFridayCronExecutor(taskManager, eventBus, fallback as never);
+
+		const outcome = await executor.execute(runInput(executableJob()));
+
+		expect(outcome).toEqual({ status: 'ok', output: 'done: Summarize inbox' });
+		expect(fallback.execute).not.toHaveBeenCalled();
+		expect(taskManager.list()).toEqual([
+			expect.objectContaining({
+				type: AGENT_TASK_TYPE,
+				title: 'Cron agent turn',
+				status: 'succeeded',
+				metadata: expect.objectContaining({
+					cronJobId: 'job-1',
+					cronAgentId: 'main',
+				}),
+			}),
+		]);
+		expect(run).toHaveBeenCalledWith(expect.objectContaining({
+			input: { message: 'Summarize inbox' },
+		}));
+	});
+
+	it('falls back for main-session system events', async () => {
+		const eventBus = new EventBus();
+		const registry = new TaskRegistry();
+		registry.register({
+			type: AGENT_TASK_TYPE,
+			async run() {
+				return { text: 'unused' };
+			},
+		}, { userFacing: true });
+		const taskManager = new TaskManager({ registry, eventBus });
+		const fallback = { execute: jest.fn(async () => ({ status: 'ok' as const, output: '' })) };
+		const executor = new TaskManagerFridayCronExecutor(taskManager, eventBus, fallback);
+		const job = executableJob({
+			sessionTarget: 'main',
+			payload: { kind: 'systemEvent', text: 'Wake up' },
+		});
+
+		await expect(executor.execute(runInput(job))).resolves.toEqual({ status: 'ok', output: '' });
+
+		expect(fallback.execute).toHaveBeenCalled();
+		expect(taskManager.list()).toEqual([]);
 	});
 });

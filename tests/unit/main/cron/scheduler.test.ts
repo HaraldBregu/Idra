@@ -152,6 +152,9 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request({ taskInput: { apiKey: 'secret' } }), actor)
 		).rejects.toThrow(/Sensitive field/);
+		await expect(
+			scheduler.createSchedule(request({ taskInput: { model: 'gpt-5.5' } }), actor)
+		).rejects.toThrow(/Runtime configuration/);
 	});
 
 	it('computes timezone-aware cron and interval next runs', async () => {
