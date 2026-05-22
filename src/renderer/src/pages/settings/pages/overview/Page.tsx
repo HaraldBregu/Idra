@@ -153,7 +153,7 @@ const OverviewPage: React.FC = () => {
 				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
 					const panel = (
 						<SettingsPanel>
-							{group.operators && SETTINGS_OPERATOR_ITEMS.map((item) => (
+							{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
 								<SettingsOverviewCard key={item.path} item={item} />
 							))}
 							{group.paths.map((path) => {
