@@ -88,7 +88,6 @@ export const CHAT_MODELS_BY_PROVIDER = mergeModelCatalogs(
 );
 
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
-export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
 export const GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
 export const MINI_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-mini-transcribe';
 export const SPEECH_TRANSCRIBER_MODEL_IDS = [
