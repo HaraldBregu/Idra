@@ -493,16 +493,28 @@ const StartPage: React.FC = () => {
 	}, [step]);
 
 	useEffect(() => {
-		if (step !== 'operators') return;
+		if (step !== 'models') return;
 
 		let cancelled = false;
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [storedProviders, assistantOperator, speechToTextOperator] = await Promise.all([
+				const [
+					storedProviders,
+					assistantOperator,
+					speechToTextOperator,
+					textToSpeechOperator,
+					imageCreatorOperator,
+					textToVideoOperator,
+					musicCreatorOperator,
+				] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAssistantOperator(),
 					window.app.getSpeechToTextOperator(),
+					window.app.getTextToSpeechOperator(),
+					window.app.getImageCreatorOperator(),
+					window.app.getTextToVideoOperator(),
+					window.app.getMusicCreatorOperator(),
 				]);
 				if (cancelled) return;
 
@@ -520,6 +532,10 @@ const StartPage: React.FC = () => {
 				setSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
 				setSavedSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
 				setSavedSpeechModelId(speechToTextOperator?.model?.id ?? '');
+				setSavedTextToSpeechOperator(textToSpeechOperator);
+				setSavedImageCreatorOperator(imageCreatorOperator);
+				setSavedTextToVideoOperator(textToVideoOperator);
+				setSavedMusicCreatorOperator(musicCreatorOperator);
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
@@ -528,6 +544,10 @@ const StartPage: React.FC = () => {
 				setSpeechProviderId('');
 				setSavedSpeechProviderId('');
 				setSavedSpeechModelId('');
+				setSavedTextToSpeechOperator(undefined);
+				setSavedImageCreatorOperator(undefined);
+				setSavedTextToVideoOperator(undefined);
+				setSavedMusicCreatorOperator(undefined);
 				setErrorMessage(getErrorMessage(error, 'Could not load models.'));
 			}
 		}
@@ -540,7 +560,7 @@ const StartPage: React.FC = () => {
 	}, [connectedProviderIds, step]);
 
 	useEffect(() => {
-		if (step !== 'operators') return;
+		if (step !== 'models') return;
 
 		let cancelled = false;
 
