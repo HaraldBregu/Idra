@@ -213,8 +213,6 @@ const trayManager = new Tray({
 	isAppVisible: () => mainWindow.isVisible(),
 });
 
-const appsService = container.get('apps');
-
 const menuManager = new Menu(
 	{
 		onLanguageChange: (lng) => {
@@ -227,9 +225,7 @@ const menuManager = new Menu(
 			logger.info('Menu', 'Creating new launcher window');
 			mainWindow.createAdditionalWindow();
 		},
-	},
-	appsService,
-	logger
+	}
 );
 
 app.whenReady().then(async () => {
@@ -254,7 +250,6 @@ app.whenReady().then(async () => {
 	restorePowerSaveBlocker(container);
 	setupMediaPermissionHandlers(container.get('store'));
 	menuManager.create();
-	void menuManager.refreshApps();
 	trayManager.create();
 
 	// Toggle tray from renderer settings

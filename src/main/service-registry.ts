@@ -1,4 +1,3 @@
-import type { AppsService } from './apps';
 import type { ChannelRegistry } from './channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core';
 import type { WindowContextManager } from './core';
@@ -19,7 +18,6 @@ import type { WorkspaceService } from './workspace';
 
 export interface MainServices {
 	appState: AppState;
-	apps: AppsService;
 	agentService: AgentService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;

@@ -11,7 +11,6 @@ import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
 import { WorkspaceService } from './workspace';
-import { AppsService } from './apps';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
@@ -139,7 +138,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
 
-	container.register('apps', new AppsService(logger, userDataDirectory));
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
