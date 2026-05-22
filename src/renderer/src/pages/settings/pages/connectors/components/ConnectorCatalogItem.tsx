@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,7 +70,7 @@ export function ConnectorCatalogItem({
 }: {
 	readonly item: ConnectorCatalog[number];
 	readonly onAdd: (input: ConnectorInput) => Promise<void>;
-}): React.JSX.Element {
+}): JSX.Element {
 	const [saving, setSaving] = useState(false);
 	const idPrefix = item.id.replace(/[^a-zA-Z0-9_-]/g, '-');
 	const [form, setForm] = useState<ConnectorCatalogFormState>({
@@ -100,7 +100,7 @@ export function ConnectorCatalogItem({
 		}));
 	};
 
-	const submit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+	const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
 		event.preventDefault();
 		setSaving(true);
 		try {
@@ -280,7 +280,7 @@ export function ConnectorCatalogItem({
 					<div className="grid divide-y divide-border/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
 						<div className="flex items-center justify-between gap-3 px-3 py-2.5">
 							<div className="min-w-0">
-								<label htmlFor="connector-defer-loading" className="block cursor-pointer text-[13px] font-medium text-foreground">
+								<label htmlFor={`${idPrefix}-connector-defer-loading`} className="block cursor-pointer text-[13px] font-medium text-foreground">
 									Defer tool loading
 								</label>
 								<p className="text-[11px] leading-4 text-muted-foreground">
@@ -289,14 +289,14 @@ export function ConnectorCatalogItem({
 							</div>
 							<Switch
 								size="sm"
-								id="connector-defer-loading"
+									id={`${idPrefix}-connector-defer-loading`}
 								checked={form.deferLoading}
 								onCheckedChange={(checked) => update('deferLoading', checked)}
 							/>
 						</div>
 						<div className="flex items-center justify-between gap-3 px-3 py-2.5">
 							<div className="min-w-0">
-								<label htmlFor="connector-enabled" className="block cursor-pointer text-[13px] font-medium text-foreground">
+								<label htmlFor={`${idPrefix}-connector-enabled`} className="block cursor-pointer text-[13px] font-medium text-foreground">
 									Enabled
 								</label>
 								<p className="text-[11px] leading-4 text-muted-foreground">
@@ -305,7 +305,7 @@ export function ConnectorCatalogItem({
 							</div>
 							<Switch
 								size="sm"
-								id="connector-enabled"
+								id={`${idPrefix}-connector-enabled`}
 								checked={form.enabled}
 								onCheckedChange={(checked) => update('enabled', checked)}
 							/>
