@@ -1,7 +1,7 @@
-# tool_search
+# Anthropic Tool Search
 
-`tool_search` helps the model find the right tool for a task when the available
-tool catalog is too large to load into context up front.
+Anthropic tool search helps Claude find the right tool for a task when the
+available tool catalog is too large to load into context up front.
 
 In Anthropic's tool-search model, Claude can dynamically discover and load tools
 on demand. Instead of seeing every tool definition at the start of a request,

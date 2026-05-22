@@ -2,7 +2,7 @@
 
 This page explains Friday's local tools and tool-search support in plain
 language. It covers the default local tools from [AI tools](../ai/tools.md) and
-the `tool_search` capability for large deferred tool catalogs.
+provider-specific tool-search behavior for large deferred tool catalogs.
 
 Friday does not expose every tool on every turn. It selects a small set based on
 the user's request, safety rules, and the current run context.
@@ -28,8 +28,8 @@ the user's request, safety rules, and the current run context.
 | [open_browser](list/open-browser.md) | Opens a safe web address in the user's browser. |
 | [browser](list/browser.md) | Uses a managed browser for navigation, screenshots, and page interaction. |
 
-## Search Tools
+## Tool Search
 
 | Tool | How Friday uses it |
 | --- | --- |
-| [tool_search](list/tool-search.md) | Searches a large deferred tool catalog so the model can load the right tools for the task only when needed. |
+| [Tool search](search/index.md) | Searches a large deferred tool catalog so the model can load the right tools for the task only when needed. |
