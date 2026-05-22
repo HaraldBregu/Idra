@@ -33,7 +33,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'aiAgents',
 		titleKey: 'settings.overview.groups.aiAgents',
-		operators: true,
+		agents: true,
 		paths: [],
 	},
 	{
@@ -53,7 +53,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
-	readonly operators?: boolean;
+	readonly agents?: boolean;
 	readonly paths: readonly string[];
 }[];
 
