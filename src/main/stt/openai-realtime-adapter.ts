@@ -38,6 +38,8 @@ const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 15_000;
 const REALTIME_TRANSCRIPTION_SOCKET_MODEL = 'gpt-realtime';
 const REALTIME_TRANSCRIPTION_INTENT = 'transcription';
+const OPENAI_VERBATIM_TRANSCRIPTION_PROMPT =
+	'Transcribe the input audio exactly as spoken. Do not translate, paraphrase, summarize, correct wording, answer the speaker, or add content. Preserve the original spoken language and only output transcript text.';
 
 function eventMessage(event: unknown): string {
 	if (typeof event === 'object' && event !== null) {
@@ -90,6 +92,7 @@ export function createRealtimeTranscriptionSessionUpdate(
 					},
 					transcription: {
 						model,
+						prompt: OPENAI_VERBATIM_TRANSCRIPTION_PROMPT,
 						...(language ? { language } : {}),
 					},
 					turn_detection: null,
