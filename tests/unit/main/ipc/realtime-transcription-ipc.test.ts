@@ -7,6 +7,9 @@ jest.mock('openai/realtime/websocket', () => ({
 
 import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
 import {
+	createElevenLabsRealtimeTranscriptionUrl,
+	createElevenLabsSpeechToTextAdapter,
+	createElevenLabsSpeechToTextUrl,
 	createOpenAIRealtimeSpeechToTextAdapter,
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
@@ -30,6 +33,8 @@ import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
 import {
+	ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
+	ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
@@ -184,6 +189,43 @@ describe('realtime transcription IPC', () => {
 		});
 	});
 
+	it('maps ElevenLabs STT base URLs to HTTP and realtime endpoints', () => {
+		expect(createElevenLabsSpeechToTextUrl('https://api.elevenlabs.io/v1')).toBe(
+			'https://api.elevenlabs.io/v1/speech-to-text'
+		);
+		expect(createElevenLabsSpeechToTextUrl('https://api.elevenlabs.io')).toBe(
+			'https://api.elevenlabs.io/v1/speech-to-text'
+		);
+
+		const realtimeUrl = new URL(
+			createElevenLabsRealtimeTranscriptionUrl(
+				'https://api.elevenlabs.io/v1',
+				ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
+				{ language: 'en-US' }
+			)
+		);
+		expect(realtimeUrl.origin).toBe('wss://api.elevenlabs.io');
+		expect(realtimeUrl.pathname).toBe('/v1/speech-to-text/realtime');
+		expect(realtimeUrl.searchParams.get('model_id')).toBe(
+			ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID
+		);
+		expect(realtimeUrl.searchParams.get('audio_format')).toBe('pcm_24000');
+		expect(realtimeUrl.searchParams.get('commit_strategy')).toBe('manual');
+		expect(realtimeUrl.searchParams.get('language_code')).toBe('en');
+	});
+
+	it('routes both ElevenLabs STT catalog models to the ElevenLabs adapter', () => {
+		const adapter = createElevenLabsSpeechToTextAdapter();
+
+		expect(adapter.supports('elevenlabs', ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID)).toBe(
+			true
+		);
+		expect(
+			adapter.supports('elevenlabs', ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID)
+		).toBe(true);
+		expect(adapter.supports('openai', ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID)).toBe(false);
+	});
+
 	it('keeps the Mistral realtime STT model id aligned with the provider catalog', () => {
 		expect(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID).toBe(
 			'voxtral-mini-transcribe-realtime-2602'
@@ -237,6 +279,49 @@ describe('realtime transcription IPC', () => {
 			type: 'started',
 			sessionId: session.id,
 			model: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
+		});
+	});
+
+	it('starts the ElevenLabs offline STT model through default service adapters', async () => {
+		const provider = {
+			id: 'elevenlabs',
+			name: 'ElevenLabs',
+			baseUrl: 'https://api.elevenlabs.io/v1',
+			apiKey: 'elevenlabs-key',
+		};
+		const service = new SpeechToTextService({
+			store: {
+				getSpeechToTextOperator: jest.fn(() => ({
+					id: 'speech-to-text',
+					name: 'Speech to text',
+					docsPath: 'models/speech-to-text.md',
+					status: 'implemented',
+					provider,
+					model: {
+						id: ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
+						name: 'Scribe v2',
+					},
+				})),
+				getProviderById: jest.fn(() => provider),
+			} as never,
+		});
+		const owner = {
+			id: 1,
+			once: jest.fn(),
+			isDestroyed: jest.fn(() => false),
+			send: jest.fn(),
+		};
+
+		const session = await service.start(owner as never);
+
+		expect(session).toMatchObject({
+			model: ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
+			sampleRate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
+		});
+		expect(owner.send).toHaveBeenCalledWith(RealtimeTranscriptionChannels.event, {
+			type: 'started',
+			sessionId: session.id,
+			model: ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
 		});
 	});
 });

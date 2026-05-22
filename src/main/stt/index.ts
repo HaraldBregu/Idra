@@ -6,6 +6,13 @@ export {
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 } from './audio';
 export {
+	createElevenLabsRealtimeTranscriptionSocket,
+	createElevenLabsRealtimeTranscriptionUrl,
+	createElevenLabsSpeechToTextAdapter,
+	createElevenLabsSpeechToTextUrl,
+	ElevenLabsSpeechToTextAdapter,
+} from './elevenlabs-realtime-adapter';
+export {
 	createMistralHttpServerUrl,
 	createMistralRealtimeServerUrl,
 	createMistralRealtimeSpeechToTextAdapter,

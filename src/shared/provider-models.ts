@@ -94,6 +94,8 @@ export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID =
 	'voxtral-mini-transcribe-realtime-2602';
 export const QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID = 'qwen3.5-omni';
 export const QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-omni-flash';
+export const ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2';
+export const ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2_realtime';
 
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	openai: [
@@ -101,7 +103,10 @@ export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 		model(MINI_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Mini Transcribe'),
 	],
 	deepgram: [model('nova-3', 'Nova 3'), model('flux', 'Flux')],
-	elevenlabs: [model('scribe_v2', 'Scribe v2'), model('scribe_v2_realtime', 'Scribe v2 Realtime')],
+	elevenlabs: [
+		model(ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID, 'Scribe v2'),
+		model(ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID, 'Scribe v2 Realtime'),
+	],
 	mistral: [
 		model(MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID, 'Voxtral Mini 2602'),
 		model(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID, 'Voxtral Mini Transcribe Realtime 2602'),
