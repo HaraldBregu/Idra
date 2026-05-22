@@ -32,9 +32,9 @@ A schedule may create a background task when it fires if the due work is an
 agent run. The background task should start a separate agent session and use
 the app's configured provider and model settings.
 
-Immediate user requests should use background tasks directly. Future,
-recurring, delayed, reminder, wake, and calendar-style requests should use
-scheduled tasks.
+Immediate agent runs should use background tasks directly. Future, recurring,
+delayed, reminder, wake, and calendar-style requests should use scheduled
+tasks.
 
 ## Safety Rules
 
