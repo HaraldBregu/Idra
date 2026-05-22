@@ -1,61 +1,50 @@
 # Tasks
 
-This document indexes Friday's task-related modules and the task types they
-own or dispatch.
+Tasks are units of work Friday can run without blocking the rest of the app.
+They cover work started immediately, work scheduled for later, and work created
+by a schedule when it becomes due.
 
-## Task Modules
+## Task Families
 
-| Module | Store key | Documentation | Purpose |
-| --- | --- | --- | --- |
-| Background task | `backgroundTask` | [background/index.md](background/index.md) | Runs immediate in-memory tasks through registered handlers. |
-| Task scheduler | `taskScheduler` | [scheduled/index.md](scheduled/index.md) | Persists schedules and creates due scheduled work. |
+Friday uses two task families:
 
-## Current Background Task Types
-
-These task types are registered as user-facing background tasks at startup.
-
-| Task type | Handler | Purpose | Related docs |
-| --- | --- | --- | --- |
-| `agent.run` | `AgentTaskHandler` | Runs an agent turn as a cancellable task. | [Large language model](../models/large-language-model.md) |
-| `image.create` | `ImageCreateTaskHandler` | Runs text-to-image work through the image module. | [Text to image](../models/text-to-image.md) |
-| `ocr.run` | `OcrTaskHandler` | Runs OCR extraction against the configured OCR endpoint/module. | [OCR](../models/ocr.md) |
-
-## Planned Module-Backed Task Types
-
-These task types are documented as module-backed work but are not all
-registered as user-facing handlers today.
-
-| Task type | Target module | Related docs |
+| Area | When to use it | How it should behave |
 | --- | --- | --- |
-| `text-to-speech.run` | Text to speech | [Text to speech](../models/text-to-speech.md) |
-| `speech-to-text.transcribe` | Speech to text | [Speech to text](../models/speech-to-text.md) |
-| `video.create` | Text to video | [Text to video](../models/text-to-video.md) |
-| `sound.create` | Text to audio | [Text to audio](../models/music-creator.md) |
-| `embedding.index` | Embedding | [Embedding](../models/embedding.md) |
+| [Background tasks](background/) | Work should start now and continue while the app remains usable. | Create one visible task, report progress, allow cancellation, and keep the result available for the current session. |
+| [Scheduled tasks](scheduled/) | Work should happen in the future, repeat over time, or run after a delay. | Persist the schedule, calculate due times, handle missed runs, and create work only when the schedule is due. |
 
-## Scheduled Task Types
+## Responsibilities
 
-Managed schedules store a `taskType` string plus sanitized `taskInput`.
-The scheduler owns timing, persistence, missed-run handling, retries, and
-auditing; the target handler or module owns execution.
+Background tasks own immediate execution. They track the current state of a
+running operation and expose that state to the user.
 
-Documented scheduled task examples include:
+Scheduled tasks own timing. They decide when work is due, what should happen if
+the app was closed or asleep, and whether another run may start while a previous
+one is still active.
 
-| Task type | Source | Purpose |
-| --- | --- | --- |
-| `image.create` | Module-backed schedule | Creates an image through the background task/image module path. |
-| `cron.agentTurn` | Friday cron scheduler | Runs an agent turn from a Friday tool schedule. |
-| `reminder.show` | Cron example | Demonstrates reminder-style scheduled work. |
-| `cron.maintenance` | Cron example | Demonstrates maintenance scheduled work. |
-| `memory.compact` | Cron example | Demonstrates memory compaction scheduled work. |
-| `connector.sync` | Cron example | Demonstrates connector sync scheduled work. |
-| `ai.agent.run` | Cron example | Demonstrates an agent scheduled task shape. |
+The module that performs the actual work owns its own provider, model,
+connection, and runtime decisions. Task input should describe what the user
+wants done, not carry credentials or low-level provider configuration.
 
-Cron payloads must not store API keys, base URLs, webhook secrets, raw provider
-records, or other credentials.
+## How They Work Together
 
-## Related Docs
+A schedule may create a background task when it fires. For example, a weekly
+image schedule should not perform image generation itself. It should create a
+due work item with a sanitized prompt, then the image workflow should choose the
+configured provider and produce the result.
 
-- [Modules](../modules.md)
-- [Store](../data/store.md)
-- [Tools](../ai/tools.md)
+Immediate user requests should use background tasks directly. Future,
+recurring, delayed, reminder, wake, and calendar-style requests should use
+scheduled tasks.
+
+## Safety Rules
+
+- Keep secrets out of task and schedule input.
+- Store only sanitized progress, result, and error summaries.
+- Create one visible task per user operation unless the user intentionally
+  starts multiple operations.
+- Make cancellation safe and repeatable.
+- Do not use sleep loops, polling loops, or long-running timers as a substitute
+  for scheduling.
+- Do not let elapsed time alone silently complete, fail, or cancel a background
+  task.

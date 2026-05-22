@@ -1,371 +1,126 @@
-# Background Task
+# Background Tasks
 
-This document defines the background task module for Friday. It is the
-implementation contract for running, tracking, retrieving, and cancelling
-concurrent in-memory tasks.
-
-## Module Contract
-
-The background task module is a separated piece of main-process software. It
-owns immediate task execution and task lifecycle state for the current app
-session.
-
-Module surfaces:
-
-- Service class: `TaskManager`.
-- Registry: `TaskRegistry`.
-- LLM tool: `task`.
-- Renderer IPC: `tasks:*` channels.
-- Storage: root `backgroundTask` settings for task policy; task records remain
-  in memory only.
-
-Dependencies:
-
-- Registered task handlers.
-- The agent service for the `agent.run` handler.
-- OCR, TTS, image, video, sound, and embedding modules when their handlers are
-  registered.
-- Logger/event infrastructure for lifecycle updates.
-
-The background task module is not a scheduler. The task scheduler and heartbeat
-features may create tasks, but this module only owns execution and task state
-for the current app session.
+Background tasks are immediate units of work that can run while Friday remains
+usable. They are for operations that may take noticeable time, such as an agent
+run, image generation, OCR, speech work, video generation, audio generation,
+embedding work, connector sync, an API call, or a local operation.
 
 ## Purpose
 
-The background task module owns work that can run at the same time as other
-work in the app. A task can represent any executable unit, including an agent
-run, OCR job, TTS job, image generation job, video generation job, sound
-generation job, embedding job, API call, connector sync, local function, or
-file operation.
+A background task gives the user a visible lifecycle for work that starts now.
+The user should be able to see that the work exists, follow its progress,
+retrieve its result, and request cancellation when the task is still running.
 
-## Core Requirements
+Background tasks are not schedules. They do not decide when future work should
+run, and they do not restore task records after the app restarts.
 
-- Run multiple tasks concurrently.
-- Store every task record in memory for the current app session.
-- Expose task state to the renderer through a typed preload API.
-- Allow the user to manually create a task for approved user-facing task types.
-- Allow the user to cancel a running task.
-- Support any task type through registered task handlers.
-- Use one task record per operation.
-- Emit lifecycle updates when a task is created, started, updated, completed,
-  failed, or cancelled.
-- Never auto-complete, auto-fail, or auto-cancel a task because of a timeout.
+## Expected Behavior
 
-## Non-Goals
-
-- Do not persist task records across app restarts.
-- Do not create a retry queue.
-- Do not replace cron schedules or heartbeat wake logic.
-- Do not expose arbitrary task execution directly to the renderer.
-- Do not store secrets, raw credentials, or large unbounded outputs in task
-  records.
+- Start approved task categories only.
+- Run more than one task at the same time when resources allow it.
+- Create one task entry for each operation.
+- Keep task state available for the current app session.
+- Report meaningful progress when the underlying work can provide it.
+- Finish only when the work succeeds, fails, is cancelled, or the app exits.
+- Never complete, fail, or cancel a task just because a default timeout elapsed.
 
 ## Lifecycle
 
-Task status values:
+Each task should move through a clear lifecycle:
 
-- `queued`: task record exists but the handler has not started.
-- `running`: task handler is executing.
-- `cancelling`: cancellation has been requested and the handler is expected to
-  stop cooperatively.
-- `cancelled`: task stopped because cancellation was requested.
-- `succeeded`: task completed with a result.
-- `failed`: task completed with an error.
+1. The task is created and waiting to start.
+2. The task starts running.
+3. The task may publish progress updates.
+4. The task finishes successfully, fails with a user-safe error summary, or
+   stops because cancellation was requested.
 
-Allowed transitions:
+Cancellation should be cooperative. Friday should ask the running work to stop,
+and the work should stop at the next safe checkpoint. Cancellation should not
+corrupt partial output, leave provider calls unmanaged, or change the result of
+an already finished task.
 
-- `queued` -> `running`
-- `queued` -> `cancelled`
-- `running` -> `cancelling`
-- `running` -> `succeeded`
-- `running` -> `failed`
-- `cancelling` -> `cancelled`
-- `cancelling` -> `failed`
+## User-Visible State
 
-Cancellation must be cooperative. The background task module should pass an
-`AbortSignal` to every handler. Handlers must check the signal before expensive
-work and pass it into APIs that accept cancellation.
+A task entry should show enough information for the user to understand what is
+happening:
 
-## Task Record
+- A stable identifier.
+- A human-readable title.
+- The task category.
+- The current status.
+- Creation, start, and finish times when available.
+- Progress details when available.
+- A sanitized result summary after success.
+- A sanitized error summary after failure.
 
-Use serializable shared types so records can cross IPC safely.
+Task entries should not store secrets, raw credentials, full provider records,
+large unbounded outputs, or private payloads that are not needed by the user.
 
-```ts
-export type TaskStatus =
-	| 'queued'
-	| 'running'
-	| 'cancelling'
-	| 'cancelled'
-	| 'succeeded'
-	| 'failed';
+## Starting Tasks
 
-export interface TaskRecord<TResult = unknown> {
-	id: string;
-	type: string;
-	title: string;
-	status: TaskStatus;
-	createdAt: string;
-	startedAt?: string;
-	finishedAt?: string;
-	progress?: {
-		current?: number;
-		total?: number;
-		message?: string;
-	};
-	metadata: Record<string, unknown>;
-	result?: TResult;
-	error?: {
-		code: string;
-		message: string;
-	};
-}
-```
+The user interface and agent actions may start only approved task categories.
+Before work begins, Friday should validate the requested category and input,
+trim or normalize user-provided values, and reject secret-looking payloads.
 
-Task records are user-visible state. Inputs, metadata, progress, results, and
-errors must be redacted and size-bounded before they are stored on the record.
+User input should describe the requested work. Provider selection, model
+selection, credentials, endpoints, adapters, and other runtime details should
+come from the app's existing configuration, not from the task request.
 
-## Handler Contract
+## Agent Work
 
-Each task type registers one handler in the main process.
+An agent run can be executed as a background task. It should behave like any
+other task: one visible entry, progress updates, cancellation support, and a
+bounded result summary.
 
-```ts
-export interface TaskHandler<TInput = unknown, TResult = unknown> {
-	type: string;
-	run(context: TaskContext<TInput>): Promise<TResult>;
-}
+The task input should contain the message or instruction to run. Optional run
+preferences may be accepted when they refer to configured choices, but the task
+must not accept credentials, provider records, base URLs, or secret values.
 
-export interface TaskContext<TInput> {
-	taskId: string;
-	input: TInput;
-	signal: AbortSignal;
-	updateProgress(progress: TaskRecord['progress']): void;
-}
-```
+When cancelled, the running agent should be asked to stop through its normal
+cancellation path. If cancellation completes first, the task should be marked as
+cancelled. If the agent fails first for a non-cancellation reason, the task
+should show a normal failure.
 
-Handlers may call APIs, run local functions, start agents, or start OCR.
-Handlers must not mutate the task store directly; they report progress through
-the provided context and return a result or throw an error.
+## Module-Backed Work
 
-## Agent Tasks
+Media, OCR, embedding, connector, and similar work should be thin task wrappers
+around the feature that already performs that work. The task owns lifecycle
+state. The feature owns execution details.
 
-The background task module can run agent work through the registered
-`agent.run` handler. An agent task is still a normal task record: it is created,
-started, updated, completed, failed, cancelled, listed, and retrieved through
-the same lifecycle as every other task type.
+For example, an image task should receive a sanitized prompt and image options.
+The image workflow should then choose the configured provider and model, run the
+generation, and return a bounded result summary.
 
-The `agent.run` input must include a non-empty `message`. It may also include:
+This keeps task input stable and safe. It also prevents provider credentials or
+configuration records from being copied into task payloads.
 
-- `agentId`: target agent id; defaults to the main agent when omitted.
-- `sessionId`: agent session id; defaults to `task:<taskId>` so each task gets
-  an isolated agent session.
-- `providerId`: configured provider override for this run.
-- `model`: configured model override for this run.
-- `effort`: reasoning effort override for providers that support it.
-- `lightContext`: whether to run with reduced context.
-- `toolsAllow`: optional list of tool names exposed for the run.
+## Progress And Results
 
-The agent task handler must validate and trim task input before it reaches the
-agent service. It must not accept API keys, credentials, base URLs, or provider
-records from task input. Provider and model selection stays inside the agent
-service: the handler passes sanitized `providerId`, `model`, `effort`,
-`lightContext`, `toolsAllow`, and `sessionId` as send options, and the service
-resolves configured providers, models, API keys, tools, skills, startup files,
-hooks, and the final system prompt before running the agent loop.
+Progress should be useful but small. A task may report steps, counts, or short
+messages. It should not stream private request bodies, raw provider responses,
+or large generated artifacts into the task entry.
 
-Agent task execution flow:
-
-1. The background task module validates the `TaskRunRequest`, creates one
-   `agent.run` task record, stores it in memory, and emits `task:created`.
-2. The task moves to `running`, emits `task:started`, and the handler receives
-   the validated input plus an `AbortSignal`.
-3. The handler chooses `agentId` and `sessionId`, reports progress as
-   `Starting agent`, and calls `AgentService.send(message, agentId, options)`.
-4. The agent service prepares the provider-neutral run, evaluates pre-run
-   hooks, streams provider/tool-loop work, compacts context if needed, and
-   returns the final assistant text.
-5. The handler reports progress as `Agent completed` and returns `{ text }`,
-   which becomes the sanitized task result.
-6. The background task module marks the task `succeeded`, stores the bounded
-   result, and emits `task:succeeded`.
-
-Cancellation remains cooperative. When an `agent.run` task is cancelled, the
-background task module aborts the task signal. The handler must call
-`AgentService.cancel(sessionId)` and then let the running agent stop through
-the normal cancellation path. If cancellation wins, the task record is marked
-`cancelled`; if the agent throws a non-abort error first, the task records a
-normal failure.
-
-## Module-Backed Tasks
-
-Media, ML, OCR, and embedding tasks should be thin wrappers around
-main-process modules. The background task module owns lifecycle state; the
-target module owns provider/model resolution and execution.
-
-Recommended task types:
-
-- `text-to-speech.run`: calls the TTS module documented in
-  [text-to-speech.md](../../models/text-to-speech.md).
-- `speech-to-text.transcribe`: calls the speech-to-text module documented in
-  [speech-to-text.md](../../models/speech-to-text.md).
-- `image.create`: calls the image module documented in
-  [text-to-image.md](../../models/text-to-image.md).
-- `video.create`: calls the text-to-video module documented in
-  [text-to-video.md](../../models/text-to-video.md).
-- `sound.create`: calls the sound module documented in
-  [music-creator.md](../../models/music-creator.md).
-- `ocr.run`: calls the OCR module documented in [ocr.md](../../models/ocr.md).
-- `embedding.index`: calls the embedding module documented in
-  [embedding.md](../../models/embedding.md).
-
-Module-backed handlers must:
-
-- Validate and trim task input before calling the target module.
-- Pass the task `AbortSignal` into adapters that support cancellation.
-- Store only sanitized progress and result summaries on the task record.
-- Avoid accepting API keys, base URLs, webhook secrets, or provider records
-  from task input.
-- Use provider/model settings from the matching root module key in
-  `StoreService`.
-
-Provider and model selection should not be copied into every task. The default
-path is:
-
-1. Task handler receives user input, such as text, prompt, duration, format,
-   document content, or asset references.
-2. Task handler calls the matching main-process module.
-3. The target module reads its saved settings from `StoreService`.
-4. The target module resolves the configured provider record from
-   `StoreService`.
-5. The target module creates the provider adapter and returns a normalized
-   result.
-
-Per-task provider/model overrides should be avoided for media and ML modules.
-If a module later supports overrides, task input may pass only provider/model
-ids; credentials and provider records must still come from `StoreService`.
-
-## Main-Process Architecture
-
-The background task module should keep a private in-memory task store, a task
-registry, concrete handlers, typed IPC, a preload API, and service
-registration. Persistent settings for task policy belong in the root
-`backgroundTask` store key documented in [store.md](../../data/store.md).
-
-The task manager should use an in-memory map for internal task state. Internal
-state may include the handler promise and `AbortController`; the public
-`TaskRecord` must not.
-
-## Preload API
-
-Expose a small renderer API:
-
-```ts
-export interface TasksApi {
-	start: <TInput = unknown>(request: TaskRunRequest<TInput>) => Promise<TaskRecord>;
-	list: () => Promise<TaskRecord[]>;
-	get: (id: string) => Promise<TaskRecord | undefined>;
-	cancel: (id: string) => Promise<TaskRecord>;
-	onEvent: (callback: (event: TaskEvent) => void) => () => void;
-}
-```
-
-The renderer can start, retrieve, and cancel tasks. User-created tasks must go
-through `tasks.start(request)`, and the main process must validate the requested
-task type and input before running a handler.
-
-IPC channels:
-
-- `tasks:start`: validates a `TaskRunRequest`, creates one in-memory task
-  record, and starts the registered handler.
-- `tasks:list`: returns all in-memory task records for the current app session.
-- `tasks:get`: returns one task record by id.
-- `tasks:cancel`: requests cooperative cancellation for one task by id.
-- `tasks:event`: broadcasts task lifecycle events to renderers.
-
-## Events
-
-Use one event stream for renderer updates and main-process observers.
-
-```ts
-export type TaskEvent =
-	| { type: 'task:created'; task: TaskRecord }
-	| { type: 'task:started'; task: TaskRecord }
-	| { type: 'task:updated'; task: TaskRecord }
-	| { type: 'task:succeeded'; task: TaskRecord }
-	| { type: 'task:failed'; task: TaskRecord }
-	| { type: 'task:cancelled'; task: TaskRecord };
-```
-
-Each task event describes one task record. A single user operation should
-create one task record unless a separate operation is started.
+Results should be summaries or references to saved output, not unbounded
+payloads. Errors should explain what failed without exposing secrets.
 
 ## Timeout Rule
 
-The background task module must not use default execution timeouts. Do not
-implement task execution with `setTimeout`, `Promise.race` timeout wrappers,
-polling loops that fail after elapsed time, or automatic expiry logic.
+Background tasks should not have a default execution timeout. Long-running work
+may continue as long as the app is running and the user has not cancelled it.
 
-A task can finish only when:
+If an external service or local adapter has its own timeout, that timeout
+belongs to that service or adapter. The background task should report the
+resulting error as a normal task failure instead of enforcing a separate global
+deadline.
 
-- its handler returns a result;
-- its handler throws an error;
-- cancellation is requested and the handler stops;
-- the app process exits.
+## Acceptance Criteria
 
-If a specific external API requires its own timeout, keep that timeout local to
-the API adapter and report the adapter error as a normal task failure. Do not
-make the background task module itself enforce a timeout.
-
-## Safety Rules
-
-- Validate task type and input before running a handler.
-- Allow renderer-created tasks only for registered user-facing task types.
-- Keep privileged decisions in the main process.
-- Do not expose raw handler functions through preload.
-- Redact secrets before storing task input, metadata, progress, result, or error
-  state.
-- Bound stored result and progress sizes because task records remain in memory
-  for the session.
-- Use typed IPC and shared types instead of untyped string channels.
-- Log task lifecycle events without storing private task payloads in logs.
-- Make cancellation idempotent. Cancelling a completed task should return the
-  current task record.
-
-## Implementation Steps
-
-1. Add shared task types and IPC channel definitions.
-2. Add the main-process `TaskManager` and task registry.
-3. Register the task manager in the service container.
-4. Add IPC handlers and the `window.tasks` preload API, including manual task
-   creation.
-5. Add the first concrete handlers, starting with agent and OCR tasks.
-6. Add module-backed handlers for TTS, STT, image, video, sound, OCR, and
-   embedding when those main-process modules exist.
-7. Add renderer retrieval and cancellation UI where needed.
-8. Add focused tests for lifecycle transitions, concurrent execution,
-   cancellation, and no default timeout behavior.
-
-## Verification
-
-Minimum checks for the implementation:
-
-```bash
-yarn typecheck
-yarn lint
-yarn test
-```
-
-Required tests:
-
-- Two tasks can run concurrently and complete independently.
-- A user-created task can be started through preload/IPC for an approved task
-  type.
-- `list` and `get` return current in-memory records through IPC.
-- Cancelling a running task moves it through `cancelling` to `cancelled`.
-- One operation creates one task record.
-- A task does not fail or cancel because elapsed time passes.
-- Completed, failed, and cancelled tasks remain retrievable until the app
-  session ends.
-- Module-backed media and ML tasks resolve provider/model through
-  `StoreService` and reject task input that contains credentials or provider
-  records.
+- Multiple background tasks can run at the same time and finish independently.
+- A user can start an approved task category from the app.
+- A user can list current-session tasks and open a specific task entry.
+- A user can cancel a running task.
+- Cancelling the same task more than once is safe.
+- Finished, failed, and cancelled tasks remain visible until the app session
+  ends.
+- Task input, progress, results, and errors are sanitized and size-bounded.
+- Provider and model decisions stay inside the feature that performs the work.

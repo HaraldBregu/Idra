@@ -1,390 +1,171 @@
 # Scheduled Tasks
 
-This document describes how the task scheduler module should create, persist,
-and evaluate schedules.
-
-## Module Contract
-
-The task scheduler is a separated Friday module. It owns timing, schedule
-persistence, due-run processing, retry policy, concurrency policy, audit events,
-and the LLM-facing `cron` tool.
-
-Module surfaces:
-
-- Service/facade: `CronService` in the main process.
-- LLM tool: `cron`.
-- Renderer IPC: `cron:*` channels.
-- Storage: root `taskScheduler` settings.
-
-Dependencies:
-
-- `StoreService` and `CronScheduleStore` for persisted schedule state.
-- Clock/timer utilities and cron-expression calculation.
-- Task execution modules for the work that runs after a schedule fires.
-- `AgentService` only for Friday cron jobs that intentionally run an agent
-  turn.
-- Event and audit modules for lifecycle reporting.
-
-The scheduler does not own provider or model selection for model-backed work.
-Provider-backed execution belongs to the module that performs the work.
+Scheduled tasks are work definitions that should run later, repeat over time,
+or wait for a specific condition before creating work. The scheduler owns when
+work is due. The feature that performs the work owns how the work executes.
 
 ## Purpose
 
-The task scheduler owns scheduled work in the main process. It supports three
-related scheduling paths:
+Use scheduled tasks for reminders, recurring jobs, delayed work, wake actions,
+maintenance, connector sync, scheduled agent turns, and any request where the
+important part is when the work should happen.
 
-- Managed schedules through `CronSchedulerService`.
-- Friday LLM tool schedules through `FridayCronScheduler`.
-- Legacy `node-cron` jobs through `CronService.schedule()`.
+The scheduler should persist schedules so they survive app restarts. It should
+recover active schedules on startup, calculate the next due time, and decide
+what to do when a run was missed while the app was unavailable.
 
-Managed schedules are the richer schedule model. They include permissions,
-auditing, persistence, missed-run handling, concurrency policy, retries, and
-execution records.
+## Expected Behavior
 
-Friday tool schedules are the user-facing agent cron jobs handled by the `cron`
-tool. They store a compact job definition and run agent turns or system events.
+- Persist schedule definitions and execution history.
+- Validate who is allowed to create or modify a schedule.
+- Validate schedule frequency so one schedule cannot overload the app.
+- Reject schedule input that appears to contain secrets.
+- Calculate the next run in the schedule's timezone.
+- Detect due schedules on a regular cadence.
+- Avoid duplicate runs for the same due time.
+- Apply missed-run, concurrency, and retry rules.
+- Record user-safe audit and execution events.
+- Create or dispatch the scheduled work only when it is due.
 
-The legacy `node-cron` path schedules a persisted expression and handler
-directly. It remains available for simple cron tasks.
+## Schedule Creation
 
-## Managed Schedule Creation
+Creating a schedule should collect the information needed to answer four
+questions:
 
-Managed schedules are created through `CronService.createSchedule(request,
-actor)`, which delegates to `CronSchedulerService.createSchedule()`.
+- What should this schedule be called?
+- When should it run?
+- Who owns it?
+- What sanitized work should be created when it becomes due?
 
-Renderer callers use the `cron:createSchedule` IPC channel. The IPC handler
-validates the minimum request shape, defaults the source to `ui` when needed,
-builds a UI actor, and calls `cron.createSchedule()`.
+Friday should validate the request, apply safe defaults, calculate the first
+run when the schedule can run automatically, persist the schedule, and make the
+schedule visible to the owner.
 
-Agent callers use `AgentCronService.createScheduleFromAgent()`. That helper
-fills the agent source fields:
+Agent-created schedules should be attributed to the agent session that created
+them. User-created schedules should be attributed to the current user context.
 
-- `source: 'agent'`
-- `sourceId: agentContext.agentId`
-- `createdBy: agentContext.agentId`
-- `ownerUserId`, `sessionId`, `timezone`, and `visibility` from the agent
-  context or request
+## Schedule Shapes
 
-The managed creation flow is:
+Scheduled work may use several timing shapes:
 
-1. Authorize the actor for `createSchedule`.
-2. Validate frequency limits through the access policy.
-3. Validate the schedule shape with `validateScheduleShape()`.
-4. Reject secret-looking keys inside `taskInput`.
-5. Build a full `CronSchedule` record from the create request.
-6. Compute the first `nextRunAt` with `CronNextRunCalculator`.
-7. Add a `schedule.created` audit entry.
-8. Persist the schedule with `CronScheduleStore.createSchedule()`.
-9. Append and emit a `schedule.created` event.
+- Cron schedules run on calendar patterns such as every Monday at 09:00.
+- Interval schedules run after a repeated duration.
+- Fixed-rate schedules use a stable anchor time so runs stay aligned to the
+  original cadence.
+- Fixed-delay schedules wait until the previous run has finished before
+  counting the next delay.
+- One-time schedules run once at a specific time.
+- Manual or calendar-backed schedules may be stored even when they do not
+  automatically produce a next run yet.
 
-## Managed Schedule Request
+Cron schedules should use the schedule timezone. Interval and delay schedules
+should use the last relevant run time so repeated work stays predictable.
+Schedules that are disabled, deleted, past their end time, or past their
+maximum run count should not produce another automatic run.
 
-The create request should use this shape:
+## Defaults
 
-Required fields:
+Safe defaults should favor predictable behavior:
 
-```ts
-{
-	name: string;
-	type: CronScheduleType;
-	source: CronScheduleSource;
-	createdBy: string;
-	timezone: string;
-	taskType: string;
-	taskInput: CronJsonValue;
-}
-```
+- New schedules are enabled unless the creator explicitly disables them.
+- Schedules are visible to their owner.
+- Missed runs are skipped unless another policy is selected.
+- Overlapping runs are skipped unless another concurrency policy is selected.
+- Retry behavior is conservative and bounded.
+- Optional metadata starts empty.
+- Timezone comes from the request or the current actor context.
 
-Schedule-specific required fields:
+## Due Processing
 
-- `type: 'cron'` requires `cronExpression`.
-- `type: 'interval'`, `type: 'fixedRate'`, and `type: 'fixedDelay'` require
-  `intervalMs`.
-- `type: 'oneTime'` requires `runAt`.
-- `type: 'calendar'` and `type: 'manual'` do not currently produce automatic
-  next runs.
+The scheduler should recover schedules on startup and check for due work on a
+regular cadence. A default cadence of about 30 seconds is acceptable for normal
+scheduled work.
 
-Common optional fields:
+When a schedule is due, Friday should:
 
-- Ownership and visibility: `ownerUserId`, `sessionId`, `visibility`.
-- Bounds: `startAt`, `endAt`, `maxRuns`.
-- Missed-run behavior: `missedRunPolicy`, `maxCatchUpRuns`,
-  `catchUpWindowMs`.
-- Concurrency behavior: `concurrencyPolicy`.
-- Retry behavior: `retryPolicy`.
-- Task metadata: `taskPriority`, `taskTags`, `taskMetadata`.
-- Security: `requiredPermissions`, `requiresConfirmation`,
-  `confirmationPolicy`.
-- State: `enabled`, `metadata`.
+1. Confirm the schedule is still active and allowed to run.
+2. Lock the schedule while this due time is being processed.
+3. Ignore duplicate processing for the same scheduled time.
+4. Apply the schedule's concurrency rule.
+5. Create or dispatch the scheduled work.
+6. Record the execution attempt.
+7. Update the run count and last run time.
+8. Calculate the next run or mark the schedule complete.
 
-## Managed Schedule Defaults
+## Module-Backed Work
 
-`CronSchedulerService.createSchedule()` fills these defaults:
+A schedule should store the task category and sanitized task input needed to
+create work later. It should not store provider credentials, raw provider
+records, webhook secrets, base URLs, or other private runtime details.
 
-- `id`: generated UUID.
-- `status`: `active` unless `enabled` is explicitly `false`, then `disabled`.
-- `ownerUserId`: request value or actor user id.
-- `sessionId`: request value or actor session id.
-- `visibility`: `user`.
-- `timezone`: request timezone, actor timezone, or scheduler default timezone.
-- `runCount`: `0`.
-- `missedRunPolicy`: `skip`.
-- `maxCatchUpRuns`: scheduler run policy default.
-- `catchUpWindowMs`: scheduler run policy default.
-- `concurrencyPolicy`: `skipIfRunning`.
-- `retryPolicy`: scheduler default retry policy merged with the request retry
-  policy.
-- `taskPriority`: `normal`.
-- `taskTags`: empty array.
-- `taskMetadata`: empty object.
-- `requiredPermissions`: empty array.
-- `requiresConfirmation`: `false`.
-- `enabled`: `true`.
-- `metadata`: empty object.
-- `createdAt` and `updatedAt`: current ISO timestamp.
+When a schedule fires, the target feature should resolve its own provider,
+model, endpoint, credentials, and runtime dependencies from current app
+configuration.
 
-The cron expression is normalized by trimming it and collapsing repeated
-whitespace.
-
-## Next Run Calculation
-
-`CronNextRunCalculator.getNextRun(schedule, from)` calculates the next run
-based on the schedule type.
-
-For `cron` schedules:
-
-- The expression must use 5 fields: minute, hour, day of month, month, day of
-  week.
-- Fields support `*`, comma lists, ranges, and step values.
-- Time matching is evaluated in the schedule timezone through
-  `Intl.DateTimeFormat`.
-- The calculator starts at the next full minute after `from`.
-- It scans forward up to 366 days.
-- If both day-of-month and day-of-week are restricted, either may match.
-- If only one of day-of-month or day-of-week is restricted, both normal cron
-  fields must match.
-
-For interval schedules:
-
-- `interval` uses the last run/evaluation/start/create time as the base.
-- `fixedRate` uses the original start/create anchor as the base.
-- `fixedDelay` schedules after the last successful run, last run, start, or
-  create time.
-
-For one-time schedules:
-
-- `runAt` is returned only if it is in the future, the schedule has not run,
-  and the schedule is not completed.
-
-For all managed schedule types:
-
-- Disabled or deleted schedules return no next run.
-- Schedules at `maxRuns` return no next run.
-- `startAt`, `endAt`, and `maxRuns` bounds are enforced.
-
-## Runtime Processing
-
-`CronSchedulerService.start()` recovers schedules on startup, then checks due
-schedules every `pollIntervalMs` milliseconds. The default poll interval is 30
-seconds.
-
-Due processing works like this:
-
-1. Load active schedules whose `nextRunAt` is due.
-2. Limit the batch to `runPolicy.maxRunsPerTurn`.
-3. Acquire a per-schedule lock.
-4. Re-read and validate that the schedule can still run.
-5. Emit `schedule.due`.
-6. Build an idempotency key from `scheduleId` and `scheduledRunAt`.
-7. Ignore duplicate executions or already-created tasks.
-8. Apply the concurrency policy.
-9. Create a scheduled task through the runner, with retries if configured.
-10. Increment `runCount`, update `lastRunAt`, recompute `nextRunAt`, and mark
-    completed schedules.
-11. Record an execution and emit `schedule.triggered`.
-
-The default runner is `InMemoryCronScheduleRunner`. It creates a
-`CronScheduledTask` with:
-
-- `source: 'cron'`
-- `sourceId`: schedule id
-- `type`: schedule `taskType`
-- `input`: redacted schedule `taskInput`
-- metadata containing the scheduled time, actual trigger time, run number,
-  missed-run flag, runner id, and idempotency key
-
-## Module-Backed Scheduled Work
-
-The task scheduler owns timing, persistence, and due-run processing. It does
-not own provider or model selection for model-backed work.
-
-When a schedule triggers module-backed work, the schedule stores the task type
-and sanitized task input only. The task handler or target main-process module
-resolves its own provider, model, endpoint, and runtime dependencies when it
-executes.
-
-Persisted module settings are storage details. Schedules should depend on task
-types and sanitized inputs, not on other module settings keys.
-
-Recommended module task types:
-
-- `text-to-speech.run`: calls the text-to-speech module.
-- `image.create`: calls the image module.
-- `video.create`: calls the video module.
-- `sound.create`: calls the sound module.
-- `ocr.run`: calls the OCR module or the configured OCR endpoint.
-- `embedding.index`: calls the embedding module when that module exists.
-
-Cron payloads must not store API keys, base URLs, webhook secrets, or raw
-provider records. If a future scheduled task supports a provider/model
-override, the payload may contain only ids; credentials and full provider
-configuration must still be resolved from `StoreService`.
-
-Example media schedule:
-
-```ts
-await cron.createSchedule({
-	name: 'Create weekly product image',
-	type: 'cron',
-	source: 'agent',
-	sourceId: 'agent',
-	createdBy: 'agent',
-	visibility: 'user',
-	timezone: 'Europe/Rome',
-	cronExpression: '0 8 * * 1',
-	missedRunPolicy: 'skip',
-	concurrencyPolicy: 'skipIfRunning',
-	taskType: 'image.create',
-	taskInput: {
-		prompt: 'Create a square product image for the weekly announcement.',
-		aspectRatio: '1:1',
-		count: 1,
-	},
-});
-```
-
-When this schedule fires, the task scheduler creates or dispatches an
-`image.create` task. The image task calls the image module, and the image module
-reads its saved settings to choose the provider and model.
+Example behavior: a weekly image schedule stores a prompt, aspect ratio, count,
+and timing rules. When the schedule fires, Friday creates image work from that
+sanitized input. The image workflow then chooses the configured provider and
+model and saves the generated output.
 
 ## Missed Runs
 
-Startup recovery handles schedules whose persisted `nextRunAt` is already in
-the past.
+When Friday starts and a schedule's next run is already in the past, the
+selected missed-run policy should decide what happens:
 
-Policies:
+- Skip missed runs and move to the next future run.
+- Run one missed occurrence.
+- Catch up on missed occurrences within a bounded window.
+- Mark the schedule failed.
+- Ask the user before proceeding.
 
-- `skip`: compute the next future run and emit `schedule.skipped`.
-- `runOnce`: trigger one missed run.
-- `catchUp`: trigger missed runs within the catch-up window, limited by
-  `maxCatchUpRuns` and `maxRunsPerTurn`.
-- `fail`: mark the schedule failed.
-- `askUser`: currently triggers the missed run.
+Catch-up behavior must be bounded so a long offline period cannot create an
+unlimited number of runs.
 
-## Concurrency Policies
+## Concurrency
 
-When a schedule is due and a previous task is still running:
+When a schedule is due while earlier work from the same schedule is still
+running, the selected concurrency policy should decide what happens:
 
-- `allowOverlap`: create another task.
-- `skipIfRunning`: record a skipped execution and move to the next run.
-- `queueIfRunning`: currently proceeds to create the next task.
-- `cancelPrevious`: cancel running tasks, then create the new task.
-- `replacePrevious`: cancel running tasks, then create the new task.
+- Allow the new run to overlap.
+- Skip the new run and move to the next due time.
+- Queue the new run behind the current one.
+- Cancel the previous run before starting the new one.
+- Replace the previous run with the new one.
 
-## Friday Tool Schedule Creation
+The default should avoid overlap.
 
-Friday cron jobs are created through `CronService.fridayAction(request, actor,
-context)`, which delegates to `FridayCronScheduler.handleToolAction()`.
+## Retry Behavior
 
-The normal add flow is:
+Retries should be explicit, bounded, and auditable. A failed scheduled run may
+retry only according to the schedule's configured retry policy. Retrying should
+not create unbounded loops or hide the final failure from the user.
 
-1. Normalize the raw tool request with `normalizeFridayCronToolRequest()`.
-2. Convert the add payload into a `FridayCronAddRequest`.
-3. Validate the actor can add jobs.
-4. Load the Friday cron store snapshot.
-5. Create a `FridayCronJobDefinition`.
-6. Validate the job with `assertValidFridayJob()`.
-7. Create default job state.
-8. Compute `state.nextRunAtMs` when the job is enabled.
-9. Save the snapshot.
-10. Arm the next timer.
+## Agent And Reminder Schedules
 
-Friday schedules support three schedule shapes:
+Agent-created schedules should store a compact, sanitized instruction for the
+future run. Reminder schedules should store the reminder text and timing rules.
+Neither should store credentials, provider configuration, or private runtime
+objects.
 
-```ts
-type FridayCronSchedule =
-	| { kind: 'at'; at: string }
-	| { kind: 'every'; everyMs: number; anchorMs?: number }
-	| { kind: 'cron'; expr: string; tz?: string; staggerMs?: number };
-```
+When the schedule fires, Friday should create the corresponding work and record
+what happened in a user-safe way.
 
-Normalization accepts compact forms:
+## Automatic Execution
 
-- `at` or `atMs` creates `{ kind: 'at' }`.
-- `everyMs` creates `{ kind: 'every' }`.
-- `expr` or `cron` creates `{ kind: 'cron' }`.
-- `tz` sets the cron timezone.
-- `exact: true` disables stagger by setting `staggerMs` to `0`.
+If automatic scheduling is disabled by configuration, schedules may still be
+persisted and shown to the user, but timers should not run and due work should
+not be created automatically. When automatic execution is enabled again, startup
+recovery should apply the missed-run policy for schedules that became due while
+execution was disabled.
 
-Friday next-run calculation works like this:
+## Acceptance Criteria
 
-- `at`: returns the timestamp until it has run once.
-- `every`: advances from `anchorMs` or job creation time by `everyMs`, bounded
-  by the scheduler minimum refire gap.
-- `cron`: reuses `CronNextRunCalculator` by wrapping the Friday job as a
-  temporary managed cron schedule, then adds `staggerMs` when present.
-
-## Legacy Node-Cron Jobs
-
-`CronService.schedule(id, expression, data, handler, options)` uses the
-`node-cron` package directly.
-
-Creation flow:
-
-1. Reject duplicate job ids.
-2. Validate the cron expression with `node-cron`.
-3. Build a persisted `CronTask` record.
-4. If automatic cron execution is disabled, persist the task without arming it.
-5. Otherwise call `cron.schedule(expression, handler, { timezone })`.
-6. Store the registered job in memory.
-7. Persist the task through `StoreService`.
-8. Optionally run the handler immediately when `runOnStart` is set.
-
-Persisted legacy tasks are restored with `CronService.restore(dispatcher)`.
-Restore validates each expression, recreates the `node-cron` schedule, and
-dispatches through the supplied handler.
-
-## Disabling Automatic Execution
-
-Automatic execution is disabled when either condition is true:
-
-- `SKIP_CRON=1`
-- `CRON_ENABLED=false`
-
-When disabled, managed scheduler execution is not started and Friday cron
-timers are not armed. Legacy jobs are still persisted, but their timers are not
-scheduled.
-
-## Example Managed Schedule
-
-```ts
-await cron.createSchedule({
-	name: 'Review invoices reminder',
-	type: 'cron',
-	source: 'agent',
-	sourceId: 'agent',
-	createdBy: 'agent',
-	visibility: 'user',
-	timezone: 'Europe/Rome',
-	cronExpression: '0 9 * * 1',
-	missedRunPolicy: 'skip',
-	concurrencyPolicy: 'skipIfRunning',
-	taskType: 'reminder.show',
-	taskInput: { message: 'Review invoices' },
-});
-```
-
-This creates an active schedule that runs every Monday at 09:00 in the
-`Europe/Rome` timezone. During creation, the scheduler validates the cron
-expression, computes the first `nextRunAt`, persists the schedule, and emits
-`schedule.created`.
+- A future schedule survives app restart.
+- A recurring schedule calculates its next run in the requested timezone.
+- A disabled or completed schedule does not create work.
+- Missed-run policy is applied after startup recovery.
+- Concurrency policy is applied when previous scheduled work is still running.
+- Duplicate processing for the same due time is ignored.
+- Scheduled payloads reject secret-looking values.
+- Scheduled work delegates provider and model decisions to the target feature.
+- Execution history and audit information are user-safe.
