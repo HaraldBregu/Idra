@@ -20,4 +20,4 @@ This section documents Pika models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Video | `pika-2.5`, `pika-pro`, `pika-turbo` | [pika/video](video/index) |
+| Video | `pika-2.5`, `pika-pro`, `pika-turbo` | [pika/video](video/index.md) |

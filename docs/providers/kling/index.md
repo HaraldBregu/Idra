@@ -6,5 +6,5 @@ This section documents Kuaishou and Kling AI models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Video | `kling-2.6`, `kling-2.1` | [kling/video](video/index) |
-| Music and audio | `kling-audio` | [kling/music](music/index) |
+| Video | `kling-2.6`, `kling-2.1` | [kling/video](video/index.md) |
+| Music and audio | `kling-audio` | [kling/music](music/index.md) |

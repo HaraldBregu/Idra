@@ -20,7 +20,7 @@ This section documents MiniMax models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Large language models | `MiniMax-M2.7`, `MiniMax-M2.5` | [minimax/llm](llm/index) |
-| Text-to-speech | `Speech-2.8-HD`, `Speech-2.8-Turbo` | [minimax/tts](tts/index) |
-| Video | `MiniMax-Hailuo-2.3`, `MiniMax-Hailuo-2.3-Fast`, `MiniMax-Hailuo-02` | [minimax/video](video/index) |
-| Music and audio | `music-2.6`, `music-cover` | [minimax/music](music/index) |
+| Large language models | `MiniMax-M2.7`, `MiniMax-M2.5` | [minimax/llm](llm/index.md) |
+| Text-to-speech | `Speech-2.8-HD`, `Speech-2.8-Turbo` | [minimax/tts](tts/index.md) |
+| Video | `MiniMax-Hailuo-2.3`, `MiniMax-Hailuo-2.3-Fast`, `MiniMax-Hailuo-02` | [minimax/video](video/index.md) |
+| Music and audio | `music-2.6`, `music-cover` | [minimax/music](music/index.md) |

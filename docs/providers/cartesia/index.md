@@ -20,4 +20,4 @@ This section documents Cartesia models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Text-to-speech | `sonic-3.5`, `sonic-3` | [cartesia/tts](tts/index) |
+| Text-to-speech | `sonic-3.5`, `sonic-3` | [cartesia/tts](tts/index.md) |

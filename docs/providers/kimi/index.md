@@ -20,4 +20,4 @@ This section documents Moonshot AI and Kimi models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Large language models | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2-thinking` | [kimi/llm](llm/index) |
+| Large language models | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2-thinking` | [kimi/llm](llm/index.md) |
