@@ -72,7 +72,7 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 | `embedding`      | Embedding         | [embedding.md](../models/embedding.md)                       | Embedding provider/model and index settings.                           |
 | `taskScheduler`  | Task scheduler    | [scheduled/index.md](../tasks/scheduled/index.md)            | Managed schedule state, Friday cron state, and legacy cron task state. |
 | `backgroundTask` | Background task   | [background/index.md](../tasks/background/index.md)          | Task policy settings only; task records stay in memory.                |
-| `heartbeat`      | Heartbeat         | [tasks/scheduled/index.md](../tasks/scheduled/index.md)      | Heartbeat run state and last delivered heartbeat text by key.          |
+| `heartbeat`      | Heartbeat         | [heartbeat/index.md](../heartbeat/index.md)                  | Heartbeat run state and last delivered heartbeat text by key.          |
 | `connectors`     | Connectors        | [providers/index.md](../providers/index.md)                  | Connector configuration records and credential references.             |
 | `channel`        | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
 | `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
