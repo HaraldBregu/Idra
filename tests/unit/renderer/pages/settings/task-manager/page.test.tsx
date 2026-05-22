@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { Model } from '../../../../../../src/shared/agents/service';
 import type { PublicProvider } from '../../../../../../src/shared/providers';
@@ -17,6 +18,19 @@ const assistantModel: Model = {
 	id: 'gpt-5',
 	name: 'GPT-5',
 };
+
+
+jest.mock('@/components/ui/select', () => {
+	const Passthrough = ({ children }: { readonly children?: ReactNode }) => <div>{children}</div>;
+
+	return {
+		Select: Passthrough,
+		SelectContent: Passthrough,
+		SelectItem: Passthrough,
+		SelectTrigger: Passthrough,
+		SelectValue: () => <span />,
+	};
+});
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
