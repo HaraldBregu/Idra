@@ -500,11 +500,7 @@ const StartPage: React.FC = () => {
 		setSavingProviderId('all');
 		setErrorMessage('');
 		try {
-			const entriesToSave = providerEntries.filter((entry) => {
-				return (
-					entry.apiKey.trim().length > 0
-				);
-			});
+			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 
 			for (const entry of entriesToSave) {
 				await window.app.setProviderApiKey(entry.providerId, entry.apiKey.trim());
