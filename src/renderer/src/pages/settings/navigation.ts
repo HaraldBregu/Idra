@@ -186,7 +186,7 @@ export const SETTINGS_NAVIGATION = [
 	},
 	{
 		path: '/settings/cron',
-		labelKey: 'settings.tabs.taskScheduler',
+		labelKey: 'settings.sections.taskScheduler',
 		descriptionKey: 'settings.overview.descriptions.cron',
 		icon: CalendarClock,
 	},
