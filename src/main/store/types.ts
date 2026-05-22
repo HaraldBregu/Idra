@@ -3,8 +3,6 @@ import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import type { Channel } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';
-import type { AppPermissionSettings } from '../../shared/app-permissions';
-import type { AppSettings } from '../../shared/app-settings';
 
 export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 
@@ -58,8 +56,7 @@ export interface SettingsStore {
 	heartbeat?: HeartbeatStoreState;
 	connectors?: ConnectorConfig[];
 	channel?: Channel;
-	appSettings?: AppSettings;
-	appPermissions?: AppPermissionSettings;
+	appSettings?: { readonly keepAwakeEnabled: boolean };
 }
 
 export type StoreSchema = SettingsStore;
