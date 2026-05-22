@@ -312,8 +312,7 @@ function PageContent(): ReactElement {
 		visibleMessages.length === 0 &&
 		!agent.isLoading &&
 		!agent.historyLoading;
-	const showPromptSuggestions =
-		showEmptyConversation && agent.input.trim().length === 0 && voiceMode === null;
+	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0;
 	const dictationStatus = dictation.status;
 	const cancelDictationSession = dictation.cancel;
