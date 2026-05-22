@@ -188,6 +188,7 @@ describe('StoreService', () => {
 				},
 			});
 			expect(service.getChannel().telegram).toMatchObject({ token: '', allowFrom: [] });
+			expect(Object.keys(store.get('channels') as Record<string, unknown>)).toEqual(['slack']);
 			expect(store.get('channels')).toMatchObject({
 				slack: {
 					accounts: {
@@ -470,10 +471,10 @@ describe('StoreService', () => {
 					docsPath: 'models/large-language-model.md',
 					status: 'implemented',
 					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-					model,
+					model: expect.objectContaining({ id: model.id }),
 				},
-				documentReaderOcr: expect.objectContaining({ endpoint: 'ocr-url' }),
 			});
+			expect(service.getOperator()).not.toHaveProperty('documentReaderOcr');
 			expect(service.getOperator()).not.toHaveProperty('rag');
 			expect(service.getOperator()).not.toHaveProperty('ocr');
 		});

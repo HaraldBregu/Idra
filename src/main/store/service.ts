@@ -2,7 +2,6 @@ import Store from 'electron-store';
 import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
 import { getDefaultAgentModels } from '../../shared/agents/models';
 import {
-	DOCUMENT_READER_OCR_MODELS,
 	OPERATOR_DEFINITIONS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
@@ -37,7 +36,6 @@ import type {
 	BackgroundTaskSettings,
 	ModelProviderSettings,
 	ModelModuleSettings,
-	OcrModuleSettings,
 	SettingsStoreAccessor,
 	StoreSchema,
 	TaskSchedulerSettings,
@@ -75,6 +73,7 @@ type OperatorDefinitionKey =
 	| 'videoCreator'
 	| 'musicCreator';
 type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
+type KeepAwakeSettings = { readonly keepAwakeEnabled: boolean };
 
 const MODEL_MODULE_ROOT_KEYS = {
 	assistant: 'llmAgent',
@@ -105,6 +104,8 @@ const CONNECTOR_STORE_KEY_BY_ID = {
 	connector_dropbox: 'dropbox',
 } satisfies Record<ConnectorConfig['connectorId'], ConnectorStoreKey>;
 
+const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorStoreKey[];
+
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
 	return {
 		id: provider.id,
@@ -117,18 +118,6 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	return value as Record<string, unknown>;
 }
-
-function readBoolean(value: unknown, fallback: boolean): boolean {
-	return typeof value === 'boolean' ? value : fallback;
-}
-
-function readAppSettings(value: unknown): NonNullable<StoreSchema['appSettings']> {
-	const record = readRecord(value);
-	return {
-		keepAwakeEnabled: readBoolean(record?.keepAwakeEnabled, false),
-	};
-}
-
 function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
 	const record = readRecord(value);
 	if (!record) return undefined;
@@ -145,21 +134,6 @@ function readModelModuleSettings(value: unknown): ModelModuleSettings | undefine
 		...(options ? { options } : {}),
 	};
 }
-
-function readOcrSettings(value: unknown): OcrModuleSettings | undefined {
-	const record = readRecord(value);
-	if (!record) return undefined;
-	if (record.mode === 'endpoint') {
-		const endpoint = typeof record.endpoint === 'string' ? record.endpoint.trim() : '';
-		return endpoint ? { mode: 'endpoint', endpoint } : undefined;
-	}
-	if (record.mode === 'model') {
-		const settings = readModelModuleSettings(record);
-		return settings ? { mode: 'model', ...settings } : undefined;
-	}
-	return undefined;
-}
-
 function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
 	const record = readRecord(value);
 	if (!record) return {};
@@ -214,9 +188,10 @@ function readConnectorSettingsList(value: unknown): ConnectorConfig[] {
 	}
 	const record = readRecord(value);
 	if (!record) return [];
-	return Object.values(record).flatMap((entry) =>
-		readRecord(entry) ? [entry as ConnectorConfig] : []
-	);
+	return CONNECTOR_STORE_KEYS.flatMap((key) => {
+		const connector = record[key];
+		return readRecord(connector) ? [connector as ConnectorConfig] : [];
+	});
 }
 
 function connectorSettingsByKey(
@@ -311,6 +286,7 @@ function configuredModelOperator(
 
 export class StoreService {
 	private store: SettingsStoreAccessor;
+	private keepAwakeEnabled = false;
 
 	constructor() {
 		this.store = new Store<StoreSchema>({
@@ -330,21 +306,13 @@ export class StoreService {
 		return this.getStoredModelProviders();
 	}
 
-	getAppSettings(): NonNullable<StoreSchema['appSettings']> {
-		return readAppSettings(this.store.get('appSettings'));
-	}
-
 	getKeepAwakeEnabled(): boolean {
-		return this.getAppSettings().keepAwakeEnabled;
+		return this.keepAwakeEnabled;
 	}
 
-	setKeepAwakeEnabled(enabled: boolean): NonNullable<StoreSchema['appSettings']> {
-		const next = {
-			...this.getAppSettings(),
-			keepAwakeEnabled: enabled,
-		};
-		this.store.set('appSettings', next);
-		return next;
+	setKeepAwakeEnabled(enabled: boolean): KeepAwakeSettings {
+		this.keepAwakeEnabled = enabled;
+		return { keepAwakeEnabled: enabled };
 	}
 
 	addProvider(input: Provider): Provider {
@@ -399,22 +367,6 @@ export class StoreService {
 		if (textToVideo) next.videoCreator = textToVideo;
 		const textToSound = this.getConfiguredModelOperator('textToSound');
 		if (textToSound) next.musicCreator = textToSound;
-		const ocr = readOcrSettings(this.store.get('ocr'));
-		if (ocr?.mode === 'endpoint') {
-			next.documentReaderOcr = {
-				...OPERATOR_DEFINITIONS.documentReaderOcr,
-				endpoint: ocr.endpoint,
-			};
-		} else if (ocr?.mode === 'model') {
-			const provider = this.getProviderById(ocr.providerId);
-			if (provider) {
-				next.documentReaderOcr = {
-					...OPERATOR_DEFINITIONS.documentReaderOcr,
-					provider: publicProvider(provider),
-					model: modelFromCatalog(DOCUMENT_READER_OCR_MODELS, ocr),
-				};
-			}
-		}
 		const agentSettings = this.getModelModuleSettings('llmAgent');
 		const agents = readAgentsHeartbeatConfig(agentSettings);
 		if (agents) next.agents = agents;
@@ -497,13 +449,6 @@ export class StoreService {
 	getBackgroundTaskSettings(): BackgroundTaskSettings {
 		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
 	}
-
-	getDocumentReaderOcrEndpoint(): string | undefined {
-		const ocr = readOcrSettings(this.store.get('ocr'));
-		if (ocr?.mode === 'endpoint') return ocr.endpoint;
-		return undefined;
-	}
-
 	setAssistantOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
@@ -744,7 +689,7 @@ export class StoreService {
 	}
 
 	getChannel(): Channel {
-		const channel = readStoredChannel(this.store.get('channels') ?? this.store.get('channel'));
+		const channel = this.getStoredChannelRoot();
 		const next = createDefaultChannelState();
 		if (channel?.defaults && typeof channel.defaults === 'object') {
 			setChannelDefaults(next, channel.defaults);
@@ -771,30 +716,27 @@ export class StoreService {
 		type: TKey,
 		properties: Partial<Channel[TKey]>
 	): Channel {
-		const current = this.getChannel();
-		const currentProperties =
-			current[type] && typeof current[type] === 'object'
-				? (current[type] as Record<string, unknown>)
-				: {};
-		const next: Channel = {
+		const current = this.getStoredChannelRoot();
+		const currentProperties = readRecord(current[type]) ?? {};
+		const next = compactChannelRoot({
 			...current,
-			[type]: {
+			[type]: mergeChannelConfig(type, {
 				...currentProperties,
 				...properties,
-			},
-		};
+			}),
+		});
 		this.store.set('channels', next);
-		return next;
+		return this.getChannel();
 	}
 
 	setChannelConfig<TKey extends ChannelType>(type: TKey, config: Channel[TKey]): Channel[TKey] {
-		const current = this.getChannel();
-		const next: Channel = {
+		const current = this.getStoredChannelRoot();
+		const next = compactChannelRoot({
 			...current,
 			[type]: mergeChannelConfig(type, config) as Channel[TKey],
-		};
+		});
 		this.store.set('channels', next);
-		return next[type];
+		return this.getChannel()[type];
 	}
 
 	setTelegramChannel(config: TelegramChannelProperties): TelegramChannelProperties {
@@ -808,6 +750,10 @@ export class StoreService {
 			groupAllowFrom: config.groupAllowFrom,
 			accounts: config.accounts,
 		}).telegram;
+	}
+
+	private getStoredChannelRoot(): Partial<Channel> {
+		return readStoredChannel(this.store.get('channels') ?? this.store.get('channel')) ?? {};
 	}
 
 	setAnthropicApiKey(key: string): void {
@@ -832,9 +778,31 @@ export class StoreService {
 	}
 }
 
-function readStoredChannel(value: unknown): Channel | undefined {
+function readStoredChannel(value: unknown): Partial<Channel> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
-	return value as Channel;
+	return compactChannelRoot(value as Partial<Channel>);
+}
+
+function compactChannelRoot(channel: Partial<Channel>): Partial<Channel> {
+	const next: Partial<Channel> = {};
+	if (readRecord(channel.defaults)) next.defaults = removeUndefinedProperties(channel.defaults);
+	for (const channelId of CHANNEL_PROVIDER_IDS) {
+		const config = channel[channelId];
+		if (readRecord(config)) {
+			next[channelId] = removeUndefinedProperties(config) as Channel[typeof channelId];
+		}
+	}
+	return next;
+}
+
+function removeUndefinedProperties<T>(value: T): T {
+	if (Array.isArray(value)) return value.map(removeUndefinedProperties) as T;
+	if (!value || typeof value !== 'object') return value;
+	return Object.fromEntries(
+		Object.entries(value as Record<string, unknown>).flatMap(([key, item]) =>
+			item === undefined ? [] : [[key, removeUndefinedProperties(item)]]
+		)
+	) as T;
 }
 
 function createDefaultChannelState(): Channel {

@@ -13,21 +13,6 @@ export interface ModelModuleSettings {
 	options?: Record<string, unknown>;
 }
 
-export type OcrModuleSettings =
-	| {
-			mode: 'endpoint';
-			endpoint: string;
-	  }
-	| ({
-			mode: 'model';
-	  } & ModelModuleSettings);
-
-export interface EmbeddingModuleSettings extends ModelModuleSettings {
-	index?: {
-		backend: 'local' | 'external';
-		namespace?: string;
-	};
-}
 
 export interface TaskSchedulerSettings {
 	enabled?: boolean;
@@ -52,7 +37,7 @@ export interface Connectors {
 	dropbox?: ConnectorConfig;
 }
 
-export type Channels = Channel;
+export type Channels = Partial<Channel>;
 
 export interface SettingsStore {
 	modelProviders: ModelProviderSettings[];
@@ -62,14 +47,11 @@ export interface SettingsStore {
 	imageCreator?: ModelModuleSettings;
 	textToVideo?: ModelModuleSettings;
 	textToSound?: ModelModuleSettings;
-	ocr?: OcrModuleSettings;
-	embedding?: EmbeddingModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
 	heartbeat?: HeartbeatStoreState;
 	connectors?: Connectors;
 	channels?: Channels;
-	appSettings?: { readonly keepAwakeEnabled: boolean };
 }
 
 export type StoreSchema = SettingsStore;
