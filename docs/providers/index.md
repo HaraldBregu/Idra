@@ -8,13 +8,13 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 
 | Model type | Model count | Providers |
 | --- | --- | --- |
-| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta.md), [xAI](xai.md), [Mistral AI](mistral.md), [DeepSeek](deepseek.md), [Alibaba / Qwen / Wan](qwen.md), [Moonshot AI / Kimi](kimi.md), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
+| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai.md), [Mistral AI](mistral.md), [DeepSeek](deepseek.md), [Alibaba / Qwen / Wan](qwen.md), [Moonshot AI / Kimi](kimi.md), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
 | Research Chat Models | 4 | [Perplexity](perplexity.md) |
 | Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram.md), [ElevenLabs](elevenlabs.md), [Mistral AI](mistral.md), [xAI](xai.md), [Alibaba / Qwen / Wan](qwen.md) |
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs.md), [Cartesia](cartesia.md), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax.md), [Mistral AI](mistral.md), [Deepgram](deepgram.md) |
 | Realtime Voice And Omni Models | 8 | [OpenAI](openai.md), [xAI](xai.md), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen.md), [Luma AI](luma.md) |
 | Image Models | 18 | [OpenAI](openai.md), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen.md), [xAI](xai.md), [Black Forest Labs](black-forest-labs.md), [Midjourney](midjourney.md), [Luma AI](luma.md), [Stability AI](stability-ai.md), [Ideogram](ideogram.md) |
-| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway.md), [Luma AI](luma.md), [MiniMax](minimax.md), [Alibaba / Qwen / Wan](qwen.md), [xAI](xai.md), [OpenAI](openai.md), [Meta](meta.md), [Midjourney](midjourney.md), [Pika](pika.md), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling.md) |
+| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway.md), [Luma AI](luma.md), [MiniMax](minimax.md), [Alibaba / Qwen / Wan](qwen.md), [xAI](xai.md), [OpenAI](openai.md), [Meta](meta/), [Midjourney](midjourney.md), [Pika](pika.md), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling.md) |
 | Music And Audio Models | 11 | [Google DeepMind / Google](google/), [Suno](suno.md), [MiniMax](minimax.md), [ElevenLabs](elevenlabs.md), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling.md) |
 | 3D Models | 2 | [Luma AI](luma.md) |
 
@@ -35,7 +35,7 @@ Each provider name links to its provider-specific markdown file.
 | [Moonshot AI / Kimi](kimi.md) | `kimi` | Chat | Large Language Models |
 | [Kuaishou / Kling AI](kling.md) | `kling` | Video - Music/audio | Video Models - Music And Audio Models |
 | [Luma AI](luma.md) | `luma` | Realtime voice/omni - Image - Video - 3D | Realtime Voice And Omni Models - Image Models - Video Models - 3D Models |
-| [Meta](meta.md) | `meta` | Chat - Video | Large Language Models - Video Models |
+| [Meta](meta/) | `meta` | Chat - Video | Large Language Models - Video Models |
 | [Midjourney](midjourney.md) | `midjourney` | Image - Video | Image Models - Video Models |
 | [MiniMax](minimax.md) | `minimax` | Chat - Text-to-speech - Video - Music/audio | Large Language Models - Text-To-Speech Models - Video Models - Music And Audio Models |
 | [Mistral AI](mistral.md) | `mistral` | Chat - Speech-to-text - Text-to-speech | Large Language Models - Speech-To-Text Models - Text-To-Speech Models |
@@ -83,6 +83,6 @@ These providers do not have Large Language Models in the supplied catalog but do
 | [Kuaishou / Kling AI](kling.md) | `kling-audio` | `verify` | Music And Audio Models |
 | [Luma AI](luma.md) | `genie` | `verify` | 3D Models |
 | [Luma AI](luma.md) | `interactive-scenes` | `verify` | 3D Models |
-| [Meta](meta.md) | `movie-gen-video` | `verify` | Video Models |
+| [Meta](meta/) | `movie-gen-video` | `verify` | Video Models |
 | [OpenAI](openai.md) | `sora-2-pro` | `deprecated` | Video Models |
 | [OpenAI](openai.md) | `sora-2` | `deprecated` | Video Models |
