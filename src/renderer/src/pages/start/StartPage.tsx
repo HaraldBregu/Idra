@@ -1012,8 +1012,7 @@ const StartPage: React.FC = () => {
 		);
 	}
 
-	function renderOperatorsStep(): React.JSX.Element {
-		const ttsProviderCatalog = getProviderCatalogItem('elevenlabs');
+	function renderModelsStep(): React.JSX.Element {
 		const selectedSpeechGroup = speechModelGroups.find(
 			(group) => group.provider.id === speechProviderId
 		);
@@ -1024,10 +1023,61 @@ const StartPage: React.FC = () => {
 		const speechStatus = loadingModels
 			? 'Loading models...'
 			: (selectedSpeechOption?.name ?? 'No transcription model');
-		const selectedTtsOption =
-			TTS_MODELS.find((option) => option.id === selectedTtsModel) ?? TTS_MODELS[0];
-		const toggleOperator = (operatorId: OperatorCardId): void => {
-			setExpandedOperatorId((current) => (current === operatorId ? 'friday' : operatorId));
+		const ocrModelName = DOCUMENT_READER_OCR_MODELS[0]?.name ?? 'Not available yet';
+		const toggleModelArea = (areaId: ModelAreaId): void => {
+			setExpandedModelAreaId((current) => (current === areaId ? 'assistant' : areaId));
+		};
+		const renderModelAreaPanel = (
+			areaId: ModelAreaId,
+			summary: string,
+			children: React.ReactNode
+		): React.JSX.Element => {
+			const area = MODEL_AREAS.find((item) => item.id === areaId);
+			if (!area) throw new Error(`Unknown model area: ${areaId}`);
+			const Icon = area.icon;
+			const expanded = expandedModelAreaId === area.id;
+
+			return (
+				<SettingsPanel key={area.id}>
+					<Item
+						as="button"
+						type="button"
+						size="md"
+						aria-expanded={expanded}
+						aria-controls={`model-area-${area.id}`}
+						className={cn('text-left hover:bg-muted/30', expanded && 'border-b border-border/60')}
+						onClick={() => toggleModelArea(area.id)}
+					>
+						<ItemMedia variant="icon">
+							<Icon className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<div className="flex w-full min-w-0 items-center gap-2">
+								<ItemTitle>{area.title}</ItemTitle>
+								<StatusBadge status={area.status} />
+							</div>
+							<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+								{summary}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<ChevronDown
+								className={cn(
+									'size-3 text-muted-foreground transition-transform',
+									expanded && 'rotate-180'
+								)}
+								strokeWidth={1.8}
+							/>
+						</ItemActions>
+					</Item>
+					{expanded && (
+						<div id={`model-area-${area.id}`} className="grid gap-3 p-3">
+							<p className="text-[11px] leading-4 text-muted-foreground">{area.purpose}</p>
+							{children}
+						</div>
+					)}
+				</SettingsPanel>
+			);
 		};
 
 		return (
@@ -1037,305 +1087,241 @@ const StartPage: React.FC = () => {
 						Configure models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the provider and model each capability will use. Only connected providers appear.
+						Choose the active assistant and voice input models, then review the remaining model
+						areas and their runtime status.
 					</p>
 				</div>
 
 				<div className="mt-4 space-y-2">
-					<SettingsPanel>
-						<Item
-							as="button"
-							type="button"
-							size="md"
-							aria-expanded={expandedOperatorId === 'friday'}
-							aria-controls="operator-friday"
-							className={cn(
-								'text-left hover:bg-muted/30',
-								expandedOperatorId === 'friday' && 'border-b border-border/60'
-							)}
-							onClick={() => toggleOperator('friday')}
-						>
-							<ItemMedia variant="icon">
-								<Bot className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle>{PRODUCT_NAME} Assistant</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-									{selectedModelName || modelCountLabel}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronDown
-									className={cn(
-										'size-3 text-muted-foreground transition-transform',
-										expandedOperatorId === 'friday' && 'rotate-180'
-									)}
-									strokeWidth={1.8}
-								/>
-							</ItemActions>
-						</Item>
-						{expandedOperatorId === 'friday' && (
-							<div id="operator-friday" className="grid gap-3 p-3">
-								<div className="grid gap-3 sm:grid-cols-2">
-									<SettingsField id="agent-provider" label="Provider">
-										<Select
-											value={configProvider}
-											onValueChange={handleAgentProviderChange}
-											disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
-										>
-											<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
-												<SelectValue placeholder={modelCountLabel} />
-											</SelectTrigger>
-											<SelectContent>
-												{agentModelGroups.map((group) => {
-													const catalog = getProviderCatalogItem(group.provider.id);
-													return (
-														<SelectItem key={group.provider.id} value={group.provider.id}>
-															{catalog.name}
-														</SelectItem>
-													);
-												})}
-											</SelectContent>
-										</Select>
-									</SettingsField>
-									<SettingsField id="agent-model" label="Model">
-										<Select
-											value={selectedModel}
-											onValueChange={handleAgentModelChange}
-											disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
-										>
-											<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
-												<SelectValue placeholder={modelCountLabel} />
-											</SelectTrigger>
-											<SelectContent>
-												{selectedAgentModels.map((model) => (
-													<SelectItem key={model.id} value={model.id}>
-														{model.name}
+					{renderModelAreaPanel(
+						'assistant',
+						selectedModelName || modelCountLabel,
+						<>
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField id="agent-provider" label="Provider">
+									<Select
+										value={configProvider}
+										onValueChange={handleAgentProviderChange}
+										disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
+									>
+										<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
+											<SelectValue placeholder={modelCountLabel} />
+										</SelectTrigger>
+										<SelectContent>
+											{agentModelGroups.map((group) => {
+												const catalog = getProviderCatalogItem(group.provider.id);
+												return (
+													<SelectItem key={group.provider.id} value={group.provider.id}>
+														{catalog.name}
 													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</SettingsField>
-								</div>
+												);
+											})}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+								<SettingsField id="agent-model" label="Model">
+									<Select
+										value={selectedModel}
+										onValueChange={handleAgentModelChange}
+										disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
+									>
+										<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
+											<SelectValue placeholder={modelCountLabel} />
+										</SelectTrigger>
+										<SelectContent>
+											{selectedAgentModels.map((model) => (
+												<SelectItem key={model.id} value={model.id}>
+													{model.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
 							</div>
-						)}
-					</SettingsPanel>
-
-					<SettingsPanel>
-						<Item
-							as="button"
-							type="button"
-							size="md"
-							aria-expanded={expandedOperatorId === 'voice-input'}
-							aria-controls="operator-voice-input"
-							className={cn(
-								'text-left hover:bg-muted/30',
-								expandedOperatorId === 'voice-input' && 'border-b border-border/60'
-							)}
-							onClick={() => toggleOperator('voice-input')}
-						>
-							<ItemMedia variant="icon">
-								<Mic className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle>Voice Input</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-									{speechStatus}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronDown
-									className={cn(
-										'size-3 text-muted-foreground transition-transform',
-										expandedOperatorId === 'voice-input' && 'rotate-180'
-									)}
-									strokeWidth={1.8}
-								/>
-							</ItemActions>
-						</Item>
-						{expandedOperatorId === 'voice-input' && (
-							<div id="operator-voice-input" className="grid gap-3 p-3">
-								<div className="grid gap-3 sm:grid-cols-2">
-									<SettingsField id="speech-provider" label="Provider">
-										<Select
-											value={speechProviderId}
-											onValueChange={handleSpeechProviderChange}
-											disabled={loadingModels || speechModelGroups.length === 0 || savingConfig}
-										>
-											<SelectTrigger id="speech-provider" className="w-full text-xs sm:w-72">
-												<SelectValue placeholder={speechStatus} />
-											</SelectTrigger>
-											<SelectContent>
-												{speechModelGroups.map((group) => {
-													const catalog = getProviderCatalogItem(group.provider.id);
-													return (
-														<SelectItem key={group.provider.id} value={group.provider.id}>
-															{catalog.name}
-														</SelectItem>
-													);
-												})}
-											</SelectContent>
-										</Select>
-									</SettingsField>
-									<SettingsField id="speech-model" label="Transcription model">
-										<Select
-											value={selectedSpeechModel}
-											onValueChange={handleSpeechModelChange}
-											disabled={loadingModels || selectedSpeechModels.length === 0 || savingConfig}
-										>
-											<SelectTrigger id="speech-model" className="w-full text-xs sm:w-72">
-												<SelectValue placeholder={speechStatus} />
-											</SelectTrigger>
-											<SelectContent>
-												{selectedSpeechModels.map((option) => (
-													<SelectItem key={option.id} value={option.id}>
-														{option.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</SettingsField>
+							<div className="grid gap-1.5">
+								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
+									<span>Catalog</span>
+									<span>{getCatalogCountLabel(llmCatalogGroups)}</span>
 								</div>
-								{speechModelGroups.length === 0 ? (
-									<SettingsNotice icon={Mic}>
-										Connect a speech-to-text capable provider to enable live transcription.
-									</SettingsNotice>
-								) : null}
+								<CatalogRows groups={llmCatalogGroups} />
 							</div>
-						)}
-					</SettingsPanel>
+						</>
+					)}
 
-					<SettingsPanel>
-						<Item
-							as="button"
-							type="button"
-							size="md"
-							aria-expanded={expandedOperatorId === 'voice-output'}
-							aria-controls="operator-voice-output"
-							className={cn(
-								'text-left hover:bg-muted/30',
-								expandedOperatorId === 'voice-output' && 'border-b border-border/60'
-							)}
-							onClick={() => toggleOperator('voice-output')}
-						>
-							<ItemMedia variant="icon">
-								<Volume2 className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle>Voice Output</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-									{selectedTtsOption?.name ?? 'Not selected'}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronDown
-									className={cn(
-										'size-3 text-muted-foreground transition-transform',
-										expandedOperatorId === 'voice-output' && 'rotate-180'
-									)}
-									strokeWidth={1.8}
-								/>
-							</ItemActions>
-						</Item>
-						{expandedOperatorId === 'voice-output' && (
-							<div id="operator-voice-output" className="grid gap-3 p-3">
-								<div className="grid gap-3 sm:grid-cols-2">
-									<SettingsField id="tts-provider" label="Provider">
-										<Select value="elevenlabs" disabled>
-											<SelectTrigger id="tts-provider" className="w-full text-xs sm:w-72">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="elevenlabs">{ttsProviderCatalog.name}</SelectItem>
-											</SelectContent>
-										</Select>
-									</SettingsField>
-									<SettingsField id="tts-model" label="Voice model">
-										<Select value={selectedTtsModel} onValueChange={handleTtsModelChange}>
-											<SelectTrigger id="tts-model" className="w-full text-xs sm:w-72">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												{TTS_MODELS.map((option) => (
-													<SelectItem key={option.id} value={option.id}>
-														{option.name}
+					{renderModelAreaPanel(
+						'speech-to-text',
+						speechStatus,
+						<>
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField id="speech-provider" label="Provider">
+									<Select
+										value={speechProviderId}
+										onValueChange={handleSpeechProviderChange}
+										disabled={loadingModels || speechModelGroups.length === 0 || savingConfig}
+									>
+										<SelectTrigger id="speech-provider" className="w-full text-xs sm:w-72">
+											<SelectValue placeholder={speechStatus} />
+										</SelectTrigger>
+										<SelectContent>
+											{speechModelGroups.map((group) => {
+												const catalog = getProviderCatalogItem(group.provider.id);
+												return (
+													<SelectItem key={group.provider.id} value={group.provider.id}>
+														{catalog.name}
 													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</SettingsField>
-								</div>
+												);
+											})}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+								<SettingsField id="speech-model" label="Transcription model">
+									<Select
+										value={selectedSpeechModel}
+										onValueChange={handleSpeechModelChange}
+										disabled={loadingModels || selectedSpeechModels.length === 0 || savingConfig}
+									>
+										<SelectTrigger id="speech-model" className="w-full text-xs sm:w-72">
+											<SelectValue placeholder={speechStatus} />
+										</SelectTrigger>
+										<SelectContent>
+											{selectedSpeechModels.map((option) => (
+												<SelectItem key={option.id} value={option.id}>
+													{option.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
 							</div>
-						)}
-					</SettingsPanel>
-
-					<SettingsPanel>
-						<Item
-							as="button"
-							type="button"
-							size="md"
-							aria-expanded={expandedOperatorId === 'image-creator'}
-							aria-controls="operator-image-creator"
-							className={cn(
-								'text-left hover:bg-muted/30',
-								expandedOperatorId === 'image-creator' && 'border-b border-border/60'
-							)}
-							onClick={() => toggleOperator('image-creator')}
-						>
-							<ItemMedia variant="icon">
-								<ImageIcon className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-								<ItemTitle>Text to Image</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-									Coming soon
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronDown
-									className={cn(
-										'size-3 text-muted-foreground transition-transform',
-										expandedOperatorId === 'image-creator' && 'rotate-180'
-									)}
-									strokeWidth={1.8}
-								/>
-							</ItemActions>
-						</Item>
-						{expandedOperatorId === 'image-creator' && (
-							<div id="operator-image-creator" className="grid gap-3 p-3">
-								<div className="grid gap-3 sm:grid-cols-2">
-									<SettingsField id="image-provider" label="Provider">
-										<Select value="image-provider-coming-soon" disabled>
-											<SelectTrigger id="image-provider" className="w-full text-xs sm:w-72">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="image-provider-coming-soon">Image provider</SelectItem>
-											</SelectContent>
-										</Select>
-									</SettingsField>
-									<SettingsField id="image-model" label="Image model">
-										<Select value={IMAGE_MODELS[0]?.id ?? ''} disabled>
-											<SelectTrigger id="image-model" className="w-full text-xs sm:w-72">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												{IMAGE_MODELS.map((option) => (
-													<SelectItem key={option.id} value={option.id}>
-														{option.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</SettingsField>
-								</div>
-								<SettingsNotice icon={ImageIcon}>
-									Image creation is not configurable yet. It will appear here when an image provider
-									is available.
+							{speechModelGroups.length === 0 ? (
+								<SettingsNotice icon={Mic}>
+									Connect a speech-to-text capable provider to enable live transcription.
 								</SettingsNotice>
+							) : null}
+							<div className="grid gap-1.5">
+								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
+									<span>Catalog</span>
+									<span>{getCatalogCountLabel(speechToTextCatalogGroups)}</span>
+								</div>
+								<CatalogRows groups={speechToTextCatalogGroups} />
 							</div>
-						)}
-					</SettingsPanel>
+						</>
+					)}
+
+					{renderModelAreaPanel(
+						'text-to-speech',
+						getOperatorSelectionLabel(savedTextToSpeechOperator),
+						<>
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField id="tts-selection" label="Saved selection">
+									<div className="min-h-8 rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-foreground">
+										{getOperatorSelectionLabel(savedTextToSpeechOperator)}
+									</div>
+								</SettingsField>
+								<SettingsField id="tts-runtime" label="Runtime">
+									<div className="flex min-h-8 items-center">
+										<StatusBadge status={OPERATOR_DEFINITIONS.textToSpeech.status} />
+									</div>
+								</SettingsField>
+							</div>
+							<SettingsNotice icon={Volume2}>
+								Voice output has a catalog, but spoken output runtime is still pending.
+							</SettingsNotice>
+							<div className="grid gap-1.5">
+								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
+									<span>Catalog</span>
+									<span>{getCatalogCountLabel(textToSpeechCatalogGroups)}</span>
+								</div>
+								<CatalogRows groups={textToSpeechCatalogGroups} />
+							</div>
+						</>
+					)}
+
+					{renderModelAreaPanel(
+						'text-to-image',
+						getOperatorSelectionLabel(savedImageCreatorOperator),
+						<>
+							<SettingsNotice icon={ImageIcon}>
+								Image service, task, and tool paths exist; provider adapters are pending.
+							</SettingsNotice>
+							<div className="grid gap-1.5">
+								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
+									<span>Catalog</span>
+									<span>{getCatalogCountLabel(textToImageCatalogGroups)}</span>
+								</div>
+								<CatalogRows groups={textToImageCatalogGroups} />
+							</div>
+						</>
+					)}
+
+					{renderModelAreaPanel(
+						'text-to-video',
+						getOperatorSelectionLabel(savedTextToVideoOperator),
+						<>
+							<SettingsNotice icon={Video}>
+								Video model selection is cataloged; provider adapters and runtime execution are
+								pending.
+							</SettingsNotice>
+							<div className="grid gap-1.5">
+								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
+									<span>Catalog</span>
+									<span>{getCatalogCountLabel(textToVideoCatalogGroups)}</span>
+								</div>
+								<CatalogRows groups={textToVideoCatalogGroups} />
+							</div>
+						</>
+					)}
+
+					{renderModelAreaPanel(
+						'text-to-audio',
+						getOperatorSelectionLabel(savedMusicCreatorOperator),
+						<>
+							<SettingsNotice icon={Music}>
+								Sound and music generation are cataloged; provider adapters and runtime execution are
+								pending.
+							</SettingsNotice>
+							<div className="grid gap-1.5">
+								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
+									<span>Catalog</span>
+									<span>{getCatalogCountLabel(textToAudioCatalogGroups)}</span>
+								</div>
+								<CatalogRows groups={textToAudioCatalogGroups} />
+							</div>
+						</>
+					)}
+
+					{renderModelAreaPanel(
+						'ocr',
+						'Endpoint-backed OCR task available',
+						<>
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField id="ocr-endpoint" label="Current path">
+									<div className="min-h-8 rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-foreground">
+										ocr.run endpoint
+									</div>
+								</SettingsField>
+								<SettingsField id="ocr-model" label="Provider model">
+									<div className="min-h-8 rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-muted-foreground">
+										{ocrModelName}
+									</div>
+								</SettingsField>
+							</div>
+							<SettingsNotice icon={FileSearch}>
+								Provider-backed OCR model setup is pending.
+							</SettingsNotice>
+						</>
+					)}
+
+					{renderModelAreaPanel(
+						'embedding',
+						'Unavailable until semantic indexing runtime is implemented',
+						<>
+							<CatalogRows
+								groups={embeddingCatalogGroups}
+								emptyLabel="Embedding remains unavailable until provider catalogs, vector index behavior, and runtime adapters are implemented."
+							/>
+						</>
+					)}
 				</div>
 			</div>
 		);
