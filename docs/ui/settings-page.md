@@ -62,8 +62,9 @@ Speech-to-text filters providers to those with available transcription models.
 The save action stores the selected provider/transcription model through the
 preload API.
 
-The current explicit speech-to-text model catalog is OpenAI
-`gpt-realtime-whisper`.
+The current speech-to-text catalog includes OpenAI, Deepgram, ElevenLabs,
+Mistral, Qwen, and xAI model entries. Runtime startup still depends on a
+registered speech-to-text adapter for the saved provider/model pair.
 
 ## Future UI Coverage
 

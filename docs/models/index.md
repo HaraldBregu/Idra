@@ -31,7 +31,7 @@ Current module status:
 | Module                                          | Store key      | Support level                                                            | Runtime status                                                |
 | ----------------------------------------------- | -------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | [Large language model](large-language-model.md) | `llmAgent`     | Explicit model catalog                                                   | Implemented                                                   |
-| [Speech to text](speech-to-text.md)             | `speechToText` | OpenAI explicit model plus provider placeholders                         | Implemented for OpenAI realtime                               |
+| [Speech to text](speech-to-text.md)             | `speechToText` | Concrete provider catalog                                                | Implemented for OpenAI, ElevenLabs, Mistral, and Qwen; Deepgram and xAI adapters pending |
 | [Text to speech](text-to-speech.md)             | `textToSpeech` | ElevenLabs explicit model plus provider placeholders                     | Pending runtime                                               |
 | [Text to image](text-to-image.md)               | `imageCreator` | Provider-keyed placeholder catalog                                       | Service, task, and tool path exist; provider adapters pending |
 | [Text to video](text-to-video.md)               | `textToVideo`  | Provider-keyed placeholder catalog                                       | Pending runtime                                               |
@@ -72,17 +72,20 @@ LLM reasoning effort:
 
 ## Speech-To-Text Models
 
-Speech to text currently has one explicit provider/model entry:
+Speech to text uses `SPEECH_TO_TEXT_MODELS_BY_PROVIDER` and the default adapter
+registry in `src/main/stt/service.ts`.
 
-| Provider id | Provider | Model id               | Display name         | Runtime notes                                                                                                                                                                                                          |
-| ----------- | -------- | ---------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `openai`    | OpenAI   | `gpt-realtime-whisper` | GPT Realtime Whisper | Uses the OpenAI realtime adapter for live dictation and transcription. The configured model id represents the transcription model; the realtime socket may use a separate OpenAI realtime connection model internally. |
+| Provider id | Provider | Model ids | Runtime notes |
+| --- | --- | --- | --- |
+| `openai` | OpenAI | `gpt-realtime-whisper` | Realtime adapter. The configured model id is the transcription model; the OpenAI socket uses its own realtime connection model internally. |
+| `deepgram` | Deepgram | `nova-3`, `flux` | Cataloged for selection and validation; no default runtime adapter is registered yet. |
+| `elevenlabs` | ElevenLabs | `scribe_v2`, `scribe_v2_realtime` | Batch and realtime adapter. The batch model buffers audio until `finish`; the realtime model uses ElevenLabs WebSocket transcription. |
+| `mistral` | Mistral AI | `voxtral-mini-2602`, `voxtral-mini-transcribe-realtime-2602` | Batch and realtime adapter through the Mistral SDK. |
+| `xai` | xAI | `xai-stt-batch`, `xai-stt-streaming` | Cataloged for selection and validation; no default runtime adapter is registered yet. |
+| `qwen` | Alibaba / Qwen / Wan | `qwen3.5-omni`, `qwen3-omni-flash` | Realtime adapter. Catalog ids are resolved to exact upstream Qwen realtime models. |
 
-Other speech-to-text capable providers return the placeholder model id
-`speech-to-text-provider-coming-soon` through
-`SPEECH_TO_TEXT_MODELS_BY_PROVIDER` until provider-specific model catalogs and
-runtime adapters are added: `google`, `xai`, `mistral`, `qwen`, `elevenlabs`,
-and `deepgram`.
+Provider-specific runtime notes are documented in
+[speech-to-text provider runbooks](../speech-to-text/index.md).
 
 ## Text-To-Speech Models
 

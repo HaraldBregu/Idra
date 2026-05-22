@@ -43,22 +43,26 @@ compatibility, not a hard-coded provider id.
 
 Current catalog status:
 
-- `openai` has the concrete `gpt-realtime-whisper` transcription model.
-- Other speech-to-text capable providers use the placeholder
-  `speech-to-text-provider-coming-soon` model id until provider-specific
-  catalogs and adapters are implemented.
+- `SPEECH_TO_TEXT_MODELS_BY_PROVIDER` contains concrete model ids for OpenAI,
+  Deepgram, ElevenLabs, Mistral, xAI, and Qwen.
+- The default runtime service registers adapters for OpenAI, ElevenLabs,
+  Mistral, and Qwen.
+- Deepgram and xAI are cataloged for selection and validation, but their
+  default runtime adapters are not registered yet.
 
 Cataloged speech-to-text provider/model choices:
 
-| Provider     | Model id                              | Runtime style             |
-| ------------ | ------------------------------------- | ------------------------- |
-| `openai`     | `gpt-realtime-whisper`                | Realtime streaming        |
-| `google`     | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `xai`        | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `mistral`    | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `qwen`       | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `elevenlabs` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
-| `deepgram`   | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| Provider     | Model ids                                                        | Runtime style                 |
+| ------------ | ---------------------------------------------------------------- | ----------------------------- |
+| `openai`     | `gpt-realtime-whisper`                                           | Realtime adapter              |
+| `deepgram`   | `nova-3`, `flux`                                                 | Catalog only; adapter pending |
+| `elevenlabs` | `scribe_v2`, `scribe_v2_realtime`                                | Batch and realtime adapter    |
+| `mistral`    | `voxtral-mini-2602`, `voxtral-mini-transcribe-realtime-2602`     | Batch and realtime adapter    |
+| `xai`        | `xai-stt-batch`, `xai-stt-streaming`                             | Catalog only; adapter pending |
+| `qwen`       | `qwen3.5-omni`, `qwen3-omni-flash`                               | Realtime adapter              |
+
+Provider-specific runbooks are maintained under
+[speech-to-text](../speech-to-text/index.md).
 
 Some providers may require more than one model identifier internally. For
 example, an OpenAI realtime adapter can open a socket with one realtime model
