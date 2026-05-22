@@ -735,7 +735,18 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [configProvider, providers, savedModelId, savedSpeechModelId, savedSpeechProviderId, step]);
+	}, [
+		configProvider,
+		providers,
+		savedImageCreatorOperator,
+		savedModelId,
+		savedMusicCreatorOperator,
+		savedSpeechModelId,
+		savedSpeechProviderId,
+		savedTextToSpeechOperator,
+		savedTextToVideoOperator,
+		step,
+	]);
 
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
