@@ -390,8 +390,10 @@ function PageContent(): ReactElement {
 				<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 					<ChatContainerContent
 						className={cn(
-							'mx-auto min-h-full w-full max-w-4xl gap-5 px-2 pb-28',
-							showEmptyConversation ? 'justify-center pb-40 pt-24' : 'pt-6'
+							'mx-auto w-full max-w-4xl gap-5 px-2',
+							showEmptyConversation
+								? 'h-full min-h-0 justify-center overflow-hidden pb-36 pt-12'
+								: 'min-h-full pb-28 pt-6'
 						)}
 					>
 						{showEmptyConversation ? (
@@ -453,7 +455,7 @@ function PageContent(): ReactElement {
 								})}
 							</>
 						)}
-						<ChatContainerScrollAnchor />
+						<ChatContainerScrollAnchor className={showEmptyConversation ? 'h-0' : undefined} />
 					</ChatContainerContent>
 					<div className="pointer-events-none absolute inset-x-0 bottom-24 flex justify-center">
 						<ScrollButton
