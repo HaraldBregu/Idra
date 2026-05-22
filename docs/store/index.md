@@ -42,14 +42,11 @@ interface SettingsStore {
 	imageCreator?: ModelModuleSettings;
 	textToVideo?: ModelModuleSettings;
 	textToSound?: ModelModuleSettings;
-	ocr?: OcrModuleSettings;
-	embedding?: EmbeddingModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
 	heartbeat?: HeartbeatStoreState;
 	connectors?: Connectors;
 	channels?: Channels;
-	appSettings?: { readonly keepAwakeEnabled: boolean };
 }
 
 interface Connectors {
@@ -81,14 +78,11 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 | `imageCreator`   | Text to image     | [text-to-image.md](../models/text-to-image.md)               | Image generation/editing provider/model settings.                      |
 | `textToVideo`    | Text to video     | [text-to-video.md](../models/text-to-video.md)               | Video generation provider/model settings.                              |
 | `textToSound`    | Text to sound     | [music-creator.md](../models/music-creator.md)               | Sound, audio, and music generation provider/model settings.            |
-| `ocr`            | OCR               | [ocr.md](../models/ocr.md)                                   | OCR endpoint settings or OCR provider/model settings.                  |
-| `embedding`      | Embedding         | [embedding.md](../models/embedding.md)                       | Embedding provider/model and index settings.                           |
 | `taskScheduler`  | Task scheduler    | [scheduled/index.md](../tasks/scheduled/index.md)            | Managed schedule state, Friday cron state, and legacy cron task state. |
 | `backgroundTask` | Background task   | [background/index.md](../tasks/background/index.md)          | Task policy settings only; task records stay in memory.                |
 | `heartbeat`      | Heartbeat         | [heartbeat/index.md](../heartbeat/index.md)                  | Heartbeat run state and last delivered heartbeat text by key.          |
 | `connectors`     | Connectors        | [providers/index.md](../providers/index.md)                  | Connector configuration records and credential references by service.  |
 | `channels`       | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
-| `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
 
 Do not add new cross-module bags such as `service`, `agent`, or `settings`.
 Add a new root key only when a module owns that data.
@@ -140,36 +134,6 @@ Read normalization drops invalid module settings. A module setting is valid only
 when it has a non-empty `providerId` and `modelId`. `providerId` is trimmed and
 lowercased; `modelId` is trimmed; `effort` is kept only when it is a supported
 model reasoning effort.
-
-## OCR Settings
-
-OCR can start endpoint-backed and later become provider-backed without changing
-its root key.
-
-```ts
-type OcrModuleSettings =
-	| {
-			mode: 'endpoint';
-			endpoint: string;
-	  }
-	| ({
-			mode: 'model';
-	  } & ModelModuleSettings);
-```
-
-## Embedding Settings
-
-```ts
-interface EmbeddingModuleSettings extends ModelModuleSettings {
-	index?: {
-		backend: 'local' | 'external';
-		namespace?: string;
-	};
-}
-```
-
-Embedding credentials still belong in `modelProviders` or connector-specific
-secret storage, not inside `embedding`.
 
 ## Task Scheduler Settings
 
@@ -241,15 +205,6 @@ Channel records may include tokens, webhook URLs, client secrets, account
 allowlists, default targets, and heartbeat visibility settings. Those values
 belong to the channel owner. They must not be copied into task input, schedule
 payloads, model module options, or tool payloads.
-
-## App Settings
-
-Current app settings defaults are:
-
-- `appSettings.keepAwakeEnabled`: `false`.
-
-Permission status and app-level microphone or camera toggles are runtime state
-and should not be persisted in the settings store.
 
 ## Migration And Compatibility Rules
 
