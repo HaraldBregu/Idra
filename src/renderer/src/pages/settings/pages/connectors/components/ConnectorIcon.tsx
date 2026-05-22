@@ -1,5 +1,6 @@
 import React from 'react';
-import { Plug } from 'lucide-react';
+import openaiIconDark from '@resources/icons/brands/openai/fallback_lobehub/png_dark/openai.png';
+import openaiIconLight from '@resources/icons/brands/openai/fallback_lobehub/png_light/openai.png';
 import { cn } from '@/lib/utils';
 import {
 	OPENAI_CONNECTOR_CATALOG,
@@ -98,10 +99,20 @@ export function ConnectorIcon({
 					/>
 				</>
 			) : (
-				<Plug
-					className={cn('size-full p-1 text-muted-foreground', fallbackClassName)}
-					strokeWidth={1.8}
-				/>
+				<>
+					<img
+						src={openaiIconLight}
+						alt=""
+						draggable={false}
+						className={cn('size-full object-cover', fallbackClassName)}
+					/>
+					<img
+						src={openaiIconDark}
+						alt=""
+						draggable={false}
+						className={cn('hidden size-full object-cover dark:block', fallbackClassName)}
+					/>
+				</>
 			)}
 		</span>
 	);
