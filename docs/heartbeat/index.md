@@ -221,6 +221,23 @@ Heartbeat state is audit-oriented and small. Runtime state records last run
 times and last delivered text by key. Heartbeat runs do not become background
 task records.
 
+Heartbeat runtime state must be stored and retrieved through `StoreService`.
+`HeartbeatService` should use `getHeartbeatState()` and `setHeartbeatState()`
+from its injected store dependency, not read or write the Electron store
+directly or keep a second persistent cache.
+
+Heartbeat is a service module with explicit dependencies: store, logger,
+event bus, startup files, and optional agent service and channel registry
+dependencies. Runtime code should use those injected dependencies rather than
+global singletons.
+
+Renderer access goes through the dedicated heartbeat preload and IPC module.
+`window.heartbeat` can read heartbeat status, last delivery, and timing
+settings, and can set heartbeat timing, enabled state, system events, and
+manual wake requests through `HeartbeatIpc` and `HeartbeatChannels`. Heartbeat
+renderer writes should use those heartbeat-specific IPC channels instead of a
+generic store or app IPC path.
+
 ## HEARTBEAT.md
 
 `HEARTBEAT.md` is optional. When present, it acts as the heartbeat checklist for
