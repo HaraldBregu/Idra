@@ -1,4 +1,5 @@
-import type { OpenAiConnectorCatalogEntry, OpenAiConnectorId } from '../connectors';
+import type { OpenAiConnectorId } from '../connectors';
+import type { OpenAiConnectorCatalogEntry } from './types';
 import type {
 	ProviderConnectorDocsMetadata,
 	ProviderConnectorRuntimeStatus,

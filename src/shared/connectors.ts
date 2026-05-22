@@ -1,4 +1,30 @@
 import { PROVIDER_CONNECTOR_DOCS } from './connector/provider-docs';
+import type {
+	ConnectorAuthKind,
+	DirectConnectorCatalogEntry,
+	OpenAiConnectorCatalogEntry,
+} from './connector/types';
+export type {
+	Connector,
+	ConnectorApprovalMode,
+	ConnectorAuthKind,
+	ConnectorCallToolOptions,
+	ConnectorCatalogExample,
+	ConnectorConfig,
+	ConnectorDocumentationPage,
+	ConnectorDocumentationType,
+	ConnectorInput,
+	ConnectorOAuthConnectResult,
+	ConnectorPlatformDocumentationPage,
+	ConnectorStatus,
+	ConnectorTestResult,
+	ConnectorTool,
+	ConnectorUpdateInput,
+	ConnectorView,
+	DirectConnectorCatalogEntry,
+	GoogleOAuthCredential,
+	OpenAiConnectorCatalogEntry,
+} from './connector/types';
 
 export const CONNECTOR_PRIORITY_TIERS = ['P0', 'P1', 'P2', 'P3'] as const;
 export type ConnectorPriorityTier = (typeof CONNECTOR_PRIORITY_TIERS)[number];
@@ -14,8 +40,6 @@ export const CONNECTOR_DOCUMENTATION_STATUSES = [
 ] as const;
 export type ConnectorDocumentationStatus = (typeof CONNECTOR_DOCUMENTATION_STATUSES)[number];
 
-export type ConnectorDocumentationType = 'official_docs';
-
 export type ConnectorImplementationPattern =
 	| 'direct_api_or_connector_provider_tool'
 	| 'custom_mcp_or_tool_wrapper_over_openapi'
@@ -27,59 +51,6 @@ export type ConnectorImplementationPattern =
 	| 'sandboxed_command_tool_or_mcp_server';
 
 export type ConnectorRecommendedInitialMode = 'read_only_then_draft_write_actions';
-
-export interface ConnectorDocumentationPage {
-	readonly label: string;
-	readonly url: string;
-	readonly status: ConnectorDocumentationStatus;
-	readonly type: ConnectorDocumentationType;
-}
-
-export interface ConnectorPlatformDocumentationPage {
-	readonly label: string;
-	readonly url: string;
-}
-
-export interface ConnectorCatalogExample {
-	readonly tool: string;
-	readonly input: Readonly<Record<string, unknown>>;
-}
-
-export interface DirectConnectorCatalogEntry {
-	readonly id: string;
-	readonly name: string;
-	readonly vendor: string;
-	readonly category: string;
-	readonly priorityTier: ConnectorPriorityTier;
-	readonly usefulnessScore0To100: number;
-	readonly implementationPattern: ConnectorImplementationPattern;
-	readonly recommendedProviderStrategy: string;
-	readonly documentationPages: readonly ConnectorDocumentationPage[];
-	readonly authModels: readonly string[];
-	readonly coreAgentActions: readonly string[];
-	readonly writeRisk: ConnectorWriteRisk;
-	readonly humanApprovalRequiredFor: readonly string[];
-	readonly recommendedInitialMode: ConnectorRecommendedInitialMode;
-	readonly notes: string;
-}
-
-export interface OpenAiConnectorCatalogEntry {
-	readonly id: string;
-	readonly directConnectorId: DirectConnectorCatalogId;
-	readonly name: string;
-	readonly description: string;
-	readonly docsPath: string;
-	readonly docsLabel: string;
-	readonly environmentSecretNames: readonly string[];
-	readonly platformDocumentationPages: readonly ConnectorPlatformDocumentationPage[];
-	readonly example: ConnectorCatalogExample;
-	readonly tools: readonly string[];
-	readonly scopes: readonly string[];
-	readonly setupUrl: string;
-	readonly setupInstructions: readonly string[];
-	readonly authKind?: 'google_oauth';
-	readonly redirectUri?: string;
-}
 
 const DOC_STATUS = 'official_public_web_checked_2026-05-19';
 const DOC_STATUS_UNVERIFIED = 'official_public_url_not_reverified_in_this_run';
@@ -1087,97 +1058,6 @@ export const OPENAI_CONNECTOR_CATALOG = [
 ] as const satisfies readonly OpenAiConnectorCatalogEntry[];
 
 export type OpenAiConnectorId = (typeof OPENAI_CONNECTOR_CATALOG)[number]['id'];
-export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
-export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
-export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth';
-
-export interface GoogleOAuthCredential {
-	provider: 'google';
-	clientId?: string;
-	clientSecret?: string;
-	redirectUri: string;
-	accessToken?: string;
-	refreshToken?: string;
-	expiresAt?: number;
-	tokenType?: string;
-	scope?: string;
-	email?: string;
-	connectedAt?: string;
-}
-
-export interface ConnectorTool {
-	name: string;
-	description?: string;
-	inputSchema?: Record<string, unknown>;
-	requiresApproval: boolean;
-}
-
-export interface ConnectorConfig {
-	id: string;
-	name: string;
-	connectorId: OpenAiConnectorId;
-	serverLabel: string;
-	serverDescription?: string;
-	enabled: boolean;
-	authorization: string;
-	oauth?: GoogleOAuthCredential;
-	requireApproval: ConnectorApprovalMode;
-	allowedTools: string[];
-	deferLoading: boolean;
-	tools: ConnectorTool[];
-	lastRefreshedAt?: string;
-	createdAt: string;
-	updatedAt: string;
-	lastError?: string;
-}
-
-export interface ConnectorView {
-	id: string;
-	name: string;
-	connectorId: OpenAiConnectorId;
-	authKind: ConnectorAuthKind;
-	serverLabel: string;
-	enabled: boolean;
-	status: ConnectorStatus;
-	requireApproval: ConnectorApprovalMode;
-	allowedToolsCount: number;
-	toolsCount: number;
-	deferLoading: boolean;
-	lastRefreshedAt?: string;
-	lastError?: string;
-	connectedAccount?: string;
-}
-
-export interface ConnectorInput {
-	name: string;
-	connectorId: OpenAiConnectorId;
-	serverLabel?: string;
-	serverDescription?: string;
-	authorization?: string;
-	requireApproval?: ConnectorApprovalMode;
-	allowedTools?: string[];
-	deferLoading?: boolean;
-	enabled?: boolean;
-}
-
-export type ConnectorUpdateInput = Partial<ConnectorInput>;
-
-export interface ConnectorTestResult {
-	status: ConnectorStatus;
-	message?: string;
-}
-
-export interface ConnectorOAuthConnectResult {
-	status: ConnectorStatus;
-	message?: string;
-	connectedAccount?: string;
-}
-
-export interface ConnectorCallToolOptions {
-	timeoutMs?: number;
-	retries?: number;
-}
-
 export function getConnectorCatalogItem(id: OpenAiConnectorId) {
 	return OPENAI_CONNECTOR_CATALOG.find((connector) => connector.id === id);
 }
