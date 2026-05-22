@@ -731,7 +731,7 @@ const StartPage: React.FC = () => {
 				);
 			}
 
-			goToStep('operators');
+			goToStep('models');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save provider API keys.'));
 		} finally {
@@ -806,7 +806,7 @@ const StartPage: React.FC = () => {
 	}
 
 	function handlePrimaryAction(): void {
-		if (step === 'welcome') {
+		if (step === 'presentation') {
 			goToStep('providers');
 			return;
 		}
@@ -816,7 +816,7 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		if (step === 'operators') {
+		if (step === 'models') {
 			void handleSaveAgentModel();
 			return;
 		}
@@ -825,14 +825,14 @@ const StartPage: React.FC = () => {
 	}
 
 	function getPrimaryLabel(): string {
-		if (step === 'welcome') return 'Get started';
+		if (step === 'presentation') return 'Get started';
 		if (savingProviderId !== null || savingConfig) return 'Saving...';
 		return 'Continue';
 	}
 
 	function isPrimaryDisabled(): boolean {
 		if (step === 'providers') return !canContinueProviders;
-		if (step === 'operators') return !canSaveAgentModel;
+		if (step === 'models') return !canSaveAgentModel;
 		return isBusy;
 	}
 
