@@ -775,7 +775,7 @@ const StartPage: React.FC = () => {
 
 				const preferredTextToSpeechOption = getPreferredProviderModelOption(
 					nextTextToSpeechGroups,
-					savedTextToSpeechOperator?.provider.id ?? textToSpeechProviderId,
+					savedTextToSpeechOperator?.provider.id ?? '',
 					savedTextToSpeechOperator?.model.id ?? ''
 				);
 				setTextToSpeechProviderId(preferredTextToSpeechOption?.provider.id ?? '');
@@ -783,7 +783,7 @@ const StartPage: React.FC = () => {
 
 				const preferredImageCreatorOption = getPreferredProviderModelOption(
 					nextImageCreatorGroups,
-					savedImageCreatorOperator?.provider.id ?? imageCreatorProviderId,
+					savedImageCreatorOperator?.provider.id ?? '',
 					savedImageCreatorOperator?.model.id ?? ''
 				);
 				setImageCreatorProviderId(preferredImageCreatorOption?.provider.id ?? '');
@@ -791,7 +791,7 @@ const StartPage: React.FC = () => {
 
 				const preferredTextToVideoOption = getPreferredProviderModelOption(
 					nextTextToVideoGroups,
-					savedTextToVideoOperator?.provider.id ?? textToVideoProviderId,
+					savedTextToVideoOperator?.provider.id ?? '',
 					savedTextToVideoOperator?.model.id ?? ''
 				);
 				setTextToVideoProviderId(preferredTextToVideoOption?.provider.id ?? '');
@@ -799,7 +799,7 @@ const StartPage: React.FC = () => {
 
 				const preferredMusicCreatorOption = getPreferredProviderModelOption(
 					nextMusicCreatorGroups,
-					savedMusicCreatorOperator?.provider.id ?? musicCreatorProviderId,
+					savedMusicCreatorOperator?.provider.id ?? '',
 					savedMusicCreatorOperator?.model.id ?? ''
 				);
 				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
