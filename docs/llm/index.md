@@ -1,7 +1,6 @@
 # Large Language Model Providers
 
-This folder documents the provider-specific LLM runtime used by Friday. The
-folder name intentionally matches the requested path `large-laanguage-model`.
+This folder documents the provider-specific LLM runtime used by Friday.
 
 The canonical module contract remains
 [Large Language Model](../models/large-language-model.md). These files add the
@@ -60,4 +59,3 @@ must not supply credentials or base URLs.
 - Provider adapter factory: `src/main/provider/factory.ts`
 - Provider-neutral runtime contract: `src/main/provider/types.ts`
 - Agent module contract: `docs/models/large-language-model.md`
-
