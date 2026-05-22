@@ -18,6 +18,7 @@ import { createElevenLabsSpeechToTextAdapter } from './elevenlabs-realtime-adapt
 import { createMistralRealtimeSpeechToTextAdapter } from './mistral-realtime-adapter';
 import { createOpenAIRealtimeSpeechToTextAdapter } from './openai-realtime-adapter';
 import { createQwenRealtimeSpeechToTextAdapter } from './qwen-realtime-adapter';
+import { createXaiSpeechToTextAdapter } from './xai-realtime-adapter';
 import type { SpeechToTextRealtimeAdapter, SpeechToTextRealtimeSession } from './types';
 
 interface SpeechToTextServiceDependencies {
@@ -40,6 +41,7 @@ export class SpeechToTextService {
 			createOpenAIRealtimeSpeechToTextAdapter(),
 			createElevenLabsSpeechToTextAdapter(),
 			createMistralRealtimeSpeechToTextAdapter(),
+			createXaiSpeechToTextAdapter(),
 			createQwenRealtimeSpeechToTextAdapter(),
 		];
 	}

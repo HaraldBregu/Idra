@@ -35,6 +35,13 @@ export {
 	QwenRealtimeSpeechToTextAdapter,
 	resolveQwenRealtimeSpeechToTextModel,
 } from './qwen-realtime-adapter';
+export {
+	createXaiRealtimeTranscriptionSocket,
+	createXaiRealtimeTranscriptionUrl,
+	createXaiSpeechToTextAdapter,
+	createXaiSpeechToTextUrl,
+	XaiSpeechToTextAdapter,
+} from './xai-realtime-adapter';
 export { SpeechToTextService } from './service';
 export type {
 	SpeechToTextRealtimeAdapter,

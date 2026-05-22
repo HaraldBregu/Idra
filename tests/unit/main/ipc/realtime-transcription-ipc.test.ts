@@ -19,6 +19,9 @@ import {
 	createQwenRealtimeTranscriptionResponseCreate,
 	createQwenRealtimeTranscriptionSessionUpdate,
 	createQwenRealtimeTranscriptionUrl,
+	createXaiRealtimeTranscriptionUrl,
+	createXaiSpeechToTextAdapter,
+	createXaiSpeechToTextUrl,
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
 	hasStreamingRealtimeTranscriptionAudio,
@@ -42,6 +45,8 @@ import {
 	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
+	XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID,
 } from '../../../../src/shared/provider-models';
 
 describe('realtime transcription IPC', () => {
@@ -231,6 +236,35 @@ describe('realtime transcription IPC', () => {
 		expect(adapter.supports('openai', ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID)).toBe(false);
 	});
 
+	it('maps xAI STT base URLs to HTTP and realtime endpoints', () => {
+		expect(createXaiSpeechToTextUrl('https://api.x.ai/v1')).toBe(
+			'https://api.x.ai/v1/stt'
+		);
+		expect(createXaiSpeechToTextUrl('https://api.x.ai')).toBe(
+			'https://api.x.ai/v1/stt'
+		);
+
+		const realtimeUrl = new URL(
+			createXaiRealtimeTranscriptionUrl('https://api.x.ai/v1', { language: 'en-US' })
+		);
+		expect(realtimeUrl.origin).toBe('wss://api.x.ai');
+		expect(realtimeUrl.pathname).toBe('/v1/stt');
+		expect(realtimeUrl.searchParams.get('sample_rate')).toBe(
+			String(REALTIME_TRANSCRIPTION_SAMPLE_RATE)
+		);
+		expect(realtimeUrl.searchParams.get('encoding')).toBe('pcm');
+		expect(realtimeUrl.searchParams.get('interim_results')).toBe('true');
+		expect(realtimeUrl.searchParams.get('language')).toBe('en');
+	});
+
+	it('routes both xAI STT catalog models to the xAI adapter', () => {
+		const adapter = createXaiSpeechToTextAdapter();
+
+		expect(adapter.supports('xai', XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(adapter.supports('xai', XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(adapter.supports('openai', XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID)).toBe(false);
+	});
+
 	it('keeps the Mistral realtime STT model id aligned with the provider catalog', () => {
 		expect(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID).toBe(
 			'voxtral-mini-transcribe-realtime-2602'
@@ -327,6 +361,49 @@ describe('realtime transcription IPC', () => {
 			type: 'started',
 			sessionId: session.id,
 			model: ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
+		});
+	});
+
+	it('starts the xAI batch STT model through default service adapters', async () => {
+		const provider = {
+			id: 'xai',
+			name: 'xAI',
+			baseUrl: 'https://api.x.ai/v1',
+			apiKey: 'xai-key',
+		};
+		const service = new SpeechToTextService({
+			store: {
+				getSpeechToTextOperator: jest.fn(() => ({
+					id: 'speech-to-text',
+					name: 'Speech to text',
+					docsPath: 'models/speech-to-text.md',
+					status: 'implemented',
+					provider,
+					model: {
+						id: XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
+						name: 'xAI STT Batch',
+					},
+				})),
+				getProviderById: jest.fn(() => provider),
+			} as never,
+		});
+		const owner = {
+			id: 1,
+			once: jest.fn(),
+			isDestroyed: jest.fn(() => false),
+			send: jest.fn(),
+		};
+
+		const session = await service.start(owner as never);
+
+		expect(session).toMatchObject({
+			model: XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
+			sampleRate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
+		});
+		expect(owner.send).toHaveBeenCalledWith(RealtimeTranscriptionChannels.event, {
+			type: 'started',
+			sessionId: session.id,
+			model: XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
 		});
 	});
 });

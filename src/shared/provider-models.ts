@@ -100,6 +100,8 @@ export const QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID = 'qwen3.5-omni';
 export const QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-omni-flash';
 export const ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2';
 export const ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2_realtime';
+export const XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID = 'xai-stt-batch';
+export const XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID = 'xai-stt-streaming';
 
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	openai: [model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT Realtime Whisper')],
@@ -112,7 +114,10 @@ export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 		model(MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID, 'Voxtral Mini 2602'),
 		model(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID, 'Voxtral Mini Transcribe Realtime 2602'),
 	],
-	xai: [model('xai-stt-batch', 'xAI STT Batch'), model('xai-stt-streaming', 'xAI STT Streaming')],
+	xai: [
+		model(XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID, 'xAI STT Batch'),
+		model(XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID, 'xAI STT Streaming'),
+	],
 	qwen: [
 		model(QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3.5 Omni'),
 		model(QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3 Omni Flash'),
