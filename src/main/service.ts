@@ -28,7 +28,6 @@ import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
 import { startupFilesTool } from './tools/startup';
-import { createTextToImageTool } from './tools/text-to-image';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
@@ -49,7 +48,6 @@ import {
 import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
-import type { TextToImageService } from './text-to-image';
 
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
@@ -84,7 +82,6 @@ export interface AgentServiceDependencies {
 	mcpRegistry?: McpRegistry;
 	skills?: SkillsService;
 	taskManager?: TaskManager;
-	textToImage?: TextToImageService;
 }
 
 export interface AgentToolsFactoryContext {
@@ -195,9 +192,6 @@ export class AgentService {
 			options.toolsFactory ??
 			(() => [
 				...createTools({ profile: 'full', allow: [], deny: DEFAULT_LOCAL_TOOL_DENY }),
-				...(this.dependencies.textToImage?.canCreateImages()
-					? [createTextToImageTool(this.dependencies.textToImage)]
-					: []),
 				...(this.dependencies.connectors?.createAgentTools() ?? []),
 			]);
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
