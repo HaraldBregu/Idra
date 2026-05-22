@@ -241,7 +241,7 @@ export function ConnectorCatalogItem({
 							Redirect: <span className="font-mono">{('redirectUri' in item && item.redirectUri) || 'Not configured'}</span>
 						</SettingsNotice>
 					) : (
-					<SettingsField id={`${idPrefix}-connector-authorization`} label="OAuth access token">
+						<SettingsField id={`${idPrefix}-connector-authorization`} label="OAuth access token">
 							<Input
 								id={`${idPrefix}-connector-authorization`}
 								type="password"
@@ -295,7 +295,7 @@ export function ConnectorCatalogItem({
 							</div>
 							<Switch
 								size="sm"
-									id={`${idPrefix}-connector-defer-loading`}
+								id={`${idPrefix}-connector-defer-loading`}
 								checked={form.deferLoading}
 								onCheckedChange={(checked) => update('deferLoading', checked)}
 							/>
