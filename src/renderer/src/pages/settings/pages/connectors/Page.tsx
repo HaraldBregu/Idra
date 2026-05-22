@@ -1,11 +1,8 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { AlertTriangle, Plug } from 'lucide-react';
-import type { OpenAiConnectorId } from '../../../../../../shared/connector';
+import type { ConnectorInput } from '../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
-	SettingsField,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -14,21 +11,29 @@ import {
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
 import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
-import { useConnectors, type ConnectorCatalog } from './hooks/useConnectors';
-function catalogItem(catalog: ConnectorCatalog, connectorId: string): ConnectorCatalog[number] | undefined {
-	return catalog.find((c) => c.id === connectorId);
-}
+import { useConnectors } from './hooks/useConnectors';
 
-const ConnectorsPage: React.FC = () => {
+const ConnectorsPage = (): React.JSX.Element => {
 	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId,
 		connectingId,
 		error, setError,
 		statusMessage,
+		load,
 		connectOAuth,
 		toggleConnector,
 	} = useConnectors();
+
+	const addConnector = async (input: ConnectorInput): Promise<void> => {
+		setError(null);
+		try {
+			await window.connectors.add(input);
+			await load();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : String(err));
+		}
+	};
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
@@ -47,8 +52,6 @@ const ConnectorsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
-
-			{selected}
 
 			<SettingsSection title="Configured connectors">
 				{connectors.length === 0 ? (
@@ -83,6 +86,7 @@ const ConnectorsPage: React.FC = () => {
 							<ConnectorCatalogItem
 								key={item.id}
 								item={item}
+								onAdd={addConnector}
 							/>
 						))}
 					</div>
