@@ -15,6 +15,7 @@ import {
 	type AgentToolManagementOptions,
 } from '../tools/management';
 import { compact } from './compaction';
+import { agentLogger } from './logger';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
 import type { SessionFile } from '../session/store';
 import type {
