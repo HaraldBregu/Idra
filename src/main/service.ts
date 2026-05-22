@@ -37,7 +37,7 @@ import type { AgentTool, ToolContext } from './tools/types';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
-import type { SkillPromptChoice } from './skills/types';
+import type { SkillPromptChoice } from './skills/core/types';
 import {
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
