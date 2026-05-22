@@ -84,7 +84,7 @@ type AgentModelOption = {
 };
 
 const PRODUCT_NAME = 'Friday';
-const MASKED_API_KEY = '********' as const;
+const MASKED_API_KEY_LABEL = 'sk-************' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = ['welcome', 'providers', 'operators'];
 
@@ -271,11 +271,17 @@ const StartPage: React.FC = () => {
 					actionableProviderCatalog.map((provider, index) => {
 						const current = entries.find((entry) => entry.providerId === provider.id);
 						const saved = savedByProviderId.get(provider.id) ?? false;
+						const draft = current?.apiKey ?? '';
+						const hasDraft = draft.trim().length > 0;
 						return {
 							providerId: provider.id,
-							apiKey: saved ? MASKED_API_KEY : (current?.apiKey ?? ''),
+							apiKey: draft,
 							apiKeySaved: saved,
-							editing: saved ? false : (current?.editing ?? (!hasSavedProvider && index === 0)),
+							editing: hasDraft
+								? (current?.editing ?? false)
+								: saved
+									? false
+									: (current?.editing ?? (!hasSavedProvider && index === 0)),
 						};
 					})
 				);
@@ -464,11 +470,6 @@ const StartPage: React.FC = () => {
 		const entry = providerEntries.find((item) => item.providerId === providerId);
 		if (!entry) return false;
 
-		if (entry.apiKeySaved && entry.apiKey === MASKED_API_KEY) {
-			updateProviderEntry(providerId, { editing: false });
-			return true;
-		}
-
 		const apiKey = entry.apiKey.trim();
 		if (!apiKey) {
 			setErrorMessage('Enter an API key before saving this provider.');
@@ -480,7 +481,7 @@ const StartPage: React.FC = () => {
 		try {
 			await window.app.setProviderApiKey(providerId, apiKey);
 			updateProviderEntry(providerId, {
-				apiKey: MASKED_API_KEY,
+				apiKey: '',
 				apiKeySaved: true,
 				editing: false,
 			});
@@ -501,7 +502,7 @@ const StartPage: React.FC = () => {
 		try {
 			const entriesToSave = providerEntries.filter((entry) => {
 				return (
-					entry.apiKey.trim().length > 0 && (!entry.apiKeySaved || entry.apiKey !== MASKED_API_KEY)
+					entry.apiKey.trim().length > 0
 				);
 			});
 
@@ -514,7 +515,7 @@ const StartPage: React.FC = () => {
 				setProviderEntries((entries) =>
 					entries.map((entry) =>
 						savedProviderIds.has(entry.providerId)
-							? { ...entry, apiKey: MASKED_API_KEY, apiKeySaved: true, editing: false }
+							? { ...entry, apiKey: '', apiKeySaved: true, editing: false }
 							: entry
 					)
 				);
@@ -665,10 +666,7 @@ const StartPage: React.FC = () => {
 						const savingThisProvider =
 							savingProviderId === provider.id || savingProviderId === 'all';
 						const canSaveProvider =
-							!!entry &&
-							!savingThisProvider &&
-							((entry.apiKeySaved && entry.apiKey === MASKED_API_KEY) ||
-								entry.apiKey.trim().length > 0);
+							!!entry && !savingThisProvider && entry.apiKey.trim().length > 0;
 
 						return (
 							<Card
@@ -705,7 +703,8 @@ const StartPage: React.FC = () => {
 											</div>
 											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
 												{connected && entry?.apiKey === MASKED_API_KEY
-													? 'sk-************'
+												{connected
+													? MASKED_API_KEY_LABEL
 													: provider.capabilities}
 											</p>
 										</div>
@@ -720,7 +719,7 @@ const StartPage: React.FC = () => {
 														onClick={() => {
 															updateProviderEntry(provider.id, {
 																editing: true,
-																apiKey: MASKED_API_KEY,
+																apiKey: '',
 															});
 														}}
 													>
@@ -749,13 +748,14 @@ const StartPage: React.FC = () => {
 									{provider.supported && editing && entry ? (
 										<div className="flex items-center gap-2 px-3 pb-3">
 											<Input
+												aria-label={`${provider.name} API key`}
 												autoComplete="off"
 												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
 												disabled={savingThisProvider}
 												onChange={(event) => {
 													handleProviderApiKeyChange(provider.id, event.target.value);
 												}}
-												placeholder="sk-..."
+												placeholder="API key"
 												spellCheck={false}
 												type="password"
 												value={entry.apiKey}
@@ -767,7 +767,7 @@ const StartPage: React.FC = () => {
 												disabled={savingThisProvider}
 												onClick={() => {
 													updateProviderEntry(provider.id, {
-														apiKey: entry.apiKeySaved ? MASKED_API_KEY : '',
+														apiKey: '',
 														editing: false,
 													});
 												}}
