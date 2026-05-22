@@ -459,12 +459,32 @@ const StartPage: React.FC = () => {
 	);
 	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
 	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
+	const selectedTextToSpeechOption = getProviderModelOption(
+		textToSpeechModelGroups,
+		textToSpeechProviderId,
+		selectedTextToSpeechModel
+	);
+	const selectedImageCreatorOption = getProviderModelOption(
+		imageCreatorModelGroups,
+		imageCreatorProviderId,
+		selectedImageCreatorModel
+	);
+	const selectedTextToVideoOption = getProviderModelOption(
+		textToVideoModelGroups,
+		textToVideoProviderId,
+		selectedTextToVideoModel
+	);
+	const selectedMusicCreatorOption = getProviderModelOption(
+		musicCreatorModelGroups,
+		musicCreatorProviderId,
+		selectedMusicCreatorModel
+	);
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
 		: agentModelOptions.length === 0
 			? 'No models available'
 			: `${agentModelOptions.length} models available`;
-	const canSaveAgentModel =
+	const canSaveModelSetup =
 		selectedAgentModelOption !== undefined && !loadingModels && !savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
 	const connectedProviderIds = useMemo(
