@@ -158,8 +158,51 @@ export async function createAgentTools(
 ): Promise<CreateAgentToolsResult> {
 	const diagnostics = createToolDiagnostics();
 	const plan = planToolConstruction(options.toolsAllow);
+	const candidates = await buildToolCandidates(options, plan, diagnostics);
+	const policy = applyToolPolicyPipeline(candidates, {
+		sender: options.sender,
+		stages: buildPolicyStages(options),
+		diagnostics,
+	});
+	const tools = prepareRuntimeTools(policy.tools, options, plan, diagnostics);
+
+	return {
+		tools,
+		candidates,
+		plan,
+		diagnostics,
+		async dispose() {
+			await options.lspRuntime?.dispose?.();
+			diagnostics.emit({ type: 'tool.runtime.disposed', details: { runId: options.runId } });
+		},
+	};
+}
+
+async function buildToolCandidates(
+	options: CreateAgentToolsOptions,
+	plan: ToolConstructionPlan,
+	diagnostics: ToolDiagnostics
+): Promise<AgentTool[]> {
 	const candidates: AgentTool[] = [];
 
+	addCoreToolCandidates(candidates, options, plan, diagnostics);
+	await addPluginToolCandidates(candidates, options, plan, diagnostics);
+	await addMcpToolCandidates(candidates, options, plan, diagnostics);
+	await addLspToolCandidates(candidates, options, plan);
+	addClientToolCandidates(candidates, options);
+
+	assertUniqueToolNames(candidates);
+	diagnostics.builtTools.push(...candidates.map((tool) => tool.name));
+
+	return candidates;
+}
+
+function addCoreToolCandidates(
+	candidates: AgentTool[],
+	options: CreateAgentToolsOptions,
+	plan: ToolConstructionPlan,
+	diagnostics: ToolDiagnostics
+): void {
 	const fsPolicy = options.config?.tools?.fs;
 	if (plan.includeFileTools) {
 		candidates.push(
@@ -179,48 +222,76 @@ export async function createAgentTools(
 			reason: 'sandbox disallows shell tools',
 		});
 	}
+}
 
-	const existingNames = new Set(candidates.map((tool) => normalizeToolName(tool.name)));
-	if (plan.includePluginTools && options.pluginRegistry) {
-		candidates.push(
-			...(await options.pluginRegistry.resolveTools({
-				context: pluginContext(options),
-				toolsAllow: options.toolsAllow,
-				toolsDeny: options.toolsDeny,
-				existingToolNames: existingNames,
-				diagnostics,
-			}))
-		);
-	}
+async function addPluginToolCandidates(
+	candidates: AgentTool[],
+	options: CreateAgentToolsOptions,
+	plan: ToolConstructionPlan,
+	diagnostics: ToolDiagnostics
+): Promise<void> {
+	if (!plan.includePluginTools || !options.pluginRegistry) return;
+	candidates.push(
+		...(await options.pluginRegistry.resolveTools({
+			context: pluginContext(options),
+			toolsAllow: options.toolsAllow,
+			toolsDeny: options.toolsDeny,
+			existingToolNames: candidateNames(candidates),
+			diagnostics,
+		}))
+	);
+}
 
-	if (plan.includeMcpTools) {
-		candidates.push(
-			...(await materializeMcpTools({
-				runtime: options.mcpRuntime,
-				context: {
-					sessionId: options.sessionId,
-					runId: options.runId,
-					workspaceDir: options.workspaceDir,
-				},
-				existingToolNames: new Set(candidates.map((tool) => normalizeToolName(tool.name))),
-				diagnostics,
-			}))
-		);
-	}
+async function addMcpToolCandidates(
+	candidates: AgentTool[],
+	options: CreateAgentToolsOptions,
+	plan: ToolConstructionPlan,
+	diagnostics: ToolDiagnostics
+): Promise<void> {
+	if (!plan.includeMcpTools) return;
+	candidates.push(
+		...(await materializeMcpTools({
+			runtime: options.mcpRuntime,
+			context: {
+				sessionId: options.sessionId,
+				runId: options.runId,
+				workspaceDir: options.workspaceDir,
+			},
+			existingToolNames: candidateNames(candidates),
+			diagnostics,
+		}))
+	);
+}
 
-	if (plan.includeLspTools)
-		candidates.push(...(await materializeLspTools({ runtime: options.lspRuntime })));
+async function addLspToolCandidates(
+	candidates: AgentTool[],
+	options: CreateAgentToolsOptions,
+	plan: ToolConstructionPlan
+): Promise<void> {
+	if (!plan.includeLspTools) return;
+	candidates.push(...(await materializeLspTools({ runtime: options.lspRuntime })));
+}
 
+function addClientToolCandidates(
+	candidates: AgentTool[],
+	options: CreateAgentToolsOptions
+): void {
 	for (const clientTool of options.clientTools ?? []) {
 		candidates.push(markClientTool(clientTool, options.sender?.channel));
 	}
+}
 
-	assertUniqueToolNames(candidates);
-	diagnostics.builtTools.push(...candidates.map((tool) => tool.name));
+function candidateNames(candidates: AgentTool[]): Set<string> {
+	return new Set(candidates.map((tool) => normalizeToolName(tool.name)));
+}
 
+function buildPolicyStages(
+	options: CreateAgentToolsOptions
+): Partial<Record<PolicyStageName, ToolPolicy | undefined>> {
+	const fsPolicy = options.config?.tools?.fs;
 	const runtimeAllow =
 		options.toolsAllow ?? (hasToolControlsWithoutGrants(options.config) ? [] : undefined);
-	const stages: Partial<Record<PolicyStageName, ToolPolicy | undefined>> = {
+	return {
 		...(options.config?.toolPolicies ?? {}),
 		sandbox: mergeToolPolicy(
 			options.config?.toolPolicies?.sandbox,
@@ -229,12 +300,15 @@ export async function createAgentTools(
 		),
 		runtime: { allow: runtimeAllow, deny: options.toolsDeny },
 	};
-	const policy = applyToolPolicyPipeline(candidates, {
-		sender: options.sender,
-		stages,
-		diagnostics,
-	});
-	let effective = normalizeToolSchemas(policy.tools, {
+}
+
+function prepareRuntimeTools(
+	tools: AgentTool[],
+	options: CreateAgentToolsOptions,
+	plan: ToolConstructionPlan,
+	diagnostics: ToolDiagnostics
+): AgentTool[] {
+	let effective = normalizeToolSchemas(tools, {
 		provider: options.provider,
 		modelId: options.modelId,
 		diagnostics,
@@ -258,16 +332,7 @@ export async function createAgentTools(
 		effective = applyToolSearchCompaction(effective, searchOptions).tools;
 	}
 
-	return {
-		tools: effective,
-		candidates,
-		plan,
-		diagnostics,
-		async dispose() {
-			await options.lspRuntime?.dispose?.();
-			diagnostics.emit({ type: 'tool.runtime.disposed', details: { runId: options.runId } });
-		},
-	};
+	return effective;
 }
 
 function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
