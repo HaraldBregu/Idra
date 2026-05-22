@@ -42,7 +42,7 @@ Current catalog status:
 
 - `MUSIC_CREATOR_MODELS_BY_PROVIDER` maps sound-capable providers to the
   placeholder `music-provider-coming-soon` model id.
-- The operator remains `pending-runtime`; provider-specific sound adapters and
+- The module remains `pending-runtime`; provider-specific sound adapters and
   a registered `sound.create` handler are not implemented yet.
 
 Cataloged sound provider/model choices:

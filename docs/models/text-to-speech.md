@@ -41,7 +41,7 @@ Current catalog status:
 - `elevenlabs` has the concrete `rachel-multilingual` model entry.
 - Other text-to-speech capable providers use the placeholder
   `text-to-speech-provider-coming-soon` model id.
-- The operator remains `pending-runtime`; provider-specific TTS adapters still
+- The module remains `pending-runtime`; provider-specific TTS adapters still
   need to validate model, voice, format, and streaming compatibility before
   text is sent to a provider.
 

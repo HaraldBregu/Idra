@@ -75,12 +75,9 @@ masked placeholder.
 
 ## Step 3: Configure Models
 
-Step id: `operators`
-
-The start page displays this step as `Configure models`. The internal step id
-remains `operators` for route/state compatibility. It loads connected providers,
-assistant settings, speech-to-text settings, and model lists through the preload
-APIs.
+The start page displays this step as `Configure models`. It loads connected
+providers, assistant settings, speech-to-text settings, and model lists through
+the preload APIs.
 
 Only connected providers are shown in model selectors. The reference for this
 step is [docs/models/index.md](../models/index.md); the tables below mirror the

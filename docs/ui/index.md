@@ -12,7 +12,7 @@ window frame, title bar, command menu, route transitions, and chat mode context.
 | --- | --- | --- | --- |
 | Start page | `/start` | `src/renderer/src/pages/start/StartPage.tsx` | First-run setup before the user lands on Home. |
 | Home page | `/home` | `src/renderer/src/pages/home/Page.tsx` | Chatbot UI for the main Friday assistant. |
-| Settings | `/settings/*` | `src/renderer/src/pages/settings` | Ongoing configuration for providers, operators, channels, skills, connectors, automation, and system settings. |
+| Settings | `/settings/*` | `src/renderer/src/pages/settings` | Ongoing configuration for providers, model settings, channels, skills, connectors, automation, and system settings. |
 
 The default route redirects to `/start`. The legacy `/config` route also
 redirects to `/start`.
@@ -33,4 +33,4 @@ The root route renders:
 
 - [Start page](start-page.md)
 - [Home page](home-page.md)
-- [Settings and operators](settings-page.md)
+- [Settings](settings-page.md)

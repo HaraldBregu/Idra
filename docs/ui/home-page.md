@@ -109,7 +109,7 @@ controls. Errors appear above the composer in `RecorderErrorMessage`.
 
 ## Text To Speech And Voice Mode
 
-Text-to-speech is configured in the start/settings operator UI, but the home
+Text-to-speech is configured in the start and settings model UI, but the home
 page does not currently call a text-to-speech playback API for assistant
 messages.
 
@@ -120,6 +120,5 @@ The home page does include a `conversation` voice-mode UI state:
 - Ending voice mode returns to typed chat.
 
 When TTS runtime playback is added, Home should use the saved text-to-speech
-operator selection and play assistant responses from the message thread without
+model selection and play assistant responses from the message thread without
 changing the text chat contract.
-

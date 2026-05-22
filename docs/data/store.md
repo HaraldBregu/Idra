@@ -78,8 +78,8 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 | `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
 | `appPermissions` | App permissions   | [settings-page.md](../ui/settings-page.md)                   | User toggles for app-level microphone and camera enablement.           |
 
-Do not add new cross-module bags such as `service`, `operator`, `agent`, or
-`settings`. Add a new root key only when a module owns that data.
+Do not add new cross-module bags such as `service`, `agent`, or `settings`.
+Add a new root key only when a module owns that data.
 
 ## Model Provider Records
 
@@ -96,7 +96,7 @@ interface ModelProviderSettings {
 ```
 
 `StoreService` normalizes provider ids to lowercase and trims provider fields
-before writing them. Read APIs that expose configured operators return the
+before writing them. Read APIs that expose configured providers return the
 provider without `apiKey`.
 
 Module settings reference model providers by id. They do not duplicate API keys
@@ -245,8 +245,7 @@ through platform APIs and should not be persisted in these roots.
   reading, and avoid deleting unknown module-owned fields unless that module
   owns the migration.
 - Keep legacy read helpers local to `StoreService`. Do not make new writes to
-  retired roots such as `service`, `operator`, `agent`, `rag`, or standalone
-  `sound`.
+  retired roots such as `service`, `agent`, `rag`, or standalone `sound`.
 - When adding a root key, update `src/main/store/types.ts`, `StoreService`,
   tests, this document, and the owning module doc in the same change.
 - When moving a value between roots, provide a migration or a read fallback

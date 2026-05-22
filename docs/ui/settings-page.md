@@ -1,11 +1,10 @@
-# Settings And Operators
+# Settings
 
 Sources:
 
 - `src/renderer/src/pages/settings/Layout.tsx`
 - `src/renderer/src/pages/settings/pages/overview/Page.tsx`
 - `src/renderer/src/pages/settings/navigation.ts`
-- `src/renderer/src/pages/settings/pages/operators/details/Page.tsx`
 
 Settings is the ongoing configuration area after first-run setup. The settings
 layout provides breadcrumbs, a scrollable main region, and a small footer.
@@ -17,12 +16,11 @@ The settings overview groups navigation cards into:
 | Group | Entries |
 | --- | --- |
 | General | General, System, Providers, Channels |
-| Capabilities | Operators |
+| Capabilities | Model settings |
 | AI Features | Skills, Connectors |
 | Automation | Heartbeat, Cron, Task Manager, Apps |
 
-Each overview card navigates to a route in `SETTINGS_NAVIGATION` or
-`SETTINGS_OPERATOR_ITEMS`.
+Each overview card navigates to a route from the settings navigation constants.
 
 ## Provider Settings
 
@@ -34,11 +32,11 @@ or edit provider credentials.
 
 Saving uses `window.app.setProviderApiKey(providerId, draft)`.
 
-## Operator Settings
+## Model Settings
 
-Operator cards are defined by `SETTINGS_OPERATOR_ITEMS`.
+Model setting cards are listed in the settings navigation.
 
-| Operator | Route id | UI status |
+| Capability | Route id | UI status |
 | --- | --- | --- |
 | Assistant | `friday` | Runtime-backed provider/model settings. |
 | Speech to text | `speech-to-text` | Runtime-backed provider/transcription model settings. |
@@ -47,14 +45,14 @@ Operator cards are defined by `SETTINGS_OPERATOR_ITEMS`.
 | Text to video | `text-to-video` | Read-only pending configuration with `video-provider-coming-soon`. |
 | Text to audio | `music-creator` | Read-only pending configuration with `music-provider-coming-soon`. |
 
-The operator detail page uses one reusable implementation. Assistant,
-speech-to-text, and image creator are runtime-backed and can save provider/model
-choices. Text-to-speech, video, and audio currently show pending
+The shared detail page uses one reusable implementation. Assistant,
+speech-to-text, and image creator are runtime-backed and can save
+provider/model choices. Text-to-speech, video, and audio currently show pending
 configuration notices with disabled provider/model selectors.
 
 ## Assistant-Specific Settings
 
-The assistant operator details page includes:
+The assistant detail page includes:
 
 - Chat history link
 - Provider selector
@@ -62,12 +60,13 @@ The assistant operator details page includes:
 - Reasoning effort selector for OpenAI and DeepSeek providers
 - Save action
 
-Assistant saves use `window.app.saveAssistantOperator(provider, model)`.
+The save action stores the selected provider/model through the preload API.
 
 ## Speech-To-Text Settings
 
 Speech-to-text filters providers to those with available transcription models.
-It saves through `window.app.saveSpeechToTextOperator(provider, model)`.
+The save action stores the selected provider/transcription model through the
+preload API.
 
 The current explicit speech-to-text model catalog is OpenAI
 `gpt-realtime-whisper`.
@@ -76,5 +75,5 @@ The current explicit speech-to-text model catalog is OpenAI
 
 The docs and store model include additional module settings for text-to-video,
 text-to-audio/music, OCR, and embedding. Renderer settings currently expose
-pending operator pages for video and audio. A dedicated embedding settings page
+pending settings pages for video and audio. A dedicated embedding settings page
 is not present in the current renderer navigation.

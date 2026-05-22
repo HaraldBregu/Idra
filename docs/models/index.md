@@ -11,7 +11,7 @@ The source of truth is:
   `src/shared/provider-models.ts`.
 - `DEFAULT_AGENT_MODELS_BY_PROVIDER` and `DEFAULT_PROVIDERS` in
   `src/shared/providers.ts`.
-- Module model constants and operator status in `src/shared/service.ts`.
+- Module model constants and runtime status in `src/shared/service.ts`.
 - Provider adapter routing in `src/main/provider/factory.ts`.
 - Module services, task handlers, and tool wrappers under `src/main`.
 
@@ -92,7 +92,7 @@ text-to-speech capable providers:
 
 | Provider id  | Provider                 | Catalog model id                      | Runtime notes                                                     |
 | ------------ | ------------------------ | ------------------------------------- | ----------------------------------------------------------------- |
-| `elevenlabs` | ElevenLabs               | `rachel-multilingual`                 | Concrete catalog entry, but operator status is `pending-runtime`. |
+| `elevenlabs` | ElevenLabs               | `rachel-multilingual`                 | Concrete catalog entry, but runtime status is `pending-runtime`. |
 | `openai`     | OpenAI                   | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
 | `google`     | Google DeepMind / Google | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |
 | `mistral`    | Mistral AI               | `text-to-speech-provider-coming-soon` | Placeholder catalog entry.                                        |

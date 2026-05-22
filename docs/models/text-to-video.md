@@ -40,7 +40,7 @@ Current catalog status:
 
 - `TEXT_TO_VIDEO_MODELS_BY_PROVIDER` maps video-capable providers to the
   placeholder `video-provider-coming-soon` model id.
-- The operator remains `pending-runtime`; provider-specific video adapters and
+- The module remains `pending-runtime`; provider-specific video adapters and
   a registered `video.create` handler are not implemented yet.
 
 Cataloged video provider/model choices:
