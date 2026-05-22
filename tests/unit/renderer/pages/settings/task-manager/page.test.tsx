@@ -162,6 +162,9 @@ describe('TaskManagerPage', () => {
 			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
 		});
 		expect(await screen.findByText('settings.taskManager.runtime.saved')).toBeInTheDocument();
+		await waitFor(() => {
+			expect(saveButton).toBeEnabled();
+		});
 	});
 
 	it('creates an agent task and opens its detail page', async () => {
