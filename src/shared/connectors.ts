@@ -1,3 +1,5 @@
+import { PROVIDER_CONNECTOR_DOCS } from './connector/provider-docs';
+
 export const CONNECTOR_PRIORITY_TIERS = ['P0', 'P1', 'P2', 'P3'] as const;
 export type ConnectorPriorityTier = (typeof CONNECTOR_PRIORITY_TIERS)[number];
 
@@ -824,8 +826,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'dropbox',
 		name: 'Dropbox',
 		description: 'Search and fetch files from Dropbox.',
-		docsPath: 'docs/connectors/dropbox.md',
-		docsLabel: 'Dropbox connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_dropbox.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_dropbox.providerDocsLabel,
 		environmentSecretNames: ['DROPBOX_CLIENT_ID', 'DROPBOX_CLIENT_SECRET', 'DROPBOX_ACCESS_TOKEN'],
 		platformDocumentationPages: [
 			{ label: 'Dropbox HTTP API', url: 'https://www.dropbox.com/developers/documentation/http/overview' },
@@ -846,8 +848,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'gmail',
 		name: 'Gmail',
 		description: 'Search, read, draft, send, and manage Gmail messages.',
-		docsPath: 'docs/connectors/gmail.md',
-		docsLabel: 'Gmail connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_gmail.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_gmail.providerDocsLabel,
 		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
 		platformDocumentationPages: [
 			{ label: 'Gmail API guides', url: 'https://developers.google.com/workspace/gmail/api/guides' },
@@ -888,8 +890,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'google_calendar',
 		name: 'Google Calendar',
 		description: 'Search, read, create, update, and delete Google Calendar events.',
-		docsPath: 'docs/connectors/google-calendar.md',
-		docsLabel: 'Google Calendar connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_googlecalendar.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_googlecalendar.providerDocsLabel,
 		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
 		platformDocumentationPages: [
 			{ label: 'Google Calendar API overview', url: 'https://developers.google.com/workspace/calendar/api/guides/overview' },
@@ -929,8 +931,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'google_drive',
 		name: 'Google Drive',
 		description: 'Search, read, create, and inspect Google Drive files.',
-		docsPath: 'docs/connectors/google-drive.md',
-		docsLabel: 'Google Drive connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_googledrive.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_googledrive.providerDocsLabel,
 		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
 		platformDocumentationPages: [
 			{ label: 'Google Drive API overview', url: 'https://developers.google.com/workspace/drive/api/guides/about-sdk' },
@@ -972,8 +974,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'microsoft_teams',
 		name: 'Microsoft Teams',
 		description: 'Search Teams chats and channel messages.',
-		docsPath: 'docs/connectors/microsoft-teams.md',
-		docsLabel: 'Microsoft Teams connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_microsoftteams.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_microsoftteams.providerDocsLabel,
 		environmentSecretNames: [
 			'MICROSOFT_TENANT_ID',
 			'MICROSOFT_CLIENT_ID',
@@ -999,8 +1001,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'outlook',
 		name: 'Outlook Calendar',
 		description: 'Search and read Outlook Calendar events.',
-		docsPath: 'docs/connectors/outlook-calendar.md',
-		docsLabel: 'Outlook Calendar connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_outlookcalendar.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_outlookcalendar.providerDocsLabel,
 		environmentSecretNames: [
 			'MICROSOFT_TENANT_ID',
 			'MICROSOFT_CLIENT_ID',
@@ -1026,8 +1028,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'outlook',
 		name: 'Outlook Email',
 		description: 'Search and read Outlook email messages.',
-		docsPath: 'docs/connectors/outlook-email.md',
-		docsLabel: 'Outlook Email connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_outlookemail.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_outlookemail.providerDocsLabel,
 		environmentSecretNames: [
 			'MICROSOFT_TENANT_ID',
 			'MICROSOFT_CLIENT_ID',
@@ -1060,8 +1062,8 @@ export const OPENAI_CONNECTOR_CATALOG = [
 		directConnectorId: 'sharepoint_onedrive',
 		name: 'SharePoint',
 		description: 'Search and fetch SharePoint and OneDrive documents.',
-		docsPath: 'docs/connectors/sharepoint.md',
-		docsLabel: 'SharePoint connector guide',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_sharepoint.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_sharepoint.providerDocsLabel,
 		environmentSecretNames: [
 			'MICROSOFT_TENANT_ID',
 			'MICROSOFT_CLIENT_ID',

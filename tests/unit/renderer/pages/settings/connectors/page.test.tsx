@@ -85,7 +85,7 @@ describe('connector settings docs', () => {
 		render(<ConnectorDocumentationRows connector={gmail!} />);
 
 		expect(screen.getByText('Gmail connector guide')).toBeInTheDocument();
-		expect(screen.getByText('docs/connectors/gmail.md')).toBeInTheDocument();
+		expect(screen.getByText('docs/providers/google/gmail/index.md')).toBeInTheDocument();
 		expect(screen.getByText('GOOGLE_OAUTH_CLIENT_ID')).toBeInTheDocument();
 		expect(screen.getByText('search_emails')).toBeInTheDocument();
 		expect(screen.getByText('{"query":"from:alice@example.com newer_than:7d"}')).toBeInTheDocument();
@@ -102,7 +102,7 @@ describe('connector settings docs', () => {
 
 		expect(await screen.findByText('My Gmail')).toBeInTheDocument();
 		expect(screen.getByText('Gmail connector guide')).toBeInTheDocument();
-		expect(screen.getByText('docs/connectors/gmail.md')).toBeInTheDocument();
+		expect(screen.getByText('docs/providers/google/gmail/index.md')).toBeInTheDocument();
 		expect(screen.getByText('GOOGLE_OAUTH_CLIENT_SECRET')).toBeInTheDocument();
 		expect(screen.getByText('Gmail API reference')).toBeInTheDocument();
 		expect(screen.getAllByText('search_emails').length).toBeGreaterThan(0);

@@ -9,9 +9,34 @@ import {
 	isDirectConnectorCatalogId,
 	listDirectConnectorsByPriority,
 } from '../../../../src/shared/connectors';
+import {
+	PROVIDER_CONNECTOR_CATALOG,
+	PROVIDER_CONNECTOR_CATALOG_COUNTS,
+	getProviderConnectorCatalogItem,
+	listProviderConnectorsByProvider,
+} from '../../../../src/shared/connector';
 
 function escapeRegExp(value: string): string {
 	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function collectProviderConnectorDocs(root: string): string[] {
+	const files: string[] = [];
+
+	for (const entry of readdirSync(root, { withFileTypes: true })) {
+		const entryPath = path.join(root, entry.name);
+		if (entry.isDirectory()) {
+			files.push(...collectProviderConnectorDocs(entryPath));
+			continue;
+		}
+		if (entry.name !== 'index.md') continue;
+		const markdown = readFileSync(entryPath, 'utf8');
+		if (markdown.includes('| Connector id')) {
+			files.push(path.relative(process.cwd(), entryPath));
+		}
+	}
+
+	return files;
 }
 
 describe('shared connector catalog', () => {
@@ -34,6 +59,28 @@ describe('shared connector catalog', () => {
 		).toBe(true);
 	});
 
+	it('exposes provider-doc connector metadata for every Settings connector', () => {
+		expect(PROVIDER_CONNECTOR_CATALOG_COUNTS.providerConnectors).toBe(
+			OPENAI_CONNECTOR_CATALOG.length
+		);
+		expect(PROVIDER_CONNECTOR_CATALOG.map((connector) => connector.id).sort()).toEqual(
+			OPENAI_CONNECTOR_CATALOG.map((connector) => connector.id).sort()
+		);
+		expect(getProviderConnectorCatalogItem('connector_gmail')).toMatchObject({
+			providerId: 'google',
+			docsPath: 'docs/providers/google/gmail/index.md',
+			runtimeStatus: 'local_oauth_and_local_tool_execution',
+		});
+		expect(listProviderConnectorsByProvider('microsoft').map((connector) => connector.id)).toEqual(
+			expect.arrayContaining([
+				'connector_microsoftteams',
+				'connector_outlookcalendar',
+				'connector_outlookemail',
+				'connector_sharepoint',
+			])
+		);
+	});
+
 	it('maps configured OpenAI connector entries to shared direct catalog metadata', () => {
 		for (const connector of OPENAI_CONNECTOR_CATALOG) {
 			expect(isDirectConnectorCatalogId(connector.directConnectorId)).toBe(true);
@@ -41,13 +88,13 @@ describe('shared connector catalog', () => {
 	});
 
 	it('keeps Settings connector docs in sync with the shared catalog', () => {
-		const docsRoot = path.join(process.cwd(), 'docs/connectors');
+		const docsRoot = path.join(process.cwd(), 'docs/providers');
 		const catalogDocs = new Set<string>();
 
 		for (const connector of OPENAI_CONNECTOR_CATALOG) {
 			const docsPath = path.join(process.cwd(), connector.docsPath);
 			const markdown = readFileSync(docsPath, 'utf8');
-			catalogDocs.add(path.basename(connector.docsPath));
+			catalogDocs.add(connector.docsPath);
 
 			expect(markdown).toMatch(new RegExp(`\\|\\s*Connector id\\s*\\|\\s*\`${escapeRegExp(connector.id)}\``));
 			expect(markdown).toMatch(new RegExp(`\\|\\s*Direct connector id\\s*\\|\\s*\`${escapeRegExp(connector.directConnectorId)}\``));
@@ -69,9 +116,7 @@ describe('shared connector catalog', () => {
 			}
 		}
 
-		const docsFiles = readdirSync(docsRoot)
-			.filter((file) => file.endsWith('.md') && file !== 'index.md')
-			.sort();
+		const docsFiles = collectProviderConnectorDocs(docsRoot).sort();
 		expect(docsFiles).toEqual(Array.from(catalogDocs).sort());
 	});
 
