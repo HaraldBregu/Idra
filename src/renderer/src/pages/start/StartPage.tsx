@@ -1597,20 +1597,23 @@ const StartPage: React.FC = () => {
 
 					{renderModelAreaPanel(
 						'text-to-speech',
-						getOperatorSelectionLabel(savedTextToSpeechOperator),
+						loadingModels
+							? 'Loading models...'
+							: getProviderModelSelectionLabel(selectedTextToSpeechOption),
 						<>
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="tts-selection" label="Saved selection">
-									<div className="min-h-8 rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-foreground">
-										{getOperatorSelectionLabel(savedTextToSpeechOperator)}
-									</div>
-								</SettingsField>
-								<SettingsField id="tts-runtime" label="Runtime">
-									<div className="flex min-h-8 items-center">
-										<StatusBadge status={OPERATOR_DEFINITIONS.textToSpeech.status} />
-									</div>
-								</SettingsField>
-							</div>
+							{renderProviderModelFields({
+								providerSelectId: 'tts-provider',
+								modelSelectId: 'tts-model',
+								providerId: textToSpeechProviderId,
+								modelId: selectedTextToSpeechModel,
+								groups: textToSpeechModelGroups,
+								models: selectedTextToSpeechModels,
+								providerLabel: 'Provider',
+								modelLabel: 'Voice model',
+								placeholder: 'No voice model',
+								onProviderChange: handleTextToSpeechProviderChange,
+								onModelChange: handleTextToSpeechModelChange,
+							})}
 							<SettingsNotice icon={Volume2}>
 								Voice output has a catalog, but spoken output runtime is still pending.
 							</SettingsNotice>
@@ -1626,8 +1629,23 @@ const StartPage: React.FC = () => {
 
 					{renderModelAreaPanel(
 						'text-to-image',
-						getOperatorSelectionLabel(savedImageCreatorOperator),
+						loadingModels
+							? 'Loading models...'
+							: getProviderModelSelectionLabel(selectedImageCreatorOption),
 						<>
+							{renderProviderModelFields({
+								providerSelectId: 'image-provider',
+								modelSelectId: 'image-model',
+								providerId: imageCreatorProviderId,
+								modelId: selectedImageCreatorModel,
+								groups: imageCreatorModelGroups,
+								models: selectedImageCreatorModels,
+								providerLabel: 'Provider',
+								modelLabel: 'Image model',
+								placeholder: 'No image model',
+								onProviderChange: handleImageCreatorProviderChange,
+								onModelChange: handleImageCreatorModelChange,
+							})}
 							<SettingsNotice icon={ImageIcon}>
 								Image service, task, and tool paths exist; provider adapters are pending.
 							</SettingsNotice>
@@ -1643,8 +1661,23 @@ const StartPage: React.FC = () => {
 
 					{renderModelAreaPanel(
 						'text-to-video',
-						getOperatorSelectionLabel(savedTextToVideoOperator),
+						loadingModels
+							? 'Loading models...'
+							: getProviderModelSelectionLabel(selectedTextToVideoOption),
 						<>
+							{renderProviderModelFields({
+								providerSelectId: 'video-provider',
+								modelSelectId: 'video-model',
+								providerId: textToVideoProviderId,
+								modelId: selectedTextToVideoModel,
+								groups: textToVideoModelGroups,
+								models: selectedTextToVideoModels,
+								providerLabel: 'Provider',
+								modelLabel: 'Video model',
+								placeholder: 'No video model',
+								onProviderChange: handleTextToVideoProviderChange,
+								onModelChange: handleTextToVideoModelChange,
+							})}
 							<SettingsNotice icon={Video}>
 								Video model selection is cataloged; provider adapters and runtime execution are
 								pending.
@@ -1661,8 +1694,23 @@ const StartPage: React.FC = () => {
 
 					{renderModelAreaPanel(
 						'text-to-audio',
-						getOperatorSelectionLabel(savedMusicCreatorOperator),
+						loadingModels
+							? 'Loading models...'
+							: getProviderModelSelectionLabel(selectedMusicCreatorOption),
 						<>
+							{renderProviderModelFields({
+								providerSelectId: 'audio-provider',
+								modelSelectId: 'audio-model',
+								providerId: musicCreatorProviderId,
+								modelId: selectedMusicCreatorModel,
+								groups: musicCreatorModelGroups,
+								models: selectedMusicCreatorModels,
+								providerLabel: 'Provider',
+								modelLabel: 'Audio model',
+								placeholder: 'No audio model',
+								onProviderChange: handleMusicCreatorProviderChange,
+								onModelChange: handleMusicCreatorModelChange,
+							})}
 							<SettingsNotice icon={Music}>
 								Sound and music generation are cataloged; provider adapters and runtime execution are
 								pending.
