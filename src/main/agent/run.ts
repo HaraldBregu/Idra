@@ -368,6 +368,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			} catch (err) {
 				if (err instanceof ContextOverflowError && !didCompact) {
 					didCompact = true;
+					agentLogger.warn('agent:run', 'context overflow, compacting', { runId, iter });
 					await flushSessionMemoryBeforeCompaction(session, ctx.workspace).catch(() => undefined);
 					const { transcript: next, marker } = await compact(
 						session.id,
