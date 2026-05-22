@@ -1,16 +1,16 @@
 # Alibaba / Qwen / Wan Provider
 
-| Property | Value |
-| --- | --- |
-| Provider id | `qwen` |
-| Display name | Alibaba / Qwen / Wan |
-| Capabilities | Chat - Speech-to-text - Realtime voice/omni - Image - Video |
-| Default base URL | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
-| Credential type | Model Studio API key |
-| Auth method | API key; OpenAI-compatible or DashScope SDK depending on endpoint |
-| Recommended env vars | `DASHSCOPE_API_KEY`, `ALIBABA_CLOUD_API_KEY` |
-| API-key link | [Alibaba Model Studio API keys](https://bailian.console.aliyun.com/?tab=api#/api-key) |
-| Official docs | [Alibaba Model Studio API key docs](https://www.alibabacloud.com/help/en/model-studio/get-api-key) |
+| Property             | Value                                                                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| Provider id          | `qwen`                                                                                             |
+| Display name         | Alibaba / Qwen / Wan                                                                               |
+| Capabilities         | Chat - Speech-to-text - Realtime voice/omni - Image - Video                                        |
+| Default base URL     | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`                                           |
+| Credential type      | Model Studio API key                                                                               |
+| Auth method          | API key; OpenAI-compatible or DashScope SDK depending on endpoint                                  |
+| Recommended env vars | `DASHSCOPE_API_KEY`, `ALIBABA_CLOUD_API_KEY`                                                       |
+| API-key link         | [Alibaba Model Studio API keys](https://bailian.console.aliyun.com/?tab=api#/api-key)              |
+| Official docs        | [Alibaba Model Studio API key docs](https://www.alibabacloud.com/help/en/model-studio/get-api-key) |
 
 ## Model Catalog Source
 
@@ -24,27 +24,27 @@ Status values:
 
 ## Model Type Coverage
 
-| Model type | Documented models |
-| --- | --- |
-| Large Language Models | `qwen3.7-max`, `qwen3.6-plus`, `qwen3.6-flash` |
-| Speech-To-Text Models | `qwen3.5-omni`, `qwen3-omni-flash` |
+| Model type                     | Documented models                                        |
+| ------------------------------ | -------------------------------------------------------- |
+| Large Language Models          | `qwen3.7-max`, `qwen3.6-plus`, `qwen3.6-flash`           |
+| Speech-To-Text Models          | `qwen3.5-omni`, `qwen3-omni-flash`                       |
 | Realtime Voice And Omni Models | `qwen-omni-realtime`, `qwen3.5-omni`, `qwen3-omni-flash` |
-| Image Models | `qwen-image`, `qwen-image-edit` |
-| Video Models | `wan2.7-t2v`, `wan2.7-i2v`, `wan2.7-video-edit` |
+| Image Models                   | `qwen-image`, `qwen-image-edit`                          |
+| Video Models                   | `wan2.7-t2v`, `wan2.7-i2v`, `wan2.7-video-edit`          |
 
 ## Large Language Models
 
-| Model id | Status |
-| --- | --- |
-| `qwen3.7-max` | `active` |
-| `qwen3.6-plus` | `active` |
+| Model id        | Status   |
+| --------------- | -------- |
+| `qwen3.7-max`   | `active` |
+| `qwen3.6-plus`  | `active` |
 | `qwen3.6-flash` | `active` |
 
 ## Speech-To-Text Models
 
-| Model id | Status |
-| --- | --- |
-| `qwen3.5-omni` | `active` |
+| Model id           | Status   |
+| ------------------ | -------- |
+| `qwen3.5-omni`     | `active` |
 | `qwen3-omni-flash` | `active` |
 
 ## Speech-To-Text Usage
@@ -60,10 +60,10 @@ Alibaba documents Qwen-Omni speech-to-text as audio understanding, not as a
 traditional ASR hotword endpoint. Use prompt context to tell the model how to
 transcribe, normalize, or extract text from the audio.
 
-| Friday catalog id | Upstream model ids | Runtime | How to use |
-| --- | --- | --- | --- |
-| `qwen3.5-omni` | `qwen3.5-omni-plus`, `qwen3.5-omni-flash`, `qwen3.5-omni-plus-realtime`, `qwen3.5-omni-flash-realtime` | HTTP for recorded audio; WebSocket for live audio | Catalog-level family id. Resolve it to one exact upstream model before calling Alibaba. Use Plus for stronger quality, Flash for lower cost/latency. Supports prompt context, emotion recognition, and 113 languages/dialects. Speaker diarization is not supported. |
-| `qwen3-omni-flash` | `qwen3-omni-flash`, `qwen3-omni-flash-realtime` | HTTP for recorded audio; WebSocket for live audio | Previous-generation Qwen-Omni-Flash id. Supports prompt context and emotion recognition. Speaker diarization is not supported. Alibaba lists Chinese, English, Japanese, Korean, German, French, Italian, Spanish, Portuguese, Russian, and supported Chinese dialects. For the documented multimodal path, leave `enable_thinking` disabled unless a text-only thinking-mode flow is intentionally implemented. |
+| Friday catalog id  | Upstream model ids                                                                                     | Runtime                                           | How to use                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `qwen3.5-omni`     | `qwen3.5-omni-plus`, `qwen3.5-omni-flash`, `qwen3.5-omni-plus-realtime`, `qwen3.5-omni-flash-realtime` | HTTP for recorded audio; WebSocket for live audio | Catalog-level family id. Resolve it to one exact upstream model before calling Alibaba. Use Plus for stronger quality, Flash for lower cost/latency. Supports prompt context, emotion recognition, and 113 languages/dialects. Speaker diarization is not supported.                                                                                                                                             |
+| `qwen3-omni-flash` | `qwen3-omni-flash`, `qwen3-omni-flash-realtime`                                                        | HTTP for recorded audio; WebSocket for live audio | Previous-generation Qwen-Omni-Flash id. Supports prompt context and emotion recognition. Speaker diarization is not supported. Alibaba lists Chinese, English, Japanese, Korean, German, French, Italian, Spanish, Portuguese, Russian, and supported Chinese dialects. For the documented multimodal path, leave `enable_thinking` disabled unless a text-only thinking-mode flow is intentionally implemented. |
 
 All listed Qwen speech-to-text models support common audio formats such as WAV,
 MP3, and AAC. Non-realtime Qwen-Omni calls use per-request input limits. The
@@ -75,39 +75,39 @@ minutes.
 Use Alibaba's OpenAI-compatible Chat Completions endpoint when the input is an
 audio file or a short near-realtime chunk.
 
-| Region | Base URL |
-| --- | --- |
+| Region                    | Base URL                                                 |
+| ------------------------- | -------------------------------------------------------- |
 | International / Singapore | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
-| China / Beijing | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+| China / Beijing           | `https://dashscope.aliyuncs.com/compatible-mode/v1`      |
 
 Request shape:
 
 ```json
 {
-  "model": "qwen3.5-omni-flash",
-  "messages": [
-    {
-      "role": "user",
-      "content": [
-        {
-          "type": "input_audio",
-          "input_audio": {
-            "data": "data:;base64,<AUDIO_BASE64>",
-            "format": "mp3"
-          }
-        },
-        {
-          "type": "text",
-          "text": "Transcribe the audio verbatim. Return only the transcript."
-        }
-      ]
-    }
-  ],
-  "modalities": ["text"],
-  "stream": true,
-  "stream_options": {
-    "include_usage": true
-  }
+	"model": "qwen3.5-omni-flash",
+	"messages": [
+		{
+			"role": "user",
+			"content": [
+				{
+					"type": "input_audio",
+					"input_audio": {
+						"data": "data:;base64,<AUDIO_BASE64>",
+						"format": "mp3"
+					}
+				},
+				{
+					"type": "text",
+					"text": "Transcribe the audio verbatim. Return only the transcript."
+				}
+			]
+		}
+	],
+	"modalities": ["text"],
+	"stream": true,
+	"stream_options": {
+		"include_usage": true
+	}
 }
 ```
 
@@ -142,17 +142,17 @@ Start each session with `session.update`:
 
 ```json
 {
-  "type": "session.update",
-  "session": {
-    "modalities": ["text"],
-    "input_audio_format": "pcm",
-    "instructions": "Transcribe user speech verbatim. Return only transcript text.",
-    "turn_detection": {
-      "type": "server_vad",
-      "threshold": 0.5,
-      "silence_duration_ms": 800
-    }
-  }
+	"type": "session.update",
+	"session": {
+		"modalities": ["text"],
+		"input_audio_format": "pcm",
+		"instructions": "Transcribe user speech verbatim. Return only transcript text.",
+		"turn_detection": {
+			"type": "server_vad",
+			"threshold": 0.5,
+			"silence_duration_ms": 800
+		}
+	}
 }
 ```
 
@@ -160,8 +160,8 @@ Then send microphone PCM chunks as Base64:
 
 ```json
 {
-  "type": "input_audio_buffer.append",
-  "audio": "<BASE64_PCM_AUDIO_CHUNK>"
+	"type": "input_audio_buffer.append",
+	"audio": "<BASE64_PCM_AUDIO_CHUNK>"
 }
 ```
 
@@ -182,25 +182,25 @@ Implementation notes:
 
 ## Realtime Voice And Omni Models
 
-| Model id | Status |
-| --- | --- |
+| Model id             | Status   |
+| -------------------- | -------- |
 | `qwen-omni-realtime` | `active` |
-| `qwen3.5-omni` | `active` |
-| `qwen3-omni-flash` | `active` |
+| `qwen3.5-omni`       | `active` |
+| `qwen3-omni-flash`   | `active` |
 
 ## Image Models
 
-| Model id | Status |
-| --- | --- |
-| `qwen-image` | `active` |
+| Model id          | Status   |
+| ----------------- | -------- |
+| `qwen-image`      | `active` |
 | `qwen-image-edit` | `active` |
 
 ## Video Models
 
-| Model id | Status |
-| --- | --- |
-| `wan2.7-t2v` | `active` |
-| `wan2.7-i2v` | `active` |
+| Model id            | Status   |
+| ------------------- | -------- |
+| `wan2.7-t2v`        | `active` |
+| `wan2.7-i2v`        | `active` |
 | `wan2.7-video-edit` | `active` |
 
 ## Related Docs
