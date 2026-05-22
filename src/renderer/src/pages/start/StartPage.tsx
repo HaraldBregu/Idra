@@ -1549,7 +1549,8 @@ const StartPage: React.FC = () => {
 								</SettingsField>
 							</div>
 							<SettingsNotice icon={FileSearch}>
-								Provider-backed OCR model setup is pending.
+								OCR provider and model setup will appear here when document reading uses provider
+								models.
 							</SettingsNotice>
 						</>
 					)}
