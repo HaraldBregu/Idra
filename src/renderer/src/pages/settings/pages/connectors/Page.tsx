@@ -85,7 +85,7 @@ const ConnectorsPage = () => {
 						key={item.id}
 						item={item}
 						onAdd={addConnector}
-						alreadyConfigured={configuredConnectorIds.has(item.id as OpenAiConnectorId)}
+						alreadyConfigured={configuredConnectorIds.has(item.id)}
 					/>
 				))}
 			</div>
