@@ -73,7 +73,7 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 | `taskScheduler`  | Task scheduler    | [scheduled.md](../tasks/scheduled.md)                        | Managed schedule state, Friday cron state, and legacy cron task state. |
 | `backgroundTask` | Background task   | [background.md](../tasks/background.md)                      | Task policy settings only; task records stay in memory.                |
 | `heartbeat`      | Heartbeat         | [tasks/scheduled.md](../tasks/scheduled.md)                  | Heartbeat run state and last delivered heartbeat text by key.          |
-| `connectors`     | Connectors        | [connectors/index.md](../connectors/index.md)                | Connector configuration records and credential references.             |
+| `connectors`     | Connectors        | [providers/index.md](../providers/index.md#connector-providers) | Connector configuration records and credential references.             |
 | `channel`        | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
 | `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
 | `appPermissions` | App permissions   | [settings-page.md](../ui/settings-page.md)                   | User toggles for app-level microphone and camera enablement.           |

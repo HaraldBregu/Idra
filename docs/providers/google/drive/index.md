@@ -91,4 +91,4 @@ Use with `search_files`.
 
 ## Related Docs
 
-- [Connector subsystem](index.md)
+- [Google provider](../index.md)

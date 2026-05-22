@@ -76,4 +76,4 @@ Use with `search_messages`.
 
 ## Related Docs
 
-- [Connector subsystem](index.md)
+- [Microsoft provider](../index.md)

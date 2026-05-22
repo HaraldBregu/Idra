@@ -87,4 +87,4 @@ Use with `search_events`.
 
 ## Related Docs
 
-- [Connector subsystem](index.md)
+- [Google provider](../index.md)

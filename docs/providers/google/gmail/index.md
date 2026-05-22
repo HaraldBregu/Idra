@@ -87,4 +87,4 @@ Use with `search_emails`.
 
 ## Related Docs
 
-- [Connector subsystem](index.md)
+- [Google provider](../index.md)

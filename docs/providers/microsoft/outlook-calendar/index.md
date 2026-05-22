@@ -75,4 +75,4 @@ Use with `list_events`.
 
 ## Related Docs
 
-- [Connector subsystem](index.md)
+- [Microsoft provider](../index.md)

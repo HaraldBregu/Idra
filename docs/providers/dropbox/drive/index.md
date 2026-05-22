@@ -77,4 +77,4 @@ Use with `search_files`.
 
 ## Related Docs
 
-- [Connector subsystem](index.md)
+- [Dropbox provider](../index.md)
