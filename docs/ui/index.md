@@ -8,11 +8,11 @@ window frame, title bar, command menu, route transitions, and chat mode context.
 
 ## Main Surfaces
 
-| Surface | Route | Primary source | Purpose |
-| --- | --- | --- | --- |
-| Start page | `/start` | `src/renderer/src/pages/start/StartPage.tsx` | First-run setup before the user lands on Home. |
-| Home page | `/home` | `src/renderer/src/pages/home/Page.tsx` | Chatbot UI for the main Friday assistant. |
-| Settings | `/settings/*` | `src/renderer/src/pages/settings` | Ongoing configuration for providers, model settings, channels, skills, connectors, automation, and system settings. |
+| Surface | Route | Purpose |
+| --- | --- | --- |
+| Start page | `/start` | First-run setup before the user lands on Home. |
+| Home page | `/home` | Chatbot UI for the main Friday assistant. |
+| Settings | `/settings/*` | Ongoing configuration for providers, model settings, channels, skills, connectors, automation, and system settings. |
 
 The default route redirects to `/start`. The legacy `/config` route also
 redirects to `/start`.

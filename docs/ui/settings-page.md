@@ -1,11 +1,5 @@
 # Settings
 
-Sources:
-
-- `src/renderer/src/pages/settings/Layout.tsx`
-- `src/renderer/src/pages/settings/pages/overview/Page.tsx`
-- `src/renderer/src/pages/settings/navigation.ts`
-
 Settings is the ongoing configuration area after first-run setup. The settings
 layout provides breadcrumbs, a scrollable main region, and a small footer.
 

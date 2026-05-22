@@ -1,7 +1,5 @@
 # Home Page
 
-Source: `src/renderer/src/pages/home/Page.tsx`
-
 The home page is Friday's main chatbot surface. It combines a scrollable
 message thread, assistant activity display, prompt composer, attachments, live
 speech-to-text dictation, and a voice-mode UI state.
