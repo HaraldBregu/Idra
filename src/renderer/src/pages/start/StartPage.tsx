@@ -91,7 +91,7 @@ const SETUP_STEPS: readonly SetupStep[] = ['welcome', 'providers', 'operators'];
 const STEP_TITLES: Record<SetupStep, string> = {
 	welcome: 'Welcome',
 	providers: 'Providers',
-	operators: 'Operators',
+	operators: 'Models',
 };
 
 const TTS_MODELS: readonly StaticModelOption[] = [
@@ -328,7 +328,7 @@ const StartPage: React.FC = () => {
 				setSpeechProviderId('');
 				setSavedSpeechProviderId('');
 				setSavedSpeechModelId('');
-				setErrorMessage(getErrorMessage(error, 'Could not load operators.'));
+				setErrorMessage(getErrorMessage(error, 'Could not load models.'));
 			}
 		}
 
@@ -588,7 +588,7 @@ const StartPage: React.FC = () => {
 			}
 			navigate('/home');
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save the selected operators.'));
+			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
 		} finally {
 			setSavingConfig(false);
 		}
@@ -830,10 +830,10 @@ const StartPage: React.FC = () => {
 			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Configure operators
+						Configure models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the provider and model each operator will use. Only connected providers appear.
+						Choose the provider and model each capability will use. Only connected providers appear.
 					</p>
 				</div>
 

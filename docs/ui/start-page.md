@@ -73,15 +73,27 @@ masked placeholder.
 | `reka` | Reka AI | Chat |
 | `perplexity` | Perplexity | Research chat |
 
-## Step 3: Agent Configuration
+## Step 3: Configure Models
 
 Step id: `operators`
 
-The current start page calls this step `Configure operators`. It loads connected
-providers, assistant settings, speech-to-text settings, and model lists through
-the preload APIs.
+The start page displays this step as `Configure models`. The internal step id
+remains `operators` for route/state compatibility. It loads connected providers,
+assistant settings, speech-to-text settings, and model lists through the preload
+APIs.
 
 Only connected providers are shown in model selectors.
+
+The model catalog and module contracts are documented under `docs/models`:
+
+| Start setup area | Model docs |
+| --- | --- |
+| Overall model catalog | [Models](../models/index.md) |
+| Friday Assistant | [Large language model](../models/large-language-model.md) |
+| Voice Input | [Speech to text](../models/speech-to-text.md) |
+| Voice Output | [Text to speech](../models/text-to-speech.md) |
+| Text To Image | [Text to image](../models/text-to-image.md) |
+| Not yet in start setup | [Text to video](../models/text-to-video.md), [Text to audio](../models/music-creator.md), [OCR](../models/ocr.md), [Embedding](../models/embedding.md) |
 
 ### Friday Assistant
 
@@ -128,7 +140,7 @@ configurable yet.
 
 ## Not Yet In Start Setup
 
-The broader operator model includes text-to-video, text-to-audio/music, OCR,
+The broader model catalog includes text-to-video, text-to-audio/music, OCR,
 embedding, cron tasks, and background tasks. The current start page does not
 render those setup controls. They should either remain in Settings only or be
-added as new operator cards if first-run setup needs to configure them.
+added as new model cards if first-run setup needs to configure them.
