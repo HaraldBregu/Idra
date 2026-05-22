@@ -14,6 +14,7 @@ import {
 } from '../../shared/service';
 import {
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 } from '../../shared/provider-models';
 import {
@@ -341,8 +342,10 @@ export class OpenAIRealtimeSpeechToTextAdapter implements SpeechToTextRealtimeAd
 
 	async startSession(config: SpeechToTextRuntimeConfig): Promise<SpeechToTextRealtimeSession> {
 		const model = config.model.id.trim();
-		if (model !== REALTIME_SPEECH_TRANSCRIBER_MODEL_ID) {
-			throw new Error(`OpenAI realtime speech-to-text requires ${REALTIME_SPEECH_TRANSCRIBER_MODEL_ID}.`);
+		if (!isRealtimeSpeechTranscriberModel(model)) {
+			throw new Error(
+				`OpenAI realtime speech-to-text requires one of: ${SPEECH_TRANSCRIBER_MODEL_IDS.join(', ')}.`
+			);
 		}
 		const session = new OpenAIRealtimeSpeechToTextSession(config);
 		await session.start();

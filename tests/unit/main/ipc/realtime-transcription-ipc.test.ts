@@ -7,6 +7,7 @@ jest.mock('openai/realtime/websocket', () => ({
 
 import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
 import {
+	createOpenAIRealtimeSpeechToTextAdapter,
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
 	createMistralHttpServerUrl,
@@ -29,6 +30,7 @@ import {
 import {
 	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
+	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
 	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
@@ -61,7 +63,7 @@ describe('realtime transcription IPC', () => {
 		expect(url.toString()).toBe('wss://api.openai.com/v1/realtime?intent=transcription');
 	});
 
-	it('builds a transcription session update for gpt-realtime-whisper with manual chunking', () => {
+	it('builds a transcription session update for OpenAI with manual chunking', () => {
 		expect(
 			createRealtimeTranscriptionSessionUpdate(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, {
 				language: 'en-US',
@@ -85,6 +87,14 @@ describe('realtime transcription IPC', () => {
 				},
 			},
 		});
+	});
+
+	it('supports every OpenAI catalog transcription model in the realtime adapter', () => {
+		const adapter = createOpenAIRealtimeSpeechToTextAdapter();
+
+		expect(adapter.supports('openai', REALTIME_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(true);
+		expect(adapter.supports('openai', MINI_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(true);
+		expect(adapter.supports('mistral', MINI_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(false);
 	});
 
 	it('omits unsupported language tags from the session update', () => {

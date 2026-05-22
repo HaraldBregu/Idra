@@ -84,6 +84,11 @@ export const CHAT_MODELS_BY_PROVIDER = mergeModelCatalogs(
 
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
 export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
+export const MINI_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-mini-transcribe';
+export const SPEECH_TRANSCRIBER_MODEL_IDS = [
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
+] as const;
 export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-2602';
 export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID =
 	'voxtral-mini-transcribe-realtime-2602';
@@ -93,7 +98,7 @@ export const QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-omni-flash';
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	openai: [
 		model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Transcribe'),
-		model('gpt-4o-mini-transcribe', 'GPT-4o Mini Transcribe'),
+		model(MINI_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Mini Transcribe'),
 	],
 	deepgram: [model('nova-3', 'Nova 3'), model('flux', 'Flux')],
 	elevenlabs: [model('scribe_v2', 'Scribe v2'), model('scribe_v2_realtime', 'Scribe v2 Realtime')],

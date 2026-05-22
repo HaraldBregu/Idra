@@ -1,6 +1,8 @@
 import {
 	IMAGE_CREATOR_MODELS,
+	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
 	MUSIC_CREATOR_MODELS,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TO_TEXT_PROVIDER_MODELS,
 	TEXT_TO_SPEECH_MODELS,
@@ -85,7 +87,10 @@ describe('provider model catalogs', () => {
 	});
 
 	it('validates model ids against each capability catalog', () => {
-		expect(isAllowedSpeechToTextModel('openai', 'gpt-realtime-whisper')).toBe(true);
+		expect(isAllowedSpeechToTextModel('openai', REALTIME_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(
+			true
+		);
+		expect(isAllowedSpeechToTextModel('openai', MINI_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(true);
 		expect(isAllowedSpeechToTextModel('openai', 'speech-to-text-provider-coming-soon')).toBe(
 			false
 		);

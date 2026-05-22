@@ -7,6 +7,7 @@ import type { AgentsHeartbeatConfig } from './heartbeat';
 import {
 	IMAGE_CREATOR_MODELS,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TO_TEXT_MODELS,
 	getMusicModelsByProvider,
 	TEXT_TO_VIDEO_MODELS,
@@ -258,7 +259,7 @@ export const DOCUMENT_READER_AGENT_ID = DOCUMENT_READER_OCR_OPERATOR_ID;
 export const DOCUMENT_READER_MODELS = DOCUMENT_READER_OCR_MODELS;
 
 export function isRealtimeSpeechTranscriberModel(modelId: string): boolean {
-	return modelId.trim() === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
+	return (SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(modelId.trim());
 }
 
 export function getSpeechToTextModels(providerId: string): Model[] {
