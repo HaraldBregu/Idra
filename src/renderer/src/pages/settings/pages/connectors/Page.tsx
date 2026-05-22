@@ -459,6 +459,24 @@ const ConnectorsPage: React.FC = () => {
 					</div>
 				)}
 			</SettingsSection>
+
+			{catalog.length > 0 && (
+				<SettingsSection title="Available connectors">
+					<div className="grid gap-2">
+						{catalog.map((item) => (
+							<ConnectorCatalogItem
+								key={item.id}
+								item={item}
+								onAdd={() => {
+									selectConnector(item.id as OpenAiConnectorId);
+									setShowForm(true);
+									window.scrollTo({ top: 0, behavior: 'smooth' });
+								}}
+							/>
+						))}
+					</div>
+				</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };
