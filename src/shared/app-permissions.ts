@@ -28,7 +28,3 @@ export interface CameraPermissionSettings {
 
 export type SystemPreferencePaneId = 'Accessibility' | 'ScreenCapture' | 'Camera' | 'Microphone';
 
-export interface AppPermissionSettings {
-	readonly microphoneEnabled: boolean;
-	readonly cameraEnabled: boolean;
-}
