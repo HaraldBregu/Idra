@@ -69,4 +69,28 @@ describe('StartPage', () => {
 		expect(screen.queryByRole('heading', { name: 'Configure operators' })).not.toBeInTheDocument();
 		expect(screen.getByText('Models')).toBeInTheDocument();
 	});
+
+	it('keeps saved provider keys masked outside the edit draft', async () => {
+		const user = userEvent.setup();
+		renderStartPage();
+
+		await user.click(screen.getByRole('button', { name: /Get started/ }));
+
+		expect(await screen.findByText('sk-************')).toBeInTheDocument();
+
+		await user.click(screen.getByRole('button', { name: 'Edit OpenAI API key' }));
+
+		const apiKeyInput = screen.getByLabelText('OpenAI API key');
+		expect(apiKeyInput).toHaveAttribute('type', 'password');
+		expect(apiKeyInput).toHaveValue('');
+		expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+		await user.type(apiKeyInput, 'new-api-key');
+		await user.click(screen.getByRole('button', { name: 'Save' }));
+
+		await waitFor(() => {
+			expect(window.app.setProviderApiKey).toHaveBeenCalledWith('openai', 'new-api-key');
+		});
+		expect(await screen.findByText('sk-************')).toBeInTheDocument();
+	});
 });
