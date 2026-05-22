@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import type { ThemeMode } from '../../shared';
 import type { TaskEvent } from '../../shared/tasks';
 
 type TaskEventOf<TType extends TaskEvent['type']> = Extract<TaskEvent, { type: TType }>;
@@ -23,7 +22,6 @@ export interface AppEvents {
 	'error:critical': { error: Error; context: string };
 	'window:created': { windowId: number; type: string };
 	'window:closed': { windowId: number };
-	'theme:changed': { theme: ThemeMode };
 	'task:created': TaskEventOf<'task:created'>;
 	'task:started': TaskEventOf<'task:started'>;
 	'task:updated': TaskEventOf<'task:updated'>;
