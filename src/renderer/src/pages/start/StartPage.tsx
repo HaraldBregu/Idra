@@ -1328,9 +1328,9 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderStepContent(): React.JSX.Element {
-		if (step === 'welcome') return renderWelcomeStep();
+		if (step === 'presentation') return renderWelcomeStep();
 		if (step === 'providers') return renderProviderStep();
-		return renderOperatorsStep();
+		return renderModelsStep();
 	}
 
 	return (
@@ -1370,7 +1370,7 @@ const StartPage: React.FC = () => {
 					</p>
 				</div>
 				<div className="flex items-center gap-2">
-					{step !== 'welcome' ? (
+					{step !== 'presentation' ? (
 						<Button
 							type="button"
 							variant="outline"
