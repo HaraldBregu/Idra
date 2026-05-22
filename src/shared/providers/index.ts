@@ -16,7 +16,7 @@ import {
 	type ModelCatalog,
 	type ProviderModel,
 } from './models';
-import { CHAT_MODELS_BY_PROVIDER, LLM_MODELS_BY_PROVIDER, RESEARCH_CHAT_MODELS_BY_PROVIDER } from './llm-models';
+import { LLM_MODELS_BY_PROVIDER, RESEARCH_CHAT_MODELS_BY_PROVIDER } from './llm-models';
 import { SPEECH_TO_TEXT_MODELS_BY_PROVIDER } from './speech-to-text-models';
 import { TEXT_TO_SPEECH_MODELS_BY_PROVIDER } from './text-to-speech-models';
 import { REALTIME_VOICE_MODELS_BY_PROVIDER } from './realtime-voice-models';
