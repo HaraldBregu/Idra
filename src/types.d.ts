@@ -10,7 +10,7 @@
 //   - For shared types that can be imported as modules, prefer:
 //     src/shared/ipc.ts          — IPC result envelopes
 //     src/shared/ipc-channels.ts — IPC channel names and contracts
-//     src/shared/channels.ts     — messaging channel domain types
+//     src/shared/channels        — messaging channel domain types
 //   - Do NOT import Electron, Node.js, React, or browser APIs here.
 //
 // Included by:
