@@ -245,7 +245,7 @@ export class Main {
 		const { workArea } = screen.getDisplayNearestPoint(referencePoint);
 
 		const x = Math.round(workArea.x + (workArea.width - TRAY_WINDOW_WIDTH) / 2);
-		const y = Math.round(workArea.y + (workArea.height - TRAY_WINDOW_HEIGHT) / 2);
+		const y = workArea.y;
 
 		win.setPosition(x, y, false);
 	}
