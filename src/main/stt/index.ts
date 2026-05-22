@@ -6,6 +6,7 @@ export {
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 } from './audio';
 export {
+	createMistralHttpServerUrl,
 	createMistralRealtimeServerUrl,
 	createMistralRealtimeSpeechToTextAdapter,
 	MistralRealtimeSpeechToTextAdapter,

@@ -9,7 +9,9 @@ import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
 import {
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
+	createMistralHttpServerUrl,
 	createMistralRealtimeServerUrl,
+	createMistralRealtimeSpeechToTextAdapter,
 	createQwenRealtimeTranscriptionResponseCreate,
 	createQwenRealtimeTranscriptionSessionUpdate,
 	createQwenRealtimeTranscriptionUrl,
@@ -25,6 +27,7 @@ import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
 import {
+	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
@@ -120,6 +123,9 @@ describe('realtime transcription IPC', () => {
 	});
 
 	it('maps Mistral API base URLs to the realtime websocket server URL', () => {
+		expect(createMistralHttpServerUrl('https://api.mistral.ai/v1')).toBe(
+			'https://api.mistral.ai'
+		);
 		expect(createMistralRealtimeServerUrl('https://api.mistral.ai/v1')).toBe(
 			'wss://api.mistral.ai'
 		);
@@ -170,5 +176,12 @@ describe('realtime transcription IPC', () => {
 		expect(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID).toBe(
 			'voxtral-mini-transcribe-realtime-2602'
 		);
+	});
+
+	it('routes both Mistral STT catalog models to the Mistral adapter', () => {
+		const adapter = createMistralRealtimeSpeechToTextAdapter();
+
+		expect(adapter.supports('mistral', MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(adapter.supports('mistral', MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
 	});
 });
