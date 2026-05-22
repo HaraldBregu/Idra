@@ -651,9 +651,21 @@ const StartPage: React.FC = () => {
 			if (providers.length === 0) {
 				setAgentModelGroups([]);
 				setSpeechModelGroups([]);
+				setTextToSpeechModelGroups([]);
+				setImageCreatorModelGroups([]);
+				setTextToVideoModelGroups([]);
+				setMusicCreatorModelGroups([]);
 				setSelectedModel('');
 				setSpeechProviderId('');
 				setSelectedSpeechModel('');
+				setTextToSpeechProviderId('');
+				setSelectedTextToSpeechModel('');
+				setImageCreatorProviderId('');
+				setSelectedImageCreatorModel('');
+				setTextToVideoProviderId('');
+				setSelectedTextToVideoModel('');
+				setMusicCreatorProviderId('');
+				setSelectedMusicCreatorModel('');
 				return;
 			}
 
@@ -662,6 +674,10 @@ const StartPage: React.FC = () => {
 			try {
 				const nextAgentGroups: ProviderModelGroup[] = [];
 				const nextSpeechGroups: ProviderModelGroup[] = [];
+				const nextTextToSpeechGroups: ProviderModelGroup[] = [];
+				const nextImageCreatorGroups: ProviderModelGroup[] = [];
+				const nextTextToVideoGroups: ProviderModelGroup[] = [];
+				const nextMusicCreatorGroups: ProviderModelGroup[] = [];
 				let firstError: unknown;
 
 				for (const provider of providers) {
@@ -682,12 +698,52 @@ const StartPage: React.FC = () => {
 					} catch (error) {
 						firstError ??= error;
 					}
+
+					try {
+						const textToSpeechModels = await window.app.getTextToSpeechModels(provider);
+						if (textToSpeechModels.length > 0) {
+							nextTextToSpeechGroups.push({ provider, models: textToSpeechModels });
+						}
+					} catch (error) {
+						firstError ??= error;
+					}
+
+					try {
+						const imageCreatorModels = await window.app.getImageCreatorModels(provider);
+						if (imageCreatorModels.length > 0) {
+							nextImageCreatorGroups.push({ provider, models: imageCreatorModels });
+						}
+					} catch (error) {
+						firstError ??= error;
+					}
+
+					try {
+						const textToVideoModels = await window.app.getTextToVideoModels(provider);
+						if (textToVideoModels.length > 0) {
+							nextTextToVideoGroups.push({ provider, models: textToVideoModels });
+						}
+					} catch (error) {
+						firstError ??= error;
+					}
+
+					try {
+						const musicCreatorModels = await window.app.getMusicCreatorModels(provider);
+						if (musicCreatorModels.length > 0) {
+							nextMusicCreatorGroups.push({ provider, models: musicCreatorModels });
+						}
+					} catch (error) {
+						firstError ??= error;
+					}
 				}
 
 				if (cancelled) return;
 
 				setAgentModelGroups(nextAgentGroups);
 				setSpeechModelGroups(nextSpeechGroups);
+				setTextToSpeechModelGroups(nextTextToSpeechGroups);
+				setImageCreatorModelGroups(nextImageCreatorGroups);
+				setTextToVideoModelGroups(nextTextToVideoGroups);
+				setMusicCreatorModelGroups(nextMusicCreatorGroups);
 
 				const agentOptions = nextAgentGroups.flatMap((group) =>
 					group.models.map((model) => ({ provider: group.provider, model }))
@@ -717,6 +773,38 @@ const StartPage: React.FC = () => {
 				setSpeechProviderId(preferredSpeechOption?.provider.id ?? '');
 				setSelectedSpeechModel(preferredSpeechOption?.model.id ?? '');
 
+				const preferredTextToSpeechOption = getPreferredProviderModelOption(
+					nextTextToSpeechGroups,
+					savedTextToSpeechOperator?.provider.id ?? textToSpeechProviderId,
+					savedTextToSpeechOperator?.model.id ?? ''
+				);
+				setTextToSpeechProviderId(preferredTextToSpeechOption?.provider.id ?? '');
+				setSelectedTextToSpeechModel(preferredTextToSpeechOption?.model.id ?? '');
+
+				const preferredImageCreatorOption = getPreferredProviderModelOption(
+					nextImageCreatorGroups,
+					savedImageCreatorOperator?.provider.id ?? imageCreatorProviderId,
+					savedImageCreatorOperator?.model.id ?? ''
+				);
+				setImageCreatorProviderId(preferredImageCreatorOption?.provider.id ?? '');
+				setSelectedImageCreatorModel(preferredImageCreatorOption?.model.id ?? '');
+
+				const preferredTextToVideoOption = getPreferredProviderModelOption(
+					nextTextToVideoGroups,
+					savedTextToVideoOperator?.provider.id ?? textToVideoProviderId,
+					savedTextToVideoOperator?.model.id ?? ''
+				);
+				setTextToVideoProviderId(preferredTextToVideoOption?.provider.id ?? '');
+				setSelectedTextToVideoModel(preferredTextToVideoOption?.model.id ?? '');
+
+				const preferredMusicCreatorOption = getPreferredProviderModelOption(
+					nextMusicCreatorGroups,
+					savedMusicCreatorOperator?.provider.id ?? musicCreatorProviderId,
+					savedMusicCreatorOperator?.model.id ?? ''
+				);
+				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
+				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
+
 				if (!preferredAgentOption && nextSpeechGroups.length === 0 && firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
 				}
@@ -724,9 +812,21 @@ const StartPage: React.FC = () => {
 				if (cancelled) return;
 				setAgentModelGroups([]);
 				setSpeechModelGroups([]);
+				setTextToSpeechModelGroups([]);
+				setImageCreatorModelGroups([]);
+				setTextToVideoModelGroups([]);
+				setMusicCreatorModelGroups([]);
 				setSelectedModel('');
 				setSpeechProviderId('');
 				setSelectedSpeechModel('');
+				setTextToSpeechProviderId('');
+				setSelectedTextToSpeechModel('');
+				setImageCreatorProviderId('');
+				setSelectedImageCreatorModel('');
+				setTextToVideoProviderId('');
+				setSelectedTextToVideoModel('');
+				setMusicCreatorProviderId('');
+				setSelectedMusicCreatorModel('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
 				if (!cancelled) {
