@@ -47,6 +47,7 @@ export interface SettingsOperatorItem {
 	readonly descriptionKey: string;
 	readonly keywords: string;
 	readonly icon: LucideIcon;
+	readonly comingSoon?: boolean;
 }
 
 export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
