@@ -402,12 +402,32 @@ const StartPage: React.FC = () => {
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState('');
 	const [savedTextToSpeechOperator, setSavedTextToSpeechOperator] =
 		useState<ConfiguredModelOperator>();
+	const [textToSpeechModelGroups, setTextToSpeechModelGroups] = useState<ProviderModelGroup[]>(
+		[]
+	);
+	const [textToSpeechProviderId, setTextToSpeechProviderId] = useState('');
+	const [selectedTextToSpeechModel, setSelectedTextToSpeechModel] = useState('');
 	const [savedImageCreatorOperator, setSavedImageCreatorOperator] =
 		useState<ConfiguredModelOperator>();
+	const [imageCreatorModelGroups, setImageCreatorModelGroups] = useState<ProviderModelGroup[]>(
+		[]
+	);
+	const [imageCreatorProviderId, setImageCreatorProviderId] = useState('');
+	const [selectedImageCreatorModel, setSelectedImageCreatorModel] = useState('');
 	const [savedTextToVideoOperator, setSavedTextToVideoOperator] =
 		useState<ConfiguredModelOperator>();
+	const [textToVideoModelGroups, setTextToVideoModelGroups] = useState<ProviderModelGroup[]>(
+		[]
+	);
+	const [textToVideoProviderId, setTextToVideoProviderId] = useState('');
+	const [selectedTextToVideoModel, setSelectedTextToVideoModel] = useState('');
 	const [savedMusicCreatorOperator, setSavedMusicCreatorOperator] =
 		useState<ConfiguredModelOperator>();
+	const [musicCreatorModelGroups, setMusicCreatorModelGroups] = useState<ProviderModelGroup[]>(
+		[]
+	);
+	const [musicCreatorProviderId, setMusicCreatorProviderId] = useState('');
+	const [selectedMusicCreatorModel, setSelectedMusicCreatorModel] = useState('');
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
