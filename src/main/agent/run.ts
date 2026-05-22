@@ -22,6 +22,12 @@ import type {
 	ModelReasoningEffort,
 	ReasoningSummaryState,
 } from '../../shared/agents/service';
+import { makeProvider, type ProviderSpec } from '../provider/factory';
+
+export interface AgentProviderStore {
+	getAssistantOperator(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
+	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
+}
 
 export interface AgentRunHooks {
 	onStart?: (info: { runId: string }) => void | Promise<void>;
