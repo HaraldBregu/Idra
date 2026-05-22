@@ -118,6 +118,7 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	return value as Record<string, unknown>;
 }
+
 function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
 	const record = readRecord(value);
 	if (!record) return undefined;
@@ -134,6 +135,7 @@ function readModelModuleSettings(value: unknown): ModelModuleSettings | undefine
 		...(options ? { options } : {}),
 	};
 }
+
 function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
 	const record = readRecord(value);
 	if (!record) return {};
@@ -449,6 +451,7 @@ export class StoreService {
 	getBackgroundTaskSettings(): BackgroundTaskSettings {
 		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
 	}
+
 	setAssistantOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {

@@ -233,26 +233,20 @@ describe('StoreService', () => {
 		});
 	});
 
-	describe('app settings', () => {
+	describe('keep-awake runtime setting', () => {
 		it('defaults keep-awake off', () => {
 			const service = new StoreService();
 
 			expect(service.getKeepAwakeEnabled()).toBe(false);
 		});
 
-		it('normalizes invalid app setting roots to documented defaults', () => {
+		it('does not persist keep-awake state in the settings store', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('appSettings', { keepAwakeEnabled: 'yes' });
-
-			expect(service.getAppSettings()).toEqual({ keepAwakeEnabled: false });
-		});
-
-		it('persists the keep-awake setting', () => {
-			const service = new StoreService();
 
 			expect(service.setKeepAwakeEnabled(true)).toEqual({ keepAwakeEnabled: true });
 			expect(service.getKeepAwakeEnabled()).toBe(true);
+			expect(store.get('appSettings')).toBeUndefined();
 
 			expect(service.setKeepAwakeEnabled(false)).toEqual({ keepAwakeEnabled: false });
 			expect(service.getKeepAwakeEnabled()).toBe(false);

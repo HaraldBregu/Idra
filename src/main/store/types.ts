@@ -13,7 +13,6 @@ export interface ModelModuleSettings {
 	options?: Record<string, unknown>;
 }
 
-
 export interface TaskSchedulerSettings {
 	enabled?: boolean;
 	managed?: unknown;
