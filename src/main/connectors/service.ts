@@ -92,6 +92,15 @@ function knownTools(connector: ConnectorConfig): ConnectorTool[] {
 	}));
 }
 
+function dedupeByConnectorId(connectors: ConnectorConfig[]): ConnectorConfig[] {
+	const seen = new Set<string>();
+	return connectors.filter((connector) => {
+		if (seen.has(connector.connectorId)) return false;
+		seen.add(connector.connectorId);
+		return true;
+	});
+}
+
 function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
@@ -256,6 +265,9 @@ export class ConnectorsService {
 
 	async add(input: unknown): Promise<ConnectorConfig> {
 		const sanitized = sanitizeInput(input);
+		if (this.store.getConnectors().some((connector) => connector.connectorId === sanitized.connectorId)) {
+			throw new Error(`Connector ${sanitized.connectorId} is already configured.`);
+		}
 		const now = new Date().toISOString();
 		const connector: ConnectorConfig = {
 			id: randomUUID(),
@@ -476,9 +488,11 @@ export class ConnectorsService {
 	}
 
 	private validConnectors(): ConnectorConfig[] {
-		return this.store.getConnectors()
-			.filter(isStoredConnectorValid)
-			.map(normalizeStoredConnector);
+		return dedupeByConnectorId(
+			this.store.getConnectors()
+				.filter(isStoredConnectorValid)
+				.map(normalizeStoredConnector)
+		);
 	}
 
 	private replace(connector: ConnectorConfig): void {
