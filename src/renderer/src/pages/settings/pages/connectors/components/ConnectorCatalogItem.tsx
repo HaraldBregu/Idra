@@ -21,7 +21,6 @@ export function ConnectorCatalogItem({
 			<ConnectorIcon directConnectorId={item.directConnectorId} name={item.name} />
 			<ItemContent className="min-w-0">
 				<ItemTitle className="min-w-0 truncate">{item.name}</ItemTitle>
-				<p className="truncate text-[11px] text-muted-foreground">{item.description}</p>
 			</ItemContent>
 			<ItemActions className="ml-auto flex-none">
 				<Button variant="outline" size="xs" onClick={onAdd}>
