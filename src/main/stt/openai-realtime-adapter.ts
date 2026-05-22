@@ -233,7 +233,8 @@ class OpenAIRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 			this.handleServerEvent(event);
 		});
 		this.socket.on('error', (error) => {
-			if (this.closeAfterFinal && isInputAudioBufferTooSmallError(error.message)) {
+			const message = error.error?.message ?? error.message;
+			if (this.closeAfterFinal && isInputAudioBufferTooSmallError(message)) {
 				this.close();
 				return;
 			}
@@ -241,7 +242,7 @@ class OpenAIRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 			this.emit({
 				type: 'error',
 				sessionId: this.id,
-				message: error.message,
+				message,
 			});
 		});
 		(this.socket.socket as WebSocketLike).addEventListener('close', () => {

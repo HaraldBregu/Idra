@@ -210,7 +210,8 @@
       "Bash(chmod +x *)",
       "WebFetch(domain:api-docs.deepseek.com)",
       "WebFetch(domain:docs.qwencloud.com)",
-      "WebFetch(domain:www.qwencloud.com)"
+      "WebFetch(domain:www.qwencloud.com)",
+      "WebFetch(domain:platform.openai.com)"
     ],
     "deny": [
       "Bash(git push --force:*)",
