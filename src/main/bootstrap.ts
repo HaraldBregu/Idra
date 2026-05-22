@@ -19,7 +19,6 @@ import {
 	TaskManager,
 	TaskRegistry,
 } from './tasks';
-import { TextToImageService } from './text-to-image';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
@@ -77,7 +76,6 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
-	const textToImage = container.register('textToImage', new TextToImageService(store));
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(store, logger));
 	cron.restore((task) => {
@@ -101,7 +99,6 @@ export function bootstrapServices(): BootstrapResult {
 		connectors,
 		mcpRegistry,
 		skills,
-		textToImage,
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();
