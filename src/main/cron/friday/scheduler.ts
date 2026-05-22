@@ -28,10 +28,7 @@ import {
 	normalizeDelivery,
 	fridayScheduleIdentity,
 } from './validation';
-import {
-	normalizeFridayCronToolRequest,
-	type FridayCronNormalizeContext,
-} from './normalize';
+import { normalizeFridayCronToolRequest, type FridayCronNormalizeContext } from './normalize';
 
 export interface FridayCronLogger {
 	info(scope: string, message: string, metadata?: unknown): void;
@@ -106,18 +103,13 @@ export class NoopFridayCronExecutor implements FridayCronExecutor {
 	async execute(input: { job: FridayCronJobDefinition }): Promise<FridayCronExecutionOutcome> {
 		return {
 			status: 'ok',
-			output:
-				input.job.payload.kind === 'agentTurn'
-					? ''
-					: input.job.payload.text,
+			output: input.job.payload.kind === 'agentTurn' ? '' : input.job.payload.text,
 		};
 	}
 }
 
 export class NoopFridayCronDelivery implements FridayCronDeliveryPort {
-	async deliver(input: {
-		delivery: FridayCronDelivery;
-	}): Promise<FridayCronDeliveryState> {
+	async deliver(input: { delivery: FridayCronDelivery }): Promise<FridayCronDeliveryState> {
 		return {
 			mode: input.delivery.mode,
 			status: input.delivery.mode === 'none' ? 'skipped' : 'sent',
@@ -163,7 +155,10 @@ export class FridayCronScheduler {
 		if (this.started) return;
 		this.started = true;
 		if (!this.options.enabled) {
-			this.logger?.warn('FridayCron', 'Cron scheduler is globally disabled; jobs are persisted but timers will not arm.');
+			this.logger?.warn(
+				'FridayCron',
+				'Cron scheduler is globally disabled; jobs are persisted but timers will not arm.'
+			);
 			return;
 		}
 		await this.recoverStartup();
@@ -191,7 +186,9 @@ export class FridayCronScheduler {
 			jobCount: visibleJobs.length,
 			runningCount: visibleJobs.filter((job) => snapshot.states[job.id]?.runningAtMs).length,
 			nextRunAtMs,
-			warning: this.options.enabled ? undefined : 'Cron jobs are saved but automatic execution is disabled.',
+			warning: this.options.enabled
+				? undefined
+				: 'Cron jobs are saved but automatic execution is disabled.',
 		};
 	}
 
@@ -219,7 +216,10 @@ export class FridayCronScheduler {
 		return this.join(job, snapshot.states[job.id]);
 	}
 
-	async add(request: FridayCronAddRequest, actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronJob> {
+	async add(
+		request: FridayCronAddRequest,
+		actor: FridayCronActor = { role: 'owner' }
+	): Promise<FridayCronJob> {
 		this.authorize(actor, 'add');
 		const snapshot = await this.store.load();
 		const now = Date.now();
@@ -228,7 +228,11 @@ export class FridayCronScheduler {
 		if (snapshot.jobs.some((job) => job.id === id)) {
 			throw new Error(`Cron job already exists: ${id}`);
 		}
-		const sessionTarget = this.resolveSessionTarget(request.sessionTarget, request.payload, actor.sessionId);
+		const sessionTarget = this.resolveSessionTarget(
+			request.sessionTarget,
+			request.payload,
+			actor.sessionId
+		);
 		const job: FridayCronJobDefinition = {
 			id,
 			name: request.name.trim(),
@@ -243,9 +247,10 @@ export class FridayCronScheduler {
 			delivery: normalizeDelivery(request.payload, sessionTarget, request.delivery),
 			failureAlert: request.failureAlert,
 			agentId: request.agentId === undefined ? actor.agentId : request.agentId,
-			sessionKey: request.sessionKey === undefined
-				? actor.sessionKey ?? actor.sessionId
-				: request.sessionKey,
+			sessionKey:
+				request.sessionKey === undefined
+					? (actor.sessionKey ?? actor.sessionId)
+					: request.sessionKey,
 			deleteAfterRun: request.deleteAfterRun ?? (request.schedule.kind === 'at' ? true : undefined),
 			maxAttempts: request.maxAttempts,
 			backoffMs: request.backoffMs,
@@ -335,10 +340,18 @@ export class FridayCronScheduler {
 			await this.store.appendRun(run);
 			return run;
 		}
-		return this.executeJob(job.id, state.nextRunAtMs ?? now, mode === 'due' ? 'manual-due' : 'manual-force');
+		return this.executeJob(
+			job.id,
+			state.nextRunAtMs ?? now,
+			mode === 'due' ? 'manual-due' : 'manual-force'
+		);
 	}
 
-	async runs(jobId: string, limit = 50, actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronRunRecord[]> {
+	async runs(
+		jobId: string,
+		limit = 50,
+		actor: FridayCronActor = { role: 'owner' }
+	): Promise<FridayCronRunRecord[]> {
 		this.authorize(actor, 'runs', jobId);
 		return this.store.listRuns(jobId, limit);
 	}
@@ -366,7 +379,9 @@ export class FridayCronScheduler {
 			return {
 				status: 'ok',
 				enabled: this.options.enabled,
-				warning: this.options.enabled ? undefined : 'Cron jobs are saved but automatic execution is disabled.',
+				warning: this.options.enabled
+					? undefined
+					: 'Cron jobs are saved but automatic execution is disabled.',
 				result,
 			};
 		} catch (error) {
@@ -433,9 +448,17 @@ export class FridayCronScheduler {
 		const due = snapshot.jobs
 			.filter((job) => {
 				const state = snapshot.states[job.id];
-				return Boolean(job.enabled && state?.nextRunAtMs !== undefined && state.nextRunAtMs <= now && !state.runningAtMs);
+				return Boolean(
+					job.enabled &&
+					state?.nextRunAtMs !== undefined &&
+					state.nextRunAtMs <= now &&
+					!state.runningAtMs
+				);
 			})
-			.sort((a, b) => (snapshot.states[a.id]?.nextRunAtMs ?? 0) - (snapshot.states[b.id]?.nextRunAtMs ?? 0))
+			.sort(
+				(a, b) =>
+					(snapshot.states[a.id]?.nextRunAtMs ?? 0) - (snapshot.states[b.id]?.nextRunAtMs ?? 0)
+			)
 			.slice(0, Math.max(1, this.options.maxConcurrentRuns - this.running));
 		for (const job of due) {
 			const scheduledForMs = snapshot.states[job.id]?.nextRunAtMs ?? now;
@@ -496,12 +519,11 @@ export class FridayCronScheduler {
 		this.running += 1;
 		const runId = randomUUID();
 		const controller = new AbortController();
-		const timeoutMs = job.payload.kind === 'agentTurn' && job.payload.timeoutSeconds
-			? job.payload.timeoutSeconds * 1000
-			: undefined;
-		const timeout = timeoutMs
-			? setTimeout(() => controller.abort(), timeoutMs)
-			: undefined;
+		const timeoutMs =
+			job.payload.kind === 'agentTurn' && job.payload.timeoutSeconds
+				? job.payload.timeoutSeconds * 1000
+				: undefined;
+		const timeout = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
 		try {
 			const outcome = await this.executor.execute({
 				job,
@@ -532,7 +554,14 @@ export class FridayCronScheduler {
 		outcome: FridayCronExecutionOutcome
 	): Promise<FridayCronRunRecord> {
 		if (outcome.status === 'skipped') {
-			const run = this.skippedRun(job, scheduledForMs, mode, outcome.skippedReason ?? 'executor_skipped', runId, finishedAtMs);
+			const run = this.skippedRun(
+				job,
+				scheduledForMs,
+				mode,
+				outcome.skippedReason ?? 'executor_skipped',
+				runId,
+				finishedAtMs
+			);
 			await this.applyRunResult(job, run);
 			return run;
 		}
@@ -579,7 +608,10 @@ export class FridayCronScheduler {
 		return run;
 	}
 
-	private async applyRunResult(job: FridayCronJobDefinition, run: FridayCronRunRecord): Promise<void> {
+	private async applyRunResult(
+		job: FridayCronJobDefinition,
+		run: FridayCronRunRecord
+	): Promise<void> {
 		const snapshot = await this.store.load();
 		const index = snapshot.jobs.findIndex((entry) => entry.id === job.id);
 		if (index === -1) {
@@ -622,7 +654,8 @@ export class FridayCronScheduler {
 		} else {
 			state.consecutiveErrors += 1;
 			state.consecutiveSkipped = 0;
-			const exhausted = currentJob.schedule.kind === 'at' && state.attempts >= this.maxAttempts(currentJob);
+			const exhausted =
+				currentJob.schedule.kind === 'at' && state.attempts >= this.maxAttempts(currentJob);
 			if (currentJob.schedule.kind === 'at' && (run.error?.permanent || exhausted)) {
 				currentJob.enabled = false;
 				state.nextRunAtMs = undefined;
@@ -760,14 +793,22 @@ export class FridayCronScheduler {
 		return Math.max(next, fromMs + this.options.minRefireGapMs);
 	}
 
-	private nextAfterError(job: FridayCronJobDefinition, state: FridayCronJobState, now: number): number {
+	private nextAfterError(
+		job: FridayCronJobDefinition,
+		state: FridayCronJobState,
+		now: number
+	): number {
 		const base = Math.max(0, job.backoffMs ?? this.options.defaultBackoffMs);
 		const max = Math.max(base, job.maxBackoffMs ?? this.options.defaultMaxBackoffMs);
 		const multiplier = 2 ** Math.max(0, state.consecutiveErrors - 1);
 		return now + Math.min(max, base * multiplier);
 	}
 
-	private refreshNextRun(job: FridayCronJobDefinition, state: FridayCronJobState, now: number): void {
+	private refreshNextRun(
+		job: FridayCronJobDefinition,
+		state: FridayCronJobState,
+		now: number
+	): void {
 		try {
 			state.nextRunAtMs = this.computeNextRun(job, state, now, true);
 			state.consecutiveScheduleErrors = 0;
@@ -850,7 +891,8 @@ export class FridayCronScheduler {
 		let changed = false;
 		for (const job of snapshot.jobs) {
 			const state = snapshot.states[job.id];
-			if (!state?.runningAtMs || now - state.runningAtMs <= this.options.stuckRunThresholdMs) continue;
+			if (!state?.runningAtMs || now - state.runningAtMs <= this.options.stuckRunThresholdMs)
+				continue;
 			state.runningAtMs = undefined;
 			state.lastRunStatus = 'error';
 			state.lastError = {
@@ -876,7 +918,10 @@ export class FridayCronScheduler {
 			.sort((a, b) => a - b)[0];
 		const delayMs = Math.max(
 			this.options.minRefireGapMs,
-			Math.min(this.options.maintenanceIntervalMs, next === undefined ? this.options.maintenanceIntervalMs : next - Date.now())
+			Math.min(
+				this.options.maintenanceIntervalMs,
+				next === undefined ? this.options.maintenanceIntervalMs : next - Date.now()
+			)
 		);
 		this.timer = setTimeout(() => {
 			void this.processDue(Date.now()).catch((error) => {
@@ -886,7 +931,10 @@ export class FridayCronScheduler {
 		this.timer.unref?.();
 	}
 
-	private visibleJobs(snapshot: FridayCronSnapshot, actor: FridayCronActor): FridayCronJobDefinition[] {
+	private visibleJobs(
+		snapshot: FridayCronSnapshot,
+		actor: FridayCronActor
+	): FridayCronJobDefinition[] {
 		if (actor.role === 'cron-self') {
 			return snapshot.jobs.filter((job) => job.id === actor.jobId);
 		}
@@ -904,7 +952,11 @@ export class FridayCronScheduler {
 		return { ...job, state: state ?? defaultFridayCronJobState(job) };
 	}
 
-	private authorize(actor: FridayCronActor, action: FridayCronCanonicalToolRequest['action'], jobId?: string): void {
+	private authorize(
+		actor: FridayCronActor,
+		action: FridayCronCanonicalToolRequest['action'],
+		jobId?: string
+	): void {
 		if (actor.role === 'owner') return;
 		if (actor.role === 'cron-self') {
 			if (action === 'status' || action === 'list') return;
@@ -928,11 +980,12 @@ export class FridayCronScheduler {
 		currentSessionId?: string
 	): FridayCronSessionTarget {
 		const inferred = target ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
-		const resolved = inferred === 'current'
-			? currentSessionId
-				? `session:${currentSessionId}` as const
-				: 'isolated'
-			: inferred;
+		const resolved =
+			inferred === 'current'
+				? currentSessionId
+					? (`session:${currentSessionId}` as const)
+					: 'isolated'
+				: inferred;
 		assertTargetMatchesPayload(resolved, payload);
 		return resolved;
 	}
@@ -943,7 +996,12 @@ export class FridayCronScheduler {
 
 	private toRunError(error: unknown, fallbackCode = 'CRON_RUN_ERROR'): FridayCronRunError {
 		if (error && typeof error === 'object') {
-			const record = error as { code?: unknown; message?: unknown; permanent?: unknown; name?: unknown };
+			const record = error as {
+				code?: unknown;
+				message?: unknown;
+				permanent?: unknown;
+				name?: unknown;
+			};
 			return {
 				code: typeof record.code === 'string' ? record.code : fallbackCode,
 				message: typeof record.message === 'string' ? record.message : 'Cron run failed.',

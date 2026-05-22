@@ -60,15 +60,24 @@ export class AgentCronService {
 		return this.scheduler.updateSchedule(scheduleId, patch, this.actor(agentContext));
 	}
 
-	pauseScheduleFromAgent(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<void> {
+	pauseScheduleFromAgent(
+		scheduleId: CronScheduleId,
+		agentContext: AgentCronContext
+	): Promise<void> {
 		return this.scheduler.pauseSchedule(scheduleId, this.actor(agentContext));
 	}
 
-	resumeScheduleFromAgent(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<void> {
+	resumeScheduleFromAgent(
+		scheduleId: CronScheduleId,
+		agentContext: AgentCronContext
+	): Promise<void> {
 		return this.scheduler.resumeSchedule(scheduleId, this.actor(agentContext));
 	}
 
-	deleteScheduleFromAgent(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<void> {
+	deleteScheduleFromAgent(
+		scheduleId: CronScheduleId,
+		agentContext: AgentCronContext
+	): Promise<void> {
 		return this.scheduler.deleteSchedule(scheduleId, this.actor(agentContext));
 	}
 
@@ -85,7 +94,10 @@ export class AgentCronService {
 		);
 	}
 
-	async explainSchedule(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<string> {
+	async explainSchedule(
+		scheduleId: CronScheduleId,
+		agentContext: AgentCronContext
+	): Promise<string> {
 		const schedule = await this.scheduler.getSchedule(scheduleId, this.actor(agentContext));
 		return [
 			this.describer.describeSchedule(schedule),
@@ -103,7 +115,10 @@ export class AgentCronService {
 		return this.scheduler.getNextRuns(scheduleId, count, this.actor(agentContext));
 	}
 
-	runScheduleNowFromAgent(scheduleId: CronScheduleId, agentContext: AgentCronContext): Promise<CronScheduledTask> {
+	runScheduleNowFromAgent(
+		scheduleId: CronScheduleId,
+		agentContext: AgentCronContext
+	): Promise<CronScheduledTask> {
 		return this.scheduler.runScheduleNow(scheduleId, this.actor(agentContext));
 	}
 

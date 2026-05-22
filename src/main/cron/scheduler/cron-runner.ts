@@ -58,7 +58,10 @@ export class InMemoryCronScheduleRunner implements CronScheduleRunner {
 		return task;
 	}
 
-	async findExistingTask(filter: { scheduleId: CronScheduleId; scheduledRunAt: string }): Promise<CronScheduledTask | undefined> {
+	async findExistingTask(filter: {
+		scheduleId: CronScheduleId;
+		scheduledRunAt: string;
+	}): Promise<CronScheduledTask | undefined> {
 		return Array.from(this.tasks.values()).find(
 			(task) =>
 				task.sourceId === filter.scheduleId &&
@@ -127,8 +130,10 @@ function taskRecordToCronScheduledTask(record: TaskRecord): CronScheduledTask | 
 		sessionId: stringFromMetadata(metadata, 'cronSessionId'),
 		input: redactCronValue((metadata.cronInput ?? {}) as CronScheduledTask['input']),
 		status: cronStatusFromTaskStatus(record.status),
-		priority: (stringFromMetadata(metadata, 'cronPriority') as CronScheduledTask['priority']) ?? 'normal',
-		visibility: (stringFromMetadata(metadata, 'cronVisibility') as CronScheduledTask['visibility']) ?? 'user',
+		priority:
+			(stringFromMetadata(metadata, 'cronPriority') as CronScheduledTask['priority']) ?? 'normal',
+		visibility:
+			(stringFromMetadata(metadata, 'cronVisibility') as CronScheduledTask['visibility']) ?? 'user',
 		tags: stringArrayFromMetadata(metadata, 'cronTags'),
 		metadata: {
 			cronScheduleId,
@@ -190,7 +195,10 @@ export class TaskManagerCronScheduleRunner implements CronScheduleRunner {
 	}): Promise<CronScheduledTask | undefined> {
 		for (const record of this.taskManager.list()) {
 			const task = taskRecordToCronScheduledTask(record);
-			if (task?.sourceId === filter.scheduleId && task.metadata.scheduledRunAt === filter.scheduledRunAt) {
+			if (
+				task?.sourceId === filter.scheduleId &&
+				task.metadata.scheduledRunAt === filter.scheduledRunAt
+			) {
 				return task;
 			}
 		}
@@ -198,12 +206,10 @@ export class TaskManagerCronScheduleRunner implements CronScheduleRunner {
 	}
 
 	async listRunningTasks(scheduleId: CronScheduleId): Promise<CronScheduledTask[]> {
-		return this.taskManager
-			.list()
-			.flatMap((record) => {
-				const task = taskRecordToCronScheduledTask(record);
-				return task && task.sourceId === scheduleId && !terminal(task.status) ? [task] : [];
-			});
+		return this.taskManager.list().flatMap((record) => {
+			const task = taskRecordToCronScheduledTask(record);
+			return task && task.sourceId === scheduleId && !terminal(task.status) ? [task] : [];
+		});
 	}
 
 	async cancelRunningTasks(scheduleId: CronScheduleId): Promise<void> {
@@ -227,7 +233,10 @@ export class DelegatingCronScheduleRunner implements CronScheduleRunner {
 		return this.delegate.createTaskForSchedule(input);
 	}
 
-	findExistingTask(filter: { scheduleId: CronScheduleId; scheduledRunAt: string }): Promise<CronScheduledTask | undefined> {
+	findExistingTask(filter: {
+		scheduleId: CronScheduleId;
+		scheduledRunAt: string;
+	}): Promise<CronScheduledTask | undefined> {
 		return this.delegate.findExistingTask?.(filter) ?? Promise.resolve(undefined);
 	}
 

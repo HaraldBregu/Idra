@@ -16,7 +16,13 @@ export async function createMondayInvoiceReminder(agentCron: AgentCronService): 
 			agentId: 'agent',
 			userId: 'current-user',
 			timezone: 'Europe/Rome',
-			permissions: ['createSchedule', 'listSchedules', 'pauseSchedule', 'resumeSchedule', 'deleteSchedule'],
+			permissions: [
+				'createSchedule',
+				'listSchedules',
+				'pauseSchedule',
+				'resumeSchedule',
+				'deleteSchedule',
+			],
 		}
 	);
 	return schedule.id;
