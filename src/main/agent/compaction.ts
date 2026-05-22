@@ -35,6 +35,7 @@ export async function compact(
 		const keep = transcript.slice(transcript.length - KEEP_RECENT);
 
 		const dropText = renderForSummary(toDrop);
+		agentLogger.info('agent:compaction', 'compacting', { sessionId, turns: transcript.length, dropping: toDrop.length });
 		const summary = await runSummarize(provider, model, dropText, effort);
 
 		const synthetic: TranscriptEntry = {
