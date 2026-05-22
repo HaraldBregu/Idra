@@ -22,7 +22,7 @@ import type {
 	ConnectorApprovalMode,
 	ConnectorInput,
 	OpenAiConnectorId,
-} from '../../../../../../shared/connector';
+} from '@shared/connector';
 import {
 	SettingsField,
 	SettingsNotice,
