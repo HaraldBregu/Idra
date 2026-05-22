@@ -114,7 +114,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/system', labelKey: 'settings.microphone.title', descriptionKey: 'settings.microphone.description', keywords: 'microphone audio recorder permission activate disable' },
 	{ path: '/settings/system', labelKey: 'settings.camera.title', descriptionKey: 'settings.camera.description', keywords: 'camera webcam video permission activate disable' },
 	{ path: '/settings/system', labelKey: 'settings.application.keepAwake', descriptionKey: 'settings.application.keepAwakeDescription', keywords: 'awake sleep power save blocker active suspension background' },
-	{ path: '/settings/system', labelKey: 'settings.system.capabilities.title', descriptionKey: 'settings.system.capabilities.description', keywords: 'windows files network webcam microphone audio bluetooth usb printer scanner keyboard mouse clipboard notifications gpu gps location system information drivers daemons hardware' },
+	{ path: '/settings/system', labelKey: 'settings.system.capabilities.title', descriptionKey: 'settings.system.capabilities.description', keywords: 'windows files network webcam microphone audio bluetooth usb printer scanner clipboard notifications gps location system information drivers daemons hardware' },
 	// Providers — API keys
 	{ path: '/settings/providers', labelKey: 'settings.providers.keySaved', keywords: 'api key anthropic openai google' },
 	{ path: '/settings/providers', labelKey: 'settings.providers.apiKeyPlaceholder', keywords: 'api key secret token' },

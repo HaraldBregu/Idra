@@ -2,5 +2,5 @@
 
 | Field | Value |
 | --- | --- |
-| Can a desktop app do it? | Sometimes |
+| Can a desktop app do it? | Coming soon |
 | Notes | Usually requires admin/root. |

@@ -3,12 +3,10 @@ import {
 	Bell,
 	Bluetooth,
 	Clipboard,
-	Cpu,
 	ExternalLink,
 	Files,
 	HardDrive,
 	Info,
-	Keyboard,
 	MapPin,
 	Mic,
 	Microchip,
@@ -27,9 +25,7 @@ export type SystemCapabilityAvailability =
 	| 'yes'
 	| 'oftenYes'
 	| 'sometimes'
-	| 'yesAdmin'
-	| 'yesHighPrivilege'
-	| 'usuallyNo';
+	| 'comingSoon';
 
 export interface SystemCapabilityItem {
 	readonly id: string;
@@ -165,25 +161,11 @@ export const SYSTEM_CAPABILITY_GROUPS = [
 				icon: Printer,
 			},
 			{
-				id: 'access-keyboard-mouse-input',
-				titleKey: 'settings.system.capabilities.items.accessKeyboardMouseInput.title',
-				noteKey: 'settings.system.capabilities.items.accessKeyboardMouseInput.note',
-				availability: 'yes',
-				icon: Keyboard,
-			},
-			{
 				id: 'read-clipboard',
 				titleKey: 'settings.system.capabilities.items.readClipboard.title',
 				noteKey: 'settings.system.capabilities.items.readClipboard.note',
 				availability: 'oftenYes',
 				icon: Clipboard,
-			},
-			{
-				id: 'use-gpu',
-				titleKey: 'settings.system.capabilities.items.useGpu.title',
-				noteKey: 'settings.system.capabilities.items.useGpu.note',
-				availability: 'yes',
-				icon: Cpu,
 			},
 		],
 	},
@@ -196,28 +178,28 @@ export const SYSTEM_CAPABILITY_GROUPS = [
 				id: 'change-system-settings',
 				titleKey: 'settings.system.capabilities.items.changeSystemSettings.title',
 				noteKey: 'settings.system.capabilities.items.changeSystemSettings.note',
-				availability: 'sometimes',
+				availability: 'comingSoon',
 				icon: Settings2,
 			},
 			{
 				id: 'install-services-daemons',
 				titleKey: 'settings.system.capabilities.items.installServicesDaemons.title',
 				noteKey: 'settings.system.capabilities.items.installServicesDaemons.note',
-				availability: 'yesAdmin',
+				availability: 'comingSoon',
 				icon: ServerCog,
 			},
 			{
 				id: 'access-low-level-hardware-directly',
 				titleKey: 'settings.system.capabilities.items.accessLowLevelHardwareDirectly.title',
 				noteKey: 'settings.system.capabilities.items.accessLowLevelHardwareDirectly.note',
-				availability: 'usuallyNo',
+				availability: 'comingSoon',
 				icon: Microchip,
 			},
 			{
 				id: 'install-drivers',
 				titleKey: 'settings.system.capabilities.items.installDrivers.title',
 				noteKey: 'settings.system.capabilities.items.installDrivers.note',
-				availability: 'yesHighPrivilege',
+				availability: 'comingSoon',
 				icon: HardDrive,
 			},
 		],

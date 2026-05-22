@@ -2,5 +2,5 @@
 
 | Field | Value |
 | --- | --- |
-| Can a desktop app do it? | Yes, with admin/root |
+| Can a desktop app do it? | Coming soon |
 | Notes | Used by updaters, VPNs, antivirus, etc. |

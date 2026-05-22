@@ -274,9 +274,7 @@
 				"yes": "Si",
 				"oftenYes": "Spesso si",
 				"sometimes": "A volte",
-				"yesAdmin": "Si, admin/root",
-				"yesHighPrivilege": "Si, privilegi elevati",
-				"usuallyNo": "Di solito no"
+				"comingSoon": "In arrivo"
 			},
 			"capabilities": {
 				"title": "Capacita di sistema",
@@ -291,8 +289,8 @@
 						"description": "Fotocamera, microfono, riproduzione, notifiche e posizione."
 					},
 					"devices": {
-						"title": "Dispositivi e input",
-						"description": "Dispositivi esterni e superfici di input utente."
+						"title": "Dispositivi",
+						"description": "Dispositivi esterni e accesso agli appunti."
 					},
 					"privileged": {
 						"title": "Operazioni privilegiate",
@@ -356,17 +354,9 @@
 						"title": "Usare stampante/scanner",
 						"note": "Tramite API di stampa/scansione del sistema operativo."
 					},
-					"accessKeyboardMouseInput": {
-						"title": "Accedere a input tastiera/mouse",
-						"note": "L'input normale e consentito; il monitoraggio globale e limitato."
-					},
 					"readClipboard": {
 						"title": "Leggere gli appunti",
 						"note": "Alcuni sistemi operativi avvisano o limitano questa azione."
-					},
-					"useGpu": {
-						"title": "Usare GPU",
-						"note": "Grafica, AI, giochi, calcolo."
 					},
 					"changeSystemSettings": {
 						"title": "Cambiare impostazioni di sistema",

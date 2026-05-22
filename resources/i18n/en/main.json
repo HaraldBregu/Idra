@@ -274,9 +274,7 @@
 				"yes": "Yes",
 				"oftenYes": "Often yes",
 				"sometimes": "Sometimes",
-				"yesAdmin": "Yes, admin/root",
-				"yesHighPrivilege": "Yes, high privilege",
-				"usuallyNo": "Usually no"
+				"comingSoon": "Coming soon"
 			},
 			"capabilities": {
 				"title": "System capabilities",
@@ -291,8 +289,8 @@
 						"description": "Camera, microphone, playback, notifications, and location."
 					},
 					"devices": {
-						"title": "Devices and input",
-						"description": "External devices and user input surfaces."
+						"title": "Devices",
+						"description": "External devices and clipboard access."
 					},
 					"privileged": {
 						"title": "Privileged operations",
@@ -356,17 +354,9 @@
 						"title": "Use printer/scanner",
 						"note": "Through OS print/scan APIs."
 					},
-					"accessKeyboardMouseInput": {
-						"title": "Access keyboard/mouse input",
-						"note": "Normal input is allowed; global monitoring is restricted."
-					},
 					"readClipboard": {
 						"title": "Read clipboard",
 						"note": "Some OSes warn or restrict this."
-					},
-					"useGpu": {
-						"title": "Use GPU",
-						"note": "Graphics, AI, games, compute."
 					},
 					"changeSystemSettings": {
 						"title": "Change system settings",

@@ -126,11 +126,8 @@ function availabilityClassName(availability: SystemCapabilityAvailability): stri
 			return 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300';
 		case 'sometimes':
 			return 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300';
-		case 'yesAdmin':
-		case 'yesHighPrivilege':
+		case 'comingSoon':
 			return 'border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300';
-		case 'usuallyNo':
-			return 'border-destructive/30 bg-destructive/10 text-destructive';
 	}
 }
 
