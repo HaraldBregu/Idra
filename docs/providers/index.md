@@ -2,7 +2,7 @@
 
 | Provider | Capabilities | Models |
 | --- | --- | --- |
-| [Anthropic](anthropic/index) | Chat | `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001` |
+| [Anthropic](anthropic/index.md) | Chat | `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001` |
 | [Black Forest Labs](black-forest-labs/index) | Image | `FLUX.2`, `FLUX.1 Kontext [pro]`, `FLUX1.1 [pro] Ultra` |
 | [Cartesia](cartesia/index) | Text-to-speech | `sonic-3.5`, `sonic-3` |
 | [Deepgram](deepgram/index) | Speech-to-text - Text-to-speech | `nova-3`, `flux`, `aura-2` |
