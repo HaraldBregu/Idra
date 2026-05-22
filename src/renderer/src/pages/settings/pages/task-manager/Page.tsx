@@ -5,13 +5,6 @@ import { AlertCircle, ChevronRight, ClipboardList, Play } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import type { TaskRecord, TaskRunRequest } from '../../../../../../shared/tasks';
@@ -30,10 +23,6 @@ import {
 	taskStatusLabelKey,
 	taskStatusVariant,
 } from './utils';
-
-type CreateTaskType = 'agent.run' | 'ocr.run';
-
-const CREATE_TASK_TYPES: readonly CreateTaskType[] = ['agent.run', 'ocr.run'];
 
 function TaskLoadingList(): React.JSX.Element {
 	return (
@@ -60,12 +49,8 @@ const TaskManagerPage: React.FC = () => {
 	const [tasks, setTasks] = useState<readonly TaskRecord[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [createType, setCreateType] = useState<CreateTaskType>('agent.run');
 	const [title, setTitle] = useState('');
 	const [message, setMessage] = useState('');
-	const [imageBase64, setImageBase64] = useState('');
-	const [mimeType, setMimeType] = useState('image/png');
-	const [language, setLanguage] = useState('');
 	const [creating, setCreating] = useState(false);
 	const [createError, setCreateError] = useState<string | null>(null);
 
@@ -110,34 +95,16 @@ const TaskManagerPage: React.FC = () => {
 		setCreateError(null);
 
 		const trimmedTitle = title.trim();
-		let request: TaskRunRequest;
-		if (createType === 'agent.run') {
-			const trimmedMessage = message.trim();
-			if (!trimmedMessage) {
-				setCreateError(t('settings.taskManager.create.errors.messageRequired'));
-				return;
-			}
-			request = {
-				type: createType,
-				title: trimmedTitle || t('settings.taskManager.create.defaultAgentTitle'),
-				input: { message: trimmedMessage },
-			};
-		} else {
-			const trimmedImage = imageBase64.trim();
-			if (!trimmedImage) {
-				setCreateError(t('settings.taskManager.create.errors.imageRequired'));
-				return;
-			}
-			request = {
-				type: createType,
-				title: trimmedTitle || t('settings.taskManager.create.defaultOcrTitle'),
-				input: {
-					imageBase64: trimmedImage,
-					mimeType: mimeType.trim() || undefined,
-					language: language.trim() || undefined,
-				},
-			};
+		const trimmedMessage = message.trim();
+		if (!trimmedMessage) {
+			setCreateError(t('settings.taskManager.create.errors.messageRequired'));
+			return;
 		}
+		const request: TaskRunRequest = {
+			type: 'agent.run',
+			title: trimmedTitle || t('settings.taskManager.create.defaultAgentTitle'),
+			input: { message: trimmedMessage },
+		};
 
 		setCreating(true);
 		try {
@@ -163,92 +130,27 @@ const TaskManagerPage: React.FC = () => {
 			<SettingsSection title={t('settings.taskManager.create.title')}>
 				<SettingsPanel>
 					<form className="grid gap-3 px-3 py-3" onSubmit={(event) => void handleCreateTask(event)}>
-						<div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]">
-							<SettingsField id="task-title" label={t('settings.taskManager.create.taskTitle')}>
-								<Input
-									id="task-title"
-									value={title}
-									onChange={(event) => setTitle(event.currentTarget.value)}
-									placeholder={t('settings.taskManager.create.taskTitlePlaceholder')}
-									disabled={creating}
-									className="h-8 text-xs"
-								/>
-							</SettingsField>
-							<SettingsField id="task-type" label={t('settings.taskManager.create.type')}>
-								<Select
-									value={createType}
-									onValueChange={(value) => {
-										if (value && CREATE_TASK_TYPES.includes(value as CreateTaskType)) {
-											setCreateType(value as CreateTaskType);
-										}
-									}}
-									disabled={creating}
-								>
-									<SelectTrigger id="task-type" className="w-full text-xs">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="agent.run">
-											{t('settings.taskManager.create.typeAgent')}
-										</SelectItem>
-										<SelectItem value="ocr.run">
-											{t('settings.taskManager.create.typeOcr')}
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</SettingsField>
-						</div>
+						<SettingsField id="task-title" label={t('settings.taskManager.create.taskTitle')}>
+							<Input
+								id="task-title"
+								value={title}
+								onChange={(event) => setTitle(event.currentTarget.value)}
+								placeholder={t('settings.taskManager.create.taskTitlePlaceholder')}
+								disabled={creating}
+								className="h-8 text-xs"
+							/>
+						</SettingsField>
 
-						{createType === 'agent.run' ? (
-							<SettingsField id="task-message" label={t('settings.taskManager.create.message')}>
-								<Textarea
-									id="task-message"
-									value={message}
-									onChange={(event) => setMessage(event.currentTarget.value)}
-									placeholder={t('settings.taskManager.create.messagePlaceholder')}
-									disabled={creating}
-									className="min-h-24 text-xs"
-								/>
-							</SettingsField>
-						) : (
-							<div className="grid gap-3">
-								<SettingsField
-									id="task-image-base64"
-									label={t('settings.taskManager.create.imageBase64')}
-								>
-									<Textarea
-										id="task-image-base64"
-										value={imageBase64}
-										onChange={(event) => setImageBase64(event.currentTarget.value)}
-										placeholder={t('settings.taskManager.create.imageBase64Placeholder')}
-										disabled={creating}
-										className="min-h-24 font-mono text-xs"
-									/>
-								</SettingsField>
-								<div className="grid gap-3 sm:grid-cols-2">
-									<SettingsField id="task-mime-type" label={t('settings.taskManager.create.mimeType')}>
-										<Input
-											id="task-mime-type"
-											value={mimeType}
-											onChange={(event) => setMimeType(event.currentTarget.value)}
-											placeholder={t('settings.taskManager.create.mimeTypePlaceholder')}
-											disabled={creating}
-											className="h-8 text-xs"
-										/>
-									</SettingsField>
-									<SettingsField id="task-language" label={t('settings.taskManager.create.language')}>
-										<Input
-											id="task-language"
-											value={language}
-											onChange={(event) => setLanguage(event.currentTarget.value)}
-											placeholder={t('settings.taskManager.create.languagePlaceholder')}
-											disabled={creating}
-											className="h-8 text-xs"
-										/>
-									</SettingsField>
-								</div>
-							</div>
-						)}
+						<SettingsField id="task-message" label={t('settings.taskManager.create.message')}>
+							<Textarea
+								id="task-message"
+								value={message}
+								onChange={(event) => setMessage(event.currentTarget.value)}
+								placeholder={t('settings.taskManager.create.messagePlaceholder')}
+								disabled={creating}
+								className="min-h-24 text-xs"
+							/>
+						</SettingsField>
 
 						{createError && (
 							<div className="flex min-w-0 items-start gap-2 text-destructive">

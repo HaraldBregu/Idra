@@ -1,16 +1,13 @@
+import { DEFAULT_AGENT_ID } from '../../../../src/main/constants';
 import { AgentTaskHandler } from '../../../../src/main/tasks/handlers/agent-task-handler';
 
 describe('AgentTaskHandler', () => {
-	it('passes provider and model overrides into AgentService.send', async () => {
+	it('starts an isolated agent session with configured provider settings', async () => {
 		const send = jest.fn(async () => 'agent output');
 		const cancel = jest.fn();
 		const handler = new AgentTaskHandler({ send, cancel } as never);
 		const input = handler.validateInput({
 			message: ' Summarize reports ',
-			agentId: 'analyst',
-			sessionId: 'task-session',
-			providerId: ' Anthropic ',
-			model: ' claude-test ',
 		});
 		const updateProgress = jest.fn();
 		const controller = new AbortController();
@@ -26,15 +23,27 @@ describe('AgentTaskHandler', () => {
 
 		expect(send).toHaveBeenCalledWith(
 			'Summarize reports',
-			'analyst',
-			expect.objectContaining({
-				sessionId: 'task-session',
-				providerId: 'Anthropic',
-				model: 'claude-test',
-			})
+			DEFAULT_AGENT_ID,
+			{ sessionId: 'task:task-1' }
 		);
 		expect(updateProgress).toHaveBeenCalledWith({ message: 'Starting agent' });
 		expect(updateProgress).toHaveBeenCalledWith({ message: 'Agent completed' });
+	});
+
+	it('rejects runtime overrides and secret-looking instructions', () => {
+		const handler = new AgentTaskHandler({ send: jest.fn(), cancel: jest.fn() } as never);
+
+		expect(() =>
+			handler.validateInput({
+				message: 'Run background research',
+				providerId: 'openai',
+			})
+		).toThrow(/providerId is not allowed/);
+		expect(() =>
+			handler.validateInput({
+				message: 'Authorization: Bearer secret-token',
+			})
+		).toThrow(/secret-looking/);
 	});
 
 	it('cancels the agent session when the task signal aborts', async () => {
@@ -49,7 +58,6 @@ describe('AgentTaskHandler', () => {
 		const handler = new AgentTaskHandler({ send, cancel } as never);
 		const input = handler.validateInput({
 			message: 'Run background research',
-			sessionId: 'task-session',
 		});
 		const controller = new AbortController();
 
@@ -63,6 +71,6 @@ describe('AgentTaskHandler', () => {
 		rejectSend?.(new Error('cancelled'));
 
 		await expect(run).rejects.toMatchObject({ name: 'AbortError' });
-		expect(cancel).toHaveBeenCalledWith('task-session');
+		expect(cancel).toHaveBeenCalledWith('task:task-1');
 	});
 });

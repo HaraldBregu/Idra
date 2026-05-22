@@ -39,6 +39,11 @@ const ALLOWED_TRANSITIONS: Record<TaskStatus, readonly TaskStatus[]> = {
 };
 const SECRET_KEY_PATTERN =
 	/(api[_-]?key|authorization|credential|password|private[_-]?key|secret|token)/i;
+const SECRET_VALUE_PATTERNS: readonly (readonly [RegExp, string])[] = [
+	[/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/gi, '[redacted private key]'],
+	[/((?:authorization)\s*:\s*bearer\s+)[^\s,;]+/gi, '$1[redacted]'],
+	[/((?:api[_-]?key|credential|password|secret|token)\s*[:=]\s*)[^\s,;]+/gi, '$1[redacted]'],
+];
 const MAX_STRING_LENGTH = 4_000;
 const MAX_PROGRESS_MESSAGE_LENGTH = 500;
 const MAX_OBJECT_KEYS = 50;
@@ -46,8 +51,12 @@ const MAX_ARRAY_ITEMS = 50;
 const MAX_DEPTH = 4;
 
 function truncate(value: string, maxLength = MAX_STRING_LENGTH): string {
-	if (value.length <= maxLength) return value;
-	return `${value.slice(0, maxLength)}...[truncated]`;
+	const redacted = SECRET_VALUE_PATTERNS.reduce(
+		(next, [pattern, replacement]) => next.replace(pattern, replacement),
+		value
+	);
+	if (redacted.length <= maxLength) return redacted;
+	return `${redacted.slice(0, maxLength)}...[truncated]`;
 }
 
 export function sanitizeTaskValue(

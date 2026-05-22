@@ -17,8 +17,6 @@ import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
 import {
 	AgentTaskHandler,
-	ImageCreateTaskHandler,
-	OcrTaskHandler,
 	TaskManager,
 	TaskRegistry,
 } from './tasks';
@@ -109,8 +107,6 @@ export function bootstrapServices(): BootstrapResult {
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();
 	taskRegistry.register(new AgentTaskHandler(agentService), { userFacing: true });
-	taskRegistry.register(new ImageCreateTaskHandler(textToImage), { userFacing: true });
-	taskRegistry.register(new OcrTaskHandler(store), { userFacing: true });
 	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({

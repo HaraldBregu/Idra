@@ -1,10 +1,11 @@
 import type { TaskRecord, TaskRunRequest } from '../../shared/tasks';
+import { AGENT_TASK_TYPE } from '../tasks';
 import type { AgentTool, AgentToolResult } from './types';
 import { textResult } from './types';
 
 interface TaskToolArgs {
 	id?: string;
-	type: string;
+	type?: string;
 	title: string;
 	input?: unknown;
 	metadata?: Record<string, unknown>;
@@ -40,8 +41,12 @@ function optionalMetadata(value: unknown): Record<string, unknown> | undefined {
 
 function taskRequest(args: unknown): TaskRunRequest {
 	assertRecord(args, 'task arguments');
+	const type = optionalString(args, 'type');
+	if (type && type !== AGENT_TASK_TYPE) {
+		throw new Error(`Only ${AGENT_TASK_TYPE} background tasks are supported.`);
+	}
 	const request: TaskRunRequest = {
-		type: requiredString(args, 'type'),
+		type: AGENT_TASK_TYPE,
 		title: requiredString(args, 'title'),
 		input: Object.prototype.hasOwnProperty.call(args, 'input') ? args.input : {},
 	};
@@ -64,19 +69,20 @@ export const taskTool: AgentTool<TaskToolArgs> = {
 	name: 'task',
 	displaySummary: 'Start an immediate background task.',
 	description:
-		'Start an immediate in-memory background task through a user-facing src/main/tasks handler. Use this tool when the user asks to "run a task in background" or to start a registered task now. It creates one task record and returns that record; it does not schedule future work, run shell background processes, or emulate timers. Use cron for future, delayed, or recurring jobs, and use exec/process only for shell commands.',
+		'Start an immediate in-memory agent background task. Use this tool when the user asks to run agent work in the background now. It creates one task record and returns that record; it does not schedule future work, run shell background processes, or emulate timers. Use cron for future, delayed, or recurring jobs, and use exec/process only for shell commands.',
 	schema: {
 		type: 'object',
 		properties: {
 			id: { type: 'string', description: 'Optional caller-provided task id.' },
 			type: {
 				type: 'string',
-				description: 'Registered src/main/tasks handler type, for example agent.run or ocr.run.',
+				enum: [AGENT_TASK_TYPE],
+				description: `Background task type. Only ${AGENT_TASK_TYPE} is supported.`,
 			},
 			title: { type: 'string', description: 'User-visible title for the background task.' },
 			input: {
 				description:
-					'Input object passed to the registered task handler. For agent.run use { "message": "..." }.',
+					'Agent instruction input. Use { "message": "..." }; provider, model, credentials, and session settings come from app configuration.',
 			},
 			metadata: {
 				type: 'object',
@@ -84,7 +90,7 @@ export const taskTool: AgentTool<TaskToolArgs> = {
 				description: 'Optional metadata stored on the task record after task-manager sanitization.',
 			},
 		},
-		required: ['type', 'title'],
+		required: ['title'],
 		additionalProperties: false,
 	},
 	needsApproval: true,
