@@ -51,18 +51,7 @@ import type {
 	AgentsHeartbeatConfig,
 	HeartbeatStoreState,
 } from '../../shared/heartbeat';
-import type { AppPermissionSettings } from '../../shared/app-permissions';
-import type { AppSettings } from '../../shared/app-settings';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
-
-const DEFAULT_APP_PERMISSIONS: AppPermissionSettings = {
-	microphoneEnabled: true,
-	cameraEnabled: true,
-};
-
-const DEFAULT_APP_SETTINGS: AppSettings = {
-	keepAwakeEnabled: false,
-};
 
 type ConfiguredModelOperatorKey =
 	| 'assistant'
@@ -121,21 +110,10 @@ function readBoolean(value: unknown, fallback: boolean): boolean {
 	return typeof value === 'boolean' ? value : fallback;
 }
 
-function readAppPermissionSettings(value: unknown): AppPermissionSettings {
+function readAppSettings(value: unknown): NonNullable<StoreSchema['appSettings']> {
 	const record = readRecord(value);
 	return {
-		microphoneEnabled: readBoolean(
-			record?.microphoneEnabled,
-			DEFAULT_APP_PERMISSIONS.microphoneEnabled
-		),
-		cameraEnabled: readBoolean(record?.cameraEnabled, DEFAULT_APP_PERMISSIONS.cameraEnabled),
-	};
-}
-
-function readAppSettings(value: unknown): AppSettings {
-	const record = readRecord(value);
-	return {
-		keepAwakeEnabled: readBoolean(record?.keepAwakeEnabled, DEFAULT_APP_SETTINGS.keepAwakeEnabled),
+		keepAwakeEnabled: readBoolean(record?.keepAwakeEnabled, false),
 	};
 }
 
@@ -319,13 +297,6 @@ export class StoreService {
 		return this.getStoredModelProviders();
 	}
 
-	getAppPermissions(): AppPermissionSettings {
-		return readAppPermissionSettings(this.store.get('appPermissions'));
-	}
-
-	getMicrophoneEnabled(): boolean {
-		return this.getAppPermissions().microphoneEnabled;
-	}
 
 	getAppSettings(): AppSettings {
 		return readAppSettings(this.store.get('appSettings'));
@@ -335,7 +306,7 @@ export class StoreService {
 		return this.getAppSettings().keepAwakeEnabled;
 	}
 
-	setKeepAwakeEnabled(enabled: boolean): AppSettings {
+	setKeepAwakeEnabled(enabled: boolean): NonNullable<StoreSchema['appSettings']> {
 		const next = {
 			...this.getAppSettings(),
 			keepAwakeEnabled: enabled,
@@ -344,27 +315,6 @@ export class StoreService {
 		return next;
 	}
 
-	setMicrophoneEnabled(enabled: boolean): AppPermissionSettings {
-		const next = {
-			...this.getAppPermissions(),
-			microphoneEnabled: enabled,
-		};
-		this.store.set('appPermissions', next);
-		return next;
-	}
-
-	getCameraEnabled(): boolean {
-		return this.getAppPermissions().cameraEnabled;
-	}
-
-	setCameraEnabled(enabled: boolean): AppPermissionSettings {
-		const next = {
-			...this.getAppPermissions(),
-			cameraEnabled: enabled,
-		};
-		this.store.set('appPermissions', next);
-		return next;
-	}
 
 	addProvider(input: Provider): Provider {
 		const id = input.id.trim().toLowerCase();
