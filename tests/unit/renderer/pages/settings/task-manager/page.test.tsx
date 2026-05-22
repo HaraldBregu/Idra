@@ -5,8 +5,9 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { Model } from '../../../../../../src/shared/agents/service';
 import type { PublicProvider } from '../../../../../../src/shared/providers';
 import type { TaskEvent, TaskRecord } from '../../../../../../src/shared/tasks';
-import TaskManagerPage from '../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page';
-import TaskDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page';
+
+const TaskManagerPage = require('../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page').default as typeof import('../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page').default;
+const TaskDetailsPage = require('../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page').default as typeof import('../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page').default;
 
 const openAiProvider: PublicProvider = {
 	id: 'openai',
