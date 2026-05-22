@@ -1,3 +1,5 @@
+import { normalizeProviderId } from './models';
+
 export interface ProviderApiConfiguration {
 	readonly credentialType: string | null;
 	readonly apiKeyManagementUrl: string | null;
@@ -502,10 +504,6 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.perplexity,
 	},
 ];
-
-export function normalizeProviderId(providerId: string): string {
-	return providerId.trim().toLowerCase();
-}
 
 export function getProviderApiConfigurationUrl(
 	provider: Pick<Provider, 'apiConfiguration' | 'baseUrl'>
