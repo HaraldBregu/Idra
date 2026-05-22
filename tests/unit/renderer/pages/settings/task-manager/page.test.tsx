@@ -1,13 +1,10 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { Model } from '../../../../../../src/shared/agents/service';
 import type { PublicProvider } from '../../../../../../src/shared/providers';
 import type { TaskEvent, TaskRecord } from '../../../../../../src/shared/tasks';
-
-const TaskManagerPage = require('../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page').default as typeof import('../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page').default;
-const TaskDetailsPage = require('../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page').default as typeof import('../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page').default;
 
 const openAiProvider: PublicProvider = {
 	id: 'openai',
@@ -38,6 +35,9 @@ jest.mock('react-i18next', () => ({
 		t: (key: string) => key,
 	}),
 }));
+
+const TaskManagerPage = require('../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page').default as typeof import('../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page').default;
+const TaskDetailsPage = require('../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page').default as typeof import('../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page').default;
 
 function makeTask(id: string, status: TaskRecord['status'] = 'running'): TaskRecord {
 	return {
@@ -79,16 +79,13 @@ function LocationProbe(): React.JSX.Element {
 	return <div data-testid="location">{location.pathname}</div>;
 }
 
-async function renderTaskManagerPage(): Promise<void> {
-	await act(async () => {
-		render(
-			<MemoryRouter initialEntries={['/settings/task-manager']}>
-				<TaskManagerPage />
-				<LocationProbe />
-			</MemoryRouter>
-		);
-	});
-	await waitForRuntimeReady();
+function renderTaskManagerPage(): void {
+	render(
+		<MemoryRouter initialEntries={['/settings/task-manager']}>
+			<TaskManagerPage />
+			<LocationProbe />
+		</MemoryRouter>
+	);
 }
 
 
@@ -119,7 +116,8 @@ describe('TaskManagerPage', () => {
 	});
 
 	it('shows empty state when there are no tasks', async () => {
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		expect(await screen.findByText('settings.taskManager.emptyTitle')).toBeInTheDocument();
 	});
@@ -132,7 +130,8 @@ describe('TaskManagerPage', () => {
 			]),
 		});
 
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		expect(await screen.findByText('Task task-1')).toBeInTheDocument();
 		expect(screen.getByText('Task task-2')).toBeInTheDocument();
@@ -145,7 +144,8 @@ describe('TaskManagerPage', () => {
 		});
 
 		const user = userEvent.setup();
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		await user.click(await screen.findByRole('button', { name: /Task task-1/ }));
 
@@ -154,14 +154,13 @@ describe('TaskManagerPage', () => {
 
 	it('saves the provider and model used by background tasks', async () => {
 		const user = userEvent.setup();
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		const saveButton = screen.getByRole('button', {
 			name: /settings\.taskManager\.runtime\.save/,
 		});
-		await act(async () => {
-			await user.click(saveButton);
-		});
+		await user.click(saveButton);
 
 		await waitFor(() => {
 			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
@@ -170,7 +169,6 @@ describe('TaskManagerPage', () => {
 		await waitFor(() => {
 			expect(saveButton).toBeEnabled();
 		});
-		await act(async () => undefined);
 	});
 
 	it('creates an agent task and opens its detail page', async () => {
@@ -179,7 +177,8 @@ describe('TaskManagerPage', () => {
 		});
 
 		const user = userEvent.setup();
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		await user.type(await screen.findByLabelText('settings.taskManager.create.taskTitle'), 'Summarize');
 		await user.type(screen.getByLabelText('settings.taskManager.create.message'), 'Summarize the workspace');
@@ -199,7 +198,8 @@ describe('TaskManagerPage', () => {
 
 	it('requires an agent task message before starting', async () => {
 		const user = userEvent.setup();
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		await user.click(await screen.findByRole('button', { name: /settings\.taskManager\.create\.start/ }));
 
@@ -216,7 +216,8 @@ describe('TaskManagerPage', () => {
 			}),
 		});
 
-		await renderTaskManagerPage();
+		renderTaskManagerPage();
+		await waitForRuntimeReady();
 
 		expect(await screen.findByText('settings.taskManager.emptyTitle')).toBeInTheDocument();
 		listener?.({ type: 'task:created', task: makeTask('task-event', 'queued') });
