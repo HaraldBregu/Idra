@@ -13,7 +13,6 @@ import {
 	isRealtimeSpeechTranscriberModel,
 } from '../../shared/service';
 import {
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 } from '../../shared/provider-models';
@@ -39,7 +38,6 @@ const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 15_000;
 const REALTIME_TRANSCRIPTION_SOCKET_MODEL = 'gpt-realtime';
 const REALTIME_TRANSCRIPTION_INTENT = 'transcription';
-const REALTIME_TRANSCRIPTION_DELAY = 'high';
 
 function eventMessage(event: unknown): string {
 	if (typeof event === 'object' && event !== null) {
@@ -87,7 +85,6 @@ export function createRealtimeTranscriptionSessionUpdate(
 ): RealtimeClientEvent {
 	const language = normalizeLanguage(request?.language);
 	const transcriptionModel = resolveOpenAIRealtimeTranscriptionModel(model) ?? model.trim();
-	const supportsDelay = transcriptionModel === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
 	return {
 		type: 'session.update',
 		session: {
@@ -100,7 +97,6 @@ export function createRealtimeTranscriptionSessionUpdate(
 					},
 					transcription: {
 						model: transcriptionModel,
-						...(supportsDelay ? { delay: REALTIME_TRANSCRIPTION_DELAY } : {}),
 						...(language ? { language } : {}),
 					},
 					turn_detection: null,
