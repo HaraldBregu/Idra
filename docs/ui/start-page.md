@@ -27,7 +27,7 @@ It is about:
 - Keeping provider credentials in local app data.
 - Continuing only after at least one provider is ready.
 
-## /cl
+## Step 3: Configure Models
 
 This step lets the user choose which models Friday should use. It follows the
 model areas documented in `docs/models`, focused on the model choices that are
