@@ -2,7 +2,7 @@ import path from 'node:path';
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
 import type { ThemeMode } from '../shared';
-import type { AppInfo } from '../shared/apps';
+import type { AppInfo } from '../shared/app-info';
 import type { AppsService } from './apps';
 import type { LoggerService } from './logger';
 

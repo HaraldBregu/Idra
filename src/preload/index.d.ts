@@ -162,7 +162,7 @@ import type {
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channel-catalog';
-import type { AppInfo } from '../shared/apps';
+import type { AppInfo } from '../shared/app-info';
 import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
 import type { ThemeMode } from '../shared/theme';
 import type {

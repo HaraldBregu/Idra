@@ -4,7 +4,7 @@ import { shell } from 'electron';
 import type { LoggerService } from '../logger';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import { resolveDefaultUserDataPath } from '../user-data';
-import type { AppInfo, AppManifest } from '../../shared/apps';
+import type { AppInfo, AppManifest } from '../../shared/app-info';
 
 const ICON_MIME: Record<string, string> = {
 	'.png': 'image/png',

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FolderOpen, Package, RefreshCw, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { AppInfo } from '../../../../../../shared/apps';
+import type { AppInfo } from '../../../../../../shared/app-info';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,

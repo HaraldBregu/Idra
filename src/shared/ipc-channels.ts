@@ -499,7 +499,7 @@ interface TaskInvokeChannelMap {
 }
 
 interface AppsInvokeChannelMap {
-	[AppsChannels.list]: { args: []; result: import('./apps').AppInfo[] };
+	[AppsChannels.list]: { args: []; result: import('./app-info').AppInfo[] };
 	[AppsChannels.openFolder]: { args: [id: string]; result: void };
 	[AppsChannels.delete]: { args: [id: string]; result: void };
 	[AppsChannels.getRoot]: { args: []; result: string };
