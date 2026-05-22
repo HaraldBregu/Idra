@@ -121,6 +121,59 @@ When an agent can reach both providers, route by what the workflow requires:
 If neither constraint applies, prefer the provider whose model is already
 handling the surrounding conversation to avoid extra API round-trips.
 
+## Adapters
+
+The project ships a thin adapter layer at `src/shared/skill-adapters.ts` that
+converts the internal `SkillInfo` type into the exact payload shape each
+provider expects. The three exported converters map directly onto the three
+attachment modes:
+
+| Function | Provider | Mode | Output shape |
+| --- | --- | --- | --- |
+| `toAnthropicSkills` | Anthropic | Messages API | `container.skills[]` |
+| `toOpenAIHostedSkills` | OpenAI | Hosted shell | `tools[n].environment.skills[]` |
+| `toOpenAILocalSkills` | OpenAI | Local shell | `tools[n].environment.skills[]` |
+
+For call sites that know the provider at build time, call the specific
+converter directly. For call sites where the provider is chosen at runtime,
+use `resolveSkillAttachments` and pass a target per skill:
+
+```typescript
+import { resolveSkillAttachments } from './shared/skill-adapters';
+
+const { anthropic, openaiLocal } = resolveSkillAttachments([
+  {
+    info: csvInsightSkill,
+    target: { provider: 'anthropic', remoteId: 'skill_01AbCdEf', version: 'latest' },
+  },
+  {
+    info: reportSkill,
+    target: { provider: 'openai-local' },
+  },
+]);
+
+// anthropic.skills → ready to pass as container.skills to Anthropic SDK
+// openaiLocal     → ready to pass as environment.skills to OpenAI local shell
+```
+
+The `remoteId` for hosted providers is the id returned by the Skills API after
+upload. Store it in `versions.json` (see Version Management below) and look it
+up before building the payload.
+
+### Anthropic-managed document skills
+
+To attach an Anthropic-managed skill (pptx, xlsx, docx, pdf), bypass the
+adapter and add the entry directly — no `remoteId` is required:
+
+```typescript
+const container = {
+  skills: [
+    { type: 'anthropic', skill_id: 'pptx', version: 'latest' },
+    ...resolveSkillAttachments(customSkills).anthropic?.skills ?? [],
+  ],
+};
+```
+
 ## Version Management Across Providers
 
 Track skill versions in a central manifest so both providers stay in sync.
