@@ -1,7 +1,8 @@
-# Preloaded Tools
+# Tools
 
-This page explains Friday's preloaded local tools in plain language. It covers
-the default local tools from [AI tools](../ai/tools.md).
+This page explains Friday's local tools and tool-search support in plain
+language. It covers the default local tools from [AI tools](../ai/tools.md) and
+the `tool_search` capability for large deferred tool catalogs.
 
 Friday does not expose every tool on every turn. It selects a small set based on
 the user's request, safety rules, and the current run context.
@@ -26,3 +27,9 @@ the user's request, safety rules, and the current run context.
 | [task](list/task.md) | Starts an immediate background agent run that should not block the current app session. |
 | [open_browser](list/open-browser.md) | Opens a safe web address in the user's browser. |
 | [browser](list/browser.md) | Uses a managed browser for navigation, screenshots, and page interaction. |
+
+## Search Tools
+
+| Tool | How Friday uses it |
+| --- | --- |
+| [tool_search](list/tool-search.md) | Searches a large deferred tool catalog so the model can load the right tools for the task only when needed. |
