@@ -74,6 +74,7 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.textToSpeechDescription',
 		keywords: 'text to speech tts voice output speaking audio model',
 		icon: Volume2,
+		comingSoon: true,
 	},
 	{
 		id: IMAGE_CREATOR_OPERATOR_ID,
