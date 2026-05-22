@@ -494,6 +494,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						outputChars: out.length,
 						outputText: out,
 					});
+					agentLogger.warn('agent:run', 'tool not found', { runId, tool: t.name, iter });
 					streamEvent?.({
 						type: 'tool_call_result',
 						iteration: iter,
