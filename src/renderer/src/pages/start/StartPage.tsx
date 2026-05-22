@@ -30,7 +30,6 @@ import {
 	OPERATOR_DEFINITIONS,
 	type ConfiguredModelOperator,
 	type Model,
-	type OperatorStatus,
 } from '../../../../shared/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -72,7 +71,6 @@ type ModelAreaId =
 	| 'text-to-audio'
 	| 'ocr'
 	| 'embedding';
-type ModelAreaStatus = OperatorStatus | 'endpoint-backed' | 'unavailable';
 
 type ProviderCatalogItem = {
 	id: string;
@@ -103,7 +101,6 @@ type ModelAreaDefinition = {
 	title: string;
 	purpose: string;
 	icon: LucideIcon;
-	status: ModelAreaStatus;
 };
 
 const PRODUCT_NAME = 'Friday';
@@ -123,56 +120,48 @@ const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 		title: `${PRODUCT_NAME} Assistant`,
 		purpose: 'Main chat and agent reasoning model.',
 		icon: Bot,
-		status: OPERATOR_DEFINITIONS.assistant.status,
 	},
 	{
 		id: 'speech-to-text',
 		title: 'Voice Input',
 		purpose: 'Dictation and transcription model.',
 		icon: Mic,
-		status: OPERATOR_DEFINITIONS.speechToText.status,
 	},
 	{
 		id: 'text-to-speech',
 		title: 'Voice Output',
 		purpose: 'Spoken output model.',
 		icon: Volume2,
-		status: OPERATOR_DEFINITIONS.textToSpeech.status,
 	},
 	{
 		id: 'text-to-image',
 		title: 'Text to Image',
 		purpose: 'Image generation model area.',
 		icon: ImageIcon,
-		status: OPERATOR_DEFINITIONS.imageCreator.status,
 	},
 	{
 		id: 'text-to-video',
 		title: 'Text to Video',
 		purpose: 'Video generation model area.',
 		icon: Video,
-		status: OPERATOR_DEFINITIONS.videoCreator.status,
 	},
 	{
 		id: 'text-to-audio',
 		title: 'Text to Audio',
 		purpose: 'Sound and music generation model area.',
 		icon: Music,
-		status: OPERATOR_DEFINITIONS.musicCreator.status,
 	},
 	{
 		id: 'ocr',
 		title: 'OCR',
 		purpose: 'Endpoint-backed document reading with future provider-backed model setup.',
 		icon: FileSearch,
-		status: 'endpoint-backed',
 	},
 	{
 		id: 'embedding',
 		title: 'Embedding',
 		purpose: 'Future semantic indexing model setup.',
 		icon: Database,
-		status: 'unavailable',
 	},
 ];
 
