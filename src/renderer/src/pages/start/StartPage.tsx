@@ -1420,13 +1420,6 @@ const StartPage: React.FC = () => {
 									</Select>
 								</SettingsField>
 							</div>
-							<div className="grid gap-1.5">
-								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
-									<span>Catalog</span>
-									<span>{getCatalogCountLabel(llmCatalogGroups)}</span>
-								</div>
-								<CatalogRows groups={llmCatalogGroups} />
-							</div>
 						</>
 					)}
 
@@ -1480,13 +1473,6 @@ const StartPage: React.FC = () => {
 									Connect a speech-to-text capable provider to enable live transcription.
 								</SettingsNotice>
 							) : null}
-							<div className="grid gap-1.5">
-								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
-									<span>Catalog</span>
-									<span>{getCatalogCountLabel(speechToTextCatalogGroups)}</span>
-								</div>
-								<CatalogRows groups={speechToTextCatalogGroups} />
-							</div>
 						</>
 					)}
 
@@ -1512,13 +1498,6 @@ const StartPage: React.FC = () => {
 							<SettingsNotice icon={Volume2}>
 								Voice output has a catalog, but spoken output runtime is still pending.
 							</SettingsNotice>
-							<div className="grid gap-1.5">
-								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
-									<span>Catalog</span>
-									<span>{getCatalogCountLabel(textToSpeechCatalogGroups)}</span>
-								</div>
-								<CatalogRows groups={textToSpeechCatalogGroups} />
-							</div>
 						</>
 					)}
 
@@ -1544,13 +1523,6 @@ const StartPage: React.FC = () => {
 							<SettingsNotice icon={ImageIcon}>
 								Image service, task, and tool paths exist; provider adapters are pending.
 							</SettingsNotice>
-							<div className="grid gap-1.5">
-								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
-									<span>Catalog</span>
-									<span>{getCatalogCountLabel(textToImageCatalogGroups)}</span>
-								</div>
-								<CatalogRows groups={textToImageCatalogGroups} />
-							</div>
 						</>
 					)}
 
@@ -1577,13 +1549,6 @@ const StartPage: React.FC = () => {
 								Video model selection is cataloged; provider adapters and runtime execution are
 								pending.
 							</SettingsNotice>
-							<div className="grid gap-1.5">
-								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
-									<span>Catalog</span>
-									<span>{getCatalogCountLabel(textToVideoCatalogGroups)}</span>
-								</div>
-								<CatalogRows groups={textToVideoCatalogGroups} />
-							</div>
 						</>
 					)}
 
@@ -1610,13 +1575,6 @@ const StartPage: React.FC = () => {
 								Sound and music generation are cataloged; provider adapters and runtime execution are
 								pending.
 							</SettingsNotice>
-							<div className="grid gap-1.5">
-								<div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
-									<span>Catalog</span>
-									<span>{getCatalogCountLabel(textToAudioCatalogGroups)}</span>
-								</div>
-								<CatalogRows groups={textToAudioCatalogGroups} />
-							</div>
 						</>
 					)}
 
