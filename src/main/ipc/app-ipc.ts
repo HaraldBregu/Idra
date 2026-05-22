@@ -148,6 +148,7 @@ export class AppIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const store = container.get('store');
+		const appPermissions = container.get('appPermissions');
 		const powerSaveBlocker = container.get('powerSaveBlocker');
 		const userDataDirectory = container.get('userDataDirectory');
 
@@ -244,14 +245,14 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.getMicrophonePermission,
 			wrapSimpleHandler(() => {
-				return microphoneSettings(store.getMicrophoneEnabled());
+				return microphoneSettings(appPermissions.getMicrophoneEnabled());
 			}, AppChannels.getMicrophonePermission)
 		);
 
 		ipcMain.handle(
 			AppChannels.setMicrophoneEnabled,
 			wrapSimpleHandler((enabled: boolean) => {
-				const next = store.setMicrophoneEnabled(Boolean(enabled));
+				const next = appPermissions.setMicrophoneEnabled(Boolean(enabled));
 				return microphoneSettings(next.microphoneEnabled);
 			}, AppChannels.setMicrophoneEnabled)
 		);
@@ -259,7 +260,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.requestMicrophonePermission,
 			wrapSimpleHandler(async () => {
-				const enabled = store.getMicrophoneEnabled();
+				const enabled = appPermissions.getMicrophoneEnabled();
 				if (process.platform === 'darwin' && enabled) {
 					await systemPreferences.askForMediaAccess('microphone');
 				}
@@ -281,14 +282,14 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.getCameraPermission,
 			wrapSimpleHandler(() => {
-				return cameraSettings(store.getCameraEnabled());
+				return cameraSettings(appPermissions.getCameraEnabled());
 			}, AppChannels.getCameraPermission)
 		);
 
 		ipcMain.handle(
 			AppChannels.setCameraEnabled,
 			wrapSimpleHandler((enabled: boolean) => {
-				const next = store.setCameraEnabled(Boolean(enabled));
+				const next = appPermissions.setCameraEnabled(Boolean(enabled));
 				return cameraSettings(next.cameraEnabled);
 			}, AppChannels.setCameraEnabled)
 		);
@@ -296,7 +297,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.requestCameraPermission,
 			wrapSimpleHandler(async () => {
-				const enabled = store.getCameraEnabled();
+				const enabled = appPermissions.getCameraEnabled();
 				if (process.platform === 'darwin' && enabled) {
 					await systemPreferences.askForMediaAccess('camera');
 				}
