@@ -90,6 +90,7 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.videoCreatorDescription',
 		keywords: 'text to video generation model',
 		icon: Video,
+		comingSoon: true,
 	},
 	{
 		id: MUSIC_CREATOR_OPERATOR_ID,
@@ -98,6 +99,7 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.musicCreatorDescription',
 		keywords: 'music audio generation creator model',
 		icon: Music,
+		comingSoon: true,
 	},
 ] as const;
 
