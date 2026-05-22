@@ -79,7 +79,7 @@ These tools are added only when the corresponding runtime condition applies.
 ## Scheduling And Background Tasks
 
 `cron` is the agent-facing tool for the task scheduler module documented in
-[scheduled.md](../tasks/scheduled.md). Use it for future, delayed, recurring,
+[scheduled/index.md](../tasks/scheduled/index.md). Use it for future, delayed, recurring,
 reminder, wake, and manual-run scheduling. The agent should not emulate
 scheduling with sleep loops, shell loops, long-running polling, or model-side
 timers.
@@ -87,7 +87,7 @@ timers.
 Use `cron` only when the request is actually scheduled.
 
 Use `task` for immediate background task creation through the background task
-module documented in [background.md](../tasks/background.md). When the user
+module documented in [background/index.md](../tasks/background/index.md). When the user
 asks to “run a task in background”, the agent should call `task` so the request
 goes through a registered background task handler.
 

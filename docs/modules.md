@@ -27,8 +27,8 @@ and future runtime boundaries.
 
 | Module | Store key | Documentation | Surfaces |
 | --- | --- | --- | --- |
-| Task scheduler | `taskScheduler` | [scheduled.md](tasks/scheduled.md) | Service, IPC, LLM tool `cron` |
-| Background task | `backgroundTask` | [background.md](tasks/background.md) | Service, IPC, LLM tool `task` |
+| Task scheduler | `taskScheduler` | [scheduled/index.md](tasks/scheduled/index.md) | Service, IPC, LLM tool `cron` |
+| Background task | `backgroundTask` | [background/index.md](tasks/background/index.md) | Service, IPC, LLM tool `task` |
 | Agent | `llmAgent` | [large-language-model.md](models/large-language-model.md) | Service only for now |
 | Speech to text | `speechToText` | [speech-to-text.md](models/speech-to-text.md) | Service, future/optional LLM tool |
 | Text to speech | `textToSpeech` | [text-to-speech.md](models/text-to-speech.md) | Service, future/optional LLM tool |

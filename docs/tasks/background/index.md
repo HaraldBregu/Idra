@@ -205,18 +205,18 @@ target module owns provider/model resolution and execution.
 Recommended task types:
 
 - `text-to-speech.run`: calls the TTS module documented in
-  [text-to-speech.md](../models/text-to-speech.md).
+  [text-to-speech.md](../../models/text-to-speech.md).
 - `speech-to-text.transcribe`: calls the speech-to-text module documented in
-  [speech-to-text.md](../models/speech-to-text.md).
+  [speech-to-text.md](../../models/speech-to-text.md).
 - `image.create`: calls the image module documented in
-  [text-to-image.md](../models/text-to-image.md).
+  [text-to-image.md](../../models/text-to-image.md).
 - `video.create`: calls the text-to-video module documented in
-  [text-to-video.md](../models/text-to-video.md).
+  [text-to-video.md](../../models/text-to-video.md).
 - `sound.create`: calls the sound module documented in
-  [music-creator.md](../models/music-creator.md).
-- `ocr.run`: calls the OCR module documented in [ocr.md](../models/ocr.md).
+  [music-creator.md](../../models/music-creator.md).
+- `ocr.run`: calls the OCR module documented in [ocr.md](../../models/ocr.md).
 - `embedding.index`: calls the embedding module documented in
-  [embedding.md](../models/embedding.md).
+  [embedding.md](../../models/embedding.md).
 
 Module-backed handlers must:
 
@@ -249,7 +249,7 @@ ids; credentials and provider records must still come from `StoreService`.
 The background task module should keep a private in-memory task store, a task
 registry, concrete handlers, typed IPC, a preload API, and service
 registration. Persistent settings for task policy belong in the root
-`backgroundTask` store key documented in [store.md](../data/store.md).
+`backgroundTask` store key documented in [store.md](../../data/store.md).
 
 The task manager should use an in-memory map for internal task state. Internal
 state may include the handler promise and `AbortController`; the public
