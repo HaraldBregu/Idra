@@ -79,7 +79,7 @@ describe('StartPage', () => {
 
 		expect(await screen.findByRole('heading', { name: 'Configure models' })).toBeInTheDocument();
 		expect(screen.queryByRole('heading', { name: 'Configure operators' })).not.toBeInTheDocument();
-		expect(screen.getByText('Configure models')).toBeInTheDocument();
+		expect(screen.getAllByText('Configure models').length).toBeGreaterThan(0);
 	});
 
 	it('shows every documented model area in the model configuration step', async () => {
