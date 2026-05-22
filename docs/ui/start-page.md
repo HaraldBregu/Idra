@@ -29,8 +29,9 @@ It is about:
 
 ## Step 3: Configure Models
 
-This step lets the user choose which models Friday should use. Only connected
-providers appear in the selectable model controls.
+This step lets the user choose which models Friday should use. It follows the
+model areas documented in `docs/models`, focused on the model choices that are
+part of first-run setup.
 
 It is about:
 
@@ -42,19 +43,9 @@ It is about:
 
 The model areas covered by this step are:
 
-| Area | Purpose |
+| Model area | Purpose |
 | --- | --- |
-| Friday Assistant | Main chat and agent reasoning model. |
-| Voice Input | Speech-to-text model for dictation and transcription. |
-| Voice Output | Text-to-speech model for spoken output. |
-| Text To Image | Future image generation model setup. |
-
-## Not In Start Setup
-
-These model areas are not configured in the start page yet:
-
-- Text to video.
-- Text to audio or music.
-- OCR.
-- Embedding.
-- Cron and background-task model behavior.
+| Large language model | Main chat and agent reasoning model. |
+| Speech to text | Model for dictation and transcription. |
+| Text to speech | Model for spoken output. |
+| Text to image | Future image generation model setup. |
