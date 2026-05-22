@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Plug } from 'lucide-react';
-import type { ConnectorInput } from '../../../../../../shared/connector';
+import type { ConnectorInput } from '@shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -13,7 +13,7 @@ import { ConnectorCard } from './components/ConnectorCard';
 import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { useConnectors } from './hooks/useConnectors';
 
-const ConnectorsPage = (): JSX.Element => {
+const ConnectorsPage = () => {
 	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId,
