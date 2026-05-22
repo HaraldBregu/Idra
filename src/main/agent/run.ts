@@ -201,15 +201,36 @@ function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknow
  * compacts the transcript once and retries. The whole run is abortable
  * via `signal`.
  */
+function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdapter; model: string; effort: ModelReasoningEffort | undefined } {
+	if (input.provider && input.model) {
+		return { provider: input.provider, model: input.model, effort: input.effort };
+	}
+	const store = input.store;
+	if (!store) {
+		throw new Error('provider and model are required when no store is provided.');
+	}
+	const operator = store.getAssistantOperator();
+	if (!operator) throw new Error('Agent provider not configured.');
+	const providerId = operator.provider.id.trim().toLowerCase();
+	const model = input.model?.trim() || operator.model.id.trim() || operator.model.name.trim();
+	if (!model) throw new Error('Agent model not configured.');
+	const providerConfig = store.getProviderById(providerId);
+	if (!providerConfig) throw new Error(`Provider not configured: ${providerId}`);
+	const apiKey = providerConfig.apiKey.trim();
+	if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
+	const factory = input.providerFactory ?? makeProvider;
+	const provider = input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
+	const effort = input.effort ?? operator.model.effort;
+	return { provider, model, effort };
+}
+
 export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
+	const { provider, model, effort } = resolveProviderAndModel(input);
 	const {
 		runId,
 		userMessage,
 		systemPrompt,
 		session,
-		provider,
-		model,
-		effort,
 		tools,
 		ctx,
 		maxTokens = 4096,
