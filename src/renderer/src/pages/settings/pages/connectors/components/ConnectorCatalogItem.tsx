@@ -67,9 +67,11 @@ function formToInput(form: ConnectorCatalogFormState, connectorId: OpenAiConnect
 export function ConnectorCatalogItem({
 	item,
 	onAdd,
+	alreadyConfigured,
 }: {
 	readonly item: ConnectorCatalog[number];
 	readonly onAdd: (input: ConnectorInput) => Promise<void>;
+	readonly alreadyConfigured: boolean;
 }) {
 	const [saving, setSaving] = useState(false);
 	const idPrefix = item.id.replace(/[^a-zA-Z0-9_-]/g, '-');
@@ -85,7 +87,11 @@ export function ConnectorCatalogItem({
 	});
 
 	const googleOAuth = 'authKind' in item && item.authKind === 'google_oauth';
-	const canSubmit = form.name.trim().length > 0 && (googleOAuth || form.authorization.trim().length > 0) && !saving;
+	const canSubmit =
+		!alreadyConfigured &&
+		form.name.trim().length > 0 &&
+		(googleOAuth || form.authorization.trim().length > 0) &&
+		!saving;
 
 	const update = <TKey extends keyof ConnectorCatalogFormState>(key: TKey, value: ConnectorCatalogFormState[TKey]): void => {
 		setForm((prev) => ({ ...prev, [key]: value }));
@@ -235,7 +241,7 @@ export function ConnectorCatalogItem({
 							Redirect: <span className="font-mono">{('redirectUri' in item && item.redirectUri) || 'Not configured'}</span>
 						</SettingsNotice>
 					) : (
-						<SettingsField id={`${idPrefix}-connector-authorization`} label="OAuth access token">
+					<SettingsField id={`${idPrefix}-connector-authorization`} label="OAuth access token">
 							<Input
 								id={`${idPrefix}-connector-authorization`}
 								type="password"
@@ -313,6 +319,9 @@ export function ConnectorCatalogItem({
 					</div>
 
 					<div className="flex flex-wrap justify-end gap-2 py-2">
+						{alreadyConfigured && (
+							<p className="text-xs text-destructive">This connector is already configured.</p>
+						)}
 						<Button type="submit" size="xs" disabled={!canSubmit}>
 							{saving ? 'Saving...' : 'Add Connector'}
 						</Button>
