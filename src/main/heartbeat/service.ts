@@ -12,7 +12,6 @@ import type {
 	HeartbeatEventPayload,
 	HeartbeatRunResult,
 	HeartbeatStatus,
-	HeartbeatStoreState,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
 	HeartbeatTimingSettings,
@@ -54,6 +53,7 @@ import {
 	setHeartbeatWakeHandler,
 } from './wake';
 import { normalizeHeartbeatReply, type HeartbeatToolResponse } from './response';
+import { HeartbeatRuntimeState, StoreServiceHeartbeatStateStorage } from './state';
 import { resolveHeartbeatVisibility } from './visibility';
 
 export interface HeartbeatServiceDependencies {
@@ -115,8 +115,13 @@ export class HeartbeatService implements Disposable {
 	private systemEvents = new Map<string, QueuedSystemEvent[]>();
 	private lastRoute: DeliveryRoute | null = null;
 	private routesBySession = new Map<string, DeliveryRoute>();
+	private readonly runtimeState: HeartbeatRuntimeState;
 
-	constructor(private readonly dependencies: HeartbeatServiceDependencies) {}
+	constructor(private readonly dependencies: HeartbeatServiceDependencies) {
+		this.runtimeState = new HeartbeatRuntimeState(
+			new StoreServiceHeartbeatStateStorage(dependencies.store)
+		);
+	}
 
 	start(): void {
 		if (this.started) return;
@@ -366,7 +371,7 @@ export class HeartbeatService implements Disposable {
 		const tasks = parseHeartbeatTasks(heartbeatFile.content ?? '');
 		const dueTasks = tasks.filter((task) =>
 			isHeartbeatTaskDue(
-				this.getHeartbeatState().taskState[this.taskStateKey(agentId, baseSessionKey, task.name)]?.lastRunMs,
+				this.runtimeState.getTaskLastRunMs(agentId, baseSessionKey, task.name),
 				task.interval,
 				startedAt
 			)
@@ -424,13 +429,13 @@ export class HeartbeatService implements Disposable {
 			let silent = normalized.kind === 'ok';
 			if (delivery.status === 'ok') {
 				if (normalized.kind === 'alert' && visibility.showAlerts) {
-					if (!this.isDuplicateAlert(baseSessionKey, normalized.text, startedAt)) {
+					if (!this.runtimeState.isDuplicateAlert(baseSessionKey, normalized.text, startedAt)) {
 						await this.dependencies.channelRegistry?.send({
 							...delivery.message,
 							text: normalized.text,
 							idempotencyKey: `heartbeat:${agentId}:${startedAt}`,
 						});
-						this.recordDeliveredText(baseSessionKey, normalized.text, startedAt);
+						this.runtimeState.recordDeliveredText(baseSessionKey, normalized.text, startedAt);
 						sent = true;
 						silent = false;
 					} else {
@@ -447,7 +452,7 @@ export class HeartbeatService implements Disposable {
 				}
 			}
 			this.consumePendingEvents(baseSessionKey, pendingEvents.ids);
-			this.markDueTasks(agentId, baseSessionKey, dueTasks, Date.now());
+			this.runtimeState.markTasksRun(agentId, baseSessionKey, dueTasks, Date.now());
 			this.advanceSchedule(schedule, Date.now());
 			const durationMs = Date.now() - startedAt;
 			this.emitHeartbeat({
@@ -686,42 +691,6 @@ export class HeartbeatService implements Disposable {
 		else this.systemEvents.delete(sessionKey);
 	}
 
-	private taskStateKey(agentId: string, sessionKey: string, taskName: string): string {
-		return `${agentId}:${sessionKey}:${taskName}`;
-	}
-
-	private getHeartbeatState(): HeartbeatStoreState {
-		return this.dependencies.store.getHeartbeatState();
-	}
-
-	private saveHeartbeatState(state: HeartbeatStoreState): void {
-		this.dependencies.store.setHeartbeatState(state);
-	}
-
-	private markDueTasks(
-		agentId: string,
-		sessionKey: string,
-		tasks: Array<{ name: string }>,
-		nowMs: number
-	): void {
-		if (tasks.length === 0) return;
-		const state = this.getHeartbeatState();
-		for (const task of tasks) {
-			state.taskState[this.taskStateKey(agentId, sessionKey, task.name)] = { lastRunMs: nowMs };
-		}
-		this.saveHeartbeatState(state);
-	}
-
-	private recordDeliveredText(sessionKey: string, text: string, atMs: number): void {
-		const state = this.getHeartbeatState();
-		state.lastDelivered[sessionKey] = { text, atMs };
-		this.saveHeartbeatState(state);
-	}
-
-	private isDuplicateAlert(sessionKey: string, text: string, nowMs: number): boolean {
-		const previous = this.getHeartbeatState().lastDelivered[sessionKey];
-		return Boolean(previous && previous.text === text && nowMs - previous.atMs < 24 * 60 * 60_000);
-	}
 
 	private resolveDelivery(summary: HeartbeatSummary, sessionKey: string): DeliveryResolution {
 		if (summary.target === 'none') return { status: 'none' };
