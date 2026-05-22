@@ -22,6 +22,18 @@ function createContainer(
 			getRecentLogs: jest.fn(),
 			info: jest.fn(),
 		},
+		appPermissions: {
+			getMicrophoneEnabled: jest.fn(() => true),
+			setMicrophoneEnabled: jest.fn((enabled: boolean) => ({
+				microphoneEnabled: enabled,
+				cameraEnabled: true,
+			})),
+			getCameraEnabled: jest.fn(() => true),
+			setCameraEnabled: jest.fn((enabled: boolean) => ({
+				microphoneEnabled: true,
+				cameraEnabled: enabled,
+			})),
+		},
 		powerSaveBlocker: {
 			setEnabled: jest.fn(),
 		},
