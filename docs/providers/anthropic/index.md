@@ -1,6 +1,6 @@
 # Anthropic Models
 
-This section documents the Anthropic models we plan to use.
+This section documents Anthropic models.
 
 ## Current Model Set
 

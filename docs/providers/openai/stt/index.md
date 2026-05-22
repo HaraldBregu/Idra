@@ -1,8 +1,8 @@
 # OpenAI Speech-To-Text Models
 
-This folder documents the OpenAI speech-to-text models we plan to use.
+This folder documents OpenAI speech-to-text models.
 
 | Model | Status | Notes |
 | --- | --- | --- |
-| `gpt-4o-transcribe` | Planned | Primary transcription model. |
-| `gpt-4o-mini-transcribe` | Planned | Smaller transcription model for lower-cost or lower-latency usage. |
+| `gpt-4o-transcribe` | Documented | Primary transcription model. |
+| `gpt-4o-mini-transcribe` | Documented | Smaller transcription model for lower-cost or lower-latency usage. |

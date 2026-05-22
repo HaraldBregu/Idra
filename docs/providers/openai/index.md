@@ -1,6 +1,6 @@
 # OpenAI Models
 
-This section documents the OpenAI models we plan to use.
+This section documents OpenAI models.
 
 ## Current Model Set
 
