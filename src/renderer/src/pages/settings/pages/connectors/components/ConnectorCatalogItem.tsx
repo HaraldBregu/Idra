@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { ConnectorCatalog } from '../hooks/useConnectors';
 import { ConnectorIcon } from './ConnectorIcon';
 
