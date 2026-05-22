@@ -23,7 +23,7 @@ aliases, UI ordering, markdown support, exposure, and docs paths. Aliases such
 as `lark`, `gchat`, `google-chat`, `imsg`, `internet-relay-chat`, `teams`,
 `nc-talk`, `nc`, `twitch-chat`, `zl`, and `zlu` resolve to their canonical ids.
 
-The channel ids below link to the per-channel markdown files used by the
+The channel ids below link to the per-channel index pages used by the
 catalog docs path.
 
 Only `telegram` has a bundled runtime. All other entries are catalog-only
@@ -33,33 +33,33 @@ all share stable ids.
 
 | Channel id | Label | Aliases | Runtime | Official/platform documentation |
 | --- | --- | --- | --- | --- |
-| [`clickclack`](clickclack.md) | ClickClack | none | Catalog-only | No verified vendor-official public API docs found. Existing external channel docs: [OpenClaw ClickClack plugin](https://docs.openclaw.ai/plugins/reference/clickclack). |
-| [`discord`](discord.md) | Discord | none | Catalog-only | [Discord Developer Platform](https://docs.discord.com/developers/intro), [Discord Bots](https://docs.discord.com/developers/bots). |
-| [`feishu`](feishu.md) | Feishu | `lark` | Catalog-only | [Feishu Open Platform](https://open.feishu.cn/document/home/index), [Lark Developer](https://open.larksuite.com/document/home/index). |
-| [`googlechat`](googlechat.md) | Google Chat | `gchat`, `google-chat` | Catalog-only | [Google Chat developer docs](https://developers.google.com/workspace/chat), [Google Chat API reference](https://developers.google.com/workspace/chat/api/reference/rest). |
-| [`imessage`](imessage.md) | iMessage | `imsg` | Catalog-only | [Apple Messages framework](https://developer.apple.com/documentation/messages), [Apple Business Chat / Messages for Business](https://developer.apple.com/business-chat/). |
-| [`irc`](irc.md) | IRC | `internet-relay-chat` | Catalog-only | [IRCv3 specifications](https://ircv3.net/irc/), [Modern IRC specification](https://modern.ircdocs.horse/). |
-| [`line`](line.md) | LINE | none | Catalog-only | [LINE Messaging API](https://developers.line.biz/en/docs/messaging-api/), [LINE Messaging API reference](https://developers.line.biz/en/reference/messaging-api/). |
-| [`matrix`](matrix.md) | Matrix | none | Catalog-only | [Matrix specification](https://spec.matrix.org/latest/), [Client-server API](https://spec.matrix.org/latest/client-server-api/). |
-| [`mattermost`](mattermost.md) | Mattermost | none | Catalog-only | [Mattermost developer docs](https://developers.mattermost.com/), [Mattermost integration reference](https://developers.mattermost.com/integrate/reference/). |
-| [`msteams`](msteams.md) | Microsoft Teams | `teams` | Catalog-only | [Microsoft Teams developer platform](https://learn.microsoft.com/en-us/microsoftteams/platform/overview), [Teams Graph API overview](https://learn.microsoft.com/en-us/graph/teams-concept-overview). |
-| [`nextcloud-talk`](nextcloud-talk.md) | Nextcloud Talk | `nc-talk`, `nc` | Catalog-only | [Nextcloud Talk API documentation](https://nextcloud-talk.readthedocs.io/en/latest/), [Bots and webhooks](https://nextcloud-talk.readthedocs.io/en/latest/bots/). |
-| [`nostr`](nostr.md) | Nostr | none | Catalog-only | [Nostr NIPs](https://github.com/nostr-protocol/nips), [NIP-04 encrypted direct message](https://github.com/nostr-protocol/nips/blob/master/04.md). |
-| [`qa-channel`](qa-channel.md) | QA Channel | none | Hidden catalog-only | Internal synthetic test channel. There is no external official documentation. |
-| [`qqbot`](qqbot.md) | QQ Bot | none | Catalog-only | [QQ Bot official docs](https://bot.q.qq.com/wiki/). |
-| [`signal`](signal.md) | Signal | none | Catalog-only | Signal does not publish an official bot API for this use case. Official user/device docs: [Signal linked devices](https://support.signal.org/hc/en-us/articles/360007320551-Linked-Devices). |
-| [`slack`](slack.md) | Slack | none | Catalog-only | [Slack API docs](https://docs.slack.dev/apis/), [Slack app manifests](https://docs.slack.dev/app-manifests/). |
-| [`synology-chat`](synology-chat.md) | Synology Chat | none | Catalog-only | [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat), [Using Integration in Synology Chat](https://kb.synology.com/en-global/DSM/help/Chat/chat_integration). |
-| [`telegram`](telegram.md) | Telegram | none | Bundled runtime | [Telegram Bot API](https://core.telegram.org/bots/api), [grammY documentation](https://grammy.dev/). |
-| [`tlon`](tlon.md) | Tlon | none | Catalog-only | [Tlon developer docs](https://dev.tlon.io/), [Urbit developer docs](https://docs.urbit.org/). |
-| [`twitch`](twitch.md) | Twitch | `twitch-chat` | Catalog-only | [Twitch Chat and Chatbots](https://dev.twitch.tv/docs/chat/), [Twitch API reference](https://dev.twitch.tv/docs/api/). |
-| [`whatsapp`](whatsapp.md) | WhatsApp | none | Catalog-only | [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api), [Cloud API get started](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started). |
-| [`zalo`](zalo.md) | Zalo | `zl` | Catalog-only | [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147), [Zalo API Explorer](https://developers.zalo.me/tools/explorer/). |
-| [`zalouser`](zalouser.md) | Zalo Personal | `zlu` | Catalog-only | No verified official personal-user automation API docs found. Reuse official Zalo developer docs only for supported Official Account flows: [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147). |
+| [`clickclack`](clickclack/index.md) | ClickClack | none | Catalog-only | No verified vendor-official public API docs found. Existing external channel docs: [OpenClaw ClickClack plugin](https://docs.openclaw.ai/plugins/reference/clickclack). |
+| [`discord`](discord/index.md) | Discord | none | Catalog-only | [Discord Developer Platform](https://docs.discord.com/developers/intro), [Discord Bots](https://docs.discord.com/developers/bots). |
+| [`feishu`](feishu/index.md) | Feishu | `lark` | Catalog-only | [Feishu Open Platform](https://open.feishu.cn/document/home/index), [Lark Developer](https://open.larksuite.com/document/home/index). |
+| [`googlechat`](googlechat/index.md) | Google Chat | `gchat`, `google-chat` | Catalog-only | [Google Chat developer docs](https://developers.google.com/workspace/chat), [Google Chat API reference](https://developers.google.com/workspace/chat/api/reference/rest). |
+| [`imessage`](imessage/index.md) | iMessage | `imsg` | Catalog-only | [Apple Messages framework](https://developer.apple.com/documentation/messages), [Apple Business Chat / Messages for Business](https://developer.apple.com/business-chat/). |
+| [`irc`](irc/index.md) | IRC | `internet-relay-chat` | Catalog-only | [IRCv3 specifications](https://ircv3.net/irc/), [Modern IRC specification](https://modern.ircdocs.horse/). |
+| [`line`](line/index.md) | LINE | none | Catalog-only | [LINE Messaging API](https://developers.line.biz/en/docs/messaging-api/), [LINE Messaging API reference](https://developers.line.biz/en/reference/messaging-api/). |
+| [`matrix`](matrix/index.md) | Matrix | none | Catalog-only | [Matrix specification](https://spec.matrix.org/latest/), [Client-server API](https://spec.matrix.org/latest/client-server-api/). |
+| [`mattermost`](mattermost/index.md) | Mattermost | none | Catalog-only | [Mattermost developer docs](https://developers.mattermost.com/), [Mattermost integration reference](https://developers.mattermost.com/integrate/reference/). |
+| [`msteams`](msteams/index.md) | Microsoft Teams | `teams` | Catalog-only | [Microsoft Teams developer platform](https://learn.microsoft.com/en-us/microsoftteams/platform/overview), [Teams Graph API overview](https://learn.microsoft.com/en-us/graph/teams-concept-overview). |
+| [`nextcloud-talk`](nextcloud-talk/index.md) | Nextcloud Talk | `nc-talk`, `nc` | Catalog-only | [Nextcloud Talk API documentation](https://nextcloud-talk.readthedocs.io/en/latest/), [Bots and webhooks](https://nextcloud-talk.readthedocs.io/en/latest/bots/). |
+| [`nostr`](nostr/index.md) | Nostr | none | Catalog-only | [Nostr NIPs](https://github.com/nostr-protocol/nips), [NIP-04 encrypted direct message](https://github.com/nostr-protocol/nips/blob/master/04.md). |
+| [`qa-channel`](qa-channel/index.md) | QA Channel | none | Hidden catalog-only | Internal synthetic test channel. There is no external official documentation. |
+| [`qqbot`](qqbot/index.md) | QQ Bot | none | Catalog-only | [QQ Bot official docs](https://bot.q.qq.com/wiki/). |
+| [`signal`](signal/index.md) | Signal | none | Catalog-only | Signal does not publish an official bot API for this use case. Official user/device docs: [Signal linked devices](https://support.signal.org/hc/en-us/articles/360007320551-Linked-Devices). |
+| [`slack`](slack/index.md) | Slack | none | Catalog-only | [Slack API docs](https://docs.slack.dev/apis/), [Slack app manifests](https://docs.slack.dev/app-manifests/). |
+| [`synology-chat`](synology-chat/index.md) | Synology Chat | none | Catalog-only | [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat), [Using Integration in Synology Chat](https://kb.synology.com/en-global/DSM/help/Chat/chat_integration). |
+| [`telegram`](telegram/index.md) | Telegram | none | Bundled runtime | [Telegram Bot API](https://core.telegram.org/bots/api), [grammY documentation](https://grammy.dev/). |
+| [`tlon`](tlon/index.md) | Tlon | none | Catalog-only | [Tlon developer docs](https://dev.tlon.io/), [Urbit developer docs](https://docs.urbit.org/). |
+| [`twitch`](twitch/index.md) | Twitch | `twitch-chat` | Catalog-only | [Twitch Chat and Chatbots](https://dev.twitch.tv/docs/chat/), [Twitch API reference](https://dev.twitch.tv/docs/api/). |
+| [`whatsapp`](whatsapp/index.md) | WhatsApp | none | Catalog-only | [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api), [Cloud API get started](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started). |
+| [`zalo`](zalo/index.md) | Zalo | `zl` | Catalog-only | [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147), [Zalo API Explorer](https://developers.zalo.me/tools/explorer/). |
+| [`zalouser`](zalouser/index.md) | Zalo Personal | `zlu` | Catalog-only | No verified official personal-user automation API docs found. Reuse official Zalo developer docs only for supported Official Account flows: [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147). |
 
 Catalog metadata rules:
 
-- `docsPath` must point at the matching file under `docs/channels/`.
+- `docsPath` must point at the matching `docs/channels/<channel-id>/index.md` page.
 - `docsLabel` defaults to `<label> setup`.
 - `setupVisible` and `catalogVisible` default to `false` only for hidden
   entries.
