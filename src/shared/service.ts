@@ -6,7 +6,6 @@ import {
 import type { AgentsHeartbeatConfig } from './heartbeat';
 import {
 	IMAGE_CREATOR_MODELS,
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TO_TEXT_MODELS,
 	getMusicModelsByProvider,
