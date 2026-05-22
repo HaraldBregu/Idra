@@ -13,6 +13,8 @@ import {
 	isRealtimeSpeechTranscriberModel,
 } from '../../shared/service';
 import {
+	LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
 } from '../../shared/provider-models';
@@ -38,8 +40,7 @@ const CONNECT_TIMEOUT_MS = 10_000;
 const FINISH_CLOSE_DELAY_MS = 15_000;
 const REALTIME_TRANSCRIPTION_SOCKET_MODEL = 'gpt-realtime';
 const REALTIME_TRANSCRIPTION_INTENT = 'transcription';
-const OPENAI_VERBATIM_TRANSCRIPTION_PROMPT =
-	'Transcribe the input audio exactly as spoken. Do not translate, paraphrase, summarize, correct wording, answer the speaker, or add content. Preserve the original spoken language and only output transcript text.';
+const REALTIME_TRANSCRIPTION_DELAY = 'high';
 
 function eventMessage(event: unknown): string {
 	if (typeof event === 'object' && event !== null) {
@@ -75,11 +76,21 @@ export function createRealtimeTranscriptionSocket(
 	);
 }
 
+export function resolveOpenAIRealtimeTranscriptionModel(model: string): string | null {
+	const normalizedModel = model.trim();
+	if (isRealtimeSpeechTranscriberModel(normalizedModel)) return normalizedModel;
+	if ((LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(normalizedModel)) {
+		return REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
+	}
+	return null;
+}
+
 export function createRealtimeTranscriptionSessionUpdate(
 	model: string,
 	request?: RealtimeTranscriptionStartRequest
 ): RealtimeClientEvent {
 	const language = normalizeLanguage(request?.language);
+	const transcriptionModel = resolveOpenAIRealtimeTranscriptionModel(model) ?? model.trim();
 	return {
 		type: 'session.update',
 		session: {
@@ -91,8 +102,8 @@ export function createRealtimeTranscriptionSessionUpdate(
 						rate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 					},
 					transcription: {
-						model,
-						prompt: OPENAI_VERBATIM_TRANSCRIPTION_PROMPT,
+						model: transcriptionModel,
+						delay: REALTIME_TRANSCRIPTION_DELAY,
 						...(language ? { language } : {}),
 					},
 					turn_detection: null,
@@ -150,7 +161,8 @@ class OpenAIRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 	private closeTimer: NodeJS.Timeout | null = null;
 
 	constructor(private readonly config: SpeechToTextRuntimeConfig) {
-		this.model = config.model.id;
+		this.model =
+			resolveOpenAIRealtimeTranscriptionModel(config.model.id) ?? config.model.id;
 		const client = new OpenAI({
 			apiKey: config.provider.apiKey.trim(),
 			baseURL: config.provider.baseUrl,
@@ -338,13 +350,13 @@ export class OpenAIRealtimeSpeechToTextAdapter implements SpeechToTextRealtimeAd
 	supports(providerId: string, modelId: string): boolean {
 		return (
 			providerId.trim().toLowerCase() === SPEECH_TRANSCRIBER_PROVIDER_ID &&
-			isRealtimeSpeechTranscriberModel(modelId)
+			resolveOpenAIRealtimeTranscriptionModel(modelId) !== null
 		);
 	}
 
 	async startSession(config: SpeechToTextRuntimeConfig): Promise<SpeechToTextRealtimeSession> {
-		const model = config.model.id.trim();
-		if (!isRealtimeSpeechTranscriberModel(model)) {
+		const model = resolveOpenAIRealtimeTranscriptionModel(config.model.id);
+		if (!model) {
 			throw new Error(
 				`OpenAI realtime speech-to-text requires one of: ${SPEECH_TRANSCRIBER_MODEL_IDS.join(', ')}.`
 			);
