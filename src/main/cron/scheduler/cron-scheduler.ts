@@ -26,6 +26,7 @@ import { ScheduleDescriber } from '../core/cron.describer';
 import {
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
+	CronScheduleValidationError,
 	CronSchedulerError,
 	toCronRecordError,
 } from '../core/cron.errors';
@@ -33,6 +34,7 @@ import { assertScheduleCanRun, validateScheduleShape } from '../core/cron.valida
 import { CronNextRunCalculator } from './cron-next-run-calculator';
 import { CronScheduleEventBus } from '../events/cron-event-bus';
 import { redactCronValue, summarizeCronValue } from '../security/cron-redaction';
+import { AGENT_TASK_TYPE } from '../../tasks';
 
 interface CronLogger {
 	debug(scope: string, message: string, metadata?: unknown): void;
@@ -75,12 +77,14 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 const SECRET_KEY_PATTERN =
 	/(api[-_]?key|token|secret|password|credential|authorization|oauth|private[-_]?key)/i;
 const RUNTIME_CONFIG_KEY_PATTERN =
-	/^(providerId|model|modelId|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
+	/^(provider|providerId|providerConfig|model|modelId|modelConfig|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
 const SECRET_VALUE_PATTERNS: readonly RegExp[] = [
 	/-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
 	/authorization\s*:\s*bearer\s+\S+/i,
 	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
 ];
+const AGENT_TASK_INPUT_KEYS = new Set(['message']);
+const MAX_AGENT_INSTRUCTION_LENGTH = 200_000;
 
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
