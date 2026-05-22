@@ -268,6 +268,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	const runStart = Date.now();
 
 	await hooks?.onStart?.({ runId });
+	agentLogger.info('agent:run', 'run started', { runId, model, tools: tools.map((t) => t.name), userMessageLen: userMessage.length });
 	streamEvent?.({ type: 'run_state', state: 'thinking', label: 'Thinking' });
 
 	try {
