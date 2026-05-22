@@ -10,8 +10,8 @@ Friday uses two task families:
 
 | Area | When to use it | How it should behave |
 | --- | --- | --- |
-| [Background tasks](background/) | Work should start now and continue while the app remains usable. | Create one visible task, report progress, allow cancellation, and keep the result available for the current session. |
-| [Scheduled tasks](scheduled/) | Work should happen in the future, repeat over time, or run after a delay. | Persist the schedule, calculate due times, handle missed runs, and create work only when the schedule is due. |
+| [Background tasks](background/index.md) | Work should start now and continue while the app remains usable. | Create one visible task, report progress, allow cancellation, and keep the result available for the current session. |
+| [Scheduled tasks](scheduled/index.md) | Work should happen in the future, repeat over time, or run after a delay. | Persist the schedule, calculate due times, handle missed runs, and create work only when the schedule is due. |
 
 ## Responsibilities
 
