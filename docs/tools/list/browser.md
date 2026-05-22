@@ -6,7 +6,17 @@
 
 - Used when Friday must navigate, inspect, screenshot, or interact with a page.
 - Helpful for checking web app behavior and visual results.
-- Can support workflows where the page state matters, not just the page address.
+- Supports twelve actions:
+  - **Lifecycle**: `start`, `stop`, `status`
+  - **Session**: `profiles`, `tabs`
+  - **Navigation**: `open` (new tab), `navigate` (load URL in tab), `focus`,
+    `close`
+  - **Inspection**: `snapshot` (accessibility tree), `screenshot` (image)
+  - **Interaction**: `act` (click, fill, press, select, scroll using a ref from
+    `snapshot`)
+- Call `snapshot` before `act` to get the element refs needed for interaction.
+- Each session is associated with a named profile (default: `"default"`); tabs
+  within a session are identified by a tab id such as `t1`.
 
 ## Boundaries
 
