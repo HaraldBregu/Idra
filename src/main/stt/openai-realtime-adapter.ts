@@ -298,20 +298,6 @@ class OpenAIRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 				message: event.error.message || 'Realtime transcription failed.',
 			});
 			this.closeFinishedSession();
-			return;
-		}
-
-		if (event.type === 'error') {
-			if (this.closeAfterFinal && isInputAudioBufferTooSmallError(event.error.message)) {
-				this.close();
-				return;
-			}
-
-			this.emit({
-				type: 'error',
-				sessionId: this.id,
-				message: event.error.message || 'Realtime transcription failed.',
-			});
 		}
 	}
 
