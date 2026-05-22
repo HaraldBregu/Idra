@@ -73,7 +73,6 @@ import type {
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { AppInfo } from '../shared/app-info';
-import type { ThemeMode } from '../shared/theme';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -176,12 +175,6 @@ export const agent: AgentApi = {
 } satisfies AgentApi;
 
 export const app: AppApi = {
-	setTheme: (theme: ThemeMode): void => {
-		typedSend(AppChannels.setTheme, theme);
-	},
-	onThemeChange: (callback: (theme: ThemeMode) => void): (() => void) => {
-		return typedOn(AppChannels.themeChanged, callback);
-	},
 	openAppDataFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openAppDataFolder);
 	},
