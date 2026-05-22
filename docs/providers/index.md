@@ -13,9 +13,9 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 | Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram/), [ElevenLabs](elevenlabs/), [Mistral AI](mistral/), [xAI](xai/), [Alibaba / Qwen / Wan](qwen/) |
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs/), [Cartesia](cartesia/), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax/), [Mistral AI](mistral/), [Deepgram](deepgram/) |
 | Realtime Voice And Omni Models | 8 | [OpenAI](openai.md), [xAI](xai/), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [Luma AI](luma.md) |
-| Image Models | 18 | [OpenAI](openai.md), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [Black Forest Labs](black-forest-labs/), [Midjourney](midjourney/), [Luma AI](luma.md), [Stability AI](stability-ai.md), [Ideogram](ideogram.md) |
-| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway/), [Luma AI](luma.md), [MiniMax](minimax/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [OpenAI](openai.md), [Meta](meta/), [Midjourney](midjourney/), [Pika](pika.md), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling/) |
-| Music And Audio Models | 11 | [Google DeepMind / Google](google/), [Suno](suno.md), [MiniMax](minimax/), [ElevenLabs](elevenlabs/), [Stability AI](stability-ai.md), [Kuaishou / Kling AI](kling/) |
+| Image Models | 18 | [OpenAI](openai.md), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [Black Forest Labs](black-forest-labs/), [Midjourney](midjourney/), [Luma AI](luma.md), [Stability AI](stability-ai/), [Ideogram](ideogram.md) |
+| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway/), [Luma AI](luma.md), [MiniMax](minimax/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [OpenAI](openai.md), [Meta](meta/), [Midjourney](midjourney/), [Pika](pika.md), [Stability AI](stability-ai/), [Kuaishou / Kling AI](kling/) |
+| Music And Audio Models | 11 | [Google DeepMind / Google](google/), [Suno](suno.md), [MiniMax](minimax/), [ElevenLabs](elevenlabs/), [Stability AI](stability-ai/), [Kuaishou / Kling AI](kling/) |
 | 3D Models | 2 | [Luma AI](luma.md) |
 
 ## Provider Catalog
@@ -45,7 +45,7 @@ Each provider name links to its provider-specific markdown file.
 | [Alibaba / Qwen / Wan](qwen/) | `qwen` | Chat - Speech-to-text - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Realtime Voice And Omni Models - Image Models - Video Models |
 | [Reka AI](reka.md) | `reka` | Chat | Large Language Models |
 | [Runway](runway/) | `runway` | Video | Video Models |
-| [Stability AI](stability-ai.md) | `stability-ai` | Image - Video - Music/audio | Image Models - Video Models - Music And Audio Models |
+| [Stability AI](stability-ai/) | `stability-ai` | Image - Video - Music/audio | Image Models - Video Models - Music And Audio Models |
 | [Suno](suno.md) | `suno` | Music/audio | Music And Audio Models |
 | [xAI](xai/) | `xai` | Chat - Speech-to-text - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Realtime Voice And Omni Models - Image Models - Video Models |
 | [Z.ai / Zhipu AI](zai/) | `zai` | Chat | Large Language Models |
@@ -67,7 +67,7 @@ These providers do not have Large Language Models in the supplied catalog but do
 | [Perplexity](perplexity.md) | `perplexity` | Research chat |
 | [Pika](pika.md) | `pika` | Video |
 | [Runway](runway/) | `runway` | Video |
-| [Stability AI](stability-ai.md) | `stability-ai` | Image - Video - Music/audio |
+| [Stability AI](stability-ai/) | `stability-ai` | Image - Video - Music/audio |
 | [Suno](suno.md) | `suno` | Music/audio |
 
 ## Status Markers
