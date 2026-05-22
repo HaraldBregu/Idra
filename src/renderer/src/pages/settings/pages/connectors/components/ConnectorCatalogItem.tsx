@@ -1,8 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -44,13 +50,13 @@ function serverLabelFromName(name: string): string {
 		.replace(/^_+|_+$/g, '');
 }
 
-function formToInput(form: ConnectorCatalogFormState, connectorId: OpenAiConnectorId): ConnectorInput {
+function formToInput(form: ConnectorCatalogFormState, connectorId: OpenAiConnectorId, useManualAuth: boolean): ConnectorInput {
 	return {
 		name: form.name,
 		connectorId,
 		serverLabel: form.serverLabel || serverLabelFromName(form.name),
 		serverDescription: form.serverDescription || undefined,
-		authorization: form.authorization.trim() || undefined,
+		authorization: useManualAuth ? form.authorization.trim() || undefined : undefined,
 		requireApproval: form.requireApproval,
 		allowedTools: form.allowedTools,
 		deferLoading: form.deferLoading,
@@ -66,6 +72,7 @@ export function ConnectorCatalogItem({
 	readonly onAdd: (input: ConnectorInput) => Promise<void>;
 }): React.JSX.Element {
 	const [saving, setSaving] = useState(false);
+	const idPrefix = item.id.replace(/[^a-zA-Z0-9_-]/g, '-');
 	const [form, setForm] = useState<ConnectorCatalogFormState>({
 		name: item.name,
 		serverLabel: serverLabelFromName(item.name),
@@ -77,7 +84,6 @@ export function ConnectorCatalogItem({
 		enabled: true,
 	});
 
-	const selected = useMemo(() => new Set(form.allowedTools), [form.allowedTools]);
 	const googleOAuth = item.authKind === 'google_oauth';
 	const canSubmit = form.name.trim().length > 0 && (googleOAuth || form.authorization.trim().length > 0) && !saving;
 
@@ -98,7 +104,7 @@ export function ConnectorCatalogItem({
 		event.preventDefault();
 		setSaving(true);
 		try {
-			await onAdd(formToInput(form, item.id as OpenAiConnectorId));
+			await onAdd(formToInput(form, item.id as OpenAiConnectorId, !googleOAuth));
 			setForm({
 				...form,
 				name: item.name,
@@ -124,7 +130,7 @@ export function ConnectorCatalogItem({
 						{item.scopes.map((scope) => (
 							<Badge key={scope} variant="outline" className="h-4 px-1.5 text-[10px]">
 								{scope}
-							</scope>
+							</Badge>
 						))}
 					</div>
 				)}
@@ -169,9 +175,19 @@ export function ConnectorCatalogItem({
 				)}
 				<ConnectorDocumentationRows connector={item} />
 				<form onSubmit={submit} className="grid gap-2 border-t border-border/60 pt-2">
-					<SettingsField id="connector-server-description" label="Description">
+					<SettingsField id={`${idPrefix}-connector-name`} label="Name">
+						<Input
+							id={`${idPrefix}-connector-name`}
+							value={form.name}
+							onChange={(e) => update('name', e.target.value)}
+							placeholder={item.name}
+							className="h-7 px-2 text-xs md:text-xs"
+						/>
+					</SettingsField>
+
+					<SettingsField id={`${idPrefix}-connector-server-description`} label="Description">
 						<Textarea
-							id="connector-server-description"
+							id={`${idPrefix}-connector-server-description`}
 							value={form.serverDescription}
 							onChange={(e) => update('serverDescription', e.target.value)}
 							placeholder={item.description}
@@ -180,9 +196,9 @@ export function ConnectorCatalogItem({
 					</SettingsField>
 
 					<div className="grid gap-2 border-b border-border/60 md:grid-cols-2">
-						<SettingsField id="connector-server-label" label="Server label">
+						<SettingsField id={`${idPrefix}-connector-server-label`} label="Server label">
 							<Input
-								id="connector-server-label"
+								id={`${idPrefix}-connector-server-label`}
 								value={form.serverLabel}
 								onChange={(e) => update('serverLabel', e.target.value)}
 								placeholder="google_calendar"
@@ -190,12 +206,17 @@ export function ConnectorCatalogItem({
 							/>
 						</SettingsField>
 
-						<SettingsField id="connector-approval-policy" label="Approval policy">
+						<SettingsField id={`${idPrefix}-connector-approval-policy`} label="Approval policy">
 							<Select
 								value={form.requireApproval}
 								onValueChange={(value) => { if (value) update('requireApproval', value as ConnectorApprovalMode); }}
 							>
-								<SelectTrigger id="connector-approval-policy" size="sm" className="w-full text-xs [&_svg]:size-3" aria-label="Approval policy">
+								<SelectTrigger
+									id={`${idPrefix}-connector-approval-policy`}
+									size="sm"
+									className="w-full text-xs [&_svg]:size-3"
+									aria-label="Approval policy"
+								>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
@@ -214,9 +235,9 @@ export function ConnectorCatalogItem({
 							Redirect: <span className="font-mono">{item.redirectUri}</span>
 						</SettingsNotice>
 					) : (
-						<SettingsField id="connector-authorization" label="OAuth access token">
+						<SettingsField id={`${idPrefix}-connector-authorization`} label="OAuth access token">
 							<Input
-								id="connector-authorization"
+								id={`${idPrefix}-connector-authorization`}
 								type="password"
 								value={form.authorization}
 								onChange={(e) => update('authorization', e.target.value)}
@@ -236,7 +257,7 @@ export function ConnectorCatalogItem({
 						<div className="flex min-h-8 flex-wrap gap-1.5">
 							{item.tools.length > 0 ? (
 								item.tools.map((tool) => {
-									const active = selected.has(tool);
+									const active = form.allowedTools.includes(tool);
 									return (
 										<Button
 											key={tool}
@@ -248,7 +269,7 @@ export function ConnectorCatalogItem({
 										>
 											{tool}
 										</Button>
-										);
+									);
 								})
 							) : (
 								<p className="text-[11px] text-muted-foreground">No tools found for this connector.</p>
