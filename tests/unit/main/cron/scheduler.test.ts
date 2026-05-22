@@ -5,11 +5,15 @@ import {
 	DefaultCronScheduleAccessPolicy,
 	InMemoryCronScheduleStore,
 	redactCronValue,
+	TaskManagerCronScheduleRunner,
 	type CronActorContext,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
 	type CronScheduleRunner,
 } from '../../../../src/main/cron';
+import { EventBus } from '../../../../src/main/core';
+import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
+import type { TaskContext } from '../../../../src/shared/tasks';
 
 class RecordingRunner implements CronScheduleRunner {
 	tasks: CronScheduledTask[] = [];
@@ -122,7 +126,7 @@ function request(overrides: Partial<CronScheduleCreateRequest> = {}): CronSchedu
 		cronExpression: '0 9 * * 1',
 		missedRunPolicy: 'skip',
 		concurrencyPolicy: 'skipIfRunning',
-		taskType: 'reminder.show',
+		taskType: AGENT_TASK_TYPE,
 		taskInput: { message: 'Review invoices' },
 		...overrides,
 	};
@@ -172,7 +176,6 @@ describe('CronSchedulerService', () => {
 				type: 'interval',
 				cronExpression: undefined,
 				intervalMs: 30 * 60_000,
-				taskType: 'reminder.show',
 				taskInput: { message: 'repeat' },
 			}),
 			actor
@@ -306,19 +309,19 @@ describe('CronSchedulerService', () => {
 		});
 	});
 
-	it('allows schedules without permission grants or confirmation', async () => {
+	it('allows schedules without permission grants and rejects non-agent task types', async () => {
 		const { scheduler } = makeScheduler();
 		await expect(
 			scheduler.createSchedule(request(), { ...actor, permissions: [] })
 		).resolves.toMatchObject({
-			taskType: 'reminder.show',
+			taskType: AGENT_TASK_TYPE,
 		});
 		await expect(
 			scheduler.createSchedule(
 				request({ taskType: 'email.send', requiresConfirmation: true }),
 				actor
 			)
-		).resolves.toMatchObject({ taskType: 'email.send' });
+		).rejects.toThrow(/agent\.run/);
 	});
 
 	it('allows agents to create inspectable schedules through AgentCronService', async () => {
@@ -330,7 +333,6 @@ describe('CronSchedulerService', () => {
 				name: 'Agent reminder',
 				type: 'cron',
 				cronExpression: '0 9 * * 1',
-				taskType: 'reminder.show',
 				taskInput: { message: 'Review invoices' },
 			},
 			{
@@ -357,5 +359,41 @@ describe('CronSchedulerService', () => {
 			apiKey: '[redacted]',
 			nested: { token: '[redacted]', ok: 'yes' },
 		});
+	});
+
+	it('creates approved agent background tasks through TaskManagerCronScheduleRunner', async () => {
+		const eventBus = new EventBus();
+		const registry = new TaskRegistry();
+		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({
+			text: `done: ${context.input.message}`,
+		}));
+		registry.register(
+			{
+				type: AGENT_TASK_TYPE,
+				validateInput(input: unknown) {
+					return input as { message: string };
+				},
+				run,
+			},
+			{ userFacing: true }
+		);
+		const taskManager = new TaskManager({ registry, eventBus });
+		const runner = new TaskManagerCronScheduleRunner(taskManager);
+		const { scheduler, store } = makeScheduler(runner);
+		const schedule = await scheduler.createSchedule(request(), actor);
+		await due(schedule, store, new Date(Date.now() - 1_000).toISOString());
+
+		await scheduler.processDueSchedules(new Date());
+
+		expect(taskManager.list()).toEqual([
+			expect.objectContaining({
+				type: AGENT_TASK_TYPE,
+				title: 'Weekly reminder',
+				metadata: expect.objectContaining({
+					cronScheduleId: schedule.id,
+					cronInput: { message: 'Review invoices' },
+				}),
+			}),
+		]);
 	});
 });
