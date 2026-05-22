@@ -6,7 +6,7 @@ import { Main } from './main';
 import { Tray } from './tray';
 import { Menu } from './menu';
 import { ShortcutManager } from './shortcuts';
-import type { StoreService } from './store';
+import type { AppPermissionsService } from './app-permissions';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -94,10 +94,12 @@ function isTrustedMediaRequestSource(
 	);
 }
 
-function setupMediaPermissionHandlers(store: StoreService): void {
+function setupMediaPermissionHandlers(
+	appPermissions: Pick<AppPermissionsService, 'getMicrophoneEnabled'>
+): void {
 	session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
 		if (permission !== 'media') return false;
-		if (!store.getMicrophoneEnabled()) return false;
+		if (!appPermissions.getMicrophoneEnabled()) return false;
 		if (details.mediaType !== 'audio') return false;
 		if (!details.isMainFrame) return false;
 		if (!isAppWindowWebContents(webContents)) return false;
@@ -118,7 +120,7 @@ function setupMediaPermissionHandlers(store: StoreService): void {
 		const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
 		const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
 		const allowed =
-			store.getMicrophoneEnabled() &&
+			appPermissions.getMicrophoneEnabled() &&
 			requestsAudio &&
 			!requestsVideo &&
 			mediaDetails.isMainFrame &&
@@ -248,7 +250,7 @@ app.whenReady().then(async () => {
 	});
 
 	restorePowerSaveBlocker(container);
-	setupMediaPermissionHandlers(container.get('store'));
+	setupMediaPermissionHandlers(container.get('appPermissions'));
 	menuManager.create();
 	trayManager.create();
 
