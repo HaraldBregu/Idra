@@ -343,8 +343,8 @@ function StepProgress({ currentIndex }: { readonly currentIndex: number }): Reac
 
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
-	const [step, setStep] = useState<SetupStep>('welcome');
-	const [expandedOperatorId, setExpandedOperatorId] = useState<OperatorCardId>('friday');
+	const [step, setStep] = useState<SetupStep>('presentation');
+	const [expandedModelAreaId, setExpandedModelAreaId] = useState<ModelAreaId>('assistant');
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
@@ -365,7 +365,14 @@ const StartPage: React.FC = () => {
 	const [savedSpeechModelId, setSavedSpeechModelId] = useState('');
 	const [speechModelGroups, setSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState('');
-	const [selectedTtsModel, setSelectedTtsModel] = useState(TTS_MODELS[0]?.id ?? '');
+	const [savedTextToSpeechOperator, setSavedTextToSpeechOperator] =
+		useState<ConfiguredModelOperator>();
+	const [savedImageCreatorOperator, setSavedImageCreatorOperator] =
+		useState<ConfiguredModelOperator>();
+	const [savedTextToVideoOperator, setSavedTextToVideoOperator] =
+		useState<ConfiguredModelOperator>();
+	const [savedMusicCreatorOperator, setSavedMusicCreatorOperator] =
+		useState<ConfiguredModelOperator>();
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
@@ -411,6 +418,31 @@ const StartPage: React.FC = () => {
 				providerEntries.filter((entry) => entry.apiKeySaved).map((entry) => entry.providerId)
 			),
 		[providerEntries]
+	);
+	const llmCatalogGroups = useMemo(() => getCatalogGroups(CHAT_MODELS_BY_PROVIDER), []);
+	const speechToTextCatalogGroups = useMemo(
+		() => getCatalogGroups(SPEECH_TO_TEXT_MODELS_BY_PROVIDER),
+		[]
+	);
+	const textToSpeechCatalogGroups = useMemo(
+		() => getCatalogGroups(TEXT_TO_SPEECH_MODELS_BY_PROVIDER),
+		[]
+	);
+	const textToImageCatalogGroups = useMemo(
+		() => getCatalogGroups(TEXT_TO_IMAGE_MODELS_BY_PROVIDER),
+		[]
+	);
+	const textToVideoCatalogGroups = useMemo(
+		() => getCatalogGroups(TEXT_TO_VIDEO_MODELS_BY_PROVIDER),
+		[]
+	);
+	const textToAudioCatalogGroups = useMemo(
+		() => getCatalogGroups(TEXT_TO_AUDIO_MODELS_BY_PROVIDER),
+		[]
+	);
+	const embeddingCatalogGroups = useMemo(
+		() => getCatalogGroups(EMBEDDING_MODELS_BY_PROVIDER),
+		[]
 	);
 
 	useEffect(() => {
