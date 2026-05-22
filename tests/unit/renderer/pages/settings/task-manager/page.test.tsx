@@ -159,7 +159,9 @@ describe('TaskManagerPage', () => {
 		const saveButton = screen.getByRole('button', {
 			name: /settings\.taskManager\.runtime\.save/,
 		});
-		await user.click(saveButton);
+		await act(async () => {
+			await user.click(saveButton);
+		});
 
 		await waitFor(() => {
 			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
