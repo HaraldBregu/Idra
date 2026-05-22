@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import type { Model } from '../../../../../../src/shared/agents/service';
 import type { FridayCronJob } from '../../../../../../src/shared/cron';
+import type { PublicProvider } from '../../../../../../src/shared/providers';
 import CronPage from '../../../../../../src/renderer/src/pages/settings/pages/cron/Page';
 import CronDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/cron/details/Page';
 
@@ -13,6 +15,17 @@ jest.mock('react-i18next', () => ({
 		},
 	}),
 }));
+
+const openAiProvider: PublicProvider = {
+	id: 'openai',
+	name: 'OpenAI',
+	baseUrl: 'https://api.openai.com/v1',
+};
+
+const assistantModel: Model = {
+	id: 'gpt-5',
+	name: 'GPT-5',
+};
 
 function makeJob(id: string, expr = '0 * * * *'): FridayCronJob {
 	return {
@@ -64,6 +77,14 @@ function renderCronDetailsPage(path = '/settings/cron/crondetails/task-1'): void
 
 describe('CronPage', () => {
 	beforeEach(() => {
+		window.app = {
+			...window.app,
+			getProviders: jest.fn(async () => [openAiProvider]),
+			getModels: jest.fn(async () => [assistantModel]),
+			getAgentService: jest.fn(async () => ({ provider: openAiProvider, model: assistantModel })),
+			saveAgentService: jest.fn(async () => true),
+		} as typeof window.app;
+
 		window.cron = {
 			...window.cron,
 			listJobs: jest.fn(async () => []),
@@ -76,6 +97,24 @@ describe('CronPage', () => {
 		renderCronPage();
 
 		expect(await screen.findByText('settings.cron.emptyTitle')).toBeInTheDocument();
+	});
+
+	it('saves the provider and model used by scheduled agent tasks', async () => {
+		const user = userEvent.setup();
+		renderCronPage();
+
+		const saveButton = await screen.findByRole('button', {
+			name: /settings\.cron\.runtime\.save/,
+		});
+		await waitFor(() => {
+			expect(saveButton).toBeEnabled();
+		});
+		await user.click(saveButton);
+
+		await waitFor(() => {
+			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
+		});
+		expect(await screen.findByText('settings.cron.runtime.saved')).toBeInTheDocument();
 	});
 
 	it('renders one card per scheduled task', async () => {
