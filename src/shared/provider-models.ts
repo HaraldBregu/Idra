@@ -1,218 +1,293 @@
+export type ProviderModelStatus = 'active' | 'deprecated' | 'verify';
+
 export interface ProviderModel {
-	id: string;
-	name: string;
+	readonly id: string;
+	readonly name: string;
+	readonly status: ProviderModelStatus;
 }
 
 export type ModelCatalog = Readonly<Record<string, readonly ProviderModel[]>>;
-export type ModelCapability =
-	| 'llm'
-	| 'speech-to-text'
-	| 'text-to-speech'
-	| 'text-to-image'
-	| 'text-to-video'
-	| 'text-to-audio'
-	| 'music'
-	| 'embedding';
 
-export const LLM_MODELS_BY_PROVIDER: ModelCatalog = {
-	openai: [
-		{ id: 'gpt-5.5', name: 'GPT-5.5' },
-		{ id: 'gpt-5.5-pro', name: 'GPT-5.5 Pro' },
-		{ id: 'gpt-5.4', name: 'GPT-5.4' },
-		{ id: 'gpt-5.4-pro', name: 'GPT-5.4 Pro' },
-		{ id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' },
-	],
+export const MODEL_CAPABILITIES = [
+	'llm',
+	'research-chat',
+	'speech-to-text',
+	'text-to-speech',
+	'realtime-voice',
+	'text-to-image',
+	'text-to-video',
+	'text-to-audio',
+	'music',
+	'3d',
+	'embedding',
+] as const;
+
+export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
+
+export const LLM_MODELS_BY_PROVIDER = {
+	openai: [model('gpt-5.5', 'GPT-5.5'), model('gpt-5.4-mini', 'GPT-5.4 Mini')],
 	anthropic: [
-		{ id: 'claude-opus-4-7', name: 'Claude Opus 4.7' },
-		{ id: 'claude-opus-4-6', name: 'Claude Opus 4.6' },
-		{ id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
-		{ id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5' },
-		{ id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },
+		model('claude-opus-4-7', 'Claude Opus 4.7'),
+		model('claude-sonnet-4-6', 'Claude Sonnet 4.6'),
 	],
 	google: [
-		{ id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview' },
-		{ id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview' },
-		{ id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
-		{ id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
-		{ id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite' },
+		model('gemini-3.1-pro-preview', 'Gemini 3.1 Pro Preview'),
+		model('gemini-3.1-flash-lite', 'Gemini 3.1 Flash Lite'),
 	],
 	meta: [
-		{ id: 'llama-4-maverick', name: 'Llama 4 Maverick' },
-		{ id: 'llama-4-scout', name: 'Llama 4 Scout' },
-		{ id: 'llama-3.3-70b', name: 'Llama 3.3 70B' },
+		model('muse-spark', 'Muse Spark'),
+		model('llama-4-maverick', 'Llama 4 Maverick'),
+		model('llama-4-scout', 'Llama 4 Scout'),
 	],
-	xai: [
-		{ id: 'grok-4.3', name: 'Grok 4.3' },
-		{ id: 'grok-4.3-fast', name: 'Grok 4.3 Fast' },
-		{ id: 'grok-code-fast', name: 'Grok Code Fast' },
-	],
+	xai: [model('grok-4.3', 'Grok 4.3'), model('grok-build-0.1', 'Grok Build 0.1')],
 	mistral: [
-		{ id: 'mistral-large-2512', name: 'Mistral Large 3' },
-		{ id: 'mistral-large-latest', name: 'Mistral Large Latest' },
-		{ id: 'mistral-medium-2604', name: 'Mistral Medium 3.5' },
-		{ id: 'mistral-medium-latest', name: 'Mistral Medium Latest' },
-		{ id: 'mistral-medium-2508', name: 'Mistral Medium 3.1' },
-		{ id: 'mistral-small-2603', name: 'Mistral Small 4' },
-		{ id: 'mistral-small-latest', name: 'Mistral Small Latest' },
-		{ id: 'ministral-14b-2512', name: 'Ministral 3 14B' },
-		{ id: 'ministral-14b-latest', name: 'Ministral 3 14B Latest' },
-		{ id: 'ministral-8b-2512', name: 'Ministral 3 8B' },
-		{ id: 'ministral-8b-latest', name: 'Ministral 3 8B Latest' },
-		{ id: 'ministral-3b-2512', name: 'Ministral 3 3B' },
-		{ id: 'ministral-3b-latest', name: 'Ministral 3 3B Latest' },
-		{ id: 'magistral-medium-2509', name: 'Magistral Medium 1.2' },
-		{ id: 'magistral-medium-latest', name: 'Magistral Medium Latest' },
+		model('mistral-large-2512', 'Mistral Large 2512'),
+		model('mistral-medium-3-5', 'Mistral Medium 3.5'),
+		model('devstral-2512', 'Devstral 2512'),
 	],
 	deepseek: [
-		{ id: 'deepseek-v4-pro', name: 'DeepSeek V4-Pro' },
-		{ id: 'deepseek-v4-flash', name: 'DeepSeek V4-Flash' },
+		model('deepseek-v4-pro', 'DeepSeek V4 Pro'),
+		model('deepseek-v4-flash', 'DeepSeek V4 Flash'),
 	],
 	qwen: [
-		{ id: 'qwen3-max', name: 'Qwen3-Max' },
-		{ id: 'qwen3.5-plus', name: 'Qwen3.5-Plus' },
-		{ id: 'qwen3.5-flash', name: 'Qwen3.5-Flash' },
-		{ id: 'qwen3-coder-plus', name: 'Qwen3-Coder-Plus' },
-		{ id: 'qwq-plus', name: 'QwQ-Plus' },
+		model('qwen3.7-max', 'Qwen3.7 Max'),
+		model('qwen3.6-plus', 'Qwen3.6 Plus'),
+		model('qwen3.6-flash', 'Qwen3.6 Flash'),
 	],
 	kimi: [
-		{ id: 'kimi-k2.6', name: 'Kimi K2.6' },
-		{ id: 'kimi-k2.5', name: 'Kimi K2.5' },
-		{ id: 'kimi-k2', name: 'Kimi K2' },
-		{ id: 'kimi-latest', name: 'Kimi Latest' },
+		model('kimi-k2.6', 'Kimi K2.6'),
+		model('kimi-k2.5', 'Kimi K2.5'),
+		model('kimi-k2-thinking', 'Kimi K2 Thinking'),
 	],
 	zai: [
-		{ id: 'glm-5.1', name: 'GLM-5.1' },
-		{ id: 'glm-5', name: 'GLM-5' },
-		{ id: 'glm-4.6', name: 'GLM-4.6' },
-		{ id: 'glm-4.5v', name: 'GLM-4.5V' },
-		{ id: 'glm-z1', name: 'GLM-Z1' },
+		model('glm-5.1', 'GLM-5.1'),
+		model('glm-5', 'GLM-5'),
+		model('glm-5-turbo', 'GLM-5 Turbo'),
 	],
-	minimax: [{ id: 'minimax-m2.7', name: 'MiniMax M2.7' }],
-	luma: [{ id: 'uni-1', name: 'Uni-1' }],
-	reka: [
-		{ id: 'reka-core', name: 'Reka Core' },
-		{ id: 'reka-flash', name: 'Reka Flash' },
-		{ id: 'reka-edge', name: 'Reka Edge' },
-	],
+	minimax: [model('MiniMax-M2.7', 'MiniMax M2.7'), model('MiniMax-M2.5', 'MiniMax M2.5')],
+	reka: [model('reka-flash', 'Reka Flash'), model('reka-edge-2603', 'Reka Edge 2603')],
+} as const satisfies ModelCatalog;
+
+export const RESEARCH_CHAT_MODELS_BY_PROVIDER = {
 	perplexity: [
-		{ id: 'sonar-reasoning-pro', name: 'Sonar Reasoning Pro' },
-		{ id: 'sonar-pro', name: 'Sonar Pro' },
-		{ id: 'sonar-deep-research', name: 'Sonar Deep Research' },
-		{ id: 'r1-1776', name: 'R1 1776' },
+		model('sonar-deep-research', 'Sonar Deep Research'),
+		model('sonar-reasoning-pro', 'Sonar Reasoning Pro'),
+		model('sonar-pro', 'Sonar Pro'),
+		model('sonar', 'Sonar'),
 	],
-};
+} as const satisfies ModelCatalog;
+
+export const CHAT_MODELS_BY_PROVIDER = mergeModelCatalogs(
+	LLM_MODELS_BY_PROVIDER,
+	RESEARCH_CHAT_MODELS_BY_PROVIDER
+);
 
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
-export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
-export const SPEECH_TO_TEXT_MODELS = [
-	{ id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT Realtime Whisper' },
-] satisfies readonly ProviderModel[];
-export const SPEECH_TO_TEXT_PROVIDER_MODELS = [
-	{ id: 'speech-to-text-provider-coming-soon', name: 'Provider speech-to-text model' },
-] satisfies readonly ProviderModel[];
+export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
+
+export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
+	openai: [
+		model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Transcribe'),
+		model('gpt-4o-mini-transcribe', 'GPT-4o Mini Transcribe'),
+	],
+	deepgram: [model('nova-3', 'Nova 3'), model('flux', 'Flux')],
+	elevenlabs: [model('scribe_v2', 'Scribe v2'), model('scribe_v2_realtime', 'Scribe v2 Realtime')],
+	mistral: [
+		model('voxtral-mini-2602', 'Voxtral Mini 2602'),
+		model('voxtral-mini-transcribe-realtime-2602', 'Voxtral Mini Transcribe Realtime 2602'),
+	],
+	xai: [model('xai-stt-batch', 'xAI STT Batch'), model('xai-stt-streaming', 'xAI STT Streaming')],
+	qwen: [model('qwen3.5-omni', 'Qwen3.5 Omni'), model('qwen3-omni-flash', 'Qwen3 Omni Flash')],
+} as const satisfies ModelCatalog;
+
+export const STT_MODELS_BY_PROVIDER = SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
+export const SPEECH_TO_TEXT_MODELS = SPEECH_TO_TEXT_MODELS_BY_PROVIDER[SPEECH_TRANSCRIBER_PROVIDER_ID];
 export const SPEECH_TO_TEXT_PROVIDER_IDS = [
 	'openai',
-	'google',
-	'xai',
-	'mistral',
-	'qwen',
-	'elevenlabs',
 	'deepgram',
+	'elevenlabs',
+	'mistral',
+	'xai',
+	'qwen',
 ] as const;
-export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER: ModelCatalog = {
-	...modelsByProviderIds(SPEECH_TO_TEXT_PROVIDER_IDS, SPEECH_TO_TEXT_PROVIDER_MODELS),
-	[SPEECH_TRANSCRIBER_PROVIDER_ID]: SPEECH_TO_TEXT_MODELS,
-};
 
 export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
-export const TEXT_TO_SPEECH_MODELS = [
-	{ id: 'rachel-multilingual', name: 'Rachel - multilingual' },
-] satisfies readonly ProviderModel[];
-export const TEXT_TO_SPEECH_PROVIDER_MODELS = [
-	{ id: 'text-to-speech-provider-coming-soon', name: 'Provider text-to-speech model' },
-] satisfies readonly ProviderModel[];
+
+export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER = {
+	elevenlabs: [
+		model('eleven_v3', 'Eleven v3'),
+		model('eleven_multilingual_v2', 'Eleven Multilingual v2'),
+		model('eleven_flash_v2_5', 'Eleven Flash v2.5'),
+	],
+	cartesia: [model('sonic-3.5', 'Sonic 3.5'), model('sonic-3', 'Sonic 3')],
+	openai: [model('gpt-4o-mini-tts', 'GPT-4o Mini TTS'), model('tts-1-hd', 'TTS-1 HD')],
+	google: [model('gemini-3.1-flash-tts-preview', 'Gemini 3.1 Flash TTS Preview')],
+	minimax: [model('Speech-2.8-HD', 'Speech 2.8 HD'), model('Speech-2.8-Turbo', 'Speech 2.8 Turbo')],
+	mistral: [model('voxtral-tts-2603', 'Voxtral TTS 2603')],
+	deepgram: [model('aura-2', 'Aura 2')],
+} as const satisfies ModelCatalog;
+
+export const TTS_MODELS_BY_PROVIDER = TEXT_TO_SPEECH_MODELS_BY_PROVIDER;
+export const TEXT_TO_SPEECH_MODELS =
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER[TEXT_TO_SPEECH_PROVIDER_ID];
 export const TEXT_TO_SPEECH_PROVIDER_IDS = [
+	'elevenlabs',
+	'cartesia',
 	'openai',
 	'google',
-	'mistral',
 	'minimax',
-	'elevenlabs',
+	'mistral',
 	'deepgram',
-	'cartesia',
 ] as const;
-export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER: ModelCatalog = {
-	...modelsByProviderIds(TEXT_TO_SPEECH_PROVIDER_IDS, TEXT_TO_SPEECH_PROVIDER_MODELS),
-	[TEXT_TO_SPEECH_PROVIDER_ID]: TEXT_TO_SPEECH_MODELS,
-};
 
-export const IMAGE_CREATOR_MODELS = [
-	{ id: 'image-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly ProviderModel[];
+export const REALTIME_VOICE_MODELS_BY_PROVIDER = {
+	openai: [model('gpt-realtime-2', 'GPT Realtime 2'), model('gpt-realtime', 'GPT Realtime')],
+	xai: [model('grok-voice-latest', 'Grok Voice Latest')],
+	google: [model('gemini-3.1-flash-live-preview', 'Gemini 3.1 Flash Live Preview')],
+	qwen: [
+		model('qwen-omni-realtime', 'Qwen Omni Realtime'),
+		model('qwen3.5-omni', 'Qwen3.5 Omni'),
+		model('qwen3-omni-flash', 'Qwen3 Omni Flash'),
+	],
+	luma: [model('uni-1.1', 'Uni 1.1')],
+} as const satisfies ModelCatalog;
+
+export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
+	openai: [
+		model('gpt-image-2', 'GPT Image 2'),
+		model('gpt-image-1.5', 'GPT Image 1.5'),
+		model('gpt-image-1-mini', 'GPT Image 1 Mini'),
+	],
+	google: [
+		model('gemini-3.1-flash-image-preview', 'Gemini 3.1 Flash Image Preview'),
+		model('gemini-3-pro-image-preview', 'Gemini 3 Pro Image Preview'),
+	],
+	qwen: [model('qwen-image', 'Qwen Image'), model('qwen-image-edit', 'Qwen Image Edit')],
+	xai: [model('grok-imagine', 'Grok Imagine')],
+	'black-forest-labs': [
+		model('FLUX.2', 'FLUX.2'),
+		model('FLUX.1 Kontext [pro]', 'FLUX.1 Kontext [pro]'),
+		model('FLUX1.1 [pro] Ultra', 'FLUX1.1 [pro] Ultra'),
+	],
+	midjourney: [
+		model('midjourney-v8.1', 'Midjourney v8.1'),
+		model('midjourney-v7', 'Midjourney v7'),
+	],
+	luma: [model('uni-1.1', 'Uni 1.1')],
+	'stability-ai': [
+		model('stable-image-ultra', 'Stable Image Ultra'),
+		model('stable-image-core', 'Stable Image Core'),
+	],
+	ideogram: [model('ideogram-3.0', 'Ideogram 3.0'), model('ideogram-2a', 'Ideogram 2a')],
+} as const satisfies ModelCatalog;
+
+export const IMAGE_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_IMAGE_MODELS_BY_PROVIDER;
+export const IMAGE_CREATOR_MODELS = TEXT_TO_IMAGE_MODELS_BY_PROVIDER.openai;
 export const TEXT_TO_IMAGE_PROVIDER_IDS = [
 	'openai',
 	'google',
-	'xai',
 	'qwen',
+	'xai',
 	'black-forest-labs',
 	'midjourney',
-	'kling',
 	'luma',
 	'stability-ai',
 	'ideogram',
 ] as const;
-export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderIds(
-	TEXT_TO_IMAGE_PROVIDER_IDS,
-	IMAGE_CREATOR_MODELS
-);
 
-export const TEXT_TO_VIDEO_MODELS = [
-	{ id: 'video-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly ProviderModel[];
+export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER = {
+	google: [model('veo-3.1', 'Veo 3.1'), model('veo-3.1-fast', 'Veo 3.1 Fast')],
+	runway: [
+		model('gen4.5', 'Gen 4.5'),
+		model('gen4_turbo', 'Gen 4 Turbo'),
+		model('gen4_aleph', 'Gen 4 Aleph'),
+	],
+	luma: [model('ray3.14', 'Ray 3.14'), model('ray3', 'Ray 3'), model('ray2', 'Ray 2')],
+	minimax: [
+		model('MiniMax-Hailuo-2.3', 'MiniMax Hailuo 2.3'),
+		model('MiniMax-Hailuo-2.3-Fast', 'MiniMax Hailuo 2.3 Fast'),
+		model('MiniMax-Hailuo-02', 'MiniMax Hailuo 02'),
+	],
+	qwen: [
+		model('wan2.7-t2v', 'Wan 2.7 Text-to-Video'),
+		model('wan2.7-i2v', 'Wan 2.7 Image-to-Video'),
+		model('wan2.7-video-edit', 'Wan 2.7 Video Edit'),
+	],
+	xai: [model('grok-imagine-video', 'Grok Imagine Video')],
+	openai: [model('sora-2-pro', 'Sora 2 Pro', 'deprecated'), model('sora-2', 'Sora 2', 'deprecated')],
+	meta: [model('movie-gen-video', 'Movie Gen Video', 'verify')],
+	midjourney: [model('midjourney-video', 'Midjourney Video')],
+	pika: [
+		model('pika-2.5', 'Pika 2.5'),
+		model('pika-pro', 'Pika Pro'),
+		model('pika-turbo', 'Pika Turbo'),
+	],
+	'stability-ai': [model('stable-video', 'Stable Video')],
+	kling: [model('kling-2.6', 'Kling 2.6', 'verify'), model('kling-2.1', 'Kling 2.1', 'verify')],
+} as const satisfies ModelCatalog;
+
+export const VIDEO_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_VIDEO_MODELS_BY_PROVIDER;
+export const TEXT_TO_VIDEO_MODELS = TEXT_TO_VIDEO_MODELS_BY_PROVIDER.google;
 export const TEXT_TO_VIDEO_PROVIDER_IDS = [
-	'openai',
 	'google',
-	'meta',
-	'xai',
-	'qwen',
-	'minimax',
-	'midjourney',
-	'kling',
 	'runway',
 	'luma',
-	'stability-ai',
+	'minimax',
+	'qwen',
+	'xai',
+	'openai',
+	'meta',
+	'midjourney',
 	'pika',
+	'stability-ai',
+	'kling',
 ] as const;
-export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderIds(
-	TEXT_TO_VIDEO_PROVIDER_IDS,
-	TEXT_TO_VIDEO_MODELS
-);
 
-export const MUSIC_CREATOR_MODELS = [
-	{ id: 'music-provider-coming-soon', name: 'Not available yet' },
-] satisfies readonly ProviderModel[];
+export const TEXT_TO_AUDIO_MODELS_BY_PROVIDER = {
+	google: [
+		model('lyria-3-pro-preview', 'Lyria 3 Pro Preview'),
+		model('lyria-3-clip-preview', 'Lyria 3 Clip Preview'),
+		model('lyria-realtime', 'Lyria Realtime'),
+	],
+	suno: [model('suno-v5.5', 'Suno v5.5'), model('suno-v4.5-all', 'Suno v4.5 All')],
+	minimax: [model('music-2.6', 'Music 2.6'), model('music-cover', 'Music Cover')],
+	elevenlabs: [
+		model('eleven-music', 'Eleven Music'),
+		model('elevenlabs-sound-effects', 'ElevenLabs Sound Effects'),
+	],
+	'stability-ai': [model('stable-audio-2.5', 'Stable Audio 2.5')],
+	kling: [model('kling-audio', 'Kling Audio', 'verify')],
+} as const satisfies ModelCatalog;
+
+export const MUSIC_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_AUDIO_MODELS_BY_PROVIDER;
+export const MUSIC_MODELS_BY_PROVIDER = TEXT_TO_AUDIO_MODELS_BY_PROVIDER;
+export const MUSIC_CREATOR_MODELS = TEXT_TO_AUDIO_MODELS_BY_PROVIDER.google;
 export const MUSIC_PROVIDER_IDS = [
 	'google',
+	'suno',
 	'minimax',
 	'elevenlabs',
-	'kling',
 	'stability-ai',
-	'suno',
+	'kling',
 ] as const;
-export const MUSIC_CREATOR_MODELS_BY_PROVIDER: ModelCatalog = modelsByProviderIds(
-	MUSIC_PROVIDER_IDS,
-	MUSIC_CREATOR_MODELS
-);
+
+export const THREE_D_MODELS_BY_PROVIDER = {
+	luma: [model('genie', 'Genie', 'verify'), model('interactive-scenes', 'Interactive Scenes', 'verify')],
+} as const satisfies ModelCatalog;
 
 export const EMBEDDING_MODELS_BY_PROVIDER: ModelCatalog = {};
 
 export const MODEL_CATALOGS_BY_CAPABILITY = {
 	llm: LLM_MODELS_BY_PROVIDER,
+	'research-chat': RESEARCH_CHAT_MODELS_BY_PROVIDER,
 	'speech-to-text': SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
 	'text-to-speech': TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	'realtime-voice': REALTIME_VOICE_MODELS_BY_PROVIDER,
 	'text-to-image': TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	'text-to-video': TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
-	'text-to-audio': MUSIC_CREATOR_MODELS_BY_PROVIDER,
+	'text-to-audio': TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
 	music: MUSIC_CREATOR_MODELS_BY_PROVIDER,
+	'3d': THREE_D_MODELS_BY_PROVIDER,
 	embedding: EMBEDDING_MODELS_BY_PROVIDER,
 } as const satisfies Readonly<Record<ModelCapability, ModelCatalog>>;
 
@@ -227,12 +302,20 @@ export function getLlmModelsByProvider(providerId: string): ProviderModel[] {
 	return getModelsForProvider(LLM_MODELS_BY_PROVIDER, providerId);
 }
 
+export function getResearchChatModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(RESEARCH_CHAT_MODELS_BY_PROVIDER, providerId);
+}
+
 export function getSpeechToTextModelsByProvider(providerId: string): ProviderModel[] {
 	return getModelsForProvider(SPEECH_TO_TEXT_MODELS_BY_PROVIDER, providerId);
 }
 
 export function getTextToSpeechModelsByProvider(providerId: string): ProviderModel[] {
 	return getModelsForProvider(TEXT_TO_SPEECH_MODELS_BY_PROVIDER, providerId);
+}
+
+export function getRealtimeVoiceModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(REALTIME_VOICE_MODELS_BY_PROVIDER, providerId);
 }
 
 export function getTextToImageModelsByProvider(providerId: string): ProviderModel[] {
@@ -243,8 +326,16 @@ export function getTextToVideoModelsByProvider(providerId: string): ProviderMode
 	return getModelsForProvider(TEXT_TO_VIDEO_MODELS_BY_PROVIDER, providerId);
 }
 
+export function getTextToAudioModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(TEXT_TO_AUDIO_MODELS_BY_PROVIDER, providerId);
+}
+
 export function getMusicModelsByProvider(providerId: string): ProviderModel[] {
-	return getModelsForProvider(MUSIC_CREATOR_MODELS_BY_PROVIDER, providerId);
+	return getTextToAudioModelsByProvider(providerId);
+}
+
+export function getThreeDModelsByProvider(providerId: string): ProviderModel[] {
+	return getModelsForProvider(THREE_D_MODELS_BY_PROVIDER, providerId);
 }
 
 export function getEmbeddingModelsByProvider(providerId: string): ProviderModel[] {
@@ -258,13 +349,20 @@ export function getModelsByCapability(
 	return getModelsForProvider(MODEL_CATALOGS_BY_CAPABILITY[capability], providerId);
 }
 
-function modelsByProviderIds(
-	providerIds: readonly string[],
-	models: readonly ProviderModel[]
-): ModelCatalog {
-	return providerIds.reduce<Record<string, readonly ProviderModel[]>>((catalog, providerId) => {
-		catalog[providerId] = models;
-		return catalog;
+function model(
+	id: string,
+	name: string,
+	status: ProviderModelStatus = 'active'
+): ProviderModel {
+	return { id, name, status };
+}
+
+function mergeModelCatalogs(...catalogs: readonly ModelCatalog[]): ModelCatalog {
+	return catalogs.reduce<Record<string, readonly ProviderModel[]>>((merged, catalog) => {
+		for (const [providerId, models] of Object.entries(catalog)) {
+			merged[providerId] = [...(merged[providerId] ?? []), ...models];
+		}
+		return merged;
 	}, {});
 }
 

@@ -1,5 +1,5 @@
 import type { Model } from './service';
-import { LLM_MODELS_BY_PROVIDER, type ModelCatalog } from './provider-models';
+import { CHAT_MODELS_BY_PROVIDER, type ModelCatalog } from './provider-models';
 
 export interface ProviderApiConfiguration {
 	readonly credentialType: string | null;
@@ -309,7 +309,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'OpenAI',
 		baseUrl: 'https://api.openai.com/v1',
 		apiKey: '',
-		capabilities: 'Chat - Speech-to-text - Text-to-speech - Image - Video',
+		capabilities: 'Chat - Speech-to-text - Text-to-speech - Realtime voice/omni - Image - Video',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.openai,
 	},
 	{
@@ -325,7 +325,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'Google DeepMind / Google',
 		baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
 		apiKey: '',
-		capabilities: 'Chat - Speech-to-text - Text-to-speech - Image - Video - Music',
+		capabilities: 'Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.google,
 	},
 	{
@@ -341,7 +341,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'xAI',
 		baseUrl: 'https://api.x.ai/v1',
 		apiKey: '',
-		capabilities: 'Chat - Speech-to-text - Realtime voice - Image - Video',
+		capabilities: 'Chat - Speech-to-text - Realtime voice/omni - Image - Video',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.xai,
 	},
 	{
@@ -365,7 +365,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'Alibaba / Qwen / Wan',
 		baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
 		apiKey: '',
-		capabilities: 'Chat - Speech-to-text - Omni - Image - Video',
+		capabilities: 'Chat - Speech-to-text - Realtime voice/omni - Image - Video',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.qwen,
 	},
 	{
@@ -389,7 +389,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'MiniMax',
 		baseUrl: 'https://api.minimax.io/v1',
 		apiKey: '',
-		capabilities: 'Chat - Text-to-speech - Video - Music',
+		capabilities: 'Chat - Text-to-speech - Video - Music/audio',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.minimax,
 	},
 	{
@@ -397,7 +397,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'ElevenLabs',
 		baseUrl: 'https://api.elevenlabs.io/v1',
 		apiKey: '',
-		capabilities: 'Speech-to-text - Text-to-speech - Audio - Music',
+		capabilities: 'Speech-to-text - Text-to-speech - Music/audio',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.elevenlabs,
 	},
 	{
@@ -437,7 +437,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'Kuaishou / Kling AI',
 		baseUrl: 'https://kling.ai',
 		apiKey: '',
-		capabilities: 'Image - Video - Audio',
+		capabilities: 'Video - Music/audio',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.kling,
 	},
 	{
@@ -453,7 +453,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'Luma AI',
 		baseUrl: 'https://api.lumalabs.ai/dream-machine/v1',
 		apiKey: '',
-		capabilities: 'Omni - Image - Video - 3D',
+		capabilities: 'Realtime voice/omni - Image - Video - 3D',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.luma,
 	},
 	{
@@ -461,7 +461,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		name: 'Stability AI',
 		baseUrl: 'https://api.stability.ai/v2beta',
 		apiKey: '',
-		capabilities: 'Image - Video - Audio',
+		capabilities: 'Image - Video - Music/audio',
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS['stability-ai'],
 	},
 	{
@@ -506,7 +506,7 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	},
 ];
 
-export const DEFAULT_AGENT_MODELS_BY_PROVIDER: ModelCatalog = LLM_MODELS_BY_PROVIDER;
+export const DEFAULT_AGENT_MODELS_BY_PROVIDER: ModelCatalog = CHAT_MODELS_BY_PROVIDER;
 
 function normalizeProviderId(providerId: string): string {
 	return providerId.trim().toLowerCase();
