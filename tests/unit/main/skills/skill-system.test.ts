@@ -8,6 +8,10 @@ import { SkillExecutionEngine } from '../../../../src/main/skills/execution-engi
 import { createExampleSkills } from '../../../../src/main/skills/example-skills';
 import { SkillLoader } from '../../../../src/main/skills/loader';
 import {
+	AGENT_SKILL_RESOURCE_DIRECTORIES,
+	SKILL_PROVIDER_SUPPORT,
+} from '../../../../src/main/skills/provider-support';
+import {
 	DefaultSkillMemoryPolicy,
 	NoopSkillMemoryRetriever,
 } from '../../../../src/main/skills/memory-policy';
@@ -476,6 +480,67 @@ describe('skill system', () => {
 			'web_fetch',
 			'exec',
 		]);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('exposes provider-specific skill support from the docs/skills guidance', () => {
+		expect(AGENT_SKILL_RESOURCE_DIRECTORIES).toEqual([
+			'scripts',
+			'references',
+			'templates',
+			'assets',
+		]);
+		expect(SKILL_PROVIDER_SUPPORT.openai).toMatchObject({
+			docsPath: 'docs/skills/openai.md',
+			runtimeModes: ['hosted-shell-skill-reference', 'local-shell-skill-path'],
+			packageLimits: {
+				maxFiles: 500,
+				maxFileBytes: 25 * 1024 * 1024,
+				maxHostedZipBytes: 50 * 1024 * 1024,
+			},
+		});
+		expect(SKILL_PROVIDER_SUPPORT.anthropic).toMatchObject({
+			docsPath: 'docs/skills/anthropic.md',
+			runtimeModes: ['api-container-skills', 'claude-code-local-directory'],
+			packageLimits: {
+				maxUploadBytes: 30 * 1024 * 1024,
+				maxSkillsPerRequest: 8,
+				maxManifestNameChars: 64,
+			},
+		});
+	});
+
+	it('reports template folders as Agent Skill resources', async () => {
+		const root = await makeTempDir();
+		const dir = path.join(root, 'templated-skill');
+		await fs.mkdir(path.join(dir, 'templates'), { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: templated-skill',
+				'description: Uses reusable templates when drafting workflow artifacts.',
+				'---',
+				'Use templates/reply.md when drafting output.',
+			].join('\n')
+		);
+		await fs.writeFile(path.join(dir, 'templates', 'reply.md'), 'Template body.');
+
+		const loaded = await new SkillLoader().loadPackage(dir, { trusted: true });
+		const registry = setupRegistry(false);
+		registry.registerSkill(loaded.skill);
+		const { engine } = setupEngine(registry);
+		const result = await engine.execute({
+			skillId: 'templated-skill',
+			input: {},
+			context: executionContext(),
+		});
+
+		expect(loaded.structure.resourceDirectories).toEqual(['templates']);
+		expect(result.success).toBe(true);
+		expect(result.data).toMatchObject({
+			resources: ['templates/reply.md'],
+		});
 		await fs.rm(root, { recursive: true, force: true });
 	});
 

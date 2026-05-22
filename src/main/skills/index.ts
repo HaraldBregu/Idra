@@ -11,5 +11,6 @@ export { SkillLoader } from './loader';
 export { SkillDependencyResolver } from './dependency-resolver';
 export { SkillAuditLog } from './audit-log';
 export { SkillVersionManager } from './version-manager';
+export * from './provider-support';
 export { createExampleSkills } from './example-skills';
 export * from './types';
