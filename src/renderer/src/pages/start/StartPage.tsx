@@ -1506,9 +1506,6 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleTextToSpeechProviderChange,
 								onModelChange: handleTextToSpeechModelChange,
 							})}
-							<SettingsNotice icon={Volume2}>
-								Voice output can be selected here, but spoken output runtime is still pending.
-							</SettingsNotice>
 						</>
 					)}
 
@@ -1531,9 +1528,6 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleImageCreatorProviderChange,
 								onModelChange: handleImageCreatorModelChange,
 							})}
-							<SettingsNotice icon={ImageIcon}>
-								Image service, task, and tool paths exist; provider adapters are pending.
-							</SettingsNotice>
 						</>
 					)}
 
@@ -1556,10 +1550,6 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleTextToVideoProviderChange,
 								onModelChange: handleTextToVideoModelChange,
 							})}
-							<SettingsNotice icon={Video}>
-								Video model selection is available here; provider adapters and runtime execution are
-								pending.
-							</SettingsNotice>
 						</>
 					)}
 
@@ -1582,10 +1572,6 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleMusicCreatorProviderChange,
 								onModelChange: handleMusicCreatorModelChange,
 							})}
-							<SettingsNotice icon={Music}>
-								Sound and music model selection is available here; provider adapters and runtime
-								execution are pending.
-							</SettingsNotice>
 						</>
 					)}
 
