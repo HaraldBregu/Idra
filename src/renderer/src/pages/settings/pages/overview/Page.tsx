@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
+import { AGENTS, type AgentId } from '../../../../../../shared/agents';
+import {
+	ASSISTANT_OPERATOR_ID,
+	IMAGE_CREATOR_OPERATOR_ID,
+	MUSIC_CREATOR_OPERATOR_ID,
+} from '../../../../../../shared/agents/service';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
