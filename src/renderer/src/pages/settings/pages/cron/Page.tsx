@@ -1,17 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Clock3 } from 'lucide-react';
+import { AlertCircle, Clock3, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { FridayCronJob } from '../../../../../../shared/cron';
+import { Textarea } from '@/components/ui/textarea';
+import type { FridayCronJob, FridayCronSchedule } from '../../../../../../shared/cron';
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
-	SettingsEmptyState,
+	SettingsField,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
+	SettingsEmptyState,
 } from '../../components';
 import { formatSchedule, formatTimestamp } from './utils';
 
@@ -34,12 +45,210 @@ function CronLoadingList(): React.JSX.Element {
 	);
 }
 
+type ScheduleKind = 'cron' | 'every' | 'at';
+type EveryUnit = 'minutes' | 'hours' | 'days';
+
+const UNIT_MS: Record<EveryUnit, number> = {
+	minutes: 60_000,
+	hours: 3_600_000,
+	days: 86_400_000,
+};
+
+function ScheduleTaskForm({ onCreated }: { readonly onCreated: () => void }): React.JSX.Element {
+	const [name, setName] = useState('');
+	const [scheduleKind, setScheduleKind] = useState<ScheduleKind>('cron');
+	const [cronExpr, setCronExpr] = useState('');
+	const [everyAmount, setEveryAmount] = useState('');
+	const [everyUnit, setEveryUnit] = useState<EveryUnit>('hours');
+	const [atDateTime, setAtDateTime] = useState('');
+	const [message, setMessage] = useState('');
+	const [submitting, setSubmitting] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+		e.preventDefault();
+		setError(null);
+		setSubmitting(true);
+
+		try {
+			let schedule: FridayCronSchedule;
+
+			if (scheduleKind === 'cron') {
+				if (!cronExpr.trim()) throw new Error('Cron expression is required.');
+				schedule = { kind: 'cron', expr: cronExpr.trim() };
+			} else if (scheduleKind === 'every') {
+				const n = Number(everyAmount);
+				if (!everyAmount || !Number.isFinite(n) || n <= 0)
+					throw new Error('Enter a valid positive interval.');
+				schedule = { kind: 'every', everyMs: n * UNIT_MS[everyUnit] };
+			} else {
+				if (!atDateTime) throw new Error('Date and time are required.');
+				schedule = { kind: 'at', at: new Date(atDateTime).toISOString() };
+			}
+
+			await window.cron.action({
+				action: 'add',
+				job: {
+					name: name.trim(),
+					schedule,
+					payload: { kind: 'agentTurn', message: message.trim() },
+				},
+			});
+
+			setName('');
+			setCronExpr('');
+			setEveryAmount('');
+			setAtDateTime('');
+			setMessage('');
+			onCreated();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	const canSubmit = name.trim().length > 0 && message.trim().length > 0 && !submitting;
+
+	return (
+		<SettingsPanel>
+			<form onSubmit={handleSubmit} className="grid gap-4 p-3">
+				<SettingsField id="task-name" label="Name">
+					<Input
+						id="task-name"
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+						placeholder="Daily summary"
+						required
+						className="h-8 text-sm"
+					/>
+				</SettingsField>
+
+				<SettingsField id="task-schedule-kind" label="Schedule type">
+					<Select
+						value={scheduleKind}
+						onValueChange={(v) => setScheduleKind(v as ScheduleKind)}
+					>
+						<SelectTrigger id="task-schedule-kind" className="w-full">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="cron">Cron expression</SelectItem>
+							<SelectItem value="every">Every interval</SelectItem>
+							<SelectItem value="at">At specific time</SelectItem>
+						</SelectContent>
+					</Select>
+				</SettingsField>
+
+				{scheduleKind === 'cron' && (
+					<SettingsField
+						id="task-cron-expr"
+						label="Expression"
+						description="Standard cron syntax — e.g. 0 9 * * 1-5 for weekdays at 9 am."
+					>
+						<Input
+							id="task-cron-expr"
+							value={cronExpr}
+							onChange={(e) => setCronExpr(e.target.value)}
+							placeholder="0 9 * * 1-5"
+							className="h-8 font-mono text-sm"
+						/>
+					</SettingsField>
+				)}
+
+				{scheduleKind === 'every' && (
+					<SettingsField id="task-every-amount" label="Repeat every">
+						<div className="flex gap-2">
+							<Input
+								id="task-every-amount"
+								type="number"
+								min="1"
+								step="1"
+								value={everyAmount}
+								onChange={(e) => setEveryAmount(e.target.value)}
+								placeholder="1"
+								className="h-8 w-24 text-sm"
+							/>
+							<Select
+								value={everyUnit}
+								onValueChange={(v) => setEveryUnit(v as EveryUnit)}
+							>
+								<SelectTrigger className="flex-1">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="minutes">Minutes</SelectItem>
+									<SelectItem value="hours">Hours</SelectItem>
+									<SelectItem value="days">Days</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+					</SettingsField>
+				)}
+
+				{scheduleKind === 'at' && (
+					<SettingsField id="task-at" label="Date and time">
+						<Input
+							id="task-at"
+							type="datetime-local"
+							value={atDateTime}
+							onChange={(e) => setAtDateTime(e.target.value)}
+							className="h-8 text-sm"
+						/>
+					</SettingsField>
+				)}
+
+				<SettingsField id="task-message" label="Prompt">
+					<Textarea
+						id="task-message"
+						value={message}
+						onChange={(e) => setMessage(e.target.value)}
+						placeholder="Summarize today's news and send it to me."
+						rows={3}
+						required
+					/>
+				</SettingsField>
+
+				{error && (
+					<div className="flex items-start gap-2 text-xs text-destructive">
+						<AlertCircle className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.8} />
+						<span>{error}</span>
+					</div>
+				)}
+
+				<div className="flex justify-end">
+					<Button type="submit" size="sm" disabled={!canSubmit}>
+						<Plus className="size-3.5" />
+						{submitting ? 'Scheduling…' : 'Schedule task'}
+					</Button>
+				</div>
+			</form>
+		</SettingsPanel>
+	);
+}
+
 const CronPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [jobs, setJobs] = useState<readonly FridayCronJob[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+
+	const loadJobs = useCallback(() => {
+		setLoading(true);
+		window.cron
+			.listJobs('all')
+			.then((nextJobs) => {
+				setJobs(nextJobs);
+				setError(null);
+			})
+			.catch((caught) => {
+				setError(caught instanceof Error ? caught.message : String(caught));
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	}, []);
 
 	useEffect(() => {
 		let mounted = true;
@@ -142,6 +351,10 @@ const CronPage: React.FC = () => {
 						})}
 					</div>
 				)}
+			</SettingsSection>
+
+			<SettingsSection title="New scheduled task">
+				<ScheduleTaskForm onCreated={loadJobs} />
 			</SettingsSection>
 		</SettingsPageShell>
 	);
