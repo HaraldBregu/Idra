@@ -5,6 +5,13 @@ agent can load when a workflow needs them. Use them for repeatable processes,
 team conventions, style guides, and multi-step procedures that should not live
 directly in a system prompt.
 
+This section tracks provider-specific skill usage.
+
+| Provider | Documentation |
+| --- | --- |
+| Anthropic | [anthropic.md](anthropic.md) |
+| OpenAI | This page |
+
 OpenAI supports skills in hosted shell environments and local shell
 environments. The attachment format is different for each mode.
 
