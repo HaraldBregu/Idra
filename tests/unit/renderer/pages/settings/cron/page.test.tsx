@@ -104,6 +104,37 @@ describe('CronPage', () => {
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/cron/crondetails/task-1');
 	});
 
+	it('creates scheduled agent tasks without provider or model runtime configuration', async () => {
+		const user = userEvent.setup();
+		renderCronPage();
+
+		await user.type(await screen.findByLabelText('Name'), 'Morning report');
+		await user.type(screen.getByLabelText('Expression'), '0 9 * * 1-5');
+		await user.type(screen.getByLabelText('Prompt'), 'Summarize inbox');
+		await user.click(screen.getByRole('button', { name: 'Schedule task' }));
+
+		await waitFor(() => {
+			expect(window.cron.action).toHaveBeenCalledWith({
+				action: 'add',
+				job: {
+					name: 'Morning report',
+					schedule: { kind: 'cron', expr: '0 9 * * 1-5' },
+					payload: { kind: 'agentTurn', message: 'Summarize inbox' },
+				},
+			});
+		});
+
+		const request = (window.cron.action as jest.Mock).mock.calls[0][0] as {
+			job: Record<string, unknown> & { payload: Record<string, unknown> };
+		};
+		expect(request.job).not.toHaveProperty('provider');
+		expect(request.job).not.toHaveProperty('providerId');
+		expect(request.job).not.toHaveProperty('model');
+		expect(request.job.payload).not.toHaveProperty('provider');
+		expect(request.job.payload).not.toHaveProperty('providerId');
+		expect(request.job.payload).not.toHaveProperty('model');
+	});
+
 	it('does not remove a job from details when confirmation is cancelled', async () => {
 		(window.cron.action as jest.Mock).mockResolvedValue({
 			status: 'ok',
