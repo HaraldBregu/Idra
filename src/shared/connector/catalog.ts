@@ -1,4 +1,4 @@
-import { OPENAI_CONNECTOR_CATALOG } from '../connectors';
+import { OPENAI_CONNECTOR_CATALOG } from './connectors';
 import { PROVIDER_CONNECTOR_DOCS } from './provider-docs';
 import type {
 	ProviderConnectorCatalogEntry,
