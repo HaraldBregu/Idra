@@ -76,7 +76,7 @@ export function ConnectorIcon({
 	return (
 		<span
 			className={cn(
-				'flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-background p-1',
+				'flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-background p-0',
 				className
 			)}
 			aria-hidden="true"
@@ -88,17 +88,20 @@ export function ConnectorIcon({
 						src={asset.light}
 						alt=""
 						draggable={false}
-						className={cn('size-full object-contain dark:hidden', imageClassName)}
+						className={cn('size-full object-cover', imageClassName)}
 					/>
 					<img
 						src={asset.dark}
 						alt=""
 						draggable={false}
-						className={cn('hidden size-full object-contain dark:block', imageClassName)}
+						className={cn('hidden size-full object-cover dark:block', imageClassName)}
 					/>
 				</>
 			) : (
-				<Plug className={cn('size-3 text-muted-foreground', fallbackClassName)} strokeWidth={1.8} />
+				<Plug
+					className={cn('size-full p-1 text-muted-foreground', fallbackClassName)}
+					strokeWidth={1.8}
+				/>
 			)}
 		</span>
 	);
