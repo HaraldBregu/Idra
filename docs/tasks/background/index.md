@@ -58,9 +58,9 @@ large unbounded outputs, or private payloads that are not needed by the user.
 
 ## Starting Tasks
 
-The user interface and agent actions may start only approved task categories.
-Before work begins, Friday should validate the requested category and input,
-trim or normalize user-provided values, and reject secret-looking payloads.
+The app and agent actions may start only approved task categories. Before work
+begins, Friday should validate the requested category and input, trim or
+normalize user-provided values, and reject secret-looking payloads.
 
 User input should describe the requested work. Provider selection, model
 selection, credentials, endpoints, adapters, and other runtime details should
