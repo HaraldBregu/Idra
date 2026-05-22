@@ -32,7 +32,7 @@ export class HeartbeatRuntimeState {
 	markTasksRun(
 		agentId: string,
 		sessionKey: string,
-		tasks: readonly Array<{ name: string }>,
+		tasks: ReadonlyArray<{ name: string }>,
 		nowMs: number
 	): void {
 		if (tasks.length === 0) return;
