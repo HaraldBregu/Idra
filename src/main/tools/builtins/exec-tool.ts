@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-import type { AgentTool, AgentToolUpdate } from '../common';
-import { markCoreTool } from '../common';
-import { asParamsRecord, readBooleanParam, readNumberParam, readStringParam } from '../params';
-import { TOOL_LIMITS } from '../limits';
+import type { AgentTool, AgentToolUpdate } from '../core/common';
+import { markCoreTool } from '../core/common';
+import { asParamsRecord, readBooleanParam, readNumberParam, readStringParam } from '../core/params';
+import { TOOL_LIMITS } from '../core/limits';
 
 export type ExecToolOptions = {
 	workspaceDir: string;

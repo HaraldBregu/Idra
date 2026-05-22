@@ -1,5 +1,5 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../types';
-import { textResult } from '../types';
+import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
+import { textResult } from '../core/types';
 import { ToolArgumentBuilder } from './argument-builder';
 import { redactSensitive } from './audit-log';
 import { agentToolToManagedTool, createAgentToolRegistry } from './adapter';

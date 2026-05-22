@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { AgentTool } from '../common';
-import { markCoreTool, ToolInputError } from '../common';
-import { asParamsRecord, readNumberParam, readStringParam } from '../params';
-import { TOOL_LIMITS } from '../limits';
+import type { AgentTool } from '../core/common';
+import { markCoreTool, ToolInputError } from '../core/common';
+import { asParamsRecord, readNumberParam, readStringParam } from '../core/params';
+import { TOOL_LIMITS } from '../core/limits';
 
 export type FileReadToolOptions = {
 	workspaceDir: string;

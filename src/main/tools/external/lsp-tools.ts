@@ -1,7 +1,7 @@
-import type { AgentTool } from '../common';
-import { markLspTool } from '../common';
-import { asParamsRecord, readNumberParam, readStringParam } from '../params';
-import { jsonResult } from '../results';
+import type { AgentTool } from '../core/common';
+import { markLspTool } from '../core/common';
+import { asParamsRecord, readNumberParam, readStringParam } from '../core/params';
+import { jsonResult } from '../core/results';
 
 export type LspCapability = 'hover' | 'definition' | 'references';
 

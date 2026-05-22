@@ -1,5 +1,5 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../types';
-import { textResult } from '../types';
+import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
+import { textResult } from '../core/types';
 import { createToolResult, type Tool, type ToolCategory, type ToolExecutionContext } from './types';
 import { createToolRegistry, type ToolRegistry } from './registry';
 import { TOOL_LIMITS } from '../limits';

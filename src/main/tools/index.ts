@@ -6,9 +6,9 @@ export type {
 	FridayServices,
 	PlanEntry,
 	ToolContext,
-} from './types';
-export { textResult } from './types';
-export { ALL_TOOLS, createTools } from './registry';
-export { filterTools, type PolicyConfig, type ToolProfile } from './policy';
-export { beforeToolCall, newCallTracker, type CallTracker } from './before-call';
+} from './core/types';
+export { textResult } from './core/types';
+export { ALL_TOOLS, createTools } from './local/registry';
+export { filterTools, type PolicyConfig, type ToolProfile } from './policy/policy';
+export { beforeToolCall, newCallTracker, type CallTracker } from './policy/before-call';
 export * from './management';

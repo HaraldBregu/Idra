@@ -1,6 +1,6 @@
-import type { AgentTool, ToolDiagnostics } from '../common';
-import { markMcpTool, toProviderSafeName, ToolAuthorizationError } from '../common';
-import { jsonResult, payloadTextResult } from '../results';
+import type { AgentTool, ToolDiagnostics } from '../core/common';
+import { markMcpTool, toProviderSafeName, ToolAuthorizationError } from '../core/common';
+import { jsonResult, payloadTextResult } from '../core/results';
 import type { JSONSchema } from '../../provider/types';
 
 export type McpToolDescriptor = {
