@@ -80,7 +80,7 @@ const ConnectorsPage = () => {
 						/>
 					))
 				)}
-				{catalog.length > 0 && catalog.map((item) => (
+				{catalog.filter((item) => !configuredConnectorIds.has(item.id)).map((item) => (
 					<ConnectorCatalogItem
 						key={item.id}
 						item={item}
