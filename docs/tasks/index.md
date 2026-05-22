@@ -10,28 +10,27 @@ Friday uses two task families:
 
 | Area | When to use it | How it should behave |
 | --- | --- | --- |
-| [Background tasks](background/index.md) | Work should start now and continue while the app remains usable. | Create one visible task, report progress, allow cancellation, and keep the result available for the current session. |
+| [Background tasks](background/index.md) | Agent work should start now and continue while the app remains usable. | Create one visible agent task, run it in its own session, report progress, allow cancellation, and keep the result available for the current session. |
 | [Scheduled tasks](scheduled/index.md) | Work should happen in the future, repeat over time, or run after a delay. | Persist the schedule, calculate due times, handle missed runs, and create work only when the schedule is due. |
 
 ## Responsibilities
 
-Background tasks own immediate execution. They track the current state of a
-running operation and expose that state to the user.
+Background tasks own immediate agent execution. They track the current state of
+a running agent session and expose that state to the user.
 
 Scheduled tasks own timing. They decide when work is due, what should happen if
 the app was closed or asleep, and whether another run may start while a previous
 one is still active.
 
-The module that performs the actual work owns its own provider, model,
+The feature that performs the actual work owns its own provider, model,
 connection, and runtime decisions. Task input should describe what the user
 wants done, not carry credentials or low-level provider configuration.
 
 ## How They Work Together
 
-A schedule may create a background task when it fires. For example, a weekly
-image schedule should not perform image generation itself. It should create a
-due work item with a sanitized prompt, then the image workflow should choose the
-configured provider and produce the result.
+A schedule may create a background task when it fires if the due work is an
+agent run. The background task should start a separate agent session and use
+the app's configured provider and model settings.
 
 Immediate user requests should use background tasks directly. Future,
 recurring, delayed, reminder, wake, and calendar-style requests should use

@@ -1,43 +1,49 @@
 # Background Tasks
 
-Background tasks are immediate units of work that can run while Friday remains
-usable. They are for operations that may take noticeable time, such as an agent
-run, image generation, OCR, speech work, video generation, audio generation,
-embedding work, connector sync, a network request, or a local operation.
+Background tasks are immediate agent runs that continue while Friday remains
+usable. They are for agent work that may take noticeable time and should not
+block the rest of the app.
+
+Only agent work should run as a background task. Media generation, OCR,
+connector sync, local operations, and similar feature work should use their own
+feature flows unless an agent task is coordinating that work.
 
 ## Purpose
 
-A background task gives the user a visible lifecycle for work that starts now.
-The user should be able to see that the work exists, follow its progress,
-retrieve its result, and request cancellation when the task is still running.
+A background task gives the user a visible lifecycle for an agent run that
+starts now. The user should be able to see that the agent run exists, follow
+its progress, retrieve its result, and request cancellation while it is still
+running.
 
 Background tasks are not schedules. They do not decide when future work should
 run, and they do not restore task entries after the app restarts.
 
 ## Expected Behavior
 
-- Start approved task categories only.
-- Run more than one task at the same time when resources allow it.
-- Create one task entry for each operation.
+- Start only approved agent background tasks.
+- Run multiple background tasks in parallel when resources allow it.
+- Give each background task its own agent session.
+- Use the app's configured provider and model settings for the run.
+- Create one task entry for each agent run.
 - Keep task state available for the current app session.
-- Report meaningful progress when the underlying work can provide it.
-- Finish only when the work succeeds, fails, is cancelled, or the app exits.
+- Report meaningful progress when the agent run can provide it.
+- Finish only when the agent succeeds, fails, is cancelled, or the app exits.
 - Never complete, fail, or cancel a task just because a default timeout elapsed.
 
 ## Lifecycle
 
-Each task should move through a clear lifecycle:
+Each background task should move through a clear lifecycle:
 
 1. The task is created and waiting to start.
-2. The task starts running.
+2. The agent session starts running.
 3. The task may publish progress updates.
 4. The task finishes successfully, fails with a user-safe error summary, or
    stops because cancellation was requested.
 
-Cancellation should be cooperative. Friday should ask the running work to stop,
-and the work should stop at the next safe checkpoint. Cancellation should not
-corrupt partial output, leave provider calls unmanaged, or change the result of
-an already finished task.
+Cancellation should be cooperative. Friday should ask the running agent session
+to stop, and the session should stop at the next safe checkpoint. Cancellation
+should not corrupt partial output or change the result of an already finished
+task.
 
 ## User-Visible State
 
@@ -46,7 +52,6 @@ happening:
 
 - A stable identifier.
 - A human-readable title.
-- The task category.
 - The current status.
 - Creation, start, and finish times when available.
 - Progress details when available.
@@ -59,42 +64,41 @@ by the user.
 
 ## Starting Tasks
 
-The app and agent actions may start only approved task categories. Before work
-begins, Friday should validate the requested category and input, trim or
-normalize user-provided values, and reject secret-looking payloads.
+The app and agent actions may start approved agent background tasks. Before work
+begins, Friday should validate the instruction, trim or normalize user-provided
+values, and reject secret-looking payloads.
 
-User input should describe the requested work. Provider selection, model
-selection, credentials, service connections, and other runtime details should
-come from the app's existing configuration, not from the task request.
+The starting request should describe what the agent should do. Provider
+selection, model selection, credentials, service connections, and other runtime
+details should come from the app's central configuration, not from the task
+request.
 
-## Agent Work
+## Agent Sessions
 
-An agent run can be executed as a background task. It should behave like any
-other task: one visible entry, progress updates, cancellation support, and a
-bounded result summary.
+Each background task should run in its own agent session. This keeps parallel
+tasks isolated from one another and prevents one background run from mixing its
+conversation state with another run.
 
-The task input should contain the message or instruction to run. Optional run
-preferences may be accepted when they refer to configured choices, but the task
-must not accept credentials, provider configuration, base URLs, or secret
-values.
+The task may accept safe run preferences when they refer to configured choices,
+but it must not accept credentials, provider configuration, base URLs, or secret
+values. If no safe preference is provided, Friday should use the current
+configured defaults.
 
-When cancelled, the running agent should be asked to stop through its normal
+When cancelled, the running session should be asked to stop through its normal
 cancellation path. If cancellation completes first, the task should be marked as
 cancelled. If the agent fails first for a non-cancellation reason, the task
 should show a normal failure.
 
-## Module-Backed Work
+## Agent Tool
 
-Media, OCR, embedding, connector, and similar work should be thin task wrappers
-around the feature that already performs that work. The task owns lifecycle
-state. The feature owns execution details.
+Background task creation can also be exposed as a tool for the agent. The tool
+should let an agent start a separate agent run in the background when the work
+does not need to block the current response.
 
-For example, an image task should receive a sanitized prompt and image options.
-The image workflow should then choose the configured provider and model, run the
-generation, and return a bounded result summary.
-
-This keeps task input stable and safe. It also prevents provider credentials or
-configuration details from being copied into task payloads.
+The tool should create a normal background task entry and return enough
+information for the user or calling agent to track it. It should not expose
+arbitrary execution, non-agent task categories, credentials, or low-level
+runtime configuration.
 
 ## Progress And Results
 
@@ -107,22 +111,27 @@ payloads. Errors should explain what failed without exposing secrets.
 
 ## Timeout Rule
 
-Background tasks should not have a default execution timeout. Long-running work
-may continue as long as the app is running and the user has not cancelled it.
+Background tasks should not have a default execution timeout. Long-running
+agent work may continue as long as the app is running and the user has not
+cancelled it.
 
-If an external service or local worker has its own timeout, that timeout
-belongs to that service or worker. The background task should report the
+If an external service involved in the agent run has its own timeout, that
+timeout belongs to that service. The background task should report the
 resulting error as a normal task failure instead of enforcing a separate global
 deadline.
 
 ## Acceptance Criteria
 
-- Multiple background tasks can run at the same time and finish independently.
-- A user can start an approved task category from the app.
+- Multiple background agent tasks can run at the same time and finish
+  independently.
+- Each background task has its own agent session.
+- Provider and model choices come from app configuration, not task payloads.
+- A user can start an approved agent background task from the app.
+- An agent can start an approved agent background task through the background
+  task tool.
 - A user can list current-session tasks and open a specific task entry.
 - A user can cancel a running task.
 - Cancelling the same task more than once is safe.
 - Finished, failed, and cancelled tasks remain visible until the app session
   ends.
 - Task input, progress, results, and errors are sanitized and size-bounded.
-- Provider and model decisions stay inside the feature that performs the work.
