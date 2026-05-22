@@ -361,11 +361,9 @@ const StartPage: React.FC = () => {
 	const agentModelOptions = useMemo<AgentModelOption[]>(
 		() =>
 			agentModelGroups.flatMap((group) => {
-				const catalog = getProviderCatalogItem(group.provider.id);
 				return group.models.map((model) => ({
 					value: getAgentModelValue(group.provider.id, model.id),
 					provider: group.provider,
-					catalog,
 					model,
 				}));
 			}),
@@ -415,31 +413,6 @@ const StartPage: React.FC = () => {
 				providerEntries.filter((entry) => entry.apiKeySaved).map((entry) => entry.providerId)
 			),
 		[providerEntries]
-	);
-	const llmCatalogGroups = useMemo(() => getCatalogGroups(CHAT_MODELS_BY_PROVIDER), []);
-	const speechToTextCatalogGroups = useMemo(
-		() => getCatalogGroups(SPEECH_TO_TEXT_MODELS_BY_PROVIDER),
-		[]
-	);
-	const textToSpeechCatalogGroups = useMemo(
-		() => getCatalogGroups(TEXT_TO_SPEECH_MODELS_BY_PROVIDER),
-		[]
-	);
-	const textToImageCatalogGroups = useMemo(
-		() => getCatalogGroups(TEXT_TO_IMAGE_MODELS_BY_PROVIDER),
-		[]
-	);
-	const textToVideoCatalogGroups = useMemo(
-		() => getCatalogGroups(TEXT_TO_VIDEO_MODELS_BY_PROVIDER),
-		[]
-	);
-	const textToAudioCatalogGroups = useMemo(
-		() => getCatalogGroups(TEXT_TO_AUDIO_MODELS_BY_PROVIDER),
-		[]
-	);
-	const embeddingCatalogGroups = useMemo(
-		() => getCatalogGroups(EMBEDDING_MODELS_BY_PROVIDER),
-		[]
 	);
 
 	useEffect(() => {
