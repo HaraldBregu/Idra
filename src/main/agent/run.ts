@@ -458,6 +458,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						outputChars: out.length,
 						outputText: out,
 					});
+					agentLogger.warn('agent:run', 'tool args invalid', { runId, tool: t.name, iter, durationMs });
 					streamEvent?.({
 						type: 'tool_call_result',
 						iteration: iter,
