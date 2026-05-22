@@ -164,7 +164,6 @@ import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { AppInfo } from '../shared/app-info';
 import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
-import type { ThemeMode } from '../shared/theme';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
@@ -189,8 +188,6 @@ import type {
 } from '../shared/connectors';
 
 export interface AppApi {
-	setTheme: (theme: ThemeMode) => void;
-	onThemeChange: (callback: (theme: ThemeMode) => void) => () => void;
 	openAppDataFolder: () => Promise<void>;
 	openUserDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
