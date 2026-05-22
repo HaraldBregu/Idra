@@ -5,7 +5,7 @@ import type {
 	CronScheduleRunner,
 	CronScheduledTask,
 } from '../core/cron.types';
-import type { TaskManager } from '../../tasks';
+import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
 import type { TaskRecord } from '../../../shared/tasks';
 import { redactCronValue } from '../security/cron-redaction';
 
@@ -29,7 +29,7 @@ export class InMemoryCronScheduleRunner implements CronScheduleRunner {
 		const now = new Date().toISOString();
 		const task: CronScheduledTask = {
 			id: randomUUID(),
-			type: schedule.taskType,
+			type: AGENT_TASK_TYPE,
 			title: schedule.name,
 			description: schedule.description,
 			source: 'cron',
@@ -157,8 +157,8 @@ export class TaskManagerCronScheduleRunner implements CronScheduleRunner {
 		runnerId: string;
 	}): Promise<CronScheduledTask> {
 		const schedule = input.schedule;
-		const record = this.taskManager.run({
-			type: schedule.taskType,
+		const record = this.taskManager.startUserTask({
+			type: AGENT_TASK_TYPE,
 			title: schedule.name,
 			input: schedule.taskInput,
 			metadata: {
