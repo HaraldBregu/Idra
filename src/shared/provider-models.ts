@@ -83,10 +83,14 @@ export const CHAT_MODELS_BY_PROVIDER = mergeModelCatalogs(
 );
 
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
-export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
+export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
+export const GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
 export const MINI_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-mini-transcribe';
 export const SPEECH_TRANSCRIBER_MODEL_IDS = [
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+] as const;
+export const LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS = [
+	GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID,
 	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
 ] as const;
 export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-2602';
@@ -98,10 +102,7 @@ export const ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2';
 export const ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2_realtime';
 
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
-	openai: [
-		model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Transcribe'),
-		model(MINI_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Mini Transcribe'),
-	],
+	openai: [model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT Realtime Whisper')],
 	deepgram: [model('nova-3', 'Nova 3'), model('flux', 'Flux')],
 	elevenlabs: [
 		model(ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID, 'Scribe v2'),
