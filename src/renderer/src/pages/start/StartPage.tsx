@@ -154,7 +154,7 @@ const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 	{
 		id: 'ocr',
 		title: 'OCR',
-		purpose: 'Endpoint-backed document reading with future provider-backed model setup.',
+		purpose: 'Document reading setup.',
 		icon: FileSearch,
 	},
 	{
@@ -1534,7 +1534,7 @@ const StartPage: React.FC = () => {
 
 					{renderModelAreaPanel(
 						'ocr',
-						'Endpoint-backed OCR task available',
+						'Document reading',
 						<>
 							<div className="grid gap-3 sm:grid-cols-2">
 								<SettingsField id="ocr-endpoint" label="Current path">
@@ -1556,11 +1556,11 @@ const StartPage: React.FC = () => {
 
 					{renderModelAreaPanel(
 						'embedding',
-						'Unavailable until semantic indexing runtime is implemented',
+						'Semantic indexing',
 						<>
 							<SettingsNotice icon={Database}>
-								Embedding remains unavailable until provider support, vector index behavior, and
-								runtime adapters are implemented.
+								Embedding provider and model setup will appear here when semantic indexing is
+								implemented.
 							</SettingsNotice>
 						</>
 					)}
