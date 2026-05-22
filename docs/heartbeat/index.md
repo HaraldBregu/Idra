@@ -156,7 +156,9 @@ topics, or thread ids. The exact recipient format belongs to the target channel.
 `every` controls the heartbeat cadence. It accepts a duration string. The
 default unit is minutes. A value of `0m` disables heartbeat scheduling.
 
-`model` optionally overrides the model for heartbeat runs.
+`model` optionally overrides the model for heartbeat runs. The override is
+stored in heartbeat configuration and read through `StoreService`; it does not
+copy provider records or credentials into heartbeat runtime state.
 
 `includeReasoning` delivers a separate reasoning message when reasoning is
 available. This should usually stay off in group chats because it can expose
@@ -225,6 +227,13 @@ Heartbeat runtime state must be stored and retrieved through `StoreService`.
 `HeartbeatService` should use `getHeartbeatState()` and `setHeartbeatState()`
 from its injected store dependency, not read or write the Electron store
 directly or keep a second persistent cache.
+
+Heartbeat agent runs must resolve the provider and model through the injected
+store-backed agent execution path. `HeartbeatService` reads heartbeat
+configuration from `StoreService.getOperator()`, then delegates the run to
+`AgentService`, which resolves the assistant provider and model through its
+injected `StoreService`. Heartbeat state must not duplicate the assistant
+provider, model, API key, or full provider record.
 
 Heartbeat is a service module with explicit dependencies: store, logger,
 event bus, startup files, and optional agent service and channel registry

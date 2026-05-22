@@ -15,9 +15,10 @@ rules for when Friday should start it. The scheduled task itself does not do the
 agent work. When it becomes due, Friday creates a normal background task and
 that background task runs the agent in its own session.
 
-Provider and model selection are not stored on the scheduled task. The
-background task reads the current provider and model from the store when the
-agent run starts.
+Provider and model selection are not stored on the scheduled task. When a
+schedule becomes due, the created background task uses the store-backed agent
+execution path so the current provider and model are resolved through
+`StoreService` when the agent run starts.
 
 Schedules live in persistent app memory so they survive restarts. When Friday
 starts again, it loads the saved schedules, activates the ones that are still
@@ -32,7 +33,8 @@ enabled, and checks whether any scheduled agent run is due.
 - Recover enabled schedules when the app starts.
 - Calculate the next due time in the schedule's timezone.
 - Start a normal background task when the schedule is due.
-- Resolve the provider and model from the store when the background task starts.
+- Resolve the provider and model through `StoreService` when the background
+  task starts.
 - Give the background task its own agent session.
 - Avoid starting the same scheduled run twice.
 - Record a small user-safe result or error summary for the scheduled run.
@@ -96,7 +98,7 @@ due time.
 - Startup activates saved enabled schedules.
 - A due schedule creates a normal visible background task.
 - The created background task runs the agent in its own session.
-- Provider and model choices come from the store at run time.
+- Provider and model choices come from `StoreService` at run time.
 - An agent can create a scheduled task through the scheduled task tool.
 - Immediate agent runs use background tasks directly.
 - Scheduled payloads do not contain secrets or provider credentials.

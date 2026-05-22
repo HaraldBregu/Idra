@@ -22,7 +22,8 @@ run, and they do not restore task entries after the app restarts.
 - Start only approved agent background tasks.
 - Run multiple background tasks in parallel when resources allow it.
 - Give each background task its own agent session.
-- Read the current provider and model settings from the store for the run.
+- Read the current provider and model settings through `StoreService` for the
+  run.
 - Create one task entry for each agent run.
 - Keep task state available for the current app session.
 - Report meaningful progress when the agent run can provide it.
@@ -69,8 +70,7 @@ values, and reject secret-looking payloads.
 
 The starting request should describe what the agent should do. Provider
 selection, model selection, credentials, service connections, and other runtime
-details should come from the store, not from the task
-request.
+details should come from `StoreService`, not from the task request.
 
 ## Agent Sessions
 
@@ -81,7 +81,7 @@ conversation state with another run.
 The task may accept safe run preferences when they refer to configured choices,
 but it must not accept credentials, provider configuration, base URLs, or secret
 values. If no safe preference is provided, Friday should use the current
-configured defaults.
+configured defaults resolved through `StoreService`.
 
 When cancelled, the running session should be asked to stop through its normal
 cancellation path. If cancellation completes first, the task should be marked as
@@ -124,7 +124,7 @@ deadline.
 - Multiple background agent tasks can run at the same time and finish
   independently.
 - Each background task has its own agent session.
-- Provider and model choices come from the store, not task payloads.
+- Provider and model choices come from `StoreService`, not task payloads.
 - A user can start an approved agent background task from the app.
 - An agent can start an approved agent background task through the background
   task tool.

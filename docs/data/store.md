@@ -24,6 +24,8 @@ The source of truth for this document is:
 - Keep task records out of persistent settings.
 - Keep schedule payloads free of credentials, provider records, channel tokens,
   and connector secrets.
+- Resolve agent-run provider and model choices through `StoreService` at run
+  time for heartbeats, background tasks, and scheduled tasks.
 - Store static labels, docs paths, and runtime status in code constants, not in
   user settings.
 
@@ -102,6 +104,11 @@ provider without `apiKey`.
 Module settings reference model providers by id. They do not duplicate API keys
 or raw provider records in task, schedule, channel, connector, or tool payloads.
 
+Agent-run consumers should not read `llmAgent` or `modelProviders` directly.
+Heartbeats, background tasks, and scheduled tasks should use the injected
+`StoreService` or the store-backed agent execution path to resolve the current
+assistant provider and model when work starts.
+
 ## Model Module Settings
 
 Model-backed modules use this compact selection shape:
@@ -167,8 +174,8 @@ interface TaskSchedulerSettings {
 
 The task scheduler owns timing and schedule state. Scheduled agent payloads
 store only the sanitized instruction and timing data. When a scheduled run
-starts, the background task reads the current provider and model settings from
-the store.
+starts, the background task reads the current provider and model settings
+through `StoreService`.
 
 `StoreService` stores all scheduler variants under one root:
 
@@ -192,6 +199,10 @@ persisted in the settings store. `StoreService` normalizes `allowedTaskTypes`
 to non-empty strings and keeps `defaultConcurrency` only when it is a positive
 integer.
 
+Background task payloads do not store provider or model selections. The agent
+run resolves the current assistant provider and model through `StoreService`
+when the task starts.
+
 ## Heartbeat State
 
 ```ts
@@ -205,6 +216,10 @@ interface HeartbeatStoreState {
 Heartbeat configuration for agents is stored in `llmAgent.options.agents`.
 The `heartbeat` root stores runtime state only. `StoreService` migrates invalid
 or missing heartbeat state to an empty version `1` state.
+
+Heartbeat runs use `StoreService` for both heartbeat configuration and the
+assistant provider/model used by the agent run. Heartbeat state must not store
+provider ids, model ids, API keys, or provider records.
 
 ## Channel Settings
 
