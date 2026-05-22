@@ -100,6 +100,7 @@ function isValidDecision(value: unknown): value is BeforeAgentRunDecision {
 }
 
 function toBlockedResult(decision: Extract<BeforeAgentRunDecision, { outcome: 'block' }>): BeforeAgentRunResult {
+	agentLogger.warn('agent:before-run', 'request blocked', { reason: decision.reason, category: decision.category });
 	return {
 		outcome: 'block',
 		message: safeMessage(decision.message),
