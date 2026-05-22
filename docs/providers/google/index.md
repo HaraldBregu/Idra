@@ -1,6 +1,6 @@
-# Google Models
+# Google
 
-This section documents Google models.
+This section documents Google models and Workspace connectors.
 
 ## Current Model Set
 
@@ -12,3 +12,11 @@ This section documents Google models.
 | Image | `gemini-3.1-flash-image-preview`, `gemini-3-pro-image-preview` | [google/image](image/index.md) |
 | Video | `veo-3.1`, `veo-3.1-fast` | [google/video](video/index.md) |
 | Music and audio | `lyria-3-pro-preview`, `lyria-3-clip-preview`, `lyria-realtime` | [google/music](music/index.md) |
+
+## Connectors
+
+| Connector | Runtime status | Documentation |
+| --- | --- | --- |
+| Gmail | Local Google OAuth and local tool execution | [google/gmail](gmail/index.md) |
+| Google Calendar | Local Google OAuth and local tool execution | [google/calendar](calendar/index.md) |
+| Google Drive | Local Google OAuth and local tool execution | [google/drive](drive/index.md) |

@@ -27,3 +27,13 @@
 | [Suno](suno/index.md) | Music/audio | `suno-v5.5`, `suno-v4.5-all` |
 | [xAI](xai/index.md) | Chat - Speech-to-text - Realtime voice/omni - Image - Video | `grok-4.3`, `grok-build-0.1`, `xai-stt-batch`, `xai-stt-streaming`, `grok-voice-latest`, `grok-imagine`, `grok-imagine-video` |
 | [Z.ai / Zhipu AI](zai/index.md) | Chat | `glm-5.1`, `glm-5`, `glm-5-turbo` |
+
+## Connector Providers
+
+These provider folders also group Friday's Settings connectors by platform.
+
+| Provider | Connectors |
+| --- | --- |
+| [Dropbox](dropbox/index.md) | [Dropbox](dropbox/dropbox/index.md) |
+| [Google](google/index.md) | [Gmail](google/gmail/index.md) - [Google Calendar](google/calendar/index.md) - [Google Drive](google/drive/index.md) |
+| [Microsoft](microsoft/index.md) | [Microsoft Teams](microsoft/teams/index.md) - [Outlook Calendar](microsoft/outlook-calendar/index.md) - [Outlook Email](microsoft/outlook-email/index.md) - [SharePoint](microsoft/sharepoint/index.md) |
