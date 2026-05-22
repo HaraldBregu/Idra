@@ -1305,10 +1305,7 @@ const StartPage: React.FC = () => {
 							<Icon className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<div className="flex w-full min-w-0 items-center gap-2">
-								<ItemTitle>{area.title}</ItemTitle>
-								<StatusBadge status={area.status} />
-							</div>
+							<ItemTitle>{area.title}</ItemTitle>
 							<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 								{summary}
 							</p>
