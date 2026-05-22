@@ -7,6 +7,15 @@ import type {
 
 export type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
 
+function dedupeByConnectorId(connectors: ConnectorView[]): ConnectorView[] {
+	const seen = new Set<string>();
+	return connectors.filter((connector) => {
+		if (seen.has(connector.connectorId)) return false;
+		seen.add(connector.connectorId);
+		return true;
+	});
+}
+
 export function useConnectors() {
 	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
 	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
@@ -24,7 +33,7 @@ export function useConnectors() {
 				window.connectors.list(),
 			]);
 			setCatalog(nextCatalog);
-			setConnectors(nextConnectors);
+			setConnectors(dedupeByConnectorId(nextConnectors));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
