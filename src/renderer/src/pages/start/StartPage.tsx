@@ -608,9 +608,13 @@ const StartPage: React.FC = () => {
 				setSavedSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
 				setSavedSpeechModelId(speechToTextOperator?.model?.id ?? '');
 				setSavedTextToSpeechOperator(textToSpeechOperator);
+				setTextToSpeechProviderId(textToSpeechOperator?.provider.id ?? '');
 				setSavedImageCreatorOperator(imageCreatorOperator);
+				setImageCreatorProviderId(imageCreatorOperator?.provider.id ?? '');
 				setSavedTextToVideoOperator(textToVideoOperator);
+				setTextToVideoProviderId(textToVideoOperator?.provider.id ?? '');
 				setSavedMusicCreatorOperator(musicCreatorOperator);
+				setMusicCreatorProviderId(musicCreatorOperator?.provider.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
@@ -620,9 +624,13 @@ const StartPage: React.FC = () => {
 				setSavedSpeechProviderId('');
 				setSavedSpeechModelId('');
 				setSavedTextToSpeechOperator(undefined);
+				setTextToSpeechProviderId('');
 				setSavedImageCreatorOperator(undefined);
+				setImageCreatorProviderId('');
 				setSavedTextToVideoOperator(undefined);
+				setTextToVideoProviderId('');
 				setSavedMusicCreatorOperator(undefined);
+				setMusicCreatorProviderId('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models.'));
 			}
 		}
