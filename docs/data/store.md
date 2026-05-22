@@ -165,9 +165,10 @@ interface TaskSchedulerSettings {
 }
 ```
 
-The task scheduler owns timing and schedule state. Scheduled payloads store only
-task type and sanitized task input. Provider/model settings are resolved by the
-module that performs the work.
+The task scheduler owns timing and schedule state. Scheduled agent payloads
+store only the sanitized instruction and timing data. When a scheduled run
+starts, the background task reads the current provider and model settings from
+the store.
 
 `StoreService` stores all scheduler variants under one root:
 

@@ -10,8 +10,8 @@ Friday uses two task families:
 
 | Area | When to use it | How it should behave |
 | --- | --- | --- |
-| [Background tasks](background/index.md) | An agent run should start now and continue while the app remains usable. | Create one visible agent task, run it in its own session, use configured provider and model settings, report progress, allow cancellation, and keep the result available for the current session. |
-| [Scheduled tasks](scheduled/index.md) | Work should happen in the future, repeat over time, or run after a delay. | Persist the schedule, calculate due times, handle missed runs, and create work only when the schedule is due. |
+| [Background tasks](background/index.md) | An agent run should start now and continue while the app remains usable. | Create one visible agent task, run it in its own session, read provider and model settings from the store, report progress, allow cancellation, and keep the result available for the current session. |
+| [Scheduled tasks](scheduled/index.md) | An agent run should happen in the future, repeat over time, or run after a delay. | Save the schedule, activate it on startup, and create a normal background task only when the schedule is due. |
 
 ## Responsibilities
 
@@ -30,8 +30,8 @@ wants done, not carry credentials or low-level provider configuration.
 ## How They Work Together
 
 A schedule may create a background task when it fires if the due work is an
-agent run. The background task should start a separate agent session and use
-the app's configured provider and model settings.
+agent run. The background task should start a separate agent session and read
+the current provider and model settings from the store.
 
 Immediate agent runs should use background tasks directly. Future, recurring,
 delayed, reminder, wake, and calendar-style requests should use scheduled
