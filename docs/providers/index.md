@@ -1,27 +1,5 @@
 # Providers
 
-This catalog documents Friday provider credentials and model coverage using the supplied provider/model catalog for this documentation update.
-
-Provider credentials are stored on provider records. Per-run overrides can select `providerId`, `model`, and, where supported, an effort value; they do not accept API keys or base URLs.
-
-## Model Type Summary
-
-| Model type | Model count | Providers |
-| --- | --- | --- |
-| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai/), [Mistral AI](mistral/), [DeepSeek](deepseek/), [Alibaba / Qwen / Wan](qwen/), [Moonshot AI / Kimi](kimi/), [Z.ai / Zhipu AI](zai/), [MiniMax](minimax/), [Reka AI](reka/) |
-| Research Chat Models | 4 | [Perplexity](perplexity/) |
-| Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram/), [ElevenLabs](elevenlabs/), [Mistral AI](mistral/), [xAI](xai/), [Alibaba / Qwen / Wan](qwen/) |
-| Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs/), [Cartesia](cartesia/), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax/), [Mistral AI](mistral/), [Deepgram](deepgram/) |
-| Realtime Voice And Omni Models | 8 | [OpenAI](openai.md), [xAI](xai/), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [Luma AI](luma/) |
-| Image Models | 18 | [OpenAI](openai.md), [Google DeepMind / Google](google/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [Black Forest Labs](black-forest-labs/), [Midjourney](midjourney/), [Luma AI](luma/), [Stability AI](stability/), [Ideogram](ideogram/) |
-| Video Models | 25 | [Google DeepMind / Google](google/), [Runway](runway/), [Luma AI](luma/), [MiniMax](minimax/), [Alibaba / Qwen / Wan](qwen/), [xAI](xai/), [OpenAI](openai.md), [Meta](meta/), [Midjourney](midjourney/), [Pika](pika/), [Stability AI](stability/), [Kuaishou / Kling AI](kling/) |
-| Music And Audio Models | 11 | [Google DeepMind / Google](google/), [Suno](suno/), [MiniMax](minimax/), [ElevenLabs](elevenlabs/), [Stability AI](stability/), [Kuaishou / Kling AI](kling/) |
-| 3D Models | 2 | [Luma AI](luma/) |
-
-## Provider Catalog
-
-Each provider name links to its provider-specific markdown file.
-
 | Provider | Provider id | Capabilities | Documented model sections |
 | --- | --- | --- | --- |
 | [Anthropic](anthropic/) | `anthropic` | Chat | Large Language Models |
@@ -39,7 +17,7 @@ Each provider name links to its provider-specific markdown file.
 | [Midjourney](midjourney/) | `midjourney` | Image - Video | Image Models - Video Models |
 | [MiniMax](minimax/) | `minimax` | Chat - Text-to-speech - Video - Music/audio | Large Language Models - Text-To-Speech Models - Video Models - Music And Audio Models |
 | [Mistral AI](mistral/) | `mistral` | Chat - Speech-to-text - Text-to-speech | Large Language Models - Speech-To-Text Models - Text-To-Speech Models |
-| [OpenAI](openai.md) | `openai` | Chat - Speech-to-text - Text-to-speech - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Text-To-Speech Models - Realtime Voice And Omni Models - Image Models - Video Models |
+| [OpenAI](openai/) | `openai` | Chat - Speech-to-text - Text-to-speech - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Text-To-Speech Models - Realtime Voice And Omni Models - Image Models - Video Models |
 | [Perplexity](perplexity/) | `perplexity` | Research chat | Research Chat Models |
 | [Pika](pika/) | `pika` | Video | Video Models |
 | [Alibaba / Qwen / Wan](qwen/) | `qwen` | Chat - Speech-to-text - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Realtime Voice And Omni Models - Image Models - Video Models |
@@ -49,40 +27,3 @@ Each provider name links to its provider-specific markdown file.
 | [Suno](suno/) | `suno` | Music/audio | Music And Audio Models |
 | [xAI](xai/) | `xai` | Chat - Speech-to-text - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Realtime Voice And Omni Models - Image Models - Video Models |
 | [Z.ai / Zhipu AI](zai/) | `zai` | Chat | Large Language Models |
-
-## Providers Without LLM Entries
-
-These providers do not have Large Language Models in the supplied catalog but do have other model types documented.
-
-| Provider | Provider id | Capabilities |
-| --- | --- | --- |
-| [Black Forest Labs](black-forest-labs/) | `black-forest-labs` | Image |
-| [Cartesia](cartesia/) | `cartesia` | Text-to-speech |
-| [Deepgram](deepgram/) | `deepgram` | Speech-to-text - Text-to-speech |
-| [ElevenLabs](elevenlabs/) | `elevenlabs` | Speech-to-text - Text-to-speech - Music/audio |
-| [Ideogram](ideogram/) | `ideogram` | Image |
-| [Kuaishou / Kling AI](kling/) | `kling` | Video - Music/audio |
-| [Luma AI](luma/) | `luma` | Realtime voice/omni - Image - Video - 3D |
-| [Midjourney](midjourney/) | `midjourney` | Image - Video |
-| [Perplexity](perplexity/) | `perplexity` | Research chat |
-| [Pika](pika/) | `pika` | Video |
-| [Runway](runway/) | `runway` | Video |
-| [Stability AI](stability/) | `stability-ai` | Image - Video - Music/audio |
-| [Suno](suno/) | `suno` | Music/audio |
-
-## Status Markers
-
-- `active`: listed as a current model in the supplied catalog.
-- `deprecated`: transitional model; avoid new integrations unless required.
-- `verify`: verify provider access and adapter support before production use.
-
-| Provider | Model id | Status | Model type |
-| --- | --- | --- | --- |
-| [Kuaishou / Kling AI](kling/) | `kling-2.6` | `verify` | Video Models |
-| [Kuaishou / Kling AI](kling/) | `kling-2.1` | `verify` | Video Models |
-| [Kuaishou / Kling AI](kling/) | `kling-audio` | `verify` | Music And Audio Models |
-| [Luma AI](luma/) | `genie` | `verify` | 3D Models |
-| [Luma AI](luma/) | `interactive-scenes` | `verify` | 3D Models |
-| [Meta](meta/) | `movie-gen-video` | `verify` | Video Models |
-| [OpenAI](openai.md) | `sora-2-pro` | `deprecated` | Video Models |
-| [OpenAI](openai.md) | `sora-2` | `deprecated` | Video Models |
