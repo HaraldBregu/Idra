@@ -1,5 +1,18 @@
-import type { OpenAiConnectorId } from '../connectors';
-import type { ProviderConnectorDocsMetadata } from './models';
+export const PROVIDER_CONNECTOR_RUNTIME_STATUSES = [
+	'local_oauth_and_local_tool_execution',
+	'settings_catalog_only',
+] as const;
+
+export type ProviderConnectorRuntimeStatus =
+	(typeof PROVIDER_CONNECTOR_RUNTIME_STATUSES)[number];
+
+export interface ProviderConnectorDocsMetadata {
+	readonly providerId: string;
+	readonly providerName: string;
+	readonly providerDocsPath: string;
+	readonly providerDocsLabel: string;
+	readonly runtimeStatus: ProviderConnectorRuntimeStatus;
+}
 
 export const PROVIDER_CONNECTOR_DOCS = {
 	connector_dropbox: {
@@ -58,4 +71,6 @@ export const PROVIDER_CONNECTOR_DOCS = {
 		providerDocsLabel: 'SharePoint connector guide',
 		runtimeStatus: 'settings_catalog_only',
 	},
-} as const satisfies Record<OpenAiConnectorId, ProviderConnectorDocsMetadata>;
+} as const satisfies Record<string, ProviderConnectorDocsMetadata>;
+
+export type ProviderConnectorDocsId = keyof typeof PROVIDER_CONNECTOR_DOCS;
