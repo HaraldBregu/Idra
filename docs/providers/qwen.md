@@ -55,6 +55,7 @@ Official Alibaba Model Studio docs:
 - [Qwen-Omni HTTP guide](https://www.alibabacloud.com/help/en/model-studio/qwen-omni)
 - [Qwen-Omni Realtime guide](https://www.alibabacloud.com/help/en/model-studio/realtime)
 - [Qwen-Omni Realtime client events](https://www.alibabacloud.com/help/en/model-studio/client-events)
+- [Qwen-Omni Realtime server events](https://www.alibabacloud.com/help/en/document_detail/2922855.html)
 
 Alibaba documents Qwen-Omni speech-to-text as audio understanding, not as a
 traditional ASR hotword endpoint. Use prompt context to tell the model how to
