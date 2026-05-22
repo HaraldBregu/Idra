@@ -23,6 +23,7 @@ export {
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
 	isInputAudioBufferTooSmallError,
+	resolveOpenAIRealtimeTranscriptionModel,
 	useRealtimeTranscriptionIntent,
 } from './openai-realtime-adapter';
 export {
