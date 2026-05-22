@@ -61,6 +61,41 @@ function getSettingsNavigationItem(path: string): SettingsNavigationItem {
 	return SETTINGS_NAVIGATION.find((item) => item.path === path)!;
 }
 
+const SETTINGS_OVERVIEW_AGENT_IDS = [
+	AGENTS.assistant,
+	AGENTS.speechToText,
+	AGENTS.textToSpeech,
+	AGENTS.textToImage,
+	AGENTS.textToVideo,
+	AGENTS.textToAudio,
+] as const satisfies readonly AgentId[];
+
+type SettingsOverviewAgentId = (typeof SETTINGS_OVERVIEW_AGENT_IDS)[number];
+type SettingsOverviewAgentItem = Omit<SettingsOperatorItem, 'id'> & {
+	readonly id: SettingsOverviewAgentId;
+};
+
+const OPERATOR_ROUTE_IDS_BY_AGENT_ID = {
+	[AGENTS.assistant]: ASSISTANT_OPERATOR_ID,
+	[AGENTS.speechToText]: AGENTS.speechToText,
+	[AGENTS.textToSpeech]: AGENTS.textToSpeech,
+	[AGENTS.textToImage]: IMAGE_CREATOR_OPERATOR_ID,
+	[AGENTS.textToVideo]: AGENTS.textToVideo,
+	[AGENTS.textToAudio]: MUSIC_CREATOR_OPERATOR_ID,
+} as const satisfies Record<SettingsOverviewAgentId, string>;
+
+function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): SettingsOverviewAgentItem {
+	const routeId = OPERATOR_ROUTE_IDS_BY_AGENT_ID[agentId];
+	const path = `/settings/operators/${routeId}/details`;
+	const item = SETTINGS_OPERATOR_ITEMS.find((operatorItem) => operatorItem.path === path);
+	if (!item) throw new Error(`Missing settings overview agent route: ${path}`);
+	return { ...item, id: agentId };
+}
+
+const SETTINGS_OVERVIEW_AGENT_ITEMS = SETTINGS_OVERVIEW_AGENT_IDS.map(
+	getSettingsOverviewAgentItem
+);
+
 function SettingsOverviewCard({
 	item,
 }: {
