@@ -12,7 +12,7 @@ Friday uses two task families:
 | Area                                    | When to use it                                                                    | How it should behave                                                                                                                                                                                   |
 | --------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [Background tasks](background/index.md) | An agent run should start now and continue while the app remains usable.          | Create one visible agent task, run it in its own session, read provider and model settings from the store, report progress, allow cancellation, and keep the result available for the current session. |
-| [Scheduled tasks](scheduled/index.md)   | An agent run should happen in the future, repeat over time, or run after a delay. | Save the schedule, sanitized agent instruction, and timing rules; activate it on startup; and create a normal background task only when the schedule is due.                                            |
+| [Scheduled tasks](scheduled/index.md)   | An agent run should happen in the future, repeat over time, or run after a delay. | Save the schedule, sanitized agent instruction, and timing rules; activate it on startup; and create a normal background task only when the schedule is due.                                           |
 
 ## Responsibilities
 
