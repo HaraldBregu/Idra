@@ -792,7 +792,7 @@ function compactChannelRoot(channel: Partial<Channel>): Partial<Channel> {
 	for (const channelId of CHANNEL_PROVIDER_IDS) {
 		const config = channel[channelId];
 		if (readRecord(config)) {
-			next[channelId] = removeUndefinedProperties(config) as Channel[typeof channelId];
+			(next as Partial<Record<ChannelType, unknown>>)[channelId] = removeUndefinedProperties(config);
 		}
 	}
 	return next;
@@ -891,7 +891,7 @@ function createDefaultAccountConfig(channelId: ChannelType): ChannelAccountPrope
 	};
 }
 
-function getStoredChannelConfig(channel: Channel | undefined, channelId: ChannelType): unknown {
+function getStoredChannelConfig(channel: Partial<Channel> | undefined, channelId: ChannelType): unknown {
 	if (!channel || typeof channel !== 'object') return undefined;
 	return channel[channelId];
 }
