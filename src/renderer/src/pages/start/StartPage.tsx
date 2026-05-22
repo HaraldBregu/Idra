@@ -248,23 +248,6 @@ function getProviderModelSelectionLabel(option: ProviderModelOption | undefined)
 	return `${option.provider.name} - ${option.model.name}`;
 }
 
-function getCatalogGroups(catalog: ModelCatalog): CatalogModelGroup[] {
-	return Object.entries(catalog)
-		.map(([providerId, models]) => ({
-			provider: getProviderCatalogItem(providerId),
-			models,
-		}))
-		.filter((group) => group.models.length > 0);
-}
-
-function getCatalogCountLabel(groups: readonly CatalogModelGroup[]): string {
-	const modelCount = groups.reduce((count, group) => count + group.models.length, 0);
-	if (modelCount === 0) return 'No catalog entries';
-	const providerLabel = groups.length === 1 ? 'provider' : 'providers';
-	const modelLabel = modelCount === 1 ? 'model' : 'models';
-	return `${modelCount} ${modelLabel} across ${groups.length} ${providerLabel}`;
-}
-
 function getStatusLabel(status: ModelAreaStatus): string {
 	if (status === 'implemented') return 'Implemented';
 	if (status === 'pending-runtime') return 'Pending runtime';
@@ -291,45 +274,6 @@ function StatusBadge({ status }: { readonly status: ModelAreaStatus }): React.JS
 		<Badge variant="outline" className={cn('h-5 rounded-md px-1.5', getStatusClassName(status))}>
 			{getStatusLabel(status)}
 		</Badge>
-	);
-}
-
-function CatalogRows({
-	groups,
-	emptyLabel = 'No provider catalog is available yet.',
-}: {
-	readonly groups: readonly CatalogModelGroup[];
-	readonly emptyLabel?: string;
-}): React.JSX.Element {
-	if (groups.length === 0) {
-		return (
-			<div className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-muted-foreground">
-				{emptyLabel}
-			</div>
-		);
-	}
-
-	return (
-		<div className="max-h-52 overflow-y-auto rounded-lg border border-border/70 bg-background">
-			{groups.map((group) => (
-				<div
-					key={group.provider.id}
-					className="grid gap-1 border-b border-border/60 px-3 py-2 last:border-b-0"
-				>
-					<div className="flex min-w-0 items-center justify-between gap-2">
-						<div className="min-w-0 truncate text-xs font-semibold text-foreground">
-							{group.provider.name}
-						</div>
-						<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
-							{group.models.length}
-						</Badge>
-					</div>
-					<p className="line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-						{group.models.map((model) => model.name).join(', ')}
-					</p>
-				</div>
-			))}
-		</div>
 	);
 }
 
