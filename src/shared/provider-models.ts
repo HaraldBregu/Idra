@@ -87,12 +87,11 @@ export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-realtime-whisper';
 export const GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
 export const MINI_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-mini-transcribe';
 export const SPEECH_TRANSCRIBER_MODEL_IDS = [
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-] as const;
-export const LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS = [
 	GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID,
 	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 ] as const;
+export const LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS = [] as const;
 export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-2602';
 export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID =
 	'voxtral-mini-transcribe-realtime-2602';
