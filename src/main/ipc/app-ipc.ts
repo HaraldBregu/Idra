@@ -28,12 +28,14 @@ import type {
 } from '../../shared/app-permissions';
 import {
 	DEFAULT_PROVIDERS,
-	isAllowedAgentModel,
-	getDefaultAgentModels,
-	hasDefaultAgentModels,
 	type ProviderInput,
 	type PublicProvider,
 } from '../../shared/providers';
+import {
+	getDefaultAgentModels,
+	hasDefaultAgentModels,
+	isAllowedAgentModel,
+} from '../../shared/agents/models';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { isThemeMode, ThemeMode } from '../../shared';
 import {

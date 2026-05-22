@@ -1,5 +1,6 @@
 import Store from 'electron-store';
-import { DEFAULT_PROVIDERS, getDefaultAgentModels, type Provider } from '../../shared/providers';
+import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
+import { getDefaultAgentModels } from '../../shared/agents/models';
 import {
 	DOCUMENT_READER_OCR_MODELS,
 	OPERATOR_DEFINITIONS,
