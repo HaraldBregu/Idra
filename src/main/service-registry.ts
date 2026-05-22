@@ -12,7 +12,6 @@ import type { AgentService } from './service';
 import type { SkillsService } from './skills';
 import type { StoreService } from './store';
 import type { TaskManager } from './tasks';
-import type { TextToImageService } from './text-to-image';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
 
@@ -31,7 +30,6 @@ export interface MainServices {
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	taskManager: TaskManager;
-	textToImage: TextToImageService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;

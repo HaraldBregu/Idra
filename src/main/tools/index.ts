@@ -9,7 +9,6 @@ export type {
 } from './types';
 export { textResult } from './types';
 export { ALL_TOOLS, createTools } from './registry';
-export { createTextToImageTool } from './text-to-image';
 export { filterTools, type PolicyConfig, type ToolProfile } from './policy';
 export { beforeToolCall, newCallTracker, type CallTracker } from './before-call';
 export * from './management';
