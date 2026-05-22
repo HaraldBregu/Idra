@@ -24,6 +24,26 @@ const assistantModel: Model = {
 	id: 'gpt-5.4-mini',
 	name: 'GPT-5.4 Mini',
 };
+const speechModel: Model = {
+	id: 'gpt-4o-transcribe',
+	name: 'GPT-4o Transcribe',
+};
+const textToSpeechModel: Model = {
+	id: 'gpt-4o-mini-tts',
+	name: 'GPT-4o Mini TTS',
+};
+const imageModel: Model = {
+	id: 'gpt-image-2',
+	name: 'GPT Image 2',
+};
+const videoModel: Model = {
+	id: 'sora-2',
+	name: 'Sora 2',
+};
+const audioModel: Model = {
+	id: 'audio-model',
+	name: 'Audio Model',
+};
 
 function installAppApi(): void {
 	window.app = {
@@ -33,19 +53,19 @@ function installAppApi(): void {
 		getAssistantOperator: jest.fn(async () => undefined),
 		saveAssistantOperator: jest.fn(async () => true),
 		getSpeechToTextOperator: jest.fn(async () => undefined),
-		getSpeechToTextModels: jest.fn(async () => []),
+		getSpeechToTextModels: jest.fn(async () => [speechModel]),
 		saveSpeechToTextOperator: jest.fn(async () => true),
 		getTextToSpeechOperator: jest.fn(async () => undefined),
-		getTextToSpeechModels: jest.fn(async () => []),
+		getTextToSpeechModels: jest.fn(async () => [textToSpeechModel]),
 		saveTextToSpeechOperator: jest.fn(async () => true),
 		getImageCreatorOperator: jest.fn(async () => undefined),
-		getImageCreatorModels: jest.fn(async () => []),
+		getImageCreatorModels: jest.fn(async () => [imageModel]),
 		saveImageCreatorOperator: jest.fn(async () => true),
 		getTextToVideoOperator: jest.fn(async () => undefined),
-		getTextToVideoModels: jest.fn(async () => []),
+		getTextToVideoModels: jest.fn(async () => [videoModel]),
 		saveTextToVideoOperator: jest.fn(async () => true),
 		getMusicCreatorOperator: jest.fn(async () => undefined),
-		getMusicCreatorModels: jest.fn(async () => []),
+		getMusicCreatorModels: jest.fn(async () => [audioModel]),
 		saveMusicCreatorOperator: jest.fn(async () => true),
 		getModels: jest.fn(async () => [assistantModel]),
 		openExternalUrl: jest.fn(async () => undefined),
