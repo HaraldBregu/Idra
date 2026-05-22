@@ -17,7 +17,9 @@ class RecordingRunner implements CronScheduleRunner {
 	failuresBeforeSuccess = 0;
 	cancelled: string[] = [];
 
-	async createTaskForSchedule(input: Parameters<CronScheduleRunner['createTaskForSchedule']>[0]): Promise<CronScheduledTask> {
+	async createTaskForSchedule(
+		input: Parameters<CronScheduleRunner['createTaskForSchedule']>[0]
+	): Promise<CronScheduledTask> {
 		if (this.failuresBeforeSuccess > 0) {
 			this.failuresBeforeSuccess--;
 			throw new Error('transient create failure');
@@ -38,7 +40,10 @@ class RecordingRunner implements CronScheduleRunner {
 		return task;
 	}
 
-	async findExistingTask(filter: { scheduleId: string; scheduledRunAt: string }): Promise<CronScheduledTask | undefined> {
+	async findExistingTask(filter: {
+		scheduleId: string;
+		scheduledRunAt: string;
+	}): Promise<CronScheduledTask | undefined> {
 		return this.tasks.find(
 			(task) =>
 				task.metadata.cronScheduleId === filter.scheduleId &&
@@ -79,34 +84,29 @@ function makeScheduler(runner = new RecordingRunner()) {
 		highFrequencyThresholdMs: 5 * 60_000,
 		maxActiveSchedulesPerUser: 50,
 	});
-	const scheduler = new CronSchedulerService(
-		store,
-		runner,
-		policy,
-		{
-			runnerId: 'test-runner',
-			pollIntervalMs: 60_000,
-			lockTtlMs: 60_000,
-			defaultTimezone: 'Europe/Rome',
-			runPolicy: {
-				maxRunsPerTurn: 10,
-				maxCatchUpRuns: 5,
-				catchUpWindowMs: 24 * 60 * 60_000,
-				minIntervalMs: 60_000,
-				highFrequencyThresholdMs: 5 * 60_000,
-				dstPolicy: 'skipNonexistentTime',
-			},
-			defaultRetryPolicy: {
-				maxAttempts: 2,
-				initialDelayMs: 1,
-				maxDelayMs: 1,
-				backoffMultiplier: 1,
-				jitter: false,
-				retryableErrorCodes: ['CRON_SCHEDULE_EXECUTION_TRANSIENT'],
-				nonRetryableErrorCodes: [],
-			},
-		}
-	);
+	const scheduler = new CronSchedulerService(store, runner, policy, {
+		runnerId: 'test-runner',
+		pollIntervalMs: 60_000,
+		lockTtlMs: 60_000,
+		defaultTimezone: 'Europe/Rome',
+		runPolicy: {
+			maxRunsPerTurn: 10,
+			maxCatchUpRuns: 5,
+			catchUpWindowMs: 24 * 60 * 60_000,
+			minIntervalMs: 60_000,
+			highFrequencyThresholdMs: 5 * 60_000,
+			dstPolicy: 'skipNonexistentTime',
+		},
+		defaultRetryPolicy: {
+			maxAttempts: 2,
+			initialDelayMs: 1,
+			maxDelayMs: 1,
+			backoffMultiplier: 1,
+			jitter: false,
+			retryableErrorCodes: ['CRON_SCHEDULE_EXECUTION_TRANSIENT'],
+			nonRetryableErrorCodes: [],
+		},
+	});
 	return { scheduler, store, runner };
 }
 
@@ -128,7 +128,11 @@ function request(overrides: Partial<CronScheduleCreateRequest> = {}): CronSchedu
 	};
 }
 
-async function due(schedule: CronSchedule, store: InMemoryCronScheduleStore, when: string): Promise<CronSchedule> {
+async function due(
+	schedule: CronSchedule,
+	store: InMemoryCronScheduleStore,
+	when: string
+): Promise<CronSchedule> {
 	return store.updateSchedule(schedule.id, { nextRunAt: when, status: 'active', enabled: true });
 }
 
@@ -146,9 +150,9 @@ describe('CronSchedulerService', () => {
 	it('rejects invalid cron expressions and sensitive stored inputs', async () => {
 		const { scheduler } = makeScheduler();
 
-		await expect(scheduler.createSchedule(request({ cronExpression: 'invalid' }), actor)).rejects.toThrow(
-			/Cron expression/
-		);
+		await expect(
+			scheduler.createSchedule(request({ cronExpression: 'invalid' }), actor)
+		).rejects.toThrow(/Cron expression/);
 		await expect(
 			scheduler.createSchedule(request({ taskInput: { apiKey: 'secret' } }), actor)
 		).rejects.toThrow(/Sensitive field/);
@@ -159,7 +163,10 @@ describe('CronSchedulerService', () => {
 
 	it('computes timezone-aware cron and interval next runs', async () => {
 		const { scheduler } = makeScheduler();
-		const cronSchedule = await scheduler.createSchedule(request({ cronExpression: '30 8 * * 1-5' }), actor);
+		const cronSchedule = await scheduler.createSchedule(
+			request({ cronExpression: '30 8 * * 1-5' }),
+			actor
+		);
 		const intervalSchedule = await scheduler.createSchedule(
 			request({
 				type: 'interval',
@@ -191,16 +198,30 @@ describe('CronSchedulerService', () => {
 		await scheduler.processDueSchedules(new Date());
 
 		expect(runner.tasks).toHaveLength(1);
-		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({ status: 'completed', runCount: 1 });
+		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({
+			status: 'completed',
+			runCount: 1,
+		});
 	});
 
 	it('recovers missed runs using skip, runOnce, and catchUp policies', async () => {
 		const { scheduler, store, runner } = makeScheduler();
 		const missed = new Date(Date.now() - 3 * 60_000).toISOString();
-		const skip = await scheduler.createSchedule(request({ name: 'skip', missedRunPolicy: 'skip' }), actor);
-		const runOnce = await scheduler.createSchedule(request({ name: 'run once', missedRunPolicy: 'runOnce' }), actor);
+		const skip = await scheduler.createSchedule(
+			request({ name: 'skip', missedRunPolicy: 'skip' }),
+			actor
+		);
+		const runOnce = await scheduler.createSchedule(
+			request({ name: 'run once', missedRunPolicy: 'runOnce' }),
+			actor
+		);
 		const catchUp = await scheduler.createSchedule(
-			request({ name: 'catch up', cronExpression: '* * * * *', missedRunPolicy: 'catchUp', maxCatchUpRuns: 2 }),
+			request({
+				name: 'catch up',
+				cronExpression: '* * * * *',
+				missedRunPolicy: 'catchUp',
+				maxCatchUpRuns: 2,
+			}),
 			actor
 		);
 		await due(skip, store, missed);
@@ -247,8 +268,14 @@ describe('CronSchedulerService', () => {
 		const runner = new RecordingRunner();
 		runner.running = [{ id: 'active-task', status: 'running', metadata: {} } as CronScheduledTask];
 		const { scheduler, store } = makeScheduler(runner);
-		const skip = await scheduler.createSchedule(request({ concurrencyPolicy: 'skipIfRunning' }), actor);
-		const queue = await scheduler.createSchedule(request({ name: 'queue', concurrencyPolicy: 'queueIfRunning' }), actor);
+		const skip = await scheduler.createSchedule(
+			request({ concurrencyPolicy: 'skipIfRunning' }),
+			actor
+		);
+		const queue = await scheduler.createSchedule(
+			request({ name: 'queue', concurrencyPolicy: 'queueIfRunning' }),
+			actor
+		);
 		await due(skip, store, new Date(Date.now() - 2_000).toISOString());
 		await due(queue, store, new Date(Date.now() - 1_000).toISOString());
 
@@ -273,16 +300,24 @@ describe('CronSchedulerService', () => {
 		expect(await store.acquireScheduleLock(schedule.id, 'runner-b', 60_000)).toBe(true);
 
 		await scheduler.deleteSchedule(schedule.id, actor);
-		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({ status: 'deleted', enabled: false });
+		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({
+			status: 'deleted',
+			enabled: false,
+		});
 	});
 
 	it('allows schedules without permission grants or confirmation', async () => {
 		const { scheduler } = makeScheduler();
-		await expect(scheduler.createSchedule(request(), { ...actor, permissions: [] })).resolves.toMatchObject({
+		await expect(
+			scheduler.createSchedule(request(), { ...actor, permissions: [] })
+		).resolves.toMatchObject({
 			taskType: 'reminder.show',
 		});
 		await expect(
-			scheduler.createSchedule(request({ taskType: 'email.send', requiresConfirmation: true }), actor)
+			scheduler.createSchedule(
+				request({ taskType: 'email.send', requiresConfirmation: true }),
+				actor
+			)
 		).resolves.toMatchObject({ taskType: 'email.send' });
 	});
 
@@ -307,7 +342,14 @@ describe('CronSchedulerService', () => {
 		);
 
 		expect(schedule.source).toBe('agent');
-		await expect(agentCron.explainSchedule(schedule.id, { agentId: 'agent-1', userId: 'user-1', timezone: 'Europe/Rome', permissions: actor.permissions })).resolves.toContain('Monday');
+		await expect(
+			agentCron.explainSchedule(schedule.id, {
+				agentId: 'agent-1',
+				userId: 'user-1',
+				timezone: 'Europe/Rome',
+				permissions: actor.permissions,
+			})
+		).resolves.toContain('Monday');
 	});
 
 	it('redacts audit/log payloads', () => {

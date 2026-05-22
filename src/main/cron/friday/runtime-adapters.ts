@@ -24,7 +24,9 @@ type TerminalTaskRecord = TaskRecord & {
 };
 
 function isTerminalTask(record: TaskRecord | undefined): record is TerminalTaskRecord {
-	return record?.status === 'succeeded' || record?.status === 'failed' || record?.status === 'cancelled';
+	return (
+		record?.status === 'succeeded' || record?.status === 'failed' || record?.status === 'cancelled'
+	);
 }
 
 function taskOutput(record: TerminalTaskRecord): string {
@@ -126,9 +128,8 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 		}
 		const agentId = this.resolveAgentId(input.job);
 		const sessionId = this.resolveSessionId(input.job);
-		const message = input.job.payload.kind === 'systemEvent'
-			? input.job.payload.text
-			: input.job.payload.message;
+		const message =
+			input.job.payload.kind === 'systemEvent' ? input.job.payload.text : input.job.payload.message;
 		if (
 			input.job.payload.kind === 'systemEvent' &&
 			input.job.sessionTarget === 'main' &&

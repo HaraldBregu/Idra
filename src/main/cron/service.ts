@@ -26,10 +26,7 @@ import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext } from './core/cron.types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
-import {
-	CronSchedulerService,
-	DEFAULT_CRON_RUN_POLICY,
-} from './scheduler/cron-scheduler';
+import { CronSchedulerService, DEFAULT_CRON_RUN_POLICY } from './scheduler/cron-scheduler';
 import {
 	DelegatingCronScheduleRunner,
 	TaskManagerCronScheduleRunner,
@@ -76,11 +73,7 @@ export class CronService implements Disposable {
 	private readonly automaticEnabled: boolean;
 	private taskManager?: TaskManager;
 
-	constructor(
-		store: StoreService,
-		logger: LoggerService,
-		options: CronServiceOptions = {}
-	) {
+	constructor(store: StoreService, logger: LoggerService, options: CronServiceOptions = {}) {
 		this.store = store;
 		this.logger = logger;
 		this.automaticEnabled =
@@ -152,7 +145,11 @@ export class CronService implements Disposable {
 		if (dependencies.agentService) {
 			this.friday.setExecutor(
 				this.taskManager && dependencies.eventBus
-					? new TaskManagerFridayCronExecutor(this.taskManager, dependencies.eventBus, directExecutor!)
+					? new TaskManagerFridayCronExecutor(
+							this.taskManager,
+							dependencies.eventBus,
+							directExecutor!
+						)
 					: directExecutor!
 			);
 		}
@@ -209,7 +206,10 @@ export class CronService implements Disposable {
 		return this.scheduler.listSchedules(filter, actor);
 	}
 
-	runScheduleNow(scheduleId: string, actor?: CronActorContext): ReturnType<CronSchedulerService['runScheduleNow']> {
+	runScheduleNow(
+		scheduleId: string,
+		actor?: CronActorContext
+	): ReturnType<CronSchedulerService['runScheduleNow']> {
 		return this.scheduler.runScheduleNow(scheduleId, actor);
 	}
 
@@ -225,7 +225,11 @@ export class CronService implements Disposable {
 		return this.scheduler.recoverSchedulesOnStartup();
 	}
 
-	getNextRuns(scheduleId: string, count: number, actor?: CronActorContext): Promise<CronNextRunPreview> {
+	getNextRuns(
+		scheduleId: string,
+		count: number,
+		actor?: CronActorContext
+	): Promise<CronNextRunPreview> {
 		return this.scheduler.getNextRuns(scheduleId, count, actor);
 	}
 
@@ -262,7 +266,10 @@ export class CronService implements Disposable {
 
 		if (!this.automaticEnabled) {
 			this.persistTask(record);
-			this.logger.warn('CronService', `Saved job "${id}" while cron automatic execution is disabled`);
+			this.logger.warn(
+				'CronService',
+				`Saved job "${id}" while cron automatic execution is disabled`
+			);
 			return record;
 		}
 
@@ -308,7 +315,10 @@ export class CronService implements Disposable {
 	 */
 	restore(dispatcher: CronTaskHandler): void {
 		if (!this.automaticEnabled) {
-			this.logger.warn('CronService', 'Cron restore skipped because automatic execution is disabled');
+			this.logger.warn(
+				'CronService',
+				'Cron restore skipped because automatic execution is disabled'
+			);
 			return;
 		}
 		const raw = this.store.getCronTasks();

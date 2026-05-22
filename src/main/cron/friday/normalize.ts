@@ -46,7 +46,7 @@ const AGENT_TURN_FIELDS = [
 
 function record(value: unknown): Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value)
-		? value as Record<string, unknown>
+		? (value as Record<string, unknown>)
 		: {};
 }
 
@@ -158,7 +158,8 @@ function copyAgentTurnFields(
 	const toolsAllow = stringArray(source.toolsAllow);
 
 	if (fallbacks) target.fallbacks = fallbacks;
-	if (thinking === 'low' || thinking === 'medium' || thinking === 'high') target.thinking = thinking;
+	if (thinking === 'low' || thinking === 'medium' || thinking === 'high')
+		target.thinking = thinking;
 	if (timeoutSeconds !== undefined) target.timeoutSeconds = timeoutSeconds;
 	if (lightContext !== undefined) target.lightContext = lightContext;
 	if (allowUnsafeExternalContent !== undefined) {
@@ -167,7 +168,10 @@ function copyAgentTurnFields(
 	if (toolsAllow) target.toolsAllow = toolsAllow;
 }
 
-function payloadFrom(input: Record<string, unknown>, recentContext?: string): FridayCronPayload | undefined {
+function payloadFrom(
+	input: Record<string, unknown>,
+	recentContext?: string
+): FridayCronPayload | undefined {
 	const explicit = record(input.payload);
 	if (Object.keys(explicit).length > 0) {
 		if (explicit.kind === 'systemEvent') {
@@ -261,8 +265,16 @@ function deliveryFrom(
 	inferred?: Partial<FridayCronDelivery>
 ): Partial<FridayCronDelivery> | undefined {
 	const explicit = record(input.delivery);
-	const hasTopLevelTarget = ['deliver', 'channel', 'to', 'threadId', 'accountId', 'bestEffort', 'bestEffortDeliver', 'provider']
-		.some((field) => hasOwn(input, field));
+	const hasTopLevelTarget = [
+		'deliver',
+		'channel',
+		'to',
+		'threadId',
+		'accountId',
+		'bestEffort',
+		'bestEffortDeliver',
+		'provider',
+	].some((field) => hasOwn(input, field));
 	if (Object.keys(explicit).length === 0 && !hasTopLevelTarget) {
 		return inferred;
 	}
@@ -292,7 +304,9 @@ function deliveryFrom(
 	return delivery;
 }
 
-function failureAlertFrom(input: Record<string, unknown>): FridayCronFailureAlert | false | undefined {
+function failureAlertFrom(
+	input: Record<string, unknown>
+): FridayCronFailureAlert | false | undefined {
 	if (!hasOwn(input, 'failureAlert')) return undefined;
 	if (input.failureAlert === false) return false;
 	const source = record(input.failureAlert);
@@ -320,7 +334,12 @@ function failureAlertFrom(input: Record<string, unknown>): FridayCronFailureAler
 function sessionTargetFrom(input: Record<string, unknown>): FridayCronSessionTarget | undefined {
 	const target = stringValue(input.sessionTarget) ?? stringValue(input.session);
 	if (!target) return undefined;
-	if (target === 'main' || target === 'isolated' || target === 'current' || target.startsWith('session:')) {
+	if (
+		target === 'main' ||
+		target === 'isolated' ||
+		target === 'current' ||
+		target.startsWith('session:')
+	) {
 		return target as FridayCronSessionTarget;
 	}
 	return undefined;
@@ -331,7 +350,11 @@ function wakeModeFrom(input: Record<string, unknown>): FridayCronWakeMode | unde
 	return mode === 'now' || mode === 'next-heartbeat' ? mode : undefined;
 }
 
-function inferName(input: Record<string, unknown>, payload: FridayCronPayload, schedule: FridayCronSchedule): string {
+function inferName(
+	input: Record<string, unknown>,
+	payload: FridayCronPayload,
+	schedule: FridayCronSchedule
+): string {
 	const explicit = stringValue(input.name);
 	if (explicit) return explicit;
 	const text = payload.kind === 'systemEvent' ? payload.text : payload.message;
@@ -357,13 +380,15 @@ export function normalizeCronJobCreate(
 	if (!schedule) throw new Error('Cron add requires a schedule.');
 	const payload = payloadFrom(source, context.recentContext);
 	if (!payload) throw new Error('Cron add requires a payload.');
-	const sessionTarget = sessionTargetFrom(source) ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
+	const sessionTarget =
+		sessionTargetFrom(source) ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
 	const delivery = deliveryFrom(source, context.delivery);
 	const request: FridayCronAddRequest = {
 		name: inferName(source, payload, schedule),
 		description: stringValue(source.description) ?? '',
 		enabled: booleanValue(source.enabled) ?? true,
-		deleteAfterRun: booleanValue(source.deleteAfterRun) ?? (schedule.kind === 'at' ? true : undefined),
+		deleteAfterRun:
+			booleanValue(source.deleteAfterRun) ?? (schedule.kind === 'at' ? true : undefined),
 		id: stringValue(source.id),
 		schedule,
 		sessionTarget,

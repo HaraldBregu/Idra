@@ -30,8 +30,7 @@ export interface CronTask<TData extends CronTaskData = CronTaskData> {
 	readonly lastRun?: string;
 }
 
-export interface CronTaskView<TData extends CronTaskData = CronTaskData>
-	extends CronTask<TData> {
+export interface CronTaskView<TData extends CronTaskData = CronTaskData> extends CronTask<TData> {
 	readonly nextRun?: string;
 }
 
@@ -149,12 +148,7 @@ export type CronDstPolicy =
 
 export type CronTaskPriority = 'low' | 'normal' | 'high' | 'critical';
 
-export type CronScheduledTaskStatus =
-	| 'queued'
-	| 'running'
-	| 'completed'
-	| 'failed'
-	| 'cancelled';
+export type CronScheduledTaskStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 export type CronJsonValue =
 	| string
@@ -422,11 +416,7 @@ export type FridayCronSchedule =
 			staggerMs?: number;
 	  };
 
-export type FridayCronSessionTarget =
-	| 'main'
-	| 'isolated'
-	| 'current'
-	| `session:${string}`;
+export type FridayCronSessionTarget = 'main' | 'isolated' | 'current' | `session:${string}`;
 
 export type FridayCronWakeMode = 'now' | 'next-heartbeat';
 

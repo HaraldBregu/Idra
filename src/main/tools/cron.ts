@@ -39,7 +39,7 @@ function blockText(entry: TranscriptEntry): string | null {
 	if (entry.role === 'user') return entry.content;
 	if (entry.role === 'assistant') {
 		const text = entry.content
-			.map((block) => block.type === 'text' ? block.text : '')
+			.map((block) => (block.type === 'text' ? block.text : ''))
 			.join('')
 			.trim();
 		return text || null;
@@ -47,7 +47,10 @@ function blockText(entry: TranscriptEntry): string | null {
 	return null;
 }
 
-async function recentContext(args: FridayCronToolRequest, ctx: ToolContext): Promise<string | undefined> {
+async function recentContext(
+	args: FridayCronToolRequest,
+	ctx: ToolContext
+): Promise<string | undefined> {
 	const count = contextMessageCount(args);
 	if (count <= 0) return undefined;
 	const session = await loadExistingSession(ctx.sessionId, { baseDir: ctx.sessionBaseDir });
@@ -90,7 +93,10 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 			include: { type: 'string', enum: ['enabled', 'disabled', 'all'] },
 			includeDisabled: { type: 'boolean' },
 			agentId: { type: 'string' },
-			contextMessages: { type: 'number', description: 'For systemEvent reminders only; capture 1-10 recent messages.' },
+			contextMessages: {
+				type: 'number',
+				description: 'For systemEvent reminders only; capture 1-10 recent messages.',
+			},
 			timeoutMs: { type: 'number' },
 			job: {
 				type: 'object',
@@ -149,12 +155,13 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 		const capturedContext = await recentContext(args, ctx);
 		const delivery = inferredDelivery(ctx);
 		const actor = cronActor(ctx);
-		const response = capturedContext || delivery
-			? await ctx.services.cron.fridayAction(args, actor, {
-					recentContext: capturedContext,
-					delivery,
-				})
-			: await ctx.services.cron.fridayAction(args, actor);
+		const response =
+			capturedContext || delivery
+				? await ctx.services.cron.fridayAction(args, actor, {
+						recentContext: capturedContext,
+						delivery,
+					})
+				: await ctx.services.cron.fridayAction(args, actor);
 		return jsonResult(response);
 	},
 };

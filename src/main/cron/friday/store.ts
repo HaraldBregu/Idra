@@ -3,10 +3,7 @@ import type {
 	FridayCronJobState,
 	FridayCronRunRecord,
 } from '../../../shared/cron';
-import {
-	assertSafeCronId,
-	fridayScheduleIdentity,
-} from './validation';
+import { assertSafeCronId, fridayScheduleIdentity } from './validation';
 
 const SCHEMA_VERSION = 1;
 
@@ -33,7 +30,7 @@ interface FridayCronSettingsStore {
 }
 
 function clone<T>(value: T): T {
-	return value === undefined ? value : JSON.parse(JSON.stringify(value)) as T;
+	return value === undefined ? value : (JSON.parse(JSON.stringify(value)) as T);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -114,7 +111,9 @@ function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
 			continue;
 		}
 		if (!Array.isArray(entries)) continue;
-		const records = entries.filter((entry): entry is FridayCronRunRecord => isRunRecord(entry, jobId));
+		const records = entries.filter((entry): entry is FridayCronRunRecord =>
+			isRunRecord(entry, jobId)
+		);
 		if (records.length > 0) runs[jobId] = clone(records);
 	}
 	return runs;
@@ -138,7 +137,7 @@ export function migrateFridayCronStoreState(value: unknown): FridayCronStoreStat
 		const current = stateSource[job.id];
 		states[job.id] = normalizeState(
 			job,
-			isRecord(current) ? current as Partial<FridayCronJobState> : undefined
+			isRecord(current) ? (current as Partial<FridayCronJobState>) : undefined
 		);
 	}
 	return {

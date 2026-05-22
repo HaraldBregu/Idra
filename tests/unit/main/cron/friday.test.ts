@@ -16,11 +16,7 @@ import {
 } from '../../../../src/main/cron';
 import { EventBus } from '../../../../src/main/core';
 import type { StoreService } from '../../../../src/main/store';
-import {
-	AGENT_TASK_TYPE,
-	TaskManager,
-	TaskRegistry,
-} from '../../../../src/main/tasks';
+import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
 import type { TaskContext } from '../../../../src/shared/tasks';
 
 class RecordingExecutor implements FridayCronExecutor {
@@ -28,7 +24,9 @@ class RecordingExecutor implements FridayCronExecutor {
 	outcomes: Array<FridayCronExecutionOutcome | Error> = [];
 	onExecute?: () => Promise<void>;
 
-	async execute(input: Parameters<FridayCronExecutor['execute']>[0]): Promise<FridayCronExecutionOutcome> {
+	async execute(
+		input: Parameters<FridayCronExecutor['execute']>[0]
+	): Promise<FridayCronExecutionOutcome> {
 		this.calls.push({ job: input.job, runId: input.runId });
 		await this.onExecute?.();
 		const outcome = this.outcomes.shift();
@@ -115,7 +113,9 @@ describe('FridayCronScheduler', () => {
 	it('keeps CRUD working while globally disabled and does not arm or run timers', async () => {
 		const { scheduler, executor, storeService } = await makeHarness({ enabled: false });
 		await scheduler.start();
-		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() } }));
+		const job = await scheduler.add(
+			agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() } })
+		);
 
 		await scheduler.wake();
 
@@ -141,15 +141,15 @@ describe('FridayCronScheduler', () => {
 	it('validates payload and session target combinations', async () => {
 		const { scheduler } = await makeHarness();
 
-		await expect(
-			scheduler.add(agentJob({ sessionTarget: 'main' }))
-		).rejects.toThrow(/main session/);
-		await expect(
-			scheduler.add(systemJob({ sessionTarget: 'isolated' }))
-		).rejects.toThrow(/require payload.kind = agentTurn/);
-		await expect(
-			scheduler.add(agentJob({ sessionTarget: 'session:bad/id' }))
-		).rejects.toThrow(/path separators/);
+		await expect(scheduler.add(agentJob({ sessionTarget: 'main' }))).rejects.toThrow(
+			/main session/
+		);
+		await expect(scheduler.add(systemJob({ sessionTarget: 'isolated' }))).rejects.toThrow(
+			/require payload.kind = agentTurn/
+		);
+		await expect(scheduler.add(agentJob({ sessionTarget: 'session:bad/id' }))).rejects.toThrow(
+			/path separators/
+		);
 	});
 
 	it('marks interrupted startup runs as errors', async () => {
@@ -169,7 +169,12 @@ describe('FridayCronScheduler', () => {
 
 	it('persists runningAtMs before executing a due job', async () => {
 		const { scheduler, store, executor } = await makeHarness();
-		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() }, deleteAfterRun: false }));
+		const job = await scheduler.add(
+			agentJob({
+				schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() },
+				deleteAfterRun: false,
+			})
+		);
 		executor.onExecute = async () => {
 			const during = await store.load();
 			expect(during.states[job.id]?.runningAtMs).toBeTruthy();
@@ -200,8 +205,12 @@ describe('FridayCronScheduler', () => {
 		const self = { role: 'cron-self' as const, jobId: own.id };
 
 		await expect(scheduler.list('all', self)).resolves.toHaveLength(1);
-		await expect(scheduler.get(other.id, self)).rejects.toThrow(/restricted to the current cron job/);
-		await expect(scheduler.add(agentJob({ id: 'new-job' }), self)).rejects.toThrow(/restricted to the current cron job|owner-only/);
+		await expect(scheduler.get(other.id, self)).rejects.toThrow(
+			/restricted to the current cron job/
+		);
+		await expect(scheduler.add(agentJob({ id: 'new-job' }), self)).rejects.toThrow(
+			/restricted to the current cron job|owner-only/
+		);
 		await expect(scheduler.remove(own.id, self)).resolves.toBeUndefined();
 	});
 
@@ -233,12 +242,14 @@ describe('FridayCronScheduler', () => {
 			sessionTarget: 'isolated',
 			delivery: { mode: 'announce' },
 		});
-		expect(response.result).toEqual(expect.objectContaining({
-			payload: expect.not.objectContaining({
-				providerId: expect.anything(),
-				model: expect.anything(),
-			}),
-		}));
+		expect(response.result).toEqual(
+			expect.objectContaining({
+				payload: expect.not.objectContaining({
+					providerId: expect.anything(),
+					model: expect.anything(),
+				}),
+			})
+		);
 	});
 
 	it('normalizes nested agent payloads without requiring an explicit kind', async () => {
@@ -282,7 +293,11 @@ describe('FridayCronScheduler', () => {
 			{ action: 'list' },
 			{ role: 'owner', agentId: 'agent-1' }
 		);
-		const fetched = await scheduler.handleToolAction({ action: 'get', jobId: own.id, id: 'other-job' });
+		const fetched = await scheduler.handleToolAction({
+			action: 'get',
+			jobId: own.id,
+			id: 'other-job',
+		});
 
 		expect(listed.result).toEqual([expect.objectContaining({ id: own.id })]);
 		expect(fetched.result).toMatchObject({ id: own.id });
@@ -291,7 +306,12 @@ describe('FridayCronScheduler', () => {
 	it('suppresses fallback delivery when the agent already delivered', async () => {
 		const { scheduler, executor, delivery } = await makeHarness();
 		executor.outcomes.push({ status: 'ok', output: 'sent already', alreadyDelivered: true });
-		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() }, deleteAfterRun: false }));
+		const job = await scheduler.add(
+			agentJob({
+				schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() },
+				deleteAfterRun: false,
+			})
+		);
 
 		await scheduler.processDue(Date.now());
 
@@ -302,7 +322,9 @@ describe('FridayCronScheduler', () => {
 
 	it('deletes successful one-shot jobs by default while preserving run logs', async () => {
 		const { scheduler } = await makeHarness();
-		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() } }));
+		const job = await scheduler.add(
+			agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() } })
+		);
 
 		await scheduler.processDue(Date.now());
 
@@ -313,11 +335,13 @@ describe('FridayCronScheduler', () => {
 	it('retries transient one-shot errors and disables permanent one-shot errors', async () => {
 		const { scheduler, executor, store } = await makeHarness();
 		executor.outcomes.push(new Error('temporary'));
-		const job = await scheduler.add(agentJob({
-			schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() },
-			deleteAfterRun: false,
-			maxAttempts: 2,
-		}));
+		const job = await scheduler.add(
+			agentJob({
+				schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() },
+				deleteAfterRun: false,
+				maxAttempts: 2,
+			})
+		);
 
 		await scheduler.processDue(Date.now());
 		expect((await scheduler.get(job.id)).enabled).toBe(true);
@@ -337,7 +361,12 @@ describe('FridayCronScheduler', () => {
 	it('backs off recurring jobs after errors', async () => {
 		const { scheduler, executor } = await makeHarness();
 		executor.outcomes.push(new Error('boom'));
-		const job = await scheduler.add(agentJob({ schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() }, deleteAfterRun: false }));
+		const job = await scheduler.add(
+			agentJob({
+				schedule: { kind: 'at', at: new Date(Date.now() - 1_000).toISOString() },
+				deleteAfterRun: false,
+			})
+		);
 
 		await scheduler.update(job.id, { schedule: { kind: 'every', everyMs: 10_000 } });
 		const snapshotJob = await scheduler.get(job.id);
@@ -364,7 +393,17 @@ describe('FridayCronScheduler', () => {
 			payload: { kind: 'agentTurn', message: 'run' },
 			delivery: { mode: 'none' },
 		};
-		await store.save({ jobs: [badJob], states: { [badJob.id]: { consecutiveErrors: 0, consecutiveSkipped: 0, consecutiveScheduleErrors: 0, attempts: 0 } } });
+		await store.save({
+			jobs: [badJob],
+			states: {
+				[badJob.id]: {
+					consecutiveErrors: 0,
+					consecutiveSkipped: 0,
+					consecutiveScheduleErrors: 0,
+					attempts: 0,
+				},
+			},
+		});
 
 		await scheduler.processDue(now);
 		await scheduler.processDue(now + 1);
@@ -395,14 +434,18 @@ describe('FridayCronScheduler', () => {
 
 	it('denies cron to non-owner callers', async () => {
 		const { scheduler } = await makeHarness();
-		await expect(scheduler.handleToolAction({ action: 'status' }, { role: 'subagent' })).resolves.toMatchObject({
+		await expect(
+			scheduler.handleToolAction({ action: 'status' }, { role: 'subagent' })
+		).resolves.toMatchObject({
 			status: 'error',
 		});
 	});
 });
 
 describe('AgentServiceFridayCronExecutor', () => {
-	function executableJob(overrides: Partial<FridayCronJobDefinition> = {}): FridayCronJobDefinition {
+	function executableJob(
+		overrides: Partial<FridayCronJobDefinition> = {}
+	): FridayCronJobDefinition {
 		return {
 			id: 'job-1',
 			name: 'Cron agent turn',
@@ -461,15 +504,23 @@ describe('AgentServiceFridayCronExecutor', () => {
 		const send = jest.fn(async () => 'agent output');
 		const executor = new AgentServiceFridayCronExecutor({ send } as never);
 
-		await executor.execute(runInput(executableJob({
-			id: 'session-job',
-			sessionTarget: 'session:custom-session',
-		})));
-		await executor.execute(runInput(executableJob({
-			id: 'main-job',
-			sessionTarget: 'main',
-			payload: { kind: 'systemEvent', text: 'Wake up' },
-		})));
+		await executor.execute(
+			runInput(
+				executableJob({
+					id: 'session-job',
+					sessionTarget: 'session:custom-session',
+				})
+			)
+		);
+		await executor.execute(
+			runInput(
+				executableJob({
+					id: 'main-job',
+					sessionTarget: 'main',
+					payload: { kind: 'systemEvent', text: 'Wake up' },
+				})
+			)
+		);
 
 		expect(send).toHaveBeenNthCalledWith(
 			1,
@@ -489,15 +540,19 @@ describe('AgentServiceFridayCronExecutor', () => {
 		const send = jest.fn(async () => 'agent output');
 		const executor = new AgentServiceFridayCronExecutor({ send } as never);
 
-		await executor.execute(runInput(executableJob({
-			payload: {
-				kind: 'agentTurn',
-				message: 'Summarize inbox',
-				toolsAllow: ['gmail_get_recent_emails', 'write'],
-				lightContext: true,
-				thinking: 'low',
-			},
-		})));
+		await executor.execute(
+			runInput(
+				executableJob({
+					payload: {
+						kind: 'agentTurn',
+						message: 'Summarize inbox',
+						toolsAllow: ['gmail_get_recent_emails', 'write'],
+						lightContext: true,
+						thinking: 'low',
+					},
+				})
+			)
+		);
 
 		expect(send).toHaveBeenCalledWith(
 			'Summarize inbox',
@@ -512,16 +567,24 @@ describe('AgentServiceFridayCronExecutor', () => {
 
 	it('hands main-session system events to heartbeat when available', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const heartbeat = { systemEvent: jest.fn(async () => ({ queued: true, sessionKey: 'main', mode: 'now' })) };
+		const heartbeat = {
+			systemEvent: jest.fn(async () => ({ queued: true, sessionKey: 'main', mode: 'now' })),
+		};
 		const executor = new AgentServiceFridayCronExecutor({ send } as never, heartbeat as never);
 
-		await expect(executor.execute(runInput(executableJob({
-			id: 'main-reminder',
-			sessionTarget: 'main',
-			wakeMode: 'now',
-			payload: { kind: 'systemEvent', text: 'Review the draft' },
-			delivery: { mode: 'announce', channel: 'telegram', to: '123' },
-		})))).resolves.toEqual({ status: 'ok', output: '', alreadyDelivered: true });
+		await expect(
+			executor.execute(
+				runInput(
+					executableJob({
+						id: 'main-reminder',
+						sessionTarget: 'main',
+						wakeMode: 'now',
+						payload: { kind: 'systemEvent', text: 'Review the draft' },
+						delivery: { mode: 'announce', channel: 'telegram', to: '123' },
+					})
+				)
+			)
+		).resolves.toEqual({ status: 'ok', output: '', alreadyDelivered: true });
 
 		expect(send).not.toHaveBeenCalled();
 		expect(heartbeat.systemEvent).toHaveBeenCalledWith({
@@ -535,7 +598,9 @@ describe('AgentServiceFridayCronExecutor', () => {
 });
 
 describe('TaskManagerFridayCronExecutor', () => {
-	function executableTaskJob(overrides: Partial<FridayCronJobDefinition> = {}): FridayCronJobDefinition {
+	function executableTaskJob(
+		overrides: Partial<FridayCronJobDefinition> = {}
+	): FridayCronJobDefinition {
 		return {
 			id: 'job-1',
 			name: 'Cron agent turn',
@@ -553,7 +618,9 @@ describe('TaskManagerFridayCronExecutor', () => {
 		};
 	}
 
-	function taskRunInput(job: FridayCronJobDefinition): Parameters<FridayCronExecutor['execute']>[0] {
+	function taskRunInput(
+		job: FridayCronJobDefinition
+	): Parameters<FridayCronExecutor['execute']>[0] {
 		return {
 			job,
 			runId: 'run-1',
@@ -565,14 +632,19 @@ describe('TaskManagerFridayCronExecutor', () => {
 	it('creates a visible background agent task and returns its result', async () => {
 		const eventBus = new EventBus();
 		const registry = new TaskRegistry();
-		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({ text: `done: ${context.input.message}` }));
-		registry.register({
-			type: AGENT_TASK_TYPE,
-			validateInput(input: unknown) {
-				return input as { message: string };
+		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({
+			text: `done: ${context.input.message}`,
+		}));
+		registry.register(
+			{
+				type: AGENT_TASK_TYPE,
+				validateInput(input: unknown) {
+					return input as { message: string };
+				},
+				run,
 			},
-			run,
-		}, { userFacing: true });
+			{ userFacing: true }
+		);
 		const taskManager = new TaskManager({ registry, eventBus });
 		const fallback = { execute: jest.fn() };
 		const executor = new TaskManagerFridayCronExecutor(taskManager, eventBus, fallback as never);
@@ -592,20 +664,25 @@ describe('TaskManagerFridayCronExecutor', () => {
 				}),
 			}),
 		]);
-		expect(run).toHaveBeenCalledWith(expect.objectContaining({
-			input: { message: 'Summarize inbox' },
-		}));
+		expect(run).toHaveBeenCalledWith(
+			expect.objectContaining({
+				input: { message: 'Summarize inbox' },
+			})
+		);
 	});
 
 	it('falls back for main-session system events', async () => {
 		const eventBus = new EventBus();
 		const registry = new TaskRegistry();
-		registry.register({
-			type: AGENT_TASK_TYPE,
-			async run() {
-				return { text: 'unused' };
+		registry.register(
+			{
+				type: AGENT_TASK_TYPE,
+				async run() {
+					return { text: 'unused' };
+				},
 			},
-		}, { userFacing: true });
+			{ userFacing: true }
+		);
 		const taskManager = new TaskManager({ registry, eventBus });
 		const fallback = { execute: jest.fn(async () => ({ status: 'ok' as const, output: '' })) };
 		const executor = new TaskManagerFridayCronExecutor(taskManager, eventBus, fallback);
@@ -614,7 +691,10 @@ describe('TaskManagerFridayCronExecutor', () => {
 			payload: { kind: 'systemEvent', text: 'Wake up' },
 		});
 
-		await expect(executor.execute(taskRunInput(job))).resolves.toEqual({ status: 'ok', output: '' });
+		await expect(executor.execute(taskRunInput(job))).resolves.toEqual({
+			status: 'ok',
+			output: '',
+		});
 
 		expect(fallback.execute).toHaveBeenCalled();
 		expect(taskManager.list()).toEqual([]);

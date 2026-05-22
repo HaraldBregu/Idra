@@ -48,10 +48,7 @@ export const DEFAULT_CRON_RETRY_POLICY: CronRetryPolicy = {
 	backoffMultiplier: 2,
 	jitter: true,
 	retryableErrorCodes: ['CRON_SCHEDULE_EXECUTION_TRANSIENT', 'CRON_SCHEDULE_LOCK_FAILED'],
-	nonRetryableErrorCodes: [
-		'CRON_SCHEDULE_VALIDATION_FAILED',
-		'CRON_PERMISSION_DENIED',
-	],
+	nonRetryableErrorCodes: ['CRON_SCHEDULE_VALIDATION_FAILED', 'CRON_PERMISSION_DENIED'],
 };
 
 export const DEFAULT_CRON_RUN_POLICY: CronRunPolicy = {
@@ -75,8 +72,10 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 	defaultTimezone: 'UTC',
 };
 
-const SECRET_KEY_PATTERN = /(api[-_]?key|token|secret|password|credential|authorization|oauth|private[-_]?key)/i;
-const RUNTIME_CONFIG_KEY_PATTERN = /^(providerId|model|modelId|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
+const SECRET_KEY_PATTERN =
+	/(api[-_]?key|token|secret|password|credential|authorization|oauth|private[-_]?key)/i;
+const RUNTIME_CONFIG_KEY_PATTERN =
+	/^(providerId|model|modelId|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
 const SECRET_VALUE_PATTERNS: readonly RegExp[] = [
 	/-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
 	/authorization\s*:\s*bearer\s+\S+/i,
@@ -87,7 +86,10 @@ function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function mergeRetryPolicy(base: CronRetryPolicy, patch?: Partial<CronRetryPolicy>): CronRetryPolicy {
+function mergeRetryPolicy(
+	base: CronRetryPolicy,
+	patch?: Partial<CronRetryPolicy>
+): CronRetryPolicy {
 	return {
 		...base,
 		...(patch ?? {}),
@@ -103,31 +105,44 @@ function assertSafeStoredScheduleValue(value: CronJsonValue, path = 'taskInput')
 	}
 	if (typeof value === 'string') {
 		if (SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value))) {
-			throw new CronScheduleExecutionError(`Sensitive value cannot be stored in cron schedule: ${path}`, {
-				field: path,
-			});
+			throw new CronScheduleExecutionError(
+				`Sensitive value cannot be stored in cron schedule: ${path}`,
+				{
+					field: path,
+				}
+			);
 		}
 		return;
 	}
 	if (!value || typeof value !== 'object') return;
 	for (const [key, child] of Object.entries(value)) {
 		if (SECRET_KEY_PATTERN.test(key)) {
-			throw new CronScheduleExecutionError(`Sensitive field cannot be stored in cron schedule: ${path}.${key}`, {
-				field: `${path}.${key}`,
-			});
+			throw new CronScheduleExecutionError(
+				`Sensitive field cannot be stored in cron schedule: ${path}.${key}`,
+				{
+					field: `${path}.${key}`,
+				}
+			);
 		}
 		if (RUNTIME_CONFIG_KEY_PATTERN.test(key)) {
-			throw new CronScheduleExecutionError(`Runtime configuration cannot be stored in cron schedule: ${path}.${key}`, {
-				field: `${path}.${key}`,
-			});
+			throw new CronScheduleExecutionError(
+				`Runtime configuration cannot be stored in cron schedule: ${path}.${key}`,
+				{
+					field: `${path}.${key}`,
+				}
+			);
 		}
 		assertSafeStoredScheduleValue(child, `${path}.${key}`);
 	}
 }
 
-function assertSafeStoredSchedulePayload(request: CronScheduleCreateRequest | CronScheduleUpdateRequest): void {
-	if (request.taskInput !== undefined) assertSafeStoredScheduleValue(request.taskInput, 'taskInput');
-	if (request.taskMetadata !== undefined) assertSafeStoredScheduleValue(request.taskMetadata, 'taskMetadata');
+function assertSafeStoredSchedulePayload(
+	request: CronScheduleCreateRequest | CronScheduleUpdateRequest
+): void {
+	if (request.taskInput !== undefined)
+		assertSafeStoredScheduleValue(request.taskInput, 'taskInput');
+	if (request.taskMetadata !== undefined)
+		assertSafeStoredScheduleValue(request.taskMetadata, 'taskMetadata');
 	if (request.metadata !== undefined) assertSafeStoredScheduleValue(request.metadata, 'metadata');
 }
 
@@ -150,10 +165,7 @@ export class CronSchedulerService implements CronScheduler {
 			...DEFAULT_CRON_SCHEDULER_OPTIONS,
 			...options,
 			runPolicy: { ...DEFAULT_CRON_RUN_POLICY, ...(options.runPolicy ?? {}) },
-			defaultRetryPolicy: mergeRetryPolicy(
-				DEFAULT_CRON_RETRY_POLICY,
-				options.defaultRetryPolicy
-			),
+			defaultRetryPolicy: mergeRetryPolicy(DEFAULT_CRON_RETRY_POLICY, options.defaultRetryPolicy),
 		};
 		this.calculator = new CronNextRunCalculator();
 		this.describer = new ScheduleDescriber();
@@ -257,7 +269,12 @@ export class CronSchedulerService implements CronScheduler {
 		actor = this.systemActor()
 	): Promise<CronSchedule> {
 		const current = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'updateSchedule', schedule: current, request: patch, actor });
+		await this.accessPolicy.authorize({
+			action: 'updateSchedule',
+			schedule: current,
+			request: patch,
+			actor,
+		});
 		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
 		validateScheduleShape(patch, this.options.runPolicy, current);
 		assertSafeStoredSchedulePayload(patch);
@@ -292,7 +309,10 @@ export class CronSchedulerService implements CronScheduler {
 			status: 'paused',
 			pausedAt: now,
 			updatedAt: now,
-			audit: [...schedule.audit, this.audit(schedule, 'schedule.paused', 'Schedule paused.', actor.source)],
+			audit: [
+				...schedule.audit,
+				this.audit(schedule, 'schedule.paused', 'Schedule paused.', actor.source),
+			],
 		});
 		await this.emitEvent({
 			scheduleId,
@@ -308,17 +328,19 @@ export class CronSchedulerService implements CronScheduler {
 		const schedule = await this.store.getSchedule(scheduleId);
 		await this.accessPolicy.authorize({ action: 'resumeSchedule', schedule, actor });
 		const now = new Date();
-		const nextRunAt = this.calculator.getNextRun(
-			{ ...schedule, status: 'active', enabled: true, pausedAt: undefined },
-			now
-		)?.toISOString();
+		const nextRunAt = this.calculator
+			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
+			?.toISOString();
 		const updated = await this.store.updateSchedule(scheduleId, {
 			status: 'active',
 			enabled: true,
 			pausedAt: undefined,
 			nextRunAt,
 			updatedAt: now.toISOString(),
-			audit: [...schedule.audit, this.audit(schedule, 'schedule.resumed', 'Schedule resumed.', actor.source)],
+			audit: [
+				...schedule.audit,
+				this.audit(schedule, 'schedule.resumed', 'Schedule resumed.', actor.source),
+			],
 		});
 		await this.emitEvent({
 			scheduleId,
@@ -339,7 +361,10 @@ export class CronSchedulerService implements CronScheduler {
 			enabled: false,
 			deletedAt: now,
 			updatedAt: now,
-			audit: [...schedule.audit, this.audit(schedule, 'schedule.deleted', 'Schedule deleted.', actor.source)],
+			audit: [
+				...schedule.audit,
+				this.audit(schedule, 'schedule.deleted', 'Schedule deleted.', actor.source),
+			],
 		});
 		await this.store.deleteSchedule(scheduleId);
 		await this.emitEvent({
@@ -358,16 +383,23 @@ export class CronSchedulerService implements CronScheduler {
 		return schedule;
 	}
 
-	async listSchedules(filter: CronScheduleFilter = {}, actor = this.systemActor()): Promise<CronSchedule[]> {
+	async listSchedules(
+		filter: CronScheduleFilter = {},
+		actor = this.systemActor()
+	): Promise<CronSchedule[]> {
 		await this.accessPolicy.authorize({ action: 'listSchedules', actor });
 		return this.store.listSchedules({
 			...filter,
-			ownerUserId:
-				actor.permissions.includes('adminScheduleManagement') ? filter.ownerUserId : filter.ownerUserId ?? actor.userId,
+			ownerUserId: actor.permissions.includes('adminScheduleManagement')
+				? filter.ownerUserId
+				: (filter.ownerUserId ?? actor.userId),
 		});
 	}
 
-	async runScheduleNow(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<CronScheduledTask> {
+	async runScheduleNow(
+		scheduleId: CronScheduleId,
+		actor = this.systemActor()
+	): Promise<CronScheduledTask> {
 		const schedule = await this.store.getSchedule(scheduleId);
 		await this.accessPolicy.authorize({ action: 'runScheduleNow', schedule, actor });
 		const task = await this.triggerSchedule(schedule, new Date().toISOString(), false, true);
@@ -416,7 +448,10 @@ export class CronSchedulerService implements CronScheduler {
 	}
 
 	async processDueSchedules(now: Date): Promise<void> {
-		const due = (await this.store.listDueSchedules(now)).slice(0, this.options.runPolicy.maxRunsPerTurn);
+		const due = (await this.store.listDueSchedules(now)).slice(
+			0,
+			this.options.runPolicy.maxRunsPerTurn
+		);
 		for (const schedule of due) {
 			await this.triggerSchedule(schedule, schedule.nextRunAt ?? now.toISOString(), false, false);
 		}
@@ -469,8 +504,12 @@ export class CronSchedulerService implements CronScheduler {
 				await this.triggerSchedule(schedule, schedule.nextRunAt ?? now.toISOString(), true, false);
 				return;
 			case 'catchUp': {
-				const limit = Math.min(schedule.maxCatchUpRuns ?? this.options.runPolicy.maxCatchUpRuns, this.options.runPolicy.maxRunsPerTurn);
-				const cutoff = now.getTime() - (schedule.catchUpWindowMs ?? this.options.runPolicy.catchUpWindowMs);
+				const limit = Math.min(
+					schedule.maxCatchUpRuns ?? this.options.runPolicy.maxCatchUpRuns,
+					this.options.runPolicy.maxRunsPerTurn
+				);
+				const cutoff =
+					now.getTime() - (schedule.catchUpWindowMs ?? this.options.runPolicy.catchUpWindowMs);
 				const missedRuns = this.calculator
 					.getMissedRuns(schedule, now, limit)
 					.filter((runAt) => runAt.getTime() >= cutoff);
@@ -506,7 +545,11 @@ export class CronSchedulerService implements CronScheduler {
 		missedRun: boolean,
 		manual: boolean
 	): Promise<CronScheduledTask | undefined> {
-		const locked = await this.store.acquireScheduleLock(inputSchedule.id, this.options.runnerId, this.options.lockTtlMs);
+		const locked = await this.store.acquireScheduleLock(
+			inputSchedule.id,
+			this.options.runnerId,
+			this.options.lockTtlMs
+		);
 		if (!locked) return undefined;
 
 		try {
@@ -541,20 +584,43 @@ export class CronSchedulerService implements CronScheduler {
 				scheduledRunAt,
 			});
 			if (existingTask) {
-				await this.recordExecution(schedule, idempotencyKey, scheduledRunAt, 'duplicateIgnored', missedRun, {
-					taskId: existingTask.id,
-				});
+				await this.recordExecution(
+					schedule,
+					idempotencyKey,
+					scheduledRunAt,
+					'duplicateIgnored',
+					missedRun,
+					{
+						taskId: existingTask.id,
+					}
+				);
 				return undefined;
 			}
 
-			const concurrencyDecision = await this.applyConcurrencyPolicy(schedule, scheduledRunAt, missedRun);
+			const concurrencyDecision = await this.applyConcurrencyPolicy(
+				schedule,
+				scheduledRunAt,
+				missedRun
+			);
 			if (concurrencyDecision === 'skipped') return undefined;
 
-			const task = await this.createTaskWithRetry(schedule, scheduledRunAt, missedRun, idempotencyKey);
+			const task = await this.createTaskWithRetry(
+				schedule,
+				scheduledRunAt,
+				missedRun,
+				idempotencyKey
+			);
 			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt);
-			await this.recordExecution(updated, idempotencyKey, scheduledRunAt, 'taskCreated', missedRun, {
-				taskId: task.id,
-			});
+			await this.recordExecution(
+				updated,
+				idempotencyKey,
+				scheduledRunAt,
+				'taskCreated',
+				missedRun,
+				{
+					taskId: task.id,
+				}
+			);
 			await this.emitEvent({
 				scheduleId: schedule.id,
 				type: 'schedule.triggered',
@@ -580,7 +646,8 @@ export class CronSchedulerService implements CronScheduler {
 		missedRun: boolean
 	): Promise<'proceed' | 'skipped'> {
 		const running = await this.runner.listRunningTasks?.(schedule.id);
-		if (!running || running.length === 0 || schedule.concurrencyPolicy === 'allowOverlap') return 'proceed';
+		if (!running || running.length === 0 || schedule.concurrencyPolicy === 'allowOverlap')
+			return 'proceed';
 
 		if (schedule.concurrencyPolicy === 'skipIfRunning') {
 			const idempotencyKey = this.idempotencyKey(schedule.id, scheduledRunAt);
@@ -633,9 +700,14 @@ export class CronSchedulerService implements CronScheduler {
 				if (attempt >= maxAttempts) break;
 				const backoff = Math.min(
 					schedule.retryPolicy.maxDelayMs,
-					Math.round(schedule.retryPolicy.initialDelayMs * schedule.retryPolicy.backoffMultiplier ** (attempt - 1))
+					Math.round(
+						schedule.retryPolicy.initialDelayMs *
+							schedule.retryPolicy.backoffMultiplier ** (attempt - 1)
+					)
 				);
-				await delay(schedule.retryPolicy.jitter ? Math.round(backoff * (0.75 + Math.random() * 0.5)) : backoff);
+				await delay(
+					schedule.retryPolicy.jitter ? Math.round(backoff * (0.75 + Math.random() * 0.5)) : backoff
+				);
 			}
 		}
 		throw new CronScheduleExecutionError('Task creation failed after retry attempts.', {
@@ -643,7 +715,10 @@ export class CronSchedulerService implements CronScheduler {
 		});
 	}
 
-	private async updateScheduleAfterTrigger(schedule: CronSchedule, scheduledRunAt: string): Promise<CronSchedule> {
+	private async updateScheduleAfterTrigger(
+		schedule: CronSchedule,
+		scheduledRunAt: string
+	): Promise<CronSchedule> {
 		const now = new Date().toISOString();
 		const runCount = schedule.runCount + 1;
 		const base: CronSchedule = {
@@ -652,8 +727,12 @@ export class CronSchedulerService implements CronScheduler {
 			lastRunAt: scheduledRunAt,
 			lastEvaluatedAt: now,
 		};
-		const completed = schedule.type === 'oneTime' || (schedule.maxRuns !== undefined && runCount >= schedule.maxRuns);
-		const nextRunAt = completed ? undefined : this.calculator.getNextRun(base, new Date(scheduledRunAt))?.toISOString();
+		const completed =
+			schedule.type === 'oneTime' ||
+			(schedule.maxRuns !== undefined && runCount >= schedule.maxRuns);
+		const nextRunAt = completed
+			? undefined
+			: this.calculator.getNextRun(base, new Date(scheduledRunAt))?.toISOString();
 		const status = completed ? 'completed' : schedule.status;
 		const updated = await this.store.updateSchedule(schedule.id, {
 			runCount,
@@ -747,7 +826,11 @@ export class CronSchedulerService implements CronScheduler {
 			userId: schedule.ownerUserId,
 			source: schedule.source,
 			message: 'Schedule failed during startup recovery.',
-			metadata: { error: toCronRecordError(new CronScheduleRecoveryError('Startup recovery failed.', { reason: String(error) })) },
+			metadata: {
+				error: toCronRecordError(
+					new CronScheduleRecoveryError('Startup recovery failed.', { reason: String(error) })
+				),
+			},
 		});
 	}
 
