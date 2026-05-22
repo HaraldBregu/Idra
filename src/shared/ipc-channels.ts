@@ -577,7 +577,7 @@ interface ConnectorsInvokeChannelMap {
 interface ChannelsInvokeChannelMap {
 	[ChannelsChannels.listCatalog]: {
 		args: [];
-		result: import('./channel-catalog').ChannelCatalogEntry[];
+		result: import('./channels').ChannelCatalogEntry[];
 	};
 	[ChannelsChannels.getConfig]: {
 		args: [];
