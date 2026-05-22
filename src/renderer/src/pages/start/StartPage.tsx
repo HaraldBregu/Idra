@@ -831,7 +831,7 @@ const StartPage: React.FC = () => {
 		return isBusy;
 	}
 
-	function renderWelcomeStep(): React.JSX.Element {
+	function renderPresentationStep(): React.JSX.Element {
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
@@ -843,8 +843,8 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Let&apos;s get your assistant ready. Connect one AI provider, choose the model{' '}
-					{PRODUCT_NAME} should use, and add the tools you want help with.
+					Connect an AI provider, choose the models {PRODUCT_NAME} should use, and review
+					which model areas are ready now.
 				</p>
 			</div>
 		);
@@ -1328,7 +1328,7 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderStepContent(): React.JSX.Element {
-		if (step === 'presentation') return renderWelcomeStep();
+		if (step === 'presentation') return renderPresentationStep();
 		if (step === 'providers') return renderProviderStep();
 		return renderModelsStep();
 	}
