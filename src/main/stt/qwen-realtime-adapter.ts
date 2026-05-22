@@ -74,7 +74,7 @@ function socketDataToString(data: WebSocket.RawData): string {
 	if (Buffer.isBuffer(data)) return data.toString('utf8');
 	if (Array.isArray(data)) return Buffer.concat(data).toString('utf8');
 	if (data instanceof ArrayBuffer) return Buffer.from(data).toString('utf8');
-	return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString('utf8');
+	return Buffer.from(data as ArrayBuffer).toString('utf8');
 }
 
 function qwenRealtimeBaseUrl(baseUrl: string | undefined): string {
@@ -191,7 +191,6 @@ export function createQwenRealtimeTranscriptionResponseCreate(): QwenRealtimeEve
 class QwenRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 	readonly model: string;
 	readonly sampleRate = REALTIME_TRANSCRIPTION_SAMPLE_RATE;
-	private readonly upstreamModel: string;
 	private socket: WebSocket | null = null;
 	private closeTimer: NodeJS.Timeout | null = null;
 	private audioByteLength = 0;
@@ -207,7 +206,6 @@ class QwenRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession {
 		if (!upstreamModel) {
 			throw new Error(`Qwen realtime speech-to-text is not available for model "${this.model}".`);
 		}
-		this.upstreamModel = upstreamModel;
 	}
 
 	get id(): string {

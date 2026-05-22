@@ -36,6 +36,20 @@ function stringifyMessage(message: unknown): string {
 	}
 }
 
+function stringProperty(value: unknown, key: string): string {
+	if (typeof value !== 'object' || value === null) return '';
+	const text = (value as Record<string, unknown>)[key];
+	return typeof text === 'string' ? text : '';
+}
+
+function realtimeEventErrorMessage(event: RealtimeEvent): string {
+	if (!('error' in event) || !event.error) return 'Realtime transcription failed.';
+	const error = event.error;
+	if (error instanceof Error) return providerErrorMessage(error);
+	if (typeof error !== 'object' || error === null) return stringifyMessage(error);
+	return stringifyMessage((error as { message?: unknown }).message);
+}
+
 export function createMistralRealtimeServerUrl(baseUrl: string | undefined): string {
 	if (!baseUrl?.trim()) return DEFAULT_MISTRAL_REALTIME_SERVER_URL;
 
@@ -162,20 +176,21 @@ class MistralRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession 
 
 	private handleEvent(event: RealtimeEvent): void {
 		if (event.type === 'transcription.text.delta') {
-			if (!event.text) return;
-			this.transcript += event.text;
+			const delta = stringProperty(event, 'text');
+			if (!delta) return;
+			this.transcript += delta;
 			this.emit({
 				type: 'delta',
 				sessionId: this.id,
 				itemId: this.id,
 				contentIndex: 0,
-				delta: event.text,
+				delta,
 			});
 			return;
 		}
 
 		if (event.type === 'transcription.done') {
-			const transcript = event.text || this.transcript;
+			const transcript = stringProperty(event, 'text') || this.transcript;
 			this.emit({
 				type: 'completed',
 				sessionId: this.id,
@@ -188,7 +203,7 @@ class MistralRealtimeSpeechToTextSession implements SpeechToTextRealtimeSession 
 		}
 
 		if (event.type === 'error') {
-			this.emitError(stringifyMessage(event.error.message));
+			this.emitError(realtimeEventErrorMessage(event));
 			this.closeFinishedSession();
 			return;
 		}
