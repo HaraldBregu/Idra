@@ -948,6 +948,58 @@ const StartPage: React.FC = () => {
 		setSelectedSpeechModel(value ?? '');
 	}
 
+	function handleTextToSpeechProviderChange(value: string | null): void {
+		const providerId = value ?? '';
+		const group = textToSpeechModelGroups.find((item) => item.provider.id === providerId);
+		setErrorMessage('');
+		setTextToSpeechProviderId(providerId);
+		setSelectedTextToSpeechModel(group?.models[0]?.id ?? '');
+	}
+
+	function handleTextToSpeechModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedTextToSpeechModel(value ?? '');
+	}
+
+	function handleImageCreatorProviderChange(value: string | null): void {
+		const providerId = value ?? '';
+		const group = imageCreatorModelGroups.find((item) => item.provider.id === providerId);
+		setErrorMessage('');
+		setImageCreatorProviderId(providerId);
+		setSelectedImageCreatorModel(group?.models[0]?.id ?? '');
+	}
+
+	function handleImageCreatorModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedImageCreatorModel(value ?? '');
+	}
+
+	function handleTextToVideoProviderChange(value: string | null): void {
+		const providerId = value ?? '';
+		const group = textToVideoModelGroups.find((item) => item.provider.id === providerId);
+		setErrorMessage('');
+		setTextToVideoProviderId(providerId);
+		setSelectedTextToVideoModel(group?.models[0]?.id ?? '');
+	}
+
+	function handleTextToVideoModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedTextToVideoModel(value ?? '');
+	}
+
+	function handleMusicCreatorProviderChange(value: string | null): void {
+		const providerId = value ?? '';
+		const group = musicCreatorModelGroups.find((item) => item.provider.id === providerId);
+		setErrorMessage('');
+		setMusicCreatorProviderId(providerId);
+		setSelectedMusicCreatorModel(group?.models[0]?.id ?? '');
+	}
+
+	function handleMusicCreatorModelChange(value: string | null): void {
+		setErrorMessage('');
+		setSelectedMusicCreatorModel(value ?? '');
+	}
+
 	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
