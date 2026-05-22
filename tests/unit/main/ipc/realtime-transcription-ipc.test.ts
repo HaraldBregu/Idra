@@ -87,6 +87,8 @@ describe('realtime transcription IPC', () => {
 						},
 						transcription: {
 							model: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+							prompt:
+								'Transcribe the input audio exactly as spoken. Do not translate, paraphrase, summarize, correct wording, answer the speaker, or add content. Preserve the original spoken language and only output transcript text.',
 							language: 'en-US',
 						},
 						turn_detection: null,
