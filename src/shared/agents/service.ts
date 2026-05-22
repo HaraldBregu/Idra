@@ -344,14 +344,11 @@ export function isEndpointOperator(
 	return Boolean(operator && 'endpoint' in operator);
 }
 
-export type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
-
 export type AgentRunState =
 	| 'idle'
 	| 'thinking'
 	| 'reasoning'
 	| 'using_tools'
-	| 'waiting_for_approval'
 	| 'answering'
 	| 'completed'
 	| 'cancelled'
@@ -459,39 +456,6 @@ export type AgentResponseEvent =
 
 export type AgentResponseDelta = Extract<AgentResponseEvent, { type: 'text_delta' }>;
 
-export interface AgentPendingApproval {
-	id: string;
-	kind: 'exec' | 'plugin' | 'api' | 'tool';
-	toolName: string;
-	runId?: string;
-	toolCallId?: string;
-	question: string;
-	title: string;
-	description?: string;
-	argsPreview?: unknown;
-	derivedPaths?: string[];
-	command?: string;
-	cwd?: string;
-	envKeys?: string[];
-	createdAtMs: number;
-	expiresAtMs: number;
-	allowedDecisions: ApprovalDecision[];
-}
-
-export interface AgentPendingInput {
-	id: string;
-	question: string;
-	suggestions?: string[];
-}
-
-export interface AgentPendingState {
-	approvals: AgentPendingApproval[];
-	inputs: AgentPendingInput[];
-}
-
-export interface AgentPendingEventPayload extends AgentPendingState {
-	agentId: string;
-}
 
 export type AgentStartupFileName =
 	| 'AGENTS.md'

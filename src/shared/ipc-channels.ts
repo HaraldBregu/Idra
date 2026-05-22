@@ -15,14 +15,10 @@ export const AgentChannels = {
 	getHistory: 'agent:get-history',
 	openHistoryFolder: 'agent:open-history-folder',
 	response: 'agent:response',
-	resolveApproval: 'agent:resolve-approval',
-	resolveInput: 'agent:resolve-input',
 	cancel: 'agent:cancel',
-	getPending: 'agent:get-pending',
 	listWorkspaceFiles: 'agent:list-workspace-files',
 	readWorkspaceFile: 'agent:read-workspace-file',
 	writeWorkspaceFile: 'agent:write-workspace-file',
-	pending: 'agent:pending',
 } as const;
 
 export const ProviderChannels = {
@@ -359,19 +355,7 @@ interface AgentInvokeChannelMap {
 		args: [];
 		result: void;
 	};
-	[AgentChannels.resolveApproval]: {
-		args: [id: string, decision: import('./agents/service').ApprovalDecision | boolean];
-		result: boolean;
-	};
-	[AgentChannels.resolveInput]: {
-		args: [id: string, answer: string];
-		result: boolean;
-	};
 	[AgentChannels.cancel]: { args: []; result: void };
-	[AgentChannels.getPending]: {
-		args: [];
-		result: import('./agents/service').AgentPendingState;
-	};
 	[AgentChannels.listWorkspaceFiles]: {
 		args: [];
 		result: import('./agents/service').WorkspaceFileSummary[];
@@ -640,7 +624,6 @@ interface AppEventChannelMap {
 
 interface AgentEventChannelMap {
 	[AgentChannels.response]: { data: import('./agents/service').AgentResponseEvent };
-	[AgentChannels.pending]: { data: import('./agents/service').AgentPendingEventPayload };
 }
 
 interface WindowEventChannelMap {

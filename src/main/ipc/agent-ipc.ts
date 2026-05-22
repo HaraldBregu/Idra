@@ -5,11 +5,7 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import type {
-	ApprovalDecision,
-	AgentHistoryMessage,
-	AgentPendingState,
-} from '../../shared/agents/service';
+import type { AgentHistoryMessage } from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
 import { DEFAULT_AGENT_ID } from '../constants';
 
@@ -115,19 +111,6 @@ export class AgentIpc implements IpcModule {
 			}, AgentChannels.openHistoryFolder)
 		);
 
-		ipcMain.handle(
-			AgentChannels.resolveApproval,
-			wrapSimpleHandler((id: string, decision: ApprovalDecision | boolean): boolean => {
-				return agent.resolveApproval(id, decision);
-			}, AgentChannels.resolveApproval)
-		);
-
-		ipcMain.handle(
-			AgentChannels.resolveInput,
-			wrapSimpleHandler((id: string, answer: string): boolean => {
-				return agent.resolveInput(id, answer);
-			}, AgentChannels.resolveInput)
-		);
 
 		ipcMain.handle(
 			AgentChannels.cancel,
@@ -136,12 +119,6 @@ export class AgentIpc implements IpcModule {
 			}, AgentChannels.cancel)
 		);
 
-		ipcMain.handle(
-			AgentChannels.getPending,
-			wrapSimpleHandler((): AgentPendingState => {
-				return agent.getPending();
-			}, AgentChannels.getPending)
-		);
 
 			ipcMain.handle(
 				AgentChannels.listWorkspaceFiles,

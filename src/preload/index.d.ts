@@ -15,14 +15,10 @@ export interface AgentApi {
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AgentHistoryMessage[]>;
 	openHistoryFolder: () => Promise<void>;
-	resolveApproval: (id: string, decision: ApprovalDecision | boolean) => Promise<boolean>;
-	resolveInput: (id: string, answer: string) => Promise<boolean>;
-	getPending: () => Promise<AgentPendingState>;
 	listWorkspaceFiles: () => Promise<WorkspaceFileSummary[]>;
 	readWorkspaceFile: (name: string) => Promise<WorkspaceFileContent>;
 	writeWorkspaceFile: (name: string, content: string) => Promise<WorkspaceFileContent>;
 	onResponse: (callback: (event: AgentResponseEvent) => void) => () => void;
-	onPending: (callback: (event: AgentPendingEventPayload) => void) => () => void;
 }
 
 export interface CronApi {
@@ -151,9 +147,6 @@ import type {
 	Agent,
 	ConfiguredModelOperator,
 	AgentHistoryMessage,
-	ApprovalDecision,
-	AgentPendingEventPayload,
-	AgentPendingState,
 	AgentResponseEvent,
 	Model,
 	WorkspaceFileContent,

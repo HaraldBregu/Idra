@@ -56,9 +56,6 @@ import type {
 	Agent,
 	ConfiguredModelOperator,
 	AgentHistoryMessage,
-	ApprovalDecision,
-	AgentPendingEventPayload,
-	AgentPendingState,
 	AgentResponseEvent,
 	Model,
 	WorkspaceFileContent,
@@ -146,15 +143,6 @@ export const agent: AgentApi = {
 	openHistoryFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.openHistoryFolder);
 	},
-	resolveApproval: (id: string, decision: ApprovalDecision | boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(AgentChannels.resolveApproval, id, decision);
-	},
-	resolveInput: (id: string, answer: string): Promise<boolean> => {
-		return typedInvokeUnwrap(AgentChannels.resolveInput, id, answer);
-	},
-	getPending: (): Promise<AgentPendingState> => {
-		return typedInvokeUnwrap(AgentChannels.getPending);
-	},
 	listWorkspaceFiles: (): Promise<WorkspaceFileSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
 	},
@@ -166,9 +154,6 @@ export const agent: AgentApi = {
 	},
 	onResponse: (callback: (event: AgentResponseEvent) => void): (() => void) => {
 		return typedOn(AgentChannels.response, callback);
-	},
-	onPending: (callback: (event: AgentPendingEventPayload) => void): (() => void) => {
-		return typedOn(AgentChannels.pending, callback);
 	},
 } satisfies AgentApi;
 

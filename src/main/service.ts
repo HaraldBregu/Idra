@@ -22,7 +22,6 @@ import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/be
 import { buildSystemPrompt } from './agent/system-prompt';
 import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
 import { DEFAULT_AGENT_ID } from './constants';
-import { HitlBridge } from './hitl';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
@@ -41,7 +40,6 @@ import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/types';
 import {
 	requireModelReasoningEffort,
-	type ApprovalDecision,
 	type ModelReasoningEffort,
 	type OperatorStoreState,
 } from '../shared/agents/service';
@@ -129,7 +127,6 @@ export interface AgentSendOptions {
 }
 
 interface Runtime {
-	hitl: HitlBridge;
 	runLogger: AgentRunLogger;
 	session: SessionFile | null;
 	currentAbort: AbortController | null;
@@ -218,7 +215,6 @@ export class AgentService {
 				throw new Error(`Agent runtime is busy: ${runtimeAgentId}`);
 			}
 			runtime.currentAbort.abort();
-			runtime.hitl.cancelAll('user_continued');
 		}
 
 		const abort = new AbortController();
@@ -283,16 +279,6 @@ export class AgentService {
 				approvalRequired: new Set(),
 				fsPolicy: { workspaceOnly: false, writeWorkspaceOnly: true, readOnly: false },
 				signal: abort.signal,
-				elicit: {
-					ask: (question, suggestions) => {
-						streamEvent({
-							type: 'run_state',
-							state: 'waiting_for_approval',
-							label: 'Waiting for input',
-						});
-						return runtime.hitl.askInput(question, suggestions);
-					},
-				},
 				services: this.dependencies,
 			};
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
@@ -595,17 +581,6 @@ export class AgentService {
 		return [...runtime.session.transcript];
 	}
 
-	resolveApproval(
-		id: string,
-		decision: ApprovalDecision | boolean,
-		agentId = this.defaultAgentId
-	): boolean {
-		return this.ensureRuntime(agentId).hitl.resolveApproval(id, decision);
-	}
-
-	resolveInput(id: string, answer: string, agentId = this.defaultAgentId): boolean {
-		return this.ensureRuntime(agentId).hitl.resolveInput(id, answer);
-	}
 
 	cancel(agentId = this.defaultAgentId): void {
 		const runtime = this.ensureRuntime(agentId);
@@ -613,23 +588,18 @@ export class AgentService {
 			runtime.currentAbort.abort();
 			runtime.currentAbort = null;
 		}
-		runtime.hitl.cancelAll('cancelled');
 	}
 
 	isBusy(agentId = this.defaultAgentId): boolean {
 		return Boolean(this.runtimes.get(agentId)?.currentAbort);
 	}
 
-	getPending(agentId = this.defaultAgentId): ReturnType<HitlBridge['getPending']> {
-		return this.ensureRuntime(agentId).hitl.getPending();
-	}
 
 	private ensureRuntime(agentId: string): Runtime {
 		const existing = this.runtimes.get(agentId);
 		if (existing) return existing;
 		this.dependencies.logger.info('AgentService', `Creating agent runtime "${agentId}"`);
 		const runtime: Runtime = {
-			hitl: new HitlBridge(this.dependencies.eventBus, agentId),
 			runLogger: this.runLoggerFactory(agentId),
 			session: null,
 			currentAbort: null,
