@@ -32,10 +32,9 @@ function readWorkspaceOnly(ctx: ToolContext): boolean {
 	return ctx.fsPolicy?.workspaceOnly === true;
 }
 
-function writeWorkspaceOnly(ctx: ToolContext, defaultWhenUnset = false): boolean {
+function writeWorkspaceOnly(ctx: ToolContext, defaultWhenUnset = true): boolean {
 	if (ctx.fsPolicy?.workspaceOnly === true) return true;
 	if (ctx.fsPolicy?.writeWorkspaceOnly !== undefined) return ctx.fsPolicy.writeWorkspaceOnly;
-	if (ctx.fsPolicy?.workspaceOnly === false) return false;
 	return defaultWhenUnset;
 }
 

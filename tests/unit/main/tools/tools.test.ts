@@ -15,7 +15,7 @@ import {
 	writeTool,
 } from '../../../../src/main/tools/fs';
 import { filterTools } from '../../../../src/main/tools/policy';
-import { createTools } from '../../../../src/main/tools/registry';
+import { createTools, PRELOADED_LOCAL_TOOLS } from '../../../../src/main/tools/registry';
 import { openBrowserTool } from '../../../../src/main/tools/app';
 import {
 	cronAddTool,
@@ -66,6 +66,22 @@ describe('tools/policy and registry', () => {
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
 		).toBe(true);
+	});
+
+	it('keeps the preloaded local registry aligned with the docs index', async () => {
+		const index = await fs.readFile(
+			path.resolve(process.cwd(), 'docs/tools/list/index.md'),
+			'utf8'
+		);
+		const documentedTools = [...index.matchAll(/\| \[([a-z_]+)\]\([^)]+\.md\) \|/g)].map(
+			(match) => match[1]
+		);
+
+		expect(PRELOADED_LOCAL_TOOLS.map((tool) => tool.name)).toEqual(documentedTools);
+		expect(createTools({ profile: 'full', allow: [], deny: [] }).map((tool) => tool.name)).toEqual(
+			documentedTools
+		);
+		expect(documentedTools).not.toContain('startup_files');
 	});
 });
 
@@ -315,6 +331,38 @@ describe('tools/fs', () => {
 		].join('\n');
 		expect((await applyPatchTool.execute({ diff: patch }, ctx)).status).toBe('error');
 		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('outside');
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
+	it('confines mutating file targets to the workspace by default', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const ctx = makeToolContext({ workspace });
+		const outsideFile = path.join(outside, 'outside.txt');
+		await fs.writeFile(outsideFile, 'outside', 'utf8');
+
+		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
+		expect(
+			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
+		).toBe('error');
+		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
+
+		expect(
+			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
+		).toBe('ok');
+		expect(
+			(
+				await copyTool.execute(
+					{
+						source: outsideFile,
+						destination: path.join(outside, 'copy.txt'),
+					},
+					ctx
+				)
+			).status
+		).toBe('error');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
