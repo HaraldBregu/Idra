@@ -62,7 +62,9 @@ function SettingsOverviewCard({
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const comingSoon = 'comingSoon' in item && item.comingSoon === true;
 	const handleActivate = (): void => {
+		if (comingSoon) return;
 		navigate(item.path);
 	};
 
@@ -73,7 +75,8 @@ function SettingsOverviewCard({
 			onClick={handleActivate}
 			variant="outline"
 			size="md"
-			className="grid grid-cols-[1.5rem_minmax(0,1fr)_0.75rem] items-center border-b border-border/60 text-left hover:bg-muted/30 last:border-b-0"
+			disabled={comingSoon}
+			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/60 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
 			<ItemIcon icon={item.icon} />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
@@ -82,10 +85,16 @@ function SettingsOverviewCard({
 				</ItemTitle>
 			</ItemContent>
 			<ItemActions className="ml-0 flex-none justify-end">
-				<ChevronRight
-					className="size-3 shrink-0 text-muted-foreground"
-					strokeWidth={1.8}
-				/>
+				{comingSoon ? (
+					<Badge variant="secondary" className="text-[10px] leading-none">
+						Soon
+					</Badge>
+				) : (
+					<ChevronRight
+						className="size-3 shrink-0 text-muted-foreground"
+						strokeWidth={1.8}
+					/>
+				)}
 			</ItemActions>
 		</Item>
 	);
