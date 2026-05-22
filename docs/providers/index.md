@@ -34,6 +34,6 @@ These provider folders also group Friday's Settings connectors by platform.
 
 | Provider | Connectors |
 | --- | --- |
-| [Dropbox](dropbox/index.md) | [Dropbox](dropbox/dropbox/index.md) |
+| [Dropbox](dropbox/index.md) | [Dropbox Drive](dropbox/drive/index.md) |
 | [Google](google/index.md) | [Gmail](google/gmail/index.md) - [Google Calendar](google/calendar/index.md) - [Google Drive](google/drive/index.md) |
 | [Microsoft](microsoft/index.md) | [Microsoft Teams](microsoft/teams/index.md) - [Outlook Calendar](microsoft/outlook-calendar/index.md) - [Outlook Email](microsoft/outlook-email/index.md) - [SharePoint](microsoft/sharepoint/index.md) |

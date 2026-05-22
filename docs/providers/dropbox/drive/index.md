@@ -1,4 +1,4 @@
-# Dropbox Connector
+# Dropbox Drive Connector
 
 Provider-scoped entry for Friday's Dropbox connector.
 
