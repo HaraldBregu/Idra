@@ -9,6 +9,7 @@ import { createExampleSkills } from '../../../../src/main/skills/example-skills'
 import { SkillLoader } from '../../../../src/main/skills/loader';
 import {
 	AGENT_SKILL_RESOURCE_DIRECTORIES,
+	MULTI_PROVIDER_SKILL_SUPPORT,
 	SKILL_PROVIDER_SUPPORT,
 } from '../../../../src/main/skills/provider-support';
 import {
@@ -508,6 +509,24 @@ describe('skill system', () => {
 				maxManifestNameChars: 64,
 			},
 		});
+		expect(MULTI_PROVIDER_SKILL_SUPPORT).toMatchObject({
+			docsPath: 'docs/skills/multi-provider.md',
+			adapterPath: 'src/shared/skill-adapters.ts',
+			sharedManifestFile: 'SKILL.md',
+			versionManifestFile: 'versions.json',
+		});
+		expect(MULTI_PROVIDER_SKILL_SUPPORT.routingRules).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					workflowNeed: 'more-than-eight-skills',
+					route: 'openai-hosted',
+				}),
+				expect.objectContaining({
+					workflowNeed: 'no-provider-specific-constraint',
+					route: 'current-provider',
+				}),
+			])
+		);
 	});
 
 	it('reports template folders as Agent Skill resources', async () => {
