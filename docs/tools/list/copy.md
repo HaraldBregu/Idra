@@ -1,6 +1,6 @@
 # copy
 
-`copy` duplicates a file from one workspace location to another.
+`copy` duplicates file content into a workspace location.
 
 ## How It Is Used
 

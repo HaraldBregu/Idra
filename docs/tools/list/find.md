@@ -1,6 +1,6 @@
 # find
 
-`find` locates files in the workspace.
+`find` locates files by name or pattern.
 
 ## How It Is Used
 

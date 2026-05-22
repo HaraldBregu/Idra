@@ -18,7 +18,7 @@ the user's request, safety rules, and the current run context.
 
 | Tool | How Friday uses it |
 | --- | --- |
-| [read](list/read.md) | Looks at an existing workspace file before answering questions or making changes. |
+| [read](list/read.md) | Looks at an existing file before answering questions or making related workspace changes. |
 | [write](list/write.md) | Creates a new file or replaces a file when the requested outcome needs new content saved. |
 | [edit](list/edit.md) | Changes a specific part of an existing file after Friday has read it. |
 | [apply_patch](list/apply-patch.md) | Applies a planned set of file changes when several edits need to land together. |
@@ -26,8 +26,8 @@ the user's request, safety rules, and the current run context.
 | [copy](list/copy.md) | Duplicates a file so existing content can be reused elsewhere. |
 | [move](list/move.md) | Renames or relocates a file while preserving its contents. |
 | [inspect_file](list/inspect-file.md) | Checks basic facts about a file, such as what kind of file it is and whether it can be previewed. |
-| [find](list/find.md) | Locates files by name or pattern so Friday can work in the right part of the workspace. |
-| [exec](list/exec.md) | Runs an approved workspace command for checks, builds, tests, or project utilities. |
+| [find](list/find.md) | Locates files by name or pattern so Friday can work with the right paths. |
+| [exec](list/exec.md) | Runs an approved command or script for checks, builds, tests, or project utilities. |
 | [process](list/process.md) | Reviews or stops background commands that Friday started earlier. |
 | [web_fetch](list/web-fetch.md) | Reads text from a web address when the answer depends on external page content. |
 | [cron](list/cron.md) | Saves future, delayed, recurring, or reminder-style agent work. |
