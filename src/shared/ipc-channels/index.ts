@@ -487,58 +487,58 @@ interface SkillsInvokeChannelMap {
 interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.catalog]: {
 		args: [];
-		result: typeof import('../connectors').OPENAI_CONNECTOR_CATALOG;
+		result: typeof import('../connector').OPENAI_CONNECTOR_CATALOG;
 	};
-	[ConnectorsChannels.list]: { args: []; result: import('../connectors').ConnectorView[] };
+	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorView[] };
 	[ConnectorsChannels.get]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorConfig;
+		result: import('../connector').ConnectorConfig;
 	};
 	[ConnectorsChannels.add]: {
-		args: [input: import('../connectors').ConnectorInput];
-		result: import('../connectors').ConnectorConfig;
+		args: [input: import('../connector').ConnectorInput];
+		result: import('../connector').ConnectorConfig;
 	};
 	[ConnectorsChannels.update]: {
-		args: [id: string, input: import('../connectors').ConnectorUpdateInput];
-		result: import('../connectors').ConnectorConfig;
+		args: [id: string, input: import('../connector').ConnectorUpdateInput];
+		result: import('../connector').ConnectorConfig;
 	};
 	[ConnectorsChannels.remove]: { args: [id: string]; result: void };
 	[ConnectorsChannels.enable]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorConfig;
+		result: import('../connector').ConnectorConfig;
 	};
 	[ConnectorsChannels.disable]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorConfig;
+		result: import('../connector').ConnectorConfig;
 	};
 	[ConnectorsChannels.test]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorTestResult;
+		result: import('../connector').ConnectorTestResult;
 	};
 	[ConnectorsChannels.reconnect]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorTestResult;
+		result: import('../connector').ConnectorTestResult;
 	};
 	[ConnectorsChannels.refreshTools]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorTool[];
+		result: import('../connector').ConnectorTool[];
 	};
 	[ConnectorsChannels.listTools]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorTool[];
+		result: import('../connector').ConnectorTool[];
 	};
 	[ConnectorsChannels.callTool]: {
 		args: [
 			id: string,
 			name: string,
 			args: unknown,
-			options?: import('../connectors').ConnectorCallToolOptions,
+			options?: import('../connector').ConnectorCallToolOptions,
 		];
 		result: unknown;
 	};
 	[ConnectorsChannels.connectOAuth]: {
 		args: [id: string];
-		result: import('../connectors').ConnectorOAuthConnectResult;
+		result: import('../connector').ConnectorOAuthConnectResult;
 	};
 }
 
