@@ -163,8 +163,7 @@
 				"providers": "AI API keys",
 				"cron": "Task scheduler",
 				"taskManager": "Background tasks",
-				"heartbeat": "Periodic agent checks",
-				"apps": "Installed apps"
+				"heartbeat": "Periodic agent checks"
 			}
 		},
 		"tabs": {
@@ -184,7 +183,6 @@
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer",
-			"apps": "Apps",
 			"skills": "Skills"
 		},
 		"breadcrumb": {
@@ -252,7 +250,7 @@
 			"appDataDescription": "Folder where Friday stores application settings and logs",
 			"openAppData": "Open Folder",
 			"userData": "User Data",
-			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, apps, skills, and agent data",
+			"userDataDescription": "Folder where Friday stores user-owned files, workspaces, skills, and agent data",
 			"openUserData": "Open Folder"
 		},
 		"system": {
@@ -907,14 +905,6 @@
 			"reconnect": "Reconnect",
 			"pair": "Pair / Connect",
 			"enterPairingCode": "Open WhatsApp → Linked devices → Link with phone number, then enter:"
-		},
-		"apps": {
-			"title": "Installed apps",
-			"empty": "No apps installed yet. Drop a folder with a manifest.json into the apps directory.",
-			"refresh": "Refresh",
-			"openFolder": "Open folder",
-			"delete": "Delete",
-			"confirmDelete": "Delete {{name}}? This removes the folder permanently."
 		},
 		"themes": {
 			"title": "Themes",

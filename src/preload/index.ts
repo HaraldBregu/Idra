@@ -12,7 +12,6 @@ import {
 	TaskChannels,
 	CronChannels,
 	HeartbeatChannels,
-	AppsChannels,
 	SkillsChannels,
 } from '../shared/ipc-channels';
 import type {
@@ -72,7 +71,6 @@ import type {
 	TelegramChannelProperties,
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { AppInfo } from '../shared/app-info';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
@@ -294,18 +292,6 @@ export const app: AppApi = {
 	},
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(ProviderChannels.saveSpeechTranscriberService, provider, model);
-	},
-	listApps: (): Promise<AppInfo[]> => {
-		return typedInvokeUnwrap(AppsChannels.list);
-	},
-	openAppFolder: (id: string): Promise<void> => {
-		return typedInvokeUnwrap(AppsChannels.openFolder, id);
-	},
-	deleteApp: (id: string): Promise<void> => {
-		return typedInvokeUnwrap(AppsChannels.delete, id);
-	},
-	getAppsRoot: (): Promise<string> => {
-		return typedInvokeUnwrap(AppsChannels.getRoot);
 	},
 };
 

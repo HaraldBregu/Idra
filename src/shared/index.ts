@@ -1,5 +1,4 @@
 export * from './app-log';
-export * from './app-info';
 export * from './agents';
 export * from './ipc';
 export * from './channels';

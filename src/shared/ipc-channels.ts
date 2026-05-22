@@ -124,12 +124,6 @@ export const HeartbeatChannels = {
 	event: 'heartbeat:event',
 } as const;
 
-export const AppsChannels = {
-	list: 'apps:list',
-	openFolder: 'apps:open-folder',
-	delete: 'apps:delete',
-	getRoot: 'apps:get-root',
-} as const;
 
 export const SkillsChannels = {
 	list: 'skills:list',
@@ -496,12 +490,6 @@ interface TaskInvokeChannelMap {
 	};
 }
 
-interface AppsInvokeChannelMap {
-	[AppsChannels.list]: { args: []; result: import('./app-info').AppInfo[] };
-	[AppsChannels.openFolder]: { args: [id: string]; result: void };
-	[AppsChannels.delete]: { args: [id: string]; result: void };
-	[AppsChannels.getRoot]: { args: []; result: string };
-}
 
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('./skills').SkillInfo[] };
@@ -630,7 +618,6 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
 		TaskInvokeChannelMap,
-		AppsInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}

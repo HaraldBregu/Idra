@@ -30,8 +30,6 @@
 	"logs": "Logs",
 	"redux": "Redux State",
 	"cron": "Cron",
-	"apps": "Apps",
-	"appsEmpty": "No apps installed",
 	"showConsole": "Show Console",
 	"refresh": "Reload"
 }

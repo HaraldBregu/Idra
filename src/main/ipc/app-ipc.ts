@@ -39,7 +39,6 @@ import {
 import { wrapSimpleHandler } from './ipc-error-handler';
 import {
 	AppChannels,
-	AppsChannels,
 	OperatorChannels,
 	ProviderChannels,
 } from '../../shared/ipc-channels';
@@ -149,7 +148,6 @@ export class AppIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const store = container.get('store');
-		const apps = container.get('apps');
 		const powerSaveBlocker = container.get('powerSaveBlocker');
 		const userDataDirectory = container.get('userDataDirectory');
 
@@ -678,25 +676,6 @@ export class AppIpc implements IpcModule {
 			}, ProviderChannels.saveSpeechTranscriberService)
 		);
 
-		ipcMain.handle(
-			AppsChannels.list,
-			wrapSimpleHandler(() => apps.list(), AppsChannels.list)
-		);
-
-		ipcMain.handle(
-			AppsChannels.openFolder,
-			wrapSimpleHandler((id: string) => apps.openFolder(id), AppsChannels.openFolder)
-		);
-
-		ipcMain.handle(
-			AppsChannels.delete,
-			wrapSimpleHandler((id: string) => apps.delete(id), AppsChannels.delete)
-		);
-
-		ipcMain.handle(
-			AppsChannels.getRoot,
-			wrapSimpleHandler(() => apps.getAppsRoot(), AppsChannels.getRoot)
-		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}

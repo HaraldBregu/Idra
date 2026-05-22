@@ -1,6 +1,5 @@
 import {
 	Activity,
-	AppWindow,
 	Bot,
 	CalendarClock,
 	ClipboardList,
@@ -128,8 +127,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
-	// Apps
-	{ path: '/settings/apps', labelKey: 'settings.apps.title', keywords: 'installed packages manifests folder delete' },
 	// Operators
 	...SETTINGS_OPERATOR_ITEMS,
 	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
@@ -195,11 +192,5 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.backgroundTasks',
 		descriptionKey: 'settings.overview.descriptions.taskManager',
 		icon: ClipboardList,
-	},
-	{
-		path: '/settings/apps',
-		labelKey: 'settings.tabs.apps',
-		descriptionKey: 'settings.overview.descriptions.apps',
-		icon: AppWindow,
 	},
 ] satisfies readonly SettingsNavigationItem[];

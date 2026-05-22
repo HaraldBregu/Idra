@@ -163,8 +163,7 @@
 				"providers": "Chiavi API AI",
 				"cron": "Pianificatore attivita",
 				"taskManager": "Attivita in background",
-				"heartbeat": "Controlli periodici agenti",
-				"apps": "App installate"
+				"heartbeat": "Controlli periodici agenti"
 			}
 		},
 		"tabs": {
@@ -184,7 +183,6 @@
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore",
-			"apps": "App",
 			"skills": "Abilità"
 		},
 		"breadcrumb": {
@@ -252,7 +250,7 @@
 			"appDataDescription": "Cartella in cui Friday salva impostazioni e log dell'applicazione",
 			"openAppData": "Apri Cartella",
 			"userData": "Dati Utente",
-			"userDataDescription": "Cartella in cui Friday salva file, workspace, app, abilita e dati assistente dell'utente",
+			"userDataDescription": "Cartella in cui Friday salva file, workspace, abilita e dati assistente dell'utente",
 			"openUserData": "Apri Cartella"
 		},
 		"system": {
@@ -907,14 +905,6 @@
 			"reconnect": "Riconnetti",
 			"pair": "Abbina / Connetti",
 			"enterPairingCode": "Apri WhatsApp → Dispositivi collegati → Collega con numero di telefono, poi inserisci:"
-		},
-		"apps": {
-			"title": "App installate",
-			"empty": "Nessuna app installata. Inserisci una cartella con un manifest.json nella directory delle app.",
-			"refresh": "Aggiorna",
-			"openFolder": "Apri cartella",
-			"delete": "Elimina",
-			"confirmDelete": "Eliminare {{name}}? La cartella verrà rimossa in modo permanente."
 		},
 		"themes": {
 			"title": "Temi",

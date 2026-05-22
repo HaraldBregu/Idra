@@ -1,9 +1,5 @@
-import path from 'node:path';
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
-import type { AppInfo } from '../shared/app-info';
-import type { AppsService } from './apps';
-import type { LoggerService } from './logger';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
@@ -13,43 +9,10 @@ interface MenuManagerCallbacks {
 export class Menu {
 	private currentLanguage = 'en';
 	private callbacks: MenuManagerCallbacks;
-	private apps: AppInfo[] = [];
-
-	constructor(
-		callbacks: MenuManagerCallbacks,
-		private readonly appsService?: AppsService,
-		private readonly logger?: LoggerService
-	) {
+	constructor(callbacks: MenuManagerCallbacks) {
 		this.callbacks = callbacks;
 	}
 
-	async refreshApps(): Promise<void> {
-		if (!this.appsService) return;
-		try {
-			this.apps = await this.appsService.list();
-		} catch (err) {
-			this.logger?.error('Menu', 'Failed to list apps', err);
-			this.apps = [];
-		}
-		this.buildMenu();
-	}
-
-	private openApp(appInfo: AppInfo): void {
-		const htmlPath = path.join(appInfo.folderPath, 'index.html');
-		const win = new BrowserWindow({
-			width: 900,
-			height: 700,
-			title: appInfo.manifest.name,
-			webPreferences: {
-				sandbox: true,
-				nodeIntegration: false,
-				contextIsolation: true,
-			},
-		});
-		win.loadFile(htmlPath).catch((err) => {
-			this.logger?.error('Menu', `Failed to load app ${appInfo.id}`, err);
-		});
-	}
 
 	create(): void {
 		this.buildMenu();
@@ -172,17 +135,6 @@ export class Menu {
 							const win = BrowserWindow.getFocusedWindow();
 							if (win) win.webContents.send('app:open-cron-dialog');
 						},
-					},
-					{ type: 'separator' as const },
-					{
-						label: m.apps,
-						submenu:
-							this.apps.length > 0
-								? this.apps.map((appInfo) => ({
-										label: appInfo.manifest.name,
-										click: (): void => this.openApp(appInfo),
-									}))
-								: [{ label: m.appsEmpty, enabled: false }],
 					},
 					{ type: 'separator' as const },
 					{

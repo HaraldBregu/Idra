@@ -162,7 +162,6 @@ import type {
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { AppInfo } from '../shared/app-info';
 import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
 import type {
 	MicrophonePermissionSettings,
@@ -228,10 +227,6 @@ export interface AppApi {
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<Agent | undefined>;
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	listApps: () => Promise<AppInfo[]>;
-	openAppFolder: (id: string) => Promise<void>;
-	deleteApp: (id: string) => Promise<void>;
-	getAppsRoot: () => Promise<string>;
 }
 
 export interface RealtimeTranscriptionApi {
