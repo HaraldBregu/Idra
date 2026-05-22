@@ -22,8 +22,10 @@ import {
 	isInputAudioBufferTooSmallError,
 	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
+	SpeechToTextService,
 	useRealtimeTranscriptionIntent,
 } from '../../../../src/main/stt';
+import { RealtimeTranscriptionChannels } from '../../../../src/shared/ipc-channels';
 import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
@@ -193,5 +195,48 @@ describe('realtime transcription IPC', () => {
 
 		expect(adapter.supports('mistral', MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
 		expect(adapter.supports('mistral', MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+	});
+
+	it('starts the Mistral offline STT model through default service adapters', async () => {
+		const provider = {
+			id: 'mistral',
+			name: 'Mistral AI',
+			baseUrl: 'https://api.mistral.ai/v1',
+			apiKey: 'mistral-key',
+		};
+		const service = new SpeechToTextService({
+			store: {
+				getSpeechToTextOperator: jest.fn(() => ({
+					id: 'speech-to-text',
+					name: 'Speech to text',
+					docsPath: 'models/speech-to-text.md',
+					status: 'implemented',
+					provider,
+					model: {
+						id: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
+						name: 'Voxtral Mini 2602',
+					},
+				})),
+				getProviderById: jest.fn(() => provider),
+			} as never,
+		});
+		const owner = {
+			id: 1,
+			once: jest.fn(),
+			isDestroyed: jest.fn(() => false),
+			send: jest.fn(),
+		};
+
+		const session = await service.start(owner as never);
+
+		expect(session).toMatchObject({
+			model: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
+			sampleRate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
+		});
+		expect(owner.send).toHaveBeenCalledWith(RealtimeTranscriptionChannels.event, {
+			type: 'started',
+			sessionId: session.id,
+			model: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
+		});
 	});
 });
