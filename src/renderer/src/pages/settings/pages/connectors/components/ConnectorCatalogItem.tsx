@@ -29,7 +29,7 @@ export function ConnectorCatalogItem({
 					<Plus className="size-3" />
 					Add
 				</Button>
-				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-open:rotate-180" />
+				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 			</CollapsibleTrigger>
 			<CollapsibleContent className="border-t border-border/60 px-3 py-2.5">
 				{item.setupInstructions.length > 0 && (
