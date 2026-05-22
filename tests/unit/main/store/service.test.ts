@@ -27,6 +27,7 @@ import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
 import { emptyFridayCronStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
+import type { ConnectorConfig } from '../../../../src/shared/connectors';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/service';
 
@@ -94,6 +95,21 @@ const musicProvider: Provider = {
 	baseUrl: 'https://suno.com',
 };
 
+const gmailConnector: ConnectorConfig = {
+	id: 'connector-1',
+	name: 'Gmail',
+	connectorId: 'connector_gmail',
+	serverLabel: 'gmail',
+	enabled: true,
+	authorization: 'token',
+	requireApproval: 'always',
+	allowedTools: [],
+	deferLoading: false,
+	tools: [],
+	createdAt: '2026-05-22T00:00:00.000Z',
+	updatedAt: '2026-05-22T00:00:00.000Z',
+};
+
 const model: Model = { id: 'gpt-5.4', name: 'GPT-5.4' };
 const imageModel: Model = { id: 'image-provider-coming-soon', name: 'Not available yet' };
 const textToSpeechModel: Model = { id: 'rachel-multilingual', name: 'Rachel - multilingual' };
@@ -142,6 +158,7 @@ describe('StoreService', () => {
 
 		it('stores generic channel config without losing other channel defaults', () => {
 			const service = new StoreService();
+			const store = storeFor(service);
 
 			const saved = service.setChannelConfig('slack', {
 				enabled: true,
@@ -171,6 +188,31 @@ describe('StoreService', () => {
 				},
 			});
 			expect(service.getChannel().telegram).toMatchObject({ token: '', allowFrom: [] });
+			expect(store.get('channels')).toMatchObject({
+				slack: {
+					accounts: {
+						default: expect.objectContaining({ token: 'xoxb-token' }),
+					},
+				},
+			});
+			expect(store.get('channel')).toBeUndefined();
+		});
+
+		it('reads legacy singular channel config but writes the documented plural root', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('channel', { telegram: { token: 'legacy-token', allowFrom: ['123'] } });
+
+			expect(service.getTelegramChannel()).toMatchObject({
+				token: 'legacy-token',
+				allowFrom: ['123'],
+			});
+
+			service.setTelegramChannel({ token: 'next-token', allowFrom: ['456'] });
+
+			expect(store.get('channels')).toMatchObject({
+				telegram: { token: 'next-token', allowFrom: ['456'] },
+			});
 		});
 	});
 

@@ -74,6 +74,7 @@ type OperatorDefinitionKey =
 	| 'imageCreator'
 	| 'videoCreator'
 	| 'musicCreator';
+type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
 
 const MODEL_MODULE_ROOT_KEYS = {
 	assistant: 'llmAgent',
@@ -92,6 +93,17 @@ const OPERATOR_DEFINITION_KEYS = {
 	textToVideo: 'videoCreator',
 	textToSound: 'musicCreator',
 } satisfies Record<ConfiguredModelOperatorKey, OperatorDefinitionKey>;
+
+const CONNECTOR_STORE_KEY_BY_ID = {
+	connector_gmail: 'google_gmail',
+	connector_googlecalendar: 'google_calendar',
+	connector_googledrive: 'google_drive',
+	connector_microsoftteams: 'microsoft_teams',
+	connector_outlookcalendar: 'outlook_calendar',
+	connector_outlookemail: 'outlook_email',
+	connector_sharepoint: 'sharepoint',
+	connector_dropbox: 'dropbox',
+} satisfies Record<ConnectorConfig['connectorId'], ConnectorStoreKey>;
 
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
 	return {
@@ -194,6 +206,27 @@ function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] 
 		const provider = readModelProviderSettings(entry);
 		return provider ? [provider] : [];
 	});
+}
+
+function readConnectorSettingsList(value: unknown): ConnectorConfig[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => (readRecord(entry) ? [entry as ConnectorConfig] : []));
+	}
+	const record = readRecord(value);
+	if (!record) return [];
+	return Object.values(record).flatMap((entry) =>
+		readRecord(entry) ? [entry as ConnectorConfig] : []
+	);
+}
+
+function connectorSettingsByKey(
+	connectors: ConnectorConfig[]
+): NonNullable<StoreSchema['connectors']> {
+	const next: NonNullable<StoreSchema['connectors']> = {};
+	for (const connector of connectors) {
+		next[CONNECTOR_STORE_KEY_BY_ID[connector.connectorId]] = connector;
+	}
+	return next;
 }
 
 function defaultProviderForId(id: string): Provider | undefined {
@@ -699,8 +732,7 @@ export class StoreService {
 	}
 
 	getConnectors(): ConnectorConfig[] {
-		const connectors = this.store.get('connectors');
-		return Array.isArray(connectors) ? connectors : [];
+		return readConnectorSettingsList(this.store.get('connectors'));
 	}
 
 	getConnectorById(id: string): ConnectorConfig | undefined {
@@ -708,11 +740,11 @@ export class StoreService {
 	}
 
 	setConnectors(connectors: ConnectorConfig[]): void {
-		this.store.set('connectors', connectors);
+		this.store.set('connectors', connectorSettingsByKey(connectors));
 	}
 
 	getChannel(): Channel {
-		const channel = this.store.get('channel');
+		const channel = readStoredChannel(this.store.get('channels') ?? this.store.get('channel'));
 		const next = createDefaultChannelState();
 		if (channel?.defaults && typeof channel.defaults === 'object') {
 			setChannelDefaults(next, channel.defaults);
@@ -751,7 +783,7 @@ export class StoreService {
 				...properties,
 			},
 		};
-		this.store.set('channel', next);
+		this.store.set('channels', next);
 		return next;
 	}
 
@@ -761,7 +793,7 @@ export class StoreService {
 			...current,
 			[type]: mergeChannelConfig(type, config) as Channel[TKey],
 		};
-		this.store.set('channel', next);
+		this.store.set('channels', next);
 		return next[type];
 	}
 
@@ -798,6 +830,11 @@ export class StoreService {
 		}
 		this.setStoredModelProviders(providers);
 	}
+}
+
+function readStoredChannel(value: unknown): Channel | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	return value as Channel;
 }
 
 function createDefaultChannelState(): Channel {

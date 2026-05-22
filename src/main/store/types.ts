@@ -41,6 +41,19 @@ export interface BackgroundTaskSettings {
 	defaultConcurrency?: number;
 }
 
+export interface Connectors {
+	google_gmail?: ConnectorConfig;
+	google_calendar?: ConnectorConfig;
+	google_drive?: ConnectorConfig;
+	microsoft_teams?: ConnectorConfig;
+	outlook_calendar?: ConnectorConfig;
+	outlook_email?: ConnectorConfig;
+	sharepoint?: ConnectorConfig;
+	dropbox?: ConnectorConfig;
+}
+
+export type Channels = Channel;
+
 export interface SettingsStore {
 	modelProviders: ModelProviderSettings[];
 	llmAgent?: ModelModuleSettings;
@@ -54,8 +67,8 @@ export interface SettingsStore {
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
 	heartbeat?: HeartbeatStoreState;
-	connectors?: ConnectorConfig[];
-	channel?: Channel;
+	connectors?: Connectors;
+	channels?: Channels;
 	appSettings?: { readonly keepAwakeEnabled: boolean };
 }
 
