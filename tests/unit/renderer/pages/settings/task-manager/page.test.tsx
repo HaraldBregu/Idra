@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
@@ -165,6 +165,7 @@ describe('TaskManagerPage', () => {
 		await waitFor(() => {
 			expect(saveButton).toBeEnabled();
 		});
+		await act(async () => undefined);
 	});
 
 	it('creates an agent task and opens its detail page', async () => {
