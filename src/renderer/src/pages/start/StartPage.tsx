@@ -5,13 +5,18 @@ import {
 	Bot,
 	ChevronDown,
 	Check,
+	Database,
 	ExternalLink,
+	FileSearch,
 	ImageIcon,
 	KeyRound,
 	LoaderCircle,
 	Mic,
+	Music,
 	Pencil,
+	Video,
 	Volume2,
+	type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,7 +25,24 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import type { Model } from '../../../../shared/service';
+import {
+	CHAT_MODELS_BY_PROVIDER,
+	EMBEDDING_MODELS_BY_PROVIDER,
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
+	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
+	type ModelCatalog,
+	type ProviderModel,
+} from '../../../../shared/provider-models';
+import {
+	DOCUMENT_READER_OCR_MODELS,
+	OPERATOR_DEFINITIONS,
+	type ConfiguredModelOperator,
+	type Model,
+	type OperatorStatus,
+} from '../../../../shared/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -51,8 +73,17 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep = 'welcome' | 'providers' | 'operators';
-type OperatorCardId = 'friday' | 'voice-input' | 'voice-output' | 'image-creator';
+type SetupStep = 'presentation' | 'providers' | 'models';
+type ModelAreaId =
+	| 'assistant'
+	| 'speech-to-text'
+	| 'text-to-speech'
+	| 'text-to-image'
+	| 'text-to-video'
+	| 'text-to-audio'
+	| 'ocr'
+	| 'embedding';
+type ModelAreaStatus = OperatorStatus | 'endpoint-backed' | 'unavailable';
 
 type ProviderCatalogItem = {
 	id: string;
@@ -62,18 +93,14 @@ type ProviderCatalogItem = {
 	apiConfigurationUrl?: string;
 };
 
-type StaticModelOption = {
-	id: string;
-	name: string;
-	provider: string;
-	description: string;
-	initial: string;
-	swatchClassName: string;
-};
-
 type ProviderModelGroup = {
 	provider: PublicProvider;
 	models: Model[];
+};
+
+type CatalogModelGroup = {
+	provider: ProviderCatalogItem;
+	models: readonly ProviderModel[];
 };
 
 type AgentModelOption = {
@@ -83,36 +110,81 @@ type AgentModelOption = {
 	model: Model;
 };
 
+type ModelAreaDefinition = {
+	id: ModelAreaId;
+	title: string;
+	purpose: string;
+	icon: LucideIcon;
+	status: ModelAreaStatus;
+};
+
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
-const SETUP_STEPS: readonly SetupStep[] = ['welcome', 'providers', 'operators'];
+const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
 
 const STEP_TITLES: Record<SetupStep, string> = {
-	welcome: 'Welcome',
-	providers: 'Providers',
-	operators: 'Models',
+	presentation: 'Presentation',
+	providers: 'Provider setup',
+	models: 'Configure models',
 };
 
-const TTS_MODELS: readonly StaticModelOption[] = [
+const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 	{
-		id: 'rachel-multilingual',
-		name: 'Rachel - multilingual',
-		provider: 'ElevenLabs',
-		description: `${PRODUCT_NAME} speaks with this voice`,
-		initial: 'E',
-		swatchClassName: 'bg-muted text-muted-foreground',
+		id: 'assistant',
+		title: `${PRODUCT_NAME} Assistant`,
+		purpose: 'Main chat and agent reasoning model.',
+		icon: Bot,
+		status: OPERATOR_DEFINITIONS.assistant.status,
 	},
-];
-
-const IMAGE_MODELS: readonly StaticModelOption[] = [
 	{
-		id: 'image-provider-coming-soon',
-		name: 'Not available yet',
-		provider: 'Image Provider',
-		description: 'Provider support coming soon',
-		initial: 'I',
-		swatchClassName: 'bg-muted text-muted-foreground',
+		id: 'speech-to-text',
+		title: 'Voice Input',
+		purpose: 'Dictation and transcription model.',
+		icon: Mic,
+		status: OPERATOR_DEFINITIONS.speechToText.status,
+	},
+	{
+		id: 'text-to-speech',
+		title: 'Voice Output',
+		purpose: 'Spoken output model.',
+		icon: Volume2,
+		status: OPERATOR_DEFINITIONS.textToSpeech.status,
+	},
+	{
+		id: 'text-to-image',
+		title: 'Text to Image',
+		purpose: 'Image generation model area.',
+		icon: ImageIcon,
+		status: OPERATOR_DEFINITIONS.imageCreator.status,
+	},
+	{
+		id: 'text-to-video',
+		title: 'Text to Video',
+		purpose: 'Video generation model area.',
+		icon: Video,
+		status: OPERATOR_DEFINITIONS.videoCreator.status,
+	},
+	{
+		id: 'text-to-audio',
+		title: 'Text to Audio',
+		purpose: 'Sound and music generation model area.',
+		icon: Music,
+		status: OPERATOR_DEFINITIONS.musicCreator.status,
+	},
+	{
+		id: 'ocr',
+		title: 'OCR',
+		purpose: 'Endpoint-backed document reading with future provider-backed model setup.',
+		icon: FileSearch,
+		status: 'endpoint-backed',
+	},
+	{
+		id: 'embedding',
+		title: 'Embedding',
+		purpose: 'Future semantic indexing model setup.',
+		icon: Database,
+		status: 'unavailable',
 	},
 ];
 
