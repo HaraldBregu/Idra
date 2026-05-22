@@ -52,7 +52,6 @@ function TaskLoadingList(): React.JSX.Element {
 	);
 }
 
-
 function mergeModels(models: readonly Model[], selectedModel?: Model): Model[] {
 	const byId = new Map(models.map((model) => [model.id, model]));
 	if (selectedModel && !byId.has(selectedModel.id)) byId.set(selectedModel.id, selectedModel);
@@ -132,6 +131,7 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 
 	const handleProviderChange = (nextProviderId: string | null): void => {
 		const nextId = nextProviderId ?? '';
+		if (nextId === providerId) return;
 		const nextProvider = providers.find((provider) => provider.id === nextId);
 		setProviderId(nextId);
 		setModelId('');
@@ -202,7 +202,9 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 							<Select
 								value={modelId}
 								onValueChange={(nextModelId) => {
-									setModelId(nextModelId ?? '');
+									const nextId = nextModelId ?? '';
+									if (nextId === modelId) return;
+									setModelId(nextId);
 									setSaved(false);
 								}}
 								disabled={loading || loadingModels || !selectedProvider || models.length === 0 || saving}

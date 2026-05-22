@@ -7,7 +7,6 @@ import type { TaskEvent, TaskRecord } from '../../../../../../src/shared/tasks';
 import TaskManagerPage from '../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page';
 import TaskDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page';
 
-
 const openAiProvider: PublicProvider = {
 	id: 'openai',
 	name: 'OpenAI',
@@ -48,7 +47,6 @@ function mockTasksApi(overrides: Partial<typeof window.tasks> = {}): void {
 		...overrides,
 	};
 }
-
 
 function mockAppApi(overrides: Partial<typeof window.app> = {}): void {
 	window.app = {
@@ -124,7 +122,6 @@ describe('TaskManagerPage', () => {
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/task-manager/taskdetails/task-1');
 	});
-
 
 	it('saves the provider and model used by background tasks', async () => {
 		const user = userEvent.setup();
