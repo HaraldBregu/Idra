@@ -74,8 +74,6 @@ export const TaskChannels = {
 } as const;
 
 export const AppChannels = {
-	setTheme: 'set-theme',
-	themeChanged: 'change-theme',
 	getLogs: 'app:get-logs',
 	openLogsFolder: 'app:open-logs-folder',
 	openAppDataFolder: 'app:open-app-data-folder',
@@ -642,14 +640,12 @@ export interface SendChannelMap {
 	[WindowChannels.maximize]: { args: [] };
 	[WindowChannels.close]: { args: [] };
 	[WindowChannels.popupMenu]: { args: [] };
-	[AppChannels.setTheme]: { args: [theme: import('./theme').ThemeMode] };
 	[RealtimeTranscriptionChannels.appendAudio]: {
 		args: [sessionId: string, audio: string];
 	};
 }
 
 interface AppEventChannelMap {
-	[AppChannels.themeChanged]: { data: import('./theme').ThemeMode };
 	[RealtimeTranscriptionChannels.event]: {
 		data: import('./realtime-transcription').RealtimeTranscriptionEvent;
 	};
