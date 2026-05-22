@@ -10,6 +10,8 @@
 
 ## Boundaries
 
+- It can delete files only inside the current workspace.
+- It must not delete files outside the current workspace.
 - It should be used cautiously because removal can lose work.
 - It should not remove unrelated dead code or files unless the user requested
   that cleanup.

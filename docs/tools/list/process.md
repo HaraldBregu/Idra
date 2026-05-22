@@ -11,4 +11,7 @@
 ## Boundaries
 
 - It is for processes Friday started through tool use.
+- It can review or stop those processes even when they were launched from inside
+  or outside the current workspace.
+- It does not directly change files.
 - It should not interfere with unrelated user processes.

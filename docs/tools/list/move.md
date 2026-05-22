@@ -10,5 +10,7 @@
 
 ## Boundaries
 
+- It can move or rename files only inside the current workspace.
+- It must not move, remove, or rename files outside the current workspace.
 - It should not reorganize unrelated project structure.
 - It should account for links or references that may need to follow the move.

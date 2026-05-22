@@ -11,5 +11,7 @@
 
 ## Boundaries
 
+- It can create or overwrite files only inside the current workspace.
+- It must not change files outside the current workspace.
 - It is not the right choice for small targeted edits.
 - It should not overwrite unrelated user work.

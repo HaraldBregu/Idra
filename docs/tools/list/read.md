@@ -1,7 +1,7 @@
 # read
 
-`read` lets Friday look at an existing workspace file before answering about it
-or changing it.
+`read` lets Friday look at an existing file before answering about it or
+changing related workspace files.
 
 ## How It Is Used
 
@@ -13,4 +13,6 @@ or changing it.
 ## Boundaries
 
 - It does not change files.
+- It may read permitted files outside the current workspace when the runtime
+  allows it.
 - It should stay focused on files relevant to the request.

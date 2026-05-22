@@ -12,4 +12,6 @@ seen from it safely.
 ## Boundaries
 
 - It is for inspection, not editing.
+- It may inspect permitted files outside the current workspace when the runtime
+  allows it.
 - It should not replace reading a text file when the actual text matters.

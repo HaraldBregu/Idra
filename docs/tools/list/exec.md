@@ -1,6 +1,6 @@
 # exec
 
-`exec` runs an approved command in the workspace.
+`exec` runs an approved command or script.
 
 ## How It Is Used
 
@@ -11,5 +11,10 @@
 
 ## Boundaries
 
+- It can execute approved scripts or commands inside or outside the current
+  workspace when permissions allow it.
+- Execution location is not the same as file mutation permission; file-changing
+  work should still stay inside the workspace unless a broader permission is
+  explicitly granted.
 - It should not run destructive commands unless the user clearly asked for them.
 - It should not replace purpose-built tools when a safer tool exists.

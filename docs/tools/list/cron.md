@@ -11,5 +11,8 @@
 
 ## Boundaries
 
+- It does not directly change files.
+- Any agent run started from a schedule should follow the same workspace file
+  mutation boundaries as normal tool use.
 - It is for future or repeating work, not work that should start now.
 - It should not store secrets or provider credentials in the schedule.

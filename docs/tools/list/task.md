@@ -10,5 +10,8 @@
 
 ## Boundaries
 
+- It does not directly change files.
+- Any background agent run should follow the same workspace file mutation
+  boundaries as normal tool use.
 - It is for approved agent background work, not arbitrary hidden execution.
 - Future or recurring work should use `cron` instead.

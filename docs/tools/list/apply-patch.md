@@ -12,5 +12,7 @@
 
 ## Boundaries
 
+- It can change files only inside the current workspace.
+- Patch targets must not point outside the current workspace.
 - It should only touch files that are part of the requested work.
 - It should not be used for broad cleanup that the user did not ask for.

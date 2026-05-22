@@ -10,5 +10,6 @@
 
 ## Boundaries
 
+- It does not directly change workspace or external files.
 - It should open only safe, relevant web addresses.
 - It does not control or inspect the page after opening it.

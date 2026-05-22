@@ -10,6 +10,9 @@
 
 ## Boundaries
 
+- It does not directly edit workspace files.
+- Browser interactions can affect external web pages, so account-changing
+  actions should be limited to explicit user requests.
 - It should be used only when browser interaction is needed.
 - It should avoid actions that change external accounts unless the user clearly
   asked for them.

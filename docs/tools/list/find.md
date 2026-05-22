@@ -11,5 +11,8 @@
 
 ## Boundaries
 
+- It may locate permitted files outside the current workspace when the runtime
+  allows it.
+- It does not change files.
 - It should not scan the project aimlessly.
 - It should use the narrowest useful search for the user's request.

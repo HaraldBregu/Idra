@@ -11,7 +11,7 @@ the user's request, safety rules, and the current run context.
 
 | Folder | Contents |
 | --- | --- |
-| [list](list/read.md) | One page for each preloaded local tool. |
+| [list](list/index.md) | One page for each preloaded local tool, plus shared workspace boundaries. |
 | [search](search/index.md) | Provider-specific documentation for tool search. |
 
 ## Preloaded Local Tools
