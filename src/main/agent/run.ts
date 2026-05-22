@@ -632,6 +632,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		outputChars: finalText.length,
 		firstTokenLatencyMs,
 	});
+	agentLogger.info('agent:run', 'run finished', { runId, stopReason, iterations: completedIterations, inputTokens: totalUsage.inputTokens, outputTokens: totalUsage.outputTokens, durationMs: Date.now() - runStart });
 
 	return {
 		finalText,
