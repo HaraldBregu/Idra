@@ -82,26 +82,103 @@ remains `operators` for route/state compatibility. It loads connected providers,
 assistant settings, speech-to-text settings, and model lists through the preload
 APIs.
 
-Only connected providers are shown in model selectors. The model catalog and
-module contracts come from [docs/models](../models/index.md); this start-page
-document should summarize that catalog instead of redefining provider/model
-ownership.
+Only connected providers are shown in model selectors. The reference for this
+step is [docs/models/index.md](../models/index.md); the tables below mirror the
+model families, store keys, support levels, and runtime status documented
+there.
 
-| Start setup area | Store key | Source model docs | Start-page behavior | Runtime status from `docs/models` |
+### Step 3 Model Reference
+
+| Start setup card | Model family from `docs/models` | Store key | Support level | Runtime status |
 | --- | --- | --- | --- | --- |
-| Friday Assistant | `llmAgent` | [Large language model](../models/large-language-model.md) | Shows connected providers with explicit assistant model catalogs from `window.app.getModels(provider)`. | Implemented |
-| Voice Input | `speechToText` | [Speech to text](../models/speech-to-text.md) | Shows connected providers with speech-to-text model catalogs from `window.app.getSpeechToTextModels(provider)`. | Implemented for OpenAI realtime |
-| Voice Output | `textToSpeech` | [Text to speech](../models/text-to-speech.md) | Renders the current ElevenLabs model selection, but does not save it from start setup yet. | Pending runtime |
-| Text To Image | `imageCreator` | [Text to image](../models/text-to-image.md) | Renders a disabled placeholder model card. | Service, task, and tool path exist; provider adapters pending |
+| Friday Assistant | [Large language model](../models/large-language-model.md) | `llmAgent` | Explicit model catalog | Implemented |
+| Voice Input | [Speech to text](../models/speech-to-text.md) | `speechToText` | OpenAI explicit model plus provider placeholders | Implemented for OpenAI realtime |
+| Voice Output | [Text to speech](../models/text-to-speech.md) | `textToSpeech` | ElevenLabs explicit model plus provider placeholders | Pending runtime |
+| Text To Image | [Text to image](../models/text-to-image.md) | `imageCreator` | Provider-keyed placeholder catalog | Service, task, and tool path exist; provider adapters pending |
 
-Model families documented in `docs/models` but not rendered in start setup:
+### Assistant Model Coverage
 
-| Model family | Store key | Source model docs | Start setup status |
-| --- | --- | --- | --- |
-| Text to video | `textToVideo` | [Text to video](../models/text-to-video.md) | Settings-only / future setup card |
-| Text to audio / music | `textToSound` | [Text to audio](../models/music-creator.md) | Settings-only / future setup card |
-| OCR | `ocr` | [OCR](../models/ocr.md) | Settings-only / future setup card |
-| Embedding | `embedding` | [Embedding](../models/embedding.md) | Not exposed until the default catalog is populated |
+The Friday Assistant card uses the LLM agent model catalog from
+[large-language-model.md](../models/large-language-model.md). The selector is
+populated by `window.app.getModels(provider)` for connected providers only.
+
+| Provider id | Model ids from `docs/models` |
+| --- | --- |
+| `openai` | `gpt-5.5`, `gpt-5.5-pro`, `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.4-mini` |
+| `anthropic` | `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-haiku-4-5` |
+| `google` | `gemini-3.1-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite` |
+| `meta` | `llama-4-maverick`, `llama-4-scout`, `llama-3.3-70b` |
+| `xai` | `grok-4.3`, `grok-4.3-fast`, `grok-code-fast` |
+| `mistral` | `mistral-large-2512`, `mistral-large-latest`, `mistral-medium-2604`, `mistral-medium-latest`, `mistral-medium-2508`, `mistral-small-2603`, `mistral-small-latest`, `ministral-14b-2512`, `ministral-14b-latest`, `ministral-8b-2512`, `ministral-8b-latest`, `ministral-3b-2512`, `ministral-3b-latest`, `magistral-medium-2509`, `magistral-medium-latest` |
+| `deepseek` | `deepseek-v4-pro`, `deepseek-v4-flash` |
+| `qwen` | `qwen3-max`, `qwen3.5-plus`, `qwen3.5-flash`, `qwen3-coder-plus`, `qwq-plus` |
+| `kimi` | `kimi-k2.6`, `kimi-k2.5`, `kimi-k2`, `kimi-latest` |
+| `zai` | `glm-5.1`, `glm-5`, `glm-4.6`, `glm-4.5v`, `glm-z1` |
+| `minimax` | `minimax-m2.7` |
+| `luma` | `uni-1` |
+| `reka` | `reka-core`, `reka-flash`, `reka-edge` |
+| `perplexity` | `sonar-reasoning-pro`, `sonar-pro`, `sonar-deep-research`, `r1-1776` |
+
+### Voice Input Model Coverage
+
+The Voice Input card uses the speech-to-text catalog from
+[speech-to-text.md](../models/speech-to-text.md). The selector is populated by
+`window.app.getSpeechToTextModels(provider)` for connected providers only.
+
+| Provider id | Model id | Start setup status |
+| --- | --- | --- |
+| `openai` | `gpt-realtime-whisper` | Concrete selectable transcription model |
+| `google` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `xai` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `mistral` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `qwen` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `elevenlabs` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+| `deepgram` | `speech-to-text-provider-coming-soon` | Placeholder catalog entry |
+
+### Voice Output Model Coverage
+
+The Voice Output card references the text-to-speech catalog from
+[text-to-speech.md](../models/text-to-speech.md). The start page currently
+renders only the concrete ElevenLabs option and does not save a text-to-speech
+model from `handleSaveAgentModel`.
+
+| Provider id | Model id | Start setup status |
+| --- | --- | --- |
+| `elevenlabs` | `rachel-multilingual` | Rendered concrete model entry |
+| `openai` | `text-to-speech-provider-coming-soon` | Not rendered in start setup |
+| `google` | `text-to-speech-provider-coming-soon` | Not rendered in start setup |
+| `mistral` | `text-to-speech-provider-coming-soon` | Not rendered in start setup |
+| `minimax` | `text-to-speech-provider-coming-soon` | Not rendered in start setup |
+| `deepgram` | `text-to-speech-provider-coming-soon` | Not rendered in start setup |
+| `cartesia` | `text-to-speech-provider-coming-soon` | Not rendered in start setup |
+
+### Text To Image Model Coverage
+
+The Text To Image card references the text-to-image catalog from
+[text-to-image.md](../models/text-to-image.md). The start page renders this as a
+disabled placeholder card.
+
+| Provider id | Model id | Start setup status |
+| --- | --- | --- |
+| `openai` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `google` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `xai` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `qwen` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `black-forest-labs` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `midjourney` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `kling` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `luma` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `stability-ai` | `image-provider-coming-soon` | Placeholder catalog entry |
+| `ideogram` | `image-provider-coming-soon` | Placeholder catalog entry |
+
+### Model Families Not Rendered In Step 3
+
+| Model family from `docs/models` | Store key | Start setup status |
+| --- | --- | --- |
+| [Text to video](../models/text-to-video.md) | `textToVideo` | Settings-only / future setup card |
+| [Text to audio](../models/music-creator.md) | `textToSound` | Settings-only / future setup card |
+| [OCR](../models/ocr.md) | `ocr` | Settings-only / future setup card |
+| [Embedding](../models/embedding.md) | `embedding` | Not exposed until the default catalog is populated |
 
 ### Friday Assistant
 
