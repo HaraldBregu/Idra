@@ -4,9 +4,8 @@ Background tasks are immediate agent runs that continue while Friday remains
 usable. They are for agent work that may take noticeable time and should not
 block the rest of the app.
 
-Only agent work should run as a background task. Media generation, OCR,
-connector sync, local operations, and similar feature work should use their own
-feature flows unless an agent task is coordinating that work.
+Only agent work should run as a background task. Other feature work should use
+its own flow unless an agent task is coordinating that work.
 
 ## Purpose
 
