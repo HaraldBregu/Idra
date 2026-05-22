@@ -124,6 +124,45 @@ describe('StartPage', () => {
 		expect(screen.getByText('Embedding')).toBeInTheDocument();
 	});
 
+	it('saves provider and model selections for every configurable model area', async () => {
+		const user = userEvent.setup();
+		renderStartPage();
+
+		await user.click(screen.getByRole('button', { name: /Get started/ }));
+		const providerContinueButton = screen.getByRole('button', { name: /Continue/ });
+
+		await waitFor(() => {
+			expect(providerContinueButton).toBeEnabled();
+		});
+		await user.click(providerContinueButton);
+
+		expect(await screen.findByRole('heading', { name: 'Configure models' })).toBeInTheDocument();
+		const modelContinueButton = screen.getByRole('button', { name: /Continue/ });
+
+		await waitFor(() => {
+			expect(modelContinueButton).toBeEnabled();
+		});
+		await user.click(modelContinueButton);
+
+		await waitFor(() => {
+			expect(window.app.saveAssistantOperator).toHaveBeenCalledWith(openAiProvider, assistantModel);
+			expect(window.app.saveSpeechToTextOperator).toHaveBeenCalledWith(
+				openAiProvider,
+				speechModel
+			);
+			expect(window.app.saveTextToSpeechOperator).toHaveBeenCalledWith(
+				openAiProvider,
+				textToSpeechModel
+			);
+			expect(window.app.saveImageCreatorOperator).toHaveBeenCalledWith(
+				openAiProvider,
+				imageModel
+			);
+			expect(window.app.saveTextToVideoOperator).toHaveBeenCalledWith(openAiProvider, videoModel);
+			expect(window.app.saveMusicCreatorOperator).toHaveBeenCalledWith(openAiProvider, audioModel);
+		});
+	});
+
 	it('keeps saved provider keys masked outside the edit draft', async () => {
 		const user = userEvent.setup();
 		renderStartPage();
