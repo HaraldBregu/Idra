@@ -8,7 +8,7 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 
 | Model type | Model count | Providers |
 | --- | --- | --- |
-| Large Language Models | 29 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google.md), [Meta](meta.md), [xAI](xai.md), [Mistral AI](mistral.md), [DeepSeek](deepseek.md), [Alibaba / Qwen / Wan](qwen.md), [Moonshot AI / Kimi](kimi.md), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
+| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google.md), [Meta](meta.md), [xAI](xai.md), [Mistral AI](mistral.md), [DeepSeek](deepseek.md), [Alibaba / Qwen / Wan](qwen.md), [Moonshot AI / Kimi](kimi.md), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
 | Research Chat Models | 4 | [Perplexity](perplexity.md) |
 | Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram.md), [ElevenLabs](elevenlabs.md), [Mistral AI](mistral.md), [xAI](xai.md), [Alibaba / Qwen / Wan](qwen.md) |
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs.md), [Cartesia](cartesia.md), [OpenAI](openai.md), [Google DeepMind / Google](google.md), [MiniMax](minimax.md), [Mistral AI](mistral.md), [Deepgram](deepgram.md) |

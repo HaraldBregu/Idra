@@ -20,8 +20,8 @@ This folder documents the Anthropic large language models we plan to use.
 
 | Model | API id | API alias | Bedrock id | Vertex id |
 | --- | --- | --- | --- | --- |
-| Claude Opus 4.7 | `claude-opus-4-7` |  | `anthropic.claude-opus-4-73` | `claude-opus-4-7` |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` |  | `anthropic.claude-sonnet-4-6` | `claude-sonnet-4-6` |
+| Claude Opus 4.7 | `claude-opus-4-7` | - | `anthropic.claude-opus-4-73` | `claude-opus-4-7` |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` | - | `anthropic.claude-sonnet-4-6` | `claude-sonnet-4-6` |
 | Claude Haiku 4.5 | `claude-haiku-4-5-20251001` | `claude-haiku-4-5` | `anthropic.claude-haiku-4-5-20251001-v1:0` | `claude-haiku-4-5@20251001` |
 
 ## Thinking And Cutoffs
