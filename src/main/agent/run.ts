@@ -601,6 +601,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					durationMs,
 					errorText: status === 'error' ? outText : undefined,
 				});
+				agentLogger.info('agent:run', 'tool call', { runId, tool: t.name, iter, status, durationMs, outputChars: outText.length });
 				session.transcript.push({
 					role: 'tool',
 					toolUseId: id,
