@@ -25,6 +25,7 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
+import { AGENTS, type AgentId } from '../../../../shared/agents';
 import {
 	DOCUMENT_READER_OCR_MODELS,
 	OPERATOR_DEFINITIONS,
@@ -62,15 +63,6 @@ type ProviderSetupEntry = {
 };
 
 type SetupStep = 'presentation' | 'providers' | 'models';
-type ModelAreaId =
-	| 'assistant'
-	| 'speech-to-text'
-	| 'text-to-speech'
-	| 'text-to-image'
-	| 'text-to-video'
-	| 'text-to-audio'
-	| 'ocr'
-	| 'embedding';
 
 type ProviderCatalogItem = {
 	id: string;
@@ -107,6 +99,17 @@ const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
+const MODEL_AREA_IDS = [
+	AGENTS.assistant,
+	AGENTS.speechToText,
+	AGENTS.textToSpeech,
+	AGENTS.textToImage,
+	AGENTS.textToVideo,
+	AGENTS.textToAudio,
+	AGENTS.documentReader,
+	AGENTS.embedding,
+] as const satisfies readonly AgentId[];
+type ModelAreaId = (typeof MODEL_AREA_IDS)[number];
 
 const STEP_TITLES: Record<SetupStep, string> = {
 	presentation: 'Presentation',
@@ -116,49 +119,49 @@ const STEP_TITLES: Record<SetupStep, string> = {
 
 const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 	{
-		id: 'assistant',
+		id: AGENTS.assistant,
 		title: `${PRODUCT_NAME} Assistant`,
 		purpose: 'Main chat and agent reasoning model.',
 		icon: Bot,
 	},
 	{
-		id: 'speech-to-text',
+		id: AGENTS.speechToText,
 		title: 'Voice Input',
 		purpose: 'Dictation and transcription model.',
 		icon: Mic,
 	},
 	{
-		id: 'text-to-speech',
+		id: AGENTS.textToSpeech,
 		title: 'Voice Output',
 		purpose: 'Spoken output model.',
 		icon: Volume2,
 	},
 	{
-		id: 'text-to-image',
+		id: AGENTS.textToImage,
 		title: 'Text to Image',
 		purpose: 'Image generation model area.',
 		icon: ImageIcon,
 	},
 	{
-		id: 'text-to-video',
+		id: AGENTS.textToVideo,
 		title: 'Text to Video',
 		purpose: 'Video generation model area.',
 		icon: Video,
 	},
 	{
-		id: 'text-to-audio',
+		id: AGENTS.textToAudio,
 		title: 'Text to Audio',
 		purpose: 'Sound and music generation model area.',
 		icon: Music,
 	},
 	{
-		id: 'ocr',
+		id: AGENTS.documentReader,
 		title: 'OCR',
 		purpose: 'Document reading setup.',
 		icon: FileSearch,
 	},
 	{
-		id: 'embedding',
+		id: AGENTS.embedding,
 		title: 'Embedding',
 		purpose: 'Future semantic indexing model setup.',
 		icon: Database,
@@ -261,7 +264,7 @@ function StepProgress({ currentIndex }: { readonly currentIndex: number }): Reac
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState<SetupStep>('presentation');
-	const [expandedModelAreaId, setExpandedModelAreaId] = useState<ModelAreaId>('assistant');
+	const [expandedModelAreaId, setExpandedModelAreaId] = useState<ModelAreaId>(AGENTS.assistant);
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
@@ -1211,7 +1214,7 @@ const StartPage: React.FC = () => {
 		const selectedMusicCreatorModels = selectedMusicCreatorGroup?.models ?? [];
 		const ocrModelName = DOCUMENT_READER_OCR_MODELS[0]?.name ?? 'Not available yet';
 		const toggleModelArea = (areaId: ModelAreaId): void => {
-			setExpandedModelAreaId((current) => (current === areaId ? 'assistant' : areaId));
+			setExpandedModelAreaId((current) => (current === areaId ? AGENTS.assistant : areaId));
 		};
 		const renderProviderModelFields = ({
 			providerSelectId,
@@ -1344,7 +1347,7 @@ const StartPage: React.FC = () => {
 
 				<div className="mt-4 space-y-2">
 					{renderModelAreaPanel(
-						'assistant',
+						AGENTS.assistant,
 						selectedModelName || modelCountLabel,
 						<>
 							<div className="grid gap-3 sm:grid-cols-2">
@@ -1392,7 +1395,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'speech-to-text',
+						AGENTS.speechToText,
 						speechStatus,
 						<>
 							<div className="grid gap-3 sm:grid-cols-2">
@@ -1445,7 +1448,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'text-to-speech',
+						AGENTS.textToSpeech,
 						loadingModels
 							? 'Loading models...'
 							: getProviderModelSelectionLabel(selectedTextToSpeechOption),
@@ -1467,7 +1470,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'text-to-image',
+						AGENTS.textToImage,
 						loadingModels
 							? 'Loading models...'
 							: getProviderModelSelectionLabel(selectedImageCreatorOption),
@@ -1489,7 +1492,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'text-to-video',
+						AGENTS.textToVideo,
 						loadingModels
 							? 'Loading models...'
 							: getProviderModelSelectionLabel(selectedTextToVideoOption),
@@ -1511,7 +1514,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'text-to-audio',
+						AGENTS.textToAudio,
 						loadingModels
 							? 'Loading models...'
 							: getProviderModelSelectionLabel(selectedMusicCreatorOption),
@@ -1533,7 +1536,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'ocr',
+						AGENTS.documentReader,
 						'Document reading',
 						<>
 							<div className="grid gap-3 sm:grid-cols-2">
@@ -1556,7 +1559,7 @@ const StartPage: React.FC = () => {
 					)}
 
 					{renderModelAreaPanel(
-						'embedding',
+						AGENTS.embedding,
 						'Semantic indexing',
 						<>
 							<SettingsNotice icon={Database}>
