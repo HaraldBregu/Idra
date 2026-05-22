@@ -49,8 +49,7 @@ interface SettingsStore {
 	heartbeat?: HeartbeatStoreState;
 	connectors?: ConnectorConfig[];
 	channel?: Channel;
-	appSettings?: AppSettings;
-	appPermissions?: AppPermissionSettings;
+	appSettings?: { readonly keepAwakeEnabled: boolean };
 }
 ```
 
@@ -232,28 +231,14 @@ allowlists, default targets, and heartbeat visibility settings. Those values
 belong to the channel owner. They must not be copied into task input, schedule
 payloads, model module options, or tool payloads.
 
-## App Settings And Permissions
+## App Settings
 
-```ts
-interface AppSettings {
-	keepAwakeEnabled: boolean;
-}
+Current app settings defaults are:
 
-interface AppPermissionSettings {
-	microphoneEnabled: boolean;
-	cameraEnabled: boolean;
-}
-```
+- : .
 
-App settings and app permission toggles are separate roots. Current defaults
-are:
-
-- `appSettings.keepAwakeEnabled`: `false`.
-- `appPermissions.microphoneEnabled`: `true`.
-- `appPermissions.cameraEnabled`: `true`.
-
-These settings are app-level preferences. System permission status is reported
-through platform APIs and should not be persisted in these roots.
+Permission status and app-level microphone or camera toggles are runtime state
+and should not be persisted in the settings store.
 
 ## Migration And Compatibility Rules
 
