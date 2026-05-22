@@ -153,17 +153,28 @@ describe('TaskManagerPage', () => {
 	});
 
 	it('saves the provider and model used by background tasks', async () => {
+		let resolveSave: ((saved: boolean) => void) | undefined;
+		mockAppApi({
+			saveAgentService: jest.fn(
+				() =>
+					new Promise<boolean>((resolve) => {
+						resolveSave = resolve;
+					})
+			),
+		});
 		const user = userEvent.setup();
 		renderTaskManagerPage();
-		await waitForRuntimeReady();
+		const saveButton = await waitForRuntimeReady();
 
-		const saveButton = screen.getByRole('button', {
-			name: /settings\.taskManager\.runtime\.save/,
-		});
 		await user.click(saveButton);
 
+		let resolved = false;
 		await waitFor(() => {
 			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
+			if (!resolved) {
+				resolved = true;
+				resolveSave?.(true);
+			}
 		});
 		expect(await screen.findByText('settings.taskManager.runtime.saved')).toBeInTheDocument();
 		await waitFor(() => {
