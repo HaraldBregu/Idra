@@ -23,11 +23,12 @@ const ConnectorsPage = () => {
 		connectOAuth,
 		toggleConnector,
 	} = useConnectors();
+	const configuredConnectorIds = new Set(connectors.map((connector) => connector.connectorId));
 
 	const addConnector = async (input: ConnectorInput): Promise<void> => {
 		setError(null);
 		try {
-			const alreadyConfigured = connectors.some((connector) => connector.connectorId === input.connectorId);
+			const alreadyConfigured = configuredConnectorIds.has(input.connectorId);
 			if (alreadyConfigured) {
 				setError(`Connector ${input.connectorId} is already configured.`);
 				return;
@@ -84,7 +85,7 @@ const ConnectorsPage = () => {
 						key={item.id}
 						item={item}
 						onAdd={addConnector}
-						alreadyConfigured={connectors.some((connector) => connector.connectorId === item.id)}
+						alreadyConfigured={configuredConnectorIds.has(item.id as OpenAiConnectorId)}
 					/>
 				))}
 			</div>
