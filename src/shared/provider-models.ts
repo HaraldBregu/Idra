@@ -103,7 +103,11 @@ export const XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID = 'xai-stt-batch';
 export const XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID = 'xai-stt-streaming';
 
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
-	openai: [model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT Realtime Whisper')],
+	openai: [
+		model(GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Transcribe'),
+		model(MINI_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Mini Transcribe'),
+		model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT Realtime Whisper'),
+	],
 	deepgram: [model('nova-3', 'Nova 3'), model('flux', 'Flux')],
 	elevenlabs: [
 		model(ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID, 'Scribe v2'),
