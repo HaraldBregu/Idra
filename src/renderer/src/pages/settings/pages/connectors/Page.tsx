@@ -30,6 +30,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
+import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { ConnectorDocumentationRows } from './components/ConnectorDocumentationRows';
 import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors, type ConnectorCatalog } from './hooks/useConnectors';
