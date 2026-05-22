@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AgentTool } from '../tools/types';
 import type { MemoryManager } from '../memory';
-import type { SkillPromptChoice } from '../skills/types';
+import type { SkillPromptChoice } from '../skills/core/types';
 import type { BootstrapMode } from '../workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
