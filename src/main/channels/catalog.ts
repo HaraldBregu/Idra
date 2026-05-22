@@ -8,4 +8,4 @@ export {
 	listChannelCatalog,
 	normalizeChannelId,
 	type ChannelCatalogEntry,
-} from '../../shared/channel-catalog';
+} from '../../shared/channels';

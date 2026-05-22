@@ -71,7 +71,7 @@ import type {
 	ChannelType,
 	TelegramChannelProperties,
 } from '../shared/channels';
-import type { ChannelCatalogEntry } from '../shared/channel-catalog';
+import type { ChannelCatalogEntry } from '../shared/channels';
 import type { AppInfo } from '../shared/app-info';
 import type { ThemeMode } from '../shared/theme';
 import type {

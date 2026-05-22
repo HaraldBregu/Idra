@@ -10,7 +10,7 @@ import {
 	type ChannelType,
 	type TelegramChannelProperties,
 } from '../../shared/channels';
-import { listChannelCatalog, normalizeChannelId } from '../../shared/channel-catalog';
+import { listChannelCatalog, normalizeChannelId } from '../../shared/channels';
 
 function normalizeTelegramConfig(config: TelegramChannelProperties): TelegramChannelProperties {
 	const normalized: TelegramChannelProperties = {

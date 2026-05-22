@@ -2,7 +2,7 @@ import React from 'react';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ChannelType } from '../../../../../../shared/channels';
-import { getChannelBrandIconId } from '../../../../../../shared/channel-catalog';
+import { getChannelBrandIconId } from '../../../../../../shared/channels';
 
 type ChannelIconAsset = {
 	readonly light: string;

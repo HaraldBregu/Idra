@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { getChannelCatalogEntry } from '../../../../../shared/channel-catalog';
+import { getChannelCatalogEntry } from '../../../../../shared/channels';
 import {
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,

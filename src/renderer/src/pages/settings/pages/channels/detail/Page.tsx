@@ -57,7 +57,7 @@ import {
 	buildChannelDocsUrl,
 	isChannelId,
 	type ChannelCatalogEntry,
-} from '../../../../../../../shared/channel-catalog';
+} from '../../../../../../../shared/channels';
 import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
