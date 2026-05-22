@@ -13,7 +13,7 @@ import { ConnectorCard } from './components/ConnectorCard';
 import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { useConnectors } from './hooks/useConnectors';
 
-const ConnectorsPage = (): React.JSX.Element => {
+const ConnectorsPage = (): JSX.Element => {
 	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId,
