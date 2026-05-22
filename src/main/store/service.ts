@@ -16,12 +16,12 @@ import {
 	type Model,
 	type ModelOperatorSelection,
 	type OperatorStoreState,
-} from '../../shared/service';
+} from '../../shared/agents/service';
 import {
 	getMusicModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
-} from '../../shared/provider-models';
+} from '../../shared/providers';
 import type { CronTask } from '../../shared/cron';
 import {
 	CHANNEL_PROVIDER_IDS,

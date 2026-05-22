@@ -1,6 +1,6 @@
 import type { ModelModuleSettings } from '../store/types';
 import type { StoreService } from '../store';
-import { isAllowedImageCreatorModelForProvider } from '../../shared/service';
+import { isAllowedImageCreatorModelForProvider } from '../../shared/agents/service';
 import type { Provider } from '../../shared/providers';
 import {
 	EMPTY_TEXT_TO_IMAGE_ADAPTER_REGISTRY,

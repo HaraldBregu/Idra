@@ -1,4 +1,4 @@
-import type { ApprovalDecision, AgentRunState } from '../../../../../shared/service';
+import type { ApprovalDecision, AgentRunState } from '../../../../../shared/agents/service';
 import type { AgentToolPart } from './tool-parts';
 
 export type { AgentRunState, AgentToolPart };

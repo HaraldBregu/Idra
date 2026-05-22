@@ -8,7 +8,7 @@ import {
 	SPEECH_TO_TEXT_OPERATOR_ID,
 	TEXT_TO_SPEECH_OPERATOR_ID,
 	TEXT_TO_VIDEO_OPERATOR_ID,
-} from '../../../../../shared/service';
+} from '../../../../../shared/agents/service';
 import { SETTINGS_NAVIGATION } from '../navigation';
 
 interface SettingsBreadcrumbItem {

@@ -30,7 +30,7 @@ import {
 	OPERATOR_DEFINITIONS,
 	type ConfiguredModelOperator,
 	type Model,
-} from '../../../../shared/service';
+} from '../../../../shared/agents/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

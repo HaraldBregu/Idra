@@ -53,14 +53,14 @@ import {
 	type ConfiguredModelOperator,
 	type Model,
 	type ModelReasoningEffort,
-} from '../../../../../../../shared/service';
+} from '../../../../../../../shared/agents/service';
 import {
 	IMAGE_CREATOR_MODELS,
 	MUSIC_CREATOR_MODELS,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	TEXT_TO_VIDEO_MODELS,
-} from '../../../../../../../shared/provider-models';
+} from '../../../../../../../shared/providers';
 
 function getErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim().length > 0) {

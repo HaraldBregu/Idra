@@ -1,7 +1,7 @@
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
-} from '../../../../../shared/service';
+} from '../../../../../shared/agents/service';
 import type { HomeMultiSelectMessage } from './state';
 
 export type AgentChatAction =

@@ -3,12 +3,12 @@ import WebSocket from 'ws';
 import {
 	ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../shared/provider-models';
+} from '../../shared/providers';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/service';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,

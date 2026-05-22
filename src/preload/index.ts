@@ -64,7 +64,7 @@ import type {
 	Model,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
-} from '../shared/service';
+} from '../shared/agents/service';
 import type {
 	Channel,
 	ChannelStatusEvent,

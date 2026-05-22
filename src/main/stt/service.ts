@@ -7,7 +7,7 @@ import {
 	isAllowedSpeechToTextModel,
 	type ConfiguredModelOperator,
 	type Model,
-} from '../../shared/service';
+} from '../../shared/agents/service';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,

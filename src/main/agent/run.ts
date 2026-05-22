@@ -21,7 +21,7 @@ import type {
 	AgentRunState,
 	ModelReasoningEffort,
 	ReasoningSummaryState,
-} from '../../shared/service';
+} from '../../shared/agents/service';
 
 export interface AgentRunHooks {
 	onStart?: (info: { runId: string }) => void | Promise<void>;

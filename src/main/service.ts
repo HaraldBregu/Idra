@@ -45,7 +45,7 @@ import {
 	type ApprovalDecision,
 	type ModelReasoningEffort,
 	type OperatorStoreState,
-} from '../shared/service';
+} from '../shared/agents/service';
 import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';

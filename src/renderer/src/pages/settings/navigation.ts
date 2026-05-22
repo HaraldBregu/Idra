@@ -23,7 +23,7 @@ import {
 	SPEECH_TO_TEXT_OPERATOR_ID,
 	TEXT_TO_SPEECH_OPERATOR_ID,
 	TEXT_TO_VIDEO_OPERATOR_ID,
-} from '../../../../shared/service';
+} from '../../../../shared/agents/service';
 
 export interface SettingsNavigationItem {
 	readonly path: string;

@@ -1,5 +1,5 @@
 import type { Provider } from '../../shared/providers';
-import type { ModelReasoningEffort } from '../../shared/service';
+import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import type { Channel } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connectors';

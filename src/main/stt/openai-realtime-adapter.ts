@@ -11,11 +11,11 @@ import type {
 import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 	isRealtimeSpeechTranscriberModel,
-} from '../../shared/service';
+} from '../../shared/agents/service';
 import {
 	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
-} from '../../shared/provider-models';
+} from '../../shared/providers';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,

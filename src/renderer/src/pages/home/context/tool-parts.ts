@@ -3,7 +3,7 @@ import type {
 	AgentHistoryContentBlock,
 	AgentResponseEvent,
 	AgentToolCallStatus,
-} from '../../../../../shared/service';
+} from '../../../../../shared/agents/service';
 
 export type AgentToolPart = ToolPart & {
 	toolCallId: string;

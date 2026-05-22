@@ -5,7 +5,7 @@ import type {
 	AgentPendingEventPayload,
 	AgentPendingState,
 	AgentResponseEvent,
-} from '../../../../../shared/service';
+} from '../../../../../shared/agents/service';
 import {
 	defaultPendingSelections,
 	inputAnswerKey,

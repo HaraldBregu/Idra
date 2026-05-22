@@ -7,7 +7,7 @@ import type { TaskManager } from '../tasks';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import type { WorkspaceService } from '../workspace';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
-import type { ApprovalDecision } from '../../shared/service';
+import type { ApprovalDecision } from '../../shared/agents/service';
 
 export interface PlanEntry {
 	task: string;

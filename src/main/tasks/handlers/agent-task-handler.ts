@@ -3,7 +3,7 @@ import type { AgentSendOptions, AgentService } from '../../service';
 import {
 	isModelReasoningEffort,
 	type ModelReasoningEffort,
-} from '../../../shared/service';
+} from '../../../shared/agents/service';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
 
 export const AGENT_TASK_TYPE = 'agent.run';

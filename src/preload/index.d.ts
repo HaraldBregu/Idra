@@ -158,7 +158,7 @@ import type {
 	Model,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
-} from '../shared/service';
+} from '../shared/agents/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channel-catalog';

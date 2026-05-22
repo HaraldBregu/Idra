@@ -13,11 +13,11 @@ import {
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
-} from '../../../../../../../../shared/service';
+} from '../../../../../../../../shared/agents/service';
 import {
 	ASSISTANT_OPERATOR_ID,
 	ASSISTANT_RUNTIME_ID,
-} from '../../../../../../../../shared/service';
+} from '../../../../../../../../shared/agents/service';
 
 interface ChatHistoryStats {
 	readonly messageCount: number;

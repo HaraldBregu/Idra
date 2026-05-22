@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/service';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
 
 const PCM_BYTES_PER_SAMPLE = 2;
 const MINIMUM_COMMIT_AUDIO_MS = 100;

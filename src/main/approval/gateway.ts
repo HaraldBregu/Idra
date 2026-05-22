@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { ApprovalDecision } from '../../shared/service';
+import type { ApprovalDecision } from '../../shared/agents/service';
 
 export type ApprovalKind = 'exec' | 'plugin' | 'api' | 'tool';
 export type ApprovalStatus = 'pending' | 'resolved' | 'expired' | 'cancelled';

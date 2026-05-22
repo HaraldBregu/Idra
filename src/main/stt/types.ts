@@ -4,8 +4,8 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
-import type { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/service';
-import type { ConfiguredModelOperator, Model } from '../../shared/service';
+import type { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
+import type { ConfiguredModelOperator, Model } from '../../shared/agents/service';
 
 export interface SpeechToTextSessionCallbacks {
 	emit: (event: RealtimeTranscriptionEvent) => void;

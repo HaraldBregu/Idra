@@ -4,7 +4,7 @@ import type {
 	AgentPendingInput,
 	AgentResponseEvent,
 	AgentToolCallStatus,
-} from '../../../../../shared/service';
+} from '../../../../../shared/agents/service';
 import type { AgentChatAction } from './actions';
 import {
 	applyAgentResponseEventToTools,

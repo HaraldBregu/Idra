@@ -9,7 +9,7 @@ import type {
 	ApprovalDecision,
 	AgentHistoryMessage,
 	AgentPendingState,
-} from '../../shared/service';
+} from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
 import { DEFAULT_AGENT_ID } from '../constants';
 

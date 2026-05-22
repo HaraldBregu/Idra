@@ -2,12 +2,12 @@ import WebSocket from 'ws';
 import {
 	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../shared/provider-models';
+} from '../../shared/providers';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/service';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,

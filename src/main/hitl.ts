@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { ApprovalGateway, type ApprovalKind, type ApprovalRecord } from './approval/gateway';
 import type { EventBus } from './core/event-bus';
 import type { ApprovalStreamLike } from './tools/types';
-import type { ApprovalDecision } from '../shared/service';
+import type { ApprovalDecision } from '../shared/agents/service';
 
 const DEFAULT_APPROVAL_TIMEOUT_MS = 5 * 60_000;
 const SECRET_KEY_PATTERN = /(token|secret|password|passwd|api[_-]?key|credential|private[_-]?key)/i;

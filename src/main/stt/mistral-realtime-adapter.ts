@@ -4,11 +4,11 @@ import type {
 	RealtimeEvent,
 } from '@mistralai/mistralai/extra/realtime';
 import type { RealtimeTranscriptionSession } from '../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/service';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
 import {
 	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../shared/provider-models';
+} from '../../shared/providers';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
