@@ -163,6 +163,12 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request({ taskInput: { model: 'gpt-5.5' } }), actor)
 		).rejects.toThrow(/Runtime configuration/);
+		await expect(
+			scheduler.createSchedule(
+				request({ taskInput: { message: 'Review invoices', extra: 'not allowed' } }),
+				actor
+			)
+		).rejects.toThrow(/only supports message/);
 	});
 
 	it('computes timezone-aware cron and interval next runs', async () => {
