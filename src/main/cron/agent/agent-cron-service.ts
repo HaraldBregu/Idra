@@ -10,6 +10,7 @@ import type {
 } from '../core/cron.types';
 import type { CronScheduledTask } from '../../../shared/cron';
 import { ScheduleDescriber } from '../core/cron.describer';
+import { AGENT_TASK_TYPE } from '../../tasks';
 
 export interface AgentCronContext {
 	agentId: string;
@@ -26,14 +27,19 @@ export class AgentCronService {
 	constructor(private readonly scheduler: CronScheduler) {}
 
 	createScheduleFromAgent(
-		request: Omit<CronScheduleCreateRequest, 'source' | 'sourceId' | 'createdBy' | 'timezone'> & {
+		request: Omit<
+			CronScheduleCreateRequest,
+			'source' | 'sourceId' | 'createdBy' | 'timezone' | 'taskType'
+		> & {
 			timezone?: string;
+			taskType?: string;
 		},
 		agentContext: AgentCronContext
 	): Promise<CronSchedule> {
 		return this.scheduler.createSchedule(
 			{
 				...request,
+				taskType: request.taskType ?? AGENT_TASK_TYPE,
 				source: 'agent',
 				sourceId: agentContext.agentId,
 				createdBy: agentContext.agentId,

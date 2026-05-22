@@ -827,7 +827,7 @@ export class FridayCronScheduler {
 					retryableErrorCodes: [],
 					nonRetryableErrorCodes: [],
 				},
-				taskType: 'cron.agentTurn',
+				taskType: 'agent.run',
 				taskInput: {},
 				taskPriority: 'normal',
 				taskTags: [],

@@ -1,4 +1,5 @@
 import type { AgentCronService } from '../agent/agent-cron-service';
+import { AGENT_TASK_TYPE } from '../../tasks';
 
 export async function createMondayInvoiceReminder(agentCron: AgentCronService): Promise<string> {
 	const schedule = await agentCron.createScheduleFromAgent(
@@ -6,7 +7,7 @@ export async function createMondayInvoiceReminder(agentCron: AgentCronService): 
 			name: 'Review invoices reminder',
 			type: 'cron',
 			cronExpression: '0 9 * * 1',
-			taskType: 'reminder.show',
+			taskType: AGENT_TASK_TYPE,
 			taskInput: { message: 'Review invoices' },
 			missedRunPolicy: 'skip',
 			concurrencyPolicy: 'skipIfRunning',
