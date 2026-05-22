@@ -6,7 +6,6 @@ export * from './channels';
 export * from './channel-catalog';
 export * from './ipc-channels';
 export * from './providers';
-export * from './models';
 export * from './shortcuts';
 export * from './skills';
 export * from './connectors';

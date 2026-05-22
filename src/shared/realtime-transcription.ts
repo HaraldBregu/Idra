@@ -1,4 +1,4 @@
-import type { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from './service';
+import type { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from './agents/service';
 
 export interface RealtimeTranscriptionStartRequest {
 	language?: string;
