@@ -255,8 +255,8 @@ export class CronSchedulerService implements CronScheduler {
 		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
 		this.accessPolicy.validateFrequency({ request, actor });
 		validateScheduleShape(request, this.options.runPolicy);
-		const normalizedTask = normalizeAgentScheduleTask(request);
 		assertSafeStoredSchedulePayload(request);
+		const normalizedTask = normalizeAgentScheduleTask(request);
 
 		const now = new Date();
 		const nowIso = now.toISOString();
@@ -328,11 +328,11 @@ export class CronSchedulerService implements CronScheduler {
 		});
 		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
 		validateScheduleShape(patch, this.options.runPolicy, current);
+		assertSafeStoredSchedulePayload(patch);
 		const normalizedTask = normalizeAgentScheduleTask(patch, current);
 		const normalizedPatch: CronScheduleUpdateRequest = { ...patch };
 		if (patch.taskType !== undefined) normalizedPatch.taskType = normalizedTask.taskType;
 		if (patch.taskInput !== undefined) normalizedPatch.taskInput = normalizedTask.taskInput;
-		assertSafeStoredSchedulePayload(normalizedPatch);
 		const merged: CronSchedule = {
 			...current,
 			...normalizedPatch,
