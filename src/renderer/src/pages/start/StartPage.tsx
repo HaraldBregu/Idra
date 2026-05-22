@@ -98,6 +98,11 @@ type ProviderModelGroup = {
 	models: Model[];
 };
 
+type ProviderModelOption = {
+	provider: PublicProvider;
+	model: Model;
+};
+
 type CatalogModelGroup = {
 	provider: ProviderCatalogItem;
 	models: readonly ProviderModel[];
@@ -228,6 +233,36 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 
 function getAgentModelValue(providerId: string, modelId: string): string {
 	return `${providerId}${AGENT_MODEL_VALUE_SEPARATOR}${modelId}`;
+}
+
+function getProviderModelOption(
+	groups: readonly ProviderModelGroup[],
+	providerId: string,
+	modelId: string
+): ProviderModelOption | undefined {
+	const group = groups.find((item) => item.provider.id === providerId);
+	const model = group?.models.find((item) => item.id === modelId);
+	return group && model ? { provider: group.provider, model } : undefined;
+}
+
+function getPreferredProviderModelOption(
+	groups: readonly ProviderModelGroup[],
+	providerId: string,
+	modelId: string
+): ProviderModelOption | undefined {
+	const options = groups.flatMap((group) =>
+		group.models.map((model) => ({ provider: group.provider, model }))
+	);
+	return (
+		options.find((option) => option.provider.id === providerId && option.model.id === modelId) ??
+		options.find((option) => option.provider.id === providerId) ??
+		options[0]
+	);
+}
+
+function getProviderModelSelectionLabel(option: ProviderModelOption | undefined): string {
+	if (!option) return 'Not configured';
+	return `${option.provider.name} - ${option.model.name}`;
 }
 
 function getCatalogGroups(catalog: ModelCatalog): CatalogModelGroup[] {
