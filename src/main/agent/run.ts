@@ -384,10 +384,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				if ((err as Error).name === 'AbortError') {
 					stopReason = 'cancelled';
+					agentLogger.info('agent:run', 'run aborted', { runId, iter });
 					break;
 				}
 				stopReason = 'error';
 				finalText += `\n[error: ${(err as Error).message}]`;
+				agentLogger.error('agent:run', 'stream error', { runId, iter, error: (err as Error).message });
 				await hooks?.onFinish?.({
 					runId,
 					stopReason,
