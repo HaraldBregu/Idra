@@ -1,9 +1,23 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import type { Model } from '../../../../../../src/shared/agents/service';
+import type { PublicProvider } from '../../../../../../src/shared/providers';
 import type { TaskEvent, TaskRecord } from '../../../../../../src/shared/tasks';
 import TaskManagerPage from '../../../../../../src/renderer/src/pages/settings/pages/task-manager/Page';
 import TaskDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/task-manager/details/Page';
+
+
+const openAiProvider: PublicProvider = {
+	id: 'openai',
+	name: 'OpenAI',
+	baseUrl: 'https://api.openai.com/v1',
+};
+
+const assistantModel: Model = {
+	id: 'gpt-5',
+	name: 'GPT-5',
+};
 
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
@@ -35,6 +49,18 @@ function mockTasksApi(overrides: Partial<typeof window.tasks> = {}): void {
 	};
 }
 
+
+function mockAppApi(overrides: Partial<typeof window.app> = {}): void {
+	window.app = {
+		...window.app,
+		getProviders: jest.fn(async () => [openAiProvider]),
+		getModels: jest.fn(async () => [assistantModel]),
+		getAgentService: jest.fn(async () => ({ provider: openAiProvider, model: assistantModel })),
+		saveAgentService: jest.fn(async () => true),
+		...overrides,
+	} as typeof window.app;
+}
+
 function LocationProbe(): React.JSX.Element {
 	const location = useLocation();
 	return <div data-testid="location">{location.pathname}</div>;
@@ -62,6 +88,7 @@ function renderTaskDetailsPage(path = '/settings/task-manager/taskdetails/task-1
 describe('TaskManagerPage', () => {
 	beforeEach(() => {
 		mockTasksApi();
+		mockAppApi();
 	});
 
 	it('shows empty state when there are no tasks', async () => {
@@ -96,6 +123,25 @@ describe('TaskManagerPage', () => {
 		await user.click(await screen.findByRole('button', { name: /Task task-1/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/task-manager/taskdetails/task-1');
+	});
+
+
+	it('saves the provider and model used by background tasks', async () => {
+		const user = userEvent.setup();
+		renderTaskManagerPage();
+
+		const saveButton = await screen.findByRole('button', {
+			name: /settings\.taskManager\.runtime\.save/,
+		});
+		await waitFor(() => {
+			expect(saveButton).toBeEnabled();
+		});
+		await user.click(saveButton);
+
+		await waitFor(() => {
+			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
+		});
+		expect(await screen.findByText('settings.taskManager.runtime.saved')).toBeInTheDocument();
 	});
 
 	it('creates an agent task and opens its detail page', async () => {

@@ -1,12 +1,21 @@
 import React, { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, ChevronRight, ClipboardList, Play } from 'lucide-react';
+import { AlertCircle, ChevronRight, ClipboardList, LoaderCircle, Play, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import type { Model } from '../../../../../../shared/agents/service';
+import type { PublicProvider } from '../../../../../../shared/providers';
 import type { TaskRecord, TaskRunRequest } from '../../../../../../shared/tasks';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
@@ -40,6 +49,220 @@ function TaskLoadingList(): React.JSX.Element {
 				))}
 			</div>
 		</SettingsPanel>
+	);
+}
+
+
+function mergeModels(models: readonly Model[], selectedModel?: Model): Model[] {
+	const byId = new Map(models.map((model) => [model.id, model]));
+	if (selectedModel && !byId.has(selectedModel.id)) byId.set(selectedModel.id, selectedModel);
+	return [...byId.values()];
+}
+
+function TaskAgentRuntimeSettings(): React.JSX.Element {
+	const { t } = useTranslation();
+	const [providers, setProviders] = useState<PublicProvider[]>([]);
+	const [models, setModels] = useState<Model[]>([]);
+	const [providerId, setProviderId] = useState('');
+	const [modelId, setModelId] = useState('');
+	const [loading, setLoading] = useState(true);
+	const [loadingModels, setLoadingModels] = useState(false);
+	const [saving, setSaving] = useState(false);
+	const [saved, setSaved] = useState(false);
+	const [runtimeError, setRuntimeError] = useState<string | null>(null);
+
+	const selectedProvider = providers.find((provider) => provider.id === providerId);
+	const selectedModel = models.find((model) => model.id === modelId);
+
+	useEffect(() => {
+		let mounted = true;
+
+		async function loadRuntimeSettings(): Promise<void> {
+			setLoading(true);
+			setRuntimeError(null);
+			try {
+				const [nextProviders, currentAgentService] = await Promise.all([
+					window.app.getProviders(),
+					window.app.getAgentService(),
+				]);
+				if (!mounted) return;
+
+				const providerList =
+					currentAgentService?.provider &&
+					!nextProviders.some((provider) => provider.id === currentAgentService.provider.id)
+						? [...nextProviders, currentAgentService.provider]
+						: nextProviders;
+				const nextProvider =
+					providerList.find((provider) => provider.id === currentAgentService?.provider.id) ??
+					providerList[0];
+
+				setProviders(providerList);
+				setProviderId(nextProvider?.id ?? '');
+				if (!nextProvider) {
+					setModels([]);
+					setModelId('');
+					return;
+				}
+
+				const loadedModels = await window.app.getModels(nextProvider);
+				if (!mounted) return;
+				const nextModels =
+					currentAgentService?.provider.id === nextProvider.id
+						? mergeModels(loadedModels, currentAgentService.model)
+						: loadedModels;
+				setModels(nextModels);
+				setModelId(
+					currentAgentService?.provider.id === nextProvider.id
+						? currentAgentService.model.id
+						: (nextModels[0]?.id ?? '')
+				);
+			} catch (caught) {
+				if (mounted) setRuntimeError(caught instanceof Error ? caught.message : String(caught));
+			} finally {
+				if (mounted) setLoading(false);
+			}
+		}
+
+		void loadRuntimeSettings();
+
+		return () => {
+			mounted = false;
+		};
+	}, []);
+
+	const handleProviderChange = (nextProviderId: string | null): void => {
+		const nextId = nextProviderId ?? '';
+		const nextProvider = providers.find((provider) => provider.id === nextId);
+		setProviderId(nextId);
+		setModelId('');
+		setModels([]);
+		setSaved(false);
+		setRuntimeError(null);
+		if (!nextProvider) return;
+
+		setLoadingModels(true);
+		void window.app
+			.getModels(nextProvider)
+			.then((nextModels) => {
+				setModels(nextModels);
+				setModelId(nextModels[0]?.id ?? '');
+			})
+			.catch((caught) => {
+				setRuntimeError(caught instanceof Error ? caught.message : String(caught));
+			})
+			.finally(() => {
+				setLoadingModels(false);
+			});
+	};
+
+	const handleSave = async (): Promise<void> => {
+		if (!selectedProvider || !selectedModel) return;
+		setSaving(true);
+		setSaved(false);
+		setRuntimeError(null);
+		try {
+			const didSave = await window.app.saveAgentService(selectedProvider, selectedModel);
+			if (!didSave) throw new Error(t('settings.taskManager.runtime.errors.saveFailed'));
+			setSaved(true);
+		} catch (caught) {
+			setRuntimeError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	return (
+		<SettingsSection
+			title={t('settings.taskManager.runtime.title')}
+			description={t('settings.taskManager.runtime.description')}
+		>
+			<SettingsPanel>
+				<div className="grid gap-3 px-3 py-3">
+					<div className="grid gap-3 sm:grid-cols-2">
+						<SettingsField id="task-runtime-provider" label={t('settings.taskManager.runtime.provider')}>
+							<Select
+								value={providerId}
+								onValueChange={handleProviderChange}
+								disabled={loading || providers.length === 0 || saving}
+							>
+								<SelectTrigger id="task-runtime-provider" className="w-full text-xs">
+									<SelectValue placeholder={t('settings.taskManager.runtime.providerPlaceholder')} />
+								</SelectTrigger>
+								<SelectContent>
+									{providers.map((provider) => (
+										<SelectItem key={provider.id} value={provider.id}>
+											{provider.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</SettingsField>
+
+						<SettingsField id="task-runtime-model" label={t('settings.taskManager.runtime.model')}>
+							<Select
+								value={modelId}
+								onValueChange={(nextModelId) => {
+									setModelId(nextModelId ?? '');
+									setSaved(false);
+								}}
+								disabled={loading || loadingModels || !selectedProvider || models.length === 0 || saving}
+							>
+								<SelectTrigger id="task-runtime-model" className="w-full text-xs">
+									<SelectValue
+										placeholder={
+											loadingModels
+												? t('settings.taskManager.runtime.modelsLoading')
+												: t('settings.taskManager.runtime.modelPlaceholder')
+										}
+									/>
+								</SelectTrigger>
+								<SelectContent>
+									{models.map((model) => (
+										<SelectItem key={model.id} value={model.id}>
+											{model.name || model.id}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</SettingsField>
+					</div>
+
+					{providers.length === 0 && !loading && (
+						<p className="text-[11px] leading-4 text-muted-foreground">
+							{t('settings.taskManager.runtime.noProviders')}
+						</p>
+					)}
+					{selectedProvider && models.length === 0 && !loading && !loadingModels && (
+						<p className="text-[11px] leading-4 text-muted-foreground">
+							{t('settings.taskManager.runtime.noModels')}
+						</p>
+					)}
+					{runtimeError && (
+						<div className="flex min-w-0 items-start gap-2 text-destructive">
+							<AlertCircle className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.8} />
+							<div className="min-w-0 text-xs leading-5">{runtimeError}</div>
+						</div>
+					)}
+					{saved && (
+						<p className="text-[11px] leading-4 text-muted-foreground">
+							{t('settings.taskManager.runtime.saved')}
+						</p>
+					)}
+
+					<div className="flex justify-end">
+						<Button
+							type="button"
+							size="sm"
+							disabled={loading || loadingModels || saving || !selectedProvider || !selectedModel}
+							onClick={() => void handleSave()}
+						>
+							{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
+							{saving ? t('settings.taskManager.runtime.saving') : t('settings.taskManager.runtime.save')}
+						</Button>
+					</div>
+				</div>
+			</SettingsPanel>
+		</SettingsSection>
 	);
 }
 
@@ -127,6 +350,8 @@ const TaskManagerPage: React.FC = () => {
 				title={t('settings.tabs.backgroundTasks')}
 				description={t('settings.taskManager.description')}
 			/>
+			<TaskAgentRuntimeSettings />
+
 			<SettingsSection title={t('settings.taskManager.create.title')}>
 				<SettingsPanel>
 					<form className="grid gap-3 px-3 py-3" onSubmit={(event) => void handleCreateTask(event)}>

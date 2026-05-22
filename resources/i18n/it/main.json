@@ -510,6 +510,23 @@
 		},
 		"taskManager": {
 			"description": "Esecuzioni in background e stato corrente.",
+			"runtime": {
+				"title": "Runtime agente",
+				"description": "Provider e modello usati dalle esecuzioni agente in background.",
+				"provider": "Provider",
+				"model": "Modello",
+				"providerPlaceholder": "Seleziona provider",
+				"modelPlaceholder": "Seleziona modello",
+				"modelsLoading": "Caricamento modelli...",
+				"noProviders": "Nessun provider configurato.",
+				"noModels": "Nessun modello disponibile per questo provider.",
+				"save": "Salva runtime",
+				"saving": "Salvataggio...",
+				"saved": "Runtime salvato.",
+				"errors": {
+					"saveFailed": "Le impostazioni runtime non sono state salvate."
+				}
+			},
 			"detailsTitle": "Dettagli attivita",
 			"details": "Dettagli",
 			"progress": "Avanzamento",
