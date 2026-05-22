@@ -18,7 +18,7 @@ The source of truth for this document is:
 - Keep provider choices compact: `providerId`, `modelId`, optional `effort`,
   and safe `options`.
 - Keep model provider credentials in `modelProviders`.
-- Keep channel credentials under `channel` account records.
+- Keep channel credentials under `channels` account records.
 - Keep connector credentials in connector-owned records or credential
   references.
 - Keep task records out of persistent settings.
@@ -47,10 +47,22 @@ interface SettingsStore {
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
 	heartbeat?: HeartbeatStoreState;
-	connectors?: ConnectorConfig[];
-	channel?: Channel;
+	connectors?: Connectors;
+	channels?: Channels;
 	appSettings?: { readonly keepAwakeEnabled: boolean };
 }
+
+interface Connectors {
+	google_gmail?: ConnectorConfig;
+	google_calendar?: ConnectorConfig;
+	google_drive?: ConnectorConfig;
+	microsoft_teams?: ConnectorConfig;
+	outlook_calendar?: ConnectorConfig;
+	outlook_email?: ConnectorConfig;
+	sharepoint?: ConnectorConfig;
+	dropbox?: ConnectorConfig;
+}
+
 ```
 
 Most keys are optional because older installs and fresh stores may not have
@@ -74,8 +86,8 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 | `taskScheduler`  | Task scheduler    | [scheduled/index.md](../tasks/scheduled/index.md)            | Managed schedule state, Friday cron state, and legacy cron task state. |
 | `backgroundTask` | Background task   | [background/index.md](../tasks/background/index.md)          | Task policy settings only; task records stay in memory.                |
 | `heartbeat`      | Heartbeat         | [heartbeat/index.md](../heartbeat/index.md)                  | Heartbeat run state and last delivered heartbeat text by key.          |
-| `connectors`     | Connectors        | [providers/index.md](../providers/index.md)                  | Connector configuration records and credential references.             |
-| `channel`        | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
+| `connectors`     | Connectors        | [providers/index.md](../providers/index.md)                  | Connector configuration records and credential references by service.  |
+| `channels`       | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
 | `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
 
 Do not add new cross-module bags such as `service`, `agent`, or `settings`.
@@ -100,7 +112,7 @@ before writing them. Read APIs that expose configured providers return the
 provider without `apiKey`.
 
 Module settings reference model providers by id. They do not duplicate API keys
-or raw provider records in task, schedule, channel, connector, or tool payloads.
+or raw provider records in task, schedule, channels, connector, or tool payloads.
 
 Agent-run consumers should not read `llmAgent` or `modelProviders` directly.
 Heartbeats, background tasks, and scheduled tasks should use the injected
@@ -221,7 +233,7 @@ provider ids, model ids, API keys, or provider records.
 
 ## Channel Settings
 
-The `channel` root stores all channel provider settings. `StoreService`
+The `channels` root stores all channel provider settings. `StoreService`
 hydrates defaults for every `CHANNEL_PROVIDER_IDS` entry, including Telegram,
 WhatsApp, Discord, Slack, and the generic channel providers.
 
