@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme, protocol, net, crashReporter, session } from 'electron';
+import { app, BrowserWindow, protocol, net, crashReporter, session } from 'electron';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -133,8 +133,6 @@ function setupMediaPermissionHandlers(store: StoreService): void {
 	});
 }
 
-import type { ThemeMode } from '../shared';
-import { AppChannels } from '../shared/ipc-channels';
 import {
 	bootstrapServices,
 	bootstrapIpcModules,
@@ -225,12 +223,6 @@ const menuManager = new Menu(
 				win.webContents.send('change-language', lng);
 			});
 		},
-		onThemeChange: (theme) => {
-			nativeTheme.themeSource = theme;
-			BrowserWindow.getAllWindows().forEach((win) => {
-				win.webContents.send(AppChannels.themeChanged, theme);
-			});
-		},
 		onNewWindow: () => {
 			logger.info('Menu', 'Creating new launcher window');
 			mainWindow.createAdditionalWindow();
@@ -264,12 +256,6 @@ app.whenReady().then(async () => {
 	menuManager.create();
 	void menuManager.refreshApps();
 	trayManager.create();
-
-	// Sync menu radio buttons when theme changes from renderer
-	eventBus.on('theme:changed', (event) => {
-		const { theme } = event.payload as { theme: ThemeMode };
-		menuManager.updateTheme(theme);
-	});
 
 	// Toggle tray from renderer settings
 	eventBus.on('tray:set-enabled', (event) => {
