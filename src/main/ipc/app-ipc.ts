@@ -1,4 +1,4 @@
-import { app, ipcMain, BrowserWindow, nativeTheme, shell, systemPreferences } from 'electron';
+import { app, ipcMain, BrowserWindow, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
@@ -163,23 +163,6 @@ export class AppIpc implements IpcModule {
 			BrowserWindow.getAllWindows().forEach((win) => {
 				if (!win.isDestroyed() && win.webContents !== senderContents) {
 					win.webContents.send('change-language', language);
-				}
-			});
-		});
-
-		// Theme handler
-		ipcMain.on(AppChannels.setTheme, (event, theme: string) => {
-			if (!isThemeMode(theme)) return;
-			if (this.lastTheme === theme) return;
-			this.lastTheme = theme;
-
-			nativeTheme.themeSource = theme;
-			eventBus.emit('theme:changed', { theme });
-
-			const senderContents = event.sender;
-			BrowserWindow.getAllWindows().forEach((win) => {
-				if (!win.isDestroyed() && win.webContents !== senderContents) {
-					win.webContents.send(AppChannels.themeChanged, theme);
 				}
 			});
 		});
