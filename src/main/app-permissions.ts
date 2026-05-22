@@ -13,7 +13,10 @@ export class AppPermissionsService {
 		return this.microphoneEnabled;
 	}
 
-	setMicrophoneEnabled(enabled: boolean): { readonly microphoneEnabled: boolean; readonly cameraEnabled: boolean } {
+	setMicrophoneEnabled(enabled: boolean): {
+		readonly microphoneEnabled: boolean;
+		readonly cameraEnabled: boolean;
+	} {
 		this.microphoneEnabled = enabled;
 		return this.getAppPermissions();
 	}
@@ -22,7 +25,10 @@ export class AppPermissionsService {
 		return this.cameraEnabled;
 	}
 
-	setCameraEnabled(enabled: boolean): { readonly microphoneEnabled: boolean; readonly cameraEnabled: boolean } {
+	setCameraEnabled(enabled: boolean): {
+		readonly microphoneEnabled: boolean;
+		readonly cameraEnabled: boolean;
+	} {
 		this.cameraEnabled = enabled;
 		return this.getAppPermissions();
 	}

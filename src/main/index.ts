@@ -18,10 +18,9 @@ if (process.platform === 'linux') {
 }
 
 function loadLocalEnv(): void {
-	const paths = Array.from(new Set([
-		resolve(process.cwd(), '.env'),
-		resolve(app.getAppPath(), '.env'),
-	]));
+	const paths = Array.from(
+		new Set([resolve(process.cwd(), '.env'), resolve(app.getAppPath(), '.env')])
+	);
 
 	for (const envPath of paths) {
 		if (!existsSync(envPath)) continue;
@@ -97,42 +96,46 @@ function isTrustedMediaRequestSource(
 function setupMediaPermissionHandlers(
 	appPermissions: Pick<AppPermissionsService, 'getMicrophoneEnabled'>
 ): void {
-	session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
-		if (permission !== 'media') return false;
-		if (!appPermissions.getMicrophoneEnabled()) return false;
-		if (details.mediaType !== 'audio') return false;
-		if (!details.isMainFrame) return false;
-		if (!isAppWindowWebContents(webContents)) return false;
-		return isTrustedMediaRequestSource(
-			requestingOrigin,
-			details.requestingUrl,
-			details.securityOrigin
-		);
-	});
-
-	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
-		if (permission !== 'media') {
-			callback(false);
-			return;
-		}
-
-		const mediaDetails = details as Electron.MediaAccessPermissionRequest;
-		const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
-		const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
-		const allowed =
-			appPermissions.getMicrophoneEnabled() &&
-			requestsAudio &&
-			!requestsVideo &&
-			mediaDetails.isMainFrame &&
-			isAppWindowWebContents(webContents) &&
-			isTrustedMediaRequestSource(
-				undefined,
-				mediaDetails.requestingUrl,
-				mediaDetails.securityOrigin
+	session.defaultSession.setPermissionCheckHandler(
+		(webContents, permission, requestingOrigin, details) => {
+			if (permission !== 'media') return false;
+			if (!appPermissions.getMicrophoneEnabled()) return false;
+			if (details.mediaType !== 'audio') return false;
+			if (!details.isMainFrame) return false;
+			if (!isAppWindowWebContents(webContents)) return false;
+			return isTrustedMediaRequestSource(
+				requestingOrigin,
+				details.requestingUrl,
+				details.securityOrigin
 			);
+		}
+	);
 
-		callback(allowed);
-	});
+	session.defaultSession.setPermissionRequestHandler(
+		(webContents, permission, callback, details) => {
+			if (permission !== 'media') {
+				callback(false);
+				return;
+			}
+
+			const mediaDetails = details as Electron.MediaAccessPermissionRequest;
+			const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
+			const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
+			const allowed =
+				appPermissions.getMicrophoneEnabled() &&
+				requestsAudio &&
+				!requestsVideo &&
+				mediaDetails.isMainFrame &&
+				isAppWindowWebContents(webContents) &&
+				isTrustedMediaRequestSource(
+					undefined,
+					mediaDetails.requestingUrl,
+					mediaDetails.securityOrigin
+				);
+
+			callback(allowed);
+		}
+	);
 }
 
 import {
@@ -215,20 +218,18 @@ const trayManager = new Tray({
 	isAppVisible: () => mainWindow.isVisible(),
 });
 
-const menuManager = new Menu(
-	{
-		onLanguageChange: (lng) => {
-			trayManager.updateLanguage(lng);
-			BrowserWindow.getAllWindows().forEach((win) => {
-				win.webContents.send('change-language', lng);
-			});
-		},
-		onNewWindow: () => {
-			logger.info('Menu', 'Creating new launcher window');
-			mainWindow.createAdditionalWindow();
-		},
-	}
-);
+const menuManager = new Menu({
+	onLanguageChange: (lng) => {
+		trayManager.updateLanguage(lng);
+		BrowserWindow.getAllWindows().forEach((win) => {
+			win.webContents.send('change-language', lng);
+		});
+	},
+	onNewWindow: () => {
+		logger.info('Menu', 'Creating new launcher window');
+		mainWindow.createAdditionalWindow();
+	},
+});
 
 app.whenReady().then(async () => {
 	// Serve local files via the local-resource:// protocol so the renderer

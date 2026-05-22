@@ -72,7 +72,9 @@ describe('AppIpc', () => {
 
 		new AppIpc().register(createContainer(provider), new EventBus());
 
-		await expect(registeredHandler(ProviderChannels.getModels)({}, publicProvider)).resolves.toEqual({
+		await expect(
+			registeredHandler(ProviderChannels.getModels)({}, publicProvider)
+		).resolves.toEqual({
 			success: true,
 			data: [],
 		});
@@ -147,10 +149,7 @@ describe('AppIpc', () => {
 			baseUrl: provider.baseUrl,
 		};
 
-		new AppIpc().register(
-			createContainer(provider, { setTextToVideoOperator }),
-			new EventBus()
-		);
+		new AppIpc().register(createContainer(provider, { setTextToVideoOperator }), new EventBus());
 
 		await expect(
 			registeredHandler(OperatorChannels.saveTextToVideo)({}, publicProvider, {

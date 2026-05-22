@@ -27,4 +27,3 @@ export interface CameraPermissionSettings {
 }
 
 export type SystemPreferencePaneId = 'Accessibility' | 'ScreenCapture' | 'Camera' | 'Microphone';
-

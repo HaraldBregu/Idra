@@ -26,22 +26,14 @@ import type {
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
 } from '../../shared/app-permissions';
-import {
-	DEFAULT_PROVIDERS,
-	type ProviderInput,
-	type PublicProvider,
-} from '../../shared/providers';
+import { DEFAULT_PROVIDERS, type ProviderInput, type PublicProvider } from '../../shared/providers';
 import {
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
 	isAllowedAgentModel,
 } from '../../shared/agents/models';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import {
-	AppChannels,
-	OperatorChannels,
-	ProviderChannels,
-} from '../../shared/ipc-channels';
+import { AppChannels, OperatorChannels, ProviderChannels } from '../../shared/ipc-channels';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
@@ -439,13 +431,12 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave =
-					supportsModelReasoningEffortProvider(normalizedProviderId)
-						? {
-								...model,
-								effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
-							}
-						: { id: model.id, name: model.name };
+				const modelToSave = supportsModelReasoningEffortProvider(normalizedProviderId)
+					? {
+							...model,
+							effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
+						}
+					: { id: model.id, name: model.name };
 				return store.setAssistantOperator(provider.id, modelToSave);
 			}, OperatorChannels.saveAssistant)
 		);
@@ -645,13 +636,12 @@ export class AppIpc implements IpcModule {
 					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
 				}
 				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave =
-					supportsModelReasoningEffortProvider(normalizedProviderId)
-						? {
-								...model,
-								effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
-							}
-						: { id: model.id, name: model.name };
+				const modelToSave = supportsModelReasoningEffortProvider(normalizedProviderId)
+					? {
+							...model,
+							effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
+						}
+					: { id: model.id, name: model.name };
 				return store.setAgentService(provider.id, modelToSave);
 			}, ProviderChannels.saveAgentService)
 		);
@@ -676,7 +666,6 @@ export class AppIpc implements IpcModule {
 				);
 			}, ProviderChannels.saveSpeechTranscriberService)
 		);
-
 
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}

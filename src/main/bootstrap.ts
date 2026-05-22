@@ -15,11 +15,7 @@ import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
-import {
-	AgentTaskHandler,
-	TaskManager,
-	TaskRegistry,
-} from './tasks';
+import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
@@ -108,15 +104,15 @@ export function bootstrapServices(): BootstrapResult {
 	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({
-				registry: taskRegistry,
-				eventBus,
-				logger,
-				policy: () => store.getBackgroundTaskSettings(),
-			})
-		);
-		agentDependencies.taskManager = taskManager;
-		cron.configureTaskRuntime({ taskManager });
-		const channelRegistry = container.register(
+			registry: taskRegistry,
+			eventBus,
+			logger,
+			policy: () => store.getBackgroundTaskSettings(),
+		})
+	);
+	agentDependencies.taskManager = taskManager;
+	cron.configureTaskRuntime({ taskManager });
+	const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
@@ -136,7 +132,6 @@ export function bootstrapServices(): BootstrapResult {
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
-
 
 	const windowFactory = new WindowFactory(logger);
 	container.register('windowFactory', windowFactory);
