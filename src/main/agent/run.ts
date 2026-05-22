@@ -564,6 +564,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolManagement
 					);
 				} catch (err) {
+					agentLogger.error('agent:run', 'tool threw', { runId, tool: t.name, iter, error: (err as Error).message });
 					res = {
 						status: 'error' as const,
 						content: [
