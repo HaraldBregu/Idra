@@ -8,7 +8,7 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 
 | Model type | Model count | Providers |
 | --- | --- | --- |
-| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai/), [Mistral AI](mistral/), [DeepSeek](deepseek/), [Alibaba / Qwen / Wan](qwen/), [Moonshot AI / Kimi](kimi.md), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
+| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai/), [Mistral AI](mistral/), [DeepSeek](deepseek/), [Alibaba / Qwen / Wan](qwen/), [Moonshot AI / Kimi](kimi/), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
 | Research Chat Models | 4 | [Perplexity](perplexity.md) |
 | Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram.md), [ElevenLabs](elevenlabs.md), [Mistral AI](mistral/), [xAI](xai/), [Alibaba / Qwen / Wan](qwen/) |
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs.md), [Cartesia](cartesia.md), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax.md), [Mistral AI](mistral/), [Deepgram](deepgram.md) |
@@ -32,7 +32,7 @@ Each provider name links to its provider-specific markdown file.
 | [ElevenLabs](elevenlabs.md) | `elevenlabs` | Speech-to-text - Text-to-speech - Music/audio | Speech-To-Text Models - Text-To-Speech Models - Music And Audio Models |
 | [Google DeepMind / Google](google/) | `google` | Chat - Text-to-speech - Realtime voice/omni - Image - Video - Music/audio | Large Language Models - Text-To-Speech Models - Realtime Voice And Omni Models - Image Models - Video Models - Music And Audio Models |
 | [Ideogram](ideogram.md) | `ideogram` | Image | Image Models |
-| [Moonshot AI / Kimi](kimi.md) | `kimi` | Chat | Large Language Models |
+| [Moonshot AI / Kimi](kimi/) | `kimi` | Chat | Large Language Models |
 | [Kuaishou / Kling AI](kling.md) | `kling` | Video - Music/audio | Video Models - Music And Audio Models |
 | [Luma AI](luma.md) | `luma` | Realtime voice/omni - Image - Video - 3D | Realtime Voice And Omni Models - Image Models - Video Models - 3D Models |
 | [Meta](meta/) | `meta` | Chat - Video | Large Language Models - Video Models |
