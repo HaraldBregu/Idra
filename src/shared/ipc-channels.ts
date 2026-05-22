@@ -570,9 +570,7 @@ interface WindowEventChannelMap {
 	[WindowChannels.fullScreenChange]: { data: boolean };
 }
 
-interface ChannelsEventChannelMap {
-	[ChannelsChannels.statusChanged]: { data: import('./channels').ChannelStatusEvent };
-}
+import type { ChannelsEventChannelMap } from './channels';
 
 interface CronEventChannelMap {
 	[CronChannels.event]: { data: import('./cron').CronScheduleEvent };
