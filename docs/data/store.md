@@ -77,7 +77,6 @@ docs filenames may use kebab-case, but persisted settings keys should not.
 | `connectors`     | Connectors        | [providers/index.md](../providers/index.md)                  | Connector configuration records and credential references.             |
 | `channel`        | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
 | `appSettings`    | App settings      | [settings-page.md](../ui/settings-page.md)                   | App-level non-permission settings such as keep-awake.                  |
-| `appPermissions` | App permissions   | [settings-page.md](../ui/settings-page.md)                   | User toggles for app-level microphone and camera enablement.           |
 
 Do not add new cross-module bags such as `service`, `agent`, or `settings`.
 Add a new root key only when a module owns that data.
@@ -235,7 +234,7 @@ payloads, model module options, or tool payloads.
 
 Current app settings defaults are:
 
-- : .
+- `appSettings.keepAwakeEnabled`: `false`.
 
 Permission status and app-level microphone or camera toggles are runtime state
 and should not be persisted in the settings store.
