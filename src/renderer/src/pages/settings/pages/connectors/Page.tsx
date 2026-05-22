@@ -7,7 +7,6 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
 import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
@@ -53,7 +52,7 @@ const ConnectorsPage = () => {
 			)}
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
-			<SettingsSection title="Configured connectors">
+			<div className="grid gap-2">
 				{connectors.length === 0 ? (
 					<SettingsPanel>
 						<SettingsEmptyState
@@ -63,35 +62,26 @@ const ConnectorsPage = () => {
 						/>
 					</SettingsPanel>
 				) : (
-					<div className="grid gap-2">
-						{connectors.map((connector) => (
-							<ConnectorCard
-								key={connector.id}
-								connector={connector}
-								busy={busyId === connector.id}
-								connecting={connectingId === connector.id}
-								onConnectOAuth={() => void connectOAuth(connector)}
-								onToggle={() => void toggleConnector(connector)}
-								onViewDetails={() => openConnectorDetails(connector.id)}
-							/>
-						))}
-					</div>
+					connectors.map((connector) => (
+						<ConnectorCard
+							key={connector.id}
+							connector={connector}
+							busy={busyId === connector.id}
+							connecting={connectingId === connector.id}
+							onConnectOAuth={() => void connectOAuth(connector)}
+							onToggle={() => void toggleConnector(connector)}
+							onViewDetails={() => openConnectorDetails(connector.id)}
+						/>
+					))
 				)}
-			</SettingsSection>
-
-			{catalog.length > 0 && (
-				<SettingsSection title="Available connectors">
-					<div className="grid gap-2">
-						{catalog.map((item) => (
-							<ConnectorCatalogItem
-								key={item.id}
-								item={item}
-								onAdd={addConnector}
-							/>
-						))}
-					</div>
-				</SettingsSection>
-			)}
+				{catalog.length > 0 && catalog.map((item) => (
+					<ConnectorCatalogItem
+						key={item.id}
+						item={item}
+						onAdd={addConnector}
+					/>
+				))}
+			</div>
 		</SettingsPageShell>
 	);
 };
