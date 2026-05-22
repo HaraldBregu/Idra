@@ -3,7 +3,7 @@
 Background tasks are immediate units of work that can run while Friday remains
 usable. They are for operations that may take noticeable time, such as an agent
 run, image generation, OCR, speech work, video generation, audio generation,
-embedding work, connector sync, an API call, or a local operation.
+embedding work, connector sync, a network request, or a local operation.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ The user should be able to see that the work exists, follow its progress,
 retrieve its result, and request cancellation when the task is still running.
 
 Background tasks are not schedules. They do not decide when future work should
-run, and they do not restore task records after the app restarts.
+run, and they do not restore task entries after the app restarts.
 
 ## Expected Behavior
 
@@ -53,8 +53,9 @@ happening:
 - A sanitized result summary after success.
 - A sanitized error summary after failure.
 
-Task entries should not store secrets, raw credentials, full provider records,
-large unbounded outputs, or private payloads that are not needed by the user.
+Task entries should not store secrets, raw credentials, full provider
+configuration, large unbounded outputs, or private payloads that are not needed
+by the user.
 
 ## Starting Tasks
 
@@ -63,7 +64,7 @@ begins, Friday should validate the requested category and input, trim or
 normalize user-provided values, and reject secret-looking payloads.
 
 User input should describe the requested work. Provider selection, model
-selection, credentials, endpoints, adapters, and other runtime details should
+selection, credentials, service connections, and other runtime details should
 come from the app's existing configuration, not from the task request.
 
 ## Agent Work
@@ -74,7 +75,8 @@ bounded result summary.
 
 The task input should contain the message or instruction to run. Optional run
 preferences may be accepted when they refer to configured choices, but the task
-must not accept credentials, provider records, base URLs, or secret values.
+must not accept credentials, provider configuration, base URLs, or secret
+values.
 
 When cancelled, the running agent should be asked to stop through its normal
 cancellation path. If cancellation completes first, the task should be marked as
@@ -92,7 +94,7 @@ The image workflow should then choose the configured provider and model, run the
 generation, and return a bounded result summary.
 
 This keeps task input stable and safe. It also prevents provider credentials or
-configuration records from being copied into task payloads.
+configuration details from being copied into task payloads.
 
 ## Progress And Results
 
@@ -108,8 +110,8 @@ payloads. Errors should explain what failed without exposing secrets.
 Background tasks should not have a default execution timeout. Long-running work
 may continue as long as the app is running and the user has not cancelled it.
 
-If an external service or local adapter has its own timeout, that timeout
-belongs to that service or adapter. The background task should report the
+If an external service or local worker has its own timeout, that timeout
+belongs to that service or worker. The background task should report the
 resulting error as a normal task failure instead of enforcing a separate global
 deadline.
 

@@ -40,7 +40,7 @@ scheduled tasks.
 ## Safety Rules
 
 - Keep secrets out of task and schedule input.
-- Store only sanitized progress, result, and error summaries.
+- Keep only sanitized progress, result, and error summaries.
 - Create one visible task per user operation unless the user intentionally
   starts multiple operations.
 - Make cancellation safe and repeatable.

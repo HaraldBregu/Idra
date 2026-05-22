@@ -95,11 +95,11 @@ When a schedule is due, Friday should:
 ## Module-Backed Work
 
 A schedule should store the task category and sanitized task input needed to
-create work later. It should not store provider credentials, raw provider
-records, webhook secrets, base URLs, or other private runtime details.
+create work later. It should not store provider credentials, webhook secrets,
+base URLs, or other private runtime details.
 
 When a schedule fires, the target feature should resolve its own provider,
-model, endpoint, credentials, and runtime dependencies from current app
+model, connection, credentials, and runtime dependencies from current app
 configuration.
 
 Example behavior: a weekly image schedule stores a prompt, aspect ratio, count,
@@ -145,10 +145,10 @@ not create unbounded loops or hide the final failure from the user.
 Agent-created schedules should store a compact, sanitized instruction for the
 future run. Reminder schedules should store the reminder text and timing rules.
 Neither should store credentials, provider configuration, or private runtime
-objects.
+details.
 
-When the schedule fires, Friday should create the corresponding work and record
-what happened in a user-safe way.
+When the schedule fires, Friday should create the corresponding work and save a
+user-safe summary of what happened.
 
 ## Automatic Execution
 
