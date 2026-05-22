@@ -297,8 +297,7 @@ export class StoreService {
 		return this.getStoredModelProviders();
 	}
 
-
-	getAppSettings(): AppSettings {
+	getAppSettings(): NonNullable<StoreSchema['appSettings']> {
 		return readAppSettings(this.store.get('appSettings'));
 	}
 
@@ -314,7 +313,6 @@ export class StoreService {
 		this.store.set('appSettings', next);
 		return next;
 	}
-
 
 	addProvider(input: Provider): Provider {
 		const id = input.id.trim().toLowerCase();
