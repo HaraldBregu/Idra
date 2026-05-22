@@ -1605,7 +1605,7 @@ const StartPage: React.FC = () => {
 						'Unavailable until semantic indexing runtime is implemented',
 						<>
 							<SettingsNotice icon={Database}>
-								Embedding remains unavailable until provider catalogs, vector index behavior, and
+								Embedding remains unavailable until provider support, vector index behavior, and
 								runtime adapters are implemented.
 							</SettingsNotice>
 						</>
