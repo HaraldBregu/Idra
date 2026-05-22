@@ -18,11 +18,7 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('@/contexts', () => ({
 	useApp: () => ({
-		theme: 'system',
-		translucency: { light: 80, dark: 60 },
 		language: 'en',
-		setTheme: jest.fn(),
-		setTranslucency: jest.fn(),
 		setLanguage: jest.fn(),
 	}),
 }));
