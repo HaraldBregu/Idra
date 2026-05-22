@@ -33,11 +33,11 @@ describe('core modules', () => {
 	it('emits process events and broadcasts renderer events', () => {
 		const bus = new EventBus();
 		const listener = jest.fn();
-		const unsubscribe = bus.on('theme:changed', listener);
-		bus.emit('theme:changed', { theme: 'dark' });
-		expect(listener).toHaveBeenCalledWith(expect.objectContaining({ type: 'theme:changed', payload: { theme: 'dark' } }));
+		const unsubscribe = bus.on('service:initialized', listener);
+		bus.emit('service:initialized', { service: 'store' });
+		expect(listener).toHaveBeenCalledWith(expect.objectContaining({ type: 'service:initialized', payload: { service: 'store' } }));
 		unsubscribe();
-		bus.emit('theme:changed', { theme: 'light' });
+		bus.emit('service:initialized', { service: 'logger' });
 		expect(listener).toHaveBeenCalledTimes(1);
 
 		const send = jest.fn();
