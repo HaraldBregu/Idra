@@ -80,7 +80,8 @@ async function runHook(
 			message: DEFAULT_BLOCK_MESSAGE,
 			category: 'hook_invalid',
 		};
-	} catch {
+	} catch (hookErr) {
+		agentLogger.error('agent:before-run', 'hook threw', { error: hookErr instanceof Error ? hookErr.message : String(hookErr) });
 		return {
 			outcome: 'block',
 			reason: 'before_agent_run_hook_error',
