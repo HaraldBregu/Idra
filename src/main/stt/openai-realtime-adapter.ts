@@ -13,7 +13,6 @@ import {
 	isRealtimeSpeechTranscriberModel,
 } from '../../shared/service';
 import {
-	LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
