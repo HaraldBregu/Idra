@@ -255,6 +255,7 @@ export class CronSchedulerService implements CronScheduler {
 		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
 		this.accessPolicy.validateFrequency({ request, actor });
 		validateScheduleShape(request, this.options.runPolicy);
+		const normalizedTask = normalizeAgentScheduleTask(request);
 		assertSafeStoredSchedulePayload(request);
 
 		const now = new Date();
@@ -284,8 +285,8 @@ export class CronSchedulerService implements CronScheduler {
 			catchUpWindowMs: request.catchUpWindowMs ?? this.options.runPolicy.catchUpWindowMs,
 			concurrencyPolicy: request.concurrencyPolicy ?? 'skipIfRunning',
 			retryPolicy: mergeRetryPolicy(this.options.defaultRetryPolicy, request.retryPolicy),
-			taskType: request.taskType.trim(),
-			taskInput: request.taskInput,
+			taskType: normalizedTask.taskType,
+			taskInput: normalizedTask.taskInput,
 			taskPriority: request.taskPriority ?? 'normal',
 			taskTags: request.taskTags ?? [],
 			taskMetadata: request.taskMetadata ?? {},
@@ -327,11 +328,15 @@ export class CronSchedulerService implements CronScheduler {
 		});
 		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
 		validateScheduleShape(patch, this.options.runPolicy, current);
-		assertSafeStoredSchedulePayload(patch);
+		const normalizedTask = normalizeAgentScheduleTask(patch, current);
+		const normalizedPatch: CronScheduleUpdateRequest = { ...patch };
+		if (patch.taskType !== undefined) normalizedPatch.taskType = normalizedTask.taskType;
+		if (patch.taskInput !== undefined) normalizedPatch.taskInput = normalizedTask.taskInput;
+		assertSafeStoredSchedulePayload(normalizedPatch);
 		const merged: CronSchedule = {
 			...current,
-			...patch,
-			retryPolicy: mergeRetryPolicy(current.retryPolicy, patch.retryPolicy),
+			...normalizedPatch,
+			retryPolicy: mergeRetryPolicy(current.retryPolicy, normalizedPatch.retryPolicy),
 			updatedAt: new Date().toISOString(),
 			audit: [
 				...current.audit,
