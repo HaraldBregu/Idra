@@ -4,7 +4,7 @@ import {
 	type CronTaskData,
 	type FridayCronToolRequest,
 	type FridayCronToolResponse,
-} from '../../shared/cron';
+} from '../../../shared/cron';
 import { loadExistingSession } from '../../session/store';
 import type { TranscriptEntry } from '../../provider/types';
 import type { AgentTool, ToolContext } from '../core/types';
