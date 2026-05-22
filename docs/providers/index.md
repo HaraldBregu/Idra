@@ -8,7 +8,7 @@ Provider credentials are stored on provider records. Per-run overrides can selec
 
 | Model type | Model count | Providers |
 | --- | --- | --- |
-| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai/), [Mistral AI](mistral/), [DeepSeek](deepseek/), [Alibaba / Qwen / Wan](qwen/), [Moonshot AI / Kimi](kimi/), [Z.ai / Zhipu AI](zai.md), [MiniMax](minimax.md), [Reka AI](reka.md) |
+| Large Language Models | 30 | [OpenAI](openai.md), [Anthropic](anthropic/), [Google DeepMind / Google](google/), [Meta](meta/), [xAI](xai/), [Mistral AI](mistral/), [DeepSeek](deepseek/), [Alibaba / Qwen / Wan](qwen/), [Moonshot AI / Kimi](kimi/), [Z.ai / Zhipu AI](zai/), [MiniMax](minimax.md), [Reka AI](reka.md) |
 | Research Chat Models | 4 | [Perplexity](perplexity.md) |
 | Speech-To-Text Models | 12 | [OpenAI](openai.md), [Deepgram](deepgram.md), [ElevenLabs](elevenlabs.md), [Mistral AI](mistral/), [xAI](xai/), [Alibaba / Qwen / Wan](qwen/) |
 | Text-To-Speech Models | 12 | [ElevenLabs](elevenlabs.md), [Cartesia](cartesia.md), [OpenAI](openai.md), [Google DeepMind / Google](google/), [MiniMax](minimax.md), [Mistral AI](mistral/), [Deepgram](deepgram.md) |
@@ -48,7 +48,7 @@ Each provider name links to its provider-specific markdown file.
 | [Stability AI](stability-ai.md) | `stability-ai` | Image - Video - Music/audio | Image Models - Video Models - Music And Audio Models |
 | [Suno](suno.md) | `suno` | Music/audio | Music And Audio Models |
 | [xAI](xai/) | `xai` | Chat - Speech-to-text - Realtime voice/omni - Image - Video | Large Language Models - Speech-To-Text Models - Realtime Voice And Omni Models - Image Models - Video Models |
-| [Z.ai / Zhipu AI](zai.md) | `zai` | Chat | Large Language Models |
+| [Z.ai / Zhipu AI](zai/) | `zai` | Chat | Large Language Models |
 
 ## Providers Without LLM Entries
 
