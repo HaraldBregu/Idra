@@ -16,6 +16,15 @@
 | `xai-stt-batch` | xAI STT Batch | Cataloged; adapter pending |
 | `xai-stt-streaming` | xAI STT Streaming | Cataloged; adapter pending |
 
+## Official Documentation
+
+Official xAI docs checked on 2026-05-22:
+
+- [Speech to Text model page](https://docs.x.ai/developers/models/speech-to-text)
+- [Speech to Text guide](https://docs.x.ai/developers/model-capabilities/audio/speech-to-text)
+- [Voice APIs overview](https://docs.x.ai/docs/guides/voice)
+- [Voice API reference](https://docs.x.ai/developers/rest-api-reference/inference/voice)
+
 ## Runtime Status
 
 xAI is present in `SPEECH_TO_TEXT_MODELS_BY_PROVIDER`, so the catalog can list
@@ -39,6 +48,20 @@ Before xAI is runtime-ready:
 5. Normalize provider partial, final, error, and close events to Friday
    realtime transcription events.
 6. Keep API keys and base URLs on the provider record.
+
+## Implementation Approach
+
+Implement xAI as one adapter with separate batch and streaming modes. The batch
+model should buffer Friday audio until `finish`, package it as a supported audio
+file, call xAI's REST STT endpoint, and emit one final transcript. The streaming
+model should open xAI's STT WebSocket, stream Friday audio chunks, consume
+interim and final transcript messages, and map them to Friday `delta` and
+`completed` events.
+
+Do not reuse Friday's xAI chat adapter for this work. Speech-to-text needs its
+own adapter because authentication may be shared, but audio transport,
+message framing, lifecycle events, and error handling are different from chat
+completion streaming.
 
 ## Notes
 

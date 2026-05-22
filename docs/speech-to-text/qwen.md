@@ -19,6 +19,16 @@
 The catalog stores family-level STT model ids. The adapter resolves each
 catalog id to an exact upstream realtime model before opening the WebSocket.
 
+## Official Documentation
+
+Official Alibaba Model Studio docs checked on 2026-05-22:
+
+- [Speech-to-text model selection](https://www.alibabacloud.com/help/en/model-studio/speech-recognition/)
+- [Qwen-Omni realtime guide](https://www.alibabacloud.com/help/en/model-studio/realtime)
+- [Qwen-Omni realtime client events](https://www.alibabacloud.com/help/en/model-studio/client-events)
+- [Qwen-Omni realtime server events](https://www.alibabacloud.com/help/doc-detail/2922855.html)
+- [Qwen-ASR realtime guide](https://www.alibabacloud.com/help/en/model-studio/qwen-real-time-speech-recognition)
+
 ## Runtime Behavior
 
 The default `SpeechToTextService` registers the Qwen realtime adapter for
@@ -54,6 +64,19 @@ Event mapping:
 | `conversation.item.input_audio_transcription.completed` | `completed` |
 | `error` | `error` |
 | socket close | `closed` |
+
+## Implementation Approach
+
+Implement Qwen as a realtime adapter that treats Friday's catalog ids as stable
+family selectors. The adapter should choose the exact upstream realtime model,
+derive the correct regional WebSocket endpoint from the provider base URL, send
+a transcription-focused session update, stream PCM chunks, and request text-only
+output when Friday finishes the audio buffer.
+
+The current catalog uses Qwen-Omni models, so prompt instructions are part of
+the adapter's provider-specific behavior. If Friday later switches to dedicated
+Qwen-ASR models, add new catalog ids and a separate mapping rather than changing
+the meaning of the existing Qwen-Omni ids silently.
 
 ## Notes
 

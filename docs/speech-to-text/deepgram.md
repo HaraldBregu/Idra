@@ -15,6 +15,16 @@
 | `nova-3` | Nova 3 | Cataloged; adapter pending |
 | `flux` | Flux | Cataloged; adapter pending |
 
+## Official Documentation
+
+Official Deepgram docs checked on 2026-05-22:
+
+- [Deepgram documentation overview](https://developers.deepgram.com/documentation/)
+- [Nova pre-recorded quickstart](https://developers.deepgram.com/docs/nova-quickstart)
+- [Live audio API reference](https://developers.deepgram.com/reference/listen-live)
+- [Pre-recorded audio API reference](https://developers.deepgram.com/reference/pre-recorded)
+- [Flux quickstart](https://developers.deepgram.com/docs/flux/quickstart)
+
 ## Runtime Status
 
 Deepgram is present in `SPEECH_TO_TEXT_MODELS_BY_PROVIDER`, so the catalog can
@@ -35,6 +45,21 @@ Before Deepgram is runtime-ready:
 4. Normalize Deepgram partial, final, error, and close events to Friday
    realtime transcription events.
 5. Keep API keys and base URLs on the provider record.
+
+## Implementation Approach
+
+Implement Deepgram with explicit model-specific behavior. For `nova-3`, prefer
+Deepgram's live `/v1/listen` WebSocket for dictation and keep the pre-recorded
+endpoint available only if Friday intentionally exposes a batch transcription
+mode. Send Friday's PCM stream with matching encoding and sample-rate query
+parameters, request interim results for partial UI updates, and finalize the
+stream when Friday calls `finish`.
+
+For `flux`, treat it as a conversational streaming model rather than a generic
+file transcription model. Its adapter should map provider turn-taking or
+speech-final signals into Friday `completed` events. If Flux requires a
+different control flow from Friday's manual commit model, keep that difference
+inside the adapter and document the tradeoff before enabling it in the UI.
 
 ## Notes
 

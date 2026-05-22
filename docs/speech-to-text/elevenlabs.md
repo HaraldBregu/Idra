@@ -16,6 +16,15 @@
 | `scribe_v2` | Scribe v2 | Batch request behind the session interface | Implemented |
 | `scribe_v2_realtime` | Scribe v2 Realtime | WebSocket realtime transcription | Implemented |
 
+## Official Documentation
+
+Official ElevenLabs docs checked on 2026-05-22:
+
+- [Speech to Text overview](https://elevenlabs.io/docs/capabilities/speech-to-text)
+- [Create transcript API reference](https://elevenlabs.io/docs/api-reference/speech-to-text/convert)
+- [Realtime Speech to Text API reference](https://elevenlabs.io/docs/api-reference/speech-to-text/)
+- [Server-side realtime streaming guide](https://elevenlabs.io/docs/developers/guides/cookbooks/speech-to-text/realtime/server-side-streaming)
+
 ## Runtime Behavior
 
 The default `SpeechToTextService` registers one ElevenLabs adapter that supports
@@ -46,6 +55,20 @@ Event mapping:
 | `committed_transcript_with_timestamps` | `completed` |
 | `error` | `error` |
 | socket close | `closed` |
+
+## Implementation Approach
+
+Implement ElevenLabs as one adapter with two session modes. The batch mode
+should collect Friday's PCM16 chunks, package the final audio as an upload when
+the user finishes dictation, call the transcript endpoint, and emit one final
+Friday transcript. The realtime mode should open the ElevenLabs WebSocket,
+stream PCM chunks as provider audio messages, and use manual commit so Friday's
+finish action controls transcript finalization.
+
+Keep advanced ElevenLabs options such as diarization, timestamps, keyterms,
+redaction, multichannel transcription, and webhooks out of the default
+dictation path until the Friday module exposes safe non-secret settings for
+them.
 
 ## Notes
 

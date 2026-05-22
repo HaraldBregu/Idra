@@ -11,14 +11,14 @@ provider events into Friday realtime transcription events.
 
 ## Provider Matrix
 
-| Provider | Provider id | Catalog models | Default runtime status | Runbook |
-| --- | --- | --- | --- | --- |
-| OpenAI | `openai` | `gpt-realtime-whisper` | Realtime adapter registered | [openai.md](openai.md) |
-| ElevenLabs | `elevenlabs` | `scribe_v2`, `scribe_v2_realtime` | Batch and realtime adapter registered | [elevenlabs.md](elevenlabs.md) |
-| Mistral AI | `mistral` | `voxtral-mini-2602`, `voxtral-mini-transcribe-realtime-2602` | Batch and realtime adapter registered | [mistral.md](mistral.md) |
-| Alibaba / Qwen / Wan | `qwen` | `qwen3.5-omni`, `qwen3-omni-flash` | Realtime adapter registered | [qwen.md](qwen.md) |
-| Deepgram | `deepgram` | `nova-3`, `flux` | Catalog only; adapter not registered | [deepgram.md](deepgram.md) |
-| xAI | `xai` | `xai-stt-batch`, `xai-stt-streaming` | Catalog only; adapter not registered | [xai.md](xai.md) |
+| Provider | Provider id | Catalog models | Default runtime status | Runbook | Official docs |
+| --- | --- | --- | --- | --- | --- |
+| OpenAI | `openai` | `gpt-realtime-whisper` | Realtime adapter registered | [openai.md](openai.md) | [Realtime transcription](https://platform.openai.com/docs/guides/realtime-transcription) |
+| ElevenLabs | `elevenlabs` | `scribe_v2`, `scribe_v2_realtime` | Batch and realtime adapter registered | [elevenlabs.md](elevenlabs.md) | [Speech to Text](https://elevenlabs.io/docs/capabilities/speech-to-text) |
+| Mistral AI | `mistral` | `voxtral-mini-2602`, `voxtral-mini-transcribe-realtime-2602` | Batch and realtime adapter registered | [mistral.md](mistral.md) | [Audio and transcription](https://docs.mistral.ai/studio-api/audio/speech_to_text) |
+| Alibaba / Qwen / Wan | `qwen` | `qwen3.5-omni`, `qwen3-omni-flash` | Realtime adapter registered | [qwen.md](qwen.md) | [Speech-to-text models](https://www.alibabacloud.com/help/en/model-studio/speech-recognition/) |
+| Deepgram | `deepgram` | `nova-3`, `flux` | Catalog only; adapter not registered | [deepgram.md](deepgram.md) | [Deepgram STT docs](https://developers.deepgram.com/documentation/) |
+| xAI | `xai` | `xai-stt-batch`, `xai-stt-streaming` | Catalog only; adapter not registered | [xai.md](xai.md) | [Speech to Text](https://docs.x.ai/developers/models/speech-to-text) |
 
 The catalog can validate all listed provider/model pairs. Runtime startup still
 requires a registered adapter that returns `true` from `supports(providerId,
@@ -53,3 +53,16 @@ fails before audio is streamed.
 4. Register the adapter in `SpeechToTextService`.
 5. Normalize provider events to Friday realtime transcription events.
 6. Keep credentials and base URLs on provider records, not in `speechToText`.
+
+## Implementation Shape
+
+Each provider runbook explains the same implementation shape without embedding
+provider code:
+
+- Which official endpoint or protocol the adapter should use.
+- Which Friday catalog ids map to which provider model ids.
+- Whether the adapter streams audio immediately or buffers audio until
+  `finish`.
+- Which provider events become Friday `delta`, `committed`, `completed`,
+  `error`, and `closed` events.
+- What must remain provider-specific inside the adapter.

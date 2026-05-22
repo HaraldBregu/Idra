@@ -16,6 +16,15 @@
 | `voxtral-mini-2602` | Voxtral Mini 2602 | Batch transcription behind the session interface | Implemented |
 | `voxtral-mini-transcribe-realtime-2602` | Voxtral Mini Transcribe Realtime 2602 | Realtime SDK connection | Implemented |
 
+## Official Documentation
+
+Official Mistral docs checked on 2026-05-22:
+
+- [Audio and transcription overview](https://docs.mistral.ai/studio-api/audio/speech_to_text)
+- [Offline transcription](https://docs.mistral.ai/studio-api/audio/speech_to_text/offline_transcription)
+- [Realtime transcription](https://docs.mistral.ai/studio-api/audio/speech_to_text/realtime_transcription)
+- [Voxtral Mini Transcribe model card](https://docs.mistral.ai/models/model-cards/voxtral-mini-transcribe-25-07)
+
 ## Runtime Behavior
 
 The default `SpeechToTextService` registers the Mistral adapter for provider id
@@ -45,6 +54,20 @@ Event mapping:
 | `transcription.done` | `completed` |
 | `error` | `error` |
 | connection close | `closed` |
+
+## Implementation Approach
+
+Implement Mistral with separate batch and realtime session behavior behind one
+adapter. The batch path should buffer audio, submit one offline transcription
+request on `finish`, and emit one final transcript. The realtime path should use
+Mistral's realtime transcription API, send Friday's PCM16 chunks as the declared
+audio stream, and map Mistral text deltas and done events to Friday's event
+contract.
+
+Mistral-specific features such as diarization, timestamp granularity, context
+bias, and target streaming delay should remain adapter options until Friday has
+explicit settings for them. Do not add those fields to `speechToText` by
+default.
 
 ## Notes
 

@@ -18,6 +18,15 @@ The saved Friday model id is the transcription model. The OpenAI adapter opens
 the realtime socket with an internal connection model, `gpt-realtime`, and sets
 the transcription model in the realtime session update.
 
+## Official Documentation
+
+Official OpenAI docs checked on 2026-05-22:
+
+- [Realtime transcription guide](https://platform.openai.com/docs/guides/realtime-transcription)
+- [Speech to text guide](https://platform.openai.com/docs/guides/speech-to-text)
+- [Audio transcription API reference](https://platform.openai.com/docs/api-reference/audio/transcribe)
+- [Realtime API guide](https://platform.openai.com/docs/guides/realtime/session)
+
 ## Runtime Behavior
 
 The default `SpeechToTextService` registers the OpenAI realtime adapter. It
@@ -49,6 +58,20 @@ Event mapping:
 | `conversation.item.input_audio_transcription.completed` | `completed` |
 | `conversation.item.input_audio_transcription.failed` | `error` |
 | socket close | `closed` |
+
+## Implementation Approach
+
+Keep OpenAI behind a realtime adapter. The adapter should resolve Friday's saved
+catalog id to the upstream transcription model accepted by OpenAI, open a
+transcription-only realtime session, and keep the realtime socket model as an
+adapter detail. Friday should continue to control buffer commits instead of
+using provider VAD for dictation, because the renderer already owns start,
+finish, and cancel state.
+
+If OpenAI's currently documented transcription model list differs from Friday's
+stored catalog id, update only the adapter mapping and catalog documentation
+together. Do not leak the OpenAI socket model or provider-specific session
+shape into renderer or task payloads.
 
 ## Notes
 
