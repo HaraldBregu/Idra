@@ -765,11 +765,6 @@ const StartPage: React.FC = () => {
 		setSelectedSpeechModel(value ?? '');
 	}
 
-	function handleTtsModelChange(value: string | null): void {
-		setErrorMessage('');
-		setSelectedTtsModel(value ?? '');
-	}
-
 	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
