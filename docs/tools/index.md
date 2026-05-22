@@ -7,6 +7,13 @@ provider-specific tool-search behavior for large deferred tool catalogs.
 Friday does not expose every tool on every turn. It selects a small set based on
 the user's request, safety rules, and the current run context.
 
+## Structure
+
+| Folder | Contents |
+| --- | --- |
+| [list](list/read.md) | One page for each preloaded local tool. |
+| [search](search/index.md) | Provider-specific documentation for tool search. |
+
 ## Preloaded Local Tools
 
 | Tool | How Friday uses it |
@@ -30,6 +37,8 @@ the user's request, safety rules, and the current run context.
 
 ## Tool Search
 
-| Tool | How Friday uses it |
+| Page | How Friday uses it |
 | --- | --- |
-| [Tool search](search/index.md) | Searches a large deferred tool catalog so the model can load the right tools for the task only when needed. |
+| [Tool search overview](search/index.md) | Explains provider-specific tool search documentation. |
+| [OpenAI tool search](search/openai.md) | Describes OpenAI `tool_search`, hosted search, client-executed search, namespaces, MCP servers, and deferred loading. |
+| [Anthropic tool search](search/anthropic.md) | Describes Anthropic server-side tool search, regex and BM25 variants, deferred loading, tool references, and best practices. |
