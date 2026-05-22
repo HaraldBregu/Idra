@@ -6,7 +6,7 @@ import type {
 	ConnectorWriteRisk,
 	DirectConnectorCatalogId,
 	OpenAiConnectorId,
-} from '../connectors';
+} from './connectors';
 
 export type ConnectorDocumentationType = 'official_docs';
 
