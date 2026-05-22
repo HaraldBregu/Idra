@@ -3,7 +3,7 @@
 | Property | Value |
 | --- | --- |
 | Provider id | `deepgram` |
-| Provider docs | [Deepgram provider](../providers/deepgram.md) |
+| Provider docs | [Deepgram provider](../providers/deepgram/) |
 | Default base URL | `https://api.deepgram.com/v1` |
 | Credential | API key from the Deepgram provider record |
 | Runtime adapter | Not registered in the default STT service |

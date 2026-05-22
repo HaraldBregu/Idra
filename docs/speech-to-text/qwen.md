@@ -3,7 +3,7 @@
 | Property | Value |
 | --- | --- |
 | Provider id | `qwen` |
-| Provider docs | [Alibaba / Qwen / Wan provider](../providers/qwen.md) |
+| Provider docs | [Alibaba / Qwen / Wan provider](../providers/qwen/) |
 | Default base URL | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
 | Credential | Model Studio API key from the Qwen provider record |
 | Auth method | `Authorization: Bearer <api key>` |
@@ -83,5 +83,5 @@ the meaning of the existing Qwen-Omni ids silently.
 - Qwen-Omni STT behaves like prompted audio understanding. The adapter asks for
   verbatim transcript text and text-only output.
 - Speaker diarization is not part of the current Friday Qwen STT path.
-- Recorded-audio HTTP usage is documented in [providers/qwen.md](../providers/qwen.md)
+- Recorded-audio HTTP usage is documented in [providers/qwen/](../providers/qwen/)
   but the default Friday dictation runtime uses the realtime WebSocket path.

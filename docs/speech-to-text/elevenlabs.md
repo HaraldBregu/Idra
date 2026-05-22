@@ -3,7 +3,7 @@
 | Property | Value |
 | --- | --- |
 | Provider id | `elevenlabs` |
-| Provider docs | [ElevenLabs provider](../providers/elevenlabs.md) |
+| Provider docs | [ElevenLabs provider](../providers/elevenlabs/) |
 | Default base URL | `https://api.elevenlabs.io/v1` |
 | Credential | API key from the ElevenLabs provider record |
 | Auth method | `xi-api-key` header |
@@ -77,5 +77,5 @@ them.
 - Language hints are normalized to a two- or three-letter primary language code
   before being sent as `language_code`.
 - Provider-specific options such as diarization, timestamps, redaction, and
-  webhook delivery are documented in [providers/elevenlabs.md](../providers/elevenlabs.md)
+  webhook delivery are documented in [providers/elevenlabs/](../providers/elevenlabs/)
   but are not part of Friday's realtime dictation path today.
