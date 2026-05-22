@@ -1,0 +1,14 @@
+# copy
+
+`copy` duplicates a file from one workspace location to another.
+
+## How It Is Used
+
+- Used when existing content should be reused as a starting point.
+- Helpful for creating a variant while preserving the original.
+- Can support documentation, templates, or project assets that need a duplicate.
+
+## Boundaries
+
+- It should not overwrite an existing file unless that is clearly intended.
+- It should not create speculative copies that the user did not ask for.
