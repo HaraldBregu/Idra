@@ -1,15 +1,15 @@
 # Outlook Calendar Connector
 
-Provider-scoped entry for Friday's Outlook Calendar connector.
+Catalog notes for Friday's Outlook Calendar connector.
 
-| Field | Value |
-| --- | --- |
-| Provider | [Microsoft](../index.md) |
-| Connector id | `connector_outlookcalendar` |
-| Direct connector id | `outlook` |
-| Runtime status | Settings catalog only |
-| Auth kind | Manual OAuth access token |
-| Canonical connector doc | [connectors/outlook-calendar.md](../../../connectors/outlook-calendar.md) |
+| Field               | Value                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Connector id        | `connector_outlookcalendar`                                                                                               |
+| Direct connector id | `outlook`                                                                                                                 |
+| Name                | Outlook Calendar                                                                                                          |
+| Runtime status      | Settings catalog only                                                                                                     |
+| Auth kind           | Manual OAuth access token                                                                                                 |
+| Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Environment Secrets
 
@@ -26,7 +26,53 @@ Provider-scoped entry for Friday's Outlook Calendar connector.
 - `list_events`
 - `get_profile`
 
+## Scopes
+
+- `Calendars.Read`
+- `User.Read`
+
+## Current Runtime
+
+Outlook Calendar is present in the Settings catalog with setup metadata, scopes,
+and tool names. It does not have a local `ConnectorToolStrategy` yet, so default
+agent tool execution is not implemented for this connector.
+
+The Settings access-token field can store a manual Microsoft Graph OAuth access
+token for local development. For production work, add a real OAuth or
+secret-backed credential flow before relying on this connector.
+
+## Setup Checklist
+
+1. Create or open an app registration in Microsoft Entra.
+2. Grant the listed Microsoft Graph calendar permissions.
+3. Complete OAuth for the account.
+4. Paste the access token into the Settings OAuth access-token field only for
+   local development.
+5. Keep `allowedTools` limited to read/search tools until local execution and
+   approval behavior are implemented.
+
+## Implementation Work Remaining
+
+- Add Microsoft OAuth and token refresh handling.
+- Add a local tool strategy in `ConnectorsService`.
+- Add typed schemas, output projection, redaction tests, and at least one
+  representative read test.
+
+## Example
+
+List events:
+
+```json
+{ "calendarId": "primary" }
+```
+
+Use with `list_events`.
+
+## Platform Documentation
+
+- [Outlook calendar API overview](https://learn.microsoft.com/en-us/graph/outlook-calendar-concept-overview)
+- [Microsoft Graph auth concepts](https://learn.microsoft.com/en-us/graph/auth/auth-concepts)
+
 ## Related Docs
 
-- [Microsoft provider](../index.md)
-- [Connector subsystem](../../../connectors/index.md)
+- [Connector subsystem](index.md)
