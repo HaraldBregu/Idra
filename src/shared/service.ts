@@ -6,7 +6,9 @@ import {
 import type { AgentsHeartbeatConfig } from './heartbeat';
 import {
 	IMAGE_CREATOR_MODELS,
+	LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_MODEL_IDS,
+	SPEECH_TRANSCRIBER_PROVIDER_ID,
 	SPEECH_TO_TEXT_MODELS,
 	getMusicModelsByProvider,
 	TEXT_TO_VIDEO_MODELS,
@@ -271,6 +273,12 @@ export function hasSpeechToTextModels(providerId: string): boolean {
 
 export function isAllowedSpeechToTextModel(providerId: string, modelId: string): boolean {
 	const normalizedModelId = modelId.trim();
+	if (
+		providerId.trim().toLowerCase() === SPEECH_TRANSCRIBER_PROVIDER_ID &&
+		(LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(normalizedModelId)
+	) {
+		return true;
+	}
 	return getSpeechToTextModels(providerId).some((model) => model.id === normalizedModelId);
 }
 
