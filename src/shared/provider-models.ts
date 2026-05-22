@@ -25,10 +25,15 @@ export const MODEL_CAPABILITIES = [
 export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
 
 export const LLM_MODELS_BY_PROVIDER = {
-	openai: [model('gpt-5.5', 'GPT-5.5'), model('gpt-5.4-mini', 'GPT-5.4 Mini')],
+	openai: [
+		model('gpt-5.5', 'GPT-5.5'),
+		model('gpt-5.4', 'GPT-5.4'),
+		model('gpt-5.4-mini', 'GPT-5.4 Mini'),
+	],
 	anthropic: [
 		model('claude-opus-4-7', 'Claude Opus 4.7'),
 		model('claude-sonnet-4-6', 'Claude Sonnet 4.6'),
+		model('claude-haiku-4-5-20251001', 'Claude Haiku 4.5 20251001'),
 	],
 	google: [
 		model('gemini-3.1-pro-preview', 'Gemini 3.1 Pro Preview'),
@@ -89,7 +94,6 @@ export const MINI_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-mini-transcribe';
 export const SPEECH_TRANSCRIBER_MODEL_IDS = [
 	GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID,
 	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 ] as const;
 export const LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS = [] as const;
 export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-2602';
@@ -106,7 +110,6 @@ export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	openai: [
 		model(GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Transcribe'),
 		model(MINI_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Mini Transcribe'),
-		model(REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT Realtime Whisper'),
 	],
 	deepgram: [model('nova-3', 'Nova 3'), model('flux', 'Flux')],
 	elevenlabs: [
@@ -168,7 +171,6 @@ export const TEXT_TO_SPEECH_PROVIDER_IDS = [
 ] as const;
 
 export const REALTIME_VOICE_MODELS_BY_PROVIDER = {
-	openai: [model('gpt-realtime-2', 'GPT Realtime 2'), model('gpt-realtime', 'GPT Realtime')],
 	xai: [model('grok-voice-latest', 'Grok Voice Latest')],
 	google: [model('gemini-3.1-flash-live-preview', 'Gemini 3.1 Flash Live Preview')],
 	qwen: [
@@ -180,11 +182,6 @@ export const REALTIME_VOICE_MODELS_BY_PROVIDER = {
 } as const satisfies ModelCatalog;
 
 export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
-	openai: [
-		model('gpt-image-2', 'GPT Image 2'),
-		model('gpt-image-1.5', 'GPT Image 1.5'),
-		model('gpt-image-1-mini', 'GPT Image 1 Mini'),
-	],
 	google: [
 		model('gemini-3.1-flash-image-preview', 'Gemini 3.1 Flash Image Preview'),
 		model('gemini-3-pro-image-preview', 'Gemini 3 Pro Image Preview'),
@@ -209,9 +206,8 @@ export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
 } as const satisfies ModelCatalog;
 
 export const IMAGE_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_IMAGE_MODELS_BY_PROVIDER;
-export const IMAGE_CREATOR_MODELS = TEXT_TO_IMAGE_MODELS_BY_PROVIDER.openai;
+export const IMAGE_CREATOR_MODELS = TEXT_TO_IMAGE_MODELS_BY_PROVIDER.google;
 export const TEXT_TO_IMAGE_PROVIDER_IDS = [
-	'openai',
 	'google',
 	'qwen',
 	'xai',
@@ -241,8 +237,7 @@ export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER = {
 		model('wan2.7-video-edit', 'Wan 2.7 Video Edit'),
 	],
 	xai: [model('grok-imagine-video', 'Grok Imagine Video')],
-	openai: [model('sora-2-pro', 'Sora 2 Pro', 'deprecated'), model('sora-2', 'Sora 2', 'deprecated')],
-	meta: [model('movie-gen-video', 'Movie Gen Video', 'verify')],
+	meta: [model('movie-gen-video', 'Movie Gen Video')],
 	midjourney: [model('midjourney-video', 'Midjourney Video')],
 	pika: [
 		model('pika-2.5', 'Pika 2.5'),
@@ -250,7 +245,7 @@ export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER = {
 		model('pika-turbo', 'Pika Turbo'),
 	],
 	'stability-ai': [model('stable-video', 'Stable Video')],
-	kling: [model('kling-2.6', 'Kling 2.6', 'verify'), model('kling-2.1', 'Kling 2.1', 'verify')],
+	kling: [model('kling-2.6', 'Kling 2.6'), model('kling-2.1', 'Kling 2.1')],
 } as const satisfies ModelCatalog;
 
 export const VIDEO_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_VIDEO_MODELS_BY_PROVIDER;
@@ -262,7 +257,6 @@ export const TEXT_TO_VIDEO_PROVIDER_IDS = [
 	'minimax',
 	'qwen',
 	'xai',
-	'openai',
 	'meta',
 	'midjourney',
 	'pika',
@@ -283,7 +277,7 @@ export const TEXT_TO_AUDIO_MODELS_BY_PROVIDER = {
 		model('elevenlabs-sound-effects', 'ElevenLabs Sound Effects'),
 	],
 	'stability-ai': [model('stable-audio-2.5', 'Stable Audio 2.5')],
-	kling: [model('kling-audio', 'Kling Audio', 'verify')],
+	kling: [model('kling-audio', 'Kling Audio')],
 } as const satisfies ModelCatalog;
 
 export const MUSIC_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_AUDIO_MODELS_BY_PROVIDER;
@@ -299,7 +293,7 @@ export const MUSIC_PROVIDER_IDS = [
 ] as const;
 
 export const THREE_D_MODELS_BY_PROVIDER = {
-	luma: [model('genie', 'Genie', 'verify'), model('interactive-scenes', 'Interactive Scenes', 'verify')],
+	luma: [model('genie', 'Genie'), model('interactive-scenes', 'Interactive Scenes')],
 } as const satisfies ModelCatalog;
 
 export const EMBEDDING_MODELS_BY_PROVIDER: ModelCatalog = {};
