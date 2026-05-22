@@ -20,4 +20,4 @@ This section documents DeepSeek models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Large language models | `deepseek-v4-pro`, `deepseek-v4-flash` | [deepseek/llm](llm/) |
+| Large language models | `deepseek-v4-pro`, `deepseek-v4-flash` | [deepseek/llm](llm/index) |

@@ -20,4 +20,4 @@ This section documents Runway models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Video | `gen4.5`, `gen4_turbo`, `gen4_aleph` | [runway/video](video/) |
+| Video | `gen4.5`, `gen4_turbo`, `gen4_aleph` | [runway/video](video/index) |

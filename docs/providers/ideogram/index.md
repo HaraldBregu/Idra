@@ -6,4 +6,4 @@ This section documents Ideogram models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Image | `ideogram-3.0`, `ideogram-2a` | [ideogram/image](image/) |
+| Image | `ideogram-3.0`, `ideogram-2a` | [ideogram/image](image/index) |

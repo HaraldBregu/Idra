@@ -20,7 +20,7 @@ This section documents Luma AI models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Realtime voice and omni | `uni-1.1` | [luma/realtime](realtime/) |
-| Image | `uni-1.1` | [luma/image](image/) |
-| Video | `ray3.14`, `ray3`, `ray2` | [luma/video](video/) |
-| 3D | `genie`, `interactive-scenes` | [luma/3d](3d/) |
+| Realtime voice and omni | `uni-1.1` | [luma/realtime](realtime/index) |
+| Image | `uni-1.1` | [luma/image](image/index) |
+| Video | `ray3.14`, `ray3`, `ray2` | [luma/video](video/index) |
+| 3D | `genie`, `interactive-scenes` | [luma/3d](3d/index) |

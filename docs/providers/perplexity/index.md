@@ -6,4 +6,4 @@ This section documents Perplexity models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Research chat | `sonar-deep-research`, `sonar-reasoning-pro`, `sonar-pro`, `sonar` | [perplexity/research](research/) |
+| Research chat | `sonar-deep-research`, `sonar-reasoning-pro`, `sonar-pro`, `sonar` | [perplexity/research](research/index) |

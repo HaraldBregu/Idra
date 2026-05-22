@@ -6,6 +6,6 @@ This section documents Stability AI models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Image | `stable-image-ultra`, `stable-image-core` | [stability/image](image/) |
-| Video | `stable-video` | [stability/video](video/) |
-| Music and audio | `stable-audio-2.5` | [stability/music](music/) |
+| Image | `stable-image-ultra`, `stable-image-core` | [stability/image](image/index) |
+| Video | `stable-video` | [stability/video](video/index) |
+| Music and audio | `stable-audio-2.5` | [stability/music](music/index) |

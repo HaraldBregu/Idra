@@ -6,5 +6,5 @@ This section documents Deepgram models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Speech-to-text | `nova-3`, `flux` | [deepgram/stt](stt/) |
-| Text-to-speech | `aura-2` | [deepgram/tts](tts/) |
+| Speech-to-text | `nova-3`, `flux` | [deepgram/stt](stt/index) |
+| Text-to-speech | `aura-2` | [deepgram/tts](tts/index) |

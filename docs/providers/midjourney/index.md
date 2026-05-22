@@ -6,5 +6,5 @@ This section documents Midjourney models.
 
 | Model type | Models | Documentation |
 | --- | --- | --- |
-| Image | `midjourney-v8.1`, `midjourney-v7` | [midjourney/image](image/) |
-| Video | `midjourney-video` | [midjourney/video](video/) |
+| Image | `midjourney-v8.1`, `midjourney-v7` | [midjourney/image](image/index) |
+| Video | `midjourney-video` | [midjourney/video](video/index) |
