@@ -1,6 +1,3 @@
-import type { Model } from './service';
-import { CHAT_MODELS_BY_PROVIDER, type ModelCatalog } from './provider-models';
-
 export interface ProviderApiConfiguration {
 	readonly credentialType: string | null;
 	readonly apiKeyManagementUrl: string | null;
@@ -506,17 +503,8 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 	},
 ];
 
-export const DEFAULT_AGENT_MODELS_BY_PROVIDER: ModelCatalog = CHAT_MODELS_BY_PROVIDER;
-
-function normalizeProviderId(providerId: string): string {
+export function normalizeProviderId(providerId: string): string {
 	return providerId.trim().toLowerCase();
-}
-
-function isDefaultProvider(providerId: string): boolean {
-	const normalizedProviderId = normalizeProviderId(providerId);
-	return DEFAULT_PROVIDERS.some(
-		(provider) => normalizeProviderId(provider.id) === normalizedProviderId
-	);
 }
 
 export function getProviderApiConfigurationUrl(
@@ -553,42 +541,4 @@ export function hasDefaultProviderCapability(providerId: string, capability: str
 		(entry) => normalizeProviderId(entry.id) === normalizedProviderId
 	);
 	return provider ? providerHasCapability(provider, capability) : false;
-}
-
-export function getDefaultAgentModels(providerId: string): Model[] {
-	return (DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] ?? []).map((model) => ({
-		...model,
-	}));
-}
-
-export function hasDefaultAgentModels(providerId: string): boolean {
-	return DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] !== undefined;
-}
-
-function defaultModelsForProvider(providerId: string): readonly Model[] | undefined {
-	return DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)];
-}
-
-export function isAllowedAgentModel(providerId: string, modelId: string): boolean {
-	const normalizedModelId = modelId.trim();
-	const defaultModels = defaultModelsForProvider(providerId);
-
-	if (defaultModels) {
-		return defaultModels.some((model) => model.id === normalizedModelId);
-	}
-
-	return !isDefaultProvider(providerId);
-}
-
-export function filterSelectableAgentModels(providerId: string, models: Model[]): Model[] {
-	const defaultModels = defaultModelsForProvider(providerId);
-	if (!defaultModels) {
-		return isDefaultProvider(providerId) ? [] : models;
-	}
-
-	const byId = new Map(models.map((model) => [model.id.trim(), model]));
-	return defaultModels.flatMap((defaultModel) => {
-		const model = byId.get(defaultModel.id);
-		return model ? [model] : [];
-	});
 }

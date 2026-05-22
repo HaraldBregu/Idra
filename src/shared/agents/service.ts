@@ -3,7 +3,7 @@ import {
 	providerHasImageCapability,
 	type Provider,
 } from './providers';
-import type { AgentsHeartbeatConfig } from './heartbeat';
+import type { AgentsHeartbeatConfig } from '../heartbeat';
 import {
 	IMAGE_CREATOR_MODELS,
 	LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS,
