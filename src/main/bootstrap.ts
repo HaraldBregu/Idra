@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
 
+import { AppPermissionsService } from './app-permissions';
 import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
@@ -60,6 +61,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
+	container.register('appPermissions', new AppPermissionsService());
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
 	void userDataDirectory.ensureRoot().catch((error) => {
