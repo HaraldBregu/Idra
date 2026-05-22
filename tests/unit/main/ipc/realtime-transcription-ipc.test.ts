@@ -9,6 +9,10 @@ import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
 import {
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
+	createMistralRealtimeServerUrl,
+	createQwenRealtimeTranscriptionResponseCreate,
+	createQwenRealtimeTranscriptionSessionUpdate,
+	createQwenRealtimeTranscriptionUrl,
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
 	hasStreamingRealtimeTranscriptionAudio,
@@ -20,7 +24,12 @@ import {
 import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
-import { REALTIME_SPEECH_TRANSCRIBER_MODEL_ID } from '../../../../src/shared/provider-models';
+import {
+	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
+	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
+	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+} from '../../../../src/shared/provider-models';
 
 describe('realtime transcription IPC', () => {
 	beforeEach(() => {
@@ -108,5 +117,58 @@ describe('realtime transcription IPC', () => {
 			isInputAudioBufferTooSmallError('Error committing input audio buffer: buffer too small:')
 		).toBe(true);
 		expect(isInputAudioBufferTooSmallError('Realtime transcription failed.')).toBe(false);
+	});
+
+	it('maps Mistral API base URLs to the realtime websocket server URL', () => {
+		expect(createMistralRealtimeServerUrl('https://api.mistral.ai/v1')).toBe(
+			'wss://api.mistral.ai'
+		);
+		expect(createMistralRealtimeServerUrl('http://localhost:8080/v1')).toBe(
+			'ws://localhost:8080'
+		);
+	});
+
+	it('maps Qwen catalog STT ids to realtime websocket URLs', () => {
+		expect(
+			createQwenRealtimeTranscriptionUrl(
+				'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+				QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID
+			)
+		).toBe(
+			'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime?model=qwen3.5-omni-flash-realtime'
+		);
+		expect(
+			createQwenRealtimeTranscriptionUrl(
+				'https://dashscope.aliyuncs.com/compatible-mode/v1',
+				QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID
+			)
+		).toBe(
+			'wss://dashscope.aliyuncs.com/api-ws/v1/realtime?model=qwen3-omni-flash-realtime'
+		);
+	});
+
+	it('builds Qwen realtime transcription session and response events', () => {
+		expect(createQwenRealtimeTranscriptionSessionUpdate({ language: 'en-US' })).toEqual({
+			type: 'session.update',
+			session: {
+				modalities: ['text'],
+				input_audio_format: 'pcm',
+				instructions:
+					'Transcribe user speech verbatim. Return only transcript text. Language hint: en-US.',
+				turn_detection: null,
+			},
+		});
+		expect(createQwenRealtimeTranscriptionResponseCreate()).toEqual({
+			type: 'response.create',
+			response: {
+				modalities: ['text'],
+			},
+		});
+	});
+
+	it('keeps the Mistral realtime STT model id aligned with the provider catalog', () => {
+		expect(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID).toBe(
+			'voxtral-mini-transcribe-realtime-2602'
+		);
 	});
 });

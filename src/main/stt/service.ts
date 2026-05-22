@@ -14,7 +14,9 @@ import type {
 } from '../../shared/realtime-transcription';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type { Provider } from '../../shared/providers';
+import { createMistralRealtimeSpeechToTextAdapter } from './mistral-realtime-adapter';
 import { createOpenAIRealtimeSpeechToTextAdapter } from './openai-realtime-adapter';
+import { createQwenRealtimeSpeechToTextAdapter } from './qwen-realtime-adapter';
 import type { SpeechToTextRealtimeAdapter, SpeechToTextRealtimeSession } from './types';
 
 interface SpeechToTextServiceDependencies {
@@ -33,7 +35,11 @@ export class SpeechToTextService {
 	private readonly sessions = new Map<string, OwnedSpeechToTextSession>();
 
 	constructor(private readonly dependencies: SpeechToTextServiceDependencies) {
-		this.adapters = dependencies.adapters ?? [createOpenAIRealtimeSpeechToTextAdapter()];
+		this.adapters = dependencies.adapters ?? [
+			createOpenAIRealtimeSpeechToTextAdapter(),
+			createMistralRealtimeSpeechToTextAdapter(),
+			createQwenRealtimeSpeechToTextAdapter(),
+		];
 	}
 
 	getModels(providerId: string): Model[] {

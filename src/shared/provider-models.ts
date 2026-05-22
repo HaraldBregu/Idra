@@ -84,6 +84,10 @@ export const CHAT_MODELS_BY_PROVIDER = mergeModelCatalogs(
 
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
 export const REALTIME_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
+export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID =
+	'voxtral-mini-transcribe-realtime-2602';
+export const QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID = 'qwen3.5-omni';
+export const QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-omni-flash';
 
 export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	openai: [
@@ -94,10 +98,13 @@ export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	elevenlabs: [model('scribe_v2', 'Scribe v2'), model('scribe_v2_realtime', 'Scribe v2 Realtime')],
 	mistral: [
 		model('voxtral-mini-2602', 'Voxtral Mini 2602'),
-		model('voxtral-mini-transcribe-realtime-2602', 'Voxtral Mini Transcribe Realtime 2602'),
+		model(MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID, 'Voxtral Mini Transcribe Realtime 2602'),
 	],
 	xai: [model('xai-stt-batch', 'xAI STT Batch'), model('xai-stt-streaming', 'xAI STT Streaming')],
-	qwen: [model('qwen3.5-omni', 'Qwen3.5 Omni'), model('qwen3-omni-flash', 'Qwen3 Omni Flash')],
+	qwen: [
+		model(QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3.5 Omni'),
+		model(QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3 Omni Flash'),
+	],
 } as const satisfies ModelCatalog;
 
 export const STT_MODELS_BY_PROVIDER = SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
