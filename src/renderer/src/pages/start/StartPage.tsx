@@ -282,11 +282,6 @@ function getCatalogCountLabel(groups: readonly CatalogModelGroup[]): string {
 	return `${modelCount} ${modelLabel} across ${groups.length} ${providerLabel}`;
 }
 
-function getOperatorSelectionLabel(operator: ConfiguredModelOperator | undefined): string {
-	if (!operator) return 'Not configured';
-	return `${operator.provider.name} - ${operator.model.name}`;
-}
-
 function getStatusLabel(status: ModelAreaStatus): string {
 	if (status === 'implemented') return 'Implemented';
 	if (status === 'pending-runtime') return 'Pending runtime';
