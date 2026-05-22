@@ -76,6 +76,12 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 };
 
 const SECRET_KEY_PATTERN = /(api[-_]?key|token|secret|password|credential|authorization|oauth|private[-_]?key)/i;
+const RUNTIME_CONFIG_KEY_PATTERN = /^(providerId|model|modelId|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
+const SECRET_VALUE_PATTERNS: readonly RegExp[] = [
+	/-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
+	/authorization\s*:\s*bearer\s+\S+/i,
+	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
+];
 
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -90,9 +96,17 @@ function mergeRetryPolicy(base: CronRetryPolicy, patch?: Partial<CronRetryPolicy
 	};
 }
 
-function assertNoSecretKeys(value: CronJsonValue, path = 'taskInput'): void {
+function assertSafeStoredScheduleValue(value: CronJsonValue, path = 'taskInput'): void {
 	if (Array.isArray(value)) {
-		value.forEach((entry, index) => assertNoSecretKeys(entry, `${path}[${index}]`));
+		value.forEach((entry, index) => assertSafeStoredScheduleValue(entry, `${path}[${index}]`));
+		return;
+	}
+	if (typeof value === 'string') {
+		if (SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value))) {
+			throw new CronScheduleExecutionError(`Sensitive value cannot be stored in cron schedule: ${path}`, {
+				field: path,
+			});
+		}
 		return;
 	}
 	if (!value || typeof value !== 'object') return;
@@ -102,8 +116,19 @@ function assertNoSecretKeys(value: CronJsonValue, path = 'taskInput'): void {
 				field: `${path}.${key}`,
 			});
 		}
-		assertNoSecretKeys(child, `${path}.${key}`);
+		if (RUNTIME_CONFIG_KEY_PATTERN.test(key)) {
+			throw new CronScheduleExecutionError(`Runtime configuration cannot be stored in cron schedule: ${path}.${key}`, {
+				field: `${path}.${key}`,
+			});
+		}
+		assertSafeStoredScheduleValue(child, `${path}.${key}`);
 	}
+}
+
+function assertSafeStoredSchedulePayload(request: CronScheduleCreateRequest | CronScheduleUpdateRequest): void {
+	if (request.taskInput !== undefined) assertSafeStoredScheduleValue(request.taskInput, 'taskInput');
+	if (request.taskMetadata !== undefined) assertSafeStoredScheduleValue(request.taskMetadata, 'taskMetadata');
+	if (request.metadata !== undefined) assertSafeStoredScheduleValue(request.metadata, 'metadata');
 }
 
 export class CronSchedulerService implements CronScheduler {
@@ -168,7 +193,7 @@ export class CronSchedulerService implements CronScheduler {
 		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
 		this.accessPolicy.validateFrequency({ request, actor });
 		validateScheduleShape(request, this.options.runPolicy);
-		assertNoSecretKeys(request.taskInput);
+		assertSafeStoredSchedulePayload(request);
 
 		const now = new Date();
 		const nowIso = now.toISOString();
@@ -235,7 +260,7 @@ export class CronSchedulerService implements CronScheduler {
 		await this.accessPolicy.authorize({ action: 'updateSchedule', schedule: current, request: patch, actor });
 		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
 		validateScheduleShape(patch, this.options.runPolicy, current);
-		if (patch.taskInput !== undefined) assertNoSecretKeys(patch.taskInput);
+		assertSafeStoredSchedulePayload(patch);
 		const merged: CronSchedule = {
 			...current,
 			...patch,

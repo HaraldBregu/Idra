@@ -78,7 +78,12 @@ function normalizeJobs(value: unknown): FridayCronJobDefinition[] {
 		if (!isRecord(entry) || typeof entry.id !== 'string') continue;
 		try {
 			assertSafeCronId(entry.id);
-			jobs.push(clone(entry as unknown as FridayCronJobDefinition));
+			const job = clone(entry as unknown as FridayCronJobDefinition);
+			if (job.payload?.kind === 'agentTurn') {
+				delete (job.payload as Record<string, unknown>).providerId;
+				delete (job.payload as Record<string, unknown>).model;
+			}
+			jobs.push(job);
 		} catch {
 			continue;
 		}

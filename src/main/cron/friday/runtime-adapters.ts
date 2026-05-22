@@ -3,6 +3,7 @@ import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentSendOptions, AgentService } from '../../service';
 import type { HeartbeatService } from '../../heartbeat';
+import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
 import type { HeartbeatWakeOverride } from '../../../shared/heartbeat';
 import type {
 	FridayCronDelivery,
@@ -10,12 +11,105 @@ import type {
 	FridayCronJobDefinition,
 	FridayCronRunRecord,
 } from '../../../shared/cron';
+import type { TaskRecord } from '../../../shared/tasks';
 import type {
 	FridayCronDeliveryPort,
 	FridayCronExecutionOutcome,
 	FridayCronExecutor,
 } from './scheduler';
 import { DEFAULT_AGENT_ID } from '../../constants';
+
+type TerminalTaskRecord = TaskRecord & {
+	status: 'succeeded' | 'failed' | 'cancelled';
+};
+
+function isTerminalTask(record: TaskRecord | undefined): record is TerminalTaskRecord {
+	return record?.status === 'succeeded' || record?.status === 'failed' || record?.status === 'cancelled';
+}
+
+function taskOutput(record: TerminalTaskRecord): string {
+	const result = record.result;
+	if (result && typeof result === 'object' && 'text' in result) {
+		const text = (result as { text?: unknown }).text;
+		return typeof text === 'string' ? text : '';
+	}
+	return '';
+}
+
+function errorFromTask(record: TerminalTaskRecord): Error {
+	const message = record.error?.message || 'Scheduled background task failed.';
+	const error = new Error(message);
+	error.name = record.error?.code || 'ScheduledBackgroundTaskError';
+	return error;
+}
+
+export class TaskManagerFridayCronExecutor implements FridayCronExecutor {
+	constructor(
+		private readonly taskManager: TaskManager,
+		private readonly eventBus: EventBus,
+		private readonly fallback: FridayCronExecutor
+	) {}
+
+	async execute(input: {
+		job: FridayCronJobDefinition;
+		runId: string;
+		scheduledForMs: number;
+		signal: AbortSignal;
+	}): Promise<FridayCronExecutionOutcome> {
+		if (input.job.payload.kind !== 'agentTurn') return this.fallback.execute(input);
+		if (input.signal.aborted) return { status: 'skipped', skippedReason: 'aborted_before_start' };
+
+		const record = this.taskManager.startUserTask({
+			type: AGENT_TASK_TYPE,
+			title: input.job.name,
+			input: { message: input.job.payload.message },
+			metadata: {
+				cronJobId: input.job.id,
+				cronRunId: input.runId,
+				scheduledForMs: input.scheduledForMs,
+				cronSessionTarget: input.job.sessionTarget,
+				cronAgentId: input.job.agentId ?? DEFAULT_AGENT_ID,
+			},
+		});
+		const completed = await this.waitForTask(record.id, input.signal);
+		if (completed.status === 'cancelled') {
+			return { status: 'skipped', skippedReason: 'background_task_cancelled' };
+		}
+		if (completed.status === 'failed') throw errorFromTask(completed);
+		return { status: 'ok', output: taskOutput(completed) };
+	}
+
+	private waitForTask(taskId: string, signal: AbortSignal): Promise<TerminalTaskRecord> {
+		const current = this.taskManager.get(taskId);
+		if (isTerminalTask(current)) return Promise.resolve(current);
+
+		return new Promise((resolve) => {
+			let done = false;
+			const finish = (record: TerminalTaskRecord): void => {
+				if (done) return;
+				done = true;
+				unsubscribeSucceeded();
+				unsubscribeFailed();
+				unsubscribeCancelled();
+				signal.removeEventListener('abort', abort);
+				resolve(record);
+			};
+			const maybeFinish = (event: { payload: unknown }): void => {
+				const payload = event.payload as { task?: TaskRecord };
+				if (payload.task?.id === taskId && isTerminalTask(payload.task)) finish(payload.task);
+			};
+			const abort = (): void => {
+				const cancelled = this.taskManager.cancel(taskId);
+				if (isTerminalTask(cancelled)) finish(cancelled);
+			};
+			const unsubscribeSucceeded = this.eventBus.on('task:succeeded', maybeFinish);
+			const unsubscribeFailed = this.eventBus.on('task:failed', maybeFinish);
+			const unsubscribeCancelled = this.eventBus.on('task:cancelled', maybeFinish);
+			signal.addEventListener('abort', abort, { once: true });
+			if (signal.aborted) abort();
+		});
+	}
+}
 
 export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 	constructor(
@@ -59,8 +153,6 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			},
 		};
 		if (input.job.payload.kind === 'agentTurn') {
-			if (input.job.payload.providerId) sendOptions.providerId = input.job.payload.providerId;
-			if (input.job.payload.model) sendOptions.model = input.job.payload.model;
 			if (input.job.payload.thinking) sendOptions.effort = input.job.payload.thinking;
 			if (input.job.payload.lightContext !== undefined) {
 				sendOptions.lightContext = input.job.payload.lightContext;

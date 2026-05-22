@@ -36,8 +36,6 @@ const CONTROL_FIELDS = new Set([
 ]);
 
 const AGENT_TURN_FIELDS = [
-	'providerId',
-	'model',
 	'fallbacks',
 	'thinking',
 	'timeoutSeconds',
@@ -152,8 +150,6 @@ function copyAgentTurnFields(
 	target: Extract<FridayCronPayload, { kind: 'agentTurn' }>,
 	source: Record<string, unknown>
 ): void {
-	const providerId = stringValue(source.providerId);
-	const model = stringValue(source.model);
 	const fallbacks = stringArray(source.fallbacks);
 	const thinking = stringValue(source.thinking);
 	const timeoutSeconds = numberValue(source.timeoutSeconds);
@@ -161,8 +157,6 @@ function copyAgentTurnFields(
 	const allowUnsafeExternalContent = booleanValue(source.allowUnsafeExternalContent);
 	const toolsAllow = stringArray(source.toolsAllow);
 
-	if (providerId) target.providerId = providerId;
-	if (model) target.model = model;
 	if (fallbacks) target.fallbacks = fallbacks;
 	if (thinking === 'low' || thinking === 'medium' || thinking === 'high') target.thinking = thinking;
 	if (timeoutSeconds !== undefined) target.timeoutSeconds = timeoutSeconds;
@@ -278,7 +272,7 @@ function deliveryFrom(
 	const bestEffort = booleanValue(source.bestEffort) ?? booleanValue(input.bestEffortDeliver);
 	const delivery: Partial<FridayCronDelivery> = {};
 	if (mode) delivery.mode = mode;
-	const channel = stringValue(source.channel) ?? stringValue(input.provider);
+	const channel = stringValue(source.channel);
 	const to = stringValue(source.to);
 	const threadId = stringValue(source.threadId);
 	const accountId = stringValue(source.accountId);

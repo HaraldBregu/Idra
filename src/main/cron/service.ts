@@ -38,6 +38,7 @@ import { ElectronStoreFridayCronStore } from './friday/store';
 import {
 	GatewayFridayCronDelivery,
 	AgentServiceFridayCronExecutor,
+	TaskManagerFridayCronExecutor,
 } from './friday/runtime-adapters';
 import {
 	NoopFridayCronDelivery,
@@ -73,6 +74,7 @@ export class CronService implements Disposable {
 	private readonly scheduler: CronSchedulerService;
 	private readonly friday: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
+	private taskManager?: TaskManager;
 
 	constructor(
 		store: StoreService,
@@ -110,6 +112,7 @@ export class CronService implements Disposable {
 	}
 
 	configureTaskRuntime(dependencies: { taskManager: TaskManager }): void {
+		this.taskManager = dependencies.taskManager;
 		this.runner.setDelegate(new TaskManagerCronScheduleRunner(dependencies.taskManager));
 	}
 
@@ -143,9 +146,14 @@ export class CronService implements Disposable {
 		channelRegistry?: ChannelRegistry;
 		heartbeat?: HeartbeatService;
 	}): void {
+		const directExecutor = dependencies.agentService
+			? new AgentServiceFridayCronExecutor(dependencies.agentService, dependencies.heartbeat)
+			: undefined;
 		if (dependencies.agentService) {
 			this.friday.setExecutor(
-				new AgentServiceFridayCronExecutor(dependencies.agentService, dependencies.heartbeat)
+				this.taskManager && dependencies.eventBus
+					? new TaskManagerFridayCronExecutor(this.taskManager, dependencies.eventBus, directExecutor!)
+					: directExecutor!
 			);
 		}
 		this.friday.setDelivery(
