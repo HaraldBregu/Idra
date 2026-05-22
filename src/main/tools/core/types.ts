@@ -8,8 +8,6 @@ import type { UserDataDirectoryServicePort } from '../../user-data';
 import type { WorkspaceService } from '../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
 
-type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
-
 export interface PlanEntry {
 	task: string;
 	status: 'pending' | 'in_progress' | 'done';
