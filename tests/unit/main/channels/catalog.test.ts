@@ -76,7 +76,7 @@ describe('channel catalog', () => {
 			expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
 			expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
 			expect(docsIndex).toContain(`[
-					t`${entry.id}`](${entry.id}/index.md)`);
+					t`${entry.id}"](${entry.id}/index.md)`);
 			expect(buildChannelDocsUrl(entry.docsPath, 'https://github.com/HaraldBregu/friday')).toBe(
 				`https://github.com/HaraldBregu/friday/blob/main/docs/channels/${entry.id}/index.md`
 			);
