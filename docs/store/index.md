@@ -1,219 +1,121 @@
 # Store
 
-Friday persists user settings in the Electron store named `settings`.
-`StoreService` creates that store with `accessPropertiesByDotNotation: false`,
-so every root key is addressed as a literal top-level key.
+The store module persists Friday settings in the Electron settings store. It is
+the shared source for provider credentials, model selections, scheduler state,
+heartbeat state, connector configuration, channel configuration, and a small
+set of app settings.
 
-The source of truth for this document is:
+## Functionality
 
-- `src/main/store/types.ts` for persisted schema names.
-- `src/main/store/service.ts` for normalization, defaults, and read/write
-  behavior.
-- Module docs under `docs/models`, `docs/tasks`, `docs/channels`, and
-  `docs/providers` for each root owner's behavior.
+The store gives each module one owned root key. Reads tolerate missing or older
+values and return normalized defaults. Writes update only the root owned by the
+calling module so unrelated settings survive.
 
-## Design Rules
+Provider credentials are private. Public provider reads omit API keys. Channel
+and connector credential fields stay inside their module-owned records and
+should not be copied into task, schedule, heartbeat, model option, or tool
+payloads.
 
-- Use one root property per settings owner.
-- Keep provider choices compact: `providerId`, `modelId`, optional `effort`,
-  and safe `options`.
-- Keep model provider credentials in `modelProviders`.
-- Keep channel credentials under `channels` account records.
-- Keep connector credentials in connector-owned records or credential
-  references.
-- Keep task records out of persistent settings.
-- Keep schedule payloads free of credentials, provider records, channel tokens,
-  and connector secrets.
-- Resolve agent-run provider and model choices through `StoreService` at run
-  time for heartbeats, background tasks, and scheduled tasks.
-- Store static labels, docs paths, and runtime status in code constants, not in
-  user settings.
-
-## Root Schema
-
-Target persisted shape:
-
-```ts
-interface SettingsStore {
-	modelProviders: ModelProviderSettings[];
-	llmAgent?: ModelModuleSettings;
-	speechToText?: ModelModuleSettings;
-	textToSpeech?: ModelModuleSettings;
-	imageCreator?: ModelModuleSettings;
-	textToVideo?: ModelModuleSettings;
-	textToSound?: ModelModuleSettings;
-	taskScheduler?: TaskSchedulerSettings;
-	backgroundTask?: BackgroundTaskSettings;
-	heartbeat?: HeartbeatStoreState;
-	connectors?: Connectors;
-	channels?: Channels;
-}
-
-interface Connectors {
-	google_gmail?: ConnectorConfig;
-	google_calendar?: ConnectorConfig;
-	google_drive?: ConnectorConfig;
-	microsoft_teams?: ConnectorConfig;
-	outlook_calendar?: ConnectorConfig;
-	outlook_email?: ConnectorConfig;
-	sharepoint?: ConnectorConfig;
-	dropbox?: ConnectorConfig;
-}
-
-```
-
-Most keys are optional because older installs and fresh stores may not have
-written them yet. Readers must tolerate missing keys and apply module defaults.
-Root property names use camelCase. Product ids, provider ids, task types, and
-docs filenames may use kebab-case, but persisted settings keys should not.
+The keep-awake setting is currently held in memory and restored through the app
+bootstrap path when enabled. It is exposed through the same settings-facing IPC
+surface as other app preferences but does not live in the persistent store root
+schema.
 
 ## Root Ownership
 
-| Root key         | Owner             | Documentation                                                | Persisted data                                                         |
-| ---------------- | ----------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `modelProviders` | Provider settings | [providers/index.md](../providers/index.md)                  | Provider ids, names, base URLs, and API keys for model-backed modules. |
-| `llmAgent`       | LLM agent         | [large-language-model.md](../models/large-language-model.md) | Main assistant provider, model, effort, and safe agent options.        |
-| `speechToText`   | Speech to text    | [speech-to-text.md](../models/speech-to-text.md)             | Live dictation and transcription provider/model settings.              |
-| `textToSpeech`   | Text to speech    | [text-to-speech.md](../models/text-to-speech.md)             | Voice synthesis provider/model settings.                               |
-| `imageCreator`   | Text to image     | [text-to-image.md](../models/text-to-image.md)               | Image generation/editing provider/model settings.                      |
-| `textToVideo`    | Text to video     | [text-to-video.md](../models/text-to-video.md)               | Video generation provider/model settings.                              |
-| `textToSound`    | Text to sound     | [music-creator.md](../models/music-creator.md)               | Sound, audio, and music generation provider/model settings.            |
-| `taskScheduler`  | Task scheduler    | [scheduled/index.md](../tasks/scheduled/index.md)            | Managed schedule state, Friday cron state, and legacy cron task state. |
-| `backgroundTask` | Background task   | [background/index.md](../tasks/background/index.md)          | Task policy settings only; task records stay in memory.                |
-| `heartbeat`      | Heartbeat         | [heartbeat/index.md](../heartbeat/index.md)                  | Heartbeat run state and last delivered heartbeat text by key.          |
-| `connectors`     | Connectors        | [providers/index.md](../providers/index.md)                  | Connector configuration records and credential references by service.  |
-| `channels`       | Channels          | [channels/index.md](../channels/index.md)                    | Channel defaults, account settings, tokens, routing, and allowlists.   |
+| Root key | Owner | Stored data |
+| --- | --- | --- |
+| `modelProviders` | Provider settings | Provider ids, display names, base URLs, and API keys used by model-backed modules. |
+| `llmAgent` | Assistant agent | Assistant provider id, model id, reasoning effort, safe options, agent runtime preference, and heartbeat agent options. |
+| `speechToText` | Speech-to-text | Transcription provider and model selection. |
+| `textToSpeech` | Text-to-speech | Voice synthesis provider and model selection. |
+| `imageCreator` | Image generation | Image provider and model selection. |
+| `textToVideo` | Video generation | Video provider and model selection. |
+| `textToSound` | Music/audio generation | Music or sound provider and model selection. |
+| `taskScheduler` | Scheduling | Managed schedule state, Friday cron state, and legacy cron task records. |
+| `backgroundTask` | Background tasks | Allowed task types and default concurrency policy. Task records themselves stay in memory. |
+| `heartbeat` | Heartbeat | Runtime heartbeat state such as last run times and last delivered text. |
+| `connectors` | Connectors | Connector records, authorization data, OAuth credentials, allowed tools, runtime flags, and status metadata. |
+| `channels` | Channels | Channel defaults, account settings, tokens, routing, allowlists, and heartbeat visibility. |
 
-Do not add new cross-module bags such as `service`, `agent`, or `settings`.
-Add a new root key only when a module owns that data.
+Do not add broad cross-module roots such as `service`, `agent`, or `settings`.
+New persistent data should be placed under the module that owns it.
 
-## Model Provider Records
+## Provider Records
 
-Model provider credentials live in `modelProviders`. This root contains the
-private provider records used by runtime adapters.
+Provider records are normalized by trimming fields and lowercasing provider
+ids. Adding a provider rejects duplicate ids. Upserting a provider replaces the
+matching normalized id or appends a new provider.
 
-```ts
-interface ModelProviderSettings {
-	id: string;
-	name: string;
-	baseUrl: string;
-	apiKey: string;
-}
-```
+Model-backed module settings store only provider id, model id, optional
+reasoning effort, and safe options. The full provider record is resolved at run
+time from `modelProviders`.
 
-`StoreService` normalizes provider ids to lowercase and trims provider fields
-before writing them. Read APIs that expose configured providers return the
-provider without `apiKey`.
+Agent, heartbeat, background task, and scheduled task execution should resolve
+the current assistant provider and model through store-backed helpers when work
+starts. They should not embed API keys, base URLs, or raw provider records in
+their own payloads.
 
-Module settings reference model providers by id. They do not duplicate API keys
-or raw provider records in task, schedule, channels, connector, or tool payloads.
+## Module Settings
 
-Agent-run consumers should not read `llmAgent` or `modelProviders` directly.
-Heartbeats, background tasks, and scheduled tasks should use the injected
-`StoreService` or the store-backed agent execution path to resolve the current
-assistant provider and model when work starts.
+Assistant, speech-to-text, text-to-speech, image, video, and music settings all
+use a compact provider/model selection. Setter methods validate the selected
+model against the relevant model catalog where the app has a catalog for that
+capability.
 
-## Model Module Settings
+Invalid or incomplete module settings are dropped on read. Unsupported
+reasoning effort values are dropped unless the selected model/provider supports
+them.
 
-Model-backed modules use this compact selection shape:
+## Scheduler State
 
-```ts
-interface ModelModuleSettings {
-	providerId: string;
-	modelId: string;
-	effort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
-	options?: Record<string, unknown>;
-}
-```
+Scheduling keeps all scheduler variants under the `taskScheduler` root:
 
-The module resolves the full model provider record from `modelProviders` when
-work starts. Module-specific runtime options belong in `options` only when they
-are safe to store and are not credentials.
+- `managed` stores managed schedule records, events, locks, executions, and
+  next-run state.
+- `friday` stores Friday cron jobs, state, and run history.
+- `legacyTasks` stores older cron task records for compatibility.
 
-Read normalization drops invalid module settings. A module setting is valid only
-when it has a non-empty `providerId` and `modelId`. `providerId` is trimmed and
-lowercased; `modelId` is trimmed; `effort` is kept only when it is a supported
-model reasoning effort.
-
-## Task Scheduler Settings
-
-```ts
-interface TaskSchedulerSettings {
-	enabled?: boolean;
-	managed?: unknown;
-	friday?: unknown;
-	legacyTasks?: unknown[];
-}
-```
-
-The task scheduler owns timing and schedule state. Scheduled agent payloads
-store only the sanitized instruction and timing data. When a scheduled run
-starts, the background task reads the current provider and model settings
-through `StoreService`.
-
-`StoreService` stores all scheduler variants under one root:
-
-- `managed`: managed schedule state from `CronSchedulerService`.
-- `friday`: Friday cron job, state, and run history.
-- `legacyTasks`: legacy `node-cron` task records.
-
-Writers should patch this root rather than replacing unrelated scheduler state.
+Writers patch scheduler state narrowly. A managed schedule write should not
+replace Friday cron state, and a Friday cron write should not replace managed
+schedule state.
 
 ## Background Task Settings
 
-```ts
-interface BackgroundTaskSettings {
-	allowedTaskTypes?: string[];
-	defaultConcurrency?: number;
-}
-```
+Background task records are in-memory only. The persistent background task root
+contains policy, including allowed task types and default concurrency.
 
-Task records remain in memory for the current app session. They are not
-persisted in the settings store. `StoreService` normalizes `allowedTaskTypes`
-to non-empty strings and keeps `defaultConcurrency` only when it is a positive
-integer.
-
-Background task payloads do not store provider or model selections. The agent
-run resolves the current assistant provider and model through `StoreService`
-when the task starts.
+Allowed task types are normalized to non-empty strings. Default concurrency is
+kept only when it is a positive integer.
 
 ## Heartbeat State
 
-```ts
-interface HeartbeatStoreState {
-	version: 1;
-	taskState: Record<string, { lastRunMs: number }>;
-	lastDelivered: Record<string, { text: string; atMs: number }>;
-}
-```
+Heartbeat configuration for agents lives in assistant options. The `heartbeat`
+root stores runtime state only. Invalid heartbeat state is migrated to an empty
+versioned state.
 
-Heartbeat configuration for agents is stored in `llmAgent.options.agents`.
-The `heartbeat` root stores runtime state only. `StoreService` migrates invalid
-or missing heartbeat state to an empty version `1` state.
+Heartbeat state must not duplicate provider ids, model ids, API keys, provider
+records, channel tokens, or connector credentials.
 
-Heartbeat runs use `StoreService` for both heartbeat configuration and the
-assistant provider/model used by the agent run. Heartbeat state must not store
-provider ids, model ids, API keys, or provider records.
+## Connector And Channel Settings
 
-## Channel Settings
+Connector settings store connector records and OAuth state. Reads return
+configured connector records for runtime use and redacted views for display.
 
-The `channels` root stores all channel provider settings. `StoreService`
-hydrates defaults for every `CHANNEL_PROVIDER_IDS` entry, including Telegram,
-WhatsApp, Discord, Slack, and the generic channel providers.
+Channel settings store defaults for every catalog id. Telegram has a
+first-class config shape because it has a bundled runtime. Other channels use
+generic account maps until they gain runtime adapters.
 
-Channel records may include tokens, webhook URLs, client secrets, account
-allowlists, default targets, and heartbeat visibility settings. Those values
-belong to the channel owner. They must not be copied into task input, schedule
-payloads, model module options, or tool payloads.
+Token, secret, webhook, phone number, route, allowlist, and heartbeat visibility
+fields belong to the channel owner. They should stay out of unrelated module
+state.
 
-## Migration And Compatibility Rules
+## Compatibility Rules
 
-- Prefer tolerant readers and narrow writers. Normalize known shapes when
-  reading, and avoid deleting unknown module-owned fields unless that module
-  owns the migration.
-- Keep legacy read helpers local to `StoreService`. Do not make new writes to
-  retired roots such as `service`, `agent`, `rag`, or standalone `sound`.
-- When adding a root key, update `src/main/store/types.ts`, `StoreService`,
-  tests, this document, and the owning module doc in the same change.
-- When moving a value between roots, provide a migration or a read fallback
-  before removing the old path.
+- Readers should be tolerant and normalize known shapes.
+- Writers should avoid deleting unknown module-owned fields.
+- Retired roots may be read for compatibility but should not receive new writes.
+- Moving a value between roots requires a fallback or migration before removing
+  the old path.
+- Secrets must remain in their owner records and must not be logged or copied
+  into task, schedule, or agent-visible payloads.

@@ -1,60 +1,61 @@
 # Tasks
 
 Tasks are agent runs Friday can handle without blocking the rest of the app.
-They cover immediate background agent runs and scheduled agent runs that should
-start later. When a scheduled run becomes due, it creates a normal background
-task.
+The current task runtime has two families: immediate background tasks and saved
+scheduled work that creates background tasks when due.
 
 ## Task Families
 
-Friday uses two task families:
+| Area | Functionality | How it works |
+| --- | --- | --- |
+| Background tasks | Run an agent instruction now while the app remains usable. | A task handler validates the request, creates an in-memory task record, starts an isolated agent session, emits lifecycle events, tracks progress, and stores a sanitized result or error for the current app session. |
+| Scheduled tasks | Save future, delayed, or recurring agent work. | The scheduler stores timing rules and a sanitized agent instruction. When a run is due, it creates a normal background task rather than executing the agent directly. |
 
-| Area                                    | When to use it                                                                    | How it should behave                                                                                                                                                                                   |
-| --------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [Background tasks](background/index.md) | An agent run should start now and continue while the app remains usable.          | Create one visible agent task, run it in its own session, read provider and model settings from the store, report progress, allow cancellation, and keep the result available for the current session. |
-| [Scheduled tasks](scheduled/index.md)   | An agent run should happen in the future, repeat over time, or run after a delay. | Save the schedule, sanitized agent instruction, and timing rules; activate it on startup; and create a normal background task only when the schedule is due.                                           |
+## Background Task Runtime
 
-## Responsibilities
+The user-facing task type is `agent.run`. Its input accepts only a `message`
+field. The message is trimmed, must be non-empty, is size-bounded, and is
+rejected when it contains secret-looking content.
 
-Background tasks own immediate agent execution. They track the current state of
-a running agent session, keep that session isolated from other background
-tasks, and expose the task state to the user.
+Task records move through `queued`, `running`, `cancelling`, `cancelled`,
+`succeeded`, and `failed`. Results, errors, progress, and metadata are sanitized
+and cloned before they are exposed.
 
-Scheduled tasks own saved timing for future agent runs. They decide when a run
-is due, what should happen if the app was closed or asleep, and whether another
-run may start while a previous one is still active. They do not execute the agent
-directly.
+Each agent task uses a task-specific session id so parallel background runs do
+not share transcript state. Provider and model settings are resolved from the
+store when the task starts.
 
-Agent execution reads provider and model settings from the store. Task and
-schedule input should describe what the user wants done, not carry credentials
-or low-level provider configuration.
+## Scheduled Task Runtime
 
-## How They Work Together
+Scheduled work is owned by the cron module. Managed schedules validate timing,
+ownership, frequency, and payload safety before storage. Due managed schedules
+create `agent.run` background tasks through the task manager.
 
-A scheduled task creates a background task when it fires. The scheduled task
-owns timing and startup recovery. The background task owns agent execution,
-starts a separate agent session, and reads the current provider and model
-settings from the store.
+Friday cron jobs power the agent-facing cron tool. They can add, update, list,
+run, remove, and wake jobs, then execute agent turns or system events according
+to the stored payload and delivery settings.
 
-Immediate agent runs should use background tasks directly. Future, recurring,
-delayed, reminder, wake, and calendar-style requests should use scheduled
-tasks.
+Legacy cron task records remain supported for compatibility.
 
-Background task creation and scheduled task creation may both be exposed as
-agent tools. The background task tool creates an immediate visible background
-task. The scheduled task tool saves a future or recurring agent run, which later
-creates a background task when it is due. Neither tool should run arbitrary
-non-agent work.
+## Events And Renderer Access
+
+Task lifecycle changes are emitted on the main event bus and forwarded to the
+renderer. The renderer can start approved user-facing task types, list current
+records, read one record, cancel a running task, and subscribe to task events.
+
+Task records are not persisted across app restarts. Schedules are persisted;
+the background task records they create exist only for the current app session.
 
 ## Safety Rules
 
-- Keep secrets out of task and schedule input.
-- Read provider and model settings from the store at run time.
-- Keep only sanitized progress, result, and error summaries.
-- Create one visible task per agent run unless the user or agent intentionally
-  starts multiple runs.
-- Make cancellation safe and repeatable.
-- Do not use sleep loops, polling loops, or long-running timers as a substitute
-  for scheduling.
-- Do not let elapsed time alone silently complete, fail, or cancel a background
+- Task and schedule input should describe the user goal, not runtime provider
+  credentials or model configuration.
+- Provider and model selection must be resolved through the store at run time.
+- Credentials, tokens, API keys, base URLs, and raw provider records must not
+  be stored in task input or schedule payloads.
+- Cancellation is cooperative and should call the active agent session's normal
+  cancellation path.
+- Schedulers should not be emulated with sleep loops, shell loops, or polling
+  loops.
+- Elapsed time alone should not silently complete, fail, or cancel a background
   task.

@@ -1,105 +1,75 @@
 # Scheduled Tasks
 
-Scheduled tasks are background agent runs that should start later. They use the
-same execution path as background tasks once they are due, but their start time
-is controlled by a saved schedule.
+Scheduled tasks are saved instructions for future or recurring agent work. The
+scheduled record owns timing; the background task owns agent execution once the
+schedule becomes due.
 
-Use scheduled tasks when an agent run should happen in the future, repeat on a
-cadence, or run after a delay. Use [background tasks](../background/index.md)
-when the agent run should start immediately.
+## Functionality
 
-## Purpose
+The cron module supports three scheduling paths:
 
-A scheduled task stores the instruction for a future agent run plus the timing
-rules for when Friday should start it. The scheduled task itself does not do the
-agent work. When it becomes due, Friday creates a normal background task and
-that background task runs the agent in its own session.
+- Managed schedules for persisted agent task scheduling with events, locks,
+  access policy, missed-run recovery, and execution records.
+- Friday cron jobs for the agent-facing cron tool, wake events, delivery
+  routing, and direct or task-backed agent execution.
+- Legacy cron tasks for older persisted `node-cron` jobs.
 
-Provider and model selection are not stored on the scheduled task. When a
-schedule becomes due, the created background task uses the store-backed agent
-execution path so the current provider and model are resolved through
-`StoreService` when the agent run starts.
+All scheduled agent work should store only the sanitized instruction and timing
+metadata. Provider and model selection are resolved through the store when the
+created background task or direct cron agent run starts.
 
-Schedules live in persistent app memory so they survive restarts. When Friday
-starts again, it loads the saved schedules, activates the ones that are still
-enabled, and checks whether any scheduled agent run is due.
+## Managed Schedule Flow
 
-## Expected Behavior
+Creating or updating a managed schedule validates the actor, timing shape,
+frequency, stored payload, and task type. Scheduled agent work must create an
+`agent.run` background task and its input must contain only a safe `message`.
 
-- Store the schedule, owner, title, timing rules, and sanitized agent
-  instruction.
-- Keep credentials, provider configuration, base URLs, and secrets out of the
-  schedule payload.
-- Recover enabled schedules when the app starts.
-- Calculate the next due time in the schedule's timezone.
-- Start a normal background task when the schedule is due.
-- Resolve the provider and model through `StoreService` when the background
-  task starts.
-- Give the background task its own agent session.
-- Avoid starting the same scheduled run twice.
-- Record a small user-safe result or error summary for the scheduled run.
+When the scheduler starts, it reloads schedules and recovers startup state. A
+polling loop checks due schedules, acquires schedule locks, avoids duplicate
+run creation, and asks the schedule runner to create a background task for each
+due occurrence.
 
-## Schedule Creation
+Managed schedules record safe events and executions so the UI can inspect what
+happened without exposing credentials or raw provider configuration.
 
-Creating a scheduled task should answer four questions:
+## Friday Cron Flow
 
-- What should this scheduled task be called?
-- When should it run?
-- Who owns it?
-- What should the agent do when it runs?
+Friday cron powers the `cron` tool. It can report status, list jobs, read one
+job, add jobs, update jobs, remove jobs, run a job now, list previous runs, and
+wake the scheduler.
 
-Friday should validate the request, apply safe timing defaults, save the
-schedule, and show it to the owner.
+Jobs can represent agent turns or system events. They can also carry delivery
+instructions so output can be routed through the channel gateway. Failure
+delivery is separated from normal output delivery.
+
+Friday cron enforces actor visibility. Owners can manage all visible jobs,
+while scoped actors are limited to their own job or session context.
 
 ## Timing
 
-Scheduled tasks may use simple timing shapes:
+Schedules can use one-time, interval, or cron-style timing. Cron expressions are
+interpreted in the configured timezone as local wall-clock time. Next-run
+calculation handles recurrence, disabled schedules, one-shot completion, and
+missed-run policy.
 
-- One-time schedules run once at a specific time.
-- Interval schedules run after a repeated duration.
-- Cron schedules run on calendar patterns such as every Monday at 09:00.
+Startup recovery is bounded. Friday should not create unlimited background
+tasks after a long offline period.
 
-Disabled, deleted, or completed schedules should not start new background tasks.
+## Concurrency And Idempotency
 
-## Agent Tool
+Schedulers avoid starting the same scheduled run twice. Locks and idempotency
+keys prevent duplicate processing for the same due occurrence.
 
-Scheduled task creation can also be exposed as a tool for the agent. The tool
-should let an agent save a future or recurring agent run when the work should not
-start immediately.
+If a schedule becomes due while a previous run from the same schedule is still
+active, the schedule policy decides whether to skip, wait, or cancel existing
+work. The default behavior is conservative and avoids overlap.
 
-The tool should create a normal scheduled task entry and return enough
-information for the user or calling agent to track it. It should not run the
-agent directly, expose arbitrary execution, or accept credentials, provider
-configuration, base URLs, or secret values.
+## Safety
 
-## Startup Recovery
+Scheduled payloads must not contain API keys, tokens, authorization headers,
+provider configs, model configs, base URLs, endpoint URLs, private keys, or
+other credential-shaped values.
 
-On startup, Friday should load saved schedules before checking for due work. If a
-schedule became due while the app was closed, Friday should apply a bounded
-missed-run policy:
-
-- Skip the missed run and move to the next future run.
-- Run one missed occurrence.
-- Ask the user before running missed work.
-
-Startup recovery must not create an unlimited number of background tasks after a
-long offline period.
-
-## Concurrency
-
-If a schedule becomes due while a previous background task from the same schedule
-is still running, Friday should avoid overlap by default. Other policies may be
-added later, but the simple default is to skip the new run and calculate the next
-due time.
-
-## Acceptance Criteria
-
-- A scheduled agent run survives app restart.
-- Startup activates saved enabled schedules.
-- A due schedule creates a normal visible background task.
-- The created background task runs the agent in its own session.
-- Provider and model choices come from `StoreService` at run time.
-- An agent can create a scheduled task through the scheduled task tool.
-- Immediate agent runs use background tasks directly.
-- Scheduled payloads do not contain secrets or provider credentials.
-- Duplicate processing for the same due time is ignored.
+Schedules should never run arbitrary non-agent work. Future, recurring,
+delayed, reminder, wake, and calendar-style requests should use scheduling.
+Immediate work should use background tasks.

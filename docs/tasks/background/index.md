@@ -1,136 +1,71 @@
 # Background Tasks
 
 Background tasks are immediate agent runs that continue while Friday remains
-usable. They are for agent work that may take noticeable time and should not
-block the rest of the app.
+usable. They provide a visible lifecycle for work that starts now and may take
+noticeable time.
 
-Only agent work should run as a background task. Other feature work should use
-its own flow unless an agent task is coordinating that work.
+## Functionality
 
-## Purpose
+The current user-facing background task type is `agent.run`. It runs one agent
+instruction in an isolated task session and keeps the task record available for
+the current app session.
 
-A background task gives the user a visible lifecycle for an agent run that
-starts now. The user should be able to see that the agent run exists, follow
-its progress, retrieve its result, and request cancellation while it is still
-running.
+Only approved task types can be started from the renderer. The background task
+policy can further restrict which task types are allowed.
 
-Background tasks are not schedules. They do not decide when future work should
-run, and they do not restore task entries after the app restarts.
+## Creation
 
-## Expected Behavior
+Task creation validates the task type, title, optional id, input, and metadata.
+Duplicate caller-provided ids are rejected. Metadata is sanitized before it is
+stored on the task record.
 
-- Start only approved agent background tasks.
-- Run multiple background tasks in parallel when resources allow it.
-- Give each background task its own agent session.
-- Read the current provider and model settings through `StoreService` for the
-  run.
-- Create one task entry for each agent run.
-- Keep task state available for the current app session.
-- Report meaningful progress when the agent run can provide it.
-- Finish only when the agent succeeds, fails, is cancelled, or the app exits.
-- Never complete, fail, or cancel a task just because a default timeout elapsed.
+For `agent.run`, input must be an object with only a `message` field. The
+message must be non-empty, size-bounded, and free of secret-looking content.
+Provider ids, model ids, credentials, base URLs, and other runtime config are
+not accepted in task input.
 
 ## Lifecycle
 
-Each background task should move through a clear lifecycle:
+Background task records use this lifecycle:
 
-1. The task is created and waiting to start.
-2. The agent session starts running.
-3. The task may publish progress updates.
-4. The task finishes successfully, fails with a user-safe error summary, or
-   stops because cancellation was requested.
+1. `queued`: the record exists and is waiting for the handler to start.
+2. `running`: the handler is active.
+3. `cancelling`: cancellation has been requested while the handler is running.
+4. `succeeded`: the handler completed and stored a sanitized result.
+5. `failed`: the handler threw a non-cancellation error and stored a safe error.
+6. `cancelled`: cancellation completed before the task finished.
 
-Cancellation should be cooperative. Friday should ask the running agent session
-to stop, and the session should stop at the next safe checkpoint. Cancellation
-should not corrupt partial output or change the result of an already finished
-task.
+Terminal records stay visible until the app session ends.
 
-## User-Visible State
+## Agent Execution
 
-A task entry should show enough information for the user to understand what is
-happening:
+An agent task uses a session id derived from the task id. This keeps background
+task transcripts isolated from the main chat and from other background tasks.
 
-- A stable identifier.
-- A human-readable title.
-- The current status.
-- Creation, start, and finish times when available.
-- Progress details when available.
-- A sanitized result summary after success.
-- A sanitized error summary after failure.
+Before the agent starts, the task reads the current assistant provider and model
+selection from the store. The task then calls the normal agent execution path
+with the isolated session id.
 
-Task entries should not store secrets, raw credentials, full provider
-configuration, large unbounded outputs, or private payloads that are not needed
-by the user.
+The task publishes short progress messages such as start and completion. The
+successful result stores the final text returned by the agent after task-value
+sanitization.
 
-## Starting Tasks
+## Cancellation
 
-The app and agent actions may start approved agent background tasks. Before work
-begins, Friday should validate the instruction, trim or normalize user-provided
-values, and reject secret-looking payloads.
+Each task owns an abort controller. Cancelling a queued task moves it directly
+to `cancelled`. Cancelling a running task marks it as `cancelling`, aborts the
+controller, and asks the matching agent session to cancel.
 
-The starting request should describe what the agent should do. Provider
-selection, model selection, credentials, service connections, and other runtime
-details should come from `StoreService`, not from the task request.
+Cancelling an already terminal task is safe and returns the existing record.
+If a non-cancellation error wins the race before cancellation completes, the
+task fails normally.
 
-## Agent Sessions
+## Sanitization
 
-Each background task should run in its own agent session. This keeps parallel
-tasks isolated from one another and prevents one background run from mixing its
-conversation state with another run.
+Task metadata, progress, results, and errors are size-bounded and scrubbed for
+secret-looking keys and values. Binary or deeply nested payloads are reduced to
+small safe summaries.
 
-The task may accept safe run preferences when they refer to configured choices,
-but it must not accept credentials, provider configuration, base URLs, or secret
-values. If no safe preference is provided, Friday should use the current
-configured defaults resolved through `StoreService`.
-
-When cancelled, the running session should be asked to stop through its normal
-cancellation path. If cancellation completes first, the task should be marked as
-cancelled. If the agent fails first for a non-cancellation reason, the task
-should show a normal failure.
-
-## Agent Tool
-
-Background task creation can also be exposed as a tool for the agent. The tool
-should let an agent start a separate agent run in the background when the work
-does not need to block the current response.
-
-The tool should create a normal background task entry and return enough
-information for the user or calling agent to track it. It should not expose
-arbitrary execution, non-agent task categories, credentials, or low-level
-runtime configuration.
-
-## Progress And Results
-
-Progress should be useful but small. A task may report steps, counts, or short
-messages. It should not stream private request bodies, raw provider responses,
-or large generated artifacts into the task entry.
-
-Results should be summaries or references to saved output, not unbounded
-payloads. Errors should explain what failed without exposing secrets.
-
-## Timeout Rule
-
-Background tasks should not have a default execution timeout. Long-running
-agent work may continue as long as the app is running and the user has not
-cancelled it.
-
-If an external service involved in the agent run has its own timeout, that
-timeout belongs to that service. The background task should report the
-resulting error as a normal task failure instead of enforcing a separate global
-deadline.
-
-## Acceptance Criteria
-
-- Multiple background agent tasks can run at the same time and finish
-  independently.
-- Each background task has its own agent session.
-- Provider and model choices come from `StoreService`, not task payloads.
-- A user can start an approved agent background task from the app.
-- An agent can start an approved agent background task through the background
-  task tool.
-- A user can list current-session tasks and open a specific task entry.
-- A user can cancel a running task.
-- Cancelling the same task more than once is safe.
-- Finished, failed, and cancelled tasks remain visible until the app session
-  ends.
-- Task input, progress, results, and errors are sanitized and size-bounded.
+Task records should contain enough state for the user to understand what
+happened, but not raw credentials, full provider configuration, private request
+bodies, or unbounded generated output.
