@@ -88,7 +88,7 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 	expect(getTextToImageModelsByProvider('ideogram')).toEqual(
 		TEXT_TO_IMAGE_MODELS_BY_PROVIDER.ideogram
 	);
-	expect(getTextToImageModelsByProvider('xai')).toEqual(IMAGE_CREATOR_MODELS);
+	expect(getTextToImageModelsByProvider('xai')).toEqual(TEXT_TO_IMAGE_MODELS_BY_PROVIDER.xai);
 	expect(getTextToImageModelsByProvider('black-forest-labs')).toEqual(
 		IMAGE_CREATOR_MODELS_BY_PROVIDER['black-forest-labs']
 	);
