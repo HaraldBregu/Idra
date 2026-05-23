@@ -188,11 +188,29 @@ function buildSelectionDecision(params: {
 }
 
 export async function maybeCompactAgentHarnessSession(
-	params: { provider?: string; modelId?: string; sessionKey?: string } & AgentHarnessCompactParams
+	params: {
+		provider?: string;
+		modelId?: string;
+		requestedRuntime?: string;
+		storedRuntime?: string;
+		sessionKey?: string;
+	} & AgentHarnessCompactParams
 ): Promise<AgentHarnessCompactResult | undefined> {
+	const policy = resolveAgentHarnessPolicy({
+		requestedRuntime: params.requestedRuntime,
+		storedRuntime: params.storedRuntime,
+	});
+	await ensureAgentHarnessRuntimeActivated({
+		runtime: policy.runtime,
+		provider: params.provider ?? '',
+		modelId: params.modelId,
+	});
 	const harness = selectAgentHarness({
 		provider: params.provider ?? '',
 		modelId: params.modelId,
+		requestedRuntime: params.requestedRuntime,
+		storedRuntime: params.storedRuntime,
+		policy,
 	});
 	if (!harness.compact) {
 		if (harness.id !== 'pi') {
