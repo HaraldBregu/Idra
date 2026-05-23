@@ -11,6 +11,7 @@ import { CronService } from './cron';
 import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
+import { disposeRegisteredAgentHarnesses } from './agent/harness/registry';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
@@ -477,6 +478,7 @@ export function setupEventLogging(logger: LoggerService): void {
 export async function cleanup(container: MainServiceContainer): Promise<void> {
 	const logger = container.get('logger');
 	logger.info('Bootstrap', 'Starting cleanup');
+	await disposeRegisteredAgentHarnesses();
 	await container.shutdown();
 	logger.info('Bootstrap', 'Cleanup complete');
 }
