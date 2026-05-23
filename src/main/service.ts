@@ -513,11 +513,15 @@ export class AgentService {
 				return beforeRun.message;
 			}
 
+			const activeSession = runtime.session;
+			if (!activeSession) {
+				throw new Error('Agent session was not loaded.');
+			}
 			const result = await runAgentHarnessAttempt({
 				runId,
 				userMessage: message,
 				systemPrompt: systemPromptForTurn,
-				session: runtime.session,
+				session: activeSession,
 				provider: providerId,
 				model,
 				requestedRuntime,
