@@ -112,7 +112,10 @@ export interface AgentRunInput {
 	systemPrompt: string;
 	session: SessionFile;
 	provider?: ProviderAdapter;
+	providerId?: string;
 	model?: string;
+	requestedRuntime?: string;
+	storedRuntime?: string;
 	effort?: ModelReasoningEffort;
 	tools: AgentTool[];
 	ctx: ToolContext;
@@ -375,7 +378,15 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						session.transcript,
 						provider,
 						model,
-						effort
+						effort,
+						{
+							runId,
+							agentId: ctx.agentId,
+							sessionKey: ctx.sessionId,
+							providerId: input.providerId,
+							requestedRuntime: input.requestedRuntime,
+							storedRuntime: input.storedRuntime,
+						}
 					);
 					session.transcript = next;
 					if (marker) session.compactionMarkers.push(marker);
