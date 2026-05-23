@@ -139,9 +139,8 @@ function readModelModuleSettings(value: unknown): ModelModuleSettings | undefine
 
 function readAgentModuleOptions(value: unknown): AgentModuleOptions | undefined {
 	const options = readRecord(value);
-	if (!options) return undefined;
-	const runtime = normalizeAgentRuntime(options.agentRuntime);
-	const next: AgentModuleOptions = { ...options };
+	const next: AgentModuleOptions = options ? { ...options } : {};
+	const runtime = normalizeAgentRuntime(next.agentRuntime);
 	if (runtime === undefined) {
 		delete next.agentRuntime;
 	} else {
@@ -466,6 +465,31 @@ export class StoreService {
 
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
 		return this.getModelModuleSettings('imageCreator');
+	}
+
+	getAgentRuntimePreference(): string | undefined {
+		const settings = this.getModelModuleSettings('llmAgent');
+		return settings ? readAgentModuleOptions(settings.options)?.agentRuntime : undefined;
+	}
+
+	setAgentRuntimePreference(agentRuntime?: string): boolean {
+		const runtime = normalizeAgentRuntime(agentRuntime);
+		const settings = this.getModelModuleSettings('llmAgent');
+		if (!settings) {
+			return false;
+		}
+		const nextOptions = readAgentModuleOptions(settings.options);
+		if (runtime === undefined) {
+			delete nextOptions.agentRuntime;
+		} else {
+			nextOptions.agentRuntime = runtime;
+		}
+		const nextSettings: ModelModuleSettings = {
+			...settings,
+			...(Object.keys(nextOptions).length > 0 ? { options: nextOptions } : {}),
+		};
+		this.store.set('llmAgent', nextSettings);
+		return true;
 	}
 
 	getBackgroundTaskSettings(): BackgroundTaskSettings {
