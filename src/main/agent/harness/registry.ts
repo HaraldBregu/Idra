@@ -28,6 +28,9 @@ export function registerAgentHarness(
 	if (!id) {
 		throw new Error('Agent harness registration missing id.');
 	}
+	if (typeof harness.supports !== 'function' || typeof harness.runAttempt !== 'function') {
+		throw new Error(`Agent harness "${id}" registration missing required runtime methods.`);
+	}
 	const state = getAgentHarnessRegistryState();
 	if (state.harnesses.has(id)) {
 		throw new Error(`Agent harness already registered: ${id}`);
@@ -79,4 +82,3 @@ export async function disposeRegisteredAgentHarnesses(): Promise<void> {
 		})
 	);
 }
-
