@@ -120,9 +120,18 @@ async function runHarnessCleanup(params: {
 		});
 		return;
 	} catch (cleanupError) {
+		if (error === undefined) {
+			agentLogger.warn('agents/harness/v2', `agent harness cleanup failed in phase ${phase ?? 'cleanup'}`, {
+				harnessId: harness.id,
+				provider: attemptParams.provider,
+				model: attemptParams.model,
+				error: String(cleanupError),
+			});
+			throw cleanupError;
+		}
 		agentLogger.warn(
 			'agents/harness/v2',
-			`agent harness cleanup failed in phase ${phase ?? 'unknown'}`,
+			`agent harness cleanup failed after attempt error in phase ${phase ?? 'unknown'}`,
 			{
 				harnessId: harness.id,
 				provider: attemptParams.provider,
@@ -131,7 +140,6 @@ async function runHarnessCleanup(params: {
 				originalError: error ? String(error) : undefined,
 			}
 		);
-		throw cleanupError;
 	}
 }
 
