@@ -1,4 +1,4 @@
-underimport { readFileSync, statSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 export const CONNECTOR_MANIFEST_FILENAME = 'friday.plugin.json';
