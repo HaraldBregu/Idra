@@ -111,10 +111,10 @@ const gmailConnector: ConnectorConfig = {
 };
 
 const model: Model = { id: 'gpt-5.4', name: 'GPT-5.4' };
-const imageModel: Model = { id: 'image-provider-coming-soon', name: 'Not available yet' };
-const textToSpeechModel: Model = { id: 'rachel-multilingual', name: 'Rachel - multilingual' };
-const videoModel: Model = { id: 'video-provider-coming-soon', name: 'Not available yet' };
-const musicModel: Model = { id: 'music-provider-coming-soon', name: 'Not available yet' };
+const imageModel: Model = { id: 'FLUX.2', name: 'FLUX.2' };
+const textToSpeechModel: Model = { id: 'eleven_v3', name: 'Eleven v3' };
+const videoModel: Model = { id: 'gen4.5', name: 'Gen 4.5' };
+const musicModel: Model = { id: 'suno-v5.5', name: 'Suno v5.5' };
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -502,11 +502,11 @@ describe('StoreService', () => {
 			});
 			store.set('textToVideo', {
 				providerId: ' runway ',
-				modelId: ' video-provider-coming-soon ',
+				modelId: ' gen4.5 ',
 			});
 			store.set('textToSound', {
 				providerId: ' suno ',
-				modelId: ' music-provider-coming-soon ',
+				modelId: ' suno-v5.5 ',
 			});
 
 			const operator = service.getOperator();
@@ -532,7 +532,7 @@ describe('StoreService', () => {
 						name: 'Runway',
 						baseUrl: 'https://api.dev.runwayml.com/v1',
 					},
-					model: { id: 'video-provider-coming-soon', name: 'Not available yet' },
+					model: { id: 'gen4.5', name: 'Gen 4.5' },
 				},
 				musicCreator: {
 					id: 'music-creator',
@@ -543,7 +543,7 @@ describe('StoreService', () => {
 						name: 'Suno',
 						baseUrl: 'https://api.suno.ai/v1',
 					},
-					model: { id: 'music-provider-coming-soon', name: 'Not available yet' },
+					model: { id: 'suno-v5.5', name: 'Suno v5.5' },
 				},
 			});
 			expect(operator?.textToSpeech?.provider).not.toHaveProperty('apiKey');
