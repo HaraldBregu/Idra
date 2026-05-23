@@ -12,6 +12,7 @@ import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
 import { disposeRegisteredAgentHarnesses } from './agent/harness/registry';
+import { registerAgentHarnessRuntimePluginActivation } from './agent/harness/runtime-plugin';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
@@ -52,6 +53,7 @@ export function bootstrapServices(): BootstrapResult {
 	const appState = new AppState();
 	const container = new ServiceContainer<MainServices>();
 	const eventBus = new EventBus();
+	registerAgentHarnessRuntimePluginActivation(logger);
 
 	container.register('appState', appState);
 	container.register('eventBus', eventBus);
