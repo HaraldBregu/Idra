@@ -186,3 +186,19 @@ function buildSelectionDecision(params: {
 		candidates: params.candidates,
 	};
 }
+
+export async function maybeCompactAgentHarnessSession(
+	params: { provider?: string; modelId?: string; sessionKey?: string } & AgentHarnessCompactParams
+): Promise<AgentHarnessCompactResult | undefined> {
+	const harness = selectAgentHarness({
+		provider: params.provider ?? '',
+		modelId: params.modelId,
+	});
+	if (!harness.compact) {
+		if (harness.id !== 'pi') {
+			return { ok: false, compacted: false, reason: `Agent harness "${harness.id}" does not support compaction.` };
+		}
+		return undefined;
+	}
+	return harness.compact(params);
+}
