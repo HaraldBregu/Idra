@@ -36,6 +36,7 @@ import type {
 	BackgroundTaskSettings,
 	ModelProviderSettings,
 	ModelModuleSettings,
+	AgentModuleOptions,
 	SettingsStoreAccessor,
 	StoreSchema,
 	TaskSchedulerSettings,
