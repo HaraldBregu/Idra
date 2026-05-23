@@ -1,22 +1,27 @@
 import path from 'node:path';
 import { app } from 'electron';
+
 import { registerAgentHarnessRuntimeActivator, registerAgentHarnessRuntimeManifestLoader } from './activation';
 import type { LoggerService } from '../logger';
 import { FridayConnectorRegistry } from '../plugins/registry';
 import { resolveConnectorActivationPlan } from '../plugins/activation-planner';
-import { discoverConnectorManifests, type ConnectorManifestRecord } from '../plugins/discovery';
-import type { ConnectorActivationPlan } from '../plugins/activation-planner';
+import {
+	discoverConnectorManifests,
+	type ConnectorManifestRecord,
+	type ConnectorDiscoverySource,
+} from '../plugins/discovery';
 import { loadConnectorEntry } from '../plugins/loader';
 
 const LOG_SOURCE = 'agent-harness-runtime-plugin';
+const connectorRegistry = new FridayConnectorRegistry();
 
-type DiscoveryState = {
+type ActivationState = {
 	manifests?: ConnectorManifestRecord[];
-	discoveryInFlight?: Promise<ConnectorManifestRecord[]>;
+	pendingDiscovery?: Promise<ConnectorManifestRecord[]>;
 	loadedRuntimePlugins: Set<string>;
 };
 
-const discoveryState: DiscoveryState = {
+const activationState: ActivationState = {
 	loadedRuntimePlugins: new Set<string>(),
 };
 
@@ -24,45 +29,29 @@ function normalizeRuntime(runtime: string): string {
 	return runtime.trim().toLowerCase();
 }
 
-function resolveDiscoveryRoots(): { rootDir: string; origin: 'bundled' | 'installed' | 'workspace' }[] {
-	const cwd = path.resolve(process.cwd());
-	const appPath = app.getAppPath();
-	const userData = app.getPath('userData');
+function resolveDiscoveryRoots(): ConnectorDiscoverySource[] {
+	const userDataPath = app.getPath('userData');
 
-	return Array.from(
-		new Set(
-			[
-				path.join(cwd, 'src'),
-				path.join(cwd, 'dist'),
-				path.join(cwd, 'build'),
-				cwd,
-				appPath,
-				path.join(userData, 'connectors'),
-				path.join(userData, 'plugins'),
-			].map((value) => path.resolve(value))
-		)
-	).map((rootDir) => ({
-		rootDir,
-		origin: rootDir === userData ? 'installed' : 'bundled',
-	}));
+	const roots = new Set<string>([
+		path.resolve(process.cwd()),
+		path.resolve(process.cwd(), 'src'),
+		path.resolve(process.cwd(), 'src/main'),
+		path.resolve(process.cwd(), 'dist'),
+		app.getAppPath(),
+		path.resolve(app.getAppPath(), 'dist'),
+		path.join(userDataPath, 'plugins'),
+		path.join(userDataPath, 'connectors'),
+	]);
+
+	return [...roots]
+		.filter((rootDir) => Boolean(rootDir))
+		.map((rootDir) => ({
+			rootDir,
+			origin: rootDir.startsWith(userDataPath) ? 'installed' : 'bundled',
+		}));
 }
 
-function isConnectorRuntimeError(plan: ConnectorActivationPlan, runtime: string): boolean {
-	if (plan.pluginIds.length === 0) return false;
-	return false;
-}
-
-function logDiagnostic(logger: LoggerService | undefined, level: 'warn' | 'error', record: ConnectorManifestRecord): void {
-	if (!logger) return;
-	const message = `Connector ${record.id} runtime activation failed. Ensure the manifest declares a valid runtime entry and exports an entry module.`;
-	if (level === 'error') {
-		logger.error(LOG_SOURCE, message, { pluginId: record.id, source: record.source });
-		return;
-	}
-	logger.warn(LOG_SOURCE, message, { pluginId: record.id, source: record.source });
-}
-
-function diagnosticsMessage(runtime: string, diagnostics: Array<{ level: string; message: string }>): string {
+function diagnosticsMessage(runtime: string, diagnostics: readonly { level: string; message: string }[]): string {
 	if (diagnostics.length === 0) {
 		return `Failed to load harness runtime plugin for ${runtime}.`;
 	}
@@ -71,144 +60,136 @@ function diagnosticsMessage(runtime: string, diagnostics: Array<{ level: string;
 		.join('; ');
 }
 
-async function discoverConnectorManifestsOnce(logger?: LoggerService): Promise<ConnectorManifestRecord[]> {
-	if (discoveryState.manifests) {
-		return discoveryState.manifests;
+function logConnectorDiagnostics(
+	logger: LoggerService | undefined,
+	diagnostic: { level: string; message: string; code?: string; source?: string; details?: Record<string, unknown> },
+	runtime: string
+): void {
+	if (!logger) return;
+	const payload = {
+		runtime,
+		code: diagnostic.code,
+		source: diagnostic.source,
+		details: diagnostic.details,
+	};
+	if (diagnostic.level === 'warn') {
+		logger.warn(LOG_SOURCE, diagnostic.message, payload);
+		return;
 	}
-	if (discoveryState.discoveryInFlight) {
-		return discoveryState.discoveryInFlight;
+	logger.error(LOG_SOURCE, diagnostic.message, payload);
+}
+
+async function discoverConnectorManifestsForRuntime(
+	runtime: string,
+	logger?: LoggerService
+): Promise<ConnectorManifestRecord[]> {
+	if (activationState.manifests) {
+		return activationState.manifests;
+	}
+	if (activationState.pendingDiscovery) {
+		return activationState.pendingDiscovery;
 	}
 
-	discoveryState.discoveryInFlight = (async () => {
+	activationState.pendingDiscovery = (async () => {
 		const result = discoverConnectorManifests({
 			roots: resolveDiscoveryRoots(),
 			maxDepth: 6,
 		});
-		discoveryState.discoveryInFlight = undefined;
-		if (result.diagnostics.length > 0 && logger) {
-			for (const diagnostic of result.diagnostics) {
-				if (diagnostic.level === 'warn') {
-					logger.warn(LOG_SOURCE, diagnostic.message, {
-						code: diagnostic.code,
-						source: diagnostic.source,
-						details: diagnostic.details,
-					});
-				} else {
-					logger.error(LOG_SOURCE, diagnostic.message, {
-						code: diagnostic.code,
-						source: diagnostic.source,
-						details: diagnostic.details,
-					});
-				}
-			}
+
+		for (const diagnostic of result.diagnostics) {
+			logConnectorDiagnostics(logger, diagnostic, runtime);
 		}
-		discoveryState.manifests = result.records;
-		if (result.records.length === 0 && logger) {
-			logger.debug(LOG_SOURCE, 'No connector manifests found for harness runtime activation scan.', {
-				roots: resolveDiscoveryRoots(),
-			});
-		}
+
+		activationState.manifests = result.records;
+		activationState.pendingDiscovery = undefined;
 		return result.records;
 	})();
 
-	return discoveryState.discoveryInFlight;
+	return activationState.pendingDiscovery;
 }
 
-async function ensureAgentHarnessRuntimePluginLoaded(
+async function ensureRuntimePluginActivation(
 	runtime: string,
 	logger?: LoggerService
 ): Promise<void> {
-	const normalized = normalizeRuntime(runtime);
-	if (!normalized || normalized === 'auto' || normalized === 'pi') {
+	const normalizedRuntime = normalizeRuntime(runtime);
+	if (!normalizedRuntime || normalizedRuntime === 'auto' || normalizedRuntime === 'pi') {
 		return;
 	}
 
-	const records = await discoverConnectorManifestsOnce(logger);
+	const records = await discoverConnectorManifestsForRuntime(normalizedRuntime, logger);
 	const plan = resolveConnectorActivationPlan({
-		trigger: { kind: 'agentHarness', runtime: normalized },
+		trigger: { kind: 'agentHarness', runtime: normalizedRuntime },
 		records,
 	});
-
 	if (plan.pluginIds.length === 0) {
 		return;
 	}
 
-	if (isConnectorRuntimeError(plan, normalized)) {
-		return;
-	}
-
-	const registry = new FridayConnectorRegistry();
+	let activatedAny = false;
 	for (const pluginId of plan.pluginIds) {
-		if (discoveryState.loadedRuntimePlugins.has(pluginId)) {
+		if (activationState.loadedRuntimePlugins.has(pluginId)) {
+			activatedAny = true;
 			continue;
 		}
+
 		const record = records.find((entry) => entry.id === pluginId);
 		if (!record) {
-			if (logger) {
-				logger.warn(LOG_SOURCE, 'Connector manifest referenced by harness activation plan was not found.', {
-					runtime: normalized,
-					pluginId,
-				});
-			}
+			logger?.warn(LOG_SOURCE, 'Connector manifest referenced by harness activation plan was not found.', {
+				runtime: normalizedRuntime,
+				pluginId,
+			});
 			continue;
 		}
 		if (!record.source) {
-			logDiagnostic(logger, 'warn', record);
+			logger?.error(LOG_SOURCE, 'Connector manifest has no runtime entry for harness activation.', {
+				runtime: normalizedRuntime,
+				pluginId: record.id,
+				source: record.manifestPath,
+			});
 			continue;
 		}
 
 		const result = await loadConnectorEntry({
 			record,
-			registry,
+			registry: connectorRegistry,
 			mode: 'full',
 		});
-
 		for (const diagnostic of result.diagnostics) {
-			if (diagnostic.level === 'warn') {
-				logger?.warn(LOG_SOURCE, diagnostic.message, {
-					pluginId: record.id,
-					source: diagnostic.source,
-					details: diagnostic.details,
-				});
-			} else {
-				logger?.error(LOG_SOURCE, diagnostic.message, {
-					pluginId: record.id,
-					source: diagnostic.source,
-					details: diagnostic.details,
-				});
-			}
+			logConnectorDiagnostics(logger, diagnostic, normalizedRuntime);
 		}
-
 		if (!result.ok) {
 			throw new Error(
-				diagnosticsMessage(normalized,
-					result.diagnostics.map((item) => ({ level: item.level, message: item.message }))
-				)
+				diagnosticsMessage(normalizedRuntime, result.diagnostics.map((item) => ({
+					level: item.level,
+					message: item.message,
+				}))
 			);
 		}
-		discoveryState.loadedRuntimePlugins.add(pluginId);
+
+		activationState.loadedRuntimePlugins.add(pluginId);
+		activatedAny = true;
+	}
+
+	if (!activatedAny) {
+		throw new Error(`No harness runtime plugin entry could be loaded for ${normalizedRuntime}.`);
 	}
 }
 
-function connectHarnessRuntimeManifestLoader(): void {
-	registerAgentHarnessRuntimeManifestLoader(async ({ triggerRuntime }) => {
-		const normalized = normalizeRuntime(triggerRuntime);
-		return discoverConnectorManifestsOnce()
-			.then((records) => {
-				const plan = resolveConnectorActivationPlan({
-					trigger: { kind: 'agentHarness', runtime: normalized },
-					records,
-				});
-				return records.filter((record) => plan.pluginIds.includes(record.id));
-			})
-			.catch(() => []);
-	});
-}
-
 export function registerAgentHarnessRuntimePluginActivation(logger?: LoggerService): void {
-	connectHarnessRuntimeManifestLoader();
+	registerAgentHarnessRuntimeManifestLoader(async ({ triggerRuntime }) => {
+		const runtime = normalizeRuntime(triggerRuntime);
+		const records = await discoverConnectorManifestsForRuntime(runtime, logger);
+		const plan = resolveConnectorActivationPlan({
+			trigger: { kind: 'agentHarness', runtime },
+			records,
+		});
+		return records.filter((record) => plan.pluginIds.includes(record.id));
+	});
+
 	registerAgentHarnessRuntimeActivator({
-		activate: (params) => ensureAgentHarnessRuntimePluginLoaded(params.runtime, logger),
+		activate: async (params) => {
+			await ensureRuntimePluginActivation(params.runtime, logger);
+		},
 	});
 }
-
