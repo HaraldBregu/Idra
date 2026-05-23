@@ -164,17 +164,17 @@ async function ensureRuntimePluginActivation(
 			registry: activationState.connectorRegistry,
 			mode: 'full',
 		});
-		for (const diagnostic of result.diagnostics) {
-			logConnectorDiagnostics(logger, diagnostic, normalizedRuntime);
-		}
-		if (!result.ok) {
-			throw new Error(
-				diagnosticsMessage(normalizedRuntime, result.diagnostics.map((item) => ({
+			for (const diagnostic of result.diagnostics) {
+				logConnectorDiagnostics(logger, diagnostic, normalizedRuntime);
+			}
+			if (!result.ok) {
+				const diagnostics = result.diagnostics.map((item) => ({
 					level: item.level,
 					message: item.message,
-				}))
-			);
-		}
+				}));
+				const message = diagnosticsMessage(normalizedRuntime, diagnostics);
+				throw new Error(message);
+			}
 
 		activationState.loadedRuntimePlugins.add(pluginId);
 		activatedAny = true;
