@@ -156,7 +156,7 @@ export async function runAgentHarnessV2LifecycleAttempt(
 		result = await harness.resolveOutcome(session, rawResult);
 	} catch (error) {
 		logHarnessRunError(harness, params, phase, error, startedAt);
-		await runHarnessCleanup({ harness, params, prepared, session, rawResult, error, phase });
+		await runHarnessCleanup({ harness, params, prepared, session, result: rawResult, error, phase });
 		throw error;
 	}
 
