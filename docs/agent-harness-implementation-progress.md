@@ -44,5 +44,7 @@
 
 ## Current status vs full OpenClaw parity
 - Core selector + built-in fallback + plugin selection + lifecycle hooks are in place.
-- Plugin activation planning hooks already exist in plugin packages, but this repo currently does not have a call path that triggers activation based on runtime/harness selection in this branch.
+- Plugin activation planning hooks are now wired at harness dispatch: `src/main/agent/harness/selection.ts` calls
+  `ensureAgentHarnessRuntimeActivated(...)` before harness selection. If no activator is registered, the activation path
+  is a safe no-op and existing runtime fallback behavior remains unchanged.
 - Advanced OpenClaw-only capabilities (diagnostics/events, result-classification and compaction adapters, activation planning integration) are not yet fully ported.
