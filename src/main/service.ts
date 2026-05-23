@@ -20,7 +20,8 @@ import {
 import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
-import { runAgent, type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
+import { type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
+import { runAgentHarnessAttempt } from './agent/harness/selection';
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
