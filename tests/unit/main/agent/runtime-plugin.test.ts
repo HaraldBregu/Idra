@@ -57,7 +57,7 @@ function record(id: string): ConnectorManifestRecord {
 		rootDir: `/tmp/${id}`,
 		origin: 'bundled',
 		source: `/tmp/${id}/index.ts`,
-	};
+	} as ConnectorManifestRecord;
 }
 
 describe('agent/harness/runtime-plugin', () => {
@@ -86,7 +86,7 @@ describe('agent/harness/runtime-plugin', () => {
 		const manifests = await listActivationPlanManifestsForRuntime('codex');
 
 		expect(manifests).toEqual([record('beta')]);
-		expect(mockDiscoveryResult).toHaveBeenCalledTimes(0);
+		expect(discoverConnectorManifestsMock).toHaveBeenCalledTimes(1);
 	});
 
 	it('throws when activation has no matching runtime candidates', async () => {
