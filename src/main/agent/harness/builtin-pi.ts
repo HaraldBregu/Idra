@@ -13,7 +13,10 @@ export function createPiAgentHarness(): AgentHarness {
 				systemPrompt: params.systemPrompt,
 				session: params.session,
 				provider: params.providerAdapter,
+				providerId: params.provider,
 				model: params.model,
+				requestedRuntime: params.requestedRuntime,
+				storedRuntime: params.storedRuntime,
 				effort: params.effort,
 				tools: params.tools,
 				ctx: params.ctx,
@@ -27,4 +30,3 @@ export function createPiAgentHarness(): AgentHarness {
 			}),
 	};
 }
-
