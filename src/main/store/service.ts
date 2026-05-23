@@ -137,7 +137,7 @@ function readModelModuleSettings(value: unknown): ModelModuleSettings | undefine
 	};
 }
 
-function readAgentModuleOptions(value: unknown): AgentModuleOptions | undefined {
+function readAgentModuleOptions(value: unknown): AgentModuleOptions {
 	const options = readRecord(value);
 	const next: AgentModuleOptions = options ? { ...options } : {};
 	const runtime = normalizeAgentRuntime(next.agentRuntime);
