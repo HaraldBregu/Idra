@@ -1,5 +1,6 @@
 import path from 'node:path';
 import type { ConnectorManifestRecord } from './discovery';
+import { registerAgentHarness as registerGlobalAgentHarness } from '../agent/harness/registry';
 import {
 	FridayConnectorRegistry,
 	type ConnectorModelCatalogProviderRegistration,
@@ -62,7 +63,37 @@ export interface FridayConnectorApi {
 	registerMemoryCorpusSupplement(registration: unknown): void;
 	registerChannel(registration: unknown): void;
 	registerMigrationProvider(registration: unknown): void;
-	registerAgentHarness(registration: unknown): void;
+	registerAgentHarness(registration: {
+		id: string;
+		label: string;
+		supports: (context: {
+			provider: string;
+			modelId?: string;
+			requestedRuntime: string;
+		}) => { supported: boolean; priority?: number; reason?: string };
+		runAttempt: (params: {
+			runId: string;
+			provider: string;
+			model: string;
+			userMessage: string;
+			systemPrompt: string;
+			session: import('../agent/run').SessionFile;
+			requestedRuntime?: string;
+			storedRuntime?: string;
+			effort?: import('../../shared/agents/service').ModelReasoningEffort;
+			tools: import('../tools/types').AgentTool[];
+			ctx: import('../tools/types').ToolContext;
+			providerAdapter: import('../provider/types').ProviderAdapter;
+			maxTokens?: number;
+			maxIterations?: number;
+			streamOutput?: (chunk: string) => void;
+			streamEvent?: (event: import('../agent/run').AgentRunStreamEvent) => void;
+			hooks?: import('../agent/run').AgentRunHooks;
+			signal?: AbortSignal;
+			toolManagement?: import('../tools/management').AgentToolManagementOptions;
+			options?: Record<string, unknown>;
+		}) => Promise<import('../agent/run').AgentRunResult>;
+	}): void;
 	registerAgentToolResultMiddleware(registration: unknown): void;
 	registerContextEngine(registration: unknown): void;
 	registerCompactionProvider(registration: unknown): void;
@@ -184,7 +215,12 @@ export function buildFridayConnectorApi(
 		registerMigrationProvider: allowed('runtime')
 			? (registration) => registerValue('migrationProviders', registration)
 			: noop,
-		registerAgentHarness: allowed('runtime') ? (registration) => registerValue('agentHarnesses', registration) : noop,
+		registerAgentHarness: allowed('runtime')
+			? (registration) => {
+					registerValue('agentHarnesses', registration);
+					registerGlobalAgentHarness(registration, { ownerPluginId: record.id });
+				}
+			: noop,
 		registerAgentToolResultMiddleware: allowed('runtime')
 			? (registration) => registerValue('agentToolResultMiddleware', registration)
 			: noop,
