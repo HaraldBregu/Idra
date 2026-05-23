@@ -49,18 +49,11 @@ function compareHarnessSupport(
 	return left.harness.id.localeCompare(right.harness.id);
 }
 
-export function selectAgentHarness(params: {
-	provider: string;
-	modelId?: string;
-	requestedRuntime?: string;
-	storedRuntime?: string;
-}): AgentHarness {
+export function selectAgentHarness(params: AgentHarnessSelectionInput): AgentHarness {
 	return selectAgentHarnessDecision(params).harness;
 }
 
-function selectAgentHarnessDecision(params: {
-	: AgentHarnessSelectionInput
-}): AgentHarnessSelectionDecision {
+function selectAgentHarnessDecision(params: AgentHarnessSelectionInput): AgentHarnessSelectionDecision {
 	const policy = params.policy ?? resolveAgentHarnessPolicy({
 		requestedRuntime: params.requestedRuntime,
 		storedRuntime: params.storedRuntime,
