@@ -511,19 +511,23 @@ export class AgentService {
 				return beforeRun.message;
 			}
 
-			const result = await runAgent({
+			const result = await runAgentHarnessAttempt({
 				runId,
 				userMessage: message,
 				systemPrompt: systemPromptForTurn,
 				session: runtime.session,
-				provider,
+				provider: providerId,
 				model,
+				requestedRuntime,
+				storedRuntime,
+				providerAdapter: provider,
 				effort,
 				tools: selectedTools,
 				ctx,
+				streamEvent,
+				streamOutput: (chunk) => streamEvent({ type: 'text_delta', delta: chunk }),
 				maxTokens: TOOL_LIMITS.agent.maxTokens,
 				maxIterations: TOOL_LIMITS.agent.maxIterations,
-				streamEvent,
 				hooks,
 				signal: abort.signal,
 				toolManagement: { enabled: false },
