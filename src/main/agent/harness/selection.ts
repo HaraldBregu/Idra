@@ -3,7 +3,7 @@ import { createPiAgentHarness } from './builtin-pi';
 import { listRegisteredAgentHarnesses } from './registry';
 import { resolveAgentHarnessPolicy, type AgentHarnessPolicy } from './policy';
 import { agentLogger } from '../logger';
-import type { AgentHarness, AgentHarnessAttemptParams, AgentHarnessSupport } from './types';
+import type { AgentHarness, AgentHarnessAttemptParams, AgentHarnessAttemptResult, AgentHarnessSupport } from './types';
 
 type AgentHarnessSelectionCandidate = {
 	id: string;
@@ -85,12 +85,12 @@ function selectAgentHarnessDecision(params: {
 			requestedRuntime: runtime,
 		}),
 	}));
-	const supported = candidates
+const supported = candidates
 		.filter(
 			(entry): entry is { harness: AgentHarness; support: AgentHarnessSupport & { supported: true } } =>
 				entry.support.supported
 		)
-		.toSorted(compareHarnessSupport);
+		.sort(compareHarnessSupport);
 
 	const selected = supported[0]?.harness;
 	if (selected) {
@@ -112,7 +112,7 @@ function selectAgentHarnessDecision(params: {
 
 export async function runAgentHarnessAttempt(
 	params: AgentHarnessAttemptParams & { requestedRuntime?: string; storedRuntime?: string }
-): Promise<Awaited<ReturnType<typeof runAgentHarnessV2LifecycleAttempt>>> {
+): Promise<AgentHarnessAttemptResult> {
 	const selection = selectAgentHarnessDecision({
 		provider: params.provider,
 		modelId: params.model,
@@ -156,7 +156,6 @@ function toSelectionCandidate(entry: {
 function buildSelectionDecision(params: {
 	harness: AgentHarness;
 	policy: AgentHarnessPolicy;
-	selectedHarnessId: string;
 	selectedReason: AgentHarnessSelectionDecision['selectedReason'];
 	candidates: AgentHarnessSelectionCandidate[];
 }): AgentHarnessSelectionDecision {
