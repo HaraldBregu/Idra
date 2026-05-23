@@ -3,14 +3,14 @@ import { app } from 'electron';
 
 import { registerAgentHarnessRuntimeActivator, registerAgentHarnessRuntimeManifestLoader } from './activation';
 import type { LoggerService } from '../logger';
-import { FridayConnectorRegistry } from '../plugins/registry';
-import { resolveConnectorActivationPlan } from '../plugins/activation-planner';
+import { FridayConnectorRegistry } from '../../plugins/registry';
+import { resolveConnectorActivationPlan } from '../../plugins/activation-planner';
 import {
 	discoverConnectorManifests,
 	type ConnectorManifestRecord,
 	type ConnectorDiscoverySource,
-} from '../plugins/discovery';
-import { loadConnectorEntry } from '../plugins/loader';
+} from '../../plugins/discovery';
+import { loadConnectorEntry } from '../../plugins/loader';
 
 const LOG_SOURCE = 'agent-harness-runtime-plugin';
 
