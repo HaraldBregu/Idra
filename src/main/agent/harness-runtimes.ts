@@ -10,7 +10,7 @@ export function collectConfiguredAgentHarnessRuntimes(
 	env: AgentHarnessRuntimeEnv = process.env
 ): string[] {
 	const runtimes = new Set<string>();
-	addRuntime(runtimes, env.FRiday_AGENT_RUNTIME ?? env.FRIDAY_AGENT_RUNTIME);
+	addRuntime(runtimes, env.FRIDAY_AGENT_RUNTIME);
 	visitConfig(config, runtimes);
 	return [...runtimes].sort();
 }
