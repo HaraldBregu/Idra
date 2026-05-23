@@ -137,6 +137,25 @@ function readModelModuleSettings(value: unknown): ModelModuleSettings | undefine
 	};
 }
 
+function readAgentModuleOptions(value: unknown): AgentModuleOptions | undefined {
+	const options = readRecord(value);
+	if (!options) return undefined;
+	const runtime = normalizeAgentRuntime(options.agentRuntime);
+	const next: AgentModuleOptions = { ...options };
+	if (runtime === undefined) {
+		delete next.agentRuntime;
+	} else {
+		next.agentRuntime = runtime;
+	}
+	return next;
+}
+
+function normalizeAgentRuntime(value: unknown): string | undefined {
+	if (typeof value !== 'string') return undefined;
+	const trimmed = value.trim();
+	return trimmed || undefined;
+}
+
 function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
 	const record = readRecord(value);
 	if (!record) return {};
