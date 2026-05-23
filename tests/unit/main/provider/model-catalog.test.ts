@@ -136,9 +136,10 @@ describe('provider model catalogs', () => {
 	});
 
 	it('returns model copies from catalog helpers', () => {
-		const models = getTextToImageModelsByProvider('openai');
-		models[0] = { id: 'changed', name: 'Changed' };
+		const models = getTextToImageModelsByProvider('xai');
+		const firstModel = models[0];
+		models[0] = { ...firstModel, id: 'changed', name: 'Changed' };
 
-		expect(getTextToImageModelsByProvider('openai')).toEqual([]);
+		expect(getTextToImageModelsByProvider('xai')[0]).toEqual(IMAGE_CREATOR_MODELS[0]);
 	});
 });
