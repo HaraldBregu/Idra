@@ -13,16 +13,17 @@ import {
 import { loadConnectorEntry } from '../plugins/loader';
 
 const LOG_SOURCE = 'agent-harness-runtime-plugin';
-const connectorRegistry = new FridayConnectorRegistry();
 
 type ActivationState = {
 	manifests?: ConnectorManifestRecord[];
 	pendingDiscovery?: Promise<ConnectorManifestRecord[]>;
 	loadedRuntimePlugins: Set<string>;
+	connectorRegistry: FridayConnectorRegistry;
 };
 
 const activationState: ActivationState = {
 	loadedRuntimePlugins: new Set<string>(),
+	connectorRegistry: new FridayConnectorRegistry(),
 };
 
 function normalizeRuntime(runtime: string): string {
@@ -129,17 +130,19 @@ async function ensureRuntimePluginActivation(
 		records,
 	});
 	if (plan.pluginIds.length === 0) {
-		return;
+		throw new Error(`No agent harness runtime plugin candidates found for ${normalizedRuntime}.`);
 	}
 
+	const planPluginIds = new Set(plan.pluginIds);
+	const manifestById = new Map(records.map((record) => [record.id, record]));
 	let activatedAny = false;
-	for (const pluginId of plan.pluginIds) {
+	for (const pluginId of planPluginIds) {
 		if (activationState.loadedRuntimePlugins.has(pluginId)) {
 			activatedAny = true;
 			continue;
 		}
 
-		const record = records.find((entry) => entry.id === pluginId);
+		const record = manifestById.get(pluginId);
 		if (!record) {
 			logger?.warn(LOG_SOURCE, 'Connector manifest referenced by harness activation plan was not found.', {
 				runtime: normalizedRuntime,
@@ -158,7 +161,7 @@ async function ensureRuntimePluginActivation(
 
 		const result = await loadConnectorEntry({
 			record,
-			registry: connectorRegistry,
+			registry: activationState.connectorRegistry,
 			mode: 'full',
 		});
 		for (const diagnostic of result.diagnostics) {
@@ -190,7 +193,8 @@ export function registerAgentHarnessRuntimePluginActivation(logger?: LoggerServi
 			trigger: { kind: 'agentHarness', runtime },
 			records,
 		});
-		return records.filter((record) => plan.pluginIds.includes(record.id));
+		const runtimePluginIds = new Set(plan.pluginIds);
+		return records.filter((record) => runtimePluginIds.has(record.id));
 	});
 
 	registerAgentHarnessRuntimeActivator({
