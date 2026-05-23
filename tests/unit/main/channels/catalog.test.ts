@@ -72,13 +72,12 @@ describe('channel catalog', () => {
 	it('keeps catalog docs paths backed by bundled docs files', () => {
 		const docsIndex = readFileSync(path.join(process.cwd(), 'docs/channels/index.md'), 'utf8');
 
-			for (const entry of listChannelCatalog()) {
-				expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
-				expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
-				expect(docsIndex).toContain(`[
-							docsIndex"]/(${entry.id}/index.md)`);
-				expect(buildChannelDocsUrl(entry.docsPath, 'https://github.com/HaraldBregu/friday')).toBe(
-					`https://github.com/HaraldBregu/friday/blob/main/docs/channels/${entry.id}/index.md`
+				for (const entry of listChannelCatalog()) {
+					expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
+					expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
+					expect(docsIndex).toContain('[`' + entry.id + '`](' + entry.id + '/index.md)');
+					expect(buildChannelDocsUrl(entry.docsPath, 'https://github.com/HaraldBregu/friday')).toBe(
+						`https://github.com/HaraldBregu/friday/blob/main/docs/channels/${entry.id}/index.md`
 				);
 			}
 
