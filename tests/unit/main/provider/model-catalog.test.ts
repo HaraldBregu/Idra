@@ -22,7 +22,6 @@ import {
 	getTextToVideoModelsByProvider,
 } from '../../../../src/shared/provider-models';
 import {
-	getModelsByCapability as getSharedModelsByCapability,
 	getMusicModels,
 	getSpeechToTextModels,
 	getTextToImageModels,
