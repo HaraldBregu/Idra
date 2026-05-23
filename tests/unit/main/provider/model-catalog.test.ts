@@ -152,9 +152,11 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 	});
 
 	it('returns model copies from catalog helpers', () => {
-		const models = getTextToImageModelsByProvider('xai');
+		const models = getTextToImageModelsByProvider('black-forest-labs');
 		models[0] = { id: 'changed', name: 'Changed' };
 
-		expect(getTextToImageModelsByProvider('xai')[0]).toEqual(IMAGE_CREATOR_MODELS[0]);
+		expect(getTextToImageModelsByProvider('black-forest-labs')[0]).toEqual(
+			IMAGE_CREATOR_MODELS_BY_PROVIDER['black-forest-labs'][0]
+		);
 	});
 });
