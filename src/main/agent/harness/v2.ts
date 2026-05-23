@@ -66,15 +66,7 @@ export function adaptAgentHarnessToV2(harness: AgentHarness): AgentHarnessV2 {
 			lifecycleState: 'started',
 		}),
 		send: async (session) => harness.runAttempt(session.params),
-		resolveOutcome: async (_session, result) => {
-			if (harness.classify) {
-				return {
-					...result,
-					agentHarnessResultClassification: harness.classify(result),
-				};
-			}
-			return result;
-		},
+		resolveOutcome: async (_session, result) => result,
 		cleanup: async () => {
 			// V1 harnesses do not have per-attempt cleanup by default.
 		},
