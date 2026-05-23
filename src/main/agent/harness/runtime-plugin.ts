@@ -2,7 +2,7 @@ import path from 'node:path';
 import { app } from 'electron';
 
 import { registerAgentHarnessRuntimeActivator, registerAgentHarnessRuntimeManifestLoader } from './activation';
-import type { LoggerService } from '../logger';
+import type { LoggerService } from '../../logger';
 import { FridayConnectorRegistry } from '../../plugins/registry';
 import { resolveConnectorActivationPlan } from '../../plugins/activation-planner';
 import {
