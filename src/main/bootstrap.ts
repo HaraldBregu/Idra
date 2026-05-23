@@ -53,12 +53,12 @@ export function bootstrapServices(): BootstrapResult {
 	const appState = new AppState();
 	const container = new ServiceContainer<MainServices>();
 	const eventBus = new EventBus();
-	registerAgentHarnessRuntimePluginActivation(logger);
 
 	container.register('appState', appState);
 	container.register('eventBus', eventBus);
 
 	const logger = new LoggerService(eventBus);
+	registerAgentHarnessRuntimePluginActivation(logger);
 	container.register('logger', logger);
 	container.register('appPermissions', new AppPermissionsService());
 

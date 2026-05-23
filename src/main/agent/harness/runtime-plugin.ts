@@ -90,7 +90,7 @@ async function discoverConnectorManifestsForRuntime(
 		return activationState.pendingDiscovery;
 	}
 
-	activationState.pendingDiscovery = (async () => {
+	const discoverTask = (async () => {
 		const result = discoverConnectorManifests({
 			roots: resolveDiscoveryRoots(),
 			maxDepth: 6,
@@ -104,8 +104,14 @@ async function discoverConnectorManifestsForRuntime(
 		activationState.pendingDiscovery = undefined;
 		return result.records;
 	})();
+	activationState.pendingDiscovery = discoverTask;
 
-	return activationState.pendingDiscovery;
+	try {
+		return await discoverTask;
+	} catch (error) {
+		activationState.pendingDiscovery = undefined;
+		throw error;
+	}
 }
 
 async function ensureRuntimePluginActivation(

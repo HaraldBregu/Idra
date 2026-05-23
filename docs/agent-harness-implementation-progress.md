@@ -45,6 +45,7 @@
 ## Current status vs full OpenClaw parity
 - Core selector + built-in fallback + plugin selection + lifecycle hooks are in place.
 - Plugin activation planning hooks are now wired at harness dispatch: `src/main/agent/harness/selection.ts` calls
-  `ensureAgentHarnessRuntimeActivated(...)` before harness selection. If no activator is registered, the activation path
-  is a safe no-op and existing runtime fallback behavior remains unchanged.
+  `ensureAgentHarnessRuntimeActivated(...)` before harness selection. Harness runtime activation now registers a
+  manifest loader and activator in `src/main/agent/harness/runtime-plugin.ts`; this discovery-backed activator loads
+  connector manifests and executes matching runtime entries for non-`auto`/non-`pi` harnesses.
 - Advanced OpenClaw-only capabilities (diagnostics/events, result-classification and compaction adapters, activation planning integration) are not yet fully ported.
