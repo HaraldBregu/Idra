@@ -37,7 +37,10 @@ export interface AgentHarnessAttemptParams {
 	toolManagement?: AgentToolManagementOptions;
 }
 
-export type AgentHarnessAttemptResult = import('../agent/run').AgentRunResult;
+export type AgentHarnessAttemptResult = import('../agent/run').AgentRunResult & {
+	agentHarnessId?: string;
+	agentHarnessResultClassification?: string;
+};
 
 export interface AgentHarnessSideQuestionParams {
 	question: string;
