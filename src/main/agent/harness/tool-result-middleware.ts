@@ -1,4 +1,4 @@
-import type { ToolResultBlock } from '../provider/types';
+import type { ToolResultBlock } from '../../provider/types';
 import type { AgentHarnessHookContext } from './hook-context';
 
 const MAX_BLOCKS = 200;
