@@ -13,6 +13,11 @@ export interface ModelModuleSettings {
 	options?: Record<string, unknown>;
 }
 
+export interface AgentModuleOptions {
+	agentRuntime?: string;
+	[key: string]: unknown;
+}
+
 export interface TaskSchedulerSettings {
 	enabled?: boolean;
 	managed?: unknown;
