@@ -33,6 +33,12 @@ import {
 	isAllowedTextToSpeechModel,
 	isAllowedTextToVideoModel,
 } from '../../../../src/shared/service';
+import {
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
+} from '../../../../src/shared/providers';
 
 describe('provider model catalogs', () => {
 	it('returns speech-to-text models by provider', () => {
