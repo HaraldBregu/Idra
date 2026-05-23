@@ -41,6 +41,7 @@ const screen = {
 		workArea: { x: 0, y: 24, width: 1440, height: 876 },
 		bounds: { x: 0, y: 0, width: 1440, height: 900 },
 	})),
+	getCursorScreenPoint: jest.fn(() => ({ x: 0, y: 0 })),
 };
 
 const ipcMain = {

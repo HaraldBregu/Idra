@@ -257,7 +257,8 @@ export class AgentService {
 			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			const requestedRuntime = (options.agentRuntime || options.agentHarnessId || '').trim();
-			const storedRuntime = this.dependencies.store.getAgentRuntimePreference();
+			const storedRuntime =
+				this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
 					baseDir: this.sessionBaseDir,
