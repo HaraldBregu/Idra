@@ -4,7 +4,7 @@ export type AgentHarnessPolicy = {
 };
 
 function normalizeRuntime(input: unknown): string {
-	return typeof input === 'string' ? input.trim() : '';
+	return typeof input === 'string' ? input.trim().toLowerCase() : '';
 }
 
 export function resolveAgentHarnessPolicy(params: {
@@ -21,4 +21,3 @@ export function resolveAgentHarnessPolicy(params: {
 	}
 	return { runtime: 'auto', runtimeSource: 'default' };
 }
-
