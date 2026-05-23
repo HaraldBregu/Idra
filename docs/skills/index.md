@@ -1,74 +1,36 @@
 # Skills
 
-The skills module manages reusable agent capabilities. It can register built-in
-and imported skills, discover relevant skills for a prompt, add skill guidance
-to the agent turn, and execute a selected skill with scoped tools, connectors,
-memory policy, safety checks, provenance, and audit logging.
+Skills are local reusable capabilities that teach Friday how to approach a class of work. They can provide instructions, resources, schemas, and optional execution behavior without requiring each agent turn to rediscover the same workflow.
 
-## Skill Packages
+## Functionality
 
-Skills live under Friday's private skills directory after import. A package is
-recognized from a skill markdown file with frontmatter and instructions. The
-loader normalizes ids, names, descriptions, category, tags, versions,
-visibility, safety level, dependencies, examples, input/output schemas, allowed
-tools, required tools, required connectors, and resource directories.
+- Registers built-in example skills and user-installed skills.
+- Imports or downloads skills into the user-data skill root.
+- Parses skill manifests and resource metadata.
+- Discovers relevant skills for a user request.
+- Adds selected skill guidance to agent context.
+- Executes skills through a controlled tool path when a skill provides executable behavior.
 
-Resource directories are limited to scripts, references, templates, and assets.
-Large files, ignored build/cache directories, excessive file counts, and unsafe
-package shapes are skipped or reported as diagnostics.
+## Skill Shape
 
-## Registry
+A skill is described by a manifest with fields such as name, description, version, tags, supported tools, required connectors, input schema, output schema, and safety metadata. Skill resources can include scripts, references, templates, and assets. Resource loading is bounded so a skill cannot silently add unlimited context.
 
-The registry stores skills by id and version. It normalizes ids, rejects
-duplicates, returns the latest version when no version is requested, supports
-search by metadata, can list by category, and can enable or disable individual
-skills.
+Skills can be enabled or disabled. Disabled skills remain installed but are not selected for new turns.
 
-When a skill is registered, dependency checks run immediately. Missing
-dependencies are reported as warnings so the skill remains visible but its
-execution can still be blocked later if required capabilities are unavailable.
+## Discovery And Selection
 
-## Discovery
+Before an agent turn, the agent service builds the available tool set and asks the skill service for matching skills. Discovery ranks enabled skills by their description, declared triggers, user preferences, tool availability, connector availability, and safety checks.
 
-Before an agent turn, the skills service can discover matching skills for the
-user prompt. Discovery builds a context from the user id, session id, available
-tools, available connectors, permissions, memory kinds, user preferences, and
-prior skill success rates.
-
-Each enabled, non-internal, safe skill is asked whether it can handle the
-intent. Matching skills are ranked and capped. The selector then decides
-whether to use one skill, compose several, ask for clarification, refuse unsafe
-use, or answer directly when no authorized skill matches.
-
-Discovered skills with local paths are exposed to the prompt so the agent can
-read their instructions when they are relevant. Skills without local paths can
-be executed through the `execute_skill` tool when that tool is available.
+Selected skills are summarized into the agent prompt. Skills that need local files or resources are only selected when the required tool access is available.
 
 ## Execution
 
-Skill execution validates input against the skill schema, runs safety checks,
-scopes the available tools and connectors to the skill contract, applies
-timeouts and retries, records provenance, validates successful output, updates
-preference success state, and writes an audit record.
+Executable skills run through a dedicated skill execution path. The service validates input against the skill schema, limits available tools and connectors to the declared scope, applies timeouts and retry rules, records provenance, and validates output when an output schema is declared.
 
-The execution context can provide tool calls, connector calls, memory reads,
-memory writes, nested skill execution, logging, cancellation, and access to the
-current skill depth and provenance chain.
-
-Workflow composition executes skill steps in dependency order, skips steps with
-failed dependencies, and tries configured fallback skills when a step fails.
+Skill execution can use scoped memory, connector access, and tool calls when the skill declares and passes the required checks.
 
 ## Safety
 
-Skill safety blocks disabled skills, excessive nesting, recursive execution,
-missing required tools, missing required connectors, globally disallowed tools
-or connectors, and prompt-injection-like inputs when they appear in direct
-skill input.
+The skill service blocks disabled skills, excessive recursion, excessive depth, missing tools, missing connectors, and unsafe prompt-injection patterns. It audits discovery and execution decisions so the app can explain why a skill was selected or rejected.
 
-Tool use inside a skill must be included in the skill's required or allowed
-tools. Connector use must be included in the skill's required or allowed
-connectors and the connector must expose the requested tool.
-
-Imported skill files and generated outputs should be treated as untrusted until
-reviewed. Skills should not be used to bypass normal tool approval, filesystem,
-network, channel, connector, or credential boundaries.
+Provider-specific support metadata can exist for packaging and routing, but the main runtime path is local discovery, prompt inclusion, and controlled execution.

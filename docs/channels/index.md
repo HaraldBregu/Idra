@@ -1,130 +1,51 @@
 # Channels
 
-The channels module is Friday's external messaging gateway. It keeps a shared
-catalog of supported channel identities, stores channel and account
-configuration, starts runtime adapters, applies inbound admission rules, sends
-allowed messages into the agent, and routes replies back through the same
-channel.
+Channels let Friday receive messages from external chat systems, run an agent turn, and deliver a response back through the originating channel or another configured target.
+
+## Functionality
+
+- Provides a catalog of supported channel ids, names, aliases, capabilities, and setup fields.
+- Stores per-channel account configuration, enabled state, security settings, and secrets.
+- Starts runtime adapters only for configured and enabled accounts.
+- Normalizes inbound messages before they reach the agent.
+- Applies direct-message admission policy before dispatch.
+- Sends outbound replies through the channel registry and records delivery status.
 
 ## Current Runtime Support
 
-Telegram is the only bundled runtime channel. The remaining catalog entries are
-configuration-ready but runtime-disabled until an adapter exists.
+Telegram has a bundled runtime adapter. The bundled catalog also contains entries for clickclack, discord, feishu, googlechat, imessage, irc, line, matrix, mattermost, msteams, nextcloud-talk, nostr, qa-channel, qqbot, signal, slack, synology-chat, tlon, twitch, whatsapp, zalo, and zalouser. Those entries are catalog-only until a runtime adapter is registered for them.
 
-Catalog-only channels currently include ClickClack, Discord, Feishu, Google
-Chat, iMessage, IRC, LINE, Matrix, Mattermost, Microsoft Teams, Nextcloud Talk,
-Nostr, QQ Bot, Signal, Slack, Synology Chat, Tlon, Twitch, WhatsApp, Zalo, and
-Zalo Personal. The QA channel is hidden and reserved for tests.
+## Catalog, Configuration, And Accounts
 
-Catalog-only channels can appear in settings, keep stable ids and aliases, and
-store account data, but they cannot receive or send because they have no active
-runtime factory.
+Each channel has a stable id, optional aliases, capabilities, setup fields, and account defaults. The default account id is `default`. Accounts are disabled until configured, and direct messages use an allowlist policy by default.
 
-## Configuration
+Channel secrets remain inside the channel account records. Public channel status and catalog reads expose readiness and setup metadata without exposing secret values.
 
-Every channel has an enabled flag, a default account id, and optional account
-records. Account records can hold a label, enabled state, credentials, allow
-lists, group allow lists, default targets, direct-message policy, and heartbeat
-visibility preferences.
+## Registry Behavior
 
-All channels default to disabled with a default account id of `default`.
-Direct messages use an allowlist policy unless the user changes the policy.
-With an empty allowlist, direct messages are denied.
+The channel registry owns channel plugin registration, account startup, runtime status, inbound dispatch, and outbound delivery. It registers catalog-only plugins first, then overrides entries when a runtime adapter is available.
 
-Credential fields such as tokens, secrets, client secrets, webhook URLs, and
-authorization values belong only in channel configuration. They should not be
-copied into task input, schedule payloads, logs, diagnostics, or agent-visible
-messages.
-
-## Registry Lifecycle
-
-At startup, the registry registers catalog-only plugins for every catalog id,
-then replaces Telegram with its runtime plugin and registers a lazy Telegram
-adapter factory.
-
-Starting a channel follows this flow:
-
-1. Normalize the requested channel id and aliases.
-2. Validate and store the channel configuration.
-3. Resolve the plugin and default account.
-4. Skip startup when the account is disabled, unconfigured, or catalog-only.
-5. Create the runtime adapter when a factory exists.
-6. Subscribe to adapter status and inbound message events.
-7. Start the adapter and cache its runtime status.
-
-Stopping a channel stops the active adapter and removes it from the registry.
-Restarting is a stop followed by a start with the current or supplied config.
+When an account starts, the registry checks that the channel exists, the account is enabled, required setup fields are present, and a runtime factory is available. The running adapter receives lifecycle callbacks and reports status changes such as connecting, connected, disconnected, or error.
 
 ## Inbound Flow
 
-Runtime adapters receive platform events and convert them into the shared
-inbound message shape. The registry then runs one channel turn:
-
-1. Resolve the channel account from saved config.
-2. Normalize the provider message into a common inbound message.
-3. Apply channel security and admission policy.
-4. Record safe diagnostics for accepted messages.
-5. Dispatch allowed text to the agent.
-6. Resolve the reply target.
-7. Send the agent reply through the active channel adapter.
-
-Admission outcomes are:
-
-- `dispatch`: send the message to the agent.
-- `handled`: accept the message at the channel layer without dispatching.
-- `observeOnly`: observe but do not dispatch.
-- `drop`: reject before agent dispatch.
-
-Diagnostics intentionally keep to channel id, account id, chat type, and reason.
-They do not copy raw sender ids or private route ids.
+1. The adapter receives an external message and emits a normalized inbound event.
+2. The registry resolves the channel, plugin, and account.
+3. The plugin normalizes the message into Friday's inbound message shape.
+4. Security policy decides whether to dispatch, handle without dispatching, observe only, or drop the message.
+5. Dispatchable messages run an agent turn with channel context.
+6. The resulting reply is sent through the registry so delivery is handled by the owning adapter.
 
 ## Outbound Flow
 
-Outbound sends require a running adapter for the target channel. Catalog-only
-channels reject sends because no adapter is active.
-
-Adapters return durable receipts with a status of `sent`, `partial`, or
-`failed`, along with delivered platform message ids, thread information, reply
-information, timestamps, and a safe error message when delivery fails.
+Outbound channel delivery goes through the registry. A running adapter is required for sends. Delivery attempts return a durable status of sent, partial, or failed with enough detail for the caller to report what happened.
 
 ## Telegram Runtime
 
-Telegram uses long polling and drops pending updates when polling starts. It
-emits connection status changes, performs periodic health checks, and
-reconnects with exponential backoff after polling or health failures.
+The Telegram adapter uses long polling, drops pending updates on startup, and keeps a health check loop. Reconnect attempts use exponential backoff with bounded delays.
 
-Inbound Telegram behavior:
-
-- Receives plain text messages.
-- Ignores slash commands before agent dispatch.
-- Deduplicates messages by Telegram-derived idempotency key.
-- Infers direct, group, channel, or thread chat type.
-- Builds session routing from account id, chat id, and optional thread id.
-- Preserves provider facts in provenance.
-
-Outbound Telegram behavior:
-
-- Sends replies to the original chat.
-- Preserves thread and reply-to ids when available.
-- Splits long text into Telegram-sized chunks.
-- Returns durable receipts for full, partial, or failed delivery.
-
-Telegram explicit targets use this shape:
-
-```text
-telegram:<chatId>
-telegram:<accountId>/<chatId>
-telegram:<accountId>/<chatId>#<threadId>
-```
-
-Negative Telegram ids usually represent groups or supergroups. Thread ids map
-to Telegram forum topic message thread ids.
+Telegram inbound handling is text-only. Slash commands are ignored, duplicate updates are deduped, and each message records chat type, chat id, optional thread id, sender information, and a stable session key. Replies are chunked to fit Telegram message limits.
 
 ## Renderer Access
 
-The renderer can read the catalog, read and save channel config, read runtime
-status, subscribe to status updates, and use Telegram compatibility helpers for
-start, stop, restart, status, and config.
-
-Generic runtime controls exist in the registry for host code and tests, but the
-renderer currently exposes runtime controls only for Telegram.
+The renderer can read the channel catalog, read and update account configuration, inspect account runtime status, and control Telegram accounts through the channel service. Runtime state changes are broadcast so the UI can update without polling every service directly.

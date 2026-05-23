@@ -1,87 +1,42 @@
 # Tools
 
-The tools module provides the capabilities an agent can use during a run. It
-builds local tools, plugin tools, MCP tools, LSP tools, and client-provided
-tools into one scoped runtime tool set, then applies policy, schema
-normalization, loop checks, approvals, execution limits, and output validation.
+Tools are the controlled actions the agent can call while completing a turn. The main process assembles local tools, connector tools, skill execution, plugin tools, MCP tools, and browser automation into a policy-checked runtime.
 
-## Preloaded Local Tools
-
-Friday currently preloads these local tools:
+## Built-In Local Tools
 
 | Tool | Functionality |
 | --- | --- |
-| `read` | Reads bounded text from files after resolving workspace and policy rules. |
-| `write` | Creates or overwrites workspace files after read-state checks. |
-| `edit` | Performs targeted string replacement after the target file has been read. |
-| `apply_patch` | Applies a unified patch after affected files have been read. |
-| `delete` | Removes workspace files or recursive directories with read-before-delete checks. |
-| `copy` | Copies a permitted source into a workspace destination. |
-| `move` | Renames or relocates a workspace file or directory. |
-| `inspect_file` | Returns file metadata and optional previews for supported files. |
-| `find` | Searches for files by name or pattern. |
-| `exec` | Runs a shell command with command denial rules, timeout handling, and output caps. |
-| `process` | Lists, reads logs for, or stops background commands started by `exec`. |
-| `web_fetch` | Fetches HTTP or HTTPS text and converts basic HTML to readable text. |
-| `cron` | Manages Friday cron jobs for future, recurring, reminder, and wake work. |
-| `task` | Starts an approved immediate background agent task. |
-| `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
-| `browser` | Controls a managed browser profile, tabs, snapshots, screenshots, and interactions. |
+| `read` | Reads workspace files after path validation. |
+| `write` | Writes workspace files within allowed boundaries. |
+| `edit` | Applies targeted file edits. |
+| `apply_patch` | Applies structured patches to workspace files. |
+| `delete` | Deletes allowed workspace files. |
+| `copy` | Copies allowed files or directories. |
+| `move` | Moves allowed files or directories. |
+| `inspect_file` | Returns file metadata and focused inspection output. |
+| `find` | Searches files and text within allowed roots. |
+| `exec` | Runs shell commands under command policy and approval rules. |
+| `process` | Tracks and controls managed background processes. |
+| `web_fetch` | Fetches web content through URL and policy checks. |
+| `cron` | Manages Friday cron jobs and wake requests. |
+| `task` | Creates and inspects background agent tasks. |
+| `open_browser` | Opens a managed browser page. |
+| `browser` | Controls managed browser profiles, tabs, snapshots, screenshots, and page actions. |
 
-The bootstrap-only `startup_files` tool is added only when the primary agent
-needs to manage allowlisted startup files during bootstrap.
+## Assembly
 
-## Tool Construction
+The agent service starts with the local tool set. It then applies the active tool policy profile, user or mode allowlists, connector tools, skill execution tools, heartbeat tools, plugin tools, MCP tools, and language-server tools when those paths are enabled and available.
 
-Tool construction starts with an allowlist plan. The plan decides whether to
-include file tools, shell tools, web tools, messaging tools, plugin tools, MCP
-tools, LSP tools, and tool-search controls.
-
-After candidates are gathered, policy stages filter them by sender, sandbox,
-allowlists, denylists, read-only settings, filesystem settings, shell
-availability, and plugin ownership. The final tools are normalized before they
-are converted into model tool definitions.
-
-When the available tool count is high, tool-search compaction can hide most
-tools behind `tool_search`, `tool_describe`, and `tool_call`. This keeps the
-prompt smaller while preserving access to explicitly discoverable tools.
-
-## Selection For A Turn
-
-Before a turn, Friday decides whether tools are needed. If the user explicitly
-asks not to use tools, no tools are supplied. Tool introspection requests keep
-the catalog visible. Otherwise, large tool sets are ranked against the prompt
-and only the most relevant tools are included.
-
-File-changing tools automatically include their read prerequisite when needed.
-Google Calendar, Google Drive, and Gmail connector tools can also be force
-selected when the prompt clearly matches those domains.
-
-Skills may add required or allowed tools to the selected set. Skills with local
-instruction paths also ensure the read tool is available so the agent can read
-the skill instructions.
+Tool definitions are trimmed and ranked before they are sent to a provider. Connector intent can force a relevant connector tool into the available set. Tool search can expose deferred tools when the full catalog would be too large for the current turn.
 
 ## Execution
 
-Tool execution uses a common result shape. Inputs are checked against schemas,
-rate and per-turn limits are enforced, timeouts are applied, retryable failures
-can retry, outputs are validated, sensitive audit data is redacted, and warnings
-are attached to successful results when validation finds issues.
+The tool runtime validates inputs, checks policy, detects repeated loops, applies approval cache decisions, enforces timeouts and rate limits, tracks per-turn tool budgets, retries where allowed, audits calls, and validates outputs before returning results to the agent.
 
-The agent loop also runs a before-call check for identical-call loops. Repeated
-identical calls receive warnings and eventually a veto result so the model must
-change approach instead of looping indefinitely.
-
-Tools can require approval. Approval state is tracked per call signature during
-the turn and can also be forced by policy.
+Tool calls are normalized so provider-specific function call formats do not leak into individual tool implementations.
 
 ## Boundaries
 
-File-changing tools are constrained to workspace writes. Read tools can allow
-broader reads only when the active filesystem policy permits it. Shell
-execution has hard-denied command patterns, timeout handling, background
-process tracking, and output limits.
+Filesystem tools enforce workspace and path guards. Write-like tools require the agent to inspect relevant files before changing them. Command execution rejects denied patterns, tracks background processes, and separates process management from normal command results.
 
-The cron tool is for future or recurring work. The task tool is for immediate
-background agent work. Browser tools validate URLs and block local or private
-network targets before navigation.
+Web and browser tools apply URL safety rules. Browser automation uses managed profiles and blocks unsafe local or private-network targets unless policy allows them.

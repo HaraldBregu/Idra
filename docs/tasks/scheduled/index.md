@@ -1,75 +1,34 @@
 # Scheduled Tasks
 
-Scheduled tasks are saved instructions for future or recurring agent work. The
-scheduled record owns timing; the background task owns agent execution once the
-schedule becomes due.
+Scheduled tasks let Friday create agent work at a later time or on a recurring cadence.
 
 ## Functionality
 
-The cron module supports three scheduling paths:
+- Persists managed schedule definitions in settings.
+- Recovers schedules when the app starts.
+- Validates schedule frequency, access policy, and payload shape.
+- Creates background agent tasks when schedules become due.
+- Records run state and delivery information for Friday cron jobs.
 
-- Managed schedules for persisted agent task scheduling with events, locks,
-  access policy, missed-run recovery, and execution records.
-- Friday cron jobs for the agent-facing cron tool, wake events, delivery
-  routing, and direct or task-backed agent execution.
-- Legacy cron tasks for older persisted `node-cron` jobs.
+## Scheduler Types
 
-All scheduled agent work should store only the sanitized instruction and timing
-metadata. Provider and model selection are resolved through the store when the
-created background task or direct cron agent run starts.
+| Scheduler | Functionality | How It Works |
+| --- | --- | --- |
+| Managed schedules | Persisted user-facing schedules. | Schedule records are stored in scheduler state, evaluated by the cron service, and converted into `agent.run` background tasks when due. |
+| Friday cron jobs | Tool-facing scheduled jobs. | Jobs can run agent turns, system events, or wake requests and can route output through configured delivery targets. |
+| Legacy cron jobs | Compatibility scheduler. | Existing node-cron style jobs remain supported while newer managed schedules and Friday cron jobs own the main scheduling flows. |
 
 ## Managed Schedule Flow
 
-Creating or updating a managed schedule validates the actor, timing shape,
-frequency, stored payload, and task type. Scheduled agent work must create an
-`agent.run` background task and its input must contain only a safe `message`.
+1. A schedule is created with a validated cadence and an allowed payload.
+2. The schedule is persisted under scheduler state.
+3. Startup recovery restores persisted schedules.
+4. The cron service checks due schedules.
+5. A due schedule creates a background `agent.run` task.
+6. The background task resolves the current provider and model and runs normally.
 
-When the scheduler starts, it reloads schedules and recovers startup state. A
-polling loop checks due schedules, acquires schedule locks, avoids duplicate
-run creation, and asks the schedule runner to create a background task for each
-due occurrence.
+Missed runs are handled during recovery according to scheduler policy so schedules can continue after the app was closed or asleep.
 
-Managed schedules record safe events and executions so the UI can inspect what
-happened without exposing credentials or raw provider configuration.
+## Delivery And Safety
 
-## Friday Cron Flow
-
-Friday cron powers the `cron` tool. It can report status, list jobs, read one
-job, add jobs, update jobs, remove jobs, run a job now, list previous runs, and
-wake the scheduler.
-
-Jobs can represent agent turns or system events. They can also carry delivery
-instructions so output can be routed through the channel gateway. Failure
-delivery is separated from normal output delivery.
-
-Friday cron enforces actor visibility. Owners can manage all visible jobs,
-while scoped actors are limited to their own job or session context.
-
-## Timing
-
-Schedules can use one-time, interval, or cron-style timing. Cron expressions are
-interpreted in the configured timezone as local wall-clock time. Next-run
-calculation handles recurrence, disabled schedules, one-shot completion, and
-missed-run policy.
-
-Startup recovery is bounded. Friday should not create unlimited background
-tasks after a long offline period.
-
-## Concurrency And Idempotency
-
-Schedulers avoid starting the same scheduled run twice. Locks and idempotency
-keys prevent duplicate processing for the same due occurrence.
-
-If a schedule becomes due while a previous run from the same schedule is still
-active, the schedule policy decides whether to skip, wait, or cancel existing
-work. The default behavior is conservative and avoids overlap.
-
-## Safety
-
-Scheduled payloads must not contain API keys, tokens, authorization headers,
-provider configs, model configs, base URLs, endpoint URLs, private keys, or
-other credential-shaped values.
-
-Schedules should never run arbitrary non-agent work. Future, recurring,
-delayed, reminder, wake, and calendar-style requests should use scheduling.
-Immediate work should use background tasks.
+Scheduled payloads should contain the work request, not copied credentials. Provider settings are resolved at run time. Friday cron jobs can deliver output through the channel gateway or app event bus depending on the configured target.

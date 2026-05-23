@@ -1,71 +1,38 @@
 # Providers
 
-The providers module adapts configured model providers to Friday's runtime
-contracts. In the current main process, provider runtime support is implemented
-for chat-style agent runs and speech-to-text transcription sessions.
+Providers adapt configured model services into Friday's runtime interfaces. The current main-process runtime covers chat completion providers for the agent and speech-to-text providers for transcription.
 
-## Chat Provider Runtime
+## Chat Providers
 
-Agent runs do not call vendor SDKs directly. The agent resolves the configured
-provider and model from the store, creates a provider adapter, and then consumes
-a common stream of model events.
+| Provider | Functionality | How It Works |
+| --- | --- | --- |
+| Anthropic | Runs agent turns through Anthropic Messages streaming. | The adapter streams text, reasoning, and native tool-use blocks while normalizing auth and context-limit errors. |
+| OpenAI | Runs agent turns through the OpenAI Responses API. | The adapter handles response items, reasoning output, function tool calls, usage, and streaming completion state. |
+| Mistral | Runs agent turns through Mistral chat streaming. | The adapter maps Friday tools to Mistral function tools and normalizes streamed text, tool calls, reasoning settings, and errors. |
+| DeepSeek | Runs agent turns through DeepSeek's OpenAI-compatible chat API. | The adapter uses DeepSeek defaults when no base URL is supplied and preserves reasoning content when the model returns it. |
+| Qwen | Runs agent turns through Qwen's OpenAI-compatible chat API. | The adapter uses the configured base URL or the Qwen-compatible default endpoint and streams chat deltas through the common adapter shape. |
+| OpenAI-compatible fallback | Supports additional compatible providers. | Unknown provider ids are treated as OpenAI-compatible chat providers when they have usable endpoint and credential settings. |
 
-The common stream includes message start and end events, text deltas, reasoning
-items, tool-call start and argument deltas, tool-call end events, stop reasons,
-and token usage. The agent loop uses this stream to append transcript entries,
-execute tools, handle context overflow, and save the session.
+## Agent Provider Flow
 
-| Provider id | Runtime behavior |
-| --- | --- |
-| `anthropic` | Uses Anthropic Messages streaming and maps Anthropic tool use and tool result blocks into Friday's transcript model. |
-| `openai` | Uses the OpenAI Responses streaming API and preserves OpenAI reasoning items when present. |
-| `deepseek` | Uses an OpenAI-compatible chat adapter with DeepSeek defaults, reasoning effort support, reasoning content preservation, and thinking mode. |
-| `mistral` | Uses Mistral chat streaming, including tool calls and supported reasoning effort mapping. |
-| `qwen` | Uses an OpenAI-compatible chat adapter with Qwen's default compatible endpoint. |
-| other provider ids | Use the OpenAI-compatible Chat Completions adapter with the configured base URL. |
+1. The store resolves the active provider id, model id, API key, base URL, reasoning effort, and provider options.
+2. The agent service asks the provider module to create a streaming adapter.
+3. The agent loop sends messages and tool definitions through that adapter.
+4. Provider events are normalized into text deltas, reasoning deltas, tool calls, usage, completion, or error events.
+5. The agent persists the resulting transcript and handles auth or context-limit errors in a provider-neutral way.
 
-Authentication and base URLs come from stored provider records. Missing or
-invalid API keys become provider authentication errors. Context-limit failures
-are normalized so the agent can compact once and retry when supported.
+## Speech-To-Text Providers
 
-## Speech-To-Text Runtime
+| Provider | Functionality | How It Works |
+| --- | --- | --- |
+| OpenAI | Realtime transcription. | Supported OpenAI transcription models run through a realtime WebSocket session. |
+| ElevenLabs | Offline and realtime transcription. | Scribe models use upload-style transcription or realtime sessions depending on the selected model. |
+| Mistral | Offline and realtime transcription. | Voxtral models use batch or realtime transcription depending on the selected model. |
+| xAI | Batch and streaming transcription. | The adapter selects batch or streaming behavior from the configured xAI model. |
+| Qwen | Realtime transcription. | Qwen realtime transcription models run through a realtime session adapter. |
 
-Realtime transcription resolves the configured speech-to-text provider and
-model, finds a matching adapter, starts a session for the requesting renderer,
-streams events back to that renderer, and accepts audio chunks until finish or
-cancel.
+## Settings And Credentials
 
-| Provider id | Supported behavior |
-| --- | --- |
-| `openai` | Realtime transcription sessions for the supported OpenAI transcription models. |
-| `elevenlabs` | Offline Scribe transcription and realtime Scribe transcription depending on the selected model. |
-| `mistral` | Offline Voxtral transcription and realtime Voxtral transcription depending on the selected model. |
-| `xai` | Batch and streaming speech-to-text depending on the selected model. |
-| `qwen` | Realtime Qwen transcription sessions for supported realtime speech models. |
+Provider records live in settings and hold credentials, base URLs, model catalogs, and display metadata. Public provider reads redact API keys. Agent, task, schedule, heartbeat, and channel records reference provider configuration indirectly instead of copying provider secrets.
 
-Sessions are owned by the renderer that starts them. Audio append, finish, and
-cancel operations are accepted only from that owner. Sessions close when the
-provider completes, the user cancels, or the owning renderer is destroyed.
-
-## Model-Backed Settings
-
-The store can hold model selections for the assistant, speech-to-text,
-text-to-speech, image generation, video generation, and music/audio generation.
-The current main-process runtime described here executes assistant chat and
-speech-to-text sessions. Other selections are persisted for settings and future
-module runtimes but are not all backed by main-process execution adapters.
-
-Provider records are private. Public settings views receive provider metadata
-without API keys. Task, schedule, heartbeat, channel, and connector payloads
-refer to provider/model choices indirectly and resolve the current settings at
-run time.
-
-## Error Handling
-
-Provider adapters normalize common failure classes:
-
-- Missing credentials become authentication errors.
-- Context and token-limit failures become context-overflow errors.
-- Abort signals stop the active stream or transcription session.
-- Vendor-specific tool-call and response shapes are converted before they enter
-  the agent transcript.
+The store also contains module selections for speech-to-text, text-to-speech, image creation, video creation, and sound generation. In the current main process, chat providers and speech-to-text providers are the runtime-backed provider paths.
