@@ -1,4 +1,5 @@
 import type { AgentHarness, AgentHarnessResetParams, RegisteredAgentHarness } from './types';
+import { agentLogger } from '../logger';
 
 const AGENT_HARNESS_REGISTRY_STATE = Symbol.for('friday.agentHarnessRegistryState');
 
@@ -69,7 +70,15 @@ export async function resetRegisteredAgentHarnesses(params: AgentHarnessResetPar
 	await Promise.all(
 		listRegisteredAgentHarnesses().map(async (entry) => {
 			if (!entry.harness.reset) return;
-			await entry.harness.reset(params);
+			try {
+				await entry.harness.reset(params);
+			} catch (error) {
+				agentLogger.warn('agents/harness/registry', 'agent harness reset failed', {
+					harnessId: entry.harness.id,
+					pluginId: entry.ownerPluginId ?? entry.harness.pluginId,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
 		})
 	);
 }
@@ -78,7 +87,15 @@ export async function disposeRegisteredAgentHarnesses(): Promise<void> {
 	await Promise.all(
 		listRegisteredAgentHarnesses().map(async (entry) => {
 			if (!entry.harness.dispose) return;
-			await entry.harness.dispose();
+			try {
+				await entry.harness.dispose();
+			} catch (error) {
+				agentLogger.warn('agents/harness/registry', 'agent harness dispose failed', {
+					harnessId: entry.harness.id,
+					pluginId: entry.ownerPluginId ?? entry.harness.pluginId,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
 		})
 	);
 }
