@@ -8,6 +8,8 @@ import type {
 	AgentHarness,
 	AgentHarnessAttemptParams,
 	AgentHarnessAttemptResult,
+	AgentHarnessCompactParams,
+	AgentHarnessCompactResult,
 	AgentHarnessSupport,
 } from './types';
 
