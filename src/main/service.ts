@@ -22,6 +22,7 @@ import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/be
 import { buildSystemPrompt } from './agent/system-prompt';
 import { type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
 import { runAgentHarnessAttempt } from './agent/harness/selection';
+import { resetRegisteredAgentHarnesses } from './agent/harness/registry';
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
@@ -576,6 +577,11 @@ export class AgentService {
 		this.cancel(agentId);
 		this.dependencies.logger.info('AgentService', `reset "${agentId}"`);
 		await clearSession(agentId, { baseDir: this.sessionBaseDir });
+		await resetRegisteredAgentHarnesses({
+			sessionId: agentId,
+			sessionKey: agentId,
+			reason: 'reset',
+		});
 		runtime.session = null;
 	}
 
