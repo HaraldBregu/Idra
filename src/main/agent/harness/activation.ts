@@ -1,5 +1,5 @@
 import { agentLogger } from '../logger';
-import type { ConnectorManifestRecord } from '../../main/plugins/discovery';
+import type { ConnectorManifestRecord } from '../../plugins/discovery';
 
 type RuntimeActivationHook = {
 	activate(params: AgentHarnessRuntimeActivationParams): Promise<void> | void;
@@ -62,7 +62,7 @@ export async function ensureAgentHarnessRuntimeActivated(
 
 	const activator = state.activator;
 	if (!activator?.activate) {
-		agentLogger.debug('agent harness activation hook is unavailable; runtime activation skipped', {
+		agentLogger.debug('agents/harness/activation', 'agent harness activation hook is unavailable; runtime activation skipped', {
 			runtime,
 			provider: params.provider,
 			modelId: params.modelId,
@@ -74,14 +74,14 @@ export async function ensureAgentHarnessRuntimeActivated(
 	try {
 		state.activatedRuntimes.add(runtime);
 		await activator.activate({ runtime, provider: params.provider, modelId: params.modelId });
-		agentLogger.debug('agent harness runtime activation requested', {
+		agentLogger.debug('agents/harness/activation', 'agent harness runtime activation requested', {
 			runtime,
 			provider: params.provider,
 			modelId: params.modelId,
 		});
 	} catch (error) {
 		state.activatedRuntimes.delete(runtime);
-		agentLogger.warn('agent harness runtime activation failed', {
+		agentLogger.warn('agents/harness/activation', 'agent harness runtime activation failed', {
 			runtime,
 			provider: params.provider,
 			modelId: params.modelId,
