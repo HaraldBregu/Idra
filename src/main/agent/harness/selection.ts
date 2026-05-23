@@ -3,7 +3,12 @@ import { createPiAgentHarness } from './builtin-pi';
 import { listRegisteredAgentHarnesses } from './registry';
 import { resolveAgentHarnessPolicy, type AgentHarnessPolicy } from './policy';
 import { agentLogger } from '../logger';
-import type { AgentHarness, AgentHarnessAttemptParams, AgentHarnessAttemptResult, AgentHarnessSupport } from './types';
+import type {
+	AgentHarness,
+	AgentHarnessAttemptParams,
+	AgentHarnessAttemptResult,
+	AgentHarnessSupport,
+} from './types';
 
 type AgentHarnessSelectionCandidate = {
 	id: string;
@@ -85,7 +90,7 @@ function selectAgentHarnessDecision(params: {
 			requestedRuntime: runtime,
 		}),
 	}));
-const supported = candidates
+	const supported = candidates
 		.filter(
 			(entry): entry is { harness: AgentHarness; support: AgentHarnessSupport & { supported: true } } =>
 				entry.support.supported
