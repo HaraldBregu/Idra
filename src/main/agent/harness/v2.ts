@@ -142,7 +142,9 @@ export async function runAgentHarnessV2LifecycleAttempt(
 	let rawResult: AgentHarnessAttemptResult | undefined;
 	let result: AgentHarnessAttemptResult;
 	let phase: AgentHarnessV2LifecyclePhase = 'prepare';
+	const startedAt = Date.now();
 
+	logHarnessRunStarted(harness, params);
 	try {
 		phase = 'prepare';
 		prepared = await harness.prepare(params);
@@ -153,11 +155,13 @@ export async function runAgentHarnessV2LifecycleAttempt(
 		phase = 'resolve';
 		result = await harness.resolveOutcome(session, rawResult);
 	} catch (error) {
+		logHarnessRunError(harness, params, phase, error, startedAt);
 		await runHarnessCleanup({ harness, params, prepared, session, rawResult, error, phase });
 		throw error;
 	}
 
 	await runHarnessCleanup({ harness, params, prepared, session, result, phase: 'cleanup' });
+	logHarnessRunCompleted(harness, params, result, startedAt);
 	return result;
 }
 
