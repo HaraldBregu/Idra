@@ -70,7 +70,7 @@ export interface AgentHarness {
 	supports(context: AgentHarnessSupportContext): AgentHarnessSupport;
 	runAttempt(params: AgentHarnessAttemptParams): Promise<AgentHarnessAttemptResult>;
 	runSideQuestion?(params: AgentHarnessSideQuestionParams): Promise<AgentHarnessSideQuestionResult>;
-	classify?(result: AgentHarnessAttemptResult): AgentHarnessResultClassification;
+	classify?(result: AgentHarnessAttemptResult, ctx: AgentHarnessAttemptParams): AgentHarnessResultClassification;
 	compact?(params: AgentHarnessCompactParams): Promise<AgentHarnessCompactResult | undefined>;
 	reset?(params: AgentHarnessResetParams): Promise<void> | void;
 	dispose?(): Promise<void> | void;
