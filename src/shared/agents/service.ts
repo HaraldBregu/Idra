@@ -153,6 +153,11 @@ export interface Model {
 	effort?: ModelReasoningEffort;
 }
 
+export interface AgentSendRuntimeOptions {
+	agentRuntime?: string;
+	agentHarnessId?: string;
+}
+
 export const ASSISTANT_OPERATOR_ID = 'friday';
 export const ASSISTANT_RUNTIME_ID = 'main';
 export const SPEECH_TO_TEXT_OPERATOR_ID = 'speech-to-text';
