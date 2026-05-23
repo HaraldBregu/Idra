@@ -67,6 +67,9 @@ export interface AgentHarness {
 	id: string;
 	label: string;
 	pluginId?: string;
+	deliveryDefaults?: {
+		sourceVisibleReplies?: 'automatic' | 'message_tool';
+	};
 	supports(context: AgentHarnessSupportContext): AgentHarnessSupport;
 	runAttempt(params: AgentHarnessAttemptParams): Promise<AgentHarnessAttemptResult>;
 	runSideQuestion?(params: AgentHarnessSideQuestionParams): Promise<AgentHarnessSideQuestionResult>;
