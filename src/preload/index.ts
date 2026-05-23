@@ -60,6 +60,7 @@ import type {
 	Model,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
+	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
 import type {
 	Channel,
@@ -128,8 +129,8 @@ async function cronAction(request: FridayCronToolRequest): Promise<FridayCronToo
 }
 
 export const agent: AgentApi = {
-	send: (message: string): Promise<string> => {
-		return typedInvokeUnwrap(AgentChannels.send, message);
+	send: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
+		return typedInvokeUnwrap(AgentChannels.send, message, options);
 	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.reset);

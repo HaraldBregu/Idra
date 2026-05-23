@@ -10,7 +10,7 @@ export interface WindowApi {
 }
 
 export interface AgentApi {
-	send: (message: string) => Promise<string>;
+	send: (message: string, options?: AgentSendRuntimeOptions) => Promise<string>;
 	reset: () => Promise<void>;
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AgentHistoryMessage[]>;
@@ -151,6 +151,7 @@ import type {
 	Model,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
+	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';

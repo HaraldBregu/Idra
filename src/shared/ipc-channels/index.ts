@@ -1,3 +1,5 @@
+import type { AgentSendRuntimeOptions } from '../agents/service';
+
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
@@ -344,7 +346,10 @@ interface AppInvokeChannelMap {
 }
 
 interface AgentInvokeChannelMap {
-	[AgentChannels.send]: { args: [message: string]; result: string };
+	[AgentChannels.send]: {
+		args: [message: string, options?: AgentSendRuntimeOptions];
+		result: string;
+	};
 	[AgentChannels.reset]: { args: []; result: void };
 	[AgentChannels.getHistory]: {
 		args: [];

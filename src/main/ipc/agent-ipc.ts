@@ -5,7 +5,7 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import type { AgentHistoryMessage } from '../../shared/agents/service';
+import type { AgentHistoryMessage, AgentSendRuntimeOptions } from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
 import { DEFAULT_AGENT_ID } from '../constants';
 
@@ -81,8 +81,8 @@ export class AgentIpc implements IpcModule {
 
 		ipcMain.handle(
 			AgentChannels.send,
-			wrapSimpleHandler((message: string): Promise<string> => {
-				return agent.send(message);
+			wrapSimpleHandler((message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
+				return agent.send(message, undefined, options);
 			}, AgentChannels.send)
 		);
 
