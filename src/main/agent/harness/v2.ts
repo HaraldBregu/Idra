@@ -1,5 +1,5 @@
 import { agentLogger } from '../logger';
-import type { AgentHarnessAttemptParams, AgentHarnessAttemptResult, AgentHarness } from './types';
+import type { AgentHarness, AgentHarnessAttemptParams, AgentHarnessAttemptResult } from './types';
 
 type AgentHarnessV2LifecyclePhase =
 	| 'prepare'
