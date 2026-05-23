@@ -23,6 +23,10 @@
 ### 3) Service and store integration
 - `src/main/service.ts` now uses `runAgentHarnessAttempt`.
 - Added harness request fields to send options (`agentRuntime`, `agentHarnessId`).
+- Added IPC/public API wiring so harness overrides can be passed into `agent.send`:
+  - `src/shared/ipc-channels/index.ts` send args now accept optional runtime override options.
+  - `src/preload/index.ts` and `src/preload/index.d.ts` now expose `agent.send(message, options)`.
+  - `src/main/ipc/agent-ipc.ts` forwards runtime overrides into `AgentService.send`.
 - Added runtime preference accessors in `src/main/store/service.ts`:
   - `getAgentRuntimePreference()`
   - `setAgentRuntimePreference(...)`
