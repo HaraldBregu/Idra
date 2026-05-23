@@ -12,6 +12,10 @@ const compactionMutex = new Map<string, Promise<void>>();
  * Replace older transcript turns with a one-paragraph summary. Used when
  * the provider rejects the request with a ContextOverflowError. The most
  * recent {@link KEEP_RECENT} turns are kept verbatim.
+ *
+ * Plugin harnesses that implement `compact()` can override this via
+ * `maybeCompactAgentHarnessSession` from `harness/selection`. Wire that call
+ * here once the harness compact API carries typed transcript params.
  */
 export async function compact(
 	sessionId: string,
