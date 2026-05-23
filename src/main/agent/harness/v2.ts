@@ -124,7 +124,7 @@ async function runHarnessCleanup(params: {
 			'agents/harness/v2',
 			`agent harness cleanup failed in phase ${phase ?? 'unknown'}`,
 			{
-				harnessId: attemptParams.provider,
+				harnessId: harness.id,
 				provider: attemptParams.provider,
 				model: attemptParams.model,
 				error: String(cleanupError),
