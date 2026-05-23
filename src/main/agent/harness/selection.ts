@@ -1,6 +1,7 @@
 import { adaptAgentHarnessToV2, runAgentHarnessV2LifecycleAttempt } from './v2';
 import { createPiAgentHarness } from './builtin-pi';
 import { listRegisteredAgentHarnesses } from './registry';
+import { ensureAgentHarnessRuntimeActivated } from './activation';
 import { resolveAgentHarnessPolicy, type AgentHarnessPolicy } from './policy';
 import { agentLogger } from '../logger';
 import type {
@@ -27,6 +28,14 @@ type AgentHarnessSelectionDecision = {
 	selectedReason: 'forced_pi' | 'forced_plugin' | 'auto_plugin' | 'auto_pi';
 };
 
+type AgentHarnessSelectionInput = {
+	provider: string;
+	modelId?: string;
+	requestedRuntime?: string;
+	storedRuntime?: string;
+	policy?: AgentHarnessPolicy;
+};
+
 function listPluginAgentHarnesses(): AgentHarness[] {
 	return listRegisteredAgentHarnesses().map((entry) => entry.harness);
 }
@@ -50,12 +59,12 @@ export function selectAgentHarness(params: {
 }
 
 function selectAgentHarnessDecision(params: {
-	provider: string;
-	modelId?: string;
-	requestedRuntime?: string;
-	storedRuntime?: string;
+	: AgentHarnessSelectionInput
 }): AgentHarnessSelectionDecision {
-	const policy = resolveAgentHarnessPolicy(params);
+	const policy = params.policy ?? resolveAgentHarnessPolicy({
+		requestedRuntime: params.requestedRuntime,
+		storedRuntime: params.storedRuntime,
+	});
 	const pluginHarnesses = listPluginAgentHarnesses();
 	const piHarness = createPiAgentHarness();
 	const runtime = policy.runtime;
@@ -118,11 +127,21 @@ function selectAgentHarnessDecision(params: {
 export async function runAgentHarnessAttempt(
 	params: AgentHarnessAttemptParams & { requestedRuntime?: string; storedRuntime?: string }
 ): Promise<AgentHarnessAttemptResult> {
+	const policy = resolveAgentHarnessPolicy({
+		requestedRuntime: params.requestedRuntime,
+		storedRuntime: params.storedRuntime,
+	});
+	await ensureAgentHarnessRuntimeActivated({
+		runtime: policy.runtime,
+		provider: params.provider,
+		modelId: params.model,
+	});
 	const selection = selectAgentHarnessDecision({
 		provider: params.provider,
 		modelId: params.model,
 		requestedRuntime: params.requestedRuntime,
 		storedRuntime: params.storedRuntime,
+		policy,
 	});
 	agentLogger.debug('agents/harness', 'agent harness selected', {
 		runtime: selection.policy.runtime,
