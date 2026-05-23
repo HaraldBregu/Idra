@@ -11,8 +11,10 @@ import { CronService } from './cron';
 import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
+import { ensureAgentHarnessRuntimeActivated } from './agent/harness/activation';
 import { disposeRegisteredAgentHarnesses } from './agent/harness/registry';
 import { registerAgentHarnessRuntimePluginActivation } from './agent/harness/runtime-plugin';
+import { collectConfiguredAgentHarnessRuntimes } from './agent/harness-runtimes';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
@@ -77,6 +79,20 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
+	for (const runtime of collectConfiguredAgentHarnessRuntimes({
+		llmAgent: {
+			options: {
+				agentRuntime: store.getAgentRuntimePreference(),
+			},
+		},
+	})) {
+		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch((error) => {
+			logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
+				runtime,
+				error: error instanceof Error ? error.message : String(error),
+			});
+		});
+	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(store, logger));
 	cron.restore((task) => {
