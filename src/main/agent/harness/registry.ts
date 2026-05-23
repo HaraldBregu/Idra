@@ -1,4 +1,4 @@
-import type { AgentHarness, RegisteredAgentHarness } from './types';
+import type { AgentHarness, AgentHarnessResetParams, RegisteredAgentHarness } from './types';
 
 const AGENT_HARNESS_REGISTRY_STATE = Symbol.for('friday.agentHarnessRegistryState');
 
