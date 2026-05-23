@@ -1,6 +1,6 @@
 import { dispatchAgentHarnessHook } from './hook-runner';
 import type { AgentHarnessHookContext } from './hook-context';
-import type { ToolResultBlock } from '../provider/types';
+import type { ToolResultBlock } from '../../provider/types';
 
 export type AfterToolCallHookPayload = AgentHarnessHookContext & {
 	toolName: string;
