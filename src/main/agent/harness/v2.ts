@@ -51,6 +51,65 @@ type AgentHarnessV2RunBase = {
 	params: AgentHarnessAttemptParams;
 };
 
+function applyAgentHarnessResultClassification(
+	harness: Pick<AgentHarness, 'id' | 'classify'>,
+	result: AgentHarnessAttemptResult,
+	params: AgentHarnessAttemptParams,
+): AgentHarnessAttemptResult {
+	const { agentHarnessResultClassification: _prev, ...base } = result;
+	if (!harness.classify) {
+		return { ...base, agentHarnessId: harness.id };
+	}
+	const classification = harness.classify(base as AgentHarnessAttemptResult, params);
+	if (!classification) {
+		return { ...base, agentHarnessId: harness.id };
+	}
+	return { ...base, agentHarnessId: harness.id, agentHarnessResultClassification: classification };
+}
+
+function logHarnessRunStarted(harness: AgentHarnessV2, params: AgentHarnessAttemptParams): void {
+	agentLogger.debug('agents/harness/v2', 'harness run started', {
+		harnessId: harness.id,
+		provider: params.provider,
+		model: params.model,
+		runId: params.runId,
+	});
+}
+
+function logHarnessRunCompleted(
+	harness: AgentHarnessV2,
+	params: AgentHarnessAttemptParams,
+	result: AgentHarnessAttemptResult,
+	startedAt: number,
+): void {
+	agentLogger.debug('agents/harness/v2', 'harness run completed', {
+		harnessId: harness.id,
+		provider: params.provider,
+		model: params.model,
+		runId: params.runId,
+		durationMs: Date.now() - startedAt,
+		stopReason: result.stopReason,
+		classification: result.agentHarnessResultClassification,
+	});
+}
+
+function logHarnessRunError(
+	harness: AgentHarnessV2,
+	params: AgentHarnessAttemptParams,
+	phase: AgentHarnessV2LifecyclePhase,
+	error: unknown,
+	startedAt: number,
+): void {
+	agentLogger.warn('agents/harness/v2', `harness run error in phase ${phase}`, {
+		harnessId: harness.id,
+		provider: params.provider,
+		model: params.model,
+		runId: params.runId,
+		durationMs: Date.now() - startedAt,
+		error: error instanceof Error ? error.message : String(error),
+	});
+}
+
 export function adaptAgentHarnessToV2(harness: AgentHarness): AgentHarnessV2 {
 	return {
 		id: harness.id,
@@ -66,7 +125,8 @@ export function adaptAgentHarnessToV2(harness: AgentHarness): AgentHarnessV2 {
 			lifecycleState: 'started',
 		}),
 		send: async (session) => harness.runAttempt(session.params),
-		resolveOutcome: async (_session, result) => result,
+		resolveOutcome: async (session, result) =>
+			applyAgentHarnessResultClassification(harness, result, session.params),
 		cleanup: async () => {
 			// V1 harnesses do not have per-attempt cleanup by default.
 		},
