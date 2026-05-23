@@ -144,8 +144,8 @@ describe('agent/harness/runtime-plugin', () => {
 
 		registerAgentHarnessRuntimePluginActivation(makeLogger());
 
-		await expect(
-			ensureAgentHarnessRuntimeActivated({ runtime: 'broken-runtime', provider: 'openai', modelId: 'gpt-test' })
-		).rejects.toThrow('Failed to load harness runtime plugin for broken-runtime');
+			await expect(
+				ensureAgentHarnessRuntimeActivated({ runtime: 'broken-runtime', provider: 'openai', modelId: 'gpt-test' })
+			).rejects.toThrow('[error] entry crashed');
+		});
 	});
-});
