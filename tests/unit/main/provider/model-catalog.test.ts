@@ -27,6 +27,7 @@ import {
 	getTextToSpeechModels,
 	getTextToVideoModels,
 } from '../../../../src/shared/models';
+import { getModelsByCapability as getSharedModelsByCapabilityFromProviders } from '../../../../src/shared/providers';
 import {
 	isAllowedMusicCreatorModel,
 	isAllowedSpeechToTextModel,
@@ -151,10 +152,10 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 		expect(getTextToSpeechModels('openai')).toEqual(TEXT_TO_SPEECH_MODELS_BY_PROVIDER.openai);
 		expect(getTextToImageModels('qwen')).toEqual(TEXT_TO_IMAGE_MODELS_BY_PROVIDER.qwen);
 		expect(getTextToVideoModels('luma')).toEqual(TEXT_TO_VIDEO_MODELS_BY_PROVIDER.luma);
-		expect(getMusicModels('elevenlabs')).toEqual(TEXT_TO_AUDIO_MODELS_BY_PROVIDER.elevenlabs);
-		expect(getSharedModelsByCapability('text-to-speech', 'cartesia')).toEqual(
-			TEXT_TO_SPEECH_MODELS_BY_PROVIDER.cartesia
-		);
+	expect(getMusicModels('elevenlabs')).toEqual(TEXT_TO_AUDIO_MODELS_BY_PROVIDER.elevenlabs);
+	expect(getSharedModelsByCapabilityFromProviders('text-to-speech', 'cartesia')).toEqual(
+		TEXT_TO_SPEECH_MODELS_BY_PROVIDER.cartesia
+	);
 	});
 
 	it('returns model copies from catalog helpers', () => {
