@@ -1,0 +1,82 @@
+import type { AgentHarness, RegisteredAgentHarness } from './types';
+
+const AGENT_HARNESS_REGISTRY_STATE = Symbol.for('friday.agentHarnessRegistryState');
+
+interface AgentHarnessRegistryState {
+	harnesses: Map<string, RegisteredAgentHarness>;
+}
+
+function getAgentHarnessRegistryState(): AgentHarnessRegistryState {
+	const globalState = globalThis as typeof globalThis & {
+		[AGENT_HARNESS_REGISTRY_STATE]?: AgentHarnessRegistryState;
+	};
+	globalState[AGENT_HARNESS_REGISTRY_STATE] ??= {
+		harnesses: new Map<string, RegisteredAgentHarness>(),
+	};
+	return globalState[AGENT_HARNESS_REGISTRY_STATE];
+}
+
+function normalizeAgentHarnessId(input: unknown): string {
+	return typeof input === 'string' ? input.trim() : '';
+}
+
+export function registerAgentHarness(
+	harness: AgentHarness,
+	options?: { ownerPluginId?: string }
+): void {
+	const id = normalizeAgentHarnessId(harness?.id);
+	if (!id) {
+		throw new Error('Agent harness registration missing id.');
+	}
+	const state = getAgentHarnessRegistryState();
+	if (state.harnesses.has(id)) {
+		throw new Error(`Agent harness already registered: ${id}`);
+	}
+	state.harnesses.set(id, {
+		harness: {
+			...harness,
+			id,
+			pluginId: harness.pluginId ?? options?.ownerPluginId,
+		},
+		ownerPluginId: options?.ownerPluginId,
+	});
+}
+
+export function getAgentHarness(id: string): AgentHarness | undefined {
+	return getRegisteredAgentHarness(id)?.harness;
+}
+
+export function getRegisteredAgentHarness(id: string): RegisteredAgentHarness | undefined {
+	return getAgentHarnessRegistryState().harnesses.get(normalizeAgentHarnessId(id));
+}
+
+export function listAgentHarnessIds(): string[] {
+	return [...getAgentHarnessRegistryState().harnesses.keys()];
+}
+
+export function listRegisteredAgentHarnesses(): RegisteredAgentHarness[] {
+	return Array.from(getAgentHarnessRegistryState().harnesses.values());
+}
+
+export function clearRegisteredAgentHarnesses(): void {
+	getAgentHarnessRegistryState().harnesses.clear();
+}
+
+export async function resetRegisteredAgentHarnesses(params: AgentHarnessResetParams): Promise<void> {
+	await Promise.all(
+		listRegisteredAgentHarnesses().map(async (entry) => {
+			if (!entry.harness.reset) return;
+			await entry.harness.reset(params);
+		})
+	);
+}
+
+export async function disposeRegisteredAgentHarnesses(): Promise<void> {
+	await Promise.all(
+		listRegisteredAgentHarnesses().map(async (entry) => {
+			if (!entry.harness.dispose) return;
+			await entry.harness.dispose();
+		})
+	);
+}
+
