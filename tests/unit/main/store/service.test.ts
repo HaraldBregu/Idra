@@ -498,7 +498,7 @@ describe('StoreService', () => {
 			]);
 			store.set('textToSpeech', {
 				providerId: ' elevenlabs ',
-				modelId: ' rachel-multilingual ',
+				modelId: ' eleven_v3 ',
 			});
 			store.set('textToVideo', {
 				providerId: ' runway ',
@@ -511,8 +511,8 @@ describe('StoreService', () => {
 
 			const operator = service.getOperator();
 
-			expect(operator).toMatchObject({
-				textToSpeech: {
+				expect(operator).toMatchObject({
+					textToSpeech: {
 					id: 'text-to-speech',
 					docsPath: 'models/text-to-speech.md',
 					status: 'pending-runtime',
@@ -521,7 +521,7 @@ describe('StoreService', () => {
 						name: 'ElevenLabs',
 						baseUrl: 'https://api.elevenlabs.io/v1',
 					},
-					model: { id: 'rachel-multilingual', name: 'Rachel - multilingual' },
+					model: { id: 'eleven_v3', name: 'Eleven v3' },
 				},
 				videoCreator: {
 					id: 'text-to-video',
@@ -786,7 +786,7 @@ describe('StoreService', () => {
 			expect(result).toBe(true);
 			expect(store.get('imageCreator')).toEqual({
 				providerId: 'black-forest-labs',
-				modelId: 'image-provider-coming-soon',
+				modelId: 'FLUX.2',
 			});
 			expect(store.get('service')).toBeUndefined();
 		});
@@ -847,15 +847,15 @@ describe('StoreService', () => {
 
 			expect(store.get('textToSpeech')).toEqual({
 				providerId: 'elevenlabs',
-				modelId: 'rachel-multilingual',
+				modelId: 'eleven_v3',
 			});
 			expect(store.get('textToVideo')).toEqual({
 				providerId: 'runway',
-				modelId: 'video-provider-coming-soon',
+				modelId: 'gen4.5',
 			});
 			expect(store.get('textToSound')).toEqual({
 				providerId: 'suno',
-				modelId: 'music-provider-coming-soon',
+				modelId: 'suno-v5.5',
 			});
 			expect(service.getTextToSpeechOperator()).toMatchObject({
 				id: 'text-to-speech',

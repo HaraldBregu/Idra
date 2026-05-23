@@ -153,16 +153,16 @@ describe('AppIpc', () => {
 
 		await expect(
 			registeredHandler(OperatorChannels.saveTextToVideo)({}, publicProvider, {
-				id: 'video-provider-coming-soon',
-				name: 'Submitted name',
+				id: 'gen4.5',
+				name: 'Submitted',
 			})
 		).resolves.toEqual({
 			success: true,
 			data: true,
 		});
 		expect(setTextToVideoOperator).toHaveBeenCalledWith('runway', {
-			id: 'video-provider-coming-soon',
-			name: 'Not available yet',
+			id: 'gen4.5',
+			name: 'Gen 4.5',
 		});
 	});
 });
