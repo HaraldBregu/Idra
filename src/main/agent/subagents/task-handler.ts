@@ -1,6 +1,7 @@
 import type { EventBus } from '../../core/event-bus';
 import type { AgentService } from '../../service';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
+import { isModelReasoningEffort } from '../../../shared/agents/service';
 import { taskCancelledError } from '../../tasks/task-errors';
 import type { SubagentRegistry } from './registry';
 import type { SubagentRunTaskInput, SubagentRunTaskResult } from './types';
@@ -47,6 +48,16 @@ function optionalPositiveInteger(input: Record<string, unknown>, key: string): n
 	return value;
 }
 
+function optionalModelReasoningEffort(
+	input: Record<string, unknown>,
+	key: string
+): SubagentRunTaskInput['effort'] {
+	const value = input[key];
+	if (value === undefined || value === null) return undefined;
+	if (isModelReasoningEffort(value)) return value;
+	throw new Error(`${key} must be a supported reasoning effort.`);
+}
+
 export class SubagentRunTaskHandler implements TaskHandler<
 	SubagentRunTaskInput,
 	SubagentRunTaskResult
@@ -72,6 +83,7 @@ export class SubagentRunTaskHandler implements TaskHandler<
 			controllerSessionKey: requiredString(input, 'controllerSessionKey'),
 			providerId: optionalString(input, 'providerId'),
 			modelId: optionalString(input, 'modelId'),
+			effort: optionalModelReasoningEffort(input, 'effort'),
 			runTimeoutSeconds: optionalPositiveInteger(input, 'runTimeoutSeconds'),
 			toolsAllow: optionalStringList(input, 'toolsAllow'),
 			toolsDeny: optionalStringList(input, 'toolsDeny'),
@@ -108,6 +120,7 @@ export class SubagentRunTaskHandler implements TaskHandler<
 				sessionId: input.childSessionKey,
 				providerId: input.providerId,
 				model: input.modelId,
+				effort: input.effort,
 				toolsAllow: input.toolsAllow,
 				toolsDeny: input.toolsDeny,
 				sessionMetadata: input.sessionMetadata,
