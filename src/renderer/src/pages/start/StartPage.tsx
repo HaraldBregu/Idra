@@ -115,9 +115,12 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: ASSISTANT_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.assistant.name,
-		stepTitle: 'Assistant model',
+		stepName: 'Assistant',
+		stepTitle: 'Assistant model selection',
 		stepDescription:
-			'Choose the language model that will handle your chat replies, summarization, and planning.',
+			'Choose the core language model Friday uses for chat replies, reasoning, summaries, and tool planning.',
+		providerDescription: 'Use a provider with strong general-purpose language models.',
+		modelDescription: 'Pick the default assistant model for everyday conversations and tasks.',
 		required: true,
 		getOperator: () => window.app.getAssistantOperator(),
 		getModels: (provider) => window.app.getModels(provider),
@@ -126,9 +129,12 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.speechToText.name,
-		stepTitle: 'Speech-to-text model',
+		stepName: 'Speech to text',
+		stepTitle: 'Speech-to-text transcription',
 		stepDescription:
-			'Pick a model that converts your microphone input or uploaded audio to text before processing.',
+			'Choose the model that turns microphone input and audio files into text before Friday responds.',
+		providerDescription: 'Use a provider that supports reliable transcription models.',
+		modelDescription: 'Pick the transcription model for voice commands, notes, and uploaded audio.',
 		required: false,
 		getOperator: () => window.app.getSpeechToTextOperator(),
 		getModels: (provider) => window.app.getSpeechToTextModels(provider),
@@ -137,9 +143,12 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: TEXT_TO_SPEECH_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.textToSpeech.name,
-		stepTitle: 'Text-to-speech model',
+		stepName: 'Text to speech',
+		stepTitle: 'Text-to-speech voice output',
 		stepDescription:
-			'Pick a voice model to read assistant outputs back to you in real time.',
+			'Choose the voice model Friday uses to read assistant responses and generated text aloud.',
+		providerDescription: 'Use a provider with voice models that match your preferred output quality.',
+		modelDescription: 'Pick the synthesis model for spoken responses and generated narration.',
 		required: false,
 		getOperator: () => window.app.getTextToSpeechOperator(),
 		getModels: (provider) => window.app.getTextToSpeechModels(provider),
@@ -148,9 +157,12 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: IMAGE_CREATOR_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.imageCreator.name,
-		stepTitle: 'Image model',
+		stepName: 'Images',
+		stepTitle: 'Image generation model',
 		stepDescription:
-			'Choose the model that generates images for image tasks from your prompts.',
+			'Choose the model Friday uses for creating images and visual assets from prompts.',
+		providerDescription: 'Use a provider with image models available for generation tasks.',
+		modelDescription: 'Pick the image model for prompt-based image creation.',
 		required: false,
 		getOperator: () => window.app.getImageCreatorOperator(),
 		getModels: (provider) => window.app.getImageCreatorModels(provider),
@@ -159,9 +171,12 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.videoCreator.name,
-		stepTitle: 'Video model',
+		stepName: 'Video',
+		stepTitle: 'Video generation model',
 		stepDescription:
-			'Pick the model used when you ask Friday to create or edit short video clips.',
+			'Choose the model Friday uses when generating or editing short video clips.',
+		providerDescription: 'Use a provider with video models configured for creation workflows.',
+		modelDescription: 'Pick the video model for text-to-video requests.',
 		required: false,
 		getOperator: () => window.app.getTextToVideoOperator(),
 		getModels: (provider) => window.app.getTextToVideoModels(provider),
@@ -170,9 +185,12 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: MUSIC_CREATOR_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.musicCreator.name,
-		stepTitle: 'Music model',
+		stepName: 'Music',
+		stepTitle: 'Music generation model',
 		stepDescription:
-			'Choose a model for generating background music and short audio compositions.',
+			'Choose the model Friday uses to generate songs, loops, and short audio compositions.',
+		providerDescription: 'Use a provider with music or audio generation models.',
+		modelDescription: 'Pick the music model for composition and sound generation.',
 		required: false,
 		getOperator: () => window.app.getMusicCreatorOperator(),
 		getModels: (provider) => window.app.getMusicCreatorModels(provider),
