@@ -38,17 +38,17 @@ The harness should not become a second application service. If it starts resolvi
 
 ## Implementation Map
 
-| Concern | Friday source | Harness responsibility |
-| --- | --- | --- |
-| Contract | `src/main/agent/harness/types.ts` | Implement required methods and only meaningful optional methods. |
-| Registration | `src/main/agent/harness/registry.ts` | Register one stable runtime id with validation. |
-| Policy | `src/main/agent/harness/policy.ts` | Respect request/store/default runtime resolution. |
-| Selection | `src/main/agent/harness/selection.ts` | Make `supports(...)` precise enough for forced and auto selection. |
-| Lifecycle | `src/main/agent/harness/v2.ts` | Let the adapter handle start/end logging, classification, and cleanup behavior. |
-| Built-in fallback | `src/main/agent/harness/builtin-pi.ts` | Use `pi` as the conservative default path. |
-| Plugin activation | `src/main/agent/harness/runtime-plugin.ts` | Match runtime ids to `activation.onAgentHarnesses`. |
-| Compaction | `src/main/agent/compaction.ts` | Implement `compact(...)` only when runtime-specific compaction is required. |
-| Tool loop | `src/main/agent/run.ts` | Preserve tool events, middleware, hooks, limits, and cancellation semantics. |
+| Concern           | Friday source                              | Harness responsibility                                                          |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------- |
+| Contract          | `src/main/agent/harness/types.ts`          | Implement required methods and only meaningful optional methods.                |
+| Registration      | `src/main/agent/harness/registry.ts`       | Register one stable runtime id with validation.                                 |
+| Policy            | `src/main/agent/harness/policy.ts`         | Respect request/store/default runtime resolution.                               |
+| Selection         | `src/main/agent/harness/selection.ts`      | Make `supports(...)` precise enough for forced and auto selection.              |
+| Lifecycle         | `src/main/agent/harness/v2.ts`             | Let the adapter handle start/end logging, classification, and cleanup behavior. |
+| Built-in fallback | `src/main/agent/harness/builtin-pi.ts`     | Use `pi` as the conservative default path.                                      |
+| Plugin activation | `src/main/agent/harness/runtime-plugin.ts` | Match runtime ids to `activation.onAgentHarnesses`.                             |
+| Compaction        | `src/main/agent/compaction.ts`             | Implement `compact(...)` only when runtime-specific compaction is required.     |
+| Tool loop         | `src/main/agent/run.ts`                    | Preserve tool events, middleware, hooks, limits, and cancellation semantics.    |
 
 ## Step 1: Choose The Runtime Boundary
 
@@ -134,7 +134,7 @@ supports: ({ provider, modelId, requestedRuntime }) => {
 		return { supported: true, priority: 20 };
 	}
 	return { supported: false, reason: 'model_not_supported' };
-}
+};
 ```
 
 ## Step 4: Keep `runAttempt(...)` Narrow
@@ -362,9 +362,7 @@ A plugin-owned harness should be registered from the plugin runtime entry after 
 Minimal runtime entry shape:
 
 ```typescript
-export default function activate(api: {
-	registerAgentHarness(harness: AgentHarness): void;
-}) {
+export default function activate(api: { registerAgentHarness(harness: AgentHarness): void }) {
 	api.registerAgentHarness(exampleHarness);
 }
 ```
