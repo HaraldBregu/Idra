@@ -91,7 +91,6 @@ type ModelServiceDefinition = {
 type ModelServiceState = {
 	providerId: string;
 	modelId: string;
-	savedModelId: string;
 	modelGroups: ProviderModelGroup[];
 };
 
@@ -152,13 +151,12 @@ function createInitialModelServiceState(): ModelServiceStateMap {
 	return MODEL_SERVICE_DEFINITIONS.reduce(
 		(acc, service) => ({
 			...acc,
-			[service.id]: {
-				providerId: '',
-				modelId: '',
-				savedModelId: '',
-				modelGroups: [],
-			},
-		}),
+					[service.id]: {
+						providerId: '',
+						modelId: '',
+						modelGroups: [],
+					},
+				}),
 		{} as ModelServiceStateMap
 	);
 }
@@ -372,15 +370,14 @@ const StartPage: React.FC = () => {
 							modelGroups.find((group) => group.provider.id === preferredProvider?.id) ??
 							modelGroups[0];
 						const providerId = preferredModelGroups?.provider.id ?? '';
-						const savedModelId = operator.model.id;
+						const preferredModelId = operator.model.id;
 						const modelId =
-							preferredModelGroups?.models.find((model) => model.id === savedModelId)?.id ??
+							preferredModelGroups?.models.find((model) => model.id === preferredModelId)?.id ??
 							preferredModelGroups?.models[0]?.id ??
 							'';
 
 						nextServiceStates[service.id] = {
 							providerId,
-							savedModelId,
 							modelId,
 							modelGroups,
 						};
