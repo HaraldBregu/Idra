@@ -120,7 +120,7 @@ export function buildFridayConnectorApi(
 			throw new Error(`Connector hook "${name}" registration requires a function handler.`);
 		}
 		registerValue('hooks', { name, handler }, name);
-		registerAgentHarnessHookHandler(name, handler);
+		registerAgentHarnessHookHandler(name, handler as (payload: unknown) => unknown);
 	};
 	const allowed = (policy: SurfacePolicy): boolean => modeAllows(registrationMode, policy);
 	const noop = (): void => undefined;
