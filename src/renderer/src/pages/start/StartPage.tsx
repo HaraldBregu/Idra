@@ -206,10 +206,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	);
 }
 
-function getAgentModelValue(providerId: string, modelId: string): string {
-	return `${providerId}${AGENT_MODEL_VALUE_SEPARATOR}${modelId}`;
-}
-
 
 
 function StepProgress({ currentIndex }: { readonly currentIndex: number }): React.JSX.Element {
