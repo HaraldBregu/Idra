@@ -520,7 +520,7 @@ const ChannelDetailPage: React.FC = () => {
 						</Badge>
 					}
 				>
-					<Card size="sm" className="gap-0! p-0!">
+					<SettingsPanel>
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<ShieldCheck className="size-3" strokeWidth={1.8} />
