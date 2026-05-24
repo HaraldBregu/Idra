@@ -495,17 +495,27 @@ const StartPage: React.FC = () => {
 		}
 	}
 
-	function handleAgentProviderChange(value: string | null): void {
+	function handleServiceProviderChange(serviceId: ModelServiceId, value: string | null): void {
 		const providerId = value ?? '';
-		const group = agentModelGroups.find((item) => item.provider.id === providerId);
+		const serviceState = serviceStates[serviceId];
+		const group = serviceState.modelGroups.find((item) => item.provider.id === providerId);
 		setErrorMessage('');
-		setConfigProvider(providerId);
-		setSelectedModel(group?.models[0]?.id ?? '');
+		setServiceStates((states) => ({
+			...states,
+			[serviceId]: {
+				...states[serviceId],
+				providerId,
+				modelId: group?.models[0]?.id ?? '',
+			},
+		}));
 	}
 
-	function handleAgentModelChange(value: string | null): void {
+	function handleServiceModelChange(serviceId: ModelServiceId, value: string | null): void {
 		setErrorMessage('');
-		setSelectedModel(value ?? '');
+		setServiceStates((states) => ({
+			...states,
+			[serviceId]: { ...states[serviceId], modelId: value ?? '' },
+		}));
 	}
 
 	function handleOpenProviderLink(provider: ProviderCatalogItem): void {
@@ -513,16 +523,26 @@ const StartPage: React.FC = () => {
 		openExternalUrl(provider.apiConfigurationUrl);
 	}
 
-	async function handleSaveAgentModel(): Promise<void> {
-		if (!selectedAgentModelOption || !canSaveModelSetup) return;
+	async function handleSaveServiceModels(): Promise<void> {
+		if (!canSaveModelSetup) return;
 
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAssistantOperator(
-				selectedAgentModelOption.provider,
-				selectedAgentModelOption.model
-			);
+			for (const service of MODEL_SERVICE_DEFINITIONS) {
+				const selectedModel = getSelectedServiceModel(service.id);
+				if (!selectedModel) {
+					if (service.required) {
+						throw new Error(`Could not save selection for ${service.label}.`);
+					}
+					continue;
+				}
+
+				const saved = await service.saveOperator(selectedModel.provider, selectedModel.model);
+				if (!saved) {
+					throw new Error(`Could not save the selected ${service.label} model.`);
+				}
+			}
 			navigate('/home');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected model.'));
@@ -543,7 +563,7 @@ const StartPage: React.FC = () => {
 		}
 
 		if (step === 'models') {
-			void handleSaveAgentModel();
+			void handleSaveServiceModels();
 			return;
 		}
 
