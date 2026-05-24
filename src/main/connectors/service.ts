@@ -264,11 +264,7 @@ export class ConnectorsService {
 
 		for (const connector of validConnectors) {
 			if (connector.enabled && connector.tools.length === 0) {
-				this.replace({
-					...connector,
-					tools: knownTools(connector),
-					lastRefreshedAt: new Date().toISOString(),
-				});
+				this.replace(this.withKnownTools(connector));
 			}
 		}
 	}
@@ -345,11 +341,11 @@ export class ConnectorsService {
 			const runtime = this.runtimeFor(connector);
 			return {
 				status,
-				message: runtime
-					? `Connector is configured for local agent tool execution.`
-					: isGoogleConnector(connector.connectorId)
+				message: isGoogleConnector(connector.connectorId)
 					? `Google connector is connected${connector.oauth?.email ? ` as ${connector.oauth.email}` : ''}.`
-					: 'Connector is configured for catalog/provider-hosted use. Local agent execution is not implemented.',
+					: runtime
+						? 'Connector is configured for local agent tool execution.'
+						: 'Connector is configured for catalog/provider-hosted use. Local agent execution is not implemented.',
 			};
 		}
 
