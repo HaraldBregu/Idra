@@ -114,26 +114,145 @@ describe('connectors service', () => {
 			authorization: 'google-token',
 			allowedTools: ['get_profile'],
 		});
-		const dropbox = await service.add({
-			name: 'My Dropbox',
-			connectorId: 'connector_dropbox',
-			authorization: 'dropbox-token',
-			allowedTools: ['search'],
-		});
+		const catalogOnlyInputs = [
+			{
+				name: 'My Dropbox',
+				connectorId: 'connector_dropbox',
+				authorization: 'dropbox-token',
+				allowedTools: ['search'],
+			},
+			{
+				name: 'My Teams',
+				connectorId: 'connector_microsoftteams',
+				authorization: 'teams-token',
+				allowedTools: ['search'],
+			},
+			{
+				name: 'My Outlook Calendar',
+				connectorId: 'connector_outlookcalendar',
+				authorization: 'outlook-calendar-token',
+				allowedTools: ['search_events'],
+			},
+			{
+				name: 'My Outlook Email',
+				connectorId: 'connector_outlookemail',
+				authorization: 'outlook-email-token',
+				allowedTools: ['search_messages'],
+			},
+			{
+				name: 'My SharePoint',
+				connectorId: 'connector_sharepoint',
+				authorization: 'sharepoint-token',
+				allowedTools: ['search'],
+			},
+		] as const;
+		const catalogOnly = [];
+		for (const input of catalogOnlyInputs) {
+			catalogOnly.push({
+				connector: await service.add(input),
+				toolName: input.allowedTools[0],
+			});
+		}
 
 		expect(service.list()).toEqual(expect.arrayContaining([
 			expect.objectContaining({ name: 'My Gmail', status: 'configured', toolsCount: 1 }),
-			expect.objectContaining({ name: 'My Dropbox', status: 'configured', toolsCount: 1 }),
+			...catalogOnlyInputs.map((input) =>
+				expect.objectContaining({ name: input.name, status: 'configured', toolsCount: 1 })
+			),
 		]));
-		expect(service.listTools(dropbox.id).map((tool) => tool.name)).toEqual(['search']);
+		for (const { connector, toolName } of catalogOnly) {
+			expect(service.listTools(connector.id).map((tool) => tool.name)).toEqual([toolName]);
+		}
 		expect(service.createAgentTools().map((tool) => tool.name)).toEqual(['my_gmail_get_profile']);
-		await expect(service.test(dropbox.id)).resolves.toMatchObject({
-			status: 'configured',
-			message: expect.stringContaining('catalog/provider-hosted use'),
+		for (const { connector, toolName } of catalogOnly) {
+			await expect(service.test(connector.id)).resolves.toMatchObject({
+				status: 'configured',
+				message: expect.stringContaining('catalog/provider-hosted use'),
+			});
+			await expect(service.callTool(connector.id, toolName, { query: 'report' })).rejects.toThrow(
+				/catalog-only in local runtime/
+			);
+		}
+	});
+
+	it('exposes only allowed Google strategy tools as provider-neutral agent tools', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
+		const gmail = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['get_profile'],
 		});
-		await expect(service.callTool(dropbox.id, 'search', { query: 'report' })).rejects.toThrow(
-			/catalog-only in local runtime/
+		const calendar = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			authorization: 'google-token',
+			allowedTools: ['search_events'],
+		});
+		const drive = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			authorization: 'google-token',
+			allowedTools: ['search_files', 'create_file'],
+		});
+
+		expect(service.listTools(gmail.id).map((tool) => tool.name)).toEqual(['get_profile']);
+		expect(service.listTools(calendar.id).map((tool) => tool.name)).toEqual(['search_events']);
+		expect(service.listTools(drive.id).map((tool) => tool.name)).toEqual(['search_files', 'create_file']);
+		const tools = service.createAgentTools();
+
+		expect(tools.map((tool) => tool.name)).toEqual([
+			'my_gmail_get_profile',
+			'my_calendar_search_events',
+			'my_drive_search_files',
+			'my_drive_create_file',
+		]);
+		expect(tools.find((tool) => tool.name === 'my_drive_create_file')?.needsApproval?.(
+			{},
+			{} as never
+		)).toBe(true);
+	});
+
+	it('validates required Google tool arguments before API calls', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async () => {
+			throw new Error('unexpected fetch');
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const gmail = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['read_email'],
+		});
+		const calendar = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			authorization: 'google-token',
+			allowedTools: ['read_event'],
+		});
+		const drive = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			authorization: 'google-token',
+			allowedTools: ['read_file_content'],
+		});
+
+		await expect(service.callTool(gmail.id, 'read_email', {})).rejects.toThrow(/message id is required/);
+		await expect(service.callTool(calendar.id, 'read_event', {})).rejects.toThrow(/event id is required/);
+		await expect(service.callTool(drive.id, 'read_file_content', {})).rejects.toThrow(
+			/Google Drive file id is required/
 		);
+		expect(fetchImpl).not.toHaveBeenCalled();
 	});
 
 	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
