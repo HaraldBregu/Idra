@@ -646,7 +646,7 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Connect a provider, pick a model, and you're ready.
+					Connect a provider, pick a model, and you&apos;re ready.
 				</p>
 			</div>
 		);
