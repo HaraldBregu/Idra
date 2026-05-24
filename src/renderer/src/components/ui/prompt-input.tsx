@@ -10,8 +10,9 @@ import {
 import { BarWaveAnimation } from "./bar-wave-animation"
 import { WaveAnimation } from "./wave-animation"
 import { TypingLoader } from "./loader"
+import { Button } from "./button"
 import { cn } from "@/lib/utils"
-import { Check, Mic, MicOff, X } from "lucide-react"
+import { Check, Mic, MicOff, PhoneCall, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React, {
   createContext,
@@ -82,6 +83,13 @@ export type PromptInputProps = {
 } & React.ComponentProps<"div">
 
 export type PromptInputVoiceMode = "conversation" | "dictation"
+export type PromptInputSpeechToTextMode = "dictate" | "record" | "disabled"
+
+const SPEECH_TO_TEXT_ACTION_LABELS: Record<PromptInputSpeechToTextMode, string> = {
+  dictate: "Start dictation",
+  record: "Record speech to text",
+  disabled: "No speech-to-text model configured",
+}
 
 function usePromptInputTransition() {
   const prefersReducedMotion = useReducedMotion()
@@ -621,6 +629,70 @@ function PromptInputActions({
   )
 }
 
+export type PromptInputVoiceActionsProps = {
+  speechToTextMode: PromptInputSpeechToTextMode
+  onSpeechToText: () => void | Promise<void>
+  speechToTextDisabled?: boolean
+  onVoiceConversation?: () => void | Promise<void>
+  voiceConversationDisabled?: boolean
+}
+
+function PromptInputVoiceActions({
+  speechToTextMode,
+  onSpeechToText,
+  speechToTextDisabled,
+  onVoiceConversation,
+  voiceConversationDisabled = true,
+}: PromptInputVoiceActionsProps) {
+  const speechToTextLabel = SPEECH_TO_TEXT_ACTION_LABELS[speechToTextMode]
+  const isSpeechToTextDisabled =
+    speechToTextDisabled || speechToTextMode === "disabled"
+  const voiceConversationLabel = voiceConversationDisabled
+    ? "Voice conversation unavailable"
+    : "Start voice conversation"
+
+  const handleSpeechToText = () => {
+    if (isSpeechToTextDisabled) return
+    void onSpeechToText()
+  }
+
+  const handleVoiceConversation = () => {
+    if (voiceConversationDisabled || !onVoiceConversation) return
+    void onVoiceConversation()
+  }
+
+  return (
+    <>
+      <PromptInputAction tooltip={speechToTextLabel}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-8 rounded-full text-foreground hover:bg-muted"
+          aria-label={speechToTextLabel}
+          disabled={isSpeechToTextDisabled}
+          onClick={handleSpeechToText}
+        >
+          <Mic className="size-4" />
+        </Button>
+      </PromptInputAction>
+      <PromptInputAction tooltip={voiceConversationLabel}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label={voiceConversationLabel}
+          disabled={voiceConversationDisabled}
+          onClick={handleVoiceConversation}
+        >
+          <PhoneCall className="size-4" />
+        </Button>
+      </PromptInputAction>
+    </>
+  )
+}
+
 export type PromptInputActionProps = {
   className?: string
   tooltip: React.ReactNode
@@ -689,6 +761,7 @@ export {
   PromptInput,
   PromptInputTextarea,
   PromptInputActions,
+  PromptInputVoiceActions,
   PromptInputAction,
   PromptInputCharCount,
   usePromptInput,
