@@ -194,6 +194,18 @@ function createInitialModelServiceState(): ModelServiceStateMap {
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
 
+const STEP_COPY: Record<'presentation' | 'providers', { title: string; description: string }> = {
+	presentation: {
+		title: 'Welcome to Friday',
+		description: 'Set up your providers and model stack to start automating tasks in one pass.',
+	},
+	providers: {
+		title: 'Connect providers',
+		description:
+			'Add at least one valid API key. Saved keys are stored locally and used only on this device.',
+	},
+};
+
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
@@ -229,6 +241,46 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 			capabilities: 'Chat',
 			supported: supportedProviderIds.has(providerId),
 		}
+	);
+}
+
+function getProviderInitials(text: string, fallback: string): string {
+	const words = text.trim().split(/\s+/).filter(Boolean);
+	if (words.length === 0) {
+		return fallback;
+	}
+
+	const initials = words
+		.slice(0, 2)
+		.map((word) => word[0]?.toUpperCase() ?? '')
+		.join('');
+
+	return initials || fallback;
+}
+
+type StepFieldProps = {
+	readonly id: string;
+	readonly label: string;
+	readonly description?: string;
+	readonly children: React.ReactNode;
+	readonly className?: string;
+};
+
+function StepField({ id, label, description, children, className }: StepFieldProps): React.JSX.Element {
+	return (
+		<div className={cn('grid gap-1.5', className)}>
+			<div className="grid gap-1">
+				<Label htmlFor={id} className="text-[11px] leading-4">
+					{label}
+				</Label>
+				{description ? (
+					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground">
+						{description}
+					</p>
+				) : null}
+			</div>
+			{children}
+		</div>
 	);
 }
 
@@ -654,35 +706,39 @@ const StartPage: React.FC = () => {
 		return button;
 	}
 
-	function renderPresentationStep(): React.JSX.Element {
-		return (
-			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
-				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
-				<Badge variant="secondary" className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold">
-					<Check className="size-3" />
-					Ready in a minute
-				</Badge>
-				<h1 className="mt-5 text-3xl font-bold leading-none tracking-normal text-foreground">
-					Welcome to {PRODUCT_NAME}
+function renderPresentationStep(): React.JSX.Element {
+	const { title, description } = STEP_COPY.presentation;
+
+	return (
+		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
+			<DomeWaveAnimation height={120} className="w-full max-w-sm" />
+			<Badge variant="secondary" className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold">
+				<Check className="size-3" />
+				Ready in a minute
+			</Badge>
+			<h1 className="mt-5 text-3xl font-bold leading-none tracking-normal text-foreground">
+				{title}
+			</h1>
+			<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
+				{description}
+			</p>
+		</div>
+	);
+}
+
+function renderProviderStep(): React.JSX.Element {
+	const { title, description } = STEP_COPY.providers;
+
+	return (
+		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
+			<div>
+				<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
+					{title}
 				</h1>
-				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Connect a provider, pick a model, and you&apos;re ready.
+				<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
+					{description}
 				</p>
 			</div>
-		);
-	}
-
-	function renderProviderStep(): React.JSX.Element {
-		return (
-			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
-				<div>
-					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Connect a provider
-					</h1>
-					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Add an API key to get started. Keys are stored locally on your device.
-					</p>
-				</div>
 
 				<div className="mt-4 space-y-2">
 					{actionableProviderCatalog.map((provider) => {
@@ -710,7 +766,11 @@ const StartPage: React.FC = () => {
 											editing && 'pb-2'
 										)}
 									>
-										<ProviderAvatar providerId={provider.id} name={provider.name} />
+									<Avatar className="size-8 rounded-md border border-border bg-background">
+										<AvatarFallback className="rounded-md text-[11px] font-medium text-muted-foreground">
+											{getProviderInitials(provider.name, provider.id.slice(0, 2).toUpperCase())}
+										</AvatarFallback>
+									</Avatar>
 										<div className="min-w-0 flex-1">
 											<div className="flex min-w-0 items-center gap-1.5">
 												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
@@ -857,10 +917,10 @@ const StartPage: React.FC = () => {
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Choose {service.label}
+						{service.stepTitle}
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Select a provider and model.
+						{service.stepDescription}
 					</p>
 				</div>
 
@@ -868,7 +928,11 @@ const StartPage: React.FC = () => {
 					<Card className="rounded-lg border-border bg-card py-0 shadow-none">
 						<CardContent className="space-y-3 p-3">
 							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id={`${service.id}-provider`} label="Provider">
+								<StepField
+									id={`${service.id}-provider`}
+									label="Provider"
+									description="Choose which connected provider should serve this capability."
+								>
 									<Select
 										value={serviceState.providerId}
 										onValueChange={(value) => handleServiceProviderChange(service.id, value)}
@@ -888,8 +952,12 @@ const StartPage: React.FC = () => {
 											})}
 										</SelectContent>
 									</Select>
-								</SettingsField>
-								<SettingsField id={`${service.id}-model`} label="Model">
+								</StepField>
+								<StepField
+									id={`${service.id}-model`}
+									label="Model"
+									description="Pick the specific model you want to run for this step."
+								>
 									<Select
 										value={serviceState.modelId}
 										onValueChange={(value) => handleServiceModelChange(service.id, value)}
@@ -906,7 +974,7 @@ const StartPage: React.FC = () => {
 											))}
 										</SelectContent>
 									</Select>
-								</SettingsField>
+								</StepField>
 							</div>
 						</CardContent>
 					</Card>
