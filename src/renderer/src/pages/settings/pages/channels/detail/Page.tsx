@@ -226,8 +226,7 @@ const ChannelDetailPage: React.FC = () => {
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
 	const selectedDocsUrl = selectedEntry ? buildChannelDocsUrl(selectedEntry.docsPath, __APP_HOMEPAGE__) : null;
-	const selectedSetupFields = new Set<ChannelSetupField>(selectedEntry?.setupFields ?? []);
-	const hasSetupField = (field: ChannelSetupField): boolean => selectedSetupFields.has(field);
+	const selectedSetupFields = selectedEntry?.setupFields ?? [];
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
 		if (!selectedId) return;
@@ -320,6 +319,152 @@ const ChannelDetailPage: React.FC = () => {
 		} finally {
 			setBusyChannel(null);
 		}
+	};
+
+	const renderTextSetupField = (field: TextSetupField): React.JSX.Element => {
+		const config = TEXT_SETUP_FIELD_CONFIG[field];
+		const Icon = config.icon;
+		const label = t(config.labelKey);
+		const placeholder =
+			field === 'token' && selectedId ? getTokenPlaceholder(selectedId, t) : t(config.placeholderKey);
+
+		return (
+			<Item key={field} variant="outline" size="md" className="border-b border-border/60">
+				<ItemMedia variant="icon">
+					<Icon className="size-3" strokeWidth={1.8} />
+				</ItemMedia>
+				<ItemContent>
+					<ItemTitle>{label}</ItemTitle>
+				</ItemContent>
+				<ItemActions className="ml-auto flex-none justify-end">
+					<Input
+						type={config.inputType}
+						value={getAccountStringValue(selectedAccount, field)}
+						onChange={(event) => updateAccountField(field, event.target.value)}
+						onBlur={() => void saveSelectedConfig()}
+						placeholder={placeholder}
+						className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+						aria-label={label}
+					/>
+				</ItemActions>
+			</Item>
+		);
+	};
+
+	const renderListSetupField = (field: ListField): React.JSX.Element => {
+		const config =
+			field === 'allowFrom'
+				? {
+						icon: UserRound,
+						label: t('settings.channels.allowFrom'),
+						placeholder: t('settings.channels.allowFromPlaceholder'),
+						addLabel: t('settings.channels.addAllowFrom'),
+						removeLabel: (item: string) => t('settings.channels.removeAllowFrom', { value: item }),
+						emptyLabel: t('settings.channels.noAllowFrom'),
+					}
+				: {
+						icon: Hash,
+						label: t('settings.channels.groupAllowFrom'),
+						placeholder: t('settings.channels.groupAllowFromPlaceholder'),
+						addLabel: t('settings.channels.addGroupAllowFrom'),
+						removeLabel: (item: string) =>
+							t('settings.channels.removeGroupAllowFrom', { value: item }),
+						emptyLabel: t('settings.channels.noGroupAllowFrom'),
+					};
+		const Icon = config.icon;
+
+		return (
+			<Item
+				key={field}
+				variant="outline"
+				size="md"
+				className="border-b border-border/60 flex-wrap"
+			>
+				<ItemMedia variant="icon">
+					<Icon className="size-3" strokeWidth={1.8} />
+				</ItemMedia>
+				<ItemContent>
+					<ItemTitle>{config.label}</ItemTitle>
+				</ItemContent>
+				<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+					<ListEditor
+						value={listDrafts[field]}
+						items={selectedAccount[field] ?? []}
+						placeholder={config.placeholder}
+						addLabel={config.addLabel}
+						removeLabel={config.removeLabel}
+						emptyLabel={config.emptyLabel}
+						onDraftChange={(value) =>
+							setListDrafts((current) => ({ ...current, [field]: value }))
+						}
+						onAdd={() => addListValue(field)}
+						onRemove={(value) => removeListValue(field, value)}
+					/>
+				</ItemActions>
+			</Item>
+		);
+	};
+
+	const renderDmPolicyField = (): React.JSX.Element => (
+		<Item key="dmPolicy" variant="outline" size="md" className="border-b border-border/60">
+			<ItemMedia variant="icon">
+				<ShieldCheck className="size-3" strokeWidth={1.8} />
+			</ItemMedia>
+			<ItemContent>
+				<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
+			</ItemContent>
+			<ItemActions className="ml-auto flex-none justify-end">
+				<Select
+					value={selectedAccount.dmPolicy ?? 'allowlist'}
+					onValueChange={(value) =>
+						updateAccountField('dmPolicy', value as ChannelDmPolicy, { save: true })
+					}
+				>
+					<SelectTrigger size="sm" className="w-full sm:w-56">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{CHANNEL_DM_POLICIES.map((policy) => (
+							<SelectItem key={policy} value={policy}>
+								{t(`settings.channels.dmPolicies.${policy}`)}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</ItemActions>
+		</Item>
+	);
+
+	const renderHeartbeatField = (): React.JSX.Element => (
+		<Item
+			key="heartbeat"
+			variant="outline"
+			size="md"
+			className="border-b border-border/60 flex-wrap"
+		>
+			<ItemMedia variant="icon">
+				<RadioTower className="size-3" strokeWidth={1.8} />
+			</ItemMedia>
+			<ItemContent>
+				<ItemTitle>{t('settings.channels.heartbeat')}</ItemTitle>
+			</ItemContent>
+			<ItemActions className="ml-auto w-full justify-end sm:w-80 sm:flex-none">
+				<HeartbeatEditor
+					value={selectedAccount.heartbeat}
+					onChange={(heartbeat) => updateAccountField('heartbeat', heartbeat, { save: true })}
+					t={t}
+				/>
+			</ItemActions>
+		</Item>
+	);
+
+	const renderSetupField = (field: ChannelSetupField): React.JSX.Element | null => {
+		if (field === 'enabled') return null;
+		if (isTextSetupField(field)) return renderTextSetupField(field);
+		if (field === 'allowFrom' || field === 'groupAllowFrom') return renderListSetupField(field);
+		if (field === 'dmPolicy') return renderDmPolicyField();
+		if (field === 'heartbeat') return renderHeartbeatField();
+		return null;
 	};
 
 	return (
