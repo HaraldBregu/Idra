@@ -971,6 +971,9 @@ const StartPage: React.FC = () => {
 
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
+				<div className="mb-5 flex size-16 items-center justify-center rounded-xl border border-border bg-card text-foreground shadow-sm">
+					<service.icon className="size-8" strokeWidth={1.7} aria-hidden="true" />
+				</div>
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
 						{service.stepTitle}
