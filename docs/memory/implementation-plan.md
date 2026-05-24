@@ -179,6 +179,8 @@ Verification:
 Problem: `buildSystemPrompt` receives `channel` and `chatId`, but durable memory
 does not yet separate one chat from another.
 
+Detailed update plan: [Chat Memory](./update/chat-memory/index.md).
+
 Implementation:
 
 1. Resolve a chat scope from `channel` and `chatId` when an agent turn starts.
@@ -249,7 +251,7 @@ state that should not be confused with personal memory.
 Implementation:
 
 1. Create the `memory/rag/` corpus contract described in
-   [RAG](./rag/index.md).
+   [RAG](./update/rag/index.md).
 2. Add `rag` as a memory corpus value and route it through a corpus supplement
    or dedicated manager.
 3. Store source manifests with original URI, content hash, imported time, and
@@ -272,7 +274,7 @@ history and imported RAG sources.
 Implementation:
 
 1. Create the `memory/wiki/` corpus contract described in
-   [Wiki](./wiki/index.md).
+   [Wiki](./update/wiki/index.md).
 2. Add `wiki` as a memory corpus value and search it by default for workspace
    knowledge questions.
 3. Store pages as normal Markdown with frontmatter for title, tags, owner, and

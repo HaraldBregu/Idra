@@ -7,10 +7,17 @@ background tasks, scheduled work, RAG corpora, and wiki knowledge.
 
 - [Implementation Plan](./implementation-plan.md) - phased plan for scoped
   chat, task, cron, RAG, and wiki memory.
-- [RAG](./rag/index.md) - retrieval corpus plan for imported documents and
-  source-grounded results.
-- [Wiki](./wiki/index.md) - curated knowledge-base plan for durable workspace
-  knowledge.
+- [Update Plans](./update/index.md) - scoped update plans for chat memory, RAG,
+  and wiki.
+
+## Update Plans
+
+- [Chat Memory](./update/chat-memory/index.md) - foreground chat scoped memory
+  plan.
+- [RAG](./update/rag/index.md) - retrieval corpus plan for imported documents
+  and source-grounded results.
+- [Wiki](./update/wiki/index.md) - curated knowledge-base plan for durable
+  workspace knowledge.
 
 ## Working Model
 
