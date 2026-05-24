@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, ArrowUp, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
+import { AlertCircle, ArrowUp, FileAudio, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +15,7 @@ import {
 	PromptInputAction,
 	PromptInputActions,
 	PromptInputTextarea,
+	PromptInputVoiceActions,
 	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
@@ -25,7 +26,7 @@ import { cn } from '@/lib/utils';
 import { AgentTextMessage } from './components/AgentTextMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
-import { useHomeAgent, useRealtimeDictation, useVoiceButtonMode, type VoiceButtonMode } from './hooks';
+import { useHomeAgent, useRealtimeDictation, useVoiceButtonMode } from './hooks';
 
 type PromptAttachment = {
 	readonly id: string;
@@ -217,48 +218,6 @@ function AttachmentButton(): ReactElement {
 				onClick={triggerFileUpload}
 			>
 				<Plus className="size-4" />
-			</Button>
-		</PromptInputAction>
-	);
-}
-
-const VOICE_BUTTON_LABELS: Record<VoiceButtonMode, string> = {
-	dictate: 'Dictate',
-	record: 'Record',
-	disabled: 'No voice model configured',
-};
-
-function SmartVoiceButton({
-	mode,
-	onDictate,
-	onRecord,
-	disabled,
-}: {
-	readonly mode: VoiceButtonMode;
-	readonly onDictate: () => void;
-	readonly onRecord: () => Promise<void>;
-	readonly disabled?: boolean;
-}): ReactElement {
-	const isDisabled = disabled || mode === 'disabled';
-	const label = VOICE_BUTTON_LABELS[mode];
-
-	const handleClick = (): void => {
-		if (mode === 'dictate') onDictate();
-		else if (mode === 'record') void onRecord();
-	};
-
-	return (
-		<PromptInputAction tooltip={label}>
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="size-8 rounded-full text-foreground hover:bg-muted"
-				aria-label={label}
-				disabled={isDisabled}
-				onClick={handleClick}
-			>
-				<Mic className="size-4" />
 			</Button>
 		</PromptInputAction>
 	);
@@ -484,11 +443,12 @@ function PageContent(): ReactElement {
 							className="w-full"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
-									<SmartVoiceButton
-										mode={voiceButtonMode}
-										onDictate={startVoiceConversation}
-										onRecord={startDictation}
-										disabled={dictationBusy || agent.isLoading}
+									<PromptInputVoiceActions
+										speechToTextMode={voiceButtonMode}
+										onSpeechToText={startDictation}
+										speechToTextDisabled={dictationBusy || agent.isLoading}
+										onVoiceConversation={startVoiceConversation}
+										voiceConversationDisabled
 									/>
 									<SubmitButton
 										isLoading={agent.isLoading}
