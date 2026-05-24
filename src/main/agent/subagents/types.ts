@@ -1,4 +1,5 @@
 import type { AgentSessionMetadata } from '../../store/types';
+import type { ModelReasoningEffort } from '../../../shared/agents/service';
 
 export type SubagentOutcome = 'ok' | 'error' | 'timeout' | 'cancelled';
 export type SubagentSpawnMode = 'run' | 'session';
@@ -16,6 +17,7 @@ export interface SubagentRunRecord {
 	agentId: string;
 	modelId?: string;
 	providerId?: string;
+	effort?: ModelReasoningEffort;
 	cleanup: SubagentCleanup;
 	spawnMode: SubagentSpawnMode;
 	createdAt: number;
@@ -72,6 +74,7 @@ export interface SubagentRunTaskInput {
 	controllerSessionKey: string;
 	providerId?: string;
 	modelId?: string;
+	effort?: ModelReasoningEffort;
 	runTimeoutSeconds?: number;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
