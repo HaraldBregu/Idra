@@ -148,11 +148,12 @@
 			"searchTitle": "Usa la ricerca come livello rapido",
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
 			"groups": {
-				"general": "Configurazione generale",
-				"aiAgents": "Agenti AI",
-				"aiFeatures": "Funzionalita AI",
-				"memory": "Memory",
-				"automations": "Automazioni"
+				"app": "App",
+				"ai": "AI",
+				"knowledge": "Conoscenza",
+				"channels": "Canali",
+				"automation": "Automazione",
+				"monitoring": "Monitoraggio"
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
