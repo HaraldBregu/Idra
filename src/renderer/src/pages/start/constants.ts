@@ -54,9 +54,8 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: TEXT_TO_SPEECH_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.textToSpeech.name,
 		stepName: 'Text to speech',
-		stepTitle: 'Text-to-speech voice output',
-		stepDescription:
-			'Choose the voice model Friday uses to read assistant responses and generated text aloud.',
+		stepTitle: 'Text to speech',
+		stepDescription: 'The voice Friday uses when reading responses and content aloud.',
 		icon: Volume2,
 		required: false,
 		getOperator: () => window.app.getTextToSpeechOperator(),

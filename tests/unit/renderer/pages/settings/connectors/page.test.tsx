@@ -8,6 +8,17 @@ import {
 import { ConnectorDocumentationRows } from '../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorDocumentationRows';
 import ConnectorDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/details/Page';
 
+jest.mock(
+	'../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorIcon',
+	() => ({
+		ConnectorIcon: ({ name }: { readonly name: string }) => (
+			<span aria-hidden="true" data-testid="connector-icon">
+				{name}
+			</span>
+		),
+	})
+);
+
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => key,
@@ -57,13 +68,19 @@ function installAppApi(): void {
 	} as typeof window.app;
 }
 
-function renderConnectorDetails(): void {
+function renderConnectorDetails(
+	initialEntry = '/settings/connectors/connectordetails/connector-1'
+): void {
 	render(
-		<MemoryRouter initialEntries={['/settings/connectors/connectordetails/connector-1']}>
+		<MemoryRouter initialEntries={[initialEntry]}>
 			<Routes>
 				<Route path="/settings/connectors" element={<div>connectors list route</div>} />
 				<Route
 					path="/settings/connectors/connectordetails/:connectorId"
+					element={<ConnectorDetailsPage />}
+				/>
+				<Route
+					path="/settings/connectors/configure/:connectorCatalogId"
 					element={<ConnectorDetailsPage />}
 				/>
 			</Routes>
@@ -110,6 +127,70 @@ describe('connector settings docs', () => {
 		await waitFor(() => {
 			expect(window.connectors.get).toHaveBeenCalledWith('connector-1');
 			expect(window.connectors.listTools).toHaveBeenCalledWith('connector-1');
+		});
+	});
+
+	it('updates connector configuration from the detail page without resending saved manual tokens', async () => {
+		const user = userEvent.setup();
+		const connector = {
+			...configuredConnector(),
+			connectorId: 'connector_dropbox',
+			name: 'My Dropbox',
+			serverLabel: 'my_dropbox',
+			authorization: '',
+			allowedTools: ['search'],
+			tools: [{ name: 'search', requiresApproval: false }],
+		} satisfies ConnectorConfig;
+		installConnectorApi(connector);
+
+		renderConnectorDetails();
+
+		await user.clear(await screen.findByLabelText('Name'));
+		await user.type(screen.getByLabelText('Name'), 'Dropbox Files');
+		await user.click(screen.getByRole('button', { name: /Save Changes/ }));
+
+		await waitFor(() => {
+			expect(window.connectors.update).toHaveBeenCalledWith(
+				'connector-1',
+				expect.not.objectContaining({ authorization: expect.any(String) })
+			);
+		});
+		expect(window.connectors.update).toHaveBeenCalledWith(
+			'connector-1',
+			expect.objectContaining({
+				name: 'Dropbox Files',
+				connectorId: 'connector_dropbox',
+			})
+		);
+	});
+
+	it('adds a catalog connector from its configure detail page', async () => {
+		const user = userEvent.setup();
+		const connector = {
+			...configuredConnector(),
+			id: 'connector-dropbox',
+			connectorId: 'connector_dropbox',
+			name: 'Dropbox',
+			serverLabel: 'dropbox',
+			authorization: '',
+			allowedTools: ['search'],
+			tools: [{ name: 'search', requiresApproval: false }],
+		} satisfies ConnectorConfig;
+		installConnectorApi(connector);
+		(window.connectors.list as jest.Mock).mockResolvedValue([]);
+
+		renderConnectorDetails('/settings/connectors/configure/connector_dropbox');
+
+		await user.type(await screen.findByLabelText('OAuth access token'), 'dropbox-token');
+		await user.click(screen.getByRole('button', { name: /Add Connector/ }));
+
+		await waitFor(() => {
+			expect(window.connectors.add).toHaveBeenCalledWith(
+				expect.objectContaining({
+					connectorId: 'connector_dropbox',
+					authorization: 'dropbox-token',
+				})
+			);
 		});
 	});
 });
