@@ -8,6 +8,7 @@ import {
 	emptyFridayCronStoreState,
 	AgentServiceFridayCronExecutor,
 	FridayCronScheduler,
+	GatewayFridayCronDelivery,
 	TaskManagerFridayCronExecutor,
 	type FridayCronStoreState,
 	type FridayCronDeliveryPort,
@@ -70,7 +71,7 @@ function createFridayStoreService(): {
 	};
 }
 
-async function makeHarness(options: { enabled?: boolean } = {}) {
+async function makeHarness(options: { enabled?: boolean; maxConcurrentRuns?: number } = {}) {
 	const storeService = createFridayStoreService();
 	const store = new ElectronStoreFridayCronStore(storeService.service);
 	const executor = new RecordingExecutor();
@@ -82,6 +83,7 @@ async function makeHarness(options: { enabled?: boolean } = {}) {
 		defaultBackoffMs: 1_000,
 		defaultMaxBackoffMs: 8_000,
 		scheduleErrorDisableThreshold: 3,
+		maxConcurrentRuns: options.maxConcurrentRuns ?? 1,
 	});
 	return { store, storeService, executor, delivery, scheduler };
 }
@@ -183,6 +185,37 @@ describe('FridayCronScheduler', () => {
 		await scheduler.processDue(Date.now());
 
 		expect(executor.calls).toHaveLength(1);
+	});
+
+	it('does not start another due job when global concurrency is saturated', async () => {
+		const { scheduler, executor } = await makeHarness({ maxConcurrentRuns: 1 });
+		const now = Date.now();
+		await scheduler.add(
+			agentJob({
+				id: 'first-due',
+				schedule: { kind: 'at', at: new Date(now - 2_000).toISOString() },
+				deleteAfterRun: false,
+			})
+		);
+		await scheduler.add(
+			agentJob({
+				id: 'second-due',
+				schedule: { kind: 'at', at: new Date(now - 1_000).toISOString() },
+				deleteAfterRun: false,
+			})
+		);
+		let checkedDuringRun = false;
+		executor.onExecute = async () => {
+			if (checkedDuringRun) return;
+			checkedDuringRun = true;
+			await scheduler.processDue(now);
+		};
+
+		await scheduler.processDue(now);
+		expect(executor.calls.map((call) => call.job.id)).toEqual(['first-due']);
+
+		await scheduler.processDue(now + 1);
+		expect(executor.calls.map((call) => call.job.id)).toEqual(['first-due', 'second-due']);
 	});
 
 	it('supports manual force and due modes', async () => {
@@ -439,6 +472,54 @@ describe('FridayCronScheduler', () => {
 		).resolves.toMatchObject({
 			status: 'error',
 		});
+	});
+});
+
+describe('GatewayFridayCronDelivery', () => {
+	it('fails webhook delivery when fetch does not finish before the timeout', async () => {
+		jest.useFakeTimers();
+		const fetchMock = jest.fn(
+			(_input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) =>
+				new Promise<Response>((_resolve, reject) => {
+					init?.signal?.addEventListener('abort', () => reject(new Error('aborted')));
+				})
+		) as jest.MockedFunction<typeof fetch>;
+		const delivery = new GatewayFridayCronDelivery({
+			fetch: fetchMock,
+			webhookTimeoutMs: 5,
+		});
+		const job: FridayCronJobDefinition = {
+			id: 'webhook-job',
+			name: 'Webhook job',
+			description: '',
+			enabled: true,
+			createdAtMs: 1,
+			updatedAtMs: 1,
+			schedule: { kind: 'every', everyMs: 60_000 },
+			sessionTarget: 'isolated',
+			wakeMode: 'now',
+			payload: { kind: 'agentTurn', message: 'Run' },
+			delivery: { mode: 'webhook', to: 'https://example.com/hook' },
+		};
+
+		try {
+			const result = delivery.deliver({
+				job,
+				run: { runId: 'run-1', status: 'ok' },
+				output: 'done',
+				delivery: job.delivery,
+				failure: false,
+			});
+			jest.advanceTimersByTime(5);
+
+			await expect(result).resolves.toMatchObject({
+				mode: 'webhook',
+				status: 'failed',
+				error: 'Webhook request timed out.',
+			});
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 });
 
