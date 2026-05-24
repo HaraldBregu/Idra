@@ -12,11 +12,11 @@ import {
 	resolveConnectorActivationPlan,
 	type ConnectorManifestRecord,
 } from '../../../../src/main/plugins';
-import { clearAgentHarnessHookProviders } from '../../../../src/main/agent/harness/hook-runner';
 import {
+	clearAgentHarnessHookProviders,
 	clearAgentToolResultMiddlewareRegistrations,
 	listAgentToolResultMiddlewareRegistrations,
-} from '../../../../src/main/agent/harness/tool-result-middleware';
+} from '../../../../src/main/agent/harness';
 import type { ToolResultBlock } from '../../../../src/main/provider/types';
 import { markCoreTool, type AgentTool } from '../../../../src/main/tools/common';
 import { textResult } from '../../../../src/main/tools/results';
