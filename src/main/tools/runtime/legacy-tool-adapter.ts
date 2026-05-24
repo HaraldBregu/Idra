@@ -1,31 +1,12 @@
-import type { JSONSchema, ToolResultBlock } from '../../provider/types';
-import type {
-	AgentTool as LegacyAgentTool,
-	AgentToolResult as LegacyAgentToolResult,
-	ToolContext,
-} from '../core/types';
+import type { JSONSchema } from '../../provider/types';
+import type { AgentTool as LegacyAgentTool, ToolContext } from '../core/types';
 import type {
 	AgentTool as RuntimeAgentTool,
-	AgentToolResult as RuntimeAgentToolResult,
-	ToolContent,
 	ToolDiagnostics,
 } from '../core/common';
-import {
-	copyToolMetadata,
-	getToolMetadata,
-	setToolMetadata,
-	toProviderSafeName,
-} from '../core/common';
+import { copyToolMetadata, toProviderSafeName } from '../core/common';
 import { normalizeToolSchemas } from '../core/schema-normalization';
-
-type LegacyStatusDetails = {
-	legacyStatus: LegacyAgentToolResult['status'];
-	details?: unknown;
-};
-
-type RuntimeToolWithLegacyMetadata = RuntimeAgentTool & {
-	needsApproval?: LegacyAgentTool['needsApproval'];
-};
+import { canonicalToolToLegacy, legacyToolToCanonical } from './legacy-bridge';
 
 export type PrepareLegacyToolsForProviderOptions = {
 	provider?: string;
@@ -53,42 +34,11 @@ export function legacyToolToRuntimeTool(
 	tool: LegacyAgentTool,
 	ctx: ToolContext
 ): RuntimeAgentTool<JSONSchema> {
-	const runtimeTool: RuntimeAgentTool<JSONSchema> & RuntimeToolWithLegacyMetadata = {
-		name: tool.name,
-		label: tool.name,
-		description: tool.description,
-		parameters: tool.schema,
-		ownerOnly: tool.ownerOnly,
-		displaySummary: tool.displaySummary,
-		needsApproval: tool.needsApproval,
-		async execute(_toolCallId, params, signal) {
-			const result = await tool.execute(params as never, {
-				...ctx,
-				signal: signal ?? ctx.signal,
-			});
-			return legacyResultToRuntimeResult(result);
-		},
-	};
-	const metadata = getToolMetadata(tool as unknown as RuntimeAgentTool);
-	if (metadata) setToolMetadata(runtimeTool, { ...metadata });
-	return runtimeTool;
+	return legacyToolToCanonical(tool, ctx) as RuntimeAgentTool<JSONSchema>;
 }
 
 export function runtimeToolToLegacyTool(tool: RuntimeAgentTool): LegacyAgentTool {
-	const legacyTool: LegacyAgentTool = {
-		name: tool.name,
-		displaySummary: tool.displaySummary,
-		description: tool.description,
-		schema: tool.parameters as JSONSchema,
-		ownerOnly: tool.ownerOnly,
-		needsApproval: (tool as RuntimeToolWithLegacyMetadata).needsApproval,
-		async execute(args, ctx) {
-			const result = await tool.execute(`${ctx.sessionId}:${tool.name}`, args, ctx.signal);
-			return runtimeResultToLegacyResult(result);
-		},
-	};
-	copyToolMetadata(tool, legacyTool as unknown as RuntimeAgentTool);
-	return legacyTool;
+	return canonicalToolToLegacy(tool);
 }
 
 export function applyProviderSafeToolNames(
@@ -130,65 +80,4 @@ function uniqueProviderSafeName(
 	}
 	usedNames.add(candidate);
 	return candidate;
-}
-
-function legacyResultToRuntimeResult(
-	result: LegacyAgentToolResult
-): RuntimeAgentToolResult<LegacyStatusDetails> {
-	return {
-		content: result.content.map(legacyBlockToRuntimeBlock),
-		details: {
-			legacyStatus: result.status,
-			details: result.details,
-		},
-	};
-}
-
-function runtimeResultToLegacyResult(result: RuntimeAgentToolResult): LegacyAgentToolResult {
-	const legacyDetails = parseLegacyStatusDetails(result.details);
-	return {
-		status: legacyDetails?.legacyStatus ?? inferLegacyStatus(result.details),
-		content: result.content.map(runtimeBlockToLegacyBlock),
-		details: legacyDetails ? legacyDetails.details : result.details,
-	};
-}
-
-function legacyBlockToRuntimeBlock(block: ToolResultBlock): ToolContent {
-	if (block.type === 'image') {
-		return {
-			type: 'image',
-			mimeType: block.mimeType ?? 'image/png',
-			data: block.base64 ?? '',
-		};
-	}
-	return { type: 'text', text: block.text };
-}
-
-function runtimeBlockToLegacyBlock(block: ToolContent): ToolResultBlock {
-	if (block.type === 'image') {
-		return {
-			type: 'image',
-			mimeType: block.mimeType,
-			base64: block.data,
-		};
-	}
-	return { type: 'text', text: block.text };
-}
-
-function parseLegacyStatusDetails(value: unknown): LegacyStatusDetails | undefined {
-	if (typeof value !== 'object' || value === null) return undefined;
-	const status = (value as { legacyStatus?: unknown }).legacyStatus;
-	if (status !== 'ok' && status !== 'error') return undefined;
-	return {
-		legacyStatus: status,
-		details: (value as { details?: unknown }).details,
-	};
-}
-
-function inferLegacyStatus(details: unknown): LegacyAgentToolResult['status'] {
-	if (typeof details !== 'object' || details === null) return 'ok';
-	const status = (details as { status?: unknown }).status;
-	return status === 'error' || status === 'blocked' || status === 'input_error'
-		? 'error'
-		: 'ok';
 }
