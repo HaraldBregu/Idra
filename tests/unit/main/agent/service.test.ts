@@ -1088,6 +1088,79 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('passes skill connectors through discovery and execute_skill setup', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const skillConnector = {
+			id: 'connector_gmail',
+			name: 'Gmail',
+			tools: new Set(['search_emails']),
+			call: jest.fn(),
+		};
+		const skillChoice: SkillPromptChoice = {
+			id: 'gmail-summary',
+			version: '1.0.0',
+			name: 'gmail-summary',
+			description: 'Summarize Gmail messages through a scoped connector.',
+			category: 'communication',
+			tags: [],
+			requiredTools: [],
+			requiredConnectors: ['connector_gmail'],
+			permissionsRequired: [],
+			safetyLevel: 'low',
+			score: 0.95,
+		};
+		const skills = {
+			discoverForPrompt: jest.fn(async () => [skillChoice]),
+			createExecutionTool: jest.fn(() => ({
+				name: 'execute_skill',
+				description: 'Execute skill',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			})),
+		};
+		const connectors = {
+			createSkillConnectors: jest.fn(() => [skillConnector]),
+		};
+		const service = new AgentService(
+			{
+				...deps,
+				connectors: connectors as never,
+				skills: skills as unknown as SkillsService,
+			},
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'done' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [],
+			}
+		);
+
+		await expect(service.send('Use the Gmail summary skill')).resolves.toBe('done');
+		expect(connectors.createSkillConnectors).toHaveBeenCalled();
+		expect(skills.discoverForPrompt.mock.calls[0]![1]).toMatchObject({
+			connectors: [skillConnector],
+		});
+		expect(skills.createExecutionTool).toHaveBeenCalledWith(
+			expect.objectContaining({
+				connectors: [skillConnector],
+			})
+		);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('uses read-on-demand guidance for file-backed skills without execute_skill', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
