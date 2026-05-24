@@ -19,6 +19,8 @@ import type {
 } from './scheduler';
 import { DEFAULT_AGENT_ID } from '../../constants';
 
+const DEFAULT_WEBHOOK_TIMEOUT_MS = 15_000;
+
 type TerminalTaskRecord = TaskRecord & {
 	status: 'succeeded' | 'failed' | 'cancelled';
 };
@@ -194,6 +196,8 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 			eventBus?: EventBus;
 			channelRegistry?: ChannelRegistry;
 			logger?: LoggerService;
+			fetch?: typeof fetch;
+			webhookTimeoutMs?: number;
 		}
 	) {}
 
@@ -232,18 +236,41 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 				error: 'webhook URL is missing',
 			};
 		}
-		const response = await fetch(input.delivery.to, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				jobId: input.job.id,
-				runId: input.run.runId,
-				status: input.run.status,
-				output: input.output,
-				error: input.run.error,
-				failure: input.failure,
-			}),
-		});
+		const controller = new AbortController();
+		const timeout = setTimeout(
+			() => controller.abort(),
+			this.dependencies.webhookTimeoutMs ?? DEFAULT_WEBHOOK_TIMEOUT_MS
+		);
+		let response: Response;
+		try {
+			const fetcher = this.dependencies.fetch ?? fetch;
+			response = await fetcher(input.delivery.to, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					jobId: input.job.id,
+					runId: input.run.runId,
+					status: input.run.status,
+					output: input.output,
+					error: input.run.error,
+					failure: input.failure,
+				}),
+				signal: controller.signal,
+			});
+		} catch (error) {
+			return {
+				mode: 'webhook',
+				status: 'failed',
+				attemptedAtMs,
+				error: controller.signal.aborted
+					? 'Webhook request timed out.'
+					: error instanceof Error
+						? error.message
+						: String(error),
+			};
+		} finally {
+			clearTimeout(timeout);
+		}
 		if (!response.ok) {
 			return {
 				mode: 'webhook',
