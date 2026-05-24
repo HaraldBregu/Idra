@@ -82,7 +82,7 @@ export type PromptInputProps = {
   onFilesChange?: (files: File[]) => void
 } & React.ComponentProps<"div">
 
-export type PromptInputVoiceMode = "conversation" | "dictation"
+export type PromptInputVoiceMode = "conversation" | "dictation" | "recording"
 export type PromptInputSpeechToTextMode = "dictate" | "record" | "disabled"
 
 const SPEECH_TO_TEXT_ACTION_LABELS: Record<PromptInputSpeechToTextMode, string> = {
@@ -155,6 +155,8 @@ function PromptInputVoiceWaveform({
   mode: PromptInputVoiceMode
   mediaStream?: MediaStream | null
 }) {
+  const isSpeechToText = mode === "dictation" || mode === "recording"
+
   return (
     <div
       className={cn(
@@ -163,7 +165,7 @@ function PromptInputVoiceWaveform({
       )}
       aria-hidden="true"
     >
-      {mode === "dictation" ? (
+      {isSpeechToText ? (
         <BarWaveAnimation active={!muted} height={28} mediaStream={mediaStream} />
       ) : (
         <WaveAnimation active={!muted} height={28} />
@@ -204,8 +206,9 @@ function PromptInputVoicePanel({
 }) {
   const promptInputContext = usePromptInput()
   const [localMuted, setLocalMuted] = useState(false)
-  const isDictation = mode === "dictation"
-  const isMuted = !isDictation && (muted ?? localMuted)
+  const isSpeechToText = mode === "dictation" || mode === "recording"
+  const isRecording = mode === "recording"
+  const isMuted = !isSpeechToText && (muted ?? localMuted)
 
   const handleButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -239,7 +242,7 @@ function PromptInputVoicePanel({
       <div
         className={cn(
           "flex size-8 shrink-0 items-center justify-center rounded-full",
-          isDictation
+          isSpeechToText
             ? "bg-destructive/10 text-destructive"
             : isMuted
             ? "bg-muted text-muted-foreground"
@@ -250,7 +253,7 @@ function PromptInputVoicePanel({
         <span
           className={cn(
             "block rounded-full",
-            isDictation
+            isSpeechToText
               ? "size-2.5 bg-current"
               : isMuted
               ? "size-5 bg-current opacity-60"
@@ -269,11 +272,11 @@ function PromptInputVoicePanel({
         ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
-        {isDictation ? (
+        {isSpeechToText ? (
           <>
             <button
               type="button"
-              aria-label="Cancel dictation"
+              aria-label={isRecording ? "Cancel recording" : "Cancel dictation"}
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onCancel)}
               className="flex size-8 items-center justify-center rounded-full border border-border bg-background/70 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
@@ -282,7 +285,7 @@ function PromptInputVoicePanel({
             </button>
             <button
               type="button"
-              aria-label="Confirm dictation"
+              aria-label={isRecording ? "Confirm recording" : "Confirm dictation"}
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onConfirm)}
               className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
@@ -375,6 +378,8 @@ function PromptInput({
   })
   const isConversationMode = voiceMode === "conversation"
   const isDictationMode = voiceMode === "dictation"
+  const isRecordingMode = voiceMode === "recording"
+  const isVoicePanelOnlyMode = isConversationMode || isRecordingMode
   const isPromptExpanded = isExpanded || isDictationMode
 
   const handleChange = (newValue: string) => {
@@ -415,12 +420,12 @@ function PromptInput({
             <motion.div
               layout
               transition={transition}
-              onClick={isConversationMode ? onClick : handleClick}
+              onClick={isVoicePanelOnlyMode ? onClick : handleClick}
               data-expanded={isPromptExpanded}
               data-voice-mode={voiceMode ?? undefined}
               className={cn(
                 "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
-                isConversationMode
+                isVoicePanelOnlyMode
                   ? "flex min-h-10 items-center gap-2 rounded-full p-1.5 focus-within:ring-0"
                   : isPromptExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
@@ -430,7 +435,7 @@ function PromptInput({
               )}
               {...(props as React.ComponentProps<typeof motion.div>)}
             >
-              {isConversationMode ? (
+              {isVoicePanelOnlyMode ? (
                 <PromptInputVoicePanel
                   mode={voiceMode}
                   disabled={disabled}
