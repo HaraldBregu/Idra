@@ -32,6 +32,8 @@ export const CHANNEL_DM_POLICIES = ['allowlist', 'pairing', 'open', 'deny'] as c
 
 export type ChannelDmPolicy = (typeof CHANNEL_DM_POLICIES)[number];
 
+export const CHANNEL_DEFAULT_DM_POLICY: ChannelDmPolicy = 'allowlist';
+
 export const CHANNEL_CONNECTION_STATUSES = [
 	'connecting',
 	'pairing_code',
