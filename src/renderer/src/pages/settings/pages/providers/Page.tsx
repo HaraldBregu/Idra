@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ProviderAvatar } from '@/components/ui/provider-avatar';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 import {
