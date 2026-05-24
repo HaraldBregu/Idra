@@ -44,6 +44,10 @@ jest.mock('react-i18next', () => ({
 				'settings.channels.webhookUrl': 'Webhook URL',
 				'settings.channels.defaultTarget': 'Default target',
 				'settings.channels.dmPolicy': 'DM policy',
+				'settings.channels.heartbeat': 'Heartbeat visibility',
+				'settings.channels.heartbeatShowOk': 'Show healthy checks',
+				'settings.channels.heartbeatShowAlerts': 'Show alerts',
+				'settings.channels.heartbeatUseIndicator': 'Use status indicator',
 				'settings.channels.allowFrom': 'Allowed senders',
 				'settings.channels.groupAllowFrom': 'Allowed group routes',
 				'settings.channels.status': 'Status',
@@ -69,6 +73,8 @@ const renderedSetupFieldLabels: Partial<Record<ChannelSetupField, string>> = {
 	serverUrl: 'Server URL',
 	webhookUrl: 'Webhook URL',
 	defaultTarget: 'Default target',
+	dmPolicy: 'DM policy',
+	heartbeat: 'Heartbeat visibility',
 	allowFrom: 'Allowed senders',
 	groupAllowFrom: 'Allowed group routes',
 };
@@ -221,6 +227,18 @@ describe('ChannelDetailPage', () => {
 				} else {
 					assertion.not.toBeInTheDocument();
 				}
+			}
+
+			const expectedLabels = entry.setupFields.flatMap((field) => {
+				const label = renderedSetupFieldLabels[field];
+				return label ? [label] : [];
+			});
+			const renderedLabels = expectedLabels.map((label) => screen.getByText(label));
+			for (let index = 1; index < renderedLabels.length; index += 1) {
+				expect(
+					renderedLabels[index - 1].compareDocumentPosition(renderedLabels[index]) &
+						Node.DOCUMENT_POSITION_FOLLOWING
+				).toBeTruthy();
 			}
 		}
 	);
