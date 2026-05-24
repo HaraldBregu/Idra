@@ -740,18 +740,31 @@ describe('AgentService', () => {
 				model: 'claude-test',
 			})
 		).resolves.toBe('profile ready');
-		expect(providerFactory).toHaveBeenCalledWith({
+		await expect(
+			service.send('get my gmail profile again', 'main', {
+				providerId: 'openai',
+				model: 'gpt-test',
+			})
+		).resolves.toBe('profile ready');
+		expect(providerFactory).toHaveBeenNthCalledWith(1, {
 			id: 'anthropic',
 			apiKey: 'sk-ant-test',
 			baseURL: 'https://api.anthropic.com',
 		});
-		expect(requests[0]).toMatchObject({ model: 'claude-test' });
-		expect(requests[0]!.tools).toEqual(expect.arrayContaining([
-			expect.objectContaining({
-				name: 'my_gmail_get_profile',
-				schema: expect.objectContaining({ type: 'object' }),
-			}),
-		]));
+		expect(providerFactory).toHaveBeenNthCalledWith(2, {
+			id: 'openai',
+			apiKey: 'sk-test',
+			baseURL: 'https://api.openai.com/v1',
+		});
+		expect(requests.map((request) => request.model)).toEqual(['claude-test', 'gpt-test']);
+		for (const request of requests) {
+			expect(request.tools).toEqual(expect.arrayContaining([
+				expect.objectContaining({
+					name: 'my_gmail_get_profile',
+					schema: expect.objectContaining({ type: 'object' }),
+				}),
+			]));
+		}
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
