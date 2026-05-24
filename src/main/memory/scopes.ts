@@ -203,7 +203,15 @@ export function validateDailyMemoryRelativePath(relativePath: string): void {
 		throw new Error('Memory flush target must stay inside the workspace.');
 	}
 	const parts = splitRelativePath(relativePath);
-	if (parts[0] !== MEMORY_ROOT || !DATE_FILE_PATTERN.test(parts[parts.length - 1] ?? '')) {
+	const fileName = parts[parts.length - 1] ?? '';
+	const isGlobalDaily = parts.length === 2 && parts[0] === MEMORY_ROOT && DATE_FILE_PATTERN.test(fileName);
+	const isScopedDaily =
+		parts.length === 4 &&
+		parts[0] === MEMORY_ROOT &&
+		['chats', 'tasks', 'cron'].includes(parts[1] ?? '') &&
+		Boolean(parts[2] && isSafeMemorySegment(parts[2])) &&
+		DATE_FILE_PATTERN.test(fileName);
+	if (!isGlobalDaily && !isScopedDaily) {
 		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/<scope>/YYYY-MM-DD.md.');
 	}
 }
