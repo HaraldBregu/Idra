@@ -1,5 +1,7 @@
 import { CHANNEL_PROVIDER_IDS, type ChannelType } from './definitions';
 
+export type ChannelRuntimeSupport = 'bundled' | 'catalog-only';
+
 export interface ChannelCatalogEntry {
 	id: ChannelType;
 	label: string;
@@ -11,14 +13,18 @@ export interface ChannelCatalogEntry {
 	order: number;
 	markdownCapable: boolean;
 	exposure: 'stable' | 'preview' | 'hidden';
+	runtime: ChannelRuntimeSupport;
 	setupVisible: boolean;
 	catalogVisible: boolean;
 	cliHints: readonly string[];
 	setupHints: readonly string[];
 }
 
-type ChannelCatalogInput = Omit<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible'> &
-	Partial<Pick<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible'>>;
+type ChannelCatalogInput = Omit<
+	ChannelCatalogEntry,
+	'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'
+> &
+	Partial<Pick<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'>>;
 
 const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	entry('clickclack', 'ClickClack', 'Connect ClickClack conversations.', [], 10, false),
@@ -71,7 +77,10 @@ const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	entry('signal', 'Signal', 'Connect Signal local-device messages.', [], 150, false),
 	entry('slack', 'Slack', 'Connect Slack channels, DMs, and threads.', [], 160, true, 'preview', 'slack'),
 	entry('synology-chat', 'Synology Chat', 'Connect Synology Chat channels.', [], 170, true),
-	entry('telegram', 'Telegram', 'Receive Telegram bot messages and send agent replies.', [], 180, true),
+	{
+		...entry('telegram', 'Telegram', 'Receive Telegram bot messages and send agent replies.', [], 180, true),
+		runtime: 'bundled',
+	},
 	entry('tlon', 'Tlon', 'Connect Tlon groups and conversations.', [], 190, true),
 	entry('twitch', 'Twitch', 'Connect Twitch chat channels.', ['twitch-chat'], 200, false),
 	entry('whatsapp', 'WhatsApp', 'Connect WhatsApp web or device sessions.', [], 210, false),
@@ -82,6 +91,7 @@ const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = CHANNEL_CATALOG_INPUT.map((item) => ({
 	...item,
 	docsLabel: item.docsLabel ?? `${item.label} setup`,
+	runtime: item.runtime ?? 'catalog-only',
 	setupVisible: item.setupVisible ?? item.exposure !== 'hidden',
 	catalogVisible: item.catalogVisible ?? item.exposure !== 'hidden',
 })).sort((left, right) => left.order - right.order);
@@ -198,7 +208,12 @@ function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {
 		Array.isArray(item.aliases) &&
 		typeof item.order === 'number' &&
 		typeof item.markdownCapable === 'boolean' &&
+		isChannelRuntimeSupport(item.runtime) &&
 		typeof item.setupVisible === 'boolean' &&
 		typeof item.catalogVisible === 'boolean'
 	);
+}
+
+function isChannelRuntimeSupport(value: unknown): value is ChannelRuntimeSupport {
+	return value === 'bundled' || value === 'catalog-only';
 }
