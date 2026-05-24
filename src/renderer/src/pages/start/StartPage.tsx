@@ -87,69 +87,6 @@ const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
 const AGENT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
-const MODEL_AREA_IDS = [
-	AGENTS.assistant,
-	AGENTS.speechToText,
-	AGENTS.textToSpeech,
-	AGENTS.textToImage,
-	AGENTS.textToVideo,
-	AGENTS.textToAudio,
-	AGENTS.documentReader,
-	AGENTS.embedding,
-] as const satisfies readonly AgentId[];
-type ModelAreaId = (typeof MODEL_AREA_IDS)[number];
-
-
-const MODEL_AREAS: readonly ModelAreaDefinition[] = [
-	{
-		id: AGENTS.assistant,
-		title: `${PRODUCT_NAME} Assistant`,
-		purpose: 'Main chat and agent reasoning model.',
-		icon: Bot,
-	},
-	{
-		id: AGENTS.speechToText,
-		title: 'Voice Input',
-		purpose: 'Dictation and transcription model.',
-		icon: Mic,
-	},
-	{
-		id: AGENTS.textToSpeech,
-		title: 'Voice Output',
-		purpose: 'Spoken output model.',
-		icon: Volume2,
-	},
-	{
-		id: AGENTS.textToImage,
-		title: 'Text to Image',
-		purpose: 'Image generation model area.',
-		icon: ImageIcon,
-	},
-	{
-		id: AGENTS.textToVideo,
-		title: 'Text to Video',
-		purpose: 'Video generation model area.',
-		icon: Video,
-	},
-	{
-		id: AGENTS.textToAudio,
-		title: 'Text to Audio',
-		purpose: 'Sound and music generation model area.',
-		icon: Music,
-	},
-	{
-		id: AGENTS.documentReader,
-		title: 'OCR',
-		purpose: 'Document reading setup.',
-		icon: FileSearch,
-	},
-	{
-		id: AGENTS.embedding,
-		title: 'Embedding',
-		purpose: 'Future semantic indexing model setup.',
-		icon: Database,
-	},
-];
 
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
