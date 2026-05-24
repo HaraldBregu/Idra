@@ -2,18 +2,10 @@ import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
+import { parseTaskRunRequest } from '../tasks';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { TaskChannels } from '../../shared/ipc-channels';
-import {
-	TASK_EVENT_TYPES,
-	type TaskEvent,
-	type TaskRecord,
-	type TaskRunRequest,
-} from '../../shared/tasks';
-
-function isTaskRunRequest(value: unknown): value is TaskRunRequest {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+import { TASK_EVENT_TYPES, type TaskEvent, type TaskRecord } from '../../shared/tasks';
 
 export class TasksIpc implements IpcModule {
 	readonly name = 'tasks';
@@ -24,8 +16,7 @@ export class TasksIpc implements IpcModule {
 		ipcMain.handle(
 			TaskChannels.start,
 			wrapSimpleHandler((request: unknown): TaskRecord => {
-				if (!isTaskRunRequest(request)) throw new Error('Task request is required.');
-				return taskManager.startUserTask(request);
+				return taskManager.startUserTask(parseTaskRunRequest(request));
 			}, TaskChannels.start)
 		);
 
