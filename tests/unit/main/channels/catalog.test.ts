@@ -70,16 +70,19 @@ describe('channel catalog', () => {
 	});
 
 	it('keeps catalog docs paths backed by bundled docs files', () => {
-		const docsIndex = readFileSync(path.join(process.cwd(), 'docs/channels/index.md'), 'utf8');
-
-				for (const entry of listChannelCatalog()) {
-					expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
-					expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
-					expect(docsIndex).toContain('[`' + entry.id + '`](' + entry.id + '/index.md)');
-					expect(buildChannelDocsUrl(entry.docsPath, 'https://github.com/HaraldBregu/friday')).toBe(
-						`https://github.com/HaraldBregu/friday/blob/main/docs/channels/${entry.id}/index.md`
-				);
-			}
+		for (const entry of listChannelCatalog()) {
+			expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
+			expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
+			expect(readChannelDocsMetadata(entry.docsPath)).toEqual({
+				id: entry.id,
+				label: entry.label,
+				aliases: [...entry.aliases],
+				runtime: entry.runtime,
+			});
+			expect(buildChannelDocsUrl(entry.docsPath, 'https://github.com/HaraldBregu/friday')).toBe(
+				`https://github.com/HaraldBregu/friday/blob/main/docs/channels/${entry.id}/index.md`
+			);
+		}
 
 		expect(buildChannelDocsUrl('../secrets.md', 'https://github.com/HaraldBregu/friday')).toBeNull();
 	});
@@ -90,3 +93,46 @@ describe('channel catalog', () => {
 		);
 	});
 });
+
+function readChannelDocsMetadata(docsPath: string): {
+	id: string;
+	label: string;
+	aliases: string[];
+	runtime: 'bundled' | 'catalog-only';
+} {
+	const markdown = readFileSync(path.join(process.cwd(), docsPath), 'utf8');
+	const fields = new Map<string, string>();
+	for (const line of markdown.split('\n')) {
+		const match = line.match(/^\| ([^|]+) \| (.*?) \|$/);
+		if (!match || match[1] === '---') continue;
+		fields.set(match[1].trim(), match[2].trim());
+	}
+
+	return {
+		id: unwrapBackticks(readRequiredField(fields, 'Channel id')),
+		label: readRequiredField(fields, 'Label'),
+		aliases: parseAliasField(readRequiredField(fields, 'Aliases')),
+		runtime: parseRuntimeField(readRequiredField(fields, 'Runtime')),
+	};
+}
+
+function readRequiredField(fields: Map<string, string>, field: string): string {
+	const value = fields.get(field);
+	if (!value) throw new Error(`Missing channel docs field: ${field}`);
+	return value;
+}
+
+function unwrapBackticks(value: string): string {
+	return value.replace(/^`|`$/g, '');
+}
+
+function parseAliasField(value: string): string[] {
+	if (value === 'none') return [];
+	return Array.from(value.matchAll(/`([^`]+)`/g), (match) => match[1]);
+}
+
+function parseRuntimeField(value: string): 'bundled' | 'catalog-only' {
+	if (value === 'Bundled runtime') return 'bundled';
+	if (value === 'Catalog-only' || value === 'Hidden catalog-only') return 'catalog-only';
+	throw new Error(`Unsupported channel runtime docs value: ${value}`);
+}
