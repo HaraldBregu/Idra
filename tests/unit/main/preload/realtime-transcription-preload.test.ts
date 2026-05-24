@@ -78,4 +78,22 @@ describe('realtime transcription preload API', () => {
 			ipcListener
 		);
 	});
+
+	it('rejects invalid realtime transcription preload payloads', () => {
+		expect(() => realtimeTranscription.start({ language: 123 } as never)).toThrow(
+			'Invalid realtime transcription language.'
+		);
+		expect(() => realtimeTranscription.appendAudio('', 'AAAA')).toThrow(
+			'Invalid realtime transcription session id.'
+		);
+		expect(() => realtimeTranscription.appendAudio('session-1', 'not base64?')).toThrow(
+			'Invalid realtime transcription audio chunk.'
+		);
+		expect(() => realtimeTranscription.finish('')).toThrow(
+			'Invalid realtime transcription session id.'
+		);
+		expect(() => realtimeTranscription.cancel('')).toThrow(
+			'Invalid realtime transcription session id.'
+		);
+	});
 });

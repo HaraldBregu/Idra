@@ -7,6 +7,9 @@ jest.mock('openai/realtime/websocket', () => ({
 
 import { OpenAIRealtimeWebSocket } from 'openai/realtime/websocket';
 import {
+	createDeepgramRealtimeTranscriptionUrl,
+	createDeepgramSpeechToTextAdapter,
+	createDeepgramSpeechToTextUrl,
 	createElevenLabsRealtimeTranscriptionUrl,
 	createElevenLabsSpeechToTextAdapter,
 	createElevenLabsSpeechToTextUrl,
@@ -37,6 +40,13 @@ import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 } from '../../../../src/shared/service';
 import {
+	isRealtimeTranscriptionAudioChunk,
+	isRealtimeTranscriptionSessionId,
+	normalizeRealtimeTranscriptionStartRequest,
+} from '../../../../src/shared/realtime-transcription';
+import {
+	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
+	DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
 	ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
@@ -149,6 +159,20 @@ describe('realtime transcription IPC', () => {
 		expect(isInputAudioBufferTooSmallError('Realtime transcription failed.')).toBe(false);
 	});
 
+	it('validates realtime transcription IPC payload shapes', () => {
+		expect(normalizeRealtimeTranscriptionStartRequest({ language: ' en-US ' })).toEqual({
+			language: 'en-US',
+		});
+		expect(normalizeRealtimeTranscriptionStartRequest(undefined)).toBeUndefined();
+		expect(() => normalizeRealtimeTranscriptionStartRequest({ language: 123 })).toThrow(
+			'Invalid realtime transcription language.'
+		);
+		expect(isRealtimeTranscriptionSessionId('session-1')).toBe(true);
+		expect(isRealtimeTranscriptionSessionId('')).toBe(false);
+		expect(isRealtimeTranscriptionAudioChunk('AAAA')).toBe(true);
+		expect(isRealtimeTranscriptionAudioChunk('not base64?')).toBe(false);
+	});
+
 	it('maps Mistral API base URLs to the realtime websocket server URL', () => {
 		expect(createMistralHttpServerUrl('https://api.mistral.ai/v1')).toBe(
 			'https://api.mistral.ai'
@@ -159,6 +183,41 @@ describe('realtime transcription IPC', () => {
 		expect(createMistralRealtimeServerUrl('http://localhost:8080/v1')).toBe(
 			'ws://localhost:8080'
 		);
+	});
+
+	it('maps Deepgram STT base URLs to HTTP and realtime endpoints', () => {
+		const batchUrl = new URL(
+			createDeepgramSpeechToTextUrl('https://api.deepgram.com/v1', DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID, {
+				language: 'en-US',
+			})
+		);
+		expect(batchUrl.origin).toBe('https://api.deepgram.com');
+		expect(batchUrl.pathname).toBe('/v1/listen');
+		expect(batchUrl.searchParams.get('model')).toBe(DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID);
+		expect(batchUrl.searchParams.get('encoding')).toBe('linear16');
+		expect(batchUrl.searchParams.get('sample_rate')).toBe(String(REALTIME_TRANSCRIPTION_SAMPLE_RATE));
+		expect(batchUrl.searchParams.get('language')).toBe('en-US');
+
+		const realtimeUrl = new URL(
+			createDeepgramRealtimeTranscriptionUrl(
+				'https://api.deepgram.com/v1',
+				DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
+				{ language: 'it-IT' }
+			)
+		);
+		expect(realtimeUrl.origin).toBe('wss://api.deepgram.com');
+		expect(realtimeUrl.pathname).toBe('/v2/listen');
+		expect(realtimeUrl.searchParams.get('model')).toBe('flux-general-multi');
+		expect(realtimeUrl.searchParams.get('language_hint')).toBe('it');
+		expect(realtimeUrl.searchParams.get('mip_opt_out')).toBe('true');
+	});
+
+	it('routes both Deepgram STT catalog models to the Deepgram adapter', () => {
+		const adapter = createDeepgramSpeechToTextAdapter();
+
+		expect(adapter.supports('deepgram', DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(adapter.supports('deepgram', DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(adapter.supports('openai', DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID)).toBe(false);
 	});
 
 	it('maps Qwen catalog STT ids to realtime websocket URLs', () => {
@@ -318,6 +377,49 @@ describe('realtime transcription IPC', () => {
 			type: 'started',
 			sessionId: session.id,
 			model: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
+		});
+	});
+
+	it('starts the Deepgram batch STT model through default service adapters', async () => {
+		const provider = {
+			id: 'deepgram',
+			name: 'Deepgram',
+			baseUrl: 'https://api.deepgram.com/v1',
+			apiKey: 'deepgram-key',
+		};
+		const service = new SpeechToTextService({
+			store: {
+				getSpeechToTextOperator: jest.fn(() => ({
+					id: 'speech-to-text',
+					name: 'Speech to text',
+					docsPath: 'models/speech-to-text.md',
+					status: 'implemented',
+					provider,
+					model: {
+						id: DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
+						name: 'Nova 3',
+					},
+				})),
+				getProviderById: jest.fn(() => provider),
+			} as never,
+		});
+		const owner = {
+			id: 1,
+			once: jest.fn(),
+			isDestroyed: jest.fn(() => false),
+			send: jest.fn(),
+		};
+
+		const session = await service.start(owner as never);
+
+		expect(session).toMatchObject({
+			model: DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
+			sampleRate: REALTIME_TRANSCRIPTION_SAMPLE_RATE,
+		});
+		expect(owner.send).toHaveBeenCalledWith(RealtimeTranscriptionChannels.event, {
+			type: 'started',
+			sessionId: session.id,
+			model: DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
 		});
 	});
 

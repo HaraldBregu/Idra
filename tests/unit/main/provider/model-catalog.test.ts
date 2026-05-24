@@ -214,6 +214,9 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 	});
 
 	it('identifies speech-to-text models that support live dictation', () => {
+		expect(isRealtimeSpeechToTextModel('deepgram', DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID)).toBe(
+			true
+		);
 		expect(isRealtimeSpeechToTextModel('openai', REALTIME_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(
 			true
 		);
@@ -229,7 +232,9 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 			false
 		);
 		expect(isRealtimeSpeechToTextModel('xai', XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID)).toBe(false);
-		expect(isRealtimeSpeechToTextModel('deepgram', 'flux')).toBe(false);
+		expect(isRealtimeSpeechToTextModel('deepgram', DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID)).toBe(
+			false
+		);
 	});
 
 	it('exposes the same provider catalogs through the shared models facade', () => {
