@@ -12,6 +12,7 @@ import {
 	RadioTower,
 	Server,
 	ShieldCheck,
+	type LucideIcon,
 	UserRound,
 	X,
 } from 'lucide-react';
@@ -47,6 +48,7 @@ import type {
 	ChannelAccountProperties,
 	ChannelConnectionStatus,
 	ChannelDmPolicy,
+	ChannelHeartbeatVisibilityConfig,
 	ChannelSetupField,
 	ChannelType,
 	DiscordChannelProperties,
@@ -66,6 +68,99 @@ import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
+type TextSetupField = Extract<
+	ChannelSetupField,
+	| 'token'
+	| 'secret'
+	| 'serverUrl'
+	| 'webhookUrl'
+	| 'appId'
+	| 'clientId'
+	| 'clientSecret'
+	| 'username'
+	| 'phoneNumber'
+	| 'botUserId'
+	| 'defaultTarget'
+>;
+
+const TEXT_SETUP_FIELD_CONFIG: Record<
+	TextSetupField,
+	{
+		readonly labelKey: string;
+		readonly placeholderKey: string;
+		readonly icon: LucideIcon;
+		readonly inputType?: React.HTMLInputTypeAttribute;
+	}
+> = {
+	token: {
+		labelKey: 'settings.channels.token',
+		placeholderKey: 'settings.channels.tokenPlaceholder',
+		icon: KeyRound,
+		inputType: 'password',
+	},
+	secret: {
+		labelKey: 'settings.channels.secret',
+		placeholderKey: 'settings.channels.secretPlaceholder',
+		icon: KeyRound,
+		inputType: 'password',
+	},
+	serverUrl: {
+		labelKey: 'settings.channels.serverUrl',
+		placeholderKey: 'settings.channels.serverUrlPlaceholder',
+		icon: Server,
+	},
+	webhookUrl: {
+		labelKey: 'settings.channels.webhookUrl',
+		placeholderKey: 'settings.channels.webhookUrlPlaceholder',
+		icon: Link2,
+	},
+	appId: {
+		labelKey: 'settings.channels.appId',
+		placeholderKey: 'settings.channels.appIdPlaceholder',
+		icon: Hash,
+	},
+	clientId: {
+		labelKey: 'settings.channels.clientId',
+		placeholderKey: 'settings.channels.clientIdPlaceholder',
+		icon: Hash,
+	},
+	clientSecret: {
+		labelKey: 'settings.channels.clientSecret',
+		placeholderKey: 'settings.channels.clientSecretPlaceholder',
+		icon: KeyRound,
+		inputType: 'password',
+	},
+	username: {
+		labelKey: 'settings.channels.username',
+		placeholderKey: 'settings.channels.usernamePlaceholder',
+		icon: UserRound,
+	},
+	phoneNumber: {
+		labelKey: 'settings.channels.phoneNumber',
+		placeholderKey: 'settings.channels.phoneNumberPlaceholder',
+		icon: Phone,
+		inputType: 'tel',
+	},
+	botUserId: {
+		labelKey: 'settings.channels.botUserId',
+		placeholderKey: 'settings.channels.botUserIdPlaceholder',
+		icon: UserRound,
+	},
+	defaultTarget: {
+		labelKey: 'settings.channels.defaultTarget',
+		placeholderKey: 'settings.channels.defaultTargetPlaceholder',
+		icon: Hash,
+	},
+};
+
+const HEARTBEAT_FIELDS: readonly {
+	readonly field: keyof ChannelHeartbeatVisibilityConfig;
+	readonly labelKey: string;
+}[] = [
+	{ field: 'showOk', labelKey: 'settings.channels.heartbeatShowOk' },
+	{ field: 'showAlerts', labelKey: 'settings.channels.heartbeatShowAlerts' },
+	{ field: 'useIndicator', labelKey: 'settings.channels.heartbeatUseIndicator' },
+];
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
