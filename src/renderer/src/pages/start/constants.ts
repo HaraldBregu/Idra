@@ -126,7 +126,8 @@ export const STEP_COPY: Record<'presentation' | 'providers', { title: string; de
 		},
 		providers: {
 			title: 'Connect a provider',
-			description: 'Add an API key to get started. Keys are stored locally on your device.',
+			description:
+				'Add at least one API key to continue. You can connect more providers at any time.',
 		},
 	};
 
