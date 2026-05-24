@@ -30,7 +30,7 @@ export function AgentTextMessage({
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
 
 	return (
-		<Message className={cn('min-w-0 w-full flex-col', className)}>
+		<Message className={cn('min-w-0 w-full flex-col gap-4', className)}>
 			{showHeader && (
 				<AssistantMessageHeader avatarState={isStreaming ? 'active' : 'stopped'} />
 			)}
