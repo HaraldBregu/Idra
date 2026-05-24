@@ -14,18 +14,24 @@ import {
 	HeartbeatChannels,
 	MonitorChannels,
 	SkillsChannels,
+	ChatMemoryChannels,
+	RagChannels,
+	WikiChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
 	AgentApi,
 	ChannelsApi,
+	ChatMemoryApi,
 	ConnectorsApi,
 	CronApi,
 	HeartbeatApi,
 	MonitorApi,
+	RagApi,
 	RealtimeTranscriptionApi,
 	SkillsApi,
 	TasksApi,
+	WikiApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -438,6 +444,42 @@ export const tasks: TasksApi = {
 	},
 };
 
+export const chatMemory: ChatMemoryApi = {
+	list: (request) => {
+		return typedInvokeUnwrap(ChatMemoryChannels.list, request);
+	},
+	read: (request) => {
+		return typedInvokeUnwrap(ChatMemoryChannels.read, request);
+	},
+	search: (request) => {
+		return typedInvokeUnwrap(ChatMemoryChannels.search, request);
+	},
+};
+
+export const rag: RagApi = {
+	list: () => {
+		return typedInvokeUnwrap(RagChannels.list);
+	},
+	read: (request) => {
+		return typedInvokeUnwrap(RagChannels.read, request);
+	},
+	search: (request) => {
+		return typedInvokeUnwrap(RagChannels.search, request);
+	},
+};
+
+export const wiki: WikiApi = {
+	list: () => {
+		return typedInvokeUnwrap(WikiChannels.list);
+	},
+	read: (request) => {
+		return typedInvokeUnwrap(WikiChannels.read, request);
+	},
+	search: (request) => {
+		return typedInvokeUnwrap(WikiChannels.search, request);
+	},
+};
+
 export const monitor: MonitorApi = {
 	snapshot: (filter?: MonitorEventFilter): Promise<MonitorSnapshot> => {
 		return typedInvokeUnwrap(MonitorChannels.snapshot, filter);
@@ -575,6 +617,9 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('tasks', tasks);
 		contextBridge.exposeInMainWorld('monitor', monitor);
+		contextBridge.exposeInMainWorld('chatMemory', chatMemory);
+		contextBridge.exposeInMainWorld('rag', rag);
+		contextBridge.exposeInMainWorld('wiki', wiki);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
@@ -598,6 +643,12 @@ if (process.contextIsolated) {
 	globalThis.tasks = tasks;
 	// @ts-ignore (define in dts)
 	globalThis.monitor = monitor;
+	// @ts-ignore (define in dts)
+	globalThis.chatMemory = chatMemory;
+	// @ts-ignore (define in dts)
+	globalThis.rag = rag;
+	// @ts-ignore (define in dts)
+	globalThis.wiki = wiki;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
