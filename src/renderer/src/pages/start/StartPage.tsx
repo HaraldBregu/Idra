@@ -239,9 +239,8 @@ const STEP_COPY: Record<'presentation' | 'providers', { title: string; descripti
 			'Configure providers first, then choose the exact model Friday should use for each capability.',
 	},
 	providers: {
-		title: 'Provider access',
-		description:
-			'Connect at least one provider before selecting assistant, speech, image, video, or music models.',
+		title: 'Connect a provider',
+		description: 'Add an API key to get started. Keys are stored locally on your device.',
 	},
 };
 
