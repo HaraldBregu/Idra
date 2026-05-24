@@ -4,6 +4,8 @@ An agent harness is the execution boundary around an AI agent run. It is the lay
 
 In Friday, the built-in `pi` harness keeps the normal provider-native agent loop. Plugin harnesses can replace that loop for specific runtimes while keeping the rest of Friday's agent surface stable: sessions, tools, provider settings, streaming, cancellation, logging, and persistence.
 
+For the deep implementation playbook, see [Agent harness implementation guide](implementation-guide.md).
+
 ## Why Harnesses Matter
 
 AI agent runtimes tend to grow in several directions at once: different model providers, local and remote tool runners, background execution, memory compaction, plugin hooks, and alternate orchestration engines. Without a harness boundary, each new runtime usually leaks conditionals into the core agent loop.
@@ -194,6 +196,7 @@ Friday also defines hook helper surfaces for LLM input/output, agent-end, prompt
 
 ## Related Docs
 
+- [Agent harness implementation guide](implementation-guide.md)
 - [Plugins and agent harnesses](../features/plugins-and-agent-harnesses.md)
 - [Agent harness implementation progress](../agent-harness-implementation-progress.md)
 - [Historical implementation plan](../agent-harness-implementation-plan.md)
