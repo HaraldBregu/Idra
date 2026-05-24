@@ -205,16 +205,16 @@ const MODEL_SERVICE_STEP_IDS: readonly ModelServiceId[] = MODEL_SERVICE_DEFINITI
 );
 const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', ...MODEL_SERVICE_STEP_IDS];
 
-const SETUP_STEP_TITLES: Record<SetupStep, string> = {
-	presentation: 'Welcome',
-	providers: 'Provider Setup',
-	[ASSISTANT_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[0].stepTitle,
-	[SPEECH_TO_TEXT_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[1].stepTitle,
-	[TEXT_TO_SPEECH_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[2].stepTitle,
-	[IMAGE_CREATOR_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[3].stepTitle,
-	[TEXT_TO_VIDEO_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[4].stepTitle,
-	[MUSIC_CREATOR_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[5].stepTitle,
-};
+const SETUP_STEP_TITLES: Record<SetupStep, string> = MODEL_SERVICE_DEFINITIONS.reduce(
+	(acc, service) => ({
+		...acc,
+		[service.id]: service.stepName,
+	}),
+	{
+		presentation: 'Welcome',
+		providers: 'Providers',
+	} as Record<SetupStep, string>
+);
 
 function isModelStep(step: SetupStep): step is ModelServiceId {
 	return step !== 'presentation' && step !== 'providers';
