@@ -31,6 +31,7 @@ import { createTools } from './tools/registry';
 import { createAgentTools } from './tools/create-agent-tools';
 import {
 	legacyToolToRuntimeTool,
+	prepareLegacyToolsForProvider,
 	runtimeToolToLegacyTool,
 } from './tools/runtime/legacy-tool-adapter';
 import { startupFilesTool } from './tools/startup';
@@ -412,6 +413,10 @@ export class AgentService {
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 				}
+				baseTools = prepareLegacyToolsForProvider(baseTools, ctx, {
+					provider: providerId,
+					modelId: model,
+				});
 
 				if (!bootstrapPending && this.dependencies.skills) {
 					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
