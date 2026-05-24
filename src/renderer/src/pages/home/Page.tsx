@@ -393,14 +393,6 @@ function PageContent(): ReactElement {
 		returnToChat();
 	};
 
-	const handlePrimaryAction = (): void => {
-		if (agent.isLoading || canSubmit) {
-			agent.handleSubmit();
-			return;
-		}
-		startVoiceConversation();
-	};
-
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			<div className="relative flex min-h-0 flex-1 flex-col bg-background text-foreground">
