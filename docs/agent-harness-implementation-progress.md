@@ -57,7 +57,8 @@ This page tracks the current implementation status. For the final concept and im
 - `src/main/agent/harness/activation.ts` registers a shared runtime activator and manifest loader.
 - `src/main/agent/harness/runtime-plugin.ts` discovers plugin manifests, resolves an `agentHarness` activation plan, and loads matching runtime entries.
 - `src/main/bootstrap.ts` registers runtime plugin activation and eagerly activates configured non-default runtimes.
-- `src/main/agent/harness-runtimes.ts` collects configured runtime ids from `FRIDAY_AGENT_RUNTIME` and nested `agentRuntime`, `agentHarnessId`, or `agentHarnessRuntime` config keys.
+- `src/main/agent/harness/index.ts` exposes the public harness submodule surface for host callers.
+- `src/main/agent/harness/runtimes.ts` collects configured runtime ids from `FRIDAY_AGENT_RUNTIME` and nested `agentRuntime`, `agentHarnessId`, or `agentHarnessRuntime` config keys.
 - `runAgentHarnessAttempt(...)` and `maybeCompactAgentHarnessSession(...)` activate resolved non-`pi` runtimes before selection.
 
 ### 7) Compaction, hook helpers, and tool-result middleware
