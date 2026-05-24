@@ -1,14 +1,22 @@
 import {
-	IMAGE_CREATOR_MODELS_BY_PROVIDER,
-	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
-	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
+	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
+	DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
 	ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
+	GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID,
+	IMAGE_CREATOR_MODELS_BY_PROVIDER,
+	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
+	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
-	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
+	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
+	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	SPEECH_TO_TEXT_BATCH_API_TYPE,
+	SPEECH_TO_TEXT_MODEL_API_TYPES_BY_PROVIDER,
 	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TO_TEXT_PROVIDER_MODELS,
+	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	TEXT_TO_IMAGE_PROVIDER_MODELS,
 	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_MODELS,
@@ -17,11 +25,13 @@ import {
 	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
 	getModelsByCapability,
 	getMusicModelsByProvider,
+	getSpeechToTextModelApiTypes,
 	getSpeechToTextModelsByProvider,
 	getTextToImageModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
 	isRealtimeSpeechToTextModel,
+	supportsSpeechToTextModelApiType,
 	XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
 	XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID,
 } from '../../../../src/shared/provider-models';
@@ -150,6 +160,57 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 		expect(isAllowedTextToVideoModel('runway', 'video-provider-coming-soon')).toBe(false);
 		expect(isAllowedMusicCreatorModel('suno', 'suno-v5.5')).toBe(true);
 		expect(isAllowedMusicCreatorModel('deepseek', 'music-provider-coming-soon')).toBe(false);
+	});
+
+	it('classifies speech-to-text model API types by provider', () => {
+		expect(SPEECH_TO_TEXT_MODEL_API_TYPES_BY_PROVIDER).toEqual({
+			deepgram: {
+				[DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID]: [
+					SPEECH_TO_TEXT_BATCH_API_TYPE,
+					SPEECH_TO_TEXT_STREAM_API_TYPE,
+				],
+				[DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
+			},
+			elevenlabs: {
+				[ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
+				[ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [
+					SPEECH_TO_TEXT_STREAM_API_TYPE,
+				],
+			},
+			mistral: {
+				[MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
+				[MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
+			},
+			openai: {
+				[GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID]: [
+					SPEECH_TO_TEXT_BATCH_API_TYPE,
+					SPEECH_TO_TEXT_STREAM_API_TYPE,
+				],
+				[MINI_SPEECH_TRANSCRIBER_MODEL_ID]: [
+					SPEECH_TO_TEXT_BATCH_API_TYPE,
+					SPEECH_TO_TEXT_STREAM_API_TYPE,
+				],
+			},
+			qwen: {
+				[QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
+				[QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
+			},
+			xai: {
+				[XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
+				[XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
+			},
+		});
+		expect(
+			getSpeechToTextModelApiTypes('deepgram', DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID)
+		).toEqual([SPEECH_TO_TEXT_STREAM_API_TYPE]);
+		expect(
+			supportsSpeechToTextModelApiType(
+				'openai',
+				GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID,
+				SPEECH_TO_TEXT_BATCH_API_TYPE
+			)
+		).toBe(true);
+		expect(getSpeechToTextModelApiTypes('unknown', 'missing')).toEqual([]);
 	});
 
 	it('identifies speech-to-text models that support live dictation', () => {
