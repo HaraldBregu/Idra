@@ -459,7 +459,7 @@ export class FridayCronScheduler {
 				(a, b) =>
 					(snapshot.states[a.id]?.nextRunAtMs ?? 0) - (snapshot.states[b.id]?.nextRunAtMs ?? 0)
 			)
-			.slice(0, Math.max(1, this.options.maxConcurrentRuns - this.running));
+			.slice(0, Math.max(0, this.options.maxConcurrentRuns - this.running));
 		for (const job of due) {
 			const scheduledForMs = snapshot.states[job.id]?.nextRunAtMs ?? now;
 			await this.executeJob(job.id, scheduledForMs, 'automatic');
