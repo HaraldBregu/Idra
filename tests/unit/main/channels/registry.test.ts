@@ -116,6 +116,26 @@ describe('ChannelRegistry', () => {
 		);
 	});
 
+	it('starts telegram with the selected named account runtime options', async () => {
+		const dependencies = createDependencies();
+		const registry = new ChannelRegistry(dependencies);
+
+		await registry.startTelegram({
+			token: 'work-token',
+			allowFrom: ['123'],
+			accountId: 'work',
+			defaultTarget: '-100',
+		});
+		const [adapter] = getMockTelegramInstances();
+
+		expect(adapter.options).toEqual({
+			token: 'work-token',
+			allowFrom: ['123'],
+			accountId: 'work',
+			defaultTarget: '-100',
+		});
+	});
+
 	it('does not start a second telegram adapter while one is running', async () => {
 		const dependencies = createDependencies();
 		const registry = new ChannelRegistry(dependencies);
@@ -124,6 +144,30 @@ describe('ChannelRegistry', () => {
 		await registry.startTelegram({ token: 'other', allowFrom: [] });
 
 		expect(getMockTelegramInstances()).toHaveLength(1);
+	});
+
+	it('does not start telegram when the selected account cannot be resolved', async () => {
+		const dependencies = createDependencies();
+		const registry = new ChannelRegistry(dependencies);
+
+		await registry.startChannel('telegram', {
+			token: 'legacy-token',
+			allowFrom: ['123'],
+			defaultAccountId: 'missing',
+			accounts: {
+				work: {
+					token: 'work-token',
+					allowFrom: ['123'],
+				},
+			},
+		});
+
+		expect(dependencies.logger.warn).toHaveBeenCalledWith(
+			'ChannelRegistry',
+			'Telegram default account is not configured',
+			{ channelId: 'telegram' }
+		);
+		expect(getMockTelegramInstances()).toHaveLength(0);
 	});
 
 	it('routes inbound telegram messages through the agent and sends the reply', async () => {
@@ -151,6 +195,37 @@ describe('ChannelRegistry', () => {
 				to: 'chat-1',
 				text: 'agent reply',
 				accountId: 'default',
+			})
+		);
+	});
+
+	it('preserves named account context for inbound telegram messages', async () => {
+		const dependencies = createDependencies();
+		dependencies.agentService.send.mockResolvedValue('agent reply');
+		const registry = new ChannelRegistry(dependencies);
+
+		await registry.startTelegram({ token: 'token', allowFrom: ['123'], accountId: 'work' });
+		const [adapter] = getMockTelegramInstances();
+
+		adapter.emitMessage({
+			type: 'telegram',
+			accountId: 'work',
+			from: '123',
+			fromName: 'Ada Lovelace',
+			chatId: 'chat-1',
+			text: 'hello',
+		});
+		await flushAsyncHandlers();
+
+		expect(dependencies.agentService.send).toHaveBeenCalledWith('hello', 'main', {
+			sessionId: 'agent:main:channel:telegram:account:work:peer:chat-1',
+		});
+		expect(adapter.send).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: 'telegram',
+				to: 'chat-1',
+				text: 'agent reply',
+				accountId: 'work',
 			})
 		);
 	});

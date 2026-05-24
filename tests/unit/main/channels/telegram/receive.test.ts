@@ -3,7 +3,7 @@ import { registerTextHandler } from '../../../../../src/main/channels/telegram/r
 
 type TextHandler = (ctx: {
 	message: { text: string };
-	from?: { id: number | string };
+	from?: { id: number | string; first_name?: string; last_name?: string; username?: string };
 	chat: { id: number | string };
 }) => Promise<void>;
 
@@ -33,13 +33,14 @@ describe('telegram registerTextHandler', () => {
 
 		await getHandler()({
 			message: { text: 'hello' },
-			from: { id: 123 },
+			from: { id: 123, first_name: 'Ada', last_name: 'Lovelace' },
 			chat: { id: 456 },
 		});
 
 		expect(emit).toHaveBeenCalledWith(
 			expect.objectContaining({
 				from: '123',
+				fromName: 'Ada Lovelace',
 				chatId: '456',
 				text: 'hello',
 				chatType: 'dm',

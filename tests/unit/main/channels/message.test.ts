@@ -44,4 +44,18 @@ describe('sendDurableMessageBatch', () => {
 			parts: [{ platformMessageId: 'abc' }],
 		});
 	});
+
+	it('rejects invalid chunk sizes instead of looping forever', async () => {
+		await expect(
+			sendDurableMessageBatch(
+				{ type: 'telegram', to: 'chat', text: 'hello' },
+				async (text) => ({
+					kind: 'text',
+					platformMessageId: text,
+					timestamp: 1,
+				}),
+				{ maxLength: 0 }
+			)
+		).rejects.toThrow('Channel message maxLength must be a positive integer.');
+	});
 });

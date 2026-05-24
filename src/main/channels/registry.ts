@@ -8,7 +8,7 @@ import { channelMessageRouteInput, resolveAgentRoute } from '../agent/routing';
 import type { TelegramAdapterOptions } from './telegram/types';
 import { createBundledCatalogPlugins } from './catalog-plugins';
 import { listChannelCatalog, normalizeChannelId } from './catalog';
-import { telegramChannelPlugin } from './telegram/plugin';
+import { resolveTelegramAdapterOptions, telegramChannelPlugin } from './telegram/plugin';
 import { runChannelTurn } from './turn';
 import type {
 	ChannelAdapter,
@@ -48,7 +48,9 @@ export class ChannelRegistry {
 		this.registerPlugin(telegramChannelPlugin);
 		this.registerRuntimeFactory('telegram', async (config) => {
 			const { TelegramAdapter } = await import('./telegram');
-			return new TelegramAdapter(config as TelegramAdapterOptions);
+			const options = resolveTelegramAdapterOptions(config as TelegramChannelProperties);
+			if (!options) throw new Error('Telegram account is not configured');
+			return new TelegramAdapter(options);
 		});
 		for (const [channelId, factory] of Object.entries(dependencies.runtimeFactories ?? {})) {
 			if (factory) this.registerRuntimeFactory(channelId as ChannelType, factory);
@@ -102,9 +104,12 @@ export class ChannelRegistry {
 		const channelId = this.requireChannelId(type);
 		const plugin = this.plugins.get(channelId);
 		if (!plugin) throw new Error(`Channel plugin is not registered: ${channelId}`);
-		const errors = plugin.setup?.validate(config as never) ?? [];
-		if (errors.length > 0) {
-			throw new Error(errors.join(' '));
+		const defaultAccount = plugin.config.getDefaultAccount(config);
+		if (defaultAccount?.enabled !== false) {
+			const errors = plugin.setup?.validate(config as never) ?? [];
+			if (errors.length > 0) {
+				throw new Error(errors.join(' '));
+			}
 		}
 		this.channelConfigs.set(channelId, config);
 	}
@@ -127,7 +132,15 @@ export class ChannelRegistry {
 		}
 
 		const account = plugin.config.getDefaultAccount(channelConfig);
-		if (account && !account.enabled) {
+		if (!account) {
+			this.dependencies.logger.warn(
+				'ChannelRegistry',
+				`${plugin.meta.name} default account is not configured`,
+				{ channelId }
+			);
+			return;
+		}
+		if (!account.enabled) {
 			this.dependencies.logger.warn('ChannelRegistry', `${plugin.meta.name} account is disabled`, {
 				channelId,
 				accountId: account.id,
@@ -135,7 +148,7 @@ export class ChannelRegistry {
 			});
 			return;
 		}
-		if (account && !account.configured) {
+		if (!account.configured) {
 			this.dependencies.logger.warn(
 				'ChannelRegistry',
 				`${plugin.meta.name} account is not configured`,
@@ -293,6 +306,23 @@ export class ChannelRegistry {
 	}
 
 	private getTelegramConfig(options: TelegramAdapterOptions): TelegramChannelProperties {
+		const accountId = options.accountId?.trim();
+		if (accountId && accountId !== 'default') {
+			const account: NonNullable<TelegramChannelProperties['accounts']>[string] = {
+				token: options.token,
+				allowFrom: [...options.allowFrom],
+			};
+			if (options.defaultTarget) account.defaultTarget = options.defaultTarget;
+			return {
+				token: '',
+				allowFrom: [],
+				defaultAccountId: accountId,
+				accounts: {
+					[accountId]: account,
+				},
+			};
+		}
+
 		const config: TelegramChannelProperties = {
 			token: options.token,
 			allowFrom: [...options.allowFrom],

@@ -1,4 +1,7 @@
-import { telegramChannelPlugin } from '../../../../../src/main/channels/telegram/plugin';
+import {
+	resolveTelegramAdapterOptions,
+	telegramChannelPlugin,
+} from '../../../../../src/main/channels/telegram/plugin';
 import { normalizeTelegramTextMessage } from '../../../../../src/main/channels/telegram/receive';
 
 describe('telegramChannelPlugin', () => {
@@ -92,6 +95,26 @@ describe('telegramChannelPlugin', () => {
 			configured: true,
 			allowFrom: ['work-user'],
 			defaultTargetId: '-100',
+		});
+		expect(resolveTelegramAdapterOptions(config)).toEqual({
+			token: 'work-token',
+			allowFrom: ['work-user'],
+			accountId: 'work',
+			defaultTarget: '-100',
+		});
+	});
+
+	it('keeps legacy top-level telegram config runnable as the default account', () => {
+		expect(
+			resolveTelegramAdapterOptions({
+				token: 'legacy-token',
+				allowFrom: ['legacy-user'],
+				defaultTarget: 'chat-1',
+			})
+		).toEqual({
+			token: 'legacy-token',
+			allowFrom: ['legacy-user'],
+			defaultTarget: 'chat-1',
 		});
 	});
 

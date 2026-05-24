@@ -32,6 +32,8 @@ For providers without a public first-party bot API, the channel page calls out
 the platform caveat instead of treating browser automation, linked-device
 automation, or third-party plugin behavior as an official provider contract.
 
+## Unified Gateway Contract
+
 ## Registry Behavior
 
 The channel registry owns channel plugin registration, account startup, runtime status, inbound dispatch, and outbound delivery. It registers catalog-only plugins first, then overrides entries when a runtime adapter is available.
