@@ -2,7 +2,7 @@
 
 This folder documents xAI speech-to-text models.
 
-| Model | Status | Notes |
-| --- | --- | --- |
-| `xai-stt-batch` | Documented | Batch speech-to-text model. |
-| `xai-stt-streaming` | Documented | Streaming speech-to-text model. |
+| Model | API Type | Status | Notes |
+| --- | --- | --- | --- |
+| `xai-stt-batch` | Batch API | Documented | Batch speech-to-text model. |
+| `xai-stt-streaming` | Stream API | Documented | Streaming speech-to-text model. |

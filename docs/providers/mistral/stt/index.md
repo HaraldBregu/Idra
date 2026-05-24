@@ -2,7 +2,7 @@
 
 This folder documents Mistral speech-to-text models.
 
-| Model | Status | Notes |
-| --- | --- | --- |
-| `voxtral-mini-2602` | Documented | Speech-to-text model. |
-| `voxtral-mini-transcribe-realtime-2602` | Documented | Realtime speech-to-text model. |
+| Model | API Type | Status | Notes |
+| --- | --- | --- | --- |
+| `voxtral-mini-2602` | Batch API | Documented | Speech-to-text model for uploaded or recorded audio. |
+| `voxtral-mini-transcribe-realtime-2602` | Stream API | Documented | Realtime speech-to-text model. |
