@@ -273,7 +273,9 @@ export class TaskManager {
 
 	private maxActiveTasks(): number {
 		const configured = this.policy?.()?.defaultConcurrency;
-		return Number.isSafeInteger(configured) && configured > 0 ? configured : UNBOUNDED_CONCURRENCY;
+		return typeof configured === 'number' && Number.isSafeInteger(configured) && configured > 0
+			? configured
+			: UNBOUNDED_CONCURRENCY;
 	}
 
 	private async startTask(taskId: string): Promise<void> {
