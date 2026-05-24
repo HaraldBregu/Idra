@@ -76,12 +76,6 @@ type AgentModelOption = {
 	model: Model;
 };
 
-type ModelAreaDefinition = {
-	id: ModelAreaId;
-	title: string;
-	purpose: string;
-	icon: LucideIcon;
-};
 
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
@@ -184,7 +178,6 @@ function StepProgress({ currentIndex }: { readonly currentIndex: number }): Reac
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [step, setStep] = useState<SetupStep>('presentation');
-	const [expandedModelAreaId, setExpandedModelAreaId] = useState<ModelAreaId>(AGENTS.assistant);
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
 		actionableProviderCatalog.map((provider, index) => ({
 			providerId: provider.id,
@@ -957,12 +950,6 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderPresentationStep(): React.JSX.Element {
-		const features = [
-			{ icon: Bot, label: 'AI assistant', description: 'Chat with any provider model' },
-			{ icon: Mic, label: 'Voice input', description: 'Talk to Friday hands-free' },
-			{ icon: Zap, label: 'Agents & skills', description: 'Automate tasks on a schedule' },
-		];
-
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
@@ -976,24 +963,6 @@ const StartPage: React.FC = () => {
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
 					Your personal AI assistant. Connect a provider, pick your models, and start working.
 				</p>
-				<div className="mt-8 grid w-full max-w-sm gap-3 text-left">
-					{features.map(({ icon: Icon, label, description }) => (
-						<div
-							key={label}
-							className="flex items-center gap-3 rounded-lg border border-border/60 bg-card px-4 py-3"
-						>
-							<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-								<Icon className="size-3.5" strokeWidth={1.8} />
-							</div>
-							<div className="min-w-0">
-								<p className="text-sm font-semibold leading-tight text-foreground">{label}</p>
-								<p className="text-xs font-medium leading-tight text-muted-foreground">
-									{description}
-								</p>
-							</div>
-						</div>
-					))}
-				</div>
 			</div>
 		);
 	}
@@ -1012,7 +981,7 @@ const StartPage: React.FC = () => {
 				</div>
 
 				<div className="mt-4 space-y-2">
-					{actionableProviderCatalog.map((provider, index) => {
+					{actionableProviderCatalog.map((provider) => {
 						const entry = providerEntries.find((item) => item.providerId === provider.id);
 						const connected = entry?.apiKeySaved ?? false;
 						const editing = entry?.editing ?? false;
@@ -1043,14 +1012,6 @@ const StartPage: React.FC = () => {
 												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
 													{provider.name}
 												</h2>
-												{index === 0 && !connected ? (
-													<Badge
-														variant="secondary"
-														className="h-4 shrink-0 rounded px-1.5 text-[10px] font-semibold"
-													>
-														Recommended
-													</Badge>
-												) : null}
 												<Button
 													type="button"
 													variant="ghost"
