@@ -49,10 +49,11 @@ function parseMonitorFilter(value: unknown): MonitorEventFilter {
 		filter.severity = input.severity;
 	}
 	if (input.limit !== undefined) {
-		if (!Number.isSafeInteger(input.limit) || input.limit <= 0) {
+		const limit = input.limit;
+		if (typeof limit !== 'number' || !Number.isSafeInteger(limit) || limit <= 0) {
 			throw new Error('limit must be a positive integer.');
 		}
-		filter.limit = input.limit;
+		filter.limit = limit;
 	}
 
 	return filter;

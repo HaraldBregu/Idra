@@ -164,7 +164,7 @@ describe('MonitorService', () => {
 
 		service.start();
 		const unsubscribe = service.onRecord((record) => {
-			observed.push(record);
+			observed.push(JSON.parse(JSON.stringify(record)));
 			(record.payload as { token?: unknown }).token = 'mutated';
 		});
 		eventBus.emit('channel:route', {
