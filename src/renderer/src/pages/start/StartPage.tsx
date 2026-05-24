@@ -526,7 +526,7 @@ const StartPage: React.FC = () => {
 				<TooltipProvider>
 					<Tooltip>
 						<TooltipTrigger render={<span className="inline-flex">{button}</span>} />
-						<TooltipContent>Add and save at least one API key to continue.</TooltipContent>
+						<TooltipContent>Save an API key to continue.</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			);
