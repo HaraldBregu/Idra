@@ -120,6 +120,11 @@ function SettingsOverviewCard({
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
 				</ItemTitle>
+				{'descriptionKey' in item && item.descriptionKey && (
+					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+						{t(item.descriptionKey)}
+					</p>
+				)}
 			</ItemContent>
 			<ItemActions className="ml-0 flex-none justify-end">
 				{comingSoon ? (
