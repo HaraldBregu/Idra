@@ -256,7 +256,7 @@ const ConnectorDetailsPage: React.FC = () => {
 				return;
 			}
 
-			if (!connectorId) throw new Error(t('settings.connectors.notFoundDescription'));
+			if (!connectorId) throw new Error('Connector not found.');
 
 			const nextConnector = await window.connectors.get(connectorId);
 			const item = getConnectorCatalogItem(nextConnector.connectorId);
@@ -284,7 +284,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [connectorCatalogId, connectorId, navigate, t]);
+	}, [connectorCatalogId, connectorId, navigate]);
 
 	useEffect(() => {
 		void load();
