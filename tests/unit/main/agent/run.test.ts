@@ -206,6 +206,38 @@ describe('agent/run', () => {
 		expect(result.finalText).toBe('done');
 	});
 
+	it('uses provider-safe aliases in tool-selection prompt guidance', async () => {
+		const systems: string[] = [];
+		const tool: AgentTool = {
+			name: 'Bad Tool!',
+			description: 'Read workspace files with an unsafe source name.',
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		};
+
+		await runAgent({
+			runId: 'r1',
+			userMessage: 'read a workspace file with the bad tool',
+			systemPrompt: 'sys',
+			session: session(),
+			provider: {
+				async *stream(req) {
+					systems.push(req.system);
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield end();
+				},
+			},
+			providerId: 'openai',
+			model: 'gpt-test',
+			tools: [tool],
+			ctx: makeToolContext(),
+			toolManagement: { forceSelection: true, maxPromptTools: 1 },
+		});
+
+		expect(systems[0]).toContain('Tool: bad_tool');
+		expect(systems[0]).not.toContain('Tool: Bad Tool!');
+	});
+
 	it('rejects malformed tool arguments without executing the tool', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
