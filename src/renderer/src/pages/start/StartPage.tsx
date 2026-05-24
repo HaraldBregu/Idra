@@ -526,29 +526,35 @@ const StartPage: React.FC = () => {
 		openExternalUrl(provider.apiConfigurationUrl);
 	}
 
-	async function handleSaveServiceModels(): Promise<void> {
-		if (!canSaveModelSetup) return;
+	async function handleSaveModelStep(): Promise<void> {
+		if (!canSaveModelSetup || !currentModelService) return;
 
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			for (const service of MODEL_SERVICE_DEFINITIONS) {
-				const selectedModel = getSelectedServiceModel(service.id);
-				if (!selectedModel) {
-					if (service.required) {
-						throw new Error(`Could not save selection for ${service.label}.`);
-					}
-					continue;
-				}
-
-				const saved = await service.saveOperator(selectedModel.provider, selectedModel.model);
+			const selectedModel = getSelectedServiceModel(currentModelService.id);
+			if (selectedModel) {
+				const saved = await currentModelService.saveOperator(
+					selectedModel.provider,
+					selectedModel.model
+				);
 				if (!saved) {
-					throw new Error(`Could not save the selected ${service.label} model.`);
+					throw new Error(`Could not save the selected ${currentModelService.label} model.`);
 				}
 			}
-			navigate('/home');
+
+			const nextIndex = stepIndex + 1;
+			const nextStep = SETUP_STEPS[nextIndex];
+			if (!nextStep) {
+				navigate('/home');
+				return;
+			}
+
+			goToStep(nextStep);
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save the selected model.'));
+			setErrorMessage(
+				getErrorMessage(error, `Could not save the selected ${currentModelService.label} model.`)
+			);
 		} finally {
 			setSavingConfig(false);
 		}
@@ -565,24 +571,22 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		if (step === 'models') {
-			void handleSaveServiceModels();
+		if (isModelStep(step)) {
+			void handleSaveModelStep();
 			return;
 		}
-
-		navigate('/home');
 	}
 
 	function getPrimaryLabel(): string {
 		if (step === 'presentation') return 'Get started';
 		if (savingProviderId !== null || savingConfig) return 'Saving...';
-		if (step === 'models') return 'Get started';
+		if (isModelStep(step) && isLastModelStep) return 'Get started';
 		return 'Continue';
 	}
 
 	function isPrimaryDisabled(): boolean {
 		if (step === 'providers') return !canContinueProviders;
-		if (step === 'models') return !canSaveModelSetup;
+		if (isModelStep(step)) return !canSaveModelSetup;
 		return isBusy;
 	}
 
@@ -603,12 +607,22 @@ const StartPage: React.FC = () => {
 			</Button>
 		);
 
-		if (step === 'providers' && !canContinueProviders) {
+		const isDisabled = isPrimaryDisabled();
+		const shouldShowProvidersTooltip = step === 'providers' && !canContinueProviders;
+		const shouldShowModelTooltip =
+			isModelStep(step) &&
+			currentModelService?.required === true &&
+			!getSelectedServiceModel(currentModelService.id);
+		if (shouldShowProvidersTooltip || shouldShowModelTooltip) {
 			return (
 				<TooltipProvider>
 					<Tooltip>
 						<TooltipTrigger render={<span className="inline-flex">{button}</span>} />
-						<TooltipContent>Save an API key to continue.</TooltipContent>
+						<TooltipContent>
+							{shouldShowProvidersTooltip
+								? 'Save an API key to continue.'
+								: 'Select a model to continue.'}
+						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			);
