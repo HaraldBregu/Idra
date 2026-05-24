@@ -346,9 +346,6 @@ const StartPage: React.FC = () => {
 				);
 				const nextServiceStates = createInitialModelServiceState();
 				let firstError: unknown;
-
-			setLoadingModels(true);
-			setErrorMessage('');
 				if (selectableProviders.length > 0) {
 					for (let index = 0; index < MODEL_SERVICE_DEFINITIONS.length; index += 1) {
 						const service = MODEL_SERVICE_DEFINITIONS[index];
