@@ -26,7 +26,6 @@ import {
 	TEXT_TO_VIDEO_OPERATOR_ID,
 	type Model,
 } from '../../../../shared/agents/service';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,6 +39,7 @@ import {
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ProviderAvatar } from '@/components/ui/provider-avatar';
 import {
 	Select,
 	SelectContent,
