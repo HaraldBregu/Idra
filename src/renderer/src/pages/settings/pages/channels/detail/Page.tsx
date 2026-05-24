@@ -705,6 +705,49 @@ function ListEditor({
 	);
 }
 
+function HeartbeatEditor({
+	value,
+	onChange,
+	t,
+}: {
+	readonly value: ChannelHeartbeatVisibilityConfig | undefined;
+	readonly onChange: (value: ChannelHeartbeatVisibilityConfig) => void;
+	readonly t: (key: string) => string;
+}): React.JSX.Element {
+	return (
+		<div className="grid w-full min-w-0 gap-1.5">
+			{HEARTBEAT_FIELDS.map(({ field, labelKey }) => {
+				const label = t(labelKey);
+				return (
+					<div
+						key={field}
+						className="flex min-h-7 items-center justify-between gap-3 rounded-md border border-border/60 px-2"
+					>
+						<span className="min-w-0 truncate text-[11px] text-muted-foreground">{label}</span>
+						<Switch
+							checked={Boolean(value?.[field])}
+							onCheckedChange={(checked) => onChange({ ...(value ?? {}), [field]: checked })}
+							aria-label={label}
+						/>
+					</div>
+				);
+			})}
+		</div>
+	);
+}
+
+function isTextSetupField(field: ChannelSetupField): field is TextSetupField {
+	return Object.prototype.hasOwnProperty.call(TEXT_SETUP_FIELD_CONFIG, field);
+}
+
+function getAccountStringValue(
+	account: ChannelAccountProperties,
+	field: TextSetupField
+): string {
+	const value = account[field];
+	return typeof value === 'string' ? value : '';
+}
+
 function getDefaultAccountConfig(
 	channelId: ChannelType,
 	config: EditableChannelConfig
