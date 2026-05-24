@@ -36,28 +36,22 @@ export function ModelServiceStep({
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
-			<div className="mb-5 flex size-16 items-center justify-center rounded-xl border border-border bg-card text-foreground shadow-sm">
-				<ServiceIcon className="size-8" strokeWidth={1.7} aria-hidden="true" />
+			<div className="mb-6 flex size-11 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground">
+				<ServiceIcon className="size-5" strokeWidth={1.6} aria-hidden="true" />
 			</div>
 
-			<div className="flex items-start justify-between gap-3">
-				<div>
-					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						{service.stepTitle}
-					</h1>
-					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						{service.stepDescription}
-					</p>
-				</div>
-				<Badge
-					variant={service.required ? 'default' : 'secondary'}
-					className="mt-1 shrink-0"
-				>
-					{service.required ? 'Required' : 'Optional'}
-				</Badge>
-			</div>
+			<Badge variant={service.required ? 'default' : 'secondary'} className="mb-3 w-fit">
+				{service.required ? 'Required' : 'Optional'}
+			</Badge>
 
-			<div className="mt-6 grid gap-3 sm:grid-cols-2">
+			<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
+				{service.stepTitle}
+			</h1>
+			<p className="mt-2 max-w-md text-xs font-medium leading-relaxed text-muted-foreground">
+				{service.stepDescription}
+			</p>
+
+			<div className="mt-8 max-w-xs space-y-4">
 				<StepField id={`${service.id}-provider`} label="Provider">
 					<Select
 						value={serviceState.providerId}
@@ -106,9 +100,9 @@ export function ModelServiceStep({
 			</div>
 
 			{loadingModels ? (
-				<div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+				<div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
 					<LoaderCircle className="size-3.5 animate-spin" />
-					<span>Checking connected providers for compatible models.</span>
+					<span>Loading compatible models...</span>
 				</div>
 			) : null}
 		</div>
