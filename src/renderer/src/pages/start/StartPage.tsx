@@ -38,11 +38,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from '@/components/ui/input-group';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
 	Select,
