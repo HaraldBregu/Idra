@@ -12,7 +12,7 @@ import { WaveAnimation } from "./wave-animation"
 import { TypingLoader } from "./loader"
 import { Button } from "./button"
 import { cn } from "@/lib/utils"
-import { Check, Mic, MicOff, PhoneCall, X } from "lucide-react"
+import { AudioLines, Check, Mic, MicOff, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React, {
   createContext,
@@ -647,9 +647,7 @@ function PromptInputVoiceActions({
   const speechToTextLabel = SPEECH_TO_TEXT_ACTION_LABELS[speechToTextMode]
   const isSpeechToTextDisabled =
     speechToTextDisabled || speechToTextMode === "disabled"
-  const voiceConversationLabel = voiceConversationDisabled
-    ? "Voice conversation unavailable"
-    : "Start voice conversation"
+  const voiceConversationLabel = "Start voice conversation"
 
   const handleSpeechToText = () => {
     if (isSpeechToTextDisabled) return
@@ -679,14 +677,14 @@ function PromptInputVoiceActions({
       <PromptInputAction tooltip={voiceConversationLabel}>
         <Button
           type="button"
-          variant="ghost"
+          variant="default"
           size="icon"
-          className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="size-9 overflow-hidden rounded-full bg-foreground text-background hover:bg-foreground/90"
           aria-label={voiceConversationLabel}
           disabled={voiceConversationDisabled}
           onClick={handleVoiceConversation}
         >
-          <PhoneCall className="size-4" />
+          <AudioLines className="size-4" />
         </Button>
       </PromptInputAction>
     </>
