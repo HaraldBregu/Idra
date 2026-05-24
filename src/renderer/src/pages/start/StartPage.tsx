@@ -558,7 +558,7 @@ const StartPage: React.FC = () => {
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Connect your AI provider
+						Connect a provider
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
 						Add one API key so {PRODUCT_NAME} can start answering your requests. Your key is saved
