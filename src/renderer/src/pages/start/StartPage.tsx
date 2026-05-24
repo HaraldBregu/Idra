@@ -1260,7 +1260,7 @@ const StartPage: React.FC = () => {
 		);
 		const speechStatus = loadingModels
 			? 'Loading models...'
-			: (selectedSpeechOption?.name ?? 'No transcription model');
+			: (selectedSpeechOption?.name ?? 'Not configured (optional)');
 		const selectedTextToSpeechGroup = textToSpeechModelGroups.find(
 			(group) => group.provider.id === textToSpeechProviderId
 		);
