@@ -40,6 +40,7 @@ The harness should not become a second application service. If it starts resolvi
 
 | Concern           | Friday source                              | Harness responsibility                                                          |
 | ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------- |
+| Public facade     | `src/main/agent/harness/index.ts`          | Keep outside callers on a narrow agent harness module boundary.                 |
 | Contract          | `src/main/agent/harness/types.ts`          | Implement required methods and only meaningful optional methods.                |
 | Registration      | `src/main/agent/harness/registry.ts`       | Register one stable runtime id with validation.                                 |
 | Policy            | `src/main/agent/harness/policy.ts`         | Respect request/store/default runtime resolution.                               |
@@ -47,6 +48,7 @@ The harness should not become a second application service. If it starts resolvi
 | Lifecycle         | `src/main/agent/harness/v2.ts`             | Let the adapter handle start/end logging, classification, and cleanup behavior. |
 | Built-in fallback | `src/main/agent/harness/builtin-pi.ts`     | Use `pi` as the conservative default path.                                      |
 | Plugin activation | `src/main/agent/harness/runtime-plugin.ts` | Match runtime ids to `activation.onAgentHarnesses`.                             |
+| Runtime config    | `src/main/agent/harness/runtimes.ts`       | Collect configured non-default harness runtime ids.                             |
 | Compaction        | `src/main/agent/compaction.ts`             | Implement `compact(...)` only when runtime-specific compaction is required.     |
 | Tool loop         | `src/main/agent/run.ts`                    | Preserve tool events, middleware, hooks, limits, and cancellation semantics.    |
 
