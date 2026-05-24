@@ -144,6 +144,7 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		saveOperator: (provider, model) => window.app.saveMusicCreatorOperator(provider, model),
 	},
 ];
+
 type SetupStep = 'presentation' | 'providers' | ModelServiceId;
 
 const MODEL_SERVICE_STEP_IDS: readonly ModelServiceId[] = MODEL_SERVICE_DEFINITIONS.map(
@@ -159,12 +160,12 @@ function createInitialModelServiceState(): ModelServiceStateMap {
 	return MODEL_SERVICE_DEFINITIONS.reduce(
 		(acc, service) => ({
 			...acc,
-					[service.id]: {
-						providerId: '',
-						modelId: '',
-						modelGroups: [],
-					},
-				}),
+			[service.id]: {
+				providerId: '',
+				modelId: '',
+				modelGroups: [],
+			},
+		}),
 		{} as ModelServiceStateMap
 	);
 }
