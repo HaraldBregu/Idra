@@ -12,6 +12,11 @@ import {
 	resolveConnectorActivationPlan,
 	type ConnectorManifestRecord,
 } from '../../../../src/main/plugins';
+import { clearAgentHarnessHookProviders } from '../../../../src/main/agent/harness/hook-runner';
+import {
+	clearAgentToolResultMiddlewareRegistrations,
+	listAgentToolResultMiddlewareRegistrations,
+} from '../../../../src/main/agent/harness/tool-result-middleware';
 import { markCoreTool, type AgentTool } from '../../../../src/main/tools/common';
 import { textResult } from '../../../../src/main/tools/results';
 import { makeTempDir } from '../test-helpers';
@@ -40,6 +45,11 @@ function record(manifest: unknown, overrides: Partial<ConnectorManifestRecord> =
 }
 
 describe('Friday-style connector runtime', () => {
+	beforeEach(() => {
+		clearAgentHarnessHookProviders();
+		clearAgentToolResultMiddlewareRegistrations();
+	});
+
 	it('loads and normalizes manifest ownership metadata', async () => {
 		const dir = await makeTempDir('friday-plugin-manifest-');
 		const manifestPath = path.join(dir, 'friday.plugin.json');
@@ -148,6 +158,27 @@ describe('Friday-style connector runtime', () => {
 
 		await expect(registry.resolveTools({ sandboxed: true })).resolves.toEqual([]);
 		expect(factory).toHaveBeenCalledWith({ sandboxed: true });
+	});
+
+	it('registers runtime hooks and tool-result middleware through the connector API', () => {
+		const registry = new FridayConnectorRegistry();
+		const demo = record({ id: 'demo', activation: { onCapabilities: ['hook'] }, contracts: {} });
+		const api = buildFridayConnectorApi({ record: demo, registry, registrationMode: 'full' });
+		const hook = jest.fn();
+		const middleware = jest.fn((blocks) => blocks);
+
+		api.registerHook('agent_end', hook);
+		api.registerAgentToolResultMiddleware({
+			name: 'audit',
+			runtime: 'pi',
+			handler: middleware,
+		});
+
+		expect(registry.listValues('hooks')).toHaveLength(1);
+		expect(registry.listValues('agentToolResultMiddleware')).toHaveLength(1);
+		expect(listAgentToolResultMiddlewareRegistrations()).toEqual([
+			expect.objectContaining({ name: 'audit', runtime: 'pi' }),
+		]);
 	});
 
 	it('suppresses unavailable registration surfaces by mode while keeping CLI metadata available', () => {
