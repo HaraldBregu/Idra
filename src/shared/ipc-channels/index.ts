@@ -719,6 +719,9 @@ export interface InvokeChannelMap
 		TaskInvokeChannelMap,
 		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
+		ChatMemoryInvokeChannelMap,
+		RagInvokeChannelMap,
+		WikiInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
