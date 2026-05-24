@@ -142,7 +142,9 @@ describe('ChannelRegistry', () => {
 		});
 		await flushAsyncHandlers();
 
-		expect(dependencies.agentService.send).toHaveBeenCalledWith('hello');
+		expect(dependencies.agentService.send).toHaveBeenCalledWith('hello', 'main', {
+			sessionId: 'agent:main:channel:telegram:account:default:peer:chat-1',
+		});
 		expect(adapter.send).toHaveBeenCalledWith(
 			expect.objectContaining({
 				type: 'telegram',

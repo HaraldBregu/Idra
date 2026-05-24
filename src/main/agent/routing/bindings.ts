@@ -45,16 +45,14 @@ function normalizePeer(value: unknown, allowThread: boolean): AgentRoutePeer | u
 	const record = readRecord(value);
 	if (!record) return undefined;
 	const kind = normalizeLowerId(record.kind);
-	if (
-		kind !== 'direct' &&
-		kind !== 'group' &&
-		kind !== 'channel' &&
-		(allowThread ? kind !== 'thread' : true)
-	) {
+	const allowedKinds = allowThread
+		? new Set(['direct', 'group', 'channel', 'thread'])
+		: new Set(['direct', 'group', 'channel']);
+	if (!kind || !allowedKinds.has(kind)) {
 		return undefined;
 	}
 	const id = normalizeId(record.id);
-	return id ? { kind, id } : undefined;
+	return id ? { kind: kind as AgentRoutePeer['kind'], id } : undefined;
 }
 
 export function normalizeAgentConfig(value: unknown): AgentConfig | undefined {

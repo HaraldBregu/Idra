@@ -262,6 +262,16 @@ export class AgentService {
 			}),
 			...(this.dependencies.connectors?.createAgentTools() ?? []),
 		];
+		const toolRuntimeConfig =
+			toolPolicy?.fs || toolPolicy?.exec
+				? {
+						toolSearch: { enabled: false },
+						tools: {
+							fs: toolPolicy.fs,
+							exec: toolPolicy.exec,
+						},
+					}
+				: { toolSearch: { enabled: false } };
 		const runtime = await createAgentTools({
 			workspaceDir: context.workspace,
 			agentId: context.agentId,
@@ -276,13 +286,7 @@ export class AgentService {
 			hostTools: legacyHostTools.map((tool) =>
 				legacyToolToRuntimeTool(tool, context.toolContext)
 			),
-			config: {
-				toolSearch: { enabled: false },
-				tools: {
-					fs: toolPolicy?.fs,
-					exec: toolPolicy?.exec,
-				},
-			},
+			config: toolRuntimeConfig,
 		});
 		return runtime.tools.map(runtimeToolToLegacyTool);
 	}

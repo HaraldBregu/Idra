@@ -38,6 +38,8 @@ export interface AppEvents {
 		replyToMessageId?: string;
 		chatType?: import('../channels/types').ChannelChatType;
 		sessionKey?: string;
+		legacySessionKey?: string;
+		agentId?: string;
 	};
 	'heartbeat:event': import('../../shared/heartbeat').HeartbeatEventPayload;
 }
