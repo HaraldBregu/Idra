@@ -70,7 +70,9 @@ export function ModelServiceStep({
 								placeholder={
 									loadingModels ? 'Loading...' : noModels ? 'No providers' : 'Select provider'
 								}
-							/>
+							>
+								{selectedProviderLabel}
+							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
 							{serviceState.modelGroups.map((group) => (
