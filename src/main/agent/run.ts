@@ -836,6 +836,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 
 	session.plan = ctx.plan.entries;
 
+	await fireAgentEndOnce();
 	await hooks?.onFinish?.({
 		runId,
 		stopReason,
