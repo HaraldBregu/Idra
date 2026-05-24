@@ -274,8 +274,8 @@ export class AgentService {
 			...(this.dependencies.connectors?.createAgentTools() ?? []),
 			...(this.dependencies.subagents
 				? [
-						createSessionsSpawnTool(this.dependencies.subagents) as unknown as AgentTool,
-						createSubagentsControlTool(this.dependencies.subagents) as unknown as AgentTool,
+						createSessionsSpawnTool(this.dependencies.subagents),
+						createSubagentsControlTool(this.dependencies.subagents),
 					]
 				: []),
 		];

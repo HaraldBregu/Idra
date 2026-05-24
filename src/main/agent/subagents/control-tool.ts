@@ -1,7 +1,7 @@
 import type { AgentTool, AgentToolResult, ToolContext } from '../../tools/types';
 import { textResult } from '../../tools/types';
 import type { SubagentSpawnPort } from './spawn-service';
-import type { SubagentsControlInput, SubagentsControlResult } from './types';
+import type { SubagentsControlResult } from './types';
 
 function controlResult(result: SubagentsControlResult): AgentToolResult<SubagentsControlResult> {
 	return {
@@ -13,7 +13,7 @@ function controlResult(result: SubagentsControlResult): AgentToolResult<Subagent
 
 export function createSubagentsControlTool(
 	subagents: SubagentSpawnPort
-): AgentTool<SubagentsControlInput> {
+): AgentTool {
 	return {
 		name: 'subagents',
 		displaySummary: 'Control child subagent runs.',

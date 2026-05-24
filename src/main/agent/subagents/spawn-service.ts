@@ -21,7 +21,7 @@ import type {
 } from './types';
 
 export interface SubagentSpawnRequest {
-	input: SessionsSpawnInput;
+	input: unknown;
 	requesterAgentId?: string;
 	requesterSessionKey: string;
 	controllerSessionKey?: string;
@@ -34,7 +34,7 @@ export interface SubagentSpawnPort {
 }
 
 export interface SubagentsControlRequest {
-	input: SubagentsControlInput;
+	input: unknown;
 	requesterSessionKey: string;
 	sessionBaseDir?: string;
 }
@@ -78,6 +78,13 @@ function requireTask(value: unknown): string {
 	return task;
 }
 
+function readRecord(value: unknown, name: string): Record<string, unknown> {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		throw new Error(`${name} must be an object.`);
+	}
+	return value as Record<string, unknown>;
+}
+
 function optionalString(value: unknown, name: string): string | undefined {
 	if (value === undefined || value === null) return undefined;
 	if (typeof value !== 'string') throw new Error(`${name} must be a string.`);
@@ -92,18 +99,43 @@ function optionalPositiveInteger(value: unknown, name: string): number | undefin
 	return value;
 }
 
-function parseInput(input: SessionsSpawnInput): ParsedSessionsSpawnInput {
+function readSpawnMode(value: unknown): SubagentSpawnMode {
+	if (value === undefined || value === null) return 'run';
+	if (value === 'run' || value === 'session') return value;
+	throw new Error('mode must be run or session.');
+}
+
+function readCleanup(value: unknown): SubagentCleanup {
+	if (value === undefined || value === null) return 'keep';
+	if (value === 'delete' || value === 'keep') return value;
+	throw new Error('cleanup must be delete or keep.');
+}
+
+function readContext(value: unknown): 'isolated' | 'fork' {
+	if (value === undefined || value === null) return 'isolated';
+	if (value === 'isolated' || value === 'fork') return value;
+	throw new Error('context must be isolated or fork.');
+}
+
+function readSandbox(value: unknown): 'inherit' | 'require' {
+	if (value === undefined || value === null) return 'inherit';
+	if (value === 'inherit' || value === 'require') return value;
+	throw new Error('sandbox must be inherit or require.');
+}
+
+function parseInput(input: unknown): ParsedSessionsSpawnInput {
+	const record = readRecord(input, 'sessions_spawn input');
 	return {
-		task: requireTask(input.task),
-		taskName: optionalString(input.taskName, 'taskName'),
-		label: optionalString(input.label, 'label'),
-		agentId: optionalString(input.agentId, 'agentId'),
-		model: optionalString(input.model, 'model'),
-		runTimeoutSeconds: optionalPositiveInteger(input.runTimeoutSeconds, 'runTimeoutSeconds'),
-		mode: input.mode ?? 'run',
-		cleanup: input.cleanup ?? 'keep',
-		context: input.context ?? 'isolated',
-		sandbox: input.sandbox ?? 'inherit',
+		task: requireTask(record.task),
+		taskName: optionalString(record.taskName, 'taskName'),
+		label: optionalString(record.label, 'label'),
+		agentId: optionalString(record.agentId, 'agentId'),
+		model: optionalString(record.model, 'model'),
+		runTimeoutSeconds: optionalPositiveInteger(record.runTimeoutSeconds, 'runTimeoutSeconds'),
+		mode: readSpawnMode(record.mode),
+		cleanup: readCleanup(record.cleanup),
+		context: readContext(record.context),
+		sandbox: readSandbox(record.sandbox),
 	};
 }
 
@@ -119,15 +151,20 @@ function parseModelOverride(value: string | undefined): { providerId?: string; m
 	};
 }
 
-function parseControlInput(input: SubagentsControlInput): SubagentsControlInput {
-	if (input.action !== 'list' && input.action !== 'cancel' && input.action !== 'history') {
+function parseControlInput(input: unknown): SubagentsControlInput {
+	const record = readRecord(input, 'subagents input');
+	if (
+		record.action !== 'list' &&
+		record.action !== 'cancel' &&
+		record.action !== 'history'
+	) {
 		throw new Error('subagents action must be list, cancel, or history.');
 	}
-	const runId = optionalString(input.runId, 'runId');
-	if ((input.action === 'cancel' || input.action === 'history') && !runId) {
+	const runId = optionalString(record.runId, 'runId');
+	if ((record.action === 'cancel' || record.action === 'history') && !runId) {
 		throw new Error('runId is required.');
 	}
-	return { action: input.action, ...(runId ? { runId } : {}) };
+	return { action: record.action, ...(runId ? { runId } : {}) };
 }
 
 function isRestrictedAgent(agent: AgentConfig | undefined): boolean {
@@ -322,6 +359,9 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 		const record = this.requireControlledRun(requesterSessionKey, input.runId!);
 		if (input.action === 'history') {
 			return { action: 'history', run: record };
+		}
+		if (record.outcome) {
+			return { action: 'cancel', run: record };
 		}
 
 		if (record.taskId) {

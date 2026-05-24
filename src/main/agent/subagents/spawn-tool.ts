@@ -2,7 +2,7 @@ import type { AgentTool, AgentToolResult, ToolContext } from '../../tools/types'
 import { textResult } from '../../tools/types';
 import { DEFAULT_AGENT_ID } from '../../constants';
 import type { SubagentSpawnPort } from './spawn-service';
-import type { SessionsSpawnInput, SessionsSpawnResult } from './types';
+import type { SessionsSpawnResult } from './types';
 
 function spawnResult(result: SessionsSpawnResult): AgentToolResult<SessionsSpawnResult> {
 	return {
@@ -14,7 +14,7 @@ function spawnResult(result: SessionsSpawnResult): AgentToolResult<SessionsSpawn
 
 export function createSessionsSpawnTool(
 	spawnService: SubagentSpawnPort
-): AgentTool<SessionsSpawnInput> {
+): AgentTool {
 	return {
 		name: 'sessions_spawn',
 		displaySummary: 'Spawn a child agent session.',
