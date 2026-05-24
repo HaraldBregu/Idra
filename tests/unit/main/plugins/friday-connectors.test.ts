@@ -17,6 +17,7 @@ import {
 	clearAgentToolResultMiddlewareRegistrations,
 	listAgentToolResultMiddlewareRegistrations,
 } from '../../../../src/main/agent/harness/tool-result-middleware';
+import type { ToolResultBlock } from '../../../../src/main/provider/types';
 import { markCoreTool, type AgentTool } from '../../../../src/main/tools/common';
 import { textResult } from '../../../../src/main/tools/results';
 import { makeTempDir } from '../test-helpers';
@@ -165,7 +166,7 @@ describe('Friday-style connector runtime', () => {
 		const demo = record({ id: 'demo', activation: { onCapabilities: ['hook'] }, contracts: {} });
 		const api = buildFridayConnectorApi({ record: demo, registry, registrationMode: 'full' });
 		const hook = jest.fn();
-		const middleware = jest.fn((blocks) => blocks);
+		const middleware = jest.fn((blocks: ToolResultBlock[]) => blocks);
 
 		api.registerHook('agent_end', hook);
 		api.registerAgentToolResultMiddleware({
