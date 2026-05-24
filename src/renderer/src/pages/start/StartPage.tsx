@@ -607,7 +607,6 @@ const StartPage: React.FC = () => {
 			</Button>
 		);
 
-		const isDisabled = isPrimaryDisabled();
 		const shouldShowProvidersTooltip = step === 'providers' && !canContinueProviders;
 		const shouldShowModelTooltip =
 			isModelStep(step) &&
