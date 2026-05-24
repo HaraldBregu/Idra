@@ -561,8 +561,7 @@ const StartPage: React.FC = () => {
 						Connect a provider
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Add one API key so {PRODUCT_NAME} can start answering your requests. Your key is saved
-						locally in {PRODUCT_NAME}&apos;s app data folder.
+						Add an API key to get started. Keys are stored locally on your device.
 					</p>
 				</div>
 
