@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Matrix adapters can be implemented as a normal Client-Server API bot or as an
+  Application Service configured on the homeserver.
+- Client bots need a homeserver URL, access token, device identity, room joins,
+  `/sync` handling, and event send support.
+- Application Services are passive observers that can inject events into rooms
+  they participate in; they require homeserver registration before use.
+- Preserve room id, event id, sender MXID, thread/relation data, and encryption
+  state in provenance. End-to-end encrypted rooms require a real Matrix crypto
+  implementation before message text can be normalized.
+
 ## Official Documentation
 
 - [Matrix specification](https://spec.matrix.org/latest/)

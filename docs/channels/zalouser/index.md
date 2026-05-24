@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- This channel represents a personal Zalo user-session concept, not Zalo
+  Official Account API.
+- Public Zalo developer documentation centers on Official Account APIs, so a
+  personal-session runtime must clearly document its transport, login,
+  credential storage, and platform risk before it is enabled.
+- Do not reuse OA webhook assumptions for personal user sessions unless the
+  chosen runtime proves the payload and delivery semantics match.
+- Preserve user id, conversation id, device/session id, message id, and login
+  provenance so operators can distinguish personal automation from OA traffic.
+
 ## Official Documentation
 
 No verified official personal-user automation API docs found. Reuse official

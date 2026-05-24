@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Google Chat adapters should model Friday as an interactive Chat app rather
+  than a raw webhook-only sender.
+- Inbound delivery can be configured through an HTTPS endpoint, Apps Script,
+  Pub/Sub, or Dialogflow connection settings.
+- Synchronous replies must be returned quickly from the interaction handler;
+  longer agent work should use asynchronous Chat API sends to the originating
+  space or DM.
+- Preserve `space`, `thread`, `message`, event type, and user identity fields
+  in provenance, because Google Chat uses those ids for threaded replies.
+
 ## Official Documentation
 
 - [Google Chat developer docs](https://developers.google.com/workspace/chat)

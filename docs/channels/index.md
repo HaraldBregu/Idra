@@ -21,6 +21,17 @@ Each channel has a stable id, optional aliases, capabilities, setup fields, and 
 
 Channel secrets remain inside the channel account records. Public channel status and catalog reads expose readiness and setup metadata without exposing secret values.
 
+## Channel Documentation Coverage
+
+Each channel page records Friday's local runtime status plus platform integration
+notes gathered from current public platform documentation. Catalog-only pages
+describe what a future adapter must account for, but they do not imply that
+Friday already implements that platform runtime.
+
+For providers without a public first-party bot API, the channel page calls out
+the platform caveat instead of treating browser automation, linked-device
+automation, or third-party plugin behavior as an official provider contract.
+
 ## Registry Behavior
 
 The channel registry owns channel plugin registration, account startup, runtime status, inbound dispatch, and outbound delivery. It registers catalog-only plugins first, then overrides entries when a runtime adapter is available.

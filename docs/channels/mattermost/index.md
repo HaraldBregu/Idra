@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Mattermost has several integration surfaces: incoming webhooks for posting,
+  outgoing webhooks for selected inbound triggers, bot accounts, slash commands,
+  plugins, and the REST API.
+- A full Friday runtime should prefer a bot/plugin or REST-backed adapter for
+  bidirectional behavior instead of relying only on incoming webhooks.
+- Outgoing webhooks can be trigger-word or channel scoped; validate their token
+  and normalize user, channel, team, post, and root post ids.
+- Preserve Mattermost thread roots in `threadId` so replies stay attached to the
+  originating conversation.
+
 ## Official Documentation
 
 - [Mattermost developer docs](https://developers.mattermost.com/)

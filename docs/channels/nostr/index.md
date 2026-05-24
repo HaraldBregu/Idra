@@ -24,10 +24,23 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Nostr adapters should be relay clients that subscribe to relevant events and
+  publish signed outbound events with the configured private key.
+- Do not treat NIP-04 as the preferred DM path. NIP-04 is marked
+  unrecommended/deprecated in favor of newer private direct-message schemes.
+- For private direct messages, track NIP-17/NIP-44/NIP-59 support and preserve
+  relay URLs, event ids, pubkeys, tags, and encryption scheme in provenance.
+- A runtime must be explicit about key storage, relay allowlists, and metadata
+  leakage before enabling direct-message dispatch.
+
 ## Official Documentation
 
 - [Nostr NIPs](https://github.com/nostr-protocol/nips)
-- [NIP-04 encrypted direct message](https://github.com/nostr-protocol/nips/blob/master/04.md)
+- [NIP-17 private direct messages](https://github.com/nostr-protocol/nips/blob/master/17.md)
+- [NIP-44 encryption](https://github.com/nostr-protocol/nips/blob/master/44.md)
+- [NIP-04 encrypted direct message, deprecated](https://github.com/nostr-protocol/nips/blob/master/04.md)
 
 ## Related Docs
 

@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- The official Meta path is WhatsApp Cloud API with a WhatsApp Business account,
+  phone number id, access token, and webhook subscription.
+- Web or device-session automation is a different, non-official integration
+  path and should not be documented as Cloud API behavior.
+- Inbound delivery comes through Meta webhooks and should be verified before
+  dispatch. Preserve `wamid`, phone number id, contact `wa_id`, message type,
+  and status callbacks in provenance.
+- Free-form outbound messaging is constrained by WhatsApp conversation rules;
+  adapters may need template sends for business-initiated messages.
+
 ## Official Documentation
 
 - [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api)

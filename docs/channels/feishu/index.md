@@ -24,6 +24,19 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Feishu and Lark bot adapters should use the Open Platform bot capability with
+  event subscriptions for inbound messages and the IM message API for outbound
+  sends.
+- Inbound message events use `im.message.receive_v1`; validate events with
+  signature verification or Verification Token handling before dispatch.
+- Sending messages uses `POST /open-apis/im/v1/messages` with a
+  `tenant_access_token`; Feishu documents per-user and per-group anti-spam
+  limits that adapters must back off on.
+- Preserve `message_id`, `chat_id`, `open_id`, `union_id`, tenant, and message
+  type facts in provenance.
+
 ## Official Documentation
 
 - [Feishu Open Platform](https://open.feishu.cn/document/home/index)

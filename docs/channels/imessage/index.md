@@ -24,6 +24,17 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Apple does not provide a general public iMessage bot API for personal
+  conversations.
+- The Messages framework is for iMessage apps and extensions; Messages for
+  Business is a separate Apple-approved business channel.
+- Any local-device iMessage runtime must be documented as macOS/user-account
+  automation and must not be presented as an Apple cloud bot API.
+- Preserve local chat handles, thread ids, and device/account provenance while
+  avoiding assumptions about cross-device delivery or history availability.
+
 ## Official Documentation
 
 - [Apple Messages framework](https://developer.apple.com/documentation/messages)

@@ -24,6 +24,17 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- QQ Bot adapters receive message events over WebSocket.
+- Relevant inbound event types include `C2C_MESSAGE_CREATE`,
+  `GROUP_AT_MESSAGE_CREATE`, `DIRECT_MESSAGE_CREATE`, `AT_MESSAGE_CREATE`, and
+  private-domain `MESSAGE_CREATE`.
+- Preserve OpenID/member OpenID, guild id, channel id, group OpenID, platform
+  message id, sequence, and attachment metadata in provenance.
+- The QQ docs call out duplicate delivery risk, so use platform ids and message
+  sequence fields for idempotency before dispatching an agent turn.
+
 ## Official Documentation
 
 - [QQ Bot official docs](https://bot.q.qq.com/wiki/)

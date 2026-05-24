@@ -24,6 +24,17 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Tlon is built on Urbit, so an adapter should be explicit about whether it
+  talks to a local ship, hosted ship, or app-specific HTTP/Eyre endpoint.
+- Urbit application development uses ships, desks, Gall agents, and glob or
+  docket packaging rather than a conventional SaaS bot webhook model.
+- Preserve ship, desk, app, group, channel, and message/event identifiers in
+  provenance because those values are needed to route replies.
+- Keep setup catalog-only until the exact Tlon/Urbit app API for chat ingress
+  and egress is selected and documented.
+
 ## Official Documentation
 
 - [Tlon developer docs](https://dev.tlon.io/)

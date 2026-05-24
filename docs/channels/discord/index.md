@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Discord bot adapters receive message events through the Gateway WebSocket and
+  send messages through the HTTP API.
+- Gateway identifies must request the message intents needed by the configured
+  scope, such as guild messages and direct messages; message content access may
+  require the privileged Message Content intent.
+- Preserve Discord snowflakes for guild, channel, thread, user, and message ids
+  in normalized ids and provenance.
+- Outbound replies should use channel/thread targets and record Discord REST
+  message ids in `ChannelMessageReceipt`.
+
 ## Official Documentation
 
 - [Discord Developer Platform](https://docs.discord.com/developers/intro)

@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- LINE Messaging API adapters receive HTTPS webhook events from a LINE Official
+  Account and send replies or push messages through the Messaging API.
+- Required secrets are the channel access token for API calls and the channel
+  secret for webhook signature validation.
+- Inbound webhooks include event objects for messages, follows, joins, leaves,
+  postbacks, and related account events; only message-like events should become
+  `ChannelInboundMessage`.
+- Reply-token sends and push sends have different delivery semantics, so record
+  which path produced each receipt.
+
 ## Official Documentation
 
 - [LINE Messaging API](https://developers.line.biz/en/docs/messaging-api/)

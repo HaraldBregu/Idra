@@ -44,6 +44,17 @@ Current behavior:
 - Sends replies to the original chat, thread, and message id when present.
 - Splits outbound text into Telegram's 4096-character message limit.
 
+## Platform Integration Notes
+
+- Telegram bots can receive updates through `getUpdates` long polling or
+  webhooks; the two modes are mutually exclusive.
+- Friday currently uses long polling, so operational setup must ensure no
+  Telegram webhook is configured for the same bot token.
+- Webhook mode supports a secret-token header, but that is not used by the
+  bundled polling adapter.
+- Track Bot API changes before expanding beyond text handling; Telegram's Bot
+  API receives frequent updates that add update and message types.
+
 Telegram target strings can be explicit:
 
 ```text

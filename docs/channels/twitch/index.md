@@ -24,6 +24,17 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Twitch recommends EventSub and Twitch API for modern chat integrations, with
+  IRC retained as a historical/limited interface.
+- Chatbots act on behalf of a Twitch account and need the correct user or app
+  access token scopes for reading chat and sending messages.
+- Outbound `Send Chat Message` calls are limited to 500 characters per message;
+  split longer Friday replies and preserve Twitch message ids in receipts.
+- Respect Twitch chat send, join, and authentication rate limits. Some limits
+  differ for broadcaster, moderator, VIP, and verified bot accounts.
+
 ## Official Documentation
 
 - [Twitch Chat and Chatbots](https://dev.twitch.tv/docs/chat/)

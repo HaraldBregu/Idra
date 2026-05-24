@@ -24,6 +24,17 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Signal does not publish a general first-party bot HTTP API.
+- A local runtime would need to act as a linked device for a user-controlled
+  Signal account and should make that operational model explicit in setup.
+- Linked devices are paired by QR/device-link flow and do not automatically mean
+  all previous history is available.
+- Preserve Signal recipient ids, group ids, timestamps, and local device/account
+  provenance. Never imply that Signal message contents are available without
+  the linked-device cryptographic state.
+
 ## Official Documentation
 
 Signal does not publish an official bot API for this use case.

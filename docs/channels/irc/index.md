@@ -24,6 +24,18 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- IRC adapters are long-running TCP/TLS clients that register a nick, join
+  channels, and receive line-oriented events from the server.
+- Use `PRIVMSG` for direct and channel messages; map channel names to group
+  targets and nick/userhost prefixes to sender ids.
+- SASL is the modern authentication path when the IRC network supports IRCv3
+  capabilities.
+- IRC does not guarantee durable message ids, so an adapter should construct
+  conservative idempotency keys from server, target, sender, command tags, and
+  receive time.
+
 ## Official Documentation
 
 - [IRCv3 specifications](https://ircv3.net/irc/)

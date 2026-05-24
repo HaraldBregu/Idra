@@ -24,6 +24,17 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Microsoft Teams conversational bots are Teams apps backed by a bot service and
+  can run in personal, group chat, and channel scopes.
+- Use Bot Framework or Teams SDK activity handlers for inbound messages and
+  proactive bot sends for replies that happen after the original activity.
+- Incoming webhook and Microsoft 365 Connector flows are not equivalent to a
+  conversational bot; Microsoft is moving connector scenarios toward Workflows.
+- Connector-style posting has strict channel rate limits, so a future adapter
+  must back off and surface throttled receipts.
+
 ## Official Documentation
 
 - [Microsoft Teams developer platform](https://learn.microsoft.com/en-us/microsoftteams/platform/overview)

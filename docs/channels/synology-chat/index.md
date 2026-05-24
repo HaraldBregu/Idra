@@ -24,6 +24,19 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
+## Platform Integration Notes
+
+- Synology Chat supports custom integrations with incoming webhooks, outgoing
+  webhooks, bots, and slash commands.
+- A bidirectional Friday runtime should use the bot/outgoing surfaces for
+  inbound dispatch and incoming/bot posting for outbound delivery, depending on
+  the target server version.
+- Synology documents channels, conversations, threads, reactions, file uploads,
+  and encrypted conversations; preserve those ids and encryption state in
+  provenance.
+- Synology Chat Server limits ChatBots per server, so setup should surface
+  server-side capacity errors clearly.
+
 ## Official Documentation
 
 - [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat)
