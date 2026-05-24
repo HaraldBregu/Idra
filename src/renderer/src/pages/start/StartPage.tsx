@@ -255,22 +255,9 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [
-					storedProviders,
-					assistantOperator,
-					speechToTextOperator,
-					textToSpeechOperator,
-					imageCreatorOperator,
-					textToVideoOperator,
-					musicCreatorOperator,
-				] = await Promise.all([
+				const [storedProviders, assistantOperator] = await Promise.all([
 					window.app.getProviders(),
 					window.app.getAssistantOperator(),
-					window.app.getSpeechToTextOperator(),
-					window.app.getTextToSpeechOperator(),
-					window.app.getImageCreatorOperator(),
-					window.app.getTextToVideoOperator(),
-					window.app.getMusicCreatorOperator(),
 				]);
 				if (cancelled) return;
 
@@ -285,34 +272,12 @@ const StartPage: React.FC = () => {
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
 				setSavedModelId(assistantOperator?.model.id ?? '');
-				setSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
-				setSavedSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
-				setSavedSpeechModelId(speechToTextOperator?.model?.id ?? '');
-				setSavedTextToSpeechOperator(textToSpeechOperator);
-				setTextToSpeechProviderId(textToSpeechOperator?.provider.id ?? '');
-				setSavedImageCreatorOperator(imageCreatorOperator);
-				setImageCreatorProviderId(imageCreatorOperator?.provider.id ?? '');
-				setSavedTextToVideoOperator(textToVideoOperator);
-				setTextToVideoProviderId(textToVideoOperator?.provider.id ?? '');
-				setSavedMusicCreatorOperator(musicCreatorOperator);
-				setMusicCreatorProviderId(musicCreatorOperator?.provider.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
 				setConfigProvider('');
 				setSavedModelId('');
-				setSpeechProviderId('');
-				setSavedSpeechProviderId('');
-				setSavedSpeechModelId('');
-				setSavedTextToSpeechOperator(undefined);
-				setTextToSpeechProviderId('');
-				setSavedImageCreatorOperator(undefined);
-				setImageCreatorProviderId('');
-				setSavedTextToVideoOperator(undefined);
-				setTextToVideoProviderId('');
-				setSavedMusicCreatorOperator(undefined);
-				setMusicCreatorProviderId('');
-				setErrorMessage(getErrorMessage(error, 'Could not load models.'));
+				setErrorMessage(getErrorMessage(error, 'Could not load providers.'));
 			}
 		}
 
