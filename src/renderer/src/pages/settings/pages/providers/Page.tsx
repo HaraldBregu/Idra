@@ -3,7 +3,6 @@ import { AlertTriangle, ExternalLink, LoaderCircle, Pencil } from 'lucide-react'
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
@@ -15,6 +14,7 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
 	SettingsSection,
 } from '../../components';
 
