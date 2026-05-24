@@ -7,13 +7,13 @@ Official provider documentation was checked on 2026-05-24.
 
 ## Catalog
 
-| Field | Value |
-| --- | --- |
-| Connector id | `connector_dropbox` |
-| Direct connector id | `dropbox` |
-| Runtime status | Settings catalog only |
-| Auth kind | Manual OAuth access token |
-| Setup URL | [Dropbox App Console](https://www.dropbox.com/developers/apps) |
+| Field               | Value                                                          |
+| ------------------- | -------------------------------------------------------------- |
+| Connector id        | `connector_dropbox`                                            |
+| Direct connector id | `dropbox`                                                      |
+| Runtime status      | Settings catalog only                                          |
+| Auth kind           | Manual OAuth access token                                      |
+| Setup URL           | [Dropbox App Console](https://www.dropbox.com/developers/apps) |
 
 ## Implementation
 

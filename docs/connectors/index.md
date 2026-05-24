@@ -8,16 +8,16 @@ Official provider documentation was checked on 2026-05-24.
 
 ## Runtime Summary
 
-| Connector | Runtime status | Auth model | Guide |
-| --- | --- | --- | --- |
-| Dropbox | Settings catalog only | Manual OAuth access token | [Dropbox](dropbox.md) |
-| Gmail | Local OAuth and local tool execution | Google OAuth with PKCE loopback | [Gmail](gmail.md) |
-| Google Calendar | Local OAuth and local tool execution | Google OAuth with PKCE loopback | [Google Calendar](google-calendar.md) |
-| Google Drive | Local OAuth and local tool execution | Google OAuth with PKCE loopback | [Google Drive](google-drive.md) |
-| Microsoft Teams | Settings catalog only | Manual Microsoft Graph OAuth token | [Microsoft Teams](microsoft-teams.md) |
-| Outlook Calendar | Settings catalog only | Manual Microsoft Graph OAuth token | [Outlook Calendar](outlook-calendar.md) |
-| Outlook Email | Settings catalog only | Manual Microsoft Graph OAuth token | [Outlook Email](outlook-email.md) |
-| SharePoint | Settings catalog only | Manual Microsoft Graph OAuth token | [SharePoint](sharepoint.md) |
+| Connector        | Runtime status                       | Auth model                         | Guide                                   |
+| ---------------- | ------------------------------------ | ---------------------------------- | --------------------------------------- |
+| Dropbox          | Settings catalog only                | Manual OAuth access token          | [Dropbox](dropbox.md)                   |
+| Gmail            | Local OAuth and local tool execution | Google OAuth with PKCE loopback    | [Gmail](gmail.md)                       |
+| Google Calendar  | Local OAuth and local tool execution | Google OAuth with PKCE loopback    | [Google Calendar](google-calendar.md)   |
+| Google Drive     | Local OAuth and local tool execution | Google OAuth with PKCE loopback    | [Google Drive](google-drive.md)         |
+| Microsoft Teams  | Settings catalog only                | Manual Microsoft Graph OAuth token | [Microsoft Teams](microsoft-teams.md)   |
+| Outlook Calendar | Settings catalog only                | Manual Microsoft Graph OAuth token | [Outlook Calendar](outlook-calendar.md) |
+| Outlook Email    | Settings catalog only                | Manual Microsoft Graph OAuth token | [Outlook Email](outlook-email.md)       |
+| SharePoint       | Settings catalog only                | Manual Microsoft Graph OAuth token | [SharePoint](sharepoint.md)             |
 
 ## Shared Runtime Behavior
 

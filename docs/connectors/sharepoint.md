@@ -8,13 +8,13 @@ Official provider documentation was checked on 2026-05-24.
 
 ## Catalog
 
-| Field | Value |
-| --- | --- |
-| Connector id | `connector_sharepoint` |
-| Direct connector id | `sharepoint_onedrive` |
-| Runtime status | Settings catalog only |
-| Auth kind | Manual OAuth access token |
-| Setup URL | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
+| Field               | Value                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Connector id        | `connector_sharepoint`                                                                                                    |
+| Direct connector id | `sharepoint_onedrive`                                                                                                     |
+| Runtime status      | Settings catalog only                                                                                                     |
+| Auth kind           | Manual OAuth access token                                                                                                 |
+| Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Implementation
 
