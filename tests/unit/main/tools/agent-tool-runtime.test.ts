@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { createToolDiagnostics, markClientTool, markCoreTool, setToolMetadata, type AgentTool } from '../../../../src/main/tools/common';
+import { createToolDiagnostics, getToolMetadata, markClientTool, markCoreTool, setToolMetadata, type AgentTool } from '../../../../src/main/tools/common';
 import { textResult, jsonResult, blockedToolResult } from '../../../../src/main/tools/results';
 import {
 	asParamsRecord,
@@ -22,7 +22,8 @@ import { PluginToolRegistry } from '../../../../src/main/plugins/tool-registry';
 import { safeMcpToolName, materializeMcpTools, normalizeMcpResult } from '../../../../src/main/tools/external/mcp-tools';
 import { materializeLspTools } from '../../../../src/main/tools/external/lsp-tools';
 import { applyToolSearchCompaction } from '../../../../src/main/tools/tool-search';
-import { canonicalToolToLegacy, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
+import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/tools/runtime/legacy-tool-adapter';
+import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
 import { makeTempDir } from '../test-helpers';
 
@@ -125,6 +126,101 @@ describe('canonical agent tool runtime', () => {
 		const [normalized] = normalizeToolSchemas([base], { provider: 'openai' });
 		expect((normalized!.parameters as Record<string, unknown>).$schema).toBeUndefined();
 		expect((normalized!.parameters as Record<string, unknown>).patternProperties).toBeUndefined();
+	});
+
+	it('applies provider-safe aliases with collision suffixes and preserved metadata', () => {
+		const diagnostics = createToolDiagnostics();
+		const first = setToolMetadata(tool('Bad Tool!'), { ownerKind: 'plugin', pluginId: 'demo' });
+		const second = setToolMetadata(tool('bad tool'), { ownerKind: 'mcp', serverId: 'repo', declaredName: 'bad tool' });
+
+		const renamed = applyProviderSafeToolNames([first, second], {
+			diagnostics,
+			maxNameLength: 12,
+		});
+
+		expect(renamed.map((entry) => entry.name)).toEqual(['bad_tool', 'bad_tool_2']);
+		expect(renamed[0]?.label).toBe('Bad Tool!');
+		expect(renamed[0]?.description).toContain('Provider-safe alias for Bad Tool!');
+		expect(getToolMetadata(renamed[0]!)).toEqual({ ownerKind: 'plugin', pluginId: 'demo' });
+		expect(getToolMetadata(renamed[1]!)).toEqual({
+			ownerKind: 'mcp',
+			serverId: 'repo',
+			declaredName: 'bad tool',
+		});
+		expect(diagnostics.warnings).toEqual([
+			'Bad Tool!: exposed to provider as bad_tool',
+			'bad tool: exposed to provider as bad_tool_2',
+		]);
+	});
+
+	it('prepares legacy tools for providers while keeping execution on the original tool', async () => {
+		const toolContext = {
+			workspace: '/workspace',
+			sessionId: 'session-1',
+			readState: new Map(),
+			plan: { entries: [] },
+			approvalRequired: new Set(),
+			approvalCache: new Set(),
+			services: {} as never,
+		} as ToolContext;
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'image' as const, base64: 'aW1n', mimeType: 'image/png' }],
+			details: { ok: true },
+		}));
+		const legacyTool: LegacyAgentTool = {
+			name: 'Screen Capture!',
+			description: 'Capture the screen.',
+			schema: {
+				$schema: 'https://json-schema.org/draft/2020-12/schema',
+				type: 'object',
+				properties: { id: { type: 'string' } },
+				patternProperties: { '^x-': { type: 'string' } },
+			},
+			execute,
+		};
+
+		const [prepared] = prepareLegacyToolsForProvider([legacyTool], toolContext, {
+			provider: 'openai',
+			modelId: 'gpt-test',
+		});
+		const result = await prepared!.execute({ id: 'shot-1' }, toolContext);
+
+		expect(prepared).toMatchObject({
+			name: 'screen_capture',
+			description: expect.stringContaining('Provider-safe alias for Screen Capture!'),
+			schema: {
+				type: 'object',
+				properties: { id: { type: 'string' } },
+				required: [],
+			},
+		});
+		expect(execute).toHaveBeenCalledWith(
+			{ id: 'shot-1' },
+			expect.objectContaining({ sessionId: 'session-1' })
+		);
+		expect(result).toEqual({
+			status: 'ok',
+			content: [{ type: 'image', base64: 'aW1n', mimeType: 'image/png' }],
+			details: { ok: true },
+		});
+	});
+
+	it('converts image content between legacy and canonical result shapes', () => {
+		const canonical = legacyResultToCanonical({
+			status: 'ok',
+			content: [{ type: 'image', base64: 'aW1n', mimeType: 'image/png' }],
+		});
+
+		expect(canonical).toEqual({
+			content: [{ type: 'image', data: 'aW1n', mimeType: 'image/png' }],
+			details: undefined,
+		});
+		expect(canonicalResultToLegacy(canonical)).toEqual({
+			status: 'ok',
+			content: [{ type: 'image', base64: 'aW1n', mimeType: 'image/png' }],
+			details: undefined,
+		});
 	});
 
 	it('wraps execution with veto, hook param adjustment, loop detection, diagnostics, and error conversion', async () => {
