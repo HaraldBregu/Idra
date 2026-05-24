@@ -21,7 +21,7 @@ import {
 	MUSIC_CREATOR_OPERATOR_ID,
 	OPERATOR_DEFINITIONS,
 	SPEECH_TO_TEXT_OPERATOR_ID,
-	ConfiguredModelOperator,
+	type ConfiguredModelOperator,
 	TEXT_TO_SPEECH_OPERATOR_ID,
 	TEXT_TO_VIDEO_OPERATOR_ID,
 	type Model,
