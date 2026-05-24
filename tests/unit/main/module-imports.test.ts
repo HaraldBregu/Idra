@@ -10,6 +10,7 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/ipc')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/logger')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/mcp')).resolves.toBeTruthy();
+		await expect(import('../../../src/main/monitor')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/provider/factory')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/session/store')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/store')).resolves.toBeTruthy();
