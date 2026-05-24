@@ -26,30 +26,35 @@ import {
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
-		id: 'general',
-		titleKey: 'settings.overview.groups.general',
-		paths: ['/settings/general', '/settings/system', '/settings/providers', '/settings/channels'],
+		id: 'app',
+		titleKey: 'settings.overview.groups.app',
+		paths: ['/settings/general', '/settings/system'],
 	},
 	{
-		id: 'aiAgents',
-		titleKey: 'settings.overview.groups.aiAgents',
+		id: 'ai',
+		titleKey: 'settings.overview.groups.ai',
 		agents: true,
-		paths: [],
+		paths: ['/settings/providers', '/settings/skills', '/settings/connectors'],
 	},
 	{
-		id: 'aiFeatures',
-		titleKey: 'settings.overview.groups.aiFeatures',
-		paths: ['/settings/skills', '/settings/connectors'],
-	},
-	{
-		id: 'memory',
-		titleKey: 'settings.overview.groups.memory',
+		id: 'knowledge',
+		titleKey: 'settings.overview.groups.knowledge',
 		paths: ['/settings/memory', '/settings/rag', '/settings/wiki'],
 	},
 	{
-		id: 'automations',
-		titleKey: 'settings.overview.groups.automations',
-		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager', '/settings/monitoring'],
+		id: 'channels',
+		titleKey: 'settings.overview.groups.channels',
+		paths: ['/settings/channels'],
+	},
+	{
+		id: 'automation',
+		titleKey: 'settings.overview.groups.automation',
+		paths: ['/settings/heartbeat', '/settings/cron'],
+	},
+	{
+		id: 'monitoring',
+		titleKey: 'settings.overview.groups.monitoring',
+		paths: ['/settings/task-manager', '/settings/monitoring'],
 	},
 ] satisfies readonly {
 	readonly id: string;
