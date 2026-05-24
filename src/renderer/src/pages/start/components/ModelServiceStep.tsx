@@ -95,7 +95,9 @@ export function ModelServiceStep({
 								placeholder={
 									loadingModels ? 'Loading...' : noModels ? 'No models' : 'Select model'
 								}
-							/>
+							>
+								{selectedModelLabel}
+							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
 							{availableModels.map((model) => (
