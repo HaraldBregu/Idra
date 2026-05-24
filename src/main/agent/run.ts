@@ -319,8 +319,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		signal,
 	} = input;
 
-	session.transcript.push({ role: 'user', content: userMessage });
-
 	const tracker = newCallTracker();
 	const managedExecutor =
 		input.toolManagement?.executor ??
@@ -347,6 +345,26 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	let completedIterations = 0;
 	let firstTokenLatencyMs: number | undefined;
 	const runStart = Date.now();
+	const hookContext = buildRunHookContext({ runId, input, session, ctx, model });
+	const harnessRuntime = resolveRunHarnessRuntime(input);
+	let didFireAgentEndHook = false;
+	const fireAgentEndOnce = async (): Promise<void> => {
+		if (didFireAgentEndHook) return;
+		didFireAgentEndHook = true;
+		await fireAgentEndHook({
+			...hookContext,
+			stopReason,
+			turnCount: completedIterations,
+		});
+	};
+
+	await fireBeforeMessageWriteHook({
+		...hookContext,
+		role: 'user',
+		content: userMessage,
+		sessionKey: hookContext.sessionKey,
+	});
+	session.transcript.push({ role: 'user', content: userMessage });
 
 	await hooks?.onStart?.({ runId });
 	agentLogger.info('agent:run', 'run started', { runId, model, tools: tools.map((t) => t.name), userMessageLen: userMessage.length });
