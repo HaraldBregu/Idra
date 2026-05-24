@@ -793,14 +793,12 @@ const StartPage: React.FC = () => {
 							savingProviderId === provider.id || savingProviderId === 'all';
 						const canSaveProvider =
 							!!entry && !savingThisProvider && entry.apiKey.trim().length > 0;
-						const inputId = `${provider.id}-api-key`;
 
 						return (
 							<Card
 								key={provider.id}
-								size="sm"
 								className={cn(
-									'gap-0 rounded-lg border-border bg-card py-0 shadow-none',
+									'rounded-lg border-border bg-card py-0 shadow-none',
 									editing && 'border-ring ring-2 ring-ring/20',
 									!provider.supported && 'opacity-70'
 								)}
@@ -878,57 +876,47 @@ const StartPage: React.FC = () => {
 									</div>
 
 									{provider.supported && editing && entry ? (
-										<div className="grid gap-1.5 px-3 pb-3">
-											<Label htmlFor={inputId} className="text-[11px] leading-4">
-												API key
-											</Label>
-											<div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-												<InputGroup className="h-8 bg-card">
-													<InputGroupAddon>
-														<KeyRound className="size-3.5" />
-													</InputGroupAddon>
-													<InputGroupInput
-														id={inputId}
-														autoComplete="off"
-														className="text-xs font-semibold placeholder:text-muted-foreground"
-														disabled={savingThisProvider}
-														onChange={(event) => {
-															handleProviderApiKeyChange(provider.id, event.target.value);
-														}}
-														placeholder="Paste provider API key"
-														spellCheck={false}
-														type="password"
-														value={entry.apiKey}
-													/>
-												</InputGroup>
-												<Button
-													type="button"
-													variant="outline"
-													size="sm"
-													disabled={savingThisProvider}
-													onClick={() => {
-														updateProviderEntry(provider.id, {
-															apiKey: '',
-															editing: false,
-														});
-													}}
-												>
-													Cancel
-												</Button>
-												<Button
-													type="button"
-													size="sm"
-													disabled={!canSaveProvider}
-													onClick={() => {
-														void saveProviderEntry(provider.id);
-													}}
-												>
-													{savingThisProvider ? (
-														<LoaderCircle className="size-3.5 animate-spin" />
-													) : null}
-													Save
-												</Button>
-											</div>
+										<div className="flex items-center gap-2 px-3 pb-3">
+											<Input
+												aria-label={`${provider.name} API key`}
+												autoComplete="off"
+												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
+												disabled={savingThisProvider}
+												onChange={(event) => {
+													handleProviderApiKeyChange(provider.id, event.target.value);
+												}}
+												placeholder="API key"
+												spellCheck={false}
+												type="password"
+												value={entry.apiKey}
+											/>
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												disabled={savingThisProvider}
+												onClick={() => {
+													updateProviderEntry(provider.id, {
+														apiKey: '',
+														editing: false,
+													});
+												}}
+											>
+												Cancel
+											</Button>
+											<Button
+												type="button"
+												size="sm"
+												disabled={!canSaveProvider}
+												onClick={() => {
+													void saveProviderEntry(provider.id);
+												}}
+											>
+												{savingThisProvider ? (
+													<LoaderCircle className="size-3.5 animate-spin" />
+												) : null}
+												Save
+											</Button>
 										</div>
 									) : null}
 								</CardContent>
