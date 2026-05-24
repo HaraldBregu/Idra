@@ -1,5 +1,6 @@
 import { collectConfiguredAgentHarnessRuntimes } from '../../../../src/main/agent/harness-runtimes';
-import { maybeCompactAgentHarnessSession } from '../../../../src/main/agent/harness/selection';
+import { maybeCompactAgentHarnessSession, selectAgentHarness } from '../../../../src/main/agent/harness/selection';
+import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
 import {
 	clearRegisteredAgentHarnesses,
 	registerAgentHarness,
@@ -57,6 +58,7 @@ function params(): AgentHarnessAttemptParams {
 describe('agent harness core', () => {
 	beforeEach(() => {
 		clearRegisteredAgentHarnesses();
+		clearAgentHarnessHookProviders();
 		clearHarnessActivationState();
 	});
 
@@ -80,6 +82,58 @@ describe('agent harness core', () => {
 			expect.not.objectContaining({ agentHarnessResultClassification: expect.anything() }),
 			expect.objectContaining({ runId: 'r1' })
 		);
+	});
+
+	it('fires the before-agent-start hook for every lifecycle attempt', async () => {
+		const handler = jest.fn();
+		registerAgentHarnessHookHandler('before_agent_start', handler);
+		const harness: AgentHarness = {
+			id: 'hooked',
+			label: 'Hooked',
+			supports: () => ({ supported: true }),
+			runAttempt: jest.fn(async () => result()),
+		};
+
+		await runAgentHarnessV2LifecycleAttempt(adaptAgentHarnessToV2(harness), params());
+
+		expect(handler).toHaveBeenCalledWith(
+			expect.objectContaining({
+				runId: 'r1',
+				userMessage: 'hello',
+				provider: 'openai',
+				modelId: 'gpt-test',
+			})
+		);
+	});
+
+	it('selects auto harnesses by priority and id while keeping missing forced runtimes strict', () => {
+		registerAgentHarness({
+			id: 'zeta',
+			label: 'Zeta',
+			supports: () => ({ supported: true, priority: 50 }),
+			runAttempt: jest.fn(async () => result()),
+		});
+		registerAgentHarness({
+			id: 'alpha',
+			label: 'Alpha',
+			supports: () => ({ supported: true, priority: 50 }),
+			runAttempt: jest.fn(async () => result()),
+		});
+		registerAgentHarness({
+			id: 'low',
+			label: 'Low',
+			supports: () => ({ supported: true, priority: 1 }),
+			runAttempt: jest.fn(async () => result()),
+		});
+
+		expect(selectAgentHarness({ provider: 'openai', modelId: 'gpt-test' }).id).toBe('alpha');
+		expect(() =>
+			selectAgentHarness({
+				provider: 'openai',
+				modelId: 'gpt-test',
+				requestedRuntime: 'missing',
+			})
+		).toThrow('Requested agent harness "missing" is not registered.');
 	});
 
 	it('isolates reset failures across registered harnesses', async () => {
