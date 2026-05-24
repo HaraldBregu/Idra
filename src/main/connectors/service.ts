@@ -746,7 +746,8 @@ function stripGoogleOAuthClientCredentials(
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
-	if (!connector.oauth) return { ...connector };
+	const redacted = { ...connector, authorization: '' };
+	if (!connector.oauth) return redacted;
 	const {
 		accessToken: _accessToken,
 		refreshToken: _refreshToken,
@@ -755,8 +756,7 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 		...oauth
 	} = connector.oauth;
 	return {
-		...connector,
-		authorization: '',
+		...redacted,
 		oauth,
 	};
 }
