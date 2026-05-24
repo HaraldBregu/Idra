@@ -30,13 +30,16 @@ import {
 	AppIpc,
 	AgentIpc,
 	ChannelsIpc,
+	ChatMemoryIpc,
 	ConnectorsIpc,
 	CronIpc,
 	HeartbeatIpc,
 	MonitorIpc,
+	RagIpc,
 	RealtimeTranscriptionIpc,
 	SkillsIpc,
 	TasksIpc,
+	WikiIpc,
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
@@ -211,13 +214,16 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new AppIpc(),
 		new AgentIpc(),
 		new ChannelsIpc(),
+		new ChatMemoryIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),
 		new HeartbeatIpc(),
 		new MonitorIpc(),
+		new RagIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SkillsIpc(),
 		new TasksIpc(),
+		new WikiIpc(),
 		new WindowIpc(),
 	];
 
