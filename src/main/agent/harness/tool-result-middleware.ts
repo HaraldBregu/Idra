@@ -1,6 +1,7 @@
 import type { ToolResultBlock } from '../../provider/types';
 import type { AgentHarnessHookContext } from './hook-context';
 
+const AGENT_TOOL_RESULT_MIDDLEWARE_STATE = Symbol.for('friday.agentToolResultMiddlewareState');
 const MAX_BLOCKS = 200;
 const MAX_TEXT_CHARS = 100_000;
 const MAX_IMAGE_DATA_CHARS = 5_000_000;
@@ -19,7 +20,50 @@ export type AgentToolResultMiddlewareRegistration = {
 	handler: AgentToolResultMiddlewareFn;
 };
 
+interface AgentToolResultMiddlewareState {
+	registrations: AgentToolResultMiddlewareRegistration[];
+}
+
 const ERROR_RESULT: ToolResultBlock[] = [{ type: 'text', text: '[tool result middleware error]' }];
+
+function getState(): AgentToolResultMiddlewareState {
+	const globalState = globalThis as typeof globalThis & {
+		[AGENT_TOOL_RESULT_MIDDLEWARE_STATE]?: AgentToolResultMiddlewareState;
+	};
+	globalState[AGENT_TOOL_RESULT_MIDDLEWARE_STATE] ??= {
+		registrations: [],
+	};
+	return globalState[AGENT_TOOL_RESULT_MIDDLEWARE_STATE];
+}
+
+function normalizeMiddlewareRegistration(input: unknown): AgentToolResultMiddlewareRegistration {
+	if (!input || typeof input !== 'object') {
+		throw new Error('Agent tool result middleware registration must be an object.');
+	}
+	const candidate = input as Partial<AgentToolResultMiddlewareRegistration>;
+	const name = typeof candidate.name === 'string' ? candidate.name.trim() : '';
+	if (!name) throw new Error('Agent tool result middleware registration missing name.');
+	if (typeof candidate.handler !== 'function') {
+		throw new Error(`Agent tool result middleware "${name}" registration missing handler.`);
+	}
+	const runtime =
+		typeof candidate.runtime === 'string' && candidate.runtime.trim()
+			? candidate.runtime.trim().toLowerCase()
+			: undefined;
+	return { name, runtime, handler: candidate.handler };
+}
+
+export function registerAgentToolResultMiddleware(registration: unknown): void {
+	getState().registrations.push(normalizeMiddlewareRegistration(registration));
+}
+
+export function listAgentToolResultMiddlewareRegistrations(): AgentToolResultMiddlewareRegistration[] {
+	return [...getState().registrations];
+}
+
+export function clearAgentToolResultMiddlewareRegistrations(): void {
+	getState().registrations = [];
+}
 
 function countObjectDepth(value: unknown, depth = 0): number {
 	if (depth > MAX_DETAILS_DEPTH || typeof value !== 'object' || value === null) return depth;
