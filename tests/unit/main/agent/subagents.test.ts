@@ -12,7 +12,7 @@ describe('subagent orchestration', () => {
 		idFactory?: () => string;
 	}) {
 		const registry = new SubagentRegistry();
-		const taskManager = { run: jest.fn() };
+		const taskManager = { run: jest.fn(), cancel: jest.fn() };
 		const eventBus = { emit: jest.fn() };
 		const agents = options.agents ?? {};
 		const service = new SubagentSpawnService({

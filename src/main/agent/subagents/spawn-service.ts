@@ -41,7 +41,7 @@ export interface SubagentsControlRequest {
 
 export interface SubagentSpawnServiceDependencies {
 	store: Pick<StoreService, 'getAgentConfig'>;
-	taskManager: Pick<TaskManager, 'run'>;
+	taskManager: Pick<TaskManager, 'run' | 'cancel'>;
 	registry: SubagentRegistry;
 	eventBus?: EventBus;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
