@@ -332,13 +332,15 @@ function PageContent(): ReactElement {
 		setMode('voice');
 	};
 
-	const startDictation = async (): Promise<void> => {
+	const startSpeechToText = async (): Promise<void> => {
+		const nextVoiceMode: PromptInputVoiceMode =
+			voiceButtonMode === 'record' ? 'recording' : 'dictation';
 		const started = await dictation.start();
 		if (!started) {
 			setMode('chat');
 			return;
 		}
-		setVoiceMode('dictation');
+		setVoiceMode(nextVoiceMode);
 		setMode('voice');
 	};
 
@@ -429,10 +431,26 @@ function PageContent(): ReactElement {
 							textareaRef={agent.inputRef}
 							leadingAction={<AttachmentButton />}
 							voiceMode={voiceMode}
-							voiceElapsedMs={voiceMode === 'dictation' ? dictation.elapsedMs : undefined}
-							voiceMuted={voiceMode === 'dictation' ? dictation.isMuted : undefined}
-							voiceMediaStream={voiceMode === 'dictation' ? dictation.stream : null}
-							onVoiceMutedChange={voiceMode === 'dictation' ? dictation.setMuted : undefined}
+							voiceElapsedMs={
+								voiceMode === 'dictation' || voiceMode === 'recording'
+									? dictation.elapsedMs
+									: undefined
+							}
+							voiceMuted={
+								voiceMode === 'dictation' || voiceMode === 'recording'
+									? dictation.isMuted
+									: undefined
+							}
+							voiceMediaStream={
+								voiceMode === 'dictation' || voiceMode === 'recording'
+									? dictation.stream
+									: null
+							}
+							onVoiceMutedChange={
+								voiceMode === 'dictation' || voiceMode === 'recording'
+									? dictation.setMuted
+									: undefined
+							}
 							onVoiceEnd={returnToChat}
 							onVoiceCancel={() => void cancelDictation()}
 							onVoiceConfirm={() => void confirmDictation()}
@@ -445,7 +463,7 @@ function PageContent(): ReactElement {
 								<PromptInputActions className="justify-end gap-1.5">
 									<PromptInputVoiceActions
 										speechToTextMode={voiceButtonMode}
-										onSpeechToText={startDictation}
+										onSpeechToText={startSpeechToText}
 										speechToTextDisabled={dictationBusy || agent.isLoading}
 										onVoiceConversation={startVoiceConversation}
 										voiceConversationDisabled
