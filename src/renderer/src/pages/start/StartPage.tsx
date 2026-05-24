@@ -547,7 +547,7 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Your personal AI assistant. Connect a provider, pick your models, and start working.
+					Connect a provider, pick a model, and you're ready.
 				</p>
 			</div>
 		);
