@@ -9,5 +9,6 @@ export * from './skills';
 export * from './connector';
 export * from './cron';
 export * from './heartbeat';
+export * from './memory';
 export * from './monitor';
 export * from './tasks';
