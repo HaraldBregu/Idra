@@ -156,6 +156,80 @@ describe('agent/run', () => {
 		]);
 	});
 
+	it('fires harness lifecycle hooks and applies tool result middleware', async () => {
+		const hookEvents: string[] = [];
+		const afterToolCall = jest.fn();
+		for (const hookName of ['before_message_write', 'llm_input', 'llm_output', 'agent_end']) {
+			registerAgentHarnessHookHandler(hookName, () => {
+				hookEvents.push(hookName);
+			});
+		}
+		registerAgentHarnessHookHandler('after_tool_call', (payload) => {
+			afterToolCall(payload);
+			hookEvents.push('after_tool_call');
+		});
+		registerAgentToolResultMiddleware({
+			name: 'tag-ping',
+			runtime: 'pi',
+			handler: (blocks) =>
+				blocks.map((block) =>
+					block.type === 'text' ? { ...block, text: `${block.text} [middleware]` } : block
+				),
+		});
+
+		const tool: AgentTool = {
+			name: 'ping',
+			description: 'Ping',
+			schema: { type: 'object' },
+			execute: jest.fn(async () => ({
+				status: 'ok' as const,
+				content: [{ type: 'text' as const, text: 'pong' }],
+			})),
+		};
+
+		const result = await runAgent({
+			runId: 'r1',
+			userMessage: 'do it',
+			systemPrompt: 'sys',
+			session: session(),
+			agentHarnessId: 'pi',
+			provider: provider([
+				[
+					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
+					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{}' },
+					{ type: 'tool_call_end', id: 'tc1' },
+					end(),
+				],
+				[{ type: 'text_delta', text: 'done' }, end()],
+			]),
+			model: 'gpt-test',
+			tools: [tool],
+			ctx: makeToolContext(),
+		});
+
+		expect(result.session.transcript[2]).toMatchObject({
+			role: 'tool',
+			content: [{ type: 'text', text: 'pong [middleware]' }],
+		});
+		expect(afterToolCall).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolName: 'ping',
+				toolUseId: 'tc1',
+				result: [{ type: 'text', text: 'pong [middleware]' }],
+				isError: false,
+			})
+		);
+		expect(hookEvents).toEqual(
+			expect.arrayContaining([
+				'before_message_write',
+				'llm_input',
+				'llm_output',
+				'after_tool_call',
+				'agent_end',
+			])
+		);
+	});
+
 	it('normalizes provider-facing tool names and schemas while executing the original tool', async () => {
 		const providerTools: unknown[] = [];
 		const execute = jest.fn(async () => ({
