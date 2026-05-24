@@ -39,7 +39,11 @@ import {
 } from './google-strategies';
 import type { ConnectorRuntimeStrategy } from './runtime';
 
-const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar', 'connector_googledrive']);
+const GOOGLE_CONNECTOR_IDS = new Set([
+	'connector_gmail',
+	'connector_googlecalendar',
+	'connector_googledrive',
+]);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
 
@@ -95,7 +99,9 @@ function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
 	if (isGoogleConnector(connector.connectorId)) {
-		return connector.oauth?.refreshToken || connector.oauth?.accessToken || connector.authorization?.trim()
+		return connector.oauth?.refreshToken ||
+			connector.oauth?.accessToken ||
+			connector.authorization?.trim()
 			? 'configured'
 			: 'missing_auth';
 	}
@@ -143,7 +149,10 @@ function readOptionalBoolean(params: Record<string, unknown>, key: string): bool
 	return value;
 }
 
-function readOptionalStringArray(params: Record<string, unknown>, key: string): string[] | undefined {
+function readOptionalStringArray(
+	params: Record<string, unknown>,
+	key: string
+): string[] | undefined {
 	const value = params[key];
 	if (value === undefined || value === null) return undefined;
 	if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
@@ -175,7 +184,8 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
 
 	if (!name) throw new Error('Connector name is required.');
-	if (!isOpenAiConnectorId(connectorId)) throw new Error(`Unsupported connector id: ${connectorId}`);
+	if (!isOpenAiConnectorId(connectorId))
+		throw new Error(`Unsupported connector id: ${connectorId}`);
 	if (!serverLabel) throw new Error('Server label is required.');
 	if (!/^[a-zA-Z0-9_-]+$/.test(serverLabel)) {
 		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
@@ -183,7 +193,9 @@ function sanitizeInput(input: unknown): ConnectorInput {
 
 	const catalog = getConnectorCatalogItem(connectorId);
 	const knownToolNames = new Set<string>(catalog?.tools ?? []);
-	const uniqueAllowedTools = Array.from(new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean)));
+	const uniqueAllowedTools = Array.from(
+		new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean))
+	);
 	const unknownTool = uniqueAllowedTools.find((tool) => !knownToolNames.has(tool));
 	if (unknownTool) {
 		throw new Error(`Tool "${unknownTool}" is not available for ${catalog?.name ?? connectorId}.`);
@@ -203,23 +215,24 @@ function sanitizeInput(input: unknown): ConnectorInput {
 }
 
 export class ConnectorsService {
-	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> = {
-		connector_gmail: new GmailRuntimeStrategy({
-			getAccessToken: (connector) => this.getGoogleAccessToken(connector),
-			fetchImpl: () => this.fetchImpl(),
-			listTools: knownTools,
-		}),
-		connector_googlecalendar: new GoogleCalendarRuntimeStrategy({
-			getAccessToken: (connector) => this.getGoogleAccessToken(connector),
-			fetchImpl: () => this.fetchImpl(),
-			listTools: knownTools,
-		}),
-		connector_googledrive: new GoogleDriveRuntimeStrategy({
-			getAccessToken: (connector) => this.getGoogleAccessToken(connector),
-			fetchImpl: () => this.fetchImpl(),
-			listTools: knownTools,
-		}),
-	};
+	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> =
+		{
+			connector_gmail: new GmailRuntimeStrategy({
+				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+				fetchImpl: () => this.fetchImpl(),
+				listTools: knownTools,
+			}),
+			connector_googlecalendar: new GoogleCalendarRuntimeStrategy({
+				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+				fetchImpl: () => this.fetchImpl(),
+				listTools: knownTools,
+			}),
+			connector_googledrive: new GoogleDriveRuntimeStrategy({
+				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+				fetchImpl: () => this.fetchImpl(),
+				listTools: knownTools,
+			}),
+		};
 
 	constructor(
 		private readonly store: StoreService,
@@ -261,7 +274,11 @@ export class ConnectorsService {
 
 	async add(input: unknown): Promise<ConnectorConfig> {
 		const sanitized = sanitizeInput(input);
-		if (this.store.getConnectors().some((connector) => connector.connectorId === sanitized.connectorId)) {
+		if (
+			this.store
+				.getConnectors()
+				.some((connector) => connector.connectorId === sanitized.connectorId)
+		) {
 			throw new Error(`Connector ${sanitized.connectorId} is already configured.`);
 		}
 		const now = new Date().toISOString();
@@ -293,9 +310,11 @@ export class ConnectorsService {
 			name: readOptionalString(patch, 'name') ?? current.name,
 			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
 			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
-			serverDescription: readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+			serverDescription:
+				readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
 			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
-			requireApproval: readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
+			requireApproval:
+				readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
 			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
 			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
 			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
@@ -362,7 +381,9 @@ export class ConnectorsService {
 	async connectOAuth(id: string): Promise<ConnectorOAuthConnectResult> {
 		const connector = this.getStored(id);
 		if (!isGoogleConnector(connector.connectorId)) {
-			throw new Error(`Connector ${connector.connectorId} does not support local OAuth connection.`);
+			throw new Error(
+				`Connector ${connector.connectorId} does not support local OAuth connection.`
+			);
 		}
 		const oauth = this.requireGoogleOAuthConfig(connector);
 		const state = randomUUID();
@@ -396,8 +417,14 @@ export class ConnectorsService {
 				codeVerifier: pkce.codeVerifier,
 				fetchImpl: this.fetchImpl(),
 			});
-			const connected = mergeGoogleOAuthCredential({ ...oauth, redirectUri: loopback.redirectUri }, token);
-			const profile = await new GoogleProfileClient(connected.accessToken!, this.fetchImpl()).getUserInfo();
+			const connected = mergeGoogleOAuthCredential(
+				{ ...oauth, redirectUri: loopback.redirectUri },
+				token
+			);
+			const profile = await new GoogleProfileClient(
+				connected.accessToken!,
+				this.fetchImpl()
+			).getUserInfo();
 			const next = this.withKnownTools({
 				...connector,
 				oauth: stripGoogleOAuthClientCredentials({
@@ -429,12 +456,7 @@ export class ConnectorsService {
 		return this.getStored(id).tools;
 	}
 
-	async callTool(
-		id?: string,
-		name?: string,
-		args?: unknown,
-		_options?: unknown
-	): Promise<unknown> {
+	async callTool(id?: string, name?: string, args?: unknown, _options?: unknown): Promise<unknown> {
 		if (!id) throw new Error('Connector id is required.');
 		if (!name) throw new Error('Connector tool name is required.');
 		const connector = this.getStored(id);
@@ -474,10 +496,7 @@ export class ConnectorsService {
 								const payload = await this.callTool(connector.id, rawToolName, args);
 								return textResult(JSON.stringify(payload, null, 2));
 							} catch (error) {
-								return textResult(
-									error instanceof Error ? error.message : String(error),
-									true
-								);
+								return textResult(error instanceof Error ? error.message : String(error), true);
 							}
 						},
 					} satisfies AgentTool;
@@ -527,9 +546,7 @@ export class ConnectorsService {
 
 	private validConnectors(): ConnectorConfig[] {
 		return dedupeByConnectorId(
-			this.store.getConnectors()
-				.filter(isStoredConnectorValid)
-				.map(normalizeStoredConnector)
+			this.store.getConnectors().filter(isStoredConnectorValid).map(normalizeStoredConnector)
 		);
 	}
 
@@ -550,7 +567,9 @@ export class ConnectorsService {
 		}
 		if (!oauth.refreshToken) {
 			if (oauth.accessToken) return oauth.accessToken;
-			throw new Error(`Google connector ${connector.name} is missing a refresh token. Reconnect it.`);
+			throw new Error(
+				`Google connector ${connector.name} is missing a refresh token. Reconnect it.`
+			);
 		}
 		const token = await refreshGoogleAccessToken({
 			clientId: oauth.clientId,
@@ -574,12 +593,9 @@ export class ConnectorsService {
 
 	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthRuntimeCredential {
 		const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
-		const clientId =
-			this.options.googleOAuthClientId ||
-			process.env.GOOGLE_OAUTH_CLIENT_ID;
+		const clientId = this.options.googleOAuthClientId || process.env.GOOGLE_OAUTH_CLIENT_ID;
 		const clientSecret =
-			this.options.googleOAuthClientSecret ||
-			process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+			this.options.googleOAuthClientSecret || process.env.GOOGLE_OAUTH_CLIENT_SECRET;
 		if (!clientId || !clientSecret) {
 			throw new Error(
 				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment.'
@@ -721,7 +737,9 @@ function buildOAuthConfig(
 	};
 }
 
-function stripGoogleOAuthClientCredentials(oauth: GoogleOAuthCredential | undefined): GoogleOAuthCredential | undefined {
+function stripGoogleOAuthClientCredentials(
+	oauth: GoogleOAuthCredential | undefined
+): GoogleOAuthCredential | undefined {
 	if (!oauth) return undefined;
 	const { clientId: _clientId, clientSecret: _clientSecret, ...safeOAuth } = oauth;
 	return safeOAuth;
@@ -745,7 +763,10 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): boolean {
 	if (connector.connectorId !== 'connector_googledrive' || toolName !== 'create_file') return false;
 	if (connector.requireApproval === 'never') return false;
-	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) {
+	if (
+		connector.requireApproval === 'never_for_allowed_tools' &&
+		connector.allowedTools.includes(toolName)
+	) {
 		return false;
 	}
 	return true;
@@ -770,7 +791,8 @@ function descriptionForTool(connector: ConnectorConfig, toolName: string): strin
 		create_file: 'Create a Google Drive file.',
 		list_drives: 'List shared drives available to the connected account.',
 		search: 'Search Google Drive files by name or content. Legacy alias for search_files.',
-		recent_documents: 'List recently modified Google Drive files. Legacy alias for list_recent_files.',
+		recent_documents:
+			'List recently modified Google Drive files. Legacy alias for list_recent_files.',
 		fetch: 'Fetch Google Drive file metadata and text content. Legacy alias for read_file_content.',
 	};
 	const calendarDescriptions: Record<string, string> = {
@@ -795,11 +817,12 @@ function descriptionForTool(connector: ConnectorConfig, toolName: string): strin
 		send_email: 'Send a Gmail email.',
 		trash_email: 'Move a Gmail message to trash.',
 	};
-	const descriptions = connector.connectorId === 'connector_googlecalendar'
-		? calendarDescriptions
-		: connector.connectorId === 'connector_googledrive'
-			? driveDescriptions
-			: gmailDescriptions;
+	const descriptions =
+		connector.connectorId === 'connector_googlecalendar'
+			? calendarDescriptions
+			: connector.connectorId === 'connector_googledrive'
+				? driveDescriptions
+				: gmailDescriptions;
 	return descriptions[toolName] ?? `Run ${toolName}.`;
 }
 
@@ -875,7 +898,10 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 		return {
 			type: 'object',
 			properties: {
-				maxResults: { type: 'integer', description: 'Maximum shared drives to return, capped at 100.' },
+				maxResults: {
+					type: 'integer',
+					description: 'Maximum shared drives to return, capped at 100.',
+				},
 				pageToken: { type: 'string' },
 			},
 			additionalProperties: false,
@@ -887,8 +913,14 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 			properties: {
 				id: { type: 'string', description: 'Google Drive file id.' },
 				fileId: { type: 'string', description: 'Google Drive file id.' },
-				exportMimeType: { type: 'string', description: 'Export MIME type for Google Workspace files.' },
-				mimeType: { type: 'string', description: 'Alias for exportMimeType on Google Workspace files.' },
+				exportMimeType: {
+					type: 'string',
+					description: 'Export MIME type for Google Workspace files.',
+				},
+				mimeType: {
+					type: 'string',
+					description: 'Alias for exportMimeType on Google Workspace files.',
+				},
 			},
 			additionalProperties: false,
 		};
@@ -909,7 +941,10 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 			properties: {
 				id: { type: 'string', description: 'Google Drive file or shared drive id.' },
 				fileId: { type: 'string', description: 'Google Drive file or shared drive id.' },
-				maxResults: { type: 'integer', description: 'Maximum permissions to return, capped at 100.' },
+				maxResults: {
+					type: 'integer',
+					description: 'Maximum permissions to return, capped at 100.',
+				},
 				pageToken: { type: 'string' },
 			},
 			additionalProperties: false,
@@ -935,12 +970,21 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 	return {
 		type: 'object',
 		properties: {
-			query: { type: 'string', description: 'Search text matched against Drive file names and content.' },
+			query: {
+				type: 'string',
+				description: 'Search text matched against Drive file names and content.',
+			},
 			q: { type: 'string', description: 'Alias for query.' },
-			driveQuery: { type: 'string', description: 'Raw Google Drive q expression for advanced searches.' },
+			driveQuery: {
+				type: 'string',
+				description: 'Raw Google Drive q expression for advanced searches.',
+			},
 			mimeType: { type: 'string', description: 'Restrict results to one MIME type.' },
 			driveId: { type: 'string', description: 'Shared drive id to search.' },
-			corpora: { type: 'string', description: 'Drive corpora value such as user, drive, domain, or allDrives.' },
+			corpora: {
+				type: 'string',
+				description: 'Drive corpora value such as user, drive, domain, or allDrives.',
+			},
 			maxResults: { type: 'integer', description: 'Maximum files to return, capped at 20.' },
 			pageToken: { type: 'string' },
 			orderBy: { type: 'string', description: 'Google Drive orderBy expression.' },
@@ -966,8 +1010,14 @@ function schemaForGoogleCalendarTool(toolName: string): AgentTool['schema'] {
 			properties: {
 				calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
 				query: { type: 'string', description: 'Free-text event search query.' },
-				timeMin: { type: 'string', description: 'Lower event start bound as an RFC3339 timestamp.' },
-				timeMax: { type: 'string', description: 'Upper event start bound as an RFC3339 timestamp.' },
+				timeMin: {
+					type: 'string',
+					description: 'Lower event start bound as an RFC3339 timestamp.',
+				},
+				timeMax: {
+					type: 'string',
+					description: 'Upper event start bound as an RFC3339 timestamp.',
+				},
 				maxResults: { type: 'integer', description: 'Maximum events to return, capped at 20.' },
 				pageToken: { type: 'string' },
 				showDeleted: { type: 'boolean' },

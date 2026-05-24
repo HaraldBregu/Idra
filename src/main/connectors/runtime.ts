@@ -1,8 +1,4 @@
-import type {
-	ConnectorConfig,
-	ConnectorTool,
-	OpenAiConnectorId,
-} from '../../shared/connector';
+import type { ConnectorConfig, ConnectorTool, OpenAiConnectorId } from '../../shared/connector';
 
 export interface ConnectorRuntimeStrategy {
 	readonly connectorId: OpenAiConnectorId;

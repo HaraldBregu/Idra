@@ -1,8 +1,4 @@
-import type {
-	ConnectorConfig,
-	ConnectorTool,
-	OpenAiConnectorId,
-} from '../../shared/connector';
+import type { ConnectorConfig, ConnectorTool, OpenAiConnectorId } from '../../shared/connector';
 import {
 	GoogleCalendarApiClient,
 	GoogleDriveApiClient,
@@ -52,11 +48,7 @@ export class GmailRuntimeStrategy extends GoogleConnectorRuntimeStrategy {
 		super('connector_gmail', dependencies);
 	}
 
-	async callTool(
-		connector: ConnectorConfig,
-		name: string,
-		args: unknown
-	): Promise<unknown> {
+	async callTool(connector: ConnectorConfig, name: string, args: unknown): Promise<unknown> {
 		const params = paramsRecord(args);
 		const client = async (): Promise<GmailApiClient> =>
 			new GmailApiClient(await this.getAccessToken(connector), this.fetchImpl());
@@ -92,15 +84,17 @@ export class GmailRuntimeStrategy extends GoogleConnectorRuntimeStrategy {
 				const gmail = await client();
 				const listed = await gmail.listMessages(input);
 				const messages = await Promise.all(
-					(listed.messages ?? []).slice(0, 10).flatMap((message) =>
-						message.id
-							? [
-									gmail
-										.getMessage(message.id, 'metadata', ['From', 'To', 'Subject', 'Date'])
-										.then(projectGmailMessage),
-								]
-							: []
-					)
+					(listed.messages ?? [])
+						.slice(0, 10)
+						.flatMap((message) =>
+							message.id
+								? [
+										gmail
+											.getMessage(message.id, 'metadata', ['From', 'To', 'Subject', 'Date'])
+											.then(projectGmailMessage),
+									]
+								: []
+						)
 				);
 				return { ...listed, messages };
 			}
@@ -114,7 +108,9 @@ export class GmailRuntimeStrategy extends GoogleConnectorRuntimeStrategy {
 				const gmail = await client();
 				return {
 					messages: await Promise.all(
-						ids.slice(0, 10).map((id) => gmail.getMessage(id, 'full').then(projectGmailMessageWithBody))
+						ids
+							.slice(0, 10)
+							.map((id) => gmail.getMessage(id, 'full').then(projectGmailMessageWithBody))
 					),
 				};
 			}
@@ -139,11 +135,7 @@ export class GoogleCalendarRuntimeStrategy extends GoogleConnectorRuntimeStrateg
 		super('connector_googlecalendar', dependencies);
 	}
 
-	async callTool(
-		connector: ConnectorConfig,
-		name: string,
-		args: unknown
-	): Promise<unknown> {
+	async callTool(connector: ConnectorConfig, name: string, args: unknown): Promise<unknown> {
 		const params = paramsRecord(args);
 		const accessToken = async (): Promise<string> => this.getAccessToken(connector);
 		const client = async (): Promise<GoogleCalendarApiClient> =>
@@ -194,7 +186,9 @@ export class GoogleCalendarRuntimeStrategy extends GoogleConnectorRuntimeStrateg
 			case 'update_event': {
 				const { calendarId, eventId } = readEventLookupParams(params);
 				const payload = readCalendarEventPayload(params, false);
-				return projectGoogleCalendarEvent(await (await client()).updateEvent(calendarId, eventId, payload));
+				return projectGoogleCalendarEvent(
+					await (await client()).updateEvent(calendarId, eventId, payload)
+				);
 			}
 			case 'delete_event': {
 				const { calendarId, eventId } = readEventLookupParams(params);
@@ -211,11 +205,7 @@ export class GoogleDriveRuntimeStrategy extends GoogleConnectorRuntimeStrategy {
 		super('connector_googledrive', dependencies);
 	}
 
-	async callTool(
-		connector: ConnectorConfig,
-		name: string,
-		args: unknown
-	): Promise<unknown> {
+	async callTool(connector: ConnectorConfig, name: string, args: unknown): Promise<unknown> {
 		const params = paramsRecord(args);
 		const accessToken = async (): Promise<string> => this.getAccessToken(connector);
 		const client = async (): Promise<GoogleDriveApiClient> =>
@@ -282,7 +272,8 @@ export class GoogleDriveRuntimeStrategy extends GoogleConnectorRuntimeStrategy {
 			case 'download_file_content':
 			case 'fetch': {
 				const fileId = readDriveFileId(params);
-				const exportMimeType = readString(params, 'exportMimeType') ?? readString(params, 'mimeType');
+				const exportMimeType =
+					readString(params, 'exportMimeType') ?? readString(params, 'mimeType');
 				const drive = await client();
 				const file = await drive.getFile(fileId);
 				const content = await drive.getFileContent(file, exportMimeType);
@@ -302,7 +293,8 @@ export class GoogleDriveRuntimeStrategy extends GoogleConnectorRuntimeStrategy {
 }
 
 function paramsRecord(value: unknown): Record<string, unknown> {
-	if (typeof value === 'object' && value !== null && !Array.isArray(value)) return value as Record<string, unknown>;
+	if (typeof value === 'object' && value !== null && !Array.isArray(value))
+		return value as Record<string, unknown>;
 	return {};
 }
 
@@ -347,7 +339,10 @@ function readStringList(params: Record<string, unknown>, key: string): string[] 
 		return values.length > 0 ? values : undefined;
 	}
 	if (typeof value === 'string') {
-		const values = value.split(/[;,]/).map((entry) => entry.trim()).filter(Boolean);
+		const values = value
+			.split(/[;,]/)
+			.map((entry) => entry.trim())
+			.filter(Boolean);
 		return values.length > 0 ? values : undefined;
 	}
 	throw new Error(`${key} must be an array of strings or a comma-separated string.`);
@@ -363,7 +358,10 @@ function readCalendarId(params: Record<string, unknown>): string {
 	return readString(params, 'calendarId') ?? 'primary';
 }
 
-function readEventLookupParams(params: Record<string, unknown>): { calendarId: string; eventId: string } {
+function readEventLookupParams(params: Record<string, unknown>): {
+	calendarId: string;
+	eventId: string;
+} {
 	const eventId = readString(params, 'eventId') ?? readString(params, 'id');
 	if (!eventId) throw new Error('An event id is required.');
 	return { calendarId: readCalendarId(params), eventId };
