@@ -97,7 +97,7 @@ const ProvidersPage: React.FC = () => {
 								<div
 									className={cn(
 										'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
-										isEditing && 'border-b border-border/60 pb-2'
+										isEditing && 'pb-2'
 									)}
 								>
 									<ProviderAvatar providerId={provider.id} name={provider.name} />
