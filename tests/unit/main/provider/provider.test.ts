@@ -576,6 +576,35 @@ describe('provider/deepseek', () => {
 		});
 	});
 
+	it('omits DeepSeek reasoning-only assistant history messages', async () => {
+		const { client, create } = makeClient(basicChunks);
+		const adapter = new DeepSeekAdapter({
+			apiKey: 'ds-test',
+			clientFactory: () => client as never,
+		});
+
+		await collectAsync(adapter.stream({
+			model: 'deepseek-v4-pro',
+			effort: 'high',
+			system: '',
+			messages: [
+				{ role: 'user', content: 'hi' },
+				{
+					role: 'assistant',
+					content: [{ type: 'reasoning', provider: 'deepseek', item: 'Thinking only.' }],
+				},
+				{ role: 'user', content: 'continue' },
+			],
+			tools: [],
+			maxTokens: 100,
+		}));
+
+		expect(create.mock.calls[0][0].messages).toEqual([
+			{ role: 'user', content: 'hi' },
+			{ role: 'user', content: 'continue' },
+		]);
+	});
+
 	it('emits streamed DeepSeek reasoning_content as provider reasoning items', async () => {
 		async function* chunks() {
 			yield {
