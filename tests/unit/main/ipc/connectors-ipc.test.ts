@@ -84,7 +84,9 @@ function createConnectorsService() {
 	};
 }
 
-function createContainer(connectors: ReturnType<typeof createConnectorsService>): MainServiceContainer {
+function createContainer(
+	connectors: ReturnType<typeof createConnectorsService>
+): MainServiceContainer {
 	const services = {
 		connectors,
 		logger: { info: jest.fn() },

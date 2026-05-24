@@ -259,7 +259,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[ProviderChannels.getSpeechTranscriberService]: {
@@ -267,7 +270,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveSpeechTranscriberService]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getAssistant]: {
@@ -275,7 +281,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.saveAssistant]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getSpeechToText]: {
@@ -287,7 +296,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveSpeechToText]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToSpeech]: {
@@ -299,7 +311,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToSpeech]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getImageCreator]: {
@@ -311,7 +326,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveImageCreator]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToVideo]: {
@@ -323,7 +341,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToVideo]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getMusicCreator]: {
@@ -335,7 +356,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveMusicCreator]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[RealtimeTranscriptionChannels.start]: {
@@ -412,7 +436,10 @@ interface CronInvokeChannelMap {
 		args: [filter?: import('../cron').CronScheduleFilter];
 		result: import('../cron').CronSchedule[];
 	};
-	[CronChannels.getSchedule]: { args: [scheduleId: string]; result: import('../cron').CronSchedule };
+	[CronChannels.getSchedule]: {
+		args: [scheduleId: string];
+		result: import('../cron').CronSchedule;
+	};
 	[CronChannels.getScheduleEvents]: {
 		args: [scheduleId: string];
 		result: import('../cron').CronScheduleEvent[];

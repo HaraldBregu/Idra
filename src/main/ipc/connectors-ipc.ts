@@ -54,7 +54,10 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.refreshTools,
-			wrapSimpleHandler((id: string) => connectors.refreshTools(id), ConnectorsChannels.refreshTools)
+			wrapSimpleHandler(
+				(id: string) => connectors.refreshTools(id),
+				ConnectorsChannels.refreshTools
+			)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.listTools,
@@ -69,7 +72,10 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.connectOAuth,
-			wrapSimpleHandler((id: string) => connectors.connectOAuth(id), ConnectorsChannels.connectOAuth)
+			wrapSimpleHandler(
+				(id: string) => connectors.connectOAuth(id),
+				ConnectorsChannels.connectOAuth
+			)
 		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);

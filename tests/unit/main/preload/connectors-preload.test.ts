@@ -148,12 +148,7 @@ describe('connectors preload API', () => {
 			},
 			{
 				run: () =>
-					connectors.callTool(
-						connectorConfig.id,
-						'get_profile',
-						{ verbose: true },
-						callOptions
-					),
+					connectors.callTool(connectorConfig.id, 'get_profile', { verbose: true }, callOptions),
 				channel: ConnectorsChannels.callTool,
 				args: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
 				data: { emailAddress: 'user@example.com' },
