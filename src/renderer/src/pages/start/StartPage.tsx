@@ -26,12 +26,13 @@ import {
 	TEXT_TO_VIDEO_OPERATOR_ID,
 	type Model,
 } from '../../../../shared/agents/service';
-import { ProviderAvatar } from '@/components/provider-avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -39,7 +40,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { SettingsField } from '../settings/components';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
@@ -80,6 +80,8 @@ type ModelServiceId =
 type ModelServiceDefinition = {
 	id: ModelServiceId;
 	label: string;
+	stepTitle: string;
+	stepDescription: string;
 	required: boolean;
 	getOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
@@ -98,6 +100,9 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: ASSISTANT_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.assistant.name,
+		stepTitle: 'Assistant model',
+		stepDescription:
+			'Choose the language model that will handle your chat replies, summarization, and planning.',
 		required: true,
 		getOperator: () => window.app.getAssistantOperator(),
 		getModels: (provider) => window.app.getModels(provider),
@@ -106,6 +111,9 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.speechToText.name,
+		stepTitle: 'Speech-to-text model',
+		stepDescription:
+			'Pick a model that converts your microphone input or uploaded audio to text before processing.',
 		required: false,
 		getOperator: () => window.app.getSpeechToTextOperator(),
 		getModels: (provider) => window.app.getSpeechToTextModels(provider),
@@ -114,6 +122,9 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: TEXT_TO_SPEECH_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.textToSpeech.name,
+		stepTitle: 'Text-to-speech model',
+		stepDescription:
+			'Pick a voice model to read assistant outputs back to you in real time.',
 		required: false,
 		getOperator: () => window.app.getTextToSpeechOperator(),
 		getModels: (provider) => window.app.getTextToSpeechModels(provider),
@@ -122,6 +133,9 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: IMAGE_CREATOR_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.imageCreator.name,
+		stepTitle: 'Image model',
+		stepDescription:
+			'Choose the model that generates images for image tasks from your prompts.',
 		required: false,
 		getOperator: () => window.app.getImageCreatorOperator(),
 		getModels: (provider) => window.app.getImageCreatorModels(provider),
@@ -130,6 +144,9 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.videoCreator.name,
+		stepTitle: 'Video model',
+		stepDescription:
+			'Pick the model used when you ask Friday to create or edit short video clips.',
 		required: false,
 		getOperator: () => window.app.getTextToVideoOperator(),
 		getModels: (provider) => window.app.getTextToVideoModels(provider),
@@ -138,6 +155,9 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: MUSIC_CREATOR_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.musicCreator.name,
+		stepTitle: 'Music model',
+		stepDescription:
+			'Choose a model for generating background music and short audio compositions.',
 		required: false,
 		getOperator: () => window.app.getMusicCreatorOperator(),
 		getModels: (provider) => window.app.getMusicCreatorModels(provider),
