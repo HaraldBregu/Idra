@@ -175,6 +175,7 @@ describe('ChannelDetailPage', () => {
 		renderChannelDetailPage(`/settings/channels/channelDetail/${detailEntry.id}`);
 
 		const labelInput = await screen.findByLabelText('Account label');
+		fireEvent.focus(labelInput);
 		fireEvent.change(labelInput, { target: { value: 'Renamed account' } });
 		fireEvent.blur(labelInput);
 
