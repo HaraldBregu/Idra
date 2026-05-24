@@ -12,6 +12,8 @@ import { SUBAGENT_RUN_TASK_TYPE } from './task-handler';
 import type {
 	SessionsSpawnInput,
 	SessionsSpawnResult,
+	SubagentsControlInput,
+	SubagentsControlResult,
 	SubagentCleanup,
 	SubagentRunRecord,
 	SubagentRunTaskInput,
@@ -28,6 +30,13 @@ export interface SubagentSpawnRequest {
 
 export interface SubagentSpawnPort {
 	spawn(request: SubagentSpawnRequest): Promise<SessionsSpawnResult>;
+	control(request: SubagentsControlRequest): Promise<SubagentsControlResult>;
+}
+
+export interface SubagentsControlRequest {
+	input: SubagentsControlInput;
+	requesterSessionKey: string;
+	sessionBaseDir?: string;
 }
 
 export interface SubagentSpawnServiceDependencies {
@@ -108,6 +117,17 @@ function parseModelOverride(value: string | undefined): { providerId?: string; m
 		...(providerId.trim() ? { providerId: providerId.trim().toLowerCase() } : {}),
 		...(modelId ? { modelId } : {}),
 	};
+}
+
+function parseControlInput(input: SubagentsControlInput): SubagentsControlInput {
+	if (input.action !== 'list' && input.action !== 'cancel' && input.action !== 'history') {
+		throw new Error('subagents action must be list, cancel, or history.');
+	}
+	const runId = optionalString(input.runId, 'runId');
+	if ((input.action === 'cancel' || input.action === 'history') && !runId) {
+		throw new Error('runId is required.');
+	}
+	return { action: input.action, ...(runId ? { runId } : {}) };
 }
 
 function isRestrictedAgent(agent: AgentConfig | undefined): boolean {
@@ -201,17 +221,21 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 		const modelOverride = parseModelOverride(input.model);
 		const childProviderId = modelOverride.providerId ?? parentAgent?.subagents?.model?.providerId;
 		const childModelId = modelOverride.modelId ?? parentAgent?.subagents?.model?.modelId;
+		const spawnDepth = parentDepth + 1;
+		const subagentRole = spawnDepth >= maxDepth ? 'leaf' : 'orchestrator';
+		const subagentControlScope = spawnDepth >= maxDepth ? 'none' : 'children';
 		const inheritedToolDeny = uniqueList([
 			...(parentMetadata?.inheritedToolDeny ?? []),
 			...(parentAgent?.tools?.deny ?? []),
+			...(subagentControlScope === 'none' ? ['sessions_spawn', 'subagents'] : []),
 		]);
 		const inheritedToolAllow = parentMetadata?.inheritedToolAllow;
 		const sessionMetadata: AgentSessionMetadata = {
 			agentId: targetAgentId,
 			spawnedBy: requesterSessionKey,
-			spawnDepth: parentDepth + 1,
-			subagentRole: parentDepth + 1 >= maxDepth ? 'leaf' : 'orchestrator',
-			subagentControlScope: parentDepth + 1 >= maxDepth ? 'none' : 'children',
+			spawnDepth,
+			subagentRole,
+			subagentControlScope,
 			spawnedWorkspace: targetAgent?.workspace ?? parentAgent?.workspace,
 			...(inheritedToolAllow ? { inheritedToolAllow } : {}),
 			...(inheritedToolDeny ? { inheritedToolDeny } : {}),
@@ -274,6 +298,53 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 			taskName: input.taskName,
 			label: input.label,
 		};
+	}
+
+	async control(request: SubagentsControlRequest): Promise<SubagentsControlResult> {
+		const input = parseControlInput(request.input);
+		const requesterSessionKey = request.requesterSessionKey.trim();
+		if (!requesterSessionKey) throw new Error('requesterSessionKey is required.');
+		const requesterMetadata = await this.loadParentMetadata(
+			requesterSessionKey,
+			request.sessionBaseDir
+		);
+		if (requesterMetadata?.subagentControlScope === 'none') {
+			throw new Error('This subagent cannot control child runs.');
+		}
+
+		if (input.action === 'list') {
+			return {
+				action: 'list',
+				runs: this.dependencies.registry.listSubagentRunsForRequester(requesterSessionKey),
+			};
+		}
+
+		const record = this.requireControlledRun(requesterSessionKey, input.runId!);
+		if (input.action === 'history') {
+			return { action: 'history', run: record };
+		}
+
+		if (record.taskId) {
+			try {
+				this.dependencies.taskManager.cancel(record.taskId);
+			} catch (error) {
+				this.dependencies.logger?.warn?.('SubagentSpawnService', 'Subagent task cancel failed', {
+					runId: record.runId,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
+		}
+		const cancelled = this.dependencies.registry.cancelSubagentRun(record.runId);
+		this.dependencies.eventBus?.emit('subagent:completed', cancelled);
+		return { action: 'cancel', run: cancelled };
+	}
+
+	private requireControlledRun(requesterSessionKey: string, runId: string): SubagentRunRecord {
+		const record = this.dependencies.registry.getSubagentRun(runId);
+		if (!record || record.requesterSessionKey !== requesterSessionKey) {
+			throw new Error(`Subagent run not found: ${runId}`);
+		}
+		return record;
 	}
 
 	private assertTargetAllowed(input: {

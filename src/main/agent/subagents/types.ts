@@ -50,6 +50,19 @@ export interface SessionsSpawnResult {
 	label?: string;
 }
 
+export type SubagentsControlAction = 'list' | 'cancel' | 'history';
+
+export interface SubagentsControlInput {
+	action: SubagentsControlAction;
+	runId?: string;
+}
+
+export interface SubagentsControlResult {
+	action: SubagentsControlAction;
+	runs?: SubagentRunRecord[];
+	run?: SubagentRunRecord;
+}
+
 export interface SubagentRunTaskInput {
 	runId: string;
 	task: string;

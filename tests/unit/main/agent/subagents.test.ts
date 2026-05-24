@@ -221,4 +221,82 @@ describe('subagent orchestration', () => {
 			expect.objectContaining({ runId: 'run-1', outcome: 'ok' })
 		);
 	});
+
+	it('lists, histories, and cancels only controlled child runs', async () => {
+		const { service, registry, taskManager, eventBus } = createSpawnService({
+			agents: { main: { id: 'main' } },
+		});
+		registry.registerSubagentRun({
+			runId: 'run-1',
+			taskId: 'subagent:run-1',
+			childSessionKey: 'agent:main:subagent:run-1',
+			requesterSessionKey: 'agent:main:main',
+			controllerSessionKey: 'agent:main:main',
+			task: 'Child',
+			agentId: 'main',
+			cleanup: 'keep',
+			spawnMode: 'run',
+			createdAt: 1,
+		});
+		registry.registerSubagentRun({
+			runId: 'sibling',
+			childSessionKey: 'agent:main:subagent:sibling',
+			requesterSessionKey: 'agent:main:other',
+			controllerSessionKey: 'agent:main:other',
+			task: 'Sibling',
+			agentId: 'main',
+			cleanup: 'keep',
+			spawnMode: 'run',
+			createdAt: 1,
+		});
+
+		await expect(
+			service.control({
+				requesterSessionKey: 'agent:main:main',
+				input: { action: 'list' },
+			})
+		).resolves.toMatchObject({
+			action: 'list',
+			runs: [expect.objectContaining({ runId: 'run-1' })],
+		});
+		await expect(
+			service.control({
+				requesterSessionKey: 'agent:main:main',
+				input: { action: 'history', runId: 'sibling' },
+			})
+		).rejects.toThrow('Subagent run not found: sibling');
+
+		const cancelled = await service.control({
+			requesterSessionKey: 'agent:main:main',
+			input: { action: 'cancel', runId: 'run-1' },
+		});
+
+		expect(cancelled).toMatchObject({
+			action: 'cancel',
+			run: expect.objectContaining({ runId: 'run-1', outcome: 'cancelled' }),
+		});
+		expect(taskManager.run).not.toHaveBeenCalled();
+		expect(taskManager.cancel).toHaveBeenCalledWith('subagent:run-1');
+		expect(eventBus.emit).toHaveBeenCalledWith(
+			'subagent:completed',
+			expect.objectContaining({ runId: 'run-1', outcome: 'cancelled' })
+		);
+	});
+
+	it('denies control actions from leaf subagents', async () => {
+		const { service } = createSpawnService({
+			loadParentMetadata: jest.fn(async () => ({
+				agentId: 'main',
+				spawnDepth: 1,
+				subagentControlScope: 'none',
+			})),
+		});
+
+		await expect(
+			service.control({
+				requesterSessionKey: 'agent:main:subagent:leaf',
+				input: { action: 'list' },
+			})
+		).rejects.toThrow('This subagent cannot control child runs.');
+	});
 });

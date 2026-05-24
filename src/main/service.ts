@@ -61,7 +61,11 @@ import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
-import { createSessionsSpawnTool, type SubagentSpawnPort } from './agent/subagents';
+import {
+	createSessionsSpawnTool,
+	createSubagentsControlTool,
+	type SubagentSpawnPort,
+} from './agent/subagents';
 
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
@@ -269,7 +273,10 @@ export class AgentService {
 			}),
 			...(this.dependencies.connectors?.createAgentTools() ?? []),
 			...(this.dependencies.subagents
-				? [createSessionsSpawnTool(this.dependencies.subagents) as unknown as AgentTool]
+				? [
+						createSessionsSpawnTool(this.dependencies.subagents) as unknown as AgentTool,
+						createSubagentsControlTool(this.dependencies.subagents) as unknown as AgentTool,
+					]
 				: []),
 		];
 		const toolRuntimeConfig =
