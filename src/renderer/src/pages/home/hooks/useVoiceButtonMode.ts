@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { isRealtimeVoiceModel } from '../../../../../shared/providers';
+import { isRealtimeSpeechToTextModel } from '../../../../../shared/providers';
 
 export type VoiceButtonMode = 'dictate' | 'record' | 'disabled';
 
@@ -15,7 +15,7 @@ export function useVoiceButtonMode(): VoiceButtonMode {
 					return;
 				}
 				setMode(
-					isRealtimeVoiceModel(operator.provider.id, operator.model.id)
+					isRealtimeSpeechToTextModel(operator.provider.id, operator.model.id)
 						? 'dictate'
 						: 'record'
 				);

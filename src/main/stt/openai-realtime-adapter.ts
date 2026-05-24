@@ -97,6 +97,7 @@ export function createRealtimeTranscriptionSessionUpdate(
 					},
 					transcription: {
 						model: transcriptionModel,
+						delay: 'high',
 						...(language ? { language } : {}),
 					},
 					turn_detection: null,

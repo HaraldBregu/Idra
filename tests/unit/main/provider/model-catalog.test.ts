@@ -4,7 +4,11 @@ import {
 	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
 	MUSIC_CREATOR_MODELS,
 	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
+	ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
+	ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
+	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
 	SPEECH_TO_TEXT_MODELS,
 	SPEECH_TO_TEXT_PROVIDER_MODELS,
 	TEXT_TO_IMAGE_PROVIDER_MODELS,
@@ -20,6 +24,9 @@ import {
 	getTextToImageModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
+	isRealtimeSpeechToTextModel,
+	XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
+	XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID,
 } from '../../../../src/shared/provider-models';
 import {
 	getMusicModels,
@@ -146,6 +153,25 @@ it('returns provider media catalogs for image/video/music by provider', () => {
 		expect(isAllowedTextToVideoModel('runway', 'video-provider-coming-soon')).toBe(false);
 		expect(isAllowedMusicCreatorModel('suno', 'suno-v5.5')).toBe(true);
 		expect(isAllowedMusicCreatorModel('deepseek', 'music-provider-coming-soon')).toBe(false);
+	});
+
+	it('identifies speech-to-text models that support live dictation', () => {
+		expect(isRealtimeSpeechToTextModel('openai', REALTIME_SPEECH_TRANSCRIBER_MODEL_ID)).toBe(
+			true
+		);
+		expect(isRealtimeSpeechToTextModel('elevenlabs', ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID)).toBe(
+			true
+		);
+		expect(isRealtimeSpeechToTextModel('mistral', MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID)).toBe(
+			true
+		);
+		expect(isRealtimeSpeechToTextModel('qwen', QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(isRealtimeSpeechToTextModel('xai', XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID)).toBe(true);
+		expect(isRealtimeSpeechToTextModel('elevenlabs', ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID)).toBe(
+			false
+		);
+		expect(isRealtimeSpeechToTextModel('xai', XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID)).toBe(false);
+		expect(isRealtimeSpeechToTextModel('deepgram', 'flux')).toBe(false);
 	});
 
 	it('exposes the same provider catalogs through the shared models facade', () => {

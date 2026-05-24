@@ -1,4 +1,4 @@
-import { model, type ModelCatalog } from './models';
+import { model, normalizeProviderId, type ModelCatalog } from './models';
 
 export const SPEECH_TRANSCRIBER_PROVIDER_ID = 'openai';
 export const GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
@@ -52,3 +52,21 @@ export const SPEECH_TO_TEXT_PROVIDER_IDS = [
 	'qwen',
 	'xai',
 ] as const;
+
+export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
+	const provider = normalizeProviderId(providerId);
+	const model = modelId.trim();
+	if (provider === SPEECH_TRANSCRIBER_PROVIDER_ID) {
+		return (SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(model);
+	}
+	if (provider === 'elevenlabs') return model === ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID;
+	if (provider === 'mistral') return model === MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID;
+	if (provider === 'qwen') {
+		return (
+			model === QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID ||
+			model === QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID
+		);
+	}
+	if (provider === 'xai') return model === XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID;
+	return false;
+}
