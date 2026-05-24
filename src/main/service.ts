@@ -254,7 +254,7 @@ export class AgentService {
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
 		const toolPolicy = context.toolPolicy;
-		const legacyHostTools = [
+		const legacyHostTools: AgentTool[] = [
 			...createTools({
 				profile: toolPolicy?.profile ?? 'full',
 				allow: toolPolicy?.allow ?? [],
@@ -269,7 +269,7 @@ export class AgentService {
 			}),
 			...(this.dependencies.connectors?.createAgentTools() ?? []),
 			...(this.dependencies.subagents
-				? [createSessionsSpawnTool(this.dependencies.subagents)]
+				? [createSessionsSpawnTool(this.dependencies.subagents) as AgentTool]
 				: []),
 		];
 		const toolRuntimeConfig =

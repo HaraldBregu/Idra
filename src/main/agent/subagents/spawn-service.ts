@@ -12,8 +12,10 @@ import { SUBAGENT_RUN_TASK_TYPE } from './task-handler';
 import type {
 	SessionsSpawnInput,
 	SessionsSpawnResult,
+	SubagentCleanup,
 	SubagentRunRecord,
 	SubagentRunTaskInput,
+	SubagentSpawnMode,
 } from './types';
 
 export interface SubagentSpawnRequest {
@@ -46,6 +48,19 @@ const DEFAULT_MAX_SPAWN_DEPTH = 1;
 const DEFAULT_MAX_CHILDREN_PER_AGENT = 4;
 const MAX_TASK_LENGTH = 200_000;
 
+type ParsedSessionsSpawnInput = {
+	task: string;
+	taskName?: string;
+	label?: string;
+	agentId?: string;
+	model?: string;
+	runTimeoutSeconds?: number;
+	mode: SubagentSpawnMode;
+	cleanup: SubagentCleanup;
+	context: 'isolated' | 'fork';
+	sandbox: 'inherit' | 'require';
+};
+
 function requireTask(value: unknown): string {
 	if (typeof value !== 'string') throw new Error('task is required.');
 	const task = value.trim();
@@ -68,8 +83,7 @@ function optionalPositiveInteger(value: unknown, name: string): number | undefin
 	return value;
 }
 
-function parseInput(input: SessionsSpawnInput): Required<Pick<SessionsSpawnInput, 'task'>> &
-	Omit<SessionsSpawnInput, 'task'> {
+function parseInput(input: SessionsSpawnInput): ParsedSessionsSpawnInput {
 	return {
 		task: requireTask(input.task),
 		taskName: optionalString(input.taskName, 'taskName'),
