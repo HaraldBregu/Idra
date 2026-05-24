@@ -756,6 +756,7 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	} = connector.oauth;
 	return {
 		...connector,
+		authorization: '',
 		oauth,
 	};
 }

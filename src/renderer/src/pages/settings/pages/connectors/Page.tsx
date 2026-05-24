@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Plug } from 'lucide-react';
-import type { ConnectorInput } from '@shared/connector';
+import type { OpenAiConnectorId } from '@shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -19,29 +19,22 @@ const ConnectorsPage = () => {
 		connectingId,
 		error, setError,
 		statusMessage,
-		load,
 		connectOAuth,
 		toggleConnector,
 	} = useConnectors();
 	const configuredConnectorIds = new Set(connectors.map((connector) => connector.connectorId));
 
-	const addConnector = async (input: ConnectorInput): Promise<void> => {
-		setError(null);
-		try {
-			const alreadyConfigured = configuredConnectorIds.has(input.connectorId);
-			if (alreadyConfigured) {
-				setError(`Connector ${input.connectorId} is already configured.`);
-				return;
-			}
-			await window.connectors.add(input);
-			await load();
-		} catch (err) {
-			setError(err instanceof Error ? err.message : String(err));
-		}
-	};
-
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
+	};
+
+	const configureCatalogConnector = (id: OpenAiConnectorId): void => {
+		const configured = connectors.find((connector) => connector.connectorId === id);
+		if (configured) {
+			openConnectorDetails(configured.id);
+			return;
+		}
+		navigate(`/settings/connectors/configure/${encodeURIComponent(id)}`);
 	};
 
 	return (
@@ -84,7 +77,7 @@ const ConnectorsPage = () => {
 					<ConnectorCatalogItem
 						key={item.id}
 						item={item}
-						onAdd={addConnector}
+						onConfigure={() => configureCatalogConnector(item.id)}
 						alreadyConfigured={configuredConnectorIds.has(item.id)}
 					/>
 				))}

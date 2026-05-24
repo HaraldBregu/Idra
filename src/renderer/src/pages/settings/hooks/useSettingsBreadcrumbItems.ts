@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channels';
 import {
+	getConnectorCatalogItem,
+	isOpenAiConnectorId,
+} from '../../../../../shared/connector';
+import {
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
 	SPEECH_TO_TEXT_OPERATOR_ID,
@@ -20,6 +24,9 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	const { t } = useTranslation();
 	const location = useLocation();
 	const connectorDetailId = location.pathname.startsWith('/settings/connectors/connectordetails/')
+		? decodeURIComponent(location.pathname.split('/').at(-1) ?? '')
+		: null;
+	const connectorCatalogId = location.pathname.startsWith('/settings/connectors/configure/')
 		? decodeURIComponent(location.pathname.split('/').at(-1) ?? '')
 		: null;
 	const [connectorDetailName, setConnectorDetailName] = useState<string | null>(null);
@@ -92,6 +99,14 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	if (location.pathname.startsWith('/settings/connectors/connectordetails/')) {
 		items[0] = { ...items[0], path: current.path };
 		items.push({ label: connectorDetailName ?? t('settings.connectors.detailsTitle') });
+	}
+
+	if (location.pathname.startsWith('/settings/connectors/configure/')) {
+		const connectorName = connectorCatalogId && isOpenAiConnectorId(connectorCatalogId)
+			? getConnectorCatalogItem(connectorCatalogId)?.name
+			: null;
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: connectorName ?? t('settings.connectors.detailsTitle') });
 	}
 
 	if (location.pathname.startsWith('/settings/skills/skilldetails/')) {

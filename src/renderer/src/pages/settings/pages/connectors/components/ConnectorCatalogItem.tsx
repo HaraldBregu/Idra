@@ -1,16 +1,5 @@
-import { FormEvent, useState } from 'react';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
 	Collapsible,
@@ -18,117 +7,48 @@ import {
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { handleExternalLinkClick } from '@/lib/external-links';
-import type {
-	ConnectorApprovalMode,
-	ConnectorInput,
-	OpenAiConnectorId,
-} from '@shared/connector';
-import {
-	SettingsField,
-	SettingsNotice,
-} from '../../../components';
+import { SettingsNotice } from '../../../components';
 import { ConnectorDocumentationRows } from './ConnectorDocumentationRows';
 import { ConnectorIcon } from './ConnectorIcon';
 import type { ConnectorCatalog } from '../hooks/useConnectors';
 
-interface ConnectorCatalogFormState {
-	readonly name: string;
-	readonly serverLabel: string;
-	readonly serverDescription: string;
-	readonly authorization: string;
-	readonly requireApproval: ConnectorApprovalMode;
-	readonly allowedTools: string[];
-	readonly deferLoading: boolean;
-	readonly enabled: boolean;
-}
-
-function serverLabelFromName(name: string): string {
-	return name
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9_-]+/g, '_')
-		.replace(/^_+|_+$/g, '');
-}
-
-function formToInput(form: ConnectorCatalogFormState, connectorId: OpenAiConnectorId, useManualAuth: boolean): ConnectorInput {
-	return {
-		name: form.name,
-		connectorId,
-		serverLabel: form.serverLabel || serverLabelFromName(form.name),
-		serverDescription: form.serverDescription || undefined,
-		authorization: useManualAuth ? form.authorization.trim() || undefined : undefined,
-		requireApproval: form.requireApproval,
-		allowedTools: form.allowedTools,
-		deferLoading: form.deferLoading,
-		enabled: form.enabled,
-	};
-}
-
 export function ConnectorCatalogItem({
 	item,
-	onAdd,
+	onConfigure,
 	alreadyConfigured,
 }: {
 	readonly item: ConnectorCatalog[number];
-	readonly onAdd: (input: ConnectorInput) => Promise<void>;
+	readonly onConfigure: () => void;
 	readonly alreadyConfigured: boolean;
 }) {
-	const [saving, setSaving] = useState(false);
-	const idPrefix = item.id.replace(/[^a-zA-Z0-9_-]/g, '-');
-	const [form, setForm] = useState<ConnectorCatalogFormState>({
-		name: item.name,
-		serverLabel: serverLabelFromName(item.name),
-		serverDescription: item.description,
-		authorization: '',
-		requireApproval: 'always',
-		allowedTools: [],
-		deferLoading: false,
-		enabled: true,
-	});
-
 	const googleOAuth = 'authKind' in item && item.authKind === 'google_oauth';
-	const canSubmit =
-		!alreadyConfigured &&
-		form.name.trim().length > 0 &&
-		(googleOAuth || form.authorization.trim().length > 0) &&
-		!saving;
-
-	const update = <TKey extends keyof ConnectorCatalogFormState>(key: TKey, value: ConnectorCatalogFormState[TKey]): void => {
-		setForm((prev) => ({ ...prev, [key]: value }));
-	};
-
-	const toggleAllowedTool = (tool: string): void => {
-		setForm((prev) => ({
-			...prev,
-			allowedTools: prev.allowedTools.includes(tool)
-				? prev.allowedTools.filter((value) => value !== tool)
-				: [...prev.allowedTools, tool],
-		}));
-	};
-
-	const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
-		event.preventDefault();
-		if (alreadyConfigured) return;
-		setSaving(true);
-		try {
-			await onAdd(formToInput(form, item.id as OpenAiConnectorId, !googleOAuth));
-			setForm({
-				...form,
-				name: item.name,
-				serverLabel: serverLabelFromName(item.name),
-				serverDescription: item.description,
-				authorization: '',
-			});
-		} finally {
-			setSaving(false);
-		}
-	};
 
 	return (
 		<Collapsible className="rounded-lg border border-border/70 bg-card">
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 				<ConnectorIcon directConnectorId={item.directConnectorId} name={item.name} />
-				<span className="min-w-0 flex-1 truncate text-[13px] font-medium">{item.name}</span>
+				<span className="min-w-0 flex-1">
+					<span className="block truncate text-[13px] font-medium">{item.name}</span>
+					<span className="block truncate text-[11px] text-muted-foreground">
+						{googleOAuth ? 'Google OAuth' : 'Manual OAuth access token'}
+					</span>
+				</span>
+				{alreadyConfigured && (
+					<Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+						Configured
+					</Badge>
+				)}
+				<Button
+					type="button"
+					size="xs"
+					variant={alreadyConfigured ? 'outline' : 'default'}
+					onClick={(event) => {
+						event.stopPropagation();
+						onConfigure();
+					}}
+				>
+					{alreadyConfigured ? 'Open' : 'Configure'}
+				</Button>
 				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 			</CollapsibleTrigger>
 			<CollapsibleContent className="grid gap-2 border-t border-border/60 px-3 py-2.5">
@@ -165,6 +85,17 @@ export function ConnectorCatalogItem({
 						</ol>
 					</div>
 				)}
+				{googleOAuth ? (
+					<SettingsNotice variant="default">
+						Google OAuth uses <span className="font-mono">GOOGLE_OAUTH_CLIENT_ID</span> and{' '}
+						<span className="font-mono">GOOGLE_OAUTH_CLIENT_SECRET</span> from the app environment.
+					</SettingsNotice>
+				) : (
+					<SettingsNotice variant="default">
+						Manual OAuth connectors store an access token for catalog testing. Local tool execution
+						is added only when a runtime strategy exists.
+					</SettingsNotice>
+				)}
 				{item.tools.length > 0 && (
 					<div>
 						<p className="mb-1 text-[11px] font-medium text-foreground">Tools</p>
@@ -181,153 +112,6 @@ export function ConnectorCatalogItem({
 					</div>
 				)}
 				<ConnectorDocumentationRows connector={item} />
-				<form onSubmit={submit} className="grid gap-2 border-t border-border/60 pt-2">
-					<SettingsField id={`${idPrefix}-connector-name`} label="Name">
-						<Input
-							id={`${idPrefix}-connector-name`}
-							value={form.name}
-							onChange={(e) => update('name', e.target.value)}
-							placeholder={item.name}
-							className="h-7 px-2 text-xs md:text-xs"
-						/>
-					</SettingsField>
-
-					<SettingsField id={`${idPrefix}-connector-server-description`} label="Description">
-						<Textarea
-							id={`${idPrefix}-connector-server-description`}
-							value={form.serverDescription}
-							onChange={(e) => update('serverDescription', e.target.value)}
-							placeholder={item.description}
-							className="min-h-14 py-1.5 text-xs md:text-xs"
-						/>
-					</SettingsField>
-
-					<div className="grid gap-2 border-b border-border/60 md:grid-cols-2">
-						<SettingsField id={`${idPrefix}-connector-server-label`} label="Server label">
-							<Input
-								id={`${idPrefix}-connector-server-label`}
-								value={form.serverLabel}
-								onChange={(e) => update('serverLabel', e.target.value)}
-								placeholder="google_calendar"
-								className="h-7 px-2 text-xs md:text-xs"
-							/>
-						</SettingsField>
-
-						<SettingsField id={`${idPrefix}-connector-approval-policy`} label="Approval policy">
-							<Select
-								value={form.requireApproval}
-								onValueChange={(value) => { if (value) update('requireApproval', value as ConnectorApprovalMode); }}
-							>
-								<SelectTrigger
-									id={`${idPrefix}-connector-approval-policy`}
-									size="sm"
-									className="w-full text-xs [&_svg]:size-3"
-									aria-label="Approval policy"
-								>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="always">Always require approval</SelectItem>
-									<SelectItem value="never_for_allowed_tools">Skip approval for allowed tools</SelectItem>
-									<SelectItem value="never">Never require approval</SelectItem>
-								</SelectContent>
-							</Select>
-						</SettingsField>
-					</div>
-
-					{googleOAuth ? (
-						<SettingsNotice variant="default">
-							Google OAuth uses <span className="font-mono">GOOGLE_OAUTH_CLIENT_ID</span> and{' '}
-							<span className="font-mono">GOOGLE_OAUTH_CLIENT_SECRET</span> from the app environment.
-							Redirect: <span className="font-mono">{('redirectUri' in item && item.redirectUri) || 'Not configured'}</span>
-						</SettingsNotice>
-					) : (
-						<SettingsField id={`${idPrefix}-connector-authorization`} label="OAuth access token">
-							<Input
-								id={`${idPrefix}-connector-authorization`}
-								type="password"
-								value={form.authorization}
-								onChange={(e) => update('authorization', e.target.value)}
-								placeholder="Paste OAuth access token"
-								className="h-7 px-2 text-xs md:text-xs"
-							/>
-						</SettingsField>
-					)}
-
-					<div className="grid gap-2">
-						<div className="flex flex-wrap items-center justify-between gap-2">
-							<span className="text-[11px] font-medium text-foreground">Allowed tools</span>
-							<span className="text-[11px] text-muted-foreground">
-								Leave all unselected to allow every available tool.
-							</span>
-						</div>
-						<div className="flex min-h-8 flex-wrap gap-1.5">
-							{item.tools.length > 0 ? (
-								item.tools.map((tool) => {
-									const active = form.allowedTools.includes(tool);
-									return (
-										<Button
-											key={tool}
-											type="button"
-											variant={active ? 'secondary' : 'outline'}
-											size="xs"
-											aria-pressed={active}
-											onClick={() => toggleAllowedTool(tool)}
-										>
-											{tool}
-										</Button>
-									);
-								})
-							) : (
-								<p className="text-[11px] text-muted-foreground">No tools found for this connector.</p>
-							)}
-						</div>
-					</div>
-
-					<div className="grid divide-y divide-border/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-						<div className="flex items-center justify-between gap-3 px-3 py-2.5">
-							<div className="min-w-0">
-								<label htmlFor={`${idPrefix}-connector-defer-loading`} className="block cursor-pointer text-[13px] font-medium text-foreground">
-									Defer tool loading
-								</label>
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									Load tools only when the connector is used.
-								</p>
-							</div>
-							<Switch
-								size="sm"
-								id={`${idPrefix}-connector-defer-loading`}
-								checked={form.deferLoading}
-								onCheckedChange={(checked) => update('deferLoading', checked)}
-							/>
-						</div>
-						<div className="flex items-center justify-between gap-3 px-3 py-2.5">
-							<div className="min-w-0">
-								<label htmlFor={`${idPrefix}-connector-enabled`} className="block cursor-pointer text-[13px] font-medium text-foreground">
-									Enabled
-								</label>
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									Make this connector available to agent runs.
-								</p>
-							</div>
-							<Switch
-								size="sm"
-								id={`${idPrefix}-connector-enabled`}
-								checked={form.enabled}
-								onCheckedChange={(checked) => update('enabled', checked)}
-							/>
-						</div>
-					</div>
-
-					<div className="flex flex-wrap justify-end gap-2 py-2">
-						{alreadyConfigured && (
-							<p className="text-xs text-destructive">This connector is already configured.</p>
-						)}
-						<Button type="submit" size="xs" disabled={!canSubmit}>
-							{saving ? 'Saving...' : 'Add Connector'}
-						</Button>
-					</div>
-				</form>
 			</CollapsibleContent>
 		</Collapsible>
 	);

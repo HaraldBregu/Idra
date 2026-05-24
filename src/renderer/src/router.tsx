@@ -225,6 +225,14 @@ const routes: RouteObject[] = [
 									</SettingsRouteWrapper>
 								),
 							},
+							{
+								path: 'configure/:connectorCatalogId',
+								element: (
+									<SettingsRouteWrapper>
+										<ConnectorDetailsPage />
+									</SettingsRouteWrapper>
+								),
+							},
 						],
 					},
 					{
