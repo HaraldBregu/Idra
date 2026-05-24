@@ -274,15 +274,15 @@ function SubmitButton({
 	readonly canSubmit: boolean;
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
-}): ReactElement {
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
-	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
+}): ReactElement | null {
+	if (!isLoading && !canSubmit) return null;
+
+	const label = isLoading ? 'Stop generation' : 'Send message';
+	const iconKey = isLoading ? 'stop' : 'send';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
-	) : canSubmit ? (
-		<ArrowUp className="size-4" />
 	) : (
-		<AudioLines className="size-4" />
+		<ArrowUp className="size-4" />
 	);
 
 	return (
