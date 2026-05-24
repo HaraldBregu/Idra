@@ -64,10 +64,10 @@ describe('subagent orchestration', () => {
 			runId: 'run-1',
 			agentId: 'main',
 			childSessionKey: 'agent:main:subagent:run-1',
-			outcome: undefined,
 			modelId: 'gpt-test',
 			providerId: 'openai',
 		});
+		expect(registry.getSubagentRun('run-1')?.outcome).toBeUndefined();
 		expect(taskManager.run).toHaveBeenCalledWith(
 			expect.objectContaining({
 				id: 'subagent:run-1',
