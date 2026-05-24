@@ -46,20 +46,20 @@ function buildChatMessages(
 				.filter((b): b is Extract<AgentContentBlock, { type: 'text' }> => b.type === 'text')
 				.map((b) => b.text)
 				.join('');
-				const toolCalls: OpenAI.ChatCompletionMessageToolCall[] = entry.content
-					.filter(
-						(b): b is Extract<AgentContentBlock, { type: 'tool_use' }> => b.type === 'tool_use'
-					)
+			const toolCalls: OpenAI.ChatCompletionMessageToolCall[] = entry.content
+				.filter(
+					(b): b is Extract<AgentContentBlock, { type: 'tool_use' }> => b.type === 'tool_use'
+				)
 				.map((b) => ({
 					id: b.toolUseId,
 					type: 'function' as const,
-						function: { name: b.toolName, arguments: JSON.stringify(b.toolArgs ?? {}) },
-					}));
-				if (!text && toolCalls.length === 0) continue;
-				const msg: OpenAI.ChatCompletionAssistantMessageParam = {
-					role: 'assistant',
-					content: text || null,
-				};
+					function: { name: b.toolName, arguments: JSON.stringify(b.toolArgs ?? {}) },
+				}));
+			if (!text && toolCalls.length === 0) continue;
+			const msg: OpenAI.ChatCompletionAssistantMessageParam = {
+				role: 'assistant',
+				content: text || null,
+			};
 			if (options.includeReasoningContent) {
 				const reasoningContent = entry.content
 					.filter(isDeepSeekReasoningBlock)
