@@ -479,6 +479,12 @@ async function isAllowedExtraPath(real: string, workspace: string, extraPaths: s
 function chunkMarkdown(file: string, raw: string, workspaceDir: string): IndexedChunk[] {
 	const lines = raw.split(/\r?\n/);
 	const chunks: IndexedChunk[] = [];
+	const descriptor = describeMemoryFile(workspaceDir, file) ?? {
+		corpus: 'memory' as const,
+		scopeKind: 'global' as const,
+		scopeId: 'global',
+		relativePath: path.relative(workspaceDir, file),
+	};
 	for (let start = 0; start < lines.length; start += MEMORY_CHUNK_LINES - MEMORY_CHUNK_OVERLAP) {
 		const slice = lines.slice(start, start + MEMORY_CHUNK_LINES);
 		const text = slice.join('\n').trim();
@@ -487,19 +493,43 @@ function chunkMarkdown(file: string, raw: string, workspaceDir: string): Indexed
 		const lineEnd = start + slice.length;
 		chunks.push({
 			source: 'memory',
+			corpus: descriptor.corpus,
 			path: file,
-			chunkId: `memory:${path.relative(workspaceDir, file)}:${lineStart}`,
+			chunkId: `${descriptor.corpus}:${descriptor.relativePath}:${lineStart}`,
 			text,
 			lineStart,
 			lineEnd,
+			scopeKind: descriptor.scopeKind,
+			scopeId: descriptor.scopeId,
 			metadata: {
-				relativePath: path.relative(workspaceDir, file),
+				relativePath: descriptor.relativePath,
+				corpus: descriptor.corpus,
+				scopeKind: descriptor.scopeKind,
+				scopeId: descriptor.scopeId,
 				hash: createHash('sha1').update(text).digest('hex').slice(0, 12),
 			},
 		});
 		if (start + MEMORY_CHUNK_LINES >= lines.length) break;
 	}
 	return chunks;
+}
+
+function resolveRequestedCorpora(options: Parameters<MemorySearchManager['search']>[1] = {}): MemoryResultCorpus[] {
+	const requested = options.corpora ?? (options.corpus ? [options.corpus] : (['memory', 'sessions'] as MemoryCorpus[]));
+	if (requested.includes('all')) return ['memory', 'sessions', 'rag', 'wiki'];
+	const allowed = new Set<MemoryResultCorpus>(['memory', 'sessions', 'rag', 'wiki']);
+	const unique = [...new Set(requested)].filter((corpus): corpus is MemoryResultCorpus =>
+		allowed.has(corpus as MemoryResultCorpus)
+	);
+	return unique.length > 0 ? unique : ['memory', 'sessions'];
+}
+
+function deriveWorkspaceFromRelativeTarget(target: string, relativePath: string): string {
+	let workspace = path.resolve(target);
+	for (const _segment of relativePath.split(/[\\/]+/).filter(Boolean)) {
+		workspace = path.dirname(workspace);
+	}
+	return workspace;
 }
 
 function renderTranscriptEntry(entry: TranscriptEntry): string {

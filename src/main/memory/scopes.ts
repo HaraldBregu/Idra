@@ -204,7 +204,7 @@ export function validateDailyMemoryRelativePath(relativePath: string): void {
 	}
 	const parts = splitRelativePath(relativePath);
 	if (parts[0] !== MEMORY_ROOT || !DATE_FILE_PATTERN.test(parts[parts.length - 1] ?? '')) {
-		throw new Error('Memory flush target must be a scoped memory daily Markdown file.');
+		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/<scope>/YYYY-MM-DD.md.');
 	}
 }
 
