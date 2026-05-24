@@ -756,39 +756,39 @@ const StartPage: React.FC = () => {
 		return button;
 	}
 
-function renderPresentationStep(): React.JSX.Element {
-	const { title, description } = STEP_COPY.presentation;
+	function renderPresentationStep(): React.JSX.Element {
+		const { title, description } = STEP_COPY.presentation;
 
-	return (
-		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
-			<DomeWaveAnimation height={120} className="w-full max-w-sm" />
-			<Badge variant="secondary" className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold">
-				<Check className="size-3" />
-				Ready in a minute
-			</Badge>
-			<h1 className="mt-5 text-3xl font-bold leading-none tracking-normal text-foreground">
-				{title}
-			</h1>
-			<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-				{description}
-			</p>
-		</div>
-	);
-}
-
-function renderProviderStep(): React.JSX.Element {
-	const { title, description } = STEP_COPY.providers;
-
-	return (
-		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
-			<div>
-				<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
+		return (
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
+				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
+				<Badge variant="secondary" className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold">
+					<Check className="size-3" />
+					Model setup
+				</Badge>
+				<h1 className="mt-5 text-3xl font-bold leading-none tracking-normal text-foreground">
 					{title}
 				</h1>
-				<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
+				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
 					{description}
 				</p>
 			</div>
+		);
+	}
+
+	function renderProviderStep(): React.JSX.Element {
+		const { title, description } = STEP_COPY.providers;
+
+		return (
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
+				<div>
+					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
+						{title}
+					</h1>
+					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
+						{description}
+					</p>
+				</div>
 
 				<div className="mt-4 space-y-2">
 					{actionableProviderCatalog.map((provider) => {
@@ -799,28 +799,33 @@ function renderProviderStep(): React.JSX.Element {
 							savingProviderId === provider.id || savingProviderId === 'all';
 						const canSaveProvider =
 							!!entry && !savingThisProvider && entry.apiKey.trim().length > 0;
+						const inputId = `${provider.id}-api-key`;
 
 						return (
 							<Card
 								key={provider.id}
+								size="sm"
 								className={cn(
-									'rounded-lg border-border bg-card py-0 shadow-none',
+									'gap-0 rounded-lg border-border bg-card py-0 shadow-none',
 									editing && 'border-ring ring-2 ring-ring/20',
 									!provider.supported && 'opacity-70'
 								)}
 							>
-			<CardContent className="p-0">
-				<div
-					className={cn(
+								<CardContent className="p-0">
+									<div
+										className={cn(
 											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
 											editing && 'pb-2'
 										)}
 									>
-									<Avatar className="size-8 rounded-md border border-border bg-background">
-										<AvatarFallback className="rounded-md text-[11px] font-medium text-muted-foreground">
-											{getProviderInitials(provider.name, provider.id.slice(0, 2).toUpperCase())}
-										</AvatarFallback>
-									</Avatar>
+										<Avatar className="size-8 rounded-md border border-border bg-background">
+											<AvatarFallback className="rounded-md text-[11px] font-medium text-muted-foreground">
+												{getProviderInitials(
+													provider.name,
+													provider.id.slice(0, 2).toUpperCase()
+												)}
+											</AvatarFallback>
+										</Avatar>
 										<div className="min-w-0 flex-1">
 											<div className="flex min-w-0 items-center gap-1.5">
 												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
@@ -838,9 +843,7 @@ function renderProviderStep(): React.JSX.Element {
 												</Button>
 											</div>
 											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
-												{connected
-													? MASKED_API_KEY_LABEL
-													: provider.capabilities}
+												{connected ? MASKED_API_KEY_LABEL : provider.capabilities}
 											</p>
 										</div>
 										<div className="flex shrink-0 justify-end gap-2">
@@ -881,47 +884,57 @@ function renderProviderStep(): React.JSX.Element {
 									</div>
 
 									{provider.supported && editing && entry ? (
-										<div className="flex items-center gap-2 px-3 pb-3">
-											<Input
-												aria-label={`${provider.name} API key`}
-												autoComplete="off"
-												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
-												disabled={savingThisProvider}
-												onChange={(event) => {
-													handleProviderApiKeyChange(provider.id, event.target.value);
-												}}
-												placeholder="API key"
-												spellCheck={false}
-												type="password"
-												value={entry.apiKey}
-											/>
-											<Button
-												type="button"
-												variant="outline"
-												size="sm"
-												disabled={savingThisProvider}
-												onClick={() => {
-													updateProviderEntry(provider.id, {
-														apiKey: '',
-														editing: false,
-													});
-												}}
-											>
-												Cancel
-											</Button>
-											<Button
-												type="button"
-												size="sm"
-												disabled={!canSaveProvider}
-												onClick={() => {
-													void saveProviderEntry(provider.id);
-												}}
-											>
-												{savingThisProvider ? (
-													<LoaderCircle className="size-3.5 animate-spin" />
-												) : null}
-												Save
-											</Button>
+										<div className="grid gap-1.5 px-3 pb-3">
+											<Label htmlFor={inputId} className="text-[11px] leading-4">
+												API key
+											</Label>
+											<div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+												<InputGroup className="h-8 bg-card">
+													<InputGroupAddon>
+														<KeyRound className="size-3.5" />
+													</InputGroupAddon>
+													<InputGroupInput
+														id={inputId}
+														autoComplete="off"
+														className="text-xs font-semibold placeholder:text-muted-foreground"
+														disabled={savingThisProvider}
+														onChange={(event) => {
+															handleProviderApiKeyChange(provider.id, event.target.value);
+														}}
+														placeholder="Paste provider API key"
+														spellCheck={false}
+														type="password"
+														value={entry.apiKey}
+													/>
+												</InputGroup>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													disabled={savingThisProvider}
+													onClick={() => {
+														updateProviderEntry(provider.id, {
+															apiKey: '',
+															editing: false,
+														});
+													}}
+												>
+													Cancel
+												</Button>
+												<Button
+													type="button"
+													size="sm"
+													disabled={!canSaveProvider}
+													onClick={() => {
+														void saveProviderEntry(provider.id);
+													}}
+												>
+													{savingThisProvider ? (
+														<LoaderCircle className="size-3.5 animate-spin" />
+													) : null}
+													Save
+												</Button>
+											</div>
 										</div>
 									) : null}
 								</CardContent>
