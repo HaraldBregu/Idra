@@ -1,10 +1,11 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent, type ToolResultBlock } from '../../../../src/main/provider/types';
 import { runAgent } from '../../../../src/main/agent/run';
-import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
 import {
+	clearAgentHarnessHookProviders,
 	clearAgentToolResultMiddlewareRegistrations,
 	registerAgentToolResultMiddleware,
-} from '../../../../src/main/agent/harness/tool-result-middleware';
+	registerAgentHarnessHookHandler,
+} from '../../../../src/main/agent/harness';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import type { SessionFile } from '../../../../src/main/session/store';
 import { makeToolContext } from '../test-helpers';
