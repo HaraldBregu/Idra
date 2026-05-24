@@ -13,6 +13,7 @@ import {
 	type AgentHarnessAttemptParams,
 	type AgentHarnessAttemptResult,
 } from '../../../../src/main/agent/harness/registry';
+} from '../../../../src/main/agent/harness';
 import type { SessionFile } from '../../../../src/main/session/store';
 
 function clearHarnessActivationState(): void {
