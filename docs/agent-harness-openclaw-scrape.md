@@ -63,6 +63,7 @@ prepare → start → send → resolveOutcome → cleanup
 ### Selection logic (`selection.ts`)
 
 Priority order:
+
 1. `runtime === 'pi'` → force built-in PI
 2. `runtime !== 'auto'` → force exact plugin by id, throw if not registered
 3. `runtime === 'auto'` → probe all plugin harnesses via `supports()`, sort by priority desc + id asc; fallback to PI
@@ -72,6 +73,7 @@ Reasons: `forced_pi`, `forced_plugin`, `auto_plugin`, `auto_pi`.
 ### Plugin hook system (OpenClaw-specific, complex)
 
 OpenClaw fires plugin hooks at these harness points:
+
 - **`llm_input`** — before LLM call, fire-and-forget
 - **`llm_output`** — after LLM call, fire-and-forget
 - **`agent_end`** — after full agent run, fire-and-forget
@@ -85,6 +87,7 @@ OpenClaw fires plugin hooks at these harness points:
 
 Chain of `AgentToolResultMiddleware` handlers per runtime. Each handler receives the current result
 and may return a new one. Validation bounds:
+
 - max 200 content blocks
 - text block ≤ 100,000 chars
 - image data ≤ 5,000,000 chars
@@ -99,59 +102,70 @@ Incoming `details` on raw tool results is sanitized (cycle-safe JSON round-trip)
 
 ### Implemented (complete)
 
-| File | Status |
-|------|--------|
-| `src/main/agent/harness/types.ts` | Done — full contract matches OpenClaw shape |
-| `src/main/agent/harness/registry.ts` | Done — global Symbol registry, validate on register |
-| `src/main/agent/harness/policy.ts` | Done — request > store > default |
-| `src/main/agent/harness/selection.ts` | Done — forced + auto + pi fallback |
-| `src/main/agent/harness/v2.ts` | Done — prepare→start→send→resolve→cleanup |
-| `src/main/agent/harness/builtin-pi.ts` | Done — delegates to existing `runAgent` |
-| `src/main/service.ts` | Done — routes through `runAgentHarnessAttempt` |
-| Plugin `registerAgentHarness` surface | Done — `api-builder.ts` wired |
-| Store runtime preference accessors | Done — `store/service.ts` |
-| Reset + dispose lifecycle hooks | Done — wired in `service.ts` and `bootstrap.ts` |
+| File                                   | Status                                              |
+| -------------------------------------- | --------------------------------------------------- |
+| `src/main/agent/harness/types.ts`      | Done — full contract matches OpenClaw shape         |
+| `src/main/agent/harness/registry.ts`   | Done — global Symbol registry, validate on register |
+| `src/main/agent/harness/policy.ts`     | Done — request > store > default                    |
+| `src/main/agent/harness/selection.ts`  | Done — forced + auto + pi fallback                  |
+| `src/main/agent/harness/v2.ts`         | Done — prepare→start→send→resolve→cleanup           |
+| `src/main/agent/harness/builtin-pi.ts` | Done — delegates to existing `runAgent`             |
+| `src/main/service.ts`                  | Done — routes through `runAgentHarnessAttempt`      |
+| Plugin `registerAgentHarness` surface  | Done — `api-builder.ts` wired                       |
+| Store runtime preference accessors     | Done — `store/service.ts`                           |
+| Reset + dispose lifecycle hooks        | Done — wired in `service.ts` and `bootstrap.ts`     |
 
 ### Initial Gaps vs OpenClaw
 
 #### G-1 — `registry.ts` import bug (immediate fix)
+
 `resetRegisteredAgentHarnesses` uses `AgentHarnessResetParams` but the type is not imported.
 TypeScript catches this at compile time; fix is one-line import addition.
 
 #### G-2 — `v2.ts` missing `classify` application
+
 `resolveOutcome` in Friday's V2 adapter returns `result` unchanged.
 OpenClaw's V2 calls `applyAgentHarnessResultClassification`, which:
+
 - stamps `agentHarnessId` on every result
 - calls `harness.classify(result, params)` and stores the classification when non-null
 
 Without this, plugin harnesses that implement `classify()` have no effect, and `agentHarnessId` is never set on results.
 
 #### G-3 — `v2.ts` missing diagnostic events
+
 OpenClaw emits structured `harness.run.started`, `harness.run.completed`, `harness.run.error` events for telemetry.
 Friday currently only logs at the selection layer. No run-lifecycle events are emitted.
 
 #### G-4 — `harness/hook-context.ts` missing
+
 `AgentHarnessHookContext` and `buildAgentHookContext()` are the typed bridge between harness run params and the plugin hook system. Missing in Friday. Needed if/when Friday adds plugin hooks.
 
 #### G-5 — Plugin hook integration missing entirely
+
 OpenClaw wires plugin hooks at multiple harness points (`llm_input`, `llm_output`, `agent_end`, `before_agent_finalize`, `before_prompt_build`, `before_compaction`, `after_tool_call`, `before_message_write`).
 Friday has no plugin hook runner; none of these are wired. Not blocking for core harness correctness but is a capability gap for plugin extensibility.
 
 #### G-6 — Tool result middleware missing
+
 `harness/tool-result-middleware.ts` — the per-runtime tool result transformation pipeline — has no equivalent in Friday. Plugin harnesses registered via the plugin API cannot currently post-process tool results.
 
 #### G-7 — `maybeCompactAgentHarnessSession` not exposed
+
 OpenClaw's `selection.ts` exports `maybeCompactAgentHarnessSession` so the compaction path can delegate to the active harness's `compact()` method.
 Friday has `compact?()` on the interface and `compaction.ts` in the agent folder, but there is no call path that routes compaction through the selected harness.
 
 #### G-8 — Plugin activation for harness not wired
+
 OpenClaw's `runtime-plugin.ts` calls `ensurePluginRegistryLoaded` for the codex plugin when `policy.runtime === 'codex'`.
 Friday has the `onAgentHarnesses` manifest hook and the activation planner, but harness selection does not trigger plugin loading. If a plugin that provides a harness hasn't been loaded yet, selection will silently fall through to `pi`.
 
 #### G-9 — `harness-runtimes.ts` equivalent missing
+
 OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate all runtime IDs referenced in config (providers, model entries, agent entries). This is used at startup to pre-load plugin runtimes. Friday has no equivalent.
 
 #### G-10 — `deliveryDefaults` not in Friday types
+
 `AgentHarness.deliveryDefaults?: { sourceVisibleReplies?: 'automatic' | 'message_tool' }` is on the OpenClaw interface but not on Friday's. Low priority but a parity gap.
 
 ---
@@ -161,11 +175,13 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 1 — Correctness fixes (do first)
 
 **P1-A: Fix `registry.ts` import bug**
+
 - File: `src/main/agent/harness/registry.ts`
 - Add `AgentHarnessResetParams` to the import from `./types`.
 - Verify: `tsc` passes.
 
 **P1-B: Apply `classify()` in `v2.ts` `resolveOutcome`**
+
 - File: `src/main/agent/harness/v2.ts`
 - Add a standalone `applyAgentHarnessResultClassification` helper (extract from `resolveOutcome` or add alongside).
 - `resolveOutcome` should:
@@ -176,6 +192,7 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 2 — Harness-aware compaction (complete the contract)
 
 **P2-A: Expose `maybeCompactAgentHarnessSession` from `selection.ts`**
+
 - Mirrors OpenClaw's export exactly.
 - If the selected harness has no `compact()` and the harness id is not `pi`, return `{ ok: false, compacted: false, reason: '...' }`.
 - If `pi`, return `undefined` (defer to built-in compaction).
@@ -184,6 +201,7 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 3 — Diagnostic events (observability)
 
 **P3-A: Structured run lifecycle events in `v2.ts`**
+
 - Add `emitHarnessRunStarted`, `emitHarnessRunCompleted`, `emitHarnessRunError` helpers.
 - Emit at the same lifecycle phases as OpenClaw.
 - Use Friday's existing logger/event bus (or a lightweight in-process event emitter).
@@ -192,6 +210,7 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 4 — Plugin activation at harness selection (correctness for plugin harnesses)
 
 **P4-A: Wire plugin loading before harness dispatch**
+
 - File: `src/main/agent/harness/runtime-plugin.ts` (new)
 - Implement `ensureSelectedHarnessPlugin(params)`: if `policy.runtime !== 'auto' && runtime !== 'pi'`, ensure the plugin providing that harness is loaded before `selectAgentHarness` returns.
 - Call in `runAgentHarnessAttempt` before selection, after policy resolution.
@@ -200,6 +219,7 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 5 — Config runtime collector (startup pre-loading)
 
 **P5-A: `harness-runtimes.ts`**
+
 - Implement `collectConfiguredAgentHarnessRuntimes(config, env)`.
 - Read runtimes from: env var `FRIDAY_AGENT_RUNTIME`, provider configs, model configs, agent configs.
 - Called at app startup to pre-load plugin runtimes referenced in config.
@@ -207,25 +227,30 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 6 — Plugin hook infrastructure (extensibility, not blocking)
 
 **P6-A: `harness/hook-context.ts`**
+
 - Add `AgentHarnessHookContext` type and `buildAgentHookContext` factory.
 - Subset of run params, no plugin dependencies.
 
 **P6-B: `harness/lifecycle-hook-helpers.ts`**
+
 - Port `runAgentHarnessLlmInputHook`, `runAgentHarnessLlmOutputHook`, `runAgentHarnessAgentEndHook`.
 - Port `runAgentHarnessBeforeAgentFinalizeHook` with the retry budget (SHA-256 idempotency key, 2048 cap, per-runId map).
 - Wire to Friday's plugin hook runner (requires the hook runner surface to exist first).
 
 **P6-C: `harness/prompt-compaction-hook-helpers.ts`**
+
 - Port `resolveAgentHarnessBeforePromptBuildResult` and `before/after_compaction` hooks.
 - Wire into `src/main/agent/before-agent-run.ts` and `compaction.ts`.
 
 **P6-D: `harness/hook-helpers.ts`**
+
 - Port `runAgentHarnessAfterToolCallHook` and `runAgentHarnessBeforeMessageWriteHook`.
 - Wire into tool execution path.
 
 ### Priority 7 — Tool result middleware (plugin extensibility)
 
 **P7-A: `harness/tool-result-middleware.ts`**
+
 - Port the middleware runner and content/size validators.
 - Add `AgentToolResultMiddleware` type to the plugin API surface.
 - Load registered middlewares for the active runtime before each tool result is returned.
@@ -233,6 +258,7 @@ OpenClaw has `collectConfiguredAgentHarnessRuntimes(config, env)` to enumerate a
 ### Priority 8 — Minor type parity
 
 **P8-A: Add `deliveryDefaults` to `AgentHarness` in `types.ts`**
+
 - Low priority. Add the optional field; no behavior change until a consumer reads it.
 
 ---
@@ -255,13 +281,13 @@ P8-A (deliveryDefaults)   — minutes when convenient
 
 ## 5. Tests to add alongside implementation
 
-| Area | Test |
-|------|------|
-| `v2.ts classify` | `classify()` called when present; result has `agentHarnessId` always |
-| `v2.ts classify` | `classify()` not called if undefined; result still has `agentHarnessId` |
-| `selection.ts` | `maybeCompactAgentHarnessSession` routes to `compact()` when present |
-| `selection.ts` | Returns `{ ok: false }` when plugin harness has no `compact()` |
-| `selection.ts` | Returns `undefined` for `pi` harness (defer to built-in) |
-| `registry.ts` | `resetRegisteredAgentHarnesses` propagates to harnesses with `reset()` defined |
-| `registry.ts` | Reset errors per-harness are isolated (one failure doesn't skip others) |
-| Plugin activation | Non-`auto` runtime triggers activation before selection |
+| Area              | Test                                                                           |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `v2.ts classify`  | `classify()` called when present; result has `agentHarnessId` always           |
+| `v2.ts classify`  | `classify()` not called if undefined; result still has `agentHarnessId`        |
+| `selection.ts`    | `maybeCompactAgentHarnessSession` routes to `compact()` when present           |
+| `selection.ts`    | Returns `{ ok: false }` when plugin harness has no `compact()`                 |
+| `selection.ts`    | Returns `undefined` for `pi` harness (defer to built-in)                       |
+| `registry.ts`     | `resetRegisteredAgentHarnesses` propagates to harnesses with `reset()` defined |
+| `registry.ts`     | Reset errors per-harness are isolated (one failure doesn't skip others)        |
+| Plugin activation | Non-`auto` runtime triggers activation before selection                        |
