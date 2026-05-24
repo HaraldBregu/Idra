@@ -172,6 +172,17 @@ const MODEL_SERVICE_STEP_IDS: readonly ModelServiceId[] = MODEL_SERVICE_DEFINITI
 );
 const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', ...MODEL_SERVICE_STEP_IDS];
 
+const SETUP_STEP_TITLES: Record<SetupStep, string> = {
+	presentation: 'Welcome',
+	providers: 'Provider Setup',
+	[ASSISTANT_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[0].stepTitle,
+	[SPEECH_TO_TEXT_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[1].stepTitle,
+	[TEXT_TO_SPEECH_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[2].stepTitle,
+	[IMAGE_CREATOR_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[3].stepTitle,
+	[TEXT_TO_VIDEO_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[4].stepTitle,
+	[MUSIC_CREATOR_OPERATOR_ID]: MODEL_SERVICE_DEFINITIONS[5].stepTitle,
+};
+
 function isModelStep(step: SetupStep): step is ModelServiceId {
 	return step !== 'presentation' && step !== 'providers';
 }
@@ -286,22 +297,25 @@ function StepField({ id, label, description, children, className }: StepFieldPro
 
 
 function StepProgress({ currentIndex }: { readonly currentIndex: number }): React.JSX.Element {
+	const currentStep = SETUP_STEPS[currentIndex];
+	const currentStepName = currentStep ? SETUP_STEP_TITLES[currentStep] : 'Setup';
+
 	return (
-		<div
-			className="flex items-center gap-1.5"
-			aria-label={`Step ${currentIndex + 1} of ${SETUP_STEPS.length}`}
-		>
-			{SETUP_STEPS.map((setupStep, index) => (
-				<span
-					key={setupStep}
-					className={cn(
-						'h-1.5 rounded-full transition-all',
-						index === currentIndex ? 'w-6 bg-primary' : 'w-1.5',
-						index < currentIndex ? 'bg-primary' : 'bg-muted',
-						index > currentIndex ? 'bg-muted' : undefined
-					)}
-				/>
-			))}
+		<div className="grid gap-1.5" aria-label={`Step ${currentIndex + 1} of ${SETUP_STEPS.length}`}>
+			<div className="flex items-center gap-1.5">
+				{SETUP_STEPS.map((setupStep, index) => (
+					<span
+						key={setupStep}
+						className={cn(
+							'h-1.5 rounded-full transition-all',
+							index === currentIndex ? 'w-6 bg-primary' : 'w-1.5',
+							index < currentIndex ? 'bg-primary' : 'bg-muted',
+							index > currentIndex ? 'bg-muted' : undefined
+						)}
+					/>
+				))}
+			</div>
+			<p className="truncate text-[11px] text-muted-foreground">{currentStepName}</p>
 		</div>
 	);
 }
