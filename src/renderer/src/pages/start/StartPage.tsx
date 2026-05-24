@@ -1639,46 +1639,31 @@ const StartPage: React.FC = () => {
 
 			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-4 sm:px-6">
 				{renderStepContent()}
+			</section>
+
+			<footer className="flex shrink-0 flex-col border-t border-border bg-card/60">
 				{errorMessage ? (
-					<div className="mx-auto mb-4 flex max-w-2xl items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-destructive">
+					<div className="flex items-start gap-2 border-b border-destructive/20 bg-destructive/10 px-4 py-2.5 text-destructive">
 						<AlertCircle className="mt-0.5 size-3.5 shrink-0" />
 						<p className="min-w-0 break-words text-xs font-medium leading-4">{errorMessage}</p>
 					</div>
 				) : null}
-			</section>
-
-			<footer className="flex min-h-14 shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border bg-card/60 px-3 py-2 sm:px-5">
-				<div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+				<div className="flex min-h-14 flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-5">
 					<StepProgress currentIndex={stepIndex} />
-					<p className="truncate text-xs font-semibold text-muted-foreground">
-						{STEP_TITLES[step]}
-					</p>
-				</div>
-				<div className="flex items-center gap-2">
-					{step !== 'presentation' ? (
-						<Button
-							type="button"
-							variant="outline"
-							size="xs"
-							disabled={isBusy}
-							onClick={handleBack}
-						>
-							Back
-						</Button>
-					) : null}
-					<Button
-						type="button"
-						size="sm"
-						disabled={isPrimaryDisabled()}
-						onClick={handlePrimaryAction}
-					>
-						{savingProviderId !== null || savingConfig ? (
-							<LoaderCircle className="size-3.5 animate-spin" />
-						) : (
-							<ArrowRight className="size-3.5" />
-						)}
-						{getPrimaryLabel()}
-					</Button>
+					<div className="flex items-center gap-2">
+						{step !== 'presentation' ? (
+							<Button
+								type="button"
+								variant="outline"
+								size="xs"
+								disabled={isBusy}
+								onClick={handleBack}
+							>
+								Back
+							</Button>
+						) : null}
+						{renderPrimaryButton()}
+					</div>
 				</div>
 			</footer>
 		</main>
