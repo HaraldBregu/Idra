@@ -23,6 +23,10 @@ type LegacyStatusDetails = {
 	details?: unknown;
 };
 
+type RuntimeToolWithLegacyMetadata = RuntimeAgentTool & {
+	needsApproval?: LegacyAgentTool['needsApproval'];
+};
+
 export type PrepareLegacyToolsForProviderOptions = {
 	provider?: string;
 	modelId?: string;
@@ -56,6 +60,7 @@ export function legacyToolToRuntimeTool(
 		parameters: tool.schema,
 		ownerOnly: tool.ownerOnly,
 		displaySummary: tool.displaySummary,
+		needsApproval: tool.needsApproval,
 		async execute(_toolCallId, params, signal) {
 			const result = await tool.execute(params as never, {
 				...ctx,
@@ -76,6 +81,7 @@ export function runtimeToolToLegacyTool(tool: RuntimeAgentTool): LegacyAgentTool
 		description: tool.description,
 		schema: tool.parameters as JSONSchema,
 		ownerOnly: tool.ownerOnly,
+		needsApproval: (tool as RuntimeToolWithLegacyMetadata).needsApproval,
 		async execute(args, ctx) {
 			const result = await tool.execute(`${ctx.sessionId}:${tool.name}`, args, ctx.signal);
 			return runtimeResultToLegacyResult(result);
