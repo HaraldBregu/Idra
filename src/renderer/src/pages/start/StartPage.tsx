@@ -97,8 +97,6 @@ type ModelServiceDefinition = {
 	stepName: string;
 	stepTitle: string;
 	stepDescription: string;
-	providerDescription: string;
-	modelDescription: string;
 	icon: LucideIcon;
 	required: boolean;
 	getOperator: () => Promise<ConfiguredModelOperator | undefined>;
@@ -122,8 +120,6 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepTitle: 'Assistant model selection',
 		stepDescription:
 			'Choose the core language model Friday uses for chat replies, reasoning, summaries, and tool planning.',
-		providerDescription: 'Use a provider with strong general-purpose language models.',
-		modelDescription: 'Pick the default assistant model for everyday conversations and tasks.',
 		icon: Bot,
 		required: true,
 		getOperator: () => window.app.getAssistantOperator(),
@@ -137,8 +133,6 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepTitle: 'Speech-to-text transcription',
 		stepDescription:
 			'Choose the model that turns microphone input and audio files into text before Friday responds.',
-		providerDescription: 'Use a provider that supports reliable transcription models.',
-		modelDescription: 'Pick the transcription model for voice commands, notes, and uploaded audio.',
 		icon: Mic,
 		required: false,
 		getOperator: () => window.app.getSpeechToTextOperator(),
@@ -152,8 +146,6 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepTitle: 'Text-to-speech voice output',
 		stepDescription:
 			'Choose the voice model Friday uses to read assistant responses and generated text aloud.',
-		providerDescription: 'Use a provider with voice models that match your preferred output quality.',
-		modelDescription: 'Pick the synthesis model for spoken responses and generated narration.',
 		icon: Volume2,
 		required: false,
 		getOperator: () => window.app.getTextToSpeechOperator(),
@@ -167,8 +159,6 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepTitle: 'Image generation model',
 		stepDescription:
 			'Choose the model Friday uses for creating images and visual assets from prompts.',
-		providerDescription: 'Use a provider with image models available for generation tasks.',
-		modelDescription: 'Pick the image model for prompt-based image creation.',
 		icon: ImageIcon,
 		required: false,
 		getOperator: () => window.app.getImageCreatorOperator(),
@@ -182,8 +172,6 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepTitle: 'Video generation model',
 		stepDescription:
 			'Choose the model Friday uses when generating or editing short video clips.',
-		providerDescription: 'Use a provider with video models configured for creation workflows.',
-		modelDescription: 'Pick the video model for text-to-video requests.',
 		icon: Video,
 		required: false,
 		getOperator: () => window.app.getTextToVideoOperator(),
@@ -197,8 +185,6 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepTitle: 'Music generation model',
 		stepDescription:
 			'Choose the model Friday uses to generate songs, loops, and short audio compositions.',
-		providerDescription: 'Use a provider with music or audio generation models.',
-		modelDescription: 'Pick the music model for composition and sound generation.',
 		icon: Music,
 		required: false,
 		getOperator: () => window.app.getMusicCreatorOperator(),
@@ -299,23 +285,17 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 type StepFieldProps = {
 	readonly id: string;
 	readonly label: string;
-	readonly description?: string;
 	readonly children: React.ReactNode;
 	readonly className?: string;
 };
 
-function StepField({ id, label, description, children, className }: StepFieldProps): React.JSX.Element {
+function StepField({ id, label, children, className }: StepFieldProps): React.JSX.Element {
 	return (
 		<div className={cn('grid gap-1.5', className)}>
 			<div className="grid gap-1">
 				<Label htmlFor={id} className="text-[11px] leading-4">
 					{label}
 				</Label>
-				{description ? (
-					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground">
-						{description}
-					</p>
-				) : null}
 			</div>
 			{children}
 		</div>
@@ -1003,7 +983,6 @@ const StartPage: React.FC = () => {
 							<StepField
 								id={`${service.id}-provider`}
 								label="Provider"
-								description={service.providerDescription}
 							>
 								<Select
 									value={serviceState.providerId}
@@ -1012,7 +991,6 @@ const StartPage: React.FC = () => {
 								>
 									<SelectTrigger
 										id={`${service.id}-provider`}
-										aria-describedby={`${service.id}-provider-description`}
 										className="w-full text-xs"
 									>
 										<SelectValue placeholder={modelCountLabel} />
@@ -1032,7 +1010,6 @@ const StartPage: React.FC = () => {
 							<StepField
 								id={`${service.id}-model`}
 								label="Model"
-								description={service.modelDescription}
 							>
 								<Select
 									value={serviceState.modelId}
@@ -1041,7 +1018,6 @@ const StartPage: React.FC = () => {
 								>
 									<SelectTrigger
 										id={`${service.id}-model`}
-										aria-describedby={`${service.id}-model-description`}
 										className="w-full text-xs"
 									>
 										<SelectValue placeholder={modelCountLabel} />
