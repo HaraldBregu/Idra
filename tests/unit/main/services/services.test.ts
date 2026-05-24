@@ -146,7 +146,7 @@ describe('connectors service', () => {
 				allowedTools: ['search'],
 			},
 		] as const;
-		const catalogOnly = [];
+		const catalogOnly: Array<{ connector: { id: string }; toolName: string }> = [];
 		for (const input of catalogOnlyInputs) {
 			catalogOnly.push({
 				connector: await service.add(input),
@@ -212,10 +212,10 @@ describe('connectors service', () => {
 			'my_drive_search_files',
 			'my_drive_create_file',
 		]);
-		expect(tools.find((tool) => tool.name === 'my_drive_create_file')?.needsApproval?.(
-			{},
-			{} as never
-		)).toBe(true);
+		const needsApproval = tools.find((tool) => tool.name === 'my_drive_create_file')?.needsApproval;
+		expect(typeof needsApproval).toBe('function');
+		if (typeof needsApproval !== 'function') throw new Error('create_file approval predicate is missing');
+		await expect(needsApproval({}, {} as never)).resolves.toBe(true);
 	});
 
 	it('validates required Google tool arguments before API calls', async () => {
