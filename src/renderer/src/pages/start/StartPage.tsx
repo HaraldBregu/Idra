@@ -1409,8 +1409,8 @@ const StartPage: React.FC = () => {
 						Configure models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the active assistant and voice input models, then review the remaining model
-						areas and their runtime status.
+						Choose your assistant model to get started. Voice, image, and video models are optional
+						and can be configured later in Settings.
 					</p>
 				</div>
 
