@@ -90,107 +90,102 @@ const ProvidersPage: React.FC = () => {
 						const apiConfigurationUrl = getProviderApiConfigurationUrl(provider);
 
 						return (
-							<Card
+							<SettingsPanel
 								key={provider.id}
-								className={cn(
-									'rounded-lg border-border bg-card py-0 shadow-none',
-									isEditing && 'border-ring ring-2 ring-ring/20'
-								)}
+								className={cn(isEditing && 'border-ring ring-2 ring-ring/20')}
 							>
-								<CardContent className="p-0">
-									<div
-										className={cn(
-											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
-											isEditing && 'pb-2'
-										)}
-									>
-										<ProviderAvatar providerId={provider.id} name={provider.name} />
-										<div className="min-w-0 flex-1">
-											<div className="flex min-w-0 items-center gap-1.5">
-												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
-													{provider.name}
-												</h2>
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-xs"
-													className="size-5 text-muted-foreground hover:text-foreground"
-													aria-label={`Open ${provider.name} API setup`}
-													onClick={() => openExternalUrl(apiConfigurationUrl)}
-												>
-													<ExternalLink className="size-3" />
-												</Button>
-											</div>
-											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
-												{isSaved ? 'sk-************' : (provider.capabilities ?? provider.baseUrl)}
-											</p>
+								<div
+									className={cn(
+										'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
+										isEditing && 'border-b border-border/60 pb-2'
+									)}
+								>
+									<ProviderAvatar providerId={provider.id} name={provider.name} />
+									<div className="min-w-0 flex-1">
+										<div className="flex min-w-0 items-center gap-1.5">
+											<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
+												{provider.name}
+											</h2>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon-xs"
+												className="size-5 text-muted-foreground hover:text-foreground"
+												aria-label={`Open ${provider.name} API setup`}
+												onClick={() => openExternalUrl(apiConfigurationUrl)}
+											>
+												<ExternalLink className="size-3" />
+											</Button>
 										</div>
-										<div className="flex shrink-0 justify-end gap-2">
-											{isSaved && !isEditing ? (
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-xs"
-													aria-label={`Edit ${provider.name} API key`}
-													onClick={() => startEditing(provider.id)}
-												>
-													<Pencil className="size-3.5" />
-												</Button>
-											) : !isEditing ? (
-												<Button
-													type="button"
-													variant="outline"
-													size="xs"
-													onClick={() => startEditing(provider.id)}
-												>
-													Connect
-												</Button>
-											) : null}
-										</div>
+										<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
+											{isSaved ? 'sk-************' : (provider.capabilities ?? provider.baseUrl)}
+										</p>
 									</div>
-
-									{isEditing && (
-										<div className="flex items-center gap-2 px-3 pb-3">
-											<Input
-												autoComplete="off"
-												type="password"
-												value={draft}
-												onChange={(event) =>
-													setDrafts((current) => ({
-														...current,
-														[provider.id]: event.target.value,
-													}))
-												}
-												onKeyDown={(event) => {
-													if (event.key === 'Enter' && canSave) void saveApiKey(provider.id);
-												}}
-												placeholder={t('settings.providers.apiKeyPlaceholder')}
-												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
-												aria-label={`${provider.name} API key`}
-												disabled={isBusy}
-											/>
+									<div className="flex shrink-0 justify-end gap-2">
+										{isSaved && !isEditing ? (
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon-xs"
+												aria-label={`Edit ${provider.name} API key`}
+												onClick={() => startEditing(provider.id)}
+											>
+												<Pencil className="size-3.5" />
+											</Button>
+										) : !isEditing ? (
 											<Button
 												type="button"
 												variant="outline"
-												size="sm"
-												disabled={isBusy}
-												onClick={() => cancelEditing(provider.id)}
+												size="xs"
+												onClick={() => startEditing(provider.id)}
 											>
-												{t('common.cancel')}
+												Connect
 											</Button>
-											<Button
-												type="button"
-												size="sm"
-												disabled={!canSave}
-												onClick={() => void saveApiKey(provider.id)}
-											>
-												{isBusy ? <LoaderCircle className="size-3.5 animate-spin" /> : null}
-												{t('common.save')}
-											</Button>
-										</div>
-									)}
-								</CardContent>
-							</Card>
+										) : null}
+									</div>
+								</div>
+
+								{isEditing && (
+									<div className="flex items-center gap-2 px-3 pb-3">
+										<Input
+											autoComplete="off"
+											type="password"
+											value={draft}
+											onChange={(event) =>
+												setDrafts((current) => ({
+													...current,
+													[provider.id]: event.target.value,
+												}))
+											}
+											onKeyDown={(event) => {
+												if (event.key === 'Enter' && canSave) void saveApiKey(provider.id);
+											}}
+											placeholder={t('settings.providers.apiKeyPlaceholder')}
+											className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
+											aria-label={`${provider.name} API key`}
+											disabled={isBusy}
+										/>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											disabled={isBusy}
+											onClick={() => cancelEditing(provider.id)}
+										>
+											{t('common.cancel')}
+										</Button>
+										<Button
+											type="button"
+											size="sm"
+											disabled={!canSave}
+											onClick={() => void saveApiKey(provider.id)}
+										>
+											{isBusy ? <LoaderCircle className="size-3.5 animate-spin" /> : null}
+											{t('common.save')}
+										</Button>
+									</div>
+								)}
+							</SettingsPanel>
 						);
 					})}
 				</div>
