@@ -628,7 +628,7 @@ const StartPage: React.FC = () => {
 					selectedModel.model
 				);
 				if (!saved) {
-					throw new Error(`Could not save the selected ${currentModelService.label} model.`);
+					throw new Error(`Could not save the selected ${currentModelService.stepTitle} model.`);
 				}
 			}
 
@@ -642,7 +642,10 @@ const StartPage: React.FC = () => {
 			goToStep(nextStep);
 		} catch (error) {
 			setErrorMessage(
-				getErrorMessage(error, `Could not save the selected ${currentModelService.label} model.`)
+				getErrorMessage(
+					error,
+					`Could not save the selected ${currentModelService.stepTitle} model.`
+				)
 			);
 		} finally {
 			setSavingConfig(false);
