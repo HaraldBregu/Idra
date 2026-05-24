@@ -22,27 +22,21 @@ import {
 	type OpenAiConnectorId,
 } from '../../shared/connector';
 import {
-	GoogleCalendarApiClient,
-	GoogleDriveApiClient,
-	GoogleProfileClient,
-	GmailApiClient,
 	GOOGLE_OAUTH_REDIRECT_URI,
 	buildGoogleAuthorizationUrl,
-	buildRawEmail,
 	createGooglePkcePair,
 	exchangeGoogleAuthorizationCode,
 	mergeGoogleOAuthCredential,
-	projectGoogleCalendarEvent,
-	projectGoogleCalendarListEntry,
-	projectGoogleDriveFile,
-	projectGoogleDrivePermission,
-	projectGmailMessage,
-	projectGmailMessageWithBody,
 	refreshGoogleAccessToken,
 	scopesForGoogleConnectorTools,
 	type FetchLike,
-	type GoogleCalendarEvent,
 } from './google';
+import {
+	GmailRuntimeStrategy,
+	GoogleCalendarRuntimeStrategy,
+	GoogleDriveRuntimeStrategy,
+} from './google-strategies';
+import type { ConnectorRuntimeStrategy } from './runtime';
 
 const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar', 'connector_googledrive']);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
@@ -215,21 +209,21 @@ function sanitizeInput(input: unknown): ConnectorInput {
 
 export class ConnectorsService {
 	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> = {
-		connector_gmail: {
-			connectorId: 'connector_gmail',
+		connector_gmail: new GmailRuntimeStrategy({
+			getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+			fetchImpl: () => this.fetchImpl(),
 			listTools: knownTools,
-			callTool: (connector, name, args) => this.callGmailTool(connector, name, args),
-		},
-		connector_googlecalendar: {
-			connectorId: 'connector_googlecalendar',
+		}),
+		connector_googlecalendar: new GoogleCalendarRuntimeStrategy({
+			getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+			fetchImpl: () => this.fetchImpl(),
 			listTools: knownTools,
-			callTool: (connector, name, args) => this.callGoogleCalendarTool(connector, name, args),
-		},
-		connector_googledrive: {
-			connectorId: 'connector_googledrive',
+		}),
+		connector_googledrive: new GoogleDriveRuntimeStrategy({
+			getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+			fetchImpl: () => this.fetchImpl(),
 			listTools: knownTools,
-			callTool: (connector, name, args) => this.callGoogleDriveTool(connector, name, args),
-		},
+		}),
 	};
 
 	constructor(
@@ -551,219 +545,6 @@ export class ConnectorsService {
 		);
 	}
 
-	private async callGmailTool(
-		connector: ConnectorConfig,
-		name: string,
-		args: unknown
-	): Promise<unknown> {
-		const gmail = new GmailApiClient(await this.getGoogleAccessToken(connector), this.fetchImpl());
-		const params = paramsRecord(args);
-		switch (name) {
-			case 'get_profile':
-				return gmail.getProfile();
-			case 'search_email_ids': {
-				const listed = await gmail.listMessages({
-					query: readString(params, 'query'),
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-					labelIds: readStringList(params, 'labelIds'),
-					includeSpamTrash: readBoolean(params, 'includeSpamTrash'),
-				});
-				return {
-					...listed,
-					messages: (listed.messages ?? []).map((message) => ({
-						id: message.id,
-						threadId: message.threadId,
-					})),
-				};
-			}
-			case 'get_recent_emails':
-			case 'search_emails': {
-				const listed = await gmail.listMessages({
-					query: name === 'search_emails' ? readString(params, 'query') : undefined,
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-					labelIds: readStringList(params, 'labelIds'),
-					includeSpamTrash: readBoolean(params, 'includeSpamTrash'),
-				});
-				const messages = await Promise.all(
-					(listed.messages ?? []).slice(0, 10).flatMap((message) =>
-						message.id
-							? [
-									gmail
-										.getMessage(message.id, 'metadata', ['From', 'To', 'Subject', 'Date'])
-										.then(projectGmailMessage),
-								]
-							: []
-					)
-				);
-				return { ...listed, messages };
-			}
-			case 'read_email': {
-				const id = readRequiredMessageId(params);
-				return projectGmailMessageWithBody(await gmail.getMessage(id, 'full'));
-			}
-			case 'batch_read_email': {
-				const ids = readStringList(params, 'ids') ?? [];
-				if (ids.length === 0) throw new Error('ids must include at least one message id.');
-				return {
-					messages: await Promise.all(
-						ids.slice(0, 10).map((id) => gmail.getMessage(id, 'full').then(projectGmailMessageWithBody))
-					),
-				};
-			}
-			case 'create_draft':
-				return gmail.createDraft(buildRawEmail(readEmailDraftParams(params)));
-			case 'send_email':
-				return gmail.sendMessage(buildRawEmail(readEmailDraftParams(params)));
-			case 'trash_email':
-				return gmail.trashMessage(readRequiredMessageId(params));
-			default:
-				throw new Error(`Unsupported Gmail tool: ${name}`);
-		}
-	}
-
-	private async callGoogleCalendarTool(
-		connector: ConnectorConfig,
-		name: string,
-		args: unknown
-	): Promise<unknown> {
-		const calendar = new GoogleCalendarApiClient(await this.getGoogleAccessToken(connector), this.fetchImpl());
-		const params = paramsRecord(args);
-		switch (name) {
-			case 'get_profile':
-				return new GoogleProfileClient(await this.getGoogleAccessToken(connector), this.fetchImpl()).getUserInfo();
-			case 'list_calendars': {
-				const listed = await calendar.listCalendars({
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-				});
-				return {
-					...listed,
-					items: (listed.items ?? []).map(projectGoogleCalendarListEntry),
-				};
-			}
-			case 'search':
-			case 'search_events': {
-				const listed = await calendar.listEvents({
-					calendarId: readCalendarId(params),
-					query: readString(params, 'query'),
-					timeMin: readString(params, 'timeMin'),
-					timeMax: readString(params, 'timeMax'),
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-					showDeleted: readBoolean(params, 'showDeleted'),
-					singleEvents: readBoolean(params, 'singleEvents'),
-					orderBy: readString(params, 'orderBy'),
-				});
-				return {
-					...listed,
-					items: (listed.items ?? []).map(projectGoogleCalendarEvent),
-				};
-			}
-			case 'fetch':
-			case 'read_event': {
-				const { calendarId, eventId } = readEventLookupParams(params);
-				return projectGoogleCalendarEvent(await calendar.getEvent(calendarId, eventId));
-			}
-			case 'create_event': {
-				const calendarId = readCalendarId(params);
-				return projectGoogleCalendarEvent(await calendar.createEvent(calendarId, readCalendarEventPayload(params, true)));
-			}
-			case 'update_event': {
-				const { calendarId, eventId } = readEventLookupParams(params);
-				return projectGoogleCalendarEvent(await calendar.updateEvent(calendarId, eventId, readCalendarEventPayload(params, false)));
-			}
-			case 'delete_event': {
-				const { calendarId, eventId } = readEventLookupParams(params);
-				return calendar.deleteEvent(calendarId, eventId);
-			}
-			default:
-				throw new Error(`Unsupported Google Calendar tool: ${name}`);
-		}
-	}
-
-	private async callGoogleDriveTool(
-		connector: ConnectorConfig,
-		name: string,
-		args: unknown
-	): Promise<unknown> {
-		const accessToken = await this.getGoogleAccessToken(connector);
-		const drive = new GoogleDriveApiClient(accessToken, this.fetchImpl());
-		const params = paramsRecord(args);
-		switch (name) {
-			case 'get_profile':
-				return new GoogleProfileClient(accessToken, this.fetchImpl()).getUserInfo();
-			case 'list_drives':
-				return drive.listDrives({
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-				});
-			case 'search_files':
-			case 'search': {
-				const listed = await drive.searchFiles({
-					query: readString(params, 'query') ?? readString(params, 'q'),
-					driveQuery: readString(params, 'driveQuery'),
-					mimeType: readString(params, 'mimeType'),
-					driveId: readString(params, 'driveId'),
-					corpora: readString(params, 'corpora'),
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-					orderBy: readString(params, 'orderBy'),
-				});
-				return {
-					...listed,
-					files: (listed.files ?? []).map(projectGoogleDriveFile),
-				};
-			}
-			case 'list_recent_files':
-			case 'recent_documents': {
-				const listed = await drive.searchFiles({
-					mimeType: readString(params, 'mimeType'),
-					driveId: readString(params, 'driveId'),
-					corpora: readString(params, 'corpora'),
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-					orderBy: 'modifiedTime desc',
-				});
-				return {
-					...listed,
-					files: (listed.files ?? []).map(projectGoogleDriveFile),
-				};
-			}
-			case 'get_file_metadata':
-				return projectGoogleDriveFile(await drive.getFile(readDriveFileId(params)));
-			case 'get_file_permissions': {
-				const listed = await drive.listPermissions({
-					fileId: readDriveFileId(params),
-					maxResults: readNumber(params, 'maxResults'),
-					pageToken: readString(params, 'pageToken'),
-				});
-				return {
-					...listed,
-					permissions: (listed.permissions ?? []).map(projectGoogleDrivePermission),
-				};
-			}
-			case 'read_file_content':
-			case 'download_file_content':
-			case 'fetch': {
-				const file = await drive.getFile(readDriveFileId(params));
-				const content = await drive.getFileContent(
-					file,
-					readString(params, 'exportMimeType') ?? readString(params, 'mimeType')
-				);
-				return {
-					...projectGoogleDriveFile(file),
-					content: content.slice(0, 64 * 1024),
-				};
-			}
-			case 'create_file':
-				return projectGoogleDriveFile(await drive.createFile(readDriveCreateFileParams(params)));
-			default:
-				throw new Error(`Unsupported Google Drive tool: ${name}`);
-		}
-	}
-
 	private async getGoogleAccessToken(connector: ConnectorConfig): Promise<string> {
 		if (connector.authorization?.trim() && !connector.oauth?.refreshToken) {
 			return connector.authorization.trim();
@@ -980,166 +761,6 @@ function agentToolNameFor(connector: ConnectorConfig, toolName: string): string 
 		.toLowerCase()
 		.replace(/[^a-z0-9_]+/g, '_')
 		.replace(/^_+|_+$/g, '');
-}
-
-function paramsRecord(value: unknown): Record<string, unknown> {
-	if (typeof value === 'object' && value !== null && !Array.isArray(value)) return value as Record<string, unknown>;
-	return {};
-}
-
-function readString(params: Record<string, unknown>, key: string): string | undefined {
-	const value = params[key];
-	if (value === undefined || value === null) return undefined;
-	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
-	const trimmed = value.trim();
-	return trimmed || undefined;
-}
-
-function readText(params: Record<string, unknown>, key: string): string | undefined {
-	const value = params[key];
-	if (value === undefined || value === null) return undefined;
-	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
-	return value;
-}
-
-function readNumber(params: Record<string, unknown>, key: string): number | undefined {
-	const value = params[key];
-	if (value === undefined || value === null || value === '') return undefined;
-	const numberValue = typeof value === 'number' ? value : Number(value);
-	if (!Number.isFinite(numberValue)) throw new Error(`${key} must be a number.`);
-	return numberValue;
-}
-
-function readBoolean(params: Record<string, unknown>, key: string): boolean | undefined {
-	const value = params[key];
-	if (value === undefined || value === null) return undefined;
-	if (typeof value === 'boolean') return value;
-	if (typeof value === 'string' && ['true', 'false'].includes(value.toLowerCase())) {
-		return value.toLowerCase() === 'true';
-	}
-	throw new Error(`${key} must be a boolean.`);
-}
-
-function readStringList(params: Record<string, unknown>, key: string): string[] | undefined {
-	const value = params[key];
-	if (value === undefined || value === null) return undefined;
-	if (Array.isArray(value)) {
-		const values = value.map((entry) => String(entry).trim()).filter(Boolean);
-		return values.length > 0 ? values : undefined;
-	}
-	if (typeof value === 'string') {
-		const values = value.split(/[;,]/).map((entry) => entry.trim()).filter(Boolean);
-		return values.length > 0 ? values : undefined;
-	}
-	throw new Error(`${key} must be an array of strings or a comma-separated string.`);
-}
-
-function readRequiredMessageId(params: Record<string, unknown>): string {
-	const id = readString(params, 'id') ?? readString(params, 'messageId');
-	if (!id) throw new Error('A message id is required.');
-	return id;
-}
-
-function readCalendarId(params: Record<string, unknown>): string {
-	return readString(params, 'calendarId') ?? 'primary';
-}
-
-function readEventLookupParams(params: Record<string, unknown>): { calendarId: string; eventId: string } {
-	const eventId = readString(params, 'eventId') ?? readString(params, 'id');
-	if (!eventId) throw new Error('An event id is required.');
-	return { calendarId: readCalendarId(params), eventId };
-}
-
-function readDriveFileId(params: Record<string, unknown>): string {
-	const id = readString(params, 'fileId') ?? readString(params, 'id');
-	if (!id) throw new Error('A Google Drive file id is required.');
-	return id;
-}
-
-function readDriveCreateFileParams(params: Record<string, unknown>): {
-	name: string;
-	mimeType?: string;
-	content?: string;
-	contentMimeType?: string;
-	parents?: string[];
-	description?: string;
-} {
-	const name = readString(params, 'name') ?? readString(params, 'fileName');
-	if (!name) throw new Error('name is required.');
-	const parentId = readString(params, 'parentId');
-	return {
-		name,
-		mimeType: readString(params, 'mimeType'),
-		content: readText(params, 'content') ?? readText(params, 'text'),
-		contentMimeType: readString(params, 'contentMimeType'),
-		parents: readStringList(params, 'parents') ?? (parentId ? [parentId] : undefined),
-		description: readString(params, 'description'),
-	};
-}
-
-function readCalendarDateTime(
-	params: Record<string, unknown>,
-	key: string,
-	timeZone?: string
-): GoogleCalendarEvent['start'] | undefined {
-	const value = readString(params, key);
-	if (!value) return undefined;
-	const dateTime: GoogleCalendarEvent['start'] = /^\d{4}-\d{2}-\d{2}$/.test(value)
-		? { date: value }
-		: { dateTime: value };
-	if (dateTime.dateTime && timeZone) dateTime.timeZone = timeZone;
-	return dateTime;
-}
-
-function readCalendarEventPayload(
-	params: Record<string, unknown>,
-	requireCoreFields: boolean
-): GoogleCalendarEvent {
-	const timeZone = readString(params, 'timeZone');
-	const summary = readString(params, 'summary') ?? readString(params, 'title');
-	const start = readCalendarDateTime(params, 'start', timeZone);
-	const end = readCalendarDateTime(params, 'end', timeZone);
-	if (requireCoreFields && !summary) throw new Error('summary is required.');
-	if (requireCoreFields && !start) throw new Error('start is required.');
-	if (requireCoreFields && !end) throw new Error('end is required.');
-	const payload: GoogleCalendarEvent = {};
-	if (summary) payload.summary = summary;
-	const description = readString(params, 'description');
-	if (description) payload.description = description;
-	const location = readString(params, 'location');
-	if (location) payload.location = location;
-	if (start) payload.start = start;
-	if (end) payload.end = end;
-	const attendees = readStringList(params, 'attendees');
-	if (attendees) payload.attendees = attendees.map((email) => ({ email }));
-	const recurrence = readStringList(params, 'recurrence');
-	if (recurrence) payload.recurrence = recurrence;
-	if (Object.keys(payload).length === 0) throw new Error('At least one event field is required.');
-	return payload;
-}
-
-function readEmailDraftParams(params: Record<string, unknown>): {
-	to: string[];
-	subject: string;
-	body: string;
-	cc?: string[];
-	bcc?: string[];
-	isHtml?: boolean;
-} {
-	const to = readStringList(params, 'to') ?? [];
-	const subject = readString(params, 'subject');
-	const body = readString(params, 'body');
-	if (to.length === 0) throw new Error('to must include at least one recipient.');
-	if (!subject) throw new Error('subject is required.');
-	if (!body) throw new Error('body is required.');
-	return {
-		to,
-		subject,
-		body,
-		cc: readStringList(params, 'cc'),
-		bcc: readStringList(params, 'bcc'),
-		isHtml: readBoolean(params, 'isHtml') ?? false,
-	};
 }
 
 function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
