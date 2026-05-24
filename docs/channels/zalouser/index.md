@@ -36,6 +36,23 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Preserve user id, conversation id, device/session id, message id, and login
   provenance so operators can distinguish personal automation from OA traffic.
 
+## Configuration Reference
+
+No verified official personal-user automation API docs were found. If a personal
+runtime is selected, document the chosen transport before enabling setup:
+
+- `phoneNumber`: personal Zalo account phone number, if required for login.
+- `username`: personal account or device label.
+- `serverUrl`: local helper endpoint, if a helper process is used.
+- `token`: local helper session token, not an Official Account token.
+- `secret`: encrypted session secret, QR-pairing secret, or helper credential.
+- `defaultTarget`: personal conversation id in the selected runtime.
+- `allowFrom`: allowed personal user ids.
+- `groupAllowFrom`: allowed personal group conversation ids.
+
+Do not copy Zalo Official Account token, webhook, or recipient assumptions into
+this channel unless the selected personal runtime explicitly matches them.
+
 ## Official Documentation
 
 No verified official personal-user automation API docs found. Reuse official

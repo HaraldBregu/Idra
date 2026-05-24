@@ -35,6 +35,28 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Preserve local chat handles, thread ids, and device/account provenance while
   avoiding assumptions about cross-device delivery or history availability.
 
+## Configuration Reference
+
+Personal iMessage has no official Apple bot configuration. If a local runtime is
+ever added, document it as macOS user-account automation:
+
+- `serverUrl`: local helper endpoint, if a separate helper process is used.
+- `username`: local macOS account or Messages account label.
+- `secret`: local helper credential, keychain reference, or automation secret.
+- `defaultTarget`: local chat handle or conversation identifier.
+- `allowFrom`: allowed local handles for one-to-one conversations.
+- `groupAllowFrom`: allowed local chat or group identifiers.
+
+For Apple Messages for Business, use a separate business runtime model:
+
+- `appId`: Apple Messages for Business account or business id.
+- `clientId`: Messaging Service Provider account id, when provided.
+- `clientSecret`: MSP OAuth client secret, if the MSP requires OAuth.
+- `webhookUrl`: callback URL configured with the MSP.
+
+Do not mix personal iMessage automation and Messages for Business credentials in
+one account config.
+
 ## Official Documentation
 
 - [Apple Messages framework](https://developer.apple.com/documentation/messages)

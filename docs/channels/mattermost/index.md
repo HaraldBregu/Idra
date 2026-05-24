@@ -36,6 +36,28 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Preserve Mattermost thread roots in `threadId` so replies stay attached to the
   originating conversation.
 
+## Configuration Reference
+
+- `serverUrl`: Mattermost site URL.
+- `token`: bot personal access token for REST API sends and reads.
+- `secret`: outgoing webhook or slash command token used to verify inbound
+  requests.
+- `webhookUrl`: incoming webhook URL for simple outbound posts, or Friday's
+  callback URL when registering outgoing webhooks.
+- `username`: bot username.
+- `botUserId`: Mattermost bot user id.
+- `defaultTarget`: Mattermost channel id.
+- `allowFrom`: allowed Mattermost user ids.
+- `groupAllowFrom`: allowed team or channel ids.
+
+Required platform setup:
+
+- Use a bot account plus REST API when Friday needs bidirectional channel and
+  thread behavior.
+- Use incoming webhooks only for simple posting, and outgoing webhooks or slash
+  commands only for scoped inbound triggers.
+- Validate outgoing webhook and slash command tokens before dispatch.
+
 ## Official Documentation
 
 - [Mattermost developer docs](https://developers.mattermost.com/)

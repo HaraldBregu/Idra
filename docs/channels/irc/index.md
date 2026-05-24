@@ -36,6 +36,24 @@ Catalog-only status should remain until that gateway contract is implemented.
   conservative idempotency keys from server, target, sender, command tags, and
   receive time.
 
+## Configuration Reference
+
+- `serverUrl`: IRC or IRC-over-TLS server URL, including host and port.
+- `username`: nick, or SASL account name when SASL is enabled.
+- `token`: server password, NickServ password, or SASL password.
+- `secret`: optional TLS client secret or secondary service password.
+- `defaultTarget`: channel name such as `#ops` or a nick for direct messages.
+- `allowFrom`: allowed nicks, account names, or userhost masks.
+- `groupAllowFrom`: allowed IRC channel names.
+
+Required platform setup:
+
+- Configure TLS and SASL when the network supports them; avoid plaintext
+  passwords on non-TLS connections.
+- Join configured channels after registration and handle nick collisions.
+- Use IRCv3 message tags such as `msgid`, `account`, and `time` when available
+  to improve provenance and idempotency.
+
 ## Official Documentation
 
 - [IRCv3 specifications](https://ircv3.net/irc/)

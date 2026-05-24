@@ -36,6 +36,25 @@ Catalog-only status should remain until that gateway contract is implemented.
   in provenance. Talk documents a 32,000 character message limit on modern
   versions, with older deployments potentially lower.
 
+## Configuration Reference
+
+- `serverUrl`: Nextcloud base URL.
+- `token`: Talk conversation token or bot token used in `/bot/{token}/...`
+  endpoints.
+- `secret`: shared Talk bot secret used for HMAC-SHA256 request signing.
+- `webhookUrl`: Friday callback URL installed with the Talk bot.
+- `username`: bot display name.
+- `defaultTarget`: Talk conversation token.
+- `allowFrom`: allowed actor ids.
+- `groupAllowFrom`: allowed conversation tokens.
+
+Required platform setup:
+
+- Confirm the server advertises the `bots-v1` Talk capability.
+- Install the bot with `occ talk:bot:install`, including a shared secret and the
+  Friday webhook URL.
+- Send OCS requests with `OCS-APIRequest: true` and Talk bot signature headers.
+
 ## Official Documentation
 
 - [Nextcloud Talk API documentation](https://nextcloud-talk.readthedocs.io/en/latest/)

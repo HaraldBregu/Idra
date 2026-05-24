@@ -37,6 +37,29 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Preserve `message_id`, `chat_id`, `open_id`, `union_id`, tenant, and message
   type facts in provenance.
 
+## Configuration Reference
+
+- `appId`: Feishu or Lark app id.
+- `clientSecret`: app secret used to obtain app and tenant access tokens.
+- `token`: cached tenant access token, if the runtime stores one; otherwise it
+  should be derived from `appId` and `clientSecret`.
+- `secret`: event verification token or event encryption key. If both are used,
+  the runtime needs separate secret storage instead of overloading one field.
+- `webhookUrl`: event subscription callback URL configured in the Open Platform.
+- `defaultTarget`: `chat_id`, `open_id`, `user_id`, or `union_id` target,
+  matching the outbound `receive_id_type`.
+- `allowFrom`: allowed sender `open_id`, `user_id`, or `union_id` values.
+- `groupAllowFrom`: allowed Feishu/Lark `chat_id` values.
+
+Required platform setup:
+
+- Enable bot capability, event subscriptions, and the `im.message.receive_v1`
+  message event.
+- Grant IM message read/send permissions needed by the selected receive and send
+  id types.
+- Verify inbound callbacks with the configured verification token, encryption
+  key, or signature mode before creating a `ChannelInboundMessage`.
+
 ## Official Documentation
 
 - [Feishu Open Platform](https://open.feishu.cn/document/home/index)

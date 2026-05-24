@@ -35,6 +35,25 @@ Catalog-only status should remain until that gateway contract is implemented.
 - The QQ docs call out duplicate delivery risk, so use platform ids and message
   sequence fields for idempotency before dispatching an agent turn.
 
+## Configuration Reference
+
+- `appId`: QQ Bot AppID.
+- `token`: QQ Bot token or bot access token, depending on the selected API
+  version.
+- `clientSecret`: QQ Bot AppSecret used to obtain access tokens.
+- `secret`: callback verification secret, if HTTP callbacks are used.
+- `botUserId`: QQ bot id.
+- `defaultTarget`: C2C OpenID, group OpenID, guild/channel id, or direct-message
+  target supported by the runtime.
+- `allowFrom`: allowed user OpenIDs.
+- `groupAllowFrom`: allowed guild ids, channel ids, or group OpenIDs.
+
+Required platform setup:
+
+- Configure the bot's allowed event intents and transport in QQ Bot management.
+- Subscribe to the message event types the runtime can normalize.
+- Deduplicate inbound events with the platform message id and sequence values.
+
 ## Official Documentation
 
 - [QQ Bot official docs](https://bot.q.qq.com/wiki/)

@@ -37,6 +37,27 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Synology Chat Server limits ChatBots per server, so setup should surface
   server-side capacity errors clearly.
 
+## Configuration Reference
+
+- `serverUrl`: Synology DSM or Chat Server base URL.
+- `token`: Chat bot token or incoming webhook token.
+- `secret`: outgoing webhook or integration verification token, if configured.
+- `webhookUrl`: incoming webhook URL for outbound posts, or Friday callback URL
+  for outgoing webhooks.
+- `username`: bot or integration display name.
+- `defaultTarget`: Synology Chat channel, conversation, or thread id.
+- `allowFrom`: allowed user ids.
+- `groupAllowFrom`: allowed channel or conversation ids.
+
+Required platform setup:
+
+- Create the relevant Chat integration in Synology Chat: incoming webhook,
+  outgoing webhook, bot, or slash command.
+- Prefer bot/outgoing webhook surfaces for inbound dispatch and keep incoming
+  webhooks for posting-only flows.
+- Preserve server URL and channel ids because self-hosted deployments do not
+  share a global id namespace.
+
 ## Official Documentation
 
 - [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat)

@@ -36,6 +36,31 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Preserve `space`, `thread`, `message`, event type, and user identity fields
   in provenance, because Google Chat uses those ids for threaded replies.
 
+## Configuration Reference
+
+- `appId`: Google Cloud project id or Chat app id.
+- `clientId`: OAuth client id, if the adapter uses user authorization.
+- `clientSecret`: OAuth client secret, if the adapter uses user authorization.
+- `secret`: request verification or service-account secret reference. A real
+  runtime should support service-account JSON or workload identity explicitly.
+- `webhookUrl`: HTTPS endpoint URL when the Chat app uses HTTP connection
+  settings.
+- `serverUrl`: Pub/Sub topic name or deployment reference when using Pub/Sub,
+  Apps Script, or Dialogflow instead of HTTP.
+- `defaultTarget`: Google Chat `spaces/{space}` id, optionally with thread data
+  in the outbound target.
+- `allowFrom`: allowed Google Chat `users/{user}` senders.
+- `groupAllowFrom`: allowed Google Chat `spaces/{space}` ids.
+
+Required platform setup:
+
+- Enable the Google Chat API in a Google Cloud project and configure the Chat
+  app's interactive features.
+- Choose exactly one interaction delivery mode: HTTP endpoint, Apps Script,
+  Pub/Sub, or Dialogflow.
+- Use synchronous responses only for short work; use Chat API message creation
+  for agent replies that complete after the interaction response window.
+
 ## Official Documentation
 
 - [Google Chat developer docs](https://developers.google.com/workspace/chat)

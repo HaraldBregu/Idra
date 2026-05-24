@@ -35,6 +35,26 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Keep setup catalog-only until the exact Tlon/Urbit app API for chat ingress
   and egress is selected and documented.
 
+## Configuration Reference
+
+- `serverUrl`: local or hosted Urbit ship URL.
+- `username`: ship name, such as `~zod`.
+- `token`: web login code, session token, or runtime-specific bearer token.
+- `secret`: local session secret or helper credential, if a helper process is
+  used.
+- `appId`: selected desk, Gall agent, or Tlon app identifier.
+- `defaultTarget`: group, channel, or app-specific conversation id.
+- `allowFrom`: allowed ship names.
+- `groupAllowFrom`: allowed group or channel identifiers.
+
+Required platform setup:
+
+- Select and document the exact Tlon or Urbit API surface before enabling this
+  channel; Urbit ships and desks are not interchangeable with SaaS bot apps.
+- Keep auth/session storage explicit because Urbit web sessions and ship access
+  are account-level credentials.
+- Preserve the ship and app context in every normalized message.
+
 ## Official Documentation
 
 - [Tlon developer docs](https://dev.tlon.io/)

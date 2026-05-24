@@ -36,6 +36,29 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Zalo Personal automation is separate from Official Account API behavior and
   should stay in the `zalouser` channel.
 
+## Configuration Reference
+
+- `appId`: Zalo app id linked to the Official Account.
+- `clientSecret`: Zalo app secret.
+- `token`: Official Account access token.
+- `secret`: webhook secret or app secret used for validation, depending on the
+  selected Zalo API flow.
+- `webhookUrl`: OA webhook callback URL.
+- `botUserId`: Official Account id.
+- `defaultTarget`: Zalo OA user id.
+- `allowFrom`: allowed Zalo user ids.
+- `groupAllowFrom`: unused unless the selected OA API flow supports group-like
+  targets.
+
+Required platform setup:
+
+- Create or link a Zalo Official Account, configure the app/OA integration, and
+  subscribe the webhook to user message events.
+- Store refresh-token material separately if the runtime manages OA token
+  refresh; the shared channel model currently has no explicit refresh token
+  field.
+- Normalize only Official Account webhook events in this channel.
+
 ## Official Documentation
 
 - [Zalo Official Account API](https://developers.zalo.me/docs/api/official-account-api-147)

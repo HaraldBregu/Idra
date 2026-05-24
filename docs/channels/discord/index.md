@@ -36,6 +36,27 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Outbound replies should use channel/thread targets and record Discord REST
   message ids in `ChannelMessageReceipt`.
 
+## Configuration Reference
+
+- `token`: Discord bot token from the Developer Portal Bot page.
+- `appId`: Discord application id.
+- `clientId`: OAuth2 client id, normally the same value as `appId`.
+- `clientSecret`: OAuth2 client secret, only needed for install or OAuth flows.
+- `botUserId`: bot user id returned by Discord after the bot is created.
+- `defaultTarget`: Discord channel id or thread id for proactive sends.
+- `allowFrom`: allowed Discord user snowflakes for DMs.
+- `groupAllowFrom`: allowed guild, channel, or thread snowflakes.
+
+Required platform setup:
+
+- Invite the app with the `bot` scope and channel send/read permissions for the
+  target guilds; add `applications.commands` only if slash commands are used.
+- Enable and request Gateway intents for guild messages, direct messages, and
+  message content when the adapter needs raw message text outside DMs, mentions,
+  or messages sent by the bot.
+- Keep Discord REST message ids in receipts and Discord Gateway sequence data in
+  provenance for reconnect and dedupe behavior.
+
 ## Official Documentation
 
 - [Discord Developer Platform](https://docs.discord.com/developers/intro)

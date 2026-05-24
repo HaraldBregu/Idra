@@ -35,6 +35,27 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Respect Twitch chat send, join, and authentication rate limits. Some limits
   differ for broadcaster, moderator, VIP, and verified bot accounts.
 
+## Configuration Reference
+
+- `clientId`: Twitch application client id.
+- `clientSecret`: Twitch application client secret for OAuth token refresh.
+- `token`: user access token for the bot or broadcaster account used to read and
+  send chat.
+- `secret`: EventSub webhook secret when using webhook transport.
+- `botUserId`: Twitch user id for the bot/sender account.
+- `defaultTarget`: broadcaster user id whose chat receives outbound messages.
+- `allowFrom`: allowed Twitch user ids or logins.
+- `groupAllowFrom`: allowed broadcaster/channel user ids.
+
+Required platform setup:
+
+- Grant chat scopes for the selected model. Modern chat receive uses EventSub
+  `channel.chat.message`; sending uses the Send Chat Message API.
+- For webhook EventSub, configure a callback URL and signing secret. For
+  WebSocket EventSub, manage the session and subscription lifecycle instead.
+- Split outbound text at Twitch's Send Chat Message length limit and back off on
+  chat and API rate limits.
+
 ## Official Documentation
 
 - [Twitch Chat and Chatbots](https://dev.twitch.tv/docs/chat/)

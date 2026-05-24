@@ -55,6 +55,26 @@ Current behavior:
 - Track Bot API changes before expanding beyond text handling; Telegram's Bot
   API receives frequent updates that add update and message types.
 
+## Configuration Reference
+
+- `token`: Telegram bot token from BotFather. This is required by the bundled
+  runtime.
+- `secret`: optional webhook secret token for a future webhook runtime. The
+  bundled runtime uses polling and does not use this field.
+- `botUserId`: bot id returned by `getMe()`, if persisted for diagnostics.
+- `defaultTarget`: Telegram chat id, optionally with a forum topic thread id.
+- `allowFrom`: allowed Telegram user ids for direct messages.
+- `groupAllowFrom`: allowed group or supergroup chat ids.
+- `dmPolicy`: direct-message admission policy. The default is `allowlist`.
+
+Required platform setup:
+
+- Create a bot with BotFather and save its bot token.
+- Ensure no Telegram webhook is configured for the same token while Friday uses
+  long polling.
+- Add the bot to target groups and grant permission to read messages according
+  to the bot privacy mode and group needs.
+
 Telegram target strings can be explicit:
 
 ```text

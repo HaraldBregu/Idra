@@ -36,6 +36,25 @@ Catalog-only status should remain until that gateway contract is implemented.
 - Reply-token sends and push sends have different delivery semantics, so record
   which path produced each receipt.
 
+## Configuration Reference
+
+- `token`: LINE channel access token used as the Messaging API bearer token.
+- `secret`: LINE channel secret used for `x-line-signature` verification.
+- `appId`: LINE channel id.
+- `botUserId`: LINE Bot Basic ID.
+- `webhookUrl`: HTTPS webhook URL configured in the LINE Developers Console.
+- `defaultTarget`: LINE user id, group id, or room id for push messages.
+- `allowFrom`: allowed LINE user ids.
+- `groupAllowFrom`: allowed LINE group or room ids.
+
+Required platform setup:
+
+- Create a LINE Official Account and Messaging API channel.
+- Issue a channel access token, enable webhooks, and register Friday's HTTPS
+  callback URL.
+- Verify every inbound webhook signature against the raw request body before
+  normalizing events.
+
 ## Official Documentation
 
 - [LINE Messaging API](https://developers.line.biz/en/docs/messaging-api/)
