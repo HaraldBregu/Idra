@@ -101,6 +101,41 @@ describe('connectors service', () => {
 		await expect(service.update(added.id, { enabled: 'false' })).rejects.toThrow(/enabled must be a boolean/);
 	});
 
+	it('keeps catalog-only connectors configurable but out of local agent tools', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['get_profile'],
+		});
+		const dropbox = await service.add({
+			name: 'My Dropbox',
+			connectorId: 'connector_dropbox',
+			authorization: 'dropbox-token',
+			allowedTools: ['search'],
+		});
+
+		expect(service.list()).toEqual(expect.arrayContaining([
+			expect.objectContaining({ name: 'My Gmail', status: 'configured', toolsCount: 1 }),
+			expect.objectContaining({ name: 'My Dropbox', status: 'configured', toolsCount: 1 }),
+		]));
+		expect(service.listTools(dropbox.id).map((tool) => tool.name)).toEqual(['search']);
+		expect(service.createAgentTools().map((tool) => tool.name)).toEqual(['my_gmail_get_profile']);
+		await expect(service.test(dropbox.id)).resolves.toMatchObject({
+			status: 'configured',
+			message: expect.stringContaining('catalog/provider-hosted use'),
+		});
+		await expect(service.callTool(dropbox.id, 'search', { query: 'report' })).rejects.toThrow(
+			/catalog-only in local runtime/
+		);
+	});
+
 	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
 		const url = new URL(buildGoogleAuthorizationUrl({
 			clientId: 'client-id',
