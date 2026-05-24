@@ -929,6 +929,10 @@
 				"open": "Aperto",
 				"deny": "Nega"
 			},
+			"heartbeat": "Visibilita heartbeat",
+			"heartbeatShowOk": "Mostra controlli sani",
+			"heartbeatShowAlerts": "Mostra avvisi",
+			"heartbeatUseIndicator": "Usa indicatore di stato",
 			"runtimeUnavailable": "La configurazione puo essere salvata; il runtime di questo provider non e ancora incluso.",
 			"phoneNumber": "Numero di telefono",
 			"phoneNumberDescription": "Solo cifre, con prefisso internazionale (senza + né spazi).",
