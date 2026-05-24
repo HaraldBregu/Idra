@@ -331,94 +331,75 @@ const StartPage: React.FC = () => {
 
 		let cancelled = false;
 
-		async function loadProviders(): Promise<void> {
+		async function loadServiceModels(): Promise<void> {
 			try {
-				const [storedProviders, assistantOperator] = await Promise.all([
+				const [storedProviders, ...configuredOperators] = await Promise.all([
 					window.app.getProviders(),
-					window.app.getAssistantOperator(),
+					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getOperator()),
 				]);
 				if (cancelled) return;
 
 				const selectableProviders = storedProviders.filter((provider) =>
 					supportedProviderIds.has(provider.id)
 				);
-				const preferredProvider =
-					selectableProviders.find((provider) => provider.id === assistantOperator?.provider.id) ??
-					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
-					selectableProviders[0];
-
-				setProviders(selectableProviders);
-				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId(assistantOperator?.model.id ?? '');
-			} catch (error) {
-				if (cancelled) return;
-				setProviders([]);
-				setConfigProvider('');
-				setSavedModelId('');
-				setErrorMessage(getErrorMessage(error, 'Could not load providers.'));
-			}
-		}
-
-		void loadProviders();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [connectedProviderIds, step]);
-
-	useEffect(() => {
-		if (step !== 'models') return;
-
-		let cancelled = false;
-
-		async function loadModels(): Promise<void> {
-			if (providers.length === 0) {
-				setAgentModelGroups([]);
-				setSelectedModel('');
-				return;
-			}
+				const nextServiceStates = createInitialModelServiceState();
+				let firstError: unknown;
 
 			setLoadingModels(true);
 			setErrorMessage('');
 			try {
-				const nextAgentGroups: ProviderModelGroup[] = [];
-				let firstError: unknown;
+				if (selectableProviders.length > 0) {
+					for (let index = 0; index < MODEL_SERVICE_DEFINITIONS.length; index += 1) {
+						const service = MODEL_SERVICE_DEFINITIONS[index];
+						const operator = configuredOperators[index];
+						if (!operator) continue;
 
-				for (const provider of providers) {
-					try {
-						const agentModels = await window.app.getModels(provider);
-						if (agentModels.length > 0) {
-							nextAgentGroups.push({ provider, models: agentModels });
+						const preferredProvider =
+							selectableProviders.find((provider) => provider.id === operator.provider.id) ??
+							selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
+							selectableProviders[0];
+
+						const modelGroups: ProviderModelGroup[] = [];
+						for (const provider of selectableProviders) {
+							try {
+								const models = await service.getModels(provider);
+								if (models.length > 0) {
+									modelGroups.push({ provider, models });
+								}
+							} catch (error) {
+								firstError ??= error;
+							}
 						}
-					} catch (error) {
-						firstError ??= error;
+
+						const preferredModelGroups =
+							modelGroups.find((group) => group.provider.id === preferredProvider?.id) ??
+							modelGroups[0];
+						const providerId = preferredModelGroups?.provider.id ?? '';
+						const savedModelId = operator.model.id;
+						const modelId =
+							preferredModelGroups?.models.find((model) => model.id === savedModelId)?.id ??
+							preferredModelGroups?.models[0]?.id ??
+							'';
+
+						nextServiceStates[service.id] = {
+							providerId,
+							savedModelId,
+							modelId,
+							modelGroups,
+						};
 					}
 				}
 
 				if (cancelled) return;
+				setProviders(selectableProviders);
+				setServiceStates(nextServiceStates);
 
-				setAgentModelGroups(nextAgentGroups);
-
-				const agentOptions = nextAgentGroups.flatMap((group) =>
-					group.models.map((model) => ({ provider: group.provider, model }))
-				);
-				const preferredAgentOption =
-					agentOptions.find(
-						(option) => option.provider.id === configProvider && option.model.id === savedModelId
-					) ??
-					agentOptions.find((option) => option.provider.id === configProvider) ??
-					agentOptions[0];
-
-				setConfigProvider(preferredAgentOption?.provider.id ?? '');
-				setSelectedModel(preferredAgentOption?.model.id ?? '');
-
-				if (!preferredAgentOption && firstError) {
+				if (firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
 				}
 			} catch (error) {
 				if (cancelled) return;
-				setAgentModelGroups([]);
-				setSelectedModel('');
+				setServiceStates(createInitialModelServiceState());
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
 				if (!cancelled) {
@@ -427,12 +408,12 @@ const StartPage: React.FC = () => {
 			}
 		}
 
-		void loadModels();
+		void loadServiceModels();
 
 		return () => {
 			cancelled = true;
 		};
-	}, [configProvider, providers, savedModelId, step]);
+	}, [connectedProviderIds, step]);
 
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
