@@ -76,7 +76,7 @@ describe('PromptInput', () => {
 
 		const speechToTextButton = screen.getByRole('button', { name: 'Record speech to text' });
 		const voiceConversationButton = screen.getByRole('button', {
-			name: 'Voice conversation unavailable',
+			name: 'Start voice conversation',
 		});
 
 		expect(speechToTextButton).toBeEnabled();
