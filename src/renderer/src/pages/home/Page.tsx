@@ -320,6 +320,7 @@ function PageContent(): ReactElement {
 		value: agent.input,
 		onValueChange: agent.setInput,
 	});
+	const voiceButtonMode = useVoiceButtonMode();
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
 	const visibleMessages = agent.chatState.messages.filter(
