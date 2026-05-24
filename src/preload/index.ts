@@ -80,6 +80,11 @@ import type {
 	ConnectorUpdateInput,
 	ConnectorView,
 } from '../shared/connector';
+import {
+	isRealtimeTranscriptionAudioChunk,
+	isRealtimeTranscriptionSessionId,
+	normalizeRealtimeTranscriptionStartRequest,
+} from '../shared/realtime-transcription';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -283,15 +288,30 @@ export const app: AppApi = {
 
 export const realtimeTranscription: RealtimeTranscriptionApi = {
 	start: (request) => {
-		return typedInvokeUnwrap(RealtimeTranscriptionChannels.start, request);
+		return typedInvokeUnwrap(
+			RealtimeTranscriptionChannels.start,
+			normalizeRealtimeTranscriptionStartRequest(request)
+		);
 	},
 	appendAudio: (sessionId: string, audio: string): void => {
+		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+			throw new Error('Invalid realtime transcription session id.');
+		}
+		if (!isRealtimeTranscriptionAudioChunk(audio)) {
+			throw new Error('Invalid realtime transcription audio chunk.');
+		}
 		typedSend(RealtimeTranscriptionChannels.appendAudio, sessionId, audio);
 	},
 	finish: (sessionId: string): Promise<void> => {
+		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+			throw new Error('Invalid realtime transcription session id.');
+		}
 		return typedInvokeUnwrap(RealtimeTranscriptionChannels.finish, sessionId);
 	},
 	cancel: (sessionId: string): Promise<void> => {
+		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+			throw new Error('Invalid realtime transcription session id.');
+		}
 		return typedInvokeUnwrap(RealtimeTranscriptionChannels.cancel, sessionId);
 	},
 	onEvent: (callback): (() => void) => {

@@ -141,6 +141,9 @@ export function supportsSpeechToTextModelApiType(
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
 	const provider = normalizeProviderId(providerId);
 	const model = modelId.trim();
+	if (provider === DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID) {
+		return model === DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID;
+	}
 	if (provider === SPEECH_TRANSCRIBER_PROVIDER_ID) {
 		return (SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(model);
 	}

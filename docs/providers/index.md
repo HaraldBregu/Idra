@@ -26,6 +26,7 @@ Providers adapt configured model services into Friday's runtime interfaces. The 
 | Provider | Functionality | How It Works |
 | --- | --- | --- |
 | OpenAI | Realtime transcription. | Supported OpenAI transcription models run through a realtime WebSocket session. |
+| Deepgram | Batch and realtime transcription. | Nova uses upload-style transcription and Flux uses a realtime session adapter. |
 | ElevenLabs | Offline and realtime transcription. | Scribe models use upload-style transcription or realtime sessions depending on the selected model. |
 | Mistral | Offline and realtime transcription. | Voxtral models use batch or realtime transcription depending on the selected model. |
 | xAI | Batch and streaming transcription. | The adapter selects batch or streaming behavior from the configured xAI model. |

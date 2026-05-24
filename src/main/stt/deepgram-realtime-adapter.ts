@@ -51,17 +51,6 @@ function appendTranscript(prefix: string, text: string): string {
 	return `${normalizedPrefix} ${normalizedText}`.trim();
 }
 
-function stringProperty(value: unknown, key: string): string {
-	if (typeof value !== 'object' || value === null) return '';
-	const text = (value as Record<string, unknown>)[key];
-	return typeof text === 'string' ? text : '';
-}
-
-function booleanProperty(value: unknown, key: string): boolean {
-	if (typeof value !== 'object' || value === null) return false;
-	return (value as Record<string, unknown>)[key] === true;
-}
-
 function createDeepgramListenUrl(baseUrl: string | undefined, version: 'v1' | 'v2'): URL {
 	const url = new URL(baseUrl?.trim() || DEFAULT_DEEPGRAM_BASE_URL);
 	let path = url.pathname.replace(/\/+$/, '');

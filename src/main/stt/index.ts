@@ -6,6 +6,14 @@ export {
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 } from './audio';
 export {
+	createDeepgramRealtimeTranscriptionSocket,
+	createDeepgramRealtimeTranscriptionUrl,
+	createDeepgramSpeechToTextAdapter,
+	createDeepgramSpeechToTextUrl,
+	DeepgramSpeechToTextAdapter,
+	resolveDeepgramRealtimeSpeechToTextModel,
+} from './deepgram-realtime-adapter';
+export {
 	createElevenLabsRealtimeTranscriptionSocket,
 	createElevenLabsRealtimeTranscriptionUrl,
 	createElevenLabsSpeechToTextAdapter,

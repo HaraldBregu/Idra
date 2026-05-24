@@ -6,9 +6,19 @@ import { wrapIpcHandler } from './ipc-error-handler';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type {
 	RealtimeTranscriptionSession,
-	RealtimeTranscriptionStartRequest,
+} from '../../shared/realtime-transcription';
+import {
+	isRealtimeTranscriptionAudioChunk,
+	isRealtimeTranscriptionSessionId,
+	normalizeRealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
 import { SpeechToTextService } from '../stt';
+
+function errorMessage(error: unknown): string {
+	if (error instanceof Error && error.message.trim()) return error.message;
+	if (typeof error === 'string' && error.trim()) return error;
+	return 'Realtime transcription failed.';
+}
 
 export class RealtimeTranscriptionIpc implements IpcModule {
 	readonly name = 'realtimeTranscription';
@@ -25,9 +35,12 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 			wrapIpcHandler(
 				(
 					event: IpcMainInvokeEvent,
-					request?: RealtimeTranscriptionStartRequest
+					request?: unknown
 				): Promise<RealtimeTranscriptionSession> => {
-					return speechToText.start(event.sender, request);
+					return speechToText.start(
+						event.sender,
+						normalizeRealtimeTranscriptionStartRequest(request)
+					);
 				},
 				RealtimeTranscriptionChannels.start
 			)
@@ -35,21 +48,39 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 
 		ipcMain.on(
 			RealtimeTranscriptionChannels.appendAudio,
-			(event: IpcMainEvent, sessionId: string, audio: string) => {
-				speechToText.appendAudio(event.sender, sessionId, audio);
+			(event: IpcMainEvent, sessionId: unknown, audio: unknown) => {
+				try {
+					if (!isRealtimeTranscriptionSessionId(sessionId)) {
+						throw new Error('Invalid realtime transcription session id.');
+					}
+					if (!isRealtimeTranscriptionAudioChunk(audio)) return;
+					speechToText.appendAudio(event.sender, sessionId, audio);
+				} catch (error) {
+					event.sender.send(RealtimeTranscriptionChannels.event, {
+						type: 'error',
+						...(isRealtimeTranscriptionSessionId(sessionId) ? { sessionId } : {}),
+						message: errorMessage(error),
+					});
+				}
 			}
 		);
 
 		ipcMain.handle(
 			RealtimeTranscriptionChannels.finish,
-			wrapIpcHandler((event: IpcMainInvokeEvent, sessionId: string): void => {
+			wrapIpcHandler((event: IpcMainInvokeEvent, sessionId: unknown): void => {
+				if (!isRealtimeTranscriptionSessionId(sessionId)) {
+					throw new Error('Invalid realtime transcription session id.');
+				}
 				speechToText.finish(event.sender, sessionId);
 			}, RealtimeTranscriptionChannels.finish)
 		);
 
 		ipcMain.handle(
 			RealtimeTranscriptionChannels.cancel,
-			wrapIpcHandler((event: IpcMainInvokeEvent, sessionId: string): void => {
+			wrapIpcHandler((event: IpcMainInvokeEvent, sessionId: unknown): void => {
+				if (!isRealtimeTranscriptionSessionId(sessionId)) {
+					throw new Error('Invalid realtime transcription session id.');
+				}
 				speechToText.cancel(event.sender, sessionId);
 			}, RealtimeTranscriptionChannels.cancel)
 		);
