@@ -11,8 +11,6 @@ import type { ChannelConnectionStatus, ChannelType } from '../../../../../../sha
 import type { ChannelCatalogEntry } from '../../../../../../shared/channels';
 import { ChannelIcon } from './ChannelIcon';
 
-const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
-
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
 ): 'secondary' | 'destructive' | 'outline' {
@@ -67,7 +65,7 @@ const ChannelsPage: React.FC = () => {
 			<SettingsSection title={t('settings.channels.catalog')}>
 				<Card size="sm" className="gap-0! p-0!">
 					{catalog.filter((entry) => entry.catalogVisible).map((entry, index, visibleCatalog) => {
-						const isRuntimeChannel = RUNTIME_CHANNELS.has(entry.id);
+						const isRuntimeChannel = entry.runtime === 'bundled';
 						const status = statusByChannel[entry.id] ?? 'disconnected';
 
 						return (
