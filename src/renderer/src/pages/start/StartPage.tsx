@@ -112,11 +112,6 @@ const MODEL_AREA_IDS = [
 ] as const satisfies readonly AgentId[];
 type ModelAreaId = (typeof MODEL_AREA_IDS)[number];
 
-const STEP_TITLES: Record<SetupStep, string> = {
-	presentation: 'Presentation',
-	providers: 'Provider setup',
-	models: 'Configure models',
-};
 
 const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 	{
