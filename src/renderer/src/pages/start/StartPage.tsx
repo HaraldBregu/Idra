@@ -2,11 +2,18 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
 	AlertCircle,
 	ArrowRight,
+	Bot,
 	Check,
 	ExternalLink,
+	Image as ImageIcon,
 	KeyRound,
 	LoaderCircle,
+	Mic,
+	Music,
 	Pencil,
+	Video,
+	Volume2,
+	type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -92,6 +99,7 @@ type ModelServiceDefinition = {
 	stepDescription: string;
 	providerDescription: string;
 	modelDescription: string;
+	icon: LucideIcon;
 	required: boolean;
 	getOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
