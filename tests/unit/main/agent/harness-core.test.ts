@@ -1,17 +1,18 @@
-import { collectConfiguredAgentHarnessRuntimes } from '../../../../src/main/agent/harness-runtimes';
-import { maybeCompactAgentHarnessSession, selectAgentHarness } from '../../../../src/main/agent/harness/selection';
-import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
 import {
 	clearRegisteredAgentHarnesses,
+	clearAgentHarnessHookProviders,
+	collectConfiguredAgentHarnessRuntimes,
+	maybeCompactAgentHarnessSession,
 	registerAgentHarness,
+	registerAgentHarnessHookHandler,
 	resetRegisteredAgentHarnesses,
+	selectAgentHarness,
+	adaptAgentHarnessToV2,
+	runAgentHarnessV2LifecycleAttempt,
+	type AgentHarness,
+	type AgentHarnessAttemptParams,
+	type AgentHarnessAttemptResult,
 } from '../../../../src/main/agent/harness/registry';
-import { adaptAgentHarnessToV2, runAgentHarnessV2LifecycleAttempt } from '../../../../src/main/agent/harness/v2';
-import type {
-	AgentHarness,
-	AgentHarnessAttemptParams,
-	AgentHarnessAttemptResult,
-} from '../../../../src/main/agent/harness/types';
 import type { SessionFile } from '../../../../src/main/session/store';
 
 function clearHarnessActivationState(): void {
