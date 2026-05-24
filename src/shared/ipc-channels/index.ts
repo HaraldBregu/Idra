@@ -137,6 +137,24 @@ export const SkillsChannels = {
 	getRoot: 'skills:get-root',
 } as const;
 
+export const ChatMemoryChannels = {
+	list: 'chat-memory:list',
+	read: 'chat-memory:read',
+	search: 'chat-memory:search',
+} as const;
+
+export const RagChannels = {
+	list: 'rag:list',
+	read: 'rag:read',
+	search: 'rag:search',
+} as const;
+
+export const WikiChannels = {
+	list: 'wiki:list',
+	read: 'wiki:read',
+	search: 'wiki:search',
+} as const;
+
 export const ConnectorsChannels = {
 	catalog: 'connectors:catalog',
 	list: 'connectors:list',
