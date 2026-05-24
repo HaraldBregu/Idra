@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type {
 	Channel,
 	ChannelCatalogEntry,
+	ChannelSetupField,
 	ChannelType,
 	GenericChannelProperties,
 } from '../../../../../../src/shared/channels';
@@ -38,6 +39,7 @@ jest.mock('react-i18next', () => ({
 				'settings.channels.appId': 'App ID',
 				'settings.channels.clientId': 'Client ID',
 				'settings.channels.clientSecret': 'Client secret',
+				'settings.channels.phoneNumber': 'Phone number',
 				'settings.channels.serverUrl': 'Server URL',
 				'settings.channels.webhookUrl': 'Webhook URL',
 				'settings.channels.defaultTarget': 'Default target',
@@ -55,6 +57,22 @@ jest.mock('react-i18next', () => ({
 }));
 
 const detailEntry = findVisibleCatalogOnlyEntry();
+const renderedSetupFieldLabels: Partial<Record<ChannelSetupField, string>> = {
+	username: 'Username',
+	botUserId: 'Bot user ID',
+	token: 'Token',
+	secret: 'Secret',
+	appId: 'App ID',
+	clientId: 'Client ID',
+	clientSecret: 'Client secret',
+	phoneNumber: 'Phone number',
+	serverUrl: 'Server URL',
+	webhookUrl: 'Webhook URL',
+	defaultTarget: 'Default target',
+	allowFrom: 'Allowed senders',
+	groupAllowFrom: 'Allowed group routes',
+};
+const renderedSetupFields = Object.keys(renderedSetupFieldLabels) as ChannelSetupField[];
 
 function renderChannelDetailPage(
 	path = `/settings/channels/channelDetail/${detailEntry.id}`
@@ -186,6 +204,26 @@ describe('ChannelDetailPage', () => {
 		expect(savedConfig.accounts?.[defaultAccountId]?.label).toBe('Renamed account');
 		expect(savedConfig.accounts?.[CHANNEL_DEFAULT_ACCOUNT_ID]).toBeUndefined();
 	});
+
+	it.each(listChannelCatalog().map((entry) => [entry.id, entry] as const))(
+		'renders the documented setup fields for %s',
+		async (_channelId, entry) => {
+			renderChannelDetailPage(`/settings/channels/channelDetail/${entry.id}`);
+
+			await screen.findByRole('heading', { name: entry.label });
+
+			for (const field of renderedSetupFields) {
+				const label = renderedSetupFieldLabels[field];
+				if (!label) continue;
+				const assertion = expect(screen.queryByText(label));
+				if (entry.setupFields.includes(field)) {
+					assertion.toBeInTheDocument();
+				} else {
+					assertion.not.toBeInTheDocument();
+				}
+			}
+		}
+	);
 });
 
 function findVisibleCatalogOnlyEntry(): ChannelCatalogEntry {
