@@ -1351,7 +1351,8 @@ const StartPage: React.FC = () => {
 		const renderModelAreaPanel = (
 			areaId: ModelAreaId,
 			summary: string,
-			children: React.ReactNode
+			children: React.ReactNode,
+			badge?: React.ReactNode
 		): React.JSX.Element => {
 			const area = MODEL_AREAS.find((item) => item.id === areaId);
 			if (!area) throw new Error(`Unknown model area: ${areaId}`);
@@ -1373,7 +1374,10 @@ const StartPage: React.FC = () => {
 							<Icon className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<ItemTitle>{area.title}</ItemTitle>
+							<div className="flex items-center gap-1.5">
+								<ItemTitle>{area.title}</ItemTitle>
+								{badge}
+							</div>
 							<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 								{summary}
 							</p>
