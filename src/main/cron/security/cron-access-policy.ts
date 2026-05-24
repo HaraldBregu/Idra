@@ -27,7 +27,7 @@ export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy
 		const { action, schedule, request, actor } = input;
 		if (this.hasPermission(actor, 'adminScheduleManagement')) return;
 		this.assertPermission(actor, action);
-		this.assertActorHasOwner(actor, request);
+		this.assertActorHasOwner(action, actor, request, schedule);
 		this.assertScheduleOwner(actor, schedule);
 		this.assertRequiredPermissions(actor, request?.requiredPermissions ?? schedule?.requiredPermissions);
 	}
@@ -80,9 +80,18 @@ export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy
 	}
 
 	private assertActorHasOwner(
+		action: CronSchedulePermissionLevel,
 		actor: CronActorContext,
-		request?: CronScheduleCreateRequest | CronScheduleUpdateRequest
+		request?: CronScheduleCreateRequest | CronScheduleUpdateRequest,
+		schedule?: CronSchedule
 	): void {
+		if ((action === 'createSchedule' || (action === 'listSchedules' && !schedule)) && !actor.userId) {
+			throw new CronPermissionError('Cron schedule owner is required.', {
+				action,
+				source: actor.source,
+				userId: null,
+			});
+		}
 		if (!request || !('ownerUserId' in request)) return;
 		const requestedOwner = request.ownerUserId;
 		if (!actor.userId) {
