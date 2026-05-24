@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils';
 import { AgentTextMessage } from './components/AgentTextMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
-import { useHomeAgent, useRealtimeDictation } from './hooks';
+import { useHomeAgent, useRealtimeDictation, useVoiceButtonMode, type VoiceButtonMode } from './hooks';
 
 type PromptAttachment = {
 	readonly id: string;
