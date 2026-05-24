@@ -11,10 +11,12 @@ import { CronService } from './cron';
 import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
-import { ensureAgentHarnessRuntimeActivated } from './agent/harness/activation';
-import { disposeRegisteredAgentHarnesses } from './agent/harness/registry';
+import {
+	collectConfiguredAgentHarnessRuntimes,
+	disposeRegisteredAgentHarnesses,
+	ensureAgentHarnessRuntimeActivated,
+} from './agent/harness';
 import { registerAgentHarnessRuntimePluginActivation } from './agent/harness/runtime-plugin';
-import { collectConfiguredAgentHarnessRuntimes } from './agent/harness-runtimes';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
