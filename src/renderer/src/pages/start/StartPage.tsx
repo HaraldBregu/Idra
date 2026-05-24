@@ -33,7 +33,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { SettingsField, SettingsNotice, SettingsPanel } from '../settings/components';
+import { SettingsField } from '../settings/components';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
