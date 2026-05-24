@@ -333,7 +333,7 @@ const StartPage: React.FC = () => {
 	}, [step]);
 
 	useEffect(() => {
-		if (step !== 'models') return;
+		if (!isModelStep(step)) return;
 
 		let cancelled = false;
 
