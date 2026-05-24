@@ -732,7 +732,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolName: t.name,
 						toolUseId: id,
 						result: toolResult.content,
-						isError: status !== 'ok',
+						isError: true,
 					});
 					await fireBeforeMessageWriteHook({
 						...hookContext,
