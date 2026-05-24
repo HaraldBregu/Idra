@@ -167,7 +167,7 @@ Configured non-default runtimes can also be activated during bootstrap. Friday's
 
 Harnesses can implement `compact(...)` when transcript reduction needs to happen inside the selected runtime. During compaction, Friday first delegates to the selected harness when a requested or stored runtime is active and the harness supports compaction. If the selected harness is `pi` or has no `compact(...)`, Friday uses the native summarization path.
 
-Friday also defines hook helper surfaces for LLM input/output, agent-end, prompt/agent-start, compaction, tool-call, and message-write events. The compaction hooks are wired into the native compaction path. Other helper call sites are extension points until the main run loop wires them.
+Friday also defines hook helper surfaces for LLM input/output, agent-end, prompt/agent-start, compaction, tool-call, and message-write events. The host prompt builder fires the prompt hook, the lifecycle adapter fires agent-start, the built-in `pi` loop fires LLM, tool-call, message-write, and agent-end hooks, and the native compaction path fires compaction hooks. Tool-result middleware registered by plugin runtimes runs before tool results are streamed and persisted by the built-in loop.
 
 ## Design Rules
 
