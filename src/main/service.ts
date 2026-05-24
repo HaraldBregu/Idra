@@ -30,9 +30,9 @@ import { loadSession, saveSession, clearSession, type SessionFile } from './sess
 import { createTools } from './tools/registry';
 import { createAgentTools } from './tools/create-agent-tools';
 import {
-	canonicalToolToLegacy,
-	legacyToolToCanonical,
-} from './tools/runtime/legacy-bridge';
+	legacyToolToRuntimeTool,
+	runtimeToolToLegacyTool,
+} from './tools/runtime/legacy-tool-adapter';
 import { startupFilesTool } from './tools/startup';
 import {
 	selectAgentToolsForTurn,
@@ -260,11 +260,11 @@ export class AgentService {
 			toolsAllow: context.toolsAllow,
 			includeCoreTools: false,
 			hostTools: legacyHostTools.map((tool) =>
-				legacyToolToCanonical(tool, context.toolContext)
+				legacyToolToRuntimeTool(tool, context.toolContext)
 			),
 			config: { toolSearch: { enabled: false } },
 		});
-		return runtime.tools.map(canonicalToolToLegacy);
+		return runtime.tools.map(runtimeToolToLegacyTool);
 	}
 
 	async send(
@@ -372,6 +372,7 @@ export class AgentService {
 			let baseTools: AgentTool[] = [];
 			let skillChoices: SkillPromptChoice[] = [];
 			let skillRuntimePlan: SkillRuntimePlan | undefined;
+			const skillConnectors = this.dependencies.connectors?.createSkillConnectors?.() ?? [];
 
 			if (
 				bootstrapPending ||
@@ -406,8 +407,8 @@ export class AgentService {
 					isPrimaryRun &&
 					!baseTools.some((tool) => tool.name === startupFilesTool.name)
 				) {
-						baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
-					}
+					baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
+				}
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 				}
@@ -419,6 +420,7 @@ export class AgentService {
 							sessionId: runtime.session!.id,
 							tools: baseTools,
 							toolContext: ctx,
+							connectors: skillConnectors,
 							signal: abort.signal,
 						})
 					);
@@ -489,7 +491,7 @@ export class AgentService {
 								userId: agentId,
 								sessionId: runtime.session.id,
 								tools: selectedTools,
-								connectors: [],
+								connectors: skillConnectors,
 								signal: abort.signal,
 							})
 						);

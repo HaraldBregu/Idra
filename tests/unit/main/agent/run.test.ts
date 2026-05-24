@@ -262,6 +262,7 @@ describe('agent/run', () => {
 
 	it('stores multiple tool calls and auto-allowed legacy approval tools with stable call ids', async () => {
 		const events: ProviderEvent[] = [];
+		const ctx = makeToolContext();
 		const safeTool: AgentTool = {
 			name: 'safe_tool',
 			description: 'Safe',
@@ -301,7 +302,7 @@ describe('agent/run', () => {
 			]),
 			model: 'gpt-test',
 			tools: [safeTool, approvalTool],
-			ctx: makeToolContext(),
+			ctx,
 			streamEvent: (event) => events.push(event as ProviderEvent),
 		});
 
@@ -331,23 +332,24 @@ describe('agent/run', () => {
 				status: 'ok',
 				content: [{ type: 'text', text: 'safe ok' }],
 			},
-				{
-					role: 'tool',
-					toolUseId: 'tc-denied',
-					isError: false,
-					status: 'ok',
-					content: [{ type: 'text', text: 'should not run' }],
-				},
+			{
+				role: 'tool',
+				toolUseId: 'tc-denied',
+				isError: false,
+				status: 'ok',
+				content: [{ type: 'text', text: 'should not run' }],
+			},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
 		]);
+		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(true);
 		expect(events).toContainEqual(
 			expect.objectContaining({
-					type: 'tool_call_result',
-					toolCallId: 'tc-denied',
-					status: 'ok',
-					outputText: 'should not run',
-				})
-			);
+				type: 'tool_call_result',
+				toolCallId: 'tc-denied',
+				status: 'ok',
+				outputText: 'should not run',
+			})
+		);
 	});
 
 	it('compacts once on context overflow and retries', async () => {
