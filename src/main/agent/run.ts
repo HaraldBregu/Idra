@@ -211,6 +211,66 @@ function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknow
 	return details === undefined ? resultBlocksToOutput(content) : details;
 }
 
+function normalizeRuntimeId(input: unknown): string | undefined {
+	if (typeof input !== 'string') return undefined;
+	const runtime = input.trim().toLowerCase();
+	return runtime || undefined;
+}
+
+function resolveRunHarnessRuntime(input: AgentRunInput): string | undefined {
+	return (
+		normalizeRuntimeId(input.agentHarnessId) ??
+		normalizeRuntimeId(input.requestedRuntime) ??
+		normalizeRuntimeId(input.storedRuntime)
+	);
+}
+
+function buildRunHookContext(params: {
+	runId: string;
+	input: AgentRunInput;
+	session: SessionFile;
+	ctx: ToolContext;
+	model: string;
+}): AgentHarnessHookContext {
+	return buildAgentHookContext({
+		runId: params.runId,
+		agentId: params.ctx.agentId,
+		sessionId: params.session.id,
+		sessionKey: params.ctx.sessionId,
+		provider: params.input.providerId,
+		modelId: params.model,
+		channelId: readString(params.ctx.deliveryContext?.channelId),
+	});
+}
+
+function readString(value: unknown): string | undefined {
+	return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function assistantBlocksToHookText(blocks: AgentContentBlock[]): string {
+	return blocks
+		.map((block) => {
+			if (block.type === 'text') return block.text;
+			if (block.type === 'tool_use') return `[tool ${block.toolName}]`;
+			return '';
+		})
+		.filter(Boolean)
+		.join('\n');
+}
+
+async function applyToolResultMiddlewareForRun(params: {
+	content: ToolResultBlock[];
+	hookContext: AgentHarnessHookContext;
+	runtime?: string;
+}): Promise<ToolResultBlock[]> {
+	return runAgentToolResultMiddleware(
+		params.content,
+		listAgentToolResultMiddlewareRegistrations(),
+		params.hookContext,
+		params.runtime
+	);
+}
+
 /**
  * Provider-neutral agent loop.
  *
