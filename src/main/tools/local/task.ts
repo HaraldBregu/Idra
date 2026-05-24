@@ -1,5 +1,5 @@
 import type { TaskRecord, TaskRunRequest } from '../../../shared/tasks';
-import { AGENT_TASK_TYPE } from '../../tasks';
+import { AGENT_TASK_TYPE, parseTaskRunRequest } from '../../tasks';
 import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 
@@ -54,7 +54,7 @@ function taskRequest(args: unknown): TaskRunRequest {
 	const metadata = optionalMetadata(args.metadata);
 	if (id) request.id = id;
 	if (metadata) request.metadata = metadata;
-	return request;
+	return parseTaskRunRequest(request);
 }
 
 function taskRecordResult(task: TaskRecord): AgentToolResult<TaskRecord> {
