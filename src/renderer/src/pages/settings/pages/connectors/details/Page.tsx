@@ -460,6 +460,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const googleOAuth = authKind === 'google_oauth';
 	const connectedGoogleAccount = connector?.oauth?.email ?? null;
 	const hasGoogleConnection = Boolean(connector?.oauth?.connectedAt || connectedGoogleAccount);
+	const redirectUri = 'redirectUri' in catalogItem ? catalogItem.redirectUri : 'Not configured';
 	const title = connector?.name ?? catalogItem.name;
 	const idPrefix = connector?.id ?? catalogItem.id;
 	const formBusy = saving || connecting || deleting;
@@ -576,7 +577,7 @@ const ConnectorDetailsPage: React.FC = () => {
 											Google OAuth
 										</div>
 										<div className="mt-1 break-all text-[11px] leading-4 text-muted-foreground">
-											Redirect: <span className="font-mono">{catalogItem.redirectUri}</span>
+											Redirect: <span className="font-mono">{redirectUri}</span>
 										</div>
 									</div>
 								) : (

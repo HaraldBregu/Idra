@@ -17,7 +17,7 @@ const ConnectorsPage = () => {
 	const {
 		catalog, connectors, busyId,
 		connectingId,
-		error, setError,
+		error,
 		statusMessage,
 		connectOAuth,
 		toggleConnector,
