@@ -611,7 +611,7 @@ const ChannelDetailPage: React.FC = () => {
 								)}
 							</ItemActions>
 						</Item>
-					</Card>
+					</SettingsPanel>
 				</SettingsSection>
 			) : (
 				<SettingsNotice variant="destructive">

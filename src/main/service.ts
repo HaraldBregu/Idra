@@ -22,6 +22,8 @@ import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
+import { buildAgentHookContext } from './agent/harness/hook-context';
+import { fireBeforePromptBuildHook } from './agent/harness/prompt-compaction-hook-helpers';
 import { runAgentHarnessAttempt } from './agent/harness/selection';
 import { resetRegisteredAgentHarnesses } from './agent/harness/registry';
 import { DEFAULT_AGENT_ID } from './constants';
