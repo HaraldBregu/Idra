@@ -10,7 +10,6 @@ import { buildAgentSessionKey } from '../routing';
 import { SubagentRegistry } from './registry';
 import { SUBAGENT_RUN_TASK_TYPE } from './task-handler';
 import type {
-	SessionsSpawnInput,
 	SessionsSpawnResult,
 	SubagentsControlInput,
 	SubagentsControlResult,

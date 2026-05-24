@@ -111,6 +111,21 @@ describe('subagent orchestration', () => {
 		).rejects.toThrow('Cross-agent spawn is not allowed: research');
 	});
 
+	it('rejects invalid spawn enum values before launching a task', async () => {
+		const { service, taskManager } = createSpawnService({
+			agents: { main: { id: 'main' } },
+		});
+
+		await expect(
+			service.spawn({
+				requesterAgentId: 'main',
+				requesterSessionKey: 'agent:main:main',
+				input: { task: 'Research', mode: 'invalid' },
+			})
+		).rejects.toThrow('mode must be run or session.');
+		expect(taskManager.run).not.toHaveBeenCalled();
+	});
+
 	it('enforces max depth and active child limits before launching', async () => {
 		const loadParentMetadata = jest.fn(async () => ({ agentId: 'main', spawnDepth: 1 }));
 		const { service } = createSpawnService({
@@ -222,6 +237,69 @@ describe('subagent orchestration', () => {
 		);
 	});
 
+	it('marks timed out child work distinctly from ordinary failures', async () => {
+		jest.useFakeTimers();
+		try {
+			const registry = new SubagentRegistry();
+			registry.registerSubagentRun({
+				runId: 'run-1',
+				childSessionKey: 'agent:main:subagent:run-1',
+				requesterSessionKey: 'agent:main:main',
+				controllerSessionKey: 'agent:main:main',
+				task: 'Child task',
+				agentId: 'main',
+				cleanup: 'keep',
+				spawnMode: 'run',
+				createdAt: 1,
+			});
+			let rejectSend: ((error: unknown) => void) | undefined;
+			const send = jest.fn(
+				() =>
+					new Promise<string>((_resolve, reject) => {
+						rejectSend = reject;
+					})
+			);
+			const cancel = jest.fn(() => rejectSend?.(new Error('Subagent run timed out.')));
+			const eventBus = { emit: jest.fn() };
+			const handler = new SubagentRunTaskHandler(
+				{ send, cancel } as never,
+				registry,
+				eventBus as never
+			);
+			const input = handler.validateInput({
+				runId: 'run-1',
+				task: 'Child task',
+				agentId: 'main',
+				childSessionKey: 'agent:main:subagent:run-1',
+				requesterSessionKey: 'agent:main:main',
+				controllerSessionKey: 'agent:main:main',
+				runTimeoutSeconds: 1,
+				sessionMetadata: { agentId: 'main', spawnDepth: 1 },
+			});
+
+			const run = handler.run({
+				taskId: 'subagent:run-1',
+				input,
+				signal: new AbortController().signal,
+				updateProgress: jest.fn(),
+			});
+			jest.advanceTimersByTime(1000);
+
+			await expect(run).rejects.toThrow('Subagent run timed out.');
+			expect(cancel).toHaveBeenCalledWith('agent:main:subagent:run-1');
+			expect(registry.getSubagentRun('run-1')).toMatchObject({
+				outcome: 'timeout',
+				error: 'Subagent run timed out.',
+			});
+			expect(eventBus.emit).toHaveBeenCalledWith(
+				'subagent:completed',
+				expect.objectContaining({ runId: 'run-1', outcome: 'timeout' })
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('lists, histories, and cancels only controlled child runs', async () => {
 		const { service, registry, taskManager, eventBus } = createSpawnService({
 			agents: { main: { id: 'main' } },
@@ -280,6 +358,41 @@ describe('subagent orchestration', () => {
 		expect(eventBus.emit).toHaveBeenCalledWith(
 			'subagent:completed',
 			expect.objectContaining({ runId: 'run-1', outcome: 'cancelled' })
+		);
+	});
+
+	it('does not overwrite terminal subagent outcomes during cancel', async () => {
+		const { service, registry, taskManager, eventBus } = createSpawnService({
+			agents: { main: { id: 'main' } },
+		});
+		registry.registerSubagentRun({
+			runId: 'done',
+			taskId: 'subagent:done',
+			childSessionKey: 'agent:main:subagent:done',
+			requesterSessionKey: 'agent:main:main',
+			controllerSessionKey: 'agent:main:main',
+			task: 'Done',
+			agentId: 'main',
+			cleanup: 'keep',
+			spawnMode: 'run',
+			createdAt: 1,
+		});
+		registry.completeSubagentRun('done', 'ok');
+
+		await expect(
+			service.control({
+				requesterSessionKey: 'agent:main:main',
+				input: { action: 'cancel', runId: 'done' },
+			})
+		).resolves.toMatchObject({
+			action: 'cancel',
+			run: expect.objectContaining({ runId: 'done', outcome: 'ok' }),
+		});
+		expect(registry.getSubagentRun('done')).toMatchObject({ outcome: 'ok' });
+		expect(taskManager.cancel).not.toHaveBeenCalled();
+		expect(eventBus.emit).not.toHaveBeenCalledWith(
+			'subagent:completed',
+			expect.objectContaining({ runId: 'done', outcome: 'cancelled' })
 		);
 	});
 
