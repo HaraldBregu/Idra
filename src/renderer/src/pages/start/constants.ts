@@ -30,9 +30,8 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: ASSISTANT_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.assistant.name,
 		stepName: 'Assistant',
-		stepTitle: 'Assistant model selection',
-		stepDescription:
-			'Choose the core language model Friday uses for chat replies, reasoning, summaries, and tool planning.',
+		stepTitle: 'AI assistant',
+		stepDescription: 'Powers chat replies, reasoning, summaries, and planning.',
 		icon: Bot,
 		required: true,
 		getOperator: () => window.app.getAssistantOperator(),
