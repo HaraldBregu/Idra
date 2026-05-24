@@ -24,6 +24,7 @@ import type {
 } from '../core/cron.types';
 import { ScheduleDescriber } from '../core/cron.describer';
 import {
+	CronPermissionError,
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
 	CronScheduleValidationError,
@@ -257,6 +258,11 @@ export class CronSchedulerService implements CronScheduler {
 		validateScheduleShape(request, this.options.runPolicy);
 		assertSafeStoredSchedulePayload(request);
 		const normalizedTask = normalizeAgentScheduleTask(request);
+		if (this.accessPolicy.requiresConfirmation({ request, actor })) {
+			throw new CronPermissionError('Cron schedule requires confirmation before it can be saved.', {
+				action: 'createSchedule',
+			});
+		}
 
 		const now = new Date();
 		const nowIso = now.toISOString();
@@ -330,6 +336,12 @@ export class CronSchedulerService implements CronScheduler {
 		validateScheduleShape(patch, this.options.runPolicy, current);
 		assertSafeStoredSchedulePayload(patch);
 		const normalizedTask = normalizeAgentScheduleTask(patch, current);
+		if (this.accessPolicy.requiresConfirmation({ request: patch, actor, existingSchedule: current })) {
+			throw new CronPermissionError('Cron schedule update requires confirmation before it can be saved.', {
+				action: 'updateSchedule',
+				scheduleId,
+			});
+		}
 		const normalizedPatch: CronScheduleUpdateRequest = { ...patch };
 		if (patch.taskType !== undefined) normalizedPatch.taskType = normalizedTask.taskType;
 		if (patch.taskInput !== undefined) normalizedPatch.taskInput = normalizedTask.taskInput;
@@ -722,6 +734,18 @@ export class CronSchedulerService implements CronScheduler {
 			return 'skipped';
 		}
 
+		if (schedule.concurrencyPolicy === 'queueIfRunning') {
+			await this.emitEvent({
+				scheduleId: schedule.id,
+				type: 'schedule.skipped',
+				userId: schedule.ownerUserId,
+				source: schedule.source,
+				message: 'Queued because a previous run is still active.',
+				metadata: { scheduledRunAt, runningTaskIds: running.map((task) => task.id) },
+			});
+			return 'skipped';
+		}
+
 		if (['cancelPrevious', 'replacePrevious'].includes(schedule.concurrencyPolicy)) {
 			await this.runner.cancelRunningTasks?.(schedule.id, 'Superseded by a newer scheduled run.');
 		}
@@ -753,6 +777,7 @@ export class CronSchedulerService implements CronScheduler {
 			} catch (error) {
 				lastError = error;
 				if (attempt >= maxAttempts) break;
+				if (!this.shouldRetryTaskCreation(schedule, error)) break;
 				const backoff = Math.min(
 					schedule.retryPolicy.maxDelayMs,
 					Math.round(
@@ -768,6 +793,12 @@ export class CronSchedulerService implements CronScheduler {
 		throw new CronScheduleExecutionError('Task creation failed after retry attempts.', {
 			error: lastError instanceof Error ? lastError.message : String(lastError),
 		});
+	}
+
+	private shouldRetryTaskCreation(schedule: CronSchedule, error: unknown): boolean {
+		if (!(error instanceof CronSchedulerError)) return false;
+		if (schedule.retryPolicy.nonRetryableErrorCodes.includes(error.code)) return false;
+		return error.retryable || schedule.retryPolicy.retryableErrorCodes.includes(error.code);
 	}
 
 	private async updateScheduleAfterTrigger(
