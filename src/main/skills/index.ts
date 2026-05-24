@@ -1,6 +1,6 @@
 export { SkillsService } from './service/skills-service';
 export { SkillRegistry } from './registry/registry';
-export { SkillDiscovery } from './discovery/discovery';
+export { SkillDiscovery, makeDiscoveryContext } from './discovery/discovery';
 export { SkillSelector } from './discovery/selector';
 export { SkillComposer } from './runtime/composer';
 export { SkillPlanner } from './discovery/planner';
