@@ -1,6 +1,8 @@
 import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
 	AgentCronService,
+	CronScheduleExecutionError,
+	CronScheduleValidationError,
 	CronSchedulerService,
 	DefaultCronScheduleAccessPolicy,
 	InMemoryCronScheduleStore,
@@ -19,14 +21,17 @@ class RecordingRunner implements CronScheduleRunner {
 	tasks: CronScheduledTask[] = [];
 	running: CronScheduledTask[] = [];
 	failuresBeforeSuccess = 0;
+	failureError: Error = new CronScheduleExecutionError('transient create failure', {}, true);
+	createAttempts = 0;
 	cancelled: string[] = [];
 
 	async createTaskForSchedule(
 		input: Parameters<CronScheduleRunner['createTaskForSchedule']>[0]
 	): Promise<CronScheduledTask> {
+		this.createAttempts++;
 		if (this.failuresBeforeSuccess > 0) {
 			this.failuresBeforeSuccess--;
-			throw new Error('transient create failure');
+			throw this.failureError;
 		}
 		const task = {
 			id: `task-${this.tasks.length + 1}`,
@@ -271,6 +276,24 @@ describe('CronSchedulerService', () => {
 		await scheduler.processDueSchedules(new Date());
 
 		expect(runner.tasks).toHaveLength(1);
+		expect(runner.createAttempts).toBe(2);
+	});
+
+	it('does not retry non-retryable task creation failures', async () => {
+		const runner = new RecordingRunner();
+		runner.failuresBeforeSuccess = 1;
+		runner.failureError = new CronScheduleValidationError('invalid task input');
+		const { scheduler, store } = makeScheduler(runner);
+		const schedule = await scheduler.createSchedule(request(), actor);
+		await due(schedule, store, new Date(Date.now() - 1_000).toISOString());
+
+		await scheduler.processDueSchedules(new Date());
+
+		expect(runner.createAttempts).toBe(1);
+		expect(runner.tasks).toHaveLength(0);
+		expect((await store.listExecutions(schedule.id))[0]).toMatchObject({
+			status: 'taskFailed',
+		});
 	});
 
 	it('applies skipIfRunning and queueIfRunning concurrency policies', async () => {
@@ -290,8 +313,17 @@ describe('CronSchedulerService', () => {
 
 		await scheduler.processDueSchedules(new Date());
 
-		expect(runner.tasks).toHaveLength(1);
+		expect(runner.tasks).toHaveLength(0);
 		expect((await store.listExecutions(skip.id))[0]?.status).toBe('skipped');
+		expect(await store.listExecutions(queue.id)).toHaveLength(0);
+		const queued = await store.getSchedule(queue.id);
+		expect(queued.nextRunAt).toBeTruthy();
+
+		runner.running = [];
+		await scheduler.processDueSchedules(new Date());
+
+		expect(runner.tasks).toHaveLength(1);
+		expect((await store.listExecutions(queue.id))[0]?.status).toBe('taskCreated');
 	});
 
 	it('supports pause, resume, delete, run now, and lock recovery', async () => {
@@ -315,13 +347,41 @@ describe('CronSchedulerService', () => {
 		});
 	});
 
-	it('allows schedules without permission grants and rejects non-agent task types', async () => {
+	it('requires permissions, owner scope, and confirmation before saving schedules', async () => {
 		const { scheduler } = makeScheduler();
 		await expect(
 			scheduler.createSchedule(request(), { ...actor, permissions: [] })
+		).rejects.toThrow(/Missing cron permission: createSchedule/);
+		await expect(
+			scheduler.createSchedule(request({ ownerUserId: 'user-2' }), actor)
+		).rejects.toThrow(/owner does not match/);
+		await expect(
+			scheduler.createSchedule(request({ requiredPermissions: ['scheduleNetworkAccess'] }), actor)
+		).rejects.toThrow(/Missing cron permission: scheduleNetworkAccess/);
+		await expect(
+			scheduler.createSchedule(request({ requiresConfirmation: true }), actor)
+		).rejects.toThrow(/requires confirmation/);
+		await expect(
+			scheduler.createSchedule(request({ requiresConfirmation: true, confirmed: true }), actor)
 		).resolves.toMatchObject({
 			taskType: AGENT_TASK_TYPE,
 		});
+	});
+
+	it('enforces owner scope for schedule reads and mutations', async () => {
+		const { scheduler } = makeScheduler();
+		const schedule = await scheduler.createSchedule(request(), actor);
+		const otherActor: CronActorContext = { ...actor, userId: 'user-2' };
+
+		await expect(scheduler.getSchedule(schedule.id, otherActor)).rejects.toThrow(/owned by another/);
+		await expect(scheduler.runScheduleNow(schedule.id, otherActor)).rejects.toThrow(
+			/owned by another/
+		);
+		await expect(scheduler.listSchedules({}, otherActor)).resolves.toEqual([]);
+	});
+
+	it('rejects non-agent task types', async () => {
+		const { scheduler } = makeScheduler();
 		await expect(
 			scheduler.createSchedule(
 				request({ taskType: 'email.send', requiresConfirmation: true }),
