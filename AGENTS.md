@@ -36,7 +36,7 @@ When editing existing code:
 - Match existing style, even if you'd do it differently.
 - Don't add code comments unless the user explicitly asks for them.
 - If you notice unrelated dead code, mention it - don't delete it.
-- When implementing a new feature, patch the existing code path in place; do not create or run migrations unless explicitly requested.
+- When implementing a new feature, do not use patch-style or workaround implementations; implement the requested behavior directly in the relevant code, and do not create or run migrations unless explicitly requested.
 
 When your changes create orphans:
 - Remove imports/variables/functions that YOUR changes made unused.
