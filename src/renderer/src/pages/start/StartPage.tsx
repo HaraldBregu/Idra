@@ -807,7 +807,7 @@ const StartPage: React.FC = () => {
 									<div
 										className={cn(
 											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
-											editing && 'pb-2'
+											editing && 'border-b border-border/60 pb-2'
 										)}
 									>
 										<Avatar className="size-8 rounded-md border border-border bg-background">
@@ -884,6 +884,11 @@ const StartPage: React.FC = () => {
 												disabled={savingThisProvider}
 												onChange={(event) => {
 													handleProviderApiKeyChange(provider.id, event.target.value);
+												}}
+												onKeyDown={(event) => {
+													if (event.key === 'Enter' && canSaveProvider) {
+														void saveProviderEntry(provider.id);
+													}
 												}}
 												placeholder="API key"
 												spellCheck={false}
