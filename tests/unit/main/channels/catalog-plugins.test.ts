@@ -60,6 +60,25 @@ describe('catalog channel plugins', () => {
 		expect(parsed?.threadId).toBeUndefined();
 	});
 
+	it('round-trips channel-style targets that also carry a thread id', () => {
+		const slack = getPlugin('slack');
+		const target = {
+			channelId: 'slack' as const,
+			accountId: 'workspace',
+			targetId: '#ops',
+			threadId: 't1',
+			chatType: 'thread' as const,
+			raw: 'slack:workspace/#ops#t1',
+		};
+		const display = slack.messaging?.formatTargetDisplay(target);
+
+		expect(display).toBe('slack:workspace/#ops#t1');
+		expect(display && slack.messaging?.parseExplicitTarget(display)).toEqual({
+			...target,
+			raw: 'slack:workspace/#ops#t1',
+		});
+	});
+
 	it('normalizes inbound messages for any documented channel when a runtime is registered later', () => {
 		const slack = getPlugin('slack');
 		const normalized = slack.messaging?.normalizeInbound?.(

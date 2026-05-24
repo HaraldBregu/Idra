@@ -334,7 +334,7 @@ function splitAccountTarget(value: string): {
 }
 
 function splitThreadTarget(value: string): { targetId: string; threadId?: string } {
-	const hashIndex = value.indexOf('#');
+	const hashIndex = value.startsWith('#') ? value.indexOf('#', 1) : value.indexOf('#');
 	if (hashIndex <= 0 || hashIndex === value.length - 1) return { targetId: value.trim() };
 	return {
 		targetId: value.slice(0, hashIndex).trim(),
