@@ -146,6 +146,16 @@ const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		saveOperator: (provider, model) => window.app.saveMusicCreatorOperator(provider, model),
 	},
 ];
+type SetupStep = 'presentation' | 'providers' | ModelServiceId;
+
+const MODEL_SERVICE_STEP_IDS: readonly ModelServiceId[] = MODEL_SERVICE_DEFINITIONS.map(
+	(service) => service.id
+);
+const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', ...MODEL_SERVICE_STEP_IDS];
+
+function isModelStep(step: SetupStep): step is ModelServiceId {
+	return step !== 'presentation' && step !== 'providers';
+}
 
 function createInitialModelServiceState(): ModelServiceStateMap {
 	return MODEL_SERVICE_DEFINITIONS.reduce(
@@ -164,7 +174,6 @@ function createInitialModelServiceState(): ModelServiceStateMap {
 
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
-const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
 
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
