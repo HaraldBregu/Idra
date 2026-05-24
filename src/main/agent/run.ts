@@ -386,6 +386,11 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 
 			try {
+				await fireLlmInputHook({
+					...hookContext,
+					messages: session.transcript,
+					systemPrompt: systemPromptForTurn,
+				});
 				for await (const event of provider.stream({
 					model,
 					effort,
@@ -464,6 +469,11 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 							break;
 					}
 				}
+				await fireLlmOutputHook({
+					...hookContext,
+					stopReason: turnStop,
+					outputTokens: iterUsage.outputTokens,
+				});
 			} catch (err) {
 				if (err instanceof ContextOverflowError && !didCompact) {
 					didCompact = true;
