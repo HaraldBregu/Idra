@@ -110,4 +110,30 @@ describe('PromptInput', () => {
 		expect(onSpeechToText).toHaveBeenCalledTimes(1);
 		expect(onVoiceConversation).not.toHaveBeenCalled();
 	});
+
+	it('hides the voice conversation action when the submit action is shown', () => {
+		render(
+			<PromptInput
+				value="typed prompt"
+				onValueChange={jest.fn()}
+				leadingAction={<button type="button">Attach</button>}
+				actions={
+					<PromptInputActions>
+						<PromptInputVoiceActions
+							speechToTextMode="record"
+							onSpeechToText={jest.fn()}
+							showVoiceConversation={false}
+						/>
+						<button type="button">Send message</button>
+					</PromptInputActions>
+				}
+			>
+				<PromptInputTextarea aria-label="Message Friday" />
+			</PromptInput>
+		);
+
+		expect(screen.queryByRole('button', { name: 'Start voice conversation' })).not.toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Record speech to text' })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Send message' })).toBeInTheDocument();
+	});
 });

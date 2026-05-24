@@ -640,6 +640,7 @@ export type PromptInputVoiceActionsProps = {
   speechToTextDisabled?: boolean
   onVoiceConversation?: () => void | Promise<void>
   voiceConversationDisabled?: boolean
+  showVoiceConversation?: boolean
 }
 
 function PromptInputVoiceActions({
@@ -648,6 +649,7 @@ function PromptInputVoiceActions({
   speechToTextDisabled,
   onVoiceConversation,
   voiceConversationDisabled = true,
+  showVoiceConversation = true,
 }: PromptInputVoiceActionsProps) {
   const speechToTextLabel = SPEECH_TO_TEXT_ACTION_LABELS[speechToTextMode]
   const isSpeechToTextDisabled =
@@ -679,19 +681,21 @@ function PromptInputVoiceActions({
           <Mic className="size-4" />
         </Button>
       </PromptInputAction>
-      <PromptInputAction tooltip={voiceConversationLabel}>
-        <Button
-          type="button"
-          variant="default"
-          size="icon"
-          className="size-9 overflow-hidden rounded-full bg-foreground text-background hover:bg-foreground/90"
-          aria-label={voiceConversationLabel}
-          disabled={voiceConversationDisabled}
-          onClick={handleVoiceConversation}
-        >
-          <AudioLines className="size-4" />
-        </Button>
-      </PromptInputAction>
+      {showVoiceConversation ? (
+        <PromptInputAction tooltip={voiceConversationLabel}>
+          <Button
+            type="button"
+            variant="default"
+            size="icon"
+            className="size-9 overflow-hidden rounded-full bg-foreground text-background hover:bg-foreground/90"
+            aria-label={voiceConversationLabel}
+            disabled={voiceConversationDisabled}
+            onClick={handleVoiceConversation}
+          >
+            <AudioLines className="size-4" />
+          </Button>
+        </PromptInputAction>
+      ) : null}
     </>
   )
 }

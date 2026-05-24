@@ -291,6 +291,7 @@ function PageContent(): ReactElement {
 		!agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0;
+	const showVoiceConversation = !canSubmit && !agent.isLoading;
 	const dictationStatus = dictation.status;
 	const cancelDictationSession = dictation.cancel;
 	const dictationBusy =
@@ -467,6 +468,7 @@ function PageContent(): ReactElement {
 										speechToTextDisabled={dictationBusy || agent.isLoading}
 										onVoiceConversation={startVoiceConversation}
 										voiceConversationDisabled
+										showVoiceConversation={showVoiceConversation}
 									/>
 									<SubmitButton
 										isLoading={agent.isLoading}
