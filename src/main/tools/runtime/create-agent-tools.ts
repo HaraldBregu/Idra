@@ -62,6 +62,8 @@ export type CreateAgentToolsOptions = {
 	abortSignal?: AbortSignal;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
+	includeCoreTools?: boolean;
+	hostTools?: AgentTool[];
 	pluginRegistry?: PluginToolRegistry;
 	mcpRuntime?: McpRuntime;
 	lspRuntime?: LspRuntime;
@@ -185,7 +187,10 @@ async function buildToolCandidates(
 ): Promise<AgentTool[]> {
 	const candidates: AgentTool[] = [];
 
-	addCoreToolCandidates(candidates, options, plan, diagnostics);
+	if (options.includeCoreTools !== false) {
+		addCoreToolCandidates(candidates, options, plan, diagnostics);
+	}
+	addHostToolCandidates(candidates, options);
 	await addPluginToolCandidates(candidates, options, plan, diagnostics);
 	await addMcpToolCandidates(candidates, options, plan, diagnostics);
 	await addLspToolCandidates(candidates, options, plan);
@@ -222,6 +227,13 @@ function addCoreToolCandidates(
 			reason: 'sandbox disallows shell tools',
 		});
 	}
+}
+
+function addHostToolCandidates(
+	candidates: AgentTool[],
+	options: CreateAgentToolsOptions
+): void {
+	candidates.push(...(options.hostTools ?? []));
 }
 
 async function addPluginToolCandidates(

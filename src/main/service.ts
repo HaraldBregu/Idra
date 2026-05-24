@@ -28,6 +28,11 @@ import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
+import { createAgentTools } from './tools/create-agent-tools';
+import {
+	canonicalToolToLegacy,
+	legacyToolToCanonical,
+} from './tools/runtime/legacy-bridge';
 import { startupFilesTool } from './tools/startup';
 import {
 	selectAgentToolsForTurn,
@@ -66,12 +71,46 @@ function toolAllowPatternMatches(pattern: string, name: string): boolean {
 	return re.test(name);
 }
 
+function toolAllowGroupMatches(pattern: string, name: string): boolean {
+	switch (pattern) {
+		case 'group:file':
+			return [
+				'read',
+				'write',
+				'edit',
+				'apply_patch',
+				'delete',
+				'copy',
+				'move',
+				'inspect_file',
+				'find',
+				'startup_files',
+			].includes(name);
+		case 'group:shell':
+			return name === 'exec' || name === 'process';
+		case 'group:web':
+			return name === 'web_fetch' || name === 'browser' || name === 'open_browser';
+		case 'group:mcp':
+			return name.startsWith('mcp_');
+		case 'group:lsp':
+			return name.startsWith('lsp_');
+		case 'group:plugins':
+			return name.startsWith('plugin_') || name.startsWith('plugin:');
+		default:
+			return false;
+	}
+}
+
 function filterToolsByAllowlist(tools: AgentTool[], allowlist?: string[]): AgentTool[] {
 	if (!allowlist) return tools;
 	const patterns = allowlist.map((entry) => entry.trim()).filter(Boolean);
 	if (patterns.length === 0) return [];
 	return tools.filter((tool) =>
-		patterns.some((pattern) => toolAllowPatternMatches(pattern, tool.name))
+		patterns.some(
+			(pattern) =>
+				toolAllowPatternMatches(pattern, tool.name) ||
+				toolAllowGroupMatches(pattern, tool.name)
+		)
 	);
 }
 
@@ -98,6 +137,8 @@ export interface AgentToolsFactoryContext {
 	session: SessionFile;
 	signal: AbortSignal;
 	services: AgentServiceDependencies;
+	toolContext: ToolContext;
+	toolsAllow?: string[];
 }
 
 export type AgentToolsFactory = (
@@ -183,6 +224,7 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
+	private readonly usesDefaultToolsFactory: boolean;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
@@ -194,16 +236,35 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.toolsFactory =
-			options.toolsFactory ??
-			(() => [
-				...createTools({ profile: 'full', allow: [], deny: DEFAULT_LOCAL_TOOL_DENY }),
-				...(this.dependencies.connectors?.createAgentTools() ?? []),
-			]);
+		this.usesDefaultToolsFactory = !options.toolsFactory;
+		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
+	}
+
+	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
+		const legacyHostTools = [
+			...createTools({ profile: 'full', allow: [], deny: DEFAULT_LOCAL_TOOL_DENY }),
+			...(this.dependencies.connectors?.createAgentTools() ?? []),
+		];
+		const runtime = await createAgentTools({
+			workspaceDir: context.workspace,
+			agentId: context.agentId,
+			sessionId: context.session.id,
+			runId: context.runId,
+			provider: context.providerId,
+			modelId: context.model,
+			abortSignal: context.signal,
+			toolsAllow: context.toolsAllow,
+			includeCoreTools: false,
+			hostTools: legacyHostTools.map((tool) =>
+				legacyToolToCanonical(tool, context.toolContext)
+			),
+			config: { toolSearch: { enabled: false } },
+		});
+		return runtime.tools.map(canonicalToolToLegacy);
 	}
 
 	async send(
@@ -329,6 +390,8 @@ export class AgentService {
 							session: runtime.session!,
 							signal: abort.signal,
 							services: this.dependencies,
+							toolContext: ctx,
+							toolsAllow: options.toolsAllow,
 						})
 					)
 				);
@@ -343,9 +406,11 @@ export class AgentService {
 					isPrimaryRun &&
 					!baseTools.some((tool) => tool.name === startupFilesTool.name)
 				) {
-					baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
+						baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
+					}
+				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
+					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 				}
-				baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 
 				if (!bootstrapPending && this.dependencies.skills) {
 					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>

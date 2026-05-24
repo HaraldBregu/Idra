@@ -22,6 +22,8 @@ import { PluginToolRegistry } from '../../../../src/main/plugins/tool-registry';
 import { safeMcpToolName, materializeMcpTools, normalizeMcpResult } from '../../../../src/main/tools/external/mcp-tools';
 import { materializeLspTools } from '../../../../src/main/tools/external/lsp-tools';
 import { applyToolSearchCompaction } from '../../../../src/main/tools/tool-search';
+import { canonicalToolToLegacy, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
+import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
 import { makeTempDir } from '../test-helpers';
 
 function tool(name: string, overrides: Partial<AgentTool> = {}): AgentTool {
@@ -293,6 +295,52 @@ describe('canonical agent tool runtime', () => {
 		expect(pluginFactory).not.toHaveBeenCalled();
 		expect(result.diagnostics.builtTools).toContain('read');
 		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('accepts host tools without materializing duplicate built-ins', async () => {
+		const workspace = await makeTempDir();
+		const result = await createAgentTools({
+			workspaceDir: workspace,
+			includeCoreTools: false,
+			hostTools: [tool('host_lookup')],
+		});
+		expect(result.tools.map((entry) => entry.name)).toEqual(['host_lookup']);
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('round-trips legacy host tools through the canonical runtime shape', async () => {
+		const toolContext = {
+			workspace: '/workspace',
+			sessionId: 'session-1',
+			readState: new Map(),
+			plan: { entries: [] },
+			approvalRequired: new Set(),
+			approvalCache: new Set(),
+			services: {} as never,
+		} as ToolContext;
+		const legacyTool: LegacyAgentTool = {
+			name: 'legacy_write',
+			description: 'Legacy write tool.',
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			needsApproval: true,
+			execute: jest.fn(async () => ({
+				status: 'error',
+				content: [{ type: 'text', text: 'blocked' }],
+				details: { code: 'blocked' },
+			})),
+		};
+
+		const canonical = legacyToolToCanonical(legacyTool, toolContext);
+		const roundTripped = canonicalToolToLegacy(canonical);
+		const result = await roundTripped.execute({ value: 1 }, toolContext);
+
+		expect(roundTripped.needsApproval).toBe(true);
+		expect(result.status).toBe('error');
+		expect(result.details).toMatchObject({ status: 'error', code: 'blocked' });
+		expect(legacyTool.execute).toHaveBeenCalledWith(
+			{ value: 1 },
+			expect.objectContaining({ sessionId: 'session-1' })
+		);
 	});
 
 	it('passes fs workspace policy to built-in tools and removes write-capable tools in read-only sandboxes', async () => {
