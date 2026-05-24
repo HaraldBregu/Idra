@@ -1094,7 +1094,7 @@ const StartPage: React.FC = () => {
 				</div>
 
 				<div className="mt-4 space-y-2">
-					{actionableProviderCatalog.map((provider) => {
+					{actionableProviderCatalog.map((provider, index) => {
 						const entry = providerEntries.find((item) => item.providerId === provider.id);
 						const connected = entry?.apiKeySaved ?? false;
 						const editing = entry?.editing ?? false;
