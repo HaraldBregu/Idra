@@ -61,6 +61,7 @@ import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
+import { createSessionsSpawnTool, type SubagentSpawnPort } from './agent/subagents';
 
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
@@ -128,6 +129,7 @@ export interface AgentServiceDependencies {
 	mcpRegistry?: McpRegistry;
 	skills?: SkillsService;
 	taskManager?: TaskManager;
+	subagents?: SubagentSpawnPort;
 }
 
 export interface AgentToolsFactoryContext {
@@ -142,6 +144,7 @@ export interface AgentToolsFactoryContext {
 	toolContext: ToolContext;
 	toolPolicy?: AgentToolPolicy;
 	toolsAllow?: string[];
+	toolsDeny?: string[];
 }
 
 export type AgentToolsFactory = (
@@ -167,6 +170,7 @@ export interface AgentSendOptions {
 	agentHarnessId?: string;
 	lightContext?: boolean;
 	toolsAllow?: string[];
+	toolsDeny?: string[];
 	sessionMetadata?: Partial<AgentSessionMetadata>;
 	heartbeat?: {
 		model?: string;
@@ -255,11 +259,18 @@ export class AgentService {
 				profile: toolPolicy?.profile ?? 'full',
 				allow: toolPolicy?.allow ?? [],
 				alsoAllow: toolPolicy?.alsoAllow,
-				deny: [...DEFAULT_LOCAL_TOOL_DENY, ...(toolPolicy?.deny ?? [])],
+				deny: [
+					...DEFAULT_LOCAL_TOOL_DENY,
+					...(toolPolicy?.deny ?? []),
+					...(context.toolsDeny ?? []),
+				],
 				fs: toolPolicy?.fs,
 				exec: toolPolicy?.exec,
 			}),
 			...(this.dependencies.connectors?.createAgentTools() ?? []),
+			...(this.dependencies.subagents
+				? [createSessionsSpawnTool(this.dependencies.subagents)]
+				: []),
 		];
 		const toolRuntimeConfig =
 			toolPolicy?.fs || toolPolicy?.exec
@@ -280,7 +291,7 @@ export class AgentService {
 			modelId: context.model,
 			abortSignal: context.signal,
 			toolsAllow: context.toolsAllow,
-			toolsDeny: toolPolicy?.deny,
+			toolsDeny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
 			includeCoreTools: false,
 			hostTools: legacyHostTools.map((tool) => legacyToolToRuntimeTool(tool, context.toolContext)),
 			config: toolRuntimeConfig,
@@ -417,6 +428,7 @@ export class AgentService {
 							toolContext: ctx,
 							toolPolicy: agentConfig?.tools,
 							toolsAllow: options.toolsAllow,
+							toolsDeny: options.toolsDeny,
 						})
 					)
 				);

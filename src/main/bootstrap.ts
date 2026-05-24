@@ -20,6 +20,7 @@ import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { SkillsService } from './skills';
 import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
+import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
@@ -121,7 +122,9 @@ export function bootstrapServices(): BootstrapResult {
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();
+	const subagentRegistry = new SubagentRegistry();
 	taskRegistry.register(new AgentTaskHandler(agentService, store), { userFacing: true });
+	taskRegistry.register(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
 	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({
@@ -132,6 +135,13 @@ export function bootstrapServices(): BootstrapResult {
 		})
 	);
 	agentDependencies.taskManager = taskManager;
+	agentDependencies.subagents = new SubagentSpawnService({
+		store,
+		taskManager,
+		registry: subagentRegistry,
+		eventBus,
+		logger,
+	});
 	cron.configureTaskRuntime({ taskManager });
 	const channelRegistry = container.register(
 		'channelRegistry',
