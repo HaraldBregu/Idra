@@ -191,7 +191,6 @@ function createInitialModelServiceState(): ModelServiceStateMap {
 }
 
 
-const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
 
 const STEP_COPY: Record<'presentation' | 'providers', { title: string; description: string }> = {
