@@ -39,19 +39,16 @@ export function AgentActivityPanel({
 	);
 
 	return (
-		<div className="flex w-full flex-col">
-			<div className="flex w-full flex-col">
-				{hasTools ? (
-					<AgentToolActivity
-						tools={message.tools}
-						className="w-full"
-					/>
-				) : (
-					<span className={statusClassName}>
-						{labelContent}
-					</span>
-				)}
-			</div>
+		<div className="flex w-full flex-col gap-2">
+			<span className={statusClassName}>
+				{labelContent}
+			</span>
+			{hasTools && (
+				<AgentToolActivity
+					tools={message.tools}
+					className="w-full"
+				/>
+			)}
 			{message.errorText && (
 				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
 					{message.errorText}
