@@ -39,4 +39,3 @@ OpenClaw also has a separate `active-memory` plugin. It is not the storage
 backend. It is a proactive recall layer that runs a small blocking sub-agent
 before eligible chat replies and injects a hidden untrusted memory summary into
 the next prompt.
-

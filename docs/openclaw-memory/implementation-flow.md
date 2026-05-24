@@ -304,4 +304,3 @@ availability, cache state, batch state, fallback info, and source counts.
 The CLI and doctor surfaces reuse the same manager path, so status, index, and
 search commands exercise the runtime backend rather than a separate
 implementation.
-

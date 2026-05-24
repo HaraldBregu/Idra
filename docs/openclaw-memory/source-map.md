@@ -161,4 +161,3 @@ Memory embedding adapters are implemented by provider plugins, for example:
 The active memory engine consumes all of them through the adapter contract in
 `src/plugins/memory-embedding-providers.ts` and
 `packages/memory-host-sdk/src/host/openclaw-runtime-memory.ts`.
-
