@@ -42,6 +42,11 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
+		id: 'memory',
+		titleKey: 'settings.overview.groups.memory',
+		paths: ['/settings/memory', '/settings/rag', '/settings/wiki'],
+	},
+	{
 		id: 'automations',
 		titleKey: 'settings.overview.groups.automations',
 		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager', '/settings/monitoring'],

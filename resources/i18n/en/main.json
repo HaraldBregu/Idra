@@ -151,6 +151,7 @@
 				"general": "General setup",
 				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",
+				"memory": "Memory",
 				"automations": "Automations"
 			},
 			"descriptions": {
@@ -160,6 +161,9 @@
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
+				"memory": "Saved memory files",
+				"rag": "Retrieval memory",
+				"wiki": "Workspace wiki",
 				"providers": "AI API keys",
 				"cron": "Task scheduler",
 				"taskManager": "Background tasks",
@@ -184,6 +188,9 @@
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"monitoring": "Monitoring",
+			"memory": "Memory",
+			"rag": "RAG",
+			"wiki": "Wiki",
 			"developer": "Developer",
 			"skills": "Skills"
 		},
@@ -469,6 +476,38 @@
 			"detailsTitle": "Connector Details",
 			"notFoundTitle": "Connector not found",
 			"notFoundDescription": "The connector may have been removed."
+		},
+		"memory": {
+			"sectionTitle": "Memory",
+			"description": "Saved workspace and chat memory files.",
+			"ragDescription": "Retrieval documents used for agent grounding.",
+			"wikiDescription": "Workspace wiki documents available to Friday.",
+			"detailsTitle": "Memory file",
+			"fileCount": "{{count}} files",
+			"updatedAt": "Updated {{time}} · {{size}}",
+			"readWindow": "{{lines}} of {{total}} lines loaded",
+			"emptyFile": "This file is empty.",
+			"emptyTitle": "No memory files",
+			"emptyDescription": "Memory files will appear here after Friday stores workspace or chat memory.",
+			"ragEmptyTitle": "No RAG files",
+			"ragEmptyDescription": "RAG files will appear here after retrieval documents are added.",
+			"wikiEmptyTitle": "No wiki files",
+			"wikiEmptyDescription": "Wiki files will appear here after wiki documents are added.",
+			"notFoundTitle": "Memory file not found",
+			"notFoundDescription": "The memory file may have been removed.",
+			"scope": {
+				"global": "Global",
+				"chat": "Chat {{scopeId}}"
+			},
+			"actions": {
+				"refresh": "Refresh",
+				"loadMore": "Load more"
+			},
+			"errors": {
+				"load": "Could not load memory files.",
+				"read": "Could not read memory file.",
+				"missingPath": "No memory file was selected."
+			}
 		},
 		"cron": {
 			"columns": {

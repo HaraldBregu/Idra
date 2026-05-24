@@ -151,6 +151,7 @@
 				"general": "Configurazione generale",
 				"aiAgents": "Agenti AI",
 				"aiFeatures": "Funzionalita AI",
+				"memory": "Memory",
 				"automations": "Automazioni"
 			},
 			"descriptions": {
@@ -160,6 +161,9 @@
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
+				"memory": "File di memoria salvati",
+				"rag": "Memoria retrieval",
+				"wiki": "Wiki workspace",
 				"providers": "Chiavi API AI",
 				"cron": "Pianificatore attivita",
 				"taskManager": "Attivita in background",
@@ -184,6 +188,9 @@
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"monitoring": "Monitoraggio",
+			"memory": "Memory",
+			"rag": "RAG",
+			"wiki": "Wiki",
 			"developer": "Sviluppatore",
 			"skills": "Abilità"
 		},
@@ -469,6 +476,38 @@
 			"detailsTitle": "Dettagli Connettore",
 			"notFoundTitle": "Connettore non trovato",
 			"notFoundDescription": "Il connettore potrebbe essere stato rimosso."
+		},
+		"memory": {
+			"sectionTitle": "Memory",
+			"description": "File salvati di memoria workspace e chat.",
+			"ragDescription": "Documenti retrieval usati per il grounding degli agenti.",
+			"wikiDescription": "Documenti wiki del workspace disponibili a Friday.",
+			"detailsTitle": "File memoria",
+			"fileCount": "{{count}} file",
+			"updatedAt": "Aggiornato {{time}} · {{size}}",
+			"readWindow": "{{lines}} di {{total}} righe caricate",
+			"emptyFile": "Questo file e vuoto.",
+			"emptyTitle": "Nessun file memoria",
+			"emptyDescription": "I file memoria appariranno qui dopo che Friday salva memoria workspace o chat.",
+			"ragEmptyTitle": "Nessun file RAG",
+			"ragEmptyDescription": "I file RAG appariranno qui dopo l'aggiunta di documenti retrieval.",
+			"wikiEmptyTitle": "Nessun file wiki",
+			"wikiEmptyDescription": "I file wiki appariranno qui dopo l'aggiunta di documenti wiki.",
+			"notFoundTitle": "File memoria non trovato",
+			"notFoundDescription": "Il file memoria potrebbe essere stato rimosso.",
+			"scope": {
+				"global": "Globale",
+				"chat": "Chat {{scopeId}}"
+			},
+			"actions": {
+				"refresh": "Aggiorna",
+				"loadMore": "Carica altro"
+			},
+			"errors": {
+				"load": "Impossibile caricare i file memoria.",
+				"read": "Impossibile leggere il file memoria.",
+				"missingPath": "Nessun file memoria selezionato."
+			}
 		},
 		"cron": {
 			"columns": {

@@ -20,6 +20,14 @@ interface SettingsBreadcrumbItem {
 	readonly path?: string;
 }
 
+function getFileLabelFromSearch(search: string): string | null {
+	const filePath = new URLSearchParams(search).get('path')?.trim();
+	if (!filePath) return null;
+	const normalized = filePath.replace(/\\/g, '/');
+	const parts = normalized.split('/').filter(Boolean);
+	return parts[parts.length - 1] ?? filePath;
+}
+
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
@@ -123,6 +131,15 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	if (location.pathname.startsWith('/settings/task-manager/taskdetails/')) {
 		items[0] = { ...items[0], path: current.path };
 		items.push({ label: t('settings.taskManager.detailsTitle') });
+	}
+
+	if (
+		location.pathname.startsWith('/settings/memory/details') ||
+		location.pathname.startsWith('/settings/rag/details') ||
+		location.pathname.startsWith('/settings/wiki/details')
+	) {
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: getFileLabelFromSearch(location.search) ?? t('settings.memory.detailsTitle') });
 	}
 
 	return items;

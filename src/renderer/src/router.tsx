@@ -33,6 +33,12 @@ const ChatHistoryPage = lazy(() => import('./pages/settings/pages/operators/deta
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
+const MemoryPage = lazy(() => import('./pages/settings/pages/memory/Page'));
+const MemoryDetailsPage = lazy(() => import('./pages/settings/pages/memory/details/Page'));
+const RagPage = lazy(() => import('./pages/settings/pages/rag/Page'));
+const RagDetailsPage = lazy(() => import('./pages/settings/pages/rag/details/Page'));
+const WikiPage = lazy(() => import('./pages/settings/pages/wiki/Page'));
+const WikiDetailsPage = lazy(() => import('./pages/settings/pages/wiki/details/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
 const TaskManagerPage = lazy(() => import('./pages/settings/pages/task-manager/Page'));
@@ -263,6 +269,69 @@ const routes: RouteObject[] = [
 								<ProvidersPage />
 							</SettingsRouteWrapper>
 						),
+					},
+					{
+						path: 'memory',
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<MemoryPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'details',
+								element: (
+									<SettingsRouteWrapper>
+										<MemoryDetailsPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
+					},
+					{
+						path: 'rag',
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<RagPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'details',
+								element: (
+									<SettingsRouteWrapper>
+										<RagDetailsPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
+					},
+					{
+						path: 'wiki',
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<WikiPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'details',
+								element: (
+									<SettingsRouteWrapper>
+										<WikiDetailsPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'cron',
