@@ -1125,6 +1125,14 @@ const StartPage: React.FC = () => {
 												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
 													{provider.name}
 												</h2>
+												{index === 0 && !connected ? (
+													<Badge
+														variant="secondary"
+														className="h-4 shrink-0 rounded px-1.5 text-[10px] font-semibold"
+													>
+														Recommended
+													</Badge>
+												) : null}
 												<Button
 													type="button"
 													variant="ghost"
