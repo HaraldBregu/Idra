@@ -34,6 +34,13 @@ export function ModelServiceStep({
 		serviceState.modelGroups.find((g) => g.provider.id === serviceState.providerId)?.models ?? [];
 	const noModels = !loadingModels && serviceState.modelGroups.length === 0;
 
+	const selectedProviderLabel = serviceState.providerId
+		? getProviderCatalogItem(serviceState.providerId).name
+		: undefined;
+	const selectedModelLabel = serviceState.modelId
+		? (availableModels.find((m) => m.id === serviceState.modelId)?.name ?? undefined)
+		: undefined;
+
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 			<div className="mb-6 flex size-11 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground">
