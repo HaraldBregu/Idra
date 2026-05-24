@@ -1007,6 +1007,37 @@ const StartPage: React.FC = () => {
 		return isBusy;
 	}
 
+	function renderPrimaryButton(): React.JSX.Element {
+		const button = (
+			<Button
+				type="button"
+				size="sm"
+				disabled={isPrimaryDisabled()}
+				onClick={handlePrimaryAction}
+			>
+				{savingProviderId !== null || savingConfig ? (
+					<LoaderCircle className="size-3.5 animate-spin" />
+				) : (
+					<ArrowRight className="size-3.5" />
+				)}
+				{getPrimaryLabel()}
+			</Button>
+		);
+
+		if (step === 'providers' && !canContinueProviders) {
+			return (
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger render={<span className="inline-flex">{button}</span>} />
+						<TooltipContent>Add and save at least one API key to continue.</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			);
+		}
+
+		return button;
+	}
+
 	function renderPresentationStep(): React.JSX.Element {
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
