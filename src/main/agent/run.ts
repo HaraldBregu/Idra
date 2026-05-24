@@ -256,11 +256,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		...input.toolManagement,
 		executor: managedExecutor,
 	};
-	const toolSelection = selectAgentToolsForTurn(tools, userMessage, ctx, toolManagement);
-	const toolsForPrompt = prepareLegacyToolsForProvider(toolSelection.toolsForPrompt, ctx, {
+	const providerTools = prepareLegacyToolsForProvider(tools, ctx, {
 		provider: input.providerId,
 		modelId: model,
 	});
+	const toolSelection = selectAgentToolsForTurn(providerTools, userMessage, ctx, toolManagement);
+	const toolsForPrompt = toolSelection.toolsForPrompt;
 	const systemPromptForTurn = toolSelection.systemPromptSuffix
 		? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
 		: systemPrompt;
