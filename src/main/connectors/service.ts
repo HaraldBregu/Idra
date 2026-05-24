@@ -65,11 +65,11 @@ interface ConnectorsServiceOptions {
 	googleOAuthClientSecret?: string;
 }
 
-type ConnectorToolStrategy = (
-	connector: ConnectorConfig,
-	name: string,
-	args: unknown
-) => Promise<unknown>;
+interface ConnectorRuntimeStrategy {
+	readonly connectorId: OpenAiConnectorId;
+	listTools(connector: ConnectorConfig): ConnectorTool[];
+	callTool(connector: ConnectorConfig, name: string, args: unknown): Promise<unknown>;
+}
 
 function serverLabelFromName(name: string): string {
 	return name
@@ -213,12 +213,22 @@ function sanitizeInput(input: unknown): ConnectorInput {
 }
 
 export class ConnectorsService {
-	private readonly toolStrategies: Partial<Record<OpenAiConnectorId, ConnectorToolStrategy>> = {
-		connector_gmail: (connector, name, args) => this.callGmailTool(connector, name, args),
-		connector_googlecalendar: (connector, name, args) =>
-			this.callGoogleCalendarTool(connector, name, args),
-		connector_googledrive: (connector, name, args) =>
-			this.callGoogleDriveTool(connector, name, args),
+	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> = {
+		connector_gmail: {
+			connectorId: 'connector_gmail',
+			listTools: knownTools,
+			callTool: (connector, name, args) => this.callGmailTool(connector, name, args),
+		},
+		connector_googlecalendar: {
+			connectorId: 'connector_googlecalendar',
+			listTools: knownTools,
+			callTool: (connector, name, args) => this.callGoogleCalendarTool(connector, name, args),
+		},
+		connector_googledrive: {
+			connectorId: 'connector_googledrive',
+			listTools: knownTools,
+			callTool: (connector, name, args) => this.callGoogleDriveTool(connector, name, args),
+		},
 	};
 
 	constructor(
@@ -332,11 +342,14 @@ export class ConnectorsService {
 		const status = statusFor(connector);
 
 		if (status === 'configured') {
+			const runtime = this.runtimeFor(connector);
 			return {
 				status,
-				message: isGoogleConnector(connector.connectorId)
+				message: runtime
+					? `Connector is configured for local agent tool execution.`
+					: isGoogleConnector(connector.connectorId)
 					? `Google connector is connected${connector.oauth?.email ? ` as ${connector.oauth.email}` : ''}.`
-					: 'Connector is configured for Responses API requests.',
+					: 'Connector is configured for catalog/provider-hosted use. Local agent execution is not implemented.',
 			};
 		}
 
@@ -442,17 +455,24 @@ export class ConnectorsService {
 		if (statusFor(connector) !== 'configured') {
 			throw new Error(`Connector is not configured: ${connector.name}`);
 		}
+		const strategy = this.runtimeFor(connector);
+		if (!strategy) {
+			throw new Error(`Connector is catalog-only in local runtime: ${connector.connectorId}.`);
+		}
 		if (!connector.tools.some((tool) => tool.name === name)) {
 			throw new Error(`Tool ${name} is not enabled for ${connector.name}.`);
 		}
-		const strategy = this.toolStrategies[connector.connectorId];
-		if (strategy) return strategy(connector, name, args);
-		throw new Error(`Local execution is not implemented for ${connector.connectorId}.`);
+		return strategy.callTool(connector, name, args);
 	}
 
 	createAgentTools(): AgentTool[] {
 		return this.validConnectors()
-			.filter((connector) => connector.enabled && statusFor(connector) === 'configured')
+			.filter(
+				(connector) =>
+					connector.enabled &&
+					statusFor(connector) === 'configured' &&
+					this.runtimeFor(connector) !== undefined
+			)
 			.flatMap((connector) =>
 				connector.tools.map((tool) => {
 					const rawToolName = tool.name;
@@ -480,11 +500,16 @@ export class ConnectorsService {
 	}
 
 	private withKnownTools(connector: ConnectorConfig): ConnectorConfig {
+		const runtime = this.runtimeFor(connector);
 		return {
 			...connector,
-			tools: knownTools(connector),
+			tools: runtime?.listTools(connector) ?? knownTools(connector),
 			lastRefreshedAt: new Date().toISOString(),
 		};
+	}
+
+	private runtimeFor(connector: ConnectorConfig): ConnectorRuntimeStrategy | undefined {
+		return this.runtimeStrategies[connector.connectorId];
 	}
 
 	private validConnectors(): ConnectorConfig[] {
