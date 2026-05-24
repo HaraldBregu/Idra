@@ -22,10 +22,12 @@ import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
-import { buildAgentHookContext } from './agent/harness/hook-context';
-import { fireBeforePromptBuildHook } from './agent/harness/prompt-compaction-hook-helpers';
-import { runAgentHarnessAttempt } from './agent/harness/selection';
-import { resetRegisteredAgentHarnesses } from './agent/harness/registry';
+import {
+	buildAgentHookContext,
+	fireBeforePromptBuildHook,
+	resetRegisteredAgentHarnesses,
+	runAgentHarnessAttempt,
+} from './agent/harness';
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
