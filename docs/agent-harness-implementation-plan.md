@@ -1,5 +1,7 @@
 # Friday Agent Harness Implementation Plan (based on OpenClaw reference)
 
+Status: historical rollout plan. The harness implementation has since landed in source; see `docs/agent-harness-implementation-progress.md` and `docs/features/plugins-and-agent-harnesses.md` for the current source-backed behavior and remaining gaps.
+
 ## Goal
 Implement a plugin-selectable agent execution harness layer in Friday’s `src/main` using OpenClaw’s `AgentHarness` architecture as a template.
 

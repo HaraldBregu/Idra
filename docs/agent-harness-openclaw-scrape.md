@@ -3,6 +3,8 @@
 Scraped from `/Users/haraldbregu/Documents/analyze/openclaw` on 2026-05-23.
 Cross-referenced against Friday's existing harness implementation.
 
+Status: historical scrape and gap plan. Several gap items below have since been closed; use `docs/agent-harness-implementation-progress.md` and `docs/features/plugins-and-agent-harnesses.md` as the current source of truth.
+
 ---
 
 ## 1. OpenClaw Harness Architecture (scraped)
@@ -93,7 +95,7 @@ Incoming `details` on raw tool results is sanitized (cycle-safe JSON round-trip)
 
 ---
 
-## 2. Friday Current State
+## 2. Friday State At Initial Scrape
 
 ### Implemented (complete)
 
@@ -110,7 +112,7 @@ Incoming `details` on raw tool results is sanitized (cycle-safe JSON round-trip)
 | Store runtime preference accessors | Done — `store/service.ts` |
 | Reset + dispose lifecycle hooks | Done — wired in `service.ts` and `bootstrap.ts` |
 
-### Gaps vs OpenClaw
+### Initial Gaps vs OpenClaw
 
 #### G-1 — `registry.ts` import bug (immediate fix)
 `resetRegisteredAgentHarnesses` uses `AgentHarnessResetParams` but the type is not imported.
