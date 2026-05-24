@@ -7,6 +7,7 @@ import {
 	type TaskEvent,
 	type TaskHandler,
 } from '../../../../src/shared/tasks';
+import type { BackgroundTaskSettings } from '../../../../src/main/store/types';
 
 const logger = {
 	info: jest.fn(),
@@ -76,6 +77,26 @@ function createManager(...handlers: TaskHandler[]) {
 	return { manager, events };
 }
 
+function createManagerWithPolicy(policy: () => BackgroundTaskSettings, ...handlers: TaskHandler[]) {
+	let nextId = 1;
+	const registry = new TaskRegistry();
+	for (const handler of handlers) registry.register(handler);
+	const eventBus = new EventBus();
+	const events: TaskEvent[] = [];
+	for (const eventType of TASK_EVENT_TYPES) {
+		eventBus.on(eventType, (event) => events.push(event.payload as TaskEvent));
+	}
+	const manager = new TaskManager({
+		registry,
+		eventBus,
+		logger,
+		idFactory: () => `task-${nextId++}`,
+		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
+		policy,
+	});
+	return { manager, events };
+}
+
 function createManagerWithUserFacing(
 	userFacingHandlers: TaskHandler[],
 	internalHandlers: TaskHandler[] = [],
@@ -134,6 +155,68 @@ describe('TaskManager', () => {
 			status: 'succeeded',
 			result: 'first result',
 		});
+	});
+
+	it('uses defaultConcurrency to keep overflow tasks queued until capacity is available', async () => {
+		const handler = new ControlledHandler();
+		const { manager } = createManagerWithPolicy(() => ({ defaultConcurrency: 1 }), handler);
+
+		const first = manager.run({ type: handler.type, title: 'First', input: { key: 'a' } });
+		const second = manager.run({ type: handler.type, title: 'Second', input: { key: 'b' } });
+		const third = manager.run({ type: handler.type, title: 'Third', input: { key: 'c' } });
+		await flushMicrotasks();
+
+		expect(handler.starts).toEqual(['a']);
+		expect(manager.get(first.id)?.status).toBe('running');
+		expect(manager.get(second.id)?.status).toBe('queued');
+		expect(manager.get(third.id)?.status).toBe('queued');
+
+		handler.resolve('a', 'first result');
+		await flushMicrotasks();
+
+		expect(handler.starts).toEqual(['a', 'b']);
+		expect(manager.get(first.id)).toMatchObject({
+			status: 'succeeded',
+			result: 'first result',
+		});
+		expect(manager.get(second.id)?.status).toBe('running');
+		expect(manager.get(third.id)?.status).toBe('queued');
+
+		handler.resolve('b', 'second result');
+		await flushMicrotasks();
+
+		expect(handler.starts).toEqual(['a', 'b', 'c']);
+		expect(manager.get(second.id)?.status).toBe('succeeded');
+		expect(manager.get(third.id)?.status).toBe('running');
+
+		handler.resolve('c', 'third result');
+		await flushMicrotasks();
+		expect(manager.get(third.id)?.status).toBe('succeeded');
+	});
+
+	it('cancels queued tasks without starting their handlers', async () => {
+		const handler = new ControlledHandler();
+		const { manager } = createManagerWithPolicy(() => ({ defaultConcurrency: 1 }), handler);
+
+		const first = manager.run({ type: handler.type, title: 'First', input: { key: 'a' } });
+		const second = manager.run({ type: handler.type, title: 'Second', input: { key: 'b' } });
+		const third = manager.run({ type: handler.type, title: 'Third', input: { key: 'c' } });
+		await flushMicrotasks();
+
+		expect(manager.cancel(second.id).status).toBe('cancelled');
+		expect(handler.starts).toEqual(['a']);
+
+		handler.resolve('a', 'first result');
+		await flushMicrotasks();
+
+		expect(handler.starts).toEqual(['a', 'c']);
+		expect(manager.get(first.id)?.status).toBe('succeeded');
+		expect(manager.get(second.id)?.status).toBe('cancelled');
+		expect(manager.get(third.id)?.status).toBe('running');
+
+		handler.resolve('c', 'third result');
+		await flushMicrotasks();
+		expect(manager.get(third.id)?.status).toBe('succeeded');
 	});
 
 	it('lists and gets current in-memory records', async () => {
