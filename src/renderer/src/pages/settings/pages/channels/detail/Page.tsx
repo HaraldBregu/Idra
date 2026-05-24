@@ -46,7 +46,7 @@ import type {
 	Channel,
 	ChannelAccountProperties,
 	ChannelConnectionStatus,
-	ChannelDmPolicy,
+	CHANNEL_DM_POLICIES,
 	ChannelType,
 	DiscordChannelProperties,
 	GenericChannelProperties,
@@ -88,8 +88,6 @@ const SERVER_CHANNELS = new Set<ChannelType>([
 	'tlon',
 	'twitch',
 ]);
-
-const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
@@ -582,7 +580,7 @@ const ChannelDetailPage: React.FC = () => {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										{DM_POLICY_OPTIONS.map((policy) => (
+										{CHANNEL_DM_POLICIES.map((policy) => (
 											<SelectItem key={policy} value={policy}>
 												{t(`settings.channels.dmPolicies.${policy}`)}
 											</SelectItem>

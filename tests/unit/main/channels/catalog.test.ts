@@ -1,11 +1,24 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import {
+	CHANNEL_ALIASES_BY_ID,
+	CHANNEL_BUNDLED_RUNTIME_IDS,
+	CHANNEL_CATALOG_BY_ID,
+	CHANNEL_CATALOG_ONLY_RUNTIME_IDS,
+	CHANNEL_DOCS_PATH_BY_ID,
+	CHANNEL_HIDDEN_CATALOG_IDS,
+	CHANNEL_RUNTIME_BY_ID,
+	CHANNEL_VISIBLE_CATALOG_IDS,
 	buildChannelDocsUrl,
 	extractChannelCatalogFromPackageMetadata,
 	listChannelCatalog,
 	normalizeChannelId,
 } from '../../../../src/main/channels/catalog';
+import {
+	CHANNEL_CONNECTION_STATUSES,
+	CHANNEL_DEFAULT_ACCOUNT_ID,
+	CHANNEL_DM_POLICIES,
+} from '../../../../src/shared/channels';
 
 describe('channel catalog', () => {
 	it('lists the Friday provider inventory in stable order', () => {
@@ -78,6 +91,10 @@ describe('channel catalog', () => {
 
 		for (const entry of listChannelCatalog()) {
 			expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
+			expect(CHANNEL_CATALOG_BY_ID[entry.id]).toBe(entry);
+			expect(CHANNEL_ALIASES_BY_ID[entry.id]).toEqual(entry.aliases);
+			expect(CHANNEL_DOCS_PATH_BY_ID[entry.id]).toBe(entry.docsPath);
+			expect(CHANNEL_RUNTIME_BY_ID[entry.id]).toBe(entry.runtime);
 			expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
 			expect(readChannelDocsMetadata(entry.docsPath)).toEqual({
 				id: entry.id,
@@ -91,6 +108,33 @@ describe('channel catalog', () => {
 		}
 
 		expect(buildChannelDocsUrl('../secrets.md', 'https://github.com/HaraldBregu/friday')).toBeNull();
+	});
+
+	it('exports documentation-backed channel id groups', () => {
+		expect(CHANNEL_BUNDLED_RUNTIME_IDS).toEqual(['telegram']);
+		expect(CHANNEL_CATALOG_ONLY_RUNTIME_IDS).toEqual(
+			listChannelCatalog()
+				.filter((entry) => entry.runtime === 'catalog-only')
+				.map((entry) => entry.id)
+		);
+		expect(CHANNEL_VISIBLE_CATALOG_IDS).toEqual(
+			listChannelCatalog()
+				.filter((entry) => entry.catalogVisible)
+				.map((entry) => entry.id)
+		);
+		expect(CHANNEL_HIDDEN_CATALOG_IDS).toEqual(['qa-channel']);
+	});
+
+	it('exports shared channel policy constants', () => {
+		expect(CHANNEL_DEFAULT_ACCOUNT_ID).toBe('default');
+		expect(CHANNEL_DM_POLICIES).toEqual(['allowlist', 'pairing', 'open', 'deny']);
+		expect(CHANNEL_CONNECTION_STATUSES).toEqual([
+			'connecting',
+			'pairing_code',
+			'connected',
+			'disconnected',
+			'error',
+		]);
 	});
 
 	it('falls back to the bundled catalog when package metadata is incomplete', () => {

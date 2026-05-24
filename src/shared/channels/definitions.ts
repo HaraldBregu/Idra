@@ -26,7 +26,21 @@ export const CHANNEL_PROVIDER_IDS = [
 
 export type ChannelType = (typeof CHANNEL_PROVIDER_IDS)[number];
 
-export type ChannelDmPolicy = 'allowlist' | 'pairing' | 'open' | 'deny';
+export const CHANNEL_DEFAULT_ACCOUNT_ID = 'default';
+
+export const CHANNEL_DM_POLICIES = ['allowlist', 'pairing', 'open', 'deny'] as const;
+
+export type ChannelDmPolicy = (typeof CHANNEL_DM_POLICIES)[number];
+
+export const CHANNEL_CONNECTION_STATUSES = [
+	'connecting',
+	'pairing_code',
+	'connected',
+	'disconnected',
+	'error',
+] as const;
+
+export type ChannelConnectionStatus = (typeof CHANNEL_CONNECTION_STATUSES)[number];
 
 export interface ChannelHeartbeatVisibilityConfig {
 	showOk?: boolean;
@@ -116,13 +130,6 @@ export interface Channel extends ChannelConfigById {
 	whatsapp: WhatsappChannelProperties;
 	discord: DiscordChannelProperties;
 }
-
-export type ChannelConnectionStatus =
-	| 'connecting'
-	| 'pairing_code'
-	| 'connected'
-	| 'disconnected'
-	| 'error';
 
 export interface ChannelStatusEvent {
 	type: ChannelType;

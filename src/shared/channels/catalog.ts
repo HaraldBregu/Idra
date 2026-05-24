@@ -1,6 +1,10 @@
 import { CHANNEL_PROVIDER_IDS, type ChannelType } from './definitions';
 
-export type ChannelRuntimeSupport = 'bundled' | 'catalog-only';
+export const CHANNEL_RUNTIME_SUPPORT_VALUES = ['bundled', 'catalog-only'] as const;
+export const CHANNEL_CATALOG_EXPOSURES = ['stable', 'preview', 'hidden'] as const;
+
+export type ChannelRuntimeSupport = (typeof CHANNEL_RUNTIME_SUPPORT_VALUES)[number];
+export type ChannelCatalogExposure = (typeof CHANNEL_CATALOG_EXPOSURES)[number];
 
 export interface ChannelCatalogEntry {
 	id: ChannelType;
@@ -12,7 +16,7 @@ export interface ChannelCatalogEntry {
 	aliases: readonly string[];
 	order: number;
 	markdownCapable: boolean;
-	exposure: 'stable' | 'preview' | 'hidden';
+	exposure: ChannelCatalogExposure;
 	runtime: ChannelRuntimeSupport;
 	setupVisible: boolean;
 	catalogVisible: boolean;
@@ -96,12 +100,32 @@ export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = CHANNEL_CATALOG_I
 	catalogVisible: item.catalogVisible ?? item.exposure !== 'hidden',
 })).sort((left, right) => left.order - right.order);
 
+export const CHANNEL_CATALOG_BY_ID = indexCatalogById((entry) => entry);
+
+export const CHANNEL_ALIASES_BY_ID = indexCatalogById((entry) => entry.aliases);
+
+export const CHANNEL_DOCS_PATH_BY_ID = indexCatalogById((entry) => entry.docsPath);
+
+export const CHANNEL_RUNTIME_BY_ID = indexCatalogById((entry) => entry.runtime);
+
+export const CHANNEL_BUNDLED_RUNTIME_IDS = listChannelIdsWhere(
+	(entry) => entry.runtime === 'bundled'
+);
+
+export const CHANNEL_CATALOG_ONLY_RUNTIME_IDS = listChannelIdsWhere(
+	(entry) => entry.runtime === 'catalog-only'
+);
+
+export const CHANNEL_VISIBLE_CATALOG_IDS = listChannelIdsWhere((entry) => entry.catalogVisible);
+
+export const CHANNEL_HIDDEN_CATALOG_IDS = listChannelIdsWhere((entry) => !entry.catalogVisible);
+
 const CHANNEL_IDS = new Set<string>(CHANNEL_PROVIDER_IDS);
 const CHANNEL_ALIAS_TO_ID = new Map<string, ChannelType>();
 
 for (const entry of CHANNEL_CATALOG) {
 	CHANNEL_ALIAS_TO_ID.set(entry.id, entry.id);
-	for (const alias of entry.aliases) {
+	for (const alias of CHANNEL_ALIASES_BY_ID[entry.id]) {
 		CHANNEL_ALIAS_TO_ID.set(normalizeChannelKey(alias), entry.id);
 	}
 }
@@ -112,7 +136,7 @@ export function listChannelCatalog(): readonly ChannelCatalogEntry[] {
 
 export function getChannelCatalogEntry(idOrAlias: string): ChannelCatalogEntry | undefined {
 	const id = normalizeChannelId(idOrAlias);
-	return id ? CHANNEL_CATALOG.find((entry) => entry.id === id) : undefined;
+	return id ? CHANNEL_CATALOG_BY_ID[id] : undefined;
 }
 
 export function getChannelBrandIconId(idOrAlias: string): string | undefined {
@@ -216,4 +240,21 @@ function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {
 
 function isChannelRuntimeSupport(value: unknown): value is ChannelRuntimeSupport {
 	return value === 'bundled' || value === 'catalog-only';
+}
+
+function indexCatalogById<TValue>(
+	resolve: (entry: ChannelCatalogEntry) => TValue
+): Readonly<Record<ChannelType, TValue>> {
+	return Object.freeze(
+		Object.fromEntries(CHANNEL_CATALOG.map((entry) => [entry.id, resolve(entry)])) as Record<
+			ChannelType,
+			TValue
+		>
+	);
+}
+
+function listChannelIdsWhere(
+	predicate: (entry: ChannelCatalogEntry) => boolean
+): readonly ChannelType[] {
+	return Object.freeze(CHANNEL_CATALOG.filter(predicate).map((entry) => entry.id));
 }
