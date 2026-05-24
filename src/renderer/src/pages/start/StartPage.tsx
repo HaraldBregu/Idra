@@ -56,8 +56,6 @@ type ProviderSetupEntry = {
 	editing: boolean;
 };
 
-type SetupStep = 'presentation' | 'providers' | 'models';
-
 type ProviderCatalogItem = {
 	id: string;
 	name: string;
