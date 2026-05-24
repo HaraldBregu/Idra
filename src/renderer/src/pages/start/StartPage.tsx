@@ -332,6 +332,8 @@ const StartPage: React.FC = () => {
 		let cancelled = false;
 
 		async function loadServiceModels(): Promise<void> {
+			setLoadingModels(true);
+			setErrorMessage('');
 			try {
 				const [storedProviders, ...configuredOperators] = await Promise.all([
 					window.app.getProviders(),
@@ -347,7 +349,6 @@ const StartPage: React.FC = () => {
 
 			setLoadingModels(true);
 			setErrorMessage('');
-			try {
 				if (selectableProviders.length > 0) {
 					for (let index = 0; index < MODEL_SERVICE_DEFINITIONS.length; index += 1) {
 						const service = MODEL_SERVICE_DEFINITIONS[index];
@@ -399,6 +400,7 @@ const StartPage: React.FC = () => {
 				}
 			} catch (error) {
 				if (cancelled) return;
+				setProviders([]);
 				setServiceStates(createInitialModelServiceState());
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
