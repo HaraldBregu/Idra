@@ -1130,361 +1130,58 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderModelsStep(): React.JSX.Element {
-		const selectedSpeechGroup = speechModelGroups.find(
-			(group) => group.provider.id === speechProviderId
-		);
-		const selectedSpeechModels = selectedSpeechGroup?.models ?? [];
-		const selectedSpeechOption = selectedSpeechModels.find(
-			(option) => option.id === selectedSpeechModel
-		);
-		const speechStatus = loadingModels
-			? 'Loading models...'
-			: (selectedSpeechOption?.name ?? 'Not configured (optional)');
-		const selectedTextToSpeechGroup = textToSpeechModelGroups.find(
-			(group) => group.provider.id === textToSpeechProviderId
-		);
-		const selectedTextToSpeechModels = selectedTextToSpeechGroup?.models ?? [];
-		const selectedImageCreatorGroup = imageCreatorModelGroups.find(
-			(group) => group.provider.id === imageCreatorProviderId
-		);
-		const selectedImageCreatorModels = selectedImageCreatorGroup?.models ?? [];
-		const selectedTextToVideoGroup = textToVideoModelGroups.find(
-			(group) => group.provider.id === textToVideoProviderId
-		);
-		const selectedTextToVideoModels = selectedTextToVideoGroup?.models ?? [];
-		const selectedMusicCreatorGroup = musicCreatorModelGroups.find(
-			(group) => group.provider.id === musicCreatorProviderId
-		);
-		const selectedMusicCreatorModels = selectedMusicCreatorGroup?.models ?? [];
-		const toggleModelArea = (areaId: ModelAreaId): void => {
-			setExpandedModelAreaId((current) => (current === areaId ? AGENTS.assistant : areaId));
-		};
-		const renderProviderModelFields = ({
-			providerSelectId,
-			modelSelectId,
-			providerId,
-			modelId,
-			groups,
-			models,
-			providerLabel,
-			modelLabel,
-			placeholder,
-			onProviderChange,
-			onModelChange,
-		}: {
-			readonly providerSelectId: string;
-			readonly modelSelectId: string;
-			readonly providerId: string;
-			readonly modelId: string;
-			readonly groups: readonly ProviderModelGroup[];
-			readonly models: readonly Model[];
-			readonly providerLabel: string;
-			readonly modelLabel: string;
-			readonly placeholder: string;
-			readonly onProviderChange: (value: string | null) => void;
-			readonly onModelChange: (value: string | null) => void;
-		}): React.JSX.Element => (
-			<div className="grid gap-3 sm:grid-cols-2">
-				<SettingsField id={providerSelectId} label={providerLabel}>
-					<Select
-						value={providerId}
-						onValueChange={onProviderChange}
-						disabled={loadingModels || groups.length === 0 || savingConfig}
-					>
-						<SelectTrigger id={providerSelectId} className="w-full text-xs sm:w-72">
-							<SelectValue placeholder={placeholder} />
-						</SelectTrigger>
-						<SelectContent>
-							{groups.map((group) => {
-								const catalog = getProviderCatalogItem(group.provider.id);
-								return (
-									<SelectItem key={group.provider.id} value={group.provider.id}>
-										{catalog.name}
-									</SelectItem>
-								);
-							})}
-						</SelectContent>
-					</Select>
-				</SettingsField>
-				<SettingsField id={modelSelectId} label={modelLabel}>
-					<Select
-						value={modelId}
-						onValueChange={onModelChange}
-						disabled={loadingModels || models.length === 0 || savingConfig}
-					>
-						<SelectTrigger id={modelSelectId} className="w-full text-xs sm:w-72">
-							<SelectValue placeholder={placeholder} />
-						</SelectTrigger>
-						<SelectContent>
-							{models.map((model) => (
-								<SelectItem key={model.id} value={model.id}>
-									{model.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</SettingsField>
-			</div>
-		);
-		const renderModelAreaPanel = (
-			areaId: ModelAreaId,
-			summary: string,
-			children: React.ReactNode,
-			badge?: React.ReactNode
-		): React.JSX.Element => {
-			const area = MODEL_AREAS.find((item) => item.id === areaId);
-			if (!area) throw new Error(`Unknown model area: ${areaId}`);
-			const Icon = area.icon;
-			const expanded = expandedModelAreaId === area.id;
-
-			return (
-				<SettingsPanel key={area.id}>
-					<Item
-						as="button"
-						type="button"
-						size="md"
-						aria-expanded={expanded}
-						aria-controls={`model-area-${area.id}`}
-						className={cn('text-left hover:bg-muted/30', expanded && 'border-b border-border/60')}
-						onClick={() => toggleModelArea(area.id)}
-					>
-						<ItemMedia variant="icon">
-							<Icon className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-							<div className="flex items-center gap-1.5">
-								<ItemTitle>{area.title}</ItemTitle>
-								{badge}
-							</div>
-							<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-								{summary}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<ChevronDown
-								className={cn(
-									'size-3 text-muted-foreground transition-transform',
-									expanded && 'rotate-180'
-								)}
-								strokeWidth={1.8}
-							/>
-						</ItemActions>
-					</Item>
-					{expanded && (
-						<div id={`model-area-${area.id}`} className="grid gap-3 p-3">
-							<p className="text-[11px] leading-4 text-muted-foreground">{area.purpose}</p>
-							{children}
-						</div>
-					)}
-				</SettingsPanel>
-			);
-		};
-
 		return (
-			<div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
+			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Configure models
+						Choose a model
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose your assistant model to get started. Voice, image, and video models are optional
-						and can be configured later in Settings.
+						Pick the model {PRODUCT_NAME} will use as your main assistant. You can change this
+						anytime in Settings.
 					</p>
 				</div>
 
-				<div className="mt-4 space-y-2">
-					{renderModelAreaPanel(
-						AGENTS.assistant,
-						selectedModelName || modelCountLabel,
-						<>
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="agent-provider" label="Provider">
-									<Select
-										value={configProvider}
-										onValueChange={handleAgentProviderChange}
-										disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
-											<SelectValue placeholder={modelCountLabel} />
-										</SelectTrigger>
-										<SelectContent>
-											{agentModelGroups.map((group) => {
-												const catalog = getProviderCatalogItem(group.provider.id);
-												return (
-													<SelectItem key={group.provider.id} value={group.provider.id}>
-														{catalog.name}
-													</SelectItem>
-												);
-											})}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-								<SettingsField id="agent-model" label="Model">
-									<Select
-										value={selectedModel}
-										onValueChange={handleAgentModelChange}
-										disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
-											<SelectValue placeholder={modelCountLabel} />
-										</SelectTrigger>
-										<SelectContent>
-											{selectedAgentModels.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-							</div>
-						</>,
-						<Badge variant="outline" className="h-4 rounded px-1.5 text-[10px] font-semibold">
-							Required
-						</Badge>
-					)}
-
-					{renderModelAreaPanel(
-						AGENTS.speechToText,
-						speechStatus,
-						<>
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="speech-provider" label="Provider">
-									<Select
-										value={speechProviderId}
-										onValueChange={handleSpeechProviderChange}
-										disabled={loadingModels || speechModelGroups.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="speech-provider" className="w-full text-xs sm:w-72">
-											<SelectValue placeholder={speechStatus} />
-										</SelectTrigger>
-										<SelectContent>
-											{speechModelGroups.map((group) => {
-												const catalog = getProviderCatalogItem(group.provider.id);
-												return (
-													<SelectItem key={group.provider.id} value={group.provider.id}>
-														{catalog.name}
-													</SelectItem>
-												);
-											})}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-								<SettingsField id="speech-model" label="Transcription model">
-									<Select
-										value={selectedSpeechModel}
-										onValueChange={handleSpeechModelChange}
-										disabled={loadingModels || selectedSpeechModels.length === 0 || savingConfig}
-									>
-										<SelectTrigger id="speech-model" className="w-full text-xs sm:w-72">
-											<SelectValue placeholder={speechStatus} />
-										</SelectTrigger>
-										<SelectContent>
-											{selectedSpeechModels.map((option) => (
-												<SelectItem key={option.id} value={option.id}>
-													{option.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-							</div>
-							{speechModelGroups.length === 0 ? (
-								<SettingsNotice icon={Mic}>
-									Connect a speech-to-text capable provider to enable live transcription.
-								</SettingsNotice>
-							) : null}
-						</>
-					)}
-
-					{renderModelAreaPanel(
-						AGENTS.textToSpeech,
-						loadingModels
-							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedTextToSpeechOption),
-						<>
-							{renderProviderModelFields({
-								providerSelectId: 'tts-provider',
-								modelSelectId: 'tts-model',
-								providerId: textToSpeechProviderId,
-								modelId: selectedTextToSpeechModel,
-								groups: textToSpeechModelGroups,
-								models: selectedTextToSpeechModels,
-								providerLabel: 'Provider',
-								modelLabel: 'Voice model',
-								placeholder: 'No voice model',
-								onProviderChange: handleTextToSpeechProviderChange,
-								onModelChange: handleTextToSpeechModelChange,
-							})}
-						</>
-					)}
-
-					{renderModelAreaPanel(
-						AGENTS.textToImage,
-						loadingModels
-							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedImageCreatorOption),
-						<>
-							{renderProviderModelFields({
-								providerSelectId: 'image-provider',
-								modelSelectId: 'image-model',
-								providerId: imageCreatorProviderId,
-								modelId: selectedImageCreatorModel,
-								groups: imageCreatorModelGroups,
-								models: selectedImageCreatorModels,
-								providerLabel: 'Provider',
-								modelLabel: 'Image model',
-								placeholder: 'No image model',
-								onProviderChange: handleImageCreatorProviderChange,
-								onModelChange: handleImageCreatorModelChange,
-							})}
-						</>
-					)}
-
-					{renderModelAreaPanel(
-						AGENTS.textToVideo,
-						loadingModels
-							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedTextToVideoOption),
-						<>
-							{renderProviderModelFields({
-								providerSelectId: 'video-provider',
-								modelSelectId: 'video-model',
-								providerId: textToVideoProviderId,
-								modelId: selectedTextToVideoModel,
-								groups: textToVideoModelGroups,
-								models: selectedTextToVideoModels,
-								providerLabel: 'Provider',
-								modelLabel: 'Video model',
-								placeholder: 'No video model',
-								onProviderChange: handleTextToVideoProviderChange,
-								onModelChange: handleTextToVideoModelChange,
-							})}
-						</>
-					)}
-
-					{renderModelAreaPanel(
-						AGENTS.textToAudio,
-						loadingModels
-							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedMusicCreatorOption),
-						<>
-							{renderProviderModelFields({
-								providerSelectId: 'audio-provider',
-								modelSelectId: 'audio-model',
-								providerId: musicCreatorProviderId,
-								modelId: selectedMusicCreatorModel,
-								groups: musicCreatorModelGroups,
-								models: selectedMusicCreatorModels,
-								providerLabel: 'Provider',
-								modelLabel: 'Audio model',
-								placeholder: 'No audio model',
-								onProviderChange: handleMusicCreatorProviderChange,
-								onModelChange: handleMusicCreatorModelChange,
-							})}
-						</>
-					)}
-
+				<div className="mt-6 grid gap-3 sm:grid-cols-2">
+					<SettingsField id="agent-provider" label="Provider">
+						<Select
+							value={configProvider}
+							onValueChange={handleAgentProviderChange}
+							disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
+						>
+							<SelectTrigger id="agent-provider" className="w-full text-xs">
+								<SelectValue placeholder={modelCountLabel} />
+							</SelectTrigger>
+							<SelectContent>
+								{agentModelGroups.map((group) => {
+									const catalog = getProviderCatalogItem(group.provider.id);
+									return (
+										<SelectItem key={group.provider.id} value={group.provider.id}>
+											{catalog.name}
+										</SelectItem>
+									);
+								})}
+							</SelectContent>
+						</Select>
+					</SettingsField>
+					<SettingsField id="agent-model" label="Model">
+						<Select
+							value={selectedModel}
+							onValueChange={handleAgentModelChange}
+							disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
+						>
+							<SelectTrigger id="agent-model" className="w-full text-xs">
+								<SelectValue placeholder={modelCountLabel} />
+							</SelectTrigger>
+							<SelectContent>
+								{selectedAgentModels.map((model) => (
+									<SelectItem key={model.id} value={model.id}>
+										{model.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</SettingsField>
 				</div>
 			</div>
 		);
