@@ -28,7 +28,6 @@ import {
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '../../../../shared/agents';
 import {
-	DOCUMENT_READER_OCR_MODELS,
 	OPERATOR_DEFINITIONS,
 	type ConfiguredModelOperator,
 	type Model,
