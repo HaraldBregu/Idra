@@ -1039,6 +1039,12 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderPresentationStep(): React.JSX.Element {
+		const features = [
+			{ icon: Bot, label: 'AI assistant', description: 'Chat with any provider model' },
+			{ icon: Mic, label: 'Voice input', description: 'Talk to Friday hands-free' },
+			{ icon: Zap, label: 'Agents & skills', description: 'Automate tasks on a schedule' },
+		];
+
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
@@ -1050,9 +1056,26 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Connect an AI provider, choose the models {PRODUCT_NAME} should use, and review
-					which model areas are ready now.
+					Your personal AI assistant. Connect a provider, pick your models, and start working.
 				</p>
+				<div className="mt-8 grid w-full max-w-sm gap-3 text-left">
+					{features.map(({ icon: Icon, label, description }) => (
+						<div
+							key={label}
+							className="flex items-center gap-3 rounded-lg border border-border/60 bg-card px-4 py-3"
+						>
+							<div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+								<Icon className="size-3.5" strokeWidth={1.8} />
+							</div>
+							<div className="min-w-0">
+								<p className="text-sm font-semibold leading-tight text-foreground">{label}</p>
+								<p className="text-xs font-medium leading-tight text-muted-foreground">
+									{description}
+								</p>
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		);
 	}
