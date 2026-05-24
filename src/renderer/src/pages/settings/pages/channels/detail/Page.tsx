@@ -710,21 +710,22 @@ function HeartbeatEditor({
 	readonly t: (key: string) => string;
 }): React.JSX.Element {
 	return (
-		<div className="grid w-full min-w-0 gap-1.5">
+		<div className="grid w-full min-w-0 gap-1">
 			{HEARTBEAT_FIELDS.map(({ field, labelKey }) => {
 				const label = t(labelKey);
 				return (
-					<div
-						key={field}
-						className="flex min-h-7 items-center justify-between gap-3 rounded-md border border-border/60 px-2"
-					>
-						<span className="min-w-0 truncate text-[11px] text-muted-foreground">{label}</span>
-						<Switch
-							checked={Boolean(value?.[field])}
-							onCheckedChange={(checked) => onChange({ ...(value ?? {}), [field]: checked })}
-							aria-label={label}
-						/>
-					</div>
+					<Item key={field} variant="outline" size="sm" className="rounded-lg border border-border/60">
+						<ItemContent className="flex-1">
+							<ItemTitle className="text-[11px] font-normal text-muted-foreground">{label}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Switch
+								checked={Boolean(value?.[field])}
+								onCheckedChange={(checked) => onChange({ ...(value ?? {}), [field]: checked })}
+								aria-label={label}
+							/>
+						</ItemActions>
+					</Item>
 				);
 			})}
 		</div>
