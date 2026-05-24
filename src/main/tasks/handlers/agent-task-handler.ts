@@ -2,6 +2,7 @@ import { DEFAULT_AGENT_ID } from '../../constants';
 import type { AgentService } from '../../service';
 import type { StoreService } from '../../store';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
+import { taskCancelledError } from '../task-errors';
 
 export const AGENT_TASK_TYPE = 'agent.run';
 
@@ -18,12 +19,6 @@ const SECRET_VALUE_PATTERN =
 	/authorization\s*:\s*bearer\s+\S+|(?:api[_-]?key|credential|password|secret|token)\s*[:=]\s*\S+|-----BEGIN [A-Z ]*PRIVATE KEY-----/i;
 type AgentTaskAgentService = Pick<AgentService, 'send' | 'cancel'>;
 type AgentTaskStore = Pick<StoreService, 'getAgentService'>;
-
-function abortError(): Error {
-	const error = new Error('Task was cancelled.');
-	error.name = 'AbortError';
-	return error;
-}
 
 function assertRecord(value: unknown): asserts value is Record<string, unknown> {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -66,7 +61,7 @@ export class AgentTaskHandler implements TaskHandler<AgentTaskInput, AgentTaskRe
 	}
 
 	async run(context: TaskContext<AgentTaskInput>): Promise<AgentTaskResult> {
-		if (context.signal.aborted) throw abortError();
+		if (context.signal.aborted) throw taskCancelledError();
 
 		const input = context.input;
 		const sessionId = `task:${context.taskId}`;
@@ -84,11 +79,11 @@ export class AgentTaskHandler implements TaskHandler<AgentTaskInput, AgentTaskRe
 				providerId: runSettings.providerId,
 				model: runSettings.model,
 			});
-			if (context.signal.aborted) throw abortError();
+			if (context.signal.aborted) throw taskCancelledError();
 			context.updateProgress({ message: 'Agent completed' });
 			return { text };
 		} catch (error) {
-			if (context.signal.aborted) throw abortError();
+			if (context.signal.aborted) throw taskCancelledError();
 			throw error;
 		} finally {
 			context.signal.removeEventListener('abort', cancelAgent);
