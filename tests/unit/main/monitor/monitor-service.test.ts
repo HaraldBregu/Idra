@@ -153,6 +153,42 @@ describe('MonitorService', () => {
 		expect(service.list().map((record) => record.eventType)).toEqual(['window:created']);
 	});
 
+	it('notifies listeners with sanitized cloned records', () => {
+		const eventBus = new EventBus();
+		const service = new MonitorService({
+			eventBus,
+			now: createNowFactory(),
+			idFactory: createIdFactory(),
+		});
+		const observed: unknown[] = [];
+
+		service.start();
+		const unsubscribe = service.onRecord((record) => {
+			observed.push(record);
+			(record.payload as { token?: unknown }).token = 'mutated';
+		});
+		eventBus.emit('channel:route', {
+			channel: 'telegram',
+			to: 'chat',
+			token: 'secret-token',
+		});
+		unsubscribe();
+		eventBus.emit('window:created', { windowId: 2, type: 'main' });
+
+		expect(observed).toMatchObject([
+			{
+				id: 'monitor-1',
+				eventType: 'channel:route',
+				payload: {
+					channel: 'telegram',
+					to: 'chat',
+					token: '[redacted]',
+				},
+			},
+		]);
+		expect(service.get('monitor-1')?.payload).toMatchObject({ token: '[redacted]' });
+	});
+
 	it('tracks every typed app event currently exposed by EventBus', () => {
 		expect(MONITORED_APP_EVENT_TYPES).toEqual([
 			'service:initialized',

@@ -12,6 +12,8 @@ type MonitorLogger = {
 	warn(scope: string, message: string, metadata?: unknown): void;
 };
 
+type MonitorRecordListener = (record: MonitorEventRecord) => void;
+
 export interface MonitorServiceOptions {
 	eventBus: EventBus;
 	logger?: MonitorLogger;
@@ -145,6 +147,7 @@ export class MonitorService implements Disposable {
 	private readonly idFactory: () => string;
 	private readonly eventBus: EventBus;
 	private readonly logger?: MonitorLogger;
+	private readonly recordListeners = new Set<MonitorRecordListener>();
 	private disposers: Array<() => void> = [];
 	private running = false;
 
@@ -187,6 +190,13 @@ export class MonitorService implements Disposable {
 		return record ? cloneRecord(record) : undefined;
 	}
 
+	onRecord(listener: MonitorRecordListener): () => void {
+		this.recordListeners.add(listener);
+		return () => {
+			this.recordListeners.delete(listener);
+		};
+	}
+
 	snapshot(filter: MonitorEventFilter = {}): MonitorSnapshot {
 		return {
 			records: this.list(filter),
@@ -196,6 +206,7 @@ export class MonitorService implements Disposable {
 
 	destroy(): void {
 		for (const dispose of this.disposers.splice(0)) dispose();
+		this.recordListeners.clear();
 		if (this.running) this.logger?.info('MonitorService', 'Stopped monitoring events');
 		this.running = false;
 	}
@@ -214,6 +225,17 @@ export class MonitorService implements Disposable {
 		this.records.push(record);
 		if (this.records.length > this.maxRecords) {
 			this.records.splice(0, this.records.length - this.maxRecords);
+		}
+		this.emitRecord(record);
+	}
+
+	private emitRecord(record: MonitorEventRecord): void {
+		for (const listener of this.recordListeners) {
+			try {
+				listener(cloneRecord(record));
+			} catch (error) {
+				this.logger?.warn('MonitorService', 'Monitor record listener failed', error);
+			}
 		}
 	}
 }

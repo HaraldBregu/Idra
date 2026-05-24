@@ -12,6 +12,7 @@ import {
 	TaskChannels,
 	CronChannels,
 	HeartbeatChannels,
+	MonitorChannels,
 	SkillsChannels,
 } from '../shared/ipc-channels';
 import type {
@@ -21,6 +22,7 @@ import type {
 	ConnectorsApi,
 	CronApi,
 	HeartbeatApi,
+	MonitorApi,
 	RealtimeTranscriptionApi,
 	SkillsApi,
 	TasksApi,
@@ -52,6 +54,7 @@ import type {
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
+import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
 	Agent,
 	ConfiguredModelOperator,
@@ -435,6 +438,21 @@ export const tasks: TasksApi = {
 	},
 };
 
+export const monitor: MonitorApi = {
+	snapshot: (filter?: MonitorEventFilter): Promise<MonitorSnapshot> => {
+		return typedInvokeUnwrap(MonitorChannels.snapshot, filter);
+	},
+	list: (filter?: MonitorEventFilter): Promise<MonitorEventRecord[]> => {
+		return typedInvokeUnwrap(MonitorChannels.list, filter);
+	},
+	get: (id: string): Promise<MonitorEventRecord | undefined> => {
+		return typedInvokeUnwrap(MonitorChannels.get, id);
+	},
+	onEvent: (callback: (record: MonitorEventRecord) => void): (() => void) => {
+		return typedOn(MonitorChannels.event, callback);
+	},
+};
+
 export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
@@ -556,6 +574,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('tasks', tasks);
+		contextBridge.exposeInMainWorld('monitor', monitor);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
@@ -577,6 +596,8 @@ if (process.contextIsolated) {
 	globalThis.heartbeat = heartbeat;
 	// @ts-ignore (define in dts)
 	globalThis.tasks = tasks;
+	// @ts-ignore (define in dts)
+	globalThis.monitor = monitor;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)

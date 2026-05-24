@@ -122,6 +122,13 @@ export const HeartbeatChannels = {
 	event: 'heartbeat:event',
 } as const;
 
+export const MonitorChannels = {
+	snapshot: 'monitor:snapshot',
+	list: 'monitor:list',
+	get: 'monitor:get',
+	event: 'monitor:event',
+} as const;
+
 export const SkillsChannels = {
 	list: 'skills:list',
 	import: 'skills:import',
@@ -478,6 +485,21 @@ interface TaskInvokeChannelMap {
 	};
 }
 
+interface MonitorInvokeChannelMap {
+	[MonitorChannels.snapshot]: {
+		args: [filter?: import('../monitor').MonitorEventFilter];
+		result: import('../monitor').MonitorSnapshot;
+	};
+	[MonitorChannels.list]: {
+		args: [filter?: import('../monitor').MonitorEventFilter];
+		result: import('../monitor').MonitorEventRecord[];
+	};
+	[MonitorChannels.get]: {
+		args: [id: string];
+		result: import('../monitor').MonitorEventRecord | undefined;
+	};
+}
+
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('../skills').SkillInfo[] };
 	[SkillsChannels.import]: { args: []; result: import('../skills').SkillImportResult | undefined };
@@ -605,6 +627,7 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
 		TaskInvokeChannelMap,
+		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
@@ -650,6 +673,10 @@ interface TaskEventChannelMap {
 	[TaskChannels.event]: { data: import('../tasks').TaskEvent };
 }
 
+interface MonitorEventChannelMap {
+	[MonitorChannels.event]: { data: import('../monitor').MonitorEventRecord };
+}
+
 export interface EventChannelMap
 	extends
 		AppEventChannelMap,
@@ -658,4 +685,5 @@ export interface EventChannelMap
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
 		HeartbeatEventChannelMap,
-		TaskEventChannelMap {}
+		TaskEventChannelMap,
+		MonitorEventChannelMap {}
