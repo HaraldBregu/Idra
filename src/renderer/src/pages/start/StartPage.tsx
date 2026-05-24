@@ -721,8 +721,7 @@ const StartPage: React.FC = () => {
 						Choose a model
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Pick the model {PRODUCT_NAME} will use as your main assistant. You can change this
-						anytime in Settings.
+						Choose a model for each capability. You can change these anytime in Settings.
 					</p>
 				</div>
 
