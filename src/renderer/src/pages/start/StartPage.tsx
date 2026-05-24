@@ -705,8 +705,7 @@ const StartPage: React.FC = () => {
 					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 						<KeyRound className="size-4 shrink-0" />
 						<p className="text-xs font-medium leading-snug">
-							Keys stay in {PRODUCT_NAME}&apos;s local app data folder and are only used for providers
-							you connect. You can revoke them anytime.
+							Keys are stored locally and never shared.
 						</p>
 					</div>
 				</div>
