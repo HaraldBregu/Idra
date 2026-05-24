@@ -66,9 +66,8 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: IMAGE_CREATOR_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.imageCreator.name,
 		stepName: 'Images',
-		stepTitle: 'Image generation model',
-		stepDescription:
-			'Choose the model Friday uses for creating images and visual assets from prompts.',
+		stepTitle: 'Image generation',
+		stepDescription: 'Creates images and visual assets from your text prompts.',
 		icon: ImageIcon,
 		required: false,
 		getOperator: () => window.app.getImageCreatorOperator(),
