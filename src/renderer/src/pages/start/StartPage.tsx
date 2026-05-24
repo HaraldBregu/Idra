@@ -975,6 +975,19 @@ const StartPage: React.FC = () => {
 			: modelOptionsCount === 0
 				? 'No models available'
 				: `${modelOptionsCount} models available`;
+		const selectedProviderName = providerModels
+			? getProviderCatalogItem(providerModels.provider.id).name
+			: '';
+		const selectedModelName =
+			availableModels.find((model) => model.id === serviceState.modelId)?.name ?? '';
+		const selectedSummary =
+			selectedProviderName && selectedModelName
+				? `${selectedProviderName} / ${selectedModelName}`
+				: loadingModels
+					? 'Loading compatible models...'
+					: service.required
+						? 'Select a model to continue.'
+						: 'Optional step. Continue without a selection to skip it.';
 
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
@@ -987,61 +1000,89 @@ const StartPage: React.FC = () => {
 					</p>
 				</div>
 
-				<div className="mt-6 space-y-3">
-					<Card className="rounded-lg border-border bg-card py-0 shadow-none">
-						<CardContent className="space-y-3 p-3">
-							<div className="grid gap-3 sm:grid-cols-2">
-								<StepField
-									id={`${service.id}-provider`}
-									label="Provider"
-									description="Choose which connected provider should serve this capability."
-								>
-									<Select
-										value={serviceState.providerId}
-										onValueChange={(value) => handleServiceProviderChange(service.id, value)}
-										disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
-									>
-										<SelectTrigger id={`${service.id}-provider`} className="w-full text-xs">
-											<SelectValue placeholder={modelCountLabel} />
-										</SelectTrigger>
-										<SelectContent>
-											{serviceState.modelGroups.map((group) => {
-												const catalog = getProviderCatalogItem(group.provider.id);
-												return (
-													<SelectItem key={group.provider.id} value={group.provider.id}>
-														{catalog.name}
-													</SelectItem>
-												);
-											})}
-										</SelectContent>
-									</Select>
-								</StepField>
-								<StepField
-									id={`${service.id}-model`}
-									label="Model"
-									description="Pick the specific model you want to run for this step."
-								>
-									<Select
-										value={serviceState.modelId}
-										onValueChange={(value) => handleServiceModelChange(service.id, value)}
-										disabled={loadingModels || availableModels.length === 0 || savingConfig}
-									>
-										<SelectTrigger id={`${service.id}-model`} className="w-full text-xs">
-											<SelectValue placeholder={modelCountLabel} />
-										</SelectTrigger>
-										<SelectContent>
-											{availableModels.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</StepField>
+				<Card size="sm" className="mt-6 gap-0 rounded-lg border-border bg-card py-0 shadow-none">
+					<CardHeader className="border-b border-border/70 px-3 py-3">
+						<div className="flex min-w-0 items-start justify-between gap-3">
+							<div className="min-w-0">
+								<CardTitle className="text-sm">{service.stepName}</CardTitle>
+								<CardDescription className="mt-1 text-xs leading-4">
+									{modelCountLabel}
+								</CardDescription>
 							</div>
-						</CardContent>
-					</Card>
-				</div>
+							<Badge variant={service.required ? 'default' : 'secondary'} className="shrink-0">
+								{service.required ? 'Required' : 'Optional'}
+							</Badge>
+						</div>
+					</CardHeader>
+					<CardContent className="grid gap-4 p-3">
+						<div className="grid gap-3 sm:grid-cols-2">
+							<StepField
+								id={`${service.id}-provider`}
+								label="Provider"
+								description={service.providerDescription}
+							>
+								<Select
+									value={serviceState.providerId}
+									onValueChange={(value) => handleServiceProviderChange(service.id, value)}
+									disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
+								>
+									<SelectTrigger
+										id={`${service.id}-provider`}
+										aria-describedby={`${service.id}-provider-description`}
+										className="w-full text-xs"
+									>
+										<SelectValue placeholder={modelCountLabel} />
+									</SelectTrigger>
+									<SelectContent>
+										{serviceState.modelGroups.map((group) => {
+											const catalog = getProviderCatalogItem(group.provider.id);
+											return (
+												<SelectItem key={group.provider.id} value={group.provider.id}>
+													{catalog.name}
+												</SelectItem>
+											);
+										})}
+									</SelectContent>
+								</Select>
+							</StepField>
+							<StepField
+								id={`${service.id}-model`}
+								label="Model"
+								description={service.modelDescription}
+							>
+								<Select
+									value={serviceState.modelId}
+									onValueChange={(value) => handleServiceModelChange(service.id, value)}
+									disabled={loadingModels || availableModels.length === 0 || savingConfig}
+								>
+									<SelectTrigger
+										id={`${service.id}-model`}
+										aria-describedby={`${service.id}-model-description`}
+										className="w-full text-xs"
+									>
+										<SelectValue placeholder={modelCountLabel} />
+									</SelectTrigger>
+									<SelectContent>
+										{availableModels.map((model) => (
+											<SelectItem key={model.id} value={model.id}>
+												{model.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</StepField>
+						</div>
+						{loadingModels ? (
+							<div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+								<LoaderCircle className="size-3.5 animate-spin" />
+								<span>Checking connected providers for compatible models.</span>
+							</div>
+						) : null}
+					</CardContent>
+					<CardFooter className="min-h-10 px-3 py-2">
+						<p className="min-w-0 truncate text-xs text-muted-foreground">{selectedSummary}</p>
+					</CardFooter>
+				</Card>
 			</div>
 		);
 	}
