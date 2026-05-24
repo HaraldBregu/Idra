@@ -86,12 +86,14 @@ export function bootstrapServices(): BootstrapResult {
 			},
 		},
 	})) {
-		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch((error) => {
-			logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
-				runtime,
-				error: error instanceof Error ? error.message : String(error),
-			});
-		});
+		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch(
+			(error) => {
+				logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
+					runtime,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
+		);
 	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(store, logger));

@@ -111,8 +111,7 @@ function filterToolsByAllowlist(tools: AgentTool[], allowlist?: string[]): Agent
 	return tools.filter((tool) =>
 		patterns.some(
 			(pattern) =>
-				toolAllowPatternMatches(pattern, tool.name) ||
-				toolAllowGroupMatches(pattern, tool.name)
+				toolAllowPatternMatches(pattern, tool.name) || toolAllowGroupMatches(pattern, tool.name)
 		)
 	);
 }
@@ -283,9 +282,7 @@ export class AgentService {
 			toolsAllow: context.toolsAllow,
 			toolsDeny: toolPolicy?.deny,
 			includeCoreTools: false,
-			hostTools: legacyHostTools.map((tool) =>
-				legacyToolToRuntimeTool(tool, context.toolContext)
-			),
+			hostTools: legacyHostTools.map((tool) => legacyToolToRuntimeTool(tool, context.toolContext)),
 			config: toolRuntimeConfig,
 		});
 		return runtime.tools.map(runtimeToolToLegacyTool);
@@ -339,9 +336,7 @@ export class AgentService {
 				this.resolveProviderAndModel({
 					providerId: options.providerId ?? agentConfig?.model?.providerId,
 					model:
-						options.model?.trim() ||
-						heartbeatOptions?.model?.trim() ||
-						agentConfig?.model?.modelId,
+						options.model?.trim() || heartbeatOptions?.model?.trim() || agentConfig?.model?.modelId,
 					effort: options.effort ?? agentConfig?.model?.effort,
 				})
 			);
@@ -351,8 +346,7 @@ export class AgentService {
 			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			const requestedRuntime = (options.agentRuntime || options.agentHarnessId || '').trim();
-			const storedRuntime =
-				this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
+			const storedRuntime = this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
 					baseDir: this.sessionBaseDir,
@@ -702,7 +696,6 @@ export class AgentService {
 		return [...runtime.session.transcript];
 	}
 
-
 	cancel(agentId = this.defaultAgentId): void {
 		const runtime = this.ensureRuntime(agentId);
 		if (runtime.currentAbort) {
@@ -714,7 +707,6 @@ export class AgentService {
 	isBusy(agentId = this.defaultAgentId): boolean {
 		return Boolean(this.runtimes.get(agentId)?.currentAbort);
 	}
-
 
 	private ensureRuntime(agentId: string): Runtime {
 		const existing = this.runtimes.get(agentId);
@@ -775,9 +767,9 @@ export class AgentService {
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 		const savedEffort = providerId === configuredProviderId ? assistant?.model.effort : undefined;
 		let effort: ModelReasoningEffort | undefined;
-			if (providerId === 'openai') {
-				effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
-			}
+		if (providerId === 'openai') {
+			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
+		}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
 

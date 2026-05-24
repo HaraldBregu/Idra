@@ -11,13 +11,13 @@ import { listChannelCatalog, normalizeChannelId } from './catalog';
 import { telegramChannelPlugin } from './telegram/plugin';
 import { runChannelTurn } from './turn';
 import type {
-		ChannelAdapter,
-		ChannelInboundMessage,
-		ChannelMessageReceipt,
-		ChannelPlugin,
-		ChannelOutboundMessage,
-		ChannelStatusUpdate,
-	} from './types';
+	ChannelAdapter,
+	ChannelInboundMessage,
+	ChannelMessageReceipt,
+	ChannelPlugin,
+	ChannelOutboundMessage,
+	ChannelStatusUpdate,
+} from './types';
 import type { ChannelType, TelegramChannelProperties } from '../../shared/channels';
 
 export interface ChannelRegistryOptions {
@@ -119,7 +119,10 @@ export class ChannelRegistry {
 
 		const channelConfig = this.channelConfigs.get(channelId);
 		if (!channelConfig) {
-			this.dependencies.logger.warn('ChannelRegistry', `${plugin.meta.name} channel is not configured`);
+			this.dependencies.logger.warn(
+				'ChannelRegistry',
+				`${plugin.meta.name} channel is not configured`
+			);
 			return;
 		}
 
@@ -133,17 +136,24 @@ export class ChannelRegistry {
 			return;
 		}
 		if (account && !account.configured) {
-			this.dependencies.logger.warn('ChannelRegistry', `${plugin.meta.name} account is not configured`, {
-				channelId,
-				accountId: account.id,
-				reason: account.unconfiguredReason,
-			});
+			this.dependencies.logger.warn(
+				'ChannelRegistry',
+				`${plugin.meta.name} account is not configured`,
+				{
+					channelId,
+					accountId: account.id,
+					reason: account.unconfiguredReason,
+				}
+			);
 			return;
 		}
 
 		const factory = this.runtimeFactories.get(channelId);
 		if (!factory) {
-			this.dependencies.logger.warn('ChannelRegistry', `${plugin.meta.name} channel has no runtime`);
+			this.dependencies.logger.warn(
+				'ChannelRegistry',
+				`${plugin.meta.name} channel has no runtime`
+			);
 			return;
 		}
 
@@ -178,7 +188,9 @@ export class ChannelRegistry {
 		const channelId = this.requireChannelId(message.type);
 		const adapter = this.adapters.get(channelId);
 		if (!adapter) {
-			throw new Error(`${this.plugins.get(channelId)?.meta.name ?? channelId} channel is not running`);
+			throw new Error(
+				`${this.plugins.get(channelId)?.meta.name ?? channelId} channel is not running`
+			);
 		}
 		const normalized = { ...message, type: channelId };
 		return adapter.deliver ? adapter.deliver(normalized) : adapter.send(normalized);
@@ -242,10 +254,7 @@ export class ChannelRegistry {
 					const target = plugin.threading?.resolveReplyTarget(message) ?? { to: message.chatId };
 					const legacySessionKey = plugin.threading?.getSessionKey(normalized);
 					const route = resolveAgentRoute(
-						channelMessageRouteInput(
-							normalized,
-							this.dependencies.store?.getAgentRoutingSettings()
-						)
+						channelMessageRouteInput(normalized, this.dependencies.store?.getAgentRoutingSettings())
 					);
 					this.dependencies.eventBus.emit('channel:route', {
 						channel: channelId,

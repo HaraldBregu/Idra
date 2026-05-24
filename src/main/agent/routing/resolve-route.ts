@@ -19,7 +19,10 @@ function samePeer(
 	return bindingPeer.id === '*' || bindingPeer.id === inputPeer.id;
 }
 
-function intersects(left: readonly string[] | undefined, right: readonly string[] | undefined): boolean {
+function intersects(
+	left: readonly string[] | undefined,
+	right: readonly string[] | undefined
+): boolean {
 	if (!left || left.length === 0) return true;
 	if (!right || right.length === 0) return false;
 	const rightSet = new Set(right);
@@ -54,14 +57,21 @@ function selectBinding(input: AgentRouteInput): AgentRouteBinding | undefined {
 		const binding = bindings[index];
 		if (!bindingMatches(binding, input)) continue;
 		const score = routeScore(binding);
-		if (!selected || score > selected.score || (score === selected.score && index < selected.index)) {
+		if (
+			!selected ||
+			score > selected.score ||
+			(score === selected.score && index < selected.index)
+		) {
 			selected = { binding, score, index };
 		}
 	}
 	return selected?.binding;
 }
 
-function sessionScope(binding: AgentRouteBinding | undefined, channel?: string): AgentRouteSessionScope {
+function sessionScope(
+	binding: AgentRouteBinding | undefined,
+	channel?: string
+): AgentRouteSessionScope {
 	if (binding?.session?.scope) return binding.session.scope;
 	return channel ? 'per-account-channel-peer' : 'main';
 }

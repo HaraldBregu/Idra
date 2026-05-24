@@ -77,12 +77,19 @@ function sessionIndexPath(baseDir: string): string {
 }
 
 function isSessionDataFile(name: string): boolean {
-	return name.endsWith('.json') && name !== 'sessions.json' && !name.endsWith('.tmp') && !name.endsWith('.lock');
+	return (
+		name.endsWith('.json') &&
+		name !== 'sessions.json' &&
+		!name.endsWith('.tmp') &&
+		!name.endsWith('.lock')
+	);
 }
 
 function normalizeLoadedSession(parsed: SessionFile, file: string): SessionFile {
 	parsed.sessionFile = parsed.sessionFile ?? file;
-	parsed.transcript = sanitizeTranscriptForStorage(sanitizeToolUseResultPairing(parsed.transcript ?? []));
+	parsed.transcript = sanitizeTranscriptForStorage(
+		sanitizeToolUseResultPairing(parsed.transcript ?? [])
+	);
 	parsed.plan ??= [];
 	parsed.compactionMarkers ??= [];
 	return parsed;
@@ -140,7 +147,7 @@ async function loadSessionIndex(baseDir: string): Promise<SessionIndexEntry[]> {
 	try {
 		const raw = await fs.readFile(sessionIndexPath(baseDir), 'utf8');
 		const parsed = JSON.parse(raw) as { sessions?: SessionIndexEntry[] } | SessionIndexEntry[];
-		return Array.isArray(parsed) ? parsed : parsed.sessions ?? [];
+		return Array.isArray(parsed) ? parsed : (parsed.sessions ?? []);
 	} catch (err) {
 		if ((err as NodeJS.ErrnoException).code === 'ENOENT') return [];
 		throw err;
@@ -265,10 +272,7 @@ export async function saveSession(
 	await updateSessionIndex(file, baseDir);
 }
 
-export async function clearSession(
-	id: string,
-	opts: SessionStoreOptions = {}
-): Promise<void> {
+export async function clearSession(id: string, opts: SessionStoreOptions = {}): Promise<void> {
 	const baseDir = opts.baseDir ?? defaultBaseDir();
 	try {
 		await fs.unlink(sessionPath(baseDir, id));
@@ -276,5 +280,8 @@ export async function clearSession(
 		/* already gone */
 	}
 	const existing = await loadSessionIndex(baseDir);
-	await saveSessionIndex(baseDir, existing.filter((entry) => entry.id !== id));
+	await saveSessionIndex(
+		baseDir,
+		existing.filter((entry) => entry.id !== id)
+	);
 }

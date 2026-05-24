@@ -27,7 +27,9 @@ function normalizeLowerId(value: unknown): string | undefined {
 function normalizeStringList(value: unknown): string[] | undefined {
 	if (!Array.isArray(value)) return undefined;
 	const list = [
-		...new Set(value.flatMap((item) => (typeof item === 'string' && item.trim() ? [item.trim()] : []))),
+		...new Set(
+			value.flatMap((item) => (typeof item === 'string' && item.trim() ? [item.trim()] : []))
+		),
 	];
 	return list.length > 0 ? list : undefined;
 }
@@ -142,7 +144,10 @@ export function normalizeAgentRouteBinding(value: unknown): AgentRouteBinding | 
 	const channel = normalizeLowerId(match.channel);
 	const accountId = normalizeId(match.accountId);
 	const peer = normalizePeer(match.peer, true);
-	const parentPeer = normalizePeer(match.parentPeer, false) as AgentRouteBinding['match']['parentPeer'];
+	const parentPeer = normalizePeer(
+		match.parentPeer,
+		false
+	) as AgentRouteBinding['match']['parentPeer'];
 	const roleIds = normalizeStringList(match.roleIds);
 	if (!channel && !accountId && !peer && !parentPeer && !roleIds) return undefined;
 	const session = readRecord(record.session);
