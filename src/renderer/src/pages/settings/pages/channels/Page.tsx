@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, CircleOff } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import { cn } from '@/lib/utils';
-import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
+import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../../components';
 import type { ChannelConnectionStatus, ChannelType } from '../../../../../../shared/channels';
 import type { ChannelCatalogEntry } from '../../../../../../shared/channels';
 import { ChannelIcon } from './ChannelIcon';
@@ -63,62 +61,52 @@ const ChannelsPage: React.FC = () => {
 			/>
 
 			<SettingsSection title={t('settings.channels.catalog')}>
-				<Card size="sm" className="gap-0! p-0!">
-					{catalog.filter((entry) => entry.catalogVisible).map((entry, index, visibleCatalog) => {
+				<SettingsPanel>
+					{catalog.filter((entry) => entry.catalogVisible).map((entry) => {
 						const isRuntimeChannel = entry.runtime === 'bundled';
 						const status = statusByChannel[entry.id] ?? 'disconnected';
 
 						return (
-							<button
+							<Item
 								key={entry.id}
+								as="button"
 								type="button"
 								onClick={() =>
 									navigate(`/settings/channels/channelDetail/${encodeURIComponent(entry.id)}`)
 								}
-								className="w-full text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 last:border-b-0 hover:bg-muted/50"
 							>
-								<Item
-									variant="outline"
-									size="md"
-									className={cn(
-										'cursor-pointer border-b border-border/60 hover:bg-muted/50',
-										index === visibleCatalog.length - 1 && 'border-b-0'
-									)}
-								>
-									<ChannelIcon
-										channelId={entry.id}
-										name={entry.label}
-										brandIconId={entry.brandIconId}
+								<ChannelIcon
+									channelId={entry.id}
+									name={entry.label}
+									brandIconId={entry.brandIconId}
+								/>
+								<ItemContent className="min-w-0 flex-col items-start gap-0">
+									<ItemTitle className="truncate">{entry.label}</ItemTitle>
+									<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{entry.blurb}
+									</p>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end gap-1.5">
+									<Badge
+										variant={isRuntimeChannel ? getConnectionBadgeVariant(status) : 'outline'}
+										className="h-5 px-2 text-[10px]"
+									>
+										{isRuntimeChannel
+											? t(`channels.status.${status}`)
+											: t('settings.channels.configOnly')}
+									</Badge>
+									<ChevronRight
+										className="size-3.5 text-muted-foreground"
+										strokeWidth={1.8}
 									/>
-									<ItemContent className="min-w-0">
-										<ItemTitle className="w-full max-w-full truncate">{entry.label}</ItemTitle>
-									</ItemContent>
-									<ItemActions className="ml-auto flex-none justify-end gap-1.5">
-										{isRuntimeChannel ? (
-											<Badge
-												variant={getConnectionBadgeVariant(status)}
-												className="h-5 px-2 text-[10px]"
-											>
-												{t(`channels.status.${status}`)}
-											</Badge>
-										) : (
-											<Badge variant="outline" className="h-5 px-2 text-[10px]">
-												{t('settings.channels.configOnly')}
-											</Badge>
-										)}
-										{!isRuntimeChannel && (
-											<CircleOff className="size-3.5 text-muted-foreground" />
-										)}
-										<ChevronRight
-											className="size-3.5 text-muted-foreground"
-											strokeWidth={1.8}
-										/>
-									</ItemActions>
-								</Item>
-							</button>
+								</ItemActions>
+							</Item>
 						);
 					})}
-				</Card>
+				</SettingsPanel>
 			</SettingsSection>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}

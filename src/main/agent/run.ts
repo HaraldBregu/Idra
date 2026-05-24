@@ -271,6 +271,25 @@ async function applyToolResultMiddlewareForRun(params: {
 	);
 }
 
+async function prepareToolResultForRun(params: {
+	content: ToolResultBlock[];
+	details?: unknown;
+	hookContext: AgentHarnessHookContext;
+	runtime?: string;
+}): Promise<{ content: ToolResultBlock[]; outputText: string; output: unknown }> {
+	const content = await applyToolResultMiddlewareForRun({
+		content: params.content,
+		hookContext: params.hookContext,
+		runtime: params.runtime,
+	});
+	const outputText = resultBlocksToText(content);
+	return {
+		content,
+		outputText,
+		output: toolResultOutput(content, params.details),
+	};
+}
+
 /**
  * Provider-neutral agent loop.
  *
