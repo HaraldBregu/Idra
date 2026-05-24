@@ -4,7 +4,7 @@ import {
 	resolveChatDailyMemoryTarget,
 	resolveChatMemoryScope,
 	validateChatDailyMemoryRelativePath,
-} from '../../../../src/main/memory';
+} from '../../../../src/main/memory/chat';
 
 describe('chat memory module', () => {
 	it('normalizes unsafe chat identifiers into filesystem-safe scope ids', () => {

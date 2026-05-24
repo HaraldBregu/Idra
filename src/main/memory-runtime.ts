@@ -8,7 +8,7 @@ import {
 	type ChatMemoryScope,
 	type ChatMemoryScopeInput,
 	type ChatMemoryScopeKind,
-} from './memory';
+} from './memory/chat';
 import type { TranscriptEntry } from './provider/types';
 import { describeRagFile } from './rag';
 import { acquireWriteLock } from './session/lock';
