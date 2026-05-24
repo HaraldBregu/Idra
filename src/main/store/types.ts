@@ -30,6 +30,84 @@ export interface BackgroundTaskSettings {
 	defaultConcurrency?: number;
 }
 
+export interface AgentToolPolicy {
+	profile?: 'minimal' | 'coding' | 'messaging' | 'full';
+	allow?: string[];
+	alsoAllow?: string[];
+	deny?: string[];
+	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
+	exec?: Record<string, unknown>;
+}
+
+export interface AgentConfig {
+	id: string;
+	default?: boolean;
+	name?: string;
+	workspace?: string;
+	model?: {
+		providerId?: string;
+		modelId?: string;
+		effort?: ModelReasoningEffort;
+	};
+	skills?: string[];
+	tools?: AgentToolPolicy;
+	subagents?: {
+		allowAgents?: string[];
+		maxSpawnDepth?: number;
+		maxChildrenPerAgent?: number;
+		requireAgentId?: boolean;
+		model?: {
+			providerId?: string;
+			modelId?: string;
+			effort?: ModelReasoningEffort;
+		};
+		runTimeoutSeconds?: number;
+	};
+}
+
+export type AgentRoutePeerKind = 'direct' | 'group' | 'channel' | 'thread';
+
+export interface AgentRoutePeer {
+	kind: AgentRoutePeerKind;
+	id: string;
+}
+
+export type AgentRouteSessionScope =
+	| 'main'
+	| 'per-peer'
+	| 'per-channel-peer'
+	| 'per-account-channel-peer';
+
+export interface AgentRouteBinding {
+	agentId: string;
+	match: {
+		channel?: string;
+		accountId?: string;
+		peer?: AgentRoutePeer;
+		parentPeer?: Extract<AgentRoutePeer, { kind: 'direct' | 'group' | 'channel' }>;
+		roleIds?: string[];
+	};
+	session?: {
+		scope?: AgentRouteSessionScope;
+	};
+}
+
+export interface AgentRoutingSettings {
+	agents: AgentConfig[];
+	bindings: AgentRouteBinding[];
+}
+
+export interface AgentSessionMetadata {
+	agentId: string;
+	spawnedBy?: string;
+	spawnDepth?: number;
+	subagentRole?: 'main' | 'orchestrator' | 'leaf';
+	subagentControlScope?: 'children' | 'none';
+	spawnedWorkspace?: string;
+	inheritedToolAllow?: string[];
+	inheritedToolDeny?: string[];
+}
+
 export interface Connectors {
 	google_gmail?: ConnectorConfig;
 	google_calendar?: ConnectorConfig;
@@ -53,6 +131,7 @@ export interface SettingsStore {
 	textToSound?: ModelModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
+	agents?: AgentRoutingSettings;
 	heartbeat?: HeartbeatStoreState;
 	connectors?: Connectors;
 	channels?: Channels;

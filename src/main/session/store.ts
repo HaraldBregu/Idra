@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { TranscriptEntry } from '../provider/types';
+import type { AgentSessionMetadata } from '../store/types';
 import type { PlanEntry } from '../tools/types';
 import { resolveDefaultUserDataPath } from '../user-data';
 import { acquireWriteLock } from './lock';
@@ -22,6 +23,8 @@ export interface SessionFile {
 	provider: string;
 	sessionFile?: string;
 	status?: SessionStatus;
+	agentId?: string;
+	agentMetadata?: AgentSessionMetadata;
 	task?: string;
 	parentSessionId?: string;
 	spawnedBySessionId?: string;
@@ -43,6 +46,8 @@ export interface SessionIndexEntry {
 	model: string;
 	provider: string;
 	status?: SessionStatus;
+	agentId?: string;
+	agentMetadata?: AgentSessionMetadata;
 	task?: string;
 	parentSessionId?: string;
 	spawnedBySessionId?: string;
@@ -118,6 +123,8 @@ function toIndexEntry(file: SessionFile, baseDir: string): SessionIndexEntry {
 		model: file.model,
 		provider: file.provider,
 		status: file.status,
+		agentId: file.agentId,
+		agentMetadata: file.agentMetadata,
 		task: file.task,
 		parentSessionId: file.parentSessionId,
 		spawnedBySessionId: file.spawnedBySessionId,
