@@ -268,12 +268,14 @@ const StartPage: React.FC = () => {
 			? { provider: selectedProvider.provider, model: selectedModel }
 			: undefined;
 	};
+	const currentModelService = MODEL_SERVICE_DEFINITIONS.find((service) => service.id === step);
+	const isLastModelStep = currentModelService?.id === MODEL_SERVICE_STEP_IDS[MODEL_SERVICE_STEP_IDS.length - 1];
 	const canSaveModelSetup =
 		!loadingModels &&
 		!savingConfig &&
-		MODEL_SERVICE_DEFINITIONS.every(
-			(service) => !service.required || getSelectedServiceModel(service.id) !== undefined
-		);
+		(!isModelStep(step) ||
+			!currentModelService?.required ||
+			getSelectedServiceModel(currentModelService.id) !== undefined);
 	const isBusy = savingProviderId !== null || savingConfig;
 	const connectedProviderIds = useMemo(
 		() =>
