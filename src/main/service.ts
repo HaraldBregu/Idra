@@ -269,7 +269,7 @@ export class AgentService {
 			}),
 			...(this.dependencies.connectors?.createAgentTools() ?? []),
 			...(this.dependencies.subagents
-				? [createSessionsSpawnTool(this.dependencies.subagents) as AgentTool]
+				? [createSessionsSpawnTool(this.dependencies.subagents) as unknown as AgentTool]
 				: []),
 		];
 		const toolRuntimeConfig =
