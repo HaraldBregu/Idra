@@ -32,6 +32,8 @@ abstract class GoogleConnectorRuntimeStrategy implements ConnectorRuntimeStrateg
 		protected readonly dependencies: GoogleRuntimeDependencies
 	) {}
 
+	abstract callTool(connector: ConnectorConfig, name: string, args: unknown): Promise<unknown>;
+
 	listTools(connector: ConnectorConfig): ConnectorTool[] {
 		return this.dependencies.listTools(connector);
 	}

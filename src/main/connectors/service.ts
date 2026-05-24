@@ -23,6 +23,7 @@ import {
 } from '../../shared/connector';
 import {
 	GOOGLE_OAUTH_REDIRECT_URI,
+	GoogleProfileClient,
 	buildGoogleAuthorizationUrl,
 	createGooglePkcePair,
 	exchangeGoogleAuthorizationCode,
@@ -58,12 +59,6 @@ interface ConnectorsServiceOptions {
 	oauthTimeoutMs?: number;
 	googleOAuthClientId?: string;
 	googleOAuthClientSecret?: string;
-}
-
-interface ConnectorRuntimeStrategy {
-	readonly connectorId: OpenAiConnectorId;
-	listTools(connector: ConnectorConfig): ConnectorTool[];
-	callTool(connector: ConnectorConfig, name: string, args: unknown): Promise<unknown>;
 }
 
 function serverLabelFromName(name: string): string {
