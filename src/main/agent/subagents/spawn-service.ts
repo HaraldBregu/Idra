@@ -15,8 +15,8 @@ import type {
 	SubagentsControlResult,
 	SubagentCleanup,
 	SubagentRunRecord,
-		SubagentRunTaskInput,
-		SubagentSpawnMode,
+	SubagentRunTaskInput,
+	SubagentSpawnMode,
 } from './types';
 
 export interface SubagentSpawnRequest {
@@ -166,9 +166,7 @@ function resolveChildModel(input: {
 		providerId:
 			input.override.providerId ?? subagentDefault?.providerId ?? targetDefault?.providerId,
 		modelId: input.override.modelId ?? subagentDefault?.modelId ?? targetDefault?.modelId,
-		...(hasOverride
-			? {}
-			: { effort: subagentDefault?.effort ?? targetDefault?.effort }),
+		...(hasOverride ? {} : { effort: subagentDefault?.effort ?? targetDefault?.effort }),
 	};
 }
 
