@@ -59,6 +59,29 @@ describe('TasksIpc', () => {
 		});
 	});
 
+	it('rejects malformed start payloads before calling the task manager', async () => {
+		const taskManager = {
+			startUserTask: jest.fn(),
+			list: jest.fn(),
+			get: jest.fn(),
+			cancel: jest.fn(),
+		};
+		const container = {
+			get: jest.fn(() => taskManager),
+		} as unknown as MainServiceContainer;
+		const eventBus = new EventBus();
+
+		new TasksIpc().register(container, eventBus);
+
+		await expect(
+			registeredHandler(TaskChannels.start)({}, { type: record.type, title: record.title })
+		).resolves.toMatchObject({
+			success: false,
+			error: { message: 'Task input is required.' },
+		});
+		expect(taskManager.startUserTask).not.toHaveBeenCalled();
+	});
+
 	it('forwards task lifecycle events to renderers on one event channel', () => {
 		const taskManager = {
 			startUserTask: jest.fn(),
