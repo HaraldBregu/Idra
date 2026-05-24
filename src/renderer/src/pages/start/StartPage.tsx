@@ -149,10 +149,6 @@ function getPreferredProviderModelOption(
 	);
 }
 
-function getProviderModelSelectionLabel(option: ProviderModelOption | undefined): string {
-	if (!option) return 'Not configured';
-	return `${option.provider.name} - ${option.model.name}`;
-}
 
 function StepProgress({ currentIndex }: { readonly currentIndex: number }): React.JSX.Element {
 	return (
