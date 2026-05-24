@@ -12,8 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- keep Label import for SettingsField below
-
 interface SettingsPageShellProps {
 	readonly children: ReactNode;
 	readonly className?: string;
