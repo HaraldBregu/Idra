@@ -272,7 +272,7 @@ export class TaskManager {
 	}
 
 	private maxActiveTasks(): number {
-		const configured = this.policy?.().defaultConcurrency;
+		const configured = this.policy?.()?.defaultConcurrency;
 		return Number.isSafeInteger(configured) && configured > 0 ? configured : UNBOUNDED_CONCURRENCY;
 	}
 
