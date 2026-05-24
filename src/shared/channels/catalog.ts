@@ -2,9 +2,28 @@ import { CHANNEL_PROVIDER_IDS, type ChannelType } from './definitions';
 
 export const CHANNEL_RUNTIME_SUPPORT_VALUES = ['bundled', 'catalog-only'] as const;
 export const CHANNEL_CATALOG_EXPOSURES = ['stable', 'preview', 'hidden'] as const;
+export const CHANNEL_SETUP_FIELDS = [
+	'enabled',
+	'token',
+	'secret',
+	'serverUrl',
+	'webhookUrl',
+	'appId',
+	'clientId',
+	'clientSecret',
+	'username',
+	'phoneNumber',
+	'botUserId',
+	'allowFrom',
+	'groupAllowFrom',
+	'defaultTarget',
+	'dmPolicy',
+	'heartbeat',
+] as const;
 
 export type ChannelRuntimeSupport = (typeof CHANNEL_RUNTIME_SUPPORT_VALUES)[number];
 export type ChannelCatalogExposure = (typeof CHANNEL_CATALOG_EXPOSURES)[number];
+export type ChannelSetupField = (typeof CHANNEL_SETUP_FIELDS)[number];
 
 export interface ChannelCatalogEntry {
 	id: ChannelType;
@@ -20,6 +39,7 @@ export interface ChannelCatalogEntry {
 	runtime: ChannelRuntimeSupport;
 	setupVisible: boolean;
 	catalogVisible: boolean;
+	setupFields: readonly ChannelSetupField[];
 	cliHints: readonly string[];
 	setupHints: readonly string[];
 }
@@ -29,6 +49,226 @@ type ChannelCatalogInput = Omit<
 	'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'
 > &
 	Partial<Pick<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'>>;
+
+const SETUP_FIELDS_BY_CHANNEL_ID: Readonly<Record<ChannelType, readonly ChannelSetupField[]>> = {
+	clickclack: [
+		'serverUrl',
+		'token',
+		'secret',
+		'webhookUrl',
+		'allowFrom',
+		'groupAllowFrom',
+		'defaultTarget',
+	],
+	discord: [
+		'token',
+		'appId',
+		'clientId',
+		'clientSecret',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	feishu: [
+		'appId',
+		'clientSecret',
+		'token',
+		'secret',
+		'webhookUrl',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	googlechat: [
+		'appId',
+		'clientId',
+		'clientSecret',
+		'secret',
+		'webhookUrl',
+		'serverUrl',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	imessage: [
+		'serverUrl',
+		'username',
+		'secret',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+		'appId',
+		'clientId',
+		'clientSecret',
+		'webhookUrl',
+	],
+	irc: [
+		'serverUrl',
+		'username',
+		'token',
+		'secret',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	line: [
+		'token',
+		'secret',
+		'appId',
+		'botUserId',
+		'webhookUrl',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	matrix: [
+		'serverUrl',
+		'username',
+		'token',
+		'secret',
+		'appId',
+		'clientSecret',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	mattermost: [
+		'serverUrl',
+		'token',
+		'secret',
+		'webhookUrl',
+		'username',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	msteams: [
+		'appId',
+		'clientId',
+		'clientSecret',
+		'webhookUrl',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	'nextcloud-talk': [
+		'serverUrl',
+		'token',
+		'secret',
+		'webhookUrl',
+		'username',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	nostr: ['serverUrl', 'secret', 'botUserId', 'defaultTarget', 'allowFrom', 'groupAllowFrom'],
+	'qa-channel': ['enabled', 'defaultTarget', 'allowFrom', 'groupAllowFrom', 'heartbeat'],
+	qqbot: [
+		'appId',
+		'token',
+		'clientSecret',
+		'secret',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	signal: [
+		'phoneNumber',
+		'username',
+		'serverUrl',
+		'token',
+		'secret',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	slack: [
+		'token',
+		'secret',
+		'appId',
+		'clientId',
+		'clientSecret',
+		'webhookUrl',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	'synology-chat': [
+		'serverUrl',
+		'token',
+		'secret',
+		'webhookUrl',
+		'username',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	telegram: [
+		'token',
+		'secret',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+		'dmPolicy',
+	],
+	tlon: [
+		'serverUrl',
+		'username',
+		'token',
+		'secret',
+		'appId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	twitch: [
+		'clientId',
+		'clientSecret',
+		'token',
+		'secret',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	whatsapp: [
+		'token',
+		'phoneNumber',
+		'appId',
+		'clientSecret',
+		'secret',
+		'webhookUrl',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	zalo: [
+		'appId',
+		'clientSecret',
+		'token',
+		'secret',
+		'webhookUrl',
+		'botUserId',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+	zalouser: [
+		'phoneNumber',
+		'username',
+		'serverUrl',
+		'token',
+		'secret',
+		'defaultTarget',
+		'allowFrom',
+		'groupAllowFrom',
+	],
+};
 
 const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	entry('clickclack', 'ClickClack', 'Connect ClickClack conversations.', [], 10, false),
@@ -107,6 +347,8 @@ export const CHANNEL_ALIASES_BY_ID = indexCatalogById((entry) => entry.aliases);
 export const CHANNEL_DOCS_PATH_BY_ID = indexCatalogById((entry) => entry.docsPath);
 
 export const CHANNEL_RUNTIME_BY_ID = indexCatalogById((entry) => entry.runtime);
+
+export const CHANNEL_SETUP_FIELDS_BY_ID = indexCatalogById((entry) => entry.setupFields);
 
 export const CHANNEL_BUNDLED_RUNTIME_IDS = listChannelIdsWhere(
 	(entry) => entry.runtime === 'bundled'
@@ -196,6 +438,7 @@ function entry(
 		order,
 		markdownCapable,
 		exposure,
+		setupFields: SETUP_FIELDS_BY_CHANNEL_ID[id],
 		cliHints: [`friday channels setup ${id}`],
 		setupHints: [`Configure ${label} accounts from Settings > Channels.`],
 	};
@@ -234,12 +477,18 @@ function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {
 		typeof item.markdownCapable === 'boolean' &&
 		isChannelRuntimeSupport(item.runtime) &&
 		typeof item.setupVisible === 'boolean' &&
-		typeof item.catalogVisible === 'boolean'
+		typeof item.catalogVisible === 'boolean' &&
+		Array.isArray(item.setupFields) &&
+		item.setupFields.every(isChannelSetupField)
 	);
 }
 
 function isChannelRuntimeSupport(value: unknown): value is ChannelRuntimeSupport {
 	return value === 'bundled' || value === 'catalog-only';
+}
+
+function isChannelSetupField(value: unknown): value is ChannelSetupField {
+	return typeof value === 'string' && CHANNEL_SETUP_FIELDS.includes(value as ChannelSetupField);
 }
 
 function indexCatalogById<TValue>(
