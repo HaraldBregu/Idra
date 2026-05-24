@@ -1,8 +1,10 @@
 import type React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import {
 	PromptInput,
+	PromptInputActions,
 	PromptInputTextarea,
+	PromptInputVoiceActions,
 } from '../../../../../src/renderer/src/components/ui/prompt-input';
 
 jest.mock('motion/react', () => ({
@@ -46,5 +48,44 @@ describe('PromptInput', () => {
 		expect(screen.getByRole('button', { name: 'Cancel dictation' })).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: 'Confirm dictation' })).toBeInTheDocument();
 		expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument();
+	});
+
+	it('renders separate speech-to-text and disabled voice conversation actions', () => {
+		const onSpeechToText = jest.fn();
+		const onVoiceConversation = jest.fn();
+
+		render(
+			<PromptInput
+				value=""
+				onValueChange={jest.fn()}
+				leadingAction={<button type="button">Attach</button>}
+				actions={
+					<PromptInputActions>
+						<PromptInputVoiceActions
+							speechToTextMode="record"
+							onSpeechToText={onSpeechToText}
+							onVoiceConversation={onVoiceConversation}
+							voiceConversationDisabled
+						/>
+					</PromptInputActions>
+				}
+			>
+				<PromptInputTextarea aria-label="Message Friday" />
+			</PromptInput>
+		);
+
+		const speechToTextButton = screen.getByRole('button', { name: 'Record speech to text' });
+		const voiceConversationButton = screen.getByRole('button', {
+			name: 'Voice conversation unavailable',
+		});
+
+		expect(speechToTextButton).toBeEnabled();
+		expect(voiceConversationButton).toBeDisabled();
+
+		fireEvent.click(speechToTextButton);
+		fireEvent.click(voiceConversationButton);
+
+		expect(onSpeechToText).toHaveBeenCalledTimes(1);
+		expect(onVoiceConversation).not.toHaveBeenCalled();
 	});
 });
