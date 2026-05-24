@@ -9,6 +9,7 @@ import {
 	MonitorCog,
 	Music,
 	Plug,
+	Radar,
 	RadioTower,
 	Server,
 	Sparkles,
@@ -136,6 +137,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/task-manager', labelKey: 'settings.tabs.backgroundTasks', descriptionKey: 'settings.taskManager.description', keywords: 'tasks running queued succeeded failed background' },
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
+	{ path: '/settings/monitoring', labelKey: 'settings.tabs.monitoring', descriptionKey: 'settings.monitoring.description', keywords: 'runtime monitoring diagnostics events errors warnings timeline payload' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
@@ -192,5 +194,11 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.backgroundTasks',
 		descriptionKey: 'settings.overview.descriptions.taskManager',
 		icon: ClipboardList,
+	},
+	{
+		path: '/settings/monitoring',
+		labelKey: 'settings.tabs.monitoring',
+		descriptionKey: 'settings.overview.descriptions.monitoring',
+		icon: Radar,
 	},
 ] satisfies readonly SettingsNavigationItem[];

@@ -163,7 +163,8 @@
 				"providers": "Chiavi API AI",
 				"cron": "Pianificatore attivita",
 				"taskManager": "Attivita in background",
-				"heartbeat": "Controlli periodici agenti"
+				"heartbeat": "Controlli periodici agenti",
+				"monitoring": "Diagnostica runtime"
 			}
 		},
 		"tabs": {
@@ -182,6 +183,7 @@
 			"taskScheduler": "Pianificatore attivita",
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
+			"monitoring": "Monitoraggio",
 			"developer": "Sviluppatore",
 			"skills": "Abilità"
 		},
@@ -213,6 +215,7 @@
 			"taskScheduler": "Attivita programmate",
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
+			"monitoring": "Monitoraggio",
 			"developer": "Sviluppatore"
 		},
 		"profile": {
@@ -686,6 +689,60 @@
 				"emptyEvent": "Inserisci il testo dell'evento prima di inviare.",
 				"invalidEvery": "Inserisci una durata valida come 5m, 30m, 1h o 0m.",
 				"activeHoursRange": "Imposta sia inizio che fine attiva, oppure lascia entrambi vuoti."
+			}
+		},
+		"monitoring": {
+			"description": "Timeline eventi runtime, payload sanificati e diagnostica errori.",
+			"actions": {
+				"refresh": "Aggiorna",
+				"clearFilters": "Cancella filtri"
+			},
+			"summary": {
+				"title": "Riepilogo runtime",
+				"description": "Record monitor correnti filtrati.",
+				"records": "Record",
+				"errors": "Errori",
+				"warnings": "Avvisi",
+				"categories": "Categorie"
+			},
+			"filters": {
+				"title": "Filtri",
+				"description": "Filtra la timeline monitor in memoria.",
+				"source": "Origine",
+				"severity": "Severita",
+				"category": "Categoria",
+				"eventType": "Tipo evento",
+				"timeRange": "Intervallo",
+				"limit": "Limite",
+				"allSources": "Tutte le origini",
+				"allSeverities": "Tutte le severita",
+				"allTime": "Tutto",
+				"last15m": "Ultimi 15 minuti",
+				"lastHour": "Ultima ora",
+				"lastDay": "Ultime 24 ore",
+				"categoryPlaceholder": "task, heartbeat, channel",
+				"eventTypePlaceholder": "task:failed"
+			},
+			"events": {
+				"title": "Timeline eventi",
+				"description": "Record sanificati dal monitor main-process fidato.",
+				"emptyTitle": "Nessun evento monitor",
+				"emptyDescription": "Gli eventi appariranno quando Friday registra attivita runtime.",
+				"generatedAt": "Aggiornato {{time}}",
+				"payload": "Payload",
+				"payloadEmpty": "Nessun payload"
+			},
+			"fields": {
+				"id": "Id",
+				"eventTimestamp": "Ora evento"
+			},
+			"severity": {
+				"info": "Info",
+				"warn": "Avviso",
+				"error": "Errore"
+			},
+			"values": {
+				"unknown": "Sconosciuto"
 			}
 		},
 		"permissions": {

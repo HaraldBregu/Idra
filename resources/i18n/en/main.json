@@ -163,7 +163,8 @@
 				"providers": "AI API keys",
 				"cron": "Task scheduler",
 				"taskManager": "Background tasks",
-				"heartbeat": "Periodic agent checks"
+				"heartbeat": "Periodic agent checks",
+				"monitoring": "Runtime diagnostics"
 			}
 		},
 		"tabs": {
@@ -182,6 +183,7 @@
 			"taskScheduler": "Task scheduler",
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
+			"monitoring": "Monitoring",
 			"developer": "Developer",
 			"skills": "Skills"
 		},
@@ -213,6 +215,7 @@
 			"taskScheduler": "Scheduled tasks",
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
+			"monitoring": "Monitoring",
 			"developer": "Developer"
 		},
 		"profile": {
@@ -686,6 +689,60 @@
 				"emptyEvent": "Enter event text before sending.",
 				"invalidEvery": "Enter a valid duration such as 5m, 30m, 1h, or 0m.",
 				"activeHoursRange": "Set both active start and active end, or leave both empty."
+			}
+		},
+		"monitoring": {
+			"description": "Runtime event timeline, sanitized payloads, and failure diagnostics.",
+			"actions": {
+				"refresh": "Refresh",
+				"clearFilters": "Clear filters"
+			},
+			"summary": {
+				"title": "Runtime summary",
+				"description": "Current filtered monitor records.",
+				"records": "Records",
+				"errors": "Errors",
+				"warnings": "Warnings",
+				"categories": "Categories"
+			},
+			"filters": {
+				"title": "Filters",
+				"description": "Filter the bounded in-memory monitor timeline.",
+				"source": "Source",
+				"severity": "Severity",
+				"category": "Category",
+				"eventType": "Event type",
+				"timeRange": "Time range",
+				"limit": "Limit",
+				"allSources": "All sources",
+				"allSeverities": "All severities",
+				"allTime": "All time",
+				"last15m": "Last 15 minutes",
+				"lastHour": "Last hour",
+				"lastDay": "Last 24 hours",
+				"categoryPlaceholder": "task, heartbeat, channel",
+				"eventTypePlaceholder": "task:failed"
+			},
+			"events": {
+				"title": "Event timeline",
+				"description": "Sanitized records from the trusted main-process monitor.",
+				"emptyTitle": "No monitor events",
+				"emptyDescription": "Events will appear as Friday records runtime activity.",
+				"generatedAt": "Updated {{time}}",
+				"payload": "Payload",
+				"payloadEmpty": "No payload"
+			},
+			"fields": {
+				"id": "Id",
+				"eventTimestamp": "Event time"
+			},
+			"severity": {
+				"info": "Info",
+				"warn": "Warn",
+				"error": "Error"
+			},
+			"values": {
+				"unknown": "Unknown"
 			}
 		},
 		"permissions": {

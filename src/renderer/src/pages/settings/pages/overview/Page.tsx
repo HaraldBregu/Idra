@@ -44,7 +44,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'automations',
 		titleKey: 'settings.overview.groups.automations',
-		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager'],
+		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager', '/settings/monitoring'],
 	},
 ] satisfies readonly {
 	readonly id: string;
