@@ -1,4 +1,6 @@
 import { agentLogger } from '../logger';
+import { buildAgentHookContext } from './hook-context';
+import { fireBeforeAgentStartHook } from './prompt-compaction-hook-helpers';
 import type { AgentHarness, AgentHarnessAttemptParams, AgentHarnessAttemptResult } from './types';
 
 type AgentHarnessV2LifecyclePhase =
@@ -146,6 +148,10 @@ export async function runAgentHarnessV2LifecycleAttempt(
 
 	logHarnessRunStarted(harness, params);
 	try {
+		await fireBeforeAgentStartHook({
+			...buildAgentAttemptHookContext(params),
+			userMessage: params.userMessage,
+		});
 		phase = 'prepare';
 		prepared = await harness.prepare(params);
 		phase = 'start';
@@ -214,4 +220,15 @@ function toV2RunBase(harness: AgentHarness, params: AgentHarnessAttemptParams): 
 		pluginId: harness.pluginId,
 		params,
 	};
+}
+
+function buildAgentAttemptHookContext(params: AgentHarnessAttemptParams) {
+	return buildAgentHookContext({
+		runId: params.runId,
+		agentId: params.ctx.agentId,
+		sessionId: params.session.id,
+		sessionKey: params.ctx.sessionId,
+		provider: params.provider,
+		modelId: params.model,
+	});
 }
