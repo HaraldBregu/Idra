@@ -462,7 +462,7 @@ async function resolveAllowedMemoryFile(workspaceDir: string, requestedPath: str
 	const underWorkspaceReal = isInside(workspaceReal, real);
 	const extraAllowed = await isAllowedExtraPath(real, workspace, extraPaths);
 
-	if ((rootMemory || underMemoryDir) && underWorkspaceReal) return real;
+	if ((rootMemory || underMemoryDir) && underWorkspaceReal) return absolute;
 	if (extraAllowed) return real;
 	throw new Error('Memory path is outside allowed memory roots.');
 }

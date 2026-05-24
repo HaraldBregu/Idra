@@ -43,7 +43,7 @@ export function createMemoryScopeId(parts: readonly string[]): string {
 	if (!raw) throw new Error('Memory scope id source is required.');
 	const slug = raw
 		.toLowerCase()
-		.replace(/[^a-z0-9._-]+/g, '-')
+		.replace(/[^a-z0-9_-]+/g, '-')
 		.replace(/^[._-]+|[._-]+$/g, '')
 		.slice(0, 72) || 'scope';
 	const hash = createHash('sha1').update(raw).digest('hex').slice(0, 8);
