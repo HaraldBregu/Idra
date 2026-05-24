@@ -15,11 +15,7 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import {
-	OPERATOR_DEFINITIONS,
-	type ConfiguredModelOperator,
-	type Model,
-} from '../../../../shared/agents/service';
+import { type Model } from '../../../../shared/agents/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
