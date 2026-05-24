@@ -514,6 +514,43 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('uses provider-safe aliases in service-built tool prompts and definitions', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+			toolsFactory: () => [
+				{
+					name: 'Bad Tool!',
+					description: 'Read workspace files with an unsafe source name.',
+					schema: { type: 'object', properties: {}, additionalProperties: false },
+					execute: jest.fn(),
+				},
+			],
+		});
+
+		await expect(service.send('read a workspace file with the bad tool')).resolves.toBe('done');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['bad_tool']);
+		expect(requests[0]!.system).toContain('**bad_tool**');
+		expect(requests[0]!.system).toContain('Tool: bad_tool');
+		expect(requests[0]!.system).not.toContain('**Bad Tool!**');
+		expect(requests[0]!.system).not.toContain('Tool: Bad Tool!');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('filters the tool surface with an explicit allowlist', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
