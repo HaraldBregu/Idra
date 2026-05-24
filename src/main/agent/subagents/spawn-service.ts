@@ -15,8 +15,8 @@ import type {
 	SubagentsControlResult,
 	SubagentCleanup,
 	SubagentRunRecord,
-	SubagentRunTaskInput,
-	SubagentSpawnMode,
+		SubagentRunTaskInput,
+		SubagentSpawnMode,
 } from './types';
 
 export interface SubagentSpawnRequest {
@@ -150,6 +150,24 @@ function parseModelOverride(value: string | undefined): { providerId?: string; m
 	};
 }
 
+function resolveChildModel(input: {
+	override: { providerId?: string; modelId?: string };
+	parentAgent?: AgentConfig;
+	targetAgent?: AgentConfig;
+}): { providerId?: string; modelId?: string; effort?: AgentConfig['model']['effort'] } {
+	const subagentDefault = input.parentAgent?.subagents?.model;
+	const targetDefault = input.targetAgent?.model;
+	const hasOverride = Boolean(input.override.providerId || input.override.modelId);
+	return {
+		providerId:
+			input.override.providerId ?? subagentDefault?.providerId ?? targetDefault?.providerId,
+		modelId: input.override.modelId ?? subagentDefault?.modelId ?? targetDefault?.modelId,
+		...(hasOverride
+			? {}
+			: { effort: subagentDefault?.effort ?? targetDefault?.effort }),
+	};
+}
+
 function parseControlInput(input: unknown): SubagentsControlInput {
 	const record = readRecord(input, 'subagents input');
 	if (record.action !== 'list' && record.action !== 'cancel' && record.action !== 'history') {
@@ -250,9 +268,11 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 			kind: 'subagent',
 			id: runId,
 		});
-		const modelOverride = parseModelOverride(input.model);
-		const childProviderId = modelOverride.providerId ?? parentAgent?.subagents?.model?.providerId;
-		const childModelId = modelOverride.modelId ?? parentAgent?.subagents?.model?.modelId;
+		const childModel = resolveChildModel({
+			override: parseModelOverride(input.model),
+			parentAgent,
+			targetAgent,
+		});
 		const spawnDepth = parentDepth + 1;
 		const subagentRole = spawnDepth >= maxDepth ? 'leaf' : 'orchestrator';
 		const subagentControlScope = spawnDepth >= maxDepth ? 'none' : 'children';
@@ -282,8 +302,9 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 			taskName: input.taskName,
 			label: input.label,
 			agentId: targetAgentId,
-			modelId: childModelId,
-			providerId: childProviderId,
+			modelId: childModel.modelId,
+			providerId: childModel.providerId,
+			effort: childModel.effort,
 			cleanup: input.cleanup,
 			spawnMode: input.mode,
 			createdAt: this.now(),
@@ -299,8 +320,9 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 			childSessionKey,
 			requesterSessionKey,
 			controllerSessionKey,
-			providerId: childProviderId,
-			modelId: childModelId,
+			providerId: childModel.providerId,
+			modelId: childModel.modelId,
+			effort: childModel.effort,
 			runTimeoutSeconds: input.runTimeoutSeconds ?? parentAgent?.subagents?.runTimeoutSeconds,
 			toolsAllow: inheritedToolAllow,
 			toolsDeny: inheritedToolDeny,
