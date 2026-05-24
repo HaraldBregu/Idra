@@ -809,89 +809,84 @@ const StartPage: React.FC = () => {
 		);
 	}
 
-	function renderModelsStep(): React.JSX.Element {
+	function renderModelServiceStep(): React.JSX.Element {
+		if (!currentModelService) {
+			return <></>;
+		}
+
+		const service = currentModelService;
+		const serviceState = serviceStates[service.id];
+		const providerModels = serviceState.modelGroups.find(
+			(group) => group.provider.id === serviceState.providerId
+		);
+		const availableModels = providerModels?.models ?? [];
+		const modelOptionsCount = serviceState.modelGroups.reduce(
+			(total, group) => total + group.models.length,
+			0
+		);
+		const modelCountLabel = loadingModels
+			? 'Loading models...'
+			: modelOptionsCount === 0
+				? 'No models available'
+				: `${modelOptionsCount} models available`;
+
 		return (
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Choose models
+						Choose model
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose a model for each capability. You can change these anytime in Settings.
+						{service.label}
 					</p>
 				</div>
 
 				<div className="mt-6 space-y-3">
-					{MODEL_SERVICE_DEFINITIONS.map((service) => {
-						const serviceState = serviceStates[service.id];
-						const providerModels = serviceState.modelGroups.find(
-							(group) => group.provider.id === serviceState.providerId
-						);
-						const availableModels = providerModels?.models ?? [];
-						const modelOptionsCount = serviceState.modelGroups.reduce(
-							(total, group) => total + group.models.length,
-							0
-						);
-						const modelCountLabel = loadingModels
-							? 'Loading models...'
-							: modelOptionsCount === 0
-								? 'No models available'
-								: `${modelOptionsCount} models available`;
-
-						return (
-							<Card
-								key={service.id}
-								className="rounded-lg border-border bg-card py-0 shadow-none"
-							>
-								<CardContent className="space-y-3 p-3">
-									<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-										{service.label}
-									</p>
-									<div className="grid gap-3 sm:grid-cols-2">
-										<SettingsField id={`${service.id}-provider`} label="Provider">
-											<Select
-												value={serviceState.providerId}
-												onValueChange={(value) => handleServiceProviderChange(service.id, value)}
-												disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
-											>
-												<SelectTrigger id={`${service.id}-provider`} className="w-full text-xs">
-													<SelectValue placeholder={modelCountLabel} />
-												</SelectTrigger>
-												<SelectContent>
-													{serviceState.modelGroups.map((group) => {
-														const catalog = getProviderCatalogItem(group.provider.id);
-														return (
-															<SelectItem key={group.provider.id} value={group.provider.id}>
-																{catalog.name}
-															</SelectItem>
-														);
-													})}
-												</SelectContent>
-											</Select>
-										</SettingsField>
-										<SettingsField id={`${service.id}-model`} label="Model">
-											<Select
-												value={serviceState.modelId}
-												onValueChange={(value) => handleServiceModelChange(service.id, value)}
-												disabled={loadingModels || availableModels.length === 0 || savingConfig}
-											>
-												<SelectTrigger id={`${service.id}-model`} className="w-full text-xs">
-													<SelectValue placeholder={modelCountLabel} />
-												</SelectTrigger>
-												<SelectContent>
-													{availableModels.map((model) => (
-														<SelectItem key={model.id} value={model.id}>
-															{model.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</SettingsField>
-									</div>
-								</CardContent>
-							</Card>
-						);
-					})}
+					<Card className="rounded-lg border-border bg-card py-0 shadow-none">
+						<CardContent className="space-y-3 p-3">
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField id={`${service.id}-provider`} label="Provider">
+									<Select
+										value={serviceState.providerId}
+										onValueChange={(value) => handleServiceProviderChange(service.id, value)}
+										disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
+									>
+										<SelectTrigger id={`${service.id}-provider`} className="w-full text-xs">
+											<SelectValue placeholder={modelCountLabel} />
+										</SelectTrigger>
+										<SelectContent>
+											{serviceState.modelGroups.map((group) => {
+												const catalog = getProviderCatalogItem(group.provider.id);
+												return (
+													<SelectItem key={group.provider.id} value={group.provider.id}>
+														{catalog.name}
+													</SelectItem>
+												);
+											})}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+								<SettingsField id={`${service.id}-model`} label="Model">
+									<Select
+										value={serviceState.modelId}
+										onValueChange={(value) => handleServiceModelChange(service.id, value)}
+										disabled={loadingModels || availableModels.length === 0 || savingConfig}
+									>
+										<SelectTrigger id={`${service.id}-model`} className="w-full text-xs">
+											<SelectValue placeholder={modelCountLabel} />
+										</SelectTrigger>
+										<SelectContent>
+											{availableModels.map((model) => (
+												<SelectItem key={model.id} value={model.id}>
+													{model.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+							</div>
+						</CardContent>
+					</Card>
 				</div>
 			</div>
 		);
@@ -900,7 +895,7 @@ const StartPage: React.FC = () => {
 	function renderStepContent(): React.JSX.Element {
 		if (step === 'presentation') return renderPresentationStep();
 		if (step === 'providers') return renderProviderStep();
-		return renderModelsStep();
+		return renderModelServiceStep();
 	}
 
 	return (
