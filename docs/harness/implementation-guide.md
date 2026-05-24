@@ -576,6 +576,7 @@ import type {
 	AgentHarnessAttemptParams,
 	AgentHarnessAttemptResult,
 } from '../../agent/harness/types';
+} from '../../agent/harness';
 
 function assertNotAborted(signal?: AbortSignal): void {
 	if (signal?.aborted) {
