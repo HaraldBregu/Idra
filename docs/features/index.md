@@ -21,6 +21,17 @@ This folder documents Friday's current feature surface from the source tree and 
 | [Multiplatform desktop application](desktop-application.md) | Runtime implemented | Friday is an Electron desktop app with a React renderer, typed IPC, tray/menu/shortcut support, secure windows, and packaging scripts for macOS, Windows, and Linux. |
 | [Coding agents in the background](coding-agents-in-background.md) | Runtime implemented | Background `agent.run` and `subagent.run` tasks can use coding tools when allowed by tool policy and workspace configuration. |
 | [Tooling and extensibility](tooling-and-extensibility.md) | Runtime implemented with extension points | Local tools, browser automation, plugin manifests, MCP/LSP hooks, startup files, workspace management, and session compaction are available to support agent workflows. |
+| [Realtime transcription](realtime-transcription.md) | Runtime implemented | Renderer-owned speech-to-text sessions stream audio through OpenAI, Deepgram, ElevenLabs, Mistral, xAI, or Qwen adapters. |
+| [Browser automation](browser-automation.md) | Runtime implemented | Managed Playwright Chromium profiles expose lifecycle, tabs, navigation, snapshots, screenshots, and page actions through the browser tool. |
+| [Memory, sessions, and workspace context](memory-sessions-workspace.md) | Runtime implemented | Sessions persist transcripts and plans, workspace startup files shape prompts, and memory search indexes workspace memory plus visible sessions. |
+| [Plugins and agent harnesses](plugins-and-agent-harnesses.md) | Runtime implemented with extension points | Plugin manifests can register providers, channels, tools, hooks, setup/runtime entries, model metadata, and agent harness runtimes. |
+
+## Completeness Notes
+
+- The requested feature set is represented in source and docs.
+- The strongest runtime paths are the main assistant, subagents, skills, background tasks, heartbeat, cron, desktop shell, local tools, browser automation, transcription, memory/session handling, and workspace context.
+- Partial areas are intentionally documented as partial: channels have a bundled Telegram runtime plus catalog-only entries, connectors have local Google runtimes plus catalog/provider-hosted entries, and provider/model catalogs are broader than the local execution adapters.
+- Catalog-only entries are useful for settings, docs, setup planning, and plugin/runtime extension, but they are not complete local execution until an adapter, MCP server, provider-hosted tool, or plugin runtime is registered.
 
 ## Source Landmarks
 
@@ -34,4 +45,6 @@ This folder documents Friday's current feature surface from the source tree and 
 - Providers and models: `src/main/provider`, `src/main/stt`, `src/shared/providers`
 - Connectors and MCP: `src/main/connectors`, `src/main/mcp`, `src/shared/connector`
 - Desktop shell and UI: `src/main`, `src/preload`, `src/renderer/src`
-
+- Browser automation: `src/main/browser`
+- Plugins and agent harnesses: `src/main/plugins`, `src/main/agent/harness`
+- Memory, sessions, and workspace context: `src/main/memory-runtime.ts`, `src/main/session`, `src/main/workspace`

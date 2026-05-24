@@ -20,7 +20,7 @@ The package scripts and Electron Builder config support:
 
 - macOS packages and DMGs for x64 and arm64.
 - Windows x64 builds.
-- Linux AppImage builds.
+- Linux AppImage and deb builds.
 
 Development runs through `electron-vite`; production builds run typecheck and package through Electron Builder.
 
@@ -35,4 +35,3 @@ Development runs through `electron-vite`; production builds run typecheck and pa
 - `src/renderer/src`
 - `package.json`
 - Existing docs: `README.md`, `docs/modules.md`, `docs/system/index.md`
-
