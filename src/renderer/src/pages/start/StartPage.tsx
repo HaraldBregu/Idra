@@ -1460,7 +1460,10 @@ const StartPage: React.FC = () => {
 									</Select>
 								</SettingsField>
 							</div>
-						</>
+						</>,
+						<Badge variant="outline" className="h-4 rounded px-1.5 text-[10px] font-semibold">
+							Required
+						</Badge>
 					)}
 
 					{renderModelAreaPanel(
