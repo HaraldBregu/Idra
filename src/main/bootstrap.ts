@@ -18,6 +18,7 @@ import { collectConfiguredAgentHarnessRuntimes } from './agent/harness-runtimes'
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
+import { MonitorService } from './monitor';
 import { SkillsService } from './skills';
 import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
 import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
@@ -63,6 +64,8 @@ export function bootstrapServices(): BootstrapResult {
 	const logger = new LoggerService(eventBus);
 	registerAgentHarnessRuntimePluginActivation(logger);
 	container.register('logger', logger);
+	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
+	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
