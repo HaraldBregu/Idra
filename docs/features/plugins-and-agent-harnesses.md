@@ -75,14 +75,14 @@ Configured non-default harness runtimes are activated during bootstrap and again
 
 Transcript compaction fires `before_compaction` and `after_compaction` hook notifications. When a requested or stored runtime is active, compaction first delegates to the selected harness if it implements `compact(...)`; otherwise the built-in native summarization path runs.
 
-The harness hook runner and helper payloads exist for LLM input/output, agent-end, prompt/agent-start, compaction, tool-call, and message-write events. The compaction hooks are wired into the current native compaction path; other helper call sites should be treated as extension points until the main run loop wires them.
+The harness hook runner and helper payloads cover LLM input/output, agent-end, prompt/agent-start, compaction, tool-call, and message-write events. The host prompt build, lifecycle adapter, built-in `pi` run loop, and native compaction path fire those hooks at their respective boundaries. Tool-result middleware registered by plugin runtimes runs before the built-in loop streams and persists tool results.
 
 ## Current Limits
 
 - `auto` mode only considers harnesses that are already registered by the time selection runs.
 - Explicit non-`pi` runtime selection fails if no matching plugin manifest or runtime entry can be activated.
 - `deliveryDefaults` is part of the harness type but is not currently consumed by the message delivery path.
-- Tool result middleware helpers exist, but the main tool execution path does not yet run them for every tool result.
+- Plugin harnesses own their own internal LLM/tool lifecycle if they replace the built-in loop; the shared lifecycle adapter still fires the common agent-start hook and stamps normalized results.
 
 ## Tests
 
