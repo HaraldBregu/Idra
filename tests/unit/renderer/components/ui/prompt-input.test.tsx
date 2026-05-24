@@ -50,6 +50,28 @@ describe('PromptInput', () => {
 		expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument();
 	});
 
+	it('hides the prompt while batch speech-to-text recording controls are shown', () => {
+		render(
+			<PromptInput
+				value="existing prompt"
+				onValueChange={jest.fn()}
+				leadingAction={<button type="button">Attach</button>}
+				actions={<button type="button">Send</button>}
+				voiceMode="recording"
+				voiceElapsedMs={1_250}
+				onVoiceCancel={jest.fn()}
+				onVoiceConfirm={jest.fn()}
+			>
+				<PromptInputTextarea aria-label="Message Friday" />
+			</PromptInput>
+		);
+
+		expect(screen.queryByRole('textbox', { name: 'Message Friday' })).not.toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Cancel recording' })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Confirm recording' })).toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument();
+	});
+
 	it('renders separate speech-to-text and disabled voice conversation actions', () => {
 		const onSpeechToText = jest.fn();
 		const onVoiceConversation = jest.fn();
