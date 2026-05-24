@@ -536,6 +536,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
 			if (!blocks.some(isVisibleAssistantBlock)) blocks.push({ type: 'text', text: '' });
+			await fireBeforeMessageWriteHook({
+				...hookContext,
+				role: 'assistant',
+				content: assistantBlocksToHookText(blocks),
+				sessionKey: hookContext.sessionKey,
+			});
 			session.transcript.push({ role: 'assistant', content: blocks });
 			finalText += text;
 
