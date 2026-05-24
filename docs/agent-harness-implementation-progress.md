@@ -62,10 +62,10 @@ This page tracks the current implementation status. For the final concept and im
 
 ### 7) Compaction, hook helpers, and tool-result middleware
 
-- `src/main/agent/compaction.ts` fires `before_compaction` and `after_compaction` harness hooks.
+- `src/main/service.ts` fires `before_prompt_build`, the lifecycle adapter fires `before_agent_start`, `src/main/agent/run.ts` fires LLM input/output, tool-call, message-write, and agent-end hooks, and `src/main/agent/compaction.ts` fires `before_compaction` and `after_compaction`.
 - When a requested or stored runtime is present, compaction delegates to `compact(...)` on the selected harness before falling back to native summarization.
 - `hook-context.ts`, `hook-runner.ts`, `lifecycle-hook-helpers.ts`, `prompt-compaction-hook-helpers.ts`, and `hook-helpers.ts` define the harness hook payloads and dispatch surface.
-- `tool-result-middleware.ts` defines bounded tool-result middleware registration and validation helpers.
+- `tool-result-middleware.ts` defines bounded tool-result middleware registration and validation helpers. Plugin middleware registered through the runtime API runs before the built-in loop streams and persists tool results.
 
 ## Current status vs full OpenClaw parity
 
@@ -73,6 +73,6 @@ This page tracks the current implementation status. For the final concept and im
 - Forced runtime plugin activation is wired at bootstrap, harness attempts, and harness-aware compaction.
 - Result classification and harness id stamping are implemented in the lifecycle adapter.
 - Harness-aware compaction is implemented for requested or stored runtimes.
-- Compaction hooks are wired; other hook helper surfaces exist but are not all connected to the main run loop yet.
+- Hook helper surfaces are wired at the host prompt, lifecycle, built-in run-loop, tool-result, and compaction boundaries.
 - Diagnostics currently use Friday logging rather than OpenClaw-style structured `harness.run.*` diagnostic events.
-- Tool-result middleware helpers exist, but the main tool execution path still needs an integration point before plugin middleware can transform every result.
+- Plugin harnesses that replace the built-in loop still own their runtime-specific internal hook and middleware behavior.
