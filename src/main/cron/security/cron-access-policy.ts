@@ -6,7 +6,7 @@ import type {
 	CronSchedulePermissionLevel,
 	CronScheduleUpdateRequest,
 } from '../core/cron.types';
-import { CronScheduleFrequencyLimitError } from '../core/cron.errors';
+import { CronPermissionError, CronScheduleFrequencyLimitError } from '../core/cron.errors';
 
 export interface DefaultCronScheduleAccessPolicyOptions {
 	minIntervalMs: number;
@@ -24,7 +24,12 @@ export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy
 		request?: CronScheduleCreateRequest | CronScheduleUpdateRequest;
 		actor: CronActorContext;
 	}): Promise<void> {
-		void input;
+		const { action, schedule, request, actor } = input;
+		if (this.hasPermission(actor, 'adminScheduleManagement')) return;
+		this.assertPermission(actor, action);
+		this.assertActorHasOwner(actor, request);
+		this.assertScheduleOwner(actor, schedule);
+		this.assertRequiredPermissions(actor, request?.requiredPermissions ?? schedule?.requiredPermissions);
 	}
 
 	requiresConfirmation(input: {
@@ -32,8 +37,9 @@ export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy
 		actor: CronActorContext;
 		existingSchedule?: CronSchedule;
 	}): boolean {
-		void input;
-		return false;
+		const requiresConfirmation =
+			input.request.requiresConfirmation ?? input.existingSchedule?.requiresConfirmation ?? false;
+		return requiresConfirmation && input.request.confirmed !== true && input.actor.confirmed !== true;
 	}
 
 	validateFrequency(input: {
@@ -48,6 +54,70 @@ export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy
 				`Schedules must run at least ${this.options.minIntervalMs}ms apart.`,
 				{ intervalMs, minIntervalMs: this.options.minIntervalMs }
 			);
+		}
+	}
+
+	private hasPermission(
+		actor: CronActorContext,
+		permission: CronSchedulePermissionLevel
+	): boolean {
+		return (
+			actor.permissions.includes('adminScheduleManagement') ||
+			actor.permissions.includes(permission)
+		);
+	}
+
+	private assertPermission(
+		actor: CronActorContext,
+		permission: CronSchedulePermissionLevel
+	): void {
+		if (this.hasPermission(actor, permission)) return;
+		throw new CronPermissionError(`Missing cron permission: ${permission}`, {
+			action: permission,
+			source: actor.source,
+			userId: actor.userId ?? null,
+		});
+	}
+
+	private assertActorHasOwner(
+		actor: CronActorContext,
+		request?: CronScheduleCreateRequest | CronScheduleUpdateRequest
+	): void {
+		if (!request || !('ownerUserId' in request)) return;
+		const requestedOwner = request.ownerUserId;
+		if (!actor.userId) {
+			throw new CronPermissionError('Cron schedule owner is required.', {
+				source: actor.source,
+				ownerUserId: requestedOwner ?? null,
+			});
+		}
+		if (requestedOwner && requestedOwner !== actor.userId) {
+			throw new CronPermissionError('Cron schedule owner does not match the actor.', {
+				source: actor.source,
+				actorUserId: actor.userId,
+				ownerUserId: requestedOwner,
+			});
+		}
+	}
+
+	private assertScheduleOwner(actor: CronActorContext, schedule?: CronSchedule): void {
+		if (!schedule?.ownerUserId) return;
+		if (!actor.userId || actor.userId !== schedule.ownerUserId) {
+			throw new CronPermissionError('Cron schedule is owned by another user.', {
+				source: actor.source,
+				actorUserId: actor.userId ?? null,
+				ownerUserId: schedule.ownerUserId,
+				scheduleId: schedule.id,
+			});
+		}
+	}
+
+	private assertRequiredPermissions(
+		actor: CronActorContext,
+		requiredPermissions?: readonly CronSchedulePermissionLevel[]
+	): void {
+		for (const permission of requiredPermissions ?? []) {
+			this.assertPermission(actor, permission);
 		}
 	}
 }
