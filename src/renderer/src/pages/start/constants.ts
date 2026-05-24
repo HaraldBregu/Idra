@@ -90,9 +90,8 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: MUSIC_CREATOR_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.musicCreator.name,
 		stepName: 'Music',
-		stepTitle: 'Music generation model',
-		stepDescription:
-			'Choose the model Friday uses to generate songs, loops, and short audio compositions.',
+		stepTitle: 'Music generation',
+		stepDescription: 'Composes songs, loops, and short audio pieces.',
 		icon: Music,
 		required: false,
 		getOperator: () => window.app.getMusicCreatorOperator(),
