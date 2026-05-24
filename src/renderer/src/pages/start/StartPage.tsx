@@ -242,10 +242,9 @@ const StartPage: React.FC = () => {
 	);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
 	const [providers, setProviders] = useState<PublicProvider[]>([]);
-	const [configProvider, setConfigProvider] = useState('');
-	const [savedModelId, setSavedModelId] = useState('');
-	const [agentModelGroups, setAgentModelGroups] = useState<ProviderModelGroup[]>([]);
-	const [selectedModel, setSelectedModel] = useState('');
+	const [serviceStates, setServiceStates] = useState<ModelServiceStateMap>(
+		createInitialModelServiceState
+	);
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -255,33 +254,22 @@ const StartPage: React.FC = () => {
 		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
 	);
 	const canContinueProviders = hasProviderDraft && !savingProviderId;
-	const agentModelOptions = useMemo<AgentModelOption[]>(
-		() =>
-			agentModelGroups.flatMap((group) => {
-				return group.models.map((model) => ({
-					value: getAgentModelValue(group.provider.id, model.id),
-					provider: group.provider,
-					model,
-				}));
-			}),
-		[agentModelGroups]
-	);
-	const selectedAgentModelValue =
-		configProvider && selectedModel ? getAgentModelValue(configProvider, selectedModel) : '';
-	const selectedAgentModelOption = agentModelOptions.find(
-		(option) => option.value === selectedAgentModelValue
-	);
-	const selectedAgentModelGroup = agentModelGroups.find(
-		(group) => group.provider.id === configProvider
-	);
-	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
-	const modelCountLabel = loadingModels
-		? 'Loading models...'
-		: agentModelOptions.length === 0
-			? 'No models available'
-			: `${agentModelOptions.length} models available`;
+	const getSelectedServiceModel = (serviceId: ModelServiceId): { provider: PublicProvider; model: Model } | undefined => {
+		const serviceState = serviceStates[serviceId];
+		const selectedProvider = serviceState.modelGroups.find(
+			(group) => group.provider.id === serviceState.providerId
+		);
+		const selectedModel = selectedProvider?.models.find((model) => model.id === serviceState.modelId);
+		return selectedProvider && selectedModel
+			? { provider: selectedProvider.provider, model: selectedModel }
+			: undefined;
+	};
 	const canSaveModelSetup =
-		selectedAgentModelOption !== undefined && !loadingModels && !savingConfig;
+		!loadingModels &&
+		!savingConfig &&
+		MODEL_SERVICE_DEFINITIONS.every(
+			(service) => !service.required || getSelectedServiceModel(service.id) !== undefined
+		);
 	const isBusy = savingProviderId !== null || savingConfig;
 	const connectedProviderIds = useMemo(
 		() =>
