@@ -696,9 +696,13 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				const before = await beforeToolCall(tool, args, ctx, tracker);
 				if (!before.proceed && before.vetoResult) {
 					const status: ToolResultStatus = before.vetoStatus ?? 'error';
-					const outText = before.vetoResult.content
-						.map((c) => (c.type === 'text' ? (c.text ?? '') : ''))
-						.join(' ');
+					const vetoResult = sanitizeToolResultDetails(before.vetoResult);
+					const toolResult = await prepareToolResultForRun({
+						content: vetoResult.content,
+						details: vetoResult.details,
+						hookContext,
+						runtime: harnessRuntime,
+					});
 					const durationMs = Date.now() - toolStart;
 					await hooks?.onToolCall?.({
 						runId,
@@ -708,8 +712,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						args,
 						status,
 						durationMs,
-						outputChars: outText.length,
-						outputText: outText,
+						outputChars: toolResult.outputText.length,
+						outputText: toolResult.outputText,
 					});
 					streamEvent?.({
 						type: 'tool_call_result',
@@ -717,18 +721,31 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolCallId: id,
 						toolName: t.name,
 						input: args,
-						output: toolResultOutput(before.vetoResult.content, before.vetoResult.details),
-						outputText: outText,
+						output: toolResult.output,
+						outputText: toolResult.outputText,
 						status,
 						durationMs,
-						errorText: outText,
+						errorText: toolResult.outputText,
+					});
+					await fireAfterToolCallHook({
+						...hookContext,
+						toolName: t.name,
+						toolUseId: id,
+						result: toolResult.content,
+						isError: status !== 'ok',
+					});
+					await fireBeforeMessageWriteHook({
+						...hookContext,
+						role: 'tool',
+						content: toolResult.outputText,
+						sessionKey: hookContext.sessionKey,
 					});
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
 						isError: true,
 						status,
-						content: before.vetoResult.content,
+						content: toolResult.content,
 					});
 					continue;
 				}
