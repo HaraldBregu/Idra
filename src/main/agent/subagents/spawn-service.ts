@@ -154,7 +154,11 @@ function resolveChildModel(input: {
 	override: { providerId?: string; modelId?: string };
 	parentAgent?: AgentConfig;
 	targetAgent?: AgentConfig;
-}): { providerId?: string; modelId?: string; effort?: AgentConfig['model']['effort'] } {
+}): {
+	providerId?: string;
+	modelId?: string;
+	effort?: NonNullable<AgentConfig['model']>['effort'];
+} {
 	const subagentDefault = input.parentAgent?.subagents?.model;
 	const targetDefault = input.targetAgent?.model;
 	const hasOverride = Boolean(input.override.providerId || input.override.modelId);
