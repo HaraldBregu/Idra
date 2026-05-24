@@ -60,6 +60,9 @@ describe('connectors service', () => {
 		});
 
 		expect(added.serverLabel).toBe('my_gmail');
+		expect(added.authorization).toBe('');
+		expect(service.get(added.id).authorization).toBe('');
+		expect(connectors[0]).toMatchObject({ authorization: 'token' });
 		expect(service.list()[0]).toMatchObject({
 			name: 'My Gmail',
 			status: 'configured',
