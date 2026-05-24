@@ -597,6 +597,52 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('applies group allowlists to the default canonical tool assembly', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'file tools only' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(
+			service.send('What file tools can you use?', 'main', {
+				toolsAllow: ['group:file'],
+			})
+		).resolves.toBe('file tools only');
+		const toolNames = requests[0]!.tools.map((tool) => tool.name);
+		expect(toolNames).toContain('read');
+		expect(toolNames).not.toEqual(expect.arrayContaining(['exec', 'process', 'web_fetch']));
+		expect(
+			toolNames.every((name) =>
+				[
+					'read',
+					'write',
+					'edit',
+					'apply_patch',
+					'delete',
+					'copy',
+					'move',
+					'inspect_file',
+					'find',
+				].includes(name)
+			)
+		).toBe(true);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('exposes connected Google connector tools for Gmail profile requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
