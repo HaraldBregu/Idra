@@ -422,10 +422,12 @@ export class AgentService {
 							signal: abort.signal,
 						})
 					);
-					skillRuntimePlan = createSkillRuntimePlan({
-						providerId,
-						skills: skillChoices,
-					});
+					if (skillChoices.length > 0) {
+						skillRuntimePlan = createSkillRuntimePlan({
+							providerId,
+							skills: skillChoices,
+						});
+					}
 				}
 			}
 
@@ -474,7 +476,7 @@ export class AgentService {
 					}
 				}
 
-				if (skillChoices.length > 0 && this.dependencies.skills && skillRuntimePlan) {
+				if (skillRuntimePlan && this.dependencies.skills) {
 					selectedTools = selectToolsForSkillRuntime({
 						baseTools,
 						selectedTools,

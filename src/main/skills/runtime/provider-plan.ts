@@ -6,17 +6,17 @@ export type SkillRuntimeMode = 'prompt-tool';
 export interface SkillRuntimePlan {
 	providerId: string;
 	mode: SkillRuntimeMode;
-	promptSkills: SkillPromptChoice[];
-	fileBackedSkills: SkillPromptChoice[];
-	executableSkills: SkillPromptChoice[];
-	requiredToolNames: string[];
+	promptSkills: ReadonlyArray<SkillPromptChoice>;
+	fileBackedSkills: ReadonlyArray<SkillPromptChoice>;
+	executableSkills: ReadonlyArray<SkillPromptChoice>;
+	requiredToolNames: ReadonlyArray<string>;
 	needsReadTool: boolean;
 	needsExecutionTool: boolean;
 }
 
 export interface SkillRuntimePlanningInput {
 	providerId: string;
-	skills: SkillPromptChoice[];
+	skills: ReadonlyArray<SkillPromptChoice>;
 }
 
 export interface SkillRuntimeStrategy {
@@ -25,11 +25,23 @@ export interface SkillRuntimeStrategy {
 	plan(input: SkillRuntimePlanningInput): SkillRuntimePlan;
 }
 
-function unique(values: string[]): string[] {
-	return Array.from(new Set(values.filter(Boolean)));
+function normalizeProviderId(providerId: string): string {
+	return providerId.trim().toLowerCase() || 'unknown';
 }
 
-function declaredToolNames(skills: SkillPromptChoice[]): string[] {
+function unique(values: ReadonlyArray<string>): string[] {
+	const out: string[] = [];
+	const seen = new Set<string>();
+	for (const value of values) {
+		const normalized = value.trim();
+		if (!normalized || seen.has(normalized)) continue;
+		seen.add(normalized);
+		out.push(normalized);
+	}
+	return out;
+}
+
+function declaredToolNames(skills: ReadonlyArray<SkillPromptChoice>): string[] {
 	return unique(skills.flatMap((skill) => [...skill.requiredTools, ...(skill.allowedTools ?? [])]));
 }
 
@@ -41,19 +53,20 @@ export class PromptToolSkillRuntimeStrategy implements SkillRuntimeStrategy {
 	}
 
 	plan(input: SkillRuntimePlanningInput): SkillRuntimePlan {
-		const providerId = input.providerId.trim().toLowerCase() || 'unknown';
-		const fileBackedSkills = input.skills.filter((skill) => Boolean(skill.path));
-		const executableSkills = input.skills.filter((skill) => !skill.path);
+		const providerId = normalizeProviderId(input.providerId);
+		const promptSkills = [...input.skills];
+		const fileBackedSkills = promptSkills.filter((skill) => Boolean(skill.path));
+		const executableSkills = promptSkills.filter((skill) => !skill.path);
 		const needsReadTool = fileBackedSkills.length > 0;
 		const requiredToolNames = unique([
-			...declaredToolNames(input.skills),
+			...declaredToolNames(promptSkills),
 			...(needsReadTool ? ['read'] : []),
 		]);
 
 		return {
 			providerId,
 			mode: this.mode,
-			promptSkills: input.skills,
+			promptSkills,
 			fileBackedSkills,
 			executableSkills,
 			requiredToolNames,
@@ -63,13 +76,15 @@ export class PromptToolSkillRuntimeStrategy implements SkillRuntimeStrategy {
 	}
 }
 
-const DEFAULT_STRATEGIES: SkillRuntimeStrategy[] = [new PromptToolSkillRuntimeStrategy()];
+const DEFAULT_STRATEGIES: ReadonlyArray<SkillRuntimeStrategy> = [
+	new PromptToolSkillRuntimeStrategy(),
+];
 
 export function createSkillRuntimePlan(
 	input: SkillRuntimePlanningInput,
-	strategies: SkillRuntimeStrategy[] = DEFAULT_STRATEGIES
+	strategies: ReadonlyArray<SkillRuntimeStrategy> = DEFAULT_STRATEGIES
 ): SkillRuntimePlan {
-	const providerId = input.providerId.trim().toLowerCase() || 'unknown';
+	const providerId = normalizeProviderId(input.providerId);
 	const strategy = strategies.find((candidate) => candidate.canPlan(providerId));
 	if (!strategy) {
 		throw new Error(`No skill runtime strategy available for provider: ${providerId}`);

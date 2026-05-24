@@ -40,8 +40,8 @@ This keeps the agent provider-neutral while making future provider-native routes
 4. Export the planning seam from the skills module.
 5. Add focused tests for plan output and direct dynamic execution.
 
-## Later Work
+## Current Boundaries
 
-- Add provider-native plan strategies when the app stores remote skill ids.
-- Extend provider request types only when a concrete adapter can consume those attachments.
-- Add connector adapters for skill-scoped connector execution.
+- The default strategy is provider-neutral prompt/tool execution.
+- Provider request types stay unchanged until a concrete adapter consumes native skill attachments.
+- Connector execution remains scoped to the existing skill connector boundary.
