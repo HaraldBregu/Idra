@@ -796,14 +796,7 @@ const StartPage: React.FC = () => {
 											editing && 'border-b border-border/60 pb-2'
 										)}
 									>
-										<Avatar className="size-8 rounded-md border border-border bg-background">
-											<AvatarFallback className="rounded-md text-[11px] font-medium text-muted-foreground">
-												{getProviderInitials(
-													provider.name,
-													provider.id.slice(0, 2).toUpperCase()
-												)}
-											</AvatarFallback>
-										</Avatar>
+										<ProviderAvatar providerId={provider.id} name={provider.name} />
 										<div className="min-w-0 flex-1">
 											<div className="flex min-w-0 items-center gap-1.5">
 												<h2 className="min-w-0 truncate text-sm font-semibold leading-tight text-foreground">
