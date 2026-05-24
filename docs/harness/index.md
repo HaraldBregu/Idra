@@ -48,7 +48,9 @@ This split keeps the main service responsible for product behavior and lets harn
 
 ## Core Contract
 
-Friday's current harness contract lives in `src/main/agent/harness/types.ts`. A registered harness must provide:
+Friday's current harness module lives under `src/main/agent/harness`. That placement is intentional: the harness is the agent execution boundary, not a standalone main-process subsystem. Code outside the agent runtime should import the public harness facade from `src/main/agent/harness` when possible; individual files such as `types.ts`, `selection.ts`, or `runtime-plugin.ts` remain implementation files for the agent harness submodule.
+
+A registered harness must provide:
 
 - `id`: stable runtime id, such as `pi` or a plugin runtime id
 - `label`: human-readable name for logs and diagnostics
@@ -127,7 +129,7 @@ Use the smallest harness that can honestly own the runtime-specific behavior.
 ## Minimal Shape
 
 ```typescript
-import type { AgentHarness } from '../src/main/agent/harness/types';
+import type { AgentHarness } from '../src/main/agent/harness';
 
 export const exampleHarness: AgentHarness = {
 	id: 'example-runtime',
@@ -174,6 +176,7 @@ Friday also defines hook helper surfaces for LLM input/output, agent-end, prompt
 ## Design Rules
 
 - Keep the harness boundary narrow: one prepared run in, one normalized result out.
+- Keep harness code under `src/main/agent/harness`; create a separate top-level module only if non-agent callers need an execution harness that is no longer coupled to agent sessions, tools, prompts, or provider adapters.
 - Keep host-owned behavior in the host: settings, sessions, tools, prompts, UI events, and persistence should not move into plugin harnesses.
 - Make explicit runtime selection strict so configuration mistakes fail visibly.
 - Make automatic selection safe by falling back to the built-in harness.
@@ -184,6 +187,7 @@ Friday also defines hook helper surfaces for LLM input/output, agent-end, prompt
 ## Current Friday Source
 
 - `src/main/agent/harness/types.ts`: harness contract
+- `src/main/agent/harness/index.ts`: public harness submodule facade
 - `src/main/agent/harness/registry.ts`: registration, reset, and dispose helpers
 - `src/main/agent/harness/policy.ts`: request/store/default runtime resolution
 - `src/main/agent/harness/selection.ts`: selection, dispatch, and harness-aware compaction
@@ -191,7 +195,7 @@ Friday also defines hook helper surfaces for LLM input/output, agent-end, prompt
 - `src/main/agent/harness/builtin-pi.ts`: built-in fallback harness
 - `src/main/agent/harness/activation.ts`: runtime activation state
 - `src/main/agent/harness/runtime-plugin.ts`: plugin discovery and runtime activation
-- `src/main/agent/harness-runtimes.ts`: configured runtime collection
+- `src/main/agent/harness/runtimes.ts`: configured runtime collection
 - `src/main/service.ts`: `AgentService.send(...)` dispatch through the harness layer
 
 ## Related Docs
