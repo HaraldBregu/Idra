@@ -282,20 +282,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	);
 }
 
-function getProviderInitials(text: string, fallback: string): string {
-	const words = text.trim().split(/\s+/).filter(Boolean);
-	if (words.length === 0) {
-		return fallback;
-	}
-
-	const initials = words
-		.slice(0, 2)
-		.map((word) => word[0]?.toUpperCase() ?? '')
-		.join('');
-
-	return initials || fallback;
-}
-
 type StepFieldProps = {
 	readonly id: string;
 	readonly label: string;
