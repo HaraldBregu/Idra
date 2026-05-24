@@ -42,6 +42,7 @@ import xaiIconDark from '@resources/icons/brands/xai/fallback_lobehub/png_dark/x
 import xaiIconLight from '@resources/icons/brands/xai/fallback_lobehub/png_light/xai.png';
 import zaiIconDark from '@resources/icons/brands/zai/fallback_lobehub/png_dark/zai.png';
 import zaiIconLight from '@resources/icons/brands/zai/fallback_lobehub/png_light/zai.png';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 type ProviderIconAsset = {
@@ -96,39 +97,44 @@ export function ProviderAvatar({
 	const icon = providerIconAssets[providerId];
 	if (icon) {
 		return (
-			<div
+			<Avatar
 				className={cn(
-					'flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-background p-1',
+					'size-8 rounded-md border border-border bg-background p-1',
 					className
 				)}
 			>
-				<img
+				<AvatarImage
 					src={icon.light}
 					alt=""
 					aria-hidden="true"
 					draggable={false}
 					className="size-full object-contain dark:hidden"
 				/>
-				<img
+				<AvatarImage
 					src={icon.dark}
 					alt=""
 					aria-hidden="true"
 					draggable={false}
 					className="hidden size-full object-contain dark:block"
 				/>
-			</div>
+				<AvatarFallback className="rounded-md bg-muted text-sm font-semibold text-muted-foreground">
+					{getProviderInitial(name || providerId)}
+				</AvatarFallback>
+			</Avatar>
 		);
 	}
 
 	const initial = getProviderInitial(name || providerId);
 	return (
-		<div
+		<Avatar
 			className={cn(
-				'flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-semibold text-muted-foreground',
+				'size-8 rounded-md bg-muted text-sm font-semibold text-muted-foreground',
 				className
 			)}
 		>
-			{initial}
-		</div>
+			<AvatarFallback className="rounded-md bg-muted text-sm font-semibold text-muted-foreground">
+				{initial}
+			</AvatarFallback>
+		</Avatar>
 	);
 }
