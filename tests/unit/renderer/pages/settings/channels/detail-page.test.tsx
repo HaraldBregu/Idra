@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type {
@@ -156,13 +156,14 @@ describe('ChannelDetailPage', () => {
 	});
 
 	it('saves edits to the configured default account instead of a hardcoded account id', async () => {
+		const user = userEvent.setup();
 		const defaultAccountId = 'workspace';
 		const config = createChannelConfig();
 		const selectedConfig = config[detailEntry.id] as GenericChannelProperties;
 		selectedConfig.defaultAccountId = defaultAccountId;
 		selectedConfig.accounts = {
 			[defaultAccountId]: {
-				label: 'Workspace account',
+				label: '',
 				enabled: false,
 				token: '',
 				allowFrom: [],
@@ -175,9 +176,8 @@ describe('ChannelDetailPage', () => {
 		renderChannelDetailPage(`/settings/channels/channelDetail/${detailEntry.id}`);
 
 		const labelInput = await screen.findByLabelText('Account label');
-		fireEvent.focus(labelInput);
-		fireEvent.change(labelInput, { target: { value: 'Renamed account' } });
-		fireEvent.blur(labelInput);
+		await user.type(labelInput, 'Renamed account');
+		await user.tab();
 
 		await waitFor(() => expect(window.channels.saveChannelConfig).toHaveBeenCalled());
 		const savedConfig = (window.channels.saveChannelConfig as jest.Mock).mock
