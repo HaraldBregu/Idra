@@ -54,6 +54,8 @@ import type {
 	WhatsappChannelProperties,
 } from '../../../../../../../shared/channels';
 import {
+	CHANNEL_DEFAULT_ACCOUNT_ID,
+	CHANNEL_DEFAULT_DM_POLICY,
 	CHANNEL_DM_POLICIES,
 	buildChannelDocsUrl,
 	isChannelId,
@@ -783,7 +785,7 @@ function getDefaultAccountConfig(
 ): ChannelAccountProperties {
 	if (channelId === 'telegram') {
 		const telegram = config as TelegramChannelProperties;
-		const account = telegram.accounts?.[telegram.defaultAccountId ?? 'default'];
+		const account = telegram.accounts?.[resolveDefaultAccountId(telegram)];
 		return {
 			...account,
 			label: account?.label ?? 'Telegram bot',
@@ -792,12 +794,12 @@ function getDefaultAccountConfig(
 			defaultTarget: account?.defaultTarget ?? telegram.defaultTarget,
 			allowFrom: account?.allowFrom ?? telegram.allowFrom,
 			groupAllowFrom: account?.groupAllowFrom ?? telegram.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? telegram.dmPolicy ?? 'allowlist',
+			dmPolicy: account?.dmPolicy ?? telegram.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY,
 		};
 	}
 	if (channelId === 'discord') {
 		const discord = config as DiscordChannelProperties;
-		const account = discord.accounts?.[discord.defaultAccountId ?? 'default'];
+		const account = discord.accounts?.[resolveDefaultAccountId(discord)];
 		return {
 			...account,
 			label: account?.label ?? 'Discord bot',
@@ -806,12 +808,12 @@ function getDefaultAccountConfig(
 			defaultTarget: account?.defaultTarget ?? discord.defaultTarget,
 			allowFrom: account?.allowFrom ?? discord.allowFrom,
 			groupAllowFrom: account?.groupAllowFrom ?? discord.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? discord.dmPolicy ?? 'allowlist',
+			dmPolicy: account?.dmPolicy ?? discord.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY,
 		};
 	}
 	if (channelId === 'whatsapp') {
 		const whatsapp = config as WhatsappChannelProperties;
-		const account = whatsapp.accounts?.[whatsapp.defaultAccountId ?? 'default'];
+		const account = whatsapp.accounts?.[resolveDefaultAccountId(whatsapp)];
 		return {
 			...account,
 			label: account?.label ?? 'WhatsApp account',
@@ -821,12 +823,12 @@ function getDefaultAccountConfig(
 			defaultTarget: account?.defaultTarget ?? whatsapp.defaultTarget,
 			allowFrom: account?.allowFrom ?? whatsapp.allowFrom ?? [],
 			groupAllowFrom: account?.groupAllowFrom ?? whatsapp.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? whatsapp.dmPolicy ?? 'allowlist',
+			dmPolicy: account?.dmPolicy ?? whatsapp.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY,
 		};
 	}
 
 	const generic = config as GenericChannelProperties;
-	return generic.accounts?.[generic.defaultAccountId ?? 'default'] ?? emptyAccountConfig(channelId);
+	return generic.accounts?.[resolveDefaultAccountId(generic)] ?? emptyAccountConfig(channelId);
 }
 
 function updateDefaultAccountConfig(
@@ -839,6 +841,7 @@ function updateDefaultAccountConfig(
 
 	if (channelId === 'telegram') {
 		const telegram = config as TelegramChannelProperties;
+		const accountId = resolveDefaultAccountId(telegram);
 		return {
 			...telegram,
 			token: nextAccount.token ?? '',
@@ -848,12 +851,13 @@ function updateDefaultAccountConfig(
 			dmPolicy: nextAccount.dmPolicy,
 			accounts: {
 				...(telegram.accounts ?? {}),
-				default: nextAccount,
+				[accountId]: nextAccount,
 			},
 		};
 	}
 	if (channelId === 'discord') {
 		const discord = config as DiscordChannelProperties;
+		const accountId = resolveDefaultAccountId(discord);
 		return {
 			...discord,
 			token: nextAccount.token ?? '',
@@ -863,12 +867,13 @@ function updateDefaultAccountConfig(
 			dmPolicy: nextAccount.dmPolicy,
 			accounts: {
 				...(discord.accounts ?? {}),
-				default: nextAccount,
+				[accountId]: nextAccount,
 			},
 		};
 	}
 	if (channelId === 'whatsapp') {
 		const whatsapp = config as WhatsappChannelProperties;
+		const accountId = resolveDefaultAccountId(whatsapp);
 		return {
 			...whatsapp,
 			token: nextAccount.token ?? '',
@@ -879,18 +884,19 @@ function updateDefaultAccountConfig(
 			dmPolicy: nextAccount.dmPolicy,
 			accounts: {
 				...(whatsapp.accounts ?? {}),
-				default: nextAccount,
+				[accountId]: nextAccount,
 			},
 		};
 	}
 
 	const generic = config as GenericChannelProperties;
+	const accountId = resolveDefaultAccountId(generic);
 	return {
 		...generic,
-		defaultAccountId: generic.defaultAccountId ?? 'default',
+		defaultAccountId: accountId,
 		accounts: {
 			...(generic.accounts ?? {}),
-			default: nextAccount,
+			[accountId]: nextAccount,
 		},
 	};
 }
@@ -919,8 +925,12 @@ function emptyAccountConfig(channelId: ChannelType): ChannelAccountProperties {
 		defaultTarget: '',
 		allowFrom: [],
 		groupAllowFrom: [],
-		dmPolicy: 'allowlist',
+		dmPolicy: CHANNEL_DEFAULT_DM_POLICY,
 	};
+}
+
+function resolveDefaultAccountId(config: { readonly defaultAccountId?: string }): string {
+	return config.defaultAccountId?.trim() || CHANNEL_DEFAULT_ACCOUNT_ID;
 }
 
 function normalizeList(values: readonly string[]): string[] {
