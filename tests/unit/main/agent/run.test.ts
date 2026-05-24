@@ -1,4 +1,4 @@
-import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/provider/types';
+import { ContextOverflowError, type ProviderAdapter, type ProviderEvent, type ToolResultBlock } from '../../../../src/main/provider/types';
 import { runAgent } from '../../../../src/main/agent/run';
 import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
 import {
@@ -171,7 +171,7 @@ describe('agent/run', () => {
 		registerAgentToolResultMiddleware({
 			name: 'tag-ping',
 			runtime: 'pi',
-			handler: (blocks) =>
+			handler: (blocks: ToolResultBlock[]) =>
 				blocks.map((block) =>
 					block.type === 'text' ? { ...block, text: `${block.text} [middleware]` } : block
 				),
