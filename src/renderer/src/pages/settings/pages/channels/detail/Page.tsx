@@ -677,19 +677,17 @@ function ListEditor({
 						<Badge
 							key={item}
 							variant="outline"
-							className="h-4 max-w-full gap-1 px-1.5 pr-0.5 text-[10px]"
+							className="max-w-full gap-1 px-2 pr-1 text-[10px]"
 						>
 							<span className="max-w-48 truncate">{item}</span>
-							<Button
+							<button
 								type="button"
-								variant="ghost"
-								size="icon-xs"
 								onClick={() => onRemove(item)}
-								className="size-4 rounded-sm p-0 text-muted-foreground hover:text-foreground"
+								className="flex shrink-0 items-center justify-center rounded-full p-0.5 text-muted-foreground outline-none hover:text-foreground"
 								aria-label={removeLabel(item)}
 							>
 								<X className="size-2.5" />
-							</Button>
+							</button>
 						</Badge>
 					))
 				) : (
