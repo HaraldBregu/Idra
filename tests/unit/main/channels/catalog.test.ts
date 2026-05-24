@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import {
 	buildChannelDocsUrl,
@@ -70,6 +70,12 @@ describe('channel catalog', () => {
 	});
 
 	it('keeps catalog docs paths backed by bundled docs files', () => {
+		expect(listChannelDocsIds().sort()).toEqual(
+			listChannelCatalog()
+				.map((entry) => entry.id)
+				.sort()
+		);
+
 		for (const entry of listChannelCatalog()) {
 			expect(entry.docsPath).toBe(`docs/channels/${entry.id}/index.md`);
 			expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
@@ -93,6 +99,13 @@ describe('channel catalog', () => {
 		);
 	});
 });
+
+function listChannelDocsIds(): string[] {
+	const docsRoot = path.join(process.cwd(), 'docs/channels');
+	return readdirSync(docsRoot, { withFileTypes: true })
+		.filter((entry) => entry.isDirectory() && existsSync(path.join(docsRoot, entry.name, 'index.md')))
+		.map((entry) => entry.name);
+}
 
 function readChannelDocsMetadata(docsPath: string): {
 	id: string;
