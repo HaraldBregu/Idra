@@ -146,6 +146,66 @@ describe('agent/run', () => {
 		]);
 	});
 
+	it('normalizes provider-facing tool names and schemas while executing the original tool', async () => {
+		const providerTools: unknown[] = [];
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'normalized pong' }],
+		}));
+		const tool: AgentTool = {
+			name: 'Bad Tool!',
+			description: 'Uses a schema with provider-unsupported keywords.',
+			schema: {
+				$schema: 'https://json-schema.org/draft/2020-12/schema',
+				type: 'object',
+				properties: { value: { type: 'string' } },
+				patternProperties: { '^x-': { type: 'string' } },
+			},
+			execute,
+		};
+
+		const result = await runAgent({
+			runId: 'r1',
+			userMessage: 'use it',
+			systemPrompt: 'sys',
+			session: session(),
+			provider: {
+				async *stream(req) {
+					providerTools.push(...req.tools);
+					if (req.messages.length === 1) {
+						yield { type: 'tool_call_start' as const, id: 'tc1', name: 'bad_tool' };
+						yield {
+							type: 'tool_call_args_delta' as const,
+							id: 'tc1',
+							jsonDelta: '{"value":"ok"}',
+						};
+						yield { type: 'tool_call_end' as const, id: 'tc1' };
+						yield end();
+						return;
+					}
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield end();
+				},
+			},
+			providerId: 'openai',
+			model: 'gpt-test',
+			tools: [tool],
+			ctx: makeToolContext(),
+		});
+
+		expect(providerTools[0]).toEqual({
+			name: 'bad_tool',
+			description: expect.stringContaining('Provider-safe alias for Bad Tool!'),
+			schema: {
+				type: 'object',
+				properties: { value: { type: 'string' } },
+				required: [],
+			},
+		});
+		expect(execute).toHaveBeenCalledWith({ value: 'ok' }, expect.any(Object));
+		expect(result.finalText).toBe('done');
+	});
+
 	it('rejects malformed tool arguments without executing the tool', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,

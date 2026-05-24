@@ -14,6 +14,7 @@ import {
 	ToolExecutor,
 	type AgentToolManagementOptions,
 } from '../tools/management';
+import { prepareLegacyToolsForProvider } from '../tools/runtime/legacy-tool-adapter';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
@@ -256,7 +257,10 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		executor: managedExecutor,
 	};
 	const toolSelection = selectAgentToolsForTurn(tools, userMessage, ctx, toolManagement);
-	const toolsForPrompt = toolSelection.toolsForPrompt;
+	const toolsForPrompt = prepareLegacyToolsForProvider(toolSelection.toolsForPrompt, ctx, {
+		provider: input.providerId,
+		modelId: model,
+	});
 	const systemPromptForTurn = toolSelection.systemPromptSuffix
 		? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
 		: systemPrompt;
