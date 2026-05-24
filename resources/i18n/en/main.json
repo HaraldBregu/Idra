@@ -929,6 +929,10 @@
 				"open": "Open",
 				"deny": "Deny"
 			},
+			"heartbeat": "Heartbeat visibility",
+			"heartbeatShowOk": "Show healthy checks",
+			"heartbeatShowAlerts": "Show alerts",
+			"heartbeatUseIndicator": "Use status indicator",
 			"runtimeUnavailable": "Configuration can be saved; this provider runtime is not bundled yet.",
 			"phoneNumber": "Phone number",
 			"phoneNumberDescription": "Digits only, including country code (no +, no spaces).",
