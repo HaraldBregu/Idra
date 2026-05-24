@@ -255,6 +255,41 @@ describe('connectors service', () => {
 		expect(fetchImpl).not.toHaveBeenCalled();
 	});
 
+	it('validates Google strategy arguments before refreshing OAuth tokens', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => { connectors = next; }),
+		};
+		const fetchImpl = jest.fn(async () => {
+			throw new Error('unexpected fetch');
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
+		const drive = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			allowedTools: ['read_file_content'],
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...((connectors[0] as { oauth: Record<string, unknown> }).oauth),
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		await expect(service.callTool(drive.id, 'read_file_content', {})).rejects.toThrow(
+			/Google Drive file id is required/
+		);
+		expect(fetchImpl).not.toHaveBeenCalled();
+	});
+
 	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
 		const url = new URL(buildGoogleAuthorizationUrl({
 			clientId: 'client-id',
