@@ -15,7 +15,17 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import { type Model } from '../../../../shared/agents/service';
+import {
+	ASSISTANT_OPERATOR_ID,
+	IMAGE_CREATOR_OPERATOR_ID,
+	MUSIC_CREATOR_OPERATOR_ID,
+	OPERATOR_DEFINITIONS,
+	SPEECH_TO_TEXT_OPERATOR_ID,
+	ConfiguredModelOperator,
+	TEXT_TO_SPEECH_OPERATOR_ID,
+	TEXT_TO_VIDEO_OPERATOR_ID,
+	type Model,
+} from '../../../../shared/agents/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -61,17 +71,101 @@ type ProviderModelGroup = {
 	models: Model[];
 };
 
+type ModelServiceId =
+	| typeof ASSISTANT_OPERATOR_ID
+	| typeof SPEECH_TO_TEXT_OPERATOR_ID
+	| typeof TEXT_TO_SPEECH_OPERATOR_ID
+	| typeof IMAGE_CREATOR_OPERATOR_ID
+	| typeof TEXT_TO_VIDEO_OPERATOR_ID
+	| typeof MUSIC_CREATOR_OPERATOR_ID;
 
-type AgentModelOption = {
-	value: string;
-	provider: PublicProvider;
-	model: Model;
+type ModelServiceDefinition = {
+	id: ModelServiceId;
+	label: string;
+	required: boolean;
+	getOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	getModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 };
+
+type ModelServiceState = {
+	providerId: string;
+	modelId: string;
+	savedModelId: string;
+	modelGroups: ProviderModelGroup[];
+};
+
+type ModelServiceStateMap = Record<ModelServiceId, ModelServiceState>;
+
+const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
+	{
+		id: ASSISTANT_OPERATOR_ID,
+		label: OPERATOR_DEFINITIONS.assistant.name,
+		required: true,
+		getOperator: () => window.app.getAssistantOperator(),
+		getModels: (provider) => window.app.getModels(provider),
+		saveOperator: (provider, model) => window.app.saveAssistantOperator(provider, model),
+	},
+	{
+		id: SPEECH_TO_TEXT_OPERATOR_ID,
+		label: OPERATOR_DEFINITIONS.speechToText.name,
+		required: false,
+		getOperator: () => window.app.getSpeechToTextOperator(),
+		getModels: (provider) => window.app.getSpeechToTextModels(provider),
+		saveOperator: (provider, model) => window.app.saveSpeechToTextOperator(provider, model),
+	},
+	{
+		id: TEXT_TO_SPEECH_OPERATOR_ID,
+		label: OPERATOR_DEFINITIONS.textToSpeech.name,
+		required: false,
+		getOperator: () => window.app.getTextToSpeechOperator(),
+		getModels: (provider) => window.app.getTextToSpeechModels(provider),
+		saveOperator: (provider, model) => window.app.saveTextToSpeechOperator(provider, model),
+	},
+	{
+		id: IMAGE_CREATOR_OPERATOR_ID,
+		label: OPERATOR_DEFINITIONS.imageCreator.name,
+		required: false,
+		getOperator: () => window.app.getImageCreatorOperator(),
+		getModels: (provider) => window.app.getImageCreatorModels(provider),
+		saveOperator: (provider, model) => window.app.saveImageCreatorOperator(provider, model),
+	},
+	{
+		id: TEXT_TO_VIDEO_OPERATOR_ID,
+		label: OPERATOR_DEFINITIONS.videoCreator.name,
+		required: false,
+		getOperator: () => window.app.getTextToVideoOperator(),
+		getModels: (provider) => window.app.getTextToVideoModels(provider),
+		saveOperator: (provider, model) => window.app.saveTextToVideoOperator(provider, model),
+	},
+	{
+		id: MUSIC_CREATOR_OPERATOR_ID,
+		label: OPERATOR_DEFINITIONS.musicCreator.name,
+		required: false,
+		getOperator: () => window.app.getMusicCreatorOperator(),
+		getModels: (provider) => window.app.getMusicCreatorModels(provider),
+		saveOperator: (provider, model) => window.app.saveMusicCreatorOperator(provider, model),
+	},
+];
+
+function createInitialModelServiceState(): ModelServiceStateMap {
+	return MODEL_SERVICE_DEFINITIONS.reduce(
+		(acc, service) => ({
+			...acc,
+			[service.id]: {
+				providerId: '',
+				modelId: '',
+				savedModelId: '',
+				modelGroups: [],
+			},
+		}),
+		{} as ModelServiceStateMap
+	);
+}
 
 
 const PRODUCT_NAME = 'Friday';
 const MASKED_API_KEY_LABEL = 'sk-************' as const;
-const AGENT_MODEL_VALUE_SEPARATOR = '::';
 const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
 
 function normalizeProvider(provider: Provider, index: number): ProviderOption {
