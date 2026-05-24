@@ -61,10 +61,6 @@ type ProviderModelGroup = {
 	models: Model[];
 };
 
-type ProviderModelOption = {
-	provider: PublicProvider;
-	model: Model;
-};
 
 type AgentModelOption = {
 	value: string;
