@@ -215,7 +215,7 @@ describe('connectors service', () => {
 		const needsApproval = tools.find((tool) => tool.name === 'my_drive_create_file')?.needsApproval;
 		expect(typeof needsApproval).toBe('function');
 		if (typeof needsApproval !== 'function') throw new Error('create_file approval predicate is missing');
-		await expect(needsApproval({}, {} as never)).resolves.toBe(true);
+		expect(await needsApproval({}, {} as never)).toBe(true);
 	});
 
 	it('validates required Google tool arguments before API calls', async () => {
