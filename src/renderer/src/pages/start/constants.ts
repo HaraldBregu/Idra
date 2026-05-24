@@ -42,9 +42,8 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
 		label: OPERATOR_DEFINITIONS.speechToText.name,
 		stepName: 'Speech to text',
-		stepTitle: 'Speech-to-text transcription',
-		stepDescription:
-			'Choose the model that turns microphone input and audio files into text before Friday responds.',
+		stepTitle: 'Speech to text',
+		stepDescription: 'Transcribes your voice and audio into text before Friday responds.',
 		icon: Mic,
 		required: false,
 		getOperator: () => window.app.getSpeechToTextOperator(),
