@@ -1,22 +1,44 @@
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import {
+	describeMemoryFile,
+	matchesMemoryCorpusFilter,
+	resolveDailyMemoryTarget,
+	validateDailyMemoryRelativePath,
+	type MemoryCorpus,
+	type MemoryFileCorpus,
+	type MemoryResultCorpus,
+	type MemoryScope,
+	type MemoryScopeInput,
+	type MemoryScopeKind,
+} from './memory/scopes';
 import type { TranscriptEntry } from './provider/types';
 import { acquireWriteLock } from './session/lock';
 import { listSessions, type SessionFile } from './session/store';
 
 export type MemorySource = 'memory' | 'sessions';
-export type MemoryCorpus = 'memory' | 'wiki' | 'all' | 'sessions';
+export type {
+	MemoryCorpus,
+	MemoryFileCorpus,
+	MemoryResultCorpus,
+	MemoryScope,
+	MemoryScopeInput,
+	MemoryScopeKind,
+} from './memory/scopes';
 export type SessionVisibility = 'self' | 'tree' | 'agent' | 'all';
 
 export interface MemorySearchResult {
 	source: MemorySource;
+	corpus: MemoryResultCorpus;
 	path: string;
 	chunkId: string;
 	text: string;
 	score: number;
 	lineStart?: number;
 	lineEnd?: number;
+	scopeKind?: MemoryScopeKind;
+	scopeId?: string;
 	sessionId?: string;
 	metadata?: Record<string, unknown>;
 }
@@ -38,6 +60,10 @@ export interface MemorySearchManager {
 		minScore?: number;
 		source?: MemorySource;
 		sources?: MemorySource[];
+		corpus?: MemoryCorpus;
+		corpora?: MemoryCorpus[];
+		scopeKind?: MemoryScopeKind;
+		scopeId?: string;
 		sessionKey?: string;
 	}): Promise<MemorySearchResult[]>;
 
@@ -66,15 +92,21 @@ export interface MemoryFlushPlan {
 	targetPath: string;
 	relativePath: string;
 	prompt: string;
+	workspaceDir?: string;
+	corpus?: MemoryFileCorpus;
+	scope?: MemoryScope;
 }
 
 type IndexedChunk = {
 	source: MemorySource;
+	corpus: MemoryResultCorpus;
 	path: string;
 	chunkId: string;
 	text: string;
 	lineStart?: number;
 	lineEnd?: number;
+	scopeKind?: MemoryScopeKind;
+	scopeId?: string;
 	sessionId?: string;
 	metadata?: Record<string, unknown>;
 };
@@ -140,15 +172,25 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 		if (!trimmed) return [];
 
 		const sources = this.resolveSources(options);
+		const corpora = resolveRequestedCorpora(options);
 		const chunks: IndexedChunk[] = [];
-		if (sources.includes('memory')) chunks.push(...(await this.indexMemoryFiles()));
-		if (sources.includes('sessions') && this.includeSessions) {
+		if (sources.includes('memory') && corpora.some((corpus) => corpus !== 'sessions')) {
+			chunks.push(...(await this.indexMemoryFiles()));
+		}
+		if (sources.includes('sessions') && corpora.includes('sessions') && this.includeSessions) {
 			chunks.push(...(await this.indexSessionFiles(options.sessionKey)));
 		}
 
 		const minScore = options.minScore ?? DEFAULT_MIN_SCORE;
 		const maxResults = Math.min(Math.max(options.maxResults ?? DEFAULT_MAX_RESULTS, 1), MAX_RESULTS);
 		return chunks
+			.filter((chunk) =>
+				matchesMemoryCorpusFilter(chunk, {
+					corpora,
+					scopeKind: options.scopeKind,
+					scopeId: options.scopeId,
+				})
+			)
 			.map((chunk) => ({ chunk, score: keywordScore(trimmed, chunk.text) }))
 			.filter(({ score }) => score >= minScore)
 			.sort((a, b) => b.score - a.score)
@@ -231,6 +273,7 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 			for (const message of messages) {
 				chunks.push({
 					source: 'sessions',
+					corpus: 'sessions',
 					path: session.sessionFile ?? session.id,
 					chunkId: `session:${session.id}:${message.index}`,
 					text: message.text,
@@ -274,27 +317,33 @@ export function sanitizeTranscriptForMemory(transcript: TranscriptEntry[]): Arra
 	}));
 }
 
-export function resolveMemoryFlushPlan(workspaceDir: string, clock: () => Date = () => new Date()): MemoryFlushPlan {
+export function resolveMemoryFlushPlan(
+	workspaceDir: string,
+	clock: () => Date = () => new Date(),
+	scope?: MemoryScopeInput
+): MemoryFlushPlan {
 	const date = toLocalDate(clock());
-	const relativePath = path.join(MEMORY_DIRNAME, `${date}.md`);
-	const targetPath = path.resolve(workspaceDir, relativePath);
+	const target = resolveDailyMemoryTarget(workspaceDir, scope, date);
 	return {
-		targetPath,
-		relativePath,
-		prompt: `Append durable facts, decisions, TODOs, and user preferences from the current session to ${relativePath}.`,
+		targetPath: target.targetPath,
+		relativePath: target.relativePath,
+		workspaceDir: path.resolve(workspaceDir),
+		corpus: 'memory',
+		scope: target.scope,
+		prompt: `Append durable facts, decisions, TODOs, and user preferences from the current session to ${target.relativePath}.`,
 	};
 }
 
 export async function appendOnlyMemoryFlush(plan: MemoryFlushPlan, content: string): Promise<void> {
 	const target = path.resolve(plan.targetPath);
-	const fileName = path.basename(target);
-	const workspace = path.dirname(path.dirname(target));
-	const expectedRelativePath = path.join(MEMORY_DIRNAME, fileName);
-	if (!/^\d{4}-\d{2}-\d{2}\.md$/.test(fileName) || plan.relativePath !== expectedRelativePath) {
-		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md inside the workspace.');
-	}
+	validateDailyMemoryRelativePath(plan.relativePath);
+	const workspace = path.resolve(plan.workspaceDir ?? deriveWorkspaceFromRelativeTarget(target, plan.relativePath));
 	if (path.resolve(workspace, plan.relativePath) !== target) {
 		throw new Error('Memory flush target must match the planned daily memory file.');
+	}
+	const descriptor = describeMemoryFile(workspace, target);
+	if (!descriptor || descriptor.corpus !== 'memory') {
+		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/<scope>/YYYY-MM-DD.md.');
 	}
 	const memoryDir = path.dirname(target);
 	await fs.mkdir(memoryDir, { recursive: true, mode: 0o700 });
@@ -314,6 +363,7 @@ export async function flushSessionMemoryBeforeCompaction(
 	options: {
 		clock?: () => Date;
 		minTranscriptBytes?: number;
+		scope?: MemoryScopeInput;
 	} = {}
 ): Promise<{ status: 'skipped' | 'flushed'; targetPath?: string; reason?: string }> {
 	const rendered = sanitizeTranscriptForMemory(session.transcript)
@@ -325,7 +375,7 @@ export async function flushSessionMemoryBeforeCompaction(
 	const contextHash = createHash('sha1').update(rendered).digest('hex').slice(0, 12);
 	if (session.memoryFlushContextHash === contextHash) return { status: 'skipped', reason: 'already_flushed' };
 
-	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock);
+	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock, options.scope);
 	const now = (options.clock ?? (() => new Date()))().toISOString();
 	const content = [
 		`## Session ${session.id} pre-compaction ${now}`,
