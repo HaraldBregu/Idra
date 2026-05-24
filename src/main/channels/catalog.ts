@@ -9,6 +9,8 @@ export {
 	CHANNEL_HIDDEN_CATALOG_IDS,
 	CHANNEL_RUNTIME_BY_ID,
 	CHANNEL_RUNTIME_SUPPORT_VALUES,
+	CHANNEL_SETUP_FIELDS,
+	CHANNEL_SETUP_FIELDS_BY_ID,
 	CHANNEL_VISIBLE_CATALOG_IDS,
 	buildChannelDocsUrl,
 	extractChannelCatalogFromPackageMetadata,
@@ -20,4 +22,5 @@ export {
 	type ChannelCatalogExposure,
 	type ChannelCatalogEntry,
 	type ChannelRuntimeSupport,
+	type ChannelSetupField,
 } from '../../shared/channels';
