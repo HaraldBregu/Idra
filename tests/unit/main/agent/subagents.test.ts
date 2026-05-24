@@ -79,6 +79,8 @@ describe('subagent orchestration', () => {
 				title: 'Release research',
 				input: expect.objectContaining({
 					runId: 'run-1',
+					providerId: 'openai',
+					modelId: 'gpt-test',
 					toolsDeny: ['exec', 'delete'],
 					runTimeoutSeconds: 30,
 					sessionMetadata: expect.objectContaining({
@@ -91,6 +93,76 @@ describe('subagent orchestration', () => {
 		expect(eventBus.emit).toHaveBeenCalledWith(
 			'subagent:created',
 			expect.objectContaining({ runId: 'run-1' })
+		);
+	});
+
+	it('snapshots target agent model defaults for child runs', async () => {
+		const { service, registry, taskManager } = createSpawnService({
+			agents: {
+				main: { id: 'main', subagents: { allowAgents: ['research'] } },
+				research: {
+					id: 'research',
+					model: { providerId: 'anthropic', modelId: 'claude-sonnet-4-6' },
+				},
+			},
+		});
+
+		await service.spawn({
+			requesterAgentId: 'main',
+			requesterSessionKey: 'agent:main:main',
+			input: {
+				task: 'Research the release notes',
+				agentId: 'research',
+			},
+		});
+
+		expect(registry.getSubagentRun('run-1')).toMatchObject({
+			agentId: 'research',
+			providerId: 'anthropic',
+			modelId: 'claude-sonnet-4-6',
+		});
+		expect(taskManager.run).toHaveBeenCalledWith(
+			expect.objectContaining({
+				input: expect.objectContaining({
+					agentId: 'research',
+					providerId: 'anthropic',
+					modelId: 'claude-sonnet-4-6',
+				}),
+			})
+		);
+	});
+
+	it('uses configured subagent model defaults including OpenAI effort', async () => {
+		const { service, registry, taskManager } = createSpawnService({
+			agents: {
+				main: {
+					id: 'main',
+					subagents: {
+						model: { providerId: 'openai', modelId: 'gpt-5.4', effort: 'high' },
+					},
+				},
+			},
+		});
+
+		await service.spawn({
+			requesterAgentId: 'main',
+			requesterSessionKey: 'agent:main:main',
+			input: { task: 'Research the release notes' },
+		});
+
+		expect(registry.getSubagentRun('run-1')).toMatchObject({
+			providerId: 'openai',
+			modelId: 'gpt-5.4',
+			effort: 'high',
+		});
+		expect(taskManager.run).toHaveBeenCalledWith(
+			expect.objectContaining({
+				input: expect.objectContaining({
+					providerId: 'openai',
+					modelId: 'gpt-5.4',
+					effort: 'high',
+				}),
+			})
 		);
 	});
 
@@ -198,6 +270,7 @@ describe('subagent orchestration', () => {
 			requesterSessionKey: 'agent:main:main',
 			controllerSessionKey: 'agent:main:main',
 			modelId: 'gpt-test',
+			effort: 'high',
 			toolsDeny: ['exec'],
 			sessionMetadata: {
 				agentId: 'main',
@@ -224,6 +297,7 @@ describe('subagent orchestration', () => {
 			sessionId: 'agent:main:subagent:run-1',
 			providerId: undefined,
 			model: 'gpt-test',
+			effort: 'high',
 			toolsAllow: undefined,
 			toolsDeny: ['exec'],
 			sessionMetadata: expect.objectContaining({ spawnDepth: 1 }),
