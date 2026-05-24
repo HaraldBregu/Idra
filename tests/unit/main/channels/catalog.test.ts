@@ -8,6 +8,8 @@ import {
 	CHANNEL_DOCS_PATH_BY_ID,
 	CHANNEL_HIDDEN_CATALOG_IDS,
 	CHANNEL_RUNTIME_BY_ID,
+	CHANNEL_SETUP_FIELDS,
+	CHANNEL_SETUP_FIELDS_BY_ID,
 	CHANNEL_VISIBLE_CATALOG_IDS,
 	buildChannelDocsUrl,
 	extractChannelCatalogFromPackageMetadata,
@@ -19,6 +21,7 @@ import {
 	CHANNEL_DEFAULT_ACCOUNT_ID,
 	CHANNEL_DEFAULT_DM_POLICY,
 	CHANNEL_DM_POLICIES,
+	type ChannelSetupField,
 } from '../../../../src/shared/channels';
 
 describe('channel catalog', () => {
@@ -96,6 +99,7 @@ describe('channel catalog', () => {
 			expect(CHANNEL_ALIASES_BY_ID[entry.id]).toEqual(entry.aliases);
 			expect(CHANNEL_DOCS_PATH_BY_ID[entry.id]).toBe(entry.docsPath);
 			expect(CHANNEL_RUNTIME_BY_ID[entry.id]).toBe(entry.runtime);
+			expect(CHANNEL_SETUP_FIELDS_BY_ID[entry.id]).toBe(entry.setupFields);
 			expect(existsSync(path.join(process.cwd(), entry.docsPath))).toBe(true);
 			expect(readChannelDocsMetadata(entry.docsPath)).toEqual({
 				id: entry.id,
@@ -109,6 +113,12 @@ describe('channel catalog', () => {
 		}
 
 		expect(buildChannelDocsUrl('../secrets.md', 'https://github.com/HaraldBregu/friday')).toBeNull();
+	});
+
+	it('keeps catalog setup fields backed by channel docs configuration references', () => {
+		for (const entry of listChannelCatalog()) {
+			expect(entry.setupFields).toEqual(readChannelDocsSetupFields(entry.docsPath));
+		}
 	});
 
 	it('exports documentation-backed channel id groups', () => {
@@ -151,6 +161,16 @@ function listChannelDocsIds(): string[] {
 	return readdirSync(docsRoot, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory() && existsSync(path.join(docsRoot, entry.name, 'index.md')))
 		.map((entry) => entry.name);
+}
+
+function readChannelDocsSetupFields(docsPath: string): ChannelSetupField[] {
+	const markdown = readFileSync(path.join(process.cwd(), docsPath), 'utf8');
+	const fields = Array.from(
+		markdown.matchAll(/^- `([^`]+)`:/gm),
+		(match) => match[1]
+	);
+	const supportedFields = new Set<string>(CHANNEL_SETUP_FIELDS);
+	return fields.filter((field): field is ChannelSetupField => supportedFields.has(field));
 }
 
 function readChannelDocsMetadata(docsPath: string): {
