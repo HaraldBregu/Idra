@@ -1607,39 +1607,6 @@ const StartPage: React.FC = () => {
 						</>
 					)}
 
-					{renderModelAreaPanel(
-						AGENTS.documentReader,
-						'Document reading',
-						<>
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="ocr-endpoint" label="Current path">
-									<div className="min-h-8 rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-foreground">
-										ocr.run endpoint
-									</div>
-								</SettingsField>
-								<SettingsField id="ocr-model" label="Provider model">
-									<div className="min-h-8 rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs font-medium text-muted-foreground">
-										{ocrModelName}
-									</div>
-								</SettingsField>
-							</div>
-							<SettingsNotice icon={FileSearch}>
-								OCR provider and model setup will appear here when document reading uses provider
-								models.
-							</SettingsNotice>
-						</>
-					)}
-
-					{renderModelAreaPanel(
-						AGENTS.embedding,
-						'Semantic indexing',
-						<>
-							<SettingsNotice icon={Database}>
-								Embedding provider and model setup will appear here when semantic indexing is
-								implemented.
-							</SettingsNotice>
-						</>
-					)}
 				</div>
 			</div>
 		);
