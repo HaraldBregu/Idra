@@ -92,8 +92,11 @@ type ModelServiceId =
 type ModelServiceDefinition = {
 	id: ModelServiceId;
 	label: string;
+	stepName: string;
 	stepTitle: string;
 	stepDescription: string;
+	providerDescription: string;
+	modelDescription: string;
 	required: boolean;
 	getOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
