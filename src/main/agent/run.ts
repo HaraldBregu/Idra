@@ -25,6 +25,18 @@ import type {
 	ReasoningSummaryState,
 } from '../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
+import { buildAgentHookContext, type AgentHarnessHookContext } from './harness/hook-context';
+import { fireAfterToolCallHook, fireBeforeMessageWriteHook } from './harness/hook-helpers';
+import {
+	fireAgentEndHook,
+	fireLlmInputHook,
+	fireLlmOutputHook,
+} from './harness/lifecycle-hook-helpers';
+import {
+	listAgentToolResultMiddlewareRegistrations,
+	runAgentToolResultMiddleware,
+	sanitizeToolResultDetails,
+} from './harness/tool-result-middleware';
 
 export interface AgentProviderStore {
 	getAssistantOperator(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
@@ -115,6 +127,7 @@ export interface AgentRunInput {
 	provider?: ProviderAdapter;
 	providerId?: string;
 	model?: string;
+	agentHarnessId?: string;
 	requestedRuntime?: string;
 	storedRuntime?: string;
 	effort?: ModelReasoningEffort;
