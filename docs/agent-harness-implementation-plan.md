@@ -6,7 +6,7 @@ Status: historical rollout plan. The harness implementation has since landed in 
 
 Implement a plugin-selectable agent execution harness layer in Friday’s `src/main` using OpenClaw’s `AgentHarness` architecture as a template.
 
-## What currently exists in Friday
+## Initial Friday State
 
 - Plugin API surface already accepts `registerAgentHarness`, stored as generic registry values under the `agentHarnesses` surface (`src/main/plugins/api-builder.ts`, `src/main/plugins/registry.ts`).
 - There is a manifest hook `onAgentHarnesses` and activation trigger type (`src/main/plugins/manifest.ts`, `src/main/plugins/activation-planner.ts`).
