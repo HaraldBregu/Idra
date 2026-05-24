@@ -60,7 +60,7 @@ export function AgentTextMessage({
 					) : null}
 				</>
 			)}
-			<AgentSkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
+			<AgentSkillUsage skills={skillUsages} />
 		</Message>
 	);
 }
