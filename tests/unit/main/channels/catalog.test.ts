@@ -17,6 +17,7 @@ import {
 import {
 	CHANNEL_CONNECTION_STATUSES,
 	CHANNEL_DEFAULT_ACCOUNT_ID,
+	CHANNEL_DEFAULT_DM_POLICY,
 	CHANNEL_DM_POLICIES,
 } from '../../../../src/shared/channels';
 
@@ -127,6 +128,7 @@ describe('channel catalog', () => {
 
 	it('exports shared channel policy constants', () => {
 		expect(CHANNEL_DEFAULT_ACCOUNT_ID).toBe('default');
+		expect(CHANNEL_DEFAULT_DM_POLICY).toBe('allowlist');
 		expect(CHANNEL_DM_POLICIES).toEqual(['allowlist', 'pairing', 'open', 'deny']);
 		expect(CHANNEL_CONNECTION_STATUSES).toEqual([
 			'connecting',
