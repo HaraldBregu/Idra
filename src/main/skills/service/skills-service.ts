@@ -270,6 +270,7 @@ export class SkillsService {
 				additionalProperties: true,
 			},
 			execute: async (args, toolContext) => {
+				await this.registerManagedDynamicSkills();
 				const parsedSkill = splitSkillIdAndVersion(
 					typeof args.skillId === 'string' ? args.skillId : '',
 					typeof args.version === 'string' ? args.version : undefined

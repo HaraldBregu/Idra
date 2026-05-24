@@ -1,34 +1,32 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { SkillAuditLog } from '../../../../src/main/skills/audit-log';
-import { SkillComposer } from '../../../../src/main/skills/composer';
-import { SkillDependencyResolver } from '../../../../src/main/skills/dependency-resolver';
-import { SkillDiscovery, makeDiscoveryContext } from '../../../../src/main/skills/discovery';
-import { SkillExecutionEngine } from '../../../../src/main/skills/execution-engine';
-import { createExampleSkills } from '../../../../src/main/skills/example-skills';
-import { SkillLoader } from '../../../../src/main/skills/loader';
 import {
 	AGENT_SKILL_RESOURCE_DIRECTORIES,
-	MULTI_PROVIDER_SKILL_SUPPORT,
-	SKILL_PROVIDER_SUPPORT,
-} from '../../../../src/main/skills/provider-support';
-import {
+	createExampleSkills,
+	createSkillRuntimePlan,
 	DefaultSkillMemoryPolicy,
+	InMemorySkillPreferenceStore,
+	makeDiscoveryContext,
+	MULTI_PROVIDER_SKILL_SUPPORT,
 	NoopSkillMemoryRetriever,
-} from '../../../../src/main/skills/memory-policy';
-import { InMemorySkillPreferenceStore } from '../../../../src/main/skills/preferences';
-import { SkillRanker } from '../../../../src/main/skills/ranker';
-import { SkillRegistry } from '../../../../src/main/skills/registry';
-import { SkillSafetyPolicy } from '../../../../src/main/skills/safety-policy';
-import { SkillSelector } from '../../../../src/main/skills/selector';
-import { SkillsService } from '../../../../src/main/skills/skills-service';
-import type {
+	SKILL_PROVIDER_SUPPORT,
+	SkillAuditLog,
+	SkillComposer,
 	SkillConnector,
 	SkillDefinition,
+	SkillDependencyResolver,
+	SkillDiscovery,
+	SkillExecutionEngine,
 	SkillExecutionContext,
 	SkillExecutionRequestContext,
-} from '../../../../src/main/skills/types';
-import { SkillVersionManager } from '../../../../src/main/skills/version-manager';
+	SkillLoader,
+	SkillRanker,
+	SkillRegistry,
+	SkillSafetyPolicy,
+	SkillSelector,
+	SkillsService,
+	SkillVersionManager,
+} from '../../../../src/main/skills';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { textResult } from '../../../../src/main/tools/types';
 import { executeAgentToolWithManagement } from '../../../../src/main/tools/management';
@@ -529,6 +527,52 @@ describe('skill system', () => {
 		);
 	});
 
+	it('plans provider-neutral skill runtime needs with a strategy seam', () => {
+		const plan = createSkillRuntimePlan({
+			providerId: 'Anthropic',
+			skills: [
+				{
+					id: 'research-brief',
+					version: '1.0.0',
+					name: 'research-brief',
+					description: 'Create research briefs from local documents.',
+					path: '/skills/research-brief/SKILL.md',
+					category: 'research',
+					tags: [],
+					requiredTools: [],
+					allowedTools: ['write'],
+					requiredConnectors: [],
+					permissionsRequired: [],
+					safetyLevel: 'low',
+					score: 0.9,
+				},
+				{
+					id: 'summarize-document',
+					version: '1.0.0',
+					name: 'summarize-document',
+					description: 'Summarize documents through a command skill.',
+					category: 'content',
+					tags: [],
+					requiredTools: ['exec'],
+					requiredConnectors: [],
+					permissionsRequired: [],
+					safetyLevel: 'low',
+					score: 0.8,
+				},
+			],
+		});
+
+		expect(plan).toMatchObject({
+			providerId: 'anthropic',
+			mode: 'prompt-tool',
+			needsReadTool: true,
+			needsExecutionTool: true,
+		});
+		expect(plan.fileBackedSkills.map((skill) => skill.id)).toEqual(['research-brief']);
+		expect(plan.executableSkills.map((skill) => skill.id)).toEqual(['summarize-document']);
+		expect(plan.requiredToolNames).toEqual(['write', 'exec', 'read']);
+	});
+
 	it('reports template folders as Agent Skill resources', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'templated-skill');
@@ -765,9 +809,9 @@ describe('skill system', () => {
 		await fs.rm(source, { recursive: true, force: true });
 	});
 
-	it('loads bundled demo Agent Skills from resources', async () => {
+	it('loads bundled Agent Skills from resources', async () => {
 		const discovery = await new SkillLoader().loadPackages(
-			path.resolve('resources', 'demo-skills'),
+			path.resolve('resources', 'skills'),
 			{ trusted: true }
 		);
 
@@ -775,9 +819,6 @@ describe('skill system', () => {
 		expect(discovery.packages.map((item) => item.manifest.id).sort()).toEqual([
 			'claude-code-executor',
 			'codex-project-executor',
-			'data-quality-check',
-			'release-notes-drafter',
-			'research-brief',
 		]);
 		expect(discovery.packages.every((item) => item.structure.standard === 'agentskills.io')).toBe(
 			true
@@ -942,6 +983,45 @@ describe('skill system', () => {
 		expect(nestedResult.status).toBe('ok');
 		expect(nestedPayload.success).toBe(true);
 		expect(nestedPayload.usedSkills).toEqual(['support-replies@1.0.0']);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('execute_skill refreshes managed dynamic skills before direct execution', async () => {
+		const root = await makeTempDir();
+		const skillsRoot = path.join(root, 'skills');
+		const dir = path.join(skillsRoot, 'late-skill');
+		const service = new SkillsService(makeLogger() as never, {
+			userDataDirectory: userDataDirectory(root) as never,
+		});
+		const tool = service.createExecutionTool({
+			userId: 'u1',
+			sessionId: 's1',
+			tools: [],
+			connectors: [],
+			signal: undefined,
+		});
+		await fs.mkdir(dir, { recursive: true });
+		await fs.writeFile(
+			path.join(dir, 'SKILL.md'),
+			[
+				'---',
+				'name: late-skill',
+				'description: Handles direct runtime execution after the tool already exists.',
+				'---',
+				'Use this skill for late direct execution.',
+			].join('\n')
+		);
+
+		const result = await tool.execute({ skillId: 'late-skill' }, makeToolContext({ workspace: root }));
+		const payload = JSON.parse(result.content[0]?.type === 'text' ? result.content[0].text : '{}');
+
+		expect(result.status).toBe('ok');
+		expect(payload.success).toBe(true);
+		expect(payload.usedSkills).toEqual(['late-skill@0.1.0']);
+		expect(payload.data).toMatchObject({
+			name: 'late-skill',
+			directory: dir,
+		});
 		await fs.rm(root, { recursive: true, force: true });
 	});
 

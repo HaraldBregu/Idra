@@ -41,6 +41,11 @@ import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/core/types';
 import {
+	createSkillRuntimePlan,
+	selectToolsForSkillRuntime,
+	type SkillRuntimePlan,
+} from './skills/runtime/provider-plan';
+import {
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
 	type OperatorStoreState,
@@ -305,6 +310,7 @@ export class AgentService {
 			let selectedTools: AgentTool[] = [];
 			let baseTools: AgentTool[] = [];
 			let skillChoices: SkillPromptChoice[] = [];
+			let skillRuntimePlan: SkillRuntimePlan | undefined;
 
 			if (
 				bootstrapPending ||
@@ -351,6 +357,10 @@ export class AgentService {
 							signal: abort.signal,
 						})
 					);
+					skillRuntimePlan = createSkillRuntimePlan({
+						providerId,
+						skills: skillChoices,
+					});
 				}
 			}
 
@@ -399,26 +409,14 @@ export class AgentService {
 					}
 				}
 
-				if (skillChoices.length > 0 && this.dependencies.skills) {
-					const selectedNames = new Set(selectedTools.map((tool) => tool.name));
-					const skillToolNames = new Set(
-						skillChoices.flatMap((skill) => [...skill.requiredTools, ...(skill.allowedTools ?? [])])
-					);
-					for (const tool of baseTools) {
-						if (skillToolNames.has(tool.name) && !selectedNames.has(tool.name)) {
-							selectedTools.push(tool);
-							selectedNames.add(tool.name);
-						}
-					}
-					if (skillChoices.some((skill) => skill.path) && !selectedNames.has('read')) {
-						const readTool = baseTools.find((tool) => tool.name === 'read');
-						if (readTool) {
-							selectedTools.push(readTool);
-							selectedNames.add(readTool.name);
-						}
-					}
+				if (skillChoices.length > 0 && this.dependencies.skills && skillRuntimePlan) {
+					selectedTools = selectToolsForSkillRuntime({
+						baseTools,
+						selectedTools,
+						plan: skillRuntimePlan,
+					});
 					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
-					if (skillChoices.some((skill) => !skill.path)) {
+					if (skillRuntimePlan.needsExecutionTool) {
 						selectedTools.push(
 							this.dependencies.skills.createExecutionTool({
 								userId: agentId,
