@@ -46,6 +46,7 @@ import type {
 	Channel,
 	ChannelAccountProperties,
 	ChannelConnectionStatus,
+	ChannelDmPolicy,
 	ChannelType,
 	DiscordChannelProperties,
 	GenericChannelProperties,
