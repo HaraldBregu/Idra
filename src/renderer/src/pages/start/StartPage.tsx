@@ -490,7 +490,7 @@ const StartPage: React.FC = () => {
 				);
 			}
 
-			goToStep('models');
+			goToStep(MODEL_SERVICE_STEP_IDS[0]);
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save provider API keys.'));
 		} finally {
