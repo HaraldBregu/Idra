@@ -46,7 +46,6 @@ import type {
 	Channel,
 	ChannelAccountProperties,
 	ChannelConnectionStatus,
-	CHANNEL_DM_POLICIES,
 	ChannelType,
 	DiscordChannelProperties,
 	GenericChannelProperties,
@@ -54,6 +53,7 @@ import type {
 	WhatsappChannelProperties,
 } from '../../../../../../../shared/channels';
 import {
+	CHANNEL_DM_POLICIES,
 	buildChannelDocsUrl,
 	isChannelId,
 	type ChannelCatalogEntry,

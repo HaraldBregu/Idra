@@ -1,5 +1,15 @@
 export {
+	CHANNEL_ALIASES_BY_ID,
+	CHANNEL_BUNDLED_RUNTIME_IDS,
 	CHANNEL_CATALOG,
+	CHANNEL_CATALOG_BY_ID,
+	CHANNEL_CATALOG_EXPOSURES,
+	CHANNEL_CATALOG_ONLY_RUNTIME_IDS,
+	CHANNEL_DOCS_PATH_BY_ID,
+	CHANNEL_HIDDEN_CATALOG_IDS,
+	CHANNEL_RUNTIME_BY_ID,
+	CHANNEL_RUNTIME_SUPPORT_VALUES,
+	CHANNEL_VISIBLE_CATALOG_IDS,
 	buildChannelDocsUrl,
 	extractChannelCatalogFromPackageMetadata,
 	getChannelBrandIconId,
@@ -7,6 +17,7 @@ export {
 	isChannelId,
 	listChannelCatalog,
 	normalizeChannelId,
+	type ChannelCatalogExposure,
 	type ChannelCatalogEntry,
 	type ChannelRuntimeSupport,
 } from '../../shared/channels';
