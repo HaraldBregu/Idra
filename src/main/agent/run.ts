@@ -517,6 +517,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					firstTokenLatencyMs,
 					error: err as Error,
 				});
+				await fireAgentEndOnce();
 				throw err;
 			}
 
