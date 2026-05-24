@@ -72,6 +72,11 @@ export interface AgentRoutePeer {
 	id: string;
 }
 
+export interface AgentParentRoutePeer {
+	kind: Exclude<AgentRoutePeerKind, 'thread'>;
+	id: string;
+}
+
 export type AgentRouteSessionScope =
 	| 'main'
 	| 'per-peer'
@@ -84,7 +89,7 @@ export interface AgentRouteBinding {
 		channel?: string;
 		accountId?: string;
 		peer?: AgentRoutePeer;
-		parentPeer?: Extract<AgentRoutePeer, { kind: 'direct' | 'group' | 'channel' }>;
+		parentPeer?: AgentParentRoutePeer;
 		roleIds?: string[];
 	};
 	session?: {

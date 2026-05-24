@@ -133,7 +133,7 @@ export function bootstrapServices(): BootstrapResult {
 	cron.configureTaskRuntime({ taskManager });
 	const channelRegistry = container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService })
+		new ChannelRegistry({ logger, eventBus, agentService, store })
 	);
 	const heartbeat = container.register(
 		'heartbeat',

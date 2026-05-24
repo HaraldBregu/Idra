@@ -33,6 +33,8 @@ import {
 } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connector';
 import type {
+	AgentConfig,
+	AgentRoutingSettings,
 	BackgroundTaskSettings,
 	ModelProviderSettings,
 	ModelModuleSettings,
@@ -41,6 +43,7 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
+import { normalizeAgentRoutingSettings } from '../agent/routing';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
@@ -494,6 +497,26 @@ export class StoreService {
 
 	getBackgroundTaskSettings(): BackgroundTaskSettings {
 		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
+	}
+
+	getAgentRoutingSettings(): AgentRoutingSettings {
+		return normalizeAgentRoutingSettings(this.store.get('agents'));
+	}
+
+	getConfiguredAgents(): AgentConfig[] {
+		return this.getAgentRoutingSettings().agents;
+	}
+
+	getAgentConfig(id: string): AgentConfig | undefined {
+		const agentId = id.trim();
+		if (!agentId) return undefined;
+		return this.getConfiguredAgents().find((agent) => agent.id === agentId);
+	}
+
+	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings {
+		const next = normalizeAgentRoutingSettings(settings);
+		this.store.set('agents', next);
+		return next;
 	}
 
 	setAssistantOperator(providerId: string, model: Model): boolean {

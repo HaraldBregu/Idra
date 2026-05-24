@@ -3,6 +3,8 @@ import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { AgentService } from '../service';
+import type { StoreService } from '../store';
+import { channelMessageRouteInput, resolveAgentRoute } from '../agent/routing';
 import type { TelegramAdapterOptions } from './telegram/types';
 import { createBundledCatalogPlugins } from './catalog-plugins';
 import { listChannelCatalog, normalizeChannelId } from './catalog';
@@ -28,6 +30,7 @@ export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	agentService?: AgentService;
+	store?: Pick<StoreService, 'getAgentRoutingSettings'>;
 	runtimeFactories?: Partial<Record<ChannelType, ChannelRuntimeFactory>>;
 }
 
@@ -237,7 +240,13 @@ export class ChannelRegistry {
 				dispatch: async (normalized) => {
 					if (!this.dependencies.agentService) return;
 					const target = plugin.threading?.resolveReplyTarget(message) ?? { to: message.chatId };
-					const sessionKey = plugin.threading?.getSessionKey(normalized);
+					const legacySessionKey = plugin.threading?.getSessionKey(normalized);
+					const route = resolveAgentRoute(
+						channelMessageRouteInput(
+							normalized,
+							this.dependencies.store?.getAgentRoutingSettings()
+						)
+					);
 					this.dependencies.eventBus.emit('channel:route', {
 						channel: channelId,
 						accountId,
@@ -245,9 +254,13 @@ export class ChannelRegistry {
 						threadId: target.threadId,
 						replyToMessageId: target.replyToMessageId,
 						chatType: normalized.chatType,
-						sessionKey,
+						sessionKey: route.sessionKey,
+						legacySessionKey,
+						agentId: route.agentId,
 					});
-					const reply = await this.dependencies.agentService.send(normalized.text);
+					const reply = await this.dependencies.agentService.send(normalized.text, route.agentId, {
+						sessionId: route.sessionKey,
+					});
 					await this.send({
 						type: channelId,
 						accountId,
