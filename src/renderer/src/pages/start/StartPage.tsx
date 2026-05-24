@@ -2,22 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
 	AlertCircle,
 	ArrowRight,
-	Bot,
-	ChevronDown,
 	Check,
-	Database,
 	ExternalLink,
-	FileSearch,
-	ImageIcon,
 	KeyRound,
 	LoaderCircle,
-	Mic,
-	Music,
 	Pencil,
-	Video,
-	Volume2,
-	Zap,
-	type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
