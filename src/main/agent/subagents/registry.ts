@@ -10,7 +10,8 @@ export class SubagentRegistry {
 	private readonly runs = new Map<string, SubagentRunRecord>();
 
 	registerSubagentRun(record: SubagentRunRecord): SubagentRunRecord {
-		if (this.runs.has(record.runId)) throw new Error(`Subagent run already exists: ${record.runId}`);
+		if (this.runs.has(record.runId))
+			throw new Error(`Subagent run already exists: ${record.runId}`);
 		this.runs.set(record.runId, clone(record));
 		return clone(record);
 	}

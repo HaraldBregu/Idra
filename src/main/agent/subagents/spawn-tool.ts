@@ -12,7 +12,9 @@ function spawnResult(result: SessionsSpawnResult): AgentToolResult<SessionsSpawn
 	};
 }
 
-export function createSessionsSpawnTool(spawnService: SubagentSpawnPort): AgentTool<SessionsSpawnInput> {
+export function createSessionsSpawnTool(
+	spawnService: SubagentSpawnPort
+): AgentTool<SessionsSpawnInput> {
 	return {
 		name: 'sessions_spawn',
 		displaySummary: 'Spawn a child agent session.',

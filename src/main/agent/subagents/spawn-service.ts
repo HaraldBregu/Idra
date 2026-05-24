@@ -114,10 +114,10 @@ function isRestrictedAgent(agent: AgentConfig | undefined): boolean {
 	const tools = agent?.tools;
 	return Boolean(
 		tools?.allow ||
-			tools?.deny?.length ||
-			tools?.fs?.workspaceOnly ||
-			tools?.fs?.readOnly ||
-			tools?.fs?.writeWorkspaceOnly
+		tools?.deny?.length ||
+		tools?.fs?.workspaceOnly ||
+		tools?.fs?.readOnly ||
+		tools?.fs?.writeWorkspaceOnly
 	);
 }
 
@@ -137,7 +137,9 @@ async function loadSessionMetadata(
 export class SubagentSpawnService implements SubagentSpawnPort {
 	private readonly idFactory: () => string;
 	private readonly now: () => number;
-	private readonly loadParentMetadata: NonNullable<SubagentSpawnServiceDependencies['loadParentMetadata']>;
+	private readonly loadParentMetadata: NonNullable<
+		SubagentSpawnServiceDependencies['loadParentMetadata']
+	>;
 
 	constructor(private readonly dependencies: SubagentSpawnServiceDependencies) {
 		this.idFactory = dependencies.idFactory ?? randomUUID;
@@ -183,7 +185,8 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 
 		const maxChildren =
 			parentAgent?.subagents?.maxChildrenPerAgent ?? DEFAULT_MAX_CHILDREN_PER_AGENT;
-		const activeChildren = this.dependencies.registry.countActiveRunsForSession(requesterSessionKey);
+		const activeChildren =
+			this.dependencies.registry.countActiveRunsForSession(requesterSessionKey);
 		if (activeChildren >= maxChildren) {
 			throw new Error(`Maximum active subagent children reached: ${maxChildren}`);
 		}

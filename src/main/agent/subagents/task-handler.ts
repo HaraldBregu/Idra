@@ -47,9 +47,10 @@ function optionalPositiveInteger(input: Record<string, unknown>, key: string): n
 	return value;
 }
 
-export class SubagentRunTaskHandler
-	implements TaskHandler<SubagentRunTaskInput, SubagentRunTaskResult>
-{
+export class SubagentRunTaskHandler implements TaskHandler<
+	SubagentRunTaskInput,
+	SubagentRunTaskResult
+> {
 	readonly type = SUBAGENT_RUN_TASK_TYPE;
 
 	constructor(

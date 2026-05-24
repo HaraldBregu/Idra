@@ -1,4 +1,8 @@
-import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from '../../../../src/main/agent/subagents';
+import {
+	SubagentRegistry,
+	SubagentRunTaskHandler,
+	SubagentSpawnService,
+} from '../../../../src/main/agent/subagents';
 import { SUBAGENT_RUN_TASK_TYPE } from '../../../../src/main/agent/subagents/task-handler';
 
 describe('subagent orchestration', () => {
@@ -166,7 +170,11 @@ describe('subagent orchestration', () => {
 		const send = jest.fn(async () => 'child output');
 		const cancel = jest.fn();
 		const eventBus = { emit: jest.fn() };
-		const handler = new SubagentRunTaskHandler({ send, cancel } as never, registry, eventBus as never);
+		const handler = new SubagentRunTaskHandler(
+			{ send, cancel } as never,
+			registry,
+			eventBus as never
+		);
 		const input = handler.validateInput({
 			runId: 'run-1',
 			task: 'Child task',
