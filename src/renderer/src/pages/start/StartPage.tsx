@@ -250,27 +250,6 @@ const StartPage: React.FC = () => {
 		(group) => group.provider.id === configProvider
 	);
 	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
-	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
-	const selectedTextToSpeechOption = getProviderModelOption(
-		textToSpeechModelGroups,
-		textToSpeechProviderId,
-		selectedTextToSpeechModel
-	);
-	const selectedImageCreatorOption = getProviderModelOption(
-		imageCreatorModelGroups,
-		imageCreatorProviderId,
-		selectedImageCreatorModel
-	);
-	const selectedTextToVideoOption = getProviderModelOption(
-		textToVideoModelGroups,
-		textToVideoProviderId,
-		selectedTextToVideoModel
-	);
-	const selectedMusicCreatorOption = getProviderModelOption(
-		musicCreatorModelGroups,
-		musicCreatorProviderId,
-		selectedMusicCreatorModel
-	);
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
 		: agentModelOptions.length === 0
