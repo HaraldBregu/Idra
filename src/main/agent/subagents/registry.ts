@@ -41,6 +41,7 @@ export class SubagentRegistry {
 		options: { endedAt?: number; error?: string } = {}
 	): SubagentRunRecord {
 		const record = this.require(runId);
+		if (!this.isActive(record)) return clone(record);
 		record.outcome = outcome;
 		record.endedAt = options.endedAt ?? Date.now();
 		if (options.error) record.error = options.error;

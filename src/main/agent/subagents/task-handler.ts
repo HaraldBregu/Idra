@@ -92,9 +92,13 @@ export class SubagentRunTaskHandler implements TaskHandler<
 		const cancelAgent = (): void => {
 			this.agentService.cancel(input.childSessionKey);
 		};
+		let timedOut = false;
 		const timeout =
 			input.runTimeoutSeconds && input.runTimeoutSeconds > 0
-				? setTimeout(() => cancelAgent(), input.runTimeoutSeconds * 1000)
+				? setTimeout(() => {
+						timedOut = true;
+						cancelAgent();
+					}, input.runTimeoutSeconds * 1000)
 				: undefined;
 
 		context.updateProgress({ message: 'Starting subagent' });
@@ -108,6 +112,7 @@ export class SubagentRunTaskHandler implements TaskHandler<
 				toolsDeny: input.toolsDeny,
 				sessionMetadata: input.sessionMetadata,
 			});
+			if (timedOut) throw new Error('Subagent run timed out.');
 			if (context.signal.aborted) throw taskCancelledError();
 			const completed = this.registry.completeSubagentRun(input.runId, 'ok');
 			this.eventBus?.emit('subagent:completed', completed);
@@ -120,6 +125,13 @@ export class SubagentRunTaskHandler implements TaskHandler<
 				});
 				this.eventBus?.emit('subagent:completed', cancelled);
 				throw taskCancelledError();
+			}
+			if (timedOut) {
+				const timeoutRun = this.registry.completeSubagentRun(input.runId, 'timeout', {
+					error: error instanceof Error ? error.message : String(error),
+				});
+				this.eventBus?.emit('subagent:completed', timeoutRun);
+				throw error;
 			}
 			const failed = this.registry.completeSubagentRun(input.runId, 'error', {
 				error: error instanceof Error ? error.message : String(error),
