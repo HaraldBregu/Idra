@@ -54,7 +54,11 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
-function renderChannelDetailPage(path = '/settings/channels/channelDetail/slack'): void {
+const detailEntry = findVisibleCatalogOnlyEntry();
+
+function renderChannelDetailPage(
+	path = `/settings/channels/channelDetail/${detailEntry.id}`
+): void {
 	render(
 		<MemoryRouter initialEntries={[path]}>
 			<Routes>
@@ -63,8 +67,6 @@ function renderChannelDetailPage(path = '/settings/channels/channelDetail/slack'
 		</MemoryRouter>
 	);
 }
-
-const detailEntry = findVisibleCatalogOnlyEntry();
 
 function createChannelConfig(): Channel {
 	const config: Record<string, unknown> = {};
