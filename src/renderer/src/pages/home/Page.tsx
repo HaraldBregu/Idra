@@ -222,23 +222,41 @@ function AttachmentButton(): ReactElement {
 	);
 }
 
-function VoiceButton({
-	onVoiceModeRequest,
+const VOICE_BUTTON_LABELS: Record<VoiceButtonMode, string> = {
+	dictate: 'Dictate',
+	record: 'Record',
+	disabled: 'No voice model configured',
+};
+
+function SmartVoiceButton({
+	mode,
+	onDictate,
+	onRecord,
 	disabled,
 }: {
-	readonly onVoiceModeRequest: () => void;
+	readonly mode: VoiceButtonMode;
+	readonly onDictate: () => void;
+	readonly onRecord: () => Promise<void>;
 	readonly disabled?: boolean;
 }): ReactElement {
+	const isDisabled = disabled || mode === 'disabled';
+	const label = VOICE_BUTTON_LABELS[mode];
+
+	const handleClick = (): void => {
+		if (mode === 'dictate') onDictate();
+		else if (mode === 'record') void onRecord();
+	};
+
 	return (
-		<PromptInputAction tooltip="Dictate">
+		<PromptInputAction tooltip={label}>
 			<Button
 				type="button"
 				variant="ghost"
 				size="icon"
 				className="size-8 rounded-full text-foreground hover:bg-muted"
-				aria-label="Dictate"
-				disabled={disabled}
-				onClick={onVoiceModeRequest}
+				aria-label={label}
+				disabled={isDisabled}
+				onClick={handleClick}
 			>
 				<Mic className="size-4" />
 			</Button>
