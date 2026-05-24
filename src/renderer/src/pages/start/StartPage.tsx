@@ -837,10 +837,10 @@ const StartPage: React.FC = () => {
 			<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 				<div>
 					<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-						Choose model
+						Choose {service.label}
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						{service.label}
+						Select a provider and model.
 					</p>
 				</div>
 
