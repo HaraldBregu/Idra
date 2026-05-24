@@ -53,7 +53,7 @@ export function legacyToolToRuntimeTool(
 	tool: LegacyAgentTool,
 	ctx: ToolContext
 ): RuntimeAgentTool<JSONSchema> {
-	const runtimeTool: RuntimeAgentTool<JSONSchema> = {
+	const runtimeTool: RuntimeAgentTool<JSONSchema> & RuntimeToolWithLegacyMetadata = {
 		name: tool.name,
 		label: tool.name,
 		description: tool.description,
