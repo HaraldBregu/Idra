@@ -474,7 +474,7 @@ async function isAllowedExtraPath(real: string, workspace: string, extraPaths: s
 function chunkMarkdown(file: string, raw: string, workspaceDir: string): IndexedChunk[] {
 	const lines = raw.split(/\r?\n/);
 	const chunks: IndexedChunk[] = [];
-	const descriptor = describeMemoryFile(workspaceDir, file) ?? {
+	const descriptor = describeWorkspaceMemoryFile(workspaceDir, file) ?? {
 		corpus: 'memory' as const,
 		scopeKind: 'global' as const,
 		scopeId: 'global',
@@ -507,6 +507,40 @@ function chunkMarkdown(file: string, raw: string, workspaceDir: string): Indexed
 		if (start + MEMORY_CHUNK_LINES >= lines.length) break;
 	}
 	return chunks;
+}
+
+type WorkspaceMemoryFileDescriptor = {
+	corpus: MemoryFileCorpus;
+	scopeKind: MemoryScopeKind;
+	scopeId: string;
+	relativePath: string;
+};
+
+function describeWorkspaceMemoryFile(
+	workspaceDir: string,
+	filePath: string
+): WorkspaceMemoryFileDescriptor | undefined {
+	return (
+		describeRagFile(workspaceDir, filePath) ??
+		describeWikiFile(workspaceDir, filePath) ??
+		describeChatMemoryFile(workspaceDir, filePath)
+	);
+}
+
+function matchesMemorySearchFilter(
+	result: { corpus: MemoryResultCorpus; scopeKind?: MemoryScopeKind; scopeId?: string },
+	corpora: MemoryResultCorpus[],
+	scopeKind?: MemoryScopeKind,
+	scopeId?: string
+): boolean {
+	if (!corpora.includes(result.corpus)) return false;
+	if (scopeKind && result.scopeKind !== scopeKind) return false;
+	if (scopeId && result.scopeId !== normalizeMemoryScopeFilter(scopeId)) return false;
+	return true;
+}
+
+function normalizeMemoryScopeFilter(scopeId: string): string {
+	return scopeId.trim();
 }
 
 function resolveRequestedCorpora(options: Parameters<MemorySearchManager['search']>[1] = {}): MemoryResultCorpus[] {
