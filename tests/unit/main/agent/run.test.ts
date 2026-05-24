@@ -1,5 +1,10 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/provider/types';
 import { runAgent } from '../../../../src/main/agent/run';
+import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
+import {
+	clearAgentToolResultMiddlewareRegistrations,
+	registerAgentToolResultMiddleware,
+} from '../../../../src/main/agent/harness/tool-result-middleware';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import type { SessionFile } from '../../../../src/main/session/store';
 import { makeToolContext } from '../test-helpers';
@@ -35,6 +40,11 @@ const end = (usage = { inputTokens: 1, outputTokens: 1 }): ProviderEvent => ({
 });
 
 describe('agent/run', () => {
+	beforeEach(() => {
+		clearAgentHarnessHookProviders();
+		clearAgentToolResultMiddlewareRegistrations();
+	});
+
 	it('streams text, appends transcript entries, and returns usage', async () => {
 		const chunks: string[] = [];
 		const result = await runAgent({
