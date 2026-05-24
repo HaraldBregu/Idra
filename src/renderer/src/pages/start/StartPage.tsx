@@ -241,7 +241,6 @@ const StartPage: React.FC = () => {
 		}))
 	);
 	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
-	const [providers, setProviders] = useState<PublicProvider[]>([]);
 	const [serviceStates, setServiceStates] = useState<ModelServiceStateMap>(
 		createInitialModelServiceState
 	);
@@ -389,7 +388,6 @@ const StartPage: React.FC = () => {
 				}
 
 				if (cancelled) return;
-				setProviders(selectableProviders);
 				setServiceStates(nextServiceStates);
 
 				if (firstError) {
@@ -397,7 +395,6 @@ const StartPage: React.FC = () => {
 				}
 			} catch (error) {
 				if (cancelled) return;
-				setProviders([]);
 				setServiceStates(createInitialModelServiceState());
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
