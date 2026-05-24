@@ -1,6 +1,6 @@
 # Friday Agent Harness Implementation Progress
 
-This page tracks the current implementation status. The original rollout plan and OpenClaw scrape are historical references; use this page plus `docs/features/plugins-and-agent-harnesses.md` for the current source-backed summary.
+This page tracks the current implementation status. For the final concept and implementation guide, use `docs/harness/index.md`. The original rollout plan and OpenClaw scrape are historical references.
 
 ## Implemented against OpenClaw reference
 

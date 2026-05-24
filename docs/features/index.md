@@ -24,7 +24,7 @@ This folder documents Friday's current feature surface from the source tree and 
 | [Realtime transcription](realtime-transcription.md) | Runtime implemented | Renderer-owned speech-to-text sessions stream audio through OpenAI, Deepgram, ElevenLabs, Mistral, xAI, or Qwen adapters. |
 | [Browser automation](browser-automation.md) | Runtime implemented | Managed Playwright Chromium profiles expose lifecycle, tabs, navigation, snapshots, screenshots, and page actions through the browser tool. |
 | [Memory, sessions, and workspace context](memory-sessions-workspace.md) | Runtime implemented | Sessions persist transcripts and plans, workspace startup files shape prompts, and memory search indexes workspace memory plus visible sessions. |
-| [Plugins and agent harnesses](plugins-and-agent-harnesses.md) | Runtime implemented with extension points | Plugin manifests can register providers, channels, tools, hooks, setup/runtime entries, model metadata, and agent harness runtimes. |
+| [Plugins and agent harnesses](plugins-and-agent-harnesses.md) | Runtime implemented with extension points | Plugin manifests can register providers, channels, tools, hooks, setup/runtime entries, model metadata, and [agent harness runtimes](../harness/index.md). |
 
 ## Completeness Notes
 

@@ -1,6 +1,6 @@
 # Plugins And Agent Harnesses
 
-Plugins let Friday discover extension manifests and activate runtime surfaces for providers, channels, tools, hooks, setup flows, model metadata, and agent harnesses.
+Plugins let Friday discover extension manifests and activate runtime surfaces for providers, channels, tools, hooks, setup flows, model metadata, and agent harnesses. For the canonical concept and implementation guide, see [Agent harnesses](../harness/index.md).
 
 ## Plugin Manifests
 
@@ -95,4 +95,4 @@ The harness hook runner and helper payloads exist for LLM input/output, agent-en
 - `src/main/agent/harness`
 - `src/main/agent/harness-runtimes.ts`
 - `src/main/bootstrap.ts`
-- Existing docs: `docs/agent-harness-implementation-plan.md`, `docs/agent-harness-implementation-progress.md`
+- Existing docs: `docs/harness/index.md`, `docs/agent-harness-implementation-plan.md`, `docs/agent-harness-implementation-progress.md`
