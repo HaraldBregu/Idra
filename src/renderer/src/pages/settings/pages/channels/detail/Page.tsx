@@ -47,6 +47,7 @@ import type {
 	ChannelAccountProperties,
 	ChannelConnectionStatus,
 	ChannelDmPolicy,
+	ChannelSetupField,
 	ChannelType,
 	DiscordChannelProperties,
 	GenericChannelProperties,
@@ -65,32 +66,6 @@ import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
-
-const PHONE_CHANNELS = new Set<ChannelType>([
-	'imessage',
-	'line',
-	'qqbot',
-	'signal',
-	'telegram',
-	'whatsapp',
-	'zalo',
-	'zalouser',
-]);
-const SERVER_CHANNELS = new Set<ChannelType>([
-	'discord',
-	'feishu',
-	'googlechat',
-	'irc',
-	'matrix',
-	'mattermost',
-	'msteams',
-	'nextcloud-talk',
-	'nostr',
-	'slack',
-	'synology-chat',
-	'tlon',
-	'twitch',
-]);
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
@@ -156,6 +131,8 @@ const ChannelDetailPage: React.FC = () => {
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
 	const selectedDocsUrl = selectedEntry ? buildChannelDocsUrl(selectedEntry.docsPath, __APP_HOMEPAGE__) : null;
+	const selectedSetupFields = new Set<ChannelSetupField>(selectedEntry?.setupFields ?? []);
+	const hasSetupField = (field: ChannelSetupField): boolean => selectedSetupFields.has(field);
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
 		if (!selectedId) return;
@@ -348,143 +325,157 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.username')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.username ?? ''}
-									onChange={(event) => updateAccountField('username', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.usernamePlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.username')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('username') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<UserRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.username')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.username ?? ''}
+										onChange={(event) => updateAccountField('username', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.usernamePlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.username')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.botUserId')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.botUserId ?? ''}
-									onChange={(event) => updateAccountField('botUserId', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.botUserIdPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.botUserId')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('botUserId') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<UserRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.botUserId')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.botUserId ?? ''}
+										onChange={(event) => updateAccountField('botUserId', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.botUserIdPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.botUserId')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<KeyRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.token')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									type="password"
-									value={selectedAccount.token ?? ''}
-									onChange={(event) => updateAccountField('token', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={getTokenPlaceholder(selectedId, t)}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.token')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('token') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<KeyRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.token')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										type="password"
+										value={selectedAccount.token ?? ''}
+										onChange={(event) => updateAccountField('token', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={getTokenPlaceholder(selectedId, t)}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.token')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<KeyRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.secret')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									type="password"
-									value={selectedAccount.secret ?? ''}
-									onChange={(event) => updateAccountField('secret', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.secretPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.secret')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('secret') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<KeyRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.secret')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										type="password"
+										value={selectedAccount.secret ?? ''}
+										onChange={(event) => updateAccountField('secret', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.secretPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.secret')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<Hash className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.appId')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.appId ?? ''}
-									onChange={(event) => updateAccountField('appId', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.appIdPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.appId')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('appId') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Hash className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.appId')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.appId ?? ''}
+										onChange={(event) => updateAccountField('appId', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.appIdPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.appId')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<Hash className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.clientId')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.clientId ?? ''}
-									onChange={(event) => updateAccountField('clientId', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.clientIdPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.clientId')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('clientId') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Hash className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.clientId')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.clientId ?? ''}
+										onChange={(event) => updateAccountField('clientId', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.clientIdPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.clientId')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<KeyRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.clientSecret')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									type="password"
-									value={selectedAccount.clientSecret ?? ''}
-									onChange={(event) => updateAccountField('clientSecret', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.clientSecretPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.clientSecret')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('clientSecret') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<KeyRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.clientSecret')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										type="password"
+										value={selectedAccount.clientSecret ?? ''}
+										onChange={(event) => updateAccountField('clientSecret', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.clientSecretPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.clientSecret')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						{PHONE_CHANNELS.has(selectedId) && (
+						{hasSetupField('phoneNumber') && (
 							<Item variant="outline" size="md" className="border-b border-border/60">
 								<ItemMedia variant="icon">
 									<Phone className="size-3" strokeWidth={1.8} />
@@ -506,7 +497,7 @@ const ChannelDetailPage: React.FC = () => {
 							</Item>
 						)}
 
-						{SERVER_CHANNELS.has(selectedId) && (
+						{hasSetupField('serverUrl') && (
 							<Item variant="outline" size="md" className="border-b border-border/60">
 								<ItemMedia variant="icon">
 									<Server className="size-3" strokeWidth={1.8} />
@@ -527,43 +518,47 @@ const ChannelDetailPage: React.FC = () => {
 							</Item>
 						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<Link2 className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.webhookUrl')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.webhookUrl ?? ''}
-									onChange={(event) => updateAccountField('webhookUrl', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.webhookUrlPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.webhookUrl')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('webhookUrl') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Link2 className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.webhookUrl')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.webhookUrl ?? ''}
+										onChange={(event) => updateAccountField('webhookUrl', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.webhookUrlPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.webhookUrl')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<Hash className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.defaultTarget')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.defaultTarget ?? ''}
-									onChange={(event) => updateAccountField('defaultTarget', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.defaultTargetPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.defaultTarget')}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('defaultTarget') && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Hash className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.defaultTarget')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.defaultTarget ?? ''}
+										onChange={(event) => updateAccountField('defaultTarget', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.defaultTargetPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.defaultTarget')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
@@ -593,53 +588,57 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
-								<ListEditor
-									value={listDrafts.allowFrom}
-									items={selectedAccount.allowFrom ?? []}
-									placeholder={t('settings.channels.allowFromPlaceholder')}
-									addLabel={t('settings.channels.addAllowFrom')}
-									removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
-									emptyLabel={t('settings.channels.noAllowFrom')}
-									onDraftChange={(value) =>
-										setListDrafts((current) => ({ ...current, allowFrom: value }))
-									}
-									onAdd={() => addListValue('allowFrom')}
-									onRemove={(value) => removeListValue('allowFrom', value)}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('allowFrom') && (
+							<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
+								<ItemMedia variant="icon">
+									<UserRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+									<ListEditor
+										value={listDrafts.allowFrom}
+										items={selectedAccount.allowFrom ?? []}
+										placeholder={t('settings.channels.allowFromPlaceholder')}
+										addLabel={t('settings.channels.addAllowFrom')}
+										removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
+										emptyLabel={t('settings.channels.noAllowFrom')}
+										onDraftChange={(value) =>
+											setListDrafts((current) => ({ ...current, allowFrom: value }))
+										}
+										onAdd={() => addListValue('allowFrom')}
+										onRemove={(value) => removeListValue('allowFrom', value)}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
-						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
-							<ItemMedia variant="icon">
-								<Hash className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
-								<ListEditor
-									value={listDrafts.groupAllowFrom}
-									items={selectedAccount.groupAllowFrom ?? []}
-									placeholder={t('settings.channels.groupAllowFromPlaceholder')}
-									addLabel={t('settings.channels.addGroupAllowFrom')}
-									removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
-									emptyLabel={t('settings.channels.noGroupAllowFrom')}
-									onDraftChange={(value) =>
-										setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
-									}
-									onAdd={() => addListValue('groupAllowFrom')}
-									onRemove={(value) => removeListValue('groupAllowFrom', value)}
-								/>
-							</ItemActions>
-						</Item>
+						{hasSetupField('groupAllowFrom') && (
+							<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
+								<ItemMedia variant="icon">
+									<Hash className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+									<ListEditor
+										value={listDrafts.groupAllowFrom}
+										items={selectedAccount.groupAllowFrom ?? []}
+										placeholder={t('settings.channels.groupAllowFromPlaceholder')}
+										addLabel={t('settings.channels.addGroupAllowFrom')}
+										removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
+										emptyLabel={t('settings.channels.noGroupAllowFrom')}
+										onDraftChange={(value) =>
+											setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
+										}
+										onAdd={() => addListValue('groupAllowFrom')}
+										onRemove={(value) => removeListValue('groupAllowFrom', value)}
+									/>
+								</ItemActions>
+							</Item>
+						)}
 
 						<Item variant="outline" size="md">
 							<ItemMedia variant="icon">
