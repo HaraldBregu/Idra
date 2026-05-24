@@ -45,7 +45,8 @@ export async function dispatchAgentHarnessHook(hookName: string, payload: unknow
 	for (const handler of handlers) {
 		try {
 			await handler(payload);
-		} catch {
+		} catch (error) {
+			void error;
 		}
 	}
 	for (const provider of providers) {
