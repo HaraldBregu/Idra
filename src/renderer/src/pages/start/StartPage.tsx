@@ -296,22 +296,7 @@ const StartPage: React.FC = () => {
 		async function loadModels(): Promise<void> {
 			if (providers.length === 0) {
 				setAgentModelGroups([]);
-				setSpeechModelGroups([]);
-				setTextToSpeechModelGroups([]);
-				setImageCreatorModelGroups([]);
-				setTextToVideoModelGroups([]);
-				setMusicCreatorModelGroups([]);
 				setSelectedModel('');
-				setSpeechProviderId('');
-				setSelectedSpeechModel('');
-				setTextToSpeechProviderId('');
-				setSelectedTextToSpeechModel('');
-				setImageCreatorProviderId('');
-				setSelectedImageCreatorModel('');
-				setTextToVideoProviderId('');
-				setSelectedTextToVideoModel('');
-				setMusicCreatorProviderId('');
-				setSelectedMusicCreatorModel('');
 				return;
 			}
 
@@ -319,11 +304,6 @@ const StartPage: React.FC = () => {
 			setErrorMessage('');
 			try {
 				const nextAgentGroups: ProviderModelGroup[] = [];
-				const nextSpeechGroups: ProviderModelGroup[] = [];
-				const nextTextToSpeechGroups: ProviderModelGroup[] = [];
-				const nextImageCreatorGroups: ProviderModelGroup[] = [];
-				const nextTextToVideoGroups: ProviderModelGroup[] = [];
-				const nextMusicCreatorGroups: ProviderModelGroup[] = [];
 				let firstError: unknown;
 
 				for (const provider of providers) {
@@ -335,61 +315,11 @@ const StartPage: React.FC = () => {
 					} catch (error) {
 						firstError ??= error;
 					}
-
-					try {
-						const speechModels = await window.app.getSpeechToTextModels(provider);
-						if (speechModels.length > 0) {
-							nextSpeechGroups.push({ provider, models: speechModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const textToSpeechModels = await window.app.getTextToSpeechModels(provider);
-						if (textToSpeechModels.length > 0) {
-							nextTextToSpeechGroups.push({ provider, models: textToSpeechModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const imageCreatorModels = await window.app.getImageCreatorModels(provider);
-						if (imageCreatorModels.length > 0) {
-							nextImageCreatorGroups.push({ provider, models: imageCreatorModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const textToVideoModels = await window.app.getTextToVideoModels(provider);
-						if (textToVideoModels.length > 0) {
-							nextTextToVideoGroups.push({ provider, models: textToVideoModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const musicCreatorModels = await window.app.getMusicCreatorModels(provider);
-						if (musicCreatorModels.length > 0) {
-							nextMusicCreatorGroups.push({ provider, models: musicCreatorModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
 				}
 
 				if (cancelled) return;
 
 				setAgentModelGroups(nextAgentGroups);
-				setSpeechModelGroups(nextSpeechGroups);
-				setTextToSpeechModelGroups(nextTextToSpeechGroups);
-				setImageCreatorModelGroups(nextImageCreatorGroups);
-				setTextToVideoModelGroups(nextTextToVideoGroups);
-				setMusicCreatorModelGroups(nextMusicCreatorGroups);
 
 				const agentOptions = nextAgentGroups.flatMap((group) =>
 					group.models.map((model) => ({ provider: group.provider, model }))
@@ -404,75 +334,13 @@ const StartPage: React.FC = () => {
 				setConfigProvider(preferredAgentOption?.provider.id ?? '');
 				setSelectedModel(preferredAgentOption?.model.id ?? '');
 
-				const speechOptions = nextSpeechGroups.flatMap((group) =>
-					group.models.map((model) => ({ provider: group.provider, model }))
-				);
-				const preferredSpeechOption =
-					speechOptions.find(
-						(option) =>
-							option.provider.id === savedSpeechProviderId &&
-							option.model.id === savedSpeechModelId
-					) ??
-					speechOptions.find((option) => option.provider.id === savedSpeechProviderId) ??
-					speechOptions[0];
-
-				setSpeechProviderId(preferredSpeechOption?.provider.id ?? '');
-				setSelectedSpeechModel(preferredSpeechOption?.model.id ?? '');
-
-				const preferredTextToSpeechOption = getPreferredProviderModelOption(
-					nextTextToSpeechGroups,
-					savedTextToSpeechOperator?.provider.id ?? '',
-					savedTextToSpeechOperator?.model.id ?? ''
-				);
-				setTextToSpeechProviderId(preferredTextToSpeechOption?.provider.id ?? '');
-				setSelectedTextToSpeechModel(preferredTextToSpeechOption?.model.id ?? '');
-
-				const preferredImageCreatorOption = getPreferredProviderModelOption(
-					nextImageCreatorGroups,
-					savedImageCreatorOperator?.provider.id ?? '',
-					savedImageCreatorOperator?.model.id ?? ''
-				);
-				setImageCreatorProviderId(preferredImageCreatorOption?.provider.id ?? '');
-				setSelectedImageCreatorModel(preferredImageCreatorOption?.model.id ?? '');
-
-				const preferredTextToVideoOption = getPreferredProviderModelOption(
-					nextTextToVideoGroups,
-					savedTextToVideoOperator?.provider.id ?? '',
-					savedTextToVideoOperator?.model.id ?? ''
-				);
-				setTextToVideoProviderId(preferredTextToVideoOption?.provider.id ?? '');
-				setSelectedTextToVideoModel(preferredTextToVideoOption?.model.id ?? '');
-
-				const preferredMusicCreatorOption = getPreferredProviderModelOption(
-					nextMusicCreatorGroups,
-					savedMusicCreatorOperator?.provider.id ?? '',
-					savedMusicCreatorOperator?.model.id ?? ''
-				);
-				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
-				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
-
-				if (!preferredAgentOption && nextSpeechGroups.length === 0 && firstError) {
+				if (!preferredAgentOption && firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
 				}
 			} catch (error) {
 				if (cancelled) return;
 				setAgentModelGroups([]);
-				setSpeechModelGroups([]);
-				setTextToSpeechModelGroups([]);
-				setImageCreatorModelGroups([]);
-				setTextToVideoModelGroups([]);
-				setMusicCreatorModelGroups([]);
 				setSelectedModel('');
-				setSpeechProviderId('');
-				setSelectedSpeechModel('');
-				setTextToSpeechProviderId('');
-				setSelectedTextToSpeechModel('');
-				setImageCreatorProviderId('');
-				setSelectedImageCreatorModel('');
-				setTextToVideoProviderId('');
-				setSelectedTextToVideoModel('');
-				setMusicCreatorProviderId('');
-				setSelectedMusicCreatorModel('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models for this provider.'));
 			} finally {
 				if (!cancelled) {
@@ -486,18 +354,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [
-		configProvider,
-		providers,
-		savedImageCreatorOperator,
-		savedModelId,
-		savedMusicCreatorOperator,
-		savedSpeechModelId,
-		savedSpeechProviderId,
-		savedTextToSpeechOperator,
-		savedTextToVideoOperator,
-		step,
-	]);
+	}, [configProvider, providers, savedModelId, step]);
 
 	function goToStep(nextStep: SetupStep): void {
 		setErrorMessage('');
