@@ -39,6 +39,7 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
 	SettingsSection,
 } from '../../../components';
 import { openExternalUrl } from '@/lib/external-links';
