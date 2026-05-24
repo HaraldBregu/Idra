@@ -152,11 +152,7 @@ function parseModelOverride(value: string | undefined): { providerId?: string; m
 
 function parseControlInput(input: unknown): SubagentsControlInput {
 	const record = readRecord(input, 'subagents input');
-	if (
-		record.action !== 'list' &&
-		record.action !== 'cancel' &&
-		record.action !== 'history'
-	) {
+	if (record.action !== 'list' && record.action !== 'cancel' && record.action !== 'history') {
 		throw new Error('subagents action must be list, cancel, or history.');
 	}
 	const runId = optionalString(record.runId, 'runId');

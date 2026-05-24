@@ -11,9 +11,7 @@ function controlResult(result: SubagentsControlResult): AgentToolResult<Subagent
 	};
 }
 
-export function createSubagentsControlTool(
-	subagents: SubagentSpawnPort
-): AgentTool {
+export function createSubagentsControlTool(subagents: SubagentSpawnPort): AgentTool {
 	return {
 		name: 'subagents',
 		displaySummary: 'Control child subagent runs.',
