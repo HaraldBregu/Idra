@@ -455,14 +455,19 @@ async function resolveAllowedMemoryFile(workspaceDir: string, requestedPath: str
 	if (path.extname(absolute).toLowerCase() !== '.md') throw new Error('Memory path must be Markdown.');
 
 	const workspaceReal = await fs.realpath(workspace).catch(() => workspace);
+	const memoryRootReal = await fs.realpath(path.join(workspace, MEMORY_DIRNAME)).catch(() =>
+		path.join(workspaceReal, MEMORY_DIRNAME)
+	);
 	const real = await fs.realpath(absolute);
 	const rootMemory = absolute === path.join(workspace, MEMORY_FILENAME);
 	const memoryRelative = path.relative(path.join(workspace, MEMORY_DIRNAME), absolute);
 	const underMemoryDir = memoryRelative !== '' && !memoryRelative.startsWith('..') && !path.isAbsolute(memoryRelative);
 	const underWorkspaceReal = isInside(workspaceReal, real);
+	const underMemoryReal = isInside(memoryRootReal, real);
 	const extraAllowed = await isAllowedExtraPath(real, workspace, extraPaths);
 
-	if ((rootMemory || underMemoryDir) && underWorkspaceReal) return absolute;
+	if (rootMemory && underWorkspaceReal) return absolute;
+	if (underMemoryDir && underMemoryReal) return absolute;
 	if (extraAllowed) return real;
 	throw new Error('Memory path is outside allowed memory roots.');
 }

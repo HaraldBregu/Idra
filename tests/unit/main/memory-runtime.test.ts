@@ -48,6 +48,9 @@ describe('memory-runtime', () => {
 		if (process.platform !== 'win32') {
 			await fs.symlink(path.join(outside, 'secret.md'), path.join(workspace, 'memory', 'escape.md'));
 			await expect(manager.readFile('memory/escape.md')).rejects.toThrow('outside allowed memory roots');
+			await fs.writeFile(path.join(workspace, 'workspace-secret.md'), 'workspace secret', 'utf8');
+			await fs.symlink(path.join(workspace, 'workspace-secret.md'), path.join(workspace, 'memory', 'workspace-escape.md'));
+			await expect(manager.readFile('memory/workspace-escape.md')).rejects.toThrow('outside allowed memory roots');
 		}
 
 		await fs.rm(workspace, { recursive: true, force: true });
