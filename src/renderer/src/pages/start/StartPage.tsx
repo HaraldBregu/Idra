@@ -15,7 +15,6 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import { AGENTS, type AgentId } from '../../../../shared/agents';
 import {
 	OPERATOR_DEFINITIONS,
 	type ConfiguredModelOperator,
