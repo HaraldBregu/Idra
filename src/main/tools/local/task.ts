@@ -17,14 +17,6 @@ function assertRecord(value: unknown, name: string): asserts value is Record<str
 	}
 }
 
-function requiredString(input: Record<string, unknown>, key: string): string {
-	const value = input[key];
-	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
-	const trimmed = value.trim();
-	if (!trimmed) throw new Error(`${key} is required.`);
-	return trimmed;
-}
-
 function optionalString(input: Record<string, unknown>, key: string): string | undefined {
 	const value = input[key];
 	if (value === undefined || value === null) return undefined;
@@ -33,27 +25,20 @@ function optionalString(input: Record<string, unknown>, key: string): string | u
 	return trimmed || undefined;
 }
 
-function optionalMetadata(value: unknown): Record<string, unknown> | undefined {
-	if (value === undefined || value === null) return undefined;
-	assertRecord(value, 'metadata');
-	return value;
-}
-
 function taskRequest(args: unknown): TaskRunRequest {
 	assertRecord(args, 'task arguments');
 	const type = optionalString(args, 'type');
 	if (type && type !== AGENT_TASK_TYPE) {
 		throw new Error(`Only ${AGENT_TASK_TYPE} background tasks are supported.`);
 	}
-	const request: TaskRunRequest = {
+	const request: Record<string, unknown> = {
 		type: AGENT_TASK_TYPE,
-		title: requiredString(args, 'title'),
+		title: args.title,
 		input: Object.prototype.hasOwnProperty.call(args, 'input') ? args.input : {},
 	};
 	const id = optionalString(args, 'id');
-	const metadata = optionalMetadata(args.metadata);
 	if (id) request.id = id;
-	if (metadata) request.metadata = metadata;
+	if (Object.prototype.hasOwnProperty.call(args, 'metadata')) request.metadata = args.metadata;
 	return parseTaskRunRequest(request);
 }
 
