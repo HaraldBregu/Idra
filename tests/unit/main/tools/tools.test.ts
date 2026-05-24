@@ -132,6 +132,26 @@ describe('tools/task', () => {
 		expect(result.status).toBe('error');
 		expect(result.content[0]?.text).toContain('TaskManager service is not available');
 	});
+
+	it('rejects malformed task tool requests before calling the task manager', async () => {
+		const taskManager = {
+			startUserTask: jest.fn(),
+		};
+
+		const result = await taskTool.execute(
+			{ type: 'agent.run', title: 'Bad metadata', metadata: [] as never },
+			makeToolContext({
+				services: {
+					...makeToolContext().services,
+					taskManager: taskManager as never,
+				},
+			})
+		);
+
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('Task metadata must be an object');
+		expect(taskManager.startUserTask).not.toHaveBeenCalled();
+	});
 });
 
 describe('tools/before-call', () => {
