@@ -347,10 +347,11 @@ const StartPage: React.FC = () => {
 					for (let index = 0; index < MODEL_SERVICE_DEFINITIONS.length; index += 1) {
 						const service = MODEL_SERVICE_DEFINITIONS[index];
 						const operator = configuredOperators[index];
-						if (!operator) continue;
 
 						const preferredProvider =
-							selectableProviders.find((provider) => provider.id === operator.provider.id) ??
+							(operator
+								? selectableProviders.find((provider) => provider.id === operator.provider.id)
+								: undefined) ??
 							selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 							selectableProviders[0];
 
@@ -370,7 +371,7 @@ const StartPage: React.FC = () => {
 							modelGroups.find((group) => group.provider.id === preferredProvider?.id) ??
 							modelGroups[0];
 						const providerId = preferredModelGroups?.provider.id ?? '';
-						const preferredModelId = operator.model.id;
+						const preferredModelId = operator?.model.id;
 						const modelId =
 							preferredModelGroups?.models.find((model) => model.id === preferredModelId)?.id ??
 							preferredModelGroups?.models[0]?.id ??
