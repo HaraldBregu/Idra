@@ -93,6 +93,6 @@ The harness hook runner and helper payloads cover LLM input/output, agent-end, p
 
 - `src/main/plugins`
 - `src/main/agent/harness`
-- `src/main/agent/harness-runtimes.ts`
+- `src/main/agent/harness/runtimes.ts`
 - `src/main/bootstrap.ts`
 - Existing docs: `docs/harness/index.md`, `docs/agent-harness-implementation-plan.md`, `docs/agent-harness-implementation-progress.md`
