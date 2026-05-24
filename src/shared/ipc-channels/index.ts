@@ -556,6 +556,51 @@ interface SkillsInvokeChannelMap {
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
 
+interface ChatMemoryInvokeChannelMap {
+	[ChatMemoryChannels.list]: {
+		args: [request?: import('../memory').ChatMemoryListRequest];
+		result: import('../memory').MemoryFileSummary[];
+	};
+	[ChatMemoryChannels.read]: {
+		args: [request: import('../memory').MemoryReadRequest];
+		result: import('../memory').MemoryReadResult;
+	};
+	[ChatMemoryChannels.search]: {
+		args: [request: import('../memory').MemorySearchRequest];
+		result: import('../memory').MemorySearchResult[];
+	};
+}
+
+interface RagInvokeChannelMap {
+	[RagChannels.list]: {
+		args: [];
+		result: import('../memory').MemoryFileSummary[];
+	};
+	[RagChannels.read]: {
+		args: [request: import('../memory').MemoryReadRequest];
+		result: import('../memory').MemoryReadResult;
+	};
+	[RagChannels.search]: {
+		args: [request: import('../memory').MemorySearchRequest];
+		result: import('../memory').MemorySearchResult[];
+	};
+}
+
+interface WikiInvokeChannelMap {
+	[WikiChannels.list]: {
+		args: [];
+		result: import('../memory').MemoryFileSummary[];
+	};
+	[WikiChannels.read]: {
+		args: [request: import('../memory').MemoryReadRequest];
+		result: import('../memory').MemoryReadResult;
+	};
+	[WikiChannels.search]: {
+		args: [request: import('../memory').MemorySearchRequest];
+		result: import('../memory').MemorySearchResult[];
+	};
+}
+
 interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.catalog]: {
 		args: [];
