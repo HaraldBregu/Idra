@@ -2,30 +2,26 @@ import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import {
-	describeMemoryFile,
-	matchesMemoryCorpusFilter,
-	resolveDailyMemoryTarget,
-	validateDailyMemoryRelativePath,
-	type MemoryCorpus,
-	type MemoryFileCorpus,
-	type MemoryResultCorpus,
-	type MemoryScope,
-	type MemoryScopeInput,
-	type MemoryScopeKind,
-} from './memory/scopes';
+	describeChatMemoryFile,
+	resolveChatDailyMemoryTarget,
+	validateChatDailyMemoryRelativePath,
+	type ChatMemoryScope,
+	type ChatMemoryScopeInput,
+	type ChatMemoryScopeKind,
+} from './memory';
 import type { TranscriptEntry } from './provider/types';
+import { describeRagFile } from './rag';
 import { acquireWriteLock } from './session/lock';
 import { listSessions, type SessionFile } from './session/store';
+import { describeWikiFile } from './wiki';
 
 export type MemorySource = 'memory' | 'sessions';
-export type {
-	MemoryCorpus,
-	MemoryFileCorpus,
-	MemoryResultCorpus,
-	MemoryScope,
-	MemoryScopeInput,
-	MemoryScopeKind,
-} from './memory/scopes';
+export type MemoryCorpus = 'memory' | 'sessions' | 'rag' | 'wiki' | 'all';
+export type MemoryFileCorpus = Exclude<MemoryCorpus, 'sessions' | 'all'>;
+export type MemoryResultCorpus = Exclude<MemoryCorpus, 'all'>;
+export type MemoryScopeKind = ChatMemoryScopeKind;
+export type MemoryScope = ChatMemoryScope;
+export type MemoryScopeInput = ChatMemoryScopeInput;
 export type SessionVisibility = 'self' | 'tree' | 'agent' | 'all';
 
 export interface MemorySearchResult {
@@ -184,13 +180,7 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 		const minScore = options.minScore ?? DEFAULT_MIN_SCORE;
 		const maxResults = Math.min(Math.max(options.maxResults ?? DEFAULT_MAX_RESULTS, 1), MAX_RESULTS);
 		return chunks
-			.filter((chunk) =>
-				matchesMemoryCorpusFilter(chunk, {
-					corpora,
-					scopeKind: options.scopeKind,
-					scopeId: options.scopeId,
-				})
-			)
+			.filter((chunk) => matchesMemorySearchFilter(chunk, corpora, options.scopeKind, options.scopeId))
 			.map((chunk) => ({ chunk, score: keywordScore(trimmed, chunk.text) }))
 			.filter(({ score }) => score >= minScore)
 			.sort((a, b) => b.score - a.score)
@@ -323,7 +313,7 @@ export function resolveMemoryFlushPlan(
 	scope?: MemoryScopeInput
 ): MemoryFlushPlan {
 	const date = toLocalDate(clock());
-	const target = resolveDailyMemoryTarget(workspaceDir, scope, date);
+	const target = resolveChatDailyMemoryTarget(workspaceDir, scope, date);
 	return {
 		targetPath: target.targetPath,
 		relativePath: target.relativePath,
@@ -336,14 +326,14 @@ export function resolveMemoryFlushPlan(
 
 export async function appendOnlyMemoryFlush(plan: MemoryFlushPlan, content: string): Promise<void> {
 	const target = path.resolve(plan.targetPath);
-	validateDailyMemoryRelativePath(plan.relativePath);
+	validateChatDailyMemoryRelativePath(plan.relativePath);
 	const workspace = path.resolve(plan.workspaceDir ?? deriveWorkspaceFromRelativeTarget(target, plan.relativePath));
 	if (path.resolve(workspace, plan.relativePath) !== target) {
 		throw new Error('Memory flush target must match the planned daily memory file.');
 	}
-	const descriptor = describeMemoryFile(workspace, target);
+	const descriptor = describeWorkspaceMemoryFile(workspace, target);
 	if (!descriptor || descriptor.corpus !== 'memory') {
-		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/<scope>/YYYY-MM-DD.md.');
+		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/chats/<chatScope>/YYYY-MM-DD.md.');
 	}
 	const memoryDir = path.dirname(target);
 	await fs.mkdir(memoryDir, { recursive: true, mode: 0o700 });
