@@ -282,7 +282,7 @@ const ChannelDetailPage: React.FC = () => {
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
-			{selectedEntry && selectedId !== 'telegram' && (
+			{selectedEntry && selectedEntry.runtime !== 'bundled' && (
 				<SettingsNotice icon={CircleOff}>
 					{t('settings.channels.runtimeUnavailable')}
 				</SettingsNotice>
