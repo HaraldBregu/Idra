@@ -541,7 +541,7 @@ const StartPage: React.FC = () => {
 				<DomeWaveAnimation height={120} className="w-full max-w-sm" />
 				<Badge variant="secondary" className="mt-5 h-6 rounded-md px-2.5 text-xs font-semibold">
 					<Check className="size-3" />
-					Setup takes about a minute
+					Ready in a minute
 				</Badge>
 				<h1 className="mt-5 text-3xl font-bold leading-none tracking-normal text-foreground">
 					Welcome to {PRODUCT_NAME}
