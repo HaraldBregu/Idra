@@ -11,6 +11,7 @@ export type AfterToolCallHookPayload = AgentHarnessHookContext & {
 
 export type BeforeMessageWriteHookPayload = AgentHarnessHookContext & {
 	content: string;
+	role?: 'user' | 'assistant' | 'tool';
 	sessionKey?: string;
 };
 
