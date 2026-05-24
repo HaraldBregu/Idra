@@ -494,7 +494,7 @@ const StartPage: React.FC = () => {
 	function getPrimaryLabel(): string {
 		if (step === 'presentation') return 'Get started';
 		if (savingProviderId !== null || savingConfig) return 'Saving...';
-		if (step === 'models') return 'Start using Friday';
+		if (step === 'models') return 'Get started';
 		return 'Continue';
 	}
 
