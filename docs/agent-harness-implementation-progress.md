@@ -52,7 +52,7 @@ This page tracks the current implementation status. The original rollout plan an
 - `src/main/agent/harness/runtime-plugin.ts` discovers plugin manifests, resolves an `agentHarness` activation plan, and loads matching runtime entries.
 - `src/main/bootstrap.ts` registers runtime plugin activation and eagerly activates configured non-default runtimes.
 - `src/main/agent/harness-runtimes.ts` collects configured runtime ids from `FRIDAY_AGENT_RUNTIME` and nested `agentRuntime`, `agentHarnessId`, or `agentHarnessRuntime` config keys.
-- `runAgentHarnessAttempt(...)` and `maybeCompactAgentHarnessSession(...)` activate forced non-`pi` runtimes before selection.
+- `runAgentHarnessAttempt(...)` and `maybeCompactAgentHarnessSession(...)` activate resolved non-`pi` runtimes before selection.
 
 ### 7) Compaction, hook helpers, and tool-result middleware
 - `src/main/agent/compaction.ts` fires `before_compaction` and `after_compaction` harness hooks.

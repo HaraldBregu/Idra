@@ -69,7 +69,7 @@ prepare -> start -> send -> resolveOutcome -> cleanup
 
 `resolveOutcome` stamps every result with `agentHarnessId` and applies the optional classification. Cleanup runs after both successful and failed attempts; cleanup failures after an attempt error are logged without masking the original error.
 
-Configured non-default harness runtimes are activated during bootstrap and again before harness attempts. Bootstrap scans `FRIDAY_AGENT_RUNTIME` and stored agent options for `agentRuntime`, `agentHarnessId`, or `agentHarnessRuntime`; per-send selection still comes from the request override or stored preference.
+Configured non-default harness runtimes are activated during bootstrap and again before harness attempts. The runtime collector supports `FRIDAY_AGENT_RUNTIME` plus nested `agentRuntime`, `agentHarnessId`, or `agentHarnessRuntime` config keys; current bootstrap supplies the environment value and the stored `agentRuntime` preference. Per-send selection still comes from the request override or stored preference.
 
 ## Compaction And Hooks
 
