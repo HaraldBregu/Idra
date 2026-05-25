@@ -51,5 +51,5 @@ A common sequence before editing: `inspect_file` to confirm the file is what you
 
 ## Related Docs
 
-- [Tools](../index.md)
+- [Tools](index.md)
 - [File tool policy](../policy/index.md)
