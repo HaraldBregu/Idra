@@ -4,11 +4,11 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before copying, the policy module resolves both paths and checks two grants: `read` on the source and `create` on the destination. If either check is denied, the tool stops and no file is created.
+Depends on the [policy module](../policy/index.md). Before copying, the policy module resolves both paths and checks `read` on the source and `create` on a new destination. Replacing an existing destination file requires `write` on the destination and an explicit overwrite request. Directory copies require a new destination and policy access for nested paths. If any check is denied, the tool stops and no copy is created.
 
 ## Tool Search Description
 
-Use `copy` to duplicate an existing file or directory into a new current-workspace location.
+Use `copy` to duplicate an existing file or directory into a current-workspace location.
 
 ## Use For
 
@@ -27,4 +27,4 @@ If the copy fails due to a path conflict or permission error, report the reason.
 
 ## Keep In Mind
 
-Copying should preserve the source and create only the destination needed for the task. The source may be outside the current workspace when it is readable and relevant, but the destination must stay inside the current workspace. After copying, check whether the copy contains internal paths, imports, or links that reference the original location. Update them when the copy is intended to be independent.
+Copying should preserve the source and create only the destination needed for the task. The source may be outside the current workspace when it is readable and relevant, but the destination must stay inside the current workspace. Only overwrite an existing destination file after reading it. After copying, check whether the copy contains internal paths, imports, or links that reference the original location. Update them when the copy is intended to be independent.
