@@ -2,6 +2,10 @@
 
 `apply_patch` applies a planned set of related file changes inside the current workspace.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow every target path in the patch before this tool executes.
+
 ## Tool Search Description
 
 Use `apply_patch` to apply a focused patch containing several related current-workspace file changes.
