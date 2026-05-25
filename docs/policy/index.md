@@ -80,5 +80,6 @@ The result should include the normalized path, matched grant, and a short reason
 
 ## Related Docs
 
+- [Policy Schema](schema.md)
 - [Tools](../tools/index.md)
 - [File tools](../tools/files/index.md)
