@@ -389,7 +389,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('does not expose tools or skill guidance when a request can be answered directly', async () => {
+	it('omits skill guidance when no skills are selected', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -422,13 +422,13 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('write a short poem about spring')).resolves.toBe('roses are red');
-		expect(requests[0]!.tools).toEqual([]);
-		expect(requests[0]!.system).toContain('No tools are available for this turn');
-		expect(requests[0]!.system).not.toContain('## Skill guidance');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
+		expect(requests[0]!.system).toContain('**read**');
+		expect(requests[0]!.system).not.toContain('## Skills');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('skips tool and startup context loading for direct-answer prompts', async () => {
+	it('loads file tools and startup context for ordinary prompts', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
@@ -472,18 +472,17 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('hello there')).resolves.toBe('hello');
-		expect(toolsFactory).not.toHaveBeenCalled();
-		expect(startupFiles.loadContextFiles).not.toHaveBeenCalled();
-		expect(requests[0]!.tools).toEqual([]);
-		expect(requests[0]!.system).toContain('No tools are available for this turn');
+		expect(toolsFactory).toHaveBeenCalled();
+		expect(startupFiles.loadContextFiles).toHaveBeenCalled();
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
+		expect(requests[0]!.system).toContain('**read**');
 
 		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
 		expect(records).toContainEqual(
 			expect.objectContaining({
 				event: 'start',
-				directAnswer: true,
-				toolPolicyReason: 'no tool is required to answer safely',
-				tools: [],
+				directAnswer: false,
+				tools: ['read'],
 			})
 		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
@@ -556,7 +555,6 @@ describe('AgentService', () => {
 		await expect(service.send('read a workspace file with the bad tool')).resolves.toBe('done');
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['bad_tool']);
 		expect(requests[0]!.system).toContain('**bad_tool**');
-		expect(requests[0]!.system).toContain('Tool: bad_tool');
 		expect(requests[0]!.system).not.toContain('**Bad Tool!**');
 		expect(requests[0]!.system).not.toContain('Tool: Bad Tool!');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
