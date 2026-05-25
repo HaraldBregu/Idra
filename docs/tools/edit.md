@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+Depends on the [policy module](../policy/index.md). Before editing, the policy module resolves the target path and checks whether `write` is permitted. If `write` is not granted, the tool stops and the file is not modified.
 
 ## Tool Search Description
 
