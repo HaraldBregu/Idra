@@ -1,8 +1,11 @@
 import type { CronTask } from '../../shared/cron';
 import type { CronStoreState } from '../cron/core/cron.types';
-import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
+import { migrateCronStoreState as normalizeCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
-import { migrateFridayCronStoreState, serializeFridayCronStoreState } from '../cron/friday/store';
+import {
+	migrateFridayCronStoreState as normalizeFridayCronStoreState,
+	serializeFridayCronStoreState,
+} from '../cron/friday/store';
 import type { CronSettings, SettingsStoreAccessor } from '../../shared/store';
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
@@ -29,15 +32,15 @@ export class CronStore {
 
 	getCronSchedulerState(): CronStoreState {
 		const scheduler = this.getCronSettings().scheduler;
-		return migrateCronStoreState(scheduler ?? emptyCronStoreState());
+		return normalizeCronStoreState(scheduler);
 	}
 
 	setCronSchedulerState(state: CronStoreState): void {
-		this.setCronSettings({ scheduler: migrateCronStoreState(state) });
+		this.setCronSettings({ scheduler: normalizeCronStoreState(state) });
 	}
 
 	getFridayCronState(): FridayCronStoreState {
-		return migrateFridayCronStoreState(this.getCronSettings());
+		return normalizeFridayCronStoreState(this.getCronSettings());
 	}
 
 	setFridayCronState(state: FridayCronStoreState): void {

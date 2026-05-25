@@ -1,5 +1,5 @@
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
-import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
+import { migrateHeartbeatStoreState as normalizeHeartbeatStoreState } from '../heartbeat/store';
 import type { SettingsStoreAccessor } from '../../shared/store';
 
 export class HeartbeatStore {
@@ -10,10 +10,10 @@ export class HeartbeatStore {
 	}
 
 	getHeartbeatState(): HeartbeatStoreState {
-		return migrateHeartbeatStoreState(this.store.get('heartbeat') ?? emptyHeartbeatStoreState());
+		return normalizeHeartbeatStoreState(this.store.get('heartbeat'));
 	}
 
 	setHeartbeatState(state: HeartbeatStoreState): void {
-		this.store.set('heartbeat', migrateHeartbeatStoreState(state));
+		this.store.set('heartbeat', normalizeHeartbeatStoreState(state));
 	}
 }
