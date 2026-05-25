@@ -2,6 +2,10 @@
 
 `copy` duplicates content into another path inside the current workspace.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow both the source and destination paths before this tool executes.
+
 ## Tool Search Description
 
 Use `copy` to duplicate an existing file or directory into a new current-workspace location.
