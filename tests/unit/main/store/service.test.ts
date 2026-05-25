@@ -308,7 +308,7 @@ describe('StoreService', () => {
 			});
 		});
 
-		it('persists Friday cron jobs, states, and runs through the settings store', () => {
+		it('persists Friday cron jobs, states, and the last run through the settings store', () => {
 			const service = new StoreService();
 			const state = {
 				...emptyFridayCronStoreState(),
@@ -335,19 +335,17 @@ describe('StoreService', () => {
 						attempts: 0,
 					},
 				},
-				runs: {
-					'job-1': [
-						{
-							runId: 'run-1',
-							jobId: 'job-1',
-							status: 'ok' as const,
-							mode: 'manual-force' as const,
-							scheduledForMs: 1,
-							startedAtMs: 1,
-							finishedAtMs: 2,
-							attempt: 1,
-						},
-					],
+				lastRuns: {
+					'job-1': {
+						runId: 'run-1',
+						jobId: 'job-1',
+						status: 'ok' as const,
+						mode: 'manual-force' as const,
+						scheduledForMs: 1,
+						startedAtMs: 1,
+						finishedAtMs: 2,
+						attempt: 1,
+					},
 				},
 			};
 
@@ -361,17 +359,61 @@ describe('StoreService', () => {
 						scheduleIdentity: '{"everyMs":60000,"kind":"every"}',
 					}),
 				},
-				runs: { 'job-1': [{ runId: 'run-1' }] },
+				lastRuns: { 'job-1': { runId: 'run-1' } },
 			});
-			expect(
-				(service as unknown as { store: { get: (k: string) => unknown } }).store.get(
-					'taskScheduler'
-				)
-			).toMatchObject({
+			const taskScheduler = (
+				service as unknown as { store: { get: (k: string) => unknown } }
+			).store.get('taskScheduler') as { friday?: { runs?: unknown; lastRuns?: unknown } };
+			expect(taskScheduler).toMatchObject({
 				friday: {
 					jobs: [{ id: 'job-1' }],
+					lastRuns: { 'job-1': { runId: 'run-1' } },
 				},
 			});
+			expect(taskScheduler.friday?.runs).toBeUndefined();
+		});
+
+		it('normalizes legacy Friday cron run arrays to only the last run', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('taskScheduler', {
+				friday: {
+					jobs: [],
+					states: {},
+					runs: {
+						'job-1': [
+							{
+								runId: 'run-1',
+								jobId: 'job-1',
+								status: 'ok',
+								mode: 'manual-force',
+								scheduledForMs: 1,
+								startedAtMs: 1,
+								finishedAtMs: 2,
+								attempt: 1,
+							},
+							{
+								runId: 'run-2',
+								jobId: 'job-1',
+								status: 'error',
+								mode: 'automatic',
+								scheduledForMs: 3,
+								startedAtMs: 3,
+								finishedAtMs: 4,
+								attempt: 1,
+							},
+						],
+					},
+				},
+			});
+
+			service.setFridayCronState(service.getFridayCronState());
+
+			const taskScheduler = store.get('taskScheduler') as {
+				friday?: { runs?: unknown; lastRuns?: Record<string, { runId?: string }> };
+			};
+			expect(taskScheduler.friday?.lastRuns?.['job-1']?.runId).toBe('run-2');
+			expect(taskScheduler.friday?.runs).toBeUndefined();
 		});
 	});
 
