@@ -585,6 +585,33 @@ describe('StoreService', () => {
 			});
 		});
 
+		it('preserves stored provider metadata and enabled state', () => {
+			const service = new StoreService();
+			const provider = {
+				...openaiProvider,
+				capabilities: ' Chat - Image ',
+				apiConfiguration: {
+					credentialType: 'API key',
+					apiKeyManagementUrl: 'https://example.test/keys',
+					configurationDocsUrl: 'https://example.test/docs',
+					authMethod: 'Bearer',
+					recommendedEnvVars: ['EXAMPLE_API_KEY'],
+					baseUrls: ['https://api.example.test'],
+					importantNotes: ['Keep private'],
+				},
+				enabled: true,
+			};
+			storeFor(service).set('modelProviders', [provider]);
+
+			const result = service.getProviderById('openai') as Provider & { enabled?: boolean };
+
+			expect(result).toMatchObject({
+				capabilities: 'Chat - Image',
+				apiConfiguration: expect.objectContaining({ credentialType: 'API key' }),
+				enabled: true,
+			});
+		});
+
 		it('returns undefined when no provider matches the given id', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
@@ -801,7 +828,11 @@ describe('StoreService', () => {
 			store.set('modelProviders', [openaiProvider]);
 			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
 
-			expect(service.getAssistantProvider()).toEqual(providerRef);
+			const provider = service.getAssistantProvider();
+			expect(provider).toMatchObject(providerRef);
+			expect(provider).not.toHaveProperty('apiKey');
+			expect(provider?.capabilities).toContain('Chat');
+			expect(provider?.apiConfiguration).toBeDefined();
 		});
 
 		it('returns undefined when operator state is absent', () => {
@@ -1065,12 +1096,14 @@ describe('StoreService', () => {
 				baseUrl: 'https://api.openai.com/v1',
 			});
 			expect(store.get('modelProviders')).toEqual([
-				{
+				expect.objectContaining({
 					id: 'openai',
 					name: 'OpenAI',
 					apiKey: 'sk-new',
 					baseUrl: 'https://api.openai.com/v1',
-				},
+					capabilities: expect.stringContaining('Chat'),
+					apiConfiguration: expect.objectContaining({ credentialType: 'API key' }),
+				}),
 			]);
 		});
 
@@ -1202,12 +1235,14 @@ describe('StoreService', () => {
 				baseUrl: 'https://api.anthropic.com/v1',
 			});
 			expect(store.get('modelProviders')).toEqual([
-				{
+				expect.objectContaining({
 					id: 'anthropic',
 					name: 'Anthropic',
 					apiKey: 'ant-new',
 					baseUrl: 'https://api.anthropic.com/v1',
-				},
+					capabilities: 'Chat',
+					apiConfiguration: expect.objectContaining({ credentialType: 'API key' }),
+				}),
 			]);
 		});
 
