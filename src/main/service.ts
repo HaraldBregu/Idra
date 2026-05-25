@@ -249,12 +249,11 @@ export class AgentService {
 		const toolRuntimeConfig =
 			toolPolicy?.fs
 				? {
-						toolSearch: { enabled: false },
 						tools: {
 							fs: toolPolicy.fs,
 						},
 					}
-				: { toolSearch: { enabled: false } };
+				: {};
 		const runtime = await createAgentTools({
 			workspaceDir: context.workspace,
 			agentId: context.agentId,
