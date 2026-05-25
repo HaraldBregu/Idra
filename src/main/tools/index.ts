@@ -17,6 +17,6 @@ export {
 	type LocalToolCatalogEntry,
 	type LocalToolGroup,
 	type LocalToolProfile,
-} from './local/registry';
+} from './catalog/registry';
 export { filterTools, type PolicyConfig, type ToolProfile } from './policy/policy';
 export { beforeToolCall, newCallTracker, type CallTracker } from './policy/before-call';
