@@ -8,10 +8,10 @@ The agent does not own tool implementation. Tool implementation, policy, schema 
 
 Agent tool usage depends on the [Tools module](../tools/index.md).
 
-| Module | Responsibility |
-| --- | --- |
-| Agent | Decides whether a tool is needed, selects from available tools, interprets returned results, and reports the outcome. |
-| Tools | Defines available tools, provider-facing schemas, policy checks, execution behavior, result shapes, and tool-specific reference docs. |
+| Module | Responsibility                                                                                                                        |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent  | Decides whether a tool is needed, selects from available tools, interprets returned results, and reports the outcome.                 |
+| Tools  | Defines available tools, provider-facing schemas, policy checks, execution behavior, result shapes, and tool-specific reference docs. |
 
 The agent documentation describes usage rules. The Tools module remains the canonical reference for exact tool contracts, file tool behavior, and policy dependencies.
 
@@ -32,13 +32,13 @@ This page does not define individual tool schemas or implementation details. See
 
 An agent uses a tool when the user request requires evidence, validation, state changes, or external interaction that cannot be completed from the current context alone.
 
-| Use a tool when the request requires | Examples |
-| --- | --- |
-| Workspace evidence | Reading files, locating paths, inspecting project state. |
-| Current information | Checking fast-changing external facts or connected data. |
-| Execution | Running tests, commands, calculations, builds, or validation. |
-| Workspace changes | Creating, editing, moving, copying, or deleting files. |
-| External action | Sending messages, updating records, publishing changes, or using a connector. |
+| Use a tool when the request requires | Examples                                                                      |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| Workspace evidence                   | Reading files, locating paths, inspecting project state.                      |
+| Current information                  | Checking fast-changing external facts or connected data.                      |
+| Execution                            | Running tests, commands, calculations, builds, or validation.                 |
+| Workspace changes                    | Creating, editing, moving, copying, or deleting files.                        |
+| External action                      | Sending messages, updating records, publishing changes, or using a connector. |
 
 An agent should not use a tool when the current context already answers the request, when the tool is unavailable, when the tool result would not affect the outcome, or when the side effect is not authorized.
 
@@ -61,11 +61,11 @@ If the required tool, connector, credential, or permission is unavailable, the a
 
 Tools may read data, modify local state, or affect external systems. Permission handling is part of tool usage.
 
-| Action type | Examples | Agent behavior |
-| --- | --- | --- |
-| Read-only | Search files, read documents, inspect metadata. | Keep the scope limited to relevant data. |
-| Local mutation | Edit files, move workspace paths, run formatters. | Inspect current state first, apply the smallest change, then verify. |
-| External effect | Send messages, update tickets, publish branches. | Execute only when the effect is clearly authorized or approved. |
+| Action type                | Examples                                                  | Agent behavior                                                                        |
+| -------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Read-only                  | Search files, read documents, inspect metadata.           | Keep the scope limited to relevant data.                                              |
+| Local mutation             | Edit files, move workspace paths, run formatters.         | Inspect current state first, apply the smallest change, then verify.                  |
+| External effect            | Send messages, update tickets, publish branches.          | Execute only when the effect is clearly authorized or approved.                       |
 | Destructive or high-impact | Delete data, reset state, affect production, spend money. | Require explicit authorization unless already granted by the active instruction flow. |
 
 The agent must not bypass denials, sandbox limits, allowlists, approval requirements, or unavailable tools.
@@ -89,16 +89,16 @@ After a tool call, the agent should:
 
 File tools are the primary tool category for workspace-grounded agent work. They are documented by the [Tools module](../tools/index.md).
 
-| Need | Tool reference |
-| --- | --- |
-| Locate relevant files | [find](../tools/find.md) |
-| Check file type, size, or metadata | [inspect_file](../tools/inspect-file.md) |
-| Read exact content | [read](../tools/read.md) |
-| Change a focused section | [edit](../tools/edit.md) |
-| Apply related changes together | [apply_patch](../tools/apply-patch.md) |
-| Create or replace a whole file | [write](../tools/write.md) |
-| Rename or duplicate files | [move](../tools/move.md), [copy](../tools/copy.md) |
-| Remove intended files | [delete](../tools/delete.md) |
+| Need                               | Tool reference                                     |
+| ---------------------------------- | -------------------------------------------------- |
+| Locate relevant files              | [find](../tools/find.md)                           |
+| Check file type, size, or metadata | [inspect_file](../tools/inspect-file.md)           |
+| Read exact content                 | [read](../tools/read.md)                           |
+| Change a focused section           | [edit](../tools/edit.md)                           |
+| Apply related changes together     | [apply_patch](../tools/apply-patch.md)             |
+| Create or replace a whole file     | [write](../tools/write.md)                         |
+| Rename or duplicate files          | [move](../tools/move.md), [copy](../tools/copy.md) |
+| Remove intended files              | [delete](../tools/delete.md)                       |
 
 Standard file-edit workflow:
 
@@ -114,12 +114,12 @@ See [File Tools](../tools/files.md) for shared file tool rules.
 
 Verification is required when a tool call changes state or supports an important factual claim.
 
-| Tool use | Verification |
-| --- | --- |
-| Factual answer | Confirm the answer against the returned source data. |
-| File edit | Run the narrowest relevant formatter, linter, test, or docs check. |
-| Command execution | Report success, failure, warnings, and relevant output. |
-| External action | Confirm the tool returned the expected final state. |
+| Tool use          | Verification                                                       |
+| ----------------- | ------------------------------------------------------------------ |
+| Factual answer    | Confirm the answer against the returned source data.               |
+| File edit         | Run the narrowest relevant formatter, linter, test, or docs check. |
+| Command execution | Report success, failure, warnings, and relevant output.            |
+| External action   | Confirm the tool returned the expected final state.                |
 
 When verification is unavailable, the final response should state the limitation.
 
