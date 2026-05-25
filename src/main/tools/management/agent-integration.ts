@@ -270,6 +270,8 @@ export async function executeAgentToolWithManagement(
 		memory: options.memory,
 	});
 	if (built.type === 'clarificationRequired') return textResult(built.question, true);
+	const approval = await ensureLegacyApproval(tool, built.input, ctx, options, managed.id);
+	if (approval) return approval;
 	const executor =
 		options.executor ?? new ToolExecutor({ maxToolCallsPerTurn: options.maxToolCallsPerTurn });
 	const result = await executor.execute(
@@ -285,6 +287,67 @@ export async function executeAgentToolWithManagement(
 				...result.data.content,
 				{ type: 'text', text: `tool warnings: ${result.warnings.join('; ')}` },
 			],
+		};
+	}
+	return toolExecutorFailureToAgentResult(result);
+}
+
+async function ensureLegacyApproval(
+	tool: AgentTool,
+	input: unknown,
+	ctx: ToolContext,
+	options: AgentToolManagementOptions,
+	managedToolId: string
+): Promise<AgentToolResult | undefined> {
+	if (!(await legacyApprovalRequired(tool, input, ctx))) return undefined;
+	const key = legacyApprovalKey(tool.name, input);
+	if (ctx.approvalCache.has(key)) return undefined;
+	if (!options.requestConfirmation) return rejectedApprovalResult(tool.name);
+	const approved = await options.requestConfirmation({
+		toolId: managedToolId,
+		toolName: tool.name,
+		reason: `Tool ${tool.name} requires approval before execution.`,
+		inputPreview: redactSensitive(input),
+		permissions: [],
+		safetyLevel: 'high',
+	});
+	if (!approved) return rejectedApprovalResult(tool.name);
+	ctx.approvalCache.add(key);
+	return undefined;
+}
+
+async function legacyApprovalRequired(
+	tool: AgentTool,
+	input: unknown,
+	ctx: ToolContext
+): Promise<boolean> {
+	if (ctx.approvalRequired.has(tool.name)) return true;
+	if (tool.needsApproval === true) return true;
+	if (typeof tool.needsApproval !== 'function') return false;
+	return tool.needsApproval(input as Record<string, unknown>, ctx);
+}
+
+function legacyApprovalKey(toolName: string, input: unknown): string {
+	return `${toolName}::${JSON.stringify(input ?? {})}`;
+}
+
+function rejectedApprovalResult(toolName: string): AgentToolResult {
+	return {
+		status: 'rejected',
+		content: [{ type: 'text', text: `tool ${toolName} requires approval before execution.` }],
+		details: { reason: 'approval_required', toolName },
+	};
+}
+
+function toolExecutorFailureToAgentResult(result: ToolResult<AgentToolResult>): AgentToolResult {
+	if (
+		result.error?.code === 'TOOL_CONFIRMATION_REQUIRED' ||
+		result.error?.code === 'TOOL_CONFIRMATION_REJECTED'
+	) {
+		return {
+			status: 'rejected',
+			content: [{ type: 'text', text: result.error.message }],
+			details: { reason: result.error.code, toolId: result.toolId },
 		};
 	}
 	return textResult(result.error?.message ?? 'tool failed', true);
