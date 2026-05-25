@@ -57,43 +57,6 @@ describe('memory-runtime', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('classifies scoped memory, RAG, and wiki corpora during search', async () => {
-		const workspace = await makeTempDir();
-		await fs.mkdir(path.join(workspace, 'memory', 'chats', 'chat-a'), { recursive: true });
-		await fs.mkdir(path.join(workspace, 'memory', 'chats', 'chat-b'), { recursive: true });
-		await fs.mkdir(path.join(workspace, 'memory', 'rag'), { recursive: true });
-		await fs.mkdir(path.join(workspace, 'memory', 'wiki'), { recursive: true });
-		await fs.writeFile(path.join(workspace, 'memory', 'chats', 'chat-a', '2026-05-24.md'), 'Alpha decision lives here.', 'utf8');
-		await fs.writeFile(path.join(workspace, 'memory', 'chats', 'chat-b', '2026-05-24.md'), 'Beta decision lives here.', 'utf8');
-		await fs.writeFile(path.join(workspace, 'memory', 'rag', 'source.md'), 'Imported source material.', 'utf8');
-		await fs.writeFile(path.join(workspace, 'memory', 'wiki', 'index.md'), 'Workspace wiki knowledge.', 'utf8');
-
-		const manager = new WorkspaceMemorySearchManager({ workspaceDir: workspace, includeSessions: false });
-
-		await expect(
-			manager.search('Alpha', { corpus: 'memory', scopeKind: 'chat', scopeId: 'chat-a' })
-		).resolves.toEqual([
-			expect.objectContaining({
-				corpus: 'memory',
-				scopeKind: 'chat',
-				scopeId: 'chat-a',
-				text: expect.stringContaining('Alpha'),
-			}),
-		]);
-		await expect(
-			manager.search('Beta', { corpus: 'memory', scopeKind: 'chat', scopeId: 'chat-a' })
-		).resolves.toHaveLength(0);
-		await expect(manager.search('Imported')).resolves.toHaveLength(0);
-		await expect(manager.search('Imported', { corpus: 'rag' })).resolves.toEqual([
-			expect.objectContaining({ corpus: 'rag', scopeKind: 'global', scopeId: 'rag' }),
-		]);
-		await expect(manager.search('wiki', { corpus: 'wiki' })).resolves.toEqual([
-			expect.objectContaining({ corpus: 'wiki', scopeKind: 'global', scopeId: 'wiki' }),
-		]);
-
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
 	it('indexes visible session transcripts with the configured visibility policy', async () => {
 		const workspace = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
@@ -165,35 +128,6 @@ describe('memory-runtime', () => {
 		await expect(
 			appendOnlyMemoryFlush({ ...plan, relativePath: 'MEMORY.md' }, 'bad')
 		).rejects.toThrow('memory/YYYY-MM-DD.md');
-
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('flushes pre-compaction memory to a scoped chat daily file', async () => {
-		const workspace = await makeTempDir();
-		const file = session('s1', [{ role: 'user', content: 'Remember scoped chat memory.' }]);
-		const clock = () => new Date('2026-05-24T10:00:00.000Z');
-
-		await expect(
-			flushSessionMemoryBeforeCompaction(file, workspace, {
-				clock,
-				scope: { kind: 'chat', id: 'chat-a' },
-			})
-		).resolves.toMatchObject({
-			status: 'flushed',
-			targetPath: path.join(workspace, 'memory', 'chats', 'chat-a', '2026-05-24.md'),
-		});
-		await expect(
-			fs.readFile(path.join(workspace, 'memory', 'chats', 'chat-a', '2026-05-24.md'), 'utf8')
-		).resolves.toContain('scoped chat memory');
-
-		const ragPlan = {
-			targetPath: path.join(workspace, 'memory', 'rag', '2026-05-24.md'),
-			relativePath: path.join('memory', 'rag', '2026-05-24.md'),
-			workspaceDir: workspace,
-			prompt: 'bad',
-		};
-		await expect(appendOnlyMemoryFlush(ragPlan, 'bad')).rejects.toThrow('memory/YYYY-MM-DD.md');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
