@@ -2,6 +2,8 @@
 
 Friday's core feature is a personal AI assistant that runs agent turns from the desktop app, channels, cron, heartbeat, and background tasks. The same runtime also supports child subagent runs for delegated work.
 
+For the runtime-level operating model, see [Agent operating model](../agent/index.md).
+
 ## Functionality
 
 - Resolves the active provider and model from settings.
@@ -46,4 +48,3 @@ The spawn service records parent/child metadata, creates a child session key, ap
 - `src/main/agent/subagents`
 - `src/main/store/types.ts`
 - Existing docs: `docs/modules.md`, `docs/multi-agent-spawn-implementation-plan.md`
-
