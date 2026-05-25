@@ -111,4 +111,15 @@ describe('policy module', () => {
 			deniedReason: 'loop_detected',
 		});
 	});
+
+	it('evaluates request-level tool use through the policy service', () => {
+		const service = new PolicyService({
+			getPolicy: jest.fn(() => ({ version: 1, defaultPolicy: 'deny', paths: [] })),
+		});
+
+		expect(service.evaluateToolRequest({ userRequest: 'read a file' })).toEqual({
+			shouldUseTools: true,
+			reason: '',
+		});
+	});
 });

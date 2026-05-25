@@ -91,6 +91,15 @@ export type ToolUsePolicyDecision =
 			reason: string;
 	  };
 
+export type ToolRequestPolicyInput = {
+	userRequest: string;
+};
+
+export type ToolRequestPolicyDecision = {
+	shouldUseTools: boolean;
+	reason: string;
+};
+
 const FILE_TOOL_NAMES = [
 	'read',
 	'write',
@@ -224,6 +233,12 @@ export function evaluateToolUsePolicy(input: ToolUsePolicyInput): ToolUsePolicyD
 				? `note: this is the ${input.callCount}th identical call to ${input.toolName}; consider a different approach.`
 				: undefined,
 	};
+}
+
+export function evaluateToolRequestPolicy(
+	_input: ToolRequestPolicyInput
+): ToolRequestPolicyDecision {
+	return { shouldUseTools: true, reason: '' };
 }
 
 export function toolUsePolicyKey(toolName: string, params: unknown): string {

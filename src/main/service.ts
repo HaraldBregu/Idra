@@ -31,6 +31,7 @@ import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import {
 	evaluateToolPolicy,
+	evaluateToolRequestPolicy,
 	normalizeToolPolicyName,
 	PolicyService,
 	type PolicyServicePort,
@@ -47,7 +48,6 @@ import {
 } from './tools/runtime/adapt';
 import {
 	selectAgentToolsForTurn,
-	ToolUsePolicy,
 	type AgentToolSelectionForTurn,
 } from './tools/management';
 import { TOOL_LIMITS } from './tools/limits';
@@ -352,7 +352,9 @@ export class AgentService {
 				services: this.dependencies,
 			};
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-				new ToolUsePolicy().evaluate({ userRequest: message })
+				(this.dependencies.policy?.evaluateToolRequest ?? evaluateToolRequestPolicy)({
+					userRequest: message,
+				})
 			);
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending(agentId)

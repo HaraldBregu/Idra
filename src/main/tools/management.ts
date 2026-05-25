@@ -1,4 +1,5 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
+import { evaluateToolRequestPolicy } from '../policy';
 
 export interface AgentToolSelectionForTurn {
 	toolsForPrompt: AgentTool[];
@@ -40,6 +41,6 @@ export async function executeAgentToolWithManagement(
 
 export class ToolUsePolicy {
 	evaluate(_options: { userRequest: string }): { shouldUseTools: boolean; reason: string } {
-		return { shouldUseTools: true, reason: '' };
+		return evaluateToolRequestPolicy(_options);
 	}
 }

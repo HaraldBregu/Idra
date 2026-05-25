@@ -6,6 +6,7 @@ export {
 	createToolPolicyIndex,
 	expandToolPolicyEntries,
 	expandToolPolicyProfile,
+	evaluateToolRequestPolicy,
 	evaluateToolUsePolicy,
 	globMatchToolPolicyEntry,
 	normalizeToolPolicyName,
@@ -20,6 +21,8 @@ export {
 	type ToolPolicyProfile,
 	type ToolPolicyStageName,
 	type ToolPolicySubject,
+	type ToolRequestPolicyDecision,
+	type ToolRequestPolicyInput,
 	type ToolUsePolicyDecision,
 	type ToolUsePolicyInput,
 } from './tools';
