@@ -17,6 +17,10 @@ Use `open_browser` to open a safe, relevant web page in the user's browser when 
 - Inspecting or controlling the page.
 - External account actions without user intent.
 
+## When It Fails
+
+If the browser cannot open the page, report the URL and reason. Do not assume the user saw the page.
+
 ## Keep In Mind
 
 Opening a browser changes the user's environment. Open only relevant and safe pages.
