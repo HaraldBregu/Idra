@@ -603,6 +603,7 @@ describe('tool management layer', () => {
 				required: ['path', 'content'],
 				additionalProperties: false,
 			},
+			needsApproval: true,
 			execute,
 		};
 		const ctx = makeToolContext();
