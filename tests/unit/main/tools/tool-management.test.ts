@@ -481,7 +481,7 @@ describe('tool management layer', () => {
 		expect(selected.systemPromptSuffix).toContain('Tool: read');
 	});
 
-	it('runs sensitive actions directly', async () => {
+	it('rejects sensitive managed actions without confirmation', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
 			category: 'calendar',
@@ -494,10 +494,35 @@ describe('tool management layer', () => {
 			{ query: 'meeting' },
 			executionContext(['calendar:write'])
 		);
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
+		expect(result.error?.code).toBe('TOOL_CONFIRMATION_REQUIRED');
 	});
 
-	it('executes sensitive legacy agent tools without confirmation', async () => {
+	it('runs sensitive managed actions with explicit confirmation', async () => {
+		const requestConfirmation = jest.fn(async () => true);
+		const tool = makeTool({
+			id: 'calendar-create',
+			category: 'calendar',
+			permissionsRequired: ['calendar:write'],
+			safetyLevel: 'high',
+			metadata: { privacyLevel: 'private', readOnly: false, requiresConfirmation: true },
+		});
+		const result = await new ToolExecutor().execute(tool, { query: 'meeting' }, {
+			...executionContext(['calendar:write']),
+			requestConfirmation,
+		});
+		expect(result.success).toBe(true);
+		expect(requestConfirmation).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolId: 'calendar-create',
+				toolName: 'calendar-create',
+				permissions: ['calendar:write'],
+				safetyLevel: 'high',
+			})
+		);
+	});
+
+	it('rejects approval-required legacy agent tools without confirmation', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
 			content: [{ type: 'text' as const, text: 'wrote' }],
@@ -511,6 +536,7 @@ describe('tool management layer', () => {
 				required: ['path', 'content'],
 				additionalProperties: false,
 			},
+			needsApproval: true,
 			execute,
 		};
 		const result = await executeAgentToolWithManagement(
@@ -518,8 +544,49 @@ describe('tool management layer', () => {
 			{ path: 'a.txt', content: 'x' },
 			makeToolContext()
 		);
+		expect(result.status).toBe('rejected');
+		expect(result.content[0]).toEqual({
+			type: 'text',
+			text: 'tool write requires approval before execution.',
+		});
+		expect(execute).not.toHaveBeenCalled();
+	});
+
+	it('executes approval-required legacy agent tools with explicit confirmation', async () => {
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'wrote' }],
+		}));
+		const requestConfirmation = jest.fn(async () => true);
+		const tool: AgentTool = {
+			name: 'write',
+			description: 'Write a file',
+			schema: {
+				type: 'object',
+				properties: { path: { type: 'string' }, content: { type: 'string' } },
+				required: ['path', 'content'],
+				additionalProperties: false,
+			},
+			needsApproval: true,
+			execute,
+		};
+		const ctx = makeToolContext();
+		const result = await executeAgentToolWithManagement(
+			tool,
+			{ path: 'a.txt', content: 'x' },
+			ctx,
+			{ requestConfirmation }
+		);
 		expect(result.status).toBe('ok');
 		expect(execute).toHaveBeenCalledWith({ path: 'a.txt', content: 'x' }, expect.any(Object));
+		expect(ctx.approvalCache.has('write::{"path":"a.txt","content":"x"}')).toBe(true);
+		expect(requestConfirmation).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolId: 'write',
+				toolName: 'write',
+				safetyLevel: 'high',
+			})
+		);
 	});
 
 	it('reuses existing legacy approval instead of asking for duplicate confirmation', async () => {
