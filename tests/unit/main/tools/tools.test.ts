@@ -1,8 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { shell } from 'electron';
 import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/before-call';
-import { execTool, processTool } from '../../../../src/main/tools/exec';
 import {
 	applyPatchTool,
 	copyTool,
@@ -23,16 +21,6 @@ import {
 	localToolNamesForProfile,
 	PRELOADED_LOCAL_TOOLS,
 } from '../../../../src/main/tools/registry';
-import { openBrowserTool } from '../../../../src/main/tools/app';
-import {
-	cronAddTool,
-	cronListTool,
-	cronRemoveTool,
-	cronTool,
-} from '../../../../src/main/tools/cron';
-import { taskTool } from '../../../../src/main/tools/task';
-import { bootstrapTool, startupFilesTool } from '../../../../src/main/tools/startup';
-import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
@@ -44,7 +32,7 @@ describe('tools/types', () => {
 });
 
 describe('tools/policy and registry', () => {
-	const all: AgentTool[] = ['read', 'write', 'web_fetch', 'exec'].map((name) => ({
+	const all: AgentTool[] = ['read', 'write', 'find', 'exec'].map((name) => ({
 		name,
 		description: name,
 		schema: {},
@@ -61,17 +49,14 @@ describe('tools/policy and registry', () => {
 			)
 		).toEqual(['read']);
 		expect(
-			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['web_*'] }).map((t) => t.name)
+			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['write_backup'] }).map((t) => t.name)
 		).toEqual(['write']);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
 		expect(createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)).toEqual(
-			expect.arrayContaining(['cron'])
+			LOCAL_TOOL_CATALOG.map((entry) => entry.name)
 		);
-		expect(
-			createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
-		).toBe(false);
 	});
 
 	it('keeps the preloaded local registry aligned with the catalog', () => {
@@ -97,10 +82,6 @@ describe('tools/policy and registry', () => {
 			'move',
 			'inspect_file',
 			'find',
-			'exec',
-			'process',
-			'web_fetch',
-			'cron',
 		];
 		const byName = localToolCatalogByName();
 
@@ -112,91 +93,15 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForProfile('coding')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
-		expect(localToolNamesForGroup('browser')).toEqual(['open_browser', 'browser']);
+		expect(localToolNamesForGroup('file')).toEqual(standardToolNames);
 		expect(byName.get('write')).toMatchObject({
 			group: 'file',
 			approval: { mode: 'workspace-boundary', target: 'write-target' },
 		});
-		expect(byName.get('exec')).toMatchObject({
-			group: 'shell',
-			approval: { mode: 'workspace-boundary', target: 'workdir' },
-		});
-		expect(byName.get('cron')).toMatchObject({
-			group: 'automation',
-			ownerOnly: true,
-			approval: { mode: 'none' },
-		});
-		expect(byName.has('task')).toBe(false);
-	});
-});
-
-describe('tools/task', () => {
-	it('starts a background task through the main task manager', async () => {
-		const record = {
-			id: 'task-1',
-			type: 'agent.run',
-			title: 'Summarize workspace',
-			status: 'queued' as const,
-			createdAt: '2026-05-21T00:00:00.000Z',
-			metadata: {},
-		};
-		const taskManager = {
-			startUserTask: jest.fn(() => record),
-		};
-
-		const result = await taskTool.execute(
-			{
-				type: 'agent.run',
-				title: ' Summarize workspace ',
-				input: { message: 'Summarize the workspace' },
-				metadata: { source: 'test' },
-			},
-			makeToolContext({
-				services: {
-					...makeToolContext().services,
-					taskManager: taskManager as never,
-				},
-			})
-		);
-
-		expect(result.status).toBe('ok');
-		expect(result.details).toBe(record);
-		expect(taskManager.startUserTask).toHaveBeenCalledWith({
-			type: 'agent.run',
-			title: 'Summarize workspace',
-			input: { message: 'Summarize the workspace' },
-			metadata: { source: 'test' },
-		});
-	});
-
-	it('returns a tool error when the task manager service is unavailable', async () => {
-		const result = await taskTool.execute(
-			{ type: 'agent.run', title: 'Missing service', input: { message: 'hello' } },
-			makeToolContext()
-		);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('TaskManager service is not available');
-	});
-
-	it('rejects malformed task tool requests before calling the task manager', async () => {
-		const taskManager = {
-			startUserTask: jest.fn(),
-		};
-
-		const result = await taskTool.execute(
-			{ type: 'agent.run', title: 'Bad metadata', metadata: [] as never },
-			makeToolContext({
-				services: {
-					...makeToolContext().services,
-					taskManager: taskManager as never,
-				},
-			})
-		);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('Task metadata must be an object');
-		expect(taskManager.startUserTask).not.toHaveBeenCalled();
+		expect(byName.has('exec')).toBe(false);
+		expect(byName.has('cron')).toBe(false);
+		expect(byName.has('bootstrap')).toBe(false);
+		expect(byName.has('startup_files')).toBe(false);
 	});
 });
 
