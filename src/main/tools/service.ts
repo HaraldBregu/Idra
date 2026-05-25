@@ -152,7 +152,14 @@ export class ToolService implements ToolServicePort {
 		ctx: ToolContext,
 		options?: AgentToolManagementOptions
 	): AgentToolSelectionForTurn {
-		return selectAgentToolsForTurn(tools, message, ctx, options);
+		const selection = selectAgentToolsForTurn(tools, message, ctx, options);
+		if (!options?.forceSelection || selection.systemPromptSuffix || selection.toolsForPrompt.length === 0) {
+			return selection;
+		}
+		return {
+			...selection,
+			systemPromptSuffix: renderSelectedToolPrompt(selection.toolsForPrompt),
+		};
 	}
 
 	prepareToolsForRun(input: {
@@ -206,4 +213,11 @@ function filterTools(
 		stages: { runtime },
 	});
 	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
+}
+
+function renderSelectedToolPrompt(tools: AgentTool[]): string {
+	return [
+		'Available tools for this turn only:',
+		...tools.map((tool) => [`Tool: ${tool.name}`, `Description: ${tool.description}`].join('\n')),
+	].join('\n');
 }
