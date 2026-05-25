@@ -4,7 +4,7 @@ export const TOOL_LIMITS = {
 		maxIterations: 25,
 	},
 	prompt: {
-		defaultMaxTools: 8,
+		defaultMaxTools: 9,
 		hardMaxTools: 12,
 		useSelectionWhenToolCountExceeds: 12,
 	},
