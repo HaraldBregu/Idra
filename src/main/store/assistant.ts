@@ -13,7 +13,6 @@ import {
 	type ConfiguredModelOperator,
 	type Model,
 	type ModelOperatorSelection,
-	type OperatorStoreState,
 } from '../../shared/agents/service';
 import type { Provider } from '../../shared/providers';
 import {
@@ -240,30 +239,6 @@ export class AssistantStore {
 		this.providers = providers;
 	}
 
-	getOperator(): OperatorStoreState | undefined {
-		const next: OperatorStoreState = {};
-		const assistant = this.getConfiguredModelOperator('assistant');
-		if (assistant) next.assistant = assistant;
-		const speechToText = this.getConfiguredModelOperator('speechToText');
-		if (speechToText) next.speechToText = speechToText;
-		const textToSpeech = this.getConfiguredModelOperator('textToSpeech');
-		if (textToSpeech) next.textToSpeech = textToSpeech;
-		const imageCreator = this.getConfiguredModelOperator('imageCreator');
-		if (imageCreator) next.imageCreator = imageCreator;
-		const textToVideo = this.getConfiguredModelOperator('textToVideo');
-		if (textToVideo) next.videoCreator = textToVideo;
-		const textToSound = this.getConfiguredModelOperator('textToSound');
-		if (textToSound) next.musicCreator = textToSound;
-		const agentSettings = this.getModelModuleSettings('assistant');
-		const agents = readAgentsHeartbeatConfig(agentSettings);
-		if (agents) next.agents = agents;
-		return Object.keys(next).length > 0 ? next : undefined;
-	}
-
-	getService(): OperatorStoreState | undefined {
-		return this.getOperator();
-	}
-
 	getAgentsHeartbeatConfig(): AgentsHeartbeatConfig | undefined {
 		return readAgentsHeartbeatConfig(this.getModelModuleSettings('assistant'));
 	}
@@ -280,13 +255,11 @@ export class AssistantStore {
 		if ('activeHours' in config && config.activeHours === undefined) {
 			delete nextHeartbeat.activeHours;
 		}
-		const next: OperatorStoreState = {
-			agents: {
-				...currentAgents,
-				defaults: {
-					...currentDefaults,
-					heartbeat: nextHeartbeat,
-				},
+		const nextAgents: AgentsHeartbeatConfig = {
+			...currentAgents,
+			defaults: {
+				...currentDefaults,
+				heartbeat: nextHeartbeat,
 			},
 		};
 		if (currentAgentSettings) {
@@ -294,7 +267,7 @@ export class AssistantStore {
 				...currentAgentSettings,
 				options: {
 					...(currentAgentSettings.options ?? {}),
-					agents: next.agents,
+					agents: nextAgents,
 				},
 			});
 		}
@@ -311,30 +284,6 @@ export class AssistantStore {
 
 	getAssistantProvider(): Omit<Provider, 'apiKey'> | undefined {
 		return this.getAssistantOperator()?.provider;
-	}
-
-	getSpeechToTextOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('speechToText');
-	}
-
-	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToSpeech');
-	}
-
-	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('imageCreator');
-	}
-
-	getTextToVideoOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToVideo');
-	}
-
-	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToSound');
-	}
-
-	getImageCreatorSettings(): ModelModuleSettings | undefined {
-		return this.getModelModuleSettings('imageCreator');
 	}
 
 	getAgentRuntimePreference(): string | undefined {
@@ -374,99 +323,6 @@ export class AssistantStore {
 		return true;
 	}
 
-	setSpeechToTextOperator(providerId: string, model: Model): boolean {
-		const provider = this.providers.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedSpeechToTextModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('speechToText');
-		const catalogModel = getSpeechToTextModels(provider.id).find((entry) => entry.id === model.id);
-		this.store.set(
-			'speechToText',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	setTextToSpeechOperator(providerId: string, model: Model): boolean {
-		const provider = this.providers.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedTextToSpeechModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('textToSpeech');
-		const catalogModel = getTextToSpeechModelsByProvider(provider.id).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set(
-			'textToSpeech',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	setImageCreatorOperator(providerId: string, model: Model): boolean {
-		const provider = this.providers.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedImageCreatorModelForProvider(provider, model.id)) {
-			return false;
-		}
-		const catalogModel = getImageCreatorModelsForProvider(provider).find(
-			(entry) => entry.id === model.id
-		);
-		const current = this.getModelModuleSettings('imageCreator');
-		this.store.set(
-			'imageCreator',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	setTextToVideoOperator(providerId: string, model: Model): boolean {
-		const provider = this.providers.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedTextToVideoModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('textToVideo');
-		const catalogModel = getTextToVideoModelsByProvider(provider.id).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set(
-			'textToVideo',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	setMusicCreatorOperator(providerId: string, model: Model): boolean {
-		const provider = this.providers.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedMusicCreatorModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('textToSound');
-		const catalogModel = getMusicModelsByProvider(provider.id).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set(
-			'textToSound',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
 	getAgentModel(): Model | undefined {
 		return this.getAssistantModel();
 	}
@@ -480,17 +336,8 @@ export class AssistantStore {
 		return operator ? { provider: operator.provider, model: operator.model } : undefined;
 	}
 
-	getSpeechTranscriberService(): ModelOperatorSelection | undefined {
-		const operator = this.getSpeechToTextOperator();
-		return operator ? { provider: operator.provider, model: operator.model } : undefined;
-	}
-
 	setAgentService(providerId: string, model: Model): boolean {
 		return this.setAssistantOperator(providerId, model);
-	}
-
-	setSpeechTranscriberService(providerId: string, model: Model): boolean {
-		return this.setSpeechToTextOperator(providerId, model);
 	}
 
 	private getConfiguredModelOperator(
