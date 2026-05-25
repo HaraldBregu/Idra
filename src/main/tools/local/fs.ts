@@ -38,6 +38,15 @@ function writeWorkspaceOnly(ctx: ToolContext, defaultWhenUnset = true): boolean 
 	return defaultWhenUnset;
 }
 
+function writePathNeedsApproval(ctx: ToolContext, target: string): boolean {
+	const abs = resolveAbs(ctx.workspace, target, false);
+	return !isInsidePath(ctx.workspace, abs);
+}
+
+function anyWritePathNeedsApproval(ctx: ToolContext, targets: string[]): boolean {
+	return targets.some((target) => writePathNeedsApproval(ctx, target));
+}
+
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
 	return { mtimeMs: stat.mtimeMs, size: stat.size };
 }
@@ -132,7 +141,7 @@ export const writeTool: AgentTool<WriteArgs> = {
 		required: ['path', 'content'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.path),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('write: disabled by read-only filesystem policy.', true);
@@ -201,7 +210,7 @@ export const editTool: AgentTool<EditArgs> = {
 		required: ['path', 'old', 'new'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.path),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('edit: disabled by read-only filesystem policy.', true);
@@ -274,7 +283,16 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 		required: ['diff'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => {
+		try {
+			return anyWritePathNeedsApproval(
+				ctx,
+				parseUnifiedDiff(String(args.diff ?? '')).map((patch) => patch.path)
+			);
+		} catch {
+			return false;
+		}
+	},
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('apply_patch: disabled by read-only filesystem policy.', true);
@@ -396,7 +414,7 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		required: ['path'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.path),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('delete: disabled by read-only filesystem policy.', true);
@@ -448,7 +466,7 @@ export const copyTool: AgentTool<CopyArgs> = {
 		required: ['source', 'destination'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.destination),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('copy: disabled by read-only filesystem policy.', true);
@@ -512,7 +530,7 @@ export const moveTool: AgentTool<MoveArgs> = {
 		required: ['source', 'destination'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => anyWritePathNeedsApproval(ctx, [args.source, args.destination]),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('move: disabled by read-only filesystem policy.', true);
