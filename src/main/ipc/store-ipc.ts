@@ -1,11 +1,9 @@
 import { ipcMain } from 'electron';
 import {
-	getImageCreatorModelsForProvider,
 	getMusicCreatorModels,
 	getSpeechToTextModels,
 	getTextToSpeechModels,
 	getTextToVideoModels,
-	isAllowedAgentModel,
 	isAllowedImageCreatorModelForProvider,
 	isAllowedMusicCreatorModel,
 	isAllowedSpeechToTextModel,
@@ -17,6 +15,7 @@ import {
 	type ConfiguredModelOperator,
 	type Model,
 } from '../../shared/agents/service';
+import { isAllowedAgentModel } from '../../shared/agents/models';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';

@@ -9,7 +9,7 @@ jest.mock('@/components/ui/dome-wave-animation', () => ({
 	DomeWaveAnimation: () => <div data-testid="dome-wave" />,
 }));
 
-jest.mock('@/components/provider-avatar', () => ({
+jest.mock('@/components/ui/provider-avatar', () => ({
 	ProviderAvatar: ({ name }: { readonly name: string }) => <span aria-hidden="true">{name}</span>,
 }));
 
