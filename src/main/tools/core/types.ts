@@ -44,20 +44,20 @@ export interface ToolContext {
 	readState: Map<string, { mtimeMs: number; size: number }>;
 	/** Current plan; tools may read or replace. */
 	plan: { entries: PlanEntry[] };
-	/** Legacy compatibility set; tools no longer block on human approval. */
+	/** Tools listed here require approval before execution. */
 	approvalRequired: Set<string>;
 	/** Filesystem exposure policy for model-visible host tools. */
 	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	/** Abort signal for the current tool call or agent run. */
 	signal?: AbortSignal;
-	/** Legacy compatibility cache (keyed by tool+args). */
+	/** Confirmed legacy calls, keyed by tool+args. */
 	approvalCache: Set<string>;
 	/** Friday-side services (store, cron, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }
 
 export interface AgentToolResult<TDetails = unknown> {
-	status: 'ok' | 'error';
+	status: 'ok' | 'error' | 'rejected';
 	content: ToolResultBlock[];
 	details?: TDetails;
 }
@@ -69,7 +69,7 @@ export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> 
 	schema: JSONSchema;
 	/** Marks control-plane tools that should only be exposed to owner contexts. */
 	ownerOnly?: boolean;
-	/** Legacy approval marker; execution proceeds without human approval. */
+	/** Approval marker; execution is rejected unless the call is confirmed. */
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }
