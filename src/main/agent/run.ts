@@ -372,6 +372,61 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			turnCount: completedIterations,
 		});
 	};
+	const recordToolResult = async (params: {
+		iteration: number;
+		toolUseId: string;
+		toolName: string;
+		args: unknown;
+		status: ToolResultStatus;
+		durationMs: number;
+		toolResult: Awaited<ReturnType<typeof prepareToolResultForRun>>;
+		isError?: boolean;
+	}): Promise<void> => {
+		const isError = params.isError ?? params.status !== 'ok';
+		await hooks?.onToolCall?.({
+			runId,
+			iteration: params.iteration,
+			callId: params.toolUseId,
+			tool: params.toolName,
+			args: params.args,
+			status: params.status,
+			durationMs: params.durationMs,
+			outputChars: params.toolResult.outputText.length,
+			outputText: params.toolResult.outputText,
+		});
+		streamEvent?.({
+			type: 'tool_call_result',
+			iteration: params.iteration,
+			toolCallId: params.toolUseId,
+			toolName: params.toolName,
+			input: params.args,
+			output: params.toolResult.output,
+			outputText: params.toolResult.outputText,
+			status: params.status,
+			durationMs: params.durationMs,
+			errorText: params.status !== 'ok' ? params.toolResult.outputText : undefined,
+		});
+		await fireAfterToolCallHook({
+			...hookContext,
+			toolName: params.toolName,
+			toolUseId: params.toolUseId,
+			result: params.toolResult.content,
+			isError,
+		});
+		await fireBeforeMessageWriteHook({
+			...hookContext,
+			role: 'tool',
+			content: params.toolResult.outputText,
+			sessionKey: hookContext.sessionKey,
+		});
+		session.transcript.push({
+			role: 'tool',
+			toolUseId: params.toolUseId,
+			isError,
+			status: params.status,
+			content: params.toolResult.content,
+		});
+	};
 
 	await fireBeforeMessageWriteHook({
 		...hookContext,
@@ -590,50 +645,17 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						runtime: harnessRuntime,
 					});
 					const durationMs = Date.now() - toolStart;
-					await hooks?.onToolCall?.({
-						runId,
+					await recordToolResult({
 						iteration: iter,
-						callId: id,
-						tool: t.name,
+						toolUseId: id,
+						toolName: t.name,
 						args,
 						status: 'error',
 						durationMs,
-						outputChars: toolResult.outputText.length,
-						outputText: toolResult.outputText,
+						toolResult,
+						isError: true,
 					});
 					agentLogger.warn('agent:run', 'tool args invalid', { runId, tool: t.name, iter, durationMs });
-					streamEvent?.({
-						type: 'tool_call_result',
-						iteration: iter,
-						toolCallId: id,
-						toolName: t.name,
-						input: args,
-						output: toolResult.output,
-						outputText: toolResult.outputText,
-						status: 'error',
-						durationMs,
-						errorText: toolResult.outputText,
-					});
-					await fireAfterToolCallHook({
-						...hookContext,
-						toolName: t.name,
-						toolUseId: id,
-						result: toolResult.content,
-						isError: true,
-					});
-					await fireBeforeMessageWriteHook({
-						...hookContext,
-						role: 'tool',
-						content: toolResult.outputText,
-						sessionKey: hookContext.sessionKey,
-					});
-					session.transcript.push({
-						role: 'tool',
-						toolUseId: id,
-						isError: true,
-						status: 'error',
-						content: toolResult.content,
-					});
 					continue;
 				}
 				if (!tool) {
@@ -643,50 +665,17 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						runtime: harnessRuntime,
 					});
 					const durationMs = Date.now() - toolStart;
-					await hooks?.onToolCall?.({
-						runId,
+					await recordToolResult({
 						iteration: iter,
-						callId: id,
-						tool: t.name,
+						toolUseId: id,
+						toolName: t.name,
 						args,
 						status: 'error',
 						durationMs,
-						outputChars: toolResult.outputText.length,
-						outputText: toolResult.outputText,
+						toolResult,
+						isError: true,
 					});
 					agentLogger.warn('agent:run', 'tool not found', { runId, tool: t.name, iter });
-					streamEvent?.({
-						type: 'tool_call_result',
-						iteration: iter,
-						toolCallId: id,
-						toolName: t.name,
-						input: args,
-						output: toolResult.output,
-						outputText: toolResult.outputText,
-						status: 'error',
-						durationMs,
-						errorText: toolResult.outputText,
-					});
-					await fireAfterToolCallHook({
-						...hookContext,
-						toolName: t.name,
-						toolUseId: id,
-						result: toolResult.content,
-						isError: true,
-					});
-					await fireBeforeMessageWriteHook({
-						...hookContext,
-						role: 'tool',
-						content: toolResult.outputText,
-						sessionKey: hookContext.sessionKey,
-					});
-					session.transcript.push({
-						role: 'tool',
-						toolUseId: id,
-						isError: true,
-						status: 'error',
-						content: toolResult.content,
-					});
 					continue;
 				}
 				const before = await toolService.beforeCall(tool, args, ctx, tracker);
@@ -700,48 +689,15 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						runtime: harnessRuntime,
 					});
 					const durationMs = Date.now() - toolStart;
-					await hooks?.onToolCall?.({
-						runId,
+					await recordToolResult({
 						iteration: iter,
-						callId: id,
-						tool: t.name,
+						toolUseId: id,
+						toolName: t.name,
 						args,
 						status,
 						durationMs,
-						outputChars: toolResult.outputText.length,
-						outputText: toolResult.outputText,
-					});
-					streamEvent?.({
-						type: 'tool_call_result',
-						iteration: iter,
-						toolCallId: id,
-						toolName: t.name,
-						input: args,
-						output: toolResult.output,
-						outputText: toolResult.outputText,
-						status,
-						durationMs,
-						errorText: toolResult.outputText,
-					});
-					await fireAfterToolCallHook({
-						...hookContext,
-						toolName: t.name,
-						toolUseId: id,
-						result: toolResult.content,
+						toolResult,
 						isError: true,
-					});
-					await fireBeforeMessageWriteHook({
-						...hookContext,
-						role: 'tool',
-						content: toolResult.outputText,
-						sessionKey: hookContext.sessionKey,
-					});
-					session.transcript.push({
-						role: 'tool',
-						toolUseId: id,
-						isError: true,
-						status,
-						content: toolResult.content,
 					});
 					continue;
 				}
@@ -775,54 +731,20 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				const durationMs = Date.now() - toolStart;
 				const status: ToolResultStatus =
 					sanitizedResult.status === 'ok'
-						? 'ok'
-						: sanitizedResult.status === 'rejected'
+					? 'ok'
+					: sanitizedResult.status === 'rejected'
 							? 'rejected'
 							: 'error';
-				await hooks?.onToolCall?.({
-					runId,
+				await recordToolResult({
 					iteration: iter,
-					callId: id,
-					tool: t.name,
+					toolUseId: id,
+					toolName: t.name,
 					args,
 					status,
 					durationMs,
-					outputChars: toolResult.outputText.length,
-					outputText: toolResult.outputText,
-				});
-				streamEvent?.({
-					type: 'tool_call_result',
-					iteration: iter,
-					toolCallId: id,
-					toolName: t.name,
-					input: args,
-					output: toolResult.output,
-					outputText: toolResult.outputText,
-					status,
-					durationMs,
-					errorText: status !== 'ok' ? toolResult.outputText : undefined,
-				});
-				await fireAfterToolCallHook({
-					...hookContext,
-					toolName: t.name,
-					toolUseId: id,
-					result: toolResult.content,
-					isError: status !== 'ok',
-				});
-				await fireBeforeMessageWriteHook({
-					...hookContext,
-					role: 'tool',
-					content: toolResult.outputText,
-					sessionKey: hookContext.sessionKey,
+					toolResult,
 				});
 				agentLogger.info('agent:run', 'tool call', { runId, tool: t.name, iter, status, durationMs, outputChars: toolResult.outputText.length });
-				session.transcript.push({
-					role: 'tool',
-					toolUseId: id,
-					isError: status !== 'ok',
-					status,
-					content: toolResult.content,
-				});
 			}
 
 			if (iter === maxIterations - 1) stopReason = 'max_iterations';
