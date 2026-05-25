@@ -188,7 +188,7 @@ describe('agent harness core', () => {
 		expect(
 			collectConfiguredAgentHarnessRuntimes(
 				{
-					llmAgent: { options: { agentRuntime: ' codex ' } },
+					assistant: { options: { agentRuntime: ' codex ' } },
 					agents: [{ options: { agentHarnessId: 'remote' } }],
 					models: [{ options: { agentRuntime: 'pi' } }],
 				},

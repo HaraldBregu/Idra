@@ -254,10 +254,10 @@ describe('StoreService', () => {
 	});
 
 	describe('background task settings', () => {
-		it('normalizes allowed task policy from the backgroundTask root', () => {
+		it('normalizes allowed task policy from the task root', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'backgroundTask',
+				'task',
 				{
 					allowedTaskTypes: [' agent.run ', '', 42, 'ocr.run'],
 					defaultConcurrency: 2,
@@ -379,11 +379,11 @@ describe('StoreService', () => {
 					createdAt: '2026-05-22T00:00:00.000Z',
 				},
 			];
-			store.set('taskScheduler', { managed, ...friday });
+			store.set('cron', { managed, ...friday });
 
 			service.setCronTasks(legacyTasks);
 
-			expect(store.get('taskScheduler')).toEqual({
+			expect(store.get('cron')).toEqual({
 				managed,
 				...friday,
 				legacyTasks,
@@ -443,16 +443,16 @@ describe('StoreService', () => {
 				},
 				lastRuns: { 'job-1': { runId: 'run-1' } },
 			});
-			const taskScheduler = (
+			const cron = (
 				service as unknown as { store: { get: (k: string) => unknown } }
-			).store.get('taskScheduler') as {
+			).store.get('cron') as {
 				friday?: unknown;
 				runs?: unknown;
 				states?: unknown;
 				lastRuns?: unknown;
 				jobs?: Record<string, { lastRun?: unknown; state?: unknown }>;
 			};
-			expect(taskScheduler).toMatchObject({
+			expect(cron).toMatchObject({
 				jobs: {
 					'job-1': {
 						name: 'Stored cron',
@@ -463,16 +463,16 @@ describe('StoreService', () => {
 					},
 				},
 			});
-			expect(taskScheduler.friday).toBeUndefined();
-			expect(taskScheduler.states).toBeUndefined();
-			expect(taskScheduler.lastRuns).toBeUndefined();
-			expect(taskScheduler.runs).toBeUndefined();
+			expect(cron.friday).toBeUndefined();
+			expect(cron.states).toBeUndefined();
+			expect(cron.lastRuns).toBeUndefined();
+			expect(cron.runs).toBeUndefined();
 		});
 
 		it('normalizes legacy Friday cron run arrays to only the last run', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('taskScheduler', {
+			store.set('cron', {
 				friday: {
 					jobs: [
 						{
@@ -519,16 +519,16 @@ describe('StoreService', () => {
 
 			service.setFridayCronState(service.getFridayCronState());
 
-			const taskScheduler = store.get('taskScheduler') as {
+			const cron = store.get('cron') as {
 				friday?: unknown;
 				runs?: unknown;
 				lastRuns?: unknown;
 				jobs?: Record<string, { lastRun?: { runId?: string } }>;
 			};
-			expect(taskScheduler.jobs?.['job-1']?.lastRun?.runId).toBe('run-2');
-			expect(taskScheduler.friday).toBeUndefined();
-			expect(taskScheduler.lastRuns).toBeUndefined();
-			expect(taskScheduler.runs).toBeUndefined();
+			expect(cron.jobs?.['job-1']?.lastRun?.runId).toBe('run-2');
+			expect(cron.friday).toBeUndefined();
+			expect(cron.lastRuns).toBeUndefined();
+			expect(cron.runs).toBeUndefined();
 		});
 	});
 
@@ -540,7 +540,7 @@ describe('StoreService', () => {
 		it('returns the matching provider when present', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -553,7 +553,7 @@ describe('StoreService', () => {
 		it('matches case-insensitively on the queried id', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -564,7 +564,7 @@ describe('StoreService', () => {
 		it('trims whitespace from the queried id before matching', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -575,7 +575,7 @@ describe('StoreService', () => {
 			const paddedProvider: Provider = { ...openaiProvider, id: ' openai ' };
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[paddedProvider]
 			);
 
@@ -588,14 +588,14 @@ describe('StoreService', () => {
 		it('returns undefined when no provider matches the given id', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
 			expect(service.getProviderById('unknown')).toBeUndefined();
 		});
 
-		it('returns undefined when the modelProviders key is absent from the store', () => {
+		it('returns undefined when the providers key is absent from the store', () => {
 			// Store is empty by default (new Map).
 			const service = new StoreService();
 
@@ -611,8 +611,8 @@ describe('StoreService', () => {
 		it('builds operator state from documented module roots', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [openaiProvider]);
-			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
+			store.set('providers', [openaiProvider]);
+			store.set('assistant', { providerId: 'openai', modelId: model.id });
 			store.set('ocr', { mode: 'endpoint', endpoint: 'ocr-url' });
 
 			expect(service.getOperator()).toMatchObject({
@@ -633,7 +633,7 @@ describe('StoreService', () => {
 		it('hydrates documented pending media module roots without exposing provider keys', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [
+			store.set('providers', [
 				{
 					id: 'elevenlabs',
 					name: 'ElevenLabs',
@@ -717,14 +717,14 @@ describe('StoreService', () => {
 		it('drops stored module selections with unsupported model ids', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [
+			store.set('providers', [
 				openaiProvider,
 				textToSpeechProvider,
 				imageProvider,
 				videoProvider,
 				musicProvider,
 			]);
-			store.set('llmAgent', { providerId: 'openai', modelId: 'gpt-4o' });
+			store.set('assistant', { providerId: 'openai', modelId: 'gpt-4o' });
 			store.set('textToSpeech', { providerId: 'elevenlabs', modelId: 'bad-tts' });
 			store.set('imageCreator', { providerId: 'black-forest-labs', modelId: 'bad-image' });
 			store.set('textToVideo', { providerId: 'runway', modelId: 'bad-video' });
@@ -739,11 +739,11 @@ describe('StoreService', () => {
 	// -------------------------------------------------------------------------
 
 	describe('getAssistantOperator()', () => {
-		it('returns the assistant block when llmAgent is set', () => {
+		it('returns the assistant block when assistant is set', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [openaiProvider]);
-			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
+			store.set('providers', [openaiProvider]);
+			store.set('assistant', { providerId: 'openai', modelId: model.id });
 
 			expect(service.getAssistantOperator()).toMatchObject({
 				id: 'friday',
@@ -774,7 +774,7 @@ describe('StoreService', () => {
 			expect(service.getAssistantOperator()).toBeUndefined();
 		});
 
-		it('returns undefined when llmAgent is absent', () => {
+		it('returns undefined when assistant is absent', () => {
 			const service = new StoreService();
 
 			expect(service.getAssistantOperator()).toBeUndefined();
@@ -789,8 +789,8 @@ describe('StoreService', () => {
 		it('returns the model when assistant is set', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [openaiProvider]);
-			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
+			store.set('providers', [openaiProvider]);
+			store.set('assistant', { providerId: 'openai', modelId: model.id });
 
 			expect(service.getAssistantModel()).toEqual(model);
 		});
@@ -801,7 +801,7 @@ describe('StoreService', () => {
 			expect(service.getAssistantModel()).toBeUndefined();
 		});
 
-		it('returns undefined when llmAgent is absent', () => {
+		it('returns undefined when assistant is absent', () => {
 			const service = new StoreService();
 
 			expect(service.getAssistantModel()).toBeUndefined();
@@ -817,8 +817,8 @@ describe('StoreService', () => {
 			const providerRef = { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [openaiProvider]);
-			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
+			store.set('providers', [openaiProvider]);
+			store.set('assistant', { providerId: 'openai', modelId: model.id });
 
 			const provider = service.getAssistantProvider();
 			expect(provider).toMatchObject(providerRef);
@@ -833,7 +833,7 @@ describe('StoreService', () => {
 			expect(service.getAssistantProvider()).toBeUndefined();
 		});
 
-		it('returns undefined when llmAgent is absent', () => {
+		it('returns undefined when assistant is absent', () => {
 			const service = new StoreService();
 
 			expect(service.getAssistantProvider()).toBeUndefined();
@@ -857,7 +857,7 @@ describe('StoreService', () => {
 		it('returns true and writes the assistant operator when the provider is found', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -867,11 +867,11 @@ describe('StoreService', () => {
 			expect(service.getOperator()?.assistant).toBeDefined();
 		});
 
-		it('preserves safe llmAgent options when changing the assistant model', () => {
+		it('preserves safe assistant options when changing the assistant model', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [openaiProvider]);
-			store.set('llmAgent', {
+			store.set('providers', [openaiProvider]);
+			store.set('assistant', {
 				providerId: 'openai',
 				modelId: 'old-model',
 				options: { agents: { defaultAgentId: 'main' } },
@@ -879,7 +879,7 @@ describe('StoreService', () => {
 
 			service.setAssistantOperator('openai', model);
 
-			expect(store.get('llmAgent')).toEqual({
+			expect(store.get('assistant')).toEqual({
 				providerId: 'openai',
 				modelId: 'gpt-5.4',
 				options: { agents: { defaultAgentId: 'main' } },
@@ -889,7 +889,7 @@ describe('StoreService', () => {
 		it('does not create legacy rag and ocr fields when no current operator state exists', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -903,7 +903,7 @@ describe('StoreService', () => {
 		it('writes the provider without the apiKey field', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -923,7 +923,7 @@ describe('StoreService', () => {
 		it('forwards the model as-is to the written service', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider]
 			);
 
@@ -939,11 +939,11 @@ describe('StoreService', () => {
 					store: { get: (k: string) => unknown; set: (k: string, v: unknown) => void };
 				}
 			).store;
-			store.set('modelProviders', [openaiProvider]);
+			store.set('providers', [openaiProvider]);
 
 			service.setAssistantOperator('openai', { ...model, effort: 'high' });
 
-			expect(store.get('llmAgent')).toEqual({
+			expect(store.get('assistant')).toEqual({
 				providerId: 'openai',
 				modelId: 'gpt-5.4',
 				effort: 'high',
@@ -961,7 +961,7 @@ describe('StoreService', () => {
 					store: { get: (k: string) => unknown; set: (k: string, v: unknown) => void };
 				}
 			).store;
-			store.set('modelProviders', [imageProvider]);
+			store.set('providers', [imageProvider]);
 
 			const result = service.setImageCreatorOperator('black-forest-labs', imageModel);
 
@@ -976,7 +976,7 @@ describe('StoreService', () => {
 		it('returns the image creator operator without exposing the provider api key', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[imageProvider]
 			);
 
@@ -997,7 +997,7 @@ describe('StoreService', () => {
 		it('rejects providers without image capability', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[anthropicProvider]
 			);
 
@@ -1008,7 +1008,7 @@ describe('StoreService', () => {
 		it('rejects unsupported image model ids', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[imageProvider]
 			);
 
@@ -1021,7 +1021,7 @@ describe('StoreService', () => {
 		it('persists compact text-to-speech, video, and music selections', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [textToSpeechProvider, videoProvider, musicProvider]);
+			store.set('providers', [textToSpeechProvider, videoProvider, musicProvider]);
 
 			expect(service.setTextToSpeechOperator('elevenlabs', textToSpeechModel)).toBe(true);
 			expect(service.setTextToVideoOperator('runway', videoModel)).toBe(true);
@@ -1060,7 +1060,7 @@ describe('StoreService', () => {
 		it('rejects unsupported pending-runtime model selections', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			store.set('modelProviders', [textToSpeechProvider, videoProvider, anthropicProvider]);
+			store.set('providers', [textToSpeechProvider, videoProvider, anthropicProvider]);
 
 			expect(service.setTextToSpeechOperator('elevenlabs', model)).toBe(false);
 			expect(service.setTextToVideoOperator('runway', model)).toBe(false);
@@ -1089,7 +1089,7 @@ describe('StoreService', () => {
 				apiKey: 'sk-new',
 				baseUrl: 'https://api.openai.com/v1',
 			});
-			expect(store.get('modelProviders')).toEqual([
+			expect(store.get('providers')).toEqual([
 				{
 					id: 'openai',
 					name: 'OpenAI',
@@ -1102,7 +1102,7 @@ describe('StoreService', () => {
 		it('replaces the existing openai provider in place (array length stays the same)', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider, anthropicProvider]
 			);
 
@@ -1118,7 +1118,7 @@ describe('StoreService', () => {
 			const mixedCase: Provider = { ...openaiProvider, id: 'OpenAI' };
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[mixedCase]
 			);
 
@@ -1226,7 +1226,7 @@ describe('StoreService', () => {
 				apiKey: 'ant-new',
 				baseUrl: 'https://api.anthropic.com/v1',
 			});
-			expect(store.get('modelProviders')).toEqual([
+			expect(store.get('providers')).toEqual([
 				{
 					id: 'anthropic',
 					name: 'Anthropic',
@@ -1239,7 +1239,7 @@ describe('StoreService', () => {
 		it('replaces the existing anthropic provider in place (array length stays the same)', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[openaiProvider, anthropicProvider]
 			);
 
@@ -1254,7 +1254,7 @@ describe('StoreService', () => {
 			const mixedCase: Provider = { ...anthropicProvider, id: 'Anthropic' };
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'modelProviders',
+				'providers',
 				[mixedCase]
 			);
 
