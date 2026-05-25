@@ -1,8 +1,10 @@
 # Tools
 
-Tools let an agent do work outside plain text. They let the agent read context, search, inspect files, run checks, use the web, control a browser, or schedule work.
+Tools let an agent do work outside plain text. In this section, the documented tools are file tools: they let the agent read, inspect, find, create, update, move, copy, and delete files when policy allows the requested path.
 
 An agent should use tools when they make the result more accurate, current, verified, or executable. It should avoid tools when the user needs a direct answer and the available context is already enough.
+
+This section currently documents file tools and the file-tool policy module.
 
 ## How Agents Should Use Tools
 
@@ -15,30 +17,23 @@ An agent should use tools when they make the result more accurate, current, veri
 ## Basic Rules
 
 - Use file tools when the answer depends on workspace content or a specific readable file path.
-- Keep mutating file operations inside the current workspace. Reading or inspecting outside paths is allowed only when needed for the request.
-- Use [bootstrap](bootstrap/index.md) for first-run startup setup files; it writes only the known bootstrap files in their canonical agent startup location.
+- File tools must ask [file tool policy](policy/index.md) before reading, writing, editing, moving, copying, deleting, finding, or inspecting a path.
+- Keep mutating file operations inside allowed directories.
 - Read or inspect files before changing them.
-- Use shell tools for tests, builds, calculations, and local automation.
-- Use web and browser tools for current or page-specific information.
 - Ask before irreversible, external, or high-impact actions.
 - Do not use tools just to look busy.
 
-## Source Groups
+## File Tool Area
 
-These groups mirror the fixed tool groups and control surfaces under `src/main`.
+The file tools can keep full filesystem capability in their implementation, but execution is gated by the policy module.
 
-| Source group | Current tools | Docs |
+| Area | Current tools | Docs |
 | --- | --- | --- |
-| `bootstrap` | `bootstrap`, `startup_files` | [Bootstrap tools](bootstrap/index.md) |
-| `file` | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files/index.md) |
-| `shell` | `exec`, `process` | [Shell tools](shell/index.md) |
-| `web` | `web_fetch` | [Web tools](web/index.md) |
-| `browser` | `open_browser`, `browser` | [Browser tools](browser/index.md) |
-| `automation` | `cron` | [Automation tools](automation/index.md) |
-| `search` | `tool_search`, `tool_describe`, `tool_call` | [Tool search controls](search/index.md) |
+| File tools | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files/index.md) |
+| File policy | Directory-scoped permission decisions for file tool execution. | [File tool policy](policy/index.md) |
 
 ## Related Docs
 
-- [Tool policy](policy.md)
+- [File tool policy](policy/index.md)
 - [How an agent works](../agent/index.md)
 - [Agent acceptance criteria](../agent/acceptance-criteria.md)
