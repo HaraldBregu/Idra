@@ -571,24 +571,24 @@ describe('tools/app, cron, and startup', () => {
 			fridayAction: jest.fn(async () => ({
 				status: 'ok',
 				enabled: true,
-				result: { enabled: true, timerArmed: false, jobCount: 0, runningCount: 0 },
+				result: [],
 			})),
 		};
 		const ctx = makeToolContext({
 			services: { ...makeToolContext().services, cron: cron as never },
 		});
 
-		const result = await cronTool.execute({ action: 'status' }, ctx);
+		const result = await cronTool.execute({ action: 'list' }, ctx);
 
 		expect(result.status).toBe('ok');
 		expect(cron.fridayAction).toHaveBeenCalledWith(
-			{ action: 'status' },
+			{ action: 'list' },
 			{
 				role: 'owner',
 				sessionId: 'test-session',
 			}
 		);
-		expect(result.content[0]?.text).toContain('"timerArmed": false');
+		expect(result.content[0]?.text).toContain('"result": []');
 	});
 
 	it('does not require approval for cron mutations', () => {

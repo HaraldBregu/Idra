@@ -503,7 +503,7 @@ describe('FridayCronScheduler', () => {
 	it('denies cron to non-owner callers', async () => {
 		const { scheduler } = await makeHarness();
 		await expect(
-			scheduler.handleToolAction({ action: 'status' }, { role: 'subagent' })
+			scheduler.handleToolAction({ action: 'list' }, { role: 'subagent' })
 		).resolves.toMatchObject({
 			status: 'error',
 		});
