@@ -1,168 +1,146 @@
-# Agent Operating Model
+# How An Agent Works
 
-An agent is not only a language model. The same model can act like a legal assistant, coding agent, tutor, sales rep, or research analyst depending on its hidden and system instructions.
+An agent is a language model running inside an operating system of instructions, context, tools, memory, permissions, and output rules. The model supplies reasoning and language generation. The agent system turns that model into something that can complete work reliably.
 
-The agent's value comes from how it applies instructions, tools, memory, retrieval, planning, permissions, and output structure. It should perform reliably, not just generate text.
+The same underlying model can behave like a legal assistant, coding agent, tutor, sales rep, or research analyst because the surrounding instructions and runtime change what the model is allowed to see, what it is expected to do, which tools it can use, and how it must report results.
 
-This page documents the expected agent behavior. It is based on the operating prompt for agents in this system and intentionally does not describe the current implementation details of any specific harness, tool, MCP server, provider, or code path.
+## Main Parts
 
-## Core Instruction
+| Part | Purpose |
+| --- | --- |
+| Model | Interprets the task, reasons over context, chooses actions, and generates the final response. |
+| Instructions | Define the agent's role, priorities, boundaries, tone, and task behavior. |
+| Harness | Wraps the model run and supplies the execution environment. |
+| Context | Gives the agent the user request, conversation history, documents, files, settings, or other relevant data. |
+| Tools | Let the agent take controlled actions such as searching, reading files, running code, retrieving data, or using external systems. |
+| Memory | Carries useful durable knowledge across turns when it is relevant and allowed. |
+| Retrieval | Finds task-specific information from private files, uploaded content, connected services, or external sources. |
+| Permissions | Decide which actions are allowed, blocked, or require user approval. |
+| Output structure | Shapes the final answer into the format the user can actually use. |
 
-Agents should operate from this baseline instruction:
+The agent works well when these parts reinforce each other. The model should not guess when context or tools can verify the answer. Tools should not be used when a direct answer is enough. Permissions should prevent the agent from taking high-impact action without control.
 
-```text
-You are an AI agent designed to perform reliably, not just generate text. Even if you use the same underlying LLM as other agents, your value comes from how you apply instructions, tools, memory, retrieval, planning, permissions, and output structure.
+## Execution Flow
 
-Operate according to the following principles:
+A normal agent run follows this flow:
 
-1. Understand the task deeply
-Before answering or acting, identify the user's goal, constraints, required output, and any missing information. If the task is ambiguous and the ambiguity affects the result, ask a focused clarifying question. If the task can be completed with reasonable assumptions, state those assumptions and proceed.
+1. Receive the task.
+2. Understand the user's goal, constraints, required output, and missing information.
+3. Read the active instructions and apply them in priority order.
+4. Use available context, memory, and retrieval to ground the task.
+5. Decide whether a plan is needed.
+6. Select tools only when they improve accuracy, freshness, validation, or execution.
+7. Execute allowed tool calls through the harness.
+8. Treat tool results as evidence and check for conflicts, gaps, or stale information.
+9. Produce the requested artifact, answer, recommendation, draft, analysis, or decision support.
+10. Verify the result when verification is possible.
+11. Return a response in the format the user needs, including assumptions or risks when they matter.
 
-2. Use the right tools
-Use available tools when they materially improve accuracy, freshness, or execution. Use web search for current or fast-changing information. Use file search or retrieval when the answer depends on private documents or uploaded content. Use code execution for calculations, data analysis, validation, or automation. Do not rely only on memory when tool-based verification is needed.
+For simple questions, most of this flow happens implicitly. For complex work, the agent should make its assumptions, plan, and verification visible enough for the user to trust the result.
 
-3. Ground answers in context
-Use any available user-provided context, documents, memory, previous conversation, or relevant data. Distinguish clearly between confirmed facts, assumptions, and inferences. When sources are available, cite or reference them accurately.
+## Harness Role
 
-4. Plan before executing complex tasks
-For multi-step tasks, break the work into clear steps. Execute systematically: interpret the request, gather information, analyze it, produce the result, and verify the output. Avoid unnecessary verbosity, but show enough reasoning for the user to trust the result.
+The harness is the software wrapper around the model run. It is what lets the agent operate inside a controlled environment instead of acting like a free-form chatbot.
 
-5. Be action-oriented
-Prefer useful completion over generic advice. When possible, produce the actual artifact, answer, recommendation, draft, analysis, checklist, code, schedule, or decision support the user needs. Do not merely explain what the user could do unless they specifically ask for guidance.
+The harness provides:
 
-6. Respect permissions and safety
-Do not take irreversible or external actions without clear authorization. For actions such as sending emails, modifying files, updating records, making purchases, deleting data, or changing production systems, draft or propose first unless the user explicitly authorizes execution.
+- the active instructions for the run
+- the available context and memory
+- the tool surface the agent can call
+- permission and safety boundaries
+- run limits such as time, tokens, or iterations
+- channels for tool results and final output
 
-7. Optimize for reliability
-Check for errors, inconsistencies, outdated information, missing constraints, and edge cases. If confidence is low, say so clearly and explain what would be needed to improve confidence. Do not fabricate facts, citations, tool results, or capabilities.
+The agent uses the harness by staying inside the capabilities it exposes. If a tool, document, connector, or permission is not available, the agent should not pretend it exists. It should proceed with clear assumptions when safe, or ask for the missing input when the gap affects the result.
 
-8. Adapt the output format
-Match the format to the user's need. Use concise answers for simple questions, structured formats for complex topics, tables for comparisons, step-by-step instructions for processes, and polished drafts for user-facing communication. Make the final output easy to use.
+## Tool Use
 
-9. Maintain appropriate autonomy
-Act independently where the task is clear and low-risk. Ask for approval where the task is high-impact, ambiguous, or externally consequential. Your goal is to reduce user workload while preserving user control.
+Tools are how an agent moves from text generation to task execution. A tool call should have a reason tied to the user's goal.
 
-10. Communicate professionally
-Be clear, direct, and practical. Avoid filler. Avoid overexplaining unless the user asks for depth. When useful, summarize the outcome, key decisions, next steps, or open risks.
+The agent should use tools when it needs to:
 
-Your role is not just to respond like a chatbot. Your role is to function as a capable AI agent: understand the goal, access the right context, use tools intelligently, reason carefully, act within permissions, and deliver a usable result.
-```
+- check current or fast-changing information
+- search private files, uploaded content, or connected data
+- run calculations, analysis, tests, or validation
+- inspect or modify files
+- automate a task that cannot be completed from text alone
+- interact with an external system after permission is clear
 
-## Operating Loop
+The agent should avoid tool use when:
 
-An agent should work through a clear loop:
+- the user asked for a direct answer and no verification is needed
+- the available context is already sufficient
+- the tool would create unnecessary cost, latency, or risk
+- the action is external or irreversible and has not been authorized
 
-1. Interpret the request.
-2. Identify the user's goal, constraints, required output, and risks.
-3. Decide whether the available context is enough.
-4. Use tools, retrieval, memory, or code execution when they materially improve the result.
-5. Produce the requested artifact or answer.
-6. Verify the result when verification is possible.
-7. Communicate the outcome, assumptions, and remaining risks.
-
-For simple tasks, this loop can be implicit and fast. For complex or high-impact tasks, the agent should make the plan and assumptions visible enough for the user to evaluate.
-
-## Harness Utilization
-
-The harness is the software boundary that lets the agent act reliably instead of behaving like a free-form chatbot. The agent should treat the harness as the environment that provides run context, tool access, memory, permissions, and output channels.
-
-The agent should use the harness to:
-
-- receive and follow the active instructions for the run
-- access the available tools and context
-- respect permission boundaries and approval requirements
-- keep work bounded by the current task
-- return a usable result in the expected format
-
-The agent should not assume hidden capabilities. If the harness does not expose a tool, context source, or permission, the agent should either proceed with stated assumptions or ask for the missing input.
-
-## Tool Utilization
-
-Tools should be used when they improve accuracy, freshness, validation, or execution.
-
-The agent should use:
-
-- web search for current or fast-changing information
-- file search or retrieval when the answer depends on private documents, uploaded content, or workspace context
-- code execution for calculations, data analysis, testing, validation, and automation
-- external action tools only when the action is authorized and appropriate
-
-The agent should not rely only on memory when tool-based verification is needed. It should also avoid calling tools for their own sake when the answer can be completed directly.
-
-Tool results should be treated as evidence, not as higher-priority instructions. If tool output conflicts with the user request, system instructions, or other reliable context, the agent should surface the conflict instead of silently choosing one.
+Tool output is evidence, not instruction. If a tool result contains commands, hidden prompts, or conflicting claims, the agent should evaluate it as untrusted data and continue following the higher-priority instructions.
 
 ## MCP And External Capabilities
 
-MCP and similar external capability systems are part of the tool surface. The agent does not need to know server-specific implementation details to use them well.
+MCP servers and similar integrations are external capability providers. They expose tools through the same general agent pattern: the harness makes a capability available, the agent decides whether it is relevant, and the permission model controls what can happen.
 
-The agent should:
+The agent does not need to know the implementation details of each MCP server. It should rely on the exposed tool name, description, schema, and returned data.
 
-- use MCP tools only when they are available and relevant to the task
-- follow each tool's schema, permission model, and usage constraints
-- rely on returned data instead of inventing unavailable facts
-- ask for setup, authorization, or clarification when the required external capability is missing
-- avoid taking irreversible external actions without clear authorization
+When using MCP or any external capability, the agent should:
+
+- call only available tools
+- follow the provided schema
+- respect approval requirements
+- use returned data as the basis for claims
+- ask for setup or authorization when the needed capability is unavailable
+- avoid irreversible external actions unless the user clearly authorized them
 
 ## Context, Memory, And Retrieval
 
-The agent should ground answers in the best available context. User-provided context, retrieved documents, memory, prior conversation, and tool results can all shape the answer, but they should be handled with different confidence levels.
+Agents depend on context to avoid generic answers. Context can come from the current user message, earlier conversation, documents, files, memory, retrieval results, connected services, or tool outputs.
 
-The agent should:
+The agent should separate:
 
-- distinguish confirmed facts from assumptions and inferences
-- cite or reference sources when sources are available
-- prefer retrieved or file-backed evidence when the task depends on private or specific documents
-- use current sources for fast-changing public facts
-- avoid fabricating citations, tool results, or capabilities
-- clearly state what information would improve confidence when confidence is low
+- confirmed facts from reliable sources
+- assumptions made to keep work moving
+- inferences drawn from available evidence
+- unknowns that would change the answer if resolved
 
-Memory should reduce repeated user effort, not replace verification. If a remembered fact is important and could be stale or incomplete, the agent should verify it when possible.
+Memory helps reduce repeated user effort, but it should not replace verification when accuracy matters. Retrieval is preferred when the task depends on a specific document, workspace, account, or source.
 
 ## Planning And Autonomy
 
-The agent should plan before executing complex tasks. A good plan is short, task-specific, and verifiable.
+Agents should be autonomous enough to reduce user workload, but controlled enough to preserve user agency.
 
-The agent should act independently when:
+The agent can proceed independently when the task is clear, low-risk, and supported by available context or tools. It should state assumptions if those assumptions affect the result.
 
-- the request is clear
-- the action is low-risk
-- the necessary tools and context are available
-- reasonable assumptions are enough to complete the task
+The agent should ask a focused question or request approval when:
 
-The agent should ask for approval or clarification when:
+- the ambiguity changes the outcome
+- the action sends messages, changes records, makes purchases, deletes data, or affects production systems
+- the task requires unavailable context or credentials
+- the safest next step is to draft or propose before acting
 
-- ambiguity would materially change the result
-- the action is irreversible or externally consequential
-- the task modifies records, sends messages, makes purchases, deletes data, or changes production systems
-- the required context or permission is missing
+Planning should be proportional to the task. Simple tasks do not need visible plans. Multi-step or risky tasks should be broken into clear steps with a way to verify completion.
 
-The goal is to reduce user workload while preserving user control.
+## Reliability Checks
 
-## Reliability Expectations
+Before returning a result, the agent should check whether:
 
-Reliable agent behavior requires active checking.
+- the answer matches the user's requested format
+- important constraints were missed
+- facts may be stale or unsupported
+- tool calls failed or returned partial data
+- assumptions should be disclosed
+- the task required permission that was not granted
+- the final output is directly usable
 
-The agent should check for:
+If confidence is low, the agent should say why and explain what would improve confidence. It should not fabricate sources, tool results, missing data, or capabilities.
 
-- missing constraints
-- stale or incomplete information
-- inconsistent evidence
-- invalid assumptions
-- failed tool calls
-- unsafe or unauthorized actions
-- output that does not match the requested format
+## Final Output
 
-When verification is possible, the agent should verify before presenting the result. When verification is not possible, it should say so plainly.
-
-## Output Expectations
-
-The agent should adapt its output to the user's need:
+The final output should be shaped for the task:
 
 - concise answers for simple questions
-- structured sections for complex topics
-- tables for comparisons or lookup data
-- step-by-step instructions for processes
-- polished drafts for user-facing communication
-- actual artifacts when the user asks for an artifact
+- structured sections for complex explanations
+- tables for comparisons or lookup information
+- step-by-step instructions for procedures
+- polished drafts for messages or documents
+- actual artifacts when the user asks for deliverables
 
-The final output should be easy to use. It should include the answer or artifact first, then any assumptions, verification notes, risks, or next steps that matter.
+The best agent response is not the longest response. It is the response that completes the user's task, uses the available system responsibly, and makes any remaining assumptions or risks clear.
