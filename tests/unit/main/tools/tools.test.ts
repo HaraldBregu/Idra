@@ -31,7 +31,7 @@ import {
 	cronTool,
 } from '../../../../src/main/tools/cron';
 import { taskTool } from '../../../../src/main/tools/task';
-import { startupFilesTool } from '../../../../src/main/tools/startup';
+import { bootstrapTool, startupFilesTool } from '../../../../src/main/tools/startup';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
@@ -87,6 +87,7 @@ describe('tools/policy and registry', () => {
 		expect(createTools({ profile: 'full', allow: [], deny: [] }).map((tool) => tool.name)).toEqual(
 			documentedTools
 		);
+		expect(documentedTools).not.toContain('bootstrap');
 		expect(documentedTools).not.toContain('startup_files');
 	});
 
@@ -631,6 +632,43 @@ describe('tools/app, cron, and startup', () => {
 		await expect(
 			fs.access(path.join(root, 'agent', 'workspaces', 'main', 'BOOTSTRAP.md'))
 		).rejects.toThrow();
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('writes all required bootstrap files through the bootstrap tool', async () => {
+		expect(bootstrapTool.needsApproval).toBeUndefined();
+
+		const root = await makeTempDir();
+		const services = {
+			...makeToolContext().services,
+			startupFiles: new AgentStartupFilesService({
+				rootPath: path.join(root, 'agent', 'workspaces'),
+			}),
+		};
+		const ctx = makeToolContext({ agentId: 'main', services });
+
+		const result = await bootstrapTool.execute(
+			{
+				identity: '# IDENTITY.md\n\nFriday',
+				user: '# USER.md\n\nHarald',
+				soul: '# SOUL.md\n\nDirect',
+			},
+			ctx
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.details?.bootstrapCompleted).toBe(true);
+		const agentRoot = path.join(root, 'agent', 'workspaces', 'main');
+		await expect(fs.readFile(path.join(agentRoot, 'IDENTITY.md'), 'utf8')).resolves.toContain(
+			'Friday'
+		);
+		await expect(fs.readFile(path.join(agentRoot, 'USER.md'), 'utf8')).resolves.toContain(
+			'Harald'
+		);
+		await expect(fs.readFile(path.join(agentRoot, 'SOUL.md'), 'utf8')).resolves.toContain(
+			'Direct'
+		);
+		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
 		await fs.rm(root, { recursive: true, force: true });
 	});
 });
