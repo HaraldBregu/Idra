@@ -28,6 +28,7 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 | `heartbeat` | Heartbeat interval, prompts, delivery settings, agent settings, and lightweight run state. |
 | `connectors` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
 | `channels` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
+| `policy` | Access control policy version, default decision, and path grants. |
 
 ## Normalization
 
