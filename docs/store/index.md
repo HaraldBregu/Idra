@@ -6,7 +6,7 @@ The store persists Friday's application settings. It is an Electron settings sto
 
 - Persists provider records and module model selections.
 - Stores connector configuration and channel accounts.
-- Stores scheduler, background task, and heartbeat configuration.
+- Stores scheduler and heartbeat configuration.
 - Normalizes missing or legacy settings during reads.
 - Redacts provider secrets from public reads.
 - Keeps writes scoped to the owning root.
@@ -25,7 +25,6 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 | `textToVideo` | Active video creation provider, model, and module options. |
 | `textToSound` | Active sound generation provider, model, and module options. |
 | `taskScheduler` | Scheduler configuration and persisted schedule records. |
-| `backgroundTask` | Background task feature configuration and policy. |
 | `heartbeat` | Heartbeat interval, prompts, delivery settings, agent settings, and lightweight run state. |
 | `connectors` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
 | `channels` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
