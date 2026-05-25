@@ -1,85 +1,94 @@
-# File Tool Policy
+# Policy Module
 
-The file tool policy module decides whether a file tool call is allowed to execute for a specific directory-scoped operation.
+The policy module decides whether an operation on a path is permitted. It is the single authority for access control. Nothing executes against a path until the policy module allows it.
 
-File tools can keep their full implementation capability. They should not each own separate permission logic. Before a file tool reads, creates, updates, moves, copies, or deletes a path, it asks the policy module for a decision. The policy module returns the permission needed for that exact action and target.
+## Configuration
 
-## Goal
+Policies are defined in a JSON document.
 
-Keep file access rules in one system module.
+```json
+{
+  "policies": {
+    "version": 1,
+    "defaultPolicy": "deny",
+    "paths": [
+      {
+        "path": "/mnt/user-data/uploads",
+        "permissions": ["read"],
+        "recursive": true
+      },
+      {
+        "path": "/mnt/user-data/outputs",
+        "permissions": ["read", "write", "create"],
+        "recursive": true
+      },
+      {
+        "path": "/mnt/user-data/outputs/.secrets",
+        "permissions": [],
+        "recursive": true
+      },
+      {
+        "path": "/home/agent/workspace",
+        "permissions": ["read", "write", "create", "delete"],
+        "recursive": true
+      },
+      {
+        "path": "/home/agent/workspace/node_modules",
+        "permissions": ["read"],
+        "recursive": true
+      },
+      {
+        "path": "/etc",
+        "permissions": ["read"],
+        "recursive": false
+      }
+    ]
+  }
+}
+```
 
-- File tools describe what they want to do.
-- The policy module decides whether that action is allowed.
-- The tool executes only when the policy allows it.
-- Denied calls stop before filesystem mutation or data exposure.
+### `defaultPolicy`
 
-## Scope
+The decision applied to any path not matched by `paths`. Use `deny` in agentic contexts.
 
-This policy applies to file tools only:
+### `paths`
 
-| Tool | Policy action |
+Each entry grants a set of permissions at a path.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `path` | string | Absolute path. No `..`, no unresolved symlinks. |
+| `permissions` | array | Allowed operations. Empty array denies all. |
+| `recursive` | boolean | `true` — applies to all descendants. `false` — direct children only. |
+
+### `permissions`
+
+| Value | Meaning |
 | --- | --- |
-| `read` | Read file content from an allowed path. |
-| `write` | Create or replace a file in an allowed writable directory. |
-| `edit` | Update an existing file in an allowed writable directory. |
-| `apply_patch` | Update one or more files in allowed writable directories. |
-| `delete` | Delete an allowed file or directory target. |
-| `copy` | Read the source and write the destination when both sides are allowed. |
-| `move` | Read/write/delete the source and destination according to the move plan. |
-| `inspect_file` | Read file metadata or preview data from an allowed path. |
-| `find` | Search only inside allowed directories. |
+| `read` | Content at this path may be read. |
+| `write` | Existing content at this path may be overwritten. |
+| `create` | New files or directories may be created at this path. |
+| `delete` | Files or directories at this path may be removed. |
 
-## Directory Grants
+## Matching
 
-A grant describes what a tool may do inside a directory.
+1. Resolve the target path to its canonical absolute form.
+2. Find all entries whose `path` is a prefix of the target.
+3. Select the longest matching prefix. Its `permissions` is the decision.
+4. If no entry matches, apply `defaultPolicy`.
+5. `recursive: false` entries match direct children only.
 
-| Grant | Meaning |
-| --- | --- |
-| `read` | The tool may list, inspect, find, or read files. |
-| `write` | The tool may create or replace files. |
-| `modify` | The tool may edit existing files or apply patches. |
-| `delete` | The tool may remove files or directories. |
+A more specific entry always wins. An empty `permissions` array on a child path overrides a permissive parent.
 
-Write-like permissions do not imply read unless the grant explicitly includes read. A tool that needs both must request both.
-
-## Decision Input
-
-Every policy check should include:
-
-- tool name
-- requested action
-- absolute resolved target path
-- workspace root
-- whether the target is a file, directory, missing path, symlink, or unsupported type when known
-- source and destination paths for copy or move
-- current run context, including agent id and sandbox mode
-
-The policy module resolves relative paths before deciding. Tools should not rely on caller-provided path strings for permission checks.
-
-## Decision Output
-
-The policy module returns one of these outcomes:
+## Decisions
 
 | Outcome | Meaning |
 | --- | --- |
-| `allow` | The tool may execute the requested operation. |
-| `deny` | The tool must stop and return a tool error. |
-| `approval_required` | The tool must stop unless the run has explicit approval for this action. |
+| `allow` | The requested operation is permitted. |
+| `deny` | The requested operation is rejected. |
 
-The result should include the normalized path, matched grant, and a short reason. Tools should report the reason without leaking unrelated filesystem details.
-
-## Enforcement Rules
-
-- Resolve paths before checking policy.
-- Reject targets outside allowed directories unless a grant explicitly covers them.
-- Reject symlinks and hard-linked files for write-like operations.
-- Apply the same policy to every file touched by a patch.
-- Check both source and destination for copy and move.
-- Deny directory deletion unless the delete grant explicitly covers the directory target.
-- Re-check policy immediately before mutation when the tool read or inspected the target earlier in the run.
+The result includes the resolved path, the matched grant, and a reason.
 
 ## Related Docs
 
-- [Policy Schema](schema.md)
 - [Tools](../tools/index.md)
-- [File tools](../tools/files/index.md)
