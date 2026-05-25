@@ -11,8 +11,7 @@ import {
 	readStringArrayParam,
 	readStringParam,
 } from '../../../../src/main/tools/params';
-import { createReadTool } from '../../../../src/main/tools/builtins/read-tool';
-import { createExecTool } from '../../../../src/main/tools/builtins/exec-tool';
+import { createReadTool } from '../../../../src/main/tools/files/read-tool';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create-agent-tools';
 import { applyToolPolicyPipeline } from '../../../../src/main/tools/tool-policy-pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normalization';
@@ -55,25 +54,22 @@ describe('canonical agent tool runtime', () => {
 		expect(() => readStringParam(params, 'missing', { required: true })).toThrow('Missing required parameter');
 	});
 
-	it('runs built-in read and exec tools', async () => {
+	it('runs the built-in read tool', async () => {
 		const workspace = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'a.txt'), 'one\ntwo\n', 'utf8');
 		const read = await createReadTool({ workspaceDir: workspace }).execute('tc1', { path: 'a.txt', limit: 1 });
 		expect(read.content[0]?.text).toContain('one');
-
-		const exec = await createExecTool({ workspaceDir: workspace }).execute('tc2', { command: 'printf hello' });
-		expect(exec.details.exitCode).toBe(0);
-		expect(exec.content[0]?.text).toContain('hello');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('plans construction for default, empty, wildcard, narrow plugin, MCP, and LSP allowlists', () => {
-		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: true });
+	it('plans construction for file tools only', () => {
+		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: false });
 		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false, includePluginTools: false }));
-		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeMcpTools: true, includeLspTools: true }));
-		expect(planToolConstruction(['plugin_tool']).includePluginTools).toBe(true);
-		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(true);
-		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(true);
+		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeMcpTools: false, includeLspTools: false }));
+		expect(planToolConstruction(['group:file']).includeFileTools).toBe(true);
+		expect(planToolConstruction(['plugin_tool']).includePluginTools).toBe(false);
+		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(false);
+		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(false);
 	});
 
 	it('applies layered profile policy, groups, plugin id expansion, owner-only, sandbox, and runtime deny', () => {
@@ -106,7 +102,7 @@ describe('canonical agent tool runtime', () => {
 			stages: {
 				global: { profile: 'coding', deny: ['write', 'edit', 'apply_patch'] },
 			},
-		}).tools.map((entry) => entry.name)).toEqual(['read', 'exec']);
+		}).tools.map((entry) => entry.name)).toEqual(['read']);
 		expect(applyToolPolicyPipeline(tools, {
 			stages: {
 				global: { profile: 'minimal', alsoAllow: ['read'], deny: ['read'] },
@@ -400,14 +396,14 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('accepts host tools without materializing duplicate built-ins', async () => {
+	it('keeps host tools restricted to the file tool set', async () => {
 		const workspace = await makeTempDir();
 		const result = await createAgentTools({
 			workspaceDir: workspace,
 			includeCoreTools: false,
-			hostTools: [tool('host_lookup')],
+			hostTools: [tool('host_lookup'), tool('read')],
 		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['host_lookup']);
+		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
@@ -477,15 +473,14 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('fails closed when a client-hosted tool conflicts with a core tool name', async () => {
+	it('does not materialize client-hosted tools', async () => {
 		const workspace = await makeTempDir();
-		await expect(
-			createAgentTools({
-				workspaceDir: workspace,
-				toolsAllow: ['*'],
-				clientTools: [markClientTool(tool('read'), 'ui')],
-			})
-		).rejects.toThrow('tool name collision');
+		const result = await createAgentTools({
+			workspaceDir: workspace,
+			toolsAllow: ['*'],
+			clientTools: [markClientTool(tool('read'), 'ui')],
+		});
+		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 });
