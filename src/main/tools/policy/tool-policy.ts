@@ -9,7 +9,6 @@ export type ToolPolicy = {
 	alsoAllow?: string[];
 	deny?: string[];
 	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
-	exec?: Record<string, unknown>;
 };
 
 export const CORE_TOOL_GROUPS: Record<string, string[]> = {
