@@ -460,6 +460,7 @@ const CronPage: React.FC = () => {
 	const [jobs, setJobs] = useState<readonly FridayCronJob[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [showForm, setShowForm] = useState(false);
 
 	const loadJobs = useCallback(() => {
 		setLoading(true);
@@ -504,10 +505,33 @@ const CronPage: React.FC = () => {
 		navigate(`/settings/cron/crondetails/${encodeURIComponent(jobId)}`);
 	};
 
+	const handleCreated = (): void => {
+		setShowForm(false);
+		loadJobs();
+	};
+
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.taskScheduler')} />
+			<SettingsPageHeader
+				title={t('settings.tabs.taskScheduler')}
+				action={
+					!showForm && (
+						<Button size="sm" onClick={() => setShowForm(true)}>
+							<Plus className="size-3.5" />
+							New schedule
+						</Button>
+					)
+				}
+			/>
+
 			<CronAgentRuntimeSettings />
+
+			{showForm && (
+				<SettingsSection title="New scheduled task">
+					<ScheduleTaskForm onCreated={handleCreated} onCancel={() => setShowForm(false)} />
+				</SettingsSection>
+			)}
+
 			<SettingsSection title={t('settings.sections.taskScheduler')}>
 				{error && (
 					<SettingsPanel>
@@ -579,10 +603,6 @@ const CronPage: React.FC = () => {
 						})}
 					</div>
 				)}
-			</SettingsSection>
-
-			<SettingsSection title="New scheduled task">
-				<ScheduleTaskForm onCreated={loadJobs} />
 			</SettingsSection>
 		</SettingsPageShell>
 	);
