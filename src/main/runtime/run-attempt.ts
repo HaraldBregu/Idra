@@ -1,6 +1,6 @@
 import type { AgentTool } from '../tools/common';
-import { createAgentTools, type CreateAgentToolsOptions, type CreateAgentToolsResult } from '../tools/create-agent-tools';
-import { toToolDefinitions, type ModelToolDefinition } from '../tools/tool-definition-adapter';
+import { createAgentTools, type CreateAgentToolsOptions, type CreateAgentToolsResult } from '../tools/create';
+import { toToolDefinitions, type ModelToolDefinition } from '../tools/definitions';
 
 export type RunAttemptToolAssembly = CreateAgentToolsResult & {
 	definitions: ModelToolDefinition[];
