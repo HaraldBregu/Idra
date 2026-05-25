@@ -1,1 +1,1 @@
-export * from './local/app';
+export * from './web/open-browser';

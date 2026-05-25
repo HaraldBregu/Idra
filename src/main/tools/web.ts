@@ -1,1 +1,1 @@
-export * from './local/web';
+export * from './web/web-fetch';

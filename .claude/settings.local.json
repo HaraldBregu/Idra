@@ -212,7 +212,12 @@
       "WebFetch(domain:docs.qwencloud.com)",
       "WebFetch(domain:www.qwencloud.com)",
       "WebFetch(domain:platform.openai.com)",
-      "Bash(echo \"done\")"
+      "Bash(echo \"done\")",
+      "Bash(sed -i '' 's|./local/app|./web/open-browser|' /Users/haraldbregu/Documents/friday/src/main/tools/app.ts)",
+      "Bash(sed -i '' 's|./local/cron|./scheduling/cron|' /Users/haraldbregu/Documents/friday/src/main/tools/cron.ts)",
+      "Bash(sed -i '' 's|./local/exec|./execution/tools|' /Users/haraldbregu/Documents/friday/src/main/tools/exec.ts)",
+      "Bash(sed -i '' 's|./local/fs|./files/tools|' /Users/haraldbregu/Documents/friday/src/main/tools/fs.ts)",
+      "Bash(sed -i '' 's|./local/registry|./catalog/registry|' /Users/haraldbregu/Documents/friday/src/main/tools/registry.ts)"
     ],
     "deny": [
       "Bash(git push --force:*)",

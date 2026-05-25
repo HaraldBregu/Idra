@@ -1,5 +1,5 @@
 import type { AgentTool } from '../core/types';
-import { localToolNamesForProfile, type LocalToolProfile } from '../local/catalog';
+import { localToolNamesForProfile, type LocalToolProfile } from '../catalog/catalog';
 
 export type ToolProfile = LocalToolProfile;
 
