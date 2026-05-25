@@ -2,6 +2,10 @@
 
 `delete` removes a file or folder inside the current workspace.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+
 ## Tool Search Description
 
 Use `delete` to remove a current-workspace file or folder when deletion is clearly part of the requested task.
