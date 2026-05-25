@@ -8,22 +8,6 @@ The `policy` root stores the active access control policy. The policy module rea
 | --- | --- |
 | `policy` | Access control policy version, default decision, and path grants. |
 
-## Shape
-
-```ts
-{
-  policy: {
-    version: number;
-    defaultPolicy: "allow" | "deny";
-    paths: Array<{
-      path: string;
-      permissions: Array<"read" | "write" | "create" | "delete">;
-      recursive: boolean;
-    }>;
-  }
-}
-```
-
 ## Properties
 
 ### `version`
@@ -32,7 +16,7 @@ Integer. Identifies the schema version. Must be `1`. The store rejects objects w
 
 ### `defaultPolicy`
 
-Decision applied to any path not matched by `paths`.
+String. Decision applied to any path not matched by `paths`.
 
 | Value | Meaning |
 | --- | --- |
@@ -41,31 +25,30 @@ Decision applied to any path not matched by `paths`.
 
 ### `paths`
 
-Array of path grants evaluated by the policy module.
+Array of path grant objects. Each object has the following fields.
 
-| Field | Type | Meaning |
-| --- | --- | --- |
-| `path` | string | Absolute path. No `..`, no unresolved symlinks. |
-| `permissions` | array | Allowed operations at this path. Empty array denies all. |
-| `recursive` | boolean | `true` — grant applies to all descendants. `false` — direct children only. |
+#### `paths[].path`
 
-`permissions` values: `read`, `write`, `create`, `delete`.
+String. Absolute path. Must not contain `..` or unresolved symlinks.
+
+#### `paths[].permissions`
+
+Array of strings. Allowed operations at this path. An empty array denies all operations.
+
+| Value | Meaning |
+| --- | --- |
+| `read` | Content at this path may be read. |
+| `write` | Existing content at this path may be overwritten. |
+| `create` | New files or directories may be created at this path. |
+| `delete` | Files or directories at this path may be removed. |
+
+#### `paths[].recursive`
+
+Boolean. When `true`, the grant applies to all descendants. When `false`, it applies to direct children only.
 
 ## Normalization
 
-Missing `policy` root is filled with the default policy object below. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
-
-### Default
-
-```json
-{
-  "version": 1,
-  "defaultPolicy": "deny",
-  "paths": []
-}
-```
-
-An empty `paths` array with `defaultPolicy: deny` blocks all path operations until a policy is explicitly configured.
+Missing `policy` root is filled with `defaultPolicy: deny` and an empty `paths` array. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
 
 ## Related Docs
 
