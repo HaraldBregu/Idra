@@ -5,6 +5,7 @@ import type { MainServiceContainer } from '../../../../src/main/service-registry
 import { StoreChannels } from '../../../../src/shared/ipc-channels';
 import type { PolicyConfig } from '../../../../src/shared/policy';
 import type { Provider } from '../../../../src/shared/providers';
+import type { Model } from '../../../../src/shared/agents/service';
 
 function registeredHandler(channel: string) {
 	const call = (ipcMain.handle as jest.Mock).mock.calls.find(([name]) => name === channel);
@@ -31,14 +32,30 @@ describe('StoreIpc', () => {
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
+		const model: Model = { id: 'gpt-5.1', name: 'GPT-5.1' };
 		const store = {
 			getProviders: jest.fn(() => providers),
+			upsertProvider: jest.fn(),
+			getProviderById: jest.fn(() => providers[0]),
+			getKeepAwakeEnabled: jest.fn(() => false),
+			setKeepAwakeEnabled: jest.fn((enabled: boolean) => ({ keepAwakeEnabled: enabled })),
+			getAssistantOperator: jest.fn(() => undefined),
+			setAssistantOperator: jest.fn(() => true),
+			getAgentService: jest.fn(() => undefined),
+			setAgentService: jest.fn(() => true),
 			getPolicy: jest.fn(() => policy),
 			setPolicy: jest.fn((next: PolicyConfig) => next),
 		};
+		const powerSaveBlocker = {
+			setEnabled: jest.fn((enabled: boolean) => enabled),
+		};
 		const container = {
-			get: jest.fn((key: 'store' | 'logger') =>
-				key === 'store' ? store : { info: jest.fn() }
+			get: jest.fn((key: 'store' | 'logger' | 'powerSaveBlocker') =>
+				key === 'store'
+					? store
+					: key === 'powerSaveBlocker'
+						? powerSaveBlocker
+						: { info: jest.fn() }
 			),
 		} as unknown as MainServiceContainer;
 
@@ -48,6 +65,35 @@ describe('StoreIpc', () => {
 			success: true,
 			data: [{ id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }],
 		});
+		await expect(registeredHandler(StoreChannels.isProviderApiKeySaved)({}, 'openai')).resolves.toEqual({
+			success: true,
+			data: true,
+		});
+		await expect(registeredHandler(StoreChannels.setProviderApiKey)({}, 'openai', 'new-key')).resolves.toEqual({
+			success: true,
+		});
+		expect(store.upsertProvider).toHaveBeenCalledWith({
+			...providers[0],
+			capabilities: expect.any(String),
+			apiConfiguration: expect.any(Object),
+			apiKey: 'new-key',
+		});
+		await expect(registeredHandler(StoreChannels.setKeepAwakeEnabled)({}, true)).resolves.toEqual({
+			success: true,
+			data: true,
+		});
+		expect(powerSaveBlocker.setEnabled).toHaveBeenCalledWith(true);
+		expect(store.setKeepAwakeEnabled).toHaveBeenCalledWith(true);
+		await expect(registeredHandler(StoreChannels.saveAssistantOperator)({}, publicProvider(providers[0]), model)).resolves.toEqual({
+			success: true,
+			data: true,
+		});
+		expect(store.setAssistantOperator).toHaveBeenCalledWith('openai', model);
+		await expect(registeredHandler(StoreChannels.saveAgentService)({}, publicProvider(providers[0]), model)).resolves.toEqual({
+			success: true,
+			data: true,
+		});
+		expect(store.setAgentService).toHaveBeenCalledWith('openai', model);
 		await expect(registeredHandler(StoreChannels.getPolicy)({})).resolves.toEqual({
 			success: true,
 			data: policy,
@@ -59,3 +105,8 @@ describe('StoreIpc', () => {
 		expect(store.setPolicy).toHaveBeenCalledWith(policy);
 	});
 });
+
+function publicProvider(provider: Provider) {
+	const { apiKey: _apiKey, ...rest } = provider;
+	return rest;
+}

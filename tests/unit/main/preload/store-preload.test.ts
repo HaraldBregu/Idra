@@ -3,6 +3,7 @@ import { store } from '../../../../src/preload';
 import { StoreChannels } from '../../../../src/shared/ipc-channels';
 import type { PolicyConfig } from '../../../../src/shared/policy';
 import type { PublicProvider } from '../../../../src/shared/providers';
+import type { Model } from '../../../../src/shared/agents/service';
 
 const mockedIpcRenderer = ipcRenderer as jest.Mocked<typeof ipcRenderer>;
 
@@ -20,18 +21,37 @@ describe('store preload API', () => {
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
+		const model: Model = { id: 'gpt-5.1', name: 'GPT-5.1' };
 
 		mockedIpcRenderer.invoke
 			.mockResolvedValueOnce({ success: true, data: providers })
+			.mockResolvedValueOnce({ success: true, data: true })
+			.mockResolvedValueOnce({ success: true })
+			.mockResolvedValueOnce({ success: true, data: true })
+			.mockResolvedValueOnce({ success: true, data: true })
+			.mockResolvedValueOnce({ success: true, data: true })
+			.mockResolvedValueOnce({ success: true, data: true })
 			.mockResolvedValueOnce({ success: true, data: policy })
 			.mockResolvedValueOnce({ success: true, data: policy });
 
 		await expect(store.getProviders()).resolves.toEqual(providers);
+		await expect(store.isProviderApiKeySaved('openai')).resolves.toBe(true);
+		await expect(store.setProviderApiKey('openai', 'new-key')).resolves.toBeUndefined();
+		await expect(store.setKeepAwakeEnabled(true)).resolves.toBe(true);
+		await expect(store.saveAssistantOperator(providers[0], model)).resolves.toBe(true);
+		await expect(store.saveAgentService(providers[0], model)).resolves.toBe(true);
+		await expect(store.saveSpeechTranscriberService(providers[0], model)).resolves.toBe(true);
 		await expect(store.getPolicy()).resolves.toEqual(policy);
 		await expect(store.setPolicy(policy)).resolves.toEqual(policy);
 
 		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(1, StoreChannels.getProviders);
-		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(2, StoreChannels.getPolicy);
-		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(3, StoreChannels.setPolicy, policy);
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(2, StoreChannels.isProviderApiKeySaved, 'openai');
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(3, StoreChannels.setProviderApiKey, 'openai', 'new-key');
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(4, StoreChannels.setKeepAwakeEnabled, true);
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(5, StoreChannels.saveAssistantOperator, providers[0], model);
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(6, StoreChannels.saveAgentService, providers[0], model);
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(7, StoreChannels.saveSpeechTranscriberService, providers[0], model);
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(8, StoreChannels.getPolicy);
+		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(9, StoreChannels.setPolicy, policy);
 	});
 });
