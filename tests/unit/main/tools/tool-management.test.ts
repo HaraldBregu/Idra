@@ -343,6 +343,22 @@ describe('tool management layer', () => {
 			shouldUseTools: true,
 			reason: 'request needs the Friday scheduler',
 		});
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Every day at 9pm create a short report.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Notify me tomorrow to check the release notes.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
 	});
 
 	it('uses tools for plain script and Python execution requests', () => {
@@ -443,6 +459,30 @@ describe('tool management layer', () => {
 		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['cron']);
 		expect(selected.rankedTools.map((entry) => entry.tool.name)).toEqual(['cron']);
 		expect(selected.systemPromptSuffix).toContain('cron');
+	});
+
+	it('selects cron for natural scheduled-work phrasing', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('write', 'Create or overwrite workspace files.'),
+				makeAgentTool(
+					'cron',
+					'Manage scheduled jobs through the Gateway-owned scheduler. Use this for future, delayed, recurring, reminder, wake, or manual-run scheduling.'
+				),
+			],
+			'every day at 9pm create a file with the latest status',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['cron']);
+		expect(selected.rankedTools.map((entry) => entry.tool.name)).toEqual(['cron']);
 	});
 
 	it('does not force cron for immediate background task requests', () => {
