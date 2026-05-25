@@ -7,7 +7,7 @@ import {
 	type TaskEvent,
 	type TaskHandler,
 } from '../../../../src/shared/tasks';
-import type { BackgroundTaskSettings } from '../../../../src/main/store/types';
+import type { TaskSettings } from '../../../../src/shared/store';
 
 const logger = {
 	info: jest.fn(),
@@ -77,7 +77,7 @@ function createManager(...handlers: TaskHandler[]) {
 	return { manager, events };
 }
 
-function createManagerWithPolicy(policy: () => BackgroundTaskSettings, ...handlers: TaskHandler[]) {
+function createManagerWithPolicy(policy: () => TaskSettings, ...handlers: TaskHandler[]) {
 	let nextId = 1;
 	const registry = new TaskRegistry();
 	for (const handler of handlers) registry.register(handler);
