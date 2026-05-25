@@ -112,11 +112,23 @@ export const readTool: AgentTool<ReadArgs> = {
 			);
 			const slice = lines.slice(start - 1, start - 1 + limit);
 			const numbered = slice.map((line, i) => `${String(start + i).padStart(6, ' ')}\t${line}`);
+			const truncated = lines.length > start - 1 + limit;
 			const trailer =
-				lines.length > start - 1 + limit
+				truncated
 					? `\n... (${lines.length - (start - 1 + limit)} more lines)`
 					: '';
-			return textResult(`# ${abs}\n${numbered.join('\n')}${trailer}`);
+			return {
+				status: 'ok',
+				content: [{ type: 'text', text: `# ${abs}\n${numbered.join('\n')}${trailer}` }],
+				details: {
+					path: args.path,
+					absolutePath: abs,
+					offset: start,
+					lineCount: slice.length,
+					truncated,
+					size: stat.size,
+				},
+			};
 		} catch (err) {
 			return textResult(`read: ${(err as Error).message}`, true);
 		}
