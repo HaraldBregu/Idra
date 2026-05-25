@@ -37,10 +37,6 @@ These groups mirror the fixed tool groups and control surfaces under `src/main`.
 | `automation` | `cron` | [Automation tools](automation/index.md) |
 | `search` | `tool_search`, `tool_describe`, `tool_call` | [Tool search controls](search/index.md) |
 
-## Local Catalog
-
-The preloaded local tool catalog is documented in [Local tool catalog](list/index.md). It follows `LOCAL_TOOL_CATALOG` order from `src/main/tools/catalog/catalog.ts` and excludes bootstrap-only tools.
-
 ## Related Docs
 
 - [How an agent works](../agent/index.md)

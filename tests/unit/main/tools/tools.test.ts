@@ -74,21 +74,15 @@ describe('tools/policy and registry', () => {
 		).toBe(false);
 	});
 
-	it('keeps the preloaded local registry aligned with the docs index', async () => {
-		const index = await fs.readFile(
-			path.resolve(process.cwd(), 'docs/tools/list/index.md'),
-			'utf8'
-		);
-		const documentedTools = [...index.matchAll(/\| \[([a-z_]+)\]\([^)]+\.md\) \|/g)].map(
-			(match) => match[1]
-		);
+	it('keeps the preloaded local registry aligned with the catalog', () => {
+		const catalogTools = LOCAL_TOOL_CATALOG.map((entry) => entry.name);
 
-		expect(PRELOADED_LOCAL_TOOLS.map((tool) => tool.name)).toEqual(documentedTools);
+		expect(PRELOADED_LOCAL_TOOLS.map((tool) => tool.name)).toEqual(catalogTools);
 		expect(createTools({ profile: 'full', allow: [], deny: [] }).map((tool) => tool.name)).toEqual(
-			documentedTools
+			catalogTools
 		);
-		expect(documentedTools).not.toContain('bootstrap');
-		expect(documentedTools).not.toContain('startup_files');
+		expect(catalogTools).not.toContain('bootstrap');
+		expect(catalogTools).not.toContain('startup_files');
 	});
 
 	it('defines local tool control metadata in one catalog', () => {
