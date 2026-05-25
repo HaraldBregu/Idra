@@ -17,20 +17,20 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 
 | Property | Type | Owns |
 | --- | --- | --- |
-| [`providers`](providers.md) | `ModelProviderSettings[]` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
-| [`assistant`](assistant.md) | `ModelModuleSettings` | Active chat model selection and agent-facing model options. |
-| [`speechToText`](speech-to-text.md) | `ModelModuleSettings` | Active speech-to-text provider, model, and module options. |
-| [`textToSpeech`](text-to-speech.md) | `ModelModuleSettings` | Active text-to-speech provider, model, and module options. |
-| [`imageCreator`](image-creator.md) | `ModelModuleSettings` | Active image creation provider, model, and module options. |
-| [`textToVideo`](text-to-video.md) | `ModelModuleSettings` | Active video creation provider, model, and module options. |
-| [`textToSound`](text-to-sound.md) | `ModelModuleSettings` | Active sound generation provider, model, and module options. |
-| [`cron`](cron.md) | `TaskSchedulerSettings` | Scheduler configuration and persisted schedule records. |
-| [`task`](task.md) | `BackgroundTaskSettings` | Background task admission and concurrency settings. |
-| [`agents`](agents.md) | `AgentRoutingSettings` | Agent definitions, route bindings, workspaces, tool policy, and subagent settings. |
-| [`heartbeat`](heartbeat.md) | `HeartbeatStoreState` | Lightweight heartbeat run state and delivered text records. |
-| [`connectors`](connectors.md) | `Connectors` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
-| [`channels`](channels.md) | `Channels` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
-| [`policy`](policy.md) | `PolicyConfig` | Access control policy version, default decision, and path grants. |
+| [`providers`](providers.md) | `ProviderSettings[]` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
+| [`assistant`](assistant.md) | `AssistantSettings` | Active chat model selection and agent-facing model options. |
+| [`speechToText`](speech-to-text.md) | `SpeechToTextSettings` | Active speech-to-text provider, model, and module options. |
+| [`textToSpeech`](text-to-speech.md) | `TextToSpeechSettings` | Active text-to-speech provider, model, and module options. |
+| [`imageCreator`](image-creator.md) | `ImageCreatorSettings` | Active image creation provider, model, and module options. |
+| [`textToVideo`](text-to-video.md) | `TextToVideoSettings` | Active video creation provider, model, and module options. |
+| [`textToSound`](text-to-sound.md) | `TextToSoundSettings` | Active sound generation provider, model, and module options. |
+| [`cron`](cron.md) | `CronSettings` | Scheduler configuration and persisted schedule records. |
+| [`task`](task.md) | `TaskSettings` | Background task admission and concurrency settings. |
+| [`agents`](agents.md) | `AgentsSettings` | Agent definitions, route bindings, workspaces, tool policy, and subagent settings. |
+| [`heartbeat`](heartbeat.md) | `HeartbeatSettings` | Lightweight heartbeat run state and delivered text records. |
+| [`connectors`](connectors.md) | `ConnectorsSettings` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
+| [`channels`](channels.md) | `ChannelsSettings` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
+| [`policy`](policy.md) | `PolicySettings` | Access control policy version, default decision, and path grants. |
 
 ## Normalization
 
