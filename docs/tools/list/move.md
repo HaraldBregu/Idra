@@ -16,6 +16,10 @@ Use `move` to rename or relocate a workspace file while preserving its contents.
 - Reorganizing unrelated project structure.
 - Moving files without considering links or references.
 
+## When It Fails
+
+If the move fails due to a path conflict or permission error, report the reason. The source file remains in its original location — do not assume it moved.
+
 ## Keep In Mind
 
 After moving a file, update references when the user-facing result depends on them.
