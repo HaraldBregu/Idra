@@ -146,37 +146,55 @@ describe('OperatorDetailsPage', () => {
 		[
 			'/settings/operators/text-to-speech/details',
 			'settings.operators.textToSpeechProviderDescription',
+			'settings.operators.textToSpeechModel',
+			'settings.operators.textToSpeechModelDescription',
+			'ElevenLabs',
+			'Eleven v3',
 			'getTextToSpeechOperator',
 			'getTextToSpeechModels',
 		],
 		[
 			'/settings/operators/text-to-video/details',
 			'settings.operators.videoProviderDescription',
+			'settings.operators.videoModel',
+			'settings.operators.videoModelDescription',
+			'Video provider',
+			'Veo 3.1',
 			'getTextToVideoOperator',
 			'getTextToVideoModels',
 		],
 		[
 			'/settings/operators/music-creator/details',
 			'settings.operators.musicProviderDescription',
+			'settings.operators.musicModel',
+			'settings.operators.musicModelDescription',
+			'Music provider',
+			'Lyria 3 Pro Preview',
 			'getMusicCreatorOperator',
 			'getMusicCreatorModels',
 		],
 	])(
-		'renders configurable settings for %s',
-		async (path, providerDescription, operatorMethod, modelsMethod) => {
-			const user = userEvent.setup();
+		'renders read-only pending settings for %s',
+		async (
+			path,
+			providerDescription,
+			modelLabel,
+			modelDescription,
+			providerName,
+			modelName,
+			operatorMethod,
+			modelsMethod
+		) => {
 			renderOperatorDetailsPage(path);
 
-			const providerCard = await screen.findByRole('button', {
-				name: /settings\.operators\.provider/,
-			});
-			expect(screen.queryByText('settings.operators.configurationPending')).not.toBeInTheDocument();
-
-			await user.click(providerCard);
-
-			expect(await screen.findByText(providerDescription)).toBeInTheDocument();
-			expect((window.app as unknown as Record<string, jest.Mock>)[operatorMethod]).toHaveBeenCalled();
-			expect((window.app as unknown as Record<string, jest.Mock>)[modelsMethod]).toHaveBeenCalled();
+			expect(await screen.findByText('settings.operators.configurationPending')).toBeInTheDocument();
+			expect(screen.getByText(providerDescription)).toBeInTheDocument();
+			expect(screen.getByText(modelLabel)).toBeInTheDocument();
+			expect(screen.getByText(modelDescription)).toBeInTheDocument();
+			expect(screen.getByText(providerName)).toBeInTheDocument();
+			expect(screen.getByText(modelName)).toBeInTheDocument();
+			expect((window.app as unknown as Record<string, jest.Mock>)[operatorMethod]).not.toHaveBeenCalled();
+			expect((window.app as unknown as Record<string, jest.Mock>)[modelsMethod]).not.toHaveBeenCalled();
 		}
 	);
 
