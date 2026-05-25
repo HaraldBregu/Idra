@@ -12,6 +12,7 @@ import {
 	Radar,
 	RadioTower,
 	Server,
+	ShieldCheck,
 	Sparkles,
 	Video,
 	Volume2,
@@ -138,6 +139,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
 	{ path: '/settings/monitoring', labelKey: 'settings.tabs.monitoring', descriptionKey: 'settings.monitoring.description', keywords: 'runtime monitoring diagnostics events errors warnings timeline payload' },
+	{ path: '/settings/policies', labelKey: 'settings.tabs.policies', descriptionKey: 'settings.policies.description', keywords: 'policy policies permissions filesystem paths allow deny' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
@@ -200,5 +202,11 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.monitoring',
 		descriptionKey: 'settings.overview.descriptions.monitoring',
 		icon: Radar,
+	},
+	{
+		path: '/settings/policies',
+		labelKey: 'settings.tabs.policies',
+		descriptionKey: 'settings.overview.descriptions.policies',
+		icon: ShieldCheck,
 	},
 ] satisfies readonly SettingsNavigationItem[];

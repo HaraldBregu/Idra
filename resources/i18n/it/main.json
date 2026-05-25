@@ -169,7 +169,8 @@
 				"cron": "Pianificatore attivita",
 				"taskManager": "Attivita in background",
 				"heartbeat": "Controlli periodici agenti",
-				"monitoring": "Diagnostica runtime"
+				"monitoring": "Diagnostica runtime",
+				"policies": "Policy di accesso salvate"
 			}
 		},
 		"tabs": {
@@ -189,6 +190,7 @@
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"monitoring": "Monitoraggio",
+			"policies": "Policies",
 			"memory": "Memory",
 			"rag": "RAG",
 			"wiki": "Wiki",
@@ -844,6 +846,20 @@
 			"saving": "Salvataggio...",
 			"keySaved": "Chiave API salvata",
 			"keyMissing": "Chiave API mancante"
+		},
+		"policies": {
+			"description": "Rivedi la policy di accesso attiva salvata nello store.",
+			"activePolicy": "Policy attiva",
+			"defaultPolicy": "Policy predefinita",
+			"defaultPolicyDescription": "Decisione fallback quando nessuna regola percorso corrisponde.",
+			"recursive": "Si applica ai percorsi nidificati",
+			"singlePath": "Si applica solo a questo percorso",
+			"noPaths": "Nessuna policy percorso configurata.",
+			"unavailable": "Policy non disponibile.",
+			"outcomes": {
+				"allow": "Consenti",
+				"deny": "Nega"
+			}
 		},
 		"operators": {
 			"title": "Operatori",

@@ -169,7 +169,8 @@
 				"cron": "Task scheduler",
 				"taskManager": "Background tasks",
 				"heartbeat": "Periodic agent checks",
-				"monitoring": "Runtime diagnostics"
+				"monitoring": "Runtime diagnostics",
+				"policies": "Stored access policies"
 			}
 		},
 		"tabs": {
@@ -189,6 +190,7 @@
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"monitoring": "Monitoring",
+			"policies": "Policies",
 			"memory": "Memory",
 			"rag": "RAG",
 			"wiki": "Wiki",
@@ -844,6 +846,20 @@
 			"saving": "Saving...",
 			"keySaved": "API key saved",
 			"keyMissing": "API key missing"
+		},
+		"policies": {
+			"description": "Review the active store-backed access policy.",
+			"activePolicy": "Active policy",
+			"defaultPolicy": "Default policy",
+			"defaultPolicyDescription": "Fallback decision when no path rule matches.",
+			"recursive": "Applies to nested paths",
+			"singlePath": "Applies only to this path",
+			"noPaths": "No path policies configured.",
+			"unavailable": "Policy unavailable.",
+			"outcomes": {
+				"allow": "Allow",
+				"deny": "Deny"
+			}
 		},
 		"operators": {
 			"title": "Operators",

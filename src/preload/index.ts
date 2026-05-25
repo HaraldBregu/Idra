@@ -14,6 +14,7 @@ import {
 	HeartbeatChannels,
 	MonitorChannels,
 	SkillsChannels,
+	StoreChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
@@ -25,9 +26,11 @@ import type {
 	MonitorApi,
 	RealtimeTranscriptionApi,
 	SkillsApi,
+	StoreApi,
 	TasksApi,
 	WindowApi,
 } from './index.d';
+import type { PolicyConfig } from '../shared/policy';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type {
 	CronExecutionRecord,
@@ -471,6 +474,18 @@ export const skills: SkillsApi = {
 	},
 };
 
+export const store: StoreApi = {
+	getProviders: (): Promise<PublicProvider[]> => {
+		return typedInvokeUnwrap(StoreChannels.getProviders);
+	},
+	getPolicy: (): Promise<PolicyConfig> => {
+		return typedInvokeUnwrap(StoreChannels.getPolicy);
+	},
+	setPolicy: (policy: PolicyConfig): Promise<PolicyConfig> => {
+		return typedInvokeUnwrap(StoreChannels.setPolicy, policy);
+	},
+};
+
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
@@ -578,6 +593,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
+		contextBridge.exposeInMainWorld('store', store);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -604,4 +620,6 @@ if (process.contextIsolated) {
 	globalThis.connectors = connectors;
 	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
+	// @ts-ignore (define in dts)
+	globalThis.store = store;
 }

@@ -169,6 +169,12 @@ export const ChannelsChannels = {
 	statusChanged: 'channels:status-changed',
 } as const;
 
+export const StoreChannels = {
+	getProviders: 'store:get-providers',
+	getPolicy: 'store:get-policy',
+	setPolicy: 'store:set-policy',
+} as const;
+
 interface AppInvokeChannelMap {
 	[AppChannels.getLogs]: {
 		args: [limit?: number];
@@ -646,6 +652,21 @@ interface ChannelsInvokeChannelMap {
 	};
 }
 
+interface StoreInvokeChannelMap {
+	[StoreChannels.getProviders]: {
+		args: [];
+		result: import('../providers').PublicProvider[];
+	};
+	[StoreChannels.getPolicy]: {
+		args: [];
+		result: import('../policy').PolicyConfig;
+	};
+	[StoreChannels.setPolicy]: {
+		args: [policy: import('../policy').PolicyConfig];
+		result: import('../policy').PolicyConfig;
+	};
+}
+
 export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
@@ -657,7 +678,8 @@ export interface InvokeChannelMap
 		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
-		ChannelsInvokeChannelMap {}
+		ChannelsInvokeChannelMap,
+		StoreInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };

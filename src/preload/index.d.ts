@@ -124,7 +124,14 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
+export interface StoreApi {
+	getProviders: () => Promise<PublicProvider[]>;
+	getPolicy: () => Promise<PolicyConfig>;
+	setPolicy: (policy: PolicyConfig) => Promise<PolicyConfig>;
+}
+
 import type { ProviderInput, PublicProvider } from '../shared/providers';
+import type { PolicyConfig } from '../shared/policy';
 import type {
 	CronExecutionRecord,
 	CronNextRunPreview,
@@ -252,5 +259,6 @@ declare global {
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
+		store: StoreApi;
 	}
 }

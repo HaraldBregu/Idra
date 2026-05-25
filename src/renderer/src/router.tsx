@@ -39,6 +39,7 @@ const TaskManagerPage = lazy(() => import('./pages/settings/pages/task-manager/P
 const TaskDetailsPage = lazy(() => import('./pages/settings/pages/task-manager/details/Page'));
 const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
 const MonitoringPage = lazy(() => import('./pages/settings/pages/monitoring/Page'));
+const PoliciesPage = lazy(() => import('./pages/settings/pages/policies/Page'));
 
 function RouteWrapper({
 	children,
@@ -319,6 +320,14 @@ const routes: RouteObject[] = [
 						element: (
 							<SettingsRouteWrapper>
 								<MonitoringPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'policies',
+						element: (
+							<SettingsRouteWrapper>
+								<PoliciesPage />
 							</SettingsRouteWrapper>
 						),
 					},

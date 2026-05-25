@@ -39,6 +39,7 @@ import {
 	MonitorIpc,
 	RealtimeTranscriptionIpc,
 	SkillsIpc,
+	StoreIpc,
 	TasksIpc,
 	WindowIpc,
 } from './ipc';
@@ -222,6 +223,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new MonitorIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SkillsIpc(),
+		new StoreIpc(),
 		new TasksIpc(),
 		new WindowIpc(),
 	];

@@ -13,5 +13,6 @@ export { HeartbeatIpc } from './heartbeat-ipc';
 export { MonitorIpc } from './monitor-ipc';
 export { RealtimeTranscriptionIpc } from './realtime-transcription-ipc';
 export { SkillsIpc } from './skills-ipc';
+export { StoreIpc } from './store-ipc';
 export { TasksIpc } from './tasks-ipc';
 export { WindowIpc } from './window-ipc';
