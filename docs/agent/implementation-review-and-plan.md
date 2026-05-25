@@ -38,7 +38,7 @@ Evidence:
 
 Impact:
 
-This conflicts with the permissions and autonomy sections of `docs/agent/index.md`. The agent can run tools that are labeled as requiring approval, including file, shell, task, cron, startup, and some connector actions.
+This conflicts with the permissions and autonomy sections of `docs/agent/index.md`. The agent can run tools that are labeled as requiring approval, including file, shell, task, startup, and some connector actions.
 
 Implementation direction:
 
