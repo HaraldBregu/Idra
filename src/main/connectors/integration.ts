@@ -1,7 +1,26 @@
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { JSONSchema } from '../provider/types';
-import type { AgentTool, AgentToolResult, ToolContext } from '../tools/types';
+import type { JSONSchema, ToolResultBlock } from '../provider/types';
+
+interface ToolContext {
+	sessionId: string;
+}
+
+interface AgentToolResult<TDetails = unknown> {
+	status: 'ok' | 'error' | 'rejected';
+	content: ToolResultBlock[];
+	details?: TDetails;
+}
+
+interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
+	name: string;
+	displaySummary?: string;
+	description: string;
+	schema: JSONSchema;
+	ownerOnly?: boolean;
+	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
+	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
+}
 
 export type ConnectorType = 'mcp' | 'oauth' | 'apiKey' | 'internal' | 'local';
 export type ConnectorAuthStatus = 'notConfigured' | 'authorized' | 'expired' | 'revoked' | 'missingScopes' | 'error';

@@ -2,10 +2,14 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { TranscriptEntry } from '../provider/types';
 import type { AgentSessionMetadata } from '../../shared/store';
-import type { PlanEntry } from '../tools/types';
 import { resolveDefaultUserDataPath } from '../user-data';
 import { acquireWriteLock } from './lock';
 import { sanitizeToolUseResultPairing } from './repair';
+
+export interface PlanEntry {
+	task: string;
+	status: 'pending' | 'in_progress' | 'done';
+}
 
 export interface CompactionMarker {
 	atTurn: number;

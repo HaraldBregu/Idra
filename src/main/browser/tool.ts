@@ -1,8 +1,31 @@
-import type { AgentTool } from '../tools/types';
-import { textResult } from '../tools/types';
+import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import type { BrowserService } from './service';
 
 const DEFAULT_PROFILE = 'default';
+
+interface ToolContext {
+	sessionId?: string;
+}
+
+interface AgentToolResult<TDetails = unknown> {
+	status: 'ok' | 'error' | 'rejected';
+	content: ToolResultBlock[];
+	details?: TDetails;
+}
+
+interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
+	name: string;
+	displaySummary?: string;
+	description: string;
+	schema: JSONSchema;
+	ownerOnly?: boolean;
+	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
+	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
+}
+
+function textResult(text: string, isError = false): AgentToolResult {
+	return { status: isError ? 'error' : 'ok', content: [{ type: 'text', text }] };
+}
 
 interface BrowserToolArgs {
 	action: string;

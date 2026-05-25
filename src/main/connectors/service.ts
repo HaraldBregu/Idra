@@ -3,8 +3,7 @@ import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
 import type { StoreService } from '../store';
 import type { LoggerService } from '../logger';
-import type { AgentTool, ToolContext } from '../tools/types';
-import { textResult } from '../tools/types';
+import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import {
 	OPENAI_CONNECTOR_CATALOG,
 	getConnectorAuthKind,
@@ -47,6 +46,30 @@ const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
 
 type GoogleOAuthRuntimeCredential = GoogleOAuthCredential & { clientId: string };
+
+interface ToolContext {
+	sessionId?: string;
+}
+
+interface AgentToolResult<TDetails = unknown> {
+	status: 'ok' | 'error' | 'rejected';
+	content: ToolResultBlock[];
+	details?: TDetails;
+}
+
+interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
+	name: string;
+	displaySummary?: string;
+	description: string;
+	schema: JSONSchema;
+	ownerOnly?: boolean;
+	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
+	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
+}
+
+function textResult(text: string, isError = false): AgentToolResult {
+	return { status: isError ? 'error' : 'ok', content: [{ type: 'text', text }] };
+}
 
 interface OAuthLoopbackServer {
 	redirectUri: string;
