@@ -30,5 +30,4 @@ Automatic cron execution is enabled unless disabled by environment configuration
 - `src/shared/cron.ts`
 - `src/main/tools/local/cron.ts`
 - `src/renderer/src/pages/settings/pages/cron`
-- Existing docs: `docs/tasks/scheduled/index.md`, `docs/tools/list/cron.md`
-
+- Existing docs: `docs/tasks/scheduled/index.md`, `docs/tools/automation/cron.md`
