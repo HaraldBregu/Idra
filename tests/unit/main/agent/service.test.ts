@@ -861,6 +861,61 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('exposes cron to the owner for scheduled task requests', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'scheduled' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(
+			service.send('schedule a task that runs each 5 minutes and creates lorem ipsum data')
+		).resolves.toBe('scheduled');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('cron');
+		expect(requests[0]!.system).toContain('**cron**');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('keeps owner-only cron hidden from subagent default turns', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+			providerFactory: () => ({
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'subagent ready' };
+					yield {
+						type: 'message_end' as const,
+						stopReason: 'end_turn',
+						usage: { inputTokens: 1, outputTokens: 1 },
+					};
+				},
+			}),
+		});
+
+		await expect(
+			service.send('schedule a task that runs each 5 minutes', 'worker')
+		).resolves.toBe('subagent ready');
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('cron');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('adds agent startup context and startup_files for full bootstrap turns', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps('/workspace');
