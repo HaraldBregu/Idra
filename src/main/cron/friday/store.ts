@@ -14,7 +14,7 @@ export interface FridayCronSnapshot {
 
 export interface FridayCronStoreState extends FridayCronSnapshot {
 	schemaVersion: number;
-	runs: Record<string, FridayCronRunRecord[]>;
+	lastRuns: Record<string, FridayCronRunRecord>;
 }
 
 export interface FridayCronStore {
@@ -101,22 +101,36 @@ function isRunRecord(value: unknown, jobId: string): value is FridayCronRunRecor
 	);
 }
 
-function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
-	if (!isRecord(value)) return {};
-	const runs: Record<string, FridayCronRunRecord[]> = {};
+function normalizeLastRuns(
+	value: unknown,
+	legacyRuns: unknown
+): Record<string, FridayCronRunRecord> {
+	const lastRuns: Record<string, FridayCronRunRecord> = {};
+	if (isRecord(legacyRuns)) {
+		for (const [jobId, entries] of Object.entries(legacyRuns)) {
+			try {
+				assertSafeCronId(jobId, 'jobId');
+			} catch {
+				continue;
+			}
+			if (!Array.isArray(entries)) continue;
+			const records = entries.filter((entry): entry is FridayCronRunRecord =>
+				isRunRecord(entry, jobId)
+			);
+			const lastRun = records.at(-1);
+			if (lastRun) lastRuns[jobId] = clone(lastRun);
+		}
+	}
+	if (!isRecord(value)) return lastRuns;
 	for (const [jobId, entries] of Object.entries(value)) {
 		try {
 			assertSafeCronId(jobId, 'jobId');
 		} catch {
 			continue;
 		}
-		if (!Array.isArray(entries)) continue;
-		const records = entries.filter((entry): entry is FridayCronRunRecord =>
-			isRunRecord(entry, jobId)
-		);
-		if (records.length > 0) runs[jobId] = clone(records);
+		if (isRunRecord(entries, jobId)) lastRuns[jobId] = clone(entries);
 	}
-	return runs;
+	return lastRuns;
 }
 
 export function emptyFridayCronStoreState(): FridayCronStoreState {
@@ -124,7 +138,7 @@ export function emptyFridayCronStoreState(): FridayCronStoreState {
 		schemaVersion: SCHEMA_VERSION,
 		jobs: [],
 		states: {},
-		runs: {},
+		lastRuns: {},
 	};
 }
 
@@ -144,7 +158,7 @@ export function migrateFridayCronStoreState(value: unknown): FridayCronStoreStat
 		schemaVersion: SCHEMA_VERSION,
 		jobs,
 		states,
-		runs: normalizeRuns(source.runs),
+		lastRuns: normalizeLastRuns(source.lastRuns, source.runs),
 	};
 }
 
@@ -177,20 +191,19 @@ export class ElectronStoreFridayCronStore implements FridayCronStore {
 	async appendRun(record: FridayCronRunRecord): Promise<void> {
 		assertSafeCronId(record.jobId, 'jobId');
 		const state = this.read();
-		const runs = state.runs[record.jobId] ?? [];
 		this.write({
 			...state,
-			runs: {
-				...state.runs,
-				[record.jobId]: [...runs, clone(record)],
+			lastRuns: {
+				...state.lastRuns,
+				[record.jobId]: clone(record),
 			},
 		});
 	}
 
 	async listRuns(jobId: string, limit = 50): Promise<FridayCronRunRecord[]> {
 		assertSafeCronId(jobId, 'jobId');
-		const runs = this.read().runs[jobId] ?? [];
-		return clone(runs.slice(Math.max(0, runs.length - Math.max(1, limit))));
+		const run = this.read().lastRuns[jobId];
+		return run && limit !== 0 ? [clone(run)] : [];
 	}
 
 	private read(): FridayCronStoreState {
