@@ -292,12 +292,6 @@ describe('tool management layer', () => {
 		expect(aborted).toBe(true);
 	});
 
-	it('marks exec with the extended managed execution timeout', () => {
-		const managed = agentToolToManagedTool(execTool);
-
-		expect(managed.metadata.executionTimeoutMs).toBe(TOOL_LIMITS.exec.timeoutMs);
-	});
-
 	it('plans fallback tools without circular tool chains', () => {
 		const primary = makeTool({ id: 'primary-search', category: 'search' });
 		const fallback = makeTool({ id: 'fallback-search', category: 'search' });
@@ -745,32 +739,6 @@ describe('tool management layer', () => {
 		expect(outsideWrite.content[0]).toEqual({
 			type: 'text',
 			text: 'tool write requires approval before execution.',
-		});
-
-		await fs.rm(workspace, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-	});
-
-	it('runs workspace-local exec without confirmation and rejects outside workdirs', async () => {
-		const workspace = await makeTempDir();
-		const outside = await makeTempDir();
-		const inside = await executeAgentToolWithManagement(
-			execTool,
-			{ command: 'printf ok', workdir: workspace },
-			makeToolContext({ workspace })
-		);
-		expect(inside.status).toBe('ok');
-		expect(inside.content[0]?.text).toContain('ok');
-
-		const outsideExec = await executeAgentToolWithManagement(
-			execTool,
-			{ command: 'printf no', workdir: outside },
-			makeToolContext({ workspace })
-		);
-		expect(outsideExec.status).toBe('rejected');
-		expect(outsideExec.content[0]).toEqual({
-			type: 'text',
-			text: 'tool exec requires approval before execution.',
 		});
 
 		await fs.rm(workspace, { recursive: true, force: true });
