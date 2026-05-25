@@ -24,8 +24,8 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 | [`imageCreator`](image-creator.md) | `ModelModuleSettings` | Active image creation provider, model, and module options. |
 | [`textToVideo`](text-to-video.md) | `ModelModuleSettings` | Active video creation provider, model, and module options. |
 | [`textToSound`](text-to-sound.md) | `ModelModuleSettings` | Active sound generation provider, model, and module options. |
-| [`cron`](task-scheduler.md) | `TaskSchedulerSettings` | Scheduler configuration and persisted schedule records. |
-| [`task`](background-task.md) | `BackgroundTaskSettings` | Background task admission and concurrency settings. |
+| [`cron`](cron.md) | `TaskSchedulerSettings` | Scheduler configuration and persisted schedule records. |
+| [`task`](task.md) | `BackgroundTaskSettings` | Background task admission and concurrency settings. |
 | [`agents`](agents.md) | `AgentRoutingSettings` | Agent definitions, route bindings, workspaces, tool policy, and subagent settings. |
 | [`heartbeat`](heartbeat.md) | `HeartbeatStoreState` | Lightweight heartbeat run state and delivered text records. |
 | [`connectors`](connectors.md) | `Connectors` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
@@ -55,8 +55,8 @@ The store is configuration state, not the live execution engine. Background task
 - [Image Creator](image-creator.md)
 - [Text To Video](text-to-video.md)
 - [Text To Sound](text-to-sound.md)
-- [Cron](task-scheduler.md)
-- [Task](background-task.md)
+- [Cron](cron.md)
+- [Task](task.md)
 - [Agents](agents.md)
 - [Heartbeat](heartbeat.md)
 - [Connectors](connectors.md)

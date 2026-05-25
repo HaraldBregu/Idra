@@ -1,4 +1,4 @@
-# Store — Task Scheduler
+# Store — Cron
 
 The `taskScheduler` root stores persisted scheduler configuration and schedule records.
 

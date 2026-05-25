@@ -1,4 +1,4 @@
-# Store — Background Task
+# Store — Task
 
 The `backgroundTask` root stores admission and concurrency policy for user-created background tasks.
 
