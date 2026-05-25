@@ -505,7 +505,7 @@ function applyFilePatch(original: string, patch: PatchFile): string {
 		}
 	}
 	out.push(...originalLines.slice(cursor));
-	return out.join('\n') + (hasTrailingNewline ? '\n' : '');
+	return out.join('\n') + (hasTrailingNewline && out.length > 0 ? '\n' : '');
 }
 
 interface DeleteArgs {
