@@ -8,7 +8,12 @@ import {
 	ToolInputError,
 } from '../core/common';
 import { blockedToolResult, errorToolResult } from '../core/results';
-import { evaluateToolUsePolicy, toolUsePolicyKey } from '../../policy';
+import {
+	evaluateToolApprovalPolicy,
+	evaluateToolHookPolicy,
+	evaluateToolUsePolicy,
+	toolUsePolicyKey,
+} from '../../policy';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';
@@ -116,49 +121,53 @@ export function wrapToolWithBeforeToolCall(
 				const decision = await hook({ tool, toolCallId, params });
 				if (!decision) continue;
 				if (decision.params !== undefined) params = decision.params;
-				if (decision.block === true || decision.allow === false) {
+				const hookPolicy = evaluateToolHookPolicy({
+					toolName: tool.name,
+					allow: decision.allow,
+					block: decision.block,
+					reason: decision.reason,
+					blockReason: decision.blockReason,
+					deniedReason: decision.deniedReason,
+				});
+				if (hookPolicy.outcome === 'deny') {
 					return blockedToolResult({
-						reason: decision.blockReason ?? decision.reason ?? `Tool ${tool.name} was blocked by policy.`,
-						deniedReason: decision.deniedReason ?? 'hook_veto',
+						reason: hookPolicy.reason,
+						deniedReason: hookPolicy.deniedReason,
 					});
 				}
 				if (decision.requireApproval) {
-					if (!context.approval) {
-						await decision.requireApproval.onResolution?.('deny');
-						return blockedToolResult({
-							reason:
-								decision.requireApproval.description ||
-								`Tool ${tool.name} requires approval before execution.`,
-							deniedReason: 'approval_required',
-						});
-					}
-					const approval = await context.approval({
+					const approval = context.approval
+						? await context.approval({
+								toolName: tool.name,
+								toolCallId,
+								runId: context.runId,
+								paramsPreview: sanitizeParamPreview(params),
+								approval: {
+									title: decision.requireApproval.title,
+									description: decision.requireApproval.description,
+									severity: decision.requireApproval.severity,
+									timeoutMs: decision.requireApproval.timeoutMs,
+									timeoutBehavior: decision.requireApproval.timeoutBehavior,
+									pluginId: decision.requireApproval.pluginId,
+									allowedDecisions: decision.requireApproval.allowedDecisions,
+								},
+							})
+						: undefined;
+					const approvalPolicy = evaluateToolApprovalPolicy({
 						toolName: tool.name,
-						toolCallId,
-						runId: context.runId,
-						paramsPreview: sanitizeParamPreview(params),
-						approval: {
-							title: decision.requireApproval.title,
-							description: decision.requireApproval.description,
-							severity: decision.requireApproval.severity,
-							timeoutMs: decision.requireApproval.timeoutMs,
-							timeoutBehavior: decision.requireApproval.timeoutBehavior,
-							pluginId: decision.requireApproval.pluginId,
-							allowedDecisions: decision.requireApproval.allowedDecisions,
-						},
+						approvalAvailable: Boolean(context.approval),
+						approvalDecision: approval,
+						requiredReason: decision.requireApproval.description,
+						deniedReason: decision.requireApproval.description,
 					});
-					if (approval === false || approval === null || approval === 'deny') {
-						await decision.requireApproval.onResolution?.('deny');
+					if (approvalPolicy.outcome === 'deny') {
+						await decision.requireApproval.onResolution?.(approvalPolicy.resolution);
 						return blockedToolResult({
-							reason:
-								decision.requireApproval.description ||
-								`Tool ${tool.name} was not approved for execution.`,
-							deniedReason: 'approval_denied',
+							reason: approvalPolicy.reason,
+							deniedReason: approvalPolicy.deniedReason,
 						});
 					}
-					await decision.requireApproval.onResolution?.(
-						approval === true ? 'allow-once' : approval
-					);
+					await decision.requireApproval.onResolution?.(approvalPolicy.resolution);
 				}
 			}
 

@@ -1,5 +1,10 @@
 import path from 'node:path';
-import { evaluate, PolicyService } from '../../../src/main/policy';
+import {
+	evaluate,
+	evaluateToolApprovalPolicy,
+	evaluateToolHookPolicy,
+	PolicyService,
+} from '../../../src/main/policy';
 import type { PolicyConfig } from '../../../src/shared/policy';
 
 describe('policy module', () => {
@@ -120,6 +125,40 @@ describe('policy module', () => {
 		expect(service.evaluateToolRequest({ userRequest: 'read a file' })).toEqual({
 			shouldUseTools: true,
 			reason: '',
+		});
+	});
+
+	it('evaluates hook and approval decisions in the policy module', () => {
+		expect(
+			evaluateToolHookPolicy({
+				toolName: 'plugin_action',
+				allow: false,
+				reason: 'blocked by hook',
+			})
+		).toEqual({
+			outcome: 'deny',
+			reason: 'blocked by hook',
+			deniedReason: 'hook_veto',
+		});
+
+		expect(
+			evaluateToolApprovalPolicy({
+				toolName: 'plugin_action',
+				approvalAvailable: true,
+				approvalDecision: 'allow-always',
+			})
+		).toEqual({ outcome: 'allow', resolution: 'allow-always' });
+
+		expect(
+			evaluateToolApprovalPolicy({
+				toolName: 'plugin_action',
+				approvalAvailable: false,
+				requiredReason: 'approval missing',
+			})
+		).toMatchObject({
+			outcome: 'deny',
+			resolution: 'deny',
+			deniedReason: 'approval_required',
 		});
 	});
 });

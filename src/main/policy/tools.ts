@@ -100,6 +100,31 @@ export type ToolRequestPolicyDecision = {
 	reason: string;
 };
 
+export type ToolHookPolicyInput = {
+	toolName: string;
+	allow?: boolean;
+	block?: boolean;
+	reason?: string;
+	blockReason?: string;
+	deniedReason?: string;
+};
+
+export type ToolHookPolicyDecision =
+	| { outcome: 'allow' }
+	| { outcome: 'deny'; reason: string; deniedReason: string };
+
+export type ToolApprovalPolicyDecisionInput = {
+	toolName: string;
+	approvalAvailable: boolean;
+	approvalDecision?: 'allow-once' | 'allow-always' | 'deny' | boolean | null;
+	requiredReason?: string;
+	deniedReason?: string;
+};
+
+export type ToolApprovalPolicyDecision =
+	| { outcome: 'allow'; resolution: 'allow-once' | 'allow-always' }
+	| { outcome: 'deny'; resolution: 'deny'; reason: string; deniedReason: string };
+
 const FILE_TOOL_NAMES = [
 	'read',
 	'write',
@@ -239,6 +264,48 @@ export function evaluateToolRequestPolicy(
 	_input: ToolRequestPolicyInput
 ): ToolRequestPolicyDecision {
 	return { shouldUseTools: true, reason: '' };
+}
+
+export function evaluateToolHookPolicy(input: ToolHookPolicyInput): ToolHookPolicyDecision {
+	if (input.block === true || input.allow === false) {
+		return {
+			outcome: 'deny',
+			reason: input.blockReason ?? input.reason ?? `Tool ${input.toolName} was blocked by policy.`,
+			deniedReason: input.deniedReason ?? 'hook_veto',
+		};
+	}
+	return { outcome: 'allow' };
+}
+
+export function evaluateToolApprovalPolicy(
+	input: ToolApprovalPolicyDecisionInput
+): ToolApprovalPolicyDecision {
+	if (!input.approvalAvailable) {
+		return {
+			outcome: 'deny',
+			resolution: 'deny',
+			reason: input.requiredReason || `Tool ${input.toolName} requires approval before execution.`,
+			deniedReason: 'approval_required',
+		};
+	}
+
+	if (
+		input.approvalDecision === false ||
+		input.approvalDecision === null ||
+		input.approvalDecision === 'deny'
+	) {
+		return {
+			outcome: 'deny',
+			resolution: 'deny',
+			reason: input.deniedReason || `Tool ${input.toolName} was not approved for execution.`,
+			deniedReason: 'approval_denied',
+		};
+	}
+
+	return {
+		outcome: 'allow',
+		resolution: input.approvalDecision === true ? 'allow-once' : input.approvalDecision,
+	};
 }
 
 export function toolUsePolicyKey(toolName: string, params: unknown): string {
