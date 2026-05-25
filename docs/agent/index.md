@@ -1,8 +1,14 @@
-# Agent Tool Usage
+# Agent
 
-Agent tool usage defines how an agent decides to call tools, how it handles tool results, and how it reports work completed through tools.
+The Agent is the runtime unit that receives a user request, applies the active instructions and context, coordinates the model run, and returns the final response. It owns task interpretation, planning, dependency selection, result interpretation, verification, and user-facing reporting.
 
-The agent does not own tool implementation. Tool implementation, policy, schema preparation, and tool-specific behavior are owned by the [Tools module](../tools/index.md).
+The Agent does not implement tools. Tools are dependencies exposed to the Agent by the runtime. Tool implementation, policy, schema preparation, and tool-specific behavior are owned by the [Tools module](../tools/index.md).
+
+## Description
+
+The Agent turns a request into a completed assistant response. During a run, it evaluates the user's goal, applies the available conversation and workspace context, chooses whether dependencies are required, and produces an answer or completed artifact.
+
+The Agent is responsible for orchestration. It decides when a dependency is needed and how to use returned evidence, but it does not own dependency internals. Tools, memory, retrieval, providers, harnesses, and connectors remain separate modules with their own contracts.
 
 ## Module Dependency
 
@@ -13,12 +19,13 @@ Agent tool usage depends on the [Tools module](../tools/index.md).
 | Agent  | Decides whether a tool is needed, selects from available tools, interprets returned results, and reports the outcome.                 |
 | Tools  | Defines available tools, provider-facing schemas, policy checks, execution behavior, result shapes, and tool-specific reference docs. |
 
-The agent documentation describes usage rules. The Tools module remains the canonical reference for exact tool contracts, file tool behavior, and policy dependencies.
+The Agent documentation describes Agent behavior and usage rules. The Tools module remains the canonical reference for exact tool contracts, file tool behavior, and policy dependencies.
 
 ## Scope
 
 This page covers:
 
+- what the Agent owns during a run
 - when an agent should use a tool
 - how an agent selects an available tool
 - how permissions and side effects affect tool usage
