@@ -55,6 +55,14 @@ function isInsidePath(root: string, target: string): boolean {
 	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
+function resolveWorkdir(workspace: string, workdir: string | undefined): string {
+	return workdir
+		? path.isAbsolute(workdir)
+			? path.resolve(workdir)
+			: path.resolve(workspace, workdir)
+		: workspace;
+}
+
 function truncate(buf: string): { text: string; truncated: boolean } {
 	let out = buf;
 	let truncated = false;
@@ -92,7 +100,7 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 		required: ['command'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
+	needsApproval: (args, ctx) => !isInsidePath(ctx.workspace, resolveWorkdir(ctx.workspace, args.workdir)),
 	async execute(args, ctx) {
 		const command = String(args.command ?? '').trim();
 		if (!command) {
@@ -108,11 +116,7 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 				details: { exitCode: -1, durationMs: 0, truncated: false },
 			};
 		}
-		const cwd = args.workdir
-			? path.isAbsolute(args.workdir)
-				? args.workdir
-				: path.resolve(ctx.workspace, args.workdir)
-			: ctx.workspace;
+		const cwd = resolveWorkdir(ctx.workspace, args.workdir);
 		if (
 			(ctx.fsPolicy?.workspaceOnly === true || ctx.fsPolicy?.writeWorkspaceOnly === true) &&
 			!isInsidePath(ctx.workspace, cwd)
