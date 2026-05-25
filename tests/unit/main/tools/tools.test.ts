@@ -71,7 +71,7 @@ describe('tools/policy and registry', () => {
 		);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
-		).toBe(true);
+		).toBe(false);
 	});
 
 	it('keeps the preloaded local registry aligned with the docs index', async () => {
@@ -106,7 +106,6 @@ describe('tools/policy and registry', () => {
 			'process',
 			'web_fetch',
 			'cron',
-			'task',
 		];
 		const byName = localToolCatalogByName();
 
@@ -132,7 +131,7 @@ describe('tools/policy and registry', () => {
 			ownerOnly: true,
 			approval: { mode: 'none' },
 		});
-		expect(byName.get('task')?.approval).toEqual({ mode: 'always' });
+		expect(byName.has('task')).toBe(false);
 	});
 });
 
