@@ -21,7 +21,6 @@ import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { MonitorService } from './monitor';
-import { SkillsService } from './skills';
 import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
 import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
 import { UserDataDirectoryService } from './user-data';
@@ -37,7 +36,6 @@ import {
 	HeartbeatIpc,
 	MonitorIpc,
 	RealtimeTranscriptionIpc,
-	SkillsIpc,
 	StoreIpc,
 	TasksIpc,
 	WindowIpc,
@@ -111,7 +109,6 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
-	const skills = container.register('skills', new SkillsService(logger, { userDataDirectory }));
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
 
@@ -125,7 +122,6 @@ export function bootstrapServices(): BootstrapResult {
 		userDataDirectory,
 		connectors,
 		mcpRegistry,
-		skills,
 		policy,
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
@@ -220,7 +216,6 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new HeartbeatIpc(),
 		new MonitorIpc(),
 		new RealtimeTranscriptionIpc(),
-		new SkillsIpc(),
 		new StoreIpc(),
 		new TasksIpc(),
 		new WindowIpc(),

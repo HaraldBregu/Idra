@@ -1,8 +1,5 @@
-import os from 'node:os';
-import path from 'node:path';
 import type { AgentTool } from '../tools/types';
 import type { MemoryManager } from '../memory';
-import type { SkillPromptChoice } from '../skills/core/types';
 import type { BootstrapMode } from '../workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
@@ -16,7 +13,6 @@ export interface SystemPromptCtx {
 	model: string;
 	tools: AgentTool[];
 	memory?: MemoryManager;
-	skills?: SkillPromptChoice[];
 	startupFiles?: AgentStartupFile[];
 	bootstrapMode?: BootstrapMode;
 	heartbeat?: {
@@ -45,52 +41,6 @@ const ACCEPTANCE_CONTRACT = [
 	'- Before final output, check for missed constraints, stale or unsupported facts, failed or partial tool calls, conflicting evidence, permission gaps, verification limits, and requested format.',
 	'- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.',
 ].join('\n');
-
-function escapeXml(value: string): string {
-	return value
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&apos;');
-}
-
-function compactHomePath(filePath: string): string {
-	if (filePath.startsWith('~/')) return filePath;
-	const home = path.resolve(os.homedir());
-	const resolved = path.resolve(filePath);
-	const homePrefix = home.endsWith(path.sep) ? home : `${home}${path.sep}`;
-	if (!resolved.startsWith(homePrefix)) return filePath;
-	return `~/${resolved.slice(homePrefix.length).split(path.sep).join('/')}`;
-}
-
-function formatSkillsForPrompt(skills: SkillPromptChoice[]): string {
-	const hasExecutableSkills = skills.some((skill) => !skill.path);
-	const lines = [
-		'## Skills',
-		'The following skills provide specialized instructions for specific tasks.',
-		'Scan <available_skills>. If one clearly applies and has a <location>, read its SKILL.md at the exact <location> with `read`, then follow it.',
-		'If several apply, choose the most specific. If none clearly apply, read none.',
-		'Use at most one skill up front. Never guess or fabricate skill paths.',
-		'When a skill references a relative path, resolve it against the skill directory shown by its location.',
-	];
-	if (hasExecutableSkills) {
-		lines.push('For entries without <location>, use `execute_skill` only when that tool is available.');
-	}
-	lines.push('', '<available_skills>');
-	for (const skill of skills) {
-		lines.push('  <skill>');
-		lines.push(`    <id>${escapeXml(`${skill.id}@${skill.version}`)}</id>`);
-		lines.push(`    <name>${escapeXml(skill.name)}</name>`);
-		lines.push(`    <description>${escapeXml(skill.description)}</description>`);
-		if (skill.path) {
-			lines.push(`    <location>${escapeXml(compactHomePath(skill.path))}</location>`);
-		}
-		lines.push('  </skill>');
-	}
-	lines.push('</available_skills>');
-	return lines.join('\n');
-}
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 	const parts: string[] = [
@@ -122,10 +72,6 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 				'No tools are available for this turn. Answer directly from the conversation and general reasoning.',
 			].join('\n')
 		);
-	}
-
-	if (ctx.skills?.length) {
-		parts.push(formatSkillsForPrompt(ctx.skills));
 	}
 
 	if (ctx.heartbeat?.includeSection) {

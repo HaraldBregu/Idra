@@ -12,7 +12,6 @@ import type { PolicyService } from './policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { HeartbeatService } from './heartbeat';
 import type { AgentService } from './service';
-import type { SkillsService } from './skills';
 import type { StoreService } from './store';
 import type { TaskManager } from './tasks';
 import type { UserDataDirectoryService } from './user-data';
@@ -32,7 +31,6 @@ export interface MainServices {
 	monitor: MonitorService;
 	policy: PolicyService;
 	powerSaveBlocker: PowerSaveBlockerService;
-	skills: SkillsService;
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	taskManager: TaskManager;

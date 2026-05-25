@@ -54,13 +54,6 @@ import { TOOL_LIMITS } from './tools/limits';
 import type { AgentTool, ToolContext } from './tools/types';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
-import type { SkillsService } from './skills';
-import type { SkillPromptChoice } from './skills/core/types';
-import {
-	createSkillRuntimePlan,
-	selectToolsForSkillRuntime,
-	type SkillRuntimePlan,
-} from './skills/runtime/provider-plan';
 import {
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
@@ -97,7 +90,6 @@ export interface AgentServiceDependencies {
 	userDataDirectory: UserDataDirectoryServicePort;
 	connectors?: ConnectorsService;
 	mcpRegistry?: McpRegistry;
-	skills?: SkillsService;
 	taskManager?: TaskManager;
 	subagents?: SubagentSpawnPort;
 	policy?: PolicyServicePort;
@@ -369,11 +361,7 @@ export class AgentService {
 			};
 			let selectedTools: AgentTool[] = [];
 			let baseTools: AgentTool[] = [];
-			let skillChoices: SkillPromptChoice[] = [];
-			let skillRuntimePlan: SkillRuntimePlan | undefined;
-			const skillConnectors = this.dependencies.connectors?.createSkillConnectors?.() ?? [];
-
-			if (bootstrapPending || toolPolicy.shouldUseTools || this.dependencies.skills) {
+			if (bootstrapPending || toolPolicy.shouldUseTools) {
 				baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
 					Promise.resolve(
 						this.toolsFactory({
@@ -403,32 +391,12 @@ export class AgentService {
 					provider: providerId,
 					modelId: model,
 				});
-
-				if (!bootstrapPending && this.dependencies.skills) {
-					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
-						this.dependencies.skills!.discoverForPrompt(message, {
-							userId: agentId,
-							sessionId: runtime.session!.id,
-							tools: baseTools,
-							toolContext: ctx,
-							connectors: skillConnectors,
-							signal: abort.signal,
-						})
-					);
-					if (skillChoices.length > 0) {
-						skillRuntimePlan = createSkillRuntimePlan({
-							providerId,
-							skills: skillChoices,
-						});
-					}
-				}
 			}
 
 			const directAnswer =
 				!heartbeatOptions &&
 				!bootstrapPending &&
-				!toolPolicy.shouldUseTools &&
-				skillChoices.length === 0;
+				!toolPolicy.shouldUseTools;
 
 			if (!directAnswer) {
 				startupFiles = this.filterStartupFilesForRun(
@@ -462,14 +430,6 @@ export class AgentService {
 								})
 							);
 				selectedTools = toolSelection.toolsForPrompt;
-				if (skillRuntimePlan && this.dependencies.skills) {
-					selectedTools = selectToolsForSkillRuntime({
-						baseTools,
-						selectedTools,
-						plan: skillRuntimePlan,
-					});
-					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
-				}
 			}
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
@@ -498,7 +458,6 @@ export class AgentService {
 					date: new Date().toISOString().slice(0, 10),
 					model,
 					tools: selectedTools,
-					skills: skillChoices,
 					startupFiles,
 					bootstrapMode,
 					heartbeat: {

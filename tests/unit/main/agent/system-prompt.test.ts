@@ -1,5 +1,3 @@
-import os from 'node:os';
-import path from 'node:path';
 import { buildSystemPrompt } from '../../../../src/main/agent/system-prompt';
 import type { AgentTool } from '../../../../src/main/tools/types';
 
@@ -106,39 +104,6 @@ describe('agent/system-prompt', () => {
 		expect(prompt).toContain('No tools are available for this turn');
 		expect(prompt).toContain('Friday cron tool is unavailable');
 		expect(prompt).toContain('never suggest or use system cron');
-	});
-
-	it('formats skill guidance as an escaped compact catalog', async () => {
-		const prompt = await buildSystemPrompt({
-			workspace: '/repo',
-			date: '2026-05-14',
-			model: 'gpt-test',
-			tools: [],
-			skills: [
-				{
-					id: 'xml-skill',
-					version: '1.0.0',
-					name: 'xml & support',
-					description: 'Use <policy> references for support replies.',
-					path: path.join(os.homedir(), 'skills', 'xml-skill', 'SKILL.md'),
-					category: 'support',
-					tags: [],
-					requiredTools: [],
-					requiredConnectors: [],
-					permissionsRequired: [],
-					safetyLevel: 'low',
-					score: 0.91,
-				},
-			],
-		});
-
-		expect(prompt).toContain('<available_skills>');
-		expect(prompt).toContain('read its SKILL.md at the exact <location> with `read`');
-		expect(prompt).not.toContain('Use `execute_skill` to load a skill');
-		expect(prompt).toContain('<id>xml-skill@1.0.0</id>');
-		expect(prompt).toContain('<name>xml &amp; support</name>');
-		expect(prompt).toContain('<description>Use &lt;policy&gt; references for support replies.</description>');
-		expect(prompt).toContain('<location>~/skills/xml-skill/SKILL.md</location>');
 	});
 
 });

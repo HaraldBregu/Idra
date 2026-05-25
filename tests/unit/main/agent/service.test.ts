@@ -7,8 +7,6 @@ import type {
 } from '../../../../src/main/provider/types';
 import { AgentService } from '../../../../src/main/service';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
-import { SkillsService } from '../../../../src/main/skills';
-import type { SkillPromptChoice } from '../../../../src/main/skills/types';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
@@ -393,9 +391,8 @@ describe('AgentService', () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
-		const skills = new SkillsService(deps.logger as never);
 		const service = new AgentService(
-			{ ...deps, skills },
+			deps,
 			{
 				sessionBaseDir,
 				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
@@ -1069,190 +1066,6 @@ describe('AgentService', () => {
 				status: 'ok',
 			})
 		);
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('adds compact skill guidance without exposing execute_skill', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const skills = new SkillsService(deps.logger as never);
-		const service = new AgentService(
-			{ ...deps, skills },
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-				providerFactory: () => ({
-					async *stream(req) {
-						requests.push(req);
-						yield { type: 'text_delta' as const, text: 'done' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-				toolsFactory: () => [],
-			}
-		);
-
-		await expect(service.send('summarize this document')).resolves.toBe('done');
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
-		expect(requests[0]!.system).toContain('## Skills');
-		expect(requests[0]!.system).toContain('summarize-document@1.0.0');
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('passes skill connectors through discovery without exposing execute_skill', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const skillConnector = {
-			id: 'connector_gmail',
-			name: 'Gmail',
-			tools: new Set(['search_emails']),
-			call: jest.fn(),
-		};
-		const skillChoice: SkillPromptChoice = {
-			id: 'gmail-summary',
-			version: '1.0.0',
-			name: 'gmail-summary',
-			description: 'Summarize Gmail messages through a scoped connector.',
-			category: 'communication',
-			tags: [],
-			requiredTools: [],
-			requiredConnectors: ['connector_gmail'],
-			permissionsRequired: [],
-			safetyLevel: 'low',
-			score: 0.95,
-		};
-		const skills = {
-			discoverForPrompt: jest.fn(async () => [skillChoice]),
-			createExecutionTool: jest.fn(() => ({
-				name: 'execute_skill',
-				description: 'Execute skill',
-				schema: { type: 'object', properties: {}, additionalProperties: false },
-				execute: jest.fn(),
-			})),
-		};
-		const connectors = {
-			createSkillConnectors: jest.fn(() => [skillConnector]),
-		};
-		const service = new AgentService(
-			{
-				...deps,
-				connectors: connectors as never,
-				skills: skills as unknown as SkillsService,
-			},
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-				providerFactory: () => ({
-					async *stream(req) {
-						requests.push(req);
-						yield { type: 'text_delta' as const, text: 'done' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-				toolsFactory: () => [],
-			}
-		);
-
-		await expect(service.send('Use the Gmail summary skill')).resolves.toBe('done');
-		expect(connectors.createSkillConnectors).toHaveBeenCalled();
-		expect(skills.discoverForPrompt.mock.calls[0]![1]).toMatchObject({
-			connectors: [skillConnector],
-		});
-		expect(skills.createExecutionTool).not.toHaveBeenCalled();
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('uses read-on-demand guidance for file-backed skills without execute_skill', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const readTool: AgentTool = {
-			name: 'read',
-			description: 'Read files',
-			schema: {
-				type: 'object',
-				properties: { path: { type: 'string' } },
-				required: ['path'],
-				additionalProperties: false,
-			},
-			execute: jest.fn(),
-		};
-		const skillChoice: SkillPromptChoice = {
-			id: 'research-brief',
-			version: '1.0.0',
-			name: 'research-brief',
-			description: 'Create concise research briefs from local documents.',
-			path: '/workspace/skills/research-brief/SKILL.md',
-			category: 'research',
-			tags: [],
-			requiredTools: [],
-			allowedTools: ['write'],
-			requiredConnectors: [],
-			permissionsRequired: [],
-			safetyLevel: 'low',
-			score: 0.95,
-		};
-		const skills = {
-			discoverForPrompt: jest.fn(async () => [skillChoice]),
-			createExecutionTool: jest.fn(() => ({
-				name: 'execute_skill',
-				description: 'Execute skill',
-				schema: { type: 'object', properties: {}, additionalProperties: false },
-				execute: jest.fn(),
-			})),
-		};
-		const service = new AgentService(
-			{ ...deps, skills: skills as unknown as SkillsService },
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-				providerFactory: () => ({
-					async *stream(req) {
-						requests.push(req);
-						yield { type: 'text_delta' as const, text: 'done' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-				toolsFactory: () => [
-					readTool,
-					{
-						name: 'write',
-						description: 'Write files',
-						schema: {
-							type: 'object',
-							properties: { path: { type: 'string' }, content: { type: 'string' } },
-							required: ['path', 'content'],
-							additionalProperties: false,
-						},
-						execute: jest.fn(),
-					},
-				],
-			}
-		);
-
-		await expect(service.send('Use the research-brief skill')).resolves.toBe('done');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
-			expect.arrayContaining(['read', 'write'])
-		);
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
-		expect(skills.createExecutionTool).not.toHaveBeenCalled();
-		expect(requests[0]!.system).toContain('read its SKILL.md at the exact <location> with `read`');
-		expect(requests[0]!.system).toContain('<location>/workspace/skills/research-brief/SKILL.md</location>');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 

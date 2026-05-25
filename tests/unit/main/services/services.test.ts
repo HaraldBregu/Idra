@@ -515,24 +515,13 @@ describe('connectors service', () => {
 
 		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
 		const tools = service.createAgentTools();
-		const skillConnectors = service.createSkillConnectors();
 
 		expect(tools.map((tool) => tool.name)).toEqual(['my_gmail_search_emails']);
-		expect(skillConnectors.map((connector) => connector.id)).toEqual(
-			expect.arrayContaining(['connector_gmail', 'my_gmail'])
-		);
 		await expect(
 			tools[0]!.execute({ query: 'from:sender@example.com' }, {} as never)
 		).resolves.toMatchObject({
 			status: 'ok',
 			content: [expect.objectContaining({ text: expect.stringContaining('msg-1') })],
-		});
-		await expect(
-			skillConnectors
-				.find((connector) => connector.id === 'connector_gmail')!
-				.call('search_emails', { query: 'from:sender@example.com' })
-		).resolves.toMatchObject({
-			messages: [expect.objectContaining({ id: 'msg-1' })],
 		});
 	});
 

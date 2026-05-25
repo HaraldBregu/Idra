@@ -3,7 +3,6 @@ import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
 import type { StoreService } from '../store';
 import type { LoggerService } from '../logger';
-import type { SkillConnector } from '../skills/core/types';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
 import {
@@ -502,33 +501,6 @@ export class ConnectorsService {
 					} satisfies AgentTool;
 				})
 			);
-	}
-
-	createSkillConnectors(): SkillConnector[] {
-		const connectors: SkillConnector[] = [];
-		const seen = new Set<string>();
-		for (const connector of this.validConnectors()) {
-			if (
-				!connector.enabled ||
-				statusFor(connector) !== 'configured' ||
-				this.runtimeFor(connector) === undefined
-			) {
-				continue;
-			}
-			const tools = new Set(connector.tools.map((tool) => tool.name));
-			for (const id of [connector.id, connector.connectorId, connector.serverLabel]) {
-				const normalized = id.trim();
-				if (!normalized || seen.has(normalized)) continue;
-				seen.add(normalized);
-				connectors.push({
-					id: normalized,
-					name: connector.name,
-					tools,
-					call: (toolName, args) => this.callTool(connector.id, toolName, args),
-				});
-			}
-		}
-		return connectors;
 	}
 
 	private withKnownTools(connector: ConnectorConfig): ConnectorConfig {
