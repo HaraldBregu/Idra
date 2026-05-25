@@ -8,6 +8,18 @@ The policy module depends on `StoreService` to retrieve the policy data object. 
 
 The shape and properties of the stored policy object are defined in [Store — Policy](../store/policy.md).
 
+## Service Usage
+
+The policy module can also be used as a service by runtime components that need to authorize path access before doing work.
+
+Callers should:
+
+1. Read the active policy with `StoreService.getPolicy()`.
+2. Pass the policy, target path, and requested permission to `evaluate(...)`.
+3. Continue only when the returned decision has `outcome: "allow"`.
+
+Services that read, write, create, or delete paths should use this boundary instead of duplicating path matching or reading the stored policy object directly. Denied operations should surface the returned resolved path and reason so callers can explain why access was blocked.
+
 ## Matching
 
 1. Resolve the target path to its canonical absolute form.
