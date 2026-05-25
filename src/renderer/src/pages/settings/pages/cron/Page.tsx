@@ -180,100 +180,113 @@ function CronAgentRuntimeSettings(): React.JSX.Element {
 		}
 	};
 
+	const triggerSummary = loading
+		? '…'
+		: [selectedProvider?.name, selectedModel?.name || selectedModel?.id]
+				.filter(Boolean)
+				.join(' · ') || t('settings.cron.runtime.providerPlaceholder');
+
 	return (
-		<SettingsSection
-			title={t('settings.cron.runtime.title')}
-			description={t('settings.cron.runtime.description')}
-		>
-			<SettingsPanel>
-				<div className="grid gap-3 px-3 py-3">
-					<div className="grid gap-3 sm:grid-cols-2">
-						<SettingsField id="cron-runtime-provider" label={t('settings.cron.runtime.provider')}>
-							<Select
-								value={providerId}
-								onValueChange={handleProviderChange}
-								disabled={loading || providers.length === 0 || saving}
-							>
-								<SelectTrigger id="cron-runtime-provider" className="w-full text-xs">
-									<SelectValue placeholder={t('settings.cron.runtime.providerPlaceholder')} />
-								</SelectTrigger>
-								<SelectContent>
-									{providers.map((provider) => (
-										<SelectItem key={provider.id} value={provider.id}>
-											{provider.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</SettingsField>
-
-						<SettingsField id="cron-runtime-model" label={t('settings.cron.runtime.model')}>
-							<Select
-								value={modelId}
-								onValueChange={(nextModelId) => {
-									const nextId = nextModelId ?? '';
-									if (nextId === modelId) return;
-									setModelId(nextId);
-									setSaved(false);
-								}}
-								disabled={loading || loadingModels || !selectedProvider || models.length === 0 || saving}
-							>
-								<SelectTrigger id="cron-runtime-model" className="w-full text-xs">
-									<SelectValue
-										placeholder={
-											loadingModels
-												? t('settings.cron.runtime.modelsLoading')
-												: t('settings.cron.runtime.modelPlaceholder')
-										}
-									/>
-								</SelectTrigger>
-								<SelectContent>
-									{models.map((model) => (
-										<SelectItem key={model.id} value={model.id}>
-											{model.name || model.id}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</SettingsField>
-					</div>
-
-					{providers.length === 0 && !loading && (
-						<p className="text-[11px] leading-4 text-muted-foreground">
-							{t('settings.cron.runtime.noProviders')}
-						</p>
-					)}
-					{selectedProvider && models.length === 0 && !loading && !loadingModels && (
-						<p className="text-[11px] leading-4 text-muted-foreground">
-							{t('settings.cron.runtime.noModels')}
-						</p>
-					)}
-					{runtimeError && (
-						<div className="flex min-w-0 items-start gap-2 text-destructive">
-							<AlertCircle className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.8} />
-							<div className="min-w-0 text-xs leading-5">{runtimeError}</div>
-						</div>
-					)}
-					{saved && (
-						<p className="text-[11px] leading-4 text-muted-foreground">
-							{t('settings.cron.runtime.saved')}
-						</p>
-					)}
-
-					<div className="flex justify-end">
-						<Button
-							type="button"
-							size="sm"
-							disabled={loading || loadingModels || saving || !selectedProvider || !selectedModel}
-							onClick={() => void handleSave()}
-						>
-							{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
-							{saving ? t('settings.cron.runtime.saving') : t('settings.cron.runtime.save')}
-						</Button>
-					</div>
+		<Collapsible className="rounded-xl border border-border/70 bg-card">
+			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+				<div className="min-w-0 flex-1">
+					<span className="block text-[13px] font-medium leading-4">
+						{t('settings.cron.runtime.title')}
+					</span>
+					<span className="block truncate text-[11px] text-muted-foreground">{triggerSummary}</span>
 				</div>
-			</SettingsPanel>
-		</SettingsSection>
+				<ChevronDown
+					className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180"
+					strokeWidth={1.8}
+				/>
+			</CollapsibleTrigger>
+			<CollapsibleContent className="grid gap-3 border-t border-border/60 px-3 py-3">
+				<div className="grid gap-3 sm:grid-cols-2">
+					<SettingsField id="cron-runtime-provider" label={t('settings.cron.runtime.provider')}>
+						<Select
+							value={providerId}
+							onValueChange={handleProviderChange}
+							disabled={loading || providers.length === 0 || saving}
+						>
+							<SelectTrigger id="cron-runtime-provider" className="w-full text-xs">
+								<SelectValue placeholder={t('settings.cron.runtime.providerPlaceholder')} />
+							</SelectTrigger>
+							<SelectContent>
+								{providers.map((provider) => (
+									<SelectItem key={provider.id} value={provider.id}>
+										{provider.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</SettingsField>
+
+					<SettingsField id="cron-runtime-model" label={t('settings.cron.runtime.model')}>
+						<Select
+							value={modelId}
+							onValueChange={(nextModelId) => {
+								const nextId = nextModelId ?? '';
+								if (nextId === modelId) return;
+								setModelId(nextId);
+								setSaved(false);
+							}}
+							disabled={loading || loadingModels || !selectedProvider || models.length === 0 || saving}
+						>
+							<SelectTrigger id="cron-runtime-model" className="w-full text-xs">
+								<SelectValue
+									placeholder={
+										loadingModels
+											? t('settings.cron.runtime.modelsLoading')
+											: t('settings.cron.runtime.modelPlaceholder')
+									}
+								/>
+							</SelectTrigger>
+							<SelectContent>
+								{models.map((model) => (
+									<SelectItem key={model.id} value={model.id}>
+										{model.name || model.id}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</SettingsField>
+				</div>
+
+				{providers.length === 0 && !loading && (
+					<p className="text-[11px] leading-4 text-muted-foreground">
+						{t('settings.cron.runtime.noProviders')}
+					</p>
+				)}
+				{selectedProvider && models.length === 0 && !loading && !loadingModels && (
+					<p className="text-[11px] leading-4 text-muted-foreground">
+						{t('settings.cron.runtime.noModels')}
+					</p>
+				)}
+				{runtimeError && (
+					<div className="flex min-w-0 items-start gap-2 text-destructive">
+						<AlertCircle className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.8} />
+						<div className="min-w-0 text-xs leading-5">{runtimeError}</div>
+					</div>
+				)}
+				{saved && (
+					<p className="text-[11px] leading-4 text-muted-foreground">
+						{t('settings.cron.runtime.saved')}
+					</p>
+				)}
+
+				<div className="flex justify-end">
+					<Button
+						type="button"
+						size="sm"
+						disabled={loading || loadingModels || saving || !selectedProvider || !selectedModel}
+						onClick={() => void handleSave()}
+					>
+						{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
+						{saving ? t('settings.cron.runtime.saving') : t('settings.cron.runtime.save')}
+					</Button>
+				</div>
+			</CollapsibleContent>
+		</Collapsible>
 	);
 }
 
