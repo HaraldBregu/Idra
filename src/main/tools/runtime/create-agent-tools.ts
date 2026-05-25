@@ -140,7 +140,7 @@ export async function createAgentTools(
 		stages: buildPolicyStages(options),
 		diagnostics,
 	});
-	const tools = prepareRuntimeTools(policy.tools, options, plan, diagnostics);
+	const tools = prepareRuntimeTools(policy.tools, options, diagnostics);
 
 	return {
 		tools,
@@ -196,10 +196,6 @@ function addHostToolCandidates(
 	);
 }
 
-function candidateNames(candidates: AgentTool[]): Set<string> {
-	return new Set(candidates.map((tool) => normalizeToolName(tool.name)));
-}
-
 function buildPolicyStages(
 	options: CreateAgentToolsOptions
 ): Partial<Record<PolicyStageName, ToolPolicy | undefined>> {
@@ -220,7 +216,6 @@ function buildPolicyStages(
 function prepareRuntimeTools(
 	tools: AgentTool[],
 	options: CreateAgentToolsOptions,
-	plan: ToolConstructionPlan,
 	diagnostics: ToolDiagnostics
 ): AgentTool[] {
 	let effective = normalizeToolSchemas(tools, {
@@ -283,5 +278,7 @@ function hasToolControlsWithoutGrants(
 }
 
 export function clientToolNames(tools: AgentTool[]): string[] {
-	return tools.filter((tool) => FILE_TOOL_NAMES.has(normalizeToolName(tool.name))).map((tool) => tool.name);
+	return tools
+		.filter((tool) => FILE_TOOL_NAMES.has(normalizeToolName(tool.name)))
+		.map((tool) => tool.name);
 }
