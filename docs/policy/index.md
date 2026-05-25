@@ -30,4 +30,3 @@ The result includes the resolved path, the matched grant, and a reason.
 ## Related Docs
 
 - [Store — Policy](../store/policy.md)
-- [Tools](../tools/index.md)
