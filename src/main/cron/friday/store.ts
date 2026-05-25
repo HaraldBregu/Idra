@@ -17,6 +17,16 @@ export interface FridayCronStoreState extends FridayCronSnapshot {
 	lastRuns: Record<string, FridayCronRunRecord>;
 }
 
+export type FridayCronPersistedJob = Omit<FridayCronJobDefinition, 'id'> & {
+	state?: FridayCronJobState;
+	lastRun?: FridayCronRunRecord;
+};
+
+export interface FridayCronPersistedStoreState {
+	schemaVersion: number;
+	jobs: Record<string, FridayCronPersistedJob>;
+}
+
 export interface FridayCronStore {
 	load(): Promise<FridayCronSnapshot>;
 	save(snapshot: FridayCronSnapshot): Promise<void>;
@@ -68,22 +78,51 @@ function normalizeState(
 	return next;
 }
 
-function normalizeJobs(value: unknown): FridayCronJobDefinition[] {
-	if (!Array.isArray(value)) return [];
-	const jobs: FridayCronJobDefinition[] = [];
-	for (const entry of value) {
-		if (!isRecord(entry) || typeof entry.id !== 'string') continue;
+interface NormalizedJobEntry {
+	job: FridayCronJobDefinition;
+	state?: Partial<FridayCronJobState>;
+	lastRun?: FridayCronRunRecord;
+}
+
+function normalizeJobRecord(id: string, value: Record<string, unknown>): NormalizedJobEntry | undefined {
+	try {
+		assertSafeCronId(id);
+		const { state, lastRun, ...jobValue } = value;
+		const job = clone({ ...jobValue, id } as unknown as FridayCronJobDefinition);
+		if (job.payload?.kind === 'agentTurn') {
+			delete (job.payload as Record<string, unknown>).providerId;
+			delete (job.payload as Record<string, unknown>).model;
+		}
+		return {
+			job,
+			state: isRecord(state) ? (state as Partial<FridayCronJobState>) : undefined,
+			lastRun: isRunRecord(lastRun, id) ? clone(lastRun) : undefined,
+		};
+	} catch {
+		return undefined;
+	}
+}
+
+function normalizeJobEntries(value: unknown): NormalizedJobEntry[] {
+	const jobs: NormalizedJobEntry[] = [];
+	if (Array.isArray(value)) {
+		for (const entry of value) {
+			if (!isRecord(entry) || typeof entry.id !== 'string') continue;
+			const normalized = normalizeJobRecord(entry.id, entry);
+			if (normalized) jobs.push(normalized);
+		}
+		return jobs;
+	}
+	if (!isRecord(value)) return jobs;
+	for (const [jobId, entry] of Object.entries(value)) {
+		if (!isRecord(entry)) continue;
 		try {
-			assertSafeCronId(entry.id);
-			const job = clone(entry as unknown as FridayCronJobDefinition);
-			if (job.payload?.kind === 'agentTurn') {
-				delete (job.payload as Record<string, unknown>).providerId;
-				delete (job.payload as Record<string, unknown>).model;
-			}
-			jobs.push(job);
+			assertSafeCronId(jobId);
 		} catch {
 			continue;
 		}
+		const normalized = normalizeJobRecord(jobId, entry);
+		if (normalized) jobs.push(normalized);
 	}
 	return jobs;
 }
@@ -144,21 +183,43 @@ export function emptyFridayCronStoreState(): FridayCronStoreState {
 
 export function migrateFridayCronStoreState(value: unknown): FridayCronStoreState {
 	const source = isRecord(value) ? value : {};
-	const jobs = normalizeJobs(source.jobs);
+	const jobEntries = normalizeJobEntries(source.jobs);
+	const jobs = jobEntries.map((entry) => entry.job);
 	const stateSource = isRecord(source.states) ? source.states : {};
 	const states: Record<string, FridayCronJobState> = {};
-	for (const job of jobs) {
+	const lastRuns = normalizeLastRuns(source.lastRuns, source.runs);
+	for (const { job, state, lastRun } of jobEntries) {
 		const current = stateSource[job.id];
 		states[job.id] = normalizeState(
 			job,
-			isRecord(current) ? (current as Partial<FridayCronJobState>) : undefined
+			isRecord(current) ? (current as Partial<FridayCronJobState>) : state
 		);
+		if (lastRun) lastRuns[job.id] = lastRun;
 	}
 	return {
 		schemaVersion: SCHEMA_VERSION,
 		jobs,
 		states,
-		lastRuns: normalizeLastRuns(source.lastRuns, source.runs),
+		lastRuns,
+	};
+}
+
+export function serializeFridayCronStoreState(value: unknown): FridayCronPersistedStoreState {
+	const state = migrateFridayCronStoreState(value);
+	const jobs: Record<string, FridayCronPersistedJob> = {};
+	for (const job of state.jobs) {
+		assertSafeCronId(job.id);
+		const { id, ...config } = clone(job);
+		const lastRun = state.lastRuns[id];
+		jobs[id] = {
+			...config,
+			state: clone(state.states[id] ?? defaultState(job)),
+			...(lastRun ? { lastRun: clone(lastRun) } : {}),
+		};
+	}
+	return {
+		schemaVersion: SCHEMA_VERSION,
+		jobs,
 	};
 }
 
