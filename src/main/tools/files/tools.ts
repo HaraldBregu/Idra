@@ -6,6 +6,7 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
+import { checkFilePolicy, type FilePolicyCheck } from './policy';
 
 function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
@@ -100,6 +101,8 @@ export const readTool: AgentTool<ReadArgs> = {
 	async execute(args, ctx) {
 		try {
 			const abs = resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx));
+			const denied = checkFilePolicy(ctx, 'read', [{ path: abs, permission: 'read' }]);
+			if (denied) return textResult(denied, true);
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
 			const raw = await fs.readFile(abs, 'utf8');
@@ -173,6 +176,10 @@ export const writeTool: AgentTool<WriteArgs> = {
 		} catch {
 			/* new file */
 		}
+		const denied = checkFilePolicy(ctx, 'write', [
+			{ path: abs, permission: exists ? 'write' : 'create' },
+		]);
+		if (denied) return textResult(denied, true);
 		if (exists) {
 			const last = ctx.readState.get(abs);
 			if (!last) {
@@ -232,6 +239,8 @@ export const editTool: AgentTool<EditArgs> = {
 		} catch (err) {
 			return textResult(`edit: ${(err as Error).message}`, true);
 		}
+		const denied = checkFilePolicy(ctx, 'edit', [{ path: abs, permission: 'write' }]);
+		if (denied) return textResult(denied, true);
 		if (args.old === args.new) return textResult('edit: old and new are identical', true);
 		let stat;
 		try {
@@ -315,6 +324,8 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 			const changed: string[] = [];
 			for (const patch of patches) {
 				const abs = resolveAbs(ctx.workspace, patch.path, writeWorkspaceOnly(ctx, true));
+				const denied = checkFilePolicy(ctx, 'apply_patch', [{ path: abs, permission: 'write' }]);
+				if (denied) return textResult(denied, true);
 				const stat = await fs.stat(abs);
 				const last = ctx.readState.get(abs);
 				if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
@@ -436,6 +447,8 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		} catch (err) {
 			return textResult(`delete: ${(err as Error).message}`, true);
 		}
+		const denied = checkFilePolicy(ctx, 'delete', [{ path: abs, permission: 'delete' }]);
+		if (denied) return textResult(denied, true);
 		const guard = guardedRootMessage(ctx.workspace, abs);
 		if (guard) return textResult(`delete: ${guard}.`, true);
 		try {
@@ -497,6 +510,12 @@ export const copyTool: AgentTool<CopyArgs> = {
 			if (!sourceStat.isFile())
 				return textResult(`copy: source is not a file: ${args.source}`, true);
 			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
+			const policyChecks: FilePolicyCheck[] = [
+				{ path: sourceAbs, permission: 'read' },
+				{ path: destinationAbs, permission: destinationStat ? 'write' : 'create' },
+			];
+			const denied = checkFilePolicy(ctx, 'copy', policyChecks);
+			if (denied) return textResult(denied, true);
 			if (destinationStat) {
 				if (!args.overwrite)
 					return textResult(`copy: destination exists: ${args.destination}`, true);
@@ -563,6 +582,13 @@ export const moveTool: AgentTool<MoveArgs> = {
 			const sourceBlocked = requireReadSnapshot(ctx, sourceAbs, sourceStat, args.source, 'move');
 			if (sourceBlocked) return textResult(sourceBlocked, true);
 			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
+			const policyChecks: FilePolicyCheck[] = [
+				{ path: sourceAbs, permission: 'read' },
+				{ path: sourceAbs, permission: 'delete' },
+				{ path: destinationAbs, permission: destinationStat ? 'write' : 'create' },
+			];
+			const denied = checkFilePolicy(ctx, 'move', policyChecks);
+			if (denied) return textResult(denied, true);
 			if (destinationStat) {
 				if (!args.overwrite)
 					return textResult(`move: destination exists: ${args.destination}`, true);
@@ -635,6 +661,8 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 		} catch (err) {
 			return textResult(`inspect_file: ${(err as Error).message}`, true);
 		}
+		const denied = checkFilePolicy(ctx, 'inspect_file', [{ path: abs, permission: 'read' }]);
+		if (denied) return textResult(denied, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`inspect_file: ${args.path} is not a file`, true);
@@ -858,12 +886,15 @@ export const findTool: AgentTool<FindArgs> = {
 			const dir = args.path
 				? resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx))
 				: ctx.workspace;
+			const denied = checkFilePolicy(ctx, 'find', [{ path: dir, permission: 'read' }]);
+			if (denied) return textResult(denied, true);
 			const stat = await fs.stat(dir).catch(() => null);
 			if (!stat || !stat.isDirectory()) return textResult(`find: not a directory: ${dir}`, true);
 			const results: string[] = [];
 			const iter = fs.glob(pattern, { cwd: dir, exclude: FIND_EXCLUDES, withFileTypes: true });
 			for await (const dirent of iter) {
 				const full = path.join(dirent.parentPath, dirent.name);
+				if (checkFilePolicy(ctx, 'find', [{ path: full, permission: 'read' }])) continue;
 				let rel = path.relative(dir, full) || dirent.name;
 				if (dirent.isDirectory() && !rel.endsWith('/')) rel += '/';
 				results.push(rel.split(path.sep).join('/'));
