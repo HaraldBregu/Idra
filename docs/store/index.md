@@ -17,18 +17,20 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 
 | Root | Owns |
 | --- | --- |
-| `modelProviders` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
-| `llmAgent` | Active chat model selection and agent-facing model options. |
-| `speechToText` | Active speech-to-text provider, model, and module options. |
-| `textToSpeech` | Active text-to-speech provider, model, and module options. |
-| `imageCreator` | Active image creation provider, model, and module options. |
-| `textToVideo` | Active video creation provider, model, and module options. |
-| `textToSound` | Active sound generation provider, model, and module options. |
-| `taskScheduler` | Scheduler configuration and persisted schedule records. |
-| `heartbeat` | Heartbeat interval, prompts, delivery settings, agent settings, and lightweight run state. |
-| `connectors` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
-| `channels` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
-| `policy` | Access control policy version, default decision, and path grants. |
+| [`modelProviders`](model-providers.md) | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
+| [`llmAgent`](llm-agent.md) | Active chat model selection and agent-facing model options. |
+| [`speechToText`](speech-to-text.md) | Active speech-to-text provider, model, and module options. |
+| [`textToSpeech`](text-to-speech.md) | Active text-to-speech provider, model, and module options. |
+| [`imageCreator`](image-creator.md) | Active image creation provider, model, and module options. |
+| [`textToVideo`](text-to-video.md) | Active video creation provider, model, and module options. |
+| [`textToSound`](text-to-sound.md) | Active sound generation provider, model, and module options. |
+| [`taskScheduler`](task-scheduler.md) | Scheduler configuration and persisted schedule records. |
+| [`backgroundTask`](background-task.md) | Background task admission and concurrency settings. |
+| [`agents`](agents.md) | Agent definitions, route bindings, workspaces, tool policy, and subagent settings. |
+| [`heartbeat`](heartbeat.md) | Lightweight heartbeat run state and delivered text records. |
+| [`connectors`](connectors.md) | Connector definitions, account settings, enabled state, and connector-specific secrets. |
+| [`channels`](channels.md) | Channel account settings, security policy, enabled state, and channel-specific secrets. |
+| [`policy`](policy.md) | Access control policy version, default decision, and path grants. |
 
 ## Normalization
 
@@ -46,4 +48,17 @@ The store is configuration state, not the live execution engine. Background task
 
 ## Related Docs
 
+- [Model Providers](model-providers.md)
+- [LLM Agent](llm-agent.md)
+- [Speech To Text](speech-to-text.md)
+- [Text To Speech](text-to-speech.md)
+- [Image Creator](image-creator.md)
+- [Text To Video](text-to-video.md)
+- [Text To Sound](text-to-sound.md)
+- [Task Scheduler](task-scheduler.md)
+- [Background Task](background-task.md)
+- [Agents](agents.md)
+- [Heartbeat](heartbeat.md)
+- [Connectors](connectors.md)
+- [Channels](channels.md)
 - [Policy](policy.md)
