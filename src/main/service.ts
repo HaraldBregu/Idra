@@ -38,7 +38,7 @@ import {
 	prepareLegacyToolsForProvider,
 	runtimeToolToLegacyTool,
 } from './tools/runtime/legacy-tool-adapter';
-import { startupFilesTool } from './tools/startup';
+import { bootstrapTool, startupFilesTool } from './tools/startup';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
@@ -69,8 +69,8 @@ import {
 	type SubagentSpawnPort,
 } from './agent/subagents';
 
-const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
-const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
+const BOOTSTRAP_TOOL_NAMES = new Set(['bootstrap', 'startup_files']);
+const DEFAULT_LOCAL_TOOL_DENY = ['bootstrap', 'startup_files'];
 
 function toolAllowPatternMatches(pattern: string, name: string): boolean {
 	if (pattern === '*' || pattern === name) return true;
@@ -443,9 +443,13 @@ export class AgentService {
 				if (
 					bootstrapPending &&
 					isPrimaryRun &&
-					!baseTools.some((tool) => tool.name === startupFilesTool.name)
+					!baseTools.some((tool) => tool.name === bootstrapTool.name)
 				) {
-					baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
+					baseTools = [
+						...baseTools,
+						bootstrapTool as unknown as AgentTool,
+						startupFilesTool as unknown as AgentTool,
+					];
 				}
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
