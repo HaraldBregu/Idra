@@ -2,6 +2,10 @@
 
 `move` renames or relocates a file inside the current workspace.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow both the source and destination paths before this tool executes.
+
 ## Tool Search Description
 
 Use `move` to rename or relocate a current-workspace file while preserving its contents.
