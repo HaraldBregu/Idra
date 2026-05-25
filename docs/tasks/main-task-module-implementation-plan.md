@@ -15,11 +15,11 @@ The current implementation has a useful foundation: task handlers validate `unkn
 
 ### 1. Background task concurrency is configured but not enforced
 
-`BackgroundTaskSettings` exposes `defaultConcurrency`, and `StoreService` reads it from settings, but `TaskManager` only consults `allowedTaskTypes`. Every task starts on the next microtask through `Promise.resolve().then(...)`.
+`TaskSettings` exposes `defaultConcurrency`, and `StoreService` reads it from the `task` settings property, but `TaskManager` only consults `allowedTaskTypes`. Every task starts on the next microtask through `Promise.resolve().then(...)`.
 
 References:
 
-- `src/main/store/types.ts:28`
+- `src/shared/store.ts`
 - `src/main/store/service.ts:166`
 - `src/main/tasks/task-manager.ts:178`
 - `src/main/tasks/task-manager.ts:215`
