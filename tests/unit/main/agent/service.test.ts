@@ -5,13 +5,24 @@ import type {
 	ProviderEvent,
 	ProviderStreamRequest,
 } from '../../../../src/main/provider/types';
-import { ConnectorsService } from '../../../../src/main/connectors';
 import { AgentService } from '../../../../src/main/service';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import { SkillsService } from '../../../../src/main/skills';
 import type { SkillPromptChoice } from '../../../../src/main/skills/types';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeLogger, makeTempDir } from '../test-helpers';
+
+const FILE_TOOL_NAMES = [
+	'read',
+	'write',
+	'edit',
+	'apply_patch',
+	'delete',
+	'copy',
+	'move',
+	'inspect_file',
+	'find',
+];
 
 function provider(events: ProviderEvent[]): ProviderAdapter {
 	return {
