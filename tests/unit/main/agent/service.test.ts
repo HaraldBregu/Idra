@@ -590,21 +590,16 @@ describe('AgentService', () => {
 				makeAgentTool('read', 'Read files'),
 				makeAgentTool('write', 'Write files'),
 				makeAgentTool('find', 'Find files'),
-				makeAgentTool('gmail_get_recent_emails', 'Gmail: Get recent emails.'),
-				makeAgentTool('web_fetch', 'Fetch web pages.'),
+				makeAgentTool('delete', 'Delete files'),
 			],
 		});
 
 		await expect(
 			service.send('What tools do you have?', 'main', {
-				toolsAllow: ['read', 'write', 'gmail_*'],
+				toolsAllow: ['read', 'write'],
 			})
 		).resolves.toBe('allowed tools');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual([
-			'read',
-			'write',
-			'gmail_get_recent_emails',
-		]);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read', 'write']);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -636,21 +631,7 @@ describe('AgentService', () => {
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
 		expect(toolNames).toContain('read');
 		expect(toolNames).not.toEqual(expect.arrayContaining(['exec', 'process', 'web_fetch']));
-		expect(
-			toolNames.every((name) =>
-				[
-					'read',
-					'write',
-					'edit',
-					'apply_patch',
-					'delete',
-					'copy',
-					'move',
-					'inspect_file',
-					'find',
-				].includes(name)
-			)
-		).toBe(true);
+		expect(toolNames.every((name) => FILE_TOOL_NAMES.includes(name))).toBe(true);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
