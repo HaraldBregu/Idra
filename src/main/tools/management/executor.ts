@@ -151,11 +151,64 @@ export class ToolExecutor {
 				finishedAt: new Date(),
 			});
 		}
+		const confirmation = await this.checkConfirmation<TInput, TOutput>(tool, input, context, startedAt);
+		if (confirmation) return confirmation;
 		const rateLimited = this.checkRateLimit<TOutput>(tool, context, startedAt);
 		if (rateLimited) return rateLimited;
 		const overLimit = this.checkTurnLimit<TOutput>(tool.id, context, startedAt);
 		if (overLimit) return overLimit;
 		return undefined;
+	}
+
+	private async checkConfirmation<TInput, TOutput>(
+		tool: Tool<TInput, TOutput>,
+		input: TInput,
+		context: ToolExecutionContext,
+		startedAt: Date
+	): Promise<ToolResult<TOutput> | undefined> {
+		if (tool.metadata.requiresConfirmation !== true) return undefined;
+		const actionId = `${tool.id}:${JSON.stringify(redactSensitive(input))}`;
+		if (context.confirmedActionIds.has(actionId)) return undefined;
+		if (!context.requestConfirmation) {
+			return createToolResult<TOutput>({
+				toolId: tool.id,
+				success: false,
+				error: {
+					code: 'TOOL_CONFIRMATION_REQUIRED',
+					message: `tool ${tool.name} requires confirmation before execution`,
+					retryable: false,
+					category: 'safety',
+				},
+				startedAt,
+				finishedAt: new Date(),
+				metadata: { confirmationRequired: true },
+			});
+		}
+		const confirmed = await context.requestConfirmation({
+			toolId: tool.id,
+			toolName: tool.name,
+			reason:
+				typeof tool.metadata.safetyNotes === 'string'
+					? tool.metadata.safetyNotes
+					: `Tool ${tool.name} requires confirmation before execution.`,
+			inputPreview: redactSensitive(input),
+			permissions: tool.permissionsRequired,
+			safetyLevel: tool.safetyLevel,
+		});
+		if (confirmed) return undefined;
+		return createToolResult<TOutput>({
+			toolId: tool.id,
+			success: false,
+			error: {
+				code: 'TOOL_CONFIRMATION_REJECTED',
+				message: `tool ${tool.name} was not approved for execution`,
+				retryable: false,
+				category: 'safety',
+			},
+			startedAt,
+			finishedAt: new Date(),
+			metadata: { confirmationRequired: true },
+		});
 	}
 
 	private checkRateLimit<TOutput>(
