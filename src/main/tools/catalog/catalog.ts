@@ -1,5 +1,4 @@
 import type { AgentTool } from '../core/types';
-import { bootstrapTool } from '../bootstrap';
 import {
 	applyPatchTool,
 	copyTool,
@@ -14,7 +13,7 @@ import {
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
-export type LocalToolGroup = 'file' | 'bootstrap';
+export type LocalToolGroup = 'file';
 
 export type LocalToolApprovalPolicy =
 	| { mode: 'none' }
@@ -35,7 +34,6 @@ export interface LocalToolCatalogEntry {
 }
 
 const STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
-const FULL_PROFILE = ['full'] as const;
 const NO_APPROVAL = { mode: 'none' } as const;
 const WRITE_WORKSPACE_BOUNDARY = {
 	mode: 'workspace-boundary',
@@ -100,12 +98,6 @@ export const LOCAL_TOOL_CATALOG = [
 	localTool({
 		tool: findTool,
 		group: 'file',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: bootstrapTool,
-		group: 'bootstrap',
 		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
 	}),
