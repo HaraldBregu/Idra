@@ -38,7 +38,6 @@ import {
 	prepareLegacyToolsForProvider,
 	runtimeToolToLegacyTool,
 } from './tools/runtime/legacy-tool-adapter';
-import { bootstrapTool } from './tools/bootstrap';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
@@ -65,8 +64,6 @@ import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
 import type { SubagentSpawnPort } from './agent/subagents';
 
-const BOOTSTRAP_TOOL_NAMES = new Set(['bootstrap']);
-
 function toolAllowPatternMatches(pattern: string, name: string): boolean {
 	if (pattern === '*' || pattern === name) return true;
 	if (!pattern.includes('*')) return false;
@@ -90,8 +87,6 @@ function toolAllowGroupMatches(pattern: string, name: string): boolean {
 				'inspect_file',
 				'find',
 			].includes(name);
-		case 'group:bootstrap':
-			return name === 'bootstrap';
 		default:
 			return false;
 	}
@@ -415,13 +410,6 @@ export class AgentService {
 						})
 					)
 				);
-				if (
-					bootstrapPending &&
-					isPrimaryRun &&
-					!baseTools.some((tool) => tool.name === bootstrapTool.name)
-				) {
-					baseTools = [...baseTools, bootstrapTool as unknown as AgentTool];
-				}
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 				}
@@ -477,7 +465,7 @@ export class AgentService {
 				toolSelection =
 					bootstrapPending && isPrimaryRun
 						? {
-								toolsForPrompt: baseTools.filter((tool) => BOOTSTRAP_TOOL_NAMES.has(tool.name)),
+								toolsForPrompt: [],
 								systemPromptSuffix: '',
 								rankedTools: [],
 							}
@@ -506,7 +494,7 @@ export class AgentService {
 				isInteractiveUserFacing: true,
 				isPrimaryRun,
 				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-				hasBootstrapFileAccess: selectedToolNames.has('bootstrap'),
+				hasBootstrapFileAccess: false,
 				runKind,
 			});
 			startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
