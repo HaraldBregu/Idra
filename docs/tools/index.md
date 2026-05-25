@@ -39,5 +39,6 @@ These groups mirror the fixed tool groups and control surfaces under `src/main`.
 
 ## Related Docs
 
+- [Tool policy](policy.md)
 - [How an agent works](../agent/index.md)
 - [Agent acceptance criteria](../agent/acceptance-criteria.md)
