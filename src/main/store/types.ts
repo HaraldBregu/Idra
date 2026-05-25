@@ -26,9 +26,13 @@ export interface AgentModuleOptions {
 
 export interface FridayTaskSchedulerSettings {
 	schemaVersion?: number;
-	jobs?: FridayCronJobDefinition[];
-	states?: Record<string, FridayCronJobState>;
-	lastRuns?: Record<string, FridayCronRunRecord>;
+	jobs?: Record<
+		string,
+		Omit<FridayCronJobDefinition, 'id'> & {
+			state?: FridayCronJobState;
+			lastRun?: FridayCronRunRecord;
+		}
+	>;
 }
 
 export type TaskSchedulerSettings = FridayTaskSchedulerSettings & {
