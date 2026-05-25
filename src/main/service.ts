@@ -37,7 +37,7 @@ import {
 	legacyToolToRuntimeTool,
 	prepareLegacyToolsForProvider,
 	runtimeToolToLegacyTool,
-} from './tools/runtime/legacy-tool-adapter';
+} from './tools/runtime/adapt';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
