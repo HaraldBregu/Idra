@@ -26,19 +26,9 @@ export interface SystemPromptCtx {
 
 const TOOL_GUIDANCE: Record<string, string> = {
 	read: 'Read a file before editing or overwriting it.',
-	bootstrap:
-		'Create or update the required bootstrap startup files for the current agent. Use this after collecting the needed identity, user, and style details; pass content, not paths.',
-	startup_files: 'Manage allowlisted agent startup files under agent/workspaces/<agentId>.',
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
 	find: 'Glob-search the workspace for files.',
-	exec: 'Run a shell command. Output capped at 200 lines / 16KB. Use `python3` for Python scripts unless the project specifies another command. Do not use host schedulers such as crontab, launchctl, systemctl timers, or schtasks.',
-	process: 'Inspect or stop long-running background commands started by exec.',
-	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
-	cron: 'List, inspect, create, or remove Friday-owned future or recurring scheduled jobs and reminders. Use this for later or repeating work, not immediate execution. Before add/remove, make sure timing, task, delivery expectation, and target job are clear. Never use host schedulers such as crontab, launchctl, systemctl timers, schtasks, shell loops, or model-side timers.',
-	open_browser: "Open an http/https URL in the user's default browser.",
-	browser:
-		'Control a managed Chromium browser. Use "open" for a new tab, "snapshot" before "act" (refs come from the snapshot), "navigate" to load a URL in the current tab, "screenshot" to see the page. Preserve targetId across calls.',
 };
 
 const ACCEPTANCE_CONTRACT = [
@@ -130,7 +120,6 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			[
 				'## Tool guidance',
 				'No tools are available for this turn. Answer directly from the conversation and general reasoning.',
-				'If the user asks for future or recurring scheduled work, say the Friday cron tool is unavailable for this turn; never suggest or use system cron, crontab, launchctl, systemctl timers, schtasks, shell loops, or model-side timers.',
 			].join('\n')
 		);
 	}
@@ -164,7 +153,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 					`${DEFAULT_BOOTSTRAP_FILENAME} is pending and included in Project Context.`,
 					'Follow it before replying normally.',
 					'Do not use a generic greeting.',
-					'Do not claim bootstrap is complete unless the requested files are updated with `bootstrap` or `startup_files` and BOOTSTRAP.md is completed.',
+					'Do not claim bootstrap is complete unless the required startup files are updated and BOOTSTRAP.md is completed.',
 				].join('\n')
 			);
 		} else if (ctx.bootstrapMode === 'limited') {
