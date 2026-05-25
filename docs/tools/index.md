@@ -1,6 +1,6 @@
 # Tools
 
-Tools let an agent do work outside plain text. They let the agent read context, search, inspect files, run checks, use the web, control a browser, schedule work, or start background tasks.
+Tools let an agent do work outside plain text. They let the agent read context, search, inspect files, run checks, use the web, control a browser, or schedule work.
 
 An agent should use tools when they make the result more accurate, current, verified, or executable. It should avoid tools when the user needs a direct answer and the available context is already enough.
 
@@ -25,7 +25,7 @@ An agent should use tools when they make the result more accurate, current, veri
 
 | Area | Use it for | Docs |
 | --- | --- | --- |
-| Local tools | Files, commands, browser work, scheduling, and background tasks. | [Local tools](list/index.md) |
+| Local tools | Files, commands, browser work, and scheduling. | [Local tools](list/index.md) |
 | Tool search | Finding a relevant tool from a large catalog only when needed. | [Tool search](search/index.md) |
 
 ## Related Docs
