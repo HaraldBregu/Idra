@@ -614,6 +614,62 @@ describe('tool management layer', () => {
 		expect(execute).toHaveBeenCalled();
 	});
 
+	it('runs workspace-local write tools without confirmation and rejects outside writes', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const insideCtx = makeToolContext({ workspace });
+		const inside = await executeAgentToolWithManagement(
+			writeTool,
+			{ path: 'inside.txt', content: 'ok' },
+			insideCtx
+		);
+		expect(inside.status).toBe('ok');
+
+		const outsideCtx = makeToolContext({
+			workspace,
+			fsPolicy: { writeWorkspaceOnly: false },
+		});
+		const outsideWrite = await executeAgentToolWithManagement(
+			writeTool,
+			{ path: `${outside}/outside.txt`, content: 'no' },
+			outsideCtx
+		);
+		expect(outsideWrite.status).toBe('rejected');
+		expect(outsideWrite.content[0]).toEqual({
+			type: 'text',
+			text: 'tool write requires approval before execution.',
+		});
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
+	it('runs workspace-local exec without confirmation and rejects outside workdirs', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const inside = await executeAgentToolWithManagement(
+			execTool,
+			{ command: 'printf ok', workdir: workspace },
+			makeToolContext({ workspace })
+		);
+		expect(inside.status).toBe('ok');
+		expect(inside.content[0]?.text).toContain('ok');
+
+		const outsideExec = await executeAgentToolWithManagement(
+			execTool,
+			{ command: 'printf no', workdir: outside },
+			makeToolContext({ workspace })
+		);
+		expect(outsideExec.status).toBe('rejected');
+		expect(outsideExec.content[0]).toEqual({
+			type: 'text',
+			text: 'tool exec requires approval before execution.',
+		});
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('limits max tool calls per turn', async () => {
 		const executor = new ToolExecutor({ maxToolCallsPerTurn: 1 });
 		const tool = makeTool();
