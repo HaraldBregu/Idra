@@ -269,42 +269,12 @@ export class AgentService {
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
 		const toolPolicy = context.toolPolicy;
-		const legacyHostTools: AgentTool[] = [
-			...createTools({
-				profile: toolPolicy?.profile ?? 'full',
-				allow: toolPolicy?.allow ?? [],
-				alsoAllow: toolPolicy?.alsoAllow,
-				deny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
-				fs: toolPolicy?.fs,
-			}),
-		];
-		const toolRuntimeConfig = toolPolicy?.fs
-			? {
-					tools: {
-						fs: toolPolicy.fs,
-					},
-				}
-			: {};
-		const runtime = await createAgentTools({
-			workspaceDir: context.workspace,
-			agentId: context.agentId,
-			sessionId: context.session.id,
-			runId: context.runId,
-			provider: context.providerId,
-			modelId: context.model,
-			abortSignal: context.signal,
-			toolsAllow: context.toolsAllow,
-			toolsDeny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
-			includeCoreTools: false,
-			hostTools: legacyHostTools.map((tool) => legacyToolToRuntimeTool(tool, context.toolContext)),
-			services: context.services,
-			sender: {
-				id: context.agentId,
-				isOwner: context.toolContext.cronContext?.role === 'owner',
-			},
-			config: toolRuntimeConfig,
-		});
-		return runtime.tools.map(runtimeToolToLegacyTool);
+		const tools = context.services.connectors?.createAgentTools() ?? [];
+		return filterToolsByDenylist(
+			tools,
+			[...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
+			context.services.policy
+		);
 	}
 
 	async send(
