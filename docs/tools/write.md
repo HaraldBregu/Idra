@@ -2,6 +2,10 @@
 
 `write` creates a new file or replaces a whole file inside the current workspace.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+
 ## Tool Search Description
 
 Use `write` to create a new current-workspace file or replace an entire workspace file with complete new content.
