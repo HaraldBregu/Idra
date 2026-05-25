@@ -410,10 +410,6 @@ export class AgentService {
 						this.dependencies.policy
 					);
 				}
-				baseTools = prepareLegacyToolsForProvider(baseTools, ctx, {
-					provider: providerId,
-					modelId: model,
-				});
 			}
 
 			const directAnswer =
@@ -447,10 +443,7 @@ export class AgentService {
 								rankedTools: [],
 							}
 						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								selectAgentToolsForTurn(baseTools, message, ctx, {
-									forceSelection: true,
-									maxPromptTools: TOOL_LIMITS.prompt.defaultMaxTools,
-								})
+								selectToolsForPrompt(baseTools)
 							);
 				selectedTools = toolSelection.toolsForPrompt;
 			}
@@ -565,8 +558,8 @@ export class AgentService {
 				ctx,
 				streamEvent,
 				streamOutput: (chunk) => streamEvent({ type: 'text_delta', delta: chunk }),
-				maxTokens: TOOL_LIMITS.agent.maxTokens,
-				maxIterations: TOOL_LIMITS.agent.maxIterations,
+				maxTokens: AGENT_TOOL_LIMITS.maxTokens,
+				maxIterations: AGENT_TOOL_LIMITS.maxIterations,
 				hooks,
 				signal: abort.signal,
 				toolManagement: { enabled: false },
