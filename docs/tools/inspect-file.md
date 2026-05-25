@@ -2,6 +2,10 @@
 
 `inspect_file` checks what a file is before the agent decides what to do with it. It is read-only and may inspect files outside the current workspace when needed for the request.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+
 ## Tool Search Description
 
 Use `inspect_file` to check file metadata, type, size, preview content, or image details before choosing the next action.
