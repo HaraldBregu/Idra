@@ -244,16 +244,14 @@ export class AgentService {
 				alsoAllow: toolPolicy?.alsoAllow,
 				deny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
 				fs: toolPolicy?.fs,
-				exec: toolPolicy?.exec,
 			}),
 		];
 		const toolRuntimeConfig =
-			toolPolicy?.fs || toolPolicy?.exec
+			toolPolicy?.fs
 				? {
 						toolSearch: { enabled: false },
 						tools: {
 							fs: toolPolicy.fs,
-							exec: toolPolicy.exec,
 						},
 					}
 				: { toolSearch: { enabled: false } };
@@ -483,12 +481,8 @@ export class AgentService {
 						plan: skillRuntimePlan,
 					});
 					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
-					if (skillRuntimePlan.needsExecutionTool) {
-						skillRuntimePlan = { ...skillRuntimePlan, needsExecutionTool: false };
-					}
 				}
 			}
-			const selectedToolNames = new Set(selectedTools.map((tool) => tool.name));
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
 				isInteractiveUserFacing: true,
