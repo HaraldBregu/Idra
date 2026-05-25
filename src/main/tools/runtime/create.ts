@@ -4,7 +4,7 @@ import {
 	createToolDiagnostics,
 	normalizeToolName,
 } from '../core/common';
-import { createReadTool } from '../files/read';
+import { createFileTools } from '../files/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
 import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/pipeline';
 import {
@@ -168,9 +168,11 @@ function addCoreToolCandidates(
 	const fsPolicy = options.config?.tools?.fs;
 	if (plan.includeFileTools) {
 		candidates.push(
-			createReadTool({
+			...createFileTools({
 				workspaceDir: options.workspaceDir,
-				allowAbsolutePaths: fsPolicy?.workspaceOnly === false,
+				sessionId: options.sessionId,
+				fsPolicy,
+				signal: options.abortSignal,
 			})
 		);
 	}
@@ -180,9 +182,13 @@ function addHostToolCandidates(
 	candidates: AgentTool[],
 	options: CreateAgentToolsOptions
 ): void {
-	candidates.push(
-		...(options.hostTools ?? []).filter((tool) => FILE_TOOL_NAMES.has(normalizeToolName(tool.name)))
-	);
+	const existingNames = new Set(candidates.map((tool) => normalizeToolName(tool.name)));
+	for (const tool of options.hostTools ?? []) {
+		const name = normalizeToolName(tool.name);
+		if (!FILE_TOOL_NAMES.has(name) || existingNames.has(name)) continue;
+		candidates.push(tool);
+		existingNames.add(name);
+	}
 }
 
 function buildPolicyStages(
