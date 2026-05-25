@@ -29,7 +29,7 @@ import type {
 } from '../../shared/store';
 import type { ProvidersStore } from './providers';
 
-type ConfiguredModelOperatorKey =
+export type ConfiguredModelOperatorKey =
 	| 'assistant'
 	| 'speechToText'
 	| 'textToSpeech'
@@ -37,7 +37,7 @@ type ConfiguredModelOperatorKey =
 	| 'textToVideo'
 	| 'textToSound';
 
-type ModelModuleRootKey =
+export type ModelModuleRootKey =
 	| 'assistant'
 	| 'speechToText'
 	| 'textToSpeech'
@@ -116,7 +116,7 @@ function normalizeAgentRuntime(value: unknown): string | undefined {
 	return trimmed || undefined;
 }
 
-function modelModuleSettings(
+export function modelModuleSettings(
 	providerId: string,
 	model: Model,
 	options?: Record<string, unknown>
@@ -208,6 +208,29 @@ function configuredModelOperator(
 	};
 }
 
+export function getModelModuleSettingsForStore(
+	store: SettingsStoreAccessor,
+	rootKey: ModelModuleRootKey
+): ModelModuleSettings | undefined {
+	const value = store.get(rootKey);
+	if (value !== undefined) return readModelModuleSettings(value);
+	if (rootKey === 'assistant') return readModelModuleSettings(store.get('llmAgent'));
+	return undefined;
+}
+
+export function getConfiguredModelOperatorForStore(
+	key: ConfiguredModelOperatorKey,
+	store: SettingsStoreAccessor,
+	providers: ProvidersStore
+): ConfiguredModelOperator | undefined {
+	const rootKey = MODEL_MODULE_ROOT_KEYS[key];
+	const settings = getModelModuleSettingsForStore(store, rootKey);
+	if (!settings) return undefined;
+	const provider = providers.getProviderById(settings.providerId);
+	if (!provider || !isAllowedModuleModel(key, settings, provider)) return undefined;
+	return configuredModelOperator(key, publicProvider(provider), modelForModule(key, settings, provider));
+}
+
 export class AssistantStore {
 	private store: SettingsStoreAccessor;
 	private providers: ProvidersStore;
@@ -239,6 +262,10 @@ export class AssistantStore {
 
 	getService(): OperatorStoreState | undefined {
 		return this.getOperator();
+	}
+
+	getAgentsHeartbeatConfig(): AgentsHeartbeatConfig | undefined {
+		return readAgentsHeartbeatConfig(this.getModelModuleSettings('assistant'));
 	}
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
@@ -469,26 +496,10 @@ export class AssistantStore {
 	private getConfiguredModelOperator(
 		key: ConfiguredModelOperatorKey
 	): ConfiguredModelOperator | undefined {
-		const rootKey = MODEL_MODULE_ROOT_KEYS[key];
-		const settings = this.getModelModuleSettings(rootKey);
-		if (settings) {
-			const provider = this.providers.getProviderById(settings.providerId);
-			if (provider) {
-				if (!isAllowedModuleModel(key, settings, provider)) return undefined;
-				return configuredModelOperator(
-					key,
-					publicProvider(provider),
-					modelForModule(key, settings, provider)
-				);
-			}
-		}
-		return undefined;
+		return getConfiguredModelOperatorForStore(key, this.store, this.providers);
 	}
 
 	private getModelModuleSettings(rootKey: ModelModuleRootKey): ModelModuleSettings | undefined {
-		const value = this.store.get(rootKey);
-		if (value !== undefined) return readModelModuleSettings(value);
-		if (rootKey === 'assistant') return readModelModuleSettings(this.store.get('llmAgent'));
-		return undefined;
+		return getModelModuleSettingsForStore(this.store, rootKey);
 	}
 }
