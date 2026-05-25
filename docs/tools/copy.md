@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). The policy module must allow both the source and destination paths before this tool executes.
+Depends on the [policy module](../policy/index.md). Before copying, the policy module resolves both paths and checks two grants: `read` on the source and `create` on the destination. If either check is denied, the tool stops and no file is created.
 
 ## Tool Search Description
 
