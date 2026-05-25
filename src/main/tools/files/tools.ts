@@ -61,14 +61,6 @@ function outsidePathNeedsApproval(
 	return !allowed;
 }
 
-function writePathNeedsApproval(ctx: ToolContext, target: string): boolean {
-	return outsidePathNeedsApproval(ctx, target, ['write', 'create'], 'any');
-}
-
-function anyWritePathNeedsApproval(ctx: ToolContext, targets: string[]): boolean {
-	return targets.some((target) => writePathNeedsApproval(ctx, target));
-}
-
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
 	return { mtimeMs: stat.mtimeMs, size: stat.size };
 }
