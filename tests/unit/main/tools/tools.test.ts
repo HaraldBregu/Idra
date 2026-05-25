@@ -598,6 +598,8 @@ describe('tools/app, cron, and startup', () => {
 	});
 
 	it('manages allowlisted agent startup files through the startup tool', async () => {
+		expect(startupFilesTool.needsApproval).toBeUndefined();
+
 		const root = await makeTempDir();
 		const services = {
 			...makeToolContext().services,
