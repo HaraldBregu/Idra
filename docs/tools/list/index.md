@@ -28,6 +28,5 @@ Local tools are the built-in actions an agent may receive for a run. They should
 | [process](process.md) | Inspect or stop background commands started by the agent. |
 | [web_fetch](web-fetch.md) | Read text from a web page. |
 | [cron](cron.md) | Schedule future or recurring agent work. |
-| [task](task.md) | Start immediate background agent work. |
 | [open_browser](open-browser.md) | Open a page for the user. |
 | [browser](browser.md) | Inspect or interact with a managed browser page. |
