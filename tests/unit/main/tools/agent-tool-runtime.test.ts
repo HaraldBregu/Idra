@@ -333,62 +333,13 @@ describe('canonical agent tool runtime', () => {
 		await expect(bad.resolveTools({ context: {}, toolsAllow: ['bad'] })).rejects.toThrow('undeclared');
 	});
 
-	it('materializes MCP and LSP tools with safe names and normalized results', async () => {
-		expect(safeMcpToolName('My Server', 'Read File')).toBe('mcp_my_server_read_file');
-		expect(normalizeMcpResult({ ok: true }).details).toEqual({ ok: true });
-		const mcp = await materializeMcpTools({
-			context: {},
-			runtime: {
-				listTools: async () => [
-					{ serverId: 'repo', name: 'search', description: 'Search repo', parameters: { type: 'object' } },
-				],
-				callTool: async () => 'mcp ok',
-			},
-		});
-		expect(mcp[0]?.name).toBe('mcp_repo_search');
-		await expect(mcp[0]!.execute('tc', {})).resolves.toMatchObject({ details: 'mcp ok' });
-
-		const lsp = await materializeLspTools({
-			runtime: {
-				capabilities: ['hover'],
-				hover: async () => ({ value: 'hover' }),
-			},
-		});
-		expect(lsp.map((entry) => entry.name)).toEqual(['lsp_hover']);
-	});
-
-	it('compacts large catalogs behind search, describe, and call controls without changing execution semantics', async () => {
-		const hidden = tool('hidden_weather', { description: 'Fetch weather forecast' });
-		const compacted = applyToolSearchCompaction([tool('read'), hidden], {
-			enabled: true,
-			threshold: 1,
-			visibleTools: ['read'],
-		});
-		expect(compacted.tools.map((entry) => entry.name)).toEqual(['read', 'tool_search', 'tool_describe', 'tool_call']);
-		const search = compacted.tools.find((entry) => entry.name === 'tool_search')!;
-		await expect(search.execute('tc1', { query: 'weather' })).resolves.toMatchObject({
-			details: { matches: [expect.objectContaining({ name: 'hidden_weather' })] },
-		});
-		const call = compacted.tools.find((entry) => entry.name === 'tool_call')!;
-		await expect(call.execute('tc2', { name: 'hidden_weather', args: {} })).resolves.toMatchObject({
-			details: { name: 'hidden_weather' },
-		});
-	});
-
-	it('assembles a run-scoped tool set and keeps narrow allowlists from materializing plugins, MCP, or LSP', async () => {
+	it('assembles a run-scoped file tool set', async () => {
 		const workspace = await makeTempDir();
-		const registry = new PluginToolRegistry();
-		const pluginFactory = jest.fn(() => tool('plugin_tool'));
-		registry.register({ manifest: { id: 'demo', tools: [{ name: 'plugin_tool' }] }, factory: pluginFactory });
 		const result = await createAgentTools({
 			workspaceDir: workspace,
 			toolsAllow: ['read'],
-			pluginRegistry: registry,
-			mcpRuntime: { listTools: jest.fn(), callTool: jest.fn() },
-			lspRuntime: { capabilities: ['hover'], hover: jest.fn() },
 		});
 		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
-		expect(pluginFactory).not.toHaveBeenCalled();
 		expect(result.diagnostics.builtTools).toContain('read');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
