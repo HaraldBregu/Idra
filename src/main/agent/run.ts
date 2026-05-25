@@ -39,7 +39,12 @@ import {
 } from './harness/tool-result-middleware';
 
 export interface AgentProviderLookup {
-	getAssistantOperator(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
+	getAssistantOperator():
+		| {
+				provider: { id: string };
+				model: { id: string; name: string; effort?: ModelReasoningEffort };
+		  }
+		| undefined;
 	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
 }
 
@@ -298,7 +303,11 @@ async function prepareToolResultForRun(params: {
  * compacts the transcript once and retries. The whole run is abortable
  * via `signal`.
  */
-function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdapter; model: string; effort: ModelReasoningEffort | undefined } {
+function resolveProviderAndModel(input: AgentRunInput): {
+	provider: ProviderAdapter;
+	model: string;
+	effort: ModelReasoningEffort | undefined;
+} {
 	if (input.provider && input.model) {
 		return { provider: input.provider, model: input.model, effort: input.effort };
 	}
@@ -316,7 +325,8 @@ function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdap
 	const apiKey = providerConfig.apiKey.trim();
 	if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 	const factory = input.providerFactory ?? makeProvider;
-	const provider = input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
+	const provider =
+		input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
 	const effort = input.effort ?? operator.model.effort;
 	return { provider, model, effort };
 }
@@ -386,7 +396,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	session.transcript.push({ role: 'user', content: userMessage });
 
 	await hooks?.onStart?.({ runId });
-	agentLogger.info('agent:run', 'run started', { runId, model, tools: tools.map((t) => t.name), userMessageLen: userMessage.length });
+	agentLogger.info('agent:run', 'run started', {
+		runId,
+		model,
+		tools: tools.map((t) => t.name),
+		userMessageLen: userMessage.length,
+	});
 	streamEvent?.({ type: 'run_state', state: 'thinking', label: 'Thinking' });
 
 	try {
@@ -525,7 +540,11 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				stopReason = 'error';
 				finalText += `\n[error: ${(err as Error).message}]`;
-				agentLogger.error('agent:run', 'stream error', { runId, iter, error: (err as Error).message });
+				agentLogger.error('agent:run', 'stream error', {
+					runId,
+					iter,
+					error: (err as Error).message,
+				});
 				await hooks?.onFinish?.({
 					runId,
 					stopReason,
@@ -605,7 +624,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						outputChars: toolResult.outputText.length,
 						outputText: toolResult.outputText,
 					});
-					agentLogger.warn('agent:run', 'tool args invalid', { runId, tool: t.name, iter, durationMs });
+					agentLogger.warn('agent:run', 'tool args invalid', {
+						runId,
+						tool: t.name,
+						iter,
+						durationMs,
+					});
 					streamEvent?.({
 						type: 'tool_call_result',
 						iteration: iter,
@@ -758,7 +782,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolManagement
 					);
 				} catch (err) {
-					agentLogger.error('agent:run', 'tool threw', { runId, tool: t.name, iter, error: (err as Error).message });
+					agentLogger.error('agent:run', 'tool threw', {
+						runId,
+						tool: t.name,
+						iter,
+						error: (err as Error).message,
+					});
 					res = {
 						status: 'error' as const,
 						content: [
@@ -819,7 +848,14 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					content: toolResult.outputText,
 					sessionKey: hookContext.sessionKey,
 				});
-				agentLogger.info('agent:run', 'tool call', { runId, tool: t.name, iter, status, durationMs, outputChars: toolResult.outputText.length });
+				agentLogger.info('agent:run', 'tool call', {
+					runId,
+					tool: t.name,
+					iter,
+					status,
+					durationMs,
+					outputChars: toolResult.outputText.length,
+				});
 				session.transcript.push({
 					role: 'tool',
 					toolUseId: id,
@@ -851,7 +887,14 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		outputChars: finalText.length,
 		firstTokenLatencyMs,
 	});
-	agentLogger.info('agent:run', 'run finished', { runId, stopReason, iterations: completedIterations, inputTokens: totalUsage.inputTokens, outputTokens: totalUsage.outputTokens, durationMs: Date.now() - runStart });
+	agentLogger.info('agent:run', 'run finished', {
+		runId,
+		stopReason,
+		iterations: completedIterations,
+		inputTokens: totalUsage.inputTokens,
+		outputTokens: totalUsage.outputTokens,
+		durationMs: Date.now() - runStart,
+	});
 
 	return {
 		finalText,
