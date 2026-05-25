@@ -417,7 +417,7 @@ describe('tool management layer', () => {
 		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
 	});
 
-	it('keeps the cron tool available for scheduled task requests', () => {
+	it('isolates scheduled task requests to cron instead of immediate file tools', () => {
 		const makeAgentTool = (name: string, description: string): AgentTool => ({
 			name,
 			description,
@@ -439,7 +439,8 @@ describe('tool management layer', () => {
 			{ forceSelection: true, maxPromptTools: 1 }
 		);
 
-		expect(selected.toolsForPrompt.map((tool) => tool.name)).toContain('cron');
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['cron']);
+		expect(selected.rankedTools.map((entry) => entry.tool.name)).toEqual(['cron']);
 		expect(selected.systemPromptSuffix).toContain('cron');
 	});
 
