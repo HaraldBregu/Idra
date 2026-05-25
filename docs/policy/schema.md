@@ -1,6 +1,6 @@
 # Policy Schema
 
-The policy schema defines which filesystem paths any tool may access, and what operations are permitted on each. It is tool-agnostic: every tool that touches a path — file tools, shell tools, code execution tools, or any other — must check this policy before acting.
+The policy schema defines which filesystem paths a tool may access and what operations are permitted on each. It is evaluated before any tool executes and applies regardless of tool type.
 
 ## Format
 
