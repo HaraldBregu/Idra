@@ -1,1 +1,1 @@
-export * from './core/schema-normalization';
+export * from './core/normalize';
