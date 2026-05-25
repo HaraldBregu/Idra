@@ -1,6 +1,6 @@
 # Policy Schema
 
-The policy schema defines which filesystem paths a tool may access and what operations are permitted on each. It is evaluated before any tool executes and applies regardless of tool type.
+The policy module decides whether an operation on a path is permitted. It is configured by a JSON policy document that declares a default decision and a set of path grants.
 
 ## Format
 
@@ -28,47 +28,43 @@ Integer. Schema version. Must be `1`.
 
 ### `defaultPolicy`
 
-String. Applied to any path not matched by the `paths` list.
+Decision applied to any path not matched by `paths`.
 
 | Value | Meaning |
 | --- | --- |
-| `deny` | Reject all unmatched paths. |
-| `allow` | Permit all unmatched paths. |
-
-Use `deny` for agentic contexts. An allow default grants access to every path not explicitly restricted.
+| `deny` | Deny all unmatched paths. |
+| `allow` | Allow all unmatched paths. |
 
 ### `paths`
 
-Ordered list of path grants. The policy engine matches the most specific (longest) path prefix first.
+List of path grants. Each entry declares what operations are permitted at a given path.
 
 | Field | Type | Required | Meaning |
 | --- | --- | --- | --- |
 | `path` | string | yes | Absolute path. Must not contain `..` or unresolved symlinks. |
-| `permissions` | array | yes | Set of allowed operations on this path. Empty array means deny all. |
-| `recursive` | boolean | yes | When `true`, the grant applies to all descendants. When `false`, applies only to direct children of the directory. |
+| `permissions` | array | yes | Allowed operations. Empty array denies all operations at this path. |
+| `recursive` | boolean | yes | `true` — grant applies to all descendants. `false` — grant applies to direct children only. |
 
 ### `permissions` values
 
-These are path-level operation permissions. They apply regardless of which tool is requesting them.
-
 | Value | Meaning |
 | --- | --- |
-| `read` | May inspect or read content at this path. |
-| `write` | May overwrite existing content at this path. |
-| `create` | May create new files or directories at this path. |
-| `delete` | May remove files or directories at this path. |
+| `read` | Content at this path may be read. |
+| `write` | Existing content at this path may be overwritten. |
+| `create` | New files or directories may be created at this path. |
+| `delete` | Files or directories at this path may be removed. |
 
-Permissions are not additive across entries. A more specific path with an empty `permissions` array overrides a parent with full permissions.
+## Matching
 
-## Matching Rules
-
-1. Resolve the target path to its canonical absolute form before matching.
-2. Walk the `paths` list and collect every entry whose `path` is a prefix of the target.
-3. Select the longest matching prefix. That entry's `permissions` governs the operation.
+1. Resolve the target path to its canonical absolute form.
+2. Find all entries in `paths` whose `path` is a prefix of the target.
+3. Select the entry with the longest matching prefix. Its `permissions` is the decision.
 4. If no entry matches, apply `defaultPolicy`.
-5. A `recursive: false` entry only matches direct children, not deeper descendants.
+5. A `recursive: false` entry matches direct children only, not deeper descendants.
 
-## Example — Agentic AI Tool Policy
+A more specific entry always wins. An empty `permissions` array on a child path overrides a permissive parent.
+
+## Example
 
 ```json
 {
@@ -111,25 +107,16 @@ Permissions are not additive across entries. A more specific path with an empty 
 }
 ```
 
-### What this policy does
-
-| Path | Effective permissions | Reason |
+| Path | Effective permissions | Notes |
 | --- | --- | --- |
-| `/mnt/user-data/uploads/**` | `read` | Input data is read-only. No tool may alter uploaded files. |
-| `/mnt/user-data/outputs/**` | `read`, `write`, `create` | Tools may write results but not delete them. |
-| `/mnt/user-data/outputs/.secrets/**` | none | Secrets inside the outputs tree are fully blocked despite the parent grant. |
-| `/home/agent/workspace/**` | `read`, `write`, `create`, `delete` | The agent has full control of its own workspace. |
-| `/home/agent/workspace/node_modules/**` | `read` | Dependencies must not be mutated at runtime by any tool. |
-| `/etc` (direct children only) | `read` | Top-level config files are readable; subdirectories are not accessible. |
-| Everything else | deny | `defaultPolicy: deny` blocks all unmatched paths. |
-
-### Override semantics
-
-`/mnt/user-data/outputs/.secrets` has an empty `permissions` array. It is a more specific prefix than `/mnt/user-data/outputs`, so it wins. Any operation against that subtree is denied even though the parent permits read, write, and create.
-
-`/home/agent/workspace/node_modules` narrows the full-access workspace grant to read-only for the dependency directory. No tool can install, patch, or remove packages during a run.
+| `/mnt/user-data/uploads/**` | `read` | |
+| `/mnt/user-data/outputs/**` | `read`, `write`, `create` | |
+| `/mnt/user-data/outputs/.secrets/**` | none | Overrides parent grant. |
+| `/home/agent/workspace/**` | `read`, `write`, `create`, `delete` | |
+| `/home/agent/workspace/node_modules/**` | `read` | Narrows workspace grant. |
+| `/etc/*` (direct children only) | `read` | `recursive: false` — subdirectories not matched. |
+| All other paths | deny | `defaultPolicy`. |
 
 ## Related Docs
 
 - [File Tool Policy](index.md)
-- [Tools](../tools/index.md)
