@@ -128,6 +128,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			[
 				'## Tool guidance',
 				'No tools are available for this turn. Answer directly from the conversation and general reasoning.',
+				'If the user asks for future or recurring scheduled work, say the Friday cron tool is unavailable for this turn; never suggest or use system cron, crontab, launchctl, systemctl timers, schtasks, shell loops, or model-side timers.',
 			].join('\n')
 		);
 	}

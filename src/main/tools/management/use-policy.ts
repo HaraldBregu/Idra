@@ -21,6 +21,9 @@ export class ToolUsePolicy {
 		if (/https?:\/\/\S+/.test(input.userRequest)) {
 			return { shouldUseTools: true, reason: 'request contains a URL' };
 		}
+		if (isScheduledWorkRequest(request)) {
+			return { shouldUseTools: true, reason: 'request needs the Friday scheduler' };
+		}
 		if (/\b(write|draft|compose|create)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
 		}
@@ -44,7 +47,24 @@ export function isToolIntrospectionRequest(request: string): boolean {
 	return /\b(what|which|list|show|tell me|do you|can you)\b.*\b(tools?|capabilities|functions?|actions?)\b/.test(request);
 }
 
+export function isScheduledWorkRequest(request: string): boolean {
+	const text = request.toLowerCase();
+	const hasScheduleIntent =
+		/\b(schedule|scheduled|scheduling|remind|reminder|reminders|recurring|repeat|repeating|future|later|cron|crontab)\b/.test(
+			text
+		) ||
+		/\bevery\s+\d+\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)\b/.test(text) ||
+		/\b(in|after)\s+\d+\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)\b/.test(text);
+	if (!hasScheduleIntent) return false;
+	return /\b(task|agent|job|work|run|runs|create|write|file|remind|reminder|message|email|check|fetch|retrieve|send|update|delete|report|summary|summarize|set up|setup)\b/.test(
+		text
+	);
+}
+
 function needsExternalAccess(request: string): boolean {
+	if (isScheduledWorkRequest(request)) {
+		return true;
+	}
 	if (/\b(gmail|google calendar|google account|google profile|inbox)\b/.test(request)) {
 		return true;
 	}
@@ -60,9 +80,9 @@ function needsExternalAccess(request: string): boolean {
 	if (/\b(browser|navigate|screenshot|visit|open (url|link|page|site|tab)|go to|launch browser)\b/.test(request)) {
 		return true;
 	}
-		if (/\b(run|start|list|show|get|retrieve|cancel|check)\b.*\btasks?\b/.test(request)) {
-			return true;
-		}
+	if (/\b(run|start|list|show|get|retrieve|cancel|check)\b.*\btasks?\b/.test(request)) {
+		return true;
+	}
 	if (/\btasks?\b.*\b(records?|status|running|active|start|list|show|get|retrieve|cancel)\b/.test(request)) {
 		return true;
 	}

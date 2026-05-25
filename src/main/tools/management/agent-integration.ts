@@ -6,7 +6,7 @@ import { agentToolToManagedTool, createAgentToolRegistry } from './adapter';
 import { ToolDiscovery } from './discovery';
 import { ToolExecutor } from './executor';
 import { ToolPromptBuilder } from './prompting';
-import { isToolIntrospectionRequest, ToolUsePolicy } from './use-policy';
+import { isScheduledWorkRequest, isToolIntrospectionRequest, ToolUsePolicy } from './use-policy';
 import type {
 	RankedTool,
 	RelevantMemory,
@@ -108,11 +108,7 @@ const TOOL_PREREQUISITES: Record<string, string[]> = {
 };
 
 function selectFridayCronToolNames(tools: AgentTool[], userMessage: string): Set<string> {
-	const request = userMessage.toLowerCase();
-	if (!/\b(schedule|scheduled|scheduling|remind|reminder|every|recurring|repeat|future)\b/.test(request)) {
-		return new Set();
-	}
-	if (!/\b(task|agent|job|work|run|runs|create|write|file|remind|reminder)\b/.test(request)) {
+	if (!isScheduledWorkRequest(userMessage)) {
 		return new Set();
 	}
 	return new Set(tools.some((tool) => tool.name === 'cron') ? ['cron'] : []);
