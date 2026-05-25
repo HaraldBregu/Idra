@@ -7,7 +7,7 @@ import type {
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
-import { beforeToolCall, newCallTracker } from '../tools/before-call';
+import { beforeToolCall, newCallTracker } from '../tools/guard';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
