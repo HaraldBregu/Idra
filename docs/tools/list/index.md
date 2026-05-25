@@ -31,3 +31,38 @@ Local tools are the built-in actions an agent may receive for a run. They should
 | [cron](cron.md) | Schedule future or recurring agent work. |
 | [open_browser](open-browser.md) | Open a page for the user. |
 | [browser](browser.md) | Inspect or interact with a managed browser page. |
+
+## Choosing Between read and inspect_file
+
+Use `inspect_file` when you need to decide whether and how to open a file — to check type, size, encoding, or whether it is binary.
+
+Use `read` when you need the actual text content to answer a question, prepare an edit, or verify a result.
+
+A common sequence before editing: `inspect_file` to confirm the file is what you expect, then `read` to get the exact content.
+
+## Common Workflows
+
+**Before editing a file:**
+
+1. `find` — locate the file if the path is uncertain
+2. `inspect_file` — confirm file type and size
+3. `read` — get the exact content
+4. `edit` or `apply_patch` — make the targeted change
+5. `exec` — run tests or checks to verify
+
+**Answering a question about workspace content:**
+
+1. `find` — locate relevant files
+2. `read` — read the files that matter
+3. Answer from real content, not assumptions
+
+**Running and monitoring a background task:**
+
+1. `exec` — start the command with background execution
+2. `process` — check status or read output when needed
+3. `process` — stop the command when it is no longer needed
+
+**Checking a live web page:**
+
+1. `web_fetch` — retrieve plain text from a known URL
+2. If the page requires interaction: `browser` — navigate, interact, or screenshot
