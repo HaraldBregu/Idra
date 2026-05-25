@@ -288,7 +288,7 @@ describe('StoreService', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			const managed = { schedules: [{ id: 'schedule-1' }] };
-			const friday = { jobs: [{ id: 'job-1' }] };
+			const friday = { schemaVersion: 1, jobs: [{ id: 'job-1' }], states: {}, lastRuns: {} };
 			const legacyTasks = [
 				{
 					id: 'legacy-1',
@@ -297,13 +297,13 @@ describe('StoreService', () => {
 					createdAt: '2026-05-22T00:00:00.000Z',
 				},
 			];
-			store.set('taskScheduler', { managed, friday });
+			store.set('taskScheduler', { managed, ...friday });
 
 			service.setCronTasks(legacyTasks);
 
 			expect(store.get('taskScheduler')).toEqual({
 				managed,
-				friday,
+				...friday,
 				legacyTasks,
 			});
 		});
@@ -363,14 +363,13 @@ describe('StoreService', () => {
 			});
 			const taskScheduler = (
 				service as unknown as { store: { get: (k: string) => unknown } }
-			).store.get('taskScheduler') as { friday?: { runs?: unknown; lastRuns?: unknown } };
+			).store.get('taskScheduler') as { friday?: unknown; runs?: unknown; lastRuns?: unknown };
 			expect(taskScheduler).toMatchObject({
-				friday: {
-					jobs: [{ id: 'job-1' }],
-					lastRuns: { 'job-1': { runId: 'run-1' } },
-				},
+				jobs: [{ id: 'job-1' }],
+				lastRuns: { 'job-1': { runId: 'run-1' } },
 			});
-			expect(taskScheduler.friday?.runs).toBeUndefined();
+			expect(taskScheduler.friday).toBeUndefined();
+			expect(taskScheduler.runs).toBeUndefined();
 		});
 
 		it('normalizes legacy Friday cron run arrays to only the last run', () => {
@@ -410,10 +409,13 @@ describe('StoreService', () => {
 			service.setFridayCronState(service.getFridayCronState());
 
 			const taskScheduler = store.get('taskScheduler') as {
-				friday?: { runs?: unknown; lastRuns?: Record<string, { runId?: string }> };
+				friday?: unknown;
+				runs?: unknown;
+				lastRuns?: Record<string, { runId?: string }>;
 			};
-			expect(taskScheduler.friday?.lastRuns?.['job-1']?.runId).toBe('run-2');
-			expect(taskScheduler.friday?.runs).toBeUndefined();
+			expect(taskScheduler.lastRuns?.['job-1']?.runId).toBe('run-2');
+			expect(taskScheduler.friday).toBeUndefined();
+			expect(taskScheduler.runs).toBeUndefined();
 		});
 	});
 
