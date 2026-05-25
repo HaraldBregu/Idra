@@ -17,6 +17,10 @@ Use `process` to inspect output from, check the status of, or stop a background 
 - Managing unrelated user processes.
 - Replacing normal command output for short commands.
 
+## When It Fails
+
+If the process check or stop fails, report the process id and the error. Do not assume the command stopped running.
+
 ## Keep In Mind
 
 Use `process` to clean up long-running work before the task is considered complete.
