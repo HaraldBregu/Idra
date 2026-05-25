@@ -319,81 +319,81 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 			return false;
 		}
 	},
-		async execute(args, ctx) {
-			if (ctx.fsPolicy?.readOnly) {
-				return textResult('apply_patch: disabled by read-only filesystem policy.', true);
-			}
-			try {
-				const patches = parseUnifiedDiff(String(args.diff ?? ''));
-				if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
-				const plans: Array<
-					| { operation: 'create' | 'modify'; path: string; abs: string; content: string }
-					| { operation: 'delete'; path: string; abs: string }
-				> = [];
-				const seen = new Set<string>();
-				for (const patch of patches) {
-					const abs = resolveAbs(ctx.workspace, patch.path, writeWorkspaceOnly(ctx, true));
-					if (seen.has(abs)) return textResult(`apply_patch: duplicate file patch: ${patch.path}`, true);
-					seen.add(abs);
+	async execute(args, ctx) {
+		if (ctx.fsPolicy?.readOnly) {
+			return textResult('apply_patch: disabled by read-only filesystem policy.', true);
+		}
+		try {
+			const patches = parseUnifiedDiff(String(args.diff ?? ''));
+			if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
+			const plans: Array<
+				| { operation: 'create' | 'modify'; path: string; abs: string; content: string }
+				| { operation: 'delete'; path: string; abs: string }
+			> = [];
+			const seen = new Set<string>();
+			for (const patch of patches) {
+				const abs = resolveAbs(ctx.workspace, patch.path, writeWorkspaceOnly(ctx, true));
+				if (seen.has(abs)) return textResult(`apply_patch: duplicate file patch: ${patch.path}`, true);
+				seen.add(abs);
 
-					const permission =
-						patch.operation === 'create'
-							? 'create'
-							: patch.operation === 'delete'
-								? 'delete'
-								: 'write';
-					const denied = checkFilePolicy(ctx, 'apply_patch', [{ path: abs, permission }]);
-					if (denied) return textResult(denied, true);
+				const permission =
+					patch.operation === 'create'
+						? 'create'
+						: patch.operation === 'delete'
+							? 'delete'
+							: 'write';
+				const denied = checkFilePolicy(ctx, 'apply_patch', [{ path: abs, permission }]);
+				if (denied) return textResult(denied, true);
 
-					if (patch.operation === 'create') {
-						const existing = await fs.stat(abs).catch(() => null);
-						if (existing) return textResult(`apply_patch: file already exists: ${patch.path}`, true);
-						plans.push({
-							operation: 'create',
-							path: patch.path,
-							abs,
-							content: buildCreatedFile(patch),
-						});
-						continue;
-					}
-
-					const stat = await fs.stat(abs);
-					if (!stat.isFile()) return textResult(`apply_patch: ${patch.path} is not a file`, true);
-					const last = ctx.readState.get(abs);
-					if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
-					if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
-						return textResult(`apply_patch: ${patch.path} changed on disk since last read.`, true);
-					}
-					const original = await fs.readFile(abs, 'utf8');
-					const next = applyFilePatch(original, patch);
-					if (patch.operation === 'delete') {
-						if (next.length > 0)
-							return textResult(`apply_patch: delete patch did not remove all content: ${patch.path}`, true);
-						plans.push({ operation: 'delete', path: patch.path, abs });
-					} else {
-						plans.push({ operation: 'modify', path: patch.path, abs, content: next });
-					}
+				if (patch.operation === 'create') {
+					const existing = await fs.stat(abs).catch(() => null);
+					if (existing) return textResult(`apply_patch: file already exists: ${patch.path}`, true);
+					plans.push({
+						operation: 'create',
+						path: patch.path,
+						abs,
+						content: buildCreatedFile(patch),
+					});
+					continue;
 				}
-				const changed: string[] = [];
-				for (const plan of plans) {
-					if (plan.operation === 'delete') {
-						await fs.rm(plan.abs);
-						ctx.readState.delete(plan.abs);
-					} else {
-						await fs.mkdir(path.dirname(plan.abs), { recursive: true });
-						await fs.writeFile(plan.abs, plan.content, 'utf8');
-						const after = await fs.stat(plan.abs);
-						ctx.readState.set(plan.abs, snapshot(after));
-					}
-					changed.push(plan.path);
+
+				const stat = await fs.stat(abs);
+				if (!stat.isFile()) return textResult(`apply_patch: ${patch.path} is not a file`, true);
+				const last = ctx.readState.get(abs);
+				if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
+				if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
+					return textResult(`apply_patch: ${patch.path} changed on disk since last read.`, true);
 				}
-				return textResult(`patched ${changed.join(', ')}`);
-			} catch (err) {
-				return textResult(`apply_patch: ${(err as Error).message}`, true);
+				const original = await fs.readFile(abs, 'utf8');
+				const next = applyFilePatch(original, patch);
+				if (patch.operation === 'delete') {
+					if (next.length > 0)
+						return textResult(`apply_patch: delete patch did not remove all content: ${patch.path}`, true);
+					plans.push({ operation: 'delete', path: patch.path, abs });
+				} else {
+					plans.push({ operation: 'modify', path: patch.path, abs, content: next });
+				}
 			}
-		},
-	};
-	
+			const changed: string[] = [];
+			for (const plan of plans) {
+				if (plan.operation === 'delete') {
+					await fs.rm(plan.abs);
+					ctx.readState.delete(plan.abs);
+				} else {
+					await fs.mkdir(path.dirname(plan.abs), { recursive: true });
+					await fs.writeFile(plan.abs, plan.content, 'utf8');
+					const after = await fs.stat(plan.abs);
+					ctx.readState.set(plan.abs, snapshot(after));
+				}
+				changed.push(plan.path);
+			}
+			return textResult(`patched ${changed.join(', ')}`);
+		} catch (err) {
+			return textResult(`apply_patch: ${(err as Error).message}`, true);
+		}
+	},
+};
+
 function parseUnifiedDiff(diff: string): PatchFile[] {
 	const lines = diff.split(/\r?\n/);
 	const files: PatchFile[] = [];
