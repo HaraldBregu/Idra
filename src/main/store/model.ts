@@ -73,11 +73,8 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 }
 
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
-	return {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-	};
+	const { apiKey: _apiKey, ...publicProvider } = provider;
+	return publicProvider;
 }
 
 function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
