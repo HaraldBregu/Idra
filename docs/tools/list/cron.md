@@ -24,3 +24,10 @@ Use `cron` to create, inspect, update, run, or remove future and recurring sched
 ## Keep In Mind
 
 Scheduling is an external commitment. Make the timing, task, and delivery expectation clear before creating or changing a schedule.
+
+## Detailed Actions
+
+- [cron list](../cron/list.md) — show scheduled jobs
+- [cron get](../cron/get.md) — inspect one job
+- [cron add](../cron/add.md) — create a new scheduled job
+- [cron remove](../cron/remove.md) — delete a job

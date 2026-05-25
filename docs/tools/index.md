@@ -26,6 +26,7 @@ An agent should use tools when they make the result more accurate, current, veri
 | Area | Use it for | Docs |
 | --- | --- | --- |
 | Local tools | Files, commands, browser work, and scheduling. | [Local tools](list/index.md) |
+| Cron actions | Scheduling reminders and recurring agent work. | [Cron tool](cron/index.md) |
 | Tool search | Finding a relevant tool from a large catalog only when needed. | [Tool search](search/index.md) |
 
 ## Related Docs
