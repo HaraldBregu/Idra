@@ -2,6 +2,10 @@
 
 `read` opens an existing file so the agent can use the real contents. It may read outside the current workspace when the request needs that context, but it does not change files.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+
 ## Tool Search Description
 
 Use `read` to read the contents of an existing file so the agent can answer from real file context or prepare safe workspace file changes.
