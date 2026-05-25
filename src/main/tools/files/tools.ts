@@ -6,7 +6,13 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
-import { checkFilePolicy, type FilePolicyCheck } from './policy';
+import {
+	checkFilePolicy,
+	filePolicyAllows,
+	hasFilePolicy,
+	type FilePolicyCheck,
+} from './policy';
+import type { Permission } from '../../../shared/policy';
 
 function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
@@ -36,12 +42,27 @@ function readWorkspaceOnly(ctx: ToolContext): boolean {
 function writeWorkspaceOnly(ctx: ToolContext, defaultWhenUnset = true): boolean {
 	if (ctx.fsPolicy?.workspaceOnly === true) return true;
 	if (ctx.fsPolicy?.writeWorkspaceOnly !== undefined) return ctx.fsPolicy.writeWorkspaceOnly;
+	if (hasFilePolicy(ctx)) return false;
 	return defaultWhenUnset;
 }
 
-function writePathNeedsApproval(ctx: ToolContext, target: string): boolean {
+function outsidePathNeedsApproval(
+	ctx: ToolContext,
+	target: string,
+	permissions: readonly Permission[],
+	mode: 'all' | 'any' = 'all'
+): boolean {
 	const abs = resolveAbs(ctx.workspace, target, false);
-	return !isInsidePath(ctx.workspace, abs);
+	if (isInsidePath(ctx.workspace, abs)) return false;
+	const allowed =
+		mode === 'all'
+			? permissions.every((permission) => filePolicyAllows(ctx, abs, permission))
+			: permissions.some((permission) => filePolicyAllows(ctx, abs, permission));
+	return !allowed;
+}
+
+function writePathNeedsApproval(ctx: ToolContext, target: string): boolean {
+	return outsidePathNeedsApproval(ctx, target, ['write', 'create'], 'any');
 }
 
 function anyWritePathNeedsApproval(ctx: ToolContext, targets: string[]): boolean {
@@ -177,7 +198,8 @@ export const writeTool: AgentTool<WriteArgs> = {
 		required: ['path', 'content'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.path),
+	needsApproval: (args, ctx) =>
+		outsidePathNeedsApproval(ctx, args.path, ['write', 'create'], 'any'),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('write: disabled by read-only filesystem policy.', true);
@@ -250,7 +272,7 @@ export const editTool: AgentTool<EditArgs> = {
 		required: ['path', 'old', 'new'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.path),
+	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['write']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('edit: disabled by read-only filesystem policy.', true);
@@ -547,7 +569,7 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		required: ['path'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.path),
+	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['delete']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('delete: disabled by read-only filesystem policy.', true);
@@ -601,7 +623,8 @@ export const copyTool: AgentTool<CopyArgs> = {
 		required: ['source', 'destination'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => writePathNeedsApproval(ctx, args.destination),
+	needsApproval: (args, ctx) =>
+		outsidePathNeedsApproval(ctx, args.destination, ['write', 'create'], 'any'),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('copy: disabled by read-only filesystem policy.', true);
@@ -683,7 +706,9 @@ export const moveTool: AgentTool<MoveArgs> = {
 		required: ['source', 'destination'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => anyWritePathNeedsApproval(ctx, [args.source, args.destination]),
+	needsApproval: (args, ctx) =>
+		outsidePathNeedsApproval(ctx, args.source, ['read', 'delete']) ||
+		outsidePathNeedsApproval(ctx, args.destination, ['write', 'create'], 'any'),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('move: disabled by read-only filesystem policy.', true);
