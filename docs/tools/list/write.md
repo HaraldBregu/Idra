@@ -2,6 +2,10 @@
 
 `write` creates a new file or replaces a whole file.
 
+## Tool Search Description
+
+Use `write` to create a new workspace file or replace an entire file with complete new content.
+
 ## Use For
 
 - New documents or generated files.

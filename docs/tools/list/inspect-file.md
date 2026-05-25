@@ -2,6 +2,10 @@
 
 `inspect_file` checks what a file is before the agent decides what to do with it.
 
+## Tool Search Description
+
+Use `inspect_file` to check file metadata, type, size, preview content, or image details before choosing the next action.
+
 ## Use For
 
 - Checking file type, size, or metadata.

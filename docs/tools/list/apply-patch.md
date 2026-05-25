@@ -2,6 +2,10 @@
 
 `apply_patch` applies a planned set of related file changes.
 
+## Tool Search Description
+
+Use `apply_patch` to apply a focused patch containing several related workspace file changes.
+
 ## Use For
 
 - Multiple edits that should land together.

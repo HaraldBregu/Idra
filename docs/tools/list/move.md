@@ -2,6 +2,10 @@
 
 `move` renames or relocates a file.
 
+## Tool Search Description
+
+Use `move` to rename or relocate a workspace file while preserving its contents.
+
 ## Use For
 
 - Putting a file in the right folder.

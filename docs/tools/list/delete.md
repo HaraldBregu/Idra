@@ -2,6 +2,10 @@
 
 `delete` removes a file or folder.
 
+## Tool Search Description
+
+Use `delete` to remove a workspace file or folder when deletion is clearly part of the requested task.
+
 ## Use For
 
 - Removing files the user asked to remove.

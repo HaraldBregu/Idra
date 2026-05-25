@@ -2,6 +2,10 @@
 
 `find` locates files by name, path, or pattern.
 
+## Tool Search Description
+
+Use `find` to locate relevant files or paths before reading, editing, or answering from workspace content.
+
 ## Use For
 
 - Discovering where relevant files live.

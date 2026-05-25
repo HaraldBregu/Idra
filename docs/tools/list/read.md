@@ -2,6 +2,10 @@
 
 `read` opens an existing file so the agent can use the real contents.
 
+## Tool Search Description
+
+Use `read` to read the contents of an existing file so the agent can answer from real file context or prepare safe file changes.
+
 ## Use For
 
 - Answering questions about a file.

@@ -2,6 +2,10 @@
 
 `copy` duplicates content into another workspace path.
 
+## Tool Search Description
+
+Use `copy` to duplicate an existing file or directory into a new workspace location.
+
 ## Use For
 
 - Creating a variant from an existing file.

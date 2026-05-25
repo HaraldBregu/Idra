@@ -2,6 +2,10 @@
 
 `exec` runs an approved command or script.
 
+## Tool Search Description
+
+Use `exec` to run approved shell commands, project scripts, tests, builds, checks, or automation needed for the task.
+
 ## Use For
 
 - Tests, builds, format checks, and project scripts.

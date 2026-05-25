@@ -326,6 +326,25 @@ describe('tool management layer', () => {
 		});
 	});
 
+	it('uses tools for scheduled work even when the payload is creative text', () => {
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Schedule a task that writes a short poem every 5 minutes.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Every 5 minutes create a file with lorem ipsum data.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
+	});
+
 	it('uses tools for plain script and Python execution requests', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run the Python script.' })).toEqual({
 			shouldUseTools: true,
@@ -415,7 +434,7 @@ describe('tool management layer', () => {
 				),
 				makeAgentTool('task', 'Start an immediate in-memory background task.'),
 			],
-			'schedule a task that runs each 5 minutes and creates a file with lorem ipsum data',
+			'every 5 minutes create a file with lorem ipsum data',
 			makeToolContext(),
 			{ forceSelection: true, maxPromptTools: 1 }
 		);

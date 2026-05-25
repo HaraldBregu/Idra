@@ -95,6 +95,19 @@ describe('agent/system-prompt', () => {
 		expect(prompt).toContain('Do not use host schedulers such as crontab');
 	});
 
+	it('does not frame scheduling as system cron when no tools are available', async () => {
+		const prompt = await buildSystemPrompt({
+			workspace: '/repo',
+			date: '2026-05-14',
+			model: 'gpt-test',
+			tools: [],
+		});
+
+		expect(prompt).toContain('No tools are available for this turn');
+		expect(prompt).toContain('Friday cron tool is unavailable');
+		expect(prompt).toContain('never suggest or use system cron');
+	});
+
 	it('formats skill guidance as an escaped compact catalog', async () => {
 		const prompt = await buildSystemPrompt({
 			workspace: '/repo',
