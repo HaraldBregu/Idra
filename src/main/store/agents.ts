@@ -39,5 +39,4 @@ export class AgentsStore {
 		this.store.set('agents', next);
 		return next;
 	}
-
 }

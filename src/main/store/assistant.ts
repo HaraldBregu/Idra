@@ -227,7 +227,11 @@ export function getConfiguredModelOperatorForStore(
 	if (!settings) return undefined;
 	const provider = providers.getProviderById(settings.providerId);
 	if (!provider || !isAllowedModuleModel(key, settings, provider)) return undefined;
-	return configuredModelOperator(key, publicProvider(provider), modelForModule(key, settings, provider));
+	return configuredModelOperator(
+		key,
+		publicProvider(provider),
+		modelForModule(key, settings, provider)
+	);
 }
 
 export class AssistantStore {

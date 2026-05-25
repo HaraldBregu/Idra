@@ -26,7 +26,9 @@ export class TextToSoundStore {
 		const provider = this.providers.getProviderById(providerId);
 		if (!provider || !isAllowedMusicCreatorModel(provider.id, model.id)) return false;
 		const current = getModelModuleSettingsForStore(this.store, 'textToSound');
-		const catalogModel = getMusicModelsByProvider(provider.id).find((entry) => entry.id === model.id);
+		const catalogModel = getMusicModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
 		this.store.set(
 			'textToSound',
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
