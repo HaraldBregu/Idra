@@ -450,6 +450,16 @@ describe('tools/exec', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
+	it('rejects host scheduler commands so scheduled agent work uses cron', async () => {
+		const workspace = await makeTempDir();
+		const result = await execTool.execute({ command: 'crontab -l' }, makeToolContext({ workspace }));
+
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('system scheduler commands are blocked');
+		expect(result.content[0]?.text).toContain('Friday cron tool');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
 	it('allows disabling the foreground command timeout', async () => {
 		const workspace = await makeTempDir();
 		const result = await execTool.execute(
