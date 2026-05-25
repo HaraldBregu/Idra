@@ -469,6 +469,8 @@ describe('tools/fs', () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
 		await fs.writeFile(path.join(workspace, 'source.txt'), 'alpha', 'utf8');
+		await fs.mkdir(path.join(workspace, 'source-dir', 'nested'), { recursive: true });
+		await fs.writeFile(path.join(workspace, 'source-dir', 'nested', 'item.txt'), 'nested', 'utf8');
 		await fs.writeFile(path.join(workspace, 'delete-me.txt'), 'remove', 'utf8');
 		const png = Buffer.from(
 			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
@@ -478,8 +480,15 @@ describe('tools/fs', () => {
 
 		expect(
 			(await copyTool.execute({ source: 'source.txt', destination: 'copy.txt' }, ctx)).status
-		).toBe('ok');
+			).toBe('ok');
 		await expect(fs.readFile(path.join(workspace, 'copy.txt'), 'utf8')).resolves.toBe('alpha');
+
+		expect(
+			(await copyTool.execute({ source: 'source-dir', destination: 'copied-dir' }, ctx)).status
+		).toBe('ok');
+		await expect(
+			fs.readFile(path.join(workspace, 'copied-dir', 'nested', 'item.txt'), 'utf8')
+		).resolves.toBe('nested');
 
 		await readTool.execute({ path: 'copy.txt' }, ctx);
 		expect(
@@ -507,6 +516,35 @@ describe('tools/fs', () => {
 			])
 		);
 		expect(inspected.content[0]?.text).toContain('dimensions: 1x1');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('checks policy for nested files before copying a directory', async () => {
+		const workspace = await makeTempDir();
+		const sourceDir = path.join(workspace, 'source-dir');
+		const privateDir = path.join(sourceDir, 'private');
+		await fs.mkdir(privateDir, { recursive: true });
+		await fs.writeFile(path.join(sourceDir, 'public.txt'), 'public', 'utf8');
+		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
+		const ctx = makeToolContext({ workspace });
+		useFilePolicy(ctx, {
+			version: 1,
+			defaultPolicy: 'deny',
+			paths: [
+				{
+					path: workspace,
+					permissions: ['read', 'write', 'create', 'delete'],
+					recursive: true,
+				},
+				{ path: privateDir, permissions: [], recursive: true },
+			],
+		});
+
+		const result = await copyTool.execute({ source: 'source-dir', destination: 'copied-dir' }, ctx);
+
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('denied by file policy');
+		await expect(fs.stat(path.join(workspace, 'copied-dir'))).rejects.toThrow();
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 });
