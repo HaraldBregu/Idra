@@ -9,7 +9,6 @@ export interface PolicyConfig {
 	alsoAllow?: string[];
 	deny: string[];
 	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
-	exec?: Record<string, unknown>;
 }
 
 function profileAllow(profile: ToolProfile): readonly string[] | 'all' {
