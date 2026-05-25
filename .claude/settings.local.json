@@ -211,7 +211,8 @@
       "WebFetch(domain:api-docs.deepseek.com)",
       "WebFetch(domain:docs.qwencloud.com)",
       "WebFetch(domain:www.qwencloud.com)",
-      "WebFetch(domain:platform.openai.com)"
+      "WebFetch(domain:platform.openai.com)",
+      "Bash(echo \"done\")"
     ],
     "deny": [
       "Bash(git push --force:*)",
