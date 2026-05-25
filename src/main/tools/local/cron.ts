@@ -78,15 +78,17 @@ function inferredDelivery(ctx: ToolContext): Record<string, unknown> | undefined
 export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> = {
 	name: 'cron',
 	ownerOnly: true,
-	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
+	displaySummary: 'Manage scheduled agent jobs.',
 	description:
-		'Manage scheduled jobs through the Gateway-owned scheduler. Use this only for future, delayed, recurring, reminder, wake, or manual-run scheduling. When the user asks to schedule a task, create a Friday cron job; never use host schedulers such as crontab, launchctl, systemctl timers, or schtasks. Do not use this to start immediate in-memory task execution. Do not emulate scheduling with sleep loops, shell loops, long-running process polling, or model-side timers. For every-N-minutes requests, prefer schedule.kind=every with everyMs. For cron schedules, write expressions in the supplied timezone local wall-clock time; do not convert requested local time to UTC first. Use jobId as the canonical id. Prefer isolated agentTurn jobs unless the user asked for main-session systemEvent injection.',
+		'Manage scheduled agent work. Use this for reminders, delayed tasks, and recurring jobs after the timing, task, and delivery expectation are clear. Use action=list to review existing jobs, action=get to inspect one job, action=add to create a future or recurring job, and action=remove to delete a job. Do not use this for immediate work, shell sleep loops, system cron, crontab, launchctl, systemctl timers, schtasks, model-side timers, or storing secrets. Ask a focused question before add/remove when the requested schedule or target job is ambiguous. For every-N-minutes requests, prefer schedule.kind=every with everyMs. For wall-clock cron schedules, include an IANA timezone in schedule.tz or tz when it matters. Use jobId as the canonical id.',
 	schema: {
 		type: 'object',
 		properties: {
 			action: {
 				type: 'string',
-				enum: ['status', 'list', 'get', 'add', 'update', 'remove', 'run', 'runs', 'wake'],
+				enum: ['list', 'get', 'add', 'remove'],
+				description:
+					'list: show scheduled jobs. get: inspect one job by id. add: create a scheduled job. remove: delete a scheduled job by id.',
 			},
 			jobId: { type: 'string', description: 'Canonical cron job id.' },
 			id: { type: 'string', description: 'Compatibility alias for jobId.' },
@@ -97,16 +99,11 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 				type: 'number',
 				description: 'For systemEvent reminders only; capture 1-10 recent messages.',
 			},
-			timeoutMs: { type: 'number' },
 			job: {
 				type: 'object',
 				additionalProperties: true,
-				description: 'Job payload for action=add.',
-			},
-			patch: {
-				type: 'object',
-				additionalProperties: true,
-				description: 'Patch payload for action=update.',
+				description:
+					'Job payload for action=add. Include a clear name, schedule, and payload. Do not include secrets.',
 			},
 			name: { type: 'string' },
 			description: { type: 'string' },
@@ -115,7 +112,6 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 			schedule: { type: 'object', additionalProperties: true },
 			sessionTarget: { type: 'string' },
 			session: { type: 'string', description: 'Compatibility alias for sessionTarget.' },
-			wakeMode: { type: 'string', enum: ['now', 'next-heartbeat'] },
 			payload: { type: 'object', additionalProperties: true },
 			delivery: { type: 'object', additionalProperties: true },
 			failureAlert: { type: 'object', additionalProperties: true },
@@ -128,7 +124,7 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 			tz: { type: 'string', description: 'IANA timezone for cron local wall-clock time.' },
 			staggerMs: { type: 'number' },
 			exact: { type: 'boolean', description: 'When true, normalizes to staggerMs 0.' },
-			text: { type: 'string', description: 'systemEvent text or wake text.' },
+			text: { type: 'string', description: 'systemEvent text.' },
 			message: { type: 'string', description: 'agentTurn message.' },
 			fallbacks: { type: 'array', items: { type: 'string' } },
 			thinking: { type: 'string', enum: ['low', 'medium', 'high'] },
@@ -142,10 +138,6 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 			accountId: { type: 'string' },
 			bestEffort: { type: 'boolean' },
 			bestEffortDeliver: { type: 'boolean' },
-			mode: { type: 'string', enum: ['force', 'due', 'now', 'next-heartbeat'] },
-			runMode: { type: 'string', enum: ['force', 'due'] },
-			force: { type: 'boolean' },
-			limit: { type: 'number' },
 		},
 		required: ['action'],
 		additionalProperties: false,
