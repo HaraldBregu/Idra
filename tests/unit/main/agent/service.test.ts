@@ -858,6 +858,7 @@ describe('AgentService', () => {
 			])
 		);
 		expect(toolNames).not.toContain('startup_files');
+		expect(toolNames).not.toContain('bootstrap');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -916,7 +917,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('adds agent startup context and startup_files for full bootstrap turns', async () => {
+	it('adds agent startup context and bootstrap tools for full bootstrap turns', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps('/workspace');
 		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
@@ -952,7 +953,7 @@ describe('AgentService', () => {
 		});
 
 		await expect(service.send('hi')).resolves.toBe('bootstrap ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['startup_files']);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['bootstrap', 'startup_files']);
 		expect(requests[0]!.system).toContain('## Bootstrap');
 		expect(requests[0]!.system).toContain('bootstrap ritual');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
