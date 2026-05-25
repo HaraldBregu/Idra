@@ -77,6 +77,24 @@ describe('agent/system-prompt', () => {
 		expect(prompt).toContain('directly usable format');
 	});
 
+	it('routes scheduled task language to Friday cron instead of host schedulers', async () => {
+		const tools: AgentTool[] = [
+			{ name: 'exec', description: 'Run commands', schema: {}, execute: jest.fn() },
+			{ name: 'cron', description: 'Schedule jobs', schema: {}, execute: jest.fn() },
+		];
+
+		const prompt = await buildSystemPrompt({
+			workspace: '/repo',
+			date: '2026-05-14',
+			model: 'gpt-test',
+			tools,
+		});
+
+		expect(prompt).toContain('When the user asks to schedule a task, use this tool');
+		expect(prompt).toContain('not system crontab or host schedulers');
+		expect(prompt).toContain('Do not use host schedulers such as crontab');
+	});
+
 	it('formats skill guidance as an escaped compact catalog', async () => {
 		const prompt = await buildSystemPrompt({
 			workspace: '/repo',
