@@ -8,6 +8,18 @@ The `policy` root stores the active access control policy. The policy module rea
 | --- | --- |
 | `policy` | Access control policy version, default decision, and path grants. |
 
+## Initial Value
+
+The `policy` property should start with this default value:
+
+```json
+{
+  "version": 1,
+  "defaultPolicy": "deny",
+  "paths": []
+}
+```
+
 ## Properties
 
 ### `version`
