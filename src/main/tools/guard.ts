@@ -1,1 +1,1 @@
-export * from './policy/before-call';
+export * from './policy/guard';
