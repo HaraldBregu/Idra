@@ -27,14 +27,24 @@ import { ChannelsStore } from './channels';
 import { ConnectorsStore } from './connectors';
 import { CronStore } from './cron';
 import { HeartbeatStore } from './heartbeat';
+import { ImageCreatorStore } from './image-creator';
 import { PolicyStore } from './policy';
 import { ProvidersStore } from './providers';
+import { SpeechToTextStore } from './speech-to-text';
 import { TaskStore } from './task';
+import { TextToSoundStore } from './text-to-sound';
+import { TextToSpeechStore } from './text-to-speech';
+import { TextToVideoStore } from './text-to-video';
 
 export class StoreService {
 	private store: SettingsStoreAccessor;
 	private providers: ProvidersStore;
 	private assistant: AssistantStore;
+	private speechToText: SpeechToTextStore;
+	private textToSpeech: TextToSpeechStore;
+	private imageCreator: ImageCreatorStore;
+	private textToVideo: TextToVideoStore;
+	private textToSound: TextToSoundStore;
 	private agents: AgentsStore;
 	private task: TaskStore;
 	private channels: ChannelsStore;
@@ -50,6 +60,11 @@ export class StoreService {
 		}) as unknown as SettingsStoreAccessor;
 		this.providers = new ProvidersStore(this.store);
 		this.assistant = new AssistantStore(this.store, this.providers);
+		this.speechToText = new SpeechToTextStore(this.store, this.providers);
+		this.textToSpeech = new TextToSpeechStore(this.store, this.providers);
+		this.imageCreator = new ImageCreatorStore(this.store, this.providers);
+		this.textToVideo = new TextToVideoStore(this.store, this.providers);
+		this.textToSound = new TextToSoundStore(this.store, this.providers);
 		this.agents = new AgentsStore(this.store);
 		this.task = new TaskStore(this.store);
 		this.channels = new ChannelsStore(this.store);
@@ -81,10 +96,25 @@ export class StoreService {
 
 	// Models / Operators
 	getOperator(): OperatorStoreState | undefined {
-		return this.assistant.getOperator();
+		const next: OperatorStoreState = {};
+		const assistant = this.getAssistantOperator();
+		if (assistant) next.assistant = assistant;
+		const speechToText = this.getSpeechToTextOperator();
+		if (speechToText) next.speechToText = speechToText;
+		const textToSpeech = this.getTextToSpeechOperator();
+		if (textToSpeech) next.textToSpeech = textToSpeech;
+		const imageCreator = this.getImageCreatorOperator();
+		if (imageCreator) next.imageCreator = imageCreator;
+		const textToVideo = this.getTextToVideoOperator();
+		if (textToVideo) next.videoCreator = textToVideo;
+		const textToSound = this.getTextToSoundOperator();
+		if (textToSound) next.musicCreator = textToSound;
+		const agents = this.assistant.getAgentsHeartbeatConfig();
+		if (agents) next.agents = agents;
+		return Object.keys(next).length > 0 ? next : undefined;
 	}
 	getService(): OperatorStoreState | undefined {
-		return this.assistant.getService();
+		return this.getOperator();
 	}
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
 		return this.assistant.setDefaultHeartbeatConfig(config);
@@ -99,22 +129,25 @@ export class StoreService {
 		return this.assistant.getAssistantProvider();
 	}
 	getSpeechToTextOperator(): ConfiguredModelOperator | undefined {
-		return this.assistant.getSpeechToTextOperator();
+		return this.speechToText.getSpeechToTextOperator();
 	}
 	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
-		return this.assistant.getTextToSpeechOperator();
+		return this.textToSpeech.getTextToSpeechOperator();
 	}
 	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.assistant.getImageCreatorOperator();
+		return this.imageCreator.getImageCreatorOperator();
 	}
 	getTextToVideoOperator(): ConfiguredModelOperator | undefined {
-		return this.assistant.getTextToVideoOperator();
+		return this.textToVideo.getTextToVideoOperator();
+	}
+	getTextToSoundOperator(): ConfiguredModelOperator | undefined {
+		return this.textToSound.getTextToSoundOperator();
 	}
 	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.assistant.getMusicCreatorOperator();
+		return this.getTextToSoundOperator();
 	}
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
-		return this.assistant.getImageCreatorSettings();
+		return this.imageCreator.getImageCreatorSettings();
 	}
 	getAgentRuntimePreference(): string | undefined {
 		return this.assistant.getAgentRuntimePreference();
@@ -126,19 +159,22 @@ export class StoreService {
 		return this.assistant.setAssistantOperator(providerId, model);
 	}
 	setSpeechToTextOperator(providerId: string, model: Model): boolean {
-		return this.assistant.setSpeechToTextOperator(providerId, model);
+		return this.speechToText.setSpeechToTextOperator(providerId, model);
 	}
 	setTextToSpeechOperator(providerId: string, model: Model): boolean {
-		return this.assistant.setTextToSpeechOperator(providerId, model);
+		return this.textToSpeech.setTextToSpeechOperator(providerId, model);
 	}
 	setImageCreatorOperator(providerId: string, model: Model): boolean {
-		return this.assistant.setImageCreatorOperator(providerId, model);
+		return this.imageCreator.setImageCreatorOperator(providerId, model);
 	}
 	setTextToVideoOperator(providerId: string, model: Model): boolean {
-		return this.assistant.setTextToVideoOperator(providerId, model);
+		return this.textToVideo.setTextToVideoOperator(providerId, model);
+	}
+	setTextToSoundOperator(providerId: string, model: Model): boolean {
+		return this.textToSound.setTextToSoundOperator(providerId, model);
 	}
 	setMusicCreatorOperator(providerId: string, model: Model): boolean {
-		return this.assistant.setMusicCreatorOperator(providerId, model);
+		return this.setTextToSoundOperator(providerId, model);
 	}
 	getAgentModel(): Model | undefined {
 		return this.assistant.getAgentModel();
@@ -150,13 +186,13 @@ export class StoreService {
 		return this.assistant.getAgentService();
 	}
 	getSpeechTranscriberService(): ModelOperatorSelection | undefined {
-		return this.assistant.getSpeechTranscriberService();
+		return this.speechToText.getSpeechTranscriberService();
 	}
 	setAgentService(providerId: string, model: Model): boolean {
 		return this.assistant.setAgentService(providerId, model);
 	}
 	setSpeechTranscriberService(providerId: string, model: Model): boolean {
-		return this.assistant.setSpeechTranscriberService(providerId, model);
+		return this.speechToText.setSpeechTranscriberService(providerId, model);
 	}
 
 	// Agents
@@ -213,7 +249,7 @@ export class StoreService {
 		return this.policy.setPolicy(policy);
 	}
 
-	// Scheduler / Cron
+	// Cron
 	getCronTasks(): CronTask[] {
 		return this.cron.getCronTasks();
 	}
