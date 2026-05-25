@@ -1,8 +1,8 @@
 import { browserTool } from '../../browser';
 import type { AgentTool } from '../core/types';
-import { openBrowserTool } from './app';
-import { cronTool } from './cron';
-import { execTool, processTool } from './exec';
+import { openBrowserTool } from '../web/open-browser';
+import { cronTool } from '../scheduling/cron';
+import { execTool, processTool } from '../execution/tools';
 import {
 	applyPatchTool,
 	copyTool,
@@ -13,8 +13,8 @@ import {
 	moveTool,
 	readTool,
 	writeTool,
-} from './fs';
-import { webFetchTool } from './web';
+} from '../files/tools';
+import { webFetchTool } from '../web/web-fetch';
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
