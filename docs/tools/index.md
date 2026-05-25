@@ -23,31 +23,19 @@ This section documents file tools. File tool policy is a separate system module.
 - Ask before irreversible, external, or high-impact actions.
 - Do not use tools just to look busy.
 
-## Tool Search
+## Tool Selection
 
-Tool search is the mechanism an agent uses to locate and load the right tool before a run. Tools may be registered but not yet available in the active context; tool search resolves which tool to call next by matching the agent's intent against the registered tool set.
+Tool selection happens before a turn is sent to the model. The runtime builds candidate tools, filters them through the policy module, normalizes provider-facing schemas, and exposes only the selected tool schemas for that turn.
+
+The file tools documented here are not loaded through a model-callable search command. A file tool can be called only when its schema is present in the active turn.
 
 ### How It Works
 
-1. The agent determines what kind of action is needed.
-2. It queries the tool registry using keywords or a direct name lookup.
-3. The registry returns candidate tools with their schemas.
-4. The agent selects the best match and loads its full schema into the active context.
-5. Only after the schema is loaded can the tool be called.
-
-### When to Use Tool Search
-
-- When the required tool is known by name but its schema is not yet loaded — use a direct `select:<name>` query.
-- When the required tool category is known but the exact name is uncertain — use keyword search.
-- Do not skip tool search and call a tool directly if its schema has not been loaded; the call will fail.
-
-### Query Forms
-
-| Form | Example | Use |
-| --- | --- | --- |
-| Direct select | `select:read,edit` | Exact names, fastest |
-| Keyword search | `file write json` | Category or description known |
-| Prefix + keywords | `+file write` | Require a term in the name, rank by rest |
+1. The runtime builds the candidate file tool set.
+2. The policy module filters candidates by profile, allow/deny rules, sender context, sandbox context, and runtime allow/deny options.
+3. Provider schema normalization adapts the remaining tool schemas for the selected model.
+4. The active turn receives the selected tool schemas.
+5. During execution, each file tool asks file policy before operating on a path.
 
 ## File Tool Area
 
