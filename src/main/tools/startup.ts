@@ -55,7 +55,7 @@ function jsonResult<T>(payload: T): AgentToolResult<T> {
 	};
 }
 
-function errorResult(message: string): AgentToolResult {
+function errorResult<T = never>(message: string): AgentToolResult<T> {
 	return { status: 'error', content: [{ type: 'text', text: message }] };
 }
 
