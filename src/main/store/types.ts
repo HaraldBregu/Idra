@@ -157,6 +157,7 @@ export interface SettingsStore {
 	heartbeat?: HeartbeatStoreState;
 	connectors?: Connectors;
 	channels?: Channels;
+	policy?: PolicyConfig;
 }
 
 export type StoreSchema = SettingsStore;
