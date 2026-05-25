@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before moving, the policy module resolves both paths and checks three grants: `read` and `delete` on the source, and `create` on the destination. If any check is denied, the tool stops and the file remains in its original location.
+Depends on the [policy module](../policy/index.md). Before moving, the policy module resolves both paths and checks `read` and `delete` on the source. Moving to a new destination requires `create`; replacing an existing destination file requires `write` and an explicit overwrite request. If any check is denied, the tool stops and the file remains in its original location.
 
 ## Tool Search Description
 
@@ -27,4 +27,4 @@ If the move fails due to a path conflict or permission error, report the reason.
 
 ## Keep In Mind
 
-After moving a file, update references when the user-facing result depends on them. Both the source and destination must be inside the current workspace.
+After moving a file, update references when the user-facing result depends on them. Both the source and destination must be inside the current workspace. Only overwrite an existing destination file after reading it.
