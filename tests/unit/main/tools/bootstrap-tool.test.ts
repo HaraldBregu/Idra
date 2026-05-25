@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
-import { bootstrapTool, startupFilesTool } from '../../../../src/main/tools/startup';
+import { bootstrapTool, startupFilesTool } from '../../../../src/main/tools/bootstrap';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
-describe('tools/startup bootstrap', () => {
+describe('tools/bootstrap', () => {
 	it('writes required startup files and completes bootstrap without caller paths', async () => {
 		const root = await makeTempDir();
 		const services = {

@@ -38,7 +38,7 @@ import {
 	prepareLegacyToolsForProvider,
 	runtimeToolToLegacyTool,
 } from './tools/runtime/legacy-tool-adapter';
-import { bootstrapTool, startupFilesTool } from './tools/startup';
+import { bootstrapTool, startupFilesTool } from './tools/bootstrap';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
