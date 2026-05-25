@@ -26,6 +26,12 @@ function renderOverviewPage(): void {
 	);
 }
 
+function buttonTitles(container: HTMLElement = document.body): Array<string | null> {
+	return within(container).getAllByRole('button').map((button) => (
+		button.querySelector('[data-slot="item-title"]')?.textContent ?? null
+	));
+}
+
 describe('OverviewPage', () => {
 	it('renders settings navigation rows in grouped sections', () => {
 		renderOverviewPage();
@@ -41,7 +47,7 @@ describe('OverviewPage', () => {
 		}).closest('section');
 		expect(monitoringSection).not.toBeNull();
 
-		expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+		expect(buttonTitles()).toEqual([
 			'settings.tabs.general',
 			'settings.tabs.system',
 			'AI Assistant',
@@ -60,20 +66,20 @@ describe('OverviewPage', () => {
 			'settings.tabs.monitoring',
 			'settings.tabs.policies',
 		]);
-		expect(within(monitoringSection as HTMLElement).getAllByRole('button').map((button) => button.textContent)).toEqual([
+		expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
 			'settings.tabs.backgroundTasks',
 			'settings.tabs.monitoring',
 			'settings.tabs.policies',
 		]);
 
-		expect(screen.getAllByRole('button').at(-1)).toHaveTextContent('settings.tabs.policies');
+		expect(buttonTitles().at(-1)).toBe('settings.tabs.policies');
 	});
 
 	it('navigates to the selected settings route when clicked', async () => {
 		const user = userEvent.setup();
 		renderOverviewPage();
 
-		await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
+		await user.click(screen.getByRole('button', { name: /AI Assistant/ }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
 	});
