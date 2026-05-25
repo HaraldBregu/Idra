@@ -16,11 +16,11 @@ import type { PolicyConfig } from '../../shared/policy';
 import type {
 	AgentConfig,
 	AgentRoutingSettings,
-	BackgroundTaskSettings,
 	ModelModuleSettings,
 	SettingsStoreAccessor,
 	StoreSchema,
-} from './types';
+	TaskSettings,
+} from '../../shared/store';
 import { AgentStore } from './agent';
 import { ChannelStore } from './channel';
 import { ConnectorStore } from './connector';
@@ -99,7 +99,7 @@ export class StoreService {
 	getConfiguredAgents(): AgentConfig[] { return this.agents.getConfiguredAgents(); }
 	getAgentConfig(id: string): AgentConfig | undefined { return this.agents.getAgentConfig(id); }
 	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings { return this.agents.setAgentRoutingSettings(settings); }
-	getBackgroundTaskSettings(): BackgroundTaskSettings { return this.agents.getBackgroundTaskSettings(); }
+	getBackgroundTaskSettings(): TaskSettings { return this.agents.getBackgroundTaskSettings(); }
 
 	// Channels
 	getChannel(): Channel { return this.channels.getChannel(); }

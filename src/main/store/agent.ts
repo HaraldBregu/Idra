@@ -2,9 +2,9 @@ import { normalizeAgentRoutingSettings } from '../agent/routing';
 import type {
 	AgentConfig,
 	AgentRoutingSettings,
-	BackgroundTaskSettings,
+	TaskSettings,
 	SettingsStoreAccessor,
-} from './types';
+} from '../../shared/store';
 
 type KeepAwakeSettings = { readonly keepAwakeEnabled: boolean };
 
@@ -13,7 +13,7 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 	return value as Record<string, unknown>;
 }
 
-function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
+function readTaskSettings(value: unknown): TaskSettings {
 	const record = readRecord(value);
 	if (!record) return {};
 	const allowedTaskTypes = Array.isArray(record.allowedTaskTypes)
@@ -70,7 +70,8 @@ export class AgentStore {
 		return next;
 	}
 
-	getBackgroundTaskSettings(): BackgroundTaskSettings {
-		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
+	getBackgroundTaskSettings(): TaskSettings {
+		const task = this.store.get('task');
+		return readTaskSettings(task === undefined ? this.store.get('backgroundTask') : task);
 	}
 }

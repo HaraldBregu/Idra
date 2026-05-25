@@ -1,5 +1,5 @@
 import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
-import type { ModelProviderSettings, SettingsStoreAccessor } from './types';
+import type { ProviderSettings, SettingsStoreAccessor } from '../../shared/store';
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
@@ -11,14 +11,14 @@ function defaultProviderForId(id: string): Provider | undefined {
 	return DEFAULT_PROVIDERS.find((provider) => provider.id.trim().toLowerCase() === providerId);
 }
 
-function providerFromSettings(settings: ModelProviderSettings): Provider {
+function providerFromSettings(settings: ProviderSettings): Provider {
 	return {
 		...(defaultProviderForId(settings.id) ?? {}),
 		...settings,
 	};
 }
 
-function modelProviderSettings(provider: Provider): ModelProviderSettings {
+function providerSettings(provider: Provider): ProviderSettings {
 	return {
 		id: provider.id.trim().toLowerCase(),
 		name: provider.name.trim(),
@@ -27,7 +27,7 @@ function modelProviderSettings(provider: Provider): ModelProviderSettings {
 	};
 }
 
-function readModelProviderSettings(value: unknown): ModelProviderSettings | undefined {
+function readProviderSettings(value: unknown): ProviderSettings | undefined {
 	const record = readRecord(value);
 	if (!record) return undefined;
 	const id = typeof record.id === 'string' ? record.id.trim().toLowerCase() : '';
@@ -38,10 +38,10 @@ function readModelProviderSettings(value: unknown): ModelProviderSettings | unde
 	return { id, name, baseUrl, apiKey };
 }
 
-function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] {
+function readProviderSettingsList(value: unknown): ProviderSettings[] {
 	if (!Array.isArray(value)) return [];
 	return value.flatMap((entry) => {
-		const provider = readModelProviderSettings(entry);
+		const provider = readProviderSettings(entry);
 		return provider ? [provider] : [];
 	});
 }
@@ -145,12 +145,12 @@ export class ProviderStore {
 	}
 
 	private getStoredModelProviders(): Provider[] {
-		return readModelProviderSettingsList(this.store.get('modelProviders')).map(
-			providerFromSettings
-		);
+		const providers = this.store.get('providers');
+		const source = providers === undefined ? this.store.get('modelProviders') : providers;
+		return readProviderSettingsList(source).map(providerFromSettings);
 	}
 
 	private setStoredModelProviders(providers: Provider[]): void {
-		this.store.set('modelProviders', providers.map(modelProviderSettings));
+		this.store.set('providers', providers.map(providerSettings));
 	}
 }

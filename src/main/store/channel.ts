@@ -6,7 +6,7 @@ import {
 	type GenericChannelProperties,
 	type TelegramChannelProperties,
 } from '../../shared/channels';
-import type { SettingsStoreAccessor } from './types';
+import type { SettingsStoreAccessor } from '../../shared/store';
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;

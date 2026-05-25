@@ -7,7 +7,7 @@ import {
 	migrateFridayCronStoreState,
 	serializeFridayCronStoreState,
 } from '../cron/friday/store';
-import type { SettingsStoreAccessor, TaskSchedulerSettings } from './types';
+import type { CronSettings, SettingsStoreAccessor } from '../../shared/store';
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
@@ -22,26 +22,26 @@ export class SchedulerStore {
 	}
 
 	getCronTasks(): CronTask[] {
-		const legacyTasks = this.getTaskSchedulerSettings().legacyTasks;
+		const legacyTasks = this.getCronSettings().legacyTasks;
 		if (Array.isArray(legacyTasks)) return legacyTasks as CronTask[];
 		return [];
 	}
 
 	setCronTasks(tasks: CronTask[]): void {
-		this.setTaskSchedulerSettings({ legacyTasks: tasks });
+		this.setCronSettings({ legacyTasks: tasks });
 	}
 
 	getCronSchedulerState(): CronStoreState {
-		const managed = this.getTaskSchedulerSettings().managed;
+		const managed = this.getCronSettings().managed;
 		return migrateCronStoreState(managed ?? emptyCronStoreState());
 	}
 
 	setCronSchedulerState(state: CronStoreState): void {
-		this.setTaskSchedulerSettings({ managed: migrateCronStoreState(state) });
+		this.setCronSettings({ managed: migrateCronStoreState(state) });
 	}
 
 	getFridayCronState(): FridayCronStoreState {
-		const settings = this.getTaskSchedulerSettings();
+		const settings = this.getCronSettings();
 		const legacyFriday = readRecord((settings as { friday?: unknown }).friday);
 		const hasRootFridayState =
 			settings.schemaVersion !== undefined ||
@@ -60,25 +60,27 @@ export class SchedulerStore {
 			lastRuns: _lastRuns,
 			runs: _runs,
 			...settings
-		} = this.getTaskSchedulerSettings() as TaskSchedulerSettings & {
+		} = this.getCronSettings() as CronSettings & {
 			friday?: unknown;
 			states?: unknown;
 			lastRuns?: unknown;
 			runs?: unknown;
 		};
-		this.store.set('taskScheduler', {
+		this.store.set('cron', {
 			...settings,
 			...serializeFridayCronStoreState(state),
 		});
 	}
 
-	private getTaskSchedulerSettings(): TaskSchedulerSettings {
-		return (readRecord(this.store.get('taskScheduler')) ?? {}) as TaskSchedulerSettings;
+	private getCronSettings(): CronSettings {
+		const cron = this.store.get('cron');
+		const source = cron === undefined ? this.store.get('taskScheduler') : cron;
+		return (readRecord(source) ?? {}) as CronSettings;
 	}
 
-	private setTaskSchedulerSettings(patch: TaskSchedulerSettings): void {
-		this.store.set('taskScheduler', {
-			...this.getTaskSchedulerSettings(),
+	private setCronSettings(patch: CronSettings): void {
+		this.store.set('cron', {
+			...this.getCronSettings(),
 			...patch,
 		});
 	}

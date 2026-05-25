@@ -1,5 +1,5 @@
 import type { ConnectorConfig } from '../../shared/connector';
-import type { SettingsStoreAccessor, StoreSchema } from './types';
+import type { SettingsStoreAccessor, StoreSchema } from '../../shared/store';
 
 type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
 

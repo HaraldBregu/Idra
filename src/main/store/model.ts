@@ -22,7 +22,11 @@ import {
 	getTextToVideoModelsByProvider,
 } from '../../shared/providers';
 import type { AgentHeartbeatConfig, AgentsHeartbeatConfig } from '../../shared/heartbeat';
-import type { AgentModuleOptions, ModelModuleSettings, SettingsStoreAccessor } from './types';
+import type {
+	AgentModuleOptions,
+	ModelModuleSettings,
+	SettingsStoreAccessor,
+} from '../../shared/store';
 import type { ProviderStore } from './provider';
 
 type ConfiguredModelOperatorKey =
@@ -34,7 +38,7 @@ type ConfiguredModelOperatorKey =
 	| 'textToSound';
 
 type ModelModuleRootKey =
-	| 'llmAgent'
+	| 'assistant'
 	| 'speechToText'
 	| 'textToSpeech'
 	| 'imageCreator'
@@ -50,7 +54,7 @@ type OperatorDefinitionKey =
 	| 'musicCreator';
 
 const MODEL_MODULE_ROOT_KEYS = {
-	assistant: 'llmAgent',
+	assistant: 'assistant',
 	speechToText: 'speechToText',
 	textToSpeech: 'textToSpeech',
 	imageCreator: 'imageCreator',
@@ -227,7 +231,7 @@ export class ModelStore {
 		if (textToVideo) next.videoCreator = textToVideo;
 		const textToSound = this.getConfiguredModelOperator('textToSound');
 		if (textToSound) next.musicCreator = textToSound;
-		const agentSettings = this.getModelModuleSettings('llmAgent');
+		const agentSettings = this.getModelModuleSettings('assistant');
 		const agents = readAgentsHeartbeatConfig(agentSettings);
 		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
@@ -238,7 +242,7 @@ export class ModelStore {
 	}
 
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const currentAgentSettings = this.getModelModuleSettings('llmAgent');
+		const currentAgentSettings = this.getModelModuleSettings('assistant');
 		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? {};
 		const currentDefaults = currentAgents.defaults ?? {};
 		const currentHeartbeat = currentDefaults.heartbeat ?? {};
@@ -259,7 +263,7 @@ export class ModelStore {
 			},
 		};
 		if (currentAgentSettings) {
-			this.store.set('llmAgent', {
+			this.store.set('assistant', {
 				...currentAgentSettings,
 				options: {
 					...(currentAgentSettings.options ?? {}),
@@ -307,13 +311,13 @@ export class ModelStore {
 	}
 
 	getAgentRuntimePreference(): string | undefined {
-		const settings = this.getModelModuleSettings('llmAgent');
+		const settings = this.getModelModuleSettings('assistant');
 		return settings ? readAgentModuleOptions(settings.options)?.agentRuntime : undefined;
 	}
 
 	setAgentRuntimePreference(agentRuntime?: string): boolean {
 		const runtime = normalizeAgentRuntime(agentRuntime);
-		const settings = this.getModelModuleSettings('llmAgent');
+		const settings = this.getModelModuleSettings('assistant');
 		if (!settings) {
 			return false;
 		}
@@ -325,9 +329,10 @@ export class ModelStore {
 		}
 		const nextSettings: ModelModuleSettings = {
 			...settings,
-			...(Object.keys(nextOptions).length > 0 ? { options: nextOptions } : {}),
+			options: nextOptions,
 		};
-		this.store.set('llmAgent', nextSettings);
+		if (Object.keys(nextOptions).length === 0) delete nextSettings.options;
+		this.store.set('assistant', nextSettings);
 		return true;
 	}
 
@@ -336,9 +341,9 @@ export class ModelStore {
 		if (!provider) {
 			return false;
 		}
-		const current = this.getModelModuleSettings('llmAgent');
+		const current = this.getModelModuleSettings('assistant');
 		const settings = modelModuleSettings(provider.id, model, current?.options);
-		this.store.set('llmAgent', settings);
+		this.store.set('assistant', settings);
 		return true;
 	}
 
@@ -477,6 +482,9 @@ export class ModelStore {
 	}
 
 	private getModelModuleSettings(rootKey: ModelModuleRootKey): ModelModuleSettings | undefined {
-		return readModelModuleSettings(this.store.get(rootKey));
+		const value = this.store.get(rootKey);
+		if (value !== undefined) return readModelModuleSettings(value);
+		if (rootKey === 'assistant') return readModelModuleSettings(this.store.get('llmAgent'));
+		return undefined;
 	}
 }

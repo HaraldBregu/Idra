@@ -1,6 +1,6 @@
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
-import type { SettingsStoreAccessor } from './types';
+import type { SettingsStoreAccessor } from '../../shared/store';
 
 export class HeartbeatStore {
 	private store: SettingsStoreAccessor;

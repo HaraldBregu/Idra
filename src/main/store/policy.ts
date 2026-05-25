@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { PolicyConfig, PolicyEntry, Permission } from '../../shared/policy';
-import type { SettingsStoreAccessor } from './types';
+import type { SettingsStoreAccessor } from '../../shared/store';
 
 const VALID_PERMISSIONS = new Set<Permission>(['read', 'write', 'create', 'delete']);
 const DEFAULT_POLICY_PATHS = ['/workspace', '/agent'];
