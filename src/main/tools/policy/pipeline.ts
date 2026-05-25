@@ -1,6 +1,6 @@
 import type { AgentTool, FilteredToolDiagnostic, ToolDiagnostics } from '../core/common';
 import { getToolMetadata, normalizeToolName } from '../core/common';
-import { expandPolicyEntries, expandProfile, type ToolPolicy } from './tool-policy';
+import { expandPolicyEntries, expandProfile, type ToolPolicy } from './expand';
 
 export type PolicyStageName =
 	| 'profile'
