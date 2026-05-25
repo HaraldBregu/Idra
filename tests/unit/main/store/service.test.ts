@@ -973,6 +973,25 @@ describe('StoreService', () => {
 			expect(store.get('service')).toBeUndefined();
 		});
 
+		it('preserves imageCreator options when changing the image model', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('providers', [imageProvider]);
+			store.set('imageCreator', {
+				providerId: 'black-forest-labs',
+				modelId: 'old-image-model',
+				options: { size: '1024x1024' },
+			});
+
+			service.setImageCreatorOperator('black-forest-labs', imageModel);
+
+			expect(store.get('imageCreator')).toEqual({
+				providerId: 'black-forest-labs',
+				modelId: 'FLUX.2',
+				options: { size: '1024x1024' },
+			});
+		});
+
 		it('returns the image creator operator without exposing the provider api key', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
