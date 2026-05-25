@@ -272,7 +272,13 @@ function CronAgentRuntimeSettings(): React.JSX.Element {
 	);
 }
 
-function ScheduleTaskForm({ onCreated }: { readonly onCreated: () => void }): React.JSX.Element {
+function ScheduleTaskForm({
+	onCreated,
+	onCancel,
+}: {
+	readonly onCreated: () => void;
+	readonly onCancel: () => void;
+}): React.JSX.Element {
 	const [name, setName] = useState('');
 	const [scheduleKind, setScheduleKind] = useState<ScheduleKind>('cron');
 	const [cronExpr, setCronExpr] = useState('');
