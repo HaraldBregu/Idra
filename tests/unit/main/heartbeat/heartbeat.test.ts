@@ -276,7 +276,6 @@ describe('heartbeat helpers', () => {
 			heartbeatContent: 'tasks:\n  - name: inbox\n    interval: 30m\n    prompt: "Check inbox."\n\nUse short alerts.',
 			dueTasks: [{ name: 'inbox', interval: '30m', prompt: 'Check inbox.' }],
 			deliverToUser: true,
-			useResponseTool: true,
 			now: new Date('2026-05-18T12:00:00.000Z'),
 		});
 		expect(prompt).toContain('Only these HEARTBEAT.md tasks are due now');

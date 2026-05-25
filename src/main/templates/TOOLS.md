@@ -63,7 +63,6 @@ These tools are added only when the corresponding runtime condition applies.
 | Tool or family | When it appears |
 | --- | --- |
 | `startup_files` | Added only for pending primary bootstrap runs. During bootstrap, it is the only local tool exposed. |
-| `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
 | `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
 | Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
 | Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
@@ -102,7 +101,6 @@ The default service path narrows the candidate list for each turn.
   `move` automatically keep `read` available when it exists.
 - Skill selection can force a skill's required or allowed tools into the prompt.
   File-backed skills also force `read` when needed.
-- Heartbeat runs can force `heartbeat_respond` into the prompt.
 
 The system prompt lists only the selected tools for the turn. When narrowing
 selects ranked tools, a compact tool-card section is added with purpose,

@@ -1,8 +1,4 @@
 import { HEARTBEAT_OK } from '../../shared/heartbeat';
-import type { AgentTool } from '../tools/types';
-import { textResult } from '../tools/types';
-
-export const HEARTBEAT_RESPONSE_TOOL_NAME = 'heartbeat_respond';
 
 export const HEARTBEAT_TOOL_OUTCOMES = [
 	'no_change',
@@ -33,38 +29,7 @@ export type HeartbeatNormalizedReply =
 const OUTCOMES = new Set<string>(HEARTBEAT_TOOL_OUTCOMES);
 const PRIORITIES = new Set<string>(HEARTBEAT_TOOL_PRIORITIES);
 
-export function createHeartbeatResponseTool(
-	onResponse: (response: HeartbeatToolResponse) => void
-): AgentTool<Record<string, unknown>> {
-	return {
-		name: HEARTBEAT_RESPONSE_TOOL_NAME,
-		displaySummary: 'Heartbeat',
-		description:
-			'Record the result of a heartbeat run. Use notify=false when nothing should be sent visibly. Use notify=true with notificationText when the user should receive a concise heartbeat alert.',
-		schema: {
-			type: 'object',
-			properties: {
-				outcome: { type: 'string', enum: [...HEARTBEAT_TOOL_OUTCOMES] },
-				notify: { type: 'boolean' },
-				summary: { type: 'string' },
-				notificationText: { type: 'string' },
-				reason: { type: 'string' },
-				priority: { type: 'string', enum: [...HEARTBEAT_TOOL_PRIORITIES] },
-				nextCheck: { type: 'string' },
-			},
-			required: ['outcome', 'notify', 'summary'],
-			additionalProperties: false,
-		},
-		async execute(args) {
-			const response = normalizeHeartbeatToolResponse(args);
-			if (!response) return textResult('heartbeat_respond: invalid response payload', true);
-			onResponse(response);
-			return textResult(JSON.stringify({ status: 'recorded', ...response }, null, 2));
-		},
-	};
-}
-
-export function normalizeHeartbeatToolResponse(value: unknown): HeartbeatToolResponse | undefined {
+function normalizeHeartbeatToolResponse(value: unknown): HeartbeatToolResponse | undefined {
 	if (!isRecord(value)) return undefined;
 	const outcome = readString(value.outcome);
 	const notify = typeof value.notify === 'boolean' ? value.notify : undefined;

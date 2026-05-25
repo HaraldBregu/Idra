@@ -52,7 +52,7 @@ import {
 	setHeartbeatsEnabled,
 	setHeartbeatWakeHandler,
 } from './wake';
-import { normalizeHeartbeatReply, type HeartbeatToolResponse } from './response';
+import { normalizeHeartbeatReply } from './response';
 import { HeartbeatRuntimeState, StoreServiceHeartbeatStateStorage } from './state';
 import { resolveHeartbeatVisibility } from './visibility';
 
@@ -388,11 +388,9 @@ export class HeartbeatService implements Disposable {
 			execEvents: pendingEvents.exec,
 			cronEvents: pendingEvents.cron,
 			deliverToUser,
-			useResponseTool: true,
 			now: new Date(startedAt),
 		});
 
-		let toolResponse: HeartbeatToolResponse | undefined;
 		schedule.lastRunStartedAtMs = startedAt;
 		recordRunStart(schedule.recentRunStarts, startedAt);
 		schedule.floodLogged = false;
@@ -412,17 +410,11 @@ export class HeartbeatService implements Disposable {
 					timeoutSeconds: summary.timeoutSeconds,
 					lightContext: summary.lightContext,
 					suppressToolErrorWarnings: summary.suppressToolErrorWarnings,
-					enableHeartbeatTool: true,
-					forceHeartbeatTool: true,
 					suppressAgentEvents: true,
-					onToolResponse: (response) => {
-						toolResponse = response;
-					},
 				},
 			});
 			const normalized = normalizeHeartbeatReply({
 				text,
-				toolResponse,
 				ackMaxChars: summary.ackMaxChars,
 			});
 			let sent = false;

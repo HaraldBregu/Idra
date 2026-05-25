@@ -62,7 +62,6 @@ import {
 	type OperatorStoreState,
 } from '../shared/agents/service';
 import type { FridayCronActor } from './cron';
-import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
 import {
@@ -185,10 +184,7 @@ export interface AgentSendOptions {
 		timeoutSeconds?: number;
 		lightContext?: boolean;
 		suppressToolErrorWarnings?: boolean;
-		enableHeartbeatTool?: boolean;
-		forceHeartbeatTool?: boolean;
 		suppressAgentEvents?: boolean;
-		onToolResponse?: (response: HeartbeatToolResponse) => void;
 	};
 }
 
@@ -426,8 +422,7 @@ export class AgentService {
 			if (
 				bootstrapPending ||
 				toolPolicy.shouldUseTools ||
-				this.dependencies.skills ||
-				heartbeatOptions?.enableHeartbeatTool
+				this.dependencies.skills
 			) {
 				baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
 					Promise.resolve(
@@ -447,12 +442,6 @@ export class AgentService {
 						})
 					)
 				);
-				if (heartbeatOptions?.enableHeartbeatTool) {
-					baseTools = [
-						...baseTools,
-						createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
-					];
-				}
 				if (
 					bootstrapPending &&
 					isPrimaryRun &&
@@ -526,13 +515,6 @@ export class AgentService {
 								})
 							);
 				selectedTools = toolSelection.toolsForPrompt;
-				if (heartbeatOptions?.forceHeartbeatTool) {
-					const heartbeatTool = baseTools.find((tool) => tool.name === 'heartbeat_respond');
-					if (heartbeatTool && !selectedTools.some((tool) => tool.name === heartbeatTool.name)) {
-						selectedTools = [...selectedTools, heartbeatTool];
-					}
-				}
-
 				if (skillRuntimePlan && this.dependencies.skills) {
 					selectedTools = selectToolsForSkillRuntime({
 						baseTools,
