@@ -28,7 +28,7 @@ export function agentToolToManagedTool(
 		outputSchema: {
 			type: 'object',
 			properties: {
-				status: { type: 'string', enum: ['ok', 'error'] },
+				status: { type: 'string', enum: ['ok', 'error', 'rejected'] },
 				content: { type: 'array' },
 				details: {},
 			},
@@ -54,7 +54,7 @@ export function agentToolToManagedTool(
 			privacyLevel: inferPrivacy(agentTool.name, agentTool.description),
 			readOnly: isReadOnly(agentTool.name),
 			executionTimeoutMs: inferExecutionTimeout(agentTool.name),
-			requiresConfirmation: false,
+			requiresConfirmation: agentTool.needsApproval === true,
 			cacheable: isReadOnly(agentTool.name),
 			safetyNotes: agentTool.needsApproval
 				? 'Legacy approval gate applies before execution.'
@@ -87,14 +87,17 @@ export function agentToolToManagedTool(
 					success: data.status === 'ok',
 					data,
 					error:
-						data.status === 'error'
+						data.status !== 'ok'
 							? {
-									code: 'AGENT_TOOL_ERROR',
+									code:
+										data.status === 'rejected'
+											? 'AGENT_TOOL_REJECTED'
+											: 'AGENT_TOOL_ERROR',
 									message: data.content
 										.map((block) => (block.type === 'text' ? (block.text ?? '') : ''))
 										.join('\n'),
 									retryable: false,
-									category: 'provider',
+									category: data.status === 'rejected' ? 'safety' : 'provider',
 								}
 							: undefined,
 					warnings: [],
