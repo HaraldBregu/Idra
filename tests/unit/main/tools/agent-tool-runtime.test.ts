@@ -18,7 +18,6 @@ import { applyToolPolicyPipeline } from '../../../../src/main/tools/tool-policy-
 import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normalization';
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/tools/before-tool-call';
 import { toToolDefinitions } from '../../../../src/main/tools/tool-definition-adapter';
-import { PluginToolRegistry } from '../../../../src/main/plugins/tool-registry';
 import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/tools/runtime/legacy-tool-adapter';
 import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
@@ -62,10 +61,10 @@ describe('canonical agent tool runtime', () => {
 
 	it('plans construction for file tools only', () => {
 		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: false });
-		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false, includePluginTools: false }));
+		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false }));
 		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeMcpTools: false, includeLspTools: false }));
 		expect(planToolConstruction(['group:file']).includeFileTools).toBe(true);
-		expect(planToolConstruction(['plugin_tool']).includePluginTools).toBe(false);
+		expect(planToolConstruction(['custom_tool']).includeFileTools).toBe(false);
 		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(false);
 		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(false);
 	});
@@ -345,24 +344,6 @@ describe('canonical agent tool runtime', () => {
 		const definition = toToolDefinitions([tool('throws', { execute })], { signal: controller.signal })[0]!;
 		const result = await definition.execute('tc1', {});
 		expect(result.details).toMatchObject({ status: 'error', toolName: 'throws', message: 'boom' });
-	});
-
-	it('resolves plugin tools with optional filtering, conflict detection, and undeclared rejection', async () => {
-		const registry = new PluginToolRegistry();
-		registry.register({
-			manifest: {
-				id: 'demo',
-				tools: [{ name: 'demo_default' }, { name: 'demo_optional', optional: true }],
-			},
-			factory: () => [tool('demo_default'), tool('demo_optional')],
-		});
-		await expect(registry.resolveTools({ context: {}, toolsAllow: ['demo_default'] })).resolves.toHaveLength(1);
-		await expect(registry.resolveTools({ context: {}, toolsAllow: ['demo_optional'] })).resolves.toHaveLength(1);
-		await expect(registry.resolveTools({ context: {}, existingToolNames: new Set(['demo_default']) })).rejects.toThrow('conflict');
-
-		const bad = new PluginToolRegistry();
-		bad.register({ manifest: { id: 'bad', tools: [{ name: 'declared' }] }, factory: () => tool('undeclared') });
-		await expect(bad.resolveTools({ context: {}, toolsAllow: ['bad'] })).rejects.toThrow('undeclared');
 	});
 
 	it('assembles a run-scoped file tool set', async () => {

@@ -1,5 +1,4 @@
 import { agentLogger } from '../logger';
-import type { ConnectorManifestRecord } from '../../plugins/discovery';
 
 type RuntimeActivationHook = {
 	activate(params: AgentHarnessRuntimeActivationParams): Promise<void> | void;
@@ -8,17 +7,12 @@ type RuntimeActivationHook = {
 type RuntimeActivationState = {
 	activator?: RuntimeActivationHook;
 	activatedRuntimes: Set<string>;
-	manifestLoader?: (params: AgentHarnessRuntimeActivationManifestParams) => Promise<ConnectorManifestRecord[]>;
 };
 
 export interface AgentHarnessRuntimeActivationParams {
 	runtime: string;
 	provider: string;
 	modelId?: string;
-}
-
-export interface AgentHarnessRuntimeActivationManifestParams {
-	triggerRuntime: string;
 }
 
 const AGENT_HARNESS_RUNTIME_ACTIVATION_STATE = Symbol.for(
@@ -38,13 +32,6 @@ function getRuntimeActivationState(): RuntimeActivationState {
 export function registerAgentHarnessRuntimeActivator(activator: RuntimeActivationHook): void {
 	const state = getRuntimeActivationState();
 	state.activator = activator;
-}
-
-export function registerAgentHarnessRuntimeManifestLoader(
-	loader: (params: AgentHarnessRuntimeActivationManifestParams) => Promise<ConnectorManifestRecord[]>
-): void {
-	const state = getRuntimeActivationState();
-	state.manifestLoader = loader;
 }
 
 export async function ensureAgentHarnessRuntimeActivated(
@@ -89,14 +76,4 @@ export async function ensureAgentHarnessRuntimeActivated(
 		});
 		throw error;
 	}
-}
-
-export async function listActivationPlanManifestsForRuntime(
-	runtime: string
-): Promise<ConnectorManifestRecord[]> {
-	const state = getRuntimeActivationState();
-	if (!state.manifestLoader) {
-		return [];
-	}
-	return state.manifestLoader({ triggerRuntime: runtime.trim().toLowerCase() });
 }

@@ -1,9 +1,6 @@
 export {
 	ensureAgentHarnessRuntimeActivated,
-	listActivationPlanManifestsForRuntime,
 	registerAgentHarnessRuntimeActivator,
-	registerAgentHarnessRuntimeManifestLoader,
-	type AgentHarnessRuntimeActivationManifestParams,
 	type AgentHarnessRuntimeActivationParams,
 } from './activation';
 export { createPiAgentHarness } from './builtin-pi';

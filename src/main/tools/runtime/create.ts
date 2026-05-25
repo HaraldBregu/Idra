@@ -14,7 +14,10 @@ import {
 	type BeforeToolCallContext,
 	newCallTracker,
 } from '../policy/wrap';
-import type { AppConfig, AuthContext, DeliveryContext } from '../../plugins/tool-types';
+
+type AppConfig = Record<string, unknown>;
+type AuthContext = Record<string, unknown>;
+type DeliveryContext = Record<string, unknown>;
 
 type PolicyStageName = ToolPolicyStageName;
 
@@ -61,7 +64,6 @@ export type ToolConstructionPlan = {
 	includeShellTools: boolean;
 	includeWebTools: boolean;
 	includeMessagingTools: boolean;
-	includePluginTools: boolean;
 	includeMcpTools: boolean;
 	includeLspTools: boolean;
 	includeToolSearchControls: boolean;
@@ -95,7 +97,6 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		includeShellTools: false,
 		includeWebTools: false,
 		includeMessagingTools: false,
-		includePluginTools: false,
 		includeMcpTools: false,
 		includeLspTools: false,
 		includeToolSearchControls: false,

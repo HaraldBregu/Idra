@@ -17,7 +17,6 @@ import {
 	disposeRegisteredAgentHarnesses,
 	ensureAgentHarnessRuntimeActivated,
 } from './agent/harness';
-import { registerAgentHarnessRuntimePluginActivation } from './agent/harness/runtime-plugin';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
@@ -67,7 +66,6 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('eventBus', eventBus);
 
 	const logger = new LoggerService(eventBus);
-	registerAgentHarnessRuntimePluginActivation(logger);
 	container.register('logger', logger);
 	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
 	monitor.start();
