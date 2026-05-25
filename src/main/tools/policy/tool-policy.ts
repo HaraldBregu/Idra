@@ -24,33 +24,12 @@ export const CORE_TOOL_GROUPS: Record<string, string[]> = {
 		'inspect_file',
 		'find',
 	],
-	'group:shell': ['exec', 'process', 'safe_exec'],
-	'group:web': ['web_search', 'web_fetch'],
-	'group:messaging': ['message'],
-	'group:planning': [],
-	'group:session': ['session_create', 'session_resume', 'session_close'],
-	'group:plugins': [],
-	'group:mcp': [],
-	'group:lsp': [],
-	'group:client': [],
 };
 
 const PROFILE_ALLOW: Record<ToolProfile, string[] | '*'> = {
 	minimal: [],
-	coding: [
-		'read',
-		'write',
-		'edit',
-		'apply_patch',
-		'delete',
-		'copy',
-		'move',
-		'inspect_file',
-		'find',
-		'exec',
-		'process',
-	],
-	messaging: ['message', 'session_create', 'session_resume', 'session_close'],
+	coding: CORE_TOOL_GROUPS['group:file'],
+	messaging: [],
 	full: '*',
 };
 
