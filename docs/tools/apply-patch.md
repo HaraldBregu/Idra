@@ -43,7 +43,7 @@ A patch uses unified diff format. Each changed file begins with `---` and `+++` 
 - Include at least three lines of unchanged context around each change so the patch applies cleanly even if nearby lines have shifted.
 - One patch can span multiple files. Each file gets its own `---`/`+++` block.
 
-Do not apply a patch to a file the agent has not read. Read the file first to ensure the context lines match exactly.
+Do not apply a patch to an existing file the agent has not read. Read existing files first to ensure the context lines match exactly.
 
 ## Keep In Mind
 
