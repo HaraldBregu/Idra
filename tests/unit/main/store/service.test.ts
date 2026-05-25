@@ -196,24 +196,6 @@ describe('StoreService', () => {
 					},
 				},
 			});
-			expect(store.get('channel')).toBeUndefined();
-		});
-
-		it('reads legacy singular channel config but writes the documented plural root', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-			store.set('channel', { telegram: { token: 'legacy-token', allowFrom: ['123'] } });
-
-			expect(service.getTelegramChannel()).toMatchObject({
-				token: 'legacy-token',
-				allowFrom: ['123'],
-			});
-
-			service.setTelegramChannel({ token: 'next-token', allowFrom: ['456'] });
-
-			expect(store.get('channels')).toMatchObject({
-				telegram: { token: 'next-token', allowFrom: ['456'] },
-			});
 		});
 	});
 
@@ -366,27 +348,27 @@ describe('StoreService', () => {
 	});
 
 	describe('Friday cron state', () => {
-		it('patches legacy cron tasks without replacing sibling scheduler state', () => {
+		it('patches cron tasks without replacing sibling scheduler state', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
-			const managed = { schedules: [{ id: 'schedule-1' }] };
+			const scheduler = { schedules: [{ id: 'schedule-1' }] };
 			const friday = { schemaVersion: 1, jobs: {} };
-			const legacyTasks = [
+			const tasks = [
 				{
-					id: 'legacy-1',
+					id: 'task-1',
 					expression: '* * * * *',
 					data: { type: 'agent', prompt: 'Run' },
 					createdAt: '2026-05-22T00:00:00.000Z',
 				},
 			];
-			store.set('cron', { managed, ...friday });
+			store.set('cron', { scheduler, ...friday });
 
-			service.setCronTasks(legacyTasks);
+			service.setCronTasks(tasks);
 
 			expect(store.get('cron')).toEqual({
-				managed,
+				scheduler,
 				...friday,
-				legacyTasks,
+				tasks,
 			});
 		});
 
@@ -465,68 +447,6 @@ describe('StoreService', () => {
 			});
 			expect(cron.friday).toBeUndefined();
 			expect(cron.states).toBeUndefined();
-			expect(cron.lastRuns).toBeUndefined();
-			expect(cron.runs).toBeUndefined();
-		});
-
-		it('normalizes legacy Friday cron run arrays to only the last run', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-			store.set('cron', {
-				friday: {
-					jobs: [
-						{
-							id: 'job-1',
-							name: 'Stored cron',
-							description: '',
-							enabled: true,
-							createdAtMs: 1,
-							updatedAtMs: 1,
-							schedule: { kind: 'every', everyMs: 60_000 },
-							sessionTarget: 'isolated',
-							wakeMode: 'now',
-							payload: { kind: 'agentTurn', message: 'Run' },
-							delivery: { mode: 'none' },
-						},
-					],
-					states: {},
-					runs: {
-						'job-1': [
-							{
-								runId: 'run-1',
-								jobId: 'job-1',
-								status: 'ok',
-								mode: 'manual-force',
-								scheduledForMs: 1,
-								startedAtMs: 1,
-								finishedAtMs: 2,
-								attempt: 1,
-							},
-							{
-								runId: 'run-2',
-								jobId: 'job-1',
-								status: 'error',
-								mode: 'automatic',
-								scheduledForMs: 3,
-								startedAtMs: 3,
-								finishedAtMs: 4,
-								attempt: 1,
-							},
-						],
-					},
-				},
-			});
-
-			service.setFridayCronState(service.getFridayCronState());
-
-			const cron = store.get('cron') as {
-				friday?: unknown;
-				runs?: unknown;
-				lastRuns?: unknown;
-				jobs?: Record<string, { lastRun?: { runId?: string } }>;
-			};
-			expect(cron.jobs?.['job-1']?.lastRun?.runId).toBe('run-2');
-			expect(cron.friday).toBeUndefined();
 			expect(cron.lastRuns).toBeUndefined();
 			expect(cron.runs).toBeUndefined();
 		});
@@ -755,19 +675,6 @@ describe('StoreService', () => {
 			});
 		});
 
-		it('ignores legacy service agent selections', () => {
-			const legacyOperator = {
-				agent: {
-					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-					model,
-				},
-			};
-			const service = new StoreService();
-			storeFor(service).set('service', legacyOperator);
-
-			expect(service.getAssistantOperator()).toBeUndefined();
-		});
-
 		it('returns undefined when operator state is absent', () => {
 			const service = new StoreService();
 
@@ -886,7 +793,7 @@ describe('StoreService', () => {
 			});
 		});
 
-		it('does not create legacy rag and ocr fields when no current operator state exists', () => {
+		it('does not create rag and ocr fields when no current operator state exists', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
 				'providers',
@@ -1191,10 +1098,10 @@ describe('StoreService', () => {
 			});
 		});
 
-		it('merges legacy partial channel config with provider defaults', () => {
+		it('merges partial channel config with provider defaults', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'channel',
+				'channels',
 				{
 					telegram: {
 						token: 'telegram-token',
