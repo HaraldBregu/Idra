@@ -31,6 +31,7 @@ import { ProviderStore } from './provider';
 import { SchedulerStore } from './scheduler';
 
 export class StoreService {
+	private store: SettingsStoreAccessor;
 	private providers: ProviderStore;
 	private models: ModelStore;
 	private agents: AgentStore;
@@ -41,18 +42,18 @@ export class StoreService {
 	private connectors: ConnectorStore;
 
 	constructor() {
-		const store = new Store<StoreSchema>({
+		this.store = new Store<StoreSchema>({
 			name: 'settings',
 			accessPropertiesByDotNotation: false,
 		}) as unknown as SettingsStoreAccessor;
-		this.providers = new ProviderStore(store);
-		this.models = new ModelStore(store, this.providers);
-		this.agents = new AgentStore(store);
-		this.channels = new ChannelStore(store);
-		this.policy = new PolicyStore(store);
-		this.scheduler = new SchedulerStore(store);
-		this.heartbeat = new HeartbeatStore(store);
-		this.connectors = new ConnectorStore(store);
+		this.providers = new ProviderStore(this.store);
+		this.models = new ModelStore(this.store, this.providers);
+		this.agents = new AgentStore(this.store);
+		this.channels = new ChannelStore(this.store);
+		this.policy = new PolicyStore(this.store);
+		this.scheduler = new SchedulerStore(this.store);
+		this.heartbeat = new HeartbeatStore(this.store);
+		this.connectors = new ConnectorStore(this.store);
 	}
 
 	// Providers
