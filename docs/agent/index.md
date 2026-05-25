@@ -144,3 +144,7 @@ The final output should be shaped for the task:
 - actual artifacts when the user asks for deliverables
 
 The best agent response is not the longest response. It is the response that completes the user's task, uses the available system responsibly, and makes any remaining assumptions or risks clear.
+
+## Related Docs
+
+- [Agent acceptance criteria](acceptance-criteria.md)
