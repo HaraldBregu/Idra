@@ -21,7 +21,7 @@ describe('store preload API', () => {
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
-		const model: Model = { id: 'gpt-5.1', name: 'GPT-5.1' };
+		const model: Model = { id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' };
 
 		mockedIpcRenderer.invoke
 			.mockResolvedValueOnce({ success: true, data: providers })

@@ -32,7 +32,7 @@ describe('StoreIpc', () => {
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
-		const model: Model = { id: 'gpt-5.1', name: 'GPT-5.1' };
+		const model: Model = { id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' };
 		const store = {
 			getProviders: jest.fn(() => providers),
 			upsertProvider: jest.fn(),
@@ -88,12 +88,18 @@ describe('StoreIpc', () => {
 			success: true,
 			data: true,
 		});
-		expect(store.setAssistantOperator).toHaveBeenCalledWith('openai', model);
+		expect(store.setAssistantOperator).toHaveBeenCalledWith('openai', {
+			...model,
+			effort: expect.any(String),
+		});
 		await expect(registeredHandler(StoreChannels.saveAgentService)({}, publicProvider(providers[0]), model)).resolves.toEqual({
 			success: true,
 			data: true,
 		});
-		expect(store.setAgentService).toHaveBeenCalledWith('openai', model);
+		expect(store.setAgentService).toHaveBeenCalledWith('openai', {
+			...model,
+			effort: expect.any(String),
+		});
 		await expect(registeredHandler(StoreChannels.getPolicy)({})).resolves.toEqual({
 			success: true,
 			data: policy,
