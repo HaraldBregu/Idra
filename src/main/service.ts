@@ -305,6 +305,10 @@ export class AgentService {
 			toolsDeny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
 			includeCoreTools: false,
 			hostTools: legacyHostTools.map((tool) => legacyToolToRuntimeTool(tool, context.toolContext)),
+			sender: {
+				id: context.agentId,
+				isOwner: context.toolContext.cronContext?.role === 'owner',
+			},
 			config: toolRuntimeConfig,
 		});
 		return runtime.tools.map(runtimeToolToLegacyTool);

@@ -70,6 +70,7 @@ export function selectAgentToolsForTurn(
 	});
 	const selectedNames = new Set(rankedTools.map((entry) => entry.tool.name));
 	const forcedToolNames = new Set([
+		...selectFridayCronToolNames(tools, userMessage),
 		...selectGoogleCalendarToolNames(tools, userMessage),
 		...selectGoogleDriveToolNames(tools, userMessage),
 		...selectGmailToolNames(tools, userMessage),
@@ -105,6 +106,17 @@ const TOOL_PREREQUISITES: Record<string, string[]> = {
 	copy: ['read'],
 	move: ['read'],
 };
+
+function selectFridayCronToolNames(tools: AgentTool[], userMessage: string): Set<string> {
+	const request = userMessage.toLowerCase();
+	if (!/\b(schedule|scheduled|scheduling|remind|reminder|every|recurring|repeat|future)\b/.test(request)) {
+		return new Set();
+	}
+	if (!/\b(task|agent|job|work|run|runs|create|write|file|remind|reminder)\b/.test(request)) {
+		return new Set();
+	}
+	return new Set(tools.some((tool) => tool.name === 'cron') ? ['cron'] : []);
+}
 
 function selectGoogleCalendarToolNames(tools: AgentTool[], userMessage: string): Set<string> {
 	const request = userMessage.toLowerCase();
