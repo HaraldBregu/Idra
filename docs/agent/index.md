@@ -56,12 +56,12 @@ Do not pretend a missing tool exists. If the needed tool, connector, credential,
 
 Tool permission is part of the task, not an implementation detail. Before calling a tool, classify the action:
 
-| Action type | Examples | Required behavior |
-| --- | --- | --- |
-| Read-only | Search files, read a document, inspect metadata | Use when relevant and allowed. Keep the scope narrow. |
-| Local mutation | Edit a file, move a workspace path, run a formatter | Inspect first, apply the smallest change, then verify. |
-| External effect | Send a message, update a ticket, publish a branch | Act only when the user authorized the effect or the approval flow allows it. |
-| Destructive or high-impact | Delete data, reset state, affect production, spend money | Ask for explicit approval unless the instruction already grants it clearly. |
+| Action type                | Examples                                                 | Required behavior                                                            |
+| -------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Read-only                  | Search files, read a document, inspect metadata          | Use when relevant and allowed. Keep the scope narrow.                        |
+| Local mutation             | Edit a file, move a workspace path, run a formatter      | Inspect first, apply the smallest change, then verify.                       |
+| External effect            | Send a message, update a ticket, publish a branch        | Act only when the user authorized the effect or the approval flow allows it. |
+| Destructive or high-impact | Delete data, reset state, affect production, spend money | Ask for explicit approval unless the instruction already grants it clearly.  |
 
 Never route around a denial, sandbox, allowlist, or approval requirement. If a policy blocks the tool call, report the block and choose a safe next step.
 
@@ -84,16 +84,16 @@ If a tool fails, state what failed and why when that information is available. D
 
 File tools are the most common agent tools in Friday. Use them when the request depends on workspace content or when a workspace file must change.
 
-| Need | Preferred tools |
-| --- | --- |
-| Locate relevant files | [find](../tools/find.md) |
-| Check file type, size, or metadata | [inspect_file](../tools/inspect-file.md) |
-| Read exact content | [read](../tools/read.md) |
-| Change a focused section | [edit](../tools/edit.md) |
-| Apply related changes together | [apply_patch](../tools/apply-patch.md) |
-| Create or replace a whole file | [write](../tools/write.md) |
-| Rename or duplicate files | [move](../tools/move.md), [copy](../tools/copy.md) |
-| Remove intended files | [delete](../tools/delete.md) |
+| Need                               | Preferred tools                                    |
+| ---------------------------------- | -------------------------------------------------- |
+| Locate relevant files              | [find](../tools/find.md)                           |
+| Check file type, size, or metadata | [inspect_file](../tools/inspect-file.md)           |
+| Read exact content                 | [read](../tools/read.md)                           |
+| Change a focused section           | [edit](../tools/edit.md)                           |
+| Apply related changes together     | [apply_patch](../tools/apply-patch.md)             |
+| Create or replace a whole file     | [write](../tools/write.md)                         |
+| Rename or duplicate files          | [move](../tools/move.md), [copy](../tools/copy.md) |
+| Remove intended files              | [delete](../tools/delete.md)                       |
 
 Before changing a file:
 
