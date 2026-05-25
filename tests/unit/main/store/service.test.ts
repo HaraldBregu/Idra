@@ -713,6 +713,25 @@ describe('StoreService', () => {
 
 			expect(service.getOperator()).toBeUndefined();
 		});
+
+		it('drops stored module selections with unsupported model ids', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('modelProviders', [
+				openaiProvider,
+				textToSpeechProvider,
+				imageProvider,
+				videoProvider,
+				musicProvider,
+			]);
+			store.set('llmAgent', { providerId: 'openai', modelId: 'gpt-4o' });
+			store.set('textToSpeech', { providerId: 'elevenlabs', modelId: 'bad-tts' });
+			store.set('imageCreator', { providerId: 'black-forest-labs', modelId: 'bad-image' });
+			store.set('textToVideo', { providerId: 'runway', modelId: 'bad-video' });
+			store.set('textToSound', { providerId: 'suno', modelId: 'bad-sound' });
+
+			expect(service.getOperator()).toBeUndefined();
+		});
 	});
 
 	// -------------------------------------------------------------------------

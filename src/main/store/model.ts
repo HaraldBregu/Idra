@@ -1,4 +1,4 @@
-import { getDefaultAgentModels } from '../../shared/agents/models';
+import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
 import {
 	OPERATOR_DEFINITIONS,
 	getImageCreatorModels,
@@ -160,6 +160,29 @@ function modelForModule(
 		catalog = getDefaultAgentModels(settings.providerId);
 	}
 	return modelFromCatalog(catalog, settings);
+}
+
+function isAllowedModuleModel(
+	key: ConfiguredModelOperatorKey,
+	settings: ModelModuleSettings,
+	provider: Provider
+): boolean {
+	if (key === 'speechToText') {
+		return isAllowedSpeechToTextModel(provider.id, settings.modelId);
+	}
+	if (key === 'textToSpeech') {
+		return isAllowedTextToSpeechModel(provider.id, settings.modelId);
+	}
+	if (key === 'imageCreator') {
+		return isAllowedImageCreatorModelForProvider(provider, settings.modelId);
+	}
+	if (key === 'textToVideo') {
+		return isAllowedTextToVideoModel(provider.id, settings.modelId);
+	}
+	if (key === 'textToSound') {
+		return isAllowedMusicCreatorModel(provider.id, settings.modelId);
+	}
+	return isAllowedAgentModel(provider.id, settings.modelId);
 }
 
 function readAgentsHeartbeatConfig(
@@ -442,6 +465,7 @@ export class ModelStore {
 		if (settings) {
 			const provider = this.providers.getProviderById(settings.providerId);
 			if (provider) {
+				if (!isAllowedModuleModel(key, settings, provider)) return undefined;
 				return configuredModelOperator(
 					key,
 					publicProvider(provider),
