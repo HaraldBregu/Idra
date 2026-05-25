@@ -15,7 +15,14 @@ import {
 	writeTool,
 } from '../../../../src/main/tools/fs';
 import { filterTools } from '../../../../src/main/tools/policy';
-import { createTools, PRELOADED_LOCAL_TOOLS } from '../../../../src/main/tools/registry';
+import {
+	createTools,
+	LOCAL_TOOL_CATALOG,
+	localToolCatalogByName,
+	localToolNamesForGroup,
+	localToolNamesForProfile,
+	PRELOADED_LOCAL_TOOLS,
+} from '../../../../src/main/tools/registry';
 import { openBrowserTool } from '../../../../src/main/tools/app';
 import {
 	cronAddTool,
@@ -81,6 +88,51 @@ describe('tools/policy and registry', () => {
 			documentedTools
 		);
 		expect(documentedTools).not.toContain('startup_files');
+	});
+
+	it('defines local tool control metadata in one catalog', () => {
+		const catalogNames = LOCAL_TOOL_CATALOG.map((entry) => entry.name);
+		const standardToolNames = [
+			'read',
+			'write',
+			'edit',
+			'apply_patch',
+			'delete',
+			'copy',
+			'move',
+			'inspect_file',
+			'find',
+			'exec',
+			'process',
+			'web_fetch',
+			'cron',
+			'task',
+		];
+		const byName = localToolCatalogByName();
+
+		expect(new Set(catalogNames).size).toBe(catalogNames.length);
+		expect(LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name)).toEqual(catalogNames);
+		expect(PRELOADED_LOCAL_TOOLS).toEqual(LOCAL_TOOL_CATALOG.map((entry) => entry.tool));
+		expect(localToolNamesForProfile('minimal')).toEqual([]);
+		expect(localToolNamesForProfile('messaging')).toEqual([]);
+		expect(localToolNamesForProfile('coding')).toEqual(standardToolNames);
+		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
+		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
+		expect(localToolNamesForGroup('browser')).toEqual(['open_browser', 'browser']);
+		expect(byName.get('write')).toMatchObject({
+			group: 'file',
+			approval: { mode: 'workspace-boundary', target: 'write-target' },
+		});
+		expect(byName.get('exec')).toMatchObject({
+			group: 'shell',
+			approval: { mode: 'workspace-boundary', target: 'workdir' },
+		});
+		expect(byName.get('cron')).toMatchObject({
+			group: 'automation',
+			ownerOnly: true,
+			approval: { mode: 'action', actions: ['add', 'update', 'remove', 'run', 'wake'] },
+		});
+		expect(byName.get('task')?.approval).toEqual({ mode: 'always' });
 	});
 });
 

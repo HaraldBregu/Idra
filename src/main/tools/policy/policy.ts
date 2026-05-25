@@ -1,6 +1,7 @@
 import type { AgentTool } from '../core/types';
+import { localToolNamesForProfile, type LocalToolProfile } from '../local/catalog';
 
-export type ToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
+export type ToolProfile = LocalToolProfile;
 
 export interface PolicyConfig {
 	profile: ToolProfile;
@@ -11,43 +12,9 @@ export interface PolicyConfig {
 	exec?: Record<string, unknown>;
 }
 
-const PROFILE_ALLOW: Record<ToolProfile, string[] | 'all'> = {
-	minimal: [],
-	coding: [
-		'read',
-		'write',
-		'edit',
-		'apply_patch',
-		'delete',
-		'copy',
-		'move',
-		'inspect_file',
-		'find',
-		'exec',
-		'process',
-		'web_fetch',
-		'cron',
-		'task',
-	],
-	messaging: [],
-	standard: [
-		'read',
-		'write',
-		'edit',
-		'apply_patch',
-		'delete',
-		'copy',
-		'move',
-		'inspect_file',
-		'find',
-		'exec',
-		'process',
-		'web_fetch',
-		'cron',
-		'task',
-	],
-	full: 'all',
-};
+function profileAllow(profile: ToolProfile): readonly string[] | 'all' {
+	return profile === 'full' ? 'all' : localToolNamesForProfile(profile);
+}
 
 function globMatch(pattern: string, name: string): boolean {
 	if (pattern === name) return true;
@@ -59,12 +26,12 @@ function globMatch(pattern: string, name: string): boolean {
 }
 
 export function filterTools(all: AgentTool[], cfg: PolicyConfig): AgentTool[] {
-	const profileAllow = PROFILE_ALLOW[cfg.profile];
+	const allowByProfile = profileAllow(cfg.profile);
 	const alsoAllow = cfg.alsoAllow ?? [];
 	const pass = (t: AgentTool): boolean => {
 		if (
-			profileAllow !== 'all' &&
-			!profileAllow.includes(t.name) &&
+			allowByProfile !== 'all' &&
+			!allowByProfile.includes(t.name) &&
 			!alsoAllow.some((p) => globMatch(p, t.name))
 		) {
 			return false;
