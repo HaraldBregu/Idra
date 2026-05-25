@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). The policy module must allow the search path before this tool executes.
+Depends on the [policy module](../policy/index.md). Before searching, the policy module resolves the search root and checks whether `read` is permitted. The search is constrained to paths the policy allows — directories outside the granted scope are not traversed and do not appear in results.
 
 ## Tool Search Description
 
