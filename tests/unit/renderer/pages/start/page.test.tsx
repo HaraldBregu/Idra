@@ -47,29 +47,31 @@ const audioModel: Model = {
 
 function installAppApi(): void {
 	window.app = {
+		getSpeechToTextModels: jest.fn(async () => [speechModel]),
+		getTextToSpeechModels: jest.fn(async () => [textToSpeechModel]),
+		getImageCreatorModels: jest.fn(async () => [imageModel]),
+		getTextToVideoModels: jest.fn(async () => [videoModel]),
+		getMusicCreatorModels: jest.fn(async () => [audioModel]),
+		getModels: jest.fn(async () => [assistantModel]),
+		openExternalUrl: jest.fn(async () => undefined),
+	} as unknown as typeof window.app;
+	window.store = {
 		isProviderApiKeySaved: jest.fn(async (providerId: string) => providerId === 'openai'),
 		setProviderApiKey: jest.fn(async () => undefined),
 		getProviders: jest.fn(async () => [openAiProvider]),
 		getAssistantOperator: jest.fn(async () => undefined),
 		saveAssistantOperator: jest.fn(async () => true),
 		getSpeechToTextOperator: jest.fn(async () => undefined),
-		getSpeechToTextModels: jest.fn(async () => [speechModel]),
 		saveSpeechToTextOperator: jest.fn(async () => true),
 		getTextToSpeechOperator: jest.fn(async () => undefined),
-		getTextToSpeechModels: jest.fn(async () => [textToSpeechModel]),
 		saveTextToSpeechOperator: jest.fn(async () => true),
 		getImageCreatorOperator: jest.fn(async () => undefined),
-		getImageCreatorModels: jest.fn(async () => [imageModel]),
 		saveImageCreatorOperator: jest.fn(async () => true),
 		getTextToVideoOperator: jest.fn(async () => undefined),
-		getTextToVideoModels: jest.fn(async () => [videoModel]),
 		saveTextToVideoOperator: jest.fn(async () => true),
 		getMusicCreatorOperator: jest.fn(async () => undefined),
-		getMusicCreatorModels: jest.fn(async () => [audioModel]),
 		saveMusicCreatorOperator: jest.fn(async () => true),
-		getModels: jest.fn(async () => [assistantModel]),
-		openExternalUrl: jest.fn(async () => undefined),
-	} as unknown as typeof window.app;
+	} as unknown as typeof window.store;
 }
 
 function renderStartPage(): void {
@@ -145,21 +147,21 @@ describe('StartPage', () => {
 		await user.click(modelContinueButton);
 
 		await waitFor(() => {
-			expect(window.app.saveAssistantOperator).toHaveBeenCalledWith(openAiProvider, assistantModel);
-			expect(window.app.saveSpeechToTextOperator).toHaveBeenCalledWith(
+			expect(window.store.saveAssistantOperator).toHaveBeenCalledWith(openAiProvider, assistantModel);
+			expect(window.store.saveSpeechToTextOperator).toHaveBeenCalledWith(
 				openAiProvider,
 				speechModel
 			);
-			expect(window.app.saveTextToSpeechOperator).toHaveBeenCalledWith(
+			expect(window.store.saveTextToSpeechOperator).toHaveBeenCalledWith(
 				openAiProvider,
 				textToSpeechModel
 			);
-			expect(window.app.saveImageCreatorOperator).toHaveBeenCalledWith(
+			expect(window.store.saveImageCreatorOperator).toHaveBeenCalledWith(
 				openAiProvider,
 				imageModel
 			);
-			expect(window.app.saveTextToVideoOperator).toHaveBeenCalledWith(openAiProvider, videoModel);
-			expect(window.app.saveMusicCreatorOperator).toHaveBeenCalledWith(openAiProvider, audioModel);
+			expect(window.store.saveTextToVideoOperator).toHaveBeenCalledWith(openAiProvider, videoModel);
+			expect(window.store.saveMusicCreatorOperator).toHaveBeenCalledWith(openAiProvider, audioModel);
 		});
 	});
 
@@ -182,7 +184,7 @@ describe('StartPage', () => {
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		await waitFor(() => {
-			expect(window.app.setProviderApiKey).toHaveBeenCalledWith('openai', 'new-api-key');
+			expect(window.store.setProviderApiKey).toHaveBeenCalledWith('openai', 'new-api-key');
 		});
 		expect(await screen.findByText('sk-************')).toBeInTheDocument();
 	});

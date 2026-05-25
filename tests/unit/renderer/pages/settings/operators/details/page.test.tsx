@@ -62,13 +62,6 @@ describe('OperatorDetailsPage', () => {
 		};
 		window.app = {
 			...window.app,
-			getProviders: jest.fn(async () => [provider]),
-			getAssistantOperator: jest.fn(async () => assistantOperator),
-			getSpeechToTextOperator: jest.fn(async () => undefined),
-			getTextToSpeechOperator: jest.fn(async () => undefined),
-			getImageCreatorOperator: jest.fn(async () => undefined),
-			getTextToVideoOperator: jest.fn(async () => undefined),
-			getMusicCreatorOperator: jest.fn(async () => undefined),
 			getModels: jest.fn(async () => [model]),
 			getSpeechToTextModels: jest.fn(async () => [
 				{ id: 'gpt-realtime-whisper', name: 'GPT Realtime Whisper' },
@@ -85,13 +78,23 @@ describe('OperatorDetailsPage', () => {
 			getMusicCreatorModels: jest.fn(async () => [
 				{ id: 'music-provider-coming-soon', name: 'Not available yet' },
 			]),
+		};
+		window.store = {
+			...window.store,
+			getProviders: jest.fn(async () => [provider]),
+			getAssistantOperator: jest.fn(async () => assistantOperator),
+			getSpeechToTextOperator: jest.fn(async () => undefined),
+			getTextToSpeechOperator: jest.fn(async () => undefined),
+			getImageCreatorOperator: jest.fn(async () => undefined),
+			getTextToVideoOperator: jest.fn(async () => undefined),
+			getMusicCreatorOperator: jest.fn(async () => undefined),
 			saveAssistantOperator: jest.fn(async () => true),
 			saveSpeechToTextOperator: jest.fn(async () => true),
 			saveTextToSpeechOperator: jest.fn(async () => true),
 			saveImageCreatorOperator: jest.fn(async () => true),
 			saveTextToVideoOperator: jest.fn(async () => true),
 			saveMusicCreatorOperator: jest.fn(async () => true),
-		};
+		} as typeof window.store;
 	});
 
 	it('navigates from the Friday operator history row to chat history', async () => {
@@ -138,7 +141,7 @@ describe('OperatorDetailsPage', () => {
 		expect(
 			await screen.findByText('settings.operators.imageProviderDescription')
 		).toBeInTheDocument();
-		expect(window.app.getImageCreatorOperator).toHaveBeenCalled();
+		expect(window.store.getImageCreatorOperator).toHaveBeenCalled();
 		expect(window.app.getImageCreatorModels).toHaveBeenCalled();
 	});
 
@@ -193,7 +196,7 @@ describe('OperatorDetailsPage', () => {
 			expect(screen.getByText(modelDescription)).toBeInTheDocument();
 			expect(screen.getByText(providerName)).toBeInTheDocument();
 			expect(screen.getByText(modelName)).toBeInTheDocument();
-			expect((window.app as unknown as Record<string, jest.Mock>)[operatorMethod]).not.toHaveBeenCalled();
+			expect((window.store as unknown as Record<string, jest.Mock>)[operatorMethod]).not.toHaveBeenCalled();
 			expect((window.app as unknown as Record<string, jest.Mock>)[modelsMethod]).not.toHaveBeenCalled();
 		}
 	);

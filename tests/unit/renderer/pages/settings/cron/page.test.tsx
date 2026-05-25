@@ -79,11 +79,14 @@ describe('CronPage', () => {
 	beforeEach(() => {
 		window.app = {
 			...window.app,
-			getProviders: jest.fn(async () => [openAiProvider]),
 			getModels: jest.fn(async () => [assistantModel]),
+		} as typeof window.app;
+		window.store = {
+			...window.store,
+			getProviders: jest.fn(async () => [openAiProvider]),
 			getAgentService: jest.fn(async () => ({ provider: openAiProvider, model: assistantModel })),
 			saveAgentService: jest.fn(async () => true),
-		} as typeof window.app;
+		} as typeof window.store;
 
 		window.cron = {
 			...window.cron,
@@ -112,7 +115,7 @@ describe('CronPage', () => {
 		await user.click(saveButton);
 
 		await waitFor(() => {
-			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
+			expect(window.store.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
 		});
 		expect(await screen.findByText('settings.cron.runtime.saved')).toBeInTheDocument();
 	});
