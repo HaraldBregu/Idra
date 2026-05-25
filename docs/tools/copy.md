@@ -6,7 +6,7 @@
 
 Depends on the [policy module](../policy/index.md). Before copying, the policy module resolves both paths and checks `read` on the source and `create` on a new destination. Replacing an existing destination file requires `write` on the destination and an explicit overwrite request. Directory copies require a new destination and policy access for nested paths. If any check is denied, the tool stops and no copy is created.
 
-## Tool Search Description
+## Tool Selection Description
 
 Use `copy` to duplicate an existing file or directory into a current-workspace location.
 

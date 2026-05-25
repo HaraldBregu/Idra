@@ -6,7 +6,7 @@
 
 Depends on the [policy module](../policy/index.md). Before editing, the policy module resolves the target path and checks whether `write` is permitted. If `write` is not granted, the tool stops and the file is not modified.
 
-## Tool Search Description
+## Tool Selection Description
 
 Use `edit` to make a precise change to one known section of an existing current-workspace file.
 

@@ -6,7 +6,7 @@
 
 Depends on the [policy module](../policy/index.md). Before deleting, the policy module resolves the target path and checks whether `delete` is permitted. If `delete` is not granted, the tool stops and nothing is removed.
 
-## Tool Search Description
+## Tool Selection Description
 
 Use `delete` to remove a current-workspace file or folder when deletion is clearly part of the requested task.
 

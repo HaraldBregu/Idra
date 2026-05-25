@@ -6,7 +6,7 @@
 
 Depends on the [policy module](../policy/index.md). Before moving, the policy module resolves both paths and checks `read` and `delete` on the source. Moving to a new destination requires `create`; replacing an existing destination file requires `write` and an explicit overwrite request. If any check is denied, the tool stops and the file remains in its original location.
 
-## Tool Search Description
+## Tool Selection Description
 
 Use `move` to rename or relocate a current-workspace file while preserving its contents.
 

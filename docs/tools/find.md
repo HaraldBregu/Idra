@@ -6,7 +6,7 @@
 
 Depends on the [policy module](../policy/index.md). Before searching, the policy module resolves the search root and checks whether `read` is permitted. The search is constrained to paths the policy allows — directories outside the granted scope are not traversed and do not appear in results.
 
-## Tool Search Description
+## Tool Selection Description
 
 Use `find` to locate relevant files or paths before reading, editing, or answering from workspace content.
 

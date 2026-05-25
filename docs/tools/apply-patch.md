@@ -6,7 +6,7 @@
 
 Depends on the [policy module](../policy/index.md). Before applying, the policy module resolves every path in the patch and checks the required permission for each change: `write` for modified files, `create` for new files, `delete` for removed files. If any path in the patch is denied, the entire patch is rejected and no files are changed.
 
-## Tool Search Description
+## Tool Selection Description
 
 Use `apply_patch` to apply a focused patch containing several related current-workspace file changes.
 
