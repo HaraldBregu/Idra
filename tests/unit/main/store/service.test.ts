@@ -1037,14 +1037,14 @@ describe('StoreService', () => {
 	});
 
 	describe('pending runtime model operators', () => {
-		it('persists compact text-to-speech, video, and music selections', () => {
+		it('persists compact text-to-speech, video, and text-to-sound selections', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			store.set('providers', [textToSpeechProvider, videoProvider, musicProvider]);
 
 			expect(service.setTextToSpeechOperator('elevenlabs', textToSpeechModel)).toBe(true);
 			expect(service.setTextToVideoOperator('runway', videoModel)).toBe(true);
-			expect(service.setMusicCreatorOperator('suno', musicModel)).toBe(true);
+			expect(service.setTextToSoundOperator('suno', musicModel)).toBe(true);
 
 			expect(store.get('textToSpeech')).toEqual({
 				providerId: 'elevenlabs',
@@ -1068,12 +1068,12 @@ describe('StoreService', () => {
 				provider: { id: 'runway', name: 'Runway' },
 				model: videoModel,
 			});
-			expect(service.getMusicCreatorOperator()).toMatchObject({
+			expect(service.getTextToSoundOperator()).toMatchObject({
 				id: 'music-creator',
 				provider: { id: 'suno', name: 'Suno' },
 				model: musicModel,
 			});
-			expect(service.getMusicCreatorOperator()?.provider).not.toHaveProperty('apiKey');
+			expect(service.getTextToSoundOperator()?.provider).not.toHaveProperty('apiKey');
 		});
 
 		it('rejects unsupported pending-runtime model selections', () => {
@@ -1083,10 +1083,10 @@ describe('StoreService', () => {
 
 			expect(service.setTextToSpeechOperator('elevenlabs', model)).toBe(false);
 			expect(service.setTextToVideoOperator('runway', model)).toBe(false);
-			expect(service.setMusicCreatorOperator('anthropic', musicModel)).toBe(false);
+			expect(service.setTextToSoundOperator('anthropic', musicModel)).toBe(false);
 			expect(service.getTextToSpeechOperator()).toBeUndefined();
 			expect(service.getTextToVideoOperator()).toBeUndefined();
-			expect(service.getMusicCreatorOperator()).toBeUndefined();
+			expect(service.getTextToSoundOperator()).toBeUndefined();
 		});
 	});
 
