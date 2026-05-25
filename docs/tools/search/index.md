@@ -1,26 +1,56 @@
 # Tool Search
 
-Tool search helps an agent find a relevant tool from a large catalog without loading every tool definition at the start of a run.
+Tool search lets an agent discover tools from a large catalog without loading every definition at the start of a run. A small visible set covers common actions; the rest are deferred and loaded on demand.
 
-Use tool search when the available tool set is large, dynamic, or split across providers and MCP servers. Do not use it when there are only a few tools and the agent can see them directly.
+## When to Use It
+
+- The catalog has many tools and loading all of them would fill context or hurt selection quality.
+- Tools are grouped across services, namespaces, or MCP servers.
+- The agent needs only a subset of tools on any given turn.
+
+## When to Avoid It
+
+- There are only a few tools and the agent can see them all.
+- Every tool is used on most turns — deferring adds latency with no benefit.
+- Tool descriptions are vague or inconsistent, making search unreliable.
 
 ## How It Works
 
-1. The agent starts with a small visible tool set.
-2. Some tools are kept deferred.
-3. When the agent needs a missing capability, it searches the deferred catalog.
-4. Matching tools become available for the run.
-5. The agent calls only tools that were actually loaded.
+1. The agent starts with a small visible set covering the most common capabilities.
+2. The rest of the catalog is registered as deferred — available but not loaded.
+3. When the agent needs a capability not in the visible set, it queries the catalog with a natural-language description of what it needs.
+4. The catalog returns matching tool definitions.
+5. The agent adds those tools to its active set and calls only tools that were explicitly loaded.
 
-## Good Tool Search Depends On
+The agent must never call a deferred tool directly. It must search first, receive the definition, then call it.
 
-- clear tool names
-- short descriptions that match user language
-- focused tool groups
-- stable schemas
-- a small set of high-frequency tools loaded immediately
+## Designing Tools for Search
 
-## Provider Notes
+Tool search quality depends almost entirely on how tools are named and described.
 
-- [OpenAI tool search](openai.md)
-- [Anthropic tool search](anthropic.md)
+- **Names**: use consistent, predictable naming across related tools — `email_send`, `email_read`, not `sendEmail`, `fetch_mail`.
+- **Descriptions**: write for the user's language, not the implementation. Include synonyms and the user-facing action the tool performs.
+- **Grouping**: keep related tools together in the same namespace or group so they surface together in results.
+- **Visible set**: keep it small. Include only the tools that are genuinely needed on most turns.
+
+## Implementation Steps
+
+1. Identify which tools are needed on nearly every turn. Mark these as the visible set.
+2. Register the remaining tools as deferred with clear names and descriptions.
+3. At request time, include only the visible set.
+4. When the agent needs a missing capability, it queries the deferred catalog.
+5. Add the returned tool definitions to the active set for the current turn.
+6. The agent calls only tools that were added in step 5.
+
+## Tuning
+
+| Symptom | Fix |
+| --- | --- |
+| Right tool not found | Add synonyms and user-facing phrasing to its description |
+| Wrong tool returned | Remove keywords shared with unrelated tools |
+| Search rarely used | Visible set may be too large — move infrequent tools to deferred |
+| Search called too often | Move the most common deferred tools into the visible set |
+
+## Related Docs
+
+- [Tools](../index.md)
