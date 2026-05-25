@@ -90,8 +90,8 @@ describe('agent/system-prompt', () => {
 			tools,
 		});
 
-		expect(prompt).toContain('When the user asks to schedule a task, use this tool');
-		expect(prompt).toContain('not system crontab or host schedulers');
+		expect(prompt).toContain('Use this for later or repeating work');
+		expect(prompt).toContain('Before add/remove, make sure timing');
 		expect(prompt).toContain('Do not use host schedulers such as crontab');
 	});
 
