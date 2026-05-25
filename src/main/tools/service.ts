@@ -1,0 +1,199 @@
+import {
+	evaluateToolPolicy,
+	normalizeToolPolicyName,
+	type PolicyServicePort,
+	type ToolPolicySubject,
+} from '../policy';
+import type { AgentTool, AgentToolResult, ToolContext } from './types';
+import {
+	executeAgentToolWithManagement,
+	selectAgentToolsForTurn,
+	ToolExecutor,
+	type AgentToolManagementOptions,
+	type AgentToolSelectionForTurn,
+} from './management';
+import {
+	beforeToolCall,
+	newCallTracker,
+	type BeforeCallOutcome,
+	type CallTracker,
+} from './guard';
+import {
+	prepareLegacyToolsForProvider,
+	type PrepareLegacyToolsForProviderOptions,
+} from './runtime/adapt';
+
+export type {
+	AgentToolManagementOptions,
+	AgentToolSelectionForTurn,
+} from './management';
+
+export interface AgentToolSource {
+	createAgentTools(): AgentTool[];
+}
+
+export interface ToolRunPreparation extends AgentToolSelectionForTurn {
+	management: AgentToolManagementOptions;
+}
+
+export interface ToolServicePort {
+	createDefaultTools(input: {
+		connectors?: AgentToolSource;
+		denylist?: string[];
+		policy?: PolicyServicePort;
+	}): AgentTool[];
+	filterToolsByAllowlist(
+		tools: AgentTool[],
+		allowlist: string[] | undefined,
+		policy?: PolicyServicePort
+	): AgentTool[];
+	filterToolsByDenylist(
+		tools: AgentTool[],
+		denylist: string[] | undefined,
+		policy?: PolicyServicePort
+	): AgentTool[];
+	createCallTracker(): CallTracker;
+	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
+	prepareToolsForProvider(
+		tools: AgentTool[],
+		ctx: ToolContext,
+		options?: PrepareLegacyToolsForProviderOptions
+	): AgentTool[];
+	selectToolsForTurn(
+		tools: AgentTool[],
+		message: string,
+		ctx: ToolContext,
+		options?: AgentToolManagementOptions
+	): AgentToolSelectionForTurn;
+	prepareToolsForRun(input: {
+		tools: AgentTool[];
+		ctx: ToolContext;
+		userMessage: string;
+		provider?: string;
+		modelId?: string;
+		management?: AgentToolManagementOptions;
+	}): ToolRunPreparation;
+	beforeCall(
+		tool: AgentTool,
+		args: unknown,
+		ctx: ToolContext,
+		tracker: CallTracker
+	): Promise<BeforeCallOutcome>;
+	executeToolWithManagement(
+		tool: AgentTool,
+		args: Record<string, unknown>,
+		ctx: ToolContext,
+		management: AgentToolManagementOptions
+	): Promise<AgentToolResult>;
+}
+
+export class ToolService implements ToolServicePort {
+	createDefaultTools(input: {
+		connectors?: AgentToolSource;
+		denylist?: string[];
+		policy?: PolicyServicePort;
+	}): AgentTool[] {
+		const tools = input.connectors?.createAgentTools() ?? [];
+		return this.filterToolsByDenylist(tools, input.denylist, input.policy);
+	}
+
+	filterToolsByAllowlist(
+		tools: AgentTool[],
+		allowlist: string[] | undefined,
+		policy?: PolicyServicePort
+	): AgentTool[] {
+		if (!allowlist) return tools;
+		return filterTools(tools, { allow: allowlist }, policy);
+	}
+
+	filterToolsByDenylist(
+		tools: AgentTool[],
+		denylist: string[] | undefined,
+		policy?: PolicyServicePort
+	): AgentTool[] {
+		if (!denylist?.length) return tools;
+		return filterTools(tools, { deny: denylist }, policy);
+	}
+
+	createCallTracker(): CallTracker {
+		return newCallTracker();
+	}
+
+	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions {
+		return {
+			...options,
+			executor:
+				options?.executor ??
+				new ToolExecutor({ maxToolCallsPerTurn: options?.maxToolCallsPerTurn }),
+		};
+	}
+
+	prepareToolsForProvider(
+		tools: AgentTool[],
+		ctx: ToolContext,
+		options: PrepareLegacyToolsForProviderOptions = {}
+	): AgentTool[] {
+		return prepareLegacyToolsForProvider(tools, ctx, options);
+	}
+
+	selectToolsForTurn(
+		tools: AgentTool[],
+		message: string,
+		ctx: ToolContext,
+		options?: AgentToolManagementOptions
+	): AgentToolSelectionForTurn {
+		return selectAgentToolsForTurn(tools, message, ctx, options);
+	}
+
+	prepareToolsForRun(input: {
+		tools: AgentTool[];
+		ctx: ToolContext;
+		userMessage: string;
+		provider?: string;
+		modelId?: string;
+		management?: AgentToolManagementOptions;
+	}): ToolRunPreparation {
+		const management = this.createManagementOptions(input.management);
+		const providerTools = this.prepareToolsForProvider(input.tools, input.ctx, {
+			provider: input.provider,
+			modelId: input.modelId,
+		});
+		return {
+			...this.selectToolsForTurn(providerTools, input.userMessage, input.ctx, management),
+			management,
+		};
+	}
+
+	beforeCall(
+		tool: AgentTool,
+		args: unknown,
+		ctx: ToolContext,
+		tracker: CallTracker
+	): Promise<BeforeCallOutcome> {
+		return beforeToolCall(tool, args, ctx, tracker);
+	}
+
+	executeToolWithManagement(
+		tool: AgentTool,
+		args: Record<string, unknown>,
+		ctx: ToolContext,
+		management: AgentToolManagementOptions
+	): Promise<AgentToolResult> {
+		return executeAgentToolWithManagement(tool, args, ctx, management);
+	}
+}
+
+function filterTools(
+	tools: AgentTool[],
+	runtime: { allow?: string[]; deny?: string[] },
+	policy?: PolicyServicePort
+): AgentTool[] {
+	const subjects: ToolPolicySubject[] = tools.map((tool) => ({
+		name: tool.name,
+		ownerOnly: tool.ownerOnly,
+	}));
+	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
+		stages: { runtime },
+	});
+	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
+}

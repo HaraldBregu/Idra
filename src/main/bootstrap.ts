@@ -25,6 +25,7 @@ import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
 import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
+import { ToolService } from './tools';
 
 import type { IpcModule } from './ipc';
 import {
@@ -111,6 +112,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
+	const toolService = container.register('toolService', new ToolService());
 
 	const agentDependencies: AgentServiceDependencies = {
 		store,
@@ -123,6 +125,7 @@ export function bootstrapServices(): BootstrapResult {
 		connectors,
 		mcpRegistry,
 		policy,
+		toolService,
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();

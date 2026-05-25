@@ -30,14 +30,11 @@ import {
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import {
-	evaluateToolPolicy,
 	evaluateToolRequestPolicy,
-	normalizeToolPolicyName,
 	PolicyService,
 	type PolicyServicePort,
-	type ToolPolicySubject,
 } from './policy';
-import type { JSONSchema, ProviderAdapter, ToolResultBlock, TranscriptEntry } from './provider/types';
+import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
@@ -50,88 +47,19 @@ import type { FridayCronActor } from './cron';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
 import type { SubagentSpawnPort } from './agent/subagents';
+import {
+	ToolService,
+	type AgentTool,
+	type AgentToolSelectionForTurn,
+	type ToolContext,
+	type ToolServicePort,
+} from './tools';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
 	maxIterations: 25,
 	defaultMaxPromptTools: 9,
 } as const;
-
-interface AgentToolResult<TDetails = unknown> {
-	status: 'ok' | 'error' | 'rejected';
-	content: ToolResultBlock[];
-	details?: TDetails;
-}
-
-export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
-	name: string;
-	displaySummary?: string;
-	description: string;
-	schema: JSONSchema;
-	ownerOnly?: boolean;
-	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
-	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
-}
-
-export interface ToolContext {
-	workspace: string;
-	agentId?: string;
-	cronContext?: FridayCronActor;
-	deliveryContext?: Record<string, unknown>;
-	sessionId: string;
-	sessionBaseDir?: string;
-	sessionVisibility?: 'self' | 'tree' | 'agent' | 'all';
-	readState: Map<string, { mtimeMs: number; size: number }>;
-	plan: { entries: SessionFile['plan'] };
-	approvalRequired: Set<string>;
-	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
-	signal?: AbortSignal;
-	approvalCache: Set<string>;
-	services: AgentServiceDependencies;
-}
-
-interface AgentToolSelectionForTurn {
-	toolsForPrompt: AgentTool[];
-	systemPromptSuffix: string;
-	rankedTools: AgentTool[];
-}
-
-function filterToolsByAllowlist(
-	tools: AgentTool[],
-	allowlist: string[] | undefined,
-	policy?: PolicyServicePort
-): AgentTool[] {
-	if (!allowlist) return tools;
-	const subjects: ToolPolicySubject[] = tools.map((tool) => ({
-		name: tool.name,
-		ownerOnly: tool.ownerOnly,
-	}));
-	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
-		stages: { runtime: { allow: allowlist } },
-	});
-	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
-}
-
-function filterToolsByDenylist(
-	tools: AgentTool[],
-	denylist: string[] | undefined,
-	policy?: PolicyServicePort
-): AgentTool[] {
-	if (!denylist?.length) return tools;
-	const subjects: ToolPolicySubject[] = tools.map((tool) => ({
-		name: tool.name,
-		ownerOnly: tool.ownerOnly,
-	}));
-	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
-		stages: { runtime: { deny: denylist } },
-	});
-	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
-}
-
-function selectToolsForPrompt(tools: AgentTool[]): AgentToolSelectionForTurn {
-	const toolsForPrompt = tools.slice(0, AGENT_TOOL_LIMITS.defaultMaxPromptTools);
-	return { toolsForPrompt, systemPromptSuffix: '', rankedTools: tools };
-}
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -146,6 +74,7 @@ export interface AgentServiceDependencies {
 	taskManager?: TaskManager;
 	subagents?: SubagentSpawnPort;
 	policy?: PolicyServicePort;
+	toolService?: ToolServicePort;
 }
 
 export interface AgentToolsFactoryContext {
@@ -171,6 +100,7 @@ export interface AgentServiceOptions {
 	defaultAgentId?: string;
 	providerFactory?: (provider: ProviderSpec) => ProviderAdapter;
 	toolsFactory?: AgentToolsFactory;
+	toolService?: ToolServicePort;
 	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
 	beforeAgentRunHooks?: BeforeAgentRunHook[];
@@ -244,6 +174,7 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
+	private readonly toolService: ToolServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
@@ -256,6 +187,7 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
+		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService();
 		this.usesDefaultToolsFactory = !options.toolsFactory;
 		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
@@ -269,12 +201,11 @@ export class AgentService {
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
 		const toolPolicy = context.toolPolicy;
-		const tools = context.services.connectors?.createAgentTools() ?? [];
-		return filterToolsByDenylist(
-			tools,
-			[...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
-			context.services.policy
-		);
+		return this.toolService.createDefaultTools({
+			connectors: context.services.connectors,
+			denylist: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
+			policy: context.services.policy,
+		});
 	}
 
 	async send(
@@ -404,7 +335,7 @@ export class AgentService {
 					)
 				);
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
-					baseTools = filterToolsByAllowlist(
+					baseTools = this.toolService.filterToolsByAllowlist(
 						baseTools,
 						options.toolsAllow,
 						this.dependencies.policy
@@ -443,7 +374,9 @@ export class AgentService {
 								rankedTools: [],
 							}
 						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								selectToolsForPrompt(baseTools)
+								this.toolService.selectToolsForTurn(baseTools, message, ctx, {
+									maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
+								})
 							);
 				selectedTools = toolSelection.toolsForPrompt;
 			}
@@ -563,6 +496,7 @@ export class AgentService {
 				hooks,
 				signal: abort.signal,
 				toolManagement: { enabled: false },
+				toolService: this.toolService,
 			});
 
 			runtime.session = result.session;

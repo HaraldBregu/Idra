@@ -14,6 +14,7 @@ import type { HeartbeatService } from './heartbeat';
 import type { AgentService } from './service';
 import type { StoreService } from './store';
 import type { TaskManager } from './tasks';
+import type { ToolService } from './tools';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
 
@@ -34,6 +35,7 @@ export interface MainServices {
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	taskManager: TaskManager;
+	toolService: ToolService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;

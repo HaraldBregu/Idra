@@ -7,14 +7,11 @@ import type {
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
 import type { AgentTool, ToolContext } from '../tools/types';
-import { beforeToolCall, newCallTracker } from '../tools/guard';
 import {
-	executeAgentToolWithManagement,
-	selectAgentToolsForTurn,
-	ToolExecutor,
 	type AgentToolManagementOptions,
-} from '../tools/management';
-import { prepareLegacyToolsForProvider } from '../tools/runtime/adapt';
+	ToolService,
+	type ToolServicePort,
+} from '../tools/service';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
@@ -140,6 +137,7 @@ export interface AgentRunInput {
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
+	toolService?: ToolServicePort;
 	store?: AgentProviderLookup;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
 }
@@ -294,7 +292,7 @@ async function prepareToolResultForRun(params: {
  * Provider-neutral agent loop.
  *
  * Streams text deltas through `streamOutput`. Tool calls go through
- * `beforeToolCall` (loop detector + approval gate). On context overflow,
+ * the tool service pre-call guard. On context overflow,
  * compacts the transcript once and retries. The whole run is abortable
  * via `signal`.
  */
@@ -338,22 +336,20 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		signal,
 	} = input;
 
-	const tracker = newCallTracker();
-	const managedExecutor =
-		input.toolManagement?.executor ??
-		new ToolExecutor({ maxToolCallsPerTurn: input.toolManagement?.maxToolCallsPerTurn });
-	const toolManagement: AgentToolManagementOptions = {
-		...input.toolManagement,
-		executor: managedExecutor,
-	};
-	const providerTools = prepareLegacyToolsForProvider(tools, ctx, {
+	const toolService = input.toolService ?? new ToolService();
+	const tracker = toolService.createCallTracker();
+	const toolPreparation = toolService.prepareToolsForRun({
+		tools,
+		ctx,
+		userMessage,
 		provider: input.providerId,
 		modelId: model,
+		management: input.toolManagement,
 	});
-	const toolSelection = selectAgentToolsForTurn(providerTools, userMessage, ctx, toolManagement);
-	const toolsForPrompt = toolSelection.toolsForPrompt;
-	const systemPromptForTurn = toolSelection.systemPromptSuffix
-		? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
+	const toolManagement = toolPreparation.management;
+	const toolsForPrompt = toolPreparation.toolsForPrompt;
+	const systemPromptForTurn = toolPreparation.systemPromptSuffix
+		? `${systemPrompt}\n\n${toolPreparation.systemPromptSuffix}`
 		: systemPrompt;
 	const totalUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 	let finalText = '';
@@ -693,7 +689,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					});
 					continue;
 				}
-				const before = await beforeToolCall(tool, args, ctx, tracker);
+				const before = await toolService.beforeCall(tool, args, ctx, tracker);
 				if (!before.proceed && before.vetoResult) {
 					const status: ToolResultStatus = before.vetoStatus ?? 'error';
 					const vetoResult = sanitizeToolResultDetails(before.vetoResult);
@@ -751,7 +747,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				}
 				let res;
 				try {
-					res = await executeAgentToolWithManagement(
+					res = await toolService.executeToolWithManagement(
 						tool,
 						args as Record<string, unknown>,
 						ctx,

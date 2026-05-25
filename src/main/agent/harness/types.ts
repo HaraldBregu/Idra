@@ -3,7 +3,7 @@ import type { AgentRunHooks, AgentRunStreamEvent } from '../run';
 import type { AgentTool, ToolContext } from '../../tools/types';
 import type { SessionFile } from '../../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
-import type { AgentToolManagementOptions } from '../../tools/management';
+import type { AgentToolManagementOptions, ToolServicePort } from '../../tools/service';
 
 export type AgentHarnessSupportContext = {
 	provider: string;
@@ -35,6 +35,7 @@ export interface AgentHarnessAttemptParams {
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
+	toolService?: ToolServicePort;
 }
 
 export type AgentHarnessAttemptResult = import('../run').AgentRunResult & {

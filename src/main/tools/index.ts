@@ -7,6 +7,14 @@ export type {
 } from './core/types';
 export { textResult } from './core/types';
 export {
+	ToolService,
+	type AgentToolSource,
+	type ToolRunPreparation,
+	type ToolServicePort,
+	type AgentToolManagementOptions,
+	type AgentToolSelectionForTurn,
+} from './service';
+export {
 	ALL_TOOLS,
 	createTools,
 	LOCAL_TOOL_CATALOG,

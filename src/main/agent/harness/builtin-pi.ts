@@ -28,6 +28,7 @@ export function createPiAgentHarness(): AgentHarness {
 				hooks: params.hooks,
 				signal: params.signal,
 				toolManagement: params.toolManagement,
+				toolService: params.toolService,
 			}),
 	};
 }
