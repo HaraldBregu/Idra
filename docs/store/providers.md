@@ -1,4 +1,4 @@
-# Store — Model Providers
+# Store — Providers
 
 The `modelProviders` root stores configured model provider records. The provider store uses it to resolve provider credentials and base URLs for model modules.
 
