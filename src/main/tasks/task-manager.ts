@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { BackgroundTaskSettings } from '../store/types';
+import type { TaskSettings } from '../../shared/store';
 import type {
 	TaskEvent,
 	TaskHandler,
@@ -27,7 +27,7 @@ export interface TaskManagerOptions {
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 	idFactory?: () => string;
 	now?: () => string;
-	policy?: () => BackgroundTaskSettings;
+	policy?: () => TaskSettings;
 }
 
 const TERMINAL_STATUSES = new Set<TaskStatus>(['cancelled', 'succeeded', 'failed']);
@@ -156,7 +156,7 @@ export class TaskManager {
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 	private readonly idFactory: () => string;
 	private readonly now: () => string;
-	private readonly policy?: () => BackgroundTaskSettings;
+	private readonly policy?: () => TaskSettings;
 	private pumpScheduled = false;
 
 	constructor(options: TaskManagerOptions) {

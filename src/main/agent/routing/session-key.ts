@@ -1,4 +1,4 @@
-import type { AgentRouteSessionScope } from '../../store/types';
+import type { AgentRouteSessionScope } from '../../../shared/store';
 import type { AgentSessionKeyInput } from './types';
 
 function encodePart(value: string): string {

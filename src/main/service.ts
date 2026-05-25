@@ -61,7 +61,7 @@ import {
 } from '../shared/agents/service';
 import type { FridayCronActor } from './cron';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
-import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
+import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
 import type { SubagentSpawnPort } from './agent/subagents';
 
 function toolAllowPatternMatches(pattern: string, name: string): boolean {

@@ -87,7 +87,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const store = container.register('store', new StoreService());
 	for (const runtime of collectConfiguredAgentHarnessRuntimes({
-		llmAgent: {
+		assistant: {
 			options: {
 				agentRuntime: store.getAgentRuntimePreference(),
 			},

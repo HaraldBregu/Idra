@@ -6,6 +6,7 @@ import type {
 	AgentRouteSessionScope,
 	AgentRoutingSettings,
 } from '../../store/types';
+} from '../../../shared/store';
 
 const SESSION_SCOPES = new Set<AgentRouteSessionScope>([
 	'main',
