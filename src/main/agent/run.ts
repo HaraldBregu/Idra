@@ -14,7 +14,7 @@ import {
 	ToolExecutor,
 	type AgentToolManagementOptions,
 } from '../tools/management';
-import { prepareLegacyToolsForProvider } from '../tools/runtime/legacy-tool-adapter';
+import { prepareLegacyToolsForProvider } from '../tools/runtime/adapt';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
