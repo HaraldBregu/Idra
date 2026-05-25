@@ -1,7 +1,4 @@
-import { randomUUID } from 'node:crypto';
 import {
-	isCronTaskData,
-	type CronTaskData,
 	type FridayCronToolRequest,
 	type FridayCronToolResponse,
 } from '../../../shared/cron';
