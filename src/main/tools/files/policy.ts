@@ -1,5 +1,5 @@
-import { evaluate } from '../../policy';
-import type { Permission, PolicyConfig } from '../../../shared/policy';
+import { PolicyService, type PolicyStorePort } from '../../policy';
+import type { Permission } from '../../../shared/policy';
 import type { FridayServices, ToolContext } from '../core/types';
 
 export interface FilePolicyCheck {
@@ -13,19 +13,18 @@ export function checkFilePolicy(
 	checks: readonly FilePolicyCheck[]
 ): string | null {
 	const store = (ctx.services as Partial<FridayServices> | undefined)?.store as
-		| { getPolicy?: () => PolicyConfig }
+		| Partial<PolicyStorePort>
 		| undefined;
 	if (typeof store?.getPolicy !== 'function') return null;
-
-	let policy: PolicyConfig;
-	try {
-		policy = store.getPolicy();
-	} catch (err) {
-		return `${toolName}: file policy unavailable: ${(err as Error).message}`;
-	}
+	const policy = new PolicyService(store as PolicyStorePort);
 
 	for (const check of checks) {
-		const decision = evaluate(policy, check.path, check.permission);
+		let decision;
+		try {
+			decision = policy.evaluate(check.path, check.permission);
+		} catch (err) {
+			return `${toolName}: file policy unavailable: ${(err as Error).message}`;
+		}
 		if (decision.outcome === 'allow') continue;
 		return `${toolName}: denied by file policy for '${check.permission}' on ${decision.path}: ${decision.reason}`;
 	}
