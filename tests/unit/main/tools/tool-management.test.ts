@@ -20,9 +20,10 @@ import {
 	type ToolExecutionContext,
 } from '../../../../src/main/tools/management';
 import { execTool } from '../../../../src/main/tools/exec';
+import { writeTool } from '../../../../src/main/tools/fs';
 import { TOOL_LIMITS } from '../../../../src/main/tools/limits';
 import type { AgentTool } from '../../../../src/main/tools/types';
-import { makeToolContext } from '../test-helpers';
+import { makeTempDir, makeToolContext } from '../test-helpers';
 
 function sessionContext(permissions: string[] = ['*']): SessionContext {
 	return {
