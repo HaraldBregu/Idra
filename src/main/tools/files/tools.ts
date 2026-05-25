@@ -590,7 +590,7 @@ interface CopyArgs {
 export const copyTool: AgentTool<CopyArgs> = {
 	name: 'copy',
 	description:
-		'Copy one file to another path. Creates parent dirs. Set overwrite=true only after reading the destination file.',
+		'Copy one file or directory to another path. Creates parent dirs. Set overwrite=true only after reading the destination file.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -615,27 +615,26 @@ export const copyTool: AgentTool<CopyArgs> = {
 		}
 		if (sourceAbs === destinationAbs)
 			return textResult('copy: source and destination are identical.', true);
-			try {
-				const sourceStat = await fs.stat(sourceAbs);
-				const destinationStat = await fs.stat(destinationAbs).catch(() => null);
-				if (sourceStat.isDirectory()) {
-					const policyChecks = await collectDirectoryCopyPolicyChecks(sourceAbs, destinationAbs);
-					const denied = checkFilePolicy(ctx, 'copy', policyChecks);
-					if (denied) return textResult(denied, true);
-					if (destinationStat)
-						return textResult(`copy: destination exists: ${args.destination}`, true);
-					await fs.cp(sourceAbs, destinationAbs, {
-						recursive: true,
-						errorOnExist: true,
-						force: false,
-					});
-					return textResult(`copied directory ${sourceAbs} to ${destinationAbs}`);
-				}
-				if (!sourceStat.isFile())
-					return textResult(`copy: unsupported source type: ${args.source}`, true);
-				const policyChecks: FilePolicyCheck[] = [
-					{ path: sourceAbs, permission: 'read' },
-					{ path: destinationAbs, permission: destinationStat ? 'write' : 'create' },
+		try {
+			const sourceStat = await fs.stat(sourceAbs);
+			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
+			if (sourceStat.isDirectory()) {
+				const policyChecks = await collectDirectoryCopyPolicyChecks(sourceAbs, destinationAbs);
+				const denied = checkFilePolicy(ctx, 'copy', policyChecks);
+				if (denied) return textResult(denied, true);
+				if (destinationStat)
+					return textResult(`copy: destination exists: ${args.destination}`, true);
+				await fs.cp(sourceAbs, destinationAbs, {
+					recursive: true,
+					errorOnExist: true,
+					force: false,
+				});
+				return textResult(`copied directory ${sourceAbs} to ${destinationAbs}`);
+			}
+			if (!sourceStat.isFile()) return textResult(`copy: unsupported source type: ${args.source}`, true);
+			const policyChecks: FilePolicyCheck[] = [
+				{ path: sourceAbs, permission: 'read' },
+				{ path: destinationAbs, permission: destinationStat ? 'write' : 'create' },
 			];
 			const denied = checkFilePolicy(ctx, 'copy', policyChecks);
 			if (denied) return textResult(denied, true);
