@@ -175,8 +175,8 @@ export class StoreService {
 	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings {
 		return this.agents.setAgentRoutingSettings(settings);
 	}
-	getBackgroundTaskSettings(): TaskSettings {
-		return this.agents.getBackgroundTaskSettings();
+	getTaskSettings(): TaskSettings {
+		return this.agents.getTaskSettings();
 	}
 
 	// Channels

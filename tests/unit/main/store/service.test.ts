@@ -264,7 +264,7 @@ describe('StoreService', () => {
 				}
 			);
 
-			expect(service.getBackgroundTaskSettings()).toEqual({
+			expect(service.getTaskSettings()).toEqual({
 				allowedTaskTypes: ['agent.run', 'ocr.run'],
 				defaultConcurrency: 2,
 			});

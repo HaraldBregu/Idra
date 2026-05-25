@@ -70,7 +70,7 @@ export class AgentStore {
 		return next;
 	}
 
-	getBackgroundTaskSettings(): TaskSettings {
+	getTaskSettings(): TaskSettings {
 		const task = this.store.get('task');
 		return readTaskSettings(task === undefined ? this.store.get('backgroundTask') : task);
 	}

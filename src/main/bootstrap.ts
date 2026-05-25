@@ -137,7 +137,7 @@ export function bootstrapServices(): BootstrapResult {
 			registry: taskRegistry,
 			eventBus,
 			logger,
-			policy: () => store.getBackgroundTaskSettings(),
+			policy: () => store.getTaskSettings(),
 		})
 	);
 	agentDependencies.taskManager = taskManager;
