@@ -1,4 +1,5 @@
 import type { AgentTool, ToolDiagnostics } from '../core/common';
+import type { FridayServices } from '../core/types';
 import {
 	assertUniqueToolNames,
 	createToolDiagnostics,
@@ -49,6 +50,7 @@ export type CreateAgentToolsOptions = {
 	toolsDeny?: string[];
 	includeCoreTools?: boolean;
 	hostTools?: AgentTool[];
+	services?: Partial<FridayServices>;
 	beforeToolCall?: Omit<BeforeToolCallContext, 'signal' | 'loopDetector'>;
 };
 
@@ -173,6 +175,7 @@ function addCoreToolCandidates(
 				sessionId: options.sessionId,
 				fsPolicy,
 				signal: options.abortSignal,
+				services: options.services,
 			})
 		);
 	}

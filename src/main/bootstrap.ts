@@ -7,6 +7,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { AppPermissionsService } from './app-permissions';
 import { LoggerService } from './logger';
 import { StoreService } from './store';
+import { PolicyService } from './policy';
 import { CronService } from './cron';
 import { AgentService, type AgentServiceDependencies } from './service';
 import { AgentStartupFilesService } from './agent/startup-files';
@@ -86,6 +87,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
+	const policy = container.register('policy', new PolicyService(store));
 	for (const runtime of collectConfiguredAgentHarnessRuntimes({
 		assistant: {
 			options: {
@@ -125,6 +127,7 @@ export function bootstrapServices(): BootstrapResult {
 		connectors,
 		mcpRegistry,
 		skills,
+		policy,
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();

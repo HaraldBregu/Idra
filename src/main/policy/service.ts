@@ -5,7 +5,11 @@ export interface PolicyStorePort {
 	getPolicy(): PolicyConfig;
 }
 
-export class PolicyService {
+export interface PolicyServicePort {
+	evaluate(targetPath: string, permission: Permission): PolicyDecision;
+}
+
+export class PolicyService implements PolicyServicePort {
 	constructor(private readonly store: PolicyStorePort) {}
 
 	evaluate(targetPath: string, permission: Permission): PolicyDecision {

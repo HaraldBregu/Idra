@@ -22,6 +22,7 @@ import {
 	PRELOADED_LOCAL_TOOLS,
 } from '../../../../src/main/tools/registry';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
+import { PolicyService } from '../../../../src/main/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 import type { PolicyConfig } from '../../../../src/shared/policy';
 
@@ -133,7 +134,7 @@ describe('tools/before-call', () => {
 
 describe('tools/fs', () => {
 	function useFilePolicy(ctx: ReturnType<typeof makeToolContext>, policy: PolicyConfig): void {
-		ctx.services.store = { getPolicy: jest.fn(() => policy) } as never;
+		ctx.services.policy = new PolicyService({ getPolicy: jest.fn(() => policy) });
 	}
 
 	it('reads, writes new files, edits read files, and finds matches', async () => {

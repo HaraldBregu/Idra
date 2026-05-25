@@ -1,6 +1,6 @@
-import { PolicyService, type PolicyStorePort } from '../../policy';
+import type { PolicyServicePort } from '../../policy';
 import type { Permission, PolicyDecision } from '../../../shared/policy';
-import type { FridayServices, ToolContext } from '../core/types';
+import type { ToolContext } from '../core/types';
 
 export interface FilePolicyCheck {
 	path: string;
@@ -12,11 +12,8 @@ export function checkFilePolicy(
 	toolName: string,
 	checks: readonly FilePolicyCheck[]
 ): string | null {
-	const store = (ctx.services as Partial<FridayServices> | undefined)?.store as
-		| Partial<PolicyStorePort>
-		| undefined;
-	if (typeof store?.getPolicy !== 'function') return null;
-	const policy = new PolicyService(store as PolicyStorePort);
+	const policy = (ctx.services as { policy?: PolicyServicePort } | undefined)?.policy;
+	if (!policy) return null;
 
 	for (const check of checks) {
 		let decision: PolicyDecision;

@@ -29,6 +29,7 @@ import {
 } from './agent/harness';
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
+import { PolicyService, type PolicyServicePort } from './policy';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
@@ -117,6 +118,7 @@ export interface AgentServiceDependencies {
 	skills?: SkillsService;
 	taskManager?: TaskManager;
 	subagents?: SubagentSpawnPort;
+	policy?: PolicyServicePort;
 }
 
 export interface AgentToolsFactoryContext {
@@ -232,6 +234,9 @@ export class AgentService {
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
+		if (!this.dependencies.policy && typeof this.dependencies.store.getPolicy === 'function') {
+			this.dependencies.policy = new PolicyService(this.dependencies.store);
+		}
 		this.ensureRuntime(this.defaultAgentId);
 	}
 
@@ -265,6 +270,7 @@ export class AgentService {
 			toolsDeny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
 			includeCoreTools: false,
 			hostTools: legacyHostTools.map((tool) => legacyToolToRuntimeTool(tool, context.toolContext)),
+			services: context.services,
 			sender: {
 				id: context.agentId,
 				isOwner: context.toolContext.cronContext?.role === 'owner',

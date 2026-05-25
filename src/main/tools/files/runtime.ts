@@ -23,6 +23,7 @@ export type FileToolOptions = {
 	sessionId?: string;
 	fsPolicy?: ToolContext['fsPolicy'];
 	signal?: AbortSignal;
+	services?: Partial<FridayServices>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,6 +56,6 @@ function createFileToolContext(options: FileToolOptions): ToolContext {
 		approvalCache: new Set(),
 		fsPolicy: options.fsPolicy,
 		signal: options.signal,
-		services: {} as FridayServices,
+		services: (options.services ?? {}) as FridayServices,
 	};
 }

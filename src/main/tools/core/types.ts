@@ -2,6 +2,7 @@ import type { CronService, FridayCronActor } from '../../cron';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentStartupFilesServicePort } from '../../agent/startup-files';
+import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../store';
 import type { TaskManager } from '../../tasks';
 import type { UserDataDirectoryServicePort } from '../../user-data';
@@ -21,6 +22,7 @@ export interface FridayServices {
 	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
 	startupFiles: AgentStartupFilesServicePort;
+	policy?: PolicyServicePort;
 	taskManager?: TaskManager;
 }
 
