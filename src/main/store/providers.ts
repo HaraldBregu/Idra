@@ -145,9 +145,7 @@ export class ProvidersStore {
 	}
 
 	private getStoredProviders(): Provider[] {
-		const providers = this.store.get('providers');
-		const source = providers === undefined ? this.store.get('modelProviders') : providers;
-		return readProviderSettingsList(source).map(providerFromSettings);
+		return readProviderSettingsList(this.store.get('providers')).map(providerFromSettings);
 	}
 
 	private setStoredProviders(providers: Provider[]): void {

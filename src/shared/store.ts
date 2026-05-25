@@ -43,8 +43,8 @@ export interface CronSettings {
 		}
 	>;
 	enabled?: boolean;
-	managed?: unknown;
-	legacyTasks?: CronTask[];
+	scheduler?: unknown;
+	tasks?: CronTask[];
 }
 
 export interface TaskSettings {

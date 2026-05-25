@@ -211,10 +211,7 @@ export function getModelModuleSettingsForStore(
 	store: SettingsStoreAccessor,
 	rootKey: ModelModuleRootKey
 ): ModelModuleSettings | undefined {
-	const value = store.get(rootKey);
-	if (value !== undefined) return readModelModuleSettings(value);
-	if (rootKey === 'assistant') return readModelModuleSettings(store.get('llmAgent'));
-	return undefined;
+	return readModelModuleSettings(store.get(rootKey));
 }
 
 export function getConfiguredModelOperatorForStore(

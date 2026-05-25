@@ -33,7 +33,6 @@ export class TaskStore {
 	}
 
 	getTaskSettings(): TaskSettings {
-		const task = this.store.get('task');
-		return readTaskSettings(task === undefined ? this.store.get('backgroundTask') : task);
+		return readTaskSettings(this.store.get('task'));
 	}
 }

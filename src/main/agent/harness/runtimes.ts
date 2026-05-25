@@ -32,8 +32,7 @@ function visitConfig(value: unknown, runtimes: Set<string>): void {
 			key === 'agents' ||
 			key === 'models' ||
 			key === 'providers' ||
-			key === 'assistant' ||
-			key === 'llmAgent'
+			key === 'assistant'
 		) {
 			visitConfig(nested, runtimes);
 		}
