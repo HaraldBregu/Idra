@@ -7,7 +7,14 @@ import { ToolDiscovery } from './discovery';
 import { ToolExecutor } from './executor';
 import { ToolPromptBuilder } from './prompting';
 import { isToolIntrospectionRequest, ToolUsePolicy } from './use-policy';
-import type { RankedTool, RelevantMemory, SessionContext, ToolExecutionContext } from './types';
+import type {
+	RankedTool,
+	RelevantMemory,
+	SessionContext,
+	ToolConfirmationRequest,
+	ToolExecutionContext,
+	ToolResult,
+} from './types';
 import { TOOL_LIMITS } from '../limits';
 
 export interface AgentToolManagementOptions {
@@ -22,6 +29,7 @@ export interface AgentToolManagementOptions {
 	sessionContext?: Partial<SessionContext>;
 	executor?: ToolExecutor;
 	argumentBuilder?: ToolArgumentBuilder;
+	requestConfirmation?: (request: ToolConfirmationRequest) => Promise<boolean>;
 }
 
 export interface AgentToolSelectionForTurn {
