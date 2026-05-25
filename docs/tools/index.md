@@ -27,6 +27,7 @@ An agent should use tools when they make the result more accurate, current, veri
 
 | Area | Use it for | Docs |
 | --- | --- | --- |
+| Bootstrap | Creating the initial startup files needed to finish first-run setup. | [bootstrap](bootstrap.md) |
 | Files | Reading, writing, editing, finding, and managing workspace files. | [File tools](files/index.md) |
 | Execution | Running commands, tests, builds, and managing background processes. | [Execution tools](execution/index.md) |
 | Web | Fetching content from URLs and controlling a browser. | [Web tools](web/index.md) |
