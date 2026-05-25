@@ -1,4 +1,5 @@
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
+import { evaluateToolUsePolicy, toolUsePolicyKey } from '../../policy';
 
 const LOOP_WARN_AT = 3;
 const LOOP_STOP_AT = 5;
@@ -9,10 +10,6 @@ export interface CallTracker {
 
 export function newCallTracker(): CallTracker {
 	return { counts: new Map() };
-}
-
-function callKey(name: string, args: unknown): string {
-	return name + '::' + JSON.stringify(args ?? {});
 }
 
 export interface BeforeCallOutcome {
@@ -33,53 +30,49 @@ export async function beforeToolCall(
 	ctx: ToolContext,
 	tracker: CallTracker
 ): Promise<BeforeCallOutcome> {
-	const key = callKey(tool.name, args);
+	const key = toolUsePolicyKey(tool.name, args);
 	const count = (tracker.counts.get(key) ?? 0) + 1;
 	tracker.counts.set(key, count);
-
-	if (count > LOOP_STOP_AT) {
-		return {
-			proceed: false,
-			vetoStatus: 'error',
-			vetoResult: {
-				status: 'error',
-				content: [
-					{
-						type: 'text',
-						text: `loop detector: identical call to ${tool.name} has occurred ${count} times. Stopping. Change approach.`,
-					},
-				],
-			},
-		};
-	}
 
 	let requires = false;
 	if (tool.needsApproval === true) requires = true;
 	else if (typeof tool.needsApproval === 'function') {
 		requires = await tool.needsApproval(args as Record<string, unknown>, ctx);
 	}
-	if (requires || ctx.approvalRequired.has(tool.name)) {
-		if (!ctx.approvalCache.has(key)) {
-			return {
-				proceed: false,
-				vetoStatus: 'rejected',
-				vetoResult: {
-					status: 'rejected',
-					content: [
-						{
-							type: 'text',
-							text: `tool ${tool.name} requires approval before execution.`,
-						},
-					],
-					details: { reason: 'approval_required', toolName: tool.name },
-				},
-			};
-		}
+
+	const decision = (ctx.services.policy?.evaluateToolUse ?? evaluateToolUsePolicy)({
+		toolName: tool.name,
+		params: args,
+		callCount: count,
+		loopWarnAt: LOOP_WARN_AT,
+		loopStopAt: LOOP_STOP_AT,
+		requiresApproval: requires || ctx.approvalRequired.has(tool.name),
+		approvalCached: ctx.approvalCache.has(key),
+	});
+
+	if (decision.outcome === 'deny') {
+		return {
+			proceed: false,
+			vetoStatus: decision.status,
+			vetoResult: deniedToolResult(tool.name, decision.status, decision.reason, decision.deniedReason),
+		};
 	}
 
-	const warning =
-		count >= LOOP_WARN_AT
-			? `note: this is the ${count}th identical call to ${tool.name}; consider a different approach.`
-			: undefined;
-	return { proceed: true, warning };
+	return { proceed: true, warning: decision.warning };
+}
+
+function deniedToolResult(
+	toolName: string,
+	status: 'error' | 'rejected',
+	reason: string,
+	deniedReason: string
+): AgentToolResult {
+	return {
+		status,
+		content: [{ type: 'text', text: reason }],
+		details:
+			deniedReason === 'approval_required'
+				? { reason: deniedReason, toolName }
+				: { reason: deniedReason, toolName },
+	};
 }

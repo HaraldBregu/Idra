@@ -1,4 +1,5 @@
 import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from '../core/common';
+import type { PolicyServicePort } from '../../policy';
 import {
 	copyToolMetadata,
 	getToolMetadata,
@@ -7,6 +8,7 @@ import {
 	ToolInputError,
 } from '../core/common';
 import { blockedToolResult, errorToolResult } from '../core/results';
+import { evaluateToolUsePolicy, toolUsePolicyKey } from '../../policy';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';
@@ -58,6 +60,7 @@ export type BeforeToolCallContext = {
 	loopDetector?: CallTracker;
 	loopWarnAt?: number;
 	loopStopAt?: number;
+	policy?: Pick<PolicyServicePort, 'evaluateToolUse'>;
 	signal?: AbortSignal;
 };
 
@@ -72,10 +75,6 @@ export function newCallTracker(): CallTracker {
 const DEFAULT_LOOP_WARN_AT = 3;
 const DEFAULT_LOOP_STOP_AT = 5;
 
-function callKey(toolName: string, params: unknown): string {
-	return `${toolName}::${JSON.stringify(params ?? {})}`;
-}
-
 export function wrapToolWithBeforeToolCall(
 	tool: AgentTool,
 	context: BeforeToolCallContext = {}
@@ -88,19 +87,27 @@ export function wrapToolWithBeforeToolCall(
 			const effectiveSignal = signal ?? context.signal;
 			let params = tool.prepareArguments ? tool.prepareArguments(rawParams) : rawParams;
 			const tracker = context.loopDetector ?? newCallTracker();
-			const key = callKey(tool.name, params);
+			const key = toolUsePolicyKey(tool.name, params);
 			const count = (tracker.counts.get(key) ?? 0) + 1;
 			tracker.counts.set(key, count);
 
-			if (count > (context.loopStopAt ?? DEFAULT_LOOP_STOP_AT)) {
+			const policyDecision = (context.policy?.evaluateToolUse ?? evaluateToolUsePolicy)({
+				toolName: tool.name,
+				params,
+				callCount: count,
+				loopWarnAt: context.loopWarnAt ?? DEFAULT_LOOP_WARN_AT,
+				loopStopAt: context.loopStopAt ?? DEFAULT_LOOP_STOP_AT,
+			});
+
+			if (policyDecision.outcome === 'deny') {
 				const result = blockedToolResult({
-					reason: `loop detector: identical call to ${tool.name} occurred ${count} times. Change approach.`,
-					deniedReason: 'loop_detected',
+					reason: policyDecision.reason,
+					deniedReason: policyDecision.deniedReason,
 				});
 				diagnostics?.emit({
 					type: 'tool.execution.blocked',
 					message: result.content[0]?.type === 'text' ? result.content[0].text : undefined,
-					details: { toolName: tool.name, toolCallId, reason: 'loop_detected' },
+					details: { toolName: tool.name, toolCallId, reason: policyDecision.deniedReason },
 				});
 				return result;
 			}
@@ -155,10 +162,10 @@ export function wrapToolWithBeforeToolCall(
 				}
 			}
 
-			if (count >= (context.loopWarnAt ?? DEFAULT_LOOP_WARN_AT)) {
+			if (policyDecision.warning) {
 				onUpdate?.({
 					type: 'tool.execution.loop_warning',
-					message: `This is the ${count}th identical call to ${tool.name}.`,
+					message: policyDecision.warning,
 				});
 			}
 

@@ -78,4 +78,37 @@ describe('policy module', () => {
 			])
 		);
 	});
+
+	it('evaluates tool use approval and loop decisions through the policy service', () => {
+		const service = new PolicyService({
+			getPolicy: jest.fn(() => ({ version: 1, defaultPolicy: 'deny', paths: [] })),
+		});
+
+		expect(
+			service.evaluateToolUse({
+				toolName: 'write',
+				params: { path: 'a' },
+				callCount: 1,
+				requiresApproval: true,
+				approvalCached: false,
+			})
+		).toMatchObject({
+			outcome: 'deny',
+			status: 'rejected',
+			deniedReason: 'approval_required',
+			key: 'write::{"path":"a"}',
+		});
+
+		expect(
+			service.evaluateToolUse({
+				toolName: 'read',
+				callCount: 6,
+				loopStopAt: 5,
+			})
+		).toMatchObject({
+			outcome: 'deny',
+			status: 'error',
+			deniedReason: 'loop_detected',
+		});
+	});
 });

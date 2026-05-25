@@ -130,6 +130,40 @@ describe('tools/before-call', () => {
 		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(true);
 	});
 
+	it('delegates execution gating to the policy service when available', async () => {
+		const tool: AgentTool = {
+			name: 'read',
+			description: '',
+			schema: {},
+			execute: jest.fn(),
+		};
+		const ctx = makeToolContext();
+		ctx.services.policy = {
+			evaluate: jest.fn(),
+			evaluateTools: jest.fn(),
+			evaluateToolUse: jest.fn(() => ({
+				outcome: 'deny',
+				key: 'read::{"path":"a"}',
+				callCount: 1,
+				status: 'error',
+				deniedReason: 'loop_detected',
+				reason: 'blocked by policy service',
+			})),
+		};
+
+		const result = await beforeToolCall(tool, { path: 'a' }, ctx, newCallTracker());
+
+		expect(result.proceed).toBe(false);
+		expect(result.vetoResult?.content[0]?.text).toBe('blocked by policy service');
+		expect(ctx.services.policy.evaluateToolUse).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolName: 'read',
+				params: { path: 'a' },
+				callCount: 1,
+			})
+		);
+	});
+
 });
 
 describe('tools/fs', () => {

@@ -244,6 +244,37 @@ describe('canonical agent tool runtime', () => {
 		expect(vetoed.content[0]?.text).toContain('blocked by test');
 	});
 
+	it('delegates canonical execution gating to the policy service when available', async () => {
+		const execute = jest.fn(async () => textResult('done'));
+		const policy = {
+			evaluateToolUse: jest.fn(() => ({
+				outcome: 'deny',
+				key: 'wrapped::{}',
+				callCount: 1,
+				status: 'error',
+				deniedReason: 'loop_detected',
+				reason: 'blocked by policy service',
+			})),
+		};
+		const wrapped = wrapToolWithBeforeToolCall(tool('wrapped', { execute }), { policy });
+
+		const result = await wrapped.execute('tc-policy', {});
+
+		expect(result.details).toMatchObject({
+			status: 'blocked',
+			deniedReason: 'loop_detected',
+		});
+		expect(result.content[0]?.text).toContain('blocked by policy service');
+		expect(execute).not.toHaveBeenCalled();
+		expect(policy.evaluateToolUse).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolName: 'wrapped',
+				params: {},
+				callCount: 1,
+			})
+		);
+	});
+
 	it('resolves tool hook approval requests through the approval callback', async () => {
 		const execute = jest.fn(async (_id, params) => textResult('done', params));
 		const onResolution = jest.fn();

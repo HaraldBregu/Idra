@@ -2,9 +2,12 @@ import type { PolicyConfig, PolicyDecision, Permission } from '../../shared/poli
 import { evaluate } from './evaluate';
 import {
 	evaluateToolPolicy,
+	evaluateToolUsePolicy,
 	type ToolPolicyEvaluation,
 	type ToolPolicyEvaluationContext,
 	type ToolPolicySubject,
+	type ToolUsePolicyDecision,
+	type ToolUsePolicyInput,
 } from './tools';
 
 export interface PolicyStorePort {
@@ -17,6 +20,7 @@ export interface PolicyServicePort {
 		subjects: readonly ToolPolicySubject[],
 		context?: ToolPolicyEvaluationContext
 	): ToolPolicyEvaluation;
+	evaluateToolUse(input: ToolUsePolicyInput): ToolUsePolicyDecision;
 }
 
 export class PolicyService implements PolicyServicePort {
@@ -31,5 +35,9 @@ export class PolicyService implements PolicyServicePort {
 		context: ToolPolicyEvaluationContext = {}
 	): ToolPolicyEvaluation {
 		return evaluateToolPolicy(subjects, context);
+	}
+
+	evaluateToolUse(input: ToolUsePolicyInput): ToolUsePolicyDecision {
+		return evaluateToolUsePolicy(input);
 	}
 }

@@ -65,6 +65,32 @@ export type ToolPolicyEvaluation = {
 	warnings: string[];
 };
 
+export type ToolUsePolicyInput = {
+	toolName: string;
+	params?: unknown;
+	callCount: number;
+	loopWarnAt?: number;
+	loopStopAt?: number;
+	requiresApproval?: boolean;
+	approvalCached?: boolean;
+};
+
+export type ToolUsePolicyDecision =
+	| {
+			outcome: 'allow';
+			key: string;
+			callCount: number;
+			warning?: string;
+	  }
+	| {
+			outcome: 'deny';
+			key: string;
+			callCount: number;
+			status: 'error' | 'rejected';
+			deniedReason: 'loop_detected' | 'approval_required';
+			reason: string;
+	  };
+
 const FILE_TOOL_NAMES = [
 	'read',
 	'write',
@@ -160,6 +186,48 @@ export function evaluateToolPolicy(
 	}
 
 	return { allowed: current, filtered, warnings };
+}
+
+export function evaluateToolUsePolicy(input: ToolUsePolicyInput): ToolUsePolicyDecision {
+	const key = toolUsePolicyKey(input.toolName, input.params);
+	const loopWarnAt = input.loopWarnAt ?? 3;
+	const loopStopAt = input.loopStopAt ?? 5;
+
+	if (input.callCount > loopStopAt) {
+		return {
+			outcome: 'deny',
+			key,
+			callCount: input.callCount,
+			status: 'error',
+			deniedReason: 'loop_detected',
+			reason: `loop detector: identical call to ${input.toolName} has occurred ${input.callCount} times. Stopping. Change approach.`,
+		};
+	}
+
+	if (input.requiresApproval && !input.approvalCached) {
+		return {
+			outcome: 'deny',
+			key,
+			callCount: input.callCount,
+			status: 'rejected',
+			deniedReason: 'approval_required',
+			reason: `tool ${input.toolName} requires approval before execution.`,
+		};
+	}
+
+	return {
+		outcome: 'allow',
+		key,
+		callCount: input.callCount,
+		warning:
+			input.callCount >= loopWarnAt
+				? `note: this is the ${input.callCount}th identical call to ${input.toolName}; consider a different approach.`
+				: undefined,
+	};
+}
+
+export function toolUsePolicyKey(toolName: string, params: unknown): string {
+	return `${toolName}::${JSON.stringify(params ?? {})}`;
 }
 
 export function createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): ToolPolicyIndex {

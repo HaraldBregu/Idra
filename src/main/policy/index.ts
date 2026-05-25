@@ -6,8 +6,10 @@ export {
 	createToolPolicyIndex,
 	expandToolPolicyEntries,
 	expandToolPolicyProfile,
+	evaluateToolUsePolicy,
 	globMatchToolPolicyEntry,
 	normalizeToolPolicyName,
+	toolUsePolicyKey,
 	TOOL_POLICY_CORE_GROUPS,
 	TOOL_POLICY_STAGE_ORDER,
 	type ToolPolicy,
@@ -18,6 +20,8 @@ export {
 	type ToolPolicyProfile,
 	type ToolPolicyStageName,
 	type ToolPolicySubject,
+	type ToolUsePolicyDecision,
+	type ToolUsePolicyInput,
 } from './tools';
 export type {
 	Permission,

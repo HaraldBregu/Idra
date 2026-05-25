@@ -229,6 +229,7 @@ function prepareRuntimeTools(
 	effective = effective.map((tool) =>
 		wrapToolWithBeforeToolCall(tool, {
 			...options.beforeToolCall,
+			policy: options.beforeToolCall?.policy ?? options.services?.policy,
 			signal: options.abortSignal,
 			loopDetector: tracker,
 			diagnostics,
