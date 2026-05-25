@@ -919,10 +919,12 @@ describe('StoreService', () => {
 
 			const written = service.getOperator();
 			expect(written?.assistant?.provider).not.toHaveProperty('apiKey');
-			expect(written?.assistant?.provider).toEqual({
+			expect(written?.assistant?.provider).toMatchObject({
 				id: 'openai',
 				name: 'OpenAI',
 				baseUrl: 'https://api.openai.com/v1',
+				capabilities: expect.stringContaining('Chat'),
+				apiConfiguration: expect.objectContaining({ credentialType: 'API key' }),
 			});
 		});
 
