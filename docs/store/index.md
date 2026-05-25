@@ -17,8 +17,8 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 
 | Property | Type | Owns |
 | --- | --- | --- |
-| [`modelProviders`](providers.md) | `ModelProviderSettings[]` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
-| [`llmAgent`](assistant.md) | `ModelModuleSettings` | Active chat model selection and agent-facing model options. |
+| [`providers`](providers.md) | `ModelProviderSettings[]` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
+| [`assistant`](assistant.md) | `ModelModuleSettings` | Active chat model selection and agent-facing model options. |
 | [`speechToText`](speech-to-text.md) | `ModelModuleSettings` | Active speech-to-text provider, model, and module options. |
 | [`textToSpeech`](text-to-speech.md) | `ModelModuleSettings` | Active text-to-speech provider, model, and module options. |
 | [`imageCreator`](image-creator.md) | `ModelModuleSettings` | Active image creation provider, model, and module options. |
