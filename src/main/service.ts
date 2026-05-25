@@ -112,6 +112,27 @@ function filterToolsByAllowlist(
 	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
 }
 
+function filterToolsByDenylist(
+	tools: AgentTool[],
+	denylist: string[] | undefined,
+	policy?: PolicyServicePort
+): AgentTool[] {
+	if (!denylist?.length) return tools;
+	const subjects: ToolPolicySubject[] = tools.map((tool) => ({
+		name: tool.name,
+		ownerOnly: tool.ownerOnly,
+	}));
+	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
+		stages: { runtime: { deny: denylist } },
+	});
+	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
+}
+
+function selectToolsForPrompt(tools: AgentTool[]): AgentToolSelectionForTurn {
+	const toolsForPrompt = tools.slice(0, AGENT_TOOL_LIMITS.defaultMaxPromptTools);
+	return { toolsForPrompt, systemPromptSuffix: '', rankedTools: tools };
+}
+
 export interface AgentServiceDependencies {
 	store: StoreService;
 	cron: CronService;
