@@ -7,7 +7,9 @@ import {
 	normalizeToolName,
 } from '../core/common';
 import { createReadTool } from '../files/read-tool';
-import { createExecTool } from '../execution/exec-tool';
+import { execTool, processTool } from '../execution/tools';
+import { legacyToolToCanonical } from './legacy-bridge';
+import type { ToolContext } from '../core/types';
 import { normalizeToolSchemas } from '../core/schema-normalization';
 import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/tool-policy-pipeline';
 import {
