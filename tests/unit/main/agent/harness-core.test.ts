@@ -16,7 +16,9 @@ import {
 import type { SessionFile } from '../../../../src/main/session/store';
 
 function clearHarnessActivationState(): void {
-	delete (globalThis as { [key: symbol]: unknown })[Symbol.for('friday.agentHarnessRuntimeActivationState')];
+	delete (globalThis as { [key: symbol]: unknown })[
+		Symbol.for('friday.agentHarnessRuntimeActivationState')
+	];
 }
 
 function session(): SessionFile {

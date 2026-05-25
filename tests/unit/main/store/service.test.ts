@@ -346,9 +346,9 @@ describe('StoreService', () => {
 			};
 
 			expect(service.setPolicy(current)).toEqual(current);
-			expect(() =>
-				service.setPolicy({ version: 2, defaultPolicy: 'deny', paths: [] })
-			).toThrow('Unsupported policy version.');
+			expect(() => service.setPolicy({ version: 2, defaultPolicy: 'deny', paths: [] })).toThrow(
+				'Unsupported policy version.'
+			);
 			expect(store.get('policy')).toEqual(current);
 		});
 	});
@@ -443,9 +443,9 @@ describe('StoreService', () => {
 				},
 				lastRuns: { 'job-1': { runId: 'run-1' } },
 			});
-			const cron = (
-				service as unknown as { store: { get: (k: string) => unknown } }
-			).store.get('cron') as {
+			const cron = (service as unknown as { store: { get: (k: string) => unknown } }).store.get(
+				'cron'
+			) as {
 				friday?: unknown;
 				runs?: unknown;
 				states?: unknown;
@@ -668,8 +668,8 @@ describe('StoreService', () => {
 
 			const operator = service.getOperator();
 
-				expect(operator).toMatchObject({
-					textToSpeech: {
+			expect(operator).toMatchObject({
+				textToSpeech: {
 					id: 'text-to-speech',
 					docsPath: 'models/text-to-speech.md',
 					status: 'pending-runtime',

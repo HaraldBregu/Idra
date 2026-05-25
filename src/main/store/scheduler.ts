@@ -43,9 +43,7 @@ export class SchedulerStore {
 	getFridayCronState(): FridayCronStoreState {
 		const settings = this.getCronSettings();
 		const legacyFriday = readRecord((settings as { friday?: unknown }).friday);
-		const hasRootFridayState =
-			settings.schemaVersion !== undefined ||
-			settings.jobs !== undefined;
+		const hasRootFridayState = settings.schemaVersion !== undefined || settings.jobs !== undefined;
 		return migrateFridayCronStoreState(
 			hasRootFridayState ? settings : (legacyFriday ?? emptyFridayCronStoreState())
 		);

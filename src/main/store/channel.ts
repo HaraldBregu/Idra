@@ -307,6 +307,10 @@ export class ChannelStore {
 	}
 
 	private getStoredChannelRoot(): Partial<Channel> {
-		return readStoredChannel(this.store.get('channels') ?? (this.store as { get(key: string): unknown }).get('channel')) ?? {};
+		return (
+			readStoredChannel(
+				this.store.get('channels') ?? (this.store as { get(key: string): unknown }).get('channel')
+			) ?? {}
+		);
 	}
 }

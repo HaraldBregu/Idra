@@ -113,13 +113,13 @@ function createManagerWithUserFacing(
 	const manager = new TaskManager({
 		registry,
 		eventBus: new EventBus(),
-			logger,
-			idFactory: () => `user-task-${nextId++}`,
-			now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
-			policy: allowedTaskTypes ? () => ({ allowedTaskTypes }) : undefined,
-		});
-		return manager;
-	}
+		logger,
+		idFactory: () => `user-task-${nextId++}`,
+		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
+		policy: allowedTaskTypes ? () => ({ allowedTaskTypes }) : undefined,
+	});
+	return manager;
+}
 
 describe('TaskManager', () => {
 	beforeEach(() => {

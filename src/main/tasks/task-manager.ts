@@ -42,7 +42,10 @@ const ALLOWED_TRANSITIONS: Record<TaskStatus, readonly TaskStatus[]> = {
 const SECRET_KEY_PATTERN =
 	/(api[_-]?key|authorization|credential|password|private[_-]?key|secret|token)/i;
 const SECRET_VALUE_PATTERNS: readonly (readonly [RegExp, string])[] = [
-	[/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/gi, '[redacted private key]'],
+	[
+		/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/gi,
+		'[redacted private key]',
+	],
 	[/((?:authorization)\s*:\s*bearer\s+)[^\s,;]+/gi, '$1[redacted]'],
 	[/((?:api[_-]?key|credential|password|secret|token)\s*[:=]\s*)[^\s,;]+/gi, '$1[redacted]'],
 ];

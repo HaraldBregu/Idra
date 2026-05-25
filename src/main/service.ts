@@ -246,14 +246,13 @@ export class AgentService {
 				fs: toolPolicy?.fs,
 			}),
 		];
-		const toolRuntimeConfig =
-			toolPolicy?.fs
-				? {
-						tools: {
-							fs: toolPolicy.fs,
-						},
-					}
-				: {};
+		const toolRuntimeConfig = toolPolicy?.fs
+			? {
+					tools: {
+						fs: toolPolicy.fs,
+					},
+				}
+			: {};
 		const runtime = await createAgentTools({
 			workspaceDir: context.workspace,
 			agentId: context.agentId,
@@ -384,11 +383,7 @@ export class AgentService {
 			let skillRuntimePlan: SkillRuntimePlan | undefined;
 			const skillConnectors = this.dependencies.connectors?.createSkillConnectors?.() ?? [];
 
-			if (
-				bootstrapPending ||
-				toolPolicy.shouldUseTools ||
-				this.dependencies.skills
-			) {
+			if (bootstrapPending || toolPolicy.shouldUseTools || this.dependencies.skills) {
 				baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
 					Promise.resolve(
 						this.toolsFactory({
