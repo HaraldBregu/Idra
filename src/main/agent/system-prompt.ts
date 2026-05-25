@@ -30,10 +30,10 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
 	find: 'Glob-search the workspace for files.',
-	exec: 'Run a shell command. Output capped at 200 lines / 16KB. Use `python3` for Python scripts unless the project specifies another command.',
+	exec: 'Run a shell command. Output capped at 200 lines / 16KB. Use `python3` for Python scripts unless the project specifies another command. Do not use host schedulers such as crontab, launchctl, systemctl timers, or schtasks.',
 	process: 'Inspect or stop long-running background commands started by exec.',
 	web_fetch: 'Fetch an HTTP(S) URL when current external documentation is needed.',
-	cron: 'Create, update, list, run, or delete future or recurring scheduled jobs, reminders, and wake events. Do not use for immediate in-memory task execution.',
+	cron: 'Create, update, list, run, or delete Friday-owned future or recurring scheduled jobs, reminders, and wake events. When the user asks to schedule a task, use this tool, not system crontab or host schedulers. For every-N-minutes requests, prefer an every/everyMs schedule. Do not use for immediate in-memory task execution.',
 	open_browser: "Open an http/https URL in the user's default browser.",
 	browser:
 		'Control a managed Chromium browser. Use "open" for a new tab, "snapshot" before "act" (refs come from the snapshot), "navigate" to load a URL in the current tab, "screenshot" to see the page. Preserve targetId across calls.',
