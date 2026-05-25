@@ -31,6 +31,8 @@ At startup, the `policy` property should always start with this default value wh
 }
 ```
 
+Both default path grants include all supported permissions.
+
 ## Properties
 
 ### `version`
