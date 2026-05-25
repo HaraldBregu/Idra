@@ -17,6 +17,28 @@ Use `apply_patch` to apply a focused patch containing several related workspace 
 - Broad cleanup the user did not ask for.
 - Changes to files the agent has not inspected.
 
+## Format
+
+A patch uses unified diff format. Each changed file begins with `---` and `+++` headers, followed by one or more hunks. Each hunk starts with a `@@` range line and lists context, removed (`-`), and added (`+`) lines.
+
+```diff
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -12,7 +12,7 @@
+ const defaults = {
+   timeout: 5000,
+-  retries: 3,
++  retries: 5,
+   logLevel: 'info',
+ };
+```
+
+- Use paths relative to the workspace root.
+- Include at least three lines of unchanged context around each change so the patch applies cleanly even if nearby lines have shifted.
+- One patch can span multiple files. Each file gets its own `---`/`+++` block.
+
+Do not apply a patch to a file the agent has not read. Read the file first to ensure the context lines match exactly.
+
 ## Keep In Mind
 
 A patch should be focused. Every changed line should trace back to the user's request.

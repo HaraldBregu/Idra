@@ -35,7 +35,6 @@ export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 		required: ['action'],
 		additionalProperties: false,
 	},
-	needsApproval: (args) => args.action === 'write' || args.action === 'complete_bootstrap',
 	async execute(args, ctx) {
 		const agentId = ctx.agentId ?? DEFAULT_AGENT_ID;
 		try {
