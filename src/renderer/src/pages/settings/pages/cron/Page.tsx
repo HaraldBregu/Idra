@@ -440,7 +440,10 @@ function ScheduleTaskForm({
 					</div>
 				)}
 
-				<div className="flex justify-end">
+				<div className="flex justify-end gap-2">
+					<Button type="button" size="sm" variant="ghost" onClick={onCancel} disabled={submitting}>
+						Cancel
+					</Button>
 					<Button type="submit" size="sm" disabled={!canSubmit}>
 						<Plus className="size-3.5" />
 						{submitting ? 'Scheduling…' : 'Schedule task'}
