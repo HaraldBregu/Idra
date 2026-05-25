@@ -12,16 +12,11 @@ import {
 	type BeforeToolCallContext,
 	newCallTracker,
 } from '../policy/before-tool-call';
-import type { ToolSearchCompactionOptions } from '../search/tool-search';
-import type { McpRuntime } from '../external/mcp-tools';
-import type { LspRuntime } from '../external/lsp-tools';
 import type { AppConfig, AuthContext, DeliveryContext } from '../../plugins/tool-types';
-import type { PluginToolRegistry } from '../../plugins/tool-registry';
 import type { ToolPolicy } from '../policy/tool-policy';
 
 export type SandboxContext = {
 	sandboxed?: boolean;
-	allowShell?: boolean;
 	readOnly?: boolean;
 	policy?: ToolPolicy;
 };
@@ -29,10 +24,8 @@ export type SandboxContext = {
 export type CreateAgentToolsOptions = {
 	config?: AppConfig & {
 		toolPolicies?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
-		toolSearch?: ToolSearchCompactionOptions;
 		tools?: {
 			fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
-			exec?: Record<string, unknown>;
 		};
 	};
 	agentId?: string;
@@ -56,10 +49,6 @@ export type CreateAgentToolsOptions = {
 	toolsDeny?: string[];
 	includeCoreTools?: boolean;
 	hostTools?: AgentTool[];
-	pluginRegistry?: PluginToolRegistry;
-	mcpRuntime?: McpRuntime;
-	lspRuntime?: LspRuntime;
-	clientTools?: AgentTool[];
 	beforeToolCall?: Omit<BeforeToolCallContext, 'signal' | 'loopDetector'>;
 };
 
@@ -234,11 +223,6 @@ function prepareRuntimeTools(
 		})
 	);
 
-	const searchOptions = options.config?.toolSearch;
-	if (searchOptions?.enabled) {
-		diagnostics.warnings.push('tool search controls are disabled; only file tools are available.');
-	}
-
 	return effective;
 }
 
@@ -257,7 +241,6 @@ function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy
 		alsoAllow: mergeList(present.map((policy) => policy.alsoAllow)),
 		deny: mergeList(present.map((policy) => policy.deny)),
 		fs: Object.assign({}, ...present.map((policy) => policy.fs ?? {})),
-		exec: Object.assign({}, ...present.map((policy) => policy.exec ?? {})),
 	};
 }
 
