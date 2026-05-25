@@ -3,6 +3,12 @@ import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import type { Channel } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connector';
+import type {
+	CronTask,
+	FridayCronJobDefinition,
+	FridayCronJobState,
+	FridayCronRunRecord,
+} from '../../shared/cron';
 
 export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 
@@ -18,11 +24,18 @@ export interface AgentModuleOptions {
 	[key: string]: unknown;
 }
 
+export interface FridayTaskSchedulerSettings {
+	schemaVersion?: number;
+	jobs?: FridayCronJobDefinition[];
+	states?: Record<string, FridayCronJobState>;
+	lastRuns?: Record<string, FridayCronRunRecord>;
+}
+
 export interface TaskSchedulerSettings {
 	enabled?: boolean;
 	managed?: unknown;
-	friday?: unknown;
-	legacyTasks?: unknown[];
+	friday?: FridayTaskSchedulerSettings;
+	legacyTasks?: CronTask[];
 }
 
 export interface BackgroundTaskSettings {
