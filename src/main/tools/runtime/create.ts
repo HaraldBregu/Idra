@@ -7,14 +7,16 @@ import {
 } from '../core/common';
 import { createFileTools } from '../files/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
-import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/pipeline';
+import type { ToolPolicy, ToolPolicyStageName } from '../../policy';
+import { applyToolPolicyPipeline } from '../policy/pipeline';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
 	newCallTracker,
 } from '../policy/wrap';
 import type { AppConfig, AuthContext, DeliveryContext } from '../../plugins/tool-types';
-import type { ToolPolicy } from '../policy/expand';
+
+type PolicyStageName = ToolPolicyStageName;
 
 export type SandboxContext = {
 	sandboxed?: boolean;
@@ -126,13 +128,13 @@ export async function createAgentTools(
 	const diagnostics = createToolDiagnostics();
 	const plan = planToolConstruction(options.toolsAllow);
 	const candidates = await buildToolCandidates(options, plan, diagnostics);
-	const policy = applyToolPolicyPipeline(candidates, {
+	const policyResult = applyToolPolicyPipeline(candidates, {
 		sender: options.sender,
 		stages: buildPolicyStages(options),
 		diagnostics,
 		policy: options.services?.policy,
 	});
-	const tools = prepareRuntimeTools(policy.tools, options, diagnostics);
+	const tools = prepareRuntimeTools(policyResult.tools, options, diagnostics);
 
 	return {
 		tools,

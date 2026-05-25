@@ -1,5 +1,5 @@
 import type { AgentTool, ToolDiagnostics } from '../core/common';
-import { getToolMetadata, normalizeToolName } from '../core/common';
+import { getToolMetadata } from '../core/common';
 import {
 	createToolPolicyIndex,
 	expandToolPolicyEntries,
@@ -57,7 +57,7 @@ export function expandProfile(
 function toolPolicySubject(tool: AgentTool): ToolPolicySubject {
 	const metadata = getToolMetadata(tool);
 	return {
-		name: normalizeToolName(tool.name),
+		name: tool.name,
 		ownerOnly: tool.ownerOnly,
 		optional: metadata?.optional,
 		ownerKind: metadata?.ownerKind,
