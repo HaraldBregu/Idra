@@ -158,14 +158,13 @@ embeddings in process with cosine similarity.
 The tool:
 
 1. Resolves the current agent and manager.
-2. Honors `corpus` values: `memory`, `sessions`, `wiki`, or `all`.
+2. Honors `corpus` values for indexed memory files and session transcripts.
 3. Calls `manager.search`.
 4. Filters session transcript hits through session visibility rules.
 5. Adds citations when enabled or when direct-session auto mode applies.
 6. Clamps QMD snippets to the configured injected-character budget.
 7. Records short-term recall hits for dreaming promotion.
-8. Merges memory results with registered supplement corpora such as wiki.
-9. Returns provider/model/fallback/debug metadata with the results.
+8. Returns provider/model/fallback/debug metadata with the results.
 
 Unavailable providers return a structured disabled result with warning and
 operator action text instead of throwing raw errors into the model.
