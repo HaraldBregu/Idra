@@ -235,7 +235,7 @@ function readStoredChannel(value: unknown): Partial<Channel> | undefined {
 	return compactChannelRoot(value as Partial<Channel>);
 }
 
-export class ChannelStore {
+export class ChannelsStore {
 	private store: SettingsStoreAccessor;
 
 	constructor(store: SettingsStoreAccessor) {

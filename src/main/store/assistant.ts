@@ -27,7 +27,7 @@ import type {
 	ModelModuleSettings,
 	SettingsStoreAccessor,
 } from '../../shared/store';
-import type { ProviderStore } from './provider';
+import type { ProvidersStore } from './providers';
 
 type ConfiguredModelOperatorKey =
 	| 'assistant'
@@ -208,11 +208,11 @@ function configuredModelOperator(
 	};
 }
 
-export class ModelStore {
+export class AssistantStore {
 	private store: SettingsStoreAccessor;
-	private providers: ProviderStore;
+	private providers: ProvidersStore;
 
-	constructor(store: SettingsStoreAccessor, providers: ProviderStore) {
+	constructor(store: SettingsStoreAccessor, providers: ProvidersStore) {
 		this.store = store;
 		this.providers = providers;
 	}

@@ -21,39 +21,42 @@ import type {
 	StoreSchema,
 	TaskSettings,
 } from '../../shared/store';
-import { AgentStore } from './agent';
-import { ChannelStore } from './channel';
-import { ConnectorStore } from './connector';
+import { AgentsStore } from './agents';
+import { AssistantStore } from './assistant';
+import { ChannelsStore } from './channels';
+import { ConnectorsStore } from './connectors';
+import { CronStore } from './cron';
 import { HeartbeatStore } from './heartbeat';
-import { ModelStore } from './model';
 import { PolicyStore } from './policy';
-import { ProviderStore } from './provider';
-import { SchedulerStore } from './scheduler';
+import { ProvidersStore } from './providers';
+import { TaskStore } from './task';
 
 export class StoreService {
 	private store: SettingsStoreAccessor;
-	private providers: ProviderStore;
-	private models: ModelStore;
-	private agents: AgentStore;
-	private channels: ChannelStore;
+	private providers: ProvidersStore;
+	private assistant: AssistantStore;
+	private agents: AgentsStore;
+	private task: TaskStore;
+	private channels: ChannelsStore;
 	private policy: PolicyStore;
-	private scheduler: SchedulerStore;
+	private cron: CronStore;
 	private heartbeat: HeartbeatStore;
-	private connectors: ConnectorStore;
+	private connectors: ConnectorsStore;
 
 	constructor() {
 		this.store = new Store<StoreSchema>({
 			name: 'settings',
 			accessPropertiesByDotNotation: false,
 		}) as unknown as SettingsStoreAccessor;
-		this.providers = new ProviderStore(this.store);
-		this.models = new ModelStore(this.store, this.providers);
-		this.agents = new AgentStore(this.store);
-		this.channels = new ChannelStore(this.store);
+		this.providers = new ProvidersStore(this.store);
+		this.assistant = new AssistantStore(this.store, this.providers);
+		this.agents = new AgentsStore(this.store);
+		this.task = new TaskStore(this.store);
+		this.channels = new ChannelsStore(this.store);
 		this.policy = new PolicyStore(this.store);
-		this.scheduler = new SchedulerStore(this.store);
+		this.cron = new CronStore(this.store);
 		this.heartbeat = new HeartbeatStore(this.store);
-		this.connectors = new ConnectorStore(this.store);
+		this.connectors = new ConnectorsStore(this.store);
 	}
 
 	// Providers
@@ -78,82 +81,82 @@ export class StoreService {
 
 	// Models / Operators
 	getOperator(): OperatorStoreState | undefined {
-		return this.models.getOperator();
+		return this.assistant.getOperator();
 	}
 	getService(): OperatorStoreState | undefined {
-		return this.models.getService();
+		return this.assistant.getService();
 	}
 	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		return this.models.setDefaultHeartbeatConfig(config);
+		return this.assistant.setDefaultHeartbeatConfig(config);
 	}
 	getAssistantOperator(): ConfiguredModelOperator | undefined {
-		return this.models.getAssistantOperator();
+		return this.assistant.getAssistantOperator();
 	}
 	getAssistantModel(): Model | undefined {
-		return this.models.getAssistantModel();
+		return this.assistant.getAssistantModel();
 	}
 	getAssistantProvider(): Omit<Provider, 'apiKey'> | undefined {
-		return this.models.getAssistantProvider();
+		return this.assistant.getAssistantProvider();
 	}
 	getSpeechToTextOperator(): ConfiguredModelOperator | undefined {
-		return this.models.getSpeechToTextOperator();
+		return this.assistant.getSpeechToTextOperator();
 	}
 	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
-		return this.models.getTextToSpeechOperator();
+		return this.assistant.getTextToSpeechOperator();
 	}
 	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.models.getImageCreatorOperator();
+		return this.assistant.getImageCreatorOperator();
 	}
 	getTextToVideoOperator(): ConfiguredModelOperator | undefined {
-		return this.models.getTextToVideoOperator();
+		return this.assistant.getTextToVideoOperator();
 	}
 	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.models.getMusicCreatorOperator();
+		return this.assistant.getMusicCreatorOperator();
 	}
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
-		return this.models.getImageCreatorSettings();
+		return this.assistant.getImageCreatorSettings();
 	}
 	getAgentRuntimePreference(): string | undefined {
-		return this.models.getAgentRuntimePreference();
+		return this.assistant.getAgentRuntimePreference();
 	}
 	setAgentRuntimePreference(agentRuntime?: string): boolean {
-		return this.models.setAgentRuntimePreference(agentRuntime);
+		return this.assistant.setAgentRuntimePreference(agentRuntime);
 	}
 	setAssistantOperator(providerId: string, model: Model): boolean {
-		return this.models.setAssistantOperator(providerId, model);
+		return this.assistant.setAssistantOperator(providerId, model);
 	}
 	setSpeechToTextOperator(providerId: string, model: Model): boolean {
-		return this.models.setSpeechToTextOperator(providerId, model);
+		return this.assistant.setSpeechToTextOperator(providerId, model);
 	}
 	setTextToSpeechOperator(providerId: string, model: Model): boolean {
-		return this.models.setTextToSpeechOperator(providerId, model);
+		return this.assistant.setTextToSpeechOperator(providerId, model);
 	}
 	setImageCreatorOperator(providerId: string, model: Model): boolean {
-		return this.models.setImageCreatorOperator(providerId, model);
+		return this.assistant.setImageCreatorOperator(providerId, model);
 	}
 	setTextToVideoOperator(providerId: string, model: Model): boolean {
-		return this.models.setTextToVideoOperator(providerId, model);
+		return this.assistant.setTextToVideoOperator(providerId, model);
 	}
 	setMusicCreatorOperator(providerId: string, model: Model): boolean {
-		return this.models.setMusicCreatorOperator(providerId, model);
+		return this.assistant.setMusicCreatorOperator(providerId, model);
 	}
 	getAgentModel(): Model | undefined {
-		return this.models.getAgentModel();
+		return this.assistant.getAgentModel();
 	}
 	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
-		return this.models.getAgentProvider();
+		return this.assistant.getAgentProvider();
 	}
 	getAgentService(): ModelOperatorSelection | undefined {
-		return this.models.getAgentService();
+		return this.assistant.getAgentService();
 	}
 	getSpeechTranscriberService(): ModelOperatorSelection | undefined {
-		return this.models.getSpeechTranscriberService();
+		return this.assistant.getSpeechTranscriberService();
 	}
 	setAgentService(providerId: string, model: Model): boolean {
-		return this.models.setAgentService(providerId, model);
+		return this.assistant.setAgentService(providerId, model);
 	}
 	setSpeechTranscriberService(providerId: string, model: Model): boolean {
-		return this.models.setSpeechTranscriberService(providerId, model);
+		return this.assistant.setSpeechTranscriberService(providerId, model);
 	}
 
 	// Agents
@@ -176,7 +179,7 @@ export class StoreService {
 		return this.agents.setAgentRoutingSettings(settings);
 	}
 	getTaskSettings(): TaskSettings {
-		return this.agents.getTaskSettings();
+		return this.task.getTaskSettings();
 	}
 
 	// Channels
@@ -212,22 +215,22 @@ export class StoreService {
 
 	// Scheduler / Cron
 	getCronTasks(): CronTask[] {
-		return this.scheduler.getCronTasks();
+		return this.cron.getCronTasks();
 	}
 	setCronTasks(tasks: CronTask[]): void {
-		return this.scheduler.setCronTasks(tasks);
+		return this.cron.setCronTasks(tasks);
 	}
 	getCronSchedulerState(): CronStoreState {
-		return this.scheduler.getCronSchedulerState();
+		return this.cron.getCronSchedulerState();
 	}
 	setCronSchedulerState(state: CronStoreState): void {
-		return this.scheduler.setCronSchedulerState(state);
+		return this.cron.setCronSchedulerState(state);
 	}
 	getFridayCronState(): FridayCronStoreState {
-		return this.scheduler.getFridayCronState();
+		return this.cron.getFridayCronState();
 	}
 	setFridayCronState(state: FridayCronStoreState): void {
-		return this.scheduler.setFridayCronState(state);
+		return this.cron.setFridayCronState(state);
 	}
 
 	// Heartbeat

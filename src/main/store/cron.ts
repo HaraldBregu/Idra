@@ -14,7 +14,7 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 	return value as Record<string, unknown>;
 }
 
-export class SchedulerStore {
+export class CronStore {
 	private store: SettingsStoreAccessor;
 
 	constructor(store: SettingsStoreAccessor) {

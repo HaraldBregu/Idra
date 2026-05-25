@@ -43,7 +43,7 @@ function connectorSettingsByKey(
 	return next;
 }
 
-export class ConnectorStore {
+export class ConnectorsStore {
 	private store: SettingsStoreAccessor;
 
 	constructor(store: SettingsStoreAccessor) {

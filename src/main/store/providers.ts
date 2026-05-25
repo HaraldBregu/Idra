@@ -46,7 +46,7 @@ function readProviderSettingsList(value: unknown): ProviderSettings[] {
 	});
 }
 
-export class ProviderStore {
+export class ProvidersStore {
 	private store: SettingsStoreAccessor;
 
 	constructor(store: SettingsStoreAccessor) {
