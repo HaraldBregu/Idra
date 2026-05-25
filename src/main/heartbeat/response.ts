@@ -26,30 +26,6 @@ export type HeartbeatNormalizedReply =
 	| { kind: 'ok'; status: 'ok-empty' | 'ok-token'; text: ''; structured?: HeartbeatToolResponse }
 	| { kind: 'alert'; status: 'sent'; text: string; structured?: HeartbeatToolResponse };
 
-const OUTCOMES = new Set<string>(HEARTBEAT_TOOL_OUTCOMES);
-const PRIORITIES = new Set<string>(HEARTBEAT_TOOL_PRIORITIES);
-
-function normalizeHeartbeatToolResponse(value: unknown): HeartbeatToolResponse | undefined {
-	if (!isRecord(value)) return undefined;
-	const outcome = readString(value.outcome);
-	const notify = typeof value.notify === 'boolean' ? value.notify : undefined;
-	const summary = readString(value.summary);
-	if (!outcome || !OUTCOMES.has(outcome) || notify === undefined || !summary) return undefined;
-	const priority = readString(value.priority);
-	const notificationText = readString(value.notificationText ?? value.notification_text);
-	const reason = readString(value.reason);
-	const nextCheck = readString(value.nextCheck ?? value.next_check);
-	return {
-		outcome: outcome as HeartbeatToolOutcome,
-		notify,
-		summary,
-		...(notificationText ? { notificationText } : {}),
-		...(reason ? { reason } : {}),
-		...(priority && PRIORITIES.has(priority) ? { priority: priority as HeartbeatToolPriority } : {}),
-		...(nextCheck ? { nextCheck } : {}),
-	};
-}
-
 export function normalizeHeartbeatReply(input: {
 	text?: string;
 	toolResponse?: HeartbeatToolResponse;
@@ -103,12 +79,4 @@ function stripHeartbeatToken(raw: string): { text: string; didStrip: boolean } {
 		}
 	}
 	return { text: text.replace(/\s+/g, ' ').trim(), didStrip };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function readString(value: unknown): string | undefined {
-	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
