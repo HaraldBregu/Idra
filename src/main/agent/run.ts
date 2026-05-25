@@ -38,7 +38,7 @@ import {
 	sanitizeToolResultDetails,
 } from './harness/tool-result-middleware';
 
-export interface AgentProviderStore {
+export interface AgentProviderLookup {
 	getAssistantOperator(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
 	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
 }
@@ -140,7 +140,7 @@ export interface AgentRunInput {
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
-	store?: AgentProviderStore;
+	store?: AgentProviderLookup;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
 }
 
