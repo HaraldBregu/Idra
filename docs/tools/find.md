@@ -2,6 +2,10 @@
 
 `find` locates files by name, path, or pattern.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow the search path before this tool executes.
+
 ## Tool Search Description
 
 Use `find` to locate relevant files or paths before reading, editing, or answering from workspace content.
