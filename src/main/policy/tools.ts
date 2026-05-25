@@ -304,7 +304,7 @@ export function evaluateToolApprovalPolicy(
 
 	return {
 		outcome: 'allow',
-		resolution: input.approvalDecision === true ? 'allow-once' : input.approvalDecision,
+		resolution: input.approvalDecision === 'allow-always' ? 'allow-always' : 'allow-once',
 	};
 }
 
