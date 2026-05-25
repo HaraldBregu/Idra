@@ -1,27 +1,15 @@
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import {
-	describeChatMemoryFile,
-	resolveChatDailyMemoryTarget,
-	validateChatDailyMemoryRelativePath,
-	type ChatMemoryScope,
-	type ChatMemoryScopeInput,
-	type ChatMemoryScopeKind,
-} from './memory/chat';
 import type { TranscriptEntry } from './provider/types';
-import { describeRagFile } from './rag';
 import { acquireWriteLock } from './session/lock';
 import { listSessions, type SessionFile } from './session/store';
-import { describeWikiFile } from './wiki';
 
 export type MemorySource = 'memory' | 'sessions';
-export type MemoryCorpus = 'memory' | 'sessions' | 'rag' | 'wiki' | 'all';
+export type MemoryCorpus = 'memory' | 'sessions' | 'all';
 export type MemoryFileCorpus = Exclude<MemoryCorpus, 'sessions' | 'all'>;
 export type MemoryResultCorpus = Exclude<MemoryCorpus, 'all'>;
-export type MemoryScopeKind = ChatMemoryScopeKind;
-export type MemoryScope = ChatMemoryScope;
-export type MemoryScopeInput = ChatMemoryScopeInput;
+export type MemoryScopeKind = 'global';
 export type SessionVisibility = 'self' | 'tree' | 'agent' | 'all';
 
 export interface MemorySearchResult {
@@ -90,7 +78,6 @@ export interface MemoryFlushPlan {
 	prompt: string;
 	workspaceDir?: string;
 	corpus?: MemoryFileCorpus;
-	scope?: MemoryScope;
 }
 
 type IndexedChunk = {
@@ -109,6 +96,7 @@ type IndexedChunk = {
 
 const MEMORY_FILENAME = 'MEMORY.md';
 const MEMORY_DIRNAME = 'memory';
+const DATE_FILE_PATTERN = /^\d{4}-\d{2}-\d{2}\.md$/;
 const DEFAULT_MAX_RESULTS = 8;
 const MAX_RESULTS = 25;
 const DEFAULT_MIN_SCORE = 0.1;
