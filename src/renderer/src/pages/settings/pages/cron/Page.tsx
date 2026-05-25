@@ -19,6 +19,11 @@ import type { Model } from '../../../../../../shared/agents/service';
 import type { PublicProvider } from '../../../../../../shared/providers';
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
 	SettingsField,
 	SettingsPageHeader,
 	SettingsPageShell,
