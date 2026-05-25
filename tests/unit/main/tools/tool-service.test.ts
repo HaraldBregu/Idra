@@ -38,26 +38,14 @@ describe('ToolService', () => {
 		expect(prepared.management.executor).toBeDefined();
 	});
 
-	it('creates default connector tools and applies deny policy', () => {
+	it('creates default local tools and applies deny policy', () => {
 		const service = new ToolService();
-		const allowed: AgentTool = {
-			name: 'calendar_list',
-			description: 'List calendar entries.',
-			schema: { type: 'object' },
-			execute: jest.fn(),
-		};
-		const denied: AgentTool = {
-			name: 'mail_send',
-			description: 'Send mail.',
-			schema: { type: 'object' },
-			execute: jest.fn(),
-		};
 
 		const tools = service.createDefaultTools({
-			connectors: { createAgentTools: () => [allowed, denied] },
-			denylist: ['mail_send'],
+			denylist: ['write'],
 		});
 
-		expect(tools).toEqual([allowed]);
+		expect(tools.map((tool) => tool.name)).toContain('read');
+		expect(tools.map((tool) => tool.name)).not.toContain('write');
 	});
 });

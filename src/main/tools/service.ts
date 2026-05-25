@@ -5,6 +5,7 @@ import {
 	type ToolPolicySubject,
 } from '../policy';
 import type { AgentTool, AgentToolResult, ToolContext } from './types';
+import { createTools } from './catalog/registry';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
@@ -22,25 +23,29 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from './runtime/adapt';
+import type { ToolProfile } from './policy/policy';
 
 export type {
 	AgentToolManagementOptions,
 	AgentToolSelectionForTurn,
 } from './management';
 
-export interface AgentToolSource {
-	createAgentTools(): AgentTool[];
-}
-
 export interface ToolRunPreparation extends AgentToolSelectionForTurn {
 	management: AgentToolManagementOptions;
 }
 
+export interface DefaultToolPolicy {
+	profile?: ToolProfile;
+	allow?: string[];
+	alsoAllow?: string[];
+	deny?: string[];
+	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
+}
+
 export interface ToolServicePort {
 	createDefaultTools(input: {
-		connectors?: AgentToolSource;
+		toolPolicy?: DefaultToolPolicy;
 		denylist?: string[];
-		policy?: PolicyServicePort;
 	}): AgentTool[];
 	filterToolsByAllowlist(
 		tools: AgentTool[],
@@ -89,12 +94,17 @@ export interface ToolServicePort {
 
 export class ToolService implements ToolServicePort {
 	createDefaultTools(input: {
-		connectors?: AgentToolSource;
+		toolPolicy?: DefaultToolPolicy;
 		denylist?: string[];
-		policy?: PolicyServicePort;
 	}): AgentTool[] {
-		const tools = input.connectors?.createAgentTools() ?? [];
-		return this.filterToolsByDenylist(tools, input.denylist, input.policy);
+		const policy = input.toolPolicy;
+		return createTools({
+			profile: policy?.profile ?? 'standard',
+			allow: policy?.allow ?? [],
+			alsoAllow: policy?.alsoAllow,
+			deny: [...(policy?.deny ?? []), ...(input.denylist ?? [])],
+			fs: policy?.fs,
+		});
 	}
 
 	filterToolsByAllowlist(

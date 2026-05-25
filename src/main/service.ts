@@ -202,9 +202,8 @@ export class AgentService {
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
 		const toolPolicy = context.toolPolicy;
 		return this.toolService.createDefaultTools({
-			connectors: context.services.connectors,
-			denylist: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
-			policy: context.services.policy,
+			toolPolicy,
+			denylist: context.toolsDeny,
 		});
 	}
 
@@ -374,8 +373,15 @@ export class AgentService {
 								rankedTools: [],
 							}
 						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								this.toolService.selectToolsForTurn(baseTools, message, ctx, {
+								this.toolService.prepareToolsForRun({
+									tools: baseTools,
+									ctx,
+									userMessage: message,
+									provider: providerId,
+									modelId: model,
+									management: {
 									maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
+									},
 								})
 							);
 				selectedTools = toolSelection.toolsForPrompt;
