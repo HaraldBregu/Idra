@@ -25,7 +25,10 @@ export type FileToolOptions = {
 	signal?: AbortSignal;
 };
 
-const FILE_TOOLS: readonly LegacyAgentTool[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LegacyFileTool = LegacyAgentTool<any, any>;
+
+const FILE_TOOLS: readonly LegacyFileTool[] = [
 	readTool,
 	writeTool,
 	editTool,
