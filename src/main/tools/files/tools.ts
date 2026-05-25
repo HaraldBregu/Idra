@@ -287,8 +287,13 @@ interface ApplyPatchArgs {
 	diff: string;
 }
 
+type PatchOperation = 'create' | 'modify' | 'delete';
+
 interface PatchFile {
 	path: string;
+	oldPath: string;
+	newPath: string;
+	operation: PatchOperation;
 	hunks: Array<{ oldStart: number; lines: string[] }>;
 }
 
@@ -314,51 +319,106 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 			return false;
 		}
 	},
-	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) {
-			return textResult('apply_patch: disabled by read-only filesystem policy.', true);
-		}
-		try {
-			const patches = parseUnifiedDiff(String(args.diff ?? ''));
-			if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
-			const changed: string[] = [];
-			for (const patch of patches) {
-				const abs = resolveAbs(ctx.workspace, patch.path, writeWorkspaceOnly(ctx, true));
-				const denied = checkFilePolicy(ctx, 'apply_patch', [{ path: abs, permission: 'write' }]);
-				if (denied) return textResult(denied, true);
-				const stat = await fs.stat(abs);
-				const last = ctx.readState.get(abs);
-				if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
-				if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
-					return textResult(`apply_patch: ${patch.path} changed on disk since last read.`, true);
-				}
-				const original = await fs.readFile(abs, 'utf8');
-				const next = applyFilePatch(original, patch);
-				await fs.writeFile(abs, next, 'utf8');
-				const after = await fs.stat(abs);
-				ctx.readState.set(abs, snapshot(after));
-				changed.push(patch.path);
+		async execute(args, ctx) {
+			if (ctx.fsPolicy?.readOnly) {
+				return textResult('apply_patch: disabled by read-only filesystem policy.', true);
 			}
-			return textResult(`patched ${changed.join(', ')}`);
-		} catch (err) {
-			return textResult(`apply_patch: ${(err as Error).message}`, true);
-		}
-	},
-};
+			try {
+				const patches = parseUnifiedDiff(String(args.diff ?? ''));
+				if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
+				const plans: Array<
+					| { operation: 'create' | 'modify'; path: string; abs: string; content: string }
+					| { operation: 'delete'; path: string; abs: string }
+				> = [];
+				const seen = new Set<string>();
+				for (const patch of patches) {
+					const abs = resolveAbs(ctx.workspace, patch.path, writeWorkspaceOnly(ctx, true));
+					if (seen.has(abs)) return textResult(`apply_patch: duplicate file patch: ${patch.path}`, true);
+					seen.add(abs);
 
+					const permission =
+						patch.operation === 'create'
+							? 'create'
+							: patch.operation === 'delete'
+								? 'delete'
+								: 'write';
+					const denied = checkFilePolicy(ctx, 'apply_patch', [{ path: abs, permission }]);
+					if (denied) return textResult(denied, true);
+
+					if (patch.operation === 'create') {
+						const existing = await fs.stat(abs).catch(() => null);
+						if (existing) return textResult(`apply_patch: file already exists: ${patch.path}`, true);
+						plans.push({
+							operation: 'create',
+							path: patch.path,
+							abs,
+							content: buildCreatedFile(patch),
+						});
+						continue;
+					}
+
+					const stat = await fs.stat(abs);
+					if (!stat.isFile()) return textResult(`apply_patch: ${patch.path} is not a file`, true);
+					const last = ctx.readState.get(abs);
+					if (!last) return textResult(`apply_patch: must read ${patch.path} before patching.`, true);
+					if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
+						return textResult(`apply_patch: ${patch.path} changed on disk since last read.`, true);
+					}
+					const original = await fs.readFile(abs, 'utf8');
+					const next = applyFilePatch(original, patch);
+					if (patch.operation === 'delete') {
+						if (next.length > 0)
+							return textResult(`apply_patch: delete patch did not remove all content: ${patch.path}`, true);
+						plans.push({ operation: 'delete', path: patch.path, abs });
+					} else {
+						plans.push({ operation: 'modify', path: patch.path, abs, content: next });
+					}
+				}
+				const changed: string[] = [];
+				for (const plan of plans) {
+					if (plan.operation === 'delete') {
+						await fs.rm(plan.abs);
+						ctx.readState.delete(plan.abs);
+					} else {
+						await fs.mkdir(path.dirname(plan.abs), { recursive: true });
+						await fs.writeFile(plan.abs, plan.content, 'utf8');
+						const after = await fs.stat(plan.abs);
+						ctx.readState.set(plan.abs, snapshot(after));
+					}
+					changed.push(plan.path);
+				}
+				return textResult(`patched ${changed.join(', ')}`);
+			} catch (err) {
+				return textResult(`apply_patch: ${(err as Error).message}`, true);
+			}
+		},
+	};
+	
 function parseUnifiedDiff(diff: string): PatchFile[] {
 	const lines = diff.split(/\r?\n/);
 	const files: PatchFile[] = [];
 	let current: PatchFile | null = null;
+	let oldPath: string | null = null;
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i] ?? '';
+		if (line.startsWith('--- ')) {
+			oldPath = parseDiffPath(line.slice(4));
+			current = null;
+			continue;
+		}
 		if (line.startsWith('+++ ')) {
-			const raw = line.slice(4).trim().split(/\s+/)[0] ?? '';
-			const normalized = raw.replace(/^b\//, '');
-			if (normalized === '/dev/null')
-				throw new Error('creating files via apply_patch is not supported');
-			current = { path: normalized, hunks: [] };
+			if (!oldPath) throw new Error(`missing old file header before: ${line}`);
+			const newPath = parseDiffPath(line.slice(4));
+			const operation = patchOperation(oldPath, newPath);
+			current = {
+				path: operation === 'delete' ? oldPath : newPath,
+				oldPath,
+				newPath,
+				operation,
+				hunks: [],
+			};
 			files.push(current);
+			oldPath = null;
 			continue;
 		}
 		if (!current || !line.startsWith('@@ ')) continue;
@@ -383,6 +443,35 @@ function parseUnifiedDiff(diff: string): PatchFile[] {
 		current.hunks.push({ oldStart: Number(match[1]), lines: hunkLines });
 	}
 	return files;
+}
+
+function parseDiffPath(value: string): string {
+	const raw = value.trim().split(/\s+/)[0] ?? '';
+	if (raw === '/dev/null') return raw;
+	return raw.replace(/^[ab]\//, '');
+}
+
+function patchOperation(oldPath: string, newPath: string): PatchOperation {
+	if (oldPath === '/dev/null' && newPath === '/dev/null') {
+		throw new Error('invalid patch with both paths set to /dev/null');
+	}
+	if (oldPath === '/dev/null') return 'create';
+	if (newPath === '/dev/null') return 'delete';
+	if (oldPath !== newPath) throw new Error('renaming files via apply_patch is not supported');
+	return 'modify';
+}
+
+function buildCreatedFile(patch: PatchFile): string {
+	const out: string[] = [];
+	for (const hunk of patch.hunks) {
+		for (const line of hunk.lines) {
+			if (line[0] !== '+') {
+				throw new Error(`creation patch contains non-addition lines: ${patch.path}`);
+			}
+			out.push(line.slice(1));
+		}
+	}
+	return out.length > 0 ? `${out.join('\n')}\n` : '';
 }
 
 function applyFilePatch(original: string, patch: PatchFile): string {
