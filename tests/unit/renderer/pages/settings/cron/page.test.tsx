@@ -106,6 +106,7 @@ describe('CronPage', () => {
 		const user = userEvent.setup();
 		renderCronPage();
 
+		await user.click(await screen.findByRole('button', { name: /settings\.cron\.runtime\.title/ }));
 		const saveButton = await screen.findByRole('button', {
 			name: /settings\.cron\.runtime\.save/,
 		});
@@ -150,6 +151,7 @@ describe('CronPage', () => {
 		const user = userEvent.setup();
 		renderCronPage();
 
+		await user.click(await screen.findByRole('button', { name: 'New schedule' }));
 		await user.type(await screen.findByLabelText('Name'), 'Morning report');
 		await user.type(screen.getByLabelText('Expression'), '0 9 * * 1-5');
 		await user.type(screen.getByLabelText('Prompt'), 'Summarize inbox');
