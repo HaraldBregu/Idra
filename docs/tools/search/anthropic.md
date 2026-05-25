@@ -22,6 +22,21 @@ Anthropic tool search lets Claude discover deferred tools when the visible tool 
 - Group related capabilities together.
 - Monitor misses and improve descriptions when the wrong tools are found.
 
+## Implementation Steps
+
+1. Identify which tools are needed on most turns and mark them as the visible set.
+2. Mark the remaining tools as deferred in the API request.
+3. When the agent determines a needed capability is not in the visible set, it calls the tool search tool with a natural-language query matching the user's intent.
+4. The system returns matching tool definitions. The agent adds them to its active set for the current turn.
+5. The agent calls only tools that were explicitly loaded — never call a deferred tool without first loading it through search.
+
+## Tuning
+
+- If the agent frequently fails to find the right tool, improve the description for that tool — add synonyms and user-facing phrasing.
+- If tool search returns irrelevant results, tighten descriptions and remove keywords shared across unrelated tools.
+- If tool search is rarely used, the visible set may be too large — move infrequent tools to deferred.
+- Measure miss rate (needed tool not found) and false-match rate (wrong tool returned) separately. Address each differently.
+
 ## Implementation Note
 
-Provider support, variants, limits, and request fields can change. Check the current Anthropic documentation before implementing or changing the runtime behavior.
+Provider support, variants, request fields, and limits can change. Check the current Anthropic documentation before implementing or changing the runtime behavior.
