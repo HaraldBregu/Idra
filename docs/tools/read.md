@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+Depends on the [policy module](../policy/index.md). Before reading, the policy module resolves the target path and checks whether `read` is permitted. If the path is not covered by a grant with `read` permission, the tool stops and returns a denial. No file content is returned for denied paths.
 
 ## Tool Search Description
 
