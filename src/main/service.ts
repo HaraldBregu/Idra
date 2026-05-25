@@ -37,21 +37,8 @@ import {
 	type PolicyServicePort,
 	type ToolPolicySubject,
 } from './policy';
-import type { ProviderAdapter, TranscriptEntry } from './provider/types';
+import type { JSONSchema, ProviderAdapter, ToolResultBlock, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
-import { createTools } from './tools/registry';
-import { createAgentTools } from './tools/create';
-import {
-	legacyToolToRuntimeTool,
-	prepareLegacyToolsForProvider,
-	runtimeToolToLegacyTool,
-} from './tools/runtime/adapt';
-import {
-	selectAgentToolsForTurn,
-	type AgentToolSelectionForTurn,
-} from './tools/management';
-import { TOOL_LIMITS } from './tools/limits';
-import type { AgentTool, ToolContext } from './tools/types';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultUserDataPath } from './user-data';
 import {
@@ -63,6 +50,51 @@ import type { FridayCronActor } from './cron';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
 import type { SubagentSpawnPort } from './agent/subagents';
+
+const AGENT_TOOL_LIMITS = {
+	maxTokens: 4096,
+	maxIterations: 25,
+	defaultMaxPromptTools: 9,
+} as const;
+
+interface AgentToolResult<TDetails = unknown> {
+	status: 'ok' | 'error' | 'rejected';
+	content: ToolResultBlock[];
+	details?: TDetails;
+}
+
+export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
+	name: string;
+	displaySummary?: string;
+	description: string;
+	schema: JSONSchema;
+	ownerOnly?: boolean;
+	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
+	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
+}
+
+export interface ToolContext {
+	workspace: string;
+	agentId?: string;
+	cronContext?: FridayCronActor;
+	deliveryContext?: Record<string, unknown>;
+	sessionId: string;
+	sessionBaseDir?: string;
+	sessionVisibility?: 'self' | 'tree' | 'agent' | 'all';
+	readState: Map<string, { mtimeMs: number; size: number }>;
+	plan: { entries: SessionFile['plan'] };
+	approvalRequired: Set<string>;
+	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
+	signal?: AbortSignal;
+	approvalCache: Set<string>;
+	services: AgentServiceDependencies;
+}
+
+interface AgentToolSelectionForTurn {
+	toolsForPrompt: AgentTool[];
+	systemPromptSuffix: string;
+	rankedTools: AgentTool[];
+}
 
 function filterToolsByAllowlist(
 	tools: AgentTool[],
