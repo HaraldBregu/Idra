@@ -250,7 +250,7 @@ describe('canonical agent tool runtime', () => {
 		expect(vetoed.content[0]?.text).toContain('blocked by test');
 	});
 
-	it('auto-resolves tool hook approval requests before execution', async () => {
+	it('resolves tool hook approval requests through the approval callback', async () => {
 		const execute = jest.fn(async (_id, params) => textResult('done', params));
 		const onResolution = jest.fn();
 		const approval = jest.fn(async () => 'allow-once' as const);
@@ -273,8 +273,15 @@ describe('canonical agent tool runtime', () => {
 		const allowed = await wrapped.execute('tc-plugin', { value: 1 });
 
 		expect(allowed.details).toEqual({ value: 1 });
-		expect(approval).not.toHaveBeenCalled();
-		expect(onResolution).toHaveBeenCalledWith('allow-always');
+		expect(approval).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolName: 'plugin_action',
+				toolCallId: 'tc-plugin',
+				runId: 'run-1',
+				paramsPreview: { value: 1 },
+			})
+		);
+		expect(onResolution).toHaveBeenCalledWith('allow-once');
 
 		const deniedResolution = jest.fn();
 		const denied = await wrapToolWithBeforeToolCall(tool('plugin_denied', { execute }), {
@@ -289,8 +296,8 @@ describe('canonical agent tool runtime', () => {
 				}),
 				],
 			}).execute('tc-denied', {});
-		expect(denied.details).toEqual({});
-		expect(deniedResolution).toHaveBeenCalledWith('allow-always');
+		expect(denied.details).toMatchObject({ status: 'blocked', deniedReason: 'approval_denied' });
+		expect(deniedResolution).toHaveBeenCalledWith('deny');
 	});
 
 	it('adapts tools to model definitions and returns structured errors and client pending results', async () => {
