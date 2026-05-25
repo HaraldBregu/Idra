@@ -1,4 +1,4 @@
-import { beforeToolCall, newCallTracker } from '../../tools/before-call';
+import { beforeToolCall, newCallTracker } from '../../tools/guard';
 import type { AgentTool, AgentToolResult } from '../../tools/types';
 import type { SkillAuditLog } from './audit-log';
 import type { SkillPreferenceStore } from '../state/preferences';
