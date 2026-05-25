@@ -394,7 +394,11 @@ export class ModelStore {
 		const catalogModel = getImageCreatorModelsForProvider(provider).find(
 			(entry) => entry.id === model.id
 		);
-		this.store.set('imageCreator', modelModuleSettings(provider.id, catalogModel ?? model));
+		const current = this.getModelModuleSettings('imageCreator');
+		this.store.set(
+			'imageCreator',
+			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
+		);
 		return true;
 	}
 
