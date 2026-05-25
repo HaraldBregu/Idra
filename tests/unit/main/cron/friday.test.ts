@@ -231,6 +231,35 @@ describe('FridayCronScheduler', () => {
 		expect(executor.calls).toHaveLength(1);
 	});
 
+	it('keeps maintenance ticks armed until future agent jobs are due', async () => {
+		jest.useFakeTimers();
+		let scheduler: FridayCronScheduler | undefined;
+		try {
+			const now = Date.UTC(2026, 0, 1, 12, 0, 0);
+			jest.setSystemTime(now);
+			const harness = await makeHarness();
+			scheduler = harness.scheduler;
+			await scheduler.add(
+				agentJob({
+					id: 'future-agent',
+					schedule: { kind: 'every', everyMs: 5 * 60_000, anchorMs: now },
+				})
+			);
+			await scheduler.start();
+
+			await jest.advanceTimersByTimeAsync(60_000);
+			expect(harness.executor.calls).toHaveLength(0);
+			expect((await scheduler.status()).timerArmed).toBe(true);
+
+			await jest.advanceTimersByTimeAsync(4 * 60_000);
+
+			expect(harness.executor.calls.map((call) => call.job.id)).toEqual(['future-agent']);
+		} finally {
+			await scheduler?.stop();
+			jest.useRealTimers();
+		}
+	});
+
 	it('restricts cron self-cleanup grants to the current job', async () => {
 		const { scheduler } = await makeHarness();
 		const own = await scheduler.add(agentJob({ id: 'own-job' }));
