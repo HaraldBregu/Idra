@@ -26,6 +26,8 @@ export interface SystemPromptCtx {
 
 const TOOL_GUIDANCE: Record<string, string> = {
 	read: 'Read a file before editing or overwriting it.',
+	bootstrap:
+		'Create or update the required bootstrap startup files for the current agent. Use this after collecting the needed identity, user, and style details; pass content, not paths.',
 	startup_files: 'Manage allowlisted agent startup files under agent/workspaces/<agentId>.',
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
@@ -162,7 +164,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 					`${DEFAULT_BOOTSTRAP_FILENAME} is pending and included in Project Context.`,
 					'Follow it before replying normally.',
 					'Do not use a generic greeting.',
-					'Do not claim bootstrap is complete unless the requested files are updated with `startup_files` and BOOTSTRAP.md is completed.',
+					'Do not claim bootstrap is complete unless the requested files are updated with `bootstrap` or `startup_files` and BOOTSTRAP.md is completed.',
 				].join('\n')
 			);
 		} else if (ctx.bootstrapMode === 'limited') {
