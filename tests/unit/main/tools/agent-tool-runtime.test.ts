@@ -73,14 +73,14 @@ describe('canonical agent tool runtime', () => {
 		const pluginTool = tool('plugin_lookup');
 		setToolMetadata(pluginTool, { ownerKind: 'plugin', pluginId: 'calendar' });
 		const ownerOnly = tool('owner_secret', { ownerOnly: true });
-		const tools = [tool('read'), tool('exec'), pluginTool, ownerOnly];
+		const tools = [tool('read'), tool('write'), pluginTool, ownerOnly];
 		const diagnostics = createToolDiagnostics();
 		const result = applyToolPolicyPipeline(tools, {
 			sender: { isOwner: false },
 			diagnostics,
 			stages: {
 				profile: { allow: ['group:file', 'calendar', 'owner_secret'] },
-				sandbox: { deny: ['exec'] },
+				sandbox: { deny: ['write'] },
 				runtime: { deny: ['plugin_lookup'] },
 			},
 		});
@@ -89,7 +89,7 @@ describe('canonical agent tool runtime', () => {
 	});
 
 	it('does not let fs config grant tools and applies deny after profile grants', () => {
-		const tools = [tool('read'), tool('write'), tool('edit'), tool('apply_patch'), tool('exec')];
+		const tools = [tool('read'), tool('write'), tool('edit'), tool('apply_patch')];
 		expect(applyToolPolicyPipeline(tools, {
 			stages: {
 				global: { fs: { workspaceOnly: false } },
