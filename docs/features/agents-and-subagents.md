@@ -2,8 +2,6 @@
 
 Friday's core feature is a personal AI assistant that runs agent turns from the desktop app, channels, cron, heartbeat, and background tasks. The same runtime also supports child subagent runs for delegated work.
 
-For the runtime-level operating model, see [Agent operating model](../agent/index.md).
-
 ## Functionality
 
 - Resolves the active provider and model from settings.
