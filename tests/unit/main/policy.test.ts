@@ -49,4 +49,33 @@ describe('policy module', () => {
 		});
 		expect(store.getPolicy).toHaveBeenCalledTimes(2);
 	});
+
+	it('evaluates tool availability through the policy service', () => {
+		const service = new PolicyService({
+			getPolicy: jest.fn(() => ({ version: 1, defaultPolicy: 'deny', paths: [] })),
+		});
+		const decision = service.evaluateTools(
+			[
+				{ name: 'read' },
+				{ name: 'write' },
+				{ name: 'calendar_search', pluginId: 'calendar', ownerKind: 'plugin' },
+				{ name: 'owner_secret', ownerOnly: true },
+			],
+			{
+				sender: { isOwner: false },
+				stages: {
+					profile: { allow: ['group:file', 'calendar', 'owner_secret'] },
+					sandbox: { deny: ['write'] },
+				},
+			}
+		);
+
+		expect([...decision.allowed]).toEqual(['read', 'calendar_search']);
+		expect(decision.filtered).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ toolName: 'owner_secret', stage: 'ownerOnly' }),
+				expect.objectContaining({ toolName: 'write', stage: 'sandbox' }),
+			])
+		);
+	});
 });

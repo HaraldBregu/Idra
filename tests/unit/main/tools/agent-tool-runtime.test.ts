@@ -445,4 +445,32 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
+	it('uses the injected policy service for built-in tool availability', async () => {
+		const workspace = await makeTempDir();
+		const policy = {
+			evaluate: jest.fn(),
+			evaluateTools: jest.fn(() => ({
+				allowed: new Set<string>(),
+				filtered: [{ toolName: 'read', stage: 'runtime', reason: 'blocked by policy' }],
+				warnings: [],
+			})),
+		};
+		const result = await createAgentTools({
+			workspaceDir: workspace,
+			toolsAllow: ['read'],
+			services: { policy },
+		});
+
+		expect(result.tools).toEqual([]);
+		expect(policy.evaluateTools).toHaveBeenCalledWith(
+			expect.arrayContaining([expect.objectContaining({ name: 'read' })]),
+			expect.objectContaining({
+				stages: expect.objectContaining({
+					runtime: { allow: ['read'], deny: undefined },
+				}),
+			})
+		);
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
 });

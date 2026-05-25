@@ -29,7 +29,13 @@ import {
 } from './agent/harness';
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
-import { PolicyService, type PolicyServicePort } from './policy';
+import {
+	evaluateToolPolicy,
+	normalizeToolPolicyName,
+	PolicyService,
+	type PolicyServicePort,
+	type ToolPolicySubject,
+} from './policy';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
@@ -65,44 +71,20 @@ import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
 import type { SubagentSpawnPort } from './agent/subagents';
 
-function toolAllowPatternMatches(pattern: string, name: string): boolean {
-	if (pattern === '*' || pattern === name) return true;
-	if (!pattern.includes('*')) return false;
-	const re = new RegExp(
-		'^' + pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$'
-	);
-	return re.test(name);
-}
-
-function toolAllowGroupMatches(pattern: string, name: string): boolean {
-	switch (pattern) {
-		case 'group:file':
-			return [
-				'read',
-				'write',
-				'edit',
-				'apply_patch',
-				'delete',
-				'copy',
-				'move',
-				'inspect_file',
-				'find',
-			].includes(name);
-		default:
-			return false;
-	}
-}
-
-function filterToolsByAllowlist(tools: AgentTool[], allowlist?: string[]): AgentTool[] {
+function filterToolsByAllowlist(
+	tools: AgentTool[],
+	allowlist: string[] | undefined,
+	policy?: PolicyServicePort
+): AgentTool[] {
 	if (!allowlist) return tools;
-	const patterns = allowlist.map((entry) => entry.trim()).filter(Boolean);
-	if (patterns.length === 0) return [];
-	return tools.filter((tool) =>
-		patterns.some(
-			(pattern) =>
-				toolAllowPatternMatches(pattern, tool.name) || toolAllowGroupMatches(pattern, tool.name)
-		)
-	);
+	const subjects: ToolPolicySubject[] = tools.map((tool) => ({
+		name: tool.name,
+		ownerOnly: tool.ownerOnly,
+	}));
+	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
+		stages: { runtime: { allow: allowlist } },
+	});
+	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
 }
 
 export interface AgentServiceDependencies {
@@ -409,7 +391,11 @@ export class AgentService {
 					)
 				);
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
-					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
+					baseTools = filterToolsByAllowlist(
+						baseTools,
+						options.toolsAllow,
+						this.dependencies.policy
+					);
 				}
 				baseTools = prepareLegacyToolsForProvider(baseTools, ctx, {
 					provider: providerId,

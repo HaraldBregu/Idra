@@ -130,6 +130,7 @@ export async function createAgentTools(
 		sender: options.sender,
 		stages: buildPolicyStages(options),
 		diagnostics,
+		policy: options.services?.policy,
 	});
 	const tools = prepareRuntimeTools(policy.tools, options, diagnostics);
 
