@@ -463,8 +463,6 @@ export function normalizeFridayCronToolRequest(
 	const input = record(request);
 	const action = stringValue(input.action);
 	switch (action) {
-		case 'status':
-			return { action };
 		case 'list':
 			return {
 				action,
@@ -477,32 +475,6 @@ export function normalizeFridayCronToolRequest(
 		case 'add': {
 			const jobInput = hasOwn(input, 'job') ? input.job : baseJob(input);
 			return { action, job: normalizeCronJobCreate(jobInput, context) };
-		}
-		case 'update': {
-			const patchInput = hasOwn(input, 'patch') ? input.patch : baseJob(input);
-			return { action, jobId: requiredJobId(input), patch: normalizeCronJobPatch(patchInput) };
-		}
-		case 'run': {
-			const runMode = stringValue(input.runMode) ?? stringValue(input.mode);
-			return {
-				action,
-				jobId: requiredJobId(input),
-				runMode: runMode === 'due' ? 'due' : 'force',
-			};
-		}
-		case 'runs':
-			return {
-				action,
-				jobId: requiredJobId(input),
-				limit: Math.max(1, Math.floor(numberValue(input.limit) ?? 50)),
-			};
-		case 'wake': {
-			const mode = stringValue(input.mode);
-			return {
-				action,
-				text: stringValue(input.text) ?? '',
-				mode: mode === 'now' ? 'now' : 'next-heartbeat',
-			};
 		}
 		default:
 			throw new Error('Unsupported cron action.');
