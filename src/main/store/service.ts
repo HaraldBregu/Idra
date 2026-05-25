@@ -44,6 +44,7 @@ import type {
 	TaskSchedulerSettings,
 } from './types';
 import { normalizeAgentRoutingSettings } from '../agent/routing';
+import type { PolicyConfig, PolicyEntry, Permission } from '../policy';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
