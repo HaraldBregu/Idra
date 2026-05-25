@@ -16,7 +16,7 @@ An agent should use tools when they make the result more accurate, current, veri
 
 - Use file tools when the answer depends on workspace content or a specific readable file path.
 - Keep mutating file operations inside the current workspace. Reading or inspecting outside paths is allowed only when needed for the request.
-- Use [bootstrap](bootstrap.md) for first-run startup setup files; it writes only the known bootstrap files in their canonical agent startup location.
+- Use [bootstrap](bootstrap/index.md) for first-run startup setup files; it writes only the known bootstrap files in their canonical agent startup location.
 - Read or inspect files before changing them.
 - Use command tools for tests, builds, calculations, and automation.
 - Use web tools for current or page-specific information.
@@ -27,7 +27,7 @@ An agent should use tools when they make the result more accurate, current, veri
 
 | Area | Use it for | Docs |
 | --- | --- | --- |
-| Bootstrap | Creating the initial startup files needed to finish first-run setup. | [bootstrap](bootstrap.md) |
+| Bootstrap | Creating the initial startup files needed to finish first-run setup. | [bootstrap](bootstrap/index.md) |
 | Files | Reading, writing, editing, finding, and managing workspace files. | [File tools](files/index.md) |
 | Execution | Running commands, tests, builds, and managing background processes. | [Execution tools](execution/index.md) |
 | Web | Fetching content from URLs and controlling a browser. | [Web tools](web/index.md) |
