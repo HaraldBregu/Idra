@@ -724,7 +724,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes local file mutation, inspection, patch, and shell tools by default', async () => {
+	it('exposes only local file tools by default', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -746,27 +746,17 @@ describe('AgentService', () => {
 
 		await expect(service.send('Do you have any internal tools?')).resolves.toBe('tool inventory ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual(
-			expect.arrayContaining([
-				'read',
-				'write',
-				'edit',
-				'apply_patch',
-				'delete',
-				'copy',
-				'move',
-				'inspect_file',
-				'find',
-				'exec',
-				'process',
-			])
-		);
+		expect(toolNames).toEqual(FILE_TOOL_NAMES);
+		expect(toolNames).not.toContain('exec');
+		expect(toolNames).not.toContain('process');
+		expect(toolNames).not.toContain('web_fetch');
+		expect(toolNames).not.toContain('cron');
 		expect(toolNames).not.toContain('startup_files');
 		expect(toolNames).not.toContain('bootstrap');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes cron to the owner for scheduled task requests', async () => {
+	it('does not expose cron for scheduled task requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -789,8 +779,8 @@ describe('AgentService', () => {
 		await expect(
 			service.send('schedule a task that runs each 5 minutes and creates lorem ipsum data')
 		).resolves.toBe('scheduled');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('cron');
-		expect(requests[0]!.system).toContain('**cron**');
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('cron');
+		expect(requests[0]!.system).not.toContain('**cron**');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -821,7 +811,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('adds agent startup context and bootstrap tools for full bootstrap turns', async () => {
+	it('keeps bootstrap turns tool-free when bootstrap file access is unavailable', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps('/workspace');
 		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
@@ -857,9 +847,9 @@ describe('AgentService', () => {
 		});
 
 		await expect(service.send('hi')).resolves.toBe('bootstrap ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['bootstrap', 'startup_files']);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual([]);
 		expect(requests[0]!.system).toContain('## Bootstrap');
-		expect(requests[0]!.system).toContain('bootstrap ritual');
+		expect(requests[0]!.system).not.toContain('bootstrap ritual');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -937,7 +927,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes exec for plain Python script run requests', async () => {
+	it('does not expose exec for plain Python script run requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -958,7 +948,7 @@ describe('AgentService', () => {
 		});
 
 		await expect(service.send('Run the Python script.')).resolves.toBe('ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('exec');
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('exec');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
