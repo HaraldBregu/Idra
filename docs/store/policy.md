@@ -10,13 +10,24 @@ The `policy` root stores the active access control policy. The policy module rea
 
 ## Initial Value
 
-The `policy` property should start with this default value:
+At startup, the `policy` property should always start with this default value when no stored policy exists:
 
 ```json
 {
   "version": 1,
   "defaultPolicy": "deny",
-  "paths": []
+  "paths": [
+    {
+      "path": "/workspace",
+      "permissions": ["read", "write", "create", "delete"],
+      "recursive": true
+    },
+    {
+      "path": "/agent",
+      "permissions": ["read", "write", "create", "delete"],
+      "recursive": true
+    }
+  ]
 }
 ```
 
@@ -60,7 +71,7 @@ Boolean. When `true`, the grant applies to all descendants. When `false`, it app
 
 ## Normalization
 
-Missing `policy` root is filled with `defaultPolicy: deny` and an empty `paths` array. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
+Missing `policy` root is filled with `defaultPolicy: deny` and recursive default grants for `/workspace` and `/agent`. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
 
 ## Related Docs
 
