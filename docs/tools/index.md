@@ -14,7 +14,8 @@ An agent should use tools when they make the result more accurate, current, veri
 
 ## Basic Rules
 
-- Use file tools when the answer depends on workspace content.
+- Use file tools when the answer depends on workspace content or a specific readable file path.
+- Keep mutating file operations inside the current workspace. Reading or inspecting outside paths is allowed only when needed for the request.
 - Read or inspect files before changing them.
 - Use command tools for tests, builds, calculations, and automation.
 - Use web tools for current or page-specific information.

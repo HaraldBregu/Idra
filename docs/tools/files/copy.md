@@ -1,10 +1,10 @@
 # copy
 
-`copy` duplicates content into another workspace path.
+`copy` duplicates content into another path inside the current workspace.
 
 ## Tool Search Description
 
-Use `copy` to duplicate an existing file or directory into a new workspace location.
+Use `copy` to duplicate an existing file or directory into a new current-workspace location.
 
 ## Use For
 
@@ -15,6 +15,7 @@ Use `copy` to duplicate an existing file or directory into a new workspace locat
 
 - Speculative duplicates.
 - Replacing unrelated files.
+- Creating destination files or directories outside the current workspace.
 
 ## When It Fails
 
@@ -22,4 +23,4 @@ If the copy fails due to a path conflict or permission error, report the reason.
 
 ## Keep In Mind
 
-Copying should preserve the source and create only the destination needed for the task. After copying, check whether the copy contains internal paths, imports, or links that reference the original location. Update them when the copy is intended to be independent.
+Copying should preserve the source and create only the destination needed for the task. The source may be outside the current workspace when it is readable and relevant, but the destination must stay inside the current workspace. After copying, check whether the copy contains internal paths, imports, or links that reference the original location. Update them when the copy is intended to be independent.

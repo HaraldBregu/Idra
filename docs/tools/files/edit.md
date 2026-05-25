@@ -1,10 +1,10 @@
 # edit
 
-`edit` changes a specific part of an existing file.
+`edit` changes a specific part of an existing file inside the current workspace.
 
 ## Tool Search Description
 
-Use `edit` to make a precise change to one known section of an existing workspace file.
+Use `edit` to make a precise change to one known section of an existing current-workspace file.
 
 ## Use For
 
@@ -15,6 +15,7 @@ Use `edit` to make a precise change to one known section of an existing workspac
 
 - Broad rewrites.
 - Unrelated formatting cleanup.
+- Editing files outside the current workspace.
 
 ## When It Fails
 
@@ -22,4 +23,4 @@ If the target section cannot be found in the file, do not guess at a match or ap
 
 ## Keep In Mind
 
-Make the edit precise enough that the surrounding file stays intact.
+Make the edit precise enough that the surrounding file stays intact. Never use `edit` to modify a file outside the current workspace.

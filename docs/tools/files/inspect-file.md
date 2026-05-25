@@ -1,6 +1,6 @@
 # inspect_file
 
-`inspect_file` checks what a file is before the agent decides what to do with it.
+`inspect_file` checks what a file is before the agent decides what to do with it. It is read-only and may inspect files outside the current workspace when needed for the request.
 
 ## Tool Search Description
 
@@ -31,4 +31,4 @@ If the file does not exist or cannot be inspected, report the path and reason. D
 
 ## Keep In Mind
 
-Inspection helps choose the right next step. It does not replace reading important text.
+Inspection helps choose the right next step. It does not replace reading important text, and it must not change files.
