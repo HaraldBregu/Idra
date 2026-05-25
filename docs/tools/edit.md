@@ -2,6 +2,10 @@
 
 `edit` changes a specific part of an existing file inside the current workspace.
 
+## Dependencies
+
+Depends on the [policy module](../policy/index.md). The policy module must allow the target path before this tool executes.
+
 ## Tool Search Description
 
 Use `edit` to make a precise change to one known section of an existing current-workspace file.
