@@ -16,6 +16,10 @@ Use `delete` to remove a workspace file or folder when deletion is clearly part 
 - Unrelated cleanup.
 - Deleting user work without clear intent.
 
+## When It Fails
+
+If deletion fails, report the path and reason. Do not assume the file was removed.
+
 ## Keep In Mind
 
 Deletion can lose work. Use it only when removal is part of the requested result or clearly necessary.
