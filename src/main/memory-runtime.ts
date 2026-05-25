@@ -517,11 +517,24 @@ function describeWorkspaceMemoryFile(
 	workspaceDir: string,
 	filePath: string
 ): WorkspaceMemoryFileDescriptor | undefined {
-	return (
-		describeRagFile(workspaceDir, filePath) ??
-		describeWikiFile(workspaceDir, filePath) ??
-		describeChatMemoryFile(workspaceDir, filePath)
-	);
+	const relativePath = relativeWorkspacePath(workspaceDir, filePath);
+	if (!relativePath) return undefined;
+	if (relativePath === MEMORY_FILENAME) {
+		return {
+			corpus: 'memory',
+			scopeKind: 'global',
+			scopeId: 'global',
+			relativePath,
+		};
+	}
+	const parts = splitMemoryPath(relativePath);
+	if (parts[0] !== MEMORY_DIRNAME || parts.length < 2) return undefined;
+	return {
+		corpus: 'memory',
+		scopeKind: 'global',
+		scopeId: 'global',
+		relativePath,
+	};
 }
 
 function matchesMemorySearchFilter(
@@ -542,8 +555,8 @@ function normalizeMemoryScopeFilter(scopeId: string): string {
 
 function resolveRequestedCorpora(options: Parameters<MemorySearchManager['search']>[1] = {}): MemoryResultCorpus[] {
 	const requested = options.corpora ?? (options.corpus ? [options.corpus] : (['memory', 'sessions'] as MemoryCorpus[]));
-	if (requested.includes('all')) return ['memory', 'sessions', 'rag', 'wiki'];
-	const allowed = new Set<MemoryResultCorpus>(['memory', 'sessions', 'rag', 'wiki']);
+	if (requested.includes('all')) return ['memory', 'sessions'];
+	const allowed = new Set<MemoryResultCorpus>(['memory', 'sessions']);
 	const unique = [...new Set(requested)].filter((corpus): corpus is MemoryResultCorpus =>
 		allowed.has(corpus as MemoryResultCorpus)
 	);
