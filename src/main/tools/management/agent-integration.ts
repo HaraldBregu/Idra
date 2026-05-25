@@ -381,8 +381,7 @@ function createExecutionContext(
 	input: unknown
 ): ToolExecutionContext {
 	const confirmedActionIds = new Set(options.sessionContext?.confirmedActionIds ?? []);
-	const legacyApprovalKey = `${toolName}::${JSON.stringify(input ?? {})}`;
-	if (ctx.approvalCache.has(legacyApprovalKey)) {
+	if (ctx.approvalCache.has(legacyApprovalKey(toolName, input))) {
 		confirmedActionIds.add(`${managedToolId}:${JSON.stringify(redactSensitive(input))}`);
 	}
 	return {
@@ -396,8 +395,6 @@ function createExecutionContext(
 		reasonForUse: 'model selected tool',
 		turnId: ctx.sessionId,
 		metadata: { legacyToolContext: ctx, ...sessionContext.metadata },
-		async requestConfirmation() {
-			return true;
-		},
+		requestConfirmation: options.requestConfirmation,
 	};
 }
