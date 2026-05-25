@@ -35,7 +35,7 @@ Each value is a connector config with fields such as `id`, `name`, `connectorId`
 
 ## Normalization
 
-Reads accept both the current keyed object and older connector arrays. Writes always store the keyed object form. Connector secrets remain in this root.
+Reads accept both the current keyed object and older connector arrays. Writes always store the keyed object form. Connector secrets remain in this property.
 
 ## Related Docs
 

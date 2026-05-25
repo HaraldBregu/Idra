@@ -18,7 +18,7 @@ Missing `cron` is read as an empty scheduler state.
 
 ## Shape
 
-The current Friday cron state stores root-level schedule data:
+The current Friday cron state stores property-level schedule data:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
@@ -35,7 +35,7 @@ Legacy fields may still be read during migration:
 
 ## Normalization
 
-Reads migrate missing or legacy scheduler state to the current scheduler shape. Writes merge scheduler patches into the existing root. Friday cron writes serialize the current state at the root and remove legacy nested Friday cron fields.
+Reads migrate missing or legacy scheduler state to the current scheduler shape. Writes merge scheduler patches into the existing property. Friday cron writes serialize the current state at the property and remove legacy nested Friday cron fields.
 
 ## Related Docs
 

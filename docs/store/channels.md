@@ -37,7 +37,7 @@ Channel account records may include `label`, `enabled`, `token`, `secret`, `serv
 
 ## Normalization
 
-Reads merge stored channel config with default disabled configs. Telegram, WhatsApp, and Discord keep provider-specific top-level token fields. Generic channels use an `accounts.default` config. String allowlists are trimmed, empty entries are dropped, and duplicates are removed. Writes remove undefined fields. Legacy `channel` root data can still be read as a fallback.
+Reads merge stored channel config with default disabled configs. Telegram, WhatsApp, and Discord keep provider-specific top-level token fields. Generic channels use an `accounts.default` config. String allowlists are trimmed, empty entries are dropped, and duplicates are removed. Writes remove undefined fields. Legacy `channel` property data can still be read as a fallback.
 
 ## Related Docs
 

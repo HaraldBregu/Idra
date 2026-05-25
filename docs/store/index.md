@@ -9,7 +9,7 @@ The store persists Friday's application settings. It is an Electron settings sto
 - Stores scheduler and heartbeat configuration.
 - Normalizes missing or legacy settings during reads.
 - Redacts provider secrets from public reads.
-- Keeps writes scoped to the owning root.
+- Keeps writes scoped to the owning property.
 
 Keep-awake state currently has a store-facing API but is kept in memory rather than persisted.
 
@@ -17,7 +17,7 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 
 | Property | Type | Owns |
 | --- | --- | --- |
-| [`providers`](providers.md) | `ProviderSettings[]` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
+| [`providers`](providers.md) | `ProvidersSettings` | Chat and model provider records, credentials, base URLs, catalog metadata, and enabled state. |
 | [`assistant`](assistant.md) | `AssistantSettings` | Active chat model selection and agent-facing model options. |
 | [`speechToText`](speech-to-text.md) | `SpeechToTextSettings` | Active speech-to-text provider, model, and module options. |
 | [`textToSpeech`](text-to-speech.md) | `TextToSpeechSettings` | Active text-to-speech provider, model, and module options. |

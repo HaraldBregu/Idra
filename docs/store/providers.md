@@ -6,7 +6,7 @@ The `providers` property stores configured model provider records. The provider 
 
 | Property | Type | Owns |
 | --- | --- | --- |
-| `providers` | `ProviderSettings[]` | Provider ids, display names, base URLs, and API keys. |
+| `providers` | `ProvidersSettings` | Provider ids, display names, base URLs, and API keys. |
 
 ## Initial Value
 
