@@ -30,4 +30,6 @@ Scheduling is an external commitment. Make the timing, task, and delivery expect
 - [cron list](../cron/list.md) — show scheduled jobs
 - [cron get](../cron/get.md) — inspect one job
 - [cron add](../cron/add.md) — create a new scheduled job
+- [cron update](../cron/update.md) — change the schedule, task, name, or state of a job
+- [cron run](../cron/run.md) — trigger a job immediately outside its schedule
 - [cron remove](../cron/remove.md) — delete a job
