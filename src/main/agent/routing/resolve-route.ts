@@ -1,6 +1,10 @@
 import type { ChannelNormalizedInboundMessage } from '../../channels';
 import type { ChannelChatType } from '../../channels/types';
-import type { AgentRouteBinding, AgentRoutePeer, AgentRouteSessionScope } from '../../../shared/store';
+import type {
+	AgentRouteBinding,
+	AgentRoutePeer,
+	AgentRouteSessionScope,
+} from '../../../shared/store';
 import { resolveDefaultAgentId } from './bindings';
 import { buildAgentSessionKey } from './session-key';
 import type { AgentRouteInput, ResolvedAgentRoute } from './types';
