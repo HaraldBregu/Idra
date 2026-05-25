@@ -256,6 +256,61 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
+	it('allows policy-granted outside paths through approval and file execution', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const outsideFile = path.join(outside, 'allowed.txt');
+		const ctx = makeToolContext({ workspace });
+		useFilePolicy(ctx, {
+			version: 1,
+			defaultPolicy: 'deny',
+			paths: [
+				{
+					path: outside,
+					permissions: ['read', 'write', 'create', 'delete'],
+					recursive: true,
+				},
+			],
+		});
+
+		await expect(
+			beforeToolCall(
+				writeTool,
+				{ path: outsideFile, content: 'created' },
+				ctx,
+				newCallTracker()
+			)
+		).resolves.toMatchObject({ proceed: true });
+		await expect(writeTool.execute({ path: outsideFile, content: 'created' }, ctx)).resolves.toMatchObject({
+			status: 'ok',
+		});
+		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('created');
+
+		await expect(
+			beforeToolCall(
+				editTool,
+				{ path: outsideFile, old: 'created', new: 'updated' },
+				ctx,
+				newCallTracker()
+			)
+		).resolves.toMatchObject({ proceed: true });
+		await expect(
+			editTool.execute({ path: outsideFile, old: 'created', new: 'updated' }, ctx)
+		).resolves.toMatchObject({ status: 'ok' });
+		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('updated');
+
+		await expect(
+			beforeToolCall(deleteTool, { path: outsideFile }, ctx, newCallTracker())
+		).resolves.toMatchObject({ proceed: true });
+		await expect(deleteTool.execute({ path: outsideFile }, ctx)).resolves.toMatchObject({
+			status: 'ok',
+		});
+		await expect(fs.stat(outsideFile)).rejects.toThrow();
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('confines mutating file targets to the workspace when writeWorkspaceOnly is enabled', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
