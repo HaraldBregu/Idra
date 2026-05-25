@@ -1,12 +1,12 @@
 # Store — Image Creator
 
-The `imageCreator` root stores the active image generation provider and model selection.
+The `imageCreator` property stores the active image generation provider and model selection.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `imageCreator` | Provider id, model id, reasoning effort, and image generation module options. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `imageCreator` | `ImageCreatorSettings` | Provider id, model id, reasoning effort, and image generation module options. |
 
 ## Initial Value
 

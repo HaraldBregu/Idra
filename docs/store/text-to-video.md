@@ -1,12 +1,12 @@
 # Store — Text To Video
 
-The `textToVideo` root stores the active video generation provider and model selection.
+The `textToVideo` property stores the active video generation provider and model selection.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `textToVideo` | Provider id, model id, reasoning effort, and video generation module options. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `textToVideo` | `TextToVideoSettings` | Provider id, model id, reasoning effort, and video generation module options. |
 
 ## Initial Value
 

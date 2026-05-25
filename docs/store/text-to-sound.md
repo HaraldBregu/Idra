@@ -1,12 +1,12 @@
 # Store — Text To Sound
 
-The `textToSound` root stores the active music or sound generation provider and model selection.
+The `textToSound` property stores the active music or sound generation provider and model selection.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `textToSound` | Provider id, model id, reasoning effort, and sound generation module options. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `textToSound` | `TextToSoundSettings` | Provider id, model id, reasoning effort, and sound generation module options. |
 
 ## Initial Value
 

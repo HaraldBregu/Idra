@@ -1,16 +1,16 @@
 # Store — Providers
 
-The `modelProviders` root stores configured model provider records. The provider store uses it to resolve provider credentials and base URLs for model modules.
+The `providers` property stores configured model provider records. The provider store uses it to resolve provider credentials and base URLs for model modules.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `modelProviders` | Provider ids, display names, base URLs, and API keys. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `providers` | `ProviderSettings[]` | Provider ids, display names, base URLs, and API keys. |
 
 ## Initial Value
 
-Missing `modelProviders` is read as an empty array.
+Missing `providers` is read as an empty array.
 
 ```json
 []

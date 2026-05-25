@@ -1,16 +1,16 @@
 # Store — Cron
 
-The `taskScheduler` root stores persisted scheduler configuration and schedule records.
+The `cron` property stores persisted scheduler configuration and schedule records.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `taskScheduler` | Friday cron jobs, migrated scheduler state, and legacy cron task records. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `cron` | `CronSettings` | Friday cron jobs, migrated scheduler state, and legacy cron task records. |
 
 ## Initial Value
 
-Missing `taskScheduler` is read as an empty scheduler state.
+Missing `cron` is read as an empty scheduler state.
 
 ```json
 {}

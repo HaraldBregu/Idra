@@ -1,6 +1,6 @@
 # Store
 
-The store persists Friday's application settings. It is an Electron settings store named `settings` with dot notation disabled, so each top-level root is owned and updated as a structured object.
+The store persists Friday's application settings. It is an Electron settings store named `settings` with dot notation disabled, so each top-level property is owned and updated as a structured object.
 
 ## Functionality
 
@@ -34,13 +34,13 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 
 ## Normalization
 
-Reads are tolerant. Missing roots are filled with defaults, legacy values are compacted into the current shape, and invalid module settings are dropped instead of leaking into runtime services.
+Reads are tolerant. Missing properties are filled with defaults, legacy values are compacted into the current shape, and invalid module settings are dropped instead of leaking into runtime services.
 
 Provider ids are normalized to lower-case where appropriate. String fields are trimmed. Module settings store only the active provider id, model id, reasoning effort, and module options needed by the runtime.
 
 ## Secrets
 
-Provider API keys, connector secrets, and channel secrets remain in their owning roots. Public provider reads redact API keys. Tasks, schedules, heartbeat, and channel dispatch records reference provider configuration indirectly and do not copy provider secrets.
+Provider API keys, connector secrets, and channel secrets remain in their owning properties. Public provider reads redact API keys. Tasks, schedules, heartbeat, and channel dispatch records reference provider configuration indirectly and do not copy provider secrets.
 
 ## Runtime Relationship
 

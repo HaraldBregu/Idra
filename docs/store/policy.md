@@ -1,12 +1,12 @@
 # Store — Policy
 
-The `policy` root stores the active access control policy. The policy module reads this object via `StoreService` at evaluation time.
+The `policy` property stores the active access control policy. The policy module reads this object via `StoreService` at evaluation time.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `policy` | Access control policy version, default decision, and path grants. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `policy` | `PolicySettings` | Access control policy version, default decision, and path grants. |
 
 ## Initial Value
 
@@ -73,7 +73,7 @@ Boolean. When `true`, the grant applies to all descendants. When `false`, it app
 
 ## Normalization
 
-Missing `policy` root is filled with `defaultPolicy: deny` and recursive default grants for `/workspace` and `/agent`. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
+Missing `policy` property is filled with `defaultPolicy: deny` and recursive default grants for `/workspace` and `/agent`. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
 
 ## Related Docs
 

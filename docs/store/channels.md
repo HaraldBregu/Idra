@@ -1,12 +1,12 @@
 # Store — Channels
 
-The `channels` root stores channel configuration records for chat and messaging integrations.
+The `channels` property stores channel configuration records for chat and messaging integrations.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `channels` | Channel enabled state, account settings, tokens, default targets, DM policy, allowlists, and heartbeat visibility. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `channels` | `ChannelsSettings` | Channel enabled state, account settings, tokens, default targets, DM policy, allowlists, and heartbeat visibility. |
 
 ## Initial Value
 
@@ -18,7 +18,7 @@ Missing `channels` is read as default disabled channel configs.
 
 ## Shape
 
-The root is a partial object keyed by channel id. It may also include `defaults`.
+The property is a partial object keyed by channel id. It may also include `defaults`.
 
 ```json
 {

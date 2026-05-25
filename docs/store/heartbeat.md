@@ -1,12 +1,12 @@
 # Store — Heartbeat
 
-The `heartbeat` root stores lightweight heartbeat runtime state. Agent heartbeat configuration is stored under `llmAgent.options.agents`.
+The `heartbeat` property stores lightweight heartbeat runtime state. Agent heartbeat configuration is stored under `assistant.options.agents`.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `heartbeat` | Last run timestamps and recently delivered heartbeat text. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `heartbeat` | `HeartbeatSettings` | Last run timestamps and recently delivered heartbeat text. |
 
 ## Initial Value
 

@@ -1,16 +1,16 @@
 # Store — Task
 
-The `backgroundTask` root stores admission and concurrency policy for user-created background tasks.
+The `task` property stores admission and concurrency policy for user-created background tasks.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `backgroundTask` | Allowed task types and default task concurrency. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `task` | `TaskSettings` | Allowed task types and default task concurrency. |
 
 ## Initial Value
 
-Missing `backgroundTask` is read as an empty policy.
+Missing `task` is read as an empty policy.
 
 ```json
 {}

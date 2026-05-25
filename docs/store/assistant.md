@@ -1,16 +1,16 @@
 # Store — Assistant
 
-The `llmAgent` root stores the active chat and agent model selection. It also carries agent-facing module options such as runtime preference and heartbeat defaults.
+The `assistant` property stores the active chat and agent model selection. It also carries agent-facing module options such as runtime preference and heartbeat defaults.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `llmAgent` | Provider id, model id, reasoning effort, and agent module options. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `assistant` | `AssistantSettings` | Provider id, model id, reasoning effort, and agent module options. |
 
 ## Initial Value
 
-Missing `llmAgent` means no chat model has been selected.
+Missing `assistant` means no chat model has been selected.
 
 ## Shape
 

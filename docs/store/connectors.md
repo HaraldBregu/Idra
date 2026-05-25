@@ -1,12 +1,12 @@
 # Store — Connectors
 
-The `connectors` root stores connector configuration records for external systems.
+The `connectors` property stores connector configuration records for external systems.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `connectors` | Connector ids, labels, auth settings, approval policy, tool metadata, and connector secrets. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `connectors` | `ConnectorsSettings` | Connector ids, labels, auth settings, approval policy, tool metadata, and connector secrets. |
 
 ## Initial Value
 
@@ -18,7 +18,7 @@ Missing `connectors` is read as an empty connector list.
 
 ## Shape
 
-The root is an object keyed by connector store key.
+The property is an object keyed by connector store key.
 
 | Key | Connector |
 | --- | --- |

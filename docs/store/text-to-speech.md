@@ -1,12 +1,12 @@
 # Store — Text To Speech
 
-The `textToSpeech` root stores the active text-to-speech provider and model selection.
+The `textToSpeech` property stores the active text-to-speech provider and model selection.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `textToSpeech` | Provider id, model id, reasoning effort, and text-to-speech module options. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `textToSpeech` | `TextToSpeechSettings` | Provider id, model id, reasoning effort, and text-to-speech module options. |
 
 ## Initial Value
 

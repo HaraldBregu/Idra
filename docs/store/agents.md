@@ -1,12 +1,12 @@
 # Store — Agents
 
-The `agents` root stores configured agents and route bindings for channel or peer-specific agent selection.
+The `agents` property stores configured agents and route bindings for channel or peer-specific agent selection.
 
-## Root
+## Property
 
-| Root | Owns |
-| --- | --- |
-| `agents` | Agent definitions, route bindings, workspace overrides, tool policy, and subagent settings. |
+| Property | Type | Owns |
+| --- | --- | --- |
+| `agents` | `AgentsSettings` | Agent definitions, route bindings, workspace overrides, tool policy, and subagent settings. |
 
 ## Initial Value
 
