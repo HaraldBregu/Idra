@@ -34,9 +34,14 @@ export interface FridayTaskSchedulerSettings {
 export interface TaskSchedulerSettings {
 	enabled?: boolean;
 	managed?: unknown;
-	friday?: FridayTaskSchedulerSettings;
 	legacyTasks?: CronTask[];
 }
+
+export type TaskSchedulerSettings = FridayTaskSchedulerSettings & {
+	enabled?: boolean;
+	managed?: unknown;
+	legacyTasks?: CronTask[];
+};
 
 export interface BackgroundTaskSettings {
 	allowedTaskTypes?: string[];
