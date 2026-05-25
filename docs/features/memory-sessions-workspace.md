@@ -23,7 +23,7 @@ Friday keeps agent work grounded through persisted sessions, workspace startup f
 - Owns the local workspace root.
 - Guards workspace path resolution so reads and writes stay inside the root.
 - Initializes a git repo for new workspaces when possible.
-- Loads startup context files such as `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, `MEMORY.md`, and `HEARTBEAT.md`.
+- Loads startup context files such as `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, `MEMORY.md`, and `HEARTBEAT.md`.
 - Tracks bootstrap completion and removes bootstrap context after setup is done.
 
 ## Source
@@ -35,4 +35,3 @@ Friday keeps agent work grounded through persisted sessions, workspace startup f
 - `src/main/workspace/files.ts`
 - `src/main/agent/compaction.ts`
 - `src/main/agent/startup-files.ts`
-

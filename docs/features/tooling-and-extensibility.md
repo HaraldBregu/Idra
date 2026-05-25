@@ -31,7 +31,7 @@ The browser module provides managed Playwright Chromium profiles, URL policy che
 
 ## Workspace And Startup Context
 
-The workspace service owns the working project context. The agent can load startup files such as `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, `MEMORY.md`, and `HEARTBEAT.md` depending on run type and bootstrap state.
+The workspace service owns the working project context. The agent can load startup files such as `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, `MEMORY.md`, and `HEARTBEAT.md` depending on run type and bootstrap state.
 
 ## Memory And Sessions
 

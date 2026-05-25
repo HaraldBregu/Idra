@@ -13,7 +13,6 @@ follow-up read.
 
 - `AGENTS.md` - operating rules and workspace behavior
 - `SOUL.md` - persona, tone, and interaction style
-- `TOOLS.md` - local setup notes and tool-specific details
 - `IDENTITY.md` - assistant name, avatar, vibe, and metadata
 - `USER.md` - user profile and preferences
 - `HEARTBEAT.md` - proactive or periodic task guidance
