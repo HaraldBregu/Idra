@@ -7,7 +7,7 @@ import type {
 	OperatorStoreState,
 } from '../../shared/agents/service';
 import type { AgentHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
-import type { ConnectorConfig } from '../../shared/connector';
+import type { ConnectorConfig } from '../../shared/connectors';
 import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
 import type { CronTask } from '../../shared/cron';
 import type { CronStoreState } from '../cron/core/cron.types';

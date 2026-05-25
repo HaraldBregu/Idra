@@ -1,4 +1,4 @@
-import type { ConnectorConfig } from '../../shared/connector';
+import type { ConnectorConfig } from '../../shared/connectors';
 import type { SettingsStoreAccessor, StoreSchema } from '../../shared/store';
 
 type ConnectorSettingsKey = keyof NonNullable<StoreSchema['connectors']>;

@@ -1,6 +1,6 @@
 import type { ModelReasoningEffort } from './agents/service';
 import type { Channel } from './channels';
-import type { ConnectorConfig } from './connector';
+import type { ConnectorConfig } from './connectors';
 import type {
 	CronTask,
 	FridayCronJobDefinition,
