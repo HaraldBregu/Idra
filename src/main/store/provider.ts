@@ -19,18 +19,12 @@ function providerFromSettings(settings: ModelProviderSettings): Provider {
 }
 
 function modelProviderSettings(provider: Provider): ModelProviderSettings {
-	const settings: ModelProviderSettings = {
+	return {
 		id: provider.id.trim().toLowerCase(),
 		name: provider.name.trim(),
 		baseUrl: provider.baseUrl.trim(),
 		apiKey: provider.apiKey.trim(),
 	};
-	const capabilities = provider.capabilities?.trim();
-	if (capabilities) settings.capabilities = capabilities;
-	if (provider.apiConfiguration) settings.apiConfiguration = provider.apiConfiguration;
-	const enabled = (provider as { enabled?: unknown }).enabled;
-	if (typeof enabled === 'boolean') settings.enabled = enabled;
-	return settings;
 }
 
 function readModelProviderSettings(value: unknown): ModelProviderSettings | undefined {
@@ -41,15 +35,7 @@ function readModelProviderSettings(value: unknown): ModelProviderSettings | unde
 	const baseUrl = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : '';
 	const apiKey = typeof record.apiKey === 'string' ? record.apiKey.trim() : '';
 	if (!id || !name || !baseUrl) return undefined;
-	const settings: ModelProviderSettings = { id, name, baseUrl, apiKey };
-	const capabilities = typeof record.capabilities === 'string' ? record.capabilities.trim() : '';
-	if (capabilities) settings.capabilities = capabilities;
-	const apiConfiguration = readRecord(record.apiConfiguration);
-	if (apiConfiguration) {
-		settings.apiConfiguration = apiConfiguration as unknown as Provider['apiConfiguration'];
-	}
-	if (typeof record.enabled === 'boolean') settings.enabled = record.enabled;
-	return settings;
+	return { id, name, baseUrl, apiKey };
 }
 
 function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] {
@@ -123,7 +109,6 @@ export class ProviderStore {
 		);
 
 		const newProvider: Provider = {
-			...(defaultProviderForId('openai') ?? {}),
 			id: 'openai',
 			name: 'OpenAI',
 			apiKey: key,
@@ -145,7 +130,6 @@ export class ProviderStore {
 		);
 
 		const newProvider: Provider = {
-			...(defaultProviderForId('anthropic') ?? {}),
 			id: 'anthropic',
 			name: 'Anthropic',
 			apiKey: key,

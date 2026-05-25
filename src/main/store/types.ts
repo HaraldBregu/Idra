@@ -11,15 +11,7 @@ import type {
 	FridayCronRunRecord,
 } from '../../shared/cron';
 
-export interface ModelProviderSettings {
-	id: string;
-	name: string;
-	baseUrl: string;
-	apiKey: string;
-	capabilities?: string;
-	apiConfiguration?: Provider['apiConfiguration'];
-	enabled?: boolean;
-}
+export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 
 export interface ModelModuleSettings {
 	providerId: string;
