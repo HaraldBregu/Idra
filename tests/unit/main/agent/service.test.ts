@@ -635,7 +635,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes connected Google connector tools for Gmail profile requests', async () => {
+	it('does not expose connector tools in the default tool surface', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -668,97 +668,9 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
-		expect(connectors.createAgentTools).toHaveBeenCalled();
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
+		expect(connectors.createAgentTools).not.toHaveBeenCalled();
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('passes real connector tools through provider-neutral model overrides', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
-		const deps = makeDeps();
-		deps.store.getProviderById.mockImplementation((id: string) => {
-			if (id === 'anthropic') {
-				return {
-					id: 'anthropic',
-					name: 'Anthropic',
-					apiKey: 'sk-ant-test',
-					baseUrl: 'https://api.anthropic.com',
-				};
-			}
-			return {
-				id: 'openai',
-				name: 'OpenAI',
-				apiKey: 'sk-test',
-				baseUrl: 'https://api.openai.com/v1',
-			};
-		});
-		let connectorRecords: unknown[] = [];
-		const connectorStore = {
-			getConnectors: jest.fn(() => connectorRecords),
-			setConnectors: jest.fn((next: unknown[]) => { connectorRecords = next; }),
-		};
-		const connectors = new ConnectorsService(connectorStore as never, makeLogger() as never);
-		await connectors.add({
-			name: 'My Gmail',
-			connectorId: 'connector_gmail',
-			authorization: 'google-token',
-			allowedTools: ['get_profile'],
-		});
-		const requests: ProviderStreamRequest[] = [];
-		const providerFactory = jest.fn(() => ({
-			async *stream(req) {
-				requests.push(req);
-				yield { type: 'text_delta' as const, text: 'profile ready' };
-				yield {
-					type: 'message_end' as const,
-					stopReason: 'end_turn',
-					usage: { inputTokens: 1, outputTokens: 1 },
-				};
-			},
-		}));
-		const service = new AgentService(
-			{ ...deps, connectors },
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
-				providerFactory,
-			}
-		);
-
-		await expect(
-			service.send('get my gmail profile', 'main', {
-				providerId: 'anthropic',
-				model: 'claude-test',
-			})
-		).resolves.toBe('profile ready');
-		await expect(
-			service.send('get my gmail profile again', 'main', {
-				providerId: 'openai',
-				model: 'gpt-test',
-			})
-		).resolves.toBe('profile ready');
-		expect(providerFactory).toHaveBeenNthCalledWith(1, {
-			id: 'anthropic',
-			apiKey: 'sk-ant-test',
-			baseURL: 'https://api.anthropic.com',
-		});
-		expect(providerFactory).toHaveBeenNthCalledWith(2, {
-			id: 'openai',
-			apiKey: 'sk-test',
-			baseURL: 'https://api.openai.com/v1',
-		});
-		expect(requests.map((request) => request.model)).toEqual(['claude-test', 'gpt-test']);
-		for (const request of requests) {
-			expect(request.tools).toEqual(expect.arrayContaining([
-				expect.objectContaining({
-					name: 'my_gmail_get_profile',
-					schema: expect.objectContaining({ type: 'object' }),
-				}),
-			]));
-		}
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('defaults to outside-readable local tools for file-backed requests', async () => {
