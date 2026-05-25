@@ -148,3 +148,4 @@ The best agent response is not the longest response. It is the response that com
 ## Related Docs
 
 - [Agent acceptance criteria](acceptance-criteria.md)
+- [Agent implementation review and plan](implementation-review-and-plan.md)
