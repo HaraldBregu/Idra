@@ -398,6 +398,52 @@ describe('tool management layer', () => {
 		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
 	});
 
+	it('keeps the cron tool available for scheduled task requests', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('exec', 'Run a shell command in the workspace.'),
+				makeAgentTool('write', 'Create or overwrite workspace files.'),
+				makeAgentTool(
+					'cron',
+					'Manage scheduled jobs through the Gateway-owned scheduler. Use this for future, delayed, recurring, reminder, wake, or manual-run scheduling.'
+				),
+				makeAgentTool('task', 'Start an immediate in-memory background task.'),
+			],
+			'schedule a task that runs each 5 minutes and creates a file with lorem ipsum data',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toContain('cron');
+		expect(selected.systemPromptSuffix).toContain('cron');
+	});
+
+	it('does not force cron for immediate background task requests', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('cron', 'Manage scheduled jobs through the Gateway-owned scheduler.'),
+				makeAgentTool('task', 'Start an immediate in-memory background task.'),
+			],
+			'run a task in background now',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
+	});
+
 	it('selects connector Gmail tools from their descriptions even with custom labels', () => {
 		const gmailProfileTool: AgentTool = {
 			name: 'work_get_profile',
