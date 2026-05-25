@@ -29,7 +29,7 @@ The file tools can keep full filesystem capability in their implementation, but 
 
 | Area | Current tools | Docs |
 | --- | --- | --- |
-| File tools | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files/index.md) |
+| File tools | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files.md) |
 
 ## Related Docs
 
