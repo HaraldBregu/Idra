@@ -116,7 +116,42 @@ export function wrapToolWithBeforeToolCall(
 					});
 				}
 				if (decision.requireApproval) {
-					await decision.requireApproval.onResolution?.('allow-always');
+					if (!context.approval) {
+						await decision.requireApproval.onResolution?.('deny');
+						return blockedToolResult({
+							reason:
+								decision.requireApproval.description ||
+								`Tool ${tool.name} requires approval before execution.`,
+							deniedReason: 'approval_required',
+						});
+					}
+					const approval = await context.approval({
+						toolName: tool.name,
+						toolCallId,
+						runId: context.runId,
+						paramsPreview: sanitizeParamPreview(params),
+						approval: {
+							title: decision.requireApproval.title,
+							description: decision.requireApproval.description,
+							severity: decision.requireApproval.severity,
+							timeoutMs: decision.requireApproval.timeoutMs,
+							timeoutBehavior: decision.requireApproval.timeoutBehavior,
+							pluginId: decision.requireApproval.pluginId,
+							allowedDecisions: decision.requireApproval.allowedDecisions,
+						},
+					});
+					if (approval === false || approval === null || approval === 'deny') {
+						await decision.requireApproval.onResolution?.('deny');
+						return blockedToolResult({
+							reason:
+								decision.requireApproval.description ||
+								`Tool ${tool.name} was not approved for execution.`,
+							deniedReason: 'approval_denied',
+						});
+					}
+					await decision.requireApproval.onResolution?.(
+						approval === true ? 'allow-once' : approval
+					);
 				}
 			}
 
