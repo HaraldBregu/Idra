@@ -1,36 +1,19 @@
 # cron
 
-`cron` manages scheduled jobs through the Gateway-owned scheduler.
+`cron` schedules future or recurring agent work.
 
-## How It Is Used
+## Use For
 
-- Used for reminders, future runs, delayed work, and recurring agent tasks.
-- When a user asks to "schedule a task", use this Friday-owned scheduler rather
-  than system `crontab`, `launchctl`, `systemctl` timers, `schtasks`, shell
-  loops, or model-side timers.
-- For every-N-minutes requests, prefer an `every` schedule with `everyMs`
-  instead of translating it into host scheduler commands.
-- Supports ten actions: `status`, `list`, `get`, `add`, `update`, `remove`,
-  `run`, `runs`, `wake`.
-- Cron expressions are written in the supplied timezone as local wall-clock time;
-  Friday does not convert them to UTC first.
-- Uses `jobId` as the canonical job identifier (`id` is accepted as a
-  compatibility alias).
-- Can capture a window of recent transcript messages as context for the scheduled
-  run (`contextMessages` field, 1–10 messages).
-- Infers a delivery target from the current session's delivery context when one
-  is present.
-- Prefers isolated `agentTurn` jobs unless the user explicitly asks for
-  main-session `systemEvent` injection.
+- Reminders.
+- Delayed tasks.
+- Recurring agent runs.
 
-## Boundaries
+## Do Not Use For
 
-- It does not directly change files.
-- It is for future or repeating work, not work that should start now; use `task`
-  for immediate background work.
-- Do not emulate scheduling with sleep loops, shell loops, long-running process
-  polling, or model-side timers.
-- Any agent run started from a schedule must follow the same workspace file
-  mutation boundaries as normal tool use.
-- It must not store secrets or provider credentials in a schedule payload.
-- This tool is owner-only; it is not available to sub-agents.
+- Work that should start immediately.
+- Shell sleep loops, host scheduler commands, or model-side timers.
+- Storing secrets in a scheduled payload.
+
+## Keep In Mind
+
+Scheduling is an external commitment. Make the timing, task, and delivery expectation clear before creating or changing a schedule.

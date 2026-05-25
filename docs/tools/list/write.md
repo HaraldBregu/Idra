@@ -1,17 +1,17 @@
 # write
 
-`write` creates a new workspace file or replaces a whole file with new content.
+`write` creates a new file or replaces a whole file.
 
-## How It Is Used
+## Use For
 
-- Used when the requested result is a complete saved document or file.
-- Useful for new docs, generated configuration, or replacing a file that is meant
-  to be rewritten as a whole.
-- Friday should read an existing file first before replacing it.
+- New documents or generated files.
+- Complete file replacement when that is the requested change.
 
-## Boundaries
+## Do Not Use For
 
-- It can create or overwrite files only inside the current workspace.
-- It must not change files outside the current workspace.
-- It is not the right choice for small targeted edits.
-- It should not overwrite unrelated user work.
+- Small targeted edits.
+- Overwriting existing work without first reading it.
+
+## Keep In Mind
+
+Use the smallest safe file change. If only part of a file changes, prefer `edit` or `apply_patch`.

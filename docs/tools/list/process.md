@@ -1,17 +1,18 @@
 # process
 
-`process` manages background commands that Friday started.
+`process` checks or stops background commands started by the agent.
 
-## How It Is Used
+## Use For
 
-- Used to check whether a long-running command is still active.
-- Used to read recent output from a background command.
-- Used to stop a background command when it is no longer needed.
+- Checking whether a background command is still running.
+- Reading recent background output.
+- Stopping a command that is no longer needed.
 
-## Boundaries
+## Do Not Use For
 
-- It is for processes Friday started through tool use.
-- It can review or stop those processes even when they were launched from inside
-  or outside the current workspace.
-- It does not directly change files.
-- It should not interfere with unrelated user processes.
+- Managing unrelated user processes.
+- Replacing normal command output for short commands.
+
+## Keep In Mind
+
+Use `process` to clean up long-running work before the task is considered complete.

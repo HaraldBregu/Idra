@@ -1,17 +1,17 @@
 # task
 
-`task` starts an immediate background agent run.
+`task` starts immediate background agent work.
 
-## How It Is Used
+## Use For
 
-- Used when work should begin now but continue separately from the current chat.
-- Gives the user a visible task with progress, status, and a final result.
-- Keeps the background agent run isolated from other work.
+- Work that should start now but continue separately.
+- Long-running work that needs progress and a final result.
 
-## Boundaries
+## Do Not Use For
 
-- It does not directly change files.
-- Any background agent run should follow the same workspace file mutation
-  boundaries as normal tool use.
-- It is for approved agent background work, not arbitrary hidden execution.
-- Future or recurring work should use `cron` instead.
+- Future or recurring work.
+- Hidden execution the user did not ask for.
+
+## Keep In Mind
+
+Background work should follow the same permissions, context, and verification rules as a normal agent run.

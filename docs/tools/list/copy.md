@@ -1,18 +1,17 @@
 # copy
 
-`copy` duplicates file content into a workspace location.
+`copy` duplicates content into another workspace path.
 
-## How It Is Used
+## Use For
 
-- Used when existing content should be reused as a starting point.
-- Helpful for creating a variant while preserving the original.
-- Can support documentation, templates, or project assets that need a duplicate.
+- Creating a variant from an existing file.
+- Reusing a template or asset.
 
-## Boundaries
+## Do Not Use For
 
-- It may read a permitted source file outside the current workspace.
-- The copied or overwritten destination must stay inside the current workspace.
-- It must not change or delete a source file outside the current workspace.
-- Overwriting an existing destination requires `overwrite=true` and the
-  destination must have been read earlier in the same run.
-- It should not create speculative copies that the user did not ask for.
+- Speculative duplicates.
+- Replacing unrelated files.
+
+## Keep In Mind
+
+Copying should preserve the source and create only the destination needed for the task.

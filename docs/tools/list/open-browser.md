@@ -1,15 +1,18 @@
 # open_browser
 
-`open_browser` opens a web address in the user's default browser.
+`open_browser` opens a web page for the user.
 
-## How It Is Used
+## Use For
 
-- Used when the user needs to view a page directly.
-- Helpful for account setup, OAuth consent, documentation, or a local app URL.
-- Leaves page interaction to the user after the page opens.
+- Account setup or consent pages.
+- Local app URLs.
+- Pages the user needs to view directly.
 
-## Boundaries
+## Do Not Use For
 
-- It does not directly change workspace or external files.
-- It should open only safe, relevant web addresses.
-- It does not control or inspect the page after opening it.
+- Inspecting or controlling the page.
+- External account actions without user intent.
+
+## Keep In Mind
+
+Opening a browser changes the user's environment. Open only relevant and safe pages.
