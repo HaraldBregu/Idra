@@ -814,6 +814,16 @@ export class StoreService {
 		this.store.set('connectors', connectorSettingsByKey(connectors));
 	}
 
+	getPolicy(): PolicyConfig {
+		return readPolicy(this.store.get('policy'));
+	}
+
+	setPolicy(policy: PolicyConfig): PolicyConfig {
+		const normalized = readPolicy(policy);
+		this.store.set('policy', normalized);
+		return normalized;
+	}
+
 	getChannel(): Channel {
 		const channel = this.getStoredChannelRoot();
 		const next = createDefaultChannelState();
