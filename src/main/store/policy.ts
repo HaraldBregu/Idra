@@ -3,9 +3,19 @@ import type { PolicyConfig, PolicyEntry, Permission } from '../../shared/policy'
 import type { SettingsStoreAccessor } from './types';
 
 const VALID_PERMISSIONS = new Set<Permission>(['read', 'write', 'create', 'delete']);
+const DEFAULT_POLICY_PATHS = ['/workspace', '/agent'];
+const DEFAULT_POLICY_PERMISSIONS: Permission[] = ['read', 'write', 'create', 'delete'];
 
 function defaultPolicyConfig(): PolicyConfig {
-	return { version: 1, defaultPolicy: 'deny', paths: [] };
+	return {
+		version: 1,
+		defaultPolicy: 'deny',
+		paths: DEFAULT_POLICY_PATHS.map((entryPath) => ({
+			path: entryPath,
+			permissions: [...DEFAULT_POLICY_PERMISSIONS],
+			recursive: true,
+		})),
+	};
 }
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
@@ -49,6 +59,9 @@ export class PolicyStore {
 
 	constructor(store: SettingsStoreAccessor) {
 		this.store = store;
+		if (this.store.get('policy') === undefined) {
+			this.store.set('policy', defaultPolicyConfig());
+		}
 	}
 
 	getPolicy(): PolicyConfig {
