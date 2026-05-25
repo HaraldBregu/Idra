@@ -1,6 +1,6 @@
-# Execution Tools
+# Shell Tools
 
-Execution tools let an agent run commands, scripts, and manage background processes. Use them when a task requires running code, checks, or automation rather than editing files directly.
+Shell tools let an agent run commands, scripts, and manage background processes. Use them when a task requires running code, checks, or local automation rather than editing files directly.
 
 ## Shared Rules
 
@@ -28,3 +28,4 @@ Execution tools let an agent run commands, scripts, and manage background proces
 ## Related Docs
 
 - [Tools](../index.md)
+- [Automation tools](../automation/index.md)

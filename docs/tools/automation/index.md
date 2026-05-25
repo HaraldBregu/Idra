@@ -1,33 +1,14 @@
-# Scheduling
+# Automation Tools
 
-The `cron` tool manages scheduled agent work. Use it when the user wants something to happen later, repeat on a schedule, or be managed as a reminder.
+Automation tools manage Friday-owned future or recurring agent work. The current fixed automation tool is `cron`.
 
 Do not use shell loops, system cron, host scheduler commands, or long-running processes to emulate scheduling. The `cron` tool is the agent-facing way to manage scheduled jobs.
 
-## Use For
+## Tools
 
-- Reminders.
-- Delayed tasks.
-- Recurring agent runs.
-- User requests phrased as "schedule a task", "run every N minutes", "remind me later", or other future or repeating agent work.
-
-## Do Not Use For
-
-- Work that should start immediately. Use `exec` or a direct task instead.
-- Shell sleep loops, host scheduler commands, or model-side timers.
-- System cron, `crontab`, `launchctl`, `systemctl` timers, or `schtasks`.
-- Storing secrets, credentials, or private tokens in a scheduled job payload.
-
-## Actions
-
-| Action | What it does |
+| Tool | Use it for |
 | --- | --- |
-| [list](list.md) | Shows scheduled jobs. |
-| [get](get.md) | Inspects one scheduled job. |
-| [add](add.md) | Creates a new scheduled job. |
-| [update](update.md) | Changes the schedule, task, name, or state of an existing job. |
-| [run](run.md) | Triggers a job immediately, outside its normal schedule. |
-| [remove](remove.md) | Deletes a scheduled job. |
+| [cron](cron.md) | List, inspect, create, update, run, or remove Friday-owned scheduled jobs. |
 
 ## Shared Rules
 
@@ -47,3 +28,4 @@ Do not use shell loops, system cron, host scheduler commands, or long-running pr
 ## Related Docs
 
 - [Tools](../index.md)
+- [Shell tools](../shell/index.md)

@@ -18,21 +18,28 @@ An agent should use tools when they make the result more accurate, current, veri
 - Keep mutating file operations inside the current workspace. Reading or inspecting outside paths is allowed only when needed for the request.
 - Use [bootstrap](bootstrap/index.md) for first-run startup setup files; it writes only the known bootstrap files in their canonical agent startup location.
 - Read or inspect files before changing them.
-- Use command tools for tests, builds, calculations, and automation.
-- Use web tools for current or page-specific information.
+- Use shell tools for tests, builds, calculations, and local automation.
+- Use web and browser tools for current or page-specific information.
 - Ask before irreversible, external, or high-impact actions.
 - Do not use tools just to look busy.
 
-## Tool Areas
+## Source Groups
 
-| Area | Use it for | Docs |
+These groups mirror the fixed tool groups and control surfaces under `src/main`.
+
+| Source group | Current tools | Docs |
 | --- | --- | --- |
-| Bootstrap | Creating the initial startup files needed to finish first-run setup. | [bootstrap](bootstrap/index.md) |
-| Files | Reading, writing, editing, finding, and managing workspace files. | [File tools](files/index.md) |
-| Execution | Running commands, tests, builds, and managing background processes. | [Execution tools](execution/index.md) |
-| Web | Fetching content from URLs and controlling a browser. | [Web tools](web/index.md) |
-| Scheduling | Managing reminders, delayed tasks, and recurring agent runs. | [Scheduling](scheduling/index.md) |
-| Tool search | Finding a relevant tool from a large catalog only when needed. | [Tool search](search/index.md) |
+| `bootstrap` | `bootstrap`, `startup_files` | [Bootstrap tools](bootstrap/index.md) |
+| `file` | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files/index.md) |
+| `shell` | `exec`, `process` | [Shell tools](shell/index.md) |
+| `web` | `web_fetch` | [Web tools](web/index.md) |
+| `browser` | `open_browser`, `browser` | [Browser tools](browser/index.md) |
+| `automation` | `cron` | [Automation tools](automation/index.md) |
+| `search` | `tool_search`, `tool_describe`, `tool_call` | [Tool search controls](search/index.md) |
+
+## Local Catalog
+
+The preloaded local tool catalog is documented in [Local tool catalog](list/index.md). It follows `LOCAL_TOOL_CATALOG` order from `src/main/tools/catalog/catalog.ts` and excludes bootstrap-only tools.
 
 ## Related Docs
 

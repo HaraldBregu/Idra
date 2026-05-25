@@ -14,7 +14,7 @@ Use `exec` to run approved shell commands, project scripts, tests, builds, check
 
 ## Do Not Use For
 
-- Scheduling future work.
+- Scheduling future work. Use [`cron`](../automation/cron.md) for that.
 - Destructive commands without clear authorization.
 - Work better handled by a safer purpose-built tool.
 

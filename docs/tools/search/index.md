@@ -2,6 +2,14 @@
 
 Tool search lets an agent discover tools from a large catalog without loading every definition at the start of a run. A small visible set covers common actions; the rest are deferred and loaded on demand.
 
+## Tools
+
+| Tool | Use it for |
+| --- | --- |
+| [tool_search](tool-search.md) | Search hidden catalog tools by keyword. |
+| [tool_describe](tool-describe.md) | Return the schema and metadata for one hidden catalog tool. |
+| [tool_call](tool-call.md) | Execute a hidden catalog tool after it has been found. |
+
 ## When to Use It
 
 - The catalog has many tools and loading all of them would fill context or hurt selection quality.

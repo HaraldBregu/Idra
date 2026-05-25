@@ -1,6 +1,6 @@
 # Web Tools
 
-Web tools let an agent fetch content from external URLs or control a browser. Use them when the answer depends on current or page-specific information that is not in the workspace.
+Web tools let an agent fetch text content from external URLs. Use them when the answer depends on current or page-specific information that is not in the workspace.
 
 ## Shared Rules
 
@@ -14,16 +14,14 @@ Web tools let an agent fetch content from external URLs or control a browser. Us
 | Tool | Use it for |
 | --- | --- |
 | [web_fetch](web-fetch.md) | Read plain text from a specific URL. |
-| [open_browser](open-browser.md) | Open a page for the user to view directly. |
-| [browser](browser.md) | Inspect or interact with a managed browser page. |
 
-## Choosing Between web_fetch and browser
+## Choosing Between Web And Browser Tools
 
 Use `web_fetch` for straightforward text retrieval — documentation, APIs, reference pages.
 
-Use `browser` when the page requires navigation, interaction, login, or visual inspection to get the needed information.
+Use [`browser`](../browser/browser.md) when the page requires navigation, interaction, login, or visual inspection to get the needed information.
 
-Use `open_browser` when the user needs to view or act on a page themselves, such as an account consent flow or a local app URL.
+Use [`open_browser`](../browser/open-browser.md) when the user needs to view or act on a page themselves, such as an account consent flow or a local app URL.
 
 ## Common Workflow
 
@@ -35,3 +33,4 @@ Use `open_browser` when the user needs to view or act on a page themselves, such
 ## Related Docs
 
 - [Tools](../index.md)
+- [Browser tools](../browser/index.md)
