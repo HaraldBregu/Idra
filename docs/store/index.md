@@ -7,7 +7,7 @@ The store persists Friday's application settings. It is an Electron settings sto
 - Persists provider records and module model selections.
 - Stores connector configuration and channel accounts.
 - Stores scheduler and heartbeat configuration.
-- Normalizes missing or legacy settings during reads.
+- Normalizes missing settings during reads.
 - Redacts provider secrets from public reads.
 - Keeps writes scoped to the owning property.
 
@@ -34,7 +34,7 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 
 ## Normalization
 
-Reads are tolerant. Missing properties are filled with defaults, legacy values are compacted into the current shape, and invalid module settings are dropped instead of leaking into runtime services.
+Reads are tolerant. Missing properties are filled with defaults, and invalid module settings are dropped instead of leaking into runtime services.
 
 Provider ids are normalized to lower-case where appropriate. String fields are trimmed. Module settings store only the active provider id, model id, reasoning effort, and module options needed by the runtime.
 

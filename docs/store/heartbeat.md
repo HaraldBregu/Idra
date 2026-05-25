@@ -10,7 +10,7 @@ The `heartbeat` property stores lightweight heartbeat runtime state. Agent heart
 
 ## Initial Value
 
-Missing `heartbeat` is migrated from an empty heartbeat state.
+Missing `heartbeat` is read from an empty heartbeat state.
 
 ```json
 {
@@ -30,7 +30,7 @@ Missing `heartbeat` is migrated from an empty heartbeat state.
 
 ## Normalization
 
-Reads migrate missing or legacy heartbeat state before returning it. Writes store the migrated heartbeat state.
+Reads normalize missing heartbeat state before returning it. Writes store the normalized heartbeat state.
 
 ## Related Docs
 

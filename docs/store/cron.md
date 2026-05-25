@@ -6,7 +6,7 @@ The `cron` property stores persisted scheduler configuration and schedule record
 
 | Property | Type | Owns |
 | --- | --- | --- |
-| `cron` | `CronSettings` | Friday cron jobs, migrated scheduler state, and legacy cron task records. |
+| `cron` | `CronSettings` | Friday cron jobs, scheduler state, and cron task records. |
 
 ## Initial Value
 
@@ -24,18 +24,12 @@ The current Friday cron state stores property-level schedule data:
 | --- | --- | --- |
 | `schemaVersion` | number | Friday cron store schema version. |
 | `jobs` | object | Persisted job definitions keyed by job id. |
-
-Legacy fields may still be read during migration:
-
-| Field | Type | Meaning |
-| --- | --- | --- |
-| `managed` | object | Older managed scheduler state. |
-| `legacyTasks` | array | Older cron task records. |
-| `friday` | object | Older nested Friday cron state. |
+| `scheduler` | object | Scheduler state for persisted managed schedules. |
+| `tasks` | array | Cron task records used by the cron service. |
 
 ## Normalization
 
-Reads migrate missing or legacy scheduler state to the current scheduler shape. Writes merge scheduler patches into the existing property. Friday cron writes serialize the current state at the property and remove legacy nested Friday cron fields.
+Reads return an empty scheduler state when `cron` is missing. Writes merge scheduler and task patches into the existing property. Friday cron writes serialize the current state at the property.
 
 ## Related Docs
 
