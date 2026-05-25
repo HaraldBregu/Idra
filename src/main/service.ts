@@ -380,7 +380,7 @@ export class AgentService {
 									provider: providerId,
 									modelId: model,
 									management: {
-									maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
+										maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
 									},
 								})
 							);
