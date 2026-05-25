@@ -14,7 +14,6 @@ import {
 	readTool,
 	writeTool,
 } from './fs';
-import { taskTool } from './task';
 import { webFetchTool } from './web';
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
@@ -132,12 +131,6 @@ export const LOCAL_TOOL_CATALOG = [
 		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
 		ownerOnly: true,
-	}),
-	localTool({
-		tool: taskTool,
-		group: 'automation',
-		profiles: STANDARD_PROFILES,
-		approval: { mode: 'always' },
 	}),
 	localTool({
 		tool: openBrowserTool,
