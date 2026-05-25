@@ -80,5 +80,5 @@ The result should include the normalized path, matched grant, and a short reason
 
 ## Related Docs
 
-- [Tools](../index.md)
-- [File tools](../files/index.md)
+- [Tools](../tools/index.md)
+- [File tools](../tools/files/index.md)
