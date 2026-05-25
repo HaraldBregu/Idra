@@ -18,9 +18,6 @@ import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normaliz
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/tools/before-tool-call';
 import { toToolDefinitions } from '../../../../src/main/tools/tool-definition-adapter';
 import { PluginToolRegistry } from '../../../../src/main/plugins/tool-registry';
-import { safeMcpToolName, materializeMcpTools, normalizeMcpResult } from '../../../../src/main/tools/external/mcp-tools';
-import { materializeLspTools } from '../../../../src/main/tools/external/lsp-tools';
-import { applyToolSearchCompaction } from '../../../../src/main/tools/tool-search';
 import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/tools/runtime/legacy-tool-adapter';
 import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
