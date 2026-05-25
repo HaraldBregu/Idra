@@ -2,6 +2,10 @@
 
 The policy module decides whether an operation on a path is permitted. It is the single authority for access control. Nothing executes against a path until the policy module allows it.
 
+## Dependencies
+
+The policy module depends on `StoreService` to retrieve the policy data object. It does not own or load the policy document directly — it receives the parsed policy object from `StoreService` at evaluation time.
+
 ## Configuration
 
 Policies are defined in a JSON document.
