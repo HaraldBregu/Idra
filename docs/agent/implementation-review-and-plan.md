@@ -7,6 +7,7 @@ This review checks Friday's current agent implementation against [How An Agent W
 - Scope is the main-process agent runtime, tool runtime, memory runtime, harness layer, and related tests.
 - Renderer UI polish, provider-specific API payload details, and data migrations are out of scope.
 - The plan should build on the existing [Agent runtime refactor implementation plan](../agent-runtime-refactor-implementation-plan.md) instead of replacing it.
+- The target harness is a first-party Friday harness designed for this codebase. It must not be a third-party runtime, a copied agent harness, or an adapter that makes another agent system the product runtime.
 
 ## Component Map
 
@@ -14,7 +15,7 @@ This review checks Friday's current agent implementation against [How An Agent W
 | --- | --- | --- |
 | Model | Provider adapters implement a provider-neutral `ProviderAdapter` stream contract in `src/main/provider/types.ts`. `AgentService.send(...)` resolves provider, model, and effort before the run. | Present. Provider capability metadata is still mostly implicit, which is already covered by the runtime refactor plan. |
 | Instructions | `src/main/agent/system-prompt.ts` builds the system prompt, workspace contract, acceptance contract, skill guidance, heartbeat guidance, and startup-file context. | Present and recently strengthened with prompt-level acceptance criteria. |
-| Harness | `src/main/agent/harness` selects the built-in `pi` harness or plugin harnesses. `pi` delegates to `runAgent(...)`. | Present. The boundary matches [Agent harnesses](../harness/index.md): service owns preparation, harness owns execution. |
+| Harness | `src/main/agent/harness` selects a built-in fallback harness or alternate registered harnesses. The current built-in path delegates to `runAgent(...)`. | Present. The boundary matches [Agent harnesses](../harness/index.md): service owns preparation, harness owns execution. The implementation target is a first-party Friday harness, not a third-party or copied runtime. |
 | Context | Sessions are loaded and saved through `src/main/session/store.ts`; startup files and workspace context are included before prompt build; streaming events expose run state and tool activity. | Present. Context assembly is spread across `AgentService.send(...)`, making memory, retrieval, tool policy, and startup context harder to reason about together. |
 | Tools | `src/main/service.ts` builds local tools, connector tools, subagent tools, then runs them through `createAgentTools(...)`. `src/main/agent/run.ts` executes selected tools through the managed executor path. | Partially present. There is still a legacy-to-runtime bridge and tool selection happens in both service and run layers. |
 | Memory | `src/main/memory-runtime.ts` can search memory files and session transcripts, read memory files safely, and flush transcript content before compaction. | Partially present. Normal agent turns do not visibly receive a memory manager or memory-search tool by default. |
@@ -153,7 +154,25 @@ Verification:
 - Unit test: explicit approval allows execution once.
 - Unit test: rejected tool result is persisted and streamed with `status: rejected`.
 
-### Phase 2: Make memory and retrieval first-class context
+### Phase 2: Define the first-party Friday harness
+
+Goal: Friday has its own default harness contract and implementation direction, rather than treating a third-party runtime or copied agent harness as the desired end state.
+
+Steps:
+
+1. Name the default runtime as a Friday-owned harness in docs and configuration.
+2. Keep the harness boundary narrow: one prepared run in, one normalized result out.
+3. Preserve the existing service-owned responsibilities: provider/model resolution, prompt construction, context assembly, tool policy, stream events, sessions, and persistence.
+4. Treat any legacy built-in runtime id as a migration detail, not as the product architecture.
+5. Document that plugin or external runtimes may remain extension points, but they are not the primary implementation target for Friday's agent.
+
+Verification:
+
+- Documentation clearly states the default harness is first-party Friday-owned.
+- Harness tests cover the Friday-owned default path without depending on a third-party runtime contract.
+- No implementation plan step asks to copy another agent harness.
+
+### Phase 3: Make memory and retrieval first-class context
 
 Goal: Normal turns can retrieve relevant workspace memory and session knowledge when it is allowed and useful.
 
@@ -170,7 +189,7 @@ Verification:
 - Unit test: disabled memory exposes no memory tools or retrieved context.
 - Unit test: unsafe paths and hidden sessions remain inaccessible.
 
-### Phase 3: Unify external capability assembly
+### Phase 4: Unify external capability assembly
 
 Goal: Local tools, connector tools, MCP tools, plugin tools, and deferred tool-search controls enter the run through one policy-aware path.
 
@@ -186,7 +205,7 @@ Verification:
 - Service-path tests cover connector tools, local MCP tools, hosted MCP tools, and unsupported provider behavior.
 - Tool policy tests prove denied tools are absent from both prompt and execution.
 
-### Phase 4: Consolidate per-turn tool selection
+### Phase 5: Consolidate per-turn tool selection
 
 Goal: The prompt-visible tool list and executable tool list are selected by the same owner.
 
@@ -202,7 +221,7 @@ Verification:
 - Unit test: `AgentService.send(...)` selected tools equal provider tools in the built-in run.
 - Unit test: direct `runAgent(...)` callers still get compatible behavior.
 
-### Phase 5: Add final-run reliability signals
+### Phase 6: Add final-run reliability signals
 
 Goal: The final response has access to run facts that matter for acceptance criteria.
 
@@ -221,10 +240,11 @@ Verification:
 ## Suggested Order
 
 1. Approval enforcement first, because it closes the largest behavioral safety gap.
-2. Memory/retrieval second, because it directly improves task grounding.
-3. MCP/external capability assembly third, because it depends on the same permission and tool-policy boundaries.
-4. Tool-selection consolidation fourth, once the canonical tool surface is stable.
-5. Final reliability signals last, after the run has trustworthy permission and retrieval facts to report.
+2. First-party Friday harness definition second, because it anchors the rest of the architecture in our own runtime boundary.
+3. Memory/retrieval third, because it directly improves task grounding.
+4. MCP/external capability assembly fourth, because it depends on the same permission and tool-policy boundaries.
+5. Tool-selection consolidation fifth, once the canonical tool surface is stable.
+6. Final reliability signals last, after the run has trustworthy permission and retrieval facts to report.
 
 ## Already Verified During This Review
 
