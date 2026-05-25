@@ -5,6 +5,11 @@
 ## How It Is Used
 
 - Used for reminders, future runs, delayed work, and recurring agent tasks.
+- When a user asks to "schedule a task", use this Friday-owned scheduler rather
+  than system `crontab`, `launchctl`, `systemctl` timers, `schtasks`, shell
+  loops, or model-side timers.
+- For every-N-minutes requests, prefer an `every` schedule with `everyMs`
+  instead of translating it into host scheduler commands.
 - Supports ten actions: `status`, `list`, `get`, `add`, `update`, `remove`,
   `run`, `runs`, `wake`.
 - Cron expressions are written in the supplied timezone as local wall-clock time;
