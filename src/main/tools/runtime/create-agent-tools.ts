@@ -15,7 +15,7 @@ import {
 	type BeforeToolCallContext,
 	newCallTracker,
 } from '../policy/before-tool-call';
-import { applyToolSearchCompaction, type ToolSearchCompactionOptions } from './tool-search';
+import { applyToolSearchCompaction, type ToolSearchCompactionOptions } from '../search/tool-search';
 import { materializeMcpTools, type McpRuntime } from '../external/mcp-tools';
 import { materializeLspTools, type LspRuntime } from '../external/lsp-tools';
 import type {
