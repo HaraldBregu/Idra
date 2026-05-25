@@ -377,7 +377,7 @@ describe('agent/run', () => {
 		});
 	});
 
-	it('stores multiple tool calls and auto-allowed legacy approval tools with stable call ids', async () => {
+	it('stores multiple tool calls and rejects unapproved legacy approval tools with stable call ids', async () => {
 		const events: ProviderEvent[] = [];
 		const ctx = makeToolContext();
 		const safeTool: AgentTool = {
@@ -452,21 +452,71 @@ describe('agent/run', () => {
 			{
 				role: 'tool',
 				toolUseId: 'tc-denied',
-				isError: false,
-				status: 'ok',
-				content: [{ type: 'text', text: 'should not run' }],
+				isError: true,
+				status: 'rejected',
+				content: [
+					{
+						type: 'text',
+						text: 'tool approval_tool requires approval before execution.',
+					},
+				],
 			},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
 		]);
-		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(true);
+		expect(approvalTool.execute).not.toHaveBeenCalled();
+		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(false);
 		expect(events).toContainEqual(
 			expect.objectContaining({
 				type: 'tool_call_result',
 				toolCallId: 'tc-denied',
-				status: 'ok',
-				outputText: 'should not run',
+				status: 'rejected',
+				outputText: 'tool approval_tool requires approval before execution.',
 			})
 		);
+	});
+
+	it('executes approval-required legacy tools when the call is already confirmed', async () => {
+		const ctx = makeToolContext();
+		ctx.approvalCache.add('approval_tool::{"b":2}');
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'approved' }],
+		}));
+		const approvalTool: AgentTool = {
+			name: 'approval_tool',
+			description: 'Approval',
+			schema: { type: 'object' },
+			needsApproval: true,
+			execute,
+		};
+
+		const result = await runAgent({
+			runId: 'r1',
+			userMessage: 'use tool',
+			systemPrompt: 'sys',
+			session: session(),
+			provider: provider([
+				[
+					{ type: 'tool_call_start', id: 'tc-approved', name: 'approval_tool' },
+					{ type: 'tool_call_args_delta', id: 'tc-approved', jsonDelta: '{"b":2}' },
+					{ type: 'tool_call_end', id: 'tc-approved' },
+					end(),
+				],
+				[{ type: 'text_delta', text: 'done' }, end()],
+			]),
+			model: 'gpt-test',
+			tools: [approvalTool],
+			ctx,
+		});
+
+		expect(execute).toHaveBeenCalledWith({ b: 2 }, expect.any(Object));
+		expect(result.session.transcript[2]).toMatchObject({
+			role: 'tool',
+			toolUseId: 'tc-approved',
+			isError: false,
+			status: 'ok',
+			content: [{ type: 'text', text: 'approved' }],
+		});
 	});
 
 	it('compacts once on context overflow and retries', async () => {
