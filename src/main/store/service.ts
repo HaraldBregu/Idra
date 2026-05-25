@@ -686,12 +686,26 @@ export class StoreService {
 	}
 
 	getFridayCronState(): FridayCronStoreState {
-		const friday = this.getTaskSchedulerSettings().friday;
-		return migrateFridayCronStoreState(friday ?? emptyFridayCronStoreState());
+		const settings = this.getTaskSchedulerSettings();
+		const legacyFriday = readRecord((settings as { friday?: unknown }).friday);
+		const hasRootFridayState =
+			settings.schemaVersion !== undefined ||
+			settings.jobs !== undefined ||
+			settings.states !== undefined ||
+			settings.lastRuns !== undefined;
+		return migrateFridayCronStoreState(
+			hasRootFridayState ? settings : (legacyFriday ?? emptyFridayCronStoreState())
+		);
 	}
 
 	setFridayCronState(state: FridayCronStoreState): void {
-		this.setTaskSchedulerSettings({ friday: migrateFridayCronStoreState(state) });
+		const { friday: _friday, ...settings } = this.getTaskSchedulerSettings() as TaskSchedulerSettings & {
+			friday?: unknown;
+		};
+		this.store.set('taskScheduler', {
+			...settings,
+			...migrateFridayCronStoreState(state),
+		});
 	}
 
 	getHeartbeatState(): HeartbeatStoreState {
