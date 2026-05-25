@@ -288,7 +288,7 @@ describe('StoreService', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			const managed = { schedules: [{ id: 'schedule-1' }] };
-			const friday = { schemaVersion: 1, jobs: [{ id: 'job-1' }], states: {}, lastRuns: {} };
+			const friday = { schemaVersion: 1, jobs: {} };
 			const legacyTasks = [
 				{
 					id: 'legacy-1',
@@ -363,12 +363,27 @@ describe('StoreService', () => {
 			});
 			const taskScheduler = (
 				service as unknown as { store: { get: (k: string) => unknown } }
-			).store.get('taskScheduler') as { friday?: unknown; runs?: unknown; lastRuns?: unknown };
+			).store.get('taskScheduler') as {
+				friday?: unknown;
+				runs?: unknown;
+				states?: unknown;
+				lastRuns?: unknown;
+				jobs?: Record<string, { lastRun?: unknown; state?: unknown }>;
+			};
 			expect(taskScheduler).toMatchObject({
-				jobs: [{ id: 'job-1' }],
-				lastRuns: { 'job-1': { runId: 'run-1' } },
+				jobs: {
+					'job-1': {
+						name: 'Stored cron',
+						lastRun: { runId: 'run-1' },
+						state: expect.objectContaining({
+							scheduleIdentity: '{"everyMs":60000,"kind":"every"}',
+						}),
+					},
+				},
 			});
 			expect(taskScheduler.friday).toBeUndefined();
+			expect(taskScheduler.states).toBeUndefined();
+			expect(taskScheduler.lastRuns).toBeUndefined();
 			expect(taskScheduler.runs).toBeUndefined();
 		});
 
@@ -377,7 +392,21 @@ describe('StoreService', () => {
 			const store = storeFor(service);
 			store.set('taskScheduler', {
 				friday: {
-					jobs: [],
+					jobs: [
+						{
+							id: 'job-1',
+							name: 'Stored cron',
+							description: '',
+							enabled: true,
+							createdAtMs: 1,
+							updatedAtMs: 1,
+							schedule: { kind: 'every', everyMs: 60_000 },
+							sessionTarget: 'isolated',
+							wakeMode: 'now',
+							payload: { kind: 'agentTurn', message: 'Run' },
+							delivery: { mode: 'none' },
+						},
+					],
 					states: {},
 					runs: {
 						'job-1': [
@@ -411,10 +440,12 @@ describe('StoreService', () => {
 			const taskScheduler = store.get('taskScheduler') as {
 				friday?: unknown;
 				runs?: unknown;
-				lastRuns?: Record<string, { runId?: string }>;
+				lastRuns?: unknown;
+				jobs?: Record<string, { lastRun?: { runId?: string } }>;
 			};
-			expect(taskScheduler.lastRuns?.['job-1']?.runId).toBe('run-2');
+			expect(taskScheduler.jobs?.['job-1']?.lastRun?.runId).toBe('run-2');
 			expect(taskScheduler.friday).toBeUndefined();
+			expect(taskScheduler.lastRuns).toBeUndefined();
 			expect(taskScheduler.runs).toBeUndefined();
 		});
 	});
