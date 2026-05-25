@@ -11,6 +11,8 @@ Do not use shell loops, system cron, host scheduler commands, or long-running pr
 | [list](list.md) | Shows scheduled jobs. |
 | [get](get.md) | Inspects one scheduled job. |
 | [add](add.md) | Creates a new scheduled job. |
+| [update](update.md) | Changes the schedule, task, name, or state of an existing job. |
+| [run](run.md) | Triggers a job immediately, outside its normal schedule. |
 | [remove](remove.md) | Deletes a scheduled job. |
 
 ## Shared Rules
