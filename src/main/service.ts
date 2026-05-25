@@ -32,7 +32,7 @@ import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
-import { createAgentTools } from './tools/create-agent-tools';
+import { createAgentTools } from './tools/create';
 import {
 	legacyToolToRuntimeTool,
 	prepareLegacyToolsForProvider,
