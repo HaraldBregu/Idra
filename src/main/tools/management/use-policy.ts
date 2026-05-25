@@ -24,6 +24,9 @@ export class ToolUsePolicy {
 		if (isScheduledWorkRequest(request)) {
 			return { shouldUseTools: true, reason: 'request needs the Friday scheduler' };
 		}
+		if (isImmediateBackgroundTaskRequest(request)) {
+			return { shouldUseTools: false, reason: 'background task tool is not available' };
+		}
 		if (/\b(write|draft|compose|create)\b.*\b(poem|story|essay|paragraph|creative)\b/.test(request)) {
 			return { shouldUseTools: false, reason: 'request can be handled from provided context or general reasoning' };
 		}
@@ -80,13 +83,16 @@ function needsExternalAccess(request: string): boolean {
 	if (/\b(browser|navigate|screenshot|visit|open (url|link|page|site|tab)|go to|launch browser)\b/.test(request)) {
 		return true;
 	}
-	if (/\b(run|start|list|show|get|retrieve|cancel|check)\b.*\btasks?\b/.test(request)) {
-		return true;
-	}
-	if (/\btasks?\b.*\b(records?|status|running|active|start|list|show|get|retrieve|cancel)\b/.test(request)) {
-		return true;
-	}
 	return /\b(current|latest|today|now|weather|news|look up|search|file|folder|directory|workspace|startup|bootstrap|identity|persona|document|codebase|email|calendar|database|api|send|delete|copy|move|rename|inspect|binary|image|purchase|post|schedule|create|edit|write|read|modify|change|fix|debug|test|build|implement|refactor|private|repo)\b/.test(
 		request
+	);
+}
+
+function isImmediateBackgroundTaskRequest(request: string): boolean {
+	return (
+		/\b(background tasks?|tasks? in background|agent work in background)\b/.test(request) ||
+		/\b(run|start|create)\b.*\btasks?\b.*\b(background|now|immediate|immediately)\b/.test(
+			request
+		)
 	);
 }
