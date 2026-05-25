@@ -32,10 +32,10 @@ A more specific entry always wins. An empty `permissions` array on a child path 
 
 ## Decisions
 
-| Outcome | Meaning |
-| --- | --- |
+| Outcome | Meaning                               |
+| ------- | ------------------------------------- |
 | `allow` | The requested operation is permitted. |
-| `deny` | The requested operation is rejected. |
+| `deny`  | The requested operation is rejected.  |
 
 The result includes the resolved path, the matched grant, and a reason.
 
