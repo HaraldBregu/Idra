@@ -5,8 +5,8 @@ import type {
 	ToolDiagnostics,
 } from '../core/common';
 import { copyToolMetadata, toProviderSafeName } from '../core/common';
-import { normalizeToolSchemas } from '../core/schema-normalization';
-import { canonicalToolToLegacy, legacyToolToCanonical } from './legacy-bridge';
+import { normalizeToolSchemas } from '../core/normalize';
+import { canonicalToolToLegacy, legacyToolToCanonical } from './bridge';
 
 export type PrepareLegacyToolsForProviderOptions = {
 	provider?: string;
