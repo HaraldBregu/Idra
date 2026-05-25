@@ -155,7 +155,7 @@ describe('tools/task', () => {
 });
 
 describe('tools/before-call', () => {
-	it('auto-allows legacy approval-marked tools and warns on repeated identical calls', async () => {
+	it('rejects unconfirmed approval-marked tools and allows confirmed repeats', async () => {
 		const tool: AgentTool = {
 			name: 'write',
 			description: '',
@@ -166,7 +166,11 @@ describe('tools/before-call', () => {
 		const ctx = makeToolContext();
 		const tracker = newCallTracker();
 
-		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
+		const unconfirmed = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
+		expect(unconfirmed.proceed).toBe(false);
+		expect(unconfirmed.vetoStatus).toBe('rejected');
+
+		ctx.approvalCache.add('write::{"path":"a"}');
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
