@@ -378,22 +378,22 @@ describe('tool management layer', () => {
 		});
 	});
 
-	it('treats task record actions as tool-backed mutable state access', () => {
+	it('does not route immediate background task requests to local tools', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'List active tasks.' })).toEqual({
-			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			shouldUseTools: false,
+			reason: 'no tool is required to answer safely',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run a task in background.' })).toEqual({
-			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			shouldUseTools: false,
+			reason: 'background task tool is not available',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Cancel task task-1.' })).toEqual({
-			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			shouldUseTools: false,
+			reason: 'no tool is required to answer safely',
 		});
 	});
 
-	it('selects the task tool for immediate background task requests', () => {
+	it('does not select a task substitute for immediate background task requests', () => {
 		const makeAgentTool = (name: string, description: string): AgentTool => ({
 			name,
 			description,
@@ -414,7 +414,8 @@ describe('tool management layer', () => {
 			{ forceSelection: true, maxPromptTools: 1 }
 		);
 
-		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
+		expect(selected.toolsForPrompt).toEqual([]);
+		expect(selected.rankedTools).toEqual([]);
 	});
 
 	it('isolates scheduled task requests to cron instead of immediate file tools', () => {
@@ -461,7 +462,8 @@ describe('tool management layer', () => {
 			{ forceSelection: true, maxPromptTools: 1 }
 		);
 
-		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
+		expect(selected.toolsForPrompt).toEqual([]);
+		expect(selected.rankedTools).toEqual([]);
 	});
 
 	it('selects connector Gmail tools from their descriptions even with custom labels', () => {
