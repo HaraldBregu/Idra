@@ -46,7 +46,7 @@ function readModelProviderSettings(value: unknown): ModelProviderSettings | unde
 	if (capabilities) settings.capabilities = capabilities;
 	const apiConfiguration = readRecord(record.apiConfiguration);
 	if (apiConfiguration) {
-		settings.apiConfiguration = apiConfiguration as Provider['apiConfiguration'];
+		settings.apiConfiguration = apiConfiguration as unknown as Provider['apiConfiguration'];
 	}
 	if (typeof record.enabled === 'boolean') settings.enabled = record.enabled;
 	return settings;
