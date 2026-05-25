@@ -90,8 +90,8 @@ function CronAgentRuntimeSettings(): React.JSX.Element {
 			setRuntimeError(null);
 			try {
 				const [nextProviders, currentAgentService] = await Promise.all([
-					window.app.getProviders(),
-					window.app.getAgentService(),
+					window.store.getProviders(),
+					window.store.getAgentService(),
 				]);
 				if (!mounted) return;
 
@@ -170,7 +170,7 @@ function CronAgentRuntimeSettings(): React.JSX.Element {
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			const didSave = await window.app.saveAgentService(selectedProvider, selectedModel);
+			const didSave = await window.store.saveAgentService(selectedProvider, selectedModel);
 			if (!didSave) throw new Error(t('settings.cron.runtime.errors.saveFailed'));
 			setSaved(true);
 		} catch (caught) {

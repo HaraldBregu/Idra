@@ -132,8 +132,8 @@ const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
 		isCapability: false,
 		isRuntime: true,
 		operatorDef: OPERATOR_DEFINITIONS.assistant,
-		getOperator: () => window.app.getAssistantOperator(),
-		saveOperator: (p, m) => window.app.saveAssistantOperator(p, m),
+		getOperator: () => window.store.getAssistantOperator(),
+		saveOperator: (p, m) => window.store.saveAssistantOperator(p, m),
 		getCapabilityModels: null,
 		providerMissingKey: null,
 		readOnly: null,
@@ -150,8 +150,8 @@ const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
 		isCapability: true,
 		isRuntime: true,
 		operatorDef: OPERATOR_DEFINITIONS.speechToText,
-		getOperator: () => window.app.getSpeechToTextOperator(),
-		saveOperator: (p, m) => window.app.saveSpeechToTextOperator(p, m),
+		getOperator: () => window.store.getSpeechToTextOperator(),
+		saveOperator: (p, m) => window.store.saveSpeechToTextOperator(p, m),
 		getCapabilityModels: (p) => window.app.getSpeechToTextModels(p),
 		providerMissingKey: 'settings.operators.speechProviderMissing',
 		readOnly: null,
@@ -168,8 +168,8 @@ const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
 		isCapability: true,
 		isRuntime: false,
 		operatorDef: OPERATOR_DEFINITIONS.textToSpeech,
-		getOperator: () => window.app.getTextToSpeechOperator(),
-		saveOperator: (p, m) => window.app.saveTextToSpeechOperator(p, m),
+		getOperator: () => window.store.getTextToSpeechOperator(),
+		saveOperator: (p, m) => window.store.saveTextToSpeechOperator(p, m),
 		getCapabilityModels: (p) => window.app.getTextToSpeechModels(p),
 		providerMissingKey: null,
 		readOnly: {
@@ -191,8 +191,8 @@ const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
 		isCapability: true,
 		isRuntime: true,
 		operatorDef: OPERATOR_DEFINITIONS.imageCreator,
-		getOperator: () => window.app.getImageCreatorOperator(),
-		saveOperator: (p, m) => window.app.saveImageCreatorOperator(p, m),
+		getOperator: () => window.store.getImageCreatorOperator(),
+		saveOperator: (p, m) => window.store.saveImageCreatorOperator(p, m),
 		getCapabilityModels: (p) => window.app.getImageCreatorModels(p),
 		providerMissingKey: null,
 		readOnly: null,
@@ -209,8 +209,8 @@ const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
 		isCapability: true,
 		isRuntime: false,
 		operatorDef: OPERATOR_DEFINITIONS.videoCreator,
-		getOperator: () => window.app.getTextToVideoOperator(),
-		saveOperator: (p, m) => window.app.saveTextToVideoOperator(p, m),
+		getOperator: () => window.store.getTextToVideoOperator(),
+		saveOperator: (p, m) => window.store.saveTextToVideoOperator(p, m),
 		getCapabilityModels: (p) => window.app.getTextToVideoModels(p),
 		providerMissingKey: null,
 		readOnly: {
@@ -231,8 +231,8 @@ const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
 		isCapability: true,
 		isRuntime: false,
 		operatorDef: OPERATOR_DEFINITIONS.musicCreator,
-		getOperator: () => window.app.getMusicCreatorOperator(),
-		saveOperator: (p, m) => window.app.saveMusicCreatorOperator(p, m),
+		getOperator: () => window.store.getMusicCreatorOperator(),
+		saveOperator: (p, m) => window.store.saveMusicCreatorOperator(p, m),
 		getCapabilityModels: (p) => window.app.getMusicCreatorModels(p),
 		providerMissingKey: null,
 		readOnly: {
@@ -285,7 +285,7 @@ const OperatorDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 
-		void Promise.all([window.app.getProviders(), config.getOperator()])
+		void Promise.all([window.store.getProviders(), config.getOperator()])
 			.then(async ([nextProviders, nextOperator]) => {
 				if (!mounted) return;
 				const mergedProviders = mergeProviders(nextProviders, nextOperator);

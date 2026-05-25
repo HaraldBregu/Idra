@@ -337,7 +337,7 @@ const SystemPage: React.FC = () => {
 
 	useEffect(() => {
 		let mounted = true;
-		void window.app.getKeepAwakeEnabled()
+		void window.store.getKeepAwakeEnabled()
 			.then((enabled) => {
 				if (mounted) setKeepAwakeEnabled(enabled);
 			})
@@ -387,12 +387,12 @@ const SystemPage: React.FC = () => {
 		setKeepAwakeEnabled(checked);
 		setKeepAwakeLoading(true);
 		setKeepAwakeError('');
-		void window.app.setKeepAwakeEnabled(checked)
+		void window.store.setKeepAwakeEnabled(checked)
 			.then(setKeepAwakeEnabled)
 			.catch((error: unknown) => {
 				setKeepAwakeEnabled(!checked);
 				setKeepAwakeError(errorMessage(error, t('settings.system.errors.keepAwakeSave')));
-				void window.app.getKeepAwakeEnabled()
+				void window.store.getKeepAwakeEnabled()
 					.then(setKeepAwakeEnabled)
 					.catch(() => undefined);
 			})

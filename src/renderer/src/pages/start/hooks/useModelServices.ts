@@ -29,7 +29,7 @@ export function useModelServices(
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
 				const [storedProviders, ...configuredOperators] = await Promise.all([
-					window.app.getProviders(),
+					window.store.getProviders(),
 					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getOperator()),
 				]);
 				if (cancelled) return;
