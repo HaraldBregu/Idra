@@ -47,7 +47,11 @@ import { normalizeAgentRoutingSettings } from '../agent/routing';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
-import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
+import {
+	emptyFridayCronStoreState,
+	migrateFridayCronStoreState,
+	serializeFridayCronStoreState,
+} from '../cron/friday/store';
 import type {
 	AgentHeartbeatConfig,
 	AgentsHeartbeatConfig,
@@ -690,21 +694,30 @@ export class StoreService {
 		const legacyFriday = readRecord((settings as { friday?: unknown }).friday);
 		const hasRootFridayState =
 			settings.schemaVersion !== undefined ||
-			settings.jobs !== undefined ||
-			settings.states !== undefined ||
-			settings.lastRuns !== undefined;
+			settings.jobs !== undefined;
 		return migrateFridayCronStoreState(
 			hasRootFridayState ? settings : (legacyFriday ?? emptyFridayCronStoreState())
 		);
 	}
 
 	setFridayCronState(state: FridayCronStoreState): void {
-		const { friday: _friday, ...settings } = this.getTaskSchedulerSettings() as TaskSchedulerSettings & {
+		const {
+			friday: _friday,
+			schemaVersion: _schemaVersion,
+			jobs: _jobs,
+			states: _states,
+			lastRuns: _lastRuns,
+			runs: _runs,
+			...settings
+		} = this.getTaskSchedulerSettings() as TaskSchedulerSettings & {
 			friday?: unknown;
+			states?: unknown;
+			lastRuns?: unknown;
+			runs?: unknown;
 		};
 		this.store.set('taskScheduler', {
 			...settings,
-			...migrateFridayCronStoreState(state),
+			...serializeFridayCronStoreState(state),
 		});
 	}
 
