@@ -171,6 +171,27 @@ export const ChannelsChannels = {
 
 export const StoreChannels = {
 	getProviders: 'store:get-providers',
+	setProviderApiKey: 'store:set-provider-api-key',
+	isProviderApiKeySaved: 'store:is-provider-api-key-saved',
+	addProvider: 'store:add-provider',
+	getKeepAwakeEnabled: 'store:get-keep-awake-enabled',
+	setKeepAwakeEnabled: 'store:set-keep-awake-enabled',
+	getAssistantOperator: 'store:get-assistant-operator',
+	saveAssistantOperator: 'store:save-assistant-operator',
+	getSpeechToTextOperator: 'store:get-speech-to-text-operator',
+	saveSpeechToTextOperator: 'store:save-speech-to-text-operator',
+	getTextToSpeechOperator: 'store:get-text-to-speech-operator',
+	saveTextToSpeechOperator: 'store:save-text-to-speech-operator',
+	getImageCreatorOperator: 'store:get-image-creator-operator',
+	saveImageCreatorOperator: 'store:save-image-creator-operator',
+	getTextToVideoOperator: 'store:get-text-to-video-operator',
+	saveTextToVideoOperator: 'store:save-text-to-video-operator',
+	getMusicCreatorOperator: 'store:get-music-creator-operator',
+	saveMusicCreatorOperator: 'store:save-music-creator-operator',
+	getAgentService: 'store:get-agent-service',
+	saveAgentService: 'store:save-agent-service',
+	getSpeechTranscriberService: 'store:get-speech-transcriber-service',
+	saveSpeechTranscriberService: 'store:save-speech-transcriber-service',
 	getPolicy: 'store:get-policy',
 	setPolicy: 'store:set-policy',
 } as const;
@@ -656,6 +677,114 @@ interface StoreInvokeChannelMap {
 	[StoreChannels.getProviders]: {
 		args: [];
 		result: import('../providers').PublicProvider[];
+	};
+	[StoreChannels.setProviderApiKey]: {
+		args: [providerId: string, apiKey: string];
+		result: void;
+	};
+	[StoreChannels.isProviderApiKeySaved]: {
+		args: [providerId: string];
+		result: boolean;
+	};
+	[StoreChannels.addProvider]: {
+		args: [input: import('../providers').ProviderInput];
+		result: import('../providers').PublicProvider;
+	};
+	[StoreChannels.getKeepAwakeEnabled]: {
+		args: [];
+		result: boolean;
+	};
+	[StoreChannels.setKeepAwakeEnabled]: {
+		args: [enabled: boolean];
+		result: boolean;
+	};
+	[StoreChannels.getAssistantOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveAssistantOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getSpeechToTextOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveSpeechToTextOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToSpeechOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveTextToSpeechOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getImageCreatorOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveImageCreatorOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToVideoOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveTextToVideoOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getMusicCreatorOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveMusicCreatorOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getAgentService]: {
+		args: [];
+		result: import('../agents/service').Agent | undefined;
+	};
+	[StoreChannels.saveAgentService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getSpeechTranscriberService]: {
+		args: [];
+		result: import('../agents/service').Agent | undefined;
+	};
+	[StoreChannels.saveSpeechTranscriberService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
 	};
 	[StoreChannels.getPolicy]: {
 		args: [];

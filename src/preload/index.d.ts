@@ -126,6 +126,27 @@ export interface SkillsApi {
 
 export interface StoreApi {
 	getProviders: () => Promise<PublicProvider[]>;
+	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
+	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
+	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
+	getKeepAwakeEnabled: () => Promise<boolean>;
+	setKeepAwakeEnabled: (enabled: boolean) => Promise<boolean>;
+	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToSpeechOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveTextToSpeechOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getImageCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveImageCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToVideoOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveTextToVideoOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getMusicCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	saveMusicCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getAgentService: () => Promise<Agent | undefined>;
+	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getSpeechTranscriberService: () => Promise<Agent | undefined>;
+	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getPolicy: () => Promise<PolicyConfig>;
 	setPolicy: (policy: PolicyConfig) => Promise<PolicyConfig>;
 }
