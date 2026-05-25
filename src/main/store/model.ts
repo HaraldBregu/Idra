@@ -135,7 +135,8 @@ function modelFromCatalog(catalog: readonly Model[], settings: ModelModuleSettin
 		name: settings.modelId,
 	};
 	return {
-		...model,
+		id: model.id,
+		name: model.name,
 		...(settings.effort ? { effort: settings.effort } : {}),
 	};
 }
