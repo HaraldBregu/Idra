@@ -307,6 +307,6 @@ export class ChannelStore {
 	}
 
 	private getStoredChannelRoot(): Partial<Channel> {
-		return readStoredChannel(this.store.get('channels') ?? this.store.get('channel' as keyof typeof this.store)) ?? {};
+		return readStoredChannel(this.store.get('channels') ?? (this.store as { get(key: string): unknown }).get('channel')) ?? {};
 	}
 }
