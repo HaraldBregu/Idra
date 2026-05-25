@@ -2,14 +2,9 @@ import type { AgentTool, ToolDiagnostics } from '../core/common';
 import {
 	assertUniqueToolNames,
 	createToolDiagnostics,
-	getToolMetadata,
-	markClientTool,
 	normalizeToolName,
 } from '../core/common';
 import { createReadTool } from '../files/read-tool';
-import { execTool, processTool } from '../execution/tools';
-import { legacyToolToCanonical } from './legacy-bridge';
-import type { ToolContext } from '../core/types';
 import { normalizeToolSchemas } from '../core/schema-normalization';
 import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/tool-policy-pipeline';
 import {
@@ -17,15 +12,10 @@ import {
 	type BeforeToolCallContext,
 	newCallTracker,
 } from '../policy/before-tool-call';
-import { applyToolSearchCompaction, type ToolSearchCompactionOptions } from '../search/tool-search';
-import { materializeMcpTools, type McpRuntime } from '../external/mcp-tools';
-import { materializeLspTools, type LspRuntime } from '../external/lsp-tools';
-import type {
-	AppConfig,
-	AuthContext,
-	DeliveryContext,
-	PluginToolContext,
-} from '../../plugins/tool-types';
+import type { ToolSearchCompactionOptions } from '../search/tool-search';
+import type { McpRuntime } from '../external/mcp-tools';
+import type { LspRuntime } from '../external/lsp-tools';
+import type { AppConfig, AuthContext, DeliveryContext } from '../../plugins/tool-types';
 import type { PluginToolRegistry } from '../../plugins/tool-registry';
 import type { ToolPolicy } from '../policy/tool-policy';
 
@@ -102,12 +92,9 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
 	move: 'includeFileTools',
 	inspect_file: 'includeFileTools',
 	find: 'includeFileTools',
-	exec: 'includeShellTools',
-	process: 'includeShellTools',
-	web_fetch: 'includeWebTools',
-	web_search: 'includeWebTools',
-	message: 'includeMessagingTools',
 };
+
+const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
 
 export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPlan {
 	const empty: ToolConstructionPlan = {
@@ -125,35 +112,20 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		return {
 			...empty,
 			includeFileTools: true,
-			includeShellTools: true,
-			includePluginTools: true,
-			includeToolSearchControls: true,
 		};
 	}
 	const normalized = toolsAllow.map(normalizeToolName);
 	if (normalized.includes('*')) {
-		return Object.fromEntries(Object.keys(empty).map((key) => [key, true])) as ToolConstructionPlan;
+		return { ...empty, includeFileTools: true };
 	}
 	const plan = { ...empty };
 	for (const name of normalized) {
-		if (name === 'group:mcp' || name.startsWith('mcp_')) plan.includeMcpTools = true;
-		else if (name === 'group:lsp' || name.startsWith('lsp_')) plan.includeLspTools = true;
-		else if (name === 'group:plugins' || name.startsWith('plugin:')) plan.includePluginTools = true;
-		else if (name.startsWith('group:file')) plan.includeFileTools = true;
-		else if (name.startsWith('group:shell')) plan.includeShellTools = true;
-		else if (name.startsWith('group:web')) plan.includeWebTools = true;
-		else if (name.startsWith('group:messaging')) plan.includeMessagingTools = true;
-		else if (name.startsWith('group:session') || name.startsWith('group:planning')) continue;
-		else {
+		if (name.startsWith('group:file')) plan.includeFileTools = true;
+		else if (!name.startsWith('group:')) {
 			const family = CORE_TOOL_FAMILIES[name];
 			if (family) plan[family] = true;
-			else plan.includePluginTools = true;
 		}
 	}
-	plan.includeToolSearchControls =
-		normalized.includes('tool_search') ||
-		normalized.includes('tool_call') ||
-		normalized.includes('tool_describe');
 	return plan;
 }
 
@@ -176,7 +148,6 @@ export async function createAgentTools(
 		plan,
 		diagnostics,
 		async dispose() {
-			await options.lspRuntime?.dispose?.();
 			diagnostics.emit({ type: 'tool.runtime.disposed', details: { runId: options.runId } });
 		},
 	};
@@ -190,13 +161,9 @@ async function buildToolCandidates(
 	const candidates: AgentTool[] = [];
 
 	if (options.includeCoreTools !== false) {
-		addCoreToolCandidates(candidates, options, plan, diagnostics);
+		addCoreToolCandidates(candidates, options, plan);
 	}
 	addHostToolCandidates(candidates, options);
-	await addPluginToolCandidates(candidates, options, plan, diagnostics);
-	await addMcpToolCandidates(candidates, options, plan, diagnostics);
-	await addLspToolCandidates(candidates, options, plan);
-	addClientToolCandidates(candidates, options);
 
 	assertUniqueToolNames(candidates);
 	diagnostics.builtTools.push(...candidates.map((tool) => tool.name));
@@ -207,8 +174,7 @@ async function buildToolCandidates(
 function addCoreToolCandidates(
 	candidates: AgentTool[],
 	options: CreateAgentToolsOptions,
-	plan: ToolConstructionPlan,
-	diagnostics: ToolDiagnostics
+	plan: ToolConstructionPlan
 ): void {
 	const fsPolicy = options.config?.tools?.fs;
 	if (plan.includeFileTools) {
@@ -219,90 +185,15 @@ function addCoreToolCandidates(
 			})
 		);
 	}
-	if (plan.includeShellTools && options.sandbox?.allowShell !== false) {
-		const shellCtx = {
-			workspace: options.workspaceDir,
-			sessionId: '',
-			readState: new Map(),
-			plan: { entries: [] },
-			approvalRequired: new Set<string>(),
-			approvalCache: new Set<string>(),
-			fsPolicy,
-		} as unknown as ToolContext;
-		candidates.push(legacyToolToCanonical(execTool, shellCtx));
-		candidates.push(legacyToolToCanonical(processTool, shellCtx));
-	}
-	if (plan.includeShellTools && options.sandbox?.allowShell === false) {
-		diagnostics.filteredTools.push({
-			toolName: 'exec',
-			stage: 'construction',
-			reason: 'sandbox disallows shell tools',
-		});
-	}
 }
 
 function addHostToolCandidates(
 	candidates: AgentTool[],
 	options: CreateAgentToolsOptions
 ): void {
-	candidates.push(...(options.hostTools ?? []));
-}
-
-async function addPluginToolCandidates(
-	candidates: AgentTool[],
-	options: CreateAgentToolsOptions,
-	plan: ToolConstructionPlan,
-	diagnostics: ToolDiagnostics
-): Promise<void> {
-	if (!plan.includePluginTools || !options.pluginRegistry) return;
 	candidates.push(
-		...(await options.pluginRegistry.resolveTools({
-			context: pluginContext(options),
-			toolsAllow: options.toolsAllow,
-			toolsDeny: options.toolsDeny,
-			existingToolNames: candidateNames(candidates),
-			diagnostics,
-		}))
+		...(options.hostTools ?? []).filter((tool) => FILE_TOOL_NAMES.has(normalizeToolName(tool.name)))
 	);
-}
-
-async function addMcpToolCandidates(
-	candidates: AgentTool[],
-	options: CreateAgentToolsOptions,
-	plan: ToolConstructionPlan,
-	diagnostics: ToolDiagnostics
-): Promise<void> {
-	if (!plan.includeMcpTools) return;
-	candidates.push(
-		...(await materializeMcpTools({
-			runtime: options.mcpRuntime,
-			context: {
-				sessionId: options.sessionId,
-				runId: options.runId,
-				workspaceDir: options.workspaceDir,
-			},
-			existingToolNames: candidateNames(candidates),
-			diagnostics,
-		}))
-	);
-}
-
-async function addLspToolCandidates(
-	candidates: AgentTool[],
-	options: CreateAgentToolsOptions,
-	plan: ToolConstructionPlan
-): Promise<void> {
-	if (!plan.includeLspTools) return;
-	candidates.push(...(await materializeLspTools({ runtime: options.lspRuntime })));
-}
-
-function addClientToolCandidates(
-	candidates: AgentTool[],
-	options: CreateAgentToolsOptions
-): void {
-	for (const clientTool of options.clientTools ?? []) {
-		candidates.push(markClientTool(clientTool, options.sender?.channel));
-	}
 }
 
 function candidateNames(candidates: AgentTool[]): Set<string> {
@@ -349,11 +240,8 @@ function prepareRuntimeTools(
 	);
 
 	const searchOptions = options.config?.toolSearch;
-	if (
-		searchOptions?.enabled ||
-		(plan.includeToolSearchControls && searchOptions?.enabled !== false)
-	) {
-		effective = applyToolSearchCompaction(effective, searchOptions).tools;
+	if (searchOptions?.enabled) {
+		diagnostics.warnings.push('tool search controls are disabled; only file tools are available.');
 	}
 
 	return effective;
@@ -394,24 +282,6 @@ function hasToolControlsWithoutGrants(
 	});
 }
 
-function pluginContext(options: CreateAgentToolsOptions): PluginToolContext {
-	return {
-		config: options.config,
-		runtimeConfig: options.config,
-		getRuntimeConfig: () => options.config,
-		workspaceDir: options.workspaceDir,
-		agentId: options.agentId,
-		sessionId: options.sessionId,
-		runId: options.runId,
-		provider: options.provider,
-		modelId: options.modelId,
-		auth: options.auth,
-		delivery: options.delivery,
-		sender: options.sender,
-		sandboxed: options.sandbox?.sandboxed,
-	};
-}
-
 export function clientToolNames(tools: AgentTool[]): string[] {
-	return tools.filter((tool) => getToolMetadata(tool)?.clientHosted).map((tool) => tool.name);
+	return tools.filter((tool) => FILE_TOOL_NAMES.has(normalizeToolName(tool.name))).map((tool) => tool.name);
 }
