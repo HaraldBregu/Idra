@@ -44,6 +44,14 @@ export interface FridayCronActor {
 	agentId?: string | null;
 }
 
+type FridayCronAuthorizationAction =
+	| FridayCronCanonicalToolRequest['action']
+	| 'status'
+	| 'update'
+	| 'run'
+	| 'runs'
+	| 'wake';
+
 export interface FridayCronExecutionOutcome {
 	status: 'ok' | 'skipped';
 	output?: string;
@@ -471,29 +479,15 @@ export class FridayCronScheduler {
 		actor: FridayCronActor
 	): Promise<FridayCronToolResponse['result']> {
 		switch (request.action) {
-			case 'status': {
-				const status = await this.status(actor);
-				return actor.role === 'cron-self' ? { enabled: status.enabled } : status;
-			}
 			case 'list':
 				return this.list(request.include ?? 'enabled', actor, request.agentId);
 			case 'get':
 				return this.get(request.jobId, actor);
 			case 'add':
 				return this.add(request.job, actor);
-			case 'update':
-				return this.update(request.jobId, request.patch, actor);
 			case 'remove':
 				await this.remove(request.jobId, actor);
 				return { removed: true, jobId: request.jobId };
-			case 'run':
-				return this.run(request.jobId, request.runMode ?? 'force', actor);
-			case 'runs':
-				return this.runs(request.jobId, request.limit, actor);
-			case 'wake': {
-				const status = await this.wake(actor, request.mode);
-				return { woken: true, status };
-			}
 		}
 	}
 
@@ -960,7 +954,7 @@ export class FridayCronScheduler {
 
 	private authorize(
 		actor: FridayCronActor,
-		action: FridayCronCanonicalToolRequest['action'],
+		action: FridayCronAuthorizationAction,
 		jobId?: string
 	): void {
 		if (actor.role === 'owner') return;
