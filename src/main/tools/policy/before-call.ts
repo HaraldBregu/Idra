@@ -23,7 +23,7 @@ export interface BeforeCallOutcome {
 }
 
 /**
- * Pre-flight: loop detection. Returns whether the agent
+ * Pre-flight: loop detection and approval enforcement. Returns whether the agent
  * loop should proceed with `tool.execute`, and optionally a veto result
  * to feed back to the model in lieu of execution.
  */
@@ -59,7 +59,22 @@ export async function beforeToolCall(
 		requires = await tool.needsApproval(args as Record<string, unknown>, ctx);
 	}
 	if (requires || ctx.approvalRequired.has(tool.name)) {
-		ctx.approvalCache.add(key);
+		if (!ctx.approvalCache.has(key)) {
+			return {
+				proceed: false,
+				vetoStatus: 'rejected',
+				vetoResult: {
+					status: 'rejected',
+					content: [
+						{
+							type: 'text',
+							text: `tool ${tool.name} requires approval before execution.`,
+						},
+					],
+					details: { reason: 'approval_required', toolName: tool.name },
+				},
+			};
+		}
 	}
 
 	const warning =
