@@ -1,5 +1,5 @@
 import { PolicyService, type PolicyStorePort } from '../../policy';
-import type { Permission } from '../../../shared/policy';
+import type { Permission, PolicyDecision } from '../../../shared/policy';
 import type { FridayServices, ToolContext } from '../core/types';
 
 export interface FilePolicyCheck {
@@ -19,7 +19,7 @@ export function checkFilePolicy(
 	const policy = new PolicyService(store as PolicyStorePort);
 
 	for (const check of checks) {
-		let decision;
+		let decision: PolicyDecision;
 		try {
 			decision = policy.evaluate(check.path, check.permission);
 		} catch (err) {
