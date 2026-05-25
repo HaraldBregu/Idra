@@ -37,11 +37,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/providers', '/settings/skills', '/settings/connectors'],
 	},
 	{
-		id: 'knowledge',
-		titleKey: 'settings.overview.groups.knowledge',
-		paths: ['/settings/memory', '/settings/rag', '/settings/wiki'],
-	},
-	{
 		id: 'channels',
 		titleKey: 'settings.overview.groups.channels',
 		paths: ['/settings/channels'],
