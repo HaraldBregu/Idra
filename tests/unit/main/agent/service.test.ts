@@ -1074,7 +1074,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('adds compact skill guidance and execute_skill tool for executable skills', async () => {
+	it('adds compact skill guidance without exposing execute_skill', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -1100,13 +1100,13 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('summarize this document')).resolves.toBe('done');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
 		expect(requests[0]!.system).toContain('## Skills');
 		expect(requests[0]!.system).toContain('summarize-document@1.0.0');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('passes skill connectors through discovery and execute_skill setup', async () => {
+	it('passes skill connectors through discovery without exposing execute_skill', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -1170,12 +1170,8 @@ describe('AgentService', () => {
 		expect(skills.discoverForPrompt.mock.calls[0]![1]).toMatchObject({
 			connectors: [skillConnector],
 		});
-		expect(skills.createExecutionTool).toHaveBeenCalledWith(
-			expect.objectContaining({
-				connectors: [skillConnector],
-			})
-		);
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
+		expect(skills.createExecutionTool).not.toHaveBeenCalled();
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
