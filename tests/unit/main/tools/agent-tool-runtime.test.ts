@@ -413,7 +413,7 @@ describe('canonical agent tool runtime', () => {
 		const sandboxed = await createAgentTools({
 			workspaceDir: workspace,
 			toolsAllow: ['read', 'write', 'edit', 'apply_patch'],
-			clientTools: [tool('write'), tool('edit'), tool('apply_patch')],
+			hostTools: [tool('write'), tool('edit'), tool('apply_patch')],
 			sandbox: { readOnly: true },
 		});
 		expect(sandboxed.tools.map((entry) => entry.name)).toEqual(['read']);
@@ -421,14 +421,4 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('does not materialize client-hosted tools', async () => {
-		const workspace = await makeTempDir();
-		const result = await createAgentTools({
-			workspaceDir: workspace,
-			toolsAllow: ['*'],
-			clientTools: [markClientTool(tool('read'), 'ui')],
-		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
 });
