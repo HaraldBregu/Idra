@@ -476,7 +476,7 @@ describe('FridayCronScheduler', () => {
 		expect(disabled.state.consecutiveScheduleErrors).toBe(3);
 	});
 
-	it('appends and reads run logs', async () => {
+	it('keeps only the latest run record', async () => {
 		const { store } = await makeHarness();
 		const run: FridayCronRunRecord = {
 			runId: 'run-1',
@@ -488,10 +488,16 @@ describe('FridayCronScheduler', () => {
 			finishedAtMs: 2,
 			attempt: 1,
 		};
+		const latest: FridayCronRunRecord = {
+			...run,
+			runId: 'run-2',
+			finishedAtMs: 3,
+		};
 
 		await store.appendRun(run);
+		await store.appendRun(latest);
 
-		await expect(store.listRuns('log-job')).resolves.toEqual([run]);
+		await expect(store.listRuns('log-job')).resolves.toEqual([latest]);
 	});
 
 	it('denies cron to non-owner callers', async () => {
