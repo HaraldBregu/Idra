@@ -561,46 +561,26 @@ export type FridayCronUpdateRequest = Partial<
 	delivery?: Partial<FridayCronDelivery>;
 };
 
-export type FridayCronToolAction =
-	| 'status'
-	| 'list'
-	| 'get'
-	| 'add'
-	| 'update'
-	| 'remove'
-	| 'run'
-	| 'runs'
-	| 'wake';
+export type FridayCronToolAction = 'list' | 'get' | 'add' | 'remove';
 
 export interface FridayCronToolRequest {
 	action: FridayCronToolAction;
 	jobId?: string;
 	id?: string;
 	job?: FridayCronAddRequest | Record<string, unknown>;
-	patch?: FridayCronUpdateRequest | Record<string, unknown>;
 	include?: 'enabled' | 'disabled' | 'all';
 	includeDisabled?: boolean;
 	agentId?: string | null;
 	contextMessages?: number;
-	timeoutMs?: number;
-	runMode?: 'force' | 'due';
-	mode?: 'force' | 'due' | 'now' | 'next-heartbeat';
-	force?: boolean;
-	limit?: number;
 	text?: string;
 	[key: string]: unknown;
 }
 
 export type FridayCronCanonicalToolRequest =
-	| { action: 'status' }
 	| { action: 'list'; include?: 'enabled' | 'disabled' | 'all'; agentId?: string | null }
 	| { action: 'get'; jobId: string }
 	| { action: 'add'; job: FridayCronAddRequest }
-	| { action: 'update'; jobId: string; patch: FridayCronUpdateRequest }
-	| { action: 'remove'; jobId: string }
-	| { action: 'run'; jobId: string; runMode?: 'force' | 'due' }
-	| { action: 'runs'; jobId: string; limit?: number }
-	| { action: 'wake'; text: string; mode: 'now' | 'next-heartbeat' };
+	| { action: 'remove'; jobId: string };
 
 export interface FridayCronStatus {
 	enabled: boolean;
