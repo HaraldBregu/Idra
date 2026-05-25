@@ -1,4 +1,4 @@
-# Store — LLM Agent
+# Store — Assistant
 
 The `llmAgent` root stores the active chat and agent model selection. It also carries agent-facing module options such as runtime preference and heartbeat defaults.
 
