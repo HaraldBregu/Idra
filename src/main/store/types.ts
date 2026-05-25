@@ -31,12 +31,6 @@ export interface FridayTaskSchedulerSettings {
 	lastRuns?: Record<string, FridayCronRunRecord>;
 }
 
-export interface TaskSchedulerSettings {
-	enabled?: boolean;
-	managed?: unknown;
-	legacyTasks?: CronTask[];
-}
-
 export type TaskSchedulerSettings = FridayTaskSchedulerSettings & {
 	enabled?: boolean;
 	managed?: unknown;
