@@ -38,7 +38,7 @@ import {
 	prepareLegacyToolsForProvider,
 	runtimeToolToLegacyTool,
 } from './tools/runtime/legacy-tool-adapter';
-import { bootstrapTool, startupFilesTool } from './tools/bootstrap';
+import { bootstrapTool } from './tools/bootstrap';
 import {
 	selectAgentToolsForTurn,
 	ToolUsePolicy,
@@ -63,14 +63,9 @@ import {
 import type { FridayCronActor } from './cron';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
-import {
-	createSessionsSpawnTool,
-	createSubagentsControlTool,
-	type SubagentSpawnPort,
-} from './agent/subagents';
+import type { SubagentSpawnPort } from './agent/subagents';
 
-const BOOTSTRAP_TOOL_NAMES = new Set(['bootstrap', 'startup_files']);
-const DEFAULT_LOCAL_TOOL_DENY = ['bootstrap', 'startup_files'];
+const BOOTSTRAP_TOOL_NAMES = new Set(['bootstrap']);
 
 function toolAllowPatternMatches(pattern: string, name: string): boolean {
 	if (pattern === '*' || pattern === name) return true;
@@ -94,18 +89,9 @@ function toolAllowGroupMatches(pattern: string, name: string): boolean {
 				'move',
 				'inspect_file',
 				'find',
-				'startup_files',
 			].includes(name);
-		case 'group:shell':
-			return name === 'exec' || name === 'process';
-		case 'group:web':
-			return name === 'web_fetch' || name === 'browser' || name === 'open_browser';
-		case 'group:mcp':
-			return name.startsWith('mcp_');
-		case 'group:lsp':
-			return name.startsWith('lsp_');
-		case 'group:plugins':
-			return name.startsWith('plugin_') || name.startsWith('plugin:');
+		case 'group:bootstrap':
+			return name === 'bootstrap';
 		default:
 			return false;
 	}
@@ -261,21 +247,10 @@ export class AgentService {
 				profile: toolPolicy?.profile ?? 'full',
 				allow: toolPolicy?.allow ?? [],
 				alsoAllow: toolPolicy?.alsoAllow,
-				deny: [
-					...DEFAULT_LOCAL_TOOL_DENY,
-					...(toolPolicy?.deny ?? []),
-					...(context.toolsDeny ?? []),
-				],
+				deny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
 				fs: toolPolicy?.fs,
 				exec: toolPolicy?.exec,
 			}),
-			...(this.dependencies.connectors?.createAgentTools() ?? []),
-			...(this.dependencies.subagents
-				? [
-						createSessionsSpawnTool(this.dependencies.subagents),
-						createSubagentsControlTool(this.dependencies.subagents),
-					]
-				: []),
 		];
 		const toolRuntimeConfig =
 			toolPolicy?.fs || toolPolicy?.exec
@@ -445,11 +420,7 @@ export class AgentService {
 					isPrimaryRun &&
 					!baseTools.some((tool) => tool.name === bootstrapTool.name)
 				) {
-					baseTools = [
-						...baseTools,
-						bootstrapTool as unknown as AgentTool,
-						startupFilesTool as unknown as AgentTool,
-					];
+					baseTools = [...baseTools, bootstrapTool as unknown as AgentTool];
 				}
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
@@ -525,15 +496,7 @@ export class AgentService {
 					});
 					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
 					if (skillRuntimePlan.needsExecutionTool) {
-						selectedTools.push(
-							this.dependencies.skills.createExecutionTool({
-								userId: agentId,
-								sessionId: runtime.session.id,
-								tools: selectedTools,
-								connectors: skillConnectors,
-								signal: abort.signal,
-							})
-						);
+						skillRuntimePlan = { ...skillRuntimePlan, needsExecutionTool: false };
 					}
 				}
 			}
@@ -543,7 +506,7 @@ export class AgentService {
 				isInteractiveUserFacing: true,
 				isPrimaryRun,
 				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-				hasBootstrapFileAccess: selectedToolNames.has('startup_files'),
+				hasBootstrapFileAccess: selectedToolNames.has('bootstrap'),
 				runKind,
 			});
 			startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
