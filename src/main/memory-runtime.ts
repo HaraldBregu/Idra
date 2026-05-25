@@ -619,6 +619,21 @@ function truncate(value: string, maxChars: number): string {
 	return `${value.slice(0, maxChars)} [truncated ${value.length - maxChars} chars]`;
 }
 
+function relativeWorkspacePath(workspaceDir: string, filePath: string): string | undefined {
+	const relativePath = path.relative(path.resolve(workspaceDir), path.resolve(filePath));
+	return isUnsafeRelativePath(relativePath) ? undefined : relativePath;
+}
+
+function splitMemoryPath(relativePath: string): string[] {
+	return relativePath.split(/[\\/]+/).filter(Boolean);
+}
+
+function isUnsafeRelativePath(relativePath: string): boolean {
+	if (!relativePath || path.isAbsolute(relativePath)) return true;
+	const parts = splitMemoryPath(relativePath);
+	return parts.length === 0 || parts.includes('..');
+}
+
 function isInside(root: string, target: string): boolean {
 	const relative = path.relative(path.resolve(root), path.resolve(target));
 	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
