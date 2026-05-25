@@ -736,7 +736,7 @@ export class StoreService {
 	}
 
 	private getTaskSchedulerSettings(): TaskSchedulerSettings {
-		return readRecord(this.store.get('taskScheduler')) ?? {};
+		return (readRecord(this.store.get('taskScheduler')) ?? {}) as TaskSchedulerSettings;
 	}
 
 	private setTaskSchedulerSettings(patch: TaskSchedulerSettings): void {
