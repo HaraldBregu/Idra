@@ -56,7 +56,6 @@ import {
 	type ModelReasoningEffort,
 } from '../../../../../../../shared/agents/service';
 import {
-	IMAGE_CREATOR_MODELS,
 	MUSIC_CREATOR_MODELS,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_PROVIDER_ID,
@@ -108,7 +107,7 @@ interface OperatorConfig {
 	// isRuntime: false → operator is "coming soon"; shows a read-only preview UI
 	readonly isRuntime: boolean;
 	readonly operatorDef: typeof OPERATOR_DEFINITIONS[keyof typeof OPERATOR_DEFINITIONS];
-	readonly getOperator: () => Promise<ConfiguredModelOperator>;
+	readonly getOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	readonly saveOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	// null for the assistant (uses window.app.getModels instead)
 	readonly getCapabilityModels: ((provider: PublicProvider) => Promise<Model[]>) | null;

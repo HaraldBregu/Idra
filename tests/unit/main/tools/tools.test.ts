@@ -23,6 +23,7 @@ import {
 } from '../../../../src/main/tools/registry';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
+import type { PolicyConfig } from '../../../../src/shared/policy';
 
 describe('tools/types', () => {
 	it('creates text results with ok and error status', () => {
@@ -131,6 +132,10 @@ describe('tools/before-call', () => {
 });
 
 describe('tools/fs', () => {
+	function useFilePolicy(ctx: ReturnType<typeof makeToolContext>, policy: PolicyConfig): void {
+		ctx.services.store = { getPolicy: jest.fn(() => policy) } as never;
+	}
+
 	it('reads, writes new files, edits read files, and finds matches', async () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
@@ -179,6 +184,41 @@ describe('tools/fs', () => {
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
+	});
+
+	it('enforces stored file policy before filesystem operations', async () => {
+		const workspace = await makeTempDir();
+		const privateDir = path.join(workspace, 'private');
+		await fs.mkdir(privateDir);
+		await fs.writeFile(path.join(workspace, 'allowed.txt'), 'allowed', 'utf8');
+		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
+		const ctx = makeToolContext({ workspace });
+		useFilePolicy(ctx, {
+			version: 1,
+			defaultPolicy: 'deny',
+			paths: [
+				{ path: workspace, permissions: ['read', 'write'], recursive: true },
+				{ path: privateDir, permissions: [], recursive: true },
+			],
+		});
+
+		expect((await readTool.execute({ path: 'allowed.txt' }, ctx)).status).toBe('ok');
+		expect((await readTool.execute({ path: 'private/secret.txt' }, ctx)).status).toBe('error');
+		expect((await writeTool.execute({ path: 'allowed.txt', content: 'updated' }, ctx)).status).toBe(
+			'ok'
+		);
+		expect((await writeTool.execute({ path: 'new.txt', content: 'new' }, ctx)).content[0]?.text).toContain(
+			"'create'"
+		);
+		expect((await deleteTool.execute({ path: 'allowed.txt' }, ctx)).content[0]?.text).toContain(
+			"'delete'"
+		);
+
+		const found = await findTool.execute({ pattern: '**/*.txt' }, ctx);
+		expect(found.content[0]?.text).toContain('allowed.txt');
+		expect(found.content[0]?.text).not.toContain('private/secret.txt');
+
+		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
 	it('confines mutating file targets to the workspace when writeWorkspaceOnly is enabled', async () => {
