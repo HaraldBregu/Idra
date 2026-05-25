@@ -342,7 +342,8 @@ function rejectedApprovalResult(toolName: string): AgentToolResult {
 function toolExecutorFailureToAgentResult(result: ToolResult<AgentToolResult>): AgentToolResult {
 	if (
 		result.error?.code === 'TOOL_CONFIRMATION_REQUIRED' ||
-		result.error?.code === 'TOOL_CONFIRMATION_REJECTED'
+		result.error?.code === 'TOOL_CONFIRMATION_REJECTED' ||
+		result.error?.code === 'AGENT_TOOL_REJECTED'
 	) {
 		return {
 			status: 'rejected',
