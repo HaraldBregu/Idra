@@ -130,7 +130,7 @@ describe('tools/policy and registry', () => {
 		expect(byName.get('cron')).toMatchObject({
 			group: 'automation',
 			ownerOnly: true,
-			approval: { mode: 'action', actions: ['add', 'update', 'remove', 'run', 'wake'] },
+			approval: { mode: 'none' },
 		});
 		expect(byName.get('task')?.approval).toEqual({ mode: 'always' });
 	});
@@ -590,6 +590,12 @@ describe('tools/app, cron, and startup', () => {
 			}
 		);
 		expect(result.content[0]?.text).toContain('"timerArmed": false');
+	});
+
+	it('does not require approval for cron mutations', () => {
+		expect(cronTool.needsApproval).toBeUndefined();
+		expect(cronAddTool.needsApproval).toBeUndefined();
+		expect(cronRemoveTool.needsApproval).toBeUndefined();
 	});
 
 	it('manages allowlisted agent startup files through the startup tool', async () => {

@@ -150,7 +150,6 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 		required: ['action'],
 		additionalProperties: false,
 	},
-	needsApproval: (args) => ['add', 'update', 'remove', 'run', 'wake'].includes(args.action),
 	async execute(args, ctx) {
 		const capturedContext = await recentContext(args, ctx);
 		const delivery = inferredDelivery(ctx);
@@ -193,7 +192,6 @@ export const cronAddTool: AgentTool<CronAddArgs> = {
 		required: ['expression', 'data'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
 	async execute(args, ctx) {
 		if (!isCronTaskData(args.data)) {
 			return textResult("cron_add: 'data' must be an object with a string 'type' field", true);
@@ -231,7 +229,6 @@ export const cronRemoveTool: AgentTool<CronRemoveArgs> = {
 		required: ['job_id'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
 	async execute(args, ctx) {
 		const id = String(args.job_id ?? '');
 		if (!ctx.services.cron.has(id)) return textResult(`No job found with ID ${id}.`, true);

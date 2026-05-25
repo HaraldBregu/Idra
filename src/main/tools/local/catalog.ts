@@ -130,7 +130,7 @@ export const LOCAL_TOOL_CATALOG = [
 		tool: cronTool,
 		group: 'automation',
 		profiles: STANDARD_PROFILES,
-		approval: { mode: 'action', actions: ['add', 'update', 'remove', 'run', 'wake'] },
+		approval: NO_APPROVAL,
 		ownerOnly: true,
 	}),
 	localTool({
