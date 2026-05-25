@@ -57,7 +57,10 @@ export function legacyResultToCanonical(
 ): CanonicalAgentToolResult {
 	return {
 		content: legacyContentToCanonical(result.content),
-		details: result.status === 'error' ? detailsWithStatus('error', result.details) : result.details,
+		details:
+			result.status !== 'ok'
+				? detailsWithStatus(result.status, result.details)
+				: result.details,
 	};
 }
 
@@ -65,7 +68,7 @@ export function canonicalResultToLegacy(
 	result: CanonicalAgentToolResult
 ): LegacyAgentToolResult {
 	return {
-		status: detailsIndicateError(result.details) ? 'error' : 'ok',
+		status: legacyStatusFromDetails(result.details),
 		content: canonicalContentToLegacy(result.content),
 		details: result.details,
 	};
@@ -93,15 +96,16 @@ function canonicalContentToLegacy(content: ToolContent[]): ToolResultBlock[] {
 	});
 }
 
-function detailsWithStatus(status: 'error', details: unknown): unknown {
+function detailsWithStatus(status: 'error' | 'rejected', details: unknown): unknown {
 	if (details && typeof details === 'object' && !Array.isArray(details)) {
 		return { ...(details as Record<string, unknown>), status };
 	}
 	return { status, details };
 }
 
-function detailsIndicateError(details: unknown): boolean {
-	if (!details || typeof details !== 'object') return false;
+function legacyStatusFromDetails(details: unknown): LegacyAgentToolResult['status'] {
+	if (!details || typeof details !== 'object') return 'ok';
 	const status = (details as { status?: unknown }).status;
-	return status === 'error' || status === 'blocked' || status === 'input_error';
+	if (status === 'rejected') return 'rejected';
+	return status === 'error' || status === 'blocked' || status === 'input_error' ? 'error' : 'ok';
 }
