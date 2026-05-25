@@ -4,6 +4,12 @@ Tools let an agent inspect evidence, change workspace state, run checks, or inte
 
 This page defines the agent-facing rules for tool use. For the file tool reference, see [Tools](../tools/index.md).
 
+## Dependencies
+
+Agent tool usage depends on the [Tools module](../tools/index.md). The Tools module owns the available tool surface, tool selection, tool policy checks, provider-facing schemas, and tool-specific reference docs.
+
+The agent documentation should describe when and how an agent uses tools. It should not duplicate the full tool implementation contract. Link to the Tools module for exact file tool behavior, policy dependencies, and individual tool references.
+
 ## Success Criteria
 
 Good tool usage is:
