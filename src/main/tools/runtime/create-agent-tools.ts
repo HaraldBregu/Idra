@@ -6,8 +6,8 @@ import {
 	markClientTool,
 	normalizeToolName,
 } from '../core/common';
-import { createReadTool } from '../builtins/read-tool';
-import { createExecTool } from '../builtins/exec-tool';
+import { createReadTool } from '../files/read-tool';
+import { createExecTool } from '../execution/exec-tool';
 import { normalizeToolSchemas } from '../core/schema-normalization';
 import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/tool-policy-pipeline';
 import {
