@@ -220,7 +220,17 @@ function addCoreToolCandidates(
 		);
 	}
 	if (plan.includeShellTools && options.sandbox?.allowShell !== false) {
-		candidates.push(createExecTool({ workspaceDir: options.workspaceDir }));
+		const shellCtx = {
+			workspace: options.workspaceDir,
+			sessionId: '',
+			readState: new Map(),
+			plan: { entries: [] },
+			approvalRequired: new Set<string>(),
+			approvalCache: new Set<string>(),
+			fsPolicy,
+		} as unknown as ToolContext;
+		candidates.push(legacyToolToCanonical(execTool, shellCtx));
+		candidates.push(legacyToolToCanonical(processTool, shellCtx));
 	}
 	if (plan.includeShellTools && options.sandbox?.allowShell === false) {
 		diagnostics.filteredTools.push({
