@@ -124,24 +124,6 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
-export interface ChatMemoryApi {
-	list: (request?: ChatMemoryListRequest) => Promise<MemoryFileSummary[]>;
-	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
-	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
-}
-
-export interface RagApi {
-	list: () => Promise<MemoryFileSummary[]>;
-	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
-	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
-}
-
-export interface WikiApi {
-	list: () => Promise<MemoryFileSummary[]>;
-	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
-	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
-}
-
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type {
 	CronExecutionRecord,
@@ -183,14 +165,6 @@ import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/ch
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
-import type {
-	ChatMemoryListRequest,
-	MemoryFileSummary,
-	MemoryReadRequest,
-	MemoryReadResult,
-	MemorySearchRequest,
-	MemorySearchResult,
-} from '../shared/memory';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
@@ -275,9 +249,6 @@ declare global {
 		heartbeat: HeartbeatApi;
 		tasks: TasksApi;
 		monitor: MonitorApi;
-		chatMemory: ChatMemoryApi;
-		rag: RagApi;
-		wiki: WikiApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;

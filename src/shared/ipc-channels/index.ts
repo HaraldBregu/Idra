@@ -137,24 +137,6 @@ export const SkillsChannels = {
 	getRoot: 'skills:get-root',
 } as const;
 
-export const ChatMemoryChannels = {
-	list: 'chat-memory:list',
-	read: 'chat-memory:read',
-	search: 'chat-memory:search',
-} as const;
-
-export const RagChannels = {
-	list: 'rag:list',
-	read: 'rag:read',
-	search: 'rag:search',
-} as const;
-
-export const WikiChannels = {
-	list: 'wiki:list',
-	read: 'wiki:read',
-	search: 'wiki:search',
-} as const;
-
 export const ConnectorsChannels = {
 	catalog: 'connectors:catalog',
 	list: 'connectors:list',
@@ -556,51 +538,6 @@ interface SkillsInvokeChannelMap {
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
 
-interface ChatMemoryInvokeChannelMap {
-	[ChatMemoryChannels.list]: {
-		args: [request?: import('../memory').ChatMemoryListRequest];
-		result: import('../memory').MemoryFileSummary[];
-	};
-	[ChatMemoryChannels.read]: {
-		args: [request: import('../memory').MemoryReadRequest];
-		result: import('../memory').MemoryReadResult;
-	};
-	[ChatMemoryChannels.search]: {
-		args: [request: import('../memory').MemorySearchRequest];
-		result: import('../memory').MemorySearchResult[];
-	};
-}
-
-interface RagInvokeChannelMap {
-	[RagChannels.list]: {
-		args: [];
-		result: import('../memory').MemoryFileSummary[];
-	};
-	[RagChannels.read]: {
-		args: [request: import('../memory').MemoryReadRequest];
-		result: import('../memory').MemoryReadResult;
-	};
-	[RagChannels.search]: {
-		args: [request: import('../memory').MemorySearchRequest];
-		result: import('../memory').MemorySearchResult[];
-	};
-}
-
-interface WikiInvokeChannelMap {
-	[WikiChannels.list]: {
-		args: [];
-		result: import('../memory').MemoryFileSummary[];
-	};
-	[WikiChannels.read]: {
-		args: [request: import('../memory').MemoryReadRequest];
-		result: import('../memory').MemoryReadResult;
-	};
-	[WikiChannels.search]: {
-		args: [request: import('../memory').MemorySearchRequest];
-		result: import('../memory').MemorySearchResult[];
-	};
-}
-
 interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.catalog]: {
 		args: [];
@@ -719,9 +656,6 @@ export interface InvokeChannelMap
 		TaskInvokeChannelMap,
 		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
-		ChatMemoryInvokeChannelMap,
-		RagInvokeChannelMap,
-		WikiInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
