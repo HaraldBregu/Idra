@@ -60,6 +60,14 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. File Structure
+
+**One function per file. One word per filename.**
+
+- Each file contains exactly one exported function (or one class/component).
+- Filenames are a single word in 99% of cases: `parse.ts`, `fetch.ts`, `render.tsx`. Avoid compound names like `parseUser.ts` or `user-parser.ts` — split the concept instead.
+- The rare exception: when a single word is genuinely ambiguous and no folder context helps, use two words max.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
