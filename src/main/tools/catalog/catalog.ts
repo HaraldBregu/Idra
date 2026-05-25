@@ -1,8 +1,5 @@
-import { browserTool } from '../../browser';
 import type { AgentTool } from '../core/types';
-import { openBrowserTool } from '../web/open-browser';
-import { cronTool } from '../scheduling/cron';
-import { execTool, processTool } from '../execution/tools';
+import { bootstrapTool } from '../bootstrap';
 import {
 	applyPatchTool,
 	copyTool,
@@ -14,11 +11,10 @@ import {
 	readTool,
 	writeTool,
 } from '../files/tools';
-import { webFetchTool } from '../web/web-fetch';
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
-export type LocalToolGroup = 'file' | 'shell' | 'web' | 'automation' | 'browser';
+export type LocalToolGroup = 'file' | 'bootstrap';
 
 export type LocalToolApprovalPolicy =
 	| { mode: 'none' }
@@ -108,40 +104,9 @@ export const LOCAL_TOOL_CATALOG = [
 		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: execTool,
-		group: 'shell',
+		tool: bootstrapTool,
+		group: 'bootstrap',
 		profiles: STANDARD_PROFILES,
-		approval: { mode: 'workspace-boundary', target: 'workdir' },
-	}),
-	localTool({
-		tool: processTool,
-		group: 'shell',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: webFetchTool,
-		group: 'web',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: cronTool,
-		group: 'automation',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
-		ownerOnly: true,
-	}),
-	localTool({
-		tool: openBrowserTool,
-		group: 'browser',
-		profiles: FULL_PROFILE,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: browserTool,
-		group: 'browser',
-		profiles: FULL_PROFILE,
 		approval: NO_APPROVAL,
 	}),
 ] as const satisfies readonly LocalToolCatalogEntry[];
