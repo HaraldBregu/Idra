@@ -272,14 +272,28 @@ describe('StoreService', () => {
 	});
 
 	describe('policy settings', () => {
-		it('defaults missing policy state to deny with no path grants', () => {
+		it('initializes missing policy state with documented default grants', () => {
 			const service = new StoreService();
-
-			expect(service.getPolicy()).toEqual({
+			const store = storeFor(service);
+			const expected = {
 				version: 1,
-				defaultPolicy: 'deny',
-				paths: [],
-			});
+				defaultPolicy: 'deny' as const,
+				paths: [
+					{
+						path: '/workspace',
+						permissions: ['read', 'write', 'create', 'delete'],
+						recursive: true,
+					},
+					{
+						path: '/agent',
+						permissions: ['read', 'write', 'create', 'delete'],
+						recursive: true,
+					},
+				],
+			};
+
+			expect(service.getPolicy()).toEqual(expected);
+			expect(store.get('policy')).toEqual(expected);
 		});
 
 		it('normalizes policy grants while preserving valid path order', () => {
