@@ -1,6 +1,10 @@
 import type { AgentTool } from '../core/common';
 import { markCoreTool } from '../core/common';
-import type { FridayServices, ToolContext } from '../core/types';
+import type {
+	AgentTool as LegacyAgentTool,
+	FridayServices,
+	ToolContext,
+} from '../core/types';
 import { legacyToolToCanonical } from '../runtime/bridge';
 import {
 	applyPatchTool,
@@ -21,7 +25,7 @@ export type FileToolOptions = {
 	signal?: AbortSignal;
 };
 
-const FILE_TOOLS = [
+const FILE_TOOLS: readonly LegacyAgentTool[] = [
 	readTool,
 	writeTool,
 	editTool,
