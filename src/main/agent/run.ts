@@ -777,7 +777,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					runtime: harnessRuntime,
 				});
 				const durationMs = Date.now() - toolStart;
-				const status: ToolResultStatus = sanitizedResult.status === 'ok' ? 'ok' : 'error';
+				const status: ToolResultStatus =
+					sanitizedResult.status === 'ok'
+						? 'ok'
+						: sanitizedResult.status === 'rejected'
+							? 'rejected'
+							: 'error';
 				await hooks?.onToolCall?.({
 					runId,
 					iteration: iter,
@@ -799,14 +804,14 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					outputText: toolResult.outputText,
 					status,
 					durationMs,
-					errorText: status === 'error' ? toolResult.outputText : undefined,
+					errorText: status !== 'ok' ? toolResult.outputText : undefined,
 				});
 				await fireAfterToolCallHook({
 					...hookContext,
 					toolName: t.name,
 					toolUseId: id,
 					result: toolResult.content,
-					isError: status === 'error',
+					isError: status !== 'ok',
 				});
 				await fireBeforeMessageWriteHook({
 					...hookContext,
@@ -818,7 +823,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				session.transcript.push({
 					role: 'tool',
 					toolUseId: id,
-					isError: status === 'error',
+					isError: status !== 'ok',
 					status,
 					content: toolResult.content,
 				});
