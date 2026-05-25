@@ -1,4 +1,4 @@
-import type { PolicyConfig, PolicyEntry, Permission } from '../policy';
+import type { PolicyConfig, PolicyEntry, Permission } from '../../shared/policy';
 import type { SettingsStoreAccessor } from './types';
 
 const VALID_PERMISSIONS = new Set<Permission>(['read', 'write', 'create', 'delete']);

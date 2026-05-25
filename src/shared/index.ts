@@ -10,4 +10,5 @@ export * from './connector';
 export * from './cron';
 export * from './heartbeat';
 export * from './monitor';
+export * from './policy';
 export * from './tasks';

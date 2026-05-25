@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { PolicyConfig, PolicyDecision, Permission } from './types';
+import type { PolicyConfig, PolicyDecision, Permission } from '../../shared/policy';
 import { match } from './match';
 
 export function evaluate(

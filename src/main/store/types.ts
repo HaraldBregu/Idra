@@ -1,5 +1,5 @@
 import type { Provider } from '../../shared/providers';
-import type { PolicyConfig } from '../policy';
+import type { PolicyConfig } from '../../shared/policy';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 import type { Channel } from '../../shared/channels';

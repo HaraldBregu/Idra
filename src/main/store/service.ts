@@ -12,7 +12,7 @@ import type { Channel, ChannelType, TelegramChannelProperties } from '../../shar
 import type { CronTask } from '../../shared/cron';
 import type { CronStoreState } from '../cron/core/cron.types';
 import type { FridayCronStoreState } from '../cron/friday/store';
-import type { PolicyConfig } from '../policy';
+import type { PolicyConfig } from '../../shared/policy';
 import type {
 	AgentConfig,
 	AgentRoutingSettings,

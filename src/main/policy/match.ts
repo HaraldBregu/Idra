@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { PolicyConfig, PolicyEntry } from './types';
+import type { PolicyConfig, PolicyEntry } from '../../shared/policy';
 
 export function match(config: PolicyConfig, resolvedPath: string): PolicyEntry | null {
 	let best: PolicyEntry | null = null;

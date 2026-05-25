@@ -1,3 +1,3 @@
 export { evaluate } from './evaluate';
 export { match } from './match';
-export type { Permission, PolicyOutcome, PolicyEntry, PolicyConfig, PolicyDecision } from './types';
+export type { Permission, PolicyOutcome, PolicyEntry, PolicyConfig, PolicyDecision } from '../../shared/policy';
