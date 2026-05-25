@@ -4,16 +4,16 @@ import {
 	createToolDiagnostics,
 	normalizeToolName,
 } from '../core/common';
-import { createReadTool } from '../files/read-tool';
-import { normalizeToolSchemas } from '../core/schema-normalization';
-import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/tool-policy-pipeline';
+import { createReadTool } from '../files/read';
+import { normalizeToolSchemas } from '../core/normalize';
+import { applyToolPolicyPipeline, type PolicyStageName } from '../policy/pipeline';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
 	newCallTracker,
-} from '../policy/before-tool-call';
+} from '../policy/wrap';
 import type { AppConfig, AuthContext, DeliveryContext } from '../../plugins/tool-types';
-import type { ToolPolicy } from '../policy/tool-policy';
+import type { ToolPolicy } from '../policy/expand';
 
 export type SandboxContext = {
 	sandboxed?: boolean;
