@@ -2,6 +2,10 @@
 
 `web_fetch` reads text from a specific web address.
 
+## Tool Search Description
+
+Use `web_fetch` to fetch readable text from a specific HTTP or HTTPS URL for current or page-specific information.
+
 ## Use For
 
 - Current or external page-specific information.

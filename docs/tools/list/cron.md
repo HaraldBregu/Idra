@@ -2,6 +2,10 @@
 
 `cron` schedules future or recurring agent work.
 
+## Tool Search Description
+
+Use `cron` to create, inspect, update, run, or remove future and recurring scheduled agent work.
+
 ## Use For
 
 - Reminders.

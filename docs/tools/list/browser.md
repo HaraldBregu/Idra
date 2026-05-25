@@ -2,6 +2,10 @@
 
 `browser` controls a managed browser page.
 
+## Tool Search Description
+
+Use `browser` to navigate, inspect, screenshot, or interact with a managed browser page when page behavior matters.
+
 ## Use For
 
 - Navigating, inspecting, screenshotting, or interacting with a page.

@@ -2,6 +2,10 @@
 
 `process` checks or stops background commands started by the agent.
 
+## Tool Search Description
+
+Use `process` to inspect output from, check the status of, or stop a background command started by the agent.
+
 ## Use For
 
 - Checking whether a background command is still running.

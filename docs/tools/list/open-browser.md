@@ -2,6 +2,10 @@
 
 `open_browser` opens a web page for the user.
 
+## Tool Search Description
+
+Use `open_browser` to open a safe, relevant web page in the user's browser when the user needs to view it directly.
+
 ## Use For
 
 - Account setup or consent pages.
