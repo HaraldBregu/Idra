@@ -53,6 +53,22 @@ export function selectAgentToolsForTurn(
 	if (isToolIntrospectionRequest(userMessage.toLowerCase())) {
 		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: [] };
 	}
+	const scheduledCronToolNames = selectFridayCronToolNames(tools, userMessage);
+	if (scheduledCronToolNames.size > 0) {
+		const registry = createAgentToolRegistry(tools);
+		const rankedTools = appendSelectedRankedTools(
+			[],
+			registry,
+			scheduledCronToolNames,
+			'forced selected for scheduled work intent'
+		);
+		return {
+			toolsForPrompt: tools.filter((tool) => scheduledCronToolNames.has(tool.name)),
+			systemPromptSuffix:
+				rankedTools.length > 0 ? new ToolPromptBuilder().buildCompactPrompt(rankedTools) : '',
+			rankedTools,
+		};
+	}
 	const threshold =
 		options.useWhenToolCountExceeds ?? TOOL_LIMITS.prompt.useSelectionWhenToolCountExceeds;
 	if (!options.forceSelection && tools.length <= threshold) {
@@ -70,7 +86,6 @@ export function selectAgentToolsForTurn(
 	});
 	const selectedNames = new Set(rankedTools.map((entry) => entry.tool.name));
 	const forcedToolNames = new Set([
-		...selectFridayCronToolNames(tools, userMessage),
 		...selectGoogleCalendarToolNames(tools, userMessage),
 		...selectGoogleDriveToolNames(tools, userMessage),
 		...selectGmailToolNames(tools, userMessage),
