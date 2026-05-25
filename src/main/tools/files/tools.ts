@@ -354,10 +354,15 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 	},
 	needsApproval: (args, ctx) => {
 		try {
-			return anyWritePathNeedsApproval(
-				ctx,
-				parseUnifiedDiff(String(args.diff ?? '')).map((patch) => patch.path)
-			);
+			return parseUnifiedDiff(String(args.diff ?? '')).some((patch) => {
+				const permission =
+					patch.operation === 'create'
+						? 'create'
+						: patch.operation === 'delete'
+							? 'delete'
+							: 'write';
+				return outsidePathNeedsApproval(ctx, patch.path, [permission]);
+			});
 		} catch {
 			return false;
 		}
