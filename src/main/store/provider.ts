@@ -55,18 +55,18 @@ export class ProviderStore {
 
 	getProviderById(id: string): Provider | undefined {
 		const providerId = id.trim().toLowerCase();
-		return this.getStoredModelProviders().find(
+		return this.getStoredProviders().find(
 			(provider) => provider.id.trim().toLowerCase() === providerId
 		);
 	}
 
 	getProviders(): Provider[] {
-		return this.getStoredModelProviders();
+		return this.getStoredProviders();
 	}
 
 	addProvider(input: Provider): Provider {
 		const id = input.id.trim().toLowerCase();
-		const providers = this.getStoredModelProviders();
+		const providers = this.getStoredProviders();
 		const exists = providers.some((provider) => provider.id.trim().toLowerCase() === id);
 
 		if (exists) {
@@ -80,13 +80,13 @@ export class ProviderStore {
 			apiKey: input.apiKey.trim(),
 		};
 
-		this.setStoredModelProviders([...providers, provider]);
+		this.setStoredProviders([...providers, provider]);
 		return provider;
 	}
 
 	upsertProvider(input: Provider): void {
 		const id = input.id.trim().toLowerCase();
-		const providers = this.getStoredModelProviders();
+		const providers = this.getStoredProviders();
 		const index = providers.findIndex((p) => p.id.trim().toLowerCase() === id);
 		const record: Provider = {
 			id,
@@ -99,11 +99,11 @@ export class ProviderStore {
 		} else {
 			providers.push(record);
 		}
-		this.setStoredModelProviders(providers);
+		this.setStoredProviders(providers);
 	}
 
 	setOpenAiApiKey(key: string): void {
-		const providers = this.getStoredModelProviders();
+		const providers = this.getStoredProviders();
 		const openAiProviderIndex = providers.findIndex(
 			(provider) => provider.id.trim().toLowerCase() === 'openai'
 		);
@@ -120,11 +120,11 @@ export class ProviderStore {
 		} else {
 			providers.push(newProvider);
 		}
-		this.setStoredModelProviders(providers);
+		this.setStoredProviders(providers);
 	}
 
 	setAnthropicApiKey(key: string): void {
-		const providers = this.getStoredModelProviders();
+		const providers = this.getStoredProviders();
 		const anthropicProviderIndex = providers.findIndex(
 			(provider) => provider.id.trim().toLowerCase() === 'anthropic'
 		);
@@ -141,16 +141,16 @@ export class ProviderStore {
 		} else {
 			providers.push(newProvider);
 		}
-		this.setStoredModelProviders(providers);
+		this.setStoredProviders(providers);
 	}
 
-	private getStoredModelProviders(): Provider[] {
+	private getStoredProviders(): Provider[] {
 		const providers = this.store.get('providers');
 		const source = providers === undefined ? this.store.get('modelProviders') : providers;
 		return readProviderSettingsList(source).map(providerFromSettings);
 	}
 
-	private setStoredModelProviders(providers: Provider[]): void {
+	private setStoredProviders(providers: Provider[]): void {
 		this.store.set('providers', providers.map(providerSettings));
 	}
 }
