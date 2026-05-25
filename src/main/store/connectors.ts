@@ -1,7 +1,7 @@
 import type { ConnectorConfig } from '../../shared/connector';
 import type { SettingsStoreAccessor, StoreSchema } from '../../shared/store';
 
-type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
+type ConnectorSettingsKey = keyof NonNullable<StoreSchema['connectors']>;
 
 const CONNECTOR_STORE_KEY_BY_ID = {
 	connector_gmail: 'google_gmail',
@@ -12,9 +12,9 @@ const CONNECTOR_STORE_KEY_BY_ID = {
 	connector_outlookemail: 'outlook_email',
 	connector_sharepoint: 'sharepoint',
 	connector_dropbox: 'dropbox',
-} satisfies Record<ConnectorConfig['connectorId'], ConnectorStoreKey>;
+} satisfies Record<ConnectorConfig['connectorId'], ConnectorSettingsKey>;
 
-const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorStoreKey[];
+const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorSettingsKey[];
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
