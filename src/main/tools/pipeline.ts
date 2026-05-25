@@ -1,1 +1,1 @@
-export * from './policy/tool-policy-pipeline';
+export * from './policy/pipeline';
