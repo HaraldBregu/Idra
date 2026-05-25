@@ -43,3 +43,7 @@ Provider API keys, connector secrets, and channel secrets remain in their owning
 ## Runtime Relationship
 
 The store is configuration state, not the live execution engine. Background task records are kept in memory while they run. Managed schedule records are persisted under scheduler state and create background tasks when due. Channel, connector, heartbeat, and provider services read from the store at startup and when configuration changes.
+
+## Related Docs
+
+- [Policy](policy.md)
