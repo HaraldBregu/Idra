@@ -924,9 +924,15 @@ export class FridayCronScheduler {
 			)
 		);
 		this.timer = setTimeout(() => {
-			void this.processDue(Date.now()).catch((error) => {
-				this.logger?.error('FridayCron', 'Cron tick failed.', error);
-			});
+			void this.processDue(Date.now())
+				.catch((error) => {
+					this.logger?.error('FridayCron', 'Cron tick failed.', error);
+				})
+				.finally(() => {
+					void this.armTimer().catch((error) => {
+						this.logger?.error('FridayCron', 'Cron timer rearm failed.', error);
+					});
+				});
 		}, delayMs);
 		this.timer.unref?.();
 	}
