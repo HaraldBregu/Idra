@@ -5,15 +5,22 @@ import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
 
-const DENY_PATTERNS: RegExp[] = [
-	/\brm\s+-rf\s+\/(?:\s|$)/,
-	/\brm\s+-rf\s+\/\*/,
-	/\bgit\s+push\s+.*--force.*\b(main|master)\b/,
-	/\b:(){:|:&};:/,
-	/\bmkfs\b/,
-	/\bdd\s+if=.*of=\/dev\//,
-	/\bshutdown\b/,
-	/\breboot\b/,
+const DENY_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
+	{ pattern: /\brm\s+-rf\s+\/(?:\s|$)/, reason: 'refusing to remove filesystem root' },
+	{ pattern: /\brm\s+-rf\s+\/\*/, reason: 'refusing to remove filesystem root' },
+	{
+		pattern: /\bgit\s+push\s+.*--force.*\b(main|master)\b/,
+		reason: 'refusing force-push to main/master',
+	},
+	{ pattern: /\b:(){:|:&};:/, reason: 'refusing fork bomb' },
+	{ pattern: /\bmkfs\b/, reason: 'refusing filesystem formatting command' },
+	{ pattern: /\bdd\s+if=.*of=\/dev\//, reason: 'refusing raw device write' },
+	{ pattern: /\bshutdown\b/, reason: 'refusing host shutdown' },
+	{ pattern: /\breboot\b/, reason: 'refusing host reboot' },
+	{
+		pattern: /\bcrontab\b|\blaunchctl\b|\bschtasks(?:\.exe)?\b|\bsystemctl\b.*\btimers?\b/i,
+		reason: 'system scheduler commands are blocked; use the Friday cron tool',
+	},
 ];
 
 const MAX_OUTPUT_BYTES = TOOL_LIMITS.exec.maxOutputBytes;
@@ -46,7 +53,7 @@ const BACKGROUND_PROCESSES = new Map<string, ProcessRecord>();
 let nextProcessId = 1;
 
 function isDenied(command: string): string | null {
-	for (const pat of DENY_PATTERNS) if (pat.test(command)) return pat.source;
+	for (const entry of DENY_PATTERNS) if (entry.pattern.test(command)) return entry.reason;
 	return null;
 }
 
@@ -81,7 +88,7 @@ function truncate(buf: string): { text: string; truncated: boolean } {
 export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 	name: 'exec',
 	description:
-		'Run a shell command in the workspace. Output is capped at 200 lines / 16KB. Use for ls, git, build, tests. Use python3 for Python scripts unless the project specifies another command.',
+		'Run a shell command in the workspace. Output is capped at 200 lines / 16KB. Use for ls, git, build, tests. Use python3 for Python scripts unless the project specifies another command. Do not use host schedulers such as crontab, launchctl, systemctl timers, or schtasks; use the cron tool for future or recurring work.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -112,7 +119,7 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 		const denied = isDenied(command);
 		if (denied) {
 			return {
-				...textResult(`exec: denied by safety policy (pattern: ${denied})`, true),
+				...textResult(`exec: denied by safety policy (${denied})`, true),
 				details: { exitCode: -1, durationMs: 0, truncated: false },
 			};
 		}
