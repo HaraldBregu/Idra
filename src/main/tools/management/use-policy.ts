@@ -52,14 +52,25 @@ export function isToolIntrospectionRequest(request: string): boolean {
 
 export function isScheduledWorkRequest(request: string): boolean {
 	const text = request.toLowerCase();
+	const weekday = 'mondays?|tuesdays?|wednesdays?|thursdays?|fridays?|saturdays?|sundays?';
 	const hasScheduleIntent =
 		/\b(schedule|scheduled|scheduling|remind|reminder|reminders|recurring|repeat|repeating|future|later|cron|crontab)\b/.test(
 			text
 		) ||
 		/\bevery\s+\d+\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)\b/.test(text) ||
-		/\b(in|after)\s+\d+\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)\b/.test(text);
+		new RegExp(
+			`\\bevery\\s+(day|morning|afternoon|evening|night|weekday|weekend|week|month|year|${weekday})\\b`
+		).test(text) ||
+		/\b(daily|weekly|monthly|yearly|annually|hourly|tomorrow|tonight)\b/.test(text) ||
+		new RegExp(`\\b(next|this)\\s+(week|month|year|${weekday})\\b`).test(text) ||
+		/\b(in|after)\s+(\d+|an?|one)\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)\b/.test(
+			text
+		) ||
+		/\b(at|by)\s+\d{1,2}:\d{2}\s*(am|pm)?\b/.test(text) ||
+		/\b(at|by)\s+\d{1,2}\s*(am|pm)\b/.test(text) ||
+		/\b(timer|alarm)\b/.test(text);
 	if (!hasScheduleIntent) return false;
-	return /\b(task|agent|job|work|run|runs|create|write|file|remind|reminder|message|email|check|fetch|retrieve|send|update|delete|report|summary|summarize|set up|setup)\b/.test(
+	return /\b(task|agent|job|work|run|runs|create|write|file|remind|reminder|message|email|check|fetch|retrieve|send|update|delete|report|summary|summarize|set up|setup|notify|alert|ping|timer|alarm|wake)\b/.test(
 		text
 	);
 }
