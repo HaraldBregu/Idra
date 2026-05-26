@@ -4,17 +4,17 @@ This graph is scoped to `src/main/agent` only. External app services are collaps
 
 ```mermaid
 flowchart TD
-	subgraph PublicAPI["src/main/agent public API"]
+	subgraph PublicAPI
 		Index["index.ts<br/>barrel exports"]
 	end
 
-	subgraph Boundary["Outside src/main/agent"]
+	subgraph Boundary
 		Callers["Agent callers<br/>UI, channels, heartbeat, tasks"]
 		ExternalDeps["Injected dependencies<br/>store, workspace, policy, tools,<br/>connectors, skills, mcp, tasks"]
 		ExternalRuntime["Runtime contracts<br/>provider, session, run logger,<br/>tool context, memory flush"]
 	end
 
-	subgraph Core["Core agent files"]
+	subgraph Core
 		Service["service.ts<br/>AgentService"]
 		Run["run.ts<br/>AgentExecutionService"]
 		SystemPrompt["system-prompt.ts<br/>buildSystemPrompt"]
@@ -23,13 +23,13 @@ flowchart TD
 		Logger["logger.ts<br/>agentLogger"]
 	end
 
-	subgraph Capabilities["capabilities/"]
+	subgraph Capabilities
 		CapIndex["capabilities/index.ts"]
 		CapService["capabilities/service.ts<br/>AgentCapabilityService"]
 		CapTypes["capabilities/types.ts"]
 	end
 
-	subgraph Routing["routing/"]
+	subgraph Routing
 		RouteIndex["routing/index.ts"]
 		Bindings["routing/bindings.ts"]
 		ResolveRoute["routing/resolve-route.ts"]
@@ -37,7 +37,7 @@ flowchart TD
 		RouteTypes["routing/types.ts"]
 	end
 
-	subgraph Subagents["subagents/"]
+	subgraph Subagents
 		SubIndex["subagents/index.ts"]
 		Registry["subagents/registry.ts"]
 		SpawnService["subagents/spawn-service.ts"]
