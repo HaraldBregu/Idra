@@ -46,14 +46,22 @@ import {
 } from './workflow/scheduler';
 import type { FridayCronNormalizeContext } from './workflow/normalize';
 
+export type CronServiceActor = CronActorContext;
+export type CronServiceStore = CronPersistenceStore;
+export type CronServiceActionActor = FridayCronActor;
+export type CronServiceActionOptions = FridayCronSchedulerOptions;
+export type CronServiceActionRequest = FridayCronActionRequest;
+export type CronServiceActionResponse = FridayCronActionResponse;
+export type { CronJobOptions, CronTaskHandler } from './types';
+
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
 }
 
 export interface CronServiceOptions {
 	enabled?: boolean;
-	store?: CronPersistenceStore;
-	friday?: FridayCronSchedulerOptions;
+	store?: CronServiceStore;
+	actions?: CronServiceActionOptions;
 }
 
 /**
@@ -70,7 +78,7 @@ export class CronService implements Disposable {
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly runner: DelegatingCronScheduleRunner;
 	private readonly scheduler: CronSchedulerService;
-	private readonly friday: FridayCronScheduler;
+	private readonly workflow: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
 	private taskManager?: TaskManager;
 
@@ -93,12 +101,12 @@ export class CronService implements Disposable {
 			{},
 			logger
 		);
-		this.friday = new FridayCronScheduler(
+		this.workflow = new FridayCronScheduler(
 			new ElectronStoreFridayCronStore(this.store),
 			new NoopFridayCronExecutor(),
 			new NoopFridayCronDelivery(),
 			{
-				...options.friday,
+				...options.actions,
 				enabled: this.automaticEnabled,
 			},
 			logger
@@ -117,24 +125,24 @@ export class CronService implements Disposable {
 	async start(): Promise<void> {
 		if (!this.automaticEnabled) {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
-			await this.friday.start();
+			await this.workflow.start();
 			return;
 		}
 		await this.scheduler.start();
-		await this.friday.start();
+		await this.workflow.start();
 	}
 
 	async stop(): Promise<void> {
 		await this.scheduler.stop();
-		await this.friday.stop();
+		await this.workflow.stop();
 	}
 
 	async reload(): Promise<void> {
 		await this.scheduler.reload();
-		if (this.automaticEnabled) await this.friday.recoverStartup();
+		if (this.automaticEnabled) await this.workflow.recoverStartup();
 	}
 
-	configureFridayRuntime(dependencies: {
+	configureRuntime(dependencies: {
 		agentService?: AgentService;
 		eventBus?: EventBus;
 		channelRegistry?: ChannelRegistry;
@@ -144,7 +152,7 @@ export class CronService implements Disposable {
 			? new AgentServiceFridayCronExecutor(dependencies.agentService, dependencies.heartbeat)
 			: undefined;
 		if (dependencies.agentService) {
-			this.friday.setExecutor(
+			this.workflow.setExecutor(
 				this.taskManager && dependencies.eventBus
 					? new TaskManagerFridayCronExecutor(
 							this.taskManager,
@@ -154,7 +162,7 @@ export class CronService implements Disposable {
 					: directExecutor!
 			);
 		}
-		this.friday.setDelivery(
+		this.workflow.setDelivery(
 			new GatewayFridayCronDelivery({
 				eventBus: dependencies.eventBus,
 				channelRegistry: dependencies.channelRegistry,
@@ -163,13 +171,13 @@ export class CronService implements Disposable {
 		);
 	}
 
-	fridayAction(
-		request: FridayCronActionRequest,
-		actor?: FridayCronActor,
+	handleAction(
+		request: CronServiceActionRequest,
+		actor?: CronServiceActionActor,
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
-	): Promise<FridayCronActionResponse> {
+	): Promise<CronServiceActionResponse> {
 		const effectiveActor = actor ?? { role: 'owner' as const };
-		return this.friday.handleAction(request, effectiveActor, context);
+		return this.workflow.handleAction(request, effectiveActor, context);
 	}
 
 	createSchedule(
@@ -277,10 +285,10 @@ export class CronService implements Disposable {
 		const task = cron.schedule(
 			expression,
 			async () => {
-				console.log(`[cron] tick ${id} '${expression}' — [${data.type}]`);
 				this.recordRun(id);
 				try {
 					await handler();
+					this.logger.info('CronService', `Job "${id}" completed`);
 				} catch (err) {
 					this.logger.error('CronService', `Job "${id}" failed`, err);
 				}
@@ -293,9 +301,13 @@ export class CronService implements Disposable {
 		this.logger.info('CronService', `Scheduled job "${id}" with "${expression}"`);
 
 		if (options.runOnStart) {
-			void Promise.resolve(handler()).catch((err) => {
-				this.logger.error('CronService', `Initial run of "${id}" failed`, err);
-			});
+			void Promise.resolve(handler())
+				.then(() => {
+					this.logger.info('CronService', `Initial run of "${id}" completed`);
+				})
+				.catch((err) => {
+					this.logger.error('CronService', `Initial run of "${id}" failed`, err);
+				});
 		}
 
 		return record;
@@ -343,10 +355,10 @@ export class CronService implements Disposable {
 			const scheduled = cron.schedule(
 				task.expression,
 				async () => {
-					console.log(`[cron] tick ${task.id} '${task.expression}' — [${task.data.type}]`);
 					this.recordRun(task.id);
 					try {
 						await dispatcher(task);
+						this.logger.info('CronService', `Restored job "${task.id}" completed`);
 					} catch (err) {
 						this.logger.error('CronService', `Restored job "${task.id}" failed`, err);
 					}
@@ -383,7 +395,7 @@ export class CronService implements Disposable {
 
 	destroy(): void {
 		void this.scheduler.stop();
-		void this.friday.stop();
+		void this.workflow.stop();
 		for (const job of this.jobs.values()) {
 			try {
 				job.task.stop();
