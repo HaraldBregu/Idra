@@ -128,7 +128,9 @@ export const readTool: AgentTool<ReadArgs> = {
 	},
 	async execute(args, ctx) {
 		try {
-			const abs = resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx));
+			const abs = resolveAbs(ctx.workspace, args.path);
+			const restricted = checkFsRestriction(ctx, abs, 'read', false);
+			if (restricted) return textResult(restricted, true);
 			const denied = checkFilePolicy(ctx, 'read', [{ path: abs, permission: 'read' }]);
 			if (denied) return textResult(denied, true);
 			const stat = await fs.stat(abs);
