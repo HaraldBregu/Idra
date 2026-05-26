@@ -40,3 +40,5 @@ The skills service should:
 Test skill listing, import, download, deletion, root path resolution, and logger behavior for failures. Tests should call the exported skills service and should not duplicate skills logic in feature modules.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
+
+## Verify Implementation
