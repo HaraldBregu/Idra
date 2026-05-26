@@ -24,3 +24,5 @@ Friday cron jobs provide a richer tool-facing scheduler for agent turns, system 
 ## Safety And State
 
 Task records are runtime state and are not the same as schedule definitions. Schedules should not contain provider credentials or copied secrets. Cancellation asks the agent service to cancel the task session and updates task state through the task manager.
+
+Planned task persistence stores serializable task records in Electron Store as `task.json`; see [Task Persistence](persistence.md) for the stored file shape and properties.
