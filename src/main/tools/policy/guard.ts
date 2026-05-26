@@ -20,9 +20,12 @@ export interface BeforeCallOutcome {
 }
 
 /**
- * Pre-flight: loop detection and approval enforcement. Returns whether the agent
- * loop should proceed with `tool.execute`, and optionally a veto result
- * to feed back to the model in lieu of execution.
+ * Pre-flight check for the legacy tool execution path (ToolService.beforeCall).
+ * Combines loop detection and approval enforcement in a single policy evaluation.
+ *
+ * Note: the newer path (wrapToolWithBeforeToolCall in wrap.ts) separates these
+ * concerns — loop detection runs at policy evaluation, approval at hook time.
+ * Both designs are intentional; guard.ts is the simpler path without hook support.
  */
 export async function beforeToolCall(
 	tool: AgentTool,
