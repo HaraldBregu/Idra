@@ -13,7 +13,7 @@ import {
 } from '../../../../src/main/tools/params';
 import { createReadTool } from '../../../../src/main/tools/files/read-tool';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create-agent-tools';
-import { PolicyService } from '../../../../src/main/policy';
+import { PolicyService, PolicyStore } from '../../../../src/main/policy';
 import { applyToolPolicyPipeline } from '../../../../src/main/tools/tool-policy-pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normalization';
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/tools/before-tool-call';
@@ -438,11 +438,14 @@ describe('canonical agent tool runtime', () => {
 		const workspace = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'secret.txt'), 'secret', 'utf8');
 		const policy = new PolicyService({
-			getPolicy: jest.fn(() => ({
-				version: 1,
-				defaultPolicy: 'deny',
-				paths: [],
-			})),
+			store: new PolicyStore({
+				get: jest.fn(() => ({
+					version: 1,
+					defaultPolicy: 'deny',
+					paths: [],
+				})),
+				set: jest.fn(),
+			}),
 		});
 		const result = await createAgentTools({
 			workspaceDir: workspace,
