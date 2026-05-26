@@ -246,11 +246,20 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			}
 			this.emit({ type: 'model.request', runId: input.runId, sessionId: session.id, iteration });
 			await this.runHooks('before_model_call', { runId: input.runId, sessionId: session.id, iteration });
-			const response = await this.collectModelTurn({
-				...input,
-				session,
-				iteration,
-			});
+			let response: Awaited<ReturnType<DefaultAgentHarness['collectModelTurn']>>;
+			try {
+				response = await this.collectModelTurn({
+					...input,
+					session,
+					iteration,
+				});
+			} catch (error) {
+				if (input.signal.aborted || (error as Error).name === 'AbortError') {
+					stopReason = 'cancelled';
+					break;
+				}
+				throw error;
+			}
 			usage.inputTokens += response.usage.inputTokens;
 			usage.outputTokens += response.usage.outputTokens;
 			finalText += response.text;
