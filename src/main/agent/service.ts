@@ -615,9 +615,12 @@ export class AgentService {
 					},
 				})
 			);
-			const systemPromptForTurn = toolSelection.systemPromptSuffix
-				? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
+			const systemPromptWithCapabilities = capabilityPromptAdditions
+				? `${systemPrompt}\n\n${capabilityPromptAdditions}`
 				: systemPrompt;
+			const systemPromptForTurn = toolSelection.systemPromptSuffix
+				? `${systemPromptWithCapabilities}\n\n${toolSelection.systemPromptSuffix}`
+				: systemPromptWithCapabilities;
 
 			const hooks = this.buildHooks(runtimeAgentId, {
 				runId,
