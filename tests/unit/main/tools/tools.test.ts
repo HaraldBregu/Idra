@@ -25,6 +25,30 @@ import { PolicyService } from '../../../../src/main/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 import type { PolicyConfig } from '../../../../src/shared/policy';
 
+type ToolFilterPolicy = {
+	profile: 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
+	allow: string[];
+	alsoAllow?: string[];
+	deny: string[];
+};
+
+function filterTools(all: AgentTool[], cfg: ToolFilterPolicy): AgentTool[] {
+	const service = new PolicyService();
+	const result = service.evaluateTools(
+		all.map((tool) => ({ name: tool.name })),
+		{
+			stages: {
+				profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },
+				runtime: {
+					allow: cfg.allow.length > 0 ? cfg.allow : undefined,
+					deny: cfg.deny,
+				},
+			},
+		}
+	);
+	return all.filter((tool) => result.allowed.has(tool.name.trim().toLowerCase()));
+}
+
 describe('tools/types', () => {
 	it('creates text results with ok and error status', () => {
 		expect(textResult('ok')).toEqual({ status: 'ok', content: [{ type: 'text', text: 'ok' }] });
