@@ -1,0 +1,127 @@
+jest.mock('electron-store', () => {
+	return jest.fn().mockImplementation(() => {
+		const data = new Map<string, unknown>();
+		return {
+			get: (key: string) => data.get(key),
+			set: (key: string, value: unknown) => {
+				data.set(key, value);
+			},
+			delete: (key: string) => {
+				data.delete(key);
+			},
+		};
+	});
+});
+
+import Store from 'electron-store';
+import {
+	ElectronStoreCronStore,
+	emptyCronStoreState,
+	emptyFridayCronStoreState,
+} from '../../../../src/main/cron';
+import type { CronTask } from '../../../../src/shared/cron';
+
+const MockStore = Store as jest.MockedClass<typeof Store>;
+
+function backingStore(service: ElectronStoreCronStore): {
+	get: (key: string) => unknown;
+	set: (key: string, value: unknown) => void;
+} {
+	return (
+		service as unknown as {
+			store: { get: (key: string) => unknown; set: (key: string, value: unknown) => void };
+		}
+	).store;
+}
+
+describe('ElectronStoreCronStore', () => {
+	beforeEach(() => {
+		MockStore.mockClear();
+	});
+
+	it('uses cron.json for cron persistence', () => {
+		new ElectronStoreCronStore();
+
+		expect(MockStore).toHaveBeenCalledWith({
+			name: 'cron',
+			accessPropertiesByDotNotation: false,
+		});
+	});
+
+	it('persists cron tasks, scheduler state, and Friday jobs without sharing settings storage', () => {
+		const service = new ElectronStoreCronStore();
+		const store = backingStore(service);
+		const task: CronTask = {
+			id: 'task-1',
+			expression: '* * * * *',
+			data: { type: 'message', message: 'Run' },
+			createdAt: '2026-05-22T00:00:00.000Z',
+		};
+		const scheduler = {
+			...emptyCronStoreState(),
+			schedules: [{ id: 'schedule-1' }],
+		};
+		const friday = {
+			...emptyFridayCronStoreState(),
+			jobs: [
+				{
+					id: 'job-1',
+					name: 'Stored cron',
+					description: '',
+					enabled: true,
+					createdAtMs: 1,
+					updatedAtMs: 1,
+					schedule: { kind: 'every' as const, everyMs: 60_000 },
+					sessionTarget: 'isolated' as const,
+					wakeMode: 'now' as const,
+					payload: { kind: 'agentTurn' as const, message: 'Run' },
+					delivery: { mode: 'none' as const },
+				},
+			],
+			states: {
+				'job-1': {
+					consecutiveErrors: 0,
+					consecutiveSkipped: 0,
+					consecutiveScheduleErrors: 0,
+					attempts: 0,
+				},
+			},
+			lastRuns: {
+				'job-1': {
+					runId: 'run-1',
+					jobId: 'job-1',
+					status: 'ok' as const,
+					mode: 'manual-force' as const,
+					scheduledForMs: 1,
+					startedAtMs: 1,
+					finishedAtMs: 2,
+					attempt: 1,
+				},
+			},
+		};
+
+		service.setCronTasks([task]);
+		service.setCronSchedulerState(scheduler);
+		service.setFridayCronState(friday);
+
+		expect(service.getCronTasks()).toEqual([task]);
+		expect(service.getCronSchedulerState()).toMatchObject({
+			schedules: [{ id: 'schedule-1' }],
+		});
+		expect(service.getFridayCronState()).toMatchObject({
+			jobs: [{ id: 'job-1' }],
+			lastRuns: { 'job-1': { runId: 'run-1' } },
+		});
+		expect(store.get('tasks')).toEqual([task]);
+		expect(store.get('scheduler')).toMatchObject({ schedules: [{ id: 'schedule-1' }] });
+		expect(store.get('jobs')).toMatchObject({
+			'job-1': {
+				name: 'Stored cron',
+				lastRun: { runId: 'run-1' },
+				state: expect.objectContaining({
+					scheduleIdentity: '{"everyMs":60000,"kind":"every"}',
+				}),
+			},
+		});
+	});
+});
