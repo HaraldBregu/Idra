@@ -20,8 +20,8 @@ import {
 	type FridayCronExecutor,
 } from '../../../../src/main/cron/workflow/scheduler';
 import { EventBus } from '../../../../src/main/core';
-import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
-import type { TaskContext } from '../../../../src/shared/tasks';
+import { AGENT_TASK_TYPE, TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import type { TaskStoreState } from '../../../../src/shared/tasks';
 
 class RecordingExecutor implements FridayCronExecutor {
 	calls: Array<{ job: FridayCronJobDefinition; runId: string }> = [];
@@ -56,6 +56,35 @@ class RecordingDelivery implements FridayCronDeliveryPort {
 			},
 		};
 	}
+}
+
+function createTaskPersistence(): TaskPersistencePort {
+	let state: TaskStoreState = {
+		schemaVersion: 1,
+		records: [],
+		updatedAt: new Date(0).toISOString(),
+	};
+	return {
+		load: jest.fn(() => state),
+		save: jest.fn((next: TaskStoreState) => {
+			state = next;
+		}),
+	};
+}
+
+function createTaskManager(eventBus: EventBus) {
+	const manager = new TaskManager({
+		store: {
+			getAgentService: jest.fn(() => ({
+				provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
+				model: { id: 'gpt-5', name: 'GPT-5' },
+			})),
+			getTaskSettings: jest.fn(() => ({})),
+		},
+		eventBus,
+		persistence: createTaskPersistence(),
+	});
+	return manager;
 }
 
 function createFridayStoreService(): {
@@ -749,21 +778,9 @@ describe('TaskManagerFridayCronExecutor', () => {
 
 	it('creates a visible background agent task and returns its result', async () => {
 		const eventBus = new EventBus();
-		const registry = new TaskRegistry();
-		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({
-			text: `done: ${context.input.message}`,
-		}));
-		registry.register(
-			{
-				type: AGENT_TASK_TYPE,
-				validateInput(input: unknown) {
-					return input as { message: string };
-				},
-				run,
-			},
-			{ userFacing: true }
-		);
-		const taskManager = new TaskManager({ registry, eventBus });
+		const send = jest.fn(async (message: string) => `done: ${message}`);
+		const taskManager = createTaskManager(eventBus);
+		taskManager.configureAgentRuntime({ send, cancel: jest.fn() });
 		const fallback = { execute: jest.fn() };
 		const executor = new TaskManagerFridayCronExecutor(taskManager, eventBus, fallback as never);
 
@@ -782,26 +799,23 @@ describe('TaskManagerFridayCronExecutor', () => {
 				}),
 			}),
 		]);
-		expect(run).toHaveBeenCalledWith(
+		expect(send).toHaveBeenCalledWith(
+			'Summarize inbox',
+			'main',
 			expect.objectContaining({
-				input: { message: 'Summarize inbox' },
+				providerId: 'openai',
+				model: 'gpt-5',
 			})
 		);
 	});
 
 	it('falls back for main-session system events', async () => {
 		const eventBus = new EventBus();
-		const registry = new TaskRegistry();
-		registry.register(
-			{
-				type: AGENT_TASK_TYPE,
-				async run() {
-					return { text: 'unused' };
-				},
-			},
-			{ userFacing: true }
-		);
-		const taskManager = new TaskManager({ registry, eventBus });
+		const taskManager = createTaskManager(eventBus);
+		taskManager.configureAgentRuntime({
+			send: jest.fn(async () => 'unused'),
+			cancel: jest.fn(),
+		});
 		const fallback = { execute: jest.fn(async () => ({ status: 'ok' as const, output: '' })) };
 		const executor = new TaskManagerFridayCronExecutor(taskManager, eventBus, fallback);
 		const job = executableTaskJob({
