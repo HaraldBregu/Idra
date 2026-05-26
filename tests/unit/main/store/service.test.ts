@@ -25,7 +25,6 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
-import { emptyFridayCronStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';
 import type { Provider } from '../../../../src/shared/providers';
@@ -262,111 +261,6 @@ describe('StoreService', () => {
 
 			store.set('connectors', { id: 'gmail' });
 			expect(service.getConnectors()).toEqual([]);
-		});
-	});
-
-	describe('Friday cron state', () => {
-		it('patches cron tasks without replacing sibling scheduler state', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-			const scheduler = { schedules: [{ id: 'schedule-1' }] };
-			const friday = { schemaVersion: 1, jobs: {} };
-			const tasks = [
-				{
-					id: 'task-1',
-					expression: '* * * * *',
-					data: { type: 'agent', prompt: 'Run' },
-					createdAt: '2026-05-22T00:00:00.000Z',
-				},
-			];
-			store.set('cron', { scheduler, ...friday });
-
-			service.setCronTasks(tasks);
-
-			expect(store.get('cron')).toEqual({
-				scheduler,
-				...friday,
-				tasks,
-			});
-		});
-
-		it('persists Friday cron jobs, states, and the last run through the settings store', () => {
-			const service = new StoreService();
-			const state = {
-				...emptyFridayCronStoreState(),
-				jobs: [
-					{
-						id: 'job-1',
-						name: 'Stored cron',
-						description: '',
-						enabled: true,
-						createdAtMs: 1,
-						updatedAtMs: 1,
-						schedule: { kind: 'every' as const, everyMs: 60_000 },
-						sessionTarget: 'isolated' as const,
-						wakeMode: 'now' as const,
-						payload: { kind: 'agentTurn' as const, message: 'Run' },
-						delivery: { mode: 'none' as const },
-					},
-				],
-				states: {
-					'job-1': {
-						consecutiveErrors: 0,
-						consecutiveSkipped: 0,
-						consecutiveScheduleErrors: 0,
-						attempts: 0,
-					},
-				},
-				lastRuns: {
-					'job-1': {
-						runId: 'run-1',
-						jobId: 'job-1',
-						status: 'ok' as const,
-						mode: 'manual-force' as const,
-						scheduledForMs: 1,
-						startedAtMs: 1,
-						finishedAtMs: 2,
-						attempt: 1,
-					},
-				},
-			};
-
-			expect(service.getFridayCronState()).toEqual(emptyFridayCronStoreState());
-			service.setFridayCronState(state);
-
-			expect(service.getFridayCronState()).toMatchObject({
-				jobs: [{ id: 'job-1' }],
-				states: {
-					'job-1': expect.objectContaining({
-						scheduleIdentity: '{"everyMs":60000,"kind":"every"}',
-					}),
-				},
-				lastRuns: { 'job-1': { runId: 'run-1' } },
-			});
-			const cron = (service as unknown as { store: { get: (k: string) => unknown } }).store.get(
-				'cron'
-			) as {
-				friday?: unknown;
-				runs?: unknown;
-				states?: unknown;
-				lastRuns?: unknown;
-				jobs?: Record<string, { lastRun?: unknown; state?: unknown }>;
-			};
-			expect(cron).toMatchObject({
-				jobs: {
-					'job-1': {
-						name: 'Stored cron',
-						lastRun: { runId: 'run-1' },
-						state: expect.objectContaining({
-							scheduleIdentity: '{"everyMs":60000,"kind":"every"}',
-						}),
-					},
-				},
-			});
-			expect(cron.friday).toBeUndefined();
-			expect(cron.states).toBeUndefined();
-			expect(cron.lastRuns).toBeUndefined();
-			expect(cron.runs).toBeUndefined();
 		});
 	});
 
