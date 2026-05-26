@@ -39,9 +39,6 @@ When editing existing code:
 - Don't add code comments unless the user explicitly asks for them.
 - If you notice unrelated dead code, mention it - don't delete it.
 - When implementing a new feature, do not use patch-style or workaround implementations; implement the requested behavior directly in the relevant code, and do not create or run migrations unless explicitly requested.
-- For service changes, refactor the service directly instead of layering patches, compatibility shims, or migration paths unless explicitly requested.
-- When a service refactor makes old code unused, delete the obsolete implementation, exports, imports, tests, and types in the same change.
-- Put shared cross-service types in the appropriate `src/shared` folder instead of duplicating service-local types.
 
 When your changes create orphans:
 - Remove imports/variables/functions that YOUR changes made unused.

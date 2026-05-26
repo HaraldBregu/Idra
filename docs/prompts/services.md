@@ -8,8 +8,9 @@ Every service module must stay isolated:
 - Do not expose internal service files directly.
 - Only `index` exposes the service module.
 - Consumers must depend on the exported service.
-- Shared types or files used by multiple processes must live under `src/shared`.
-- Delete obsolete or conflicting modules, files, and types when a service replaces them.
+- Refactor the owning service directly; do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested.
+- Delete obsolete or conflicting modules, implementations, exports, imports, tests, and types when a service replaces them.
+- Put shared cross-service or cross-process types and files under `src/shared`.
 - Refactor duplicate logic so behavior stays centralized in the owning service.
 
 Services should use the application logger for operations and failures. The logger is not counted as a service dependency.

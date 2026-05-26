@@ -20,7 +20,9 @@ Keep the agent module isolated:
 - Consumers must depend on the exported agent service.
 - Agent behavior must stay centralized inside the agent service.
 
-Types or files that need to be reused by other processes must be stored under `src/shared` so they can be used everywhere. Keep agent-specific implementation types and files inside the agent module unless they are genuinely shared.
+Types or files that need to be reused by other services or processes must be stored under `src/shared` so they can be used everywhere. Keep agent-specific implementation types and files inside the agent module unless they are genuinely shared.
+
+When changing the agent service, refactor the service directly. Do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
 
 The agent service should:
 

@@ -14,7 +14,9 @@ Keep the cron module isolated:
 - Consumers must depend on the exported cron service.
 - Scheduling behavior must stay centralized inside the cron service.
 
-Types that need to be reused by other processes can be stored in a shared folder. Keep cron-specific implementation types inside the cron module unless they are genuinely shared.
+Types that need to be reused by other services or processes must be stored under `src/shared`. Keep cron-specific implementation types inside the cron module unless they are genuinely shared.
+
+When changing the cron service, refactor the service directly. Do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
 
 ## Dependencies
 

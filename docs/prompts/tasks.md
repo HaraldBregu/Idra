@@ -20,7 +20,9 @@ Keep the tasks module isolated:
 - Consumers must depend on the exported tasks service.
 - Task behavior must stay centralized inside the tasks service.
 
-Types or files that need to be reused by other processes must be stored under `src/shared` so they can be used everywhere. Keep task-specific implementation types and files inside the tasks module unless they are genuinely shared.
+Types or files that need to be reused by other services or processes must be stored under `src/shared` so they can be used everywhere. Keep task-specific implementation types and files inside the tasks module unless they are genuinely shared.
+
+When changing the tasks service, refactor the service directly. Do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
 
 The tasks service should:
 

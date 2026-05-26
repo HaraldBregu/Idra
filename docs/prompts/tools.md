@@ -23,7 +23,9 @@ Keep the tools module isolated:
 - Consumers must depend on the exported tools service or exported tool registry.
 - Tool behavior must stay centralized inside the tools module.
 
-Types or files that need to be reused by other processes must be stored under `src/shared` so they can be used everywhere. Keep tool-specific implementation types and files inside the tools module unless they are genuinely shared.
+Types or files that need to be reused by other services or processes must be stored under `src/shared` so they can be used everywhere. Keep tool-specific implementation types and files inside the tools module unless they are genuinely shared.
+
+When changing the tools service, refactor the service directly. Do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
 
 Delete unrelated, obsolete, or conflicting modules, files, and types when they are replaced by the tools module. Refactor existing tool logic so it uses the centralized tools module instead of leaving duplicate implementations in place.
 

@@ -14,7 +14,9 @@ Keep the policy module isolated:
 - Consumers must depend on the exported policy service.
 - Policy behavior must stay centralized inside the policy service.
 
-Types that need to be reused by other processes can be stored in a shared folder. Keep policy-specific implementation types inside the policy module unless they are genuinely shared.
+Types that need to be reused by other services or processes must be stored under `src/shared`. Keep policy-specific implementation types inside the policy module unless they are genuinely shared.
+
+When changing the policy service, refactor the service directly. Do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
 
 ## Dependencies
 
