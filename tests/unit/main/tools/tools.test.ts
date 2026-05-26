@@ -12,7 +12,6 @@ import {
 	readTool,
 	writeTool,
 } from '../../../../src/main/tools/fs';
-import { filterTools } from '../../../../src/main/tools/policy';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -22,7 +21,7 @@ import {
 	PRELOADED_LOCAL_TOOLS,
 } from '../../../../src/main/tools/registry';
 import { textResult, type AgentTool } from '../../../../src/main/tools/types';
-import { PolicyService, PolicyStore } from '../../../../src/main/policy';
+import { PolicyService } from '../../../../src/main/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 import type { PolicyConfig } from '../../../../src/shared/policy';
 
@@ -139,6 +138,7 @@ describe('tools/before-call', () => {
 		};
 		const ctx = makeToolContext();
 		ctx.services.policy = {
+			createToolUseKey: jest.fn(() => 'read::{"path":"a"}'),
 			evaluate: jest.fn(),
 			evaluateTools: jest.fn(),
 			evaluateToolUse: jest.fn(() => ({
@@ -169,10 +169,10 @@ describe('tools/before-call', () => {
 describe('tools/fs', () => {
 	function useFilePolicy(ctx: ReturnType<typeof makeToolContext>, policy: PolicyConfig): void {
 		ctx.services.policy = new PolicyService({
-			store: new PolicyStore({
+			storeAccessor: {
 				read: jest.fn(() => policy),
 				write: jest.fn(),
-			}),
+			},
 		});
 	}
 
