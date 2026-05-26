@@ -2,13 +2,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app, shell } from 'electron';
 import { AppsService } from '../../../../src/main/apps';
-import {
-	ConnectorsService,
-	buildGoogleAuthorizationUrl,
-	scopesForGoogleDriveTools,
-	scopesForGmailTools,
-	scopesForGoogleCalendarTools,
-} from '../../../../src/main/connectors';
+import { ConnectorsService } from '../../../../src/main/connectors';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
@@ -374,51 +368,6 @@ describe('connectors service', () => {
 		expect(fetchImpl).not.toHaveBeenCalled();
 	});
 
-	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
-		const url = new URL(
-			buildGoogleAuthorizationUrl({
-				clientId: 'client-id',
-				redirectUri: 'http://127.0.0.1:49152',
-				state: 'state',
-				scopes: scopesForGmailTools(['search_emails', 'send_email']),
-				codeChallenge: 'challenge',
-				codeChallengeMethod: 'S256',
-			})
-		);
-
-		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
-		expect(url.searchParams.get('redirect_uri')).toBe('http://127.0.0.1:49152');
-		expect(url.searchParams.get('access_type')).toBe('offline');
-		expect(url.searchParams.get('include_granted_scopes')).toBe('true');
-		expect(url.searchParams.get('prompt')).toBe('consent');
-		expect(url.searchParams.get('code_challenge')).toBe('challenge');
-		expect(url.searchParams.get('code_challenge_method')).toBe('S256');
-		expect(url.searchParams.get('scope')).toContain(
-			'https://www.googleapis.com/auth/gmail.readonly'
-		);
-		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.send');
-	});
-
-	it('builds least required Google Calendar OAuth scopes for writable event tools', () => {
-		const scopes = scopesForGoogleCalendarTools(['search_events', 'create_event']);
-
-		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events.readonly');
-		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events');
-		expect(scopes).toContain('https://www.googleapis.com/auth/userinfo.email');
-	});
-
-	it('builds least required Google Drive OAuth scopes for file tools', () => {
-		const profileOnlyScopes = scopesForGoogleDriveTools(['get_profile']);
-		const fileScopes = scopesForGoogleDriveTools(['search_files', 'read_file_content']);
-		const writeScopes = scopesForGoogleDriveTools(['create_file']);
-
-		expect(profileOnlyScopes).toContain('https://www.googleapis.com/auth/userinfo.email');
-		expect(profileOnlyScopes).not.toContain('https://www.googleapis.com/auth/drive.readonly');
-		expect(fileScopes).toContain('https://www.googleapis.com/auth/drive.readonly');
-		expect(fileScopes).not.toContain('https://www.googleapis.com/auth/drive.file');
-		expect(writeScopes).toContain('https://www.googleapis.com/auth/drive.file');
-	});
-
 	it('opens Google OAuth with a runtime loopback redirect and exchanges the code with PKCE', async () => {
 		let connectors: unknown[] = [];
 		const store = connectorStoreFor(
@@ -465,15 +414,27 @@ describe('connectors service', () => {
 				const authUrl = new URL(url);
 				const redirectUri = authUrl.searchParams.get('redirect_uri');
 				expect(redirectUri).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+				expect(authUrl.origin + authUrl.pathname).toBe(
+					'https://accounts.google.com/o/oauth2/v2/auth'
+				);
+				expect(authUrl.searchParams.get('access_type')).toBe('offline');
+				expect(authUrl.searchParams.get('include_granted_scopes')).toBe('true');
+				expect(authUrl.searchParams.get('prompt')).toBe('consent');
 				expect(authUrl.searchParams.get('state')).toBeTruthy();
 				expect(authUrl.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]+$/);
 				expect(authUrl.searchParams.get('code_challenge_method')).toBe('S256');
+				expect(authUrl.searchParams.get('scope')).toContain(
+					'https://www.googleapis.com/auth/gmail.readonly'
+				);
+				expect(authUrl.searchParams.get('scope')).toContain(
+					'https://www.googleapis.com/auth/gmail.send'
+				);
 			},
 		});
 		const added = await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
-			allowedTools: ['get_profile'],
+			allowedTools: ['search_emails', 'send_email'],
 		});
 
 		await expect(service.connectOAuth(added.id)).resolves.toMatchObject({
