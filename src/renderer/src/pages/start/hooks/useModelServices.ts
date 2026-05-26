@@ -150,6 +150,7 @@ export function useModelServices(
 			}
 			dispatch({ type: 'GO_TO_STEP', step: nextStep });
 		} catch (error) {
+			console.error('[useModelServices] Failed to save operator config:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, `Could not save the selected ${service.stepTitle} model.`),
