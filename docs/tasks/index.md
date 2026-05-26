@@ -4,10 +4,10 @@ Tasks let Friday run agent work without blocking the foreground conversation. Th
 
 ## Task Families
 
-| Family          | Functionality                             | How It Works                                                                                                                                                |
-| --------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Background task | Starts agent work immediately.            | A request creates an in-memory task record, validates the task type and payload, runs an isolated agent session, tracks status, and emits lifecycle events. |
-| Scheduled task  | Starts agent work when a schedule is due. | A persisted schedule is recovered at startup, evaluated by the scheduler, and converted into a background task when it should run.                          |
+| Family | Functionality | How It Works |
+| --- | --- | --- |
+| Background task | Starts agent work immediately. | A request creates an in-memory task record, validates the task type and payload, runs an isolated agent session, tracks status, and emits lifecycle events. |
+| Scheduled task | Starts agent work when a schedule is due. | A persisted schedule is recovered at startup, evaluated by the scheduler, and converted into a background task when it should run. |
 
 ## Background Execution
 
@@ -24,5 +24,3 @@ Friday cron jobs provide a richer tool-facing scheduler for agent turns, system 
 ## Safety And State
 
 Task records are runtime state and are not the same as schedule definitions. Schedules should not contain provider credentials or copied secrets. Cancellation asks the agent service to cancel the task session and updates task state through the task manager.
-
-Planned task persistence stores serializable task records in Electron Store as `task.json`; see [Task Persistence](persistence.md) for the stored file shape and properties.
