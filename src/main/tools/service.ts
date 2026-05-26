@@ -36,14 +36,7 @@ export type {
 } from './management';
 
 export interface ToolServiceOptions {
-	policy?: Pick<
-		PolicyServicePort,
-		| 'evaluate'
-		| 'evaluateTools'
-		| 'evaluateToolUse'
-		| 'evaluateToolRequest'
-		| 'createToolUseKey'
-	>;
+	policy?: PolicyServicePort;
 	cron?: CronService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
