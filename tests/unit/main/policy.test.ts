@@ -10,8 +10,8 @@ import type { PolicyConfig } from '../../../src/shared/policy';
 
 function makePolicyStore(policy: () => PolicyConfig) {
 	const accessor = {
-		get: jest.fn(policy),
-		set: jest.fn(),
+		read: jest.fn(policy),
+		write: jest.fn(),
 	};
 	return { accessor, store: new PolicyStore(accessor) };
 }
@@ -59,18 +59,18 @@ describe('policy module', () => {
 			outcome: 'deny',
 			reason: "'read' not in grants for /workspace/private",
 		});
-		expect(accessor.get).toHaveBeenCalledTimes(3);
+		expect(accessor.read).toHaveBeenCalledTimes(3);
 	});
 
 	it('initializes missing policy state with documented default grants', () => {
 		const accessor = {
-			get: jest.fn(() => undefined),
-			set: jest.fn(),
+			read: jest.fn(() => undefined),
+			write: jest.fn(),
 		};
 		const store = new PolicyStore(accessor);
 		const expected = {
 			version: 1,
-			defaultPolicy: 'allow' as const,
+			defaultPolicy: 'deny' as const,
 			paths: [
 				{
 					path: '/workspace',
@@ -85,7 +85,7 @@ describe('policy module', () => {
 			],
 		};
 
-		expect(accessor.set).toHaveBeenCalledWith('policy', expected);
+		expect(accessor.write).toHaveBeenCalledWith(expected);
 		expect(store.getPolicy()).toEqual(expected);
 	});
 
@@ -117,8 +117,8 @@ describe('policy module', () => {
 			],
 		};
 		const store = new PolicyStore({
-			get: jest.fn(() => stored),
-			set: jest.fn((_key, value) => {
+			read: jest.fn(() => stored),
+			write: jest.fn((value) => {
 				stored = value;
 			}),
 		});
@@ -140,8 +140,8 @@ describe('policy module', () => {
 			paths: [{ path: '/tmp/friday', permissions: ['read'], recursive: true }],
 		};
 		const accessor = {
-			get: jest.fn(() => stored),
-			set: jest.fn((_key, value: PolicyConfig) => {
+			read: jest.fn(() => stored),
+			write: jest.fn((value: PolicyConfig) => {
 				stored = value;
 			}),
 		};
