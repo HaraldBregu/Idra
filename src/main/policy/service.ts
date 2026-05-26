@@ -259,7 +259,6 @@ export class PolicyService implements PolicyServicePort {
 }
 
 export type {
-	PolicyStoreAccessor,
 	ToolApprovalPolicyDecision,
 	ToolApprovalPolicyDecisionInput,
 	ToolHookPolicyDecision,
