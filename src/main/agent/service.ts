@@ -221,6 +221,8 @@ export class AgentService {
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly toolService: ToolServicePort;
 	private readonly policyService: PolicyServicePort;
+	private readonly capabilityService: AgentCapabilityServicePort;
+	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
@@ -244,6 +246,15 @@ export class AgentService {
 				cron: dependencies.cron,
 				logger: dependencies.logger,
 			});
+		this.capabilityService =
+			options.capabilityService ??
+			new AgentCapabilityService({
+				connectors: dependencies.connectors,
+				skills: dependencies.skills,
+				logger: dependencies.logger,
+			});
+		this.executionService =
+			options.executionService ?? new AgentExecutionService(this.toolService);
 		this.usesDefaultToolsFactory = !options.toolsFactory;
 		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
