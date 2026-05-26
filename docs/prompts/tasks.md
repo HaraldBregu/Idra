@@ -29,6 +29,7 @@ The tasks service should:
 - List background tasks.
 - Run tasks in the background.
 - Run agents when a task requires agent execution.
+- Run agent tasks with the task's `providerId` and `modelId` when they are present.
 - Store active task state in Electron Store.
 
 Use Electron Store with the store name `task` so the persisted file is `task.json`.
@@ -45,6 +46,8 @@ Each task record in `records` should store:
 - `type`: task handler type.
 - `title`: human-readable task title.
 - `status`: `queued`, `running`, `cancelling`, `cancelled`, `succeeded`, or `failed`.
+- `providerId`: provider identifier loaded from the store.
+- `modelId`: model identifier loaded from the store.
 - `createdAt`: ISO timestamp when the task was created.
 - `startedAt`: ISO timestamp when task execution started.
 - `finishedAt`: ISO timestamp when task execution ended.
