@@ -10,13 +10,9 @@ import type {
 	CronScheduleRunner,
 } from '../../../../src/main/cron/core/cron.types';
 import { CronSchedulerService } from '../../../../src/main/cron/scheduler/cron-scheduler';
-import { TaskManagerCronScheduleRunner } from '../../../../src/main/cron/scheduler/cron-runner';
 import { DefaultCronScheduleAccessPolicy } from '../../../../src/main/cron/security/cron-access-policy';
 import { redactCronValue } from '../../../../src/main/cron/security/cron-redaction';
 import { InMemoryCronScheduleStore } from '../../../../src/main/cron/store/in-memory-cron-schedule-store';
-import { EventBus } from '../../../../src/main/core';
-import { AGENT_TASK_TYPE, TasksService, type TaskPersistencePort } from '../../../../src/main/tasks';
-import type { TaskStoreState } from '../../../../src/shared/tasks';
 
 class RecordingRunner implements CronScheduleRunner {
 	tasks: CronScheduledTask[] = [];
@@ -87,20 +83,6 @@ const actor: CronActorContext = {
 	],
 };
 
-function createTaskPersistence(): TaskPersistencePort {
-	let state: TaskStoreState = {
-		schemaVersion: 1,
-		records: [],
-		updatedAt: new Date(0).toISOString(),
-	};
-	return {
-		load: jest.fn(() => state),
-		save: jest.fn((next: TaskStoreState) => {
-			state = next;
-		}),
-	};
-}
-
 function makeScheduler(runner = new RecordingRunner()) {
 	const store = new InMemoryCronScheduleStore();
 	const policy = new DefaultCronScheduleAccessPolicy({
@@ -146,7 +128,7 @@ function request(overrides: Partial<CronScheduleCreateRequest> = {}): CronSchedu
 		cronExpression: '0 9 * * 1',
 		missedRunPolicy: 'skip',
 		concurrencyPolicy: 'skipIfRunning',
-		taskType: AGENT_TASK_TYPE,
+		taskType: 'agent.run',
 		taskInput: { message: 'Review invoices' },
 		...overrides,
 	};
@@ -192,12 +174,6 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request({ taskInput: { model: 'gpt-5.5' } }), actor)
 		).rejects.toThrow(/Runtime configuration/);
-		await expect(
-			scheduler.createSchedule(
-				request({ taskInput: { message: 'Review invoices', extra: 'not allowed' } }),
-				actor
-			)
-		).rejects.toThrow(/only supports message/);
 	});
 
 	it('computes timezone-aware cron and interval next runs', async () => {
@@ -388,7 +364,7 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request({ requiresConfirmation: true, confirmed: true }), actor)
 		).resolves.toMatchObject({
-			taskType: AGENT_TASK_TYPE,
+			taskType: 'agent.run',
 		});
 	});
 
@@ -404,14 +380,15 @@ describe('CronSchedulerService', () => {
 		await expect(scheduler.listSchedules({}, otherActor)).resolves.toEqual([]);
 	});
 
-	it('rejects non-agent task types', async () => {
+	it('supports non-agent task types without a task service dependency', async () => {
 		const { scheduler } = makeScheduler();
 		await expect(
-			scheduler.createSchedule(
-				request({ taskType: 'email.send', requiresConfirmation: true }),
-				actor
-			)
-		).rejects.toThrow(/agent\.run/);
+			scheduler.createSchedule(request({ taskType: 'email.send', taskInput: { to: 'user@example.com' } }), actor)
+		).resolves.toMatchObject({
+			taskType: 'email.send',
+			target: 'task',
+			payload: { to: 'user@example.com' },
+		});
 	});
 
 	it('redacts audit/log payloads', () => {
@@ -421,39 +398,4 @@ describe('CronSchedulerService', () => {
 		});
 	});
 
-	it('creates approved agent background tasks through TaskManagerCronScheduleRunner', async () => {
-		const eventBus = new EventBus();
-		const taskManager = new TasksService({
-			store: {
-				getAgentService: jest.fn(() => ({
-					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-					model: { id: 'gpt-5', name: 'GPT-5' },
-				})),
-				getTaskSettings: jest.fn(() => ({})),
-			},
-			eventBus,
-			persistence: createTaskPersistence(),
-		});
-		taskManager.configureAgentRuntime({
-			send: jest.fn(async (message: string) => `done: ${message}`),
-			cancel: jest.fn(),
-		});
-		const runner = new TaskManagerCronScheduleRunner(taskManager);
-		const { scheduler, store } = makeScheduler(runner);
-		const schedule = await scheduler.createSchedule(request(), actor);
-		await due(schedule, store, new Date(Date.now() - 1_000).toISOString());
-
-		await scheduler.processDueSchedules(new Date());
-
-		expect(taskManager.list()).toEqual([
-			expect.objectContaining({
-				type: AGENT_TASK_TYPE,
-				title: 'Weekly reminder',
-				metadata: expect.objectContaining({
-					cronScheduleId: schedule.id,
-					cronInput: { message: 'Review invoices' },
-				}),
-			}),
-		]);
-	});
 });
