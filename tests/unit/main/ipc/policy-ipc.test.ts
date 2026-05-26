@@ -16,19 +16,19 @@ describe('PolicyIpc', () => {
 		jest.clearAllMocks();
 	});
 
-	it('forwards policy reads and writes to the policy service', async () => {
+	it('forwards policy reads and writes through the policy service', async () => {
 		const policy: PolicyConfig = {
 			version: 1,
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
-		const policyService = {
+		const service = {
 			getPolicy: jest.fn(() => policy),
 			setPolicy: jest.fn((next: PolicyConfig) => next),
 		};
 		const container = {
 			get: jest.fn((key: 'policy' | 'logger') =>
-				key === 'policy' ? policyService : { info: jest.fn() }
+				key === 'policy' ? service : { info: jest.fn() }
 			),
 		} as unknown as MainServiceContainer;
 
@@ -42,6 +42,6 @@ describe('PolicyIpc', () => {
 			success: true,
 			data: policy,
 		});
-		expect(policyService.setPolicy).toHaveBeenCalledWith(policy);
+		expect(service.setPolicy).toHaveBeenCalledWith(policy);
 	});
 });
