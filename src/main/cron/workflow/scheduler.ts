@@ -1015,20 +1015,30 @@ export class FridayCronScheduler {
 		actor: FridayCronActor,
 		action: FridayCronAuthorizationAction,
 		jobId?: string
-	): void {
-		if (actor.role === 'owner') return;
-		if (actor.role === 'cron-self') {
-			if (action === 'status' || action === 'list') return;
-			if (jobId && actor.jobId === jobId && ['get', 'runs', 'remove'].includes(action)) return;
-			throw new CronPermissionError('Cron job actions are restricted to the current cron job.', {
+		): void {
+			if (actor.role === 'owner') return;
+			if (actor.role === 'cron-self') {
+				if (action === 'status' || action === 'list') return;
+				if (jobId && actor.jobId === jobId && ['get', 'runs', 'remove'].includes(action)) return;
+				this.logger?.warn('FridayCron', 'Cron policy denied.', {
+					action,
+					jobId: jobId ?? null,
+					role: actor.role,
+				});
+				throw new CronPermissionError('Cron job actions are restricted to the current cron job.', {
+					action,
+					jobId: jobId ?? null,
+					role: actor.role,
+				} as CronJsonObject);
+			}
+			this.logger?.warn('FridayCron', 'Cron policy denied.', {
 				action,
 				jobId: jobId ?? null,
 				role: actor.role,
-			} as CronJsonObject);
-		}
-		throw new CronPermissionError('Cron is owner-only for this caller.', {
-			action,
-			jobId: jobId ?? null,
+			});
+			throw new CronPermissionError('Cron is owner-only for this caller.', {
+				action,
+				jobId: jobId ?? null,
 			role: actor.role,
 		} as CronJsonObject);
 	}
