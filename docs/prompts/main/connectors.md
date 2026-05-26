@@ -64,13 +64,16 @@ When implementing or changing this module:
 
 - Respect the declared dependencies. Do not add service dependencies unless the existing project requirements explicitly require it.
 - Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
-- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
-- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
-- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Put connector types, connector keys, schemas, constants, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the connectors module.
+- Implement or update tests for the behavior being changed, including success paths, failure paths, persistence errors, validation, normalization, and logger behavior.
+- Run the focused connectors tests after implementation. If shared contracts or call sites changed, also run the narrowest relevant typecheck or integration test.
+- Verify the implementation before finishing by confirming the tests pass and the public service behavior matches this prompt.
 - Delete files, functions, imports, exports, tests, and local types made unused by the change.
 
 ## Testing
 
 Test connector reads, writes, deletion, listing, validation, normalization, persistence errors, and logger behavior for failures. Tests should call the exported connectors service and should not import internal connector files directly.
+
+Every connectors implementation change must include a verification step in the final result that names the test, typecheck, lint, or docs check that was run.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
