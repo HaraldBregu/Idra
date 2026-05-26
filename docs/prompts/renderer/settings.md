@@ -54,6 +54,30 @@ Each sub-page follows the same pattern:
 
 Current sub-pages: General, System, Providers, Skills, Connectors (with detail), Channels (with detail), Operators (with detail and chat history detail), Heartbeat, Cron (with detail), Task Manager (with detail), Monitoring, Policies.
 
+## Logging
+
+Use `console.error` for unexpected async failures in sub-pages. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
+
+Each sub-page that loads data via IPC must log failures at the catch boundary. Use the page component name as the source tag.
+
+Examples:
+
+```ts
+// In a data-loading effect inside a sub-page
+console.error('[ChannelsPage] Failed to load channel catalog:', error);
+console.error('[ProvidersPage] Failed to load providers:', error);
+console.error('[ConnectorsPage] Failed to load connectors:', error);
+```
+
+Mutation failures (save, delete, enable, disable) follow the same pattern:
+
+```ts
+console.error('[ChannelDetailPage] Failed to save channel config:', error);
+console.error('[ConnectorDetailPage] Failed to remove connector:', error);
+```
+
+Do not log breadcrumb resolution, navigation events, or successful data loads.
+
 ## Testing
 
 Test breadcrumb rendering for nested routes, overview group rendering, `comingSoon` item behavior, navigation on card click, and that the `Outlet` renders sub-page content. Tests call layout and page components; they do not import internal navigation constants directly.
