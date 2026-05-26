@@ -54,6 +54,10 @@ export function applyAgentResponseEventToTools(
 		case 'run_state':
 		case 'reasoning_summary':
 		case 'text_delta':
+		case 'model_selected':
+		case 'capability_resolution_start':
+		case 'capability_resolution_result':
+		case 'run_finished':
 			return undefined;
 		case 'tool_call_start':
 			return updateAgentToolPart(tools, event.toolCallId, {
