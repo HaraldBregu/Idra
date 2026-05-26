@@ -217,18 +217,6 @@ function toolDisplayName(tool: AgentTool): string | undefined {
 	return tool.displayName ?? tool.displaySummary;
 }
 
-function toolWithoutHumanApproval(tool: AgentTool): AgentTool {
-	if (!tool.needsApproval) return tool;
-	return { ...tool, needsApproval: false };
-}
-
-function contextWithoutHumanApproval(ctx: ToolContext): ToolContext {
-	const next: ToolContext = { ...ctx };
-	delete next.approvalCache;
-	delete next.approvalRequired;
-	return next;
-}
-
 function normalizeToolStatus(status: unknown): AgentToolResultStatus {
 	if (status === 'ok') return 'ok';
 	if (status === 'blocked') return 'blocked';
