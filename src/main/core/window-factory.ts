@@ -1,5 +1,6 @@
 import { BrowserWindow, BrowserWindowConstructorOptions, shell } from 'electron';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
 import { normalizeExternalUrl } from '../../shared/external-links';
