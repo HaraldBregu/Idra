@@ -1,7 +1,7 @@
 import type { ChannelRegistry, ChannelsService } from './channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core';
 import type { WindowContextManager } from './core';
-import type { AgentService, AgentStartupFilesService } from './agent';
+import type { AgentService } from './agent';
 import type { AppPermissionsService } from './app-permissions';
 import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
@@ -37,7 +37,6 @@ export interface MainServices {
 	powerSaveBlocker: PowerSaveBlockerService;
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
-	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	taskManager: TasksService;
 	textToSpeech: TextToSpeechService;
