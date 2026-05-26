@@ -91,6 +91,7 @@ export function bootstrapServices(): BootstrapResult {
 		new PolicyService({
 			workspaceRoot: workspace.getRootPath(),
 			agentRoot: userDataDirectory.resolve('agent'),
+			logger,
 		})
 	);
 	for (const runtime of collectConfiguredAgentHarnessRuntimes({
