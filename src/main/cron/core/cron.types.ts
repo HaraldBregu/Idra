@@ -145,9 +145,6 @@ export interface CronSchedulerOptions {
 	runnerId: string;
 	pollIntervalMs: number;
 	lockTtlMs: number;
-	maxToolCallsPerTurn: number;
-	maxPlanningDepth: number;
-	totalTurnTimeoutMs: number;
 	runPolicy: CronRunPolicy;
 	defaultRetryPolicy: CronRetryPolicy;
 	defaultTimezone: string;
