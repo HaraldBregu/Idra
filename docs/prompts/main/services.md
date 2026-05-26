@@ -121,8 +121,8 @@ Use Electron Store for connector data.
 
 Dependencies:
 
-| Dependency | Purpose                                         |
-| ---------- | ----------------------------------------------- |
+| Dependency | Purpose                                            |
+| ---------- | -------------------------------------------------- |
 | None       | Keep connector persistence isolated from services. |
 
 ### Store
