@@ -26,5 +26,5 @@ export {
 	type LocalToolGroup,
 	type LocalToolProfile,
 } from './catalog/registry';
-export { filterTools, type PolicyConfig, type ToolProfile } from './policy/policy';
-export { beforeToolCall, newCallTracker, type CallTracker } from './policy/guard';
+export { filterTools, type PolicyConfig, type ToolProfile } from './policy';
+export { beforeToolCall, newCallTracker, type CallTracker } from './guard';
