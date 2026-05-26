@@ -1,10 +1,18 @@
 import { DEFAULT_AGENT_ID } from '../../../../src/main/constants';
-import { AgentTaskHandler } from '../../../../src/main/tasks/handlers/agent-task-handler';
+import { AGENT_TASK_TYPE, TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import type { TaskStoreState } from '../../../../src/shared/tasks';
 
-describe('AgentTaskHandler', () => {
-	function storeWithAgentService(selection = {
+function flushMicrotasks(times = 4): Promise<void> {
+	return Array.from({ length: times }).reduce(
+		(promise) => promise.then(() => undefined),
+		Promise.resolve()
+	);
+}
+
+function defaultSelection() {
+	return {
 		provider: {
-			id: ' OpenAI ',
+			id: ' openai ',
 			name: 'OpenAI',
 			baseUrl: 'https://api.openai.com/v1',
 		},
@@ -12,57 +20,89 @@ describe('AgentTaskHandler', () => {
 			id: ' gpt-5 ',
 			name: 'GPT-5',
 		},
-	}) {
-		return {
-			getAgentService: jest.fn(() => selection),
-		};
-	}
+	};
+}
 
+function createPersistence(): TaskPersistencePort {
+	let state: TaskStoreState = {
+		schemaVersion: 1,
+		records: [],
+		updatedAt: new Date(0).toISOString(),
+	};
+	return {
+		load: jest.fn(() => state),
+		save: jest.fn((next: TaskStoreState) => {
+			state = next;
+		}),
+	};
+}
+
+function createManager(options: { selection?: ReturnType<typeof defaultSelection> } = {}) {
+	const selection = 'selection' in options ? options.selection : defaultSelection();
+	let nextId = 1;
+	const store = {
+		getAgentService: jest.fn(() => selection),
+		getTaskSettings: jest.fn(() => ({})),
+	};
+	const manager = new TaskManager({
+		store,
+		idFactory: () => `task-${nextId++}`,
+		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
+		persistence: createPersistence(),
+	});
+	return { manager, store };
+}
+
+describe('agent background tasks', () => {
 	it('starts an isolated agent session with configured provider settings', async () => {
 		const send = jest.fn(async () => 'agent output');
 		const cancel = jest.fn();
-		const store = storeWithAgentService();
-		const handler = new AgentTaskHandler({ send, cancel } as never, store as never);
-		const input = handler.validateInput({
-			message: ' Summarize reports ',
+		const { manager, store } = createManager();
+		manager.configureAgentRuntime({ send, cancel });
+
+		const task = manager.startUserTask({
+			type: AGENT_TASK_TYPE,
+			title: 'Agent task',
+			input: {
+				message: ' Summarize reports ',
+			},
 		});
-		const updateProgress = jest.fn();
-		const controller = new AbortController();
+		await flushMicrotasks();
 
-		await expect(
-			handler.run({
-				taskId: 'task-1',
-				input,
-				signal: controller.signal,
-				updateProgress,
-			})
-		).resolves.toEqual({ text: 'agent output' });
-
-		expect(send).toHaveBeenCalledWith(
-			'Summarize reports',
-			DEFAULT_AGENT_ID,
-			{ sessionId: 'task:task-1', providerId: 'openai', model: 'gpt-5' }
-		);
+		expect(send).toHaveBeenCalledWith('Summarize reports', DEFAULT_AGENT_ID, {
+			sessionId: 'task:task-1',
+			providerId: 'openai',
+			model: 'gpt-5',
+		});
 		expect(store.getAgentService).toHaveBeenCalled();
-		expect(updateProgress).toHaveBeenCalledWith({ message: 'Starting agent' });
-		expect(updateProgress).toHaveBeenCalledWith({ message: 'Agent completed' });
+		expect(manager.get(task.id)).toMatchObject({
+			status: 'succeeded',
+			providerId: 'openai',
+			modelId: 'gpt-5',
+			result: { text: 'agent output' },
+		});
 	});
 
 	it('rejects runtime overrides and secret-looking instructions', () => {
-		const handler = new AgentTaskHandler(
-			{ send: jest.fn(), cancel: jest.fn() } as never,
-			storeWithAgentService() as never
-		);
+		const { manager } = createManager();
 
 		expect(() =>
-			handler.validateInput({
-				message: 'Run background research',
-				providerId: 'openai',
+			manager.startUserTask({
+				type: AGENT_TASK_TYPE,
+				title: 'Agent task',
+				input: {
+					message: 'Run background research',
+					providerId: 'openai',
+				},
 			})
 		).toThrow(/providerId is not allowed/);
 		expect(() =>
-			handler.validateInput({
-				message: 'Authorization: Bearer secret-token',
+			manager.startUserTask({
+				type: AGENT_TASK_TYPE,
+				title: 'Agent task',
+				input: {
+					message: 'Authorization: Bearer secret-token',
+				},
 			})
 		).toThrow(/secret-looking/);
 	});
@@ -70,20 +110,24 @@ describe('AgentTaskHandler', () => {
 	it('requires store-backed agent settings before sending', async () => {
 		const send = jest.fn();
 		const cancel = jest.fn();
-		const store = { getAgentService: jest.fn(() => undefined) };
-		const handler = new AgentTaskHandler({ send, cancel } as never, store as never);
-		const input = handler.validateInput({
-			message: 'Run background research',
-		});
+		const { manager } = createManager({ selection: undefined });
+		manager.configureAgentRuntime({ send, cancel });
 
-		await expect(
-			handler.run({
-				taskId: 'task-1',
-				input,
-				signal: new AbortController().signal,
-				updateProgress: jest.fn(),
-			})
-		).rejects.toThrow('Agent provider not configured.');
+		const task = manager.startUserTask({
+			type: AGENT_TASK_TYPE,
+			title: 'Agent task',
+			input: {
+				message: 'Run background research',
+			},
+		});
+		await flushMicrotasks();
+
+		expect(manager.get(task.id)).toMatchObject({
+			status: 'failed',
+			error: {
+				message: 'Agent provider not configured.',
+			},
+		});
 		expect(send).not.toHaveBeenCalled();
 	});
 
@@ -96,25 +140,22 @@ describe('AgentTaskHandler', () => {
 				})
 		);
 		const cancel = jest.fn();
-		const handler = new AgentTaskHandler(
-			{ send, cancel } as never,
-			storeWithAgentService() as never
-		);
-		const input = handler.validateInput({
-			message: 'Run background research',
-		});
-		const controller = new AbortController();
+		const { manager } = createManager();
+		manager.configureAgentRuntime({ send, cancel });
 
-		const run = handler.run({
-			taskId: 'task-1',
-			input,
-			signal: controller.signal,
-			updateProgress: jest.fn(),
+		const task = manager.startUserTask({
+			type: AGENT_TASK_TYPE,
+			title: 'Agent task',
+			input: {
+				message: 'Run background research',
+			},
 		});
-		controller.abort();
+		await flushMicrotasks(2);
+		manager.cancel(task.id);
 		rejectSend?.(new Error('cancelled'));
+		await flushMicrotasks();
 
-		await expect(run).rejects.toMatchObject({ name: 'AbortError' });
+		expect(manager.get(task.id)?.status).toBe('cancelled');
 		expect(cancel).toHaveBeenCalledWith('task:task-1');
 	});
 });
