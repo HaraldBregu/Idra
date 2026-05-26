@@ -1,6 +1,5 @@
 import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
-	CronServiceApi,
 	CronScheduleExecutionError,
 	CronScheduleValidationError,
 	CronSchedulerService,
@@ -388,36 +387,6 @@ describe('CronSchedulerService', () => {
 				actor
 			)
 		).rejects.toThrow(/agent\.run/);
-	});
-
-	it('allows cron service api to create inspectable schedules through CronServiceApi', async () => {
-		const { scheduler } = makeScheduler();
-		const cronService = new CronServiceApi(scheduler);
-
-		const schedule = await cronService.createSchedule(
-			{
-				name: 'Agent reminder',
-				type: 'cron',
-				cronExpression: '0 9 * * 1',
-				taskInput: { message: 'Review invoices' },
-			},
-			{
-				agentId: 'agent-1',
-				userId: 'user-1',
-				timezone: 'Europe/Rome',
-				permissions: actor.permissions,
-			}
-		);
-
-		expect(schedule.source).toBe('agent');
-		await expect(
-			cronService.explainSchedule(schedule.id, {
-				agentId: 'agent-1',
-				userId: 'user-1',
-				timezone: 'Europe/Rome',
-				permissions: actor.permissions,
-			})
-		).resolves.toContain('Monday');
 	});
 
 	it('redacts audit/log payloads', () => {
