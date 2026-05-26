@@ -1,11 +1,12 @@
 import type {
 	CronExecutionRecord,
+	CronPersistenceStore,
 	CronSchedule,
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduleId,
-	CronScheduleStore,
 	CronScheduleStatus,
+	CronScheduleStore,
 	CronScheduleVisibility,
 	CronStoreState,
 } from '../core/cron.types';
@@ -16,19 +17,21 @@ import {
 } from '../core/cron.errors';
 import { isActiveSchedule } from '../core/cron.validation';
 import { emptyCronStoreState, migrateCronStoreState } from './cron-store-migrations';
-import type { CronPersistenceStore } from '../core/cron.types';
 
 function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function matchesValue<T extends string>(candidate: T | undefined, expected: T | T[] | undefined): boolean {
+function matchesValue<T extends string>(
+	candidate: T | undefined,
+	expected: T | T[] | undefined
+): boolean {
 	if (!expected) return true;
 	if (!candidate) return false;
 	return Array.isArray(expected) ? expected.includes(candidate) : candidate === expected;
 }
 
-export class ElectronStoreCronScheduleStore implements CronScheduleStore {
+export class StoreCronScheduleStore implements CronScheduleStore {
 	constructor(
 		private readonly store: Pick<
 			CronPersistenceStore,
@@ -48,7 +51,10 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 		});
 	}
 
-	async updateSchedule(scheduleId: CronScheduleId, patch: Partial<CronSchedule>): Promise<CronSchedule> {
+	async updateSchedule(
+		scheduleId: CronScheduleId,
+		patch: Partial<CronSchedule>
+	): Promise<CronSchedule> {
 		return this.write((state) => {
 			const index = state.schedules.findIndex((schedule) => schedule.id === scheduleId);
 			if (index === -1) throw new CronScheduleNotFoundError(scheduleId);
@@ -81,13 +87,21 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 	async listSchedules(filter: CronScheduleFilter = {}): Promise<CronSchedule[]> {
 		const schedules = this.read().schedules
 			.filter((schedule) => filter.includeDeleted || schedule.status !== 'deleted')
-			.filter((schedule) => matchesValue(schedule.status, filter.status as CronScheduleStatus | CronScheduleStatus[] | undefined))
+			.filter((schedule) =>
+				matchesValue(
+					schedule.status,
+					filter.status as CronScheduleStatus | CronScheduleStatus[] | undefined
+				)
+			)
 			.filter((schedule) => matchesValue(schedule.source, filter.source))
 			.filter((schedule) => !filter.sourceId || schedule.sourceId === filter.sourceId)
 			.filter((schedule) => !filter.ownerUserId || schedule.ownerUserId === filter.ownerUserId)
 			.filter((schedule) => !filter.sessionId || schedule.sessionId === filter.sessionId)
 			.filter((schedule) =>
-				matchesValue(schedule.visibility, filter.visibility as CronScheduleVisibility | CronScheduleVisibility[] | undefined)
+				matchesValue(
+					schedule.visibility,
+					filter.visibility as CronScheduleVisibility | CronScheduleVisibility[] | undefined
+				)
 			)
 			.filter((schedule) => !filter.taskType || schedule.taskType === filter.taskType)
 			.filter((schedule) => !filter.tag || schedule.taskTags.includes(filter.tag))
@@ -118,7 +132,9 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 
 	async recordExecution(record: CronExecutionRecord): Promise<void> {
 		await this.write((state) => {
-			if (state.executions.some((entry) => entry.idempotencyKey === record.idempotencyKey)) return undefined;
+			if (state.executions.some((entry) => entry.idempotencyKey === record.idempotencyKey)) {
+				return undefined;
+			}
 			state.executions.push(clone(record));
 			return undefined;
 		});
@@ -128,12 +144,20 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 		return clone(this.read().executions.filter((record) => record.scheduleId === scheduleId));
 	}
 
-	async getExecutionByIdempotencyKey(idempotencyKey: string): Promise<CronExecutionRecord | undefined> {
-		const record = this.read().executions.find((entry) => entry.idempotencyKey === idempotencyKey);
+	async getExecutionByIdempotencyKey(
+		idempotencyKey: string
+	): Promise<CronExecutionRecord | undefined> {
+		const record = this.read().executions.find(
+			(entry) => entry.idempotencyKey === idempotencyKey
+		);
 		return record ? clone(record) : undefined;
 	}
 
-	async acquireScheduleLock(scheduleId: CronScheduleId, runnerId: string, ttlMs: number): Promise<boolean> {
+	async acquireScheduleLock(
+		scheduleId: CronScheduleId,
+		runnerId: string,
+		ttlMs: number
+	): Promise<boolean> {
 		return this.write((state) => {
 			const now = Date.now();
 			const lock = state.locks[scheduleId];
@@ -166,7 +190,9 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 		return clone(
 			this.read().schedules
 				.filter(isActiveSchedule)
-				.filter((schedule) => Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime()))
+				.filter((schedule) =>
+					Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime())
+				)
 				.sort((a, b) => Date.parse(a.nextRunAt ?? '') - Date.parse(b.nextRunAt ?? ''))
 		);
 	}
@@ -189,7 +215,9 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 			this.store.setCronSchedulerState(state);
 			return clone(result);
 		} catch (error) {
-			if (error instanceof CronScheduleConflictError || error instanceof CronScheduleNotFoundError) throw error;
+			if (error instanceof CronScheduleConflictError || error instanceof CronScheduleNotFoundError) {
+				throw error;
+			}
 			throw new CronScheduleStoreError('Failed to write cron store state.', {
 				error: error instanceof Error ? error.message : String(error),
 			});
