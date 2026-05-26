@@ -394,6 +394,7 @@ export type AgentResponseDelta = Extract<AgentResponseEvent, { type: 'text_delta
 
 
 
+
 export type AgentStartupFileName =
 	| 'AGENTS.md'
 	| 'SOUL.md'
