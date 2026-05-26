@@ -31,20 +31,20 @@ import {
 	DelegatingCronScheduleRunner,
 	TaskManagerCronScheduleRunner,
 } from './scheduler/cron-runner';
-import { ElectronStoreFridayCronStore } from './friday/store';
+import { ElectronStoreFridayCronStore } from './workflow/store';
 import {
 	GatewayFridayCronDelivery,
 	AgentServiceFridayCronExecutor,
 	TaskManagerFridayCronExecutor,
-} from './friday/runtime-adapters';
+} from './workflow/runtime-adapters';
 import {
 	NoopFridayCronDelivery,
 	NoopFridayCronExecutor,
 	FridayCronScheduler,
 	type FridayCronActor,
 	type FridayCronSchedulerOptions,
-} from './friday/scheduler';
-import type { FridayCronNormalizeContext } from './friday/normalize';
+} from './workflow/scheduler';
+import type { FridayCronNormalizeContext } from './workflow/normalize';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;

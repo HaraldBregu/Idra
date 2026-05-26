@@ -6,7 +6,7 @@ import {
 	type FridayCronStoreState,
 	migrateFridayCronStoreState,
 	serializeFridayCronStoreState,
-} from '../friday/store';
+} from '../workflow/store';
 import { migrateCronStoreState } from './cron-store-migrations';
 
 type CronElectronStoreSchema = Partial<FridayCronPersistedStoreState> & {
