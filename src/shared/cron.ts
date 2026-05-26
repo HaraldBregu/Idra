@@ -432,6 +432,16 @@ export interface CronScheduleConfirmation {
 	createdAt: string;
 }
 
+export interface CronStoreState {
+	schemaVersion: number;
+	schedules: CronSchedule[];
+	events: CronScheduleEvent[];
+	executions: CronExecutionRecord[];
+	locks: Record<string, { runnerId: string; expiresAt: string }>;
+	confirmations: CronScheduleConfirmation[];
+	quarantined: CronJsonObject[];
+}
+
 export interface CronValidationResult {
 	valid: boolean;
 	message?: string;

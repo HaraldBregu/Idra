@@ -1,4 +1,4 @@
-import type { CronSchedule, CronStoreState, CronStoredSchedule } from '../core/cron.types';
+import type { CronSchedule, CronStoreState, CronStoredSchedule } from '../../../shared/cron';
 
 export const CRON_STORE_SCHEMA_VERSION = 1;
 

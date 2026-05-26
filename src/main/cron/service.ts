@@ -20,9 +20,8 @@ import {
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext } from './core/cron.types';
+import type { CronActorContext, CronPersistenceStore } from './core/cron.types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
-import { ElectronStoreCronStore, type CronPersistenceStore } from './store/electron-store-cron-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
 import { CronSchedulerService, DEFAULT_CRON_RUN_POLICY } from './scheduler/cron-scheduler';
 import { InMemoryCronScheduleRunner } from './scheduler/cron-runner';
@@ -44,7 +43,7 @@ interface NextRunCapable {
 
 export interface CronServiceOptions {
 	enabled?: boolean;
-	store?: CronServiceStore;
+	store: CronServiceStore;
 }
 
 /**
@@ -63,7 +62,8 @@ export class CronService implements Disposable {
 	private readonly automaticEnabled: boolean;
 
 	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
-		this.store = options.store ?? new ElectronStoreCronStore();
+		if (!options.store) throw new Error('CronService requires a store persistence service.');
+		this.store = options.store;
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');

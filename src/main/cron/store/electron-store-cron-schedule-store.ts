@@ -16,7 +16,7 @@ import {
 } from '../core/cron.errors';
 import { isActiveSchedule } from '../core/cron.validation';
 import { emptyCronStoreState, migrateCronStoreState } from './cron-store-migrations';
-import { ElectronStoreCronStore, type CronPersistenceStore } from './electron-store-cron-store';
+import type { CronPersistenceStore } from '../core/cron.types';
 
 function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;
@@ -33,7 +33,7 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 		private readonly store: Pick<
 			CronPersistenceStore,
 			'getCronSchedulerState' | 'setCronSchedulerState'
-		> = new ElectronStoreCronStore()
+		>
 	) {}
 
 	async createSchedule(schedule: CronSchedule): Promise<CronSchedule> {

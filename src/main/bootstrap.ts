@@ -88,7 +88,7 @@ export function bootstrapServices(): BootstrapResult {
 		new AgentStartupFilesService({ userDataDirectory })
 	);
 
-	const store = container.register('store', new StoreService());
+	const store = container.register('store', new StoreService(logger));
 	const policy = container.register(
 		'policy',
 		new PolicyService({
@@ -114,7 +114,7 @@ export function bootstrapServices(): BootstrapResult {
 		);
 	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
-	const cron = container.register('cron', new CronService(logger));
+	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});

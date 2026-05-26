@@ -1,7 +1,7 @@
 import type { ModelReasoningEffort } from './agents/service';
 import type { Channel } from './channels';
 import type { ConnectorConfig } from './connectors';
-import type { CronTask } from './cron';
+import type { CronStoreState, CronTask } from './cron';
 import type { HeartbeatStoreState } from './heartbeat';
 import type { Provider } from './providers';
 
@@ -29,7 +29,7 @@ export interface AgentModuleOptions {
 
 export interface CronSettings {
 	enabled?: boolean;
-	scheduler?: unknown;
+	scheduler?: CronStoreState;
 	tasks?: CronTask[];
 }
 

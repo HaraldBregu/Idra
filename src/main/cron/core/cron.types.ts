@@ -13,8 +13,10 @@ import type {
 	CronScheduleId,
 	CronSchedulePermissionLevel,
 	CronScheduleSource,
+	CronStoreState,
 	CronScheduleUpdateRequest,
 	CronScheduledTask,
+	CronTask,
 } from '../../../shared/cron';
 
 export type {
@@ -40,6 +42,7 @@ export type {
 	CronSchedulePermissionLevel,
 	CronScheduleSource,
 	CronScheduleStatus,
+	CronStoreState,
 	CronScheduleType,
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
@@ -48,6 +51,7 @@ export type {
 	CronStoredRunStatus,
 	CronStoredSchedule,
 	CronStoredTarget,
+	CronTask,
 	CronTaskPriority,
 	CronTimezone,
 	CronValidationResult,
@@ -80,6 +84,13 @@ export interface CronScheduleStore {
 	listActiveSchedules(): Promise<CronSchedule[]>;
 	listRecoverableSchedules(): Promise<CronSchedule[]>;
 	listDueSchedules(now: Date): Promise<CronSchedule[]>;
+}
+
+export interface CronPersistenceStore {
+	getCronTasks(): CronTask[];
+	setCronTasks(tasks: CronTask[]): void;
+	getCronSchedulerState(): CronStoreState;
+	setCronSchedulerState(state: CronStoreState): void;
 }
 
 export interface CronScheduleRunner {
@@ -148,16 +159,6 @@ export interface CronSchedulerOptions {
 	runPolicy: CronRunPolicy;
 	defaultRetryPolicy: CronRetryPolicy;
 	defaultTimezone: string;
-}
-
-export interface CronStoreState {
-	schemaVersion: number;
-	schedules: CronSchedule[];
-	events: CronScheduleEvent[];
-	executions: CronExecutionRecord[];
-	locks: Record<string, { runnerId: string; expiresAt: string }>;
-	confirmations: CronScheduleConfirmation[];
-	quarantined: CronJsonObject[];
 }
 
 export interface CronAuditLog {
