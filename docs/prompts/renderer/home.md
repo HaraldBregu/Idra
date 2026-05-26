@@ -26,11 +26,11 @@ Render each message in the thread:
 
 ## Types
 
-Follow the type placement rules in `docs/prompts/renderer/index.md`.
+Follow the type placement rules in the renderer conventions.
 
-- Types that cross the IPC boundary (e.g. message shapes passed between main and renderer) belong in `src/shared/types/`.
-- Types used by more than one renderer page (e.g. a `ChatMessage` shape shared with a history view) belong in `src/renderer/src/types/`.
-- Types scoped to this page alone — `HomeState`, `PromptAttachment`, local UI enums — stay inside `src/renderer/src/pages/home/`.
+- Types that cross the IPC boundary (e.g. message shapes passed between main and renderer) belong in the shared types directory.
+- Types used by more than one renderer page (e.g. a `ChatMessage` shape shared with a history view) belong in the renderer-level types directory.
+- Types scoped to this page alone — `HomeState`, `PromptAttachment`, local UI enums — stay inside the home page folder.
 
 ## API Agent
 
