@@ -12,6 +12,14 @@ import {
 	deleteTool,
 	editTool,
 	findTool,
+	filesystemCopyTool,
+	filesystemCreateTool,
+	filesystemDeleteTool,
+	filesystemListTool,
+	filesystemMoveTool,
+	filesystemReadTool,
+	filesystemSearchTool,
+	filesystemUpdateTool,
 	inspectFileTool,
 	moveTool,
 	readTool,
@@ -39,11 +47,25 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	moveTool,
 	inspectFileTool,
 	findTool,
+	filesystemCreateTool,
+	filesystemReadTool,
+	filesystemUpdateTool,
+	filesystemDeleteTool,
+	filesystemListTool,
+	filesystemMoveTool,
+	filesystemCopyTool,
+	filesystemSearchTool,
 ] as const;
 
 export function createFileTools(options: FileToolOptions): AgentTool[] {
 	const context = createFileToolContext(options);
 	return FILE_TOOLS.map((tool) => markCoreTool(legacyToolToCanonical(tool, context)));
+}
+
+export function createReadTool(options: FileToolOptions): AgentTool {
+	const read = createFileTools(options).find((tool) => tool.name === 'read');
+	if (!read) throw new Error('read tool is not registered');
+	return read;
 }
 
 function createFileToolContext(options: FileToolOptions): ToolContext {
