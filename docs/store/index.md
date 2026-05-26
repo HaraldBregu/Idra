@@ -6,7 +6,7 @@ The store persists Friday's application settings. It is an Electron settings sto
 
 - Persists provider records and module model selections.
 - Stores connector configuration and channel accounts.
-- Stores scheduler and heartbeat configuration.
+- Stores scheduler configuration.
 - Normalizes missing settings during reads.
 - Redacts provider secrets from public reads.
 - Keeps writes scoped to the owning property.
@@ -27,7 +27,6 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 | [`cron`](cron.md) | `CronSettings` | Scheduler configuration and persisted schedule records. |
 | [`task`](task.md) | `TaskSettings` | Background task admission and concurrency settings. |
 | [`agents`](agents.md) | `AgentsSettings` | Agent definitions, route bindings, workspaces, tool policy, and subagent settings. |
-| [`heartbeat`](heartbeat.md) | `HeartbeatSettings` | Lightweight heartbeat run state and delivered text records. |
 | [`connectors`](connectors.md) | `ConnectorsSettings` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
 | [`channels`](channels.md) | `ChannelsSettings` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
 
@@ -39,11 +38,11 @@ Provider ids are normalized to lower-case where appropriate. String fields are t
 
 ## Secrets
 
-Provider API keys, connector secrets, and channel secrets remain in their owning properties. Public provider reads redact API keys. Tasks, schedules, heartbeat, and channel dispatch records reference provider configuration indirectly and do not copy provider secrets.
+Provider API keys, connector secrets, and channel secrets remain in their owning properties. Public provider reads redact API keys. Tasks, schedules, and channel dispatch records reference provider configuration indirectly and do not copy provider secrets.
 
 ## Runtime Relationship
 
-The settings store is configuration state, not the live execution engine. Background task records are persisted separately in `task.json` by the tasks service while live execution objects stay in memory. Managed schedule records are persisted under scheduler state and create background tasks when due. Channel, connector, heartbeat, and provider services read from the store at startup and when configuration changes.
+The settings store is configuration state, not the live execution engine. Background task records are persisted separately in `task.json` by the tasks service while live execution objects stay in memory. Managed schedule records are persisted under scheduler state and create background tasks when due. Heartbeat configuration and runtime bookkeeping are persisted separately in `heartbeat.json`.
 
 ## Related Docs
 
