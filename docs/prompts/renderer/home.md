@@ -26,13 +26,22 @@ Render each message in the thread:
 - Group consecutive agent messages visually by suppressing the assistant header for messages that follow another agent message.
 - Collapse long content for messages that are not the last in the thread.
 
+## API Agent
+
+All messages must go through the API agent. Do not use any other API (speech-to-text, voice, or third-party services) for message input or processing.
+
+- Use `useHomeAgent` to manage the full message lifecycle: submit, stream, stop, and history.
+- Send user messages via the agent's submit handler. Never post messages directly to a model API or external service.
+- Agent responses are streamed; update the active `AgentTextMessage` incrementally as chunks arrive.
+- On submit, append the user message to the thread immediately, then wait for the agent stream to complete before finalising the agent message.
+- Stopping generation mid-stream must cancel the in-flight agent request and mark the message as complete with whatever content was received.
+
 ## Input
 
 Use `PromptInput` with:
 
 - A leading attachment button (`Plus` icon) that opens the file picker.
 - A `PromptInputTextarea` with placeholder "Ask anything".
-- `PromptInputVoiceActions` for speech-to-text and voice conversation toggles.
 - A `SubmitButton` that shows an `ArrowUp` icon when idle and a `Square` (stop) icon while the agent is loading. The button only renders when the input is non-empty or the agent is loading.
 
 ## Attachments
