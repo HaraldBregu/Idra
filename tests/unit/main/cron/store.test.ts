@@ -14,12 +14,10 @@ jest.mock('electron-store', () => {
 });
 
 import Store from 'electron-store';
-import {
-	ElectronStoreCronStore,
-	emptyCronStoreState,
-	emptyFridayCronStoreState,
-	type CronStoreState,
-} from '../../../../src/main/cron';
+import type { CronStoreState } from '../../../../src/main/cron/core/cron.types';
+import { ElectronStoreCronStore } from '../../../../src/main/cron/store/electron-store-cron-store';
+import { emptyCronStoreState } from '../../../../src/main/cron/store/cron-store-migrations';
+import { emptyFridayCronStoreState } from '../../../../src/main/cron/workflow/store';
 import type { CronTask } from '../../../../src/shared/cron';
 
 const MockStore = Store as jest.MockedClass<typeof Store>;
