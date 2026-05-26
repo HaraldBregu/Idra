@@ -4,7 +4,6 @@ import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import { DEFAULT_AGENT_ID } from '../constants';
-import { isTaskCancelledError, taskCancelledError } from './task-errors';
 import type {
 	TaskEvent,
 	TaskHandler,
@@ -88,6 +87,7 @@ const MAX_ARRAY_ITEMS = 50;
 const MAX_DEPTH = 4;
 const UNBOUNDED_CONCURRENCY = Number.MAX_SAFE_INTEGER;
 const ALLOWED_AGENT_INPUT_KEYS = new Set(['message']);
+const TASK_CANCELLED_ERROR_NAME = 'AbortError';
 const AGENT_SECRET_PATTERN =
 	/authorization\s*:\s*bearer\s+\S+|(?:api[_-]?key|credential|password|secret|token)\s*[:=]\s*\S+|-----BEGIN [A-Z ]*PRIVATE KEY-----/i;
 
@@ -353,11 +353,14 @@ export class TasksService {
 			});
 			this.emitEvent({ type: 'task:succeeded', task: cloneTaskRecord(state.record) });
 		} catch (error) {
-			this.logger?.error('TasksService', `Task ${taskId} failed`, publicError(error));
-			if (state.record.status === 'cancelling' && isTaskCancelledError(error)) {
+			if (
+				state.controller.signal.aborted ||
+				(state.record.status === 'cancelling' && isTaskCancelledError(error))
+			) {
 				this.completeCancelled(state);
 				return;
 			}
+			this.logger?.error('TasksService', `Task ${taskId} failed`, publicError(error));
 			if (state.record.status !== 'running' && state.record.status !== 'cancelling') return;
 			this.transition(state, 'failed', {
 				finishedAt: this.now(),
@@ -495,7 +498,7 @@ export class TasksService {
 	}
 }
 
-export type TaskManager = TasksService;
+export { TasksService as TaskManager };
 
 export function sanitizeTaskValue(
 	value: unknown,
@@ -634,6 +637,16 @@ function publicError(error: unknown): { code: string; message: string } {
 		return { code: truncate(code, 100), message: truncate(message) };
 	}
 	return { code: 'TaskError', message: truncate(String(error || 'Task failed.')) };
+}
+
+function taskCancelledError(message = 'Task was cancelled.'): Error {
+	const error = new Error(message);
+	error.name = TASK_CANCELLED_ERROR_NAME;
+	return error;
+}
+
+function isTaskCancelledError(error: unknown): boolean {
+	return error instanceof Error && error.name === TASK_CANCELLED_ERROR_NAME;
 }
 
 function validateAgentTaskInput(input: unknown): AgentTaskInput {

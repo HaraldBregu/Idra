@@ -2,7 +2,6 @@ import type { EventBus } from '../../core/event-bus';
 import type { AgentService } from '../../service';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
 import { isModelReasoningEffort } from '../../../shared/agents/service';
-import { taskCancelledError } from '../../tasks';
 import type { SubagentRegistry } from './registry';
 import type { SubagentRunTaskInput, SubagentRunTaskResult } from './types';
 
@@ -56,6 +55,12 @@ function optionalModelReasoningEffort(
 	if (value === undefined || value === null) return undefined;
 	if (isModelReasoningEffort(value)) return value;
 	throw new Error(`${key} must be a supported reasoning effort.`);
+}
+
+function taskCancelledError(message = 'Task was cancelled.'): Error {
+	const error = new Error(message);
+	error.name = 'AbortError';
+	return error;
 }
 
 export class SubagentRunTaskHandler implements TaskHandler<
