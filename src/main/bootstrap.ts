@@ -13,9 +13,6 @@ import { ChannelRegistry, ChannelsService } from './channels';
 import {
 	AgentService,
 	type AgentServiceDependencies,
-	collectConfiguredAgentHarnessRuntimes,
-	disposeRegisteredAgentHarnesses,
-	ensureAgentHarnessRuntimeActivated,
 	SubagentRegistry,
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
@@ -97,22 +94,6 @@ export function bootstrapServices(): BootstrapResult {
 			logger,
 		})
 	);
-	for (const runtime of collectConfiguredAgentHarnessRuntimes({
-		assistant: {
-			options: {
-				agentRuntime: store.getAgentRuntimePreference(),
-			},
-		},
-	})) {
-		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch(
-			(error) => {
-				logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
-					runtime,
-					error: error instanceof Error ? error.message : String(error),
-				});
-			}
-		);
-	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
@@ -145,6 +126,7 @@ export function bootstrapServices(): BootstrapResult {
 		workspace,
 		userDataDirectory,
 		connectors,
+		skills,
 		mcpRegistry,
 		policy,
 		toolService,
@@ -528,7 +510,6 @@ export function setupEventLogging(logger: LoggerService): void {
 export async function cleanup(container: MainServiceContainer): Promise<void> {
 	const logger = container.get('logger');
 	logger.info('Bootstrap', 'Starting cleanup');
-	await disposeRegisteredAgentHarnesses();
 	await container.shutdown();
 	logger.info('Bootstrap', 'Cleanup complete');
 }
