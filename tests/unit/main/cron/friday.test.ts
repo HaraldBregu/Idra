@@ -6,15 +6,19 @@ import type {
 import {
 	ElectronStoreFridayCronStore,
 	emptyFridayCronStoreState,
+	type FridayCronStoreState,
+} from '../../../../src/main/cron/workflow/store';
+import {
 	AgentServiceFridayCronExecutor,
-	FridayCronScheduler,
 	GatewayFridayCronDelivery,
 	TaskManagerFridayCronExecutor,
-	type FridayCronStoreState,
+} from '../../../../src/main/cron/workflow/runtime-adapters';
+import {
+	FridayCronScheduler,
 	type FridayCronDeliveryPort,
 	type FridayCronExecutionOutcome,
 	type FridayCronExecutor,
-} from '../../../../src/main/cron';
+} from '../../../../src/main/cron/workflow/scheduler';
 import { EventBus } from '../../../../src/main/core';
 import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
 import type { TaskContext } from '../../../../src/shared/tasks';
