@@ -49,4 +49,8 @@ The cron service should:
 - Keep scheduling logic out of feature modules.
 - Report job success or failure through the application's logging or reporting system.
 
+## Logging
+
+Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and job execution results. Do not use console logging for module behavior.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.

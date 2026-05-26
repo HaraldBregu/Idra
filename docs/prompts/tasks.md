@@ -65,4 +65,8 @@ Only serializable, sanitized task state should be stored. Do not store live hand
 
 Each task should have one dependency. Do not add multiple task dependencies unless the existing project requirements explicitly require it.
 
+## Logging
+
+Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and task execution results. Do not use console logging for module behavior.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.

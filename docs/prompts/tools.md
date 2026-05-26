@@ -54,4 +54,8 @@ Cron tools should use `PolicyService` before creating, reading, updating, deleti
 
 Cron tools should use `CronService` for all scheduling behavior. They must not start schedules directly or duplicate cron logic.
 
+## Logging
+
+Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and tool execution results. Do not use console logging for module behavior.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
