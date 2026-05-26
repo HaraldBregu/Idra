@@ -5,6 +5,7 @@ import {
 	CHANNEL_PROVIDER_IDS,
 	type Channel,
 	type ChannelAccountProperties,
+	type ChannelDmPolicy,
 	type ChannelHeartbeatVisibilityConfig,
 	type ChannelType,
 	type GenericChannelProperties,
@@ -66,6 +67,12 @@ function normalizeHeartbeatVisibility(
 	};
 }
 
+function normalizeDmPolicy(value: unknown): ChannelDmPolicy | undefined {
+	return CHANNEL_DM_POLICIES.includes(value as ChannelDmPolicy)
+		? (value as ChannelDmPolicy)
+		: undefined;
+}
+
 function normalizeAccounts(input: unknown): Record<string, ChannelAccountProperties> | undefined {
 	const source = readRecord(input);
 	if (!source) return undefined;
@@ -91,9 +98,7 @@ function normalizeAccounts(input: unknown): Record<string, ChannelAccountPropert
 			defaultTarget: readOptionalString(accountObject.defaultTarget),
 			allowFrom: normalizeStringList(accountObject.allowFrom),
 			groupAllowFrom: normalizeStringList(accountObject.groupAllowFrom),
-			dmPolicy: CHANNEL_DM_POLICIES.includes(accountObject.dmPolicy as never)
-				? (accountObject.dmPolicy as ChannelAccountProperties['dmPolicy'])
-				: CHANNEL_DEFAULT_DM_POLICY,
+			dmPolicy: normalizeDmPolicy(accountObject.dmPolicy) ?? CHANNEL_DEFAULT_DM_POLICY,
 			heartbeat: normalizeHeartbeatVisibility(accountObject.heartbeat),
 		};
 	}
@@ -168,6 +173,15 @@ function mergeChannelConfig<TKey extends ChannelType>(
 		return {
 			...defaults,
 			...storedObject,
+			enabled: typeof storedObject.enabled === 'boolean' ? storedObject.enabled : defaults.enabled,
+			defaultAccountId:
+				typeof storedObject.defaultAccountId === 'string'
+					? storedObject.defaultAccountId
+					: defaults.defaultAccountId,
+			defaultTarget:
+				typeof storedObject.defaultTarget === 'string' ? storedObject.defaultTarget : undefined,
+			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? defaults.dmPolicy,
+			heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 			token: typeof storedObject.token === 'string' ? storedObject.token : '',
 			allowFrom: normalizeStringList(storedObject.allowFrom),
 			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
@@ -178,6 +192,15 @@ function mergeChannelConfig<TKey extends ChannelType>(
 		return {
 			...defaults,
 			...storedObject,
+			enabled: typeof storedObject.enabled === 'boolean' ? storedObject.enabled : defaults.enabled,
+			defaultAccountId:
+				typeof storedObject.defaultAccountId === 'string'
+					? storedObject.defaultAccountId
+					: defaults.defaultAccountId,
+			defaultTarget:
+				typeof storedObject.defaultTarget === 'string' ? storedObject.defaultTarget : undefined,
+			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? defaults.dmPolicy,
+			heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 			phoneNumber: typeof storedObject.phoneNumber === 'string' ? storedObject.phoneNumber : '',
 			token: typeof storedObject.token === 'string' ? storedObject.token : '',
 			allowFrom: normalizeStringList(storedObject.allowFrom),
@@ -189,6 +212,15 @@ function mergeChannelConfig<TKey extends ChannelType>(
 		return {
 			...defaults,
 			...storedObject,
+			enabled: typeof storedObject.enabled === 'boolean' ? storedObject.enabled : defaults.enabled,
+			defaultAccountId:
+				typeof storedObject.defaultAccountId === 'string'
+					? storedObject.defaultAccountId
+					: defaults.defaultAccountId,
+			defaultTarget:
+				typeof storedObject.defaultTarget === 'string' ? storedObject.defaultTarget : undefined,
+			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? defaults.dmPolicy,
+			heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 			token: typeof storedObject.token === 'string' ? storedObject.token : '',
 			allowFrom: normalizeStringList(storedObject.allowFrom),
 			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
@@ -198,6 +230,12 @@ function mergeChannelConfig<TKey extends ChannelType>(
 	return {
 		...defaults,
 		...storedObject,
+		enabled: typeof storedObject.enabled === 'boolean' ? storedObject.enabled : defaults.enabled,
+		defaultAccountId:
+			typeof storedObject.defaultAccountId === 'string'
+				? storedObject.defaultAccountId
+				: defaults.defaultAccountId,
+		heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 		accounts:
 			normalizeAccounts(storedObject.accounts) ?? (defaults as GenericChannelProperties).accounts,
 	} as Channel[TKey];
