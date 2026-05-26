@@ -1,8 +1,9 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
-import { evaluateToolUsePolicy, toolUsePolicyKey } from '../policy';
+import { PolicyService } from '../policy';
 
 const LOOP_WARN_AT = 3;
 const LOOP_STOP_AT = 5;
+const defaultPolicyService = new PolicyService();
 
 export interface CallTracker {
 	counts: Map<string, number>;
@@ -33,7 +34,8 @@ export async function beforeToolCall(
 	ctx: ToolContext,
 	tracker: CallTracker
 ): Promise<BeforeCallOutcome> {
-	const key = toolUsePolicyKey(tool.name, args);
+	const policy = ctx.services.policy ?? defaultPolicyService;
+	const key = policy.createToolUseKey(tool.name, args);
 	const count = (tracker.counts.get(key) ?? 0) + 1;
 	tracker.counts.set(key, count);
 
@@ -43,7 +45,7 @@ export async function beforeToolCall(
 		requires = await tool.needsApproval(args as Record<string, unknown>, ctx);
 	}
 
-	const decision = (ctx.services.policy?.evaluateToolUse ?? evaluateToolUsePolicy)({
+	const decision = policy.evaluateToolUse({
 		toolName: tool.name,
 		params: args,
 		callCount: count,
