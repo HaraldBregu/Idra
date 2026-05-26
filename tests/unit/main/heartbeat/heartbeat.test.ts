@@ -111,6 +111,29 @@ function makeHeartbeatHarness(options: {
 		send,
 		getHeartbeatStore: jest.fn(() => heartbeatStore),
 		getHeartbeatOperatorConfig: jest.fn(() => service),
+		getHeartbeatProvider: jest.fn((providerId: string) => {
+			const id = providerId.trim().toLowerCase();
+			if (id === 'openai') {
+				return { id, name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
+			}
+			if (id === 'deepseek') {
+				return { id, name: 'DeepSeek', baseUrl: 'https://api.deepseek.com' };
+			}
+			return undefined;
+		}),
+		getHeartbeatModel: jest.fn((providerId: string, modelId: string) => {
+			const id = modelId.trim();
+			const models = {
+				openai: [
+					{ id: 'gpt-5.4', name: 'GPT-5.4' },
+					{ id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' },
+				],
+				deepseek: [{ id: 'deepseek-v4-pro', name: 'DeepSeek V4-Pro' }],
+			} as const;
+			return models[providerId.trim().toLowerCase() as keyof typeof models]?.find(
+				(model) => model.id === id
+			);
+		}),
 		onHeartbeatRoute: jest.fn((listener: (payload: unknown) => void) => eventBus.on('channel:route', { listener })),
 		broadcastHeartbeatSystemEvent: jest.fn((payload: unknown) => {
 			eventBus.broadcast('heartbeat:system-event', payload);
