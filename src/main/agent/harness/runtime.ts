@@ -11,6 +11,7 @@ import type {
 	AgentHarnessContextBuildResult,
 	AgentHarnessEvent,
 	AgentHarnessExecuteInput,
+	AgentHarnessHookName,
 	AgentHarnessMemoryRecord,
 	AgentHarnessRunResult,
 	AgentHarnessSession,
@@ -650,7 +651,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		await this.logs.append(entry);
 	}
 
-	private async runHooks(name: Parameters<NonNullable<AgentHarness['execute']>>[0] extends never ? never : import('./types').AgentHarnessHookName, payload: unknown): Promise<void> {
+	private async runHooks(name: AgentHarnessHookName, payload: unknown): Promise<void> {
 		for (const hook of this.config.hooks ?? []) {
 			await hook.handle({ name, payload });
 		}
