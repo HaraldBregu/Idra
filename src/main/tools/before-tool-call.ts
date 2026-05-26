@@ -1,1 +1,1 @@
-export * from './policy/wrap';
+export * from './wrap';
