@@ -9,9 +9,6 @@ import type {
 import type { AgentHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
 import type { ConnectorConfig } from '../../shared/connectors';
 import type { Channel, ChannelType, TelegramChannelProperties } from '../../shared/channels';
-import type { CronTask } from '../../shared/cron';
-import type { CronStoreState } from '../cron/core/cron.types';
-import type { FridayCronStoreState } from '../cron/friday/store';
 import type {
 	AgentConfig,
 	AgentRoutingSettings,
@@ -24,7 +21,6 @@ import { AgentsStore } from './agents';
 import { AssistantStore } from './assistant';
 import { ChannelsStore } from './channels';
 import { ConnectorsStore } from './connectors';
-import { CronStore } from './cron';
 import { HeartbeatStore } from './heartbeat';
 import { ImageCreatorStore } from './image-creator';
 import { ProvidersStore } from './providers';
@@ -46,7 +42,6 @@ export class StoreService {
 	private agents: AgentsStore;
 	private task: TaskStore;
 	private channels: ChannelsStore;
-	private cron: CronStore;
 	private heartbeat: HeartbeatStore;
 	private connectors: ConnectorsStore;
 
@@ -65,7 +60,6 @@ export class StoreService {
 		this.agents = new AgentsStore(this.store);
 		this.task = new TaskStore(this.store);
 		this.channels = new ChannelsStore(this.store);
-		this.cron = new CronStore(this.store);
 		this.heartbeat = new HeartbeatStore(this.store);
 		this.connectors = new ConnectorsStore(this.store);
 	}
@@ -235,26 +229,6 @@ export class StoreService {
 	}
 	setTelegramChannel(config: TelegramChannelProperties): TelegramChannelProperties {
 		return this.channels.setTelegramChannel(config);
-	}
-
-	// Cron
-	getCronTasks(): CronTask[] {
-		return this.cron.getCronTasks();
-	}
-	setCronTasks(tasks: CronTask[]): void {
-		return this.cron.setCronTasks(tasks);
-	}
-	getCronSchedulerState(): CronStoreState {
-		return this.cron.getCronSchedulerState();
-	}
-	setCronSchedulerState(state: CronStoreState): void {
-		return this.cron.setCronSchedulerState(state);
-	}
-	getFridayCronState(): FridayCronStoreState {
-		return this.cron.getFridayCronState();
-	}
-	setFridayCronState(state: FridayCronStoreState): void {
-		return this.cron.setFridayCronState(state);
 	}
 
 	// Heartbeat

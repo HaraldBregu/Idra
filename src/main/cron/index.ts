@@ -6,6 +6,7 @@ export * from './core/cron.errors';
 export * from './core/cron.validation';
 export * from './core/cron.describer';
 export * from './store/in-memory-cron-schedule-store';
+export * from './store/electron-store-cron-store';
 export * from './store/electron-store-cron-schedule-store';
 export * from './store/cron-store-migrations';
 export * from './scheduler/cron-next-run-calculator';

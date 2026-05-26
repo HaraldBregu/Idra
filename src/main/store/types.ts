@@ -13,7 +13,6 @@ export type {
 	AssistantSettings,
 	ChannelsSettings,
 	ConnectorsSettings,
-	CronSettings,
 	HeartbeatSettings,
 	ImageCreatorSettings,
 	ModelModuleSettings,

@@ -2,7 +2,6 @@ import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
 import type { ChannelRegistry } from '../channels';
 import type { AgentService } from '../service';
 import type { HeartbeatService } from '../heartbeat';
@@ -25,6 +24,7 @@ import {
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext } from './core/cron.types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
+import { ElectronStoreCronStore, type CronPersistenceStore } from './store/electron-store-cron-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
 import { CronSchedulerService, DEFAULT_CRON_RUN_POLICY } from './scheduler/cron-scheduler';
 import {
@@ -52,6 +52,7 @@ interface NextRunCapable {
 
 export interface CronServiceOptions {
 	enabled?: boolean;
+	store?: CronPersistenceStore;
 	friday?: FridayCronSchedulerOptions;
 }
 
@@ -63,7 +64,7 @@ export interface CronServiceOptions {
  * whatever shape they want as long as it has a string `type` discriminator.
  */
 export class CronService implements Disposable {
-	private readonly store: StoreService;
+	private readonly store: CronPersistenceStore;
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
@@ -73,12 +74,12 @@ export class CronService implements Disposable {
 	private readonly automaticEnabled: boolean;
 	private taskManager?: TaskManager;
 
-	constructor(store: StoreService, logger: LoggerService, options: CronServiceOptions = {}) {
-		this.store = store;
+	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
+		this.store = options.store ?? new ElectronStoreCronStore();
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
-		this.scheduleStore = new ElectronStoreCronScheduleStore(store);
+		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store);
 		this.runner = new DelegatingCronScheduleRunner();
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
 			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
@@ -93,7 +94,7 @@ export class CronService implements Disposable {
 			logger
 		);
 		this.friday = new FridayCronScheduler(
-			new ElectronStoreFridayCronStore(store),
+			new ElectronStoreFridayCronStore(this.store),
 			new NoopFridayCronExecutor(),
 			new NoopFridayCronDelivery(),
 			{

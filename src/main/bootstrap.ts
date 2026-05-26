@@ -110,7 +110,7 @@ export function bootstrapServices(): BootstrapResult {
 		);
 	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
-	const cron = container.register('cron', new CronService(store, logger));
+	const cron = container.register('cron', new CronService(logger));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
