@@ -61,7 +61,7 @@ Follow the type placement rules in `docs/prompts/renderer/index.md`.
 
 ## Logging
 
-Use `console.error` for unexpected async failures in sub-pages. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
+Use `console.error` for unexpected async failures in sub-pages. Do not use `console.log` or `console.debug`. See the renderer logging convention in the renderer conventions.
 
 Each sub-page that loads data via IPC must log failures at the catch boundary. Use the page component name as the source tag.
 
