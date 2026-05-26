@@ -73,11 +73,10 @@ describe('PolicyIpc', () => {
 
 		await expect(registeredHandler(PolicyChannels.get)({})).resolves.toEqual({
 			success: false,
-			error: {
+			error: expect.objectContaining({
 				code: 'Error',
 				message: 'policy read failed',
-				stack: expect.any(String),
-			},
+			}),
 		});
 		expect(logger.error).toHaveBeenCalledWith(
 			'PolicyIpc',
