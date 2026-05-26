@@ -130,7 +130,7 @@ describe('heartbeat preload API', () => {
 	});
 
 	it('rejects malformed heartbeat request objects before IPC invocation', async () => {
-		await expect(heartbeat.saveSettings(null as never)).rejects.toThrow('Invalid heartbeat request.');
+		expect(() => heartbeat.saveSettings(null as never)).toThrow('Invalid heartbeat request.');
 		expect(mockedIpcRenderer.invoke).not.toHaveBeenCalled();
 	});
 });
