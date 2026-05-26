@@ -197,7 +197,6 @@ export const StoreChannels = {
 	getCronSettings: 'store:get-cron-settings',
 	getTaskSettings: 'store:get-task-settings',
 	getAgentRoutingSettings: 'store:get-agent-routing-settings',
-	getHeartbeatSettings: 'store:get-heartbeat-settings',
 	getConnectorSettings: 'store:get-connector-settings',
 	getAssistantOperator: 'store:get-assistant-operator',
 	saveAssistantOperator: 'store:save-assistant-operator',
@@ -787,10 +786,6 @@ interface StoreInvokeChannelMap {
 	[StoreChannels.getAgentRoutingSettings]: {
 		args: [];
 		result: import('../store').AgentRoutingSettings;
-	};
-	[StoreChannels.getHeartbeatSettings]: {
-		args: [];
-		result: import('../store').HeartbeatSettings;
 	};
 	[StoreChannels.getConnectorSettings]: {
 		args: [];
