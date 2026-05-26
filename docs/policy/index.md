@@ -4,9 +4,7 @@ The policy module decides whether an operation on a path is permitted. It is the
 
 ## Dependencies
 
-The policy module depends on `StoreService` to retrieve the policy data object. It does not own or load the policy document directly — it receives the parsed policy object from `StoreService` at evaluation time.
-
-The shape and properties of the stored policy object are defined in [Store — Policy](../store/policy.md).
+The policy module owns policy persistence through a dedicated Electron store named `policy`. It does not store policy data under the application settings store.
 
 ## Service Usage
 
@@ -14,11 +12,10 @@ The policy module can also be used as a service by runtime components that need 
 
 Callers should:
 
-1. Read the active policy with `StoreService.getPolicy()`.
-2. Pass the policy, target path, and requested permission to `evaluate(...)`.
-3. Continue only when the returned decision has `outcome: "allow"`.
+1. Read the active policy with `PolicyService.getPolicy()` or call `PolicyService.evaluate(...)`.
+2. Continue only when the returned decision has `outcome: "allow"`.
 
-Services that read, write, create, or delete paths should use this boundary instead of duplicating path matching or reading the stored policy object directly. Denied operations should surface the returned resolved path and reason so callers can explain why access was blocked.
+Services that read, write, create, or delete paths should use this boundary instead of duplicating path matching or reading the policy store directly. Denied operations should surface the returned resolved path and reason so callers can explain why access was blocked.
 
 ## Matching
 
@@ -38,7 +35,3 @@ A more specific entry always wins. An empty `permissions` array on a child path 
 | `deny`  | The requested operation is rejected.  |
 
 The result includes the resolved path, the matched grant, and a reason.
-
-## Related Docs
-
-- [Store — Policy](../store/policy.md)

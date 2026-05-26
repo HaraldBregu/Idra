@@ -30,7 +30,6 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 | [`heartbeat`](heartbeat.md) | `HeartbeatSettings` | Lightweight heartbeat run state and delivered text records. |
 | [`connectors`](connectors.md) | `ConnectorsSettings` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
 | [`channels`](channels.md) | `ChannelsSettings` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
-| [`policy`](policy.md) | `PolicySettings` | Access control policy version, default decision, and path grants. |
 
 ## Normalization
 
@@ -61,4 +60,3 @@ The store is configuration state, not the live execution engine. Background task
 - [Heartbeat](heartbeat.md)
 - [Connectors](connectors.md)
 - [Channels](channels.md)
-- [Policy](policy.md)
