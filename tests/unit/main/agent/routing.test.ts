@@ -3,7 +3,7 @@ import {
 	channelMessageRouteInput,
 	normalizeAgentRoutingSettings,
 	resolveAgentRoute,
-} from '../../../../src/main/agent/routing';
+} from '../../../../src/main/agent';
 
 describe('agent routing', () => {
 	it('falls back to the synthetic main agent when no agents are configured', () => {

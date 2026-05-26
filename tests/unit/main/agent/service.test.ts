@@ -5,7 +5,7 @@ import type {
 	ProviderEvent,
 	ProviderStreamRequest,
 } from '../../../../src/main/provider/types';
-import { AgentService } from '../../../../src/main/service';
+import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { PolicyService } from '../../../../src/main/policy';

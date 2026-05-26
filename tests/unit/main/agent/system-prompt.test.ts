@@ -1,4 +1,4 @@
-import { buildSystemPrompt } from '../../../../src/main/agent/system-prompt';
+import { buildSystemPrompt } from '../../../../src/main/agent';
 import type { AgentTool } from '../../../../src/main/tools/types';
 
 describe('agent/system-prompt', () => {

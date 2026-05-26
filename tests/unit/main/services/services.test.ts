@@ -12,7 +12,7 @@ import {
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
-import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
+import { AgentStartupFilesService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('apps service', () => {

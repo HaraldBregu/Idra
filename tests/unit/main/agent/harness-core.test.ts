@@ -12,7 +12,7 @@ import {
 	type AgentHarness,
 	type AgentHarnessAttemptParams,
 	type AgentHarnessAttemptResult,
-} from '../../../../src/main/agent/harness';
+} from '../../../../src/main/agent';
 import type { SessionFile } from '../../../../src/main/session/store';
 
 function clearHarnessActivationState(): void {

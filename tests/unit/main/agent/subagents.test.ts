@@ -2,8 +2,8 @@ import {
 	SubagentRegistry,
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
-} from '../../../../src/main/agent/subagents';
-import { SUBAGENT_RUN_TASK_TYPE } from '../../../../src/main/agent/subagents/task-handler';
+} from '../../../../src/main/agent';
+import { SUBAGENT_RUN_TASK_TYPE } from '../../../../src/main/agent';
 
 describe('subagent orchestration', () => {
 	function createSpawnService(options: {
