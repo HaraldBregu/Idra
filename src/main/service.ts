@@ -31,7 +31,6 @@ import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import {
 	evaluateToolRequestPolicy,
-	PolicyService,
 	type PolicyServicePort,
 } from './policy';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
@@ -193,9 +192,6 @@ export class AgentService {
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
-		if (!this.dependencies.policy && typeof this.dependencies.store.getPolicy === 'function') {
-			this.dependencies.policy = new PolicyService(this.dependencies.store);
-		}
 		this.ensureRuntime(this.defaultAgentId);
 	}
 
