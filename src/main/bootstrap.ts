@@ -85,7 +85,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService());
-	const policy = container.register('policy', new PolicyService(store));
+	const policy = container.register('policy', new PolicyService(store, workspace.getRootPath()));
 	for (const runtime of collectConfiguredAgentHarnessRuntimes({
 		assistant: {
 			options: {
