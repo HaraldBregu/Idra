@@ -15,6 +15,8 @@ import type {
 	CronScheduleSource,
 	CronScheduleUpdateRequest,
 	CronScheduledTask,
+	CronStoredSchedule,
+	CronStoredTarget,
 } from '../../../shared/cron';
 
 export type {
@@ -45,6 +47,9 @@ export type {
 	CronScheduleVisibility,
 	CronScheduledTask,
 	CronScheduledTaskStatus,
+	CronStoredRunStatus,
+	CronStoredSchedule,
+	CronStoredTarget,
 	CronTaskPriority,
 	CronTimezone,
 	CronValidationResult,
