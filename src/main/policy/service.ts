@@ -4,6 +4,7 @@ import {
 	evaluateToolApprovalPolicy,
 	evaluateToolHookPolicy,
 	evaluateToolPolicy,
+	evaluateToolRequestPolicy,
 	evaluateToolUsePolicy,
 	type ToolApprovalPolicyDecision,
 	type ToolApprovalPolicyDecisionInput,
@@ -12,6 +13,8 @@ import {
 	type ToolPolicyEvaluation,
 	type ToolPolicyEvaluationContext,
 	type ToolPolicySubject,
+	type ToolRequestPolicyDecision,
+	type ToolRequestPolicyInput,
 	type ToolUsePolicyDecision,
 	type ToolUsePolicyInput,
 } from './tools';
@@ -27,6 +30,7 @@ export interface PolicyServicePort {
 		context?: ToolPolicyEvaluationContext
 	): ToolPolicyEvaluation;
 	evaluateToolUse(input: ToolUsePolicyInput): ToolUsePolicyDecision;
+	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision;
 	evaluateToolHook(input: ToolHookPolicyInput): ToolHookPolicyDecision;
 	evaluateToolApproval(input: ToolApprovalPolicyDecisionInput): ToolApprovalPolicyDecision;
 }
@@ -47,6 +51,10 @@ export class PolicyService implements PolicyServicePort {
 
 	evaluateToolUse(input: ToolUsePolicyInput): ToolUsePolicyDecision {
 		return evaluateToolUsePolicy(input);
+	}
+
+	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision {
+		return evaluateToolRequestPolicy(input);
 	}
 
 	evaluateToolHook(input: ToolHookPolicyInput): ToolHookPolicyDecision {
