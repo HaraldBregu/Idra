@@ -1,6 +1,7 @@
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentStartupFilesServicePort } from '../../agent/startup-files';
+import type { CronServiceActionActor } from '../../cron';
 import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../store';
 import type { TaskManager } from '../../tasks';
@@ -30,6 +31,8 @@ export interface ToolContext {
 	workspace: string;
 	/** Agent id that owns this run, when available. */
 	agentId?: string;
+	/** Scheduled-task actor context for cron-triggered runs. */
+	cronContext?: CronServiceActionActor;
 	/** Best-effort live chat delivery context for tools that can persist follow-up work. */
 	deliveryContext?: Record<string, unknown>;
 	/** Run-scoped id used by the run logger / session. */
