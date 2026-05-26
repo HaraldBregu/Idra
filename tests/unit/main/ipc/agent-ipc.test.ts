@@ -59,6 +59,10 @@ function createContainer(overrides: {
 }
 
 describe('agent/ipc history conversion', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('preserves agent content blocks and tool result metadata for renderer history', () => {
 		const transcript: TranscriptEntry[] = [
 			{ role: 'user', content: 'read it' },
