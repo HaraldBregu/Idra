@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { EventBus } from './core/event-bus';
-import type { CronService } from './cron';
-import type { LoggerService } from './logger';
-import type { McpRegistry } from './mcp';
-import type { StoreService } from './store';
-import type { TasksService } from './tasks';
-import type { ConnectorsService } from './connectors';
-import { resolveBootstrapMode, type WorkspaceService } from './workspace';
+import type { EventBus } from '../core/event-bus';
+import type { CronService } from '../cron';
+import type { LoggerService } from '../logger';
+import type { McpRegistry } from '../mcp';
+import type { StoreService } from '../store';
+import type { TasksService } from '../tasks';
+import type { ConnectorsService } from '../connectors';
+import { resolveBootstrapMode, type WorkspaceService } from '../workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
@@ -16,35 +16,44 @@ import {
 	DEFAULT_USER_FILENAME,
 	type AgentStartupFile,
 	type AgentStartupFilesServicePort,
-} from './agent/startup-files';
-import type { UserDataDirectoryServicePort } from './user-data';
-import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
-import { buildSystemPrompt } from './agent/system-prompt';
-import { type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
+} from './startup-files';
+import type { UserDataDirectoryServicePort } from '../user-data';
+import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
+import { buildSystemPrompt } from './system-prompt';
+import { type AgentRunHooks, type AgentRunStreamEvent } from './run';
 import {
 	buildAgentHookContext,
 	fireBeforePromptBuildHook,
 	resetRegisteredAgentHarnesses,
 	runAgentHarnessAttempt,
-} from './agent/harness';
-import { DEFAULT_AGENT_ID } from './constants';
-import { makeProvider, type ProviderSpec } from './provider/factory';
+} from './harness';
+import { DEFAULT_AGENT_ID } from '../constants';
+import { makeProvider, type ProviderSpec } from '../provider/factory';
 import {
 	PolicyService,
 	type PolicyServicePort,
-} from './policy';
-import type { ProviderAdapter, TranscriptEntry } from './provider/types';
-import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
-import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
-import { resolveDefaultUserDataPath } from './user-data';
+} from '../policy';
+import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import {
+	loadSession,
+	loadExistingSession,
+	listSessions,
+	saveSession,
+	clearSession,
+	type SessionFile,
+	type SessionStatus,
+} from '../session/store';
+import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logger';
+import { resolveDefaultUserDataPath } from '../user-data';
+import {
+	type AgentRunState,
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
 	type OperatorStoreState,
-} from '../shared/agents/service';
-import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
-import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
-import type { SubagentSpawnPort } from './agent/subagents';
+} from '../../shared/agents/service';
+import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
+import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../../shared/store';
+import type { SubagentSpawnPort } from './subagents';
 import {
 	ToolService,
 	type AgentTool,
@@ -52,7 +61,7 @@ import {
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 	type ToolServicePort,
-} from './tools';
+} from '../tools';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
