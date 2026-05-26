@@ -937,7 +937,7 @@ export class CronSchedulerService implements CronScheduler {
 		schedule: Pick<CronSchedule, 'id'>,
 		action: string,
 		message: string,
-		actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'cron-service-api'
+		actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc'
 	): CronScheduleAuditEntry {
 		return {
 			auditId: randomUUID(),
