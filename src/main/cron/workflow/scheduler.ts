@@ -843,6 +843,7 @@ export class FridayCronScheduler {
 			{
 				id: job.id,
 				name: job.name,
+				schedule: job.schedule.expr,
 				type: 'cron',
 				status: 'active',
 				source: 'agent',
@@ -851,6 +852,7 @@ export class FridayCronScheduler {
 				timezone,
 				cronExpression: job.schedule.expr,
 				runCount: 0,
+				failureCount: 0,
 				missedRunPolicy: 'skip',
 				concurrencyPolicy: 'skipIfRunning',
 				retryPolicy: {
@@ -862,6 +864,8 @@ export class FridayCronScheduler {
 					retryableErrorCodes: [],
 					nonRetryableErrorCodes: [],
 				},
+				target: 'agent',
+				payload: {},
 				taskType: 'agent.run',
 				taskInput: {},
 				taskPriority: 'normal',

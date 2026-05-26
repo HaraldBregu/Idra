@@ -15,8 +15,6 @@ import type {
 	CronScheduleSource,
 	CronScheduleUpdateRequest,
 	CronScheduledTask,
-	CronStoredSchedule,
-	CronStoredTarget,
 } from '../../../shared/cron';
 
 export type {
