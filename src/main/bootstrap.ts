@@ -47,7 +47,7 @@ import {
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
-import { HeartbeatFileStore, HeartbeatService } from './heartbeat';
+import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -131,6 +131,7 @@ export function bootstrapServices(): BootstrapResult {
 		policy,
 		toolService,
 		taskManager,
+		channels,
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	taskManager.configureAgentRuntime(agentService);
@@ -146,18 +147,10 @@ export function bootstrapServices(): BootstrapResult {
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService, store })
 	);
+	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(
 		'heartbeat',
-		new HeartbeatService({
-			getOperator: () => store.getOperator(),
-			heartbeatStore: new HeartbeatFileStore({ logger }),
-			channels,
-			logger,
-			eventBus,
-			agentService,
-			workspace,
-			channelRegistry,
-		})
+		new HeartbeatService(agentService)
 	);
 	heartbeat.start();
 	void cron.start().catch((error) => {
