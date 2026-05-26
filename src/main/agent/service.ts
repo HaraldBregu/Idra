@@ -574,6 +574,23 @@ export class AgentService {
 				provider: providerId,
 				modelId: model,
 			});
+			const capabilities = await recordAsyncPhase(phaseDurationsMs, 'resolve_capabilities', () =>
+				this.capabilityService.resolveForPrompt({
+					userMessage: message,
+					localTools: selectedTools,
+					ctx,
+					providerId,
+					model,
+					shouldUseTools: toolPolicy.shouldUseTools,
+					bootstrapPending,
+					directAnswer,
+					configuredSkillNames: agentConfig?.skills,
+					streamEvent,
+				})
+			);
+			selectedTools = capabilities.tools;
+			capabilityPromptAdditions = capabilities.promptAdditions;
+			directAnswer = capabilities.directAnswer;
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
 				isInteractiveUserFacing: true,
