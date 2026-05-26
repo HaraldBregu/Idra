@@ -168,6 +168,49 @@ interface AgentTool {
 
 Local tools default to `serviceKind: 'tool'`. Connector tools use `serviceKind: 'connector'` and set `serviceId` to the connector id.
 
+## Agent Runtime Responsibilities
+
+The agent module is the application's agent control plane. It manages agent state, history, tools, skills, MCP-facing capability metadata, and orchestration logic through the existing service boundaries.
+
+These responsibilities must be implemented inside `AgentService`, `AgentExecutionService`, `AgentCapabilityService`, hooks, policies, persistence, and subagent services. Do not introduce a separate harness abstraction to hold them.
+
+The agent module should make these questions explicit:
+
+- What can the agent know? It may know the current prompt, selected provider and model metadata, reasoning effort, current date, workspace metadata, sender metadata, startup context, policy result, selected tool metadata, connector tool metadata, selected skill instructions, MCP capability metadata when supported, transcript history, compacted history, persisted run state, and safe service-provided context. It must not load irrelevant skills, full tool catalogs, connector secrets, private auth data, or arbitrary files into the model context.
+- What can the agent do? It may stream model output, call selected tools through `ToolServicePort`, execute connector-backed tools through the connector service path, apply selected skill prompt additions, spawn or control subagents when the subagent services are injected and allowed, compact history on context pressure, update run state, and persist transcript/session results. It must not bypass policy, call tools directly, duplicate connector logic, or create provider-specific execution paths outside `AgentExecutionService`.
+- Where does the agent do it? Execution belongs in the main process under `src/main/agent`. Transport code stays outside the module, IPC remains an adapter, renderer code never owns execution, and filesystem or external-system mutation happens only through approved services and tools. Durable artifacts should live in the workspace, user data directory, store-backed session state, task records, logs, or Git history as appropriate for the operation.
+- How does the agent remember? It remembers through the active transcript, persisted session records, run records, compaction summaries, workspace files, startup files, task/subagent records, user or workspace preferences exposed by injected services, and Git history for file-backed work. Do not rely on hidden module-level memory as the canonical state for resumable work.
+- How does the agent verify success? The model's final text is not proof. Verification should come from deterministic controls such as tool result statuses, schema validation, policy results, tests, typechecks, lint checks, browser or screenshot inspection, stream event ordering, run state transitions, and `run_finished` stop reasons. When a task requires validation, the relevant service or caller should be able to run the check and block completion on failure.
+- How does the agent continue across long tasks? It should use the provider/tool loop, persisted session state, explicit run state, compaction on context overflow, stream events, task records, and subagent context isolation. Existing runs should be executable again through `AgentService`, and long-running work should leave enough persisted state to resume without replaying an oversized conversation.
+- How does the system recover when the model fails? It should fail closed on policy denials, return `blocked` for disallowed tool calls, return `error` for invalid arguments or thrown tools, persist partial run state, log redacted diagnostics, route actionable errors back through the execution loop when safe, compact and retry context-overflow cases, support cancellation, and allow callers to resume or rerun from persisted state. Do not hide failures behind successful final text.
+
+## Component Analysis
+
+System prompts are the first control surface, but they are probabilistic guidance rather than enforcement. Use `system-prompt.ts` to encode role, mission, operating procedure, tool-use norms, escalation rules, planning requirements, output contracts, and quality bar. Pair prompt guidance with deterministic controls in services, policies, hooks, schemas, and tests whenever correctness matters.
+
+Tools, skills, connectors, and MCP metadata define the agent's capability surface:
+
+- Specific tools are safer and more structured because their arguments, permissions, and result statuses can be validated.
+- General-purpose execution tools are more flexible when allowed, but they must still pass through `ToolServicePort` and policy checks.
+- Skills are progressive-disclosure packages. Load skill metadata for discovery, then load full instructions only for selected skills.
+- Connectors are service-backed tools and should carry connector identity in metadata.
+- MCP/provider-hosted tools should be represented as capability metadata only when explicitly supported by the execution path.
+
+The filesystem, user data directory, store, task records, logs, and Git history are infrastructure for durable work. Use them to persist state, checkpoints, intermediate artifacts, and rollback-friendly project changes. Do not treat conversation context as the only memory store for long-running work.
+
+Orchestration logic belongs in service code rather than prompt text. The normal loop is reason, call provider or tool, observe results, update transcript, and repeat until the run finishes, cancels, blocks, errors, or needs compaction. For larger work, use task records and subagents to isolate context, coordinate child runs, and keep parent execution readable.
+
+Hooks and middleware are deterministic interventions around model behavior. Use them for pre-run blocking, argument validation, output validation, tool-output shaping, context compaction, cancellation, logging, and verification. Prefer service-level checks over instructions that merely ask the model to behave.
+
+Evaluate the agent module as a model-service pair, not as a prompt alone. A useful implementation should answer:
+
+- Capability surface: which files, tools, connectors, MCP capabilities, APIs, and execution environments can the agent access?
+- State and memory: where are conversation state, run state, compacted history, project artifacts, preferences, and subagent records stored?
+- Context management: how are skills selected, large outputs handled, transcripts compacted, artifacts offloaded, and subagent contexts isolated?
+- Verification: which tests, schemas, stream events, browser checks, typechecks, lint checks, or human-visible run states prove the work?
+- Control and recovery: what happens on policy denial, invalid tool args, provider errors, context overflow, cancellation, partial failure, or unsafe action?
+- Security and permissions: which sandbox, network, filesystem, command, credential, and logging constraints apply?
+
 ## No Harness Layer
 
 Do not create or use a harness layer.
