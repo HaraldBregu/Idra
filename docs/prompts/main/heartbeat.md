@@ -6,11 +6,11 @@ The heartbeat module manages periodic and manual agent check-ins for the applica
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the heartbeat module. Patterns should solve real service-boundary, lifecycle, dependency, scheduling, integration, persistence, or validation problems; do not add decorative abstractions.
 
-The heartbeat module has no service dependencies.
+The heartbeat module depends on `AgentService`.
 
 ## Dependencies
 
-- None. Keep heartbeat scheduling, wake handling, runtime state, and delivery decisions isolated inside the heartbeat service.
+- `AgentService`: check whether target agents or sessions are busy and execute heartbeat agent runs.
 
 The heartbeat module must use the application logger like the other services.
 
@@ -74,7 +74,7 @@ The heartbeat service should:
 - Queue system events by session key and include eligible exec or cron events in the next heartbeat prompt.
 - Consume queued system events after a successful heartbeat run.
 - Build heartbeat prompts from the base heartbeat prompt, due tasks, workspace context, queued events, delivery mode, and current time.
-- Execute agent runs through the application's public agent execution boundary with heartbeat-specific options such as model override, timeout, light context, tool-warning suppression, and event suppression.
+- Execute agent runs through `AgentService` with heartbeat-specific options such as model override, timeout, light context, tool-warning suppression, and event suppression.
 - Normalize heartbeat replies so `HEARTBEAT_OK` and empty responses become quiet success and actionable text becomes an alert.
 - Support structured heartbeat tool responses when they are returned by the runtime.
 - Advance the schedule after skipped, successful, and failed runs.
@@ -122,19 +122,19 @@ The heartbeat service should:
 When implementing or changing this module:
 
 - Always implement logging for new or changed operational behavior using the application logger. Do not use console logging for module behavior.
-- Respect the declared dependencies. Do not add service dependencies unless the existing project requirements explicitly require it.
+- Respect the declared dependencies. Do not add service dependencies or bypass `AgentService` unless the existing project requirements explicitly require it.
 - Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, scheduling, integration, persistence, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
 - Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
 - Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
-- Implement or update tests for the behavior being changed, including success paths, failure paths, persistence errors, validation, scheduling, wake handling, delivery, events, and logger behavior.
+- Implement or update tests for the behavior being changed, including success paths, failure paths, persistence errors, validation, scheduling, wake handling, delivery, events, logger behavior, and `AgentService` interactions.
 - Run the focused heartbeat tests after implementation. If shared contracts or call sites changed, also run the narrowest relevant typecheck or integration test.
 - Verify the implementation before finishing by confirming the tests pass and the public service behavior matches this prompt.
 - Delete files, functions, imports, exports, tests, and local types made unused by the change.
 
 ## Testing
 
-Test heartbeat configuration resolution, `heartbeat.json` persistence, timing updates, duration parsing, active hours, stable phase scheduling, schedule recomputation, wake coalescing, retryable busy skips, cooldown and flood guards, service lifecycle cleanup, runtime enablement, status reads, system-event queuing, workspace heartbeat context reads, empty context skips, task parsing, task due checks, prompt construction, agent execution, busy-agent skips, unsafe-session skips, response normalization, delivery routing, visibility resolution, direct-message blocking, duplicate alert suppression, event emission, store-backed runtime state, no-op fallback behavior, and logger behavior for failures.
+Test heartbeat configuration resolution, `heartbeat.json` persistence, timing updates, duration parsing, active hours, stable phase scheduling, schedule recomputation, wake coalescing, retryable busy skips, cooldown and flood guards, service lifecycle cleanup, runtime enablement, status reads, system-event queuing, workspace heartbeat context reads, empty context skips, task parsing, task due checks, prompt construction, agent execution through `AgentService`, busy-agent skips, unsafe-session skips, response normalization, delivery routing, visibility resolution, direct-message blocking, duplicate alert suppression, event emission, store-backed runtime state, no-op fallback behavior, and logger behavior for failures.
 
 Tests should call the exported heartbeat service and should not import internal heartbeat files directly unless testing exported helper behavior that is intentionally part of the heartbeat module surface.
 
