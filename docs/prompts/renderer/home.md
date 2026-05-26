@@ -72,4 +72,37 @@ Follow standard React application patterns throughout:
 
 ## Testing
 
-Test message rendering for user and agent roles, empty state display, prompt suggestion submission, attachment add/remove, submit button visibility, and stop-generation behavior. Tests call exported hooks and components; they do not import internal home page files directly.
+Write unit tests for every exported hook and component. Tests call exported hooks and components directly; they do not import internal home page files.
+
+Cover at minimum:
+- Message rendering for `user` and `agent` roles.
+- Empty state display and prompt suggestion submission.
+- Attachment add and remove.
+- Submit button visibility (idle vs. loading vs. empty input).
+- Stop-generation: cancels the agent request and finalises the message with partial content.
+- `useHomeAgent`: submit dispatches the correct agent call, streamed chunks accumulate into the agent message, and history loads on mount.
+
+Test structure:
+- One `describe` block per hook or component.
+- Render hooks with `renderHook` from `@testing-library/react`; components with `render`.
+- Mock the API agent module at the boundary — do not mock internal helpers.
+- Assert on visible output and state changes, not on implementation details.
+
+## Logger
+
+Add structured logging throughout the home page using a shared `logger` utility (imported from `src/shared/logger` or the project equivalent). Do not use `console.log` directly.
+
+Log the following events at the appropriate level:
+
+| Event | Level |
+|---|---|
+| User submits a message | `info` |
+| Agent stream starts | `info` |
+| Agent stream chunk received | `debug` |
+| Agent stream completes | `info` |
+| Agent stream errors | `error` |
+| Generation stopped by user | `info` |
+| Attachment added / removed | `debug` |
+| History loaded on mount | `debug` |
+
+Each log entry must include a `context` field set to `"home"` and any relevant identifiers (message id, attachment name, error message).
