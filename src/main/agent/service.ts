@@ -222,6 +222,7 @@ export class AgentService {
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private readonly runtimes = new Map<string, Runtime>();
+	private readonly runRecords = new Map<string, AgentRunRecord>();
 
 	constructor(
 		private readonly dependencies: AgentServiceDependencies,
@@ -244,6 +245,113 @@ export class AgentService {
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
+	}
+
+	async createRun(options: AgentCreateRunOptions = {}): Promise<AgentRunRecord> {
+		const now = new Date().toISOString();
+		const agentId = options.agentId ?? this.defaultAgentId;
+		const sessionId = options.sessionId ?? options.runId ?? randomUUID();
+		const runId = options.runId ?? sessionId;
+		const providerModel = this.tryResolveProviderAndModel();
+		const providerId = options.providerId?.trim().toLowerCase() || providerModel.providerId;
+		const model = options.model?.trim() || providerModel.model;
+		const run = this.upsertRunRecord({
+			id: runId,
+			agentId,
+			sessionId,
+			state: options.state ?? 'idle',
+			createdAt: now,
+			updatedAt: now,
+			providerId,
+			model,
+		});
+		const session = await loadSession(sessionId, model, providerId, {
+			baseDir: this.sessionBaseDir,
+		});
+		this.applyAgentSessionMetadata(session, agentId, options.sessionMetadata);
+		session.status = this.sessionStatusForRunState(run.state);
+		await saveSession(session, { baseDir: this.sessionBaseDir });
+		return run;
+	}
+
+	async getRun(runId: string): Promise<AgentRunRecord | undefined> {
+		const existing = this.runRecords.get(runId);
+		if (existing) return this.cloneRunRecord(existing);
+		const session = await loadExistingSession(runId, { baseDir: this.sessionBaseDir });
+		return session ? this.sessionToRunRecord(session) : undefined;
+	}
+
+	async getRunState(runId: string): Promise<AgentRunState | undefined> {
+		return (await this.getRun(runId))?.state;
+	}
+
+	async updateRunState(runId: string, patch: AgentRunStatePatch): Promise<AgentRunRecord> {
+		const run = await this.requireRun(runId);
+		const next = this.upsertRunRecord({
+			...run,
+			...patch,
+			updatedAt: new Date().toISOString(),
+		});
+		const session = await loadExistingSession(next.sessionId, { baseDir: this.sessionBaseDir });
+		if (session) {
+			session.status = this.sessionStatusForRunState(next.state);
+			await saveSession(session, { baseDir: this.sessionBaseDir });
+		}
+		return next;
+	}
+
+	async deleteRun(runId: string): Promise<void> {
+		const run = await this.getRun(runId);
+		const sessionId = run?.sessionId ?? runId;
+		this.cancel(sessionId);
+		this.runtimes.delete(sessionId);
+		this.runRecords.delete(runId);
+		await clearSession(sessionId, { baseDir: this.sessionBaseDir });
+		if (sessionId !== runId) {
+			await clearSession(runId, { baseDir: this.sessionBaseDir });
+		}
+		await resetRegisteredAgentHarnesses({
+			sessionId,
+			sessionKey: sessionId,
+			reason: 'deleted',
+		});
+	}
+
+	async listRuns(): Promise<AgentRunRecord[]> {
+		const runs = new Map<string, AgentRunRecord>();
+		for (const session of await listSessions({ baseDir: this.sessionBaseDir })) {
+			const run = this.sessionToRunRecord(session);
+			runs.set(run.id, run);
+		}
+		for (const run of this.runRecords.values()) {
+			runs.set(run.id, this.cloneRunRecord(run));
+		}
+		return [...runs.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+	}
+
+	async executeRun(
+		runId: string,
+		message: string,
+		options: AgentExecuteRunOptions = {}
+	): Promise<string> {
+		const run = await this.requireRun(runId);
+		await this.updateRunState(runId, { state: 'thinking' });
+		try {
+			const text = await this.send(message, run.agentId, {
+				...options,
+				runId,
+				sessionId: run.sessionId,
+			});
+			await this.updateRunState(runId, { state: 'completed', output: text, error: undefined });
+			if (options.deleteWhenDone) await this.deleteRun(runId);
+			return text;
+		} catch (error) {
+			await this.updateRunState(runId, {
+				state: 'error',
+				error: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
 	}
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
