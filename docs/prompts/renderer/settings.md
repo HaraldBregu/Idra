@@ -51,6 +51,16 @@ Each sub-page follows the same pattern:
 
 Current sub-pages: General, System, Providers, Skills, Connectors (with detail), Channels (with detail), Operators (with detail and chat history detail), Heartbeat, Cron (with detail), Task Manager (with detail), Monitoring, Policies.
 
+## React Design Patterns
+
+Follow the renderer React design patterns in the renderer conventions. Settings-specific notes:
+
+- The settings layout is a compound-component system: `SettingsPageShell`, `SettingsSection`, and `SettingsPanel` compose to build any sub-page. Never reproduce this structure inline — always assemble from these parts.
+- Each sub-page is a self-contained unit. It fetches its own data via IPC in a `useEffect`, owns its loading and error state locally, and commits changes on explicit user action. Sub-pages do not share state with each other.
+- Breadcrumb state is derived from the route — it is not stored. `useSettingsBreadcrumbItems` reads the current route and returns the label chain. Components render what the hook returns; they do not manage breadcrumb state themselves.
+- Navigation constants (`SETTINGS_NAVIGATION`, `SETTINGS_OPERATOR_ITEMS`) are the single source of truth for routes and labels. Components read from these constants; they never hardcode paths or display text.
+- Use `useTranslation` for every user-visible string. All label keys live in the translation resource, not in JSX.
+
 ## Types
 
 Follow the type placement rules in the renderer conventions.
