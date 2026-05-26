@@ -42,13 +42,13 @@ import {
 	type ModelReasoningEffort,
 	type OperatorStoreState,
 } from '../shared/agents/service';
-import type { CronServiceActionActor } from './cron';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
 import type { SubagentSpawnPort } from './agent/subagents';
 import {
 	ToolService,
 	type AgentTool,
+	type CronToolContext,
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 	type ToolServicePort,
@@ -106,7 +106,7 @@ export interface AgentServiceOptions {
 }
 
 export interface AgentSendOptions {
-	cronContext?: CronServiceActionActor;
+	cronContext?: CronToolContext;
 	sessionId?: string;
 	providerId?: string;
 	model?: string;
