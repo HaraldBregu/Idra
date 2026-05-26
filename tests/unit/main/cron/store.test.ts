@@ -18,6 +18,7 @@ import {
 	ElectronStoreCronStore,
 	emptyCronStoreState,
 	emptyFridayCronStoreState,
+	type CronStoreState,
 } from '../../../../src/main/cron';
 import type { CronTask } from '../../../../src/shared/cron';
 
@@ -60,7 +61,7 @@ describe('ElectronStoreCronStore', () => {
 		const scheduler = {
 			...emptyCronStoreState(),
 			schedules: [{ id: 'schedule-1' }],
-		};
+		} as unknown as CronStoreState;
 		const friday = {
 			...emptyFridayCronStoreState(),
 			jobs: [
