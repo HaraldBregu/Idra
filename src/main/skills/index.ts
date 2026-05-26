@@ -1,2 +1,2 @@
-export { SkillsService } from './service';
-export type { SkillsServiceOptions } from './service';
+export { SkillsService, SkillsServiceError } from './service';
+export type { SkillsServiceOptions, SkillWriteOptions, SkillsServiceErrorCode } from './service';
