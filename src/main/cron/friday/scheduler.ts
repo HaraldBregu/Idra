@@ -961,7 +961,7 @@ export class FridayCronScheduler {
 		if (actor.role === 'cron-self') {
 			if (action === 'status' || action === 'list') return;
 			if (jobId && actor.jobId === jobId && ['get', 'runs', 'remove'].includes(action)) return;
-			throw new CronPermissionError('Cron tool is restricted to the current cron job.', {
+			throw new CronPermissionError('Cron job actions are restricted to the current cron job.', {
 				action,
 				jobId: jobId ?? null,
 				role: actor.role,
