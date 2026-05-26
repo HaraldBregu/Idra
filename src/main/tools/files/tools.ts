@@ -720,11 +720,15 @@ export const moveTool: AgentTool<MoveArgs> = {
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
-			sourceAbs = resolveAbs(ctx.workspace, args.source, writeWorkspaceOnly(ctx));
-			destinationAbs = resolveAbs(ctx.workspace, args.destination, writeWorkspaceOnly(ctx));
+			sourceAbs = resolveAbs(ctx.workspace, args.source);
+			destinationAbs = resolveAbs(ctx.workspace, args.destination);
 		} catch (err) {
 			return textResult(`move: ${(err as Error).message}`, true);
 		}
+		const moveSrcRestricted = checkFsRestriction(ctx, sourceAbs, 'move', true);
+		if (moveSrcRestricted) return textResult(moveSrcRestricted, true);
+		const moveDstRestricted = checkFsRestriction(ctx, destinationAbs, 'move', true);
+		if (moveDstRestricted) return textResult(moveDstRestricted, true);
 		if (sourceAbs === destinationAbs)
 			return textResult('move: source and destination are identical.', true);
 		try {
