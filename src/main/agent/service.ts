@@ -115,6 +115,7 @@ export interface AgentServiceOptions {
 }
 
 export interface AgentSendOptions {
+	runId?: string;
 	cronContext?: CronToolContext;
 	sessionId?: string;
 	providerId?: string;
@@ -134,6 +135,38 @@ export interface AgentSendOptions {
 		suppressAgentEvents?: boolean;
 	};
 }
+
+export interface AgentRunRecord {
+	id: string;
+	agentId: string;
+	sessionId: string;
+	state: AgentRunState;
+	createdAt: string;
+	updatedAt: string;
+	providerId?: string;
+	model?: string;
+	label?: string;
+	output?: string;
+	error?: string;
+}
+
+export interface AgentCreateRunOptions {
+	runId?: string;
+	agentId?: string;
+	sessionId?: string;
+	providerId?: string;
+	model?: string;
+	state?: AgentRunState;
+	sessionMetadata?: Partial<AgentSessionMetadata>;
+}
+
+export type AgentRunStatePatch = Partial<
+	Pick<AgentRunRecord, 'state' | 'label' | 'output' | 'error' | 'providerId' | 'model'>
+>;
+
+export type AgentExecuteRunOptions = Omit<AgentSendOptions, 'runId' | 'sessionId'> & {
+	deleteWhenDone?: boolean;
+};
 
 interface Runtime {
 	runLogger: AgentRunLogger;
