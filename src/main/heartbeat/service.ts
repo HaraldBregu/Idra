@@ -668,7 +668,7 @@ export class HeartbeatService implements Disposable {
 		return sessionKey === agentId || !sessionKey.startsWith('agent:') || sessionKey.startsWith(`agent:${agentId}:`);
 	}
 
-	private getDefaultHeartbeatConfig() {
+	private getDefaultHeartbeatConfig(): AgentHeartbeatConfig {
 		return this.agentService.getHeartbeatStore().getAgentsConfig()?.defaults?.heartbeat ?? {};
 	}
 
@@ -682,8 +682,8 @@ export class HeartbeatService implements Disposable {
 		return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 	}
 
-	private normalizeSettingsUpdate(request: HeartbeatSettingsUpdate) {
-		const patch: HeartbeatSettingsUpdate = {};
+	private normalizeSettingsUpdate(request: HeartbeatSettingsUpdate): Partial<AgentHeartbeatConfig> {
+		const patch: Partial<AgentHeartbeatConfig> = {};
 		if ('every' in request) {
 			const every = this.normalizeString(request.every);
 			if (!every) throw new Error('Heartbeat cadence is required.');
