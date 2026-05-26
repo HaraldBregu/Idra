@@ -86,7 +86,7 @@ export type ToolUsePolicyDecision =
 			outcome: 'deny';
 			key: string;
 			callCount: number;
-			status: 'error' | 'blocked';
+			status: 'error' | 'blocked' | 'rejected';
 			deniedReason: 'loop_detected' | 'approval_required';
 			reason: string;
 	  };
@@ -267,7 +267,7 @@ export function evaluateToolUsePolicy(input: ToolUsePolicyInput): ToolUsePolicyD
 			outcome: 'deny',
 			key,
 			callCount: input.callCount,
-			status: 'blocked',
+			status: 'rejected',
 			deniedReason: 'approval_required',
 			reason: `tool ${input.toolName} requires approval before execution.`,
 		};
