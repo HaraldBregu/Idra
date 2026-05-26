@@ -471,8 +471,6 @@ export class AgentService {
 				sessionVisibility: 'agent',
 				readState: new Map(),
 				plan: { entries: runtime.session.plan },
-				approvalCache: new Set(),
-				approvalRequired: new Set(),
 				fsPolicy: {
 					workspaceOnly: agentConfig?.tools?.fs?.workspaceOnly ?? false,
 					writeWorkspaceOnly: agentConfig?.tools?.fs?.writeWorkspaceOnly,
