@@ -1,11 +1,10 @@
 import {
-	evaluateToolPolicy,
-	normalizeToolPolicyName,
+	PolicyService,
 	type PolicyServicePort,
 	type ToolPolicySubject,
 } from '../policy';
 import type { AgentTool, AgentToolResult, ToolContext } from './types';
-import { getToolMetadata } from './core/common';
+import { getToolMetadata, normalizeToolName } from './core/common';
 import { createTools } from './catalog/registry';
 import {
 	executeAgentToolWithManagement,
@@ -25,6 +24,8 @@ import {
 	type PrepareLegacyToolsForProviderOptions,
 } from './runtime/adapt';
 import type { ToolProfile } from '../policy';
+
+const defaultPolicyService = new PolicyService();
 
 export type {
 	AgentToolManagementOptions,
@@ -217,9 +218,11 @@ function filterTools(
 		};
 	});
 	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
+	const policyService = policy ?? defaultPolicyService;
+	const result = policyService.evaluateTools(subjects, {
 		stages: { runtime },
 	});
-	return tools.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
+	return tools.filter((tool) => result.allowed.has(normalizeToolName(tool.name)));
 }
 
 function renderSelectedToolPrompt(tools: AgentTool[]): string {
