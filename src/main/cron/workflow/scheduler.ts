@@ -162,6 +162,9 @@ export class FridayCronScheduler {
 	async start(): Promise<void> {
 		if (this.started) return;
 		this.started = true;
+		this.logger?.info('FridayCron', 'Cron workflow scheduler started.', {
+			enabled: this.options.enabled,
+		});
 		if (!this.options.enabled) {
 			this.logger?.warn(
 				'FridayCron',
@@ -178,6 +181,7 @@ export class FridayCronScheduler {
 		if (this.timer) clearTimeout(this.timer);
 		this.timer = undefined;
 		this.started = false;
+		this.logger?.info('FridayCron', 'Cron workflow scheduler stopped.');
 	}
 
 	async status(actor: FridayCronActor = { role: 'owner' }): Promise<FridayCronStatus> {
@@ -273,6 +277,11 @@ export class FridayCronScheduler {
 		snapshot.states[job.id] = state;
 		await this.store.save(snapshot);
 		await this.armTimer();
+		this.logger?.info('FridayCron', 'Cron job added.', {
+			jobId: job.id,
+			enabled: job.enabled,
+			nextRunAtMs: state.nextRunAtMs ?? null,
+		});
 		return this.join(job, state);
 	}
 
@@ -321,6 +330,11 @@ export class FridayCronScheduler {
 		snapshot.states[jobId] = state;
 		await this.store.save(snapshot);
 		await this.armTimer();
+		this.logger?.info('FridayCron', 'Cron job updated.', {
+			jobId,
+			enabled: job.enabled,
+			nextRunAtMs: state.nextRunAtMs ?? null,
+		});
 		return this.join(job, state);
 	}
 
@@ -331,6 +345,7 @@ export class FridayCronScheduler {
 		delete snapshot.states[jobId];
 		await this.store.save(snapshot);
 		await this.armTimer();
+		this.logger?.info('FridayCron', 'Cron job removed.', { jobId });
 	}
 
 	async run(
@@ -343,11 +358,16 @@ export class FridayCronScheduler {
 		const job = this.requireJob(snapshot, jobId);
 		const state = snapshot.states[job.id] ?? defaultFridayCronJobState(job);
 		const now = Date.now();
-		if (mode === 'due' && (!state.nextRunAtMs || state.nextRunAtMs > now)) {
-			const run = this.skippedRun(job, state.nextRunAtMs ?? now, 'manual-due', 'not_due');
-			await this.store.appendRun(run);
-			return run;
-		}
+			if (mode === 'due' && (!state.nextRunAtMs || state.nextRunAtMs > now)) {
+				const run = this.skippedRun(job, state.nextRunAtMs ?? now, 'manual-due', 'not_due');
+				await this.store.appendRun(run);
+				this.logger?.warn('FridayCron', 'Cron job run skipped.', {
+					jobId: job.id,
+					runId: run.runId,
+					reason: run.skippedReason,
+				});
+				return run;
+			}
 		return this.executeJob(
 			job.id,
 			state.nextRunAtMs ?? now,
@@ -393,6 +413,9 @@ export class FridayCronScheduler {
 				result,
 			};
 		} catch (error) {
+			this.logger?.warn('FridayCron', 'Cron action failed.', {
+				error: error instanceof Error ? error.message : String(error),
+			});
 			return {
 				status: 'error',
 				enabled: this.options.enabled,
