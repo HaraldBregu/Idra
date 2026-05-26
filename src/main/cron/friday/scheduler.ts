@@ -4,7 +4,7 @@ import type {
 	FridayCronAddRequest,
 	FridayCronDelivery,
 	FridayCronDeliveryState,
-	FridayCronCanonicalToolRequest as FridayCronCanonicalActionRequest,
+	FridayCronCanonicalActionRequest,
 	FridayCronJob,
 	FridayCronJobDefinition,
 	FridayCronJobState,
@@ -12,8 +12,8 @@ import type {
 	FridayCronRunRecord,
 	FridayCronSessionTarget,
 	FridayCronStatus,
-	FridayCronToolRequest as FridayCronActionRequest,
-	FridayCronToolResponse as FridayCronActionResponse,
+	FridayCronActionRequest,
+	FridayCronActionResponse,
 	FridayCronUpdateRequest,
 } from '../../../shared/cron';
 import type { CronSchedule } from '../core/cron.types';
