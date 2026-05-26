@@ -154,6 +154,15 @@ describe('CronSchedulerService', () => {
 
 		expect(schedule.timezone).toBe('Europe/Rome');
 		expect(schedule.nextRunAt).toBeTruthy();
+		expect(schedule).toMatchObject({
+			schedule: '0 9 * * 1',
+			enabled: true,
+			status: 'active',
+			target: 'agent',
+			payload: { message: 'Review invoices' },
+			runCount: 0,
+			failureCount: 0,
+		});
 		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({ id: schedule.id });
 	});
 
