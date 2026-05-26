@@ -714,7 +714,7 @@ export class HeartbeatService implements Disposable {
 		return patch;
 	}
 
-	private requireProvider(providerId: string | undefined): void {
+	private requireProvider(providerId: string | undefined): asserts providerId is string {
 		if (!providerId) throw new Error('Heartbeat provider id is required.');
 		const provider = this.agentService.getHeartbeatProvider(providerId);
 		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
