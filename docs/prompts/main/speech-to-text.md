@@ -51,4 +51,4 @@ When implementing or changing this module:
 
 Test speech-to-text session creation, state reads, audio appends, finishing, cancellation, transcription success, missing or invalid settings, provider failure behavior, and dependency access through `StoreService`. Tests should call the exported speech-to-text service through its public service boundary.
 
-When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
+When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra structure unless they are required by the existing project conventions.
