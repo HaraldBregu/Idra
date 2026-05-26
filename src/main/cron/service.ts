@@ -141,6 +141,7 @@ export class CronService implements Disposable {
 		if (!this.automaticEnabled) {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
 			await this.workflow.start();
+			this.logger.info('CronService', 'Cron service started with automatic execution disabled.');
 			return;
 		}
 		await this.scheduler.start();
