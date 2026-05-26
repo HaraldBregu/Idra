@@ -6,6 +6,8 @@ The tasks module manages background tasks that run in the background. Tasks are 
 
 The tasks module can run agents as part of task execution.
 
+The tasks module depends on `StoreService`.
+
 The tasks module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
 Keep the tasks module isolated:
