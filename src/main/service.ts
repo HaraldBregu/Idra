@@ -30,7 +30,7 @@ import {
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import {
-	evaluateToolRequestPolicy,
+	PolicyService,
 	type PolicyServicePort,
 } from './policy';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
@@ -174,6 +174,7 @@ export class AgentService {
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly toolService: ToolServicePort;
+	private readonly policyService: PolicyServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
@@ -187,6 +188,7 @@ export class AgentService {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService();
+		this.policyService = dependencies.policy ?? new PolicyService({ logger: dependencies.logger });
 		this.usesDefaultToolsFactory = !options.toolsFactory;
 		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
@@ -297,9 +299,7 @@ export class AgentService {
 				services: this.dependencies,
 			};
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-				this.dependencies.policy
-					? this.dependencies.policy.evaluateToolRequest({ userRequest: message })
-					: evaluateToolRequestPolicy({ userRequest: message })
+				this.policyService.evaluateToolRequest({ userRequest: message })
 			);
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending(agentId)
