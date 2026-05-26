@@ -703,7 +703,7 @@ export class CronSchedulerService implements CronScheduler {
 				missedRun,
 				idempotencyKey
 			);
-			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt, 'skipped');
+			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt, 'success');
 			await this.recordExecution(
 				updated,
 				idempotencyKey,
