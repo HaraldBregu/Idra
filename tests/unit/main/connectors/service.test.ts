@@ -24,7 +24,7 @@ const MockStore = Store as jest.MockedClass<typeof Store>;
 function createService() {
 	const logger = makeLogger();
 	const service = new ConnectorsService(logger as never);
-	const store = MockStore.mock.results.at(-1)?.value as {
+	const store = MockStore.mock.results[MockStore.mock.results.length - 1]?.value as {
 		data: Map<string, unknown>;
 		get: jest.Mock;
 		set: jest.Mock;
