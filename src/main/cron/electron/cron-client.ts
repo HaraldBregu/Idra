@@ -6,8 +6,8 @@ import type {
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduleUpdateRequest,
-	FridayCronToolRequest as FridayCronActionRequest,
-	FridayCronToolResponse as FridayCronActionResponse,
+	FridayCronActionRequest,
+	FridayCronActionResponse,
 	CronScheduledTask,
 } from '../../../shared/cron';
 
