@@ -60,6 +60,7 @@ export function useModelServices(
 									modelGroups.push({ provider, models });
 								}
 							} catch (error) {
+								console.warn('[useModelServices] Failed to load models for provider:', provider.id, error);
 								firstError ??= error;
 							}
 						}
