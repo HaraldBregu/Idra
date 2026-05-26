@@ -39,8 +39,6 @@ Store these top-level properties:
 - `imageCreator`: image creator model settings.
 - `textToVideo`: text-to-video model settings.
 - `textToSound`: text-to-sound model settings.
-- `cron`: cron settings.
-- `task`: task settings.
 - `agents`: agent routing settings.
 - `heartbeat`: heartbeat state.
 - `connectors`: connector settings.
@@ -63,25 +61,6 @@ Store `assistant`, `speechToText`, `textToSpeech`, `imageCreator`, `textToVideo`
 - `modelId`: selected model identifier.
 - `effort`: optional model reasoning effort.
 - `options`: optional module-specific settings.
-
-## Cron Settings
-
-Store cron settings with:
-
-- `schemaVersion`: optional cron persistence schema version.
-- `jobs`: optional record of cron job definitions by id.
-- `jobs.*.state`: optional cron job state.
-- `jobs.*.lastRun`: optional last cron run record.
-- `enabled`: optional global cron enabled flag.
-- `scheduler`: optional scheduler settings.
-- `tasks`: optional legacy cron task list.
-
-## Task Settings
-
-Store task settings with:
-
-- `allowedTaskTypes`: optional list of allowed task types.
-- `defaultConcurrency`: optional default task concurrency.
 
 ## Agents Settings
 
