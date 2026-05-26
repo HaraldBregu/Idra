@@ -17,12 +17,12 @@ export {
 export {
 	clientToolNames,
 	createAgentTools,
-	createReadTool,
 	planToolConstruction,
 	type CreateAgentToolsOptions,
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './create';
+export { createReadTool } from './files/runtime';
 export {
 	ALL_TOOLS,
 	createTools,
