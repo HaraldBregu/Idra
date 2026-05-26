@@ -11,6 +11,67 @@ function makePolicyService(policy: () => PolicyConfig) {
 }
 
 describe('policy module', () => {
+	it('logs lifecycle events, policy updates, and evaluation decisions', () => {
+		let stored: PolicyConfig = {
+			version: 1,
+			defaultPolicy: 'deny',
+			paths: [{ path: '/tmp/friday', permissions: ['read'], recursive: true }],
+		};
+		const logger = {
+			debug: jest.fn(),
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+		};
+		const service = new PolicyService({
+			storeAccessor: {
+				read: jest.fn(() => stored),
+				write: jest.fn((value: PolicyConfig) => {
+					stored = value;
+				}),
+			},
+			logger,
+		});
+
+		expect(logger.info).toHaveBeenCalledWith(
+			'PolicyService',
+			'Policy service initialized',
+			expect.objectContaining({ workspaceRoot: undefined, agentRoot: undefined })
+		);
+
+		service.setPolicy(stored);
+		expect(logger.info).toHaveBeenCalledWith('PolicyService', 'Policy updated', {
+			version: 1,
+			defaultPolicy: 'deny',
+			pathCount: 1,
+		});
+
+		expect(service.evaluate('/tmp/friday/readme.md', 'read')).toMatchObject({
+			outcome: 'allow',
+		});
+		expect(logger.debug).toHaveBeenCalledWith(
+			'PolicyService',
+			"Policy rule 'path' evaluated",
+			expect.objectContaining({
+				path: '/tmp/friday/readme.md',
+				outcome: 'allow',
+				matchedPath: '/tmp/friday',
+			})
+		);
+
+		expect(service.evaluate('/tmp/friday/readme.md', 'delete')).toMatchObject({
+			outcome: 'deny',
+		});
+		expect(logger.warn).toHaveBeenCalledWith(
+			'PolicyService',
+			"Policy rule 'path' denied",
+			expect.objectContaining({
+				outcome: 'deny',
+				reason: "'delete' not in grants for /tmp/friday",
+			})
+		);
+	});
+
 	it('evaluates the active policy through the service', () => {
 		const config: PolicyConfig = {
 			version: 1,
@@ -135,13 +196,16 @@ describe('policy module', () => {
 			defaultPolicy: 'allow',
 			paths: [{ path: '/tmp/friday', permissions: ['read'], recursive: true }],
 		};
+		const logger = {
+			error: jest.fn(),
+		};
 		const accessor = {
 			read: jest.fn(() => stored),
 			write: jest.fn((value: PolicyConfig) => {
 				stored = value;
 			}),
 		};
-		const service = new PolicyService({ storeAccessor: accessor });
+		const service = new PolicyService({ storeAccessor: accessor, logger });
 
 		expect(service.setPolicy(stored)).toEqual(stored);
 		expect(() => service.setPolicy({ version: 2, defaultPolicy: 'deny', paths: [] })).toThrow(
@@ -152,6 +216,13 @@ describe('policy module', () => {
 			defaultPolicy: 'allow',
 			paths: [{ path: '/tmp/friday', permissions: ['read'], recursive: true }],
 		});
+		expect(logger.error).toHaveBeenCalledWith(
+			'PolicyService',
+			'Policy update failed',
+			expect.objectContaining({
+				error: expect.objectContaining({ message: 'Unsupported policy version.' }),
+			})
+		);
 	});
 
 	it('evaluates tool availability through the policy service', () => {
