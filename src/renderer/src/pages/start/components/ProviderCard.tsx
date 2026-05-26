@@ -55,7 +55,7 @@ export function ProviderCard({
 										className="inline-block size-1.5 shrink-0 rounded-full bg-emerald-500"
 										aria-hidden="true"
 									/>
-									Connected
+									{MASKED_API_KEY_LABEL}
 								</>
 							) : (
 								provider.capabilities
