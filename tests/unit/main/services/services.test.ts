@@ -77,13 +77,13 @@ describe('apps service', () => {
 describe('connectors service', () => {
 	it('adds, lists, updates, tests, and removes connector configs', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
-		const service = new ConnectorsService(store as never, makeLogger() as never);
+			}
+		);
+		const service = new ConnectorsService(makeLogger() as never, { store: store as never });
 		const added = await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
@@ -119,13 +119,13 @@ describe('connectors service', () => {
 
 	it('validates connector add and update payloads before storing them', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
-		const service = new ConnectorsService(store as never, makeLogger() as never);
+			}
+		);
+		const service = new ConnectorsService(makeLogger() as never, { store: store as never });
 
 		await expect(service.add(undefined)).rejects.toThrow(/Connector configuration is required/);
 		await expect(
@@ -165,13 +165,13 @@ describe('connectors service', () => {
 
 	it('keeps catalog-only connectors configurable but out of local agent tools', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
-		const service = new ConnectorsService(store as never, makeLogger() as never);
+			}
+		);
+		const service = new ConnectorsService(makeLogger() as never, { store: store as never });
 		await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
@@ -243,13 +243,13 @@ describe('connectors service', () => {
 
 	it('exposes only allowed Google strategy tools as provider-neutral agent tools', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
-		const service = new ConnectorsService(store as never, makeLogger() as never);
+			}
+		);
+		const service = new ConnectorsService(makeLogger() as never, { store: store as never });
 		const gmail = await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
@@ -292,16 +292,17 @@ describe('connectors service', () => {
 
 	it('validates required Google tool arguments before API calls', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async () => {
 			throw new Error('unexpected fetch');
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never, fetchImpl });
 		const gmail = await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',
@@ -335,16 +336,17 @@ describe('connectors service', () => {
 
 	it('validates Google strategy arguments before refreshing OAuth tokens', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async () => {
 			throw new Error('unexpected fetch');
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'client-id',
 			googleOAuthClientSecret: 'client-secret',
@@ -417,12 +419,12 @@ describe('connectors service', () => {
 
 	it('opens Google OAuth with a runtime loopback redirect and exchanges the code with PKCE', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const openedUrls: string[] = [];
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
@@ -446,7 +448,8 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'client-id',
 			googleOAuthClientSecret: 'client-secret',
@@ -490,12 +493,12 @@ describe('connectors service', () => {
 
 	it('connects Gmail tools to Google OAuth tokens and exposes them to the agent', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
 				expect(String(init?.body)).toContain('grant_type=refresh_token');
@@ -525,7 +528,8 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'client-id',
 			googleOAuthClientSecret: 'client-secret',
@@ -560,12 +564,12 @@ describe('connectors service', () => {
 
 	it('uses app-level Google OAuth credentials instead of per-connector client fields', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
 				const body = String(init?.body);
@@ -582,7 +586,8 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'app-client-id',
 			googleOAuthClientSecret: 'app-client-secret',
@@ -611,12 +616,12 @@ describe('connectors service', () => {
 
 	it('ignores legacy saved Google OAuth client settings and uses app-level credentials', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
 				const body = String(init?.body);
@@ -633,7 +638,8 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'app-client-id',
 			googleOAuthClientSecret: 'app-client-secret',
@@ -669,12 +675,12 @@ describe('connectors service', () => {
 
 	it('executes Google Calendar read and write tools with Google OAuth tokens', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
 				expect(String(init?.body)).toContain('grant_type=refresh_token');
@@ -709,7 +715,8 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'client-id',
 			googleOAuthClientSecret: 'client-secret',
@@ -746,12 +753,12 @@ describe('connectors service', () => {
 
 	it('executes Google Drive MCP-style tools with Google OAuth tokens', async () => {
 		let connectors: unknown[] = [];
-		const store = {
-			getConnectors: jest.fn(() => connectors),
-			setConnectors: jest.fn((next: unknown[]) => {
+		const store = connectorStoreFor(
+			() => connectors,
+			(next) => {
 				connectors = next;
-			}),
-		};
+			}
+		);
 		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
 			if (url === 'https://oauth2.googleapis.com/token') {
 				const body = String(init?.body);
@@ -817,7 +824,8 @@ describe('connectors service', () => {
 			}
 			throw new Error(`unexpected fetch: ${url}`);
 		}) as unknown as typeof fetch;
-		const service = new ConnectorsService(store as never, makeLogger() as never, {
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
 			fetchImpl,
 			googleOAuthClientId: 'client-id',
 			googleOAuthClientSecret: 'client-secret',
