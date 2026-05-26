@@ -33,4 +33,8 @@ The agent service should:
 - Use `ToolService` when an agent needs to call tools.
 - Keep agent execution logic out of feature modules.
 
+## Testing
+
+Test agent run creation, state reads, state updates, deletion, listing, execution, cancellation or failure behavior, and tool calls through `ToolService`. Tests should call the exported agent service and should not import internal agent files directly.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.

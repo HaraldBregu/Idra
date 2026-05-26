@@ -57,4 +57,8 @@ The cron service should:
 
 Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and job execution results. Do not use console logging for module behavior.
 
+## Testing
+
+Test schedule creation, updates, deletion, pause, resume, next-run calculation, immediate execution, persisted schedule fields, and failure reporting. Tests should call the exported cron service and should not import internal cron files directly.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.

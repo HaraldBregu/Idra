@@ -14,6 +14,8 @@ Every service module must stay isolated:
 
 Services should use the application logger for operations and failures. The logger is not counted as a service dependency.
 
+For each service, add tests for public behavior, declared dependencies, error handling, logging, and module-boundary isolation. Tests should call exported services instead of internal service files.
+
 ## Services
 
 ### Policy

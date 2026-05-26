@@ -63,4 +63,8 @@ Cron tools should use `CronService` for all scheduling behavior. They must not s
 
 Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and tool execution results. Do not use console logging for module behavior.
 
+## Testing
+
+Test each filesystem tool and cron tool through the exported tools service. Tests should cover policy checks, cron delegation, successful execution, failure handling, logging, and removal or refactoring of duplicate tool implementations.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.

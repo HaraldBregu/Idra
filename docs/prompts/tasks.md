@@ -71,4 +71,8 @@ Each task should have one dependency. Do not add multiple task dependencies unle
 
 Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and task execution results. Do not use console logging for module behavior.
 
+## Testing
+
+Test task creation, listing, lookup, cancellation, state updates, background execution, agent-backed execution, persisted `task.json` records, and sanitized serialization. Tests should call the exported tasks service and should not import internal task files directly.
+
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
