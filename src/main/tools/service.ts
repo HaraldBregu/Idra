@@ -206,10 +206,16 @@ function filterTools(
 	runtime: { allow?: string[]; deny?: string[] },
 	policy?: PolicyServicePort
 ): AgentTool[] {
-	const subjects: ToolPolicySubject[] = tools.map((tool) => ({
-		name: tool.name,
-		ownerOnly: tool.ownerOnly,
-	}));
+	const subjects: ToolPolicySubject[] = tools.map((tool) => {
+		const metadata = getToolMetadata(tool);
+		return {
+			name: tool.name,
+			ownerOnly: tool.ownerOnly,
+			optional: metadata?.optional,
+			ownerKind: metadata?.ownerKind,
+			pluginId: metadata?.pluginId,
+		};
+	});
 	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
 		stages: { runtime },
 	});
