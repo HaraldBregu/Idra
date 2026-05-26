@@ -6,11 +6,12 @@ The tools module provides application tools that can be used by other processes.
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the tools module. Patterns should solve real service-boundary, lifecycle, dependency, authorization, integration, or validation problems; do not add decorative abstractions.
 
-The tools module can depend on `PolicyService`, `CronService`, and `SkillsService`:
+The tools module can depend on `PolicyService`, `CronService`, `SkillsService`, and `ConnectorService`:
 
 - Use `PolicyService` to evaluate whether a tool action is allowed.
 - Use `CronService` when a tool needs scheduled execution.
 - Use `SkillsService` when a tool needs to use skills.
+- Use `ConnectorService` when a tool needs to call connector-based services or integrations.
 - Do not reimplement policy checks or cron scheduling inside individual tools.
 
 ## Dependencies
@@ -18,6 +19,7 @@ The tools module can depend on `PolicyService`, `CronService`, and `SkillsServic
 - `PolicyService`: evaluate whether tool actions are allowed.
 - `CronService`: run scheduling behavior for cron tools.
 - `SkillsService`: provide skill access for tools that use skills.
+- `ConnectorService`: access and coordinate connector-backed integrations.
 
 Keep the tools module isolated:
 
