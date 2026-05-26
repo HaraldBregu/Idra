@@ -46,9 +46,6 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
-	FridayCronJob,
-	FridayCronToolRequest,
-	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
@@ -120,26 +117,6 @@ const win: WindowApi = {
 		return typedOn(WindowChannels.fullScreenChange, callback);
 	},
 } satisfies WindowApi;
-
-function isFridayCronJob(value: unknown): value is FridayCronJob {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		typeof (value as { id?: unknown }).id === 'string' &&
-		typeof (value as { name?: unknown }).name === 'string' &&
-		typeof (value as { enabled?: unknown }).enabled === 'boolean' &&
-		typeof (value as { state?: unknown }).state === 'object' &&
-		(value as { state?: unknown }).state !== null
-	);
-}
-
-async function cronAction(request: FridayCronToolRequest): Promise<FridayCronToolResponse> {
-	const response = await typedInvokeUnwrap(CronChannels.action, request);
-	if (response.status === 'error') {
-		throw new Error(response.error ?? 'Cron action failed.');
-	}
-	return response;
-}
 
 export const agent: AgentApi = {
 	send: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
@@ -331,11 +308,6 @@ export const cron: CronApi = {
 	list: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
 	},
-	listJobs: async (include = 'all'): Promise<FridayCronJob[]> => {
-		const response = await cronAction({ action: 'list', include });
-		if (!Array.isArray(response.result)) return [];
-		return response.result.filter(isFridayCronJob);
-	},
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
@@ -347,9 +319,6 @@ export const cron: CronApi = {
 	},
 	remove: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
-	},
-	removeJob: async (id: string): Promise<void> => {
-		await cronAction({ action: 'remove', jobId: id });
 	},
 	createSchedule: (request: CronScheduleCreateRequest): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.createSchedule, request);
@@ -384,7 +353,6 @@ export const cron: CronApi = {
 	runNow: (scheduleId: string): Promise<CronScheduledTask> => {
 		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
 	},
-	action: cronAction,
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void): (() => void) => {
 		return typedOn(CronChannels.event, listener);
 	},
