@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 export type ToolPart = {
 	type: string;
 	state: 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
-	status?: 'ok' | 'error' | 'rejected';
+	status?: 'ok' | 'error' | 'blocked' | 'rejected';
 	iteration?: number;
 	input?: unknown;
 	inputText?: string;
