@@ -18,7 +18,11 @@ export interface AgentToolManagementOptions {
 }
 
 export class ToolExecutor {
-	constructor(_options: { maxToolCallsPerTurn?: number } = {}) {}
+	readonly maxToolCallsPerTurn?: number;
+
+	constructor(options: { maxToolCallsPerTurn?: number } = {}) {
+		this.maxToolCallsPerTurn = options.maxToolCallsPerTurn;
+	}
 }
 
 export function selectAgentToolsForTurn(
