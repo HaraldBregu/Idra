@@ -14,6 +14,8 @@ Keep the cron module isolated:
 - Consumers must depend on the exported cron service.
 - Scheduling behavior must stay centralized inside the cron service.
 
+Types that need to be reused by other processes can be stored in a shared folder. Keep cron-specific implementation types inside the cron module unless they are genuinely shared.
+
 The cron service should:
 
 - Start cron schedules.
