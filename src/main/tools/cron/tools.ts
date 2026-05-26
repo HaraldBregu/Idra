@@ -94,7 +94,7 @@ const cronCreateSchema = {
 	},
 	required: ['name', 'type', 'taskType', 'taskInput'],
 	additionalProperties: false,
-} as const;
+};
 
 const cronIdSchema = {
 	type: 'object',
@@ -103,7 +103,7 @@ const cronIdSchema = {
 	},
 	required: ['id'],
 	additionalProperties: false,
-} as const;
+};
 
 export const cronCreateTool: AgentTool<CronCreateArgs> = {
 	name: 'cron_create',
