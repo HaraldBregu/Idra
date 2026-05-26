@@ -666,7 +666,7 @@ interface ConnectorsInvokeChannelMap {
 		args: [
 			id: string,
 			name: string,
-			args: unknown,
+			args: Record<string, unknown>,
 			options?: import('../connector').ConnectorCallToolOptions,
 		];
 		result: unknown;
