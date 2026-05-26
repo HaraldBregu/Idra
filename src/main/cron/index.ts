@@ -25,6 +25,3 @@ export * from './security/cron-access-policy';
 export * from './security/cron-redaction';
 export * from './security/cron-confirmation-manager';
 export * from './agent/agent-cron-service';
-export type * from './electron/cron-client';
-export * from './examples/example-cron-definitions';
-export * from './examples/example-agent-cron-usage';
