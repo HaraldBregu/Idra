@@ -138,6 +138,128 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('creates, reads, updates, lists, and deletes agent runs through the service', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const service = new AgentService(deps, { sessionBaseDir, toolsFactory: () => [] });
+
+		const run = await service.createRun({
+			runId: 'run-1',
+			agentId: 'main',
+			providerId: 'openai',
+			model: 'gpt-test',
+		});
+
+		expect(run).toMatchObject({ id: 'run-1', state: 'idle', sessionId: 'run-1' });
+		await expect(service.getRunState('run-1')).resolves.toBe('idle');
+
+		await expect(
+			service.updateRunState('run-1', { state: 'using_tools', label: 'Using tools' })
+		).resolves.toMatchObject({ id: 'run-1', state: 'using_tools', label: 'Using tools' });
+		await expect(service.listRuns()).resolves.toEqual(
+			expect.arrayContaining([expect.objectContaining({ id: 'run-1', state: 'using_tools' })])
+		);
+
+		await service.deleteRun('run-1');
+		await expect(service.getRun('run-1')).resolves.toBeUndefined();
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('executes created runs and routes tool calls through ToolService', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		const tool: AgentTool = {
+			name: 'ping',
+			description: 'Ping',
+			schema: { type: 'object' },
+			execute: jest.fn(async () => ({
+				status: 'ok' as const,
+				content: [{ type: 'text' as const, text: 'pong' }],
+			})),
+		};
+		const toolService = {
+			createDefaultTools: jest.fn(() => [tool]),
+			filterToolsByAllowlist: jest.fn((tools) => tools),
+			filterToolsByDenylist: jest.fn((tools) => tools),
+			createCallTracker: jest.fn(() => ({})),
+			createManagementOptions: jest.fn((options) => options ?? {}),
+			prepareToolsForProvider: jest.fn((tools) => tools),
+			selectToolsForTurn: jest.fn((tools) => ({
+				toolsForPrompt: tools,
+				systemPromptSuffix: '',
+				rankedTools: tools,
+			})),
+			prepareToolsForRun: jest.fn(({ tools, management }) => ({
+				toolsForPrompt: tools,
+				systemPromptSuffix: '',
+				rankedTools: tools,
+				management: management ?? {},
+			})),
+			beforeCall: jest.fn(async () => ({ proceed: true })),
+			executeToolWithManagement: jest.fn((toolToRun, args, ctx) =>
+				toolToRun.execute(args, ctx)
+			),
+			getToolRegistry: jest.fn(() => new Map()),
+			getToolsByGroup: jest.fn(() => []),
+		};
+		const policy = {
+			evaluateToolRequest: jest.fn(() => ({ shouldUseTools: true, reason: 'test' })),
+		};
+		let turn = 0;
+		const service = new AgentService(
+			{ ...deps, policy: policy as never, toolService: toolService as never },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+				providerFactory: () => ({
+					async *stream() {
+						turn++;
+						if (turn === 1) {
+							yield { type: 'tool_call_start' as const, id: 'tc1', name: 'ping' };
+							yield {
+								type: 'tool_call_args_delta' as const,
+								id: 'tc1',
+								jsonDelta: '{"value":1}',
+							};
+							yield { type: 'tool_call_end' as const, id: 'tc1' };
+							yield {
+								type: 'message_end' as const,
+								stopReason: 'end_turn',
+								usage: { inputTokens: 1, outputTokens: 1 },
+							};
+							return;
+						}
+						yield { type: 'text_delta' as const, text: 'done' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [tool],
+				toolService: toolService as never,
+			}
+		);
+		const run = await service.createRun({
+			runId: 'tool-run',
+			providerId: 'openai',
+			model: 'gpt-test',
+		});
+
+		await expect(service.executeRun(run.id, 'use ping')).resolves.toBe('done');
+		expect(toolService.executeToolWithManagement).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'ping' }),
+			{ value: 1 },
+			expect.any(Object),
+			expect.any(Object)
+		);
+		await expect(service.getRunState(run.id)).resolves.toBe('completed');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
 	it('passes saved OpenAI model effort into provider requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
