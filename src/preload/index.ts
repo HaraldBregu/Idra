@@ -454,22 +454,43 @@ export const heartbeat: HeartbeatApi = {
 	last: (): Promise<HeartbeatEventPayload | null> => {
 		return typedInvokeUnwrap(HeartbeatChannels.last);
 	},
+	settings: (): Promise<HeartbeatSettings> => {
+		return typedInvokeUnwrap(HeartbeatChannels.settings);
+	},
+	saveSettings: (request: HeartbeatSettingsUpdate): Promise<HeartbeatSettings> => {
+		return typedInvokeUnwrap(HeartbeatChannels.saveSettings, assertHeartbeatObject(request));
+	},
 	setEnabled: (request: HeartbeatSetEnabledRequest): Promise<HeartbeatStatus> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, request);
+		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, assertHeartbeatObject(request));
 	},
 	getTiming: (): Promise<HeartbeatTimingSettings> => {
 		return typedInvokeUnwrap(HeartbeatChannels.getTiming);
 	},
 	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, request);
+		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, assertHeartbeatObject(request));
+	},
+	setProviderId: (request: HeartbeatSetProviderRequest): Promise<HeartbeatSettings> => {
+		return typedInvokeUnwrap(HeartbeatChannels.setProviderId, assertHeartbeatObject(request));
+	},
+	setModelId: (request: HeartbeatSetModelRequest): Promise<HeartbeatSettings> => {
+		return typedInvokeUnwrap(HeartbeatChannels.setModelId, assertHeartbeatObject(request));
+	},
+	setReasoningEffort: (
+		request: HeartbeatSetReasoningEffortRequest
+	): Promise<HeartbeatSettings> => {
+		return typedInvokeUnwrap(
+			HeartbeatChannels.setReasoningEffort,
+			assertHeartbeatObject(request)
+		);
 	},
 	systemEvent: (request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> => {
-		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, request);
+		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, assertHeartbeatObject(request));
 	},
 	request: (request: HeartbeatWakeRequest): Promise<void> => {
-		return typedInvokeUnwrap(HeartbeatChannels.request, request);
+		return typedInvokeUnwrap(HeartbeatChannels.request, assertHeartbeatObject(request));
 	},
 	onEvent: (callback: (event: HeartbeatEventPayload) => void): (() => void) => {
+		if (typeof callback !== 'function') throw new Error('heartbeat event callback must be a function.');
 		return typedOn(HeartbeatChannels.event, callback);
 	},
 };
