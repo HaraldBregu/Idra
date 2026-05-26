@@ -16,6 +16,10 @@ src/main/agent/
   service.ts
   run.ts
   compaction.ts
+  memory/
+    index.ts
+    service.ts
+    types.ts
   capabilities/
     index.ts
     service.ts
@@ -59,6 +63,7 @@ Use `src/shared/agents` for types, constants, event DTOs, service DTOs, status s
 - Build system prompts through `system-prompt.ts`.
 - Resolve capabilities through `AgentCapabilityService`.
 - Execute model/tool turns through `AgentExecutionService`.
+- Persist chat history through `AgentMemoryService`.
 - Persist session and run state after execution.
 - Expose stream events through a callback, not through IPC-specific logic.
 
@@ -83,6 +88,18 @@ Use `src/shared/agents` for types, constants, event DTOs, service DTOs, status s
 - Resolve relevant skills from `SkillsService`.
 - Return executable tools, connector tools, selected skills, prompt additions, and direct-answer metadata.
 - Emit capability-resolution stream events.
+
+`AgentMemoryService` owns durable agent memory. It should:
+
+- Use the application data directory as its only storage root.
+- Store all agent-owned memory under the predefined `appdata/agent` directory.
+- Store chat history under `appdata/agent/chats`.
+- Create the memory root and chat directory when they are missing.
+- Save ordered user, assistant, and tool messages for each chat.
+- Load chat history by stable chat or session id when an agent run resumes.
+- Keep file naming deterministic and based on stable ids, not user-provided text.
+- Sanitize messages before storage using the transcript storage safety rules.
+- Keep memory persistence out of transport, renderer, provider adapter, and tool implementations.
 
 ## Dependencies
 
@@ -144,7 +161,7 @@ user prompt
   -> capability resolution
   -> system prompt assembly
   -> provider-neutral streaming execution
-  -> session persistence
+  -> memory and session persistence
 ```
 
 Capabilities should be minimal and prompt-relevant:
@@ -186,9 +203,9 @@ The agent runtime has seven jobs:
 
 ### Agent Chat Memory
 
-Start memory persistence with chat message storage.
+Start memory persistence with chat message storage through `AgentMemoryService`.
 
-Use the application data directory as the durable memory root. Under appdata, create an `agent/` directory owned by the agent module:
+Use the application data directory as the durable memory root. Under appdata, create an `agent/` directory owned by the agent module. This directory is the predefined root for agent memory:
 
 ```text
 appdata/
@@ -196,7 +213,7 @@ appdata/
     chats/
 ```
 
-Store agent chat messages under `appdata/agent/chats/`. Each chat should have a stable file-backed record containing the chat id, agent id, session id, timestamps, metadata needed to resume, and the ordered user, assistant, and tool messages for that chat.
+Store agent chat history under `appdata/agent/chats/`. Each chat should have a stable file-backed record containing the chat id, agent id, session id, timestamps, metadata needed to resume, and the ordered user, assistant, and tool messages for that chat.
 
 The chat memory store should:
 
