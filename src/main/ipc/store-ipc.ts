@@ -21,7 +21,6 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { StoreChannels } from '../../shared/ipc-channels';
-import type { PolicyConfig } from '../../shared/policy';
 import { DEFAULT_PROVIDERS, type Provider, type ProviderInput, type PublicProvider } from '../../shared/providers';
 import type { StoreService } from '../store';
 
@@ -141,7 +140,6 @@ export class StoreIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
-		const policyService = container.get('policy');
 		const logger = container.get('logger');
 		const powerSaveBlocker = container.get('powerSaveBlocker');
 
@@ -351,19 +349,6 @@ export class StoreIpc implements IpcModule {
 					speechToTextModelOrThrow(storedProvider.id, model)
 				);
 			}, StoreChannels.saveSpeechTranscriberService)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getPolicy,
-			wrapSimpleHandler((): PolicyConfig => policyService.getPolicy(), StoreChannels.getPolicy)
-		);
-
-		ipcMain.handle(
-			StoreChannels.setPolicy,
-			wrapSimpleHandler(
-				(policy: PolicyConfig): PolicyConfig => policyService.setPolicy(policy),
-				StoreChannels.setPolicy
-			)
 		);
 
 		logger.info('StoreIpc', `Registered ${this.name} module`);
