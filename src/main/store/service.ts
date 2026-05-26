@@ -12,7 +12,6 @@ import type { Channel, ChannelType, TelegramChannelProperties } from '../../shar
 import type { CronTask } from '../../shared/cron';
 import type { CronStoreState } from '../cron/core/cron.types';
 import type { FridayCronStoreState } from '../cron/friday/store';
-import type { PolicyConfig } from '../../shared/policy';
 import type {
 	AgentConfig,
 	AgentRoutingSettings,
@@ -28,7 +27,6 @@ import { ConnectorsStore } from './connectors';
 import { CronStore } from './cron';
 import { HeartbeatStore } from './heartbeat';
 import { ImageCreatorStore } from './image-creator';
-import { PolicyStore } from './policy';
 import { ProvidersStore } from './providers';
 import { SpeechToTextStore } from './speech-to-text';
 import { TaskStore } from './task';
@@ -48,7 +46,6 @@ export class StoreService {
 	private agents: AgentsStore;
 	private task: TaskStore;
 	private channels: ChannelsStore;
-	private policy: PolicyStore;
 	private cron: CronStore;
 	private heartbeat: HeartbeatStore;
 	private connectors: ConnectorsStore;
@@ -68,7 +65,6 @@ export class StoreService {
 		this.agents = new AgentsStore(this.store);
 		this.task = new TaskStore(this.store);
 		this.channels = new ChannelsStore(this.store);
-		this.policy = new PolicyStore(this.store);
 		this.cron = new CronStore(this.store);
 		this.heartbeat = new HeartbeatStore(this.store);
 		this.connectors = new ConnectorsStore(this.store);
@@ -239,14 +235,6 @@ export class StoreService {
 	}
 	setTelegramChannel(config: TelegramChannelProperties): TelegramChannelProperties {
 		return this.channels.setTelegramChannel(config);
-	}
-
-	// Policy
-	getPolicy(): PolicyConfig {
-		return this.policy.getPolicy();
-	}
-	setPolicy(policy: PolicyConfig): PolicyConfig {
-		return this.policy.setPolicy(policy);
 	}
 
 	// Cron
