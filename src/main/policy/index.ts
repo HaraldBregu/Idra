@@ -18,6 +18,7 @@ export {
 	type ToolPolicy,
 	type ToolPolicyEvaluation,
 	type ToolPolicyEvaluationContext,
+	type ToolPolicyIndex,
 	type ToolPolicyProfile,
 	type ToolPolicyStageName,
 	type ToolPolicySubject,
