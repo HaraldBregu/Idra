@@ -526,6 +526,11 @@ export class FridayCronScheduler {
 		if (state.runningAtMs && now - state.runningAtMs <= this.options.stuckRunThresholdMs) {
 			const run = this.skippedRun(job, scheduledForMs, mode, 'already_running');
 			await this.store.appendRun(run);
+			this.logger?.warn('FridayCron', 'Cron job run skipped.', {
+				jobId: job.id,
+				runId: run.runId,
+				reason: run.skippedReason,
+			});
 			return run;
 		}
 		state.runningAtMs = now;
@@ -535,6 +540,12 @@ export class FridayCronScheduler {
 
 		this.running += 1;
 		const runId = randomUUID();
+		this.logger?.info('FridayCron', 'Cron job run started.', {
+			jobId: job.id,
+			runId,
+			mode,
+			scheduledForMs,
+		});
 		const controller = new AbortController();
 		const timeoutMs =
 			job.payload.kind === 'agentTurn' && job.payload.timeoutSeconds
@@ -685,6 +696,27 @@ export class FridayCronScheduler {
 		}
 		await this.store.appendRun(run);
 		await this.store.save(snapshot);
+		if (run.status === 'ok') {
+			this.logger?.info('FridayCron', 'Cron job run completed.', {
+				jobId: job.id,
+				runId: run.runId,
+				nextRunAtMs: state.nextRunAtMs ?? null,
+			});
+		} else if (run.status === 'skipped') {
+			this.logger?.warn('FridayCron', 'Cron job run skipped.', {
+				jobId: job.id,
+				runId: run.runId,
+				reason: run.skippedReason,
+				nextRunAtMs: state.nextRunAtMs ?? null,
+			});
+		} else {
+			this.logger?.error('FridayCron', 'Cron job run failed.', {
+				jobId: job.id,
+				runId: run.runId,
+				error: run.error?.message,
+				nextRunAtMs: state.nextRunAtMs ?? null,
+			});
+		}
 	}
 
 	private async resolveDelivery(
