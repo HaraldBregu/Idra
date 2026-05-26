@@ -21,6 +21,8 @@ import type {
 	CronScheduleUpdateRequest,
 	CronScheduleStore,
 	CronScheduledTask,
+	CronStoredSchedule,
+	CronStoredTarget,
 } from '../core/cron.types';
 import { ScheduleDescriber } from '../core/cron.describer';
 import {
