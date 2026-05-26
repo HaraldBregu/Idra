@@ -175,7 +175,20 @@ const OverviewPage: React.FC = () => {
 							))}
 							{group.paths.map((path) => {
 								const item = getSettingsNavigationItem(path);
-								return <SettingsOverviewCard key={item.path} item={item} />;
+								const badge =
+									path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
+										<Badge
+											variant={heartbeatEnabled ? 'outline' : 'secondary'}
+											className="h-5 rounded-md px-1.5 text-[10px]"
+										>
+											{t(
+												heartbeatEnabled
+													? 'settings.heartbeat.values.enabled'
+													: 'settings.heartbeat.values.paused'
+											)}
+										</Badge>
+									) : undefined;
+								return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
 							})}
 						</SettingsPanel>
 					);
