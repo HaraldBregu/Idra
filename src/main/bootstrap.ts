@@ -111,7 +111,7 @@ export function bootstrapServices(): BootstrapResult {
 		);
 	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
-	const cron = container.register('cron', new CronService(logger, { settingsStore: store }));
+	const cron = container.register('cron', new CronService(logger));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
@@ -156,7 +156,6 @@ export function bootstrapServices(): BootstrapResult {
 		eventBus,
 		logger,
 	});
-	cron.configureTaskRuntime({ taskManager });
 	const channelRegistry = container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService, store })
@@ -173,7 +172,6 @@ export function bootstrapServices(): BootstrapResult {
 		})
 	);
 	heartbeat.start();
-	cron.configureRuntime({ agentService, eventBus, channelRegistry, heartbeat });
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
