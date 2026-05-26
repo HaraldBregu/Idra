@@ -439,12 +439,12 @@ describe('canonical agent tool runtime', () => {
 		await fs.writeFile(path.join(workspace, 'secret.txt'), 'secret', 'utf8');
 		const policy = new PolicyService({
 			store: new PolicyStore({
-				get: jest.fn(() => ({
+				read: jest.fn(() => ({
 					version: 1,
 					defaultPolicy: 'deny',
 					paths: [],
 				})),
-				set: jest.fn(),
+				write: jest.fn(),
 			}),
 		});
 		const result = await createAgentTools({
