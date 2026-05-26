@@ -3,7 +3,6 @@ node_modules
 .yarn/install-state.gz
 out
 dist
-docs
 .env
 .DS_Store
 *.tsbuildinfo
