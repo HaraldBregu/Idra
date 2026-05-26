@@ -16,7 +16,6 @@ import {
 	type FridayCronExecutor,
 } from '../../../../src/main/cron';
 import { EventBus } from '../../../../src/main/core';
-import type { StoreService } from '../../../../src/main/store';
 import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
 import type { TaskContext } from '../../../../src/shared/tasks';
 
@@ -56,7 +55,10 @@ class RecordingDelivery implements FridayCronDeliveryPort {
 }
 
 function createFridayStoreService(): {
-	service: StoreService;
+	service: {
+		getFridayCronState: () => FridayCronStoreState;
+		setFridayCronState: (state: FridayCronStoreState) => void;
+	};
 	readState: () => FridayCronStoreState;
 } {
 	let state = emptyFridayCronStoreState();
@@ -66,7 +68,7 @@ function createFridayStoreService(): {
 			setFridayCronState: jest.fn((next: FridayCronStoreState) => {
 				state = next;
 			}),
-		} as unknown as StoreService,
+		},
 		readState: () => state,
 	};
 }
