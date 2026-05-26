@@ -170,8 +170,8 @@ describe('tools/fs', () => {
 	function useFilePolicy(ctx: ReturnType<typeof makeToolContext>, policy: PolicyConfig): void {
 		ctx.services.policy = new PolicyService({
 			store: new PolicyStore({
-				get: jest.fn(() => policy),
-				set: jest.fn(),
+				read: jest.fn(() => policy),
+				write: jest.fn(),
 			}),
 		});
 	}
