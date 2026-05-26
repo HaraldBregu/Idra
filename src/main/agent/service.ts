@@ -124,8 +124,6 @@ export interface AgentSendOptions {
 	providerId?: string;
 	model?: string;
 	effort?: ModelReasoningEffort;
-	agentRuntime?: string;
-	agentHarnessId?: string;
 	lightContext?: boolean;
 	streamEvent?: (event: AgentRunStreamEvent) => void;
 	toolsAllow?: string[];
