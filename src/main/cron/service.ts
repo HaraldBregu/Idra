@@ -58,7 +58,7 @@ export interface CronServiceOptions {
 
 /**
  * Schedules and manages recurring jobs via node-cron. Tasks are persisted
- * to StoreService so they survive app restart, and reloaded via restore().
+ * to cron-owned Electron Store state so they survive app restart, and reloaded via restore().
  *
  * Generic over the data payload: callers parameterize schedule<TData>() with
  * whatever shape they want as long as it has a string `type` discriminator.
