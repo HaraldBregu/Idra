@@ -549,7 +549,7 @@ function assignString<K extends keyof SkillFrontmatter>(
 	value: unknown
 ): void {
 	const text = readString(value);
-	if (text) (target as Record<string, unknown>)[key] = text;
+	if (text) (target as unknown as Record<string, unknown>)[key] = text;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
