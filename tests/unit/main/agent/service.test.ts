@@ -8,7 +8,7 @@ import type {
 import { AgentService } from '../../../../src/main/service';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import type { AgentTool } from '../../../../src/main/tools/types';
-import { PolicyService } from '../../../../src/main/policy';
+import { PolicyService, PolicyStore } from '../../../../src/main/policy';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 const FILE_TOOL_NAMES = [
@@ -760,17 +760,20 @@ describe('AgentService', () => {
 		const outsideFile = path.join(outside, 'policy-write.txt');
 		const deps = makeDeps(workspace);
 		const policy = new PolicyService({
-			getPolicy: jest.fn(() => ({
-				version: 1,
-				defaultPolicy: 'deny',
-				paths: [
-					{
-						path: outside,
-						permissions: ['read', 'write', 'create', 'delete'],
-						recursive: true,
-					},
-				],
-			})),
+			store: new PolicyStore({
+				get: jest.fn(() => ({
+					version: 1,
+					defaultPolicy: 'deny',
+					paths: [
+						{
+							path: outside,
+							permissions: ['read', 'write', 'create', 'delete'],
+							recursive: true,
+						},
+					],
+				})),
+				set: jest.fn(),
+			}),
 		});
 		let turn = 0;
 		const service = new AgentService(
