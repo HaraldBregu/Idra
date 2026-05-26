@@ -280,12 +280,27 @@ export class CronService implements Disposable {
 			throw new Error(`Invalid cron expression for "${id}": ${expression}`);
 		}
 
+		const configuredModel = this.configuredModel();
+		const now = new Date().toISOString();
+		const enabled = options.enabled ?? true;
 		const record: CronTask<TData> = {
 			id,
+			name: options.name?.trim() || id,
+			description: options.description?.trim() || undefined,
+			schedule: expression,
 			expression,
+			timezone: options.timezone ?? 'UTC',
+			enabled,
+			status: enabled ? 'active' : 'disabled',
+			providerId: options.providerId ?? configuredModel?.providerId,
+			modelId: options.modelId ?? configuredModel?.modelId,
+			target: options.target ?? this.targetForData(data),
+			payload: data,
 			data,
-			timezone: options.timezone,
-			createdAt: new Date().toISOString(),
+			createdAt: now,
+			updatedAt: now,
+			runCount: 0,
+			failureCount: 0,
 		};
 
 		if (!this.automaticEnabled) {
@@ -300,11 +315,12 @@ export class CronService implements Disposable {
 		const task = cron.schedule(
 			expression,
 			async () => {
-				this.recordRun(id);
 				try {
 					await handler();
+					this.recordRunResult(id, 'success');
 					this.logger.info('CronService', `Job "${id}" completed`);
 				} catch (err) {
+					this.recordRunResult(id, 'failure', this.errorMessage(err));
 					this.logger.error('CronService', `Job "${id}" failed`, err);
 				}
 			},
@@ -318,9 +334,11 @@ export class CronService implements Disposable {
 		if (options.runOnStart) {
 			void Promise.resolve(handler())
 				.then(() => {
+					this.recordRunResult(id, 'success');
 					this.logger.info('CronService', `Initial run of "${id}" completed`);
 				})
 				.catch((err) => {
+					this.recordRunResult(id, 'failure', this.errorMessage(err));
 					this.logger.error('CronService', `Initial run of "${id}" failed`, err);
 				});
 		}
