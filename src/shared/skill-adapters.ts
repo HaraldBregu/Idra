@@ -61,9 +61,9 @@ export interface OpenAILocalSkillEntry {
 /** Build the `tools[n].environment.skills` array for the OpenAI local shell. */
 export function toOpenAILocalSkills(skills: ReadonlyArray<SkillInfo>): OpenAILocalSkillEntry[] {
 	return skills.map((info) => ({
-		name: info.manifest.name,
-		description: info.manifest.description ?? '',
-		path: info.folderPath,
+		name: info.name,
+		description: info.description,
+		path: info.location,
 	}));
 }
 
