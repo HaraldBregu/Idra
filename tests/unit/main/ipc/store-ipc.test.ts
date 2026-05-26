@@ -43,6 +43,8 @@ describe('StoreIpc', () => {
 			setAssistantOperator: jest.fn(() => true),
 			getAgentService: jest.fn(() => undefined),
 			setAgentService: jest.fn(() => true),
+		};
+		const policyService = {
 			getPolicy: jest.fn(() => policy),
 			setPolicy: jest.fn((next: PolicyConfig) => next),
 		};
@@ -50,9 +52,11 @@ describe('StoreIpc', () => {
 			setEnabled: jest.fn((enabled: boolean) => enabled),
 		};
 		const container = {
-			get: jest.fn((key: 'store' | 'logger' | 'powerSaveBlocker') =>
+			get: jest.fn((key: 'store' | 'policy' | 'logger' | 'powerSaveBlocker') =>
 				key === 'store'
 					? store
+					: key === 'policy'
+						? policyService
 					: key === 'powerSaveBlocker'
 						? powerSaveBlocker
 						: { info: jest.fn() }
@@ -108,7 +112,7 @@ describe('StoreIpc', () => {
 			success: true,
 			data: policy,
 		});
-		expect(store.setPolicy).toHaveBeenCalledWith(policy);
+		expect(policyService.setPolicy).toHaveBeenCalledWith(policy);
 	});
 });
 
