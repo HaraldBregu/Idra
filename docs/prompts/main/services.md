@@ -52,8 +52,8 @@ Store cron schedules with `id`, `name`, `description`, `schedule`, `timezone`, `
 
 Dependencies:
 
-| Dependency | Purpose                                            |
-| ---------- | -------------------------------------------------- |
+| Dependency | Purpose                                          |
+| ---------- | ------------------------------------------------ |
 | None       | Keep scheduled execution isolated from services. |
 
 ### Task
@@ -66,8 +66,8 @@ Each task should have one dependency.
 
 Dependencies:
 
-| Dependency | Purpose                                               |
-| ---------- | ----------------------------------------------------- |
+| Dependency | Purpose                                                |
+| ---------- | ------------------------------------------------------ |
 | None       | Keep background task execution isolated from services. |
 
 ### Tools
@@ -95,8 +95,8 @@ Main function: owns agent execution, agent run state, and tool-enabled agent beh
 
 Dependencies:
 
-| Dependency    | Purpose                              |
-| ------------- | ------------------------------------ |
+| Dependency    | Purpose                                |
+| ------------- | -------------------------------------- |
 | `ToolService` | Allow agents to call registered tools. |
 
 ### Skills
@@ -107,8 +107,8 @@ Main function: owns skill listing, importing, downloading, deletion, and root pa
 
 Dependencies:
 
-| Dependency | Purpose                     |
-| ---------- | --------------------------- |
+| Dependency | Purpose                      |
+| ---------- | ---------------------------- |
 | None       | Keep skill management local. |
 
 ### Store
@@ -119,6 +119,6 @@ Main function: owns application persistence so durable app data is read and writ
 
 Dependencies:
 
-| Dependency | Purpose                                      |
-| ---------- | -------------------------------------------- |
+| Dependency | Purpose                                     |
+| ---------- | ------------------------------------------- |
 | None       | Keep persistence independent from services. |
