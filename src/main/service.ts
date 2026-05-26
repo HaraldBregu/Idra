@@ -385,9 +385,13 @@ export class AgentService {
 										maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
 									})
 								)
-							);
+				);
 				selectedTools = toolSelection.toolsForPrompt;
 			}
+			selectedTools = this.toolService.prepareToolsForProvider(selectedTools, ctx, {
+				provider: providerId,
+				modelId: model,
+			});
 			const bootstrapMode = resolveBootstrapMode({
 				bootstrapPending,
 				isInteractiveUserFacing: true,
