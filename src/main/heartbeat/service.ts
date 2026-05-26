@@ -1,9 +1,9 @@
 import type { Disposable } from '../core/service-container';
 import type { AppEvent, EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
 import type { AgentService } from '../agent';
 import type { WorkspaceService } from '../workspace';
+import type { OperatorStoreState } from '../../shared/agents/service';
 import {
 	normalizeChannelId,
 	type ChannelChatType,
@@ -57,11 +57,13 @@ import {
 	setHeartbeatWakeHandler,
 } from './wake';
 import { normalizeHeartbeatReply } from './response';
-import { HeartbeatRuntimeState, StoreServiceHeartbeatStateStorage } from './state';
+import { HeartbeatRuntimeState, type HeartbeatStateStorage } from './state';
 import { resolveHeartbeatVisibility } from './visibility';
+import type { HeartbeatFileStore } from './store';
 
 export interface HeartbeatServiceDependencies {
-	store: StoreService;
+	getOperator?: () => OperatorStoreState | undefined;
+	heartbeatStore: HeartbeatFileStore & HeartbeatStateStorage;
 	channels: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	logger: LoggerService;
 	eventBus: EventBus;
@@ -124,7 +126,7 @@ export class HeartbeatService implements Disposable {
 
 	constructor(private readonly dependencies: HeartbeatServiceDependencies) {
 		this.runtimeState = new HeartbeatRuntimeState(
-			new StoreServiceHeartbeatStateStorage(dependencies.store)
+			dependencies.heartbeatStore
 		);
 	}
 
@@ -155,7 +157,7 @@ export class HeartbeatService implements Disposable {
 
 	updateConfig(): void {
 		const now = Date.now();
-		const operator = this.dependencies.store.getOperator();
+		const operator = this.getHeartbeatOperator();
 		const summaries = resolveHeartbeatAgentSummaries(operator);
 		const next = new Map<string, AgentSchedule>();
 		for (const summary of summaries) {
@@ -231,7 +233,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	getTiming(): HeartbeatTimingSettings {
-		const heartbeat = this.dependencies.store.getOperator()?.agents?.defaults?.heartbeat;
+		const heartbeat = this.dependencies.heartbeatStore.getAgentsConfig()?.defaults?.heartbeat;
 		return {
 			every: typeof heartbeat?.every === 'string' && heartbeat.every.trim()
 				? heartbeat.every.trim()
@@ -243,7 +245,7 @@ export class HeartbeatService implements Disposable {
 	updateTiming(request: HeartbeatTimingSettings): HeartbeatTimingSettings {
 		const every = typeof request.every === 'string' ? request.every.trim() : '';
 		if (!every) throw new Error('Heartbeat cadence is required.');
-		this.dependencies.store.setDefaultHeartbeatConfig({
+		this.dependencies.heartbeatStore.setDefaultHeartbeatConfig({
 			every,
 			activeHours: this.normalizeActiveHours(request.activeHours),
 		});
@@ -258,7 +260,7 @@ export class HeartbeatService implements Disposable {
 	async systemEvent(request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> {
 		const text = request.text?.trim();
 		if (!text) throw new Error('system-event text is required.');
-		const operator = this.dependencies.store.getOperator();
+		const operator = this.getHeartbeatOperator();
 		const agentId = request.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
 		const sessionKey = request.sessionKey?.trim() || agentId;
 		const mode = request.mode ?? 'next-heartbeat';
@@ -289,7 +291,7 @@ export class HeartbeatService implements Disposable {
 
 	async runHeartbeatOnce(wake: HeartbeatWakeRequest): Promise<HeartbeatRunResult> {
 		const startedAt = Date.now();
-		const operator = this.dependencies.store.getOperator();
+		const operator = this.getHeartbeatOperator();
 		const agentId = wake.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
 		const summary = this.mergeWakeOverride(resolveHeartbeatSummaryForAgent(operator, agentId), wake.heartbeat);
 		const schedule = this.ensureSchedule(summary);
@@ -616,6 +618,14 @@ export class HeartbeatService implements Disposable {
 			...(end ? { end } : {}),
 			...(timezone ? { timezone } : {}),
 		};
+	}
+
+	private getHeartbeatOperator(): OperatorStoreState | undefined {
+		const operator = this.dependencies.getOperator?.();
+		const agents = this.dependencies.heartbeatStore.getAgentsConfig();
+		if (!operator) return agents ? { agents } : undefined;
+		const { agents: _legacyAgents, ...baseOperator } = operator;
+		return agents ? { ...baseOperator, agents } : baseOperator;
 	}
 
 	private async readHeartbeatFile(_agentId: string): Promise<{
