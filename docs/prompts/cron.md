@@ -40,10 +40,3 @@ The service can be used anywhere in the application when scheduled execution is 
 3. Start the cron service.
 4. Execute jobs when their schedule is triggered.
 5. Report job success or failure.
-
-## Open Questions
-
-- Where should cron schedules be configured?
-- Which modules should register jobs directly?
-- Should job failures retry automatically?
-- Who receives cron failure reports?
