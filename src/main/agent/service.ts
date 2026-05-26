@@ -929,7 +929,7 @@ export class AgentService {
 
 	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
-			return await this.dependencies.startupFiles.isBootstrapPending(agentId);
+			return await this.getStartupWorkspace(agentId).isBootstrapPending();
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
 				error: (error as Error).message,
@@ -938,15 +938,31 @@ export class AgentService {
 		}
 	}
 
-	private async loadStartupFiles(agentId: string): Promise<AgentStartupFile[]> {
+	private async loadStartupFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		try {
-			return await this.dependencies.startupFiles.loadContextFiles(agentId);
+			return await this.getStartupWorkspace(agentId).loadContextFiles();
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
 				error: (error as Error).message,
 			});
 		}
 		return [];
+	}
+
+	private getStartupWorkspace(agentId: string): WorkspaceService {
+		const resolvedAgentId = agentId.trim();
+		if (!resolvedAgentId) throw new Error('Agent id is required.');
+		let workspace = this.startupWorkspaces.get(resolvedAgentId);
+		if (workspace) return workspace;
+		workspace = new WorkspaceService(this.dependencies.logger, {
+			rootPath: this.dependencies.userDataDirectory.resolve(
+				'agent',
+				'workspaces',
+				encodeURIComponent(resolvedAgentId)
+			),
+		});
+		this.startupWorkspaces.set(resolvedAgentId, workspace);
+		return workspace;
 	}
 
 	private filterStartupFilesForRun(
