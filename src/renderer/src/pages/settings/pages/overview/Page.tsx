@@ -134,6 +134,7 @@ function SettingsOverviewCard({
 				)}
 			</ItemContent>
 			<ItemActions className="ml-0 flex-none justify-end">
+				{badge}
 				{comingSoon ? (
 					<Badge variant="secondary" className="text-[10px] leading-none">
 						Soon
