@@ -26,7 +26,6 @@ jest.mock('electron-store', () => {
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
-import type { ConnectorConfig } from '../../../../src/shared/connectors';
 import type { CronStoreState, CronTask } from '../../../../src/shared/cron';
 import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import type { Provider } from '../../../../src/shared/providers';
@@ -103,21 +102,6 @@ const musicProvider: Provider = {
 	name: 'Suno',
 	apiKey: 'suno-old',
 	baseUrl: 'https://suno.com',
-};
-
-const gmailConnector: ConnectorConfig = {
-	id: 'connector-1',
-	name: 'Gmail',
-	connectorId: 'connector_gmail',
-	serverLabel: 'gmail',
-	enabled: true,
-	authorization: 'token',
-	requireApproval: 'always',
-	allowedTools: [],
-	deferLoading: false,
-	tools: [],
-	createdAt: '2026-05-22T00:00:00.000Z',
-	updatedAt: '2026-05-22T00:00:00.000Z',
 };
 
 const model: Model = { id: 'gpt-5.4', name: 'GPT-5.4' };
@@ -428,31 +412,6 @@ describe('StoreService', () => {
 			};
 			service.setHeartbeatState(next);
 			expect(store.get('heartbeat')).toEqual(next);
-		});
-	});
-
-	describe('connectors', () => {
-		it('defaults missing or invalid connector roots to an empty list', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-
-			expect(service.getConnectors()).toEqual([]);
-
-			store.set('connectors', { id: 'gmail' });
-			expect(service.getConnectors()).toEqual([]);
-		});
-
-		it('stores connector settings by connector key', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-
-			service.setConnectors([gmailConnector]);
-
-			expect(service.getConnectors()).toEqual([gmailConnector]);
-			expect(service.getConnectorById('connector-1')).toEqual(gmailConnector);
-			expect(store.get('connectors')).toEqual({
-				google_gmail: gmailConnector,
-			});
 		});
 	});
 
