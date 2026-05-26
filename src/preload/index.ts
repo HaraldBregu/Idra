@@ -63,6 +63,8 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
+	AgentStartupFileContent,
+	AgentStartupFileSummary,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,

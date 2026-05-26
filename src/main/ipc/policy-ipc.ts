@@ -1,10 +1,9 @@
-import { ipcMain } from 'electron';
 import type { PolicyConfig } from '../../shared/policy';
 import { PolicyChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import type { IpcModule } from './ipc-module';
-import { wrapSimpleHandler } from './ipc-error-handler';
+import { registerCommand, registerQuery } from './ipc-gateway';
 
 export class PolicyIpc implements IpcModule {
 	readonly name = 'policy';
@@ -13,17 +12,28 @@ export class PolicyIpc implements IpcModule {
 		const policy = container.get('policy');
 		const logger = container.get('logger');
 
-		ipcMain.handle(
+		const handleWithPolicyLogging = <T>(operation: string, handler: () => T): T => {
+			try {
+				return handler();
+			} catch (error) {
+				const normalizedError =
+					error instanceof Error ? error.message : String(error);
+				logger.error('PolicyIpc', `Failed to ${operation} policy configuration`, {
+					error: normalizedError,
+				});
+				throw error;
+			}
+		};
+
+		registerQuery(
 			PolicyChannels.get,
-			wrapSimpleHandler((): PolicyConfig => policy.getPolicy(), PolicyChannels.get)
+			(): PolicyConfig => handleWithPolicyLogging('read', () => policy.getPolicy())
 		);
 
-		ipcMain.handle(
+		registerCommand(
 			PolicyChannels.set,
-			wrapSimpleHandler(
-				(config: PolicyConfig): PolicyConfig => policy.setPolicy(config),
-				PolicyChannels.set
-			)
+			(config: PolicyConfig): PolicyConfig =>
+				handleWithPolicyLogging('replace', () => policy.setPolicy(config))
 		);
 
 		logger.info('PolicyIpc', `Registered ${this.name} module`);
