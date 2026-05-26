@@ -18,7 +18,7 @@ Keep the tools module isolated:
 - Consumers must depend on the exported tools service or exported tool registry.
 - Tool behavior must stay centralized inside the tools module.
 
-Types that need to be reused by other processes can be stored in a shared folder. Keep tool-specific implementation types inside the tools module unless they are genuinely shared.
+Types or files that need to be reused by other processes must be stored under `src/shared` so they can be used everywhere. Keep tool-specific implementation types and files inside the tools module unless they are genuinely shared.
 
 ## Filesystem Tools
 
