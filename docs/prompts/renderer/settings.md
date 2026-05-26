@@ -4,8 +4,6 @@ Create the settings page as a layout shell with nested sub-pages.
 
 The settings page is a multi-section configuration area. It uses a shared `Layout` that wraps all nested routes via an `Outlet`, and an `OverviewPage` that acts as the entry point listing all available settings groups.
 
-The settings page lives at `src/renderer/src/pages/settings/`.
-
 ## Layout
 
 `Layout` wraps every settings sub-page:
