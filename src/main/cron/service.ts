@@ -169,7 +169,7 @@ export class CronService implements Disposable {
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
 	): Promise<FridayCronToolResponse> {
 		const effectiveActor = actor ?? { role: 'owner' as const };
-		return this.friday.handleToolAction(request, effectiveActor, context);
+		return this.friday.handleAction(request, effectiveActor, context);
 	}
 
 	createSchedule(
