@@ -37,7 +37,6 @@ import { assertScheduleCanRun, validateScheduleShape } from '../core/cron.valida
 import { CronNextRunCalculator } from './cron-next-run-calculator';
 import { CronScheduleEventBus } from '../events/cron-event-bus';
 import { redactCronValue, summarizeCronValue } from '../security/cron-redaction';
-import { AGENT_TASK_TYPE } from '../../tasks';
 
 interface CronLogger {
 	debug(scope: string, message: string, metadata?: unknown): void;
@@ -86,9 +85,6 @@ const SECRET_VALUE_PATTERNS: readonly RegExp[] = [
 	/authorization\s*:\s*bearer\s+\S+/i,
 	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
 ];
-const AGENT_TASK_INPUT_KEYS = new Set(['message']);
-const MAX_AGENT_INSTRUCTION_LENGTH = 200_000;
-
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -153,49 +149,17 @@ function assertSafeStoredSchedulePayload(
 	if (request.metadata !== undefined) assertSafeStoredScheduleValue(request.metadata, 'metadata');
 }
 
-function assertOnlyAgentInstruction(input: Record<string, unknown>): void {
-	for (const key of Object.keys(input)) {
-		if (!AGENT_TASK_INPUT_KEYS.has(key)) {
-			throw new CronScheduleValidationError(
-				`Scheduled agent input only supports message; ${key} is not allowed.`,
-				{ field: `taskInput.${key}` }
-			);
-		}
-	}
-}
-
-function normalizeAgentTaskInput(value: CronJsonValue | undefined): CronJsonObject {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) {
-		throw new CronScheduleValidationError('taskInput must be an object with a message.');
-	}
-	assertOnlyAgentInstruction(value);
-	if (typeof value.message !== 'string') {
-		throw new CronScheduleValidationError('taskInput.message is required.');
-	}
-	const message = value.message.trim();
-	if (!message) throw new CronScheduleValidationError('taskInput.message is required.');
-	if (message.length > MAX_AGENT_INSTRUCTION_LENGTH) {
-		throw new CronScheduleValidationError('taskInput.message is too long.');
-	}
-	if (SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(message))) {
-		throw new CronScheduleValidationError('taskInput.message contains secret-looking content.');
-	}
-	return { message };
-}
-
-function normalizeAgentScheduleTask(
+function normalizeScheduleTask(
 	request: CronScheduleCreateRequest | CronScheduleUpdateRequest,
 	existing?: CronSchedule
-): { taskType: string; taskInput: CronJsonObject } {
-	const taskType = request.taskType ?? existing?.taskType;
-	if (taskType !== AGENT_TASK_TYPE) {
-		throw new CronScheduleValidationError(
-			`Scheduled tasks must create ${AGENT_TASK_TYPE} background tasks.`
-		);
-	}
+): { taskType: string; taskInput: CronJsonValue } {
+	const taskType = (request.taskType ?? existing?.taskType)?.trim();
+	if (!taskType) throw new CronScheduleValidationError('taskType is required.');
+	const taskInput = request.taskInput ?? existing?.taskInput;
+	if (taskInput === undefined) throw new CronScheduleValidationError('taskInput is required.');
 	return {
-		taskType: AGENT_TASK_TYPE,
-		taskInput: normalizeAgentTaskInput(request.taskInput ?? existing?.taskInput),
+		taskType,
+		taskInput,
 	};
 }
 
@@ -218,7 +182,7 @@ function storedScheduleConfig(
 
 function scheduleTarget(taskType: string, target?: CronStoredTarget): CronStoredTarget {
 	if (target) return target;
-	return taskType === AGENT_TASK_TYPE ? 'agent' : 'task';
+	return taskType === 'agent' || taskType.startsWith('agent.') ? 'agent' : 'task';
 }
 
 export class CronSchedulerService implements CronScheduler {
@@ -289,7 +253,7 @@ export class CronSchedulerService implements CronScheduler {
 	): Promise<CronSchedule> {
 		await this.authorize({ action: 'createSchedule', request, actor });
 		this.validateRequest('createSchedule', request, actor);
-		const normalizedTask = normalizeAgentScheduleTask(request);
+		const normalizedTask = normalizeScheduleTask(request);
 		if (this.accessPolicy.requiresConfirmation({ request, actor })) {
 			this.logger?.warn('CronScheduler', 'Cron schedule requires confirmation.', {
 				action: 'createSchedule',
@@ -388,7 +352,7 @@ export class CronSchedulerService implements CronScheduler {
 			actor,
 		});
 		this.validateRequest('updateSchedule', patch, actor, current);
-		const normalizedTask = normalizeAgentScheduleTask(patch, current);
+		const normalizedTask = normalizeScheduleTask(patch, current);
 		if (this.accessPolicy.requiresConfirmation({ request: patch, actor, existingSchedule: current })) {
 			this.logger?.warn('CronScheduler', 'Cron schedule update requires confirmation.', {
 				action: 'updateSchedule',
