@@ -13,7 +13,7 @@ import {
 } from '../../../../src/main/tools/params';
 import { createReadTool } from '../../../../src/main/tools/files/read-tool';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create-agent-tools';
-import { PolicyService, PolicyStore } from '../../../../src/main/policy';
+import { PolicyService } from '../../../../src/main/policy';
 import { applyToolPolicyPipeline } from '../../../../src/main/tools/tool-policy-pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normalization';
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/tools/before-tool-call';
@@ -246,6 +246,7 @@ describe('canonical agent tool runtime', () => {
 	it('delegates canonical execution gating to the policy service when available', async () => {
 		const execute = jest.fn(async () => textResult('done'));
 		const policy = {
+			createToolUseKey: jest.fn(() => 'wrapped::{}'),
 			evaluateToolUse: jest.fn(() => ({
 				outcome: 'deny',
 				key: 'wrapped::{}',
@@ -438,14 +439,14 @@ describe('canonical agent tool runtime', () => {
 		const workspace = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'secret.txt'), 'secret', 'utf8');
 		const policy = new PolicyService({
-			store: new PolicyStore({
+			storeAccessor: {
 				read: jest.fn(() => ({
 					version: 1,
 					defaultPolicy: 'deny',
 					paths: [],
 				})),
 				write: jest.fn(),
-			}),
+			},
 		});
 		const result = await createAgentTools({
 			workspaceDir: workspace,
