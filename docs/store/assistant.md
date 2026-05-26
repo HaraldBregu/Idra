@@ -1,6 +1,6 @@
 # Store — Assistant
 
-The `assistant` property stores the active chat and agent model selection. It also carries agent-facing module options such as runtime preference and heartbeat defaults.
+The `assistant` property stores the active chat and agent model selection. It also carries agent-facing module options such as runtime preference.
 
 ## Property
 
