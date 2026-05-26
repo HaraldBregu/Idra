@@ -191,7 +191,6 @@ export class CronService implements Disposable {
 			throw new Error(`Invalid cron expression for "${id}": ${expression}`);
 		}
 
-		const configuredModel = this.configuredModel();
 		const now = new Date().toISOString();
 		const enabled = options.enabled ?? true;
 		const record: CronTask<TData> = {
