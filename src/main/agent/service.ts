@@ -77,7 +77,6 @@ export interface AgentServiceDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	workspace: WorkspaceService;
-	startupFiles: AgentStartupFilesServicePort;
 	userDataDirectory: UserDataDirectoryServicePort;
 	connectors?: ConnectorsService;
 	mcpRegistry?: McpRegistry;
