@@ -8,7 +8,6 @@ import type {
 	FridayCronRunRecord,
 } from './cron';
 import type { HeartbeatStoreState } from './heartbeat';
-import type { PolicyConfig } from './policy';
 import type { Provider } from './providers';
 
 export type ProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
@@ -150,7 +149,6 @@ export interface ConnectorsSettings {
 
 export type ChannelsSettings = Partial<Channel>;
 export type HeartbeatSettings = HeartbeatStoreState;
-export type PolicySettings = PolicyConfig;
 
 export interface SettingsStore {
 	providers?: ProvidersSettings;
@@ -166,7 +164,6 @@ export interface SettingsStore {
 	heartbeat?: HeartbeatSettings;
 	connectors?: ConnectorsSettings;
 	channels?: ChannelsSettings;
-	policy?: PolicySettings;
 }
 
 export type StoreSchema = SettingsStore;
