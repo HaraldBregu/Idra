@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { PolicyService, type PolicyStoreAccessor } from '../../../src/main/policy';
+import { PolicyService } from '../../../src/main/policy';
 import type { PolicyConfig } from '../../../src/shared/policy';
 
 function makePolicyService(policy: () => PolicyConfig) {
@@ -60,7 +60,7 @@ describe('policy module', () => {
 		const accessor = {
 			read: jest.fn(() => undefined),
 			write: jest.fn(),
-		} satisfies PolicyStoreAccessor;
+		};
 		const service = new PolicyService({ storeAccessor: accessor });
 		const expected = {
 			version: 1,
