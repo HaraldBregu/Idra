@@ -46,13 +46,7 @@ Use `PromptInput` with:
 
 ## Attachments
 
-Track a local list of `PromptAttachment` objects (files and recorded audio). Render them in an `AttachmentTray` above the input. Each attachment shows its name, size, and a remove button. Audio attachments include an inline `<audio>` player.
-
-## Voice modes
-
-Support three voice modes: `dictation`, `recording`, and `conversation`. The active mode drives the `PromptInput` voice UI. Switching back to chat mode clears the voice mode and cancels any in-progress dictation session.
-
-Speech-to-text uses `useRealtimeDictation`. Voice conversation mode is reserved and currently disabled in the voice actions.
+Track a local list of `PromptAttachment` objects (files only — no audio). Render them in an `AttachmentTray` above the input. Each attachment shows its name, size, and a remove button.
 
 ## Context
 
