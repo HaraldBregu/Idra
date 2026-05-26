@@ -282,7 +282,7 @@ Follow the type placement rules in `docs/prompts/renderer/index.md`.
 
 ## Logging
 
-Use `console.error` for unexpected async failures. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
+Use `console.error` for unexpected async failures. Do not use `console.log` or `console.debug`. See the renderer logging convention in the renderer conventions.
 
 Log these failure cases:
 
