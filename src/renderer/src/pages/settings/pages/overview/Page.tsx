@@ -99,8 +99,10 @@ const SETTINGS_OVERVIEW_AGENT_ITEMS = SETTINGS_OVERVIEW_AGENT_IDS.map(
 
 function SettingsOverviewCard({
 	item,
+	badge,
 }: {
 	readonly item: SettingsNavigationItem | SettingsOperatorItem;
+	readonly badge?: React.ReactNode;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
