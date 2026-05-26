@@ -4,10 +4,10 @@ import {
 	CronScheduleValidationError,
 } from '../../../../src/main/cron/core/cron.errors';
 import type {
-	type CronActorContext,
-	type CronSchedule,
-	type CronScheduleCreateRequest,
-	type CronScheduleRunner,
+	CronActorContext,
+	CronSchedule,
+	CronScheduleCreateRequest,
+	CronScheduleRunner,
 } from '../../../../src/main/cron/core/cron.types';
 import { CronSchedulerService } from '../../../../src/main/cron/scheduler/cron-scheduler';
 import { TaskManagerCronScheduleRunner } from '../../../../src/main/cron/scheduler/cron-runner';
