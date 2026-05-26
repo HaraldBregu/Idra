@@ -1,4 +1,4 @@
-import type { FridayCronJob, FridayCronPayload, FridayCronSchedule } from '../../../../../../shared/cron';
+import type { CronJsonValue, CronStoredSchedule } from '../../../../../../shared/cron';
 
 export function formatTimestamp(value: number | string | undefined): string {
 	if (value === undefined || value === '') return '—';
@@ -26,51 +26,29 @@ function formatDetailValue(value: unknown): string {
 	return JSON.stringify(value);
 }
 
-export function formatSchedule(schedule: FridayCronSchedule): string {
-	switch (schedule.kind) {
-		case 'at':
-			return formatTimestamp(schedule.at);
-		case 'every':
-			return `Every ${formatDuration(schedule.everyMs)}`;
-		case 'cron': {
-			const timezone = schedule.tz ? ` ${schedule.tz}` : '';
-			const stagger = schedule.staggerMs ? ` +${formatDuration(schedule.staggerMs)}` : '';
-			return `${schedule.expr}${timezone}${stagger}`;
-		}
+export function formatSchedule(schedule: CronStoredSchedule): string {
+	if (typeof schedule === 'string') return schedule;
+	const type = typeof schedule.type === 'string' ? schedule.type : 'schedule';
+	if (type === 'interval' && typeof schedule.intervalMs === 'number') {
+		return `Every ${formatDuration(schedule.intervalMs)}`;
 	}
+	if (type === 'oneTime' && typeof schedule.runAt === 'string') {
+		return formatTimestamp(schedule.runAt);
+	}
+	return JSON.stringify(schedule);
 }
 
-export function payloadSummary(payload: FridayCronPayload): string {
-	return payload.kind === 'systemEvent' ? payload.text : payload.message;
+export function payloadSummary(payload: CronJsonValue): string {
+	if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return formatDetailValue(payload);
+	if (typeof payload.message === 'string') return payload.message;
+	if (typeof payload.text === 'string') return payload.text;
+	return JSON.stringify(payload);
 }
 
-export function deliverySummary(job: FridayCronJob): string {
-	if (job.delivery.mode === 'none') return 'none';
-	const target = [job.delivery.channel, job.delivery.to, job.delivery.threadId]
-		.filter(Boolean)
-		.join(' ');
-	return target ? `${job.delivery.mode}: ${target}` : job.delivery.mode;
-}
-
-export function payloadEntries(payload: FridayCronPayload): readonly (readonly [string, string])[] {
+export function payloadEntries(payload: CronJsonValue): readonly (readonly [string, string])[] {
+	if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return [];
 	return Object.entries(payload)
-		.filter(([key]) => !['kind', 'message', 'text'].includes(key))
+		.filter(([key]) => !['message', 'text'].includes(key))
 		.map(([key, value]) => [key, formatDetailValue(value)] as const)
 		.filter(([, value]) => value !== '—');
-}
-
-export function isFridayCronJob(value: unknown): value is FridayCronJob {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		typeof (value as { id?: unknown }).id === 'string' &&
-		typeof (value as { name?: unknown }).name === 'string' &&
-		typeof (value as { enabled?: unknown }).enabled === 'boolean' &&
-		typeof (value as { payload?: unknown }).payload === 'object' &&
-		(value as { payload?: unknown }).payload !== null &&
-		typeof (value as { schedule?: unknown }).schedule === 'object' &&
-		(value as { schedule?: unknown }).schedule !== null &&
-		typeof (value as { state?: unknown }).state === 'object' &&
-		(value as { state?: unknown }).state !== null
-	);
 }
