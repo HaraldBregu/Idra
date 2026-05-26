@@ -53,11 +53,11 @@ Current sub-pages: General, System, Providers, Skills, Connectors (with detail),
 
 ## Types
 
-Follow the type placement rules in `docs/prompts/renderer/index.md`.
+Follow the type placement rules in the renderer conventions.
 
-- Types that cross the IPC boundary (e.g. provider config shapes, operator records) belong in `src/shared/types/`.
-- Types consumed by multiple renderer pages belong in `src/renderer/src/types/`.
-- Types scoped to the settings page alone — navigation item shapes, breadcrumb state, overview group definitions — stay inside `src/renderer/src/pages/settings/`.
+- Types that cross the IPC boundary (e.g. provider config shapes, operator records) belong in the shared types directory.
+- Types consumed by multiple renderer pages belong in the renderer-level types directory.
+- Types scoped to the settings page alone — navigation item shapes, breadcrumb state, overview group definitions — stay inside the settings page folder.
 
 ## Logging
 
