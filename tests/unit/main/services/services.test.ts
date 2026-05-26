@@ -2,18 +2,51 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app, shell } from 'electron';
 import { AppsService } from '../../../../src/main/apps';
-import { ConnectorsService } from '../../../../src/main/connectors';
 import {
+	ConnectorsService,
 	buildGoogleAuthorizationUrl,
 	scopesForGoogleDriveTools,
 	scopesForGmailTools,
 	scopesForGoogleCalendarTools,
-} from '../../../../src/main/connectors/google';
+} from '../../../../src/main/connectors';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';
+
+const CONNECTOR_STORE_KEY_BY_ID = {
+	connector_gmail: 'google_gmail',
+	connector_googlecalendar: 'google_calendar',
+	connector_googledrive: 'google_drive',
+	connector_microsoftteams: 'microsoft_teams',
+	connector_outlookcalendar: 'outlook_calendar',
+	connector_outlookemail: 'outlook_email',
+	connector_sharepoint: 'sharepoint',
+	connector_dropbox: 'dropbox',
+} as const;
+
+function connectorStoreFor(
+	read: () => unknown[],
+	write: (connectors: unknown[]) => void
+): { get: jest.Mock; set: jest.Mock; delete: jest.Mock } {
+	const keyFor = (connector: unknown): string | undefined => {
+		if (!connector || typeof connector !== 'object' || Array.isArray(connector)) return undefined;
+		const connectorId = (connector as { connectorId?: unknown }).connectorId;
+		if (typeof connectorId !== 'string') return undefined;
+		return CONNECTOR_STORE_KEY_BY_ID[connectorId as keyof typeof CONNECTOR_STORE_KEY_BY_ID];
+	};
+
+	return {
+		get: jest.fn((key: string) => read().find((connector) => keyFor(connector) === key)),
+		set: jest.fn((key: string, value: unknown) => {
+			write([...read().filter((connector) => keyFor(connector) !== key), value]);
+		}),
+		delete: jest.fn((key: string) => {
+			write(read().filter((connector) => keyFor(connector) !== key));
+		}),
+	};
+}
 
 describe('apps service', () => {
 	it('lists valid app manifests with embedded icons and validates ids for destructive operations', async () => {
