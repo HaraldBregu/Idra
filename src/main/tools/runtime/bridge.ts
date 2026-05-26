@@ -96,7 +96,7 @@ function canonicalContentToLegacy(content: ToolContent[]): ToolResultBlock[] {
 	});
 }
 
-function detailsWithStatus(status: 'error' | 'blocked', details: unknown): unknown {
+function detailsWithStatus(status: LegacyAgentToolResult['status'], details: unknown): unknown {
 	if (details && typeof details === 'object' && !Array.isArray(details)) {
 		return { ...(details as Record<string, unknown>), status };
 	}
@@ -107,5 +107,6 @@ function legacyStatusFromDetails(details: unknown): LegacyAgentToolResult['statu
 	if (!details || typeof details !== 'object') return 'ok';
 	const status = (details as { status?: unknown }).status;
 	if (status === 'blocked') return 'blocked';
-	return status === 'error' || status === 'blocked' || status === 'input_error' ? 'error' : 'ok';
+	if (status === 'rejected') return 'rejected';
+	return status === 'error' || status === 'input_error' ? 'error' : 'ok';
 }
