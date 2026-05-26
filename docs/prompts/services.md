@@ -22,12 +22,12 @@ Main function: owns scheduled execution, including schedule creation, updates, d
 
 Dependencies:
 
-| Dependency         | Purpose                                                |
-| ------------------ | ------------------------------------------------------ |
+| Dependency         | Purpose                                                 |
+| ------------------ | ------------------------------------------------------- |
 | `StoreService`     | Persist schedules, run history, and cron runtime state. |
-| `TaskService`      | Start background tasks from scheduled runs.            |
-| `PolicyService`    | Enforce schedule and execution policy.                 |
-| Application logger | Log scheduling lifecycle, failures, and run results.   |
+| `TaskService`      | Start background tasks from scheduled runs.             |
+| `PolicyService`    | Enforce schedule and execution policy.                  |
+| Application logger | Log scheduling lifecycle, failures, and run results.    |
 
 ### Task
 
@@ -37,12 +37,12 @@ Main function: owns background task execution, including task creation, task sta
 
 Dependencies:
 
-| Dependency         | Purpose                                                |
-| ------------------ | ------------------------------------------------------ |
-| `StoreService`     | Persist task records in `task.json`.                   |
-| `PolicyService`    | Enforce task admission and execution policy.           |
-| Agent services     | Run agent-backed tasks.                                |
-| Application logger | Log task lifecycle, failures, and execution results.   |
+| Dependency         | Purpose                                              |
+| ------------------ | ---------------------------------------------------- |
+| `StoreService`     | Persist task records in `task.json`.                 |
+| `PolicyService`    | Enforce task admission and execution policy.         |
+| Agent services     | Run agent-backed tasks.                              |
+| Application logger | Log task lifecycle, failures, and execution results. |
 
 ### Tools
 
@@ -52,12 +52,12 @@ Main function: owns tool registration and tool execution so tool definitions, po
 
 Dependencies:
 
-| Dependency         | Purpose                                                |
-| ------------------ | ------------------------------------------------------ |
-| `PolicyService`    | Authorize tool calls and file or system access.        |
-| `CronService`      | Route cron tool actions through the scheduler.         |
-| `StoreService`     | Read persisted settings needed by tools.               |
-| Application logger | Log tool execution, validation failures, and results.  |
+| Dependency         | Purpose                                               |
+| ------------------ | ----------------------------------------------------- |
+| `PolicyService`    | Authorize tool calls and file or system access.       |
+| `CronService`      | Route cron tool actions through the scheduler.        |
+| `StoreService`     | Read persisted settings needed by tools.              |
+| Application logger | Log tool execution, validation failures, and results. |
 
 ### Store
 
@@ -67,6 +67,6 @@ Main function: owns application persistence so durable app data is read and writ
 
 Dependencies:
 
-| Dependency      | Purpose                                                |
-| --------------- | ------------------------------------------------------ |
-| None by default | Keep persistence independent from feature services.    |
+| Dependency      | Purpose                                             |
+| --------------- | --------------------------------------------------- |
+| None by default | Keep persistence independent from feature services. |
