@@ -173,7 +173,7 @@ export function bootstrapServices(): BootstrapResult {
 		})
 	);
 	heartbeat.start();
-	cron.configureFridayRuntime({ agentService, eventBus, channelRegistry, heartbeat });
+	cron.configureRuntime({ agentService, eventBus, channelRegistry, heartbeat });
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
