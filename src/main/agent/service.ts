@@ -422,6 +422,7 @@ export class AgentService {
 					label: event.label,
 				});
 			}
+			options.streamEvent?.(event);
 			if (heartbeatOptions?.suppressAgentEvents) return;
 			this.dependencies.eventBus.broadcast('agent:response', {
 				agentId: runtimeAgentId,
@@ -447,8 +448,7 @@ export class AgentService {
 			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			this.updateRunRecordSync(runId, { providerId, model });
-			const requestedRuntime = (options.agentRuntime || options.agentHarnessId || '').trim();
-			const storedRuntime = this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
+			streamEvent({ type: 'model_selected', providerId, model, effort });
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
 					baseDir: this.sessionBaseDir,
