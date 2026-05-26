@@ -13,3 +13,4 @@ export * from './heartbeat';
 export * from './monitor';
 export * from './policy';
 export * from './tasks';
+export * from './tts';

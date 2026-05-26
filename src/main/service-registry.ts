@@ -14,6 +14,7 @@ import type { SkillsService } from './skills';
 import type { HeartbeatService } from './heartbeat';
 import type { StoreService } from './store';
 import type { TasksService } from './tasks';
+import type { TextToSpeechService } from './tts';
 import type { ToolService } from './tools';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
@@ -36,6 +37,7 @@ export interface MainServices {
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	taskManager: TasksService;
+	textToSpeech: TextToSpeechService;
 	toolService: ToolService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;

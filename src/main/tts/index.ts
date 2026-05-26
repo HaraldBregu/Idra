@@ -1,0 +1,1 @@
+export { TextToSpeechService } from './service';
