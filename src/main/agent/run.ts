@@ -150,6 +150,21 @@ export interface AgentRunResult {
 	session: SessionFile;
 }
 
+export interface AgentExecutionServicePort {
+	execute(input: AgentRunInput): Promise<AgentRunResult>;
+}
+
+export class AgentExecutionService implements AgentExecutionServicePort {
+	constructor(private readonly toolService: ToolServicePort = new ToolService()) {}
+
+	execute(input: AgentRunInput): Promise<AgentRunResult> {
+		return executeAgentRun({
+			...input,
+			toolService: input.toolService ?? this.toolService,
+		});
+	}
+}
+
 function parseToolArgs(argsStr: string, fallback: unknown): unknown {
 	if (!argsStr.trim()) return {};
 	try {
@@ -319,7 +334,7 @@ function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdap
 	return { provider, model, effort };
 }
 
-export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
+async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 	const { provider, model, effort } = resolveProviderAndModel(input);
 	const {
 		runId,
