@@ -116,7 +116,7 @@ export class WindowFactory {
 			win.loadURL(url.toString());
 		} else {
 			const loadOptions = hash ? { hash } : undefined;
-			win.loadFile(path.join(__dirname, '../renderer', html), loadOptions);
+			win.loadFile(path.join(path.dirname(fileURLToPath(import.meta.url)), '../renderer', html), loadOptions);
 		}
 	}
 }
