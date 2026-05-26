@@ -44,3 +44,31 @@ export type {
 	PolicyConfig,
 	PolicyDecision,
 } from '../../shared/policy';
+
+export type { ToolPolicyProfile as ToolProfile } from './tools';
+
+export type { AgentTool } from '../tools/core/common';
+
+export interface PolicyConfig {
+	profile: ToolProfile;
+	allow: string[];
+	alsoAllow?: string[];
+	deny: string[];
+	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
+}
+
+export function filterTools(all: AgentTool[], cfg: PolicyConfig): AgentTool[] {
+	const result = evaluateToolPolicy(
+		all.map((tool) => ({ name: tool.name, ownerOnly: tool.ownerOnly })),
+		{
+			stages: {
+				profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },
+				runtime: {
+					allow: cfg.allow.length > 0 ? cfg.allow : undefined,
+					deny: cfg.deny,
+				},
+			},
+		}
+	);
+	return all.filter((tool) => result.allowed.has(normalizeToolPolicyName(tool.name)));
+}
