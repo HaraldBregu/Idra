@@ -999,6 +999,10 @@ export class StoreService {
 		return this.getConfiguredModelOperator('assistant');
 	}
 
+	getAssistantSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('assistant');
+	}
+
 	getAssistantModel(): Model | undefined {
 		return this.getAssistantOperator()?.model;
 	}
@@ -1011,8 +1015,16 @@ export class StoreService {
 		return this.getConfiguredModelOperator('speechToText');
 	}
 
+	getSpeechToTextSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('speechToText');
+	}
+
 	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('textToSpeech');
+	}
+
+	getTextToSpeechSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('textToSpeech');
 	}
 
 	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
@@ -1023,12 +1035,20 @@ export class StoreService {
 		return this.getConfiguredModelOperator('textToVideo');
 	}
 
+	getTextToVideoSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('textToVideo');
+	}
+
 	getTextToSoundOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('textToSound');
 	}
 
 	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
 		return this.getTextToSoundOperator();
+	}
+
+	getTextToSoundSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('textToSound');
 	}
 
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
