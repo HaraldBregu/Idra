@@ -83,6 +83,7 @@ export function wrapToolWithBeforeToolCall(
 	tool: AgentTool,
 	context: BeforeToolCallContext = {}
 ): AgentTool {
+	const tracker = context.loopDetector ?? newCallTracker();
 	const wrapped: AgentTool = {
 		...tool,
 		async execute(toolCallId, rawParams, signal, onUpdate) {
@@ -90,7 +91,6 @@ export function wrapToolWithBeforeToolCall(
 			const diagnostics = context.diagnostics;
 			const effectiveSignal = signal ?? context.signal;
 			let params = tool.prepareArguments ? tool.prepareArguments(rawParams) : rawParams;
-			const tracker = context.loopDetector ?? newCallTracker();
 			const key = toolUsePolicyKey(tool.name, params);
 			const count = (tracker.counts.get(key) ?? 0) + 1;
 			tracker.counts.set(key, count);
