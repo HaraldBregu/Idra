@@ -46,7 +46,7 @@ function makeHeartbeatHarness(options: {
 	agents?: AgentsHeartbeatConfig;
 }) {
 	let heartbeatState: HeartbeatStoreState = emptyHeartbeatStoreState();
-	let service = options.service ?? operatorConfig();
+	const service = options.service ?? operatorConfig();
 	let agents = options.agents;
 	const eventBus = {
 		emit: jest.fn(),
