@@ -97,8 +97,8 @@ flowchart TD
 	ToolSelect --> CapabilityResolve
 	Connectors --> CapabilityResolve
 	Skills --> CapabilityResolve
-	Mcp -. injected through ToolContext.services .-> ToolContext
-	Mcp -. current behavior .-> McpNote
+	Mcp -.-> ToolContext
+	Mcp -.-> McpNote
 	CapabilityResolve --> SelectedTools
 	CapabilityResolve --> SkillPrompt
 
@@ -106,7 +106,7 @@ flowchart TD
 	SelectedTools --> SystemPrompt
 	SystemPrompt --> PromptForTurn
 	SkillPrompt --> PromptForTurn
-	ToolSelect -. optional tool-selection suffix .-> PromptForTurn
+	ToolSelect -.-> PromptForTurn
 	PromptForTurn --> BeforeRun
 	History --> BeforeRun
 
@@ -131,8 +131,8 @@ flowchart TD
 	Final --> IPC
 	Final --> Channels
 
-	SubagentTools -. when exposed by a custom tools factory .-> ToolExec
-	ToolExec -. sessions_spawn .-> SubagentService
+	SubagentTools -.-> ToolExec
+	ToolExec -.-> SubagentService
 	SubagentService --> TaskManager --> SubagentHandler --> Send
 ```
 
