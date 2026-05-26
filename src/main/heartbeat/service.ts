@@ -14,9 +14,9 @@ import {
 } from '../channels';
 import { DEFAULT_AGENT_ID } from '../constants';
 import type {
+	AgentHeartbeatConfig,
 	HeartbeatEventPayload,
 	HeartbeatRunResult,
-	HeartbeatSetReasoningEffortRequest,
 	HeartbeatSettings,
 	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
