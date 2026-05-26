@@ -319,3 +319,218 @@ Keep IPC in `src/main/ipc` as a transport adapter that calls `AgentService.send`
 
 Follow TypeScript design standards: explicit ports, dependency injection, small interfaces, shared DTOs in `src/shared`, no globals for execution state, no duplicate execution paths, and no decorative abstractions.
 ```
+
+## Component Reference
+
+This section explains the expected role of each module under `src/main/agent`. Keep these responsibilities stable when refactoring so the agent service remains understandable and testable.
+
+### `index.ts`
+
+Public export boundary for the agent module.
+
+- Re-export public service classes, service ports, DTOs, routing helpers, subagent APIs, and capability services.
+- Do not export private implementation helpers unless another module genuinely needs them.
+- External main-process modules should import agent APIs from this file instead of deep-linking into internal files.
+
+### `service.ts`
+
+Main orchestration service.
+
+- Owns the public `AgentService` API.
+- Creates, reads, updates, deletes, and lists agent runs.
+- Resolves provider, model, reasoning effort, workspace, session, startup context, run ids, and agent metadata.
+- Builds `ToolContext` for the run.
+- Evaluates tool policy and `beforeAgentRun` hooks.
+- Loads startup files and builds the system prompt.
+- Calls `AgentCapabilityService` before execution.
+- Calls `AgentExecutionService` for the provider/tool loop.
+- Saves sessions and updates run records after completion, cancellation, or error.
+- Accepts a stream callback and emits response events with `agentId` and `runId` attached.
+- Must not own IPC registration, renderer transport, provider loop internals, connector management UI, or human approval UI.
+
+### `run.ts`
+
+Provider-neutral execution loop.
+
+- Exposes `AgentExecutionService` and `AgentExecutionServicePort`.
+- Accepts a fully prepared run input from `AgentService`.
+- Calls the selected provider adapter stream.
+- Emits streaming events for run state, text deltas, tool calls, tool results, reasoning summaries, and run finish.
+- Parses provider tool-call arguments.
+- Executes tools only through `ToolServicePort`.
+- Updates the transcript with user, assistant, and tool entries.
+- Tracks usage, iterations, tool count, stop reason, and final text.
+- Handles cancellation and context overflow compaction.
+- Must not resolve application services, perform IPC broadcasts, choose capabilities, or implement runtime selection.
+
+### `compaction.ts`
+
+Conversation compaction helper.
+
+- Summarizes older transcript entries when the provider reports context overflow.
+- Keeps recent turns verbatim and replaces older turns with a compact synthetic summary.
+- Uses the active provider adapter so summary generation stays provider-neutral.
+- Produces compaction markers for session metadata.
+- Must not call runtime or harness APIs.
+
+### `before-agent-run.ts`
+
+Pre-execution hook evaluation.
+
+- Defines and evaluates hooks that can inspect the prompt, transcript, sender metadata, and system prompt before the model run starts.
+- Allows safe blocking before provider execution.
+- Keeps pre-run policy separate from the provider/tool execution loop.
+- Should stay deterministic and side-effect-light.
+
+### `system-prompt.ts`
+
+System prompt assembly.
+
+- Builds the model-facing system prompt from workspace context, date, model metadata, selected tools, startup files, bootstrap mode, and heartbeat settings.
+- Keeps prompt construction centralized so callers do not inline prompt text.
+- Capability prompt additions from selected skills are appended by `AgentService` after this base prompt is built.
+
+### `logger.ts`
+
+Agent logging entrypoint.
+
+- Provides the agent-specific logger used by run execution, compaction, and other agent internals.
+- Logs should be useful for diagnosis and should avoid secrets, raw credentials, private connector auth data, or excessive transcript content.
+
+### `capabilities/index.ts`
+
+Public export boundary for the capability resolver submodule.
+
+- Re-exports `AgentCapabilityService`, options, service port, bundle, input, and resolved skill types.
+- Keeps capability internals behind a small public surface.
+
+### `capabilities/types.ts`
+
+Capability resolver contracts.
+
+- Defines `AgentCapabilityServicePort`.
+- Defines `AgentCapabilityResolveInput`, which contains prompt, provider/model metadata, tool policy state, local tools, context, configured skills, and stream callback.
+- Defines `AgentCapabilityBundle`, which returns selected executable tools, connector tools, skills, prompt additions, and direct-answer metadata.
+- These types are main-process implementation contracts. Cross-process DTOs belong in `src/shared/agents/capabilities.ts`.
+
+### `capabilities/service.ts`
+
+Prompt-based capability resolution service.
+
+- Resolves connector tools from `ConnectorsService.createAgentTools()`.
+- Resolves skills from `SkillsService` by configured skill names and prompt matching.
+- Emits `capability_resolution_start` and `capability_resolution_result` stream events.
+- Returns prompt additions for selected skills.
+- Keeps connector/skill discovery out of `AgentService` and out of the provider loop.
+- Should keep selection bounded and deterministic so prompts remain small and predictable.
+
+### `routing/index.ts`
+
+Public export boundary for routing helpers.
+
+- Re-exports route resolution, binding parsing, session-key construction, and routing types.
+- Used by channel or task callers that need to map an incoming message to an agent/session.
+
+### `routing/types.ts`
+
+Routing contracts.
+
+- Defines route configuration and resolved route shapes.
+- Keeps channel-to-agent route data explicit instead of embedded in callers.
+
+### `routing/bindings.ts`
+
+Route binding parsing and normalization.
+
+- Reads route-like records and normalizes agent id, channel id, model/provider options, skills, and other routing fields.
+- Keeps unsafe or loose configuration parsing outside `AgentService`.
+
+### `routing/resolve-route.ts`
+
+Route selection logic.
+
+- Resolves which agent should handle an incoming message based on configured bindings and request metadata.
+- Should return deterministic route results and avoid executing agent work directly.
+
+### `routing/session-key.ts`
+
+Session key construction.
+
+- Builds stable session keys for routed agent conversations.
+- Keeps session naming consistent across channels, tasks, and subagent work.
+
+### `subagents/index.ts`
+
+Public export boundary for subagent support.
+
+- Re-exports subagent registry, spawn service, task handler, control tool, spawn tool, and related types.
+- Consumers should import subagent APIs from this index, not from individual internals.
+
+### `subagents/types.ts`
+
+Subagent contracts.
+
+- Defines subagent spawn input, child-agent metadata, registry records, and service ports.
+- Keeps parent/child run coordination explicit and testable.
+
+### `subagents/registry.ts`
+
+Subagent registry.
+
+- Tracks subagent definitions and spawned child-agent metadata.
+- Enforces child-count and ownership-style constraints where appropriate.
+- Should not execute provider calls directly.
+
+### `subagents/spawn-service.ts`
+
+Subagent spawning service.
+
+- Coordinates child-agent creation and execution through `AgentService` and task infrastructure.
+- Preserves parent metadata, cancellation behavior, timeouts, and session linkage.
+- Keeps child-agent orchestration out of tool implementations.
+
+### `subagents/task-handler.ts`
+
+Background task handler for subagent runs.
+
+- Handles scheduled or queued child-agent work.
+- Calls `AgentService` for actual execution.
+- Converts task input/output into subagent run records.
+
+### `subagents/spawn-tool.ts`
+
+Agent tool for spawning child agents.
+
+- Exposes controlled child-agent creation to the model as a tool when allowed.
+- Should delegate orchestration to `SubagentSpawnService` instead of implementing child run logic inline.
+
+### `subagents/control-tool.ts`
+
+Agent tool for controlling child agents.
+
+- Exposes control actions such as inspecting or cancelling child-agent work when allowed.
+- Should delegate state and cancellation behavior to the subagent services.
+
+## How the Pieces Work Together
+
+A normal run should follow this sequence:
+
+```text
+caller or transport
+  -> AgentService.send
+  -> service.ts resolves provider/model/session/workspace/policy
+  -> capabilities/service.ts resolves tools, connectors, and skills
+  -> system-prompt.ts builds the base prompt
+  -> service.ts appends skill prompt additions
+  -> run.ts streams provider output and executes tools through ToolService
+  -> compaction.ts runs only if context overflow occurs
+  -> service.ts persists session and run state
+  -> caller receives final text and stream events
+```
+
+Routing and subagents are supporting modules:
+
+- `routing/*` decides which agent/session should receive work before `AgentService.send` is called.
+- `subagents/*` coordinates child-agent work, but child execution still goes through `AgentService`.
+
+Do not add a second provider loop, tool loop, event stream, or session persistence path in routing, subagents, IPC, channels, heartbeat, or task modules.
