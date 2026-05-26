@@ -136,6 +136,15 @@ export const agent: AgentApi = {
 	openHistoryFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.openHistoryFolder);
 	},
+	listStartupFiles: (): Promise<AgentStartupFileSummary[]> => {
+		return typedInvokeUnwrap(AgentChannels.listStartupFiles);
+	},
+	readStartupFile: (name: string): Promise<AgentStartupFileContent> => {
+		return typedInvokeUnwrap(AgentChannels.readStartupFile, name);
+	},
+	writeStartupFile: (name: string, content: string): Promise<AgentStartupFileContent> => {
+		return typedInvokeUnwrap(AgentChannels.writeStartupFile, name, content);
+	},
 	listWorkspaceFiles: (): Promise<WorkspaceFileSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
 	},
