@@ -27,8 +27,6 @@ export {
 	type ToolApprovalPolicyDecisionInput,
 	type ToolHookPolicyDecision,
 	type ToolHookPolicyInput,
-	type ToolRequestPolicyDecision,
-	type ToolRequestPolicyInput,
 	type ToolUsePolicyDecision,
 	type ToolUsePolicyInput,
 } from './tools';
