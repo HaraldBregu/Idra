@@ -56,7 +56,6 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			const tools = this.options.connectors.createAgentTools().map((tool) => ({
 				...tool,
 				serviceKind: 'connector' as const,
-				serviceKindLabel: undefined,
 			}));
 			return tools.filter((tool) => matchesPrompt(input.userMessage, [tool.name, tool.description]));
 		} catch (error) {
