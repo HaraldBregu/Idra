@@ -1,5 +1,6 @@
 import { transcriptToHistory } from '../../../../src/main/ipc/agent-ipc';
 import type { TranscriptEntry } from '../../../../src/main/provider/types';
+import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { AgentIpc } from '../../../../src/main/ipc/agent-ipc';
 import type { MainServiceContainer } from '../../../../src/main/service-registry';
