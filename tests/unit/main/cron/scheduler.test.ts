@@ -15,8 +15,8 @@ import { DefaultCronScheduleAccessPolicy } from '../../../../src/main/cron/secur
 import { redactCronValue } from '../../../../src/main/cron/security/cron-redaction';
 import { InMemoryCronScheduleStore } from '../../../../src/main/cron/store/in-memory-cron-schedule-store';
 import { EventBus } from '../../../../src/main/core';
-import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
-import type { TaskContext } from '../../../../src/shared/tasks';
+import { AGENT_TASK_TYPE, TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import type { TaskStoreState } from '../../../../src/shared/tasks';
 
 class RecordingRunner implements CronScheduleRunner {
 	tasks: CronScheduledTask[] = [];
@@ -86,6 +86,20 @@ const actor: CronActorContext = {
 		'scheduleReadPrivateData',
 	],
 };
+
+function createTaskPersistence(): TaskPersistencePort {
+	let state: TaskStoreState = {
+		schemaVersion: 1,
+		records: [],
+		updatedAt: new Date(0).toISOString(),
+	};
+	return {
+		load: jest.fn(() => state),
+		save: jest.fn((next: TaskStoreState) => {
+			state = next;
+		}),
+	};
+}
 
 function makeScheduler(runner = new RecordingRunner()) {
 	const store = new InMemoryCronScheduleStore();
@@ -409,21 +423,21 @@ describe('CronSchedulerService', () => {
 
 	it('creates approved agent background tasks through TaskManagerCronScheduleRunner', async () => {
 		const eventBus = new EventBus();
-		const registry = new TaskRegistry();
-		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({
-			text: `done: ${context.input.message}`,
-		}));
-		registry.register(
-			{
-				type: AGENT_TASK_TYPE,
-				validateInput(input: unknown) {
-					return input as { message: string };
-				},
-				run,
+		const taskManager = new TaskManager({
+			store: {
+				getAgentService: jest.fn(() => ({
+					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
+					model: { id: 'gpt-5', name: 'GPT-5' },
+				})),
+				getTaskSettings: jest.fn(() => ({})),
 			},
-			{ userFacing: true }
-		);
-		const taskManager = new TaskManager({ registry, eventBus });
+			eventBus,
+			persistence: createTaskPersistence(),
+		});
+		taskManager.configureAgentRuntime({
+			send: jest.fn(async (message: string) => `done: ${message}`),
+			cancel: jest.fn(),
+		});
 		const runner = new TaskManagerCronScheduleRunner(taskManager);
 		const { scheduler, store } = makeScheduler(runner);
 		const schedule = await scheduler.createSchedule(request(), actor);
