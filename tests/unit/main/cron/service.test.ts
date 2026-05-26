@@ -105,11 +105,41 @@ describe('CronService', () => {
 			expect(persisted).toHaveLength(1);
 			expect(persisted[0]).toMatchObject({
 				id: 'job-1',
+				name: 'job-1',
+				schedule: '* * * * *',
 				expression: '* * * * *',
+				enabled: true,
+				status: 'active',
+				target: 'job',
+				payload: { type: 'message', message: 'Daily backup' },
 				data: { type: 'message', message: 'Daily backup' },
 				timezone: 'UTC',
+				runCount: 0,
+				failureCount: 0,
 			});
 			expect(typeof persisted[0].createdAt).toBe('string');
+			expect(typeof persisted[0].updatedAt).toBe('string');
+		});
+
+		it('stores provider and model ids from the configured store', () => {
+			const store = createStore();
+			const service = new CronService(createLogger(), {
+				store,
+				settingsStore: {
+					getAgentService: () => ({
+						provider: { id: 'anthropic' },
+						model: { id: 'claude-sonnet-4-5' },
+					}),
+				},
+			});
+
+			service.schedule('job-1', '* * * * *', msg('Daily backup'), () => undefined);
+
+			const persisted = (store.setCronTasks as jest.Mock).mock.calls[0][0] as CronTask[];
+			expect(persisted[0]).toMatchObject({
+				providerId: 'anthropic',
+				modelId: 'claude-sonnet-4-5',
+			});
 		});
 
 		it('returns the persisted CronTask record including the data payload', () => {
