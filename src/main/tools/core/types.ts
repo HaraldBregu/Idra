@@ -30,7 +30,7 @@ export type CronToolContext =
 	| { role: 'owner'; agentId?: string }
 	| { role: 'subagent'; agentId?: string }
 	| { role: 'http'; userId?: string }
-	| { role: 'cron-self'; jobId?: string; agentId?: string };
+	| { role: 'cron-self'; jobId?: string; agentId?: string; sessionKey?: string | null };
 
 export interface ToolContext {
 	/** Workspace root (absolute path). */
