@@ -24,4 +24,3 @@ export * from './events/cron-audit-log';
 export * from './security/cron-access-policy';
 export * from './security/cron-redaction';
 export * from './security/cron-confirmation-manager';
-export * from './cronservice/cron-service';
