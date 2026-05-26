@@ -738,6 +738,68 @@ export class AgentService {
 		return Boolean(this.runtimes.get(agentId)?.currentAbort);
 	}
 
+	private async requireRun(runId: string): Promise<AgentRunRecord> {
+		const run = await this.getRun(runId);
+		if (!run) throw new Error(`Agent run not found: ${runId}`);
+		return run;
+	}
+
+	private upsertRunRecord(record: AgentRunRecord): AgentRunRecord {
+		const existing = this.runRecords.get(record.id);
+		const next = {
+			...existing,
+			...record,
+			createdAt: existing?.createdAt ?? record.createdAt,
+			updatedAt: record.updatedAt,
+		};
+		this.runRecords.set(record.id, next);
+		return this.cloneRunRecord(next);
+	}
+
+	private updateRunRecordSync(runId: string, patch: AgentRunStatePatch): AgentRunRecord | undefined {
+		const existing = this.runRecords.get(runId);
+		if (!existing) return undefined;
+		return this.upsertRunRecord({
+			...existing,
+			...patch,
+			updatedAt: new Date().toISOString(),
+		});
+	}
+
+	private cloneRunRecord(record: AgentRunRecord): AgentRunRecord {
+		return { ...record };
+	}
+
+	private sessionToRunRecord(session: SessionFile): AgentRunRecord {
+		return {
+			id: session.id,
+			agentId: session.agentId ?? session.agentMetadata?.agentId ?? this.defaultAgentId,
+			sessionId: session.id,
+			state: this.runStateForSessionStatus(session.status),
+			createdAt: session.createdAt,
+			updatedAt: session.updatedAt,
+			providerId: session.provider,
+			model: session.model,
+		};
+	}
+
+	private runStateForSessionStatus(status: SessionStatus | undefined): AgentRunState {
+		if (status === 'completed') return 'completed';
+		if (status === 'cancelled') return 'cancelled';
+		if (status === 'failed') return 'error';
+		if (status === 'idle') return 'idle';
+		if (status === 'waiting') return 'thinking';
+		return 'idle';
+	}
+
+	private sessionStatusForRunState(state: AgentRunState): SessionStatus {
+		if (state === 'completed') return 'completed';
+		if (state === 'cancelled') return 'cancelled';
+		if (state === 'error') return 'failed';
+		if (state === 'idle') return 'idle';
+		return 'active';
+	}
+
 	private ensureRuntime(agentId: string): Runtime {
 		const existing = this.runtimes.get(agentId);
 		if (existing) return existing;
