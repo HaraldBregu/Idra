@@ -151,7 +151,6 @@ export interface StoreApi {
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
 	getHeartbeatSettings: () => Promise<HeartbeatSettings>;
 	getConnectorSettings: () => Promise<ConnectorConfig[]>;
-	getChannelSettings: () => Promise<Channel>;
 	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
