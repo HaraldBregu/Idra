@@ -3,9 +3,13 @@ import type { AppEvent, EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
 import type { AgentService, AgentStartupFilesServicePort } from '../agent';
-import type { ChannelRegistry } from '../channels';
-import { normalizeChannelId } from '../channels';
-import type { ChannelChatType, ChannelOutboundMessage } from '../channels/types';
+import {
+	normalizeChannelId,
+	type ChannelChatType,
+	type ChannelOutboundMessage,
+	type ChannelRegistry,
+	type ChannelsService,
+} from '../channels';
 import { DEFAULT_AGENT_ID } from '../constants';
 import type {
 	HeartbeatEventPayload,
@@ -57,6 +61,7 @@ import { resolveHeartbeatVisibility } from './visibility';
 
 export interface HeartbeatServiceDependencies {
 	store: StoreService;
+	channels: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	logger: LoggerService;
 	eventBus: EventBus;
 	startupFiles: AgentStartupFilesServicePort;
@@ -342,7 +347,7 @@ export class HeartbeatService implements Disposable {
 		const visibility =
 			delivery.status === 'ok'
 				? resolveHeartbeatVisibility({
-						channel: this.dependencies.store.getChannel(),
+						channel: this.dependencies.channels.getChannel(),
 						channelId: delivery.message.type,
 						accountId: delivery.message.accountId,
 				  })
@@ -712,7 +717,7 @@ export class HeartbeatService implements Disposable {
 		if (!channelId) return { status: 'skip', reason: 'no-target' };
 		const plugin = this.dependencies.channelRegistry.getPlugin(channelId);
 		if (!plugin) return { status: 'skip', reason: 'no-target', channel: channelId };
-		const channelConfig = this.dependencies.store.getChannel()[channelId];
+		const channelConfig = this.dependencies.channels.getChannelConfig(channelId);
 		const accountId = summary.accountId ?? explicit?.accountId ?? plugin.config.defaultAccountId(channelConfig) ?? 'default';
 		const account = plugin.config.resolveAccount(channelConfig, accountId);
 		if (!account) return { status: 'skip', reason: 'unknown-account', channel: channelId, accountId };
