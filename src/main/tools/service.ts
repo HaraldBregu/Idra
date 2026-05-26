@@ -217,7 +217,6 @@ function filterTools(
 			pluginId: metadata?.pluginId,
 		};
 	});
-	const result = (policy?.evaluateTools ?? evaluateToolPolicy)(subjects, {
 	const policyService = policy ?? defaultPolicyService;
 	const result = policyService.evaluateTools(subjects, {
 		stages: { runtime },
