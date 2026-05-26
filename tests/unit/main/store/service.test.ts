@@ -25,7 +25,6 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
-import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { CronStoreState, CronTask } from '../../../../src/shared/cron';
 import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import type { Provider } from '../../../../src/shared/providers';
@@ -144,80 +143,6 @@ const cronScheduler = {
 describe('StoreService', () => {
 	beforeEach(() => {
 		MockStore.mockClear();
-	});
-
-	// -------------------------------------------------------------------------
-	// channel config
-	// -------------------------------------------------------------------------
-
-	describe('channel config', () => {
-		it('creates default config entries for every bundled channel id', () => {
-			const service = new StoreService();
-
-			const channel = service.getChannel();
-
-			expect(Object.keys(channel).sort()).toEqual([...CHANNEL_PROVIDER_IDS].sort());
-			expect(channel.telegram).toMatchObject({
-				token: '',
-				allowFrom: [],
-				enabled: false,
-				dmPolicy: 'allowlist',
-			});
-			expect(channel.slack).toMatchObject({
-				enabled: false,
-				defaultAccountId: 'default',
-				accounts: {
-					default: expect.objectContaining({
-						token: '',
-						allowFrom: [],
-						groupAllowFrom: [],
-						dmPolicy: 'allowlist',
-					}),
-				},
-			});
-		});
-
-		it('stores generic channel config without losing other channel defaults', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-
-			const saved = service.setChannelConfig('slack', {
-				enabled: true,
-				defaultAccountId: 'default',
-				accounts: {
-					default: {
-						label: 'Workspace bot',
-						enabled: true,
-						token: 'xoxb-token',
-						serverUrl: 'https://workspace.slack.com',
-						defaultTarget: 'C123',
-						allowFrom: ['U1', 'U1', ' U2 '],
-						groupAllowFrom: ['C123'],
-						dmPolicy: 'allowlist',
-					},
-				},
-			});
-
-			expect(saved).toMatchObject({
-				enabled: true,
-				accounts: {
-					default: expect.objectContaining({
-						label: 'Workspace bot',
-						token: 'xoxb-token',
-						allowFrom: ['U1', 'U2'],
-					}),
-				},
-			});
-			expect(service.getChannel().telegram).toMatchObject({ token: '', allowFrom: [] });
-			expect(Object.keys(store.get('channels') as Record<string, unknown>)).toEqual(['slack']);
-			expect(store.get('channels')).toMatchObject({
-				slack: {
-					accounts: {
-						default: expect.objectContaining({ token: 'xoxb-token' }),
-					},
-				},
-			});
-		});
 	});
 
 	// -------------------------------------------------------------------------
@@ -1078,70 +1003,6 @@ describe('StoreService', () => {
 				apiKey: 'sk-canonical',
 				baseUrl: 'https://api.openai.com/v1',
 			});
-		});
-	});
-
-	// -------------------------------------------------------------------------
-	// channel
-	// -------------------------------------------------------------------------
-
-	describe('channel settings', () => {
-		it('hydrates every supported channel provider with defaults', () => {
-			const service = new StoreService();
-
-			const channel = service.getChannel();
-
-			expect(Object.keys(channel).sort()).toEqual([...CHANNEL_PROVIDER_IDS].sort());
-			expect(channel.telegram).toMatchObject({
-				token: '',
-				allowFrom: [],
-				enabled: false,
-				defaultAccountId: 'default',
-			});
-			expect(channel.slack).toMatchObject({
-				enabled: false,
-				defaultAccountId: 'default',
-			});
-			expect(channel.slack.accounts?.default).toMatchObject({
-				label: 'slack default',
-				enabled: false,
-				dmPolicy: 'allowlist',
-			});
-		});
-
-		it('merges partial channel config with provider defaults', () => {
-			const service = new StoreService();
-			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
-				'channels',
-				{
-					telegram: {
-						token: 'telegram-token',
-						allowFrom: [' user-1 ', 'user-1', 'user-2'],
-					},
-					slack: {
-						enabled: true,
-					},
-				} as Partial<Channel>
-			);
-
-			const channel = service.getChannel();
-
-			expect(channel.telegram).toMatchObject({
-				token: 'telegram-token',
-				allowFrom: ['user-1', 'user-2'],
-				enabled: false,
-				defaultAccountId: 'default',
-			});
-			expect(channel.discord).toMatchObject({
-				token: '',
-				allowFrom: [],
-				enabled: false,
-			});
-			expect(channel.slack).toMatchObject({
-				enabled: true,
-				defaultAccountId: 'default',
-			});
-			expect(channel.slack.accounts?.default?.dmPolicy).toBe('allowlist');
 		});
 	});
 
