@@ -124,6 +124,11 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
+export interface PolicyApi {
+	get: () => Promise<PolicyConfig>;
+	set: (policy: PolicyConfig) => Promise<PolicyConfig>;
+}
+
 export interface StoreApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
@@ -147,8 +152,6 @@ export interface StoreApi {
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<Agent | undefined>;
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getPolicy: () => Promise<PolicyConfig>;
-	setPolicy: (policy: PolicyConfig) => Promise<PolicyConfig>;
 }
 
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -280,6 +283,7 @@ declare global {
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
+		policy: PolicyApi;
 		store: StoreApi;
 	}
 }
