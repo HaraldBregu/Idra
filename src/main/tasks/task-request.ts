@@ -40,8 +40,12 @@ export function parseTaskRunRequest(value: unknown): TaskRunRequest {
 		input: value.input,
 	};
 	const id = optionalString(value, 'id', 'Task id');
+	const providerId = optionalString(value, 'providerId', 'Task providerId');
+	const modelId = optionalString(value, 'modelId', 'Task modelId');
 	const metadata = optionalMetadata(value.metadata);
 	if (id) request.id = id;
+	if (providerId) request.providerId = providerId;
+	if (modelId) request.modelId = modelId;
 	if (metadata) request.metadata = metadata;
 	return request;
 }
