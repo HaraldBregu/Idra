@@ -11,6 +11,8 @@ Expose small APIs that delegate to the relevant main-process service through typ
 - Agent API: expose agent interaction through `window.agent`.
 - Cron API: expose cron scheduling through `window.cron`.
 - Tasks API: expose background task behavior through `window.tasks`.
+- Channels API: expose channel configuration and lifecycle operations through `window.channels`.
+- Connectors API: expose connector configuration, OAuth, tools, and tool calls through `window.connectors`.
 - Skills API: expose skill management through `window.skills`.
 - Policy API: expose policy configuration through `window.policy`.
 - Store API: expose store-backed settings through `window.store`.
