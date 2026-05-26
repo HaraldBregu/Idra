@@ -4,7 +4,6 @@ import type { AgentToolResultStatus } from '../../../shared/agents/constants';
 import { AgentHarnessEmitter } from './events';
 import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
 import type {
-	AgentHarness,
 	AgentHarnessApprovalDecision,
 	AgentHarnessApprovalRequest,
 	AgentHarnessConfig,
