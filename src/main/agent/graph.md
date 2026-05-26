@@ -1,144 +1,114 @@
-# Agent Graph
+# Agent Module Graph
 
-This graph shows how `src/main/agent` orchestrates a run across entrypoints, routing, tools, connectors, skills, history, system prompt construction, provider streaming, and persistence.
+This graph is scoped to `src/main/agent` only. External app services are collapsed into boundary nodes so the diagram shows the agent module's internal files and subfolders.
 
 ```mermaid
 flowchart TD
-	subgraph Entrypoints
-		UI["Renderer UI"]
-		IPC["AgentIpc<br/>src/main/ipc/agent-ipc.ts"]
-		Channels["ChannelRegistry<br/>src/main/channels/registry.ts"]
-		Route["Agent routing<br/>routing/*"]
-		Heartbeat["HeartbeatService"]
-		TaskRuns["Tasks and cron runs"]
+	subgraph PublicAPI["src/main/agent public API"]
+		Index["index.ts<br/>barrel exports"]
 	end
 
-	subgraph Bootstrap
-		BootstrapServices["bootstrapServices()<br/>src/main/bootstrap.ts"]
-		Deps["AgentServiceDependencies<br/>store, workspace, policy, tools,<br/>connectors, skills, mcp, tasks"]
+	subgraph Boundary["Outside src/main/agent"]
+		Callers["Agent callers<br/>UI, channels, heartbeat, tasks"]
+		ExternalDeps["Injected dependencies<br/>store, workspace, policy, tools,<br/>connectors, skills, mcp, tasks"]
+		ExternalRuntime["Runtime contracts<br/>provider, session, run logger,<br/>tool context, memory flush"]
 	end
 
-	subgraph Preparation
-		Send["AgentService.send()<br/>service.ts"]
-		Runtime["Runtime map<br/>abort controller + run records"]
-		Config["StoreService<br/>agent config + provider/model"]
-		ProviderFactory["Provider factory<br/>ProviderAdapter"]
-		SessionLoad["loadSession()<br/>session/store.ts"]
-		History["Session history<br/>transcript + plan + compaction markers"]
-		Workspace["WorkspaceService<br/>startup workspace files"]
-		Policy["PolicyService<br/>evaluateToolRequest()"]
-		ToolContext["ToolContext<br/>workspace, session, plan, services"]
+	subgraph Core["Core agent files"]
+		Service["service.ts<br/>AgentService"]
+		Run["run.ts<br/>AgentExecutionService"]
+		SystemPrompt["system-prompt.ts<br/>buildSystemPrompt"]
+		BeforeRun["before-agent-run.ts<br/>evaluate hooks"]
+		Compaction["compaction.ts<br/>compact transcript"]
+		Logger["logger.ts<br/>agentLogger"]
 	end
 
-	subgraph Capabilities
-		NeedTools{"Use tools?"}
-		LocalTools["ToolService.createDefaultTools()<br/>file + filesystem + cron catalog"]
-		ToolSelect["ToolService.selectToolsForTurn()<br/>rank and provider-normalize tools"]
-		Connectors["ConnectorsService.createAgentTools()<br/>configured connector tools"]
-		Skills["SkillsService.list/load()<br/>matching or configured skills"]
-		CapabilityResolve["AgentCapabilityService.resolveForPrompt()<br/>capabilities/service.ts"]
-		SelectedTools["Selected tools<br/>local + matching connectors"]
-		SkillPrompt["Skill prompt additions"]
-		Mcp["McpRegistry<br/>registered service"]
-		McpNote["MCP note<br/>The current default AgentService path injects mcpRegistry into services,<br/>but does not call McpRegistry.buildTools() directly."]
+	subgraph Capabilities["capabilities/"]
+		CapIndex["capabilities/index.ts"]
+		CapService["capabilities/service.ts<br/>AgentCapabilityService"]
+		CapTypes["capabilities/types.ts"]
 	end
 
-	subgraph Prompt
-		StartupFiles["Startup context<br/>AGENTS, SOUL, IDENTITY, USER,<br/>HEARTBEAT, BOOTSTRAP"]
-		SystemPrompt["buildSystemPrompt()<br/>system-prompt.ts"]
-		PromptForTurn["System prompt for turn<br/>base prompt + skills + tool suffix"]
-		BeforeRun["Before-agent-run hooks<br/>before-agent-run.ts"]
+	subgraph Routing["routing/"]
+		RouteIndex["routing/index.ts"]
+		Bindings["routing/bindings.ts"]
+		ResolveRoute["routing/resolve-route.ts"]
+		SessionKey["routing/session-key.ts"]
+		RouteTypes["routing/types.ts"]
 	end
 
-	subgraph Execution
-		Execute["AgentExecutionService.execute()<br/>run.ts"]
-		ProviderStream["ProviderAdapter.stream()<br/>model messages + tool schemas"]
-		ModelEvents{"Provider stream events"}
-		TextDelta["text_delta<br/>stream to UI/channel"]
-		ToolCall["tool_call<br/>parse JSON args"]
-		ToolGuard["ToolService.beforeCall()<br/>guards + policy"]
-		ToolExec["ToolService.executeToolWithManagement()"]
-		LocalHandlers["Local tool handlers<br/>files, filesystem, cron"]
-		ConnectorHandlers["Connector runtime strategies<br/>Gmail, Calendar, Drive, etc."]
-		ToolResult["Tool result blocks<br/>text/image + status"]
-		Overflow["ContextOverflowError"]
-		Compact["compact()<br/>compaction.ts"]
-		MemoryFlush["flushSessionMemoryBeforeCompaction()<br/>memory-runtime.ts"]
+	subgraph Subagents["subagents/"]
+		SubIndex["subagents/index.ts"]
+		Registry["subagents/registry.ts"]
+		SpawnService["subagents/spawn-service.ts"]
+		SpawnTool["subagents/spawn-tool.ts"]
+		ControlTool["subagents/control-tool.ts"]
+		TaskHandler["subagents/task-handler.ts"]
+		SubTypes["subagents/types.ts"]
 	end
 
-	subgraph Subagents
-		SubagentTools["Subagent tools<br/>sessions_spawn + subagents"]
-		SubagentService["SubagentSpawnService"]
-		TaskManager["TasksService<br/>subagent.run task"]
-		SubagentHandler["SubagentRunTaskHandler"]
-	end
+	Index --> Service
+	Index --> Run
+	Index --> CapIndex
+	Index --> SubIndex
+	Index --> RouteIndex
+	Index --> BeforeRun
+	Index --> SystemPrompt
 
-	subgraph Persistence
-		RunLogger["AgentRunLogger<br/>start, iteration, tool, finish"]
-		Save["saveSession()<br/>sanitized transcript + status"]
-		Final["Final text returned"]
-	end
+	Callers --> Service
+	ExternalDeps --> Service
+	ExternalRuntime --> Service
 
-	UI --> IPC --> Send
-	Channels --> Route --> Send
-	Heartbeat --> Send
-	TaskRuns --> Send
+	Service --> CapService
+	Service --> SystemPrompt
+	Service --> BeforeRun
+	Service --> Run
+	Service --> ExternalRuntime
 
-	BootstrapServices --> Deps --> Send
-	Send --> Runtime
-	Send --> Config --> ProviderFactory
-	Send --> SessionLoad --> History
-	Send --> Workspace --> StartupFiles
-	Send --> Policy --> NeedTools
-	Send --> ToolContext
-	Deps --> ToolContext
+	Run --> Compaction
+	Run --> Logger
+	Run --> ExternalRuntime
+	BeforeRun --> Logger
+	Compaction --> Logger
+	Compaction --> ExternalRuntime
 
-	NeedTools --> LocalTools --> ToolSelect
-	ToolSelect --> CapabilityResolve
-	Connectors --> CapabilityResolve
-	Skills --> CapabilityResolve
-	Mcp -.-> ToolContext
-	Mcp -.-> McpNote
-	CapabilityResolve --> SelectedTools
-	CapabilityResolve --> SkillPrompt
+	CapIndex --> CapService
+	CapIndex --> CapTypes
+	CapService --> CapTypes
+	CapService --> ExternalDeps
 
-	StartupFiles --> SystemPrompt
-	SelectedTools --> SystemPrompt
-	SystemPrompt --> PromptForTurn
-	SkillPrompt --> PromptForTurn
-	ToolSelect -.-> PromptForTurn
-	PromptForTurn --> BeforeRun
-	History --> BeforeRun
+	RouteIndex --> Bindings
+	RouteIndex --> ResolveRoute
+	RouteIndex --> SessionKey
+	RouteIndex --> RouteTypes
+	ResolveRoute --> Bindings
+	ResolveRoute --> SessionKey
+	ResolveRoute --> RouteTypes
+	SessionKey --> RouteTypes
 
-	BeforeRun -- pass --> Execute
-	BeforeRun -- block --> Save
-	ProviderFactory --> Execute
-	History --> Execute
-	SelectedTools --> Execute
-	ToolContext --> Execute
-	Execute --> ProviderStream --> ModelEvents
-	ModelEvents --> TextDelta --> Final
-	ModelEvents --> ToolCall --> ToolGuard --> ToolExec
-	ToolExec --> LocalHandlers --> ToolResult
-	ToolExec --> ConnectorHandlers --> ToolResult
-	ToolResult --> History
-	History --> ProviderStream
-
-	ProviderStream --> Overflow --> MemoryFlush --> Compact --> History
-	Execute --> RunLogger
-	Execute --> Save --> History
-	Execute --> Final
-	Final --> IPC
-	Final --> Channels
-
-	SubagentTools -.-> ToolExec
-	ToolExec -.-> SubagentService
-	SubagentService --> TaskManager --> SubagentHandler --> Send
+	SubIndex --> Registry
+	SubIndex --> SpawnService
+	SubIndex --> SpawnTool
+	SubIndex --> ControlTool
+	SubIndex --> TaskHandler
+	SubIndex --> SubTypes
+	Registry --> SubTypes
+	SpawnService --> Registry
+	SpawnService --> TaskHandler
+	SpawnService --> SubTypes
+	SpawnService --> SessionKey
+	SpawnTool --> SpawnService
+	SpawnTool --> SubTypes
+	ControlTool --> SpawnService
+	ControlTool --> SubTypes
+	TaskHandler --> Service
+	TaskHandler --> Registry
+	TaskHandler --> SubTypes
 ```
 
 Key reads:
 
-- `service.ts` prepares the run: resolves provider/model, loads session history, builds tool context, selects capabilities, builds the system prompt, runs preflight hooks, and saves the completed session.
-- `run.ts` owns the model loop: stream provider events, append assistant/tool transcript entries, execute tool calls, compact on context overflow, and return final text.
-- Connector tools are included through `AgentCapabilityService`; skills are included as prompt additions.
-- `McpRegistry` is registered and available through dependencies, but the default agent run path currently does not build provider MCP tools from it.
+- `service.ts` is the agent module orchestrator: it calls capability resolution, system prompt construction, before-run hooks, and the execution service.
+- `run.ts` owns the model loop and calls `compaction.ts` when the provider reports context overflow.
+- `capabilities/`, `routing/`, and `subagents/` are shown as internal agent submodules, with their own index files and type files.
+- External services such as tools, connectors, skills, MCP, sessions, providers, and task runners are intentionally collapsed into boundary nodes because they live outside `src/main/agent`.
