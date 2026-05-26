@@ -12,7 +12,7 @@ import type { CronScheduledTask } from '../../../shared/cron';
 import { ScheduleDescriber } from '../core/cron.describer';
 import { AGENT_TASK_TYPE } from '../../tasks';
 
-export interface AgentCronContext {
+export interface CronServiceContext {
 	agentId: string;
 	userId?: string;
 	sessionId?: string;
@@ -21,12 +21,12 @@ export interface AgentCronContext {
 	confirmed?: boolean;
 }
 
-export class AgentCronService {
+export class CronServiceApi {
 	private readonly describer = new ScheduleDescriber();
 
 	constructor(private readonly scheduler: CronScheduler) {}
 
-	createScheduleFromAgent(
+	createSchedule(
 		request: Omit<
 			CronScheduleCreateRequest,
 			'source' | 'sourceId' | 'createdBy' | 'timezone' | 'taskType'
@@ -34,71 +34,71 @@ export class AgentCronService {
 			timezone?: string;
 			taskType?: string;
 		},
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<CronSchedule> {
 		return this.scheduler.createSchedule(
 			{
 				...request,
 				taskType: request.taskType ?? AGENT_TASK_TYPE,
 				source: 'agent',
-				sourceId: agentContext.agentId,
-				createdBy: agentContext.agentId,
-				ownerUserId: request.ownerUserId ?? agentContext.userId,
-				sessionId: request.sessionId ?? agentContext.sessionId,
-				timezone: request.timezone ?? agentContext.timezone,
+				sourceId: context.agentId,
+				createdBy: context.agentId,
+				ownerUserId: request.ownerUserId ?? context.userId,
+				sessionId: request.sessionId ?? context.sessionId,
+				timezone: request.timezone ?? context.timezone,
 				visibility: request.visibility ?? 'user',
 			},
-			this.actor(agentContext)
+			this.actor(context)
 		);
 	}
 
-	updateScheduleFromAgent(
+	updateSchedule(
 		scheduleId: CronScheduleId,
 		patch: CronScheduleUpdateRequest,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<CronSchedule> {
-		return this.scheduler.updateSchedule(scheduleId, patch, this.actor(agentContext));
+		return this.scheduler.updateSchedule(scheduleId, patch, this.actor(context));
 	}
 
-	pauseScheduleFromAgent(
+	pauseSchedule(
 		scheduleId: CronScheduleId,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<void> {
-		return this.scheduler.pauseSchedule(scheduleId, this.actor(agentContext));
+		return this.scheduler.pauseSchedule(scheduleId, this.actor(context));
 	}
 
-	resumeScheduleFromAgent(
+	resumeSchedule(
 		scheduleId: CronScheduleId,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<void> {
-		return this.scheduler.resumeSchedule(scheduleId, this.actor(agentContext));
+		return this.scheduler.resumeSchedule(scheduleId, this.actor(context));
 	}
 
-	deleteScheduleFromAgent(
+	deleteSchedule(
 		scheduleId: CronScheduleId,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<void> {
-		return this.scheduler.deleteSchedule(scheduleId, this.actor(agentContext));
+		return this.scheduler.deleteSchedule(scheduleId, this.actor(context));
 	}
 
-	listSchedulesForAgent(
+	listSchedules(
 		filter: CronScheduleFilter,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<CronSchedule[]> {
 		return this.scheduler.listSchedules(
 			{
 				...filter,
-				ownerUserId: filter.ownerUserId ?? agentContext.userId,
+				ownerUserId: filter.ownerUserId ?? context.userId,
 			},
-			this.actor(agentContext)
+			this.actor(context)
 		);
 	}
 
 	async explainSchedule(
 		scheduleId: CronScheduleId,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<string> {
-		const schedule = await this.scheduler.getSchedule(scheduleId, this.actor(agentContext));
+		const schedule = await this.scheduler.getSchedule(scheduleId, this.actor(context));
 		return [
 			this.describer.describeSchedule(schedule),
 			this.describer.describeNextRun(schedule),
@@ -107,22 +107,22 @@ export class AgentCronService {
 		].join(' ');
 	}
 
-	getNextRunsForAgent(
+	getNextRuns(
 		scheduleId: CronScheduleId,
 		count: number,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<CronNextRunPreview> {
-		return this.scheduler.getNextRuns(scheduleId, count, this.actor(agentContext));
+		return this.scheduler.getNextRuns(scheduleId, count, this.actor(context));
 	}
 
-	runScheduleNowFromAgent(
+	runNow(
 		scheduleId: CronScheduleId,
-		agentContext: AgentCronContext
+		context: CronServiceContext
 	): Promise<CronScheduledTask> {
-		return this.scheduler.runScheduleNow(scheduleId, this.actor(agentContext));
+		return this.scheduler.runScheduleNow(scheduleId, this.actor(context));
 	}
 
-	private actor(context: AgentCronContext): CronActorContext {
+	private actor(context: CronServiceContext): CronActorContext {
 		return {
 			source: 'agent',
 			sourceId: context.agentId,
