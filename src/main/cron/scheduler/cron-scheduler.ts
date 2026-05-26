@@ -287,12 +287,15 @@ export class CronSchedulerService implements CronScheduler {
 		request: CronScheduleCreateRequest,
 		actor = this.systemActor(request.ownerUserId)
 	): Promise<CronSchedule> {
-		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
-		this.accessPolicy.validateFrequency({ request, actor });
-		validateScheduleShape(request, this.options.runPolicy);
-		assertSafeStoredSchedulePayload(request);
+		await this.authorize({ action: 'createSchedule', request, actor });
+		this.validateRequest('createSchedule', request, actor);
 		const normalizedTask = normalizeAgentScheduleTask(request);
 		if (this.accessPolicy.requiresConfirmation({ request, actor })) {
+			this.logger?.warn('CronScheduler', 'Cron schedule requires confirmation.', {
+				action: 'createSchedule',
+				source: actor.source,
+				userId: actor.userId ?? null,
+			});
 			throw new CronPermissionError('Cron schedule requires confirmation before it can be saved.', {
 				action: 'createSchedule',
 			});
@@ -378,17 +381,21 @@ export class CronSchedulerService implements CronScheduler {
 		actor = this.systemActor()
 	): Promise<CronSchedule> {
 		const current = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({
+		await this.authorize({
 			action: 'updateSchedule',
 			schedule: current,
 			request: patch,
 			actor,
 		});
-		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
-		validateScheduleShape(patch, this.options.runPolicy, current);
-		assertSafeStoredSchedulePayload(patch);
+		this.validateRequest('updateSchedule', patch, actor, current);
 		const normalizedTask = normalizeAgentScheduleTask(patch, current);
 		if (this.accessPolicy.requiresConfirmation({ request: patch, actor, existingSchedule: current })) {
+			this.logger?.warn('CronScheduler', 'Cron schedule update requires confirmation.', {
+				action: 'updateSchedule',
+				scheduleId,
+				source: actor.source,
+				userId: actor.userId ?? null,
+			});
 			throw new CronPermissionError('Cron schedule update requires confirmation before it can be saved.', {
 				action: 'updateSchedule',
 				scheduleId,
