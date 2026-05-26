@@ -204,6 +204,93 @@ describe('heartbeat helpers', () => {
 		expect(heartbeat.getStatus().agentCount).toBe(1);
 	});
 
+	it('saves heartbeat settings as partial default heartbeat config', () => {
+		const { heartbeat, heartbeatStore } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						target: 'none',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+						reasoningEffort: 'medium',
+					},
+				},
+			},
+		});
+
+		const settings = heartbeat.saveSettings({ modelId: 'gpt-5.4-mini' });
+
+		expect(settings).toEqual({
+			every: '30m',
+			providerId: 'openai',
+			modelId: 'gpt-5.4-mini',
+			reasoningEffort: 'medium',
+		});
+		expect(heartbeatStore.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+			modelId: 'gpt-5.4-mini',
+			reasoningEffort: 'medium',
+			model: undefined,
+		});
+	});
+
+	it('stores heartbeat reasoning effort only for supported provider and model selections', () => {
+		const { heartbeat } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+					},
+				},
+			},
+		});
+
+		expect(heartbeat.setReasoningEffort('high')).toEqual({
+			every: '30m',
+			providerId: 'openai',
+			modelId: 'gpt-5.4',
+			reasoningEffort: 'high',
+		});
+		expect(() =>
+			heartbeat.saveSettings({
+				providerId: 'deepseek',
+				modelId: 'deepseek-v4-pro',
+				reasoningEffort: 'high',
+			})
+		).toThrow('Reasoning effort is not supported for provider "deepseek".');
+	});
+
+	it('drops saved reasoning effort when the selected provider and model do not support it', () => {
+		const { heartbeat, heartbeatStore } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+						reasoningEffort: 'high',
+					},
+				},
+			},
+		});
+
+		expect(
+			heartbeat.saveSettings({ providerId: 'deepseek', modelId: 'deepseek-v4-pro' })
+		).toEqual({
+			every: '30m',
+			providerId: 'deepseek',
+			modelId: 'deepseek-v4-pro',
+		});
+		expect(heartbeatStore.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+			providerId: 'deepseek',
+			modelId: 'deepseek-v4-pro',
+			reasoningEffort: undefined,
+			model: undefined,
+		});
+	});
+
 	it('stores heartbeat runtime state through the heartbeat storage adapter', () => {
 		let state: HeartbeatStoreState = emptyHeartbeatStoreState();
 		const store = {
