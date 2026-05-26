@@ -1,5 +1,5 @@
 import type { ChannelInboundMessage, ChannelStatusUpdate } from '../../../../src/main/channels';
-import { ChannelRegistry } from '../../../../src/main/channels/registry';
+import { ChannelRegistry } from '../../../../src/main/channels';
 import { ChannelsChannels } from '../../../../src/shared/ipc-channels';
 
 jest.mock('../../../../src/main/channels/telegram', () => {
