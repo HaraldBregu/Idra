@@ -39,15 +39,23 @@ export interface PolicyServicePort {
 export class PolicyService implements PolicyServicePort {
 	constructor(
 		private readonly store: PolicyStorePort,
-		private readonly workspaceRoot?: string
+		private readonly workspaceRoot?: string,
+		private readonly agentRoot?: string
 	) {}
 
 	evaluate(targetPath: string, permission: Permission): PolicyDecision {
 		return evaluate(this.store.getPolicy(), this.toVirtualPath(targetPath), permission);
 	}
 
-	// Maps real workspace paths to the virtual /workspace prefix used in stored policy configs.
+	// Maps real paths to virtual prefixes used in stored policy configs:
+	// paths under agentRoot → /agent/..., paths under workspaceRoot → /workspace/...
 	private toVirtualPath(targetPath: string): string {
+		if (this.agentRoot) {
+			const rel = path.relative(this.agentRoot, targetPath);
+			if (!rel.startsWith('..') && !path.isAbsolute(rel)) {
+				return '/agent' + (rel ? '/' + rel : '');
+			}
+		}
 		if (!this.workspaceRoot) return targetPath;
 		const rel = path.relative(this.workspaceRoot, targetPath);
 		if (rel.startsWith('..') || path.isAbsolute(rel)) return targetPath;
