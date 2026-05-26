@@ -199,6 +199,28 @@ function normalizeAgentScheduleTask(
 	};
 }
 
+function storedScheduleConfig(
+	input: Pick<
+		CronSchedule,
+		'type' | 'cronExpression' | 'intervalMs' | 'runAt' | 'startAt' | 'endAt' | 'maxRuns'
+	>
+): CronStoredSchedule {
+	if (input.type === 'cron' && input.cronExpression) return input.cronExpression;
+	return {
+		type: input.type,
+		...(input.intervalMs !== undefined ? { intervalMs: input.intervalMs } : {}),
+		...(input.runAt ? { runAt: input.runAt } : {}),
+		...(input.startAt ? { startAt: input.startAt } : {}),
+		...(input.endAt ? { endAt: input.endAt } : {}),
+		...(input.maxRuns !== undefined ? { maxRuns: input.maxRuns } : {}),
+	};
+}
+
+function scheduleTarget(taskType: string, target?: CronStoredTarget): CronStoredTarget {
+	if (target) return target;
+	return taskType === AGENT_TASK_TYPE ? 'agent' : 'task';
+}
+
 export class CronSchedulerService implements CronScheduler {
 	private readonly options: CronSchedulerOptions;
 	private readonly calculator: CronNextRunCalculator;
