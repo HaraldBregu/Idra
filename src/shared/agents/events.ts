@@ -33,6 +33,7 @@ export type AgentRunStreamEvent =
 			type: 'tool_call_start';
 			iteration: number;
 			toolCallId: string;
+			toolName: string;
 	  } & AgentToolCapabilitySummary)
 	| {
 			type: 'tool_call_args_delta';
@@ -54,6 +55,7 @@ export type AgentRunStreamEvent =
 			type: 'tool_call_result';
 			iteration: number;
 			toolCallId: string;
+			toolName: string;
 			input: unknown;
 			output: unknown;
 			outputText: string;
