@@ -125,7 +125,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
-	const connectors = container.register('connectors', new ConnectorsService(store, logger));
+	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
 	container.register('textToSpeech', new TextToSpeechService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
