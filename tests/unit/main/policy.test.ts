@@ -112,10 +112,10 @@ describe('policy module', () => {
 		};
 		const service = new PolicyService({
 			storeAccessor: {
-			read: jest.fn(() => stored),
-			write: jest.fn((value) => {
-				stored = value;
-			}),
+				read: jest.fn(() => stored),
+				write: jest.fn((value) => {
+					stored = value;
+				}),
 			},
 		});
 
