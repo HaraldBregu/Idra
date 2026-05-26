@@ -56,9 +56,16 @@ export interface CronApi {
 export interface HeartbeatApi {
 	status: () => Promise<HeartbeatStatus>;
 	last: () => Promise<HeartbeatEventPayload | null>;
+	settings: () => Promise<HeartbeatSettings>;
+	saveSettings: (request: HeartbeatSettingsUpdate) => Promise<HeartbeatSettings>;
 	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
 	getTiming: () => Promise<HeartbeatTimingSettings>;
 	updateTiming: (request: HeartbeatTimingSettings) => Promise<HeartbeatTimingSettings>;
+	setProviderId: (request: HeartbeatSetProviderRequest) => Promise<HeartbeatSettings>;
+	setModelId: (request: HeartbeatSetModelRequest) => Promise<HeartbeatSettings>;
+	setReasoningEffort: (
+		request: HeartbeatSetReasoningEffortRequest
+	) => Promise<HeartbeatSettings>;
 	systemEvent: (request: HeartbeatSystemEventRequest) => Promise<HeartbeatSystemEventResult>;
 	request: (request: HeartbeatWakeRequest) => Promise<void>;
 	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;

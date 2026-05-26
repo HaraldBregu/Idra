@@ -152,6 +152,14 @@ function SettingsOverviewCard({
 
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
+	const [heartbeatEnabled, setHeartbeatEnabled] = useState<boolean | null>(null);
+
+	useEffect(() => {
+		void window.heartbeat.status().then((s) => setHeartbeatEnabled(s.enabled));
+		return window.heartbeat.onEvent(() => {
+			void window.heartbeat.status().then((s) => setHeartbeatEnabled(s.enabled));
+		});
+	}, []);
 
 	return (
 		<SettingsPageShell>
