@@ -7,16 +7,18 @@ import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ConnectorsService } from '../connectors';
-import { resolveBootstrapMode, type WorkspaceService } from '../workspace';
+import {
+	resolveBootstrapMode,
+	WorkspaceService,
+	type WorkspaceContextFile,
+} from '../workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
-	type AgentStartupFile,
-	type AgentStartupFilesServicePort,
-} from './startup-files';
+} from '../workspace';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
