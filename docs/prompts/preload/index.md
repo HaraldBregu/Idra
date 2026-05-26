@@ -10,6 +10,7 @@ Expose small APIs that delegate to the relevant main-process service through typ
 - App API: expose application shell operations through `window.app`.
 - Agent API: expose agent interaction through `window.agent`.
 - Cron API: expose cron scheduling through `window.cron`.
+- Heartbeat API: expose heartbeat settings and runtime events through `window.heartbeat`.
 - Tasks API: expose background task behavior through `window.tasks`.
 - SpeechToText API: expose batch transcription and dictation through `window.speechToText`.
 - Channels API: expose channel configuration and lifecycle operations through `window.channels`.
