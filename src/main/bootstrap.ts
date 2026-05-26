@@ -9,7 +9,7 @@ import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { PolicyService } from './policy';
 import { CronService } from './cron';
-import { ChannelRegistry } from './channels';
+import { ChannelRegistry, ChannelsService } from './channels';
 import {
 	AgentService,
 	AgentStartupFilesService,
@@ -94,6 +94,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 
 	const store = container.register('store', new StoreService(logger));
+	const channels = container.register('channels', new ChannelsService(logger));
 	const policy = container.register(
 		'policy',
 		new PolicyService({
@@ -173,6 +174,7 @@ export function bootstrapServices(): BootstrapResult {
 		'heartbeat',
 		new HeartbeatService({
 			store,
+			channels,
 			logger,
 			eventBus,
 			startupFiles,
