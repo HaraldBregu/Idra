@@ -482,7 +482,7 @@ export class AgentService {
 			);
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
-			let startupFiles: AgentStartupFile[] = [];
+			let startupFiles: WorkspaceContextFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
 				systemPromptSuffix: '',
@@ -966,7 +966,7 @@ export class AgentService {
 	}
 
 	private filterStartupFilesForRun(
-		files: AgentStartupFile[],
+		files: WorkspaceContextFile[],
 		params: {
 			runKind: 'default' | 'heartbeat' | 'cron';
 			lightContext: boolean;
@@ -989,9 +989,9 @@ export class AgentService {
 	}
 
 	private filterStartupFilesForBootstrapMode(
-		files: AgentStartupFile[],
+		files: WorkspaceContextFile[],
 		bootstrapMode: 'none' | 'limited' | 'full'
-	): AgentStartupFile[] {
+	): WorkspaceContextFile[] {
 		if (bootstrapMode === 'full') return files;
 		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
 	}
