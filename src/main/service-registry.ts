@@ -1,4 +1,4 @@
-import type { ChannelRegistry } from './channels';
+import type { ChannelRegistry, ChannelsService } from './channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core';
 import type { WindowContextManager } from './core';
 import type { AgentService, AgentStartupFilesService } from './agent';
@@ -23,6 +23,7 @@ export interface MainServices {
 	appState: AppState;
 	appPermissions: AppPermissionsService;
 	agentService: AgentService;
+	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
 	cron: CronService;
