@@ -24,7 +24,11 @@ import {
 	setHeartbeatWakeHandler,
 	shouldDeferWake,
 } from '../../../../src/main/heartbeat';
-import type { AgentHeartbeatConfig, AgentsHeartbeatConfig, HeartbeatStoreState } from '../../../../src/shared/heartbeat';
+import type {
+	AgentHeartbeatConfig,
+	AgentsHeartbeatConfig,
+	HeartbeatStoreState,
+} from '../../../../src/shared/heartbeat';
 import { makeLogger } from '../test-helpers';
 
 function operatorConfig(overrides: Partial<OperatorStoreState> = {}): OperatorStoreState {
@@ -144,10 +148,8 @@ describe('heartbeat helpers', () => {
 	});
 
 	it('updates default heartbeat timing and recomputes schedules', () => {
-		const { heartbeat, store } = makeHeartbeatHarness({
-			service: operatorConfig({
-				agents: { defaults: { heartbeat: { every: '30m', target: 'none' } } },
-			}),
+		const { heartbeat, heartbeatStore } = makeHeartbeatHarness({
+			agents: { defaults: { heartbeat: { every: '30m', target: 'none' } } },
 		});
 
 		const timing = heartbeat.updateTiming({
@@ -159,14 +161,14 @@ describe('heartbeat helpers', () => {
 			every: '10m',
 			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
 		});
-		expect(store.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+		expect(heartbeatStore.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
 			every: '10m',
 			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
 		});
 		expect(heartbeat.getStatus().agentCount).toBe(1);
 	});
 
-	it('stores heartbeat runtime state through the store service adapter', () => {
+	it('stores heartbeat runtime state through the heartbeat storage adapter', () => {
 		let state: HeartbeatStoreState = emptyHeartbeatStoreState();
 		const store = {
 			getHeartbeatState: jest.fn(() => state),
@@ -174,9 +176,7 @@ describe('heartbeat helpers', () => {
 				state = next;
 			}),
 		};
-		const runtimeState = new HeartbeatRuntimeState(
-			new StoreServiceHeartbeatStateStorage(store)
-		);
+		const runtimeState = new HeartbeatRuntimeState(store);
 
 		runtimeState.markTasksRun('main', 'main', [{ name: 'inbox' }], 100);
 		expect(store.getHeartbeatState).toHaveBeenCalled();
@@ -190,6 +190,36 @@ describe('heartbeat helpers', () => {
 		runtimeState.recordDeliveredText('main', 'alert', 200);
 		expect(runtimeState.isDuplicateAlert('main', 'alert', 201)).toBe(true);
 		expect(state.lastDelivered.main).toEqual({ text: 'alert', atMs: 200 });
+	});
+
+	it('persists heartbeat config and runtime state in heartbeat.json storage shape', () => {
+		const data = new Map<string, unknown>();
+		const store = new HeartbeatFileStore({
+			store: {
+				get: (key) => data.get(key),
+				set: (key, value) => data.set(key, value),
+			},
+		});
+
+		expect(store.getAgentsConfig()).toBeUndefined();
+		const nextConfig: AgentHeartbeatConfig = {
+			every: '15m',
+			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
+		};
+		store.setDefaultHeartbeatConfig(nextConfig);
+
+		expect(data.get('version')).toBe(1);
+		expect(data.get('agents')).toEqual({ defaults: { heartbeat: nextConfig } });
+		expect(store.getAgentsConfig()).toEqual({ defaults: { heartbeat: nextConfig } });
+
+		const nextState: HeartbeatStoreState = {
+			version: 1,
+			taskState: { 'main:main:inbox': { lastRunMs: 100 } },
+			lastDelivered: { main: { text: 'alert', atMs: 200 } },
+		};
+		store.setHeartbeatState(nextState);
+		expect(data.get('state')).toEqual(nextState);
+		expect(store.getHeartbeatState()).toEqual(nextState);
 	});
 
 	it('computes stable phase scheduling and preserves nextDueMs only when identity is unchanged', () => {
