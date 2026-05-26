@@ -1,4 +1,3 @@
-import type { StoreService } from '../store';
 import type { HeartbeatStoreState } from '../../shared/heartbeat';
 
 const DUPLICATE_ALERT_WINDOW_MS = 24 * 60 * 60_000;
@@ -6,18 +5,6 @@ const DUPLICATE_ALERT_WINDOW_MS = 24 * 60 * 60_000;
 export interface HeartbeatStateStorage {
 	getHeartbeatState(): HeartbeatStoreState;
 	setHeartbeatState(state: HeartbeatStoreState): void;
-}
-
-export class StoreServiceHeartbeatStateStorage implements HeartbeatStateStorage {
-	constructor(private readonly store: Pick<StoreService, 'getHeartbeatState' | 'setHeartbeatState'>) {}
-
-	getHeartbeatState(): HeartbeatStoreState {
-		return this.store.getHeartbeatState();
-	}
-
-	setHeartbeatState(state: HeartbeatStoreState): void {
-		this.store.setHeartbeatState(state);
-	}
 }
 
 export class HeartbeatRuntimeState {
