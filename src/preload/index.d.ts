@@ -194,20 +194,18 @@ import type {
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
 import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
-	import type {
-		AssistantSettings,
-		AgentRoutingSettings,
-		ChannelSettings,
-		CronSettings,
-		ImageCreatorSettings,
-		SpeechToTextSettings,
-		TextToSoundSettings,
-		TextToSpeechSettings,
-		TextToVideoSettings,
-		TaskSettings,
-		TextToVideoSettings,
-		HeartbeatSettings,
-	} from '../shared/store';
+import type {
+	AssistantSettings,
+	AgentRoutingSettings,
+	CronSettings,
+	ImageCreatorSettings,
+	SpeechToTextSettings,
+	TextToSoundSettings,
+	TextToSpeechSettings,
+	TextToVideoSettings,
+	TaskSettings,
+	HeartbeatSettings,
+} from '../shared/store';
 	Agent,
 	ConfiguredModelOperator,
 	AgentHistoryMessage,
