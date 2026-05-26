@@ -1,6 +1,6 @@
 # Renderer Prompts
 
-Prompts for creating pages in the renderer (`src/renderer/src/pages/`).
+Prompts for creating pages in the renderer.
 
 Each page prompt describes the purpose, structure, and behavioral expectations for a single page in the app. Use these prompts to implement new pages or to understand what an existing page must do.
 
@@ -12,12 +12,12 @@ Each page prompt describes the purpose, structure, and behavioral expectations f
 
 ## Conventions
 
-- Each page lives under `src/renderer/src/pages/<name>/`.
-- The entry point for a page is `Page.tsx` (or `StartPage.tsx` for the start page).
-- Pages use `PageContainer` from `@/components/app/base/page` as their outermost layout wrapper.
-- Pages must not import from other pages. Shared UI primitives live in `@/components/ui/`.
+- Each page lives in its own folder under the pages directory.
+- Each page has a single entry point component.
+- Pages use `PageContainer` as their outermost layout wrapper.
+- Pages must not import from other pages. Shared UI primitives live in the shared components directory.
 - Page-scoped components, hooks, and context stay inside the page folder and are not exported outside it.
-- Shared types or utilities that multiple pages need go under `src/shared/`.
+- Shared types or utilities that multiple pages need go in the shared directory.
 
 ## Types
 
