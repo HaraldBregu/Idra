@@ -20,6 +20,8 @@ Keep the tools module isolated:
 
 Types or files that need to be reused by other processes must be stored under `src/shared` so they can be used everywhere. Keep tool-specific implementation types and files inside the tools module unless they are genuinely shared.
 
+Delete unrelated, obsolete, or conflicting modules, files, and types when they are replaced by the tools module. Refactor existing tool logic so it uses the centralized tools module instead of leaving duplicate implementations in place.
+
 ## Filesystem Tools
 
 Add filesystem tools as a dedicated group:
