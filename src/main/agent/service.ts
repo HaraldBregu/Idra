@@ -392,9 +392,25 @@ export class AgentService {
 		const clearRunTimeout = (): void => {
 			if (runTimeout) clearTimeout(runTimeout);
 		};
-		const runId = randomUUID();
+		const runId = options.runId ?? randomUUID();
 		const agentConfig = this.getConfiguredAgent(agentId);
+		this.upsertRunRecord({
+			id: runId,
+			agentId,
+			sessionId: runtimeAgentId,
+			state: 'idle',
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+			providerId: options.providerId,
+			model: options.model,
+		});
 		const streamEvent = (event: AgentRunStreamEvent): void => {
+			if (event.type === 'run_state') {
+				this.updateRunRecordSync(runId, {
+					state: event.state,
+					label: event.label,
+				});
+			}
 			if (heartbeatOptions?.suppressAgentEvents) return;
 			this.dependencies.eventBus.broadcast('agent:response', {
 				agentId: runtimeAgentId,
@@ -419,6 +435,7 @@ export class AgentService {
 			const model = providerConfig.model;
 			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
+			this.updateRunRecordSync(runId, { providerId, model });
 			const requestedRuntime = (options.agentRuntime || options.agentHarnessId || '').trim();
 			const storedRuntime = this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
