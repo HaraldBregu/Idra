@@ -328,10 +328,20 @@ export class HeartbeatService implements Disposable {
 			});
 		}
 		const deliverToUser = delivery.status === 'ok';
+		const channelSettings = delivery.status === 'ok'
+			? this.agentService.getHeartbeatChannel()
+			: undefined;
+		if (delivery.status === 'ok' && !channelSettings) {
+			return this.skipAndAdvance(schedule, 'no-target', {
+				channel: delivery.message.type,
+				target: delivery.message.to,
+				accountId: delivery.message.accountId,
+			});
+		}
 		const visibility =
-			delivery.status === 'ok'
+			delivery.status === 'ok' && channelSettings
 				? resolveHeartbeatVisibility({
-						channel: this.agentService.getHeartbeatChannel() ?? {},
+						channel: channelSettings,
 						channelId: delivery.message.type,
 						accountId: delivery.message.accountId,
 				  })
