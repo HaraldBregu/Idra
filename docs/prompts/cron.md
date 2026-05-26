@@ -6,7 +6,17 @@ Status: Draft
 
 This page describes the cron module used to start and manage cron schedules.
 
-The cron module is a reusable service that can be used anywhere in the application when scheduled execution is needed.
+The cron module is always a service. It should not be implemented as a utility, helper, controller, or feature-specific module.
+
+The service can be used anywhere in the application when scheduled execution is needed.
+
+## Module Boundary
+
+- Files inside the cron module are isolated.
+- Internal cron files should not be imported directly from outside the module.
+- Only `index` exposes the cron module.
+- Consumers should depend on the exported service, not on internal files.
+- Scheduling behavior should stay centralized inside the cron service.
 
 ## Responsibilities
 
@@ -20,7 +30,7 @@ The cron module is a reusable service that can be used anywhere in the applicati
 
 - Cron schedule configuration.
 - Job registration logic.
-- Application services used by scheduled jobs.
+- Services used by scheduled jobs.
 - Logging or reporting output.
 
 ## Flow
