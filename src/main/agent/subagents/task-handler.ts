@@ -2,7 +2,7 @@ import type { EventBus } from '../../core/event-bus';
 import type { AgentService } from '../../service';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
 import { isModelReasoningEffort } from '../../../shared/agents/service';
-import { taskCancelledError } from '../../tasks/task-errors';
+import { taskCancelledError } from '../../tasks';
 import type { SubagentRegistry } from './registry';
 import type { SubagentRunTaskInput, SubagentRunTaskResult } from './types';
 

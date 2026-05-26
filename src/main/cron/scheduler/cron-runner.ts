@@ -5,7 +5,7 @@ import type {
 	CronScheduleRunner,
 	CronScheduledTask,
 } from '../core/cron.types';
-import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
+import { AGENT_TASK_TYPE, type TasksService } from '../../tasks';
 import type { TaskRecord } from '../../../shared/tasks';
 import { redactCronValue } from '../security/cron-redaction';
 
@@ -150,7 +150,7 @@ function taskRecordToCronScheduledTask(record: TaskRecord): CronScheduledTask | 
 }
 
 export class TaskManagerCronScheduleRunner implements CronScheduleRunner {
-	constructor(private readonly taskManager: TaskManager) {}
+	constructor(private readonly taskManager: TasksService) {}
 
 	async createTaskForSchedule(input: {
 		schedule: CronSchedule;
@@ -165,6 +165,8 @@ export class TaskManagerCronScheduleRunner implements CronScheduleRunner {
 		const record = this.taskManager.startUserTask({
 			type: AGENT_TASK_TYPE,
 			title: schedule.name,
+			providerId: schedule.providerId,
+			modelId: schedule.modelId,
 			input: schedule.taskInput,
 			metadata: {
 				...schedule.taskMetadata,

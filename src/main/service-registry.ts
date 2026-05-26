@@ -13,7 +13,7 @@ import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { HeartbeatService } from './heartbeat';
 import type { AgentService } from './service';
 import type { StoreService } from './store';
-import type { TaskManager } from './tasks';
+import type { TasksService } from './tasks';
 import type { ToolService } from './tools';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
@@ -34,7 +34,7 @@ export interface MainServices {
 	powerSaveBlocker: PowerSaveBlockerService;
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;
-	taskManager: TaskManager;
+	taskManager: TasksService;
 	toolService: ToolService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;

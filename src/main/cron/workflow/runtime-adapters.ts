@@ -3,7 +3,7 @@ import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentSendOptions, AgentService } from '../../service';
 import type { HeartbeatService } from '../../heartbeat';
-import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
+import { AGENT_TASK_TYPE, type TasksService } from '../../tasks';
 import type { HeartbeatWakeOverride } from '../../../shared/heartbeat';
 import type {
 	FridayCronDelivery,
@@ -49,7 +49,7 @@ function errorFromTask(record: TerminalTaskRecord): Error {
 
 export class TaskManagerFridayCronExecutor implements FridayCronExecutor {
 	constructor(
-		private readonly taskManager: TaskManager,
+		private readonly taskManager: TasksService,
 		private readonly eventBus: EventBus,
 		private readonly fallback: FridayCronExecutor
 	) {}

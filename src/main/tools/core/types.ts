@@ -4,7 +4,7 @@ import type { AgentStartupFilesServicePort } from '../../agent/startup-files';
 import type { CronService, CronServiceActionActor } from '../../cron';
 import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../store';
-import type { TaskManager } from '../../tasks';
+import type { TasksService } from '../../tasks';
 import type { UserDataDirectoryServicePort } from '../../user-data';
 import type { WorkspaceService } from '../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
@@ -23,7 +23,7 @@ export interface FridayServices {
 	startupFiles: AgentStartupFilesServicePort;
 	cron?: CronService;
 	policy?: PolicyServicePort;
-	taskManager?: TaskManager;
+	taskManager?: TasksService;
 }
 
 

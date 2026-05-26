@@ -5,7 +5,7 @@ import type { LoggerService } from '../../logger';
 import { loadExistingSession } from '../../session/store';
 import type { AgentConfig, AgentSessionMetadata } from '../../../shared/store';
 import type { StoreService } from '../../store';
-import type { TaskManager } from '../../tasks';
+import type { TasksService } from '../../tasks';
 import { buildAgentSessionKey } from '../routing';
 import { SubagentRegistry } from './registry';
 import { SUBAGENT_RUN_TASK_TYPE } from './task-handler';
@@ -40,7 +40,7 @@ export interface SubagentsControlRequest {
 
 export interface SubagentSpawnServiceDependencies {
 	store: Pick<StoreService, 'getAgentConfig'>;
-	taskManager: Pick<TaskManager, 'run' | 'cancel'>;
+	taskManager: Pick<TasksService, 'run' | 'cancel'>;
 	registry: SubagentRegistry;
 	eventBus?: EventBus;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;

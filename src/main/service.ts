@@ -5,7 +5,7 @@ import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './mcp';
 import type { StoreService } from './store';
-import type { TaskManager } from './tasks';
+import type { TasksService } from './tasks';
 import type { ConnectorsService } from './connectors';
 import { resolveBootstrapMode, type WorkspaceService } from './workspace';
 import {
@@ -70,7 +70,7 @@ export interface AgentServiceDependencies {
 	userDataDirectory: UserDataDirectoryServicePort;
 	connectors?: ConnectorsService;
 	mcpRegistry?: McpRegistry;
-	taskManager?: TaskManager;
+	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
 	policy?: PolicyServicePort;
 	toolService?: ToolServicePort;

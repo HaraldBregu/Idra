@@ -5,7 +5,7 @@ import type { LoggerService } from '../logger';
 import type { ChannelRegistry } from '../channels';
 import type { AgentService } from '../service';
 import type { HeartbeatService } from '../heartbeat';
-import type { TaskManager } from '../tasks';
+import type { TasksService } from '../tasks';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
@@ -95,7 +95,7 @@ export class CronService implements Disposable {
 	private readonly workflow: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
 	private readonly settingsStore?: CronModelSelectionStore;
-	private taskManager?: TaskManager;
+	private taskManager?: TasksService;
 
 	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
 		this.store = options.store ?? new ElectronStoreCronStore();
@@ -128,7 +128,7 @@ export class CronService implements Disposable {
 		);
 	}
 
-	configureTaskRuntime(dependencies: { taskManager: TaskManager }): void {
+	configureTaskRuntime(dependencies: { taskManager: TasksService }): void {
 		this.taskManager = dependencies.taskManager;
 		this.runner.setDelegate(new TaskManagerCronScheduleRunner(dependencies.taskManager));
 	}
