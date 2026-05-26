@@ -22,12 +22,9 @@ Main function: owns scheduled execution, including schedule creation, updates, d
 
 Dependencies:
 
-| Dependency         | Purpose                                                 |
-| ------------------ | ------------------------------------------------------- |
-| `StoreService`     | Persist schedules, run history, and cron runtime state. |
-| `TaskService`      | Start background tasks from scheduled runs.             |
-| `PolicyService`    | Enforce schedule and execution policy.                  |
-| Application logger | Log scheduling lifecycle, failures, and run results.    |
+| Dependency      | Purpose                                             |
+| --------------- | --------------------------------------------------- |
+| None by default | Keep scheduled execution independent by default.    |
 
 ### Task
 
