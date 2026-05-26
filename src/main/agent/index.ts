@@ -24,3 +24,4 @@ export * from './subagents';
 export * from './routing';
 export * from './before-agent-run';
 export * from './system-prompt';
+export * from './harness';
