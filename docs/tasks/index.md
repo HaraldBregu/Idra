@@ -6,7 +6,7 @@ Tasks let Friday run agent work without blocking the foreground conversation. Th
 
 | Family | Functionality | How It Works |
 | --- | --- | --- |
-| Background task | Starts agent work immediately. | A request creates an in-memory task record, validates the task type and payload, runs an isolated agent session, tracks status, and emits lifecycle events. |
+| Background task | Starts agent work immediately. | A request creates a persisted task record in `task.json`, validates the task type and payload, runs an isolated agent session, tracks status, and emits lifecycle events. |
 | Scheduled task | Starts agent work when a schedule is due. | A persisted schedule is recovered at startup, evaluated by the scheduler, and converted into a background task when it should run. |
 
 ## Background Execution
@@ -23,4 +23,4 @@ Friday cron jobs provide a richer tool-facing scheduler for agent turns, system 
 
 ## Safety And State
 
-Task records are runtime state and are not the same as schedule definitions. Schedules should not contain provider credentials or copied secrets. Cancellation asks the agent service to cancel the task session and updates task state through the task manager.
+Task records are sanitized runtime state persisted by the tasks service and are not the same as schedule definitions. Live handlers, promises, abort controllers, listeners, provider clients, and secrets are not stored. Schedules should not contain provider credentials or copied secrets. Cancellation asks the agent service to cancel the task session and updates task state through the tasks service.

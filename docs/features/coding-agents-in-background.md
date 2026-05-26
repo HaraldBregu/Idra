@@ -25,17 +25,15 @@ Agents can restrict tools by explicit allow/deny lists, tool groups, filesystem 
 
 ## Current Limits
 
-Background task records are in-memory runtime records. Persisted scheduling is handled by cron schedules, not by the task records themselves.
+Background task records are sanitized runtime records persisted in `task.json`. Persisted scheduling is still handled by cron schedules; schedule definitions and task execution records remain separate.
 
 The background coding capability uses Friday's own agent runtime and local tool policies. It is not a separate external coding-agent service unless a plugin, MCP server, or configured tool runtime provides one.
 
 ## Source
 
 - `src/main/tasks`
-- `src/main/tasks/handlers/agent-task-handler.ts`
 - `src/main/agent/subagents`
 - `src/main/tools/local/registry.ts`
 - `src/main/tools/runtime/create-agent-tools.ts`
 - `src/main/workspace`
 - Existing docs: `docs/tasks/background/index.md`, `docs/tools/index.md`
-
