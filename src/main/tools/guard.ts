@@ -16,7 +16,7 @@ export function newCallTracker(): CallTracker {
 export interface BeforeCallOutcome {
 	proceed: boolean;
 	vetoResult?: AgentToolResult;
-	vetoStatus?: 'error' | 'blocked';
+	vetoStatus?: 'error' | 'blocked' | 'rejected';
 	warning?: string;
 }
 
@@ -68,7 +68,7 @@ export async function beforeToolCall(
 
 function deniedToolResult(
 	toolName: string,
-	status: 'error' | 'blocked',
+	status: 'error' | 'blocked' | 'rejected',
 	reason: string,
 	deniedReason: string
 ): AgentToolResult {
