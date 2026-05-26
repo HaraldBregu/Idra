@@ -121,9 +121,10 @@ export interface ConnectorsApi {
 
 export interface SkillsApi {
 	list: () => Promise<SkillInfo[]>;
+	load: (name: string) => Promise<SkillDetails>;
 	importSkill: () => Promise<SkillImportResult | undefined>;
-	downloadSkill: (id: string) => Promise<SkillDownloadResult | undefined>;
-	delete: (id: string) => Promise<void>;
+	downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
+	delete: (name: string) => Promise<SkillDeleteResult>;
 	getRoot: () => Promise<string>;
 }
 
@@ -221,7 +222,13 @@ import type {
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
+import type {
+	SkillDeleteResult,
+	SkillDetails,
+	SkillDownloadResult,
+	SkillImportResult,
+	SkillInfo,
+} from '../shared/skills';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
