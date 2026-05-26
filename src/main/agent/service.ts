@@ -600,18 +600,6 @@ export class AgentService {
 				runKind,
 			});
 			startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
-			await recordAsyncPhase(phaseDurationsMs, 'before_prompt_build_hooks', () =>
-				fireBeforePromptBuildHook({
-					...buildAgentHookContext({
-						runId,
-						agentId,
-						sessionId: runtime.session!.id,
-						sessionKey: runtime.session!.id,
-						provider: providerId,
-						modelId: model,
-					}),
-				})
-			);
 			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
 				buildSystemPrompt({
 					workspace: workspaceRoot,
