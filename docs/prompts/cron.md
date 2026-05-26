@@ -1,40 +1,39 @@
-# Prompt Dependencies Cron Module
+# Cron Module
 
 Status: Draft
 
 ## Purpose
 
-This page describes the cron module responsible for managing prompt dependencies.
+This page describes the cron module used to start and manage cron schedules.
 
-The module should make it clear which prompts depend on other prompts, when those dependencies are checked, and what happens when a dependency changes or fails.
+The cron module is a reusable service that can be used anywhere in the application when scheduled execution is needed.
 
 ## Responsibilities
 
-- Track prompt dependencies.
-- Check dependency state on a scheduled interval.
-- Detect stale, missing, or invalid prompt dependencies.
-- Report dependency problems in a format that can be acted on.
-- Keep prompt execution predictable by resolving dependencies before runtime.
+- Start cron schedules.
+- Register scheduled jobs.
+- Run jobs at the configured time or interval.
+- Expose a service that other modules can use.
+- Keep scheduling logic centralized instead of duplicating it across the application.
 
 ## Dependencies
 
-- Prompt definitions.
-- Prompt metadata.
 - Cron schedule configuration.
-- Dependency resolution logic.
+- Job registration logic.
+- Application services used by scheduled jobs.
 - Logging or reporting output.
 
 ## Flow
 
-1. Load the prompt dependency graph.
-2. Validate that each dependency exists.
-3. Detect dependency changes or stale references.
-4. Report problems.
-5. Mark the dependency check as complete.
+1. Load cron schedule configuration.
+2. Register each scheduled job.
+3. Start the cron service.
+4. Execute jobs when their schedule is triggered.
+5. Report job success or failure.
 
 ## Open Questions
 
-- Where is the prompt dependency graph stored?
-- How often should the cron job run?
-- Should dependency failures block prompt execution?
-- Who receives dependency failure reports?
+- Where should cron schedules be configured?
+- Which modules should register jobs directly?
+- Should job failures retry automatically?
+- Who receives cron failure reports?
