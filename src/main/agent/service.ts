@@ -527,10 +527,11 @@ export class AgentService {
 				}
 			}
 
-			const directAnswer =
+			let directAnswer =
 				!heartbeatOptions &&
 				!bootstrapPending &&
 				!toolPolicy.shouldUseTools;
+			let capabilityPromptAdditions = '';
 
 			if (!directAnswer) {
 				startupFiles = this.filterStartupFilesForRun(
