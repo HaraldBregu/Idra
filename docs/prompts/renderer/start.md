@@ -231,7 +231,7 @@ Follow standard React application patterns throughout. The start page is a self-
 
 Use React context only for state that many components in the tree need without prop-drilling across more than two levels.
 
-- Wrap the start page tree in a single `SetupProvider` (from `./context`) that exposes the `state` and `dispatch` pair from `setupReducer`.
+- Wrap the start page tree in a single `SetupProvider` that exposes the `state` and `dispatch` pair from `setupReducer`.
 - Step components consume context via a `useSetupContext` hook — never import context directly.
 - Do not put async logic or side effects inside the context provider. Those belong in `useProviderSetup` and `useModelServices`.
 - Do not reach for context for step-local state (e.g. which card is in edit mode). Keep that in the component with `useState`.
