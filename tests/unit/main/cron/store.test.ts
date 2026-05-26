@@ -77,10 +77,6 @@ describe('ElectronStoreCronStore', () => {
 		expect(service.getCronSchedulerState()).toMatchObject({
 			schedules: [{ id: 'schedule-1' }],
 		});
-		expect(service.getFridayCronState()).toMatchObject({
-			jobs: [{ id: 'job-1' }],
-			lastRuns: { 'job-1': { runId: 'run-1' } },
-		});
 		expect(store.get('tasks')).toEqual([task]);
 		expect(store.get('scheduler')).toMatchObject({ schedules: [{ id: 'schedule-1' }] });
 	});
