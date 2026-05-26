@@ -55,8 +55,6 @@ Wrap `PageContent` in a `Provider` (from `./context`) that supplies the welcome 
 ## Hooks
 
 - `useHomeAgent` — manages agent execution, chat state, input value, history loading, and the submit handler.
-- `useRealtimeDictation` — manages dictation start/stop/cancel/finish and elapsed time.
-- `useVoiceButtonMode` — determines whether the voice button triggers `record` or `dictation` mode.
 
 ## Testing
 
