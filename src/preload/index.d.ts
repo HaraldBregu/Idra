@@ -204,7 +204,6 @@ import type {
 	TextToSpeechSettings,
 	TextToVideoSettings,
 	TaskSettings,
-	HeartbeatSettings,
 } from '../shared/store';
 import type {
 	Agent,
