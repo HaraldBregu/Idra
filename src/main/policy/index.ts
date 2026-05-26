@@ -41,7 +41,7 @@ export type {
 	Permission,
 	PolicyOutcome,
 	PolicyEntry,
-	PolicyConfig,
+	PolicyConfig as SharedPolicyConfig,
 	PolicyDecision,
 } from '../../shared/policy';
 
