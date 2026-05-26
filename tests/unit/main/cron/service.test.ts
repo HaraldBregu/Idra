@@ -22,8 +22,9 @@ jest.mock('node-cron', () => {
 });
 
 import cron from 'node-cron';
-import { CronService, emptyCronStoreState, emptyFridayCronStoreState } from '../../../../src/main/cron';
-import type { CronPersistenceStore } from '../../../../src/main/cron';
+import { CronService, type CronServiceStore } from '../../../../src/main/cron';
+import { emptyCronStoreState } from '../../../../src/main/cron/store/cron-store-migrations';
+import { emptyFridayCronStoreState } from '../../../../src/main/cron/workflow/store';
 import type { LoggerService } from '../../../../src/main/logger';
 import type { CronTask, CronTaskMessageData } from '../../../../src/shared/cron';
 
@@ -41,7 +42,7 @@ const stopMock = (jest.requireMock('node-cron') as { _stop: jest.Mock })._stop;
 // Test helpers — in-memory store + silent logger + data factory.
 // ---------------------------------------------------------------------------
 
-function createStore(initial: CronTask[] = []): CronPersistenceStore {
+function createStore(initial: CronTask[] = []): CronServiceStore {
 	let tasks: CronTask[] = [...initial];
 	return {
 		getCronTasks: jest.fn(() => tasks),
