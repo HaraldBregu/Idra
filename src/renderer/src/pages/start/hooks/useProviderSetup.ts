@@ -30,6 +30,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 				dispatch({ type: 'MERGE_PROVIDER_SAVED_STATUS', savedStatus });
 			} catch (error) {
 				if (cancelled) return;
+				console.error('[useProviderSetup] Failed to check saved provider status:', error);
 				dispatch({
 					type: 'SET_ERROR',
 					message: getErrorMessage(error, 'Could not check saved provider access.'),
