@@ -33,6 +33,8 @@ import {
 	resolveOpenAIRealtimeTranscriptionModel,
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
 	SpeechToTextService,
+	type SpeechToTextRealtimeAdapter,
+	type SpeechToTextRuntimeConfig,
 	useRealtimeTranscriptionIntent,
 } from '../../../../src/main/stt';
 import { RealtimeTranscriptionChannels } from '../../../../src/shared/ipc-channels';
@@ -534,11 +536,11 @@ describe('realtime transcription IPC', () => {
 		};
 		const appendAudio = jest.fn();
 		const finish = jest.fn();
-		const adapter = {
+		const adapter: SpeechToTextRealtimeAdapter = {
 			supports: jest.fn((providerId: string, modelId: string) => {
 				return providerId === 'openai' && modelId === REALTIME_SPEECH_TRANSCRIBER_MODEL_ID;
 			}),
-			startSession: jest.fn(async (config) => {
+			startSession: jest.fn(async (config: SpeechToTextRuntimeConfig) => {
 				return {
 					id: config.sessionId,
 					model: config.model.id,
