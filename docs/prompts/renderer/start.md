@@ -218,6 +218,23 @@ No async logic inside the reducer. Side effects belong in `useProviderSetup` and
 
 ---
 
+## Logging
+
+Use `console.error` for unexpected async failures. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
+
+Log these failure cases:
+
+| Location | Event | Call |
+|---|---|---|
+| `useProviderSetup` | `isProviderApiKeySaved` check fails | `console.error('[useProviderSetup] Failed to check saved provider status:', error)` |
+| `useProviderSetup` | `setProviderApiKey` throws | `console.error('[useProviderSetup] Failed to save API key:', error)` |
+| `useProviderSetup` | Bulk continue save throws | `console.error('[useProviderSetup] Failed to save provider API keys:', error)` |
+| `useModelServices` | `getProviders` or operator load throws | `console.error('[useModelServices] Failed to load service configuration:', error)` |
+| `useModelServices` | Per-provider model fetch throws | `console.warn('[useModelServices] Failed to load models for provider:', providerId, error)` |
+| `useModelServices` | `saveOperator` returns false or throws | `console.error('[useModelServices] Failed to save operator config:', error)` |
+
+Per-provider model fetch failures are warnings (recoverable — other providers may succeed). All other failures are errors.
+
 ## Error handling
 
 Display a single error message in the footer banner. Clear it on the next user action (`CLEAR_ERROR`). Surface the first error when batch model loading partially fails; do not block the step.
