@@ -153,10 +153,7 @@ export interface Model {
 	effort?: ModelReasoningEffort;
 }
 
-export interface AgentSendRuntimeOptions {
-	agentRuntime?: string;
-	agentHarnessId?: string;
-}
+export interface AgentSendRuntimeOptions {}
 
 export const ASSISTANT_OPERATOR_ID = 'friday';
 export const ASSISTANT_RUNTIME_ID = 'main';
