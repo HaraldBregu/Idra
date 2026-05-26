@@ -1,6 +1,7 @@
 import type { OperatorStoreState } from '../../../../src/shared/service';
 import {
 	HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
+	HeartbeatFileStore,
 	HeartbeatRuntimeState,
 	HeartbeatService,
 	buildCronEventPrompt,
@@ -22,9 +23,8 @@ import {
 	seekNextActivePhaseDueMs,
 	setHeartbeatWakeHandler,
 	shouldDeferWake,
-	StoreServiceHeartbeatStateStorage,
 } from '../../../../src/main/heartbeat';
-import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
+import type { AgentHeartbeatConfig, AgentsHeartbeatConfig, HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import { makeLogger } from '../test-helpers';
 
 function operatorConfig(overrides: Partial<OperatorStoreState> = {}): OperatorStoreState {
@@ -39,32 +39,31 @@ function makeHeartbeatHarness(options: {
 	service?: OperatorStoreState;
 	heartbeatFile?: { missing: boolean; content?: string; path?: string };
 	send?: jest.Mock<Promise<string>, [string, string?, unknown?]>;
+	agents?: AgentsHeartbeatConfig;
 }) {
 	let heartbeatState: HeartbeatStoreState = emptyHeartbeatStoreState();
 	let service = options.service ?? operatorConfig();
+	let agents = options.agents;
 	const eventBus = {
 		emit: jest.fn(),
 		broadcast: jest.fn(),
 		on: jest.fn(() => jest.fn()),
 	};
-	const store = {
-		getOperator: jest.fn(() => service),
+	const heartbeatStore = {
+		getAgentsConfig: jest.fn(() => agents),
 		setDefaultHeartbeatConfig: jest.fn((config) => {
-			const currentAgents = service.agents ?? {};
+			const currentAgents = agents ?? {};
 			const currentDefaults = currentAgents.defaults ?? {};
 			const currentHeartbeat = currentDefaults.heartbeat ?? {};
 			const nextHeartbeat = { ...currentHeartbeat, ...config };
 			if ('activeHours' in config && config.activeHours === undefined) {
 				delete nextHeartbeat.activeHours;
 			}
-			service = {
-				...service,
-				agents: {
-					...currentAgents,
-					defaults: {
-						...currentDefaults,
-						heartbeat: nextHeartbeat,
-					},
+			agents = {
+				...currentAgents,
+				defaults: {
+					...currentDefaults,
+					heartbeat: nextHeartbeat,
 				},
 			};
 			return nextHeartbeat;
@@ -93,8 +92,8 @@ function makeHeartbeatHarness(options: {
 			defaultTarget: '123',
 		})),
 	};
-	const startupFiles = {
-		readFile: jest.fn(async () => ({
+	const workspace = {
+		readWorkspaceFile: jest.fn(async () => ({
 			name: 'HEARTBEAT.md',
 			path: options.heartbeatFile?.path ?? '/workspace/HEARTBEAT.md',
 			missing: options.heartbeatFile?.missing ?? true,
@@ -107,14 +106,15 @@ function makeHeartbeatHarness(options: {
 		send,
 	};
 	const heartbeat = new HeartbeatService({
-		store: store as never,
+		getOperator: jest.fn(() => service),
+		heartbeatStore: heartbeatStore as never,
 		channels: channels as never,
 		logger: makeLogger() as never,
 		eventBus: eventBus as never,
-		startupFiles: startupFiles as never,
+		workspace: workspace as never,
 		agentService: agentService as never,
 	});
-	return { heartbeat, store, channels, startupFiles, eventBus, agentService, getHeartbeatState: () => heartbeatState };
+	return { heartbeat, heartbeatStore, channels, workspace, eventBus, agentService, getHeartbeatState: () => heartbeatState };
 }
 
 describe('heartbeat helpers', () => {
