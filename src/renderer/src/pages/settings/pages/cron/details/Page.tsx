@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { FridayCronJob } from '../../../../../../../shared/cron';
+import type { CronSchedule } from '../../../../../../../shared/cron';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -14,10 +14,8 @@ import {
 	SettingsSection,
 } from '../../../components';
 import {
-	deliverySummary,
 	formatSchedule,
 	formatTimestamp,
-	isFridayCronJob,
 	payloadEntries,
 	payloadSummary,
 } from '../utils';
@@ -51,7 +49,7 @@ const CronDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { jobId } = useParams<{ jobId: string }>();
-	const [job, setJob] = useState<FridayCronJob | null>(null);
+	const [job, setJob] = useState<CronSchedule | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [removing, setRemoving] = useState(false);
@@ -69,13 +67,10 @@ const CronDetailsPage: React.FC = () => {
 
 		setLoading(true);
 		window.cron
-			.action({ action: 'get', jobId })
+			.getSchedule(jobId)
 			.then((response) => {
 				if (!mounted) return;
-				if (!isFridayCronJob(response.result)) {
-					throw new Error(t('settings.cron.notFoundDescription'));
-				}
-				setJob(response.result);
+				setJob(response);
 				setError(null);
 			})
 			.catch((caught) => {
@@ -99,7 +94,7 @@ const CronDetailsPage: React.FC = () => {
 		setRemoving(true);
 		setError(null);
 		try {
-			await window.cron.removeJob(job.id);
+			await window.cron.deleteSchedule(job.id);
 			navigate('/settings/cron');
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
@@ -165,10 +160,10 @@ const CronDetailsPage: React.FC = () => {
 								{job.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
 							</Badge>
 							<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-								{job.payload.kind}
+								{job.target}
 							</Badge>
 							<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-								{job.schedule.kind}
+								{job.type}
 							</Badge>
 						</div>
 						<p className="whitespace-pre-wrap break-words text-xs leading-5 text-foreground">
@@ -183,23 +178,23 @@ const CronDetailsPage: React.FC = () => {
 					<dl className="grid gap-2 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
 						<CronDetail label={t('settings.cron.details.id')} value={job.id} mono />
 						<CronDetail label={t('settings.cron.details.schedule')} value={schedule} mono />
-						<CronDetail label={t('settings.cron.details.target')} value={job.sessionTarget} mono />
-						<CronDetail label={t('settings.cron.details.delivery')} value={deliverySummary(job)} mono />
+						<CronDetail label={t('settings.cron.details.target')} value={job.target} mono />
+						<CronDetail label="Task type" value={job.taskType} mono />
 						<CronDetail
 							label={t('settings.cron.details.createdAt')}
-							value={formatTimestamp(job.createdAtMs)}
+							value={formatTimestamp(job.createdAt)}
 						/>
 						<CronDetail
 							label={t('settings.cron.details.updatedAt')}
-							value={formatTimestamp(job.updatedAtMs)}
+							value={formatTimestamp(job.updatedAt)}
 						/>
 						<CronDetail
 							label={t('settings.cron.details.lastRun')}
-							value={formatTimestamp(job.state.lastRunAtMs)}
+							value={formatTimestamp(job.lastRunAt)}
 						/>
 						<CronDetail
 							label={t('settings.cron.details.nextRun')}
-							value={formatTimestamp(job.state.nextRunAtMs)}
+							value={formatTimestamp(job.nextRunAt)}
 						/>
 					</dl>
 				</Card>
