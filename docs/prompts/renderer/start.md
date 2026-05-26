@@ -26,7 +26,7 @@ The flow advances through a fixed array: `['presentation', 'providers', ...MODEL
 **Component:** `PresentationStep`
 
 - Renders a centered layout with a `DomeWaveAnimation` graphic, a bold `<h1>` title, and a short `<p>` description.
-- Read title and description from `STEP_COPY.presentation` in `constants.ts`.
+- Read title and description from `STEP_COPY.presentation`.
 - No user input. No async work. No store calls.
 - The primary button in the footer says "Get started" and advances to the `providers` step.
 
