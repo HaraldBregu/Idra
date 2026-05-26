@@ -276,13 +276,6 @@ export class StoreIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			StoreChannels.getChannelSettings,
-			wrapSimpleHandler((): ReturnType<typeof store.getChannel> => {
-				return store.getChannel();
-			}, StoreChannels.getChannelSettings)
-		);
-
-		ipcMain.handle(
 			StoreChannels.getAssistantOperator,
 			wrapSimpleHandler(
 				(): ConfiguredModelOperator | undefined => store.getAssistantOperator(),
