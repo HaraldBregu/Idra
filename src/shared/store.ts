@@ -1,6 +1,5 @@
 import type { ModelReasoningEffort } from './agents/service';
 import type { Channel } from './channels';
-import type { ConnectorConfig } from './connectors';
 import type { CronStoreState, CronTask } from './cron';
 import type { HeartbeatStoreState } from './heartbeat';
 import type { Provider } from './providers';
@@ -123,17 +122,6 @@ export interface AgentSessionMetadata {
 	inheritedToolDeny?: string[];
 }
 
-export interface ConnectorsSettings {
-	google_gmail?: ConnectorConfig;
-	google_calendar?: ConnectorConfig;
-	google_drive?: ConnectorConfig;
-	microsoft_teams?: ConnectorConfig;
-	outlook_calendar?: ConnectorConfig;
-	outlook_email?: ConnectorConfig;
-	sharepoint?: ConnectorConfig;
-	dropbox?: ConnectorConfig;
-}
-
 export type ChannelsSettings = Partial<Channel>;
 export type HeartbeatSettings = HeartbeatStoreState;
 
@@ -149,7 +137,6 @@ export interface SettingsStore {
 	task?: TaskSettings;
 	agents?: AgentsSettings;
 	heartbeat?: HeartbeatSettings;
-	connectors?: ConnectorsSettings;
 	channels?: ChannelsSettings;
 }
 
