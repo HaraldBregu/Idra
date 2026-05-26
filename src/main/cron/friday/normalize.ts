@@ -41,7 +41,6 @@ const AGENT_TURN_FIELDS = [
 	'timeoutSeconds',
 	'lightContext',
 	'allowUnsafeExternalContent',
-	'toolsAllow',
 ] as const;
 
 function record(value: unknown): Record<string, unknown> {
@@ -155,7 +154,6 @@ function copyAgentTurnFields(
 	const timeoutSeconds = numberValue(source.timeoutSeconds);
 	const lightContext = booleanValue(source.lightContext);
 	const allowUnsafeExternalContent = booleanValue(source.allowUnsafeExternalContent);
-	const toolsAllow = stringArray(source.toolsAllow);
 
 	if (fallbacks) target.fallbacks = fallbacks;
 	if (thinking === 'low' || thinking === 'medium' || thinking === 'high')
@@ -165,7 +163,6 @@ function copyAgentTurnFields(
 	if (allowUnsafeExternalContent !== undefined) {
 		target.allowUnsafeExternalContent = allowUnsafeExternalContent;
 	}
-	if (toolsAllow) target.toolsAllow = toolsAllow;
 }
 
 function payloadFrom(
