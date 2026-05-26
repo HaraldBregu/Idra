@@ -141,6 +141,7 @@ export class StoreIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
+		const policyService = container.get('policy');
 		const logger = container.get('logger');
 		const powerSaveBlocker = container.get('powerSaveBlocker');
 
@@ -354,13 +355,13 @@ export class StoreIpc implements IpcModule {
 
 		ipcMain.handle(
 			StoreChannels.getPolicy,
-			wrapSimpleHandler((): PolicyConfig => store.getPolicy(), StoreChannels.getPolicy)
+			wrapSimpleHandler((): PolicyConfig => policyService.getPolicy(), StoreChannels.getPolicy)
 		);
 
 		ipcMain.handle(
 			StoreChannels.setPolicy,
 			wrapSimpleHandler(
-				(policy: PolicyConfig): PolicyConfig => store.setPolicy(policy),
+				(policy: PolicyConfig): PolicyConfig => policyService.setPolicy(policy),
 				StoreChannels.setPolicy
 			)
 		);
