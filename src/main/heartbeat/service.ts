@@ -210,6 +210,59 @@ export class HeartbeatService implements Disposable {
 		return this.lastHeartbeat;
 	}
 
+	getSettings(): HeartbeatSettings {
+		const heartbeat = this.getDefaultHeartbeatConfig();
+		const providerId = this.normalizeString(heartbeat.providerId)?.toLowerCase();
+		const modelId = this.normalizeString(heartbeat.modelId) ?? this.normalizeString(heartbeat.model);
+		const reasoningEffort =
+			providerId &&
+			modelId &&
+			isModelReasoningEffort(heartbeat.reasoningEffort) &&
+			getModelReasoningEfforts(modelId, providerId).includes(heartbeat.reasoningEffort)
+				? heartbeat.reasoningEffort
+				: undefined;
+		return {
+			every: this.normalizeString(heartbeat.every) ?? DEFAULT_HEARTBEAT_EVERY,
+			...(heartbeat.activeHours ? { activeHours: heartbeat.activeHours } : {}),
+			...(providerId ? { providerId } : {}),
+			...(modelId ? { modelId } : {}),
+			...(reasoningEffort ? { reasoningEffort } : {}),
+		};
+	}
+
+	saveSettings(request: HeartbeatSettingsUpdate): HeartbeatSettings {
+		this.assertObject(request);
+		const patch = this.normalizeSettingsUpdate(request);
+		const current = this.getSettings();
+		const hasProviderId = Object.prototype.hasOwnProperty.call(patch, 'providerId');
+		const hasModelId = Object.prototype.hasOwnProperty.call(patch, 'modelId');
+		const hasReasoningEffort = Object.prototype.hasOwnProperty.call(patch, 'reasoningEffort');
+		const nextProviderId = hasProviderId ? patch.providerId : current.providerId;
+		const nextModelId = hasModelId ? patch.modelId : current.modelId;
+
+		if (hasProviderId && patch.providerId) this.requireProvider(patch.providerId);
+		if (hasModelId && patch.modelId) this.requireModel(nextProviderId, patch.modelId);
+
+		if (hasReasoningEffort) {
+			patch.reasoningEffort = patch.reasoningEffort
+				? this.requireReasoningEffort(nextProviderId, nextModelId, patch.reasoningEffort)
+				: undefined;
+		} else if ((hasProviderId || hasModelId) && current.reasoningEffort) {
+			patch.reasoningEffort = this.isReasoningEffortSupported(
+				nextProviderId,
+				nextModelId,
+				current.reasoningEffort
+			)
+				? current.reasoningEffort
+				: undefined;
+		}
+
+		if (hasModelId) patch.model = undefined;
+		this.agentService.getHeartbeatStore().setDefaultHeartbeatConfig(patch);
+		this.updateConfig();
+		return this.getSettings();
+	}
+
 	setEnabled(enabled: boolean): HeartbeatStatus {
 		this.runtimeEnabled = enabled;
 		setHeartbeatsEnabled(enabled);
@@ -223,24 +276,28 @@ export class HeartbeatService implements Disposable {
 	}
 
 	getTiming(): HeartbeatTimingSettings {
-		const heartbeat = this.agentService.getHeartbeatStore().getAgentsConfig()?.defaults?.heartbeat;
+		const settings = this.getSettings();
 		return {
-			every: typeof heartbeat?.every === 'string' && heartbeat.every.trim()
-				? heartbeat.every.trim()
-				: DEFAULT_HEARTBEAT_EVERY,
-			...(heartbeat?.activeHours ? { activeHours: heartbeat.activeHours } : {}),
+			every: settings.every,
+			...(settings.activeHours ? { activeHours: settings.activeHours } : {}),
 		};
 	}
 
 	updateTiming(request: HeartbeatTimingSettings): HeartbeatTimingSettings {
-		const every = typeof request.every === 'string' ? request.every.trim() : '';
-		if (!every) throw new Error('Heartbeat cadence is required.');
-		this.agentService.getHeartbeatStore().setDefaultHeartbeatConfig({
-			every,
-			activeHours: this.normalizeActiveHours(request.activeHours),
-		});
-		this.updateConfig();
+		this.saveSettings({ every: request.every, activeHours: request.activeHours });
 		return this.getTiming();
+	}
+
+	setProviderId(providerId: string): HeartbeatSettings {
+		return this.saveSettings({ providerId });
+	}
+
+	setModelId(modelId: string): HeartbeatSettings {
+		return this.saveSettings({ modelId });
+	}
+
+	setReasoningEffort(reasoningEffort: ModelReasoningEffort): HeartbeatSettings {
+		return this.saveSettings({ reasoningEffort });
 	}
 
 	request(wake: HeartbeatWakeRequest): void {
