@@ -165,7 +165,7 @@ export const app: AppApi = {
 		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
 	},
 	getKeepAwakeEnabled: (): Promise<boolean> => {
-		return typedInvokeUnwrap(AppChannels.getKeepAwakeEnabled);
+		return typedInvokeUnwrap(StoreChannels.getKeepAwakeEnabled);
 	},
 	setKeepAwakeEnabled: (enabled: boolean): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.setKeepAwakeEnabled, enabled);
