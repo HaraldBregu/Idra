@@ -1,7 +1,7 @@
 export const AGENT_CAPABILITY_SERVICE_KINDS = ['tool', 'connector', 'mcp'] as const;
 export type AgentCapabilityServiceKind = (typeof AGENT_CAPABILITY_SERVICE_KINDS)[number];
 
-export const AGENT_TOOL_RESULT_STATUSES = ['ok', 'error', 'blocked'] as const;
+export const AGENT_TOOL_RESULT_STATUSES = ['ok', 'error', 'blocked', 'rejected'] as const;
 export type AgentToolResultStatus = (typeof AGENT_TOOL_RESULT_STATUSES)[number];
 
 export const AGENT_RUN_STOP_REASONS = [
