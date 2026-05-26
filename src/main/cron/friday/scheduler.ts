@@ -376,14 +376,14 @@ export class FridayCronScheduler {
 		return this.status(actor);
 	}
 
-	async handleToolAction(
+	async handleAction(
 		request: FridayCronToolRequest | FridayCronCanonicalToolRequest | unknown,
 		actor: FridayCronActor = { role: 'owner' },
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
 	): Promise<FridayCronToolResponse> {
 		try {
 			const normalized = normalizeFridayCronToolRequest(request, { ...context, actor });
-			const result = await this.handleToolActionOrThrow(normalized, actor);
+			const result = await this.handleActionOrThrow(normalized, actor);
 			return {
 				status: 'ok',
 				enabled: this.options.enabled,
@@ -474,7 +474,7 @@ export class FridayCronScheduler {
 		}
 	}
 
-	private async handleToolActionOrThrow(
+	private async handleActionOrThrow(
 		request: FridayCronCanonicalToolRequest,
 		actor: FridayCronActor
 	): Promise<FridayCronToolResponse['result']> {
