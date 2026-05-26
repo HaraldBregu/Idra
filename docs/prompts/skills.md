@@ -92,9 +92,36 @@ Use progressive disclosure:
 
 Do not scan arbitrary filesystem locations from renderer code. Import and download workflows must pass through the main-process service boundary.
 
+## Error Handling
+
+The skills root is allowed to be missing or empty.
+
+- If the skills root directory does not exist, listing must return an empty list and must not fail application startup.
+- If the skills root directory is empty, listing must return an empty list without logging an error.
+- Mutating operations such as import and download must create the skills root when it is missing.
+- Root path resolution must return the expected root path even when the directory has not been created yet.
+
+Handle invalid or partial skill folders without breaking unrelated skills:
+
+- Ignore non-directory entries in the skills root.
+- Ignore folders that do not contain `SKILL.md`.
+- Skip a skill when `SKILL.md` is missing required frontmatter, has an empty `description`, or contains unparseable YAML.
+- Warn and skip a skill when `name` does not match the parent folder, contains invalid characters, starts or ends with a hyphen, contains consecutive hyphens, or exceeds the allowed length.
+- Warn on duplicate skill names and apply one deterministic precedence rule.
+- Keep scanning after any single skill fails validation.
+
+Handle filesystem failures explicitly:
+
+- Permission errors, read failures, copy failures, download failures, and delete failures must return typed failures or throw service-level errors that callers can display safely.
+- Error messages must explain the operation, the affected skill or path when safe to expose, and the reason.
+- Log operational failures through the application logger with enough context to debug them.
+- Do not expose stack traces, arbitrary filesystem contents, or raw low-level errors to renderer consumers.
+- Do not delete or overwrite an existing installed skill unless the requested operation explicitly allows replacement.
+- Deleting a skill that is already missing should be treated as a successful no-op or a typed not-found result, but it must not crash the service.
+
 ## Testing
 
-Test skill listing, import, download, deletion, root path resolution, `SKILL.md` parsing, validation failures, bundled-resource preservation, progressive loading behavior, and logger behavior for failures.
+Test skill listing, import, download, deletion, root path resolution, missing root behavior, empty root behavior, `SKILL.md` parsing, validation failures, bundled-resource preservation, progressive loading behavior, and logger behavior for failures.
 
 Tests should call the exported skills service and should not duplicate skills logic in feature modules.
 
