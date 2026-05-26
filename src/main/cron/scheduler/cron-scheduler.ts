@@ -254,6 +254,10 @@ export class CronSchedulerService implements CronScheduler {
 	async start(): Promise<void> {
 		if (this.started) return;
 		this.started = true;
+		this.logger?.info('CronScheduler', 'Cron scheduler started.', {
+			pollIntervalMs: this.options.pollIntervalMs,
+			runnerId: this.options.runnerId,
+		});
 		await this.recoverSchedulesOnStartup();
 		this.timer = setInterval(() => {
 			void this.processDueSchedules(new Date()).catch((error) => {
@@ -267,9 +271,15 @@ export class CronSchedulerService implements CronScheduler {
 		if (this.timer) clearInterval(this.timer);
 		this.timer = undefined;
 		this.started = false;
+		this.logger?.info('CronScheduler', 'Cron scheduler stopped.', {
+			runnerId: this.options.runnerId,
+		});
 	}
 
 	async reload(): Promise<void> {
+		this.logger?.info('CronScheduler', 'Cron scheduler reload requested.', {
+			runnerId: this.options.runnerId,
+		});
 		await this.recoverSchedulesOnStartup();
 	}
 
