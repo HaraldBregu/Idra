@@ -1,6 +1,5 @@
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
-import type { AgentStartupFilesServicePort } from '../../agent';
 import type { CronService } from '../../cron';
 import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../store';
@@ -20,7 +19,6 @@ export interface FridayServices {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
-	startupFiles: AgentStartupFilesServicePort;
 	cron?: CronService;
 	policy?: PolicyServicePort;
 	taskManager?: TasksService;
