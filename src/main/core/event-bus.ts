@@ -40,7 +40,7 @@ export interface AppEvents {
 		to: string;
 		threadId?: string;
 		replyToMessageId?: string;
-		chatType?: import('../channels/types').ChannelChatType;
+		chatType?: import('../channels').ChannelChatType;
 		sessionKey?: string;
 		legacySessionKey?: string;
 		agentId?: string;
