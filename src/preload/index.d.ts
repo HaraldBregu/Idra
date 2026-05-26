@@ -139,6 +139,18 @@ export interface StoreApi {
 	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
 	getKeepAwakeEnabled: () => Promise<boolean>;
 	setKeepAwakeEnabled: (enabled: boolean) => Promise<boolean>;
+	getAssistantSettings: () => Promise<AssistantSettings | undefined>;
+	getSpeechToTextSettings: () => Promise<SpeechToTextSettings | undefined>;
+	getTextToSpeechSettings: () => Promise<TextToSpeechSettings | undefined>;
+	getImageCreatorSettings: () => Promise<ImageCreatorSettings | undefined>;
+	getTextToVideoSettings: () => Promise<TextToVideoSettings | undefined>;
+	getTextToSoundSettings: () => Promise<TextToSoundSettings | undefined>;
+	getCronSettings: () => Promise<CronSettings>;
+	getTaskSettings: () => Promise<TaskSettings>;
+	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
+	getHeartbeatSettings: () => Promise<HeartbeatSettings>;
+	getConnectorSettings: () => Promise<ConnectorConfig[]>;
+	getChannelSettings: () => Promise<Channel>;
 	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
@@ -182,7 +194,20 @@ import type {
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
 import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
-import type {
+	import type {
+		AssistantSettings,
+		AgentRoutingSettings,
+		ChannelSettings,
+		CronSettings,
+		ImageCreatorSettings,
+		SpeechToTextSettings,
+		TextToSoundSettings,
+		TextToSpeechSettings,
+		TextToVideoSettings,
+		TaskSettings,
+		TextToVideoSettings,
+		HeartbeatSettings,
+	} from '../shared/store';
 	Agent,
 	ConfiguredModelOperator,
 	AgentHistoryMessage,
