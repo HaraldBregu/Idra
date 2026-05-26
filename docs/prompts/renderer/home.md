@@ -26,6 +26,14 @@ Render each message in the thread:
 - Group consecutive agent messages visually by suppressing the assistant header for messages that follow another agent message.
 - Collapse long content for messages that are not the last in the thread.
 
+## Types
+
+Follow the type placement rules in `docs/prompts/renderer/index.md`.
+
+- Types that cross the IPC boundary (e.g. message shapes passed between main and renderer) belong in `src/shared/types/`.
+- Types used by more than one renderer page (e.g. a `ChatMessage` shape shared with a history view) belong in `src/renderer/src/types/`.
+- Types scoped to this page alone — `HomeState`, `PromptAttachment`, local UI enums — stay inside `src/renderer/src/pages/home/`.
+
 ## API Agent
 
 All messages must go through the API agent. Do not use any other API (speech-to-text, voice, or third-party services) for message input or processing.
