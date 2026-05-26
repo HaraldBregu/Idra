@@ -214,7 +214,7 @@ export interface CronScheduleAuditEntry {
 	auditId: string;
 	scheduleId: CronScheduleId;
 	action: string;
-	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'agent-cron-service';
+	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc';
 	message: string;
 	createdAt: string;
 	metadata: CronJsonObject;
