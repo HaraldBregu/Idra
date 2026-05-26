@@ -38,9 +38,9 @@ Store cron schedules with `id`, `name`, `description`, `schedule`, `timezone`, `
 
 Dependencies:
 
-| Dependency     | Purpose                                                                  |
-| -------------- | ------------------------------------------------------------------------ |
-| `StoreService` | Store cron schedules and load provider and model identifiers when needed. |
+| Dependency | Purpose                                            |
+| ---------- | -------------------------------------------------- |
+| None       | Keep scheduled execution isolated from services. |
 
 ### Task
 
@@ -52,9 +52,9 @@ Each task should have one dependency.
 
 Dependencies:
 
-| Dependency     | Purpose                         |
-| -------------- | ------------------------------- |
-| `StoreService` | Access task-related store data. |
+| Dependency | Purpose                                               |
+| ---------- | ----------------------------------------------------- |
+| None       | Keep background task execution isolated from services. |
 
 ### Tools
 

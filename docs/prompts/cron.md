@@ -18,7 +18,7 @@ Types that need to be reused by other processes can be stored in a shared folder
 
 ## Dependencies
 
-- `StoreService`: store cron schedules and load provider and model identifiers when needed.
+- None. Keep scheduled execution isolated from other services.
 
 ## Store Properties
 
