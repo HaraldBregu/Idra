@@ -26,9 +26,13 @@ describe('PolicyIpc', () => {
 			getPolicy: jest.fn(() => policy),
 			setPolicy: jest.fn((next: PolicyConfig) => next),
 		};
+		const logger = {
+			info: jest.fn(),
+			error: jest.fn(),
+		};
 		const container = {
 			get: jest.fn((key: 'policy' | 'logger') =>
-				key === 'policy' ? service : { info: jest.fn() }
+				key === 'policy' ? service : logger
 			),
 		} as unknown as MainServiceContainer;
 
@@ -43,5 +47,44 @@ describe('PolicyIpc', () => {
 			data: policy,
 		});
 		expect(service.setPolicy).toHaveBeenCalledWith(policy);
+		expect(logger.info).toHaveBeenCalledWith('PolicyIpc', 'Registered policy module');
+		expect(logger.error).not.toHaveBeenCalled();
+	});
+
+	it('logs and wraps policy get failures', async () => {
+		const error = new Error('policy read failed');
+		const service = {
+			getPolicy: jest.fn(() => {
+				throw error;
+			}),
+			setPolicy: jest.fn((next: PolicyConfig) => next),
+		};
+		const logger = {
+			info: jest.fn(),
+			error: jest.fn(),
+		};
+		const container = {
+			get: jest.fn((key: 'policy' | 'logger') =>
+				key === 'policy' ? service : logger
+			),
+		} as unknown as MainServiceContainer;
+
+		new PolicyIpc().register(container, new EventBus());
+
+		await expect(registeredHandler(PolicyChannels.get)({})).resolves.toEqual({
+			success: false,
+			error: {
+				code: 'Error',
+				message: 'policy read failed',
+				stack: expect.any(String),
+			},
+		});
+		expect(logger.error).toHaveBeenCalledWith(
+			'PolicyIpc',
+			'Failed to read policy configuration',
+			{
+				error: 'policy read failed',
+			}
+		);
 	});
 });
