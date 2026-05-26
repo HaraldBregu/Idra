@@ -432,7 +432,7 @@ describe('heartbeat wake queue', () => {
 describe('HeartbeatService', () => {
 	it('runs when HEARTBEAT.md is missing and suppresses OK-only replies', async () => {
 		const { heartbeat, agentService, eventBus } = makeHeartbeatHarness({
-			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: { missing: true },
 		});
 
@@ -443,7 +443,7 @@ describe('HeartbeatService', () => {
 
 	it('skips effectively empty HEARTBEAT.md files before model calls', async () => {
 		const { heartbeat, agentService } = makeHeartbeatHarness({
-			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: { missing: false, content: '# HEARTBEAT.md\n\n- [ ]' },
 		});
 
@@ -456,7 +456,7 @@ describe('HeartbeatService', () => {
 
 	it('updates due task timestamps after successful heartbeat runs', async () => {
 		const { heartbeat, getHeartbeatState } = makeHeartbeatHarness({
-			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: {
 				missing: false,
 				content: 'tasks:\n  - name: inbox\n    interval: 30m\n    prompt: "Check inbox."',
