@@ -128,6 +128,27 @@ describe('ConnectorsService persistence', () => {
 				error: expect.stringContaining('not available'),
 			})
 		);
+
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'token',
+		});
+		await expect(
+			service.add({
+				name: 'Duplicate Gmail',
+				connectorId: 'connector_gmail',
+				authorization: 'token',
+			})
+		).rejects.toThrow(/already configured/);
+		expect(logger.warn).toHaveBeenCalledWith(
+			'ConnectorsService',
+			'Connector validation failed',
+			expect.objectContaining({
+				action: 'add',
+				error: expect.stringContaining('already configured'),
+			})
+		);
 	});
 
 	it('logs and rethrows connector read, write, and delete persistence errors', async () => {
