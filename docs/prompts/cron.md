@@ -64,5 +64,3 @@ Use the application's logger for all operational reporting, including lifecycle 
 Test schedule creation, updates, deletion, pause, resume, next-run calculation, immediate execution, persisted schedule fields, and failure reporting. Tests should call the exported cron service and should not import internal cron files directly.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
-
-## Verify Implementation

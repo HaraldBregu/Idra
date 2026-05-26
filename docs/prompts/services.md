@@ -111,5 +111,3 @@ Dependencies:
 | Dependency | Purpose                                      |
 | ---------- | -------------------------------------------- |
 | None       | Keep persistence independent from services. |
-
-## Verify Implementation

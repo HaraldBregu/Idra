@@ -140,5 +140,3 @@ Use the application's logger for all operational reporting, including reads, wri
 Test provider storage, model module storage, cron settings, task settings, agent routing settings, heartbeat state, connector settings, channel settings, normalization, invalid stored data, and persistence errors. Tests should call the exported store service and should not import internal store files directly.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
-
-## Verify Implementation

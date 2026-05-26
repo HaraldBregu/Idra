@@ -53,5 +53,3 @@ Expose policy configuration through `window.policy`. This API reads and writes t
 ## Store API
 
 Expose store-backed settings through `window.store`. This API manages providers, provider API key state, keep-awake state, configured model operators, agent service configuration, and speech transcriber service configuration.
-
-## Verify Implementation
