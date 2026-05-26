@@ -242,6 +242,9 @@ export class HeartbeatService implements Disposable {
 
 		if (hasProviderId && patch.providerId) this.requireProvider(patch.providerId);
 		if (hasModelId && patch.modelId) this.requireModel(nextProviderId, patch.modelId);
+		if (hasProviderId && !hasModelId && patch.providerId && current.modelId) {
+			this.requireModel(patch.providerId, current.modelId);
+		}
 
 		if (hasReasoningEffort) {
 			patch.reasoningEffort = patch.reasoningEffort
