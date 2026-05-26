@@ -138,7 +138,7 @@ describe('SkillsPage', () => {
 
 		renderSkillDetailsPage();
 
-		await screen.findByText('greet');
+		await screen.findByRole('heading', { name: 'greet' });
 		await user.click(screen.getByRole('button', { name: 'settings.skills.download' }));
 
 		await waitFor(() => {
@@ -169,7 +169,7 @@ describe('SkillsPage', () => {
 		const user = userEvent.setup();
 		renderSkillDetailsPage();
 
-		await screen.findByText('greet');
+		await screen.findByRole('heading', { name: 'greet' });
 		await user.click(screen.getByRole('button', { name: 'settings.skills.delete' }));
 
 		await waitFor(() => {
@@ -186,7 +186,7 @@ describe('SkillsPage', () => {
 		const user = userEvent.setup();
 		renderSkillDetailsPage();
 
-		await screen.findByText('greet');
+		await screen.findByRole('heading', { name: 'greet' });
 		await user.click(screen.getByRole('button', { name: 'settings.skills.delete' }));
 
 		expect(window.skills.delete).not.toHaveBeenCalled();
