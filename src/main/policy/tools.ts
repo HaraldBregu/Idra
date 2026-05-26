@@ -260,6 +260,7 @@ export function evaluateToolUsePolicy(input: ToolUsePolicyInput): ToolUsePolicyD
 	};
 }
 
+// Pass-through: PolicyConfig has no "allow tools" concept; tools are always enabled.
 export function evaluateToolRequestPolicy(
 	_input: ToolRequestPolicyInput
 ): ToolRequestPolicyDecision {
