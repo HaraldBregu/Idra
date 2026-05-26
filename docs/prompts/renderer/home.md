@@ -88,21 +88,17 @@ Test structure:
 - Mock the API agent module at the boundary — do not mock internal helpers.
 - Assert on visible output and state changes, not on implementation details.
 
-## Logger
+## Logging
 
-Add structured logging throughout the home page using a shared `logger` utility (imported from `src/shared/logger` or the project equivalent). Do not use `console.log` directly.
+Use `console.error` for unexpected async failures. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
 
-Log the following events at the appropriate level:
+Log these failure cases:
 
-| Event | Level |
-|---|---|
-| User submits a message | `info` |
-| Agent stream starts | `info` |
-| Agent stream chunk received | `debug` |
-| Agent stream completes | `info` |
-| Agent stream errors | `error` |
-| Generation stopped by user | `info` |
-| Attachment added / removed | `debug` |
-| History loaded on mount | `debug` |
+| Location | Event | Call |
+|---|---|---|
+| `useHomeAgent` | Agent submit throws | `console.error('[useHomeAgent] Agent submit failed:', error)` |
+| `useHomeAgent` | History load fails | `console.error('[useHomeAgent] Failed to load history:', error)` |
+| `useHomeAgent` | Stop/cancel throws | `console.error('[useHomeAgent] Failed to cancel agent:', error)` |
+| `AttachmentTray` | File URL revoke throws | `console.warn('[AttachmentTray] Failed to revoke object URL:', error)` |
 
-Each log entry must include a `context` field set to `"home"` and any relevant identifiers (message id, attachment name, error message).
+Do not log successful submissions, streamed chunks, or normal empty states.
