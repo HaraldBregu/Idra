@@ -47,7 +47,7 @@ import {
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
-import { HeartbeatService } from './heartbeat';
+import { HeartbeatFileStore, HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -149,7 +149,8 @@ export function bootstrapServices(): BootstrapResult {
 	const heartbeat = container.register(
 		'heartbeat',
 		new HeartbeatService({
-			store,
+			getOperator: () => store.getOperator(),
+			heartbeatStore: new HeartbeatFileStore({ logger }),
 			channels,
 			logger,
 			eventBus,
