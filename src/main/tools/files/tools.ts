@@ -632,11 +632,15 @@ export const copyTool: AgentTool<CopyArgs> = {
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
-			sourceAbs = resolveAbs(ctx.workspace, args.source, readWorkspaceOnly(ctx));
-			destinationAbs = resolveAbs(ctx.workspace, args.destination, writeWorkspaceOnly(ctx));
+			sourceAbs = resolveAbs(ctx.workspace, args.source);
+			destinationAbs = resolveAbs(ctx.workspace, args.destination);
 		} catch (err) {
 			return textResult(`copy: ${(err as Error).message}`, true);
 		}
+		const copyReadRestricted = checkFsRestriction(ctx, sourceAbs, 'copy', false);
+		if (copyReadRestricted) return textResult(copyReadRestricted, true);
+		const copyWriteRestricted = checkFsRestriction(ctx, destinationAbs, 'copy', true);
+		if (copyWriteRestricted) return textResult(copyWriteRestricted, true);
 		if (sourceAbs === destinationAbs)
 			return textResult('copy: source and destination are identical.', true);
 		try {
