@@ -35,7 +35,7 @@ function readRecord(value: unknown): Record<string, unknown> | undefined {
 	return value as Record<string, unknown>;
 }
 
-function readString(value: unknown): string | undefined {
+function readTrimmedString(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
@@ -48,13 +48,13 @@ function normalizeHeartbeatConfig(value: unknown): AgentHeartbeatConfig | undefi
 export function normalizeHeartbeatAgentsConfig(raw: unknown): AgentsHeartbeatConfig | undefined {
 	const record = readRecord(raw);
 	if (!record) return undefined;
-	const defaultAgentId = readString(record.defaultAgentId);
+	const defaultAgentId = readTrimmedString(record.defaultAgentId);
 	const defaults = readRecord(record.defaults);
 	const defaultHeartbeat = normalizeHeartbeatConfig(defaults?.heartbeat);
 	const list = Array.isArray(record.list)
 		? record.list.flatMap((entry) => {
 				const agent = readRecord(entry);
-				const id = readString(agent?.id);
+				const id = readTrimmedString(agent?.id);
 				if (!id) return [];
 				const heartbeat = normalizeHeartbeatConfig(agent?.heartbeat);
 				return [{ id, ...(heartbeat ? { heartbeat } : {}) }];
@@ -124,10 +124,12 @@ export class HeartbeatFileStore {
 
 	constructor(options: HeartbeatFileStoreOptions = {}) {
 		this.logger = options.logger;
-		this.store = options.store ?? new Store<HeartbeatStoreSchema>({
-			name: 'heartbeat',
-			accessPropertiesByDotNotation: false,
-		}) as unknown as HeartbeatStoreAccessor;
+		this.store = options.store ?? (
+			new Store<HeartbeatStoreSchema>({
+				name: 'heartbeat',
+				accessPropertiesByDotNotation: false,
+			}) as unknown as HeartbeatStoreAccessor
+		);
 	}
 
 	getAgentsConfig(): AgentsHeartbeatConfig | undefined {
