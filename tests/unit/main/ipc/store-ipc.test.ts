@@ -3,7 +3,6 @@ import { EventBus } from '../../../../src/main/core/event-bus';
 import { StoreIpc } from '../../../../src/main/ipc/store-ipc';
 import type { MainServiceContainer } from '../../../../src/main/service-registry';
 import { StoreChannels } from '../../../../src/shared/ipc-channels';
-import type { PolicyConfig } from '../../../../src/shared/policy';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/agents/service';
 
@@ -18,7 +17,7 @@ describe('StoreIpc', () => {
 		jest.clearAllMocks();
 	});
 
-	it('exposes store providers without API keys and forwards policy reads and writes', async () => {
+	it('exposes store providers without API keys', async () => {
 		const providers: Provider[] = [
 			{
 				id: 'openai',
@@ -27,11 +26,6 @@ describe('StoreIpc', () => {
 				apiKey: 'secret-key',
 			},
 		];
-		const policy: PolicyConfig = {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
-		};
 		const model: Model = { id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' };
 		const store = {
 			getProviders: jest.fn(() => providers),
@@ -44,19 +38,13 @@ describe('StoreIpc', () => {
 			getAgentService: jest.fn(() => undefined),
 			setAgentService: jest.fn(() => true),
 		};
-		const policyService = {
-			getPolicy: jest.fn(() => policy),
-			setPolicy: jest.fn((next: PolicyConfig) => next),
-		};
 		const powerSaveBlocker = {
 			setEnabled: jest.fn((enabled: boolean) => enabled),
 		};
 		const container = {
-			get: jest.fn((key: 'store' | 'policy' | 'logger' | 'powerSaveBlocker') =>
+			get: jest.fn((key: 'store' | 'logger' | 'powerSaveBlocker') =>
 				key === 'store'
 					? store
-					: key === 'policy'
-						? policyService
 					: key === 'powerSaveBlocker'
 						? powerSaveBlocker
 						: { info: jest.fn() }
@@ -104,15 +92,6 @@ describe('StoreIpc', () => {
 			...model,
 			effort: expect.any(String),
 		});
-		await expect(registeredHandler(StoreChannels.getPolicy)({})).resolves.toEqual({
-			success: true,
-			data: policy,
-		});
-		await expect(registeredHandler(StoreChannels.setPolicy)({}, policy)).resolves.toEqual({
-			success: true,
-			data: policy,
-		});
-		expect(policyService.setPolicy).toHaveBeenCalledWith(policy);
 	});
 });
 
