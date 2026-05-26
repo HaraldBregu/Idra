@@ -278,10 +278,10 @@ describe('FridayCronScheduler', () => {
 		await expect(scheduler.remove(own.id, self)).resolves.toBeUndefined();
 	});
 
-	it('normalizes flat tool add requests without storing provider or model choices', async () => {
+	it('normalizes flat add requests without storing provider or model choices', async () => {
 		const { scheduler } = await makeHarness();
 
-		const response = await scheduler.handleToolAction({
+		const response = await scheduler.handleAction({
 			action: 'add',
 			name: 'Hourly report',
 			cron: '0 * * * *',
@@ -319,7 +319,7 @@ describe('FridayCronScheduler', () => {
 	it('normalizes nested agent payloads without requiring an explicit kind', async () => {
 		const { scheduler } = await makeHarness();
 
-		const response = await scheduler.handleToolAction({
+		const response = await scheduler.handleAction({
 			action: 'add',
 			job: {
 				name: 'Email summary task',
@@ -327,7 +327,6 @@ describe('FridayCronScheduler', () => {
 				sessionTarget: 'isolated',
 				payload: {
 					message: 'Check latest emails',
-					toolsAllow: ['gmail_get_recent_emails', 'gmail_batch_read_email', 'read', 'write'],
 					lightContext: true,
 					thinking: 'low',
 				},
@@ -341,7 +340,6 @@ describe('FridayCronScheduler', () => {
 			payload: {
 				kind: 'agentTurn',
 				message: 'Check latest emails',
-				toolsAllow: ['gmail_get_recent_emails', 'gmail_batch_read_email', 'read', 'write'],
 				lightContext: true,
 				thinking: 'low',
 			},
@@ -353,11 +351,11 @@ describe('FridayCronScheduler', () => {
 		const own = await scheduler.add(agentJob({ id: 'own-job', agentId: 'agent-1' }));
 		await scheduler.add(agentJob({ id: 'other-job', agentId: 'agent-2' }));
 
-		const listed = await scheduler.handleToolAction(
+		const listed = await scheduler.handleAction(
 			{ action: 'list' },
 			{ role: 'owner', agentId: 'agent-1' }
 		);
-		const fetched = await scheduler.handleToolAction({
+		const fetched = await scheduler.handleAction({
 			action: 'get',
 			jobId: own.id,
 			id: 'other-job',
@@ -505,7 +503,7 @@ describe('FridayCronScheduler', () => {
 	it('denies cron to non-owner callers', async () => {
 		const { scheduler } = await makeHarness();
 		await expect(
-			scheduler.handleToolAction({ action: 'list' }, { role: 'subagent' })
+			scheduler.handleAction({ action: 'list' }, { role: 'subagent' })
 		).resolves.toMatchObject({
 			status: 'error',
 		});
