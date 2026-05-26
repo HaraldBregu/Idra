@@ -9,8 +9,8 @@ import type { TaskManager } from '../tasks';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
-	type FridayCronToolRequest as FridayCronActionRequest,
-	type FridayCronToolResponse as FridayCronActionResponse,
+	type FridayCronActionRequest,
+	type FridayCronActionResponse,
 	type CronNextRunPreview,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
