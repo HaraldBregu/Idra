@@ -180,7 +180,7 @@ function mergeChannelConfig<TKey extends ChannelType>(
 					: defaults.defaultAccountId,
 			defaultTarget:
 				typeof storedObject.defaultTarget === 'string' ? storedObject.defaultTarget : undefined,
-			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? defaults.dmPolicy,
+			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? CHANNEL_DEFAULT_DM_POLICY,
 			heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 			token: typeof storedObject.token === 'string' ? storedObject.token : '',
 			allowFrom: normalizeStringList(storedObject.allowFrom),
@@ -199,7 +199,7 @@ function mergeChannelConfig<TKey extends ChannelType>(
 					: defaults.defaultAccountId,
 			defaultTarget:
 				typeof storedObject.defaultTarget === 'string' ? storedObject.defaultTarget : undefined,
-			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? defaults.dmPolicy,
+			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? CHANNEL_DEFAULT_DM_POLICY,
 			heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 			phoneNumber: typeof storedObject.phoneNumber === 'string' ? storedObject.phoneNumber : '',
 			token: typeof storedObject.token === 'string' ? storedObject.token : '',
@@ -219,7 +219,7 @@ function mergeChannelConfig<TKey extends ChannelType>(
 					: defaults.defaultAccountId,
 			defaultTarget:
 				typeof storedObject.defaultTarget === 'string' ? storedObject.defaultTarget : undefined,
-			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? defaults.dmPolicy,
+			dmPolicy: normalizeDmPolicy(storedObject.dmPolicy) ?? CHANNEL_DEFAULT_DM_POLICY,
 			heartbeat: normalizeHeartbeatVisibility(storedObject.heartbeat),
 			token: typeof storedObject.token === 'string' ? storedObject.token : '',
 			allowFrom: normalizeStringList(storedObject.allowFrom),
