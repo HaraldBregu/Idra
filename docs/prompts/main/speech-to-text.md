@@ -22,7 +22,7 @@ Keep the speech-to-text module isolated:
 
 Types or files that need to be reused by other services or processes must be stored under `src/shared` so they can be used everywhere. Keep speech-to-text-specific implementation types and files inside the speech-to-text module unless they are genuinely shared.
 
-When changing the speech-to-text service, refactor the service directly. Do not layer patch-style fixes, compatibility shims, or migration paths unless explicitly requested. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
+When implementing or changing the speech-to-text service, always implement the requested behavior directly in the service and refactor the service directly. Do not layer patch-style fixes, compatibility shims, transitional APIs, dual implementations, migrations, or migration paths. Delete old implementations, exports, imports, tests, and service-local types made unused by the refactor.
 
 The speech-to-text service should:
 
@@ -40,7 +40,8 @@ The speech-to-text service should:
 When implementing or changing this module:
 
 - Respect the declared dependencies. Do not add service dependencies or bypass `StoreService` unless the existing project requirements explicitly require it.
-- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Implement the requested behavior directly in the owning service and refactor that service directly. Keep public behavior centralized in the service.
+- Do not create migrations, migration paths, compatibility shims, transitional APIs, or duplicate implementations.
 - Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
 - Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
 - Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
