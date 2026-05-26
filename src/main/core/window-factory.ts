@@ -31,13 +31,8 @@ export class WindowFactory {
 		this.iconPath = path.resolve(__dirname, '../../resources/icons/icon.png');
 		this.logger?.info('WindowFactory', `Preload path: ${this.preloadPath}`);
 		// Verify preload file exists
-		try {
-			const { existsSync } = require('fs');
-			const exists = existsSync(this.preloadPath);
-			this.logger?.info('WindowFactory', `Preload file exists: ${exists}`);
-		} catch {
-			// Silent fail
-		}
+		const exists = existsSync(this.preloadPath);
+		this.logger?.info('WindowFactory', `Preload file exists: ${exists}`);
 	}
 
 	private getBaseWebPreferences(): Electron.WebPreferences {
