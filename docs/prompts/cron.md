@@ -23,6 +23,7 @@ The cron service should:
 - Run jobs at the configured time or interval.
 - Provide a reusable interface for other modules.
 - Keep scheduling logic out of feature modules.
+- Save `providerId` and `modelId` from the store when storing cron data.
 - Report job success or failure through the application's logging or reporting system.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
