@@ -251,26 +251,7 @@ Use React context only for state that many components in the tree need without p
 
 ### File layout
 
-Follow the one-file-one-export rule. Each component, hook, helper, and type file is named with a single word and exports exactly one thing:
-
-```
-pages/start/
-  Page.tsx              — entry point, mounts SetupProvider + layout
-  context.tsx           — SetupProvider + useSetupContext
-  reducer.ts            — setupReducer + SetupState + action types
-  constants.ts          — SETUP_STEPS, MODEL_SERVICE_DEFINITIONS, STEP_COPY
-  hooks/
-    setup.ts            — useProviderSetup
-    services.ts         — useModelServices
-  steps/
-    Presentation.tsx
-    Provider.tsx
-    Service.tsx         — ModelServiceStep (reused per service)
-  components/
-    Card.tsx            — ProviderCard
-    Field.tsx           — StepField
-    Progress.tsx        — StepProgress
-```
+Follow the one-file-one-export rule. Each component, hook, helper, and type file is named with a single word and exports exactly one thing. Group step components, sub-components, and hooks in sub-folders within the page folder.
 
 ## Types
 
