@@ -813,10 +813,12 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 	async execute(args, ctx) {
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx));
+			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
 			return textResult(`inspect_file: ${(err as Error).message}`, true);
 		}
+		const inspectRestricted = checkFsRestriction(ctx, abs, 'inspect_file', false);
+		if (inspectRestricted) return textResult(inspectRestricted, true);
 		const denied = checkFilePolicy(ctx, 'inspect_file', [{ path: abs, permission: 'read' }]);
 		if (denied) return textResult(denied, true);
 		try {
