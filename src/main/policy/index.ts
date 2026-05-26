@@ -23,6 +23,8 @@ export {
 	type ToolPolicyProfile,
 	type ToolPolicyStageName,
 	type ToolPolicySubject,
+	type ToolRequestPolicyDecision,
+	type ToolRequestPolicyInput,
 	type ToolApprovalPolicyDecision,
 	type ToolApprovalPolicyDecisionInput,
 	type ToolHookPolicyDecision,
