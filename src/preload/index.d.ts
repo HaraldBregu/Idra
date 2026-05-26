@@ -23,14 +23,12 @@ export interface AgentApi {
 
 export interface CronApi {
 	list: () => Promise<CronTaskView[]>;
-	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<FridayCronJob[]>;
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
 		options?: { id?: string; timezone?: string }
 	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
-	removeJob: (id: string) => Promise<void>;
 	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
 	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest) => Promise<CronSchedule>;
 	pauseSchedule: (scheduleId: string) => Promise<void>;
@@ -42,7 +40,6 @@ export interface CronApi {
 	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
 	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
 	runNow: (scheduleId: string) => Promise<CronScheduledTask>;
-	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
 	subscribeToSchedule: (
 		scheduleId: string,
@@ -168,9 +165,6 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
-	FridayCronJob,
-	FridayCronToolRequest,
-	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
