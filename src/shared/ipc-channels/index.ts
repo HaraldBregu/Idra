@@ -199,7 +199,6 @@ export const StoreChannels = {
 	getAgentRoutingSettings: 'store:get-agent-routing-settings',
 	getHeartbeatSettings: 'store:get-heartbeat-settings',
 	getConnectorSettings: 'store:get-connector-settings',
-	getChannelSettings: 'store:get-channel-settings',
 	getAssistantOperator: 'store:get-assistant-operator',
 	saveAssistantOperator: 'store:save-assistant-operator',
 	getSpeechToTextOperator: 'store:get-speech-to-text-operator',
@@ -796,10 +795,6 @@ interface StoreInvokeChannelMap {
 	[StoreChannels.getConnectorSettings]: {
 		args: [];
 		result: import('../connectors').ConnectorConfig[];
-	};
-	[StoreChannels.getChannelSettings]: {
-		args: [];
-		result: import('../channels').Channel;
 	};
 	[StoreChannels.getAssistantOperator]: {
 		args: [];
