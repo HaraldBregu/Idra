@@ -183,9 +183,9 @@ export class SkillsService {
 
 			return result;
 		} catch (error) {
-			if (error instanceof SkillsServiceError) throw error;
 			const message = this.safeErrorMessage(error);
 			this.logger.error(LOG_SOURCE, 'Failed to import skills', { sourcePath: source, reason: message });
+			if (error instanceof SkillsServiceError) throw error;
 			throw new SkillsServiceError('filesystem', `Failed to import skills from "${source}": ${message}`);
 		}
 	}
@@ -223,12 +223,12 @@ export class SkillsService {
 			this.logger.info(LOG_SOURCE, `Downloaded skill "${skill.name}"`, { destinationPath });
 			return { id: skill.id, name: skill.name, destinationPath };
 		} catch (error) {
-			if (error instanceof SkillsServiceError) throw error;
 			const message = this.safeErrorMessage(error);
 			this.logger.error(LOG_SOURCE, `Failed to download skill "${skillName}"`, {
 				destinationRoot,
 				reason: message,
 			});
+			if (error instanceof SkillsServiceError) throw error;
 			throw new SkillsServiceError(
 				'filesystem',
 				`Failed to download skill "${skillName}": ${message}`
@@ -251,12 +251,12 @@ export class SkillsService {
 			this.logger.info(LOG_SOURCE, `Deleted skill "${skill.name}"`, { location: skill.location });
 			return { id: skill.id, name: skill.name, deleted: true };
 		} catch (error) {
-			if (error instanceof SkillsServiceError) throw error;
 			const message = this.safeErrorMessage(error);
 			this.logger.error(LOG_SOURCE, `Failed to delete skill "${skillName}"`, {
 				folderPath,
 				reason: message,
 			});
+			if (error instanceof SkillsServiceError) throw error;
 			throw new SkillsServiceError('filesystem', `Failed to delete skill "${skillName}": ${message}`);
 		}
 	}
