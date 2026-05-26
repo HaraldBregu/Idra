@@ -1,6 +1,7 @@
 import path from 'node:path';
 import type { PolicyConfig, PolicyDecision, Permission } from '../../shared/policy';
 import { evaluate } from './evaluate';
+import { PolicyStore } from './store';
 import {
 	evaluateToolApprovalPolicy,
 	evaluateToolHookPolicy,
@@ -20,11 +21,15 @@ import {
 	type ToolUsePolicyInput,
 } from './tools';
 
-export interface PolicyStorePort {
-	getPolicy(): PolicyConfig;
+export interface PolicyServiceOptions {
+	store?: PolicyStore;
+	workspaceRoot?: string;
+	agentRoot?: string;
 }
 
 export interface PolicyServicePort {
+	getPolicy(): PolicyConfig;
+	setPolicy(policy: PolicyConfig): PolicyConfig;
 	evaluate(targetPath: string, permission: Permission): PolicyDecision;
 	evaluateTools(
 		subjects: readonly ToolPolicySubject[],
@@ -37,14 +42,26 @@ export interface PolicyServicePort {
 }
 
 export class PolicyService implements PolicyServicePort {
-	constructor(
-		private readonly store: PolicyStorePort,
-		private readonly workspaceRoot?: string,
-		private readonly agentRoot?: string
-	) {}
+	private readonly store: PolicyStore;
+	private readonly workspaceRoot?: string;
+	private readonly agentRoot?: string;
+
+	constructor(options: PolicyServiceOptions = {}) {
+		this.store = options.store ?? new PolicyStore();
+		this.workspaceRoot = options.workspaceRoot;
+		this.agentRoot = options.agentRoot;
+	}
+
+	getPolicy(): PolicyConfig {
+		return this.store.getPolicy();
+	}
+
+	setPolicy(policy: PolicyConfig): PolicyConfig {
+		return this.store.setPolicy(policy);
+	}
 
 	evaluate(targetPath: string, permission: Permission): PolicyDecision {
-		return evaluate(this.store.getPolicy(), this.toVirtualPath(targetPath), permission);
+		return evaluate(this.getPolicy(), this.toVirtualPath(targetPath), permission);
 	}
 
 	// Maps real paths to virtual prefixes used in stored policy configs:
