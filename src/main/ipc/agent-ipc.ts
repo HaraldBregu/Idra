@@ -7,7 +7,6 @@ import { wrapSimpleHandler } from './ipc-error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
 import type { AgentHistoryMessage, AgentSendRuntimeOptions } from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
-import { DEFAULT_AGENT_ID } from '../constants';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
