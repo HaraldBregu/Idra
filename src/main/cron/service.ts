@@ -454,11 +454,22 @@ export class CronService implements Disposable {
 		this.store.setCronTasks(tasks);
 	}
 
-	private recordRun(id: string): void {
+	private recordRunResult(id: string, status: CronStoredRunStatus, error?: string): void {
 		const tasks = this.migrateTasks(this.store.getCronTasks());
 		const idx = tasks.findIndex((t) => t.id === id);
 		if (idx === -1) return;
-		tasks[idx] = { ...tasks[idx], lastRun: new Date().toISOString() };
+		const now = new Date().toISOString();
+		const task = tasks[idx];
+		tasks[idx] = {
+			...task,
+			updatedAt: now,
+			lastRunAt: now,
+			lastRun: now,
+			lastRunStatus: status,
+			lastError: status === 'failure' ? error : undefined,
+			runCount: status === 'success' ? task.runCount + 1 : task.runCount,
+			failureCount: status === 'failure' ? task.failureCount + 1 : task.failureCount,
+		};
 		this.store.setCronTasks(tasks);
 	}
 
@@ -475,19 +486,111 @@ export class CronService implements Disposable {
 			if (typeof r.id !== 'string' || typeof r.expression !== 'string') continue;
 			const data = isCronTaskData(r.data)
 				? r.data
-				: typeof r.message === 'string'
-					? { type: 'message' as const, message: r.message }
-					: null;
+				: isCronTaskData(r.payload)
+					? r.payload
+					: typeof r.message === 'string'
+						? { type: 'message' as const, message: r.message }
+						: null;
 			if (!data) continue;
+			const createdAt =
+				typeof r.createdAt === 'string' ? r.createdAt : new Date().toISOString();
+			const lastRunAt =
+				typeof r.lastRunAt === 'string'
+					? r.lastRunAt
+					: typeof r.lastRun === 'string'
+						? r.lastRun
+						: undefined;
+			const runCount =
+				typeof r.runCount === 'number' && Number.isFinite(r.runCount)
+					? Math.max(0, Math.floor(r.runCount))
+					: lastRunAt
+						? 1
+						: 0;
+			const failureCount =
+				typeof r.failureCount === 'number' && Number.isFinite(r.failureCount)
+					? Math.max(0, Math.floor(r.failureCount))
+					: 0;
 			out.push({
 				id: r.id,
+				name: typeof r.name === 'string' && r.name.trim() ? r.name : r.id,
+				description: typeof r.description === 'string' ? r.description : undefined,
+				schedule: this.scheduleValue(r.schedule, r.expression),
 				expression: r.expression,
+				timezone: typeof r.timezone === 'string' ? r.timezone : 'UTC',
+				enabled: typeof r.enabled === 'boolean' ? r.enabled : true,
+				status: this.scheduleStatus(r.status, r.enabled),
+				providerId: typeof r.providerId === 'string' ? r.providerId : undefined,
+				modelId: typeof r.modelId === 'string' ? r.modelId : undefined,
+				target: typeof r.target === 'string' ? r.target : this.targetForData(data),
+				payload: data,
 				data,
-				timezone: typeof r.timezone === 'string' ? r.timezone : undefined,
-				createdAt: typeof r.createdAt === 'string' ? r.createdAt : new Date().toISOString(),
-				lastRun: typeof r.lastRun === 'string' ? r.lastRun : undefined,
+				createdAt,
+				updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : createdAt,
+				lastRunAt,
+				nextRunAt: typeof r.nextRunAt === 'string' ? r.nextRunAt : undefined,
+				lastRunStatus: this.runStatus(r.lastRunStatus),
+				lastError: typeof r.lastError === 'string' ? r.lastError : undefined,
+				runCount,
+				failureCount,
+				lastRun: lastRunAt,
 			});
 		}
 		return out;
+	}
+
+	private configuredModel(): { providerId: string; modelId: string } | undefined {
+		const selection = this.settingsStore?.getAgentService();
+		if (!selection) return undefined;
+		return { providerId: selection.provider.id, modelId: selection.model.id };
+	}
+
+	private withConfiguredModel<T extends CronScheduleCreateRequest | CronScheduleUpdateRequest>(
+		request: T
+	): T {
+		const configuredModel = this.configuredModel();
+		if (!configuredModel) return request;
+		return {
+			...request,
+			providerId: request.providerId ?? configuredModel.providerId,
+			modelId: request.modelId ?? configuredModel.modelId,
+		};
+	}
+
+	private targetForData(data: CronTaskData): CronStoredTarget {
+		if (data.type === 'agent') return 'agent';
+		if (data.type === 'tool') return 'tool';
+		if (data.type === 'task') return 'task';
+		return 'job';
+	}
+
+	private scheduleValue(value: unknown, expression: unknown): CronStoredSchedule {
+		if (typeof value === 'string') return value;
+		if (value && typeof value === 'object' && !Array.isArray(value)) {
+			return value as CronStoredSchedule;
+		}
+		return typeof expression === 'string' ? expression : '';
+	}
+
+	private scheduleStatus(value: unknown, enabled: unknown): CronSchedule['status'] {
+		if (
+			value === 'active' ||
+			value === 'paused' ||
+			value === 'disabled' ||
+			value === 'expired' ||
+			value === 'completed' ||
+			value === 'failed' ||
+			value === 'deleted'
+		) {
+			return value;
+		}
+		return enabled === false ? 'disabled' : 'active';
+	}
+
+	private runStatus(value: unknown): CronStoredRunStatus | undefined {
+		return value === 'success' || value === 'failure' || value === 'skipped' ? value : undefined;
+	}
+
+	private errorMessage(error: unknown): string {
+		return error instanceof Error ? error.message : String(error);
 	}
 }
