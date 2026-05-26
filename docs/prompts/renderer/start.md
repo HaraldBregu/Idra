@@ -4,8 +4,6 @@ Create the start page as a multi-step onboarding flow.
 
 The start page is shown the first time the user opens the app. It guides the user through connecting a provider (API key) and selecting a model for each model service before they can use the app. Once setup is complete, the user is navigated to the home page.
 
-The start page lives at `src/renderer/src/pages/start/`.
-
 ## Step sequence
 
 The flow advances through a fixed array: `['presentation', 'providers', ...MODEL_SERVICE_STEP_IDS]`.
