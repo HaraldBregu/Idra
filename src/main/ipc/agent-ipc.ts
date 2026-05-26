@@ -76,16 +76,19 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
-		const startupFiles = container.get('startupFiles');
+		const workspace = container.get('workspace');
 		const userDataDirectory = container.get('userDataDirectory');
-		const listStartupFiles = (): ReturnType<typeof startupFiles.listFiles> => {
-			return startupFiles.listFiles(DEFAULT_AGENT_ID);
+		const listStartupFiles = (): ReturnType<typeof workspace.listWorkspaceFiles> => {
+			return workspace.listWorkspaceFiles();
 		};
-		const readStartupFile = (name: string): ReturnType<typeof startupFiles.readFile> => {
-			return startupFiles.readFile(DEFAULT_AGENT_ID, name);
+		const readStartupFile = (name: string): ReturnType<typeof workspace.readWorkspaceFile> => {
+			return workspace.readWorkspaceFile(name);
 		};
-		const writeStartupFile = (name: string, content: string): ReturnType<typeof startupFiles.writeFile> => {
-			return startupFiles.writeFile(DEFAULT_AGENT_ID, name, content);
+		const writeStartupFile = (
+			name: string,
+			content: string
+		): ReturnType<typeof workspace.writeWorkspaceFile> => {
+			return workspace.writeWorkspaceFile(name, content);
 		};
 
 		ipcMain.handle(
