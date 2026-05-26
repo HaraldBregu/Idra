@@ -1,6 +1,6 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent, type ToolResultBlock } from '../../../../src/main/provider/types';
-import { runAgent } from '../../../../src/main/agent';
 import {
+	AgentExecutionService,
 	clearAgentHarnessHookProviders,
 	clearAgentToolResultMiddlewareRegistrations,
 	registerAgentToolResultMiddleware,
@@ -39,6 +39,12 @@ const end = (usage = { inputTokens: 1, outputTokens: 1 }): ProviderEvent => ({
 	stopReason: 'end_turn',
 	usage,
 });
+
+const agentExecutionService = new AgentExecutionService();
+
+function runAgent(input: Parameters<AgentExecutionService['execute']>[0]) {
+	return agentExecutionService.execute(input);
+}
 
 describe('agent/run', () => {
 	beforeEach(() => {
