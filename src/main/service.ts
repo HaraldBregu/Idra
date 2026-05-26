@@ -375,16 +375,14 @@ export class AgentService {
 								rankedTools: [],
 							}
 						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								this.toolService.prepareToolsForRun({
-									tools: baseTools,
+								this.toolService.selectToolsForTurn(
+									baseTools,
+									message,
 									ctx,
-									userMessage: message,
-									provider: providerId,
-									modelId: model,
-									management: {
+									this.toolService.createManagementOptions({
 										maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
-									},
-								})
+									})
+								)
 							);
 				selectedTools = toolSelection.toolsForPrompt;
 			}
