@@ -2,7 +2,7 @@
  * Unit tests for CronService (src/main/cron/service.ts).
  *
  * node-cron is mocked so timers never start. Cron tasks are persisted via
- * an in-memory StoreService stub, exercising the real schedule/unschedule/
+ * an in-memory cron persistence stub, exercising the real schedule/unschedule/
  * restore logic without touching electron-store or the filesystem.
  */
 
@@ -22,8 +22,8 @@ jest.mock('node-cron', () => {
 });
 
 import cron from 'node-cron';
-import { CronService } from '../../../../src/main/cron';
-import type { StoreService } from '../../../../src/main/store';
+import { CronService, emptyCronStoreState, emptyFridayCronStoreState } from '../../../../src/main/cron';
+import type { CronPersistenceStore } from '../../../../src/main/cron';
 import type { LoggerService } from '../../../../src/main/logger';
 import type { CronTask, CronTaskMessageData } from '../../../../src/shared/cron';
 
@@ -41,14 +41,18 @@ const stopMock = (jest.requireMock('node-cron') as { _stop: jest.Mock })._stop;
 // Test helpers — in-memory store + silent logger + data factory.
 // ---------------------------------------------------------------------------
 
-function createStore(initial: CronTask[] = []): StoreService {
+function createStore(initial: CronTask[] = []): CronPersistenceStore {
 	let tasks: CronTask[] = [...initial];
 	return {
 		getCronTasks: jest.fn(() => tasks),
 		setCronTasks: jest.fn((next: CronTask[]) => {
 			tasks = next;
 		}),
-	} as unknown as StoreService;
+		getCronSchedulerState: jest.fn(() => emptyCronStoreState()),
+		setCronSchedulerState: jest.fn(),
+		getFridayCronState: jest.fn(() => emptyFridayCronStoreState()),
+		setFridayCronState: jest.fn(),
+	};
 }
 
 function createLogger(): LoggerService {
