@@ -6,11 +6,12 @@ The heartbeat module manages periodic and manual agent check-ins for the applica
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the heartbeat module. Patterns should solve real service-boundary, lifecycle, dependency, scheduling, integration, persistence, or validation problems; do not add decorative abstractions.
 
-The heartbeat module depends on `StoreService`, `ChannelsService`, `EventBus`, `WorkspaceService`, `AgentService`, and `ChannelRegistry`.
+The heartbeat module depends on a heartbeat-owned Electron Store, an operator config provider, `ChannelsService`, `EventBus`, `WorkspaceService`, `AgentService`, and `ChannelRegistry`.
 
 ## Dependencies
 
-- `StoreService`: read heartbeat configuration, update default heartbeat timing, and persist lightweight heartbeat runtime state.
+- Heartbeat-owned Electron Store: read heartbeat configuration, update default heartbeat timing, and persist lightweight heartbeat runtime state in `heartbeat.json`.
+- Operator config provider: read non-heartbeat operator context without using `StoreService` as the heartbeat persistence boundary.
 - `ChannelsService`: read channel and account configuration used for heartbeat visibility and delivery.
 - `EventBus`: listen for channel route events and emit or broadcast heartbeat events.
 - `WorkspaceService`: read workspace heartbeat context.
@@ -119,7 +120,7 @@ The heartbeat service should:
 When implementing or changing this module:
 
 - Always implement logging for new or changed operational behavior using the application logger. Do not use console logging for module behavior.
-- Respect the declared dependencies. Do not add service dependencies or bypass `StoreService`, `ChannelsService`, `EventBus`, `WorkspaceService`, `AgentService`, or `ChannelRegistry` unless the existing project requirements explicitly require it.
+- Respect the declared dependencies. Do not add service dependencies or bypass the heartbeat store, operator config provider, `ChannelsService`, `EventBus`, `WorkspaceService`, `AgentService`, or `ChannelRegistry` unless the existing project requirements explicitly require it.
 - Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, scheduling, integration, persistence, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
 - Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
@@ -130,7 +131,7 @@ When implementing or changing this module:
 
 ## Testing
 
-Test heartbeat configuration resolution, timing updates, duration parsing, active hours, stable phase scheduling, schedule recomputation, wake coalescing, retryable busy skips, cooldown and flood guards, service lifecycle cleanup, runtime enablement, status reads, system-event queuing, workspace heartbeat context reads, empty context skips, task parsing, task due checks, prompt construction, agent execution, busy-agent skips, unsafe-session skips, response normalization, delivery routing, visibility resolution, direct-message blocking, duplicate alert suppression, event emission, store-backed runtime state, no-op fallback behavior, and logger behavior for failures.
+Test heartbeat configuration resolution, `heartbeat.json` persistence, timing updates, duration parsing, active hours, stable phase scheduling, schedule recomputation, wake coalescing, retryable busy skips, cooldown and flood guards, service lifecycle cleanup, runtime enablement, status reads, system-event queuing, workspace heartbeat context reads, empty context skips, task parsing, task due checks, prompt construction, agent execution, busy-agent skips, unsafe-session skips, response normalization, delivery routing, visibility resolution, direct-message blocking, duplicate alert suppression, event emission, store-backed runtime state, no-op fallback behavior, and logger behavior for failures.
 
 Tests should call the exported heartbeat service and should not import internal heartbeat files directly unless testing exported helper behavior that is intentionally part of the heartbeat module surface.
 
