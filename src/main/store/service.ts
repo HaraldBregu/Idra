@@ -23,11 +23,6 @@ import type {
 	CronStoredSchedule,
 	CronTask,
 } from '../../shared/cron';
-import type {
-	AgentHeartbeatConfig,
-	AgentsHeartbeatConfig,
-	HeartbeatStoreState,
-} from '../../shared/heartbeat';
 import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
 import {
 	getMusicModelsByProvider,
@@ -259,13 +254,6 @@ function isAllowedModuleModel(
 	return isAllowedAgentModel(provider.id, settings.modelId);
 }
 
-function readAgentsHeartbeatConfig(
-	settings: ModelModuleSettings | undefined
-): AgentsHeartbeatConfig | undefined {
-	const agents = readRecord(settings?.options?.agents);
-	return agents as AgentsHeartbeatConfig | undefined;
-}
-
 function configuredModelOperator(
 	key: ConfiguredModelOperatorKey,
 	provider: Omit<Provider, 'apiKey'>,
@@ -461,56 +449,6 @@ function normalizeAgentRoutingSettings(value: unknown): AgentRoutingSettings {
 	return { agents, bindings };
 }
 
-function emptyHeartbeatStoreState(): HeartbeatStoreState {
-	return {
-		version: 1,
-		taskState: {},
-		lastDelivered: {},
-	};
-}
-
-function normalizeHeartbeatStoreState(raw: unknown): HeartbeatStoreState {
-	if (!raw || typeof raw !== 'object') return emptyHeartbeatStoreState();
-	const record = raw as Partial<HeartbeatStoreState>;
-	return {
-		version: 1,
-		taskState: sanitizeHeartbeatRecord(record.taskState, (value) => {
-			const lastRunMs = readFiniteNumber(value, 'lastRunMs');
-			return lastRunMs === undefined ? undefined : { lastRunMs };
-		}),
-		lastDelivered: sanitizeHeartbeatRecord(record.lastDelivered, (value) => {
-			const text = readString(value, 'text');
-			const atMs = readFiniteNumber(value, 'atMs');
-			return text && atMs !== undefined ? { text, atMs } : undefined;
-		}),
-	};
-}
-
-function sanitizeHeartbeatRecord<T>(
-	value: unknown,
-	normalize: (value: unknown) => T | undefined
-): Record<string, T> {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-	const out: Record<string, T> = {};
-	for (const [key, entry] of Object.entries(value)) {
-		const normalized = normalize(entry);
-		if (normalized !== undefined) out[key] = normalized;
-	}
-	return out;
-}
-
-function readFiniteNumber(value: unknown, key: string): number | undefined {
-	if (!value || typeof value !== 'object') return undefined;
-	const raw = (value as Record<string, unknown>)[key];
-	return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined;
-}
-
-function readString(value: unknown, key: string): string | undefined {
-	if (!value || typeof value !== 'object') return undefined;
-	const raw = (value as Record<string, unknown>)[key];
-	return typeof raw === 'string' && raw.trim() ? raw : undefined;
-}
-
 function emptyCronStoreState(): CronStoreState {
 	return {
 		schemaVersion: CRON_STORE_SCHEMA_VERSION,
@@ -697,44 +635,11 @@ export class StoreService {
 		if (textToVideo) next.videoCreator = textToVideo;
 		const textToSound = this.getTextToSoundOperator();
 		if (textToSound) next.musicCreator = textToSound;
-		const agents = readAgentsHeartbeatConfig(this.getModelModuleSettings('assistant'));
-		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
 	}
 
 	getService(): OperatorStoreState | undefined {
 		return this.getOperator();
-	}
-
-	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const currentAgentSettings = this.getModelModuleSettings('assistant');
-		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? {};
-		const currentDefaults = currentAgents.defaults ?? {};
-		const currentHeartbeat = currentDefaults.heartbeat ?? {};
-		const nextHeartbeat: AgentHeartbeatConfig = {
-			...currentHeartbeat,
-			...config,
-		};
-		if ('activeHours' in config && config.activeHours === undefined) {
-			delete nextHeartbeat.activeHours;
-		}
-		const nextAgents: AgentsHeartbeatConfig = {
-			...currentAgents,
-			defaults: {
-				...currentDefaults,
-				heartbeat: nextHeartbeat,
-			},
-		};
-		if (currentAgentSettings) {
-			this.write('assistant', {
-				...currentAgentSettings,
-				options: {
-					...(currentAgentSettings.options ?? {}),
-					agents: nextAgents,
-				},
-			});
-		}
-		return nextHeartbeat;
 	}
 
 	getAssistantOperator(): ConfiguredModelOperator | undefined {
@@ -1026,24 +931,6 @@ export class StoreService {
 		const next = readTaskSettings(settings);
 		this.write('task', next);
 		return next;
-	}
-
-	getHeartbeatState(): HeartbeatStoreState {
-		try {
-			return normalizeHeartbeatStoreState(this.read('heartbeat'));
-		} catch (error) {
-			this.logError('Failed to normalize heartbeat state', error);
-			throw error;
-		}
-	}
-
-	setHeartbeatState(state: HeartbeatStoreState): void {
-		try {
-			this.write('heartbeat', normalizeHeartbeatStoreState(state));
-		} catch (error) {
-			this.logError('Failed to persist heartbeat state', error);
-			throw error;
-		}
 	}
 
 	private getStoredProviders(): Provider[] {
