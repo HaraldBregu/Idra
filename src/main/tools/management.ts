@@ -1,5 +1,7 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
-import { evaluateToolRequestPolicy } from '../policy';
+import { PolicyService, type PolicyServicePort } from '../policy';
+
+const defaultPolicyService = new PolicyService();
 
 export interface AgentToolSelectionForTurn {
 	toolsForPrompt: AgentTool[];
@@ -40,7 +42,11 @@ export async function executeAgentToolWithManagement(
 }
 
 export class ToolUsePolicy {
+	constructor(
+		private readonly policy: Pick<PolicyServicePort, 'evaluateToolRequest'> = defaultPolicyService
+	) {}
+
 	evaluate(_options: { userRequest: string }): { shouldUseTools: boolean; reason: string } {
-		return evaluateToolRequestPolicy(_options);
+		return this.policy.evaluateToolRequest(_options);
 	}
 }
