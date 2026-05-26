@@ -49,14 +49,17 @@ import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logge
 import { resolveDefaultUserDataPath } from '../user-data';
 import {
 	type AgentRunState,
+	type Model,
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
 	type OperatorStoreState,
 } from '../../shared/agents/service';
+import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
 import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
 import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
+import type { PublicProvider } from '../../shared/providers';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../../shared/store';
 import type { SubagentSpawnPort } from './subagents';
 import {
@@ -277,6 +280,28 @@ export class AgentService {
 
 	getHeartbeatOperatorConfig(): OperatorStoreState | undefined {
 		return this.getOperatorConfig();
+	}
+
+	getHeartbeatProvider(providerId: string): PublicProvider | undefined {
+		const provider = this.dependencies.store.getProviderById(providerId);
+		if (!provider) return undefined;
+		const { apiKey: _apiKey, ...publicProvider } = provider;
+		return publicProvider;
+	}
+
+	getHeartbeatModel(providerId: string, modelId: string): Model | undefined {
+		const normalizedProviderId = providerId.trim().toLowerCase();
+		const normalizedModelId = modelId.trim();
+		if (!normalizedModelId || !isAllowedAgentModel(normalizedProviderId, normalizedModelId)) {
+			return undefined;
+		}
+		const catalogModel = getDefaultAgentModels(normalizedProviderId).find(
+			(model) => model.id === normalizedModelId
+		);
+		return {
+			id: catalogModel?.id ?? normalizedModelId,
+			name: catalogModel?.name ?? normalizedModelId,
+		};
 	}
 
 	onHeartbeatRoute(listener: (payload: unknown) => void): () => void {
