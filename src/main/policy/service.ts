@@ -33,6 +33,9 @@ import {
 } from './tools';
 
 export type PolicyEvaluationLogger = {
+	debug?(source: string, message: string, data?: unknown): void;
+	info?(source: string, message: string, data?: unknown): void;
+	warn?(source: string, message: string, data?: unknown): void;
 	error(source: string, message: string, data?: unknown): void;
 };
 
@@ -53,6 +56,7 @@ export interface PolicyServicePort {
 	getPolicy(): PolicyConfig;
 	setPolicy(policy: PolicyConfig): PolicyConfig;
 	evaluate(targetPath: string, permission: Permission): PolicyDecision;
+	registerRule<K extends PolicyRuleName>(name: K, rule: PolicyRule<K>): void;
 	createToolUseKey(toolName: string, params: unknown): string;
 	evaluateTools(
 		subjects: readonly ToolPolicySubject[],
@@ -124,6 +128,10 @@ export class PolicyService implements PolicyServicePort {
 		this.workspaceRoot = options.workspaceRoot;
 		this.agentRoot = options.agentRoot;
 		this.logger = options.logger;
+		this.logger?.info?.('PolicyService', 'Policy service initialized', {
+			workspaceRoot: this.workspaceRoot,
+			agentRoot: this.agentRoot,
+		});
 	}
 
 	getPolicy(): PolicyConfig {
@@ -131,7 +139,14 @@ export class PolicyService implements PolicyServicePort {
 	}
 
 	setPolicy(policy: PolicyConfig): PolicyConfig {
-		return this.getStore().setPolicy(policy);
+		try {
+			const updated = this.getStore().setPolicy(policy);
+			this.logger?.info?.('PolicyService', 'Policy updated', this.describePolicy(updated));
+			return updated;
+		} catch (error) {
+			this.reportPolicyUpdateError(error);
+			throw error;
+		}
 	}
 
 	evaluate(targetPath: string, permission: Permission): PolicyDecision {
@@ -182,6 +197,7 @@ export class PolicyService implements PolicyServicePort {
 
 	registerRule<K extends PolicyRuleName>(name: K, rule: PolicyRule<K>): void {
 		this.rules[name] = rule as PolicyRuleRegistry[K];
+		this.logger?.info?.('PolicyService', 'Policy rule registered', { rule: name });
 	}
 
 	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): ToolPolicyIndex {
@@ -240,21 +256,80 @@ export class PolicyService implements PolicyServicePort {
 		input: PolicyRuleInputMap[K]
 	): PolicyRuleDecisionMap[K] {
 		try {
-			return this.rules[name](input);
+			const decision = this.rules[name](input);
+			this.reportEvaluationResult(name, decision);
+			return decision;
 		} catch (error) {
 			this.reportEvaluationError(name, error);
 			throw error;
 		}
 	}
 
+	private describePolicy(policy: PolicyConfig): Record<string, unknown> {
+		return {
+			version: policy.version,
+			defaultPolicy: policy.defaultPolicy,
+			pathCount: policy.paths.length,
+		};
+	}
+
+	private reportEvaluationResult(
+		name: PolicyRuleName,
+		decision: PolicyRuleDecisionMap[PolicyRuleName]
+	): void {
+		const data = this.describeDecision(decision);
+		if (this.isDeniedDecision(decision)) {
+			this.logger?.warn?.('PolicyService', `Policy rule '${name}' denied`, data);
+			return;
+		}
+		this.logger?.debug?.('PolicyService', `Policy rule '${name}' evaluated`, data);
+	}
+
 	private reportEvaluationError(name: PolicyRuleName, error: unknown): void {
 		this.logger?.error('PolicyService', `Policy rule '${name}' evaluation failed`, {
 			rule: name,
-			error:
-				error instanceof Error
-					? { name: error.name, message: error.message, stack: error.stack }
-					: error,
+			error: this.describeError(error),
 		});
+	}
+
+	private reportPolicyUpdateError(error: unknown): void {
+		this.logger?.error('PolicyService', 'Policy update failed', {
+			error: this.describeError(error),
+		});
+	}
+
+	private describeDecision(decision: PolicyRuleDecisionMap[PolicyRuleName]): unknown {
+		if (!decision || typeof decision !== 'object') return decision;
+		if (decision instanceof Set) return [...decision];
+		if ('allowed' in decision && decision.allowed instanceof Set) {
+			return {
+				allowed: [...decision.allowed],
+				filtered: decision.filtered,
+				warnings: decision.warnings,
+			};
+		}
+		if ('matched' in decision) {
+			return {
+				path: decision.path,
+				outcome: decision.outcome,
+				matchedPath: decision.matched?.path ?? null,
+				reason: decision.reason,
+			};
+		}
+		return decision;
+	}
+
+	private isDeniedDecision(decision: PolicyRuleDecisionMap[PolicyRuleName]): boolean {
+		if (!decision || typeof decision !== 'object') return false;
+		if ('outcome' in decision) return decision.outcome === 'deny';
+		if ('shouldUseTools' in decision) return decision.shouldUseTools === false;
+		return false;
+	}
+
+	private describeError(error: unknown): unknown {
+		return error instanceof Error
+			? { name: error.name, message: error.message, stack: error.stack }
+			: error;
 	}
 }
 
