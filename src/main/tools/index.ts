@@ -15,6 +15,15 @@ export {
 	type AgentToolSelectionForTurn,
 } from './service';
 export {
+	clientToolNames,
+	createAgentTools,
+	createReadTool,
+	planToolConstruction,
+	type CreateAgentToolsOptions,
+	type CreateAgentToolsResult,
+	type ToolConstructionPlan,
+} from './create';
+export {
 	ALL_TOOLS,
 	createTools,
 	LOCAL_TOOL_CATALOG,

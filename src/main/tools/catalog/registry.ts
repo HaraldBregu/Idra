@@ -1,7 +1,7 @@
 import { PolicyService, type PolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../../policy';
 import type { AgentTool } from '../core/types';
 import { normalizeToolName } from '../core/common';
-import { LOCAL_TOOL_CATALOG } from './catalog';
+import { LOCAL_TOOL_CATALOG, localToolCatalogByName } from './catalog';
 
 export {
 	LOCAL_TOOL_CATALOG,
@@ -36,7 +36,15 @@ export function createTools(
 	policy: Pick<PolicyServicePort, 'evaluateTools'> = defaultPolicyService
 ): AgentTool[] {
 	const tools = PRELOADED_LOCAL_TOOLS as unknown as AgentTool[];
-	const subjects: ToolPolicySubject[] = tools.map((tool) => ({ name: tool.name }));
+	const catalog = localToolCatalogByName();
+	const subjects: ToolPolicySubject[] = tools.map((tool) => {
+		const entry = catalog.get(tool.name);
+		return {
+			name: tool.name,
+			ownerOnly: entry?.ownerOnly,
+			groups: entry ? [`group:${entry.group}`] : undefined,
+		};
+	});
 	const result = policy.evaluateTools(subjects, {
 		stages: {
 			profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },

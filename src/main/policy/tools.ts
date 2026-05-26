@@ -137,8 +137,32 @@ const FILE_TOOL_NAMES = [
 	'find',
 ] as const;
 
+const FILESYSTEM_TOOL_NAMES = [
+	'filesystem_create',
+	'filesystem_read',
+	'filesystem_update',
+	'filesystem_delete',
+	'filesystem_list',
+	'filesystem_move',
+	'filesystem_copy',
+	'filesystem_search',
+] as const;
+
+const CRON_TOOL_NAMES = [
+	'cron_create',
+	'cron_read',
+	'cron_update',
+	'cron_delete',
+	'cron_list',
+	'cron_start',
+	'cron_stop',
+	'cron_run',
+] as const;
+
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:file': FILE_TOOL_NAMES,
+	'group:filesystem': FILESYSTEM_TOOL_NAMES,
+	'group:cron': CRON_TOOL_NAMES,
 };
 
 const PROFILE_ALLOW: Record<ToolPolicyProfile, readonly string[] | '*'> = {

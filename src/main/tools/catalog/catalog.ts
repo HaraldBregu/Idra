@@ -1,10 +1,28 @@
 import type { AgentTool } from '../core/types';
 import {
+	cronCreateTool,
+	cronDeleteTool,
+	cronListTool,
+	cronReadTool,
+	cronRunTool,
+	cronStartTool,
+	cronStopTool,
+	cronUpdateTool,
+} from '../cron/tools';
+import {
 	applyPatchTool,
 	copyTool,
 	deleteTool,
 	editTool,
 	findTool,
+	filesystemCopyTool,
+	filesystemCreateTool,
+	filesystemDeleteTool,
+	filesystemListTool,
+	filesystemMoveTool,
+	filesystemReadTool,
+	filesystemSearchTool,
+	filesystemUpdateTool,
 	inspectFileTool,
 	moveTool,
 	readTool,
@@ -13,7 +31,7 @@ import {
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
-export type LocalToolGroup = 'file';
+export type LocalToolGroup = 'file' | 'filesystem' | 'cron';
 
 export type LocalToolApprovalPolicy =
 	| { mode: 'none' }
@@ -34,6 +52,7 @@ export interface LocalToolCatalogEntry {
 }
 
 const STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
+const FULL_PROFILE = ['full'] as const;
 const NO_APPROVAL = { mode: 'none' } as const;
 const WRITE_WORKSPACE_BOUNDARY = {
 	mode: 'workspace-boundary',
@@ -100,6 +119,102 @@ export const LOCAL_TOOL_CATALOG = [
 		group: 'file',
 		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: filesystemCreateTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: WRITE_WORKSPACE_BOUNDARY,
+	}),
+	localTool({
+		tool: filesystemReadTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: filesystemUpdateTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: WRITE_WORKSPACE_BOUNDARY,
+	}),
+	localTool({
+		tool: filesystemDeleteTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: WRITE_WORKSPACE_BOUNDARY,
+	}),
+	localTool({
+		tool: filesystemListTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: filesystemMoveTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: WRITE_WORKSPACE_BOUNDARY,
+	}),
+	localTool({
+		tool: filesystemCopyTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: WRITE_WORKSPACE_BOUNDARY,
+	}),
+	localTool({
+		tool: filesystemSearchTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: cronCreateTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: { mode: 'always' },
+	}),
+	localTool({
+		tool: cronReadTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: cronUpdateTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: { mode: 'always' },
+	}),
+	localTool({
+		tool: cronDeleteTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: { mode: 'always' },
+	}),
+	localTool({
+		tool: cronListTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: cronStartTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: { mode: 'always' },
+	}),
+	localTool({
+		tool: cronStopTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: { mode: 'always' },
+	}),
+	localTool({
+		tool: cronRunTool,
+		group: 'cron',
+		profiles: FULL_PROFILE,
+		approval: { mode: 'always' },
 	}),
 ] as const satisfies readonly LocalToolCatalogEntry[];
 

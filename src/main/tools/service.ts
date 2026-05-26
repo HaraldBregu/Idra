@@ -5,7 +5,7 @@ import {
 } from '../policy';
 import type { AgentTool, AgentToolResult, ToolContext } from './types';
 import { getToolMetadata, normalizeToolName } from './core/common';
-import { createTools } from './catalog/registry';
+import { createTools, localToolCatalogByName } from './catalog/registry';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
@@ -45,6 +45,8 @@ export interface DefaultToolPolicy {
 }
 
 export interface ToolServicePort {
+	getToolRegistry(): ReturnType<typeof localToolCatalogByName>;
+	getToolsByGroup(group: string): AgentTool[];
 	createDefaultTools(input: {
 		toolPolicy?: DefaultToolPolicy;
 		denylist?: string[];
@@ -95,6 +97,16 @@ export interface ToolServicePort {
 }
 
 export class ToolService implements ToolServicePort {
+	getToolRegistry(): ReturnType<typeof localToolCatalogByName> {
+		return localToolCatalogByName();
+	}
+
+	getToolsByGroup(group: string): AgentTool[] {
+		return [...this.getToolRegistry().values()]
+			.filter((entry) => entry.group === group)
+			.map((entry) => entry.tool as AgentTool);
+	}
+
 	createDefaultTools(input: {
 		toolPolicy?: DefaultToolPolicy;
 		denylist?: string[];
@@ -207,14 +219,17 @@ function filterTools(
 	runtime: { allow?: string[]; deny?: string[] },
 	policy?: PolicyServicePort
 ): AgentTool[] {
+	const catalog = localToolCatalogByName();
 	const subjects: ToolPolicySubject[] = tools.map((tool) => {
 		const metadata = getToolMetadata(tool as never);
+		const entry = catalog.get(tool.name);
 		return {
 			name: tool.name,
 			ownerOnly: tool.ownerOnly,
 			optional: metadata?.optional,
 			ownerKind: metadata?.ownerKind,
 			pluginId: metadata?.pluginId,
+			groups: entry ? [`group:${entry.group}`] : undefined,
 		};
 	});
 	const policyService = policy ?? defaultPolicyService;

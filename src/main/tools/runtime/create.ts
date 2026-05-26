@@ -6,6 +6,7 @@ import {
 	normalizeToolName,
 } from '../core/common';
 import { createFileTools } from '../files/runtime';
+import { createCronTools } from '../cron/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
 import type { ToolPolicy, ToolPolicyStageName } from '../../policy';
 import { applyToolPolicyPipeline } from '../pipeline';
@@ -61,6 +62,7 @@ export type CreateAgentToolsOptions = {
 
 export type ToolConstructionPlan = {
 	includeFileTools: boolean;
+	includeCronTools: boolean;
 	includeShellTools: boolean;
 	includeWebTools: boolean;
 	includeMessagingTools: boolean;
@@ -87,6 +89,22 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
 	move: 'includeFileTools',
 	inspect_file: 'includeFileTools',
 	find: 'includeFileTools',
+	filesystem_create: 'includeFileTools',
+	filesystem_read: 'includeFileTools',
+	filesystem_update: 'includeFileTools',
+	filesystem_delete: 'includeFileTools',
+	filesystem_list: 'includeFileTools',
+	filesystem_move: 'includeFileTools',
+	filesystem_copy: 'includeFileTools',
+	filesystem_search: 'includeFileTools',
+	cron_create: 'includeCronTools',
+	cron_read: 'includeCronTools',
+	cron_update: 'includeCronTools',
+	cron_delete: 'includeCronTools',
+	cron_list: 'includeCronTools',
+	cron_start: 'includeCronTools',
+	cron_stop: 'includeCronTools',
+	cron_run: 'includeCronTools',
 };
 
 const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
@@ -94,6 +112,7 @@ const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
 export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPlan {
 	const empty: ToolConstructionPlan = {
 		includeFileTools: false,
+		includeCronTools: false,
 		includeShellTools: false,
 		includeWebTools: false,
 		includeMessagingTools: false,
@@ -110,12 +129,15 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 	}
 	const normalized = toolsAllow.map(normalizeToolName);
 	if (normalized.includes('*')) {
-		return { ...empty, includeFileTools: true };
+		return { ...empty, includeFileTools: true, includeCronTools: true };
 	}
 	const plan = { ...empty };
 	for (const name of normalized) {
-		if (name.startsWith('group:file')) plan.includeFileTools = true;
-		else if (!name.startsWith('group:')) {
+		if (name.startsWith('group:file') || name.startsWith('group:filesystem')) {
+			plan.includeFileTools = true;
+		} else if (name.startsWith('group:cron')) {
+			plan.includeCronTools = true;
+		} else if (!name.startsWith('group:')) {
 			const family = CORE_TOOL_FAMILIES[name];
 			if (family) plan[family] = true;
 		}
@@ -178,6 +200,16 @@ function addCoreToolCandidates(
 				workspaceDir: options.workspaceDir,
 				sessionId: options.sessionId,
 				fsPolicy,
+				signal: options.abortSignal,
+				services: options.services,
+			})
+		);
+	}
+	if (plan.includeCronTools) {
+		candidates.push(
+			...createCronTools({
+				workspaceDir: options.workspaceDir,
+				sessionId: options.sessionId,
 				signal: options.abortSignal,
 				services: options.services,
 			})
