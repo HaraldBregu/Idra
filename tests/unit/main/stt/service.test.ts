@@ -301,8 +301,11 @@ describe('SpeechToTextService', () => {
 		expect(fake.finish).toHaveBeenCalledTimes(1);
 		expect(fake.adapter.startSession).toHaveBeenCalledWith(
 			expect.objectContaining({
-				provider: openaiProvider,
-				model: { id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT realtime transcriber' },
+				provider: expect.objectContaining(openaiProvider),
+				model: {
+					id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+					name: 'GPT-4o Mini Transcribe',
+				},
 				request: { audio: 'AAAA', language: 'en' },
 			})
 		);
