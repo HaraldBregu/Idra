@@ -78,6 +78,15 @@ export class AgentIpc implements IpcModule {
 			const agent = container.get('agentService');
 			const startupFiles = container.get('startupFiles');
 			const userDataDirectory = container.get('userDataDirectory');
+		const listStartupFiles = (): ReturnType<typeof startupFiles.listFiles> => {
+			return startupFiles.listFiles(DEFAULT_AGENT_ID);
+		};
+		const readStartupFile = (name: string): ReturnType<typeof startupFiles.readFile> => {
+			return startupFiles.readFile(DEFAULT_AGENT_ID, name);
+		};
+		const writeStartupFile = (name: string, content: string): ReturnType<typeof startupFiles.writeFile> => {
+			return startupFiles.writeFile(DEFAULT_AGENT_ID, name, content);
+		};
 
 		ipcMain.handle(
 			AgentChannels.send,
@@ -120,24 +129,45 @@ export class AgentIpc implements IpcModule {
 		);
 
 
-			ipcMain.handle(
+		ipcMain.handle(
+			AgentChannels.listStartupFiles,
+			wrapSimpleHandler(() => {
+				return listStartupFiles();
+			}, AgentChannels.listStartupFiles)
+		);
+
+		ipcMain.handle(
+			AgentChannels.readStartupFile,
+			wrapSimpleHandler((name: string) => {
+				return readStartupFile(name);
+			}, AgentChannels.readStartupFile)
+		);
+
+		ipcMain.handle(
+			AgentChannels.writeStartupFile,
+			wrapSimpleHandler((name: string, content: string) => {
+				return writeStartupFile(name, content);
+			}, AgentChannels.writeStartupFile)
+		);
+
+		ipcMain.handle(
 				AgentChannels.listWorkspaceFiles,
 				wrapSimpleHandler(() => {
-					return startupFiles.listFiles(DEFAULT_AGENT_ID);
+					return listStartupFiles();
 				}, AgentChannels.listWorkspaceFiles)
 			);
 
 			ipcMain.handle(
 				AgentChannels.readWorkspaceFile,
 				wrapSimpleHandler((name: string) => {
-					return startupFiles.readFile(DEFAULT_AGENT_ID, name);
+					return readStartupFile(name);
 				}, AgentChannels.readWorkspaceFile)
 			);
 
 			ipcMain.handle(
 				AgentChannels.writeWorkspaceFile,
 				wrapSimpleHandler((name: string, content: string) => {
-					return startupFiles.writeFile(DEFAULT_AGENT_ID, name, content);
+					return writeStartupFile(name, content);
 				}, AgentChannels.writeWorkspaceFile)
 			);
 
