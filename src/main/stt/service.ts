@@ -12,6 +12,10 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
+import type {
+	SpeechToTextTranscribeRequest,
+	SpeechToTextTranscription,
+} from '../../shared/speech-to-text';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type { Provider } from '../../shared/providers';
 import { createDeepgramSpeechToTextAdapter } from './deepgram-realtime-adapter';
@@ -20,7 +24,11 @@ import { createMistralRealtimeSpeechToTextAdapter } from './mistral-realtime-ada
 import { createOpenAIRealtimeSpeechToTextAdapter } from './openai-realtime-adapter';
 import { createQwenRealtimeSpeechToTextAdapter } from './qwen-realtime-adapter';
 import { createXaiSpeechToTextAdapter } from './xai-realtime-adapter';
-import type { SpeechToTextRealtimeAdapter, SpeechToTextRealtimeSession } from './types';
+import type {
+	SpeechToTextRealtimeAdapter,
+	SpeechToTextRealtimeSession,
+	SpeechToTextSessionCallbacks,
+} from './types';
 
 interface SpeechToTextServiceDependencies {
 	store: StoreService;
@@ -31,6 +39,10 @@ interface SpeechToTextServiceDependencies {
 interface OwnedSpeechToTextSession {
 	session: SpeechToTextRealtimeSession;
 	owner: WebContents;
+}
+
+interface SpeechToTextStartOptions {
+	eventChannel?: string;
 }
 
 export class SpeechToTextService {
@@ -54,8 +66,75 @@ export class SpeechToTextService {
 
 	async start(
 		owner: WebContents,
-		request?: RealtimeTranscriptionStartRequest
+		request?: RealtimeTranscriptionStartRequest,
+		options?: SpeechToTextStartOptions
 	): Promise<RealtimeTranscriptionSession> {
+		const sessionId = randomUUID();
+		const eventChannel = options?.eventChannel ?? RealtimeTranscriptionChannels.event;
+		const session = await this.startSession(sessionId, request, {
+			emit: (event) => this.sendToRenderer(owner, eventChannel, event),
+			closed: (closedSessionId) => {
+				this.sessions.delete(closedSessionId);
+			},
+		});
+		this.sessions.set(sessionId, { session, owner });
+		owner.once('destroyed', () => this.closeSession(sessionId));
+		this.dependencies.logger?.info('SpeechToTextService', `Started session "${sessionId}"`);
+		return { id: session.id, model: session.model, sampleRate: session.sampleRate };
+	}
+
+	async transcribe(request: SpeechToTextTranscribeRequest): Promise<SpeechToTextTranscription> {
+		const sessionId = randomUUID();
+		let session: SpeechToTextRealtimeSession | null = null;
+		const transcripts: string[] = [];
+
+		return new Promise((resolve, reject) => {
+			let settled = false;
+			const done = (error?: Error): void => {
+				if (settled) return;
+				settled = true;
+				if (error) {
+					reject(error);
+					return;
+				}
+
+				resolve({
+					model: session?.model ?? '',
+					transcript: transcripts.join('\n').trim(),
+				});
+			};
+
+			void this.startSession(sessionId, request, {
+				emit: (event) => {
+					if (event.type === 'completed') {
+						if (event.transcript.trim()) transcripts.push(event.transcript.trim());
+						return;
+					}
+					if (event.type === 'error') {
+						done(new Error(event.message));
+					}
+				},
+				closed: () => {
+					done();
+				},
+			})
+				.then((createdSession) => {
+					session = createdSession;
+					createdSession.appendAudio(request.audio);
+					createdSession.finish();
+				})
+				.catch((error: unknown) => {
+					if (session) session.close();
+					done(error instanceof Error ? error : new Error(String(error)));
+				});
+		});
+	}
+
+	private async startSession(
+		sessionId: string,
+		request: RealtimeTranscriptionStartRequest | undefined,
+		callbacks: SpeechToTextSessionCallbacks
+	): Promise<SpeechToTextRealtimeSession> {
 		const resolved = this.resolveRuntime();
 		const adapter = this.adapters.find((candidate) =>
 			candidate.supports(resolved.provider.id, resolved.model.id)
@@ -66,24 +145,14 @@ export class SpeechToTextService {
 			);
 		}
 
-		const sessionId = randomUUID();
-		const session = await adapter.startSession({
+		return adapter.startSession({
 			sessionId,
 			provider: resolved.provider,
 			operator: resolved.operator,
 			model: resolved.model,
 			request,
-			callbacks: {
-				emit: (event) => this.sendToRenderer(owner, event),
-				closed: (closedSessionId) => {
-					this.sessions.delete(closedSessionId);
-				},
-			},
+			callbacks,
 		});
-		this.sessions.set(sessionId, { session, owner });
-		owner.once('destroyed', () => this.closeSession(sessionId));
-		this.dependencies.logger?.info('SpeechToTextService', `Started session "${sessionId}"`);
-		return { id: session.id, model: session.model, sampleRate: session.sampleRate };
 	}
 
 	appendAudio(owner: WebContents, sessionId: string, audio: string): void {
@@ -145,10 +214,11 @@ export class SpeechToTextService {
 
 	private sendToRenderer(
 		owner: WebContents,
+		channel: string,
 		event: Parameters<WebContents['send']>[1]
 	): void {
 		if (owner.isDestroyed()) return;
-		owner.send(RealtimeTranscriptionChannels.event, event);
+		owner.send(channel, event);
 	}
 
 	private closeSession(sessionId: string): void {

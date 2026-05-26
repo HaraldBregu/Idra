@@ -303,12 +303,32 @@ export interface RealtimeTranscriptionApi {
 	onEvent: (callback: (event: RealtimeTranscriptionEvent) => void) => () => void;
 }
 
+export interface SpeechToTextApi {
+	transcribe: (request: SpeechToTextTranscribeRequest) => Promise<SpeechToTextTranscription>;
+	startDictation: (
+		request?: SpeechToTextDictationStartRequest
+	) => Promise<SpeechToTextDictationSession>;
+	appendAudio: (sessionId: string, audio: string) => void;
+	finishDictation: (sessionId: string) => Promise<void>;
+	cancelDictation: (sessionId: string) => Promise<void>;
+	onEvent: (callback: (event: SpeechToTextEvent) => void) => () => void;
+}
+
+import type {
+	SpeechToTextDictationSession,
+	SpeechToTextDictationStartRequest,
+	SpeechToTextEvent,
+	SpeechToTextTranscribeRequest,
+	SpeechToTextTranscription,
+} from '../shared/speech-to-text';
+
 declare global {
 	interface Window {
 		win?: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
 		realtimeTranscription: RealtimeTranscriptionApi;
+		speechToText: SpeechToTextApi;
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
 		tasks: TasksApi;

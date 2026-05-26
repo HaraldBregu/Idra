@@ -9,6 +9,7 @@ import {
 	OperatorChannels,
 	ProviderChannels,
 	RealtimeTranscriptionChannels,
+	SpeechToTextChannels,
 	TaskChannels,
 	CronChannels,
 	HeartbeatChannels,
@@ -27,6 +28,7 @@ import type {
 	MonitorApi,
 	PolicyApi,
 	RealtimeTranscriptionApi,
+	SpeechToTextApi,
 	SkillsApi,
 	StoreApi,
 	TasksApi,
@@ -104,6 +106,12 @@ import {
 	isRealtimeTranscriptionSessionId,
 	normalizeRealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
+import {
+	isSpeechToTextAudioChunk,
+	isSpeechToTextSessionId,
+	normalizeSpeechToTextDictationStartRequest,
+	normalizeSpeechToTextTranscribeRequest,
+} from '../shared/speech-to-text';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -324,6 +332,45 @@ export const realtimeTranscription: RealtimeTranscriptionApi = {
 	},
 	onEvent: (callback): (() => void) => {
 		return typedOn(RealtimeTranscriptionChannels.event, callback);
+	},
+};
+
+export const speechToText: SpeechToTextApi = {
+	transcribe: (request) => {
+		return typedInvokeUnwrap(
+			SpeechToTextChannels.transcribe,
+			normalizeSpeechToTextTranscribeRequest(request)
+		);
+	},
+	startDictation: (request) => {
+		return typedInvokeUnwrap(
+			SpeechToTextChannels.startDictation,
+			normalizeSpeechToTextDictationStartRequest(request)
+		);
+	},
+	appendAudio: (sessionId: string, audio: string): void => {
+		if (!isSpeechToTextSessionId(sessionId)) {
+			throw new Error('Invalid speech-to-text session id.');
+		}
+		if (!isSpeechToTextAudioChunk(audio)) {
+			throw new Error('Invalid speech-to-text audio chunk.');
+		}
+		typedSend(SpeechToTextChannels.appendAudio, sessionId, audio);
+	},
+	finishDictation: (sessionId: string): Promise<void> => {
+		if (!isSpeechToTextSessionId(sessionId)) {
+			throw new Error('Invalid speech-to-text session id.');
+		}
+		return typedInvokeUnwrap(SpeechToTextChannels.finishDictation, sessionId);
+	},
+	cancelDictation: (sessionId: string): Promise<void> => {
+		if (!isSpeechToTextSessionId(sessionId)) {
+			throw new Error('Invalid speech-to-text session id.');
+		}
+		return typedInvokeUnwrap(SpeechToTextChannels.cancelDictation, sessionId);
+	},
+	onEvent: (callback): (() => void) => {
+		return typedOn(SpeechToTextChannels.event, callback);
 	},
 };
 
@@ -684,6 +731,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
+		contextBridge.exposeInMainWorld('speechToText', speechToText);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('tasks', tasks);
@@ -705,6 +753,8 @@ if (process.contextIsolated) {
 	globalThis.agent = agent;
 	// @ts-ignore (define in dts)
 	globalThis.realtimeTranscription = realtimeTranscription;
+	// @ts-ignore (define in dts)
+	globalThis.speechToText = speechToText;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)

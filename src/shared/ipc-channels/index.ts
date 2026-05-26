@@ -66,6 +66,15 @@ export const RealtimeTranscriptionChannels = {
 	event: 'realtime-transcription:event',
 } as const;
 
+export const SpeechToTextChannels = {
+	transcribe: 'speech-to-text:transcribe',
+	startDictation: 'speech-to-text:start-dictation',
+	appendAudio: 'speech-to-text:append-audio',
+	finishDictation: 'speech-to-text:finish-dictation',
+	cancelDictation: 'speech-to-text:cancel-dictation',
+	event: 'speech-to-text:event',
+} as const;
+
 export const TaskChannels = {
 	start: 'tasks:start',
 	list: 'tasks:list',
@@ -416,6 +425,25 @@ interface AppInvokeChannelMap {
 		result: void;
 	};
 	[RealtimeTranscriptionChannels.cancel]: {
+		args: [sessionId: string];
+		result: void;
+	};
+}
+
+interface SpeechToTextInvokeChannelMap {
+	[SpeechToTextChannels.transcribe]: {
+		args: [request: import('../speech-to-text').SpeechToTextTranscribeRequest];
+		result: import('../speech-to-text').SpeechToTextTranscription;
+	};
+	[SpeechToTextChannels.startDictation]: {
+		args: [request?: import('../speech-to-text').SpeechToTextDictationStartRequest];
+		result: import('../speech-to-text').SpeechToTextDictationSession;
+	};
+	[SpeechToTextChannels.finishDictation]: {
+		args: [sessionId: string];
+		result: void;
+	};
+	[SpeechToTextChannels.cancelDictation]: {
 		args: [sessionId: string];
 		result: void;
 	};
@@ -878,6 +906,7 @@ export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
+		SpeechToTextInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
@@ -897,11 +926,20 @@ export interface SendChannelMap {
 	[RealtimeTranscriptionChannels.appendAudio]: {
 		args: [sessionId: string, audio: string];
 	};
+	[SpeechToTextChannels.appendAudio]: {
+		args: [sessionId: string, audio: string];
+	};
 }
 
 interface AppEventChannelMap {
 	[RealtimeTranscriptionChannels.event]: {
 		data: import('../realtime-transcription').RealtimeTranscriptionEvent;
+	};
+}
+
+interface SpeechToTextEventChannelMap {
+	[SpeechToTextChannels.event]: {
+		data: import('../speech-to-text').SpeechToTextEvent;
 	};
 }
 
@@ -937,6 +975,7 @@ interface MonitorEventChannelMap {
 export interface EventChannelMap
 	extends
 		AppEventChannelMap,
+		SpeechToTextEventChannelMap,
 		AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
