@@ -302,7 +302,9 @@ describe('connectors service', () => {
 			throw new Error('unexpected fetch');
 		}) as unknown as typeof fetch;
 		const service = new ConnectorsService(makeLogger() as never, {
-			store: store as never, fetchImpl });
+			store: store as never,
+			fetchImpl,
+		});
 		const gmail = await service.add({
 			name: 'My Gmail',
 			connectorId: 'connector_gmail',

@@ -21,7 +21,12 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { StoreChannels } from '../../shared/ipc-channels';
-import { DEFAULT_PROVIDERS, type Provider, type ProviderInput, type PublicProvider } from '../../shared/providers';
+import {
+	DEFAULT_PROVIDERS,
+	type Provider,
+	type ProviderInput,
+	type PublicProvider,
+} from '../../shared/providers';
 import type { StoreService } from '../store';
 
 function publicProvider(provider: Provider): PublicProvider {
@@ -179,7 +184,10 @@ export class StoreIpc implements IpcModule {
 
 		ipcMain.handle(
 			StoreChannels.getKeepAwakeEnabled,
-			wrapSimpleHandler((): boolean => store.getKeepAwakeEnabled(), StoreChannels.getKeepAwakeEnabled)
+			wrapSimpleHandler(
+				(): boolean => store.getKeepAwakeEnabled(),
+				StoreChannels.getKeepAwakeEnabled
+			)
 		);
 
 		ipcMain.handle(
@@ -407,7 +415,10 @@ export class StoreIpc implements IpcModule {
 
 		ipcMain.handle(
 			StoreChannels.getAgentService,
-			wrapSimpleHandler((): Agent | undefined => store.getAgentService(), StoreChannels.getAgentService)
+			wrapSimpleHandler(
+				(): Agent | undefined => store.getAgentService(),
+				StoreChannels.getAgentService
+			)
 		);
 
 		ipcMain.handle(

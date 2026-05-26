@@ -376,19 +376,21 @@ export class ConnectorsService {
 		const patch = this.validateConnectorInput('update', () =>
 			requireObject(input, 'Connector update')
 		);
-		const merged = this.validateConnectorInput('update', () => sanitizeInput({
-			name: readOptionalString(patch, 'name') ?? current.name,
-			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
-			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
-			serverDescription:
-				readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
-			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
-			requireApproval:
-				readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
-			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
-			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
-			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
-		}));
+		const merged = this.validateConnectorInput('update', () =>
+			sanitizeInput({
+				name: readOptionalString(patch, 'name') ?? current.name,
+				connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
+				serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
+				serverDescription:
+					readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+				authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
+				requireApproval:
+					readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
+				allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
+				deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
+				enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
+			})
+		);
 		const next = this.withKnownTools({
 			...current,
 			...merged,

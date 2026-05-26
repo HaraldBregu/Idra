@@ -29,7 +29,11 @@ import type {
 	CronStoredSchedule,
 	CronTask,
 } from '../../shared/cron';
-import type { AgentHeartbeatConfig, AgentsHeartbeatConfig, HeartbeatStoreState } from '../../shared/heartbeat';
+import type {
+	AgentHeartbeatConfig,
+	AgentsHeartbeatConfig,
+	HeartbeatStoreState,
+} from '../../shared/heartbeat';
 import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
 import {
 	getMusicModelsByProvider,
@@ -126,7 +130,9 @@ function providerFromSettings(settings: Provider): Provider {
 	};
 }
 
-function providerSettings(provider: Provider): Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'> {
+function providerSettings(
+	provider: Provider
+): Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'> {
 	return {
 		id: provider.id.trim().toLowerCase(),
 		name: provider.name.trim(),

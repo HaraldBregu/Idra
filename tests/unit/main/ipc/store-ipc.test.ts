@@ -50,9 +50,9 @@ describe('StoreIpc', () => {
 					? store
 					: key === 'connectors'
 						? connectors
-					: key === 'powerSaveBlocker'
-						? powerSaveBlocker
-						: { info: jest.fn() }
+						: key === 'powerSaveBlocker'
+							? powerSaveBlocker
+							: { info: jest.fn() }
 			),
 		} as unknown as MainServiceContainer;
 
@@ -62,11 +62,15 @@ describe('StoreIpc', () => {
 			success: true,
 			data: [{ id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' }],
 		});
-		await expect(registeredHandler(StoreChannels.isProviderApiKeySaved)({}, 'openai')).resolves.toEqual({
+		await expect(
+			registeredHandler(StoreChannels.isProviderApiKeySaved)({}, 'openai')
+		).resolves.toEqual({
 			success: true,
 			data: true,
 		});
-		await expect(registeredHandler(StoreChannels.setProviderApiKey)({}, 'openai', 'new-key')).resolves.toEqual({
+		await expect(
+			registeredHandler(StoreChannels.setProviderApiKey)({}, 'openai', 'new-key')
+		).resolves.toEqual({
 			success: true,
 		});
 		expect(store.upsertProvider).toHaveBeenCalledWith({
@@ -86,7 +90,13 @@ describe('StoreIpc', () => {
 			data: [],
 		});
 		expect(connectors.getConnectorSettings).toHaveBeenCalled();
-		await expect(registeredHandler(StoreChannels.saveAssistantOperator)({}, publicProvider(providers[0]), model)).resolves.toEqual({
+		await expect(
+			registeredHandler(StoreChannels.saveAssistantOperator)(
+				{},
+				publicProvider(providers[0]),
+				model
+			)
+		).resolves.toEqual({
 			success: true,
 			data: true,
 		});
@@ -94,7 +104,9 @@ describe('StoreIpc', () => {
 			...model,
 			effort: expect.any(String),
 		});
-		await expect(registeredHandler(StoreChannels.saveAgentService)({}, publicProvider(providers[0]), model)).resolves.toEqual({
+		await expect(
+			registeredHandler(StoreChannels.saveAgentService)({}, publicProvider(providers[0]), model)
+		).resolves.toEqual({
 			success: true,
 			data: true,
 		});
