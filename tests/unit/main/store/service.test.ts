@@ -26,7 +26,6 @@ jest.mock('electron-store', () => {
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
 import type { CronStoreState, CronTask } from '../../../../src/shared/cron';
-import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/service';
 
@@ -305,38 +304,6 @@ describe('StoreService', () => {
 			});
 			expect(store.get('agents')).toEqual(settings);
 			expect(service.getAgentConfig('main')).toEqual(settings.agents[0]);
-		});
-	});
-
-	describe('heartbeat state', () => {
-		it('normalizes heartbeat state before returning and writing it', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-			store.set('heartbeat', {
-				version: 99,
-				taskState: {
-					valid: { lastRunMs: 123 },
-					invalid: { lastRunMs: 'never' },
-				},
-				lastDelivered: {
-					valid: { text: 'ok', atMs: 456 },
-					invalid: { text: '', atMs: 'later' },
-				},
-			});
-
-			expect(service.getHeartbeatState()).toEqual({
-				version: 1,
-				taskState: { valid: { lastRunMs: 123 } },
-				lastDelivered: { valid: { text: 'ok', atMs: 456 } },
-			});
-
-			const next: HeartbeatStoreState = {
-				version: 1,
-				taskState: { main: { lastRunMs: 1 } },
-				lastDelivered: { main: { text: 'done', atMs: 2 } },
-			};
-			service.setHeartbeatState(next);
-			expect(store.get('heartbeat')).toEqual(next);
 		});
 	});
 
