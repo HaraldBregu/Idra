@@ -1,6 +1,12 @@
 import type { Disposable } from '../core/service-container';
 import type { AgentService } from '../agent';
-import type { OperatorStoreState } from '../../shared/agents/service';
+import {
+	getModelReasoningEfforts,
+	isModelReasoningEffort,
+	requireModelReasoningEffort,
+	type ModelReasoningEffort,
+	type OperatorStoreState,
+} from '../../shared/agents/service';
 import {
 	normalizeChannelId,
 	type ChannelChatType,
@@ -10,6 +16,9 @@ import { DEFAULT_AGENT_ID } from '../constants';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatRunResult,
+	HeartbeatSetReasoningEffortRequest,
+	HeartbeatSettings,
+	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
