@@ -1,15 +1,13 @@
 import { AgentExecutionService } from '../run';
 import type { AgentHarness } from './types';
 
-const agentExecutionService = new AgentExecutionService();
-
 export function createPiAgentHarness(): AgentHarness {
 	return {
 		id: 'pi',
 		label: 'Friday default runtime',
 		supports: () => ({ supported: true, priority: 0 }),
 		runAttempt: async (params) =>
-			agentExecutionService.execute({
+			new AgentExecutionService(params.toolService).execute({
 				runId: params.runId,
 				userMessage: params.userMessage,
 				systemPrompt: params.systemPrompt,
