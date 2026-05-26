@@ -61,7 +61,7 @@ export class CronService implements Disposable {
 	private readonly scheduler: CronSchedulerService;
 	private readonly automaticEnabled: boolean;
 
-	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
+	constructor(logger: LoggerService, options: CronServiceOptions) {
 		if (!options.store) throw new Error('CronService requires a store persistence service.');
 		this.store = options.store;
 		this.logger = logger;

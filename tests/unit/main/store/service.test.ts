@@ -27,6 +27,8 @@ import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';
+import type { CronStoreState, CronTask } from '../../../../src/shared/cron';
+import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
 import type { Provider } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/service';
 
@@ -45,6 +47,15 @@ function storeFor(service: StoreService): {
 			store: { get: (key: string) => unknown; set: (key: string, value: unknown) => void };
 		}
 	).store;
+}
+
+function createLogger() {
+	return {
+		debug: jest.fn(),
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+	};
 }
 
 // ---------------------------------------------------------------------------
@@ -114,6 +125,33 @@ const imageModel: Model = { id: 'FLUX.2', name: 'FLUX.2' };
 const textToSpeechModel: Model = { id: 'eleven_v3', name: 'Eleven v3' };
 const videoModel: Model = { id: 'gen4.5', name: 'Gen 4.5' };
 const musicModel: Model = { id: 'suno-v5.5', name: 'Suno v5.5' };
+
+const cronTask: CronTask = {
+	id: 'task-1',
+	name: 'task-1',
+	schedule: '* * * * *',
+	expression: '* * * * *',
+	timezone: 'UTC',
+	enabled: true,
+	status: 'active',
+	target: 'job',
+	payload: { type: 'message', message: 'Run' },
+	data: { type: 'message', message: 'Run' },
+	createdAt: '2026-05-22T00:00:00.000Z',
+	updatedAt: '2026-05-22T00:00:00.000Z',
+	runCount: 0,
+	failureCount: 0,
+};
+
+const cronScheduler = {
+	schemaVersion: 1,
+	schedules: [{ id: 'schedule-1' }],
+	events: [],
+	executions: [],
+	locks: {},
+	confirmations: [],
+	quarantined: [],
+} as unknown as CronStoreState;
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -250,6 +288,147 @@ describe('StoreService', () => {
 				defaultConcurrency: 2,
 			});
 		});
+
+		it('persists normalized task settings at the task root', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+
+			expect(
+				service.setTaskSettings({
+					allowedTaskTypes: [' agent.run ', '', 42, 'ocr.run'],
+					defaultConcurrency: 0,
+				})
+			).toEqual({ allowedTaskTypes: ['agent.run', 'ocr.run'] });
+			expect(store.get('task')).toEqual({ allowedTaskTypes: ['agent.run', 'ocr.run'] });
+		});
+	});
+
+	describe('cron settings', () => {
+		it('stores cron tasks and scheduler state under the settings cron root', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+
+			service.setCronTasks([cronTask]);
+			service.setCronSchedulerState(cronScheduler);
+
+			expect(service.getCronTasks()).toEqual([cronTask]);
+			expect(service.getCronSchedulerState()).toMatchObject({
+				schedules: [{ id: 'schedule-1' }],
+			});
+			expect(store.get('cron')).toMatchObject({
+				tasks: [cronTask],
+				scheduler: { schedules: [{ id: 'schedule-1' }] },
+			});
+		});
+
+		it('normalizes invalid stored cron settings to empty cron state', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('cron', {
+				tasks: 'invalid',
+				scheduler: {
+					schedules: ['invalid'],
+					locks: [],
+				},
+			});
+
+			expect(service.getCronSettings()).toMatchObject({
+				tasks: [],
+				scheduler: {
+					schemaVersion: 1,
+					schedules: [],
+					events: [],
+					executions: [],
+					locks: {},
+					confirmations: [],
+					quarantined: [],
+				},
+			});
+		});
+	});
+
+	describe('agent routing settings', () => {
+		it('normalizes and stores agent routing settings through the service', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+
+			const settings = service.setAgentRoutingSettings({
+				agents: [
+					{
+						id: ' main ',
+						default: true,
+						name: ' Main agent ',
+						model: { providerId: ' OpenAI ', modelId: ' gpt-5.4 ', effort: 'high' },
+						skills: [' coding ', 'coding'],
+						tools: { profile: 'coding', allow: [' read ', 'read'] },
+					},
+				],
+				bindings: [
+					{
+						agentId: ' main ',
+						match: {
+							channel: ' Slack ',
+							peer: { kind: 'Direct', id: ' U123 ' },
+						},
+						session: { scope: 'per-peer' },
+					},
+				],
+			});
+
+			expect(settings).toEqual({
+				agents: [
+					{
+						id: 'main',
+						default: true,
+						name: 'Main agent',
+						model: { providerId: 'openai', modelId: 'gpt-5.4', effort: 'high' },
+						skills: ['coding'],
+						tools: { profile: 'coding', allow: ['read'] },
+					},
+				],
+				bindings: [
+					{
+						agentId: 'main',
+						match: { channel: 'slack', peer: { kind: 'direct', id: 'U123' } },
+						session: { scope: 'per-peer' },
+					},
+				],
+			});
+			expect(store.get('agents')).toEqual(settings);
+			expect(service.getAgentConfig('main')).toEqual(settings.agents[0]);
+		});
+	});
+
+	describe('heartbeat state', () => {
+		it('normalizes heartbeat state before returning and writing it', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+			store.set('heartbeat', {
+				version: 99,
+				taskState: {
+					valid: { lastRunMs: 123 },
+					invalid: { lastRunMs: 'never' },
+				},
+				lastDelivered: {
+					valid: { text: 'ok', atMs: 456 },
+					invalid: { text: '', atMs: 'later' },
+				},
+			});
+
+			expect(service.getHeartbeatState()).toEqual({
+				version: 1,
+				taskState: { valid: { lastRunMs: 123 } },
+				lastDelivered: { valid: { text: 'ok', atMs: 456 } },
+			});
+
+			const next: HeartbeatStoreState = {
+				version: 1,
+				taskState: { main: { lastRunMs: 1 } },
+				lastDelivered: { main: { text: 'done', atMs: 2 } },
+			};
+			service.setHeartbeatState(next);
+			expect(store.get('heartbeat')).toEqual(next);
+		});
 	});
 
 	describe('connectors', () => {
@@ -261,6 +440,67 @@ describe('StoreService', () => {
 
 			store.set('connectors', { id: 'gmail' });
 			expect(service.getConnectors()).toEqual([]);
+		});
+
+		it('stores connector settings by connector key', () => {
+			const service = new StoreService();
+			const store = storeFor(service);
+
+			service.setConnectors([gmailConnector]);
+
+			expect(service.getConnectors()).toEqual([gmailConnector]);
+			expect(service.getConnectorById('connector-1')).toEqual(gmailConnector);
+			expect(store.get('connectors')).toEqual({
+				google_gmail: gmailConnector,
+			});
+		});
+	});
+
+	describe('persistence errors', () => {
+		it('logs and rethrows read errors from Electron Store', () => {
+			const logger = createLogger();
+			MockStore.mockImplementationOnce(
+				() =>
+					({
+						get: () => {
+							throw new Error('read failed');
+						},
+						set: jest.fn(),
+						delete: jest.fn(),
+					}) as never
+			);
+			const service = new StoreService(logger);
+
+			expect(() => service.getProviders()).toThrow('read failed');
+			expect(logger.error).toHaveBeenCalledWith(
+				'StoreService',
+				'Failed to read settings property',
+				{ key: 'providers', error: 'read failed' }
+			);
+		});
+
+		it('logs and rethrows write errors from Electron Store', () => {
+			const logger = createLogger();
+			MockStore.mockImplementationOnce(
+				() =>
+					({
+						get: () => [],
+						set: () => {
+							throw new Error('write failed');
+						},
+						delete: jest.fn(),
+					}) as never
+			);
+			const service = new StoreService(logger);
+
+			expect(() => service.setTaskSettings({ allowedTaskTypes: ['agent.run'] })).toThrow(
+				'write failed'
+			);
+			expect(logger.error).toHaveBeenCalledWith(
+				'StoreService',
+				'Failed to write settings property',
+				{ key: 'task', error: 'write failed' }
+			);
 		});
 	});
 

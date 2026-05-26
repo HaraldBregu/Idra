@@ -6,7 +6,6 @@ import type {
 	CronRunPolicy,
 	CronSchedule,
 	CronScheduleAuditEntry,
-	CronScheduleConfirmation,
 	CronScheduleCreateRequest,
 	CronScheduleEvent,
 	CronScheduleFilter,
