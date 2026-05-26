@@ -91,9 +91,12 @@ interface AgentToolResult<TDetails = unknown> {
 
 interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 	name: string;
+	displayName?: string;
 	displaySummary?: string;
 	description: string;
 	schema: JSONSchema;
+	serviceKind?: 'tool' | 'connector' | 'mcp';
+	serviceId?: string;
 	ownerOnly?: boolean;
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
@@ -618,10 +621,11 @@ export class ConnectorsService {
 					const agentToolName = agentToolNameFor(connector, rawToolName);
 					return {
 						name: agentToolName,
+						displayName: `${connector.name}: ${rawToolName}`,
 						description: `${connector.name}: ${descriptionForTool(connector, rawToolName)}`,
 						schema: schemaForTool(connector, rawToolName),
-						needsApproval: (_args: unknown, _ctx: ToolContext) =>
-							requiresApprovalForTool(connector, rawToolName),
+						serviceKind: 'connector',
+						serviceId: connector.id,
 						execute: async (args: unknown) => {
 							try {
 								const payload = await this.callTool(connector.id, rawToolName, args);
