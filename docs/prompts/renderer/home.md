@@ -56,6 +56,20 @@ Wrap `PageContent` in a `Provider` (from `./context`) that supplies the welcome 
 
 - `useHomeAgent` — manages agent execution, chat state, input value, history loading, and the submit handler.
 
+## React Design Guidelines
+
+Follow standard React application patterns throughout:
+
+- **Components**: keep each component focused on one responsibility. Avoid mixing data-fetching, business logic, and rendering in a single component.
+- **State**: colocate state as close as possible to where it is used. Lift only when two or more siblings need to share it. Do not use global state for ephemeral UI state (input value, scroll position, loading flags).
+- **Hooks**: extract all non-trivial logic into custom hooks (`use*`). Components should contain only layout and event wiring; logic lives in hooks.
+- **Props**: prefer explicit, typed props over implicit context. Only reach for context when prop-drilling spans more than two levels.
+- **Side effects**: put side effects (subscriptions, timers, agent subscriptions) inside `useEffect` with correct dependency arrays and cleanup functions.
+- **Memoisation**: use `useMemo` and `useCallback` only when there is a measured performance problem. Do not add them preemptively.
+- **Rendering**: avoid unnecessary re-renders by keeping stable references; do not create objects or arrays inline in JSX unless they are trivially cheap.
+- **Conditional rendering**: use short-circuit (`&&`) for simple cases and ternaries for two-branch cases. Extract complex conditional trees into named sub-components.
+- **File layout**: follow the one-file-one-export rule from the project guidelines. Each component, hook, and helper lives in its own file named with a single word.
+
 ## Testing
 
-Test message rendering for user and agent roles, empty state display, prompt suggestion submission, attachment add/remove, voice mode transitions, dictation start/cancel/confirm, submit button visibility, and stop-generation behavior. Tests call exported hooks and components; they do not import internal home page files directly.
+Test message rendering for user and agent roles, empty state display, prompt suggestion submission, attachment add/remove, submit button visibility, and stop-generation behavior. Tests call exported hooks and components; they do not import internal home page files directly.
