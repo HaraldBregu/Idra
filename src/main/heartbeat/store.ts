@@ -6,6 +6,13 @@ import type {
 } from '../../shared/heartbeat';
 
 const HEARTBEAT_STORE_VERSION = 1;
+const CLEARABLE_HEARTBEAT_CONFIG_KEYS = [
+	'activeHours',
+	'providerId',
+	'modelId',
+	'model',
+	'reasoningEffort',
+] as const satisfies readonly (keyof AgentHeartbeatConfig)[];
 
 interface HeartbeatStoreSchema {
 	version?: 1;
@@ -149,8 +156,10 @@ export class HeartbeatFileStore {
 			...currentHeartbeat,
 			...config,
 		};
-		if ('activeHours' in config && config.activeHours === undefined) {
-			delete nextHeartbeat.activeHours;
+		for (const key of CLEARABLE_HEARTBEAT_CONFIG_KEYS) {
+			if (key in config && config[key] === undefined) {
+				delete nextHeartbeat[key];
+			}
 		}
 		const nextAgents: AgentsHeartbeatConfig = {
 			...currentAgents,
