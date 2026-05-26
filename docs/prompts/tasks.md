@@ -8,6 +8,10 @@ The tasks module can run agents as part of task execution.
 
 The tasks module depends on `StoreService`.
 
+## Dependencies
+
+- `StoreService`: access task-related store data.
+
 The tasks module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
 Keep the tasks module isolated:

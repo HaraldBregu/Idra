@@ -16,6 +16,10 @@ Keep the cron module isolated:
 
 Types that need to be reused by other processes can be stored in a shared folder. Keep cron-specific implementation types inside the cron module unless they are genuinely shared.
 
+## Dependencies
+
+- `StoreService`: store cron schedules and load provider and model identifiers when needed.
+
 ## Store Properties
 
 Store each cron schedule with these properties:

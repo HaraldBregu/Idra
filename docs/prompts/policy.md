@@ -16,6 +16,10 @@ Keep the policy module isolated:
 
 Types that need to be reused by other processes can be stored in a shared folder. Keep policy-specific implementation types inside the policy module unless they are genuinely shared.
 
+## Dependencies
+
+- None. Keep policy evaluation isolated from other services.
+
 The policy service should:
 
 - Register policy rules.

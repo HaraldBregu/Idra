@@ -6,6 +6,10 @@ The agent module manages agent execution for the application. Any module that ne
 
 The agent module depends on `ToolService`.
 
+## Dependencies
+
+- `ToolService`: allow agents to call registered tools.
+
 The agent module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
 Keep the agent module isolated:

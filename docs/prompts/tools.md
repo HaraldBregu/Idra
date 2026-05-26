@@ -10,6 +10,11 @@ The tools module can depend on `PolicyService` and `CronService`:
 - Use `CronService` when a tool needs scheduled execution.
 - Do not reimplement policy checks or cron scheduling inside individual tools.
 
+## Dependencies
+
+- `PolicyService`: evaluate whether tool actions are allowed.
+- `CronService`: run scheduling behavior for cron tools.
+
 Keep the tools module isolated:
 
 - Do not import internal tool files from outside the tools module.

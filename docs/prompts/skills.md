@@ -8,6 +8,10 @@ The skills module has no service dependencies.
 
 The skills module must use the application logger like the other services.
 
+## Dependencies
+
+- None. Keep skill management local to the skills service.
+
 The skills module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
 Keep the skills module isolated:
