@@ -105,19 +105,32 @@ function makeHeartbeatHarness(options: {
 		})),
 	};
 	const send = options.send ?? jest.fn(async () => 'HEARTBEAT_OK');
+	const logger = makeLogger();
 	const agentService = {
 		isBusy: jest.fn(() => false),
 		send,
+		getHeartbeatStore: jest.fn(() => heartbeatStore),
+		getHeartbeatOperatorConfig: jest.fn(() => service),
+		onHeartbeatRoute: jest.fn((listener: (payload: unknown) => void) => eventBus.on('channel:route', { listener })),
+		broadcastHeartbeatSystemEvent: jest.fn((payload: unknown) => {
+			eventBus.broadcast('heartbeat:system-event', payload);
+		}),
+		emitHeartbeatEvent: jest.fn((payload) => {
+			eventBus.emit('heartbeat:event', payload);
+			eventBus.broadcast('heartbeat:event', payload);
+		}),
+		warnHeartbeat: jest.fn((message: string, data?: unknown) => {
+			logger.warn('HeartbeatService', message, data);
+		}),
+		errorHeartbeat: jest.fn((message: string, error?: unknown) => {
+			logger.error('HeartbeatService', message, error);
+		}),
+		readHeartbeatWorkspaceFile: workspace.readWorkspaceFile,
+		getHeartbeatChannel: channels.getChannel,
+		getHeartbeatChannelConfig: channels.getChannelConfig,
+		getHeartbeatChannelRegistry: jest.fn(() => undefined),
 	};
-	const heartbeat = new HeartbeatService({
-		getOperator: jest.fn(() => service),
-		heartbeatStore: heartbeatStore as never,
-		channels: channels as never,
-		logger: makeLogger() as never,
-		eventBus: eventBus as never,
-		workspace: workspace as never,
-		agentService: agentService as never,
-	});
+	const heartbeat = new HeartbeatService(agentService as never);
 	return { heartbeat, heartbeatStore, channels, workspace, eventBus, agentService, getHeartbeatState: () => heartbeatState };
 }
 
