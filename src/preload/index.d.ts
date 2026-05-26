@@ -238,6 +238,13 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
+import type {
+	SpeechToTextDictationSession,
+	SpeechToTextDictationStartRequest,
+	SpeechToTextEvent,
+	SpeechToTextTranscribeRequest,
+	SpeechToTextTranscription,
+} from '../shared/speech-to-text';
 import type { TaskEvent, TaskRecord, TaskRunRequest } from '../shared/tasks';
 import type {
 	OPENAI_CONNECTOR_CATALOG,
@@ -312,14 +319,6 @@ export interface SpeechToTextApi {
 	cancelDictation: (sessionId: string) => Promise<void>;
 	onEvent: (callback: (event: SpeechToTextEvent) => void) => () => void;
 }
-
-import type {
-	SpeechToTextDictationSession,
-	SpeechToTextDictationStartRequest,
-	SpeechToTextEvent,
-	SpeechToTextTranscribeRequest,
-	SpeechToTextTranscription,
-} from '../shared/speech-to-text';
 
 declare global {
 	interface Window {
