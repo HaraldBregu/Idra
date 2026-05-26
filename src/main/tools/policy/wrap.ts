@@ -120,7 +120,7 @@ export function wrapToolWithBeforeToolCall(
 				const decision = await hook({ tool, toolCallId, params });
 				if (!decision) continue;
 				if (decision.params !== undefined) params = decision.params;
-				const hookPolicy = evaluateToolHookPolicy({
+				const hookPolicy = (context.policy?.evaluateToolHook ?? evaluateToolHookPolicy)({
 					toolName: tool.name,
 					allow: decision.allow,
 					block: decision.block,
