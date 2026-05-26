@@ -5,7 +5,7 @@ import {
 	ToolInputError,
 	type ToolContent,
 } from '../core/common';
-import { wrapToolWithBeforeToolCall, type BeforeToolCallContext } from '../policy/wrap';
+import { wrapToolWithBeforeToolCall, type BeforeToolCallContext } from '../wrap';
 import { coerceJsonObject } from '../core/params';
 import { errorToolResult } from '../core/results';
 
