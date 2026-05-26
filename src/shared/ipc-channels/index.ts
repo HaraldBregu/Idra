@@ -192,8 +192,11 @@ export const StoreChannels = {
 	saveAgentService: 'store:save-agent-service',
 	getSpeechTranscriberService: 'store:get-speech-transcriber-service',
 	saveSpeechTranscriberService: 'store:save-speech-transcriber-service',
-	getPolicy: 'store:get-policy',
-	setPolicy: 'store:set-policy',
+} as const;
+
+export const PolicyChannels = {
+	get: 'policy:get',
+	set: 'policy:set',
 } as const;
 
 interface AppInvokeChannelMap {
@@ -786,11 +789,14 @@ interface StoreInvokeChannelMap {
 		];
 		result: boolean;
 	};
-	[StoreChannels.getPolicy]: {
+}
+
+interface PolicyInvokeChannelMap {
+	[PolicyChannels.get]: {
 		args: [];
 		result: import('../policy').PolicyConfig;
 	};
-	[StoreChannels.setPolicy]: {
+	[PolicyChannels.set]: {
 		args: [policy: import('../policy').PolicyConfig];
 		result: import('../policy').PolicyConfig;
 	};
@@ -808,7 +814,8 @@ export interface InvokeChannelMap
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
-		StoreInvokeChannelMap {}
+		StoreInvokeChannelMap,
+		PolicyInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
