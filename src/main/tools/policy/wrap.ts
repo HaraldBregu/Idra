@@ -52,7 +52,6 @@ export type BeforeToolCallHook = (input: {
 export type BeforeToolCallContext = {
 	runId?: string;
 	diagnostics?: ToolDiagnostics;
-	approvalRequired?: Set<string>;
 	approval?: (request: {
 		toolName: string;
 		toolCallId: string;
@@ -65,7 +64,7 @@ export type BeforeToolCallContext = {
 	loopDetector?: CallTracker;
 	loopWarnAt?: number;
 	loopStopAt?: number;
-	policy?: Pick<PolicyServicePort, 'evaluateToolUse'>;
+	policy?: Pick<PolicyServicePort, 'evaluateToolUse' | 'evaluateToolHook' | 'evaluateToolApproval'>;
 	signal?: AbortSignal;
 };
 
