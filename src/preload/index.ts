@@ -68,7 +68,6 @@ import type {
 	TextToSpeechSettings,
 	TextToVideoSettings,
 	TaskSettings,
-	HeartbeatSettings,
 } from '../shared/store';
 import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
@@ -562,9 +561,6 @@ export const store: StoreApi = {
 	},
 	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
-	},
-	getHeartbeatSettings: (): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getHeartbeatSettings);
 	},
 	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
