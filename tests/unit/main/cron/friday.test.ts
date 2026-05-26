@@ -662,7 +662,6 @@ describe('AgentServiceFridayCronExecutor', () => {
 					payload: {
 						kind: 'agentTurn',
 						message: 'Summarize inbox',
-						toolsAllow: ['gmail_get_recent_emails', 'write'],
 						lightContext: true,
 						thinking: 'low',
 					},
@@ -676,7 +675,6 @@ describe('AgentServiceFridayCronExecutor', () => {
 			expect.objectContaining({
 				effort: 'low',
 				lightContext: true,
-				toolsAllow: ['gmail_get_recent_emails', 'write'],
 			})
 		);
 	});
