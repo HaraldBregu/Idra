@@ -115,7 +115,7 @@ function makeHeartbeatHarness(options: {
 		broadcastHeartbeatSystemEvent: jest.fn((payload: unknown) => {
 			eventBus.broadcast('heartbeat:system-event', payload);
 		}),
-		emitHeartbeatEvent: jest.fn((payload) => {
+		emitHeartbeatEvent: jest.fn((payload: unknown) => {
 			eventBus.emit('heartbeat:event', payload);
 			eventBus.broadcast('heartbeat:event', payload);
 		}),
