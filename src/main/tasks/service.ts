@@ -62,6 +62,7 @@ interface InternalTaskState {
 
 const TASK_TYPE_PATTERN = /^[a-zA-Z0-9._:-]+$/;
 const TERMINAL_STATUSES = new Set<TaskStatus>(['cancelled', 'succeeded', 'failed']);
+const RESTORED_ACTIVE_STATUSES = new Set<TaskStatus>(['queued', 'running', 'cancelling']);
 const ALLOWED_TRANSITIONS: Record<TaskStatus, readonly TaskStatus[]> = {
 	queued: ['running', 'cancelled'],
 	running: ['cancelling', 'succeeded', 'failed'],
@@ -158,16 +159,15 @@ export class TasksService {
 	}
 
 	create<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
-		return this.createTask(request, this.requireHandler(request.type), false);
+		return this.createFromRequest(request, false, false);
 	}
 
 	run<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
-		return this.createTask(request, this.requireHandler(request.type), true);
+		return this.createFromRequest(request, true, false);
 	}
 
 	startUserTask<TResult = unknown>(request: TaskRunRequest): TaskRecord<TResult> {
-		this.assertTaskPolicyAllows(request.type);
-		return this.createTask(request, this.requireUserFacingHandler(request.type), true);
+		return this.createFromRequest(request, true, true);
 	}
 
 	read(id: string): TaskRecord | undefined {
@@ -267,6 +267,22 @@ export class TasksService {
 		this.emitEvent({ type: 'task:created', task: cloneTaskRecord(record) });
 		if (start) this.schedulePump();
 		return cloneTaskRecord(record) as TaskRecord<TResult>;
+	}
+
+	private createFromRequest<TResult = unknown>(
+		request: TaskRunRequest,
+		start: boolean,
+		userFacing: boolean
+	): TaskRecord<TResult> {
+		try {
+			const type = readTaskRequestType(request);
+			if (userFacing) this.assertTaskPolicyAllows(type);
+			const handler = userFacing ? this.requireUserFacingHandler(type) : this.requireHandler(type);
+			return this.createTask(request, handler, start);
+		} catch (error) {
+			this.logger?.warn('TasksService', 'Rejected task request', publicError(error));
+			throw error;
+		}
 	}
 
 	private resolveTaskModel(
@@ -483,10 +499,33 @@ export class TasksService {
 
 	private loadPersistedState(): void {
 		const state = normalizeTaskStoreState(this.persistence.load());
+		let changed = false;
 		for (const record of state.records) {
-			this.records.set(record.id, sanitizeRecord(record));
+			const restored = this.restorePersistedRecord(record);
+			if (restored.status !== record.status) changed = true;
+			this.records.set(restored.id, restored);
 		}
 		this.logger?.info('TasksService', `Loaded ${this.records.size} persisted task record(s)`);
+		if (changed) this.persist();
+	}
+
+	private restorePersistedRecord(record: TaskRecord): TaskRecord {
+		const sanitized = sanitizeRecord(record);
+		if (!RESTORED_ACTIVE_STATUSES.has(sanitized.status)) return sanitized;
+		this.logger?.warn('TasksService', 'Marking interrupted persisted task as failed', {
+			id: sanitized.id,
+			type: sanitized.type,
+			status: sanitized.status,
+		});
+		return sanitizeRecord({
+			...sanitized,
+			status: 'failed',
+			finishedAt: sanitized.finishedAt ?? this.now(),
+			error: {
+				code: 'TaskInterrupted',
+				message: 'Task did not finish before the app stopped.',
+			},
+		});
 	}
 
 	private persist(): void {
@@ -497,8 +536,6 @@ export class TasksService {
 		});
 	}
 }
-
-export { TasksService as TaskManager };
 
 export function sanitizeTaskValue(
 	value: unknown,
@@ -682,6 +719,13 @@ function requireString(value: unknown, name: string): string {
 
 function stringValue(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function readTaskRequestType(request: unknown): string {
+	if (!request || typeof request !== 'object' || Array.isArray(request)) {
+		throw new Error('Task request must be an object.');
+	}
+	return requireString((request as Record<string, unknown>).type, 'Task type');
 }
 
 function isTaskStatus(value: unknown): value is TaskStatus {
