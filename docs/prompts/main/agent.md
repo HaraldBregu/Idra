@@ -6,16 +6,11 @@ The agent module manages agent execution for the application. Any module that ne
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the agent module. Patterns should solve real service-boundary, lifecycle, dependency, provider, integration, or validation problems; do not add decorative abstractions.
 
-The agent module depends on `ToolService` for tool execution and policy-aware tool management. It also coordinates with the existing main-process services that are already part of the agent boundary, including store, cron, logger, event bus, workspace, user data directories, policy, tasks, connectors, MCP registry, session storage, provider creation, and subagent spawning.
+The agent module depends on `ToolService`.
 
 ## Dependencies
 
 - `ToolService`: allow agents to call registered tools.
-- `PolicyService`: enforce tool and runtime policy decisions.
-- `StoreService`: resolve agent configuration, provider/model settings, routing settings, and subagent settings.
-- `WorkspaceService` and user data directory services: resolve workspace-aware context and locate file-backed agent context.
-- `TasksService` and subagent services: run and control delegated subagent work.
-- Provider factory and session storage helpers: create provider adapters and persist transcript/session state.
 
 The agent module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
@@ -53,7 +48,7 @@ The agent service should:
 
 When implementing or changing this module:
 
-- Respect the declared dependencies and existing service ports. Do not add new cross-service dependencies, provider construction paths, task runners, or tool execution paths unless the existing project requirements explicitly require it.
+- Respect the declared dependencies and existing service ports. Do not add new cross-service dependencies or tool execution paths unless the existing project requirements explicitly require it.
 - Keep `AgentService` as the orchestration boundary for run lifecycle, provider/model resolution, session loading/saving, run logging, event emission, tool factory setup, hook evaluation, harness execution, and subagent tool wiring.
 - Keep `AgentExecutionService` focused on one run execution loop: provider calls, stream events, tool execution through `ToolService`, tool-result middleware, transcript updates, compaction, lifecycle hooks, cancellation, and usage accounting.
 - Treat user, soul, heartbeat, and bootstrap files as file-backed agent context that standard tools can update directly. Keep system-prompt assembly centralized in the existing system-prompt helpers, and do not inline prompt-building logic into callers or feature modules.
