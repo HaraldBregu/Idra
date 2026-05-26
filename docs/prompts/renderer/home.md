@@ -2,7 +2,7 @@
 
 Create the home page as the main conversation interface.
 
-The home page is the primary screen of the app. The user types messages to the Friday agent and receives responses in a scrollable chat thread. The page also supports voice input (speech-to-text and voice conversation modes) and file attachments.
+The home page is the primary screen of the app. The user types messages to the Friday agent and receives responses in a scrollable chat thread. The page supports file attachments. Do not integrate any other external APIs (e.g., speech-to-text) — all message input and agent interaction must go through the API agent only.
 
 The home page lives at `src/renderer/src/pages/home/`.
 
