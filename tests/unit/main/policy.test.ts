@@ -4,8 +4,17 @@ import {
 	evaluateToolApprovalPolicy,
 	evaluateToolHookPolicy,
 	PolicyService,
+	PolicyStore,
 } from '../../../src/main/policy';
 import type { PolicyConfig } from '../../../src/shared/policy';
+
+function makePolicyStore(policy: () => PolicyConfig) {
+	const accessor = {
+		get: jest.fn(policy),
+		set: jest.fn(),
+	};
+	return { accessor, store: new PolicyStore(accessor) };
+}
 
 describe('policy module', () => {
 	it('evaluates a policy object directly', () => {
@@ -29,10 +38,8 @@ describe('policy module', () => {
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
-		const store = {
-			getPolicy: jest.fn(() => activePolicy),
-		};
-		const service = new PolicyService(store);
+		const { accessor, store } = makePolicyStore(() => activePolicy);
+		const service = new PolicyService({ store });
 
 		expect(service.evaluate('/workspace/readme.md', 'read')).toMatchObject({
 			outcome: 'allow',
@@ -52,13 +59,108 @@ describe('policy module', () => {
 			outcome: 'deny',
 			reason: "'read' not in grants for /workspace/private",
 		});
-		expect(store.getPolicy).toHaveBeenCalledTimes(2);
+		expect(accessor.get).toHaveBeenCalledTimes(3);
+	});
+
+	it('initializes missing policy state with documented default grants', () => {
+		const accessor = {
+			get: jest.fn(() => undefined),
+			set: jest.fn(),
+		};
+		const store = new PolicyStore(accessor);
+		const expected = {
+			version: 1,
+			defaultPolicy: 'allow' as const,
+			paths: [
+				{
+					path: '/workspace',
+					permissions: ['read', 'write', 'create', 'delete'],
+					recursive: true,
+				},
+				{
+					path: '/agent',
+					permissions: ['read', 'write', 'create', 'delete'],
+					recursive: true,
+				},
+			],
+		};
+
+		expect(accessor.set).toHaveBeenCalledWith('policy', expected);
+		expect(store.getPolicy()).toEqual(expected);
+	});
+
+	it('normalizes policy grants while preserving valid path order', () => {
+		let stored: unknown = {
+			version: 1,
+			defaultPolicy: 'allow',
+			paths: [
+				{
+					path: ' /tmp/friday ',
+					permissions: ['read', 'unknown', 'write'],
+					recursive: true,
+				},
+				{
+					path: '/tmp/friday/private',
+					permissions: [],
+					recursive: true,
+				},
+				{
+					path: '/tmp/friday/../secrets',
+					permissions: ['read'],
+					recursive: true,
+				},
+				{
+					path: 'relative/path',
+					permissions: ['read'],
+					recursive: true,
+				},
+			],
+		};
+		const store = new PolicyStore({
+			get: jest.fn(() => stored),
+			set: jest.fn((_key, value) => {
+				stored = value;
+			}),
+		});
+
+		expect(store.getPolicy()).toEqual({
+			version: 1,
+			defaultPolicy: 'allow',
+			paths: [
+				{ path: '/tmp/friday', permissions: ['read', 'write'], recursive: true },
+				{ path: '/tmp/friday/private', permissions: [], recursive: true },
+			],
+		});
+	});
+
+	it('rejects unsupported policy versions without replacing the stored policy', () => {
+		let stored: PolicyConfig = {
+			version: 1,
+			defaultPolicy: 'allow',
+			paths: [{ path: '/tmp/friday', permissions: ['read'], recursive: true }],
+		};
+		const accessor = {
+			get: jest.fn(() => stored),
+			set: jest.fn((_key, value: PolicyConfig) => {
+				stored = value;
+			}),
+		};
+		const store = new PolicyStore(accessor);
+
+		expect(store.setPolicy(stored)).toEqual(stored);
+		expect(() => store.setPolicy({ version: 2, defaultPolicy: 'deny', paths: [] })).toThrow(
+			'Unsupported policy version.'
+		);
+		expect(stored).toEqual({
+			version: 1,
+			defaultPolicy: 'allow',
+			paths: [{ path: '/tmp/friday', permissions: ['read'], recursive: true }],
+		});
 	});
 
 	it('evaluates tool availability through the policy service', () => {
-		const service = new PolicyService({
-			getPolicy: jest.fn(() => ({ version: 1, defaultPolicy: 'deny', paths: [] })),
-		});
+		const { store } = makePolicyStore(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
+		const service = new PolicyService({ store });
 		const decision = service.evaluateTools(
 			[
 				{ name: 'read' },
@@ -85,9 +187,8 @@ describe('policy module', () => {
 	});
 
 	it('evaluates tool use approval and loop decisions through the policy service', () => {
-		const service = new PolicyService({
-			getPolicy: jest.fn(() => ({ version: 1, defaultPolicy: 'deny', paths: [] })),
-		});
+		const { store } = makePolicyStore(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
+		const service = new PolicyService({ store });
 
 		expect(
 			service.evaluateToolUse({
@@ -118,9 +219,8 @@ describe('policy module', () => {
 	});
 
 	it('evaluates request-level tool use through the policy service', () => {
-		const service = new PolicyService({
-			getPolicy: jest.fn(() => ({ version: 1, defaultPolicy: 'deny', paths: [] })),
-		});
+		const { store } = makePolicyStore(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
+		const service = new PolicyService({ store });
 
 		expect(service.evaluateToolRequest({ userRequest: 'read a file' })).toEqual({
 			shouldUseTools: true,
