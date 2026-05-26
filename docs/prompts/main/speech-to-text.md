@@ -4,6 +4,8 @@ Create a speech-to-text module that is strictly implemented as a reusable servic
 
 The speech-to-text module manages transcription for the application. Any module that needs to transcribe audio, handle dictation, or process speech input should use this service instead of creating its own speech-to-text logic.
 
+Use appropriate design patterns and follow the project's software standards when implementing or refactoring the speech-to-text module. Patterns should solve real service-boundary, lifecycle, dependency, provider, integration, or validation problems; do not add decorative abstractions.
+
 The speech-to-text module depends on `StoreService`.
 
 ## Dependencies
@@ -40,7 +42,7 @@ The speech-to-text service should:
 When implementing or changing this module:
 
 - Respect the declared dependencies. Do not add service dependencies or bypass `StoreService` unless the existing project requirements explicitly require it.
-- Use appropriate design patterns when they solve real service-boundary, provider, lifecycle, or dependency problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
+- Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, provider, integration, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
 - Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Implement the requested behavior directly in the owning service and refactor that service directly. Keep public behavior centralized in the service.
 - Do not create migrations, migration paths, compatibility shims, transitional APIs, or duplicate implementations.

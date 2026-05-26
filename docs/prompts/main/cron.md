@@ -4,6 +4,8 @@ Create a cron module that is strictly implemented as a reusable service.
 
 The cron module starts and manages cron schedules for the application. Any module that needs scheduled execution should use this service instead of creating its own scheduling logic.
 
+Use appropriate design patterns and follow the project's software standards when implementing or refactoring the cron module. Patterns should solve real service-boundary, lifecycle, dependency, scheduling, integration, or validation problems; do not add decorative abstractions.
+
 The cron module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
 Keep the cron module isolated:
@@ -64,6 +66,8 @@ Use the application's logger for all operational reporting, including lifecycle 
 When implementing or changing this module:
 
 - Respect the declared dependencies. Do not add service dependencies unless the existing project requirements explicitly require it.
+- Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, scheduling, integration, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
+- Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
 - Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
 - Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
