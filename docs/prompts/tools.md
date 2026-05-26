@@ -4,16 +4,18 @@ Create a tools module that exposes reusable tools through a clear service bounda
 
 The tools module provides application tools that can be used by other processes. Tool behavior must stay centralized inside the tools module instead of being duplicated across feature modules.
 
-The tools module can depend on `PolicyService` and `CronService`:
+The tools module can depend on `PolicyService`, `CronService`, and `SkillsService`:
 
 - Use `PolicyService` to evaluate whether a tool action is allowed.
 - Use `CronService` when a tool needs scheduled execution.
+- Use `SkillsService` when a tool needs to use skills.
 - Do not reimplement policy checks or cron scheduling inside individual tools.
 
 ## Dependencies
 
 - `PolicyService`: evaluate whether tool actions are allowed.
 - `CronService`: run scheduling behavior for cron tools.
+- `SkillsService`: provide skill access for tools that use skills.
 
 Keep the tools module isolated:
 
