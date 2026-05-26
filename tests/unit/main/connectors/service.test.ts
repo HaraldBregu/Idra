@@ -193,4 +193,37 @@ describe('ConnectorsService persistence', () => {
 			expect.objectContaining({ key: 'google_gmail', error: 'delete failed' })
 		);
 	});
+
+	it('validates connector tool-call arguments before execution', async () => {
+		const { service } = createService();
+
+		const connector = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'token',
+			allowedTools: ['get_profile'],
+		});
+
+		await expect(service.callTool(connector.id, 'get_profile', 'bad')).rejects.toThrow(
+			'Connector tool arguments must be an object.'
+		);
+	});
+
+	it('validates connector tool-call options and ids', async () => {
+		const { service } = createService();
+
+		const connector = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'token',
+			allowedTools: ['get_profile'],
+		});
+
+		await expect(
+			service.callTool(connector.id, 'get_profile', {}, { timeoutMs: -1 })
+		).rejects.toThrow('Connector tool option timeoutMs must be a non-negative integer.');
+		await expect(
+			service.callTool(123 as unknown as string, 'get_profile', {})
+		).rejects.toThrow('Connector id must be a string.');
+	});
 });
