@@ -633,7 +633,10 @@ export class CronSchedulerService implements CronScheduler {
 			case 'fail':
 				await this.store.updateSchedule(schedule.id, {
 					status: 'failed',
+					lastRunStatus: 'failure',
+					lastError: 'A scheduled run was missed.',
 					lastFailedRunAt: now.toISOString(),
+					failureCount: schedule.failureCount + 1,
 					updatedAt: now.toISOString(),
 				});
 				await this.emitEvent({
@@ -868,6 +871,8 @@ export class CronSchedulerService implements CronScheduler {
 		const updated = await this.store.updateSchedule(schedule.id, {
 			runCount,
 			lastRunAt: scheduledRunAt,
+			lastRunStatus: 'success',
+			lastError: undefined,
 			lastEvaluatedAt: now,
 			nextRunAt,
 			status,
@@ -931,7 +936,10 @@ export class CronSchedulerService implements CronScheduler {
 			metadata: {},
 		});
 		await this.store.updateSchedule(schedule.id, {
+			lastRunStatus: 'failure',
+			lastError: toCronRecordError(error).safeUserMessage,
 			lastFailedRunAt: now,
+			failureCount: schedule.failureCount + 1,
 			updatedAt: now,
 		});
 		await this.emitEvent({
