@@ -24,7 +24,6 @@ jest.mock('node-cron', () => {
 import cron from 'node-cron';
 import { CronService, type CronServiceStore } from '../../../../src/main/cron';
 import { emptyCronStoreState } from '../../../../src/main/cron/store/cron-store-migrations';
-import { emptyFridayCronStoreState } from '../../../../src/main/cron/workflow/store';
 import type { LoggerService } from '../../../../src/main/logger';
 import type { CronTask, CronTaskMessageData } from '../../../../src/shared/cron';
 
@@ -51,8 +50,6 @@ function createStore(initial: CronTask[] = []): CronServiceStore {
 		}),
 		getCronSchedulerState: jest.fn(() => emptyCronStoreState()),
 		setCronSchedulerState: jest.fn(),
-		getFridayCronState: jest.fn(() => emptyFridayCronStoreState()),
-		setFridayCronState: jest.fn(),
 	};
 }
 
@@ -121,19 +118,14 @@ describe('CronService', () => {
 			expect(typeof persisted[0].updatedAt).toBe('string');
 		});
 
-		it('stores provider and model ids from the configured store', () => {
+		it('stores provider and model ids from schedule options', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), {
-				store,
-				settingsStore: {
-					getAgentService: () => ({
-						provider: { id: 'anthropic' },
-						model: { id: 'claude-sonnet-4-5' },
-					}),
-				},
-			});
+			const service = new CronService(createLogger(), { store });
 
-			service.schedule('job-1', '* * * * *', msg('Daily backup'), () => undefined);
+			service.schedule('job-1', '* * * * *', msg('Daily backup'), () => undefined, {
+				providerId: 'anthropic',
+				modelId: 'claude-sonnet-4-5',
+			});
 
 			const persisted = (store.setCronTasks as jest.Mock).mock.calls[0][0] as CronTask[];
 			expect(persisted[0]).toMatchObject({
