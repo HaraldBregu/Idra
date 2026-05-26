@@ -113,7 +113,7 @@ export interface ConnectorsApi {
 	callTool: (
 		id: string,
 		name: string,
-		args: unknown,
+		args: Record<string, unknown>,
 		options?: ConnectorCallToolOptions
 	) => Promise<unknown>;
 	connectOAuth: (id: string) => Promise<ConnectorOAuthConnectResult>;
