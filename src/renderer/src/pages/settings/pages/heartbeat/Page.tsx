@@ -168,36 +168,15 @@ const HeartbeatPage: React.FC = () => {
 	);
 
 	useEffect(() => {
-		let mounted = true;
+		void loadHeartbeat(true);
 
-		const loadInitialStatus = async (): Promise<void> => {
-			try {
-				const [nextStatus, nextTiming] = await Promise.all([
-					window.heartbeat.status(),
-					window.heartbeat.getTiming(),
-				]);
-				if (!mounted) return;
-				applyStatus(nextStatus);
-				applyTiming(nextTiming);
-				setError(null);
-			} catch (caught) {
-				if (mounted) setError(caught instanceof Error ? caught.message : String(caught));
-			} finally {
-				if (mounted) setLoading(false);
-			}
-		};
-
-		void loadInitialStatus();
 		const unsubscribe = window.heartbeat.onEvent((event) => {
 			setLastHeartbeat(event);
 			setStatus((current) => current ? { ...current, lastHeartbeat: event } : current);
 		});
 
-		return () => {
-			mounted = false;
-			unsubscribe();
-		};
-	}, [applyStatus, applyTiming]);
+		return unsubscribe;
+	}, [loadHeartbeat]);
 
 	const handleRefresh = useCallback(async (): Promise<void> => {
 		setOperation('refresh');
