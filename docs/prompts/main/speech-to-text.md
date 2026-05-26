@@ -40,6 +40,8 @@ The speech-to-text service should:
 When implementing or changing this module:
 
 - Respect the declared dependencies. Do not add service dependencies or bypass `StoreService` unless the existing project requirements explicitly require it.
+- Use appropriate design patterns when they solve real service-boundary, provider, lifecycle, or dependency problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
+- Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Implement the requested behavior directly in the owning service and refactor that service directly. Keep public behavior centralized in the service.
 - Do not create migrations, migration paths, compatibility shims, transitional APIs, or duplicate implementations.
 - Put types, constants, schemas, channels, or helper code in the shared project folder when they are used across the main process, preload, renderer, or multiple services. Keep module-only implementation details inside the module.
