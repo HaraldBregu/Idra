@@ -468,10 +468,14 @@ export class HeartbeatService implements Disposable {
 		}
 
 		try {
+			const model = summary.modelId ?? summary.model;
 			const text = await this.agentService.send(prompt, agentId, {
 				sessionId: actualSessionKey,
+				providerId: summary.providerId,
+				model,
+				effort: summary.reasoningEffort,
 				heartbeat: {
-					model: summary.model,
+					model,
 					timeoutSeconds: summary.timeoutSeconds,
 					lightContext: summary.lightContext,
 					suppressToolErrorWarnings: summary.suppressToolErrorWarnings,
