@@ -971,7 +971,7 @@ export class AgentService {
 			includeHeartbeatContext: boolean;
 			isPrimaryRun: boolean;
 		}
-	): AgentStartupFile[] {
+	): WorkspaceContextFile[] {
 		if (params.runKind === 'heartbeat') {
 			return params.lightContext
 				? files.filter((file) => file.name === DEFAULT_HEARTBEAT_FILENAME)
