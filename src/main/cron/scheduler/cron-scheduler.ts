@@ -1021,22 +1021,85 @@ export class CronSchedulerService implements CronScheduler {
 		};
 	}
 
-	private async emitEvent(input: Omit<CronScheduleEvent, 'eventId' | 'timestamp'>): Promise<void> {
-		if (input.scheduleId === 'pending') {
-			this.eventBus.emit({
-				...input,
-				eventId: randomUUID(),
-				timestamp: new Date().toISOString(),
+	private async authorize(input: Parameters<CronScheduleAccessPolicy['authorize']>[0]): Promise<void> {
+		try {
+			await this.accessPolicy.authorize(input);
+			this.logger?.debug('CronScheduler', 'Cron policy authorized.', {
+				action: input.action,
+				source: input.actor.source,
+				userId: input.actor.userId ?? null,
+				scheduleId: input.schedule?.id ?? null,
 			});
-			return;
+		} catch (error) {
+			this.logger?.warn('CronScheduler', 'Cron policy denied.', {
+				action: input.action,
+				source: input.actor.source,
+				userId: input.actor.userId ?? null,
+				scheduleId: input.schedule?.id ?? null,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
 		}
+	}
+
+	private validateRequest(
+		action: 'createSchedule' | 'updateSchedule',
+		request: CronScheduleCreateRequest | CronScheduleUpdateRequest,
+		actor: CronActorContext,
+		existingSchedule?: CronSchedule
+	): void {
+		try {
+			this.accessPolicy.validateFrequency({ request, actor, existingSchedule });
+			validateScheduleShape(request, this.options.runPolicy, existingSchedule);
+			assertSafeStoredSchedulePayload(request);
+		} catch (error) {
+			this.logger?.warn('CronScheduler', 'Cron schedule validation failed.', {
+				action,
+				source: actor.source,
+				userId: actor.userId ?? null,
+				scheduleId: existingSchedule?.id ?? null,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
+	}
+
+	private async emitEvent(input: Omit<CronScheduleEvent, 'eventId' | 'timestamp'>): Promise<void> {
 		const event: CronScheduleEvent = {
 			...input,
 			eventId: randomUUID(),
 			timestamp: new Date().toISOString(),
 		};
+		this.logEvent(event);
+		if (input.scheduleId === 'pending') {
+			this.eventBus.emit(event);
+			return;
+		}
 		await this.store.appendScheduleEvent(event);
 		this.eventBus.emit(event);
+	}
+
+	private logEvent(event: CronScheduleEvent): void {
+		const metadata = {
+			scheduleId: event.scheduleId,
+			source: event.source,
+			userId: event.userId ?? null,
+			eventId: event.eventId,
+			...event.metadata,
+		};
+		if (event.type === 'schedule.failed') {
+			this.logger?.error('CronScheduler', event.message, metadata);
+			return;
+		}
+		if (
+			event.type === 'schedule.permissionDenied' ||
+			event.type === 'schedule.skipped' ||
+			event.type === 'schedule.missed'
+		) {
+			this.logger?.warn('CronScheduler', event.message, metadata);
+			return;
+		}
+		this.logger?.info('CronScheduler', event.message, metadata);
 	}
 
 	private auditMetadata(schedule: CronSchedule): CronJsonObject {
