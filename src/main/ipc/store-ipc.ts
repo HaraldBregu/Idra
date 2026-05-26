@@ -262,13 +262,6 @@ export class StoreIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			StoreChannels.getHeartbeatSettings,
-			wrapSimpleHandler((): ReturnType<typeof store.getHeartbeatState> => {
-				return store.getHeartbeatState();
-			}, StoreChannels.getHeartbeatSettings)
-		);
-
-		ipcMain.handle(
 			StoreChannels.getConnectorSettings,
 			wrapSimpleHandler((): ReturnType<typeof connectors.getConnectorSettings> => {
 				return connectors.getConnectorSettings();
