@@ -19,6 +19,9 @@ import {
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
 	type CronScheduledTask,
+	type CronStoredRunStatus,
+	type CronStoredSchedule,
+	type CronStoredTarget,
 	type CronTask,
 	type CronTaskData,
 	type CronTaskView,
@@ -65,9 +68,14 @@ interface NextRunCapable {
 	getNextRun?: () => Date | null;
 }
 
+interface CronModelSelectionStore {
+	getAgentService(): { provider: { id: string }; model: { id: string } } | undefined;
+}
+
 export interface CronServiceOptions {
 	enabled?: boolean;
 	store?: CronServiceStore;
+	settingsStore?: CronModelSelectionStore;
 }
 
 /**
@@ -86,11 +94,13 @@ export class CronService implements Disposable {
 	private readonly scheduler: CronSchedulerService;
 	private readonly workflow: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
+	private readonly settingsStore?: CronModelSelectionStore;
 	private taskManager?: TaskManager;
 
 	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
 		this.store = options.store ?? new ElectronStoreCronStore();
 		this.logger = logger;
+		this.settingsStore = options.settingsStore;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store);
