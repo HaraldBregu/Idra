@@ -432,7 +432,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async pauseSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<void> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'pauseSchedule', schedule, actor });
+		await this.authorize({ action: 'pauseSchedule', schedule, actor });
 		const now = new Date().toISOString();
 		const updated = await this.store.updateSchedule(scheduleId, {
 			status: 'paused',
@@ -455,7 +455,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async resumeSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<void> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'resumeSchedule', schedule, actor });
+		await this.authorize({ action: 'resumeSchedule', schedule, actor });
 		const now = new Date();
 		const nextRunAt = this.calculator
 			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
@@ -483,7 +483,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async deleteSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<void> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'deleteSchedule', schedule, actor });
+		await this.authorize({ action: 'deleteSchedule', schedule, actor });
 		const now = new Date().toISOString();
 		await this.store.updateSchedule(scheduleId, {
 			status: 'deleted',
@@ -508,7 +508,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async getSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<CronSchedule> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'listSchedules', schedule, actor });
+		await this.authorize({ action: 'listSchedules', schedule, actor });
 		return schedule;
 	}
 
@@ -516,7 +516,7 @@ export class CronSchedulerService implements CronScheduler {
 		filter: CronScheduleFilter = {},
 		actor = this.systemActor()
 	): Promise<CronSchedule[]> {
-		await this.accessPolicy.authorize({ action: 'listSchedules', actor });
+		await this.authorize({ action: 'listSchedules', actor });
 		return this.store.listSchedules({
 			...filter,
 			ownerUserId: actor.permissions.includes('adminScheduleManagement')
@@ -530,7 +530,7 @@ export class CronSchedulerService implements CronScheduler {
 		actor = this.systemActor()
 	): Promise<CronScheduledTask> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'runScheduleNow', schedule, actor });
+		await this.authorize({ action: 'runScheduleNow', schedule, actor });
 		const task = await this.triggerSchedule(schedule, new Date().toISOString(), false, true);
 		if (!task) throw new CronScheduleExecutionError('Schedule did not create a task.');
 		return task;
