@@ -34,12 +34,9 @@ Main function: owns background task execution, including task creation, task sta
 
 Dependencies:
 
-| Dependency         | Purpose                                              |
-| ------------------ | ---------------------------------------------------- |
-| `StoreService`     | Persist task records in `task.json`.                 |
-| `PolicyService`    | Enforce task admission and execution policy.         |
-| Agent services     | Run agent-backed tasks.                              |
-| Application logger | Log task lifecycle, failures, and execution results. |
+| Dependency     | Purpose                 |
+| -------------- | ----------------------- |
+| `AgentService` | Run agent-backed tasks. |
 
 ### Tools
 
