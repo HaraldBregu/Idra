@@ -17,6 +17,10 @@ import type {
 	AgentRunStreamEvent,
 	AgentToolResultStatus,
 } from '../../shared/agents/events';
+import {
+	applyAgentToolResultMiddleware,
+	emitAgentHarnessLifecycleHook,
+} from './harness';
 
 export type { AgentRunStreamEvent } from '../../shared/agents/events';
 
@@ -77,6 +81,7 @@ export interface AgentRunInput {
 	toolService?: ToolServicePort;
 	store?: AgentProviderLookup;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
+	agentHarnessId?: string;
 }
 
 export interface AgentRunResult {
@@ -227,6 +232,7 @@ function contextWithoutHumanApproval(ctx: ToolContext): ToolContext {
 function normalizeToolStatus(status: unknown): AgentToolResultStatus {
 	if (status === 'ok') return 'ok';
 	if (status === 'blocked') return 'blocked';
+	if (status === 'rejected') return 'rejected';
 	return 'error';
 }
 
@@ -249,9 +255,9 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 
 	const toolService = input.toolService ?? new ToolService();
 	const tracker = toolService.createCallTracker();
-	const executionCtx = contextWithoutHumanApproval(ctx);
+	const executionCtx = ctx;
 	const toolPreparation = toolService.prepareToolsForRun({
-		tools: tools.map(toolWithoutHumanApproval),
+		tools,
 		ctx: executionCtx,
 		userMessage,
 		provider: input.providerId,
@@ -284,6 +290,17 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 		isError?: boolean;
 	}): Promise<void> => {
 		const isError = params.isError ?? params.status !== 'ok';
+		const toolResult = await prepareToolResultForRun({
+			content: await applyAgentToolResultMiddleware(params.toolResult.content, {
+				runtime: input.agentHarnessId,
+				runId,
+				iteration: params.iteration,
+				toolName: params.tool.name,
+				toolUseId: params.toolUseId,
+				args: params.args,
+				isError,
+			}),
+		});
 		await hooks?.onToolCall?.({
 			runId,
 			iteration: params.iteration,
@@ -292,8 +309,19 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 			args: params.args,
 			status: params.status,
 			durationMs: params.durationMs,
-			outputChars: params.toolResult.outputText.length,
-			outputText: params.toolResult.outputText,
+			outputChars: toolResult.outputText.length,
+			outputText: toolResult.outputText,
+		});
+		await emitAgentHarnessLifecycleHook('after_tool_call', {
+			runId,
+			iteration: params.iteration,
+			toolName: params.tool.name,
+			toolUseId: params.toolUseId,
+			args: params.args,
+			result: toolResult.content,
+			isError,
+			status: params.status,
+			outputText: toolResult.outputText,
 		});
 		streamEvent?.({
 			type: 'tool_call_result',
@@ -305,21 +333,26 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 			serviceKind: toolServiceKind(params.tool),
 			serviceId: params.tool.serviceId,
 			input: params.args,
-			output: params.toolResult.output,
-			outputText: params.toolResult.outputText,
+			output: toolResult.output,
+			outputText: toolResult.outputText,
 			status: params.status,
 			durationMs: params.durationMs,
-			errorText: params.status !== 'ok' ? params.toolResult.outputText : undefined,
+			errorText: params.status !== 'ok' ? toolResult.outputText : undefined,
 		});
 		session.transcript.push({
 			role: 'tool',
 			toolUseId: params.toolUseId,
 			isError,
 			status: params.status,
-			content: params.toolResult.content,
+			content: toolResult.content,
 		});
 	};
 
+	await emitAgentHarnessLifecycleHook('before_message_write', {
+		runId,
+		userMessage,
+		sessionId: session.id,
+	});
 	session.transcript.push({ role: 'user', content: userMessage });
 
 	await hooks?.onStart?.({ runId });
@@ -342,7 +375,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 
 			try {
-				for await (const event of provider.stream({
+				const request = {
 					model,
 					effort,
 					system: systemPromptForTurn,
@@ -354,7 +387,13 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 					})),
 					maxTokens,
 					signal,
-				})) {
+				};
+				await emitAgentHarnessLifecycleHook('llm_input', {
+					runId,
+					iteration: iter,
+					request,
+				});
+				for await (const event of provider.stream(request)) {
 					switch (event.type) {
 						case 'reasoning_item':
 							reasoningBlocks.push({
@@ -493,6 +532,14 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
 			if (!blocks.some(isVisibleAssistantBlock)) blocks.push({ type: 'text', text: '' });
+			await emitAgentHarnessLifecycleHook('llm_output', {
+				runId,
+				iteration: iter,
+				text,
+				blocks,
+				stopReason: turnStop,
+				usage: iterUsage,
+			});
 			session.transcript.push({ role: 'assistant', content: blocks });
 			finalText += text;
 
@@ -555,9 +602,9 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 					agentLogger.warn('agent:run', 'tool not found', { runId, tool: t.name, iter });
 					continue;
 				}
-				const before = await toolService.beforeCall(toolWithoutHumanApproval(tool), args, executionCtx, tracker);
+				const before = await toolService.beforeCall(tool, args, executionCtx, tracker);
 				if (!before.proceed && before.vetoResult) {
-					const status: AgentToolResultStatus = before.vetoStatus === 'blocked' ? 'blocked' : 'error';
+					const status: AgentToolResultStatus = before.vetoStatus ?? 'error';
 					const toolResult = await prepareToolResultForRun({
 						content: before.vetoResult.content,
 						details: before.vetoResult.details,
@@ -577,7 +624,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 				let res;
 				try {
 					res = await toolService.executeToolWithManagement(
-						toolWithoutHumanApproval(tool),
+						tool,
 						args,
 						executionCtx,
 						toolManagement
@@ -633,6 +680,13 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 		firstTokenLatencyMs,
 	});
 	streamEvent?.({ type: 'run_finished', stopReason, outputChars: finalText.length });
+	await emitAgentHarnessLifecycleHook('agent_end', {
+		runId,
+		stopReason,
+		usage: totalUsage,
+		iterations: completedIterations,
+		outputChars: finalText.length,
+	});
 	agentLogger.info('agent:run', 'run finished', { runId, stopReason, iterations: completedIterations, inputTokens: totalUsage.inputTokens, outputTokens: totalUsage.outputTokens, durationMs: Date.now() - runStart });
 
 	return {
