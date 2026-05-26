@@ -190,6 +190,90 @@ export class StoreIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			StoreChannels.getAssistantSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getAssistantSettings> => {
+				return store.getAssistantSettings();
+			}, StoreChannels.getAssistantSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getSpeechToTextSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getSpeechToTextSettings> => {
+				return store.getSpeechToTextSettings();
+			}, StoreChannels.getSpeechToTextSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTextToSpeechSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getTextToSpeechSettings> => {
+				return store.getTextToSpeechSettings();
+			}, StoreChannels.getTextToSpeechSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getImageCreatorSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getImageCreatorSettings> => {
+				return store.getImageCreatorSettings();
+			}, StoreChannels.getImageCreatorSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTextToVideoSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getTextToVideoSettings> => {
+				return store.getTextToVideoSettings();
+			}, StoreChannels.getTextToVideoSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTextToSoundSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getTextToSoundSettings> => {
+				return store.getTextToSoundSettings();
+			}, StoreChannels.getTextToSoundSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getCronSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getCronSettings> => {
+				return store.getCronSettings();
+			}, StoreChannels.getCronSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTaskSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getTaskSettings> => {
+				return store.getTaskSettings();
+			}, StoreChannels.getTaskSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getAgentRoutingSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getAgentRoutingSettings> => {
+				return store.getAgentRoutingSettings();
+			}, StoreChannels.getAgentRoutingSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getHeartbeatSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getHeartbeatState> => {
+				return store.getHeartbeatState();
+			}, StoreChannels.getHeartbeatSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getConnectorSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getConnectors> => {
+				return store.getConnectors();
+			}, StoreChannels.getConnectorSettings)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getChannelSettings,
+			wrapSimpleHandler((): ReturnType<typeof store.getChannel> => {
+				return store.getChannel();
+			}, StoreChannels.getChannelSettings)
+		);
+
+		ipcMain.handle(
 			StoreChannels.getAssistantOperator,
 			wrapSimpleHandler(
 				(): ConfiguredModelOperator | undefined => store.getAssistantOperator(),
