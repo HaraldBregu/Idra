@@ -21,10 +21,11 @@ export {
 	localToolCatalogByName,
 	localToolNamesForGroup,
 	localToolNamesForProfile,
+	type PolicyConfig,
 	type LocalToolApprovalPolicy,
 	type LocalToolCatalogEntry,
 	type LocalToolGroup,
 	type LocalToolProfile,
 } from './catalog/registry';
-export { filterTools, type PolicyConfig, type ToolProfile } from '../policy';
+export type { ToolProfile } from '../policy';
 export { beforeToolCall, newCallTracker, type CallTracker } from './guard';
