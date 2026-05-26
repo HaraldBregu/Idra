@@ -563,6 +563,8 @@ export type FridayCronUpdateRequest = Partial<
 
 export type FridayCronToolAction = 'list' | 'get' | 'add' | 'remove';
 
+export type FridayCronAction = FridayCronToolAction;
+
 export interface FridayCronToolRequest {
 	action: FridayCronToolAction;
 	jobId?: string;
@@ -581,6 +583,10 @@ export type FridayCronCanonicalToolRequest =
 	| { action: 'get'; jobId: string }
 	| { action: 'add'; job: FridayCronAddRequest }
 	| { action: 'remove'; jobId: string };
+
+export type FridayCronCanonicalActionRequest = FridayCronCanonicalToolRequest;
+export type FridayCronActionRequest = FridayCronToolRequest;
+export type FridayCronActionResponse = FridayCronToolResponse;
 
 export interface FridayCronStatus {
 	enabled: boolean;
