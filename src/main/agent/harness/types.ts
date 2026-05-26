@@ -2,6 +2,7 @@ import type {
 	AgentContentBlock,
 	JSONSchema,
 	ProviderAdapter,
+	ProviderEvent,
 	ToolResultBlock,
 	TranscriptEntry,
 	Usage,
@@ -59,7 +60,9 @@ export interface AgentHarnessModelRequest {
 	signal?: AbortSignal;
 }
 
-export type AgentHarnessModel = Pick<ProviderAdapter, 'stream'>;
+export interface AgentHarnessModel {
+	stream(req: AgentHarnessModelRequest): AsyncIterable<ProviderEvent>;
+}
 
 export interface AgentHarnessToolResult<TDetails = unknown> {
 	status: AgentToolResultStatus;
