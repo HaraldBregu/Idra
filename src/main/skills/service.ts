@@ -254,7 +254,7 @@ export class SkillsService {
 		value: unknown
 	): void {
 		const text = readString(value);
-		if (text) (manifest as Record<string, unknown>)[key] = text;
+		if (text) (manifest as unknown as Record<string, unknown>)[key] = text;
 	}
 
 	private assignStringArray<K extends keyof SkillManifest>(
@@ -264,7 +264,7 @@ export class SkillsService {
 	): void {
 		if (!Array.isArray(value)) return;
 		const values = value.map(readString).filter((item): item is string => item !== undefined);
-		if (values.length > 0) (manifest as Record<string, unknown>)[key] = values;
+		if (values.length > 0) (manifest as unknown as Record<string, unknown>)[key] = values;
 	}
 
 	private async listResourceDirectories(folderPath: string): Promise<string[]> {
