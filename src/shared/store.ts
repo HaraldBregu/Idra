@@ -1,6 +1,5 @@
 import type { ModelReasoningEffort } from './agents/service';
 import type { CronStoreState, CronTask } from './cron';
-import type { HeartbeatStoreState } from './heartbeat';
 import type { Provider } from './providers';
 
 export type ProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
@@ -121,8 +120,6 @@ export interface AgentSessionMetadata {
 	inheritedToolDeny?: string[];
 }
 
-export type HeartbeatSettings = HeartbeatStoreState;
-
 export interface SettingsStore {
 	providers?: ProvidersSettings;
 	assistant?: AssistantSettings;
@@ -134,7 +131,6 @@ export interface SettingsStore {
 	cron?: CronSettings;
 	task?: TaskSettings;
 	agents?: AgentsSettings;
-	heartbeat?: HeartbeatSettings;
 }
 
 export type StoreSchema = SettingsStore;
