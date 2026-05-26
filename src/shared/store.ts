@@ -1,5 +1,4 @@
 import type { ModelReasoningEffort } from './agents/service';
-import type { Channel } from './channels';
 import type { CronStoreState, CronTask } from './cron';
 import type { HeartbeatStoreState } from './heartbeat';
 import type { Provider } from './providers';
@@ -122,7 +121,6 @@ export interface AgentSessionMetadata {
 	inheritedToolDeny?: string[];
 }
 
-export type ChannelsSettings = Partial<Channel>;
 export type HeartbeatSettings = HeartbeatStoreState;
 
 export interface SettingsStore {
@@ -137,7 +135,6 @@ export interface SettingsStore {
 	task?: TaskSettings;
 	agents?: AgentsSettings;
 	heartbeat?: HeartbeatSettings;
-	channels?: ChannelsSettings;
 }
 
 export type StoreSchema = SettingsStore;
