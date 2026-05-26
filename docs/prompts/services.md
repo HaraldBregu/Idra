@@ -10,8 +10,8 @@ Main function: owns application policy rules and policy decisions so authorizati
 
 Dependencies:
 
-| Dependency      | Purpose                                       |
-| --------------- | --------------------------------------------- |
+| Dependency      | Purpose                                        |
+| --------------- | ---------------------------------------------- |
 | None by default | Keep policy evaluation independent by default. |
 
 ### Cron
