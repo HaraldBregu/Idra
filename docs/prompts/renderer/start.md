@@ -6,50 +6,224 @@ The start page is shown the first time the user opens the app. It guides the use
 
 The start page lives at `src/renderer/src/pages/start/`.
 
-## Steps
+## Step sequence
 
-The flow has a fixed sequence of steps:
+The flow advances through a fixed array: `['presentation', 'providers', ...MODEL_SERVICE_STEP_IDS]`.
 
-1. **Presentation** — Welcome screen. Explains what the app is and what comes next. No input required.
-2. **Providers** — The user enters and saves an API key for at least one provider. The Continue button is disabled until at least one API key is saved.
-3. **Model service steps** — One step per model service (e.g. chat, voice). The user selects a provider and a model for each service. Required services must have a model selected before the user can advance.
+`MODEL_SERVICE_STEP_IDS` is derived from `MODEL_SERVICE_DEFINITIONS` (one entry per model service, in order):
 
-Navigation between steps uses Back and Continue (or "Get started" on the final step). A step progress indicator shows position in the flow.
+| Step id | Label | Required |
+|---|---|---|
+| `assistant` | Assistant | yes |
+| `speech-to-text` | Speech to text | no |
+| `text-to-speech` | Text to speech | no |
+| `image-creator` | Images | no |
+| `text-to-video` | Video | no |
+| `music-creator` | Music | no |
+
+---
+
+## Step 1 — Presentation (welcome)
+
+**Component:** `PresentationStep`
+
+- Renders a centered layout with a `DomeWaveAnimation` graphic, a bold `<h1>` title, and a short `<p>` description.
+- Read title and description from `STEP_COPY.presentation` in `constants.ts`.
+- No user input. No async work. No store calls.
+- The primary button in the footer says "Get started" and advances to the `providers` step.
+
+---
+
+## Step 2 — Providers
+
+**Component:** `ProviderStep`
+
+**Goal:** the user saves at least one provider API key before continuing.
+
+### Rendering
+
+- Show a heading and description from `STEP_COPY.providers`.
+- Render one `ProviderCard` per entry in `actionableProviderCatalog` (built from `DEFAULT_PROVIDERS`).
+- Each `ProviderCard` receives the matching `ProviderSetupEntry` from state.
+- Show a bottom notice ("Keys are stored locally and never shared.") with a `KeyRound` icon.
+
+### `ProviderCard` behavior
+
+Each card manages one provider:
+
+- **Collapsed state** (default): shows the provider name and a "Connect" or "Edit" button.
+  - If `entry.apiKeySaved` is true, show an "Edit" button that sets `entry.editing = true`.
+  - If not saved, show a "Connect" button that also sets `entry.editing = true`.
+- **Expanded state** (`entry.editing === true`): shows an API key text input and a Save button.
+  - Input value is `entry.apiKey` (typed draft, never the real key).
+  - While saving (`savingProviderId === providerId`), show a spinner inside the Save button.
+  - After a successful save, `entry.apiKeySaved` becomes `true` and `entry.editing` becomes `false`.
+- Provide a link to the provider's API configuration page via `onOpenLink`. Open it externally.
+- Show the masked label `sk-************` when the key is saved and the card is not in edit mode.
+
+### Store API — Providers step
+
+On entering the `providers` step, check which providers already have a saved key:
+
+```ts
+const saved = await window.store.isProviderApiKeySaved(provider.id);
+// returns boolean
+```
+
+Call this for every provider in parallel and dispatch `MERGE_PROVIDER_SAVED_STATUS` with the results.
+
+To save an API key:
+
+```ts
+await window.store.setProviderApiKey(providerId, apiKey.trim());
+```
+
+### Continue button guard
+
+The Continue button is disabled until `providerEntries.some(e => e.apiKeySaved || e.apiKey.trim().length > 0)` is true and no save is in progress.
+
+On click, save any unsaved drafts in sequence, then advance to the first model service step.
+
+---
+
+## Step 3 — Model service steps (one per service)
+
+**Component:** `ModelServiceStep` — reused for every model service step.
+
+Each model service step follows the same pattern. The step is driven by the current `ModelServiceDefinition` resolved from `MODEL_SERVICE_DEFINITIONS` by matching `step === service.id`.
+
+### Rendering
+
+- Show the service icon (from `service.icon`) in a small rounded container.
+- Show a `Badge` — "Required" (default variant) or "Optional" (secondary variant) — based on `service.required`.
+- Show `service.stepTitle` as the `<h1>` and `service.stepDescription` as the description paragraph.
+- Render two `StepField` selects (wrapped in `StepField` with a label):
+  - **Provider select**: options are the `provider` from each `ProviderModelGroup` in `serviceState.modelGroups`. Disabled while `loadingModels` is true or `modelGroups` is empty.
+  - **Model select**: options are the `models` from the group matching `serviceState.providerId`. Disabled while `loadingModels` is true or there are no models for the selected provider.
+- Show a loading indicator ("Loading compatible models...") while `loadingModels` is true.
+- When `serviceState.modelGroups` is empty and loading is false, show placeholder text "No providers" / "No models" in the selects.
+
+### Store API — loading operators and providers
+
+When entering any model service step (and whenever `connectedProviderIds` changes), load all service data in parallel:
+
+```ts
+const [storedProviders, ...configuredOperators] = await Promise.all([
+  window.store.getProviders(),          // PublicProvider[] — all saved providers
+  window.store.getAssistantOperator(),   // { provider, model } | null
+  window.store.getSpeechToTextOperator(),
+  window.store.getTextToSpeechOperator(),
+  window.store.getImageCreatorOperator(),
+  window.store.getTextToVideoOperator(),
+  window.store.getMusicCreatorOperator(),
+]);
+```
+
+Filter `storedProviders` to those whose `id` is in `supportedProviderIds` (the set built from `DEFAULT_PROVIDERS`).
+
+For each model service, fetch models from every selectable provider:
+
+```ts
+// Per-service model fetchers (called with a PublicProvider):
+window.app.getModels(provider)               // assistant — chat models
+window.app.getSpeechToTextModels(provider)   // speech-to-text models
+window.app.getTextToSpeechModels(provider)   // text-to-speech models
+window.app.getImageCreatorModels(provider)   // image generation models
+window.app.getTextToVideoModels(provider)    // video generation models
+window.app.getMusicCreatorModels(provider)   // music generation models
+```
+
+Each call returns a `Model[]`. Collect results into `ProviderModelGroup[]` (skip providers that return zero models or throw). Swallow per-provider errors but surface the first one after all providers are tried.
+
+### Pre-selecting provider and model
+
+For each service, pick the preferred provider in this order:
+
+1. The provider that matches the stored operator's `provider.id` (already configured).
+2. The first provider whose `id` is in `connectedProviderIds` (just connected in this session).
+3. The first available provider.
+
+Pick the model:
+
+1. The model that matches the stored operator's `model.id` if it exists in the fetched list.
+2. The first model in the preferred group.
+
+### Store API — saving a model service
+
+When the user clicks Continue on a model service step:
+
+```ts
+// Each service exposes a saveOperator function in MODEL_SERVICE_DEFINITIONS:
+await window.store.saveAssistantOperator(provider, model)
+await window.store.saveSpeechToTextOperator(provider, model)
+await window.store.saveTextToSpeechOperator(provider, model)
+await window.store.saveImageCreatorOperator(provider, model)
+await window.store.saveTextToVideoOperator(provider, model)
+await window.store.saveMusicCreatorOperator(provider, model)
+// All return Promise<boolean>. Throw if false.
+```
+
+Skip the save call if no provider+model is selected (only allowed for optional services). After saving, advance to the next step or navigate to `/home` if there is no next step.
+
+---
 
 ## Layout
 
-- Fixed header: a "Skip" button in the top-right corner that navigates directly to `/home`.
-- Scrollable section: renders the current step's content.
-- Fixed footer: step progress indicator on the left, Back and primary action button on the right. If there is an error, an error banner appears above the footer controls.
+- Fixed header: a "Skip" button (top-right) that navigates directly to `/home`.
+- Scrollable `<section>`: renders the current step component.
+- Fixed footer with three zones:
+  - Error banner (full width, above footer controls) — visible when `errorMessage` is non-empty.
+  - Left: `StepProgress` driven by `stepIndex` out of `SETUP_STEPS.length`.
+  - Right: Back button (hidden on the presentation step) + primary action button.
+
+Primary button labels:
+- `presentation` → "Get started"
+- `providers` (saving) → "Saving..."
+- last model service step → "Get started"
+- all other model service steps → "Continue"
+
+---
 
 ## State
 
-Use a reducer (`setupReducer`) to manage all step state in a single object. Dispatch actions for step transitions, provider entry updates, API key changes, provider saves, model service provider/model selections, and error/loading state changes.
+Use a `setupReducer` with a single `SetupState` object:
 
-Do not put async side-effect logic inside the reducer. Side effects (saving API keys, fetching models, persisting config) belong in hooks that dispatch actions when they complete.
+```ts
+type SetupState = {
+  step: SetupStep;
+  providerEntries: ProviderSetupEntry[];
+  savingProviderId: string | null;   // null, a provider id, or 'all'
+  serviceStates: ModelServiceStateMap;
+  loadingModels: boolean;
+  savingConfig: boolean;
+  errorMessage: string;
+};
+```
 
-## Components
+Actions: `GO_TO_STEP`, `SET_ERROR`, `CLEAR_ERROR`, `UPDATE_PROVIDER_ENTRY`, `MERGE_PROVIDER_SAVED_STATUS`, `MARK_PROVIDERS_SAVED`, `SET_SAVING_PROVIDER`, `SET_LOADING_MODELS`, `LOAD_SERVICE_STATES`, `CHANGE_SERVICE_PROVIDER`, `CHANGE_SERVICE_MODEL`, `SET_SAVING_CONFIG`.
 
-- `PresentationStep` — Static welcome content.
-- `ProviderStep` — List of provider entries with API key inputs and save buttons.
-- `ModelServiceStep` — Provider and model selectors for a single model service.
-- `StepProgress` — Visual step indicator driven by current step index.
-- `ProviderCard` — Card representing a single provider entry inside `ProviderStep`.
-- `StepField` — Labeled form field wrapper used inside step components.
+No async logic inside the reducer. Side effects belong in `useProviderSetup` and `useModelServices`.
+
+---
 
 ## Hooks
 
-- `useProviderSetup` — Handles provider API key changes, saves, and link-opening side effects.
-- `useModelServices` — Handles provider/model selection, model list fetching, and saving the final config.
+**`useProviderSetup(state, dispatch)`**
+- On step entering `providers`: call `window.store.isProviderApiKeySaved` for each provider in parallel and dispatch `MERGE_PROVIDER_SAVED_STATUS`.
+- Exposes: `updateProviderEntry`, `handleProviderApiKeyChange`, `saveProviderEntry`, `handleContinueProviders`, `handleOpenProviderLink`.
+
+**`useModelServices(state, dispatch, connectedProviderIds, navigate)`**
+- On entering any model service step (or when `connectedProviderIds` changes): load providers and all operator configs in parallel, then fetch model lists per service, and dispatch `LOAD_SERVICE_STATES`.
+- Exposes: `handleServiceProviderChange`, `handleServiceModelChange`, `handleSaveModelStep`.
+
+---
 
 ## Error handling
 
-Display a single error message in the footer banner when a save fails. Clear the error on the next user action. Do not show multiple concurrent errors.
+Display a single error message in the footer banner. Clear it on the next user action (`CLEAR_ERROR`). Surface the first error when batch model loading partially fails; do not block the step.
 
-## Navigation
-
-On the final model service step, the primary button label changes to "Get started" and successful save navigates to `/home`.
+---
 
 ## Testing
 
-Test step transitions, provider entry validation, API key saving, model selection, config persistence, the Skip shortcut, error display, and navigation to `/home` on completion. Tests call page-level hooks and components; they do not import internal reducer or state files directly.
+Test step transitions, provider entry validation, `isProviderApiKeySaved` check on step entry, API key save and error path, model loading (including partial provider failure), provider/model pre-selection logic, service operator save, Skip navigation, Back button visibility, primary button labels, and navigation to `/home` on completion. Tests call exported hooks and components; they do not import internal reducer or state files directly.
