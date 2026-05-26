@@ -30,6 +30,7 @@ import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './tools';
 import { SkillsService } from './skills';
+import { SpeechToTextService } from './stt';
 import { TextToSpeechService } from './tts';
 
 import type { IpcModule } from './ipc';
@@ -129,6 +130,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
+	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	container.register('textToSpeech', new TextToSpeechService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
 

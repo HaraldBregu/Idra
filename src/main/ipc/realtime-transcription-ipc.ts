@@ -12,7 +12,6 @@ import {
 	isRealtimeTranscriptionSessionId,
 	normalizeRealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
-import { SpeechToTextService } from '../stt';
 
 function errorMessage(error: unknown): string {
 	if (error instanceof Error && error.message.trim()) return error.message;
@@ -25,10 +24,7 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
-		const speechToText = new SpeechToTextService({
-			store: container.get('store'),
-			logger,
-		});
+		const speechToText = container.get('speechToText');
 
 		ipcMain.handle(
 			RealtimeTranscriptionChannels.start,

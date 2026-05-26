@@ -12,6 +12,7 @@ import type { PolicyService } from './policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { SkillsService } from './skills';
 import type { HeartbeatService } from './heartbeat';
+import type { SpeechToTextService } from './stt';
 import type { StoreService } from './store';
 import type { TasksService } from './tasks';
 import type { TextToSpeechService } from './tts';
@@ -35,6 +36,7 @@ export interface MainServices {
 	policy: PolicyService;
 	powerSaveBlocker: PowerSaveBlockerService;
 	skills: SkillsService;
+	speechToText: SpeechToTextService;
 	startupFiles: AgentStartupFilesService;
 	store: StoreService;
 	taskManager: TasksService;

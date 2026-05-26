@@ -10,33 +10,47 @@ import {
 	createDeepgramRealtimeTranscriptionUrl,
 	createDeepgramSpeechToTextAdapter,
 	createDeepgramSpeechToTextUrl,
+} from '../../../../src/main/stt/deepgram-realtime-adapter';
+import {
 	createElevenLabsRealtimeTranscriptionUrl,
 	createElevenLabsSpeechToTextAdapter,
 	createElevenLabsSpeechToTextUrl,
+} from '../../../../src/main/stt/elevenlabs-realtime-adapter';
+import {
 	createOpenAIRealtimeSpeechToTextAdapter,
 	createRealtimeTranscriptionSessionUpdate,
 	createRealtimeTranscriptionSocket,
+	isInputAudioBufferTooSmallError,
+	resolveOpenAIRealtimeTranscriptionModel,
+	useRealtimeTranscriptionIntent,
+} from '../../../../src/main/stt/openai-realtime-adapter';
+import {
 	createMistralHttpServerUrl,
 	createMistralRealtimeServerUrl,
 	createMistralRealtimeSpeechToTextAdapter,
+} from '../../../../src/main/stt/mistral-realtime-adapter';
+import {
 	createQwenRealtimeTranscriptionResponseCreate,
 	createQwenRealtimeTranscriptionSessionUpdate,
 	createQwenRealtimeTranscriptionUrl,
+} from '../../../../src/main/stt/qwen-realtime-adapter';
+import {
 	createXaiRealtimeTranscriptionUrl,
 	createXaiSpeechToTextAdapter,
 	createXaiSpeechToTextUrl,
+} from '../../../../src/main/stt/xai-realtime-adapter';
+import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
 	hasStreamingRealtimeTranscriptionAudio,
-	isInputAudioBufferTooSmallError,
 	MINIMUM_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
-	resolveOpenAIRealtimeTranscriptionModel,
 	STREAMING_REALTIME_TRANSCRIPTION_COMMIT_BYTES,
-	SpeechToTextService,
-	type SpeechToTextRealtimeAdapter,
-	type SpeechToTextRuntimeConfig,
-	useRealtimeTranscriptionIntent,
-} from '../../../../src/main/stt';
+} from '../../../../src/main/stt/audio';
+import { SpeechToTextService } from '../../../../src/main/stt';
+import type {
+	SpeechToTextRealtimeAdapter,
+	SpeechToTextRuntimeConfig,
+} from '../../../../src/main/stt/types';
 import { RealtimeTranscriptionChannels } from '../../../../src/shared/ipc-channels';
 import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
@@ -364,6 +378,10 @@ describe('realtime transcription IPC', () => {
 		};
 		const service = new SpeechToTextService({
 			store: {
+				getSpeechToTextSettings: jest.fn(() => ({
+					providerId: provider.id,
+					modelId: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
+				})),
 				getSpeechToTextOperator: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
@@ -407,6 +425,10 @@ describe('realtime transcription IPC', () => {
 		};
 		const service = new SpeechToTextService({
 			store: {
+				getSpeechToTextSettings: jest.fn(() => ({
+					providerId: provider.id,
+					modelId: DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
+				})),
 				getSpeechToTextOperator: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
@@ -450,6 +472,10 @@ describe('realtime transcription IPC', () => {
 		};
 		const service = new SpeechToTextService({
 			store: {
+				getSpeechToTextSettings: jest.fn(() => ({
+					providerId: provider.id,
+					modelId: ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
+				})),
 				getSpeechToTextOperator: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
@@ -493,6 +519,10 @@ describe('realtime transcription IPC', () => {
 		};
 		const service = new SpeechToTextService({
 			store: {
+				getSpeechToTextSettings: jest.fn(() => ({
+					providerId: provider.id,
+					modelId: XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
+				})),
 				getSpeechToTextOperator: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
@@ -569,6 +599,10 @@ describe('realtime transcription IPC', () => {
 		};
 		const service = new SpeechToTextService({
 			store: {
+				getSpeechToTextSettings: jest.fn(() => ({
+					providerId: provider.id,
+					modelId: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+				})),
 				getSpeechToTextOperator: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',

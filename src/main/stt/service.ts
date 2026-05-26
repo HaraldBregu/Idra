@@ -16,6 +16,7 @@ import type {
 	SpeechToTextTranscribeRequest,
 	SpeechToTextTranscription,
 } from '../../shared/speech-to-text';
+import type { ModelModuleSettings } from '../../shared/store';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type { Provider } from '../../shared/providers';
 import { createDeepgramSpeechToTextAdapter } from './deepgram-realtime-adapter';
@@ -43,6 +44,13 @@ interface OwnedSpeechToTextSession {
 
 interface SpeechToTextStartOptions {
 	eventChannel?: string;
+}
+
+interface ResolvedSpeechToTextRuntime {
+	operator: ConfiguredModelOperator;
+	provider: Provider;
+	model: Model;
+	settings: ModelModuleSettings;
 }
 
 export class SpeechToTextService {
@@ -80,7 +88,7 @@ export class SpeechToTextService {
 		this.sessions.set(sessionId, { session, owner });
 		owner.once('destroyed', () => this.closeSession(sessionId));
 		this.dependencies.logger?.info('SpeechToTextService', `Started session "${sessionId}"`);
-		return { id: session.id, model: session.model, sampleRate: session.sampleRate };
+		return this.sessionState(session);
 	}
 
 	async transcribe(request: SpeechToTextTranscribeRequest): Promise<SpeechToTextTranscription> {
@@ -112,6 +120,7 @@ export class SpeechToTextService {
 					}
 					if (event.type === 'error') {
 						done(new Error(event.message));
+						session?.close();
 					}
 				},
 				closed: () => {
@@ -124,8 +133,8 @@ export class SpeechToTextService {
 					createdSession.finish();
 				})
 				.catch((error: unknown) => {
-					if (session) session.close();
 					done(error instanceof Error ? error : new Error(String(error)));
+					session?.close();
 				});
 		});
 	}
@@ -160,26 +169,34 @@ export class SpeechToTextService {
 		this.requireSessionForSender(sessionId, owner).session.appendAudio(audio);
 	}
 
+	getSession(owner: WebContents, sessionId: string): RealtimeTranscriptionSession {
+		return this.sessionState(this.requireSessionForSender(sessionId, owner).session);
+	}
+
 	finish(owner: WebContents, sessionId: string): void {
 		this.requireSessionForSender(sessionId, owner).session.finish();
 	}
 
 	cancel(owner: WebContents, sessionId: string): void {
-		this.requireSessionForSender(sessionId, owner).session.cancel();
+		const runtime = this.requireSessionForSender(sessionId, owner);
+		this.sessions.delete(sessionId);
+		runtime.session.cancel();
 	}
 
-	private resolveRuntime(): {
-		operator: ConfiguredModelOperator;
-		provider: Provider;
-		model: Model;
-	} {
-		const operator = this.dependencies.store.getSpeechToTextOperator();
-		if (!operator) {
+	destroy(): void {
+		for (const sessionId of [...this.sessions.keys()]) {
+			this.closeSession(sessionId);
+		}
+	}
+
+	private resolveRuntime(): ResolvedSpeechToTextRuntime {
+		const settings = this.dependencies.store.getSpeechToTextSettings();
+		if (!settings) {
 			throw new Error('Speech-to-text is not configured. Select a provider and model in Settings.');
 		}
 
-		const providerId = operator.provider.id.trim().toLowerCase();
-		const modelId = operator.model.id.trim();
+		const providerId = settings.providerId.trim().toLowerCase();
+		const modelId = settings.modelId.trim();
 		if (!providerId) throw new Error('Speech-to-text provider is not configured.');
 		if (!modelId) throw new Error('Speech-to-text model is not configured.');
 		if (!isAllowedSpeechToTextModel(providerId, modelId)) {
@@ -191,6 +208,11 @@ export class SpeechToTextService {
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for speech-to-text provider: ${providerId}`);
 
+		const operator = this.dependencies.store.getSpeechToTextOperator();
+		if (!operator) {
+			throw new Error('Speech-to-text settings are invalid. Select a supported provider and model.');
+		}
+
 		return {
 			operator,
 			provider,
@@ -198,6 +220,7 @@ export class SpeechToTextService {
 				id: modelId,
 				name: operator.model.name,
 			},
+			settings,
 		};
 	}
 
@@ -226,5 +249,9 @@ export class SpeechToTextService {
 		if (!runtime) return;
 		this.sessions.delete(sessionId);
 		runtime.session.close();
+	}
+
+	private sessionState(session: SpeechToTextRealtimeSession): RealtimeTranscriptionSession {
+		return { id: session.id, model: session.model, sampleRate: session.sampleRate };
 	}
 }
