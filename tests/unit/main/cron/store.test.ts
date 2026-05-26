@@ -17,7 +17,6 @@ import Store from 'electron-store';
 import type { CronStoreState } from '../../../../src/main/cron/core/cron.types';
 import { ElectronStoreCronStore } from '../../../../src/main/cron/store/electron-store-cron-store';
 import { emptyCronStoreState } from '../../../../src/main/cron/store/cron-store-migrations';
-import { emptyFridayCronStoreState } from '../../../../src/main/cron/workflow/store';
 import type { CronTask } from '../../../../src/shared/cron';
 
 const MockStore = Store as jest.MockedClass<typeof Store>;
@@ -47,61 +46,32 @@ describe('ElectronStoreCronStore', () => {
 		});
 	});
 
-	it('persists cron tasks, scheduler state, and Friday jobs without sharing settings storage', () => {
+	it('persists cron tasks and scheduler state without sharing settings storage', () => {
 		const service = new ElectronStoreCronStore();
 		const store = backingStore(service);
-		const task: CronTask = {
+		const task = {
 			id: 'task-1',
+			name: 'task-1',
+			schedule: '* * * * *',
 			expression: '* * * * *',
+			timezone: 'UTC',
+			enabled: true,
+			status: 'active',
+			target: 'job',
+			payload: { type: 'message', message: 'Run' },
 			data: { type: 'message', message: 'Run' },
 			createdAt: '2026-05-22T00:00:00.000Z',
-		};
+			updatedAt: '2026-05-22T00:00:00.000Z',
+			runCount: 0,
+			failureCount: 0,
+		} satisfies CronTask;
 		const scheduler = {
 			...emptyCronStoreState(),
 			schedules: [{ id: 'schedule-1' }],
 		} as unknown as CronStoreState;
-		const friday = {
-			...emptyFridayCronStoreState(),
-			jobs: [
-				{
-					id: 'job-1',
-					name: 'Stored cron',
-					description: '',
-					enabled: true,
-					createdAtMs: 1,
-					updatedAtMs: 1,
-					schedule: { kind: 'every' as const, everyMs: 60_000 },
-					sessionTarget: 'isolated' as const,
-					wakeMode: 'now' as const,
-					payload: { kind: 'agentTurn' as const, message: 'Run' },
-					delivery: { mode: 'none' as const },
-				},
-			],
-			states: {
-				'job-1': {
-					consecutiveErrors: 0,
-					consecutiveSkipped: 0,
-					consecutiveScheduleErrors: 0,
-					attempts: 0,
-				},
-			},
-			lastRuns: {
-				'job-1': {
-					runId: 'run-1',
-					jobId: 'job-1',
-					status: 'ok' as const,
-					mode: 'manual-force' as const,
-					scheduledForMs: 1,
-					startedAtMs: 1,
-					finishedAtMs: 2,
-					attempt: 1,
-				},
-			},
-		};
 
 		service.setCronTasks([task]);
 		service.setCronSchedulerState(scheduler);
-		service.setFridayCronState(friday);
 
 		expect(service.getCronTasks()).toEqual([task]);
 		expect(service.getCronSchedulerState()).toMatchObject({
@@ -113,14 +83,5 @@ describe('ElectronStoreCronStore', () => {
 		});
 		expect(store.get('tasks')).toEqual([task]);
 		expect(store.get('scheduler')).toMatchObject({ schedules: [{ id: 'schedule-1' }] });
-		expect(store.get('jobs')).toMatchObject({
-			'job-1': {
-				name: 'Stored cron',
-				lastRun: { runId: 'run-1' },
-				state: expect.objectContaining({
-					scheduleIdentity: '{"everyMs":60000,"kind":"every"}',
-				}),
-			},
-		});
 	});
 });
