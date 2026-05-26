@@ -9,7 +9,7 @@ const DEFAULT_POLICY_PERMISSIONS: Permission[] = ['read', 'write', 'create', 'de
 function defaultPolicyConfig(): PolicyConfig {
 	return {
 		version: 1,
-		defaultPolicy: 'deny',
+		defaultPolicy: 'allow',
 		paths: DEFAULT_POLICY_PATHS.map((entryPath) => ({
 			path: entryPath,
 			permissions: [...DEFAULT_POLICY_PERMISSIONS],
@@ -44,7 +44,7 @@ function readPolicy(value: unknown): PolicyConfig {
 	const record = readRecord(value);
 	if (!record) return empty;
 	if (record.version !== 1) return empty;
-	const defaultPolicy = record.defaultPolicy === 'allow' ? 'allow' : 'deny';
+	const defaultPolicy = record.defaultPolicy === 'deny' ? 'deny' : 'allow';
 	const paths = Array.isArray(record.paths) ? record.paths.flatMap(readPolicyEntry) : [];
 	return { version: 1, defaultPolicy, paths };
 }
