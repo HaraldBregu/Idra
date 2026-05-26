@@ -1,253 +1,55 @@
 # Preload API Prompt
 
-Create and maintain the preload API as the only renderer-facing bridge to Electron and main-process services.
-
-The preload API must expose stable, typed APIs through `contextBridge`. Do not expose `ipcRenderer` directly to the renderer. Do not create ad-hoc IPC calls in renderer code.
-
-Use the typed IPC helpers for preload communication:
-
-- `typedInvokeUnwrap` for request/response APIs.
-- `typedSend` for fire-and-forget APIs.
-- `typedOn` for event subscriptions.
-
-Expose only these APIs on `window`:
-
-- `win`
-- `app`
-- `agent`
-- `realtimeTranscription`
-- `cron`
-- `heartbeat`
-- `tasks`
-- `monitor`
-- `channels`
-- `connectors`
-- `skills`
-- `policy`
-- `store`
-
-Add one dedicated section for each exposed API. Each section must list only the methods exposed by that API and should stay in sync with the preload implementation and TypeScript declarations.
-
-Keep preload API types in sync with the implementation. Shared request, response, event, and model types must live under `src/shared` so they can be reused by main, preload, and renderer code.
-
-Do not place business logic in preload. Preload should validate and normalize only what is needed to safely bridge renderer calls to typed IPC channels.
+Refactor `src/preload` as the only renderer-facing bridge to Electron and main-process services. The preload layer must expose stable, typed APIs through `contextBridge`, must not expose `ipcRenderer` directly, and must not contain business logic. Use typed IPC helpers for communication, keep shared request and response types under `src/shared`, and add or update APIs only when they are backed by typed shared IPC channels and real main-process handlers.
 
 ## Window API
 
-Expose `window.win` with:
-
-- `minimize()`
-- `maximize()`
-- `close()`
-- `popupMenu()`
-- `isMaximized()`
-- `isFullScreen()`
-- `onMaximizeChange(callback)`
-- `onFullScreenChange(callback)`
+Expose window controls through `window.win`. This API is responsible only for renderer-safe window actions and window state subscriptions, such as minimizing, maximizing, closing, popup menu behavior, fullscreen state, and maximize state.
 
 ## App API
 
-Expose `window.app` with:
-
-- `openAppDataFolder()`
-- `openUserDataFolder()`
-- `openExternalUrl(url)`
-- `setTrayEnabled(enabled)`
-- `getTrayEnabled()`
-- `getKeepAwakeEnabled()`
-- `setKeepAwakeEnabled(enabled)`
-- `getMicrophonePermission()`
-- `setMicrophoneEnabled(enabled)`
-- `requestMicrophonePermission()`
-- `openSystemPreference(pane)`
-- `getCameraPermission()`
-- `setCameraEnabled(enabled)`
-- `requestCameraPermission()`
-- `setProviderApiKey(providerId, apiKey)`
-- `isProviderApiKeySaved(providerId)`
-- `getProviders()`
-- `addProvider(input)`
-- `getModels(provider)`
-- `getAssistantOperator()`
-- `saveAssistantOperator(provider, model)`
-- `getSpeechToTextOperator()`
-- `getSpeechToTextModels(provider)`
-- `saveSpeechToTextOperator(provider, model)`
-- `getTextToSpeechOperator()`
-- `getTextToSpeechModels(provider)`
-- `saveTextToSpeechOperator(provider, model)`
-- `getImageCreatorOperator()`
-- `getImageCreatorModels(provider)`
-- `saveImageCreatorOperator(provider, model)`
-- `getTextToVideoOperator()`
-- `getTextToVideoModels(provider)`
-- `saveTextToVideoOperator(provider, model)`
-- `getMusicCreatorOperator()`
-- `getMusicCreatorModels(provider)`
-- `saveMusicCreatorOperator(provider, model)`
-- `getAgentService()`
-- `saveAgentService(provider, model)`
-- `getSpeechTranscriberService()`
-- `saveSpeechTranscriberService(provider, model)`
+Expose application-level operations through `window.app`. This API handles app folders, external URLs, tray state, keep-awake state, system permissions, provider setup, model lookup, and configured model or agent operators.
 
 ## Agent API
 
-Expose `window.agent` with:
-
-- `send(message, options)`
-- `reset()`
-- `cancel()`
-- `getHistory()`
-- `openHistoryFolder()`
-- `listWorkspaceFiles()`
-- `readWorkspaceFile(name)`
-- `writeWorkspaceFile(name, content)`
-- `onResponse(callback)`
+Expose agent interaction through `window.agent`. This API handles sending messages, cancelling or resetting the active run, reading history, opening history storage, managing workspace files, and subscribing to agent response events.
 
 ## Realtime Transcription API
 
-Expose `window.realtimeTranscription` with:
-
-- `start(request)`
-- `appendAudio(sessionId, audio)`
-- `finish(sessionId)`
-- `cancel(sessionId)`
-- `onEvent(callback)`
+Expose realtime transcription through `window.realtimeTranscription`. This API starts transcription sessions, appends audio, finishes or cancels sessions, and streams transcription events back to the renderer.
 
 ## Cron API
 
-Expose `window.cron` with:
-
-- `list()`
-- `listJobs(include)`
-- `add(expression, data, options)`
-- `remove(id)`
-- `removeJob(id)`
-- `createSchedule(request)`
-- `updateSchedule(scheduleId, patch)`
-- `pauseSchedule(scheduleId)`
-- `resumeSchedule(scheduleId)`
-- `deleteSchedule(scheduleId)`
-- `listSchedules(filter)`
-- `getSchedule(scheduleId)`
-- `getScheduleEvents(scheduleId)`
-- `getScheduleExecutions(scheduleId)`
-- `getNextRuns(scheduleId, count)`
-- `runNow(scheduleId)`
-- `action(request)`
-- `subscribeToSchedules(listener)`
-- `subscribeToSchedule(scheduleId, listener)`
+Expose cron scheduling through `window.cron`. This API manages cron tasks, stored schedules, schedule events, execution history, next-run previews, immediate runs, and cron tool actions.
 
 ## Heartbeat API
 
-Expose `window.heartbeat` with:
-
-- `status()`
-- `last()`
-- `setEnabled(request)`
-- `getTiming()`
-- `updateTiming(request)`
-- `systemEvent(request)`
-- `request(request)`
-- `onEvent(callback)`
+Expose heartbeat behavior through `window.heartbeat`. This API reads heartbeat status, manages heartbeat timing and enabled state, reports system events, requests wake behavior, and streams heartbeat events.
 
 ## Tasks API
 
-Expose `window.tasks` with:
-
-- `start(request)`
-- `list()`
-- `get(id)`
-- `cancel(id)`
-- `onEvent(callback)`
+Expose background task behavior through `window.tasks`. This API starts tasks, lists active tasks, reads a task by id, cancels tasks, and streams task lifecycle events.
 
 ## Monitor API
 
-Expose `window.monitor` with:
-
-- `snapshot(filter)`
-- `list(filter)`
-- `get(id)`
-- `onEvent(callback)`
+Expose monitoring through `window.monitor`. This API reads monitor snapshots, lists monitor events, fetches a specific event, and streams new monitor records.
 
 ## Channels API
 
-Expose `window.channels` with:
-
-- `listCatalog()`
-- `getConfig()`
-- `getChannelConfig(type)`
-- `saveChannelConfig(type, config)`
-- `getStatus(type)`
-- `getTelegramConfig()`
-- `saveTelegramConfig(config)`
-- `getTelegramStatus()`
-- `startTelegram()`
-- `stopTelegram()`
-- `restartTelegram()`
-- `onStatusChanged(callback)`
+Expose channel configuration through `window.channels`. This API manages channel catalog data, channel configuration, channel status, Telegram configuration, Telegram lifecycle actions, and channel status events.
 
 ## Connectors API
 
-Expose `window.connectors` with:
-
-- `catalog()`
-- `list()`
-- `get(id)`
-- `add(input)`
-- `update(id, input)`
-- `remove(id)`
-- `enable(id)`
-- `disable(id)`
-- `test(id)`
-- `reconnect(id)`
-- `refreshTools(id)`
-- `listTools(id)`
-- `callTool(id, name, args, options)`
-- `connectOAuth(id)`
+Expose connector management through `window.connectors`. This API manages connector catalog data, connector CRUD operations, enable and disable state, tests, reconnects, tool refreshes, tool listing, tool calls, and OAuth connection flows.
 
 ## Skills API
 
-Expose `window.skills` with:
-
-- `list()`
-- `importSkill()`
-- `downloadSkill(id)`
-- `delete(id)`
-- `getRoot()`
+Expose skill management through `window.skills`. This API lists skills, imports skills, downloads skills, deletes skills, and returns the skills root path.
 
 ## Policy API
 
-Expose `window.policy` with:
-
-- `get()`
-- `set(policy)`
+Expose policy configuration through `window.policy`. This API reads and writes the application policy configuration used by services that need policy-controlled behavior.
 
 ## Store API
 
-Expose `window.store` with:
-
-- `getProviders()`
-- `setProviderApiKey(providerId, apiKey)`
-- `isProviderApiKeySaved(providerId)`
-- `addProvider(input)`
-- `getKeepAwakeEnabled()`
-- `setKeepAwakeEnabled(enabled)`
-- `getAssistantOperator()`
-- `saveAssistantOperator(provider, model)`
-- `getSpeechToTextOperator()`
-- `saveSpeechToTextOperator(provider, model)`
-- `getTextToSpeechOperator()`
-- `saveTextToSpeechOperator(provider, model)`
-- `getImageCreatorOperator()`
-- `saveImageCreatorOperator(provider, model)`
-- `getTextToVideoOperator()`
-- `saveTextToVideoOperator(provider, model)`
-- `getMusicCreatorOperator()`
-- `saveMusicCreatorOperator(provider, model)`
-- `getAgentService()`
-- `saveAgentService(provider, model)`
-- `getSpeechTranscriberService()`
-- `saveSpeechTranscriberService(provider, model)`
-
-When implementing or updating preload, keep the structure minimal. Add APIs only when they are backed by typed shared IPC channels and a real main-process handler.
+Expose store-backed settings through `window.store`. This API manages providers, provider API key state, keep-awake state, configured model operators, agent service configuration, and speech transcriber service configuration.
