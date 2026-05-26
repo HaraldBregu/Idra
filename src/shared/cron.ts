@@ -21,12 +21,32 @@ export interface CronTaskMessageData extends CronTaskData<'message'> {
 	readonly message: string;
 }
 
+export type CronStoredSchedule = string | CronJsonObject;
+export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
+export type CronStoredRunStatus = 'success' | 'failure' | 'skipped';
+
 export interface CronTask<TData extends CronTaskData = CronTaskData> {
 	readonly id: string;
+	readonly name: string;
+	readonly description?: string;
+	readonly schedule: CronStoredSchedule;
 	readonly expression: string;
+	readonly timezone: string;
+	readonly enabled: boolean;
+	readonly status: CronScheduleStatus;
+	readonly providerId?: string;
+	readonly modelId?: string;
+	readonly target: CronStoredTarget;
+	readonly payload: TData;
 	readonly data: TData;
-	readonly timezone?: string;
 	readonly createdAt: string;
+	readonly updatedAt: string;
+	readonly lastRunAt?: string;
+	readonly nextRunAt?: string;
+	readonly lastRunStatus?: CronStoredRunStatus;
+	readonly lastError?: string;
+	readonly runCount: number;
+	readonly failureCount: number;
 	readonly lastRun?: string;
 }
 
@@ -224,6 +244,7 @@ export interface CronScheduleDefinition {
 	id: CronScheduleId;
 	name: string;
 	description?: string;
+	schedule: CronStoredSchedule;
 	type: CronScheduleType;
 	status: CronScheduleStatus;
 	source: CronScheduleSource;
@@ -242,14 +263,21 @@ export interface CronScheduleDefinition {
 	runCount: number;
 	lastRunAt?: string;
 	nextRunAt?: string;
+	lastRunStatus?: CronStoredRunStatus;
+	lastError?: string;
 	lastSuccessfulRunAt?: string;
 	lastFailedRunAt?: string;
 	lastEvaluatedAt?: string;
+	failureCount: number;
 	missedRunPolicy: CronMissedRunPolicy;
 	maxCatchUpRuns?: number;
 	catchUpWindowMs?: number;
 	concurrencyPolicy: CronConcurrencyPolicy;
 	retryPolicy: CronRetryPolicy;
+	providerId?: string;
+	modelId?: string;
+	target: CronStoredTarget;
+	payload: CronJsonValue;
 	taskType: string;
 	taskInput: CronJsonValue;
 	taskPriority: CronTaskPriority;
@@ -272,6 +300,7 @@ export type CronSchedule = CronScheduleDefinition;
 export interface CronScheduleCreateRequest {
 	name: string;
 	description?: string;
+	schedule?: CronStoredSchedule;
 	type: CronScheduleType;
 	source: CronScheduleSource;
 	sourceId?: string;
@@ -291,6 +320,10 @@ export interface CronScheduleCreateRequest {
 	catchUpWindowMs?: number;
 	concurrencyPolicy?: CronConcurrencyPolicy;
 	retryPolicy?: Partial<CronRetryPolicy>;
+	providerId?: string;
+	modelId?: string;
+	target?: CronStoredTarget;
+	payload?: CronJsonValue;
 	taskType: string;
 	taskInput: CronJsonValue;
 	taskPriority?: CronTaskPriority;
@@ -307,6 +340,7 @@ export interface CronScheduleCreateRequest {
 export interface CronScheduleUpdateRequest {
 	name?: string;
 	description?: string;
+	schedule?: CronStoredSchedule;
 	status?: Exclude<CronScheduleStatus, 'deleted'>;
 	visibility?: CronScheduleVisibility;
 	timezone?: CronTimezone;
@@ -321,6 +355,10 @@ export interface CronScheduleUpdateRequest {
 	catchUpWindowMs?: number;
 	concurrencyPolicy?: CronConcurrencyPolicy;
 	retryPolicy?: Partial<CronRetryPolicy>;
+	providerId?: string;
+	modelId?: string;
+	target?: CronStoredTarget;
+	payload?: CronJsonValue;
 	taskType?: string;
 	taskInput?: CronJsonValue;
 	taskPriority?: CronTaskPriority;
