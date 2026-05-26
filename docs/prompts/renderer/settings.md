@@ -45,7 +45,6 @@ All settings routes are defined in `SETTINGS_NAVIGATION`. Agent operator routes 
 
 Each sub-page follows the same pattern:
 
-- Entry point: `pages/<name>/Page.tsx`.
 - Use `SettingsPageShell`, `SettingsPageHeader`, `SettingsSection`, and `SettingsPanel` for layout.
 - Fetch and mutate data through the appropriate service via IPC — do not call backend services directly from the renderer.
 - Use `useTranslation` for all user-visible strings.
