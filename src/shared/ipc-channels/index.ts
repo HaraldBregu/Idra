@@ -178,6 +178,18 @@ export const StoreChannels = {
 	addProvider: 'store:add-provider',
 	getKeepAwakeEnabled: 'store:get-keep-awake-enabled',
 	setKeepAwakeEnabled: 'store:set-keep-awake-enabled',
+	getAssistantSettings: 'store:get-assistant-settings',
+	getSpeechToTextSettings: 'store:get-speech-to-text-settings',
+	getTextToSpeechSettings: 'store:get-text-to-speech-settings',
+	getImageCreatorSettings: 'store:get-image-creator-settings',
+	getTextToVideoSettings: 'store:get-text-to-video-settings',
+	getTextToSoundSettings: 'store:get-text-to-sound-settings',
+	getCronSettings: 'store:get-cron-settings',
+	getTaskSettings: 'store:get-task-settings',
+	getAgentRoutingSettings: 'store:get-agent-routing-settings',
+	getHeartbeatSettings: 'store:get-heartbeat-settings',
+	getConnectorSettings: 'store:get-connector-settings',
+	getChannelSettings: 'store:get-channel-settings',
 	getAssistantOperator: 'store:get-assistant-operator',
 	saveAssistantOperator: 'store:save-assistant-operator',
 	getSpeechToTextOperator: 'store:get-speech-to-text-operator',
@@ -710,6 +722,54 @@ interface StoreInvokeChannelMap {
 	[StoreChannels.setKeepAwakeEnabled]: {
 		args: [enabled: boolean];
 		result: boolean;
+	};
+	[StoreChannels.getAssistantSettings]: {
+		args: [];
+		result: import('../store').AssistantSettings | undefined;
+	};
+	[StoreChannels.getSpeechToTextSettings]: {
+		args: [];
+		result: import('../store').SpeechToTextSettings | undefined;
+	};
+	[StoreChannels.getTextToSpeechSettings]: {
+		args: [];
+		result: import('../store').TextToSpeechSettings | undefined;
+	};
+	[StoreChannels.getImageCreatorSettings]: {
+		args: [];
+		result: import('../store').ImageCreatorSettings | undefined;
+	};
+	[StoreChannels.getTextToVideoSettings]: {
+		args: [];
+		result: import('../store').TextToVideoSettings | undefined;
+	};
+	[StoreChannels.getTextToSoundSettings]: {
+		args: [];
+		result: import('../store').TextToSoundSettings | undefined;
+	};
+	[StoreChannels.getCronSettings]: {
+		args: [];
+		result: import('../store').CronSettings;
+	};
+	[StoreChannels.getTaskSettings]: {
+		args: [];
+		result: import('../store').TaskSettings;
+	};
+	[StoreChannels.getAgentRoutingSettings]: {
+		args: [];
+		result: import('../store').AgentRoutingSettings;
+	};
+	[StoreChannels.getHeartbeatSettings]: {
+		args: [];
+		result: import('../store').HeartbeatSettings;
+	};
+	[StoreChannels.getConnectorSettings]: {
+		args: [];
+		result: import('../connectors').ConnectorConfig[];
+	};
+	[StoreChannels.getChannelSettings]: {
+		args: [];
+		result: import('../channels').Channel;
 	};
 	[StoreChannels.getAssistantOperator]: {
 		args: [];
