@@ -1,5 +1,5 @@
 import { DEFAULT_AGENT_ID } from '../constants';
-import type { OperatorStoreState } from '../../shared/agents/service';
+import { isModelReasoningEffort, type OperatorStoreState } from '../../shared/agents/service';
 import type { AgentHeartbeatConfig, AgentsHeartbeatConfig } from '../../shared/heartbeat';
 import { parseHeartbeatDurationMs } from './duration';
 
@@ -16,7 +16,10 @@ export interface HeartbeatSummary {
 	everyMs: number | null;
 	prompt: string;
 	target: string;
+	providerId?: string;
+	modelId?: string;
 	model?: string;
+	reasoningEffort?: AgentHeartbeatConfig['reasoningEffort'];
 	session?: string;
 	directPolicy: 'allow' | 'block';
 	to?: string;
@@ -77,6 +80,7 @@ export function resolveHeartbeatSummaryForAgent(
 	const merged = mergeHeartbeatConfig(defaults, listEntry?.heartbeat);
 	const every = normalizeOptionalString(merged.every) ?? DEFAULT_HEARTBEAT_EVERY;
 	const everyMs = enabled ? resolveHeartbeatIntervalMs({ ...merged, every }) : null;
+	const legacyModel = normalizeOptionalString(merged.model);
 	const ackMaxChars =
 		typeof merged.ackMaxChars === 'number' && Number.isFinite(merged.ackMaxChars)
 			? Math.max(0, Math.floor(merged.ackMaxChars))
@@ -89,7 +93,12 @@ export function resolveHeartbeatSummaryForAgent(
 		everyMs,
 		prompt: resolveHeartbeatPrompt(merged.prompt),
 		target: normalizeOptionalString(merged.target) ?? DEFAULT_HEARTBEAT_TARGET,
-		model: normalizeOptionalString(merged.model),
+		providerId: normalizeOptionalString(merged.providerId)?.toLowerCase(),
+		modelId: normalizeOptionalString(merged.modelId) ?? legacyModel,
+		model: legacyModel,
+		reasoningEffort: isModelReasoningEffort(merged.reasoningEffort)
+			? merged.reasoningEffort
+			: undefined,
 		session: normalizeOptionalString(merged.session),
 		directPolicy: merged.directPolicy === 'block' ? 'block' : 'allow',
 		to: normalizeOptionalString(merged.to),
