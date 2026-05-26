@@ -62,19 +62,15 @@ Wrap `PageContent` in a `Provider` that supplies the welcome message and any sha
 
 - `useHomeAgent` — manages agent execution, chat state, input value, history loading, and the submit handler.
 
-## React Design Guidelines
+## React Design Patterns
 
-Follow standard React application patterns throughout:
+Follow the renderer React design patterns in the renderer conventions. Home-page-specific notes:
 
-- **Components**: keep each component focused on one responsibility. Avoid mixing data-fetching, business logic, and rendering in a single component.
-- **State**: colocate state as close as possible to where it is used. Lift only when two or more siblings need to share it. Do not use global state for ephemeral UI state (input value, scroll position, loading flags).
-- **Hooks**: extract all non-trivial logic into custom hooks (`use*`). Components should contain only layout and event wiring; logic lives in hooks.
-- **Props**: prefer explicit, typed props over implicit context. Only reach for context when prop-drilling spans more than two levels.
-- **Side effects**: put side effects (subscriptions, timers, agent subscriptions) inside `useEffect` with correct dependency arrays and cleanup functions.
-- **Memoisation**: use `useMemo` and `useCallback` only when there is a measured performance problem. Do not add them preemptively.
-- **Rendering**: avoid unnecessary re-renders by keeping stable references; do not create objects or arrays inline in JSX unless they are trivially cheap.
-- **Conditional rendering**: use short-circuit (`&&`) for simple cases and ternaries for two-branch cases. Extract complex conditional trees into named sub-components.
-- **File layout**: follow the one-file-one-export rule from the project guidelines. Each component, hook, and helper lives in its own file named with a single word.
+- `UserMessage` and `AgentTextMessage` are pure display components. They receive only the message data and an `isStreaming` flag — no IPC, no hooks, no side effects.
+- `useHomeAgent` is the single hook that owns the full agent lifecycle. Components call its returned handlers only; they never touch IPC directly.
+- The `Provider` wrapping `PageContent` supplies the welcome message. Keep the context value stable with `useMemo` so the entire tree does not re-render on every keystroke.
+- Scroll position management (`useRef`, `useEffect`, scroll-to-bottom logic) is a separate concern from message rendering — extract it into its own hook rather than inlining it in the page component.
+- Prompt suggestion chips are a controlled interaction: clicking one sets and immediately submits the input value. Model this as a single `onSuggestionSelect` handler, not two separate state updates.
 
 ## Testing
 
