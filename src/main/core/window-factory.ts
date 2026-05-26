@@ -25,19 +25,9 @@ export class WindowFactory {
 	private readonly iconPath: string;
 
 	constructor(private readonly logger?: LoggerService) {
-		// Use path.resolve to ensure absolute path for preload
-		// Output as .js (CommonJS) for Electron preload compatibility
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
 		this.preloadPath = path.resolve(__dirname, '../preload/index.js');
 		this.iconPath = path.resolve(__dirname, '../../resources/icons/icon.png');
-		this.logger?.info('WindowFactory', `Preload path: ${this.preloadPath}`);
-		// Verify preload file exists
-		try {
-			const { existsSync } = require('fs');
-			const exists = existsSync(this.preloadPath);
-			this.logger?.info('WindowFactory', `Preload file exists: ${exists}`);
-		} catch {
-			// Silent fail
-		}
 	}
 
 	private getBaseWebPreferences(): Electron.WebPreferences {
