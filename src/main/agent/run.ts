@@ -6,7 +6,7 @@ import type {
 } from '../provider/types';
 import { ContextOverflowError } from '../provider/types';
 import type { ProviderAdapter } from '../provider/types';
-import type { AgentTool, ToolContext } from '../tools/types';
+import type { AgentTool, ToolContext } from '../tools';
 import {
 	type AgentToolManagementOptions,
 	ToolService,

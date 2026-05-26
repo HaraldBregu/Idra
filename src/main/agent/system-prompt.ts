@@ -1,4 +1,4 @@
-import type { AgentTool } from '../tools/types';
+import type { AgentTool } from '../tools';
 import type { MemoryManager } from '../memory';
 import type { BootstrapMode } from '../workspace';
 import {
