@@ -70,6 +70,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 			return true;
 		} catch (error) {
+			console.error('[useProviderSetup] Failed to save API key:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, 'Could not save provider API key.'),
