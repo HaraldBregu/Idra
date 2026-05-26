@@ -89,6 +89,7 @@ export function useModelServices(
 				}
 			} catch (error) {
 				if (cancelled) return;
+				console.error('[useModelServices] Failed to load service configuration:', error);
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: createInitialModelServiceState() });
 				dispatch({
 					type: 'SET_ERROR',
