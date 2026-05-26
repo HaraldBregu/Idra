@@ -8,12 +8,12 @@ import {
 import { createFileTools } from '../files/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
 import type { ToolPolicy, ToolPolicyStageName } from '../../policy';
-import { applyToolPolicyPipeline } from '../policy/pipeline';
+import { applyToolPolicyPipeline } from '../pipeline';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
 	newCallTracker,
-} from '../policy/wrap';
+} from '../wrap';
 
 type AppConfig = Record<string, unknown>;
 type AuthContext = Record<string, unknown>;
