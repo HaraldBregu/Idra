@@ -33,6 +33,7 @@ export type {
 	ChannelApprovalCapability,
 	ChannelBindingsAdapter,
 	ChannelCapabilities,
+	ChannelChatType,
 	ChannelConversationBindingsAdapter,
 	ChannelConversationResolution,
 	ChannelConfigAdapter,
