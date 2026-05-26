@@ -18,6 +18,9 @@ export const AgentChannels = {
 	openHistoryFolder: 'agent:open-history-folder',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
+	listStartupFiles: 'agent:list-startup-files',
+	readStartupFile: 'agent:read-startup-file',
+	writeStartupFile: 'agent:write-startup-file',
 	listWorkspaceFiles: 'agent:list-workspace-files',
 	readWorkspaceFile: 'agent:read-workspace-file',
 	writeWorkspaceFile: 'agent:write-workspace-file',
@@ -420,6 +423,18 @@ interface AgentInvokeChannelMap {
 		result: void;
 	};
 	[AgentChannels.cancel]: { args: []; result: void };
+	[AgentChannels.listStartupFiles]: {
+		args: [];
+		result: import('../agents/service').AgentStartupFileSummary[];
+	};
+	[AgentChannels.readStartupFile]: {
+		args: [name: string];
+		result: import('../agents/service').AgentStartupFileContent;
+	};
+	[AgentChannels.writeStartupFile]: {
+		args: [name: string, content: string];
+		result: import('../agents/service').AgentStartupFileContent;
+	};
 	[AgentChannels.listWorkspaceFiles]: {
 		args: [];
 		result: import('../agents/service').WorkspaceFileSummary[];
