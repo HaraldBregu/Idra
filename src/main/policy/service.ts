@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type { PolicyConfig, PolicyDecision, Permission } from '../../shared/policy';
 import { evaluate } from './evaluate';
 import {
@@ -36,10 +37,21 @@ export interface PolicyServicePort {
 }
 
 export class PolicyService implements PolicyServicePort {
-	constructor(private readonly store: PolicyStorePort) {}
+	constructor(
+		private readonly store: PolicyStorePort,
+		private readonly workspaceRoot?: string
+	) {}
 
 	evaluate(targetPath: string, permission: Permission): PolicyDecision {
-		return evaluate(this.store.getPolicy(), targetPath, permission);
+		return evaluate(this.store.getPolicy(), this.toVirtualPath(targetPath), permission);
+	}
+
+	// Maps real workspace paths to the virtual /workspace prefix used in stored policy configs.
+	private toVirtualPath(targetPath: string): string {
+		if (!this.workspaceRoot) return targetPath;
+		const rel = path.relative(this.workspaceRoot, targetPath);
+		if (rel.startsWith('..') || path.isAbsolute(rel)) return targetPath;
+		return '/workspace' + (rel ? '/' + rel : '');
 	}
 
 	evaluateTools(

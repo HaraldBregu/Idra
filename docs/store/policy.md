@@ -15,7 +15,7 @@ At startup, the `policy` property should always start with this default value wh
 ```json
 {
   "version": 1,
-  "defaultPolicy": "deny",
+  "defaultPolicy": "allow",
   "paths": [
     {
       "path": "/workspace",
@@ -73,7 +73,7 @@ Boolean. When `true`, the grant applies to all descendants. When `false`, it app
 
 ## Normalization
 
-Missing `policy` property is filled with `defaultPolicy: deny` and recursive default grants for `/workspace` and `/agent`. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
+Missing `policy` property is filled with `defaultPolicy: allow` and recursive default grants for `/workspace` and `/agent`. Unknown `permissions` values are dropped. Paths containing `..` are removed. The `paths` array order is preserved — the policy module depends on it for longest-prefix matching.
 
 ## Related Docs
 

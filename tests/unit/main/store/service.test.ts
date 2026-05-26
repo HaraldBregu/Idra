@@ -259,7 +259,7 @@ describe('StoreService', () => {
 			const store = storeFor(service);
 			const expected = {
 				version: 1,
-				defaultPolicy: 'deny' as const,
+				defaultPolicy: 'allow' as const,
 				paths: [
 					{
 						path: '/workspace',
