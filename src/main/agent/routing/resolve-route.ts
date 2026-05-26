@@ -1,5 +1,5 @@
 import type { ChannelNormalizedInboundMessage } from '../../channels';
-import type { ChannelChatType } from '../../channels/types';
+import type { ChannelChatType } from '../../channels';
 import type {
 	AgentRouteBinding,
 	AgentRoutePeer,
