@@ -290,10 +290,23 @@ export class CronSchedulerService implements CronScheduler {
 
 		const now = new Date();
 		const nowIso = now.toISOString();
+		const cronExpression = request.cronExpression?.trim().replace(/\s+/g, ' ');
+		const scheduleConfig =
+			request.schedule ??
+			storedScheduleConfig({
+				type: request.type,
+				cronExpression,
+				intervalMs: request.intervalMs,
+				runAt: request.runAt,
+				startAt: request.startAt,
+				endAt: request.endAt,
+				maxRuns: request.maxRuns,
+			});
 		const schedule: CronSchedule = {
 			id: randomUUID(),
 			name: request.name.trim(),
 			description: request.description?.trim(),
+			schedule: scheduleConfig,
 			type: request.type,
 			status: request.enabled === false ? 'disabled' : 'active',
 			source: request.source,
@@ -303,18 +316,23 @@ export class CronSchedulerService implements CronScheduler {
 			createdBy: request.createdBy,
 			visibility: request.visibility ?? 'user',
 			timezone: request.timezone || actor.timezone || this.options.defaultTimezone,
-			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
+			cronExpression,
 			intervalMs: request.intervalMs,
 			runAt: request.runAt,
 			startAt: request.startAt,
 			endAt: request.endAt,
 			maxRuns: request.maxRuns,
 			runCount: 0,
+			failureCount: 0,
 			missedRunPolicy: request.missedRunPolicy ?? 'skip',
 			maxCatchUpRuns: request.maxCatchUpRuns ?? this.options.runPolicy.maxCatchUpRuns,
 			catchUpWindowMs: request.catchUpWindowMs ?? this.options.runPolicy.catchUpWindowMs,
 			concurrencyPolicy: request.concurrencyPolicy ?? 'skipIfRunning',
 			retryPolicy: mergeRetryPolicy(this.options.defaultRetryPolicy, request.retryPolicy),
+			providerId: request.providerId,
+			modelId: request.modelId,
+			target: scheduleTarget(normalizedTask.taskType, request.target),
+			payload: request.payload ?? normalizedTask.taskInput,
 			taskType: normalizedTask.taskType,
 			taskInput: normalizedTask.taskInput,
 			taskPriority: request.taskPriority ?? 'normal',
