@@ -8,40 +8,40 @@ This file stores serializable task state for the task manager UI, task history, 
 
 ```json
 {
-  "schemaVersion": 1,
-  "records": [],
-  "updatedAt": "2026-05-26T00:00:00.000Z"
+	"schemaVersion": 1,
+	"records": [],
+	"updatedAt": "2026-05-26T00:00:00.000Z"
 }
 ```
 
-| Property | Type | Stored | Meaning |
-| --- | --- | --- | --- |
-| `schemaVersion` | number | Always | Persistence schema version used for future migrations. |
-| `records` | `TaskRecord[]` | Always | Persisted task records. |
-| `updatedAt` | string | Always | ISO timestamp for the last store write. |
+| Property        | Type           | Stored | Meaning                                                |
+| --------------- | -------------- | ------ | ------------------------------------------------------ |
+| `schemaVersion` | number         | Always | Persistence schema version used for future migrations. |
+| `records`       | `TaskRecord[]` | Always | Persisted task records.                                |
+| `updatedAt`     | string         | Always | ISO timestamp for the last store write.                |
 
 ## Task Record Properties
 
 Each entry in `records` stores the public task record shape.
 
-| Property | Type | Stored | Meaning |
-| --- | --- | --- | --- |
-| `id` | string | Always | Stable task id. |
-| `type` | string | Always | Task handler type, such as `agent.run`. |
-| `title` | string | Always | Human-readable task title. |
-| `status` | `queued \| running \| cancelling \| cancelled \| succeeded \| failed` | Always | Current task lifecycle state. |
-| `createdAt` | string | Always | ISO timestamp when the task record was created. |
-| `startedAt` | string | When started | ISO timestamp when execution started. |
-| `finishedAt` | string | When terminal | ISO timestamp when execution ended. |
-| `progress` | object | When reported | Latest task progress snapshot. |
-| `progress.current` | number | When reported | Current progress amount. |
-| `progress.total` | number | When reported | Total progress amount. |
-| `progress.message` | string | When reported | Short progress message. |
-| `metadata` | `Record<string, unknown>` | Always | Sanitized caller metadata used for filtering, provenance, and scheduler context. |
-| `result` | unknown | On success | Sanitized task result. |
-| `error` | object | On failure | Public error metadata. |
-| `error.code` | string | On failure | Stable error code or error name. |
-| `error.message` | string | On failure | Redacted user-readable failure message. |
+| Property           | Type                                                                  | Stored        | Meaning                                                                          |
+| ------------------ | --------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------- |
+| `id`               | string                                                                | Always        | Stable task id.                                                                  |
+| `type`             | string                                                                | Always        | Task handler type, such as `agent.run`.                                          |
+| `title`            | string                                                                | Always        | Human-readable task title.                                                       |
+| `status`           | `queued \| running \| cancelling \| cancelled \| succeeded \| failed` | Always        | Current task lifecycle state.                                                    |
+| `createdAt`        | string                                                                | Always        | ISO timestamp when the task record was created.                                  |
+| `startedAt`        | string                                                                | When started  | ISO timestamp when execution started.                                            |
+| `finishedAt`       | string                                                                | When terminal | ISO timestamp when execution ended.                                              |
+| `progress`         | object                                                                | When reported | Latest task progress snapshot.                                                   |
+| `progress.current` | number                                                                | When reported | Current progress amount.                                                         |
+| `progress.total`   | number                                                                | When reported | Total progress amount.                                                           |
+| `progress.message` | string                                                                | When reported | Short progress message.                                                          |
+| `metadata`         | `Record<string, unknown>`                                             | Always        | Sanitized caller metadata used for filtering, provenance, and scheduler context. |
+| `result`           | unknown                                                               | On success    | Sanitized task result.                                                           |
+| `error`            | object                                                                | On failure    | Public error metadata.                                                           |
+| `error.code`       | string                                                                | On failure    | Stable error code or error name.                                                 |
+| `error.message`    | string                                                                | On failure    | Redacted user-readable failure message.                                          |
 
 ## Persistence Rules
 

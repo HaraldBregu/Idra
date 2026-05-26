@@ -4,10 +4,10 @@ Tasks let Friday run agent work without blocking the foreground conversation. Th
 
 ## Task Families
 
-| Family | Functionality | How It Works |
-| --- | --- | --- |
-| Background task | Starts agent work immediately. | A request creates an in-memory task record, validates the task type and payload, runs an isolated agent session, tracks status, and emits lifecycle events. |
-| Scheduled task | Starts agent work when a schedule is due. | A persisted schedule is recovered at startup, evaluated by the scheduler, and converted into a background task when it should run. |
+| Family          | Functionality                             | How It Works                                                                                                                                                |
+| --------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Background task | Starts agent work immediately.            | A request creates an in-memory task record, validates the task type and payload, runs an isolated agent session, tracks status, and emits lifecycle events. |
+| Scheduled task  | Starts agent work when a schedule is due. | A persisted schedule is recovered at startup, evaluated by the scheduler, and converted into a background task when it should run.                          |
 
 ## Background Execution
 
