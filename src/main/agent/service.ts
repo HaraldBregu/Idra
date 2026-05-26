@@ -11,8 +11,6 @@ import {
 	resolveBootstrapMode,
 	WorkspaceService,
 	type WorkspaceContextFile,
-} from '../workspace';
-import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
