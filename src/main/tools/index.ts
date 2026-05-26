@@ -1,6 +1,7 @@
 export type {
 	AgentTool,
 	AgentToolResult,
+	CronToolContext,
 	FridayServices,
 	PlanEntry,
 	ToolContext,
