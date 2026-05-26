@@ -635,6 +635,10 @@ export class AgentService {
 					status: 'completed',
 				};
 				await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
+				this.updateRunRecordSync(runId, {
+					state: 'completed',
+					output: beforeRun.message,
+				});
 				runtime.currentAbort = null;
 				clearRunTimeout();
 				streamEvent({ type: 'text_delta', delta: beforeRun.message });
@@ -681,10 +685,17 @@ export class AgentService {
 				toolService: this.toolService,
 			});
 
-			runtime.session = result.session;
+			runtime.session = {
+				...result.session,
+				status: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
+			};
 			await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
 			runtime.currentAbort = null;
 			clearRunTimeout();
+			this.updateRunRecordSync(runId, {
+				state: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
+				output: result.finalText,
+			});
 			streamEvent({
 				type: 'run_state',
 				state: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
@@ -698,6 +709,10 @@ export class AgentService {
 				type: 'run_state',
 				state: abort.signal.aborted ? 'cancelled' : 'error',
 				label: abort.signal.aborted ? 'Cancelled' : (err as Error).message,
+			});
+			this.updateRunRecordSync(runId, {
+				state: abort.signal.aborted ? 'cancelled' : 'error',
+				error: abort.signal.aborted ? undefined : (err as Error).message,
 			});
 			this.dependencies.logger.error('AgentService', 'send failed', {
 				message: (err as Error).message,
