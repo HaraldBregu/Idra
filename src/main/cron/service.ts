@@ -9,8 +9,8 @@ import type { TaskManager } from '../tasks';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
-	type FridayCronToolRequest,
-	type FridayCronToolResponse,
+	type FridayCronToolRequest as FridayCronActionRequest,
+	type FridayCronToolResponse as FridayCronActionResponse,
 	type CronNextRunPreview,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
@@ -164,10 +164,10 @@ export class CronService implements Disposable {
 	}
 
 	fridayAction(
-		request: FridayCronToolRequest,
+		request: FridayCronActionRequest,
 		actor?: FridayCronActor,
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
-	): Promise<FridayCronToolResponse> {
+	): Promise<FridayCronActionResponse> {
 		const effectiveActor = actor ?? { role: 'owner' as const };
 		return this.friday.handleAction(request, effectiveActor, context);
 	}
