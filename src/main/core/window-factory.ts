@@ -1,4 +1,5 @@
 import { BrowserWindow, BrowserWindowConstructorOptions, shell } from 'electron';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
