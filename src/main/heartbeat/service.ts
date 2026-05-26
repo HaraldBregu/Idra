@@ -668,12 +668,96 @@ export class HeartbeatService implements Disposable {
 		return sessionKey === agentId || !sessionKey.startsWith('agent:') || sessionKey.startsWith(`agent:${agentId}:`);
 	}
 
+	private getDefaultHeartbeatConfig() {
+		return this.agentService.getHeartbeatStore().getAgentsConfig()?.defaults?.heartbeat ?? {};
+	}
+
+	private assertObject(value: unknown): asserts value is Record<string, unknown> {
+		if (!value || typeof value !== 'object' || Array.isArray(value)) {
+			throw new Error('Invalid heartbeat request.');
+		}
+	}
+
+	private normalizeString(value: unknown): string | undefined {
+		return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+	}
+
+	private normalizeSettingsUpdate(request: HeartbeatSettingsUpdate) {
+		const patch: HeartbeatSettingsUpdate = {};
+		if ('every' in request) {
+			const every = this.normalizeString(request.every);
+			if (!every) throw new Error('Heartbeat cadence is required.');
+			patch.every = every;
+		}
+		if ('activeHours' in request) {
+			patch.activeHours = this.normalizeActiveHours(request.activeHours);
+		}
+		if ('providerId' in request) {
+			const providerId = this.normalizeString(request.providerId)?.toLowerCase();
+			if (!providerId) throw new Error('Heartbeat provider id is required.');
+			patch.providerId = providerId;
+		}
+		if ('modelId' in request) {
+			const modelId = this.normalizeString(request.modelId);
+			if (!modelId) throw new Error('Heartbeat model id is required.');
+			patch.modelId = modelId;
+		}
+		if ('reasoningEffort' in request) {
+			if (request.reasoningEffort === undefined || request.reasoningEffort === null) {
+				patch.reasoningEffort = undefined;
+			} else if (isModelReasoningEffort(request.reasoningEffort)) {
+				patch.reasoningEffort = request.reasoningEffort;
+			} else {
+				throw new Error('Heartbeat reasoning effort is not supported.');
+			}
+		}
+		return patch;
+	}
+
+	private requireProvider(providerId: string | undefined): void {
+		if (!providerId) throw new Error('Heartbeat provider id is required.');
+		const provider = this.agentService.getHeartbeatProvider(providerId);
+		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
+	}
+
+	private requireModel(providerId: string | undefined, modelId: string): void {
+		this.requireProvider(providerId);
+		const model = this.agentService.getHeartbeatModel(providerId, modelId);
+		if (!model) throw new Error(`Model is not supported for heartbeat: ${modelId}`);
+	}
+
+	private requireReasoningEffort(
+		providerId: string | undefined,
+		modelId: string | undefined,
+		reasoningEffort: ModelReasoningEffort
+	): ModelReasoningEffort {
+		if (!providerId || !modelId) {
+			throw new Error('Heartbeat provider id and model id are required for reasoning effort.');
+		}
+		this.requireModel(providerId, modelId);
+		return requireModelReasoningEffort(modelId, reasoningEffort, providerId);
+	}
+
+	private isReasoningEffortSupported(
+		providerId: string | undefined,
+		modelId: string | undefined,
+		reasoningEffort: ModelReasoningEffort
+	): boolean {
+		return Boolean(
+			providerId &&
+				modelId &&
+				getModelReasoningEfforts(modelId, providerId).includes(reasoningEffort)
+		);
+	}
+
 	private normalizeActiveHours(
-		activeHours: HeartbeatTimingSettings['activeHours']
+		activeHours: HeartbeatTimingSettings['activeHours'] | unknown
 	): HeartbeatTimingSettings['activeHours'] {
-		const start = activeHours?.start?.trim();
-		const end = activeHours?.end?.trim();
-		const timezone = activeHours?.timezone?.trim();
+		if (activeHours === undefined || activeHours === null) return undefined;
+		this.assertObject(activeHours);
+		const start = this.normalizeString(activeHours.start);
+		const end = this.normalizeString(activeHours.end);
+		const timezone = this.normalizeString(activeHours.timezone);
 		if (!start && !end && !timezone) return undefined;
 		return {
 			...(start ? { start } : {}),
