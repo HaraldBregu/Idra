@@ -301,10 +301,10 @@ export class ConnectorsService {
 	) {
 		this.store =
 			options.store ??
-			new Store({
+			(new Store<Partial<Record<ConnectorStoreKey, ConnectorConfig>>>({
 				name: CONNECTOR_STORE_NAME,
 				accessPropertiesByDotNotation: false,
-			});
+			}) as ConnectorPersistenceStore);
 	}
 
 	catalog(): typeof OPENAI_CONNECTOR_CATALOG {
@@ -617,7 +617,7 @@ export class ConnectorsService {
 				this.logWarn('Dropped invalid connector settings', { key, reason: 'not_object' });
 				return [];
 			}
-			const connector = record as ConnectorConfig;
+			const connector = record as unknown as ConnectorConfig;
 			if (!isStoredConnectorValid(connector)) {
 				this.logWarn('Dropped invalid connector settings', {
 					key,
