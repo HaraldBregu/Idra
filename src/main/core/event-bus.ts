@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import type { SubagentRunRecord } from '../agent/subagents';
+import type { SubagentRunRecord } from '../agent';
 import type { TaskEvent } from '../../shared/tasks';
 
 type TaskEventOf<TType extends TaskEvent['type']> = Extract<TaskEvent, { type: TType }>;

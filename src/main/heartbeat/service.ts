@@ -2,11 +2,10 @@ import type { Disposable } from '../core/service-container';
 import type { AppEvent, EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
-import type { AgentStartupFilesServicePort } from '../agent/startup-files';
+import type { AgentService, AgentStartupFilesServicePort } from '../agent';
 import type { ChannelRegistry } from '../channels';
 import { normalizeChannelId } from '../channels';
 import type { ChannelChatType, ChannelOutboundMessage } from '../channels/types';
-import type { AgentService } from '../service';
 import { DEFAULT_AGENT_ID } from '../constants';
 import type {
 	HeartbeatEventPayload,

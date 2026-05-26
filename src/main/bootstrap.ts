@@ -9,20 +9,23 @@ import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { PolicyService } from './policy';
 import { CronService } from './cron';
-import { AgentService, type AgentServiceDependencies } from './service';
-import { AgentStartupFilesService } from './agent/startup-files';
 import { ChannelRegistry } from './channels';
 import {
+	AgentService,
+	AgentStartupFilesService,
+	type AgentServiceDependencies,
 	collectConfiguredAgentHarnessRuntimes,
 	disposeRegisteredAgentHarnesses,
 	ensureAgentHarnessRuntimeActivated,
-} from './agent/harness';
+	SubagentRegistry,
+	SubagentRunTaskHandler,
+	SubagentSpawnService,
+} from './agent';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { MonitorService } from './monitor';
 import { TasksService } from './tasks';
-import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './tools';
