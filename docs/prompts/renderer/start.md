@@ -274,11 +274,11 @@ pages/start/
 
 ## Types
 
-Follow the type placement rules in `docs/prompts/renderer/index.md`.
+Follow the type placement rules in the renderer conventions.
 
-- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, operator records returned by `window.store`) belong in `src/shared/types/`.
-- Types consumed by multiple renderer pages belong in `src/renderer/src/types/`.
-- Types scoped to the start page alone — `SetupState`, `SetupStep`, `ProviderSetupEntry`, `ModelServiceStateMap`, reducer actions — stay inside `src/renderer/src/pages/start/`.
+- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, operator records returned by `window.store`) belong in the shared types directory.
+- Types consumed by multiple renderer pages belong in the renderer-level types directory.
+- Types scoped to the start page alone — `SetupState`, `SetupStep`, `ProviderSetupEntry`, `ModelServiceStateMap`, reducer actions — stay inside the start page folder.
 
 ## Logging
 
