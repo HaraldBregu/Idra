@@ -7,6 +7,7 @@ import type { McpRegistry } from '../mcp';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ConnectorsService } from '../connectors';
+import type { SkillsService } from '../skills';
 import {
 	resolveBootstrapMode,
 	WorkspaceService,
@@ -20,13 +21,13 @@ import {
 import type { UserDataDirectoryServicePort } from '../user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
-import { type AgentRunHooks, type AgentRunStreamEvent } from './run';
 import {
-	buildAgentHookContext,
-	fireBeforePromptBuildHook,
-	resetRegisteredAgentHarnesses,
-	runAgentHarnessAttempt,
-} from './harness';
+	AgentExecutionService,
+	type AgentExecutionServicePort,
+	type AgentRunHooks,
+} from './run';
+import type { AgentRunStreamEvent } from '../../shared/agents/events';
+import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
 import { DEFAULT_AGENT_ID } from '../constants';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
 import {
@@ -77,6 +78,7 @@ export interface AgentServiceDependencies {
 	workspace: WorkspaceService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	connectors?: ConnectorsService;
+	skills?: SkillsService;
 	mcpRegistry?: McpRegistry;
 	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
@@ -108,6 +110,8 @@ export interface AgentServiceOptions {
 	providerFactory?: (provider: ProviderSpec) => ProviderAdapter;
 	toolsFactory?: AgentToolsFactory;
 	toolService?: ToolServicePort;
+	capabilityService?: AgentCapabilityServicePort;
+	executionService?: AgentExecutionServicePort;
 	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
 	beforeAgentRunHooks?: BeforeAgentRunHook[];
@@ -123,6 +127,7 @@ export interface AgentSendOptions {
 	agentRuntime?: string;
 	agentHarnessId?: string;
 	lightContext?: boolean;
+	streamEvent?: (event: AgentRunStreamEvent) => void;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
 	sessionMetadata?: Partial<AgentSessionMetadata>;
