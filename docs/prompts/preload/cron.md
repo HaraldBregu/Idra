@@ -1,34 +1,44 @@
 # CronApi Preload Prompt
 
-Expose cron scheduling through `window.cron`. `CronApi` is the renderer-safe bridge to `CronService`; it must not expose the cron service, scheduler internals, task runners, or store objects directly.
+Expose cron scheduling through `window.cron`. This API is the renderer-safe bridge to `CronService`; it must not expose scheduler internals, task runners, queue state, storage objects, or service instances directly.
 
 ## Expose
 
-- Legacy task access: `list()`, `add(expression, data, options)`, and `remove(id)`.
-- Managed schedules: `createSchedule(request)`, `updateSchedule(scheduleId, patch)`, `pauseSchedule(scheduleId)`, `resumeSchedule(scheduleId)`, and `deleteSchedule(scheduleId)`.
-- Schedule reads: `listSchedules(filter)`, `getSchedule(scheduleId)`, `getScheduleEvents(scheduleId)`, `getScheduleExecutions(scheduleId)`, and `getNextRuns(scheduleId, count)`.
-- Manual execution: `runNow(scheduleId)`.
-- Events: `subscribeToSchedules(listener)` and `subscribeToSchedule(scheduleId, listener)`.
+- List legacy cron tasks.
+- Add a legacy cron task.
+- Remove a legacy cron task.
+- Create a managed schedule.
+- Update a managed schedule.
+- Pause, resume, and delete a managed schedule.
+- List schedules with an optional filter.
+- Read one schedule.
+- Read schedule events.
+- Read schedule executions.
+- Preview next runs.
+- Trigger a schedule immediately.
+- Subscribe to all schedule events.
+- Subscribe to events for one schedule.
 
 ## Dependencies
 
-- Shared types and validators: `src/shared/cron.ts`.
-- Channels: `CronChannels`, `CronInvokeChannelMap`, and `CronEventChannelMap` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `CronApi` in `src/preload/index.d.ts`.
-- Preload implementation: `cron` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/cron-ipc.ts`.
-- Main services: `cron`, `logger`, and `eventBus`.
+- Shared cron request, schedule, task, event, execution, and preview types.
+- Typed cron invoke channels for commands and queries.
+- Typed cron event channels for schedule events.
+- A main-process handler that delegates to `CronService`.
+- Main-process actor and permission handling for UI-initiated schedule operations.
+- Main-process event broadcasting from the cron service.
 
 ## Rules
 
-- Use `typedInvokeUnwrap` for schedule commands and queries.
-- Use `typedOn(CronChannels.event, listener)` for schedule events.
-- Filter schedule-specific subscriptions in preload only by event identity; keep authorization, scheduling policy, execution history, and persistence in `CronService`.
-- Validate cron task data and schedule request shapes in shared validators or main IPC.
-- Do not let renderer code provide privileged actor permissions directly; main IPC must create the UI actor context.
+- Use invoke-style calls for schedule commands and queries.
+- Use subscription-style calls for schedule events.
+- Filter schedule-specific subscriptions only by event identity in preload.
+- Keep authorization, scheduling policy, execution history, persistence, and task execution in `CronService`.
+- Validate cron task data and schedule request shapes outside preload.
+- Do not let renderer code provide privileged actor permissions directly.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
 - Run cron service or IPC tests when schedule behavior changes.
-- Run `yarn typecheck:web` when renderer consumers change.
+- Run renderer checks when renderer consumers change.

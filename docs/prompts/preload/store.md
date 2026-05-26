@@ -1,33 +1,41 @@
 # StoreApi Preload Prompt
 
-Expose store-backed settings through `window.store`. `StoreApi` is the renderer-safe bridge to `StoreService`; it must not expose the store instance, raw persisted state, API keys, or Electron store internals.
+Expose store-backed settings through `window.store`. This API is the renderer-safe bridge to `StoreService`; it must not expose the store instance, raw persisted state, API keys, or storage internals.
 
 ## Expose
 
-- Providers: `getProviders()`, `setProviderApiKey(providerId, apiKey)`, `isProviderApiKeySaved(providerId)`, and `addProvider(input)`.
-- Keep awake: `getKeepAwakeEnabled()` and `setKeepAwakeEnabled(enabled)`.
-- Operators: assistant, speech-to-text, text-to-speech, image, video, and music getters and savers.
-- Service selections: `getAgentService()`, `saveAgentService(provider, model)`, `getSpeechTranscriberService()`, and `saveSpeechTranscriberService(provider, model)`.
+- List public providers.
+- Save a provider API key without returning it.
+- Check whether a provider API key is saved.
+- Add a valid provider.
+- Read and update keep-awake state.
+- Read and save assistant operator selection.
+- Read and save speech-to-text operator selection.
+- Read and save text-to-speech operator selection.
+- Read and save image creator operator selection.
+- Read and save text-to-video operator selection.
+- Read and save music creator operator selection.
+- Read and save agent-service selection.
+- Read and save speech-transcriber selection.
 
 ## Dependencies
 
-- Shared types: `src/shared/providers.ts` and `src/shared/agents/service.ts`.
-- Channels: `StoreChannels` and `StoreInvokeChannelMap` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `StoreApi` in `src/preload/index.d.ts`.
-- Preload implementation: `store` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/store-ipc.ts`.
-- Main services: `store`, `powerSaveBlocker`, and `logger`.
+- Shared provider, model, operator, and service-selection types.
+- Typed store invoke channels.
+- A main-process handler that delegates to `StoreService`.
+- Main-process power-save behavior for keep-awake settings.
+- Main-process validation for providers, models, and operator selections.
 
 ## Rules
 
-- Use `typedInvokeUnwrap` for every method.
+- Use invoke-style calls for every store operation.
 - Return public provider data only; never return saved API keys.
-- Keep provider id, URL, API key, model, and operator validation in main IPC, shared validators, or `StoreService`.
-- Keep power-save side effects behind the main-process `powerSaveBlocker`.
+- Keep provider id, URL, API key, model, and operator validation outside preload.
+- Keep power-save side effects in the main process.
 - Do not expose generic get/set methods for arbitrary store keys.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
 - Run store service or IPC tests when persistence behavior changes.
-- Run `yarn typecheck:web` when renderer consumers change.
+- Run renderer checks when renderer consumers change.

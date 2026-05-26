@@ -1,36 +1,41 @@
 # AppApi Preload Prompt
 
-Expose application shell operations through `window.app`. `AppApi` is the renderer-safe bridge to app-level Electron capabilities and app configuration dependencies; it must not expose Electron, store, provider, or permission services directly.
+Expose application shell operations through `window.app`. This API is the renderer-safe bridge to app-level Electron capabilities and app configuration dependencies; it must not expose Electron, storage, provider, or permission services directly.
 
 ## Expose
 
-- App folders: `openAppDataFolder()` and `openUserDataFolder()`.
-- External links: `openExternalUrl(url)`.
-- Tray state: `setTrayEnabled(enabled)` and `getTrayEnabled()`.
-- Keep-awake state: `getKeepAwakeEnabled()` and `setKeepAwakeEnabled(enabled)`.
-- System permissions: microphone and camera get, set, request, and `openSystemPreference(pane)`.
-- Provider setup: `setProviderApiKey`, `isProviderApiKeySaved`, `getProviders`, `addProvider`, and `getModels`.
-- Operator setup: assistant, speech-to-text, text-to-speech, image, video, music, agent service, and speech transcriber getters and savers.
+- Open app-managed folders from the main process.
+- Open validated external URLs.
+- Read and update tray visibility state.
+- Read and update keep-awake state.
+- Read, update, and request microphone permission state.
+- Read, update, and request camera permission state.
+- Open known system preference panes.
+- Configure provider API keys without returning secrets.
+- Read public provider data and add valid providers.
+- Look up supported models for a provider.
+- Read and save configured operator selections.
+- Read and save agent-service and speech-transcriber selections.
 
 ## Dependencies
 
-- Shared types: `src/shared/providers.ts`, `src/shared/app-permissions.ts`, and `src/shared/agents/service.ts`.
-- Channels: `AppChannels`, `ProviderChannels`, and `OperatorChannels` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `AppApi` in `src/preload/index.d.ts`.
-- Preload implementation: `app` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/app-ipc.ts`.
-- Main services: `store`, `appPermissions`, `powerSaveBlocker`, `userDataDirectory`, `logger`, and Electron `app`, `shell`, `systemPreferences`, and `BrowserWindow`.
+- Shared provider, app-permission, model, and operator types.
+- Typed app, provider, and operator channel contracts.
+- A main-process handler that owns app-shell behavior.
+- Main-process access to app folders, external URL opening, system permissions, tray state, and power-save behavior.
+- Store-backed provider and operator configuration.
 
 ## Rules
 
-- Use `typedInvokeUnwrap` for all `AppApi` methods.
-- Normalize and validate external URLs in main or shared code, not in preload.
-- Keep filesystem opening, system permission prompts, power-save behavior, provider validation, and operator validation in main IPC or services.
-- Do not add long-running domain behavior to `AppApi`; create or use a service-specific API instead.
-- Prefer `window.store` for store-only settings when the renderer does not need app-shell behavior.
+- Use invoke-style calls for all app API methods.
+- Normalize and validate external URLs outside preload.
+- Keep filesystem opening, permission prompts, power-save behavior, provider validation, and operator validation in the main process.
+- Do not add long-running domain behavior to `AppApi`; expose that through a service-specific API.
+- Prefer `window.store` for store-only settings when no app-shell behavior is required.
+- Never return provider secrets to the renderer.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
-- Run `yarn typecheck:web` when renderer consumers change.
-- Run focused main tests for provider, permission, or operator behavior changes.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
+- Run renderer checks when renderer consumers change.
+- Run focused main-process tests for provider, permission, or operator behavior changes.

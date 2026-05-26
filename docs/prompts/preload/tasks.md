@@ -1,35 +1,35 @@
 # TasksApi Preload Prompt
 
-Expose background task behavior through `window.tasks`. `TasksApi` is the renderer-safe bridge to `TaskManager`; it must not expose task manager internals, task handlers, queues, or runner instances directly.
+Expose background task behavior through `window.tasks`. This API is the renderer-safe bridge to `TaskManager`; it must not expose task manager internals, task handlers, queues, or runner instances directly.
 
 ## Expose
 
-- `start(request)`: start a user task.
-- `list()`: list task records.
-- `get(id)`: read one task record.
-- `cancel(id)`: cancel a task.
-- `onEvent(callback)`: subscribe to task lifecycle events.
+- Start a user task.
+- List task records.
+- Read one task record by id.
+- Cancel a task by id.
+- Subscribe to task lifecycle events.
 
 ## Dependencies
 
-- Shared types: `src/shared/tasks.ts`.
-- Main request parsing: `parseTaskRunRequest` from `src/main/tasks`.
-- Channels: `TaskChannels`, `TaskInvokeChannelMap`, and `TaskEventChannelMap` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `TasksApi` in `src/preload/index.d.ts`.
-- Preload implementation: `tasks` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/tasks-ipc.ts`.
-- Main services: `taskManager` and `eventBus`.
+- Shared task request, record, and event types.
+- Typed task invoke channels for commands and queries.
+- Typed task event channels for lifecycle events.
+- A main-process handler that delegates to `TaskManager`.
+- Main-process request parsing and validation.
+- Main-process event broadcasting for task lifecycle changes.
 
 ## Rules
 
-- Use `typedInvokeUnwrap` for task commands and queries.
-- Use `typedOn(TaskChannels.event, callback)` for lifecycle events.
-- Parse and validate start requests in main-process task code.
-- Validate task ids in main IPC or service code.
+- Use invoke-style calls for task commands and queries.
+- Use subscription-style calls for lifecycle events.
+- Parse and validate start requests outside preload.
+- Validate task ids outside preload.
 - Keep queueing, concurrency, cancellation, retention, task handlers, and runner behavior in `TaskManager`.
+- Return unsubscribe functions from event subscriptions.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
 - Run task manager or IPC tests when task behavior changes.
-- Run `yarn typecheck:web` when renderer consumers change.
+- Run renderer checks when renderer consumers change.

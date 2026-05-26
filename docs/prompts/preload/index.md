@@ -1,39 +1,42 @@
 # Preload API Prompt
 
-Refactor `src/preload` as the only renderer-facing bridge to Electron and main-process services. The preload layer must expose stable, typed APIs through `contextBridge`, must not expose `ipcRenderer` directly, and must not contain business logic. Use typed IPC helpers for communication, keep shared request and response types under `src/shared`, and add or update APIs only when they are backed by typed shared IPC channels and real main-process handlers.
+Use the preload layer as the only renderer-facing bridge to Electron and main-process services. Expose stable, typed APIs through `contextBridge`, do not expose raw IPC, and do not put business logic in preload.
 
-Do not expose service instances to the renderer. Expose small APIs that delegate to the relevant main-process service through typed IPC.
+Expose small APIs that delegate to the relevant main-process service through typed IPC. Do not expose service instances, storage objects, Electron objects, or implementation internals to the renderer.
 
 ## API Prompts
 
-- [Window API](window.md): expose window controls through `window.win`.
-- [App API](app.md): expose application shell operations through `window.app`.
-- [Agent API](agent.md): expose agent interaction through `window.agent`.
-- [Cron API](cron.md): expose cron scheduling through `window.cron`.
-- [Tasks API](tasks.md): expose background task behavior through `window.tasks`.
-- [Skills API](skills.md): expose skill management through `window.skills`.
-- [Policy API](policy.md): expose policy configuration through `window.policy`.
-- [Store API](store.md): expose store-backed settings through `window.store`.
+- Window API: expose window controls through `window.win`.
+- App API: expose application shell operations through `window.app`.
+- Agent API: expose agent interaction through `window.agent`.
+- Cron API: expose cron scheduling through `window.cron`.
+- Tasks API: expose background task behavior through `window.tasks`.
+- Skills API: expose skill management through `window.skills`.
+- Policy API: expose policy configuration through `window.policy`.
+- Store API: expose store-backed settings through `window.store`.
 
 ## Shared Rules
 
-- Define the public renderer API in `src/preload/index.d.ts`.
-- Implement the public API in `src/preload/index.ts`.
-- Define channel names and channel maps in `src/shared/ipc-channels/index.ts`.
-- Define cross-process request and response types under `src/shared`.
-- Register main-process handlers under `src/main/ipc`.
-- Resolve real service dependencies from `MainServiceContainer`.
-- Use `typedInvokeUnwrap` for request/response operations, `typedSend` for fire-and-forget operations, and `typedOn` for event subscriptions.
-- Return unsubscribe functions from subscriptions.
-- Keep validation, persistence, filesystem access, provider lookup, scheduling, and other business behavior in main-process services or shared validators.
-- Update renderer consumers to use `window.<api>` only; renderer code must not import Electron IPC or main-process modules.
+- Define a public renderer API before implementing the bridge.
+- Keep request, response, and event data typed across the process boundary.
+- Use named, typed channels instead of raw string channels in renderer-facing code.
+- Register main-process handlers for every exposed command or query.
+- Resolve behavior through real main-process services.
+- Use invoke-style calls for request/response operations.
+- Use send-style calls only for fire-and-forget operations.
+- Use subscription helpers for events and always return unsubscribe functions.
+- Keep validation, persistence, filesystem access, provider lookup, scheduling, and other business behavior in services or shared validators.
+- Update renderer consumers to use the exposed `window` APIs only.
+- Renderer code must not import Electron IPC or main-process modules.
 
-## Adding or Changing a Preload API
+## Adding or Changing an API
 
-1. Confirm which service owns the behavior.
-2. Add or update shared types when data crosses the process boundary.
-3. Add or update the typed IPC channel and channel map.
-4. Add or update the preload interface and implementation.
-5. Add or update the main IPC handler and delegate to the service.
-6. Update renderer consumers.
-7. Run the narrowest relevant typecheck or tests.
+1. Decide which main-process service owns the behavior.
+2. Define the public method shape and data contract.
+3. Add or update the typed channel contract.
+4. Add or update the preload interface.
+5. Implement the preload method as a thin typed IPC call.
+6. Add or update the main-process handler.
+7. Delegate from the handler to the owning service.
+8. Update renderer consumers.
+9. Run the narrowest relevant typecheck or tests.

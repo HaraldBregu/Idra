@@ -1,34 +1,32 @@
 # SkillsApi Preload Prompt
 
-Expose skill management through `window.skills`. `SkillsApi` is the renderer-safe bridge to `SkillsService`; it must not expose filesystem paths or service methods beyond the approved API.
+Expose skill management through `window.skills`. This API is the renderer-safe bridge to `SkillsService`; it must not expose arbitrary filesystem access or service methods beyond the approved surface.
 
 ## Expose
 
-- `list()`: list installed skills.
-- `importSkill()`: open a main-process directory picker and import the selected skill.
-- `downloadSkill(id)`: open a main-process destination picker and download a skill.
-- `delete(id)`: delete an installed skill by id.
-- `getRoot()`: return the skills root path.
+- List installed skills.
+- Import a skill selected through a main-process directory picker.
+- Download a skill into a destination selected through a main-process directory picker.
+- Delete an installed skill by id.
+- Return the skills root path when the renderer needs to display it.
 
 ## Dependencies
 
-- Shared types: `src/shared/skills.ts`.
-- Channels: `SkillsChannels` and `SkillsInvokeChannelMap` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `SkillsApi` in `src/preload/index.d.ts`.
-- Preload implementation: `skills` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/skills-ipc.ts`.
-- Main services: `skills` and Electron `dialog`.
+- Shared skill information, import-result, and download-result types.
+- Typed skills invoke channels.
+- A main-process handler that delegates to `SkillsService`.
+- Main-process directory selection for import and download workflows.
 
 ## Rules
 
-- Use `typedInvokeUnwrap` for every method.
-- Keep file picking in the main process through Electron `dialog`.
+- Use invoke-style calls for every skills operation.
+- Keep file picking in the main process.
 - Return `undefined` when the user cancels import or download selection.
 - Keep skill validation, copying, downloading, deletion, and root-path policy in `SkillsService`.
 - Do not expose arbitrary filesystem reads or writes through `SkillsApi`.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
 - Run focused skills service or IPC tests when skill behavior changes.
-- Run `yarn typecheck:web` when renderer consumers change.
+- Run renderer checks when renderer consumers change.

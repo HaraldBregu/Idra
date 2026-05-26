@@ -1,37 +1,38 @@
 # WindowApi Preload Prompt
 
-Expose window controls through `window.win`. `WindowApi` is the renderer-safe bridge to Electron window operations; it must not expose `BrowserWindow`, `webContents`, Electron menus, or raw IPC.
+Expose window controls through `window.win`. This API is the renderer-safe bridge to Electron window operations; it must not expose window instances, web contents, menus, or raw IPC.
 
 ## Expose
 
-- `minimize()`: minimize the current window.
-- `maximize()`: toggle maximize state for the current window.
-- `close()`: close the current window.
-- `popupMenu()`: show the application menu as a popup for the current window.
-- `isMaximized()`: read the current maximize state.
-- `isFullScreen()`: read the current fullscreen state.
-- `onMaximizeChange(callback)`: subscribe to maximize state changes.
-- `onFullScreenChange(callback)`: subscribe to fullscreen state changes.
+- Minimize the current window.
+- Toggle maximize state for the current window.
+- Close the current window.
+- Show the application menu as a popup for the current window.
+- Read the current maximize state.
+- Read the current fullscreen state.
+- Subscribe to maximize state changes.
+- Subscribe to fullscreen state changes.
 
 ## Dependencies
 
-- Channels: `WindowChannels`, `WindowInvokeChannelMap`, `SendChannelMap`, and `WindowEventChannelMap` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `WindowApi` in `src/preload/index.d.ts`.
-- Preload implementation: `win` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/window-ipc.ts`.
-- Main window event emitters: `src/main/main.ts`.
-- Main dependencies: Electron `BrowserWindow`, `Menu`, and `logger`.
+- Typed window send channels for fire-and-forget actions.
+- Typed window invoke channels for state queries.
+- Typed window event channels for state subscriptions.
+- A main-process handler that resolves the target window from the sender.
+- Main-process window event broadcasting.
+- Main-process access to Electron window and menu capabilities.
 
 ## Rules
 
-- Use `typedSend` for fire-and-forget window actions.
-- Use `typedInvokeUnwrap` for state queries.
-- Use `typedOn` for state subscriptions and return the unsubscribe function.
-- Resolve the target window from the sender in main IPC.
+- Use send-style calls for fire-and-forget window actions.
+- Use invoke-style calls for state queries.
+- Use subscription-style calls for state changes.
+- Return unsubscribe functions from state subscriptions.
+- Resolve the target window in the main process.
 - Keep Electron-only objects and menu behavior in the main process.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
-- Run `yarn typecheck:web` when renderer consumers change.
-- Manually smoke test window controls when changing Electron window behavior.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
+- Run renderer checks when renderer consumers change.
+- Manually smoke test window controls when Electron window behavior changes.

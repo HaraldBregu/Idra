@@ -1,30 +1,29 @@
 # PolicyApi Preload Prompt
 
-Expose policy configuration through `window.policy`. `PolicyApi` is the renderer-safe bridge to `PolicyService`; it must not expose policy service instances or internal policy storage.
+Expose policy configuration through `window.policy`. This API is the renderer-safe bridge to `PolicyService`; it must not expose service instances, internal policy storage, or raw persisted state.
 
 ## Expose
 
-- `get()`: read the current policy configuration.
-- `set(policy)`: replace the current policy configuration and return the saved policy.
+- Read the current policy configuration.
+- Replace the current policy configuration and return the saved policy.
 
 ## Dependencies
 
-- Shared types: `src/shared/policy.ts`.
-- Channels: `PolicyChannels` and `PolicyInvokeChannelMap` in `src/shared/ipc-channels/index.ts`.
-- Preload interface: `PolicyApi` in `src/preload/index.d.ts`.
-- Preload implementation: `policy` in `src/preload/index.ts`.
-- Main IPC: `src/main/ipc/policy-ipc.ts`.
-- Main services: `policy` and `logger`.
+- Shared policy configuration types.
+- Typed policy invoke channels.
+- A main-process handler that delegates to `PolicyService`.
+- Main-process logging for handler registration and failures.
 
 ## Rules
 
-- Use `typedInvokeUnwrap` for both methods.
+- Use invoke-style calls for every policy operation.
 - Keep policy validation and persistence in `PolicyService` or shared policy code.
 - Do not duplicate policy defaults in preload.
 - Do not expose partial writes unless `PolicyService` owns that behavior.
+- Do not expose raw policy storage to the renderer.
 
 ## Verification
 
-- Run `yarn typecheck:node` for shared, preload, or IPC type changes.
+- Run the relevant typecheck when shared contracts, preload contracts, or handlers change.
 - Run focused policy service or IPC tests when policy behavior changes.
-- Run `yarn typecheck:web` when renderer consumers change.
+- Run renderer checks when renderer consumers change.
