@@ -42,7 +42,7 @@ import {
 	type ModelReasoningEffort,
 	type OperatorStoreState,
 } from '../shared/agents/service';
-import type { FridayCronActor } from './cron';
+import type { CronServiceActionActor } from './cron';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../shared/store';
 import type { SubagentSpawnPort } from './agent/subagents';
@@ -106,7 +106,7 @@ export interface AgentServiceOptions {
 }
 
 export interface AgentSendOptions {
-	cronContext?: FridayCronActor;
+	cronContext?: CronServiceActionActor;
 	sessionId?: string;
 	providerId?: string;
 	model?: string;
