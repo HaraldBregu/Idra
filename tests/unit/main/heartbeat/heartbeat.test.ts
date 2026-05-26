@@ -291,6 +291,24 @@ describe('heartbeat helpers', () => {
 		});
 	});
 
+	it('rejects provider-only settings updates when the existing model is unsupported', () => {
+		const { heartbeat } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+					},
+				},
+			},
+		});
+
+		expect(() => heartbeat.setProviderId('deepseek')).toThrow(
+			'Model is not supported for heartbeat: gpt-5.4'
+		);
+	});
+
 	it('stores heartbeat runtime state through the heartbeat storage adapter', () => {
 		let state: HeartbeatStoreState = emptyHeartbeatStoreState();
 		const store = {
