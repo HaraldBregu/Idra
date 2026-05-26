@@ -1,11 +1,11 @@
 import { EventBus } from '../../../../src/main/core/event-bus';
-import { TaskManager } from '../../../../src/main/tasks/task-manager';
-import { TaskRegistry } from '../../../../src/main/tasks/task-registry';
+import { TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
 import {
 	TASK_EVENT_TYPES,
 	type TaskContext,
 	type TaskEvent,
 	type TaskHandler,
+	type TaskStoreState,
 } from '../../../../src/shared/tasks';
 import type { TaskSettings } from '../../../../src/shared/store';
 
@@ -17,6 +17,32 @@ const logger = {
 
 function flushMicrotasks(): Promise<void> {
 	return Promise.resolve().then(() => undefined);
+}
+
+function createTaskStore(policy?: () => TaskSettings) {
+	return {
+		getAgentService: jest.fn(() => ({
+			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
+			model: { id: 'gpt-5', name: 'GPT-5' },
+		})),
+		getTaskSettings: jest.fn(policy ?? (() => ({}))),
+	};
+}
+
+function createPersistence(
+	initial: TaskStoreState = {
+		schemaVersion: 1,
+		records: [],
+		updatedAt: new Date(0).toISOString(),
+	}
+): TaskPersistencePort & { save: jest.Mock } {
+	let state = initial;
+	return {
+		load: jest.fn(() => state),
+		save: jest.fn((next: TaskStoreState) => {
+			state = next;
+		}),
+	};
 }
 
 class ControlledHandler implements TaskHandler<{ key: string }, string> {
@@ -60,40 +86,40 @@ class AbortAwareHandler implements TaskHandler<{ key: string }, string> {
 
 function createManager(...handlers: TaskHandler[]) {
 	let nextId = 1;
-	const registry = new TaskRegistry();
-	for (const handler of handlers) registry.register(handler);
 	const eventBus = new EventBus();
 	const events: TaskEvent[] = [];
 	for (const eventType of TASK_EVENT_TYPES) {
 		eventBus.on(eventType, (event) => events.push(event.payload as TaskEvent));
 	}
+	const persistence = createPersistence();
 	const manager = new TaskManager({
-		registry,
+		store: createTaskStore(),
 		eventBus,
 		logger,
 		idFactory: () => `task-${nextId++}`,
 		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
+		persistence,
 	});
-	return { manager, events };
+	for (const handler of handlers) manager.registerHandler(handler);
+	return { manager, events, persistence };
 }
 
 function createManagerWithPolicy(policy: () => TaskSettings, ...handlers: TaskHandler[]) {
 	let nextId = 1;
-	const registry = new TaskRegistry();
-	for (const handler of handlers) registry.register(handler);
 	const eventBus = new EventBus();
 	const events: TaskEvent[] = [];
 	for (const eventType of TASK_EVENT_TYPES) {
 		eventBus.on(eventType, (event) => events.push(event.payload as TaskEvent));
 	}
 	const manager = new TaskManager({
-		registry,
+		store: createTaskStore(policy),
 		eventBus,
 		logger,
 		idFactory: () => `task-${nextId++}`,
 		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
-		policy,
+		persistence: createPersistence(),
 	});
+	for (const handler of handlers) manager.registerHandler(handler);
 	return { manager, events };
 }
 
@@ -103,21 +129,20 @@ function createManagerWithUserFacing(
 	allowedTaskTypes?: string[]
 ) {
 	let nextId = 1;
-	const registry = new TaskRegistry();
-	for (const handler of userFacingHandlers) {
-		registry.register(handler, { userFacing: true });
-	}
-	for (const handler of internalHandlers) {
-		registry.register(handler);
-	}
 	const manager = new TaskManager({
-		registry,
+		store: createTaskStore(allowedTaskTypes ? () => ({ allowedTaskTypes }) : undefined),
 		eventBus: new EventBus(),
 		logger,
 		idFactory: () => `user-task-${nextId++}`,
 		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),
-		policy: allowedTaskTypes ? () => ({ allowedTaskTypes }) : undefined,
+		persistence: createPersistence(),
 	});
+	for (const handler of userFacingHandlers) {
+		manager.registerHandler(handler, { userFacing: true });
+	}
+	for (const handler of internalHandlers) {
+		manager.registerHandler(handler);
+	}
 	return manager;
 }
 
@@ -221,7 +246,7 @@ describe('TaskManager', () => {
 
 	it('lists and gets current in-memory records', async () => {
 		const handler = new ControlledHandler();
-		const { manager } = createManager(handler);
+		const { manager, persistence } = createManager(handler);
 
 		const task = manager.run({
 			type: handler.type,
@@ -236,6 +261,17 @@ describe('TaskManager', () => {
 			id: task.id,
 			status: 'running',
 			metadata: { token: '[redacted]', visible: 'yes' },
+		});
+		expect(persistence.save).toHaveBeenLastCalledWith({
+			schemaVersion: 1,
+			records: [
+				expect.objectContaining({
+					id: task.id,
+					type: handler.type,
+					metadata: { token: '[redacted]', visible: 'yes' },
+				}),
+			],
+			updatedAt: expect.any(String),
 		});
 	});
 
@@ -336,15 +372,15 @@ describe('TaskManager', () => {
 	it('does not fail or cancel a running task because elapsed time passes', async () => {
 		const handler = new ControlledHandler();
 		let nowMs = 1_778_880_000_000;
-		const registry = new TaskRegistry();
-		registry.register(handler);
 		const manager = new TaskManager({
-			registry,
+			store: createTaskStore(),
 			eventBus: new EventBus(),
 			logger,
 			idFactory: () => 'long-running-task',
 			now: () => new Date(nowMs).toISOString(),
+			persistence: createPersistence(),
 		});
+		manager.registerHandler(handler);
 
 		const task = manager.run({
 			type: handler.type,
