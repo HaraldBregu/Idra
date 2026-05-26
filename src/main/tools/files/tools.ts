@@ -574,10 +574,12 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 			return textResult('delete: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
+			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
 			return textResult(`delete: ${(err as Error).message}`, true);
 		}
+		const deleteRestricted = checkFsRestriction(ctx, abs, 'delete', true);
+		if (deleteRestricted) return textResult(deleteRestricted, true);
 		const denied = checkFilePolicy(ctx, 'delete', [{ path: abs, permission: 'delete' }]);
 		if (denied) return textResult(denied, true);
 		const guard = guardedRootMessage(ctx.workspace, abs);
