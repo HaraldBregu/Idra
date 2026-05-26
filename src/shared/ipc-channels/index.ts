@@ -133,6 +133,7 @@ export const MonitorChannels = {
 
 export const SkillsChannels = {
 	list: 'skills:list',
+	load: 'skills:load',
 	import: 'skills:import',
 	download: 'skills:download',
 	delete: 'skills:delete',
@@ -581,12 +582,13 @@ interface MonitorInvokeChannelMap {
 
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('../skills').SkillInfo[] };
+	[SkillsChannels.load]: { args: [name: string]; result: import('../skills').SkillDetails };
 	[SkillsChannels.import]: { args: []; result: import('../skills').SkillImportResult | undefined };
 	[SkillsChannels.download]: {
-		args: [id: string];
+		args: [name: string];
 		result: import('../skills').SkillDownloadResult | undefined;
 	};
-	[SkillsChannels.delete]: { args: [id: string]; result: void };
+	[SkillsChannels.delete]: { args: [name: string]; result: import('../skills').SkillDeleteResult };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
 
