@@ -1,6 +1,11 @@
 export { evaluate } from './evaluate';
 export { match } from './match';
-export { PolicyService, type PolicyServicePort, type PolicyStorePort } from './service';
+export { PolicyService, type PolicyServiceOptions, type PolicyServicePort } from './service';
+export {
+	PolicyStore,
+	defaultPolicyConfig,
+	type PolicySettingsStoreAccessor,
+} from './store';
 export {
 	evaluateToolPolicy,
 	createToolPolicyIndex,
