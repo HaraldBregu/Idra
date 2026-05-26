@@ -26,6 +26,7 @@ import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from '
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './tools';
+import { SkillsService } from './skills';
 
 import type { IpcModule } from './ipc';
 import {
@@ -38,6 +39,7 @@ import {
 	MonitorIpc,
 	PolicyIpc,
 	RealtimeTranscriptionIpc,
+	SkillsIpc,
 	StoreIpc,
 	TasksIpc,
 	WindowIpc,
@@ -70,6 +72,7 @@ export function bootstrapServices(): BootstrapResult {
 	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
 	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
+	container.register('skills', new SkillsService(logger));
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
 	void userDataDirectory.ensureRoot().catch((error) => {
@@ -225,6 +228,7 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new MonitorIpc(),
 		new PolicyIpc(),
 		new RealtimeTranscriptionIpc(),
+		new SkillsIpc(),
 		new StoreIpc(),
 		new TasksIpc(),
 		new WindowIpc(),
