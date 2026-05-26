@@ -1063,3 +1063,150 @@ export const findTool: AgentTool<FindArgs> = {
 		}
 	},
 };
+
+interface FilesystemCreateArgs {
+	path: string;
+	content: string;
+}
+
+export const filesystemCreateTool: AgentTool<FilesystemCreateArgs> = {
+	name: 'filesystem_create',
+	description: 'Create a UTF-8 file. Fails if the target already exists.',
+	schema: {
+		type: 'object',
+		properties: {
+			path: { type: 'string', description: 'Absolute or workspace-relative path.' },
+			content: { type: 'string' },
+		},
+		required: ['path', 'content'],
+		additionalProperties: false,
+	},
+	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['create']),
+	async execute(args, ctx) {
+		if (ctx.fsPolicy?.readOnly) {
+			return textResult('filesystem_create: disabled by read-only filesystem policy.', true);
+		}
+		let abs: string;
+		try {
+			abs = resolveAbs(ctx.workspace, args.path);
+		} catch (err) {
+			return textResult(`filesystem_create: ${(err as Error).message}`, true);
+		}
+		const restricted = checkFsRestriction(ctx, abs, 'filesystem_create', true);
+		if (restricted) return textResult(restricted, true);
+		const denied = checkFilePolicy(ctx, 'filesystem_create', [{ path: abs, permission: 'create' }]);
+		if (denied) return textResult(denied, true);
+		try {
+			await fs.mkdir(path.dirname(abs), { recursive: true });
+			await fs.writeFile(abs, args.content, { encoding: 'utf8', flag: 'wx' });
+			const after = await fs.stat(abs);
+			ctx.readState.set(abs, snapshot(after));
+			return textResult(`created ${abs} (${after.size} bytes)`);
+		} catch (err) {
+			return textResult(`filesystem_create: ${(err as Error).message}`, true);
+		}
+	},
+};
+
+interface FilesystemListArgs {
+	path?: string;
+	limit?: number;
+}
+
+const DEFAULT_LIST_LIMIT = 200;
+const MAX_LIST_LIMIT = 2000;
+
+export const filesystemListTool: AgentTool<FilesystemListArgs> = {
+	name: 'filesystem_list',
+	description: 'List files and directories in a directory.',
+	schema: {
+		type: 'object',
+		properties: {
+			path: { type: 'string', description: 'Directory to list; defaults to workspace.' },
+			limit: { type: 'number', description: 'Maximum entries to return.' },
+		},
+		required: [],
+		additionalProperties: false,
+	},
+	async execute(args, ctx) {
+		let abs: string;
+		try {
+			abs = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
+		} catch (err) {
+			return textResult(`filesystem_list: ${(err as Error).message}`, true);
+		}
+		const restricted = checkFsRestriction(ctx, abs, 'filesystem_list', false);
+		if (restricted) return textResult(restricted, true);
+		const denied = checkFilePolicy(ctx, 'filesystem_list', [{ path: abs, permission: 'read' }]);
+		if (denied) return textResult(denied, true);
+		try {
+			const stat = await fs.stat(abs);
+			if (!stat.isDirectory()) return textResult(`filesystem_list: not a directory: ${abs}`, true);
+			const limit =
+				typeof args.limit === 'number' && args.limit > 0
+					? Math.min(Math.floor(args.limit), MAX_LIST_LIMIT)
+					: DEFAULT_LIST_LIMIT;
+			const entries = await fs.readdir(abs, { withFileTypes: true });
+			const visible: string[] = [];
+			for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+				const full = path.join(abs, entry.name);
+				if (checkFilePolicy(ctx, 'filesystem_list', [{ path: full, permission: 'read' }])) continue;
+				visible.push(`${entry.name}${entry.isDirectory() ? '/' : ''}`);
+				if (visible.length >= limit) break;
+			}
+			return textResult(visible.length === 0 ? 'No entries.' : visible.join('\n'));
+		} catch (err) {
+			return textResult(`filesystem_list: ${(err as Error).message}`, true);
+		}
+	},
+};
+
+function aliasFileTool<TArgs>(
+	name: string,
+	description: string,
+	tool: AgentTool<TArgs>
+): AgentTool<TArgs> {
+	return {
+		name,
+		description,
+		schema: tool.schema,
+		needsApproval: tool.needsApproval,
+		execute: (args, ctx) => tool.execute(args, ctx),
+	};
+}
+
+export const filesystemReadTool = aliasFileTool(
+	'filesystem_read',
+	'Read a UTF-8 file through the centralized filesystem tool group.',
+	readTool
+);
+
+export const filesystemUpdateTool = aliasFileTool(
+	'filesystem_update',
+	'Update or overwrite a UTF-8 file through the centralized filesystem tool group.',
+	writeTool
+);
+
+export const filesystemDeleteTool = aliasFileTool(
+	'filesystem_delete',
+	'Delete a file or directory through the centralized filesystem tool group.',
+	deleteTool
+);
+
+export const filesystemMoveTool = aliasFileTool(
+	'filesystem_move',
+	'Move or rename a file through the centralized filesystem tool group.',
+	moveTool
+);
+
+export const filesystemCopyTool = aliasFileTool(
+	'filesystem_copy',
+	'Copy a file or directory through the centralized filesystem tool group.',
+	copyTool
+);
+
+export const filesystemSearchTool = aliasFileTool(
+	'filesystem_search',
+	'Search files by glob pattern through the centralized filesystem tool group.',
+	findTool
+);
