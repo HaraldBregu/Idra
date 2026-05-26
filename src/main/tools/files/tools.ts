@@ -268,10 +268,12 @@ export const editTool: AgentTool<EditArgs> = {
 			return textResult('edit: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
+			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
 			return textResult(`edit: ${(err as Error).message}`, true);
 		}
+		const editRestricted = checkFsRestriction(ctx, abs, 'edit', true);
+		if (editRestricted) return textResult(editRestricted, true);
 		const denied = checkFilePolicy(ctx, 'edit', [{ path: abs, permission: 'write' }]);
 		if (denied) return textResult(denied, true);
 		if (args.old === args.new) return textResult('edit: old and new are identical', true);
