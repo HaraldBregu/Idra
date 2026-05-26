@@ -179,7 +179,7 @@ function emptyUsage(): TokenUsage {
 	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
 
-function startupContextChars(files: AgentStartupFile[]): number {
+function startupContextChars(files: WorkspaceContextFile[]): number {
 	return files.reduce((total, file) => total + (file.content?.length ?? 0), 0);
 }
 
