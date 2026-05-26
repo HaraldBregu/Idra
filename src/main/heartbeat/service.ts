@@ -945,8 +945,29 @@ export class NoopHeartbeatService implements Disposable {
 	getLastHeartbeat(): HeartbeatEventPayload | null {
 		return null;
 	}
+	getSettings(): HeartbeatSettings {
+		return { every: DEFAULT_HEARTBEAT_EVERY };
+	}
+	saveSettings(): HeartbeatSettings {
+		return this.getSettings();
+	}
 	setEnabled(): HeartbeatStatus {
 		return this.getStatus();
+	}
+	getTiming(): HeartbeatTimingSettings {
+		return { every: DEFAULT_HEARTBEAT_EVERY };
+	}
+	updateTiming(): HeartbeatTimingSettings {
+		return this.getTiming();
+	}
+	setProviderId(): HeartbeatSettings {
+		return this.getSettings();
+	}
+	setModelId(): HeartbeatSettings {
+		return this.getSettings();
+	}
+	setReasoningEffort(): HeartbeatSettings {
+		return this.getSettings();
 	}
 	request(): void {
 		return;
