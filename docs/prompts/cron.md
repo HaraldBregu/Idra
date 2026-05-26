@@ -16,6 +16,30 @@ Keep the cron module isolated:
 
 Types that need to be reused by other processes can be stored in a shared folder. Keep cron-specific implementation types inside the cron module unless they are genuinely shared.
 
+## Store Properties
+
+Store each cron schedule with these properties:
+
+- `id`: unique cron schedule identifier.
+- `name`: human-readable schedule name.
+- `description`: optional schedule description.
+- `schedule`: cron expression or schedule configuration.
+- `timezone`: timezone used to evaluate the schedule.
+- `enabled`: whether the schedule is active.
+- `status`: current schedule status.
+- `providerId`: provider identifier loaded from the store.
+- `modelId`: model identifier loaded from the store.
+- `target`: job, tool, task, or agent that the schedule runs.
+- `payload`: input data passed to the scheduled target.
+- `createdAt`: creation timestamp.
+- `updatedAt`: last update timestamp.
+- `lastRunAt`: timestamp of the last run.
+- `nextRunAt`: timestamp of the next planned run.
+- `lastRunStatus`: status of the most recent run.
+- `lastError`: most recent error message, if the run failed.
+- `runCount`: total number of completed runs.
+- `failureCount`: total number of failed runs.
+
 The cron service should:
 
 - Start cron schedules.
@@ -23,7 +47,6 @@ The cron service should:
 - Run jobs at the configured time or interval.
 - Provide a reusable interface for other modules.
 - Keep scheduling logic out of feature modules.
-- Save `providerId` and `modelId` from the store when storing cron data.
 - Report job success or failure through the application's logging or reporting system.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
