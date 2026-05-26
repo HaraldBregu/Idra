@@ -160,7 +160,6 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			if (input.job.payload.lightContext !== undefined) {
 				sendOptions.lightContext = input.job.payload.lightContext;
 			}
-			if (input.job.payload.toolsAllow) sendOptions.toolsAllow = input.job.payload.toolsAllow;
 		}
 		const output = await this.agentService.send(message, agentId, sendOptions);
 		return { status: 'ok', output };
