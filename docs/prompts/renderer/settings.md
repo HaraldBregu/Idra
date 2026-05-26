@@ -54,6 +54,14 @@ Each sub-page follows the same pattern:
 
 Current sub-pages: General, System, Providers, Skills, Connectors (with detail), Channels (with detail), Operators (with detail and chat history detail), Heartbeat, Cron (with detail), Task Manager (with detail), Monitoring, Policies.
 
+## Types
+
+Follow the type placement rules in `docs/prompts/renderer/index.md`.
+
+- Types that cross the IPC boundary (e.g. provider config shapes, operator records) belong in `src/shared/types/`.
+- Types consumed by multiple renderer pages belong in `src/renderer/src/types/`.
+- Types scoped to the settings page alone — navigation item shapes, breadcrumb state, overview group definitions — stay inside `src/renderer/src/pages/settings/`.
+
 ## Logging
 
 Use `console.error` for unexpected async failures in sub-pages. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
