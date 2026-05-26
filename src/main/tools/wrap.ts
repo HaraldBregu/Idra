@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
-import type { PolicyServicePort } from '../policy';
+import { PolicyService, type PolicyServicePort } from '../policy';
 import {
 	copyToolMetadata,
 	getToolMetadata,
@@ -9,10 +9,6 @@ import {
 } from './core/common';
 import { blockedToolResult, errorToolResult } from './core/results';
 import {
-	evaluateToolApprovalPolicy,
-	evaluateToolHookPolicy,
-	evaluateToolUsePolicy,
-	toolUsePolicyKey,
 } from '../policy';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
@@ -78,6 +74,7 @@ export function newCallTracker(): CallTracker {
 
 const DEFAULT_LOOP_WARN_AT = 3;
 const DEFAULT_LOOP_STOP_AT = 5;
+const defaultPolicyService = new PolicyService();
 
 export function wrapToolWithBeforeToolCall(
 	tool: AgentTool,
@@ -91,11 +88,12 @@ export function wrapToolWithBeforeToolCall(
 			const diagnostics = context.diagnostics;
 			const effectiveSignal = signal ?? context.signal;
 			let params = tool.prepareArguments ? tool.prepareArguments(rawParams) : rawParams;
-			const key = toolUsePolicyKey(tool.name, params);
+			const policy = context.policy ?? defaultPolicyService;
+			const key = policy.createToolUseKey(tool.name, params);
 			const count = (tracker.counts.get(key) ?? 0) + 1;
 			tracker.counts.set(key, count);
 
-			const policyDecision = (context.policy?.evaluateToolUse ?? evaluateToolUsePolicy)({
+			const policyDecision = policy.evaluateToolUse({
 				toolName: tool.name,
 				params,
 				callCount: count,
@@ -120,7 +118,7 @@ export function wrapToolWithBeforeToolCall(
 				const decision = await hook({ tool, toolCallId, params });
 				if (!decision) continue;
 				if (decision.params !== undefined) params = decision.params;
-				const hookPolicy = (context.policy?.evaluateToolHook ?? evaluateToolHookPolicy)({
+				const hookPolicy = policy.evaluateToolHook({
 					toolName: tool.name,
 					allow: decision.allow,
 					block: decision.block,
@@ -152,7 +150,7 @@ export function wrapToolWithBeforeToolCall(
 								},
 							})
 						: undefined;
-					const approvalPolicy = (context.policy?.evaluateToolApproval ?? evaluateToolApprovalPolicy)({
+					const approvalPolicy = policy.evaluateToolApproval({
 						toolName: tool.name,
 						approvalAvailable: Boolean(context.approval),
 						approvalDecision: approval,
