@@ -30,7 +30,7 @@ Each item renders as a `SettingsOverviewCard`: an `Item` button that navigates t
 
 ## Shared components
 
-Settings sub-pages use a set of shared layout components (`src/renderer/src/pages/settings/components/`):
+Settings sub-pages use a set of shared layout components:
 
 - `SettingsPageShell` — outer wrapper for a settings sub-page.
 - `SettingsPageHeader` — renders a `title` and optional `description` at the top of a sub-page.
