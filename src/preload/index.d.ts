@@ -15,8 +15,14 @@ export interface AgentApi {
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AgentHistoryMessage[]>;
 	openHistoryFolder: () => Promise<void>;
+	listStartupFiles: () => Promise<AgentStartupFileSummary[]>;
+	readStartupFile: (name: string) => Promise<AgentStartupFileContent>;
+	writeStartupFile: (name: string, content: string) => Promise<AgentStartupFileContent>;
+	/** @deprecated Use listStartupFiles. */
 	listWorkspaceFiles: () => Promise<WorkspaceFileSummary[]>;
+	/** @deprecated Use readStartupFile. */
 	readWorkspaceFile: (name: string) => Promise<WorkspaceFileContent>;
+	/** @deprecated Use writeStartupFile. */
 	writeWorkspaceFile: (name: string, content: string) => Promise<WorkspaceFileContent>;
 	onResponse: (callback: (event: AgentResponseEvent) => void) => () => void;
 }
@@ -182,6 +188,8 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
+	AgentStartupFileContent,
+	AgentStartupFileSummary,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
