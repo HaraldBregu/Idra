@@ -11,6 +11,8 @@ export interface TaskRecord<TResult = unknown> {
 	type: string;
 	title: string;
 	status: TaskStatus;
+	providerId?: string;
+	modelId?: string;
 	createdAt: string;
 	startedAt?: string;
 	finishedAt?: string;
@@ -49,6 +51,8 @@ export const TASK_EVENT_TYPES = [
 export interface TaskContext<TInput> {
 	taskId: string;
 	input: TInput;
+	providerId?: string;
+	modelId?: string;
 	signal: AbortSignal;
 	updateProgress(progress: TaskProgress): void;
 }
@@ -63,6 +67,14 @@ export interface TaskRunRequest<TInput = unknown> {
 	id?: string;
 	type: string;
 	title: string;
+	providerId?: string;
+	modelId?: string;
 	input: TInput;
 	metadata?: Record<string, unknown>;
+}
+
+export interface TaskStoreState {
+	schemaVersion: number;
+	records: TaskRecord[];
+	updatedAt: string;
 }
