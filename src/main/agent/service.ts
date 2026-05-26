@@ -8,6 +8,7 @@ import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ConnectorsService } from '../connectors';
 import type { SkillsService } from '../skills';
+import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
 	WorkspaceService,
@@ -53,6 +54,9 @@ import {
 	type OperatorStoreState,
 } from '../../shared/agents/service';
 import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
+import { HeartbeatFileStore } from '../heartbeat/store';
+import type { HeartbeatEventPayload } from '../../shared/heartbeat';
+import type { ChannelType } from '../../shared/channels';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../../shared/store';
 import type { SubagentSpawnPort } from './subagents';
 import {
@@ -84,6 +88,8 @@ export interface AgentServiceDependencies {
 	subagents?: SubagentSpawnPort;
 	policy?: PolicyServicePort;
 	toolService?: ToolServicePort;
+	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
+	channelRegistry?: ChannelRegistry;
 }
 
 export interface AgentToolsFactoryContext {
@@ -225,6 +231,7 @@ export class AgentService {
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
+	private heartbeatStore: HeartbeatFileStore | null = null;
 	private readonly runtimes = new Map<string, Runtime>();
 	private readonly runRecords = new Map<string, AgentRunRecord>();
 	private readonly startupWorkspaces = new Map<string, WorkspaceService>();
@@ -259,6 +266,54 @@ export class AgentService {
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
+	}
+
+	getHeartbeatStore(): HeartbeatFileStore {
+		if (!this.heartbeatStore) {
+			this.heartbeatStore = new HeartbeatFileStore({ logger: this.dependencies.logger });
+		}
+		return this.heartbeatStore;
+	}
+
+	getHeartbeatOperatorConfig(): OperatorStoreState | undefined {
+		return this.getOperatorConfig();
+	}
+
+	onHeartbeatRoute(listener: (payload: unknown) => void): () => void {
+		return this.dependencies.eventBus.on('channel:route', (event) => listener(event.payload));
+	}
+
+	broadcastHeartbeatSystemEvent(payload: unknown): void {
+		this.dependencies.eventBus.broadcast('heartbeat:system-event', payload);
+	}
+
+	emitHeartbeatEvent(payload: HeartbeatEventPayload): void {
+		this.dependencies.eventBus.emit('heartbeat:event', payload);
+		this.dependencies.eventBus.broadcast('heartbeat:event', payload);
+	}
+
+	warnHeartbeat(message: string, data?: unknown): void {
+		this.dependencies.logger.warn('HeartbeatService', message, data);
+	}
+
+	errorHeartbeat(message: string, error?: unknown): void {
+		this.dependencies.logger.error('HeartbeatService', message, error);
+	}
+
+	readHeartbeatWorkspaceFile(name: string): ReturnType<WorkspaceService['readWorkspaceFile']> {
+		return this.dependencies.workspace.readWorkspaceFile(name);
+	}
+
+	getHeartbeatChannel(): ReturnType<ChannelsService['getChannel']> | undefined {
+		return this.dependencies.channels?.getChannel();
+	}
+
+	getHeartbeatChannelConfig(channelId: ChannelType): ReturnType<ChannelsService['getChannelConfig']> | undefined {
+		return this.dependencies.channels?.getChannelConfig(channelId);
+	}
+
+	getHeartbeatChannelRegistry(): ChannelRegistry | undefined {
+		return this.dependencies.channelRegistry;
 	}
 
 	async createRun(options: AgentCreateRunOptions = {}): Promise<AgentRunRecord> {
