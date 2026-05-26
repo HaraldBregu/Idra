@@ -2,7 +2,7 @@
 
 Create a store module that is strictly implemented as a reusable service.
 
-The store module owns general application settings. Any module that needs durable application settings should use this service instead of reading or writing Electron Store directly, except connector data owned by `ConnectorsService` and channel data owned by `ChannelsService`.
+The store module owns general application settings. Any module that needs durable application settings should use this service instead of reading or writing Electron Store directly, except connector data owned by `ConnectorsService`, channel data owned by `ChannelsService`, and heartbeat data owned by the heartbeat module.
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the store module. Patterns should solve real service-boundary, lifecycle, dependency, persistence, integration, or validation problems; do not add decorative abstractions.
 
@@ -44,7 +44,6 @@ Store these top-level properties:
 - `textToVideo`: text-to-video model settings.
 - `textToSound`: text-to-sound model settings.
 - `agents`: agent routing settings.
-- `heartbeat`: heartbeat state.
 
 ## Provider Settings
 
@@ -90,10 +89,6 @@ Each route binding can store:
 - `match`: channel, account, peer, parent peer, or role matching rules.
 - `session.scope`: optional route session scope.
 
-## Heartbeat Settings
-
-Store heartbeat state under `heartbeat`. Normalize heartbeat state before returning or writing it.
-
 ## Logging
 
 Use the application's logger for all operational reporting, including reads, writes, validation failures, migrations, normalization failures, and persistence errors. Do not use console logging for module behavior.
@@ -114,6 +109,6 @@ When implementing or changing this module:
 
 ## Testing
 
-Test provider storage, model module storage, cron settings, task settings, agent routing settings, heartbeat state, normalization, invalid stored data, and persistence errors. Tests should call the exported store service and should not import internal store files directly.
+Test provider storage, model module storage, cron settings, task settings, agent routing settings, normalization, invalid stored data, and persistence errors. Tests should call the exported store service and should not import internal store files directly.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
