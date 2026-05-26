@@ -40,8 +40,18 @@ The heartbeat service should:
 - Expose the last heartbeat event.
 - Enable or disable runtime heartbeat execution without deleting configuration.
 - Read and update default heartbeat timing, including cadence and active hours.
-- Store heartbeat records with `agentId` and `modelId` when those values are available, similar to task records.
 - Provide a no-op service for disabled or unavailable runtime contexts when the application requires a service-compatible fallback.
+
+## Persistence
+
+The heartbeat service should:
+
+- Persist heartbeat-owned data in a dedicated Electron Store named `heartbeat`, which writes `heartbeat.json`.
+- Store custom heartbeat agent configuration under `agents`.
+- Store lightweight runtime state under `state`, including task last-run timestamps and last delivered alert text.
+- Treat missing, empty, or invalid `heartbeat.json` data as absent custom configuration and fall back to code defaults.
+- Keep computed schedule data such as phase offsets, next due times, recent run starts, and last heartbeat event in memory.
+- Do not store heartbeat configuration or runtime state in the main `settings.json` store.
 
 ## Scheduling And Wake Behavior
 
@@ -67,7 +77,7 @@ The heartbeat service should:
 - Resolve the target agent, heartbeat configuration, delivery target, and session key for each run.
 - Support isolated heartbeat sessions when configured.
 - Reject unsafe session keys, subagent sessions, and cron-owned sessions.
-- Skip when heartbeat runtime is disabled, the agent is disabled, cadence is disabled, active hours exclude the current time, the agent or target session is busy, no agent service is available, delivery is disabled, or file and task gates determine there is nothing to do.
+- Skip when heartbeat runtime is disabled, the agent is disabled, cadence is disabled, active hours exclude the current time, the agent or target session is busy, delivery is disabled, or file and task gates determine there is nothing to do.
 - Read workspace heartbeat context from `HEARTBEAT.md`.
 - Skip effectively empty heartbeat context unless the wake source is allowed to bypass file gates.
 - Parse heartbeat tasks from the workspace heartbeat context.
@@ -75,7 +85,7 @@ The heartbeat service should:
 - Queue system events by session key and include eligible exec or cron events in the next heartbeat prompt.
 - Consume queued system events after a successful heartbeat run.
 - Build heartbeat prompts from the base heartbeat prompt, due tasks, workspace context, queued events, delivery mode, and current time.
-- Execute agent runs through `AgentService` with the stored `agentId` and `modelId` when they are available, plus heartbeat-specific options such as model override, timeout, light context, tool-warning suppression, and event suppression.
+- Execute agent runs through `AgentService` with the resolved `agentId` and heartbeat-specific options such as model override, timeout, light context, tool-warning suppression, and event suppression.
 - Normalize heartbeat replies so `HEARTBEAT_OK` and empty responses become quiet success and actionable text becomes an alert.
 - Support structured heartbeat tool responses when they are returned by the runtime.
 - Advance the schedule after skipped, successful, and failed runs.
@@ -135,7 +145,7 @@ When implementing or changing this module:
 
 ## Testing
 
-Test heartbeat configuration resolution, `heartbeat.json` persistence, stored `agentId` and `modelId`, timing updates, duration parsing, active hours, stable phase scheduling, schedule recomputation, wake coalescing, retryable busy skips, cooldown and flood guards, service lifecycle cleanup, runtime enablement, status reads, system-event queuing, workspace heartbeat context reads, empty context skips, task parsing, task due checks, prompt construction, agent execution through `AgentService`, stored model usage, busy-agent skips, unsafe-session skips, response normalization, delivery routing, visibility resolution, direct-message blocking, duplicate alert suppression, event emission, store-backed runtime state, no-op fallback behavior, and logger behavior for failures.
+Test heartbeat configuration resolution, `heartbeat.json` persistence, timing updates, duration parsing, active hours, stable phase scheduling, schedule recomputation, wake coalescing, retryable busy skips, cooldown and flood guards, service lifecycle cleanup, runtime enablement, status reads, system-event queuing, workspace heartbeat context reads, empty context skips, task parsing, task due checks, prompt construction, agent execution through `AgentService`, heartbeat model override usage, busy-agent skips, unsafe-session skips, response normalization, delivery routing, visibility resolution, direct-message blocking, duplicate alert suppression, event emission, store-backed runtime state, no-op fallback behavior, and logger behavior for failures.
 
 Tests should call the exported heartbeat service and should not import internal heartbeat files directly unless testing exported helper behavior that is intentionally part of the heartbeat module surface.
 
