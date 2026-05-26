@@ -15,8 +15,10 @@ import {
 	type CronSchedule,
 	type CronScheduleCreateRequest,
 	type CronScheduleEvent,
+	type CronScheduleEventType,
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
+	type CronScheduledTask,
 	type CronTask,
 	type CronTaskData,
 	type CronTaskView,
@@ -42,14 +44,19 @@ import {
 	NoopFridayCronExecutor,
 	FridayCronScheduler,
 	type FridayCronActor,
-	type FridayCronSchedulerOptions,
 } from './workflow/scheduler';
 import type { FridayCronNormalizeContext } from './workflow/normalize';
+
+export type CronServiceEventListener = (event: CronScheduleEvent) => void;
+
+export interface CronServiceEvents {
+	subscribe(listener: CronServiceEventListener): () => void;
+	subscribeToType(type: CronScheduleEventType, listener: CronServiceEventListener): () => void;
+}
 
 export type CronServiceActor = CronActorContext;
 export type CronServiceStore = CronPersistenceStore;
 export type CronServiceActionActor = FridayCronActor;
-export type CronServiceActionOptions = FridayCronSchedulerOptions;
 export type CronServiceActionRequest = FridayCronActionRequest;
 export type CronServiceActionResponse = FridayCronActionResponse;
 export type { CronJobOptions, CronTaskHandler } from './types';
@@ -61,7 +68,6 @@ interface NextRunCapable {
 export interface CronServiceOptions {
 	enabled?: boolean;
 	store?: CronServiceStore;
-	actions?: CronServiceActionOptions;
 }
 
 /**
@@ -106,7 +112,6 @@ export class CronService implements Disposable {
 			new NoopFridayCronExecutor(),
 			new NoopFridayCronDelivery(),
 			{
-				...options.actions,
 				enabled: this.automaticEnabled,
 			},
 			logger
@@ -118,7 +123,7 @@ export class CronService implements Disposable {
 		this.runner.setDelegate(new TaskManagerCronScheduleRunner(dependencies.taskManager));
 	}
 
-	get events(): CronSchedulerService['events'] {
+	get events(): CronServiceEvents {
 		return this.scheduler.events;
 	}
 
@@ -218,7 +223,7 @@ export class CronService implements Disposable {
 	runScheduleNow(
 		scheduleId: string,
 		actor?: CronActorContext
-	): ReturnType<CronSchedulerService['runScheduleNow']> {
+	): Promise<CronScheduledTask> {
 		return this.scheduler.runScheduleNow(scheduleId, actor);
 	}
 
