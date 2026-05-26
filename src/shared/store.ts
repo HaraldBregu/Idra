@@ -1,12 +1,7 @@
 import type { ModelReasoningEffort } from './agents/service';
 import type { Channel } from './channels';
 import type { ConnectorConfig } from './connectors';
-import type {
-	CronTask,
-	FridayCronJobDefinition,
-	FridayCronJobState,
-	FridayCronRunRecord,
-} from './cron';
+import type { CronTask } from './cron';
 import type { HeartbeatStoreState } from './heartbeat';
 import type { Provider } from './providers';
 
@@ -33,14 +28,6 @@ export interface AgentModuleOptions {
 }
 
 export interface CronSettings {
-	schemaVersion?: number;
-	jobs?: Record<
-		string,
-		Omit<FridayCronJobDefinition, 'id'> & {
-			state?: FridayCronJobState;
-			lastRun?: FridayCronRunRecord;
-		}
-	>;
 	enabled?: boolean;
 	scheduler?: unknown;
 	tasks?: CronTask[];
