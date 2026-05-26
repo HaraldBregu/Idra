@@ -38,13 +38,18 @@ describe('StoreIpc', () => {
 			getAgentService: jest.fn(() => undefined),
 			setAgentService: jest.fn(() => true),
 		};
+		const connectors = {
+			getConnectorSettings: jest.fn(() => []),
+		};
 		const powerSaveBlocker = {
 			setEnabled: jest.fn((enabled: boolean) => enabled),
 		};
 		const container = {
-			get: jest.fn((key: 'store' | 'logger' | 'powerSaveBlocker') =>
+			get: jest.fn((key: 'store' | 'connectors' | 'logger' | 'powerSaveBlocker') =>
 				key === 'store'
 					? store
+					: key === 'connectors'
+						? connectors
 					: key === 'powerSaveBlocker'
 						? powerSaveBlocker
 						: { info: jest.fn() }
