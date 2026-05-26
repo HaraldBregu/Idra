@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
-import type { StoreService } from '../store';
+import Store from 'electron-store';
 import type { LoggerService } from '../logger';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import {
@@ -42,8 +42,39 @@ const GOOGLE_CONNECTOR_IDS = new Set([
 	'connector_googlecalendar',
 	'connector_googledrive',
 ]);
+const CONNECTOR_STORE_NAME = 'connectors';
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
+const CONNECTORS_LOG_SOURCE = 'ConnectorsService';
+
+type ConnectorStoreKey =
+	| 'google_gmail'
+	| 'google_calendar'
+	| 'google_drive'
+	| 'microsoft_teams'
+	| 'outlook_calendar'
+	| 'outlook_email'
+	| 'sharepoint'
+	| 'dropbox';
+
+interface ConnectorPersistenceStore {
+	get(key: ConnectorStoreKey): unknown;
+	set(key: ConnectorStoreKey, value: ConnectorConfig): void;
+	delete(key: ConnectorStoreKey): void;
+}
+
+const CONNECTOR_STORE_KEY_BY_ID = {
+	connector_gmail: 'google_gmail',
+	connector_googlecalendar: 'google_calendar',
+	connector_googledrive: 'google_drive',
+	connector_microsoftteams: 'microsoft_teams',
+	connector_outlookcalendar: 'outlook_calendar',
+	connector_outlookemail: 'outlook_email',
+	connector_sharepoint: 'sharepoint',
+	connector_dropbox: 'dropbox',
+} satisfies Record<OpenAiConnectorId, ConnectorStoreKey>;
+
+const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorStoreKey[];
 
 type GoogleOAuthRuntimeCredential = GoogleOAuthCredential & { clientId: string };
 
@@ -78,6 +109,7 @@ interface OAuthLoopbackServer {
 }
 
 interface ConnectorsServiceOptions {
+	store?: ConnectorPersistenceStore;
 	fetchImpl?: FetchLike;
 	openExternal?: (url: string) => Promise<void>;
 	createOAuthLoopbackServer?: (expectedState: string) => Promise<OAuthLoopbackServer>;
@@ -155,6 +187,11 @@ function requireObject(value: unknown, label: string): Record<string, unknown> {
 		return value as Record<string, unknown>;
 	}
 	throw new Error(`${label} is required.`);
+}
+
+function readRecord(value: unknown): Record<string, unknown> | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	return value as Record<string, unknown>;
 }
 
 function readOptionalString(params: Record<string, unknown>, key: string): string | undefined {
@@ -237,6 +274,8 @@ function sanitizeInput(input: unknown): ConnectorInput {
 }
 
 export class ConnectorsService {
+	private readonly store: ConnectorPersistenceStore;
+
 	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> =
 		{
 			connector_gmail: new GmailRuntimeStrategy({
@@ -257,10 +296,16 @@ export class ConnectorsService {
 		};
 
 	constructor(
-		private readonly store: StoreService,
 		private readonly logger: LoggerService,
 		private readonly options: ConnectorsServiceOptions = {}
-	) {}
+	) {
+		this.store =
+			options.store ??
+			new Store({
+				name: CONNECTOR_STORE_NAME,
+				accessPropertiesByDotNotation: false,
+			});
+	}
 
 	catalog(): typeof OPENAI_CONNECTOR_CATALOG {
 		return OPENAI_CONNECTOR_CATALOG;
@@ -268,6 +313,10 @@ export class ConnectorsService {
 
 	list(): ConnectorView[] {
 		return this.validConnectors().map(toView);
+	}
+
+	getConnectorSettings(): ConnectorConfig[] {
+		return this.validConnectors().map(redactConnectorSecrets);
 	}
 
 	get(id: string): ConnectorConfig {
@@ -283,9 +332,6 @@ export class ConnectorsService {
 
 	restoreEnabledConnectors(): void {
 		const validConnectors = this.validConnectors();
-		if (validConnectors.length !== this.store.getConnectors().length) {
-			this.store.setConnectors(validConnectors);
-		}
 
 		for (const connector of validConnectors) {
 			if (connector.enabled && connector.tools.length === 0) {
@@ -295,11 +341,11 @@ export class ConnectorsService {
 	}
 
 	async add(input: unknown): Promise<ConnectorConfig> {
-		const sanitized = sanitizeInput(input);
+		const sanitized = this.validateConnectorInput('add', () => sanitizeInput(input));
 		if (
-			this.store
-				.getConnectors()
-				.some((connector) => connector.connectorId === sanitized.connectorId)
+			this.readStoredConnectors().some(
+				(connector) => connector.connectorId === sanitized.connectorId
+			)
 		) {
 			throw new Error(`Connector ${sanitized.connectorId} is already configured.`);
 		}
@@ -321,14 +367,16 @@ export class ConnectorsService {
 			enabled: sanitized.enabled ?? true,
 		};
 		const next = this.withKnownTools(connector);
-		this.store.setConnectors([...this.store.getConnectors(), next]);
+		this.writeConnector(next);
 		return redactConnectorSecrets(next);
 	}
 
 	async update(id: string, input: unknown): Promise<ConnectorConfig> {
 		const current = this.getStored(id);
-		const patch = requireObject(input, 'Connector update');
-		const merged = sanitizeInput({
+		const patch = this.validateConnectorInput('update', () =>
+			requireObject(input, 'Connector update')
+		);
+		const merged = this.validateConnectorInput('update', () => sanitizeInput({
 			name: readOptionalString(patch, 'name') ?? current.name,
 			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
 			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
@@ -340,7 +388,7 @@ export class ConnectorsService {
 			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
 			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
 			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
-		});
+		}));
 		const next = this.withKnownTools({
 			...current,
 			...merged,
@@ -353,7 +401,12 @@ export class ConnectorsService {
 	}
 
 	async remove(id: string): Promise<void> {
-		this.store.setConnectors(this.store.getConnectors().filter((connector) => connector.id !== id));
+		const connector = this.validConnectors().find((item) => item.id === id);
+		if (!connector) {
+			this.logDebug('Skipped connector delete because it was not configured', { id });
+			return;
+		}
+		this.deleteConnector(connector);
 	}
 
 	async enable(id: string): Promise<ConnectorConfig> {
@@ -541,15 +594,121 @@ export class ConnectorsService {
 
 	private validConnectors(): ConnectorConfig[] {
 		return dedupeByConnectorId(
-			this.store.getConnectors().filter(isStoredConnectorValid).map(normalizeStoredConnector)
+			this.readStoredConnectors().filter(isStoredConnectorValid).map(normalizeStoredConnector)
 		);
 	}
 
 	private replace(connector: ConnectorConfig): void {
-		this.logger.debug('ConnectorsService', `Updated connector ${connector.name}`);
-		this.store.setConnectors(
-			this.store.getConnectors().map((item) => (item.id === connector.id ? connector : item))
-		);
+		this.logDebug(`Updated connector ${connector.name}`, {
+			connectorId: connector.connectorId,
+		});
+		this.writeConnector(connector);
+	}
+
+	private readStoredConnectors(): ConnectorConfig[] {
+		this.logDebug('Read connector settings');
+		return CONNECTOR_STORE_KEYS.flatMap((key) => {
+			const raw = this.readConnector(key);
+			if (raw === undefined) return [];
+			const record = readRecord(raw);
+			if (!record) {
+				this.logWarn('Dropped invalid connector settings', { key, reason: 'not_object' });
+				return [];
+			}
+			const connector = record as ConnectorConfig;
+			if (!isStoredConnectorValid(connector)) {
+				this.logWarn('Dropped invalid connector settings', {
+					key,
+					connectorId: record.connectorId,
+				});
+				return [];
+			}
+			try {
+				return [normalizeStoredConnector(connector)];
+			} catch (error) {
+				this.logError('Failed to normalize connector settings', {
+					key,
+					error: this.errorMessage(error),
+				});
+				return [];
+			}
+		});
+	}
+
+	private readConnector(key: ConnectorStoreKey): unknown {
+		try {
+			return this.store.get(key);
+		} catch (error) {
+			this.logError('Failed to read connector settings', {
+				key,
+				error: this.errorMessage(error),
+			});
+			throw error;
+		}
+	}
+
+	private writeConnector(connector: ConnectorConfig): void {
+		const key = CONNECTOR_STORE_KEY_BY_ID[connector.connectorId];
+		try {
+			this.store.set(key, connector);
+			this.logDebug('Wrote connector settings', {
+				key,
+				connectorId: connector.connectorId,
+			});
+		} catch (error) {
+			this.logError('Failed to write connector settings', {
+				key,
+				connectorId: connector.connectorId,
+				error: this.errorMessage(error),
+			});
+			throw error;
+		}
+	}
+
+	private deleteConnector(connector: ConnectorConfig): void {
+		const key = CONNECTOR_STORE_KEY_BY_ID[connector.connectorId];
+		try {
+			this.store.delete(key);
+			this.logDebug('Deleted connector settings', {
+				key,
+				connectorId: connector.connectorId,
+			});
+		} catch (error) {
+			this.logError('Failed to delete connector settings', {
+				key,
+				connectorId: connector.connectorId,
+				error: this.errorMessage(error),
+			});
+			throw error;
+		}
+	}
+
+	private validateConnectorInput<T>(action: 'add' | 'update', run: () => T): T {
+		try {
+			return run();
+		} catch (error) {
+			this.logWarn('Connector validation failed', {
+				action,
+				error: this.errorMessage(error),
+			});
+			throw error;
+		}
+	}
+
+	private logDebug(message: string, data?: unknown): void {
+		this.logger.debug(CONNECTORS_LOG_SOURCE, message, data);
+	}
+
+	private logWarn(message: string, data?: unknown): void {
+		this.logger.warn(CONNECTORS_LOG_SOURCE, message, data);
+	}
+
+	private logError(message: string, data?: unknown): void {
+		this.logger.error(CONNECTORS_LOG_SOURCE, message, data);
+	}
+
+	private errorMessage(error: unknown): string {
+		return error instanceof Error ? error.message : String(error);
 	}
 
 	private async getGoogleAccessToken(connector: ConnectorConfig): Promise<string> {
