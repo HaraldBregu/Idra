@@ -40,12 +40,29 @@ describe('HeartbeatPage', () => {
 		window.heartbeat = {
 			status: jest.fn(async () => makeStatus()),
 			last: jest.fn(async () => makeLastHeartbeat()),
+			settings: jest.fn(async () => ({
+				every: '30m',
+				providerId: 'openai',
+				modelId: 'gpt-5.4',
+			})),
+			saveSettings: jest.fn(async (request) => ({
+				every: request.every ?? '30m',
+				providerId: request.providerId,
+				modelId: request.modelId,
+				reasoningEffort: request.reasoningEffort,
+			})),
 			setEnabled: jest.fn(async (request) => makeStatus({ enabled: request.enabled })),
 			getTiming: jest.fn(async () => ({
 				every: '30m',
 				activeHours: { start: '09:00', end: '18:00', timezone: 'Europe/Rome' },
 			})),
 			updateTiming: jest.fn(async (request) => request),
+			setProviderId: jest.fn(async (request) => ({ every: '30m', providerId: request.providerId })),
+			setModelId: jest.fn(async (request) => ({ every: '30m', modelId: request.modelId })),
+			setReasoningEffort: jest.fn(async (request) => ({
+				every: '30m',
+				reasoningEffort: request.reasoningEffort,
+			})),
 			systemEvent: jest.fn(async () => ({
 				queued: true,
 				sessionKey: 'agent:default:main',
