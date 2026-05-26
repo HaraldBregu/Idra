@@ -1,5 +1,5 @@
 import { DEFAULT_AGENT_ID } from '../../../../src/main/constants';
-import { AGENT_TASK_TYPE, TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import { AGENT_TASK_TYPE, TasksService, type TaskPersistencePort } from '../../../../src/main/tasks';
 import type { TaskStoreState } from '../../../../src/shared/tasks';
 
 function flushMicrotasks(times = 4): Promise<void> {
@@ -44,7 +44,7 @@ function createManager(options: { selection?: ReturnType<typeof defaultSelection
 		getAgentService: jest.fn(() => selection),
 		getTaskSettings: jest.fn(() => ({})),
 	};
-	const manager = new TaskManager({
+	const manager = new TasksService({
 		store,
 		idFactory: () => `task-${nextId++}`,
 		now: () => new Date(1_778_880_000_000 + nextId).toISOString(),

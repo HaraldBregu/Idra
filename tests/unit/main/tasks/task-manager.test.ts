@@ -1,5 +1,5 @@
 import { EventBus } from '../../../../src/main/core/event-bus';
-import { TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import { TasksService, type TaskPersistencePort } from '../../../../src/main/tasks';
 import {
 	TASK_EVENT_TYPES,
 	type TaskContext,
@@ -92,7 +92,7 @@ function createManager(...handlers: TaskHandler[]) {
 		eventBus.on(eventType, (event) => events.push(event.payload as TaskEvent));
 	}
 	const persistence = createPersistence();
-	const manager = new TaskManager({
+	const manager = new TasksService({
 		store: createTaskStore(),
 		eventBus,
 		logger,
@@ -111,7 +111,7 @@ function createManagerWithPolicy(policy: () => TaskSettings, ...handlers: TaskHa
 	for (const eventType of TASK_EVENT_TYPES) {
 		eventBus.on(eventType, (event) => events.push(event.payload as TaskEvent));
 	}
-	const manager = new TaskManager({
+	const manager = new TasksService({
 		store: createTaskStore(policy),
 		eventBus,
 		logger,
@@ -129,7 +129,7 @@ function createManagerWithUserFacing(
 	allowedTaskTypes?: string[]
 ) {
 	let nextId = 1;
-	const manager = new TaskManager({
+	const manager = new TasksService({
 		store: createTaskStore(allowedTaskTypes ? () => ({ allowedTaskTypes }) : undefined),
 		eventBus: new EventBus(),
 		logger,
@@ -146,7 +146,7 @@ function createManagerWithUserFacing(
 	return manager;
 }
 
-describe('TaskManager', () => {
+describe('TasksService', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
@@ -372,7 +372,7 @@ describe('TaskManager', () => {
 	it('does not fail or cancel a running task because elapsed time passes', async () => {
 		const handler = new ControlledHandler();
 		let nowMs = 1_778_880_000_000;
-		const manager = new TaskManager({
+		const manager = new TasksService({
 			store: createTaskStore(),
 			eventBus: new EventBus(),
 			logger,
@@ -392,5 +392,53 @@ describe('TaskManager', () => {
 
 		expect(manager.get(task.id)?.status).toBe('running');
 		expect(manager.list()[0]?.status).toBe('running');
+	});
+
+	it('marks persisted active records as interrupted because runtime state is not serializable', () => {
+		const persistence = createPersistence({
+			schemaVersion: 1,
+			records: [
+				{
+					id: 'persisted-running',
+					type: 'test.controlled',
+					title: 'Persisted running task',
+					status: 'running',
+					createdAt: '2026-05-20T00:00:00.000Z',
+					startedAt: '2026-05-20T00:00:01.000Z',
+					metadata: { visible: 'yes' },
+				},
+			],
+			updatedAt: '2026-05-20T00:00:02.000Z',
+		});
+		const manager = new TasksService({
+			store: createTaskStore(),
+			logger,
+			now: () => '2026-05-20T00:00:03.000Z',
+			persistence,
+		});
+
+		expect(manager.get('persisted-running')).toMatchObject({
+			status: 'failed',
+			finishedAt: '2026-05-20T00:00:03.000Z',
+			error: {
+				code: 'TaskInterrupted',
+				message: 'Task did not finish before the app stopped.',
+			},
+		});
+		expect(persistence.save).toHaveBeenLastCalledWith({
+			schemaVersion: 1,
+			records: [
+				expect.objectContaining({
+					id: 'persisted-running',
+					status: 'failed',
+				}),
+			],
+			updatedAt: '2026-05-20T00:00:03.000Z',
+		});
+		expect(logger.warn).toHaveBeenCalledWith(
+			'TasksService',
+			'Marking interrupted persisted task as failed',
+			expect.objectContaining({ id: 'persisted-running', status: 'running' })
+		);
 	});
 });

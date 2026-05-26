@@ -15,7 +15,7 @@ import { DefaultCronScheduleAccessPolicy } from '../../../../src/main/cron/secur
 import { redactCronValue } from '../../../../src/main/cron/security/cron-redaction';
 import { InMemoryCronScheduleStore } from '../../../../src/main/cron/store/in-memory-cron-schedule-store';
 import { EventBus } from '../../../../src/main/core';
-import { AGENT_TASK_TYPE, TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import { AGENT_TASK_TYPE, TasksService, type TaskPersistencePort } from '../../../../src/main/tasks';
 import type { TaskStoreState } from '../../../../src/shared/tasks';
 
 class RecordingRunner implements CronScheduleRunner {
@@ -423,7 +423,7 @@ describe('CronSchedulerService', () => {
 
 	it('creates approved agent background tasks through TaskManagerCronScheduleRunner', async () => {
 		const eventBus = new EventBus();
-		const taskManager = new TaskManager({
+		const taskManager = new TasksService({
 			store: {
 				getAgentService: jest.fn(() => ({
 					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },

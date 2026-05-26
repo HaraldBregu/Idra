@@ -20,7 +20,7 @@ import {
 	type FridayCronExecutor,
 } from '../../../../src/main/cron/workflow/scheduler';
 import { EventBus } from '../../../../src/main/core';
-import { AGENT_TASK_TYPE, TaskManager, type TaskPersistencePort } from '../../../../src/main/tasks';
+import { AGENT_TASK_TYPE, TasksService, type TaskPersistencePort } from '../../../../src/main/tasks';
 import type { TaskStoreState } from '../../../../src/shared/tasks';
 
 class RecordingExecutor implements FridayCronExecutor {
@@ -73,7 +73,7 @@ function createTaskPersistence(): TaskPersistencePort {
 }
 
 function createTaskManager(eventBus: EventBus) {
-	const manager = new TaskManager({
+	const manager = new TasksService({
 		store: {
 			getAgentService: jest.fn(() => ({
 				provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
