@@ -174,6 +174,16 @@ The agent module is the application's agent control plane. It manages agent stat
 
 These responsibilities must be implemented inside `AgentService`, `AgentExecutionService`, `AgentCapabilityService`, hooks, policies, persistence, and subagent services. Do not introduce a separate harness abstraction to hold them.
 
+The agent runtime has seven jobs:
+
+- Gives the model capabilities: connect the model to tools, APIs, MCPs, skills, browsers, code execution, filesystems, and sandboxes through explicit service boundaries.
+- Provides operating context: supply system prompts, tool descriptions, project instructions, memory, files, prior state, and task constraints without loading irrelevant context.
+- Controls execution: manage loops, retries, handoffs, subagents, model routing, planning, and the rules for when the agent should continue or stop.
+- Stores and manages state: persist work across steps using session records, files, logs, checkpoints, memory, artifacts, run state, and context compaction.
+- Adds deterministic safeguards: run hooks, middleware, validation, linting, tests, permission checks, and other controls that reduce purely probabilistic behavior.
+- Enables verification: inspect outputs, run tests, browse results, compare against requirements, and route errors back for repair.
+- Improves long-task performance: decompose work, preserve context, spawn specialist subagents, recover from failures, and continue across many steps.
+
 The agent module should make these questions explicit:
 
 - What can the agent know? It may know the current prompt, selected provider and model metadata, reasoning effort, current date, workspace metadata, sender metadata, startup context, policy result, selected tool metadata, connector tool metadata, selected skill instructions, MCP capability metadata when supported, transcript history, compacted history, persisted run state, and safe service-provided context. It must not load irrelevant skills, full tool catalogs, connector secrets, private auth data, or arbitrary files into the model context.
