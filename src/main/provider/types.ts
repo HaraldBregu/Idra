@@ -36,7 +36,7 @@ export type ToolResultBlock =
 	| { type: 'text'; text: string }
 	| { type: 'image'; mimeType?: string; base64?: string };
 
-export type ToolResultStatus = 'ok' | 'error' | 'rejected';
+export type ToolResultStatus = 'ok' | 'error' | 'blocked';
 
 export type TranscriptEntry =
 	| { role: 'user'; content: string }

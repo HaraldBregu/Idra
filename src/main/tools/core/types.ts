@@ -62,7 +62,7 @@ export interface ToolContext {
 }
 
 export interface AgentToolResult<TDetails = unknown> {
-	status: 'ok' | 'error' | 'rejected';
+	status: 'ok' | 'error' | 'blocked';
 	content: ToolResultBlock[];
 	details?: TDetails;
 }
@@ -74,7 +74,7 @@ export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> 
 	schema: JSONSchema;
 	/** Marks control-plane tools that should only be exposed to owner contexts. */
 	ownerOnly?: boolean;
-	/** Approval marker; execution is rejected unless the call is confirmed. */
+	/** Approval marker; execution is blocked unless the call is confirmed. */
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }

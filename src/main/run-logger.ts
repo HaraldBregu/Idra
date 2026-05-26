@@ -35,7 +35,7 @@ export interface RunLogToolCall {
 	tool: string;
 	arguments: string;
 	durationMs: number;
-	status: 'ok' | 'error' | 'rejected';
+	status: 'ok' | 'error' | 'blocked';
 	outputChars: number;
 	outputText?: string;
 }

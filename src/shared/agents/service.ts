@@ -391,7 +391,7 @@ export type AgentHistoryMessage =
 			output?: unknown;
 	  };
 
-export type AgentToolCallStatus = 'ok' | 'error' | 'rejected';
+export type AgentToolCallStatus = 'ok' | 'error' | 'blocked';
 
 export type AgentResponseEvent =
 	| {

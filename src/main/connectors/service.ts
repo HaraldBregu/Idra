@@ -84,7 +84,7 @@ interface ToolContext {
 }
 
 interface AgentToolResult<TDetails = unknown> {
-	status: 'ok' | 'error' | 'rejected';
+	status: 'ok' | 'error' | 'blocked';
 	content: ToolResultBlock[];
 	details?: TDetails;
 }
