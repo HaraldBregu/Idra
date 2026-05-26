@@ -216,42 +216,35 @@ No async logic inside the reducer. Side effects belong in `useProviderSetup` and
 
 ---
 
-## React Design Guidelines
+## React Design Patterns
 
-Follow standard React application patterns throughout. The start page is a self-contained flow — apply these rules consistently across every step component, hook, and helper.
+Follow the renderer React design patterns in the renderer conventions. Start-page-specific notes:
 
 ### Components
 
-- Each step is its own component (`PresentationStep`, `ProviderStep`, `ModelServiceStep`). Keep them focused on rendering; move all logic into hooks.
-- `ProviderCard` and `StepField` are sub-components of the step they belong to. Do not export them from the page folder.
-- Avoid deeply nested JSX. Extract named sub-components when a branch becomes non-trivial.
+- Each step (`PresentationStep`, `ProviderStep`, `ModelServiceStep`) is a pure rendering component. Move all logic into hooks.
+- Sub-components (`ProviderCard`, `StepField`) are private to this page. Never export them outside the page folder.
 - Never pass the whole `state` object as a prop. Destructure and pass only the fields the component needs.
+- Extract a named sub-component whenever a JSX branch becomes non-trivial to read inline.
 
 ### Context
 
-Use React context only for state that many components in the tree need without prop-drilling across more than two levels.
-
 - Wrap the start page tree in a single `SetupProvider` that exposes the `state` and `dispatch` pair from `setupReducer`.
-- Step components consume context via a `useSetupContext` hook — never import context directly.
-- Do not put async logic or side effects inside the context provider. Those belong in `useProviderSetup` and `useModelServices`.
-- Do not reach for context for step-local state (e.g. which card is in edit mode). Keep that in the component with `useState`.
+- Step components consume context via a `useSetupContext` hook — never import the context object directly.
+- No async logic or side effects inside the provider body. Those belong in `useProviderSetup` and `useModelServices`.
+- Step-local UI state (e.g. which card is in edit mode) stays in `useState` inside the component — do not lift it to the context.
 
 ### Hooks
 
 - `useProviderSetup` and `useModelServices` are the only hooks that call `window.store` or `window.app`. No component calls IPC directly.
-- Each hook accepts `(state, dispatch)` from context and returns only the handlers that the component tree needs.
-- Side effects inside hooks must have correct dependency arrays and cleanup. Model-fetch effects must cancel in-flight requests if the step changes before they resolve.
-- Extract a new hook only when logic is reused or too long to read inline. One-off event handlers stay as inline functions in the component.
+- Each hook accepts `(state, dispatch)` from context and returns only the handlers the component tree needs.
+- Model-fetch effects must cancel in-flight requests if the step changes before they resolve — return a cleanup function that sets a cancelled flag or aborts the request.
 
 ### State
 
 - All setup state lives in `setupReducer`. Do not mirror reducer state in `useState`.
-- Component-local state (`useState`) is only for ephemeral UI concerns: input focus, hover state, which card is expanded.
+- Component-local `useState` is only for ephemeral UI: input focus, hover, which card is expanded.
 - Dispatch actions with descriptive names (`GO_TO_STEP`, `SET_ERROR`). Never mutate state directly.
-
-### File layout
-
-Follow the one-file-one-export rule. Each component, hook, helper, and type file is named with a single word and exports exactly one thing. Group step components, sub-components, and hooks in sub-folders within the page folder.
 
 ## Types
 
