@@ -70,7 +70,7 @@ export function transcriptToHistory(t: TranscriptEntry[]): AgentHistoryMessage[]
 	});
 }
 
-	export class AgentIpc implements IpcModule {
+export class AgentIpc implements IpcModule {
 	readonly name = 'agent';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
