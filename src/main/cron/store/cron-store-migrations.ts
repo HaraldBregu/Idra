@@ -34,13 +34,18 @@ function storedScheduleConfig(schedule: Record<string, unknown>): CronStoredSche
 }
 
 function normalizeSchedule(value: Record<string, unknown>): CronSchedule {
-	const taskType = typeof value.taskType === 'string' ? value.taskType : 'agent.run';
+	const taskType = typeof value.taskType === 'string' ? value.taskType : 'cron.job';
 	const taskInput = value.taskInput ?? {};
 	return {
 		...value,
 		schedule: storedScheduleConfig(value),
 		failureCount: typeof value.failureCount === 'number' ? value.failureCount : 0,
-		target: typeof value.target === 'string' ? value.target : taskType === 'agent.run' ? 'agent' : 'task',
+		target:
+			typeof value.target === 'string'
+				? value.target
+				: taskType === 'agent' || taskType.startsWith('agent.')
+					? 'agent'
+					: 'job',
 		payload: value.payload ?? taskInput,
 		runCount: typeof value.runCount === 'number' ? value.runCount : 0,
 	} as unknown as CronSchedule;
