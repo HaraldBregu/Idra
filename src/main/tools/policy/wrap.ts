@@ -152,7 +152,7 @@ export function wrapToolWithBeforeToolCall(
 								},
 							})
 						: undefined;
-					const approvalPolicy = evaluateToolApprovalPolicy({
+					const approvalPolicy = (context.policy?.evaluateToolApproval ?? evaluateToolApprovalPolicy)({
 						toolName: tool.name,
 						approvalAvailable: Boolean(context.approval),
 						approvalDecision: approval,
