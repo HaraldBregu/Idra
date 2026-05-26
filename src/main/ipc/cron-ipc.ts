@@ -11,7 +11,6 @@ import {
 	type CronScheduleCreateRequest,
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
-	type FridayCronToolRequest,
 	type CronTask,
 	type CronTaskData,
 	type CronTaskView,
@@ -33,7 +32,7 @@ function assertPatch(value: unknown): asserts value is CronScheduleUpdateRequest
 	if (!isObject(value)) throw new Error('Invalid cron schedule update.');
 }
 
-function uiActor(userId?: string) {
+function uiActor(userId = 'local') {
 	return {
 		source: 'ui' as const,
 		userId,
@@ -102,7 +101,16 @@ export class CronIpc implements IpcModule {
 			CronChannels.createSchedule,
 			wrapSimpleHandler((request: CronScheduleCreateRequest) => {
 				assertCreateRequest(request);
-				return cron.createSchedule({ ...request, source: request.source ?? 'ui' }, uiActor(request.ownerUserId));
+				const ownerUserId = request.ownerUserId ?? 'local';
+				return cron.createSchedule(
+					{
+						...request,
+						source: request.source ?? 'ui',
+						createdBy: request.createdBy ?? ownerUserId,
+						ownerUserId,
+					},
+					uiActor(ownerUserId)
+				);
 			}, CronChannels.createSchedule)
 		);
 
@@ -158,13 +166,6 @@ export class CronIpc implements IpcModule {
 		ipcMain.handle(
 			CronChannels.runNow,
 			wrapSimpleHandler((scheduleId: string) => cron.runScheduleNow(scheduleId, uiActor()), CronChannels.runNow)
-		);
-
-		ipcMain.handle(
-			CronChannels.action,
-			wrapSimpleHandler((request: FridayCronToolRequest) => {
-				return cron.handleAction(request, { role: 'owner' });
-			}, CronChannels.action)
 		);
 
 		cron.events.subscribe((event) => {
