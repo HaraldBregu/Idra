@@ -149,7 +149,6 @@ export interface StoreApi {
 	getCronSettings: () => Promise<CronSettings>;
 	getTaskSettings: () => Promise<TaskSettings>;
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
-	getHeartbeatSettings: () => Promise<HeartbeatSettings>;
 	getConnectorSettings: () => Promise<ConnectorConfig[]>;
 	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
