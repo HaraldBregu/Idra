@@ -22,7 +22,6 @@ import {
 	type ChannelAccountProperties,
 	type GenericChannelProperties,
 } from '../../shared/channels';
-import type { ConnectorConfig } from '../../shared/connectors';
 import type {
 	CronJsonObject,
 	CronSchedule,
@@ -82,8 +81,6 @@ type OperatorDefinitionKey =
 	| 'videoCreator'
 	| 'musicCreator';
 
-type ConnectorSettingsKey = keyof NonNullable<StoreSchema['connectors']>;
-
 const STORE_LOG_SOURCE = 'StoreService';
 const CRON_STORE_SCHEMA_VERSION = 1;
 
@@ -111,19 +108,6 @@ const OPERATOR_DEFINITION_KEYS = {
 	textToVideo: 'videoCreator',
 	textToSound: 'musicCreator',
 } satisfies Record<ConfiguredModelOperatorKey, OperatorDefinitionKey>;
-
-const CONNECTOR_STORE_KEY_BY_ID = {
-	connector_gmail: 'google_gmail',
-	connector_googlecalendar: 'google_calendar',
-	connector_googledrive: 'google_drive',
-	connector_microsoftteams: 'microsoft_teams',
-	connector_outlookcalendar: 'outlook_calendar',
-	connector_outlookemail: 'outlook_email',
-	connector_sharepoint: 'sharepoint',
-	connector_dropbox: 'dropbox',
-} satisfies Record<ConnectorConfig['connectorId'], ConnectorSettingsKey>;
-
-const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorSettingsKey[];
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
@@ -747,28 +731,6 @@ function readStoredChannel(value: unknown): Partial<Channel> | undefined {
 	return compactChannelRoot(value as Partial<Channel>);
 }
 
-function readConnectorSettingsList(value: unknown): ConnectorConfig[] {
-	if (Array.isArray(value)) {
-		return value.flatMap((entry) => (readRecord(entry) ? [entry as ConnectorConfig] : []));
-	}
-	const record = readRecord(value);
-	if (!record) return [];
-	return CONNECTOR_STORE_KEYS.flatMap((key) => {
-		const connector = record[key];
-		return readRecord(connector) ? [connector as ConnectorConfig] : [];
-	});
-}
-
-function connectorSettingsByKey(
-	connectors: ConnectorConfig[]
-): NonNullable<StoreSchema['connectors']> {
-	const next: NonNullable<StoreSchema['connectors']> = {};
-	for (const connector of connectors) {
-		next[CONNECTOR_STORE_KEY_BY_ID[connector.connectorId]] = connector;
-	}
-	return next;
-}
-
 function emptyCronStoreState(): CronStoreState {
 	return {
 		schemaVersion: CRON_STORE_SCHEMA_VERSION,
@@ -1366,22 +1328,6 @@ export class StoreService {
 			this.logError('Failed to persist heartbeat state', error);
 			throw error;
 		}
-	}
-
-	getConnectors(): ConnectorConfig[] {
-		const raw = this.read('connectors');
-		if (raw !== undefined && !Array.isArray(raw) && !readRecord(raw)) {
-			this.logWarn('Invalid stored connector settings');
-		}
-		return readConnectorSettingsList(raw);
-	}
-
-	getConnectorById(id: string): ConnectorConfig | undefined {
-		return this.getConnectors().find((connector) => connector.id === id);
-	}
-
-	setConnectors(connectors: ConnectorConfig[]): void {
-		this.write('connectors', connectorSettingsByKey(connectors));
 	}
 
 	private getStoredProviders(): Provider[] {
