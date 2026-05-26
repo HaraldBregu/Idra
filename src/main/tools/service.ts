@@ -5,6 +5,7 @@ import {
 	type ToolPolicySubject,
 } from '../policy';
 import type { AgentTool, AgentToolResult, ToolContext } from './types';
+import { getToolMetadata } from './core/common';
 import { createTools } from './catalog/registry';
 import {
 	executeAgentToolWithManagement,
