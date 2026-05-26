@@ -125,11 +125,25 @@ Dependencies:
 | ---------- | -------------------------------------------------- |
 | None       | Keep connector persistence isolated from services. |
 
+### Channels
+
+Service name: `ChannelsService`
+
+Main function: owns channel persistence so channel data is saved through one service boundary.
+
+Use Electron Store for channel data in `channels.json`.
+
+Dependencies:
+
+| Dependency | Purpose                                          |
+| ---------- | ------------------------------------------------ |
+| None       | Keep channel persistence isolated from services. |
+
 ### Store
 
 Service name: `StoreService`
 
-Main function: owns application persistence so durable app data is read and written through one service boundary.
+Main function: owns general application settings so durable app data is read and written through one service boundary, except connector and channel data owned by dedicated services.
 
 Dependencies:
 
