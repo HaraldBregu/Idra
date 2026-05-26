@@ -29,7 +29,12 @@ function matchesValue<T extends string>(candidate: T | undefined, expected: T | 
 }
 
 export class ElectronStoreCronScheduleStore implements CronScheduleStore {
-	constructor(private readonly store: Pick<CronPersistenceStore, 'getCronSchedulerState' | 'setCronSchedulerState'> = new ElectronStoreCronStore()) {}
+	constructor(
+		private readonly store: Pick<
+			CronPersistenceStore,
+			'getCronSchedulerState' | 'setCronSchedulerState'
+		> = new ElectronStoreCronStore()
+	) {}
 
 	async createSchedule(schedule: CronSchedule): Promise<CronSchedule> {
 		return this.write((state) => {
