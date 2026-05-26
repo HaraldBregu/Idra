@@ -145,14 +145,17 @@ export class CronService implements Disposable {
 		}
 		await this.scheduler.start();
 		await this.workflow.start();
+		this.logger.info('CronService', 'Cron service started.');
 	}
 
 	async stop(): Promise<void> {
 		await this.scheduler.stop();
 		await this.workflow.stop();
+		this.logger.info('CronService', 'Cron service stopped.');
 	}
 
 	async reload(): Promise<void> {
+		this.logger.info('CronService', 'Cron service reload requested.');
 		await this.scheduler.reload();
 		if (this.automaticEnabled) await this.workflow.recoverStartup();
 	}
@@ -163,6 +166,12 @@ export class CronService implements Disposable {
 		channelRegistry?: ChannelRegistry;
 		heartbeat?: HeartbeatService;
 	}): void {
+		this.logger.info('CronService', 'Cron runtime configured.', {
+			hasAgentService: Boolean(dependencies.agentService),
+			hasEventBus: Boolean(dependencies.eventBus),
+			hasChannelRegistry: Boolean(dependencies.channelRegistry),
+			hasHeartbeat: Boolean(dependencies.heartbeat),
+		});
 		const directExecutor = dependencies.agentService
 			? new AgentServiceFridayCronExecutor(dependencies.agentService, dependencies.heartbeat)
 			: undefined;
