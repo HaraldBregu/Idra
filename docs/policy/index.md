@@ -4,7 +4,28 @@ The policy module decides whether an operation on a path is permitted. It is the
 
 ## Dependencies
 
-The policy module owns policy persistence through a dedicated Electron store named `policy`. It does not store policy data under the application settings store.
+The policy module owns policy persistence through a dedicated Electron store named `policy`. It writes `policy.json` directly as a policy object:
+
+```json
+{
+  "version": 1,
+  "defaultPolicy": "deny",
+  "paths": [
+    {
+      "path": "/workspace",
+      "permissions": ["read", "write", "create", "delete"],
+      "recursive": true
+    },
+    {
+      "path": "/agent",
+      "permissions": ["read", "write", "create", "delete"],
+      "recursive": true
+    }
+  ]
+}
+```
+
+Policy data is not nested under a `policy` key and is not stored under the application settings store.
 
 ## Service Usage
 
