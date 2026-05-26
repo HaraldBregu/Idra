@@ -1,12 +1,16 @@
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { CronService } from '../../cron';
+import type { ConnectorsService } from '../../connectors';
 import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../store';
 import type { TasksService } from '../../tasks';
+import type { McpRegistry } from '../../mcp';
+import type { SkillsService } from '../../skills';
 import type { UserDataDirectoryServicePort } from '../../user-data';
 import type { WorkspaceService } from '../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
+import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../shared/agents/constants';
 
 export interface PlanEntry {
 	task: string;
@@ -22,6 +26,9 @@ export interface FridayServices {
 	cron?: CronService;
 	policy?: PolicyServicePort;
 	taskManager?: TasksService;
+	connectors?: ConnectorsService;
+	skills?: SkillsService;
+	mcpRegistry?: McpRegistry;
 }
 
 export type CronToolContext =
@@ -62,16 +69,19 @@ export interface ToolContext {
 }
 
 export interface AgentToolResult<TDetails = unknown> {
-	status: 'ok' | 'error' | 'blocked';
+	status: AgentToolResultStatus;
 	content: ToolResultBlock[];
 	details?: TDetails;
 }
 
 export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 	name: string;
+	displayName?: string;
 	displaySummary?: string;
 	description: string;
 	schema: JSONSchema;
+	serviceKind?: AgentCapabilityServiceKind;
+	serviceId?: string;
 	/** Marks control-plane tools that should only be exposed to owner contexts. */
 	ownerOnly?: boolean;
 	/** Approval marker; execution is blocked unless the call is confirmed. */
