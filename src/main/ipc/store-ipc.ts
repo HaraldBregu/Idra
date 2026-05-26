@@ -140,6 +140,7 @@ export class StoreIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
+		const connectors = container.get('connectors');
 		const logger = container.get('logger');
 		const powerSaveBlocker = container.get('powerSaveBlocker');
 
@@ -261,8 +262,8 @@ export class StoreIpc implements IpcModule {
 
 		ipcMain.handle(
 			StoreChannels.getConnectorSettings,
-			wrapSimpleHandler((): ReturnType<typeof store.getConnectors> => {
-				return store.getConnectors();
+			wrapSimpleHandler((): ReturnType<typeof connectors.getConnectorSettings> => {
+				return connectors.getConnectorSettings();
 			}, StoreChannels.getConnectorSettings)
 		);
 
