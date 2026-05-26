@@ -26,6 +26,8 @@ Expose only these APIs on `window`:
 - `policy`
 - `store`
 
+Add one dedicated section for each exposed API. Each section must list only the methods exposed by that API and should stay in sync with the preload implementation and TypeScript declarations.
+
 Keep preload API types in sync with the implementation. Shared request, response, event, and model types must live under `src/shared` so they can be reused by main, preload, and renderer code.
 
 Do not place business logic in preload. Preload should validate and normalize only what is needed to safely bridge renderer calls to typed IPC channels.
