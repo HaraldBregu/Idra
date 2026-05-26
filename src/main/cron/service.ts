@@ -388,11 +388,12 @@ export class CronService implements Disposable {
 			const scheduled = cron.schedule(
 				task.expression,
 				async () => {
-					this.recordRun(task.id);
 					try {
 						await dispatcher(task);
+						this.recordRunResult(task.id, 'success');
 						this.logger.info('CronService', `Restored job "${task.id}" completed`);
 					} catch (err) {
+						this.recordRunResult(task.id, 'failure', this.errorMessage(err));
 						this.logger.error('CronService', `Restored job "${task.id}" failed`, err);
 					}
 				},
@@ -418,7 +419,9 @@ export class CronService implements Disposable {
 		return tasks.map((t) => {
 			const job = this.jobs.get(t.id);
 			const next = (job?.task as NextRunCapable | undefined)?.getNextRun?.() ?? null;
-			return next ? { ...t, nextRun: next.toISOString() } : { ...t };
+			if (!next) return { ...t };
+			const nextRunAt = next.toISOString();
+			return { ...t, nextRunAt, nextRun: nextRunAt };
 		});
 	}
 
