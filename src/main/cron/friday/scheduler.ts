@@ -28,7 +28,7 @@ import {
 	normalizeDelivery,
 	fridayScheduleIdentity,
 } from './validation';
-import { normalizeFridayCronToolRequest, type FridayCronNormalizeContext } from './normalize';
+import { normalizeFridayCronActionRequest, type FridayCronNormalizeContext } from './normalize';
 
 export interface FridayCronLogger {
 	info(scope: string, message: string, metadata?: unknown): void;
@@ -382,7 +382,7 @@ export class FridayCronScheduler {
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
 	): Promise<FridayCronToolResponse> {
 		try {
-			const normalized = normalizeFridayCronToolRequest(request, { ...context, actor });
+			const normalized = normalizeFridayCronActionRequest(request, { ...context, actor });
 			const result = await this.handleActionOrThrow(normalized, actor);
 			return {
 				status: 'ok',
