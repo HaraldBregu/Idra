@@ -725,7 +725,7 @@ export class CronSchedulerService implements CronScheduler {
 				missedRun,
 				idempotencyKey
 			);
-			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt);
+			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt, 'skipped');
 			await this.recordExecution(
 				updated,
 				idempotencyKey,
@@ -851,7 +851,8 @@ export class CronSchedulerService implements CronScheduler {
 
 	private async updateScheduleAfterTrigger(
 		schedule: CronSchedule,
-		scheduledRunAt: string
+		scheduledRunAt: string,
+		lastRunStatus: 'success' | 'skipped' = 'success'
 	): Promise<CronSchedule> {
 		const now = new Date().toISOString();
 		const runCount = schedule.runCount + 1;
@@ -871,7 +872,7 @@ export class CronSchedulerService implements CronScheduler {
 		const updated = await this.store.updateSchedule(schedule.id, {
 			runCount,
 			lastRunAt: scheduledRunAt,
-			lastRunStatus: 'success',
+			lastRunStatus,
 			lastError: undefined,
 			lastEvaluatedAt: now,
 			nextRunAt,
