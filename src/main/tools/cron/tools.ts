@@ -293,7 +293,7 @@ function cronActor(
 		sourceId: ctx.agentId ?? ctx.sessionId,
 		userId: input?.ownerUserId ?? ctx.agentId ?? ctx.sessionId,
 		sessionId: ctx.sessionId,
-		timezone: input?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+		timezone: (input?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone) || 'UTC',
 		permissions: CRON_TOOL_PERMISSIONS,
 		confirmed: input?.confirmed,
 		metadata: { toolSessionId: ctx.sessionId },
