@@ -194,10 +194,12 @@ export const writeTool: AgentTool<WriteArgs> = {
 		}
 		let abs: string;
 		try {
-			abs = resolveAbs(ctx.workspace, args.path, writeWorkspaceOnly(ctx));
+			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
 			return textResult(`write: ${(err as Error).message}`, true);
 		}
+		const writeRestricted = checkFsRestriction(ctx, abs, 'write', true);
+		if (writeRestricted) return textResult(writeRestricted, true);
 		let exists = false;
 		let stat: { mtimeMs: number; size: number } | null = null;
 		try {
