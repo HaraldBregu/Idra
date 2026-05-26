@@ -19,12 +19,12 @@ import {
 	newCallTracker,
 	type BeforeCallOutcome,
 	type CallTracker,
-} from './policy/guard';
+} from './guard';
 import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from './runtime/adapt';
-import type { ToolProfile } from './policy/policy';
+import type { ToolProfile } from './policy';
 
 export type {
 	AgentToolManagementOptions,
