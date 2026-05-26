@@ -19,7 +19,7 @@ import {
 	newCallTracker,
 	type BeforeCallOutcome,
 	type CallTracker,
-} from './guard';
+} from './policy/guard';
 import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
