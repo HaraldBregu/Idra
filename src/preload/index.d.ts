@@ -206,6 +206,7 @@ import type {
 	TaskSettings,
 	HeartbeatSettings,
 } from '../shared/store';
+import type {
 	Agent,
 	ConfiguredModelOperator,
 	AgentHistoryMessage,
