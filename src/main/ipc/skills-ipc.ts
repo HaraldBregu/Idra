@@ -18,6 +18,11 @@ export class SkillsIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			SkillsChannels.load,
+			wrapSimpleHandler((name: string) => skills.load(name), SkillsChannels.load)
+		);
+
+		ipcMain.handle(
 			SkillsChannels.import,
 			wrapSimpleHandler(async () => {
 				const result = await dialog.showOpenDialog({
@@ -32,20 +37,20 @@ export class SkillsIpc implements IpcModule {
 
 		ipcMain.handle(
 			SkillsChannels.download,
-			wrapSimpleHandler(async (id: string) => {
+			wrapSimpleHandler(async (name: string) => {
 				const result = await dialog.showOpenDialog({
 					properties: ['openDirectory', 'createDirectory'],
 					title: 'Download skill',
 				});
 				const destinationPath = result.filePaths[0];
 				if (result.canceled || !destinationPath) return undefined;
-				return skills.downloadSkill(id, destinationPath);
+				return skills.downloadSkill(name, destinationPath);
 			}, SkillsChannels.download)
 		);
 
 		ipcMain.handle(
 			SkillsChannels.delete,
-			wrapSimpleHandler((id: string) => skills.deleteSkill(id), SkillsChannels.delete)
+			wrapSimpleHandler((name: string) => skills.deleteSkill(name), SkillsChannels.delete)
 		);
 
 		ipcMain.handle(
