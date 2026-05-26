@@ -24,7 +24,7 @@ Expose heartbeat configuration and runtime behavior through `window.heartbeat`. 
 - Shared provider, model, and reasoning-effort types for model selection.
 - Typed heartbeat invoke channels for commands and queries.
 - Typed heartbeat event contracts for event subscriptions.
-- A main-process handler that delegates to heartbeat services and settings ownership.
+- A main-process handler that delegates only to `HeartbeatService`.
 - Main-process provider, model, reasoning-effort, timing, persistence, and delivery validation.
 
 ## Rules
@@ -32,6 +32,7 @@ Expose heartbeat configuration and runtime behavior through `window.heartbeat`. 
 - Use invoke-style calls for heartbeat commands and queries.
 - Use subscription-style calls for heartbeat events and return unsubscribe functions.
 - Keep the preload methods thin: validate shape, call typed IPC, and return typed results.
+- Route every heartbeat operation through `HeartbeatService`; do not call store, provider, agent, cron, or channel services directly from the Heartbeat API handler.
 - Keep provider lookup, model validation, reasoning-effort capability checks, persistence, scheduling, and delivery behavior outside preload.
 - Save provider id and model id as explicit heartbeat settings, not as generic store writes.
 - Save reasoning effort only when the provider and model advertise support for reasoning effort.
