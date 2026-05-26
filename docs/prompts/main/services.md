@@ -111,6 +111,20 @@ Dependencies:
 | ---------- | ---------------------------- |
 | None       | Keep skill management local. |
 
+### Connectors
+
+Service name: `ConnectorsService`
+
+Main function: owns connector persistence so connector data is saved through one service boundary.
+
+Use Electron Store for connector data.
+
+Dependencies:
+
+| Dependency | Purpose                                         |
+| ---------- | ----------------------------------------------- |
+| None       | Keep connector persistence isolated from services. |
+
 ### Store
 
 Service name: `StoreService`

@@ -1,5 +1,4 @@
 import { BrowserWindow, BrowserWindowConstructorOptions, shell } from 'electron';
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
@@ -31,8 +30,13 @@ export class WindowFactory {
 		this.iconPath = path.resolve(__dirname, '../../resources/icons/icon.png');
 		this.logger?.info('WindowFactory', `Preload path: ${this.preloadPath}`);
 		// Verify preload file exists
-		const exists = existsSync(this.preloadPath);
-		this.logger?.info('WindowFactory', `Preload file exists: ${exists}`);
+		try {
+			const { existsSync } = require('fs');
+			const exists = existsSync(this.preloadPath);
+			this.logger?.info('WindowFactory', `Preload file exists: ${exists}`);
+		} catch {
+			// Silent fail
+		}
 	}
 
 	private getBaseWebPreferences(): Electron.WebPreferences {

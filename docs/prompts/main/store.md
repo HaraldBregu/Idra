@@ -2,7 +2,7 @@
 
 Create a store module that is strictly implemented as a reusable service.
 
-The store module owns application persistence. Any module that needs durable application settings should use this service instead of reading or writing Electron Store directly.
+The store module owns general application settings. Any module that needs durable application settings should use this service instead of reading or writing Electron Store directly, except connector data owned by `ConnectorsService`.
 
 The store module has no service dependencies.
 
@@ -43,7 +43,6 @@ Store these top-level properties:
 - `textToSound`: text-to-sound model settings.
 - `agents`: agent routing settings.
 - `heartbeat`: heartbeat state.
-- `connectors`: connector settings.
 - `channels`: channel settings.
 
 ## Provider Settings
@@ -94,19 +93,6 @@ Each route binding can store:
 
 Store heartbeat state under `heartbeat`. Normalize heartbeat state before returning or writing it.
 
-## Connector Settings
-
-Store connector settings by connector key:
-
-- `google_gmail`
-- `google_calendar`
-- `google_drive`
-- `microsoft_teams`
-- `outlook_calendar`
-- `outlook_email`
-- `sharepoint`
-- `dropbox`
-
 ## Channel Settings
 
 Store channel settings under `channels`. Channel settings can include channel defaults and per-channel configuration for supported channel providers.
@@ -148,6 +134,6 @@ When implementing or changing this module:
 
 ## Testing
 
-Test provider storage, model module storage, cron settings, task settings, agent routing settings, heartbeat state, connector settings, channel settings, normalization, invalid stored data, and persistence errors. Tests should call the exported store service and should not import internal store files directly.
+Test provider storage, model module storage, cron settings, task settings, agent routing settings, heartbeat state, channel settings, normalization, invalid stored data, and persistence errors. Tests should call the exported store service and should not import internal store files directly.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
