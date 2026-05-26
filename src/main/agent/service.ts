@@ -224,6 +224,7 @@ export class AgentService {
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private readonly runtimes = new Map<string, Runtime>();
 	private readonly runRecords = new Map<string, AgentRunRecord>();
+	private readonly startupWorkspaces = new Map<string, WorkspaceService>();
 
 	constructor(
 		private readonly dependencies: AgentServiceDependencies,
