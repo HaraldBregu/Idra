@@ -761,7 +761,7 @@ describe('AgentService', () => {
 		const deps = makeDeps(workspace);
 		const policy = new PolicyService({
 			store: new PolicyStore({
-				get: jest.fn(() => ({
+				read: jest.fn(() => ({
 					version: 1,
 					defaultPolicy: 'deny',
 					paths: [
@@ -772,7 +772,7 @@ describe('AgentService', () => {
 						},
 					],
 				})),
-				set: jest.fn(),
+				write: jest.fn(),
 			}),
 		});
 		let turn = 0;
