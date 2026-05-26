@@ -207,7 +207,7 @@ function filterTools(
 	policy?: PolicyServicePort
 ): AgentTool[] {
 	const subjects: ToolPolicySubject[] = tools.map((tool) => {
-		const metadata = getToolMetadata(tool);
+		const metadata = getToolMetadata(tool as never);
 		return {
 			name: tool.name,
 			ownerOnly: tool.ownerOnly,
