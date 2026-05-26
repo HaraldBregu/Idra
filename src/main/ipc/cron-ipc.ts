@@ -163,7 +163,7 @@ export class CronIpc implements IpcModule {
 		ipcMain.handle(
 			CronChannels.action,
 			wrapSimpleHandler((request: FridayCronToolRequest) => {
-				return cron.fridayAction(request, { role: 'owner' });
+				return cron.handleAction(request, { role: 'owner' });
 			}, CronChannels.action)
 		);
 
