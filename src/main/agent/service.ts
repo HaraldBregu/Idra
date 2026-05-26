@@ -424,7 +424,7 @@ export class AgentService {
 				agentId: runtimeAgentId,
 				runId,
 				...event,
-			} satisfies AgentResponseEvent;
+			} as AgentResponseEvent;
 			if (heartbeatOptions?.suppressAgentEvents) return;
 			options.streamEvent?.(responseEvent);
 		};
