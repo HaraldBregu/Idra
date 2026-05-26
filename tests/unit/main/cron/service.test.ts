@@ -307,7 +307,16 @@ describe('CronService', () => {
 
 			const wrapperA = cronMock.schedule.mock.calls[0][1] as () => Promise<void>;
 			await wrapperA();
-			expect(dispatcher).toHaveBeenCalledWith(tasks[0]);
+			expect(dispatcher).toHaveBeenCalledWith(
+				expect.objectContaining({
+					id: 'a',
+					expression: '* * * * *',
+					data: msg('task a'),
+					schedule: '* * * * *',
+					target: 'job',
+					payload: msg('task a'),
+				})
+			);
 			expect(messageOf(dispatcher.mock.calls[0][0] as CronTask)).toBe('task a');
 		});
 
