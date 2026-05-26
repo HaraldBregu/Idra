@@ -98,7 +98,7 @@ describe('ConnectorsService persistence', () => {
 		);
 	});
 
-	it('drops invalid stored connector records and logs the normalization failure', () => {
+	it('drops invalid stored connector records and logs the failure', () => {
 		const { service, store, logger } = createService();
 		store.data.set('google_gmail', { id: 'connector-1' });
 
