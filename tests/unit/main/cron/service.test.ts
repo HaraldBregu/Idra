@@ -216,6 +216,18 @@ describe('CronService', () => {
 				expect.any(Error)
 			);
 		});
+
+		it('logs successful cron handler completion', async () => {
+			const store = createStore();
+			const logger = createLogger();
+			const service = new CronService(logger, { store });
+
+			service.schedule('ok', '* * * * *', msg('will pass'), () => undefined);
+			const wrapper = cronMock.schedule.mock.calls[0][1] as () => Promise<void>;
+			await wrapper();
+
+			expect(logger.info).toHaveBeenCalledWith('CronService', 'Job "ok" completed');
+		});
 	});
 
 	// -------------------------------------------------------------------------
