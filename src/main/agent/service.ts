@@ -26,7 +26,7 @@ import {
 	type AgentExecutionServicePort,
 	type AgentRunHooks,
 } from './run';
-import type { AgentRunStreamEvent } from '../../shared/agents/events';
+import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
 import { DEFAULT_AGENT_ID } from '../constants';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
@@ -125,7 +125,7 @@ export interface AgentSendOptions {
 	model?: string;
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
-	streamEvent?: (event: AgentRunStreamEvent) => void;
+	streamEvent?: (event: AgentResponseEvent) => void;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
 	sessionMetadata?: Partial<AgentSessionMetadata>;
@@ -420,13 +420,13 @@ export class AgentService {
 					label: event.label,
 				});
 			}
-			options.streamEvent?.(event);
-			if (heartbeatOptions?.suppressAgentEvents) return;
-			this.dependencies.eventBus.broadcast('agent:response', {
+			const responseEvent = {
 				agentId: runtimeAgentId,
 				runId,
 				...event,
-			});
+			} satisfies AgentResponseEvent;
+			if (heartbeatOptions?.suppressAgentEvents) return;
+			options.streamEvent?.(responseEvent);
 		};
 		const runStartedAt = Date.now();
 		const phaseDurationsMs: Record<string, number> = {};
