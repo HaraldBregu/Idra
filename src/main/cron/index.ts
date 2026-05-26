@@ -1,9 +1,6 @@
 export { CronService } from './service';
 export type {
 	CronJobOptions,
-	CronServiceActionActor,
-	CronServiceActionRequest,
-	CronServiceActionResponse,
 	CronServiceActor,
 	CronServiceEventListener,
 	CronServiceEvents,
