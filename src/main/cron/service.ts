@@ -1,16 +1,9 @@
 import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
-import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { ChannelRegistry } from '../channels';
-import type { AgentService } from '../service';
-import type { HeartbeatService } from '../heartbeat';
-import type { TasksService } from '../tasks';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
-	type FridayCronActionRequest,
-	type FridayCronActionResponse,
 	type CronNextRunPreview,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
@@ -32,23 +25,7 @@ import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-sche
 import { ElectronStoreCronStore, type CronPersistenceStore } from './store/electron-store-cron-store';
 import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
 import { CronSchedulerService, DEFAULT_CRON_RUN_POLICY } from './scheduler/cron-scheduler';
-import {
-	DelegatingCronScheduleRunner,
-	TaskManagerCronScheduleRunner,
-} from './scheduler/cron-runner';
-import { ElectronStoreFridayCronStore } from './workflow/store';
-import {
-	GatewayFridayCronDelivery,
-	AgentServiceFridayCronExecutor,
-	TaskManagerFridayCronExecutor,
-} from './workflow/runtime-adapters';
-import {
-	NoopFridayCronDelivery,
-	NoopFridayCronExecutor,
-	FridayCronScheduler,
-	type FridayCronActor,
-} from './workflow/scheduler';
-import type { FridayCronNormalizeContext } from './workflow/normalize';
+import { InMemoryCronScheduleRunner } from './scheduler/cron-runner';
 
 export type CronServiceEventListener = (event: CronScheduleEvent) => void;
 
@@ -59,23 +36,15 @@ export interface CronServiceEvents {
 
 export type CronServiceActor = CronActorContext;
 export type CronServiceStore = CronPersistenceStore;
-export type CronServiceActionActor = FridayCronActor;
-export type CronServiceActionRequest = FridayCronActionRequest;
-export type CronServiceActionResponse = FridayCronActionResponse;
 export type { CronJobOptions, CronTaskHandler } from './types';
 
 interface NextRunCapable {
 	getNextRun?: () => Date | null;
 }
 
-interface CronModelSelectionStore {
-	getAgentService(): { provider: { id: string }; model: { id: string } } | undefined;
-}
-
 export interface CronServiceOptions {
 	enabled?: boolean;
 	store?: CronServiceStore;
-	settingsStore?: CronModelSelectionStore;
 }
 
 /**
@@ -90,21 +59,15 @@ export class CronService implements Disposable {
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
-	private readonly runner: DelegatingCronScheduleRunner;
 	private readonly scheduler: CronSchedulerService;
-	private readonly workflow: FridayCronScheduler;
 	private readonly automaticEnabled: boolean;
-	private readonly settingsStore?: CronModelSelectionStore;
-	private taskManager?: TasksService;
 
 	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
 		this.store = options.store ?? new ElectronStoreCronStore();
 		this.logger = logger;
-		this.settingsStore = options.settingsStore;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store);
-		this.runner = new DelegatingCronScheduleRunner();
 		const accessPolicy = new DefaultCronScheduleAccessPolicy({
 			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
 			highFrequencyThresholdMs: DEFAULT_CRON_RUN_POLICY.highFrequencyThresholdMs,
@@ -112,25 +75,11 @@ export class CronService implements Disposable {
 		});
 		this.scheduler = new CronSchedulerService(
 			this.scheduleStore,
-			this.runner,
+			new InMemoryCronScheduleRunner(),
 			accessPolicy,
 			{},
 			logger
 		);
-		this.workflow = new FridayCronScheduler(
-			new ElectronStoreFridayCronStore(this.store),
-			new NoopFridayCronExecutor(),
-			new NoopFridayCronDelivery(),
-			{
-				enabled: this.automaticEnabled,
-			},
-			logger
-		);
-	}
-
-	configureTaskRuntime(dependencies: { taskManager: TasksService }): void {
-		this.taskManager = dependencies.taskManager;
-		this.runner.setDelegate(new TaskManagerCronScheduleRunner(dependencies.taskManager));
 	}
 
 	get events(): CronServiceEvents {
@@ -140,76 +89,28 @@ export class CronService implements Disposable {
 	async start(): Promise<void> {
 		if (!this.automaticEnabled) {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
-			await this.workflow.start();
 			this.logger.info('CronService', 'Cron service started with automatic execution disabled.');
 			return;
 		}
 		await this.scheduler.start();
-		await this.workflow.start();
 		this.logger.info('CronService', 'Cron service started.');
 	}
 
 	async stop(): Promise<void> {
 		await this.scheduler.stop();
-		await this.workflow.stop();
 		this.logger.info('CronService', 'Cron service stopped.');
 	}
 
 	async reload(): Promise<void> {
 		this.logger.info('CronService', 'Cron service reload requested.');
 		await this.scheduler.reload();
-		if (this.automaticEnabled) await this.workflow.recoverStartup();
-	}
-
-	configureRuntime(dependencies: {
-		agentService?: AgentService;
-		eventBus?: EventBus;
-		channelRegistry?: ChannelRegistry;
-		heartbeat?: HeartbeatService;
-	}): void {
-		this.logger.info('CronService', 'Cron runtime configured.', {
-			hasAgentService: Boolean(dependencies.agentService),
-			hasEventBus: Boolean(dependencies.eventBus),
-			hasChannelRegistry: Boolean(dependencies.channelRegistry),
-			hasHeartbeat: Boolean(dependencies.heartbeat),
-		});
-		const directExecutor = dependencies.agentService
-			? new AgentServiceFridayCronExecutor(dependencies.agentService, dependencies.heartbeat)
-			: undefined;
-		if (dependencies.agentService) {
-			this.workflow.setExecutor(
-				this.taskManager && dependencies.eventBus
-					? new TaskManagerFridayCronExecutor(
-							this.taskManager,
-							dependencies.eventBus,
-							directExecutor!
-						)
-					: directExecutor!
-			);
-		}
-		this.workflow.setDelivery(
-			new GatewayFridayCronDelivery({
-				eventBus: dependencies.eventBus,
-				channelRegistry: dependencies.channelRegistry,
-				logger: this.logger,
-			})
-		);
-	}
-
-	handleAction(
-		request: CronServiceActionRequest,
-		actor?: CronServiceActionActor,
-		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
-	): Promise<CronServiceActionResponse> {
-		const effectiveActor = actor ?? { role: 'owner' as const };
-		return this.workflow.handleAction(request, effectiveActor, context);
 	}
 
 	createSchedule(
 		request: CronScheduleCreateRequest,
 		actor?: CronActorContext
 	): Promise<CronSchedule> {
-		return this.scheduler.createSchedule(this.withConfiguredModel(request), actor);
+		return this.scheduler.createSchedule(request, actor);
 	}
 
 	updateSchedule(
@@ -217,7 +118,7 @@ export class CronService implements Disposable {
 		patch: CronScheduleUpdateRequest,
 		actor?: CronActorContext
 	): Promise<CronSchedule> {
-		return this.scheduler.updateSchedule(scheduleId, this.withConfiguredModel(patch), actor);
+		return this.scheduler.updateSchedule(scheduleId, patch, actor);
 	}
 
 	pauseSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
@@ -302,8 +203,8 @@ export class CronService implements Disposable {
 			timezone: options.timezone ?? 'UTC',
 			enabled,
 			status: enabled ? 'active' : 'disabled',
-			providerId: options.providerId ?? configuredModel?.providerId,
-			modelId: options.modelId ?? configuredModel?.modelId,
+			providerId: options.providerId,
+			modelId: options.modelId,
 			target: options.target ?? this.targetForData(data),
 			payload: data,
 			data,
@@ -441,7 +342,6 @@ export class CronService implements Disposable {
 
 	destroy(): void {
 		void this.scheduler.stop();
-		void this.workflow.stop();
 		for (const job of this.jobs.values()) {
 			try {
 				job.task.stop();
@@ -546,24 +446,6 @@ export class CronService implements Disposable {
 			});
 		}
 		return out;
-	}
-
-	private configuredModel(): { providerId: string; modelId: string } | undefined {
-		const selection = this.settingsStore?.getAgentService();
-		if (!selection) return undefined;
-		return { providerId: selection.provider.id, modelId: selection.model.id };
-	}
-
-	private withConfiguredModel<T extends CronScheduleCreateRequest | CronScheduleUpdateRequest>(
-		request: T
-	): T {
-		const configuredModel = this.configuredModel();
-		if (!configuredModel) return request;
-		return {
-			...request,
-			providerId: request.providerId ?? configuredModel.providerId,
-			modelId: request.modelId ?? configuredModel.modelId,
-		};
 	}
 
 	private targetForData(data: CronTaskData): CronStoredTarget {
