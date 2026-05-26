@@ -9,7 +9,6 @@ import { TOOL_LIMITS } from '../core/limits';
 import {
 	checkFilePolicy,
 	filePolicyAllows,
-	hasFilePolicy,
 	type FilePolicyCheck,
 } from './policy';
 import type { Permission } from '../../../shared/policy';
@@ -46,7 +45,7 @@ function outsidePathNeedsApproval(
 	permissions: readonly Permission[],
 	mode: 'all' | 'any' = 'all'
 ): boolean {
-	const abs = resolveAbs(ctx.workspace, target, false);
+	const abs = resolveAbs(ctx.workspace, target);
 	if (isInsidePath(ctx.workspace, abs)) return false;
 	const allowed =
 		mode === 'all'
@@ -1042,7 +1041,7 @@ export const findTool: AgentTool<FindArgs> = {
 				: DEFAULT_FIND_LIMIT;
 		try {
 			const dir = args.path
-				? resolveAbs(ctx.workspace, args.path, readWorkspaceOnly(ctx))
+				? resolveAbs(ctx.workspace, args.path)
 				: ctx.workspace;
 			const denied = checkFilePolicy(ctx, 'find', [{ path: dir, permission: 'read' }]);
 			if (denied) return textResult(denied, true);
