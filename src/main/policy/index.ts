@@ -1,7 +1,6 @@
 export {
 	PolicyService,
 	type PathPolicyInput,
-	type PolicyAvailabilityPolicyInput,
 	type PolicyEvaluationLogger,
 	type PolicyRule,
 	type PolicyRuleDecisionMap,
@@ -13,6 +12,7 @@ export {
 	type PolicyStoreAccessor,
 	type ToolApprovalPolicyDecision,
 	type ToolApprovalPolicyDecisionInput,
+	type ToolAvailabilityPolicyInput,
 	type ToolHookPolicyDecision,
 	type ToolHookPolicyInput,
 	type ToolPolicy,
