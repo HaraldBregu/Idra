@@ -77,29 +77,53 @@ function ScheduleTaskForm({
 		setSubmitting(true);
 
 		try {
-			let schedule: FridayCronSchedule;
+			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+			let request: CronScheduleCreateRequest;
+			const taskInput = { message: message.trim() };
+			const baseRequest = {
+				name: name.trim(),
+				source: 'ui' as const,
+				createdBy: 'local',
+				ownerUserId: 'local',
+				timezone,
+				taskType: 'agent.run',
+				taskInput,
+				target: 'agent' as const,
+				payload: taskInput,
+			};
 
 			if (scheduleKind === 'cron') {
 				if (!cronExpr.trim()) throw new Error('Cron expression is required.');
-				schedule = { kind: 'cron', expr: cronExpr.trim() };
+				const expression = cronExpr.trim();
+				request = {
+					...baseRequest,
+					type: 'cron',
+					cronExpression: expression,
+					schedule: expression,
+				};
 			} else if (scheduleKind === 'every') {
 				const n = Number(everyAmount);
 				if (!everyAmount || !Number.isFinite(n) || n <= 0)
 					throw new Error('Enter a valid positive interval.');
-				schedule = { kind: 'every', everyMs: n * UNIT_MS[everyUnit] };
+				const intervalMs = n * UNIT_MS[everyUnit];
+				request = {
+					...baseRequest,
+					type: 'interval',
+					intervalMs,
+					schedule: { type: 'interval', intervalMs },
+				};
 			} else {
 				if (!atDateTime) throw new Error('Date and time are required.');
-				schedule = { kind: 'at', at: new Date(atDateTime).toISOString() };
+				const runAt = new Date(atDateTime).toISOString();
+				request = {
+					...baseRequest,
+					type: 'oneTime',
+					runAt,
+					schedule: { type: 'oneTime', runAt },
+				};
 			}
 
-			await window.cron.action({
-				action: 'add',
-				job: {
-					name: name.trim(),
-					schedule,
-					payload: { kind: 'agentTurn', message: message.trim() },
-				},
-			});
+			await window.cron.createSchedule(request);
 
 			setName('');
 			setCronExpr('');
@@ -239,7 +263,7 @@ function ScheduleTaskForm({
 const CronPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [jobs, setJobs] = useState<readonly FridayCronJob[]>([]);
+	const [jobs, setJobs] = useState<readonly CronSchedule[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [showForm, setShowForm] = useState(false);
@@ -247,7 +271,7 @@ const CronPage: React.FC = () => {
 	const loadJobs = useCallback(() => {
 		setLoading(true);
 		window.cron
-			.listJobs('all')
+			.listSchedules({ includeDeleted: false })
 			.then((nextJobs) => {
 				setJobs(nextJobs);
 				setError(null);
@@ -265,7 +289,7 @@ const CronPage: React.FC = () => {
 
 		setLoading(true);
 		window.cron
-			.listJobs('all')
+			.listSchedules({ includeDeleted: false })
 			.then((nextJobs) => {
 				if (!mounted) return;
 				setJobs(nextJobs);
@@ -306,8 +330,6 @@ const CronPage: React.FC = () => {
 				}
 			/>
 
-			<CronAgentRuntimeSettings />
-
 			{showForm && (
 				<SettingsSection title="New scheduled task">
 					<ScheduleTaskForm onCreated={handleCreated} onCancel={() => setShowForm(false)} />
@@ -339,7 +361,7 @@ const CronPage: React.FC = () => {
 					<div className="grid gap-2">
 						{jobs.map((job) => {
 							const schedule = formatSchedule(job.schedule);
-							const nextRun = formatTimestamp(job.state.nextRunAtMs);
+							const nextRun = formatTimestamp(job.nextRunAt);
 
 							return (
 								<div
