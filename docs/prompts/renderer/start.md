@@ -218,6 +218,14 @@ No async logic inside the reducer. Side effects belong in `useProviderSetup` and
 
 ---
 
+## Types
+
+Follow the type placement rules in `docs/prompts/renderer/index.md`.
+
+- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, operator records returned by `window.store`) belong in `src/shared/types/`.
+- Types consumed by multiple renderer pages belong in `src/renderer/src/types/`.
+- Types scoped to the start page alone — `SetupState`, `SetupStep`, `ProviderSetupEntry`, `ModelServiceStateMap`, reducer actions — stay inside `src/renderer/src/pages/start/`.
+
 ## Logging
 
 Use `console.error` for unexpected async failures. Do not use `console.log` or `console.debug`. See the renderer logging convention in `docs/prompts/renderer/index.md`.
