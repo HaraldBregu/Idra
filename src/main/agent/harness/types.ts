@@ -3,7 +3,7 @@ import type { AgentRunHooks, AgentRunStreamEvent } from '../run';
 import type { AgentTool, ToolContext } from '../../tools';
 import type { SessionFile } from '../../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
-import type { AgentToolManagementOptions, ToolServicePort } from '../../tools/service';
+import type { AgentToolManagementOptions, ToolServicePort } from '../../tools';
 
 export type AgentHarnessSupportContext = {
 	provider: string;
