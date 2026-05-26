@@ -178,7 +178,7 @@ describe('AgentService', () => {
 				content: [{ type: 'text' as const, text: 'pong' }],
 			})),
 		};
-		const toolService = {
+		const toolService: any = {
 			createDefaultTools: jest.fn(() => [tool]),
 			filterToolsByAllowlist: jest.fn((tools) => tools),
 			filterToolsByDenylist: jest.fn((tools) => tools),
@@ -203,7 +203,7 @@ describe('AgentService', () => {
 			getToolRegistry: jest.fn(() => new Map()),
 			getToolsByGroup: jest.fn(() => []),
 		};
-		const policy = {
+		const policy: any = {
 			evaluateToolRequest: jest.fn(() => ({ shouldUseTools: true, reason: 'test' })),
 		};
 		let turn = 0;
