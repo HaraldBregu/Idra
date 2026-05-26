@@ -3,7 +3,7 @@ import {
 	localToolNamesForGroup,
 	type AgentTool,
 } from '../../../../src/main/tools';
-import { makeToolContext } from '../test-helpers';
+import { makeLogger, makeToolContext } from '../test-helpers';
 
 describe('ToolService', () => {
 	it('prepares provider-safe tools and management through one service facade', () => {
@@ -50,6 +50,56 @@ describe('ToolService', () => {
 
 		expect(tools.map((tool) => tool.name)).toContain('read');
 		expect(tools.map((tool) => tool.name)).not.toContain('write');
+	});
+
+	it('uses injected policy and logger for service-managed tools', async () => {
+		const logger = makeLogger();
+		const policy = {
+			evaluateTools: jest.fn((subjects: Array<{ name: string }>) => ({
+				allowed: new Set(subjects.filter((subject) => subject.name === 'read').map((subject) => subject.name)),
+				filtered: subjects
+					.filter((subject) => subject.name !== 'read')
+					.map((subject) => ({
+						toolName: subject.name,
+						stage: 'test',
+						reason: 'blocked in test',
+					})),
+				warnings: [],
+			})),
+			createToolUseKey: jest.fn((toolName: string) => `${toolName}::{}`),
+			evaluateToolUse: jest.fn(() => ({
+				outcome: 'allow',
+				key: 'managed::{}',
+				callCount: 1,
+			})),
+		};
+		const service = new ToolService({ policy: policy as never, logger: logger as never });
+		const managedTool: AgentTool = {
+			name: 'managed',
+			description: 'Managed test tool.',
+			schema: {},
+			execute: jest.fn(async (_args, ctx) => {
+				expect(ctx.services.policy).toBe(policy);
+				return { status: 'ok', content: [{ type: 'text', text: 'done' }] };
+			}),
+		};
+
+		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual(['read']);
+		await expect(
+			service.executeToolWithManagement(
+				managedTool,
+				{},
+				makeToolContext(),
+				service.createManagementOptions()
+			)
+		).resolves.toMatchObject({ status: 'ok' });
+
+		expect(logger.info).toHaveBeenCalledWith('ToolService', 'Initialized tools service');
+		expect(logger.info).toHaveBeenCalledWith(
+			'ToolService',
+			'Tool execution completed: managed',
+			expect.objectContaining({ status: 'ok' })
+		);
 	});
 
 	it('exposes filesystem and cron groups through the tools service registry', () => {
