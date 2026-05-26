@@ -618,7 +618,7 @@ export class HeartbeatService implements Disposable {
 		};
 	}
 
-	private async readHeartbeatFile(agentId: string): Promise<{
+	private async readHeartbeatFile(_agentId: string): Promise<{
 		exists: boolean;
 		path?: string;
 		content?: string;
