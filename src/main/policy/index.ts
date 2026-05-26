@@ -9,7 +9,6 @@ export {
 	type PolicyServiceOptions,
 	type PolicyServicePort,
 	type PolicyStoragePort,
-	type PolicyStoreAccessor,
 	type ToolApprovalPolicyDecision,
 	type ToolApprovalPolicyDecisionInput,
 	type ToolAvailabilityPolicyInput,
