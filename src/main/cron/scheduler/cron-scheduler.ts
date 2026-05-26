@@ -397,6 +397,9 @@ export class CronSchedulerService implements CronScheduler {
 				this.audit(current, 'schedule.updated', 'Schedule updated.', actor.source),
 			],
 		};
+		merged.schedule = normalizedPatch.schedule ?? storedScheduleConfig(merged);
+		merged.target = scheduleTarget(merged.taskType, normalizedPatch.target ?? current.target);
+		merged.payload = normalizedPatch.payload ?? normalizedTask.taskInput;
 		merged.nextRunAt = this.calculator.getNextRun(merged, new Date())?.toISOString();
 		const updated = await this.store.updateSchedule(scheduleId, merged);
 		await this.emitEvent({
