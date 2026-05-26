@@ -22,9 +22,9 @@ Main function: owns scheduled execution, including schedule creation, updates, d
 
 Dependencies:
 
-| Dependency      | Purpose                                             |
-| --------------- | --------------------------------------------------- |
-| None by default | Keep scheduled execution independent by default.    |
+| Dependency      | Purpose                                          |
+| --------------- | ------------------------------------------------ |
+| None by default | Keep scheduled execution independent by default. |
 
 ### Task
 
