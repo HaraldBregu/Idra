@@ -712,7 +712,7 @@ export const connectors: ConnectorsApi = {
 	callTool: (
 		id: string,
 		name: string,
-		args: unknown,
+		args: Record<string, unknown>,
 		options?: ConnectorCallToolOptions
 	): Promise<unknown> => {
 		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
