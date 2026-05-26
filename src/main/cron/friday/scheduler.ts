@@ -4,7 +4,7 @@ import type {
 	FridayCronAddRequest,
 	FridayCronDelivery,
 	FridayCronDeliveryState,
-	FridayCronCanonicalToolRequest,
+	FridayCronCanonicalToolRequest as FridayCronCanonicalActionRequest,
 	FridayCronJob,
 	FridayCronJobDefinition,
 	FridayCronJobState,
@@ -12,8 +12,8 @@ import type {
 	FridayCronRunRecord,
 	FridayCronSessionTarget,
 	FridayCronStatus,
-	FridayCronToolRequest,
-	FridayCronToolResponse,
+	FridayCronToolRequest as FridayCronActionRequest,
+	FridayCronToolResponse as FridayCronActionResponse,
 	FridayCronUpdateRequest,
 } from '../../../shared/cron';
 import type { CronSchedule } from '../core/cron.types';
@@ -45,7 +45,7 @@ export interface FridayCronActor {
 }
 
 type FridayCronAuthorizationAction =
-	| FridayCronCanonicalToolRequest['action']
+	| FridayCronCanonicalActionRequest['action']
 	| 'status'
 	| 'update'
 	| 'run'
@@ -377,10 +377,10 @@ export class FridayCronScheduler {
 	}
 
 	async handleAction(
-		request: FridayCronToolRequest | FridayCronCanonicalToolRequest | unknown,
+		request: FridayCronActionRequest | FridayCronCanonicalActionRequest | unknown,
 		actor: FridayCronActor = { role: 'owner' },
 		context: Omit<FridayCronNormalizeContext, 'actor'> = {}
-	): Promise<FridayCronToolResponse> {
+	): Promise<FridayCronActionResponse> {
 		try {
 			const normalized = normalizeFridayCronActionRequest(request, { ...context, actor });
 			const result = await this.handleActionOrThrow(normalized, actor);
@@ -475,9 +475,9 @@ export class FridayCronScheduler {
 	}
 
 	private async handleActionOrThrow(
-		request: FridayCronCanonicalToolRequest,
+		request: FridayCronCanonicalActionRequest,
 		actor: FridayCronActor
-	): Promise<FridayCronToolResponse['result']> {
+	): Promise<FridayCronActionResponse['result']> {
 		switch (request.action) {
 			case 'list':
 				return this.list(request.include ?? 'enabled', actor, request.agentId);
