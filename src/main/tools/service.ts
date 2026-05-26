@@ -24,7 +24,7 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from './runtime/adapt';
-import type { ToolProfile } from './policy';
+import type { ToolProfile } from '../policy';
 
 export type {
 	AgentToolManagementOptions,
