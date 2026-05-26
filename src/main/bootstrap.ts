@@ -12,7 +12,6 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import {
 	AgentService,
-	AgentStartupFilesService,
 	type AgentServiceDependencies,
 	collectConfiguredAgentHarnessRuntimes,
 	disposeRegisteredAgentHarnesses,
@@ -61,7 +60,6 @@ export interface BootstrapResult {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryService;
 	workspace: WorkspaceService;
-	startupFiles: AgentStartupFilesService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -89,11 +87,6 @@ export function bootstrapServices(): BootstrapResult {
 		'workspace',
 		new WorkspaceService(logger, { userDataDirectory })
 	);
-	const startupFiles = container.register(
-		'startupFiles',
-		new AgentStartupFilesService({ userDataDirectory })
-	);
-
 	const store = container.register('store', new StoreService(logger));
 	const channels = container.register('channels', new ChannelsService(logger));
 	const policy = container.register(
@@ -150,7 +143,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		eventBus,
 		workspace,
-		startupFiles,
 		userDataDirectory,
 		connectors,
 		mcpRegistry,
