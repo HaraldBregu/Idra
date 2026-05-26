@@ -347,7 +347,12 @@ export class ConnectorsService {
 				(connector) => connector.connectorId === sanitized.connectorId
 			)
 		) {
-			throw new Error(`Connector ${sanitized.connectorId} is already configured.`);
+			const message = `Connector ${sanitized.connectorId} is already configured.`;
+			this.logWarn('Connector validation failed', {
+				action: 'add',
+				error: message,
+			});
+			throw new Error(message);
 		}
 		const now = new Date().toISOString();
 		const connector: ConnectorConfig = {
