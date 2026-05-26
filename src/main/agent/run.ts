@@ -218,11 +218,8 @@ function toolWithoutHumanApproval(tool: AgentTool): AgentTool {
 }
 
 function contextWithoutHumanApproval(ctx: ToolContext): ToolContext {
-	return {
-		...ctx,
-		approvalCache: new Set(),
-		approvalRequired: new Set(),
-	};
+	const { approvalCache: _approvalCache, approvalRequired: _approvalRequired, ...next } = ctx;
+	return next;
 }
 
 function normalizeToolStatus(status: unknown): AgentToolResultStatus {
