@@ -487,6 +487,39 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('uses the injected policy service for request-level tool use', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		const toolsFactory = jest.fn(() => []);
+		const policy = {
+			evaluateToolRequest: jest.fn(() => ({ shouldUseTools: false, reason: 'direct answer' })),
+		};
+		const service = new AgentService(
+			{ ...deps, policy: policy as never },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+				providerFactory: () =>
+					provider([
+						{ type: 'text_delta', text: 'hello' },
+						{
+							type: 'message_end',
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					]),
+				toolsFactory,
+			}
+		);
+
+		await expect(service.send('hello there')).resolves.toBe('hello');
+		expect(policy.evaluateToolRequest).toHaveBeenCalledWith({ userRequest: 'hello there' });
+		expect(toolsFactory).not.toHaveBeenCalled();
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
 	it('exposes available tools when the user asks about tool capabilities', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
