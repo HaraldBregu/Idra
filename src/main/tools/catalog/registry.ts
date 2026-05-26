@@ -1,4 +1,4 @@
-import { filterTools, type PolicyConfig } from '../policy/policy';
+import { filterTools, type PolicyConfig } from '../policy';
 import type { AgentTool } from '../core/types';
 import { LOCAL_TOOL_CATALOG } from './catalog';
 
