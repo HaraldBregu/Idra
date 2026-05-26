@@ -4,6 +4,8 @@ Create a skills module that is strictly implemented as a reusable service.
 
 The skills module manages skills for the application. Any module that needs to list, import, download, delete, or resolve skills should use this service instead of creating its own skills logic.
 
+Skills must be stored in a predefined directory. For now, store skills under `appdata/skills`.
+
 The skills module has no service dependencies.
 
 The skills module must use the application logger like the other services.
