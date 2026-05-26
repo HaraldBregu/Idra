@@ -6,19 +6,17 @@ const VALID_PERMISSIONS = new Set<Permission>(['read', 'write', 'create', 'delet
 const DEFAULT_POLICY_PATHS = ['/workspace', '/agent'];
 const DEFAULT_POLICY_PERMISSIONS: Permission[] = ['read', 'write', 'create', 'delete'];
 
-type PolicyStoreSchema = {
-	policy?: PolicyConfig;
-};
+type PolicyStoreSchema = Partial<PolicyConfig> & { policy?: PolicyConfig };
 
 export type PolicyStoreAccessor = {
-	get(key: 'policy'): unknown;
-	set(key: 'policy', value: PolicyConfig): void;
+	read(): unknown;
+	write(policy: PolicyConfig): void;
 };
 
 export function defaultPolicyConfig(): PolicyConfig {
 	return {
 		version: 1,
-		defaultPolicy: 'allow',
+		defaultPolicy: 'deny',
 		paths: DEFAULT_POLICY_PATHS.map((entryPath) => ({
 			path: entryPath,
 			permissions: [...DEFAULT_POLICY_PERMISSIONS],
@@ -28,10 +26,34 @@ export function defaultPolicyConfig(): PolicyConfig {
 }
 
 function createPolicyStore(): PolicyStoreAccessor {
-	return new Store<PolicyStoreSchema>({
+	const store = new Store<PolicyStoreSchema>({
 		name: 'policy',
 		accessPropertiesByDotNotation: false,
-	}) as unknown as PolicyStoreAccessor;
+	});
+
+	return {
+		read(): unknown {
+			const root = {
+				version: store.get('version'),
+				defaultPolicy: store.get('defaultPolicy'),
+				paths: store.get('paths'),
+			};
+			if (
+				root.version === undefined &&
+				root.defaultPolicy === undefined &&
+				root.paths === undefined
+			) {
+				return store.get('policy');
+			}
+			return root;
+		},
+		write(policy: PolicyConfig): void {
+			store.set('version', policy.version);
+			store.set('defaultPolicy', policy.defaultPolicy);
+			store.set('paths', policy.paths);
+			store.delete('policy');
+		},
+	};
 }
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
@@ -60,7 +82,7 @@ function readPolicy(value: unknown): PolicyConfig {
 	const record = readRecord(value);
 	if (!record) return empty;
 	if (record.version !== 1) return empty;
-	const defaultPolicy = record.defaultPolicy === 'deny' ? 'deny' : 'allow';
+	const defaultPolicy = record.defaultPolicy === 'allow' ? 'allow' : 'deny';
 	const paths = Array.isArray(record.paths) ? record.paths.flatMap(readPolicyEntry) : [];
 	return { version: 1, defaultPolicy, paths };
 }
@@ -75,19 +97,19 @@ export class PolicyStore {
 
 	constructor(store: PolicyStoreAccessor = createPolicyStore()) {
 		this.store = store;
-		if (this.store.get('policy') === undefined) {
-			this.store.set('policy', defaultPolicyConfig());
+		if (this.store.read() === undefined) {
+			this.store.write(defaultPolicyConfig());
 		}
 	}
 
 	getPolicy(): PolicyConfig {
-		return readPolicy(this.store.get('policy'));
+		return readPolicy(this.store.read());
 	}
 
 	setPolicy(policy: PolicyConfig): PolicyConfig {
 		assertSupportedPolicyVersion(policy);
 		const normalized = readPolicy(policy);
-		this.store.set('policy', normalized);
+		this.store.write(normalized);
 		return normalized;
 	}
 }
