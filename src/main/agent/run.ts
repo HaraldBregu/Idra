@@ -169,17 +169,6 @@ function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknow
 	return details === undefined ? resultBlocksToOutput(content) : details;
 }
 
-function assistantBlocksToHookText(blocks: AgentContentBlock[]): string {
-	return blocks
-		.map((block) => {
-			if (block.type === 'text') return block.text;
-			if (block.type === 'tool_use') return `[tool ${block.toolName}]`;
-			return '';
-		})
-		.filter(Boolean)
-		.join('\n');
-}
-
 async function prepareToolResultForRun(params: {
 	content: ToolResultBlock[];
 	details?: unknown;
