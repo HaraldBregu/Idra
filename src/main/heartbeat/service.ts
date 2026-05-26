@@ -624,7 +624,7 @@ export class HeartbeatService implements Disposable {
 		content?: string;
 	}> {
 		try {
-			const file = await this.dependencies.startupFiles.readFile(agentId, 'HEARTBEAT.md');
+			const file = await this.dependencies.workspace.readWorkspaceFile('HEARTBEAT.md');
 			return {
 				exists: !file.missing,
 				path: file.path,
