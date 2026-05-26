@@ -199,7 +199,7 @@ export class CronService implements Disposable {
 		request: CronScheduleCreateRequest,
 		actor?: CronActorContext
 	): Promise<CronSchedule> {
-		return this.scheduler.createSchedule(request, actor);
+		return this.scheduler.createSchedule(this.withConfiguredModel(request), actor);
 	}
 
 	updateSchedule(
@@ -207,7 +207,7 @@ export class CronService implements Disposable {
 		patch: CronScheduleUpdateRequest,
 		actor?: CronActorContext
 	): Promise<CronSchedule> {
-		return this.scheduler.updateSchedule(scheduleId, patch, actor);
+		return this.scheduler.updateSchedule(scheduleId, this.withConfiguredModel(patch), actor);
 	}
 
 	pauseSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
