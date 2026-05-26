@@ -301,7 +301,9 @@ export class AgentService {
 				services: this.dependencies,
 			};
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-				evaluateToolRequestPolicy({ userRequest: message })
+				(this.dependencies.policy?.evaluateToolRequest ?? evaluateToolRequestPolicy)({
+					userRequest: message,
+				})
 			);
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending(agentId)
