@@ -37,7 +37,7 @@ const PoliciesPage: React.FC = () => {
 		setLoading(true);
 		setError(null);
 		try {
-			setPolicy(await window.store.getPolicy());
+			setPolicy(await window.policy.get());
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
