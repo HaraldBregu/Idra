@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ProviderAvatar } from '@/components/ui/provider-avatar';
 import { cn } from '@/lib/utils';
+import { MASKED_API_KEY_LABEL } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 
 type ProviderCardProps = {
