@@ -17,7 +17,6 @@ export type {
 	HeartbeatSettings,
 	ImageCreatorSettings,
 	ModelModuleSettings,
-	PolicySettings,
 	ProviderSettings,
 	ProvidersSettings,
 	SettingsStore,
