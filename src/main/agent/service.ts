@@ -326,11 +326,6 @@ export class AgentService {
 		if (sessionId !== runId) {
 			await clearSession(runId, { baseDir: this.sessionBaseDir });
 		}
-		await resetRegisteredAgentHarnesses({
-			sessionId,
-			sessionKey: sessionId,
-			reason: 'deleted',
-		});
 	}
 
 	async listRuns(): Promise<AgentRunRecord[]> {
@@ -755,11 +750,6 @@ export class AgentService {
 		this.cancel(agentId);
 		this.dependencies.logger.info('AgentService', `reset "${agentId}"`);
 		await clearSession(agentId, { baseDir: this.sessionBaseDir });
-		await resetRegisteredAgentHarnesses({
-			sessionId: agentId,
-			sessionKey: agentId,
-			reason: 'reset',
-		});
 		runtime.session = null;
 	}
 
