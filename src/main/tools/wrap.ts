@@ -8,8 +8,6 @@ import {
 	ToolInputError,
 } from './core/common';
 import { blockedToolResult, errorToolResult } from './core/results';
-import {
-} from '../policy';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';
@@ -60,7 +58,10 @@ export type BeforeToolCallContext = {
 	loopDetector?: CallTracker;
 	loopWarnAt?: number;
 	loopStopAt?: number;
-	policy?: Pick<PolicyServicePort, 'evaluateToolUse' | 'evaluateToolHook' | 'evaluateToolApproval'>;
+	policy?: Pick<
+		PolicyServicePort,
+		'createToolUseKey' | 'evaluateToolUse' | 'evaluateToolHook' | 'evaluateToolApproval'
+	>;
 	signal?: AbortSignal;
 };
 
