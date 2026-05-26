@@ -51,8 +51,8 @@ export async function beforeToolCall(
 		callCount: count,
 		loopWarnAt: LOOP_WARN_AT,
 		loopStopAt: LOOP_STOP_AT,
-		requiresApproval: requires || ctx.approvalRequired.has(tool.name),
-		approvalCached: ctx.approvalCache.has(key),
+		requiresApproval: requires || (ctx.approvalRequired?.has(tool.name) ?? false),
+		approvalCached: ctx.approvalCache?.has(key) ?? false,
 	});
 
 	if (decision.outcome === 'deny') {
