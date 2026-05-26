@@ -218,7 +218,9 @@ function toolWithoutHumanApproval(tool: AgentTool): AgentTool {
 }
 
 function contextWithoutHumanApproval(ctx: ToolContext): ToolContext {
-	const { approvalCache: _approvalCache, approvalRequired: _approvalRequired, ...next } = ctx;
+	const next: ToolContext = { ...ctx };
+	delete next.approvalCache;
+	delete next.approvalRequired;
 	return next;
 }
 
