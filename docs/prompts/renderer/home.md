@@ -56,7 +56,7 @@ Track a local list of `PromptAttachment` objects (files only — no audio). Rend
 
 ## Context
 
-Wrap `PageContent` in a `Provider` (from `./context`) that supplies the welcome message and any shared home page state.
+Wrap `PageContent` in a `Provider` that supplies the welcome message and any shared home page state.
 
 ## Hooks
 
