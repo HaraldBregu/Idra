@@ -56,6 +56,18 @@ import type {
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
+import type {
+	AssistantSettings,
+	AgentRoutingSettings,
+	CronSettings,
+	ImageCreatorSettings,
+	SpeechToTextSettings,
+	TextToSoundSettings,
+	TextToSpeechSettings,
+	TextToVideoSettings,
+	TaskSettings,
+	HeartbeatSettings,
+} from '../shared/store';
 import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
 	Agent,
@@ -473,6 +485,42 @@ export const store: StoreApi = {
 	},
 	setKeepAwakeEnabled: (enabled: boolean): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.setKeepAwakeEnabled, enabled);
+	},
+	getAssistantSettings: (): Promise<AssistantSettings | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getAssistantSettings);
+	},
+	getSpeechToTextSettings: (): Promise<SpeechToTextSettings | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getSpeechToTextSettings);
+	},
+	getTextToSpeechSettings: (): Promise<TextToSpeechSettings | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToSpeechSettings);
+	},
+	getImageCreatorSettings: (): Promise<ImageCreatorSettings | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getImageCreatorSettings);
+	},
+	getTextToVideoSettings: (): Promise<TextToVideoSettings | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToVideoSettings);
+	},
+	getTextToSoundSettings: (): Promise<TextToSoundSettings | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToSoundSettings);
+	},
+	getCronSettings: (): Promise<CronSettings> => {
+		return typedInvokeUnwrap(StoreChannels.getCronSettings);
+	},
+	getTaskSettings: (): Promise<TaskSettings> => {
+		return typedInvokeUnwrap(StoreChannels.getTaskSettings);
+	},
+	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
+		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
+	},
+	getHeartbeatSettings: (): Promise<HeartbeatSettings> => {
+		return typedInvokeUnwrap(StoreChannels.getHeartbeatSettings);
+	},
+	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
+		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
+	},
+	getChannelSettings: (): Promise<Channel> => {
+		return typedInvokeUnwrap(StoreChannels.getChannelSettings);
 	},
 	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAssistantOperator);
