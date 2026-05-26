@@ -6,11 +6,16 @@ The agent module manages agent execution for the application. Any module that ne
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the agent module. Patterns should solve real service-boundary, lifecycle, dependency, provider, integration, or validation problems; do not add decorative abstractions.
 
-The agent module depends on `ToolService`.
+The agent module depends on `ToolService` for tool execution and policy-aware tool management. It also coordinates with the existing main-process services that are already part of the agent boundary, including store, cron, logger, event bus, workspace, startup files, user data directories, policy, tasks, connectors, MCP registry, session storage, provider creation, and subagent spawning.
 
 ## Dependencies
 
 - `ToolService`: allow agents to call registered tools.
+- `PolicyService`: enforce tool and runtime policy decisions.
+- `StoreService`: resolve agent configuration, provider/model settings, routing settings, and subagent settings.
+- `WorkspaceService`, `AgentStartupFilesService`, and user data directory services: build startup context and system prompts.
+- `TasksService` and subagent services: run and control delegated subagent work.
+- Provider factory and session storage helpers: create provider adapters and persist transcript/session state.
 
 The agent module must never be implemented as a utility, helper, controller, or feature-specific module. It must always be a service.
 
@@ -36,12 +41,26 @@ The agent service should:
 - Execute agents through a reusable service interface.
 - Use `ToolService` when an agent needs to call tools.
 - Keep agent execution logic out of feature modules.
+- Resolve provider, model, reasoning effort, runtime, routing, session key, and startup context through the existing agent services and helpers instead of hardcoding them in callers.
+- Evaluate `beforeAgentRun` hooks before execution and preserve safe block metadata when a hook rejects a run.
+- Build system prompts through the startup-file and system-prompt helpers, respecting light-context and heartbeat options.
+- Run provider/tool execution through `AgentExecutionService` and the agent harness layer so streaming events, tool-call events, compaction, lifecycle hooks, middleware, session writes, and cancellation stay centralized.
+- Use the routing helpers for channel-to-agent route resolution and session-key construction.
+- Use the harness registry, selection, runtime activation, and policy helpers for runtime-specific behavior. Do not bypass hook registration, hook firing, or harness policy checks with feature-specific branches.
+- Use the subagent service, registry, task handler, and exported tools for child-agent work. Preserve spawn-depth, child-count, sandbox, cancellation, timeout, and metadata behavior.
 
 ## Implementation Requirements
 
 When implementing or changing this module:
 
-- Respect the declared dependencies. Do not add service dependencies or bypass `ToolService` unless the existing project requirements explicitly require it.
+- Respect the declared dependencies and existing service ports. Do not add new cross-service dependencies, provider construction paths, task runners, or tool execution paths unless the existing project requirements explicitly require it.
+- Keep `AgentService` as the orchestration boundary for run lifecycle, provider/model resolution, session loading/saving, run logging, event emission, tool factory setup, hook evaluation, harness execution, and subagent tool wiring.
+- Keep `AgentExecutionService` focused on one run execution loop: provider calls, stream events, tool execution through `ToolService`, tool-result middleware, transcript updates, compaction, lifecycle hooks, cancellation, and usage accounting.
+- Keep startup-file discovery, startup summaries, and system-prompt assembly in the existing startup/system-prompt helpers. Do not inline prompt-building logic into callers or feature modules.
+- Keep routing in `src/main/agent/routing` and use `resolveAgentRoute` and `buildAgentSessionKey` for agent/session selection.
+- Keep harness-specific behavior in `src/main/agent/harness`. Register harnesses and hook providers through the registry APIs, and adapt runtime behavior through the existing V2/hook helpers instead of adding parallel plugin systems.
+- Keep subagent behavior in `src/main/agent/subagents`. Child runs should go through `SubagentSpawnService`, `SubagentRegistry`, and `SubagentRunTaskHandler`; tools should be exposed through `sessions_spawn` and `subagents` rather than ad hoc service calls.
+- Preserve runtime constraints already enforced by the implementation, including maximum tool iterations, tool prompt limits, spawn-depth limits, child-count limits, unsupported subagent modes, and safe metadata handling.
 - Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, provider, integration, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
 - Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
