@@ -4,7 +4,7 @@ export { PolicyService, type PolicyServiceOptions, type PolicyServicePort } from
 export {
 	PolicyStore,
 	defaultPolicyConfig,
-	type PolicySettingsStoreAccessor,
+	type PolicyStoreAccessor,
 } from './store';
 export {
 	evaluateToolPolicy,

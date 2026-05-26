@@ -10,7 +10,7 @@ type PolicyStoreSchema = {
 	policy?: PolicyConfig;
 };
 
-export type PolicySettingsStoreAccessor = {
+export type PolicyStoreAccessor = {
 	get(key: 'policy'): unknown;
 	set(key: 'policy', value: PolicyConfig): void;
 };
@@ -27,11 +27,11 @@ export function defaultPolicyConfig(): PolicyConfig {
 	};
 }
 
-function createPolicySettingsStore(): PolicySettingsStoreAccessor {
+function createPolicyStore(): PolicyStoreAccessor {
 	return new Store<PolicyStoreSchema>({
 		name: 'policy',
 		accessPropertiesByDotNotation: false,
-	}) as unknown as PolicySettingsStoreAccessor;
+	}) as unknown as PolicyStoreAccessor;
 }
 
 function readRecord(value: unknown): Record<string, unknown> | undefined {
@@ -71,9 +71,9 @@ function assertSupportedPolicyVersion(value: unknown): void {
 }
 
 export class PolicyStore {
-	private readonly store: PolicySettingsStoreAccessor;
+	private readonly store: PolicyStoreAccessor;
 
-	constructor(store: PolicySettingsStoreAccessor = createPolicySettingsStore()) {
+	constructor(store: PolicyStoreAccessor = createPolicyStore()) {
 		this.store = store;
 		if (this.store.get('policy') === undefined) {
 			this.store.set('policy', defaultPolicyConfig());
