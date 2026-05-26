@@ -81,6 +81,11 @@ describe('StoreIpc', () => {
 		});
 		expect(powerSaveBlocker.setEnabled).toHaveBeenCalledWith(true);
 		expect(store.setKeepAwakeEnabled).toHaveBeenCalledWith(true);
+		await expect(registeredHandler(StoreChannels.getConnectorSettings)({})).resolves.toEqual({
+			success: true,
+			data: [],
+		});
+		expect(connectors.getConnectorSettings).toHaveBeenCalled();
 		await expect(registeredHandler(StoreChannels.saveAssistantOperator)({}, publicProvider(providers[0]), model)).resolves.toEqual({
 			success: true,
 			data: true,
