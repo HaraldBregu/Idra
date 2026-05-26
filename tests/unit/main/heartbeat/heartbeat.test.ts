@@ -73,6 +73,8 @@ function makeHeartbeatHarness(options: {
 		setHeartbeatState: jest.fn((next: HeartbeatStoreState) => {
 			heartbeatState = next;
 		}),
+	};
+	const channels = {
 		getChannel: jest.fn(() => ({
 			defaults: {},
 			telegram: {
@@ -82,6 +84,13 @@ function makeHeartbeatHarness(options: {
 				defaultAccountId: 'default',
 				defaultTarget: '123',
 			},
+		})),
+		getChannelConfig: jest.fn(() => ({
+			token: '',
+			allowFrom: [],
+			enabled: true,
+			defaultAccountId: 'default',
+			defaultTarget: '123',
 		})),
 	};
 	const startupFiles = {
@@ -99,12 +108,13 @@ function makeHeartbeatHarness(options: {
 	};
 	const heartbeat = new HeartbeatService({
 		store: store as never,
+		channels: channels as never,
 		logger: makeLogger() as never,
 		eventBus: eventBus as never,
 		startupFiles: startupFiles as never,
 		agentService: agentService as never,
 	});
-	return { heartbeat, store, startupFiles, eventBus, agentService, getHeartbeatState: () => heartbeatState };
+	return { heartbeat, store, channels, startupFiles, eventBus, agentService, getHeartbeatState: () => heartbeatState };
 }
 
 describe('heartbeat helpers', () => {
