@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { AgentContentBlock, ToolResultBlock, TranscriptEntry, Usage } from '../../provider/types';
+import type { AgentContentBlock, ToolResultBlock, Usage } from '../../provider/types';
 import type { AgentToolResultStatus } from '../../../shared/agents/constants';
 import { AgentHarnessEmitter } from './events';
 import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
