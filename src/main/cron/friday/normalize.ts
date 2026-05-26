@@ -1,12 +1,12 @@
 import type {
 	FridayCronAddRequest,
-	FridayCronCanonicalToolRequest,
+	FridayCronCanonicalActionRequest,
 	FridayCronDelivery,
 	FridayCronFailureAlert,
 	FridayCronPayload,
 	FridayCronSchedule,
 	FridayCronSessionTarget,
-	FridayCronToolRequest,
+	FridayCronActionRequest,
 	FridayCronUpdateRequest,
 	FridayCronWakeMode,
 } from '../../../shared/cron';
@@ -454,9 +454,9 @@ function includeMode(input: Record<string, unknown>): 'enabled' | 'disabled' | '
 }
 
 export function normalizeFridayCronActionRequest(
-	request: FridayCronToolRequest | unknown,
+	request: FridayCronActionRequest | unknown,
 	context: FridayCronNormalizeContext = {}
-): FridayCronCanonicalToolRequest {
+): FridayCronCanonicalActionRequest {
 	const input = record(request);
 	const action = stringValue(input.action);
 	switch (action) {
