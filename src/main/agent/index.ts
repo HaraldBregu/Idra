@@ -19,14 +19,6 @@ export {
 	type AgentRunResult,
 	type AgentRunStreamEvent,
 } from './run';
-export {
-	AgentStartupFilesService,
-	type AgentStartupFile,
-	type AgentStartupFileName,
-	type AgentStartupFileSummary,
-	type AgentStartupFilesServiceOptions,
-	type AgentStartupFilesServicePort,
-} from './startup-files';
 export * from './harness';
 export * from './subagents';
 export * from './routing';
