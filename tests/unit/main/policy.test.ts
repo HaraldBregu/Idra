@@ -1,30 +1,25 @@
 import path from 'node:path';
-import {
-	evaluate,
-	evaluateToolApprovalPolicy,
-	evaluateToolHookPolicy,
-	PolicyService,
-	PolicyStore,
-} from '../../../src/main/policy';
+import { PolicyService, type PolicyStoreAccessor } from '../../../src/main/policy';
 import type { PolicyConfig } from '../../../src/shared/policy';
 
-function makePolicyStore(policy: () => PolicyConfig) {
+function makePolicyService(policy: () => PolicyConfig) {
 	const accessor = {
 		read: jest.fn(policy),
 		write: jest.fn(),
 	};
-	return { accessor, store: new PolicyStore(accessor) };
+	return { accessor, service: new PolicyService({ storeAccessor: accessor }) };
 }
 
 describe('policy module', () => {
-	it('evaluates a policy object directly', () => {
+	it('evaluates the active policy through the service', () => {
 		const config: PolicyConfig = {
 			version: 1,
 			defaultPolicy: 'deny',
 			paths: [],
 		};
+		const { service } = makePolicyService(() => config);
 
-		expect(evaluate(config, 'relative.txt', 'read')).toMatchObject({
+		expect(service.evaluate('relative.txt', 'read')).toMatchObject({
 			path: path.resolve('relative.txt'),
 			outcome: 'deny',
 			matched: null,
@@ -38,8 +33,7 @@ describe('policy module', () => {
 			defaultPolicy: 'deny',
 			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
 		};
-		const { accessor, store } = makePolicyStore(() => activePolicy);
-		const service = new PolicyService({ store });
+		const { accessor, service } = makePolicyService(() => activePolicy);
 
 		expect(service.evaluate('/workspace/readme.md', 'read')).toMatchObject({
 			outcome: 'allow',
@@ -66,8 +60,8 @@ describe('policy module', () => {
 		const accessor = {
 			read: jest.fn(() => undefined),
 			write: jest.fn(),
-		};
-		const store = new PolicyStore(accessor);
+		} satisfies PolicyStoreAccessor;
+		const service = new PolicyService({ storeAccessor: accessor });
 		const expected = {
 			version: 1,
 			defaultPolicy: 'deny' as const,
@@ -85,8 +79,8 @@ describe('policy module', () => {
 			],
 		};
 
+		expect(service.getPolicy()).toEqual(expected);
 		expect(accessor.write).toHaveBeenCalledWith(expected);
-		expect(store.getPolicy()).toEqual(expected);
 	});
 
 	it('normalizes policy grants while preserving valid path order', () => {
@@ -116,14 +110,16 @@ describe('policy module', () => {
 				},
 			],
 		};
-		const store = new PolicyStore({
+		const service = new PolicyService({
+			storeAccessor: {
 			read: jest.fn(() => stored),
 			write: jest.fn((value) => {
 				stored = value;
 			}),
+			},
 		});
 
-		expect(store.getPolicy()).toEqual({
+		expect(service.getPolicy()).toEqual({
 			version: 1,
 			defaultPolicy: 'allow',
 			paths: [
@@ -145,10 +141,10 @@ describe('policy module', () => {
 				stored = value;
 			}),
 		};
-		const store = new PolicyStore(accessor);
+		const service = new PolicyService({ storeAccessor: accessor });
 
-		expect(store.setPolicy(stored)).toEqual(stored);
-		expect(() => store.setPolicy({ version: 2, defaultPolicy: 'deny', paths: [] })).toThrow(
+		expect(service.setPolicy(stored)).toEqual(stored);
+		expect(() => service.setPolicy({ version: 2, defaultPolicy: 'deny', paths: [] })).toThrow(
 			'Unsupported policy version.'
 		);
 		expect(stored).toEqual({
@@ -159,8 +155,7 @@ describe('policy module', () => {
 	});
 
 	it('evaluates tool availability through the policy service', () => {
-		const { store } = makePolicyStore(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
-		const service = new PolicyService({ store });
+		const { service } = makePolicyService(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
 		const decision = service.evaluateTools(
 			[
 				{ name: 'read' },
@@ -187,8 +182,7 @@ describe('policy module', () => {
 	});
 
 	it('evaluates tool use approval and loop decisions through the policy service', () => {
-		const { store } = makePolicyStore(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
-		const service = new PolicyService({ store });
+		const { service } = makePolicyService(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
 
 		expect(
 			service.evaluateToolUse({
@@ -219,8 +213,7 @@ describe('policy module', () => {
 	});
 
 	it('evaluates request-level tool use through the policy service', () => {
-		const { store } = makePolicyStore(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
-		const service = new PolicyService({ store });
+		const { service } = makePolicyService(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
 
 		expect(service.evaluateToolRequest({ userRequest: 'read a file' })).toEqual({
 			shouldUseTools: true,
@@ -228,9 +221,11 @@ describe('policy module', () => {
 		});
 	});
 
-	it('evaluates hook and approval decisions in the policy module', () => {
+	it('evaluates hook and approval decisions through the policy service', () => {
+		const { service } = makePolicyService(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
+
 		expect(
-			evaluateToolHookPolicy({
+			service.evaluateToolHook({
 				toolName: 'plugin_action',
 				allow: false,
 				reason: 'blocked by hook',
@@ -242,7 +237,7 @@ describe('policy module', () => {
 		});
 
 		expect(
-			evaluateToolApprovalPolicy({
+			service.evaluateToolApproval({
 				toolName: 'plugin_action',
 				approvalAvailable: true,
 				approvalDecision: 'allow-always',
@@ -250,7 +245,7 @@ describe('policy module', () => {
 		).toEqual({ outcome: 'allow', resolution: 'allow-always' });
 
 		expect(
-			evaluateToolApprovalPolicy({
+			service.evaluateToolApproval({
 				toolName: 'plugin_action',
 				approvalAvailable: false,
 				requiredReason: 'approval missing',
@@ -260,5 +255,37 @@ describe('policy module', () => {
 			resolution: 'deny',
 			deniedReason: 'approval_required',
 		});
+	});
+
+	it('registers policy rules and reports evaluation errors', () => {
+		const logger = { error: jest.fn() };
+		const { service } = makePolicyService(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
+		const reportingService = new PolicyService({ logger });
+
+		service.registerRule('toolRequest', () => ({
+			shouldUseTools: false,
+			reason: 'custom rule',
+		}));
+
+		expect(service.evaluateToolRequest({ userRequest: 'hello' })).toEqual({
+			shouldUseTools: false,
+			reason: 'custom rule',
+		});
+
+		reportingService.registerRule('toolRequest', () => {
+			throw new Error('rule failed');
+		});
+
+		expect(() => reportingService.evaluateToolRequest({ userRequest: 'hello' })).toThrow(
+			'rule failed'
+		);
+		expect(logger.error).toHaveBeenCalledWith(
+			'PolicyService',
+			"Policy rule 'toolRequest' evaluation failed",
+			expect.objectContaining({
+				rule: 'toolRequest',
+				error: expect.objectContaining({ message: 'rule failed' }),
+			})
+		);
 	});
 });
