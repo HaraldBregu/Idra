@@ -564,6 +564,34 @@ describe('HeartbeatService', () => {
 		expect(eventBus.emit).toHaveBeenCalledWith('heartbeat:event', expect.objectContaining({ status: 'ok-token', silent: true }));
 	});
 
+	it('passes configured heartbeat provider, model, and reasoning effort to agent runs', async () => {
+		const { heartbeat, agentService } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '1m',
+						target: 'none',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+						reasoningEffort: 'high',
+					},
+				},
+			},
+			heartbeatFile: { missing: true },
+		});
+
+		await expect(heartbeat.runHeartbeatOnce({ source: 'manual', intent: 'manual' })).resolves.toMatchObject({ status: 'ran' });
+		expect(agentService.send).toHaveBeenCalledWith(
+			expect.any(String),
+			'main',
+			expect.objectContaining({
+				providerId: 'openai',
+				model: 'gpt-5.4',
+				effort: 'high',
+			})
+		);
+	});
+
 	it('skips effectively empty HEARTBEAT.md files before model calls', async () => {
 		const { heartbeat, agentService } = makeHeartbeatHarness({
 			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
