@@ -1,5 +1,6 @@
-import { filterTools, type PolicyConfig } from '../policy';
+import { PolicyService, type PolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../../policy';
 import type { AgentTool } from '../core/types';
+import { normalizeToolName } from '../core/common';
 import { LOCAL_TOOL_CATALOG } from './catalog';
 
 export {
@@ -20,6 +21,30 @@ export const PRELOADED_LOCAL_TOOLS: AgentTool<any, any>[] = LOCAL_TOOL_CATALOG.m
 
 export const ALL_TOOLS = PRELOADED_LOCAL_TOOLS;
 
-export function createTools(cfg: PolicyConfig): AgentTool[] {
-	return filterTools(PRELOADED_LOCAL_TOOLS as unknown as AgentTool[], cfg);
+export interface PolicyConfig {
+	profile: ToolProfile;
+	allow: string[];
+	alsoAllow?: string[];
+	deny: string[];
+	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
+}
+
+const defaultPolicyService = new PolicyService();
+
+export function createTools(
+	cfg: PolicyConfig,
+	policy: Pick<PolicyServicePort, 'evaluateTools'> = defaultPolicyService
+): AgentTool[] {
+	const tools = PRELOADED_LOCAL_TOOLS as unknown as AgentTool[];
+	const subjects: ToolPolicySubject[] = tools.map((tool) => ({ name: tool.name }));
+	const result = policy.evaluateTools(subjects, {
+		stages: {
+			profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },
+			runtime: {
+				allow: cfg.allow.length > 0 ? cfg.allow : undefined,
+				deny: cfg.deny,
+			},
+		},
+	});
+	return tools.filter((tool) => result.allowed.has(normalizeToolName(tool.name)));
 }
