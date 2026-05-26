@@ -52,6 +52,11 @@ import type {
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
+	HeartbeatSetModelRequest,
+	HeartbeatSetProviderRequest,
+	HeartbeatSetReasoningEffortRequest,
+	HeartbeatSettings,
+	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
@@ -111,6 +116,13 @@ import {
 	normalizeSpeechToTextDictationStartRequest,
 	normalizeSpeechToTextTranscribeRequest,
 } from '../shared/speech-to-text';
+
+function assertHeartbeatObject<T>(request: T): T {
+	if (!request || typeof request !== 'object' || Array.isArray(request)) {
+		throw new Error('Invalid heartbeat request.');
+	}
+	return request;
+}
 
 const win: WindowApi = {
 	minimize: (): void => {
