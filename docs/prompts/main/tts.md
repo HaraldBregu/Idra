@@ -33,6 +33,17 @@ The TTS service should:
 - Return renderer-safe audio output and metadata.
 - Keep text-to-speech generation logic out of feature modules.
 
+## Implementation Requirements
+
+When implementing or changing this module:
+
+- Respect the declared dependencies. Do not add service dependencies or bypass `StoreService` unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Testing
 
 Test text-to-speech setting resolution through `StoreService`, synthesis success, missing or invalid settings, provider failure behavior, and renderer-safe output serialization. Tests should call the exported TTS service and should not import internal TTS files directly.

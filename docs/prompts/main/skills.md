@@ -119,6 +119,17 @@ Handle filesystem failures explicitly:
 - Do not delete or overwrite an existing installed skill unless the requested operation explicitly allows replacement.
 - Deleting a skill that is already missing should be treated as a successful no-op or a typed not-found result, but it must not crash the service.
 
+## Implementation Requirements
+
+When implementing or changing this module:
+
+- Respect the declared dependencies. Do not add service dependencies unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Testing
 
 Test skill listing, import, download, deletion, root path resolution, missing root behavior, empty root behavior, `SKILL.md` parsing, validation failures, bundled-resource preservation, progressive loading behavior, and logger behavior for failures.

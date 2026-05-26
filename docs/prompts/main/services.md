@@ -17,6 +17,17 @@ Services should use the application logger for operations and failures. The logg
 
 For each service, add tests for public behavior, declared dependencies, error handling, logging, and module-boundary isolation. Tests should call exported services instead of internal service files.
 
+## Implementation Requirements
+
+For every service implementation:
+
+- Respect the declared dependencies. Do not add service dependencies, bypass dependency boundaries, or duplicate dependency behavior unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service that owns it.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the owning module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Services
 
 ### Policy

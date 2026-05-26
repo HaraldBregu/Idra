@@ -135,6 +135,17 @@ Common channel account properties can include:
 
 Use the application's logger for all operational reporting, including reads, writes, validation failures, migrations, normalization failures, and persistence errors. Do not use console logging for module behavior.
 
+## Implementation Requirements
+
+When implementing or changing this module:
+
+- Respect the declared dependencies. Do not add service dependencies unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Testing
 
 Test provider storage, model module storage, cron settings, task settings, agent routing settings, heartbeat state, connector settings, channel settings, normalization, invalid stored data, and persistence errors. Tests should call the exported store service and should not import internal store files directly.

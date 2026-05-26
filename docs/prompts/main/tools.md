@@ -67,6 +67,17 @@ Cron tools should use `CronService` for all scheduling behavior. They must not s
 
 Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and tool execution results. Do not use console logging for module behavior.
 
+## Implementation Requirements
+
+When implementing or changing this module:
+
+- Respect the declared dependencies. Do not add service dependencies, bypass `PolicyService`, bypass `CronService`, or bypass `SkillsService` unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Testing
 
 Test each filesystem tool and cron tool through the exported tools service. Tests should cover policy checks, cron delegation, successful execution, failure handling, logging, and removal or refactoring of duplicate tool implementations.

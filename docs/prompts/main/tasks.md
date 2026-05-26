@@ -73,6 +73,17 @@ Each task should have one dependency. Do not add multiple task dependencies unle
 
 Use the application's logger for all operational reporting, including lifecycle events, state changes, policy decisions, validation failures, errors, and task execution results. Do not use console logging for module behavior.
 
+## Implementation Requirements
+
+When implementing or changing this module:
+
+- Respect the declared dependencies. Do not add service dependencies or add multiple task dependencies unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Testing
 
 Test task creation, listing, lookup, cancellation, state updates, background execution, agent-backed execution, persisted `task.json` records, and sanitized serialization. Tests should call the exported tasks service and should not import internal task files directly.

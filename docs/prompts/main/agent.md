@@ -35,6 +35,17 @@ The agent service should:
 - Use `ToolService` when an agent needs to call tools.
 - Keep agent execution logic out of feature modules.
 
+## Implementation Requirements
+
+When implementing or changing this module:
+
+- Respect the declared dependencies. Do not add service dependencies or bypass `ToolService` unless the existing project requirements explicitly require it.
+- Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
+- Put types, constants, schemas, channels, or helper files under `src/shared` when they are used across the main process, preload, renderer, or multiple services. Keep module-only files inside the module.
+- Implement or update tests for the behavior being changed, including failure paths and dependency interactions.
+- Verify the implementation with the narrowest relevant typecheck, lint, test, or docs check before finishing.
+- Delete files, functions, imports, exports, tests, and local types made unused by the change.
+
 ## Testing
 
 Test agent run creation, state reads, state updates, deletion, listing, execution, cancellation or failure behavior, and tool calls through `ToolService`. Tests should call the exported agent service and should not import internal agent files directly.
