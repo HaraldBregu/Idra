@@ -21,7 +21,7 @@ import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
 import { MonitorService } from './monitor';
-import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
+import { TasksService } from './tasks';
 import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
@@ -122,6 +122,16 @@ export function bootstrapServices(): BootstrapResult {
 	connectors.restoreEnabledConnectors();
 	const toolService = container.register('toolService', new ToolService());
 
+	const subagentRegistry = new SubagentRegistry();
+	const taskManager = container.register(
+		'taskManager',
+		new TasksService({
+			store,
+			eventBus,
+			logger,
+		})
+	);
+
 	const agentDependencies: AgentServiceDependencies = {
 		store,
 		cron,
@@ -134,22 +144,11 @@ export function bootstrapServices(): BootstrapResult {
 		mcpRegistry,
 		policy,
 		toolService,
+		taskManager,
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
-	const taskRegistry = new TaskRegistry();
-	const subagentRegistry = new SubagentRegistry();
-	taskRegistry.register(new AgentTaskHandler(agentService, store), { userFacing: true });
-	taskRegistry.register(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
-	const taskManager = container.register(
-		'taskManager',
-		new TaskManager({
-			registry: taskRegistry,
-			eventBus,
-			logger,
-			policy: () => store.getTaskSettings(),
-		})
-	);
-	agentDependencies.taskManager = taskManager;
+	taskManager.configureAgentRuntime(agentService);
+	taskManager.registerHandler(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
 	agentDependencies.subagents = new SubagentSpawnService({
 		store,
 		taskManager,
