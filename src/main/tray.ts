@@ -1,6 +1,9 @@
 import { Tray as ElectronTray, Menu, nativeImage, type Rectangle } from 'electron';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { is } from '@electron-toolkit/utils';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import { loadTranslations } from './i18n';
 
 interface TrayManagerCallbacks {
