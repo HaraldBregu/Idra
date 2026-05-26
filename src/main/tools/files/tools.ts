@@ -24,26 +24,20 @@ function isInsidePath(root: string, target: string): boolean {
 	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
-function resolveAbs(workspace: string, target: string, workspaceOnly = false): string {
+function resolveAbs(workspace: string, target: string): string {
 	const expanded = expandUser(target);
-	const resolved = path.isAbsolute(expanded)
+	return path.isAbsolute(expanded)
 		? path.resolve(expanded)
 		: path.resolve(workspace, expanded);
-	if (workspaceOnly && !isInsidePath(workspace, resolved)) {
-		throw new Error('Path is outside the workspace.');
+}
+
+// Returns an error message if fsPolicy explicitly restricts this path, null otherwise.
+function checkFsRestriction(ctx: ToolContext, abs: string, toolName: string, isWrite: boolean): string | null {
+	if (!isInsidePath(ctx.workspace, abs)) {
+		if (ctx.fsPolicy?.workspaceOnly) return `${toolName}: path is outside the workspace.`;
+		if (isWrite && ctx.fsPolicy?.writeWorkspaceOnly) return `${toolName}: path is outside the workspace.`;
 	}
-	return resolved;
-}
-
-function readWorkspaceOnly(ctx: ToolContext): boolean {
-	return ctx.fsPolicy?.workspaceOnly === true;
-}
-
-function writeWorkspaceOnly(ctx: ToolContext, defaultWhenUnset = true): boolean {
-	if (ctx.fsPolicy?.workspaceOnly === true) return true;
-	if (ctx.fsPolicy?.writeWorkspaceOnly !== undefined) return ctx.fsPolicy.writeWorkspaceOnly;
-	if (hasFilePolicy(ctx)) return false;
-	return defaultWhenUnset;
+	return null;
 }
 
 function outsidePathNeedsApproval(
