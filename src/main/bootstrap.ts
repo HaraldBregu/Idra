@@ -73,7 +73,7 @@ export function bootstrapServices(): BootstrapResult {
 	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
 	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
-	container.register('skills', new SkillsService(logger));
+	const skills = container.register('skills', new SkillsService(logger));
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
 	void userDataDirectory.ensureRoot().catch((error) => {
