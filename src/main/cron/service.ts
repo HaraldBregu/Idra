@@ -45,14 +45,6 @@ interface NextRunCapable {
 export interface CronServiceOptions {
 	enabled?: boolean;
 	store?: CronServiceStore;
-	settingsStore?: {
-		getAgentService?: () =>
-			| {
-					provider?: { id?: string };
-					model?: { id?: string; name?: string };
-			  }
-			| undefined;
-	};
 }
 
 /**
@@ -69,12 +61,10 @@ export class CronService implements Disposable {
 	private readonly scheduleStore: ElectronStoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
 	private readonly automaticEnabled: boolean;
-	private readonly settingsStore?: NonNullable<CronServiceOptions['settingsStore']>;
 
 	constructor(logger: LoggerService, options: CronServiceOptions = {}) {
 		this.store = options.store ?? new ElectronStoreCronStore();
 		this.logger = logger;
-		this.settingsStore = options.settingsStore;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store);
@@ -203,7 +193,6 @@ export class CronService implements Disposable {
 
 		const now = new Date().toISOString();
 		const enabled = options.enabled ?? true;
-		const configuredModel = this.configuredModel();
 		const record: CronTask<TData> = {
 			id,
 			name: options.name?.trim() || id,
@@ -213,8 +202,8 @@ export class CronService implements Disposable {
 			timezone: options.timezone ?? 'UTC',
 			enabled,
 			status: enabled ? 'active' : 'disabled',
-			providerId: options.providerId ?? configuredModel?.providerId,
-			modelId: options.modelId ?? configuredModel?.modelId,
+			providerId: options.providerId,
+			modelId: options.modelId,
 			target: options.target ?? this.targetForData(data),
 			payload: data,
 			data,
@@ -492,18 +481,7 @@ export class CronService implements Disposable {
 		return value === 'success' || value === 'failure' || value === 'skipped' ? value : undefined;
 	}
 
-	private configuredModel(): { providerId?: string; modelId?: string } | undefined {
-		const selection = this.settingsStore?.getAgentService?.();
-		const providerId = stringValue(selection?.provider?.id);
-		const modelId = stringValue(selection?.model?.id) ?? stringValue(selection?.model?.name);
-		return providerId || modelId ? { providerId, modelId } : undefined;
-	}
-
 	private errorMessage(error: unknown): string {
 		return error instanceof Error ? error.message : String(error);
 	}
-}
-
-function stringValue(value: unknown): string | undefined {
-	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
