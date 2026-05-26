@@ -2,7 +2,8 @@ import type { Disposable } from '../core/service-container';
 import type { AppEvent, EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
-import type { AgentService, AgentStartupFilesServicePort } from '../agent';
+import type { AgentService } from '../agent';
+import type { WorkspaceService } from '../workspace';
 import {
 	normalizeChannelId,
 	type ChannelChatType,
@@ -64,7 +65,7 @@ export interface HeartbeatServiceDependencies {
 	channels: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	logger: LoggerService;
 	eventBus: EventBus;
-	startupFiles: AgentStartupFilesServicePort;
+	workspace: WorkspaceService;
 	agentService?: AgentService;
 	channelRegistry?: ChannelRegistry;
 }
