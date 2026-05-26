@@ -187,8 +187,15 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService();
 		this.policyService = dependencies.policy ?? new PolicyService({ logger: dependencies.logger });
+		this.toolService =
+			options.toolService ??
+			dependencies.toolService ??
+			new ToolService({
+				policy: this.policyService,
+				cron: dependencies.cron,
+				logger: dependencies.logger,
+			});
 		this.usesDefaultToolsFactory = !options.toolsFactory;
 		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));

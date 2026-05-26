@@ -9,6 +9,7 @@ export { textResult } from './core/types';
 export {
 	ToolService,
 	type DefaultToolPolicy,
+	type ToolServiceOptions,
 	type ToolRunPreparation,
 	type ToolServicePort,
 	type AgentToolManagementOptions,

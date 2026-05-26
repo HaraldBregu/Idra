@@ -120,7 +120,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const connectors = container.register('connectors', new ConnectorsService(store, logger));
 	connectors.restoreEnabledConnectors();
-	const toolService = container.register('toolService', new ToolService());
+	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
 	const taskManager = container.register(
