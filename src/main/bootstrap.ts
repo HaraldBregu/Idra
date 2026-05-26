@@ -171,8 +171,8 @@ export function bootstrapServices(): BootstrapResult {
 			channels,
 			logger,
 			eventBus,
-			startupFiles,
 			agentService,
+			workspace,
 			channelRegistry,
 		})
 	);
@@ -197,7 +197,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		userDataDirectory,
 		workspace,
-		startupFiles,
 		windowContextManager,
 	};
 }
