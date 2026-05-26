@@ -391,75 +391,10 @@ export type AgentHistoryMessage =
 			output?: unknown;
 	  };
 
-export type AgentToolCallStatus = 'ok' | 'error' | 'blocked';
-
-export type AgentResponseEvent =
-	| {
-			type: 'run_state';
-			agentId: string;
-			runId: string;
-			state: AgentRunState;
-			label?: string;
-	  }
-	| {
-			type: 'reasoning_summary';
-			agentId: string;
-			runId: string;
-			id: string;
-			title: string;
-			summary: string;
-			state: ReasoningSummaryState;
-	  }
-	| {
-			type: 'text_delta';
-			agentId: string;
-			runId: string;
-			delta: string;
-	  }
-	| {
-			type: 'tool_call_start';
-			agentId: string;
-			runId: string;
-			iteration: number;
-			toolCallId: string;
-			toolName: string;
-	  }
-	| {
-			type: 'tool_call_args_delta';
-			agentId: string;
-			runId: string;
-			iteration: number;
-			toolCallId: string;
-			toolName: string;
-			jsonDelta: string;
-			argsText: string;
-	  }
-	| {
-			type: 'tool_call_input';
-			agentId: string;
-			runId: string;
-			iteration: number;
-			toolCallId: string;
-			toolName: string;
-			input: unknown;
-			argsText: string;
-	  }
-	| {
-			type: 'tool_call_result';
-			agentId: string;
-			runId: string;
-			iteration: number;
-			toolCallId: string;
-			toolName: string;
-			input: unknown;
-			output: unknown;
-			outputText: string;
-			status: AgentToolCallStatus;
-			durationMs: number;
-			errorText?: string;
-	  };
-
+export type AgentToolCallStatus = import('./events').AgentToolResultStatus;
+export type AgentResponseEvent = import('./events').AgentResponseEvent;
 export type AgentResponseDelta = Extract<AgentResponseEvent, { type: 'text_delta' }>;
+
 
 
 export type AgentStartupFileName =
