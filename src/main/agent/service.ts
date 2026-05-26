@@ -682,21 +682,18 @@ export class AgentService {
 			if (!activeSession) {
 				throw new Error('Agent session was not loaded.');
 			}
-			const result = await runAgentHarnessAttempt({
+			const result = await this.executionService.execute({
 				runId,
 				userMessage: message,
 				systemPrompt: systemPromptForTurn,
 				session: activeSession,
-				provider: providerId,
+				provider,
+				providerId,
 				model,
-				requestedRuntime,
-				storedRuntime,
-				providerAdapter: provider,
 				effort,
 				tools: selectedTools,
 				ctx,
 				streamEvent,
-				streamOutput: (chunk) => streamEvent({ type: 'text_delta', delta: chunk }),
 				maxTokens: AGENT_TOOL_LIMITS.maxTokens,
 				maxIterations: AGENT_TOOL_LIMITS.maxIterations,
 				hooks,
