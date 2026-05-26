@@ -267,6 +267,7 @@ export type {
 	ToolPolicy,
 	ToolPolicyEvaluation,
 	ToolPolicyEvaluationContext,
+	ToolPolicyIndex,
 	ToolPolicyProfile,
 	ToolPolicyStageName,
 	ToolPolicySubject,
