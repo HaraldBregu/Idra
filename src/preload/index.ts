@@ -569,9 +569,6 @@ export const store: StoreApi = {
 	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
 	},
-	getChannelSettings: (): Promise<Channel> => {
-		return typedInvokeUnwrap(StoreChannels.getChannelSettings);
-	},
 	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAssistantOperator);
 	},
