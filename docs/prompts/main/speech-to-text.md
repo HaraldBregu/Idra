@@ -41,6 +41,7 @@ The speech-to-text service should:
 
 When implementing or changing this module:
 
+- Always implement logging for new or changed operational behavior using the application logger. Do not use console logging for module behavior.
 - Respect the declared dependencies. Do not add service dependencies or bypass `StoreService` unless the existing project requirements explicitly require it.
 - Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, provider, integration, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
 - Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.

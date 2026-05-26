@@ -238,6 +238,7 @@ Follow the project's TypeScript and software standards:
 
 When implementing from scratch or refactoring:
 
+- Always implement logging for new or changed operational behavior using the application logger. Do not use console logging for module behavior.
 - Define shared agent constants in `src/shared/agents/constants.ts`.
 - Define shared capability DTOs in `src/shared/agents/capabilities.ts`.
 - Define shared stream events in `src/shared/agents/events.ts`.
