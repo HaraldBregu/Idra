@@ -25,13 +25,13 @@ Place types in the narrowest scope that satisfies all their consumers:
 
 | Consumers | Where to define the type |
 |---|---|
-| Both **main process and renderer** | `src/shared/types/` |
-| **Multiple renderer pages** or shared renderer utilities | `src/renderer/src/types/` |
-| **Single page** only | Inside that page's folder (e.g. `src/renderer/src/pages/home/types.ts`) |
+| Both **main process and renderer** | Shared types directory |
+| **Multiple renderer pages** or shared renderer utilities | Renderer-level types directory |
+| **Single page** only | Inside that page's folder |
 
 Rules:
 - Never duplicate a type. If the same shape is needed in two places, move it to the appropriate shared location.
-- Do not import renderer-only types from `src/shared/` — that layer must stay process-agnostic.
+- Do not import renderer-only types from the shared layer — that layer must stay process-agnostic.
 - Do not import page-scoped types outside that page's folder. Promote the type if it grows beyond one page.
 - Prefer named exports over default exports for types so they are easy to tree-shake and re-export selectively.
 
