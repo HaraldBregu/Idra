@@ -453,7 +453,7 @@ function includeMode(input: Record<string, unknown>): 'enabled' | 'disabled' | '
 	return 'enabled';
 }
 
-export function normalizeFridayCronToolRequest(
+export function normalizeFridayCronActionRequest(
 	request: FridayCronToolRequest | unknown,
 	context: FridayCronNormalizeContext = {}
 ): FridayCronCanonicalToolRequest {
