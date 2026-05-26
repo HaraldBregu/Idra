@@ -1,4 +1,3 @@
-import type { CronService, FridayCronActor } from '../../cron';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import type { AgentStartupFilesServicePort } from '../../agent/startup-files';
@@ -16,7 +15,6 @@ export interface PlanEntry {
 
 export interface FridayServices {
 	store: StoreService;
-	cron: CronService;
 	eventBus: EventBus;
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
@@ -32,8 +30,6 @@ export interface ToolContext {
 	workspace: string;
 	/** Agent id that owns this run, when available. */
 	agentId?: string;
-	/** Cron authorization context supplied by the Gateway for owner or cron-self calls. */
-	cronContext?: FridayCronActor;
 	/** Best-effort live chat delivery context for tools that can persist follow-up work. */
 	deliveryContext?: Record<string, unknown>;
 	/** Run-scoped id used by the run logger / session. */
@@ -54,7 +50,7 @@ export interface ToolContext {
 	signal?: AbortSignal;
 	/** Confirmed legacy calls, keyed by tool+args. */
 	approvalCache: Set<string>;
-	/** Friday-side services (store, cron, event-bus, logger, user data, workspace). */
+	/** Friday-side services (store, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }
 
