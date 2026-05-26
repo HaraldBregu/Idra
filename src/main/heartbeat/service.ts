@@ -1,15 +1,10 @@
 import type { Disposable } from '../core/service-container';
-import type { AppEvent, EventBus } from '../core/event-bus';
-import type { LoggerService } from '../logger';
 import type { AgentService } from '../agent';
-import type { WorkspaceService } from '../workspace';
 import type { OperatorStoreState } from '../../shared/agents/service';
 import {
 	normalizeChannelId,
 	type ChannelChatType,
 	type ChannelOutboundMessage,
-	type ChannelRegistry,
-	type ChannelsService,
 } from '../channels';
 import { DEFAULT_AGENT_ID } from '../constants';
 import type {
@@ -57,20 +52,8 @@ import {
 	setHeartbeatWakeHandler,
 } from './wake';
 import { normalizeHeartbeatReply } from './response';
-import { HeartbeatRuntimeState, type HeartbeatStateStorage } from './state';
+import { HeartbeatRuntimeState } from './state';
 import { resolveHeartbeatVisibility } from './visibility';
-import type { HeartbeatFileStore } from './store';
-
-export interface HeartbeatServiceDependencies {
-	getOperator?: () => OperatorStoreState | undefined;
-	heartbeatStore: HeartbeatFileStore & HeartbeatStateStorage;
-	channels: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
-	logger: LoggerService;
-	eventBus: EventBus;
-	workspace: WorkspaceService;
-	agentService?: AgentService;
-	channelRegistry?: ChannelRegistry;
-}
 
 interface AgentSchedule {
 	agentId: string;
@@ -124,10 +107,8 @@ export class HeartbeatService implements Disposable {
 	private routesBySession = new Map<string, DeliveryRoute>();
 	private readonly runtimeState: HeartbeatRuntimeState;
 
-	constructor(private readonly dependencies: HeartbeatServiceDependencies) {
-		this.runtimeState = new HeartbeatRuntimeState(
-			dependencies.heartbeatStore
-		);
+	constructor(private readonly agentService: AgentService) {
+		this.runtimeState = new HeartbeatRuntimeState(agentService.getHeartbeatStore());
 	}
 
 	start(): void {
@@ -135,8 +116,8 @@ export class HeartbeatService implements Disposable {
 		this.started = true;
 		this.updateConfig();
 		this.wakeDisposer = setHeartbeatWakeHandler((wake) => this.runHeartbeatOnce(wake));
-		this.routeDisposer = this.dependencies.eventBus.on('channel:route', (event: AppEvent) => {
-			this.recordDeliveryRoute(event.payload as DeliveryRoute);
+		this.routeDisposer = this.agentService.onHeartbeatRoute((payload) => {
+			this.recordDeliveryRoute(payload as DeliveryRoute);
 		});
 		this.armTimer();
 	}
@@ -233,7 +214,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	getTiming(): HeartbeatTimingSettings {
-		const heartbeat = this.dependencies.heartbeatStore.getAgentsConfig()?.defaults?.heartbeat;
+		const heartbeat = this.agentService.getHeartbeatStore().getAgentsConfig()?.defaults?.heartbeat;
 		return {
 			every: typeof heartbeat?.every === 'string' && heartbeat.every.trim()
 				? heartbeat.every.trim()
@@ -245,7 +226,7 @@ export class HeartbeatService implements Disposable {
 	updateTiming(request: HeartbeatTimingSettings): HeartbeatTimingSettings {
 		const every = typeof request.every === 'string' ? request.every.trim() : '';
 		if (!every) throw new Error('Heartbeat cadence is required.');
-		this.dependencies.heartbeatStore.setDefaultHeartbeatConfig({
+		this.agentService.getHeartbeatStore().setDefaultHeartbeatConfig({
 			every,
 			activeHours: this.normalizeActiveHours(request.activeHours),
 		});
@@ -270,7 +251,7 @@ export class HeartbeatService implements Disposable {
 			createdAtMs: Date.now(),
 			source: 'cron',
 		});
-		this.dependencies.eventBus.broadcast('heartbeat:system-event', {
+		this.agentService.broadcastHeartbeatSystemEvent({
 			text,
 			agentId,
 			sessionKey,
@@ -323,7 +304,7 @@ export class HeartbeatService implements Disposable {
 		if (defer.defer) {
 			if (defer.reason === 'flood' && !schedule.floodLogged) {
 				schedule.floodLogged = true;
-				this.dependencies.logger.warn('HeartbeatService', 'Heartbeat flood guard deferred a wake.', {
+				this.agentService.warnHeartbeat('Heartbeat flood guard deferred a wake.', {
 					agentId,
 					source: wake.source,
 				});
@@ -331,10 +312,10 @@ export class HeartbeatService implements Disposable {
 			return { status: 'skipped', reason: defer.reason };
 		}
 
-		if (this.dependencies.agentService?.isBusy(agentId)) {
+		if (this.agentService.isBusy(agentId)) {
 			return { status: 'skipped', reason: HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT };
 		}
-		if (actualSessionKey !== agentId && this.dependencies.agentService?.isBusy(actualSessionKey)) {
+		if (actualSessionKey !== agentId && this.agentService.isBusy(actualSessionKey)) {
 			return { status: 'skipped', reason: HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT };
 		}
 
@@ -350,7 +331,7 @@ export class HeartbeatService implements Disposable {
 		const visibility =
 			delivery.status === 'ok'
 				? resolveHeartbeatVisibility({
-						channel: this.dependencies.channels.getChannel(),
+						channel: this.agentService.getHeartbeatChannel() ?? {},
 						channelId: delivery.message.type,
 						accountId: delivery.message.accountId,
 				  })
@@ -403,14 +384,15 @@ export class HeartbeatService implements Disposable {
 		schedule.floodLogged = false;
 
 		const typingTarget = delivery.status === 'ok' ? delivery.message.to : undefined;
-		const typingPlugin = delivery.status === 'ok' ? this.dependencies.channelRegistry?.getPlugin(delivery.message.type) : undefined;
+		const typingPlugin = delivery.status === 'ok'
+			? this.agentService.getHeartbeatChannelRegistry()?.getPlugin(delivery.message.type)
+			: undefined;
 		if (typingTarget && typingPlugin?.heartbeat?.sendTyping) {
 			await Promise.resolve(typingPlugin.heartbeat.sendTyping(typingTarget)).catch(() => undefined);
 		}
 
 		try {
-			if (!this.dependencies.agentService) return this.skipAndAdvance(schedule, 'no-agent-service');
-			const text = await this.dependencies.agentService.send(prompt, agentId, {
+			const text = await this.agentService.send(prompt, agentId, {
 				sessionId: actualSessionKey,
 				heartbeat: {
 					model: summary.model,
@@ -429,7 +411,7 @@ export class HeartbeatService implements Disposable {
 			if (delivery.status === 'ok') {
 				if (normalized.kind === 'alert' && visibility.showAlerts) {
 					if (!this.runtimeState.isDuplicateAlert(baseSessionKey, normalized.text, startedAt)) {
-						await this.dependencies.channelRegistry?.send({
+						await this.agentService.getHeartbeatChannelRegistry()?.send({
 							...delivery.message,
 							text: normalized.text,
 							idempotencyKey: `heartbeat:${agentId}:${startedAt}`,
@@ -441,7 +423,7 @@ export class HeartbeatService implements Disposable {
 						silent = true;
 					}
 				} else if (normalized.kind === 'ok' && visibility.showOk) {
-					await this.dependencies.channelRegistry?.send({
+					await this.agentService.getHeartbeatChannelRegistry()?.send({
 						...delivery.message,
 						text: HEARTBEAT_OK,
 						idempotencyKey: `heartbeat:${agentId}:${startedAt}:ok`,
@@ -478,7 +460,7 @@ export class HeartbeatService implements Disposable {
 				durationMs: Date.now() - startedAt,
 				indicatorType: 'error',
 			});
-			this.dependencies.logger.error('HeartbeatService', 'Heartbeat run failed', error);
+			this.agentService.errorHeartbeat('Heartbeat run failed', error);
 			return { status: 'failed', reason: error instanceof Error ? error.message : String(error) };
 		} finally {
 			if (typingTarget && typingPlugin?.heartbeat?.clearTyping) {
@@ -621,8 +603,8 @@ export class HeartbeatService implements Disposable {
 	}
 
 	private getHeartbeatOperator(): OperatorStoreState | undefined {
-		const operator = this.dependencies.getOperator?.();
-		const agents = this.dependencies.heartbeatStore.getAgentsConfig();
+		const operator = this.agentService.getHeartbeatOperatorConfig();
+		const agents = this.agentService.getHeartbeatStore().getAgentsConfig();
 		if (!operator) return agents ? { agents } : undefined;
 		const { agents: _legacyAgents, ...baseOperator } = operator;
 		return agents ? { ...baseOperator, agents } : baseOperator;
@@ -634,7 +616,7 @@ export class HeartbeatService implements Disposable {
 		content?: string;
 	}> {
 		try {
-			const file = await this.dependencies.workspace.readWorkspaceFile('HEARTBEAT.md');
+			const file = await this.agentService.readHeartbeatWorkspaceFile('HEARTBEAT.md');
 			return {
 				exists: !file.missing,
 				path: file.path,
@@ -701,7 +683,8 @@ export class HeartbeatService implements Disposable {
 
 	private resolveDelivery(summary: HeartbeatSummary, sessionKey: string): DeliveryResolution {
 		if (summary.target === 'none') return { status: 'none' };
-		if (!this.dependencies.channelRegistry) return { status: 'skip', reason: 'no-target' };
+		const registry = this.agentService.getHeartbeatChannelRegistry();
+		if (!registry) return { status: 'skip', reason: 'no-target' };
 		if (summary.target === 'last') {
 			const route = this.routesBySession.get(sessionKey) ?? this.lastRoute;
 			if (!route) return { status: 'skip', reason: 'no-target' };
@@ -726,9 +709,10 @@ export class HeartbeatService implements Disposable {
 		const explicit = this.parseExplicitTarget(summary.target);
 		const channelId = explicit?.channelId ?? normalizeChannelId(summary.target);
 		if (!channelId) return { status: 'skip', reason: 'no-target' };
-		const plugin = this.dependencies.channelRegistry.getPlugin(channelId);
+		const plugin = registry.getPlugin(channelId);
 		if (!plugin) return { status: 'skip', reason: 'no-target', channel: channelId };
-		const channelConfig = this.dependencies.channels.getChannelConfig(channelId);
+		const channelConfig = this.agentService.getHeartbeatChannelConfig(channelId);
+		if (!channelConfig) return { status: 'skip', reason: 'no-target', channel: channelId };
 		const accountId = summary.accountId ?? explicit?.accountId ?? plugin.config.defaultAccountId(channelConfig) ?? 'default';
 		const account = plugin.config.resolveAccount(channelConfig, accountId);
 		if (!account) return { status: 'skip', reason: 'unknown-account', channel: channelId, accountId };
@@ -755,7 +739,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	private parseExplicitTarget(target: string) {
-		for (const plugin of this.dependencies.channelRegistry?.listPlugins() ?? []) {
+		for (const plugin of this.agentService.getHeartbeatChannelRegistry()?.listPlugins() ?? []) {
 			const parsed = plugin.messaging?.parseExplicitTarget(target);
 			if (parsed) return parsed;
 		}
@@ -774,8 +758,7 @@ export class HeartbeatService implements Disposable {
 			...event,
 		};
 		this.lastHeartbeat = payload;
-		this.dependencies.eventBus.emit('heartbeat:event', payload);
-		this.dependencies.eventBus.broadcast('heartbeat:event', payload);
+		this.agentService.emitHeartbeatEvent(payload);
 	}
 }
 
