@@ -56,14 +56,12 @@ export interface ToolContext {
 	readState: Map<string, { mtimeMs: number; size: number }>;
 	/** Current plan; tools may read or replace. */
 	plan: { entries: PlanEntry[] };
-	/** Tools listed here require approval before execution. */
-	approvalRequired: Set<string>;
 	/** Filesystem exposure policy for model-visible host tools. */
 	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	/** Abort signal for the current tool call or agent run. */
 	signal?: AbortSignal;
-	/** Confirmed legacy calls, keyed by tool+args. */
-	approvalCache: Set<string>;
+	approvalRequired?: Set<string>;
+	approvalCache?: Set<string>;
 	/** Friday-side services (store, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }
