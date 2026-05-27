@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, Plug } from 'lucide-react';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { ConnectorCatalogEntry } from '../../../../../../shared/connector';
 import {
-	SettingsEmptyState,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
