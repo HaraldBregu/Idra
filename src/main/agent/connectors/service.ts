@@ -1009,7 +1009,9 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		...connector,
 		authorization: '',
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
-		tools: [],
+		tools: connector.oauth && Array.isArray(connector.tools)
+			? connector.tools.filter(isConnectorToolRecord)
+			: [],
 	};
 }
 
