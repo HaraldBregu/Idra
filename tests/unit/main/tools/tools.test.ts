@@ -243,7 +243,7 @@ describe('tools/policy and registry', () => {
 });
 
 describe('tools/before-call', () => {
-	it('rejects unconfirmed approval-marked tools and allows confirmed repeats', async () => {
+	it('allows static approval-marked tools and still tracks repeated calls', async () => {
 		const tool: AgentTool = {
 			name: 'write',
 			description: '',
@@ -255,14 +255,12 @@ describe('tools/before-call', () => {
 		const tracker = newCallTracker();
 
 		const unconfirmed = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
-		expect(unconfirmed.proceed).toBe(false);
-		expect(unconfirmed.vetoStatus).toBe('rejected');
+		expect(unconfirmed.proceed).toBe(true);
 
-		ctx.approvalCache.add('write::{"path":"a"}');
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
-		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(true);
+		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(false);
 	});
 
 	it('does not require approval for run_shell by default', async () => {
