@@ -8,18 +8,25 @@ import { AgentStartupFilesService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 function connectorStoreFor(
-	read: () => unknown[],
-	write: (connectors: unknown[]) => void
-): { get: jest.Mock; set: jest.Mock; delete: jest.Mock } {
-	return {
+	read: () => Record<string, unknown>,
+	write: (connectors: Record<string, unknown>) => void
+): { get: jest.Mock; set: jest.Mock; delete: jest.Mock; store: Record<string, unknown> } {
+	const store = {
 		get: jest.fn((key: string) => (key === 'connectors' ? read() : undefined)),
 		set: jest.fn((key: string, value: unknown) => {
-			if (key === 'connectors' && Array.isArray(value)) write(value);
+			if (key === 'connectors' && value && typeof value === 'object' && !Array.isArray(value)) {
+				write(value as Record<string, unknown>);
+			}
 		}),
 		delete: jest.fn((key: string) => {
-			if (key === 'connectors') write([]);
+			if (key === 'connectors') write({});
 		}),
 	};
+	Object.defineProperty(store, 'store', {
+		get: read,
+		set: write,
+	});
+	return store;
 }
 
 describe('connectors service', () => {
@@ -47,7 +54,7 @@ describe('connectors service', () => {
 	}
 
 	it('adds, lists, updates, tests, and removes dynamic MCP connector configs', async () => {
-		let connectors: unknown[] = [];
+		let connectors: Record<string, unknown> = {};
 		const store = connectorStoreFor(
 			() => connectors,
 			(next) => {
@@ -71,7 +78,7 @@ describe('connectors service', () => {
 		expect(added.serverLabel).toBe('remote_gmail');
 		expect(added.authorization).toBe('');
 		expect(service.get(added.id).authorization).toBe('');
-		expect(connectors[0]).toMatchObject({
+		expect(connectors.remote_gmail).toMatchObject({
 			connectorId: 'google.gmail',
 			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 		});
@@ -94,7 +101,7 @@ describe('connectors service', () => {
 	});
 
 	it('allows more than one configured connector per provider id', async () => {
-		let connectors: unknown[] = [];
+		let connectors: Record<string, unknown> = {};
 		const store = connectorStoreFor(
 			() => connectors,
 			(next) => {
@@ -123,7 +130,7 @@ describe('connectors service', () => {
 	});
 
 	it('validates MCP connector payloads before storing them', async () => {
-		let connectors: unknown[] = [];
+		let connectors: Record<string, unknown> = {};
 		const store = connectorStoreFor(
 			() => connectors,
 			(next) => {
@@ -156,7 +163,7 @@ describe('connectors service', () => {
 	});
 
 	it('reports missing secret env vars instead of storing API keys', async () => {
-		let connectors: unknown[] = [];
+		let connectors: Record<string, unknown> = {};
 		const store = connectorStoreFor(
 			() => connectors,
 			(next) => {
