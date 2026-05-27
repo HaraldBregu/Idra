@@ -7,24 +7,45 @@ import type {
 } from '../core/types';
 import { legacyToolToCanonical } from '../runtime/bridge';
 import {
-	applyPatchTool,
-	copyTool,
-	deleteTool,
-	editTool,
-	findTool,
-	filesystemCopyTool,
-	filesystemCreateTool,
-	filesystemDeleteTool,
-	filesystemListTool,
-	filesystemMoveTool,
-	filesystemReadTool,
-	filesystemSearchTool,
-	filesystemUpdateTool,
-	inspectFileTool,
-	moveTool,
-	readTool,
-	writeTool,
-} from './tools';
+	editFileTool,
+	gitDiffTool,
+	gitStatusTool,
+	grepTool,
+	listDirectoryTool,
+	readFileTool,
+	runShellTool,
+	searchFilesTool,
+	undoLastOperationTool,
+	writeFileTool,
+} from '../workspace/tools';
+import {
+	completeTaskTool,
+	listTodosTool,
+	readScratchTool,
+	updateTodoTool,
+	writeScratchTool,
+	writeTodosTool,
+} from '../state/tools';
+import {
+	presentPlanTool,
+	requestApprovalTool,
+	requestAuthorizationTool,
+	requestClarificationTool,
+} from '../human/tools';
+import { spawnSubagentTool } from '../subagent/tools';
+import { listSkillsTool, loadSkillTool, useSkillTool } from '../skills/tools';
+import {
+	callMcpToolTool,
+	connectMcpServerTool,
+	listMcpPromptsTool,
+	listMcpResourcesTool,
+	listMcpServersTool,
+	listMcpToolsTool,
+	loadMcpPromptTool,
+	loadMcpToolTool,
+	readMcpResourceTool,
+	refreshMcpServerTool,
+} from '../mcp/tools';
 
 export type FileToolOptions = {
 	workspaceDir: string;
@@ -38,23 +59,40 @@ export type FileToolOptions = {
 type LegacyFileTool = LegacyAgentTool<any, any>;
 
 const FILE_TOOLS: readonly LegacyFileTool[] = [
-	readTool,
-	writeTool,
-	editTool,
-	applyPatchTool,
-	deleteTool,
-	copyTool,
-	moveTool,
-	inspectFileTool,
-	findTool,
-	filesystemCreateTool,
-	filesystemReadTool,
-	filesystemUpdateTool,
-	filesystemDeleteTool,
-	filesystemListTool,
-	filesystemMoveTool,
-	filesystemCopyTool,
-	filesystemSearchTool,
+	readFileTool,
+	writeFileTool,
+	editFileTool,
+	listDirectoryTool,
+	searchFilesTool,
+	grepTool,
+	runShellTool,
+	gitStatusTool,
+	gitDiffTool,
+	undoLastOperationTool,
+	writeTodosTool,
+	updateTodoTool,
+	listTodosTool,
+	completeTaskTool,
+	writeScratchTool,
+	readScratchTool,
+	requestApprovalTool,
+	requestClarificationTool,
+	presentPlanTool,
+	requestAuthorizationTool,
+	spawnSubagentTool,
+	listSkillsTool,
+	loadSkillTool,
+	useSkillTool,
+	listMcpServersTool,
+	connectMcpServerTool,
+	refreshMcpServerTool,
+	listMcpToolsTool,
+	loadMcpToolTool,
+	callMcpToolTool,
+	listMcpResourcesTool,
+	readMcpResourceTool,
+	listMcpPromptsTool,
+	loadMcpPromptTool,
 ] as const;
 
 export function createFileTools(options: FileToolOptions): AgentTool[] {
@@ -63,7 +101,7 @@ export function createFileTools(options: FileToolOptions): AgentTool[] {
 }
 
 export function createReadTool(options: FileToolOptions): AgentTool {
-	const read = createFileTools(options).find((tool) => tool.name === 'read');
+	const read = createFileTools(options).find((tool) => tool.name === 'read_file');
 	if (!read) throw new Error('read tool is not registered');
 	return read;
 }
