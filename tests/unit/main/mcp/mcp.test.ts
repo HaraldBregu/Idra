@@ -11,7 +11,8 @@ function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 		connectorId: 'connector_gmail',
 		serverLabel: 'gmail',
 		enabled: true,
-		authorization: 'token',
+		authorization: '',
+		mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', auth: { env: 'REMOTE_MCP_API_KEY' } },
 		requireApproval: 'never_for_allowed_tools',
 		allowedTools: ['get_profile'],
 		deferLoading: true,
@@ -23,25 +24,24 @@ function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 }
 
 describe('mcp modules', () => {
-	it('builds OpenAI MCP tools only for enabled authorized connectors', () => {
-		const tools = new McpRegistry().buildTools([
-			connector({ serverDescription: ' Gmail ' }),
+	it('builds harness MCP server configs from enabled connectors with env secrets', () => {
+		process.env.REMOTE_MCP_API_KEY = 'secret';
+		const servers = new McpRegistry().buildServers([
+			connector(),
 			connector({ id: 'off', enabled: false }),
-			connector({ id: 'missing', authorization: '' }),
+			connector({ id: 'missing', mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', auth: { env: 'MISSING_MCP_KEY' } } }),
 		]);
 
-		expect(tools).toEqual([
+		expect(servers).toEqual([
 			expect.objectContaining({
-				type: 'mcp',
-				server_label: 'gmail',
-				connector_id: 'connector_gmail',
-				authorization: 'token',
-					server_description: 'Gmail',
-					allowed_tools: ['get_profile'],
-					defer_loading: true,
-					require_approval: 'never',
-				}),
-			]);
+				name: 'gmail',
+				transport: 'http',
+				url: 'https://mcp.example.test/mcp',
+				headers: { Authorization: 'Bearer secret' },
+				toolPrefix: 'gmail',
+			}),
+		]);
+		delete process.env.REMOTE_MCP_API_KEY;
 	});
 
 	it('creates safe environment maps and normalizes errors', () => {
