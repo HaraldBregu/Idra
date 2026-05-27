@@ -377,10 +377,10 @@ function assertEnvName(value: string, label: string): void {
 	if (!ENV_NAME_PATTERN.test(value)) throw new Error(label + ' must be a valid environment variable name.');
 }
 
-export class ConnectorsService {
+export class ConnectorsService implements McpConnectorStore {
 	private readonly store: ConnectorPersistenceStore;
 	private readonly toolStore?: ConnectorToolPersistenceStore;
-	private readonly clients = new Map<string, ConnectorMcpClient>();
+	private readonly mcpClient: AgentMcpClientServicePort;
 	private readonly runtimeConnectors = new Map<string, RuntimeConnector>();
 	private readonly pendingOAuthConnectors = new Map<string, RuntimeConnector>();
 
@@ -396,6 +396,9 @@ export class ConnectorsService {
 				accessPropertiesByDotNotation: false,
 			}) as ConnectorPersistenceStore);
 		this.toolStore = options.toolStore;
+		this.mcpClient = options.mcpClient ?? new AgentMcpClientService(logger, this, {
+			mcpClientFactory: options.mcpClientFactory,
+		});
 	}
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
