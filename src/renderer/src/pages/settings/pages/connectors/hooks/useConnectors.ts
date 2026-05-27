@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { ConnectorCatalogEntry, ConnectorTool, ConnectorView } from '../../../../../../../shared/connector';
 
 export type ConnectorCatalog = readonly ConnectorCatalogEntry[];
@@ -12,7 +12,7 @@ export function useConnectors() {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [selectedTools, setSelectedTools] = useState<ConnectorTool[]>([]);
 
-	const load = async (): Promise<void> => {
+	const load = useCallback(async (): Promise<void> => {
 		try {
 			const [nextCatalog, nextConnectors] = await Promise.all([
 				window.connectors.catalog(),
@@ -23,11 +23,11 @@ export function useConnectors() {
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		void load();
-	}, []);
+	}, [load]);
 
 	const run = async (id: string, action: () => Promise<unknown>): Promise<void> => {
 		setBusyId(id);
