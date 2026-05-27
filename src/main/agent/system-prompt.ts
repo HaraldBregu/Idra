@@ -25,6 +25,8 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
 	find: 'Glob-search the workspace for files.',
+	exec: 'Run commands only when this tool is available. Use `python3` for Python scripts.',
+	cron: 'Use this for later or repeating work. Before add/remove, make sure timing is clear. Do not use host schedulers such as crontab.',
 	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
 };
 
@@ -71,6 +73,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			[
 				'## Tool guidance',
 				'No tools are available for this turn. Answer directly from the conversation and general reasoning.',
+				'Friday cron tool is unavailable; never suggest or use system cron for scheduled Friday work.',
 			].join('\n')
 		);
 	}
