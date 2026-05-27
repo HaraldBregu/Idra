@@ -62,6 +62,8 @@ export interface ConnectorCatalogEntry {
 	readonly redirectUri?: string;
 	readonly runtimeKind?: ConnectorRuntimeKind;
 	readonly allowMultipleInstances?: boolean;
+	readonly mcp?: ConnectorMcpConfig;
+	readonly oauth?: ConnectorCatalogOAuthConfig;
 }
 
 export type OpenAiConnectorCatalogEntry = ConnectorCatalogEntry;
@@ -107,6 +109,14 @@ export interface ConnectorMcpStdioConfig {
 }
 
 export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
+
+export interface ConnectorCatalogOAuthConfig {
+	providerId: string;
+	clientIdEnv: string;
+	authorizationUrl: string;
+	redirectUri: string;
+	authorizationParams: Record<string, string>;
+}
 
 export interface ConnectorOAuthTokenSet {
 	accessToken: string;
