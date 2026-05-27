@@ -46,7 +46,8 @@ import {
 	type SessionStatus,
 } from './session/store';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logger';
-import { resolveDefaultUserDataPath } from '../user-data';
+import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
+import type { AgentSettingsStorePort } from './settings';
 import {
 	type AgentRunState,
 	type Model,
@@ -84,6 +85,8 @@ export interface AgentServiceDependencies {
 	eventBus: EventBus;
 	workspace: WorkspaceService;
 	userDataDirectory: UserDataDirectoryServicePort;
+	agentDataDirectory?: AgentDataDirectoryServicePort;
+	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
 	mcpRegistry?: McpRegistry;
@@ -934,10 +937,7 @@ export class AgentService {
 	}
 
 	private getConfiguredAgent(agentId: string): AgentConfig | undefined {
-		const store = this.dependencies.store as StoreService & {
-			getAgentConfig?: (id: string) => AgentConfig | undefined;
-		};
-		return typeof store.getAgentConfig === 'function' ? store.getAgentConfig(agentId) : undefined;
+		return this.dependencies.agentSettings?.getAgentConfig(agentId);
 	}
 
 	private applyAgentSessionMetadata(
@@ -1004,7 +1004,10 @@ export class AgentService {
 		try {
 			return this.dependencies.workspace.getRootPath();
 		} catch {
-			return resolveDefaultUserDataPath('workspace');
+			return (
+				this.dependencies.agentDataDirectory?.resolve('workspaces', this.defaultAgentId) ??
+				resolveDefaultAgentDataPath('workspaces', this.defaultAgentId)
+			);
 		}
 	}
 
@@ -1043,10 +1046,15 @@ export class AgentService {
 		let workspace = this.startupWorkspaces.get(resolvedAgentId);
 		if (workspace) return workspace;
 		workspace = new WorkspaceService(this.dependencies.logger, {
-			rootPath: this.dependencies.userDataDirectory.resolve(
-				'agent',
+			rootPath: (
+				this.dependencies.agentDataDirectory?.resolve(
+					'workspaces',
+					encodeURIComponent(resolvedAgentId)
+				) ??
+				resolveDefaultAgentDataPath(
 				'workspaces',
 				encodeURIComponent(resolvedAgentId)
+				)
 			),
 		});
 		this.startupWorkspaces.set(resolvedAgentId, workspace);
