@@ -18,7 +18,11 @@ import type {
 	ConnectorTool,
 	ConnectorView,
 } from '../../../shared/connector';
-import { GOOGLE_OAUTH_CLIENT_ID_ENV, GOOGLE_WORKSPACE_OAUTH_CONNECTORS } from '../../../shared/connector';
+import {
+	GOOGLE_MCP_AUTHENTICATION_URL,
+	GOOGLE_OAUTH_CLIENT_ID_ENV,
+	GOOGLE_WORKSPACE_OAUTH_CONNECTORS,
+} from '../../../shared/connector';
 import {
 	createSdkConnectorMcpClient,
 	missingMcpSecretNames,
@@ -432,6 +436,7 @@ export class ConnectorsService {
 			tools: [],
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
+			mcp: existing?.mcp ?? mcpConfigForOAuthConnector(definition),
 			oauth: {
 				providerId: definition.providerId,
 				authorizationUrl,
@@ -673,7 +678,7 @@ export class ConnectorsService {
 	}
 
 	private async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
-		if (connector.oauth || !connector.mcp) {
+		if (!connector.mcp || (connector.oauth && !connector.oauth.token?.accessToken)) {
 			return { ...connector, tools: this.readTools(connector.id) };
 		}
 		if (!connector.enabled || missingMcpSecretNames(connector).length > 0) {
