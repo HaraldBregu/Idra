@@ -11,7 +11,6 @@ import {
 	MUSIC_CREATOR_OPERATOR_ID,
 } from '../../../../../../shared/agents/service';
 import {
-	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
