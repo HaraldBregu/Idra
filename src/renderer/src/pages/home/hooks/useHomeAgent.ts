@@ -27,7 +27,7 @@ function messageId(prefix: string): string {
 	return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function resolvePromptReasoningEffort(prompt: string): {
+export function resolvePromptReasoningEffort(prompt: string): {
 	effort: ModelReasoningEffort;
 	lightContext: boolean;
 } {
