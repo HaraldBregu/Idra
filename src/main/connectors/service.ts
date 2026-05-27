@@ -1164,6 +1164,51 @@ function normalizeToolPermission(
 	return fallbackPermission;
 }
 
+function authKindFor(connector: ConnectorConfig): NonNullable<ConnectorConfig['authKind']> {
+	return connector.oauth || isOAuthMcpConfig(connector.mcp) ? 'oauth' : 'mcp_env';
+}
+
+function isOAuthMcpConfig(mcp: ConnectorMcpConfig | undefined): boolean {
+	if (mcp?.transport !== 'http') return false;
+	return (
+		mcp.url === 'https://gmailmcp.googleapis.com/mcp/v1' ||
+		mcp.url === 'https://calendarmcp.googleapis.com/mcp/v1' ||
+		mcp.url === 'https://drivemcp.googleapis.com/mcp/v1'
+	);
+}
+
+function hasConnectorAuthorization(connector: ConnectorConfig): boolean {
+	return Boolean(
+		connector.oauth?.token?.accessToken ||
+		connector.authorization?.trim() ||
+		authorizationFromMcp(connector.mcp)
+	);
+}
+
+function authorizationFromMcp(mcp: ConnectorMcpConfig | undefined): string {
+	if (mcp?.transport !== 'http') return '';
+	for (const [key, value] of Object.entries(mcp.headers ?? {})) {
+		if (key.toLowerCase() === 'authorization') return value.trim();
+	}
+	return '';
+}
+
+function mcpWithConnectorAuthorization(connector: RuntimeConnector): ConnectorMcpConfig | undefined {
+	if (!connector.mcp) return undefined;
+	const authorization =
+		connector.authorization ||
+		oauthAuthorizationHeader(connector.oauth?.token) ||
+		authorizationFromMcp(connector.mcp);
+	if (connector.mcp.transport !== 'http' || !authorization) return connector.mcp;
+	return {
+		...connector.mcp,
+		headers: {
+			...(connector.mcp.headers ?? {}),
+			Authorization: authorization,
+		},
+	};
+}
+
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
