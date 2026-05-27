@@ -16,7 +16,7 @@ describe('subagent orchestration', () => {
 		const eventBus = { emit: jest.fn() };
 		const agents = options.agents ?? {};
 		const service = new SubagentSpawnService({
-			store: {
+			agentSettings: {
 				getAgentConfig: jest.fn((id: string) => agents[id]),
 			} as never,
 			taskManager: taskManager as never,
