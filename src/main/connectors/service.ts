@@ -17,7 +17,7 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
-} from '../../../shared/connector';
+} from '../../shared/connector';
 import {
 	createSdkConnectorMcpClient,
 	missingMcpSecretNames,
