@@ -1092,6 +1092,11 @@ function missingSecretMessage(connector: ConnectorConfig): string | undefined {
 	return missing.length > 0 ? 'Missing MCP secret environment variable: ' + missing.join(', ') : undefined;
 }
 
+function oauthAuthorizationHeader(token: NonNullable<ConnectorConfig['oauth']>['token']): string {
+	if (!token?.accessToken) return '';
+	return (token.tokenType?.trim() || 'Bearer') + ' ' + token.accessToken;
+}
+
 function permissionForTool(connector: ConnectorConfig, toolName: string): ConnectorToolPermission {
 	if (connector.oauth) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
 	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
