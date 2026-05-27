@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { shell } from 'electron';
 import Store from 'electron-store';
-import type { LoggerService } from '../../logger';
-import type { JSONSchema, ToolResultBlock } from '../../provider/types';
+import type { LoggerService } from '../logger';
+import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import type {
 	ConnectorCallToolOptions,
 	ConnectorCatalogEntry,
