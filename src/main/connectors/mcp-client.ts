@@ -7,8 +7,8 @@ import type {
 	ConnectorConfig,
 	ConnectorMcpConfig,
 	ConnectorTool,
-} from '../../../shared/connector';
-import type { JSONSchema } from '../../provider/types';
+} from '../../shared/connector';
+import type { JSONSchema } from '../provider/types';
 
 export interface ConnectorMcpClient {
 	listTools(options?: ConnectorCallToolOptions): Promise<ConnectorTool[]>;
