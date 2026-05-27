@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { TranscriptEntry } from '../../provider/types';
 import type { AgentSessionMetadata } from '../../../shared/store';
-import { resolveDefaultUserDataPath } from '../../user-data';
+import { resolveDefaultAgentDataPath } from '../storage';
 import { acquireWriteLock } from './lock';
 import { sanitizeToolUseResultPairing } from './repair';
 
@@ -69,7 +69,7 @@ export interface SessionStoreOptions {
 const MAX_TOOL_RESULT_CHARS = 16_000;
 
 function defaultBaseDir(): string {
-	return resolveDefaultUserDataPath('agent', 'sessions');
+	return resolveDefaultAgentDataPath('sessions');
 }
 
 function sessionPath(baseDir: string, id: string): string {
