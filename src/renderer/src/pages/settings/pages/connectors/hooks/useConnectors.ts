@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectorCatalogEntry, ConnectorTool, ConnectorView } from '../../../../../../../shared/connector';
+import type { ConnectorCatalogEntry, ConnectorConfig, ConnectorTool } from '../../../../../../../shared/connector';
 
 export type ConnectorCatalog = readonly ConnectorCatalogEntry[];
 
 export function useConnectors() {
 	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
-	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
+	const [connectors, setConnectors] = useState<ConnectorConfig[]>([]);
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -46,11 +46,11 @@ export function useConnectors() {
 		}
 	};
 
-	const toggleConnector = (connector: ConnectorView): Promise<void> =>
-		run(connector.id, () =>
+	const toggleConnector = (connector: ConnectorConfig): Promise<void> =>
+		run(connector.id ?? '', () =>
 			connector.enabled
-				? window.connectors.disable(connector.id)
-				: window.connectors.enable(connector.id)
+				? window.connectors.disable(connector.id ?? '')
+				: window.connectors.enable(connector.id ?? '')
 		);
 
 	const refreshTools = (connectorId: string): Promise<void> =>
@@ -61,10 +61,10 @@ export function useConnectors() {
 		});
 
 
-	const removeConnector = (connector: ConnectorView): Promise<void> =>
-		run(connector.id, async () => {
+	const removeConnector = (connector: ConnectorConfig): Promise<void> =>
+		run(connector.id ?? '', async () => {
 			if (!window.confirm(`Remove ${connector.name}?`)) return;
-			await window.connectors.remove(connector.id);
+			await window.connectors.remove(connector.id ?? '');
 			if (selectedId === connector.id) {
 				setSelectedId(null);
 				setSelectedTools([]);
