@@ -1089,6 +1089,21 @@ function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[
 	return (mcp.envSecrets ?? []).map((secret) => secret.env);
 }
 
+function predefinedOAuthTools(
+	connector: GoogleWorkspaceOAuthConnectorDefinition,
+	requireApproval: ConnectorConfig['requireApproval'],
+	allowedTools: readonly string[]
+): ConnectorTool[] {
+	const allowed = new Set(allowedTools);
+	return connector.tools
+		.filter((tool) => allowed.size === 0 || allowed.has(tool))
+		.map((name) => ({
+			name,
+			requiresApproval: requireApproval !== 'never' &&
+				!(requireApproval === 'never_for_allowed_tools' && allowed.has(name)),
+		}));
+}
+
 function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEntry {
 	assertConnectorId(entry.id);
 	return {
@@ -1112,44 +1127,20 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 	};
 }
 
-function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
-	return googleWorkspaceOAuthConnectors().map((connector) =>
-		normalizeCatalogEntry({
-			id: connector.id,
-			directConnectorId: connector.directConnectorId,
-			name: connector.name,
-			description: connector.description,
-			docsPath: connector.docsPath,
-			docsLabel: `${connector.name} connector guide`,
-			environmentSecretNames: [
-				GOOGLE_OAUTH_CLIENT_ID_ENV,
-			],
-			platformDocumentationPages: connector.mcp
-				? [
-					{ label: `${connector.name} MCP reference`, url: connector.mcp.referenceUrl },
-					{ label: 'Google MCP authentication', url: 'https://docs.cloud.google.com/mcp/authenticate-mcp' },
-				]
-				: [],
-			tools: connector.tools,
-			scopes: connector.scopes,
-			setupUrl: 'https://console.cloud.google.com/apis/credentials',
-			setupInstructions: [
-				'Create a Google OAuth client for a desktop application.',
-				`Set ${GOOGLE_OAUTH_CLIENT_ID_ENV} before launching Friday.`,
-				'Authorize the connector from Settings > Connectors.',
-			],
-			authKind: 'oauth',
-			redirectUri: 'http://127.0.0.1',
-			runtimeKind: connector.mcp ? 'mcp' : 'oauth',
-			allowMultipleInstances: false,
-		})
-	);
-}
-
 function mcpConfigForOAuthConnector(
 	connector: GoogleWorkspaceOAuthConnectorDefinition
 ): ConnectorMcpConfig | undefined {
-	return connector.mcp ? { transport: 'http', url: connector.mcp.endpoint } : undefined;
+	return connector.mcp
+		? {
+			transport: 'http',
+			url: connector.mcp.endpoint,
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		}
+		: undefined;
 }
 
 function googleOAuthAuthorizationUrl(
