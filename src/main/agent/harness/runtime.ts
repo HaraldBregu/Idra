@@ -94,26 +94,42 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const sessionId = input.sessionId ?? runId;
 		const controller = new AbortController();
 		const removeAbort = this.linkAbortSignal(input.signal, controller);
+		const timeoutMs = input.timeoutMs ?? this.config.runtime?.timeoutMs;
+		const timeout = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
 		this.controllers.set(runId, controller);
 		const context = input.context ?? {};
 		let session = await this.loadOrCreateSession(sessionId, input.parentSessionId, input.metadata);
 		const startedAt = new Date().toISOString();
 
 		try {
-			await this.log({ runId, sessionId, type: 'run.started', timestamp: startedAt, data: { task: input.task } });
+			await this.log({ runId, sessionId, type: 'run.started', timestamp: startedAt, data: this.redact({ task: input.task }) });
 			this.emit({ type: 'run.started', runId, sessionId, task: input.task });
 			await this.runHooks('before_run', { runId, sessionId, input });
+			const boundaryInput = await this.config.boundary?.filterInput?.({ task: input.task, context });
+			if (boundaryInput && !boundaryInput.allowed) {
+				throw new AgentHarnessError({
+					code: 'permission_denied',
+					message: boundaryInput.reason ?? 'Input was blocked by boundary filter.',
+				});
+			}
 			const taskDecision = await this.config.safety?.reviewTask?.({ task: input.task, context });
 			if (taskDecision && !taskDecision.allowed) {
-				throw new Error(taskDecision.reason ?? 'Task was blocked by safety policy.');
+				throw new AgentHarnessError({
+					code: 'permission_denied',
+					message: taskDecision.reason ?? 'Task was blocked by safety policy.',
+				});
 			}
 
 			await this.createSnapshot(session.id, 'before-run');
 			const memory = await this.retrieveMemory(input.task, session, context);
-			await this.ensureSkills(input.requiredSkills ?? [], session, context);
-			const tools = await this.resolveTools(input.task, session, context);
-			const contextBuild = await this.buildContext(input.task, session, memory, context);
+			this.emit({ type: 'memory.read', runId, sessionId, count: memory.length });
+			const modelDescriptor = this.describeActiveModel();
+			await this.ensureSkills(input.task, input.requiredSkills ?? [], session, context);
+			const tools = await this.resolveTools(input.task, session, context, input);
+			const contextBuild = await this.buildContext(input.task, session, memory, context, modelDescriptor);
+			if (contextBuild.trace) this.emit({ type: 'context.assembled', runId, sessionId, trace: contextBuild.trace });
 			const plan = await this.resolvePlan(input.task, session, context);
+			const assembledTranscript = contextBuild.messages.length ? contextBuild.messages : session.transcript;
 			session = {
 				...session,
 				status: 'active',
@@ -124,8 +140,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				plan,
 				updatedAt: new Date().toISOString(),
 				transcript: [
-					...contextBuild.messages,
-					...session.transcript,
+					...assembledTranscript,
 					{ role: 'user', content: input.task },
 				],
 			};
@@ -140,6 +155,10 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				systemPrompt: this.buildSystemPrompt(contextBuild, memory),
 				maxIterations: input.maxIterations ?? this.config.runtime?.maxIterations ?? DEFAULT_MAX_ITERATIONS,
 				maxTokens: input.maxTokens ?? this.config.runtime?.maxTokens ?? DEFAULT_MAX_TOKENS,
+				maxCostUsd: input.maxCostUsd ?? this.config.runtime?.maxCostUsd,
+				model: modelDescriptor,
+				startedAtMs: Date.now(),
+				timeoutMs,
 				signal: controller.signal,
 			});
 			session = {
@@ -150,6 +169,14 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			const finalResult = { ...result, session };
 			await this.persistence.saveSession(session);
 			await this.config.memory?.store({ session, result: finalResult, context });
+			this.emit({ type: 'memory.write', runId, sessionId, count: finalResult.finalText ? 1 : 0 });
+			const boundaryOutput = await this.config.boundary?.filterOutput?.({ text: finalResult.finalText, session });
+			if (boundaryOutput && !boundaryOutput.allowed) {
+				throw new AgentHarnessError({
+					code: 'permission_denied',
+					message: boundaryOutput.reason ?? 'Output was blocked by boundary filter.',
+				});
+			}
 			await this.runHooks('after_run', { runId, sessionId, result: finalResult });
 			this.emit({
 				type: 'run.finished',
@@ -157,13 +184,15 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				sessionId,
 				stopReason: finalResult.stopReason,
 				outputChars: finalResult.finalText.length,
+				usage: finalResult.usage,
+				costUsd: finalResult.costUsd,
 			});
 			await this.log({
 				runId,
 				sessionId,
 				type: 'run.finished',
 				timestamp: new Date().toISOString(),
-				data: { stopReason: finalResult.stopReason, outputChars: finalResult.finalText.length },
+				data: this.redact({ stopReason: finalResult.stopReason, outputChars: finalResult.finalText.length }),
 			});
 			return finalResult;
 		} catch (error) {
@@ -176,15 +205,17 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			if (controller.signal.aborted) {
 				this.emit({ type: 'run.cancelled', runId, sessionId });
 			}
+			this.emit({ type: 'run.error', runId, sessionId, error: toHarnessErrorShape(error) });
 			await this.log({
 				runId,
 				sessionId,
 				type: 'run.failed',
 				timestamp: new Date().toISOString(),
-				data: { error: error instanceof Error ? error.message : String(error) },
+				data: this.redact({ error: error instanceof Error ? error.message : String(error) }),
 			});
 			throw error;
 		} finally {
+			if (timeout) clearTimeout(timeout);
 			removeAbort();
 			this.controllers.delete(runId);
 		}
