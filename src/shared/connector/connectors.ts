@@ -1097,11 +1097,13 @@ export const PLUGGABLE_MCP_CONNECTOR_IDS = [
 ] as const satisfies readonly OpenAiConnectorId[];
 
 export function getConnectorAuthKind(id: OpenAiConnectorId): ConnectorAuthKind {
-	return getConnectorCatalogItem(id)?.authKind ?? 'mcp_env';
+	const connector = getConnectorCatalogItem(id);
+	return connector && 'authKind' in connector ? connector.authKind : 'mcp_env';
 }
 
 export function connectorAllowsMultipleInstances(id: OpenAiConnectorId): boolean {
-	return getConnectorCatalogItem(id)?.allowMultipleInstances ?? true;
+	const connector = getConnectorCatalogItem(id);
+	return connector && 'allowMultipleInstances' in connector ? connector.allowMultipleInstances : true;
 }
 
 export function isOpenAiConnectorId(value: string): value is OpenAiConnectorId {
