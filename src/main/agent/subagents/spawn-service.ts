@@ -4,9 +4,9 @@ import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import { loadExistingSession } from '../session/store';
 import type { AgentConfig, AgentSessionMetadata } from '../../../shared/store';
-import type { StoreService } from '../../store';
 import type { TasksService } from '../../tasks';
 import { buildAgentSessionKey } from '../routing';
+import type { AgentSettingsStorePort } from '../settings';
 import { SubagentRegistry } from './registry';
 import { SUBAGENT_RUN_TASK_TYPE } from './task-handler';
 import type {
@@ -39,7 +39,7 @@ export interface SubagentsControlRequest {
 }
 
 export interface SubagentSpawnServiceDependencies {
-	store: Pick<StoreService, 'getAgentConfig'>;
+	agentSettings: Pick<AgentSettingsStorePort, 'getAgentConfig'>;
 	taskManager: Pick<TasksService, 'run' | 'cancel'>;
 	registry: SubagentRegistry;
 	eventBus?: EventBus;
@@ -232,9 +232,9 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 		const requesterSessionKey = request.requesterSessionKey.trim();
 		if (!requesterSessionKey) throw new Error('requesterSessionKey is required.');
 		const controllerSessionKey = request.controllerSessionKey?.trim() || requesterSessionKey;
-		const parentAgent = this.dependencies.store.getAgentConfig(requesterAgentId);
+		const parentAgent = this.dependencies.agentSettings.getAgentConfig(requesterAgentId);
 		const targetAgentId = input.agentId || requesterAgentId;
-		const targetAgent = this.dependencies.store.getAgentConfig(targetAgentId);
+		const targetAgent = this.dependencies.agentSettings.getAgentConfig(targetAgentId);
 
 		this.assertTargetAllowed({
 			requesterAgentId,
