@@ -125,56 +125,102 @@ export type ToolApprovalPolicyDecision =
 	| { outcome: 'allow'; resolution: 'allow-once' | 'allow-always' }
 	| { outcome: 'deny'; resolution: 'deny'; reason: string; deniedReason: string };
 
-const FILE_TOOL_NAMES = [
-	'read',
-	'write',
-	'edit',
-	'apply_patch',
-	'delete',
-	'copy',
-	'move',
-	'inspect_file',
-	'find',
+const CORE_WORKSPACE_TOOL_NAMES = [
+	'read_file',
+	'write_file',
+	'edit_file',
+	'list_directory',
+	'search_files',
+	'grep',
+	'run_shell',
+	'git_status',
+	'git_diff',
+	'undo_last_operation',
 ] as const;
 
-const FILESYSTEM_TOOL_NAMES = [
-	'filesystem_create',
-	'filesystem_read',
-	'filesystem_update',
-	'filesystem_delete',
-	'filesystem_list',
-	'filesystem_move',
-	'filesystem_copy',
-	'filesystem_search',
+const STATE_TASK_TOOL_NAMES = [
+	'write_todos',
+	'update_todo',
+	'list_todos',
+	'complete_task',
+	'write_scratch',
+	'read_scratch',
 ] as const;
 
-const SCRIPT_TOOL_NAMES = ['script_run'] as const;
+const HUMAN_DECISION_TOOL_NAMES = [
+	'request_approval',
+	'request_clarification',
+	'present_plan',
+	'request_authorization',
+] as const;
 
-const CRON_TOOL_NAMES = [
-	'cron_create',
-	'cron_read',
-	'cron_update',
-	'cron_delete',
-	'cron_list',
-	'cron_start',
-	'cron_stop',
-	'cron_run',
+const SUBAGENT_TOOL_NAMES = ['spawn_subagent'] as const;
+
+const SKILL_TOOL_NAMES = ['list_skills', 'load_skill', 'use_skill'] as const;
+
+const MCP_CONNECTOR_TOOL_NAMES = [
+	'list_mcp_servers',
+	'connect_mcp_server',
+	'refresh_mcp_server',
+	'list_mcp_tools',
+	'load_mcp_tool',
+	'call_mcp_tool',
+	'list_mcp_resources',
+	'read_mcp_resource',
+	'list_mcp_prompts',
+	'load_mcp_prompt',
 ] as const;
 
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
-	'group:file': FILE_TOOL_NAMES,
-	'group:filesystem': FILESYSTEM_TOOL_NAMES,
-	'group:script': SCRIPT_TOOL_NAMES,
-	'group:shell': SCRIPT_TOOL_NAMES,
-	'group:cron': CRON_TOOL_NAMES,
+	'group:coreworkspace': CORE_WORKSPACE_TOOL_NAMES,
+	'group:core_workspace': CORE_WORKSPACE_TOOL_NAMES,
+	'group:file': CORE_WORKSPACE_TOOL_NAMES,
+	'group:filesystem': CORE_WORKSPACE_TOOL_NAMES,
+	'group:shell': ['run_shell'],
+	'group:statetask': STATE_TASK_TOOL_NAMES,
+	'group:state_task': STATE_TASK_TOOL_NAMES,
+	'group:humandecision': HUMAN_DECISION_TOOL_NAMES,
+	'group:human_decision': HUMAN_DECISION_TOOL_NAMES,
+	'group:subagent': SUBAGENT_TOOL_NAMES,
+	'group:skill': SKILL_TOOL_NAMES,
+	'group:mcpconnector': MCP_CONNECTOR_TOOL_NAMES,
+	'group:mcp_connector': MCP_CONNECTOR_TOOL_NAMES,
+	'group:mcp': MCP_CONNECTOR_TOOL_NAMES,
 };
 
 const PROFILE_ALLOW: Record<ToolPolicyProfile, readonly string[] | '*'> = {
 	minimal: [],
-	coding: [...FILE_TOOL_NAMES, ...SCRIPT_TOOL_NAMES],
+	coding: [
+		...CORE_WORKSPACE_TOOL_NAMES,
+		...STATE_TASK_TOOL_NAMES,
+		...HUMAN_DECISION_TOOL_NAMES,
+		...SUBAGENT_TOOL_NAMES,
+		...SKILL_TOOL_NAMES,
+		...MCP_CONNECTOR_TOOL_NAMES,
+	],
 	messaging: [],
-	standard: [...FILE_TOOL_NAMES, ...SCRIPT_TOOL_NAMES],
+	standard: [
+		...CORE_WORKSPACE_TOOL_NAMES,
+		...STATE_TASK_TOOL_NAMES,
+		...HUMAN_DECISION_TOOL_NAMES,
+		...SUBAGENT_TOOL_NAMES,
+		...SKILL_TOOL_NAMES,
+		...MCP_CONNECTOR_TOOL_NAMES,
+	],
 	full: '*',
+};
+
+const TOOL_POLICY_ALIASES: Record<string, readonly string[]> = {
+	read: ['read_file'],
+	write: ['write_file'],
+	edit: ['edit_file'],
+	find: ['search_files'],
+	filesystem_read: ['read_file'],
+	filesystem_update: ['write_file'],
+	filesystem_list: ['list_directory'],
+	filesystem_search: ['search_files'],
+	script_run: ['run_shell'],
+	sessions_spawn: ['spawn_subagent'],
 };
 
 export type ToolPolicyIndex = {
@@ -404,6 +450,12 @@ export function expandToolPolicyEntries(
 		const groupNames = TOOL_POLICY_CORE_GROUPS[entry] ?? index.ownerGroups.get(entry);
 		if (groupNames) {
 			groupNames.filter((name) => index.names.has(name)).forEach((name) => expanded.add(name));
+			continue;
+		}
+
+		const aliases = TOOL_POLICY_ALIASES[entry];
+		if (aliases) {
+			aliases.filter((name) => index.names.has(name)).forEach((name) => expanded.add(name));
 			continue;
 		}
 
