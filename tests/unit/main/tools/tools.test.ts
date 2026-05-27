@@ -444,97 +444,93 @@ describe('tools/fs', () => {
 				},
 			],
 		});
+		const approve = (toolName: string, args: Record<string, unknown>): void => {
+			ctx.approvalCache.add(ctx.services.policy!.createToolUseKey(toolName, args));
+		};
 
+		const writeArgs = { path: outsideFile, content: 'created' };
+		approve('write', writeArgs);
 		await expect(
 			beforeToolCall(
 				writeTool,
-				{ path: outsideFile, content: 'created' },
+				writeArgs,
 				ctx,
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(writeTool.execute({ path: outsideFile, content: 'created' }, ctx)).resolves.toMatchObject({
+		await expect(writeTool.execute(writeArgs, ctx)).resolves.toMatchObject({
 			status: 'ok',
 		});
 		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('created');
 
+		const editArgs = { path: outsideFile, old: 'created', new: 'updated' };
+		approve('edit', editArgs);
 		await expect(
 			beforeToolCall(
 				editTool,
-				{ path: outsideFile, old: 'created', new: 'updated' },
+				editArgs,
 				ctx,
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(
-			editTool.execute({ path: outsideFile, old: 'created', new: 'updated' }, ctx)
-		).resolves.toMatchObject({ status: 'ok' });
+		await expect(editTool.execute(editArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('updated');
 
 		const outsideCopy = path.join(outside, 'copy.txt');
+		const copyArgs = { source: outsideFile, destination: outsideCopy };
+		approve('copy', copyArgs);
 		await expect(
 			beforeToolCall(
 				copyTool,
-				{ source: outsideFile, destination: outsideCopy },
+				copyArgs,
 				ctx,
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(
-			copyTool.execute({ source: outsideFile, destination: outsideCopy }, ctx)
-		).resolves.toMatchObject({ status: 'ok' });
+		await expect(copyTool.execute(copyArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(outsideCopy, 'utf8')).resolves.toBe('updated');
 
 		const outsideMoved = path.join(outside, 'moved.txt');
+		const moveArgs = { source: outsideCopy, destination: outsideMoved };
+		approve('move', moveArgs);
 		await expect(
 			beforeToolCall(
 				moveTool,
-				{ source: outsideCopy, destination: outsideMoved },
+				moveArgs,
 				ctx,
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(
-			moveTool.execute({ source: outsideCopy, destination: outsideMoved }, ctx)
-		).resolves.toMatchObject({ status: 'ok' });
+		await expect(moveTool.execute(moveArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('updated');
 
+		const patchArgs = {
+			diff: [
+				`--- ${outsideMoved}`,
+				`+++ ${outsideMoved}`,
+				'@@ -1 +1 @@',
+				'-updated',
+				'+patched',
+			].join('\n'),
+		};
+		approve('apply_patch', patchArgs);
 		await expect(
 			beforeToolCall(
 				applyPatchTool,
-				{
-					diff: [
-						`--- ${outsideMoved}`,
-						`+++ ${outsideMoved}`,
-						'@@ -1 +1 @@',
-						'-updated',
-						'+patched',
-					].join('\n'),
-				},
+				patchArgs,
 				ctx,
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(
-			applyPatchTool.execute(
-				{
-					diff: [
-						`--- ${outsideMoved}`,
-						`+++ ${outsideMoved}`,
-						'@@ -1 +1 @@',
-						'-updated',
-						'+patched',
-					].join('\n'),
-				},
-				ctx
-			)
-		).resolves.toMatchObject({ status: 'ok' });
+		await expect(applyPatchTool.execute(patchArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('patched');
 
+		const deleteArgs = { path: outsideMoved };
+		approve('delete', deleteArgs);
 		await expect(
-			beforeToolCall(deleteTool, { path: outsideMoved }, ctx, newCallTracker())
+			beforeToolCall(deleteTool, deleteArgs, ctx, newCallTracker())
 		).resolves.toMatchObject({ proceed: true });
-		await expect(deleteTool.execute({ path: outsideMoved }, ctx)).resolves.toMatchObject({
+		await expect(deleteTool.execute(deleteArgs, ctx)).resolves.toMatchObject({
 			status: 'ok',
 		});
 		await expect(fs.stat(outsideMoved)).rejects.toThrow();
