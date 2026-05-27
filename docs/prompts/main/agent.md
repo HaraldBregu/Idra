@@ -69,28 +69,13 @@ Each layer should have clear boundaries, typed interfaces, and explicit dependen
 3. PUBLIC API LAYER
 ============================================================
 
-Expose a single factory:
+Expose a single factory function that accepts a config and returns an AgentHarness instance.
 
-```ts
-createAgentHarness(config: AgentHarnessConfig): Promise<AgentHarness>
-```
+AgentHarness exposes: run, session, memory, tools, hooks, skills, store, and abort.
 
-`AgentHarness` exposes:
+The run method accepts a task string and options, and returns an async iterable of typed agent events.
 
-```ts
-interface AgentHarness {
-  run(task: string, options?: RunOptions): AsyncIterable<AgentEvent>
-  session: SessionManager
-  memory: MemoryManager
-  tools: ToolRegistry
-  hooks: HookRegistry
-  skills: SkillRegistry
-  store: AgentStore
-  abort(): void
-}
-```
-
-All modules access shared state through `AgentStore`. No module initializes its own store.
+All modules access shared state through the AgentStore. No module initializes its own store.
 
 ============================================================
 4. PERSISTENCE: ELECTRON STORE + AGENT.JSON
@@ -99,45 +84,17 @@ All modules access shared state through `AgentStore`. No module initializes its 
 The agent uses electron-store as its sole persistence mechanism. All agent state, settings, memory, tools, MCP configuration, sessions, skills, and logs are stored in a single file: agent.json.
 
 Rules:
-- Use the `electron-store` package. Do not use any other storage library, database, or external service.
-- Instantiate one `Store` instance in `src/agent/store.ts` and export it as a singleton.
+- Use the electron-store package. Do not use any other storage library, database, or external service.
+- Instantiate one Store instance in src/agent/store.ts and export it as a singleton.
 - Every module (memory, sessions, tools, skills, hooks, logs, undo, safety) reads and writes through this shared store instance.
 - No module creates its own store. No module writes to disk independently.
 - No network calls, no cloud sync, no external API for persistence.
 
-Store schema (agent.json):
+The store schema holds: settings, sessions, memory, tools, skills, mcp, hooks, logs, and snapshots.
 
-```ts
-interface AgentSchema {
-  settings: AgentSettings
-  sessions: Record<string, Session>
-  memory: MemoryEntry[]
-  tools: ToolEntry[]
-  skills: SkillEntry[]
-  mcp: McpConfig
-  hooks: HookEntry[]
-  logs: LogEntry[]
-  snapshots: Snapshot[]
-}
-```
+Initialize the store with typed defaults for all schema keys.
 
-Initialize with typed defaults:
-
-```ts
-const store = new Store<AgentSchema>({
-  name: 'agent',
-  defaults: { ... }
-})
-```
-
-Access pattern in each module:
-
-```ts
-import { store } from '../store'
-
-store.get('memory')
-store.set('memory', updated)
-```
+Each module reads from and writes to its own schema key via the shared store singleton.
 
 ============================================================
 5. SHARED CONFIGURATION
@@ -154,9 +111,9 @@ Settings include:
 - Hook definitions.
 - Log retention policy.
 
-No module owns its own config. Each module reads its slice from `store.get('settings')`.
+No module owns its own config. Each module reads its slice from the settings key in the store.
 
-MCP configuration lives at `store.get('mcp')`. Modules that need MCP servers read from there. No module hardcodes server URLs or command paths.
+MCP configuration lives in the mcp key of the store. Modules that need MCP servers read from there. No module hardcodes server URLs or command paths.
 
 ============================================================
 6. AGENT RUNTIME / HARNESS LAYER
@@ -165,7 +122,7 @@ MCP configuration lives at `store.get('mcp')`. Modules that need MCP servers rea
 The harness orchestrates the agent loop:
 
 1. Load context (memory, tools, skills, hooks) from the store.
-2. Construct system prompt from settings + memory.
+2. Construct system prompt from settings and memory.
 3. Call the model with tools attached.
 4. Parse the model response.
 5. If tool call: validate, check safety, request human approval if required, execute, record result in log.
@@ -178,41 +135,21 @@ The harness emits typed events via an EventEmitter for every state transition.
 7. TOOL SYSTEM LAYER
 ============================================================
 
-All tools are registered in the shared store under `store.get('tools')`.
+All tools are registered in the shared store under the tools key.
 
-Tool interface:
+Each tool has an id, name, description, JSON schema, and an execute function.
 
-```ts
-interface Tool {
-  id: string
-  name: string
-  description: string
-  schema: JSONSchema
-  execute(input: unknown): Promise<ToolResult>
-}
-```
+The tool registry reads enabled tool IDs from settings. Only enabled tools are passed to the model.
 
-Tool registry reads enabled tool IDs from `store.get('settings').enabledTools`. Only enabled tools are passed to the model.
-
-MCP tools are loaded from `store.get('mcp')` at harness initialization. They are registered into the same tool registry as built-in tools.
+MCP tools are loaded from the mcp key of the store at harness initialization. They are registered into the same tool registry as built-in tools. There is one unified tool registry.
 
 ============================================================
 8. MEMORY LAYER
 ============================================================
 
-Memory is a list of typed entries stored at `store.get('memory')`.
+Memory is a list of typed entries stored in the memory key of the store.
 
-Memory entry:
-
-```ts
-interface MemoryEntry {
-  id: string
-  type: 'fact' | 'task' | 'session' | 'skill'
-  content: string
-  createdAt: number
-  tags: string[]
-}
-```
+Each memory entry has an id, type (fact, task, session, or skill), content, createdAt timestamp, and tags.
 
 Memory is retrieved by relevance before each run and injected into the system prompt.
 
@@ -220,23 +157,18 @@ Memory is retrieved by relevance before each run and injected into the system pr
 9. SESSION LAYER
 ============================================================
 
-Sessions are stored at `store.get('sessions')` keyed by session ID.
+Sessions are stored in the sessions key of the store, keyed by session ID.
 
-Each session holds:
-- Message history.
-- Active tool results.
-- Undo snapshots for that session.
-- Status (active, completed, aborted).
+Each session holds message history, active tool results, undo snapshots for that session, and a status (active, completed, or aborted).
 
 ============================================================
 10. SAFETY LAYER
 ============================================================
 
-Safety rules are stored in `store.get('settings').safetyRules`.
+Safety rules are stored in settings. Before any tool executes:
 
-Before any tool executes:
 1. Check input against safety rules.
-2. If rule triggered: block execution, emit safety event, log to store.
+2. If a rule is triggered: block execution, emit a safety event, log to the store.
 
 Safety rules are configurable at runtime via the store. No hardcoded rules in code.
 
@@ -247,9 +179,9 @@ Safety rules are configurable at runtime via the store. No hardcoded rules in co
 Approval checkpoints are defined per tool in the tool registry.
 
 When a tool requires approval:
-1. Emit an `approval_required` event with the tool name and input.
+1. Emit an approval_required event with the tool name and input.
 2. Suspend the agent loop.
-3. Wait for `approve()` or `reject()` to be called on the harness.
+3. Wait for approve or reject to be called on the harness.
 4. Resume or abort.
 
 The UI or host process subscribes to events and calls the approval methods. The harness is UI-agnostic.
@@ -258,7 +190,7 @@ The UI or host process subscribes to events and calls the approval methods. The 
 12. UNDO / SNAPSHOT LAYER
 ============================================================
 
-Before any irreversible tool execution, the harness captures a snapshot of the relevant store slice and appends it to `store.get('snapshots')`.
+Before any irreversible tool execution, the harness captures a snapshot of the relevant store slice and appends it to the snapshots key.
 
 Undo restores the most recent snapshot for the current session.
 
@@ -266,17 +198,9 @@ Undo restores the most recent snapshot for the current session.
 13. HOOKS / MIDDLEWARE LAYER
 ============================================================
 
-Hooks are stored in `store.get('hooks')` and loaded at harness initialization.
+Hooks are stored in the hooks key of the store and loaded at harness initialization.
 
-Hook interface:
-
-```ts
-interface Hook {
-  id: string
-  trigger: 'before_tool' | 'after_tool' | 'before_run' | 'after_run'
-  handler: string
-}
-```
+Each hook has an id, a trigger (before_tool, after_tool, before_run, or after_run), and a handler reference.
 
 Hooks are executed in order at their trigger point. Hook handlers are TypeScript functions loaded from the skills registry.
 
@@ -286,7 +210,7 @@ Hooks are executed in order at their trigger point. Hook handlers are TypeScript
 
 Skills are dynamic capabilities loaded on demand.
 
-Skills are stored in `store.get('skills')`. Each skill has a name, description, and an execute function path.
+Skills are stored in the skills key of the store. Each skill has a name, description, and an execute function path.
 
 Skills are loaded at runtime from the store. No skill is hardcoded into the harness.
 
@@ -294,21 +218,9 @@ Skills are loaded at runtime from the store. No skill is hardcoded into the harn
 15. EVENT AND OBSERVABILITY LAYER
 ============================================================
 
-The harness emits typed events:
+The harness emits typed events covering: thinking, tool_call, tool_result, approval_required, safety_blocked, answer, error, and aborted.
 
-```ts
-type AgentEvent =
-  | { type: 'thinking'; content: string }
-  | { type: 'tool_call'; tool: string; input: unknown }
-  | { type: 'tool_result'; tool: string; result: unknown }
-  | { type: 'approval_required'; tool: string; input: unknown }
-  | { type: 'safety_blocked'; tool: string; rule: string }
-  | { type: 'answer'; content: string }
-  | { type: 'error'; message: string }
-  | { type: 'aborted' }
-```
-
-All events are also appended to `store.get('logs')` for observability.
+All events are also appended to the logs key of the store for observability.
 
 ============================================================
 16. FILE STRUCTURE
@@ -362,19 +274,7 @@ One exported function or class per file. Filenames are a single word.
 17. TESTING
 ============================================================
 
-Write tests for every module. Tests live alongside source files:
-
-```
-src/agent/memory/manager.test.ts
-src/agent/tools/registry.test.ts
-src/agent/tools/executor.test.ts
-src/agent/safety/check.test.ts
-src/agent/sessions/manager.test.ts
-src/agent/context/build.test.ts
-src/agent/snapshots/capture.test.ts
-src/agent/hooks/registry.test.ts
-src/agent/harness.test.ts
-```
+Write tests for every module. Tests live alongside source files as module.test.ts.
 
 Test requirements:
 - Use a fresh in-memory store instance for each test. Do not share store state between tests.
@@ -412,5 +312,5 @@ No external dependencies for persistence.
 Readable structure.
 - One exported function or class per file.
 - Single-word filenames.
-- Types in `types.ts` only.
+- Types in types.ts only.
 - No barrel files unless explicitly required for public API surface.
