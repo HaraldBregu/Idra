@@ -127,6 +127,25 @@ No module owns its own config. Each module reads its slice from the settings key
 MCP configuration lives in the mcp key of the store. Modules that need MCP servers read from there. No module hardcodes server URLs or command paths.
 
 ============================================================
+5a. MCP PROVIDER REGISTRY
+============================================================
+
+Every MCP provider is registered dynamically at runtime. No provider name, server URL, command path, transport type, or capability is hardcoded anywhere in the system.
+
+A provider entry in the store describes everything the loader needs to connect: an id, a display name, a transport (stdio or SSE), the command or URL, and any arguments or headers. The loader reads these entries from the store and connects to each provider at harness initialization.
+
+Providers can be added, updated, or removed at runtime by writing to the mcp key in the store. The harness reloads the provider list on each new run. No restart is required.
+
+When a provider connects, it exposes its tools and capabilities dynamically. The loader introspects the provider and registers its tools into the unified tool registry. The harness has no prior knowledge of what tools any provider will expose.
+
+Rules:
+- No provider ID, name, URL, or command appears as a constant or literal in source code.
+- No provider is assumed to exist. The system degrades gracefully if a registered provider is unavailable.
+- A provider that fails to connect emits a provider_error event and is skipped. Its tools are not registered.
+- The same provider can be registered multiple times with different IDs and configs (e.g. two different MCP server instances).
+- Tool IDs from MCP providers are namespaced by provider ID to avoid collisions with built-in tools.
+
+============================================================
 6. AGENT RUNTIME / HARNESS LAYER
 ============================================================
 
