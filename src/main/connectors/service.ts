@@ -846,12 +846,11 @@ export class ConnectorsService {
 
 	private validConnectors(): ConnectorConfig[] {
 		return this.readStoredConnectors()
-			.filter(isStoredConnectorValid)
-			.map(normalizeStoredConnector)
-			.map((connector) => ({
-				...connector,
-				tools: connector.oauth ? connector.tools : this.readTools(connector.id),
-			}));
+			.map((connector) => {
+				if (connector.tools.length > 0) return connector;
+				const legacyTools = this.readLegacyTools(connector.id);
+				return legacyTools.length > 0 ? { ...connector, tools: legacyTools } : connector;
+			});
 	}
 
 	private replace(connector: ConnectorConfig): void {
@@ -907,7 +906,7 @@ export class ConnectorsService {
 
 	private writeAll(connectors: ConnectorConfig[]): void {
 		try {
-			this.store.set(CONNECTOR_STORE_KEY, connectors.map(stripToolCache));
+			this.store.set(CONNECTOR_STORE_KEY, connectors.map(normalizeStoredConnector));
 			this.logDebug('Wrote connector settings', { key: CONNECTOR_STORE_KEY, count: connectors.length });
 		} catch (error) {
 			this.logError('Failed to write connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
@@ -915,37 +914,14 @@ export class ConnectorsService {
 		}
 	}
 
-	private readTools(connectorId: string): ConnectorTool[] {
-		const raw = this.readToolRecords()[connectorId];
+	private readLegacyTools(connectorId: string): ConnectorTool[] {
+		const raw = this.readLegacyToolRecords()[connectorId];
 		if (!Array.isArray(raw)) return [];
-		return raw.filter(isConnectorToolRecord).map((tool) => ({ ...tool }));
+		return raw.flatMap((tool) => isConnectorToolRecord(tool) ? [normalizeConnectorTool(tool)] : []);
 	}
 
-	private writeTools(connectorId: string, tools: readonly ConnectorTool[]): void {
-		const records = this.readToolRecords();
-		records[connectorId] = tools.map((tool) => ({ ...tool }));
-		try {
-			this.toolStore.set(CONNECTOR_TOOLS_STORE_KEY, records);
-			this.logDebug('Wrote connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId, count: tools.length });
-		} catch (error) {
-			this.logError('Failed to write connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId, error: this.errorMessage(error) });
-			throw error;
-		}
-	}
-
-	private deleteTools(connectorId: string): void {
-		const records = this.readToolRecords();
-		delete records[connectorId];
-		try {
-			this.toolStore.set(CONNECTOR_TOOLS_STORE_KEY, records);
-			this.logDebug('Deleted connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId });
-		} catch (error) {
-			this.logError('Failed to delete connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId, error: this.errorMessage(error) });
-			throw error;
-		}
-	}
-
-	private readToolRecords(): Record<string, ConnectorTool[]> {
+	private readLegacyToolRecords(): Record<string, ConnectorTool[]> {
+		if (!this.toolStore) return {};
 		try {
 			const raw = this.toolStore.get(CONNECTOR_TOOLS_STORE_KEY);
 			if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
