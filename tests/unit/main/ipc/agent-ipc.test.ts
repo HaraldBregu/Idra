@@ -24,7 +24,7 @@ function createContainer(overrides: {
 		readWorkspaceFile: jest.Mock;
 		writeWorkspaceFile: jest.Mock;
 	}>;
-	userDataDirectory?: Partial<{ resolve: jest.Mock }>;
+	agentDataDirectory?: Partial<{ resolve: jest.Mock }>;
 }): MainServiceContainer {
 	const services = {
 		logger: {
@@ -43,9 +43,9 @@ function createContainer(overrides: {
 			writeWorkspaceFile: jest.fn(),
 			...overrides.workspace,
 		},
-		userDataDirectory: {
+		agentDataDirectory: {
 			resolve: jest.fn(() => '/tmp/agent/sessions'),
-			...overrides.userDataDirectory,
+			...overrides.agentDataDirectory,
 		},
 	};
 
