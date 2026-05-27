@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { shell } from 'electron';
 import Store from 'electron-store';
 import type { LoggerService } from '../../logger';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
@@ -10,12 +11,15 @@ import type {
 	ConnectorMcpConfig,
 	ConnectorMcpEnvSecret,
 	ConnectorMcpHeaderSecret,
+	ConnectorOAuthAuthorizeResult,
+	ConnectorOAuthCompleteInput,
 	ConnectorProviderId,
 	ConnectorStatus,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
 } from '../../../shared/connector';
+import { GOOGLE_OAUTH_CLIENT_ID_ENV, GOOGLE_WORKSPACE_OAUTH_CONNECTORS } from '../../../shared/connector';
 import {
 	createSdkConnectorMcpClient,
 	missingMcpSecretNames,
@@ -23,7 +27,7 @@ import {
 	type ConnectorMcpClientFactory,
 } from './mcp-client';
 
-const CONNECTOR_STORE_NAME = 'connector';
+const CONNECTOR_STORE_NAME = 'connectors';
 const CONNECTOR_STORE_KEY = 'connectors';
 const CONNECTOR_TOOLS_STORE_NAME = 'connector-tools';
 const CONNECTOR_TOOLS_STORE_KEY = 'tools';
@@ -77,6 +81,8 @@ interface ConnectorsServiceOptions {
 	toolStore?: ConnectorToolPersistenceStore;
 	catalogProvider?: ConnectorCatalogProvider;
 	mcpClientFactory?: ConnectorMcpClientFactory;
+	openExternalUrl?: (url: string) => Promise<void>;
+	env?: NodeJS.ProcessEnv;
 }
 
 function textResult(text: string, isError = false): AgentToolResult {
@@ -93,6 +99,7 @@ function serverLabelFromName(name: string): string {
 
 function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
+	if (connector.oauth) return connector.oauth.token ? 'configured' : 'missing_auth';
 	if (!connector.mcp) return 'missing_auth';
 	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
 	if (connector.lastError) return 'error';
@@ -104,7 +111,7 @@ function toView(connector: ConnectorConfig): ConnectorView {
 		id: connector.id,
 		name: connector.name,
 		connectorId: connector.connectorId,
-		authKind: 'mcp_env',
+		authKind: connector.oauth ? 'oauth' : 'mcp_env',
 		serverLabel: connector.serverLabel,
 		enabled: connector.enabled,
 		status: statusFor(connector),
@@ -114,6 +121,7 @@ function toView(connector: ConnectorConfig): ConnectorView {
 		deferLoading: connector.deferLoading,
 		lastRefreshedAt: connector.lastRefreshedAt,
 		lastError: connector.lastError,
+		connectedAccount: connector.oauth?.accountEmail,
 	};
 }
 
