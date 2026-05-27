@@ -28,13 +28,13 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'app',
 		titleKey: 'settings.overview.groups.app',
-		paths: ['/settings/general', '/settings/system'],
+		paths: ['/settings/general', '/settings/system', '/settings/providers'],
 	},
 	{
 		id: 'ai',
 		titleKey: 'settings.overview.groups.ai',
 		agents: true,
-		paths: ['/settings/providers', '/settings/skills', '/settings/connectors'],
+		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
 		id: 'channels',

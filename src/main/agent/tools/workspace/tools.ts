@@ -154,7 +154,6 @@ export const runShellTool: AgentTool<{
 		required: ['command'],
 		additionalProperties: false,
 	},
-	needsApproval: true,
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('run_shell: disabled by read-only filesystem policy.', true);
