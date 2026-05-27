@@ -25,4 +25,5 @@ registerHooks({
 	},
 });
 
-await import('./example.ts');
+const example = await import('./example.ts');
+await example.runAgentHarnessExample();
