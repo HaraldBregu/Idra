@@ -25,6 +25,7 @@ const TOOL_GUIDANCE: Record<string, string> = {
 	write: 'Create or overwrite files. Read existing files first.',
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
 	find: 'Glob-search the workspace for files.',
+	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
 };
 
 const ACCEPTANCE_CONTRACT = [
