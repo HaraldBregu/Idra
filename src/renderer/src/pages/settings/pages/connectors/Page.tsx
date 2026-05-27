@@ -153,42 +153,13 @@ const ConnectorsPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [oauthError, setOauthError] = useState<string | null>(null);
-	const toolRefreshAttempts = useRef(new Set<string>());
 	const {
 		catalog, connectors,
 		error,
 		statusMessage,
-		load,
 	} = useConnectors();
 	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth' && !connector.oauth);
 	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
-	const connectorByProviderId = useMemo(
-		() => new Map(connectors.map((connector) => [connector.connectorId, connector])),
-		[connectors]
-	);
-
-	useEffect(() => {
-		const missingToolConnectors = GOOGLE_WORKSPACE_CONNECTORS
-			.map((connector) => connectorByProviderId.get(connector.id))
-			.filter((connector): connector is ConnectorView =>
-				Boolean(connector && !connector.hasTools && !toolRefreshAttempts.current.has(connector.id))
-			);
-		if (missingToolConnectors.length === 0) return;
-
-		let cancelled = false;
-		for (const connector of missingToolConnectors) toolRefreshAttempts.current.add(connector.id);
-		void Promise.all(missingToolConnectors.map((connector) => window.connectors.refreshTools(connector.id)))
-			.then(() => {
-				if (!cancelled) void load();
-			})
-			.catch((err) => {
-				if (!cancelled) setOauthError(err instanceof Error ? err.message : String(err));
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [connectorByProviderId, load]);
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
