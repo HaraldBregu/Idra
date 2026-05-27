@@ -146,10 +146,11 @@ describe('connector settings docs', () => {
 
 	it('renders static Google OAuth connectors and opens authorization without saving tokens', async () => {
 		const user = userEvent.setup();
+		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
 
 		renderConnectorsPage();
 
-		expect(await screen.findByText('Dropbox')).toBeInTheDocument();
+		await waitFor(() => expect(window.connectors.list).toHaveBeenCalled());
 		expect(screen.getByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
 		expect(screen.getByRole('heading', { name: 'Google Calendar' })).toBeInTheDocument();
 		expect(screen.getByRole('heading', { name: 'Google Drive' })).toBeInTheDocument();
