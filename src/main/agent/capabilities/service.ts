@@ -1,6 +1,7 @@
 import type { LoggerService } from '../../logger';
 import type { ConnectorsService } from '../../connectors';
 import type { SkillsService } from '../../skills';
+import type { AgentMcpClientServicePort } from '../mcp-client';
 import type { AgentTool } from '../tools';
 import type { SkillDetails } from '../../../shared/skills';
 import type {
@@ -15,6 +16,7 @@ const MAX_SKILL_PROMPT_CHARS = 4000;
 
 export interface AgentCapabilityServiceOptions {
 	connectors?: ConnectorsService;
+	mcpClient?: Pick<AgentMcpClientServicePort, 'createAgentTools'>;
 	skills?: SkillsService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -54,9 +56,10 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	}
 
 	private async resolveConnectorTools(input: AgentCapabilityResolveInput): Promise<AgentTool[]> {
-		if (!this.options.connectors || (!input.shouldUseTools && !input.bootstrapPending)) return [];
+		const mcpClient = this.options.mcpClient ?? this.options.connectors;
+		if (!mcpClient || (!input.shouldUseTools && !input.bootstrapPending)) return [];
 		try {
-			const tools = this.options.connectors.createAgentTools().map((tool) => ({
+			const tools = mcpClient.createAgentTools().map((tool) => ({
 				...tool,
 				serviceKind: 'connector' as const,
 			}));
