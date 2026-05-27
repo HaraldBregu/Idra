@@ -115,6 +115,7 @@ export function bootstrapServices(): BootstrapResult {
 		new PolicyService({
 			workspaceRoot: workspace.getRootPath(),
 			agentRoot: agentDataDirectory.getRootPath(),
+			userDataRoot: userDataDirectory.getRootPath(),
 			logger,
 		})
 	);
