@@ -17,12 +17,6 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
-	StaticOAuthConnectorDefinition,
-} from '../../../shared/connector';
-import {
-	GOOGLE_MCP_AUTHENTICATION_URL,
-	GOOGLE_OAUTH_CLIENT_ID_ENV,
-	GOOGLE_WORKSPACE_OAUTH_CONNECTORS,
 } from '../../../shared/connector';
 import {
 	createSdkConnectorMcpClient,
@@ -40,6 +34,7 @@ const SERVER_LABEL_PATTERN = /^[a-zA-Z0-9_-]+$/;
 const CONNECTOR_ID_PATTERN = /^[a-zA-Z0-9._:-]+$/;
 const ENV_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const SECRET_HEADER_NAMES = new Set(['authorization', 'x-api-key', 'api-key']);
+const GOOGLE_OAUTH_CLIENT_ID_ENV = 'GOOGLE_OAUTH_CLIENT_ID';
 
 interface ConnectorPersistenceStore {
 	get(key: string): unknown;
@@ -87,6 +82,102 @@ interface ConnectorsServiceOptions {
 	mcpClientFactory?: ConnectorMcpClientFactory;
 	openExternalUrl?: (url: string) => Promise<void>;
 	env?: NodeJS.ProcessEnv;
+}
+
+interface GoogleWorkspaceOAuthConnectorDefinition {
+	readonly id: string;
+	readonly providerId: string;
+	readonly directConnectorId: string;
+	readonly name: string;
+	readonly description: string;
+	readonly docsPath: string;
+	readonly tools: readonly string[];
+	readonly scopes: readonly string[];
+	readonly mcp?: {
+		readonly endpoint: string;
+		readonly referenceUrl: string;
+	};
+}
+
+function googleWorkspaceOAuthConnectors(): readonly GoogleWorkspaceOAuthConnectorDefinition[] {
+	return [
+		{
+			id: 'google.gmail',
+			providerId: 'google',
+			directConnectorId: 'gmail',
+			name: 'Gmail',
+			description: 'Authorize the official Gmail MCP server for mail search, drafts, labels, and threads.',
+			docsPath: 'docs/connectors/gmail.md',
+			tools: [
+				'create_draft',
+				'list_drafts',
+				'get_thread',
+				'search_threads',
+				'label_thread',
+				'unlabel_thread',
+				'list_labels',
+				'label_message',
+				'unlabel_message',
+				'create_label',
+			],
+			scopes: [
+				'https://www.googleapis.com/auth/userinfo.email',
+				'https://www.googleapis.com/auth/userinfo.profile',
+				'https://www.googleapis.com/auth/gmail.readonly',
+				'https://www.googleapis.com/auth/gmail.compose',
+				'https://www.googleapis.com/auth/gmail.send',
+				'https://www.googleapis.com/auth/gmail.modify',
+			],
+			mcp: {
+				endpoint: 'https://gmailmcp.googleapis.com/mcp/v1',
+				referenceUrl: 'https://developers.google.com/workspace/gmail/api/reference/mcp',
+			},
+		},
+		{
+			id: 'google.calendar',
+			providerId: 'google',
+			directConnectorId: 'google_calendar',
+			name: 'Google Calendar',
+			description: 'Authorize the official Calendar MCP server for calendars, events, scheduling, and RSVPs.',
+			docsPath: 'docs/connectors/google-calendar.md',
+			tools: [
+				'list_events',
+				'get_event',
+				'list_calendars',
+				'suggest_time',
+				'create_event',
+				'update_event',
+				'delete_event',
+				'respond_to_event',
+			],
+			scopes: [
+				'https://www.googleapis.com/auth/userinfo.email',
+				'https://www.googleapis.com/auth/userinfo.profile',
+				'https://www.googleapis.com/auth/calendar.readonly',
+				'https://www.googleapis.com/auth/calendar.events.readonly',
+				'https://www.googleapis.com/auth/calendar.events',
+			],
+			mcp: {
+				endpoint: 'https://calendarmcp.googleapis.com/mcp/v1',
+				referenceUrl: 'https://developers.google.com/workspace/calendar/api/v3/reference/mcp',
+			},
+		},
+		{
+			id: 'google.drive',
+			providerId: 'google',
+			directConnectorId: 'google_drive',
+			name: 'Google Drive',
+			description: 'Authorize Drive access for file search, metadata, content reads, and file creation.',
+			docsPath: 'docs/connectors/google-drive.md',
+			tools: ['Search files', 'Read content', 'Inspect metadata', 'Create files'],
+			scopes: [
+				'https://www.googleapis.com/auth/userinfo.email',
+				'https://www.googleapis.com/auth/userinfo.profile',
+				'https://www.googleapis.com/auth/drive.readonly',
+				'https://www.googleapis.com/auth/drive.file',
+			],
+		},
+	];
 }
 
 function textResult(text: string, isError = false): AgentToolResult {
