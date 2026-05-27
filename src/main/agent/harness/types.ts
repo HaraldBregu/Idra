@@ -64,6 +64,47 @@ export interface AgentHarnessModel {
 	stream(req: AgentHarnessModelRequest): AsyncIterable<ProviderEvent>;
 }
 
+export interface AgentHarnessModelCost {
+	inputUsdPerMillionTokens?: number;
+	outputUsdPerMillionTokens?: number;
+}
+
+export interface AgentHarnessModelDescriptor {
+	provider: string;
+	model: string;
+	contextWindowTokens: number;
+	supportsTools: boolean;
+	supportsStreaming: boolean;
+	modalities?: Array<'text' | 'image' | 'audio' | 'video'>;
+	relativeCost?: 'low' | 'medium' | 'high';
+	cost?: AgentHarnessModelCost;
+}
+
+export interface AgentHarnessModelCandidate {
+	provider?: string;
+	modelId: string;
+	model: AgentHarnessModel;
+	effort?: string;
+}
+
+export interface AgentHarnessModelRegistry {
+	get(provider: string | undefined, model: string): AgentHarnessModelDescriptor | undefined;
+	list?(): AgentHarnessModelDescriptor[];
+}
+
+export interface AgentHarnessRetryPolicy {
+	maxAttempts?: number;
+	baseDelayMs?: number;
+	maxDelayMs?: number;
+	retryableErrors?: string[];
+}
+
+export interface AgentHarnessModelRoutingConfig {
+	registry?: AgentHarnessModelRegistry;
+	fallbacks?: AgentHarnessModelCandidate[];
+	retry?: AgentHarnessRetryPolicy;
+}
+
 export interface AgentHarnessToolResult<TDetails = unknown> {
 	status: AgentToolResultStatus;
 	content: ToolResultBlock[];
@@ -88,8 +129,28 @@ export interface AgentHarnessTool<TArgs = Record<string, unknown>, TDetails = un
 	description: string;
 	schema: JSONSchema;
 	displayName?: string;
+	group?: string;
+	enabled?: boolean;
+	timeoutMs?: number;
+	longRunning?: boolean;
+	destructive?: boolean;
+	externalWrite?: boolean;
 	requiresApproval?: boolean | ((args: TArgs, ctx: AgentHarnessToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: AgentHarnessToolContext): Promise<AgentHarnessToolResult<TDetails>>;
+}
+
+export interface AgentHarnessToolRegistry {
+	register(tool: AgentHarnessTool): void;
+	unregister(name: string): void;
+	list(input?: AgentHarnessToolRegistryQuery): AgentHarnessTool[];
+	get(name: string): AgentHarnessTool | undefined;
+}
+
+export interface AgentHarnessToolRegistryQuery {
+	groups?: string[];
+	allow?: string[];
+	deny?: string[];
+	includeDisabled?: boolean;
 }
 
 export interface AgentHarnessPlanEntry {
@@ -127,8 +188,13 @@ export interface AgentHarnessExecuteInput {
 	parentSessionId?: string;
 	context?: Record<string, unknown>;
 	requiredSkills?: string[];
+	enabledTools?: string[];
+	disabledTools?: string[];
+	toolGroups?: string[];
 	maxIterations?: number;
 	maxTokens?: number;
+	maxCostUsd?: number;
+	timeoutMs?: number;
 	signal?: AbortSignal;
 	metadata?: Record<string, unknown>;
 }
@@ -139,6 +205,7 @@ export interface AgentHarnessRunResult {
 	finalText: string;
 	toolCalls: number;
 	usage: Usage;
+	costUsd?: number;
 	stopReason: AgentRunStopReason;
 	session: AgentHarnessSession;
 }
@@ -151,6 +218,7 @@ export interface AgentHarnessContextBuildResult {
 	systemPromptAdditions?: string[];
 	messages?: TranscriptEntry[];
 	metadata?: Record<string, unknown>;
+	trace?: AgentHarnessContextAssemblyTrace;
 }
 
 export interface AgentHarnessContextManager {
@@ -159,7 +227,17 @@ export interface AgentHarnessContextManager {
 		session: AgentHarnessSession;
 		memory: AgentHarnessMemoryRecord[];
 		context: Record<string, unknown>;
+		model?: AgentHarnessModelDescriptor;
+		budgetTokens?: number;
 	}): Promise<AgentHarnessContextBuildResult>;
+}
+
+export interface AgentHarnessContextAssemblyTrace {
+	budgetTokens: number;
+	estimatedTokens: number;
+	included: string[];
+	dropped: string[];
+	summarized: string[];
 }
 
 export interface AgentHarnessMemory {
@@ -188,6 +266,7 @@ export interface AgentHarnessApprovalDecision {
 	approved: boolean;
 	reason?: string;
 	remember?: boolean;
+	updatedArgs?: unknown;
 }
 
 export interface AgentHarnessApprovalController {
@@ -302,6 +381,37 @@ export interface AgentHarnessToolResultOptimizer {
 	}): Promise<ToolResultBlock[]>;
 }
 
+export interface AgentHarnessPermissions {
+	allowTools?: string[];
+	denyTools?: string[];
+	allowConnectors?: string[];
+	denyConnectors?: string[];
+	allowSkills?: string[];
+	denySkills?: string[];
+	requireApprovalForDestructiveTools?: boolean;
+	requireApprovalForExternalWrites?: boolean;
+}
+
+export interface AgentHarnessBoundaryFilter {
+	filterInput?(input: { task: string; context: Record<string, unknown> }): Promise<AgentHarnessSafetyDecision> | AgentHarnessSafetyDecision;
+	filterOutput?(input: { text: string; session: AgentHarnessSession }): Promise<AgentHarnessSafetyDecision> | AgentHarnessSafetyDecision;
+}
+
+export interface AgentHarnessSecretRedactor {
+	redact(value: unknown): unknown;
+}
+
+export interface AgentHarnessBudgetConfig {
+	maxIterations?: number;
+	maxTokens?: number;
+	maxInputTokens?: number;
+	maxOutputTokens?: number;
+	maxCostUsd?: number;
+	timeoutMs?: number;
+	toolTimeoutMs?: number;
+	contextReserveTokens?: number;
+}
+
 export interface AgentHarnessConfig {
 	id?: string;
 	label?: string;
@@ -310,12 +420,16 @@ export interface AgentHarnessConfig {
 	effort?: string;
 	systemPrompt?: string;
 	model: AgentHarnessModel;
+	models?: AgentHarnessModelRoutingConfig;
 	tools?: AgentHarnessTool[];
+	toolRegistry?: AgentHarnessToolRegistry;
 	planner?: AgentHarnessPlanner;
 	context?: AgentHarnessContextManager;
 	memory?: AgentHarnessMemory;
 	approvals?: AgentHarnessApprovalController;
 	safety?: AgentHarnessSafetyController;
+	boundary?: AgentHarnessBoundaryFilter;
+	permissions?: AgentHarnessPermissions;
 	persistence?: AgentHarnessPersistence;
 	hooks?: AgentHarnessHook[];
 	events?: AgentHarnessEventSink;
@@ -323,11 +437,9 @@ export interface AgentHarnessConfig {
 	skills?: AgentHarnessSkillLoader;
 	subagents?: AgentHarnessSubagentRuntime;
 	logs?: AgentHarnessOperationLogger;
+	secrets?: AgentHarnessSecretRedactor;
 	resultOptimizer?: AgentHarnessToolResultOptimizer;
-	runtime?: {
-		maxIterations?: number;
-		maxTokens?: number;
-	};
+	runtime?: AgentHarnessBudgetConfig;
 }
 
 export interface AgentHarnessSupportDecision {
