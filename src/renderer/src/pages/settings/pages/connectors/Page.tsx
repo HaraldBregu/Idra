@@ -173,7 +173,6 @@ const ConnectorsPage = () => {
 		setOauthError(null);
 		try {
 			await window.connectors.authorizeOAuth(connector);
-			await load();
 		} catch (err) {
 			setOauthError(err instanceof Error ? err.message : String(err));
 		}
