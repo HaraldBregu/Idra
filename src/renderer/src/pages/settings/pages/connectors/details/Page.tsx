@@ -8,6 +8,7 @@ import {
 	Plug,
 	RefreshCw,
 	Save,
+	ShieldCheck,
 	Trash2,
 	Wrench,
 } from 'lucide-react';
@@ -59,6 +60,8 @@ interface ConnectorFormState {
 	readonly deferLoading: boolean;
 	readonly enabled: boolean;
 }
+
+type DetailTab = 'tools' | 'permissions';
 
 const SERVER_LABEL_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
@@ -246,6 +249,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [toolsError, setToolsError] = useState<string | null>(null);
+	const [activeTab, setActiveTab] = useState<DetailTab>('tools');
 
 	const load = useCallback(async (): Promise<void> => {
 		setLoading(true);
@@ -396,7 +400,6 @@ const ConnectorDetailsPage: React.FC = () => {
 		}
 	};
 
-
 	const deleteConnector = async (): Promise<void> => {
 		if (!connector) return;
 		if (!window.confirm(`Delete ${connector.name}?`)) return;
@@ -524,42 +527,127 @@ const ConnectorDetailsPage: React.FC = () => {
 									className="min-h-28 font-mono text-xs md:text-xs"
 								/>
 							</SettingsField>
+						</div>
 
-							<div className="grid gap-3 md:grid-cols-2">
-								<SettingsField id={`${idPrefix}-connector-approval-policy`} label="Approval policy">
-									<Select
-										value={form.requireApproval}
-										onValueChange={(value) => {
-											if (value) update('requireApproval', value as ConnectorApprovalMode);
-										}}
+						<div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/60 p-3">
+							<Button type="submit" size="xs" disabled={formBusy}>
+								{saving ? (
+									<LoaderCircle className="size-3 animate-spin" />
+								) : (
+									<Save className="size-3" />
+								)}
+								{connector ? 'Save Changes' : 'Add Connector'}
+							</Button>
+						</div>
+					</Card>
+				</SettingsSection>
+			</form>
+
+			{/* Tools & Permissions tabs */}
+			<SettingsSection
+				title=""
+				hideTitle
+				action={
+					<div className="flex items-center gap-1 rounded-lg border border-border/60 bg-muted/30 p-0.5">
+						<Button
+							type="button"
+							size="xs"
+							variant={activeTab === 'tools' ? 'secondary' : 'ghost'}
+							className="h-6 gap-1.5 px-2 text-[11px]"
+							onClick={() => setActiveTab('tools')}
+						>
+							<Wrench className="size-3" />
+							Tools
+							{connector && (
+								<span className="ml-0.5 text-muted-foreground">({tools.length})</span>
+							)}
+						</Button>
+						<Button
+							type="button"
+							size="xs"
+							variant={activeTab === 'permissions' ? 'secondary' : 'ghost'}
+							className="h-6 gap-1.5 px-2 text-[11px]"
+							onClick={() => setActiveTab('permissions')}
+						>
+							<ShieldCheck className="size-3" />
+							Permissions
+						</Button>
+					</div>
+				}
+			>
+				{activeTab === 'tools' && (
+					<>
+						{toolsError && (
+							<SettingsNotice variant="destructive" icon={AlertTriangle}>
+								{toolsError}
+							</SettingsNotice>
+						)}
+						{connector?.lastError && (
+							<SettingsNotice variant="destructive" icon={AlertTriangle}>
+								{connector.lastError}
+							</SettingsNotice>
+						)}
+						<div className="flex justify-end">
+							{connector && (
+								<div className="flex gap-1.5">
+									<Button
+										type="button"
+										size="xs"
+										variant="outline"
+										disabled={testing || formBusy}
+										onClick={() => void testConnector()}
 									>
-										<SelectTrigger
-											id={`${idPrefix}-connector-approval-policy`}
-											size="sm"
-											className="w-full text-xs [&_svg]:size-3"
-											aria-label="Approval policy"
-										>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="always">Always require approval</SelectItem>
-											<SelectItem value="never_for_allowed_tools">
-												Skip approval for allowed tools
-											</SelectItem>
-											<SelectItem value="never">Never require approval</SelectItem>
-										</SelectContent>
-									</Select>
-								</SettingsField>
-
-								<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
-									<div className="text-[11px] font-medium leading-4 text-foreground">
-										MCP environment auth
-									</div>
-									<div className="mt-1 text-[11px] leading-4 text-muted-foreground/60">
-										Secrets are read from the environment variables named in the MCP config.
-									</div>
+										{testing && <LoaderCircle className="size-3 animate-spin" />}
+										Test
+									</Button>
+									<Button
+										type="button"
+										size="xs"
+										variant="outline"
+										disabled={refreshingTools || formBusy}
+										onClick={() => void refreshConnectorTools()}
+									>
+										{refreshingTools ? (
+											<LoaderCircle className="size-3 animate-spin" />
+										) : (
+											<RefreshCw className="size-3" />
+										)}
+										Refresh
+									</Button>
 								</div>
-							</div>
+							)}
+						</div>
+						<ConnectorToolsList tools={tools} />
+					</>
+				)}
+
+				{activeTab === 'permissions' && form && (
+					<Card size="sm" className="gap-0! p-0!">
+						<div className="grid gap-3 p-3">
+							<SettingsField id={`${idPrefix}-connector-approval-policy`} label="Approval policy">
+								<Select
+									value={form.requireApproval}
+									onValueChange={(value) => {
+										if (value) update('requireApproval', value as ConnectorApprovalMode);
+									}}
+								>
+									<SelectTrigger
+										id={`${idPrefix}-connector-approval-policy`}
+										size="sm"
+										className="w-full text-xs [&_svg]:size-3"
+										aria-label="Approval policy"
+									>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="always">Always require approval</SelectItem>
+										<SelectItem value="never_for_allowed_tools">
+											Skip approval for allowed tools
+										</SelectItem>
+										<SelectItem value="never">Never require approval</SelectItem>
+									</SelectContent>
+								</Select>
+							</SettingsField>
 
 							<div className="grid gap-2">
 								<div className="flex flex-wrap items-center justify-between gap-2">
@@ -629,49 +717,32 @@ const ConnectorDetailsPage: React.FC = () => {
 							</div>
 						</div>
 
-						<div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/60 p-3">
-							<Button type="submit" size="xs" disabled={formBusy}>
-								{saving ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<Save className="size-3" />
-								)}
-								{connector ? 'Save Changes' : 'Add Connector'}
+						<div className="flex justify-end border-t border-border/60 p-3">
+							<Button
+								type="button"
+								size="xs"
+								disabled={formBusy}
+								onClick={() => {
+									const validationError = formValidationError(form);
+									if (validationError) { setError(validationError); return; }
+									void saveConnector({ preventDefault: () => {} } as FormEvent<HTMLFormElement>);
+								}}
+							>
+								{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
+								Save Permissions
 							</Button>
 						</div>
 					</Card>
-				</SettingsSection>
-			</form>
+				)}
+			</SettingsSection>
 
 			<SettingsSection
 				title="Status"
 				action={
 					connector ? (
 						<div className="flex flex-wrap gap-1.5">
-							<Button
-								type="button"
-								size="xs"
-								variant="outline"
-								disabled={testing || formBusy}
-								onClick={() => void testConnector()}
-							>
-								{testing && <LoaderCircle className="size-3 animate-spin" />}
-								Test
-							</Button>
-							<Button
-								type="button"
-								size="xs"
-								variant="outline"
-								disabled={refreshingTools || formBusy}
-								onClick={() => void refreshConnectorTools()}
-							>
-								{refreshingTools ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<RefreshCw className="size-3" />
-								)}
-								Refresh Tools
-							</Button>
+							<DetailRow label="Last refreshed" value={formatTimestamp(connector?.lastRefreshedAt)} />
+							<DetailRow label="Updated" value={formatTimestamp(connector?.updatedAt)} />
 						</div>
 					) : undefined
 				}
@@ -681,9 +752,6 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem)} />
 					<DetailRow label="Auth" value="MCP env variables" />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(form.requireApproval)} />
-					<DetailRow label="Connected account" value="MCP server" />
-					<DetailRow label="Last refreshed" value={formatTimestamp(connector?.lastRefreshedAt)} />
-					<DetailRow label="Updated" value={formatTimestamp(connector?.updatedAt)} />
 				</Card>
 			</SettingsSection>
 
@@ -727,35 +795,6 @@ const ConnectorDetailsPage: React.FC = () => {
 					</div>
 				</Card>
 			</SettingsSection>
-
-			{connector?.lastError && (
-				<SettingsNotice variant="destructive" icon={AlertTriangle}>
-					{connector.lastError}
-				</SettingsNotice>
-			)}
-
-			{toolsError && (
-				<SettingsNotice variant="destructive" icon={AlertTriangle}>
-					{toolsError}
-				</SettingsNotice>
-			)}
-
-			{connector && (
-				<SettingsSection
-					title="Tools"
-					action={
-						<Badge
-							variant="outline"
-							className="h-5 rounded-md bg-muted/40 px-1.5 text-[10px] text-muted-foreground"
-						>
-							<Wrench className="mr-1 size-3" />
-							{tools.length} tools
-						</Badge>
-					}
-				>
-					<ConnectorToolsList tools={tools} />
-				</SettingsSection>
-			)}
 
 			{connector && (
 				<div className="border-t border-border/60 pt-3">
