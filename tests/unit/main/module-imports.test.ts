@@ -4,7 +4,7 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/agent')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/channels')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/agent/connectors')).resolves.toBeTruthy();
+		await expect(import('../../../src/main/connectors')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/core')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/cron')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/ipc')).resolves.toBeTruthy();
