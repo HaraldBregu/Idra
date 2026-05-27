@@ -81,32 +81,49 @@ export type CreateAgentToolsResult = {
 };
 
 const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
+	read_file: 'includeFileTools',
+	write_file: 'includeFileTools',
+	edit_file: 'includeFileTools',
+	list_directory: 'includeFileTools',
+	search_files: 'includeFileTools',
+	grep: 'includeFileTools',
+	run_shell: 'includeFileTools',
+	git_status: 'includeFileTools',
+	git_diff: 'includeFileTools',
+	undo_last_operation: 'includeFileTools',
+	write_todos: 'includeFileTools',
+	update_todo: 'includeFileTools',
+	list_todos: 'includeFileTools',
+	complete_task: 'includeFileTools',
+	write_scratch: 'includeFileTools',
+	read_scratch: 'includeFileTools',
+	request_approval: 'includeFileTools',
+	request_clarification: 'includeFileTools',
+	present_plan: 'includeFileTools',
+	request_authorization: 'includeFileTools',
+	spawn_subagent: 'includeFileTools',
+	list_skills: 'includeFileTools',
+	load_skill: 'includeFileTools',
+	use_skill: 'includeFileTools',
+	list_mcp_servers: 'includeFileTools',
+	connect_mcp_server: 'includeFileTools',
+	refresh_mcp_server: 'includeFileTools',
+	list_mcp_tools: 'includeFileTools',
+	load_mcp_tool: 'includeFileTools',
+	call_mcp_tool: 'includeFileTools',
+	list_mcp_resources: 'includeFileTools',
+	read_mcp_resource: 'includeFileTools',
+	list_mcp_prompts: 'includeFileTools',
+	load_mcp_prompt: 'includeFileTools',
 	read: 'includeFileTools',
 	write: 'includeFileTools',
 	edit: 'includeFileTools',
-	apply_patch: 'includeFileTools',
-	delete: 'includeFileTools',
-	copy: 'includeFileTools',
-	move: 'includeFileTools',
-	inspect_file: 'includeFileTools',
 	find: 'includeFileTools',
-	filesystem_create: 'includeFileTools',
 	filesystem_read: 'includeFileTools',
 	filesystem_update: 'includeFileTools',
-	filesystem_delete: 'includeFileTools',
 	filesystem_list: 'includeFileTools',
-	filesystem_move: 'includeFileTools',
-	filesystem_copy: 'includeFileTools',
 	filesystem_search: 'includeFileTools',
-	script_run: 'includeShellTools',
-	cron_create: 'includeCronTools',
-	cron_read: 'includeCronTools',
-	cron_update: 'includeCronTools',
-	cron_delete: 'includeCronTools',
-	cron_list: 'includeCronTools',
-	cron_start: 'includeCronTools',
-	cron_stop: 'includeCronTools',
-	cron_run: 'includeCronTools',
+	script_run: 'includeFileTools',
 };
 
 const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
@@ -127,21 +144,29 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		return {
 			...empty,
 			includeFileTools: true,
-			includeShellTools: true,
 		};
 	}
 	const normalized = toolsAllow.map(normalizeToolName);
 	if (normalized.includes('*')) {
-		return { ...empty, includeFileTools: true, includeCronTools: true, includeShellTools: true };
+		return { ...empty, includeFileTools: true };
 	}
 	const plan = { ...empty };
 	for (const name of normalized) {
-		if (name.startsWith('group:file') || name.startsWith('group:filesystem')) {
+		if (
+			name.startsWith('group:file') ||
+			name.startsWith('group:filesystem') ||
+			name.startsWith('group:core') ||
+			name.startsWith('group:state') ||
+			name.startsWith('group:human') ||
+			name.startsWith('group:subagent') ||
+			name.startsWith('group:skill') ||
+			name.startsWith('group:mcp')
+		) {
 			plan.includeFileTools = true;
 		} else if (name.startsWith('group:script') || name.startsWith('group:shell')) {
-			plan.includeShellTools = true;
+			plan.includeFileTools = true;
 		} else if (name.startsWith('group:cron')) {
-			plan.includeCronTools = true;
+			plan.includeFileTools = true;
 		} else if (!name.startsWith('group:')) {
 			const family = CORE_TOOL_FAMILIES[name];
 			if (family) plan[family] = true;
@@ -290,7 +315,17 @@ function prepareRuntimeTools(
 
 function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
 	return readOnly
-		? { deny: ['write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'script_run'] }
+		? {
+				deny: [
+					'write_file',
+					'edit_file',
+					'run_shell',
+					'undo_last_operation',
+					'connect_mcp_server',
+					'refresh_mcp_server',
+					'call_mcp_tool',
+				],
+			}
 		: undefined;
 }
 
