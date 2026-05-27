@@ -73,6 +73,9 @@ export type ConnectorAuthKind = 'mcp_env' | 'oauth';
 export type ConnectorRuntimeKind = 'mcp' | 'oauth';
 export type ConnectorMcpTransport = 'http' | 'stdio';
 export type ConnectorMcpHeaderAuthScheme = 'bearer' | 'raw';
+export const CONNECTOR_TOOL_PERMISSIONS = ['always-allow', 'needs-approval', 'blocked'] as const;
+export type ConnectorToolPermission = typeof CONNECTOR_TOOL_PERMISSIONS[number];
+export const DEFAULT_CONNECTOR_TOOL_PERMISSION: ConnectorToolPermission = 'always-allow';
 
 export interface ConnectorMcpHeaderSecret {
 	env: string;
@@ -129,6 +132,7 @@ export interface ConnectorTool {
 	name: string;
 	description?: string;
 	inputSchema?: Record<string, unknown>;
+	permission: ConnectorToolPermission;
 	requiresApproval: boolean;
 }
 
