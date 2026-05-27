@@ -25,6 +25,8 @@ export {
 	type ToolConstructionPlan,
 } from './create';
 export { createReadTool } from './files/runtime';
+export { createScriptTools } from './scripts/runtime';
+export { scriptRunTool } from './scripts/tools';
 export {
 	ALL_TOOLS,
 	createTools,
