@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { app } from 'electron';
 
 import { SkillsService, SkillsServiceError } from '../../../../src/main/agent/skills';
 import { makeLogger, makeTempDir } from '../test-helpers';
@@ -42,6 +43,19 @@ async function writeSkill(
 }
 
 describe('SkillsService', () => {
+	beforeEach(() => {
+		(app.getPath as jest.Mock).mockImplementation((name: string) => `/tmp/friday-test/${name}`);
+	});
+
+	it('defaults the skills root to Electron appData instead of the project directory', () => {
+		const service = new SkillsService(makeLogger() as never);
+
+		expect(service.getRootPath()).toBe(
+			path.join('/tmp/friday-test/appData', 'friday', 'agent', 'skills')
+		);
+		expect(service.getRootPath()).not.toContain(`${path.sep}appdata${path.sep}skills`);
+	});
+
 	it('resolves the configured skills root path without creating it', async () => {
 		const root = path.join(await makeTempDir(), 'appdata', 'skills');
 		const service = new SkillsService(makeLogger() as never, { rootPath: root });
