@@ -148,6 +148,8 @@ const FILESYSTEM_TOOL_NAMES = [
 	'filesystem_search',
 ] as const;
 
+const SCRIPT_TOOL_NAMES = ['script_run'] as const;
+
 const CRON_TOOL_NAMES = [
 	'cron_create',
 	'cron_read',
@@ -162,14 +164,16 @@ const CRON_TOOL_NAMES = [
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:file': FILE_TOOL_NAMES,
 	'group:filesystem': FILESYSTEM_TOOL_NAMES,
+	'group:script': SCRIPT_TOOL_NAMES,
+	'group:shell': SCRIPT_TOOL_NAMES,
 	'group:cron': CRON_TOOL_NAMES,
 };
 
 const PROFILE_ALLOW: Record<ToolPolicyProfile, readonly string[] | '*'> = {
 	minimal: [],
-	coding: FILE_TOOL_NAMES,
+	coding: [...FILE_TOOL_NAMES, ...SCRIPT_TOOL_NAMES],
 	messaging: [],
-	standard: FILE_TOOL_NAMES,
+	standard: [...FILE_TOOL_NAMES, ...SCRIPT_TOOL_NAMES],
 	full: '*',
 };
 
