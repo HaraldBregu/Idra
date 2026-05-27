@@ -6,7 +6,7 @@ import {
 	type ToolPolicyIndex,
 	type ToolPolicyProfile,
 	type ToolPolicySubject,
-} from '../policy';
+} from '../../policy';
 
 const policyService = new PolicyService();
 

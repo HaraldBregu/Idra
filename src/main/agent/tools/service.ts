@@ -2,9 +2,9 @@ import {
 	PolicyService,
 	type PolicyServicePort,
 	type ToolPolicySubject,
-} from '../policy';
-import type { CronService } from '../cron';
-import type { LoggerService } from '../logger';
+} from '../../policy';
+import type { CronService } from '../../cron';
+import type { LoggerService } from '../../logger';
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
 import { getToolMetadata, normalizeToolName } from './core/common';
 import { createTools, localToolCatalogByName } from './catalog/registry';
@@ -25,7 +25,7 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from './runtime/adapt';
-import type { ToolProfile } from '../policy';
+import type { ToolProfile } from '../../policy';
 
 const defaultPolicyService = new PolicyService();
 const TOOL_SERVICE_LOG_SOURCE = 'ToolService';

@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
-import { PolicyService } from '../policy';
+import { PolicyService } from '../../policy';
 
 const LOOP_WARN_AT = 3;
 const LOOP_STOP_AT = 5;
