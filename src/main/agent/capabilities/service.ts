@@ -2,7 +2,7 @@ import type { LoggerService } from '../../logger';
 import type { ConnectorsService } from '../connectors';
 import type { SkillsService } from '../skills';
 import type { AgentTool } from '../tools';
-import type { SkillDetails, SkillInfo } from '../../../shared/skills';
+import type { SkillDetails, SkillSearchResult } from '../../../shared/skills';
 import type {
 	AgentCapabilityBundle,
 	AgentCapabilityResolveInput,
@@ -30,7 +30,8 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			this.resolveSkills(input),
 		]);
 		const tools = [...input.localTools, ...connectorTools];
-		const directAnswer = input.directAnswer && tools.length === 0;
+		const decision = decideCapabilities({ tools, skills, bootstrapPending: input.bootstrapPending });
+		const directAnswer = decision.mode === 'direct_answer';
 		const promptAdditions = renderSkillPrompt(skills);
 
 		input.streamEvent?.({
@@ -39,6 +40,7 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			connectorTools: connectorTools.map((tool) => tool.name),
 			skills: skills.map(({ name, reason }) => ({ name, reason })),
 			directAnswer,
+			decision,
 		});
 
 		return {
@@ -47,6 +49,7 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			skills,
 			promptAdditions,
 			directAnswer,
+			decision,
 		};
 	}
 
@@ -69,14 +72,12 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	private async resolveSkills(input: AgentCapabilityResolveInput): Promise<AgentResolvedSkill[]> {
 		if (!this.options.skills) return [];
 		try {
-			const configured = new Set((input.configuredSkillNames ?? []).map(normalizeSkillName));
-			const listed = await this.options.skills.list();
-			const selected = listed
-				.map((skill) => ({ skill, reason: skillReason(skill, input.userMessage, configured) }))
-				.filter((entry): entry is { skill: SkillInfo; reason: string } => Boolean(entry.reason))
-				.slice(0, MAX_SKILLS_PER_RUN);
+			const selected = await this.options.skills.search(input.userMessage, {
+				names: input.configuredSkillNames,
+				limit: MAX_SKILLS_PER_RUN,
+			});
 			const loaded = await Promise.all(
-				selected.map(async ({ skill, reason }) => toResolvedSkill(await this.options.skills!.load(skill.name), reason))
+				selected.map(async (skill) => toResolvedSkill(await this.options.skills!.load(skill.name), skill.reason))
 			);
 			return loaded;
 		} catch (error) {
@@ -96,10 +97,24 @@ function toResolvedSkill(skill: SkillDetails, reason: string): AgentResolvedSkil
 	};
 }
 
-function skillReason(skill: SkillInfo, prompt: string, configured: Set<string>): string | undefined {
-	if (configured.has(normalizeSkillName(skill.name))) return 'configured for this agent';
-	if (matchesPrompt(prompt, [skill.name, skill.description])) return 'matched the user prompt';
-	return undefined;
+function decideCapabilities(input: {
+	tools: readonly AgentTool[];
+	skills: readonly AgentResolvedSkill[];
+	bootstrapPending: boolean;
+}): AgentCapabilityBundle['decision'] {
+	const hasTools = input.tools.length > 0;
+	const hasSkills = input.skills.length > 0;
+	if (hasTools && hasSkills) {
+		return { mode: 'use_tools_and_skills', reason: 'matched both tool and skill capabilities' };
+	}
+	if (hasTools) return { mode: 'use_tools', reason: 'matched available tools' };
+	if (hasSkills) return { mode: 'use_skills', reason: 'matched available skills' };
+	return {
+		mode: 'direct_answer',
+		reason: input.bootstrapPending
+			? 'no matching tools or skills; continue bootstrap without extra capabilities'
+			: 'no matching tools or skills',
+	};
 }
 
 function matchesPrompt(prompt: string, values: string[]): boolean {
@@ -115,10 +130,6 @@ function matchesPrompt(prompt: string, values: string[]): boolean {
 
 function normalizeForMatch(value: string): string {
 	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-
-function normalizeSkillName(value: string): string {
-	return value.trim().toLowerCase();
 }
 
 function trimPrompt(value: string): string {
