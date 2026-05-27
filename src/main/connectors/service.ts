@@ -101,7 +101,6 @@ function serverLabelFromName(name: string): string {
 function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.oauth) return connector.oauth.token ? 'configured' : 'missing_auth';
-	if (isCatalogOAuthConnector(connector)) return 'missing_auth';
 	if (!connector.mcp) return 'missing_auth';
 	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
 	if (connector.lastError) return 'error';
@@ -110,13 +109,13 @@ function statusFor(connector: ConnectorConfig): ConnectorStatus {
 
 function toView(connector: ConnectorConfig): ConnectorView {
 	return {
-		id: connector.id,
-		name: connector.name,
-		connectorId: connector.connectorId,
-		authKind: connector.oauth || isCatalogOAuthConnector(connector) ? 'oauth' : 'mcp_env',
-		serverLabel: connector.serverLabel,
-		enabled: connector.enabled,
-		status: statusFor(connector),
+			id: connector.id,
+			name: connector.name,
+			connectorId: connector.connectorId,
+			authKind: connector.oauth ? 'oauth' : 'mcp_env',
+			serverLabel: connector.serverLabel,
+			enabled: connector.enabled,
+			status: statusFor(connector),
 		requireApproval: connector.requireApproval,
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
@@ -1116,6 +1115,13 @@ function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[
 	if (!mcp) return [];
 	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
 	return (mcp.envSecrets ?? []).map((secret) => secret.env);
+}
+
+function readOptionalCatalogEntry(value: unknown, expectedId: string): ConnectorCatalogEntry | undefined {
+	if (value === undefined || value === null) return undefined;
+	const entry = normalizeCatalogEntry(value as ConnectorCatalogEntry);
+	if (entry.id !== expectedId) throw new Error('OAuth connector definition id must match connector id.');
+	return entry;
 }
 
 function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEntry {
