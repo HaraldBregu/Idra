@@ -27,7 +27,7 @@ Keep-awake state currently has a store-facing API but is kept in memory rather t
 | [`cron`](cron.md) | `CronSettings` | Scheduler configuration and persisted schedule records. |
 | [`task`](task.md) | `TaskSettings` | Background task admission and concurrency settings. |
 | [`agents`](agents.md) | `AgentsSettings` | Agent definitions, route bindings, workspaces, tool policy, and subagent settings. |
-| [`connectors`](connectors.md) | `ConnectorsSettings` | Connector definitions, account settings, enabled state, and connector-specific secrets. |
+| [`connectors`](connectors.md) | `ConnectorConfig[]` | MCP connector definitions, enabled state, approval policy, env-var secret references, and discovered tools. |
 | [`channels`](channels.md) | `ChannelsSettings` | Channel account settings, security policy, enabled state, and channel-specific secrets. |
 
 ## Normalization

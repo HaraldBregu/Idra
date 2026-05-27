@@ -17,7 +17,7 @@ This folder documents Friday's current feature surface from the source tree and 
 | [Heartbeat health checks](heartbeat.md)                                 | Runtime implemented                       | Heartbeat runs periodic or manual agent check-ins, handles active hours and flood guards, and can route actionable alerts to the app or channels.                                                                                               |
 | [Cron scheduled tasks](cron-scheduled-tasks.md)                         | Runtime implemented                       | Managed schedules, Friday cron jobs, and legacy node-cron jobs can create background tasks, wake heartbeat, and deliver output.                                                                                                                 |
 | [Multiprovider and multimodel support](providers-and-models.md)         | Partial runtime                           | Assistant runtime supports Anthropic, OpenAI, Mistral, DeepSeek, Qwen, and OpenAI-compatible providers. Speech-to-text has runtime adapters for six providers. Other model operators have catalogs or settings surfaces pending runtime.        |
-| [Connectors and MCP](connectors.md)                                     | Partial runtime                           | Local Google Gmail, Calendar, and Drive connectors have OAuth and tool execution. OpenAI-style connector config, MCP tool materialization, and plugin connector contracts are present for broader extension.                                    |
+| [Connectors and MCP](connectors.md)                                     | Runtime implemented with extension points | Connectors are MCP-backed, dynamically discover server tools, store env-var secret references, and support remote HTTP or local stdio MCP transports.                                                                                            |
 | [Multiplatform desktop application](desktop-application.md)             | Runtime implemented                       | Friday is an Electron desktop app with a React renderer, typed IPC, tray/menu/shortcut support, secure windows, and packaging scripts for macOS, Windows, and Linux.                                                                            |
 | [Coding agents in the background](coding-agents-in-background.md)       | Runtime implemented                       | Background `agent.run` and `subagent.run` tasks can use coding tools when allowed by tool policy and workspace configuration.                                                                                                                   |
 | [Tooling and extensibility](tooling-and-extensibility.md)               | Runtime implemented with extension points | Local tools, browser automation, plugin manifests, MCP/LSP hooks, startup files, workspace management, and session compaction are available to support agent workflows.                                                                         |
@@ -30,7 +30,7 @@ This folder documents Friday's current feature surface from the source tree and 
 
 - The requested feature set is represented in source and docs.
 - The strongest runtime paths are the main assistant, subagents, skills, background tasks, heartbeat, cron, desktop shell, local tools, browser automation, transcription, memory/session handling, and workspace context.
-- Partial areas are intentionally documented as partial: channels have a bundled Telegram runtime plus catalog-only entries, connectors have local Google runtimes plus catalog/provider-hosted entries, and provider/model catalogs are broader than the local execution adapters.
+- Partial areas are intentionally documented as partial: channels have a bundled Telegram runtime plus catalog-only entries, and provider/model catalogs are broader than the local execution adapters. Connectors now rely on configured MCP servers for provider-specific execution.
 - Catalog-only entries are useful for settings, docs, setup planning, and plugin/runtime extension, but they are not complete local execution until an adapter, MCP server, provider-hosted tool, or plugin runtime is registered.
 
 ## Source Landmarks
@@ -43,7 +43,7 @@ This folder documents Friday's current feature surface from the source tree and 
 - Cron: `src/main/cron`, `src/shared/cron.ts`
 - Heartbeat: `src/main/heartbeat`, `src/shared/heartbeat.ts`
 - Providers and models: `src/main/provider`, `src/main/stt`, `src/shared/providers`
-- Connectors and MCP: `src/main/connectors`, `src/main/mcp`, `src/shared/connector`
+- Connectors and MCP: `src/main/agent/connectors`, `src/main/agent/mcp`, `src/shared/connector`
 - Desktop shell and UI: `src/main`, `src/preload`, `src/renderer/src`
 - Browser automation: `src/main/browser`
 - Plugins and agent harnesses: `src/main/plugins`, `src/main/agent/harness`
