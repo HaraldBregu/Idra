@@ -7,6 +7,7 @@ import {
 } from '../core/common';
 import { createFileTools } from '../files/runtime';
 import { createCronTools } from '../cron/runtime';
+import { createScriptTools } from '../scripts/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
 import type { ToolPolicy, ToolPolicyStageName } from '../../policy';
 import { applyToolPolicyPipeline } from '../pipeline';
@@ -97,6 +98,7 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
 	filesystem_move: 'includeFileTools',
 	filesystem_copy: 'includeFileTools',
 	filesystem_search: 'includeFileTools',
+	script_run: 'includeShellTools',
 	cron_create: 'includeCronTools',
 	cron_read: 'includeCronTools',
 	cron_update: 'includeCronTools',
@@ -125,16 +127,19 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		return {
 			...empty,
 			includeFileTools: true,
+			includeShellTools: true,
 		};
 	}
 	const normalized = toolsAllow.map(normalizeToolName);
 	if (normalized.includes('*')) {
-		return { ...empty, includeFileTools: true, includeCronTools: true };
+		return { ...empty, includeFileTools: true, includeCronTools: true, includeShellTools: true };
 	}
 	const plan = { ...empty };
 	for (const name of normalized) {
 		if (name.startsWith('group:file') || name.startsWith('group:filesystem')) {
 			plan.includeFileTools = true;
+		} else if (name.startsWith('group:script') || name.startsWith('group:shell')) {
+			plan.includeShellTools = true;
 		} else if (name.startsWith('group:cron')) {
 			plan.includeCronTools = true;
 		} else if (!name.startsWith('group:')) {
@@ -215,6 +220,17 @@ function addCoreToolCandidates(
 			})
 		);
 	}
+	if (plan.includeShellTools) {
+		candidates.push(
+			...createScriptTools({
+				workspaceDir: options.workspaceDir,
+				sessionId: options.sessionId,
+				fsPolicy,
+				signal: options.abortSignal,
+				services: options.services,
+			})
+		);
+	}
 }
 
 function addHostToolCandidates(
@@ -274,7 +290,7 @@ function prepareRuntimeTools(
 
 function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
 	return readOnly
-		? { deny: ['write', 'edit', 'apply_patch', 'delete', 'copy', 'move'] }
+		? { deny: ['write', 'edit', 'apply_patch', 'delete', 'copy', 'move', 'script_run'] }
 		: undefined;
 }
 
