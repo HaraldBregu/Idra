@@ -110,11 +110,11 @@ function installConnectorApi(connector = configuredConnector()): void {
 		refreshTools: jest.fn(async () => connector.tools),
 		listTools: jest.fn(async () => connector.tools),
 		callTool: jest.fn(async () => ({})),
-		authorizeOAuth: jest.fn(async (connectorId: string) => ({
-			connectorId,
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			connector,
-		})),
+			authorizeOAuth: jest.fn(async (connector: string | ConnectorCatalogEntry) => ({
+				connectorId: typeof connector === 'string' ? connector : connector.id,
+				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+				connector,
+			})),
 	};
 }
 
@@ -175,7 +175,11 @@ describe('connector settings docs', () => {
 
 		await user.click(gmailLabels[0]!);
 
-		expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith('google.gmail');
+			expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith(expect.objectContaining({
+				id: 'google.gmail',
+				mcp: expect.objectContaining({ url: 'https://gmailmcp.googleapis.com/mcp/v1' }),
+				oauth: expect.objectContaining({ clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID' }),
+			}));
 		expect(window.app.openExternalUrl).not.toHaveBeenCalled();
 		expect(window.connectors.add).not.toHaveBeenCalled();
 		expect(window.connectors.update).not.toHaveBeenCalled();
