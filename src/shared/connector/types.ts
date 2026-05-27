@@ -1,14 +1,13 @@
-import type {
-	ConnectorDocumentationStatus,
-	ConnectorImplementationPattern,
-	ConnectorPriorityTier,
-	ConnectorRecommendedInitialMode,
-	ConnectorWriteRisk,
-	DirectConnectorCatalogId,
-	OpenAiConnectorId,
-} from './connectors';
+export type ConnectorProviderId = string;
+export type OpenAiConnectorId = ConnectorProviderId;
+export type DirectConnectorCatalogId = string;
 
 export type ConnectorDocumentationType = 'official_docs';
+export type ConnectorDocumentationStatus = string;
+export type ConnectorPriorityTier = string;
+export type ConnectorImplementationPattern = string;
+export type ConnectorRecommendedInitialMode = string;
+export type ConnectorWriteRisk = string;
 
 export interface ConnectorDocumentationPage {
 	readonly label: string;
@@ -30,34 +29,34 @@ export interface ConnectorCatalogExample {
 export interface DirectConnectorCatalogEntry {
 	readonly id: string;
 	readonly name: string;
-	readonly vendor: string;
-	readonly category: string;
-	readonly priorityTier: ConnectorPriorityTier;
-	readonly usefulnessScore0To100: number;
-	readonly implementationPattern: ConnectorImplementationPattern;
-	readonly recommendedProviderStrategy: string;
-	readonly documentationPages: readonly ConnectorDocumentationPage[];
-	readonly authModels: readonly string[];
-	readonly coreAgentActions: readonly string[];
-	readonly writeRisk: ConnectorWriteRisk;
-	readonly humanApprovalRequiredFor: readonly string[];
-	readonly recommendedInitialMode: ConnectorRecommendedInitialMode;
-	readonly notes: string;
+	readonly vendor?: string;
+	readonly category?: string;
+	readonly priorityTier?: ConnectorPriorityTier;
+	readonly usefulnessScore0To100?: number;
+	readonly implementationPattern?: ConnectorImplementationPattern;
+	readonly recommendedProviderStrategy?: string;
+	readonly documentationPages?: readonly ConnectorDocumentationPage[];
+	readonly authModels?: readonly string[];
+	readonly coreAgentActions?: readonly string[];
+	readonly writeRisk?: ConnectorWriteRisk;
+	readonly humanApprovalRequiredFor?: readonly string[];
+	readonly recommendedInitialMode?: ConnectorRecommendedInitialMode;
+	readonly notes?: string;
 }
 
-export interface OpenAiConnectorCatalogEntry {
-	readonly id: string;
-	readonly directConnectorId: DirectConnectorCatalogId;
+export interface ConnectorCatalogEntry {
+	readonly id: ConnectorProviderId;
+	readonly directConnectorId?: DirectConnectorCatalogId;
 	readonly name: string;
 	readonly description: string;
-	readonly docsPath: string;
-	readonly docsLabel: string;
+	readonly docsPath?: string;
+	readonly docsLabel?: string;
 	readonly environmentSecretNames: readonly string[];
 	readonly platformDocumentationPages: readonly ConnectorPlatformDocumentationPage[];
-	readonly example: ConnectorCatalogExample;
+	readonly example?: ConnectorCatalogExample;
 	readonly tools: readonly string[];
 	readonly scopes: readonly string[];
-	readonly setupUrl: string;
+	readonly setupUrl?: string;
 	readonly setupInstructions: readonly string[];
 	readonly authKind?: ConnectorAuthKind;
 	readonly redirectUri?: string;
@@ -65,9 +64,12 @@ export interface OpenAiConnectorCatalogEntry {
 	readonly allowMultipleInstances?: boolean;
 }
 
+export type OpenAiConnectorCatalogEntry = ConnectorCatalogEntry;
+export type ProviderConnectorCatalogEntry = ConnectorCatalogEntry;
+
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
-export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth' | 'mcp_env';
+export type ConnectorAuthKind = 'mcp_env';
 export type ConnectorRuntimeKind = 'mcp';
 export type ConnectorMcpTransport = 'http' | 'stdio';
 export type ConnectorMcpHeaderAuthScheme = 'bearer' | 'raw';
@@ -126,7 +128,7 @@ export interface ConnectorTool {
 export interface ConnectorConfig {
 	id: string;
 	name: string;
-	connectorId: OpenAiConnectorId;
+	connectorId: ConnectorProviderId;
 	serverLabel: string;
 	serverDescription?: string;
 	enabled: boolean;
@@ -148,7 +150,7 @@ export type Connector = ConnectorConfig;
 export interface ConnectorView {
 	id: string;
 	name: string;
-	connectorId: OpenAiConnectorId;
+	connectorId: ConnectorProviderId;
 	authKind: ConnectorAuthKind;
 	serverLabel: string;
 	enabled: boolean;
@@ -164,7 +166,7 @@ export interface ConnectorView {
 
 export interface ConnectorInput {
 	name: string;
-	connectorId: OpenAiConnectorId;
+	connectorId: ConnectorProviderId;
 	serverLabel?: string;
 	serverDescription?: string;
 	authorization?: string;
