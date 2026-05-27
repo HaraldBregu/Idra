@@ -3,6 +3,8 @@ import { shell } from 'electron';
 import Store from 'electron-store';
 import type { LoggerService } from '../logger';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
+import { resolveDefaultAppDataPath } from '../agent/storage';
+import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
 import type {
 	ConnectorCallToolOptions,
 	ConnectorCatalogEntry,
@@ -16,6 +18,7 @@ import type {
 	ConnectorStatus,
 	ConnectorTestResult,
 	ConnectorTool,
+	ConnectorToolPermission,
 	ConnectorView,
 } from '../../shared/connector';
 import {
@@ -27,7 +30,6 @@ import {
 
 const CONNECTOR_STORE_NAME = 'connectors';
 const CONNECTOR_STORE_KEY = 'connectors';
-const CONNECTOR_TOOLS_STORE_NAME = 'connector-tools';
 const CONNECTOR_TOOLS_STORE_KEY = 'tools';
 const CONNECTORS_LOG_SOURCE = 'ConnectorsService';
 const SERVER_LABEL_PATTERN = /^[a-zA-Z0-9_-]+$/;
