@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Item, ItemActions, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS, type AgentId } from '../../../../../../shared/agents';
 import {
 	ASSISTANT_OPERATOR_ID,
@@ -11,6 +11,7 @@ import {
 	MUSIC_CREATOR_OPERATOR_ID,
 } from '../../../../../../shared/agents/service';
 import {
+	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
@@ -119,21 +120,29 @@ function SettingsOverviewCard({
 			variant="outline"
 			size="md"
 			disabled={comingSoon}
-			className="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b border-border/40 px-5 py-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-50"
+			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/60 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
-			<ItemTitle className="text-[15px] font-normal leading-5 text-foreground/80">
-				{t(item.labelKey)}
-			</ItemTitle>
-			<ItemActions className="ml-0 flex-none items-center gap-2 justify-end">
+			<ItemIcon icon={item.icon} />
+			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+					{t(item.labelKey)}
+				</ItemTitle>
+				{'descriptionKey' in item && item.descriptionKey && (
+					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+						{t(item.descriptionKey)}
+					</p>
+				)}
+			</ItemContent>
+			<ItemActions className="ml-0 flex-none justify-end">
 				{badge}
 				{comingSoon ? (
-					<Badge variant="secondary" className="text-[11px]">
+					<Badge variant="secondary" className="text-[10px] leading-none">
 						Soon
 					</Badge>
 				) : (
 					<ChevronRight
-						className="size-4 shrink-0 text-muted-foreground/60"
-						strokeWidth={1.5}
+						className="size-3 shrink-0 text-muted-foreground"
+						strokeWidth={1.8}
 					/>
 				)}
 			</ItemActions>
@@ -153,51 +162,52 @@ const OverviewPage: React.FC = () => {
 	}, []);
 
 	return (
-		<SettingsPageShell className="gap-5">
-			<h1 className="px-0.5 text-2xl font-bold tracking-tight text-foreground">
-				{t('settings.title')}
-			</h1>
-			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
-				const panel = (
-					<SettingsPanel>
-						{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
-							<SettingsOverviewCard key={item.path} item={item} />
-						))}
-						{group.paths.map((path) => {
-							const item = getSettingsNavigationItem(path);
-							const badge =
-								path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
-									<Badge
-										variant={heartbeatEnabled ? 'outline' : 'secondary'}
-										className="h-5 rounded-md px-1.5 text-[10px]"
-									>
-										{t(
-											heartbeatEnabled
-												? 'settings.heartbeat.values.enabled'
-												: 'settings.heartbeat.values.paused'
-										)}
-									</Badge>
-								) : undefined;
-							return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
-						})}
-					</SettingsPanel>
-				);
-
-				if (!group.titleKey) {
-					return (
-						<section key={group.id} className="flex flex-col gap-2">
-							{panel}
-						</section>
+		<SettingsPageShell>
+				<SettingsPageHeader
+					title={t('settings.title')}
+					description={t('settings.description')}
+				/>
+				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
+					const panel = (
+						<SettingsPanel>
+							{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
+								<SettingsOverviewCard key={item.path} item={item} />
+							))}
+							{group.paths.map((path) => {
+								const item = getSettingsNavigationItem(path);
+								const badge =
+									path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
+										<Badge
+											variant={heartbeatEnabled ? 'outline' : 'secondary'}
+											className="h-5 rounded-md px-1.5 text-[10px]"
+										>
+											{t(
+												heartbeatEnabled
+													? 'settings.heartbeat.values.enabled'
+													: 'settings.heartbeat.values.paused'
+											)}
+										</Badge>
+									) : undefined;
+								return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
+							})}
+						</SettingsPanel>
 					);
-				}
 
-				return (
-					<SettingsSection key={group.id} title={t(group.titleKey)}>
-						{panel}
-					</SettingsSection>
-				);
-			})}
-		</SettingsPageShell>
+					if (!group.titleKey) {
+						return (
+							<section key={group.id} className="flex flex-col gap-2">
+								{panel}
+							</section>
+						);
+					}
+
+					return (
+						<SettingsSection key={group.id} title={t(group.titleKey)}>
+							{panel}
+						</SettingsSection>
+					);
+				})}
+			</SettingsPageShell>
 		);
 	};
 

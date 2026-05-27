@@ -352,10 +352,10 @@ describe('canonical agent tool runtime', () => {
 		const workspace = await makeTempDir();
 		const result = await createAgentTools({
 			workspaceDir: workspace,
-			toolsAllow: ['read'],
+			toolsAllow: ['read_file'],
 		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
-		expect(result.diagnostics.builtTools).toContain('read');
+		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file']);
+		expect(result.diagnostics.builtTools).toContain('read_file');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
@@ -364,9 +364,9 @@ describe('canonical agent tool runtime', () => {
 		const result = await createAgentTools({
 			workspaceDir: workspace,
 			includeCoreTools: false,
-			hostTools: [tool('host_lookup'), tool('read')],
+			hostTools: [tool('host_lookup'), tool('read_file')],
 		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
+		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file']);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
@@ -417,21 +417,21 @@ describe('canonical agent tool runtime', () => {
 
 		const wide = await createAgentTools({
 			workspaceDir: workspace,
-			toolsAllow: ['read'],
+			toolsAllow: ['read_file'],
 			config: { tools: { fs: { workspaceOnly: false } } },
 		});
-		const read = wide.tools.find((entry) => entry.name === 'read')!;
+		const read = wide.tools.find((entry) => entry.name === 'read_file')!;
 		await expect(read.execute('tc-outside', { path: path.join(outside, 'outside.txt') })).resolves.toMatchObject({
 			details: expect.objectContaining({ size: 7 }),
 		});
 
 		const sandboxed = await createAgentTools({
 			workspaceDir: workspace,
-			toolsAllow: ['read', 'write', 'edit', 'apply_patch'],
-			hostTools: [tool('write'), tool('edit'), tool('apply_patch')],
+			toolsAllow: ['read_file', 'write_file', 'edit_file'],
+			hostTools: [tool('write_file'), tool('edit_file')],
 			sandbox: { readOnly: true },
 		});
-		expect(sandboxed.tools.map((entry) => entry.name)).toEqual(['read']);
+		expect(sandboxed.tools.map((entry) => entry.name)).toEqual(['read_file']);
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 	});
@@ -451,10 +451,10 @@ describe('canonical agent tool runtime', () => {
 		});
 		const result = await createAgentTools({
 			workspaceDir: workspace,
-			toolsAllow: ['read'],
+			toolsAllow: ['read_file'],
 			services: { policy },
 		});
-		const read = result.tools.find((entry) => entry.name === 'read')!;
+		const read = result.tools.find((entry) => entry.name === 'read_file')!;
 
 		await expect(read.execute('tc-policy', { path: 'secret.txt' })).resolves.toMatchObject({
 			details: expect.objectContaining({ status: 'error' }),
@@ -468,22 +468,22 @@ describe('canonical agent tool runtime', () => {
 			evaluate: jest.fn(),
 			evaluateTools: jest.fn(() => ({
 				allowed: new Set<string>(),
-				filtered: [{ toolName: 'read', stage: 'runtime', reason: 'blocked by policy' }],
+				filtered: [{ toolName: 'read_file', stage: 'runtime', reason: 'blocked by policy' }],
 				warnings: [],
 			})),
 		};
 		const result = await createAgentTools({
 			workspaceDir: workspace,
-			toolsAllow: ['read'],
+			toolsAllow: ['read_file'],
 			services: { policy },
 		});
 
 		expect(result.tools).toEqual([]);
 		expect(policy.evaluateTools).toHaveBeenCalledWith(
-			expect.arrayContaining([expect.objectContaining({ name: 'read' })]),
+			expect.arrayContaining([expect.objectContaining({ name: 'read_file' })]),
 			expect.objectContaining({
 				stages: expect.objectContaining({
-					runtime: { allow: ['read'], deny: undefined },
+					runtime: { allow: ['read_file'], deny: undefined },
 				}),
 			})
 		);
