@@ -214,26 +214,32 @@ const ConnectorsPage = () => {
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
 			<div className="grid gap-2">
-				{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => (
-					<Item
-						key={connector.id}
-						variant="outline"
-						size="md"
-						onClick={() => void authorizeOAuthConnector(connector)}
-						className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
-					>
-						<ConnectorIcon
-							directConnectorId={connector.directConnectorId}
-							name={connector.name}
-						/>
-						<ItemContent className="min-w-0">
-							<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<ChevronRight className="size-3.5 text-muted-foreground" />
-						</ItemActions>
-					</Item>
-				))}
+				{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => {
+					const existing = oauthConnectorByProviderId.get(connector.id);
+					const handleClick = existing?.hasToken
+						? () => openConnectorDetails(existing.id)
+						: () => void authorizeOAuthConnector(connector);
+					return (
+						<Item
+							key={connector.id}
+							variant="outline"
+							size="md"
+							onClick={handleClick}
+							className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
+						>
+							<ConnectorIcon
+								directConnectorId={connector.directConnectorId}
+								name={connector.name}
+							/>
+							<ItemContent className="min-w-0">
+								<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronRight className="size-3.5 text-muted-foreground" />
+							</ItemActions>
+						</Item>
+					);
+				})}
 				{mcpConnectors.filter(isConfiguredConnector).map((connector) => (
 					<ConnectorCard
 						key={connector.id}
