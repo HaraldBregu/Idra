@@ -159,6 +159,7 @@
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
+				"tools": "Strumenti e capacità disponibili ai tuoi agenti",
 				"operators": "Configurazione operatori",
 				"system": "Permessi, mantieni attivo e capacita desktop",
 				"channels": "Canali messaggi",
