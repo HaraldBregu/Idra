@@ -49,11 +49,9 @@ export function checkFsRestriction(
 export function outsidePathNeedsApproval(
 	ctx: ToolContext,
 	target: string,
-	permissions: readonly Permission[],
-	mode: 'all' | 'any' = 'all'
+	_permissions: readonly Permission[],
+	_mode: 'all' | 'any' = 'all'
 ): boolean {
 	const abs = resolveAbs(ctx.workspace, target);
-	void permissions;
-	void mode;
 	return !isInsidePath(fridayToolRoot(ctx), abs);
 }
