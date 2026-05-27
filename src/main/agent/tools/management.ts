@@ -27,13 +27,102 @@ export class ToolExecutor {
 
 export function selectAgentToolsForTurn(
 	tools: AgentTool[],
-	_message: string,
+	message: string,
 	_ctx: ToolContext,
 	options?: AgentToolManagementOptions
 ): AgentToolSelectionForTurn {
+	if (tools.length === 0 || hasNoToolIntent(message) || isImmediateBackgroundTask(message)) {
+		return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
+	}
+	if (isToolInventoryQuestion(message)) {
+		return { toolsForPrompt: tools, systemPromptSuffix: '', rankedTools: tools };
+	}
+
+	const ranked = rankToolsForPrompt(tools, message);
+	const matched = ranked.filter((entry) => entry.score > 0).map((entry) => entry.tool);
 	const maxTools = options?.maxPromptTools;
-	const toolsForPrompt = maxTools !== undefined ? tools.slice(0, maxTools) : tools;
-	return { toolsForPrompt, systemPromptSuffix: '', rankedTools: tools };
+	const toolsForPrompt = maxTools !== undefined ? matched.slice(0, maxTools) : matched;
+	return { toolsForPrompt, systemPromptSuffix: '', rankedTools: matched };
+}
+
+function rankToolsForPrompt(tools: readonly AgentTool[], message: string): Array<{ tool: AgentTool; score: number }> {
+	const tokens = tokenizeForCapabilityMatch(message);
+	const intent = inferToolIntent(message, tokens);
+	return tools
+		.map((tool) => ({ tool, score: scoreTool(tool, tokens, intent) }))
+		.sort((left, right) => right.score - left.score || left.tool.name.localeCompare(right.tool.name));
+}
+
+function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: ToolIntent): number {
+	const toolTokens = tokenizeForCapabilityMatch(toolText(tool));
+	let score = 0;
+	for (const token of queryTokens) {
+		if (toolTokens.has(token)) score += 8;
+		else if ([...toolTokens].some((toolToken) => toolToken.includes(token) || token.includes(toolToken))) score += 3;
+	}
+	if (intent === 'scheduled' && hasAny(toolTokens, ['cron', 'schedule', 'scheduled', 'recurring', 'reminder', 'wake'])) score += 80;
+	if (intent === 'email' && hasAny(toolTokens, ['gmail', 'email', 'mail', 'inbox'])) score += 60;
+	if (intent === 'calendar' && hasAny(toolTokens, ['calendar', 'agenda', 'event', 'events'])) score += 60;
+	if (intent === 'drive' && hasAny(toolTokens, ['drive', 'file', 'files', 'document', 'documents'])) score += 50;
+	if (intent === 'web' && hasAny(toolTokens, ['web', 'fetch', 'weather', 'current', 'latest'])) score += 50;
+	if (intent === 'file_read' && hasAny(toolTokens, ['read', 'find', 'inspect', 'search'])) score += 40;
+	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'patch', 'create', 'delete', 'copy', 'move'])) score += 40;
+	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
+	return score;
+}
+
+function toolText(tool: AgentTool): string {
+	return [tool.name, tool.displayName, tool.displaySummary, tool.description].filter(Boolean).join(' ');
+}
+
+type ToolIntent =
+	| 'none'
+	| 'scheduled'
+	| 'email'
+	| 'calendar'
+	| 'drive'
+	| 'web'
+	| 'file_read'
+	| 'file_write'
+	| 'file_move';
+
+function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolIntent {
+	const normalized = normalizeForCapabilityMatch(message);
+	if (/\b(every|daily|weekly|monthly|tomorrow|tonight|schedule|scheduled|remind|reminder|recurring|cron)\b/.test(normalized)) return 'scheduled';
+	if (/\b(email|gmail|inbox|mail)\b/.test(normalized)) return 'email';
+	if (/\b(calendar|agenda|meeting|event|events)\b/.test(normalized)) return 'calendar';
+	if (/\b(google drive|drive|document|documents)\b/.test(normalized)) return 'drive';
+	if (/\b(weather|latest|current|web|url|http|fetch)\b/.test(normalized)) return 'web';
+	if (hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
+	if (hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])) return 'file_write';
+	if (hasAny(tokens, ['read', 'find', 'inspect', 'search', 'show', 'list', 'open'])) return 'file_read';
+	return 'none';
+}
+
+function hasNoToolIntent(message: string): boolean {
+	return /\b(do not use tools|don't use tools|without tools|answer from memory|no tools)\b/i.test(message);
+}
+
+function isToolInventoryQuestion(message: string): boolean {
+	return /\b(what tools do you have|available tools|list tools|tool inventory)\b/i.test(message);
+}
+
+function isImmediateBackgroundTask(message: string): boolean {
+	return /\brun a task in background(?: now)?\b/i.test(message);
+}
+
+function tokenizeForCapabilityMatch(value: string): ReadonlySet<string> {
+	const normalized = normalizeForCapabilityMatch(value);
+	if (!normalized) return new Set();
+	return new Set(normalized.split(/\s+/).filter((token) => token.length >= 3));
+}
+
+function normalizeForCapabilityMatch(value: string): string {
+	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function hasAny(values: ReadonlySet<string>, candidates: readonly string[]): boolean {
+	return candidates.some((candidate) => values.has(candidate));
 }
 
 export async function executeAgentToolWithManagement(
