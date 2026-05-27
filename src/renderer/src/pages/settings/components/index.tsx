@@ -30,7 +30,6 @@ export function SettingsPageShell({
 
 interface SettingsPageHeaderProps {
 	readonly title: ReactNode;
-	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly icon?: LucideIcon;
 	readonly iconNode?: ReactNode;
@@ -147,7 +146,6 @@ export function SettingsPanel({ children, className }: SettingsPanelProps): Reac
 
 interface SettingsRowProps {
 	readonly title: ReactNode;
-	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly icon?: LucideIcon;
 	readonly media?: ReactNode;
@@ -264,7 +262,6 @@ export function SettingsNotice({
 interface SettingsEmptyStateProps {
 	readonly icon?: LucideIcon;
 	readonly title: ReactNode;
-	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly children?: ReactNode;
 	readonly className?: string;
