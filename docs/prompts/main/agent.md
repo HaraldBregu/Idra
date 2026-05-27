@@ -293,7 +293,38 @@ Validation criteria — the implementation is complete when:
 - TypeScript compiles with no errors.
 
 ============================================================
-18. IMPLEMENTATION RULES
+18. DESIGN PATTERNS AND SOFTWARE STANDARDS
+============================================================
+
+Apply the best design patterns appropriate to each layer. Do not apply patterns mechanically — use them only where they reduce complexity and improve clarity.
+
+Creational patterns:
+- Use Factory (createAgentHarness) as the single entry point. Callers never instantiate internals directly.
+- Use Singleton for the store. One instance, shared across all modules.
+
+Structural patterns:
+- Use Facade for the AgentHarness public API. It hides harness internals from the caller.
+- Use Registry for tools, skills, and hooks. Each registry manages its own collection behind a consistent interface.
+- Use Adapter when wrapping MCP tools into the internal tool interface.
+- Use Decorator for the executor layer: safety check, approval gate, and logging wrap the core tool call without modifying the tool itself.
+
+Behavioral patterns:
+- Use Strategy for context building, memory retrieval, and safety evaluation. Each is an interchangeable function with a defined contract.
+- Use Observer (EventEmitter) for agent events. The harness emits; consumers subscribe without being coupled to the harness.
+- Use Command for undo snapshots. Each reversible operation captures its inverse before executing.
+- Use Chain of Responsibility for the hook system. Hooks run in sequence; each can short-circuit the chain.
+- Use Iterator for the run method. The agent loop is an async iterable of events.
+
+Software standards:
+- Follow SOLID principles. Each module has one responsibility, depends on abstractions, and is open to extension without modification.
+- Follow DRY. Extract shared logic once. If the same pattern appears in three places, it belongs in a shared utility.
+- Follow the principle of least privilege. No module accesses more of the store than it needs.
+- Type everything explicitly. No any, no unknown without a guard, no implicit return types on public functions.
+- Prefer pure functions. Side effects (store writes, event emissions) happen at the boundary, not inside domain logic.
+- Keep functions small. If a function cannot be understood in one screen, split it.
+
+============================================================
+19. IMPLEMENTATION RULES
 ============================================================
 
 Refactor, do not migrate.
