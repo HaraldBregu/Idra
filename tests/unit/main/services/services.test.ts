@@ -168,7 +168,10 @@ describe('connectors service', () => {
 				connectorTools = next;
 			}
 		);
-		const service = new ConnectorsService(makeLogger() as never, { store: store as never });
+		const service = new ConnectorsService(makeLogger() as never, {
+			store: store as never,
+			toolStore: toolStore as never,
+		});
 
 		await expect(service.add(undefined)).rejects.toThrow(/Connector configuration is required/);
 		await expect(
