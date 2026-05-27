@@ -17,6 +17,7 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
+	type StaticOAuthConnectorDefinition,
 } from '../../../shared/connector';
 import {
 	GOOGLE_MCP_AUTHENTICATION_URL,
@@ -1012,7 +1013,7 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 }
 
 function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
-	return GOOGLE_WORKSPACE_OAUTH_CONNECTORS.map((connector) =>
+	return (GOOGLE_WORKSPACE_OAUTH_CONNECTORS as readonly StaticOAuthConnectorDefinition[]).map((connector) =>
 		normalizeCatalogEntry({
 			id: connector.id,
 			directConnectorId: connector.directConnectorId,
@@ -1046,13 +1047,13 @@ function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
 }
 
 function mcpConfigForOAuthConnector(
-	connector: (typeof GOOGLE_WORKSPACE_OAUTH_CONNECTORS)[number]
+	connector: StaticOAuthConnectorDefinition
 ): ConnectorMcpConfig | undefined {
 	return connector.mcp ? { transport: 'http', url: connector.mcp.endpoint } : undefined;
 }
 
 function googleOAuthAuthorizationUrl(
-	connector: (typeof GOOGLE_WORKSPACE_OAUTH_CONNECTORS)[number],
+	connector: StaticOAuthConnectorDefinition,
 	clientId: string,
 	state: string
 ): string {
