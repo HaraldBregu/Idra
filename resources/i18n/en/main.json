@@ -476,6 +476,7 @@
 			"modeDescription": "Enable advanced developer tools and options"
 		},
 		"connectors": {
+			"description": "Configure MCP-backed connectors as tools for your agents.",
 			"detailsTitle": "Connector Details",
 			"setup": "Setup",
 			"notFoundTitle": "Connector not found",
