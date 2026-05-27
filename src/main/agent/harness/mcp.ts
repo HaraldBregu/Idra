@@ -62,10 +62,10 @@ export class McpAgentHarnessToolProvider implements AgentHarnessExternalToolProv
 		for (const server of this.servers) {
 			try {
 				const connection = await this.connect(server);
-				const [serverTools, resources, prompts] = await Promise.all([
-					this.listTools(connection),
-					this.listResources(connection),
-					this.listPrompts(connection),
+				const serverTools = await this.listTools(connection);
+				const [resources, prompts] = await Promise.all([
+					this.listResources(connection).catch(() => []),
+					this.listPrompts(connection).catch(() => []),
 				]);
 				this.mergeInventory(server.name, serverTools, resources, prompts);
 				this.options.events?.emit({
