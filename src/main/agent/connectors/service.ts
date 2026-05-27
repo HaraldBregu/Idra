@@ -588,7 +588,7 @@ export class ConnectorsService {
 
 	restoreEnabledConnectors(): void {
 		for (const connector of this.validConnectors()) {
-			if (connector.enabled && connector.tools.length > 0) {
+			if (!connector.oauth && connector.enabled && connector.tools.length > 0) {
 				this.writeTools(connector.id, this.applyToolPolicy(connector, connector.tools));
 			}
 		}
@@ -678,6 +678,7 @@ export class ConnectorsService {
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.getStored(id);
+		if (connector.oauth) return connector.tools;
 		const missing = missingMcpSecretNames(connector);
 		if (missing.length > 0) throw new Error('Missing MCP secret environment variable: ' + missing.join(', '));
 		const next = await this.withDiscoveredTools(connector);
@@ -686,7 +687,8 @@ export class ConnectorsService {
 	}
 
 	listTools(id: string): ConnectorTool[] {
-		return this.readTools(this.getStored(id).id);
+		const connector = this.getStored(id);
+		return connector.oauth ? connector.tools : this.readTools(connector.id);
 	}
 
 	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
@@ -769,7 +771,10 @@ export class ConnectorsService {
 	}
 
 	private async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
-		if (!connector.mcp || (connector.oauth && !connector.oauth.token?.accessToken)) {
+		if (connector.oauth) {
+			return connector;
+		}
+		if (!connector.mcp) {
 			return { ...connector, tools: this.readTools(connector.id) };
 		}
 		if (!connector.enabled || missingMcpSecretNames(connector).length > 0) {
