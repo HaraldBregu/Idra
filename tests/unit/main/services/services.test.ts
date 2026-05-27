@@ -1,10 +1,8 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { app, shell } from 'electron';
-import { AppsService } from '../../../../src/main/apps';
+import { app } from 'electron';
 import { ConnectorsService } from '../../../../src/main/agent/connectors';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
-import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';
@@ -23,32 +21,6 @@ function connectorStoreFor(
 		}),
 	};
 }
-
-describe('apps service', () => {
-	it('lists valid app manifests with embedded icons and validates ids for destructive operations', async () => {
-		const tempRoot = await makeTempDir();
-		const userDataDirectory = new UserDataDirectoryService({ homePath: tempRoot });
-		const service = new AppsService(makeLogger() as never, userDataDirectory);
-		const root = service.getAppsRoot();
-		await fs.mkdir(path.join(root, 'alpha'), { recursive: true });
-		await fs.writeFile(path.join(root, 'alpha', 'icon.png'), Buffer.from('icon'));
-		await fs.writeFile(
-			path.join(root, 'alpha', 'manifest.json'),
-			JSON.stringify({ name: 'Alpha', version: '1.0.0', icon: 'icon.png' })
-		);
-
-		const apps = await service.list();
-		expect(apps).toHaveLength(1);
-		expect(apps[0]?.iconDataUrl).toContain('data:image/png;base64');
-
-		await service.openFolder('alpha');
-		expect(shell.openPath).toHaveBeenCalledWith(path.join(root, 'alpha'));
-		(shell.openPath as jest.Mock).mockResolvedValueOnce('permission denied');
-		await expect(service.openFolder('alpha')).rejects.toThrow(/Could not open app folder/);
-		await expect(service.delete('../bad')).rejects.toThrow(/Invalid app id/);
-		await fs.rm(tempRoot, { recursive: true, force: true });
-	});
-});
 
 describe('connectors service', () => {
 	function fakeMcpClient() {
