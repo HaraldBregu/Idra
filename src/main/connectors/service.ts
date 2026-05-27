@@ -655,6 +655,20 @@ export class ConnectorsService implements McpConnectorStore {
 		await this.mcpClient.close();
 	}
 
+	listConnectorsForMcp(): ConnectorConfig[] {
+		return this.validConnectors();
+	}
+
+	getConnectorForMcp(id: string): ConnectorConfig {
+		return this.getStored(id);
+	}
+
+	saveConnectorFromMcp(connector: ConnectorConfig): ConnectorConfig {
+		const next = normalizeStoredConnector(connector);
+		this.replace(next);
+		return next;
+	}
+
 	private getStored(id: string): RuntimeConnector {
 		const connector = this.validConnectors().find((item) => item.id === id);
 		if (!connector) throw new Error('Connector not found: ' + id);
