@@ -818,9 +818,10 @@ export class ConnectorsService {
 		tools: readonly ConnectorTool[],
 		defaultPermission?: ConnectorToolPermission
 	): ConnectorTool[] {
-		return tools.map((tool) =>
-			normalizeConnectorTool(tool, defaultPermission ?? permissionForTool(connector, tool.name))
-		);
+		return tools.map((tool) => {
+			const permission = defaultPermission ?? permissionForTool(connector, tool.name);
+			return { ...normalizeConnectorTool(tool, permission), permission, requiresApproval: permission === 'needs-approval' };
+		});
 	}
 
 	private clientFor(connector: ConnectorConfig): ConnectorMcpClient {
