@@ -129,13 +129,13 @@ function statusFor(connector: ConnectorConfig): ConnectorStatus {
 
 function toView(connector: ConnectorConfig): ConnectorView {
 	return {
-			id: connector.id,
-			name: connector.name,
-			connectorId: connector.connectorId,
-			authKind: connector.oauth ? 'oauth' : 'mcp_env',
-			serverLabel: connector.serverLabel,
-			enabled: connector.enabled,
-			status: statusFor(connector),
+		id: connector.id,
+		name: connector.name,
+		connectorId: connector.connectorId,
+		authKind: connector.oauth ? 'oauth' : 'mcp_env',
+		serverLabel: connector.serverLabel,
+		enabled: connector.enabled,
+		status: statusFor(connector),
 		requireApproval: connector.requireApproval,
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
