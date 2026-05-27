@@ -355,9 +355,12 @@ function sanitizeHttpMcpConfig(
 	if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
 		throw new Error('MCP HTTP url must use http or https.');
 	}
+	const method = readOptionalString(raw, 'method')?.trim().toUpperCase() || current?.method;
+	if (method && method !== 'POST') throw new Error('MCP HTTP method must be POST.');
 	return {
 		transport: 'http',
 		url: parsedUrl.toString(),
+		method: method as 'POST' | undefined,
 		headers: sanitizeHeaderRecord(raw.headers, current?.headers),
 		sessionId: readOptionalString(raw, 'sessionId')?.trim() || current?.sessionId,
 		auth: sanitizeHeaderSecret(raw.auth, current?.auth),
