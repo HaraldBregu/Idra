@@ -64,16 +64,22 @@ describe('mcp modules', () => {
 			url: 'https://gmailmcp.googleapis.com/mcp/v1',
 			headers: { Authorization: 'Bearer oauth-access-token' },
 		});
-		expect(new McpRegistry().buildServers([
-			{ ...oauthConnector, id: 'pending', oauth: { ...oauthConnector.oauth!, token: undefined } },
-			oauthConnector,
-		])).toEqual([
-			expect.objectContaining({
-				url: 'https://gmailmcp.googleapis.com/mcp/v1',
-				headers: { Authorization: 'Bearer oauth-access-token' },
-			}),
-		]);
-	});
+			expect(new McpRegistry().buildServers([
+				{ ...oauthConnector, id: 'pending', oauth: { ...oauthConnector.oauth!, token: undefined } },
+				oauthConnector,
+			])).toEqual([
+				expect.objectContaining({
+					url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					headers: { Authorization: 'Bearer oauth-access-token' },
+				}),
+			]);
+			expect(resolveMcpConfig(connector({
+				mcp: { transport: 'http', url: 'https://gmailmcp.googleapis.com/mcp/v1' },
+				authorization: 'Bearer stored-access-token',
+			}))).toMatchObject({
+				headers: { Authorization: 'Bearer stored-access-token' },
+			});
+		});
 
 	it('creates safe environment maps and normalizes errors', () => {
 		process.env.PATH = '/bin';
