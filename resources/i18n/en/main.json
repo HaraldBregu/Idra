@@ -150,6 +150,8 @@
 			"groups": {
 				"app": "App",
 				"ai": "AI",
+				"agent": "Agent",
+				"voice": "Voice & Media",
 				"knowledge": "Knowledge",
 				"channels": "Channels",
 				"automation": "Automation",
@@ -157,6 +159,7 @@
 			},
 			"descriptions": {
 				"general": "App info, appearance, folders",
+				"tools": "Tools and capabilities available to your agents",
 				"operators": "Operator configuration",
 				"system": "Permissions, keep-awake controls, and desktop capabilities",
 				"channels": "Messaging channels",
