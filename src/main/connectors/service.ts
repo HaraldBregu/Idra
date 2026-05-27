@@ -1106,6 +1106,26 @@ function titleFromStorageKey(storageKey?: string): string | undefined {
 	return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
+function connectorMetadataFromStorage(
+	connector: ConnectorConfig,
+	storageKey?: string
+): { id: string; connectorId: ConnectorProviderId; name: string } | undefined {
+	const key = storageKey?.trim().toLowerCase();
+	if (key === 'gmail') return { id: 'google.gmail', connectorId: 'google.gmail', name: 'Gmail' };
+	if (key === 'google_calendar') return { id: 'google.calendar', connectorId: 'google.calendar', name: 'Google Calendar' };
+	if (key === 'google_drive') return { id: 'google.drive', connectorId: 'google.drive', name: 'Google Drive' };
+	if (connector.mcp?.transport !== 'http') return undefined;
+	const url = connector.mcp.url;
+	if (url === 'https://gmailmcp.googleapis.com/mcp/v1') return { id: 'google.gmail', connectorId: 'google.gmail', name: 'Gmail' };
+	if (url === 'https://calendarmcp.googleapis.com/mcp/v1') {
+		return { id: 'google.calendar', connectorId: 'google.calendar', name: 'Google Calendar' };
+	}
+	if (url === 'https://drivemcp.googleapis.com/mcp/v1') {
+		return { id: 'google.drive', connectorId: 'google.drive', name: 'Google Drive' };
+	}
+	return undefined;
+}
+
 function isConnectorToolRecord(value: unknown): value is ConnectorTool {
 	return Boolean(value && typeof value === 'object' && !Array.isArray(value) && typeof (value as ConnectorTool).name === 'string');
 }
