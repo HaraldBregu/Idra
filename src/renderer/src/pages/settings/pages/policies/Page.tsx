@@ -58,7 +58,6 @@ const PoliciesPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.policies')}
 				description={t('settings.policies.description')}
-				icon={ShieldCheck}
 				action={
 					<Button
 						type="button"

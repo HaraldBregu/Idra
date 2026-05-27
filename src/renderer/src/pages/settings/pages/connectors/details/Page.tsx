@@ -45,7 +45,6 @@ import {
 	SettingsSection,
 } from '../../../components';
 import { ConnectorDocumentationRows } from '../components/ConnectorDocumentationRows';
-import { ConnectorIcon } from '../components/ConnectorIcon';
 import { ConnectorToolsList } from '../components/ConnectorToolsList';
 
 type ConnectorCatalogItem = ConnectorCatalogEntry;
@@ -452,7 +451,6 @@ const ConnectorDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={title}
 				description={catalogItem.description}
-				iconNode={<ConnectorIcon directConnectorId={catalogItem.directConnectorId} name={catalogItem.name} />}
 			/>
 
 			{error && (

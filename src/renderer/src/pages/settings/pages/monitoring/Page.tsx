@@ -7,7 +7,6 @@ import {
 	Clock3,
 	Filter,
 	LoaderCircle,
-	Radar,
 	RefreshCw,
 	SearchCode,
 	ServerCog,
@@ -382,7 +381,6 @@ const MonitoringPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.monitoring')}
 				description={t('settings.monitoring.description')}
-				icon={Radar}
 				action={
 					<Button
 						type="button"

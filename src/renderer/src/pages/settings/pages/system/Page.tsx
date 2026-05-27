@@ -5,7 +5,6 @@ import {
 	BatteryCharging,
 	Camera,
 	Mic,
-	MonitorCog,
 	MonitorUp,
 	RefreshCw,
 	ShieldCheck,
@@ -496,7 +495,6 @@ const SystemPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.system')}
 				description={t('settings.system.description')}
-				icon={MonitorCog}
 			/>
 
 			{systemPreferenceError && (

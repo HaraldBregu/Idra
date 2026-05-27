@@ -319,7 +319,6 @@ const OperatorDetailsPage: React.FC = () => {
 				<SettingsPageHeader
 					title={t('settings.operators.detailsTitle')}
 					description={t('settings.operators.description')}
-					icon={config.isAssistant ? undefined : config.icon}
 				/>
 				<SettingsPanel>
 					<SettingsLoadingRows rows={3} />
@@ -339,7 +338,6 @@ const OperatorDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t(config.nameKey)}
 				description={t(config.descriptionKey)}
-				icon={config.isAssistant ? undefined : config.icon}
 			/>
 
 			{errorMessage && (
