@@ -112,7 +112,7 @@ export const LOCAL_TOOL_CATALOG = [
 		tool: runShellTool,
 		group: 'coreWorkspace',
 		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: gitStatusTool,
