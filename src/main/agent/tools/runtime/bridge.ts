@@ -8,7 +8,7 @@ import type {
 	AgentToolResult as LegacyAgentToolResult,
 	ToolContext,
 } from '../core/types';
-import type { ToolResultBlock } from '../../provider/types';
+import type { ToolResultBlock } from '../../../provider/types';
 
 type CanonicalToolWithLegacyApproval = CanonicalAgentTool & {
 	needsApproval?: LegacyAgentTool['needsApproval'];

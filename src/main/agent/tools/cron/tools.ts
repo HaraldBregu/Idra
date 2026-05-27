@@ -1,4 +1,4 @@
-import type { CronService, CronServiceActor } from '../../cron';
+import type { CronService, CronServiceActor } from '../../../cron';
 import type { AgentTool, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
 import type {
@@ -10,7 +10,7 @@ import type {
 	CronScheduleType,
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
-} from '../../../shared/cron';
+} from '../../../../shared/cron';
 
 const CRON_TOOL_PERMISSIONS: CronSchedulePermissionLevel[] = [
 	'createSchedule',

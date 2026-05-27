@@ -1,4 +1,4 @@
-import type { JSONSchema } from '../../provider/types';
+import type { JSONSchema } from '../../../provider/types';
 import type { AgentTool, ToolDiagnostics } from './common';
 import { copyToolMetadata } from './common';
 

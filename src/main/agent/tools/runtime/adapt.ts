@@ -1,4 +1,4 @@
-import type { JSONSchema } from '../../provider/types';
+import type { JSONSchema } from '../../../provider/types';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../core/types';
 import type {
 	AgentTool as RuntimeAgentTool,

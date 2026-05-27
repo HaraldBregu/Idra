@@ -11,7 +11,7 @@ import {
 	filePolicyAllows,
 	type FilePolicyCheck,
 } from './policy';
-import type { Permission } from '../../../shared/policy';
+import type { Permission } from '../../../../shared/policy';
 
 function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));

@@ -1,16 +1,16 @@
-import type { EventBus } from '../../core/event-bus';
-import type { LoggerService } from '../../logger';
-import type { CronService } from '../../cron';
+import type { EventBus } from '../../../core/event-bus';
+import type { LoggerService } from '../../../logger';
+import type { CronService } from '../../../cron';
 import type { ConnectorsService } from '../../connectors';
-import type { PolicyServicePort } from '../../policy';
-import type { StoreService } from '../../store';
-import type { TasksService } from '../../tasks';
+import type { PolicyServicePort } from '../../../policy';
+import type { StoreService } from '../../../store';
+import type { TasksService } from '../../../tasks';
 import type { McpRegistry } from '../../mcp';
 import type { SkillsService } from '../../skills';
-import type { UserDataDirectoryServicePort } from '../../user-data';
-import type { WorkspaceService } from '../../workspace';
-import type { JSONSchema, ToolResultBlock } from '../../provider/types';
-import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../shared/agents/constants';
+import type { UserDataDirectoryServicePort } from '../../../user-data';
+import type { WorkspaceService } from '../../../workspace';
+import type { JSONSchema, ToolResultBlock } from '../../../provider/types';
+import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../../shared/agents/constants';
 
 export interface PlanEntry {
 	task: string;
