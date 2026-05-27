@@ -3,7 +3,7 @@ import {
 	localToolNamesForGroup,
 	type AgentTool,
 } from '../../../../src/main/agent/tools';
-import { AGENT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
+import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeToolContext } from '../test-helpers';
 
 describe('ToolService', () => {
@@ -107,10 +107,10 @@ describe('ToolService', () => {
 		const service = new ToolService();
 
 		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
-			AGENT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
+			AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
 		);
 		expect(service.getToolsByGroup('mcpConnector').map((tool) => tool.name)).toEqual(
-			AGENT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
+			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
 		);
 		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
 	});
