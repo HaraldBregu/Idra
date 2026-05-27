@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../src/shared/connector';
+import type { ConnectorCatalogEntry, ConnectorConfig, ConnectorView } from '../../../../../../src/shared/connector';
 import { ConnectorDocumentationRows } from '../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorDocumentationRows';
 import ConnectorsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/Page';
 import ConnectorDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/details/Page';
@@ -105,6 +105,25 @@ function configuredConnector(): ConnectorConfig {
 	};
 }
 
+function connectorView(overrides: Partial<ConnectorView> = {}): ConnectorView {
+	return {
+		id: 'google.gmail',
+		name: 'Gmail',
+		connectorId: 'google.gmail',
+		authKind: 'oauth',
+		serverLabel: 'gmail',
+		enabled: true,
+		status: 'missing_auth',
+		requireApproval: 'always',
+		allowedToolsCount: 0,
+		toolsCount: 0,
+		hasToken: false,
+		hasTools: false,
+		deferLoading: false,
+		...overrides,
+	};
+}
+
 function installConnectorApi(connector = configuredConnector()): void {
 	window.connectors = {
 		catalog: jest.fn(async () => CONNECTOR_CATALOG),
@@ -172,14 +191,16 @@ describe('connector settings docs', () => {
 		installConnectorApi();
 	});
 
-	it('renders OAuth connectors from the catalog and authorizes through the connectors API', async () => {
+	it('renders hardcoded Google OAuth connectors and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
-		(window.connectors.catalog as jest.Mock).mockResolvedValue(OAUTH_CONNECTOR_CATALOG);
+		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
 
 		renderConnectorsPage();
 
 		const gmailLabels = await screen.findAllByText('Gmail');
 		expect(gmailLabels.length).toBeGreaterThan(0);
+		expect(screen.getAllByText('Google Calendar').length).toBeGreaterThan(0);
+		expect(screen.getAllByText('Google Drive').length).toBeGreaterThan(0);
 
 		await user.click(gmailLabels[0]!);
 
@@ -187,6 +208,22 @@ describe('connector settings docs', () => {
 		expect(window.app.openExternalUrl).not.toHaveBeenCalled();
 		expect(window.connectors.add).not.toHaveBeenCalled();
 		expect(window.connectors.update).not.toHaveBeenCalled();
+	});
+
+	it('refreshes missing tools for a saved Google connector state', async () => {
+		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
+		(window.connectors.list as jest.Mock)
+			.mockResolvedValueOnce([connectorView()])
+			.mockResolvedValueOnce([connectorView({ toolsCount: 2, hasTools: true })]);
+
+		renderConnectorsPage();
+
+		await waitFor(() => {
+			expect(window.connectors.refreshTools).toHaveBeenCalledWith('google.gmail');
+		});
+		await waitFor(() => {
+			expect(window.connectors.list).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	it('renders docs metadata and opens platform docs through the app bridge', async () => {
