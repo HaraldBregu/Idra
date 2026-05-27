@@ -1200,11 +1200,17 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 		authKind: entry.authKind ?? 'mcp_env',
 		redirectUri: entry.redirectUri,
 		runtimeKind: entry.runtimeKind ?? 'mcp',
-		allowMultipleInstances: entry.allowMultipleInstances ?? true,
-		mcp: entry.mcp,
-		oauth: entry.oauth,
-	};
-}
+			allowMultipleInstances: entry.allowMultipleInstances ?? true,
+			mcp: entry.mcp,
+			oauth: entry.oauth
+				? {
+					...entry.oauth,
+					clientSecretEnv: entry.oauth.clientSecretEnv,
+					tokenUrl: readRequiredString(entry.oauth.tokenUrl, 'OAuth token URL'),
+				}
+				: undefined,
+		};
+	}
 
 function oauthAuthorizationUrl(
 	connector: ConnectorCatalogEntry,
