@@ -5,7 +5,6 @@ import type { LoggerService } from '../logger';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import { resolveDefaultAppDataPath } from '../agent/storage';
 import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
-import defaultConnectorCatalog from '../../shared/connector/catalog.json';
 import type {
 	ConnectorCallToolOptions,
 	ConnectorCatalogEntry,
@@ -381,7 +380,7 @@ export class ConnectorsService {
 	) {
 		this.store =
 			options.store ??
-			(new Store<Record<string, ConnectorConfig[]>>({
+			(new Store<Record<string, unknown>>({
 				name: CONNECTOR_STORE_NAME,
 				cwd: resolveDefaultAppDataPath(),
 				accessPropertiesByDotNotation: false,
@@ -413,12 +412,12 @@ export class ConnectorsService {
 	}
 
 	async authorizeOAuth(input: unknown): Promise<ConnectorOAuthAuthorizeResult> {
-		const connectorId = readRequiredString(
-			requireObject(input, 'OAuth authorization request').connectorId,
-			'Connector id'
-		);
-		const definition = await this.oauthCatalogEntry(connectorId);
-		if (!definition?.oauth) throw new Error('OAuth connector not found: ' + connectorId);
+			const connectorId = readRequiredString(
+				requireObject(input, 'OAuth authorization request').connectorId,
+				'Connector id'
+			);
+			const definition = await this.oauthCatalogEntry(connectorId, input);
+			if (!definition?.oauth) throw new Error('OAuth connector not found: ' + connectorId);
 
 		const clientIdEnv = definition.oauth.clientIdEnv;
 		const clientId = this.options.env?.[clientIdEnv] ?? process.env[clientIdEnv];
@@ -604,10 +603,10 @@ export class ConnectorsService {
 		}
 		const missing = missingMcpSecretNames(connector);
 		if (missing.length > 0) throw new Error('Missing MCP secret environment variable: ' + missing.join(', '));
-		const next = await this.withDiscoveredTools(
-			connector,
-			isCatalogOAuthConnector(connector) ? DEFAULT_CONNECTOR_TOOL_PERMISSION : undefined
-		);
+			const next = await this.withDiscoveredTools(
+				connector,
+				connector.oauth ? DEFAULT_CONNECTOR_TOOL_PERMISSION : undefined
+			);
 		this.replace(next);
 		return next.tools;
 	}
@@ -811,10 +810,10 @@ export class ConnectorsService {
 			return [];
 		}
 		const connector = record as unknown as ConnectorConfig;
-		if (!isStoredConnectorValid(connector)) {
-			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId ?? storageKey });
-			return [];
-		}
+			if (!isStoredConnectorValid(connector, storageKey)) {
+				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId ?? storageKey });
+				return [];
+			}
 		try {
 			return [normalizeStoredConnector(connector, storageKey)];
 		} catch (error) {
@@ -878,11 +877,14 @@ export class ConnectorsService {
 		const provider = this.options.catalogProvider;
 		const entries = typeof provider === 'function'
 			? await provider()
-			: (provider ?? defaultConnectorCatalog) as ConnectorCatalogEntry[];
+			: (provider ?? []) as ConnectorCatalogEntry[];
 		return entries.map(normalizeCatalogEntry);
 	}
 
-	private async oauthCatalogEntry(id: string): Promise<ConnectorCatalogEntry | undefined> {
+	private async oauthCatalogEntry(id: string, input: unknown): Promise<ConnectorCatalogEntry | undefined> {
+		const request = requireObject(input, 'OAuth authorization request');
+		const provided = readOptionalCatalogEntry(request.connector, id);
+		if (provided) return provided;
 		return (await this.catalogEntriesFromProvider()).find((entry) => entry.id === id && entry.oauth);
 	}
 
@@ -935,32 +937,7 @@ export class ConnectorsService {
 	}
 }
 
-/*
-if (!Array.isArray(raw)) {
-			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, reason: 'not_array' });
-			return [];
-		}
-		return raw.flatMap((entry, index) => {
-			const record = readRecord(entry);
-			if (!record) {
-				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
-				return [];
-			}
-			const connector = record as unknown as ConnectorConfig;
-			if (!isStoredConnectorValid(connector)) {
-				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId });
-				return [];
-			}
-			try {
-				return [normalizeStoredConnector(connector)];
-			} catch (error) {
-				this.logError('Failed to normalize connector settings', { key: CONNECTOR_STORE_KEY, index, error: this.errorMessage(error) });
-				return [];
-			}
-		});
-*/
-
-function isStoredConnectorValid(connector: ConnectorConfig): boolean {
+function isStoredConnectorValid(connector: ConnectorConfig, storageKey?: string): boolean {
 	return (
 		(
 			typeof connector.id === 'string' &&
@@ -968,14 +945,13 @@ function isStoredConnectorValid(connector: ConnectorConfig): boolean {
 			typeof connector.connectorId === 'string' &&
 			CONNECTOR_ID_PATTERN.test(connector.connectorId)
 		) ||
-		Boolean(connector.mcp && catalogEntryForMcp(connector.mcp))
+		Boolean(storageKey && connector.mcp)
 	);
 }
 
-function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
-	const catalogEntry = connector.mcp ? catalogEntryForMcp(connector.mcp) : undefined;
-	const name = connector.name ?? catalogEntry?.name ?? 'MCP Connector';
-	const connectorId = connector.connectorId ?? catalogEntry?.id ?? serverLabelFromName(name);
+function normalizeStoredConnector(connector: ConnectorConfig, storageKey?: string): ConnectorConfig {
+	const name = connector.name ?? titleFromStorageKey(storageKey) ?? 'MCP Connector';
+	const connectorId = connector.connectorId ?? storageKey ?? serverLabelFromName(name);
 	const createdAt = typeof connector.createdAt === 'string' ? connector.createdAt : '';
 	const updatedAt = typeof connector.updatedAt === 'string' ? connector.updatedAt : createdAt;
 	return {
@@ -997,22 +973,43 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 	};
 }
 
-function toStoredConnectorRecord(connector: ConnectorConfig): ConnectorConfig | { mcp?: ConnectorMcpConfig; tools: ConnectorTool[] } {
-	const normalized = normalizeStoredConnector(connector);
-	if ((connector.oauth || (connector.mcp && catalogEntryForMcp(connector.mcp)?.oauth)) && !connector.oauth?.token) {
-		return {
-			mcp: connector.mcp,
-			tools: normalized.tools,
-		};
+function toStoredConnectorRecords(connectors: readonly ConnectorConfig[]): Record<string, ConnectorConfig> {
+	const records: Record<string, ConnectorConfig> = {};
+	for (const connector of connectors) {
+		const normalized = normalizeStoredConnector(connector);
+		const baseKey = connectorStorageKey(normalized);
+		let key = baseKey;
+		let suffix = 2;
+		while (records[key]) {
+			key = baseKey + '_' + suffix;
+			suffix += 1;
+		}
+		records[key] = normalized;
 	}
-	return normalized;
+	return records;
 }
 
-function catalogEntryForMcp(mcp: ConnectorMcpConfig): ConnectorCatalogEntry | undefined {
-	if (mcp.transport !== 'http') return undefined;
-	return (defaultConnectorCatalog as ConnectorCatalogEntry[]).find((entry) =>
-		entry.mcp?.transport === 'http' && entry.mcp.url === mcp.url
-	);
+function connectorStorageKey(connector: ConnectorConfig): string {
+	return sanitizeConnectorStorageKey(connector.serverLabel || connector.connectorId || connector.id);
+}
+
+function sanitizeConnectorStorageKey(value: string): string {
+	return value
+		.trim()
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]+/g, '_')
+		.replace(/^_+|_+$/g, '') || 'connector';
+}
+
+function titleFromStorageKey(storageKey?: string): string | undefined {
+	if (!storageKey) return undefined;
+	const words = storageKey
+		.replace(/[^a-zA-Z0-9]+/g, ' ')
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean);
+	if (words.length === 0) return undefined;
+	return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
 function isConnectorToolRecord(value: unknown): value is ConnectorTool {
@@ -1095,15 +1092,11 @@ function missingSecretMessage(connector: ConnectorConfig): string | undefined {
 }
 
 function permissionForTool(connector: ConnectorConfig, toolName: string): ConnectorToolPermission {
-	if (connector.oauth || isCatalogOAuthConnector(connector)) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
+	if (connector.oauth) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
 	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
 	if (connector.requireApproval === 'never') return 'always-allow';
 	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) return 'always-allow';
 	return 'needs-approval';
-}
-
-function isCatalogOAuthConnector(connector: ConnectorConfig): boolean {
-	return Boolean(connector.mcp && catalogEntryForMcp(connector.mcp)?.oauth);
 }
 
 function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
