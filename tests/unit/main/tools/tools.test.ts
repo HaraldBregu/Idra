@@ -13,6 +13,7 @@ import {
 	writeTool,
 } from '../../../../src/main/agent/tools/fs';
 import { scriptRunTool } from '../../../../src/main/agent/tools/scripts/tools';
+import { runShellTool } from '../../../../src/main/agent/tools/workspace/tools';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -177,6 +178,17 @@ describe('tools/before-call', () => {
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
 		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(true);
+	});
+
+	it('does not require approval for run_shell by default', async () => {
+		const result = await beforeToolCall(
+			runShellTool,
+			{ command: 'echo ok' },
+			makeToolContext(),
+			newCallTracker()
+		);
+
+		expect(result.proceed).toBe(true);
 	});
 
 	it('delegates execution gating to the policy service when available', async () => {
