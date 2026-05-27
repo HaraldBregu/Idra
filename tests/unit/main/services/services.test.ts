@@ -99,7 +99,7 @@ describe('connectors service', () => {
 		expect(service.get(added.id).authorization).toBe('');
 		expect(connectors[0]).toMatchObject({
 			connectorId: 'connector_gmail',
-			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp/' },
+			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 		});
 		expect(service.list()[0]).toMatchObject({
 			name: 'Remote Gmail',

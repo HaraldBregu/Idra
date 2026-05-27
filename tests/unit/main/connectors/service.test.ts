@@ -112,8 +112,8 @@ describe('ConnectorsService MCP persistence', () => {
 			expect.objectContaining({
 				id: added.id,
 				connectorId: 'connector_gmail',
-				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp/' },
-				tools: [expect.objectContaining({ name: 'search', requiresApproval: false })],
+				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
+				tools: [expect.objectContaining({ name: 'search', requiresApproval: true })],
 			}),
 		]);
 		expect(added.authorization).toBe('');
