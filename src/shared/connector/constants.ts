@@ -25,7 +25,8 @@ export interface StaticOAuthConnectorDefinition {
 
 export const GOOGLE_OAUTH_PROVIDER_ID = 'google' as const;
 export const GOOGLE_OAUTH_AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/v2/auth' as const;
-export const GOOGLE_OAUTH_CLIENT_ID_ENV = 'VITE_GOOGLE_OAUTH_CLIENT_ID' as const;
+export const GOOGLE_OAUTH_CLIENT_ID_ENV = 'GOOGLE_OAUTH_CLIENT_ID' as const;
+export const GOOGLE_OAUTH_CLIENT_SECRET_ENV = 'GOOGLE_OAUTH_CLIENT_SECRET' as const;
 export const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1' as const;
 export const GOOGLE_OAUTH_SETUP_URL = 'https://console.cloud.google.com/apis/credentials' as const;
 

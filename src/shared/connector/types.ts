@@ -69,8 +69,8 @@ export type ProviderConnectorCatalogEntry = ConnectorCatalogEntry;
 
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
-export type ConnectorAuthKind = 'mcp_env';
-export type ConnectorRuntimeKind = 'mcp';
+export type ConnectorAuthKind = 'mcp_env' | 'oauth';
+export type ConnectorRuntimeKind = 'mcp' | 'oauth';
 export type ConnectorMcpTransport = 'http' | 'stdio';
 export type ConnectorMcpHeaderAuthScheme = 'bearer' | 'raw';
 
@@ -104,6 +104,25 @@ export interface ConnectorMcpStdioConfig {
 
 export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
 
+export interface ConnectorOAuthTokenSet {
+	accessToken: string;
+	refreshToken?: string;
+	tokenType?: string;
+	scope?: string;
+	expiresAt?: string;
+}
+
+export interface ConnectorOAuthConfig {
+	providerId: string;
+	authorizationUrl: string;
+	clientId: string;
+	redirectUri: string;
+	scopes: readonly string[];
+	state: string;
+	accountEmail?: string;
+	token?: ConnectorOAuthTokenSet;
+}
+
 
 export interface ConnectorTool {
 	name: string;
@@ -121,6 +140,7 @@ export interface ConnectorConfig {
 	enabled: boolean;
 	authorization: string;
 	mcp?: ConnectorMcpConfig;
+	oauth?: ConnectorOAuthConfig;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
 	deferLoading: boolean;
@@ -164,6 +184,26 @@ export interface ConnectorInput {
 }
 
 export type ConnectorUpdateInput = Partial<ConnectorInput>;
+
+export interface ConnectorOAuthAuthorizeRequest {
+	connectorId: ConnectorProviderId;
+}
+
+export interface ConnectorOAuthAuthorizeResult {
+	connectorId: ConnectorProviderId;
+	authorizationUrl: string;
+	connector: ConnectorConfig;
+}
+
+export interface ConnectorOAuthCompleteInput {
+	state: string;
+	accessToken: string;
+	refreshToken?: string;
+	tokenType?: string;
+	scope?: string;
+	expiresIn?: number;
+	accountEmail?: string;
+}
 
 export interface ConnectorTestResult {
 	status: ConnectorStatus;
