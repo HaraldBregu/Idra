@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../src/shared/connector';
 import { ConnectorDocumentationRows } from '../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorDocumentationRows';
+import ConnectorsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/Page';
 import ConnectorDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/details/Page';
 
 const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
@@ -99,6 +100,23 @@ function installAppApi(): void {
 	} as typeof window.app;
 }
 
+function setViteEnv(values: Record<string, unknown>): void {
+	const target = globalThis as typeof globalThis & { __VITE_ENV__?: Record<string, unknown> };
+	target.__VITE_ENV__ = { ...(target.__VITE_ENV__ ?? {}), ...values };
+}
+
+function renderConnectorsPage(): void {
+	render(
+		<MemoryRouter initialEntries={['/settings/connectors']}>
+			<Routes>
+				<Route path="/settings/connectors" element={<ConnectorsPage />} />
+				<Route path="/settings/connectors/connectordetails/:connectorId" element={<div>connector details route</div>} />
+				<Route path="/settings/connectors/configure/:connectorCatalogId" element={<div>configure route</div>} />
+			</Routes>
+		</MemoryRouter>
+	);
+}
+
 function renderConnectorDetails(
 	initialEntry = '/settings/connectors/connectordetails/connector-1'
 ): void {
@@ -123,6 +141,28 @@ describe('connector settings docs', () => {
 	beforeEach(() => {
 		installAppApi();
 		installConnectorApi();
+		setViteEnv({ VITE_GOOGLE_OAUTH_CLIENT_ID: 'google-oauth-client-id' });
+	});
+
+	it('renders static Google OAuth connectors and opens authorization without saving tokens', async () => {
+		const user = userEvent.setup();
+
+		renderConnectorsPage();
+
+		expect(screen.getByText('Gmail')).toBeInTheDocument();
+		expect(screen.getByText('Google Calendar')).toBeInTheDocument();
+		expect(screen.getByText('Google Drive')).toBeInTheDocument();
+
+		await user.click(screen.getByRole('button', { name: /Authorize Gmail/ }));
+
+		expect(window.app.openExternalUrl).toHaveBeenCalledTimes(1);
+		const url = new URL((window.app.openExternalUrl as jest.Mock).mock.calls[0]![0]);
+		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
+		expect(url.searchParams.get('client_id')).toBe('google-oauth-client-id');
+		expect(url.searchParams.get('response_type')).toBe('code');
+		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
+		expect(window.connectors.add).not.toHaveBeenCalled();
+		expect(window.connectors.update).not.toHaveBeenCalled();
 	});
 
 	it('renders docs metadata and opens platform docs through the app bridge', async () => {
