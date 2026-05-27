@@ -588,11 +588,7 @@ export class ConnectorsService {
 	}
 
 	restoreEnabledConnectors(): void {
-		for (const connector of this.validConnectors()) {
-			if (!connector.oauth && connector.enabled && connector.tools.length > 0) {
-				this.writeTools(connector.id, this.applyToolPolicy(connector, connector.tools));
-			}
-		}
+		this.writeAll(this.validConnectors());
 	}
 
 	async add(input: unknown): Promise<ConnectorConfig> {
@@ -641,7 +637,6 @@ export class ConnectorsService {
 			return;
 		}
 		await this.closeClient(connector.id);
-		this.deleteTools(connector.id);
 		this.writeAll(connectors.filter((item) => item.id !== id));
 		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
 	}
@@ -665,7 +660,7 @@ export class ConnectorsService {
 			};
 		}
 		if (connector.oauth) {
-			return { status: 'configured', message: 'OAuth connector is configured with ' + connector.tools.length + ' predefined tools.' };
+			return { status: 'configured', message: 'OAuth connector is configured with ' + connector.tools.length + ' tools.' };
 		}
 		try {
 			const tools = await this.refreshTools(id);
@@ -682,7 +677,11 @@ export class ConnectorsService {
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.getStored(id);
-		if (connector.oauth) return connector.tools;
+		if (connector.oauth) {
+			const next = await this.withOAuthTools(connector);
+			this.replace(next);
+			return next.tools;
+		}
 		const missing = missingMcpSecretNames(connector);
 		if (missing.length > 0) throw new Error('Missing MCP secret environment variable: ' + missing.join(', '));
 		const next = await this.withDiscoveredTools(connector);
@@ -692,7 +691,7 @@ export class ConnectorsService {
 
 	listTools(id: string): ConnectorTool[] {
 		const connector = this.getStored(id);
-		return connector.oauth ? connector.tools : this.readTools(connector.id);
+		return connector.tools;
 	}
 
 	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
@@ -701,11 +700,12 @@ export class ConnectorsService {
 		const callOptions = readConnectorCallToolOptions(options);
 		const nextArgs = readConnectorToolArguments(args);
 		const connector = this.getStored(connectorId);
-		const tools = connector.oauth ? connector.tools : this.readTools(connector.id);
+		const tool = connector.tools.find((item) => item.name === toolName);
 		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
-		if (!tools.some((tool) => tool.name === toolName)) {
+		if (!tool) {
 			throw new Error('Tool ' + toolName + ' is not enabled for ' + connector.name + '.');
 		}
+		if (tool.permission === 'blocked') throw new Error('Tool ' + toolName + ' is blocked for ' + connector.name + '.');
 		return this.clientFor(connector).callTool(toolName, nextArgs, callOptions);
 	}
 
@@ -747,7 +747,7 @@ export class ConnectorsService {
 		return this.validConnectors()
 			.filter((connector) => connector.enabled && statusFor(connector) === 'configured')
 			.flatMap((connector) =>
-				connector.tools.map((tool) => {
+				connector.tools.filter((tool) => tool.permission !== 'blocked').map((tool) => {
 					const rawToolName = tool.name;
 					return {
 						name: agentToolNameFor(connector, rawToolName),
@@ -756,7 +756,7 @@ export class ConnectorsService {
 						schema: schemaForTool(tool),
 						serviceKind: 'connector',
 						serviceId: connector.id,
-						needsApproval: tool.requiresApproval,
+						needsApproval: tool.permission === 'needs-approval' ? () => true : false,
 						execute: async (toolArgs: unknown) => {
 							try {
 								const payload = await this.callTool(connector.id, rawToolName, toolArgs);
