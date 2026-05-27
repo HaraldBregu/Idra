@@ -5,6 +5,7 @@ import type { LoggerService } from '../logger';
 import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import { resolveDefaultAppDataPath } from '../agent/storage';
 import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
+import defaultConnectorCatalog from '../../shared/connector/catalog.json';
 import type {
 	ConnectorCallToolOptions,
 	ConnectorCatalogEntry,
@@ -36,7 +37,6 @@ const SERVER_LABEL_PATTERN = /^[a-zA-Z0-9_-]+$/;
 const CONNECTOR_ID_PATTERN = /^[a-zA-Z0-9._:-]+$/;
 const ENV_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const SECRET_HEADER_NAMES = new Set(['authorization', 'x-api-key', 'api-key']);
-const GOOGLE_OAUTH_CLIENT_ID_ENV = 'GOOGLE_OAUTH_CLIENT_ID';
 
 interface ConnectorPersistenceStore {
 	get(key: string): unknown;
@@ -84,95 +84,6 @@ interface ConnectorsServiceOptions {
 	mcpClientFactory?: ConnectorMcpClientFactory;
 	openExternalUrl?: (url: string) => Promise<void>;
 	env?: NodeJS.ProcessEnv;
-}
-
-interface GoogleWorkspaceOAuthConnectorDefinition {
-	readonly id: string;
-	readonly providerId: string;
-	readonly name: string;
-	readonly tools: readonly string[];
-	readonly scopes: readonly string[];
-	readonly mcp?: {
-		readonly endpoint: string;
-	};
-}
-
-function googleWorkspaceOAuthConnector(connectorId: string): GoogleWorkspaceOAuthConnectorDefinition | undefined {
-	if (connectorId === 'google.gmail') {
-		return {
-			id: 'google.gmail',
-			providerId: 'google',
-			name: 'Gmail',
-			tools: [
-				'create_draft',
-				'list_drafts',
-				'get_thread',
-				'search_threads',
-				'label_thread',
-				'unlabel_thread',
-				'list_labels',
-				'label_message',
-				'unlabel_message',
-				'create_label',
-			],
-			scopes: [
-				'https://www.googleapis.com/auth/userinfo.email',
-				'https://www.googleapis.com/auth/userinfo.profile',
-				'https://www.googleapis.com/auth/gmail.readonly',
-				'https://www.googleapis.com/auth/gmail.compose',
-				'https://www.googleapis.com/auth/gmail.send',
-				'https://www.googleapis.com/auth/gmail.modify',
-			],
-			mcp: {
-				endpoint: 'https://gmailmcp.googleapis.com/mcp/v1',
-			},
-		};
-	}
-	if (connectorId === 'google.calendar') {
-		return {
-			id: 'google.calendar',
-			providerId: 'google',
-			name: 'Google Calendar',
-			tools: [
-				'list_events',
-				'get_event',
-				'list_calendars',
-				'suggest_time',
-				'create_event',
-				'update_event',
-				'delete_event',
-				'respond_to_event',
-			],
-			scopes: [
-				'https://www.googleapis.com/auth/userinfo.email',
-				'https://www.googleapis.com/auth/userinfo.profile',
-				'https://www.googleapis.com/auth/calendar.readonly',
-				'https://www.googleapis.com/auth/calendar.events.readonly',
-				'https://www.googleapis.com/auth/calendar.events',
-			],
-			mcp: {
-				endpoint: 'https://calendarmcp.googleapis.com/mcp/v1',
-			},
-		};
-	}
-	if (connectorId === 'google.drive') {
-		return {
-			id: 'google.drive',
-			providerId: 'google',
-			name: 'Google Drive',
-			tools: [],
-			scopes: [
-				'https://www.googleapis.com/auth/userinfo.email',
-				'https://www.googleapis.com/auth/userinfo.profile',
-				'https://www.googleapis.com/auth/drive.readonly',
-				'https://www.googleapis.com/auth/drive.file',
-			],
-			mcp: {
-				endpoint: 'https://drivemcp.googleapis.com/mcp/v1',
-			},
-		};
-	}
-	return undefined;
 }
 
 function textResult(text: string, isError = false): AgentToolResult {
