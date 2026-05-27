@@ -71,11 +71,22 @@ Each layer should have clear boundaries, typed interfaces, and explicit dependen
 
 Expose a single factory function that accepts a config and returns an AgentHarness instance.
 
+The config is fully optional. The harness must work with zero configuration using defaults persisted in the store.
+
+When config is provided, it overrides the corresponding store defaults for that session. Supported input config fields include: modelId, providerId, effort, maxTokens, temperature, systemPrompt, enabledTools, enabledSkills, and safetyRules. Any field not provided falls back to the value in the store.
+
+This allows any UI or host to drive the harness in three ways:
+- No config: the harness runs with whatever is in agent.json.
+- Partial config: the caller overrides only what it cares about (e.g. modelId only).
+- Full config: the caller supplies everything and bypasses stored defaults entirely.
+
 AgentHarness exposes: run, session, memory, tools, hooks, skills, store, and abort.
 
 The run method accepts a task string and options, and returns an async iterable of typed agent events.
 
 All modules access shared state through the AgentStore. No module initializes its own store.
+
+The harness is UI-agnostic by design. It has no dependency on any rendering framework, window system, or UI toolkit. A CLI, a desktop app, a web app, a REST endpoint, or a background automation can all drive it identically by calling run and subscribing to events.
 
 ============================================================
 4. PERSISTENCE: ELECTRON STORE + AGENT.JSON
