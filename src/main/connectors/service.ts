@@ -40,7 +40,7 @@ const SECRET_HEADER_NAMES = new Set(['authorization', 'x-api-key', 'api-key']);
 
 interface ConnectorPersistenceStore {
 	get(key: string): unknown;
-	set(key: string, value: ConnectorConfig[]): void;
+	set(key: string, value: unknown[]): void;
 	delete(key: string): void;
 }
 
