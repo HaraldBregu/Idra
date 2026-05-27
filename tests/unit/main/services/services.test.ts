@@ -21,7 +21,7 @@ function connectorStoreFor(
 		delete: jest.fn((key: string) => {
 			if (key === 'connectors') write({});
 		}),
-	};
+	} as { get: jest.Mock; set: jest.Mock; delete: jest.Mock; store: Record<string, unknown> };
 	Object.defineProperty(store, 'store', {
 		get: read,
 		set: write,
