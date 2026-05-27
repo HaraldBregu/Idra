@@ -114,25 +114,15 @@ function serverLabelFromName(name: string): string {
 		.replace(/^_+|_+$/g, '');
 }
 
-function statusFor(connector: ConnectorConfig): ConnectorStatus {
-	if (connector.enabled === false) return 'disabled';
-	if (connector.oauth && !hasConnectorAuthorization(connector)) return 'missing_auth';
-	if (!connector.mcp) return 'missing_auth';
-	if (isOAuthMcpConfig(connector.mcp) && !hasConnectorAuthorization(connector)) return 'missing_auth';
-	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
-	if (connector.lastError) return 'error';
-	return 'configured';
-}
-
 function toView(connector: RuntimeConnector): ConnectorConfig {
 	const redacted = redactConnectorSecrets(connector);
 	return {
 		...redacted,
-		authKind: authKindFor(connector),
-		status: statusFor(connector),
+		authKind: connectorAuthKindFor(connector),
+		status: connectorStatusFor(connector),
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
-		hasToken: hasConnectorAuthorization(connector),
+		hasToken: connectorHasAuthorization(connector),
 		hasTools: connector.tools.length > 0,
 		connectedAccount: connector.oauth?.accountEmail,
 	};
