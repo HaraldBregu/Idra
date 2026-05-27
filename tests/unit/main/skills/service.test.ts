@@ -100,7 +100,7 @@ describe('SkillsService', () => {
 		});
 		const service = new SkillsService(makeLogger() as never, { rootPath: root });
 
-		await expect(service.search('prepare a research summary')).resolves.toEqual([
+		await expect(service.search('plan and summarize references')).resolves.toEqual([
 			expect.objectContaining({ name: 'research-brief', reason: 'matched skill description' }),
 		]);
 		await expect(service.search('hello', { names: ['react-ui'] })).resolves.toEqual([

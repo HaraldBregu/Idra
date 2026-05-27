@@ -2,6 +2,21 @@ import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
 import { PolicyService, type PolicyServicePort } from '../policy';
 
 const defaultPolicyService = new PolicyService();
+const GENERIC_TOOL_ACTION_TOKENS = new Set([
+	'read',
+	'write',
+	'edit',
+	'create',
+	'delete',
+	'copy',
+	'move',
+	'find',
+	'search',
+	'show',
+	'list',
+	'open',
+	'run',
+]);
 
 export interface AgentToolSelectionForTurn {
 	toolsForPrompt: AgentTool[];
@@ -57,6 +72,7 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 	const toolTokens = tokenizeForCapabilityMatch(toolText(tool));
 	let score = 0;
 	for (const token of queryTokens) {
+		if (intent === 'none' && GENERIC_TOOL_ACTION_TOKENS.has(token)) continue;
 		if (toolTokens.has(token)) score += 8;
 		else if ([...toolTokens].some((toolToken) => toolToken.includes(token) || token.includes(toolToken))) score += 3;
 	}
