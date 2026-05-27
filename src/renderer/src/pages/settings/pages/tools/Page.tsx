@@ -49,10 +49,31 @@ const ToolsPage: React.FC = () => {
 											<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
 												{tool.name}
 											</Badge>
+											{tool.availability !== 'default' ? (
+												<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+													{tool.availability}
+												</Badge>
+											) : null}
 										</div>
 										<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground/60">
 											{tool.description}
 										</p>
+										<div className="flex flex-wrap gap-1">
+											{tool.permissions.map((permission) => (
+												<Badge
+													key={permission}
+													variant="outline"
+													className="h-5 rounded-md px-1.5 text-[10px]"
+												>
+													{permission}
+												</Badge>
+											))}
+											{tool.approval.mode !== 'none' ? (
+												<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
+													approval: {tool.approval.mode}
+												</Badge>
+											) : null}
+										</div>
 									</ItemContent>
 								</Item>
 							))}
