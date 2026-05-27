@@ -276,6 +276,26 @@ describe('tools/before-call', () => {
 		expect(result.proceed).toBe(true);
 	});
 
+	it('requires approval for run_shell only when cwd leaves the .friday root', async () => {
+		const home = await makeTempDir();
+		const fridayRoot = path.join(home, '.friday');
+		const workspace = path.join(fridayRoot, 'workspace');
+		const outside = await makeTempDir();
+		await fs.mkdir(workspace, { recursive: true });
+		const ctx = makeToolContext({ workspace });
+		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
+
+		await expect(
+			beforeToolCall(runShellTool, { command: 'pwd' }, ctx, newCallTracker())
+		).resolves.toMatchObject({ proceed: true });
+		await expect(
+			beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
+		).resolves.toMatchObject({ proceed: false, vetoStatus: 'rejected' });
+
+		await fs.rm(home, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('delegates execution gating to the policy service when available', async () => {
 		const tool: AgentTool = {
 			name: 'read',
