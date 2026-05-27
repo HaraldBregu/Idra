@@ -299,7 +299,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 			setConnector(nextConnector);
 			setCatalogItem(item);
-			setForm(formFromConnector(nextConnector, catalogItem));
+			setForm(formFromConnector(nextConnector, item));
 			setTools(nextTools);
 			setToolsError(nextToolsError);
 		} catch (caught) {
@@ -381,7 +381,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	};
 
 	const refreshConnectorTools = async (): Promise<void> => {
-		if (!connector) return;
+		if (!connector || !catalogItem) return;
 		setRefreshingTools(true);
 		setError(null);
 		setToolsError(null);
@@ -415,7 +415,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	};
 
 	const connectGoogleOAuth = async (): Promise<void> => {
-		if (!connector) return;
+		if (!connector || !catalogItem) return;
 		setConnecting(true);
 		setError(null);
 		setStatusMessage(`Opening browser for ${connector.name}...`);

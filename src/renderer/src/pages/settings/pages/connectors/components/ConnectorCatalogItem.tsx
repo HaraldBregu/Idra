@@ -85,17 +85,10 @@ export function ConnectorCatalogItem({
 						</ol>
 					</div>
 				)}
-				{googleOAuth ? (
-					<SettingsNotice variant="default">
-						Google OAuth uses <span className="font-mono">GOOGLE_OAUTH_CLIENT_ID</span> and{' '}
-						<span className="font-mono">GOOGLE_OAUTH_CLIENT_SECRET</span> from the app environment.
-					</SettingsNotice>
-				) : (
-					<SettingsNotice variant="default">
-						Manual OAuth connectors store an access token for catalog testing. Local tool execution
-						is added only when a runtime strategy exists.
-					</SettingsNotice>
-				)}
+				<SettingsNotice variant="default">
+					Connector tools are discovered from the configured MCP server. Store API key
+					values in environment variables and reference only the env names in config.
+				</SettingsNotice>
 				{item.tools.length > 0 && (
 					<div>
 						<p className="mb-1 text-[11px] font-medium text-foreground">Tools</p>
