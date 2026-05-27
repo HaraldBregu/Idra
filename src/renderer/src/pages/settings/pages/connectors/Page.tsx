@@ -211,54 +211,42 @@ const ConnectorsPage = () => {
 			)}
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
-			<SettingsSection
-				title="OAuth connectors"
-				description="Authorize services through OAuth."
-			>
-				<div className="grid gap-2">
-					{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => (
-						<Item
-							key={connector.id}
-							variant="outline"
-							size="md"
-							onClick={() => void authorizeOAuthConnector(connector)}
-							className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
-						>
-							<ConnectorIcon
-								directConnectorId={connector.directConnectorId}
-								name={connector.name}
-							/>
-							<ItemContent className="min-w-0">
-								<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<ChevronRight className="size-3.5 text-muted-foreground" />
-							</ItemActions>
-						</Item>
-					))}
-				</div>
-			</SettingsSection>
-
-			{(mcpConnectors.length > 0 || mcpCatalog.length > 0) && (
-				<SettingsSection title="MCP connectors">
-					<div className="grid gap-2">
-						{mcpConnectors.filter(isConfiguredConnector).map((connector) => (
-							<ConnectorCard
-								key={connector.id}
-								connector={connector}
-								onViewDetails={() => openConnectorDetails(connector.id)}
-							/>
-						))}
-						{mcpCatalog.map((item) => (
-							<ConnectorCatalogItem
-								key={item.id}
-								item={item}
-								onConfigure={() => configureCatalogConnector(item.id)}
-							/>
-						))}
-					</div>
-				</SettingsSection>
-			)}
+			<div className="grid gap-2">
+				{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => (
+					<Item
+						key={connector.id}
+						variant="outline"
+						size="md"
+						onClick={() => void authorizeOAuthConnector(connector)}
+						className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
+					>
+						<ConnectorIcon
+							directConnectorId={connector.directConnectorId}
+							name={connector.name}
+						/>
+						<ItemContent className="min-w-0">
+							<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<ChevronRight className="size-3.5 text-muted-foreground" />
+						</ItemActions>
+					</Item>
+				))}
+				{mcpConnectors.filter(isConfiguredConnector).map((connector) => (
+					<ConnectorCard
+						key={connector.id}
+						connector={connector}
+						onViewDetails={() => openConnectorDetails(connector.id)}
+					/>
+				))}
+				{mcpCatalog.map((item) => (
+					<ConnectorCatalogItem
+						key={item.id}
+						item={item}
+						onConfigure={() => configureCatalogConnector(item.id)}
+					/>
+				))}
+			</div>
 		</SettingsPageShell>
 	);
 };
