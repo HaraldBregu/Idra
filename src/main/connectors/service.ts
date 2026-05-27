@@ -58,29 +58,6 @@ type ConnectorCatalogProvider =
 	| (() => readonly ConnectorCatalogEntry[] | Promise<readonly ConnectorCatalogEntry[]>);
 type OAuthCallbackListenerFactory = (state: string, timeoutMs?: number) => Promise<OAuthCallbackListener>;
 
-interface ToolContext {
-	sessionId?: string;
-}
-
-interface AgentToolResult<TDetails = unknown> {
-	status: 'ok' | 'error' | 'blocked';
-	content: ToolResultBlock[];
-	details?: TDetails;
-}
-
-interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
-	name: string;
-	displayName?: string;
-	displaySummary?: string;
-	description: string;
-	schema: JSONSchema;
-	serviceKind?: 'tool' | 'connector' | 'mcp';
-	serviceId?: string;
-	ownerOnly?: boolean;
-	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
-	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
-}
-
 type RuntimeConnector = ConnectorConfig & {
 	id: string;
 	name: string;
