@@ -1,38 +1,54 @@
 import type { AgentTool } from '../core/types';
 import {
-	cronCreateTool,
-	cronDeleteTool,
-	cronListTool,
-	cronReadTool,
-	cronRunTool,
-	cronStartTool,
-	cronStopTool,
-	cronUpdateTool,
-} from '../cron/tools';
+	editFileTool,
+	gitDiffTool,
+	gitStatusTool,
+	grepTool,
+	listDirectoryTool,
+	readFileTool,
+	runShellTool,
+	searchFilesTool,
+	undoLastOperationTool,
+	writeFileTool,
+} from '../workspace/tools';
 import {
-	applyPatchTool,
-	copyTool,
-	deleteTool,
-	editTool,
-	findTool,
-	filesystemCopyTool,
-	filesystemCreateTool,
-	filesystemDeleteTool,
-	filesystemListTool,
-	filesystemMoveTool,
-	filesystemReadTool,
-	filesystemSearchTool,
-	filesystemUpdateTool,
-	inspectFileTool,
-	moveTool,
-	readTool,
-	writeTool,
-} from '../files/tools';
-import { scriptRunTool } from '../scripts/tools';
+	completeTaskTool,
+	listTodosTool,
+	readScratchTool,
+	updateTodoTool,
+	writeScratchTool,
+	writeTodosTool,
+} from '../state/tools';
+import {
+	presentPlanTool,
+	requestApprovalTool,
+	requestAuthorizationTool,
+	requestClarificationTool,
+} from '../human/tools';
+import { spawnSubagentTool } from '../subagent/tools';
+import { listSkillsTool, loadSkillTool, useSkillTool } from '../skills/tools';
+import {
+	callMcpToolTool,
+	connectMcpServerTool,
+	listMcpPromptsTool,
+	listMcpResourcesTool,
+	listMcpServersTool,
+	listMcpToolsTool,
+	loadMcpPromptTool,
+	loadMcpToolTool,
+	readMcpResourceTool,
+	refreshMcpServerTool,
+} from '../mcp/tools';
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
-export type LocalToolGroup = 'file' | 'filesystem' | 'cron' | 'script';
+export type LocalToolGroup =
+	| 'coreWorkspace'
+	| 'stateTask'
+	| 'humanDecision'
+	| 'subagent'
+	| 'skill'
+	| 'mcpConnector';
 
 export type LocalToolApprovalPolicy =
 	| { mode: 'none' }
@@ -53,12 +69,12 @@ export interface LocalToolCatalogEntry {
 }
 
 const STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
-const FULL_PROFILE = ['full'] as const;
 const NO_APPROVAL = { mode: 'none' } as const;
 const WRITE_WORKSPACE_BOUNDARY = {
 	mode: 'workspace-boundary',
 	target: 'write-target',
 } as const;
+const ALWAYS_APPROVAL = { mode: 'always' } as const;
 
 function localTool(definition: Omit<LocalToolCatalogEntry, 'name'>): LocalToolCatalogEntry {
 	const entry = { name: definition.tool.name, ...definition };
@@ -68,160 +84,208 @@ function localTool(definition: Omit<LocalToolCatalogEntry, 'name'>): LocalToolCa
 
 export const LOCAL_TOOL_CATALOG = [
 	localTool({
-		tool: readTool,
-		group: 'file',
+		tool: readFileTool,
+		group: 'coreWorkspace',
 		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: writeTool,
-		group: 'file',
+		tool: writeFileTool,
+		group: 'coreWorkspace',
 		profiles: STANDARD_PROFILES,
 		approval: WRITE_WORKSPACE_BOUNDARY,
 	}),
 	localTool({
-		tool: editTool,
-		group: 'file',
+		tool: editFileTool,
+		group: 'coreWorkspace',
 		profiles: STANDARD_PROFILES,
 		approval: WRITE_WORKSPACE_BOUNDARY,
 	}),
 	localTool({
-		tool: applyPatchTool,
-		group: 'file',
-		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: deleteTool,
-		group: 'file',
-		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: copyTool,
-		group: 'file',
-		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: moveTool,
-		group: 'file',
-		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: inspectFileTool,
-		group: 'file',
+		tool: listDirectoryTool,
+		group: 'coreWorkspace',
 		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: findTool,
-		group: 'file',
+		tool: searchFilesTool,
+		group: 'coreWorkspace',
 		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: filesystemCreateTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: filesystemReadTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: filesystemUpdateTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: filesystemDeleteTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: filesystemListTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: filesystemMoveTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: filesystemCopyTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: filesystemSearchTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: scriptRunTool,
-		group: 'script',
+		tool: grepTool,
+		group: 'coreWorkspace',
 		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: cronCreateTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
-		approval: { mode: 'always' },
-	}),
-	localTool({
-		tool: cronReadTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
 		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: cronUpdateTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
-		approval: { mode: 'always' },
+		tool: runShellTool,
+		group: 'coreWorkspace',
+		profiles: STANDARD_PROFILES,
+		approval: ALWAYS_APPROVAL,
 	}),
 	localTool({
-		tool: cronDeleteTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
-		approval: { mode: 'always' },
-	}),
-	localTool({
-		tool: cronListTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
+		tool: gitStatusTool,
+		group: 'coreWorkspace',
+		profiles: STANDARD_PROFILES,
 		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: cronStartTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
-		approval: { mode: 'always' },
+		tool: gitDiffTool,
+		group: 'coreWorkspace',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
 	}),
 	localTool({
-		tool: cronStopTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
-		approval: { mode: 'always' },
+		tool: undoLastOperationTool,
+		group: 'coreWorkspace',
+		profiles: STANDARD_PROFILES,
+		approval: ALWAYS_APPROVAL,
 	}),
 	localTool({
-		tool: cronRunTool,
-		group: 'cron',
-		profiles: FULL_PROFILE,
-		approval: { mode: 'always' },
+		tool: writeTodosTool,
+		group: 'stateTask',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: updateTodoTool,
+		group: 'stateTask',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: listTodosTool,
+		group: 'stateTask',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: completeTaskTool,
+		group: 'stateTask',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: writeScratchTool,
+		group: 'stateTask',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: readScratchTool,
+		group: 'stateTask',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: requestApprovalTool,
+		group: 'humanDecision',
+		profiles: STANDARD_PROFILES,
+		approval: ALWAYS_APPROVAL,
+	}),
+	localTool({
+		tool: requestClarificationTool,
+		group: 'humanDecision',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: presentPlanTool,
+		group: 'humanDecision',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: requestAuthorizationTool,
+		group: 'humanDecision',
+		profiles: STANDARD_PROFILES,
+		approval: ALWAYS_APPROVAL,
+	}),
+	localTool({
+		tool: spawnSubagentTool,
+		group: 'subagent',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: listSkillsTool,
+		group: 'skill',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: loadSkillTool,
+		group: 'skill',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: useSkillTool,
+		group: 'skill',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: listMcpServersTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: connectMcpServerTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: refreshMcpServerTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: listMcpToolsTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: loadMcpToolTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: callMcpToolTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: ALWAYS_APPROVAL,
+	}),
+	localTool({
+		tool: listMcpResourcesTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: readMcpResourceTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: listMcpPromptsTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: loadMcpPromptTool,
+		group: 'mcpConnector',
+		profiles: STANDARD_PROFILES,
+		approval: NO_APPROVAL,
 	}),
 ] as const satisfies readonly LocalToolCatalogEntry[];
 
