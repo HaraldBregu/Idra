@@ -194,8 +194,7 @@ describe('connector settings docs', () => {
 
 		renderConnectorsPage();
 
-		await waitFor(() => expect(window.connectors.list).toHaveBeenCalled());
-		expect(screen.getByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
+		expect(await screen.findByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
 		expect(screen.getByRole('heading', { name: 'Google Calendar' })).toBeInTheDocument();
 		expect(screen.getByRole('heading', { name: 'Google Drive' })).toBeInTheDocument();
 

@@ -12,7 +12,6 @@ import type {
 	ConnectorMcpEnvSecret,
 	ConnectorMcpHeaderSecret,
 	ConnectorOAuthAuthorizeResult,
-	ConnectorOAuthCompleteInput,
 	ConnectorProviderId,
 	ConnectorStatus,
 	ConnectorTestResult,
