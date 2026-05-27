@@ -1002,18 +1002,48 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		...connector,
 		authorization: '',
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
-		tools: connector.oauth && Array.isArray(connector.tools)
-			? connector.tools.filter(isConnectorToolRecord)
+		tools: Array.isArray(connector.tools)
+			? connector.tools.flatMap((tool) => isConnectorToolRecord(tool) ? [normalizeConnectorTool(tool)] : [])
 			: [],
 	};
 }
 
-function stripToolCache(connector: ConnectorConfig): ConnectorConfig {
-	return connector.oauth ? connector : { ...connector, tools: [] };
-}
-
 function isConnectorToolRecord(value: unknown): value is ConnectorTool {
 	return Boolean(value && typeof value === 'object' && !Array.isArray(value) && typeof (value as ConnectorTool).name === 'string');
+}
+
+function normalizeConnectorTools(
+	tools: readonly ConnectorTool[],
+	fallbackPermission: ConnectorToolPermission = DEFAULT_CONNECTOR_TOOL_PERMISSION
+): ConnectorTool[] {
+	return tools.map((tool) => normalizeConnectorTool(tool, fallbackPermission));
+}
+
+function normalizeConnectorTool(
+	tool: ConnectorTool,
+	fallbackPermission: ConnectorToolPermission = DEFAULT_CONNECTOR_TOOL_PERMISSION
+): ConnectorTool {
+	const permission = normalizeToolPermission(tool.permission, tool.requiresApproval, fallbackPermission);
+	return {
+		name: tool.name,
+		description: tool.description,
+		inputSchema: tool.inputSchema,
+		permission,
+		requiresApproval: permission === 'needs-approval',
+	};
+}
+
+function normalizeToolPermission(
+	permission: unknown,
+	requiresApproval: unknown,
+	fallbackPermission: ConnectorToolPermission
+): ConnectorToolPermission {
+	if (typeof permission === 'string' && (CONNECTOR_TOOL_PERMISSIONS as readonly string[]).includes(permission)) {
+		return permission as ConnectorToolPermission;
+	}
+	if (requiresApproval === true) return 'needs-approval';
+	if (requiresApproval === false) return 'always-allow';
+	return fallbackPermission;
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
@@ -1057,10 +1087,12 @@ function missingSecretMessage(connector: ConnectorConfig): string | undefined {
 	return missing.length > 0 ? 'Missing MCP secret environment variable: ' + missing.join(', ') : undefined;
 }
 
-function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): boolean {
-	if (connector.requireApproval === 'never') return false;
-	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) return false;
-	return true;
+function permissionForTool(connector: ConnectorConfig, toolName: string): ConnectorToolPermission {
+	if (connector.oauth) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
+	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
+	if (connector.requireApproval === 'never') return 'always-allow';
+	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) return 'always-allow';
+	return 'needs-approval';
 }
 
 function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
@@ -1082,19 +1114,12 @@ function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[
 	return (mcp.envSecrets ?? []).map((secret) => secret.env);
 }
 
-function predefinedOAuthTools(
-	connector: GoogleWorkspaceOAuthConnectorDefinition,
-	requireApproval: ConnectorConfig['requireApproval'],
-	allowedTools: readonly string[]
-): ConnectorTool[] {
-	const allowed = new Set(allowedTools);
-	return connector.tools
-		.filter((tool) => allowed.size === 0 || allowed.has(tool))
-		.map((name) => ({
-			name,
-			requiresApproval: requireApproval !== 'never' &&
-				!(requireApproval === 'never_for_allowed_tools' && allowed.has(name)),
-		}));
+function predefinedOAuthTools(connector: GoogleWorkspaceOAuthConnectorDefinition): ConnectorTool[] {
+	return connector.tools.map((name) => ({
+		name,
+		permission: DEFAULT_CONNECTOR_TOOL_PERMISSION,
+		requiresApproval: false,
+	}));
 }
 
 function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEntry {
