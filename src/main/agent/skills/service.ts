@@ -9,6 +9,8 @@ import type {
 	SkillFrontmatter,
 	SkillImportResult,
 	SkillInfo,
+	SkillSearchOptions,
+	SkillSearchResult,
 	SkillSupportFile,
 	SkillValidationIssue,
 	SkillValidationResult,
@@ -19,6 +21,8 @@ const SKILL_FILE_NAME = 'SKILL.md';
 const SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_FRONTMATTER_BYTES = 64 * 1024;
 const SUPPORT_DIRECTORIES = new Set(['scripts', 'references', 'assets']);
+const DEFAULT_SKILL_SEARCH_LIMIT = 3;
+const MAX_SKILL_SEARCH_LIMIT = 12;
 
 export interface SkillsServiceOptions {
 	rootPath?: string;
@@ -80,6 +84,25 @@ export class SkillsService {
 	async resolve(name: string): Promise<SkillInfo | undefined> {
 		const skillName = this.requireSkillName(name);
 		return (await this.list()).find((skill) => skill.name === skillName);
+	}
+
+	async search(query: string, options: SkillSearchOptions = {}): Promise<SkillSearchResult[]> {
+		const skills = await this.list();
+		if (skills.length === 0) return [];
+		const configuredNames = new Set((options.names ?? []).map(normalizeSkillName).filter(Boolean));
+		const queryTokens = tokenize(query);
+		const limit = normalizeSearchLimit(options.limit);
+		const results = skills
+			.map((skill) => scoreSkill(skill, queryTokens, configuredNames))
+			.filter((result): result is SkillSearchResult => result !== null)
+			.sort((left, right) => right.score - left.score || left.name.localeCompare(right.name))
+			.slice(0, limit);
+		this.logger.info(LOG_SOURCE, 'Searched ' + skills.length + ' skill(s)', {
+			queryLength: query.trim().length,
+			configuredCount: configuredNames.size,
+			matched: results.length,
+		});
+		return results;
 	}
 
 	async load(name: string): Promise<SkillDetails> {
@@ -576,4 +599,57 @@ function supportKind(relativePath: string): SkillSupportFile['kind'] {
 	if (relativePath.startsWith('references/')) return 'reference';
 	if (relativePath.startsWith('assets/')) return 'asset';
 	return 'file';
+}
+
+function normalizeSearchLimit(value: number | undefined): number {
+	if (value === undefined) return DEFAULT_SKILL_SEARCH_LIMIT;
+	if (!Number.isFinite(value)) return DEFAULT_SKILL_SEARCH_LIMIT;
+	return Math.max(0, Math.min(MAX_SKILL_SEARCH_LIMIT, Math.floor(value)));
+}
+
+function normalizeSkillName(value: string): string {
+	return value.trim().toLowerCase();
+}
+
+function tokenize(value: string): string[] {
+	const normalized = value
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, ' ')
+		.trim();
+	if (!normalized) return [];
+	return Array.from(new Set(normalized.split(/\s+/).filter((token) => token.length >= 3)));
+}
+
+function scoreSkill(
+	skill: SkillInfo,
+	queryTokens: readonly string[],
+	configuredNames: ReadonlySet<string>
+): SkillSearchResult | null {
+	const normalizedName = normalizeSkillName(skill.name);
+	if (configuredNames.has(normalizedName)) {
+		return { ...skill, score: 1000, reason: 'configured for this agent' };
+	}
+	if (queryTokens.length === 0) return null;
+
+	const nameTokens = tokenize(skill.name);
+	const descriptionTokens = tokenize(skill.description);
+	let score = 0;
+	let matchedName = 0;
+	let matchedDescription = 0;
+	for (const token of queryTokens) {
+		if (nameTokens.some((nameToken) => nameToken === token || nameToken.includes(token) || token.includes(nameToken))) {
+			score += 12;
+			matchedName++;
+		} else if (descriptionTokens.some((descriptionToken) => descriptionToken === token || descriptionToken.includes(token))) {
+			score += 4;
+			matchedDescription++;
+		}
+	}
+	if (score === 0) return null;
+	const reason = matchedName > 0
+		? 'matched skill name'
+		: matchedDescription > 0
+			? 'matched skill description'
+			: 'matched skill metadata';
+	return { ...skill, score, reason };
 }
