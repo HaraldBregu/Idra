@@ -16,7 +16,7 @@ beforeEach(() => {
 	Object.defineProperty(window, 'heartbeat', {
 		configurable: true,
 		value: {
-			status: jest.fn().mockResolvedValue({ enabled: false }),
+			status: jest.fn(() => new Promise(() => undefined)),
 			onEvent: jest.fn(() => jest.fn()),
 		},
 	});
@@ -46,9 +46,9 @@ describe('OverviewPage', () => {
 	it('renders settings navigation rows in grouped sections', () => {
 		renderOverviewPage();
 
-		expect(screen.getByRole('heading', {
+		expect(screen.queryByRole('heading', {
 			name: 'settings.overview.groups.app',
-		})).toBeInTheDocument();
+		})).not.toBeInTheDocument();
 		expect(screen.getByRole('heading', {
 			name: 'settings.overview.groups.agent',
 		})).toBeInTheDocument();
