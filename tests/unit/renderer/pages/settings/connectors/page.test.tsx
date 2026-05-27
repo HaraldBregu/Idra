@@ -181,14 +181,16 @@ describe('connector settings docs', () => {
 
 		renderConnectorDetails('/settings/connectors/configure/connector_dropbox');
 
-		await user.type(await screen.findByLabelText('OAuth access token'), 'dropbox-token');
+		expect(await screen.findByLabelText('MCP config')).toHaveValue(
+			expect.stringContaining('https://example.com/mcp')
+		);
 		await user.click(screen.getByRole('button', { name: /Add Connector/ }));
 
 		await waitFor(() => {
 			expect(window.connectors.add).toHaveBeenCalledWith(
 				expect.objectContaining({
 					connectorId: 'connector_dropbox',
-					authorization: 'dropbox-token',
+					mcp: expect.objectContaining({ transport: 'http' }),
 				})
 			);
 		});
