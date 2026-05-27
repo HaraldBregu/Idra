@@ -122,7 +122,7 @@ export const AGENT_TOOL_GROUPS = {
 			title: 'Run shell',
 			description: 'Run a shell command in the workspace with captured output.',
 			permissions: ['read', 'write', 'execute'],
-			approval: AGENT_TOOL_APPROVAL_ALWAYS,
+			approval: AGENT_TOOL_APPROVAL_NONE,
 		},
 		{
 			name: 'git_status',
