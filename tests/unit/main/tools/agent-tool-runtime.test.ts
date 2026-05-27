@@ -60,11 +60,11 @@ describe('canonical agent tool runtime', () => {
 	});
 
 	it('plans construction for file and script tools by default', () => {
-		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: true });
+		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: false });
 		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false }));
-		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeShellTools: true, includeMcpTools: false, includeLspTools: false }));
+		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeShellTools: false, includeMcpTools: false, includeLspTools: false }));
 		expect(planToolConstruction(['group:file']).includeFileTools).toBe(true);
-		expect(planToolConstruction(['group:script']).includeShellTools).toBe(true);
+		expect(planToolConstruction(['group:shell']).includeFileTools).toBe(true);
 		expect(planToolConstruction(['custom_tool']).includeFileTools).toBe(false);
 		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(false);
 		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(false);
@@ -74,23 +74,23 @@ describe('canonical agent tool runtime', () => {
 		const pluginTool = tool('plugin_lookup');
 		setToolMetadata(pluginTool, { ownerKind: 'plugin', pluginId: 'calendar' });
 		const ownerOnly = tool('owner_secret', { ownerOnly: true });
-		const tools = [tool('read'), tool('write'), pluginTool, ownerOnly];
+		const tools = [tool('read_file'), tool('write_file'), pluginTool, ownerOnly];
 		const diagnostics = createToolDiagnostics();
 		const result = applyToolPolicyPipeline(tools, {
 			sender: { isOwner: false },
 			diagnostics,
 			stages: {
 				profile: { allow: ['group:file', 'calendar', 'owner_secret'] },
-				sandbox: { deny: ['write'] },
+				sandbox: { deny: ['write_file'] },
 				runtime: { deny: ['plugin_lookup'] },
 			},
 		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['read']);
+		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file']);
 		expect(diagnostics.filteredTools.map((entry) => entry.stage)).toEqual(expect.arrayContaining(['ownerOnly', 'runtime']));
 	});
 
 	it('does not let fs config grant tools and applies deny after profile grants', () => {
-		const tools = [tool('read'), tool('write'), tool('edit'), tool('apply_patch')];
+		const tools = [tool('read_file'), tool('write_file'), tool('edit_file')];
 		expect(applyToolPolicyPipeline(tools, {
 			stages: {
 				global: { fs: { workspaceOnly: false } },
@@ -98,12 +98,12 @@ describe('canonical agent tool runtime', () => {
 		}).tools.map((entry) => entry.name)).toEqual(tools.map((entry) => entry.name));
 		expect(applyToolPolicyPipeline(tools, {
 			stages: {
-				global: { profile: 'coding', deny: ['write', 'edit', 'apply_patch'] },
+				global: { profile: 'coding', deny: ['write_file', 'edit_file'] },
 			},
-		}).tools.map((entry) => entry.name)).toEqual(['read']);
+		}).tools.map((entry) => entry.name)).toEqual(['read_file']);
 		expect(applyToolPolicyPipeline(tools, {
 			stages: {
-				global: { profile: 'minimal', alsoAllow: ['read'], deny: ['read'] },
+				global: { profile: 'minimal', alsoAllow: ['read_file'], deny: ['read_file'] },
 			},
 		}).tools.map((entry) => entry.name)).toEqual([]);
 	});
